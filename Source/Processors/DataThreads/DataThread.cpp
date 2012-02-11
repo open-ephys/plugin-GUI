@@ -21,11 +21,13 @@ void DataThread::run() {
 		const MessageManagerLock mml (Thread::getCurrentThread());
 		if (! mml.lockWasGained())
 			return;
-		updateBuffer();
+		if (!updateBuffer())
+			signalThreadShouldExit();
 	}
 }
 
 DataBuffer* DataThread::getBufferAddress() {
 	return dataBuffer;
 }
+
 

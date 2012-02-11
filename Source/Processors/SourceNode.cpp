@@ -15,50 +15,71 @@
 
 SourceNode::SourceNode(const String& name_)
 	: GenericProcessor(name_),
-	  dataThread(0)
+	  dataThread(0),
+	  sourceCheckInterval(1500)
 {
 	if (getName().equalsIgnoreCase("Intan Demo Board")) {
-		setNumOutputs(16);
-		setNumInputs(0);
+		dataThread = new IntanThread();
 	} else if (getName().equalsIgnoreCase("Custom FPGA")) {
-		setNumOutputs(32);
-		setNumInputs(0);
+		dataThread = new FPGAThread();
 	} else if (getName().equalsIgnoreCase("File Reader")) {
-		setNumOutputs(16);
-		setNumInputs(0);
+		dataThread = new FileReaderThread();
+	}
+
+	setNumInputs(0);
+
+	if (dataThread != 0) {
+		setNumOutputs(dataThread->getNumChannels());
+		inputBuffer = dataThread->getBufferAddress();
+	} else {
+		setNumOutputs(10);
 	}
 
 	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
 
-	//sendActionMessage("Intan Demo Board source created.");
-	//sendMessage("Intan Demo Board source created.");
+	if (dataThread != 0)
+	{
+		if (!dataThread->foundInputSource())
+		{
+			enabledState(false);
+		}
+	} else {
+		enabledState(false);
+	}
+
+	// check for input source every two seconds
+	startTimer(sourceCheckInterval); 
 
 }
 
 SourceNode::~SourceNode() 
 {
+	if (dataThread != 0)
+		deleteAndZero(dataThread);
+
 	config->removeDataSource(this);	
 }
 
 float SourceNode::getSampleRate()
 {
-	if (getName().equalsIgnoreCase("Intan Demo Board")) {
-		return 25000.0;
-	} else if (getName().equalsIgnoreCase("Custom FPGA")) {
-		return 25000.0;
-	} else if (getName().equalsIgnoreCase("File Reader")) {
-		return 40000.0;
-	} else {
-		return 44100.0;
-	}
 
+	if (dataThread != 0)
+		return dataThread->getSampleRate();
+	else
+		return 44100.0;
 }
 
-// void SourceNode::setName(const String name_)
-// {
-// 	name = name_;
+void SourceNode::enabledState(bool t)
+{
+	if (t && !dataThread->foundInputSource())
+	{
+		isEnabled = false;
+	} else {
+		isEnabled = t;
+	}
 
-// 	// Source node type determines configuration info
+
+}
 
 void SourceNode::setConfiguration(Configuration* cf)
 {
@@ -114,57 +135,78 @@ AudioProcessorEditor* SourceNode::createEditor()
 	//return 0;
 }
 
-// void SourceNode::setSourceNode(GenericProcessor* sn) 
-// {
-// 	sourceNode = 0;
-// }
-
-// void SourceNode::setDestNode(GenericProcessor* dn)
-// {
-// 	destNode = dn;
-// 	if (dn != 0)
-// 		dn->setSourceNode(this);
-// }
-
-//void SourceNode::createEditor() {
-	
-//}
+void SourceNode::timerCallback()
+{
+	if (dataThread->foundInputSource() && !isEnabled)
+	{
+		std::cout << "Input source found." << std::endl;
+		//stopTimer(); // check for input source every two seconds
+		enabledState(true);
+		GenericEditor* ed = (GenericEditor*) getEditor();
+		viewport->updateVisibleEditors(ed, 4);
+	} else if (!dataThread->foundInputSource() && isEnabled) {
+		std::cout << "No input source found." << std::endl;
+		enabledState(false);
+		GenericEditor* ed = (GenericEditor*) getEditor();
+		viewport->updateVisibleEditors(ed, 4);
+	}
+}
 
 bool SourceNode::enable() {
 	
 	std::cout << "Source node received enable signal" << std::endl;
 
-	bool return_code = true;
-
-	if (getName().equalsIgnoreCase("Intan Demo Board")) {
-		
-		dataThread = new IntanThread();
-		inputBuffer = dataThread->getBufferAddress();
-		return_code = dataThread->threadStarted();
-
-		if (!return_code)
-			deleteAndZero(dataThread);
-
-	} else if (getName().equalsIgnoreCase("Custom FPGA")) {
-		dataThread = new FPGAThread();
-		inputBuffer = dataThread->getBufferAddress();
-	} else if (getName().equalsIgnoreCase("File Reader")) {
-		dataThread = new FileReaderThread();
-		inputBuffer = dataThread->getBufferAddress();
+	if (dataThread != 0)
+	{
+		if (dataThread->foundInputSource())
+		{
+			dataThread->startAcquisition();
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
 	}
 
-	return return_code;
+	stopTimer();
+
+	// bool return_code = true;
+
+	// if (getName().equalsIgnoreCase("Intan Demo Board")) {
+		
+	// 	dataThread = new IntanThread();
+	// 	inputBuffer = dataThread->getBufferAddress();
+	// 	return_code = dataThread->threadStarted();
+
+	// 	if (!return_code)
+	// 		deleteAndZero(dataThread);
+
+	// } else if (getName().equalsIgnoreCase("Custom FPGA")) {
+	// 	dataThread = new FPGAThread();
+	// 	inputBuffer = dataThread->getBufferAddress();
+	// } else if (getName().equalsIgnoreCase("File Reader")) {
+	// 	dataThread = new FileReaderThread();
+	// 	inputBuffer = dataThread->getBufferAddress();
+	// }
+
+	// return return_code;
 
 }
 
 bool SourceNode::disable() {
-	
+
 	std::cout << "Source node received disable signal" << std::endl;
 
-	if (dataThread != 0) {
-		delete dataThread;
-		dataThread = 0;
-	}
+	if (dataThread != 0)
+		dataThread->stopAcquisition();
+	
+	startTimer(2000);
+
+	// if (dataThread != 0) {
+	// 	delete dataThread;
+	// 	dataThread = 0;
+	// }
 
 	return true;
 }

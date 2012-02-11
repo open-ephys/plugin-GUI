@@ -24,23 +24,29 @@ FileReaderThread::FileReaderThread() : DataThread(),
 
 	std::cout << "File Reader Thread initialized." << std::endl;
 
-	startThread();
 }
 
 FileReaderThread::~FileReaderThread() {
 
-	stopThread(500);
-
-	std::cout << "File reader received disable signal." << std::endl;
-
 	deleteAndZero(input);
 
-	delete dataBuffer;
-	dataBuffer = 0;
+	deleteAndZero(dataBuffer);
+
 }
 
+bool FileReaderThread::startAcquisition()
+{
+	startThread();
 
-void FileReaderThread::updateBuffer()
+}
+
+bool FileReaderThread::stopAcquisition()
+{
+	stopThread(500);
+	std::cout << "File reader received disable signal." << std::endl;
+}
+
+bool FileReaderThread::updateBuffer()
 {
 
 	while (dataBuffer->getNumSamples() < 4096)
@@ -59,4 +65,5 @@ void FileReaderThread::updateBuffer()
 
     }
 
+    return true;
 }

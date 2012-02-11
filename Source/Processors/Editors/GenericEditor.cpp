@@ -107,14 +107,16 @@ void GenericEditor::disable()
 
 bool GenericEditor::getEnabledState()
 {
-	return isEnabled;
+	GenericProcessor* p = (GenericProcessor*) getProcessor();
+	return p->enabledState();
 }
 
 void GenericEditor::setEnabledState(bool t)
 {
-	isEnabled = t;
+	
 	GenericProcessor* p = (GenericProcessor*) getProcessor();
-	p->enabledState(isEnabled);
+	p->enabledState(t);
+	isEnabled = p->enabledState();
 }
 
 void GenericEditor::paint (Graphics& g)

@@ -23,7 +23,9 @@ public:
 	IntanThread();
 	~IntanThread();
 
-	bool threadStarted() {return isTransmitting;}
+	bool foundInputSource();
+	int getNumChannels();
+	float getSampleRate();
 	
 private:
 
@@ -31,18 +33,22 @@ private:
 	int vendorID, productID;
 	int baudrate;
 	bool isTransmitting;
+	bool deviceFound;
 
-	bool initializeUSB();
+	bool initializeUSB(bool);
+	bool closeUSB();
+
+	bool startAcquisition();
+	bool stopAcquisition();
 	
 	unsigned char startCode, stopCode;
 	unsigned char buffer[240]; // should be 5 samples per channel
 
 	float thisSample[16];
-	//float thisSample[64];
 
 	int ch;
 
-	void updateBuffer();
+	bool updateBuffer();
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (IntanThread);
 };

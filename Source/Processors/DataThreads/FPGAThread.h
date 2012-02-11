@@ -28,6 +28,12 @@ class FPGAThread : public DataThread
 public:
 	FPGAThread();
 	~FPGAThread();
+
+	bool foundInputSource() {return true;}
+	bool startAcquisition() {return true;}
+	bool stopAcquisition() {return true;}
+	int getNumChannels() {return 32;}
+	float getSampleRate() {return 25000.0;}
 	
 private:
 
@@ -49,7 +55,7 @@ private:
 	int numchannels;
 	int Ndatabytes;
 
-	void updateBuffer();
+	bool updateBuffer();
 	bool initializeFPGA(okCFrontPanel*, char*);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FPGAThread);

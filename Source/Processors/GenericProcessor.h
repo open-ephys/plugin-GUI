@@ -133,8 +133,8 @@ public:
 	virtual bool enable() {return true;}
 	virtual bool disable() {return true;}
 
-	bool enabledState() {return isEnabled;}
-	void enabledState(bool t) {isEnabled = t;}
+	virtual bool enabledState() {return isEnabled;}
+	virtual void enabledState(bool t) {isEnabled = t;}
 
 	virtual AudioSampleBuffer* getContinuousBuffer() {return 0;}
 	virtual MidiBuffer* getEventBuffer() {return 0;}
@@ -155,13 +155,15 @@ public:
 	void checkForMidiEvents(MidiBuffer& mb);
 	void addMidiEvent(MidiBuffer& mb, int a);
 
+	bool isEnabled;
+
 private:
 
 	void processBlock (AudioSampleBuffer &buffer, MidiBuffer &midiMessages);
 
 	
 
-	bool isEnabled;
+	
 	
 	int getNumSamples(MidiBuffer&);
 	void setNumSamples(MidiBuffer&, int);

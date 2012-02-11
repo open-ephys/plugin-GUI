@@ -28,6 +28,12 @@ public:
 	NetworkThread();
 	~NetworkThread();
 
+	bool foundInputSource() {return true;}
+	bool startAcquisition() {return true;}
+	bool stopAcquisition() {return true;}
+	int getNumChannels() {return 16;}
+	float getSampleRate() {return 40000.0;}
+
 private:
 
 	NetCom my_netcom;
@@ -39,7 +45,7 @@ private:
 
 	float thisSample[8];
 
-	void updateBuffer();
+	bool updateBuffer();
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NetworkThread);
 

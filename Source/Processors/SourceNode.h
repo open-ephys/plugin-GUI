@@ -20,7 +20,8 @@
 #include "DataThreads/FileReaderThread.h"
 #include "GenericProcessor.h"
 
-class SourceNode : public GenericProcessor
+class SourceNode : public GenericProcessor,
+				   public Timer
 
 {
 public:
@@ -28,6 +29,8 @@ public:
 	// real member functions:
 	SourceNode(const String& name);
 	~SourceNode();
+
+	void enabledState(bool t);
 
 	//void setName(const String name_);
 	
@@ -54,7 +57,10 @@ public:
 	
 private:
 
+	int sourceCheckInterval;
+
 	//const String name;
+	void timerCallback();
 
 	DataThread* dataThread;
 	DataBuffer* inputBuffer;

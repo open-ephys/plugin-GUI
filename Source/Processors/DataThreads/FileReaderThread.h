@@ -23,6 +23,12 @@ class FileReaderThread : public DataThread
 public:
 	FileReaderThread();
 	~FileReaderThread();
+
+	bool foundInputSource() {return true;}
+	bool startAcquisition();
+	bool stopAcquisition();
+	int getNumChannels() {return 16;}
+	float getSampleRate() {return 40000.0;}
 	
 private:
 
@@ -34,7 +40,7 @@ private:
 
 	float thisSample[16];
 
-	void updateBuffer();
+	bool updateBuffer();
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileReaderThread);
 };

@@ -38,7 +38,7 @@ NetworkThread::~NetworkThread() {
 }
 
 
-void NetworkThread::updateBuffer(){
+bool NetworkThread::updateBuffer(){
 		
 	 NetCom::rxWave (my_netcomdat, &lfp);
 
@@ -48,4 +48,6 @@ void NetworkThread::updateBuffer(){
 	 	}
 	 	dataBuffer->addToBuffer(thisSample,1);
 	 }
+
+	 return true;
 }

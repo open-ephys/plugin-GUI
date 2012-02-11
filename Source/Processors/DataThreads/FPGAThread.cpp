@@ -63,7 +63,7 @@ FPGAThread::~FPGAThread() {
 
 }
 
-void FPGAThread::updateBuffer() {
+bool FPGAThread::updateBuffer() {
 	
 	dev->ReadFromPipeOut(0xA0, sizeof(pBuffer), pBuffer);
 
@@ -101,6 +101,8 @@ void FPGAThread::updateBuffer() {
 			}
 		j++; // keep scanning for timecodes
 	}
+
+	return true;
 }
 
 
