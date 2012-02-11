@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<PROCESSORGRAPH>
+  <SIGNALCHAIN>
+    <PROCESSOR name="Sources/Signal Generator" insertionPoint="0"/>
+    <PROCESSOR name="Sinks/LFP Viewer" insertionPoint="1"/>
+  </SIGNALCHAIN>
+</PROCESSORGRAPH>
