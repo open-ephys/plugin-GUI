@@ -213,11 +213,13 @@ bool SourceNode::disable() {
 
 void SourceNode::acquisitionStopped()
 {
-	std::cout << "Source node sending signal to UI." << std::endl;
-	UI->disableCallbacks();
-	enabledState(false);
-	GenericEditor* ed = (GenericEditor*) getEditor();
-	viewport->updateVisibleEditors(ed, 4);
+	if (!dataThread->foundInputSource()) {
+		std::cout << "Source node sending signal to UI." << std::endl;
+		UI->disableCallbacks();
+		enabledState(false);
+		GenericEditor* ed = (GenericEditor*) getEditor();
+		viewport->updateVisibleEditors(ed, 4);
+	}
 }
 
 

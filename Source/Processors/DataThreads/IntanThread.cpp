@@ -94,6 +94,8 @@ bool IntanThread::stopAcquisition()
         unsigned char buf[4097]; // has to be bigger than the on-chip buffer
         ftdi_read_data(&ftdic, buf, sizeof(buf));
         closeUSB();
+    } else {
+        deviceFound = false;
     }
 
     return true;
