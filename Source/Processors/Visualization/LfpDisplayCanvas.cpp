@@ -45,7 +45,7 @@ void LfpDisplayCanvas::newOpenGLContextCreated()
 	setUp2DCanvas();
 	activateAntiAliasing();
 
-	glClearColor (0.667, 0.698, 0.9, 1.0);
+	glClearColor (0.8, 0.8, 0.8, 1.0);
 	resized();
 
 	screenBuffer = new AudioSampleBuffer(nChans, 10000);

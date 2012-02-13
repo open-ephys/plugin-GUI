@@ -7,6 +7,21 @@
 
 namespace BinaryData
 {
+    extern const char*   BebasNeue_otf;
+    const int            BebasNeue_otfSize = 48648;
+
+    extern const char*   cpmono_bold_otf;
+    const int            cpmono_bold_otfSize = 26604;
+
+    extern const char*   cpmono_extra_light_otf;
+    const int            cpmono_extra_light_otfSize = 25016;
+
+    extern const char*   cpmono_light_otf;
+    const int            cpmono_light_otfSize = 25776;
+
+    extern const char*   cpmono_plain_otf;
+    const int            cpmono_plain_otfSize = 25692;
+
     extern const char*   misobold_ttf;
     const int            misobold_ttfSize = 60860;
 
@@ -17,7 +32,19 @@ namespace BinaryData
     const int            misoregular_ttfSize = 59328;
 
     extern const char*   misoserialized;
-    const int            misoserializedSize = 36887;
+    const int            misoserializedSize = 73774;
+
+    extern const char*   nordic_ttf;
+    const int            nordic_ttfSize = 23508;
+
+    extern const char*   ostrich_ttf;
+    const int            ostrich_ttfSize = 21428;
+
+    extern const char*   silkscreenserialized;
+    const int            silkscreenserializedSize = 2254;
+
+    extern const char*   silkscreen_ttf;
+    const int            silkscreen_ttfSize = 18336;
 
     extern const char*   unibody8_otf;
     const int            unibody8_otfSize = 18512;

@@ -23,12 +23,26 @@
   <MAINGROUP id="h3HbSTV" name="open-ephys">
     <GROUP id="0wpTCpt" name="Resources">
       <GROUP id="kVU7EYu" name="Fonts">
+        <FILE id="ihWw2VV" name="BebasNeue.otf" compile="0" resource="1" file="Resources/Fonts/BebasNeue.otf"/>
+        <FILE id="frMIT7f" name="cpmono_bold.otf" compile="0" resource="1"
+              file="Resources/Fonts/cpmono_bold.otf"/>
+        <FILE id="od6nE2j" name="cpmono_extra_light.otf" compile="0" resource="1"
+              file="Resources/Fonts/cpmono_extra_light.otf"/>
+        <FILE id="5tCodJF" name="cpmono_light.otf" compile="0" resource="1"
+              file="Resources/Fonts/cpmono_light.otf"/>
+        <FILE id="LkEy5LT" name="cpmono_plain.otf" compile="0" resource="1"
+              file="Resources/Fonts/cpmono_plain.otf"/>
         <FILE id="E5zdSWi" name="miso-bold.ttf" compile="0" resource="1" file="Resources/Fonts/miso-bold.ttf"/>
         <FILE id="CR5Fngq" name="miso-light.ttf" compile="0" resource="1" file="Resources/Fonts/miso-light.ttf"/>
         <FILE id="PXjhPpD" name="miso-regular.ttf" compile="0" resource="1"
               file="Resources/Fonts/miso-regular.ttf"/>
         <FILE id="XF9KpCz" name="miso-serialized" compile="0" resource="1"
               file="Resources/Fonts/miso-serialized"/>
+        <FILE id="UWmZhMv" name="nordic.ttf" compile="0" resource="1" file="Resources/Fonts/nordic.ttf"/>
+        <FILE id="LfzpVd" name="ostrich.ttf" compile="0" resource="1" file="Resources/Fonts/ostrich.ttf"/>
+        <FILE id="Ajfosu2" name="silkscreen-serialized" compile="0" resource="1"
+              file="Resources/Fonts/silkscreen-serialized"/>
+        <FILE id="6ltFpCs" name="silkscreen.ttf" compile="0" resource="1" file="Resources/Fonts/silkscreen.ttf"/>
         <FILE id="0zxP69" name="unibody-8.otf" compile="0" resource="1" file="Resources/Fonts/unibody-8.otf"/>
       </GROUP>
       <GROUP id="W2L6BdA" name="Images">

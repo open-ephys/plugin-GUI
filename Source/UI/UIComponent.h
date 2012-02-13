@@ -42,6 +42,9 @@ public:
 	//void transmitMessage(const String& message);
 	void disableCallbacks();
 
+	void filterListOpened();
+	void filterListClosed();
+
 private:
 
 	DataViewport* dataViewport;

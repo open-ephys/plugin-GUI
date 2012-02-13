@@ -2,7 +2,7 @@
   ==============================================================================
 
     FilterList.cpp
-    Created: 1 May 2011 4:01:50pm
+    Created: 4 Feb 2012 6:55:05pm
     Author:  jsiegle
 
   ==============================================================================
@@ -10,137 +10,521 @@
 
 
 #include "FilterList.h"
+#include <stdio.h>
 
- FilterList::FilterList() : treeView(0)
- {
-       rootItem = new ListItem("Processors","none",true);
-       rootItem->setOpen(true);
+#include "UIComponent.h"
 
-        addAndMakeVisible (treeView = new TreeView());
-        treeView->setRootItem (rootItem);
-        treeView->setMultiSelectEnabled(false);
-        treeView->setBounds(10,10,200,600);
-        treeView->setDefaultOpenness(true);
-        treeView->setRootItemVisible(false);
 
-        //button = new Button
+FilterList::FilterList() : isDragging(false)
+{
+
+	//setBounds(0,0,225,500);
+
+	itemHeight = 32;
+	subItemHeight = 22;
+	totalHeight = 800;
+	xBuffer = 1;
+	yBuffer = 1;
+
+	FilterListItem* sources = new FilterListItem("Sources");
+	sources->addSubItem(new FilterListItem("Intan Demo Board"));
+	sources->addSubItem(new FilterListItem("Signal Generator"));
+	//sources->addSubItem(new FilterListItem("Custom FPGA"));
+	//sources->addSubItem(new FilterListItem("File Reader"));
+
+	FilterListItem* filters = new FilterListItem("Filters");
+	filters->addSubItem(new FilterListItem("Bandpass Filter"));
+	//filters->addSubItem(new FilterListItem("Resampler"));
+	//filters->addSubItem(new FilterListItem("Spike Detector"));
+
+	FilterListItem* sinks = new FilterListItem("Sinks");
+	sinks->addSubItem(new FilterListItem("LFP Viewer"));
+	//sinks->addSubItem(new FilterListItem("Spike Display"));
+
+	//FilterListItem* utilities = new FilterListItem("Utilities");
+	//utilities->addSubItem(new FilterListItem("Splitter"));
+	//utilities->addSubItem(new FilterListItem("Merger"));
+
+	baseItem = new FilterListItem("Processors");
+	baseItem->addSubItem(sources);
+	baseItem->addSubItem(filters);
+	baseItem->addSubItem(sinks);
+	//baseItem->addSubItem(utilities);
 
 }
 
 FilterList::~FilterList()
 {
-    treeView->deleteRootItem();
-    deleteAllChildren();
-
+	deleteAndZero(baseItem);
 }
 
-void FilterList::paint (Graphics& g)
+bool FilterList::isOpen()
 {
-    //g.setColour (Colour(103,116,140));
-
-    Colour c1 (95, 106, 130);
-    Colour c2 (120, 130, 155);
-
-    g.setGradientFill (ColourGradient (c1,
-                                     0.0f, 0.0f,
-                                     c2,
-                                     0.0f, (float) getHeight(),
-                                     false));
-    g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 8);
-    
-    //g.setColour (Colour(170,178,183));
-    g.setGradientFill (ColourGradient (c1,
-                                     0.0f, (float) getHeight(),
-                                     c2,
-                                     0.0f, 0.0f,
-                                     false));
-    g.fillRect(6,6,getWidth()-12,getHeight()-12);
-    //g.setColour (Colours::black);
-   // g.drawRoundedRectangle(0, 0, getWidth(), getHeight(), 10, 3);
-   // g.setColour (Colours::black);
-    //g.drawRoundedRectangle(5, 5, getWidth()-10, getHeight()-10, 8, 2.2);
-
+	return baseItem->isOpen();
 }
 
 
-void FilterList::resized()
+void FilterList::newOpenGLContextCreated()
 {
-  if (treeView != 0)
-    treeView->setBoundsInset (BorderSize(10,10,10,10));
-}
 
+	setUp2DCanvas();
+	activateAntiAliasing();
 
-ListItem::ListItem(const String name_, const String parentName_, bool containsSubItems_) 
-    : name(name_), parentName(parentName_), containsSubItems(containsSubItems_) {
-
-    if (name.equalsIgnoreCase("Processors")) {
-       addSubItem (new ListItem ("Sources",name,true));
-       addSubItem (new ListItem ("Filters",name,true));
-       addSubItem (new ListItem ("Sinks",name,true));
-       //addSubItem (new ListItem ("Utilities",name,true));
-    } else if (name.equalsIgnoreCase("Sources")) {
-       addSubItem (new ListItem ("Intan Demo Board",name,false));
-       //addSubItem (new ListItem ("Custom FPGA",name,false));
-       //addSubItem (new ListItem ("Network Stream",name,false));
-       addSubItem (new ListItem ("Signal Generator",name,false));
-      // addSubItem (new ListItem ("File Reader",name,false));
-    } else if (name.equalsIgnoreCase("Filters")) {
-       addSubItem (new ListItem ("Bandpass Filter",name,false));
-       //addSubItem (new ListItem ("Resampler",name,false));
-       //addSubItem (new ListItem ("Spike Detector",name,false));
-    }  else if (name.equalsIgnoreCase("Sinks")) {
-       addSubItem (new ListItem ("LFP Viewer",name,false));
-       //addSubItem (new ListItem ("Spike Viewer",name,false));       
-    }  else if (name.equalsIgnoreCase("Utilities")) {
-       addSubItem (new ListItem ("Splitter",name,false));
-       addSubItem (new ListItem ("Merger",name,false));
-    }
+	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
+	resized();
 
 }
 
-ListItem::~ListItem() {}//clearSubItems();}
-
-void ListItem::paintItem(Graphics& g, int width, int height) {
-    
-    //if (isSelected())
-    //    g.fillAll (Colour(249,210,14));
-    //else
-    //    g.fillAll (Colour(170,178,183));
-
-    if (isSelected())
-      g.setColour(Colours::yellow);
-    else
-      g.setColour(Colours::black);
-
-    g.setFont( height*0.7f);
-    g.drawText (getUniqueName(),4, 0, width-4, height, Justification::centredLeft, true);
-}
-
-const String ListItem::getDragSourceDescription()
+void FilterList::renderOpenGL()
 {
-    //String parentName = getParentItem()->getUniqueName();
-    //std::cout << parentName << std::endl;
-    return parentName + "/" + name;
+	
+	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
+
+	drawItems();
+
+	// for (int i = 0; i < nChans; i++)
+	// {
+	// 	bool isSelected = false;
+
+	// 	if (selectedChan == i)
+	// 		isSelected = true;
+
+	// 	if (checkBounds(i)) {
+	// 		setViewport(i);
+	// 		drawBorder(isSelected);
+	// 		drawChannelInfo(i,isSelected);
+	// 	}	
+	// }
+	drawScrollBars();
 }
 
-// void ListItem::paintOpenCloseButton (Graphics &g, int width, int height, bool isMouseOver)
-//  {
-//      g.setColour(Colours::black);
 
-//      if (isOpen()) {
-        
-//          g.drawLine(width/4, height/2, width*3/4, height/2, 1.0f);
 
-//      } else {
-//          g.drawEllipse(0, 0, height/2, height/2, 1.0f);
-//     }
-//  }
 
-bool ListItem::mightContainSubItems() {
-    return containsSubItems;
+void FilterList::drawItems()
+{
+	int itemNum = 0;
+	totalHeight = yBuffer;
+
+	setViewport(true);
+
+	category = baseItem->getName();
+
+	drawItem(baseItem);
+
+	if (baseItem->isOpen())
+	{
+		for (int n = 0; n < baseItem->getNumSubItems(); n++)
+		{
+			setViewport(baseItem->hasSubItems());
+			category = baseItem->getSubItem(n)->getName();
+			drawItem(baseItem->getSubItem(n));
+			
+			if (baseItem->getSubItem(n)->isOpen())
+			{
+				for (int m = 0; m < baseItem->getSubItem(n)->getNumSubItems(); m++)
+				{
+
+					setViewport(baseItem->
+								 getSubItem(n)->
+								 getSubItem(m)->
+								 hasSubItems());
+					drawItem(baseItem->getSubItem(n)->getSubItem(m));
+
+					baseItem->getSubItem(n)->getSubItem(m)->parentName = category;
+
+				}
+			}			
+		}
+	}
+
+	//totalHeight -= subItemHeight;//(itemHeight+yBuffer)*(itemNum+1);
+
 }
 
-const String ListItem::getUniqueName() {
-    return name;
+void FilterList::drawItem(FilterListItem* item)
+{
+	if (category.startsWith("P"))
+	{
+		glColor4f(0.23f, 0.23f, 0.23f, 1.0f); // [59 59 59]
+		item->color = Colour(int(0.23*255.0f),int(0.23*255.0f),int(0.23*255.0f));
+	} else if (category.startsWith("So"))
+	{
+		glColor4f(0.9f, 0.019f, 0.16f, 1.0f); // [232 5 43]
+		item->color = Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
+	} else if (category.startsWith("F"))
+	{
+		glColor4f(1.0f, 0.5f, 0.0f, 1.0f);
+		item->color = Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
+	} else if (category.startsWith("Si"))
+	{
+		glColor4f(0.06f, 0.46f, 0.9f, 1.0f);
+		item->color = Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
+	} else if (category.startsWith("U"))
+	{
+		glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
+		item->color = Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
+	} else {
+		glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
+		item->color = Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
+	}
+
+	glBegin(GL_POLYGON);
+	glVertex2f(0,0);
+	glVertex2f(1,0);
+	glVertex2f(1,1);
+	glVertex2f(0,1);
+	glEnd();
+
+	// if (item->isSelected())
+	// {
+	// 	glColor4f(1.0,1.0,1.0,1.0);
+	// 	glLineWidth(3.0);
+	// 	glBegin(GL_LINE_STRIP);
+	// 	glVertex2f(0,0);
+	// 	glVertex2f(1,0);
+	// 	glVertex2f(1,1);
+	// 	glVertex2f(0,1);
+	// 	glEnd();
+	// }
+
+
+
+	drawItemName(item);
+
+	if (item->hasSubItems())
+	{
+		drawButton(item->isOpen());
+	}
+
+	// glBegin(GL_POLYGON);
+	// glVertex2f(0,0);
+	// glVertex2f(1,0);
+	// glVertex2f(1,1);
+	// glVertex2f(0,1);
+	// glEnd();
+
 }
 
+void FilterList::drawItemName(FilterListItem* item)
+{
+
+	String name; 
+
+	glColor4f(1.0f,1.0f,1.0f,1.0f);
+
+	float offsetX, offsetY;
+
+	if (item->getNumSubItems() == 0) 
+	{
+		if (item->isSelected())
+		{
+			glRasterPos2f(9.0/getWidth(),0.72);
+			getFont(String("cpmono-plain"))->FaceSize(15);
+			getFont(String("cpmono-plain"))->Render(">");
+		}
+
+		name = item->getName();
+
+		offsetX = 20.0f;
+
+		offsetY = 0.72f;
+	}
+	else {
+		name = item->getName().toUpperCase();
+		offsetX = 5.0f;
+		offsetY = 0.75f;
+	}
+
+	
+	glRasterPos2f(offsetX/getWidth(),offsetY);
+
+	if (item->getNumSubItems() == 0) {
+		getFont(String("cpmono-plain"))->FaceSize(15);
+		getFont(String("cpmono-plain"))->Render(name);
+	} else {
+		getFont(String("cpmono-light"))->FaceSize(23);
+		getFont(String("cpmono-light"))->Render(name);
+	}
+}
+
+void FilterList::drawButton(bool isOpen)
+{
+	glColor4f(1.0f,1.0f,1.0f,1.0f);
+	glLineWidth(1.0f);
+	glBegin(GL_LINE_LOOP);
+
+	if (isOpen)
+	{
+		glVertex2f(0.875,0.35);
+		glVertex2f(0.9,0.65);
+	} else {
+		glVertex2f(0.925,0.65);
+		glVertex2f(0.875,0.5);
+	}
+	glVertex2f(0.925,0.35);
+	glEnd();
+
+}
+
+void FilterList::clearSelectionState()
+{
+	baseItem->setSelected(false);
+
+	for (int n = 0; n < baseItem->getNumSubItems(); n++)
+	{
+		baseItem->getSubItem(n)->setSelected(false);
+
+		for (int m = 0; m < baseItem->getSubItem(n)->getNumSubItems(); m++)
+		{
+			baseItem->getSubItem(n)->getSubItem(m)->setSelected(false);
+		}
+	}
+}
+
+FilterListItem* FilterList::getListItemForYPos(int y)
+{
+	int bottom = (yBuffer + itemHeight) - getScrollAmount();
+
+	//std::cout << "Bottom: " << bottom << std::endl;
+	//std::cout << "Y coordinate: " << y << std::endl;
+
+	if (y < bottom)
+	{
+		return baseItem;
+
+	} else {
+		
+		if (baseItem->isOpen())
+		{
+		for (int n = 0; n < baseItem->getNumSubItems(); n++)
+		{
+			bottom += (yBuffer + itemHeight);
+
+			if (y < bottom)
+			{
+				return baseItem->getSubItem(n);
+			}
+				
+			if (baseItem->getSubItem(n)->isOpen())
+				{
+					for (int m = 0; m < baseItem->getSubItem(n)->getNumSubItems(); m++)
+					{
+						bottom += (yBuffer + subItemHeight);
+
+						if (y < bottom)
+						{
+							return baseItem->getSubItem(n)->getSubItem(m);
+						}
+
+					}
+				}			
+			}
+		}
+
+	}
+
+	return 0;
+
+}
+
+void FilterList::setViewport(bool hasSubItems)
+{
+
+	int height;
+
+	if (hasSubItems)
+	{
+		height = itemHeight;
+	} else {
+		height = subItemHeight;
+	}
+
+	glViewport(xBuffer,
+			   getHeight()-(totalHeight) - height + getScrollAmount(),
+	           getWidth()-2*xBuffer,
+	           height);
+
+	totalHeight += yBuffer + height;
+}
+
+int FilterList::getTotalHeight()
+{
+ 	return totalHeight;
+}
+
+void FilterList::resized() {canvasWasResized();}
+
+void FilterList::mouseDown(const MouseEvent& e) 
+{
+
+	//setBounds(0,0,225,itemHeight + 2*yBuffer);
+
+	
+
+	isDragging = false;
+
+	Point<int> pos = e.getPosition();
+	int xcoord = pos.getX();
+	int ycoord = pos.getY();
+
+	//std::cout << xcoord << " " << ycoord << std::endl;
+
+	FilterListItem* fli = getListItemForYPos(ycoord);
+
+	if (fli != 0) 
+	{
+		//std::cout << "Selecting: " << fli->getName() << std::endl;
+		if (!fli->hasSubItems()){
+			clearSelectionState();
+			fli->setSelected(true);
+		}
+			
+	} else {
+		//std::cout << "No selection." << std::endl;
+	}
+
+	if (fli != 0) {
+		if (xcoord < getWidth() - getScrollBarWidth())
+		{
+			fli->reverseOpenState();
+		}
+
+		if (fli == baseItem)
+		{
+			if (fli->isOpen()) {
+				UI->filterListOpened();
+			}
+			else
+			{
+				UI->filterListClosed();
+				//setBounds(0,0,225,itemHeight + 2*yBuffer); 
+				totalHeight = itemHeight + 2*yBuffer;
+			}
+			
+		}
+	}
+
+	mouseDownInCanvas(e);
+
+
+	repaint();
+}
+
+void FilterList::mouseDrag(const MouseEvent& e) 
+{
+
+	if (e.getMouseDownX() < getWidth()-getScrollBarWidth() && !(isDragging))
+	{
+
+		FilterListItem* fli = getListItemForYPos(e.getMouseDownY());
+
+		if (fli != 0)
+		{
+
+			if (!fli->hasSubItems())
+			{
+				isDragging = true;
+
+				String b = fli->parentName;
+				b += "/";
+				b += fli->getName();
+
+				const String dragDescription = b;
+
+				//std::cout << dragDescription << std::endl;
+
+				if (dragDescription.isNotEmpty())
+				{
+					DragAndDropContainer* const dragContainer
+						= DragAndDropContainer::findParentDragContainerFor (this);
+
+					if (dragContainer != 0)
+					{
+						//pos.setSize (pos.getWidth(), 10);
+
+						Image dragImage (Image::ARGB, 100, 15, true);
+
+						Graphics g(dragImage);
+						g.setColour (fli->color);
+						g.fillAll();
+						g.setColour(Colours::white);
+						//g.drawRect(4,4,50,10);
+						g.setFont(14);
+						g.drawSingleLineText(fli->getName(),10,12);//,75,15,Justification::centredRight,true);
+
+						dragImage.multiplyAllAlphas(0.6f);
+
+						Point<int> imageOffset (20,10);
+						dragContainer->startDragging(dragDescription, this,
+											         dragImage, true, &imageOffset);
+					}
+				}
+			}
+		}
+	}
+
+	mouseDragInCanvas(e);
+}
+
+void FilterList::mouseMove(const MouseEvent& e) {mouseMoveInCanvas(e);}
+void FilterList::mouseUp(const MouseEvent& e) 	{mouseUpInCanvas(e);}
+void FilterList::mouseWheelMove(const MouseEvent& e, float a, float b) {mouseWheelMoveInCanvas(e,a,b);}
+
+
+FilterListItem::FilterListItem(const String& name_) : name(name_), open(true), selected(false)
+{
+}
+
+FilterListItem::~FilterListItem()
+{ }
+
+bool FilterListItem::hasSubItems()
+{
+	if (subItems.size() > 0)
+	{
+		return true;
+	} else {
+		return false;
+	}
+}
+
+int FilterListItem::getNumSubItems()
+{
+	return subItems.size();
+}
+
+FilterListItem* FilterListItem::getSubItem (int index)
+{
+	return subItems[index];
+}
+
+void FilterListItem::clearSubItems()
+{
+	subItems.clear();
+}
+
+void FilterListItem::addSubItem (FilterListItem* newItem)
+{
+	subItems.add(newItem);
+}
+
+void FilterListItem::removeSubItem (int index)
+{
+	subItems.remove(index);
+}
+
+bool FilterListItem::isOpen()
+{
+	return open;
+}
+
+void FilterListItem::setOpen(bool t)
+{
+	open = t;
+}
+
+const String FilterListItem::getName()
+{
+	return name;
+}

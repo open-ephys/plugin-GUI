@@ -39,6 +39,7 @@ UIComponent::UIComponent (ProcessorGraph* pgraph, AudioComponent* audio_)
 	std::cout << "Created control panel." << std::endl;
 
 	filterList = new FilterList();
+	filterList->setUIComponent(this);
 	addAndMakeVisible(filterList);
 
 	std::cout << "Created filter list." << std::endl;
@@ -86,17 +87,24 @@ void UIComponent::resized()
 	int h = getHeight();
 	
 	if (dataViewport != 0) {
-		dataViewport->setBounds(212,45,w-230,h-230);
+		if (filterList->isOpen())
+			dataViewport->setBounds(202,40,w-207,h-230);
+		else 
+			dataViewport->setBounds(6,40,w-11,h-230);
 	}
 	
 	if (filterViewport != 0)
 		filterViewport->setBounds(10,h-175,w-20,125);
 
 	if (controlPanel != 0)
-		controlPanel->setBounds(10,10,w-20,30);
+		controlPanel->setBounds(201,6,w-210,32);
 
-	if (filterList != 0)
-		filterList->setBounds(10,50,192,h-235);
+	if (filterList != 0) {
+		if (filterList->isOpen())
+			filterList->setBounds(5,5,195,h-205);
+		else
+			filterList->setBounds(5,5,195,34);
+	}
 
 	if (messageCenter != 0)
 		messageCenter->setBounds(40,h-40,w-160,30);
@@ -107,4 +115,15 @@ void UIComponent::disableCallbacks()
 {
 	//sendActionMessage("Data acquisition terminated.");
 	controlPanel->disableCallbacks();
+}
+
+void UIComponent::filterListOpened()
+{
+	resized();
+}
+
+void UIComponent::filterListClosed()
+{
+	
+	resized();
 }

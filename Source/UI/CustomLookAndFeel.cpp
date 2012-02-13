@@ -63,15 +63,27 @@ void CustomLookAndFeel::drawTabButton (Graphics& g,
     int gapSize = 6;     // gap between tab and tabbedComponent
     float cornerSize = 5.0f; // how rounded should the corners be?
 
-    g.setColour(Colour(103,116,140));
+    g.setColour(Colour(48,48,48));
    
 	if (orientation == TabbedButtonBar::TabsAtRight)
 	{
-		g.fillRoundedRectangle(5,5,w-5,h-5,5);
+		g.fillRoundedRectangle(gapSize, borderSize, w-gapSize, h-2*borderSize, cornerSize-2.0);
 
-		if (isFrontTab)
-			g.fillRect(0,5,10,h-5);
+		if (isFrontTab) {
+			g.setColour(Colour(48,48,48));
+      g.fillRect(0,borderSize,gapSize*2,h-2*borderSize);
+      g.fillRect(0,0,gapSize,h);
+      
+      //g.setColour(Colour(170,178,183));
+      //g.fillRect(borderSize+innerBorderSize,innerBorderSize
+         //        ,w-2*borderSize-2*innerBorderSize,h-gapSize-2*innerBorderSize);
+
+      g.setColour(Colour(0, 0, 0));
+      g.fillRoundedRectangle(0,h-borderSize,w,2*borderSize,cornerSize);
+      g.fillRoundedRectangle(0,-borderSize,w,2*borderSize,cornerSize);
     }
+  }
+
 	else if (orientation == TabbedButtonBar::TabsAtTop)
 	{
 		g.fillRoundedRectangle(borderSize,0,w-2*borderSize,h-gapSize,cornerSize-2.0);
@@ -88,7 +100,7 @@ void CustomLookAndFeel::drawTabButton (Graphics& g,
 			//g.fillRect(borderSize+innerBorderSize,innerBorderSize
 		     //        ,w-2*borderSize-2*innerBorderSize,h-gapSize-2*innerBorderSize);
 
-			g.setColour(Colour(70,70,75));
+			g.setColour(Colour(0,0,0));
 			g.fillRoundedRectangle(-borderSize,0,2*borderSize,h,cornerSize);
 			g.fillRoundedRectangle(w-borderSize,0,2*borderSize,h,cornerSize);
 		}
@@ -168,7 +180,7 @@ void CustomLookAndFeel::drawTabButtonText (Graphics& g,
     else if (orientation  == TabbedButtonBar::TabsAtRight)
     {
         transform = transform.rotated (float_Pi * 0.5f)
-                             .translated ((float) (x + w), (float) y);
+                             .translated ((float) (x + w*1.1), (float) y);
     }
     else if (orientation == TabbedButtonBar::TabsAtTop)
     {
@@ -179,12 +191,14 @@ void CustomLookAndFeel::drawTabButtonText (Graphics& g,
     	transform = transform.translated ((float) x, (float) y + 3.0f);
     }
 
-    if (isFrontTab && (button.isColourSpecified (TabbedButtonBar::frontTextColourId) || isColourSpecified (TabbedButtonBar::frontTextColourId)))
-        g.setColour (findColour (TabbedButtonBar::frontTextColourId));
-    else if (button.isColourSpecified (TabbedButtonBar::tabTextColourId) || isColourSpecified (TabbedButtonBar::tabTextColourId))
-        g.setColour (findColour (TabbedButtonBar::tabTextColourId));
-    else
-        g.setColour (preferredBackgroundColour.contrasting());
+    // if (isFrontTab && (button.isColourSpecified (TabbedButtonBar::frontTextColourId) || isColourSpecified (TabbedButtonBar::frontTextColourId)))
+    //     g.setColour (findColour (TabbedButtonBar::frontTextColourId));
+    // else if (button.isColourSpecified (TabbedButtonBar::tabTextColourId) || isColourSpecified (TabbedButtonBar::tabTextColourId))
+    //     g.setColour (findColour (TabbedButtonBar::tabTextColourId));
+    // else
+    //     g.setColour (preferredBackgroundColour.contrasting());
+
+    g.setColour(Colour(255,255,255));
 
    if (! (isMouseOver || isMouseDown))
         g.setOpacity (0.8f);

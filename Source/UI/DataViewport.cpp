@@ -11,7 +11,7 @@
 #include "DataViewport.h"
 
 DataViewport::DataViewport() :
-	TabbedComponent(TabbedButtonBar::TabsAtTop),
+	TabbedComponent(TabbedButtonBar::TabsAtRight),
 	tabDepth(32)
 {
 
@@ -83,17 +83,19 @@ void DataViewport::paint(Graphics& g)
     else if (o == TabbedButtonBar::TabsAtRight)
         r -= tabDepth;
 
-	//g.setColour(Colour(103,116,140));
+	g.setColour(Colour(58,58,58));
 
-     Colour c1 (103, 116, 140);
-    Colour c2 (120, 130, 155);
+  //   Colour c1 (103, 116, 140);
+  ///  Colour c2 (120, 130, 155);
 
-    g.setGradientFill (ColourGradient (c1,
-                                     0.0f, 0.0f,
-                                     c2,
-                                     0.0f, (float) getHeight(),
-                                     false));
+    // g.setGradientFill (ColourGradient (c1,
+    //                                  0.0f, 0.0f,
+    //                                  c2,
+    //                                  0.0f, (float) getHeight(),
+    //                                  false));
 
-	g.fillRoundedRectangle(x,y,r-x,b-y,8);
+    g.fillRoundedRectangle(x,y,r-x,b-y,5.0f);
+	g.fillRect(x,y,r-20,b-y);
+    g.fillRect(x,20,r-x,b-20);
 
 }

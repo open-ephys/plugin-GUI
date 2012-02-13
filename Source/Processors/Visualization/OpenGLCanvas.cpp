@@ -79,6 +79,62 @@ void OpenGLCanvas::loadFonts()
 	
 	fontList.add(font3);
 
+	buffer = reinterpret_cast<const unsigned char*>(BinaryData::BebasNeue_otf);
+	bufferSize = BinaryData::BebasNeue_otfSize;
+
+	FTPixmapFont* font4 = new FTPixmapFont(buffer, bufferSize);
+	
+	fontList.add(font4);
+
+	buffer = reinterpret_cast<const unsigned char*>(BinaryData::ostrich_ttf);
+	bufferSize = BinaryData::ostrich_ttfSize;
+
+	FTPixmapFont* font5 = new FTPixmapFont(buffer, bufferSize);
+	
+	fontList.add(font5);
+
+	buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_extra_light_otf);
+	bufferSize = BinaryData::cpmono_extra_light_otfSize;
+
+	FTPixmapFont* font6 = new FTPixmapFont(buffer, bufferSize);
+	
+	fontList.add(font6);
+
+	buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_light_otf);
+	bufferSize = BinaryData::cpmono_light_otfSize;
+
+	FTPixmapFont* font7 = new FTPixmapFont(buffer, bufferSize);
+	
+	fontList.add(font7);
+
+	buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_plain_otf);
+	bufferSize = BinaryData::cpmono_plain_otfSize;
+
+	FTPixmapFont* font8 = new FTPixmapFont(buffer, bufferSize);
+	
+	fontList.add(font8);
+
+	buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_bold_otf);
+	bufferSize = BinaryData::cpmono_bold_otfSize;
+
+	FTPixmapFont* font9 = new FTPixmapFont(buffer, bufferSize);
+	
+	fontList.add(font9);
+
+	buffer = reinterpret_cast<const unsigned char*>(BinaryData::nordic_ttf);
+	bufferSize = BinaryData::nordic_ttfSize;
+
+	FTPixmapFont* font10 = new FTPixmapFont(buffer, bufferSize);
+	
+	fontList.add(font10);
+
+	buffer = reinterpret_cast<const unsigned char*>(BinaryData::silkscreen_ttf);
+	bufferSize = BinaryData::silkscreen_ttfSize;
+
+	FTPixmapFont* font11 = new FTPixmapFont(buffer, bufferSize);
+	
+	fontList.add(font11);
+
 }
 
 FTPixmapFont* OpenGLCanvas::getFont(String fontName)
@@ -90,6 +146,22 @@ FTPixmapFont* OpenGLCanvas::getFont(String fontName)
 		return fontList[1];
 	else if (fontName.equalsIgnoreCase("miso-light"))
 		return fontList[2];
+	else if (fontName.equalsIgnoreCase("bebas-neue"))
+		return fontList[3];
+	else if (fontName.equalsIgnoreCase("ostrich"))
+		return fontList[4];
+	else if (fontName.equalsIgnoreCase("cpmono-extra-light"))
+		return fontList[5];
+	else if (fontName.equalsIgnoreCase("cpmono-light"))
+		return fontList[6];
+	else if (fontName.equalsIgnoreCase("cpmono-plain"))
+		return fontList[7];
+	else if (fontName.equalsIgnoreCase("cpmono-bold"))
+		return fontList[8];
+	else if (fontName.equalsIgnoreCase("nordic"))
+		return fontList[9];
+	else if (fontName.equalsIgnoreCase("silkscreen"))
+		return fontList[10];
 	else
 		return fontList[0]; // miso-regular is default font
 
@@ -370,7 +442,7 @@ void OpenGLCanvas::mouseWheelMoveInCanvas(const MouseEvent&e,
 
 void OpenGLCanvas::canvasWasResized()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT);
 
 	if (scrollPix + getHeight() > getTotalHeight() && getTotalHeight() > getHeight())
 		scrollPix = getTotalHeight() - getHeight();

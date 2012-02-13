@@ -189,8 +189,8 @@ ControlPanel::~ControlPanel()
 
 void ControlPanel::paint(Graphics& g)
 {
-	g.setColour(Colour(40,40,40));
-	g.fillRoundedRectangle(0,0,getWidth(),getHeight(),8.0f);
+	g.setColour(Colour(58,58,58));
+	g.fillRect(0,0,getWidth(),getHeight());
 
 	g.setFont(font);
 	g.setColour(Colours::white);
