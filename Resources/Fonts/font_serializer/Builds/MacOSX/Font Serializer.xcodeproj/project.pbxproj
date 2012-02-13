@@ -1,0 +1,164 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 44;
+	objects = {
+
+		D60CFBE33D82E4AD87FEB8B8 = { isa = PBXBuildFile; fileRef = 6F8C936AD82D52E639058FDE; };
+		1220C636D1EC4FCDA0885826 = { isa = PBXBuildFile; fileRef = AED213607E5F9281FA344A72; };
+		6D5C27AE0C1FD5EE3068D41E = { isa = PBXBuildFile; fileRef = 604D36E4D046D324367BECBE; };
+		ADD0D1B453479A48ABA58BE1 = { isa = PBXBuildFile; fileRef = 1F9836FC5A8FDF2293C9A232; };
+		218D14A5CA2FA12D7DACA118 = { isa = PBXBuildFile; fileRef = 466375E3E08B6AB1947A7CEB; };
+		315347D8F1805AF642911D9C = { isa = PBXBuildFile; fileRef = DF4E5E5DC9067DB67A40FE18; };
+		876F6224C46DABDFE8DB8544 = { isa = PBXBuildFile; fileRef = 00D1A33EFB612EA5B80C6FB2; };
+		F5A852E5713837BEF7C31447 = { isa = PBXBuildFile; fileRef = C94D365AE7FA08DBC62C63D7; };
+		361FBF87EED68D639E6E7AE1 = { isa = PBXBuildFile; fileRef = 7EFB5BA72259C159D60DBE7E; };
+		FEF6F5E6D2179490CC8B944C = { isa = PBXBuildFile; fileRef = 7293D3C3EE9C3DA20D4CC13F; };
+		89853857E80CDCB81FCAD086 = { isa = PBXBuildFile; fileRef = 25281B36C112DBE83AFE68AB; };
+		5EE620FBD769442DAA3F4D54 = { isa = PBXBuildFile; fileRef = 8EBC3C20991CFD307B9919A9; };
+		576676E8E848EB04C154D6C7 = { isa = PBXBuildFile; fileRef = EF6AAFE75FB55683D95FBEBC; };
+		63FD8779B414B20CFB291AD2 = { isa = PBXBuildFile; fileRef = 388177E26B90D9A6BD4332FB; };
+		7F83971A90DF8814260E5EDD = { isa = PBXBuildFile; fileRef = 71B740EE788B4CD98126B54B; };
+		7B1AA7AB7C9A4F2C50E392E8 = { isa = PBXBuildFile; fileRef = CBDE09D98567CFFC650A498B; };
+		6F8C936AD82D52E639058FDE = { isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		AED213607E5F9281FA344A72 = { isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
+		604D36E4D046D324367BECBE = { isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		1F9836FC5A8FDF2293C9A232 = { isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		466375E3E08B6AB1947A7CEB = { isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
+		DF4E5E5DC9067DB67A40FE18 = { isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		00D1A33EFB612EA5B80C6FB2 = { isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DiscRecording.framework; path = System/Library/Frameworks/DiscRecording.framework; sourceTree = SDKROOT; };
+		C94D365AE7FA08DBC62C63D7 = { isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		7EFB5BA72259C159D60DBE7E = { isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		7293D3C3EE9C3DA20D4CC13F = { isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = System/Library/Frameworks/QTKit.framework; sourceTree = SDKROOT; };
+		25281B36C112DBE83AFE68AB = { isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickTime.framework; path = System/Library/Frameworks/QuickTime.framework; sourceTree = SDKROOT; };
+		6D1E520BC2D8390B348E4831 = { isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Font Serializer"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8EBC3C20991CFD307B9919A9 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../../Source/Main.cpp; sourceTree = SOURCE_ROOT; };
+		139C8697F1DE5F141583FAF0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppConfig.h; path = ../../JuceLibraryCode/AppConfig.h; sourceTree = SOURCE_ROOT; };
+		DA185D34F3998374799F6E5F = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JuceHeader.h; path = ../../JuceLibraryCode/JuceHeader.h; sourceTree = SOURCE_ROOT; };
+		EF6AAFE75FB55683D95FBEBC = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = JuceLibraryCode1.mm; path = ../../JuceLibraryCode/JuceLibraryCode1.mm; sourceTree = SOURCE_ROOT; };
+		388177E26B90D9A6BD4332FB = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = JuceLibraryCode2.mm; path = ../../JuceLibraryCode/JuceLibraryCode2.mm; sourceTree = SOURCE_ROOT; };
+		71B740EE788B4CD98126B54B = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = JuceLibraryCode3.mm; path = ../../JuceLibraryCode/JuceLibraryCode3.mm; sourceTree = SOURCE_ROOT; };
+		CBDE09D98567CFFC650A498B = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = JuceLibraryCode4.mm; path = ../../JuceLibraryCode/JuceLibraryCode4.mm; sourceTree = SOURCE_ROOT; };
+		EA0B5A78DB36C8F587581BDC = { isa = PBXGroup; children = (
+				8EBC3C20991CFD307B9919A9 ); name = Source; sourceTree = "<group>"; };
+		81834AEAB9DF775F2F086020 = { isa = PBXGroup; children = (
+				139C8697F1DE5F141583FAF0,
+				DA185D34F3998374799F6E5F,
+				EF6AAFE75FB55683D95FBEBC,
+				388177E26B90D9A6BD4332FB,
+				71B740EE788B4CD98126B54B,
+				CBDE09D98567CFFC650A498B ); name = "Juce Library Code"; sourceTree = "<group>"; };
+		45F1BACE0E4CAC9DFF0C5541 = { isa = PBXGroup; children = (  ); name = Resources; sourceTree = "<group>"; };
+		59A06093E4B55F856F591093 = { isa = PBXGroup; children = (
+				6F8C936AD82D52E639058FDE,
+				AED213607E5F9281FA344A72,
+				604D36E4D046D324367BECBE,
+				1F9836FC5A8FDF2293C9A232,
+				466375E3E08B6AB1947A7CEB,
+				DF4E5E5DC9067DB67A40FE18,
+				00D1A33EFB612EA5B80C6FB2,
+				C94D365AE7FA08DBC62C63D7,
+				7EFB5BA72259C159D60DBE7E,
+				7293D3C3EE9C3DA20D4CC13F,
+				25281B36C112DBE83AFE68AB ); name = Frameworks; sourceTree = "<group>"; };
+		64A53E1F43E5BABC4A5E64FF = { isa = PBXGroup; children = (
+				6D1E520BC2D8390B348E4831 ); name = Products; sourceTree = "<group>"; };
+		5C0C6BDAC7764635AF27E7E4 = { isa = PBXGroup; children = (
+				EA0B5A78DB36C8F587581BDC,
+				81834AEAB9DF775F2F086020,
+				45F1BACE0E4CAC9DFF0C5541,
+				59A06093E4B55F856F591093,
+				64A53E1F43E5BABC4A5E64FF ); name = Source; sourceTree = "<group>"; };
+		39B01538C757295A5451E280 = { isa = XCBuildConfiguration; buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				PREBINDING = NO;
+				HEADER_SEARCH_PATHS = " $(inherited)";
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INFOPLIST_FILE = Info.plist;
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
+				ONLY_ACTIVE_ARCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+				"_DEBUG=1",
+				"DEBUG=1",
+				"JUCER_XCODE_MAC_F6D2F4CF=1"); }; name = Debug; };
+		C25CAD9BF2BFCF446ABD6058 = { isa = XCBuildConfiguration; buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				PREBINDING = NO;
+				HEADER_SEARCH_PATHS = " $(inherited)";
+				GCC_OPTIMIZATION_LEVEL = s;
+				INFOPLIST_FILE = Info.plist;
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+				"_NDEBUG=1",
+				"NDEBUG=1",
+				"JUCER_XCODE_MAC_F6D2F4CF=1"); }; name = Release; };
+		B40E6C65A6493F43634CE524 = { isa = XCBuildConfiguration; buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				WARNING_CFLAGS = -Wreorder;
+				GCC_MODEL_TUNING = G5;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				ZERO_LINK = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf";
+				PRODUCT_NAME = "Font Serializer"; }; name = Debug; };
+		A7941FC08F0041C9982AF738 = { isa = XCBuildConfiguration; buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				WARNING_CFLAGS = -Wreorder;
+				GCC_MODEL_TUNING = G5;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				ZERO_LINK = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf";
+				PRODUCT_NAME = "Font Serializer"; }; name = Release; };
+		6F87B78B1215642FE5AAC3F2 = { isa = XCConfigurationList; buildConfigurations = (
+				B40E6C65A6493F43634CE524,
+				A7941FC08F0041C9982AF738 ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Debug; };
+		07C9D4C602881E7684BBF7E5 = { isa = XCConfigurationList; buildConfigurations = (
+				39B01538C757295A5451E280,
+				C25CAD9BF2BFCF446ABD6058 ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Debug; };
+		E2F8E5BE7BC03128E2FB5CBA = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (  ); runOnlyForDeploymentPostprocessing = 0; };
+		BE9FD21D3BBB4B855B0D9057 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+				5EE620FBD769442DAA3F4D54,
+				576676E8E848EB04C154D6C7,
+				63FD8779B414B20CFB291AD2,
+				7F83971A90DF8814260E5EDD,
+				7B1AA7AB7C9A4F2C50E392E8 ); runOnlyForDeploymentPostprocessing = 0; };
+		63B4026613A786ADD5E08F58 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
+				D60CFBE33D82E4AD87FEB8B8,
+				1220C636D1EC4FCDA0885826,
+				6D5C27AE0C1FD5EE3068D41E,
+				ADD0D1B453479A48ABA58BE1,
+				218D14A5CA2FA12D7DACA118,
+				315347D8F1805AF642911D9C,
+				876F6224C46DABDFE8DB8544,
+				F5A852E5713837BEF7C31447,
+				361FBF87EED68D639E6E7AE1,
+				FEF6F5E6D2179490CC8B944C,
+				89853857E80CDCB81FCAD086 ); runOnlyForDeploymentPostprocessing = 0; };
+		37C05C79C82BAABB066A0B15 = { isa = PBXNativeTarget; buildConfigurationList = 07C9D4C602881E7684BBF7E5; buildPhases = (
+				E2F8E5BE7BC03128E2FB5CBA,
+				BE9FD21D3BBB4B855B0D9057,
+				63B4026613A786ADD5E08F58 ); buildRules = ( ); dependencies = ( ); name = "Font Serializer"; productName = "Font Serializer"; productReference = 6D1E520BC2D8390B348E4831; productInstallPath = /usr/bin; productType = "com.apple.product-type.tool"; };
+		226AFEC2B941C8BC7160216D = { isa = PBXProject; buildConfigurationList = 6F87B78B1215642FE5AAC3F2; compatibilityVersion = "Xcode 3.0"; hasScannedForEncodings = 0; mainGroup = 5C0C6BDAC7764635AF27E7E4; projectDirPath = ""; projectRoot = ""; targets = ( 37C05C79C82BAABB066A0B15 ); };
+	};
+	rootObject = 226AFEC2B941C8BC7160216D;
+}
