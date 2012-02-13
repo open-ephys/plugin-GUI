@@ -113,6 +113,7 @@ void* ProcessorGraph::createNewProcessor(String& description)//,
 		processor->setFilterViewport(filterViewport);
 		processor->setConfiguration(config);
 		processor->addActionListener(messageCenter);
+		processor->setUIComponent(UI);
 
 		addNode(processor,id); // have to add it so it can be deleted by the graph
 

@@ -19,11 +19,11 @@ SourceNode::SourceNode(const String& name_)
 	  sourceCheckInterval(1500)
 {
 	if (getName().equalsIgnoreCase("Intan Demo Board")) {
-		dataThread = new IntanThread();
+		dataThread = new IntanThread(this);
 	} else if (getName().equalsIgnoreCase("Custom FPGA")) {
-		dataThread = new FPGAThread();
+		dataThread = new FPGAThread(this);
 	} else if (getName().equalsIgnoreCase("File Reader")) {
-		dataThread = new FileReaderThread();
+		dataThread = new FileReaderThread(this);
 	}
 
 	setNumInputs(0);
@@ -209,6 +209,15 @@ bool SourceNode::disable() {
 	// }
 
 	return true;
+}
+
+void SourceNode::acquisitionStopped()
+{
+	std::cout << "Source node sending signal to UI." << std::endl;
+	UI->disableCallbacks();
+	enabledState(false);
+	GenericEditor* ed = (GenericEditor*) getEditor();
+	viewport->updateVisibleEditors(ed, 4);
 }
 
 

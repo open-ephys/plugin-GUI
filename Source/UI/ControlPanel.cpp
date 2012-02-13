@@ -268,6 +268,24 @@ void ControlPanel::buttonClicked(Button* button)
 
 }
 
+void ControlPanel::disableCallbacks()
+{
+
+	std::cout << "Control panel received signal to disable callbacks." << std::endl;
+
+	if (audio->callbacksAreActive())
+	{
+		std::cout << "Stopping audio." << std::endl;
+		audio->endCallbacks();
+		std::cout << "Disabling processors." << std::endl;
+		graph->disableProcessors();
+		std::cout << "Updating control panel." << std::endl;
+		cpuMeter->updateCPU(0.0f);
+		playButton->setToggleState(false,false);
+		recordButton->setToggleState(false,false);
+	}
+}
+
 void ControlPanel::actionListenerCallback(const String & msg)
 {
 	//std::cout << "Message Received." << std::endl;

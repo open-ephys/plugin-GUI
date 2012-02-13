@@ -10,7 +10,7 @@
 
 #include "IntanThread.h"
 
-IntanThread::IntanThread() : DataThread(),
+IntanThread::IntanThread(SourceNode* sn) : DataThread(sn),
 			vendorID(0x0403),
 			productID(0x6010),
 			baudrate(115200),
@@ -29,7 +29,7 @@ IntanThread::IntanThread() : DataThread(),
 
 IntanThread::~IntanThread() 
 {
-	closeUSB();
+	//closeUSB();
 	deleteAndZero(dataBuffer);
 }
 
@@ -70,17 +70,33 @@ bool IntanThread::foundInputSource()
 
 bool IntanThread::startAcquisition()
 {
+    closeUSB();
+    initializeUSB(false);
     ftdi_write_data(&ftdic, &startCode, 1);
     startThread();
+
+    return true;
 }
 
 bool IntanThread::stopAcquisition()
 {
-    stopThread(500);
+    std::cout << "Received signal to terminate thread." << std::endl;
+    
+    if (isThreadRunning()) {
+        signalThreadShouldExit();
+    }
 
-    ftdi_write_data(&ftdic, &stopCode, 1);
-    unsigned char buf[4097]; // has to be bigger than the on-chip buffer
-    ftdi_read_data(&ftdic, buf, sizeof(buf));
+    std::cout << "Thread stopped successfully, stopping Intan Board." << std::endl;
+
+    int return_value;
+
+    if ((return_value = ftdi_write_data(&ftdic, &stopCode, 1)) > 0) {
+        unsigned char buf[4097]; // has to be bigger than the on-chip buffer
+        ftdi_read_data(&ftdic, buf, sizeof(buf));
+        closeUSB();
+    }
+
+    return true;
 }
 
 
@@ -150,6 +166,7 @@ bool IntanThread::updateBuffer()
     //  >0  : number of bytes read
     if ((bytes_read = ftdi_read_data(&ftdic, buffer, sizeof(buffer))) < 0)
     {
+        std::cout << "NO DATA FOUND!" << std::endl;
         return false;
     }
 

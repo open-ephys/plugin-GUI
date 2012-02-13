@@ -22,11 +22,14 @@
 #include "okFrontPanelDLL.h"
 #include "DataThread.h"
 
+
+class SourceNode;
+
 class FPGAThread : public DataThread
 
 {
 public:
-	FPGAThread();
+	FPGAThread(SourceNode* sn);
 	~FPGAThread();
 
 	bool foundInputSource() {return true;}

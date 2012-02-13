@@ -17,11 +17,14 @@
 #include <stdio.h>
 #include "DataThread.h"
 
+
+class SourceNode;
+
 class FileReaderThread : public DataThread
 
 {
 public:
-	FileReaderThread();
+	FileReaderThread(SourceNode* sn);
 	~FileReaderThread();
 
 	bool foundInputSource() {return true;}

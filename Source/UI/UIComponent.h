@@ -25,7 +25,7 @@
 
 
 class UIComponent : public Component,
-				    //public ActionBroadcaster,
+				    public ActionBroadcaster,
 				    public DragAndDropContainer // required for 
 				    				            // drag-and-drop
 				    				            // internal components
@@ -40,6 +40,7 @@ public:
 	Configuration* getConfiguration() {return config;}
 
 	//void transmitMessage(const String& message);
+	void disableCallbacks();
 
 private:
 

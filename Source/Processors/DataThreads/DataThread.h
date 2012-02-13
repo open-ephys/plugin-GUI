@@ -15,12 +15,14 @@
 #include <stdio.h>
 #include "DataBuffer.h"
 
+class SourceNode;
+
 class DataThread : public Thread
 {
 
 public:
 
-	DataThread();
+	DataThread(SourceNode* sn);
 	~DataThread();
 
 	void run();
@@ -36,6 +38,8 @@ public:
 	virtual bool stopAcquisition() = 0;
 	virtual int getNumChannels() = 0;
 	virtual float getSampleRate() = 0;
+
+	SourceNode* sn;
 
 };
 

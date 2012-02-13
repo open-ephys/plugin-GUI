@@ -45,6 +45,7 @@ UIComponent::UIComponent (ProcessorGraph* pgraph, AudioComponent* audio_)
 
 	messageCenter = new MessageCenter();
 	processorGraph->addActionListener(messageCenter);
+	addActionListener(messageCenter);
 	addAndMakeVisible(messageCenter);
 
 	std::cout << "Created message center." << std::endl;
@@ -100,4 +101,10 @@ void UIComponent::resized()
 	if (messageCenter != 0)
 		messageCenter->setBounds(40,h-40,w-160,30);
 
+}
+
+void UIComponent::disableCallbacks()
+{
+	//sendActionMessage("Data acquisition terminated.");
+	controlPanel->disableCallbacks();
 }

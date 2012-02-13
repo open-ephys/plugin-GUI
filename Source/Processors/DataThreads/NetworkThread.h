@@ -25,7 +25,7 @@ class NetworkThread : public DataThread
 {
 public:
 
-	NetworkThread();
+	NetworkThread(SourceNode* sn);
 	~NetworkThread();
 
 	bool foundInputSource() {return true;}

@@ -10,7 +10,7 @@
 
 #include "FPGAThread.h"
 
-FPGAThread::FPGAThread() : DataThread(),
+FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 			isRunning(false),
 			numchannels(32),
 			m_u32SegmentSize(1048576)

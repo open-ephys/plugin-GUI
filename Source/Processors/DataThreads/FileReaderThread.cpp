@@ -11,7 +11,7 @@
 
 #include "FileReaderThread.h"
 
-FileReaderThread::FileReaderThread() : DataThread(),
+FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn),
 			sampleRate(40000.0),
 			numChannels(16),
 			samplesPerBlock(1024)

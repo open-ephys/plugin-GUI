@@ -19,6 +19,7 @@
 #include "DataThreads/FPGAThread.h"
 #include "DataThreads/FileReaderThread.h"
 #include "GenericProcessor.h"
+#include "../UI/UIComponent.h"
 
 class SourceNode : public GenericProcessor,
 				   public Timer
@@ -54,6 +55,8 @@ public:
 	bool disable();
 
 	bool isSource() {return true;}
+
+	void acquisitionStopped();
 	
 private:
 

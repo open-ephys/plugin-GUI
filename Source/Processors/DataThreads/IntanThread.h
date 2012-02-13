@@ -16,11 +16,13 @@
 #include <stdio.h>
 #include "DataThread.h"
 
+class SourceNode;
+
 class IntanThread : public DataThread
 
 {
 public:
-	IntanThread();
+	IntanThread(SourceNode* sn);
 	~IntanThread();
 
 	bool foundInputSource();

@@ -86,6 +86,8 @@ public:
 	ControlPanel(ProcessorGraph* graph, AudioComponent* audio);
 	~ControlPanel();
 
+	void disableCallbacks();
+
 private:	
 	PlayButton* playButton;
 	RecordButton* recordButton;

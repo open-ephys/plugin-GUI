@@ -9,8 +9,13 @@
 */
 
 #include "DataThread.h"
+#include "../SourceNode.h"
 
-DataThread::DataThread() : Thread ("Data Thread"), dataBuffer(0) {}
+
+DataThread::DataThread(SourceNode* s) : Thread ("Data Thread"), dataBuffer(0) 
+{
+	sn = s;
+}
 
 DataThread::~DataThread() {}
 
@@ -21,8 +26,15 @@ void DataThread::run() {
 		const MessageManagerLock mml (Thread::getCurrentThread());
 		if (! mml.lockWasGained())
 			return;
-		if (!updateBuffer())
+		if (!updateBuffer()) {
+			std::cout << "Aquisition error...stopping thread." << std::endl;
 			signalThreadShouldExit();
+			//stopAcquisition();
+			std::cout << "Notifying source node to stop acqusition." << std::endl;
+			sn->acquisitionStopped();
+		}
+			//
+
 	}
 }
 
