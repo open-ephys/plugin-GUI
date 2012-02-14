@@ -74,8 +74,10 @@ RecordButton::~RecordButton()
 
 CPUMeter::CPUMeter() : Label(T("CPU Meter"),"0.0"), cpu(0.0f), lastCpu(0.0f)
 {
-	//startTimer(100);
-	//repaint();
+	MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+        Typeface::Ptr typeface = new CustomTypeface(mis);
+        font = Font(typeface);
+        font.setHeight(12);
 }
 
 CPUMeter::~CPUMeter()
@@ -97,16 +99,19 @@ void CPUMeter::paint(Graphics& g)
 	g.setColour(Colours::black);
 	g.drawRect(0,0,getWidth(),getHeight(),1);
 
+	g.setFont(font);
+	g.drawSingleLineText("CPU",65,12);
+
 }
 
 
 DiskSpaceMeter::DiskSpaceMeter()
 
 {	
-	//graph = g;
-	//updateDiskSpace(graph->getRecordNode()->getFreeSpace());
-	//repaint();
-	//startTimer(10000); // refresh every 10 seconds
+	MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+        Typeface::Ptr typeface = new CustomTypeface(mis);
+        font = Font(typeface);
+        font.setHeight(12);
 }
 
 
@@ -124,11 +129,14 @@ void DiskSpaceMeter::paint(Graphics& g)
 
 	g.fillAll(Colours::grey);
 	
-	g.setColour(Colours::pink);
+	g.setColour(Colours::lightgrey);
 	g.fillRect(0.0f,0.0f,getWidth()*diskFree,float(getHeight()));
 
 	g.setColour(Colours::black);
 	g.drawRect(0,0,getWidth(),getHeight(),1);
+
+	g.setFont(font);
+	g.drawSingleLineText("DF",75,12);
 	
 }
 
@@ -205,7 +213,10 @@ void Clock::drawTime()
 		s = floor((totalRecordTime - m*60000)/1000);
 
 	} else {
-		glColor4f(1.0, 1.0, 1.0, 1.0);
+		if (isRunning)
+			glColor4f(1.0, 1.0, 0.0, 1.0);
+		else
+			glColor4f(1.0, 1.0, 1.0, 1.0);
 		m = floor(totalTime/60000);
 		s = floor((totalTime - m*60000)/1000);
 	}
@@ -326,19 +337,19 @@ void ControlPanel::resized()
 	int h = getHeight();
 
 	if (playButton != 0)
-		playButton->setBounds(w-h*8,5,h-5,h-10);
+		playButton->setBounds(w-h*9,5,h-5,h-10);
 	
 	if (recordButton != 0)
-		recordButton->setBounds(w-h*7,5,h-5,h-10);
+		recordButton->setBounds(w-h*8,5,h-5,h-10);
 
 	if (masterClock != 0)
 		masterClock->setBounds(w-h*6,0,h*6,h);
 	
 	if (cpuMeter != 0)
-		cpuMeter->setBounds(20,h/4,h*4,h/2);
+		cpuMeter->setBounds(8,h/4,h*3,h/2);
 
 	if (diskMeter != 0)
-		diskMeter->setBounds(150,h/4,h*4,h/2);
+		diskMeter->setBounds(16+h*3,h/4,h*3,h/2);
 
 	if (audioEditor != 0)
 		audioEditor->setBounds(w-h*12,5,h*5,h-10);

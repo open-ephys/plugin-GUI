@@ -68,6 +68,9 @@ class CPUMeter : public Label//, public Timer //Component
 		void paint (Graphics& g);
 	
 	private:
+
+		Font font;
+
 		float cpu;
 		float lastCpu;
 
@@ -86,6 +89,9 @@ public:
 	void paint (Graphics& g);
 
 private:
+
+	Font font;
+
 	float diskFree;
 	ProcessorGraph* graph;
 	//void timerCallback() {repaint();}
