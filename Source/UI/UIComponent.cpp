@@ -33,6 +33,9 @@ UIComponent::UIComponent (ProcessorGraph* pgraph, AudioComponent* audio_)
 
 	std::cout << "Created filter viewport." << std::endl;
 
+	filterViewportButton = new FilterViewportButton(this);
+	addAndMakeVisible(filterViewportButton);
+
 	controlPanel = new ControlPanel(processorGraph, audio);
 	addAndMakeVisible(controlPanel);
 
@@ -87,14 +90,29 @@ void UIComponent::resized()
 	int h = getHeight();
 	
 	if (dataViewport != 0) {
-		if (filterList->isOpen())
-			dataViewport->setBounds(202,40,w-207,h-230);
-		else 
-			dataViewport->setBounds(6,40,w-11,h-230);
+		if (filterList->isOpen() && filterViewportButton->isOpen())
+			dataViewport->setBounds(202,40,w-207,h-235);
+		else if (!filterList->isOpen() && filterViewportButton->isOpen())
+			dataViewport->setBounds(6,40,w-11,h-235);
+		else if (filterList->isOpen() && !filterViewportButton->isOpen())
+			dataViewport->setBounds(202,40,w-207,h-85);
+		else	
+			dataViewport->setBounds(6,40,w-11,h-85);
+	}
+
+	if (filterViewportButton != 0)
+	{
+		filterViewportButton->setBounds(w-230, h-40, 225, 35);
 	}
 	
-	if (filterViewport != 0)
-		filterViewport->setBounds(10,h-175,w-20,125);
+	if (filterViewport != 0) {
+		if (filterViewportButton->isOpen() && !filterViewport->isVisible())
+			filterViewport->setVisible(true);
+		else if (!filterViewportButton->isOpen() && filterViewport->isVisible())
+			filterViewport->setVisible(false);
+
+		filterViewport->setBounds(6,h-190,w-11,150);
+	}
 
 	if (controlPanel != 0)
 		controlPanel->setBounds(201,6,w-210,32);
@@ -107,7 +125,7 @@ void UIComponent::resized()
 	}
 
 	if (messageCenter != 0)
-		messageCenter->setBounds(40,h-40,w-160,30);
+		messageCenter->setBounds(6,h-35,w-241,30);
 
 }
 
@@ -117,13 +135,98 @@ void UIComponent::disableCallbacks()
 	controlPanel->disableCallbacks();
 }
 
-void UIComponent::filterListOpened()
+void UIComponent::childComponentChanged()
 {
 	resized();
 }
 
-void UIComponent::filterListClosed()
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+FilterViewportButton::FilterViewportButton(UIComponent* ui) : UI(ui)
+{
+	open = true;
+
+	const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_light_otf);
+	size_t bufferSize = BinaryData::cpmono_light_otfSize;
+
+	font = new FTPixmapFont(buffer, bufferSize);
+	
+}
+
+FilterViewportButton::~FilterViewportButton()
 {
 	
-	resized();
+}
+
+void FilterViewportButton::newOpenGLContextCreated()
+{
+	
+	glMatrixMode (GL_PROJECTION);
+
+	glLoadIdentity();
+	glOrtho (0, 1, 1, 0, 0, 1);
+	glMatrixMode (GL_MODELVIEW);
+	
+	glEnable(GL_TEXTURE_2D);
+
+	glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
+
+	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+	glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_POINT_SMOOTH);
+	glEnable(GL_POLYGON_SMOOTH);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+
+void FilterViewportButton::renderOpenGL()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	drawName();
+	drawButton();
+}
+
+void FilterViewportButton::drawName()
+{
+	glColor4f(1.0f,1.0f,1.0f,1.0f);
+	glRasterPos2f(5.0/getWidth(),0.75f);
+	font->FaceSize(23);
+	font->Render("SIGNAL CHAIN");
+	
+
+	
+}
+
+void FilterViewportButton::drawButton()
+{
+	glColor4f(1.0f,1.0f,1.0f,1.0f);
+	glLineWidth(1.0f);
+
+	glBegin(GL_LINE_LOOP);
+
+	if (open)
+	{
+		glVertex2f(0.90,0.65);
+		glVertex2f(0.925,0.35);
+	} else {
+		glVertex2f(0.95,0.35);
+		glVertex2f(0.90,0.5);
+	}
+	glVertex2f(0.95,0.65);
+	glEnd();
+
+}
+
+void FilterViewportButton::mouseDown(const MouseEvent& e)
+{
+	open = !open;
+	UI->childComponentChanged();
+	repaint();
+
 }

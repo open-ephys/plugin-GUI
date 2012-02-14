@@ -393,11 +393,11 @@ void FilterList::mouseDown(const MouseEvent& e)
 		if (fli == baseItem)
 		{
 			if (fli->isOpen()) {
-				UI->filterListOpened();
+				UI->childComponentChanged();
 			}
 			else
 			{
-				UI->filterListClosed();
+				UI->childComponentChanged();
 				//setBounds(0,0,225,itemHeight + 2*yBuffer); 
 				totalHeight = itemHeight + 2*yBuffer;
 			}

@@ -47,10 +47,12 @@ void FilterViewport::paint (Graphics& g)
          g.setColour (Colours::magenta);
 
     } else {
-        g.setColour (Colour(127,137,147));
+        g.setColour (Colour(48,48,48));
     }
 
-    g.fillRoundedRectangle (tabSize, 0, getWidth(), getHeight(), 8);
+    g.fillRect (0, 0, getWidth(), getHeight());
+
+    //g.fillRoundedRectangle (tabSize, 0, getWidth(), getHeight(), 8);
 
     g.setColour (Colour(170,178,183));
     g.fillRect (tabSize+borderSize,borderSize,
