@@ -198,7 +198,7 @@ void FilterViewportButton::renderOpenGL()
 void FilterViewportButton::drawName()
 {
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
-	glRasterPos2f(5.0/getWidth(),0.75f);
+	glRasterPos2f(8.0/getWidth(),0.75f);
 	font->FaceSize(23);
 	font->Render("SIGNAL CHAIN");
 	

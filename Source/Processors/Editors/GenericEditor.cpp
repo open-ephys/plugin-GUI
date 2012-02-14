@@ -26,7 +26,14 @@ GenericEditor::GenericEditor (GenericProcessor* owner, FilterViewport* vp)
 
 	//titleFont->setTypefaceName(T("Miso"));
 
-	backgroundColor = Colour(3, 143, 255);
+	if (owner->isSource())
+		backgroundColor = Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
+	else if (owner->isSink())
+		backgroundColor = Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
+	else if (owner->isSplitter() || owner->isMerger())
+		backgroundColor = Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
+	else
+		backgroundColor = Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
 
 }
 
@@ -125,8 +132,8 @@ void GenericEditor::paint (Graphics& g)
 
 	GenericProcessor* p = (GenericProcessor*) getProcessor();
 
-	g.setColour(Colour(127,137,147));
-	g.fillAll();
+	//g.setColour(Colour(127,137,147));
+	//g.fillAll();
 
 	if (isSelected)
 		g.setColour(Colours::yellow);

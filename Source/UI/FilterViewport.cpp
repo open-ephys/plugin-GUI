@@ -14,7 +14,7 @@ FilterViewport::FilterViewport(ProcessorGraph* pgraph, DataViewport* tcomp)
     : message ("Drag-and-drop some rows from the top-left box onto this component!"),
       somethingIsBeingDraggedOver (false), graph(pgraph), tabComponent(tcomp), shiftDown(false),
        insertionPoint(0), componentWantsToMove(false), indexOfMovingComponent(-1), 
-       borderSize(6), tabSize(20), tabButtonSize(15), canEdit(true)//, signalChainNeedsSource(true)
+       borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true)//, signalChainNeedsSource(true)
 {
 
   addMouseListener(this, true);
@@ -44,20 +44,26 @@ void FilterViewport::paint (Graphics& g)
 
     if (somethingIsBeingDraggedOver)
     {
-         g.setColour (Colours::magenta);
+         g.setColour (Colours::yellow);
 
     } else {
         g.setColour (Colour(48,48,48));
     }
 
-    g.fillRect (0, 0, getWidth(), getHeight());
+    g.drawRect (0, 0, getWidth(), getHeight(), 2.0);
+    g.drawVerticalLine(tabSize, 0, getHeight());
+
+    for (int n = 0; n < 5; n++)
+    {
+        g.drawEllipse(6,(tabSize-2)*n+8,tabSize-10,tabSize-10,1.0);
+    }
 
     //g.fillRoundedRectangle (tabSize, 0, getWidth(), getHeight(), 8);
 
-    g.setColour (Colour(170,178,183));
-    g.fillRect (tabSize+borderSize,borderSize,
-                getWidth()-borderSize*2-tabSize,
-                getHeight()-borderSize*2);
+    //g.setColour (Colour(170,178,183));
+    //g.fillRect (tabSize+borderSize,borderSize,
+    //            getWidth()-borderSize*2-tabSize,
+     //           getHeight()-borderSize*2);
 
     if (somethingIsBeingDraggedOver)
     {
@@ -216,10 +222,12 @@ void FilterViewport::createNewTab(GenericEditor* editor)
     SignalChainTabButton* t = new SignalChainTabButton();
     t->setEditor(editor);
     
-    t->setBounds(0,(tabButtonSize+5)*(index),
-                 tabButtonSize,tabButtonSize);
+    t->setBounds(6,(tabSize-2)*(index)+8,tabSize-10,tabSize-10);
+    // t->setBounds(0,(tabButtonSize+5)*(index),
+    //              tabButtonSize,tabButtonSize);
     addAndMakeVisible(t);
     signalChainArray.add(t);
+
     editor->tabNumber(signalChainArray.size()-1);
     t->setToggleState(true,false);
     t->setNumber(index);
@@ -233,8 +241,7 @@ void FilterViewport::removeTab(int tabIndex)
 
     for (int n = 0; n < signalChainArray.size(); n++) 
     {
-        signalChainArray[n]->setBounds(0,(tabButtonSize+5)*n,
-                 tabButtonSize,tabButtonSize);
+        signalChainArray[n]->setBounds(6,(tabSize-2)*n+8,tabSize-10,tabSize-10);
         
         int tNum = signalChainArray[n]->getEditor()->tabNumber();
         
@@ -503,7 +510,9 @@ void FilterViewport::refreshEditors () {
         {
              if (!editorArray[n]->getEnabledState()) 
              {
-                lastBound += borderSize*3;
+                GenericProcessor* p = (GenericProcessor*) editorArray[n]->getProcessor();
+                if (!p->isSource())
+                    lastBound += borderSize*3;
                // signalChainNeedsSource = true;
             } else {
               //  signalChainNeedsSource = false;
@@ -731,7 +740,7 @@ SignalChainTabButton::SignalChainTabButton() : Button("Name"),
         //setToggleState(false,true);
         setClickingTogglesState(true);
 
-        MemoryInputStream mis(BinaryData::misoserialized, BinaryData::misoserializedSize, false);
+        MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
         Typeface::Ptr typeface = new CustomTypeface(mis);
         buttonFont = Font(typeface);
         buttonFont.setHeight(14);
@@ -753,7 +762,7 @@ void SignalChainTabButton::clicked()
 void SignalChainTabButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
         if (getToggleState() == true)
-            g.setColour(Colours::teal);
+            g.setColour(Colours::orange);
         else 
             g.setColour(Colours::darkgrey);
 
