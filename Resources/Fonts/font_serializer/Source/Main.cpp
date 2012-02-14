@@ -47,6 +47,12 @@ int main (int argc, char* argv[])
    
     // make sure the font is installed on the current system
     StringArray fontNames = Font::findAllTypefaceNames();
+
+    for (int n = 0; n < fontNames.size(); n++)
+    {
+        std::cout << fontNames[n] << std::endl;
+    }
+
     if(!fontNames.contains(fontName))
     {
         String error ("\nError: The font " + fontName + " does not exist in the system\n");

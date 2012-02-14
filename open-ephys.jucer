@@ -23,6 +23,8 @@
   <MAINGROUP id="h3HbSTV" name="open-ephys">
     <GROUP id="0wpTCpt" name="Resources">
       <GROUP id="kVU7EYu" name="Fonts">
+        <FILE id="Ra8LAxS" name="nordic-serialized" compile="0" resource="1"
+              file="Resources/Fonts/nordic-serialized"/>
         <FILE id="ihWw2VV" name="BebasNeue.otf" compile="0" resource="1" file="Resources/Fonts/BebasNeue.otf"/>
         <FILE id="frMIT7f" name="cpmono_bold.otf" compile="0" resource="1"
               file="Resources/Fonts/cpmono_bold.otf"/>
@@ -43,7 +45,7 @@
         <FILE id="Ajfosu2" name="silkscreen-serialized" compile="0" resource="1"
               file="Resources/Fonts/silkscreen-serialized"/>
         <FILE id="6ltFpCs" name="silkscreen.ttf" compile="0" resource="1" file="Resources/Fonts/silkscreen.ttf"/>
-        <FILE id="0zxP69" name="unibody-8.otf" compile="0" resource="1" file="Resources/Fonts/unibody-8.otf"/>
+        <FILE id="0zxP69" name="unibody-8.otf" compile="0" resource="0" file="Resources/Fonts/unibody-8.otf"/>
       </GROUP>
       <GROUP id="W2L6BdA" name="Images">
         <GROUP id="Gu1BsKu" name="Icons">

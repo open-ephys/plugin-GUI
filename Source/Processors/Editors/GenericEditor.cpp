@@ -22,6 +22,10 @@ GenericEditor::GenericEditor (GenericProcessor* owner, FilterViewport* vp)
 	Random r = Random(99);
 	r.setSeedRandomly();
 
+	MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    Typeface::Ptr typeface = new CustomTypeface(mis);
+    titleFont = Font(typeface);
+
 	//titleFont = new Font(14.0, Font::plain);
 
 	//titleFont->setTypefaceName(T("Miso"));
@@ -145,22 +149,18 @@ void GenericEditor::paint (Graphics& g)
 	g.fillRect(1,1,getWidth()-(2+offset),getHeight()-2);
 
 	g.setColour(Colour(192, 205, 209));
-	g.fillRect(4,20,getWidth()-(8+offset), getHeight()-24);
-	//g.fillRect(4,15,getWidth()-(8+offset), 20);
-
-	Font titleFont = Font(14.0, Font::plain);
-
-	//titleFont.setTypefaceName(T("Miso"));
+	g.fillRect(1,22,getWidth()-2, getHeight()-26);
 
 	g.setFont(titleFont);
+	g.setFont(14);
 
 	if (isEnabled) 
 	{
-		g.setColour(Colours::black);		
+		g.setColour(Colours::white);		
 	} else {
 		g.setColour(Colours::grey);
 	}
 
-	g.drawText(name, 8, 4, 100, 7, Justification::left, false);
+	g.drawText(name, 6, 5, 500, 15, Justification::left, false);
 
 }

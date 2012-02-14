@@ -10,7 +10,7 @@
 
 #include "ControlPanel.h"
 #include <stdio.h>
-
+#include <math.h>
 
 PlayButton::PlayButton()
 	: DrawableButton (T("PlayButton"), DrawableButton::ImageFitted)
@@ -132,13 +132,136 @@ void DiskSpaceMeter::paint(Graphics& g)
 	
 }
 
-Clock::Clock() : Label(T("Clock"),"00:00.00")
+Clock::Clock() : isRunning(false), isRecording(false)
 {
-	setColour(Label::textColourId, Colours::white);
+	const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_light_otf);
+	size_t bufferSize = BinaryData::cpmono_light_otfSize;
+
+	font = new FTPixmapFont(buffer, bufferSize);
+
+	totalTime = 0;
+	totalRecordTime = 0;
 }
 
 Clock::~Clock()
 {
+}
+
+void Clock::newOpenGLContextCreated()
+{
+	glMatrixMode (GL_PROJECTION);
+
+	glLoadIdentity();
+	glOrtho (0, 1, 1, 0, 0, 1);
+	glMatrixMode (GL_MODELVIEW);
+	
+	glEnable(GL_TEXTURE_2D);
+
+	glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
+
+	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+	glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_POINT_SMOOTH);
+	glEnable(GL_POLYGON_SMOOTH);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+}
+
+void Clock::renderOpenGL()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	drawTime();
+}
+
+void Clock::drawTime()
+{
+
+	if (isRunning)
+	{
+		int64 now = Time::currentTimeMillis();
+		int64 diff = now - lastTime;
+		totalTime += diff;
+
+		if (isRecording)
+		{
+			totalRecordTime += diff;
+		}
+
+		lastTime = Time::currentTimeMillis();
+	}
+
+	int m;
+	int s;
+
+	if (isRecording)
+	{
+		glColor4f(1.0, 0.0, 0.0, 1.0);
+		m = floor(totalRecordTime/60000);
+		s = floor((totalRecordTime - m*60000)/1000);
+
+	} else {
+		glColor4f(1.0, 1.0, 1.0, 1.0);
+		m = floor(totalTime/60000);
+		s = floor((totalTime - m*60000)/1000);
+	}
+
+	String timeString = "";
+
+	// if (m < 10)
+	// 	String timeString = "  ";
+	// else if (m < 100)
+		
+	timeString += m;
+	timeString += " min ";
+	timeString += s;
+	timeString += " s";
+
+	glRasterPos2f(8.0/getWidth(),0.75f);
+	font->FaceSize(23);
+	font->Render(timeString);
+
+
+} 
+
+void Clock::start()
+{
+	if (!isRunning)
+	{
+		isRunning = true;
+		lastTime = Time::currentTimeMillis();
+	}
+}
+
+void Clock::startRecording()
+{
+	if (!isRecording)
+	{
+		isRecording = true;
+		start();
+	}
+}
+
+void Clock::stop()
+{
+	if (isRunning)
+	{
+		isRunning = false;
+		isRecording = false;
+	}
+}
+
+void Clock::stopRecording()
+{
+	if (isRecording)
+	{
+		isRecording = false;
+	}
+
 }
 
 ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) : 
@@ -192,9 +315,9 @@ void ControlPanel::paint(Graphics& g)
 	g.setColour(Colour(58,58,58));
 	g.fillRect(0,0,getWidth(),getHeight());
 
-	g.setFont(font);
-	g.setColour(Colours::white);
-	g.drawText("CONTROL PANEL",getWidth()/2,0,getWidth(),getHeight(),Justification::left,true);
+	//g.setFont(font);
+	//g.setColour(Colours::white);
+	//g.drawText("CONTROL PANEL",getWidth()/2,0,getWidth(),getHeight(),Justification::left,true);
 }
 
 void ControlPanel::resized()
@@ -203,13 +326,13 @@ void ControlPanel::resized()
 	int h = getHeight();
 
 	if (playButton != 0)
-		playButton->setBounds(w-h*5,5,h-5,h-10);
+		playButton->setBounds(w-h*8,5,h-5,h-10);
 	
 	if (recordButton != 0)
-		recordButton->setBounds(w-h*4,5,h-5,h-10);
+		recordButton->setBounds(w-h*7,5,h-5,h-10);
 
 	if (masterClock != 0)
-		masterClock->setBounds(w-h*3,0,h*2,h);
+		masterClock->setBounds(w-h*6,0,h*6,h);
 	
 	if (cpuMeter != 0)
 		cpuMeter->setBounds(20,h/4,h*4,h/2);
@@ -230,11 +353,12 @@ void ControlPanel::buttonClicked(Button* button)
 		if (recordButton->getToggleState())
 		{
 			playButton->setToggleState(true,true);
-			graph->getRecordNode()->setParameter(1,10.0f); // turn on recording
+			graph->getRecordNode()->setParameter(1,10.0f);
+			masterClock->startRecording(); // turn on recording
 
 		} else {
 			graph->getRecordNode()->setParameter(0,10.0f); // turn off recording
-
+			masterClock->stopRecording();
 		}
 
 	} else if (button == playButton) {
@@ -250,10 +374,15 @@ void ControlPanel::buttonClicked(Button* button)
 	{
 
 		if (!audio->callbacksAreActive()) {
-			if (graph->enableProcessors())
+			
+			if (graph->enableProcessors()) 
+			{
 				audio->beginCallbacks();
-			else
-				playButton->setToggleState(false, false);
+				masterClock->start();
+			}
+			
+		} else {
+			playButton->setToggleState(false, false);
 		}
 
 	} else {
@@ -262,6 +391,7 @@ void ControlPanel::buttonClicked(Button* button)
 			audio->endCallbacks();
 			graph->disableProcessors();
 			cpuMeter->updateCPU(0.0f);
+			masterClock->stop();
 		}
 
 	}
@@ -309,6 +439,8 @@ void ControlPanel::timerCallback()
 	}
 
 	cpuMeter->repaint();
+
+	masterClock->repaint();
 
 	diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
 	diskMeter->repaint();

@@ -7,6 +7,9 @@
 
 namespace BinaryData
 {
+    extern const char*   nordicserialized;
+    const int            nordicserializedSize = 13872;
+
     extern const char*   BebasNeue_otf;
     const int            BebasNeue_otfSize = 48648;
 
@@ -45,9 +48,6 @@ namespace BinaryData
 
     extern const char*   silkscreen_ttf;
     const int            silkscreen_ttfSize = 18336;
-
-    extern const char*   unibody8_otf;
-    const int            unibody8_otfSize = 18512;
 
     extern const char*   DefaultDataSource_png;
     const int            DefaultDataSource_pngSize = 14143;

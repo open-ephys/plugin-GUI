@@ -18,6 +18,31 @@
 #include "../Processors/RecordNode.h"
 #include "CustomLookAndFeel.h"
 
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+#if JUCE_WINDOWS
+#include <gl/gl.h>
+#include <gl/glu.h>
+#elif JUCE_LINUX
+#include <GL/gl.h>
+#include <GL/glut.h>
+#undef KeyPress
+#elif JUCE_IPHONE
+#include <OpenGLES/ES1/gl.h>
+#include <OpenGLES/ES1/glext.h>
+#elif JUCE_MAC
+#include <GLUT/glut.h>
+#endif
+
+#ifndef GL_BGRA_EXT
+#define GL_BGRA_EXT 0x80e1
+#endif
+
+#include <FTGL/ftgl.h>
+
 class PlayButton : public DrawableButton
 {
 	public:
@@ -67,11 +92,34 @@ private:
 	
 };
 
-class Clock : public Label
+class Clock : public OpenGLComponent
 {
 	public:
 		Clock();
 		~Clock();
+
+		void newOpenGLContextCreated();
+		void renderOpenGL();
+
+		void start();
+		void stop();
+
+		void startRecording();
+		void stopRecording();
+
+	private:
+
+		void drawTime();
+
+		int64 lastTime;
+
+		int64 totalTime;
+		int64 totalRecordTime;
+
+		bool isRunning;
+		bool isRecording;
+
+		FTPixmapFont* font;
 };
 
 

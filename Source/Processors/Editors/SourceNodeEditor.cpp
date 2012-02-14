@@ -18,17 +18,17 @@ SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode, FilterViewport
 	: GenericEditor(parentNode, vp)
 
 {
-	desiredWidth = 125;
+	desiredWidth = 200;
 
 	Image im;
 
 	std::cout << getName() << std::endl;
 
-	if (getName().equalsIgnoreCase("Data Sources/Intan Demo Board"))
+	if (getName().equalsIgnoreCase("Intan Demo Board"))
 	{
 		im = ImageCache::getFromMemory (BinaryData::IntanIcon_png, 
 									    BinaryData::IntanIcon_pngSize);
-	} else if (getName().equalsIgnoreCase("Data Sources/File Reader")) {
+	} else if (getName().equalsIgnoreCase("File Reader")) {
 		im = ImageCache::getFromMemory (BinaryData::FileReaderIcon_png, 
 									    BinaryData::FileReaderIcon_pngSize);	
 	} else {
