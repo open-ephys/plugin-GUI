@@ -74,7 +74,7 @@ private:
 	int getTotalHeight();
 
 	// void resized();
-	// void mouseDown(const MouseEvent& e);
+	 void mouseDown(const MouseEvent& e);
 	// void mouseDrag(const MouseEvent& e);
 	// void mouseMove(const MouseEvent& e);
 	// void mouseUp(const MouseEvent& e);

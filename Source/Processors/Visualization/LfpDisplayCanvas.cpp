@@ -11,7 +11,7 @@
 #include "LfpDisplayCanvas.h"
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
-	 	xBuffer(10), yBuffer(10),
+	 	xBuffer(0), yBuffer(10),
 	    plotHeight(60), selectedChan(-1), screenBufferIndex(0),
 	    timebase(1.0f), displayGain(5.0f), displayBufferIndex(0)
 {
@@ -45,7 +45,7 @@ void LfpDisplayCanvas::newOpenGLContextCreated()
 	setUp2DCanvas();
 	activateAntiAliasing();
 
-	glClearColor (0.8, 0.8, 0.8, 1.0);
+	glClearColor (0.8, 0.8, 0.9, 1.0);
 	resized();
 
 	screenBuffer = new AudioSampleBuffer(nChans, 10000);
@@ -187,7 +187,7 @@ void LfpDisplayCanvas::renderOpenGL()
 
 		if (checkBounds(i)) {
 			setViewport(i);
-			drawBorder(isSelected);
+			//drawBorder(isSelected);
 			drawChannelInfo(i,isSelected);
 			drawWaveform(i,isSelected);
 		}	
@@ -293,12 +293,12 @@ void LfpDisplayCanvas::drawChannelInfo(int chan, bool isSelected)
 		alpha = 1.0f;
 
 	glColor4f(0.0f,0.0f,0.0f,alpha);
-	glRasterPos2f(5.0f/getWidth(),0.3);
-	String s = String("Channel ");
+	glRasterPos2f(5.0f/getWidth(),0.9);
+	String s = "";//String("Channel ");
 	s += (chan+1);
 
-	getFont(String("miso-regular"))->FaceSize(16);
-	getFont(String("miso-regular"))->Render(s);
+	getFont(String("cpmono-extra-light"))->FaceSize(35);
+	getFont(String("cpmono-extra-light"))->Render(s);
 }
 
 int LfpDisplayCanvas::getTotalHeight() 
@@ -307,23 +307,23 @@ int LfpDisplayCanvas::getTotalHeight()
 }
 
 
-// void LfpDisplayCanvas::mouseDown(const MouseEvent& e) 
-// {
+void LfpDisplayCanvas::mouseDown(const MouseEvent& e) 
+{
 
-// 	Point<int> pos = e.getPosition();
-// 	int xcoord = pos.getX();
+	Point<int> pos = e.getPosition();
+	int xcoord = pos.getX();
 
-// 	if (xcoord < getWidth()-getScrollBarWidth())
-// 	{
-// 		int chan = (e.getMouseDownY() + getScrollAmount())/(yBuffer+plotHeight);
+	if (xcoord < getWidth()-getScrollBarWidth())
+	{
+		int chan = (e.getMouseDownY() + getScrollAmount())/(yBuffer+plotHeight);
 
-// 			selectedChan = chan;
+			selectedChan = chan;
 
-// 		repaint();
-// 	}
+		repaint();
+	}
 
-// 	mouseDownInCanvas(e);
-// }
+	mouseDownInCanvas(e);
+}
 
 // void LfpDisplayCanvas::mouseDrag(const MouseEvent& e) {mouseDragInCanvas(e);}
 // void LfpDisplayCanvas::mouseMove(const MouseEvent& e) {mouseMoveInCanvas(e);}

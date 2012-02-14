@@ -62,6 +62,8 @@ private:
 
 	int sourceCheckInterval;
 
+	bool wasDisabled;
+
 	//const String name;
 	void timerCallback();
 

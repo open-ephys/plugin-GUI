@@ -16,7 +16,7 @@
 SourceNode::SourceNode(const String& name_)
 	: GenericProcessor(name_),
 	  dataThread(0),
-	  sourceCheckInterval(1500)
+	  sourceCheckInterval(750), wasDisabled(true)
 {
 	if (getName().equalsIgnoreCase("Intan Demo Board")) {
 		dataThread = new IntanThread(this);
@@ -156,6 +156,8 @@ bool SourceNode::enable() {
 	
 	std::cout << "Source node received enable signal" << std::endl;
 
+	wasDisabled = false;
+
 	if (dataThread != 0)
 	{
 		if (dataThread->foundInputSource())
@@ -170,6 +172,8 @@ bool SourceNode::enable() {
 	}
 
 	stopTimer();
+
+	
 
 	// bool return_code = true;
 
@@ -203,23 +207,23 @@ bool SourceNode::disable() {
 	
 	startTimer(2000);
 
-	// if (dataThread != 0) {
-	// 	delete dataThread;
-	// 	dataThread = 0;
-	// }
+	wasDisabled = true;
 
 	return true;
 }
 
 void SourceNode::acquisitionStopped()
 {
-	if (!dataThread->foundInputSource()) {
-		std::cout << "Source node sending signal to UI." << std::endl;
-		UI->disableCallbacks();
-		enabledState(false);
-		GenericEditor* ed = (GenericEditor*) getEditor();
-		viewport->updateVisibleEditors(ed, 4);
-	}
+	//if (!dataThread->foundInputSource()) {
+		
+		if (!wasDisabled) {
+			std::cout << "Source node sending signal to UI." << std::endl;
+			UI->disableCallbacks();
+			enabledState(false);
+			GenericEditor* ed = (GenericEditor*) getEditor();
+			viewport->updateVisibleEditors(ed, 4);
+		}
+	//}
 }
 
 
