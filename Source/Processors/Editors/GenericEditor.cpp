@@ -27,13 +27,13 @@ GenericEditor::GenericEditor (GenericProcessor* owner, FilterViewport* vp)
 	//titleFont->setTypefaceName(T("Miso"));
 
 	if (owner->isSource())
-		backgroundColor = Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
+		backgroundColor = Colour(255, 0, 0);//Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
 	else if (owner->isSink())
-		backgroundColor = Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
+		backgroundColor = Colour(255, 149, 0);//Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
 	else if (owner->isSplitter() || owner->isMerger())
-		backgroundColor = Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
+		backgroundColor = Colour(80, 80, 80);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
 	else
-		backgroundColor = Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
+		backgroundColor = Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
 
 }
 
@@ -132,39 +132,21 @@ void GenericEditor::paint (Graphics& g)
 
 	GenericProcessor* p = (GenericProcessor*) getProcessor();
 
-	//g.setColour(Colour(127,137,147));
-	//g.fillAll();
-
-	if (isSelected)
+	if (isSelected) {
 		g.setColour(Colours::yellow);
-	else
-		g.setColour(Colours::darkgrey);
-	
-	
-	g.fillRoundedRectangle(0,0,getWidth()-offset,getHeight(),7.0);
-	
+		g.fillRect(0,0,getWidth()-offset,getHeight());
+	}
 
 	if (isEnabled)
 		g.setColour(backgroundColor);
 	else 
 		g.setColour(Colours::lightgrey);
 
-	// if (p->isSource()) {
-	// 	g.setColour(Colours::red);
-	// } else if (p->isSink()) {
-	// 	g.setColour(Colours::blue);
-	// } else if (p->isSplitter() || p->isMerger())
-	// 	{
-	// 	g.setColour(Colours::darkgrey);
-	// } else {
-	// 	g.setColour(Colours::red);
-	// }
+	g.fillRect(1,1,getWidth()-(2+offset),getHeight()-2);
 
-	g.fillRoundedRectangle(1,1,getWidth()-(2+offset),getHeight()-2,6.0);
-
-	g.setColour(Colours::grey);
-	g.fillRoundedRectangle(4,15,getWidth()-(8+offset), getHeight()-19,5.0);
-	g.fillRect(4,15,getWidth()-(8+offset), 20);
+	g.setColour(Colour(192, 205, 209));
+	g.fillRect(4,20,getWidth()-(8+offset), getHeight()-24);
+	//g.fillRect(4,15,getWidth()-(8+offset), 20);
 
 	Font titleFont = Font(14.0, Font::plain);
 

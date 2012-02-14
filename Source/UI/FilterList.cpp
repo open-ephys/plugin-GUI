@@ -53,6 +53,26 @@ FilterList::FilterList() : isDragging(false)
 	baseItem->addSubItem(sinks);
 	baseItem->addSubItem(utilities);
 
+	// set parent names / colors
+	
+
+	baseItem->setParentName("Processors");
+
+	for (int n = 0; n < baseItem->getNumSubItems(); n++)
+	{
+
+		const String category = baseItem->getSubItem(n)->getName();
+		baseItem->getSubItem(n)->setParentName(category);
+
+			for (int m = 0; m < baseItem->getSubItem(n)->getNumSubItems(); m++)
+			{
+
+				baseItem->getSubItem(n)->getSubItem(m)->setParentName(category);// = category;
+
+			}
+			
+	}
+
 }
 
 FilterList::~FilterList()
@@ -133,8 +153,6 @@ void FilterList::drawItems()
 								 hasSubItems());
 					drawItem(baseItem->getSubItem(n)->getSubItem(m));
 
-					baseItem->getSubItem(n)->getSubItem(m)->parentName = category;
-
 				}
 			}			
 		}
@@ -146,30 +164,11 @@ void FilterList::drawItems()
 
 void FilterList::drawItem(FilterListItem* item)
 {
-	if (category.startsWith("P"))
-	{
-		glColor4f(0.23f, 0.23f, 0.23f, 1.0f); // [59 59 59]
-		item->color = Colour(int(0.23*255.0f),int(0.23*255.0f),int(0.23*255.0f));
-	} else if (category.startsWith("So"))
-	{
-		glColor4f(0.9f, 0.019f, 0.16f, 1.0f); // [232 5 43]
-		item->color = Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
-	} else if (category.startsWith("F"))
-	{
-		glColor4f(1.0f, 0.5f, 0.0f, 1.0f);
-		item->color = Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
-	} else if (category.startsWith("Si"))
-	{
-		glColor4f(0.06f, 0.46f, 0.9f, 1.0f);
-		item->color = Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
-	} else if (category.startsWith("U"))
-	{
-		glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
-		item->color = Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
-	} else {
-		glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
-		item->color = Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
-	}
+	
+	glColor4f(item->color.getFloatRed(),
+		      item->color.getFloatGreen(),
+		      item->color.getFloatBlue(),
+		      1.0f);
 
 	glBegin(GL_POLYGON);
 	glVertex2f(0,0);
@@ -178,33 +177,12 @@ void FilterList::drawItem(FilterListItem* item)
 	glVertex2f(0,1);
 	glEnd();
 
-	// if (item->isSelected())
-	// {
-	// 	glColor4f(1.0,1.0,1.0,1.0);
-	// 	glLineWidth(3.0);
-	// 	glBegin(GL_LINE_STRIP);
-	// 	glVertex2f(0,0);
-	// 	glVertex2f(1,0);
-	// 	glVertex2f(1,1);
-	// 	glVertex2f(0,1);
-	// 	glEnd();
-	// }
-
-
-
 	drawItemName(item);
 
 	if (item->hasSubItems())
 	{
 		drawButton(item->isOpen());
 	}
-
-	// glBegin(GL_POLYGON);
-	// glVertex2f(0,0);
-	// glVertex2f(1,0);
-	// glVertex2f(1,1);
-	// glVertex2f(0,1);
-	// glEnd();
 
 }
 
@@ -428,7 +406,7 @@ void FilterList::mouseDrag(const MouseEvent& e)
 			{
 				isDragging = true;
 
-				String b = fli->parentName;
+				String b = fli->getParentName();
 				b += "/";
 				b += fli->getName();
 
@@ -526,7 +504,54 @@ void FilterListItem::setOpen(bool t)
 	open = t;
 }
 
-const String FilterListItem::getName()
+const String& FilterListItem::getName()
 {
 	return name;
 }
+
+
+const String& FilterListItem::getParentName()
+{
+	return parentName;
+}
+
+void FilterListItem::setParentName(const String& name)
+{
+	parentName = name;
+
+	if (parentName.equalsIgnoreCase("Processors"))
+	{
+		color = Colour(59, 59, 59);
+
+	} else if (parentName.equalsIgnoreCase("Filters"))
+	{
+		color = Colour(255, 89, 0);
+	} else if (parentName.equalsIgnoreCase("Sinks"))
+	{
+		color = Colour(255, 149, 0);
+	} else if (parentName.equalsIgnoreCase("Sources"))
+	{
+		color = Colour(255, 0, 0);
+
+	} else {
+		color = Colour(90, 80, 80);
+	}
+}
+
+	// Blue slate:
+	// if (parentName.equalsIgnoreCase("Processors"))
+	// {
+	// 	color = Colour(59, 59, 59);
+	// } else if (parentName.equalsIgnoreCase("Filters"))
+	// {
+	// 	color = Colour(82, 101, 163);
+	// } else if (parentName.equalsIgnoreCase("Sinks"))
+	// {
+	// 	color = Colour(48, 61, 102);
+	// } else if (parentName.equalsIgnoreCase("Sources"))
+	// {
+	// 	color = Colour(151, 170, 230);
+
+	// } else {
+	// 	color = Colour(20, 37, 92);
+	// }

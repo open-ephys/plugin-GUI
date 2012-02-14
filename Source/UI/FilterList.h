@@ -32,7 +32,7 @@ public:
 
 	void setUIComponent(UIComponent* ui) {UI = ui;}
 
-	
+
 	bool isOpen();
 
 private:
@@ -116,8 +116,9 @@ public:
 
 	void reverseOpenState() {open = !open;}
 
-	const String getName();
-	String parentName;
+	const String& getName();
+	const String& getParentName();
+	void setParentName(const String& name);
 
 	Colour color;
 
@@ -126,6 +127,7 @@ private:
 	bool selected;
 	bool open;
 	const String name;
+	String parentName;
 	OwnedArray<FilterListItem> subItems;
 	
 };

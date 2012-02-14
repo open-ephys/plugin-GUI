@@ -2,7 +2,8 @@
 
 <PROCESSORGRAPH>
   <SIGNALCHAIN>
-    <PROCESSOR name="Sources/Signal Generator" insertionPoint="0"/>
-    <PROCESSOR name="Sinks/LFP Viewer" insertionPoint="1"/>
+    <PROCESSOR name="Sources/Intan Demo Board" insertionPoint="0"/>
+    <PROCESSOR name="Filters/Bandpass Filter" insertionPoint="1"/>
+    <PROCESSOR name="Sinks/LFP Viewer" insertionPoint="2"/>
   </SIGNALCHAIN>
 </PROCESSORGRAPH>
