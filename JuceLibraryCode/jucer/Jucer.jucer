@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="M70qfTRRk" name="The Jucer" projectType="guiapp" juceLinkage="amalg_multi"
+              juceFolder="../../juce" jucerVersion="3.0.0" version="3.0.0"
+              buildVST="1" buildRTAS="0" buildAU="1" vstFolderMac="~/SDKs/vstsdk2.4"
+              vstFolderPC="c:\SDKs\vstsdk2.4" rtasFolderMac="~/SDKs/PT_80_SDK"
+              rtasFolderPC="c:\SDKs\PT_80_SDK" pluginName="The Jucer" pluginDesc="The Jucer"
+              pluginManufacturer="yourcompany" pluginManufacturerCode="abcd"
+              pluginCode="Abcd" pluginChannelConfigs="{ {1, 1}, {2, 2} }" pluginIsSynth="0"
+              pluginWantsMidiIn="0" pluginProducesMidiOut="0" pluginSilenceInIsSilenceOut="0"
+              pluginTailLength="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="TheJucerAU"
+              pluginAUViewClass="TheJucerAU_V1" pluginRTASCategory="" bundleIdentifier="com.rawmaterialsoftware.thejucer">
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
+               juceFolder=".." documentExtensions=".jucer"/>
+    <VS2005 targetFolder="Builds/VisualStudio2005" vstFolder="c:\SDKs\vstsdk2.4"
+            rtasFolder="c:\SDKs\PT_80_SDK" juceFolder=".." libraryType="1"/>
+    <VS2008 targetFolder="Builds/VisualStudio2008" vstFolder="c:\SDKs\vstsdk2.4"
+            rtasFolder="c:\SDKs\PT_80_SDK" juceFolder=".." libraryType="1"/>
+    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder=".."/>
+    <VS2010 targetFolder="Builds/VisualStudio2010" vstFolder="c:\SDKs\vstsdk2.4"
+            rtasFolder="c:\SDKs\PT_80_SDK" libraryType="1" juceFolder=".."/>
+  </EXPORTFORMATS>
+  <CONFIGURATIONS>
+    <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Jucer"
+                   osxSDK="1" osxCompatibility="1"/>
+    <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="Jucer"
+                   osxSDK="1" osxCompatibility="1"/>
+  </CONFIGURATIONS>
+  <MAINGROUP name="The Jucer" id="NhrJq66R">
+    <GROUP id="mslFIKZ" name="Application">
+      <FILE id="PXX8Yi" name="jucer_Application.h" compile="0" resource="0"
+            file="Source/Application/jucer_Application.h"/>
+      <FILE id="lHd3UQJ" name="jucer_CommandIDs.h" compile="0" resource="0"
+            file="Source/Application/jucer_CommandIDs.h"/>
+      <FILE id="vXhFyvd" name="jucer_CommonHeaders.h" compile="0" resource="0"
+            file="Source/Application/jucer_CommonHeaders.h"/>
+      <FILE id="YNZhhqp" name="jucer_DocumentEditorComponent.cpp" compile="1"
+            resource="0" file="Source/Application/jucer_DocumentEditorComponent.cpp"/>
+      <FILE id="tyrTEq" name="jucer_DocumentEditorComponent.h" compile="0"
+            resource="0" file="Source/Application/jucer_DocumentEditorComponent.h"/>
+      <FILE id="jGu5u7N" name="jucer_FilePreviewComponent.cpp" compile="1"
+            resource="0" file="Source/Application/jucer_FilePreviewComponent.cpp"/>
+      <FILE id="C4MqR1U" name="jucer_FilePreviewComponent.h" compile="0"
+            resource="0" file="Source/Application/jucer_FilePreviewComponent.h"/>
+      <FILE id="qXOJtpg" name="jucer_Headers.h" compile="0" resource="0"
+            file="Source/jucer_Headers.h"/>
+      <FILE id="uXkdSAZ" name="jucer_JuceUpdater.cpp" compile="1" resource="0"
+            file="Source/Application/jucer_JuceUpdater.cpp"/>
+      <FILE id="QWUk0cM" name="jucer_JuceUpdater.h" compile="0" resource="0"
+            file="Source/Application/jucer_JuceUpdater.h"/>
+      <FILE id="ga7xgxf" name="jucer_Main.cpp" compile="1" resource="0" file="Source/Application/jucer_Main.cpp"/>
+      <FILE id="Glk9Bg" name="jucer_MainWindow.cpp" compile="1" resource="0"
+            file="Source/Application/jucer_MainWindow.cpp"/>
+      <FILE id="OUmWPg" name="jucer_MainWindow.h" compile="0" resource="0"
+            file="Source/Application/jucer_MainWindow.h"/>
+      <FILE id="9hfMs0O" name="jucer_OpenDocumentManager.cpp" compile="1"
+            resource="0" file="Source/Application/jucer_OpenDocumentManager.cpp"/>
+      <FILE id="NYEknlp" name="jucer_OpenDocumentManager.h" compile="0" resource="0"
+            file="Source/Application/jucer_OpenDocumentManager.h"/>
+    </GROUP>
+    <GROUP id="i1s14uV" name="Code Editor">
+      <FILE id="36CkPUf" name="jucer_SourceCodeEditor.cpp" compile="1" resource="0"
+            file="Source/Code Editor/jucer_SourceCodeEditor.cpp"/>
+      <FILE id="CygyGGA" name="jucer_SourceCodeEditor.h" compile="0" resource="0"
+            file="Source/Code Editor/jucer_SourceCodeEditor.h"/>
+    </GROUP>
+    <GROUP id="vGFZIJg" name="Project">
+      <FILE id="Wx7kXq7" name="jucer_GroupInformationComponent.cpp" compile="1"
+            resource="0" file="Source/Project/jucer_GroupInformationComponent.cpp"/>
+      <FILE id="sQjHbVN" name="jucer_GroupInformationComponent.h" compile="0"
+            resource="0" file="Source/Project/jucer_GroupInformationComponent.h"/>
+      <FILE id="Vf0IGtm" name="jucer_NewFileWizard.cpp" compile="1" resource="0"
+            file="Source/Project/jucer_NewFileWizard.cpp"/>
+      <FILE id="VRwC9Js" name="jucer_NewFileWizard.h" compile="0" resource="0"
+            file="Source/Project/jucer_NewFileWizard.h"/>
+      <FILE id="zOpCNRX" name="jucer_NewProjectWizard.cpp" compile="1" resource="0"
+            file="Source/Project/jucer_NewProjectWizard.cpp"/>
+      <FILE id="QLdtoIl" name="jucer_NewProjectWizard.h" compile="0" resource="0"
+            file="Source/Project/jucer_NewProjectWizard.h"/>
+      <FILE id="o4UdN4D" name="jucer_Project.cpp" compile="1" resource="0"
+            file="Source/Project/jucer_Project.cpp"/>
+      <FILE id="aFopF9G" name="jucer_Project.h" compile="0" resource="0"
+            file="Source/Project/jucer_Project.h"/>
+      <FILE id="KqyDGWJ" name="jucer_ProjectContentComponent.cpp" compile="1"
+            resource="0" file="Source/Project/jucer_ProjectContentComponent.cpp"/>
+      <FILE id="mIJMR08" name="jucer_ProjectContentComponent.h" compile="0"
+            resource="0" file="Source/Project/jucer_ProjectContentComponent.h"/>
+      <FILE id="h6J3UPy" name="jucer_ProjectExporter.cpp" compile="1" resource="0"
+            file="Source/Project/jucer_ProjectExporter.cpp"/>
+      <FILE id="KFY4Re5" name="jucer_ProjectExporter.h" compile="0" resource="0"
+            file="Source/Project/jucer_ProjectExporter.h"/>
+      <FILE id="b8ouh7s" name="jucer_ProjectExport_Make.h" compile="0" resource="0"
+            file="Source/Project/jucer_ProjectExport_Make.h"/>
+      <FILE id="lbo8KcG" name="jucer_ProjectExport_MSVC.h" compile="0" resource="0"
+            file="Source/Project/jucer_ProjectExport_MSVC.h"/>
+      <FILE id="ymhtjf" name="jucer_ProjectExport_XCode.h" compile="0" resource="0"
+            file="Source/Project/jucer_ProjectExport_XCode.h"/>
+      <FILE id="5I09Gpe" name="jucer_ProjectInformationComponent.cpp" compile="1"
+            resource="0" file="Source/Project/jucer_ProjectInformationComponent.cpp"/>
+      <FILE id="nvEyCt5" name="jucer_ProjectInformationComponent.h" compile="0"
+            resource="0" file="Source/Project/jucer_ProjectInformationComponent.h"/>
+      <FILE id="grlWO2E" name="jucer_ProjectSaver.h" compile="0" resource="0"
+            file="Source/Project/jucer_ProjectSaver.h"/>
+      <FILE id="TL3snCb" name="jucer_ProjectTreeViewBase.cpp" compile="1"
+            resource="0" file="Source/Project/jucer_ProjectTreeViewBase.cpp"/>
+      <FILE id="UwhAsi1" name="jucer_ProjectTreeViewBase.h" compile="0" resource="0"
+            file="Source/Project/jucer_ProjectTreeViewBase.h"/>
+      <FILE id="pIeJPuR" name="jucer_ResourceFile.cpp" compile="1" resource="0"
+            file="Source/Project/jucer_ResourceFile.cpp"/>
+      <FILE id="Bvb3uEg" name="jucer_ResourceFile.h" compile="0" resource="0"
+            file="Source/Project/jucer_ResourceFile.h"/>
+      <FILE id="JTbTiIc" name="jucer_TreeViewTypes.cpp" compile="1" resource="0"
+            file="Source/Project/jucer_TreeViewTypes.cpp"/>
+      <FILE id="WaT0B16" name="jucer_TreeViewTypes.h" compile="0" resource="0"
+            file="Source/Project/jucer_TreeViewTypes.h"/>
+    </GROUP>
+    <GROUP id="Ga8fLmv" name="Utility">
+      <FILE id="mceJWJc" name="jucer_CodeHelpers.cpp" compile="1" resource="0"
+            file="Source/Utility/jucer_CodeHelpers.cpp"/>
+      <FILE id="BBRteob" name="jucer_CodeHelpers.h" compile="0" resource="0"
+            file="Source/Utility/jucer_CodeHelpers.h"/>
+      <FILE id="wQtNWXb" name="jucer_Colours.h" compile="0" resource="0"
+            file="Source/Utility/jucer_Colours.h"/>
+      <FILE id="MQYSse6" name="jucer_FileHelpers.cpp" compile="1" resource="0"
+            file="Source/Utility/jucer_FileHelpers.cpp"/>
+      <FILE id="NeLXzRp" name="jucer_FileHelpers.h" compile="0" resource="0"
+            file="Source/Utility/jucer_FileHelpers.h"/>
+      <FILE id="4fxv0YC" name="jucer_JucerTreeViewBase.cpp" compile="1" resource="0"
+            file="Source/Utility/jucer_JucerTreeViewBase.cpp"/>
+      <FILE id="F0vVVSX" name="jucer_JucerTreeViewBase.h" compile="0" resource="0"
+            file="Source/Utility/jucer_JucerTreeViewBase.h"/>
+      <FILE id="P4hiiqU" name="jucer_MiscUtilities.cpp" compile="1" resource="0"
+            file="Source/Utility/jucer_MiscUtilities.cpp"/>
+      <FILE id="xyRXOU6" name="jucer_MiscUtilities.h" compile="0" resource="0"
+            file="Source/Utility/jucer_MiscUtilities.h"/>
+      <FILE id="i0HWAP4" name="jucer_PresetIDs.h" compile="0" resource="0"
+            file="Source/Utility/jucer_PresetIDs.h"/>
+      <FILE id="F3VxlRX" name="jucer_RelativePath.h" compile="0" resource="0"
+            file="Source/Utility/jucer_RelativePath.h"/>
+      <FILE id="5UDCwsI" name="jucer_StoredSettings.cpp" compile="1" resource="0"
+            file="Source/Utility/jucer_StoredSettings.cpp"/>
+      <FILE id="BkswLvF" name="jucer_StoredSettings.h" compile="0" resource="0"
+            file="Source/Utility/jucer_StoredSettings.h"/>
+      <FILE id="lZ9s99o" name="jucer_ValueSourceHelpers.h" compile="0" resource="0"
+            file="Source/Utility/jucer_ValueSourceHelpers.h"/>
+    </GROUP>
+    <GROUP id="KPIRFfz" name="BinaryData">
+      <FILE id="RSJcrRl" name="AudioPluginXCodeScript.txt" compile="0" resource="1"
+            file="Source/BinaryData/AudioPluginXCodeScript.txt"/>
+      <FILE id="mDywA9N" name="brushed_aluminium.png" compile="0" resource="1"
+            file="Source/BinaryData/brushed_aluminium.png"/>
+      <FILE id="8H7vztx" name="jucer_AudioPluginEditorTemplate.cpp" compile="0"
+            resource="1" file="Source/BinaryData/jucer_AudioPluginEditorTemplate.cpp"/>
+      <FILE id="908LsXi" name="jucer_AudioPluginEditorTemplate.h" compile="0"
+            resource="1" file="Source/BinaryData/jucer_AudioPluginEditorTemplate.h"/>
+      <FILE id="AfHjhZ9" name="jucer_AudioPluginFilterTemplate.cpp" compile="0"
+            resource="1" file="Source/BinaryData/jucer_AudioPluginFilterTemplate.cpp"/>
+      <FILE id="pvgTmND" name="jucer_AudioPluginFilterTemplate.h" compile="0"
+            resource="1" file="Source/BinaryData/jucer_AudioPluginFilterTemplate.h"/>
+      <FILE id="pizYtv9" name="jucer_MainConsoleAppTemplate.cpp" compile="0"
+            resource="1" file="Source/BinaryData/jucer_MainConsoleAppTemplate.cpp"/>
+      <FILE id="gJwHD6A" name="jucer_MainTemplate.cpp" compile="0" resource="1"
+            file="Source/BinaryData/jucer_MainTemplate.cpp"/>
+      <FILE id="cI2ImgX" name="jucer_NewCppFileTemplate.cpp" compile="0"
+            resource="1" file="Source/BinaryData/jucer_NewCppFileTemplate.cpp"/>
+      <FILE id="YDcz5P" name="jucer_NewCppFileTemplate.h" compile="0" resource="1"
+            file="Source/BinaryData/jucer_NewCppFileTemplate.h"/>
+      <FILE id="qk3GRQF" name="jucer_WindowTemplate.cpp" compile="0" resource="1"
+            file="Source/BinaryData/jucer_WindowTemplate.cpp"/>
+      <FILE id="2WpRpdr" name="jucer_WindowTemplate.h" compile="0" resource="1"
+            file="Source/BinaryData/jucer_WindowTemplate.h"/>
+      <FILE id="rVgowdy" name="juce_icon.png" compile="0" resource="1" file="Source/BinaryData/juce_icon.png"/>
+    </GROUP>
+  </MAINGROUP>
+  <JUCEOPTIONS JUCE_ASIO="disabled" JUCE_WASAPI="disabled" JUCE_DIRECTSOUND="disabled"
+               JUCE_ALSA="disabled" JUCE_QUICKTIME="disabled" JUCE_OPENGL="disabled"
+               JUCE_USE_FLAC="disabled" JUCE_USE_OGGBVORBIS="2" JUCE_USE_CDBURNER="disabled"
+               JUCE_USE_CDREADER="disabled" JUCE_USE_CAMERA="disabled" JUCE_PLUGINHOST_VST="disabled"
+               JUCE_PLUGINHOST_AU="disabled" JUCE_USE_OGGVORBIS="disabled" JUCE_FORCE_DEBUG="default"
+               JUCE_LOG_ASSERTIONS="default" JUCE_ENABLE_REPAINT_DEBUGGING="default"
+               JUCE_USE_XINERAMA="default" JUCE_USE_XSHM="default" JUCE_ONLY_BUILD_CORE_LIBRARY="default"
+               JUCE_WEB_BROWSER="default" JUCE_SUPPORT_CARBON="default" JUCE_CHECK_MEMORY_LEAKS="default"
+               JUCE_CATCH_UNHANDLED_EXCEPTIONS="default" JUCE_STRINGS_ARE_UNICODE="default"
+               JUCE_USE_XRENDER="default" JUCE_USE_XCURSOR="default" JUCE_DIRECT2D="default"/>
+</JUCERPROJECT>
