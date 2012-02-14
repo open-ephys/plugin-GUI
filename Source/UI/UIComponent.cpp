@@ -119,7 +119,10 @@ void UIComponent::resized()
 
 	if (filterList != 0) {
 		if (filterList->isOpen())
-			filterList->setBounds(5,5,195,h-205);
+			if (filterViewportButton->isOpen())
+				filterList->setBounds(5,5,195,h-200);
+			else
+				filterList->setBounds(5,5,195,h-50);
 		else
 			filterList->setBounds(5,5,195,34);
 	}
