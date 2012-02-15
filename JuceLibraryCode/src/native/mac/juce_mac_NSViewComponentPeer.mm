@@ -1664,12 +1664,12 @@ void juce_setKioskComponent (Component* kioskModeComponent, bool enableOrDisable
     // is apparently still available in 64-bit apps..
     if (enableOrDisable)
     {
-        SetSystemUIMode (kUIModeAllSuppressed, allowMenusAndBars ? kUIOptionAutoShowMenuBar : 0);
-        kioskModeComponent->setBounds (Desktop::getInstance().getMainMonitorArea (false));
+       // SetSystemUIMode (kUIModeAllSuppressed, allowMenusAndBars ? kUIOptionAutoShowMenuBar : 0);
+       // kioskModeComponent->setBounds (Desktop::getInstance().getMainMonitorArea (false));
     }
     else
     {
-        SetSystemUIMode (kUIModeNormal, 0);
+      //  SetSystemUIMode (kUIModeNormal, 0);
     }
 }
 
