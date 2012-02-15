@@ -8,7 +8,7 @@ Everything is written in C++, with the help of the Juce_ library. The Juce libra
 
 This repository contains all of the files you'll need to compile and run the GUI on Linux and Mac OS X. The makefile (for Linux) and XCode project (for Mac) are located in the Builds/ directory.
 
-If you want to add files, or create Windows binaries, you'll have to do that through "The Jucer," using the "open-ephys.jucer" file. The Jucer makefiles are located in the JuceSourceCode/jucer/Builds folder, or as part of the Juce library package on SourceForge_.
+If you want to add files, or create Windows binaries, you'll have to do that through "The Jucer," using the "open-ephys.jucer" file. The Jucer makefiles are located in the JuceLibraryCode/jucer/Builds folder, or as part of the Juce library package on SourceForge_.
 
 .. _SourceForge: http://sourceforge.net/projects/juce/files/juce/
 .. _JUCE: http://www.rawmaterialsoftware.com/juce.php
