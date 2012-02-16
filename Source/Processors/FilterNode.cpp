@@ -213,7 +213,7 @@ void FilterNode::process(AudioSampleBuffer &buffer,
     //std::cout << "Filter node:" << *buffer.getSampleData(0,0);
 
 
-    int ts = checkForMidiEvents(midiMessages);
+    //int ts = checkForMidiEvents(midiMessages);
 
-    std::cout << "Timestamp = " << ts << std::endl;
+    //std::cout << "Timestamp = " << ts << std::endl;
 }

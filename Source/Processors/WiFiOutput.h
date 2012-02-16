@@ -1,48 +1,50 @@
 /*
   ==============================================================================
 
-    EventNode.h
-    Created: 13 Jun 2011 10:42:26am
+    WiFiOutput.h
+    Created: 15 Feb 2012 9:09:19pm
     Author:  jsiegle
 
   ==============================================================================
 */
 
-#ifndef __EVENTNODE_H_9B67A789__
-#define __EVENTNODE_H_9B67A789__
+#ifndef __WIFIOUTPUT_H_94D625CE__
+#define __WIFIOUTPUT_H_94D625CE__
+
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GenericProcessor.h"
-//#include "Editors/FilterEditor.h"
+
+#include "../Network/PracticalSocket.h"  // For UDPSocket and SocketException
+#include <iostream>           			 // For cout and cerr
+#include <cstdlib>            			 // For atoi()
+
 
 class FilterViewport;
 
-class EventNode : public GenericProcessor
+class WiFiOutput : public GenericProcessor,
+		           public Timer
 
 {
 public:
 	
-	EventNode();
-	~EventNode();
+	WiFiOutput();
+	~WiFiOutput();
 	
 	void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
 	void releaseResources();
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 	void setParameter (int parameterIndex, float newValue);
 
-	bool isSource() {return true;}
-
-//	bool enable();
-	//bool disable();
-
-	// AudioProcessorEditor* createEditor();
+	bool isSink() {return true;}
 	
 private:
 
-	float accumulator;
-	float Hz;
+	UDPSocket socket;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EventNode);
+	void timerCallback();
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WiFiOutput);
 
 };
 
@@ -50,5 +52,4 @@ private:
 
 
 
-
-#endif  // __EVENTNODE_H_9B67A789__
+#endif  // __WIFIOUTPUT_H_94D625CE__

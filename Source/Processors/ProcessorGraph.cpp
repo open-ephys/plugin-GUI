@@ -23,6 +23,7 @@
 #include "SignalGenerator.h"
 #include "SourceNode.h"
 #include "SpikeDetector.h"
+#include "WiFiOutput.h"
 #include "Utilities/Splitter.h"
 #include "../UI/UIComponent.h"
 #include "../UI/Configuration.h"
@@ -305,6 +306,10 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		{
 			processor = new SignalGenerator();
 			std::cout << "Creating a new signal generator." << std::endl;
+		} else if (subProcessorType.equalsIgnoreCase("Event Generator"))
+		{
+			processor = new EventNode();
+			std::cout << "Creating a new event node." << std::endl;
 		}
 
 		
@@ -350,10 +355,13 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		    std::cout << "Graph data viewport: " << UI->getDataViewport() << std::endl;
 			 processor->setDataViewport(UI->getDataViewport());
 			processor->setUIComponent(UI);
+		} else if (subProcessorType.equalsIgnoreCase("WiFi Output")) {
+			std::cout << "Creating a WiFi node." << std::endl;
+			processor = new WiFiOutput();
 		}
 		//}
 	
-		sendActionMessage("New visualizer created.");
+		sendActionMessage("New sink created.");
 	}
 
 	return processor;

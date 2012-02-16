@@ -242,7 +242,7 @@ void SourceNode::process(AudioSampleBuffer &outputBuffer,
 	// setNumSamples(midiMessages, numRead);
 	//std::cout << numRead << std::endl;
 
-	addMidiEvent(midiMessages,10, 10);
+	//addMidiEvent(midiMessages,10, 10);
 }
 
 

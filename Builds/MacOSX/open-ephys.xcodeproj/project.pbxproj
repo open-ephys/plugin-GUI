@@ -17,6 +17,7 @@
 		C038A696FD85E64E249AF737 = { isa = PBXBuildFile; fileRef = 191441B631182A346D494BB5; };
 		881EDBF5D2D6FD7B53B71182 = { isa = PBXBuildFile; fileRef = 1CBCB9D2FE5B967D93785E75; };
 		14BE1E76E7BB3593A5F66DCC = { isa = PBXBuildFile; fileRef = BF41F256D0C244C2C02AE6E1; };
+		D379BC3417418182ECFA5716 = { isa = PBXBuildFile; fileRef = 673778A175624FC9F52E7A15; };
 		D340AF95432BA38C1B5E8754 = { isa = PBXBuildFile; fileRef = 9C8EE871D2CBAE5C5E9CABD3; };
 		DE6D9CB3B48556C57FD2BE7E = { isa = PBXBuildFile; fileRef = 06619F7C5ECFFF953A501015; };
 		2C6D200191B27DDF088B3089 = { isa = PBXBuildFile; fileRef = B30EF131FE61BAA4C1818102; };
@@ -37,6 +38,7 @@
 		8E138283FC265B58D252AAC3 = { isa = PBXBuildFile; fileRef = F4A53064BA75472765338C1D; };
 		EE1DC0B09AE0727BC7A5A99C = { isa = PBXBuildFile; fileRef = 0D20C3399D0492771F7A808A; };
 		4ACF816CB5CDB285D8005AB8 = { isa = PBXBuildFile; fileRef = F74662D3D82975EDB5AD42E0; };
+		B992DDBFF8928A985EEE1557 = { isa = PBXBuildFile; fileRef = 268005410FB62BCB9099A762; };
 		F1268EC5E783EC8ECEBCA5D3 = { isa = PBXBuildFile; fileRef = 5935F823A2EE45AC36A0201F; };
 		5F13B8FFB1584BFF6C05AD39 = { isa = PBXBuildFile; fileRef = 9A47B52E5E1CD17DC9C72B53; };
 		9D687F73F2FD2462C5D5588C = { isa = PBXBuildFile; fileRef = ED179D5A10DD051DDB3ECB8B; };
@@ -120,6 +122,8 @@
 		294B78ADA337603DE3C87BF9 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "PipelineA-02.png"; path = "../../Resources/Images/Buttons/PipelineA-02.png"; sourceTree = SOURCE_ROOT; };
 		8AD9A0F023B727B34348B95E = { isa = PBXFileReference; lastKnownFileType = image.png; name = "PipelineB-01.png"; path = "../../Resources/Images/Buttons/PipelineB-01.png"; sourceTree = SOURCE_ROOT; };
 		89CF25CB48EEA21B226869E1 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "PipelineB-02.png"; path = "../../Resources/Images/Buttons/PipelineB-02.png"; sourceTree = SOURCE_ROOT; };
+		673778A175624FC9F52E7A15 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PracticalSocket.cpp; path = ../../Source/Network/PracticalSocket.cpp; sourceTree = SOURCE_ROOT; };
+		2EAE0475B719C3233AD8BB35 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PracticalSocket.h; path = ../../Source/Network/PracticalSocket.h; sourceTree = SOURCE_ROOT; };
 		9C8EE871D2CBAE5C5E9CABD3 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = datapacket.cpp; path = ../../Source/Network/datapacket.cpp; sourceTree = SOURCE_ROOT; };
 		395DADE376C160B1961B87A1 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = datapacket.h; path = ../../Source/Network/datapacket.h; sourceTree = SOURCE_ROOT; };
 		09D15667E26784C5F2E03441 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = global_defs.h; path = ../../Source/Network/global_defs.h; sourceTree = SOURCE_ROOT; };
@@ -168,6 +172,8 @@
 		E27B5891A52FDAB2B00901A0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = ../../Source/Dsp/Utilities.h; sourceTree = SOURCE_ROOT; };
 		F74662D3D82975EDB5AD42E0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AudioComponent.cpp; path = ../../Source/Audio/AudioComponent.cpp; sourceTree = SOURCE_ROOT; };
 		FA55B9FDE138CCB1F16BA905 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AudioComponent.h; path = ../../Source/Audio/AudioComponent.h; sourceTree = SOURCE_ROOT; };
+		268005410FB62BCB9099A762 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WiFiOutput.cpp; path = ../../Source/Processors/WiFiOutput.cpp; sourceTree = SOURCE_ROOT; };
+		32959675287F77DD9B7FA96B = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WiFiOutput.h; path = ../../Source/Processors/WiFiOutput.h; sourceTree = SOURCE_ROOT; };
 		5935F823A2EE45AC36A0201F = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LfpDisplayNode.cpp; path = ../../Source/Processors/LfpDisplayNode.cpp; sourceTree = SOURCE_ROOT; };
 		B00F207EBEED525FB686AD98 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LfpDisplayNode.h; path = ../../Source/Processors/LfpDisplayNode.h; sourceTree = SOURCE_ROOT; };
 		9A47B52E5E1CD17DC9C72B53 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Splitter.cpp; path = ../../Source/Processors/Utilities/Splitter.cpp; sourceTree = SOURCE_ROOT; };
@@ -292,6 +298,8 @@
 				2D8E1C366F21D3C8FE662382,
 				4E8DA551A1B5D7A2B1229181 ); name = Resources; sourceTree = "<group>"; };
 		8F98BACF97340868397BA4BB = { isa = PBXGroup; children = (
+				673778A175624FC9F52E7A15,
+				2EAE0475B719C3233AD8BB35,
 				9C8EE871D2CBAE5C5E9CABD3,
 				395DADE376C160B1961B87A1,
 				09D15667E26784C5F2E03441,
@@ -385,6 +393,8 @@
 				72123888A7DD78159AA032AF,
 				2164BFCDF57A5AA752CAA3A2 ); name = DataThreads; sourceTree = "<group>"; };
 		33A88A7C3FF426F051834D6A = { isa = PBXGroup; children = (
+				268005410FB62BCB9099A762,
+				32959675287F77DD9B7FA96B,
 				5935F823A2EE45AC36A0201F,
 				B00F207EBEED525FB686AD98,
 				20FFF487B65BF8567EFE70F8,
@@ -543,6 +553,7 @@
 				5D7484BAF16E272FF0E9EEAE ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Debug; };
 		7D11CCCE7B7FAA037837E9F0 = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (  ); runOnlyForDeploymentPostprocessing = 0; };
 		49B8C83C4A6BA460E2492EAD = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+				D379BC3417418182ECFA5716,
 				D340AF95432BA38C1B5E8754,
 				DE6D9CB3B48556C57FD2BE7E,
 				2C6D200191B27DDF088B3089,
@@ -563,6 +574,7 @@
 				8E138283FC265B58D252AAC3,
 				EE1DC0B09AE0727BC7A5A99C,
 				4ACF816CB5CDB285D8005AB8,
+				B992DDBFF8928A985EEE1557,
 				F1268EC5E783EC8ECEBCA5D3,
 				5F13B8FFB1584BFF6C05AD39,
 				9D687F73F2FD2462C5D5588C,

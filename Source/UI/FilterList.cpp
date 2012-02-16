@@ -31,7 +31,7 @@ FilterList::FilterList() : isDragging(false)
 	sources->addSubItem(new FilterListItem("Signal Generator"));
 	sources->addSubItem(new FilterListItem("Custom FPGA"));
 	sources->addSubItem(new FilterListItem("File Reader"));
-	sources->addSubItem(new FilterListItem("Network Source"));
+	sources->addSubItem(new FilterListItem("Event Generator"));
 
 	FilterListItem* filters = new FilterListItem("Filters");
 	filters->addSubItem(new FilterListItem("Bandpass Filter"));

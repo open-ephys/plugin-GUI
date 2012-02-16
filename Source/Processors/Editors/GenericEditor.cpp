@@ -145,7 +145,7 @@ void GenericEditor::paint (Graphics& g)
 	g.fillRect(1,1,getWidth()-(2+offset),getHeight()-2);
 
 	// draw gray workspace
-	g.setColour(Colour(192, 205, 209));
+	g.setColour(Colour(140, 140, 140));
 	g.fillRect(1,22,getWidth()-2, getHeight()-29);
 
 	g.setFont(titleFont);

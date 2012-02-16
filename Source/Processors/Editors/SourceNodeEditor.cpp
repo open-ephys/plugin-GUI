@@ -18,11 +18,11 @@ SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode, FilterViewport
 	: GenericEditor(parentNode, vp)
 
 {
-	desiredWidth = 200;
+	desiredWidth = 170;
 
 	Image im;
 
-	std::cout << getName() << std::endl;
+	std::cout << "I think my name is: " << getName() << std::endl;
 
 	if (getName().equalsIgnoreCase("Intan Demo Board"))
 	 {
@@ -37,8 +37,8 @@ SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode, FilterViewport
 	 }
 
 	 icon = new ImageIcon(im);
-	 icon->setBounds(30,25,70,70);
 	 addAndMakeVisible(icon);
+	 icon->setBounds(50,40,70,70);
 
 	//Array<int> values;
 	//values.add(1); values.add(2), values.add(3);

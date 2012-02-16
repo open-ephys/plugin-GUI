@@ -70,6 +70,10 @@
     </GROUP>
     <GROUP id="ZMfWAFj" name="Source">
       <GROUP id="leJrZDi" name="Network">
+        <FILE id="mOOc0R" name="PracticalSocket.cpp" compile="1" resource="0"
+              file="Source/Network/PracticalSocket.cpp"/>
+        <FILE id="5XGl6EX" name="PracticalSocket.h" compile="0" resource="0"
+              file="Source/Network/PracticalSocket.h"/>
         <FILE id="GcYzg7B" name="datapacket.cpp" compile="1" resource="0" file="Source/Network/datapacket.cpp"/>
         <FILE id="TWl0yk" name="datapacket.h" compile="0" resource="0" file="Source/Network/datapacket.h"/>
         <FILE id="WW2DBUt" name="global_defs.h" compile="0" resource="0" file="Source/Network/global_defs.h"/>
@@ -130,6 +134,8 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <FILE id="Poqus0b" name="WiFiOutput.cpp" compile="1" resource="0" file="Source/Processors/WiFiOutput.cpp"/>
+        <FILE id="IklsJpw" name="WiFiOutput.h" compile="0" resource="0" file="Source/Processors/WiFiOutput.h"/>
         <FILE id="ZuMpSio" name="LfpDisplayNode.cpp" compile="1" resource="0"
               file="Source/Processors/LfpDisplayNode.cpp"/>
         <FILE id="VynGpEg" name="LfpDisplayNode.h" compile="0" resource="0"

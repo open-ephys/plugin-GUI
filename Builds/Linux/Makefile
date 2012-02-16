@@ -43,6 +43,7 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
+  $(OBJDIR)/PracticalSocket_2574ecc8.o \
   $(OBJDIR)/datapacket_e79ff33c.o \
   $(OBJDIR)/netcom_7ad18ece.o \
   $(OBJDIR)/Bessel_63b88b81.o \
@@ -63,6 +64,7 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/WiFiOutput_fa464ec5.o \
   $(OBJDIR)/LfpDisplayNode_30ef22fd.o \
   $(OBJDIR)/Splitter_6e27a57b.o \
   $(OBJDIR)/DataWindow_83ce6754.o \
@@ -125,6 +127,11 @@ clean:
 	-@rm -f $(OUTDIR)/$(TARGET)
 	-@rm -rf $(OBJDIR)/*
 	-@rm -rf $(OBJDIR)
+
+$(OBJDIR)/PracticalSocket_2574ecc8.o: ../../Source/Network/PracticalSocket.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PracticalSocket.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/datapacket_e79ff33c.o: ../../Source/Network/datapacket.cpp
 	-@mkdir -p $(OBJDIR)
@@ -224,6 +231,11 @@ $(OBJDIR)/State_22979684.o: ../../Source/Dsp/State.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/WiFiOutput_fa464ec5.o: ../../Source/Processors/WiFiOutput.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling WiFiOutput.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/LfpDisplayNode_30ef22fd.o: ../../Source/Processors/LfpDisplayNode.cpp

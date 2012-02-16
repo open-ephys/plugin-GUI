@@ -146,7 +146,7 @@ int GenericProcessor::getNumSamples(MidiBuffer& midiMessages) {
 		int samplePosition = -5;
 		//i.setNextSamplePosition(samplePosition);
 
-		if (i.getNextEvent (message, samplePosition)) {
+		while (i.getNextEvent (message, samplePosition)) {
 			
 				int numbytes = message.getRawDataSize();
 				uint8* dataptr = message.getRawData();
@@ -154,7 +154,8 @@ int GenericProcessor::getNumSamples(MidiBuffer& midiMessages) {
 				//std::cout << " Bytes received: " << numbytes << std::endl;
 				//std::cout << " Message timestamp = " << message.getTimeStamp() << std::endl;
 //
-				numRead = (*dataptr<<8) + *(dataptr+1);
+				if (message.getTimeStamp() < 0)
+					numRead = (*dataptr<<8) + *(dataptr+1);
 				//std::cout << "   " << numRead << std::endl;
 		}
 
