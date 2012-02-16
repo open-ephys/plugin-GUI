@@ -78,8 +78,14 @@ void WiFiOutput::process(AudioSampleBuffer &buffer,
 void WiFiOutput::timerCallback()
 {
 	//std::cout << "FIRE!" << std::endl;
-	socket.sendTo("hi",2,"169.254.187.27",6000);
+	try {
+		socket.sendTo("hi",2,"169.254.1.1",2000);
+	
+		WiFiOutputEditor* ed = (WiFiOutputEditor*) getEditor();
+		ed->receivedEvent();
+	} catch (SocketException &e) {
+		// don't do anything
+	}
+
 	stopTimer();
-	WiFiOutputEditor* ed = (WiFiOutputEditor*) getEditor();
-	ed->receivedEvent();
 }
