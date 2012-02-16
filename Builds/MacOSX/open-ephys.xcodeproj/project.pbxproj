@@ -487,7 +487,7 @@
 		C3E8FB47D6069235EA9D6FD7 = { isa = XCBuildConfiguration; buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				PREBINDING = NO;
-				HEADER_SEARCH_PATHS = " $(inherited)";
+				HEADER_SEARCH_PATHS = "/usr/local/include /usr/local/include/freetype2 $(inherited)";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -504,7 +504,7 @@
 		5D7484BAF16E272FF0E9EEAE = { isa = XCBuildConfiguration; buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				PREBINDING = NO;
-				HEADER_SEARCH_PATHS = " $(inherited)";
+				HEADER_SEARCH_PATHS = "/usr/local/include /usr/local/include/freetype2 $(inherited)";
 				GCC_OPTIMIZATION_LEVEL = 3;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
