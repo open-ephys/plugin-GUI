@@ -73,12 +73,6 @@
               file="Source/Network/PracticalSocket.cpp"/>
         <FILE id="5XGl6EX" name="PracticalSocket.h" compile="0" resource="0"
               file="Source/Network/PracticalSocket.h"/>
-        <FILE id="GcYzg7B" name="datapacket.cpp" compile="1" resource="0" file="Source/Network/datapacket.cpp"/>
-        <FILE id="TWl0yk" name="datapacket.h" compile="0" resource="0" file="Source/Network/datapacket.h"/>
-        <FILE id="WW2DBUt" name="global_defs.h" compile="0" resource="0" file="Source/Network/global_defs.h"/>
-        <FILE id="66Xenb4" name="netcom.cpp" compile="1" resource="0" file="Source/Network/netcom.cpp"/>
-        <FILE id="n7afJpH" name="netcom.h" compile="0" resource="0" file="Source/Network/netcom.h"/>
-        <FILE id="sXXOqTA" name="unp.h" compile="0" resource="0" file="Source/Network/unp.h"/>
       </GROUP>
       <GROUP id="ZFZoGrT" name="Dsp">
         <FILE id="mUwiufK" name="Bessel.cpp" compile="1" resource="0" file="Source/Dsp/Bessel.cpp"/>

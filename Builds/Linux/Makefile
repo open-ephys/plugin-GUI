@@ -44,8 +44,6 @@ endif
 
 OBJECTS := \
   $(OBJDIR)/PracticalSocket_2574ecc8.o \
-  $(OBJDIR)/datapacket_e79ff33c.o \
-  $(OBJDIR)/netcom_7ad18ece.o \
   $(OBJDIR)/Bessel_63b88b81.o \
   $(OBJDIR)/Biquad_479045c5.o \
   $(OBJDIR)/Butterworth_a752fb81.o \
@@ -134,16 +132,6 @@ clean:
 $(OBJDIR)/PracticalSocket_2574ecc8.o: ../../Source/Network/PracticalSocket.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling PracticalSocket.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/datapacket_e79ff33c.o: ../../Source/Network/datapacket.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling datapacket.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/netcom_7ad18ece.o: ../../Source/Network/netcom.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling netcom.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Bessel_63b88b81.o: ../../Source/Dsp/Bessel.cpp
