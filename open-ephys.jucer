@@ -23,8 +23,6 @@
   <MAINGROUP id="h3HbSTV" name="open-ephys">
     <GROUP id="0wpTCpt" name="Resources">
       <GROUP id="kVU7EYu" name="Fonts">
-        <FILE id="Ra8LAxS" name="nordic-serialized" compile="0" resource="1"
-              file="Resources/Fonts/nordic-serialized"/>
         <FILE id="ihWw2VV" name="BebasNeue.otf" compile="0" resource="1" file="Resources/Fonts/BebasNeue.otf"/>
         <FILE id="frMIT7f" name="cpmono_bold.otf" compile="0" resource="1"
               file="Resources/Fonts/cpmono_bold.otf"/>

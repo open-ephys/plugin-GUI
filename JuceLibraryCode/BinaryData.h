@@ -7,9 +7,6 @@
 
 namespace BinaryData
 {
-    extern const char*   nordicserialized;
-    const int            nordicserializedSize = 13872;
-
     extern const char*   BebasNeue_otf;
     const int            BebasNeue_otfSize = 48648;
 

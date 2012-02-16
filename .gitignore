@@ -6,6 +6,7 @@
 
 # 2. binaries
 Builds/Linux/build/open-ephys
+Resources/Fonts/font_serializer/Builds/Linux/build/
 
 # 3. extra files
 Builds/Linux/build/data

@@ -99,7 +99,6 @@
 		BF41F256D0C244C2C02AE6E1 = { isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickTime.framework; path = System/Library/Frameworks/QuickTime.framework; sourceTree = SDKROOT; };
 		0837481AD187A1E6CBCAC577 = { isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "open-ephys.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D91BA61C12BFEBE59B577805 = { isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = Info.plist; sourceTree = SOURCE_ROOT; };
-		98EAF9EC620267DA09B5AC29 = { isa = PBXFileReference; lastKnownFileType = file; name = "nordic-serialized"; path = "../../Resources/Fonts/nordic-serialized"; sourceTree = SOURCE_ROOT; };
 		79892A4E41809A09A4711AC3 = { isa = PBXFileReference; lastKnownFileType = file.otf; name = BebasNeue.otf; path = ../../Resources/Fonts/BebasNeue.otf; sourceTree = SOURCE_ROOT; };
 		1B2C20F6F1F1BCF9115F8D53 = { isa = PBXFileReference; lastKnownFileType = file.otf; name = cpmono_bold.otf; path = ../../Resources/Fonts/cpmono_bold.otf; sourceTree = SOURCE_ROOT; };
 		C586714DD22C96F569FDC716 = { isa = PBXFileReference; lastKnownFileType = file.otf; name = cpmono_extra_light.otf; path = ../../Resources/Fonts/cpmono_extra_light.otf; sourceTree = SOURCE_ROOT; };
@@ -266,7 +265,6 @@
 		1CD026FD773BB5A428624381 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = JuceLibraryCode3.mm; path = ../../JuceLibraryCode/JuceLibraryCode3.mm; sourceTree = SOURCE_ROOT; };
 		55F7FFF9942627D7FC46C6C1 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = JuceLibraryCode4.mm; path = ../../JuceLibraryCode/JuceLibraryCode4.mm; sourceTree = SOURCE_ROOT; };
 		2D8E1C366F21D3C8FE662382 = { isa = PBXGroup; children = (
-				98EAF9EC620267DA09B5AC29,
 				79892A4E41809A09A4711AC3,
 				1B2C20F6F1F1BCF9115F8D53,
 				C586714DD22C96F569FDC716,
