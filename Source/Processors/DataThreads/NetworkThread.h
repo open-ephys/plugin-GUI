@@ -15,9 +15,9 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include "../../Network/unp.h"
-#include "../../Network/netcom.h"
-#include "../../Network/datapacket.h"
+// #include "../../Network/unp.h"
+// #include "../../Network/netcom.h"
+// #include "../../Network/datapacket.h"
 
 #include "DataThread.h"
 
@@ -36,10 +36,10 @@ public:
 
 private:
 
-	NetCom my_netcom;
-	NetComDat my_netcomdat;
+	// NetCom my_netcom;
+	// NetComDat my_netcomdat;
 
-	lfp_bank_net_t lfp;
+	// lfp_bank_net_t lfp;
 
 	DataBuffer* dataBuffer;
 

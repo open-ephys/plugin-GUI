@@ -386,6 +386,10 @@ private:
     {
         StringArray searchPaths (config.getHeaderSearchPaths());
 
+        // these search paths are needed for things to work in XCode 4:
+        searchPaths.add("/usr/local/include");
+        searchPaths.add("/usr/local/include/freetype2");
+
         if (project.shouldAddVSTFolderToPath() && getVSTFolder().toString().isNotEmpty())
             searchPaths.add (rebaseFromProjectFolderToBuildTarget (RelativePath (getVSTFolder().toString(), RelativePath::projectFolder)).toUnixStyle());
 
