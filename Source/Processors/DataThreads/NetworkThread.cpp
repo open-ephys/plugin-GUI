@@ -11,7 +11,7 @@
 #include "NetworkThread.h"
 
 NetworkThread::NetworkThread(SourceNode* sn) : DataThread(sn)
-// {
+ {
 // 	char host[] = "10.121.43.47";
 // 	char port[] = "5227";
 
