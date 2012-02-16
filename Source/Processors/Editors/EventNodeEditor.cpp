@@ -19,10 +19,10 @@ EventNodeEditor::EventNodeEditor (GenericProcessor* parentNode, FilterViewport* 
 	desiredWidth = 250;
 
 	StringArray hzValues;
+	hzValues.add("0.25");
 	hzValues.add("0.5");
 	hzValues.add("1");
-	hzValues.add("5");
-	hzValues.add("10");
+	hzValues.add("2");
 
 	createRadioButtons(35, 65, 160, hzValues, "Event frequency");
 
