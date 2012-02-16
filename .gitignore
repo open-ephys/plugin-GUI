@@ -1,0 +1,13 @@
+# Files and folders to ignore
+
+# 1. intermediate files
+*.o
+*.d
+
+# 2. binaries
+Builds/Linux/build/open-ephys
+
+# 3. extra files
+Builds/Linux/build/data
+Builds/Linux/build/savedState.xml
+Builds/Linux/build/windowState.xml
