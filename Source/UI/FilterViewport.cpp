@@ -19,6 +19,16 @@ FilterViewport::FilterViewport(ProcessorGraph* pgraph, DataViewport* tcomp)
 
   addMouseListener(this, true);
 
+  MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+  Typeface::Ptr typeface = new CustomTypeface(mis);
+  font = Font(typeface);
+  font.setHeight(10);
+
+    sourceDropImage = ImageCache::getFromMemory (BinaryData::SourceDrop_png, 
+                                      BinaryData::SourceDrop_pngSize);
+
+    sourceDropImage = sourceDropImage.rescaled(25, 135,
+                        Graphics::highResamplingQuality);
   //File file = File("./savedState.xml");
   //loadState(file);
 
@@ -79,7 +89,7 @@ void FilterViewport::paint (Graphics& g)
         if (n > 1)
             insertionX += borderSize*(n-1);
 
-        g.setColour(Colours::orange);
+        g.setColour(Colours::yellow);
         g.drawLine(insertionX, (float) borderSize,
                    insertionX, (float) getHeight()-(float) borderSize, 3.0f);
 
@@ -89,14 +99,27 @@ void FilterViewport::paint (Graphics& g)
    // {
     // draw the signal chain reminders
   //  if (!(somethingIsBeingDraggedOver && insertionPoint == 0))
-        float insertionX = (float) tabSize + (float) borderSize;
-        g.setColour(Colours::teal);
+        int insertionX = tabSize + borderSize;
+        g.setColour(Colours::darkgrey);
         //g.drawLine(insertionX, (float) borderSize,
         //           insertionX, (float) getHeight()-(float) borderSize, 3.0f);
-        g.drawLine(insertionX*1.1, (float) (borderSize+10),
-                   insertionX*1.1, (float) getHeight()-(float) (borderSize+10), 3.0f);
-   // }
+        
+        int x = insertionX + 19;
+        int y = borderSize + 2;
+        int w = 30;
+        int h = getHeight() - 2*(borderSize+2);
+      //  g.drawRect(x, y, w, h, 1);
+        g.drawImageAt(sourceDropImage, x, y);
 
+        // GlyphArrangement textLayout;
+        // textLayout.addFittedText(font, "SOURCE NEEDED", 0, 15, //(float) x, (float) y,
+        //                           100.0f, (float) 50.0f,
+        //                           Justification::centred,
+        //                           1);
+        // AffineTransform transform = transform.rotated (float_Pi *0); //* -0.5f);
+        //                      //.translated ((float) x, (float) (y));
+
+        // textLayout.draw (g, transform);
 }
 
 bool FilterViewport::isInterestedInDragSource (const String& description, Component* component)
@@ -512,7 +535,7 @@ void FilterViewport::refreshEditors () {
              {
                 GenericProcessor* p = (GenericProcessor*) editorArray[n]->getProcessor();
                 if (!p->isSource())
-                    lastBound += borderSize*3;
+                    lastBound += borderSize*10;
                // signalChainNeedsSource = true;
             } else {
               //  signalChainNeedsSource = false;
@@ -561,19 +584,19 @@ void FilterViewport::moveSelection (const KeyPress &key) {
         }
     } else if (key.getKeyCode() == key.rightKey) {
          
-         for (int i = 0; i < editorArray.size(); i++) {
+         for (int i = 0; i < editorArray.size()-1; i++) {
         
             if (editorArray[i]->getSelectionState()) {
                 
-                if (i == editorArray.size()-1)
-                {
-                    editorArray[i]->deselect();
-                    break;
-                } else {
+                // if (i == editorArray.size()-1)
+                // {
+                //     editorArray[i]->deselect();
+                //     break;
+                // } else {
                     editorArray[i+1]->select();
                     editorArray[i]->deselect();
                     break;
-                }
+                // }
             }  
         }
     }

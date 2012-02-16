@@ -24,21 +24,26 @@ SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode, FilterViewport
 
 	std::cout << getName() << std::endl;
 
-	if (getName().equalsIgnoreCase("Intan Demo Board"))
-	{
-		im = ImageCache::getFromMemory (BinaryData::IntanIcon_png, 
-									    BinaryData::IntanIcon_pngSize);
-	} else if (getName().equalsIgnoreCase("File Reader")) {
-		im = ImageCache::getFromMemory (BinaryData::FileReaderIcon_png, 
-									    BinaryData::FileReaderIcon_pngSize);	
-	} else {
-		im = ImageCache::getFromMemory (BinaryData::DefaultDataSource_png, 
-									    BinaryData::DefaultDataSource_pngSize);
-	}
+	// if (getName().equalsIgnoreCase("Intan Demo Board"))
+	// {
+	// 	im = ImageCache::getFromMemory (BinaryData::IntanIcon_png, 
+	// 								    BinaryData::IntanIcon_pngSize);
+	// } else if (getName().equalsIgnoreCase("File Reader")) {
+	// 	im = ImageCache::getFromMemory (BinaryData::FileReaderIcon_png, 
+	// 								    BinaryData::FileReaderIcon_pngSize);	
+	// } else {
+	// 	im = ImageCache::getFromMemory (BinaryData::DefaultDataSource_png, 
+	// 								    BinaryData::DefaultDataSource_pngSize);
+	// }
 
-	icon = new ImageIcon(im);
-	icon->setBounds(30,25,70,70);
-	addAndMakeVisible(icon);
+	// icon = new ImageIcon(im);
+	// icon->setBounds(30,25,70,70);
+	// addAndMakeVisible(icon);
+
+	//Array<int> values;
+	//values.add(1); values.add(2), values.add(3);
+
+	//createRadioButtons(10, 25, 100, values);
 
 }
 

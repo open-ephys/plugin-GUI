@@ -152,8 +152,8 @@ public:
 	void setDataViewport(DataViewport* dv);
 	DataViewport* getDataViewport() {return dataViewport;}
 
-	void checkForMidiEvents(MidiBuffer& mb);
-	void addMidiEvent(MidiBuffer& mb, int a);
+	int checkForMidiEvents(MidiBuffer& mb);
+	void addMidiEvent(MidiBuffer& mb, int a, int b);
 
 	bool isEnabled;
 

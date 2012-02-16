@@ -81,6 +81,8 @@ private:
  //   GenericEditor* activeEditor;
 
 
+    Font font;
+    Image sourceDropImage;
    // int activeTab;
 
     void refreshEditors();

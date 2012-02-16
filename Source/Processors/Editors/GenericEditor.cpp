@@ -12,7 +12,7 @@
 
 GenericEditor::GenericEditor (GenericProcessor* owner, FilterViewport* vp) 
 	: AudioProcessorEditor (owner), isSelected(false), viewport(vp),
-	  desiredWidth(150), tNum(-1), isEnabled(true)
+	  desiredWidth(150), tNum(-1), isEnabled(true), radioGroupId(1)
 
 {
 	name = getAudioProcessor()->getName();
@@ -136,20 +136,17 @@ void GenericEditor::paint (Graphics& g)
 
 	GenericProcessor* p = (GenericProcessor*) getProcessor();
 
-	if (isSelected) {
-		g.setColour(Colours::yellow);
-		g.fillRect(0,0,getWidth()-offset,getHeight());
-	}
-
 	if (isEnabled)
 		g.setColour(backgroundColor);
 	else 
 		g.setColour(Colours::lightgrey);
 
+    // draw colored background
 	g.fillRect(1,1,getWidth()-(2+offset),getHeight()-2);
 
+	// draw gray workspace
 	g.setColour(Colour(192, 205, 209));
-	g.fillRect(1,22,getWidth()-2, getHeight()-26);
+	g.fillRect(1,22,getWidth()-2, getHeight()-29);
 
 	g.setFont(titleFont);
 	g.setFont(14);
@@ -161,6 +158,82 @@ void GenericEditor::paint (Graphics& g)
 		g.setColour(Colours::grey);
 	}
 
+	// draw title
 	g.drawText(name, 6, 5, 500, 15, Justification::left, false);
 
+
+	if (isSelected) {
+		g.setColour(Colours::yellow);
+		
+	} else {
+		g.setColour(Colours::black);
+	}
+
+	// draw highlight box
+	g.drawRect(0,0,getWidth(),getHeight(),2.0);
+
 }
+
+void GenericEditor::createRadioButtons(int x, int y, int w, StringArray values, const String& groupName)
+{
+	int numButtons = values.size();
+	int width = w / numButtons;
+
+	for (int i = 0; i < numButtons; i++)
+	{
+
+		RadioButton* b = new RadioButton(values[i], radioGroupId);
+		addAndMakeVisible(b);
+		b->setBounds(x+width*i,y,width,15);
+	//	b->addListener(this);
+		
+
+		if (i == numButtons-1)
+		{
+			b->setToggleState(true, true);
+		}
+	}
+
+	Label* l = new Label("Label",groupName);
+	addChildComponent(l);
+	l->setBounds(x,y-15,200,10);
+	titleFont.setHeight(10);
+	l->setFont(titleFont);
+
+	radioGroupId++;
+}
+
+
+RadioButton::RadioButton(const String& name, int groupId) : Button(name) 
+    {
+
+        setRadioGroupId(groupId);
+        setClickingTogglesState(true);
+
+        MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+        Typeface::Ptr typeface = new CustomTypeface(mis);
+        buttonFont = Font(typeface);
+        buttonFont.setHeight(10);
+    }
+
+
+void RadioButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+{
+        if (getToggleState() == true)
+            g.setColour(Colours::orange);
+        else 
+            g.setColour(Colours::darkgrey);
+
+        if (isMouseOver)
+            g.setColour(Colours::white);
+
+        g.fillRect(0,0,getWidth(),getHeight());
+
+        g.setFont(buttonFont);
+        g.setColour(Colours::black);
+
+        g.drawRect(0,0,getWidth(),getHeight(),1.0);
+
+        g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
+    }
+

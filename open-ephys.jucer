@@ -49,6 +49,7 @@
       </GROUP>
       <GROUP id="W2L6BdA" name="Images">
         <GROUP id="Gu1BsKu" name="Icons">
+          <FILE id="p1qlCZ5" name="SourceDrop.png" compile="0" resource="1" file="Resources/Images/Icons/SourceDrop.png"/>
           <FILE id="nWbYpu" name="DefaultDataSource.png" compile="0" resource="1"
                 file="Resources/Images/Icons/DefaultDataSource.png"/>
           <FILE id="2U5H7OQ" name="FileReaderIcon.png" compile="0" resource="1"

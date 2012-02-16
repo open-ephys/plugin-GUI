@@ -49,6 +49,9 @@ namespace BinaryData
     extern const char*   silkscreen_ttf;
     const int            silkscreen_ttfSize = 18336;
 
+    extern const char*   SourceDrop_png;
+    const int            SourceDrop_pngSize = 6274;
+
     extern const char*   DefaultDataSource_png;
     const int            DefaultDataSource_pngSize = 14143;
 

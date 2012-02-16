@@ -21,7 +21,8 @@
 class GenericProcessor;
 class FilterViewport;
 
-class GenericEditor : public AudioProcessorEditor
+class GenericEditor : public AudioProcessorEditor//,
+					 // public Button::Listener
 
 {
 public:
@@ -58,7 +59,13 @@ public:
 	void setConfiguration(Configuration* cf) {config = cf;}
 	Configuration* getConfiguration() {return config;}
 
-	AudioProcessor* getProcessor() const {return getAudioProcessor();}	
+	AudioProcessor* getProcessor() const {return getAudioProcessor();}
+	
+	void createRadioButtons(int x, int y, int w, StringArray values, const String& name);
+		
+	int radioGroupId;
+
+	//virtual void buttonClicked(Button* b);
 	
 private:
 
@@ -69,12 +76,30 @@ private:
 
 	int tNum;
 
+	
+
 	Font titleFont;
 
 	String name;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericEditor);
 
+};
+
+
+
+
+class RadioButton : public Button
+{
+public:
+    RadioButton(const String& name, int groupId);// : Button("Name") {configurationChanged = true;}
+    ~RadioButton() {}
+
+private:
+
+    void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
+
+    Font buttonFont;
 };
 
 

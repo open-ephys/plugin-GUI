@@ -112,6 +112,7 @@
 		C2A7939DF5ED600BBB2F30C4 = { isa = PBXFileReference; lastKnownFileType = file; name = "silkscreen-serialized"; path = "../../Resources/Fonts/silkscreen-serialized"; sourceTree = SOURCE_ROOT; };
 		F8CAE2412B173788F325BD8B = { isa = PBXFileReference; lastKnownFileType = file.ttf; name = silkscreen.ttf; path = ../../Resources/Fonts/silkscreen.ttf; sourceTree = SOURCE_ROOT; };
 		363B59958615D35C5C948300 = { isa = PBXFileReference; lastKnownFileType = file.otf; name = "unibody-8.otf"; path = "../../Resources/Fonts/unibody-8.otf"; sourceTree = SOURCE_ROOT; };
+		2A1D9144C59B92B32483924B = { isa = PBXFileReference; lastKnownFileType = image.png; name = SourceDrop.png; path = ../../Resources/Images/Icons/SourceDrop.png; sourceTree = SOURCE_ROOT; };
 		D99F56FB46F631F67AF23F2C = { isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultDataSource.png; path = ../../Resources/Images/Icons/DefaultDataSource.png; sourceTree = SOURCE_ROOT; };
 		66C7E42D7FDE3600982A1F46 = { isa = PBXFileReference; lastKnownFileType = image.png; name = FileReaderIcon.png; path = ../../Resources/Images/Icons/FileReaderIcon.png; sourceTree = SOURCE_ROOT; };
 		A4C8AB3F5E7A708350F72E7C = { isa = PBXFileReference; lastKnownFileType = image.png; name = IntanIcon.png; path = ../../Resources/Images/Icons/IntanIcon.png; sourceTree = SOURCE_ROOT; };
@@ -275,6 +276,7 @@
 				F8CAE2412B173788F325BD8B,
 				363B59958615D35C5C948300 ); name = Fonts; sourceTree = "<group>"; };
 		891C5A157F059822288EDC9F = { isa = PBXGroup; children = (
+				2A1D9144C59B92B32483924B,
 				D99F56FB46F631F67AF23F2C,
 				66C7E42D7FDE3600982A1F46,
 				A4C8AB3F5E7A708350F72E7C ); name = Icons; sourceTree = "<group>"; };

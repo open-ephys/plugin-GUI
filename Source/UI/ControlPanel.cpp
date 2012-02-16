@@ -233,6 +233,7 @@ void Clock::drawTime()
 	timeString += " s";
 
 	glRasterPos2f(8.0/getWidth(),0.75f);
+
 	font->FaceSize(23);
 	font->Render(timeString);
 

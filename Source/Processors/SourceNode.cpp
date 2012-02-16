@@ -241,6 +241,8 @@ void SourceNode::process(AudioSampleBuffer &outputBuffer,
 	// //setNumSamples(numRead); // write the total number of samples
 	// setNumSamples(midiMessages, numRead);
 	//std::cout << numRead << std::endl;
+
+	addMidiEvent(midiMessages,10, 10);
 }
 
 

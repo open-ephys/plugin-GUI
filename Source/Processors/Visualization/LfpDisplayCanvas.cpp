@@ -12,7 +12,7 @@
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	 	xBuffer(0), yBuffer(10),
-	    plotHeight(60), selectedChan(-1), screenBufferIndex(0),
+	    plotHeight(40), selectedChan(-1), screenBufferIndex(0),
 	    timebase(1.0f), displayGain(5.0f), displayBufferIndex(0)
 {
 
@@ -45,7 +45,7 @@ void LfpDisplayCanvas::newOpenGLContextCreated()
 	setUp2DCanvas();
 	activateAntiAliasing();
 
-	glClearColor (0.8, 0.8, 0.9, 1.0);
+	glClearColor (0.667, 0.698, 0.718, 1.0);
 	resized();
 
 	screenBuffer = new AudioSampleBuffer(nChans, 10000);

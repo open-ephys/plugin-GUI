@@ -18,16 +18,18 @@
 class FilterViewport;
 
 class FilterEditor : public GenericEditor,
-					 public Slider::Listener
+					 public Button::Listener
 {
 public:
 	FilterEditor (GenericProcessor* parentNode, FilterViewport* vp);
 	virtual ~FilterEditor();
-	void sliderValueChanged (Slider* slider);
+	//void sliderValueChanged (Slider* slider);
+	void buttonClicked(Button* button);
 
 private:	
-	Slider* lowSlider;
-	Slider* highSlider;
+	//Slider* lowSlider;
+	//Slider* highSlider;
+
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterEditor);
 

@@ -48,10 +48,10 @@ int main (int argc, char* argv[])
     // make sure the font is installed on the current system
     StringArray fontNames = Font::findAllTypefaceNames();
 
-    for (int n = 0; n < fontNames.size(); n++)
-    {
-        std::cout << fontNames[n] << std::endl;
-    }
+    // for (int n = 0; n < fontNames.size(); n++)
+    // {
+    //     std::cout << fontNames[n] << std::endl;
+    // }
 
     if(!fontNames.contains(fontName))
     {

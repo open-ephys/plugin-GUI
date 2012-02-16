@@ -119,7 +119,7 @@ void GenericProcessor::setNumSamples(MidiBuffer& midiMessages, int numberToAdd) 
 
     midiMessages.addEvent(data, 		// spike data
                           sizeof(data), // total bytes
-                          0);           // sample index
+                          -1);           // sample index
 
 
 }
@@ -143,17 +143,17 @@ int GenericProcessor::getNumSamples(MidiBuffer& midiMessages) {
 		MidiBuffer::Iterator i (midiMessages);
 		MidiMessage message(0xf4);
 
-		int samplePosition = 0;
+		int samplePosition = -5;
 		//i.setNextSamplePosition(samplePosition);
 
-		while (i.getNextEvent (message, samplePosition)) {
+		if (i.getNextEvent (message, samplePosition)) {
 			
 				int numbytes = message.getRawDataSize();
 				uint8* dataptr = message.getRawData();
 
 				//std::cout << " Bytes received: " << numbytes << std::endl;
 				//std::cout << " Message timestamp = " << message.getTimeStamp() << std::endl;
-
+//
 				numRead = (*dataptr<<8) + *(dataptr+1);
 				//std::cout << "   " << numRead << std::endl;
 		}
@@ -270,14 +270,14 @@ void GenericProcessor::setSampleRate(float sr)
 	sampleRate = sr;
 }
 
-void GenericProcessor::checkForMidiEvents(MidiBuffer& midiMessages)
+int GenericProcessor::checkForMidiEvents(MidiBuffer& midiMessages)
 {
 
 	if (midiMessages.getNumEvents() > 0) 
 	{
 			
 		int m = midiMessages.getNumEvents();
-		std::cout << m << "events received by node " << getNodeId() << std::endl;
+		//std::cout << m << " events received by node " << getNodeId() << std::endl;
 
 		MidiBuffer::Iterator i (midiMessages);
 		MidiMessage message(0xf4);
@@ -290,17 +290,24 @@ void GenericProcessor::checkForMidiEvents(MidiBuffer& midiMessages)
 				int numbytes = message.getRawDataSize();
 				uint8* dataptr = message.getRawData();
 
-				std::cout << " Bytes received: " << numbytes << std::endl;
-				std::cout << " Message timestamp = " << message.getTimeStamp() << std::endl;
+				//std::cout << " Bytes received: " << numbytes << std::endl;
+				//std::cout << " Message timestamp = " << message.getTimeStamp() << std::endl;
 
-				int value = (*dataptr<<8) + *(dataptr+1);
-				std::cout << "   " << value << std::endl;
+				if (message.getTimeStamp() >= 0)
+				{
+					int value = (*dataptr<<8) + *(dataptr+1);
+					//std::cout << "   " << value << std::endl;
+					return value;
+				}
 		}
 
 	}
+
+	return -1;
+
 }
 
-void GenericProcessor::addMidiEvent(MidiBuffer& midiMessages, int numberToAdd)
+void GenericProcessor::addMidiEvent(MidiBuffer& midiMessages, int numberToAdd, int sampleNum)
 {
 	uint8 data[2];
 
@@ -309,7 +316,7 @@ void GenericProcessor::addMidiEvent(MidiBuffer& midiMessages, int numberToAdd)
 
     midiMessages.addEvent(data, 		// spike data
                           sizeof(data), // total bytes
-                          0);           // sample index
+                          sampleNum);     // sample index
 }
 
 void GenericProcessor::processBlock (AudioSampleBuffer &buffer, MidiBuffer &midiMessages)
