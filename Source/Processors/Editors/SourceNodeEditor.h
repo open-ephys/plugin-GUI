@@ -13,31 +13,10 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
+#include "ImageIcon.h"
 
 class FilterViewport;
-
-class ImageIcon : public Component
-{
-public:
-	ImageIcon (Image& image_) { image = image_;}
-	~ImageIcon () {}
-
-
-private:	
-
-	void paint (Graphics& g)
-	{
-		g.drawImageWithin(image, // image&
-				    0, // destX
-				    0, // destY
-				    getWidth(), // destWidth
-				    getHeight(), // destHeight
-				    RectanglePlacement::xLeft);
-	}
-
-	Image image;
-
-};
+class ImageIcon;
 
 class SourceNodeEditor : public GenericEditor
 

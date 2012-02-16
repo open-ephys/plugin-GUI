@@ -188,10 +188,10 @@ void GenericEditor::createRadioButtons(int x, int y, int w, StringArray values, 
 	//	b->addListener(this);
 		
 
-		if (i == numButtons-1)
-		{
-			b->setToggleState(true, true);
-		}
+		// if (i == numButtons-1)
+		// {
+		// 	b->setToggleState(true, true);
+		// }
 	}
 
 	Label* l = new Label("Label",groupName);
