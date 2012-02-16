@@ -423,9 +423,12 @@ void ControlPanel::disableCallbacks()
 		graph->disableProcessors();
 		std::cout << "Updating control panel." << std::endl;
 		cpuMeter->updateCPU(0.0f);
-		playButton->setToggleState(false,false);
-		recordButton->setToggleState(false,false);
+		
 	}
+
+	playButton->setToggleState(false,false);
+	recordButton->setToggleState(false,false);
+
 }
 
 void ControlPanel::actionListenerCallback(const String & msg)

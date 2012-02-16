@@ -47,6 +47,7 @@
       </GROUP>
       <GROUP id="W2L6BdA" name="Images">
         <GROUP id="Gu1BsKu" name="Icons">
+          <FILE id="wI03PLF" name="wifi.png" compile="0" resource="1" file="Resources/Images/Icons/wifi.png"/>
           <FILE id="p1qlCZ5" name="SourceDrop.png" compile="0" resource="1" file="Resources/Images/Icons/SourceDrop.png"/>
           <FILE id="nWbYpu" name="DefaultDataSource.png" compile="0" resource="1"
                 file="Resources/Images/Icons/DefaultDataSource.png"/>
@@ -164,6 +165,16 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="i2MR4pC" name="ImageIcon.cpp" compile="1" resource="0" file="Source/Processors/Editors/ImageIcon.cpp"/>
+          <FILE id="N8r8D18" name="ImageIcon.h" compile="0" resource="0" file="Source/Processors/Editors/ImageIcon.h"/>
+          <FILE id="mLd64ww" name="WiFiOutputEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/WiFiOutputEditor.cpp"/>
+          <FILE id="qunHBGe" name="WiFiOutputEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/WiFiOutputEditor.h"/>
+          <FILE id="5DPzIoS" name="EventNodeEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/EventNodeEditor.cpp"/>
+          <FILE id="gva5me" name="EventNodeEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/EventNodeEditor.h"/>
           <FILE id="OJKuulJ" name="SignalGeneratorEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/SignalGeneratorEditor.cpp"/>
           <FILE id="JhVBo3n" name="SignalGeneratorEditor.h" compile="0" resource="0"

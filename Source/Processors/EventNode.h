@@ -13,7 +13,7 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GenericProcessor.h"
-//#include "Editors/FilterEditor.h"
+#include "Editors/EventNodeEditor.h"
 
 class FilterViewport;
 
@@ -31,11 +31,14 @@ public:
 	void setParameter (int parameterIndex, float newValue);
 
 	bool isSource() {return true;}
+	bool hasEditor() const {return true;}
+
+	float getSampleRate() {return 44100.0;}
 
 //	bool enable();
 	//bool disable();
 
-	// AudioProcessorEditor* createEditor();
+	AudioProcessorEditor* createEditor();
 	
 private:
 

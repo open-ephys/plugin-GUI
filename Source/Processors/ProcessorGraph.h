@@ -49,6 +49,7 @@ public:
 
 	void updateConnections(Array<SignalChainTabButton*, CriticalSection>);
 
+	bool doesProcessorWithSameNameExist(const String& name);
 
 	void saveState();
 	void loadState();

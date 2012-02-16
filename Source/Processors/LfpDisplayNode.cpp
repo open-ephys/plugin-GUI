@@ -115,9 +115,13 @@ void LfpDisplayNode::resizeBuffer()
 
 bool LfpDisplayNode::enable()
 {
+	if (isEnabled) {
 	LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
 	editor->enable();
 	return true;
+	} else {
+		return false;
+	}
 }
 
 bool LfpDisplayNode::disable()

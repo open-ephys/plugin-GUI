@@ -14,6 +14,7 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GenericProcessor.h"
+#include "Editors/WiFiOutputEditor.h"
 
 #include "../Network/PracticalSocket.h"  // For UDPSocket and SocketException
 #include <iostream>           			 // For cout and cerr
@@ -21,6 +22,8 @@
 
 
 class FilterViewport;
+
+class WiFiOutputEditor;
 
 class WiFiOutput : public GenericProcessor,
 		           public Timer
@@ -35,6 +38,8 @@ public:
 	void releaseResources();
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 	void setParameter (int parameterIndex, float newValue);
+
+	AudioProcessorEditor* createEditor();
 
 	bool isSink() {return true;}
 	

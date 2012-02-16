@@ -17,8 +17,8 @@ FilterNode::FilterNode()
 	  highCut(6000.0), lowCut(600.0)
 	
 {
-	setNumInputs(10);
-	setSampleRate(20000.0);
+	setNumInputs(16);
+	setSampleRate(25000.0);
 	// set up default configuration
 	setPlayConfigDetails(16, 16, 44100.0, 128);
 

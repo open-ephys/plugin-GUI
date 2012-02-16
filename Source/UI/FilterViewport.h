@@ -96,6 +96,8 @@ private:
     bool componentWantsToMove;
     int indexOfMovingComponent;
 
+    int currentTab;
+
     //bool signalChainNeedsSource;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterViewport);  

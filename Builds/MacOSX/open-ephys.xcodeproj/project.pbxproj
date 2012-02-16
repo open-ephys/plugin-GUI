@@ -48,6 +48,9 @@
 		6656467170D2822949BD2F7F = { isa = PBXBuildFile; fileRef = 5AC4DD48CCB1AB4936A2DE4A; };
 		08B501E0D7764C6B613AF529 = { isa = PBXBuildFile; fileRef = B7750B27E4F3748ECCCCF69D; };
 		9CBA3837CC8CAA03A03F2D9C = { isa = PBXBuildFile; fileRef = FA57CE4F63FF1592D6B3F9B5; };
+		CB77C89226102EF30F85E3EC = { isa = PBXBuildFile; fileRef = 544DA1EF90EBBDB6FF2DE0A5; };
+		A126280FF39A61DEFD3ABFE5 = { isa = PBXBuildFile; fileRef = 2B11714BCE362D4EA7E377F5; };
+		2ADE508EC26B703176ED915C = { isa = PBXBuildFile; fileRef = 36393F2D58480F61ECDEB5E5; };
 		8B55C700ED8484944FED1EB1 = { isa = PBXBuildFile; fileRef = 087136FA6A7A0E01738EEF03; };
 		D3B54B20674A6BA87CE6FDEC = { isa = PBXBuildFile; fileRef = CF9878CE31A1B41406C3457B; };
 		5D5CAF52A5498EEFB8EA924D = { isa = PBXBuildFile; fileRef = FC5939F3D2A31BB43EA3E393; };
@@ -113,6 +116,7 @@
 		C2A7939DF5ED600BBB2F30C4 = { isa = PBXFileReference; lastKnownFileType = file; name = "silkscreen-serialized"; path = "../../Resources/Fonts/silkscreen-serialized"; sourceTree = SOURCE_ROOT; };
 		F8CAE2412B173788F325BD8B = { isa = PBXFileReference; lastKnownFileType = file.ttf; name = silkscreen.ttf; path = ../../Resources/Fonts/silkscreen.ttf; sourceTree = SOURCE_ROOT; };
 		363B59958615D35C5C948300 = { isa = PBXFileReference; lastKnownFileType = file.otf; name = "unibody-8.otf"; path = "../../Resources/Fonts/unibody-8.otf"; sourceTree = SOURCE_ROOT; };
+		8E041C8C49F1A5B710CC812C = { isa = PBXFileReference; lastKnownFileType = image.png; name = wifi.png; path = ../../Resources/Images/Icons/wifi.png; sourceTree = SOURCE_ROOT; };
 		2A1D9144C59B92B32483924B = { isa = PBXFileReference; lastKnownFileType = image.png; name = SourceDrop.png; path = ../../Resources/Images/Icons/SourceDrop.png; sourceTree = SOURCE_ROOT; };
 		D99F56FB46F631F67AF23F2C = { isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultDataSource.png; path = ../../Resources/Images/Icons/DefaultDataSource.png; sourceTree = SOURCE_ROOT; };
 		66C7E42D7FDE3600982A1F46 = { isa = PBXFileReference; lastKnownFileType = image.png; name = FileReaderIcon.png; path = ../../Resources/Images/Icons/FileReaderIcon.png; sourceTree = SOURCE_ROOT; };
@@ -191,6 +195,12 @@
 		12866D44BE115E8837468F48 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AudioNode.h; path = ../../Source/Processors/AudioNode.h; sourceTree = SOURCE_ROOT; };
 		FA57CE4F63FF1592D6B3F9B5 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EventNode.cpp; path = ../../Source/Processors/EventNode.cpp; sourceTree = SOURCE_ROOT; };
 		32163C956C8A6F5C1DD7FE7F = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EventNode.h; path = ../../Source/Processors/EventNode.h; sourceTree = SOURCE_ROOT; };
+		544DA1EF90EBBDB6FF2DE0A5 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ImageIcon.cpp; path = ../../Source/Processors/Editors/ImageIcon.cpp; sourceTree = SOURCE_ROOT; };
+		04AD8DDD47597AE0875ACDD1 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ImageIcon.h; path = ../../Source/Processors/Editors/ImageIcon.h; sourceTree = SOURCE_ROOT; };
+		2B11714BCE362D4EA7E377F5 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WiFiOutputEditor.cpp; path = ../../Source/Processors/Editors/WiFiOutputEditor.cpp; sourceTree = SOURCE_ROOT; };
+		4E67CFE458501E763FF3AE94 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WiFiOutputEditor.h; path = ../../Source/Processors/Editors/WiFiOutputEditor.h; sourceTree = SOURCE_ROOT; };
+		36393F2D58480F61ECDEB5E5 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EventNodeEditor.cpp; path = ../../Source/Processors/Editors/EventNodeEditor.cpp; sourceTree = SOURCE_ROOT; };
+		A80433BF9686B4E2542C580C = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EventNodeEditor.h; path = ../../Source/Processors/Editors/EventNodeEditor.h; sourceTree = SOURCE_ROOT; };
 		087136FA6A7A0E01738EEF03 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SignalGeneratorEditor.cpp; path = ../../Source/Processors/Editors/SignalGeneratorEditor.cpp; sourceTree = SOURCE_ROOT; };
 		10F82563E4A633BC234B2800 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SignalGeneratorEditor.h; path = ../../Source/Processors/Editors/SignalGeneratorEditor.h; sourceTree = SOURCE_ROOT; };
 		CF9878CE31A1B41406C3457B = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LfpDisplayEditor.cpp; path = ../../Source/Processors/Editors/LfpDisplayEditor.cpp; sourceTree = SOURCE_ROOT; };
@@ -280,6 +290,7 @@
 				F8CAE2412B173788F325BD8B,
 				363B59958615D35C5C948300 ); name = Fonts; sourceTree = "<group>"; };
 		891C5A157F059822288EDC9F = { isa = PBXGroup; children = (
+				8E041C8C49F1A5B710CC812C,
 				2A1D9144C59B92B32483924B,
 				D99F56FB46F631F67AF23F2C,
 				66C7E42D7FDE3600982A1F46,
@@ -359,6 +370,12 @@
 				0C5335B0E57C9DC92FC57E5F,
 				7738F51AE0EC63D76EE0F761 ); name = Visualization; sourceTree = "<group>"; };
 		953CC35B9116404D6AA8D1C7 = { isa = PBXGroup; children = (
+				544DA1EF90EBBDB6FF2DE0A5,
+				04AD8DDD47597AE0875ACDD1,
+				2B11714BCE362D4EA7E377F5,
+				4E67CFE458501E763FF3AE94,
+				36393F2D58480F61ECDEB5E5,
+				A80433BF9686B4E2542C580C,
 				087136FA6A7A0E01738EEF03,
 				10F82563E4A633BC234B2800,
 				CF9878CE31A1B41406C3457B,
@@ -582,6 +599,9 @@
 				6656467170D2822949BD2F7F,
 				08B501E0D7764C6B613AF529,
 				9CBA3837CC8CAA03A03F2D9C,
+				CB77C89226102EF30F85E3EC,
+				A126280FF39A61DEFD3ABFE5,
+				2ADE508EC26B703176ED915C,
 				8B55C700ED8484944FED1EB1,
 				D3B54B20674A6BA87CE6FDEC,
 				5D5CAF52A5498EEFB8EA924D,

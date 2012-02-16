@@ -18,7 +18,7 @@ MainWindow::MainWindow()
                       Colour(Colours::black),
                       DocumentWindow::allButtons)
 {
-    centreWithSize (500, 400);
+    //centreWithSize (500, 400);
     //setBounds(0,0,500,400);
     setResizable (true, false);
     
@@ -123,8 +123,9 @@ void MainWindow::loadWindowBounds()
 
         bool fs = e->getBoolAttribute("fullscreen");
 
-        setTopLeftPosition(x,y);
-        getContentComponent()->setBounds(0,0,w,h);
+        // without the correction, you get drift over time
+        setTopLeftPosition(x,y-27);
+        getContentComponent()->setBounds(0,0,w,h-33);
         //setFullScreen(fs);
 
     }

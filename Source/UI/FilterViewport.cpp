@@ -14,7 +14,7 @@ FilterViewport::FilterViewport(ProcessorGraph* pgraph, DataViewport* tcomp)
     : message ("Drag-and-drop some rows from the top-left box onto this component!"),
       somethingIsBeingDraggedOver (false), graph(pgraph), tabComponent(tcomp), shiftDown(false),
        insertionPoint(0), componentWantsToMove(false), indexOfMovingComponent(-1), 
-       borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true)//, signalChainNeedsSource(true)
+       borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true), currentTab(-1)//, signalChainNeedsSource(true)
 {
 
   addMouseListener(this, true);
@@ -207,6 +207,10 @@ void FilterViewport::itemDropped (const String& sourceDescription, Component* /*
 
             updateVisibleEditors(activeEditor, 1);
 
+        } else {
+            insertionPoint = -1; // make sure all editors are left-justified
+            indexOfMovingComponent = -1;
+            refreshEditors();
         }
 
         somethingIsBeingDraggedOver = false;
@@ -254,6 +258,8 @@ void FilterViewport::createNewTab(GenericEditor* editor)
     editor->tabNumber(signalChainArray.size()-1);
     t->setToggleState(true,false);
     t->setNumber(index);
+
+   // currentTab = signalChainArray.size()-1;
 
 }
 
@@ -364,7 +370,7 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
 
             dest->setSourceNode(source);
 
-         //  std::cout << dest->getName() << "::";
+           //std::cout << dest->getName() << "::";
         }
 
         dest->setDestNode(0); // set last dest as 0
@@ -376,6 +382,8 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
     // Step 3: check for new tabs
    if (action < 4) {
 
+        std::cout << "Checking for new tabs." << std::endl;
+
         for (int n = 0; n < editorArray.size(); n++)
         {
             GenericProcessor* p = (GenericProcessor*) editorArray[n]->getProcessor();
@@ -384,8 +392,11 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
 
             if (p->getSourceNode() == 0)// && editorArray[n]->tabNumber() == -1)
             {
+               
                 if (editorArray[n]->tabNumber() == -1) 
+
                 {
+                     std::cout << p->getName() << " has no source node. Creating a new tab." << std::endl;
                     createNewTab(editorArray[n]);
                 }
 
@@ -410,11 +421,13 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
     }
 
     editorArray.clear();
+    std::cout << "Cleared editor array." << std::endl;
 
     GenericEditor* editorToAdd = activeEditor;
 
     while (editorToAdd != 0) 
     {
+        std::cout << "Inserting " << editorToAdd->getName() << " at point 0." << std::endl;
 
         editorArray.insert(0,editorToAdd);
         GenericProcessor* currentProcessor = (GenericProcessor*) editorToAdd->getProcessor();
@@ -422,11 +435,10 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
 
         if (source != 0)
         {
-          //  std::cout << "Source: " << source->getName() << std::endl;
+            std::cout << "Source: " << source->getName() << std::endl;
             editorToAdd = (GenericEditor*) source->getEditor();
         } else {
-
-          //  std::cout << "No source found." << std::endl;
+            std::cout << "No source found." << std::endl;
             editorToAdd = 0;
         }
     }
@@ -441,12 +453,15 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
 
         if (dest != 0)
         {
-         //   std::cout << "Destination: " << dest->getName() << std::endl;
+
+            std::cout << "Destination: " << dest->getName() << std::endl;
             editorToAdd = (GenericEditor*) dest->getEditor();
             editorArray.add(editorToAdd);
+            std::cout << "Inserting " << editorToAdd->getName() << " at the end." << std::endl;
+
 
         } else {
-          // std::cout << "No dest found." << std::endl;
+           std::cout << "No dest found." << std::endl;
             editorToAdd = 0;
         }
     }
@@ -599,6 +614,12 @@ void FilterViewport::moveSelection (const KeyPress &key) {
                 // }
             }  
         }
+    } else if (key.getKeyCode() == key.upKey) {
+        
+        // move one tab up
+    } else if (key.getKeyCode() == key.downKey) {
+        
+        // move one tab down
     }
 }
 

@@ -74,6 +74,9 @@ OBJECTS := \
   $(OBJDIR)/FileReader_18023b0e.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/ImageIcon_c89b23a6.o \
+  $(OBJDIR)/WiFiOutputEditor_1d3ba5bb.o \
+  $(OBJDIR)/EventNodeEditor_2198733b.o \
   $(OBJDIR)/SignalGeneratorEditor_3223ac0a.o \
   $(OBJDIR)/LfpDisplayEditor_99d75351.o \
   $(OBJDIR)/SourceNodeEditor_8d813122.o \
@@ -281,6 +284,21 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ImageIcon_c89b23a6.o: ../../Source/Processors/Editors/ImageIcon.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ImageIcon.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/WiFiOutputEditor_1d3ba5bb.o: ../../Source/Processors/Editors/WiFiOutputEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling WiFiOutputEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/EventNodeEditor_2198733b.o: ../../Source/Processors/Editors/EventNodeEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling EventNodeEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/SignalGeneratorEditor_3223ac0a.o: ../../Source/Processors/Editors/SignalGeneratorEditor.cpp

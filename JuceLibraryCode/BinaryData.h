@@ -46,6 +46,9 @@ namespace BinaryData
     extern const char*   silkscreen_ttf;
     const int            silkscreen_ttfSize = 18336;
 
+    extern const char*   wifi_png;
+    const int            wifi_pngSize = 3412;
+
     extern const char*   SourceDrop_png;
     const int            SourceDrop_pngSize = 6274;
 

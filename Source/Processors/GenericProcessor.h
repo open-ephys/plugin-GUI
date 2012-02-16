@@ -130,7 +130,7 @@ public:
 
 	virtual bool canSendSignalTo(GenericProcessor*) {return true;}
 
-	virtual bool enable() {return true;}
+	virtual bool enable() {return isEnabled;}
 	virtual bool disable() {return true;}
 
 	virtual bool enabledState() {return isEnabled;}

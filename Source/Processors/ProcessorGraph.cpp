@@ -300,7 +300,14 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 	if (processorType.equalsIgnoreCase("Sources")) {
 
 		if (subProcessorType.equalsIgnoreCase("Intan Demo Board")) {
-			processor = new SourceNode(subProcessorType);
+			
+			if (!doesProcessorWithSameNameExist(subProcessorType)) {
+				processor = new SourceNode(subProcessorType);
+			//} else {
+				
+			}
+				
+
 			std::cout << "Creating a new data source." << std::endl;
 		} else if (subProcessorType.equalsIgnoreCase("Signal Generator"))
 		{
@@ -367,6 +374,21 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 	return processor;
 }
 
+
+bool ProcessorGraph::doesProcessorWithSameNameExist(const String& name)
+{
+	for (int i = 0; i < getNumNodes(); i++)
+	{
+	 	Node* node = getNode(i);
+
+	 	if (name.equalsIgnoreCase(node->getProcessor()->getName()))
+	 		return true;
+	
+	 }
+
+	 return false;
+
+}
 
 void ProcessorGraph::removeProcessor(GenericProcessor* processor) {
 	
@@ -435,6 +457,12 @@ bool ProcessorGraph::enableProcessors() {
 
 	bool allClear;
 
+	if (getNumNodes() < 5)
+	{
+		UI->disableCallbacks();
+		return false;
+	}
+
 	for (int i = 0; i < getNumNodes(); i++)
 	{
 
@@ -446,8 +474,11 @@ bool ProcessorGraph::enableProcessors() {
 			allClear = p->enable();
 
 			if (!allClear) {
-				sendActionMessage("Could not initialize acquisition. Is the Intan Board plugged in?");
+				std::cout << p->getName() << " said it's not OK." << std::endl;
+				sendActionMessage("Could not initialize acquisition.");
+				UI->disableCallbacks();
 				return false;
+
 			}
 		}
 	}

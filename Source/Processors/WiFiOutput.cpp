@@ -26,16 +26,20 @@ WiFiOutput::~WiFiOutput()
 
 }
 
-// AudioProcessorEditor* EventNode::createEditor()
-// {
-// 	FilterEditor* filterEditor = new FilterEditor(this, viewport);
+AudioProcessorEditor* WiFiOutput::createEditor()
+{
+	WiFiOutputEditor* wifiEditor = new WiFiOutputEditor(this, viewport);
 	
-// 	std::cout << "Creating editor." << std::endl;
-// 	//filterEditor = new FilterEditor(this);
-// 	return filterEditor;
+	setEditor(wifiEditor);
+	//wifiEditor->setUIComponent(getUIComponent());
+	wifiEditor->setConfiguration(config);
 
-// 	//return 0;
-// }
+	std::cout << "Creating editor." << std::endl;
+	//filterEditor = new FilterEditor(this);
+	return wifiEditor;
+
+	//return 0;
+}
 
 
 void WiFiOutput::setParameter (int parameterIndex, float newValue)
@@ -76,4 +80,6 @@ void WiFiOutput::timerCallback()
 	//std::cout << "FIRE!" << std::endl;
 	socket.sendTo("hi",2,"169.254.187.27",6000);
 	stopTimer();
+	WiFiOutputEditor* ed = (WiFiOutputEditor*) getEditor();
+	ed->receivedEvent();
 }

@@ -11,14 +11,13 @@
 
 #include <stdio.h>
 #include "EventNode.h"
-//#include "FilterEditor.h"
 
 EventNode::EventNode()
 	: GenericProcessor("Event Generator"), Hz(1), accumulator(0)
 {
 	setNumOutputs(0);
 	setNumInputs(0);
-	setSampleRate(44100.0);
+//	setSampleRate(44100.0);
 
 	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
 
@@ -29,16 +28,20 @@ EventNode::~EventNode()
 
 }
 
-// AudioProcessorEditor* EventNode::createEditor()
-// {
-// 	FilterEditor* filterEditor = new FilterEditor(this, viewport);
-	
-// 	std::cout << "Creating editor." << std::endl;
-// 	//filterEditor = new FilterEditor(this);
-// 	return filterEditor;
+AudioProcessorEditor* EventNode::createEditor()
+{
+	EventNodeEditor* editor = new EventNodeEditor(this, viewport);
+	setEditor(editor);
 
-// 	//return 0;
-// }
+	std::cout << "Creating editor." << std::endl;
+	//editor->setUIComponent(getUIComponent());
+	editor->setConfiguration(config);
+
+	//filterEditor = new FilterEditor(this);
+	return editor;
+
+	//return 0;
+}
 
 //AudioProcessorEditor* FilterNode::createEditor(AudioProcessorEditor* const editor)
 //{
@@ -47,6 +50,7 @@ EventNode::~EventNode()
 //}
 void EventNode::setParameter (int parameterIndex, float newValue)
 {
+	std::cout << "Setting frequency to " << newValue << " Hz." << std::endl;
 	Hz = newValue;
 }
 
