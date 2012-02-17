@@ -112,62 +112,64 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	int valuesNeeded = nSamples / int(ratio);
 
 	//lock->enterRead();
+	float subSampleOffset = 0.0;
+	int nextPos = (displayBufferIndex + 1) % displayBufferSize;
+	
+	//int screenBufferPos; 
 
 	if (valuesNeeded > 0) {
 //
-		int sourceSampleNumber;
-		int destSampleNumber;
+		//int sourceSampleNumber;
+		//int destSampleNumber;
 
-		int valuesTaken = 0;
+		//int valuesTaken = 0;
 
 		//float subSampleOffset = 0.0;
 
+		screenBuffer->clear(screenBufferIndex, valuesNeeded);
+
 	    for (int i = 0; i < valuesNeeded; i++)
 	    {
+	    	float gain = 1.0;
+	    	float alpha = (float) subSampleOffset;
+	    	float invAlpha = 1.0f - alpha;
 
-	    	sourceSampleNumber = (displayBufferIndex + int(float(i)*ratio) ) % displayBufferSize;
-	    	destSampleNumber = (screenBufferIndex + i) % maxSamples;
+	        for (int channel = 0; channel < displayBuffer->getNumChannels(); channel++) {
 
-	    	if (sourceSampleNumber >= 0 && destSampleNumber >= 0 && destSampleNumber < displayBufferSize) {
+	        	screenBuffer->addFrom(channel,
+	        						  screenBufferIndex,
+	        						  buffer,
+	        						  channel,
+	        						  displayBufferIndex,
+	        						  1,
+	        						  invAlpha*gain*displayGain);
+	        	
+	        	screenBuffer->addFrom(channel,
+	        						  screenBufferIndex,
+	        						  buffer,
+	        						  channel,
+	        						  displayBufferIndex,
+	        						  1,
+	        						  alpha*gain*displayGain);
+	       	}
 
-	    		valuesTaken++;
+	       	subSampleOffset += ratio;
 
-	    		//std::cout << "    " << " " << sourceSampleNumber << " " <<
-	             //destSampleNumber << std::endl;
+	       	while (subSampleOffset >= 1.0)
+	       	{
+	       		if (++displayBufferIndex >= displayBufferSize)
+	       			displayBufferIndex = 0;
+	       		
+	       		nextPos = (displayBufferPos + 1) % displayBufferSize;
+	       		subSampleOffset -= 1.0;
+	       	}
 
-		        for (int channel = 0; channel < displayBuffer->getNumChannels(); channel++) {
+	       	screenBufferIndex++;
 
-
-		        	screenBuffer->copyFrom(channel, 		// destChannel
-		        						   destSampleNumber,  			// destSampleOffset
-		        						//*displayBuffer,
-		        						//channel,
-		        						//sourceSampleNumber,
-		        					//	1);
-		        						  displayBuffer->getSampleData(channel,sourceSampleNumber),				// source
-		        						  1,					// sourceChannel
-										  displayGain);		// number of samples
-		        	
-		        
-		       	}
-	       }
-		}
-
-		//std::cout << screenBufferIndex << " " << displayBufferIndex << " " <<
-	    //         valuesNeeded << " " << valuesTaken << " " << nSamples << " " << ratio << std::endl;
-
-		//if (sourceSampleNumber >= 0 && destSampleNumber >= 0) {
-		screenBufferIndex += valuesTaken;
-		screenBufferIndex %= maxSamples;
-
-		displayBufferIndex = index;
-
+	    }
 	}
-	//}
-	//lock->exitRead();
-
-	//std::cout << n << std::endl;
 }
+
 
 void LfpDisplayCanvas::renderOpenGL()
 {
