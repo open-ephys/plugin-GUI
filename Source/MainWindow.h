@@ -26,6 +26,8 @@ public:
 
     void closeButtonPressed();
 
+    ApplicationCommandManager commandManager;
+
 private:
     //==============================================================================
   

@@ -22,6 +22,7 @@
 #include "../Processors/DisplayNode.h"
 #include "../Processors/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
+#include "../MainWindow.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -47,17 +48,20 @@
 
 #include <FTGL/ftgl.h>
 
+class MainWindow;
+
 class FilterViewportButton;
 
 class UIComponent : public Component,
 				    public ActionBroadcaster,
-				    public DragAndDropContainer // required for 
+				    public DragAndDropContainer, // required for 
 				    				            // drag-and-drop
 				    				            // internal components
+				    public MenuBarModel
 
 {
 public: 
-	UIComponent(ProcessorGraph* pgraph, AudioComponent* audio);
+	UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio);
 	~UIComponent();
 
 	FilterViewport* getFilterViewport() {return filterViewport;}
@@ -69,6 +73,10 @@ public:
 
 	void childComponentChanged();
 
+	const StringArray getMenuBarNames();
+	const PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
+	void menuItemSelected(int menuItemID, int topLevelMenuIndex);
+
 private:
 
 	DataViewport* dataViewport;
@@ -79,6 +87,8 @@ private:
 	MessageCenter* messageCenter;
 	Configuration* config;
 	InfoLabel* infoLabel;
+
+	MainWindow* mainWindow;
 
 	ProcessorGraph* processorGraph;
 	AudioComponent* audio;

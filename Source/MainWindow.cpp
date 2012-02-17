@@ -22,8 +22,8 @@ MainWindow::MainWindow()
     //setBounds(0,0,500,400);
     setResizable (true, false);
     
-    
-    
+
+
     // constraining size doesn't seem to work:
     //setResizeLimits(500, 400, 10000, 10000);
     //ComponentBoundsConstrainer* cbc = getConstrainer();
@@ -35,8 +35,16 @@ MainWindow::MainWindow()
     processorGraph = new ProcessorGraph();
     audioComponent = new AudioComponent();
     audioComponent->connectToProcessorGraph(processorGraph);
+
+    setContentComponent (new UIComponent(this, processorGraph, audioComponent), true, true);
     
-    setContentComponent (new UIComponent(processorGraph, audioComponent), true, true);
+
+    // commandManager.registerAllCommandsForTarget (getContentComponent());
+    // commandManager.registerAllCommandsForTarget (JUCEApplication::getInstance());
+    
+    // setMenuBar ((MenuBarModel*) getContentComponent());
+
+    // addKeyListener( commandManager.getKeyMappings());
 
     loadWindowBounds();
     setVisible (true);
@@ -55,6 +63,7 @@ MainWindow::~MainWindow()
    deleteAndZero(audioComponent);
 
   setContentComponent (0);
+  setMenuBar(0);
 
 }
 

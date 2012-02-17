@@ -11,8 +11,8 @@
 #include "UIComponent.h"
 #include <stdio.h>
 
-UIComponent::UIComponent (ProcessorGraph* pgraph, AudioComponent* audio_) 
-	: processorGraph(pgraph), audio(audio_)
+UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_) 
+	: processorGraph(pgraph), audio(audio_), mainWindow(mainWindow_)
 
 {	
 
@@ -141,6 +141,46 @@ void UIComponent::disableCallbacks()
 void UIComponent::childComponentChanged()
 {
 	resized();
+}
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+// MENU BAR METHODS
+
+const StringArray UIComponent::getMenuBarNames() {
+
+	const char* const names[] = { "File", "Edit", "Help" };
+
+    return StringArray (names);
+
+}
+
+const PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
+{
+	 //ApplicationCommandManager* commandManager = &(mainWindow->commandManager);
+
+     PopupMenu menu;
+
+     if (menuIndex == 0)
+     {
+     	menu.addItem (0, "Load configuration");
+     	menu.addItem (1, "Save configuration");
+     } else if (menuIndex == 1)
+     {
+     	menu.addItem (0, "Clear signal chain");
+     } else if (menuIndex == 2)
+     {
+     	menu.addItem (0, "Show help...");
+     }
+
+     return menu;
+
+}
+
+void UIComponent::menuItemSelected(int menuItemID, int topLevelMenuIndex)
+{
+	
+ //
 }
 
 
