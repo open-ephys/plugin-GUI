@@ -18,7 +18,7 @@ SelectorButton::SelectorButton()
 		DrawablePath normal, over, down;
 
 	    Path p;
-        p.addEllipse (0.0,0.0,20.0,20.0);
+        p.addRectangle (0.0,0.0,20.0,20.0);
         normal.setPath (p);
         normal.setFill (Colours::lightgrey);
         normal.setStrokeThickness (0.0f);
@@ -29,7 +29,7 @@ SelectorButton::SelectorButton()
         over.setStrokeThickness (5.0f);
 
         setImages (&normal, &over, &over);
-        setBackgroundColours(Colours::darkgrey, Colours::green);
+        setBackgroundColours(Colours::darkgrey, Colours::white);
         setClickingTogglesState (true);
         setTooltip ("Toggle a state.");
 
@@ -52,13 +52,21 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode,
 
 	desiredWidth = 250;
 
+	StringArray timeBaseValues;
+	timeBaseValues.add("1");
+	timeBaseValues.add("2");
+	timeBaseValues.add("5");
+	timeBaseValues.add("10");
+
+	createRadioButtons(35, 50, 160, timeBaseValues, "Display width (s)");
+
 	StringArray displayGainValues;
 	displayGainValues.add("1");
 	displayGainValues.add("2");
 	displayGainValues.add("4");
 	displayGainValues.add("8");
 
-	createRadioButtons(35, 50, 160, displayGainValues, "Display Gain");
+	createRadioButtons(35, 90, 160, displayGainValues, "Display Gain");
 
 	for (int n = 0; n < getNumChildComponents(); n++)
 	{
@@ -90,7 +98,7 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode,
 
 	tabSelector = new SelectorButton();
 	tabSelector->addListener(this);
-	tabSelector->setBounds(100,85,50,25);
+	tabSelector->setBounds(215,30,25,25);
 	
 	addAndMakeVisible(tabSelector);
 	tabSelector->setToggleState(false,false);
@@ -150,10 +158,13 @@ void LfpDisplayEditor::setBuffers(AudioSampleBuffer* asb, MidiBuffer* mb)
 
 void LfpDisplayEditor::buttonClicked(Button* button)
 {
-	if (button->getRadioGroupId() > 0) {
+
+	int gId = button->getRadioGroupId();
+
+	if (gId > 0) {
 		if (canvas != 0)
 		{
-			canvas->setParameter(0,button->getName().getFloatValue());
+			canvas->setParameter(gId-1, button->getName().getFloatValue());
 		}
 
 	} else {
