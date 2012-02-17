@@ -428,6 +428,9 @@ void ControlPanel::disableCallbacks()
 
 	playButton->setToggleState(false,false);
 	recordButton->setToggleState(false,false);
+	masterClock->stopRecording();
+	masterClock->stop();
+
 
 }
 
