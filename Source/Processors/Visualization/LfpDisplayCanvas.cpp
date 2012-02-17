@@ -11,7 +11,7 @@
 #include "LfpDisplayCanvas.h"
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
-	 	xBuffer(0), yBuffer(10),
+	 	xBuffer(0), yBuffer(0),
 	    plotHeight(40), selectedChan(-1), screenBufferIndex(0),
 	    timebase(1.0f), displayGain(5.0f), displayBufferIndex(0)
 {
@@ -117,7 +117,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	
 	//int screenBufferPos; 
 
-	if (valuesNeeded > 0) {
+	if (valuesNeeded > 0 && valuesNeeded < 1000) {
 //
 		//int sourceSampleNumber;
 		//int destSampleNumber;
@@ -126,7 +126,16 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
 		//float subSampleOffset = 0.0;
 
+		int maxVal = screenBufferIndex + valuesNeeded;
+		int overflow = maxVal - maxSamples;
+
 		screenBuffer->clear(screenBufferIndex, valuesNeeded);
+
+		if (overflow > 0)
+			screenBuffer->clear(0, overflow);
+
+
+		
 
 	    for (int i = 0; i < valuesNeeded; i++)
 	    {
@@ -138,7 +147,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
 	        	screenBuffer->addFrom(channel,
 	        						  screenBufferIndex,
-	        						  buffer,
+	        						  *displayBuffer,
 	        						  channel,
 	        						  displayBufferIndex,
 	        						  1,
@@ -146,7 +155,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	        	
 	        	screenBuffer->addFrom(channel,
 	        						  screenBufferIndex,
-	        						  buffer,
+	        						  *displayBuffer,
 	        						  channel,
 	        						  displayBufferIndex,
 	        						  1,
@@ -160,11 +169,12 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	       		if (++displayBufferIndex >= displayBufferSize)
 	       			displayBufferIndex = 0;
 	       		
-	       		nextPos = (displayBufferPos + 1) % displayBufferSize;
+	       		nextPos = (displayBufferIndex + 1) % displayBufferSize;
 	       		subSampleOffset -= 1.0;
 	       	}
 
 	       	screenBufferIndex++;
+	       	screenBufferIndex %= maxSamples;
 
 	    }
 	}
@@ -299,8 +309,8 @@ void LfpDisplayCanvas::drawChannelInfo(int chan, bool isSelected)
 	String s = "";//String("Channel ");
 	s += (chan+1);
 
-	getFont(String("cpmono-extra-light"))->FaceSize(35);
-	getFont(String("cpmono-extra-light"))->Render(s);
+	getFont(String("cpmono-bold"))->FaceSize(35);
+	getFont(String("cpmono-bold"))->Render(s);
 }
 
 int LfpDisplayCanvas::getTotalHeight() 
