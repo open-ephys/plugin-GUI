@@ -109,7 +109,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	float ratio = sampleRate * timebase / float(getWidth());
 
 	// this number is crucial: this method should be updated:
-	int valuesNeeded = nSamples / int(ratio) - 1;
+	int valuesNeeded = nSamples / int(ratio);
 
 	//lock->enterRead();
 
