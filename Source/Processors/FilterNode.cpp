@@ -208,7 +208,7 @@ void FilterNode::process(AudioSampleBuffer &buffer,
 
 	//int nSamps = getNumSamples(midiMessages);
 	//std::cout << nSamples << std::endl;
-    //filter->process (nSamples, buffer.getArrayOfChannels());
+    filter->process (nSamples, buffer.getArrayOfChannels());
 
     //std::cout << "Filter node:" << *buffer.getSampleData(0,0);
 

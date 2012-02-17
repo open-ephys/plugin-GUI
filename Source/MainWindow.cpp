@@ -90,8 +90,8 @@ void MainWindow::saveWindowBounds()
     XmlElement* bounds = new XmlElement("BOUNDS");
     bounds->setAttribute("x",getScreenX());
     bounds->setAttribute("y",getScreenY());
-    bounds->setAttribute("w",getWidth());
-    bounds->setAttribute("h",getHeight());
+    bounds->setAttribute("w",getContentComponent()->getWidth());
+    bounds->setAttribute("h",getContentComponent()->getHeight());
     bounds->setAttribute("fullscreen",isFullScreen());
 
     xml->addChildElement(bounds);
