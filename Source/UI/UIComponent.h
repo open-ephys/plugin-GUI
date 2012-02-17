@@ -51,9 +51,10 @@ class FilterViewportButton;
 
 class UIComponent : public Component,
 				    public ActionBroadcaster,
-				    public DragAndDropContainer // required for 
+				    public DragAndDropContainer, // required for 
 				    				            // drag-and-drop
 				    				            // internal components
+				    public MenuBarModel
 
 {
 public: 
@@ -68,6 +69,13 @@ public:
 	void disableCallbacks();
 
 	void childComponentChanged();
+
+	const StringArray getMenuBarNames()
+	{
+		const char* const names[] = {"File", "Edit", "Help"};
+	}
+
+
 
 private:
 
