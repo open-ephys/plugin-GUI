@@ -15,6 +15,7 @@
 DataThread::DataThread(SourceNode* s) : Thread ("Data Thread"), dataBuffer(0) 
 {
 	sn = s;
+	setPriority(10);
 }
 
 DataThread::~DataThread() {}

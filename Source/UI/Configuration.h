@@ -1,11 +1,24 @@
 /*
-  ==============================================================================
+    ------------------------------------------------------------------
 
-    Configuration.h
-    Created: 6 Sep 2011 10:24:09pm
-    Author:  jsiegle
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2012 Open Ephys
 
-  ==============================================================================
+    ------------------------------------------------------------------
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 */
 
 #ifndef __CONFIGURATION_H_9DEA9372__
@@ -13,6 +26,17 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/GenericProcessor.h"
+
+/**
+  
+  Holds configuration information for the signal chain.
+
+  The Configuration can be accessed by all processors in order to
+     update channel names, electrode groupings, and acquisition parameters.
+
+  @see UIComponent, GenericProcessor
+
+*/
 
 class GenericProcessor;
 class Configuration;

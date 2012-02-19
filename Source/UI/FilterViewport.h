@@ -1,11 +1,24 @@
 /*
-  ==============================================================================
+    ------------------------------------------------------------------
 
-    FilterViewport.h
-    Created: 1 May 2011 4:13:45pm
-    Author:  jsiegle
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2012 Open Ephys
 
-  ==============================================================================
+    ------------------------------------------------------------------
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 */
 
 #ifndef __FILTERVIEWPORT_H_80260F3F__
@@ -16,12 +29,22 @@
 #include "../Processors/Editors/GenericEditor.h"
 #include "DataViewport.h"
 
+/**
+  
+  Allows the user to view and edit the signal chain.
+
+  The FilterViewport is one of the most important classes in the GUI application.
+
+  @see UIComponent, ProcessorGraph
+
+*/
+
 class GenericEditor;
 class SignalChainTabButton;
 
 class FilterViewport  : public Component,
-                        public DragAndDropTarget//,
-                        //public KeyListener
+                        public DragAndDropTarget
+
 {
 public:
 
@@ -32,7 +55,6 @@ public:
 
     // Creating and deleting editors:
     void deleteNode(GenericEditor* editor);
-    void addEditor (GenericEditor*);
     void updateVisibleEditors(GenericEditor* activeEditor, int action);
     void selectEditor(GenericEditor* e);
    // void setActiveEditor(GenericEditor* e) {activeEditor = e; updateVisibleEditors();}

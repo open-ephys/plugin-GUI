@@ -1,11 +1,24 @@
 /*
-  ==============================================================================
+    ------------------------------------------------------------------
 
-    ControlPanel.h
-    Created: 1 May 2011 2:57:48pm
-    Author:  jsiegle
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2012 Open Ephys
 
-  ==============================================================================
+    ------------------------------------------------------------------
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 */
 
 #ifndef __CONTROLPANEL_H_AD81E528__
@@ -18,30 +31,20 @@
 #include "../Processors/RecordNode.h"
 #include "CustomLookAndFeel.h"
 
+#include "../OpenGL.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
+//------------------------------------------------------------------------
 
-#if JUCE_WINDOWS
-#include <gl/gl.h>
-#include <gl/glu.h>
-#elif JUCE_LINUX
-#include <GL/gl.h>
-#include <GL/glut.h>
-#undef KeyPress
-#elif JUCE_IPHONE
-#include <OpenGLES/ES1/gl.h>
-#include <OpenGLES/ES1/glext.h>
-#elif JUCE_MAC
-#include <GLUT/glut.h>
-#endif
+/**
+  
+  Displays information and provides buttons to control acquistion and recording.
 
-#ifndef GL_BGRA_EXT
-#define GL_BGRA_EXT 0x80e1
-#endif
+  The ControlPanel is located along the top of the application window.
 
-#include <FTGL/ftgl.h>
+  @see UIComponent
+
+*/
+
 
 class PlayButton : public DrawableButton
 {
@@ -57,7 +60,7 @@ class RecordButton : public DrawableButton
 		~RecordButton();
 };
 
-class CPUMeter : public Label//, public Timer //Component
+class CPUMeter : public Label
 {
 	public:
 		CPUMeter();
@@ -74,11 +77,9 @@ class CPUMeter : public Label//, public Timer //Component
 		float cpu;
 		float lastCpu;
 
-		//void timerCallback() {repaint();}
-
 };
 
-class DiskSpaceMeter : public Component//, public Timer
+class DiskSpaceMeter : public Component
 {
 public:
 	DiskSpaceMeter();
@@ -94,7 +95,6 @@ private:
 
 	float diskFree;
 	ProcessorGraph* graph;
-	//void timerCallback() {repaint();}
 	
 };
 
