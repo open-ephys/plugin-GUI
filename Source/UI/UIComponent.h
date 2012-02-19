@@ -32,7 +32,6 @@
 #include "DataViewport.h"
 #include "MessageCenter.h"
 #include "Configuration.h"
-#include "../Processors/DisplayNode.h"
 #include "../Processors/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"

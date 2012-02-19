@@ -1,22 +1,47 @@
 /*
-  ==============================================================================
+    ------------------------------------------------------------------
 
-    GenericEditor.h
-    Created: 7 Jun 2011 11:37:12am
-    Author:  jsiegle
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2012 Open Ephys
 
-  ==============================================================================
+    ------------------------------------------------------------------
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 */
 
 #ifndef __GENERICEDITOR_H_DD406E71__
 #define __GENERICEDITOR_H_DD406E71__
-
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor.h"
 #include "../../UI/FilterViewport.h"
 #include "../../UI/Configuration.h"
 #include <stdio.h>
+
+/**
+  
+  Base class for creating processor editors.
+
+  If a processor doesn't have an editor defined, a GenericEditor will be used.
+
+  Classes derived from this class must place their controls as child components.
+  They shouldn't try to re-draw any aspects of their background.
+
+  @see GenericProcessor, FilterViewport
+
+*/
 
 class GenericProcessor;
 class FilterViewport;
