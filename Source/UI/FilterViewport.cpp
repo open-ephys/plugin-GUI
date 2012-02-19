@@ -1,11 +1,24 @@
 /*
-==============================================================================
+    ------------------------------------------------------------------
 
-FilterViewport.cpp
-Created: 1 May 2011 4:13:45pm
-Author:  jsiegle
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2012 Open Ephys
 
-==============================================================================
+    ------------------------------------------------------------------
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 */
 
 #include "FilterViewport.h"
@@ -221,13 +234,6 @@ void FilterViewport::itemDropped (const String& sourceDescription, Component* /*
 
 
 
-void FilterViewport::addEditor (GenericEditor* editor) 
-{
-    
- 
-
-}
-
 void FilterViewport::deleteNode (GenericEditor* editor) {
 
     if (canEdit) {
@@ -237,6 +243,15 @@ void FilterViewport::deleteNode (GenericEditor* editor) {
         updateVisibleEditors(editor, 3);
     
         graph->removeProcessor((GenericProcessor*) editor->getProcessor());
+    }
+
+    int64 t1 = Time::currentTimeMillis();
+    int64 t2 = t1;
+
+    // pause for 50 ms so multiple editors are not accidentally deleted
+    while (t2 < t1+50)
+    {
+        t2 = Time::currentTimeMillis();
     }
 
 }

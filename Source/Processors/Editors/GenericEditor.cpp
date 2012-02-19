@@ -67,11 +67,13 @@ bool GenericEditor::keyPressed (const KeyPress& key)
 	if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey) {
 		
 		//std::cout << name << " should be deleted." << std::endl;
-		viewport->deleteNode(this);
+		if (getSelectionState())
+			viewport->deleteNode(this);
 
 	} else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
 
-		viewport->moveSelection(key);
+		if (getSelectionState())
+			viewport->moveSelection(key);
 
 	}
 }
