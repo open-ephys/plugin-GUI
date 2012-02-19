@@ -27,23 +27,27 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/LfpDisplayEditor.h"
 #include "GenericProcessor.h"
-//#include "Visualization/OpenGLCanvas.h"
+
+/**
+  
+  Holds data in a displayBuffer to be used by the LfpDisplayCanvas
+  for rendering continuous data streams.
+
+  @see GenericProcessor, LfpDisplayEditor, LfpDisplayCanvas
+
+*/
+
 
 class DataViewport;
 
 class LfpDisplayNode :  public GenericProcessor
-						///public OpenGLCanvas,
-					  
+	  
 
 {
 public:
 
 	LfpDisplayNode();
 	~LfpDisplayNode();
-
-	// void newOpenGLContextCreated();
-	// void renderOpenGL();
-	// int getTotalHeight();
 
 	AudioProcessorEditor* createEditor();
 
@@ -74,21 +78,12 @@ private:
 	DataViewport* dataViewport;
 
 	AudioSampleBuffer* displayBuffer;
-	//AudioSampleBuffer* screenBuffer;
+
 	MidiBuffer* eventBuffer;
 
-	int displayBufferIndex;//, screenBufferIndex;
+	int displayBufferIndex;
 
 	int repaintInterval, repaintCounter;
-
-	// void setViewport(int chan);
-	// void drawBorder(bool isSelected);
-	// void drawChannelInfo(int chan, bool isSelected);
-	// void drawWaveform(int chan, bool isSelected);
-
-	// void drawTicks();
-
-	// bool checkBounds(int chan);
 
 	int selectedChan;
 

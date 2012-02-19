@@ -28,7 +28,16 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GenericProcessor.h"
 
-//class FileReaderEditor;
+/**
+
+  --UNDER CONSTRUCTION--
+
+  Reads data from a file with a specific format.
+
+  @see GenericProcessor
+
+*/
+
 
 class FileReader : public GenericProcessor
 

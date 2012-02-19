@@ -28,6 +28,14 @@
 #include "GenericProcessor.h"
 #include "Editors/EventNodeEditor.h"
 
+/**
+  
+  Generates events at regular intervals.
+
+  @see GenericProcessor, EventNodeEditor
+
+*/
+
 class FilterViewport;
 
 class EventNode : public GenericProcessor

@@ -35,6 +35,15 @@
 #include "okFrontPanelDLL.h"
 #include "DataThread.h"
 
+/**
+
+  --UNDER CONSTRUCTION--
+
+  Communicates with the custom acquisition board via an Opal Kelly FPGA.
+
+  @see DataThread, SourceNode
+
+*/
 
 class SourceNode;
 

@@ -29,7 +29,17 @@
 #include "../Dsp/Dsp.h"
 #include "GenericProcessor.h"
 
-//class ResamplingNode;
+/**
+  
+  --UNDER CONSTRUCTION--
+
+  Changes the sample rate of continuous data.
+
+  Code is based on Juce's ResamplingAudioSource class.
+
+  @see GenericProcessor
+
+*/
 
 class ResamplingNode : public GenericProcessor
 

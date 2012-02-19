@@ -31,6 +31,21 @@
 #include <time.h>
 #include <stdio.h>
 
+/**
+  
+  Abstract base class for creating processors.
+
+  All processors must be derived from this class, and must provide an
+  implementation of the process() method.
+
+  Any processors that are not filters must override the isSource(),
+  isSink(), isSplitter(), and isMerger() methods.
+
+  @see ProcessorGraph, GenericEditor, SourceNode, FilterNode, LfpDisplayNode
+
+*/
+
+
 class FilterViewport;
 class DataViewport;
 class UIComponent;

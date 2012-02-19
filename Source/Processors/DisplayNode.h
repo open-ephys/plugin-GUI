@@ -24,6 +24,16 @@
 #ifndef __DISPLAYNODE_H_C7B28CA4__
 #define __DISPLAYNODE_H_C7B28CA4__
 
+/**
+  
+  --OBSOLETE--
+
+  Base class for creating data vizualizers.
+
+  @see GenericProcessor, Visualizer
+
+*/
+
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/Visualizer.h"

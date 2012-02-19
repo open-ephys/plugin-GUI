@@ -34,6 +34,18 @@
 #include <cstdlib>            			 // For atoi()
 
 
+/**
+
+  Allows the signal chain to send outputs to a client with a specific
+  IP address; used in conjunction with the Arduino WiFly shield, these
+  signals can be sent wirelessly.
+
+  @see GenericProcessor, WiFiOutputEditor
+
+*/
+
+
+
 class FilterViewport;
 
 class WiFiOutputEditor;

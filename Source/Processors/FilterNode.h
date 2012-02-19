@@ -29,6 +29,17 @@
 #include "GenericProcessor.h"
 #include "Editors/FilterEditor.h"
 
+/**
+
+  Filters data using a filter from the DSP library.
+
+  The user can select the low- and high-frequency cutoffs.
+
+  @see GenericProcessor, FilterEditor
+
+*/
+
+
 class FilterEditor; 
 class FilterViewport;
 

@@ -29,6 +29,16 @@
 #include "Editors/SpikeDetectorEditor.h"
 #include "../UI/Configuration.h"
 
+/**
+
+  --UNDER CONSTRUCTION--
+
+  Detects spikes in a continuous signal and outputs events containing the spike data.
+
+  @see GenericProcessor, SpikeDetectorEditor
+
+*/
+
 class SpikeDetectorEditor;
 class FilterViewport;
 

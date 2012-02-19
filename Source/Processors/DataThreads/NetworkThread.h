@@ -34,6 +34,16 @@
 
 #include "DataThread.h"
 
+/**
+
+  --OBSOLETE--
+
+  Receives data from a network source.
+
+  @see DataThread
+
+*/
+
 class NetworkThread : public DataThread
 {
 public:

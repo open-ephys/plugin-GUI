@@ -29,7 +29,13 @@
 #include "GenericProcessor.h"
 #include "Editors/SignalGeneratorEditor.h"
 
-//class SourceNodeEditor;
+/**
+
+  Outputs 16 channels of sine wave data.
+
+  @see GenericProcessor, SignalGeneratorEditor
+
+*/
 
 class SignalGenerator : public GenericProcessor
 

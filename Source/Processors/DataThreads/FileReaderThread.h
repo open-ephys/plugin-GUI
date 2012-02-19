@@ -30,6 +30,16 @@
 #include <stdio.h>
 #include "DataThread.h"
 
+/**
+
+  --UNDER CONSTRUCTION--
+
+  Similar to FileReader, but works within its own thread.
+
+  @see DataThread, FileReader
+
+*/
+
 
 class SourceNode;
 

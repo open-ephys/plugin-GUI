@@ -29,6 +29,14 @@
 #include <stdio.h>
 #include "DataThread.h"
 
+/**
+
+  Interface to the Intan Demo Board.
+
+  @see SourceNode, DataThread
+
+*/
+
 class SourceNode;
 
 class IntanThread : public DataThread

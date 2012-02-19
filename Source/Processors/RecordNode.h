@@ -30,6 +30,20 @@
 
 #include "GenericProcessor.h"
 
+/**
+  
+  --UNDER CONSTRUCTION--
+
+  Receives inputs from all processors that want to save their data,
+  and writes it to disk using a FileOutputStream.
+
+  Receives a signal from the ControlPanel to begin recording.
+
+  @see GenericProcessor, ControlPanel
+
+*/
+
+
 class RecordNode : public GenericProcessor
 {
 public:
