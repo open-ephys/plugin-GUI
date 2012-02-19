@@ -42,29 +42,29 @@ FilterList::FilterList() : isDragging(false)
 	FilterListItem* sources = new FilterListItem("Sources");
 	sources->addSubItem(new FilterListItem("Intan Demo Board"));
 	sources->addSubItem(new FilterListItem("Signal Generator"));
-	sources->addSubItem(new FilterListItem("Custom FPGA"));
-	sources->addSubItem(new FilterListItem("File Reader"));
+	//sources->addSubItem(new FilterListItem("Custom FPGA"));
+	//sources->addSubItem(new FilterListItem("File Reader"));
 	sources->addSubItem(new FilterListItem("Event Generator"));
 
 	FilterListItem* filters = new FilterListItem("Filters");
 	filters->addSubItem(new FilterListItem("Bandpass Filter"));
-	filters->addSubItem(new FilterListItem("Resampler"));
-	filters->addSubItem(new FilterListItem("Spike Detector"));
+	//filters->addSubItem(new FilterListItem("Resampler"));
+	//filters->addSubItem(new FilterListItem("Spike Detector"));
 
 	FilterListItem* sinks = new FilterListItem("Sinks");
 	sinks->addSubItem(new FilterListItem("LFP Viewer"));
-	sinks->addSubItem(new FilterListItem("Spike Display"));
+	//sinks->addSubItem(new FilterListItem("Spike Display"));
 	sinks->addSubItem(new FilterListItem("WiFi Output"));
 
-	FilterListItem* utilities = new FilterListItem("Utilities");
-	utilities->addSubItem(new FilterListItem("Splitter"));
-	utilities->addSubItem(new FilterListItem("Merger"));
+	//FilterListItem* utilities = new FilterListItem("Utilities");
+	//utilities->addSubItem(new FilterListItem("Splitter"));
+	//utilities->addSubItem(new FilterListItem("Merger"));
 
 	baseItem = new FilterListItem("Processors");
 	baseItem->addSubItem(sources);
 	baseItem->addSubItem(filters);
 	baseItem->addSubItem(sinks);
-	baseItem->addSubItem(utilities);
+	//baseItem->addSubItem(utilities);
 
 	// set parent names / colors
 	
