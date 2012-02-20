@@ -78,7 +78,9 @@ DataViewport::~DataViewport()
  void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
  {
      OpenGLCanvas* canvas = (OpenGLCanvas*) getTabContentComponent(newIndex);
-     canvas->refreshState();
+
+     if (canvas != 0)
+        canvas->refreshState();
  }
 
 void DataViewport::paint(Graphics& g)

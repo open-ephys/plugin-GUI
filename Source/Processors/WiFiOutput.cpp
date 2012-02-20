@@ -44,32 +44,16 @@ AudioProcessorEditor* WiFiOutput::createEditor()
 	WiFiOutputEditor* wifiEditor = new WiFiOutputEditor(this, viewport);
 	
 	setEditor(wifiEditor);
-	//wifiEditor->setUIComponent(getUIComponent());
 	wifiEditor->setConfiguration(config);
 
 	std::cout << "Creating editor." << std::endl;
-	//filterEditor = new FilterEditor(this);
 	return wifiEditor;
-
-	//return 0;
 }
 
 
 void WiFiOutput::setParameter (int parameterIndex, float newValue)
 {
 
-}
-
-
-void WiFiOutput::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
-{
-	//std::cout << "Filter node preparing." << std::endl;
-}
-
-
-
-void WiFiOutput::releaseResources() 
-{	
 }
 
 void WiFiOutput::process(AudioSampleBuffer &buffer, 

@@ -56,8 +56,6 @@ public:
 
 	//void setName(const String name_);
 	
-	void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
-	void releaseResources();
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 
 	void setParameter (int parameterIndex, float newValue);

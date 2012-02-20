@@ -48,26 +48,11 @@ FileReader::~FileReader()
 //	return sourceEditor;
 //}
 
-//AudioProcessorEditor* FilterNode::createEditor(AudioProcessorEditor* const editor)
-//{
-	
-//	return editor;
-//}
+
+
 void FileReader::setParameter (int parameterIndex, float newValue)
 {
 	//std::cout << "Message received." << std::endl;
-
-
-}
-
-void FileReader::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
-{
-
-	samplesPerBlock = int(float(estimatedSamplesPerBlock)/sampleRate*sampleRate);	
-
-	std::cout << "Samples per block = " << samplesPerBlock << std::endl;
-
-	
 }
 
 bool FileReader::enable () {
@@ -89,11 +74,6 @@ bool FileReader::disable() {
 	std::cout << "File reader received disable signal." << std::endl;
 
 	return true;
-
-}
-
-void FileReader::releaseResources() 
-{	
 
 }
 

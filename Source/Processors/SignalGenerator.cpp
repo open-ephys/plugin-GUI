@@ -87,15 +87,11 @@ void SignalGenerator::setParameter (int parameterIndex, float newValue)
 
 }
 
-void SignalGenerator::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
-{
-	sampleRate = sampleRate_;
-	phasePerSample = double_Pi * 2.0 / (sampleRate / frequency);
-	//std::cout << "Prepare to play: " << std::endl;
-}
 
 bool SignalGenerator::enable () {
-	
+
+	phasePerSample = double_Pi * 2.0 / (getSampleRate() / frequency);
+
 	std::cout << "Signal generator received enable signal." << std::endl;
 	return true;
 }
@@ -104,10 +100,6 @@ bool SignalGenerator::disable() {
 	
 	std::cout << "Signal generator received disable signal." << std::endl;
 	return true;
-}
-
-void SignalGenerator::releaseResources() 
-{	
 }
 
 void SignalGenerator::process(AudioSampleBuffer &buffer, 

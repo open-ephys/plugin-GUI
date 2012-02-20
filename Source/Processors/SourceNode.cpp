@@ -122,29 +122,13 @@ void SourceNode::setParameter (int parameterIndex, float newValue)
 	//std::cout << "Got parameter change notification";
 }
 
-void SourceNode::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
-{
-	//
-	// We take care of thread creation and destruction in separate enable/disable function
-	// 
-	// prepareToPlay is called whenever the graph is edited, not only when callbacks are
-	// 	about to begin
-	//
-}
-
-void SourceNode::releaseResources() {}
-
-
 AudioProcessorEditor* SourceNode::createEditor()
 {
 	SourceNodeEditor* ed = new SourceNodeEditor(this, viewport);
 	setEditor(ed);
 	
 	std::cout << "Creating editor." << std::endl;
-	//filterEditor = new FilterEditor(this);
 	return ed;
-
-	//return 0;
 }
 
 void SourceNode::timerCallback()

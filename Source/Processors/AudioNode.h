@@ -49,10 +49,7 @@ public:
 	AudioNode();
 	~AudioNode();
 	
-	void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
-	void releaseResources();
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-
 	void setParameter (int parameterIndex, float newValue);
 
 	AudioProcessorEditor* createEditor();

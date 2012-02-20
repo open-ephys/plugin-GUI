@@ -128,6 +128,10 @@ void LfpDisplayNode::resizeBuffer()
 
 bool LfpDisplayNode::enable()
 {
+
+	if (displayBuffer == 0)
+		displayBuffer = new AudioSampleBuffer(16, 100000);
+
 	if (isEnabled) {
 	LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
 	editor->enable();
@@ -161,13 +165,6 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 	// parameterChanged = true;
 
 }
-
-void LfpDisplayNode::prepareToPlay (double, int)
-{
-	if (displayBuffer == 0)
-		displayBuffer = new AudioSampleBuffer(16, 100000);
-}
-
 
 void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples)
 {

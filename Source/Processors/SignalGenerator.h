@@ -42,12 +42,9 @@ class SignalGenerator : public GenericProcessor
 {
 public:
 	
-	// real member functions:
 	SignalGenerator();
 	~SignalGenerator();
 	
-	void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
-	void releaseResources();
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 
 	void setParameter (int parameterIndex, float newValue);
@@ -65,11 +62,11 @@ public:
 	bool isSource() {return true;}
 
 private:
+	
 	double frequency, sampleRate;
 	double currentPhase, phasePerSample;
 	float amplitude;
-	//SourceNodeEditor* sourceEditor;
-	
+
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalGenerator);
 

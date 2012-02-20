@@ -45,17 +45,19 @@ public:
 	DataViewport();
 	~DataViewport();
 
+	/** Adds a new tab and returns the tab index.*/
     int addTabToDataViewport(String tabName, Component* componentToAdd);
+
+    /** Removes a tab with a specified index.*/
     void removeTab(int);
 
+    /** Informs the component of the current tab that it's now active.*/
     void currentTabChanged(int newIndex, const String& newTabName);
 
 private:
 
 	Array<int>* tabArray;
-
 	void paint(Graphics& g);
-
 	int tabDepth;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataViewport);

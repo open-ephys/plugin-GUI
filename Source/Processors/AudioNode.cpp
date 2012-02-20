@@ -60,18 +60,6 @@ void AudioNode::setParameter (int parameterIndex, float newValue)
 
 }
 
-
-void AudioNode::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
-{
-
-}
-
-void AudioNode::releaseResources() 
-{	
-
-}
-
-
 void AudioNode::process(AudioSampleBuffer &buffer, 
                             MidiBuffer &midiMessages,
                             int& nSamples)

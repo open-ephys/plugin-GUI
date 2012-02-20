@@ -29,26 +29,13 @@ GenericProcessor::GenericProcessor(const String& name_) : name(name_),
 	
 {
 
-	//name = "Generic Processor";
-	//setSourceNode(source_);
-	//setDestNode(dest_);
-
-	//setNumInputs();
-	//setNumOutputs();
-
-	//setPlayConfigDetails(getNumInputs(),getNumOutputs(),1024);
-
 }
 
 GenericProcessor::~GenericProcessor()
 {
-	//deleteAllChildren();
-	//std::cout << name << " deleting editor." << std::endl;
-
 	if (editor != 0)
 	{
-		delete(editor);
-		editor = 0;
+		deleteAndZero(editor);
 	}
 }
 
@@ -89,26 +76,19 @@ GenericProcessor* GenericProcessor::getOriginalSourceNode()
 	}
 }
 
-// void GenericProcessor::setViewport(FilterViewport* vp) {
-	
-// 	viewport = vp;
-// }
-
-void GenericProcessor::setDataViewport(DataViewport* dv)
-
-{	
-	std::cout << "Processor data viewport: " << dv << std::endl;
-	dataViewport = dv;
-}
 
 void GenericProcessor::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
 {
-	//std::cout << "Preparing to play." << std::endl;
-
+	// use the enable() function instead
+	// prepareToPlay() is called by Juce as soon as a processor is created
+	// enable() is only called by the ProcessorGraph just before the start of acquisition
 }
 
 void GenericProcessor::releaseResources() 
 {	
+	// use the disable() function instead
+	// releaseResources() is called by Juce at unpredictable times
+	// disable() is only called by the ProcessorGraph at the end of acquisition
 }
 
 
@@ -121,9 +101,6 @@ void GenericProcessor::releaseResources()
 
 
 void GenericProcessor::setNumSamples(MidiBuffer& midiMessages, int numberToAdd) {
-	//lock.enter();
-	//*numSamplesInThisBuffer = n;
-	//lock.exit();
 
 	uint8 data[2];
 
@@ -138,9 +115,7 @@ void GenericProcessor::setNumSamples(MidiBuffer& midiMessages, int numberToAdd) 
 }
 
 int GenericProcessor::getNumSamples(MidiBuffer& midiMessages) {
-	//lock.enter();
-	//int numRead = *numSamplesInThisBuffer;
-	//lock.exit();
+
 	int numRead = 0;
 
 	if (midiMessages.getNumEvents() > 0) 
@@ -148,28 +123,18 @@ int GenericProcessor::getNumSamples(MidiBuffer& midiMessages) {
 			
 		int m = midiMessages.getNumEvents();
 
-		// if (m == 1)
-		// 	std::cout << m << " event received by node " << getNodeId() << std::endl;
-		// else
-		// 	std::cout << m << " events received by node " << getNodeId() << std::endl;
-
 		MidiBuffer::Iterator i (midiMessages);
 		MidiMessage message(0xf4);
 
 		int samplePosition = -5;
-		//i.setNextSamplePosition(samplePosition);
 
 		while (i.getNextEvent (message, samplePosition)) {
 			
 				int numbytes = message.getRawDataSize();
 				uint8* dataptr = message.getRawData();
 
-				//std::cout << " Bytes received: " << numbytes << std::endl;
-				//std::cout << " Message timestamp = " << message.getTimeStamp() << std::endl;
-//
 				if (message.getTimeStamp() < 0)
 					numRead = (*dataptr<<8) + *(dataptr+1);
-				//std::cout << "   " << numRead << std::endl;
 		}
 
 	}
@@ -247,6 +212,8 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 
 					destNode = dn;
 					dn->setSourceNode(this);
+					dn->setNumInputs(getNumOutputs());
+					dn->setSampleRate(getSampleRate());
 				} else {
 					std::cout << "  The dest node is not new." << std::endl;
 				}
@@ -269,21 +236,7 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 	}
 }
 
-// void GenericProcessor::setSourceNode(GenericProcessor* sn)
-// {
-// 	if (!isSource())
-// 		sourceNode = sn;
-// 	else
-// 		sourceNode = 0;
-// }
 
-// void GenericProcessor::setDestNode(GenericProcessor* dn)
-// {
-// 	if (!isSink())
-// 		destNode = dn
-// 	else
-// 		destNode = 0;
-// }
 int GenericProcessor::getNumInputs()
 {
 	return numInputs;
@@ -296,6 +249,10 @@ int GenericProcessor::getNumOutputs()
 
 void GenericProcessor::setNumInputs(int n) {
 	numInputs = n;
+	// if (destNode != 0)
+	// {
+	// 	destNode->setNumInputs();
+	// }
 	//setPlayConfigDetails(numInputs,numOutputs,44100.0,1024);
 }
 

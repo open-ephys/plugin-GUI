@@ -67,26 +67,6 @@ void EventNode::setParameter (int parameterIndex, float newValue)
 }
 
 
-void EventNode::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
-{
-	//std::cout << "Filter node preparing." << std::endl;
-}
-
-//void EventNode::enable() 
-//{
-	//prepareToPlay();
-//}
-
-
-//void EventNode::disable()
-//{
-	//releaseResources();
-//}
-
-void EventNode::releaseResources() 
-{	
-}
-
 void EventNode::process(AudioSampleBuffer &buffer, 
                             MidiBuffer &midiMessages,
                             int& nSamples)

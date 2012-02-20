@@ -46,8 +46,6 @@ public:
 	EventNode();
 	~EventNode();
 	
-	void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
-	void releaseResources();
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 	void setParameter (int parameterIndex, float newValue);
 
@@ -55,9 +53,6 @@ public:
 	bool hasEditor() const {return true;}
 
 	float getSampleRate() {return 44100.0;}
-
-//	bool enable();
-	//bool disable();
 
 	AudioProcessorEditor* createEditor();
 	

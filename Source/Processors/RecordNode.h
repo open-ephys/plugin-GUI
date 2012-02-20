@@ -48,16 +48,15 @@ class RecordNode : public GenericProcessor
 {
 public:
 	
-	// real member functions:
 	RecordNode();
 	~RecordNode();
 	
-	
-	void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
-	void releaseResources();
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 
 	void setParameter (int parameterIndex, float newValue);
+
+	bool enable();
+	bool disable();
 
 	float getFreeSpace();
 	

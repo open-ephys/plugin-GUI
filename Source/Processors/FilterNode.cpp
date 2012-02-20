@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 #include "FilterNode.h"
-//#include "FilterEditor.h"
+#include "Editors/FilterEditor.h"
 
 FilterNode::FilterNode()
 	: GenericProcessor("Bandpass Filter"), filter(0),
@@ -84,35 +84,9 @@ AudioProcessorEditor* FilterNode::createEditor()
 	setEditor(filterEditor);
 	
 	std::cout << "Creating editor." << std::endl;
-	//filterEditor = new FilterEditor(this);
+
 	return filterEditor;
-
-	//return 0;
 }
-
-// void FilterNode::setSourceNode(GenericProcessor* sn)
-// {
-// 	sourceNode = sn;
-// 	setNumInputs(sourceNode->getNumOutputs());
-
-// 	if (destNode != 0)
-// 	{
-// 		destNode->setNumInputs(getNumOutputs());
-// 	}
-
-// }
-
-// void FilterNode::setDestNode(GenericProcessor* dn) 
-// {
-// 	if (dn != 0) {
-// 		if (!dn->isSource())
-// 		{
-// 			destNode = dn;
-// 			destNode->setSourceNode(this);
-// 		}
-// 	} 
-// }	
-
 
 void FilterNode::setNumInputs(int inputs)
 {		
@@ -199,16 +173,6 @@ void FilterNode::setParameter (int parameterIndex, float newValue)
 
 	setFilterParameters();
 
-}
-
-
-void FilterNode::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
-{
-	//std::cout << "Filter node preparing." << std::endl;
-}
-
-void FilterNode::releaseResources() 
-{	
 }
 
 void FilterNode::process(AudioSampleBuffer &buffer, 

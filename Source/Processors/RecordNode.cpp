@@ -50,14 +50,15 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
  	}
 }
 
-
-void RecordNode::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
+bool RecordNode::enable()
 {
-	
 	outputStream = outputFile.createOutputStream();
+
+	return true;
 }
 
-void RecordNode::releaseResources() 
+
+bool RecordNode::disable() 
 {	
 	
 	if (outputStream != 0) {
@@ -66,6 +67,8 @@ void RecordNode::releaseResources()
 		delete(outputStream);
 		outputStream = 0;
 	}
+
+	return true;
 }
 
 float RecordNode::getFreeSpace()

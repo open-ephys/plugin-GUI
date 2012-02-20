@@ -229,7 +229,7 @@ void LfpDisplayCanvas::renderOpenGL()
 	}
 	drawScrollBars();
 
-	std::cout << "Render." << std::endl;
+	//std::cout << "Render." << std::endl;
 }
 
 void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)

@@ -66,11 +66,11 @@ void SpikeDetector::setParameter (int parameterIndex, float newValue)
 }
 
 
-void SpikeDetector::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
+bool SpikeDetector::enable()
 {
 	//std::cout << "SpikeDetector node preparing." << std::endl;
-	prePeakSamples = int((prePeakMs / 1000.0f) / (1/sampleRate));
-	postPeakSamples = int((postPeakMs / 1000.0f) / (1/sampleRate));
+	prePeakSamples = int((prePeakMs / 1000.0f) / (1/getSampleRate()));
+	postPeakSamples = int((postPeakMs / 1000.0f) / (1/getSampleRate()));
 
     thresh.ensureStorageAllocated(getNumOutputs());
     channels.ensureStorageAllocated(getNumOutputs());
@@ -102,15 +102,19 @@ void SpikeDetector::prepareToPlay (double sampleRate_, int estimatedSamplesPerBl
         }
     }
 
+    return true;
+
 }
 
-void SpikeDetector::releaseResources() 
+bool SpikeDetector::disable() 
 {	
     thresh.clear();
     channels.clear();
     nChans.clear();
     isActive.clear();
     lastSpike.clear();
+
+    return true;
 }
 
 void SpikeDetector::process(AudioSampleBuffer &buffer, 

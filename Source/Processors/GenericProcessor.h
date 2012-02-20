@@ -45,7 +45,6 @@
 
 */
 
-
 class FilterViewport;
 class DataViewport;
 class UIComponent;
@@ -56,13 +55,15 @@ class GenericProcessor : public AudioProcessor,
 {
 public:
 
+	//-----------------------------------------------------------------------
+	// Juce methods:
+
 	GenericProcessor(const String& name_);
 	virtual ~GenericProcessor();
 	
 	const String getName() const {return name;}
-	//virtual void setName(const String& name_) {}
 	
-	void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
+	virtual void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
 	void releaseResources();
 	
 	void setParameter (int parameterIndex, float newValue);
@@ -98,34 +99,23 @@ public:
 	
 	float getParameter (int parameterIndex) {return 1.0;}
 
-	// custom methods:
+	//----------------------------------------------------------------------
+	// Custom methods:
 
-	// pure virtual function
+	// pure virtual function (must be implemented by sub-classes)
 	virtual void process(AudioSampleBuffer& /*buffer*/,
 						 MidiBuffer& /*buffer*/,
 						 int& /*nSamples*/) = 0;
 
-	const String name;
-	//int* numSamplesInThisBuffer;
-	//const CriticalSection& lock;
-	int nodeId;
+	
 
 	GenericProcessor* sourceNode;
 	GenericProcessor* destNode;
-
-	FilterViewport* viewport;
-	DataViewport* dataViewport;
-
-	Configuration* config;
-
-	AudioProcessorEditor* editor;
 
 	int numInputs;
 	int numOutputs;
 
 	float sampleRate;
-
-	UIComponent* UI;
 
 	//void sendMessage(const String& msg);
 
@@ -167,6 +157,16 @@ public:
 	virtual AudioSampleBuffer* getContinuousBuffer() {return 0;}
 	virtual MidiBuffer* getEventBuffer() {return 0;}
 
+
+
+	int checkForMidiEvents(MidiBuffer& mb);
+	void addMidiEvent(MidiBuffer& mb, int a, int b);
+
+	bool isEnabled;
+
+
+	// Getting and setting:
+
 	AudioProcessorEditor* getEditor() {return editor;}
 	void setEditor(AudioProcessorEditor* e) {editor = e;}
 
@@ -177,21 +177,27 @@ public:
 	Configuration* getConfiguration() {return config;}
 
 	void setFilterViewport(FilterViewport* vp) {viewport = vp;}
-	void setDataViewport(DataViewport* dv);
+	FilterViewport* getFilterViewport() {return viewport;}
+
+	void setDataViewport(DataViewport* dv) {dataViewport = dv;}
 	DataViewport* getDataViewport() {return dataViewport;}
 
-	int checkForMidiEvents(MidiBuffer& mb);
-	void addMidiEvent(MidiBuffer& mb, int a, int b);
 
-	bool isEnabled;
+	FilterViewport* viewport;
+	DataViewport* dataViewport;
+	UIComponent* UI;
+
+	Configuration* config;
+
+	AudioProcessorEditor* editor;
 
 private:
 
 	void processBlock (AudioSampleBuffer &buffer, MidiBuffer &midiMessages);
 
-	
+	const String name;
 
-	
+	int nodeId;
 	
 	int getNumSamples(MidiBuffer&);
 	void setNumSamples(MidiBuffer&, int);

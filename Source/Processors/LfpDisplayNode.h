@@ -63,8 +63,6 @@ public:
 	bool enable();
 	bool disable();
 
-	void prepareToPlay(double, int);
-
 	AudioSampleBuffer* getDisplayBufferAddress() {return displayBuffer;}
 	int getDisplayBufferIndex() {return displayBufferIndex;}
 	ReadWriteLock* getLock() {return lock;}
