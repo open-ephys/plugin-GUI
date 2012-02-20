@@ -28,16 +28,13 @@
 #include "UIComponent.h"
 
 
-FilterList::FilterList() : isDragging(false)
+FilterList::FilterList() : isDragging(false),
+                           itemHeight(32),
+                           subItemHeight(22),
+                           totalHeight(800),
+                           xBuffer(1),
+                           yBuffer(1)
 {
-
-	//setBounds(0,0,225,500);
-
-	itemHeight = 32;
-	subItemHeight = 22;
-	totalHeight = 800;
-	xBuffer = 1;
-	yBuffer = 1;
 
 	FilterListItem* sources = new FilterListItem("Sources");
 	sources->addSubItem(new FilterListItem("Intan Demo Board"));

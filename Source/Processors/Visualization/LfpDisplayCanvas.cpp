@@ -105,12 +105,22 @@ void LfpDisplayCanvas::setParameter(int param, float val)
 	
 }
 
+void LfpDisplayCanvas::refreshState()
+{
+	// called when the component's tab becomes visible again
+	displayBufferIndex = processor->getDisplayBufferIndex();
+	screenBufferIndex = 0;
+
+}
+
 void LfpDisplayCanvas::updateScreenBuffer()
 {
 	// copy new samples from the displayBuffer into the screenBuffer
 	int maxSamples = getWidth();
 
 	int index = processor->getDisplayBufferIndex();
+
+	//std::cout << index << screenBufferIndex << std::endl;
 
 	int nSamples = index - displayBufferIndex;
 
@@ -218,6 +228,8 @@ void LfpDisplayCanvas::renderOpenGL()
 		}	
 	}
 	drawScrollBars();
+
+	std::cout << "Render." << std::endl;
 }
 
 void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)

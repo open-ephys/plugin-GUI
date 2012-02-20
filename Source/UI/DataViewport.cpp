@@ -22,6 +22,7 @@
 */
 
 #include "DataViewport.h"
+#include "../Processors/Visualization/OpenGLCanvas.h"
 
 DataViewport::DataViewport() :
 	TabbedComponent(TabbedButtonBar::TabsAtRight),
@@ -67,14 +68,17 @@ DataViewport::~DataViewport()
      int newIndex = tabArray->indexOf(index);
      tabArray->remove(newIndex);
 
-     //Component* p = getTabContentComponent(newIndex);
-     //removeChildComponent(p);
-
      getTabbedButtonBar().removeTab(newIndex);
 
      if (tabArray->size() == 0)
      	setVisible(false);
 
+ }
+
+ void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
+ {
+     OpenGLCanvas* canvas = (OpenGLCanvas*) getTabContentComponent(newIndex);
+     canvas->refreshState();
  }
 
 void DataViewport::paint(Graphics& g)
@@ -97,16 +101,6 @@ void DataViewport::paint(Graphics& g)
         r -= tabDepth;
 
 	g.setColour(Colour(58,58,58));
-
-  //   Colour c1 (103, 116, 140);
-  ///  Colour c2 (120, 130, 155);
-
-    // g.setGradientFill (ColourGradient (c1,
-    //                                  0.0f, 0.0f,
-    //                                  c2,
-    //                                  0.0f, (float) getHeight(),
-    //                                  false));
-
     g.fillRoundedRectangle(x,y,r-x,b-y,5.0f);
 	g.fillRect(x,y,r-20,b-y);
     g.fillRect(x,20,r-x,b-20);

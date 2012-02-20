@@ -77,7 +77,6 @@ private:
 	int totalHeight, itemHeight, subItemHeight;
 	int xBuffer, yBuffer;
 
-
 	UIComponent* UI;
 
 	String category;

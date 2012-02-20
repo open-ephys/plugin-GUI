@@ -48,6 +48,8 @@ public:
     int addTabToDataViewport(String tabName, Component* componentToAdd);
     void removeTab(int);
 
+    void currentTabChanged(int newIndex, const String& newTabName);
+
 private:
 
 	Array<int>* tabArray;

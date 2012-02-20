@@ -38,6 +38,8 @@ public:
 	void setUp2DCanvas();
 	void activateAntiAliasing();
 
+	virtual void refreshState() {};
+
 	void mouseDownInCanvas(const MouseEvent& e);
 	void mouseDragInCanvas(const MouseEvent& e);
 	void mouseMoveInCanvas(const MouseEvent& e);

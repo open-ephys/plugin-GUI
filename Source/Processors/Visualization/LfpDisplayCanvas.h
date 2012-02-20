@@ -43,6 +43,8 @@ public:
 	void beginAnimation();
 	void endAnimation();
 
+	void refreshState();
+
 	void updateNumInputs(int);
 	void updateSampleRate(float);
 
