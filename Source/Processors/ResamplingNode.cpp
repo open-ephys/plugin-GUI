@@ -170,12 +170,6 @@ void ResamplingNode::updateFilter() {
 void ResamplingNode::releaseResources() 
 {	
 
-	// if (destBuffer != 0) {
-	// 	deleteAndZero(destBuffer);
-	// }
-	// if (tempBuffer != 0) {
-	// 	deleteAndZero(tempBuffer);
-	// }
 }
 
 void ResamplingNode::process(AudioSampleBuffer &buffer, 
