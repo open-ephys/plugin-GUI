@@ -46,8 +46,8 @@
 class GenericProcessor;
 class FilterViewport;
 
-class GenericEditor : public AudioProcessorEditor//,
-					 // public Button::Listener
+class GenericEditor : public AudioProcessorEditor,
+                      public Timer
 
 {
 public:
@@ -56,7 +56,6 @@ public:
 
 	void paint (Graphics& g);
 	void setViewport(FilterViewport*);
-	//void setTabbedComponent(TabbedComponent*);
 
 	bool keyPressed (const KeyPress& key);
 
@@ -88,11 +87,14 @@ public:
 	
 	void createRadioButtons(int x, int y, int w, StringArray values, const String& name);
 		
-	int radioGroupId;
 
-	//virtual void buttonClicked(Button* b);
+	void fadeIn();
+
+	int radioGroupId;
 	
 private:
+
+	virtual void timerCallback();
 
 	Colour backgroundColor;
 
@@ -101,7 +103,9 @@ private:
 
 	int tNum;
 
-	
+	bool isFading;
+
+	float accumulator;
 
 	Font titleFont;
 

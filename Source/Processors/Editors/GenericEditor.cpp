@@ -25,7 +25,8 @@
 
 GenericEditor::GenericEditor (GenericProcessor* owner, FilterViewport* vp) 
 	: AudioProcessorEditor (owner), isSelected(false), viewport(vp),
-	  desiredWidth(150), tNum(-1), isEnabled(true), radioGroupId(1)
+	  desiredWidth(150), tNum(-1), isEnabled(true), radioGroupId(1),
+	  accumulator(0.0), isFading(false)
 
 {
 	name = getAudioProcessor()->getName();
@@ -52,6 +53,8 @@ GenericEditor::GenericEditor (GenericProcessor* owner, FilterViewport* vp)
 	else
 		backgroundColor = Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
 
+
+	fadeIn();
 }
 
 GenericEditor::~GenericEditor()
@@ -67,11 +70,6 @@ void GenericEditor::setViewport(FilterViewport* vp) {
 
 }
 
-//void GenericEditor::setTabbedComponent(TabbedComponent* tc) {
-	
-//	tabComponent = tc;
-
-//}
 
 bool GenericEditor::keyPressed (const KeyPress& key)
 {
@@ -145,6 +143,12 @@ void GenericEditor::setEnabledState(bool t)
 	isEnabled = p->enabledState();
 }
 
+void GenericEditor::fadeIn()
+{
+	isFading = true;
+	startTimer(10);
+}
+
 void GenericEditor::paint (Graphics& g)
 {
 	int offset = 0;
@@ -187,6 +191,25 @@ void GenericEditor::paint (Graphics& g)
 	// draw highlight box
 	g.drawRect(0,0,getWidth(),getHeight(),2.0);
 
+	if (isFading)
+	{
+		g.setColour(Colours::black.withAlpha((float) (15.0-accumulator)/15.0f));
+		g.fillAll();
+	}
+
+}
+
+void GenericEditor::timerCallback()
+{
+	accumulator++;
+
+	repaint();
+
+	if (accumulator > 15.0)
+	{
+		stopTimer();
+		isFading = false;
+	}
 }
 
 void GenericEditor::createRadioButtons(int x, int y, int w, StringArray values, const String& groupName)
@@ -220,35 +243,36 @@ void GenericEditor::createRadioButtons(int x, int y, int w, StringArray values, 
 
 
 RadioButton::RadioButton(const String& name, int groupId) : Button(name) 
-    {
+{
 
-        setRadioGroupId(groupId);
-        setClickingTogglesState(true);
+    setRadioGroupId(groupId);
+    setClickingTogglesState(true);
 
-        MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-        Typeface::Ptr typeface = new CustomTypeface(mis);
-        buttonFont = Font(typeface);
-        buttonFont.setHeight(10);
-    }
+    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    Typeface::Ptr typeface = new CustomTypeface(mis);
+    buttonFont = Font(typeface);
+    buttonFont.setHeight(10);
+}
 
 
 void RadioButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
-        if (getToggleState() == true)
-            g.setColour(Colours::orange);
-        else 
-            g.setColour(Colours::darkgrey);
+    if (getToggleState() == true)
+        g.setColour(Colours::orange);
+    else 
+        g.setColour(Colours::darkgrey);
 
-        if (isMouseOver)
-            g.setColour(Colours::white);
+    if (isMouseOver)
+        g.setColour(Colours::white);
 
-        g.fillRect(0,0,getWidth(),getHeight());
+    g.fillRect(0,0,getWidth(),getHeight());
 
-        g.setFont(buttonFont);
-        g.setColour(Colours::black);
+    g.setFont(buttonFont);
+    g.setColour(Colours::black);
 
-        g.drawRect(0,0,getWidth(),getHeight(),1.0);
+    g.drawRect(0,0,getWidth(),getHeight(),1.0);
 
-        g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
-    }
+    g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
+}
+
 

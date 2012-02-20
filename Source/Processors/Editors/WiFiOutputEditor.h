@@ -30,8 +30,7 @@
 class FilterViewport;
 class ImageIcon;
 
-class WiFiOutputEditor : public GenericEditor, 
-	                     public Timer
+class WiFiOutputEditor : public GenericEditor
 
 {
 public:
