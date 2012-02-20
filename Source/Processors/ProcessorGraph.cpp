@@ -157,44 +157,17 @@ void ProcessorGraph::clearConnections()
 		 	removeConnection(i);
 		 }
 	}
-
-	// std::cout << "Clearing nodes..." << std::endl;
-
-	// for (int i = 0; i < getNumNodes(); i++)
-	// {
-	// 	Node* node = getNode(i);
-
-	// 	int id = node->nodeId;
-
-	// 	if (!(id == RECORD_NODE_ID || id == AUDIO_NODE_ID ||
-	// 	      id == OUTPUT_NODE_ID || id == RESAMPLING_NODE_ID))
-	// 	{
-	// 		   removeNode(id);
-	// 	}
-
-	// }
-
-	// std::cout << "Remaining nodes: " << std::endl;
-	// for (int i = 0; i < getNumNodes(); i++)
-	// {
-	// 	Node* node = getNode(i);
-	// 	std::cout << "  " << node->getProcessor()->getName() << std::endl;
-	// }
-
-	// std::cout << std::endl;
 }
 
 void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSection> tabs)
 {
 	clearConnections(); // clear processor graph
-	//createDefaultNodes(); // add audio and record nodes
+
 	std::cout << "Updating connections:" << std::endl;
 
  	for (int n = 0; n < tabs.size(); n++)
 	{
 		std::cout << "Signal chain " << n << std::endl;
-		//if (tabs[n]->hasNewConnections())
-		//{
 
 		GenericEditor* sourceEditor = (GenericEditor*) tabs[n]->getEditor();
 		GenericProcessor* source = (GenericProcessor*) sourceEditor->getProcessor();
@@ -212,11 +185,6 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
 			if (source->enabledState())
 			{
-
-				// add the source to the graph if it doesn't already exist
-				//Node* node = getNodeForId(source->getNodeId());
-				//if (node == 0)
-				//	addNode(source, source->getNodeId());
 
 				// add the connections to audio and record nodes if necessary
 				if (!(source->isSink() || source->isSource() ||
@@ -248,11 +216,6 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 					if (dest->enabledState())
 					{
 
-						// add dest node to graph if it doesn't already exist
-						//node = getNodeForId(dest->getNodeId());
-						//if (node == 0)
-						//	addNode(dest, dest->getNodeId());
-
 						std::cout << "     Connecting " << source->getName() << " channel ";
 
 						for (int chan = 0; chan < source->getNumOutputs(); chan++) 
@@ -260,7 +223,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
 							// eventually need to account for splitter and mergers
 							
-							           std::cout << chan << " ";
+							std::cout << chan << " ";
 							           
 
 							addConnection(source->getNodeId(), // sourceNodeID
@@ -314,13 +277,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 
 		if (subProcessorType.equalsIgnoreCase("Intan Demo Board")) {
 			
-			if (!doesProcessorWithSameNameExist(subProcessorType)) {
+			// only one Intan Demo Board at a time, please
+			if (!processorWithSameNameExists(subProcessorType)) {
 				processor = new SourceNode(subProcessorType);
-			//} else {
-				
 			}
 				
-
 			std::cout << "Creating a new data source." << std::endl;
 		} else if (subProcessorType.equalsIgnoreCase("Signal Generator"))
 		{
@@ -366,8 +327,6 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 
 	} else if (processorType.equalsIgnoreCase("Sinks")) {
 
-		//if (subProcessorType.equalsIgnoreCase("Stream Viewer")) {
-			
 		if (subProcessorType.equalsIgnoreCase("LFP Viewer")) {
 			std::cout << "Creating a display node." << std::endl;
 			processor = new LfpDisplayNode();
@@ -379,7 +338,6 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			std::cout << "Creating a WiFi node." << std::endl;
 			processor = new WiFiOutput();
 		}
-		//}
 	
 		sendActionMessage("New sink created.");
 	}
@@ -388,7 +346,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 }
 
 
-bool ProcessorGraph::doesProcessorWithSameNameExist(const String& name)
+bool ProcessorGraph::processorWithSameNameExists(const String& name)
 {
 	for (int i = 0; i < getNumNodes(); i++)
 	{
@@ -414,7 +372,6 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor) {
 void ProcessorGraph::setUIComponent(UIComponent* ui)
 {
 	UI = ui;
-	//config = ui->getConfiguration();
 }
 
 void ProcessorGraph::setFilterViewport(FilterViewport* fv)
@@ -514,20 +471,6 @@ RecordNode* ProcessorGraph::getRecordNode() {
 	
 	Node* node = getNodeForId(RECORD_NODE_ID);
 	return (RecordNode*) node->getProcessor();
-
-}
-
-GenericProcessor* ProcessorGraph::getSourceNode(int snID) {
-
-	std::cout << "Requested ID: " << snID << std::endl;
-	//if (snID != 0) {
-	Node* node = getNodeForId(snID);
-
-	if (node != 0) {
-		return (GenericProcessor*) node->getProcessor();
-	} else {
-		return 0;
-	}
 
 }
 

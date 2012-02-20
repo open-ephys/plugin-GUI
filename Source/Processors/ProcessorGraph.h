@@ -67,7 +67,6 @@ public:
 	bool disableProcessors();
 
 	RecordNode* getRecordNode();
-	GenericProcessor* getSourceNode(int snID);
 	AudioNode* getAudioNode();
 
 	void setUIComponent(UIComponent* ui);
@@ -77,7 +76,7 @@ public:
 
 	void updateConnections(Array<SignalChainTabButton*, CriticalSection>);
 
-	bool doesProcessorWithSameNameExist(const String& name);
+	bool processorWithSameNameExists(const String& name);
 
 	void saveState();
 	void loadState();
