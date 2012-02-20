@@ -92,6 +92,7 @@ void MainWindow::saveWindowBounds()
 
     File file = File("./windowState.xml");
 
+
     XmlElement* xml = new XmlElement("MAINWINDOW");
 
     XmlElement* bounds = new XmlElement("BOUNDS");
@@ -121,31 +122,35 @@ void MainWindow::loadWindowBounds()
     XmlDocument doc (file);
     XmlElement* xml = doc.getDocumentElement();
 
-    // if (xml == 0 || ! xml->hasTagName (T("MAINWINDOW")))
-    // {
-    //     delete xml;
-    //    // return "Not a valid file.";
-    // }
-
-    String description;// = T(" ");
-
-    forEachXmlChildElement (*xml, e)
+    if (xml == 0 || ! xml->hasTagName (T("MAINWINDOW")))
     {
+        
+        std::cout << "File not found." << std::endl;
+        delete xml;
+        centreWithSize (800, 600);
 
-        int x = e->getIntAttribute("x");
-        int y = e->getIntAttribute("y");
-        int w = e->getIntAttribute("w");
-        int h = e->getIntAttribute("h");
+    } else {
 
-        bool fs = e->getBoolAttribute("fullscreen");
+        String description;// = T(" ");
 
-        // without the correction, you get drift over time
-        setTopLeftPosition(x,y-27);
-        getContentComponent()->setBounds(0,0,w,h-33);
-        //setFullScreen(fs);
+        forEachXmlChildElement (*xml, e)
+        {
 
+            int x = e->getIntAttribute("x");
+            int y = e->getIntAttribute("y");
+            int w = e->getIntAttribute("w");
+            int h = e->getIntAttribute("h");
+
+            bool fs = e->getBoolAttribute("fullscreen");
+
+            // without the correction, you get drift over time
+            setTopLeftPosition(x,y-27);
+            getContentComponent()->setBounds(0,0,w,h-33);
+            //setFullScreen(fs);
+
+        }
+
+        delete xml;
     }
-
-    delete xml;
    // return "Everything went ok.";
 }

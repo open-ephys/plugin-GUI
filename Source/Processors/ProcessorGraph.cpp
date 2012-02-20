@@ -407,36 +407,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor) {
 	
 	std::cout << "Removing processor with ID " << processor->getNodeId() << std::endl;
 
-	// GenericProcessor* source = processor->getSourceNode();
-	// GenericProcessor* dest = processor->getDestNode();
-	// int numInputs = processor->getNumInputs();
-
-	// std::cout << "  Source " << source << std::endl;
-	// std::cout << "  Dest " << dest << std::endl;
-
 	removeNode(processor->getNodeId());
-
-	// eliminate connections for now
-	/*if (dest !=0 && source !=0) {
-
-		std::cout << "   Making new connections...." << std::endl;
-
-		// connect source and dest
-		for (int chan = 0; chan < numInputs; chan++) {
-			
-			addConnection(source->getNodeId(),
-						  chan,
-						  dest->getNodeId(),
-						  chan);
-		}
-
-	}*/
-
-	// if (dest != 0)
-	// 	dest->setSourceNode(source);
-	
-	// if (source != 0)
-	// 	source->setDestNode(dest);
 
 }
 

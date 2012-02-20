@@ -1004,7 +1004,9 @@ const String FilterViewport::loadState(const File& file)
 
     if (xml == 0 || ! xml->hasTagName (T("PROCESSORGRAPH")))
     {
+        std::cout << "File not found." << std::endl;
         delete xml;
+        // don't do anything
         return "Not a valid file.";
     }
 
