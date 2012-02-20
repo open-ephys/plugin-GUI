@@ -339,10 +339,7 @@ void ControlPanel::paint(Graphics& g)
 {
 	g.setColour(Colour(58,58,58));
 	g.fillRect(0,0,getWidth(),getHeight());
-
-	//g.setFont(font);
-	//g.setColour(Colours::white);
-	//g.drawText("CONTROL PANEL",getWidth()/2,0,getWidth(),getHeight(),Justification::left,true);
+	
 }
 
 void ControlPanel::resized()
@@ -377,7 +374,7 @@ void ControlPanel::buttonClicked(Button* button)
 		std::cout << "Record button pressed." << std::endl;
 		if (recordButton->getToggleState())
 		{
-			playButton->setToggleState(true,true);
+			playButton->setToggleState(true,false);
 			graph->getRecordNode()->setParameter(1,10.0f);
 			masterClock->startRecording(); // turn on recording
 
@@ -390,7 +387,7 @@ void ControlPanel::buttonClicked(Button* button)
 		std::cout << "Play button pressed." << std::endl;
 		if (!playButton->getToggleState())
 		{
-			recordButton->setToggleState(false,true);
+			recordButton->setToggleState(false,false);
 		}
 
 	}
@@ -406,8 +403,6 @@ void ControlPanel::buttonClicked(Button* button)
 				masterClock->start();
 			}
 			
-		} else {
-			playButton->setToggleState(false, false);
 		}
 
 	} else {
