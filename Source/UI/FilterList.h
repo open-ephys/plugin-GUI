@@ -82,14 +82,6 @@ private:
 
 	String category;
 	
-	// bool checkBounds(int chan);
-
-	// void setViewport(int chan);
-	// void drawBorder(bool isSelected);
-	// void drawChannelInfo(int chan, bool isSelected);
-
-	// void drawTicks();
-
 	void resized();
 	void mouseDown(const MouseEvent& e);
 	void mouseDrag(const MouseEvent& e);
@@ -97,23 +89,7 @@ private:
 	void mouseUp(const MouseEvent& e);
 	void mouseWheelMove(const MouseEvent&, float, float);
 
-	//bool isDragAndDropActive();
-	// void startDragging(const var &sourceDescription, 
-	// 				   Component* sourceComponent,
-	// 				   const Image &dragImage,
-	// 				   bool allowDraggingToOtherJuceWindows,
-	// 				   const Point<int>* imageOffsetFromMouse);
-
-	//String getCurrentDragDescription();
-
-	//const String getDragSourceDescription ()
-
 	FilterListItem* baseItem;
-	
-
-//	int nChans, plotHeight, totalHeight;
-//	int selectedChan;
-//	int xBuffer, yBuffer;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterList);	
 

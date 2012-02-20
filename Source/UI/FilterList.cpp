@@ -67,8 +67,6 @@ FilterList::FilterList() : isDragging(false)
 	//baseItem->addSubItem(utilities);
 
 	// set parent names / colors
-	
-
 	baseItem->setParentName("Processors");
 
 	for (int n = 0; n < baseItem->getNumSubItems(); n++)
@@ -114,26 +112,9 @@ void FilterList::renderOpenGL()
 {
 	
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
-
 	drawItems();
-
-	// for (int i = 0; i < nChans; i++)
-	// {
-	// 	bool isSelected = false;
-
-	// 	if (selectedChan == i)
-	// 		isSelected = true;
-
-	// 	if (checkBounds(i)) {
-	// 		setViewport(i);
-	// 		drawBorder(isSelected);
-	// 		drawChannelInfo(i,isSelected);
-	// 	}	
-	// }
 	drawScrollBars();
 }
-
-
 
 
 void FilterList::drawItems()
@@ -170,8 +151,6 @@ void FilterList::drawItems()
 			}			
 		}
 	}
-
-	//totalHeight -= subItemHeight;//(itemHeight+yBuffer)*(itemNum+1);
 
 }
 
@@ -351,10 +330,6 @@ void FilterList::resized() {canvasWasResized();}
 void FilterList::mouseDown(const MouseEvent& e) 
 {
 
-	//setBounds(0,0,225,itemHeight + 2*yBuffer);
-
-	
-
 	isDragging = false;
 
 	Point<int> pos = e.getPosition();
@@ -400,7 +375,6 @@ void FilterList::mouseDown(const MouseEvent& e)
 
 	mouseDownInCanvas(e);
 
-
 	repaint();
 }
 
@@ -442,7 +416,6 @@ void FilterList::mouseDrag(const MouseEvent& e)
 						g.setColour (fli->color);
 						g.fillAll();
 						g.setColour(Colours::white);
-						//g.drawRect(4,4,50,10);
 						g.setFont(14);
 						g.drawSingleLineText(fli->getName(),10,12);//,75,15,Justification::centredRight,true);
 
