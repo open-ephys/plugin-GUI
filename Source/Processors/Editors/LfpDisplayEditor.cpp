@@ -58,8 +58,9 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode,
 									DataViewport* dv) 
 	: GenericEditor(parentNode, vp), dataViewport(dv),
 	  tabIndex(-1), dataWindow(0),
-	  streamBuffer(0), eventBuffer(0), canvas(0),
-	  isPlaying(false)
+	  //streamBuffer(0), eventBuffer(0), canvas(0),
+	  isPlaying(false),
+	  canvas(0)
 
 {
 
@@ -116,6 +117,8 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode,
 	addAndMakeVisible(tabSelector);
 	tabSelector->setToggleState(false,false);
 
+	//canvas = new LfpDisplayCanvas((LfpDisplayNode*) getProcessor());
+
 
 }
 
@@ -133,6 +136,7 @@ LfpDisplayEditor::~LfpDisplayEditor()
 
 void LfpDisplayEditor::enable()
 {
+	std::cout << "   Enabling LfpDisplayEditor" << std::endl;
 	if (canvas != 0)
 		canvas->beginAnimation();
 	
@@ -149,6 +153,7 @@ void LfpDisplayEditor::disable()
 
 void LfpDisplayEditor::updateNumInputs(int n)
 {
+	std::cout << "Setting num inputs on LfpDisplayEditor to " << n << std::endl;
 	if (canvas != 0)
 		canvas->updateNumInputs(n);
 }
@@ -161,12 +166,12 @@ void LfpDisplayEditor::updateSampleRate(float r)
 
 void LfpDisplayEditor::setBuffers(AudioSampleBuffer* asb, MidiBuffer* mb)
 {
-	std::cout << "Buffers are set!" << std::endl;
-	streamBuffer = asb;
-	eventBuffer = mb;
+	std::cout << "LfpDisplayEditor buffers are set!" << std::endl;
+	//streamBuffer = asb;
+	//eventBuffer = mb;
 
-	std::cout << streamBuffer << std::endl;
-	std::cout << eventBuffer << std::endl;
+	//std::cout << streamBuffer << std::endl;
+	//std::cout << eventBuffer << std::endl;
 }
 
 void LfpDisplayEditor::buttonClicked(Button* button)
@@ -183,7 +188,10 @@ void LfpDisplayEditor::buttonClicked(Button* button)
 	} else {
 
 	if (canvas == 0) {
-		canvas = new LfpDisplayCanvas((LfpDisplayNode*) getProcessor());
+		
+		LfpDisplayNode* processor = (LfpDisplayNode*) getProcessor();
+		canvas = new LfpDisplayCanvas(processor);
+
 		if (isPlaying)
 			canvas->beginAnimation();
 	}
@@ -249,6 +257,11 @@ void LfpDisplayEditor::buttonClicked(Button* button)
 
 				//LfpDisplayNode* p = (LfpDisplayNode*) getProcessor();
 				tabIndex = dataViewport->addTabToDataViewport("LFP",canvas);
+				//if (isPlaying)
+				///{
+				//	canvas->beginAnimation();
+				//}
+
 				//p->isVisible = true;
 
 			} else if (!tabSelector->getToggleState() && tabIndex > -1)

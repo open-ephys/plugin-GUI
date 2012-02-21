@@ -52,8 +52,6 @@ public:
 
 private:
 
-	ReadWriteLock* lock;
-
 	int xBuffer, yBuffer;
 
 	float sampleRate;

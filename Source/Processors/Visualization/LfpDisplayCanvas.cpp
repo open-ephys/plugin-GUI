@@ -31,19 +31,19 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 
 	//GenericProcessor* gp = (GenericProcessor*) editor->getProcessor();
 
+
 	nChans = processor->getNumInputs();
 	sampleRate = processor->getSampleRate();
+	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
 	displayBuffer = processor->getDisplayBufferAddress();
 	displayBufferSize = displayBuffer->getNumSamples();
+		std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
-	lock = processor->getLock();
-
-	//screenBuffer = new AudioSampleBuffer(nChans, 10000);
-
-	//setBounds(0,0,700,400);
 
 	totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
+
+	screenBuffer = new AudioSampleBuffer(nChans, 10000);
 	
 }
 
@@ -61,7 +61,6 @@ void LfpDisplayCanvas::newOpenGLContextCreated()
 	glClearColor (0.667, 0.698, 0.718, 1.0);
 	resized();
 
-	screenBuffer = new AudioSampleBuffer(nChans, 10000);
 
 	//startTimer(50);
 
@@ -71,7 +70,11 @@ void LfpDisplayCanvas::beginAnimation()
 {
 	std::cout << "Beginning animation." << std::endl;
 
-	displayBufferIndex = 0;
+	displayBufferSize = displayBuffer->getNumSamples();
+
+	screenBuffer->clear();
+
+	//displayBufferIndex = 0;
 	screenBufferIndex = 0;
 	
 	startCallbacks();
@@ -85,7 +88,10 @@ void LfpDisplayCanvas::endAnimation()
 
 void LfpDisplayCanvas::updateNumInputs(int n)
 {
+	std::cout << "Setting num inputs on LfpDisplayCanvas to " << n << std::endl;
 	nChans = n;
+	if (n < 200)
+		screenBuffer->setSize(nChans, 10000);
 	//sampleRate = processor->getSampleRate();
 }
 
@@ -156,9 +162,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
 		if (overflow > 0)
 			screenBuffer->clear(0, overflow);
-
-
-		
 
 	    for (int i = 0; i < valuesNeeded; i++)
 	    {

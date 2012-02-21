@@ -78,8 +78,8 @@ private:
 
 	ScopedPointer <LfpDisplayCanvas> canvas;
 
-	AudioSampleBuffer* streamBuffer;
-	MidiBuffer* eventBuffer;
+	//AudioSampleBuffer* streamBuffer;
+	//MidiBuffer* eventBuffer;
 	UIComponent* UI;
 	DataViewport* dataViewport;
 

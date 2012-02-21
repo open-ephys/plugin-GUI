@@ -26,70 +26,52 @@
 
 LfpDisplayNode::LfpDisplayNode()
 	: GenericProcessor("LFP Viewer"),
-	  timebase(1000), displayGain(1), parameterChanged(true), isVisible(false),
-	  xBuffer(10), yBuffer(10), 
-	  plotHeight(60), selectedChan(-1),
-	  displayBufferIndex(0),// screenBufferIndex(0),
-	  repaintInterval(10), repaintCounter(0)
+	  bufferLength(5.0f), displayGain(1),
+	  displayBufferIndex(0)
 
 {
 
+	numInputs = 2;
+	numOutputs = 0;
+	sampleRate = 44100.0;
 
-	lock = new ReadWriteLock();
+	setPlayConfigDetails(2,0,44100.0,128);
 
-	displayBuffer = 0;
-	//screenBuffer = 0; //new AudioSampleBuffer(16, 10000);
-
-	//setNumInputs(16);
-	//setSampleRate(10000.0);
-	setPlayConfigDetails(16,0,44100.0,128);
-
+	displayBuffer = new AudioSampleBuffer (8, 100);
 	eventBuffer = new MidiBuffer();
 }
 
 LfpDisplayNode::~LfpDisplayNode()
 {
-	if (displayBuffer != 0)
-		deleteAndZero(displayBuffer);
-	
-	//if (screenBuffer != 0)
-	//	deleteAndZero(screenBuffer);
 
+	deleteAndZero(displayBuffer);
 	deleteAndZero(eventBuffer);
-	deleteAndZero(lock);
 }
 
 AudioProcessorEditor* LfpDisplayNode::createEditor()
 {
 
-	std::cout << "Processor data viewport: " << getDataViewport() << std::endl;
-
 	LfpDisplayEditor* editor = new LfpDisplayEditor(this, viewport, getDataViewport());
 
-	editor->setBuffers(displayBuffer,eventBuffer);
-	editor->setUIComponent(getUIComponent());
-	editor->setConfiguration(config);
+	//editor->setBuffers (displayBuffer, eventBuffer);
+	editor->setUIComponent (getUIComponent());
+	editor->setConfiguration (config);
+	//editor->updateNumInputs(getNumInputs());
+	//editor->updateSampleRate(sampleRate);
 
 	setEditor(editor);
 	
-	std::cout << "Creating LFP Display Editor." << std::endl;
 	return editor;
 
 }
 
 void LfpDisplayNode::setNumInputs(int inputs)
 {
+	std::cout << "Setting num inputs on LfpDisplayNode to " << inputs << std::endl;
 	numInputs = inputs;	
 	setNumOutputs(0);
 
-	int nSamples = (int) sampleRate*10.0f;
-	int nInputs = getNumInputs();
-	std::cout << "Setting inputs. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
-
-	setPlayConfigDetails(getNumInputs(), 0, 44100.0, 128);
-
-	if (nSamples > 0 && nInputs > 0)
-		resizeBuffer();
+	setPlayConfigDetails(getNumInputs(),0,44100.0,128);
 
 	LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
 	editor->updateNumInputs(inputs);
@@ -98,47 +80,41 @@ void LfpDisplayNode::setNumInputs(int inputs)
 void LfpDisplayNode::setSampleRate(float r)
 {
 	sampleRate = r;
-	int nSamples = (int) sampleRate*10.0f;
-	int nInputs = getNumInputs();
-	std::cout << "Setting sample rate. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
-
-	resizeBuffer();
 
 	LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
 	editor->updateSampleRate(r);
 }
 
-void LfpDisplayNode::resizeBuffer()
+bool LfpDisplayNode::resizeBuffer()
 {
-	int nSamples = (int) sampleRate*10.0f;
+	int nSamples = (int) sampleRate*bufferLength;
 	int nInputs = getNumInputs();
 
 	std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
 
-	if (displayBuffer != 0)
-		deleteAndZero(displayBuffer);
-
-	//if (screenBuffer != 0)
-		//deleteAndZero(screenBuffer);
-
-	displayBuffer = new AudioSampleBuffer(nInputs, nSamples);
-	//screenBuffer = new AudioSampleBuffer(nInputs, 10000);
+	if (nSamples > 0 && nInputs > 0)
+	{
+		
+		displayBuffer->setSize(nInputs, nSamples);
+		return true;
+	} else {
+		return false;
+	}
 
 }
 
 bool LfpDisplayNode::enable()
 {
 
-	if (displayBuffer == 0)
-		displayBuffer = new AudioSampleBuffer(16, 100000);
-
-	if (isEnabled) {
-	LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
-	editor->enable();
-	return true;
+	if (resizeBuffer())
+	{
+		LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
+		editor->enable();
+		return true;
 	} else {
 		return false;
 	}
+
 }
 
 bool LfpDisplayNode::disable()
@@ -150,19 +126,6 @@ bool LfpDisplayNode::disable()
 
 void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 {
-	//std::cout << "Message received." << std::endl;
-
-	// if (parameterIndex == 0) {
-	// 	timebase = newValue;
-	// 	//screenBuffer->clear();
-	// 	//screenBufferIndex = 0;
-	// } else {
-	// 	displayGain = newValue;
-	// 	screenBuffer->clear();
-	// 	screenBufferIndex = 0;
-	// }
-
-	// parameterChanged = true;
 
 }
 
@@ -186,7 +149,7 @@ void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages
 							    nSamples); 			// numSamples
 
 		}
-		displayBufferIndex += nSamples;
+		displayBufferIndex += (nSamples);
 
 	} else {
 
@@ -209,7 +172,7 @@ void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages
 								extraSamples);
 		}
 
-		displayBufferIndex = extraSamples;
+		displayBufferIndex = extraSamples+1;
 	}
 
 	//lock->exitWrite();

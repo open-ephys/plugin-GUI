@@ -42,7 +42,6 @@ class DataViewport;
 
 class LfpDisplayNode :  public GenericProcessor
 	  
-
 {
 public:
 
@@ -65,36 +64,20 @@ public:
 
 	AudioSampleBuffer* getDisplayBufferAddress() {return displayBuffer;}
 	int getDisplayBufferIndex() {return displayBufferIndex;}
-	ReadWriteLock* getLock() {return lock;}
-
-	bool isVisible;
-
-	ReadWriteLock* lock;
 
 private:
 
 	DataViewport* dataViewport;
 
 	AudioSampleBuffer* displayBuffer;
-
 	MidiBuffer* eventBuffer;
 
 	int displayBufferIndex;
 
-	int repaintInterval, repaintCounter;
-
-	int selectedChan;
-
-	float timebase; // ms
 	float displayGain; // 
+	float bufferLength; // s
 
-	int xBuffer, yBuffer, plotHeight, totalHeight;
-
-	bool parameterChanged;
-
-	void resizeBuffer();
-
-	void resized();
+	bool resizeBuffer();
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayNode);
 
