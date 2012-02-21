@@ -29,7 +29,35 @@ InfoLabel::InfoLabel() : xBuffer(10), yBuffer(10)
 	
 	layout.SetFont(getFont(String("miso-regular")));
 	infoString = "Welcome to the Open Ephys GUI!\n \n"
-				 "The GUI is still in the early stages of development, so we expect there to be a lot of bugs.\n \n"
+				 "To get starting using the GUI, drag a processor from the list "
+				 "on the left and drop it onto the signal chain. Each processor is "
+				 "classified as either a source, a filter, or a sink. "
+				 "Sources supply the data to each signal chain, filters process the "
+				 "data, and sinks use the data to control outputs. Data always flows "
+				 "from left to right.\n \n"
+				 "Every signal chain must have one and only one source, and no more "
+				 "than one sink. If a source is dropped in the middle of a signal chain, "
+				 "it will start its own chain. Likewise, if a sink is dropped in the middle "
+				 "of a chain, the processors to its right will form a new chain. Future "
+				 "versions of the software will support multiple sources and sinks through "
+				 "the use of splitters and mergers. The current GUI allows up to "
+				 "five unique signal chains to be constructed.\n \n"
+				 "Once the signal chain is in place, you can start and stop acquisition "
+				 "by pressing the ""play"" button at the top of the screen. Acquisition will "
+				 "only begin if all of the processors in the signal chain are enabled. Disabled "
+				 "processors appear gray. Processors may be disabled if they aren't connected to a "
+				 "source, or if they receive input from a processor to which they cannot connect." 
+				 "You'll have to fix these issues before you can acquire data.\n \n"
+				 "You can also start acquisition by pressing the record button, but it's "
+				 "not programmed to do anything just yet.\n \n"
+				 "The GUI is still being actively developed, so it lacks "
+				 "many crucial features and includes more than a few bugs. "
+				 "There's a lot we're still planning on adding, and we will "
+				 "be glad to have some help down the road. If you'd like to be "
+				 "added as a contributor, please get in touch with us at "
+				 "http://open-ephys.com/contact\n \n"
+				 "DISCLAIMER: This software should be used for demonstration and testing purposes only. "
+				 "It is not fit for conducting scientific experiments of any kind."
 				 ;
 }
 
@@ -53,15 +81,11 @@ void InfoLabel::newOpenGLContextCreated()
 
 void InfoLabel::renderOpenGL()
 {
-	//makeCurrentContextActive();
 
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
-
 	drawLabel();
-
 	drawScrollBars();
 
-	//makeCurrentContextInactive();
 }
 
 
@@ -72,80 +96,18 @@ void InfoLabel::drawLabel()
 		 	   getHeight()-getTotalHeight()-yBuffer + getScrollAmount(),
 		 	   getWidth()-2*xBuffer,
 		 	   getTotalHeight());
-		 	   //jmax(getHeight(),getTotalHeight())-2*yBuffer);
-
-	// float mult = 1/float(getWidth());
-
-	// glColor4f(0.5,0.5,0.5,0.6);
-
-	// glBegin(GL_LINE_STRIP);
-	// glVertex2f(0.1,0);
-	// glVertex2f(0.1,1.0);
-	// glEnd();
-
-	// glBegin(GL_LINE_STRIP);
-	// glVertex2f(0,0.1);
-	// glVertex2f(1.0,0.1);
-	// glEnd();
-
-	// glBegin(GL_LINE_STRIP);
-	// glVertex2f(0.9,0);
-	// glVertex2f(0.9,1.0);
-	// glEnd();
-
-	// glBegin(GL_LINE_STRIP);
-	// glVertex2f(0,0.9);
-	// glVertex2f(1.0,0.9);
-	// glEnd();
-
-	
-
-	// getFont(String("miso-regular"))->FaceSize(12.0f);
-	
-	// for (float x = 0.1f; x < 1.0f; x += 0.8f)
-	// {
-	// 	for (float y = 0.1f; y < 1.0f; y += 0.8f)
-	// 	{
-	// 		glRasterPos2f(x+0.005f,y+0.025f);
-	// 		String s = String("(0.");
-	// 		s += int(x*10);
-	// 		s += String(", 0.");
-	// 		s += int(y*10);
-	// 		s += String(")");
-	// 		getFont(String("miso-regular"))->Render(s);
-	// 	}
-	// }
-
-	// glColor4f(0.9,0.9,0.9,1.0);
-
-	// glRasterPos2f(7.0/float(getWidth()),0.099f);
-	// getFont(String("miso-bold"))->FaceSize(40.0f);
-	// getFont(String("miso-bold"))->Render("open ephys gui");
-
-	// glColor4f(0.3,0.3,0.3,1.0);
-
-	// glRasterPos2f(5.0/float(getWidth()),0.1f);
-	// getFont(String("miso-bold"))->FaceSize(40.0f);
-	// getFont(String("miso-bold"))->Render("open ephys gui");
 
 	glColor4f(0.3,0.3,0.3,1.0);
 
-	glRasterPos2f(15.0/float(getWidth()),0.1f);
+	glRasterPos2f(15.0/float(getWidth()),0.05f);
 	getFont(String("miso-regular"))->FaceSize(18.0f);
 	layout.Render(infoString, -1, FTPoint(), FTGL::RENDER_FRONT);
-
-	//
-	//
-	//getFont(String("miso-regular"))->Render("Open Ephys GUI");
-
 
 }
 
 void InfoLabel::resized() 
 {
 
-	//std::cout << getWidth() << " " << getHeight() 
-	//		  << std::endl;
 	layout.SetLineLength(getWidth()-45);
 
 	canvasWasResized();
@@ -154,30 +116,10 @@ void InfoLabel::resized()
 
 int InfoLabel::getTotalHeight() 
 {
-	return 300;
+
+	float H = layout.BBox(infoString).Lower().Yf();
+
+	//std::cout << H << std::endl;
+
+	return int(-H) + 100;
 }
-
-void InfoLabel::mouseDown(const MouseEvent& e) 
-{
-	// Point<int> pos = e.getPosition();
-	// int xcoord = pos.getX();
-
-	// if (xcoord < getWidth()-getScrollBarWidth())
-	// {
-	// 	int chan = (e.getMouseDownY() + getScrollAmount())/(yBuffer+plotHeight);
-
-	// 	//if (chan == selectedChan)
-	// 	//	selectedChan = -1;
-	// 	//else
-	// 		selectedChan = chan;
-
-	// 	repaint();
-	// }
-	mouseDownInCanvas(e);
-}
-
-void InfoLabel::mouseDrag(const MouseEvent& e) {mouseDragInCanvas(e);}
-void InfoLabel::mouseMove(const MouseEvent& e) {mouseMoveInCanvas(e);}
-void InfoLabel::mouseUp(const MouseEvent& e) 	{mouseUpInCanvas(e);}
-void InfoLabel::mouseWheelMove(const MouseEvent& e, float a, float b) {mouseWheelMoveInCanvas(e,a,b);}
-
