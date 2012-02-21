@@ -77,9 +77,11 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	std::cout << "Component width = " << getWidth() << std::endl;
 	std::cout << "Component height = " << getHeight() << std::endl;
 
-	std::cout << "Finished UI stuff." << std::endl;
-
 	std::cout << "UI component data viewport: " << dataViewport << std::endl;
+
+
+	std::cout << "Finished UI stuff." << std::endl << std::endl << std::endl;
+
 
 	processorGraph->loadState();
 	

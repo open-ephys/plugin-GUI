@@ -194,7 +194,8 @@ void GenericEditor::paint (Graphics& g)
 	if (isFading)
 	{
 		g.setColour(Colours::black.withAlpha((float) (15.0-accumulator)/15.0f));
-		g.fillAll();
+		if (getWidth() > 0 && getHeight() > 0)
+			g.fillAll();
 	}
 
 }

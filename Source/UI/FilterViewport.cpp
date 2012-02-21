@@ -550,6 +550,8 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
    // std::cout << "OK4." << std::endl;
     grabKeyboardFocus();
    // std::cout << "OK5." << std::endl;
+
+   std::cout << "Finished adding new editor." << std::endl << std::endl << std::endl;
     
 }
 
@@ -863,34 +865,10 @@ void SignalChainTabButton::paintButton(Graphics &g, bool isMouseOver, bool isBut
 
 // how about some loading and saving?
 
-// void FilterViewport::loadSignalChain()
-// {
-//     insertionPoint = 0;
-
-//     itemDropped ("Sources/Intan Demo Board", 0, 0, 0);
-
-//     insertionPoint = 1;
-
-//     itemDropped ("Filters/Bandpass Filter", 0, 0, 0);
-// }
-
-// void FilterViewport::saveSignalChain()
-// {
-    
-
-
-// }
-
-
-
-
 XmlElement* FilterViewport::createNodeXml (GenericEditor* editor,
                                            int insertionPt)
 {
 
-   // if (editor == 0)
-   //     return 0;
-    
     XmlElement* e = new XmlElement("PROCESSOR");
 
     GenericProcessor* source = (GenericProcessor*) editor->getProcessor();
@@ -914,39 +892,8 @@ XmlElement* FilterViewport::createNodeXml (GenericEditor* editor,
     e->setAttribute (T("insertionPoint"), insertionPt);
   
     GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
-    
-    //if (dest != 0)
-    //    editor = (GenericEditor*) dest->getEditor();
-    //else
-     //   editor = 0;
-//
+
     return e;
-
-    // if (dest != 0)
-    //     return (GenericEditor*) dest->getEditor();
-    // else 
-    //     return 0; 
-
-    // int sourceId = -1;
-    // int destId = -1;
-
-    // if (processor->getSourceNode() != 0)
-    //     sourceId = processor->getSourceNode()->getNodeId();
-    
-    // if (processor->getDestNode() != 0)
-    //     destId = processor->getDestNode()->getNodeId();
-
-    // e->setAttribute (T("dest"), destId);
-    // e->setAttribute (T("source"), sourceId);
-
-    // XmlElement* state = new XmlElement ("STATE");
-
- //    MemoryBlock m;
- //    node->getProcessor()->getStateInformation (m);
- //    state->addTextElement (m.toBase64Encoding());
- //    e->addChildElement (state);
-
-   /// return e;
 
 }
 

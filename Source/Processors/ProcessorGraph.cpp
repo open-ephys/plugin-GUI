@@ -328,12 +328,12 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 	} else if (processorType.equalsIgnoreCase("Sinks")) {
 
 		if (subProcessorType.equalsIgnoreCase("LFP Viewer")) {
-			std::cout << "Creating a display node." << std::endl;
+			std::cout << "Creating an LfpDisplayNode." << std::endl;
 			processor = new LfpDisplayNode();
 		   
 		    std::cout << "Graph data viewport: " << UI->getDataViewport() << std::endl;
 			 processor->setDataViewport(UI->getDataViewport());
-			processor->setUIComponent(UI);
+			//processor->setUIComponent(UI);
 		} else if (subProcessorType.equalsIgnoreCase("WiFi Output")) {
 			std::cout << "Creating a WiFi node." << std::endl;
 			processor = new WiFiOutput();
