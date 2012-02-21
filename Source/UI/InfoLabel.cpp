@@ -25,7 +25,12 @@
 
 InfoLabel::InfoLabel() : xBuffer(10), yBuffer(10)
 {
+	layout.SetAlignment(FTGL::ALIGN_LEFT);
 	
+	layout.SetFont(getFont(String("miso-regular")));
+	infoString = "Welcome to the Open Ephys GUI!\n \n"
+				 "The GUI is still in the early stages of development, so we expect there to be a lot of bugs.\n \n"
+				 ;
 }
 
 InfoLabel::~InfoLabel()
@@ -64,51 +69,76 @@ void InfoLabel::drawLabel()
 {
 	
 	glViewport(xBuffer,
-		 	   yBuffer-getScrollAmount(),
+		 	   getHeight()-getTotalHeight()-yBuffer + getScrollAmount(),
 		 	   getWidth()-2*xBuffer,
-		 	   jmax(getHeight(),getTotalHeight())-2*yBuffer);
+		 	   getTotalHeight());
+		 	   //jmax(getHeight(),getTotalHeight())-2*yBuffer);
 
-	float mult = 1/float(getWidth());
+	// float mult = 1/float(getWidth());
 
-	glColor4f(0.5,0.5,0.5,0.6);
+	// glColor4f(0.5,0.5,0.5,0.6);
 
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(0.1,0);
-	glVertex2f(0.1,1.0);
-	glEnd();
+	// glBegin(GL_LINE_STRIP);
+	// glVertex2f(0.1,0);
+	// glVertex2f(0.1,1.0);
+	// glEnd();
 
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(0,0.1);
-	glVertex2f(1.0,0.1);
-	glEnd();
+	// glBegin(GL_LINE_STRIP);
+	// glVertex2f(0,0.1);
+	// glVertex2f(1.0,0.1);
+	// glEnd();
 
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(0.9,0);
-	glVertex2f(0.9,1.0);
-	glEnd();
+	// glBegin(GL_LINE_STRIP);
+	// glVertex2f(0.9,0);
+	// glVertex2f(0.9,1.0);
+	// glEnd();
 
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(0,0.9);
-	glVertex2f(1.0,0.9);
-	glEnd();
+	// glBegin(GL_LINE_STRIP);
+	// glVertex2f(0,0.9);
+	// glVertex2f(1.0,0.9);
+	// glEnd();
 
-	glColor4f(0.5,0.5,0.5,0.8);
-
-	getFont(String("miso-regular"))->FaceSize(12.0f);
 	
-	for (float x = 0.1f; x < 1.0f; x += 0.8f)
-	{
-		for (float y = 0.1f; y < 1.0f; y += 0.8f)
-		{
-			glRasterPos2f(x+0.005f,y+0.025f);
-			String s = String("(0.");
-			s += int(x*10);
-			s += String(", 0.");
-			s += int(y*10);
-			s += String(")");
-			getFont(String("miso-regular"))->Render(s);
-		}
-	}
+
+	// getFont(String("miso-regular"))->FaceSize(12.0f);
+	
+	// for (float x = 0.1f; x < 1.0f; x += 0.8f)
+	// {
+	// 	for (float y = 0.1f; y < 1.0f; y += 0.8f)
+	// 	{
+	// 		glRasterPos2f(x+0.005f,y+0.025f);
+	// 		String s = String("(0.");
+	// 		s += int(x*10);
+	// 		s += String(", 0.");
+	// 		s += int(y*10);
+	// 		s += String(")");
+	// 		getFont(String("miso-regular"))->Render(s);
+	// 	}
+	// }
+
+	// glColor4f(0.9,0.9,0.9,1.0);
+
+	// glRasterPos2f(7.0/float(getWidth()),0.099f);
+	// getFont(String("miso-bold"))->FaceSize(40.0f);
+	// getFont(String("miso-bold"))->Render("open ephys gui");
+
+	// glColor4f(0.3,0.3,0.3,1.0);
+
+	// glRasterPos2f(5.0/float(getWidth()),0.1f);
+	// getFont(String("miso-bold"))->FaceSize(40.0f);
+	// getFont(String("miso-bold"))->Render("open ephys gui");
+
+	glColor4f(0.3,0.3,0.3,1.0);
+
+	glRasterPos2f(15.0/float(getWidth()),0.1f);
+	getFont(String("miso-regular"))->FaceSize(18.0f);
+	layout.Render(infoString, -1, FTPoint(), FTGL::RENDER_FRONT);
+
+	//
+	//
+	//getFont(String("miso-regular"))->Render("Open Ephys GUI");
+
+
 }
 
 void InfoLabel::resized() 
@@ -116,6 +146,7 @@ void InfoLabel::resized()
 
 	//std::cout << getWidth() << " " << getHeight() 
 	//		  << std::endl;
+	layout.SetLineLength(getWidth()-45);
 
 	canvasWasResized();
 

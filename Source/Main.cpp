@@ -68,7 +68,7 @@ public:
     {quit();}
 
     //==============================================================================
-    const String getApplicationName() { return "Open Ephys Data Acquisition Software";}
+    const String getApplicationName() { return "Open Ephys GUI";}
     const String getApplicationVersion() {return ProjectInfo::versionString;}
     bool moreThanOneInstanceAllowed() {return true;}
     void anotherInstanceStarted (const String& commandLine)

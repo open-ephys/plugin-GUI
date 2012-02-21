@@ -61,8 +61,12 @@ private:
 	void mouseUp(const MouseEvent& e);
 	void mouseWheelMove(const MouseEvent&, float, float);
 
+	FTSimpleLayout layout;	
+	String infoString;
+
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InfoLabel);
-	
+
+
 };
 
 
