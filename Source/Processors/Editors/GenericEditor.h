@@ -91,6 +91,10 @@ public:
 	void fadeIn();
 
 	int radioGroupId;
+
+	bool isFading;
+
+	float accumulator;
 	
 private:
 
@@ -103,9 +107,7 @@ private:
 
 	int tNum;
 
-	bool isFading;
 
-	float accumulator;
 
 	Font titleFont;
 

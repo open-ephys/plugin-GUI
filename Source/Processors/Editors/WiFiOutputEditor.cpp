@@ -61,14 +61,29 @@ void WiFiOutputEditor::receivedEvent()
 
 void WiFiOutputEditor::timerCallback()
 {
-	if (accumulator < 10)
-	{
-		icon->setOpacity(0.8f-(0.05*float(accumulator)));
-		accumulator++;
+
+	repaint();
+
+	accumulator++;
+
+	if (isFading) {
+
+		if (accumulator > 15.0)
+		{
+			stopTimer();
+			isFading = false;
+		}
+
 	} else {
-		icon->setOpacity(0.3f);
-		stopTimer();
-		accumulator = 0;
+
+		if (accumulator < 10.0)
+		{
+			icon->setOpacity(0.8f-(0.05*float(accumulator)));
+			accumulator++;
+		} else {
+			icon->setOpacity(0.3f);
+			stopTimer();
+			accumulator = 0;
+		}
 	}
-	
 }
