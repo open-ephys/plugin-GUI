@@ -30,8 +30,8 @@ RecordNode::RecordNode()
 	// need to update this:
 	setPlayConfigDetails(64,0,44100.0,128);
 
-	outputFile = File("./data"); // create output file
-	outputStream = 0;
+	//utputFile = File("./data"); // create output file
+	//outputStream = 0;
 	
 }
 
@@ -52,7 +52,7 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 
 bool RecordNode::enable()
 {
-	outputStream = outputFile.createOutputStream();
+	//outputStream = outputFile.createOutputStream();
 
 	return true;
 }
@@ -61,12 +61,12 @@ bool RecordNode::enable()
 bool RecordNode::disable() 
 {	
 	
-	if (outputStream != 0) {
-		outputStream->flush();
+	// if (outputStream != 0) {
+	// 	outputStream->flush();
 
-		delete(outputStream);
-		outputStream = 0;
-	}
+	// 	delete(outputStream);
+	// 	outputStream = 0;
+	// }
 
 	return true;
 }
