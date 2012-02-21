@@ -54,6 +54,8 @@ public:
 
 	float getSampleRate() {return 44100.0;}
 
+	bool canSendSignalTo(GenericProcessor*);
+
 	AudioProcessorEditor* createEditor();
 	
 private:

@@ -55,11 +55,17 @@ AudioProcessorEditor* EventNode::createEditor()
 	//return 0;
 }
 
-//AudioProcessorEditor* FilterNode::createEditor(AudioProcessorEditor* const editor)
-//{
-	
-//	return editor;
-//}
+
+bool EventNode::canSendSignalTo(GenericProcessor* p)
+{
+	if (p->getName().equalsIgnoreCase("WiFi Output"))
+	{
+		return true;
+	} else {
+		return false;
+	}
+}
+
 void EventNode::setParameter (int parameterIndex, float newValue)
 {
 	std::cout << "Setting frequency to " << newValue << " Hz." << std::endl;
