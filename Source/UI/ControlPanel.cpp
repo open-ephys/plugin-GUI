@@ -143,7 +143,8 @@ void DiskSpaceMeter::paint(Graphics& g)
 	g.fillAll(Colours::grey);
 	
 	g.setColour(Colours::lightgrey);
-	g.fillRect(0.0f,0.0f,getWidth()*diskFree,float(getHeight()));
+	if (diskFree > 0)
+		g.fillRect(0.0f,0.0f,getWidth()*diskFree,float(getHeight()));
 
 	g.setColour(Colours::black);
 	g.drawRect(0,0,getWidth(),getHeight(),1);
