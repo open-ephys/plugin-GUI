@@ -137,8 +137,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
 	float ratio = sampleRate * timebase / float(getWidth());
 
-	// this number is crucial: this method should be updated:
-	int valuesNeeded = nSamples / int(ratio);
+	// this number is crucial:
+	int valuesNeeded = (int) float(nSamples) / ratio;
 
 	//lock->enterRead();
 	float subSampleOffset = 0.0;
@@ -147,13 +147,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	//int screenBufferPos; 
 
 	if (valuesNeeded > 0 && valuesNeeded < 1000) {
-//
-		//int sourceSampleNumber;
-		//int destSampleNumber;
-
-		//int valuesTaken = 0;
-
-		//float subSampleOffset = 0.0;
 
 		int maxVal = screenBufferIndex + valuesNeeded;
 		int overflow = maxVal - maxSamples;
@@ -183,7 +176,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	        						  screenBufferIndex,
 	        						  *displayBuffer,
 	        						  channel,
-	        						  displayBufferIndex,
+	        						  nextPos,
 	        						  1,
 	        						  alpha*gain*displayGain);
 	       	}
@@ -203,6 +196,9 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	       	screenBufferIndex %= maxSamples;
 
 	    }
+
+	} else {
+		//std::cout << "Skip." << std::endl;
 	}
 }
 

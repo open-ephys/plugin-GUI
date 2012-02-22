@@ -77,6 +77,8 @@ private:
 	float displayGain; // 
 	float bufferLength; // s
 
+	AbstractFifo abstractFifo;
+
 	bool resizeBuffer();
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayNode);

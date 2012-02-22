@@ -27,7 +27,7 @@
 LfpDisplayNode::LfpDisplayNode()
 	: GenericProcessor("LFP Viewer"),
 	  bufferLength(5.0f), displayGain(1),
-	  displayBufferIndex(0)
+	  displayBufferIndex(0), abstractFifo(100)
 
 {
 
@@ -94,7 +94,7 @@ bool LfpDisplayNode::resizeBuffer()
 
 	if (nSamples > 0 && nInputs > 0)
 	{
-		
+		abstractFifo.setTotalSize(nSamples);
 		displayBuffer->setSize(nInputs, nSamples);
 		return true;
 	} else {
@@ -133,8 +133,6 @@ void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages
 {
 	// 1. place any new samples into the displayBuffer
 	int samplesLeft = displayBuffer->getNumSamples() - displayBufferIndex;
-	
-	//lock->enterWrite();
 
 	if (nSamples < samplesLeft)
 	{
@@ -172,212 +170,52 @@ void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages
 								extraSamples);
 		}
 
-		displayBufferIndex = extraSamples+1;
+		displayBufferIndex = extraSamples;
 	}
 
-	//lock->exitWrite();
 
-	//std::cout << displayBufferIndex << std::endl;
+	///// failed attempt to use abstractFifo:
 
-	// 2. update the screenBuffer
-	// if (true)
+	// int start1, size1, start2, size2;
+
+	// abstractFifo.prepareToWrite(nSamples, start1, size1, start2, size2);
+
+	// if (size1 > 0)
 	// {
-	// 	float nPixels = (float) getWidth();
-	// 	float ratio = sampleRate * timebase / 1000.0f / nPixels;
-	// 	float subSampleOffset = 0.0f;
-
-	// 	int valuesNeeded = nSamples / (int) ratio;
-
-	//     for (int index = screenBufferIndex; index < valuesNeeded; index++)
-	//     {
-
-	//         for (int channel = 0; channel < buffer.getNumChannels(); ++channel) {
-
-	//         	screenBuffer->copyFrom(channel, 		// destChannel
-	//         						index,  			// destSampleOffset
-	//         						buffer,				// source
-	//         						channel,			// sourceChannel
-	//         						(int) subSampleOffset,// sourceSampleOffset
-	//         						1);					// number of samples
-	        	
-	//         	subSampleOffset += ratio;
-	//         	subSampleOffset = jmin(subSampleOffset, (float) buffer.getNumSamples());
-	//        	}
+	// 	for (int chan = 0; chan < buffer.getNumChannels(); chan++)
+	// 	{	
+	// 		displayBuffer->copyFrom(chan,  			// destChannel
+	// 						    start1, 			// destStartSample
+	// 						    buffer, 			// source
+	// 						    chan, 				// source channel
+	// 						    0,					// source start sample
+	// 						    size1); 			// numSamples
 
 	// 	}
+
+	// 	displayBufferIndex += size1;
 	// }
 
-	// repaintCounter++;
-	// // 3. if it's time, repaint the display
-	// if (false && repaintCounter >= repaintInterval)
+	// if (size2 > 0)
 	// {
-	// 	repaint();
+	// 	for (int chan = 0; chan < buffer.getNumChannels(); chan++)
+	// 	{	
+	// 		displayBuffer->copyFrom(chan,  			// destChannel
+	// 						    start2, 			// destStartSample
+	// 						    buffer, 			// source
+	// 						    chan, 				// source channel
+	// 						    size1,				// source start sample
+	// 						    size2); 			// numSamples
 
+	// 	}
+
+	// 	displayBufferIndex = size2;
 	// }
+
+	// std::cout << displayBufferIndex << std::endl;
+
+	// abstractFifo.finishedWrite(size1 + size2);
+
+
 }
 
-
-// void LfpDisplayNode::newOpenGLContextCreated()
-// {
-
-// 	setUp2DCanvas();
-// 	activateAntiAliasing();
-
-// 	glClearColor (0.8, 0.4, 0.9, 1.0);
-// 	resized();
-
-// }
-
-// void LfpDisplayNode::renderOpenGL()
-// {
-
-// 	repaintCounter = 0;
-	
-// 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
-
-// 	for (int i = 0; i < getNumInputs(); i++)
-// 	{
-// 		bool isSelected = false;
-
-// 		if (selectedChan == i)
-// 			isSelected = true;
-
-// 		if (checkBounds(i)) {
-// 			setViewport(i);
-// 			drawBorder(isSelected);
-// 			drawChannelInfo(i,isSelected);
-// 			//drawWaveform(i,isSelected);
-// 		}	
-// 	}
-// 	drawScrollBars();
-// }
-
-// void LfpDisplayNode::drawWaveform(int chan, bool isSelected)
-// {
-// 	// draw the screen buffer for a given channel
-
-// 	glBegin(GL_LINE_STRIP);
-
-// 	for (int i = 0; i < getWidth(); i++)
-// 	{
-// 		glVertex2f(i,0.5);//*screenBuffer->getSampleData(chan, i)+0.5);
-// 	}
-
-// 	glEnd();
-// }
-
-
-// void LfpDisplayNode::drawTicks()
-// {
-	
-// 	glViewport(0,0,getWidth(),getHeight());
-
-// 	glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
-
-// 	for (int i = 0; i < 10; i++)
-// 	{
-// 		if (i == 5)
-// 			glLineWidth(3.0);
-// 		else if (i == 1 || i == 3 || i == 7 || i == 9)
-// 			glLineWidth(2.0);
-// 		else
-// 			glLineWidth(1.0);
-
-// 		glBegin(GL_LINE_STRIP);
-// 		glVertex2f(0.1*i,0);
-// 		glVertex2f(0.1*i,1);
-// 		glEnd();
-// 	}
-// }
-
-
-// bool LfpDisplayNode::checkBounds(int chan)
-// {
-// 	bool isVisible;
-
-// 	int lowerBound = (chan+1)*(plotHeight+yBuffer);
-// 	int upperBound = chan*(plotHeight+yBuffer);
-
-// 	if (getScrollAmount() < lowerBound && getScrollAmount() + getHeight() > upperBound)
-// 		isVisible = true;
-// 	else
-// 		isVisible = false;
-	
-// 	return isVisible;
-
-// }
-
-// void LfpDisplayNode::setViewport(int chan)
-// {
-// 	glViewport(xBuffer,
-// 			   getHeight()-(chan+1)*(plotHeight+yBuffer)+getScrollAmount(),
-// 	           getWidth()-2*xBuffer,
-// 	           plotHeight);
-// }
-
-// void LfpDisplayNode::drawBorder(bool isSelected)
-// {
-// 	float alpha = 0.5f;
-
-// 	if (isSelected)
-// 		alpha = 1.0f;
-
-// 	glColor4f(0.0f, 0.0f, 0.0f, alpha);
-// 	glBegin(GL_LINE_STRIP);
-//  	glVertex2f(0.0f, 0.0f);
-//  	glVertex2f(1.0f, 0.0f);
-//  	glVertex2f(1.0f, 1.0f);
-//  	glVertex2f(0.0f, 1.0f);
-//  	glVertex2f(0.0f, 0.0f);
-//  	glEnd();
-
-// }
-
-// void LfpDisplayNode::drawChannelInfo(int chan, bool isSelected)
-// {
-// 	float alpha = 0.5f;
-
-// 	if (isSelected)
-// 		alpha = 1.0f;
-
-// 	glColor4f(0.0f,0.0f,0.0f,alpha);
-// 	glRasterPos2f(5.0f/getWidth(),0.3);
-// 	String s = String("Channel ");
-// 	s += (chan+1);
-
-// 	getFont(String("miso-regular"))->FaceSize(16);
-// 	getFont(String("miso-regular"))->Render(s);
-// }
-
-// int LfpDisplayNode::getTotalHeight() 
-// {
-// 	return (plotHeight+yBuffer)*getNumInputs() + yBuffer;
-// }
-
-
-// void LfpDisplayNode::resized()
-
-// {
-
-// 	canvasWasResized();
-// 	// glClear(GL_COLOR_BUFFER_BIT);
-
-// 	// int h, w;
-
-// 	// if (inWindow)
-// 	// {
-// 	// 	h = getParentComponent()->getHeight();
-// 	// 	w = getParentComponent()->getWidth();
-// 	// } else {
-// 	// 	h = getHeight();
-// 	// 	w = getWidth();
-// 	// }
-
-// 	// if (getScrollAmount() + h > getTotalHeight() && getTotalHeight() > h)
-// 	// 	setScrollAmount(getTotalHeight() - h);
-// 	// else
-// 	// 	setScrollAmount(0);
-
-// 	// showScrollBars();
-
-// }
