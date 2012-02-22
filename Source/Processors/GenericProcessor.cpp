@@ -164,8 +164,8 @@ void GenericProcessor::setSourceNode(GenericProcessor* sn)
 					std::cout << " The source is new and named " << sn->getName() << std::endl;
 					sourceNode = sn;
 					sn->setDestNode(this);
-					setNumInputs(sn->getNumOutputs());
-					setSampleRate(sn->getSampleRate());
+					//setNumInputs(sn->getNumOutputs());
+					//setSampleRate(sn->getSampleRate());
 				} else {
 					std::cout << "  The source node is not new." << std::endl;
 				}
@@ -212,8 +212,8 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 
 					destNode = dn;
 					dn->setSourceNode(this);
-					dn->setNumInputs(getNumOutputs());
-					dn->setSampleRate(getSampleRate());
+					//dn->setNumInputs(getNumOutputs());
+					//dn->setSampleRate(getSampleRate());
 				} else {
 					std::cout << "  The dest node is not new." << std::endl;
 				}
@@ -234,6 +234,23 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 		//if (dn != 0)
 		//	dn->setSourceNode(this);
 	}
+}
+
+void GenericProcessor::updateSettings()
+{
+	
+	if (sourceNode != 0)
+	{
+		setSampleRate(sourceNode->getSampleRate());
+		setNumInputs(sourceNode->getNumOutputs());
+	} else {
+		setSampleRate(getDefaultSampleRate());
+		setNumInputs(0);
+		setNumOutputs(getDefaultNumOutputs());
+	}
+
+	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
+
 }
 
 

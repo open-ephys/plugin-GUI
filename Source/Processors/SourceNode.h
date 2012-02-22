@@ -63,6 +63,8 @@ public:
 	void setConfiguration(Configuration* cf);
 
 	float getSampleRate();
+	float getDefaultSampleRate();
+	int getDefaultNumOutputs();
 
 	// void setSourceNode(GenericProcessor* sn);
 	// void setDestNode(GenericProcessor* dn);

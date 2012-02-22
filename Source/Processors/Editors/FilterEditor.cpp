@@ -80,18 +80,18 @@ void FilterEditor::buttonClicked (Button* button)
 	String value = button->getName();
 	float val;
 
-	if (value.getLastCharacter() == juce_wchar('k')) {
-		val = value.dropLastCharacters(1).getFloatValue() * 1000.0f;
-	}
-	else {
-		val = value.getFloatValue();
-	}
+	// if (value.getLastCharacter() == juce_wchar('k')) {
+	// 	val = value.dropLastCharacters(1).getFloatValue() * 1000.0f;
+	// }
+	// else {
+	val = value.getFloatValue();
+	// }
 
-	//if (button->getRadioGroupId() == 1)
- 	///	//getAudioProcessor()->setParameter(0,val);
- 	//else 
- 		//getAudioProcessor()->setParameter(1,val);
+	if (button->getRadioGroupId() == 1)
+ 		getAudioProcessor()->setParameter(0,val);
+ 	else 
+ 		getAudioProcessor()->setParameter(1,val*1000.0f);
 
- 	//std::cout << button->getRadioGroupId() << " " << val << std::endl;
+ 	std::cout << button->getRadioGroupId() << " " << val << std::endl;
 
 }

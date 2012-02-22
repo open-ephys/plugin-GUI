@@ -27,13 +27,13 @@
 
 FilterNode::FilterNode()
 	: GenericProcessor("Bandpass Filter"), filter(0),
-	  highCut(6000.0), lowCut(600.0)
+	  highCut(6000.0), lowCut(1.0)
 	
 {
-	setNumInputs(16);
-	setSampleRate(25000.0);
+	//setNumInputs(16);
+	//setSampleRate(25000.0);
 	// set up default configuration
-	setPlayConfigDetails(16, 16, 44100.0, 128);
+	//setPlayConfigDetails(16, 16, 44100.0, 128);
 
 		// each family of filters is given its own namespace
 		// RBJ: filters from the RBJ cookbook
@@ -121,17 +121,23 @@ void FilterNode::setNumInputs(int inputs)
 			(1024);									// number of samples over which to fade 
 													//   parameter changes
 
+	} else if (nChans == 10) {
+		
+		filter = new Dsp::SmoothedFilterDesign 
+			<Dsp::Butterworth::Design::BandPass 	// design type
+			<4>,								 	// order
+			10	,									// number of channels (must be const)
+			Dsp::DirectFormII>						// realization
+			(1024);									// number of samples over which to fade 
+													//   parameter changes
 	} else {
 		// send a message saying this is not implemented
+
 	}									
 
 	//std::cout << "Filter created with " << getNumInputs() << " channels." << std::endl;
 
-
 	setFilterParameters();
-
-	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
-
 
 }
 

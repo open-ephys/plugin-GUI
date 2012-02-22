@@ -121,14 +121,27 @@ public:
 
 	virtual float getSampleRate();
 	virtual void setSampleRate(float sr);
+	virtual float getDefaultSampleRate() {return 44100.0;}
 
 	virtual int getNumInputs();
 	virtual void setNumInputs(int);
 	virtual void setNumInputs();
-
+	
 	virtual int getNumOutputs();
 	virtual void setNumOutputs(int);
 	virtual void setNumOutputs();
+	virtual int getDefaultNumOutputs()
+	{
+		if (!isSink())
+		{
+			return 10;
+		} else {
+			return 0;
+		}
+	}
+
+	
+	virtual void updateSettings();
 
 	int getNodeId() {return nodeId;}
 	void setNodeId(int id) {nodeId = id;}

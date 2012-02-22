@@ -81,6 +81,22 @@ float SourceNode::getSampleRate()
 		return 44100.0;
 }
 
+float SourceNode::getDefaultSampleRate()
+{
+	if (dataThread != 0)
+		return dataThread->getSampleRate();
+	else
+		return 44100.0;
+}
+
+int SourceNode::getDefaultNumOutputs()
+{
+	if (dataThread != 0)
+		return dataThread->getNumChannels();
+	else
+		return 0;
+}
+
 void SourceNode::enabledState(bool t)
 {
 	if (t && !dataThread->foundInputSource())
@@ -89,7 +105,6 @@ void SourceNode::enabledState(bool t)
 	} else {
 		isEnabled = t;
 	}
-
 
 }
 

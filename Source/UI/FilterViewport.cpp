@@ -532,9 +532,28 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
         }
     }
 
+    // Step 7: update all settings
+    std::cout << "Updating settings." << std::endl;
+    for (int n = 0; n < signalChainArray.size(); n++)
+    {
+        
+        GenericEditor* source = (GenericEditor*) signalChainArray[n]->getEditor();
+        GenericProcessor* p = (GenericProcessor*) source->getProcessor();
+
+        p->updateSettings();
+
+        GenericProcessor* dest = p->getDestNode();
+
+        while (dest != 0)
+        {
+            dest->updateSettings();
+            dest = dest->getDestNode();
+        }
+    }
+
    // std::cout << "OK2." << std::endl;
 
-    // Step 7: make sure all editors are visible, and refresh
+    // Step 8: make sure all editors are visible, and refresh
     for (int n = 0; n < editorArray.size(); n++)
     {
        // std::cout << "Editor " << n << ": " << editorArray[n]->getName() << std::endl;
