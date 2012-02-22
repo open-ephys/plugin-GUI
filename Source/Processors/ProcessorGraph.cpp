@@ -412,7 +412,7 @@ bool ProcessorGraph::enableProcessors() {
 		if (node->nodeId != OUTPUT_NODE_ID)
 		{
 			GenericProcessor* p = (GenericProcessor*) node->getProcessor();
-			allClear = p->enable();
+			allClear = p->isReady();
 
 			if (!allClear) {
 				std::cout << p->getName() << " said it's not OK." << std::endl;
@@ -421,6 +421,18 @@ bool ProcessorGraph::enableProcessors() {
 				return false;
 
 			}
+		}
+	}
+
+	for (int i = 0; i < getNumNodes(); i++)
+	{
+
+		Node* node = getNode(i);
+
+		if (node->nodeId != OUTPUT_NODE_ID)
+		{
+			GenericProcessor* p = (GenericProcessor*) node->getProcessor();
+			p->enable();
 		}
 	}
 	

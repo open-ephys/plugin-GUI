@@ -73,6 +73,8 @@ public:
 	bool enable();
 	bool disable();
 
+	bool isReady();
+
 	bool isSource() {return true;}
 
 	void acquisitionStopped();

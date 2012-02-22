@@ -148,6 +148,15 @@ void SourceNode::timerCallback()
 	}
 }
 
+bool SourceNode::isReady() {
+	
+	if (dataThread != 0) {
+		return dataThread->foundInputSource();
+	} else {
+		return false;
+	}
+}
+
 bool SourceNode::enable() {
 	
 	std::cout << "Source node received enable signal" << std::endl;
@@ -156,13 +165,8 @@ bool SourceNode::enable() {
 
 	if (dataThread != 0)
 	{
-		if (dataThread->foundInputSource())
-		{
-			dataThread->startAcquisition();
-			return true;
-		} else {
-			return false;
-		}
+		dataThread->startAcquisition();
+		return true;
 	} else {
 		return false;
 	}
