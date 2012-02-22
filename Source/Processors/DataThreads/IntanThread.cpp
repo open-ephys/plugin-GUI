@@ -83,16 +83,22 @@ bool IntanThread::foundInputSource()
 
 bool IntanThread::startAcquisition()
 {
+
     closeUSB();
     initializeUSB(false);
     ftdi_write_data(&ftdic, &startCode, 1);
     startThread();
+
+    isTransmitting = true;
 
     return true;
 }
 
 bool IntanThread::stopAcquisition()
 {
+
+    isTransmitting = false;
+
     std::cout << "Received signal to terminate thread." << std::endl;
     
     if (isThreadRunning()) {
@@ -106,8 +112,9 @@ bool IntanThread::stopAcquisition()
     if ((return_value = ftdi_write_data(&ftdic, &stopCode, 1)) > 0) {
         unsigned char buf[4097]; // has to be bigger than the on-chip buffer
         ftdi_read_data(&ftdic, buf, sizeof(buf));
-        closeUSB();
+        //closeUSB();
     } else {
+        std::cout << "No device found." << std::endl;
         deviceFound = false;
     }
 
@@ -179,7 +186,7 @@ bool IntanThread::updateBuffer()
     //  <0  : error code from libusb_bulk_transfer()
     //  0   : no data available
     //  >0  : number of bytes read
-    if ((bytes_read = ftdi_read_data(&ftdic, buffer, sizeof(buffer))) < 0)
+    if ((bytes_read = ftdi_read_data(&ftdic, buffer, sizeof(buffer))) < 0 && isTransmitting)
     {
         std::cout << "NO DATA FOUND!" << std::endl;
         return false;

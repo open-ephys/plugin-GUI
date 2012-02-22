@@ -455,6 +455,7 @@ bool ProcessorGraph::disableProcessors() {
 		if (node->nodeId != OUTPUT_NODE_ID)
 		{
 			GenericProcessor* p = (GenericProcessor*) node->getProcessor();
+			std::cout << "Disabling " << p->getName() << std::endl;
 			allClear = p->disable();
 
 			if (!allClear) {
