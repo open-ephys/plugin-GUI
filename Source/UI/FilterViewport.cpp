@@ -484,42 +484,44 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
     //std::cout << "OK1." << std::endl;
 
     // Step 5: check the validity of the signal chain
-    bool enable = true;
+    if (action < 4) {
+        bool enable = true;
 
-    if (editorArray.size() == 1) {
-        
-         GenericProcessor* source = (GenericProcessor*) editorArray[0]->getProcessor();
-         if (source->isSource())
-            editorArray[0]->setEnabledState(true);
-         else
-            editorArray[0]->setEnabledState(false);
-
-    } else {
-
-        //bool sourceIsInChain = true;
-
-        for (int n = 0; n < editorArray.size()-1; n++)
-        {
-            GenericProcessor* source = (GenericProcessor*) editorArray[n]->getProcessor();
-            GenericProcessor* dest = (GenericProcessor*) editorArray[n+1]->getProcessor();
-
-            if (n == 0 && !source->isSource())
-                enable = false;
-
-            editorArray[n]->setEnabledState(enable);
+        if (editorArray.size() == 1) {
             
-            if (source->canSendSignalTo(dest) && source->enabledState())
-                enable = true;
-            else 
-                enable = false;
+             GenericProcessor* source = (GenericProcessor*) editorArray[0]->getProcessor();
+             if (source->isSource())
+                editorArray[0]->setEnabledState(true);
+             else
+                editorArray[0]->setEnabledState(false);
 
-            if (enable)
-                std::cout << "Enabling node." << std::endl;
-            else
-                std::cout << "Not enabling node." << std::endl;
-            
-            editorArray[n+1]->setEnabledState(enable);
+        } else {
 
+            //bool sourceIsInChain = true;
+
+            for (int n = 0; n < editorArray.size()-1; n++)
+            {
+                GenericProcessor* source = (GenericProcessor*) editorArray[n]->getProcessor();
+                GenericProcessor* dest = (GenericProcessor*) editorArray[n+1]->getProcessor();
+
+                if (n == 0 && !source->isSource())
+                    enable = false;
+
+                editorArray[n]->setEnabledState(enable);
+                
+                if (source->canSendSignalTo(dest) && source->enabledState())
+                    enable = true;
+                else 
+                    enable = false;
+
+                if (enable)
+                    std::cout << "Enabling node." << std::endl;
+                else
+                    std::cout << "Not enabling node." << std::endl;
+                
+                editorArray[n+1]->setEnabledState(enable);
+
+            }
         }
     }
 
@@ -533,21 +535,23 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
     }
 
     // Step 7: update all settings
-    std::cout << "Updating settings." << std::endl;
-    for (int n = 0; n < signalChainArray.size(); n++)
-    {
-        
-        GenericEditor* source = (GenericEditor*) signalChainArray[n]->getEditor();
-        GenericProcessor* p = (GenericProcessor*) source->getProcessor();
-
-        p->updateSettings();
-
-        GenericProcessor* dest = p->getDestNode();
-
-        while (dest != 0)
+    if (action < 4) {
+        std::cout << "Updating settings." << std::endl;
+        for (int n = 0; n < signalChainArray.size(); n++)
         {
-            dest->updateSettings();
-            dest = dest->getDestNode();
+            
+            GenericEditor* source = (GenericEditor*) signalChainArray[n]->getEditor();
+            GenericProcessor* p = (GenericProcessor*) source->getProcessor();
+
+            p->updateSettings();
+
+            GenericProcessor* dest = p->getDestNode();
+
+            while (dest != 0)
+            {
+                dest->updateSettings();
+                dest = dest->getDestNode();
+            }
         }
     }
 
@@ -663,24 +667,26 @@ bool FilterViewport::keyPressed (const KeyPress &key) {
     
    //std::cout << key.getKeyCode() << std::endl;
 
-   if (canEdit) {
+   // if (canEdit) {
 
-    if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey) {
+   //  if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey) {
         
-        for (int i = 0; i < editorArray.size(); i++) {
+   //      for (int i = 0; i < editorArray.size(); i++) {
         
-            if (editorArray[i]->getSelectionState()) {
-                deleteNode(editorArray[i]);
-                break;
-            }               
-        }
+   //          if (editorArray[i]->getSelectionState()) {
+   //              deleteNode(editorArray[i]);
+   //              break;
+   //          }               
+   //      }
 
-    } else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
+   //  } else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
 
-        moveSelection(key);
+   //      moveSelection(key);
 
-    }
-    }
+   //  }
+   //  }
+
+   return true;
 
 }
 

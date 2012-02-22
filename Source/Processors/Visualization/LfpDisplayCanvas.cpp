@@ -90,7 +90,7 @@ void LfpDisplayCanvas::updateNumInputs(int n)
 {
 	std::cout << "Setting num inputs on LfpDisplayCanvas to " << n << std::endl;
 	nChans = n;
-	if (n < 200)
+	if (n < 200 && n > 0)
 		screenBuffer->setSize(nChans, 10000);
 	//sampleRate = processor->getSampleRate();
 }
@@ -98,7 +98,7 @@ void LfpDisplayCanvas::updateNumInputs(int n)
 void LfpDisplayCanvas::updateSampleRate(float r)
 {
 	sampleRate = r;
-	displayBufferSize = displayBuffer->getNumSamples();
+	//displayBufferSize = displayBuffer->getNumSamples();
 	std::cout << "Display canvas updating sample rate to " << r << std::endl;
 }
 

@@ -38,12 +38,6 @@ void DataThread::run() {
 	while (! threadShouldExit())
 	{
 
-	//	bool busy = false;
-
-	//	const MessageManagerLock mml (Thread::getCurrentThread());
-	//	if (! mml.lockWasGained())
-	//		return;
-
 	 	const ScopedLock sl (lock);
 
 		if (!updateBuffer()) {
@@ -53,7 +47,6 @@ void DataThread::run() {
 			std::cout << "Notifying source node to stop acqusition." << std::endl;
 			sn->acquisitionStopped();
 		}
-			//
 
 	}
 }
