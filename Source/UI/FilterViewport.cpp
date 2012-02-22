@@ -346,6 +346,7 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
             int nextEditor = jmin(indexOfMovingComponent,editorArray.size()-1);
             activeEditor = editorArray[nextEditor];
             activeEditor->select();
+            activeEditor->grabKeyboardFocus();
             
         } else {
 
@@ -667,24 +668,26 @@ bool FilterViewport::keyPressed (const KeyPress &key) {
     
    //std::cout << key.getKeyCode() << std::endl;
 
-   // if (canEdit) {
+   if (canEdit) {
 
-   //  if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey) {
+    if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey) {
         
-   //      for (int i = 0; i < editorArray.size(); i++) {
+        for (int i = 0; i < editorArray.size(); i++) {
         
-   //          if (editorArray[i]->getSelectionState()) {
-   //              deleteNode(editorArray[i]);
-   //              break;
-   //          }               
-   //      }
+            if (editorArray[i]->getSelectionState()) {
+#if !JUCE_MAC
+                deleteNode(editorArray[i]);
+                break;
+#endif
+            }               
+        }
 
-   //  } else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
+    } else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
 
-   //      moveSelection(key);
+        moveSelection(key);
 
-   //  }
-   //  }
+    }
+    }
 
    return true;
 
