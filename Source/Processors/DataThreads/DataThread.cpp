@@ -37,9 +37,15 @@ void DataThread::run() {
 
 	while (! threadShouldExit())
 	{
-		const MessageManagerLock mml (Thread::getCurrentThread());
-		if (! mml.lockWasGained())
-			return;
+
+	//	bool busy = false;
+
+	//	const MessageManagerLock mml (Thread::getCurrentThread());
+	//	if (! mml.lockWasGained())
+	//		return;
+
+	 	const ScopedLock sl (lock);
+
 		if (!updateBuffer()) {
 			std::cout << "Aquisition error...stopping thread." << std::endl;
 			signalThreadShouldExit();

@@ -64,6 +64,8 @@ public:
 
 	SourceNode* sn;
 
+    CriticalSection lock;
+
 };
 
 
