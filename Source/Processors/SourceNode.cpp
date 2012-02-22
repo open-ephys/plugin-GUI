@@ -155,6 +155,7 @@ void SourceNode::timerCallback()
 			//stopTimer(); // check for input source every two seconds
 			enabledState(true);
 			GenericEditor* ed = (GenericEditor*) getEditor();
+			//ed->enable();
 			viewport->updateVisibleEditors(ed, 4);
 		}
 	} else {
@@ -162,6 +163,7 @@ void SourceNode::timerCallback()
 			std::cout << "No input source found." << std::endl;
 			enabledState(false);
 			GenericEditor* ed = (GenericEditor*) getEditor();
+			//ed->disable();
 			viewport->updateVisibleEditors(ed, 4);
 		}
 	}

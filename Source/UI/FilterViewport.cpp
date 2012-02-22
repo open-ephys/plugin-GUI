@@ -56,9 +56,9 @@ void FilterViewport::signalChainCanBeEdited(bool t)
 {
     canEdit = t;
     if (!canEdit)
-        std::cout << "Filter Viewport disabled.";
+        std::cout << "Filter Viewport disabled." << std::endl;
     else
-        std::cout << "Filter Viewport enabled.";
+        std::cout << "Filter Viewport enabled." << std::endl;
 
 }
 
@@ -484,7 +484,7 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
     //std::cout << "OK1." << std::endl;
 
     // Step 5: check the validity of the signal chain
-    if (action < 4) {
+    if (action < 5) {
         bool enable = true;
 
         if (editorArray.size() == 1) {

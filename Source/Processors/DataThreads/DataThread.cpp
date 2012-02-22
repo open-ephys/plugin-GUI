@@ -38,12 +38,14 @@ void DataThread::run() {
 	while (! threadShouldExit())
 	{
 
-	 	const ScopedLock sl (lock);
+	 //	const ScopedLock sl (lock);
 
 		if (!updateBuffer()) {
+
+			const MessageManagerLock mmLock (Thread::getCurrentThread());
+
 			std::cout << "Aquisition error...stopping thread." << std::endl;
 			signalThreadShouldExit();
-			//stopAcquisition();
 			std::cout << "Notifying source node to stop acqusition." << std::endl;
 			sn->acquisitionStopped();
 		}

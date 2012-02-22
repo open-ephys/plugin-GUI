@@ -58,6 +58,9 @@ float IntanThread::getSampleRate()
 
 bool IntanThread::foundInputSource()
 {
+
+    //std::cout << "Checking for input source." << std::endl;
+
     if (deviceFound)
     {
         int return_value;
@@ -189,6 +192,7 @@ bool IntanThread::updateBuffer()
     if ((bytes_read = ftdi_read_data(&ftdic, buffer, sizeof(buffer))) < 0 && isTransmitting)
     {
         std::cout << "NO DATA FOUND!" << std::endl;
+        deviceFound = false;
         return false;
     }
 
