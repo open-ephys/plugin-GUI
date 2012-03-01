@@ -17,6 +17,7 @@
 		C038A696FD85E64E249AF737 = { isa = PBXBuildFile; fileRef = 191441B631182A346D494BB5; };
 		881EDBF5D2D6FD7B53B71182 = { isa = PBXBuildFile; fileRef = 1CBCB9D2FE5B967D93785E75; };
 		14BE1E76E7BB3593A5F66DCC = { isa = PBXBuildFile; fileRef = BF41F256D0C244C2C02AE6E1; };
+		09E5633D492B59E418AC11C9 = { isa = PBXBuildFile; fileRef = CA0A1584725D21237DBCD70A; };
 		D379BC3417418182ECFA5716 = { isa = PBXBuildFile; fileRef = 673778A175624FC9F52E7A15; };
 		2C6D200191B27DDF088B3089 = { isa = PBXBuildFile; fileRef = B30EF131FE61BAA4C1818102; };
 		BF78E6E9903CF5A5C53789B9 = { isa = PBXBuildFile; fileRef = 07AE46453303977ED64E38ED; };
@@ -123,6 +124,8 @@
 		294B78ADA337603DE3C87BF9 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "PipelineA-02.png"; path = "../../Resources/Images/Buttons/PipelineA-02.png"; sourceTree = SOURCE_ROOT; };
 		8AD9A0F023B727B34348B95E = { isa = PBXFileReference; lastKnownFileType = image.png; name = "PipelineB-01.png"; path = "../../Resources/Images/Buttons/PipelineB-01.png"; sourceTree = SOURCE_ROOT; };
 		89CF25CB48EEA21B226869E1 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "PipelineB-02.png"; path = "../../Resources/Images/Buttons/PipelineB-02.png"; sourceTree = SOURCE_ROOT; };
+		CA0A1584725D21237DBCD70A = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AccessClass.cpp; path = ../../Source/AccessClass.cpp; sourceTree = SOURCE_ROOT; };
+		63992CB3AC42F91A51135EAC = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AccessClass.h; path = ../../Source/AccessClass.h; sourceTree = SOURCE_ROOT; };
 		673778A175624FC9F52E7A15 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PracticalSocket.cpp; path = ../../Source/Network/PracticalSocket.cpp; sourceTree = SOURCE_ROOT; };
 		2EAE0475B719C3233AD8BB35 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PracticalSocket.h; path = ../../Source/Network/PracticalSocket.h; sourceTree = SOURCE_ROOT; };
 		B30EF131FE61BAA4C1818102 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Bessel.cpp; path = ../../Source/Dsp/Bessel.cpp; sourceTree = SOURCE_ROOT; };
@@ -444,6 +447,8 @@
 				2A78F719BAFBDCD63AE9A88A,
 				DB605BA15852F367DF625300 ); name = UI; sourceTree = "<group>"; };
 		98D3BECE25EB3CF1F64F54B4 = { isa = PBXGroup; children = (
+				CA0A1584725D21237DBCD70A,
+				63992CB3AC42F91A51135EAC,
 				8F98BACF97340868397BA4BB,
 				B3AB794228C0205240A8F72E,
 				FFA2631FEEE7932BE08907A6,
@@ -554,6 +559,7 @@
 				5D7484BAF16E272FF0E9EEAE ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Debug; };
 		7D11CCCE7B7FAA037837E9F0 = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (  ); runOnlyForDeploymentPostprocessing = 0; };
 		49B8C83C4A6BA460E2492EAD = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+				09E5633D492B59E418AC11C9,
 				D379BC3417418182ECFA5716,
 				2C6D200191B27DDF088B3089,
 				BF78E6E9903CF5A5C53789B9,

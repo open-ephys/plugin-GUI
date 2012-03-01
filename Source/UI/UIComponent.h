@@ -51,6 +51,7 @@
 */
 
 class MainWindow;
+class FilterList;
 
 class FilterViewportButton;
 
@@ -68,8 +69,13 @@ public:
 	~UIComponent();
 
 	FilterViewport* getFilterViewport() {return filterViewport;}
+	FilterList* getFilterList() {return filterList;}
 	DataViewport* getDataViewport() {return dataViewport;}
 	Configuration* getConfiguration() {return config;}
+	ProcessorGraph* getProcessorGraph() {return processorGraph;}
+	ControlPanel* getControlPanel() {return controlPanel;}
+	MessageCenter* getMessageCenter() {return messageCenter;}
+	UIComponent* getUIComponent() {return this;}
 
 	//void transmitMessage(const String& message);
 	void disableCallbacks();

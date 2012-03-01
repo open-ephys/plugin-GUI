@@ -68,6 +68,9 @@
       </GROUP>
     </GROUP>
     <GROUP id="ZMfWAFj" name="Source">
+      <FILE id="AXFRUPT" name="AccessClass.cpp" compile="1" resource="0"
+            file="Source/AccessClass.cpp"/>
+      <FILE id="2ViPrE" name="AccessClass.h" compile="0" resource="0" file="Source/AccessClass.h"/>
       <GROUP id="leJrZDi" name="Network">
         <FILE id="mOOc0R" name="PracticalSocket.cpp" compile="1" resource="0"
               file="Source/Network/PracticalSocket.cpp"/>

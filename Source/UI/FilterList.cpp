@@ -358,11 +358,11 @@ void FilterList::mouseDown(const MouseEvent& e)
 		if (fli == baseItem)
 		{
 			if (fli->isOpen()) {
-				UI->childComponentChanged();
+				getUIComponent()->childComponentChanged();
 			}
 			else
 			{
-				UI->childComponentChanged();
+				getUIComponent()->childComponentChanged();
 				//setBounds(0,0,225,itemHeight + 2*yBuffer); 
 				totalHeight = itemHeight + 2*yBuffer;
 			}

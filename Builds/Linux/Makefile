@@ -43,6 +43,7 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
+  $(OBJDIR)/AccessClass_de9602d5.o \
   $(OBJDIR)/PracticalSocket_2574ecc8.o \
   $(OBJDIR)/Bessel_63b88b81.o \
   $(OBJDIR)/Biquad_479045c5.o \
@@ -128,6 +129,11 @@ clean:
 	-@rm -f $(OUTDIR)/$(TARGET)
 	-@rm -rf $(OBJDIR)/*
 	-@rm -rf $(OBJDIR)
+
+$(OBJDIR)/AccessClass_de9602d5.o: ../../Source/AccessClass.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling AccessClass.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/PracticalSocket_2574ecc8.o: ../../Source/Network/PracticalSocket.cpp
 	-@mkdir -p $(OBJDIR)

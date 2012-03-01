@@ -55,7 +55,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	std::cout << "Created control panel." << std::endl;
 
 	filterList = new FilterList();
-	filterList->setUIComponent(this);
+	//filterList->setUIComponent(this);
 	addAndMakeVisible(filterList);
 
 	std::cout << "Created filter list." << std::endl;
@@ -83,6 +83,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	std::cout << "Finished UI stuff." << std::endl << std::endl << std::endl;
 
 
+	filterList->setUIComponent(this);
 	processorGraph->loadState();
 	
 }

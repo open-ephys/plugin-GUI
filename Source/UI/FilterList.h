@@ -26,6 +26,7 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/Visualization/OpenGLCanvas.h"
+#include "../AccessClass.h"
 
 /**
   
@@ -43,10 +44,10 @@ class FilterListItem;
 class UIComponent;
 
 class FilterList : public OpenGLCanvas,
-				   public DragAndDropContainer
+				   public DragAndDropContainer,
+				   public AccessClass
 
 {
-
 public:
 
 	FilterList();
@@ -54,7 +55,7 @@ public:
 	void newOpenGLContextCreated();
 	void renderOpenGL();
 
-	void setUIComponent(UIComponent* ui) {UI = ui;}
+	//void setUIComponent(UIComponent* ui) {UI = ui;}
 
 
 	bool isOpen();
@@ -77,7 +78,7 @@ private:
 	int totalHeight, itemHeight, subItemHeight;
 	int xBuffer, yBuffer;
 
-	UIComponent* UI;
+	//UIComponent* UI;
 
 	String category;
 	
