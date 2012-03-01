@@ -39,36 +39,36 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 
 	std::cout << "Created data viewport." << std::endl;
 
-	filterViewport = new FilterViewport(processorGraph, dataViewport);
-	processorGraph->setFilterViewport(filterViewport);
+	editorViewport = new EditorViewport();//(processorGraph, dataViewport);
+	//processorGraph->setEditorViewport(editorViewport);
 	
-	addAndMakeVisible(filterViewport);
+	addAndMakeVisible(editorViewport);
 
 	std::cout << "Created filter viewport." << std::endl;
 
-	filterViewportButton = new FilterViewportButton(this);
-	addAndMakeVisible(filterViewportButton);
+	editorViewportButton = new EditorViewportButton(this);
+	addAndMakeVisible(editorViewportButton);
 
 	controlPanel = new ControlPanel(processorGraph, audio);
 	addAndMakeVisible(controlPanel);
 
 	std::cout << "Created control panel." << std::endl;
 
-	filterList = new FilterList();
+	processorList = new ProcessorList();
 	//filterList->setUIComponent(this);
-	addAndMakeVisible(filterList);
+	addAndMakeVisible(processorList);
 
 	std::cout << "Created filter list." << std::endl;
 
 	messageCenter = new MessageCenter();
-	processorGraph->addActionListener(messageCenter);
+	//processorGraph->addActionListener(messageCenter);
 	addActionListener(messageCenter);
 	addAndMakeVisible(messageCenter);
 
 	std::cout << "Created message center." << std::endl;
 
 	config = new Configuration();
-	processorGraph->setConfiguration(config);
+	//processorGraph->setConfiguration(config);
 
 	std::cout << "Created configuration object." << std::endl;
 
@@ -83,7 +83,10 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	std::cout << "Finished UI stuff." << std::endl << std::endl << std::endl;
 
 
-	filterList->setUIComponent(this);
+	processorGraph->setUIComponent(this);
+	processorList->setUIComponent(this);
+	editorViewport->setUIComponent(this);
+
 	processorGraph->loadState();
 	
 }
@@ -106,41 +109,41 @@ void UIComponent::resized()
 	int h = getHeight();
 	
 	if (dataViewport != 0) {
-		if (filterList->isOpen() && filterViewportButton->isOpen())
+		if (processorList->isOpen() && editorViewportButton->isOpen())
 			dataViewport->setBounds(202,40,w-207,h-235);
-		else if (!filterList->isOpen() && filterViewportButton->isOpen())
+		else if (!processorList->isOpen() && editorViewportButton->isOpen())
 			dataViewport->setBounds(6,40,w-11,h-235);
-		else if (filterList->isOpen() && !filterViewportButton->isOpen())
+		else if (processorList->isOpen() && !editorViewportButton->isOpen())
 			dataViewport->setBounds(202,40,w-207,h-85);
 		else	
 			dataViewport->setBounds(6,40,w-11,h-85);
 	}
 
-	if (filterViewportButton != 0)
+	if (editorViewportButton != 0)
 	{
-		filterViewportButton->setBounds(w-230, h-40, 225, 35);
+		editorViewportButton->setBounds(w-230, h-40, 225, 35);
 	}
 	
-	if (filterViewport != 0) {
-		if (filterViewportButton->isOpen() && !filterViewport->isVisible())
-			filterViewport->setVisible(true);
-		else if (!filterViewportButton->isOpen() && filterViewport->isVisible())
-			filterViewport->setVisible(false);
+	if (editorViewport != 0) {
+		if (editorViewportButton->isOpen() && !editorViewport->isVisible())
+			editorViewport->setVisible(true);
+		else if (!editorViewportButton->isOpen() && editorViewport->isVisible())
+			editorViewport->setVisible(false);
 
-		filterViewport->setBounds(6,h-190,w-11,150);
+		editorViewport->setBounds(6,h-190,w-11,150);
 	}
 
 	if (controlPanel != 0)
 		controlPanel->setBounds(201,6,w-210,32);
 
-	if (filterList != 0) {
-		if (filterList->isOpen())
-			if (filterViewportButton->isOpen())
-				filterList->setBounds(5,5,195,h-200);
+	if (processorList != 0) {
+		if (processorList->isOpen())
+			if (editorViewportButton->isOpen())
+				processorList->setBounds(5,5,195,h-200);
 			else
-				filterList->setBounds(5,5,195,h-50);
+				processorList->setBounds(5,5,195,h-50);
 		else
-			filterList->setBounds(5,5,195,34);
+			processorList->setBounds(5,5,195,34);
 	}
 
 	if (messageCenter != 0)
@@ -202,7 +205,7 @@ void UIComponent::menuItemSelected(int menuItemID, int topLevelMenuIndex)
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-FilterViewportButton::FilterViewportButton(UIComponent* ui) : UI(ui)
+EditorViewportButton::EditorViewportButton(UIComponent* ui) : UI(ui)
 {
 	open = true;
 
@@ -213,12 +216,12 @@ FilterViewportButton::FilterViewportButton(UIComponent* ui) : UI(ui)
 	
 }
 
-FilterViewportButton::~FilterViewportButton()
+EditorViewportButton::~EditorViewportButton()
 {
 	
 }
 
-void FilterViewportButton::newOpenGLContextCreated()
+void EditorViewportButton::newOpenGLContextCreated()
 {
 	
 	glMatrixMode (GL_PROJECTION);
@@ -244,14 +247,14 @@ void FilterViewportButton::newOpenGLContextCreated()
 }
 
 
-void FilterViewportButton::renderOpenGL()
+void EditorViewportButton::renderOpenGL()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	drawName();
 	drawButton();
 }
 
-void FilterViewportButton::drawName()
+void EditorViewportButton::drawName()
 {
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 	glRasterPos2f(8.0/getWidth(),0.75f);
@@ -262,7 +265,7 @@ void FilterViewportButton::drawName()
 	
 }
 
-void FilterViewportButton::drawButton()
+void EditorViewportButton::drawButton()
 {
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 	glLineWidth(1.0f);
@@ -282,7 +285,7 @@ void FilterViewportButton::drawButton()
 
 }
 
-void FilterViewportButton::mouseDown(const MouseEvent& e)
+void EditorViewportButton::mouseDown(const MouseEvent& e)
 {
 	open = !open;
 	UI->childComponentChanged();

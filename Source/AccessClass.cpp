@@ -11,8 +11,8 @@
 #include "AccessClass.h"
 
 #include "UI/UIComponent.h"
-#include "UI/FilterViewport.h"
-#include "UI/FilterList.h"
+#include "UI/EditorViewport.h"
+#include "UI/ProcessorList.h"
 #include "UI/DataViewport.h"
 #include "UI/Configuration.h"
 #include "UI/ControlPanel.h"
@@ -23,11 +23,13 @@ void AccessClass::setUIComponent(UIComponent* ui_)
 {
 	ui = ui_;
 
-	fv = ui->getFilterViewport();
+	ev = ui->getEditorViewport();
 	dv = ui->getDataViewport();
-	fl = ui->getFilterList();
+	pl = ui->getProcessorList();
 	pg = ui->getProcessorGraph();
 	cp = ui->getControlPanel();
 	mc = ui->getMessageCenter();
 	cf = ui->getConfiguration();
+
+	addActionListener(mc);
 }

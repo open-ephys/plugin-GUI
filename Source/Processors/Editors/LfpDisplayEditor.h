@@ -32,8 +32,8 @@
 #include "../LfpDisplayNode.h"
 #include "../Visualization/LfpDisplayCanvas.h"
 
-class FilterViewport;
-class DataViewport;
+//class FilterViewport;
+//class DataViewport;
 class DataWindow;
 class LfpDisplayCanvas;
 
@@ -49,12 +49,12 @@ class LfpDisplayEditor : public GenericEditor,
 				   	     public Slider::Listener
 {
 public:
-	LfpDisplayEditor (GenericProcessor*, FilterViewport*, DataViewport*);
+	LfpDisplayEditor (GenericProcessor*);
 	~LfpDisplayEditor();
 
 	void buttonClicked (Button* button);
 	void setBuffers (AudioSampleBuffer*, MidiBuffer*);
-	void setUIComponent (UIComponent* ui) {UI = ui;}
+	//void setUIComponent (UIComponent* ui) {UI = ui;}
 
 	void sliderValueChanged (Slider* slider);
 
@@ -80,8 +80,8 @@ private:
 
 	//AudioSampleBuffer* streamBuffer;
 	//MidiBuffer* eventBuffer;
-	UIComponent* UI;
-	DataViewport* dataViewport;
+	//UIComponent* UI;
+	//DataViewport* dataViewport;
 
 	int tabIndex;
 

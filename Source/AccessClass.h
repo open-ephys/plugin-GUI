@@ -11,18 +11,18 @@
 #ifndef __ACCESSCLASS_H_CE1DC2DE__
 #define __ACCESSCLASS_H_CE1DC2DE__
 
-
+#include "../JuceLibraryCode/JuceHeader.h"
 
 class UIComponent;
-class FilterViewport;
-class FilterList;
+class EditorViewport;
+class ProcessorList;
 class DataViewport;
 class ProcessorGraph;
 class MessageCenter;
 class ControlPanel;
 class Configuration;
 
-class AccessClass
+class AccessClass : public ActionBroadcaster
 {
 public:
 
@@ -31,9 +31,9 @@ public:
 	
 	void setUIComponent(UIComponent*);
 
-	FilterViewport* getFilterViewport() {return fv;}
+	EditorViewport* getEditorViewport() {return ev;}
 	DataViewport* getDataViewport() {return dv;}
-	FilterList* getFilterList() {return fl;}
+	ProcessorList* getProcessorList() {return pl;}
 	ProcessorGraph* getProcessorGraph() {return pg;}
 	ControlPanel* getControlPanel() {return cp;}
 	MessageCenter* getMessageCenter() {return mc;}
@@ -43,8 +43,8 @@ public:
 private:
 
 	UIComponent* ui;
-	FilterViewport* fv;
-	FilterList* fl;
+	EditorViewport* ev;
+	ProcessorList* pl;
 	DataViewport* dv;
 	ProcessorGraph* pg;
 	ControlPanel* cp;

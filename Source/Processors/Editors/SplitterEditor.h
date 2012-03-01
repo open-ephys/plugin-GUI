@@ -41,7 +41,7 @@ class SplitterEditor : public GenericEditor,
 					   public Button::Listener
 {
 public:
-	SplitterEditor (GenericProcessor* parentNode, FilterViewport* vp);
+	SplitterEditor (GenericProcessor* parentNode);
 	virtual ~SplitterEditor();
 
 	void buttonClicked (Button* button);

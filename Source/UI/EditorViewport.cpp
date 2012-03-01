@@ -21,11 +21,11 @@
 
 */
 
-#include "FilterViewport.h"
+#include "EditorViewport.h"
 
-FilterViewport::FilterViewport(ProcessorGraph* pgraph, DataViewport* tcomp)
+EditorViewport::EditorViewport()
     : message ("Drag-and-drop some rows from the top-left box onto this component!"),
-      somethingIsBeingDraggedOver (false), graph(pgraph), tabComponent(tcomp), shiftDown(false),
+      somethingIsBeingDraggedOver (false), shiftDown(false),
        insertionPoint(0), componentWantsToMove(false), indexOfMovingComponent(-1), 
        borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true), currentTab(-1)//, signalChainNeedsSource(true)
 {
@@ -47,12 +47,12 @@ FilterViewport::FilterViewport(ProcessorGraph* pgraph, DataViewport* tcomp)
 
 }
 
-FilterViewport::~FilterViewport()
+EditorViewport::~EditorViewport()
 {
     deleteAllChildren();
 }
 
-void FilterViewport::signalChainCanBeEdited(bool t)
+void EditorViewport::signalChainCanBeEdited(bool t)
 {
     canEdit = t;
     if (!canEdit)
@@ -62,7 +62,7 @@ void FilterViewport::signalChainCanBeEdited(bool t)
 
 }
 
-void FilterViewport::paint (Graphics& g)
+void EditorViewport::paint (Graphics& g)
 {
 
     if (somethingIsBeingDraggedOver)
@@ -135,7 +135,7 @@ void FilterViewport::paint (Graphics& g)
         // textLayout.draw (g, transform);
 }
 
-bool FilterViewport::isInterestedInDragSource (const String& description, Component* component)
+bool EditorViewport::isInterestedInDragSource (const String& description, Component* component)
 {
 
     if (canEdit && description.startsWith("Processors")) {
@@ -146,7 +146,7 @@ bool FilterViewport::isInterestedInDragSource (const String& description, Compon
 
 }
 
-void FilterViewport::itemDragEnter (const String& /*sourceDescription*/, Component* /*sourceComponent*/, int /*x*/, int /*y*/)
+void EditorViewport::itemDragEnter (const String& /*sourceDescription*/, Component* /*sourceComponent*/, int /*x*/, int /*y*/)
 {
     if (canEdit) {
         somethingIsBeingDraggedOver = true;
@@ -154,7 +154,7 @@ void FilterViewport::itemDragEnter (const String& /*sourceDescription*/, Compone
     }   
 }
 
-void FilterViewport::itemDragMove (const String& /*sourceDescription*/, Component* /*sourceComponent*/, int x, int /*y*/)
+void EditorViewport::itemDragMove (const String& /*sourceDescription*/, Component* /*sourceComponent*/, int x, int /*y*/)
 {
 
     if (canEdit) {
@@ -188,7 +188,7 @@ void FilterViewport::itemDragMove (const String& /*sourceDescription*/, Componen
 
 }
 
-void FilterViewport::itemDragExit (const String& /*sourceDescription*/, Component* /*sourceComponent*/)
+void EditorViewport::itemDragExit (const String& /*sourceDescription*/, Component* /*sourceComponent*/)
 {
     somethingIsBeingDraggedOver = false;
 
@@ -198,7 +198,7 @@ void FilterViewport::itemDragExit (const String& /*sourceDescription*/, Componen
 
 }
 
-void FilterViewport::itemDropped (const String& sourceDescription, Component* /*sourceComponent*/, int /*x*/, int /*y*/)
+void EditorViewport::itemDropped (const String& sourceDescription, Component* /*sourceComponent*/, int /*x*/, int /*y*/)
 {
 
     if (canEdit) {
@@ -210,13 +210,14 @@ void FilterViewport::itemDropped (const String& sourceDescription, Component* /*
         /// needed to remove const cast --> should be a better way to do this
         String description = sourceDescription.substring(0);
 
-        GenericEditor* activeEditor = (GenericEditor*) graph->createNewProcessor(description);//, source, dest);
+        GenericEditor* activeEditor = (GenericEditor*) getProcessorGraph()->createNewProcessor(description);//, source, dest);
 
         std::cout << "Active editor: " << activeEditor << std::endl;
 
         if (activeEditor != 0)
         {
             addChildComponent(activeEditor);
+            activeEditor->setUIComponent(getUIComponent());
 
             updateVisibleEditors(activeEditor, 1);
 
@@ -234,7 +235,7 @@ void FilterViewport::itemDropped (const String& sourceDescription, Component* /*
 
 
 
-void FilterViewport::deleteNode (GenericEditor* editor) {
+void EditorViewport::deleteNode (GenericEditor* editor) {
 
     if (canEdit) {
         indexOfMovingComponent = editorArray.indexOf(editor);
@@ -242,7 +243,7 @@ void FilterViewport::deleteNode (GenericEditor* editor) {
    
         updateVisibleEditors(editor, 3);
     
-        graph->removeProcessor((GenericProcessor*) editor->getProcessor());
+        getProcessorGraph()->removeProcessor((GenericProcessor*) editor->getProcessor());
     }
 
     int64 t1 = Time::currentTimeMillis();
@@ -256,7 +257,7 @@ void FilterViewport::deleteNode (GenericEditor* editor) {
 
 }
 
-void FilterViewport::createNewTab(GenericEditor* editor)
+void EditorViewport::createNewTab(GenericEditor* editor)
 {
     
     int index = signalChainArray.size();
@@ -278,7 +279,7 @@ void FilterViewport::createNewTab(GenericEditor* editor)
 
 }
 
-void FilterViewport::removeTab(int tabIndex)
+void EditorViewport::removeTab(int tabIndex)
 {
     SignalChainTabButton* t = signalChainArray.remove(tabIndex);
     deleteAndZero(t);
@@ -298,7 +299,7 @@ void FilterViewport::removeTab(int tabIndex)
 
 }
 
-void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int action)
+void EditorViewport::updateVisibleEditors(GenericEditor* activeEditor, int action)
 
 {
     // 1 = add
@@ -579,7 +580,7 @@ void FilterViewport::updateVisibleEditors(GenericEditor* activeEditor, int actio
     
 }
 
-void FilterViewport::refreshEditors () {
+void EditorViewport::refreshEditors () {
     
     int lastBound = borderSize+tabSize;
 
@@ -625,7 +626,7 @@ void FilterViewport::refreshEditors () {
 
 }
 
-void FilterViewport::moveSelection (const KeyPress &key) {
+void EditorViewport::moveSelection (const KeyPress &key) {
     
     if (key.getKeyCode() == key.leftKey) {
         
@@ -664,7 +665,7 @@ void FilterViewport::moveSelection (const KeyPress &key) {
     }
 }
 
-bool FilterViewport::keyPressed (const KeyPress &key) {
+bool EditorViewport::keyPressed (const KeyPress &key) {
     
    //std::cout << key.getKeyCode() << std::endl;
 
@@ -693,7 +694,7 @@ bool FilterViewport::keyPressed (const KeyPress &key) {
 
 }
 
-//void FilterViewport::modifierKeysChanged (const ModifierKeys & modifiers) {
+//void EditorViewport::modifierKeysChanged (const ModifierKeys & modifiers) {
     
 /*     if (modifiers.isShiftDown()) {
         
@@ -709,7 +710,7 @@ bool FilterViewport::keyPressed (const KeyPress &key) {
 
 //}
 
-void FilterViewport::selectEditor(GenericEditor* editor)
+void EditorViewport::selectEditor(GenericEditor* editor)
 {  
     for (int i = 0; i < editorArray.size(); i++) {
         
@@ -722,7 +723,7 @@ void FilterViewport::selectEditor(GenericEditor* editor)
     } 
 }
 
-void FilterViewport::mouseDown(const MouseEvent &e) {
+void EditorViewport::mouseDown(const MouseEvent &e) {
     
     for (int i = 0; i < editorArray.size(); i++) {
         
@@ -738,7 +739,7 @@ void FilterViewport::mouseDown(const MouseEvent &e) {
 
 }
 
-void FilterViewport::mouseDrag(const MouseEvent &e) {
+void EditorViewport::mouseDrag(const MouseEvent &e) {
     
 
     if (editorArray.contains((GenericEditor*) e.originalComponent) 
@@ -788,7 +789,7 @@ void FilterViewport::mouseDrag(const MouseEvent &e) {
 
 }
 
-void FilterViewport::mouseUp(const MouseEvent &e) {
+void EditorViewport::mouseUp(const MouseEvent &e) {
 
 
     if (componentWantsToMove) {
@@ -807,7 +808,7 @@ void FilterViewport::mouseUp(const MouseEvent &e) {
 
 }
 
-void FilterViewport::mouseExit(const MouseEvent &e) {
+void EditorViewport::mouseExit(const MouseEvent &e) {
 
     if (componentWantsToMove) {
         
@@ -841,9 +842,9 @@ void SignalChainTabButton::clicked()
     {
     
         //std::cout << "Button clicked: " << firstEditor->getName() << std::endl;
-        FilterViewport* fv = (FilterViewport*) getParentComponent();
+        EditorViewport* ev = (EditorViewport*) getParentComponent();
     
-        fv->updateVisibleEditors(firstEditor,4);    
+        ev->updateVisibleEditors(firstEditor,4);    
     }
     
 }
@@ -893,7 +894,7 @@ void SignalChainTabButton::paintButton(Graphics &g, bool isMouseOver, bool isBut
 
 // how about some loading and saving?
 
-XmlElement* FilterViewport::createNodeXml (GenericEditor* editor,
+XmlElement* EditorViewport::createNodeXml (GenericEditor* editor,
                                            int insertionPt)
 {
 
@@ -925,7 +926,7 @@ XmlElement* FilterViewport::createNodeXml (GenericEditor* editor,
 
 }
 
-const String FilterViewport::saveState(const File& file) 
+const String EditorViewport::saveState(const File& file) 
 {
 
     XmlElement* xml = new XmlElement("PROCESSORGRAPH");
@@ -970,7 +971,7 @@ const String FilterViewport::saveState(const File& file)
     return error;
 }
 
-const String FilterViewport::loadState(const File& file) 
+const String EditorViewport::loadState(const File& file) 
 {
     std::cout << "Loading processor graph." << std::endl;
     

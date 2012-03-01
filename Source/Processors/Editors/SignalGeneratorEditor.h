@@ -33,7 +33,7 @@ class SignalGeneratorEditor : public GenericEditor,
 					 		  public Slider::Listener
 {
 public:
-	SignalGeneratorEditor (GenericProcessor* parentNode, FilterViewport* vp);
+	SignalGeneratorEditor (GenericProcessor* parentNode);
 	virtual ~SignalGeneratorEditor();
 	void sliderValueChanged (Slider* slider);
 

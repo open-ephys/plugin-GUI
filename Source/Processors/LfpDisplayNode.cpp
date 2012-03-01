@@ -51,11 +51,11 @@ LfpDisplayNode::~LfpDisplayNode()
 AudioProcessorEditor* LfpDisplayNode::createEditor()
 {
 
-	LfpDisplayEditor* editor = new LfpDisplayEditor(this, viewport, getDataViewport());
+	LfpDisplayEditor* editor = new LfpDisplayEditor(this);
 
 	//editor->setBuffers (displayBuffer, eventBuffer);
-	editor->setUIComponent (getUIComponent());
-	editor->setConfiguration (config);
+	//editor->setUIComponent (getUIComponent());
+	//editor->setConfiguration (config);
 	//editor->updateNumInputs(getNumInputs());
 	//editor->updateSampleRate(sampleRate);
 

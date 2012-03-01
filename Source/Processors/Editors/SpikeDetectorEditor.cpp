@@ -26,8 +26,8 @@
 #include <stdio.h>
 
 
-SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode, FilterViewport* vp) 
-	: GenericEditor(parentNode, vp), threshSlider(0)
+SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode) 
+	: GenericEditor(parentNode), threshSlider(0)
 
 {
 	desiredWidth = 200;

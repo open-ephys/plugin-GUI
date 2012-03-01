@@ -21,19 +21,20 @@
 
 */
 
-#ifndef __FILTERVIEWPORT_H_80260F3F__
-#define __FILTERVIEWPORT_H_80260F3F__
+#ifndef __EDITORVIEWPORT_H_80260F3F__
+#define __EDITORVIEWPORT_H_80260F3F__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/ProcessorGraph.h"
 #include "../Processors/Editors/GenericEditor.h"
+#include "../AccessClass.h"
 #include "DataViewport.h"
 
 /**
   
   Allows the user to view and edit the signal chain.
 
-  The FilterViewport is one of the most important classes in the GUI application.
+  The EditorViewport is one of the most important classes in the GUI application.
 
   @see UIComponent, ProcessorGraph
 
@@ -42,14 +43,15 @@
 class GenericEditor;
 class SignalChainTabButton;
 
-class FilterViewport  : public Component,
-                        public DragAndDropTarget
+class EditorViewport  : public Component,
+                        public DragAndDropTarget,
+                        public AccessClass
 
 {
 public:
 
-    FilterViewport(ProcessorGraph* pgraph, DataViewport* tabComp);
-    ~FilterViewport();
+    EditorViewport();//ProcessorGraph* pgraph, DataViewport* tabComp);
+    ~EditorViewport();
 
     void paint (Graphics& g);
 
@@ -95,8 +97,8 @@ private:
 
     bool canEdit;
 
-    ProcessorGraph* graph;
-    DataViewport* tabComponent;
+    //ProcessorGraph* graph;
+    //DataViewport* tabComponent;
 
     Array<GenericEditor*, CriticalSection> editorArray;
     Array<SignalChainTabButton*, CriticalSection> signalChainArray;
@@ -122,7 +124,7 @@ private:
 
     //bool signalChainNeedsSource;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterViewport);  
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EditorViewport);  
 
 };
 
@@ -157,4 +159,4 @@ private:
 
 };
 
-#endif  // __FILTERVIEWPORT_H_80260F3F__
+#endif  // __EDITORVIEWPORT_H_80260F3F__

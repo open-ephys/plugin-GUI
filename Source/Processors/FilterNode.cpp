@@ -80,7 +80,7 @@ FilterNode::~FilterNode()
 
 AudioProcessorEditor* FilterNode::createEditor()
 {
-	FilterEditor* filterEditor = new FilterEditor(this, viewport);
+	FilterEditor* filterEditor = new FilterEditor(this);
 	setEditor(filterEditor);
 	
 	std::cout << "Creating editor." << std::endl;

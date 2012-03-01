@@ -25,8 +25,8 @@
 #include <stdio.h>
 
 
-WiFiOutputEditor::WiFiOutputEditor (GenericProcessor* parentNode, FilterViewport* vp) 
-	: GenericEditor(parentNode, vp)
+WiFiOutputEditor::WiFiOutputEditor (GenericProcessor* parentNode) 
+	: GenericEditor(parentNode)
 
 {
 

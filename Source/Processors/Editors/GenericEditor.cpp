@@ -23,8 +23,11 @@
 
 #include "GenericEditor.h"
 
-GenericEditor::GenericEditor (GenericProcessor* owner, FilterViewport* vp) 
-	: AudioProcessorEditor (owner), isSelected(false), viewport(vp),
+#include "../../UI/EditorViewport.h"
+#include "../../UI/Configuration.h"
+
+GenericEditor::GenericEditor (GenericProcessor* owner)//, FilterViewport* vp) 
+	: AudioProcessorEditor (owner), isSelected(false),
 	  desiredWidth(150), tNum(-1), isEnabled(true), radioGroupId(1),
 	  accumulator(0.0), isFading(false)
 
@@ -64,11 +67,11 @@ GenericEditor::~GenericEditor()
 	//delete titleFont;
 }
 
-void GenericEditor::setViewport(FilterViewport* vp) {
+// void GenericEditor::setViewport(FilterViewport* vp) {
 	
-	viewport = vp;
+// 	viewport = vp;
 
-}
+// }
 
 
 bool GenericEditor::keyPressed (const KeyPress& key)
@@ -79,12 +82,12 @@ bool GenericEditor::keyPressed (const KeyPress& key)
 		
 		//std::cout << name << " should be deleted." << std::endl;
 		if (getSelectionState())
-			viewport->deleteNode(this);
+			getEditorViewport()->deleteNode(this);
 
 	} else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
 
 		if (getSelectionState())
-			viewport->moveSelection(key);
+			getEditorViewport()->moveSelection(key);
 
 	}
 }

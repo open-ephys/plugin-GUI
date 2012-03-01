@@ -72,8 +72,8 @@
 		CF0149E6ECBA264A264C7BB3 = { isa = PBXBuildFile; fileRef = 7EAD8082130C2384BA9E1206; };
 		63E5D65E7B097CADB277DBB6 = { isa = PBXBuildFile; fileRef = CECE2AB5D5F36CADBC3219A2; };
 		B2BE56A1260E9C87DECD2E4F = { isa = PBXBuildFile; fileRef = C4DA9685E5637B03F00E5E79; };
+		F3F3E688834C724BC35231F1 = { isa = PBXBuildFile; fileRef = EB824B60F600C19193ADFA5F; };
 		ECBA3D0CB756E83C4DA9685E = { isa = PBXBuildFile; fileRef = B28CC9409188C9A200AAAFFC; };
-		76C43D748C6F38BCE6226E12 = { isa = PBXBuildFile; fileRef = 140D590727D848E066F87A06; };
 		13457B3248E7646270A4FF88 = { isa = PBXBuildFile; fileRef = A32D8455B95FD230EBFD7891; };
 		D060C0893EDAE6CBC86A5FE2 = { isa = PBXBuildFile; fileRef = AA00883DC021E36B7EFDAC43; };
 		E36C0018635A85E09D4EDE01 = { isa = PBXBuildFile; fileRef = B977C2809B309C8038CB5D95; };
@@ -240,10 +240,10 @@
 		C4197FDA1B4D4F1D58F6A5A0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GenericProcessor.h; path = ../../Source/Processors/GenericProcessor.h; sourceTree = SOURCE_ROOT; };
 		C4DA9685E5637B03F00E5E79 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ProcessorGraph.cpp; path = ../../Source/Processors/ProcessorGraph.cpp; sourceTree = SOURCE_ROOT; };
 		3B60787E97C74E78853DC90F = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ProcessorGraph.h; path = ../../Source/Processors/ProcessorGraph.h; sourceTree = SOURCE_ROOT; };
+		EB824B60F600C19193ADFA5F = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EditorViewport.cpp; path = ../../Source/UI/EditorViewport.cpp; sourceTree = SOURCE_ROOT; };
+		54A33424E41D55153F6EB422 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EditorViewport.h; path = ../../Source/UI/EditorViewport.h; sourceTree = SOURCE_ROOT; };
 		B28CC9409188C9A200AAAFFC = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ProcessorList.cpp; path = ../../Source/UI/ProcessorList.cpp; sourceTree = SOURCE_ROOT; };
 		242E7E62B8641B1224E25442 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ProcessorList.h; path = ../../Source/UI/ProcessorList.h; sourceTree = SOURCE_ROOT; };
-		140D590727D848E066F87A06 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ProcessorViewport.cpp; path = ../../Source/UI/ProcessorViewport.cpp; sourceTree = SOURCE_ROOT; };
-		9AD28CD49C0F9141F179BC11 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ProcessorViewport.h; path = ../../Source/UI/ProcessorViewport.h; sourceTree = SOURCE_ROOT; };
 		A32D8455B95FD230EBFD7891 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CustomLookAndFeel.cpp; path = ../../Source/UI/CustomLookAndFeel.cpp; sourceTree = SOURCE_ROOT; };
 		F70641473A3E7C0DC5168858 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CustomLookAndFeel.h; path = ../../Source/UI/CustomLookAndFeel.h; sourceTree = SOURCE_ROOT; };
 		AA00883DC021E36B7EFDAC43 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = InfoLabel.cpp; path = ../../Source/UI/InfoLabel.cpp; sourceTree = SOURCE_ROOT; };
@@ -428,10 +428,10 @@
 				C4DA9685E5637B03F00E5E79,
 				3B60787E97C74E78853DC90F ); name = Processors; sourceTree = "<group>"; };
 		DA0DBF6B29B99364A145484A = { isa = PBXGroup; children = (
+				EB824B60F600C19193ADFA5F,
+				54A33424E41D55153F6EB422,
 				B28CC9409188C9A200AAAFFC,
 				242E7E62B8641B1224E25442,
-				140D590727D848E066F87A06,
-				9AD28CD49C0F9141F179BC11,
 				A32D8455B95FD230EBFD7891,
 				F70641473A3E7C0DC5168858,
 				AA00883DC021E36B7EFDAC43,
@@ -614,8 +614,8 @@
 				CF0149E6ECBA264A264C7BB3,
 				63E5D65E7B097CADB277DBB6,
 				B2BE56A1260E9C87DECD2E4F,
+				F3F3E688834C724BC35231F1,
 				ECBA3D0CB756E83C4DA9685E,
-				76C43D748C6F38BCE6226E12,
 				13457B3248E7646270A4FF88,
 				D060C0893EDAE6CBC86A5FE2,
 				E36C0018635A85E09D4EDE01,

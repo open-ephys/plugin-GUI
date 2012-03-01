@@ -69,7 +69,7 @@ SourceNode::~SourceNode()
 	if (dataThread != 0)
 		deleteAndZero(dataThread);
 
-	config->removeDataSource(this);	
+	//config->removeDataSource(this);	
 }
 
 float SourceNode::getSampleRate()
@@ -108,28 +108,28 @@ void SourceNode::enabledState(bool t)
 
 }
 
-void SourceNode::setConfiguration(Configuration* cf)
-{
-	config = cf;
+// void SourceNode::setConfiguration(Configuration* cf)
+// {
+// 	config = cf;
 
-     DataSource* d = new DataSource(this, config);
+//      DataSource* d = new DataSource(this, config);
 
-  //   // add tetrodes -- should really be doing this dynamically
-     d->addTrode(4, "TT1");
-     d->addTrode(4, "TT2");
-     d->addTrode(4, "TT3");
-     d->addTrode(4, "TT4");
+//   //   // add tetrodes -- should really be doing this dynamically
+//      d->addTrode(4, "TT1");
+//      d->addTrode(4, "TT2");
+//      d->addTrode(4, "TT3");
+//      d->addTrode(4, "TT4");
 
-     for (int n = 0; n < d->numTetrodes(); n++)
-      {
-           std::cout << d->getTetrode(n)->getName();
-      }
-      std::cout << std::endl;
+//      for (int n = 0; n < d->numTetrodes(); n++)
+//       {
+//            std::cout << d->getTetrode(n)->getName();
+//       }
+//       std::cout << std::endl;
 
-	 // // add a new data source to this configuration
-     config->addDataSource(d);
+// 	 // // add a new data source to this configuration
+//      config->addDataSource(d);
 
-}
+// }
 
 
 void SourceNode::setParameter (int parameterIndex, float newValue)
@@ -139,7 +139,7 @@ void SourceNode::setParameter (int parameterIndex, float newValue)
 
 AudioProcessorEditor* SourceNode::createEditor()
 {
-	SourceNodeEditor* ed = new SourceNodeEditor(this, viewport);
+	SourceNodeEditor* ed = new SourceNodeEditor(this);
 	setEditor(ed);
 	
 	std::cout << "Creating editor." << std::endl;
@@ -156,7 +156,7 @@ void SourceNode::timerCallback()
 			enabledState(true);
 			GenericEditor* ed = (GenericEditor*) getEditor();
 			//ed->enable();
-			viewport->updateVisibleEditors(ed, 4);
+			getEditorViewport()->updateVisibleEditors(ed, 4);
 		}
 	} else {
 		if (isEnabled) {
@@ -164,7 +164,7 @@ void SourceNode::timerCallback()
 			enabledState(false);
 			GenericEditor* ed = (GenericEditor*) getEditor();
 			//ed->disable();
-			viewport->updateVisibleEditors(ed, 4);
+			getEditorViewport()->updateVisibleEditors(ed, 4);
 		}
 	}
 }
@@ -241,10 +241,10 @@ void SourceNode::acquisitionStopped()
 		
 		if (!wasDisabled) {
 			std::cout << "Source node sending signal to UI." << std::endl;
-			UI->disableCallbacks();
+			getUIComponent()->disableCallbacks();
 			enabledState(false);
 			GenericEditor* ed = (GenericEditor*) getEditor();
-			viewport->updateVisibleEditors(ed, 4);
+			getEditorViewport()->updateVisibleEditors(ed, 4);
 		}
 	//}
 }

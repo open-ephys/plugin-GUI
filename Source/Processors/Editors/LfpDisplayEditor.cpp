@@ -53,10 +53,8 @@ SelectorButton::~SelectorButton()
 }
 
 
-LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode, 
-									FilterViewport* vp,
-									DataViewport* dv) 
-	: GenericEditor(parentNode, vp), dataViewport(dv),
+LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode) 
+	: GenericEditor(parentNode),
 	  tabIndex(-1), dataWindow(0),
 	  //streamBuffer(0), eventBuffer(0), canvas(0),
 	  isPlaying(false),
@@ -127,7 +125,7 @@ LfpDisplayEditor::~LfpDisplayEditor()
 
 	if (tabIndex > -1)
 	{
-		dataViewport->removeTab(tabIndex);
+		getDataViewport()->removeTab(tabIndex);
 	}
 
 	deleteAllChildren();
@@ -256,7 +254,7 @@ void LfpDisplayEditor::buttonClicked(Button* button)
 				//Component* p = (Component*) getProcessor();
 
 				//LfpDisplayNode* p = (LfpDisplayNode*) getProcessor();
-				tabIndex = dataViewport->addTabToDataViewport("LFP",canvas);
+				tabIndex = getDataViewport()->addTabToDataViewport("LFP",canvas);
 				//if (isPlaying)
 				///{
 				//	canvas->beginAnimation();
@@ -266,7 +264,7 @@ void LfpDisplayEditor::buttonClicked(Button* button)
 
 			} else if (!tabSelector->getToggleState() && tabIndex > -1)
 			{
-				dataViewport->removeTab(tabIndex);
+				getDataViewport()->removeTab(tabIndex);
 				tabIndex = -1;
 				//LfpDisplayNode* p = (LfpDisplayNode*) getProcessor();
 				//p->isVisible = false;

@@ -44,7 +44,7 @@ SpikeDetector::~SpikeDetector()
 AudioProcessorEditor* SpikeDetector::createEditor()
 {
 
-	SpikeDetectorEditor* editor = new SpikeDetectorEditor(this, viewport);
+	SpikeDetectorEditor* editor = new SpikeDetectorEditor(this);
 	
 	std::cout << "Creating editor." << std::endl;
 
@@ -85,12 +85,12 @@ bool SpikeDetector::enable()
     }
 
     // check configuration
-    for (int ds = 0; ds < config->numDataSources(); ds++)
+    for (int ds = 0; ds < getConfiguration()->numDataSources(); ds++)
     {
-        for (int tt = 0; tt < config->getSource(ds)->numTetrodes(); tt++)
+        for (int tt = 0; tt < getConfiguration()->getSource(ds)->numTetrodes(); tt++)
         {
 
-            Trode* t = config->getSource(ds)->getTetrode(tt);
+            Trode* t = getConfiguration()->getSource(ds)->getTetrode(tt);
 
             for (int ch = 0; ch < t->numChannels(); ch++)
             {

@@ -25,8 +25,8 @@
 #include <stdio.h>
 
 
-EventNodeEditor::EventNodeEditor (GenericProcessor* parentNode, FilterViewport* vp) 
-	: GenericEditor(parentNode, vp)
+EventNodeEditor::EventNodeEditor (GenericProcessor* parentNode) 
+	: GenericEditor(parentNode)
 
 {
 	desiredWidth = 250;

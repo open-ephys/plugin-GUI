@@ -41,10 +41,10 @@ WiFiOutput::~WiFiOutput()
 
 AudioProcessorEditor* WiFiOutput::createEditor()
 {
-	WiFiOutputEditor* wifiEditor = new WiFiOutputEditor(this, viewport);
+	WiFiOutputEditor* wifiEditor = new WiFiOutputEditor(this);
 	
 	setEditor(wifiEditor);
-	wifiEditor->setConfiguration(config);
+	//wifiEditor->setConfiguration(config);
 
 	std::cout << "Creating editor." << std::endl;
 	return wifiEditor;

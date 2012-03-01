@@ -27,8 +27,8 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "InfoLabel.h"
 #include "ControlPanel.h"
-#include "FilterList.h"
-#include "FilterViewport.h"
+#include "ProcessorList.h"
+#include "EditorViewport.h"
 #include "DataViewport.h"
 #include "MessageCenter.h"
 #include "Configuration.h"
@@ -45,15 +45,15 @@
   The UIComponent can relay messages its sub-components, such as
   the MessageCenter
 
-  @see ControlPanel, FilterList, FilterViewport, DataViewport,
+  @see ControlPanel, ProcessorList, EditorViewport, DataViewport,
        MessageCenter, Configuration
 
 */
 
 class MainWindow;
-class FilterList;
+class ProcessorList;
 
-class FilterViewportButton;
+class EditorViewportButton;
 
 class UIComponent : public Component,
 				    public ActionBroadcaster,
@@ -68,8 +68,8 @@ public:
 	UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio);
 	~UIComponent();
 
-	FilterViewport* getFilterViewport() {return filterViewport;}
-	FilterList* getFilterList() {return filterList;}
+	EditorViewport* getEditorViewport() {return editorViewport;}
+	ProcessorList* getProcessorList() {return processorList;}
 	DataViewport* getDataViewport() {return dataViewport;}
 	Configuration* getConfiguration() {return config;}
 	ProcessorGraph* getProcessorGraph() {return processorGraph;}
@@ -89,9 +89,9 @@ public:
 private:
 
 	DataViewport* dataViewport;
-	FilterViewport* filterViewport;
-	FilterViewportButton* filterViewportButton;
-	FilterList* filterList;
+	EditorViewport* editorViewport;
+	EditorViewportButton* editorViewportButton;
+	ProcessorList* processorList;
 	ControlPanel* controlPanel;
 	MessageCenter* messageCenter;
 	Configuration* config;
@@ -110,11 +110,11 @@ private:
 
 
 
-class FilterViewportButton : public OpenGLComponent
+class EditorViewportButton : public OpenGLComponent
 {
 public:
-	FilterViewportButton(UIComponent* ui);
-	~FilterViewportButton();
+	EditorViewportButton(UIComponent* ui);
+	~EditorViewportButton();
 
 	bool isOpen() {return open;}
 

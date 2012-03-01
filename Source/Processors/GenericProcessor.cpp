@@ -41,7 +41,7 @@ GenericProcessor::~GenericProcessor()
 
 AudioProcessorEditor* GenericProcessor::createEditor()
 {
-	editor = new GenericEditor (this, viewport); 
+	editor = new GenericEditor (this); 
 	return editor;
 }
 

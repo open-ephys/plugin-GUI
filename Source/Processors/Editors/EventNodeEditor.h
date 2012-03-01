@@ -34,7 +34,7 @@ class EventNodeEditor : public GenericEditor,
 					 public Button::Listener
 {
 public:
-	EventNodeEditor (GenericProcessor* parentNode, FilterViewport* vp);
+	EventNodeEditor (GenericProcessor* parentNode);
 	virtual ~EventNodeEditor();
 	void buttonClicked(Button* button);
 

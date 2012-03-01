@@ -51,8 +51,8 @@
 // {
 // }
 
-SplitterEditor::SplitterEditor (GenericProcessor* parentNode, FilterViewport* vp) 
-	: GenericEditor(parentNode, vp)
+SplitterEditor::SplitterEditor (GenericProcessor* parentNode) 
+	: GenericEditor(parentNode)
 
 {
 	desiredWidth = 90;

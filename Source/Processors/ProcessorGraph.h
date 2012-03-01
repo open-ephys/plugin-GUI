@@ -26,6 +26,8 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
+#include "../AccessClass.h"
+
 /**
   
   Owns all processors and constructs the signal chain.
@@ -43,16 +45,16 @@
 
 class GenericProcessor;
 class RecordNode;
-class SourceNode;
-class FilterViewport;
 class SignalChainTabButton;
 class AudioNode;
-class UIComponent;
-class Configuration;
-class MessageCenter;
+//class SourceNode;
+//class EditorViewport;
+//class UIComponent;
+//class Configuration;
+//class MessageCenter;
 
 class ProcessorGraph : public AudioProcessorGraph,
-					   public ActionBroadcaster
+					   public AccessClass
 {
 public:
 	ProcessorGraph();
@@ -69,10 +71,10 @@ public:
 	RecordNode* getRecordNode();
 	AudioNode* getAudioNode();
 
-	void setUIComponent(UIComponent* ui);
-	void setFilterViewport(FilterViewport *fv);
-	void setMessageCenter(MessageCenter* mc);
-	void setConfiguration(Configuration* config);
+	//void setUIComponent(UIComponent* ui);
+	//void setFilterViewport(FilterViewport *fv);
+	//void setMessageCenter(MessageCenter* mc);
+	//void setConfiguration(Configuration* config);
 
 	void updateConnections(Array<SignalChainTabButton*, CriticalSection>);
 
@@ -98,10 +100,10 @@ private:
 	void createDefaultNodes();
 	void clearConnections();
 
-	UIComponent* UI;
-	FilterViewport* filterViewport;
-	Configuration* config;
-	MessageCenter* messageCenter;
+	//UIComponent* UI;
+	//FilterViewport* filterViewport;
+	///Configuration* config;
+	//MessageCenter* messageCenter;
 
 	int totalAudioConnections;
 	int totalRecordConnections;

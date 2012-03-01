@@ -26,8 +26,7 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor.h"
-#include "../../UI/FilterViewport.h"
-#include "../../UI/Configuration.h"
+#include "../../AccessClass.h"
 #include <stdio.h>
 
 /**
@@ -47,15 +46,16 @@ class GenericProcessor;
 class FilterViewport;
 
 class GenericEditor : public AudioProcessorEditor,
-                      public Timer
+                      public Timer,
+                      public AccessClass
 
 {
 public:
-	GenericEditor (GenericProcessor* owner, FilterViewport* vp);
+	GenericEditor (GenericProcessor* owner);//, FilterViewport* vp);
 	virtual ~GenericEditor();
 
 	void paint (Graphics& g);
-	void setViewport(FilterViewport*);
+	//void setViewport(FilterViewport*);
 
 	bool keyPressed (const KeyPress& key);
 
@@ -77,11 +77,11 @@ public:
 	void tabNumber(int t) {tNum = t;}
 	int tabNumber() {return tNum;}
 
-	FilterViewport* viewport;
-	Configuration* config;
+	//FilterViewport* viewport;
+	//Configuration* config;
 
-	void setConfiguration(Configuration* cf) {config = cf;}
-	Configuration* getConfiguration() {return config;}
+	//void setConfiguration(Configuration* cf) {config = cf;}
+	//Configuration* getConfiguration() {return config;}
 
 	AudioProcessor* getProcessor() const {return getAudioProcessor();}
 	

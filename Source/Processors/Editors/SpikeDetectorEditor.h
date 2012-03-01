@@ -34,7 +34,7 @@ class SpikeDetectorEditor : public GenericEditor,
 					 	    public Slider::Listener
 {
 public:
-	SpikeDetectorEditor (GenericProcessor* parentNode, FilterViewport* vp);
+	SpikeDetectorEditor (GenericProcessor* parentNode);
 	virtual ~SpikeDetectorEditor();
 	void sliderValueChanged (Slider* slider);
 

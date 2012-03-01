@@ -28,6 +28,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/GenericEditor.h"
 #include "../UI/Configuration.h"
+#include "../AccessClass.h"
 #include <time.h>
 #include <stdio.h>
 
@@ -45,12 +46,13 @@
 
 */
 
-class FilterViewport;
+class EditorViewport;
 class DataViewport;
 class UIComponent;
 
 class GenericProcessor : public AudioProcessor,
-						 public ActionBroadcaster
+						// public ActionBroadcaster,
+						 public AccessClass
 
 {
 public:
@@ -184,24 +186,24 @@ public:
 	AudioProcessorEditor* getEditor() {return editor;}
 	void setEditor(AudioProcessorEditor* e) {editor = e;}
 
-	void setUIComponent(UIComponent* ui) {UI = ui;}
-	UIComponent* getUIComponent() {return UI;}
+	// void setUIComponent(UIComponent* ui) {UI = ui;}
+	// UIComponent* getUIComponent() {return UI;}
 
-	virtual void setConfiguration(Configuration* cf) {config = cf;}
-	Configuration* getConfiguration() {return config;}
+	// virtual void setConfiguration(Configuration* cf) {config = cf;}
+	// Configuration* getConfiguration() {return config;}
 
-	void setFilterViewport(FilterViewport* vp) {viewport = vp;}
-	FilterViewport* getFilterViewport() {return viewport;}
+	// void setFilterViewport(FilterViewport* vp) {viewport = vp;}
+	// FilterViewport* getFilterViewport() {return viewport;}
 
-	void setDataViewport(DataViewport* dv) {dataViewport = dv;}
-	DataViewport* getDataViewport() {return dataViewport;}
+	// void setDataViewport(DataViewport* dv) {dataViewport = dv;}
+	// DataViewport* getDataViewport() {return dataViewport;}
 
 
-	FilterViewport* viewport;
-	DataViewport* dataViewport;
-	UIComponent* UI;
+	//FilterViewport* viewport;
+	//DataViewport* dataViewport;
+	//UIComponent* UI;
 
-	Configuration* config;
+	//Configuration* config;
 
 	AudioProcessorEditor* editor;
 

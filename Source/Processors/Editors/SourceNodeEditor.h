@@ -35,7 +35,7 @@ class SourceNodeEditor : public GenericEditor
 
 {
 public:
-	SourceNodeEditor (GenericProcessor* parentNode, FilterViewport* vp);
+	SourceNodeEditor (GenericProcessor* parentNode);
 	virtual ~SourceNodeEditor();
 
 private:	

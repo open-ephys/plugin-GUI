@@ -26,8 +26,8 @@
 #include <stdio.h>
 
 
-FilterEditor::FilterEditor (GenericProcessor* parentNode, FilterViewport* vp) 
-	: GenericEditor(parentNode, vp)
+FilterEditor::FilterEditor (GenericProcessor* parentNode) 
+	: GenericEditor(parentNode)
 
 {
 	desiredWidth = 250;

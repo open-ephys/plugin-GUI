@@ -48,24 +48,24 @@ SignalGenerator::SignalGenerator()
 
 SignalGenerator::~SignalGenerator()
 {
-	config->removeDataSource(this);	
+	//config->removeDataSource(this);	
 }
 
 
-void SignalGenerator::setConfiguration(Configuration* cf)
-{
-	config = cf;
+// void SignalGenerator::setConfiguration(Configuration* cf)
+// {
+// 	config = cf;
 
-     DataSource* d = new DataSource(this, config);
+//      DataSource* d = new DataSource(this, config);
 
-	 // add a new data source to this configuration
-     config->addDataSource(d);
+// 	 // add a new data source to this configuration
+//      config->addDataSource(d);
 
-}
+// }
 
 AudioProcessorEditor* SignalGenerator::createEditor( )
 {
-	SignalGeneratorEditor* ed = new SignalGeneratorEditor(this, viewport);
+	SignalGeneratorEditor* ed = new SignalGeneratorEditor(this);
 	setEditor(ed);
 	
 	std::cout << "Creating editor." << std::endl;

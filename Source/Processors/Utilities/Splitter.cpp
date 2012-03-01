@@ -38,7 +38,7 @@ Splitter::~Splitter()
 
 AudioProcessorEditor* Splitter::createEditor()
 {
-	SplitterEditor* editor = new SplitterEditor(this, viewport);
+	SplitterEditor* editor = new SplitterEditor(this);
 	setEditor(editor);
 	
 	std::cout << "Creating editor." << std::endl;

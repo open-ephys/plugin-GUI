@@ -42,12 +42,12 @@ EventNode::~EventNode()
 
 AudioProcessorEditor* EventNode::createEditor()
 {
-	EventNodeEditor* editor = new EventNodeEditor(this, viewport);
+	EventNodeEditor* editor = new EventNodeEditor(this);
 	setEditor(editor);
 
 	std::cout << "Creating editor." << std::endl;
 	//editor->setUIComponent(getUIComponent());
-	editor->setConfiguration(config);
+	//editor->setConfiguration(config);
 
 	//filterEditor = new FilterEditor(this);
 	return editor;

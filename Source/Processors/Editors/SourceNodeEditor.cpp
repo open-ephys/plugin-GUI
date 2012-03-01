@@ -27,8 +27,8 @@
 #include <stdio.h>
 
 
-SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode, FilterViewport* vp) 
-	: GenericEditor(parentNode, vp)
+SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode) 
+	: GenericEditor(parentNode)
 
 {
 	desiredWidth = 170;

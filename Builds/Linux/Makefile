@@ -98,8 +98,8 @@ OBJECTS := \
   $(OBJDIR)/SourceNode_c2d6336c.o \
   $(OBJDIR)/GenericProcessor_733760aa.o \
   $(OBJDIR)/ProcessorGraph_68b34a0b.o \
+  $(OBJDIR)/EditorViewport_1d991caf.o \
   $(OBJDIR)/ProcessorList_1ad3f3de.o \
-  $(OBJDIR)/ProcessorViewport_da253a66.o \
   $(OBJDIR)/CustomLookAndFeel_53a8fcdb.o \
   $(OBJDIR)/InfoLabel_a2051bf4.o \
   $(OBJDIR)/DataViewport_2cf95d2c.o \
@@ -405,14 +405,14 @@ $(OBJDIR)/ProcessorGraph_68b34a0b.o: ../../Source/Processors/ProcessorGraph.cpp
 	@echo "Compiling ProcessorGraph.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/EditorViewport_1d991caf.o: ../../Source/UI/EditorViewport.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling EditorViewport.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/ProcessorList_1ad3f3de.o: ../../Source/UI/ProcessorList.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ProcessorList.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ProcessorViewport_da253a66.o: ../../Source/UI/ProcessorViewport.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ProcessorViewport.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/CustomLookAndFeel_53a8fcdb.o: ../../Source/UI/CustomLookAndFeel.cpp

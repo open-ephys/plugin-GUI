@@ -21,8 +21,8 @@
 
 */
 
-#ifndef __FILTERLIST_H_C3A661E9__
-#define __FILTERLIST_H_C3A661E9__
+#ifndef __PROCESSORLIST_H_C3A661E9__
+#define __PROCESSORLIST_H_C3A661E9__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/Visualization/OpenGLCanvas.h"
@@ -36,22 +36,22 @@
   Must be manually updated every time a new processor is created,
   and the names must match those recognized by the ProcessorGraph.
 
-  @see FilterViewport, ProcessorGraph
+  @see ProcessorViewport, ProcessorGraph
 
 */
 
-class FilterListItem;
+class ProcessorListItem;
 class UIComponent;
 
-class FilterList : public OpenGLCanvas,
+class ProcessorList : public OpenGLCanvas,
 				   public DragAndDropContainer,
 				   public AccessClass
 
 {
 public:
 
-	FilterList();
-	~FilterList();
+	ProcessorList();
+	~ProcessorList();
 	void newOpenGLContextCreated();
 	void renderOpenGL();
 
@@ -63,11 +63,11 @@ public:
 private:
 
 	void drawItems();
-	void drawItem(FilterListItem*);
-	void drawItemName(FilterListItem*);
+	void drawItem(ProcessorListItem*);
+	void drawItemName(ProcessorListItem*);
 	void drawButton(bool isOpen);
 
-	FilterListItem* getListItemForYPos(int y);
+	ProcessorListItem* getListItemForYPos(int y);
 
 	void setViewport(bool);
 
@@ -89,23 +89,23 @@ private:
 	void mouseUp(const MouseEvent& e);
 	void mouseWheelMove(const MouseEvent&, float, float);
 
-	FilterListItem* baseItem;
+	ProcessorListItem* baseItem;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterList);	
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorList);	
 
 };
 
-class FilterListItem
+class ProcessorListItem
 {
 public:
-	FilterListItem(const String& name);
-	~FilterListItem();
+	ProcessorListItem(const String& name);
+	~ProcessorListItem();
 
 	int getNumSubItems();
-	FilterListItem* getSubItem (int index);
+	ProcessorListItem* getSubItem (int index);
 
 	void clearSubItems();
-	void addSubItem (FilterListItem* newItem);
+	void addSubItem (ProcessorListItem* newItem);
 	void removeSubItem (int index);
 	bool hasSubItems();
 
@@ -128,8 +128,8 @@ private:
 	bool open;
 	const String name;
 	String parentName;
-	OwnedArray<FilterListItem> subItems;
+	OwnedArray<ProcessorListItem> subItems;
 	
 };
 
-#endif  // __FILTERLIST_H_C3A661E9__
+#endif  // __PROCESSORLIST_H_C3A661E9__

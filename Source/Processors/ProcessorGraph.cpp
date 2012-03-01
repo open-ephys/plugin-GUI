@@ -40,7 +40,7 @@
 #include "Utilities/Splitter.h"
 #include "../UI/UIComponent.h"
 #include "../UI/Configuration.h"
-#include "../UI/FilterViewport.h"
+#include "../UI/EditorViewport.h"
 
 ProcessorGraph::ProcessorGraph() : 
 	currentNodeId(100),
@@ -124,10 +124,10 @@ void* ProcessorGraph::createNewProcessor(String& description)//,
 
 		std::cout << "  Adding node to graph with ID number " << id << std::endl;
 		
-		processor->setFilterViewport(filterViewport);
-		processor->setConfiguration(config);
-		processor->addActionListener(messageCenter);
-		processor->setUIComponent(UI);
+		//processor->setFilterViewport(filterViewport);
+		//processor->setConfiguration(config);
+		//processor->addActionListener(messageCenter);
+		processor->setUIComponent(getUIComponent());
 
 		addNode(processor,id); // have to add it so it can be deleted by the graph
 
@@ -331,8 +331,8 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			std::cout << "Creating an LfpDisplayNode." << std::endl;
 			processor = new LfpDisplayNode();
 		   
-		    std::cout << "Graph data viewport: " << UI->getDataViewport() << std::endl;
-			 processor->setDataViewport(UI->getDataViewport());
+		   // std::cout << "Graph data viewport: " << UI->getDataViewport() << std::endl;
+			// processor->setDataViewport(getDataViewport());
 			//processor->setUIComponent(UI);
 		} else if (subProcessorType.equalsIgnoreCase("WiFi Output")) {
 			std::cout << "Creating a WiFi node." << std::endl;
@@ -369,30 +369,30 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor) {
 
 }
 
-void ProcessorGraph::setUIComponent(UIComponent* ui)
-{
-	UI = ui;
-}
+// void ProcessorGraph::setUIComponent(UIComponent* ui)
+// {
+// 	UI = ui;
+// }
 
-void ProcessorGraph::setFilterViewport(FilterViewport* fv)
-{
-	filterViewport = fv;
-}
+// void ProcessorGraph::setFilterViewport(FilterViewport* fv)
+// {
+// 	filterViewport = fv;
+// }
 
-void ProcessorGraph::setMessageCenter(MessageCenter* mc)
-{
-	messageCenter = mc;
-}
+// void ProcessorGraph::setMessageCenter(MessageCenter* mc)
+// {
+// 	messageCenter = mc;
+// }
 
-void ProcessorGraph::setConfiguration(Configuration* c)
-{
-	config = c;
-}
+// void ProcessorGraph::setConfiguration(Configuration* c)
+// {
+// 	config = c;
+// }
 
 
 bool ProcessorGraph::enableProcessors() {
 
-	updateConnections(filterViewport->requestSignalChain());
+	updateConnections(getEditorViewport()->requestSignalChain());
 
 	std::cout << "Enabling processors..." << std::endl;
 
@@ -400,7 +400,7 @@ bool ProcessorGraph::enableProcessors() {
 
 	if (getNumNodes() < 5)
 	{
-		UI->disableCallbacks();
+		getUIComponent()->disableCallbacks();
 		return false;
 	}
 
@@ -417,7 +417,7 @@ bool ProcessorGraph::enableProcessors() {
 			if (!allClear) {
 				std::cout << p->getName() << " said it's not OK." << std::endl;
 				sendActionMessage("Could not initialize acquisition.");
-				UI->disableCallbacks();
+				getUIComponent()->disableCallbacks();
 				return false;
 
 			}
@@ -436,7 +436,7 @@ bool ProcessorGraph::enableProcessors() {
 		}
 	}
 	
-	filterViewport->signalChainCanBeEdited(false);
+	getEditorViewport()->signalChainCanBeEdited(false);
 
 	sendActionMessage("Acquisition started.");
 
@@ -465,7 +465,7 @@ bool ProcessorGraph::disableProcessors() {
 		}
 	}
 
-	filterViewport->signalChainCanBeEdited(true);
+	getEditorViewport()->signalChainCanBeEdited(true);
 
 	sendActionMessage("Acquisition ended.");
 
@@ -490,11 +490,11 @@ RecordNode* ProcessorGraph::getRecordNode() {
 void ProcessorGraph::saveState()
 {
 	File file = File("./savedState.xml");
-	filterViewport->saveState(file);
+	getEditorViewport()->saveState(file);
 }
 
 void ProcessorGraph::loadState()
 {
 	File file = File("./savedState.xml");
-	filterViewport->loadState(file);
+	getEditorViewport()->loadState(file);
 }

@@ -34,7 +34,7 @@ class FilterEditor : public GenericEditor,
 					 public Button::Listener
 {
 public:
-	FilterEditor (GenericProcessor* parentNode, FilterViewport* vp);
+	FilterEditor (GenericProcessor* parentNode);
 	virtual ~FilterEditor();
 	//void sliderValueChanged (Slider* slider);
 	void buttonClicked(Button* button);

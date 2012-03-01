@@ -22,13 +22,13 @@
 */
 
 
-#include "FilterList.h"
+#include "ProcessorList.h"
 #include <stdio.h>
 
 #include "UIComponent.h"
 
 
-FilterList::FilterList() : isDragging(false),
+ProcessorList::ProcessorList() : isDragging(false),
                            itemHeight(32),
                            subItemHeight(22),
                            totalHeight(800),
@@ -36,28 +36,28 @@ FilterList::FilterList() : isDragging(false),
                            yBuffer(1)
 {
 
-	FilterListItem* sources = new FilterListItem("Sources");
-	sources->addSubItem(new FilterListItem("Intan Demo Board"));
-	sources->addSubItem(new FilterListItem("Signal Generator"));
-	//sources->addSubItem(new FilterListItem("Custom FPGA"));
-	//sources->addSubItem(new FilterListItem("File Reader"));
-	sources->addSubItem(new FilterListItem("Event Generator"));
+	ProcessorListItem* sources = new ProcessorListItem("Sources");
+	sources->addSubItem(new ProcessorListItem("Intan Demo Board"));
+	sources->addSubItem(new ProcessorListItem("Signal Generator"));
+	//sources->addSubItem(new ProcessorListItem("Custom FPGA"));
+	//sources->addSubItem(new ProcessorListItem("File Reader"));
+	sources->addSubItem(new ProcessorListItem("Event Generator"));
 
-	FilterListItem* filters = new FilterListItem("Filters");
-	filters->addSubItem(new FilterListItem("Bandpass Filter"));
-	//filters->addSubItem(new FilterListItem("Resampler"));
-	//filters->addSubItem(new FilterListItem("Spike Detector"));
+	ProcessorListItem* filters = new ProcessorListItem("Filters");
+	filters->addSubItem(new ProcessorListItem("Bandpass Filter"));
+	//filters->addSubItem(new ProcessorListItem("Resampler"));
+	//filters->addSubItem(new ProcessorListItem("Spike Detector"));
 
-	FilterListItem* sinks = new FilterListItem("Sinks");
-	sinks->addSubItem(new FilterListItem("LFP Viewer"));
-	//sinks->addSubItem(new FilterListItem("Spike Display"));
-	sinks->addSubItem(new FilterListItem("WiFi Output"));
+	ProcessorListItem* sinks = new ProcessorListItem("Sinks");
+	sinks->addSubItem(new ProcessorListItem("LFP Viewer"));
+	//sinks->addSubItem(new ProcessorListItem("Spike Display"));
+	sinks->addSubItem(new ProcessorListItem("WiFi Output"));
 
-	//FilterListItem* utilities = new FilterListItem("Utilities");
-	//utilities->addSubItem(new FilterListItem("Splitter"));
-	//utilities->addSubItem(new FilterListItem("Merger"));
+	//ProcessorListItem* utilities = new ProcessorListItem("Utilities");
+	//utilities->addSubItem(new ProcessorListItem("Splitter"));
+	//utilities->addSubItem(new ProcessorListItem("Merger"));
 
-	baseItem = new FilterListItem("Processors");
+	baseItem = new ProcessorListItem("Processors");
 	baseItem->addSubItem(sources);
 	baseItem->addSubItem(filters);
 	baseItem->addSubItem(sinks);
@@ -83,18 +83,18 @@ FilterList::FilterList() : isDragging(false),
 
 }
 
-FilterList::~FilterList()
+ProcessorList::~ProcessorList()
 {
 	deleteAndZero(baseItem);
 }
 
-bool FilterList::isOpen()
+bool ProcessorList::isOpen()
 {
 	return baseItem->isOpen();
 }
 
 
-void FilterList::newOpenGLContextCreated()
+void ProcessorList::newOpenGLContextCreated()
 {
 
 	setUp2DCanvas();
@@ -105,7 +105,7 @@ void FilterList::newOpenGLContextCreated()
 
 }
 
-void FilterList::renderOpenGL()
+void ProcessorList::renderOpenGL()
 {
 	
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
@@ -114,7 +114,7 @@ void FilterList::renderOpenGL()
 }
 
 
-void FilterList::drawItems()
+void ProcessorList::drawItems()
 {
 	int itemNum = 0;
 	totalHeight = yBuffer;
@@ -151,7 +151,7 @@ void FilterList::drawItems()
 
 }
 
-void FilterList::drawItem(FilterListItem* item)
+void ProcessorList::drawItem(ProcessorListItem* item)
 {
 	
 	glColor4f(item->color.getFloatRed(),
@@ -175,7 +175,7 @@ void FilterList::drawItem(FilterListItem* item)
 
 }
 
-void FilterList::drawItemName(FilterListItem* item)
+void ProcessorList::drawItemName(ProcessorListItem* item)
 {
 
 	String name; 
@@ -217,7 +217,7 @@ void FilterList::drawItemName(FilterListItem* item)
 	}
 }
 
-void FilterList::drawButton(bool isOpen)
+void ProcessorList::drawButton(bool isOpen)
 {
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 	glLineWidth(1.0f);
@@ -236,7 +236,7 @@ void FilterList::drawButton(bool isOpen)
 
 }
 
-void FilterList::clearSelectionState()
+void ProcessorList::clearSelectionState()
 {
 	baseItem->setSelected(false);
 
@@ -251,7 +251,7 @@ void FilterList::clearSelectionState()
 	}
 }
 
-FilterListItem* FilterList::getListItemForYPos(int y)
+ProcessorListItem* ProcessorList::getListItemForYPos(int y)
 {
 	int bottom = (yBuffer + itemHeight) - getScrollAmount();
 
@@ -297,7 +297,7 @@ FilterListItem* FilterList::getListItemForYPos(int y)
 
 }
 
-void FilterList::setViewport(bool hasSubItems)
+void ProcessorList::setViewport(bool hasSubItems)
 {
 
 	int height;
@@ -317,14 +317,14 @@ void FilterList::setViewport(bool hasSubItems)
 	totalHeight += yBuffer + height;
 }
 
-int FilterList::getTotalHeight()
+int ProcessorList::getTotalHeight()
 {
  	return totalHeight;
 }
 
-void FilterList::resized() {canvasWasResized();}
+void ProcessorList::resized() {canvasWasResized();}
 
-void FilterList::mouseDown(const MouseEvent& e) 
+void ProcessorList::mouseDown(const MouseEvent& e) 
 {
 
 	isDragging = false;
@@ -335,7 +335,7 @@ void FilterList::mouseDown(const MouseEvent& e)
 
 	//std::cout << xcoord << " " << ycoord << std::endl;
 
-	FilterListItem* fli = getListItemForYPos(ycoord);
+	ProcessorListItem* fli = getListItemForYPos(ycoord);
 
 	if (fli != 0) 
 	{
@@ -375,13 +375,13 @@ void FilterList::mouseDown(const MouseEvent& e)
 	repaint();
 }
 
-void FilterList::mouseDrag(const MouseEvent& e) 
+void ProcessorList::mouseDrag(const MouseEvent& e) 
 {
 
 	if (e.getMouseDownX() < getWidth()-getScrollBarWidth() && !(isDragging))
 	{
 
-		FilterListItem* fli = getListItemForYPos(e.getMouseDownY());
+		ProcessorListItem* fli = getListItemForYPos(e.getMouseDownY());
 
 		if (fli != 0)
 		{
@@ -430,19 +430,19 @@ void FilterList::mouseDrag(const MouseEvent& e)
 	mouseDragInCanvas(e);
 }
 
-void FilterList::mouseMove(const MouseEvent& e) {mouseMoveInCanvas(e);}
-void FilterList::mouseUp(const MouseEvent& e) 	{mouseUpInCanvas(e);}
-void FilterList::mouseWheelMove(const MouseEvent& e, float a, float b) {mouseWheelMoveInCanvas(e,a,b);}
+void ProcessorList::mouseMove(const MouseEvent& e) {mouseMoveInCanvas(e);}
+void ProcessorList::mouseUp(const MouseEvent& e) 	{mouseUpInCanvas(e);}
+void ProcessorList::mouseWheelMove(const MouseEvent& e, float a, float b) {mouseWheelMoveInCanvas(e,a,b);}
 
 
-FilterListItem::FilterListItem(const String& name_) : name(name_), open(true), selected(false)
+ProcessorListItem::ProcessorListItem(const String& name_) : name(name_), open(true), selected(false)
 {
 }
 
-FilterListItem::~FilterListItem()
+ProcessorListItem::~ProcessorListItem()
 { }
 
-bool FilterListItem::hasSubItems()
+bool ProcessorListItem::hasSubItems()
 {
 	if (subItems.size() > 0)
 	{
@@ -452,53 +452,53 @@ bool FilterListItem::hasSubItems()
 	}
 }
 
-int FilterListItem::getNumSubItems()
+int ProcessorListItem::getNumSubItems()
 {
 	return subItems.size();
 }
 
-FilterListItem* FilterListItem::getSubItem (int index)
+ProcessorListItem* ProcessorListItem::getSubItem (int index)
 {
 	return subItems[index];
 }
 
-void FilterListItem::clearSubItems()
+void ProcessorListItem::clearSubItems()
 {
 	subItems.clear();
 }
 
-void FilterListItem::addSubItem (FilterListItem* newItem)
+void ProcessorListItem::addSubItem (ProcessorListItem* newItem)
 {
 	subItems.add(newItem);
 }
 
-void FilterListItem::removeSubItem (int index)
+void ProcessorListItem::removeSubItem (int index)
 {
 	subItems.remove(index);
 }
 
-bool FilterListItem::isOpen()
+bool ProcessorListItem::isOpen()
 {
 	return open;
 }
 
-void FilterListItem::setOpen(bool t)
+void ProcessorListItem::setOpen(bool t)
 {
 	open = t;
 }
 
-const String& FilterListItem::getName()
+const String& ProcessorListItem::getName()
 {
 	return name;
 }
 
 
-const String& FilterListItem::getParentName()
+const String& ProcessorListItem::getParentName()
 {
 	return parentName;
 }
 
-void FilterListItem::setParentName(const String& name)
+void ProcessorListItem::setParentName(const String& name)
 {
 	parentName = name;
 
