@@ -72,13 +72,13 @@
 		CF0149E6ECBA264A264C7BB3 = { isa = PBXBuildFile; fileRef = 7EAD8082130C2384BA9E1206; };
 		63E5D65E7B097CADB277DBB6 = { isa = PBXBuildFile; fileRef = CECE2AB5D5F36CADBC3219A2; };
 		B2BE56A1260E9C87DECD2E4F = { isa = PBXBuildFile; fileRef = C4DA9685E5637B03F00E5E79; };
+		ECBA3D0CB756E83C4DA9685E = { isa = PBXBuildFile; fileRef = B28CC9409188C9A200AAAFFC; };
+		76C43D748C6F38BCE6226E12 = { isa = PBXBuildFile; fileRef = 140D590727D848E066F87A06; };
 		13457B3248E7646270A4FF88 = { isa = PBXBuildFile; fileRef = A32D8455B95FD230EBFD7891; };
 		D060C0893EDAE6CBC86A5FE2 = { isa = PBXBuildFile; fileRef = AA00883DC021E36B7EFDAC43; };
 		E36C0018635A85E09D4EDE01 = { isa = PBXBuildFile; fileRef = B977C2809B309C8038CB5D95; };
 		4BE24CDF92926150BFC83ED2 = { isa = PBXBuildFile; fileRef = 2F53BB2693AA5F1C2F27AF7C; };
 		C170A763D33146C74ED4CE4B = { isa = PBXBuildFile; fileRef = EEDA71600D817BF9444FE3E7; };
-		6DEEDA0CCF1ABF084CB3198E = { isa = PBXBuildFile; fileRef = 3DA7082940EC1A9CF9108BE2; };
-		D0926C7E9A4022D711664C14 = { isa = PBXBuildFile; fileRef = 517700AAAAD0910406655B81; };
 		116BB2F62451986C75586F9D = { isa = PBXBuildFile; fileRef = 5AB4A3A63B9FDEAB09EEC9C8; };
 		1F301384375DA0F3652C01DA = { isa = PBXBuildFile; fileRef = 2A78F719BAFBDCD63AE9A88A; };
 		4DA172021AB3AB88E70FAF99 = { isa = PBXBuildFile; fileRef = 77F2E2E7A2419CB172C0B1EA; };
@@ -240,6 +240,10 @@
 		C4197FDA1B4D4F1D58F6A5A0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GenericProcessor.h; path = ../../Source/Processors/GenericProcessor.h; sourceTree = SOURCE_ROOT; };
 		C4DA9685E5637B03F00E5E79 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ProcessorGraph.cpp; path = ../../Source/Processors/ProcessorGraph.cpp; sourceTree = SOURCE_ROOT; };
 		3B60787E97C74E78853DC90F = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ProcessorGraph.h; path = ../../Source/Processors/ProcessorGraph.h; sourceTree = SOURCE_ROOT; };
+		B28CC9409188C9A200AAAFFC = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ProcessorList.cpp; path = ../../Source/UI/ProcessorList.cpp; sourceTree = SOURCE_ROOT; };
+		242E7E62B8641B1224E25442 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ProcessorList.h; path = ../../Source/UI/ProcessorList.h; sourceTree = SOURCE_ROOT; };
+		140D590727D848E066F87A06 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ProcessorViewport.cpp; path = ../../Source/UI/ProcessorViewport.cpp; sourceTree = SOURCE_ROOT; };
+		9AD28CD49C0F9141F179BC11 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ProcessorViewport.h; path = ../../Source/UI/ProcessorViewport.h; sourceTree = SOURCE_ROOT; };
 		A32D8455B95FD230EBFD7891 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CustomLookAndFeel.cpp; path = ../../Source/UI/CustomLookAndFeel.cpp; sourceTree = SOURCE_ROOT; };
 		F70641473A3E7C0DC5168858 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CustomLookAndFeel.h; path = ../../Source/UI/CustomLookAndFeel.h; sourceTree = SOURCE_ROOT; };
 		AA00883DC021E36B7EFDAC43 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = InfoLabel.cpp; path = ../../Source/UI/InfoLabel.cpp; sourceTree = SOURCE_ROOT; };
@@ -250,10 +254,6 @@
 		DE21954E89A302C554C403B3 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Configuration.h; path = ../../Source/UI/Configuration.h; sourceTree = SOURCE_ROOT; };
 		EEDA71600D817BF9444FE3E7 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MessageCenter.cpp; path = ../../Source/UI/MessageCenter.cpp; sourceTree = SOURCE_ROOT; };
 		4EE6CA70F229EDE04E7E320B = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MessageCenter.h; path = ../../Source/UI/MessageCenter.h; sourceTree = SOURCE_ROOT; };
-		3DA7082940EC1A9CF9108BE2 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FilterViewport.cpp; path = ../../Source/UI/FilterViewport.cpp; sourceTree = SOURCE_ROOT; };
-		5BF36FC0A2ABC0659A233151 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FilterViewport.h; path = ../../Source/UI/FilterViewport.h; sourceTree = SOURCE_ROOT; };
-		517700AAAAD0910406655B81 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FilterList.cpp; path = ../../Source/UI/FilterList.cpp; sourceTree = SOURCE_ROOT; };
-		D0CC93EC04333C5524A15A64 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FilterList.h; path = ../../Source/UI/FilterList.h; sourceTree = SOURCE_ROOT; };
 		5AB4A3A63B9FDEAB09EEC9C8 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ControlPanel.cpp; path = ../../Source/UI/ControlPanel.cpp; sourceTree = SOURCE_ROOT; };
 		3B70B21129D91B16A2F1CE80 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ControlPanel.h; path = ../../Source/UI/ControlPanel.h; sourceTree = SOURCE_ROOT; };
 		2A78F719BAFBDCD63AE9A88A = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = UIComponent.cpp; path = ../../Source/UI/UIComponent.cpp; sourceTree = SOURCE_ROOT; };
@@ -428,6 +428,10 @@
 				C4DA9685E5637B03F00E5E79,
 				3B60787E97C74E78853DC90F ); name = Processors; sourceTree = "<group>"; };
 		DA0DBF6B29B99364A145484A = { isa = PBXGroup; children = (
+				B28CC9409188C9A200AAAFFC,
+				242E7E62B8641B1224E25442,
+				140D590727D848E066F87A06,
+				9AD28CD49C0F9141F179BC11,
 				A32D8455B95FD230EBFD7891,
 				F70641473A3E7C0DC5168858,
 				AA00883DC021E36B7EFDAC43,
@@ -438,10 +442,6 @@
 				DE21954E89A302C554C403B3,
 				EEDA71600D817BF9444FE3E7,
 				4EE6CA70F229EDE04E7E320B,
-				3DA7082940EC1A9CF9108BE2,
-				5BF36FC0A2ABC0659A233151,
-				517700AAAAD0910406655B81,
-				D0CC93EC04333C5524A15A64,
 				5AB4A3A63B9FDEAB09EEC9C8,
 				3B70B21129D91B16A2F1CE80,
 				2A78F719BAFBDCD63AE9A88A,
@@ -614,13 +614,13 @@
 				CF0149E6ECBA264A264C7BB3,
 				63E5D65E7B097CADB277DBB6,
 				B2BE56A1260E9C87DECD2E4F,
+				ECBA3D0CB756E83C4DA9685E,
+				76C43D748C6F38BCE6226E12,
 				13457B3248E7646270A4FF88,
 				D060C0893EDAE6CBC86A5FE2,
 				E36C0018635A85E09D4EDE01,
 				4BE24CDF92926150BFC83ED2,
 				C170A763D33146C74ED4CE4B,
-				6DEEDA0CCF1ABF084CB3198E,
-				D0926C7E9A4022D711664C14,
 				116BB2F62451986C75586F9D,
 				1F301384375DA0F3652C01DA,
 				4DA172021AB3AB88E70FAF99,

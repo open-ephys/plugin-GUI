@@ -98,13 +98,13 @@ OBJECTS := \
   $(OBJDIR)/SourceNode_c2d6336c.o \
   $(OBJDIR)/GenericProcessor_733760aa.o \
   $(OBJDIR)/ProcessorGraph_68b34a0b.o \
+  $(OBJDIR)/ProcessorList_1ad3f3de.o \
+  $(OBJDIR)/ProcessorViewport_da253a66.o \
   $(OBJDIR)/CustomLookAndFeel_53a8fcdb.o \
   $(OBJDIR)/InfoLabel_a2051bf4.o \
   $(OBJDIR)/DataViewport_2cf95d2c.o \
   $(OBJDIR)/Configuration_6915cd84.o \
   $(OBJDIR)/MessageCenter_748a1cca.o \
-  $(OBJDIR)/FilterViewport_47880e3a.o \
-  $(OBJDIR)/FilterList_10c1d1b2.o \
   $(OBJDIR)/ControlPanel_a895ede3.o \
   $(OBJDIR)/UIComponent_d667ba37.o \
   $(OBJDIR)/MainWindow_499ac812.o \
@@ -405,6 +405,16 @@ $(OBJDIR)/ProcessorGraph_68b34a0b.o: ../../Source/Processors/ProcessorGraph.cpp
 	@echo "Compiling ProcessorGraph.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/ProcessorList_1ad3f3de.o: ../../Source/UI/ProcessorList.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ProcessorList.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ProcessorViewport_da253a66.o: ../../Source/UI/ProcessorViewport.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ProcessorViewport.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/CustomLookAndFeel_53a8fcdb.o: ../../Source/UI/CustomLookAndFeel.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling CustomLookAndFeel.cpp"
@@ -428,16 +438,6 @@ $(OBJDIR)/Configuration_6915cd84.o: ../../Source/UI/Configuration.cpp
 $(OBJDIR)/MessageCenter_748a1cca.o: ../../Source/UI/MessageCenter.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling MessageCenter.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/FilterViewport_47880e3a.o: ../../Source/UI/FilterViewport.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FilterViewport.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/FilterList_10c1d1b2.o: ../../Source/UI/FilterList.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FilterList.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ControlPanel_a895ede3.o: ../../Source/UI/ControlPanel.cpp

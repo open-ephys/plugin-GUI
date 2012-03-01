@@ -250,6 +250,14 @@
               file="Source/Processors/ProcessorGraph.h"/>
       </GROUP>
       <GROUP id="RNGb1yR" name="UI">
+        <FILE id="Rn2yUfU" name="ProcessorList.cpp" compile="1" resource="0"
+              file="Source/UI/ProcessorList.cpp"/>
+        <FILE id="lOTMfMY" name="ProcessorList.h" compile="0" resource="0"
+              file="Source/UI/ProcessorList.h"/>
+        <FILE id="1RQSQOw" name="ProcessorViewport.cpp" compile="1" resource="0"
+              file="Source/UI/ProcessorViewport.cpp"/>
+        <FILE id="YfPXoWv" name="ProcessorViewport.h" compile="0" resource="0"
+              file="Source/UI/ProcessorViewport.h"/>
         <FILE id="sxXKhY" name="CustomLookAndFeel.cpp" compile="1" resource="0"
               file="Source/UI/CustomLookAndFeel.cpp"/>
         <FILE id="VLEIXYc" name="CustomLookAndFeel.h" compile="0" resource="0"
@@ -267,12 +275,6 @@
               file="Source/UI/MessageCenter.cpp"/>
         <FILE id="Gwnvgdy" name="MessageCenter.h" compile="0" resource="0"
               file="Source/UI/MessageCenter.h"/>
-        <FILE id="aX0rCd0" name="FilterViewport.cpp" compile="1" resource="0"
-              file="Source/UI/FilterViewport.cpp"/>
-        <FILE id="4X2rynr" name="FilterViewport.h" compile="0" resource="0"
-              file="Source/UI/FilterViewport.h"/>
-        <FILE id="JvNLLKA" name="FilterList.cpp" compile="1" resource="0" file="Source/UI/FilterList.cpp"/>
-        <FILE id="EZrmpZO" name="FilterList.h" compile="0" resource="0" file="Source/UI/FilterList.h"/>
         <FILE id="we1JIPz" name="ControlPanel.cpp" compile="1" resource="0"
               file="Source/UI/ControlPanel.cpp"/>
         <FILE id="rCft9Ec" name="ControlPanel.h" compile="0" resource="0" file="Source/UI/ControlPanel.h"/>
