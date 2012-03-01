@@ -38,8 +38,6 @@ void DataThread::run() {
 	while (! threadShouldExit())
 	{
 
-	 //	const ScopedLock sl (lock);
-
 		if (!updateBuffer()) {
 
 			const MessageManagerLock mmLock (Thread::getCurrentThread());
