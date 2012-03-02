@@ -144,42 +144,47 @@ int GenericProcessor::getNumSamples(MidiBuffer& midiMessages) {
 
 void GenericProcessor::setSourceNode(GenericProcessor* sn)
 {
-	std::cout << "My name is " << getName() << ". Setting source node." << std::endl;
+	//std::cout << "My name is " << getName() << ". Setting source node." << std::endl;
 
 	if (!isSource())
 	{
-		std::cout << " I am not a source." << std::endl;
+	//	std::cout << " I am not a source." << std::endl;
 
 		if (sn != 0)
 		{
 
-			std::cout << " The source is not blank." << std::endl;
+		//	std::cout << " The source is not blank." << std::endl;
 
 			if (!sn->isSink())
 			{
-				std::cout << " The source is not a sink." << std::endl;
+		//		std::cout << " The source is not a sink." << std::endl;
 
 				if (sourceNode != sn) {
 
-					std::cout << " The source is new and named " << sn->getName() << std::endl;
-					sourceNode = sn;
+		//			std::cout << " The source is new and named " << sn->getName() << std::endl;
+					
+					//if (this->isMerger())
+				//		setMergerSourceNode(sn);
+				//	else
+						sourceNode = sn;
+
 					sn->setDestNode(this);
 					//setNumInputs(sn->getNumOutputs());
 					//setSampleRate(sn->getSampleRate());
 				} else {
-					std::cout << "  The source node is not new." << std::endl;
+		//			std::cout << "  The source node is not new." << std::endl;
 				}
 			} else {
-				std::cout << " The source is a sink." << std::endl;
+		//		std::cout << " The source is a sink." << std::endl;
 				sourceNode = 0;
 			}
 
 		} else {
-			std::cout << " The source is blank." << std::endl;
+	//		std::cout << " The source is blank." << std::endl;
 			sourceNode = 0;
 		}
 	} else {
-		std::cout << " I am a source. I can't have a source node." << std::endl;
+	//	std::cout << " I am a source. I can't have a source node." << std::endl;
 
 		if (sn != 0)
 			sn->setDestNode(this);
@@ -191,46 +196,50 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 {
 
 
-	std::cout << "My name is " << getName() << ". Setting dest node." << std::endl;
+//	std::cout << "My name is " << getName() << ". Setting dest node." << std::endl;
 
 	if (!isSink())
 	{
-		std::cout << "  I am not a sink." << std::endl;
+	//	std::cout << "  I am not a sink." << std::endl;
 
 		if (dn != 0)
 		{
-			std::cout << "  The dest node is not blank." << std::endl;
+	//		std::cout << "  The dest node is not blank." << std::endl;
 
 			if (!dn->isSource())
 			{
 
-				std::cout << "  The dest node is not a source." << std::endl;
+		//		std::cout << "  The dest node is not a source." << std::endl;
 
 				if (destNode != dn) 
 				{
-					std::cout << "  The dest node is new and named " << dn->getName() << std::endl;
+			//		std::cout << "  The dest node is new and named " << dn->getName() << std::endl;
+//
+				//	if (this->isSplitter())
+				//		setSplitterDestNode(dn);
+				//	else
+						destNode = dn;
 
-					destNode = dn;
 					dn->setSourceNode(this);
 					//dn->setNumInputs(getNumOutputs());
 					//dn->setSampleRate(getSampleRate());
 				} else {
-					std::cout << "  The dest node is not new." << std::endl;
+			//		std::cout << "  The dest node is not new." << std::endl;
 				}
 			} else {
 
-				std::cout << "  The dest node is a source." << std::endl;
+			//	std::cout << "  The dest node is a source." << std::endl;
 
 				destNode = 0;
 			}
 		} else {
-			std::cout << "  The dest node is blank." << std::endl;
+		//	std::cout << "  The dest node is blank." << std::endl;
 
 			destNode = 0;
 		}
 	} else {
 
-		std::cout << "  I am a sink, I can't have a dest node." << std::endl;
+		//std::cout << "  I am a sink, I can't have a dest node." << std::endl;
 		//if (dn != 0)
 		//	dn->setSourceNode(this);
 	}

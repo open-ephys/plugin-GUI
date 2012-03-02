@@ -137,6 +137,8 @@
         <FILE id="VynGpEg" name="LfpDisplayNode.h" compile="0" resource="0"
               file="Source/Processors/LfpDisplayNode.h"/>
         <GROUP id="Enz7QFy" name="Utilities">
+          <FILE id="qt6uLka" name="Merger.cpp" compile="1" resource="0" file="Source/Processors/Utilities/Merger.cpp"/>
+          <FILE id="XNRlWg8" name="Merger.h" compile="0" resource="0" file="Source/Processors/Utilities/Merger.h"/>
           <FILE id="YMFH4P2" name="Splitter.cpp" compile="1" resource="0" file="Source/Processors/Utilities/Splitter.cpp"/>
           <FILE id="DXYynnz" name="Splitter.h" compile="0" resource="0" file="Source/Processors/Utilities/Splitter.h"/>
         </GROUP>
@@ -162,6 +164,9 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="bsIZbuu" name="MergerEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/MergerEditor.cpp"/>
+          <FILE id="vfmEY5L" name="MergerEditor.h" compile="0" resource="0" file="Source/Processors/Editors/MergerEditor.h"/>
           <FILE id="i2MR4pC" name="ImageIcon.cpp" compile="1" resource="0" file="Source/Processors/Editors/ImageIcon.cpp"/>
           <FILE id="N8r8D18" name="ImageIcon.h" compile="0" resource="0" file="Source/Processors/Editors/ImageIcon.h"/>
           <FILE id="mLd64ww" name="WiFiOutputEditor.cpp" compile="1" resource="0"

@@ -28,8 +28,6 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
-class FilterViewport;
-
 // class PipelineSelectorButton : public DrawableButton
 // {
 // 	public:

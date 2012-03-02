@@ -48,20 +48,23 @@ public:
 	Splitter();
 	~Splitter();
 
-	AudioProcessorEditor* createEditor();
+	//AudioProcessorEditor* createEditor();
 
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples) {}
+   // void setParameter (int parameterIndex, float newValue) {}
 
 	bool isSplitter() {return true;}
 
 	void switchDest(int);
-	void setDestNode(GenericProcessor* dn);
+	void setSplitterDestNode(GenericProcessor* dn);
 
 private:
 
 	GenericProcessor* destNodeA;
 	GenericProcessor* destNodeB;
 	int activePath;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Splitter);
 	
 };
 

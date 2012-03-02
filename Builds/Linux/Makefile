@@ -65,6 +65,7 @@ OBJECTS := \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
   $(OBJDIR)/WiFiOutput_fa464ec5.o \
   $(OBJDIR)/LfpDisplayNode_30ef22fd.o \
+  $(OBJDIR)/Merger_2f90542e.o \
   $(OBJDIR)/Splitter_6e27a57b.o \
   $(OBJDIR)/DataWindow_83ce6754.o \
   $(OBJDIR)/LfpDisplayCanvas_4a58e87e.o \
@@ -73,6 +74,7 @@ OBJECTS := \
   $(OBJDIR)/FileReader_18023b0e.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/MergerEditor_d1fcc0df.o \
   $(OBJDIR)/ImageIcon_c89b23a6.o \
   $(OBJDIR)/WiFiOutputEditor_1d3ba5bb.o \
   $(OBJDIR)/EventNodeEditor_2198733b.o \
@@ -242,6 +244,11 @@ $(OBJDIR)/LfpDisplayNode_30ef22fd.o: ../../Source/Processors/LfpDisplayNode.cpp
 	@echo "Compiling LfpDisplayNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/Merger_2f90542e.o: ../../Source/Processors/Utilities/Merger.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Merger.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/Splitter_6e27a57b.o: ../../Source/Processors/Utilities/Splitter.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Splitter.cpp"
@@ -280,6 +287,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MergerEditor_d1fcc0df.o: ../../Source/Processors/Editors/MergerEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MergerEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ImageIcon_c89b23a6.o: ../../Source/Processors/Editors/ImageIcon.cpp

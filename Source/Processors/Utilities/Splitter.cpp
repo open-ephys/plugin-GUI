@@ -27,25 +27,29 @@
 Splitter::Splitter()
 	: GenericProcessor("Splitter"), 
 		destNodeA(0), destNodeB(0), activePath(0)
-	{
-		
-	}
+{
+
+	setNumOutputs(0);
+	setNumInputs(0);
+
+	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
+}
 
 Splitter::~Splitter()
 {
 	
 }
 
-AudioProcessorEditor* Splitter::createEditor()
-{
-	SplitterEditor* editor = new SplitterEditor(this);
-	setEditor(editor);
+// AudioProcessorEditor* Splitter::createEditor()
+// {
+// 	SplitterEditor* editor = new SplitterEditor(this);
+// 	setEditor(editor);
 	
-	std::cout << "Creating editor." << std::endl;
-	return editor;
-}
+// 	std::cout << "Creating editor." << std::endl;
+// 	return editor;
+// }
 
-void Splitter::setDestNode(GenericProcessor* dn)
+void Splitter::setSplitterDestNode(GenericProcessor* dn)
 {
 
 	destNode = dn;

@@ -53,15 +53,15 @@ ProcessorList::ProcessorList() : isDragging(false),
 	//sinks->addSubItem(new ProcessorListItem("Spike Display"));
 	sinks->addSubItem(new ProcessorListItem("WiFi Output"));
 
-	//ProcessorListItem* utilities = new ProcessorListItem("Utilities");
-	//utilities->addSubItem(new ProcessorListItem("Splitter"));
-	//utilities->addSubItem(new ProcessorListItem("Merger"));
+	ProcessorListItem* utilities = new ProcessorListItem("Utilities");
+	utilities->addSubItem(new ProcessorListItem("Splitter"));
+	utilities->addSubItem(new ProcessorListItem("Merger"));
 
 	baseItem = new ProcessorListItem("Processors");
 	baseItem->addSubItem(sources);
 	baseItem->addSubItem(filters);
 	baseItem->addSubItem(sinks);
-	//baseItem->addSubItem(utilities);
+	baseItem->addSubItem(utilities);
 
 	// set parent names / colors
 	baseItem->setParentName("Processors");

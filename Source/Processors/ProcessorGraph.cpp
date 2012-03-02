@@ -38,6 +38,7 @@
 #include "SpikeDetector.h"
 #include "WiFiOutput.h"
 #include "Utilities/Splitter.h"
+#include "Utilities/Merger.h"
 #include "../UI/UIComponent.h"
 #include "../UI/Configuration.h"
 #include "../UI/EditorViewport.h"
@@ -322,6 +323,13 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			processor = new Splitter();
 
 			sendActionMessage("New splitter created.");
+
+	 	} else if (subProcessorType.equalsIgnoreCase("Merger")) {
+	 		
+	 		std::cout << "Creating a new merger." << std::endl;
+			processor = new Merger();
+
+			sendActionMessage("New merger created.");
 
 	 	}
 

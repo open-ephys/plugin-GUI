@@ -73,7 +73,7 @@ SplitterEditor::SplitterEditor (GenericProcessor* parentNode)
 	pipelineSelectorA->addListener(this);
 	pipelineSelectorA->setBounds(-10,15,95,50);
 	pipelineSelectorA->setToggleState(true,false);
-	addAndMakeVisible(pipelineSelectorA);
+	//addAndMakeVisible(pipelineSelectorA);
 
 	pipelineSelectorB = new ImageButton("Pipeline B");
 
@@ -85,7 +85,7 @@ SplitterEditor::SplitterEditor (GenericProcessor* parentNode)
 	pipelineSelectorB->addListener(this);
 	pipelineSelectorB->setBounds(-10,65,95,50);
 	pipelineSelectorB->setToggleState(false,false);
-	addAndMakeVisible(pipelineSelectorB);
+	//addAndMakeVisible(pipelineSelectorB);
 
 }
 

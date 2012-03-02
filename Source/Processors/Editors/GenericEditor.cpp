@@ -52,7 +52,7 @@ GenericEditor::GenericEditor (GenericProcessor* owner)//, FilterViewport* vp)
 	else if (owner->isSink())
 		backgroundColor = Colour(255, 149, 0);//Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
 	else if (owner->isSplitter() || owner->isMerger())
-		backgroundColor = Colour(80, 80, 80);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
+		backgroundColor = Colour(40, 40, 40);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
 	else
 		backgroundColor = Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
 

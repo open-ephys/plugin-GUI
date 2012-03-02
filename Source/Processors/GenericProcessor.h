@@ -68,7 +68,7 @@ public:
 	virtual void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
 	void releaseResources();
 	
-	void setParameter (int parameterIndex, float newValue);
+	virtual void setParameter (int parameterIndex, float newValue);
 
 	virtual AudioProcessorEditor* createEditor();
 	bool hasEditor() const {return true;}
@@ -155,6 +155,8 @@ public:
 
 	virtual void setSourceNode(GenericProcessor* sn);
 	virtual void setDestNode(GenericProcessor* dn);
+	virtual void setMergerSourceNode(GenericProcessor* sn) { }
+	virtual void setSplitterDestNode(GenericProcessor* dn) { }
 
 	virtual bool isSource() {return false;}
 	virtual bool isSink() {return false;}
