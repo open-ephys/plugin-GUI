@@ -250,6 +250,10 @@
               file="Source/Processors/ProcessorGraph.h"/>
       </GROUP>
       <GROUP id="RNGb1yR" name="UI">
+        <FILE id="lPimHJv" name="SignalChainManager.cpp" compile="1" resource="0"
+              file="Source/UI/SignalChainManager.cpp"/>
+        <FILE id="0PVPDKZ" name="SignalChainManager.h" compile="0" resource="0"
+              file="Source/UI/SignalChainManager.h"/>
         <FILE id="WgUx2Vj" name="EditorViewport.cpp" compile="1" resource="0"
               file="Source/UI/EditorViewport.cpp"/>
         <FILE id="8npqLFq" name="EditorViewport.h" compile="0" resource="0"

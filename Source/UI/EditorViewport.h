@@ -42,6 +42,7 @@
 
 class GenericEditor;
 class SignalChainTabButton;
+class SignalChainManager;
 
 class EditorViewport  : public Component,
                         public DragAndDropTarget,
@@ -57,8 +58,12 @@ public:
 
     // Creating and deleting editors:
     void deleteNode(GenericEditor* editor);
-    void updateVisibleEditors(GenericEditor* activeEditor, int action);
+   // void updateVisibleEditors(GenericEditor* activeEditor, int action);
     void selectEditor(GenericEditor* e);
+
+    void makeEditorVisible(GenericEditor* e);
+    void refreshEditors();
+
    // void setActiveEditor(GenericEditor* e) {activeEditor = e; updateVisibleEditors();}
 
     void signalChainCanBeEdited(bool t);
@@ -102,14 +107,14 @@ private:
 
     Array<GenericEditor*, CriticalSection> editorArray;
     Array<SignalChainTabButton*, CriticalSection> signalChainArray;
- //   GenericEditor* activeEditor;
 
+    SignalChainManager* signalChainManager;
 
     Font font;
     Image sourceDropImage;
    // int activeTab;
 
-    void refreshEditors();
+    
     void createNewTab(GenericEditor* editor);
     void removeTab(int tabIndex);
     //void drawTabs();
@@ -121,6 +126,8 @@ private:
     int indexOfMovingComponent;
 
     int currentTab;
+
+    enum actions {ADD, MOVE, REMOVE, ACTIVATE};
 
     //bool signalChainNeedsSource;
 
@@ -135,6 +142,7 @@ public:
     ~SignalChainTabButton() {}
 
     void setEditor(GenericEditor* p) {firstEditor = p;}
+    void setManager(SignalChainManager* scm_) {scm = scm_;}
     GenericEditor* getEditor() {return firstEditor;}
 
     void setNumber(int n) {num = n;}
@@ -147,9 +155,13 @@ private:
 
     GenericEditor* firstEditor;
 
+    SignalChainManager* scm;
+
     void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
 
     void clicked();
+
+    enum actions {ADD, MOVE, REMOVE, ACTIVATE};
     
     int num;
     bool configurationChanged;

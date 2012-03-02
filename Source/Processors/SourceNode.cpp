@@ -156,7 +156,7 @@ void SourceNode::timerCallback()
 			enabledState(true);
 			GenericEditor* ed = (GenericEditor*) getEditor();
 			//ed->enable();
-			getEditorViewport()->updateVisibleEditors(ed, 4);
+			getEditorViewport()->makeEditorVisible(ed);
 		}
 	} else {
 		if (isEnabled) {
@@ -164,7 +164,7 @@ void SourceNode::timerCallback()
 			enabledState(false);
 			GenericEditor* ed = (GenericEditor*) getEditor();
 			//ed->disable();
-			getEditorViewport()->updateVisibleEditors(ed, 4);
+			getEditorViewport()->makeEditorVisible(ed);
 		}
 	}
 }
@@ -244,7 +244,7 @@ void SourceNode::acquisitionStopped()
 			getUIComponent()->disableCallbacks();
 			enabledState(false);
 			GenericEditor* ed = (GenericEditor*) getEditor();
-			getEditorViewport()->updateVisibleEditors(ed, 4);
+			getEditorViewport()->makeEditorVisible(ed);
 		}
 	//}
 }

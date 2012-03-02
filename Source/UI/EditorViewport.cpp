@@ -23,6 +23,8 @@
 
 #include "EditorViewport.h"
 
+#include "SignalChainManager.h"
+
 EditorViewport::EditorViewport()
     : message ("Drag-and-drop some rows from the top-left box onto this component!"),
       somethingIsBeingDraggedOver (false), shiftDown(false),
@@ -42,19 +44,22 @@ EditorViewport::EditorViewport()
 
     sourceDropImage = sourceDropImage.rescaled(25, 135,
                         Graphics::highResamplingQuality);
-  //File file = File("./savedState.xml");
-  //loadState(file);
+
+    signalChainManager = new SignalChainManager(this, editorArray,
+                                                signalChainArray);
 
 }
 
 EditorViewport::~EditorViewport()
 {
+    deleteAndZero(signalChainManager);
     deleteAllChildren();
 }
 
 void EditorViewport::signalChainCanBeEdited(bool t)
 {
     canEdit = t;
+
     if (!canEdit)
         std::cout << "Filter Viewport disabled." << std::endl;
     else
@@ -81,13 +86,6 @@ void EditorViewport::paint (Graphics& g)
         g.drawEllipse(6,(tabSize-2)*n+8,tabSize-10,tabSize-10,1.0);
     }
 
-    //g.fillRoundedRectangle (tabSize, 0, getWidth(), getHeight(), 8);
-
-    //g.setColour (Colour(170,178,183));
-    //g.fillRect (tabSize+borderSize,borderSize,
-    //            getWidth()-borderSize*2-tabSize,
-     //           getHeight()-borderSize*2);
-
     if (somethingIsBeingDraggedOver)
     {
         float insertionX = (float) (borderSize) * 2.5 + (float) tabSize;
@@ -108,31 +106,16 @@ void EditorViewport::paint (Graphics& g)
 
     }
 
-    //if (signalChainNeedsSource)
-   // {
-    // draw the signal chain reminders
-  //  if (!(somethingIsBeingDraggedOver && insertionPoint == 0))
-        int insertionX = tabSize + borderSize;
-        g.setColour(Colours::darkgrey);
-        //g.drawLine(insertionX, (float) borderSize,
-        //           insertionX, (float) getHeight()-(float) borderSize, 3.0f);
-        
-        int x = insertionX + 19;
-        int y = borderSize + 2;
-        int w = 30;
-        int h = getHeight() - 2*(borderSize+2);
-      //  g.drawRect(x, y, w, h, 1);
-        g.drawImageAt(sourceDropImage, x, y);
+    int insertionX = tabSize + borderSize;
+    g.setColour(Colours::darkgrey);
 
-        // GlyphArrangement textLayout;
-        // textLayout.addFittedText(font, "SOURCE NEEDED", 0, 15, //(float) x, (float) y,
-        //                           100.0f, (float) 50.0f,
-        //                           Justification::centred,
-        //                           1);
-        // AffineTransform transform = transform.rotated (float_Pi *0); //* -0.5f);
-        //                      //.translated ((float) x, (float) (y));
+    int x = insertionX + 19;
+    int y = borderSize + 2;
+    int w = 30;
+    int h = getHeight() - 2*(borderSize+2);
 
-        // textLayout.draw (g, transform);
+    g.drawImageAt(sourceDropImage, x, y);
+
 }
 
 bool EditorViewport::isInterestedInDragSource (const String& description, Component* component)
@@ -171,7 +154,6 @@ void EditorViewport::itemDragMove (const String& /*sourceDescription*/, Componen
             
             if (x < centerPoint && x > lastCenterPoint) {
                 insertionPoint = n;
-                //std::cout << insertionPoint << std::endl;
                 foundInsertionPoint = true;
             }
 
@@ -219,18 +201,26 @@ void EditorViewport::itemDropped (const String& sourceDescription, Component* /*
             addChildComponent(activeEditor);
             activeEditor->setUIComponent(getUIComponent());
 
-            updateVisibleEditors(activeEditor, 1);
+            signalChainManager->updateVisibleEditors(activeEditor, indexOfMovingComponent, insertionPoint, ADD);
 
-        } else {
-            insertionPoint = -1; // make sure all editors are left-justified
-            indexOfMovingComponent = -1;
-            refreshEditors();
-        }
+        } 
+        
+        insertionPoint = -1; // make sure all editors are left-justified
+        indexOfMovingComponent = -1;
+        refreshEditors();
 
         somethingIsBeingDraggedOver = false;
 
         repaint();
     }
+}
+
+void EditorViewport::makeEditorVisible(GenericEditor* editor)
+{
+    
+    signalChainManager->updateVisibleEditors(editor, 0, 0, ACTIVATE);
+
+    refreshEditors();
 }
 
 
@@ -241,8 +231,10 @@ void EditorViewport::deleteNode (GenericEditor* editor) {
         indexOfMovingComponent = editorArray.indexOf(editor);
         editor->setVisible(false);
    
-        updateVisibleEditors(editor, 3);
+        signalChainManager->updateVisibleEditors(editor, indexOfMovingComponent, insertionPoint, REMOVE);
     
+        refreshEditors();
+
         getProcessorGraph()->removeProcessor((GenericProcessor*) editor->getProcessor());
     }
 
@@ -257,328 +249,6 @@ void EditorViewport::deleteNode (GenericEditor* editor) {
 
 }
 
-void EditorViewport::createNewTab(GenericEditor* editor)
-{
-    
-    int index = signalChainArray.size();
-
-    SignalChainTabButton* t = new SignalChainTabButton();
-    t->setEditor(editor);
-    
-    t->setBounds(6,(tabSize-2)*(index)+8,tabSize-10,tabSize-10);
-    // t->setBounds(0,(tabButtonSize+5)*(index),
-    //              tabButtonSize,tabButtonSize);
-    addAndMakeVisible(t);
-    signalChainArray.add(t);
-
-    editor->tabNumber(signalChainArray.size()-1);
-    t->setToggleState(true,false);
-    t->setNumber(index);
-
-   // currentTab = signalChainArray.size()-1;
-
-}
-
-void EditorViewport::removeTab(int tabIndex)
-{
-    SignalChainTabButton* t = signalChainArray.remove(tabIndex);
-    deleteAndZero(t);
-
-    for (int n = 0; n < signalChainArray.size(); n++) 
-    {
-        signalChainArray[n]->setBounds(6,(tabSize-2)*n+8,tabSize-10,tabSize-10);
-        
-        int tNum = signalChainArray[n]->getEditor()->tabNumber();
-        
-        if (tNum > tabIndex) {
-            signalChainArray[n]->getEditor()->tabNumber(tNum-1);
-            signalChainArray[n]->setNumber(tNum-1);
-        }
-
-    }
-
-}
-
-void EditorViewport::updateVisibleEditors(GenericEditor* activeEditor, int action)
-
-{
-    // 1 = add
-    // 2 = move
-    // 3 = remove
-
-    // Step 1: update the editor array
-    if (action == 1) /// add
-    {
-        std::cout << "    Adding editor." << std::endl;
-        editorArray.insert(insertionPoint, activeEditor);
-        //activeEditor->select();
-    } else if (action == 2) {  /// move
-        std::cout << "    Moving editors." << std::endl;
-        if (insertionPoint < indexOfMovingComponent)
-           editorArray.move(indexOfMovingComponent, insertionPoint);
-        else if (insertionPoint > indexOfMovingComponent)
-           editorArray.move(indexOfMovingComponent, insertionPoint-1);
-
-        //activeEditor->select();
-    } else if (action == 3) {/// remove
-        std::cout << "    Removing editor." << std::endl;
-
-        editorArray.remove(indexOfMovingComponent);
-
-        int t = activeEditor->tabNumber();
-
-       // std::cout << editorArray.size() << " " << t << std::endl;
-
-        if (editorArray.size() > 0) // if there are still editors in this chain
-        {
-            if (t > -1) {// pass on tab
-          //      std::cout << "passing on the tab." << std::endl;
-                int nextEditor = jmax(0,0);//indexOfMovingComponent-1);
-                editorArray[nextEditor]->tabNumber(t); 
-                signalChainArray[t]->setEditor(editorArray[nextEditor]);
-            }
-
-            // int nextEditor;
-            // if (indexOfMovingComponent > editorArray.size())
-            //     nextEditor = indexOfMovingComponent -1;
-            // else if (indexOfMovingComponent == editorArray.size())
-            //     nextEditor = 
-
-            int nextEditor = jmin(indexOfMovingComponent,editorArray.size()-1);
-            activeEditor = editorArray[nextEditor];
-            activeEditor->select();
-            activeEditor->grabKeyboardFocus();
-            
-        } else {
-
-            removeTab(t);
-
-            if (signalChainArray.size() > 0) // if there are other chains
-            {
-                int nextTab = jmin(t,signalChainArray.size()-1);
-                activeEditor = signalChainArray[nextTab]->getEditor(); 
-                activeEditor->select();
-                signalChainArray[nextTab]->setToggleState(true,false); // send it back to update connections   
-            } else {
-                activeEditor = 0; // nothing is active
-              //  signalChainNeedsSource = true;
-            }
-        }
-
-    } else { //no change
-        ;
-    }
-
-    // Step 2: update connections
-    if (action < 4 && editorArray.size() > 0) {
-
-        GenericProcessor* source = 0;
-        GenericProcessor* dest = (GenericProcessor*) editorArray[0]->getProcessor();
-
-        dest->setSourceNode(source); // set first source as 0
-
-      //  std::cout << "        " << dest->getName() << "::";
-
-        for (int n = 1; n < editorArray.size(); n++)
-        {
-
-            dest = (GenericProcessor*) editorArray[n]->getProcessor();
-            source = (GenericProcessor*) editorArray[n-1]->getProcessor();
-
-            dest->setSourceNode(source);
-
-           //std::cout << dest->getName() << "::";
-        }
-
-        dest->setDestNode(0); // set last dest as 0
-
-      // std::cout << std::endl;
-    }//
-
-
-    // Step 3: check for new tabs
-   if (action < 4) {
-
-        std::cout << "Checking for new tabs." << std::endl;
-
-        for (int n = 0; n < editorArray.size(); n++)
-        {
-            GenericProcessor* p = (GenericProcessor*) editorArray[n]->getProcessor();
-
-      //      std::cout << editorArray[n]->tabNumber() << std::endl;
-
-            if (p->getSourceNode() == 0)// && editorArray[n]->tabNumber() == -1)
-            {
-               
-                if (editorArray[n]->tabNumber() == -1) 
-
-                {
-                     std::cout << p->getName() << " has no source node. Creating a new tab." << std::endl;
-                    createNewTab(editorArray[n]);
-                }
-
-            } else {
-                if (editorArray[n]->tabNumber() > -1) 
-                {
-                    removeTab(editorArray[n]->tabNumber());
-                }
-
-                editorArray[n]->tabNumber(-1); // reset tab status
-            }
-        }
-    }
-
-
-
-    
-    // Step 4: Refresh editors in editor array, based on active editor
-    for (int n = 0; n < editorArray.size(); n++)
-    {
-        editorArray[n]->setVisible(false);
-    }
-
-    editorArray.clear();
-    std::cout << "Cleared editor array." << std::endl;
-
-    GenericEditor* editorToAdd = activeEditor;
-
-    while (editorToAdd != 0) 
-    {
-        std::cout << "Inserting " << editorToAdd->getName() << " at point 0." << std::endl;
-
-        editorArray.insert(0,editorToAdd);
-        GenericProcessor* currentProcessor = (GenericProcessor*) editorToAdd->getProcessor();
-        GenericProcessor* source = currentProcessor->getSourceNode();
-
-        if (source != 0)
-        {
-            std::cout << "Source: " << source->getName() << std::endl;
-            editorToAdd = (GenericEditor*) source->getEditor();
-        } else {
-            std::cout << "No source found." << std::endl;
-            editorToAdd = 0;
-        }
-    }
-
-    editorToAdd = activeEditor;
-
-    while (editorToAdd != 0)
-    {
-
-        GenericProcessor* currentProcessor = (GenericProcessor*) editorToAdd->getProcessor();
-        GenericProcessor* dest = currentProcessor->getDestNode();
-
-        if (dest != 0)
-        {
-
-            std::cout << "Destination: " << dest->getName() << std::endl;
-            editorToAdd = (GenericEditor*) dest->getEditor();
-            editorArray.add(editorToAdd);
-            std::cout << "Inserting " << editorToAdd->getName() << " at the end." << std::endl;
-
-
-        } else {
-           std::cout << "No dest found." << std::endl;
-            editorToAdd = 0;
-        }
-    }
-
-    //std::cout << "OK1." << std::endl;
-
-    // Step 5: check the validity of the signal chain
-    if (action < 5) {
-        bool enable = true;
-
-        if (editorArray.size() == 1) {
-            
-             GenericProcessor* source = (GenericProcessor*) editorArray[0]->getProcessor();
-             if (source->isSource())
-                editorArray[0]->setEnabledState(true);
-             else
-                editorArray[0]->setEnabledState(false);
-
-        } else {
-
-            //bool sourceIsInChain = true;
-
-            for (int n = 0; n < editorArray.size()-1; n++)
-            {
-                GenericProcessor* source = (GenericProcessor*) editorArray[n]->getProcessor();
-                GenericProcessor* dest = (GenericProcessor*) editorArray[n+1]->getProcessor();
-
-                if (n == 0 && !source->isSource())
-                    enable = false;
-
-                editorArray[n]->setEnabledState(enable);
-                
-                if (source->canSendSignalTo(dest) && source->enabledState())
-                    enable = true;
-                else 
-                    enable = false;
-
-                if (enable)
-                    std::cout << "Enabling node." << std::endl;
-                else
-                    std::cout << "Not enabling node." << std::endl;
-                
-                editorArray[n+1]->setEnabledState(enable);
-
-            }
-        }
-    }
-
-    // Step 6: inform the tabs that something has changed
-    for (int n = 0; n < signalChainArray.size(); n++)
-    {
-        if (signalChainArray[n]->getToggleState())
-        {
-            signalChainArray[n]->hasNewConnections(true);
-        }
-    }
-
-    // Step 7: update all settings
-    if (action < 4) {
-        std::cout << "Updating settings." << std::endl;
-        for (int n = 0; n < signalChainArray.size(); n++)
-        {
-            
-            GenericEditor* source = (GenericEditor*) signalChainArray[n]->getEditor();
-            GenericProcessor* p = (GenericProcessor*) source->getProcessor();
-
-            p->updateSettings();
-
-            GenericProcessor* dest = p->getDestNode();
-
-            while (dest != 0)
-            {
-                dest->updateSettings();
-                dest = dest->getDestNode();
-            }
-        }
-    }
-
-   // std::cout << "OK2." << std::endl;
-
-    // Step 8: make sure all editors are visible, and refresh
-    for (int n = 0; n < editorArray.size(); n++)
-    {
-       // std::cout << "Editor " << n << ": " << editorArray[n]->getName() << std::endl;
-        editorArray[n]->setVisible(true);
-    }
-
-    insertionPoint = -1; // make sure all editors are left-justified
-    indexOfMovingComponent = -1;
-
-   // std::cout << "OK3." << std::endl;
-    refreshEditors();
-
-   // std::cout << "OK4." << std::endl;
-    grabKeyboardFocus();
-   // std::cout << "OK5." << std::endl;
-
-   std::cout << "Finished adding new editor." << std::endl << std::endl << std::endl;
-    
-}
 
 void EditorViewport::refreshEditors () {
     
@@ -799,7 +469,8 @@ void EditorViewport::mouseUp(const MouseEvent &e) {
 
         GenericEditor* editor = editorArray[indexOfMovingComponent];
 
-        updateVisibleEditors(editor, 2);
+        signalChainManager->updateVisibleEditors(editor, indexOfMovingComponent,
+                                                 insertionPoint, MOVE);
         refreshEditors();
         repaint();
 
@@ -844,7 +515,8 @@ void SignalChainTabButton::clicked()
         //std::cout << "Button clicked: " << firstEditor->getName() << std::endl;
         EditorViewport* ev = (EditorViewport*) getParentComponent();
     
-        ev->updateVisibleEditors(firstEditor,4);    
+        scm->updateVisibleEditors(firstEditor, 0, 0, ACTIVATE); 
+        ev->refreshEditors();   
     }
     
 }

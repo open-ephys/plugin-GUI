@@ -98,6 +98,7 @@ OBJECTS := \
   $(OBJDIR)/SourceNode_c2d6336c.o \
   $(OBJDIR)/GenericProcessor_733760aa.o \
   $(OBJDIR)/ProcessorGraph_68b34a0b.o \
+  $(OBJDIR)/SignalChainManager_d2b643f0.o \
   $(OBJDIR)/EditorViewport_1d991caf.o \
   $(OBJDIR)/ProcessorList_1ad3f3de.o \
   $(OBJDIR)/CustomLookAndFeel_53a8fcdb.o \
@@ -403,6 +404,11 @@ $(OBJDIR)/GenericProcessor_733760aa.o: ../../Source/Processors/GenericProcessor.
 $(OBJDIR)/ProcessorGraph_68b34a0b.o: ../../Source/Processors/ProcessorGraph.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ProcessorGraph.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SignalChainManager_d2b643f0.o: ../../Source/UI/SignalChainManager.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SignalChainManager.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/EditorViewport_1d991caf.o: ../../Source/UI/EditorViewport.cpp
