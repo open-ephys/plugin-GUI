@@ -48,7 +48,7 @@ public:
 	Splitter();
 	~Splitter();
 
-	//AudioProcessorEditor* createEditor();
+	AudioProcessorEditor* createEditor();
 
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples) {}
    // void setParameter (int parameterIndex, float newValue) {}

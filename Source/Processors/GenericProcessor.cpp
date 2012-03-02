@@ -163,9 +163,9 @@ void GenericProcessor::setSourceNode(GenericProcessor* sn)
 
 		//			std::cout << " The source is new and named " << sn->getName() << std::endl;
 					
-					//if (this->isMerger())
-				//		setMergerSourceNode(sn);
-				//	else
+					if (this->isMerger())
+						setMergerSourceNode(sn);
+					else
 						sourceNode = sn;
 
 					sn->setDestNode(this);
@@ -215,9 +215,9 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 				{
 			//		std::cout << "  The dest node is new and named " << dn->getName() << std::endl;
 //
-				//	if (this->isSplitter())
-				//		setSplitterDestNode(dn);
-				//	else
+					if (this->isSplitter())
+						setSplitterDestNode(dn);
+					else
 						destNode = dn;
 
 					dn->setSourceNode(this);

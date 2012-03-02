@@ -47,20 +47,30 @@ public:
 	Merger();
 	~Merger();
 
-//	AudioProcessorEditor* createEditor();
+	AudioProcessorEditor* createEditor();
 
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples) {}
 //	void setParameter (int parameterIndex, float newValue) {}
 
 	bool isMerger() {return true;}
 
+	//void tabNumber(int);
+
 	void switchSource(int);
+	void switchSource();
 	void setMergerSourceNode(GenericProcessor* sn);
+
+	bool stillHasSource();
+
+	//int tabA, tabB;
 
 private:
 
 	GenericProcessor* sourceNodeA;
 	GenericProcessor* sourceNodeB;
+
+
+
 	int activePath;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Merger);

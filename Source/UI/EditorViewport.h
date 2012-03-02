@@ -171,6 +171,8 @@ public:
 
     int offset;
 
+
+
 private:
 
     GenericEditor* firstEditor;
@@ -180,6 +182,7 @@ private:
     void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
 
     void clicked();
+    
 
     enum actions {ADD, MOVE, REMOVE, ACTIVATE};
     

@@ -44,6 +44,9 @@ public:
 
 	void buttonClicked (Button* button);
 
+    void switchSource(int);
+    void switchSource ();
+
 private:	
 	
 	ImageButton* pipelineSelectorA;

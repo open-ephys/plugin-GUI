@@ -153,6 +153,9 @@ public:
 	GenericProcessor* getDestNode() {return destNode;}
 	GenericProcessor* getOriginalSourceNode();
 
+	virtual void switchSource(int) { };
+	virtual void switchSource() { };
+
 	virtual void setSourceNode(GenericProcessor* sn);
 	virtual void setDestNode(GenericProcessor* dn);
 	virtual void setMergerSourceNode(GenericProcessor* sn) { }
@@ -171,6 +174,8 @@ public:
 
 	virtual bool enabledState() {return isEnabled;}
 	virtual void enabledState(bool t) {isEnabled = t;}
+
+	virtual bool stillHasSource() {return true;}
 
 	virtual AudioSampleBuffer* getContinuousBuffer() {return 0;}
 	virtual MidiBuffer* getEventBuffer() {return 0;}
@@ -206,6 +211,8 @@ public:
 	//UIComponent* UI;
 
 	//Configuration* config;
+
+	//int tabA, tabB; // needed for Merger
 
 	AudioProcessorEditor* editor;
 

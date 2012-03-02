@@ -24,6 +24,8 @@
 #include "Splitter.h"
 #include "../Editors/SplitterEditor.h"
 
+#include "../../UI/EditorViewport.h"
+
 Splitter::Splitter()
 	: GenericProcessor("Splitter"), 
 		destNodeA(0), destNodeB(0), activePath(0)
@@ -40,18 +42,17 @@ Splitter::~Splitter()
 	
 }
 
-// AudioProcessorEditor* Splitter::createEditor()
-// {
-// 	SplitterEditor* editor = new SplitterEditor(this);
-// 	setEditor(editor);
+AudioProcessorEditor* Splitter::createEditor()
+{
+	SplitterEditor* editor = new SplitterEditor(this);
+	setEditor(editor);
 	
-// 	std::cout << "Creating editor." << std::endl;
-// 	return editor;
-// }
+	std::cout << "Creating editor." << std::endl;
+	return editor;
+}
 
 void Splitter::setSplitterDestNode(GenericProcessor* dn)
 {
-
 	destNode = dn;
 
 	if (activePath == 0) {
@@ -66,16 +67,20 @@ void Splitter::setSplitterDestNode(GenericProcessor* dn)
 
 void Splitter::switchDest(int destNum) {
 	
+	std::cout << "Switching to dest number " << destNum << std::endl;
+	
 	activePath = destNum;
 
 	if (destNum == 0) 
 	{
-		setDestNode(destNodeA);
+		destNode = destNodeA;
+		std::cout << "Dest node: " << getDestNode() << std::endl;
 	} else 
 	{
-		setDestNode(destNodeB);
+		destNode = destNodeB;
+		std::cout << "Dest node: " << getDestNode() << std::endl;
 	}
 
-	//viewport->setActiveEditor((GenericEditor*) getEditor());
-	//viewport->updateVisibleEditors();
+	getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor());
+
 }

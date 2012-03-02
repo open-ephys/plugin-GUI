@@ -349,12 +349,12 @@ void EditorViewport::refreshEditors () {
         }
     }
 
-    if (tooLong)
+    if (tooLong && editorArray.size() > 0)
         rightButton->setActive(true);
     else 
         rightButton->setActive(false);
     
-    if (leftmostEditor == 0)
+    if (leftmostEditor == 0 || editorArray.size() == 0)
         leftButton->setActive(false);
     else
         leftButton->setActive(true);
@@ -570,7 +570,7 @@ void EditorViewport::mouseExit(const MouseEvent &e) {
 void EditorViewport::checkScrollButtons(int topTab)
 {
     
-    if (signalChainArray.size() - topTab > 4)
+    if (editorArray.size() - topTab > 4)
     {
         downButton->setActive(true);
     } else {

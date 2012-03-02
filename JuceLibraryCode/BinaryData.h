@@ -61,6 +61,18 @@ namespace BinaryData
     extern const char*   IntanIcon_png;
     const int            IntanIcon_pngSize = 16352;
 
+    extern const char*   MergerA01_png;
+    const int            MergerA01_pngSize = 5609;
+
+    extern const char*   MergerA02_png;
+    const int            MergerA02_pngSize = 5712;
+
+    extern const char*   MergerB01_png;
+    const int            MergerB01_pngSize = 5818;
+
+    extern const char*   MergerB02_png;
+    const int            MergerB02_pngSize = 4832;
+
     extern const char*   PipelineA01_png;
     const int            PipelineA01_pngSize = 5396;
 

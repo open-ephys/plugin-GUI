@@ -74,8 +74,11 @@ public:
 	int desiredWidth;
 	int nodeId;
 
-	void tabNumber(int t) {tNum = t;}
+	virtual void tabNumber(int t) {tNum = t;}
 	int tabNumber() {return tNum;}
+
+	virtual void switchSource(int) { }  // needed for MergerEditor
+	virtual void switchSource() { }; // needed for MergerEditor
 
 	//FilterViewport* viewport;
 	//Configuration* config;

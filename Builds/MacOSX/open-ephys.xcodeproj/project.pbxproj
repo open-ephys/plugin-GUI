@@ -124,6 +124,10 @@
 		D99F56FB46F631F67AF23F2C = { isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultDataSource.png; path = ../../Resources/Images/Icons/DefaultDataSource.png; sourceTree = SOURCE_ROOT; };
 		66C7E42D7FDE3600982A1F46 = { isa = PBXFileReference; lastKnownFileType = image.png; name = FileReaderIcon.png; path = ../../Resources/Images/Icons/FileReaderIcon.png; sourceTree = SOURCE_ROOT; };
 		A4C8AB3F5E7A708350F72E7C = { isa = PBXFileReference; lastKnownFileType = image.png; name = IntanIcon.png; path = ../../Resources/Images/Icons/IntanIcon.png; sourceTree = SOURCE_ROOT; };
+		D2D308542534D043BB12C801 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "MergerA-01.png"; path = "../../Resources/Images/Buttons/MergerA-01.png"; sourceTree = SOURCE_ROOT; };
+		9CD0E7C2C7E49A0DBF301B0F = { isa = PBXFileReference; lastKnownFileType = image.png; name = "MergerA-02.png"; path = "../../Resources/Images/Buttons/MergerA-02.png"; sourceTree = SOURCE_ROOT; };
+		BAAA02122ADD1D5D0670A684 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "MergerB-01.png"; path = "../../Resources/Images/Buttons/MergerB-01.png"; sourceTree = SOURCE_ROOT; };
+		73A7E17FDD8DD717F99E0882 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "MergerB-02.png"; path = "../../Resources/Images/Buttons/MergerB-02.png"; sourceTree = SOURCE_ROOT; };
 		2A54E3D28E10F5D50498BB77 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "PipelineA-01.png"; path = "../../Resources/Images/Buttons/PipelineA-01.png"; sourceTree = SOURCE_ROOT; };
 		294B78ADA337603DE3C87BF9 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "PipelineA-02.png"; path = "../../Resources/Images/Buttons/PipelineA-02.png"; sourceTree = SOURCE_ROOT; };
 		8AD9A0F023B727B34348B95E = { isa = PBXFileReference; lastKnownFileType = image.png; name = "PipelineB-01.png"; path = "../../Resources/Images/Buttons/PipelineB-01.png"; sourceTree = SOURCE_ROOT; };
@@ -303,6 +307,10 @@
 				66C7E42D7FDE3600982A1F46,
 				A4C8AB3F5E7A708350F72E7C ); name = Icons; sourceTree = "<group>"; };
 		3392BC2D90C96126B6D3EDA0 = { isa = PBXGroup; children = (
+				D2D308542534D043BB12C801,
+				9CD0E7C2C7E49A0DBF301B0F,
+				BAAA02122ADD1D5D0670A684,
+				73A7E17FDD8DD717F99E0882,
 				2A54E3D28E10F5D50498BB77,
 				294B78ADA337603DE3C87BF9,
 				8AD9A0F023B727B34348B95E,

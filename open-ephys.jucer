@@ -56,6 +56,10 @@
           <FILE id="hlohT6y" name="IntanIcon.png" compile="0" resource="1" file="Resources/Images/Icons/IntanIcon.png"/>
         </GROUP>
         <GROUP id="9berx08" name="Buttons">
+          <FILE id="KBzZFU" name="MergerA-01.png" compile="0" resource="1" file="Resources/Images/Buttons/MergerA-01.png"/>
+          <FILE id="jHkBRW" name="MergerA-02.png" compile="0" resource="1" file="Resources/Images/Buttons/MergerA-02.png"/>
+          <FILE id="KUYqwmL" name="MergerB-01.png" compile="0" resource="1" file="Resources/Images/Buttons/MergerB-01.png"/>
+          <FILE id="psvaEJR" name="MergerB-02.png" compile="0" resource="1" file="Resources/Images/Buttons/MergerB-02.png"/>
           <FILE id="xtDJTj" name="PipelineA-01.png" compile="0" resource="1"
                 file="Resources/Images/Buttons/PipelineA-01.png"/>
           <FILE id="Q5FbY5f" name="PipelineA-02.png" compile="0" resource="1"

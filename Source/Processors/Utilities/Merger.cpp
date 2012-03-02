@@ -24,9 +24,11 @@
 #include "Merger.h"
 #include "../Editors/MergerEditor.h"
 
+#include "../../UI/EditorViewport.h"
+
 Merger::Merger()
 	: GenericProcessor("Merger"), 
-		sourceNodeA(0), sourceNodeB(0), activePath(0)
+		sourceNodeA(0), sourceNodeB(0), activePath(0)//, tabA(-1), tabB(-1)
 {
 	setNumOutputs(0);
 	setNumInputs(0);
@@ -39,14 +41,14 @@ Merger::~Merger()
 	
 }
 
-// AudioProcessorEditor* Merger::createEditor()
-// {
-// 	MergerEditor* editor = new MergerEditor(this);
-// 	setEditor(editor);
+AudioProcessorEditor* Merger::createEditor()
+{
+	MergerEditor* editor = new MergerEditor(this);
+	setEditor(editor);
 	
-// 	std::cout << "Creating editor." << std::endl;
-// 	return editor;
-// }
+	std::cout << "Creating editor." << std::endl;
+	return editor;
+}
 
 void Merger::setMergerSourceNode(GenericProcessor* sn)
 {
@@ -59,22 +61,58 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 	} else {
 		sourceNodeB = sn;
 		std::cout << "Setting source node B." << std::endl;
-
 	}
 }
 
 void Merger::switchSource(int sourceNum) {
+
+	std::cout << "Switching to source number " << sourceNum << std::endl;
 	
 	activePath = sourceNum;
 
 	if (sourceNum == 0) 
 	{
-		setDestNode(sourceNodeA);
+		sourceNode = sourceNodeA;
+		std::cout << "Source node: " << getSourceNode() << std::endl;
 	} else 
 	{
-		setDestNode(sourceNodeB);
+		sourceNode = sourceNodeB;
+		std::cout << "Source node: " << getSourceNode() << std::endl;
 	}
 
-	//viewport->setActiveEditor((GenericEditor*) getEditor());
-	//viewport->updateVisibleEditors();
+	getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor());
+
 }
+
+bool Merger::stillHasSource()
+{
+	if (sourceNodeA == 0 || sourceNodeB == 0)
+	{
+		return false;
+	} else {
+		return true;
+	}
+
+}
+
+void Merger::switchSource()
+{
+	if (activePath == 0) {
+		activePath = 1;
+		sourceNode = sourceNodeB;
+	}
+	else {
+	    activePath = 0;
+	    sourceNode = sourceNodeA;
+	}
+
+}
+
+// void Merger::tabNumber(int t)
+// {
+// 	if (tabA == -1)
+// 		tabA = t;
+// 	else
+// 		tabB = t;
+
+// }
