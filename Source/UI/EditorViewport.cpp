@@ -24,10 +24,11 @@
 #include "EditorViewport.h"
 
 #include "SignalChainManager.h"
+#include "EditorViewportButtons.h"
 
 EditorViewport::EditorViewport()
     : message ("Drag-and-drop some rows from the top-left box onto this component!"),
-      somethingIsBeingDraggedOver (false), shiftDown(false),
+      somethingIsBeingDraggedOver (false), shiftDown(false), leftmostEditor(0),
        insertionPoint(0), componentWantsToMove(false), indexOfMovingComponent(-1), 
        borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true), currentTab(-1)//, signalChainNeedsSource(true)
 {
@@ -47,6 +48,23 @@ EditorViewport::EditorViewport()
 
     signalChainManager = new SignalChainManager(this, editorArray,
                                                 signalChainArray);
+
+    upButton = new SignalChainScrollButton(UP);
+    downButton = new SignalChainScrollButton(DOWN);
+    leftButton = new EditorScrollButton(LEFT);
+    rightButton = new EditorScrollButton(RIGHT);
+
+    upButton->addListener(this);
+    downButton->addListener(this);
+    leftButton->addListener(this);
+    rightButton->addListener(this);
+
+    addAndMakeVisible(upButton);
+    addAndMakeVisible(downButton);
+    addAndMakeVisible(rightButton);
+    addAndMakeVisible(leftButton);
+
+
 
 }
 
@@ -80,10 +98,12 @@ void EditorViewport::paint (Graphics& g)
 
     g.drawRect (0, 0, getWidth(), getHeight(), 2.0);
     g.drawVerticalLine(tabSize, 0, getHeight());
+    g.drawVerticalLine(getWidth()-tabSize, 0, getHeight());
+    g.drawHorizontalLine(getHeight()/2, getWidth()-tabSize, tabSize);
 
-    for (int n = 0; n < 5; n++)
+    for (int n = 0; n < 4; n++)
     {
-        g.drawEllipse(6,(tabSize-2)*n+8,tabSize-10,tabSize-10,1.0);
+        g.drawEllipse(7,(tabSize-2)*n+24,tabSize-12,tabSize-12,1.0);
     }
 
     if (somethingIsBeingDraggedOver)
@@ -253,46 +273,99 @@ void EditorViewport::deleteNode (GenericEditor* editor) {
 void EditorViewport::refreshEditors () {
     
     int lastBound = borderSize+tabSize;
+    int totalWidth = 0;
+
+    bool tooLong;
+
+    for (int n = 0; n < signalChainArray.size(); n++)
+    {
+        if (signalChainArray[n]->getToggleState())
+        {
+            signalChainArray[n]->offset = leftmostEditor;
+        }
+    }
 
     for (int n = 0; n < editorArray.size(); n++)
     {
-        if (n == 0)
-        {
-             if (!editorArray[n]->getEnabledState()) 
-             {
-                GenericProcessor* p = (GenericProcessor*) editorArray[n]->getProcessor();
-                if (!p->isSource())
-                    lastBound += borderSize*10;
-               // signalChainNeedsSource = true;
-            } else {
-              //  signalChainNeedsSource = false;
-            }
-        }
 
-        if (somethingIsBeingDraggedOver && n == insertionPoint)
-        {
-            if (indexOfMovingComponent > -1)
-            {
-                if (n != indexOfMovingComponent && n != indexOfMovingComponent+1)
-                {
-                   if (n == 0)
-                    lastBound += borderSize*3;
-                   else
-                    lastBound += borderSize*2;
-                }
-            } else {
-                if (n == 0)
-                    lastBound += borderSize*3;
-                else
-                    lastBound += borderSize*2;
-            }
-
-        }
+     //   std::cout << "Refreshing editor number" << n << std::endl;
 
         int componentWidth = editorArray[n]->desiredWidth;
-        editorArray[n]->setBounds(lastBound, borderSize, componentWidth, getHeight()-borderSize*2);
-        lastBound+=(componentWidth + borderSize);
+
+        if (lastBound + componentWidth < getWidth()-tabSize && n >= leftmostEditor) {
+
+            if (n == 0)
+            {
+                 if (!editorArray[n]->getEnabledState()) 
+                 {
+                    GenericProcessor* p = (GenericProcessor*) editorArray[n]->getProcessor();
+                    if (!p->isSource())
+                        lastBound += borderSize*10;
+                   // signalChainNeedsSource = true;
+                } else {
+                  //  signalChainNeedsSource = false;
+                }
+            }
+
+            if (somethingIsBeingDraggedOver && n == insertionPoint)
+            {
+                if (indexOfMovingComponent > -1)
+                {
+                    if (n != indexOfMovingComponent && n != indexOfMovingComponent+1)
+                    {
+                       if (n == 0)
+                        lastBound += borderSize*3;
+                       else
+                        lastBound += borderSize*2;
+                    }
+                } else {
+                    if (n == 0)
+                        lastBound += borderSize*3;
+                    else
+                        lastBound += borderSize*2;
+                }
+
+            }
+
+            editorArray[n]->setVisible(true);
+          //   std::cout << "setting visible." << std::endl;
+            editorArray[n]->setBounds(lastBound, borderSize, componentWidth, getHeight()-borderSize*2);
+            lastBound+=(componentWidth + borderSize);
+
+            tooLong = false;
+
+            totalWidth = lastBound;
+
+        } else {
+            editorArray[n]->setVisible(false);
+
+            totalWidth += componentWidth + borderSize;
+
+            // std::cout << "setting invisible." << std::endl;
+
+           if (lastBound + componentWidth > getWidth()-tabSize)
+                tooLong = true;
+
+        }
     }
+
+    if (tooLong)
+        rightButton->setActive(true);
+    else 
+        rightButton->setActive(false);
+    
+    if (leftmostEditor == 0)
+        leftButton->setActive(false);
+    else
+        leftButton->setActive(true);
+
+   // std::cout << totalWidth << " " << getWidth() - tabSize << std::endl;
+
+    // if (totalWidth < getWidth()-tabSize && leftButton->isActive)
+    // {
+    //     leftmostEditor -= 1;
+    //     refreshEditors();
+    // }
 
 }
 
@@ -494,6 +567,73 @@ void EditorViewport::mouseExit(const MouseEvent &e) {
 
 }
 
+void EditorViewport::checkScrollButtons(int topTab)
+{
+    
+    if (signalChainArray.size() - topTab > 4)
+    {
+        downButton->setActive(true);
+    } else {
+        downButton->setActive(false);
+    }
+
+    if (topTab > 0)
+    {
+        upButton->setActive(true);
+    } else {
+        upButton->setActive(false);
+    }
+
+}
+
+void EditorViewport::resized() {
+
+    int b = 2; // border
+
+    downButton->setBounds(b, getHeight()-15-b, tabSize-b, 15);
+    upButton->setBounds(b, b, tabSize-b, 15);
+    leftButton->setBounds(getWidth()-25, getHeight()/2+b, 20, getHeight()/2-2*b);
+    rightButton->setBounds(getWidth()-25, b, 20, getHeight()/2-b*2);
+
+    refreshEditors();
+}
+
+void EditorViewport::buttonClicked (Button* button)
+{
+    if (button == upButton)
+    {
+        std::cout << "Up button pressed." << std::endl;
+
+        if (upButton->isActive)
+            signalChainManager->scrollUp();
+
+    } else if (button == downButton)
+    {
+        if (downButton->isActive)
+            signalChainManager->scrollDown();
+
+    } else if (button == leftButton)
+    {
+        if (leftButton->isActive)
+        {
+            leftmostEditor -= 1;
+            refreshEditors();
+        }
+        
+    } else if (button == rightButton)
+    {
+        if (rightButton->isActive)
+        {
+            leftmostEditor += 1;
+            refreshEditors();
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////
+////////////////SIGNAL CHAIN TAB BUTTON////////////////////////////
+///////////////////////////////////////////////////////////////////
+
 SignalChainTabButton::SignalChainTabButton() : Button("Name"),
         configurationChanged(true)
     {
@@ -505,19 +645,21 @@ SignalChainTabButton::SignalChainTabButton() : Button("Name"),
         Typeface::Ptr typeface = new CustomTypeface(mis);
         buttonFont = Font(typeface);
         buttonFont.setHeight(14);
+
+        offset = 0;
     }
 
 
 void SignalChainTabButton::clicked() 
 {
-    {
     
         //std::cout << "Button clicked: " << firstEditor->getName() << std::endl;
         EditorViewport* ev = (EditorViewport*) getParentComponent();
     
         scm->updateVisibleEditors(firstEditor, 0, 0, ACTIVATE); 
+        ev->leftmostEditor = offset;
         ev->refreshEditors();   
-    }
+
     
 }
 
@@ -673,5 +815,7 @@ const String EditorViewport::loadState(const File& file)
 
     delete xml;
     return "Everything went ok.";
+
+   // refreshEditors();
 
 }

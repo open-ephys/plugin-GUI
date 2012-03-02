@@ -25,12 +25,15 @@
 
 #include "EditorViewport.h"
 
+#include <iostream>
+
 SignalChainManager::SignalChainManager (EditorViewport* ev_, Array<GenericEditor*, CriticalSection>& editorArray_,
 	 				   Array<SignalChainTabButton*, CriticalSection>& signalChainArray_) :
 
-	 				   ev(ev_), editorArray(editorArray_), signalChainArray(signalChainArray_)
+	 				   tabSize(30), ev(ev_), editorArray(editorArray_), signalChainArray(signalChainArray_)
 {
 	
+	topTab = 0;
 	
 
 }
@@ -40,24 +43,61 @@ SignalChainManager::~SignalChainManager()
 	
 }
 
+void SignalChainManager::scrollUp()
+{
+
+	std::cout << "Scrolling up." << std::endl;
+
+	if (topTab > 0)
+	{
+		topTab -= 1;
+	}
+
+	refreshTabs();
+
+}
+
+void SignalChainManager::scrollDown()
+{
+
+	std::cout << "Scrolling down." << std::endl;
+
+	if (topTab < signalChainArray.size()-4)
+	{
+		topTab += 1;
+	}
+
+	refreshTabs();
+
+}
+
 void SignalChainManager::createNewTab(GenericEditor* editor)
 {
-	int tabSize = 30;
-    
+
     int index = signalChainArray.size();
 
     SignalChainTabButton* t = new SignalChainTabButton();
     t->setManager(this);
     t->setEditor(editor);
-    
-    t->setBounds(6,(tabSize-2)*(index)+8,tabSize-10,tabSize-10);
 
-    ev->addAndMakeVisible(t);
+    ev->addChildComponent(t);
     signalChainArray.add(t);
 
     editor->tabNumber(signalChainArray.size()-1);
     t->setToggleState(true,false);
     t->setNumber(index);
+
+    index -= topTab;
+    ev->leftmostEditor = 0;
+
+    if (signalChainArray.size()-topTab > 4)
+    {
+    	scrollDown();
+    }
+    
+    refreshTabs();
+
+    
 
 }
 
@@ -71,8 +111,6 @@ void SignalChainManager::removeTab(int tabIndex)
 
     for (int n = 0; n < signalChainArray.size(); n++) 
     {
-        signalChainArray[n]->setBounds(6,(tabSize-2)*n+8,tabSize-10,tabSize-10);
-        
         int tNum = signalChainArray[n]->getEditor()->tabNumber();
         
         if (tNum > tabIndex) {
@@ -81,6 +119,30 @@ void SignalChainManager::removeTab(int tabIndex)
         }
 
     }
+
+    if (signalChainArray.size()-topTab < 4)
+    {
+    	scrollUp();
+    }
+
+    refreshTabs();
+
+}
+
+void SignalChainManager::refreshTabs()
+{
+	for (int n = 0; n < signalChainArray.size(); n++)
+	{
+		if (n >= topTab && n < topTab + 4) {
+			signalChainArray[n]->setVisible(true);
+			signalChainArray[n]->setBounds(6,(tabSize-2)*(n-topTab)+23,tabSize-10,tabSize-10);
+		} else {
+		    signalChainArray[n]->setVisible(false);
+		}
+	}
+
+	ev->checkScrollButtons(topTab);
+
 }
 
 
@@ -345,11 +407,11 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
    // std::cout << "OK2." << std::endl;
 
     // Step 8: make sure all editors are visible, and refresh
-    for (int n = 0; n < editorArray.size(); n++)
-    {
+   // for (int n = 0; n < editorArray.size(); n++)
+  //  {
        // std::cout << "Editor " << n << ": " << editorArray[n]->getName() << std::endl;
-        editorArray[n]->setVisible(true);
-    }
+    //    editorArray[n]->setVisible(true);
+   // }
 
 
    std::cout << "Finished adding new editor." << std::endl << std::endl << std::endl;

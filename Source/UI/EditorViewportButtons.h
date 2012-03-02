@@ -21,57 +21,55 @@
 
 */
 
-#ifndef __SIGNALCHAINMANAGER_H_948769B9__
-#define __SIGNALCHAINMANAGER_H_948769B9__
+#ifndef __EDITORVIEWPORTBUTTONS_H_2657C51D__
+#define __EDITORVIEWPORTBUTTONS_H_2657C51D__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "../Processors/Editors/GenericEditor.h"
-#include "../AccessClass.h"
-
 
 /**
   
-  Helper functions for editing the signal chain.
-
-  Created and owned by the EditorViewport.
+  A set of buttons for scrolling through editors and signal chains.
 
   @see EditorViewport.
 
 */
 
-class GenericEditor;
-class SignalChainTabButton;
-class EditorViewport;
-
-class SignalChainManager : AccessClass
+class EditorScrollButton : public DrawableButton
 {
 public:
-	SignalChainManager(EditorViewport*, Array<GenericEditor*, CriticalSection>&,
-	 				   Array<SignalChainTabButton*, CriticalSection>&);
-	~SignalChainManager();
+	EditorScrollButton(int type);
+	~EditorScrollButton();
 
-	void updateVisibleEditors(GenericEditor* activeEditor, int index, int insertionPoint, int action);
+	void setActive(bool);
 
-	void createNewTab(GenericEditor* editor);
-	void removeTab(int tabIndex);
-	void scrollUp();
-	void scrollDown();
+	bool isActive;
 
-private:	
+	enum type {LEFT, RIGHT};
 
-	Array<GenericEditor*, CriticalSection>& editorArray;
-	Array<SignalChainTabButton*, CriticalSection>& signalChainArray;
+	int direction;
 
-	EditorViewport* ev;
-
-	void refreshTabs();
-
-	int topTab;
-
-	const int tabSize;
-    
+	DrawablePath inactive, activeNormal, activeOver, activeDown;
 
 };
 
 
-#endif  // __SIGNALCHAINMANAGER_H_948769B9__
+class SignalChainScrollButton : public DrawableButton
+{
+public:
+	SignalChainScrollButton(int type);
+	~SignalChainScrollButton();
+
+	void setActive(bool);
+
+	enum type {UP, DOWN};
+
+	bool isActive;
+
+	int direction;
+
+	DrawablePath inactive, activeNormal, activeOver, activeDown;
+};
+
+
+
+#endif  // __EDITORVIEWPORTBUTTONS_H_2657C51D__

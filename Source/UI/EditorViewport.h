@@ -27,6 +27,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/ProcessorGraph.h"
 #include "../Processors/Editors/GenericEditor.h"
+
 #include "../AccessClass.h"
 #include "DataViewport.h"
 
@@ -43,10 +44,13 @@
 class GenericEditor;
 class SignalChainTabButton;
 class SignalChainManager;
+class EditorScrollButton;
+class SignalChainScrollButton;
 
 class EditorViewport  : public Component,
                         public DragAndDropTarget,
-                        public AccessClass
+                        public AccessClass,
+                        public Button::Listener
 
 {
 public:
@@ -85,6 +89,7 @@ public:
     //void modifierKeysChanged (const ModifierKeys & modifiers);
     bool keyPressed (const KeyPress &key);
     void moveSelection( const KeyPress &key);
+    void buttonClicked(Button* button);
 
     Array<SignalChainTabButton*, CriticalSection> requestSignalChain() {return signalChainArray;}
 
@@ -93,6 +98,10 @@ public:
     const String loadState(const File& file);
 
     XmlElement* createNodeXml(GenericEditor*, int);
+
+    void checkScrollButtons(int topTab);
+
+      int leftmostEditor;
     
 private:
 
@@ -114,6 +123,7 @@ private:
     Image sourceDropImage;
    // int activeTab;
 
+  
     
     void createNewTab(GenericEditor* editor);
     void removeTab(int tabIndex);
@@ -128,6 +138,15 @@ private:
     int currentTab;
 
     enum actions {ADD, MOVE, REMOVE, ACTIVATE};
+    enum directions1 {LEFT, RIGHT};
+    enum directions2 {UP, DOWN};
+
+    EditorScrollButton* leftButton;
+    EditorScrollButton* rightButton;
+    SignalChainScrollButton* upButton;
+    SignalChainScrollButton* downButton;
+
+    void resized();
 
     //bool signalChainNeedsSource;
 
@@ -150,6 +169,7 @@ public:
     bool hasNewConnections() {return configurationChanged;}
     void hasNewConnections(bool t) {configurationChanged = t;}
 
+    int offset;
 
 private:
 
