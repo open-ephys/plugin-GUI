@@ -34,13 +34,13 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 	desiredWidth = 250;
 
 	amplitudeSlider = new Slider (T("Amplitude Slider"));
-	amplitudeSlider->setBounds(25,40,200,40);
+	amplitudeSlider->setBounds(25,40,170,40);
 	amplitudeSlider->setRange(0.005,0.05,0.005);
 	amplitudeSlider->addListener(this);
 	addAndMakeVisible(amplitudeSlider);
 
 	frequencySlider = new Slider (T("High-Cut Slider"));
-	frequencySlider->setBounds(25,70,200,40);
+	frequencySlider->setBounds(25,70,170,40);
 	frequencySlider->setRange(1,100,1);
 	frequencySlider->addListener(this);
 	addAndMakeVisible(frequencySlider);

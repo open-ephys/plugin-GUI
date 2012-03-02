@@ -80,7 +80,7 @@ DataViewport::~DataViewport()
      OpenGLCanvas* canvas = (OpenGLCanvas*) getTabContentComponent(newIndex);
 
      if (canvas != 0)
-        canvas->refreshState();
+         canvas->refreshState();
  }
 
 void DataViewport::paint(Graphics& g)

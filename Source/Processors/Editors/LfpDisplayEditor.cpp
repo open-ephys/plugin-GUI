@@ -80,14 +80,15 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode)
 
 	createRadioButtons(35, 90, 160, displayGainValues, "Display Gain");
 
-	for (int n = 0; n < getNumChildComponents(); n++)
+		for (int n = 0; n < getNumChildComponents(); n++)
 	{
 		Button* c = (Button*) getChildComponent(n);
 
 		if (c->isVisible())
 			c->addListener(this);
 
-		c->setVisible(true);
+		if (c->getRadioGroupId() != 999)
+			c->setVisible(true);
 	}
 
 	// timebaseSlider = new Slider (T("Time Base Slider"));
@@ -174,6 +175,8 @@ void LfpDisplayEditor::setBuffers(AudioSampleBuffer* asb, MidiBuffer* mb)
 
 void LfpDisplayEditor::buttonClicked(Button* button)
 {
+
+	if (!checkDrawerButton(button) && !checkChannelSelectors(button)) {
 
 	int gId = button->getRadioGroupId();
 
@@ -270,6 +273,7 @@ void LfpDisplayEditor::buttonClicked(Button* button)
 				//p->isVisible = false;
 			}
 		}
+	}
 	}
 }
 

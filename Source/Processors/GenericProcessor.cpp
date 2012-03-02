@@ -76,6 +76,16 @@ GenericProcessor* GenericProcessor::getOriginalSourceNode()
 	}
 }
 
+int GenericProcessor::getDefaultNumOutputs()
+{
+	if (!isSink())
+	{
+		return 16;
+	} else {
+		return 0;
+	}
+}
+
 
 void GenericProcessor::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
 {

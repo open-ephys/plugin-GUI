@@ -108,6 +108,46 @@ void Merger::switchSource()
 
 }
 
+void Merger::setNumInputs(int n)
+{
+	numInputs = 0;
+
+	if (sourceNodeA != 0)
+	{
+		std::cout << "   Merger source A found." << std::endl;
+		numInputs += sourceNodeA->getNumOutputs();
+	}
+	if (sourceNodeB != 0)
+	{
+		std::cout << "   Merger source B found." << std::endl;
+		numInputs += sourceNodeB->getNumOutputs();
+	}
+
+	std::cout << "Number of merger outputs: " << getNumInputs() << std::endl;
+
+	setNumOutputs(getNumInputs());
+
+}
+
+// void Merger::setNumOutputs(int /*outputs*/)
+// {
+// 	numOutputs = 0;
+
+// 	if (sourceNodeA != 0)
+// 	{
+// 		std::cout << "   Merger source A found." << std::endl;
+// 		numOutputs += sourceNodeA->getNumOutputs();
+// 	}
+// 	if (sourceNodeB != 0)
+// 	{
+// 		std::cout << "   Merger source B found." << std::endl;
+// 		numOutputs += sourceNodeB->getNumOutputs();
+// 	}
+
+// 	std::cout << "Number of merger outputs: " << getNumOutputs() << std::endl;
+
+// }
+
 // void Merger::tabNumber(int t)
 // {
 // 	if (tabA == -1)

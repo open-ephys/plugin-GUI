@@ -38,16 +38,19 @@
   Classes derived from this class must place their controls as child components.
   They shouldn't try to re-draw any aspects of their background.
 
-  @see GenericProcessor, FilterViewport
+  @see GenericProcessor, EditorViewport
 
 */
 
 class GenericProcessor;
-class FilterViewport;
+class DrawerButton;
+class EditorButton;
+class ChannelSelectorButton;
 
 class GenericEditor : public AudioProcessorEditor,
                       public Timer,
-                      public AccessClass
+                      public AccessClass,
+                      public Button::Listener
 
 {
 public:
@@ -80,17 +83,10 @@ public:
 	virtual void switchSource(int) { }  // needed for MergerEditor
 	virtual void switchSource() { }; // needed for MergerEditor
 
-	//FilterViewport* viewport;
-	//Configuration* config;
-
-	//void setConfiguration(Configuration* cf) {config = cf;}
-	//Configuration* getConfiguration() {return config;}
-
 	AudioProcessor* getProcessor() const {return getAudioProcessor();}
 	
 	void createRadioButtons(int x, int y, int w, StringArray values, const String& name);
 		
-
 	void fadeIn();
 
 	int radioGroupId;
@@ -98,10 +94,20 @@ public:
 	bool isFading;
 
 	float accumulator;
+
+	virtual void buttonClicked(Button* button);
+
+	bool checkDrawerButton(Button* button);
+	bool checkChannelSelectors(Button* button);
 	
 private:
 
 	virtual void timerCallback();
+
+	virtual void resized();
+
+	virtual int createChannelSelectors();
+	virtual void removeChannelSelectors();
 
 	Colour backgroundColor;
 
@@ -110,7 +116,22 @@ private:
 
 	int tNum;
 
+	int drawerWidth;
 
+	DrawerButton* drawerButton;
+
+	EditorButton* audioButton;
+	EditorButton* recordButton;
+	EditorButton* paramsButton;
+
+	Array<bool> audioChannels;
+	Array<bool> recordChannels;
+	Array<bool> paramsChannels;
+
+	Array<ChannelSelectorButton*> channelSelectorButtons;
+
+	ChannelSelectorButton* allButton;
+	ChannelSelectorButton* noneButton;
 
 	Font titleFont;
 
@@ -126,7 +147,7 @@ private:
 class RadioButton : public Button
 {
 public:
-    RadioButton(const String& name, int groupId);// : Button("Name") {configurationChanged = true;}
+    RadioButton(const String& name, int groupId, Font f);// : Button("Name") {configurationChanged = true;}
     ~RadioButton() {}
 
 private:
@@ -136,7 +157,39 @@ private:
     Font buttonFont;
 };
 
+class DrawerButton : public Button
+{
+public:
+	DrawerButton(const String& name);
+	~DrawerButton() {}
+private:
+	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+		
+};
 
+class EditorButton : public Button
+{
+public:
+	EditorButton(const String& name, Font f);
+	~EditorButton() {}
+private:
+	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+	
+	int type;
+	Font buttonFont;
+};
+
+class ChannelSelectorButton : public Button
+{
+public:
+	ChannelSelectorButton(const String& name, Font f);
+	~ChannelSelectorButton() {}
+private:
+	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+	
+	int type;
+	Font buttonFont;
+};
 
 
 #endif  // __GENERICEDITOR_H_DD406E71__

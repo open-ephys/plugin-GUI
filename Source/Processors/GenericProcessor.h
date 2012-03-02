@@ -132,16 +132,7 @@ public:
 	virtual int getNumOutputs();
 	virtual void setNumOutputs(int);
 	virtual void setNumOutputs();
-	virtual int getDefaultNumOutputs()
-	{
-		if (!isSink())
-		{
-			return 10;
-		} else {
-			return 0;
-		}
-	}
-
+	virtual int getDefaultNumOutputs();
 	
 	virtual void updateSettings();
 

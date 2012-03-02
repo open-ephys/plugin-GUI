@@ -35,8 +35,8 @@
 // 		~PipelineSelectorButton();	
 // };
 
-class SplitterEditor : public GenericEditor,
-					   public Button::Listener
+class SplitterEditor : public GenericEditor//,
+				//	   public Button::Listener
 {
 public:
 	SplitterEditor (GenericProcessor* parentNode);

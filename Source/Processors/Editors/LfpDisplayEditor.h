@@ -44,8 +44,8 @@ class SelectorButton : public DrawableButton
 		~SelectorButton();	
 };
 
-class LfpDisplayEditor : public GenericEditor,
-				   	     public Button::Listener,
+class LfpDisplayEditor : public GenericEditor,//,
+				   	    // public Button::Listener,
 				   	     public Slider::Listener
 {
 public:

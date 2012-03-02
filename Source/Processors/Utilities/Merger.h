@@ -60,6 +60,9 @@ public:
 	void switchSource();
 	void setMergerSourceNode(GenericProcessor* sn);
 
+	//void setNumOutputs(int);
+	void setNumInputs(int);
+
 	bool stillHasSource();
 
 	//int tabA, tabB;

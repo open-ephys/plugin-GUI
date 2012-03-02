@@ -30,8 +30,8 @@
 
 class FilterViewport;
 
-class EventNodeEditor : public GenericEditor,
-					 public Button::Listener
+class EventNodeEditor : public GenericEditor//,
+					// public Button::Listener
 {
 public:
 	EventNodeEditor (GenericProcessor* parentNode);

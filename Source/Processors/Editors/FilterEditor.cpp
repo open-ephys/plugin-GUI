@@ -54,7 +54,8 @@ FilterEditor::FilterEditor (GenericProcessor* parentNode)
 		if (c->isVisible())
 			c->addListener(this);
 
-		c->setVisible(true);
+		if (c->getRadioGroupId() != 999)
+			c->setVisible(true);
 	}
 
 }
@@ -77,6 +78,9 @@ FilterEditor::~FilterEditor()
 void FilterEditor::buttonClicked (Button* button)
 {
 	//std::cout << button->getRadioGroupId() << " " << button->getName() << std::endl;
+	
+	if (!checkDrawerButton(button) && !checkChannelSelectors(button)) {
+
 	String value = button->getName();
 	float val;
 
@@ -93,5 +97,6 @@ void FilterEditor::buttonClicked (Button* button)
  		getAudioProcessor()->setParameter(1,val*1000.0f);
 
  	std::cout << button->getRadioGroupId() << " " << val << std::endl;
+ 	}
 
 }

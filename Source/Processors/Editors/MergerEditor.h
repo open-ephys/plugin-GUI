@@ -35,14 +35,14 @@
 // 		~PipelineSelectorButton();	
 // };
 
-class MergerEditor : public GenericEditor,
-					   public Button::Listener
+class MergerEditor : public GenericEditor
+
 {
 public:
 	MergerEditor (GenericProcessor* parentNode);
 	virtual ~MergerEditor();
 
-	void buttonClicked (Button* button);
+	virtual void buttonClicked (Button* button);
 
     void switchSource(int);
     void switchSource ();
