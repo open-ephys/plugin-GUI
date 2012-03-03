@@ -221,6 +221,8 @@ void EditorViewport::itemDropped (const String& sourceDescription, Component* /*
             addChildComponent(activeEditor);
             activeEditor->setUIComponent(getUIComponent());
 
+            lastEditor = activeEditor;
+
             signalChainManager->updateVisibleEditors(activeEditor, indexOfMovingComponent, insertionPoint, ADD);
 
         } 
@@ -733,8 +735,22 @@ XmlElement* EditorViewport::createNodeXml (GenericEditor* editor,
 
     e->setAttribute (T("name"), name);
     e->setAttribute (T("insertionPoint"), insertionPt);
+
+   // source->stateSaved = true;
   
-    GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
+    //GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
+
+    return e;
+
+}
+
+
+XmlElement* EditorViewport::switchNodeXml (GenericProcessor* processor)
+{
+
+    XmlElement* e = new XmlElement("SWITCH");
+
+    e->setAttribute ("number", processor->saveOrder);
 
     return e;
 
@@ -743,31 +759,99 @@ XmlElement* EditorViewport::createNodeXml (GenericEditor* editor,
 const String EditorViewport::saveState(const File& file) 
 {
 
+    Array<GenericProcessor*> splitPoints;
+
+    bool moveForward;
+    int saveOrder = 0;
+
     XmlElement* xml = new XmlElement("PROCESSORGRAPH");
 
     for (int n = 0; n < signalChainArray.size(); n++)
     {
+
+        moveForward = true;
         
         XmlElement* signalChain = new XmlElement("SIGNALCHAIN");
 
         GenericEditor* editor = signalChainArray[n]->getEditor();
 
-        int insertionPt = 0;
-
+        int insertionPt = 1;
+        
         while (editor != 0)
         {
 
-            signalChain->addChildElement(createNodeXml(editor, insertionPt));
-            
-            GenericProcessor* source = (GenericProcessor*) editor->getProcessor();
-            GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
-    
-            if (dest != 0)
-                editor = (GenericEditor*) dest->getEditor();
-            else
-                editor = 0;
+            GenericProcessor* currentProcessor = (GenericProcessor*) editor->getProcessor();
+            GenericProcessor* nextProcessor;
 
-            insertionPt++;
+            if (currentProcessor->saveOrder < 0) { // create a new XML element
+
+                signalChain->addChildElement(createNodeXml(editor, insertionPt));
+                currentProcessor->saveOrder = saveOrder;
+                saveOrder++;
+
+            } else {
+                std::cout << "   Processor already saved as number " << currentProcessor->saveOrder << std::endl;
+            }
+            
+            if (moveForward) {
+                std::cout << "  Moving forward along signal chain." << std::endl;
+                nextProcessor = currentProcessor->getDestNode();
+            } else {
+                std::cout << "  Moving backward along signal chain." << std::endl;
+                nextProcessor = currentProcessor->getSourceNode();
+            }
+
+    
+            if (nextProcessor != 0) { // continue until the end of the chain
+
+                editor = (GenericEditor*) nextProcessor->getEditor();
+
+                if ((nextProcessor->isSplitter() || nextProcessor->isMerger()) 
+                    && nextProcessor->saveOrder < 0)
+                {
+                    splitPoints.add(nextProcessor);
+
+                    if (nextProcessor->isSplitter())
+                        nextProcessor->switchDest(0);
+                    else
+                        nextProcessor->switchSource(0);
+                }
+
+            } else {
+
+                std::cout << "  No processor found." << std::endl;
+
+                if (splitPoints.size() > 0) {
+
+                    nextProcessor = splitPoints.getFirst();
+                    splitPoints.remove(0);
+
+                    if (nextProcessor->isMerger())
+                    {
+                        std::cout << "    Switching merger source." << std::endl;
+                        nextProcessor->switchSource(1);
+                        signalChain->addChildElement(switchNodeXml(nextProcessor));
+                        insertionPt = 0;
+                        moveForward = false;
+                    } else {
+                        std::cout << "    Switching splitter dest." << std::endl;
+                        nextProcessor->switchDest(1);
+                        signalChain->addChildElement(switchNodeXml(nextProcessor));
+                        insertionPt = 1;
+                        moveForward = true;
+                    }
+
+                    editor = (GenericEditor*) nextProcessor->getEditor();
+
+                } else {
+
+                    std::cout << "  End of chain." << std::endl;
+
+                    editor = 0;
+                }
+            }
+
+            //insertionPt++;
         }
 
         xml->addChildElement(signalChain);
@@ -788,6 +872,8 @@ const String EditorViewport::saveState(const File& file)
 const String EditorViewport::loadState(const File& file) 
 {
     std::cout << "Loading processor graph." << std::endl;
+
+     Array<GenericProcessor*> splitPoints;
     
     XmlDocument doc (file);
     XmlElement* xml = doc.getDocumentElement();
@@ -801,14 +887,58 @@ const String EditorViewport::loadState(const File& file)
     }
 
     String description;// = T(" ");
+    int loadOrder;
 
     forEachXmlChildElement (*xml, signalChain)
     {
         forEachXmlChildElement(*signalChain, processor)
         {
-            insertionPoint = processor->getIntAttribute("insertionPoint");
 
-            itemDropped(processor->getStringAttribute("name"),0,0,0);
+            if (processor->hasTagName("PROCESSOR"))
+            {
+
+                int insertionPt = processor->getIntAttribute("insertionPoint");
+
+                if (insertionPt == 1)
+                {
+                    insertionPoint = editorArray.size();
+                } else {
+                    insertionPoint = 0;
+                }
+
+                itemDropped(processor->getStringAttribute("name"),0,0,0);
+
+                GenericProcessor* p = (GenericProcessor*) lastEditor->getProcessor();
+                p->loadOrder = loadOrder;
+                
+                loadOrder++;
+
+                if (p->isSplitter() || p->isMerger())
+                {
+                    splitPoints.add(p);
+                }
+
+            } else if (processor->hasTagName("SWITCH"))
+            {
+                int processorNum = processor->getIntAttribute("number");
+
+                for (int n = 0; n < splitPoints.size(); n++)
+                {
+                    if (splitPoints[n]->loadOrder == processorNum)
+                    {
+                        if (splitPoints[n]->isMerger())
+                        {
+                            splitPoints[n]->switchSource(1);
+                        } else {
+                            splitPoints[n]->switchDest(1);
+                        }
+
+                        splitPoints.remove(n);
+                    }
+                }
+
+            }
+
         }
 
     }
@@ -819,3 +949,4 @@ const String EditorViewport::loadState(const File& file)
    // refreshEditors();
 
 }
+

@@ -98,6 +98,7 @@ public:
     const String loadState(const File& file);
 
     XmlElement* createNodeXml(GenericEditor*, int);
+    XmlElement* switchNodeXml(GenericProcessor*);
 
     void checkScrollButtons(int topTab);
 
@@ -110,6 +111,7 @@ private:
     bool shiftDown;
 
     bool canEdit;
+    GenericEditor* lastEditor;
 
     //ProcessorGraph* graph;
     //DataViewport* tabComponent;

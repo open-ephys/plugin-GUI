@@ -146,6 +146,8 @@ public:
 
 	virtual void switchSource(int) { };
 	virtual void switchSource() { };
+	virtual void switchDest() { };
+	virtual void switchDest(int) { };
 
 	virtual void setSourceNode(GenericProcessor* sn);
 	virtual void setDestNode(GenericProcessor* dn);
@@ -177,6 +179,9 @@ public:
 	void addMidiEvent(MidiBuffer& mb, int a, int b);
 
 	bool isEnabled;
+
+	int saveOrder;
+	int loadOrder;
 
 
 	// Getting and setting:

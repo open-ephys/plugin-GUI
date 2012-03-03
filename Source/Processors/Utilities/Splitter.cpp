@@ -84,3 +84,16 @@ void Splitter::switchDest(int destNum) {
 	getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor());
 
 }
+
+void Splitter::switchDest()
+{
+	if (activePath == 0) {
+		activePath = 1;
+		destNode = destNodeB;
+	}
+	else {
+	    activePath = 0;
+	    destNode = destNodeA;
+	}
+
+}

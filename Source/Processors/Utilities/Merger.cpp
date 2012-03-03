@@ -66,18 +66,18 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 
 void Merger::switchSource(int sourceNum) {
 
-	std::cout << "Switching to source number " << sourceNum << std::endl;
+	//std::cout << "Switching to source number " << sourceNum << std::endl;
 	
 	activePath = sourceNum;
 
 	if (sourceNum == 0) 
 	{
 		sourceNode = sourceNodeA;
-		std::cout << "Source node: " << getSourceNode() << std::endl;
+		//std::cout << "Source node: " << getSourceNode() << std::endl;
 	} else 
 	{
 		sourceNode = sourceNodeB;
-		std::cout << "Source node: " << getSourceNode() << std::endl;
+		//std::cout << "Source node: " << getSourceNode() << std::endl;
 	}
 
 	getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor());

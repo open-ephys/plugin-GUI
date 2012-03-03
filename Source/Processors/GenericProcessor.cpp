@@ -25,7 +25,7 @@
 #include "../UI/UIComponent.h"
 
 GenericProcessor::GenericProcessor(const String& name_) : name(name_),
-	sourceNode(0), destNode(0), editor(0), isEnabled(true)
+	sourceNode(0), destNode(0), editor(0), isEnabled(true), saveOrder(-1), loadOrder(-1)
 	
 {
 

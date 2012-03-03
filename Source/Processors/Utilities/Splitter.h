@@ -56,6 +56,7 @@ public:
 	bool isSplitter() {return true;}
 
 	void switchDest(int);
+    void switchDest();
 	void setSplitterDestNode(GenericProcessor* dn);
 
 private:

@@ -497,12 +497,12 @@ RecordNode* ProcessorGraph::getRecordNode() {
 
 void ProcessorGraph::saveState()
 {
-	File file = File("./savedState.xml");
+	File file = File("./savedState2.xml");
 	getEditorViewport()->saveState(file);
 }
 
 void ProcessorGraph::loadState()
 {
-	File file = File("./savedState.xml");
+	File file = File("./savedState2.xml");
 	getEditorViewport()->loadState(file);
 }
