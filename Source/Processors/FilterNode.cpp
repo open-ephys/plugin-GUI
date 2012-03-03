@@ -111,12 +111,12 @@ void FilterNode::setNumInputs(int inputs)
 			Dsp::DirectFormII>						// realization
 			(1024);									// number of samples over which to fade 
 		
-	} else if (nChans == 32) {
+	} else if (nChans == 64) {
 	
 	filter = new Dsp::SmoothedFilterDesign 
 			<Dsp::Butterworth::Design::BandPass 	// design type
 			<4>,								 	// order
-			32	,									// number of channels (must be const)
+			64	,									// number of channels (must be const)
 			Dsp::DirectFormII>						// realization
 			(1024);									// number of samples over which to fade 
 													//   parameter changes

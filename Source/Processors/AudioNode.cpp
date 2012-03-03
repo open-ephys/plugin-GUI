@@ -25,7 +25,7 @@
 #include "AudioNode.h"
 
 AudioNode::AudioNode()
-	: GenericProcessor("Audio Node")
+	: GenericProcessor("Audio Node"), volume(5.0f)
 {
 
 	// 64 inputs, 2 outputs (left and right channel)
