@@ -109,7 +109,6 @@ void ProcessorGraph::createDefaultNodes()
 	
 }
 
-
 void* ProcessorGraph::createNewProcessor(String& description)//,
 										// GenericProcessor* source,
 										// GenericProcessor* dest) 
@@ -497,12 +496,12 @@ RecordNode* ProcessorGraph::getRecordNode() {
 
 void ProcessorGraph::saveState()
 {
-	File file = File("./savedState2.xml");
+	File file = File("./savedState.xml");
 	getEditorViewport()->saveState(file);
 }
 
 void ProcessorGraph::loadState()
 {
-	File file = File("./savedState2.xml");
+	File file = File("./savedState.xml");
 	getEditorViewport()->loadState(file);
 }

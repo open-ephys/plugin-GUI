@@ -372,7 +372,7 @@ bool GenericEditor::checkChannelSelectors(Button* button)
 
 		}
 
-		allButton->setToggleState(false,false);
+		//allButton->setToggleState(false,false);
 
 		return true;
 	}
@@ -380,29 +380,17 @@ bool GenericEditor::checkChannelSelectors(Button* button)
 	if (button == allButton)
 	{
 
-		for (int n = 0; n < channelSelectorButtons.size(); n++) {
+		for (int n = 0; n < channelSelectorButtons.size(); n++) 
+		{
 
-			if (allButton->getToggleState()){
+			channelSelectorButtons[n]->setToggleState(true,false);
 
-				if (!audioButton->getToggleState())
-					channelSelectorButtons[n]->setToggleState(true,false);
-				else
-					allButton->setToggleState(false,false);
-
-				if (recordButton->getToggleState())
-					recordChannels.set(n,true);
-
-
-			} else {
-
-				if (audioButton->getToggleState())
-					channelSelectorButtons[n]->setToggleState(audioChannels[n],false);
-				else if (recordButton->getToggleState())
-					channelSelectorButtons[n]->setToggleState(recordChannels[n],false);
-				else if (paramsButton->getToggleState())
-					channelSelectorButtons[n]->setToggleState(paramsChannels[n],false);
-
-			}
+			if (audioButton->getToggleState())
+				audioChannels.set(n,true);
+			else if (recordButton->getToggleState())
+				recordChannels.set(n,true);			
+			else if (paramsButton->getToggleState())
+				paramsChannels.set(n,true);	
 
 		}
 
@@ -477,6 +465,7 @@ int GenericEditor::createChannelSelectors()
 		addAndMakeVisible(allButton);
 		allButton->addListener(this);
 		allButton->setVisible(true);
+		allButton->setClickingTogglesState(false);
 		allButton->setBounds(desiredWidth-30,
 			  40, height, height);
 
@@ -615,7 +604,7 @@ void EditorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
     g.setFont(buttonFont);
     g.setColour(Colours::black);
 
-    g.drawEllipse(b,b,getWidth()-2*b,getHeight()-2*b,2.0);
+    g.drawEllipse(b,b,getWidth()-2*b,getHeight()-2*b,1.0);
 
     g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
 }

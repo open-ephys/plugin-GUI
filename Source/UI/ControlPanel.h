@@ -128,7 +128,7 @@ class Clock : public OpenGLComponent
 		FTPixmapFont* font;
 };
 
-
+class AccessClass;
 
 class ControlPanel : public Component, 
 					 public Button::Listener,
@@ -141,6 +141,8 @@ public:
 	~ControlPanel();
 
 	void disableCallbacks();
+
+	AccessClass* getAudioEditor() {return (AccessClass*) audioEditor;}
 
 private:	
 	PlayButton* playButton;

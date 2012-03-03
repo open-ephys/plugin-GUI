@@ -86,6 +86,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	processorGraph->setUIComponent(this);
 	processorList->setUIComponent(this);
 	editorViewport->setUIComponent(this);
+	controlPanel->getAudioEditor()->setUIComponent(this);
 
 	processorGraph->loadState();
 	

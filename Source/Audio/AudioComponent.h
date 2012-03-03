@@ -42,7 +42,7 @@
 
 */
 
-class AudioComponent : public AudioDeviceManager {
+class AudioComponent {
 
 public:
 	AudioComponent();
@@ -56,11 +56,15 @@ public:
 
 	bool callbacksAreActive();
 
+  AudioDeviceManager deviceManager;
+
 private:
 
 	bool isPlaying;
 
 	AudioProcessorPlayer* graphPlayer;
+
+  
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioComponent);
 

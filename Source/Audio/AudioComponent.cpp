@@ -28,24 +28,24 @@
 AudioComponent::AudioComponent() : isPlaying(false)
 {
 	
-	initialise(0,  // numInputChannelsNeeded
+	deviceManager.initialise(0,  // numInputChannelsNeeded
 			   2,  // numOutputChannelsNeeded
 			   0,  // *savedState (XmlElement)
 			   true, // selectDefaultDeviceOnFailure
 			   String::empty, // preferred device
 			   0); // preferred device setup options
 	
-	AudioIODevice* aIOd = getCurrentAudioDevice();
+	AudioIODevice* aIOd = deviceManager.getCurrentAudioDevice();
 
 	std::cout << "Got audio device." << std::endl;
 
-	String devType = getCurrentAudioDeviceType();
+	String devType = deviceManager.getCurrentAudioDeviceType();
 	String devName = aIOd->getName();
 	
 	std::cout << std::endl << "Audio device name: " << devName << std::endl;
 
 	AudioDeviceManager::AudioDeviceSetup setup;
-	getAudioDeviceSetup(setup);
+	deviceManager.getAudioDeviceSetup(setup);
 
 	setup.bufferSize = 2048; /// larger buffer = fewer empty blocks, but longer latencies
 	setup.useDefaultInputChannels = false;
@@ -54,9 +54,9 @@ AudioComponent::AudioComponent() : isPlaying(false)
 	setup.outputChannels = 2;
 	setup.sampleRate = 44100.0;
 
-	String msg = setAudioDeviceSetup(setup, false);
+	String msg = deviceManager.setAudioDeviceSetup(setup, false);
 
-	devType = getCurrentAudioDeviceType();
+	devType = deviceManager.getCurrentAudioDeviceType();
 	std::cout << "Audio device type: " << devType << std::endl;
 
 	float sr = setup.sampleRate;
@@ -102,7 +102,7 @@ bool AudioComponent::callbacksAreActive() {
 void AudioComponent::beginCallbacks() {
 	
 	std::cout << std::endl << "Adding audio callback." << std::endl;
-	addAudioCallback(graphPlayer);
+	deviceManager.addAudioCallback(graphPlayer);
 	isPlaying = true;
 
 }
@@ -110,7 +110,7 @@ void AudioComponent::beginCallbacks() {
 void AudioComponent::endCallbacks() {
 	
 	std::cout << std::endl << "Removing audio callback." << std::endl;
-	removeAudioCallback(graphPlayer);
+	deviceManager.removeAudioCallback(graphPlayer);
 	isPlaying = false;
 
 }

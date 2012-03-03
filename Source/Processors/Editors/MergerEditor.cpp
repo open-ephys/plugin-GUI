@@ -71,7 +71,7 @@ MergerEditor::MergerEditor (GenericProcessor* parentNode)
 
 
 	pipelineSelectorA->addListener(this);
-	pipelineSelectorA->setBounds(-10,15,95,50);
+	pipelineSelectorA->setBounds(-10,25,95,50);
 	pipelineSelectorA->setToggleState(true,false);
 	addAndMakeVisible(pipelineSelectorA);
 
@@ -83,7 +83,7 @@ MergerEditor::MergerEditor (GenericProcessor* parentNode)
 								downImageB, 1.0f, Colours::white.withAlpha(0.0f));
 
 	pipelineSelectorB->addListener(this);
-	pipelineSelectorB->setBounds(-10,65,95,50);
+	pipelineSelectorB->setBounds(-10,75,95,50);
 	pipelineSelectorB->setToggleState(false,false);
 	addAndMakeVisible(pipelineSelectorB);
 

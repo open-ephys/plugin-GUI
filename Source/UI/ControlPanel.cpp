@@ -295,7 +295,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) :
 {
 
 	audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
-	addChildComponent(audioEditor);
+	addAndMakeVisible(audioEditor);
 
 	playButton = new PlayButton();
 	playButton->addListener (this);
@@ -364,7 +364,7 @@ void ControlPanel::resized()
 		diskMeter->setBounds(16+h*3,h/4,h*3,h/2);
 
 	if (audioEditor != 0)
-		audioEditor->setBounds(w-h*12,5,h*5,h-10);
+		audioEditor->setBounds(h*7,5,h*8,h-10);
 }
 
 void ControlPanel::buttonClicked(Button* button) 
@@ -447,7 +447,7 @@ void ControlPanel::actionListenerCallback(const String & msg)
 {
 	//std::cout << "Message Received." << std::endl;
 	if (playButton->getToggleState()) {
-		cpuMeter->updateCPU(audio->getCpuUsage());
+		cpuMeter->updateCPU(audio->deviceManager.getCpuUsage());
 	}
 
 	cpuMeter->repaint();
@@ -462,7 +462,7 @@ void ControlPanel::timerCallback()
 {
 	//std::cout << "Message Received." << std::endl;
 	if (playButton->getToggleState()) {
-		cpuMeter->updateCPU(audio->getCpuUsage());
+		cpuMeter->updateCPU(audio->deviceManager.getCpuUsage());
 	}
 
 	cpuMeter->repaint();

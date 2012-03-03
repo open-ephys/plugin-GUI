@@ -61,6 +61,12 @@ namespace BinaryData
     extern const char*   IntanIcon_png;
     const int            IntanIcon_pngSize = 16352;
 
+    extern const char*   muteoff_png;
+    const int            muteoff_pngSize = 2034;
+
+    extern const char*   muteon_png;
+    const int            muteon_pngSize = 1570;
+
     extern const char*   MergerA01_png;
     const int            MergerA01_pngSize = 5609;
 

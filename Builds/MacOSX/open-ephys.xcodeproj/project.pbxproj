@@ -124,6 +124,8 @@
 		D99F56FB46F631F67AF23F2C = { isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultDataSource.png; path = ../../Resources/Images/Icons/DefaultDataSource.png; sourceTree = SOURCE_ROOT; };
 		66C7E42D7FDE3600982A1F46 = { isa = PBXFileReference; lastKnownFileType = image.png; name = FileReaderIcon.png; path = ../../Resources/Images/Icons/FileReaderIcon.png; sourceTree = SOURCE_ROOT; };
 		A4C8AB3F5E7A708350F72E7C = { isa = PBXFileReference; lastKnownFileType = image.png; name = IntanIcon.png; path = ../../Resources/Images/Icons/IntanIcon.png; sourceTree = SOURCE_ROOT; };
+		BD0900C3A85F58C34FA91D16 = { isa = PBXFileReference; lastKnownFileType = image.png; name = muteoff.png; path = ../../Resources/Images/Buttons/muteoff.png; sourceTree = SOURCE_ROOT; };
+		1BDA9647E0AA33F642E162BE = { isa = PBXFileReference; lastKnownFileType = image.png; name = muteon.png; path = ../../Resources/Images/Buttons/muteon.png; sourceTree = SOURCE_ROOT; };
 		D2D308542534D043BB12C801 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "MergerA-01.png"; path = "../../Resources/Images/Buttons/MergerA-01.png"; sourceTree = SOURCE_ROOT; };
 		9CD0E7C2C7E49A0DBF301B0F = { isa = PBXFileReference; lastKnownFileType = image.png; name = "MergerA-02.png"; path = "../../Resources/Images/Buttons/MergerA-02.png"; sourceTree = SOURCE_ROOT; };
 		BAAA02122ADD1D5D0670A684 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "MergerB-01.png"; path = "../../Resources/Images/Buttons/MergerB-01.png"; sourceTree = SOURCE_ROOT; };
@@ -307,6 +309,8 @@
 				66C7E42D7FDE3600982A1F46,
 				A4C8AB3F5E7A708350F72E7C ); name = Icons; sourceTree = "<group>"; };
 		3392BC2D90C96126B6D3EDA0 = { isa = PBXGroup; children = (
+				BD0900C3A85F58C34FA91D16,
+				1BDA9647E0AA33F642E162BE,
 				D2D308542534D043BB12C801,
 				9CD0E7C2C7E49A0DBF301B0F,
 				BAAA02122ADD1D5D0670A684,

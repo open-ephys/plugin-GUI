@@ -29,16 +29,47 @@
 #include <stdio.h>
 
 class AudioNode;
+class AudioComponent;
 
-class MuteButton : public DrawableButton
+class MuteButton : public ImageButton
 {
 	public:
 		MuteButton();
 		~MuteButton();	
 };
 
+class AudioWindowButton : public Button
+{
+	public:
+		AudioWindowButton();
+		~AudioWindowButton();	
+		void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
+	private:
+		Font font;
+};
+
+class AudioConfigurationWindow : public DocumentWindow
+{
+public:
+	AudioConfigurationWindow(AudioDeviceManager& adm, Button* b);
+	~AudioConfigurationWindow();
+	
+	void paint (Graphics& g);
+	void resized();
+
+private:	
+
+	void closeButtonPressed();
+
+	Button* controlButton;
+	//AudioDeviceManager* deviceManager;
+
+};
+
 class AudioEditor : public AudioProcessorEditor,
-					public Button::Listener
+					public Button::Listener,
+					public Slider::Listener,
+					public AccessClass
 
 {
 public:
@@ -49,28 +80,20 @@ public:
 
 	bool keyPressed (const KeyPress& key);
 
-	void switchSelectedState();
-	void select();
-	void deselect();
-	bool getSelectionState();
+	void resized();
 
-	String getName() {return name;}
-
-	int desiredWidth;
-	int nodeId;
-
-	AudioProcessor* getProcessor() const {return getAudioProcessor();}	
-	
 private:
 
 	void buttonClicked (Button* button);
+	void sliderValueChanged(Slider* slider);
 
-	Colour backgroundColor;
+	float lastValue;
 
 	MuteButton* muteButton;
+	AudioWindowButton* audioWindowButton;
+	AudioConfigurationWindow* acw;
 
-	bool isSelected;
-	String name;
+	Slider* volumeSlider;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioEditor);
 

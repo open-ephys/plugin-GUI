@@ -76,6 +76,7 @@ public:
 	ControlPanel* getControlPanel() {return controlPanel;}
 	MessageCenter* getMessageCenter() {return messageCenter;}
 	UIComponent* getUIComponent() {return this;}
+	AudioComponent* getAudioComponent() {return audio;}
 
 	//void transmitMessage(const String& message);
 	void disableCallbacks();

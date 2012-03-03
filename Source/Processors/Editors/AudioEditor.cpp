@@ -22,144 +22,198 @@
 */
 
 #include "AudioEditor.h"
+#include "../../Audio/AudioComponent.h"
 
 
 MuteButton::MuteButton()
-	: DrawableButton (T("Mute button"), DrawableButton::ImageFitted)
+	: ImageButton ("MuteButton")
 {
-	DrawablePath normal, over, down;
-
-	    Path p;
-        p.addEllipse (0.0,0.0,20.0,20.0);
-        normal.setPath (p);
-        normal.setFill (Colours::lightgrey);
-        normal.setStrokeThickness (0.0f);
-
-        over.setPath (p);
-        over.setFill (Colours::black);
-        over.setStrokeFill (Colours::black);
-        over.setStrokeThickness (5.0f);
-
-        setImages (&normal, &over, &over);
-        setBackgroundColours(Colours::darkgrey, Colours::purple);
-        setClickingTogglesState (true);
-        setTooltip ("Toggle a state.");
 
 
+	Image offimage = ImageCache::getFromMemory (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
+	Image onimage = ImageCache::getFromMemory (BinaryData::muteon_png, BinaryData::muteon_pngSize);
 
+	setImages(false, true, true,
+			offimage, 1.0f, Colours::white.withAlpha(0.0f),
+			offimage, 1.0f, Colours::black.withAlpha(0.0f),
+			onimage, 1.0f, Colours::white.withAlpha(0.0f));
+
+	setClickingTogglesState(true);
 }
 
 MuteButton::~MuteButton()
 {
 }
 
+AudioWindowButton::AudioWindowButton()
+	: Button ("AudioWindowButton")
+{
+	setClickingTogglesState(true);
+
+	MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    Typeface::Ptr typeface = new CustomTypeface(mis);
+    font = Font(typeface);
+    font.setHeight(12);
+}
+
+AudioWindowButton::~AudioWindowButton()
+{
+}
+
+void AudioWindowButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+{
+	if (getToggleState())
+		g.setColour(Colours::yellow);
+	else
+		g.setColour(Colours::black);
+
+	g.setFont(font);
+	//g.drawSingleLineText(" AUDIO",0,0);
+	g.drawSingleLineText("AUDIO",0,15);
+}
+
 AudioEditor::AudioEditor (AudioNode* owner) 
-	: AudioProcessorEditor (owner), isSelected(false),
-	  desiredWidth(150)
+	: AudioProcessorEditor (owner), lastValue(1.0f), acw(0)
 
 {
-	name = getAudioProcessor()->getName();
-
-	nodeId = owner->getNodeId();
-
-	backgroundColor = Colours::lightgrey.withAlpha(0.5f);
 
 	muteButton = new MuteButton();
 	muteButton->addListener(this);
-	muteButton->setBounds(95,5,15,15);
 	muteButton->setToggleState(false,false);
 	addAndMakeVisible(muteButton);
+
+	audioWindowButton = new AudioWindowButton();
+	audioWindowButton->addListener(this);
+	audioWindowButton->setToggleState(false,false);
+	addAndMakeVisible(audioWindowButton);
+
+	volumeSlider = new Slider (T("High-Cut Slider"));
+	volumeSlider->setRange(0,1,0.05);
+	volumeSlider->addListener(this);
+	volumeSlider->setTextBoxStyle(Slider::NoTextBox,
+								false, 0, 0);
+	addAndMakeVisible(volumeSlider);
+
+	//acw = new AudioConfigurationWindow(getAudioComponent()->deviceManager, (Button*) audioWindowButton);
 
 }
 
 AudioEditor::~AudioEditor()
 {
-	//std::cout << "  Generic editor for " << getName() << " being deleted with " << getNumChildComponents() << " children. " << std::endl;
 	deleteAllChildren();
-	//delete titleFont;
+	deleteAndZero(acw);
 }
 
-//void GenericEditor::setTabbedComponent(TabbedComponent* tc) {
-	
-//	tabComponent = tc;
-
-//}
+void AudioEditor::resized()
+{
+	muteButton->setBounds(0,0,30,25);
+	volumeSlider->setBounds(35,0,100,getHeight());
+	audioWindowButton->setBounds(140,0,200,getHeight());
+}
 
 bool AudioEditor::keyPressed (const KeyPress& key)
 {
 	//std::cout << name << " received " << key.getKeyCode() << std::endl;
 }
 
-void AudioEditor::switchSelectedState() 
-{
-	//std::cout << "Switching selected state" << std::endl;
-	isSelected = !isSelected;
-	repaint();
-}
-
-void AudioEditor::select()
-{
-	isSelected = true;
-	repaint();
-	setWantsKeyboardFocus(true);
-	grabKeyboardFocus();
-}
-
-bool AudioEditor::getSelectionState() {
-	return isSelected;
-}
-
-void AudioEditor::deselect()
-{
-	isSelected = false;
-	repaint();
-	setWantsKeyboardFocus(false);
-}
 
 void AudioEditor::buttonClicked(Button* button)
 {
 	if (button == muteButton)
 	{
-		
+
 		if(muteButton->getToggleState()) {
+			lastValue = volumeSlider->getValue();
 			getAudioProcessor()->setParameter(1,0.0f);
 			std::cout << "Mute on." << std::endl;
 	    } else {
-	    	getAudioProcessor()->setParameter(1,1.0f);
+	    	getAudioProcessor()->setParameter(1,lastValue);
 	    	std::cout << "Mute off." << std::endl;
 	    }
+	} else if (button == audioWindowButton)
+	{
+		if (audioWindowButton->getToggleState())
+		{
+			if (acw == 0) {
+				
+				AudioComponent* ac = getAudioComponent();
+
+				if (ac != 0)
+					acw = new AudioConfigurationWindow(ac->deviceManager, (Button*) audioWindowButton);
+
+			}
+
+			acw->setVisible(true);
+		} else {
+			acw->setVisible(false);
+		}
 	}
 
 }
 
+void AudioEditor::sliderValueChanged(Slider* slider)
+{
+	getAudioProcessor()->setParameter(1,slider->getValue());
+}
+
 void AudioEditor::paint (Graphics& g)
 {
+	//g.setColour(Colours::grey);
+	// g.fillRect(1,1,getWidth()-2,getHeight()-2);
+}
 
-	//g.addTransform(AffineTransform::rotation( double_Pi/20));
 
-	// g.setColour(Colours::black);
-	// g.fillRoundedRectangle(0,0,getWidth(),getHeight(),10.0);
 
-	// if (isSelected) {
-	g.setColour(backgroundColor);
-	// } else {
-	// 	g.setColour(Colours::lightgrey);
-	// }
-	 g.fillRoundedRectangle(1,1,getWidth()-2,getHeight()-2,9.0);
+AudioConfigurationWindow::AudioConfigurationWindow(AudioDeviceManager& adm, Button* cButton)
+	: DocumentWindow ("Audio Settings", 
+					  Colours::red, 
+					  DocumentWindow::closeButton),
+	  controlButton(cButton)
 
-	// g.setColour(Colours::grey);
-	// g.fillRoundedRectangle(4,15,getWidth()-8, getHeight()-19,8.0);
-	// g.fillRect(4,15,getWidth()-8, 20);
+{
+	centreWithSize(360,300);
+	setUsingNativeTitleBar(true);
+	setResizable(false,false);
 
-	
+	//std::cout << "Audio CPU usage:" << adm.getCpuUsage() << std::endl;
 
-	 g.setColour(Colours::black);
+	AudioDeviceSelectorComponent* adsc = new AudioDeviceSelectorComponent 
+								(adm,
+								 0, // minAudioInputChannels
+								 2, // maxAudioInputChannels
+								 0, // minAudioOutputChannels
+								 2, // maxAudioOutputChannels
+								 false, // showMidiInputOptions
+								 false, // showMidiOutputSelector
+								 false, // showChannelsAsStereoPairs
+								 false); // hideAdvancedOptionsWithButton
 
-	 Font titleFont = Font(14.0, Font::plain);
+	adsc->setBounds(0,0,450,240);
 
-	// //titleFont.setTypefaceName(T("Miso"));
+	setContentComponent (adsc, true, true);
+	setVisible(false);
+	//setContentComponentSize(getWidth(), getHeight());
+}
 
-	 g.setFont(titleFont);
-	 g.drawText("Mute ON/OFF", 15, 10, 100, 7, Justification::left, false);
+AudioConfigurationWindow::~AudioConfigurationWindow()
+{
+	setContentComponent (0);
+	//eleteAndZero(deviceManager);
+//	deleteAndZero (deviceSelector);
+}
 
+void AudioConfigurationWindow::closeButtonPressed()
+{
+	controlButton->setToggleState(false,false);
+	setVisible(false);
+}
+
+void AudioConfigurationWindow::resized()
+{
+	//deviceSelector->setBounds (8, 8, getWidth() - 16, getHeight() - 16);
+}
+
+void AudioConfigurationWindow::paint(Graphics& g)
+{
+	g.fillAll(Colours::darkgrey);
 }
