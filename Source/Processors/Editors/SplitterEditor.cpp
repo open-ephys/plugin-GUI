@@ -112,3 +112,22 @@ void SplitterEditor::buttonClicked(Button* button)
 		
 	}
 }
+
+void SplitterEditor::switchDest(int dest)
+{
+	if (dest == 0)
+	{
+		pipelineSelectorA->setToggleState(true,false);
+		pipelineSelectorB->setToggleState(false,false);
+		Splitter* processor = (Splitter*) getProcessor();
+		processor->switchDest(0);
+
+	} else if (dest == 1)
+	{
+		pipelineSelectorB->setToggleState(true,false);
+		pipelineSelectorA->setToggleState(false,false);
+		Splitter* processor = (Splitter*) getProcessor();
+		processor->switchDest(1);
+		
+	}
+}

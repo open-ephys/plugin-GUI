@@ -926,11 +926,14 @@ const String EditorViewport::loadState(const File& file)
                 {
                     if (splitPoints[n]->loadOrder == processorNum)
                     {
+
                         if (splitPoints[n]->isMerger())
                         {
-                            splitPoints[n]->switchSource(1);
+                            MergerEditor* editor = (MergerEditor*) splitPoints[n]->getEditor();
+                           editor->switchSource(1);
                         } else {
-                            splitPoints[n]->switchDest(1);
+                            SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
+                            editor->switchDest(1);
                         }
 
                         splitPoints.remove(n);

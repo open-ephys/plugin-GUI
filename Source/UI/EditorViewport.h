@@ -27,6 +27,8 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/ProcessorGraph.h"
 #include "../Processors/Editors/GenericEditor.h"
+#include "../Processors/Editors/SplitterEditor.h"
+#include "../Processors/Editors/MergerEditor.h"
 
 #include "../AccessClass.h"
 #include "DataViewport.h"
