@@ -83,8 +83,8 @@ public:
 	void saveState();
 	void loadState();
 
-	int getNextFreeAudioChannel();
-	int getNextFreeRecordChannel();
+	//int getNextFreeAudioChannel();
+	//int getNextFreeRecordChannel();
 
 private:	
 
@@ -105,8 +105,8 @@ private:
 	///Configuration* config;
 	//MessageCenter* messageCenter;
 
-	int totalAudioConnections;
-	int totalRecordConnections;
+	//int totalAudioConnections;
+	//int totalRecordConnections;
 
 };
 

@@ -133,6 +133,9 @@ public:
 	virtual void setNumOutputs(int);
 	virtual void setNumOutputs();
 	virtual int getDefaultNumOutputs();
+
+	virtual int getNextChannel(bool);
+	virtual void resetConnections();
 	
 	virtual void updateSettings();
 
@@ -173,12 +176,14 @@ public:
 	virtual AudioSampleBuffer* getContinuousBuffer() {return 0;}
 	virtual MidiBuffer* getEventBuffer() {return 0;}
 
-
+	int nextAvailableChannel;
 
 	int checkForMidiEvents(MidiBuffer& mb);
 	void addMidiEvent(MidiBuffer& mb, int a, int b);
 
 	bool isEnabled;
+
+	bool wasConnected;
 
 	int saveOrder;
 	int loadOrder;

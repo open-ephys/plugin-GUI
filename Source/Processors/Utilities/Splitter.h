@@ -32,8 +32,6 @@
 
 /**
 
-  --UNDER CONSTRUCTION--
-  
   Allows the user to split the signal chain.
 
   @see GenericProcessor, ProcessorGraph
@@ -58,6 +56,8 @@ public:
 	void switchDest(int);
     void switchDest();
 	void setSplitterDestNode(GenericProcessor* dn);
+
+    void setNumInputs(int);
 
 private:
 

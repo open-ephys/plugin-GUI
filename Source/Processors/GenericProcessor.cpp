@@ -25,7 +25,8 @@
 #include "../UI/UIComponent.h"
 
 GenericProcessor::GenericProcessor(const String& name_) : name(name_),
-	sourceNode(0), destNode(0), editor(0), isEnabled(true), saveOrder(-1), loadOrder(-1)
+	sourceNode(0), destNode(0), editor(0), isEnabled(true), saveOrder(-1), loadOrder(-1),
+	nextAvailableChannel(0), wasConnected(false)
 	
 {
 
@@ -109,6 +110,29 @@ void GenericProcessor::releaseResources()
 // 	UI->transmitMessage(msg);
 // }
 
+
+int GenericProcessor::getNextChannel(bool increment)
+{
+	int chan = nextAvailableChannel;
+
+	//std::cout << chan << std::endl;
+
+	if (increment)
+		nextAvailableChannel++;
+	
+	if (chan < getNumInputs())
+		return chan;
+	else
+		return -1;
+
+}
+
+void GenericProcessor::resetConnections()
+{
+	//std::cout << "Resetting connections" << std::endl;
+	nextAvailableChannel = 0;
+	wasConnected = false;
+}
 
 void GenericProcessor::setNumSamples(MidiBuffer& midiMessages, int numberToAdd) {
 

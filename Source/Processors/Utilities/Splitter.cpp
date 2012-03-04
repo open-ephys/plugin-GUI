@@ -97,3 +97,9 @@ void Splitter::switchDest()
 	}
 
 }
+
+void Splitter::setNumInputs(int n)
+{
+	numInputs = n;
+	setNumOutputs(getNumInputs());
+}
