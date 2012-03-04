@@ -134,7 +134,7 @@ void ResamplingNode::prepareToPlay (double sampleRate_, int estimatedSamplesPerB
 
 	if (destBufferIsTempBuffer) {
 		destBufferSampleRate = sampleRate_;
-		tempBuffer->setSize(getNumInputs(), 2048);
+		tempBuffer->setSize(getNumInputs(), 4096);
 	}
 	else {
 		destBufferSampleRate = float(destBufferWidth) / destBufferTimebaseSecs;
@@ -189,7 +189,7 @@ void ResamplingNode::process(AudioSampleBuffer &buffer,
 
 	if (destBufferIsTempBuffer) {
 		ratio = float(nSamps) / float(buffer.getNumSamples());
-		valuesNeeded = tempBuffer->getNumSamples();
+		valuesNeeded = buffer.getNumSamples();
 	} else {
 		ratio = sourceBufferSampleRate / destBufferSampleRate;
 		valuesNeeded = (int) buffer.getNumSamples() / ratio;
@@ -278,7 +278,10 @@ void ResamplingNode::process(AudioSampleBuffer &buffer,
 	if (destBufferIsTempBuffer) {
     	
     	// copy the temp buffer into the original buffer
+
+
     	buffer = *tempBuffer;
+    	//buffer = AudioSampleBuffer(tempBuffer->getArrayOfChannels(), 2, buffer.getNumSamples());
 
     	//buffer.setSize(2,0,true,false,true);
 
