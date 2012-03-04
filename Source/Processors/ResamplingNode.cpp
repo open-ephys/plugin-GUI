@@ -130,11 +130,11 @@ void ResamplingNode::setParameter (int parameterIndex, float newValue)
 void ResamplingNode::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
 {
 
-	//std::cout << "ResamplingNode preparing to play." << std::endl;
+	std::cout << "ResamplingNode preparing to play." << std::endl;
 
 	if (destBufferIsTempBuffer) {
 		destBufferSampleRate = sampleRate_;
-		tempBuffer->setSize(getNumInputs(), estimatedSamplesPerBlock);
+		tempBuffer->setSize(getNumInputs(), 2048);
 	}
 	else {
 		destBufferSampleRate = float(destBufferWidth) / destBufferTimebaseSecs;
@@ -145,6 +145,9 @@ void ResamplingNode::prepareToPlay (double sampleRate_, int estimatedSamplesPerB
 	tempBuffer->clear();
 
 	destBufferPos = 0;
+
+	std::cout << "Temp buffer size: " << tempBuffer->getNumChannels() << " x " 
+	          << tempBuffer->getNumSamples() << std::endl;
 
 	updateFilter();
 

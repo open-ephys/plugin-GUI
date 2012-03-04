@@ -41,7 +41,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 
 	frequencySlider = new Slider (T("High-Cut Slider"));
 	frequencySlider->setBounds(25,70,170,40);
-	frequencySlider->setRange(1,100,1);
+	frequencySlider->setRange(1,1000,1);
 	frequencySlider->addListener(this);
 	addAndMakeVisible(frequencySlider);
 
