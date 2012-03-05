@@ -61,11 +61,17 @@ public:
 
 	bool isSource() {return true;}
 
+	void updateParameters();
+
 private:
 	
-	double frequency, sampleRate;
-	double currentPhase, phasePerSample;
-	float amplitude;
+	double defaultFrequency;
+	double defaultAmplitude;
+
+	Array<double> frequencies;
+	Array<double> amplitudes;
+	Array<double> currentPhase;
+	Array<double> phasePerSample;
 
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalGenerator);

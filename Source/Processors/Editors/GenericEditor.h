@@ -99,6 +99,8 @@ public:
 
 	bool checkDrawerButton(Button* button);
 	bool checkChannelSelectors(Button* button);
+
+	Array<int> getActiveChannels();
 	
 private:
 

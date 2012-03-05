@@ -55,9 +55,22 @@ SignalGeneratorEditor::~SignalGeneratorEditor()
 void SignalGeneratorEditor::sliderValueChanged (Slider* slider)
 {
 
-	if (slider == amplitudeSlider)
-		getAudioProcessor()->setParameter(0,slider->getValue());
-	else 
-		getAudioProcessor()->setParameter(1,slider->getValue());
+	Array<int> chans = getActiveChannels();
+	
+	//std::cout << chans.size() << " channels selected." << std::endl;
+
+	GenericProcessor* p = (GenericProcessor*) getAudioProcessor();
+
+	for (int n = 0; n < chans.size(); n++) {
+		
+		p->setCurrentChannel(chans[n]);
+
+		if (slider == amplitudeSlider)
+			p->setParameter(0,slider->getValue());
+		else 
+			p->setParameter(1,slider->getValue());
+
+	}
+
 
 }

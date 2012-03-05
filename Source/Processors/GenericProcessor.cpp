@@ -26,7 +26,7 @@
 
 GenericProcessor::GenericProcessor(const String& name_) : name(name_),
 	sourceNode(0), destNode(0), editor(0), isEnabled(true), saveOrder(-1), loadOrder(-1),
-	nextAvailableChannel(0), wasConnected(false)
+	nextAvailableChannel(0), wasConnected(false), currentChannel(-1)
 	
 {
 
@@ -81,7 +81,7 @@ int GenericProcessor::getDefaultNumOutputs()
 {
 	if (!isSink())
 	{
-		return 16;
+		return 10;
 	} else {
 		return 0;
 	}
@@ -294,6 +294,13 @@ void GenericProcessor::updateSettings()
 
 	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
 
+	updateParameters();
+
+}
+
+void GenericProcessor::updateParameters()
+{
+	
 }
 
 

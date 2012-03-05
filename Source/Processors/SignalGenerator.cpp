@@ -29,15 +29,12 @@
 SignalGenerator::SignalGenerator()
 	: GenericProcessor("Signal Generator"),
 
-	  frequency(10.0),
-	  sampleRate (44100.0),
-	  currentPhase (0.0),
-	  phasePerSample (0.0),
-	  amplitude (0.02f)
+	  defaultFrequency(10.0),
+	  defaultAmplitude (0.02f)
 	
 {
 
-	setNumOutputs(16);
+	setNumOutputs(10);
 	setNumInputs(0);
 
 
@@ -73,24 +70,43 @@ AudioProcessorEditor* SignalGenerator::createEditor( )
 	return ed;
 }
 
+void SignalGenerator::updateParameters()
+{
+
+	std::cout << "Signal generator updating parameters" << std::endl;
+
+	frequencies.clear();
+	amplitudes.clear();
+	currentPhase.clear();
+	phasePerSample.clear();
+
+	for (int n = 0; n < getNumOutputs(); n++)
+	{
+		frequencies.add(defaultFrequency*n);
+		amplitudes.add(defaultAmplitude);
+		currentPhase.add(0);
+		phasePerSample.add(double_Pi * 2.0 / (getSampleRate() / frequencies[n]));
+	}
+
+}
 
 void SignalGenerator::setParameter (int parameterIndex, float newValue)
 {
 	//std::cout << "Message received." << std::endl;
 
-	if (parameterIndex == 0)
-		amplitude = newValue;
-	else
-		frequency = newValue;
-
-	phasePerSample = double_Pi * 2.0 / (sampleRate / frequency);
+	if (currentChannel > -1) {
+		if (parameterIndex == 0) {
+			amplitudes.set(currentChannel,newValue);
+		} else {
+			frequencies.set(currentChannel,newValue);
+			phasePerSample.set(currentChannel, double_Pi * 2.0 / (sampleRate / frequencies[currentChannel]));
+		}
+	}
 
 }
 
 
 bool SignalGenerator::enable () {
-
-	phasePerSample = double_Pi * 2.0 / (getSampleRate() / frequency);
 
 	std::cout << "Signal generator received enable signal." << std::endl;
 	return true;
@@ -112,11 +128,13 @@ void SignalGenerator::process(AudioSampleBuffer &buffer,
 	
     for (int i = 0; i < nSamps; ++i)
     {
-        const float sample = amplitude * (float) std::sin (currentPhase);
-        currentPhase += phasePerSample;
+        for (int j = buffer.getNumChannels(); --j >= 0;) {
+        	
+        	const float sample = amplitudes[j] * (float) std::sin (currentPhase[j]);
+       		currentPhase.set(j,currentPhase[j] + phasePerSample[j]);
 
-        for (int j = buffer.getNumChannels(); --j >= 0;)
-        	// dereference pointer to one of the buffer's samples
+       		// dereference pointer to one of the buffer's samples
             *buffer.getSampleData (j, i) = sample;
+        }
     }
 }

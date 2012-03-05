@@ -137,7 +137,10 @@ public:
 	virtual int getNextChannel(bool);
 	virtual void resetConnections();
 	
-	virtual void updateSettings();
+	virtual void updateSettings(); // updates sample rate and number of channels
+	virtual void updateParameters(); // called in updateSettings() to update params
+
+	virtual void setCurrentChannel(int chan) {currentChannel = chan;}
 
 	int getNodeId() {return nodeId;}
 	void setNodeId(int id) {nodeId = id;}
@@ -187,6 +190,8 @@ public:
 
 	int saveOrder;
 	int loadOrder;
+
+	int currentChannel;
 
 
 	// Getting and setting:

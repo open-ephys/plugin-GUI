@@ -325,6 +325,7 @@
 		1640CC946EDFD5EC9A321954 = { isa = PBXGroup; children = (
 				2D8E1C366F21D3C8FE662382,
 				4E8DA551A1B5D7A2B1229181 ); name = Resources; sourceTree = "<group>"; };
+		21721C7CD4451993F10354CB = { isa = PBXGroup; children = (  ); name = Plugins; sourceTree = "<group>"; };
 		8F98BACF97340868397BA4BB = { isa = PBXGroup; children = (
 				673778A175624FC9F52E7A15,
 				2EAE0475B719C3233AD8BB35 ); name = Network; sourceTree = "<group>"; };
@@ -479,6 +480,7 @@
 				2A78F719BAFBDCD63AE9A88A,
 				DB605BA15852F367DF625300 ); name = UI; sourceTree = "<group>"; };
 		98D3BECE25EB3CF1F64F54B4 = { isa = PBXGroup; children = (
+				21721C7CD4451993F10354CB,
 				CA0A1584725D21237DBCD70A,
 				63992CB3AC42F91A51135EAC,
 				8F98BACF97340868397BA4BB,

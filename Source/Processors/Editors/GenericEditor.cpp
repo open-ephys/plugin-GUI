@@ -83,6 +83,11 @@ GenericEditor::GenericEditor (GenericProcessor* owner)//, FilterViewport* vp)
 		backgroundColor = Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
 
 
+	paramsChannels.clear();
+	audioChannels.clear();
+	recordChannels.clear();
+
+
 	fadeIn();
 }
 
@@ -311,25 +316,25 @@ bool GenericEditor::checkChannelSelectors(Button* button)
 		if (button == channelSelectorButtons[n])
 		{
 
-			String type;
+		//	String type;
 
 			if (audioButton->getToggleState())
 			{
 				audioChannels.set(n,button->getToggleState());
-				type = "Audio ";
+				//type = "Audio ";
 			}
 			else if (recordButton->getToggleState())
 			{
 				recordChannels.set(n,button->getToggleState());	
-				type = "Record ";
+				//type = "Record ";
 			}		
 			else if (paramsButton->getToggleState())
 			{
 				paramsChannels.set(n,button->getToggleState());
-				type = "Params ";	
+				//type = "Params ";	
 			}
 			
-			std::cout << type << "button " << n << " clicked." << std::endl;
+			//std::cout << type << "button " << n << " clicked." << std::endl;
 			return true;
 			
 		}
@@ -399,6 +404,22 @@ bool GenericEditor::checkChannelSelectors(Button* button)
 
 	return false;
 
+}
+
+Array<int> GenericEditor::getActiveChannels()
+{
+	Array<int> chans;
+
+	for (int n = 0; n < paramsChannels.size(); n++)
+	{
+		if (paramsChannels[n])
+		{
+			chans.add(n);
+		}
+
+	}
+
+	return chans;
 }
 
 void GenericEditor::createRadioButtons(int x, int y, int w, StringArray values, const String& groupName)
