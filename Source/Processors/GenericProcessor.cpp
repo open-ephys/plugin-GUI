@@ -296,6 +296,10 @@ void GenericProcessor::updateSettings()
 
 	updateParameters();
 
+	GenericEditor* editor = (GenericEditor*) getEditor();
+
+	editor->update();
+
 }
 
 void GenericProcessor::updateParameters()

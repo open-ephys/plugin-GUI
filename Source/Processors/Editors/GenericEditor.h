@@ -100,6 +100,8 @@ public:
 	bool checkDrawerButton(Button* button);
 	bool checkChannelSelectors(Button* button);
 
+	virtual void update();
+
 	Array<int> getActiveChannels();
 	
 private:
@@ -110,6 +112,7 @@ private:
 
 	virtual int createChannelSelectors();
 	virtual void removeChannelSelectors();
+	virtual void destroyChannelSelectors();
 
 	Colour backgroundColor;
 
@@ -117,6 +120,8 @@ private:
 	bool isEnabled;
 
 	int tNum;
+
+	int numChannels;
 
 	int drawerWidth;
 

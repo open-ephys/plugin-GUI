@@ -47,16 +47,16 @@ FilterEditor::FilterEditor (GenericProcessor* parentNode)
 	createRadioButtons(35, 50, 160, lowCutValues, "Low Cutoff");
 	createRadioButtons(35, 90, 160, highCutValues, "High Cutoff");
 
-	for (int n = 0; n < getNumChildComponents(); n++)
-	{
-		Button* c = (Button*) getChildComponent(n);
+	// for (int n = 0; n < getNumChildComponents(); n++)
+	// {
+	// 	Button* c = (Button*) getChildComponent(n);
 
-		if (c->isVisible())
-			c->addListener(this);
+	// 	if (c->isVisible())
+	// 		c->addListener(this);
 
-		if (c->getRadioGroupId() != 999)
-			c->setVisible(true);
-	}
+	// 	if (c->getRadioGroupId() != 999)
+	// 		c->setVisible(true);
+	// }
 
 }
 
@@ -81,22 +81,27 @@ void FilterEditor::buttonClicked (Button* button)
 	
 	if (!checkDrawerButton(button) && !checkChannelSelectors(button)) {
 
-	String value = button->getName();
-	float val;
+		String value = button->getName();
+		float val;
 
-	// if (value.getLastCharacter() == juce_wchar('k')) {
-	// 	val = value.dropLastCharacters(1).getFloatValue() * 1000.0f;
-	// }
-	// else {
-	val = value.getFloatValue();
-	// }
+		val = value.getFloatValue();
 
-	if (button->getRadioGroupId() == 1)
- 		getAudioProcessor()->setParameter(0,val);
- 	else 
- 		getAudioProcessor()->setParameter(1,val*1000.0f);
+		Array<int> chans = getActiveChannels();
+		
+		GenericProcessor* p = (GenericProcessor*) getAudioProcessor();
 
- 	std::cout << button->getRadioGroupId() << " " << val << std::endl;
+		for (int n = 0; n < chans.size(); n++) {
+			
+			p->setCurrentChannel(chans[n]);
+
+			if (button->getRadioGroupId() == 1)
+	 			getAudioProcessor()->setParameter(0,val);
+	 		else 
+	 			getAudioProcessor()->setParameter(1,val*1000.0f);
+
+		}	
+
+ 	//std::cout << button->getRadioGroupId() << " " << val << std::endl;
  	}
 
 }

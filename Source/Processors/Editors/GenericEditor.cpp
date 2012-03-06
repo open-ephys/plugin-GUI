@@ -32,7 +32,8 @@ GenericEditor::GenericEditor (GenericProcessor* owner)//, FilterViewport* vp)
 	: AudioProcessorEditor (owner), isSelected(false),
 	  desiredWidth(150), tNum(-1), isEnabled(true), radioGroupId(1),
 	  accumulator(0.0), isFading(false), drawerButton(0), audioButton(0),
-	  recordButton(0), paramsButton(0), allButton(0), noneButton(0)
+	  recordButton(0), paramsButton(0), allButton(0), noneButton(0),
+	  numChannels(-1)
 
 {
 	name = getAudioProcessor()->getName();
@@ -311,6 +312,9 @@ bool GenericEditor::checkDrawerButton(Button* button)
 
 bool GenericEditor::checkChannelSelectors(Button* button)
 {
+
+
+
 	for (int n = 0; n < channelSelectorButtons.size(); n++)
 	{
 		if (button == channelSelectorButtons[n])
@@ -406,6 +410,35 @@ bool GenericEditor::checkChannelSelectors(Button* button)
 
 }
 
+void GenericEditor::update()
+{
+
+	std::cout << "Updating" << std::endl;
+
+	GenericProcessor* p = (GenericProcessor*) getProcessor();
+
+	if (!p->isSink())
+	{
+
+		if (p->getNumOutputs() != numChannels)
+		{
+			destroyChannelSelectors();
+		}
+
+		numChannels = p->getNumOutputs();
+
+	} else {
+
+		if (p->getNumInputs() != numChannels)
+		{
+			destroyChannelSelectors();
+		}
+
+		numChannels = p->getNumInputs();
+	}
+
+}
+
 Array<int> GenericEditor::getActiveChannels()
 {
 	Array<int> chans;
@@ -433,7 +466,7 @@ void GenericEditor::createRadioButtons(int x, int y, int w, StringArray values, 
 		RadioButton* b = new RadioButton(values[i], radioGroupId, titleFont);
 		addAndMakeVisible(b);
 		b->setBounds(x+width*i,y,width,15);
-	//	b->addListener(this);
+		b->addListener(this);
 		
 
 		// if (i == numButtons-1)
@@ -443,7 +476,7 @@ void GenericEditor::createRadioButtons(int x, int y, int w, StringArray values, 
 	}
 
 	Label* l = new Label("Label",groupName);
-	addChildComponent(l);
+	addAndMakeVisible(l);
 	l->setBounds(x,y-15,200,10);
 	titleFont.setHeight(10);
 	l->setFont(titleFont);
@@ -455,14 +488,21 @@ void GenericEditor::createRadioButtons(int x, int y, int w, StringArray values, 
 int GenericEditor::createChannelSelectors()
 {
 
+	GenericProcessor* p = (GenericProcessor*) getProcessor();
+
+
 	if (channelSelectorButtons.size() == 0) {
 
-		GenericProcessor* p = (GenericProcessor*) getProcessor();
 
 		int width = 20;
 		int height = 14;
+		int numChannels;
 
-		int numChannels = p->getNumOutputs();
+		if (!p->isSink())
+			numChannels = p->getNumOutputs();
+		else
+			numChannels = p->getNumInputs();
+
 		int nColumns = ceil(numChannels/4);
 
 		for (int n = 1; n < numChannels+1; n++)
@@ -482,21 +522,27 @@ int GenericEditor::createChannelSelectors()
 
 		}
 
-		allButton = new ChannelSelectorButton("+",titleFont);
-		addAndMakeVisible(allButton);
-		allButton->addListener(this);
-		allButton->setVisible(true);
-		allButton->setClickingTogglesState(false);
-		allButton->setBounds(desiredWidth-30,
-			  40, height, height);
+		if (allButton == 0)
+		{
+			allButton = new ChannelSelectorButton("+",titleFont);
+			addAndMakeVisible(allButton);
+			allButton->addListener(this);
+			allButton->setVisible(true);
+			allButton->setClickingTogglesState(false);
+			allButton->setBounds(desiredWidth-30,
+				  40, height, height);
+		}
 
-		noneButton = new ChannelSelectorButton("-",titleFont);
-		addAndMakeVisible(noneButton);
-		noneButton->addListener(this);
-		noneButton->setVisible(true);
-		noneButton->setClickingTogglesState(false);
-		noneButton->setBounds(desiredWidth-30,
-			  60, height, height);
+		if (noneButton == 0)
+		{
+			noneButton = new ChannelSelectorButton("-",titleFont);
+			addAndMakeVisible(noneButton);
+			noneButton->addListener(this);
+			noneButton->setVisible(true);
+			noneButton->setClickingTogglesState(false);
+			noneButton->setBounds(desiredWidth-30,
+				  60, height, height);
+		}
 
 		 return nColumns*width+ 15;
 
@@ -506,12 +552,16 @@ int GenericEditor::createChannelSelectors()
 		{
 			channelSelectorButtons[n]->setVisible(true);
 
-			if (audioButton->getToggleState())
-				channelSelectorButtons[n]->setToggleState(audioChannels[n],false);
-			else if (recordButton->getToggleState())
-				channelSelectorButtons[n]->setToggleState(recordChannels[n],false);
-			else if (paramsButton->getToggleState())
-				channelSelectorButtons[n]->setToggleState(paramsChannels[n],false);
+			if (!p->isSink()) {
+
+				if (audioButton->getToggleState())
+					channelSelectorButtons[n]->setToggleState(audioChannels[n],false);
+				else if (recordButton->getToggleState())
+					channelSelectorButtons[n]->setToggleState(recordChannels[n],false);
+				else if (paramsButton->getToggleState())
+					channelSelectorButtons[n]->setToggleState(paramsChannels[n],false);
+				
+			}
 
 		}
 
@@ -528,17 +578,33 @@ void GenericEditor::removeChannelSelectors()
 	for (int n = 0; n < channelSelectorButtons.size(); n++)
 	{
 		channelSelectorButtons[n]->setVisible(false);
-		// //removeChildComponent(channelSelectorButtons[n]);
-		// ChannelSelectorButton* t = channelSelectorButtons.remove(n);
-  //   	deleteAndZero(t);
 	}
 
 	allButton->setVisible(false);
 	noneButton->setVisible(false);
 
-//	channelSelectorButtons.clear();
 }
 
+void GenericEditor::destroyChannelSelectors()
+{
+	for (int n = 0; n < channelSelectorButtons.size(); n++)
+	{
+		removeChildComponent(channelSelectorButtons[n]);
+		ChannelSelectorButton* t = channelSelectorButtons.remove(n);
+     	deleteAndZero(t);
+	}
+
+	if (allButton != 0)
+		allButton->setVisible(false);
+	
+	if (allButton != 0)
+		noneButton->setVisible(false);
+
+	recordChannels.clear();
+	audioChannels.clear();
+	paramsChannels.clear();
+	channelSelectorButtons.clear();
+}
 
 RadioButton::RadioButton(const String& name, int groupId, Font f) : Button(name) 
 {

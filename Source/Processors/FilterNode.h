@@ -58,10 +58,10 @@ public:
 	
 private:
 
-	double lowCut, highCut;
-	Dsp::Filter* filter;
+	Array<double> lowCuts, highCuts;
+	OwnedArray<Dsp::Filter> filters;
 
-	void setFilterParameters();
+	void setFilterParameters(double, double, int);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterNode);
 

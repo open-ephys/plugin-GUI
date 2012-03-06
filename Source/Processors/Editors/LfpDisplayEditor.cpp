@@ -80,16 +80,16 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode)
 
 	createRadioButtons(35, 90, 160, displayGainValues, "Display Gain");
 
-		for (int n = 0; n < getNumChildComponents(); n++)
-	{
-		Button* c = (Button*) getChildComponent(n);
+	// 	for (int n = 0; n < getNumChildComponents(); n++)
+	// {
+	// 	Button* c = (Button*) getChildComponent(n);
 
-		if (c->isVisible())
-			c->addListener(this);
+	// 	if (c->isVisible())
+	// 		c->addListener(this);
 
-		if (c->getRadioGroupId() != 999)
-			c->setVisible(true);
-	}
+	// 	if (c->getRadioGroupId() != 999)
+	// 		c->setVisible(true);
+	// }
 
 	// timebaseSlider = new Slider (T("Time Base Slider"));
 	// timebaseSlider->setBounds(60,20,200,40);
@@ -111,7 +111,7 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode)
 
 	tabSelector = new SelectorButton();
 	tabSelector->addListener(this);
-	tabSelector->setBounds(215,30,25,25);
+	tabSelector->setBounds(205,30,10,10);
 	
 	addAndMakeVisible(tabSelector);
 	tabSelector->setToggleState(false,false);
