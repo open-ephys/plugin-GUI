@@ -150,20 +150,22 @@ void ProcessorGraph::clearConnections()
 		 {
 		 	; // leave it   	
 		 } else {
-
-		 	Node* node = getNodeForId(connection->sourceNodeId);
-		 	GenericProcessor* p =(GenericProcessor*) node->getProcessor();
-		 	//if (p->getNextChannel(false) > 0)
-		 		p->resetConnections();
-
-		 	node = getNodeForId(connection->destNodeId);
-		 	p =(GenericProcessor*) node->getProcessor();
-		 	//if (p->getNextChannel(false) > 0)
-		 		p->resetConnections();
-
 		 	removeConnection(i);
 		 }
 	}
+
+
+	for (int i = 0; i < getNumNodes(); i++)
+	{
+		 Node* node = getNode(i);
+
+		 if (node->nodeId != OUTPUT_NODE_ID) {
+			 GenericProcessor* p =(GenericProcessor*) node->getProcessor();
+			 p->resetConnections();
+		}
+	}
+
+
 }
 
 void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSection> tabs)
@@ -222,12 +224,16 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 						   	AUDIO_NODE_ID, // destNodeID
 						  	getAudioNode()->getNextChannel(true)); // destNodeChannelIndex
 
+						 std::cout << getAudioNode()->getNextChannel(false) << " ";
+
 						addConnection(source->getNodeId(), // sourceNodeID
 						  	chan, // sourceNodeChannelIndex
 						   	RECORD_NODE_ID, // destNodeID
 						  	getRecordNode()->getNextChannel(true)); // destNodeChannelIndex
 					}
 				}
+
+				std::cout << std::endl;
 
 				if (dest != 0) {
 
