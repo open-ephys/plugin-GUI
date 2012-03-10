@@ -56,6 +56,8 @@ public:
 
 	AudioProcessorEditor* createEditor();
 
+   // AudioEditor* getEditor() {return audioEditor;}
+
     ScopedPointer<AudioEditor> audioEditor;
 	
 private:

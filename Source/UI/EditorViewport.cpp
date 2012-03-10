@@ -70,7 +70,7 @@ EditorViewport::EditorViewport()
 
 EditorViewport::~EditorViewport()
 {
-    deleteAndZero(signalChainManager);
+   // deleteAndZero(signalChainManager);
     deleteAllChildren();
 }
 

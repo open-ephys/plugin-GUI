@@ -31,7 +31,7 @@ MainWindow::MainWindow()
                       Colour(Colours::black),
                       DocumentWindow::allButtons)
 {
-    //centreWithSize (500, 400);
+
     setResizable (true,     // isResizable
                   false);   // useBottomCornerRisizer -- doesn't work very well
     
@@ -66,8 +66,8 @@ MainWindow::~MainWindow()
 
   audioComponent->disconnectProcessorGraph();
 
-   deleteAndZero(processorGraph);
-   deleteAndZero(audioComponent);
+  deleteAndZero(processorGraph);
+  deleteAndZero(audioComponent);
 
   setContentComponent (0);
   setMenuBar(0);

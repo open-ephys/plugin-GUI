@@ -39,15 +39,15 @@ EventNodeEditor::EventNodeEditor (GenericProcessor* parentNode)
 
 	createRadioButtons(35, 65, 160, hzValues, "Event frequency");
 
-	for (int n = 0; n < getNumChildComponents(); n++)
-	{
-		Button* c = (Button*) getChildComponent(n);
+	// for (int n = 0; n < getNumChildComponents(); n++)
+	// {
+	// 	Button* c = (Button*) getChildComponent(n);
 
-		if (c->isVisible())
-			c->addListener(this);
+	// 	if (c->isVisible())
+	// 		c->addListener(this);
 
-		c->setVisible(true);
-	}
+	// 	c->setVisible(true);
+	// }
 
 }
 

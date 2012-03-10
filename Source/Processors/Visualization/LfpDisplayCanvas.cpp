@@ -343,7 +343,7 @@ int LfpDisplayCanvas::getTotalHeight()
 }
 
 
-void LfpDisplayCanvas::mouseDown(const MouseEvent& e) 
+void LfpDisplayCanvas::mouseDownInCanvas(const MouseEvent& e) 
 {
 
 	Point<int> pos = e.getPosition();
@@ -358,7 +358,6 @@ void LfpDisplayCanvas::mouseDown(const MouseEvent& e)
 		repaint();
 	}
 
-	mouseDownInCanvas(e);
 }
 
 // void LfpDisplayCanvas::mouseDrag(const MouseEvent& e) {mouseDragInCanvas(e);}

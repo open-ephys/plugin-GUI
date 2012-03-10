@@ -121,7 +121,7 @@ private:
     Array<GenericEditor*, CriticalSection> editorArray;
     Array<SignalChainTabButton*, CriticalSection> signalChainArray;
 
-    SignalChainManager* signalChainManager;
+    ScopedPointer<SignalChainManager> signalChainManager;
 
     Font font;
     Image sourceDropImage;
@@ -152,8 +152,6 @@ private:
 
     void resized();
 
-    //bool signalChainNeedsSource;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EditorViewport);  
 
 };
@@ -175,8 +173,6 @@ public:
 
     int offset;
 
-
-
 private:
 
     GenericEditor* firstEditor;
@@ -187,14 +183,12 @@ private:
 
     void clicked();
     
-
     enum actions {ADD, MOVE, REMOVE, ACTIVATE};
     
     int num;
     bool configurationChanged;
 
     Font buttonFont;
-
 
 };
 

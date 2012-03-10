@@ -57,11 +57,7 @@ public:
         LookAndFeel::setDefaultLookAndFeel(customLookAndFeel);
     }
 
-    void shutdown()
-    {
-        mainWindow = 0;
-        customLookAndFeel = 0;
-    }
+    void shutdown() { }
 
     //==============================================================================
     void systemRequestedQuit()

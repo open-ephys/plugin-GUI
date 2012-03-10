@@ -40,23 +40,27 @@ public:
 
 	virtual void refreshState() {};
 
-	void mouseDownInCanvas(const MouseEvent& e);
-	void mouseDragInCanvas(const MouseEvent& e);
-	void mouseMoveInCanvas(const MouseEvent& e);
-	void mouseUpInCanvas(const MouseEvent& e);
-	void mouseWheelMoveInCanvas(const MouseEvent&, float, float);
 
-	virtual void resized();
-	virtual void mouseDown(const MouseEvent& e);
-	virtual void mouseDrag(const MouseEvent& e);
-	virtual void mouseMove(const MouseEvent& e);
-	virtual void mouseUp(const MouseEvent& e);
-	virtual void mouseWheelMove(const MouseEvent&, float, float);
+
+	void resized();
+	virtual void canvasWasResized() { }
+
+	void mouseDown(const MouseEvent& e);
+	void mouseDrag(const MouseEvent& e);
+	void mouseMove(const MouseEvent& e);
+	void mouseUp(const MouseEvent& e);
+	void mouseWheelMove(const MouseEvent&, float, float);
+
+	virtual void mouseDownInCanvas(const MouseEvent& e) {}
+	virtual void mouseDragInCanvas(const MouseEvent& e) {}
+	virtual void mouseMoveInCanvas(const MouseEvent& e) {}
+	virtual void mouseUpInCanvas(const MouseEvent& e) {}
+	virtual void mouseWheelMoveInCanvas(const MouseEvent&,
+									    float,
+									    float) {}
 
 	void startCallbacks();
 	void stopCallbacks();
-
-	void canvasWasResized();
 
 	int getScrollAmount() {return scrollPix;};
 	int getScrollBarWidth() {return scrollBarWidth;}

@@ -109,8 +109,6 @@ public:
 						 MidiBuffer& /*buffer*/,
 						 int& /*nSamples*/) = 0;
 
-	
-
 	GenericProcessor* sourceNode;
 	GenericProcessor* destNode;
 
@@ -118,8 +116,6 @@ public:
 	int numOutputs;
 
 	float sampleRate;
-
-	//void sendMessage(const String& msg);
 
 	virtual float getSampleRate();
 	virtual void setSampleRate(float sr);
@@ -193,12 +189,7 @@ public:
 
 	int currentChannel;
 
-
-	// Getting and setting:
-
-	GenericEditor* getEditor() {return editor;}
-	//void setEditor(GenericEditor* e) {editor = e;}
-
+	virtual GenericEditor* getEditor() {return editor;}
 	ScopedPointer<GenericEditor> editor;
 
 private:

@@ -334,7 +334,7 @@ void OpenGLCanvas::drawRoundedRect(float x,
 
 }
 
-void OpenGLCanvas::mouseMoveInCanvas(const MouseEvent& e)
+void OpenGLCanvas::mouseMove(const MouseEvent& e)
 {
 	if (getTotalHeight() > getHeight()) {
 	Point<int> pos = e.getPosition();
@@ -344,9 +344,11 @@ void OpenGLCanvas::mouseMoveInCanvas(const MouseEvent& e)
 		showScrollTrack = true; showScrollBars();
 	}
 	}
+
+	mouseMoveInCanvas(e);
 }
 
-void OpenGLCanvas::mouseDownInCanvas(const MouseEvent& e)
+void OpenGLCanvas::mouseDown(const MouseEvent& e)
 {
 
 	if (getTotalHeight() > getHeight()) {
@@ -376,9 +378,11 @@ void OpenGLCanvas::mouseDownInCanvas(const MouseEvent& e)
 		showScrollBars();
 	}
 	}
+
+	mouseDownInCanvas(e);
 }
 
-void OpenGLCanvas::mouseDragInCanvas(const MouseEvent& e)
+void OpenGLCanvas::mouseDrag(const MouseEvent& e)
 {
 
 	if (getTotalHeight() > getHeight()) {
@@ -415,54 +419,48 @@ void OpenGLCanvas::mouseDragInCanvas(const MouseEvent& e)
 		} 
 	}
 	}
+
+	mouseDragInCanvas(e);
 }
 
-void OpenGLCanvas::mouseUpInCanvas(const MouseEvent& e)
+void OpenGLCanvas::mouseUp(const MouseEvent& e)
 {
 	scrollDiff = 0;
+
+	mouseUpInCanvas(e);
 }
 
-void OpenGLCanvas::mouseWheelMoveInCanvas(const MouseEvent&e,
+void OpenGLCanvas::mouseWheelMove(const MouseEvent&e,
                                       float wheelIncrementX, float wheelIncrementY)
 
 {
 	if (getTotalHeight() > getHeight()) {
-	if (wheelIncrementY > 0)
-	{
-		if (scrollPix + getHeight() < getTotalHeight())
+
+		if (wheelIncrementY > 0)
 		{
-			scrollPix += int(100.0f*wheelIncrementY);
-			if (scrollPix + getHeight() > getTotalHeight())
-				scrollPix = getTotalHeight() - getHeight();
-		}
-	} else if (wheelIncrementY < 0)
-	{
-		if (scrollPix > 0)
+			if (scrollPix + getHeight() < getTotalHeight())
+			{
+				scrollPix += int(100.0f*wheelIncrementY);
+				if (scrollPix + getHeight() > getTotalHeight())
+					scrollPix = getTotalHeight() - getHeight();
+			}
+		} else if (wheelIncrementY < 0)
 		{
-			scrollPix += int(100.0f*wheelIncrementY);
-			if (scrollPix < 0)
-				scrollPix = 0;
+			if (scrollPix > 0)
+			{
+				scrollPix += int(100.0f*wheelIncrementY);
+				if (scrollPix < 0)
+					scrollPix = 0;
+			}
 		}
+
+		repaint();
+
+		showScrollBars();
+
 	}
 
-	repaint();
-
-	showScrollBars();
-
-	}
-
-}
-
-void OpenGLCanvas::canvasWasResized()
-{
-	//glClear(GL_COLOR_BUFFER_BIT);
-
-	if (scrollPix + getHeight() > getTotalHeight() && getTotalHeight() > getHeight())
-		scrollPix = getTotalHeight() - getHeight();
-	else
-		scrollPix = 0;
-
-	showScrollBars();
+	mouseWheelMoveInCanvas(e, wheelIncrementX, wheelIncrementY);
 
 }
 
@@ -472,18 +470,15 @@ void OpenGLCanvas::timerCallback()
 }
 
 
-
-void OpenGLCanvas::mouseDown(const MouseEvent& e) 
-{
-	mouseDownInCanvas(e);
-}
-
-void OpenGLCanvas::mouseDrag(const MouseEvent& e) {mouseDragInCanvas(e);}
-void OpenGLCanvas::mouseMove(const MouseEvent& e) {mouseMoveInCanvas(e);}
-void OpenGLCanvas::mouseUp(const MouseEvent& e) 	{mouseUpInCanvas(e);}
-void OpenGLCanvas::mouseWheelMove(const MouseEvent& e, float a, float b) {mouseWheelMoveInCanvas(e,a,b);}
-
 void OpenGLCanvas::resized()
 {
+
+	if (scrollPix + getHeight() > getTotalHeight() && getTotalHeight() > getHeight())
+		scrollPix = getTotalHeight() - getHeight();
+	else
+		scrollPix = 0;
+
+	showScrollBars();
+
 	canvasWasResized();
 }

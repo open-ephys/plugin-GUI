@@ -322,9 +322,7 @@ int ProcessorList::getTotalHeight()
  	return totalHeight;
 }
 
-void ProcessorList::resized() {canvasWasResized();}
-
-void ProcessorList::mouseDown(const MouseEvent& e) 
+void ProcessorList::mouseDownInCanvas(const MouseEvent& e) 
 {
 
 	isDragging = false;
@@ -370,12 +368,10 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 		}
 	}
 
-	mouseDownInCanvas(e);
-
 	repaint();
 }
 
-void ProcessorList::mouseDrag(const MouseEvent& e) 
+void ProcessorList::mouseDragInCanvas(const MouseEvent& e) 
 {
 
 	if (e.getMouseDownX() < getWidth()-getScrollBarWidth() && !(isDragging))
@@ -427,13 +423,7 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 		}
 	}
 
-	mouseDragInCanvas(e);
 }
-
-void ProcessorList::mouseMove(const MouseEvent& e) {mouseMoveInCanvas(e);}
-void ProcessorList::mouseUp(const MouseEvent& e) 	{mouseUpInCanvas(e);}
-void ProcessorList::mouseWheelMove(const MouseEvent& e, float a, float b) {mouseWheelMoveInCanvas(e,a,b);}
-
 
 ProcessorListItem::ProcessorListItem(const String& name_) : name(name_), open(true), selected(false)
 {
