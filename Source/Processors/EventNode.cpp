@@ -29,7 +29,6 @@ EventNode::EventNode()
 {
 	setNumOutputs(0);
 	setNumInputs(0);
-//	setSampleRate(44100.0);
 
 	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
 
@@ -46,13 +45,9 @@ AudioProcessorEditor* EventNode::createEditor()
 	setEditor(editor);
 
 	std::cout << "Creating editor." << std::endl;
-	//editor->setUIComponent(getUIComponent());
-	//editor->setConfiguration(config);
 
-	//filterEditor = new FilterEditor(this);
 	return editor;
 
-	//return 0;
 }
 
 

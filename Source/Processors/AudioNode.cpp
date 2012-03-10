@@ -37,6 +37,8 @@ AudioNode::AudioNode()
 	leftChan.add(0);
 	rightChan.add(1);
 
+	currentChannel = 0;
+
 
 }
 
@@ -70,6 +72,16 @@ void AudioNode::process(AudioSampleBuffer &buffer,
                             int& nSamples)
 {
 
+	// if (currentChannel == 0)
+	// {
+	// 	buffer.clear(1,0,buffer.getNumSamples());
+	// 	buffer.copyFrom();
+	// } else if (currentChannel == 1)
+	// {
+	// 	buffer.clear(0,0,buffer.getNumSamples());
+	// 	buffer.copyFrom();
+	// } else {
+
 	buffer.clear(0,0,buffer.getNumSamples());
 	buffer.clear(1,0,buffer.getNumSamples());
 
@@ -94,4 +106,5 @@ void AudioNode::process(AudioSampleBuffer &buffer,
 					   volume       // gain to apply
 					   );
 	}
+	//}
 }
