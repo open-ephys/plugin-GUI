@@ -56,8 +56,7 @@ public:
 
 	void setParameter(int, float);
 
-	void setNumInputs(int inputs);
-	void setSampleRate(float r);
+	void updateSettings();
 
 	bool enable();
 	bool disable();
@@ -67,10 +66,8 @@ public:
 
 private:
 
-	DataViewport* dataViewport;
-
-	AudioSampleBuffer* displayBuffer;
-	MidiBuffer* eventBuffer;
+	ScopedPointer<AudioSampleBuffer> displayBuffer;
+	ScopedPointer<MidiBuffer> eventBuffer;
 
 	int displayBufferIndex;
 

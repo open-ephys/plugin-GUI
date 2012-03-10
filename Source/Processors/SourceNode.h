@@ -90,8 +90,10 @@ private:
 	//const String name;
 	void timerCallback();
 
-	DataThread* dataThread;
+	ScopedPointer<DataThread> dataThread;
 	DataBuffer* inputBuffer;
+
+	void updateSettings();
 
 	int* numSamplesInThisBuffer;
 

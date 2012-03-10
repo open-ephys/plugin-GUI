@@ -45,7 +45,6 @@
 		B13883377C9316B9603336B4 = { isa = PBXBuildFile; fileRef = 2E96DA81EE37A0ECE471A928; };
 		073B178E7EF1759BA0AACCCE = { isa = PBXBuildFile; fileRef = 0C5335B0E57C9DC92FC57E5F; };
 		4BE0DDA01B73223EF0BD934A = { isa = PBXBuildFile; fileRef = 3DD0741FCFBC7563EC722D9B; };
-		6656467170D2822949BD2F7F = { isa = PBXBuildFile; fileRef = 5AC4DD48CCB1AB4936A2DE4A; };
 		08B501E0D7764C6B613AF529 = { isa = PBXBuildFile; fileRef = B7750B27E4F3748ECCCCF69D; };
 		9CBA3837CC8CAA03A03F2D9C = { isa = PBXBuildFile; fileRef = FA57CE4F63FF1592D6B3F9B5; };
 		93A3E6284F2DAED3F491332B = { isa = PBXBuildFile; fileRef = AD73EA6B24378294003DC2D0; };
@@ -196,8 +195,6 @@
 		7738F51AE0EC63D76EE0F761 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OpenGLCanvas.h; path = ../../Source/Processors/Visualization/OpenGLCanvas.h; sourceTree = SOURCE_ROOT; };
 		3DD0741FCFBC7563EC722D9B = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SpikeDetector.cpp; path = ../../Source/Processors/SpikeDetector.cpp; sourceTree = SOURCE_ROOT; };
 		6E4B37AA4BFEB5A37E3AC250 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SpikeDetector.h; path = ../../Source/Processors/SpikeDetector.h; sourceTree = SOURCE_ROOT; };
-		5AC4DD48CCB1AB4936A2DE4A = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FileReader.cpp; path = ../../Source/Processors/FileReader.cpp; sourceTree = SOURCE_ROOT; };
-		44E93A2D64EB5ADA54CB2CFB = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FileReader.h; path = ../../Source/Processors/FileReader.h; sourceTree = SOURCE_ROOT; };
 		B7750B27E4F3748ECCCCF69D = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AudioNode.cpp; path = ../../Source/Processors/AudioNode.cpp; sourceTree = SOURCE_ROOT; };
 		12866D44BE115E8837468F48 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AudioNode.h; path = ../../Source/Processors/AudioNode.h; sourceTree = SOURCE_ROOT; };
 		FA57CE4F63FF1592D6B3F9B5 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EventNode.cpp; path = ../../Source/Processors/EventNode.cpp; sourceTree = SOURCE_ROOT; };
@@ -434,8 +431,6 @@
 				15543D7982B26B70879960F4,
 				3DD0741FCFBC7563EC722D9B,
 				6E4B37AA4BFEB5A37E3AC250,
-				5AC4DD48CCB1AB4936A2DE4A,
-				44E93A2D64EB5ADA54CB2CFB,
 				B7750B27E4F3748ECCCCF69D,
 				12866D44BE115E8837468F48,
 				FA57CE4F63FF1592D6B3F9B5,
@@ -621,7 +616,6 @@
 				B13883377C9316B9603336B4,
 				073B178E7EF1759BA0AACCCE,
 				4BE0DDA01B73223EF0BD934A,
-				6656467170D2822949BD2F7F,
 				08B501E0D7764C6B613AF529,
 				9CBA3837CC8CAA03A03F2D9C,
 				93A3E6284F2DAED3F491332B,

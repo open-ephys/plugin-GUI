@@ -81,51 +81,34 @@ AudioProcessorEditor* FilterNode::createEditor()
 //  necessary to interoperate with the Filter virtual base class and its derived classes
 
 
-void FilterNode::setNumInputs(int inputs)
+void FilterNode::updateSettings()
 {		
-
-	numInputs = inputs;
-	setNumOutputs(inputs);
 
 	filters.clear();
 	lowCuts.clear();
 	highCuts.clear();
 
-	if (inputs < 100) {
-
-	for (int n = 0; n < getNumInputs(); n++)
-	{
-		std::cout << "Creating filter number " << n << std::endl;
-
-		filters.add(new Dsp::SmoothedFilterDesign 
-			<Dsp::Butterworth::Design::BandPass 	// design type
-			<4>,								 	// order
-			1,										// number of channels (must be const)
-			Dsp::DirectFormII>						// realization
-			(1024));	 
-
-		lowCuts.add(1.0f);
-		highCuts.add(1000.0f);
-		
-		setFilterParameters(1.0f, 1000.0f, n);
-	}
-
-	}
-				
-}
-
-void FilterNode::setSampleRate(float r)
-{
-	sampleRate = r;
-
-	if (numInputs < 100) {
+	if (getNumInputs() < 100) {
 
 		for (int n = 0; n < getNumInputs(); n++)
 		{
-			setFilterParameters(lowCuts[n], highCuts[n], n);
+			std::cout << "Creating filter number " << n << std::endl;
+
+			filters.add(new Dsp::SmoothedFilterDesign 
+				<Dsp::Butterworth::Design::BandPass 	// design type
+				<4>,								 	// order
+				1,										// number of channels (must be const)
+				Dsp::DirectFormII>						// realization
+				(1024));	 
+
+			lowCuts.add(1.0f);
+			highCuts.add(1000.0f);
+			
+			setFilterParameters(1.0f, 1000.0f, n);
 		}
+
 	}
-	
+				
 }
 
 void FilterNode::setFilterParameters(double lowCut, double highCut, int chan)

@@ -175,7 +175,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
         // need to inform the other source that its merger has disappeared
         if (p->isMerger())
         {
-        	p->switchSource();
+        	p->switchIO();
         	if (p->getSourceNode() != 0)
         		p->getSourceNode()->setDestNode(0);
         }
@@ -257,18 +257,18 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
             dest = (GenericProcessor*) editorArray[n]->getProcessor();
             source = (GenericProcessor*) editorArray[n-1]->getProcessor();
 
-            //if (!dest->isMerger())
+            if (!dest->isMerger())
         		dest->setSourceNode(source);
-        	//else
-        	//	dest->setMergerSourceNode(source);
+        	else
+        		dest->setMergerSourceNode(source);
 
            //std::cout << dest->getName() << "::";
         }
 
-        if (!dest->isSplitter())
+       // if (!dest->isSplitter())
         	dest->setDestNode(0); // set first source as 0
-        else
-        	dest->setSplitterDestNode(0);
+       // else
+       // 	dest->setSplitterDestNode(0);
       //  dest->setDestNode(0); // set last dest as 0
 
       // std::cout << std::endl;
@@ -468,32 +468,37 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
 
         std::cout << "Updating settings." << std::endl;
 
-        for (int n = 0; n < signalChainArray.size(); n++)
-        {
-            
-            GenericEditor* source = (GenericEditor*) signalChainArray[n]->getEditor();
-            GenericProcessor* p = (GenericProcessor*) source->getProcessor();
+        Array<GenericProcessor*> splitters;
 
-            p->updateSettings();
+        for (int n = 0; n < signalChainArray.size(); n++)
+        { // iterate through signal chains
+            
+            GenericEditor* source = signalChainArray[n]->getEditor();
+            GenericProcessor* p = source->getProcessor();
+
+            p->update();
+
+            if (p->isSplitter())
+            {
+                splitters.add(p);
+            }
 
             GenericProcessor* dest = p->getDestNode();
 
             while (dest != 0)
-            {
-                dest->updateSettings();
+            { // iterate through processors
+                dest->update();
                 dest = dest->getDestNode();
+
+                if (dest == 0 && splitters.size() > 0)
+                {
+                    splitters.getFirst()->switchIO();
+                    dest = splitters[0]->getDestNode();
+                    splitters.remove(0);
+                }
             }
         }
     }
-
-   // std::cout << "OK2." << std::endl;
-
-    // Step 8: make sure all editors are visible, and refresh
-   // for (int n = 0; n < editorArray.size(); n++)
-  //  {
-       // std::cout << "Editor " << n << ": " << editorArray[n]->getName() << std::endl;
-    //    editorArray[n]->setVisible(true);
-   // }
 
 
    std::cout << "Finished adding new editor." << std::endl << std::endl << std::endl;

@@ -34,43 +34,21 @@ SignalGenerator::SignalGenerator()
 	
 {
 
-	setNumOutputs(10);
-	setNumInputs(0);
-
-
-	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
-
-
 }
 
 SignalGenerator::~SignalGenerator()
 {
-	//config->removeDataSource(this);	
+
 }
 
-
-// void SignalGenerator::setConfiguration(Configuration* cf)
-// {
-// 	config = cf;
-
-//      DataSource* d = new DataSource(this, config);
-
-// 	 // add a new data source to this configuration
-//      config->addDataSource(d);
-
-// }
 
 AudioProcessorEditor* SignalGenerator::createEditor( )
 {
 	editor = new SignalGeneratorEditor(this);
-	//setEditor(ed);
-	
-	//std::cout << "Creating editor." << std::endl;
-	//filterEditor = new FilterEditor(this);
 	return editor;
 }
 
-void SignalGenerator::updateParameters()
+void SignalGenerator::updateSettings()
 {
 
 	std::cout << "Signal generator updating parameters" << std::endl;
@@ -99,7 +77,7 @@ void SignalGenerator::setParameter (int parameterIndex, float newValue)
 			amplitudes.set(currentChannel,newValue);
 		} else {
 			frequencies.set(currentChannel,newValue);
-			phasePerSample.set(currentChannel, double_Pi * 2.0 / (sampleRate / frequencies[currentChannel]));
+			phasePerSample.set(currentChannel, double_Pi * 2.0 / (getSampleRate() / frequencies[currentChannel]));
 		}
 	}
 

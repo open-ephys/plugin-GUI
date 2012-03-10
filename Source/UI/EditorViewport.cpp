@@ -811,10 +811,7 @@ const String EditorViewport::saveState(const File& file)
                 {
                     splitPoints.add(nextProcessor);
 
-                    if (nextProcessor->isSplitter())
-                        nextProcessor->switchDest(0);
-                    else
-                        nextProcessor->switchSource(0);
+                    nextProcessor->switchIO(0);
                 }
 
             } else {
@@ -826,22 +823,19 @@ const String EditorViewport::saveState(const File& file)
                     nextProcessor = splitPoints.getFirst();
                     splitPoints.remove(0);
 
+                    nextProcessor->switchIO(1);
+                    signalChain->addChildElement(switchNodeXml(nextProcessor));
+                    
                     if (nextProcessor->isMerger())
                     {
-                        std::cout << "    Switching merger source." << std::endl;
-                        nextProcessor->switchSource(1);
-                        signalChain->addChildElement(switchNodeXml(nextProcessor));
                         insertionPt = 0;
                         moveForward = false;
-                    } else {
-                        std::cout << "    Switching splitter dest." << std::endl;
-                        nextProcessor->switchDest(1);
-                        signalChain->addChildElement(switchNodeXml(nextProcessor));
+                    } else { 
                         insertionPt = 1;
                         moveForward = true;
                     }
 
-                    editor = (GenericEditor*) nextProcessor->getEditor();
+                    editor = nextProcessor->getEditor();
 
                 } else {
 

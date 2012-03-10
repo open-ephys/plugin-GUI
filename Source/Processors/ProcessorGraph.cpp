@@ -28,7 +28,6 @@
 #include "AudioNode.h"
 #include "LfpDisplayNode.h"
 #include "EventNode.h"
-#include "FileReader.h"
 #include "FilterNode.h"
 #include "GenericProcessor.h"
 #include "RecordNode.h"
@@ -285,7 +284,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 			{
 				dest = splitters.getFirst(); // dest is now the splitter
 				splitters.remove(0); // take it out of the 
-				dest->switchDest(); // switch to the other destination
+				dest->switchIO(); // switch to the other destination
 				dest->wasConnected = true; // don't want to re-add splitter
 				source = dest->getSourceNode(); // splitter is now source
 			}

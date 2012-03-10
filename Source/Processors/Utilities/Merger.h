@@ -51,11 +51,12 @@ public:
 
 	bool isMerger() {return true;}
 
-	void switchSource(int);
-	void switchSource();
+	void switchIO(int);
+	void switchIO();
 	void setMergerSourceNode(GenericProcessor* sn);
 
-	void setNumInputs(int);
+    void updateSettings();
+    void addSettingsFromSourceNode(GenericProcessor* sn);
 
 	bool stillHasSource();
 

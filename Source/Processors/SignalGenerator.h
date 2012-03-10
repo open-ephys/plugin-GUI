@@ -61,7 +61,7 @@ public:
 
 	bool isSource() {return true;}
 
-	void updateParameters();
+	void updateSettings();
 
 private:
 	

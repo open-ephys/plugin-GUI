@@ -45,13 +45,8 @@
 
 class GenericProcessor;
 class RecordNode;
-class SignalChainTabButton;
 class AudioNode;
-//class SourceNode;
-//class EditorViewport;
-//class UIComponent;
-//class Configuration;
-//class MessageCenter;
+class SignalChainTabButton;
 
 class ProcessorGraph : public AudioProcessorGraph,
 					   public AccessClass
@@ -71,20 +66,12 @@ public:
 	RecordNode* getRecordNode();
 	AudioNode* getAudioNode();
 
-	//void setUIComponent(UIComponent* ui);
-	//void setFilterViewport(FilterViewport *fv);
-	//void setMessageCenter(MessageCenter* mc);
-	//void setConfiguration(Configuration* config);
-
 	void updateConnections(Array<SignalChainTabButton*, CriticalSection>);
 
 	bool processorWithSameNameExists(const String& name);
 
 	void saveState();
 	void loadState();
-
-	//int getNextFreeAudioChannel();
-	//int getNextFreeRecordChannel();
 
 private:	
 
@@ -99,14 +86,6 @@ private:
 
 	void createDefaultNodes();
 	void clearConnections();
-
-	//UIComponent* UI;
-	//FilterViewport* filterViewport;
-	///Configuration* config;
-	//MessageCenter* messageCenter;
-
-	//int totalAudioConnections;
-	//int totalRecordConnections;
 
 };
 

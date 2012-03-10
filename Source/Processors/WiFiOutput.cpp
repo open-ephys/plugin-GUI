@@ -27,11 +27,6 @@
 WiFiOutput::WiFiOutput()
 	: GenericProcessor("WiFi Output")
 {
-	setNumOutputs(0);
-	setNumInputs(0);
-
-	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
-
 }
 
 WiFiOutput::~WiFiOutput()
@@ -42,11 +37,6 @@ WiFiOutput::~WiFiOutput()
 AudioProcessorEditor* WiFiOutput::createEditor()
 {
 	editor = new WiFiOutputEditor(this);
-	
-	//setEditor(wifiEditor);
-	//wifiEditor->setConfiguration(config);
-
-	//std::cout << "Creating editor." << std::endl;
 	return editor;
 }
 
@@ -57,12 +47,12 @@ void WiFiOutput::setParameter (int parameterIndex, float newValue)
 }
 
 void WiFiOutput::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &midiMessages,
+                            MidiBuffer &events,
                             int& nSamples)
 {
 	
 
-	int sampleNum = checkForMidiEvents(midiMessages);
+	int sampleNum = checkForEvents(events);
 
 	if (sampleNum >= 0)
 	{

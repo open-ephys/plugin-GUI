@@ -32,7 +32,6 @@ GenericProcessor::GenericProcessor(const String& name_) :
 	nextAvailableChannel(0), currentChannel(-1),
 	wasConnected(false)
 {
-
 }
 
 GenericProcessor::~GenericProcessor()
@@ -52,41 +51,6 @@ void GenericProcessor::setParameter (int parameterIndex, float newValue)
 
 }
 
-GenericProcessor* GenericProcessor::getOriginalSourceNode()
-{
-	if (isSource())
-	{
-		return this;
-	} else {
-		
-		GenericProcessor* source = getSourceNode();
-
-		if (source != 0)
-		{
-			while (!source->isSource() && source != 0)
-			{
-				source = source->getSourceNode();
-			}
-
-			return source;
-
-		} else {
-			return 0;
-		}
-	}
-}
-
-int GenericProcessor::getDefaultNumOutputs()
-{
-	if (!isSink())
-	{
-		return 10;
-	} else {
-		return 0;
-	}
-}
-
-
 void GenericProcessor::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
 {
 	// use the enable() function instead
@@ -100,15 +64,6 @@ void GenericProcessor::releaseResources()
 	// releaseResources() is called by Juce at unpredictable times
 	// disable() is only called by the ProcessorGraph at the end of acquisition
 }
-
-
-// void GenericProcessor::sendMessage(const String& msg)
-// {
-// 	std::cout << "Message: ";
-// 	std::cout << msg << "...." << std::endl;
-// 	UI->transmitMessage(msg);
-// }
-
 
 int GenericProcessor::getNextChannel(bool increment)
 {
@@ -278,80 +233,75 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 	}
 }
 
-void GenericProcessor::updateSettings()
+void GenericProcessor::clearSettings()
 {
+	settings.originalSource = 0;
+	settings.numInputs = 0;
+	settings.numOutputs = 0;
+	settings.inputChannelNames.clear();
+	settings.outputChannelNames.clear();
+	settings.bitVolts.clear();
+	settings.eventChannelIds.clear();
+	settings.eventChannelNames.clear();
+}
+
+void GenericProcessor::update()
+{
+
+	clearSettings();
 	
 	if (sourceNode != 0)
 	{
-		setSampleRate(sourceNode->getSampleRate());
-		setNumInputs(sourceNode->getNumOutputs());
+		// everything is inherited except numOutputs
+		settings = sourceNode->settings;
+		settings.numOutputs = settings.numInputs;
+
 	} else {
-		setSampleRate(getDefaultSampleRate());
-		setNumInputs(0);
-		setNumOutputs(getDefaultNumOutputs());
+
+		settings.sampleRate = getDefaultSampleRate();
+		settings.numOutputs = getDefaultNumOutputs();
+
+		for (int i = 0; i < getNumOutputs(); i++)
+			settings.bitVolts.add(getDefaultBitVolts());
+
+		generateDefaultChannelNames(settings.outputChannelNames);
+
 	}
 
-	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
+	if (this->isSink())
+	{
+		settings.numOutputs = 0;
+		settings.outputChannelNames.clear();
+	}
 
-	updateParameters();
+	updateSettings(); // custom settings code
 
-	GenericEditor* editor = (GenericEditor*) getEditor();
+	// required for the ProcessorGraph to know the
+	// details of this processor:
+	setPlayConfigDetails(getNumInputs(),  // numIns
+		                 getNumOutputs(), // numOuts
+		                 44100.0,         // sampleRate
+		                 128);            // blockSize
 
-	editor->update();
+	editor->update(); // update editor settings
 
 }
 
-void GenericProcessor::updateParameters()
+void GenericProcessor::generateDefaultChannelNames(StringArray& names)
 {
-	
+	names.clear();
+
+	for (int i = 0; i < settings.numOutputs; i++)
+	{
+		String channelName = "CH";
+		channelName += (i+1);
+		names.add(channelName);
+	}
+
 }
 
 
-int GenericProcessor::getNumInputs()
-{
-	return numInputs;
-}
-
-int GenericProcessor::getNumOutputs()
-{
-	return numOutputs;
-}
-
-void GenericProcessor::setNumInputs(int n) {
-	numInputs = n;
-	// if (destNode != 0)
-	// {
-	// 	destNode->setNumInputs();
-	// }
-	//setPlayConfigDetails(numInputs,numOutputs,44100.0,1024);
-}
-
-void GenericProcessor::setNumInputs() {
-	
-	int n = getSourceNode()->getNumOutputs();
-	setNumInputs(n);
-}
-
-void GenericProcessor::setNumOutputs()
-{
-	setNumOutputs(getNumInputs());
-}
-
-void GenericProcessor::setNumOutputs(int n) {
-	numOutputs = n;
-	//setPlayConfigDetails(numInputs,numOutputs,44100.0,1024);
-}
-
-float GenericProcessor::getSampleRate()
-{
-	return sampleRate;
-}
-void GenericProcessor::setSampleRate(float sr)
-{
-	sampleRate = sr;
-}
-
-int GenericProcessor::checkForMidiEvents(MidiBuffer& midiMessages)
+int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)
 {
 
 	if (midiMessages.getNumEvents() > 0) 
@@ -388,7 +338,7 @@ int GenericProcessor::checkForMidiEvents(MidiBuffer& midiMessages)
 
 }
 
-void GenericProcessor::addMidiEvent(MidiBuffer& midiMessages, int numberToAdd, int sampleNum)
+void GenericProcessor::addEvent(MidiBuffer& midiMessages, int numberToAdd, int sampleNum)
 {
 	uint8 data[2];
 

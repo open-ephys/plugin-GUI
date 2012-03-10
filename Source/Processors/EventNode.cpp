@@ -27,10 +27,6 @@
 EventNode::EventNode()
 	: GenericProcessor("Event Generator"), Hz(1), accumulator(0)
 {
-	setNumOutputs(0);
-	setNumInputs(0);
-
-	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
 
 }
 
@@ -42,24 +38,16 @@ EventNode::~EventNode()
 AudioProcessorEditor* EventNode::createEditor()
 {
 	editor = new EventNodeEditor(this);
-	//setEditor(editor);
-
-	std::cout << "Creating editor." << std::endl;
-
 	return editor;
-
 }
 
-
-bool EventNode::canSendSignalTo(GenericProcessor* p)
+void EventNode::updateSettings()
 {
-	if (p->getName().equalsIgnoreCase("WiFi Output"))
-	{
-		return true;
-	} else {
-		return false;
-	}
+	// add event channels
+	settings.eventChannelIds.add(1);
+	settings.eventChannelNames.add("Trigger");
 }
+
 
 void EventNode::setParameter (int parameterIndex, float newValue)
 {
@@ -81,11 +69,10 @@ void EventNode::process(AudioSampleBuffer &buffer,
 		if (accumulator > getSampleRate()/Hz)
 		{
 			//std::cout << "Adding message." << std::endl;
-			addMidiEvent(midiMessages, 10, i);
+			addEvent(midiMessages, 10, i);
 			accumulator = 0;
 		}
 
 	}	
-	
 
 }

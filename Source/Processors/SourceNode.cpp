@@ -28,7 +28,7 @@
 SourceNode::SourceNode(const String& name_)
 	: GenericProcessor(name_),
 	  dataThread(0),
-	  sourceCheckInterval(750), wasDisabled(true)
+	  sourceCheckInterval(2000), wasDisabled(true)
 {
 	if (getName().equalsIgnoreCase("Intan Demo Board")) {
 		dataThread = new IntanThread(this);
@@ -37,17 +37,6 @@ SourceNode::SourceNode(const String& name_)
 	} else if (getName().equalsIgnoreCase("File Reader")) {
 		dataThread = new FileReaderThread(this);
 	}
-
-	setNumInputs(0);
-
-	if (dataThread != 0) {
-		setNumOutputs(dataThread->getNumChannels());
-		inputBuffer = dataThread->getBufferAddress();
-	} else {
-		setNumOutputs(10);
-	}
-
-	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
 
 	if (dataThread != 0)
 	{
@@ -59,17 +48,22 @@ SourceNode::SourceNode(const String& name_)
 		enabledState(false);
 	}
 
-	// check for input source every two seconds
+	// check for input source every few seconds
 	startTimer(sourceCheckInterval); 
 
 }
 
 SourceNode::~SourceNode() 
 {
-	if (dataThread != 0)
-		deleteAndZero(dataThread);
+	//if (dataThread != 0)
+	//	deleteAndZero(dataThread);
 
 	//config->removeDataSource(this);	
+}
+
+void SourceNode::updateSettings()
+{
+
 }
 
 float SourceNode::getSampleRate()
@@ -108,30 +102,6 @@ void SourceNode::enabledState(bool t)
 
 }
 
-// void SourceNode::setConfiguration(Configuration* cf)
-// {
-// 	config = cf;
-
-//      DataSource* d = new DataSource(this, config);
-
-//   //   // add tetrodes -- should really be doing this dynamically
-//      d->addTrode(4, "TT1");
-//      d->addTrode(4, "TT2");
-//      d->addTrode(4, "TT3");
-//      d->addTrode(4, "TT4");
-
-//      for (int n = 0; n < d->numTetrodes(); n++)
-//       {
-//            std::cout << d->getTetrode(n)->getName();
-//       }
-//       std::cout << std::endl;
-
-// 	 // // add a new data source to this configuration
-//      config->addDataSource(d);
-
-// }
-
-
 void SourceNode::setParameter (int parameterIndex, float newValue)
 {
 	//std::cout << "Got parameter change notification";
@@ -140,9 +110,6 @@ void SourceNode::setParameter (int parameterIndex, float newValue)
 AudioProcessorEditor* SourceNode::createEditor()
 {
 	editor = new SourceNodeEditor(this);
-	//setEditor(ed);
-	
-//	std::cout << "Creating editor." << std::endl;
 	return editor;
 }
 
@@ -154,7 +121,7 @@ void SourceNode::timerCallback()
 			std::cout << "Input source found." << std::endl;
 			//stopTimer(); // check for input source every two seconds
 			enabledState(true);
-			GenericEditor* ed = (GenericEditor*) getEditor();
+			GenericEditor* ed = getEditor();
 			//ed->enable();
 			getEditorViewport()->makeEditorVisible(ed);
 		}
@@ -162,7 +129,7 @@ void SourceNode::timerCallback()
 		if (isEnabled) {
 			std::cout << "No input source found." << std::endl;
 			enabledState(false);
-			GenericEditor* ed = (GenericEditor*) getEditor();
+			GenericEditor* ed = getEditor();
 			//ed->disable();
 			getEditorViewport()->makeEditorVisible(ed);
 		}

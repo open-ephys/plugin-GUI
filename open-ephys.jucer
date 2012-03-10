@@ -164,8 +164,6 @@
               file="Source/Processors/SpikeDetector.cpp"/>
         <FILE id="jIX00WN" name="SpikeDetector.h" compile="0" resource="0"
               file="Source/Processors/SpikeDetector.h"/>
-        <FILE id="sKJ2lid" name="FileReader.cpp" compile="1" resource="0" file="Source/Processors/FileReader.cpp"/>
-        <FILE id="9o71Tr2" name="FileReader.h" compile="0" resource="0" file="Source/Processors/FileReader.h"/>
         <FILE id="gZRZq2O" name="AudioNode.cpp" compile="1" resource="0" file="Source/Processors/AudioNode.cpp"/>
         <FILE id="ZPSmLKn" name="AudioNode.h" compile="0" resource="0" file="Source/Processors/AudioNode.h"/>
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>

@@ -112,30 +112,19 @@ public:
 	GenericProcessor* sourceNode;
 	GenericProcessor* destNode;
 
-	int numInputs;
-	int numOutputs;
-
-	float sampleRate;
-
-	virtual float getSampleRate();
-	virtual void setSampleRate(float sr);
+	virtual float getSampleRate() {return settings.sampleRate;}
 	virtual float getDefaultSampleRate() {return 44100.0;}
 
-	virtual int getNumInputs();
-	virtual void setNumInputs(int);
-	virtual void setNumInputs();
-	
-	virtual int getNumOutputs();
-	virtual void setNumOutputs(int);
-	virtual void setNumOutputs();
-	virtual int getDefaultNumOutputs();
+	virtual int getNumInputs() {return settings.numInputs;}
+	virtual int getNumOutputs() {return settings.numOutputs;}
+	virtual int getDefaultNumOutputs() {return 2;}
+
+	//virtual float getBitVolts() {return settings.bitVolts;}
+	virtual float getDefaultBitVolts() {return 1.0;}
 
 	virtual int getNextChannel(bool);
 	virtual void resetConnections();
 	
-	virtual void updateSettings(); // updates sample rate and number of channels
-	virtual void updateParameters(); // called in updateSettings() to update params
-
 	virtual void setCurrentChannel(int chan) {currentChannel = chan;}
 
 	int getNodeId() {return nodeId;}
@@ -144,12 +133,9 @@ public:
 	// get/set source node functions
 	GenericProcessor* getSourceNode() {return sourceNode;}
 	GenericProcessor* getDestNode() {return destNode;}
-	GenericProcessor* getOriginalSourceNode();
 
-	virtual void switchSource(int) { };
-	virtual void switchSource() { };
-	virtual void switchDest() { };
-	virtual void switchDest(int) { };
+	virtual void switchIO(int) { };
+	virtual void switchIO() { };
 
 	virtual void setSourceNode(GenericProcessor* sn);
 	virtual void setDestNode(GenericProcessor* dn);
@@ -177,8 +163,8 @@ public:
 
 	int nextAvailableChannel;
 
-	int checkForMidiEvents(MidiBuffer& mb);
-	void addMidiEvent(MidiBuffer& mb, int a, int b);
+	int checkForEvents(MidiBuffer& mb);
+	void addEvent(MidiBuffer& mb, int a, int b);
 
 	bool isEnabled;
 
@@ -191,6 +177,32 @@ public:
 
 	virtual GenericEditor* getEditor() {return editor;}
 	ScopedPointer<GenericEditor> editor;
+
+	struct ProcessorSettings {
+
+		GenericProcessor* originalSource;
+
+		int numInputs;
+		int numOutputs;
+		StringArray inputChannelNames;
+		StringArray outputChannelNames;
+
+		float sampleRate;
+		Array<float> bitVolts;
+
+		Array<int> eventChannelIds;
+		StringArray eventChannelNames;
+
+	};
+
+	ProcessorSettings settings;
+
+	virtual void clearSettings();
+
+	virtual void generateDefaultChannelNames(StringArray&);
+
+	virtual void update(); // default node updating
+	virtual void updateSettings() {};
 
 private:
 

@@ -28,8 +28,8 @@ AudioNode::AudioNode()
 	: GenericProcessor("Audio Node"), volume(5.0f), audioEditor(0)
 {
 
-	numInputs = 64;
-	numOutputs = 2;
+	settings.numInputs = 64;
+	settings.numOutputs = 2;
 
 	// 64 inputs, 2 outputs (left and right channel)
 	setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);

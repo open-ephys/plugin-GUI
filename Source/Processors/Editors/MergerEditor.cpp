@@ -101,14 +101,14 @@ void MergerEditor::buttonClicked(Button* button)
 		pipelineSelectorA->setToggleState(true,false);
 		pipelineSelectorB->setToggleState(false,false);
 		Merger* processor = (Merger*) getProcessor();
-		processor->switchSource(0);
+		processor->switchIO(0);
 
 	} else if (button == pipelineSelectorB) 
 	{
 		pipelineSelectorB->setToggleState(true,false);
 		pipelineSelectorA->setToggleState(false,false);
 		Merger* processor = (Merger*) getProcessor();
-		processor->switchSource(1);
+		processor->switchIO(1);
 		
 	}
 }
@@ -120,14 +120,14 @@ void MergerEditor::switchSource(int source)
 		pipelineSelectorA->setToggleState(true,false);
 		pipelineSelectorB->setToggleState(false,false);
 		Merger* processor = (Merger*) getProcessor();
-		processor->switchSource(0);
+		processor->switchIO(0);
 
 	} else if (source == 1)
 	{
 		pipelineSelectorB->setToggleState(true,false);
 		pipelineSelectorA->setToggleState(false,false);
 		Merger* processor = (Merger*) getProcessor();
-		processor->switchSource(1);
+		processor->switchIO(1);
 		
 	}
 }
@@ -143,6 +143,6 @@ void MergerEditor::switchSource()
 	pipelineSelectorA->setToggleState(!isAOn,false);
 
 	Merger* processor = (Merger*) getProcessor();
-	processor->switchSource();
+	processor->switchIO();
 
 }

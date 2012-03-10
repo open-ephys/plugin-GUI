@@ -54,11 +54,10 @@ class GenericEditor : public AudioProcessorEditor,
 
 {
 public:
-	GenericEditor (GenericProcessor* owner);//, FilterViewport* vp);
+	GenericEditor (GenericProcessor* owner);
 	virtual ~GenericEditor();
 
 	void paint (Graphics& g);
-	//void setViewport(FilterViewport*);
 
 	bool keyPressed (const KeyPress& key);
 
@@ -83,7 +82,7 @@ public:
 	virtual void switchSource(int) { }  // needed for MergerEditor
 	virtual void switchSource() { }; // needed for MergerEditor
 
-	AudioProcessor* getProcessor() const {return getAudioProcessor();}
+	GenericProcessor* getProcessor() const {return (GenericProcessor*) getAudioProcessor();}
 	
 	void createRadioButtons(int x, int y, int w, StringArray values, const String& name);
 		

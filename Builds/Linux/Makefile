@@ -71,7 +71,6 @@ OBJECTS := \
   $(OBJDIR)/LfpDisplayCanvas_4a58e87e.o \
   $(OBJDIR)/OpenGLCanvas_3c775a41.o \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
-  $(OBJDIR)/FileReader_18023b0e.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
   $(OBJDIR)/MergerEditor_d1fcc0df.o \
@@ -272,11 +271,6 @@ $(OBJDIR)/OpenGLCanvas_3c775a41.o: ../../Source/Processors/Visualization/OpenGLC
 $(OBJDIR)/SpikeDetector_300d85e7.o: ../../Source/Processors/SpikeDetector.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SpikeDetector.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/FileReader_18023b0e.o: ../../Source/Processors/FileReader.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FileReader.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp

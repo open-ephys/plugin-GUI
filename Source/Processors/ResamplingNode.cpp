@@ -33,11 +33,11 @@ ResamplingNode::ResamplingNode(bool destBufferType)
 	
 {
 
-	setNumInputs(2);
-	setNumOutputs(2);
+	settings.numInputs = 2;
+	settings.numOutputs = 2;
 
-		setPlayConfigDetails(2, // number of inputs
-				         2, // number of outputs
+	setPlayConfigDetails(getNumInputs(), // number of inputs
+				         getNumOutputs(), // number of outputs
 				         44100.0, // sampleRate
 				         128);    // blockSize
 
