@@ -62,12 +62,12 @@ SignalGenerator::~SignalGenerator()
 
 AudioProcessorEditor* SignalGenerator::createEditor( )
 {
-	SignalGeneratorEditor* ed = new SignalGeneratorEditor(this);
-	setEditor(ed);
+	editor = new SignalGeneratorEditor(this);
+	//setEditor(ed);
 	
-	std::cout << "Creating editor." << std::endl;
+	//std::cout << "Creating editor." << std::endl;
 	//filterEditor = new FilterEditor(this);
-	return ed;
+	return editor;
 }
 
 void SignalGenerator::updateParameters()

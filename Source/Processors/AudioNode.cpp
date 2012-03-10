@@ -25,7 +25,7 @@
 #include "AudioNode.h"
 
 AudioNode::AudioNode()
-	: GenericProcessor("Audio Node"), volume(5.0f)
+	: GenericProcessor("Audio Node"), volume(5.0f), audioEditor(0)
 {
 
 	numInputs = 64;
@@ -45,16 +45,18 @@ AudioNode::AudioNode()
 
 AudioNode::~AudioNode() {
 
+
+
 }
 
 AudioProcessorEditor* AudioNode::createEditor()
 {
 	
-	AudioEditor* editor = new AudioEditor(this);
+	audioEditor = new AudioEditor(this);
 
-	setEditor(editor);
+	//setEditor(editor);
 	
-	return editor; 
+	return audioEditor; 
 
 }
 

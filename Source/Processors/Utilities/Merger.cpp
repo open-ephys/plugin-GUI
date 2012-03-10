@@ -43,10 +43,10 @@ Merger::~Merger()
 
 AudioProcessorEditor* Merger::createEditor()
 {
-	MergerEditor* editor = new MergerEditor(this);
-	setEditor(editor);
+	editor = new MergerEditor(this);
+	//tEditor(editor);
 	
-	std::cout << "Creating editor." << std::endl;
+	//std::cout << "Creating editor." << std::endl;
 	return editor;
 }
 

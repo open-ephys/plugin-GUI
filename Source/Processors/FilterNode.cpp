@@ -39,12 +39,12 @@ FilterNode::~FilterNode()
 
 AudioProcessorEditor* FilterNode::createEditor()
 {
-	FilterEditor* filterEditor = new FilterEditor(this);
-	setEditor(filterEditor);
+	editor = new FilterEditor(this);
+	//setEditor(filterEditor);
 	
 	std::cout << "Creating editor." << std::endl;
 
-	return filterEditor;
+	return editor;
 }
 
 

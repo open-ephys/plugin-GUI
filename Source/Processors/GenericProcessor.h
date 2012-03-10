@@ -49,9 +49,9 @@
 class EditorViewport;
 class DataViewport;
 class UIComponent;
+class GenericEditor;
 
 class GenericProcessor : public AudioProcessor,
-						// public ActionBroadcaster,
 						 public AccessClass
 
 {
@@ -196,31 +196,10 @@ public:
 
 	// Getting and setting:
 
-	AudioProcessorEditor* getEditor() {return editor;}
-	void setEditor(AudioProcessorEditor* e) {editor = e;}
+	GenericEditor* getEditor() {return editor;}
+	//void setEditor(GenericEditor* e) {editor = e;}
 
-	// void setUIComponent(UIComponent* ui) {UI = ui;}
-	// UIComponent* getUIComponent() {return UI;}
-
-	// virtual void setConfiguration(Configuration* cf) {config = cf;}
-	// Configuration* getConfiguration() {return config;}
-
-	// void setFilterViewport(FilterViewport* vp) {viewport = vp;}
-	// FilterViewport* getFilterViewport() {return viewport;}
-
-	// void setDataViewport(DataViewport* dv) {dataViewport = dv;}
-	// DataViewport* getDataViewport() {return dataViewport;}
-
-
-	//FilterViewport* viewport;
-	//DataViewport* dataViewport;
-	//UIComponent* UI;
-
-	//Configuration* config;
-
-	//int tabA, tabB; // needed for Merger
-
-	AudioProcessorEditor* editor;
+	ScopedPointer<GenericEditor> editor;
 
 private:
 

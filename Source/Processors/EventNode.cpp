@@ -41,8 +41,8 @@ EventNode::~EventNode()
 
 AudioProcessorEditor* EventNode::createEditor()
 {
-	EventNodeEditor* editor = new EventNodeEditor(this);
-	setEditor(editor);
+	editor = new EventNodeEditor(this);
+	//setEditor(editor);
 
 	std::cout << "Creating editor." << std::endl;
 

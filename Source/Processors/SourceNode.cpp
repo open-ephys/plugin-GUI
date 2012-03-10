@@ -139,11 +139,11 @@ void SourceNode::setParameter (int parameterIndex, float newValue)
 
 AudioProcessorEditor* SourceNode::createEditor()
 {
-	SourceNodeEditor* ed = new SourceNodeEditor(this);
-	setEditor(ed);
+	editor = new SourceNodeEditor(this);
+	//setEditor(ed);
 	
-	std::cout << "Creating editor." << std::endl;
-	return ed;
+//	std::cout << "Creating editor." << std::endl;
+	return editor;
 }
 
 void SourceNode::timerCallback()

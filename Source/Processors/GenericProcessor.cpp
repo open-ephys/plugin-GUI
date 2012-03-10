@@ -24,20 +24,19 @@
 #include "GenericProcessor.h"
 #include "../UI/UIComponent.h"
 
-GenericProcessor::GenericProcessor(const String& name_) : name(name_),
-	sourceNode(0), destNode(0), editor(0), isEnabled(true), saveOrder(-1), loadOrder(-1),
-	nextAvailableChannel(0), wasConnected(false), currentChannel(-1)
-	
+GenericProcessor::GenericProcessor(const String& name_) : 
+    name(name_),
+	sourceNode(0), destNode(0),
+	isEnabled(true), 
+	saveOrder(-1), loadOrder(-1),
+	nextAvailableChannel(0), currentChannel(-1),
+	wasConnected(false)
 {
 
 }
 
 GenericProcessor::~GenericProcessor()
 {
-	if (editor != 0)
-	{
-		deleteAndZero(editor);
-	}
 }
 
 AudioProcessorEditor* GenericProcessor::createEditor()

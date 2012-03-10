@@ -44,11 +44,11 @@ SpikeDetector::~SpikeDetector()
 AudioProcessorEditor* SpikeDetector::createEditor()
 {
 
-	SpikeDetectorEditor* editor = new SpikeDetectorEditor(this);
+	editor = new SpikeDetectorEditor(this);
 	
-	std::cout << "Creating editor." << std::endl;
+	//std::cout << "Creating editor." << std::endl;
 
-    setEditor(editor);
+    //setEditor(editor);
 
 	return editor;
 }

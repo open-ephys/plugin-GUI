@@ -41,6 +41,8 @@
 
 */
 
+class AudioEditor;
+
 class AudioNode : public GenericProcessor
 {
 public:
@@ -53,6 +55,8 @@ public:
 	void setParameter (int parameterIndex, float newValue);
 
 	AudioProcessorEditor* createEditor();
+
+    ScopedPointer<AudioEditor> audioEditor;
 	
 private:
 
