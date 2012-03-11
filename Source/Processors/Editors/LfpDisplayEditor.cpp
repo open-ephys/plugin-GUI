@@ -21,43 +21,11 @@
 
 */
 
-
 #include "LfpDisplayEditor.h"
-#include "../Visualization/LfpDisplayCanvas.h"
-
-SelectorButton::SelectorButton()
-	: DrawableButton (T("Selector"), DrawableButton::ImageFitted)
-{
-		DrawablePath normal, over, down;
-
-	    Path p;
-        p.addRectangle (0.0,0.0,20.0,20.0);
-        normal.setPath (p);
-        normal.setFill (Colours::lightgrey);
-        normal.setStrokeThickness (0.0f);
-
-        over.setPath (p);
-        over.setFill (Colours::black);
-        over.setStrokeFill (Colours::black);
-        over.setStrokeThickness (5.0f);
-
-        setImages (&normal, &over, &over);
-        setBackgroundColours(Colours::darkgrey, Colours::white);
-        setClickingTogglesState (true);
-        setTooltip ("Toggle a state.");
-
-}
-
-SelectorButton::~SelectorButton()
-{
-}
 
 
 LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode),
-	  tabIndex(-1), dataWindow(0),
-	  isPlaying(false),
-	  canvas(0)
+	: VisualizerEditor(parentNode)
 
 {
 
@@ -79,83 +47,24 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode)
 
 	createRadioButtons(35, 90, 160, displayGainValues, "Display Gain");
 
-	windowSelector = new SelectorButton();
-	windowSelector->addListener(this);
-	windowSelector->setBounds(190,10,10,10);
-
-	windowSelector->setToggleState(false,false);
-	addAndMakeVisible(windowSelector);
-
-	tabSelector = new SelectorButton();
-	tabSelector->addListener(this);
-	tabSelector->setBounds(205,10,10,10);
-	
-	addAndMakeVisible(tabSelector);
-	tabSelector->setToggleState(false,false);
 
 }
 
 LfpDisplayEditor::~LfpDisplayEditor()
 {
-
-	if (tabIndex > -1)
-	{
-		getDataViewport()->removeTab(tabIndex);
-	}
-
-	deleteAllChildren();
-
-}
-
-void LfpDisplayEditor::enable()
-{
-	std::cout << "   Enabling LfpDisplayEditor" << std::endl;
-	if (canvas != 0)
-		canvas->beginAnimation();
-	
-	isPlaying = true;
-}
-
-void LfpDisplayEditor::disable()
-{
-	if (canvas != 0)
-		canvas->endAnimation();
-
-	isPlaying = false;
-}
-
-void LfpDisplayEditor::updateVisualizer()
-{
-
-	if (canvas != 0)
-		canvas->update();
-
 }
 
 
-void LfpDisplayEditor::setBuffers(AudioSampleBuffer* asb, MidiBuffer* mb)
+Visualizer* LfpDisplayEditor::createNewCanvas()
 {
-	std::cout << "LfpDisplayEditor buffers are set!" << std::endl;
-	//streamBuffer = asb;
-	//eventBuffer = mb;
-
-	//std::cout << streamBuffer << std::endl;
-	//std::cout << eventBuffer << std::endl;
-}
-
-LfpDisplayCanvas* LfpDisplayEditor::createNewCanvas()
-{
-
 
 	LfpDisplayNode* processor = (LfpDisplayNode*) getProcessor();
 	return new LfpDisplayCanvas(processor);
 
 }
 
-void LfpDisplayEditor::buttonEvent(Button* button)
+void LfpDisplayEditor::buttonCallback(Button* button)
 {
-
-	//if (!checkDrawerButton(button) && !checkChannelSelectors(button)) {
 
 	int gId = button->getRadioGroupId();
 
@@ -165,87 +74,6 @@ void LfpDisplayEditor::buttonEvent(Button* button)
 			canvas->setParameter(gId-1, button->getName().getFloatValue());
 		}
 
-	} else {
-
-		if (canvas == 0) {
-			
-			canvas = createNewCanvas();
-
-			if (isPlaying)
-				canvas->beginAnimation();
-		}
-
-		if (button == windowSelector)
-		{
-
-			if (tabSelector->getToggleState() && windowSelector->getToggleState())
-		 	{
-		 		tabSelector->setToggleState(false, false);
-		 		getDataViewport()->destroyTab(tabIndex);
-		 		tabIndex = -1;
-		 	}
-
-		 	if (dataWindow == 0) {
-
-				dataWindow = new DataWindow(windowSelector);
-		 		dataWindow->setContentNonOwned(canvas, false);
-		 		dataWindow->setVisible(true);
-		 		canvas->refreshState();
-				
-		 	} else {
-
-		 		dataWindow->setVisible(windowSelector->getToggleState());
-		 		
-		 		if (windowSelector->getToggleState())
-		 		{
-		 			dataWindow->setContentNonOwned(canvas, false);
-		 			canvas->refreshState();
-		 		} else {
-		 			dataWindow->setContentNonOwned(0, false);
-		 		}
-		 		
-		 	}
-
-		} 
-		else if (button == tabSelector) 
-		{
-			if (tabSelector->getToggleState() && tabIndex < 0)
-			{
-
-				 if (windowSelector->getToggleState())
-				 {
-				 	dataWindow->setContentNonOwned(0, false);
-				 	windowSelector->setToggleState(false, false);
-				 	dataWindow->setVisible(false);
-				 }
-
-				tabIndex = getDataViewport()->addTabToDataViewport("LFP",canvas);
-
-
-			} else if (!tabSelector->getToggleState() && tabIndex > -1)
-			{
-				getDataViewport()->destroyTab(tabIndex);
-				tabIndex = -1;
-
-			}
-		}
-	}
-
-}
-
-void LfpDisplayEditor::sliderValueChanged (Slider* slider)
-{
-
-	// if (canvas != 0)
-	// {
-	// 	if (slider == timebaseSlider)
-	// 		canvas->setParameter(0,slider->getValue());
-	// 	else
-	// 		canvas->setParameter(1,slider->getValue());
-	// }
-
-	
-	//else 
-	//	getAudioProcessor()->setParameter(1,slider->getValue());
+	} 
 
 }

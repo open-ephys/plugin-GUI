@@ -21,34 +21,28 @@
 
 */
 
-#ifndef __LFPDISPLAYEDITOR_H_3438800D__
-#define __LFPDISPLAYEDITOR_H_3438800D__
+#include "Visualizer.h"
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
-#include "../../UI/UIComponent.h"
-#include "../../UI/DataViewport.h"
-#include "../Visualization/DataWindow.h"
-#include "../LfpDisplayNode.h"
-#include "../Visualization/LfpDisplayCanvas.h"
-
-class Visualizer;
-
-class LfpDisplayEditor : public VisualizerEditor
+Visualizer::Visualizer()
 {
-public:
-	LfpDisplayEditor (GenericProcessor*);
-	~LfpDisplayEditor();
 
-	void buttonCallback (Button* button);
+	nChans = processor->getNumInputs();
+	sampleRate = processor->getSampleRate();
+	std::cout << "Setting num inputs on Visualizer to " << nChans << std::endl;
 
-	Visualizer* createNewCanvas();
+	displayBuffer = processor->getDisplayBufferAddress();
+	displayBufferSize = displayBuffer->getNumSamples();
+		std::cout << "Setting displayBufferSize on Visualizer to " << displayBufferSize << std::endl;
 
-private:	
+
+	totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
+
+	screenBuffer = new AudioSampleBuffer(nChans, 10000);
+	
+}
+
+Visualizer::~Visualizer()
+{
+}
 
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayEditor);
-
-};
-
-#endif  // __LFPDISPLAYEDITOR_H_3438800D__

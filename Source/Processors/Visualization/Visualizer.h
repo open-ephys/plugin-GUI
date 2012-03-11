@@ -21,34 +21,35 @@
 
 */
 
-#ifndef __LFPDISPLAYEDITOR_H_3438800D__
-#define __LFPDISPLAYEDITOR_H_3438800D__
+#ifndef __VISUALIZER_H_C5943EC1__
+#define __VISUALIZER_H_C5943EC1__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
-#include "../../UI/UIComponent.h"
-#include "../../UI/DataViewport.h"
-#include "../Visualization/DataWindow.h"
-#include "../LfpDisplayNode.h"
-#include "../Visualization/LfpDisplayCanvas.h"
+#include "OpenGLCanvas.h"
 
-class Visualizer;
+class Visualizer : public OpenGLCanvas
 
-class LfpDisplayEditor : public VisualizerEditor
 {
-public:
-	LfpDisplayEditor (GenericProcessor*);
-	~LfpDisplayEditor();
+public: 
+	Visualizer() {}
+	~Visualizer() {}
 
-	void buttonCallback (Button* button);
+	virtual void newOpenGLContextCreated() = 0;
+	virtual void renderOpenGL() = 0;
+	virtual void refreshState() = 0;
 
-	Visualizer* createNewCanvas();
+	virtual void update() = 0;
+	virtual int getTotalHeight() = 0;
 
-private:	
+	virtual void beginAnimation() = 0;
+	virtual void endAnimation() = 0;
+
+private:
 
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayEditor);
-
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Visualizer);
+	
 };
 
-#endif  // __LFPDISPLAYEDITOR_H_3438800D__
+
+#endif  // __VISUALIZER_H_C5943EC1__

@@ -21,34 +21,68 @@
 
 */
 
-#ifndef __LFPDISPLAYEDITOR_H_3438800D__
-#define __LFPDISPLAYEDITOR_H_3438800D__
+#ifndef __VISUALIZEREDITOR_H_17E6D78C__
+#define __VISUALIZEREDITOR_H_17E6D78C__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "../../UI/UIComponent.h"
 #include "../../UI/DataViewport.h"
 #include "../Visualization/DataWindow.h"
-#include "../LfpDisplayNode.h"
-#include "../Visualization/LfpDisplayCanvas.h"
+#include "../Visualization/Visualizer.h"
 
+/**
+  
+  Base class for creating editors with visualizers.
+
+  @see GenericEditor, Visualizer
+
+*/
+
+class DataWindow;
 class Visualizer;
 
-class LfpDisplayEditor : public VisualizerEditor
+class SelectorButton : public Button
+{
+	public:
+		SelectorButton(const String& name);
+		~SelectorButton();	
+	private:
+		void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+};
+
+class VisualizerEditor : public GenericEditor
 {
 public:
-	LfpDisplayEditor (GenericProcessor*);
-	~LfpDisplayEditor();
+	VisualizerEditor (GenericProcessor*);
+	~VisualizerEditor();
 
-	void buttonCallback (Button* button);
+	void buttonEvent (Button* button);
+	virtual void buttonCallback(Button* button) {}
 
-	Visualizer* createNewCanvas();
+	virtual Visualizer* createNewCanvas() = 0;
+
+	void enable();
+	void disable();
+
+	void updateVisualizer();
 
 private:	
 
+	bool isPlaying;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayEditor);
+	SelectorButton* windowSelector;
+	SelectorButton* tabSelector;
+
+	ScopedPointer <DataWindow> dataWindow;
+	ScopedPointer <Visualizer> canvas;
+
+	int tabIndex;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VisualizerEditor);
 
 };
 
-#endif  // __LFPDISPLAYEDITOR_H_3438800D__
+
+
+#endif  // __VISUALIZEREDITOR_H_17E6D78C__
