@@ -29,9 +29,6 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	    timebase(1.0f), displayGain(5.0f), displayBufferIndex(0)
 {
 
-	//GenericProcessor* gp = (GenericProcessor*) editor->getProcessor();
-
-
 	nChans = processor->getNumInputs();
 	sampleRate = processor->getSampleRate();
 	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;

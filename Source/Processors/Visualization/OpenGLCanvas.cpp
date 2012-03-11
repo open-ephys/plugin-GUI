@@ -45,16 +45,29 @@ OpenGLCanvas::~OpenGLCanvas()
 void OpenGLCanvas::setUp2DCanvas()
 {
 	glMatrixMode (GL_PROJECTION);
-
 	glLoadIdentity();
-	glOrtho (0, 1, 1, 0, 0, 1);
+
 	glMatrixMode (GL_MODELVIEW);
+	glLoadIdentity();
+
+	glOrtho (0, 1, 1, 0, 0, 1);
 	
 	glEnable(GL_TEXTURE_2D);
 }
 
 void OpenGLCanvas::activateAntiAliasing()
 {
+
+	// disable everything we don't need
+	glDisable(GL_FOG);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DITHER);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_SCISSOR_TEST);
+	glDisable(GL_STENCIL_TEST);
+
 	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 	glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
@@ -65,6 +78,8 @@ void OpenGLCanvas::activateAntiAliasing()
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glShadeModel(GL_FLAT);
 }
 
 
