@@ -62,10 +62,13 @@ public:
 
 	virtual Visualizer* createNewCanvas() = 0;
 
-	void enable();
-	void disable();
+	virtual void enable();
+	virtual void disable();
 
 	void updateVisualizer();
+
+	ScopedPointer <DataWindow> dataWindow;
+	ScopedPointer <Visualizer> canvas;
 
 private:	
 
@@ -73,9 +76,6 @@ private:
 
 	SelectorButton* windowSelector;
 	SelectorButton* tabSelector;
-
-	ScopedPointer <DataWindow> dataWindow;
-	ScopedPointer <Visualizer> canvas;
 
 	int tabIndex;
 

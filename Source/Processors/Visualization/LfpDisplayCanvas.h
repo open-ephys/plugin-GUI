@@ -23,15 +23,13 @@
 #ifndef __LFPDISPLAYCANVAS_H_B711873A__
 #define __LFPDISPLAYCANVAS_H_B711873A__
 
-
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "OpenGLCanvas.h"
-#include "../../UI/Configuration.h"
 #include "../LfpDisplayNode.h"
+#include "Visualizer.h"
 
 class LfpDisplayNode;
 
-class LfpDisplayCanvas : public OpenGLCanvas
+class LfpDisplayCanvas : public Visualizer
 
 {
 public: 
@@ -56,7 +54,6 @@ private:
 	float sampleRate;
 	float timebase;
 	float displayGain;
-	//float ratio;
 
 	LfpDisplayNode* processor;
 	AudioSampleBuffer* displayBuffer;
@@ -71,8 +68,6 @@ private:
 	void drawTicks();
 
 	bool checkBounds(int chan);
-
-
 
 	void updateScreenBuffer();
 	int screenBufferIndex;

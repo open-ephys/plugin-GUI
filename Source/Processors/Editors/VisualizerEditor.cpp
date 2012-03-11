@@ -52,7 +52,9 @@ void SelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDow
    		g.fillRect(0,0,getWidth(),3.0);
    	} else {
    		// tab icon
-   		g.drawRect(0,0,10,getHeight());
+   		g.drawVerticalLine(5,0,getHeight());
+   		g.fillRoundedRectangle(5,2,4,getHeight()-4,4.0f);
+   		g.fillRect(5,2,4,getHeight()-4);
    	}
   
 }
@@ -72,14 +74,14 @@ VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode)
 
 	windowSelector = new SelectorButton("window");
 	windowSelector->addListener(this);
-	windowSelector->setBounds(190,5,15,10);
+	windowSelector->setBounds(190,7,14,10);
 
 	windowSelector->setToggleState(false,false);
 	addAndMakeVisible(windowSelector);
 
 	tabSelector = new SelectorButton("tab");
 	tabSelector->addListener(this);
-	tabSelector->setBounds(210,5,15,10);
+	tabSelector->setBounds(210,7,15,10);
 	
 	addAndMakeVisible(tabSelector);
 	tabSelector->setToggleState(false,false);

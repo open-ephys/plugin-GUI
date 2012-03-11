@@ -36,6 +36,7 @@ public:
 
 	virtual void newOpenGLContextCreated() = 0;
 	virtual void renderOpenGL() = 0;
+
 	virtual void refreshState() = 0;
 
 	virtual void update() = 0;
@@ -44,11 +45,8 @@ public:
 	virtual void beginAnimation() = 0;
 	virtual void endAnimation() = 0;
 
-private:
+	virtual void setParameter(int, float) = 0;
 
-
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Visualizer);
-	
 };
 
 

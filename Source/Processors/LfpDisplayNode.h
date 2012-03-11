@@ -26,6 +26,7 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/LfpDisplayEditor.h"
+#include "Editors/VisualizerEditor.h"
 #include "GenericProcessor.h"
 
 /**

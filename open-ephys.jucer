@@ -150,6 +150,7 @@
           <FILE id="DXYynnz" name="Splitter.h" compile="0" resource="0" file="Source/Processors/Utilities/Splitter.h"/>
         </GROUP>
         <GROUP id="W4eqkOy" name="Visualization">
+          <FILE id="yDPZGpt" name="Visualizer.h" compile="0" resource="0" file="Source/Processors/Visualization/Visualizer.h"/>
           <FILE id="BX1Vj3V" name="DataWindow.cpp" compile="1" resource="0" file="Source/Processors/Visualization/DataWindow.cpp"/>
           <FILE id="l2VKLuP" name="DataWindow.h" compile="0" resource="0" file="Source/Processors/Visualization/DataWindow.h"/>
           <FILE id="2rXPco7" name="LfpDisplayCanvas.cpp" compile="1" resource="0"
@@ -169,6 +170,10 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="2XqqPOS" name="VisualizerEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/VisualizerEditor.cpp"/>
+          <FILE id="CUHGPJF" name="VisualizerEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/VisualizerEditor.h"/>
           <FILE id="bsIZbuu" name="MergerEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/MergerEditor.cpp"/>
           <FILE id="vfmEY5L" name="MergerEditor.h" compile="0" resource="0" file="Source/Processors/Editors/MergerEditor.h"/>

@@ -73,6 +73,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/VisualizerEditor_3672b003.o \
   $(OBJDIR)/MergerEditor_d1fcc0df.o \
   $(OBJDIR)/ImageIcon_c89b23a6.o \
   $(OBJDIR)/WiFiOutputEditor_1d3ba5bb.o \
@@ -281,6 +282,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/VisualizerEditor_3672b003.o: ../../Source/Processors/Editors/VisualizerEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling VisualizerEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/MergerEditor_d1fcc0df.o: ../../Source/Processors/Editors/MergerEditor.cpp

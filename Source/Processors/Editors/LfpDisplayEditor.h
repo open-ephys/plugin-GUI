@@ -31,6 +31,7 @@
 #include "../Visualization/DataWindow.h"
 #include "../LfpDisplayNode.h"
 #include "../Visualization/LfpDisplayCanvas.h"
+#include "VisualizerEditor.h"
 
 class Visualizer;
 

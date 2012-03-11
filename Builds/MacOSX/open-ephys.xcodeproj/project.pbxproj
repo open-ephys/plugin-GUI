@@ -47,6 +47,7 @@
 		4BE0DDA01B73223EF0BD934A = { isa = PBXBuildFile; fileRef = 3DD0741FCFBC7563EC722D9B; };
 		08B501E0D7764C6B613AF529 = { isa = PBXBuildFile; fileRef = B7750B27E4F3748ECCCCF69D; };
 		9CBA3837CC8CAA03A03F2D9C = { isa = PBXBuildFile; fileRef = FA57CE4F63FF1592D6B3F9B5; };
+		F4CEF74DDCD7EFA0891249B5 = { isa = PBXBuildFile; fileRef = 9A3976537C96B39716B5312D; };
 		93A3E6284F2DAED3F491332B = { isa = PBXBuildFile; fileRef = AD73EA6B24378294003DC2D0; };
 		CB77C89226102EF30F85E3EC = { isa = PBXBuildFile; fileRef = 544DA1EF90EBBDB6FF2DE0A5; };
 		A126280FF39A61DEFD3ABFE5 = { isa = PBXBuildFile; fileRef = 2B11714BCE362D4EA7E377F5; };
@@ -187,6 +188,7 @@
 		7977CAB4A151C41F4140FE1A = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Merger.h; path = ../../Source/Processors/Utilities/Merger.h; sourceTree = SOURCE_ROOT; };
 		9A47B52E5E1CD17DC9C72B53 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Splitter.cpp; path = ../../Source/Processors/Utilities/Splitter.cpp; sourceTree = SOURCE_ROOT; };
 		B92E8189F69E0B926C73B654 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Splitter.h; path = ../../Source/Processors/Utilities/Splitter.h; sourceTree = SOURCE_ROOT; };
+		9ACFB6A181D09434268CE006 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Visualizer.h; path = ../../Source/Processors/Visualization/Visualizer.h; sourceTree = SOURCE_ROOT; };
 		ED179D5A10DD051DDB3ECB8B = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DataWindow.cpp; path = ../../Source/Processors/Visualization/DataWindow.cpp; sourceTree = SOURCE_ROOT; };
 		63C18F4066C75D3C312877D8 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DataWindow.h; path = ../../Source/Processors/Visualization/DataWindow.h; sourceTree = SOURCE_ROOT; };
 		2E96DA81EE37A0ECE471A928 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LfpDisplayCanvas.cpp; path = ../../Source/Processors/Visualization/LfpDisplayCanvas.cpp; sourceTree = SOURCE_ROOT; };
@@ -199,6 +201,8 @@
 		12866D44BE115E8837468F48 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AudioNode.h; path = ../../Source/Processors/AudioNode.h; sourceTree = SOURCE_ROOT; };
 		FA57CE4F63FF1592D6B3F9B5 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EventNode.cpp; path = ../../Source/Processors/EventNode.cpp; sourceTree = SOURCE_ROOT; };
 		32163C956C8A6F5C1DD7FE7F = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EventNode.h; path = ../../Source/Processors/EventNode.h; sourceTree = SOURCE_ROOT; };
+		9A3976537C96B39716B5312D = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VisualizerEditor.cpp; path = ../../Source/Processors/Editors/VisualizerEditor.cpp; sourceTree = SOURCE_ROOT; };
+		C546D55EDE65ADDD95C6A6F5 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VisualizerEditor.h; path = ../../Source/Processors/Editors/VisualizerEditor.h; sourceTree = SOURCE_ROOT; };
 		AD73EA6B24378294003DC2D0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MergerEditor.cpp; path = ../../Source/Processors/Editors/MergerEditor.cpp; sourceTree = SOURCE_ROOT; };
 		B7FD86B9DA02771D3519FAA0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MergerEditor.h; path = ../../Source/Processors/Editors/MergerEditor.h; sourceTree = SOURCE_ROOT; };
 		544DA1EF90EBBDB6FF2DE0A5 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ImageIcon.cpp; path = ../../Source/Processors/Editors/ImageIcon.cpp; sourceTree = SOURCE_ROOT; };
@@ -376,6 +380,7 @@
 				9A47B52E5E1CD17DC9C72B53,
 				B92E8189F69E0B926C73B654 ); name = Utilities; sourceTree = "<group>"; };
 		15543D7982B26B70879960F4 = { isa = PBXGroup; children = (
+				9ACFB6A181D09434268CE006,
 				ED179D5A10DD051DDB3ECB8B,
 				63C18F4066C75D3C312877D8,
 				2E96DA81EE37A0ECE471A928,
@@ -383,6 +388,8 @@
 				0C5335B0E57C9DC92FC57E5F,
 				7738F51AE0EC63D76EE0F761 ); name = Visualization; sourceTree = "<group>"; };
 		953CC35B9116404D6AA8D1C7 = { isa = PBXGroup; children = (
+				9A3976537C96B39716B5312D,
+				C546D55EDE65ADDD95C6A6F5,
 				AD73EA6B24378294003DC2D0,
 				B7FD86B9DA02771D3519FAA0,
 				544DA1EF90EBBDB6FF2DE0A5,
@@ -618,6 +625,7 @@
 				4BE0DDA01B73223EF0BD934A,
 				08B501E0D7764C6B613AF529,
 				9CBA3837CC8CAA03A03F2D9C,
+				F4CEF74DDCD7EFA0891249B5,
 				93A3E6284F2DAED3F491332B,
 				CB77C89226102EF30F85E3EC,
 				A126280FF39A61DEFD3ABFE5,
