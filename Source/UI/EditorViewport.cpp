@@ -33,12 +33,12 @@ EditorViewport::EditorViewport()
        borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true), currentTab(-1)//, signalChainNeedsSource(true)
 {
 
-  addMouseListener(this, true);
+    addMouseListener(this, true);
 
-  MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-  Typeface::Ptr typeface = new CustomTypeface(mis);
-  font = Font(typeface);
-  font.setHeight(10);
+    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    Typeface::Ptr typeface = new CustomTypeface(mis);
+    font = Font(typeface);
+    font.setHeight(10);
 
     sourceDropImage = ImageCache::getFromMemory (BinaryData::SourceDrop_png, 
                                       BinaryData::SourceDrop_pngSize);
@@ -63,8 +63,6 @@ EditorViewport::EditorViewport()
     addAndMakeVisible(downButton);
     addAndMakeVisible(rightButton);
     addAndMakeVisible(leftButton);
-
-
 
 }
 
@@ -480,8 +478,6 @@ void EditorViewport::mouseDown(const MouseEvent &e) {
         }
     } 
 
-   // selectEditor((GenericEditor*) e.eventComponent);
-
 }
 
 void EditorViewport::mouseDrag(const MouseEvent &e) {
@@ -638,73 +634,72 @@ void EditorViewport::buttonClicked (Button* button)
 
 SignalChainTabButton::SignalChainTabButton() : Button("Name"),
         configurationChanged(true)
-    {
-        setRadioGroupId(99);
-        //setToggleState(false,true);
-        setClickingTogglesState(true);
+{
+    setRadioGroupId(99);
+    setClickingTogglesState(true);
 
-        MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-        Typeface::Ptr typeface = new CustomTypeface(mis);
-        buttonFont = Font(typeface);
-        buttonFont.setHeight(14);
+    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    Typeface::Ptr typeface = new CustomTypeface(mis);
+    buttonFont = Font(typeface);
+    buttonFont.setHeight(14);
 
-        offset = 0;
-    }
+    offset = 0;
+}
 
 
 void SignalChainTabButton::clicked() 
 {
     
-        //std::cout << "Button clicked: " << firstEditor->getName() << std::endl;
-        EditorViewport* ev = (EditorViewport*) getParentComponent();
-    
-        scm->updateVisibleEditors(firstEditor, 0, 0, ACTIVATE); 
-        ev->leftmostEditor = offset;
-        ev->refreshEditors();   
+    //std::cout << "Button clicked: " << firstEditor->getName() << std::endl;
+    EditorViewport* ev = (EditorViewport*) getParentComponent();
+
+    scm->updateVisibleEditors(firstEditor, 0, 0, ACTIVATE); 
+    ev->leftmostEditor = offset;
+    ev->refreshEditors();   
 
     
 }
 
 void SignalChainTabButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
-        if (getToggleState() == true)
-            g.setColour(Colours::orange);
-        else 
-            g.setColour(Colours::darkgrey);
+    if (getToggleState() == true)
+        g.setColour(Colours::orange);
+    else 
+        g.setColour(Colours::darkgrey);
 
-        if (isMouseOver)
-            g.setColour(Colours::white);
+    if (isMouseOver)
+        g.setColour(Colours::white);
 
-        g.fillEllipse(0,0,getWidth(),getHeight());
+    g.fillEllipse(0,0,getWidth(),getHeight());
 
-        g.setFont(buttonFont);
-        g.setColour(Colours::black);
+    g.setFont(buttonFont);
+    g.setColour(Colours::black);
 
-        String n;
+    String n;
 
-        if (num == 0)
-            n = "A";
-        else if (num == 1)
-            n = "B";
-        else if (num == 2)
-            n = "C";
-        else if (num == 3)
-            n = "D";
-        else if (num == 4)
-            n = "E";
-        else if (num == 5)
-            n = "F";
-        else if (num == 6)
-            n = "G";
-        else if (num == 7)
-            n = "H";
-        else if (num == 8)
-            n = "I";
-        else
-            n = "-";
+    if (num == 0)
+        n = "A";
+    else if (num == 1)
+        n = "B";
+    else if (num == 2)
+        n = "C";
+    else if (num == 3)
+        n = "D";
+    else if (num == 4)
+        n = "E";
+    else if (num == 5)
+        n = "F";
+    else if (num == 6)
+        n = "G";
+    else if (num == 7)
+        n = "H";
+    else if (num == 8)
+        n = "I";
+    else
+        n = "-";
 
-        g.drawText(n,0,0,getWidth(),getHeight(),Justification::centred,true);
-    }
+    g.drawText(n,0,0,getWidth(),getHeight(),Justification::centred,true);
+}
 
 
 
@@ -876,7 +871,6 @@ const String EditorViewport::loadState(const File& file)
     {
         std::cout << "File not found." << std::endl;
         delete xml;
-        // don't do anything
         return "Not a valid file.";
     }
 
@@ -942,8 +936,5 @@ const String EditorViewport::loadState(const File& file)
 
     delete xml;
     return "Everything went ok.";
-
-   // refreshEditors();
-
 }
 
