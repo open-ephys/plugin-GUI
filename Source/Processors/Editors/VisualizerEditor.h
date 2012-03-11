@@ -67,8 +67,8 @@ public:
 
 	void updateVisualizer();
 
-	ScopedPointer <DataWindow> dataWindow;
-	ScopedPointer <Visualizer> canvas;
+	ScopedPointer<DataWindow> dataWindow;
+	ScopedPointer<Visualizer> canvas;
 
 private:	
 

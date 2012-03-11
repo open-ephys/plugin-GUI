@@ -444,9 +444,11 @@ void GenericEditor::update()
 
 	if (numChannels == 0)
 	{
-		drawerButton->setVisible(false);
+		if (drawerButton != 0)
+			drawerButton->setVisible(false);
 	} else {
-		drawerButton->setVisible(true);
+		if (drawerButton != 0)
+			drawerButton->setVisible(true);
 	}
 
 	updateVisualizer(); // does nothing unless this method
