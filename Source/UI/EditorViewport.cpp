@@ -28,9 +28,9 @@
 
 EditorViewport::EditorViewport()
     : message ("Drag-and-drop some rows from the top-left box onto this component!"),
-      somethingIsBeingDraggedOver (false), shiftDown(false), leftmostEditor(0),
+      somethingIsBeingDraggedOver(false), shiftDown(false), leftmostEditor(0),
        insertionPoint(0), componentWantsToMove(false), indexOfMovingComponent(-1), 
-       borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true), currentTab(-1)//, signalChainNeedsSource(true)
+       borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true), currentTab(-1)
 {
 
     addMouseListener(this, true);

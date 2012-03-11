@@ -50,7 +50,8 @@ class ChannelSelectorButton;
 class GenericEditor : public AudioProcessorEditor,
                       public Timer,
                       public AccessClass,
-                      public Button::Listener
+                      public Button::Listener,
+                      public Slider::Listener
 
 {
 public:
@@ -95,6 +96,8 @@ public:
 	float accumulator;
 
 	virtual void buttonClicked(Button* button);
+	virtual void buttonEvent(Button* button) {}
+	virtual void sliderValueChanged(Slider* slider) {}
 
 	bool checkDrawerButton(Button* button);
 	bool checkChannelSelectors(Button* button);

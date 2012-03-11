@@ -56,7 +56,6 @@ SelectorButton::~SelectorButton()
 LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode) 
 	: GenericEditor(parentNode),
 	  tabIndex(-1), dataWindow(0),
-	  //streamBuffer(0), eventBuffer(0), canvas(0),
 	  isPlaying(false),
 	  canvas(0)
 
@@ -80,44 +79,19 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode)
 
 	createRadioButtons(35, 90, 160, displayGainValues, "Display Gain");
 
-	// 	for (int n = 0; n < getNumChildComponents(); n++)
-	// {
-	// 	Button* c = (Button*) getChildComponent(n);
+	windowSelector = new SelectorButton();
+	windowSelector->addListener(this);
+	windowSelector->setBounds(190,10,10,10);
 
-	// 	if (c->isVisible())
-	// 		c->addListener(this);
-
-	// 	if (c->getRadioGroupId() != 999)
-	// 		c->setVisible(true);
-	// }
-
-	// timebaseSlider = new Slider (T("Time Base Slider"));
-	// timebaseSlider->setBounds(60,20,200,40);
-	// timebaseSlider->setRange(500,10000,500);
-	// timebaseSlider->addListener(this);
-	// addAndMakeVisible(timebaseSlider);
-
-	// displayGainSlider = new Slider (T("Display Gain Slider"));
-	// displayGainSlider->setBounds(60,65,200,40);
-	// displayGainSlider->setRange(1,8,1);
-	// displayGainSlider->addListener(this);
-	// addAndMakeVisible(displayGainSlider);
-
-	// windowSelector = new SelectorButton();
-	// windowSelector->addListener(this);
-	// windowSelector->setBounds(25,25,20,20);
-	// windowSelector->setToggleState(false,false);
-	// addAndMakeVisible(windowSelector);
+	windowSelector->setToggleState(false,false);
+	addAndMakeVisible(windowSelector);
 
 	tabSelector = new SelectorButton();
 	tabSelector->addListener(this);
-	tabSelector->setBounds(205,30,10,10);
+	tabSelector->setBounds(205,10,10,10);
 	
 	addAndMakeVisible(tabSelector);
 	tabSelector->setToggleState(false,false);
-
-	//canvas = new LfpDisplayCanvas((LfpDisplayNode*) getProcessor());
-
 
 }
 
@@ -169,10 +143,19 @@ void LfpDisplayEditor::setBuffers(AudioSampleBuffer* asb, MidiBuffer* mb)
 	//std::cout << eventBuffer << std::endl;
 }
 
-void LfpDisplayEditor::buttonClicked(Button* button)
+LfpDisplayCanvas* LfpDisplayEditor::createNewCanvas()
 {
 
-	if (!checkDrawerButton(button) && !checkChannelSelectors(button)) {
+
+	LfpDisplayNode* processor = (LfpDisplayNode*) getProcessor();
+	return new LfpDisplayCanvas(processor);
+
+}
+
+void LfpDisplayEditor::buttonEvent(Button* button)
+{
+
+	//if (!checkDrawerButton(button) && !checkChannelSelectors(button)) {
 
 	int gId = button->getRadioGroupId();
 
@@ -184,93 +167,70 @@ void LfpDisplayEditor::buttonClicked(Button* button)
 
 	} else {
 
-	if (canvas == 0) {
-		
-		LfpDisplayNode* processor = (LfpDisplayNode*) getProcessor();
-		canvas = new LfpDisplayCanvas(processor);
-
-		if (isPlaying)
-			canvas->beginAnimation();
-	}
-
-	// if (button == windowSelector)
-	// {
-	// 	if (dataWindow == 0) {
-
-	// 		dataWindow = new DataWindow(windowSelector);
-
-	// 		//if (canvas == 0)
-	// 		//	canvas = new LfpDisplayCanvas((LfpDisplayNode*) getProcessor());
-
-	// 		//dataWindow->setContentComponent(new LfpDisplayCanvas(streamBuffer,eventBuffer,getConfiguration(), this));
-
-	// 		if (tabSelector->getToggleState())
-	// 		{
-	// 			tabSelector->setToggleState(false, false);
-	// 			dataViewport->removeTab(tabIndex);
-	// 			tabIndex = -1;
-	// 		}
-
-	// 		//LfpDisplayNode* p = (LfpDisplayNode*) getProcessor();
-
-	// 		dataWindow->setContentNonOwned(canvas, false);
-	// 		//p->isVisible = true;
-
-	// 		//getProcessor()->parentComponentChanged();
-	// 		dataWindow->setVisible(true);
+		if (canvas == 0) {
 			
-	// 	} else {
+			canvas = createNewCanvas();
 
-	// 		if (tabSelector->getToggleState())
-	// 		{
-	// 			tabSelector->setToggleState(false, false);
-	// 			dataViewport->removeTab(tabIndex);
-	// 			tabIndex = -1;
-	// 		}
+			if (isPlaying)
+				canvas->beginAnimation();
+		}
 
-	// 		dataWindow->setVisible(windowSelector->getToggleState());
+		if (button == windowSelector)
+		{
 
-	// 		//LfpDisplayNode* p = (LfpDisplayNode*) getProcessor();
-	// 		//p->isVisible = windowSelector->getToggleState();
-	// 		//getProcessor()->parentComponentChanged();
-	// 	}
+			if (tabSelector->getToggleState() && windowSelector->getToggleState())
+		 	{
+		 		tabSelector->setToggleState(false, false);
+		 		getDataViewport()->destroyTab(tabIndex);
+		 		tabIndex = -1;
+		 	}
 
-	// } else
-		 if (button == tabSelector)
+		 	if (dataWindow == 0) {
+
+				dataWindow = new DataWindow(windowSelector);
+		 		dataWindow->setContentNonOwned(canvas, false);
+		 		dataWindow->setVisible(true);
+		 		canvas->refreshState();
+				
+		 	} else {
+
+		 		dataWindow->setVisible(windowSelector->getToggleState());
+		 		
+		 		if (windowSelector->getToggleState())
+		 		{
+		 			dataWindow->setContentNonOwned(canvas, false);
+		 			canvas->refreshState();
+		 		} else {
+		 			dataWindow->setContentNonOwned(0, false);
+		 		}
+		 		
+		 	}
+
+		} 
+		else if (button == tabSelector) 
 		{
 			if (tabSelector->getToggleState() && tabIndex < 0)
 			{
 
-				//std::cout << "Editor data viewport: " << dataViewport << std::endl;
-				
-				// if (windowSelector->getToggleState())
-				// {
-				// 	windowSelector->setToggleState(false, false);
-				// 	dataWindow->setVisible(false);
-				// }
+				 if (windowSelector->getToggleState())
+				 {
+				 	dataWindow->setContentNonOwned(0, false);
+				 	windowSelector->setToggleState(false, false);
+				 	dataWindow->setVisible(false);
+				 }
 
-				//tabIndex = dataViewport->addTabToDataViewport("LFP",new LfpDisplayCanvas(streamBuffer,eventBuffer,getConfiguration(), this));
-				//Component* p = (Component*) getProcessor();
-
-				//LfpDisplayNode* p = (LfpDisplayNode*) getProcessor();
 				tabIndex = getDataViewport()->addTabToDataViewport("LFP",canvas);
-				//if (isPlaying)
-				///{
-				//	canvas->beginAnimation();
-				//}
 
-				//p->isVisible = true;
 
 			} else if (!tabSelector->getToggleState() && tabIndex > -1)
 			{
-				getDataViewport()->removeTab(tabIndex);
+				getDataViewport()->destroyTab(tabIndex);
 				tabIndex = -1;
-				//LfpDisplayNode* p = (LfpDisplayNode*) getProcessor();
-				//p->isVisible = false;
+
 			}
 		}
 	}
-	}
+
 }
 
 void LfpDisplayEditor::sliderValueChanged (Slider* slider)

@@ -265,6 +265,9 @@ void GenericEditor::buttonClicked(Button* button)
 	
 	checkDrawerButton(button);
 	checkChannelSelectors(button);
+
+	buttonEvent(button); // needed to inform subclasses of 
+						 // button event
 }
 
 bool GenericEditor::checkDrawerButton(Button* button)
@@ -437,6 +440,13 @@ void GenericEditor::update()
 		}
 
 		numChannels = p->getNumInputs();
+	}
+
+	if (numChannels == 0)
+	{
+		drawerButton->setVisible(false);
+	} else {
+		drawerButton->setVisible(true);
 	}
 
 	updateVisualizer(); // does nothing unless this method

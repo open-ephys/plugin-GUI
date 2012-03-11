@@ -36,6 +36,7 @@
 //class DataViewport;
 class DataWindow;
 class LfpDisplayCanvas;
+class OpenGLCanvas;
 
 class SelectorButton : public DrawableButton
 {
@@ -44,16 +45,17 @@ class SelectorButton : public DrawableButton
 		~SelectorButton();	
 };
 
-class LfpDisplayEditor : public GenericEditor,//,
-				   	    // public Button::Listener,
-				   	     public Slider::Listener
+class LfpDisplayEditor : public GenericEditor
 {
 public:
 	LfpDisplayEditor (GenericProcessor*);
 	~LfpDisplayEditor();
 
-	void buttonClicked (Button* button);
+	void buttonEvent (Button* button);
 	void setBuffers (AudioSampleBuffer*, MidiBuffer*);
+
+	LfpDisplayCanvas* createNewCanvas();
+
 	//void setUIComponent (UIComponent* ui) {UI = ui;}
 
 	void sliderValueChanged (Slider* slider);

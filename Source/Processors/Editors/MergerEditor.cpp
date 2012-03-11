@@ -94,7 +94,7 @@ MergerEditor::~MergerEditor()
 	deleteAllChildren();
 }
 
-void MergerEditor::buttonClicked(Button* button)
+void MergerEditor::buttonEvent(Button* button)
 {
 	if (button == pipelineSelectorA)
 	{

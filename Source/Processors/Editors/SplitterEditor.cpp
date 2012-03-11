@@ -94,7 +94,7 @@ SplitterEditor::~SplitterEditor()
 	deleteAllChildren();
 }
 
-void SplitterEditor::buttonClicked(Button* button)
+void SplitterEditor::buttonEvent(Button* button)
 {
 	if (button == pipelineSelectorA)
 	{

@@ -113,6 +113,8 @@ void LfpDisplayCanvas::refreshState()
 	displayBufferIndex = processor->getDisplayBufferIndex();
 	screenBufferIndex = 0;
 
+	//resized();
+
 }
 
 void LfpDisplayCanvas::updateScreenBuffer()
@@ -198,6 +200,10 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	}
 }
 
+void LfpDisplayCanvas::canvasWasResized()
+{
+	//std::cout << "Resized!" << std::endl;	
+}
 
 void LfpDisplayCanvas::renderOpenGL()
 {

@@ -63,14 +63,20 @@ DataViewport::~DataViewport()
 
  }
 
- void DataViewport::removeTab(int index) {
+ void DataViewport::destroyTab(int index) {
         
-     int newIndex = tabArray->indexOf(index);
-     tabArray->remove(newIndex);
+    int newIndex = tabArray->indexOf(index);
 
-     getTabbedButtonBar().removeTab(newIndex);
+    Component* canvas = getTabContentComponent(newIndex);
+    Component* parent = canvas->getParentComponent();
+    parent->removeChildComponent(canvas);
 
-     if (tabArray->size() == 0)
+    tabArray->remove(newIndex);
+
+    removeTab(newIndex);
+    //getTabbedButtonBar().removeTab(newIndex);
+
+    if (tabArray->size() == 0)
      	setVisible(false);
 
  }
@@ -79,8 +85,9 @@ DataViewport::~DataViewport()
  {
      OpenGLCanvas* canvas = (OpenGLCanvas*) getTabContentComponent(newIndex);
 
-     if (canvas != 0)
+     if (canvas != 0) {
          canvas->refreshState();
+     }
  }
 
 void DataViewport::paint(Graphics& g)

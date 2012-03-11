@@ -66,7 +66,7 @@ EventNodeEditor::~EventNodeEditor()
 
 // }
 
-void EventNodeEditor::buttonClicked (Button* button)
+void EventNodeEditor::buttonEvent (Button* button)
 {
 	//std::cout << button->getRadioGroupId() << " " << button->getName() << std::endl;
 	String value = button->getName();

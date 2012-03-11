@@ -29,8 +29,7 @@
 
 class FilterViewport;
 
-class SignalGeneratorEditor : public GenericEditor,
-					 		  public Slider::Listener
+class SignalGeneratorEditor : public GenericEditor
 {
 public:
 	SignalGeneratorEditor (GenericProcessor* parentNode);

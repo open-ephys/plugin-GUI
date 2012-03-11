@@ -64,13 +64,10 @@ public:
 
     // Creating and deleting editors:
     void deleteNode(GenericEditor* editor);
-   // void updateVisibleEditors(GenericEditor* activeEditor, int action);
     void selectEditor(GenericEditor* e);
 
     void makeEditorVisible(GenericEditor* e);
     void refreshEditors();
-
-   // void setActiveEditor(GenericEditor* e) {activeEditor = e; updateVisibleEditors();}
 
     void signalChainCanBeEdited(bool t);
 
@@ -104,7 +101,7 @@ public:
 
     void checkScrollButtons(int topTab);
 
-      int leftmostEditor;
+    int leftmostEditor;
     
 private:
 
@@ -115,9 +112,6 @@ private:
     bool canEdit;
     GenericEditor* lastEditor;
 
-    //ProcessorGraph* graph;
-    //DataViewport* tabComponent;
-
     Array<GenericEditor*, CriticalSection> editorArray;
     Array<SignalChainTabButton*, CriticalSection> signalChainArray;
 
@@ -125,13 +119,9 @@ private:
 
     Font font;
     Image sourceDropImage;
-   // int activeTab;
 
-  
-    
     void createNewTab(GenericEditor* editor);
     void removeTab(int tabIndex);
-    //void drawTabs();
 
     int borderSize, tabSize, tabButtonSize;
 
@@ -159,7 +149,7 @@ private:
 class SignalChainTabButton : public Button
 {
 public:
-    SignalChainTabButton();// : Button("Name") {configurationChanged = true;}
+    SignalChainTabButton();
     ~SignalChainTabButton() {}
 
     void setEditor(GenericEditor* p) {firstEditor = p;}

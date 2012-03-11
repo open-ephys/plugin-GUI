@@ -30,8 +30,8 @@
 
 class FilterViewport;
 
-class SpikeDetectorEditor : public GenericEditor,
-					 	    public Slider::Listener
+class SpikeDetectorEditor : public GenericEditor
+
 {
 public:
 	SpikeDetectorEditor (GenericProcessor* parentNode);
