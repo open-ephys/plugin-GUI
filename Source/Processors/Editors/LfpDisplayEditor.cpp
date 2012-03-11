@@ -150,18 +150,14 @@ void LfpDisplayEditor::disable()
 	isPlaying = false;
 }
 
-void LfpDisplayEditor::updateNumInputs(int n)
+void LfpDisplayEditor::updateVisualizer()
 {
-	std::cout << "Setting num inputs on LfpDisplayEditor to " << n << std::endl;
+
 	if (canvas != 0)
-		canvas->updateNumInputs(n);
+		canvas->update();
+
 }
 
-void LfpDisplayEditor::updateSampleRate(float r) 
-{
-	if (canvas != 0)
-		canvas->updateSampleRate(r);
-}
 
 void LfpDisplayEditor::setBuffers(AudioSampleBuffer* asb, MidiBuffer* mb)
 {

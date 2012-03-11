@@ -45,8 +45,7 @@ public:
 
 	void refreshState();
 
-	void updateNumInputs(int);
-	void updateSampleRate(float);
+	void update();
 
 	void setParameter(int, float);
 

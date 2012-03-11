@@ -86,21 +86,17 @@ void LfpDisplayCanvas::endAnimation()
 	stopCallbacks();
 }
 
-void LfpDisplayCanvas::updateNumInputs(int n)
+void LfpDisplayCanvas::update()
 {
-	std::cout << "Setting num inputs on LfpDisplayCanvas to " << n << std::endl;
-	nChans = n;
-	if (n < 200 && n > 0)
+	nChans = processor->getNumInputs();
+	sampleRate = processor->getSampleRate();
+
+	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+	if (nChans < 200 && nChans > 0)
 		screenBuffer->setSize(nChans, 10000);
 	//sampleRate = processor->getSampleRate();
 }
 
-void LfpDisplayCanvas::updateSampleRate(float r)
-{
-	sampleRate = r;
-	//displayBufferSize = displayBuffer->getNumSamples();
-	std::cout << "Display canvas updating sample rate to " << r << std::endl;
-}
 
 void LfpDisplayCanvas::setParameter(int param, float val)
 {

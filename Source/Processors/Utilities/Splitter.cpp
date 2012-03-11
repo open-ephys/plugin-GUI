@@ -83,6 +83,9 @@ void Splitter::switchIO(int destNum) {
 
 void Splitter::switchIO()
 {
+
+	std::cout << "Splitter switching source." << std::endl;
+
 	if (activePath == 0) {
 		activePath = 1;
 		destNode = destNodeB;

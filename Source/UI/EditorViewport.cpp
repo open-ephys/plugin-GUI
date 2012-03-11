@@ -572,7 +572,7 @@ void EditorViewport::mouseExit(const MouseEvent &e) {
 void EditorViewport::checkScrollButtons(int topTab)
 {
     
-    if (editorArray.size() - topTab > 4)
+    if (signalChainArray.size() - topTab > 4)
     {
         downButton->setActive(true);
     } else {

@@ -51,7 +51,7 @@ AudioProcessorEditor* SignalGenerator::createEditor( )
 void SignalGenerator::updateSettings()
 {
 
-	std::cout << "Signal generator updating parameters" << std::endl;
+	//std::cout << "Signal generator updating parameters" << std::endl;
 
 	frequencies.clear();
 	amplitudes.clear();

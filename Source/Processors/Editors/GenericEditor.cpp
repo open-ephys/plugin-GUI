@@ -413,9 +413,11 @@ bool GenericEditor::checkChannelSelectors(Button* button)
 void GenericEditor::update()
 {
 
-	std::cout << "Updating" << std::endl;
+	std::cout << "Editor for ";
 
 	GenericProcessor* p = (GenericProcessor*) getProcessor();
+
+	std::cout << p->getName() << " updating settings." << std::endl;
 
 	if (!p->isSink())
 	{
@@ -436,6 +438,9 @@ void GenericEditor::update()
 
 		numChannels = p->getNumInputs();
 	}
+
+	updateVisualizer(); // does nothing unless this method
+						// has been implemented
 
 }
 
@@ -488,11 +493,9 @@ void GenericEditor::createRadioButtons(int x, int y, int w, StringArray values, 
 int GenericEditor::createChannelSelectors()
 {
 
-	GenericProcessor* p = (GenericProcessor*) getProcessor();
-
+	GenericProcessor* p = getProcessor();
 
 	if (channelSelectorButtons.size() == 0) {
-
 
 		int width = 20;
 		int height = 14;
@@ -503,7 +506,9 @@ int GenericEditor::createChannelSelectors()
 		else
 			numChannels = p->getNumInputs();
 
-		int nColumns = ceil(numChannels/4);
+		int nColumns = jmax((int) ceil(numChannels/4),1);
+		//std::cout << numChannels << " channels" << std::endl;
+		//std::cout << nColumns << " columns" << std::endl;
 
 		for (int n = 1; n < numChannels+1; n++)
 		{

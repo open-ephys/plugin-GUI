@@ -100,6 +100,7 @@ public:
 	bool checkChannelSelectors(Button* button);
 
 	virtual void update();
+	virtual void updateVisualizer() {}
 
 	Array<int> getActiveChannels();
 	

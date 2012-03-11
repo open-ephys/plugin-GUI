@@ -61,8 +61,7 @@ public:
 	void enable();
 	void disable();
 
-	void updateNumInputs(int);
-	void updateSampleRate(float);
+	void updateVisualizer();
 
 private:	
 
@@ -77,11 +76,6 @@ private:
 	SelectorButton* tabSelector;
 
 	ScopedPointer <LfpDisplayCanvas> canvas;
-
-	//AudioSampleBuffer* streamBuffer;
-	//MidiBuffer* eventBuffer;
-	//UIComponent* UI;
-	//DataViewport* dataViewport;
 
 	int tabIndex;
 

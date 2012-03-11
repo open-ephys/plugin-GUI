@@ -248,12 +248,15 @@ void GenericProcessor::clearSettings()
 void GenericProcessor::update()
 {
 
+	std::cout << getName() << " updating settings." << std::endl;
+
 	clearSettings();
 	
 	if (sourceNode != 0)
 	{
 		// everything is inherited except numOutputs
 		settings = sourceNode->settings;
+		settings.numInputs = settings.numOutputs;
 		settings.numOutputs = settings.numInputs;
 
 	} else {
