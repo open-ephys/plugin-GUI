@@ -158,17 +158,33 @@ public:
 
 	virtual bool stillHasSource() {return true;}
 
+	bool isEnabled;
+	bool wasConnected;
+
 	virtual AudioSampleBuffer* getContinuousBuffer() {return 0;}
 	virtual MidiBuffer* getEventBuffer() {return 0;}
 
 	int nextAvailableChannel;
 
-	int checkForEvents(MidiBuffer& mb);
-	void addEvent(MidiBuffer& mb, int a, int b);
+	// event buffers
+	virtual int checkForEvents(MidiBuffer& mb);
+	virtual void addEvent(MidiBuffer& mb,
+	                      uint8 type,
+	                      int sampleNum,
+	                      uint8 eventID = 0,
+	                      uint8 eventChannel = 0,
+	                      uint8 numBytes = 0,
+	                      uint8* data = 0);
 
-	bool isEnabled;
+	virtual void handleEvent(int eventType, MidiMessage& event) {}
 
-	bool wasConnected;
+	enum eventTypes 
+ 	{
+ 		BUFFER_SIZE = 0,
+ 		PARAMETER_CHANGE = 1,
+ 		TTL = 2,
+ 		SPIKE = 3
+ 	};
 
 	int saveOrder;
 	int loadOrder;
@@ -202,15 +218,15 @@ public:
 	virtual void generateDefaultChannelNames(StringArray&);
 
 	virtual void update(); // default node updating
-	virtual void updateSettings() {};
+	virtual void updateSettings() {} // custom node updating
+
+	int nodeId;
 
 private:
 
 	void processBlock (AudioSampleBuffer &buffer, MidiBuffer &midiMessages);
 
 	const String name;
-
-	int nodeId;
 	
 	int getNumSamples(MidiBuffer&);
 	void setNumSamples(MidiBuffer&, int);

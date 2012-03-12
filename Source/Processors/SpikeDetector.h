@@ -31,8 +31,6 @@
 
 /**
 
-  --UNDER CONSTRUCTION--
-
   Detects spikes in a continuous signal and outputs events containing the spike data.
 
   @see GenericProcessor, SpikeDetectorEditor

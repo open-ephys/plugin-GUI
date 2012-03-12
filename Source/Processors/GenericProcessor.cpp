@@ -88,17 +88,16 @@ void GenericProcessor::resetConnections()
 	wasConnected = false;
 }
 
-void GenericProcessor::setNumSamples(MidiBuffer& midiMessages, int numberToAdd) {
+void GenericProcessor::setNumSamples(MidiBuffer& midiMessages, int sampleIndex) {
 
 	uint8 data[2];
 
-	data[0] = numberToAdd >> 8; 	// most-significant byte
-    data[1] = numberToAdd & 0xFF; 	// least-significant byte
+	data[0] = BUFFER_SIZE; 	// most-significant byte
+    data[1] = nodeId; 		// least-significant byte
 
     midiMessages.addEvent(data, 		// spike data
-                          sizeof(data), // total bytes
-                          -1);           // sample index
-
+                          2, 			// total bytes
+                          sampleIndex); // sample index
 
 }
 
@@ -118,13 +117,13 @@ int GenericProcessor::getNumSamples(MidiBuffer& midiMessages) {
 
 		while (i.getNextEvent (message, samplePosition)) {
 			
-				int numbytes = message.getRawDataSize();
-				uint8* dataptr = message.getRawData();
+			uint8* dataptr = message.getRawData();
 
-				if (message.getTimeStamp() < 0)
-					numRead = (*dataptr<<8) + *(dataptr+1);
+			if (*dataptr == BUFFER_SIZE)
+			{
+				numRead = message.getTimeStamp();
+			}
 		}
-
 	}
 
 	return numRead;
@@ -321,18 +320,11 @@ int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)
 
 		while (i.getNextEvent (message, samplePosition)) {
 			
-				int numbytes = message.getRawDataSize();
-				uint8* dataptr = message.getRawData();
+			//int numbytes = message.getRawDataSize();
+			uint8* dataptr = message.getRawData();
 
-				//std::cout << " Bytes received: " << numbytes << std::endl;
-				//std::cout << " Message timestamp = " << message.getTimeStamp() << std::endl;
+			handleEvent(*dataptr, message);
 
-				if (message.getTimeStamp() >= 0)
-				{
-					int value = (*dataptr<<8) + *(dataptr+1);
-					//std::cout << "   " << value << std::endl;
-					return value;
-				}
 		}
 
 	}
@@ -341,12 +333,21 @@ int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)
 
 }
 
-void GenericProcessor::addEvent(MidiBuffer& midiMessages, int numberToAdd, int sampleNum)
+void GenericProcessor::addEvent(MidiBuffer& midiMessages,
+							    uint8 type,
+							    int sampleNum,
+							    uint8 eventId,
+							    uint8 eventChannel,
+							    uint8 numBytes,
+							    uint8* eventData)
 {
-	uint8 data[2];
+	uint8 data[4+numBytes];
 
-	data[0] = numberToAdd >> 8; 	// most-significant byte
-    data[1] = numberToAdd & 0xFF; 	// least-significant byte
+	data[0] = type;    // event type
+    data[1] = nodeId;  // processor ID
+    data[2] = eventId; // event ID
+    data[3] = eventChannel; // event channel
+    memcpy(&data[4], eventData, numBytes);
 
     midiMessages.addEvent(data, 		// spike data
                           sizeof(data), // total bytes

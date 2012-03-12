@@ -92,6 +92,12 @@ void LfpDisplayCanvas::update()
 	if (nChans < 200 && nChans > 0)
 		screenBuffer->setSize(nChans, 10000);
 	//sampleRate = processor->getSampleRate();
+
+	screenBuffer->clear();
+
+	repaint();
+
+	totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
 }
 
 

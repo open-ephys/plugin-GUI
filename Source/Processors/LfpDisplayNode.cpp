@@ -100,6 +100,7 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples)
 {
 	// 1. place any new samples into the displayBuffer
+
 	int samplesLeft = displayBuffer->getNumSamples() - displayBufferIndex;
 
 	if (nSamples < samplesLeft)

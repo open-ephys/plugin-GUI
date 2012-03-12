@@ -27,7 +27,7 @@
 
 SourceNode::SourceNode(const String& name_)
 	: GenericProcessor(name_),
-	  dataThread(0),
+	  dataThread(0), inputBuffer(0),
 	  sourceCheckInterval(2000), wasDisabled(true)
 {
 	if (getName().equalsIgnoreCase("Intan Demo Board")) {
@@ -55,14 +55,14 @@ SourceNode::SourceNode(const String& name_)
 
 SourceNode::~SourceNode() 
 {
-	//if (dataThread != 0)
-	//	deleteAndZero(dataThread);
-
-	//config->removeDataSource(this);	
 }
 
 void SourceNode::updateSettings()
 {
+	if (inputBuffer == 0 && dataThread != 0)
+	{
+		inputBuffer = dataThread->getBufferAddress();
+	}
 
 }
 
@@ -122,7 +122,6 @@ void SourceNode::timerCallback()
 			//stopTimer(); // check for input source every two seconds
 			enabledState(true);
 			GenericEditor* ed = getEditor();
-			//ed->enable();
 			getEditorViewport()->makeEditorVisible(ed);
 		}
 	} else {
@@ -130,7 +129,6 @@ void SourceNode::timerCallback()
 			std::cout << "No input source found." << std::endl;
 			enabledState(false);
 			GenericEditor* ed = getEditor();
-			//ed->disable();
 			getEditorViewport()->makeEditorVisible(ed);
 		}
 	}
@@ -160,29 +158,6 @@ bool SourceNode::enable() {
 	}
 
 	stopTimer();
-
-	
-
-	// bool return_code = true;
-
-	// if (getName().equalsIgnoreCase("Intan Demo Board")) {
-		
-	// 	dataThread = new IntanThread();
-	// 	inputBuffer = dataThread->getBufferAddress();
-	// 	return_code = dataThread->threadStarted();
-
-	// 	if (!return_code)
-	// 		deleteAndZero(dataThread);
-
-	// } else if (getName().equalsIgnoreCase("Custom FPGA")) {
-	// 	dataThread = new FPGAThread();
-	// 	inputBuffer = dataThread->getBufferAddress();
-	// } else if (getName().equalsIgnoreCase("File Reader")) {
-	// 	dataThread = new FileReaderThread();
-	// 	inputBuffer = dataThread->getBufferAddress();
-	// }
-
-	// return return_code;
 
 }
 
@@ -217,22 +192,14 @@ void SourceNode::acquisitionStopped()
 }
 
 
-void SourceNode::process(AudioSampleBuffer &outputBuffer, 
-                            MidiBuffer &midiMessages,
+void SourceNode::process(AudioSampleBuffer &buffer, 
+                            MidiBuffer &events,
                             int& nSamples)
 {
-
-	//std::cout << "Source node processing." << std::endl;
-	//std::cout << outputBuffer.getNumChannels() << " " << outputBuffer.getNumSamples() << std::endl;
-
 	
-	 outputBuffer.clear();
-	 nSamples = inputBuffer->readAllFromBuffer(outputBuffer,outputBuffer.getNumSamples());
-	// //setNumSamples(numRead); // write the total number of samples
-	// setNumSamples(midiMessages, numRead);
-	//std::cout << numRead << std::endl;
-
-	//addMidiEvent(midiMessages,10, 10);
+	 buffer.clear();
+	 nSamples = inputBuffer->readAllFromBuffer(buffer,buffer.getNumSamples());
+	
 }
 
 

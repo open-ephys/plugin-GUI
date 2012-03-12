@@ -69,7 +69,7 @@ void EventNode::process(AudioSampleBuffer &buffer,
 		if (accumulator > getSampleRate()/Hz)
 		{
 			//std::cout << "Adding message." << std::endl;
-			addEvent(midiMessages, 10, i);
+			addEvent(midiMessages, TTL, i);
 			accumulator = 0;
 		}
 

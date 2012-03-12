@@ -28,6 +28,9 @@ private:
 	AbstractFifo abstractFifo;
 	AudioSampleBuffer buffer;
 	int numChans;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataBuffer);
+
 };
 
 
