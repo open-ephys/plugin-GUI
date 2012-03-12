@@ -25,11 +25,13 @@
 #define __SPIKEDETECTOR_H_3F920F95__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+
 #include "GenericProcessor.h"
 #include "Editors/SpikeDetectorEditor.h"
-#include "../UI/Configuration.h"
 
 /**
+
+  == UNDER CONSTRUCTION ==
 
   Detects spikes in a continuous signal and outputs events containing the spike data.
 
@@ -38,7 +40,6 @@
 */
 
 class SpikeDetectorEditor;
-class FilterViewport;
 
 class SpikeDetector : public GenericProcessor
 
@@ -48,20 +49,20 @@ public:
 	SpikeDetector();
 	~SpikeDetector();
 	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
+	void process(AudioSampleBuffer &buffer, MidiBuffer &events, int& nSamples);
 	void setParameter (int parameterIndex, float newValue);
+
+	void updateSettings();
 
 	bool enable();
 	bool disable();
 
-	MidiBuffer* getEventBuffer() {return spikeBuffer;}
-
 	AudioProcessorEditor* createEditor();
 
-	bool hasEditor() const {return true;}
+	AudioSampleBuffer overflowBuffer;
 	
 private:
-	double sampleRate, threshold;
+	double threshold;
 	double prePeakMs, postPeakMs;
 	int prePeakSamples, postPeakSamples;
 	int accumulator;
@@ -71,10 +72,6 @@ private:
 	Array<int> nChans;
 	Array<bool> isActive;
 	Array<int> lastSpike;
-
-	MidiBuffer* spikeBuffer;
-
-	//AudioData::ConverterInstance<AudioData::Float32, AudioData::Int16> converter;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetector);
 

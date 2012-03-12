@@ -315,7 +315,8 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 
 	if (processorType.equalsIgnoreCase("Sources")) {
 
-		if (subProcessorType.equalsIgnoreCase("Intan Demo Board")) {
+		if (subProcessorType.equalsIgnoreCase("Intan Demo Board") || 
+			subProcessorType.equalsIgnoreCase("File Reader")) {
 			
 			// only one Intan Demo Board at a time, please
 			if (!processorWithSameNameExists(subProcessorType)) {

@@ -70,7 +70,7 @@ bool FileReaderThread::updateBuffer()
     		if (input->isExhausted())
     			input->setPosition(0);   			
     	
-    		thisSample[ch%numChannels] = float(input->readShort());
+    		thisSample[ch%numChannels] = float(input->readShort())/80000.0f;
 
     	}
 

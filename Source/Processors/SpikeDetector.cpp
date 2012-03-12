@@ -26,18 +26,16 @@
 
 SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"), 
-	  sampleRate (40000.0), threshold(5000.0), prePeakMs(0.2), postPeakMs(0.6),
-	  accumulator(0)
+	  threshold(5000.0), prePeakMs(0.2), postPeakMs(0.6),
+	  accumulator(0), overflowBuffer(2,100)
 	
 {
-
-	spikeBuffer = new MidiBuffer();
 
 }
 
 SpikeDetector::~SpikeDetector()
 {
-	deleteAndZero(spikeBuffer);
+
 }
 
 
@@ -53,14 +51,26 @@ AudioProcessorEditor* SpikeDetector::createEditor()
 	return editor;
 }
 
+void SpikeDetector::updateSettings()
+{
+
+    overflowBuffer.setSize(getNumInputs(),100);
+
+    thresh.clear();
+
+    for (int i = 0; i < getNumInputs(); i++)
+    {
+        thresh.add(threshold);
+    }
+
+}
+
 void SpikeDetector::setParameter (int parameterIndex, float newValue)
 {
 	//std::cout << "Message received." << std::endl;
-	if (parameterIndex == 0) {
-		for (int n = 0; n < getNumOutputs(); n++)
-        {
-            thresh.set(n,newValue);
-        }
+	if (parameterIndex == 0) 
+    {
+        thresh.set(currentChannel,newValue);
 	}
 
 }
@@ -85,22 +95,6 @@ bool SpikeDetector::enable()
     }
 
     // check configuration
-    for (int ds = 0; ds < getConfiguration()->numDataSources(); ds++)
-    {
-        for (int tt = 0; tt < getConfiguration()->getSource(ds)->numTetrodes(); tt++)
-        {
-
-            Trode* t = getConfiguration()->getSource(ds)->getTetrode(tt);
-
-            for (int ch = 0; ch < t->numChannels(); ch++)
-            {
-                thresh.set(t->getChannel(ch),t->getThreshold(ch));
-                channels.set(t->getChannel(ch),t->getRawDataPointer());
-                nChans.set(t->getChannel(ch),t->numChannels());
-                isActive.set(t->getChannel(ch),t->getState(ch));
-            }
-        }
-    }
 
     return true;
 
@@ -118,14 +112,12 @@ bool SpikeDetector::disable()
 }
 
 void SpikeDetector::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &midiMessages,
+                            MidiBuffer &events,
                             int& nSamples)
 {
 
 	int maxSamples = nSamples;//getNumSamples(midiMessages);
 	int spikeSize = 2 + prePeakSamples*2 + postPeakSamples*2; 
-
-    spikeBuffer->clear();
 
     for (int sample = prePeakSamples + 1; sample < maxSamples - postPeakSamples - 1; sample++)
     {
@@ -164,7 +156,7 @@ void SpikeDetector::process(AudioSampleBuffer &buffer,
                         }
 
                         // broadcast spike
-                        spikeBuffer->addEvent(data, // spike data
+                        events.addEvent(data, // spike data
                               sizeof(data), // total bytes
                               sample);           // sample index
                         
