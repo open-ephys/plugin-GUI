@@ -89,9 +89,7 @@ bool unpackSpike(SpikeObject *s, char* buffer, int bufferSize){
 
 	if (idx>=bufferSize)
 		std::cout<<"Buffer Overrun! More data extracted than was given!"<<std::endl;
-
-
-
+	
 }
 
 // Checks the validity of the buffer, this should be run before unpacking and after packing the buffer
@@ -135,60 +133,56 @@ void makeBufferValid(char *buffer, int bufferSize){
 
 }
 
-SpikeObject generateSimulatedSpike(uint64_t timestamp, int noise, bool sineWave)
+void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 {
-
-	uint16_t realSpikeWave[32] =
+	uint16_t trace[32] =
 	{ 1880,	 	1900,	1940,	2040,	2290,	2790,	3475,	3995, 	4110, 	3890,
       3505,		3090,	2720,	2410, 	2155,  	1945,	1775,	1635,	1520, 	1420,
       1340,		1265,	1205,	1155,	1115,	1080,	1050,	1034,	1010, 	1001,
       1000, 	1000};
 
-    uint16_t sineSpikeWave[32] = 
-    {	78, 	90, 	101, 	111,	120,	126,	129,	130,
-		129,	126,	120,	111,	101,	90,		78,		65,
-		52,		40,		29,		19,		11,		5,		2,		1,
-		2,		5,		11,		19,		29,		40,		52,		65};
+  //   uint16_t sineSpikeWave[32] = 
+  //   {	78, 	90, 	101, 	111,	120,	126,	129,	130,
+		// 129,	126,	120,	111,	101,	90,		78,		65,
+		// 52,		40,		29,		19,		11,		5,		2,		1,
+		// 2,		5,		11,		19,		29,		40,		52,		65};
 
-    uint16_t *trace;
+    // uint16_t trace[32] = {0};
 
-    uint16_t gain;
+    uint16_t gain = 5;
 
+    // if(sineWave){
+    // 	memcpy(trace, sineSpikeWave, 64);
+    // 	gain = 100;
+    // }
+    // else{
+    // 	memcpy(trace, realSpikeWave, 64);
+    // 	gain = 5;
+    // }
 
-    if(sineWave){
-    	trace = sineSpikeWave;
-    	gain = 100;
-    }
-    else{
-    	trace = realSpikeWave;
-    	gain = 5;
-    }
-
-
-    SpikeObject s;
-    s.timestamp = timestamp;
-    s.source = 0;
-    s.nChannels = 4;
-    s.nSamples = 32;
-
+    s->timestamp = timestamp;
+    s->source = 0;
+    s->nChannels = 4;
+    s->nSamples = 32;
     int idx=0;
-    for (int i=0; i<s.nSamples; i++)
+    
+
+    for (int i=0; i<4; i++)
     {
-            s.gain[i] = gain;
-            s.threshold[i] = 12000;
+        s->gain[i] = gain;
+        s->threshold[i] = 12000;
 
-			for (int j=0; j<s.nChannels; j++){
-				
-				int n = 0;
-				if (noise>0){
-					n = rand() % noise - noise/2;
-				}
+		for (int j=0; j<32; j++){
+			
+			int n = 0;
+			if (noise>0){
+				n = rand() % noise - noise/2;
+			}
 
-                s.data[idx++] = (trace[i]*gain) + n;
-            }
+            s->data[idx] = (trace[j] + n) * gain;
+            idx = idx+1;
+        }
     }
-
-    return s;
 }
 
 

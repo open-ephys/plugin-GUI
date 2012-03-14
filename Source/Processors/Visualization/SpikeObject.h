@@ -71,7 +71,7 @@ void makeBufferValid(char *buffer, int bufferLength);
 // Help function for generating fake spikes in the absence of a real spike source. 
 // Can be used to generate a sign wave with a fixed Frequency of 1000 hz or a basic spike waveform
 // Additionally noise can be added to the waveform for help in diagnosing projection plots
-SpikeObject generateSimulatedSpike(uint64_t timestamp, int noise, bool sineWave);
+void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise);
 
 // Define the << operator for the SpikeObject
 // std::ostream& operator<<(std::ostream &strm, const SpikeObject s);
