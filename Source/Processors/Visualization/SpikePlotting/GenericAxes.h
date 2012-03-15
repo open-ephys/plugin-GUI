@@ -26,6 +26,8 @@ protected:
 	bool resizedFlag;
 	
 	int type;
+	virtual void plot(){}
+
 	
 public:
 	GenericAxes();
@@ -33,7 +35,6 @@ public:
 
 	void updateSpikeData(SpikeObject s);
 
-	virtual void plot(){}
 	virtual void redraw(){}
 
 

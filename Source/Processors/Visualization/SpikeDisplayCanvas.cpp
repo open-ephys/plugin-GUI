@@ -24,23 +24,36 @@
 #include "SpikeDisplayCanvas.h"
 
 SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
-	 	xBuffer(0), yBuffer(0),
-	    plotHeight(40), selectedChan(-1), screenBufferIndex(0),
-	    timebase(1.0f), displayGain(5.0f), displayBufferIndex(0)
+	 	xBuffer(0), yBuffer(0), newSpike(false)
 {
 
-	nChans = processor->getNumInputs();
-	sampleRate = processor->getSampleRate();
-	std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nChans << std::endl;
+	
 
-	displayBuffer = processor->getDisplayBufferAddress();
-	displayBufferSize = displayBuffer->getNumSamples();
-		std::cout << "Setting displayBufferSize on SpikeDisplayCanvas to " << displayBufferSize << std::endl;
+	nSources = 0; //processor->getNumInputs();
+	std::cout<<"SpikeDisplayNode has :"<<nSources<<" outputs!"<<std::endl;
+	
+	//memset(nChannels, 0, sizeof(nChannels[0]) * MAX_NUMBER_OF_SPIKE_SOURCES);
+	for (int i=0; i<nSources; i++)
+		nChannels[i] = processor->getNumberOfChannelsForInput(i);
+
+	// sampleRate = processor->getSampleRate();
+	std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nSources << std::endl;
+
+	//generateEmptySpike(&spike, 1);
+	
+	for (int i=0; i<8; i++)
+	{
+		ElectrodePlot ep = ElectrodePlot(10 +i * 80, 10, 75, 75, "");
+		plots.push_back(ep);
+	}
+	// displayBuffer = processor->getDisplayBufferAddress();
+	// displayBufferSize = displayBuffer->getNumSamples();
+	// std::cout << "Setting displayBufferSize on SpikeDisplayCanvas to " << displayBufferSize << std::endl;
 
 
-	totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
+	// totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
 
-	screenBuffer = new AudioSampleBuffer(nChans, 10000);
+	// screenBuffer = new AudioSampleBuffer(nChans, 10000);
 	
 }
 
@@ -52,13 +65,13 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 void SpikeDisplayCanvas::newOpenGLContextCreated()
 {
 
+	std::cout<<"SpikeDisplayCanvas::newOpenGLContextCreated()"<<std::endl;
 	setUp2DCanvas();
-	activateAntiAliasing();
+	//activateAntiAliasing();
 
 	glClearColor (0.667, 0.698, 0.718, 1.0);
 	resized();
-
-
+	endAnimation();
 	//startTimer(50);
 
 }
@@ -67,12 +80,12 @@ void SpikeDisplayCanvas::beginAnimation()
 {
 	std::cout << "Beginning animation." << std::endl;
 
-	displayBufferSize = displayBuffer->getNumSamples();
+	// displayBufferSize = displayBuffer->getNumSamples();
 
-	screenBuffer->clear();
+	// screenBuffer->clear();
 
 	//displayBufferIndex = 0;
-	screenBufferIndex = 0;
+//	screenBufferIndex = 0;
 	
 	startCallbacks();
 }
@@ -85,122 +98,39 @@ void SpikeDisplayCanvas::endAnimation()
 
 void SpikeDisplayCanvas::update()
 {
-	nChans = processor->getNumInputs();
-	sampleRate = processor->getSampleRate();
+	// nChans = processor->getNumInputs();
+	// sampleRate = processor->getSampleRate();
 
-	std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nChans << std::endl;
-	if (nChans < 200 && nChans > 0)
-		screenBuffer->setSize(nChans, 10000);
-	//sampleRate = processor->getSampleRate();
+	// std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nChans << std::endl;
+	// if (nChans < 200 && nChans > 0)
+	// 	screenBuffer->setSize(nChans, 10000);
+	// //sampleRate = processor->getSampleRate();
 
-	screenBuffer->clear();
+    // screenBuffer->clear();
 
 	repaint();
 
-	totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
+	// totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
 }
 
 
 void SpikeDisplayCanvas::setParameter(int param, float val)
 {
-	if (param == 0)
-		timebase = val;
-	else
-		displayGain = val;
+	// if (param == 0)
+	// 	timebase = val;
+	// else
+	// 	displayGain = val;
 	
 }
 
 void SpikeDisplayCanvas::refreshState()
 {
 	// called when the component's tab becomes visible again
-	displayBufferIndex = processor->getDisplayBufferIndex();
-	screenBufferIndex = 0;
+	// displayBufferIndex = processor->getDisplayBufferIndex();
+	// screenBufferIndex = 0;
 
 	//resized();
 
-}
-
-void SpikeDisplayCanvas::updateScreenBuffer()
-{
-	// copy new samples from the displayBuffer into the screenBuffer
-	int maxSamples = getWidth();
-
-	int index = processor->getDisplayBufferIndex();
-
-	//std::cout << index << screenBufferIndex << std::endl;
-
-	int nSamples = index - displayBufferIndex;
-
-	if (nSamples < 0)
-	{
-		nSamples = (displayBufferSize - displayBufferIndex) + index;
-	}
-
-	float ratio = sampleRate * timebase / float(getWidth());
-
-	// this number is crucial:
-	int valuesNeeded = (int) float(nSamples) / ratio;
-
-	//lock->enterRead();
-	float subSampleOffset = 0.0;
-	int nextPos = (displayBufferIndex + 1) % displayBufferSize;
-	
-	//int screenBufferPos; 
-
-	if (valuesNeeded > 0 && valuesNeeded < 1000) {
-
-		int maxVal = screenBufferIndex + valuesNeeded;
-		int overflow = maxVal - maxSamples;
-
-		screenBuffer->clear(screenBufferIndex, valuesNeeded);
-
-		if (overflow > 0)
-			screenBuffer->clear(0, overflow);
-
-	    for (int i = 0; i < valuesNeeded; i++)
-	    {
-	    	float gain = 1.0;
-	    	float alpha = (float) subSampleOffset;
-	    	float invAlpha = 1.0f - alpha;
-
-	        for (int channel = 0; channel < displayBuffer->getNumChannels(); channel++) {
-
-	        	screenBuffer->addFrom(channel,
-	        						  screenBufferIndex,
-	        						  *displayBuffer,
-	        						  channel,
-	        						  displayBufferIndex,
-	        						  1,
-	        						  invAlpha*gain*displayGain);
-	        	
-	        	screenBuffer->addFrom(channel,
-	        						  screenBufferIndex,
-	        						  *displayBuffer,
-	        						  channel,
-	        						  nextPos,
-	        						  1,
-	        						  alpha*gain*displayGain);
-	       	}
-
-	       	subSampleOffset += ratio;
-
-	       	while (subSampleOffset >= 1.0)
-	       	{
-	       		if (++displayBufferIndex >= displayBufferSize)
-	       			displayBufferIndex = 0;
-	       		
-	       		nextPos = (displayBufferIndex + 1) % displayBufferSize;
-	       		subSampleOffset -= 1.0;
-	       	}
-
-	       	screenBufferIndex++;
-	       	screenBufferIndex %= maxSamples;
-
-	    }
-
-	} else {
-		//std::cout << "Skip." << std::endl;
-	}
 }
 
 void SpikeDisplayCanvas::canvasWasResized()
@@ -210,136 +140,35 @@ void SpikeDisplayCanvas::canvasWasResized()
 
 void SpikeDisplayCanvas::renderOpenGL()
 {
-	
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
+	std::cout<<"SpikeDisplayCanvas::renderOpenGL"<<std::endl;
 
-	//drawTicks();
 
-	updateScreenBuffer();
-
-	for (int i = 0; i < nChans; i++)
-	{
-		bool isSelected = false;
-
-		if (selectedChan == i)
-			isSelected = true;
-
-		if (checkBounds(i)) {
-			setViewport(i);
-			//drawBorder(isSelected);
-			drawChannelInfo(i,isSelected);
-			drawWaveform(i,isSelected);
-		}	
+	// Get Spikes from the processor
+	// Iterate through each spike, passing them individually to the appropriate plots and calling redraw before moving on to the next spike
+	
+	//while(processor->getNextSpike(&spike))
+	//{
+		
+		// Identify which plot the spike should go to
+			
+		// Distribute those spike to the appropriate plot object
+	
+	SpikeObject tmpSpike;
+	for (int i=0; i<plots.size(); i++){
+		generateSimulatedSpike(&tmpSpike, 0, 100);
+		plots[i].processSpikeObject(tmpSpike);
+		plots[i].redraw();
 	}
-	drawScrollBars();
-
-	//std::cout << "Render." << std::endl;
+	
+	//}
+		
+	 drawScrollBars();
 }
-
-void SpikeDisplayCanvas::drawWaveform(int chan, bool isSelected)
-{
-	// draw the screen buffer for a given channel
-
-	float w = float(getWidth());
-
-	glBegin(GL_LINE_STRIP);
-
-	for (float i = 0; i < float(getWidth()); i++)
-	{
-		glVertex2f(i/w,*screenBuffer->getSampleData(chan, int(i))+0.5);
-	}
-
-	glEnd();
-
-	glColor4f(1.0, 1.0, 0.1, 1.0);
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(float(screenBufferIndex)/w,0);
-	glVertex2f(float(screenBufferIndex)/w,1);
-	glEnd();
-
-}
-
 
 void SpikeDisplayCanvas::drawTicks()
 {
 	
-	glViewport(0,0,getWidth(),getHeight());
-
-	glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
-
-	for (int i = 0; i < 10; i++)
-	{
-		if (i == 5)
-			glLineWidth(3.0);
-		else if (i == 1 || i == 3 || i == 7 || i == 9)
-			glLineWidth(2.0);
-		else
-			glLineWidth(1.0);
-
-		glBegin(GL_LINE_STRIP);
-		glVertex2f(0.1*i,0);
-		glVertex2f(0.1*i,1);
-		glEnd();
-	}
-}
-
-
-bool SpikeDisplayCanvas::checkBounds(int chan)
-{
-	bool isVisible;
-
-	int lowerBound = (chan+1)*(plotHeight+yBuffer);
-	int upperBound = chan*(plotHeight+yBuffer);
-
-	if (getScrollAmount() < lowerBound && getScrollAmount() + getHeight() > upperBound)
-		isVisible = true;
-	else
-		isVisible = false;
-	
-	return isVisible;
-
-}
-
-void SpikeDisplayCanvas::setViewport(int chan)
-{
-	glViewport(xBuffer,
-			   getHeight()-(chan+1)*(plotHeight+yBuffer)+getScrollAmount(),
-	           getWidth()-2*xBuffer,
-	           plotHeight);
-}
-
-void SpikeDisplayCanvas::drawBorder(bool isSelected)
-{
-	float alpha = 0.5f;
-
-	if (isSelected)
-		alpha = 1.0f;
-
-	glColor4f(0.0f, 0.0f, 0.0f, alpha);
-	glBegin(GL_LINE_STRIP);
- 	glVertex2f(0.0f, 0.0f);
- 	glVertex2f(1.0f, 0.0f);
- 	glVertex2f(1.0f, 1.0f);
- 	glVertex2f(0.0f, 1.0f);
- 	glVertex2f(0.0f, 0.0f);
- 	glEnd();
-
-}
-
-void SpikeDisplayCanvas::drawChannelInfo(int chan, bool isSelected)
-{
-	float alpha = 0.5f;
-
-	if (isSelected)
-		alpha = 1.0f;
-
-	glColor4f(0.0f,0.0f,0.0f,alpha);
-	glRasterPos2f(5.0f/getWidth(),0.9);
-	String s = "";//String("Channel ");
-	s += (chan+1);
-
-	getFont(String("cpmono-bold"))->FaceSize(35);
-	getFont(String("cpmono-bold"))->Render(s);
 }
 
 int SpikeDisplayCanvas::getTotalHeight() 
@@ -351,17 +180,17 @@ int SpikeDisplayCanvas::getTotalHeight()
 void SpikeDisplayCanvas::mouseDownInCanvas(const MouseEvent& e) 
 {
 
-	Point<int> pos = e.getPosition();
-	int xcoord = pos.getX();
+	// Point<int> pos = e.getPosition();
+	// int xcoord = pos.getX();
 
-	if (xcoord < getWidth()-getScrollBarWidth())
-	{
-		int chan = (e.getMouseDownY() + getScrollAmount())/(yBuffer+plotHeight);
+	// if (xcoord < getWidth()-getScrollBarWidth())
+	// {
+	// 	int chan = (e.getMouseDownY() + getScrollAmount())/(yBuffer+plotHeight);
 
-			selectedChan = chan;
+	// 		selectedChan = chan;
 
-		repaint();
-	}
+	// 	repaint();
+	// }
 
 }
 

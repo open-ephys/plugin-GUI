@@ -24,8 +24,15 @@
 #define SPIKEDISPLAYCANVAS_H_
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+
 #include "../SpikeDisplayNode.h"
+#include "SpikePlotting/ElectrodePlot.h"
+#include "SpikeObject.h"
+
 #include "Visualizer.h"
+#include <vector>
+
+#define MAX_NUMBER_OF_SPIKE_SOURCES = 128;
 
 class SpikeDisplayNode;
 
@@ -51,36 +58,42 @@ private:
 
 	int xBuffer, yBuffer;
 
-	float sampleRate;
-	float timebase;
-	float displayGain;
+	bool plotsInitialized;
 
+	bool newSpike;
+	SpikeObject spike;
 	SpikeDisplayNode* processor;
-	AudioSampleBuffer* displayBuffer;
-	ScopedPointer<AudioSampleBuffer> screenBuffer;
-	MidiBuffer* eventBuffer;
+	std::vector<ElectrodePlot> plots;
+	// AudioSampleBuffer* displayBuffer;
+	// ScopedPointer<AudioSampleBuffer> screenBuffer;
+	// MidiBuffer* eventBuffer;
 
-	void setViewport(int chan);
-	void drawBorder(bool isSelected);
-	void drawChannelInfo(int chan, bool isSelected);
-	void drawWaveform(int chan, bool isSelected);
+	// void setViewport(int chan);
+	// void drawBorder(bool isSelected);
+	// void drawChannelInfo(int chan, bool isSelected);
+	// void drawWaveform(int chan, bool isSelected);
 
 	void drawTicks();
 
-	bool checkBounds(int chan);
+	// bool checkBounds(int chan);
 
-	void updateScreenBuffer();
-	int screenBufferIndex;
-	int displayBufferIndex;
-	int displayBufferSize;
+	// void updateScreenBuffer();
+	// int screenBufferIndex;
+	// int displayBufferIndex;
+	// int displayBufferSize;
 
-	int nChans, plotHeight, totalHeight;
-	int selectedChan;
+	int totalHeight;
+	// int selectedChan;
 
 	int getTotalHeight();
 
-	 void canvasWasResized();
-	 void mouseDownInCanvas(const MouseEvent& e);
+	int nSources;
+	int nChannels[MAX_NUMBER_OF_SPIKE_CHANNELS];
+
+	void initializeSpikePlots();
+
+	void canvasWasResized();
+	void mouseDownInCanvas(const MouseEvent& e);
 	// void mouseDrag(const MouseEvent& e);
 	// void mouseMove(const MouseEvent& e);
 	// void mouseUp(const MouseEvent& e);

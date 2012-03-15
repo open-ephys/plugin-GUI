@@ -9,7 +9,7 @@ GenericAxes::GenericAxes():
 	ylims[0] = 0;
 	ylims[1] = 1;
 		
-	BaseUIElement::elementName = (char*) "GenericAxes";
+	//BaseUIElement::elementName = (char*) "GenericAxes";
 }
 
 GenericAxes::GenericAxes(int x, int y, double w, double h, int t):
@@ -17,19 +17,24 @@ GenericAxes::GenericAxes(int x, int y, double w, double h, int t):
 					gotFirstSpike(false),
 					resizedFlag(false)
 {
+	std::cout<<"Generic Axes!!!!!"<<std::endl;
+	std::cout<<"gotFirstSpike:"<<gotFirstSpike<<std::endl;
 	// if (t<WAVE1 || t>PROJ3x4)
 		//("Invalid Axes type specified");
 	type = t;
 	
-	BaseUIElement::elementName = (char*) "GenericAxes";
+//	BaseUIElement::elementName = (char*) "GenericAxes";
 
 }
 void GenericAxes::updateSpikeData(SpikeObject newSpike){
+	
+	std::cout<<"GenericAxes::updateSpikeData() ";
 	if (!gotFirstSpike){
-		gotFirstSpike = true;
-		//std::cout<<"GenericAxes::updateSpikeData() got first spike"<<std::endl;
+		gotFirstSpike = true;	
 	}
+
 	s = newSpike;
+	std::cout<<"got spike with nSamples:"<<s.nSamples<<std::endl;
 }
 
 // void GenericAxes::redraw(){

@@ -29,16 +29,16 @@
 #include "Editors/VisualizerEditor.h"
 #include "GenericProcessor.h"
 #include "Visualization/SpikeObject.h"
-
+#include <queue>
 
 /**
   
-  Holds data in a displayBuffer to be used by the SpikeDisplayCanvas
-  for rendering individual spike events
+ Takes in MidiEvents and extracts SpikeObjects from the MidiEvent buffers. Those Events are then held in a queue until they are pulled by the spikeviewer
 
   @see GenericProcessor, SpikeDisplayEditor, SpikeDisplayCanvas
 
 */
+
 
 
 class DataViewport;
@@ -63,22 +63,22 @@ public:
 	bool enable();
 	bool disable();
 
-	AudioSampleBuffer* getDisplayBufferAddress() {return displayBuffer;}
-	int getDisplayBufferIndex() {return displayBufferIndex;}
+	int getNumberOfChannelsForInput(int i);
 
+	bool getNextSpike(SpikeObject *spike);
+	
 private:
 
-	ScopedPointer<AudioSampleBuffer> displayBuffer;
-	ScopedPointer<MidiBuffer> eventBuffer;
-
-	int displayBufferIndex;
-
-	float displayGain; // 
-	int bufferLength; // s
-
+	int numberOfSources;
 	AbstractFifo abstractFifo;
 
-	bool resizeBuffer();
+	//ScopedPointer<AudioSampleBuffer> displayBuffer;
+	ScopedPointer<MidiBuffer> eventBuffer;
+
+	std::queue<SpikeObject> spikebuffer;
+
+	int bufferSize;
+	//bool resizeBuffer();
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayNode);
 

@@ -25,9 +25,8 @@
 #include <iostream>
 #include "memory.h"
 #include <stdlib.h>
-
-
-
+#include "time.h"
+      
 // Simple method for serializing a SpikeObject into a string of bytes
 bool packSpike(SpikeObject *s, char* buffer, int bufferSize){
 
@@ -135,11 +134,21 @@ void makeBufferValid(char *buffer, int bufferSize){
 
 void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 {
-	uint16_t trace[32] =
-	{ 1880,	 	1900,	1940,	2040,	2290,	2790,	3475,	3995, 	4110, 	3890,
-      3505,		3090,	2720,	2410, 	2155,  	1945,	1775,	1635,	1520, 	1420,
-      1340,		1265,	1205,	1155,	1115,	1080,	1050,	1034,	1010, 	1001,
-      1000, 	1000};
+	std::cout<<"generateSimulatedSpike()"<<std::endl;
+
+	uint16_t trace[][32] =
+	{
+	{ 	880,	900,	940,	1040,	1290,	1790,	2475,	2995, 	3110, 	2890,
+		2505,	2090,	1720,	1410, 	1155,  	945,	775,	635,	520, 	420,
+		340,	265,	205,	155,	115,	80,		50,		34,		10, 	34,  	50,		80},
+	{	1040,   1090,   1190,	1350,	1600,	1960,   2380,   2790,   3080,	3140,
+		2910,	2430,	1810,	1180,	680,	380,	270,	320,	460, 	630,
+		770,	870,	940,	970,	990,	1000,	1000,	1000,	1000,	1000,  1000,	1000},
+	{ 	1000,	1000,	1000,	1000,	1000,	1040,	1140,	1440,	2040,	2940,
+		3800,	4140,	3880,	3680,	1640,	920,	520,	300,	140,	040,
+		20,		20,		40,		100,	260,	500,	740,	900,	960,	1000,	1000,	1000}
+    };
+
 
   //   uint16_t sineSpikeWave[32] = 
   //   {	78, 	90, 	101, 	111,	120,	126,	129,	130,
@@ -151,26 +160,20 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 
     uint16_t gain = 5;
 
-    // if(sineWave){
-    // 	memcpy(trace, sineSpikeWave, 64);
-    // 	gain = 100;
-    // }
-    // else{
-    // 	memcpy(trace, realSpikeWave, 64);
-    // 	gain = 5;
-    // }
-
     s->timestamp = timestamp;
     s->source = 0;
     s->nChannels = 4;
     s->nSamples = 32;
     int idx=0;
     
+    int waveType = rand()%3; // Pick one of the three predefined waveshapes to generate
+    double waveScaling = (double)(rand()%5 + 5) / 10.00; // Scale the wave between 50% and 150%
+    int shift = 1000;
 
     for (int i=0; i<4; i++)
     {
         s->gain[i] = gain;
-        s->threshold[i] = 12000;
+        s->threshold[i] = 8000;
 
 		for (int j=0; j<32; j++){
 			
@@ -179,10 +182,24 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 				n = rand() % noise - noise/2;
 			}
 
-            s->data[idx] = (trace[j] + n) * gain;
+            s->data[idx] = (trace[waveType][j] + n) * gain * waveScaling + shift;
             idx = idx+1;
         }
     }
+    
+}
+void generateEmptySpike(SpikeObject *s, int nChannels){
+/*
+	std::cout<<"generateEmptySpike()"<<std::endl;
+	s->timestamp = 0;
+	s->source = 0;
+	s->nChannels = nChannels;
+	s->nSamples = 32;
+
+	memset(&(s->gain), 0, 2*nChannels);
+	memset(&(s->threshold), 0, 2*nChannels);
+	memset(&(s->data), 0, 2*nChannels*32);
+*/
 }
 
 

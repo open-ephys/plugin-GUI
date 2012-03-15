@@ -1,19 +1,24 @@
 #include "ElectrodePlot.h"
+#include "../SpikeObject.h"
 
 ElectrodePlot::ElectrodePlot():
-	BaseUIElement(), titleHeight(15), enableTitle(true), limitsChanged(true)
+	BaseUIElement(), titleHeight(0), enableTitle(true), limitsChanged(true)
 {
     plotTitle = (char*) "Electrode Plot";
-	
+
 }
 
 ElectrodePlot::ElectrodePlot(int x, int y, int w, int h, char *n):
-	BaseUIElement(x,y,w,h,1), titleHeight(15), enableTitle(true), limitsChanged(true)
+	BaseUIElement(x,y,w,h,1), titleHeight(0), enableTitle(true), limitsChanged(true)
 {
 	plotTitle = n;
 	titleBox = TitleBox(x, y+h-titleHeight-3, w, titleHeight+3, plotTitle);
+
+	initAxes();
 }
 
+ElectrodePlot::~ElectrodePlot(){
+}
 
 // Each plot needs to update its children axes when its redraw gets called.
 //  it also needs to call the parent plot  when children axes get added it
@@ -22,47 +27,18 @@ ElectrodePlot::ElectrodePlot(int x, int y, int w, int h, char *n):
 //  the right direction
 
 void ElectrodePlot::redraw(){
-	// std::cout<<"ElectrodePlot() starting drawing"<<std::endl;
+	 std::cout<<"ElectrodePlot() starting drawing"<<std::endl;\
+	BaseUIElement::clearNextDraw = true;
 	BaseUIElement::redraw();
-    
-	// SpikeObject tempSpike;
-	// std::list<GenericAxes>::iterator i;
-	// bool axesDrawnOnce = false;
-	// while(tetSource.getNextSpike(&tempSpike)){
-	// 	axesDrawnOnce = true;	
-	// 	for (i=axesList.begin(); i!= axesList.end(); ++i){
-	// 		i->updateSpikeData(tempSpike);
-       
- //            if (limitsChanged){
 
- //       			int n = i->getType();
-                
- //                if (n>=WAVE1 && n<=WAVE4)
- //                    i->setYLims(limits[n][0], limits[n][1]);
-                
- //                else if( n>=PROJ1x2 && n<=PROJ3x4){
- //                    int d1, d2;
- //                    n2ProjIdx(i->getType(), &d1, &d2);
- //                    i->setXLims(limits[d1][0], limits[d1][1]);
- //                    i->setYLims(limits[d2][0], limits[d2][1]);
- //                }
- //            }
- //            i->redraw();
-
-	// 	}
- //        if (limitsChanged)
- //            limitsChanged = false;
-	// }
-
-	// if (!axesDrawnOnce)
-	// 	for (i= axesList.begin(); i!=axesList.end(); ++i)
-	// 		i->redraw();
-
-	// titleBox.redraw();
-	// BaseUIElement::drawElementEdges();
-	// // std::cout<<"ElectrodePlot() Done drawing"<<std::endl;
+	axes.redraw();
 }
 
+// This would normally happen for collection of axes but an electrode plot doesn't have a collection instead its a single axes
+void ElectrodePlot::processSpikeObject(SpikeObject s){
+	std::cout<<"ElectrdePlot::processSpikeObject()"<<std::endl;
+	axes.updateSpikeData(s);
+}
 void ElectrodePlot::setTitle(char *n){
 	plotTitle = n;
 }
@@ -70,7 +46,7 @@ void ElectrodePlot::setTitle(char *n){
 void ElectrodePlot::setEnabled(bool e){
 	BaseUIElement::enabled = e;
 
-	axes->setEnabled(e);
+	axes.setEnabled(e);
 }
 
 bool ElectrodePlot::getEnabled(){
@@ -88,13 +64,11 @@ void ElectrodePlot::initAxes(){
 	double axesHeight = (BaseUIElement::height - titleHeight);
 	
 	
-	WaveAxes tempAx = WaveAxes(minX, minY, axesWidth, axesHeight, 0);
+	axes = WaveAxes(minX, minY, axesWidth, axesHeight, 0);
 	
-    tempAx.setEnabled(false);
-	tempAx.setYLims(-1*pow(2,11), pow(2,14));
-	tempAx.setWaveformColor(1.0, 1.0, 1.0);
-
-    axes = &tempAx; 
+    //axes.setEnabled(false);
+	axes.setYLims(-1*pow(2,11), pow(2,14)*1.6);
+	axes.setWaveformColor(1.0, 1.0, 1.0);
 
 }
 
@@ -106,7 +80,7 @@ void ElectrodePlot::setPosition(int x, int y, double w, double h){
 	double axesWidth = BaseUIElement::width;
 	double axesHeight = BaseUIElement::height - titleHeight;
 	
-	axes->setPosition(minX, minY, axesWidth, axesHeight);
+	axes.setPosition(minX, minY, axesWidth, axesHeight);
 	
     titleBox.setPosition(x, y+h-titleHeight-3, w, titleHeight+3);
 }
@@ -142,6 +116,10 @@ void ElectrodePlot::initLimits(){
 
 }
 
+void ElectrodePlot::getPreferredDimensions(double *w, double *h){
+    *w = 75;
+    *h = 75;
+}
 // void ElectrodePlot::mouseDown(int x, int y){
 
 // //     selectedAxesN = -1;
@@ -164,7 +142,7 @@ void ElectrodePlot::initLimits(){
 // //     if (!hit)
 // //         selectedAxes = NULL;
 // //     if (selectedAxes != NULL)
-// //         std::cout<<"ElectrodePlot::mouseDown() hit:"<<selectedAxes<<" AxesType:"<<selectedAxes->getType()<<std::endl;
+// //         std::cout<<"ElectrodePlot::mouseDown() hit:"<<selectedAxes<<" AxesType:"<<selectedaxes.getType()<<std::endl;
 // //     else
 // //         std::cout<<"ElectrodePlot::mouseDown() NO HIT!"<<std::endl;
     
@@ -173,7 +151,7 @@ void ElectrodePlot::initLimits(){
 
 // //     if (selectedAxes == NULL || dx==0)
 // //         return;
-// // //    zoomAxes(selectedAxes->getType(), true, dx>0);
+// // //    zoomAxes(selectedaxes.getType(), true, dx>0);
 // //     if (shift)
 // //         zoomAxes(selectedAxesN, true, dx);
 // //     if (ctrl)

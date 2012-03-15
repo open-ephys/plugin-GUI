@@ -32,8 +32,8 @@ class ElectrodePlot : public BaseUIElement{
     bool limitsChanged;
     double limits[1][2];
     
-    WaveAxes *axes;
-    
+    WaveAxes axes;
+       
     
     // void zoomAxes(int n, bool xdim, int zoomval);
     // void zoomProjection (int n, bool xdim, int zoomval);
@@ -48,6 +48,7 @@ class ElectrodePlot : public BaseUIElement{
 public:
 	ElectrodePlot();
 	ElectrodePlot(int x, int y,int w,int h, char *n);
+	~ElectrodePlot();
 
 	void initAxes();
 	void redraw();
@@ -55,6 +56,8 @@ public:
 	void setEnabled(bool enabled);
 	bool getEnabled();
 	void setPosition(int,int,double,double);
+
+	void getPreferredDimensions(double*, double*);
 
 	int getNumberOfAxes();
 	void clearOnNextDraw(bool c);
@@ -66,6 +69,8 @@ public:
     void mouseDragY(int dy, bool shift, bool ctr);
 
     bool processKeyEvent(SimpleKeyEvent k);
+
+    void processSpikeObject(SpikeObject s);
 };
 
 

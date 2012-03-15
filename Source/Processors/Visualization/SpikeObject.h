@@ -21,8 +21,8 @@
 
 */
 
-#ifndef SPIKEOBJECT_H_OPENEPHYS
-#define SPIKEOBJECT_H_OPENEPHYS
+#ifndef SPIKEOBJECT_H_
+#define SPIKEOBJECT_H_
 
 #include <stdint.h>
 
@@ -38,7 +38,8 @@ struct SpikeObject{
   uint16_t    nSamples;
   uint16_t    data[MAX_NUMBER_OF_SPIKE_CHANNELS * MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES]; 
   uint16_t    gain[MAX_NUMBER_OF_SPIKE_CHANNELS];           
-  uint16_t    threshold[MAX_NUMBER_OF_SPIKE_CHANNELS];     
+  uint16_t    threshold[MAX_NUMBER_OF_SPIKE_CHANNELS];    
+
 };
 
 /*
@@ -76,5 +77,8 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise);
 // Define the << operator for the SpikeObject
 // std::ostream& operator<<(std::ostream &strm, const SpikeObject s);
 
+// Helper function for zeroing out a spike object with a specified number of channels
+void generateEmptySpike(SpikeObject *s, int nChannels);
 
-#endif //SPIKEOBJECT_H_OPENEPHYS
+
+#endif //SPIKEOBJECT_H_

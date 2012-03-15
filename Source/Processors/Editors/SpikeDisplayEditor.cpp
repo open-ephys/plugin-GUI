@@ -10,18 +10,18 @@ SpikeDisplayEditor::SpikeDisplayEditor (GenericProcessor* parentNode)
 	desiredWidth = 250;
 
 	StringArray timeBaseValues;
-	timeBaseValues.add("1");
-	timeBaseValues.add("2");
-	timeBaseValues.add("5");
-	timeBaseValues.add("10");
+	timeBaseValues.add("100");
+	timeBaseValues.add("200");
+	timeBaseValues.add("500");
+	timeBaseValues.add("1000");
 
-	createRadioButtons(35, 50, 160, timeBaseValues, "Display width (s)");
+	createRadioButtons(35, 50, 160, timeBaseValues, "Thresholds (s)");
 
 	StringArray displayGainValues;
-	displayGainValues.add("1");
-	displayGainValues.add("2");
-	displayGainValues.add("4");
-	displayGainValues.add("8");
+	displayGainValues.add("100");
+	displayGainValues.add("200");
+	displayGainValues.add("400");
+	displayGainValues.add("800");
 
 	createRadioButtons(35, 90, 160, displayGainValues, "Display Gain");
 

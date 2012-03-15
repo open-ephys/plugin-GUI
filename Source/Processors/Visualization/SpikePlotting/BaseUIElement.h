@@ -1,5 +1,5 @@
-#ifndef BaseUIElement_H_
-#define BaseUIElement_H_
+#ifndef BASEUIELEMENT_H_
+#define BASEUIELEMENT_H_
 
 #include "PlotUtils.h"
 

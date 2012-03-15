@@ -15,13 +15,16 @@
  	
 class WaveAxes: public GenericAxes{
 	
-	SpikeObject s;
 	GLfloat waveColor[3];
 	GLfloat thresholdColor[3];
 	GLfloat gridColor[3];
 		
 	
   	void drawWaveformGrid(int thold, int gain);
+
+protected:
+	void plot();
+
 
 public:
 	WaveAxes();
@@ -34,7 +37,6 @@ public:
 	void setGridColor(GLfloat, GLfloat, GLfloat);
 	 
 	void redraw();
-	void plot();
 	
 	bool drawWaveformLine;
 	bool drawWaveformPoints;

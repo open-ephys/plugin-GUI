@@ -37,14 +37,19 @@ WaveAxes::WaveAxes(int x, int y, double w, double h, int t):
 	BaseUIElement::elementName = (char*) "WaveAxes";
 
 }
-void WaveAxes::updateSpikeData(SpikeObject newSpike){
-	GenericAxes::updateSpikeData(newSpike);
-}
-void WaveAxes::redraw(){
-	BaseUIElement::redraw();
-	if (BaseUIElement::enabled)
-		plot();
 
+void WaveAxes::updateSpikeData(SpikeObject newSpike){
+	std::cout<<"WaveAxes::updateSpikeData()"<<std::endl;
+	GenericAxes::updateSpikeData(newSpike);
+
+}
+
+void WaveAxes::redraw(){
+	
+	BaseUIElement::redraw();
+	
+	plot();
+	
 	BaseUIElement::drawElementEdges();
 }
 
@@ -52,28 +57,18 @@ void WaveAxes::redraw(){
 void WaveAxes::plot(){
 
 	int chan = 0;
+	// If no spikes have been received then don't plot anything
 	if (!gotFirstSpike)
 	{
 		std::cout<<"\tWaiting for the first spike"<<std::endl;
 		return;
 	}
 	
-	if (s.nSamples>1024)
-		return;	
-
-	// Set the plotting range for the current axes 
-	// the xlims member is ignored as the xdims are 0->number of samples per waveform minus one
+	// Set the plotting range for the current axes the xlims member is ignored as the xdims are 0->number of samples per waveform minus one
     // so the line goes all the way to the edges ydims are specified by the ylims vector		
-    
 	setViewportRange(0, ylims[0], s.nSamples-1, ylims[1]);
 	
-	// Are new waves getting overlayed on top of old waves? If not clear the display
-	if(!overlay){
-		glColor3f(0.0,0.0,0.0);
-		glRectd(0, ylims[0], s.nSamples, ylims[1]);
-	}
-	
-	// Are we drawing the grid lines for the waveforms?
+	// draw the grid lines for the waveforms?
 	if(drawGrid)
 		drawWaveformGrid(s.threshold[chan], s.gain[chan]);
 	
@@ -86,37 +81,21 @@ void WaveAxes::plot(){
 	// if drawWaveformPoints is set to false then force the drawing of the line, _SOMETHING_ must be drawn
 	glColor3fv(waveColor);
 	
-	//if drawWaveformLine and drawWaveformPoints are both set
-	if(drawWaveformLine){
-		glLineWidth(1);
-		glBegin( GL_LINE_STRIP );
-		for (int i=0; i<s.nSamples; i++)
-		{
-			glVertex2f(x, s.data[sampIdx]);
-			sampIdx +=4;
-			x +=dx; 
-		}
-		glEnd();
+	glLineWidth(1);
+	glBegin( GL_LINE_STRIP );
+	
+	int dSamples = 1;
+	for (int i=0; i<s.nSamples; i++)
+	{
+		//std::cout<<"\t"<<s.data[sampIdx];
+		glVertex2f(x, s.data[sampIdx]);
+		sampIdx += dSamples;
+		x +=dx; 
 	}
 	
-
-/*
-	//if drawWaveformLine and drawWaveformPoints are both set false then draw the points
-	//this ensures that something is always drawn
-	if(drawWaveformPoints || !drawWaveformLine){
-		x = 0;
-		sampIdx = chan;
-		glColor3fv(pointColor);
-		glPointSize(1);
-		glBegin( GL_POINTS );
-		for (int i=0; i<s.nSamples; i++)
-		{
-			glVertex2f(x, s.data[sampIdx]);
-			sampIdx +=4;
-			x +=dx;
-		}
-		glEnd();
-	} */
+	glEnd();
+	// std::cout<<std::endl;
+	
 
 	// Draw the threshold line and label
 	
