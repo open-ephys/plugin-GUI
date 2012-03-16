@@ -134,7 +134,7 @@ void makeBufferValid(char *buffer, int bufferSize){
 
 void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 {
-	std::cout<<"generateSimulatedSpike()"<<std::endl;
+	//std::cout<<"generateSimulatedSpike()"<<std::endl;
 
 	uint16_t trace[][32] =
 	{

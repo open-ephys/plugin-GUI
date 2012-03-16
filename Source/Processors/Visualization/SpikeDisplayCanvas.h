@@ -27,6 +27,7 @@
 
 #include "../SpikeDisplayNode.h"
 #include "SpikePlotting/ElectrodePlot.h"
+#include "SpikePlotting/StereotrodePlot.h"
 #include "SpikeObject.h"
 
 #include "Visualizer.h"
@@ -63,7 +64,7 @@ private:
 	bool newSpike;
 	SpikeObject spike;
 	SpikeDisplayNode* processor;
-	std::vector<ElectrodePlot> plots;
+	std::vector<StereotrodePlot> plots;
 	// AudioSampleBuffer* displayBuffer;
 	// ScopedPointer<AudioSampleBuffer> screenBuffer;
 	// MidiBuffer* eventBuffer;

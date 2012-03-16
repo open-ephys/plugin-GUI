@@ -42,6 +42,7 @@
 		F1268EC5E783EC8ECEBCA5D3 = { isa = PBXBuildFile; fileRef = 5935F823A2EE45AC36A0201F; };
 		4A00153E1E69A74BC6B7D8A6 = { isa = PBXBuildFile; fileRef = 3973173C7FA07073B4F86B29; };
 		5F13B8FFB1584BFF6C05AD39 = { isa = PBXBuildFile; fileRef = 9A47B52E5E1CD17DC9C72B53; };
+		B11D72764B1B17BF2B8C6E67 = { isa = PBXBuildFile; fileRef = C92B3F413B0F24752ADE6730; };
 		938FC2F779C2CF4B8C7ECFFE = { isa = PBXBuildFile; fileRef = 3BB44F767E701E3642435FA0; };
 		55A240CCFCD604CA8DF8FC8C = { isa = PBXBuildFile; fileRef = 41591F74A761BAC908FA8AD8; };
 		8025F04ED261C7F7D2DC0F06 = { isa = PBXBuildFile; fileRef = 24C6D768C87E1C42C644C4BD; };
@@ -204,6 +205,8 @@
 		7977CAB4A151C41F4140FE1A = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Merger.h; path = ../../Source/Processors/Utilities/Merger.h; sourceTree = "SOURCE_ROOT"; };
 		9A47B52E5E1CD17DC9C72B53 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Splitter.cpp; path = ../../Source/Processors/Utilities/Splitter.cpp; sourceTree = "SOURCE_ROOT"; };
 		B92E8189F69E0B926C73B654 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Splitter.h; path = ../../Source/Processors/Utilities/Splitter.h; sourceTree = "SOURCE_ROOT"; };
+		C92B3F413B0F24752ADE6730 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = StereotrodePlot.cpp; path = ../../Source/Processors/Visualization/SpikePlotting/StereotrodePlot.cpp; sourceTree = "SOURCE_ROOT"; };
+		FDD549F527C378CF36BDB8C7 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StereotrodePlot.h; path = ../../Source/Processors/Visualization/SpikePlotting/StereotrodePlot.h; sourceTree = "SOURCE_ROOT"; };
 		3BB44F767E701E3642435FA0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ElectrodePlot.cpp; path = ../../Source/Processors/Visualization/SpikePlotting/ElectrodePlot.cpp; sourceTree = "SOURCE_ROOT"; };
 		1AAF672654B16469EFB41AC2 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ElectrodePlot.h; path = ../../Source/Processors/Visualization/SpikePlotting/ElectrodePlot.h; sourceTree = "SOURCE_ROOT"; };
 		41591F74A761BAC908FA8AD8 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BaseUIElement.cpp; path = ../../Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp; sourceTree = "SOURCE_ROOT"; };
@@ -423,6 +426,8 @@
 				9A47B52E5E1CD17DC9C72B53,
 				B92E8189F69E0B926C73B654 ); name = Utilities; sourceTree = "<group>"; };
 		1255E9B28ADAA1A1CADC4A6E = { isa = PBXGroup; children = (
+				C92B3F413B0F24752ADE6730,
+				FDD549F527C378CF36BDB8C7,
 				3BB44F767E701E3642435FA0,
 				1AAF672654B16469EFB41AC2,
 				41591F74A761BAC908FA8AD8,
@@ -694,6 +699,7 @@
 				F1268EC5E783EC8ECEBCA5D3,
 				4A00153E1E69A74BC6B7D8A6,
 				5F13B8FFB1584BFF6C05AD39,
+				B11D72764B1B17BF2B8C6E67,
 				938FC2F779C2CF4B8C7ECFFE,
 				55A240CCFCD604CA8DF8FC8C,
 				8025F04ED261C7F7D2DC0F06,

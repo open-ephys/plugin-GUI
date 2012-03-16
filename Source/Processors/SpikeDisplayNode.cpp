@@ -86,7 +86,8 @@ void SpikeDisplayNode::setParameter (int parameterIndex, float newValue)
 
 void SpikeDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples)
 {
-	std::cout<<"SpikeDisplayNode::process"<<std::endl;
+	//std::cout<<"SpikeDisplayNode::process"<<std::endl;
+	/*
 	uint64_t ts =  00000; 
 	int noise = 10;
 	SpikeObject newSpike;
@@ -95,11 +96,12 @@ void SpikeDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessag
 	
 	spikebuffer.push(newSpike);
 	bufferSize++;
-
+	*/
 }
 
 bool SpikeDisplayNode::getNextSpike(SpikeObject *spike){
 	std::cout<<"SpikeDisplayNode::getNextSpike()"<<std::endl;
+	/*
 	if (bufferSize<1 || spikebuffer.empty())
 		return false;
 	else{
@@ -109,6 +111,7 @@ bool SpikeDisplayNode::getNextSpike(SpikeObject *spike){
 		*spike = s;
 		return true;
 	}
-	
+	*/
 	return false;
+
 }

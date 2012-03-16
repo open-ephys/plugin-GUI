@@ -24,7 +24,7 @@
 #include "SpikeDisplayCanvas.h"
 
 SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
-	 	xBuffer(0), yBuffer(0), newSpike(false)
+	 	xBuffer(0), yBuffer(0),  newSpike(false)
 {
 
 	
@@ -41,11 +41,8 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
 
 	//generateEmptySpike(&spike, 1);
 	
-	for (int i=0; i<8; i++)
-	{
-		ElectrodePlot ep = ElectrodePlot(10 +i * 80, 10, 75, 75, "");
-		plots.push_back(ep);
-	}
+	initializeSpikePlots();
+	
 	// displayBuffer = processor->getDisplayBufferAddress();
 	// displayBufferSize = displayBuffer->getNumSamples();
 	// std::cout << "Setting displayBufferSize on SpikeDisplayCanvas to " << displayBufferSize << std::endl;
@@ -53,13 +50,32 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
 
 	// totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
 
-	// screenBuffer = new AudioSampleBuffer(nChans, 10000);
-	
+	// screenBuffer = new AudioSampleBuffer(nChans, 10000);	
 }
 
 SpikeDisplayCanvas::~SpikeDisplayCanvas()
 {
+	
 }
+
+void SpikeDisplayCanvas::initializeSpikePlots(){
+	std::cout<<"Initializing Plots"<<std::endl;
+	int xPadding = 10;
+	int yPadding = 10;
+
+	int nPlots = 4;
+
+	int totalWidth = 900; // This is a hack the width as the width isn't known before its drawn
+	
+	int plotWidth =  (totalWidth  - (nPlots + 1 ) * xPadding) / nPlots;
+	int plotHeight = plotWidth / 2;
+	for (int i=0; i<nPlots; i++)
+	{
+		StereotrodePlot p = StereotrodePlot( xPadding + i * (plotWidth + xPadding) , yPadding, plotWidth, plotHeight, "");
+		plots.push_back(p);
+	}
+}
+
 
 
 void SpikeDisplayCanvas::newOpenGLContextCreated()
@@ -162,8 +178,8 @@ void SpikeDisplayCanvas::renderOpenGL()
 	}
 	
 	//}
-		
-	 drawScrollBars();
+	//std::cout << getHeight()<<" "<< getTotalHeight()<<" "<<std::endl;
+ 	drawScrollBars();
 }
 
 void SpikeDisplayCanvas::drawTicks()

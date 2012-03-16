@@ -13,7 +13,7 @@
                juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi -lftgl"
                objCExtraSuffix="fea2mT"/>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-lftdi -lftgl" extraCompilerFlags="-export-dynamic -g"/>
+                extraLinkerFlags="-lftdi -lftgl" extraCompilerFlags="-export-dynamic"/>
   </EXPORTFORMATS>
   <CONFIGURATIONS>
     <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="open-ephys"
@@ -156,6 +156,10 @@
         </GROUP>
         <GROUP id="W4eqkOy" name="Visualization">
           <GROUP id="g8GOfh" name="SpikePlotting">
+            <FILE id="PzmX0I" name="StereotrodePlot.cpp" compile="1" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/StereotrodePlot.cpp"/>
+            <FILE id="LPK6G1" name="StereotrodePlot.h" compile="0" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/StereotrodePlot.h"/>
             <FILE id="EgoljI" name="ElectrodePlot.cpp" compile="1" resource="0"
                   file="Source/Processors/Visualization/SpikePlotting/ElectrodePlot.cpp"/>
             <FILE id="oFUMq0" name="ElectrodePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/ElectrodePlot.h"/>

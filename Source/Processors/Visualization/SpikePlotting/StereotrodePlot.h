@@ -1,5 +1,5 @@
-#ifndef ELECTRODE_PLOT_H
-#define ELECTRODE_PLOT_H
+#ifndef STEROETRODE_PLOT_H_
+#define STEROETRODE_PLOT_H_
 
 #if defined(__linux__)
 	#include <GL/glut.h>
@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include "WaveAxes.h"
+#include "ProjectionAxes.h"
 #include "TitleBox.h"
 #include "BaseUIElement.h"
 #include "TetrodeSource.h"
@@ -17,7 +18,7 @@
 #include "SimpleKeyEvent.h"
 
 
-class ElectrodePlot : public BaseUIElement{
+class StereotrodePlot : public BaseUIElement{
 	
 	char *plotTitle;
 	
@@ -32,7 +33,8 @@ class ElectrodePlot : public BaseUIElement{
     bool limitsChanged;
     double limits[1][2];
     
-    WaveAxes axes;
+    WaveAxes wAxes[2];
+    //ProjectionAxes pAxes;
     
     
     
@@ -47,9 +49,9 @@ class ElectrodePlot : public BaseUIElement{
     void initLimits();
 	
 public:
-	ElectrodePlot();
-	ElectrodePlot(int x, int y,int w,int h, char *n);
-	~ElectrodePlot();
+	StereotrodePlot();
+	StereotrodePlot(int x, int y,int w,int h, char *n);
+	~StereotrodePlot();
 
 	void initAxes();
 	void redraw();

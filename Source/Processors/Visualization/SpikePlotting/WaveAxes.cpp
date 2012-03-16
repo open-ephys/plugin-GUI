@@ -39,7 +39,7 @@ WaveAxes::WaveAxes(int x, int y, double w, double h, int t):
 }
 
 void WaveAxes::updateSpikeData(SpikeObject newSpike){
-	std::cout<<"WaveAxes::updateSpikeData()"<<std::endl;
+	//std::cout<<"WaveAxes::updateSpikeData()"<<std::endl;
 	GenericAxes::updateSpikeData(newSpike);
 
 }
@@ -75,12 +75,15 @@ void WaveAxes::plot(){
 	//compute the spatial width for each wawveform sample	
 	float dx = 1;
 	float x = 0;
-	int	sampIdx = 0; 
+
+	// type corresponds to channel so we need to calculate the starting
+	// sample based upon which channel is getting plotted
+	// type values are defined in PlotUtils.h 
+	int	sampIdx = s.nSamples * type; //  
+	std::cout<<"Starting with idx:"<<sampIdx<<std::endl;
 
 	//Draw the individual waveform points connected with a line
-	// if drawWaveformPoints is set to false then force the drawing of the line, _SOMETHING_ must be drawn
 	glColor3fv(waveColor);
-	
 	glLineWidth(1);
 	glBegin( GL_LINE_STRIP );
 	

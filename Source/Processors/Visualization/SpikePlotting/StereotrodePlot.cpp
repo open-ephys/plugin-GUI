@@ -1,15 +1,15 @@
-#include "ElectrodePlot.h"
+#include "StereotrodePlot.h"
 #include "../SpikeObject.h"
 #include "PlotUtils.h"
 
-ElectrodePlot::ElectrodePlot():
+StereotrodePlot::StereotrodePlot():
 	BaseUIElement(), titleHeight(0), enableTitle(true), limitsChanged(true)
 {
-    plotTitle = (char*) "Electrode Plot";
+    plotTitle = (char*) "Stereotrode Plot";
 
 }
 
-ElectrodePlot::ElectrodePlot(int x, int y, int w, int h, char *n):
+StereotrodePlot::StereotrodePlot(int x, int y, int w, int h, char *n):
 	BaseUIElement(x,y,w,h,1), titleHeight(0), enableTitle(true), limitsChanged(true)
 {
 	plotTitle = n;
@@ -18,7 +18,7 @@ ElectrodePlot::ElectrodePlot(int x, int y, int w, int h, char *n):
 	initAxes();
 }
 
-ElectrodePlot::~ElectrodePlot(){
+StereotrodePlot::~StereotrodePlot(){
 }
 
 // Each plot needs to update its children axes when its redraw gets called.
@@ -27,53 +27,66 @@ ElectrodePlot::~ElectrodePlot(){
 //  should go by default. This isn't as general as it should be but its a good push in
 //  the right direction
 
-void ElectrodePlot::redraw(){
-	 //std::cout<<"ElectrodePlot() starting drawing"<<std::endl;\
+void StereotrodePlot::redraw(){
+	 //std::cout<<"StereotrodePlot() starting drawing"<<std::endl;\
 	BaseUIElement::clearNextDraw = true;
 	BaseUIElement::redraw();
 
-	axes.redraw();
+	wAxes[0].redraw();
+    wAxes[1].redraw();
 }
 
 // This would normally happen for collection of axes but an electrode plot doesn't have a collection instead its a single axes
-void ElectrodePlot::processSpikeObject(SpikeObject s){
+void StereotrodePlot::processSpikeObject(SpikeObject s){
 	//std::cout<<"ElectrdePlot::processSpikeObject()"<<std::endl;
-	axes.updateSpikeData(s);
+	wAxes[0].updateSpikeData(s);
+    wAxes[1].updateSpikeData(s);
+    //pAxesStereotrode.updateSpikeData(s);
 }
-void ElectrodePlot::setTitle(char *n){
+void StereotrodePlot::setTitle(char *n){
 	plotTitle = n;
 }
 
-void ElectrodePlot::setEnabled(bool e){
+void StereotrodePlot::setEnabled(bool e){
 	BaseUIElement::enabled = e;
 
-	axes.setEnabled(e);
+	wAxes[0].setEnabled(e);
+    wAxes[1].setEnabled(e);
+    //pAxesStereotrode.setEnabled(e);
 }
 
-bool ElectrodePlot::getEnabled(){
+bool StereotrodePlot::getEnabled(){
 	return BaseUIElement::enabled;
 }
 
 
-void ElectrodePlot::initAxes(){
+void StereotrodePlot::initAxes(){
 	initLimits();
     
     int minX = BaseUIElement::xpos;
 	int minY = BaseUIElement::ypos;
 	
-	double axesWidth = BaseUIElement::width;
+	double axesWidth = BaseUIElement::width/2;
 	double axesHeight = (BaseUIElement::height - titleHeight);
 	
 	
-	axes = WaveAxes(minX, minY, axesWidth, axesHeight, WAVE1);
+	wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
+    wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);
+    //pAxesStereotrode = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2)
 	
     //axes.setEnabled(false);
-	axes.setYLims(-1*pow(2,11), pow(2,14)*1.6);
-	axes.setWaveformColor(1.0, 1.0, 1.0);
+	wAxes[0].setYLims(-1*pow(2,11), pow(2,14)*1.6);
+    wAxes[1].setYLims(-1*pow(2,11), pow(2,14)*1.6);
+    ////pAxesStereotrodeStereotrode.setYLims(-1*pow(2,11), pow(2,14)*1.6);
+    //pAxesStereotrode.setXLims(-1*pow(2,11), pow(2,14)*1.6);
+	
+    wAxes[0].setWaveformColor(1.0, 1.0, 1.0);
+    wAxes[1].setWaveformColor(1.0, 1.0, 1.0);
+    //pAxesStereotrode.setWaveformColor(1.0, 1.0, 1.0);
 
 }
 
-void ElectrodePlot::setPosition(int x, int y, double w, double h){
+void StereotrodePlot::setPosition(int x, int y, double w, double h){
 	BaseUIElement::setPosition(x,y,w,h);
 	int minX = BaseUIElement::xpos;
 	int minY = BaseUIElement::ypos;
@@ -81,20 +94,22 @@ void ElectrodePlot::setPosition(int x, int y, double w, double h){
 	double axesWidth = BaseUIElement::width;
 	double axesHeight = BaseUIElement::height - titleHeight;
 	
-	axes.setPosition(minX, minY, axesWidth, axesHeight);
-	
+    wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
+    wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);	
+    //pAxesStereotrode = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2)
+
     titleBox.setPosition(x, y+h-titleHeight-3, w, titleHeight+3);
 }
 
-int ElectrodePlot::getNumberOfAxes(){
+int StereotrodePlot::getNumberOfAxes(){
 	return 1;;
 }
 
-void ElectrodePlot::clearOnNextDraw(bool b){
+void StereotrodePlot::clearOnNextDraw(bool b){
 	BaseUIElement::clearNextDraw = b;
 }
 
-void ElectrodePlot::setTitleEnabled(bool e){
+void StereotrodePlot::setTitleEnabled(bool e){
 
     // if the new setting does not equal the old than clear on the next draw
     clearNextDraw = !(e!=enableTitle);
@@ -108,7 +123,7 @@ void ElectrodePlot::setTitleEnabled(bool e){
     setPosition(BaseUIElement::xpos, BaseUIElement::ypos, 
                 BaseUIElement::width, BaseUIElement::height);
 }
-void ElectrodePlot::initLimits(){
+void StereotrodePlot::initLimits(){
     for (int i=0; i<4; i++)
     {
         limits[i][0] = -1*pow(2,11);
@@ -117,11 +132,11 @@ void ElectrodePlot::initLimits(){
 
 }
 
-void ElectrodePlot::getPreferredDimensions(double *w, double *h){
+void StereotrodePlot::getPreferredDimensions(double *w, double *h){
     *w = 75;
     *h = 75;
 }
-// void ElectrodePlot::mouseDown(int x, int y){
+// void StereotrodePlot::mouseDown(int x, int y){
 
 // //     selectedAxesN = -1;
 // //     std::list<GenericAxes>::iterator i;
@@ -143,12 +158,12 @@ void ElectrodePlot::getPreferredDimensions(double *w, double *h){
 // //     if (!hit)
 // //         selectedAxes = NULL;
 // //     if (selectedAxes != NULL)
-// //         std::cout<<"ElectrodePlot::mouseDown() hit:"<<selectedAxes<<" AxesType:"<<selectedaxes.getType()<<std::endl;
+// //         std::cout<<"StereotrodePlot::mouseDown() hit:"<<selectedAxes<<" AxesType:"<<selectedaxes.getType()<<std::endl;
 // //     else
-// //         std::cout<<"ElectrodePlot::mouseDown() NO HIT!"<<std::endl;
+// //         std::cout<<"StereotrodePlot::mouseDown() NO HIT!"<<std::endl;
     
 // }
-// void ElectrodePlot::mouseDragX(int dx, bool shift, bool ctrl){
+// void StereotrodePlot::mouseDragX(int dx, bool shift, bool ctrl){
 
 // //     if (selectedAxes == NULL || dx==0)
 // //         return;
@@ -159,7 +174,7 @@ void ElectrodePlot::getPreferredDimensions(double *w, double *h){
 // //         panAxes(selectedAxesN, true, dx);
 
 // }
-// void ElectrodePlot::mouseDragY(int dy, bool shift, bool ctrl){
+// void StereotrodePlot::mouseDragY(int dy, bool shift, bool ctrl){
 //     if (selectedAxes == NULL || dy==0)
 //         return;
 //     if(shift)
@@ -168,8 +183,8 @@ void ElectrodePlot::getPreferredDimensions(double *w, double *h){
 //         panAxes(selectedAxesN, false, dy);
 // }
 
-// void ElectrodePlot::zoomAxes(int n, bool xdim, int zoom){
-// //    std::cout<<"ElectrodePlot::zoomAxes() n:"<< n<<" xdim"<< xdim<<" in:"<<zoomin<<std::endl;
+// void StereotrodePlot::zoomAxes(int n, bool xdim, int zoom){
+// //    std::cout<<"StereotrodePlot::zoomAxes() n:"<< n<<" xdim"<< xdim<<" in:"<<zoomin<<std::endl;
 //     // If trying to zoom an invalid axes type
 //     if (n<WAVE1 || n>PROJ3x4)
 //         return;
@@ -179,7 +194,7 @@ void ElectrodePlot::getPreferredDimensions(double *w, double *h){
 //         zoomProjection(n, xdim, zoom);
 // }
 
-// void ElectrodePlot::zoomWaveform(int n, bool xdim, int zoom){
+// void StereotrodePlot::zoomWaveform(int n, bool xdim, int zoom){
 
 //     // waveform plots don't have a xlimits
 //     if (xdim)
@@ -206,8 +221,8 @@ void ElectrodePlot::getPreferredDimensions(double *w, double *h){
 //     limitsChanged = true;
 // }
 
-// void ElectrodePlot::panAxes(int n, bool xdim, int panval){
-//     //    std::cout<<"ElectrodePlot::zoomAxes() n:"<< n<<" xdim"<< xdim<<" in:"<<zoomin<<std::endl;
+// void StereotrodePlot::panAxes(int n, bool xdim, int panval){
+//     //    std::cout<<"StereotrodePlot::zoomAxes() n:"<< n<<" xdim"<< xdim<<" in:"<<zoomin<<std::endl;
 //     // If trying to zoom an invalid axes type
 //     if (n<WAVE1 || n>PROJ3x4)
 //         return;
@@ -217,7 +232,7 @@ void ElectrodePlot::getPreferredDimensions(double *w, double *h){
 //         panProjection(n, xdim, panval);
 // }
 
-// void ElectrodePlot::panWaveform(int n, bool xdim, int pan){
+// void StereotrodePlot::panWaveform(int n, bool xdim, int pan){
     
 //     // waveform plots don't have a xlimits
 //     if (xdim)
@@ -253,7 +268,7 @@ void ElectrodePlot::getPreferredDimensions(double *w, double *h){
 
 
 
-bool ElectrodePlot::processKeyEvent(SimpleKeyEvent k){
+bool StereotrodePlot::processKeyEvent(SimpleKeyEvent k){
     // std::cout<<"Key:"<<(char)k.key<<std::endl;
     // switch(k.key)
     // {
