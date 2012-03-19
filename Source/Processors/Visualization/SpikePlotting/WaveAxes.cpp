@@ -80,7 +80,7 @@ void WaveAxes::plot(){
 	// sample based upon which channel is getting plotted
 	// type values are defined in PlotUtils.h 
 	int	sampIdx = s.nSamples * type; //  
-	std::cout<<"Starting with idx:"<<sampIdx<<std::endl;
+	//std::cout<<"Starting with idx:"<<sampIdx<<std::endl;
 
 	//Draw the individual waveform points connected with a line
 	glColor3fv(waveColor);

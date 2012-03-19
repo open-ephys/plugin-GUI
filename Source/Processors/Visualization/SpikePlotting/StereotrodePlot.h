@@ -34,7 +34,7 @@ class StereotrodePlot : public BaseUIElement{
     double limits[1][2];
     
     WaveAxes wAxes[2];
-    //ProjectionAxes pAxes;
+    ProjectionAxes pAxes;
     
     
     

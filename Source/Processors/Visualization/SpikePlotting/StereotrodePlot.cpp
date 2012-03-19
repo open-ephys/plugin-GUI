@@ -34,6 +34,7 @@ void StereotrodePlot::redraw(){
 
 	wAxes[0].redraw();
     wAxes[1].redraw();
+    pAxes.redraw();
 }
 
 // This would normally happen for collection of axes but an electrode plot doesn't have a collection instead its a single axes
@@ -41,7 +42,7 @@ void StereotrodePlot::processSpikeObject(SpikeObject s){
 	//std::cout<<"ElectrdePlot::processSpikeObject()"<<std::endl;
 	wAxes[0].updateSpikeData(s);
     wAxes[1].updateSpikeData(s);
-    //pAxesStereotrode.updateSpikeData(s);
+    pAxes.updateSpikeData(s);
 }
 void StereotrodePlot::setTitle(char *n){
 	plotTitle = n;
@@ -52,7 +53,7 @@ void StereotrodePlot::setEnabled(bool e){
 
 	wAxes[0].setEnabled(e);
     wAxes[1].setEnabled(e);
-    //pAxesStereotrode.setEnabled(e);
+    pAxes.setEnabled(e);
 }
 
 bool StereotrodePlot::getEnabled(){
@@ -72,17 +73,17 @@ void StereotrodePlot::initAxes(){
 	
 	wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
     wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);
-    //pAxesStereotrode = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2)
+    pAxes = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2);
 	
     //axes.setEnabled(false);
 	wAxes[0].setYLims(-1*pow(2,11), pow(2,14)*1.6);
     wAxes[1].setYLims(-1*pow(2,11), pow(2,14)*1.6);
-    ////pAxesStereotrodeStereotrode.setYLims(-1*pow(2,11), pow(2,14)*1.6);
-    //pAxesStereotrode.setXLims(-1*pow(2,11), pow(2,14)*1.6);
+    pAxes.setYLims(-1*pow(2,11), pow(2,14)*1.6);
+    pAxes.setXLims(-1*pow(2,11), pow(2,14)*1.6);
 	
     wAxes[0].setWaveformColor(1.0, 1.0, 1.0);
     wAxes[1].setWaveformColor(1.0, 1.0, 1.0);
-    //pAxesStereotrode.setWaveformColor(1.0, 1.0, 1.0);
+    pAxes.setPointColor(1.0, 1.0, 1.0);
 
 }
 
@@ -96,7 +97,7 @@ void StereotrodePlot::setPosition(int x, int y, double w, double h){
 	
     wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
     wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);	
-    //pAxesStereotrode = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2)
+    pAxes = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2);
 
     titleBox.setPosition(x, y+h-titleHeight-3, w, titleHeight+3);
 }
