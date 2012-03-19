@@ -29,8 +29,8 @@ StereotrodePlot::~StereotrodePlot(){
 
 void StereotrodePlot::redraw(){
 	 //std::cout<<"StereotrodePlot() starting drawing"<<std::endl;\
-	BaseUIElement::clearNextDraw = true;
-	BaseUIElement::redraw();
+	//BaseUIElement::clearNextDraw = true;
+	//BaseUIElement::redraw();
 
 	wAxes[0].redraw();
     wAxes[1].redraw();

@@ -47,7 +47,6 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
 	// displayBufferSize = displayBuffer->getNumSamples();
 	// std::cout << "Setting displayBufferSize on SpikeDisplayCanvas to " << displayBufferSize << std::endl;
 
-
 	// totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
 
 	// screenBuffer = new AudioSampleBuffer(nChans, 10000);	
@@ -63,7 +62,7 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 	int xPadding = 10;
 	int yPadding = 10;
 
-	int nPlots = 4;
+	int nPlots = 2;
 
 	int totalWidth = 900; // This is a hack the width as the width isn't known before its drawn
 	
@@ -71,7 +70,7 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 	int plotHeight = plotWidth / 2;
 	for (int i=0; i<nPlots; i++)
 	{
-		StereotrodePlot p = StereotrodePlot( xPadding + i * (plotWidth + xPadding) , yPadding, plotWidth, plotHeight, "");
+		TetrodePlot p = TetrodePlot( xPadding + i * (plotWidth + xPadding) , yPadding, plotWidth, plotHeight, "");
 		plots.push_back(p);
 	}
 }
@@ -157,20 +156,19 @@ void SpikeDisplayCanvas::canvasWasResized()
 void SpikeDisplayCanvas::renderOpenGL()
 {
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
-	std::cout<<"SpikeDisplayCanvas::renderOpenGL"<<std::endl;
-
-
+//	std::cout<<"SpikeDisplayCanvas::renderOpenGL"<<std::endl;
 	// Get Spikes from the processor
 	// Iterate through each spike, passing them individually to the appropriate plots and calling redraw before moving on to the next spike
 	
 	//while(processor->getNextSpike(&spike))
 	//{
 		
-		// Identify which plot the spike should go to
-			
-		// Distribute those spike to the appropriate plot object
+	// Identify which plot the spike should go to
+	
+	// Distribute those spike to the appropriate plot object
 	
 	SpikeObject tmpSpike;
+
 	for (int i=0; i<plots.size(); i++){
 		generateSimulatedSpike(&tmpSpike, 0, 100);
 		plots[i].processSpikeObject(tmpSpike);

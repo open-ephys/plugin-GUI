@@ -1,5 +1,5 @@
-#ifndef TETRODE_PLOT_H
-#define TETRODE_PLOT_H
+#ifndef TETRODE_PLOT_H_
+#define TETRODE_PLOT_H_
 
 #if defined(__linux__)
 	#include <GL/glut.h>
@@ -9,7 +9,6 @@
 #include <list>
 #include <math.h>
 
-#include "GenericAxes.h"
 #include "WaveAxes.h"
 #include "ProjectionAxes.h"
 #include "TitleBox.h"
@@ -22,7 +21,7 @@
 class TetrodePlot : public BaseUIElement{
 	
 	char *plotTitle;
-	std::list<GenericAxes> axesList;
+	
 	TitleBox titleBox;
 
 	bool enabled;
@@ -30,27 +29,29 @@ class TetrodePlot : public BaseUIElement{
 	void drawTitle();
 	
 	double titleHeight;
-	void *ptr;
     
     bool limitsChanged;
-    double limits[4][2];
+    double limits[1][2];
     
-    GenericAxes* selectedAxes;
-    int selectedAxesN;
+    WaveAxes wAxes[4];
+    ProjectionAxes pAxes[6];
     
-    void zoomAxes(int n, bool xdim, int zoomval);
-    void zoomProjection (int n, bool xdim, int zoomval);
-    void zoomWaveform (int n, bool xdim, int zoomval);
     
-    void panAxes(int n, bool xdim, int panval);
-    void panProjection (int n, bool xdim, int panval);
-    void panWaveform(int n, bool xdim, int panval);
+    
+    // void zoomAxes(int n, bool xdim, int zoomval);
+    // void zoomProjection (int n, bool xdim, int zoomval);
+    // void zoomWaveform (int n, bool xdim, int zoomval);
+    
+    // void panAxes(int n, bool xdim, int panval);
+    // void panProjection (int n, bool xdim, int panval);
+    // void panWaveform(int n, bool xdim, int panval);
     
     void initLimits();
 	
 public:
 	TetrodePlot();
 	TetrodePlot(int x, int y,int w,int h, char *n);
+	~TetrodePlot();
 
 	void initAxes();
 	void redraw();
@@ -58,6 +59,8 @@ public:
 	void setEnabled(bool enabled);
 	bool getEnabled();
 	void setPosition(int,int,double,double);
+
+	void getPreferredDimensions(double*, double*);
 
 	int getNumberOfAxes();
 	void clearOnNextDraw(bool c);
@@ -69,6 +72,8 @@ public:
     void mouseDragY(int dy, bool shift, bool ctr);
 
     bool processKeyEvent(SimpleKeyEvent k);
+
+    void processSpikeObject(SpikeObject s);
 };
 
 

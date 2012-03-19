@@ -29,7 +29,6 @@
 #include "Editors/VisualizerEditor.h"
 #include "GenericProcessor.h"
 #include "Visualization/SpikeObject.h"
-#include <queue>
 
 /**
   
@@ -72,10 +71,10 @@ private:
 	int numberOfSources;
 	AbstractFifo abstractFifo;
 
-	//ScopedPointer<AudioSampleBuffer> displayBuffer;
+	ScopedPointer<AudioSampleBuffer> displayBuffer;
 	ScopedPointer<MidiBuffer> eventBuffer;
 
-	std::queue<SpikeObject> spikebuffer;
+	//std::queue<SpikeObject> spikebuffer;
 
 	int bufferSize;
 	//bool resizeBuffer();

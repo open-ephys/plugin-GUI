@@ -72,11 +72,9 @@ OBJECTS := \
   $(OBJDIR)/ElectrodePlot_7a206ec4.o \
   $(OBJDIR)/BaseUIElement_ec903c4d.o \
   $(OBJDIR)/GenericAxes_d802ed92.o \
-  $(OBJDIR)/Plot_ca16c6f5.o \
   $(OBJDIR)/PlotUtils_9ef52686.o \
   $(OBJDIR)/ProjectionAxes_7c67c3e8.o \
   $(OBJDIR)/TetrodePlot_b42fd798.o \
-  $(OBJDIR)/TetrodeSource_612b6d52.o \
   $(OBJDIR)/TitleBox_c4a9cde7.o \
   $(OBJDIR)/WaveAxes_8adc45d2.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
@@ -294,11 +292,6 @@ $(OBJDIR)/GenericAxes_d802ed92.o: ../../Source/Processors/Visualization/SpikePlo
 	@echo "Compiling GenericAxes.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/Plot_ca16c6f5.o: ../../Source/Processors/Visualization/SpikePlotting/Plot.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Plot.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/PlotUtils_9ef52686.o: ../../Source/Processors/Visualization/SpikePlotting/PlotUtils.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling PlotUtils.cpp"
@@ -312,11 +305,6 @@ $(OBJDIR)/ProjectionAxes_7c67c3e8.o: ../../Source/Processors/Visualization/Spike
 $(OBJDIR)/TetrodePlot_b42fd798.o: ../../Source/Processors/Visualization/SpikePlotting/TetrodePlot.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling TetrodePlot.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/TetrodeSource_612b6d52.o: ../../Source/Processors/Visualization/SpikePlotting/TetrodeSource.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling TetrodeSource.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/TitleBox_c4a9cde7.o: ../../Source/Processors/Visualization/SpikePlotting/TitleBox.cpp

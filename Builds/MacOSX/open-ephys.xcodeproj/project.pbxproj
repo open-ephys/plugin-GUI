@@ -46,11 +46,9 @@
 		938FC2F779C2CF4B8C7ECFFE = { isa = PBXBuildFile; fileRef = 3BB44F767E701E3642435FA0; };
 		55A240CCFCD604CA8DF8FC8C = { isa = PBXBuildFile; fileRef = 41591F74A761BAC908FA8AD8; };
 		8025F04ED261C7F7D2DC0F06 = { isa = PBXBuildFile; fileRef = 24C6D768C87E1C42C644C4BD; };
-		5BF39041C97178762F2A80E2 = { isa = PBXBuildFile; fileRef = 973E19C898C17FCD25544AB3; };
 		49F046C8BE137BF77338DD7B = { isa = PBXBuildFile; fileRef = B195AD6CEB9B6E3625C8D087; };
 		566E42D2B7105CFB4DB45170 = { isa = PBXBuildFile; fileRef = 2FA2FA826CBAD9C639A61E4A; };
 		0DDC562EC2B04A26AE6CBB2B = { isa = PBXBuildFile; fileRef = FBB9A423728922E96F55074F; };
-		604CD950A69E64B77BC42B6A = { isa = PBXBuildFile; fileRef = 1055491125D9265362750727; };
 		39E2F4E31D24BED6E85C489D = { isa = PBXBuildFile; fileRef = 7A9571EBFAAD39E47DE12A10; };
 		BCD7C4797178C8EF65CDC2D7 = { isa = PBXBuildFile; fileRef = 9F208A66C09E80D14F087CB1; };
 		9145D84C7D665BCAFE698432 = { isa = PBXBuildFile; fileRef = E7247F5EE9588903C924994F; };
@@ -213,8 +211,6 @@
 		9C8EA29582DBFF6E5A14B8A3 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BaseUIElement.h; path = ../../Source/Processors/Visualization/SpikePlotting/BaseUIElement.h; sourceTree = "SOURCE_ROOT"; };
 		24C6D768C87E1C42C644C4BD = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GenericAxes.cpp; path = ../../Source/Processors/Visualization/SpikePlotting/GenericAxes.cpp; sourceTree = "SOURCE_ROOT"; };
 		BCBB865ED53E8AFD278D1A53 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GenericAxes.h; path = ../../Source/Processors/Visualization/SpikePlotting/GenericAxes.h; sourceTree = "SOURCE_ROOT"; };
-		973E19C898C17FCD25544AB3 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Plot.cpp; path = ../../Source/Processors/Visualization/SpikePlotting/Plot.cpp; sourceTree = "SOURCE_ROOT"; };
-		6C02273DBE89D4A89EBC8581 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Plot.h; path = ../../Source/Processors/Visualization/SpikePlotting/Plot.h; sourceTree = "SOURCE_ROOT"; };
 		B195AD6CEB9B6E3625C8D087 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PlotUtils.cpp; path = ../../Source/Processors/Visualization/SpikePlotting/PlotUtils.cpp; sourceTree = "SOURCE_ROOT"; };
 		521FECC75E9DDB0D34B22AF8 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PlotUtils.h; path = ../../Source/Processors/Visualization/SpikePlotting/PlotUtils.h; sourceTree = "SOURCE_ROOT"; };
 		2FA2FA826CBAD9C639A61E4A = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ProjectionAxes.cpp; path = ../../Source/Processors/Visualization/SpikePlotting/ProjectionAxes.cpp; sourceTree = "SOURCE_ROOT"; };
@@ -222,8 +218,6 @@
 		50E7B88E8140BB293B27ED67 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimpleKeyEvent.h; path = ../../Source/Processors/Visualization/SpikePlotting/SimpleKeyEvent.h; sourceTree = "SOURCE_ROOT"; };
 		FBB9A423728922E96F55074F = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TetrodePlot.cpp; path = ../../Source/Processors/Visualization/SpikePlotting/TetrodePlot.cpp; sourceTree = "SOURCE_ROOT"; };
 		6CFF95D08DB1000B1EDD1240 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TetrodePlot.h; path = ../../Source/Processors/Visualization/SpikePlotting/TetrodePlot.h; sourceTree = "SOURCE_ROOT"; };
-		1055491125D9265362750727 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TetrodeSource.cpp; path = ../../Source/Processors/Visualization/SpikePlotting/TetrodeSource.cpp; sourceTree = "SOURCE_ROOT"; };
-		1C3E37A913F761086142B9F0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TetrodeSource.h; path = ../../Source/Processors/Visualization/SpikePlotting/TetrodeSource.h; sourceTree = "SOURCE_ROOT"; };
 		7A9571EBFAAD39E47DE12A10 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TitleBox.cpp; path = ../../Source/Processors/Visualization/SpikePlotting/TitleBox.cpp; sourceTree = "SOURCE_ROOT"; };
 		180386FCFC4315DCB499E837 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TitleBox.h; path = ../../Source/Processors/Visualization/SpikePlotting/TitleBox.h; sourceTree = "SOURCE_ROOT"; };
 		9F208A66C09E80D14F087CB1 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WaveAxes.cpp; path = ../../Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp; sourceTree = "SOURCE_ROOT"; };
@@ -434,8 +428,6 @@
 				9C8EA29582DBFF6E5A14B8A3,
 				24C6D768C87E1C42C644C4BD,
 				BCBB865ED53E8AFD278D1A53,
-				973E19C898C17FCD25544AB3,
-				6C02273DBE89D4A89EBC8581,
 				B195AD6CEB9B6E3625C8D087,
 				521FECC75E9DDB0D34B22AF8,
 				2FA2FA826CBAD9C639A61E4A,
@@ -443,8 +435,6 @@
 				50E7B88E8140BB293B27ED67,
 				FBB9A423728922E96F55074F,
 				6CFF95D08DB1000B1EDD1240,
-				1055491125D9265362750727,
-				1C3E37A913F761086142B9F0,
 				7A9571EBFAAD39E47DE12A10,
 				180386FCFC4315DCB499E837,
 				9F208A66C09E80D14F087CB1,
@@ -703,11 +693,9 @@
 				938FC2F779C2CF4B8C7ECFFE,
 				55A240CCFCD604CA8DF8FC8C,
 				8025F04ED261C7F7D2DC0F06,
-				5BF39041C97178762F2A80E2,
 				49F046C8BE137BF77338DD7B,
 				566E42D2B7105CFB4DB45170,
 				0DDC562EC2B04A26AE6CBB2B,
-				604CD950A69E64B77BC42B6A,
 				39E2F4E31D24BED6E85C489D,
 				BCD7C4797178C8EF65CDC2D7,
 				9145D84C7D665BCAFE698432,

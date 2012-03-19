@@ -60,12 +60,16 @@ void ProjectionAxes::plot(){
 	//if (drawGrid)
 	//	drawProjectionGrid(s.gain[d1], s.gain[d2]);
 
-	glColor3fv(pointColor);
-	glPointSize(1);
+	glColor3f(1.0, 1.0, 1.0);
+	glPointSize(10);
 
 	glBegin(GL_POINTS);
         glVertex2f(s.data[idx1], s.data[idx2]);
 	glEnd();
+
+	// std::cout<<"ProjectionAxes Limits:"<<ylims[0]<<" "<<ylims[1]<<std::endl;
+	// std::cout<<"ProjectionAxes::plot()"<<s.data[idx1] << " " << s.data[idx2]<<std::endl;
+
 }
 
  void ProjectionAxes::calcWaveformPeakIdx(int d1, int d2, int *idx1, int *idx2){
