@@ -102,6 +102,8 @@ public:
 	bool checkDrawerButton(Button* button);
 	bool checkChannelSelectors(Button* button);
 
+	void selectChannels(Array<int>);
+
 	virtual void update();
 	virtual void updateVisualizer() {}
 

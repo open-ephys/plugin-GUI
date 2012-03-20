@@ -413,6 +413,23 @@ bool GenericEditor::checkChannelSelectors(Button* button)
 
 }
 
+void GenericEditor::selectChannels(Array<int> arr)
+{
+	for (i = 0; i < channelSelectorButtons.size(); i++)
+	{
+		channelSelectorButtons[i]->setToggleState(false, false);
+	}
+
+	for (i = 0; i < arr.size(); i++)
+	{
+		if (i > -1 && i < channelSelectorButtons.size())
+		{
+			channelSelectorButtons[i]->setToggleState(true,false);
+		}
+	}
+
+}
+
 void GenericEditor::update()
 {
 

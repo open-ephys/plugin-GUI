@@ -28,21 +28,103 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
-class FilterViewport;
 
-class SpikeDetectorEditor : public GenericEditor
+class TriangleButton : public Button
+{
+public:
+    TriangleButton(int direction_) : Button("Arrow") 
+        {direction = direction_;}
+    ~TriangleButton() {}
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    
+    int direction;
+};
+
+class PlusButton : public Button
+{
+public:
+    PlusButton() : Button("Plus") {}
+    ~PlusButton() {}
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+
+};
+
+class ElectrodeButton : public Button
+{
+public:
+    ElectrodeButton(int chan_) : Button("Electrode"), chan(chan_) 
+    {
+        setClickingTogglesState(true);
+        //setRadioGroupId(299);
+        setToggleState(true, false);
+    }
+    ~ElectrodeButton() {}
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+
+    int chan;
+};
+
+class ElectrodeEditorButton : public Button
+{
+public:
+    ElectrodeEditorButton(const String& name_, Font font_) : Button("Electrode Editor"),
+        name(name_), font(font_)
+    {
+        if (name.equalsIgnoreCase("edit") || name.equalsIgnoreCase("monitor"))
+            setClickingTogglesState(true);
+    }
+    ~ElectrodeEditorButton() {}
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+
+    const String name;
+
+    Font font;
+
+};
+
+
+class SpikeDetectorEditor : public GenericEditor,
+                            public Label::Listener,
+                            public ComboBox::Listener
 
 {
 public:
 	SpikeDetectorEditor (GenericProcessor* parentNode);
 	virtual ~SpikeDetectorEditor();
-	void sliderValueChanged (Slider* slider);
+    void buttonEvent(Button* button);
+    void labelTextChanged(Label* label);
+    void comboBoxChanged(ComboBox* comboBox);
 
 private:	
-	Slider* threshSlider;
-	DocumentWindow* docWindow;
 
-	//int tabIndex;
+    void drawElectrodeButtons(int);
+
+    void refreshElectrodeList();
+	
+    ComboBox* electrodeTypes;
+    ComboBox* electrodeList;
+    Label* numElectrodes;
+    TriangleButton* upButton;
+    TriangleButton* downButton;
+    PlusButton* plusButton;
+
+    OwnedArray<ElectrodeButton> electrodeButtons;
+    Array<ElectrodeEditorButton*> electrodeEditorButtons;
+
+    void addElectrode(int nChans);
+    void removeElectrode(int index);
+    void editElectrode(int index, int chan, int newChan);
+
+    int lastId;
+    bool isPlural;
+
+    Font font;
+
+    //ThresholdSlider* thresholdSlider;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetectorEditor);
 

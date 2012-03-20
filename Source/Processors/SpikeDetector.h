@@ -60,18 +60,59 @@ public:
 	AudioProcessorEditor* createEditor();
 
 	AudioSampleBuffer overflowBuffer;
-	
-private:
-	double threshold;
-	double prePeakMs, postPeakMs;
-	int prePeakSamples, postPeakSamples;
-	int accumulator;
+	AudioSampleBuffer& dataBuffer;
 
-	Array<float> thresh;
-	Array<int*> channels;
-	Array<int> nChans;
-	Array<bool> isActive;
-	Array<int> lastSpike;
+	bool addElectrode(int nChans);
+	bool removeElectrode(int index);
+	bool setChannel(int electrodeIndex, int channelNum);
+	bool setName(int index, String newName);
+
+	int getNumChannels(int index);
+	int getChannel(int index, int chan);
+
+	StringArray electrodeTypes;
+
+	StringArray getElectrodeNames();
+
+private:
+
+	float getDefaultThreshold();
+
+	int overflowBufferSize;
+
+	int sampleIndex;
+	//int lastBufferIndex;
+
+	Array<int> electrodeCounter;
+
+	float* getNextSample(int& chan);
+	float* getCurrentSample(int& chan);
+	bool samplesAvailable(int& nSamples);
+
+	bool useOverflowBuffer;
+
+	struct Electrode {
+
+		String name;
+
+		int numChannels;
+		int prePeakSamples, postPeakSamples;
+		int lastBufferIndex;
+
+		int* channels;
+		double* thresholds;
+		bool* isActive;
+
+	};
+
+	Array<Electrode*> electrodes;
+
+	void createSpikeEvent(int& peakIndex,
+						  int& electrodeNumber,
+						  int& currentChannel,
+						  MidiBuffer& eventBuffer);
+
+	void resetElectrode(Electrode*);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetector);
 

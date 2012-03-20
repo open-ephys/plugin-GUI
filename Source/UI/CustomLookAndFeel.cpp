@@ -539,3 +539,60 @@ void CustomLookAndFeel::drawGlassPointer (Graphics& g,
     g.setColour (Colours::black.withAlpha (0.5f * colour.getFloatAlpha()));
     g.strokePath (p, PathStrokeType (outlineThickness));
 }
+
+/// ------ combo box ---------------///
+
+
+void CustomLookAndFeel::drawComboBox (Graphics& g, int width, int height,
+                                const bool isButtonDown,
+                                int buttonX, int buttonY,
+                                int buttonW, int buttonH,
+                                ComboBox& box)
+{
+
+    g.fillAll (box.findColour (ComboBox::backgroundColourId));
+
+    if (box.isEnabled() && box.hasKeyboardFocus (false))
+    {
+        g.setColour (box.findColour (TextButton::buttonColourId));
+        g.drawRect (0, 0, width, height, 2);
+    }
+    else
+    {
+        g.setColour (box.findColour (ComboBox::outlineColourId));
+        g.drawRect (0, 0, width, height);
+    }
+
+    const float outlineThickness = box.isEnabled() ? (isButtonDown ? 1.2f : 0.5f) : 0.3f;
+
+    const Colour baseColour (Colours::orange);/*LookAndFeelHelpers::createBaseColour (box.findColour (ComboBox::buttonColourId),
+                                                                   box.hasKeyboardFocus (true),
+                                                                   false, isButtonDown)
+                                .withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.5f));*/
+
+    drawGlassLozenge (g,
+                      buttonX + outlineThickness, buttonY + outlineThickness,
+                      buttonW - outlineThickness * 2.0f, buttonH - outlineThickness * 2.0f,
+                      baseColour, outlineThickness, -1.0f,
+                      true, true, true, true);
+
+    if (box.isEnabled())
+    {
+        const float arrowX = 0.3f;
+        const float arrowH = 0.2f;
+
+        Path p;
+        p.addTriangle (buttonX + buttonW * 0.5f,            buttonY + buttonH * (0.45f - arrowH),
+                       buttonX + buttonW * (1.0f - arrowX), buttonY + buttonH * 0.45f,
+                       buttonX + buttonW * arrowX,          buttonY + buttonH * 0.45f);
+
+        p.addTriangle (buttonX + buttonW * 0.5f,            buttonY + buttonH * (0.55f + arrowH),
+                       buttonX + buttonW * (1.0f - arrowX), buttonY + buttonH * 0.55f,
+                       buttonX + buttonW * arrowX,          buttonY + buttonH * 0.55f);
+
+        g.setColour (box.findColour (ComboBox::arrowColourId));
+        g.fillPath (p);
+    }
+
+
+}
