@@ -68,19 +68,24 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 	int plotWidth =  (totalWidth  - (nPlots + 1 ) * xBuffer) / nCols + .5;
 	int plotHeight = plotWidth / 2 + .5;
 	int rowCount = 0;
+
 	for (int i=0; i<nPlots; i++)
 	{
+
+		String name = "ST";
+		name+= i;
+
 		StereotrodePlot p = StereotrodePlot( 
 									xBuffer + i%nCols * (plotWidth + xBuffer) , 
 									yBuffer + rowCount * (plotHeight + yBuffer), 
 									plotWidth, 
-									plotHeight, ""); // deprecated conversion from string constant to char
+									plotHeight, name.toUTF8()); // deprecated conversion from string constant to char
 		plots.push_back(p);
 		if (i%nCols == nCols-1)
 			rowCount++;
 
 	
-	}
+	 }
 	// Set the total height of the Canvas to the top of the top most plot
 	totalHeight = yBuffer + (rowCount + 1) * (plotHeight + yBuffer);
 
@@ -180,11 +185,11 @@ void SpikeDisplayCanvas::renderOpenGL()
 	
 	SpikeObject tmpSpike;
 
-	for (int i=0; i<plots.size(); i++){
-		generateSimulatedSpike(&tmpSpike, 0, 100);
-		plots[i].processSpikeObject(tmpSpike);
-		plots[i].redraw();
-	}
+	 for (int i=0; i<plots.size(); i++){
+	 	generateSimulatedSpike(&tmpSpike, 0, 100);
+	 	plots[i].processSpikeObject(tmpSpike);
+	 	plots[i].redraw();
+	 }
 	
 	//}
 	//std::cout << getHeight()<<" "<< getTotalHeight()<<" "<<std::endl;

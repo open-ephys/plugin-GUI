@@ -11,7 +11,7 @@ BaseUIElement(0,0,15,100,0)
 	title = (char *) "Tetrode:00 abcdefghijkl";
 }
 
-TitleBox::TitleBox(int x, int y,int w,int h, char *n):
+TitleBox::TitleBox(int x, int y,int w,int h, const char *n):
 BaseUIElement(x,y,w,h,0)
 {
 	setColor(.15, .15, .50);

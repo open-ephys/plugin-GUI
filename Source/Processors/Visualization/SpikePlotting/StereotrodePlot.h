@@ -20,7 +20,7 @@
 
 class StereotrodePlot : public BaseUIElement{
 	
-	char *plotTitle;
+	const char *plotTitle;
 	
 	TitleBox titleBox;
 
@@ -50,7 +50,7 @@ class StereotrodePlot : public BaseUIElement{
 	
 public:
 	StereotrodePlot();
-	StereotrodePlot(int x, int y,int w,int h, char *n);
+	StereotrodePlot(int x, int y,int w,int h, const char *n);
 	~StereotrodePlot();
 
 	void initAxes();

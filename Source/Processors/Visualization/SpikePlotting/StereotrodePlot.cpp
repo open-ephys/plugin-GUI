@@ -9,7 +9,7 @@ StereotrodePlot::StereotrodePlot():
 
 }
 
-StereotrodePlot::StereotrodePlot(int x, int y, int w, int h, char *n):
+StereotrodePlot::StereotrodePlot(int x, int y, int w, int h, const char *n):
 	BaseUIElement(x,y,w,h,1), titleHeight(0), enableTitle(true), limitsChanged(true)
 {
 	plotTitle = n;

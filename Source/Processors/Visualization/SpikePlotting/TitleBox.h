@@ -12,7 +12,7 @@
 
 class TitleBox : public BaseUIElement{
 	
-	char *title;
+	const char *title;
 	bool selected;
 	void drawTitle();
 	
@@ -21,7 +21,7 @@ class TitleBox : public BaseUIElement{
 	
 public:
 	TitleBox();
-	TitleBox(int x, int y,int w,int h, char *n);
+	TitleBox(int x, int y,int w,int h, const char *n);
 
 	void redraw();
 	void setTitle(char *n);

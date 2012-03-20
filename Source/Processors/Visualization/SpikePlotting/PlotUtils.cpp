@@ -12,7 +12,7 @@ void checkGlError(){
 	else
 		std::cout<<"OpenGL Okay!"<<std::endl;
 }
-void drawString(float x, float y, void *f, char *string){
+void drawString(float x, float y, void *f, const char *string){
 	// glRasterPos2f(x, y);
 	// int len = strlen(string);
 	// // glColor3f(1.0, 1.0, 1.0);

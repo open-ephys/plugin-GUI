@@ -29,7 +29,7 @@
 
 void checkGlError();
 void setViewportRange(int xMin,int xMax,int yMin,int yMax);
-void drawString(float x, float y, void *f, char *string);
+void drawString(float x, float y, void *f, const char *string);
 void strokeString(void*f, char *string);
 void drawViewportEdge();
 
