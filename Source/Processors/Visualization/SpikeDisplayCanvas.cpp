@@ -74,7 +74,7 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 									xBuffer + i%nCols * (plotWidth + xBuffer) , 
 									yBuffer + rowCount * (plotHeight + yBuffer), 
 									plotWidth, 
-									plotHeight, "");
+									plotHeight, ""); // deprecated conversion from string constant to char
 		plots.push_back(p);
 		if (i%nCols == nCols-1)
 			rowCount++;
