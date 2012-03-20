@@ -10,15 +10,16 @@
               pluginRTASCategory="" bundleIdentifier="" jucerVersion="3.0.0">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
-               juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi -lftgl"/>
+               juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi -lftgl"
+               objCExtraSuffix="fea2mT"/>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
                 extraLinkerFlags="-lftdi -lftgl" extraCompilerFlags="-export-dynamic"/>
   </EXPORTFORMATS>
   <CONFIGURATIONS>
     <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="open-ephys"
-                   osxSDK="default" osxCompatibility="default"/>
+                   osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
     <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
-                   osxSDK="default" osxCompatibility="default"/>
+                   osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
   </CONFIGURATIONS>
   <MAINGROUP id="h3HbSTV" name="open-ephys">
     <GROUP id="0wpTCpt" name="Resources">
@@ -137,6 +138,10 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <FILE id="arRy5R" name="SpikeDisplayNode.cpp" compile="1" resource="0"
+              file="Source/Processors/SpikeDisplayNode.cpp"/>
+        <FILE id="VwDxj" name="SpikeDisplayNode.h" compile="0" resource="0"
+              file="Source/Processors/SpikeDisplayNode.h"/>
         <FILE id="Poqus0b" name="WiFiOutput.cpp" compile="1" resource="0" file="Source/Processors/WiFiOutput.cpp"/>
         <FILE id="IklsJpw" name="WiFiOutput.h" compile="0" resource="0" file="Source/Processors/WiFiOutput.h"/>
         <FILE id="ZuMpSio" name="LfpDisplayNode.cpp" compile="1" resource="0"
@@ -150,6 +155,40 @@
           <FILE id="DXYynnz" name="Splitter.h" compile="0" resource="0" file="Source/Processors/Utilities/Splitter.h"/>
         </GROUP>
         <GROUP id="W4eqkOy" name="Visualization">
+          <GROUP id="g8GOfh" name="SpikePlotting">
+            <FILE id="PzmX0I" name="StereotrodePlot.cpp" compile="1" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/StereotrodePlot.cpp"/>
+            <FILE id="LPK6G1" name="StereotrodePlot.h" compile="0" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/StereotrodePlot.h"/>
+            <FILE id="EgoljI" name="ElectrodePlot.cpp" compile="1" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/ElectrodePlot.cpp"/>
+            <FILE id="oFUMq0" name="ElectrodePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/ElectrodePlot.h"/>
+            <FILE id="Qq75l" name="BaseUIElement.cpp" compile="1" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp"/>
+            <FILE id="PZdkKU" name="BaseUIElement.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.h"/>
+            <FILE id="lFRVqc" name="GenericAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/GenericAxes.cpp"/>
+            <FILE id="BP8BOa" name="GenericAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/GenericAxes.h"/>
+            <FILE id="f7vOFh" name="PlotUtils.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/PlotUtils.cpp"/>
+            <FILE id="TQfHuh" name="PlotUtils.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/PlotUtils.h"/>
+            <FILE id="d3ducO" name="ProjectionAxes.cpp" compile="1" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.cpp"/>
+            <FILE id="BdHvyv" name="ProjectionAxes.h" compile="0" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.h"/>
+            <FILE id="RnnkTt" name="SimpleKeyEvent.h" compile="0" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/SimpleKeyEvent.h"/>
+            <FILE id="dP2Ikw" name="TetrodePlot.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/TetrodePlot.cpp"/>
+            <FILE id="SH9Un2" name="TetrodePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/TetrodePlot.h"/>
+            <FILE id="g5OQRR" name="TitleBox.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/TitleBox.cpp"/>
+            <FILE id="UTihqz" name="TitleBox.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/TitleBox.h"/>
+            <FILE id="yg1Xuq" name="WaveAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp"/>
+            <FILE id="cZX4SM" name="WaveAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.h"/>
+          </GROUP>
+          <FILE id="ajAJi" name="SpikeObject.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikeObject.cpp"/>
+          <FILE id="xqF5zL" name="SpikeObject.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikeObject.h"/>
+          <FILE id="jGEqDp" name="SpikeDisplayCanvas.cpp" compile="1" resource="0"
+                file="Source/Processors/Visualization/SpikeDisplayCanvas.cpp"/>
+          <FILE id="LVHMu2" name="SpikeDisplayCanvas.h" compile="0" resource="0"
+                file="Source/Processors/Visualization/SpikeDisplayCanvas.h"/>
           <FILE id="yDPZGpt" name="Visualizer.h" compile="0" resource="0" file="Source/Processors/Visualization/Visualizer.h"/>
           <FILE id="BX1Vj3V" name="DataWindow.cpp" compile="1" resource="0" file="Source/Processors/Visualization/DataWindow.cpp"/>
           <FILE id="l2VKLuP" name="DataWindow.h" compile="0" resource="0" file="Source/Processors/Visualization/DataWindow.h"/>
@@ -170,6 +209,10 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="s5YUmi" name="SpikeDisplayEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/SpikeDisplayEditor.cpp"/>
+          <FILE id="EE43GV" name="SpikeDisplayEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/SpikeDisplayEditor.h"/>
           <FILE id="2XqqPOS" name="VisualizerEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/VisualizerEditor.cpp"/>
           <FILE id="CUHGPJF" name="VisualizerEditor.h" compile="0" resource="0"

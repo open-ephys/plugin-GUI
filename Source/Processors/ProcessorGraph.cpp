@@ -27,6 +27,7 @@
 
 #include "AudioNode.h"
 #include "LfpDisplayNode.h"
+#include "SpikeDisplayNode.h"
 #include "EventNode.h"
 #include "FilterNode.h"
 #include "GenericProcessor.h"
@@ -382,7 +383,12 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		   // std::cout << "Graph data viewport: " << UI->getDataViewport() << std::endl;
 			// processor->setDataViewport(getDataViewport());
 			//processor->setUIComponent(UI);
-		} else if (subProcessorType.equalsIgnoreCase("WiFi Output")) {
+		} 
+		else if (subProcessorType.equalsIgnoreCase("Spike Viewer")) {
+			std::cout << "Creating an SpikeDisplayNode." << std::endl;
+			processor = new SpikeDisplayNode();	 
+		}
+		else if (subProcessorType.equalsIgnoreCase("WiFi Output")) {
 			std::cout << "Creating a WiFi node." << std::endl;
 			processor = new WiFiOutput();
 		}
@@ -408,6 +414,7 @@ bool ProcessorGraph::processorWithSameNameExists(const String& name)
 	 return false;
 
 }
+
 
 void ProcessorGraph::removeProcessor(GenericProcessor* processor) {
 	

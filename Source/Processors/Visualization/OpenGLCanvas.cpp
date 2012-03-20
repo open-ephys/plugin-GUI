@@ -210,6 +210,7 @@ void OpenGLCanvas::stopCallbacks()
 
 void OpenGLCanvas::drawScrollBars()
 {
+	
 	float scrollBarY = float(getHeight())/float(getTotalHeight());
 	float timeSinceScroll = timer->getMillisecondCounter()-scrollTime;
 	
@@ -238,6 +239,7 @@ void OpenGLCanvas::drawScrollBars()
 		}
 		showScrollTrack = false;
 	}
+
 }
 
 void OpenGLCanvas::drawScrollBar(float y1, float y2, float alpha)

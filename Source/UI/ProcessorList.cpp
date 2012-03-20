@@ -50,7 +50,7 @@ ProcessorList::ProcessorList() : isDragging(false),
 
 	ProcessorListItem* sinks = new ProcessorListItem("Sinks");
 	sinks->addSubItem(new ProcessorListItem("LFP Viewer"));
-	//sinks->addSubItem(new ProcessorListItem("Spike Display"));
+	sinks->addSubItem(new ProcessorListItem("Spike Viewer"));
 	sinks->addSubItem(new ProcessorListItem("WiFi Output"));
 
 	ProcessorListItem* utilities = new ProcessorListItem("Utilities");
