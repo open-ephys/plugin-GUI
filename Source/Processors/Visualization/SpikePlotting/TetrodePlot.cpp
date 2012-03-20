@@ -127,6 +127,14 @@ void TetrodePlot::setPosition(int x, int y, double w, double h){
     //titleBox.setPosition(x, y+h-titleHeight-3, w, titleHeight+3);
 }
 
+void TetrodePlot::setPosition(int x, int y){
+    setPosition(x,y, BaseUIElement::width, BaseUIElement::height );
+}
+
+void TetrodePlot::setDimensions(double w, double h){
+    setPosition(BaseUIElement::xpos, BaseUIElement::yPixels, w, h);
+}
+
 int TetrodePlot::getNumberOfAxes(){
     return 1;;
 }

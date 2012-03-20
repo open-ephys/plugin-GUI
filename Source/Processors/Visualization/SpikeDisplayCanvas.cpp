@@ -24,7 +24,7 @@
 #include "SpikeDisplayCanvas.h"
 
 SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
-	 	xBuffer(0), yBuffer(0),  newSpike(false)
+	 	xBuffer(25), yBuffer(25),  newSpike(false)
 {
 
 	
@@ -59,20 +59,31 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 
 void SpikeDisplayCanvas::initializeSpikePlots(){
 	std::cout<<"Initializing Plots"<<std::endl;
-	int xPadding = 10;
-	int yPadding = 10;
 
-	int nPlots = 2;
+	int nPlots = 6;
+	int nCols = 2;
 
-	int totalWidth = 900; // This is a hack the width as the width isn't known before its drawn
+	int totalWidth = 1000; // This is a hack the width as the width isn't known before its drawn
 	
-	int plotWidth =  (totalWidth  - (nPlots + 1 ) * xPadding) / nPlots;
-	int plotHeight = plotWidth / 2;
+	int plotWidth =  (totalWidth  - (nPlots + 1 ) * xBuffer) / nCols + .5;
+	int plotHeight = plotWidth / 2 + .5;
+	int rowCount = 0;
 	for (int i=0; i<nPlots; i++)
 	{
-		TetrodePlot p = TetrodePlot( xPadding + i * (plotWidth + xPadding) , yPadding, plotWidth, plotHeight, "");
+		TetrodePlot p = TetrodePlot( 
+									xBuffer + i%nCols * (plotWidth + xBuffer) , 
+									yBuffer + rowCount * (plotHeight + yBuffer), 
+									plotWidth, 
+									plotHeight, "");
 		plots.push_back(p);
+		if (i%nCols == nCols-1)
+			rowCount++;
+
+	
 	}
+	// Set the total height of the Canvas to the top of the top most plot
+	totalHeight = yBuffer + (rowCount + 1) * (plotHeight + yBuffer);
+
 }
 
 
@@ -194,17 +205,18 @@ int SpikeDisplayCanvas::getTotalHeight()
 void SpikeDisplayCanvas::mouseDownInCanvas(const MouseEvent& e) 
 {
 
-	// Point<int> pos = e.getPosition();
-	// int xcoord = pos.getX();
+	/*
+	Point<int> pos = e.getPosition();
+	int xcoord = pos.getX();
 
-	// if (xcoord < getWidth()-getScrollBarWidth())
-	// {
-	// 	int chan = (e.getMouseDownY() + getScrollAmount())/(yBuffer+plotHeight);
+	if (xcoord < getWidth()-getScrollBarWidth())
+	{
+		int chan = (e.getMouseDownY() + getScrollAmount())/(yBuffer+plotHeight);
 
-	// 		selectedChan = chan;
+			selectedChan = chan;
 
-	// 	repaint();
-	// }
+		repaint();
+	}*/
 
 }
 

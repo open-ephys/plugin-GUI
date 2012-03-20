@@ -58,7 +58,10 @@ public:
 	void setTitle(char *n);
 	void setEnabled(bool enabled);
 	bool getEnabled();
+	
 	void setPosition(int,int,double,double);
+	void setPosition(int, int);
+	void setDimensions(double,double);
 
 	void getPreferredDimensions(double*, double*);
 
