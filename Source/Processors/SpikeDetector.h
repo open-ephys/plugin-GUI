@@ -85,8 +85,8 @@ private:
 
 	Array<int> electrodeCounter;
 
-	float* getNextSample(int& chan);
-	float* getCurrentSample(int& chan);
+	float getNextSample(int& chan);
+	float getCurrentSample(int& chan);
 	bool samplesAvailable(int& nSamples);
 
 	bool useOverflowBuffer;

@@ -336,7 +336,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		}
 
 		
-		sendActionMessage("New source node created.");
+		//sendActionMessage("New source node created.");
 		
 
 	} else if (processorType.equalsIgnoreCase("Filters")) {
@@ -354,7 +354,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			processor = new SpikeDetector();
 		}
 
-		sendActionMessage("New filter node created.");
+		//sendActionMessage("New filter node created.");
 
 	} else if (processorType.equalsIgnoreCase("Utilities")) {
 
@@ -363,14 +363,14 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			std::cout << "Creating a new splitter." << std::endl;
 			processor = new Splitter();
 
-			sendActionMessage("New splitter created.");
+		//	sendActionMessage("New splitter created.");
 
 	 	} else if (subProcessorType.equalsIgnoreCase("Merger")) {
 	 		
 	 		std::cout << "Creating a new merger." << std::endl;
 			processor = new Merger();
 
-			sendActionMessage("New merger created.");
+		//	sendActionMessage("New merger created.");
 
 	 	}
 
@@ -393,7 +393,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			processor = new WiFiOutput();
 		}
 	
-		sendActionMessage("New sink created.");
+		//sendActionMessage("New sink created.");
 	}
 
 	return processor;
@@ -471,7 +471,7 @@ bool ProcessorGraph::enableProcessors() {
 
 			if (!allClear) {
 				std::cout << p->getName() << " said it's not OK." << std::endl;
-				sendActionMessage("Could not initialize acquisition.");
+			//	sendActionMessage("Could not initialize acquisition.");
 				getUIComponent()->disableCallbacks();
 				return false;
 
@@ -493,7 +493,7 @@ bool ProcessorGraph::enableProcessors() {
 	
 	getEditorViewport()->signalChainCanBeEdited(false);
 
-	sendActionMessage("Acquisition started.");
+//	sendActionMessage("Acquisition started.");
 
 	return true;
 }
@@ -514,7 +514,7 @@ bool ProcessorGraph::disableProcessors() {
 			allClear = p->disable();
 
 			if (!allClear) {
-				sendActionMessage("Could not stop acquisition.");
+			//	sendActionMessage("Could not stop acquisition.");
 				return false;
 			}
 		}
@@ -522,7 +522,7 @@ bool ProcessorGraph::disableProcessors() {
 
 	getEditorViewport()->signalChainCanBeEdited(true);
 
-	sendActionMessage("Acquisition ended.");
+//	sendActionMessage("Acquisition ended.");
 
 	return true;
 }

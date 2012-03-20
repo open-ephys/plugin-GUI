@@ -25,7 +25,7 @@
 #include <stdio.h>
 
 SpikeDisplayNode::SpikeDisplayNode()
-	: GenericProcessor("SpikeDisplay Viewer"),
+	: GenericProcessor("Spike Viewer"),
 	  bufferSize(0), abstractFifo(100)
 
 {

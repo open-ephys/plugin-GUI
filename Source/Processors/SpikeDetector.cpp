@@ -26,7 +26,7 @@
 
 SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"), overflowBufferSize(100),
-      overflowBuffer(2,100)
+      overflowBuffer(2,100), dataBuffer(overflowBuffer)
 	
 {
 
@@ -203,7 +203,7 @@ bool SpikeDetector::disable()
     return true;
 }
 
-void SpikeDetector::createSpikeEvent(int peakIndex,
+void SpikeDetector::createSpikeEvent(int& peakIndex,
                                      int& electrodeNumber, int& currentChannel,
                                      MidiBuffer& eventBuffer)
 {
@@ -214,22 +214,12 @@ void SpikeDetector::createSpikeEvent(int peakIndex,
     uint8 dataSize = spikeLength*2;
 
     uint8 data[dataSize];
-    uint8* dataptr = &data;
+    uint8* dataptr = data;
 
-    // cycle through first buffer, if necessary
+    // cycle through buffer
     for (int sample = 0; sample < spikeLength; sample++)
     {
          uint16 sampleValue = uint16(getNextSample(currentChannel) + 32768);
-
-         *dataptr++ = uint8(sampleValue >> 8);
-         *dataptr++ = uint8(sampleValue & 255);
-
-    }
-
-    // cycle through second buffer, if necessary
-    for (int sample = 0; sample < nSamples2; sample++)
-    {
-         uint16 sampleValue = uint16(*(data2 + sample) + 32768);
 
          *dataptr++ = uint8(sampleValue >> 8);
          *dataptr++ = uint8(sampleValue & 255);
@@ -242,7 +232,7 @@ void SpikeDetector::createSpikeEvent(int peakIndex,
              uint8(electrodeNumber),
              uint8(currentChannel),
              dataSize,
-             &data);
+             data);
 
 }
 
@@ -267,7 +257,7 @@ void SpikeDetector::process(AudioSampleBuffer &buffer,
         while (samplesAvailable(nSamples))
         {
             // cycle through channels
-            for (int chan = 0; chan < electrode->numChannels)
+            for (int chan = 0; chan < electrode->numChannels; chan++)
             {
 
                 if (*(electrode->isActive+chan))
@@ -293,7 +283,7 @@ void SpikeDetector::process(AudioSampleBuffer &buffer,
                             if (*(electrode->isActive+currentChannel))
                             {
 
-                                sampleIndex -= (prePeakSamples+1);
+                                sampleIndex -= (electrode->prePeakSamples+1);
 
                                 createSpikeEvent(peakIndex,       // peak index
                                                  i,               // electrodeNumber
@@ -305,7 +295,7 @@ void SpikeDetector::process(AudioSampleBuffer &buffer,
                         }
 
                         // advance the sample index
-                        sampleIndex = peakIndex + postPeakSamples;
+                        sampleIndex = peakIndex + electrode->postPeakSamples;
 
                         break; // quit "for" loop
                    } // end spike trigger
@@ -334,7 +324,7 @@ void SpikeDetector::process(AudioSampleBuffer &buffer,
 
 }
 
-float* getNextSample(int& chan)
+float SpikeDetector::getNextSample(int& chan)
 {
 
     sampleIndex++;
@@ -343,31 +333,31 @@ float* getNextSample(int& chan)
     {
         if (sampleIndex < 0)
         {
-            return overflowBuffer.getSampleData(chan, overflowBufferSize + sampleIndex);
+            return *overflowBuffer.getSampleData(chan, overflowBufferSize + sampleIndex);
         } else {
             useOverflowBuffer = false;
-            return dataBuffer.getSampleData(chan, sampleIndex);
+            return *dataBuffer.getSampleData(chan, sampleIndex);
         }   
     } else {
-        return dataBuffer.getSampleData(chan, sampleIndex);
+        return *dataBuffer.getSampleData(chan, sampleIndex);
     }
 
 }
 
-float* getCurrentSample(int& chan)
+float SpikeDetector::getCurrentSample(int& chan)
 {
 
     if (useOverflowBuffer)
     {
-        return overflowBuffer.getSampleData(chan, overflowBufferSize + sampleIndex);
+        return *overflowBuffer.getSampleData(chan, overflowBufferSize + sampleIndex);
     } else {
-        return dataBuffer.getSampleData(chan, sampleIndex);
+        return *dataBuffer.getSampleData(chan, sampleIndex);
     }
 
 }
 
 
-bool samplesAvailable(int nSamples)
+bool SpikeDetector::samplesAvailable(int& nSamples)
 {
 
     if (!useOverflowBuffer && 
