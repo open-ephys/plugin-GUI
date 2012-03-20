@@ -61,7 +61,7 @@ void ProjectionAxes::plot(){
 	//	drawProjectionGrid(s.gain[d1], s.gain[d2]);
 
 	glColor3f(1.0, 1.0, 1.0);
-	glPointSize(10);
+	glPointSize(1);
 
 	glBegin(GL_POINTS);
         glVertex2f(s.data[idx1], s.data[idx2]);

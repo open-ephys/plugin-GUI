@@ -60,8 +60,8 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 void SpikeDisplayCanvas::initializeSpikePlots(){
 	std::cout<<"Initializing Plots"<<std::endl;
 
-	int nPlots = 6;
-	int nCols = 2;
+	int nPlots = 8;
+	int nCols = 4;
 
 	int totalWidth = 1000; // This is a hack the width as the width isn't known before its drawn
 	
@@ -70,7 +70,7 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 	int rowCount = 0;
 	for (int i=0; i<nPlots; i++)
 	{
-		TetrodePlot p = TetrodePlot( 
+		StereotrodePlot p = StereotrodePlot( 
 									xBuffer + i%nCols * (plotWidth + xBuffer) , 
 									yBuffer + rowCount * (plotHeight + yBuffer), 
 									plotWidth, 

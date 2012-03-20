@@ -132,7 +132,7 @@ void TetrodePlot::setPosition(int x, int y){
 }
 
 void TetrodePlot::setDimensions(double w, double h){
-    setPosition(BaseUIElement::xpos, BaseUIElement::yPixels, w, h);
+    setPosition(BaseUIElement::xpos, BaseUIElement::ypos, w, h);
 }
 
 int TetrodePlot::getNumberOfAxes(){
