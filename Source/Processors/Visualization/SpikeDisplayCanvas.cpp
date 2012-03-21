@@ -60,8 +60,8 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 void SpikeDisplayCanvas::initializeSpikePlots(){
 	std::cout<<"Initializing Plots"<<std::endl;
 
-	int nPlots = 8;
-	int nCols = 4;
+	int nPlots = 1;
+	int nCols = 2;
 
 	int totalWidth = 1000; // This is a hack the width as the width isn't known before its drawn
 	
@@ -72,14 +72,19 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 	for (int i=0; i<nPlots; i++)
 	{
 
-		TetrodePlot p = TetrodePlot( 
+		StereotrodePlot p = StereotrodePlot( 
 									xBuffer + i%nCols * (plotWidth + xBuffer) , 
 									yBuffer + rowCount * (plotHeight + yBuffer), 
 									plotWidth, 
 									plotHeight); // deprecated conversion from string constant to char
+		SpikeObject tmpSpike;
+		generateEmptySpike(&tmpSpike, 4);
+		p.processSpikeObject(tmpSpike);
+		
 		plots.push_back(p);
 		if (i%nCols == nCols-1)
 			rowCount++;
+
 
 	
 	 }
@@ -168,6 +173,7 @@ void SpikeDisplayCanvas::canvasWasResized()
 
 void SpikeDisplayCanvas::renderOpenGL()
 {
+	glClearColor (0.667, 0.698, 0.718, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
 //	std::cout<<"SpikeDisplayCanvas::renderOpenGL"<<std::endl;
 	// Get Spikes from the processor
@@ -183,9 +189,11 @@ void SpikeDisplayCanvas::renderOpenGL()
 	SpikeObject tmpSpike;
 
 	 for (int i=0; i<plots.size(); i++){
-	 	generateSimulatedSpike(&tmpSpike, 0, 100);
-	 	plots[i].processSpikeObject(tmpSpike);
-	 	plots[i].redraw();
+	 	if (rand()%4 > 2){
+	 		generateSimulatedSpike(&tmpSpike, 0, 100);
+	 		plots[i].processSpikeObject(tmpSpike);
+	 	}
+ 		plots[i].redraw();
 	 }
 	
 	//}

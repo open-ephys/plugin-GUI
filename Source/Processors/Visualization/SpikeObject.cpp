@@ -173,7 +173,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     {
         s->gain[i] = gain;
         s->threshold[i] = 8000;
-        double waveScaling = (double)(rand()%5 + 5) / 10.00; // Scale the wave between 50% and 150%
+        double waveScaling = (double)(rand()%14 + 1) / 10.00 ; // Scale the wave between 50% and 150%
 
 		for (int j=0; j<32; j++){
 			
@@ -189,17 +189,22 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     
 }
 void generateEmptySpike(SpikeObject *s, int nChannels){
-/*
-	std::cout<<"generateEmptySpike()"<<std::endl;
-	s->timestamp = 0;
-	s->source = 0;
-	s->nChannels = nChannels;
-	s->nSamples = 32;
 
-	memset(&(s->gain), 0, 2*nChannels);
-	memset(&(s->threshold), 0, 2*nChannels);
-	memset(&(s->data), 0, 2*nChannels*32);
-*/
+	s->timestamp = 0;
+    s->source = 0;
+    s->nChannels = 4;
+    s->nSamples = 32;
+    
+    int idx = 0;
+    for (int i=0; i<4; i++)
+    {
+        s->gain[i] = 0;
+        s->threshold[i] = 0;
+        for (int j=0; j<32; j++){
+            s->data[idx] = 0;
+            idx = idx+1;
+        }
+    }
 }
 
 

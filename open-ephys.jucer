@@ -178,8 +178,6 @@
                   file="Source/Processors/Visualization/SpikePlotting/SimpleKeyEvent.h"/>
             <FILE id="dP2Ikw" name="TetrodePlot.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/TetrodePlot.cpp"/>
             <FILE id="SH9Un2" name="TetrodePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/TetrodePlot.h"/>
-            <FILE id="g5OQRR" name="TitleBox.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/TitleBox.cpp"/>
-            <FILE id="UTihqz" name="TitleBox.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/TitleBox.h"/>
             <FILE id="yg1Xuq" name="WaveAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp"/>
             <FILE id="cZX4SM" name="WaveAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.h"/>
           </GROUP>

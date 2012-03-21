@@ -51,8 +51,10 @@ bool BaseUIElement::getEnabled(){
 	return enabled;
 }
 void BaseUIElement::setGlViewport(){
-	glViewport(xpos, ypos, width, height);
+	
 	glLoadIdentity();
+	glViewport(xpos, ypos, width, height);
+	
 	// std::cout<<xpos<<"x"<<ypos<<"-"<<width<<"x"<<height<<"\t"<<BaseUIElementName<<std::endl;
 }
 void BaseUIElement::setPosition(int x, int y, double w, double h){

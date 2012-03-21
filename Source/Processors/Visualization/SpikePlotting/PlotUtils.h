@@ -1,6 +1,7 @@
 #ifndef PLOT_UTILS_H_
 #define PLOT_UTILS_H_
 
+#define GL_GLEXT_PROTOTYPES
 
 #if defined(__linux__)
 	#include <GL/glut.h>
@@ -14,6 +15,7 @@
 #include <math.h>
 #include <cstring>
 #include <iostream>
+#include <vector>
 
 
 #define WAVE1 0
@@ -48,4 +50,6 @@ T* addressof(T& arg) {
     return (T*)&(char&)arg;
 }
 
+bool isFrameBufferExtensionSupported();
+bool checkFramebufferStatus();
 #endif

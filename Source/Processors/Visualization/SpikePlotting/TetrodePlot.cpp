@@ -71,7 +71,7 @@ void TetrodePlot::initAxes(){
     wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
     wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);
     wAxes[2] = WaveAxes(minX, minY + axesHeight, axesWidth/2, axesHeight, WAVE3);
-    wAxes[3] = WaveAxes(minX + axesWidth/2, minY + axesHeight, axesWidth/2, axesHeight, WAVE3);
+    wAxes[3] = WaveAxes(minX + axesWidth/2, minY + axesHeight, axesWidth/2, axesHeight, WAVE4);
 
     // for (int i=0; i<6; i++)
     // {
