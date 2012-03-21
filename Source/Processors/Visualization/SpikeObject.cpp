@@ -167,13 +167,13 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     int idx=0;
     
     int waveType = rand()%3; // Pick one of the three predefined waveshapes to generate
-    double waveScaling = (double)(rand()%5 + 5) / 10.00; // Scale the wave between 50% and 150%
     int shift = 1000;
 
     for (int i=0; i<4; i++)
     {
         s->gain[i] = gain;
         s->threshold[i] = 8000;
+        double waveScaling = (double)(rand()%5 + 5) / 10.00; // Scale the wave between 50% and 150%
 
 		for (int j=0; j<32; j++){
 			
