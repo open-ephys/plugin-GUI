@@ -72,14 +72,11 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 	for (int i=0; i<nPlots; i++)
 	{
 
-		String name = "ST";
-		name+= i;
-
-		StereotrodePlot p = StereotrodePlot( 
+		TetrodePlot p = TetrodePlot( 
 									xBuffer + i%nCols * (plotWidth + xBuffer) , 
 									yBuffer + rowCount * (plotHeight + yBuffer), 
 									plotWidth, 
-									plotHeight, name.toUTF8()); // deprecated conversion from string constant to char
+									plotHeight); // deprecated conversion from string constant to char
 		plots.push_back(p);
 		if (i%nCols == nCols-1)
 			rowCount++;

@@ -65,7 +65,7 @@ private:
 	bool newSpike;
 	SpikeObject spike;
 	SpikeDisplayNode* processor;
-	std::vector<StereotrodePlot> plots;
+	std::vector<TetrodePlot> plots;
 	// AudioSampleBuffer* displayBuffer;
 	// ScopedPointer<AudioSampleBuffer> screenBuffer;
 	// MidiBuffer* eventBuffer;

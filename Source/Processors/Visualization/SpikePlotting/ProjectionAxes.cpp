@@ -13,7 +13,6 @@ ProjectionAxes::ProjectionAxes():
 	ylims[1] = 1;
 	setPointColor(1.0,1.0,1.0);
 
-	BaseUIElement::elementName = (char*) "ProjectionAxes";
 }
 
 ProjectionAxes::ProjectionAxes(int x, int y, double w, double h, int t):
@@ -27,7 +26,6 @@ ProjectionAxes::ProjectionAxes(int x, int y, double w, double h, int t):
 
 	setPointColor(1.0,1.0,1.0);
 	
-	BaseUIElement::elementName = (char*) "ProjectionAxes";
 
 }
 

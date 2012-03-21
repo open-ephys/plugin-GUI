@@ -28,7 +28,6 @@ public:
     int getX();
     int getY();
 	
-	char *elementName;
 	void clearOnNextDraw(bool);
 	bool clearNextDraw;
     bool hitTest(int x, int y);

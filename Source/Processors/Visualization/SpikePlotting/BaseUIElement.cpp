@@ -3,7 +3,6 @@
 BaseUIElement::BaseUIElement():
 	xpos(0),  ypos(0), width(100), height(100), enabled(true), padding(0)
 {	
-	elementName = (char*) "BaseUIElement";
 	clearNextDraw = false;
 }
 
@@ -14,7 +13,6 @@ BaseUIElement::BaseUIElement(int x, int y, double w, double h):
 	ypos = y+padding;
 	width = w-padding*2;
 	height = h-padding*2;
-	elementName = (char*) "BaseUIElement";	
 	clearNextDraw = false;
 }
 BaseUIElement::BaseUIElement(int x, int y, double w, double h, int p):
@@ -24,7 +22,6 @@ BaseUIElement::BaseUIElement(int x, int y, double w, double h, int p):
 	ypos = y+padding;	
 	width = w-padding*2;
 	height = h-padding*2;
-	elementName = (char*) "BaseUIElement";	
 	clearNextDraw = false;
 }
 
