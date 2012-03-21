@@ -76,9 +76,8 @@ void ProjectionAxes::plot(){
 
 	drawSpikesToTexture(false);
 	
-	//updateTexture();
 	drawTexturedQuad();
-	//plotOldSpikes(true);
+
 	plotNewestSpike();
 
 }
@@ -187,13 +186,15 @@ void ProjectionAxes::createFBO(){
 
 void ProjectionAxes::drawSpikesToTexture(bool allSpikes){
 
-	std::cout<<"Populating the new texture()"<<std::endl;
+	std::cout<<"Populating the texture()"<<std::endl;
 	if (!isTextureValid){
         createTexture();
         allSpikes = true;
     }
 
 	glViewport(0,0,texWidth, texHeight);
+	glLoadIdentity();
+	setViewportRange(xlims[0], ylims[0], xlims[1], ylims[1]);
 	// set the rendering destination to FBO
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboId);    
     // plot to the texture
@@ -210,9 +211,6 @@ void ProjectionAxes::drawTexturedQuad(){
     glLoadIdentity();
    
     glBindTexture(GL_TEXTURE_2D, textureId);
-
-
-    
 
     int size = 1;
     int texS = 1;

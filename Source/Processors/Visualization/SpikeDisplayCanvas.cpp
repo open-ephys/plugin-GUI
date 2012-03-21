@@ -189,7 +189,7 @@ void SpikeDisplayCanvas::renderOpenGL()
 	SpikeObject tmpSpike;
 
 	 for (int i=0; i<plots.size(); i++){
-	 	if (rand()%4 > 2){
+	 	if (rand()%6 > 2){
 	 		generateSimulatedSpike(&tmpSpike, 0, 100);
 	 		plots[i].processSpikeObject(tmpSpike);
 	 	}
