@@ -150,15 +150,13 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     };
 
 
-  //   uint16_t sineSpikeWave[32] = 
-  //   {	78, 	90, 	101, 	111,	120,	126,	129,	130,
-		// 129,	126,	120,	111,	101,	90,		78,		65,
-		// 52,		40,		29,		19,		11,		5,		2,		1,
-		// 2,		5,		11,		19,		29,		40,		52,		65};
+    // We don't want to shift the waveform but scale it, and we don't want to scale
+    // the baseline, just the peak of the waveform
+    float scale[32] = 
+    {	1.0, 1.0, 1.0, 1.0, 1.1, 1.2, 1.3, 1.5, 1.7, 2.0, 2.1, 2.2, 2.1, 2.0, 1.7, 1.5,
+    	1.3, 1.2, 1.1, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
-    // uint16_t trace[32] = {0};
-
-    uint16_t gain = 5;
+    uint16_t gain = 1;
 
     s->timestamp = timestamp;
     s->source = 0;
@@ -172,9 +170,9 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     for (int i=0; i<4; i++)
     {
         s->gain[i] = gain;
-        s->threshold[i] = 8000;
-        double waveScaling = (double)(rand()%14 + 1) / 10.00 ; // Scale the wave between 50% and 150%
-
+        s->threshold[i] = 4000;
+        double scaleExponent =  (double)(rand()%18 + 2) / 10.0f; // Scale the wave between 50% and 150%
+        
 		for (int j=0; j<32; j++){
 			
 			int n = 0;
@@ -182,7 +180,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 				n = rand() % noise - noise/2;
 			}
 
-            s->data[idx] = (trace[waveType][j] + n) * gain * waveScaling + shift;
+            s->data[idx] = (trace[waveType][j] + n) * gain * pow(scale[j],scaleExponent) + shift;
             idx = idx+1;
         }
     }
