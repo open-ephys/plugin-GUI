@@ -75,7 +75,6 @@ OBJECTS := \
   $(OBJDIR)/PlotUtils_9ef52686.o \
   $(OBJDIR)/ProjectionAxes_7c67c3e8.o \
   $(OBJDIR)/TetrodePlot_b42fd798.o \
-  $(OBJDIR)/TitleBox_c4a9cde7.o \
   $(OBJDIR)/WaveAxes_8adc45d2.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/SpikeDisplayCanvas_b208ff6e.o \
@@ -305,11 +304,6 @@ $(OBJDIR)/ProjectionAxes_7c67c3e8.o: ../../Source/Processors/Visualization/Spike
 $(OBJDIR)/TetrodePlot_b42fd798.o: ../../Source/Processors/Visualization/SpikePlotting/TetrodePlot.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling TetrodePlot.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/TitleBox_c4a9cde7.o: ../../Source/Processors/Visualization/SpikePlotting/TitleBox.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling TitleBox.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/WaveAxes_8adc45d2.o: ../../Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp

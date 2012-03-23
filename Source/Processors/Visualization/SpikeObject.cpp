@@ -150,15 +150,13 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     };
 
 
-  //   uint16_t sineSpikeWave[32] = 
-  //   {	78, 	90, 	101, 	111,	120,	126,	129,	130,
-		// 129,	126,	120,	111,	101,	90,		78,		65,
-		// 52,		40,		29,		19,		11,		5,		2,		1,
-		// 2,		5,		11,		19,		29,		40,		52,		65};
+    // We don't want to shift the waveform but scale it, and we don't want to scale
+    // the baseline, just the peak of the waveform
+    float scale[32] = 
+    {	1.0, 1.0, 1.0, 1.0, 1.1, 1.2, 1.3, 1.5, 1.7, 2.0, 2.1, 2.2, 2.1, 2.0, 1.7, 1.5,
+    	1.3, 1.2, 1.1, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
-    // uint16_t trace[32] = {0};
-
-    uint16_t gain = 5;
+    uint16_t gain = 1;
 
     s->timestamp = timestamp;
     s->source = 0;
@@ -167,14 +165,14 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     int idx=0;
     
     int waveType = rand()%3; // Pick one of the three predefined waveshapes to generate
-    double waveScaling = (double)(rand()%5 + 5) / 10.00; // Scale the wave between 50% and 150%
     int shift = 1000;
 
     for (int i=0; i<4; i++)
     {
         s->gain[i] = gain;
-        s->threshold[i] = 8000;
-
+        s->threshold[i] = 4000;
+        double scaleExponent =  (double)(rand()%18 + 2) / 10.0f; // Scale the wave between 50% and 150%
+        
 		for (int j=0; j<32; j++){
 			
 			int n = 0;
@@ -182,24 +180,29 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 				n = rand() % noise - noise/2;
 			}
 
-            s->data[idx] = (trace[waveType][j] + n) * gain * waveScaling + shift;
+            s->data[idx] = (trace[waveType][j] + n) * gain * pow(scale[j],scaleExponent) + shift;
             idx = idx+1;
         }
     }
     
 }
 void generateEmptySpike(SpikeObject *s, int nChannels){
-/*
-	std::cout<<"generateEmptySpike()"<<std::endl;
-	s->timestamp = 0;
-	s->source = 0;
-	s->nChannels = nChannels;
-	s->nSamples = 32;
 
-	memset(&(s->gain), 0, 2*nChannels);
-	memset(&(s->threshold), 0, 2*nChannels);
-	memset(&(s->data), 0, 2*nChannels*32);
-*/
+	s->timestamp = 0;
+    s->source = 0;
+    s->nChannels = 4;
+    s->nSamples = 32;
+    
+    int idx = 0;
+    for (int i=0; i<4; i++)
+    {
+        s->gain[i] = 0;
+        s->threshold[i] = 0;
+        for (int j=0; j<32; j++){
+            s->data[idx] = 0;
+            idx = idx+1;
+        }
+    }
 }
 
 

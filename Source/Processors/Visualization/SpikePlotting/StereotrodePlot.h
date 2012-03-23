@@ -11,7 +11,6 @@
 
 #include "WaveAxes.h"
 #include "ProjectionAxes.h"
-#include "TitleBox.h"
 #include "BaseUIElement.h"
 #include "TetrodeSource.h"
 #include "PlotUtils.h"
@@ -20,15 +19,7 @@
 
 class StereotrodePlot : public BaseUIElement{
 	
-	const char *plotTitle;
-	
-	TitleBox titleBox;
-
-	bool enabled;
-    bool enableTitle;
-	void drawTitle();
-	
-	double titleHeight;
+	bool enabled;	
     
     bool limitsChanged;
     double limits[1][2];
@@ -50,12 +41,12 @@ class StereotrodePlot : public BaseUIElement{
 	
 public:
 	StereotrodePlot();
-	StereotrodePlot(int x, int y,int w,int h, const char *n);
+	StereotrodePlot(int x, int y,int w,int h);
 	~StereotrodePlot();
 
 	void initAxes();
 	void redraw();
-	void setTitle(char *n);
+
 	void setEnabled(bool enabled);
 	bool getEnabled();
 	void setPosition(int,int,double,double);
@@ -64,7 +55,6 @@ public:
 
 	int getNumberOfAxes();
 	void clearOnNextDraw(bool c);
-    void setTitleEnabled(bool e);
     
     void mouseDown(int x, int y);
     

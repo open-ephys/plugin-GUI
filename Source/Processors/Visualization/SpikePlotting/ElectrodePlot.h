@@ -10,7 +10,6 @@
 #include <math.h>
 
 #include "WaveAxes.h"
-#include "TitleBox.h"
 #include "BaseUIElement.h"
 #include "TetrodeSource.h"
 #include "PlotUtils.h"
@@ -19,15 +18,7 @@
 
 class ElectrodePlot : public BaseUIElement{
 	
-	char *plotTitle;
-	
-	TitleBox titleBox;
-
 	bool enabled;
-    bool enableTitle;
-	void drawTitle();
-	
-	double titleHeight;
     
     bool limitsChanged;
     double limits[1][2];
@@ -48,12 +39,11 @@ class ElectrodePlot : public BaseUIElement{
 	
 public:
 	ElectrodePlot();
-	ElectrodePlot(int x, int y,int w,int h, char *n);
+	ElectrodePlot(int x, int y,int w,int h);
 	~ElectrodePlot();
 
 	void initAxes();
 	void redraw();
-	void setTitle(char *n);
 	void setEnabled(bool enabled);
 	bool getEnabled();
 	void setPosition(int,int,double,double);
@@ -62,7 +52,6 @@ public:
 
 	int getNumberOfAxes();
 	void clearOnNextDraw(bool c);
-    void setTitleEnabled(bool e);
     
     void mouseDown(int x, int y);
     

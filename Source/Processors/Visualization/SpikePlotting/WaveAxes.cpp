@@ -17,7 +17,6 @@ WaveAxes::WaveAxes():
 	setThresholdColor(1.0, 0.1, 0.1);
 	setGridColor(0.4, 0.2, 0.2);
 	
-	BaseUIElement::elementName = (char*) "WaveAxes";
 }
 
 WaveAxes::WaveAxes(int x, int y, double w, double h, int t):
@@ -34,7 +33,6 @@ WaveAxes::WaveAxes(int x, int y, double w, double h, int t):
 	setWaveformColor(1.0,1.0,0.6);
 	setThresholdColor(1.0, 0.1, 0.1);
 	setGridColor(0.2, 0.2, 0.2);
-	BaseUIElement::elementName = (char*) "WaveAxes";
 
 }
 

@@ -3,17 +3,13 @@
 #include "PlotUtils.h"
 
 TetrodePlot::TetrodePlot():
-    BaseUIElement(), titleHeight(0), enableTitle(true), limitsChanged(true)
+    BaseUIElement(), limitsChanged(true)
 {
-    plotTitle = (char*) "Tetrode Plot";
-
 }
 
-TetrodePlot::TetrodePlot(int x, int y, int w, int h, char *n):
-    BaseUIElement(x,y,w,h,1), titleHeight(0), enableTitle(true), limitsChanged(true)
+TetrodePlot::TetrodePlot(int x, int y, int w, int h):
+    BaseUIElement(x,y,w,h,0), limitsChanged(true)
 {
-    plotTitle = n;
-    titleBox = TitleBox(x, y+h-titleHeight-3, w, titleHeight+3, plotTitle);
 
     initAxes();
 }
@@ -48,9 +44,6 @@ void TetrodePlot::processSpikeObject(SpikeObject s){
     for (int i=0; i<6; i++)
         pAxes[i].updateSpikeData(s);
 }
-void TetrodePlot::setTitle(char *n){
-    plotTitle = n;
-}
 
 void TetrodePlot::setEnabled(bool e){
     BaseUIElement::enabled = e;
@@ -70,25 +63,37 @@ void TetrodePlot::initAxes(){
     
     int minX = BaseUIElement::xpos;
     int minY = BaseUIElement::ypos;
-    
-    // because axesWidth and axesHeight won't always divide evenly we'll add .5 to the ending value to round 
-    // to the nearest integer, this forces the box to draw to the next biggest pixel if needed. this prevents
-    // black borders from forming around the boxes
-    int axesWidth = BaseUIElement::width/4 + .5; 
-    int axesHeight = (BaseUIElement::height - titleHeight)/2 + .5;
+   
+    int axesWidth = BaseUIElement::width/4; 
+    int axesHeight = BaseUIElement::height/2;
     
     
     wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
     wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);
     wAxes[2] = WaveAxes(minX, minY + axesHeight, axesWidth/2, axesHeight, WAVE3);
-    wAxes[3] = WaveAxes(minX + axesWidth/2, minY + axesHeight, axesWidth/2, axesHeight, WAVE3);
+    wAxes[3] = WaveAxes(minX + axesWidth/2, minY + axesHeight, axesWidth/2, axesHeight, WAVE4);
 
-    pAxes[0] = ProjectionAxes(minX + axesWidth*1, minY, axesWidth, axesHeight, PROJ1x2);
-    pAxes[1] = ProjectionAxes(minX + axesWidth*2, minY, axesWidth, axesHeight, PROJ1x3);
-    pAxes[2] = ProjectionAxes(minX + axesWidth*3, minY, axesWidth, axesHeight, PROJ1x4);
-    pAxes[3] = ProjectionAxes(minX + axesWidth*1, minY + axesHeight, axesWidth, axesHeight, PROJ2x3);
-    pAxes[4] = ProjectionAxes(minX + axesWidth*2, minY + axesHeight, axesWidth, axesHeight, PROJ2x4);
-    pAxes[5] = ProjectionAxes(minX + axesWidth*3, minY + axesHeight, axesWidth, axesHeight, PROJ3x4);
+    // for (int i=0; i<6; i++)
+    // {
+    //     pAxes[i] = ProjectionAxes(
+    //                     minX + axesWidth * ((i%3)+1),
+    //                     minY + (i/3) * axesHeight, 
+    //                     axesWidth , 
+    //                     axesHeight,
+    //                     i);
+    //}
+    // 
+
+    // because the width of the plot doesn't always divide evenly into 4 we are going to pad the width 
+    // of the 3rd and 6th projection plot to cover up the space cleared by the TetrodePlotElement
+
+    int xPad = 1;
+    pAxes[0] = ProjectionAxes(minX + axesWidth*1, minY,     axesWidth, axesHeight, PROJ1x2);
+    pAxes[1] = ProjectionAxes(minX + axesWidth*2, minY,     axesWidth, axesHeight, PROJ1x3);
+    pAxes[2] = ProjectionAxes(minX + axesWidth*3, minY,     axesWidth+xPad, axesHeight, PROJ1x4);
+    pAxes[3] = ProjectionAxes(minX + axesWidth*1, minY + axesHeight,    axesWidth, axesHeight, PROJ2x3);
+    pAxes[4] = ProjectionAxes(minX + axesWidth*2, minY + axesHeight,    axesWidth, axesHeight, PROJ2x4);
+    pAxes[5] = ProjectionAxes(minX + axesWidth*3, minY + axesHeight,    axesWidth+xPad, axesHeight, PROJ3x4);
 
     
     //axes.setEnabled(false);
@@ -98,6 +103,7 @@ void TetrodePlot::initAxes(){
     }
     for (int i=0; i<6; i++)
     {
+        pAxes[i].setXLims(-1*pow(2,11), pow(2,14)*1.6);
         pAxes[i].setYLims(-1*pow(2,11), pow(2,14)*1.6);
         pAxes[i].setPointColor(1.0, 1.0, 1.0);
     }
@@ -110,7 +116,7 @@ void TetrodePlot::setPosition(int x, int y, double w, double h){
     int minY = BaseUIElement::ypos;
     
     int axesWidth = BaseUIElement::width/4;
-    int axesHeight = BaseUIElement::height - titleHeight/2;
+    int axesHeight = BaseUIElement::height/2;
     
     wAxes[0].setPosition(minX, minY, axesWidth/2, axesHeight);
     wAxes[1].setPosition(minX + axesWidth/2, minY, axesWidth/2, axesHeight);
@@ -143,20 +149,6 @@ void TetrodePlot::clearOnNextDraw(bool b){
     BaseUIElement::clearNextDraw = b;
 }
 
-void TetrodePlot::setTitleEnabled(bool e){
-
-    // if the new setting does not equal the old than clear on the next draw
-    clearNextDraw = !(e!=enableTitle);
-
-    enableTitle = e;
-    if (e)
-        titleHeight = 15;
-    else
-        titleHeight = 0;
-    
-    setPosition(BaseUIElement::xpos, BaseUIElement::ypos, 
-                BaseUIElement::width, BaseUIElement::height);
-}
 void TetrodePlot::initLimits(){
     for (int i=0; i<4; i++)
     {

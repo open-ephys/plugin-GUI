@@ -139,13 +139,91 @@ void n2ProjIdx(int proj, int *p1, int *p2){
 		d2 = 3;
 	}
 	else{
-		std::cout<<"ArteAxes::plotProjection() invalid projection specified cannot determine d1 and d2"<<std::endl;
+		std::cout<<"Invalid projection:"<<proj<<"! Cannot determine d1 and d2"<<std::endl;
         *p1 = -1;
         *p2 = -1;
 		return;
 	}
     *p1 = d1;
     *p2 = d2;
+}
+
+
+bool isFrameBufferExtensionSupported(){
+
+    std::cout<<"Checking to see if the OpenGL Frame Buffer Extension is Supported"<<std::endl;
+    
+    char* str = 0;
+    char* tok = 0;
+
+    std::string fboExt = "GL_EXT_framebuffer_object";
+
+    str = (char*)glGetString(GL_EXTENSIONS);
+           
+    if(str)
+    {
+        std::vector <std::string> extensions;
+        tok = strtok((char*)str, " ");
+        while(tok)
+        {          
+
+            std::string ext = tok;
+
+            if (ext == fboExt)
+                return true;
+
+            tok = strtok(0, " ");         
+        }
+        return false;
+    }
+    else
+        return false;
+}
+
+bool checkFramebufferStatus()
+{
+    // check FBO status
+    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    return status == GL_FRAMEBUFFER_COMPLETE_EXT;
+
+    switch(status)
+    {
+    case GL_FRAMEBUFFER_COMPLETE_EXT:
+        std::cout << "Framebuffer complete." << std::endl;
+        return true;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+        std::cout << "[ERROR] Framebuffer incomplete: Attachment is NOT complete." << std::endl;
+        return false;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+        std::cout << "[ERROR] Framebuffer incomplete: No image is attached to FBO." << std::endl;
+        return false;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+        std::cout << "[ERROR] Framebuffer incomplete: Attached images have different dimensions." << std::endl;
+        return false;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+        std::cout << "[ERROR] Framebuffer incomplete: Color attached images have different internal formats." << std::endl;
+        return false;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+        std::cout << "[ERROR] Framebuffer incomplete: Draw buffer." << std::endl;
+        return false;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+        std::cout << "[ERROR] Framebuffer incomplete: Read buffer." << std::endl;
+        return false;
+
+    case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+        std::cout << "[ERROR] Unsupported by FBO implementation." << std::endl;
+        return false;
+
+    default:
+        std::cout << "[ERROR] Unknow error." << std::endl;
+        return false;
+    }
 }
 
 // std::addressof was introduced in C++11, an equivalent function is defined below

@@ -11,7 +11,6 @@
 
 #include "WaveAxes.h"
 #include "ProjectionAxes.h"
-#include "TitleBox.h"
 #include "BaseUIElement.h"
 #include "TetrodeSource.h"
 #include "PlotUtils.h"
@@ -20,24 +19,16 @@
 
 class TetrodePlot : public BaseUIElement{
 	
-	char *plotTitle;
-	
-	TitleBox titleBox;
 
 	bool enabled;
-    bool enableTitle;
-	void drawTitle();
-	
-	double titleHeight;
-    
+
+	    
     bool limitsChanged;
     double limits[1][2];
     
     WaveAxes wAxes[4];
     ProjectionAxes pAxes[6];
-    
-    
-    
+       
     // void zoomAxes(int n, bool xdim, int zoomval);
     // void zoomProjection (int n, bool xdim, int zoomval);
     // void zoomWaveform (int n, bool xdim, int zoomval);
@@ -50,12 +41,11 @@ class TetrodePlot : public BaseUIElement{
 	
 public:
 	TetrodePlot();
-	TetrodePlot(int x, int y,int w,int h, char *n);
+	TetrodePlot(int x, int y,int w,int h);
 	~TetrodePlot();
 
 	void initAxes();
 	void redraw();
-	void setTitle(char *n);
 	void setEnabled(bool enabled);
 	bool getEnabled();
 	
@@ -67,7 +57,6 @@ public:
 
 	int getNumberOfAxes();
 	void clearOnNextDraw(bool c);
-    void setTitleEnabled(bool e);
     
     void mouseDown(int x, int y);
     

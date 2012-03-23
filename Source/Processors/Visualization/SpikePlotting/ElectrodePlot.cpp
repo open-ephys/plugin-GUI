@@ -3,17 +3,13 @@
 #include "PlotUtils.h"
 
 ElectrodePlot::ElectrodePlot():
-	BaseUIElement(), titleHeight(0), enableTitle(true), limitsChanged(true)
+	BaseUIElement(), limitsChanged(true)
 {
-    plotTitle = (char*) "Electrode Plot";
-
 }
 
-ElectrodePlot::ElectrodePlot(int x, int y, int w, int h, char *n):
-	BaseUIElement(x,y,w,h,1), titleHeight(0), enableTitle(true), limitsChanged(true)
+ElectrodePlot::ElectrodePlot(int x, int y, int w, int h):
+	BaseUIElement(x,y,w,h,1),  limitsChanged(true)
 {
-	plotTitle = n;
-	titleBox = TitleBox(x, y+h-titleHeight-3, w, titleHeight+3, plotTitle);
 
 	initAxes();
 }
@@ -40,9 +36,6 @@ void ElectrodePlot::processSpikeObject(SpikeObject s){
 	//std::cout<<"ElectrdePlot::processSpikeObject()"<<std::endl;
 	axes.updateSpikeData(s);
 }
-void ElectrodePlot::setTitle(char *n){
-	plotTitle = n;
-}
 
 void ElectrodePlot::setEnabled(bool e){
 	BaseUIElement::enabled = e;
@@ -62,7 +55,7 @@ void ElectrodePlot::initAxes(){
 	int minY = BaseUIElement::ypos;
 	
 	double axesWidth = BaseUIElement::width;
-	double axesHeight = (BaseUIElement::height - titleHeight);
+	double axesHeight = BaseUIElement::height;
 	
 	
 	axes = WaveAxes(minX, minY, axesWidth, axesHeight, WAVE1);
@@ -79,11 +72,10 @@ void ElectrodePlot::setPosition(int x, int y, double w, double h){
 	int minY = BaseUIElement::ypos;
 	
 	double axesWidth = BaseUIElement::width;
-	double axesHeight = BaseUIElement::height - titleHeight;
+	double axesHeight = BaseUIElement::height;
 	
 	axes.setPosition(minX, minY, axesWidth, axesHeight);
 	
-    titleBox.setPosition(x, y+h-titleHeight-3, w, titleHeight+3);
 }
 
 int ElectrodePlot::getNumberOfAxes(){
@@ -94,20 +86,6 @@ void ElectrodePlot::clearOnNextDraw(bool b){
 	BaseUIElement::clearNextDraw = b;
 }
 
-void ElectrodePlot::setTitleEnabled(bool e){
-
-    // if the new setting does not equal the old than clear on the next draw
-    clearNextDraw = !(e!=enableTitle);
-
-    enableTitle = e;
-    if (e)
-        titleHeight = 15;
-    else
-        titleHeight = 0;
-    
-    setPosition(BaseUIElement::xpos, BaseUIElement::ypos, 
-                BaseUIElement::width, BaseUIElement::height);
-}
 void ElectrodePlot::initLimits(){
     for (int i=0; i<4; i++)
     {

@@ -25,6 +25,7 @@
 #define SPIKEOBJECT_H_
 
 #include <stdint.h>
+#include <math.h>
 
 #define MAX_NUMBER_OF_SPIKE_CHANNELS 4
 #define MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES 256

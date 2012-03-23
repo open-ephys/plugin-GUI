@@ -3,17 +3,14 @@
 #include "PlotUtils.h"
 
 StereotrodePlot::StereotrodePlot():
-	BaseUIElement(), titleHeight(0), enableTitle(true), limitsChanged(true)
+	BaseUIElement(),  limitsChanged(true)
 {
-    plotTitle = (char*) "Stereotrode Plot";
 
 }
 
-StereotrodePlot::StereotrodePlot(int x, int y, int w, int h, const char *n):
-	BaseUIElement(x,y,w,h,1), titleHeight(0), enableTitle(true), limitsChanged(true)
+StereotrodePlot::StereotrodePlot(int x, int y, int w, int h):
+	BaseUIElement(x,y,w,h,0), limitsChanged(true)
 {
-	plotTitle = n;
-	titleBox = TitleBox(x, y+h-titleHeight-3, w, titleHeight+3, plotTitle);
 
 	initAxes();
 }
@@ -44,9 +41,6 @@ void StereotrodePlot::processSpikeObject(SpikeObject s){
     wAxes[1].updateSpikeData(s);
     pAxes.updateSpikeData(s);
 }
-void StereotrodePlot::setTitle(char *n){
-	plotTitle = n;
-}
 
 void StereotrodePlot::setEnabled(bool e){
 	BaseUIElement::enabled = e;
@@ -68,7 +62,7 @@ void StereotrodePlot::initAxes(){
 	int minY = BaseUIElement::ypos;
 	
 	double axesWidth = BaseUIElement::width/2;
-	double axesHeight = (BaseUIElement::height - titleHeight);
+	double axesHeight = BaseUIElement::height;
 	
 	
 	wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
@@ -93,13 +87,12 @@ void StereotrodePlot::setPosition(int x, int y, double w, double h){
 	int minY = BaseUIElement::ypos;
 	
 	double axesWidth = BaseUIElement::width;
-	double axesHeight = BaseUIElement::height - titleHeight;
+	double axesHeight = BaseUIElement::height;
 	
     wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
     wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);	
     pAxes = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2);
 
-    titleBox.setPosition(x, y+h-titleHeight-3, w, titleHeight+3);
 }
 
 int StereotrodePlot::getNumberOfAxes(){
@@ -110,20 +103,6 @@ void StereotrodePlot::clearOnNextDraw(bool b){
 	BaseUIElement::clearNextDraw = b;
 }
 
-void StereotrodePlot::setTitleEnabled(bool e){
-
-    // if the new setting does not equal the old than clear on the next draw
-    clearNextDraw = !(e!=enableTitle);
-
-    enableTitle = e;
-    if (e)
-        titleHeight = 15;
-    else
-        titleHeight = 0;
-    
-    setPosition(BaseUIElement::xpos, BaseUIElement::ypos, 
-                BaseUIElement::width, BaseUIElement::height);
-}
 void StereotrodePlot::initLimits(){
     for (int i=0; i<4; i++)
     {
