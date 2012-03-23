@@ -98,7 +98,7 @@ void SpikeDisplayCanvas::newOpenGLContextCreated()
 
 	std::cout<<"SpikeDisplayCanvas::newOpenGLContextCreated()"<<std::endl;
 	setUp2DCanvas();
-	//activateAntiAliasing();
+	activateAntiAliasing();
 
 	glClearColor (0.667, 0.698, 0.718, 1.0);
 	resized();
