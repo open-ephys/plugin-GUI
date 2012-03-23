@@ -7,7 +7,7 @@
 class BaseUIElement{
 
 protected:	
-	int xpos, ypos;
+	int xpos, ypos, yOffset;
 	double height, width;
 	bool enabled;
 	double padding;
@@ -28,8 +28,8 @@ public:
     int getX();
     int getY();
 	
-	void clearOnNextDraw(bool);
-	bool clearNextDraw;
+	// void clearOnNextDraw(bool);
+	// bool clearNextDraw;
     bool hitTest(int x, int y);
 	
 };

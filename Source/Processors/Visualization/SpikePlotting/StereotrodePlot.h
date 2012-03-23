@@ -54,7 +54,6 @@ public:
 	void getPreferredDimensions(double*, double*);
 
 	int getNumberOfAxes();
-	void clearOnNextDraw(bool c);
     
     void mouseDown(int x, int y);
     
@@ -64,6 +63,12 @@ public:
     bool processKeyEvent(SimpleKeyEvent k);
 
     void processSpikeObject(SpikeObject s);
+
+    void clear();
+    void zoomIn();
+    void zoomOut();
+    void panUp();
+    void panDown();
 };
 
 

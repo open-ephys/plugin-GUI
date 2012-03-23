@@ -21,6 +21,7 @@ ProjectionAxes::ProjectionAxes():
 
 	texWidth = BaseUIElement::width;
 	texHeight = BaseUIElement::height;
+	clearOnNextDraw = false;
 }
 
 ProjectionAxes::ProjectionAxes(int x, int y, double w, double h, int t):
@@ -42,6 +43,7 @@ ProjectionAxes::ProjectionAxes(int x, int y, double w, double h, int t):
 
 	texWidth = BaseUIElement::width;
 	texHeight = BaseUIElement::height;
+	clearOnNextDraw = false;
 }
 
 void ProjectionAxes::updateSpikeData(SpikeObject s){
@@ -73,6 +75,11 @@ void ProjectionAxes::redraw(){
 void ProjectionAxes::plot(){
 
 	setViewportRange(xlims[0], ylims[0], xlims[1], ylims[1]);
+	if (clearOnNextDraw){
+		clearTexture();
+		clearOnNextDraw = false;
+	}
+		
 
 	drawSpikesToTexture(false);
 	
@@ -88,7 +95,7 @@ void ProjectionAxes::plotOldSpikes(bool allSpikes){
 	
 	int startIdx = (allSpikes) ? 0 : buffIdx;
 	int stopIdx = (totalSpikes > AMP_BUFF_MAX_SIZE) ? AMP_BUFF_MAX_SIZE : buffIdx;
-	std::cout<<"ProjectionAxes::plotOldSpikes() Ploting:"<<stopIdx - startIdx + 1<<" spikes."<<std::endl;
+	//std::cout<<"ProjectionAxes::plotOldSpikes() Ploting:"<<stopIdx - startIdx + 1<<" spikes."<<std::endl;
 	glBegin(GL_POINTS);
 	
 	for (int i=startIdx; i<=stopIdx; i++)
@@ -100,7 +107,7 @@ void ProjectionAxes::plotNewestSpike(){
 	BaseUIElement::setGlViewport();
 	setViewportRange(xlims[0], ylims[0], xlims[1], ylims[1]);
 
-	glColor3f(1.0, 1.0, 0.0);
+	glColor3f(1.0, 0.0, 0.0);
 	glPointSize(4);
 
 	glBegin(GL_POINTS);
@@ -186,7 +193,7 @@ void ProjectionAxes::createFBO(){
 
 void ProjectionAxes::drawSpikesToTexture(bool allSpikes){
 
-	std::cout<<"Populating the texture()"<<std::endl;
+	//std::cout<<"Populating the texture()"<<std::endl;
 	if (!isTextureValid){
         createTexture();
         allSpikes = true;
@@ -225,4 +232,22 @@ void ProjectionAxes::drawTexturedQuad(){
     
     glBindTexture(GL_TEXTURE_2D, 0);
 
+}
+
+void ProjectionAxes::clear(){
+	clearOnNextDraw = true;	
+}
+
+void ProjectionAxes::clearTexture(){
+	std::cout<<"ProjectinAxes::clear()"<<std::endl;
+	
+	glViewport(0,0,texWidth, texHeight);
+	glLoadIdentity();
+	setViewportRange(xlims[0], ylims[0], xlims[1], ylims[1]);
+	// set the rendering destination to FBO
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboId);    
+    // plot to the texture
+  	glClearColor (0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0); 
 }

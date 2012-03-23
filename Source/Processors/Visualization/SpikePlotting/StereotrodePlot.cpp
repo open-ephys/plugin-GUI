@@ -99,10 +99,6 @@ int StereotrodePlot::getNumberOfAxes(){
 	return 1;;
 }
 
-void StereotrodePlot::clearOnNextDraw(bool b){
-	BaseUIElement::clearNextDraw = b;
-}
-
 void StereotrodePlot::initLimits(){
     for (int i=0; i<4; i++)
     {
@@ -115,6 +111,11 @@ void StereotrodePlot::initLimits(){
 void StereotrodePlot::getPreferredDimensions(double *w, double *h){
     *w = 75;
     *h = 75;
+}
+
+void StereotrodePlot::clear(){
+    std::cout<<"StereotrodePlot::clear()"<<std::endl;
+    pAxes.clear();
 }
 // void StereotrodePlot::mouseDown(int x, int y){
 

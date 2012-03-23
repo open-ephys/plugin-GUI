@@ -149,11 +149,21 @@ void SpikeDisplayCanvas::update()
 
 void SpikeDisplayCanvas::setParameter(int param, float val)
 {
-	// if (param == 0)
-	// 	timebase = val;
-	// else
-	// 	displayGain = val;
+	//std::cout<<"Got Param:"<< param<< " with value:"<<val<<std::endl;
+	switch (param)
+	{
+		case SPIKE_CMD_CLEAR_ALL :
+			for (int i=0; i<plots.size(); i++)
+				plots[i].clear();
+			break;
 	
+		case SPIKE_CMD_CLEAR_SEL:
+		//clear plot number val
+			break;
+		default:
+			std::cout<<"Unkown Commad specified! "<<param<<std::endl;
+	}
+
 }
 
 void SpikeDisplayCanvas::refreshState()
@@ -187,14 +197,12 @@ void SpikeDisplayCanvas::renderOpenGL()
 	// Distribute those spike to the appropriate plot object
 	
 	SpikeObject tmpSpike;
-
-	 for (int i=0; i<plots.size(); i++){
-	 	if (rand()%6 > 2){
-	 		generateSimulatedSpike(&tmpSpike, 0, 100);
-	 		plots[i].processSpikeObject(tmpSpike);
-	 	}
- 		plots[i].redraw();
-	 }
+	for (int j=0; j<2; j++)
+		 for (int i=0; i<plots.size(); i++){
+			generateSimulatedSpike(&tmpSpike, 0, 150);
+			plots[i].processSpikeObject(tmpSpike);
+	 		plots[i].redraw();
+		 }
 	
 	//}
 	//std::cout << getHeight()<<" "<< getTotalHeight()<<" "<<std::endl;

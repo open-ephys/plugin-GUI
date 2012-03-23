@@ -44,7 +44,6 @@ class ProjectionAxes: public GenericAxes{
 
   	bool newSpike;
 
-  	bool isTextureValid;
   	
   	GLuint fboId; // Frame Buffer Object 
   	GLuint textureId; // Texture 
@@ -52,6 +51,10 @@ class ProjectionAxes: public GenericAxes{
 
   	int texWidth;
   	int texHeight;
+
+  	bool clearOnNextDraw;
+ 	bool isTextureValid;
+  	void clearTexture();
 
 
 protected:
@@ -66,12 +69,16 @@ public:
 
 	void setPointColor(GLfloat r, GLfloat g, GLfloat b);
 	void setGridColor(GLfloat, GLfloat, GLfloat);
-	 
+	
+	void clear();
+	void invalidateTexture();
+
 	void redraw();	
 	
 	bool overlay;
 	bool drawGrid;
 	bool convertLabelUnits;
+
 	
 };
 

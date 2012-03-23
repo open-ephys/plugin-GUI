@@ -30,6 +30,15 @@
 #include "GenericProcessor.h"
 #include "Visualization/SpikeObject.h"
 
+
+
+#define SPIKE_CMD_CLEAR_ALL 	10000
+#define SPIKE_CMD_CLEAR_SEL 	10001
+#define SPIKE_CMD_PAN_UP_ALL 	10002    
+#define SPIKE_CMD_PAN_DOWN_ALL	10003
+#define SPIKE_CMD_PAN_UP_SEL	10004
+#define SPIKE_CMD_PAN_DOWN_SEL  10005
+    
 /**
   
  Takes in MidiEvents and extracts SpikeObjects from the MidiEvent buffers. Those Events are then held in a queue until they are pulled by the spikeviewer

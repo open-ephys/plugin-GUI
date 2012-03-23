@@ -59,6 +59,3 @@ void GenericAxes::setPosition(int x, int y, double w, double h){
 	BaseUIElement::setPosition(x,y,w,h);	
 	resizedFlag = true;
 }
-void GenericAxes::clearOnNextDraw(bool b){
-	BaseUIElement::clearOnNextDraw(b);
-}

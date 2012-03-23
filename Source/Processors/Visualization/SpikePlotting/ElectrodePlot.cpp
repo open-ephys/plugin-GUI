@@ -82,9 +82,6 @@ int ElectrodePlot::getNumberOfAxes(){
 	return 1;;
 }
 
-void ElectrodePlot::clearOnNextDraw(bool b){
-	BaseUIElement::clearNextDraw = b;
-}
 
 void ElectrodePlot::initLimits(){
     for (int i=0; i<4; i++)

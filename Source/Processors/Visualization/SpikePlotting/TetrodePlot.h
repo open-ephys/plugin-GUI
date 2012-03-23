@@ -56,7 +56,6 @@ public:
 	void getPreferredDimensions(double*, double*);
 
 	int getNumberOfAxes();
-	void clearOnNextDraw(bool c);
     
     void mouseDown(int x, int y);
     

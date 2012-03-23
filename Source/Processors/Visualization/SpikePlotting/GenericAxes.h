@@ -36,8 +36,7 @@ public:
 	void updateSpikeData(SpikeObject s);
 
 	virtual void redraw(){}
-
-
+	
 	void setXLims(double xmin, double xmax);
 	void getXLims(double *xmin, double *xmax);
 	void setYLims(double ymin, double ymax);
@@ -49,7 +48,6 @@ public:
 	
 	void setPosition(int,int,double,double);
    	
-	void clearOnNextDraw(bool c);
 };
 
 

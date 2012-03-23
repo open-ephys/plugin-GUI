@@ -47,6 +47,15 @@ public:
 
 private:	
 
+    Button *panUpBtn;
+    Button *panDownBtn;
+    Button *zoomInBtn;
+    Button *zoomOutBtn;
+    Button *clearBtn;
+    Button *saveImgBtn;
+
+    Label *panLabel;
+    Label *zoomLabel;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayEditor);
 
