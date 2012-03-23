@@ -145,9 +145,13 @@ private:
 	ChannelSelectorButton* allButton;
 	ChannelSelectorButton* noneButton;
 
-	Font titleFont;
 
 	String name;
+
+protected:
+
+	Font titleFont;
+
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericEditor);
 
@@ -202,6 +206,5 @@ private:
 	int type;
 	Font buttonFont;
 };
-
 
 #endif  // __GENERICEDITOR_H_DD406E71__
