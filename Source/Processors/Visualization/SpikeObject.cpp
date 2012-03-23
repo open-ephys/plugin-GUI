@@ -144,8 +144,8 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 	{	1040,   1090,   1190,	1350,	1600,	1960,   2380,   2790,   3080,	3140,
 		2910,	2430,	1810,	1180,	680,	380,	270,	320,	460, 	630,
 		770,	870,	940,	970,	990,	1000,	1000,	1000,	1000,	1000,  1000,	1000},
-	{ 	1000,	1000,	1000,	1000,	1000,	1040,	1140,	1440,	2040,	2940,
-		3800,	4140,	3880,	3680,	1640,	920,	520,	300,	140,	040,
+	{ 	1000,	1000,	1000,	1000,	1000,	1040,	1140,	1440,	2040,	2240,
+		2800,	2440,	2280,	2080,	1640,	920,	520,	300,	140,	040,
 		20,		20,		40,		100,	260,	500,	740,	900,	960,	1000,	1000,	1000}
     };
 
@@ -171,7 +171,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     {
         s->gain[i] = gain;
         s->threshold[i] = 4000;
-        double scaleExponent =  (double)(rand()%18 + 2) / 10.0f; // Scale the wave between 50% and 150%
+        double scaleExponent =  (double)(rand()%25+2) / 10.0f; // Scale the wave between 50% and 150%
         
 		for (int j=0; j<32; j++){
 			
