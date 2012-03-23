@@ -145,7 +145,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 		2910,	2430,	1810,	1180,	680,	380,	270,	320,	460, 	630,
 		770,	870,	940,	970,	990,	1000,	1000,	1000,	1000,	1000,  1000,	1000},
 	{ 	1000,	1000,	1000,	1000,	1000,	1040,	1140,	1440,	2040,	2240,
-		2800,	2440,	2280,	2080,	1640,	920,	520,	300,	140,	040,
+		2400,	2340,	2280,	1880,	1640,	920,	520,	300,	140,	040,
 		20,		20,		40,		100,	260,	500,	740,	900,	960,	1000,	1000,	1000}
     };
 
@@ -164,7 +164,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     s->nSamples = 32;
     int idx=0;
     
-    int waveType = rand()%3; // Pick one of the three predefined waveshapes to generate
+    int waveType = rand()%2; // Pick one of the three predefined waveshapes to generate
     int shift = 1000;
 
     for (int i=0; i<4; i++)

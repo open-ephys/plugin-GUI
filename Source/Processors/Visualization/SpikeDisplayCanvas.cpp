@@ -24,7 +24,7 @@
 #include "SpikeDisplayCanvas.h"
 
 SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
-	 	xBuffer(25), yBuffer(25),  newSpike(false)
+	 	xBuffer(25), yBuffer(25),  newSpike(false), plotsInitialized(false)
 {
 
 	
@@ -32,24 +32,13 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
 	nSources = 0; //processor->getNumInputs();
 	std::cout<<"SpikeDisplayNode has :"<<nSources<<" outputs!"<<std::endl;
 	
-	//memset(nChannels, 0, sizeof(nChannels[0]) * MAX_NUMBER_OF_SPIKE_SOURCES);
 	for (int i=0; i<nSources; i++)
 		nChannels[i] = processor->getNumberOfChannelsForInput(i);
 
-	// sampleRate = processor->getSampleRate();
 	std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nSources << std::endl;
-
-	//generateEmptySpike(&spike, 1);
 	
-	initializeSpikePlots();
 	
-	// displayBuffer = processor->getDisplayBufferAddress();
-	// displayBufferSize = displayBuffer->getNumSamples();
-	// std::cout << "Setting displayBufferSize on SpikeDisplayCanvas to " << displayBufferSize << std::endl;
-
-	// totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
-
-	// screenBuffer = new AudioSampleBuffer(nChans, 10000);	
+	
 }
 
 SpikeDisplayCanvas::~SpikeDisplayCanvas()
@@ -60,12 +49,13 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 void SpikeDisplayCanvas::initializeSpikePlots(){
 	std::cout<<"Initializing Plots"<<std::endl;
 
-	int nPlots = 1;
+
+	int nPlots = 4;
 	int nCols = 2;
 
-	int totalWidth = 1000; // This is a hack the width as the width isn't known before its drawn
+	int totalWidth = getWidth(); // This is a hack the width as the width isn't known before its drawn
 	
-	int plotWidth =  (totalWidth  - (nPlots + 1 ) * xBuffer) / nCols + .5;
+	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
 	int plotHeight = plotWidth / 2 + .5;
 	int rowCount = 0;
 
@@ -90,10 +80,33 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 	 }
 	// Set the total height of the Canvas to the top of the top most plot
 	totalHeight = yBuffer + (rowCount + 1) * (plotHeight + yBuffer);
-
+	plotsInitialized = true;
+	//repositionSpikePlots();
 }
 
+void SpikeDisplayCanvas::repositionSpikePlots(){
+	int nPlots = 4;
+	int nCols = 2;
 
+	int totalWidth = getWidth(); // This is a hack the width as the width isn't known before its drawn
+	
+	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
+	int plotHeight = plotWidth / 2 + .5;
+	int rowCount = 0;
+
+	for (int i=0; i<nPlots; i++)
+	{
+
+		plots[i].setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
+								yBuffer + rowCount * (plotHeight + yBuffer), 
+								plotWidth, 
+								plotHeight); // deprecated conversion from string constant to char
+		if (i%nCols == nCols-1)
+			rowCount++;	
+	 }
+	// Set the total height of the Canvas to the top of the top most plot
+	totalHeight = yBuffer + (rowCount + 1) * (plotHeight + yBuffer);
+}
 
 void SpikeDisplayCanvas::newOpenGLContextCreated()
 {
@@ -183,6 +196,8 @@ void SpikeDisplayCanvas::canvasWasResized()
 
 void SpikeDisplayCanvas::renderOpenGL()
 {
+	if(!plotsInitialized)
+			initializeSpikePlots();
 	glClearColor (0.667, 0.698, 0.718, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
 //	std::cout<<"SpikeDisplayCanvas::renderOpenGL"<<std::endl;
@@ -197,12 +212,11 @@ void SpikeDisplayCanvas::renderOpenGL()
 	// Distribute those spike to the appropriate plot object
 	
 	SpikeObject tmpSpike;
-	for (int j=0; j<2; j++)
-		 for (int i=0; i<plots.size(); i++){
-			generateSimulatedSpike(&tmpSpike, 0, 150);
-			plots[i].processSpikeObject(tmpSpike);
-	 		plots[i].redraw();
-		 }
+	 for (int i=0; i<plots.size(); i++){
+		generateSimulatedSpike(&tmpSpike, 0, 150);
+		plots[i].processSpikeObject(tmpSpike);
+ 		plots[i].redraw();
+	 }
 	
 	//}
 	//std::cout << getHeight()<<" "<< getTotalHeight()<<" "<<std::endl;

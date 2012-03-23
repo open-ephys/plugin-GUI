@@ -25,7 +25,7 @@ StereotrodePlot::~StereotrodePlot(){
 //  the right direction
 
 void StereotrodePlot::redraw(){
-	 //std::cout<<"StereotrodePlot() starting drawing"<<std::endl;\
+	std::cout<<"StereotrodePlot() starting drawing"<<std::endl;\
 	//BaseUIElement::clearNextDraw = true;
 	//BaseUIElement::redraw();
 
@@ -82,6 +82,7 @@ void StereotrodePlot::initAxes(){
 }
 
 void StereotrodePlot::setPosition(int x, int y, double w, double h){
+    std::cout<<"StereotrodePlot::setPosition()"<<std::endl;
 	BaseUIElement::setPosition(x,y,w,h);
 	int minX = BaseUIElement::xpos;
 	int minY = BaseUIElement::ypos;

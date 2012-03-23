@@ -93,6 +93,7 @@ private:
 	int nChannels[MAX_NUMBER_OF_SPIKE_CHANNELS];
 
 	void initializeSpikePlots();
+	void repositionSpikePlots();
 
 	void canvasWasResized();
 	void mouseDownInCanvas(const MouseEvent& e);
