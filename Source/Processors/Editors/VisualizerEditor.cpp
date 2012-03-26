@@ -60,6 +60,19 @@ void SelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDow
 }
 
 
+VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width)
+: GenericEditor(parentNode),
+	  tabIndex(-1), dataWindow(0),
+	  isPlaying(false),
+	  canvas(0)
+
+{
+
+	desiredWidth = width;
+
+	initializeSelectors();
+
+}
 
 
 VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode) 
@@ -71,21 +84,25 @@ VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode)
 {
 
 	desiredWidth = 250;
+	initializeSelectors();
+
+
+}
+void VisualizerEditor::initializeSelectors(){
 
 	windowSelector = new SelectorButton("window");
 	windowSelector->addListener(this);
-	windowSelector->setBounds(190,7,14,10);
+	windowSelector->setBounds(desiredWidth - 60,7,14,10);
 
 	windowSelector->setToggleState(false,false);
 	addAndMakeVisible(windowSelector);
 
 	tabSelector = new SelectorButton("tab");
 	tabSelector->addListener(this);
-	tabSelector->setBounds(210,7,15,10);
+	tabSelector->setBounds(desiredWidth - 40,7,15,10);
 	
 	addAndMakeVisible(tabSelector);
 	tabSelector->setToggleState(false,false);
-
 }
 
 VisualizerEditor::~VisualizerEditor()
