@@ -8,7 +8,8 @@ ProjectionAxes::ProjectionAxes():
 					buffIdx(-1),
 					totalSpikes(0),
 					newSpike(false),
-					isTextureValid(false)
+					isTextureValid(false), 
+					plotAllSpikesNextRender(false)
 {	
 	GenericAxes::type = PROJ1x2;
 	GenericAxes::gotFirstSpike = false;
@@ -32,7 +33,8 @@ ProjectionAxes::ProjectionAxes(int x, int y, double w, double h, int t):
 					buffIdx(-1),
 					totalSpikes(0),
 					newSpike(false),
-					isTextureValid(false)
+					isTextureValid(false),
+					plotAllSpikesNextRender(false)
 {	
 	GenericAxes::gotFirstSpike = false;
 	GenericAxes::resizedFlag = false;
@@ -74,6 +76,9 @@ void ProjectionAxes::redraw(){
 
 void ProjectionAxes::plot(){
 
+	GLenum errCode;
+	const GLubyte *errString;
+
 	setViewportRange(xlims[0], ylims[0], xlims[1], ylims[1]);
 	if (clearOnNextDraw){
 		clearTexture();
@@ -81,11 +86,30 @@ void ProjectionAxes::plot(){
 	}
 		
 
-	drawSpikesToTexture(false);
-	
+	drawSpikesToTexture(plotAllSpikesNextRender);
 	drawTexturedQuad();
+	if (plotAllSpikesNextRender)
+		plotAllSpikesNextRender = false;
 
-	plotNewestSpike();
+	//plotNewestSpike();
+
+
+	// Check for errors, if they have occured, we need to rerender the texture
+	// re start the plotting and abort this call to plot.
+	if ((errCode = glGetError()) != GL_NO_ERROR) {
+	   errString = gluErrorString(errCode);
+	   std::cout<<"OpenGL Error:"<< errString << "! Invalidating and rerendering the texture!" << std::endl;
+	   
+	   invalidateTexture();
+	   drawSpikesToTexture(true);
+	   drawTexturedQuad();
+	   plotAllSpikesNextRender = true;
+	   return;
+	}
+
+	
+
+    
 
 }
 
@@ -94,16 +118,22 @@ void ProjectionAxes::plotOldSpikes(bool allSpikes){
 	glPointSize(1);
 	
 	int startIdx = (allSpikes) ? 0 : buffIdx;
+
 	int stopIdx = (totalSpikes > AMP_BUFF_MAX_SIZE) ? AMP_BUFF_MAX_SIZE : buffIdx;
 	//std::cout<<"ProjectionAxes::plotOldSpikes() Ploting:"<<stopIdx - startIdx + 1<<" spikes."<<std::endl;
+	if (allSpikes)
+		std::cout<<"Updating texture with all spikes: "<< stopIdx - startIdx + 1 <<":";
+
 	glBegin(GL_POINTS);
-	
-	for (int i=startIdx; i<=stopIdx; i++)
-		glVertex2i(ampBuffer[0][i], ampBuffer[1][i]);
+		for (int i=startIdx; i<=stopIdx; i++)		
+			glVertex2i(ampBuffer[0][i], ampBuffer[1][i]);
 	glEnd();
 
 }
+
+
 void ProjectionAxes::plotNewestSpike(){
+	std::cout<<"Plotting newest spike"<<std::endl;
 	BaseUIElement::setGlViewport();
 	setViewportRange(xlims[0], ylims[0], xlims[1], ylims[1]);
 
@@ -192,6 +222,7 @@ void ProjectionAxes::createFBO(){
 }
 
 void ProjectionAxes::drawSpikesToTexture(bool allSpikes){
+	
 
 	//std::cout<<"Populating the texture()"<<std::endl;
 	if (!isTextureValid){
@@ -205,10 +236,17 @@ void ProjectionAxes::drawSpikesToTexture(bool allSpikes){
 	// set the rendering destination to FBO
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboId);    
     // plot to the texture
+    
+
     plotOldSpikes(allSpikes);
 
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0); 
 
+	// Did something fail? If so invalidate and re-render the texture
+}
+
+void ProjectionAxes::invalidateTexture(){
+	isTextureValid = false;
 }
 
 
@@ -235,6 +273,8 @@ void ProjectionAxes::drawTexturedQuad(){
 }
 
 void ProjectionAxes::clear(){
+	buffIdx = 0;
+	totalSpikes = 0;
 	clearOnNextDraw = true;	
 }
 

@@ -56,6 +56,9 @@ class ProjectionAxes: public GenericAxes{
  	bool isTextureValid;
   	void clearTexture();
 
+  	void validateTexture();
+
+  	bool plotAllSpikesNextRender;
 
 protected:
 	void plot();

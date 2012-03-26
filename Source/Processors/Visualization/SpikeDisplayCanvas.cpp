@@ -50,7 +50,7 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 	std::cout<<"Initializing Plots"<<std::endl;
 
 
-	int nPlots = 4;
+	int nPlots = 1;
 	int nCols = 2;
 
 	int totalWidth = getWidth(); // This is a hack the width as the width isn't known before its drawn

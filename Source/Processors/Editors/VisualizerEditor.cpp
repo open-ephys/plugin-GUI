@@ -92,14 +92,14 @@ void VisualizerEditor::initializeSelectors(){
 
 	windowSelector = new SelectorButton("window");
 	windowSelector->addListener(this);
-	windowSelector->setBounds(desiredWidth - 60,7,14,10);
+	windowSelector->setBounds(desiredWidth - 40,7,14,10);
 
 	windowSelector->setToggleState(false,false);
 	addAndMakeVisible(windowSelector);
 
 	tabSelector = new SelectorButton("tab");
 	tabSelector->addListener(this);
-	tabSelector->setBounds(desiredWidth - 40,7,15,10);
+	tabSelector->setBounds(desiredWidth - 20,7,15,10);
 	
 	addAndMakeVisible(tabSelector);
 	tabSelector->setToggleState(false,false);
@@ -221,12 +221,12 @@ void VisualizerEditor::buttonEvent(Button* button)
 	}
 
 	buttonCallback(button);
-	
+
 	if (button == drawerButton)
 	{
 		std::cout<<"Drawer button clicked"<<std::endl;
-		windowSelector->setBounds(desiredWidth - 60,7,14,10);
-		tabSelector->setBounds(desiredWidth - 40,7,15,10);
+		windowSelector->setBounds(desiredWidth - 40,7,14,10);
+		tabSelector->setBounds(desiredWidth - 20,7,15,10);
 
 	}
 
