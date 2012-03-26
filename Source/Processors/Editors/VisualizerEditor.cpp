@@ -217,9 +217,18 @@ void VisualizerEditor::buttonEvent(Button* button)
 
 			}
 		}
+		
 	}
 
 	buttonCallback(button);
+	
+	if (button == drawerButton)
+	{
+		std::cout<<"Drawer button clicked"<<std::endl;
+		windowSelector->setBounds(desiredWidth - 60,7,14,10);
+		tabSelector->setBounds(desiredWidth - 40,7,15,10);
+
+	}
 
 }
 

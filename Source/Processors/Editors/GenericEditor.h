@@ -108,6 +108,11 @@ public:
 	virtual void updateVisualizer() {}
 
 	Array<int> getActiveChannels();
+
+protected:
+	DrawerButton* drawerButton;
+	int drawerWidth;
+
 	
 private:
 
@@ -128,9 +133,7 @@ private:
 
 	int numChannels;
 
-	int drawerWidth;
 
-	DrawerButton* drawerButton;
 
 	EditorButton* audioButton;
 	EditorButton* recordButton;
