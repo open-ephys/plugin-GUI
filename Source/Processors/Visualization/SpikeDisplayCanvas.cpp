@@ -85,27 +85,27 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 }
 
 void SpikeDisplayCanvas::repositionSpikePlots(){
-	int nPlots = 4;
-	int nCols = 2;
+	// int nPlots = 4;
+	// int nCols = 2;
 
-	int totalWidth = getWidth(); // This is a hack the width as the width isn't known before its drawn
+	// int totalWidth = getWidth(); // This is a hack the width as the width isn't known before its drawn
 	
-	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
-	int plotHeight = plotWidth / 2 + .5;
-	int rowCount = 0;
+	// int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
+	// int plotHeight = plotWidth / 2 + .5;
+	// int rowCount = 0;
 
-	for (int i=0; i<nPlots; i++)
-	{
+	// for (int i=0; i<nPlots; i++)
+	// {
 
-		plots[i].setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
-								yBuffer + rowCount * (plotHeight + yBuffer), 
-								plotWidth, 
-								plotHeight); // deprecated conversion from string constant to char
-		if (i%nCols == nCols-1)
-			rowCount++;	
-	 }
-	// Set the total height of the Canvas to the top of the top most plot
-	totalHeight = yBuffer + (rowCount + 1) * (plotHeight + yBuffer);
+	// 	plots[i].setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
+	// 							yBuffer + rowCount * (plotHeight + yBuffer), 
+	// 							plotWidth, 
+	// 							plotHeight); // deprecated conversion from string constant to char
+	// 	if (i%nCols == nCols-1)
+	// 		rowCount++;	
+	//  }
+	// // Set the total height of the Canvas to the top of the top most plot
+	// totalHeight = yBuffer + (rowCount + 1) * (plotHeight + yBuffer);
 }
 
 void SpikeDisplayCanvas::newOpenGLContextCreated()

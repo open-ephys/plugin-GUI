@@ -25,7 +25,7 @@ StereotrodePlot::~StereotrodePlot(){
 //  the right direction
 
 void StereotrodePlot::redraw(){
-	std::cout<<"StereotrodePlot() starting drawing"<<std::endl;\
+	//std::cout<<"StereotrodePlot() starting drawing"<<std::endl;\
 	//BaseUIElement::clearNextDraw = true;
 	//BaseUIElement::redraw();
 

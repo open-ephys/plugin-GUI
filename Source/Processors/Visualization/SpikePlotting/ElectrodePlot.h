@@ -11,7 +11,6 @@
 
 #include "WaveAxes.h"
 #include "BaseUIElement.h"
-#include "TetrodeSource.h"
 #include "PlotUtils.h"
 #include "SimpleKeyEvent.h"
 
