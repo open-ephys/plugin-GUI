@@ -173,6 +173,7 @@ void ProjectionAxes::setPosition(int x, int y, int w, int h){
 	// only invalidate the texture if its size has actually changed
 	if (w!=GenericAxes::width || h!=GenericAxes::height)
 		invalidateTexture();
+
 	GenericAxes::setPosition(x,y,w,h);
 }
 
@@ -194,15 +195,20 @@ void ProjectionAxes::createTexture(){
 	texHeight = BaseUIElement::height;
 
   	std::cout<<"Creating a new texture of size:"<<texWidth<<"x"<<texHeight<<std::endl;
+  	// Delete the old texture
     glDeleteTextures(1, &textureId);
+    // Generate a new texture 
     glGenTextures(1, &textureId);
+    // Bind the texture, and set the appropriate parameters
     glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap generation included in OpenGL v1.4
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    // generate a new FrameBufferObject
+    createFBO();
 
+    // the texture should now be valid, set the flag appropriately
     isTextureValid = true;
 
-    createFBO();
 }
 
 void ProjectionAxes::createFBO(){
@@ -210,26 +216,28 @@ void ProjectionAxes::createFBO(){
 
 	// if (!isTextureValid)
 	// 	createTexture();
-
+	// Delete the old frame buffer, render buffer
 	glDeleteFramebuffers(1, &fboId);
 	glDeleteRenderbuffers(1, &rboId);
-	glGenFramebuffersEXT(1, &fboId);
 
+	// Generate and Bind the frame buffer
+	glGenFramebuffersEXT(1, &fboId);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboId);
 
+	// Generate and bind the new Render Buffer
 	glGenRenderbuffersEXT(1, &rboId);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, rboId);
 	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, texWidth, texHeight);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 
+	// Attach the texture to the framebuffer
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, textureId, 0);
-
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, rboId);
 
-	bool status = checkFramebufferStatus();
-
-	if(!status){
-	    std::cout<<"FrameBufferObject not created! Quitting!"<<std::endl;
+	// If the FrameBuffer wasn't created then we have a bigger problem. Abort the program.
+	if(!checkFramebufferStatus()){
+	    std::cout<<"FrameBufferObject not created! Are you running the newest version of OpenGL?"<<std::endl;
+	    std::cout<<"FrameBufferObjects are REQUIRED! Quitting!"<<std::endl;
 	    exit(1);
 	}
 
@@ -265,8 +273,6 @@ void ProjectionAxes::drawSpikesToTexture(bool allSpikes){
 
     // bind the original FrameBuffer
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0); 
-
-	// Did something fail? If so invalidate and re-render the texture
 }
 
 void ProjectionAxes::invalidateTexture(){
@@ -275,15 +281,17 @@ void ProjectionAxes::invalidateTexture(){
 
 
 void ProjectionAxes::drawTexturedQuad(){
-	//glViewport(BaseUIElement::xpos, BaseUIElement::ypos + BaseUIElement::height, texWidth, texHeight);
 	BaseUIElement::setGlViewport();
+	// We need to scale the viewport in this case because we want to fill it with a quad. 
+	// if we load identity then we can use a quad bound by (-1, 1);
     glLoadIdentity();
-   
+
+    // Bind the texture to render
     glBindTexture(GL_TEXTURE_2D, textureId);
 
+    // Build the quad
     int size = 1;
     int texS = 1;
-
     glBegin(GL_QUADS);
         glColor4f(1, 1, 1, 1);
         glTexCoord2f(texS,  texS);  glVertex3f(size,        size,0);
@@ -292,27 +300,29 @@ void ProjectionAxes::drawTexturedQuad(){
         glTexCoord2f(texS,  0);     glVertex3f(size,        -1 * size,0);
     glEnd();
     
+    // Unbind the texture
     glBindTexture(GL_TEXTURE_2D, 0);
-
 }
 
 void ProjectionAxes::clear(){
+	
 	//reset buffIDx and totalSpikes
 	buffIdx = 0;
 	totalSpikes = 0;
+	
 	// set flag to clear on next draw
 	clearOnNextDraw = true;	
 }
 
 void ProjectionAxes::clearTexture(){
 	std::cout<<"ProjectinAxes::clearTexture() --> Clearing the Texture!"<<std::endl;
-	
+
 	glViewport(0,0,texWidth, texHeight);
-	glLoadIdentity();
 	setViewportRange(xlims[0], ylims[0], xlims[1], ylims[1]);
+
 	// set the rendering destination to FBO
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboId);    
-    // plot to the texture
+    // Clear the framebufferObject
   	glClearColor (0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0); 
