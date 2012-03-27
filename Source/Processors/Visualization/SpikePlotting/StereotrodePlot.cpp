@@ -82,18 +82,18 @@ void StereotrodePlot::initAxes(){
 }
 
 void StereotrodePlot::setPosition(int x, int y, double w, double h){
+    
     std::cout<<"StereotrodePlot::setPosition()"<<std::endl;
 	BaseUIElement::setPosition(x,y,w,h);
 	int minX = BaseUIElement::xpos;
 	int minY = BaseUIElement::ypos;
 	
-	double axesWidth = BaseUIElement::width;
+	double axesWidth = BaseUIElement::width/2;
 	double axesHeight = BaseUIElement::height;
 	
-    wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
-    wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);	
-    pAxes = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2);
-
+    wAxes[0].setPosition(minX, minY, axesWidth/2, axesHeight);
+    wAxes[1].setPosition(minX + axesWidth/2, minY, axesWidth/2, axesHeight);	
+    pAxes.setPosition(minX + axesWidth, minY, axesWidth, axesHeight);
 }
 
 int StereotrodePlot::getNumberOfAxes(){
@@ -118,136 +118,6 @@ void StereotrodePlot::clear(){
     std::cout<<"StereotrodePlot::clear()"<<std::endl;
     pAxes.clear();
 }
-// void StereotrodePlot::mouseDown(int x, int y){
-
-// //     selectedAxesN = -1;
-// //     std::list<GenericAxes>::iterator i;
-// //     int idx=-1;
-// //     bool hit = false;
-
-// //     selectedAxes = NULL;
-// //     for (i=axesList.begin(); i!=axesList.end(); ++i)
-// //     {
-// //         if (i->hitTest(x,y))
-// //         {
-// //             selectedAxes = addressof(*i);
-// //             selectedAxesN = i->getType();
-// //             hit = true;
-// // //            break;
-// //         }
-// //         idx++;
-// //     }
-// //     if (!hit)
-// //         selectedAxes = NULL;
-// //     if (selectedAxes != NULL)
-// //         std::cout<<"StereotrodePlot::mouseDown() hit:"<<selectedAxes<<" AxesType:"<<selectedaxes.getType()<<std::endl;
-// //     else
-// //         std::cout<<"StereotrodePlot::mouseDown() NO HIT!"<<std::endl;
-    
-// }
-// void StereotrodePlot::mouseDragX(int dx, bool shift, bool ctrl){
-
-// //     if (selectedAxes == NULL || dx==0)
-// //         return;
-// // //    zoomAxes(selectedaxes.getType(), true, dx>0);
-// //     if (shift)
-// //         zoomAxes(selectedAxesN, true, dx);
-// //     if (ctrl)
-// //         panAxes(selectedAxesN, true, dx);
-
-// }
-// void StereotrodePlot::mouseDragY(int dy, bool shift, bool ctrl){
-//     if (selectedAxes == NULL || dy==0)
-//         return;
-//     if(shift)
-//         zoomAxes(selectedAxesN, false, dy);
-//     if(ctrl)
-//         panAxes(selectedAxesN, false, dy);
-// }
-
-// void StereotrodePlot::zoomAxes(int n, bool xdim, int zoom){
-// //    std::cout<<"StereotrodePlot::zoomAxes() n:"<< n<<" xdim"<< xdim<<" in:"<<zoomin<<std::endl;
-//     // If trying to zoom an invalid axes type
-//     if (n<WAVE1 || n>PROJ3x4)
-//         return;
-//     if (n<=WAVE4)
-//         zoomWaveform(n, xdim, zoom);
-//     else
-//         zoomProjection(n, xdim, zoom);
-// }
-
-// void StereotrodePlot::zoomWaveform(int n, bool xdim, int zoom){
-
-//     // waveform plots don't have a xlimits
-//     if (xdim)
-//         return;
-// //    std::cout<<"Zooming Waveform:"<<n<<" zoomin:"<<zoomin<<" ";
-//     double min, max;
-    
-//     if(xdim)
-//         return;
-
-//     min = limits[n][0];
-//     max = limits[n][1];
-    
-//     double mean = (max + min)/2.0f;
-//     double delta = max - mean;
-//     delta = delta / pow(.99, -1*zoom);
-
-//     min = mean - delta;
-//     max = mean + delta;
-
-//     limits[n][0] = min;
-//     limits[n][1] = max;
-    
-//     limitsChanged = true;
-// }
-
-// void StereotrodePlot::panAxes(int n, bool xdim, int panval){
-//     //    std::cout<<"StereotrodePlot::zoomAxes() n:"<< n<<" xdim"<< xdim<<" in:"<<zoomin<<std::endl;
-//     // If trying to zoom an invalid axes type
-//     if (n<WAVE1 || n>PROJ3x4)
-//         return;
-//     if (n<=WAVE4)
-//         panWaveform(n, xdim, panval);
-//     else
-//         panProjection(n, xdim, panval);
-// }
-
-// void StereotrodePlot::panWaveform(int n, bool xdim, int pan){
-    
-//     // waveform plots don't have a xlimits
-//     if (xdim)
-//         return;
-//     //    std::cout<<"Panning Waveform:"<<n<<" pan:"<<pan<<" "<<std::endl;
-//     double min, max;
-    
-//     if(xdim)
-//         return;
-    
-//     min = limits[n][0];
-//     max = limits[n][1];
-    
-//     double dy = max-min;
-    
-//     // Need to grab something if pan event is driven by the keyboard, which means that all the plots are getting panned so this should be okay
-//     if (selectedAxes == NULL)
-//         selectedAxes = &axesList.front();
-    
-//     double yPixels = (BaseUIElement::height - titleHeight)/2.0;
-    
-//     double pixelWidth = -1 * dy/yPixels;
-    
-//     double delta = pan * pixelWidth;
-//     min = min + delta;
-//     max = max + delta;
-    
-//     limits[n][0] = min;
-//     limits[n][1] = max;
-    
-//     limitsChanged = true;
-// }
-
 
 
 bool StereotrodePlot::processKeyEvent(SimpleKeyEvent k){

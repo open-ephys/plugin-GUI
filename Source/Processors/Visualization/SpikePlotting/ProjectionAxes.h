@@ -25,7 +25,7 @@ class ProjectionAxes: public GenericAxes{
 	int ampBuffer[2][AMP_BUFF_MAX_SIZE];
 	uint16_t buffIdx; // points to the most recent spike
 	uint64_t totalSpikes;
-	int recentAmps[2];
+
 
 	int ampDim1, ampDim2;
 		
@@ -58,7 +58,7 @@ class ProjectionAxes: public GenericAxes{
 
   	void validateTexture();
 
-  	bool plotAllSpikesNextRender;
+  	bool allSpikesNextRender;
 
 protected:
 	void plot();
@@ -68,6 +68,7 @@ public:
 	ProjectionAxes();
 	ProjectionAxes(int x, int y, double w, double h, int t);
     
+   	void setPosition(int, int, int, int);
    	void updateSpikeData(SpikeObject s);
 
 	void setPointColor(GLfloat r, GLfloat g, GLfloat b);

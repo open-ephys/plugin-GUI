@@ -3,8 +3,7 @@
 GenericAxes::GenericAxes():
 					BaseUIElement(),
 					type(0),
-					gotFirstSpike(false),
-					resizedFlag(false)
+					gotFirstSpike(false)
 {	
 	ylims[0] = 0;
 	ylims[1] = 1;
@@ -12,8 +11,7 @@ GenericAxes::GenericAxes():
 
 GenericAxes::GenericAxes(int x, int y, double w, double h, int t):
 					BaseUIElement(x,y,w,h),
-					gotFirstSpike(false),
-					resizedFlag(false)
+					gotFirstSpike(false)
 {
 	type = t;
 }
@@ -57,5 +55,4 @@ int GenericAxes::getType(){
 
 void GenericAxes::setPosition(int x, int y, double w, double h){
 	BaseUIElement::setPosition(x,y,w,h);	
-	resizedFlag = true;
 }

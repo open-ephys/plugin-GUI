@@ -23,7 +23,6 @@ protected:
 	SpikeObject s;
 
 	bool gotFirstSpike;
-	bool resizedFlag;
 	
 	int type;
 	virtual void plot(){}

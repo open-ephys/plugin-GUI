@@ -9,7 +9,6 @@ WaveAxes::WaveAxes():
 					convertLabelUnits(true)
 {	
 	GenericAxes::gotFirstSpike = false;
-	GenericAxes::resizedFlag = false;
 
 	ylims[0] = 0;
 	ylims[1] = 1;
@@ -28,7 +27,6 @@ WaveAxes::WaveAxes(int x, int y, double w, double h, int t):
 					convertLabelUnits(true)
 {	
 	GenericAxes::gotFirstSpike = false;
-	GenericAxes::resizedFlag = false;
 
 	setWaveformColor(1.0,1.0,0.6);
 	setThresholdColor(1.0, 0.1, 0.1);

@@ -171,7 +171,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     {
         s->gain[i] = gain;
         s->threshold[i] = 4000;
-        double scaleExponent =  (double)(rand()%25+2) / 10.0f; // Scale the wave between 50% and 150%
+        double scaleExponent =  (double)(rand()%26+2) / 10.0f; // Scale the wave between 50% and 150%
         
 		for (int j=0; j<32; j++){
 			
