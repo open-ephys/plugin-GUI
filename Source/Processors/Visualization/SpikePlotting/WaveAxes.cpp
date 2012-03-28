@@ -116,14 +116,14 @@ void WaveAxes::plot(){
 	String str = String(cstr);
 	
 	float yOffset = (ylims[1] - ylims[0])/BaseUIElement::height * 2;
-	drawString(1 ,s.threshold[chan] + yOffset, 20, str, font);
+	drawString(1 ,s.threshold[chan] + yOffset, 15, str, font);
 }
 
 void WaveAxes::drawWaveformGrid(int thold, int gain){
 
 	double voltRange = ylims[1] - ylims[0];
 	double pixelRange = BaseUIElement::height;
-	//This is a totally arbitrary value that i'll mess around with and set as a macro when I figure out a value I like
+	//This is a totally arbitrary value that seemed to lok the best for me
 	int minPixelsPerTick = 25;
 	int MAX_N_TICKS = 10;
 
@@ -144,7 +144,7 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 	String str;
 	
 	double tickVoltage = thold;
-	while(tickVoltage < ylims[1] - voltPerTick/2) // Draw the ticks above the thold line
+	while(tickVoltage < ylims[1] - voltPerTick*1.5) // Draw the ticks above the thold line
 	{
 		tickVoltage = roundUp(tickVoltage + voltPerTick, 100);
 		
@@ -155,7 +155,7 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 		
 		makeLabel(tickVoltage, gain, convertLabelUnits, cstr);
 		str = String(cstr);
-		drawString(1, tickVoltage+voltPerTick/10, 16, str, font);
+		drawString(1, tickVoltage+voltPerTick/10, 15, str, font);
 	}
 	
 	tickVoltage = thold;
@@ -170,7 +170,7 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 			
 		makeLabel(tickVoltage, gain, convertLabelUnits, cstr);
 		str = String(cstr);
-		drawString(1, tickVoltage+voltPerTick/10, 16, str, font);
+		drawString(1, tickVoltage+voltPerTick/10, 15, str, font);
 	}
 	
 	

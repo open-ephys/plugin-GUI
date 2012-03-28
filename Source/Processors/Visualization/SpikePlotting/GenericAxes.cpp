@@ -29,7 +29,7 @@ void GenericAxes::updateSpikeData(SpikeObject newSpike){
 }
 
 void GenericAxes::loadFont(){
-	const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::misoregular_ttf);
+	const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_plain_otf);
 	size_t bufferSize = BinaryData::misoregular_ttfSize;
 	font = new FTPixmapFont(buffer, bufferSize);
 }

@@ -92,17 +92,17 @@ double ad16ToUv(int x, int gain){
 
 void makeLabel(int val, int gain, bool convert, char * s){
 	if (convert){
-		val = ad16ToUv(val, gain);
+		double volt = ad16ToUv(val, gain)/1000.;
 		if (abs(val)>1e6){
 			val = val/(1e6);
-			sprintf(s, "%dV", (int)val);
+			sprintf(s, "%.2fV", volt);
 		}
 		else if(abs(val)>1e3){
 			val = val/(1e3);
-			sprintf(s, "%dmV", (int)val);
+			sprintf(s, "%.2fmV", volt);
 		}
 		else
-			sprintf(s, "%duV", (int)val);
+			sprintf(s, "%.2fuV", volt);
 	}
 	else
 		sprintf(s,"%d", (int)val);		
