@@ -66,6 +66,8 @@ private:
 	SpikeObject spike;
 	SpikeDisplayNode* processor;
 	std::vector<StereotrodePlot> plots;
+
+	int totalScrollPix;
 	// AudioSampleBuffer* displayBuffer;
 	// ScopedPointer<AudioSampleBuffer> screenBuffer;
 	// MidiBuffer* eventBuffer;
@@ -75,7 +77,8 @@ private:
 	// void drawChannelInfo(int chan, bool isSelected);
 	// void drawWaveform(int chan, bool isSelected);
 
-	void drawTicks();
+	void drawPlotTitle(int chan);
+	//void drawTicks();
 
 	// bool checkBounds(int chan);
 
@@ -100,7 +103,7 @@ private:
 	// void mouseDrag(const MouseEvent& e);
 	// void mouseMove(const MouseEvent& e);
 	// void mouseUp(const MouseEvent& e);
-	// void mouseWheelMove(const MouseEvent&, float, float);
+	void mouseWheelMove(const MouseEvent&, float, float);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayCanvas);
 	

@@ -13,12 +13,12 @@ void checkGlError(){
 		std::cout<<"OpenGL Okay!"<<std::endl;
 }
 void drawString(float x, float y, void *f, const char *string){
-	// glRasterPos2f(x, y);
-	// int len = strlen(string);
-	// // glColor3f(1.0, 1.0, 1.0);
-	// for (int i = 0; i < len; i++) {
- // 		glutBitmapCharacter(f, string[i]);
-	// }
+	glRasterPos2f(x, y);
+	int len = strlen(string);
+	// glColor3f(1.0, 1.0, 1.0);
+	for (int i = 0; i < len; i++) {
+ 		glutBitmapCharacter(f, string[i]);
+	}
 }
 
 void strokeString(void * font, char *message){

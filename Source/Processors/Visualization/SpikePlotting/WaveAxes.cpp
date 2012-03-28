@@ -121,7 +121,7 @@ void WaveAxes::plot(){
 //	printf(str);
 	
 	float yOffset = (ylims[1] - ylims[0])/BaseUIElement::height * 2;
-	//drawString(1 ,s.threshold[chan] + yOffset, GLUT_BITMAP_8_BY_13, str);
+	//drawString(1 ,s.threshold[chan] + yOffset, (void*)GLUT_BITMAP_8_BY_13, str);
 }
 
 void WaveAxes::drawWaveformGrid(int thold, int gain){

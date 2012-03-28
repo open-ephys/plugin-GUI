@@ -106,7 +106,7 @@ void ProjectionAxes::plot(){
 }
 
 void ProjectionAxes::plotOldSpikes(bool allSpikes){
-	std::cout<<"ProjectionAxes::plotOldSpikes() allSpikes:"<<allSpikes<<std::endl;
+	//std::cout<<"ProjectionAxes::plotOldSpikes() allSpikes:"<<allSpikes<<std::endl;
 	
 	//set the viewport to the size of the texture
 	glViewport(0,0,texWidth, texHeight);
@@ -168,7 +168,7 @@ void ProjectionAxes::plotNewestSpike(){
 }
 
 void ProjectionAxes::setPosition(int x, int y, int w, int h){
-	std::cout<<"ProjectionAxes::setPosition()"<<std::endl;
+	// std::cout<<"ProjectionAxes::setPosition()"<<std::endl;
 	
 	// only invalidate the texture if its size has actually changed
 	if (w!=GenericAxes::width || h!=GenericAxes::height)
@@ -238,7 +238,7 @@ void ProjectionAxes::createFBO(){
 
 void ProjectionAxes::drawSpikesToTexture(bool allSpikes){
 	
-	std::cout<<"ProjectionAxes::drawSpikesToTexture() plotting all spikes:"<<allSpikes<<std::endl;
+	//std::cout<<"ProjectionAxes::drawSpikesToTexture() plotting all spikes:"<<allSpikes<<std::endl;
 	
 
 	// For some reason if we want to plot ALL the spikes to a texture we must plot two draw cycles

@@ -83,7 +83,7 @@ void StereotrodePlot::initAxes(){
 
 void StereotrodePlot::setPosition(int x, int y, double w, double h){
     
-    std::cout<<"StereotrodePlot::setPosition()"<<std::endl;
+//    std::cout<<"StereotrodePlot::setPosition()"<<std::endl;
 	BaseUIElement::setPosition(x,y,w,h);
 	int minX = BaseUIElement::xpos;
 	int minY = BaseUIElement::ypos;

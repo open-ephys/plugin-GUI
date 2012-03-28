@@ -61,6 +61,13 @@ void BaseUIElement::setPosition(int x, int y, double w, double h){
 	width = w - padding*2;
 	height = h - padding*2;
 }
+
+void BaseUIElement::getPosition(int *x, int *y, double *w, double *h){
+	*x = xpos;
+	*y = ypos;
+	*w = width;
+	*h = height;
+}
 // void BaseUIElement::clearOnNextDraw(bool c){
 // 	clearNextDraw = c;
 // }

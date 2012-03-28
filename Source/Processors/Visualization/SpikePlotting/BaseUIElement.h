@@ -23,6 +23,7 @@ public:
 	void setEnabled(bool e);
 	bool getEnabled();
 	void setPosition(int x, int y, double w, double h);
+	void getPosition(int*, int*, double*, double*);
     double getHeight();
     double getWidth();
     int getX();
