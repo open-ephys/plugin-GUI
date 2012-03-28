@@ -8,6 +8,8 @@
 	#include <GLUT/glut.h>
 #endif
 #include <stdlib.h>
+#include <FTGL/ftgl.h>
+#include "../../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../SpikeObject.h"
 
@@ -27,10 +29,14 @@ protected:
 	int type;
 	virtual void plot(){}
 
+	FTPixmapFont* font;
+	void loadFont();
+
 	
 public:
 	GenericAxes();
 	GenericAxes(int x, int y, double w, double h, int t);
+	~GenericAxes();
 
 	void updateSpikeData(SpikeObject s);
 

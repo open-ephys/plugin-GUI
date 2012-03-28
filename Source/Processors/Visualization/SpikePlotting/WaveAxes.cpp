@@ -53,6 +53,7 @@ void WaveAxes::redraw(){
 void WaveAxes::plot(){
 
 	int chan = 0;
+	
 	// If no spikes have been received then don't plot anything
 	if (!gotFirstSpike)
 	{
@@ -78,6 +79,7 @@ void WaveAxes::plot(){
 	int	sampIdx = s.nSamples * type; //  
 	//std::cout<<"Starting with idx:"<<sampIdx<<std::endl;
 
+
 	//Draw the individual waveform points connected with a line
 	glColor3fv(waveColor);
 	glLineWidth(1);
@@ -93,11 +95,9 @@ void WaveAxes::plot(){
 	}
 	
 	glEnd();
-	// std::cout<<std::endl;
 	
 
-	// Draw the threshold line and label
-	
+	//Draw the threshold line and label
 	glColor3fv(thresholdColor);
 	glLineWidth(1); 
 	glLineStipple(4, 0xAAAA); // make a dashed line
@@ -110,18 +110,13 @@ void WaveAxes::plot(){
 
 	glDisable(GL_LINE_STIPPLE);
 
-	char str[500] = {0};
+	char cstr[100] = {0};
 	
-	/*if(convertLabelUnits)
-		sprintf(str, "%duV", ad16ToUv(s.threshold[chan], s.gain[chan]));
-	else
-		sprintf(str, "%d", (int) s.threshold[chan]);*/
-	makeLabel(s.threshold[chan], s.gain[chan], convertLabelUnits, str);
-	
-//	printf(str);
+	makeLabel(s.threshold[chan], s.gain[chan], convertLabelUnits, cstr);
+	String str = String(cstr);
 	
 	float yOffset = (ylims[1] - ylims[0])/BaseUIElement::height * 2;
-	//drawString(1 ,s.threshold[chan] + yOffset, (void*)GLUT_BITMAP_8_BY_13, str);
+	drawString(1 ,s.threshold[chan] + yOffset, 20, str, font);
 }
 
 void WaveAxes::drawWaveformGrid(int thold, int gain){
@@ -145,7 +140,8 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 	glColor3fv(gridColor);
 
 	glLineWidth(1);
-	char str[200] = {0}; 
+	char cstr[200] = {0}; 
+	String str;
 	
 	double tickVoltage = thold;
 	while(tickVoltage < ylims[1] - voltPerTick/2) // Draw the ticks above the thold line
@@ -157,8 +153,9 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 		glVertex2i(s.nSamples, tickVoltage);
 		glEnd();
 		
-		makeLabel(tickVoltage, gain, convertLabelUnits, str);
-		//drawString(1, tickVoltage+voltPerTick/10, GLUT_BITMAP_8_BY_13, str);
+		makeLabel(tickVoltage, gain, convertLabelUnits, cstr);
+		str = String(cstr);
+		drawString(1, tickVoltage+voltPerTick/10, 16, str, font);
 	}
 	
 	tickVoltage = thold;
@@ -171,8 +168,9 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 		glVertex2i(s.nSamples, tickVoltage);
 		glEnd();
 			
-		makeLabel(tickVoltage, gain, convertLabelUnits, str);
-		//drawString(1, tickVoltage+voltPerTick/10, GLUT_BITMAP_8_BY_13, str);
+		makeLabel(tickVoltage, gain, convertLabelUnits, cstr);
+		str = String(cstr);
+		drawString(1, tickVoltage+voltPerTick/10, 16, str, font);
 	}
 	
 	

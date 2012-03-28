@@ -156,7 +156,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     {	1.0, 1.0, 1.0, 1.0, 1.1, 1.2, 1.3, 1.5, 1.7, 2.0, 2.1, 2.2, 2.1, 2.0, 1.7, 1.5,
     	1.3, 1.2, 1.1, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
-    uint16_t gain = 1;
+    uint16_t gain = 2000;
 
     s->timestamp = timestamp;
     s->source = 0;
@@ -180,7 +180,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 				n = rand() % noise - noise/2;
 			}
 
-            s->data[idx] = (trace[waveType][j] + n) * gain * pow(scale[j],scaleExponent) + shift;
+            s->data[idx] = (trace[waveType][j] + n)  * pow(scale[j],scaleExponent) + shift;
             idx = idx+1;
         }
     }

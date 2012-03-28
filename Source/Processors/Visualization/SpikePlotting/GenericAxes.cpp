@@ -7,6 +7,7 @@ GenericAxes::GenericAxes():
 {	
 	ylims[0] = 0;
 	ylims[1] = 1;
+	loadFont();
 }
 
 GenericAxes::GenericAxes(int x, int y, double w, double h, int t):
@@ -14,6 +15,10 @@ GenericAxes::GenericAxes(int x, int y, double w, double h, int t):
 					gotFirstSpike(false)
 {
 	type = t;
+	loadFont();
+}
+GenericAxes::~GenericAxes(){
+	//delete font;
 }
 void GenericAxes::updateSpikeData(SpikeObject newSpike){
 	if (!gotFirstSpike){
@@ -23,6 +28,11 @@ void GenericAxes::updateSpikeData(SpikeObject newSpike){
 	s = newSpike;
 }
 
+void GenericAxes::loadFont(){
+	const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::misoregular_ttf);
+	size_t bufferSize = BinaryData::misoregular_ttfSize;
+	font = new FTPixmapFont(buffer, bufferSize);
+}
 
 void GenericAxes::setYLims(double ymin, double ymax){
 	ylims[0] = ymin;

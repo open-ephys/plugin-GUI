@@ -1,6 +1,5 @@
 #include "PlotUtils.h"
 
-
 void checkGlError(){
 	GLenum errCode;
 	const GLubyte *errString;
@@ -12,6 +11,7 @@ void checkGlError(){
 	else
 		std::cout<<"OpenGL Okay!"<<std::endl;
 }
+
 void drawString(float x, float y, void *f, const char *string){
 	glRasterPos2f(x, y);
 	int len = strlen(string);
@@ -21,19 +21,14 @@ void drawString(float x, float y, void *f, const char *string){
 	}
 }
 
-void strokeString(void * font, char *message){
-	// // glPushMatrix();
-	//  glLoadIdentity();
- //   	glTranslatef(-700, 0, 0);
-	// //glViewport(0,0,500,500);
-	// int len = (int) strlen(message);
-	// glColor3f(1.0, 1.0, 1.0);
-	// for (int i = 0; i < len; i++) {
-	// 	glutStrokeCharacter(font, message[i]);
-	// }
+void drawString(float x, float y, int size, String s, FTPixmapFont* f){
+	
+	glRasterPos2f(x, y);
 
-	// glPopMatrix();
+	f->FaceSize(size);
+	f->Render(s);
 }
+
 void drawViewportEdge(){
 	glPushMatrix();
 	glLoadIdentity();
@@ -94,6 +89,7 @@ double ad16ToUv(int x, int gain){
 	int result =  (double)(x * 20e6) / (double)(gain * pow(2,16));
 	return result;
 }
+
 void makeLabel(int val, int gain, bool convert, char * s){
 	if (convert){
 		val = ad16ToUv(val, gain);

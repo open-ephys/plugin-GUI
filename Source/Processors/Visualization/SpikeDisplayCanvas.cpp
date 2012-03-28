@@ -232,19 +232,22 @@ void SpikeDisplayCanvas::renderOpenGL()
 
 void SpikeDisplayCanvas::drawPlotTitle(int chan){
 
+	glViewport(0,0,getWidth(), getHeight());
+	setViewportRange(0, 0, getWidth(), getHeight());
+
 	int x, y;
 	double w,h;
  	plots[chan].getPosition(&x,&y,&w,&h);
 
-	float alpha = 1.0f;
+	float alpha = 0.50f;
 
-	glColor4f(1.0f,0.0f,0.0f,alpha);
-	glRasterPos2f(x, y+h);
-	std::cout<<"Drawing title at:"<<x<<","<<y<<std::endl;
-	String s = "Source: ";//String("Channel ");
+	glColor4f(0.0f,0.0f,0.0f,alpha);
+	glRasterPos2f(x, y+h+2);
+	
+	String s = "Source:";//String("Channel ");
 	s += (chan+1);
 
-	getFont(String("cpmono-bold"))->FaceSize(35);
+	getFont(String("cpmono-bold"))->FaceSize(25);
 	getFont(String("cpmono-bold"))->Render(s);
 }
 
@@ -314,7 +317,7 @@ void SpikeDisplayCanvas::mouseWheelMove(const MouseEvent& e, float wheelIncremen
 			plots[i].setPosition(x,y+scrollAmount, w, h);
 		}
 
-		scrollPix = totalScrollPix;
+		scrollPix = 0;//totalScrollPix;
 
 		repaint();
 
