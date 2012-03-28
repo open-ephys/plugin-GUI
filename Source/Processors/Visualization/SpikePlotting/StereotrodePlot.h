@@ -21,7 +21,7 @@ class StereotrodePlot : public BaseUIElement{
 	bool enabled;	
     
     bool limitsChanged;
-    double limits[1][2];
+    double limits[2][2];
     
     WaveAxes wAxes[2];
     ProjectionAxes pAxes;
@@ -37,6 +37,8 @@ class StereotrodePlot : public BaseUIElement{
     // void panWaveform(int n, bool xdim, int panval);
     
     void initLimits();
+    void setLimitsOnAxes();
+
 	
 public:
 	StereotrodePlot();
@@ -64,10 +66,8 @@ public:
     void processSpikeObject(SpikeObject s);
 
     void clear();
-    void zoomIn();
-    void zoomOut();
-    void panUp();
-    void panDown();
+    void zoom(int, bool);
+    void pan(int, bool);
 };
 
 

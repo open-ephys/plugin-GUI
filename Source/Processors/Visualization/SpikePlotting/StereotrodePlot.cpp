@@ -68,19 +68,24 @@ void StereotrodePlot::initAxes(){
 	wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
     wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);
     pAxes = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2);
-	
-    //axes.setEnabled(false);
-	wAxes[0].setYLims(-1*pow(2,11), pow(2,14)*1.6);
-    wAxes[1].setYLims(-1*pow(2,11), pow(2,14)*1.6);
-    pAxes.setYLims(-1*pow(2,11), pow(2,14)*1.6);
-    pAxes.setXLims(-1*pow(2,11), pow(2,14)*1.6);
-	
+
     wAxes[0].setWaveformColor(1.0, 1.0, 1.0);
     wAxes[1].setWaveformColor(1.0, 1.0, 1.0);
     pAxes.setPointColor(1.0, 1.0, 1.0);
 
+    setLimitsOnAxes();
 }
 
+void StereotrodePlot::setLimitsOnAxes(){
+    std::cout<<"StereotrodePlot::setLimitsOnAxes()"<<std::endl;
+    
+    wAxes[0].setYLims(limits[0][0], limits[0][1]);
+    wAxes[1].setYLims(limits[1][0], limits[1][1]);
+    pAxes.setYLims(limits[0][0], limits[0][1]);
+    pAxes.setXLims(limits[1][0], limits[1][1]);
+    
+
+}
 void StereotrodePlot::setPosition(int x, int y, double w, double h){
     
 //    std::cout<<"StereotrodePlot::setPosition()"<<std::endl;
@@ -97,14 +102,14 @@ void StereotrodePlot::setPosition(int x, int y, double w, double h){
 }
 
 int StereotrodePlot::getNumberOfAxes(){
-	return 1;;
+	return 2;
 }
 
 void StereotrodePlot::initLimits(){
-    for (int i=0; i<4; i++)
+    for (int i=0; i<2; i++)
     {
         limits[i][0] = -1*pow(2,11);
-        limits[i][1] = pow(2,14);
+        limits[i][1] = pow(2,14)*1.6;
     }
 
 }
@@ -144,6 +149,45 @@ bool StereotrodePlot::processKeyEvent(SimpleKeyEvent k){
     //         clearOnNextDraw(true);
     //         break;
     // }
+}
+
+void StereotrodePlot::pan(int dim, bool up){
+
+    std::cout<<"StereotrodePlot::pan() dim:"<<dim<<std::endl;
+    if (dim>1 || dim<0)
+        return;
+    
+    int mean = (limits[dim][0] + limits[dim][1])/2;
+    int dLim = limits[dim][1] - mean;
+    
+    if (up)
+        mean = mean + dLim/20;
+    else
+        mean = mean - dLim/20;
+
+    limits[dim][0] = mean-dLim;
+    limits[dim][1] = mean+dLim;
+
+    setLimitsOnAxes();
+}
+void StereotrodePlot::zoom(int dim, bool in){
+    std::cout<<"StereotrodePlot::zoom()"<<std::endl;
+
+    if (dim>1 || dim<0)
+        return;
+    
+    int mean = (limits[dim][0] + limits[dim][1])/2;
+    int dLim = limits[dim][1] - mean;
+    
+    if (in)
+        dLim = dLim * .90;
+    else
+        dLim = dLim / .90;
+
+    limits[dim][0] = mean-dLim;
+    limits[dim][1] = mean+dLim;
+
+    setLimitsOnAxes();
 }
 
 

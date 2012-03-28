@@ -56,6 +56,9 @@ public:
 
 	void setParameter(int, float);
 
+	void panPlot(int, int, bool);
+	void zoomPlot(int, int, bool);
+
 private:
 
 	int xBuffer, yBuffer;
@@ -102,7 +105,7 @@ private:
 	void mouseDownInCanvas(const MouseEvent& e);
 	// void mouseDrag(const MouseEvent& e);
 	// void mouseMove(const MouseEvent& e);
-	// void mouseUp(const MouseEvent& e);
+	void mouseUp(const MouseEvent& e);
 	void mouseWheelMove(const MouseEvent&, float, float);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayCanvas);

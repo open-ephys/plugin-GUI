@@ -277,14 +277,28 @@ void SpikeDisplayCanvas::mouseDownInCanvas(const MouseEvent& e)
 
 // void SpikeDisplayCanvas::mouseDrag(const MouseEvent& e) {mouseDragInCanvas(e);}
 // void SpikeDisplayCanvas::mouseMove(const MouseEvent& e) {mouseMoveInCanvas(e);}
-// void SpikeDisplayCanvas::mouseUp(const MouseEvent& e) 	{mouseUpInCanvas(e);}
+void SpikeDisplayCanvas::mouseUp(const MouseEvent& e) 	{
+	std::cout<<"Mouse Event!"<<std::endl;
+
+	bool inout = false;
+
+	if (e.getMouseDownX() < getWidth()/2)
+		inout = false;
+	else
+		inout = true;
+
+	if (e.getMouseDownY() < getHeight()/2)
+		zoomPlot(0,0, inout);
+	else
+		panPlot(0,0,inout);
+}
 void SpikeDisplayCanvas::mouseWheelMove(const MouseEvent& e, float wheelIncrementX, float wheelIncrementY) {
 
-	std::cout<<"Mouse Wheel Move:"<< wheelIncrementX<<","<<wheelIncrementY;
-	std::cout<<" Scroll Pix:"<<scrollPix<<std::endl;
+	// std::cout<<"Mouse Wheel Move:"<< wheelIncrementX<<","<<wheelIncrementY;
+	// std::cout<<" Scroll Pix:"<<scrollPix<<std::endl;
 
 	int scrollAmount = 0;
-	std::cout<<getTotalHeight()<<" "<<getHeight()<<std::endl;
+	// std::cout<<getTotalHeight()<<" "<<getHeight()<<std::endl;
 
 	if (getTotalHeight() > getHeight()) {
 		//if (wheelIncrementY > 0 )
@@ -297,7 +311,7 @@ void SpikeDisplayCanvas::mouseWheelMove(const MouseEvent& e, float wheelIncremen
 		int minScrollDown = (-1 * totalHeight) + getHeight();
 		int maxScrollUp = 0; // never scroll plots up, there is nothing below the bottom plot
 
-		std::cout<<"TotalScrollPix:"<<totalScrollPix<<" min:"<<minScrollDown<<" max:"<<maxScrollUp<<std::endl;
+		// std::cout<<"TotalScrollPix:"<<totalScrollPix<<" min:"<<minScrollDown<<" max:"<<maxScrollUp<<std::endl;
 		
 		if (totalScrollPix < minScrollDown){
 			totalScrollPix= minScrollDown;
@@ -326,6 +340,20 @@ void SpikeDisplayCanvas::mouseWheelMove(const MouseEvent& e, float wheelIncremen
 	}
 
 	mouseWheelMoveInCanvas(e, wheelIncrementX, wheelIncrementY);
+}
+
+void SpikeDisplayCanvas::panPlot(int p, int c, bool up){
+	std::cout<<"SpikeDisplayCanvas::panPlot()"<<std::endl;
+	if (p<0 || p>plots.size())
+		return;
+	plots[p].pan(c, up);
+
+}
+void SpikeDisplayCanvas::zoomPlot(int p, int c, bool in){
+	std::cout<<"SpikeDisplayCanvas::panPlot()"<<std::endl;
+	if (p<0 || p>plots.size())
+		return;
+	plots[p].zoom(c, in);
 }
 
 // void SpikeDisplayCanvas::resized()

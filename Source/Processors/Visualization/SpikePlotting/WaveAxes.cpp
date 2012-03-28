@@ -66,8 +66,8 @@ void WaveAxes::plot(){
 	setViewportRange(0, ylims[0], s.nSamples-1, ylims[1]);
 	
 	// draw the grid lines for the waveforms?
-	if(drawGrid)
-		drawWaveformGrid(s.threshold[chan], s.gain[chan]);
+	 if(drawGrid)
+	 	drawWaveformGrid(s.threshold[chan], s.gain[chan]);
 	
 	//compute the spatial width for each wawveform sample	
 	float dx = 1;
@@ -132,10 +132,9 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 		minPixelsPerTick += 5;
 		nTicks = pixelRange / minPixelsPerTick;
 	}
-	int voltPerTick = (voltRange / nTicks);
-	// Round to the nearest 200
 
-	
+	int voltPerTick = (voltRange / nTicks);
+
 	double meanRange = voltRange/2;
 	glColor3fv(gridColor);
 
@@ -144,6 +143,10 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 	String str;
 	
 	double tickVoltage = thold;
+
+	// If the limits are bad we don't want to hang the program trying to draw too many ticks
+	// so count the number of ticks drawn and kill the routine after 100 draws
+	int tickCount=0;
 	while(tickVoltage < ylims[1] - voltPerTick*1.5) // Draw the ticks above the thold line
 	{
 		tickVoltage = roundUp(tickVoltage + voltPerTick, 100);
@@ -156,9 +159,13 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 		makeLabel(tickVoltage, gain, convertLabelUnits, cstr);
 		str = String(cstr);
 		drawString(1, tickVoltage+voltPerTick/10, 15, str, font);
+		
+		if (tickCount++>100)
+			return;
 	}
 	
 	tickVoltage = thold;
+	tickCount = 0;
 	while(tickVoltage > ylims[0] + voltPerTick) // draw the ticks below the thold line
 	{
 		tickVoltage = roundUp(tickVoltage - voltPerTick, 100);
@@ -171,6 +178,9 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 		makeLabel(tickVoltage, gain, convertLabelUnits, cstr);
 		str = String(cstr);
 		drawString(1, tickVoltage+voltPerTick/10, 15, str, font);
+
+		if (tickCount++>100)
+			return;
 	}
 	
 	

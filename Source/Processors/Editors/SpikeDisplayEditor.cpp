@@ -156,9 +156,11 @@ void SpikeDisplayEditor::buttonCallback(Button* button)
 	//std::cout<<"Got event from component:"<<button<<std::endl;
 	if (button == panUpBtn)
 	{
+		std::cout<<"Pan UP!"<<std::endl;
 		for (int i=0; i<nSubChannels; i++)
-			if (subChanSelected[i])
+			if (subChanSelected[i]){
 				std::cout<<"Pan Up Chan:"<<i<<std::endl;
+			}
 	}
 	else if (button == panDownBtn){
 		for (int i=0; i<nSubChannels; i++)
