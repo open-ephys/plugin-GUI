@@ -55,6 +55,7 @@ public:
 	void update();
 
 	void setParameter(int, float);
+	void setParameter(int, int, int, float);
 
 	void panPlot(int, int, bool);
 	void zoomPlot(int, int, bool);

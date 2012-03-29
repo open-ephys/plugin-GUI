@@ -13,7 +13,7 @@ SpikeDisplayEditor::SpikeDisplayEditor (GenericProcessor* parentNode)
 	nSubChannels = 4;
 
 	for (int i=0; i<nSubChannels; i++)
-		subChanSelected[i] = false;
+		subChanSelected[i] = true;
 
 	initializeButtons();
 
@@ -109,6 +109,7 @@ void SpikeDisplayEditor::initializeButtons(){
 	allSubChansBtn = new ChannelSelectorButton("All", titleFont);
 	allSubChansBtn->setBounds(x,y,w*2+xPad,h);
 	allSubChansBtn->addListener(this);
+	allSubChansBtn->setToggleState(true, false);
 	x += (w+xPad) * 2;
 	
 	for (int i=0; i<nSubChannels; i++)
@@ -119,10 +120,10 @@ void SpikeDisplayEditor::initializeButtons(){
 		subChanBtn[i] = new ChannelSelectorButton(s, titleFont);
 		subChanBtn[i]->setBounds(x,y,w,h);
 		subChanBtn[i]->addListener(this);
+		subChanBtn[i]->setToggleState(true, false);
 		x += w + xPad;
-
-
 	}
+
 
 
 	addAndMakeVisible(panUpBtn);
@@ -154,29 +155,28 @@ Visualizer* SpikeDisplayEditor::createNewCanvas()
 void SpikeDisplayEditor::buttonCallback(Button* button)
 {
 	//std::cout<<"Got event from component:"<<button<<std::endl;
-	if (button == panUpBtn)
-	{
-		std::cout<<"Pan UP!"<<std::endl;
+
+	int pIdx = 0;
+	if (button == panUpBtn){
 		for (int i=0; i<nSubChannels; i++)
-			if (subChanSelected[i]){
-				std::cout<<"Pan Up Chan:"<<i<<std::endl;
-			}
+			if (subChanSelected[i])
+				canvas->setParameter(SPIKE_CMD_PAN_AXES, pIdx, i, 1);
 	}
 	else if (button == panDownBtn){
 		for (int i=0; i<nSubChannels; i++)
-				if (subChanSelected[i])
-					std::cout<<"Pan Down Chan:"<<i<<std::endl;	
+			if (subChanSelected[i])
+				canvas->setParameter(SPIKE_CMD_PAN_AXES, pIdx, i, -1);
 	}
 	else if (button == zoomInBtn){
 		for (int i=0; i<nSubChannels; i++)
 			if (subChanSelected[i])
-				std::cout<<"Zooming In Chan:"<<i<<std::endl;
+				canvas->setParameter(SPIKE_CMD_ZOOM_AXES, pIdx, i, -1);
 	}
 	else if (button == zoomOutBtn)
 	{
 		for (int i=0; i<nSubChannels; i++)
 			if (subChanSelected[i])
-				std::cout<<"Zooming Out Chan:"<<i<<std::endl;
+				canvas->setParameter(SPIKE_CMD_ZOOM_AXES, pIdx, i, 1);
 	}
 
 	else if (button == clearBtn){
@@ -196,6 +196,8 @@ void SpikeDisplayEditor::buttonCallback(Button* button)
 	}
 	// Check the sub Channel selection buttons one by one
 	else{ 
+		// If the user has clicked a sub channel button then the all channels button should be untoggled if toggled
+		allSubChansBtn->setToggleState(false, false);
 		for (int i=0; i<nSubChannels; i++)
 			if(button == subChanBtn[i])
 			{
@@ -203,5 +205,17 @@ void SpikeDisplayEditor::buttonCallback(Button* button)
 				subChanSelected[i] = ((ChannelSelectorButton*) button)->getToggleState();
 				std::cout<< subChanSelected[i]<<std::endl;
 			}
+
+		// If the user has toggled all of the sub channels on, then set AllChans to on
+		bool allChansToggled = true;
+		for (int i=0; i<nSubChannels; i++)
+		{
+			if (subChanBtn[i]->getToggleState()!=allChansToggled){
+				allChansToggled = false;
+				break;
+			}
+		}
+		allSubChansBtn->setToggleState(allChansToggled, false);
+
 	}
 }

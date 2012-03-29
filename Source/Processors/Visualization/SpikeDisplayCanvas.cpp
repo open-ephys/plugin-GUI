@@ -165,9 +165,12 @@ void SpikeDisplayCanvas::update()
 }
 
 
+// Used for Plot specific commands, this commands target a specific PLOT and have
+// no additional information, IE PARAM-> CLEAR  val->plot6  
+// for more complex messages use the other version of setParameter
 void SpikeDisplayCanvas::setParameter(int param, float val)
 {
-	//std::cout<<"Got Param:"<< param<< " with value:"<<val<<std::endl;
+	std::cout<<"Got Param:"<< param<< " with value:"<<val<<std::endl;
 	switch (param)
 	{
 		case SPIKE_CMD_CLEAR_ALL :
@@ -181,8 +184,20 @@ void SpikeDisplayCanvas::setParameter(int param, float val)
 		default:
 			std::cout<<"Unkown Commad specified! "<<param<<std::endl;
 	}
-
 }
+
+void SpikeDisplayCanvas::setParameter(int param, int p2, int p3, float value){
+	std::cout<<"Got Parameter:"<<param<<" p2:"<<p2<<" p3:"<<p3<<" value:"<<value<<std::endl;
+	switch (param){
+		case SPIKE_CMD_PAN_AXES:
+			panPlot(p2, p3, value<=0);
+			break;
+		case SPIKE_CMD_ZOOM_AXES:
+			zoomPlot(p2, p3, value<=0);
+			break;
+	}
+}
+
 
 void SpikeDisplayCanvas::refreshState()
 {
@@ -278,19 +293,19 @@ void SpikeDisplayCanvas::mouseDownInCanvas(const MouseEvent& e)
 // void SpikeDisplayCanvas::mouseDrag(const MouseEvent& e) {mouseDragInCanvas(e);}
 // void SpikeDisplayCanvas::mouseMove(const MouseEvent& e) {mouseMoveInCanvas(e);}
 void SpikeDisplayCanvas::mouseUp(const MouseEvent& e) 	{
-	std::cout<<"Mouse Event!"<<std::endl;
+	// std::cout<<"Mouse Event!"<<std::endl;
 
-	bool inout = false;
+	// bool inout = false;
 
-	if (e.getMouseDownX() < getWidth()/2)
-		inout = false;
-	else
-		inout = true;
+	// if (e.getMouseDownX() < getWidth()/2)
+	// 	inout = false;
+	// else
+	// 	inout = true;
 
-	if (e.getMouseDownY() < getHeight()/2)
-		zoomPlot(0,0, inout);
-	else
-		panPlot(0,0,inout);
+	// if (e.getMouseDownY() < getHeight()/2)
+	// 	zoomPlot(0,0, inout);
+	// else
+	// 	panPlot(0,0,inout);
 }
 void SpikeDisplayCanvas::mouseWheelMove(const MouseEvent& e, float wheelIncrementX, float wheelIncrementY) {
 
