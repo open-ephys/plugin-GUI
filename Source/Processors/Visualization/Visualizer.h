@@ -46,6 +46,7 @@ public:
 	virtual void endAnimation() = 0;
 
 	virtual void setParameter(int, float) = 0;
+    virtual void setParameter(int, int, int, float) = 0;
 
 };
 
