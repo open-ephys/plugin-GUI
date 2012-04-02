@@ -62,8 +62,9 @@ public:
 	
 private:
 
-	File outputFile;
-	FileOutputStream* outputStream;
+  Array<FILE*> files;
+	//File headerFile;
+	//FileOutputStream* outputStream;
 
 	bool isRecording;
 

@@ -33,6 +33,8 @@ FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn),
 	File file = File("./data_stream_16ch");
 	input = file.createInputStream();
 
+   // lengthOfInputFile = file
+
 	dataBuffer = new DataBuffer(16, 4096);
 
 	std::cout << "File Reader Thread initialized." << std::endl;
@@ -64,6 +66,10 @@ bool FileReaderThread::updateBuffer()
 
 	while (dataBuffer->getNumSamples() < 4096)
 	{
+
+       // if (input->getTotalLength())
+
+        //input->read(thisSample, 4*)
 
     	for (int ch = 0; ch < numChannels; ch++) {
     		

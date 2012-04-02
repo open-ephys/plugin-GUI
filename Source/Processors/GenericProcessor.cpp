@@ -320,7 +320,6 @@ int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)
 
 		while (i.getNextEvent (message, samplePosition)) {
 			
-			//int numbytes = message.getRawDataSize();
 			uint8* dataptr = message.getRawData();
 
 			handleEvent(*dataptr, message);
@@ -333,7 +332,7 @@ int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)
 
 }
 
-void GenericProcessor::addEvent(MidiBuffer& midiMessages,
+void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
 							    uint8 type,
 							    int sampleNum,
 							    uint8 eventId,
@@ -349,19 +348,19 @@ void GenericProcessor::addEvent(MidiBuffer& midiMessages,
     data[3] = eventChannel; // event channel
     memcpy(&data[4], eventData, numBytes);
 
-    midiMessages.addEvent(data, 		// spike data
+    eventBuffer.addEvent(data, 		// spike data
                           sizeof(data), // total bytes
                           sampleNum);     // sample index
 }
 
-void GenericProcessor::processBlock (AudioSampleBuffer &buffer, MidiBuffer &midiMessages)
+void GenericProcessor::processBlock (AudioSampleBuffer &buffer, MidiBuffer &eventBuffer)
 {
 	
-	int nSamples = getNumSamples(midiMessages); // removes first value from midimessages
+	int nSamples = getNumSamples(eventBuffer); // removes first value from midimessages
 
-	process(buffer, midiMessages, nSamples);
+	process(buffer, eventBuffer, nSamples);
 
-	setNumSamples(midiMessages, nSamples); // adds it back,
-										   // even if it's unchanged
+	setNumSamples(eventBuffer, nSamples); // adds it back,
+										  // even if it's unchanged
 
 }

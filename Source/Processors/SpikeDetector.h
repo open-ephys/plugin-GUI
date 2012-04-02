@@ -64,7 +64,7 @@ public:
 
 	bool addElectrode(int nChans);
 	bool removeElectrode(int index);
-	bool setChannel(int electrodeIndex, int channelNum);
+	bool setChannel(int electrodeIndex, int channelNum, int newChannel);
 	bool setName(int index, String newName);
 
 	int getNumChannels(int index);

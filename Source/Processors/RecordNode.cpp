@@ -29,10 +29,9 @@ RecordNode::RecordNode()
 
 	// need to update this:
 	setPlayConfigDetails(64,0,44100.0,128);
-
-	//utputFile = File("./data"); // create output file
-	//outputStream = 0;
 	
+
+
 }
 
 
@@ -52,7 +51,7 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 
 bool RecordNode::enable()
 {
-	//outputStream = outputFile.createOutputStream();
+	// open files, creating them if necessary
 
 	return true;
 }
@@ -61,19 +60,17 @@ bool RecordNode::enable()
 bool RecordNode::disable() 
 {	
 	
-	// if (outputStream != 0) {
-	// 	outputStream->flush();
-
-	// 	delete(outputStream);
-	// 	outputStream = 0;
-	// }
+	// close files
 
 	return true;
 }
 
 float RecordNode::getFreeSpace()
 {
-	return (1.0f-float(outputFile.getBytesFreeOnVolume())/float(outputFile.getVolumeTotalSize()));
+	// this needs to be updated:
+
+	return 0.5;
+	//return (1.0f-float(outputFile.getBytesFreeOnVolume())/float(outputFile.getVolumeTotalSize()));
 }
 
 void RecordNode::process(AudioSampleBuffer &buffer, 
@@ -86,15 +83,9 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 
 	if (isRecording) {
 
-		//int nSamps = getNumSamples(midiMessages);
+		// cycle through buffer channels, saving them to the appropriate places
 
-		for (int n = 0; n < nSamples; n++) {
-		
-			float* sample = buffer.getSampleData(1,n);
-			outputStream->writeFloat(*sample);
-			//AudioDataConverters::convertFloatToInt16BE(&sample)
-			//);
-		}
+
 	}
 
 }
