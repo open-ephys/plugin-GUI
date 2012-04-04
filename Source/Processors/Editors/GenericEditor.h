@@ -114,6 +114,11 @@ public:
 	Array<bool> audioChannels;
 	Array<bool> recordChannels;
 	Array<bool> paramsChannels;
+
+protected:
+	DrawerButton* drawerButton;
+	int drawerWidth;
+
 	
 private:
 
@@ -134,9 +139,7 @@ private:
 
 	int numChannels;
 
-	int drawerWidth;
 
-	DrawerButton* drawerButton;
 
 	EditorButton* audioButton;
 	EditorButton* recordButton;
@@ -149,9 +152,13 @@ private:
 	ChannelSelectorButton* allButton;
 	ChannelSelectorButton* noneButton;
 
-	Font titleFont;
 
 	String name;
+
+protected:
+
+	Font titleFont;
+
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericEditor);
 
@@ -228,5 +235,6 @@ private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
 };
+
 
 #endif  // __GENERICEDITOR_H_DD406E71__

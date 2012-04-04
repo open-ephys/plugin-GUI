@@ -46,6 +46,8 @@ public:
 	void update();
 
 	void setParameter(int, float);
+	void setParameter(int, int, int, float){}
+
 
 private:
 

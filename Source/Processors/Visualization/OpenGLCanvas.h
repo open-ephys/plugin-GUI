@@ -73,6 +73,8 @@ public:
 protected:
 
 	virtual int getTotalHeight() = 0;
+	int scrollPix;
+	void showScrollBars();
 
 private:
 
@@ -84,9 +86,8 @@ private:
 
 	void drawScrollBar(float y1, float y2, float alpha);
 	
-	void showScrollBars();
 
-	int scrollBarWidth, scrollPix, scrollDiff, originalScrollPix;
+	int scrollBarWidth, scrollDiff, originalScrollPix;
 	int scrollTime;
 	bool showScrollTrack;
 

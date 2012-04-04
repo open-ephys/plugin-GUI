@@ -12,7 +12,6 @@
 #include "WaveAxes.h"
 #include "ProjectionAxes.h"
 #include "BaseUIElement.h"
-#include "TetrodeSource.h"
 #include "PlotUtils.h"
 #include "SimpleKeyEvent.h"
 
@@ -22,7 +21,7 @@ class StereotrodePlot : public BaseUIElement{
 	bool enabled;	
     
     bool limitsChanged;
-    double limits[1][2];
+    double limits[2][2];
     
     WaveAxes wAxes[2];
     ProjectionAxes pAxes;
@@ -38,6 +37,8 @@ class StereotrodePlot : public BaseUIElement{
     // void panWaveform(int n, bool xdim, int panval);
     
     void initLimits();
+    void setLimitsOnAxes();
+
 	
 public:
 	StereotrodePlot();
@@ -54,7 +55,6 @@ public:
 	void getPreferredDimensions(double*, double*);
 
 	int getNumberOfAxes();
-	void clearOnNextDraw(bool c);
     
     void mouseDown(int x, int y);
     
@@ -64,6 +64,10 @@ public:
     bool processKeyEvent(SimpleKeyEvent k);
 
     void processSpikeObject(SpikeObject s);
+
+    void clear();
+    void zoom(int, bool);
+    void pan(int, bool);
 };
 
 

@@ -123,12 +123,12 @@ void TetrodePlot::setPosition(int x, int y, double w, double h){
     wAxes[2].setPosition(minX, minY + axesHeight, axesWidth/2, axesHeight);
     wAxes[3].setPosition(minX + axesWidth/2, minY + axesHeight, axesWidth/2, axesHeight);
 
-    pAxes[0].setPosition(minX + axesWidth*1, minY, axesWidth, axesHeight);
-    pAxes[1].setPosition(minX + axesWidth*2, minY, axesWidth, axesHeight);
-    pAxes[2].setPosition(minX + axesWidth*3, minY, axesWidth, axesHeight);
-    pAxes[3].setPosition(minX + axesWidth*1, minY + axesHeight, axesWidth, axesHeight);
-    pAxes[4].setPosition(minX + axesWidth*2, minY + axesHeight, axesWidth, axesHeight);
-    pAxes[5].setPosition(minX + axesWidth*3, minY + axesHeight, axesWidth, axesHeight);
+    // pAxes[0].setPosition(minX + axesWidth*1, minY, axesWidth, axesHeight);
+    // pAxes[1].setPosition(minX + axesWidth*2, minY, axesWidth, axesHeight);
+    // pAxes[2].setPosition(minX + axesWidth*3, minY, axesWidth, axesHeight);
+    // pAxes[3].setPosition(minX + axesWidth*1, minY + axesHeight, axesWidth, axesHeight);
+    // pAxes[4].setPosition(minX + axesWidth*2, minY + axesHeight, axesWidth, axesHeight);
+    // pAxes[5].setPosition(minX + axesWidth*3, minY + axesHeight, axesWidth, axesHeight);
 
     //titleBox.setPosition(x, y+h-titleHeight-3, w, titleHeight+3);
 }
@@ -145,9 +145,6 @@ int TetrodePlot::getNumberOfAxes(){
     return 1;;
 }
 
-void TetrodePlot::clearOnNextDraw(bool b){
-    BaseUIElement::clearNextDraw = b;
-}
 
 void TetrodePlot::initLimits(){
     for (int i=0; i<4; i++)

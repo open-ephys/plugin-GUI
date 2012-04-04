@@ -25,7 +25,7 @@ StereotrodePlot::~StereotrodePlot(){
 //  the right direction
 
 void StereotrodePlot::redraw(){
-	 //std::cout<<"StereotrodePlot() starting drawing"<<std::endl;\
+	//std::cout<<"StereotrodePlot() starting drawing"<<std::endl;\
 	//BaseUIElement::clearNextDraw = true;
 	//BaseUIElement::redraw();
 
@@ -68,46 +68,48 @@ void StereotrodePlot::initAxes(){
 	wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
     wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);
     pAxes = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2);
-	
-    //axes.setEnabled(false);
-	wAxes[0].setYLims(-1*pow(2,11), pow(2,14)*1.6);
-    wAxes[1].setYLims(-1*pow(2,11), pow(2,14)*1.6);
-    pAxes.setYLims(-1*pow(2,11), pow(2,14)*1.6);
-    pAxes.setXLims(-1*pow(2,11), pow(2,14)*1.6);
-	
+
     wAxes[0].setWaveformColor(1.0, 1.0, 1.0);
     wAxes[1].setWaveformColor(1.0, 1.0, 1.0);
     pAxes.setPointColor(1.0, 1.0, 1.0);
 
+    setLimitsOnAxes();
 }
 
+void StereotrodePlot::setLimitsOnAxes(){
+    std::cout<<"StereotrodePlot::setLimitsOnAxes()"<<std::endl;
+    
+    wAxes[0].setYLims(limits[0][0], limits[0][1]);
+    wAxes[1].setYLims(limits[1][0], limits[1][1]);
+    pAxes.setYLims(limits[0][0], limits[0][1]);
+    pAxes.setXLims(limits[1][0], limits[1][1]);
+    
+
+}
 void StereotrodePlot::setPosition(int x, int y, double w, double h){
+    
+//    std::cout<<"StereotrodePlot::setPosition()"<<std::endl;
 	BaseUIElement::setPosition(x,y,w,h);
 	int minX = BaseUIElement::xpos;
 	int minY = BaseUIElement::ypos;
 	
-	double axesWidth = BaseUIElement::width;
+	double axesWidth = BaseUIElement::width/2;
 	double axesHeight = BaseUIElement::height;
 	
-    wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
-    wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);	
-    pAxes = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2);
-
+    wAxes[0].setPosition(minX, minY, axesWidth/2, axesHeight);
+    wAxes[1].setPosition(minX + axesWidth/2, minY, axesWidth/2, axesHeight);	
+    pAxes.setPosition(minX + axesWidth, minY, axesWidth, axesHeight);
 }
 
 int StereotrodePlot::getNumberOfAxes(){
-	return 1;;
-}
-
-void StereotrodePlot::clearOnNextDraw(bool b){
-	BaseUIElement::clearNextDraw = b;
+	return 2;
 }
 
 void StereotrodePlot::initLimits(){
-    for (int i=0; i<4; i++)
+    for (int i=0; i<2; i++)
     {
         limits[i][0] = -1*pow(2,11);
-        limits[i][1] = pow(2,14);
+        limits[i][1] = pow(2,14)*1.6;
     }
 
 }
@@ -116,136 +118,11 @@ void StereotrodePlot::getPreferredDimensions(double *w, double *h){
     *w = 75;
     *h = 75;
 }
-// void StereotrodePlot::mouseDown(int x, int y){
 
-// //     selectedAxesN = -1;
-// //     std::list<GenericAxes>::iterator i;
-// //     int idx=-1;
-// //     bool hit = false;
-
-// //     selectedAxes = NULL;
-// //     for (i=axesList.begin(); i!=axesList.end(); ++i)
-// //     {
-// //         if (i->hitTest(x,y))
-// //         {
-// //             selectedAxes = addressof(*i);
-// //             selectedAxesN = i->getType();
-// //             hit = true;
-// // //            break;
-// //         }
-// //         idx++;
-// //     }
-// //     if (!hit)
-// //         selectedAxes = NULL;
-// //     if (selectedAxes != NULL)
-// //         std::cout<<"StereotrodePlot::mouseDown() hit:"<<selectedAxes<<" AxesType:"<<selectedaxes.getType()<<std::endl;
-// //     else
-// //         std::cout<<"StereotrodePlot::mouseDown() NO HIT!"<<std::endl;
-    
-// }
-// void StereotrodePlot::mouseDragX(int dx, bool shift, bool ctrl){
-
-// //     if (selectedAxes == NULL || dx==0)
-// //         return;
-// // //    zoomAxes(selectedaxes.getType(), true, dx>0);
-// //     if (shift)
-// //         zoomAxes(selectedAxesN, true, dx);
-// //     if (ctrl)
-// //         panAxes(selectedAxesN, true, dx);
-
-// }
-// void StereotrodePlot::mouseDragY(int dy, bool shift, bool ctrl){
-//     if (selectedAxes == NULL || dy==0)
-//         return;
-//     if(shift)
-//         zoomAxes(selectedAxesN, false, dy);
-//     if(ctrl)
-//         panAxes(selectedAxesN, false, dy);
-// }
-
-// void StereotrodePlot::zoomAxes(int n, bool xdim, int zoom){
-// //    std::cout<<"StereotrodePlot::zoomAxes() n:"<< n<<" xdim"<< xdim<<" in:"<<zoomin<<std::endl;
-//     // If trying to zoom an invalid axes type
-//     if (n<WAVE1 || n>PROJ3x4)
-//         return;
-//     if (n<=WAVE4)
-//         zoomWaveform(n, xdim, zoom);
-//     else
-//         zoomProjection(n, xdim, zoom);
-// }
-
-// void StereotrodePlot::zoomWaveform(int n, bool xdim, int zoom){
-
-//     // waveform plots don't have a xlimits
-//     if (xdim)
-//         return;
-// //    std::cout<<"Zooming Waveform:"<<n<<" zoomin:"<<zoomin<<" ";
-//     double min, max;
-    
-//     if(xdim)
-//         return;
-
-//     min = limits[n][0];
-//     max = limits[n][1];
-    
-//     double mean = (max + min)/2.0f;
-//     double delta = max - mean;
-//     delta = delta / pow(.99, -1*zoom);
-
-//     min = mean - delta;
-//     max = mean + delta;
-
-//     limits[n][0] = min;
-//     limits[n][1] = max;
-    
-//     limitsChanged = true;
-// }
-
-// void StereotrodePlot::panAxes(int n, bool xdim, int panval){
-//     //    std::cout<<"StereotrodePlot::zoomAxes() n:"<< n<<" xdim"<< xdim<<" in:"<<zoomin<<std::endl;
-//     // If trying to zoom an invalid axes type
-//     if (n<WAVE1 || n>PROJ3x4)
-//         return;
-//     if (n<=WAVE4)
-//         panWaveform(n, xdim, panval);
-//     else
-//         panProjection(n, xdim, panval);
-// }
-
-// void StereotrodePlot::panWaveform(int n, bool xdim, int pan){
-    
-//     // waveform plots don't have a xlimits
-//     if (xdim)
-//         return;
-//     //    std::cout<<"Panning Waveform:"<<n<<" pan:"<<pan<<" "<<std::endl;
-//     double min, max;
-    
-//     if(xdim)
-//         return;
-    
-//     min = limits[n][0];
-//     max = limits[n][1];
-    
-//     double dy = max-min;
-    
-//     // Need to grab something if pan event is driven by the keyboard, which means that all the plots are getting panned so this should be okay
-//     if (selectedAxes == NULL)
-//         selectedAxes = &axesList.front();
-    
-//     double yPixels = (BaseUIElement::height - titleHeight)/2.0;
-    
-//     double pixelWidth = -1 * dy/yPixels;
-    
-//     double delta = pan * pixelWidth;
-//     min = min + delta;
-//     max = max + delta;
-    
-//     limits[n][0] = min;
-//     limits[n][1] = max;
-    
-//     limitsChanged = true;
-// }
-
+void StereotrodePlot::clear(){
+    std::cout<<"StereotrodePlot::clear()"<<std::endl;
+    pAxes.clear();
+}
 
 
 bool StereotrodePlot::processKeyEvent(SimpleKeyEvent k){
@@ -272,6 +149,45 @@ bool StereotrodePlot::processKeyEvent(SimpleKeyEvent k){
     //         clearOnNextDraw(true);
     //         break;
     // }
+}
+
+void StereotrodePlot::pan(int dim, bool up){
+
+    std::cout<<"StereotrodePlot::pan() dim:"<<dim<<std::endl;
+    if (dim>1 || dim<0)
+        return;
+    
+    int mean = (limits[dim][0] + limits[dim][1])/2;
+    int dLim = limits[dim][1] - mean;
+    
+    if (up)
+        mean = mean + dLim/20;
+    else
+        mean = mean - dLim/20;
+
+    limits[dim][0] = mean-dLim;
+    limits[dim][1] = mean+dLim;
+
+    setLimitsOnAxes();
+}
+void StereotrodePlot::zoom(int dim, bool in){
+    std::cout<<"StereotrodePlot::zoom()"<<std::endl;
+
+    if (dim>1 || dim<0)
+        return;
+    
+    int mean = (limits[dim][0] + limits[dim][1])/2;
+    int dLim = limits[dim][1] - mean;
+    
+    if (in)
+        dLim = dLim * .90;
+    else
+        dLim = dLim / .90;
+
+    limits[dim][0] = mean-dLim;
+    limits[dim][1] = mean+dLim;
+
+    setLimitsOnAxes();
 }
 
 

@@ -144,8 +144,8 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 	{	1040,   1090,   1190,	1350,	1600,	1960,   2380,   2790,   3080,	3140,
 		2910,	2430,	1810,	1180,	680,	380,	270,	320,	460, 	630,
 		770,	870,	940,	970,	990,	1000,	1000,	1000,	1000,	1000,  1000,	1000},
-	{ 	1000,	1000,	1000,	1000,	1000,	1040,	1140,	1440,	2040,	2940,
-		3800,	4140,	3880,	3680,	1640,	920,	520,	300,	140,	040,
+	{ 	1000,	1000,	1000,	1000,	1000,	1040,	1140,	1440,	2040,	2240,
+		2400,	2340,	2280,	1880,	1640,	920,	520,	300,	140,	040,
 		20,		20,		40,		100,	260,	500,	740,	900,	960,	1000,	1000,	1000}
     };
 
@@ -156,7 +156,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     {	1.0, 1.0, 1.0, 1.0, 1.1, 1.2, 1.3, 1.5, 1.7, 2.0, 2.1, 2.2, 2.1, 2.0, 1.7, 1.5,
     	1.3, 1.2, 1.1, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
-    uint16_t gain = 1;
+    uint16_t gain = 2000;
 
     s->timestamp = timestamp;
     s->source = 0;
@@ -164,14 +164,14 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     s->nSamples = 32;
     int idx=0;
     
-    int waveType = rand()%3; // Pick one of the three predefined waveshapes to generate
+    int waveType = rand()%2; // Pick one of the three predefined waveshapes to generate
     int shift = 1000;
 
     for (int i=0; i<4; i++)
     {
         s->gain[i] = gain;
         s->threshold[i] = 4000;
-        double scaleExponent =  (double)(rand()%18 + 2) / 10.0f; // Scale the wave between 50% and 150%
+        double scaleExponent =  (double)(rand()%26+2) / 10.0f; // Scale the wave between 50% and 150%
         
 		for (int j=0; j<32; j++){
 			
@@ -180,7 +180,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 				n = rand() % noise - noise/2;
 			}
 
-            s->data[idx] = (trace[waveType][j] + n) * gain * pow(scale[j],scaleExponent) + shift;
+            s->data[idx] = (trace[waveType][j] + n)  * pow(scale[j],scaleExponent) + shift;
             idx = idx+1;
         }
     }

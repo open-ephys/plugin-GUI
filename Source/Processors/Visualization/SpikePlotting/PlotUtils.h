@@ -16,7 +16,9 @@
 #include <cstring>
 #include <iostream>
 #include <vector>
+#include <FTGL/ftgl.h>
 
+#include "../../../../JuceLibraryCode/JuceHeader.h"
 
 #define WAVE1 0
 #define WAVE2 1
@@ -31,8 +33,10 @@
 
 void checkGlError();
 void setViewportRange(int xMin,int xMax,int yMin,int yMax);
+
 void drawString(float x, float y, void *f, const char *string);
-void strokeString(void*f, char *string);
+void drawString(float x, float y, int size, String s, FTPixmapFont* f);
+
 void drawViewportEdge();
 
 void drawViewportCross();

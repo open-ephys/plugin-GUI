@@ -54,6 +54,7 @@ class SelectorButton : public Button
 class VisualizerEditor : public GenericEditor
 {
 public:
+	VisualizerEditor (GenericProcessor*, int);
 	VisualizerEditor (GenericProcessor*);
 	~VisualizerEditor();
 
@@ -72,6 +73,7 @@ public:
 
 private:	
 
+	void initializeSelectors();
 	bool isPlaying;
 
 	SelectorButton* windowSelector;

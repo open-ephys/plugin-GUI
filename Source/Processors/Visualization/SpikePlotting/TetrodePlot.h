@@ -12,7 +12,6 @@
 #include "WaveAxes.h"
 #include "ProjectionAxes.h"
 #include "BaseUIElement.h"
-#include "TetrodeSource.h"
 #include "PlotUtils.h"
 #include "SimpleKeyEvent.h"
 
@@ -56,7 +55,6 @@ public:
 	void getPreferredDimensions(double*, double*);
 
 	int getNumberOfAxes();
-	void clearOnNextDraw(bool c);
     
     void mouseDown(int x, int y);
     

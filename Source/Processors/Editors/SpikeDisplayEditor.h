@@ -33,6 +33,7 @@
 #include "../Visualization/SpikeDisplayCanvas.h"
 #include "VisualizerEditor.h"
 
+#define MAX_N_SUB_CHAN 8
 class Visualizer;
 
 class SpikeDisplayEditor : public VisualizerEditor
@@ -47,6 +48,24 @@ public:
 
 private:	
 
+    Button *panUpBtn;
+    Button *panDownBtn;
+    Button *zoomInBtn;
+    Button *zoomOutBtn;
+    Button *clearBtn;
+    Button *saveImgBtn;
+
+    Label *panLabel;
+    Label *zoomLabel;
+
+    Button *allSubChansBtn;
+
+    int nSubChannels;
+    Label *subChanLabel;
+    Button *subChanBtn[MAX_N_SUB_CHAN];
+    bool subChanSelected[MAX_N_SUB_CHAN];
+
+    void initializeButtons();
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayEditor);
 

@@ -1,6 +1,5 @@
 #include "PlotUtils.h"
 
-
 void checkGlError(){
 	GLenum errCode;
 	const GLubyte *errString;
@@ -12,28 +11,24 @@ void checkGlError(){
 	else
 		std::cout<<"OpenGL Okay!"<<std::endl;
 }
+
 void drawString(float x, float y, void *f, const char *string){
-	// glRasterPos2f(x, y);
-	// int len = strlen(string);
-	// // glColor3f(1.0, 1.0, 1.0);
-	// for (int i = 0; i < len; i++) {
- // 		glutBitmapCharacter(f, string[i]);
-	// }
-}
-
-void strokeString(void * font, char *message){
-	// // glPushMatrix();
-	//  glLoadIdentity();
- //   	glTranslatef(-700, 0, 0);
-	// //glViewport(0,0,500,500);
-	// int len = (int) strlen(message);
+	glRasterPos2f(x, y);
+	int len = strlen(string);
 	// glColor3f(1.0, 1.0, 1.0);
-	// for (int i = 0; i < len; i++) {
-	// 	glutStrokeCharacter(font, message[i]);
-	// }
-
-	// glPopMatrix();
+	for (int i = 0; i < len; i++) {
+ 		glutBitmapCharacter(f, string[i]);
+	}
 }
+
+void drawString(float x, float y, int size, String s, FTPixmapFont* f){
+	
+	glRasterPos2f(x, y);
+
+	f->FaceSize(size);
+	f->Render(s);
+}
+
 void drawViewportEdge(){
 	glPushMatrix();
 	glLoadIdentity();
@@ -94,19 +89,20 @@ double ad16ToUv(int x, int gain){
 	int result =  (double)(x * 20e6) / (double)(gain * pow(2,16));
 	return result;
 }
+
 void makeLabel(int val, int gain, bool convert, char * s){
 	if (convert){
-		val = ad16ToUv(val, gain);
+		double volt = ad16ToUv(val, gain)/1000.;
 		if (abs(val)>1e6){
 			val = val/(1e6);
-			sprintf(s, "%dV", (int)val);
+			sprintf(s, "%.2fV", volt);
 		}
 		else if(abs(val)>1e3){
 			val = val/(1e3);
-			sprintf(s, "%dmV", (int)val);
+			sprintf(s, "%.2fmV", volt);
 		}
 		else
-			sprintf(s, "%duV", (int)val);
+			sprintf(s, "%.2fuV", volt);
 	}
 	else
 		sprintf(s,"%d", (int)val);		

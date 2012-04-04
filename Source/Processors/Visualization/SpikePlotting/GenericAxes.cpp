@@ -3,19 +3,22 @@
 GenericAxes::GenericAxes():
 					BaseUIElement(),
 					type(0),
-					gotFirstSpike(false),
-					resizedFlag(false)
+					gotFirstSpike(false)
 {	
 	ylims[0] = 0;
 	ylims[1] = 1;
+	loadFont();
 }
 
 GenericAxes::GenericAxes(int x, int y, double w, double h, int t):
 					BaseUIElement(x,y,w,h),
-					gotFirstSpike(false),
-					resizedFlag(false)
+					gotFirstSpike(false)
 {
 	type = t;
+	loadFont();
+}
+GenericAxes::~GenericAxes(){
+	//delete font;
 }
 void GenericAxes::updateSpikeData(SpikeObject newSpike){
 	if (!gotFirstSpike){
@@ -25,6 +28,11 @@ void GenericAxes::updateSpikeData(SpikeObject newSpike){
 	s = newSpike;
 }
 
+void GenericAxes::loadFont(){
+	const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_plain_otf);
+	size_t bufferSize = BinaryData::misoregular_ttfSize;
+	font = new FTPixmapFont(buffer, bufferSize);
+}
 
 void GenericAxes::setYLims(double ymin, double ymax){
 	ylims[0] = ymin;
@@ -57,8 +65,4 @@ int GenericAxes::getType(){
 
 void GenericAxes::setPosition(int x, int y, double w, double h){
 	BaseUIElement::setPosition(x,y,w,h);	
-	resizedFlag = true;
-}
-void GenericAxes::clearOnNextDraw(bool b){
-	BaseUIElement::clearOnNextDraw(b);
 }

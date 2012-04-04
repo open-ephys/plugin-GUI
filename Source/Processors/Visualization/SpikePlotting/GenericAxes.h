@@ -8,6 +8,8 @@
 	#include <GLUT/glut.h>
 #endif
 #include <stdlib.h>
+#include <FTGL/ftgl.h>
+#include "../../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../SpikeObject.h"
 
@@ -23,21 +25,23 @@ protected:
 	SpikeObject s;
 
 	bool gotFirstSpike;
-	bool resizedFlag;
 	
 	int type;
 	virtual void plot(){}
+
+	FTPixmapFont* font;
+	void loadFont();
 
 	
 public:
 	GenericAxes();
 	GenericAxes(int x, int y, double w, double h, int t);
+	~GenericAxes();
 
 	void updateSpikeData(SpikeObject s);
 
 	virtual void redraw(){}
-
-
+	
 	void setXLims(double xmin, double xmax);
 	void getXLims(double *xmin, double *xmax);
 	void setYLims(double ymin, double ymax);
@@ -49,7 +53,6 @@ public:
 	
 	void setPosition(int,int,double,double);
    	
-	void clearOnNextDraw(bool c);
 };
 
 

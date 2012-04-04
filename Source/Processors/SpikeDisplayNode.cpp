@@ -24,6 +24,8 @@
 #include "SpikeDisplayNode.h"
 #include <stdio.h>
 
+
+
 SpikeDisplayNode::SpikeDisplayNode()
 	: GenericProcessor("Spike Viewer"),
 	  bufferSize(0), abstractFifo(100)
@@ -77,9 +79,9 @@ int SpikeDisplayNode::getNumberOfChannelsForInput(int i){
 }
 
 
-void SpikeDisplayNode::setParameter (int parameterIndex, float newValue)
+void SpikeDisplayNode::setParameter (int param, float val)
 {
-	std::cout<<"SpikeDisplayNode setParameter!"<<std::endl;
+	std::cout<<"Got Param:"<< param<< " with value:"<<val<<std::endl;
 }
 
 
