@@ -17,7 +17,7 @@ void drawString(float x, float y, void *f, const char *string){
 	int len = strlen(string);
 	// glColor3f(1.0, 1.0, 1.0);
 	for (int i = 0; i < len; i++) {
- 		glutBitmapCharacter(f, string[i]);
+ 		//glutBitmapCharacter(f, string[i]);
 	}
 }
 
