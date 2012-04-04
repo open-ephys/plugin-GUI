@@ -13,7 +13,7 @@
                juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi -lftgl"
                objCExtraSuffix="fea2mT"/>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-lftdi -lftgl" extraCompilerFlags="-export-dynamic"/>
+                extraLinkerFlags="-lftdi -lftgl" extraCompilerFlags="-export-dynamic -pg"/>
   </EXPORTFORMATS>
   <CONFIGURATIONS>
     <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="open-ephys"
@@ -48,6 +48,12 @@
       </GROUP>
       <GROUP id="W2L6BdA" name="Images">
         <GROUP id="Gu1BsKu" name="Icons">
+          <FILE id="rdA7uYL" name="noise_wave.png" compile="0" resource="1" file="Resources/Images/Icons/noise_wave.png"/>
+          <FILE id="s0uKcoP" name="saw_wave.png" compile="0" resource="1" file="Resources/Images/Icons/saw_wave.png"/>
+          <FILE id="4jA1Wxu" name="sine_wave.png" compile="0" resource="1" file="Resources/Images/Icons/sine_wave.png"/>
+          <FILE id="goY3ZC" name="square_wave.png" compile="0" resource="1" file="Resources/Images/Icons/square_wave.png"/>
+          <FILE id="gkPmriI" name="triangle_wave.png" compile="0" resource="1"
+                file="Resources/Images/Icons/triangle_wave.png"/>
           <FILE id="wI03PLF" name="wifi.png" compile="0" resource="1" file="Resources/Images/Icons/wifi.png"/>
           <FILE id="p1qlCZ5" name="SourceDrop.png" compile="0" resource="1" file="Resources/Images/Icons/SourceDrop.png"/>
           <FILE id="nWbYpu" name="DefaultDataSource.png" compile="0" resource="1"

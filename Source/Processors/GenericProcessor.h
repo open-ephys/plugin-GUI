@@ -81,8 +81,8 @@ public:
 	void changeProgramName (int index, const String &newName) {}
 	void setCurrentProgram (int index) {}
 
-	const String getInputChannelName (int channelIndex) const {return T(" ");}
-	const String getOutputChannelName (int channelIndex) const {return T(" ");}
+	const String getInputChannelName (int channelIndex) const {return settings.inputChannelNames[channelIndex];}
+	const String getOutputChannelName (int channelIndex) const {return settings.outputChannelNames[channelIndex];}
 	const String getParameterName (int parameterIndex) {return T(" ");}
 	const String getParameterText (int parameterIndex) {return T(" ");}
 	const String getProgramName (int index) {return T(" ");}
@@ -180,10 +180,13 @@ public:
 
 	enum eventTypes 
  	{
- 		BUFFER_SIZE = 0,
- 		PARAMETER_CHANGE = 1,
- 		TTL = 2,
- 		SPIKE = 3
+ 		TIMESTAMP = 0,
+ 		BUFFER_SIZE = 1,
+ 		PARAMETER_CHANGE = 2,
+ 		TTL = 3,
+ 		SPIKE = 4,
+ 		EEG = 5,
+ 		CONTINUOUS = 6
  	};
 
 	int saveOrder;
@@ -212,6 +215,8 @@ public:
 	};
 
 	ProcessorSettings settings;
+
+	virtual bool recordStatus(int chan);
 
 	virtual void clearSettings();
 

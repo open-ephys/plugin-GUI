@@ -23,14 +23,15 @@
 
 
 #include "SignalGenerator.h"
-//#include "SourceNodeEditor.h"
 #include <stdio.h>
+#include <math.h>
 
 SignalGenerator::SignalGenerator()
 	: GenericProcessor("Signal Generator"),
 
 	  defaultFrequency(10.0),
-	  defaultAmplitude (0.02f)
+	  defaultAmplitude (0.02f),
+	  nOut(1)
 	
 {
 
@@ -53,17 +54,14 @@ void SignalGenerator::updateSettings()
 
 	//std::cout << "Signal generator updating parameters" << std::endl;
 
-	frequencies.clear();
-	amplitudes.clear();
-	currentPhase.clear();
-	phasePerSample.clear();
-
-	for (int n = 0; n < getNumOutputs(); n++)
+	while (waveformType.size() < getNumOutputs())
 	{
-		frequencies.add(defaultFrequency*n);
-		amplitudes.add(defaultAmplitude);
+		waveformType.add(NOISE);
+		frequency.add(defaultFrequency);
+		amplitude.add(defaultAmplitude);
+		phase.add(0);
+		phasePerSample.add(double_Pi * 2.0 / (getSampleRate() / frequency.getLast()));
 		currentPhase.add(0);
-		phasePerSample.add(double_Pi * 2.0 / (getSampleRate() / frequencies[n]));
 	}
 
 }
@@ -74,11 +72,17 @@ void SignalGenerator::setParameter (int parameterIndex, float newValue)
 
 	if (currentChannel > -1) {
 		if (parameterIndex == 0) {
-			amplitudes.set(currentChannel,newValue);
-		} else {
-			frequencies.set(currentChannel,newValue);
-			phasePerSample.set(currentChannel, double_Pi * 2.0 / (getSampleRate() / frequencies[currentChannel]));
+			amplitude.set(currentChannel,newValue);
+		} else if (parameterIndex == 1) {
+			frequency.set(currentChannel,newValue);
+			phasePerSample.set(currentChannel, double_Pi * 2.0 / (getSampleRate() / frequency[currentChannel]));
+		} else if (parameterIndex == 2) {
+			phase.set(currentChannel, newValue/360.0f * (double_Pi * 2.0));
+		} else if (parameterIndex == 3) {
+			waveformType.set(currentChannel, (int) newValue);
 		}
+
+		//updateWaveform(currentChannel);
 	}
 
 }
@@ -87,8 +91,56 @@ void SignalGenerator::setParameter (int parameterIndex, float newValue)
 bool SignalGenerator::enable () {
 
 	std::cout << "Signal generator received enable signal." << std::endl;
+	
+	// for (int n = 0; n < waveformType.size(); n++)
+	// {
+	// 	updateWaveform(n);
+		
+	// }
+
 	return true;
 }
+
+// void SignalGenerator::updateWaveform(int n)
+// {
+
+	// Array<float> cycleData;
+
+	// int cycleLength = int(getSampleRate() / frequency[n]);
+	// float phasePerSample = double_Pi * 2.0 / (getSampleRate() / frequency[n]);
+
+	// cycleData.ensureStorageAllocated(cycleLength);
+
+	// for (int i = 0; i < cycleLength; i++)
+	// {
+	// 	switch (waveformType[n])
+	// 	{
+	// 		case SINE:
+	// 			cycleData.add(amplitude[n] * std::sin(i*phasePerSample + phase[n]));
+	// 			break;
+	// 		case SQUARE:
+	// 			cycleData.add(amplitude[n] * copysign(1,std::sin(i*phasePerSample + phase[n])));
+	// 			break;
+	// 		case TRIANGLE:
+	// 			cycleData.add(0);
+	// 			break;
+	// 		case SAW:
+	// 			cycleData.add(0);
+	// 			break;
+	// 		case NOISE:
+	// 			cycleData.add(0);
+	// 			break;
+	// 		default:
+	// 			cycleData.set(i, 0);
+	// 	}
+
+	// }
+
+	// waveforms.set(n, cycleData);
+
+	// currentSample.set(n,0);
+
+// }
 
 bool SignalGenerator::disable() {
 	
@@ -101,18 +153,111 @@ void SignalGenerator::process(AudioSampleBuffer &buffer,
                             int& nSamps)
 {
 
-	//std::cout << buffer.getNumChannels() << std::endl;
 	nSamps = buffer.getNumSamples();
-	
+
     for (int i = 0; i < nSamps; ++i)
     {
         for (int j = buffer.getNumChannels(); --j >= 0;) {
+
+        	float sample;
+
+        	switch (waveformType[j])
+        	{
+        		case SINE:
+        			sample = amplitude[j] * (float) std::sin (currentPhase[j] + phase[j]);
+   					break;
+				case SQUARE:
+					sample = amplitude[j] * copysign(1,std::sin(currentPhase[j] + phase[j]));
+					break;
+				case TRIANGLE:
+					sample = amplitude[j] * ((currentPhase[j] + phase[j]) / double_Pi - 1) *
+							copysign(2,std::sin(currentPhase[j] + phase[j]));
+					break;
+				case SAW:
+					sample = amplitude[j] * ((currentPhase[j] + phase[j]) / double_Pi - 1);
+					break;
+				case NOISE:
+					sample = amplitude[j] * (float(rand()) / float(RAND_MAX)-0.5f);
+					break;
+				default:
+					sample = 0;
+        	}
         	
-        	const float sample = amplitudes[j] * (float) std::sin (currentPhase[j]);
        		currentPhase.set(j,currentPhase[j] + phasePerSample[j]);
+
+       		if (currentPhase[j] > double_Pi*2)
+       			currentPhase.set(j,0);
 
        		// dereference pointer to one of the buffer's samples
             *buffer.getSampleData (j, i) = sample;
         }
     }
+
+
+ 	
+
+	// for (int chan = 0; chan < buffer.getNumChannels(); chan++)
+	// {
+		
+	// 	int dataSize = waveforms[chan].size();
+	// 	int destSample = -dataSize;
+	// 	int lastSample = dataSize;
+
+	// 	while (lastSample < nSamps)
+	// 	{
+
+	// 		destSample += dataSize;
+
+	// 		//std::cout << lastSample << " " << destSample << " " << currentSample[chan] << " " << dataSize << std::endl;
+
+	// 		// buffer.copyFrom(chan, 
+	// 		//  				destSample, 
+	// 		//  				waveforms[chan].getRawDataPointer() + currentSample[chan], 
+	// 		//  				dataSize - currentSample[chan]);
+
+	// 		lastSample += dataSize;
+
+	// 		currentSample.set(chan,0);
+
+	// 		//std::cout << "DONE" << std::endl;
+	// 	}
+
+	// 	//std::cout << lastSample << " " << destSample << " " << currentSample[chan] << " " << dataSize << std::endl;
+
+	// 	if (destSample < 0)
+	// 		destSample = 0;
+
+	// 	int samplesLeft = nSamps - destSample;
+
+	// 	if (samplesLeft < dataSize - currentSample[chan])
+	// 	{
+	// 	 	// buffer.copyFrom(chan,
+	// 	 	// 			destSample,
+	// 	 	// 			waveforms[chan].getRawDataPointer() + currentSample[chan],
+	// 	 	// 			samplesLeft);
+
+	// 	 	currentSample.set(chan, currentSample[chan] + samplesLeft);
+
+	// 	} else {
+
+	// 		int samps = dataSize - currentSample[chan];
+
+	// 		// buffer.copyFrom(chan,
+	// 	 // 				destSample,
+	// 	 // 				waveforms[chan].getRawDataPointer() + currentSample[chan],
+	// 	 // 				samps);
+
+	// 		destSample += samps;
+	// 		samplesLeft -= samps;
+
+	// 		// buffer.copyFrom(chan,
+	// 	 // 				destSample,
+	// 	 // 				waveforms[chan].getRawDataPointer(),
+	// 	 // 				samplesLeft);
+
+	// 		currentSample.set(chan, samplesLeft);
+	// 	}
+
+	// }
+
 }

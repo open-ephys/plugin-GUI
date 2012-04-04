@@ -35,12 +35,15 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 
 	displayBuffer = processor->getDisplayBufferAddress();
 	displayBufferSize = displayBuffer->getNumSamples();
-		std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
+	std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
 
 	totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
 
-	screenBuffer = new AudioSampleBuffer(nChans, 10000);
+	if (nChans > 0)
+		screenBuffer = new AudioSampleBuffer(nChans, 10000);
+	else
+		screenBuffer = new AudioSampleBuffer(1, 10000);
 	
 }
 

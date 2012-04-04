@@ -414,7 +414,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     }
 
     // Step 7: update all settings
-    if (action != ACTIVATE) {
+    if (true) {//action != ACTIVATE) {
 
         std::cout << "Updating settings." << std::endl;
 

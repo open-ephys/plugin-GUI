@@ -23,8 +23,13 @@
 
 #include "GenericEditor.h"
 
+#include "../ProcessorGraph.h"
+#include "../RecordNode.h"
+
 #include "../../UI/EditorViewport.h"
 #include "../../UI/Configuration.h"
+
+
 
 #include <math.h>
 
@@ -332,8 +337,18 @@ bool GenericEditor::checkChannelSelectors(Button* button)
 			}
 			else if (recordButton->getToggleState())
 			{
-				recordChannels.set(n,button->getToggleState());	
-				//type = "Record ";
+				recordChannels.set(n,button->getToggleState());
+				int id = getProcessor()->getNodeId();
+
+				RecordNode* rn = getProcessorGraph()->getRecordNode();
+
+				std::cout << "Button " << n << " was pressed." << std::endl;
+				rn->setChannel(id, n);
+
+				if (button->getToggleState())
+					rn->setParameter(2, 1.0f);
+				else
+					rn->setParameter(2, 0.0f);
 			}		
 			else if (paramsButton->getToggleState())
 			{
@@ -759,3 +774,83 @@ void ChannelSelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isBu
 
     g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
 }
+
+//// BUTTONS ////
+
+void PlusButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    g.fillAll(Colours::orange);
+    g.setColour(Colours::black);
+    g.drawRect(0,0,getWidth(),getHeight(),1.0);
+
+    if (isMouseOver)
+    {
+        g.setColour(Colours::white);
+    } else {
+        g.setColour(Colours::black);
+    }
+
+    // if (isButtonDown)
+    // {
+    //     g.setColour(Colours::white);
+    // }
+
+    int thickness = 1;
+    int offset = 3;
+
+    g.fillRect(getWidth()/2-thickness,
+               offset, 
+               thickness*2,
+               getHeight()-offset*2);
+
+    g.fillRect(offset,
+               getHeight()/2-thickness,
+               getWidth()-offset*2,
+               thickness*2);
+}
+   
+
+void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+
+    //  g.fillAll(Colours::orange);
+    // g.setColour(Colours::black);
+    // g.drawRect(0,0,getWidth(),getHeight(),1.0);
+
+    if (isMouseOver)
+    {
+        g.setColour(Colours::grey);
+    } else {
+        g.setColour(Colours::black);
+    }
+
+    if (isButtonDown)
+    {
+        g.setColour(Colours::white);
+    }
+
+    int inset = 1;
+    int x1, y1, x2, y2, x3;
+
+    x1 = inset;
+    x2 = getWidth()/2;
+    x3 = getWidth()-inset;
+
+    if (direction == 1)
+    {
+        y1 = getHeight()-inset;
+        y2 = inset;
+
+    } else {
+        y1 = inset;
+        y2 = getHeight()-inset;
+    }
+
+    g.drawLine(x1, y1, x2, y2);
+    g.drawLine(x2, y2, x3, y1);
+    g.drawLine(x3, y1, x1, y1);
+
+
+}
+
+

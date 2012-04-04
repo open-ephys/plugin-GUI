@@ -43,18 +43,10 @@
 #include "../UI/Configuration.h"
 #include "../UI/EditorViewport.h"
 
-ProcessorGraph::ProcessorGraph() : 
-	currentNodeId(100),
-	RECORD_NODE_ID(199), 
-	AUDIO_NODE_ID(200), 
-	OUTPUT_NODE_ID(201), 
-	RESAMPLING_NODE_ID(202)
-	//totalAudioConnections(0),
-	//totalRecordConnections(0)
-	
+ProcessorGraph::ProcessorGraph() : currentNodeId(100)	
 	{
 
-	// ProcessorGraph will always have 0 inputs (all content is generated within graph)
+	// The ProcessorGraph will always have 0 inputs (all content is generated within graph)
 	// but it will have N outputs, where N is the number of channels for the audio monitor
 	setPlayConfigDetails(0, // number of inputs
 				         2, // number of outputs
@@ -78,12 +70,10 @@ void ProcessorGraph::createDefaultNodes()
 	// add record node -- sends output to disk
 	RecordNode* recn = new RecordNode();
 	recn->setNodeId(RECORD_NODE_ID);
-	//recn->setConfiguration(config);
 
 	// add audio node -- takes all inputs and selects those to be used for audio monitoring
 	AudioNode* an = new AudioNode();
 	recn->setNodeId(AUDIO_NODE_ID);
-	//an->setConfiguration(config);
 
 	// add resampling node -- resamples continuous signals to 44.1kHz
 	ResamplingNode* rn = new ResamplingNode(true);
@@ -94,7 +84,7 @@ void ProcessorGraph::createDefaultNodes()
 	addNode(an, AUDIO_NODE_ID);
 	addNode(rn, RESAMPLING_NODE_ID);
 
-	// connect audio network
+	// connect audio subnetwork
 	for (int n = 0; n < 2; n++) {
 		
 		addConnection(AUDIO_NODE_ID, n,
@@ -154,7 +144,6 @@ void ProcessorGraph::clearConnections()
 		 }
 	}
 
-
 	for (int i = 0; i < getNumNodes(); i++)
 	{
 		 Node* node = getNode(i);
@@ -164,9 +153,8 @@ void ProcessorGraph::clearConnections()
 			 p->resetConnections();
 		}
 	}
-
-
 }
+
 
 void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSection> tabs)
 {
@@ -210,8 +198,6 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 			{
 
 				// add the connections to audio and record nodes if necessary
-
-
 				if (!(source->isSink() ||
 				      source->isSplitter() || source->isMerger()) && !(source->wasConnected))
 				{
@@ -219,18 +205,34 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
 					for (int chan = 0; chan < source->getNumOutputs(); chan++) {
 
-						addConnection(source->getNodeId(), // sourceNodeID
-						  	chan, // sourceNodeChannelIndex
-						   	AUDIO_NODE_ID, // destNodeID
+						//getAudioNode()->addInputChannel(source, chan);
+
+						addConnection(source->getNodeId(), 		   // sourceNodeID
+						  	chan, 						           // sourceNodeChannelIndex
+						   	AUDIO_NODE_ID, 					       // destNodeID
 						  	getAudioNode()->getNextChannel(true)); // destNodeChannelIndex
 
-						 std::cout << getAudioNode()->getNextChannel(false) << " ";
+						
+						//std::cout << getAudioNode()->getNextChannel(false) << " ";
 
-						addConnection(source->getNodeId(), // sourceNodeID
-						  	chan, // sourceNodeChannelIndex
-						   	RECORD_NODE_ID, // destNodeID
+						getRecordNode()->addInputChannel(source, chan);
+
+						addConnection(source->getNodeId(),          // sourceNodeID
+						  	chan,                                   // sourceNodeChannelIndex
+						   	RECORD_NODE_ID, 					    // destNodeID
 						  	getRecordNode()->getNextChannel(true)); // destNodeChannelIndex
+					
+						
 					}
+
+					// connect event channel
+					addConnection(source->getNodeId(), 				// sourceNodeID
+					  	midiChannelIndex, 							// sourceNodeChannelIndex
+					   	RECORD_NODE_ID, 							// destNodeID
+					  	midiChannelIndex);							// destNodeChannelIndex
+
+					getRecordNode()->addInputChannel(source, midiChannelIndex);
+
 				}
 
 				std::cout << std::endl;
@@ -247,12 +249,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
 						std::cout << "     Connecting " << source->getName() << " channel ";
 
-						//int nextChan;
-						//int chan = 0;
-
 						for (int chan = 0; chan < source->getNumOutputs(); chan++) 
-						
-						//ile ((nextChan = dest->getNextChannel(true)) != -1)
 						{
 							std::cout << chan << " ";
 							           
@@ -264,14 +261,15 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
 						std::cout << " to " << dest->getName() << std::endl;
 							
-							std::cout << "     Connecting " << source->getName() <<
-							           " event channel to " <<
-							           dest->getName() << std::endl;
-							// connect event channel
-							addConnection(source->getNodeId(), // sourceNodeID
-							  	midiChannelIndex, // sourceNodeChannelIndex
-							   	dest->getNodeId(), // destNodeID
-							  	midiChannelIndex); // destNodeChannelIndex
+						std::cout << "     Connecting " << source->getName() <<
+						           " event channel to " <<
+						           dest->getName() << std::endl;
+
+						// connect event channel
+						addConnection(source->getNodeId(), // sourceNodeID
+						  	midiChannelIndex, // sourceNodeChannelIndex
+						   	dest->getNodeId(), // destNodeID
+						  	midiChannelIndex); // destNodeChannelIndex
 
 					}
 
@@ -294,15 +292,6 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 	} // end "tabs" for loop
 } // end method
 
-// int ProcessorGraph::getNextFreeAudioChannel()
-// {
-// 	return totalAudioConnections++;
-// }
-
-// int ProcessorGraph::getNextFreeRecordChannel()
-// {
-// 	return totalRecordConnections++;
-// }
 
 GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& description)
 {
@@ -423,27 +412,6 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor) {
 	removeNode(processor->getNodeId());
 
 }
-
-// void ProcessorGraph::setUIComponent(UIComponent* ui)
-// {
-// 	UI = ui;
-// }
-
-// void ProcessorGraph::setFilterViewport(FilterViewport* fv)
-// {
-// 	filterViewport = fv;
-// }
-
-// void ProcessorGraph::setMessageCenter(MessageCenter* mc)
-// {
-// 	messageCenter = mc;
-// }
-
-// void ProcessorGraph::setConfiguration(Configuration* c)
-// {
-// 	config = c;
-// }
-
 
 bool ProcessorGraph::enableProcessors() {
 

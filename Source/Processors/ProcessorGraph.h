@@ -77,12 +77,13 @@ private:
 
 	int currentNodeId;
 
-	Array<int> source_node_IDs;
-
-	const int RECORD_NODE_ID;
-	const int AUDIO_NODE_ID;
-	const int OUTPUT_NODE_ID;
-	const int RESAMPLING_NODE_ID;
+	enum nodeIds
+	{
+		RECORD_NODE_ID = 900,
+		AUDIO_NODE_ID = 901,
+		OUTPUT_NODE_ID = 902,
+		RESAMPLING_NODE_ID = 903
+	};
 
 	void createDefaultNodes();
 	void clearConnections();

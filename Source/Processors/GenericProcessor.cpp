@@ -70,7 +70,7 @@ int GenericProcessor::getNextChannel(bool increment)
 	int chan = nextAvailableChannel;
 
 	//std::cout << chan << std::endl;
-
+ 
 	if (increment)
 		nextAvailableChannel++;
 	
@@ -286,6 +286,14 @@ void GenericProcessor::update()
 		                 128);            // blockSize
 
 	editor->update(); // update editor settings
+
+}
+
+bool GenericProcessor::recordStatus(int chan)
+{
+
+	return getEditor()->recordChannels[chan];
+
 
 }
 

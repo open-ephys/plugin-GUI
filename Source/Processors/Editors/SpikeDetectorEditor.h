@@ -28,28 +28,8 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
-
-class TriangleButton : public Button
-{
-public:
-    TriangleButton(int direction_) : Button("Arrow") 
-        {direction = direction_;}
-    ~TriangleButton() {}
-private:
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-    
-    int direction;
-};
-
-class PlusButton : public Button
-{
-public:
-    PlusButton() : Button("Plus") {}
-    ~PlusButton() {}
-private:
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-
-};
+class TriangleButton;
+class PlusButton;
 
 class ElectrodeButton : public Button
 {

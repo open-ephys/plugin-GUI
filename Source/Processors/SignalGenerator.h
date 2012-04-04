@@ -31,7 +31,7 @@
 
 /**
 
-  Outputs 16 channels of sine wave data.
+  Outputs synthesized data of one of 5 different waveform types.
 
   @see GenericProcessor, SignalGeneratorEditor
 
@@ -63,16 +63,28 @@ public:
 
 	void updateSettings();
 
+	int getDefaultNumOutputs() {return nOut;}
+
+	int nOut;
+
 private:
 	
 	double defaultFrequency;
 	double defaultAmplitude;
 
-	Array<double> frequencies;
-	Array<double> amplitudes;
-	Array<double> currentPhase;
-	Array<double> phasePerSample;
+	//void updateWaveform(int chan);
 
+	enum wvfrm
+	{
+		SINE, SQUARE, SAW, TRIANGLE, NOISE
+	};
+
+	Array<int> waveformType;
+	Array<double> frequency;
+	Array<double> amplitude;
+	Array<double> phase;
+	Array<double> phasePerSample;
+	Array<double> currentPhase;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalGenerator);
 

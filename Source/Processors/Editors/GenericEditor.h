@@ -33,7 +33,7 @@
   
   Base class for creating processor editors.
 
-  If a processor doesn't have an editor defined, a GenericEditor will be used.
+  If a processor doesn't havesign an editor defined, a GenericEditor will be used.
 
   Classes derived from this class must place their controls as child components.
   They shouldn't try to re-draw any aspects of their background.
@@ -46,6 +46,8 @@ class GenericProcessor;
 class DrawerButton;
 class EditorButton;
 class ChannelSelectorButton;
+class TriangleButton;
+class PlusButton;
 
 class GenericEditor : public AudioProcessorEditor,
                       public Timer,
@@ -108,6 +110,10 @@ public:
 	virtual void updateVisualizer() {}
 
 	Array<int> getActiveChannels();
+
+	Array<bool> audioChannels;
+	Array<bool> recordChannels;
+	Array<bool> paramsChannels;
 	
 private:
 
@@ -136,9 +142,7 @@ private:
 	EditorButton* recordButton;
 	EditorButton* paramsButton;
 
-	Array<bool> audioChannels;
-	Array<bool> recordChannels;
-	Array<bool> paramsChannels;
+	
 
 	Array<ChannelSelectorButton*> channelSelectorButtons;
 
@@ -203,5 +207,26 @@ private:
 	Font buttonFont;
 };
 
+class TriangleButton : public Button
+{
+public:
+    TriangleButton(int direction_) : Button("Arrow") 
+        {direction = direction_;}
+    ~TriangleButton() {}
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    
+    int direction;
+};
+
+class PlusButton : public Button
+{
+public:
+    PlusButton() : Button("Plus") {}
+    ~PlusButton() {}
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+
+};
 
 #endif  // __GENERICEDITOR_H_DD406E71__

@@ -28,19 +28,50 @@
 #include "GenericEditor.h"
 
 class FilterViewport;
+class WaveformSelector;
 
-class SignalGeneratorEditor : public GenericEditor
+class SignalGeneratorEditor : public GenericEditor,
+                              public Label::Listener
 {
 public:
 	SignalGeneratorEditor (GenericProcessor* parentNode);
 	virtual ~SignalGeneratorEditor();
 	void sliderValueChanged (Slider* slider);
+    void buttonEvent(Button* button);
+    void labelTextChanged(Label* label);
 
 private:	
+
+    Label* numChannelsLabel;
+    TriangleButton* upButton;
+    TriangleButton* downButton;
+
 	Slider* amplitudeSlider;
 	Slider* frequencySlider;
+    Slider* phaseSlider;
+
+    Array<WaveformSelector*> waveformSelectors;
+
+    enum wvfrm
+    {
+        SINE, SQUARE, SAW, TRIANGLE, NOISE
+    };
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalGeneratorEditor);
+
+};
+
+class WaveformSelector : public Button
+{
+public:
+    WaveformSelector(int type_);
+    ~WaveformSelector() {}
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    
+    int type;
+
+    Image icon;
 
 };
 
