@@ -64,13 +64,15 @@ public:
 	float getFreeSpace();
 
   void setChannel(int id, int chan);
+
+  void resetConnections();
 	
 private:
 	
   File headerFile;
 	FileOutputStream* outputStream;
 
-	bool isRecording;
+	bool isRecording, isProcessing;
 
   String dataFolder;
 

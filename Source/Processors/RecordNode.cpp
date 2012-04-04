@@ -25,7 +25,7 @@
 #include "ProcessorGraph.h"
 
 RecordNode::RecordNode()
-	: GenericProcessor("Record Node"), isRecording(false)
+	: GenericProcessor("Record Node"), isRecording(false), isProcessing(false)
 {
 
 	dataFolder = "./Data";
@@ -60,6 +60,17 @@ void RecordNode::setChannel(int id, int chan)
 
 	}
 }
+
+void RecordNode::resetConnections()
+{
+	//std::cout << "Resetting connections" << std::endl;
+	nextAvailableChannel = 0;
+	wasConnected = false;
+
+	continuousChannels.clear();
+	eventChannels.clear();
+}
+
 
 void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
@@ -133,7 +144,7 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
  		// close necessary files
  	} else if (parameterIndex == 2) {
 
- 		if (isRecording) {
+ 		if (isProcessing) {
 
  			std::cout << "Toggling channel " << currentChannel << std::endl;
 
@@ -149,6 +160,7 @@ bool RecordNode::enable()
 {
 	// figure out the folder structure
 
+	isProcessing = true;
 	// File dir = File(dataFolder);
 
 	// if (!dir.exists())
@@ -165,6 +177,7 @@ bool RecordNode::disable()
 {	
 	
 	// close files if necessary
+	isProcessing = false;
 
 	return true;
 }
@@ -214,7 +227,7 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 									  nSamples,
 									  i);
 				// write buffer to disk!
-				//std::cout << "Record channel " << i << std::endl;
+				std::cout << "Record channel " << i << std::endl;
 			}
 				
 
