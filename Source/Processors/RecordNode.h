@@ -82,6 +82,7 @@ private:
     int chan;
     String name;
     bool isRecording;
+    String filename;
     FILE* file;
   };
 

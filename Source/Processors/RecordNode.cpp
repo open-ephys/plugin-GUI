@@ -30,11 +30,6 @@ RecordNode::RecordNode()
 
 	dataFolder = "./Data";
 
-	// need to update this:
-	setPlayConfigDetails(2,0,44100.0,128);
-	
-
-
 }
 
 
@@ -85,7 +80,16 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 		newChannel.chan = chan;
 		newChannel.name = sourceNode->getOutputChannelName(chan);
 		newChannel.isRecording = sourceNode->recordStatus(chan);
-		newChannel.file = 0;
+
+		String filename = dataFolder;
+		filename += "/";
+		filename += newChannel.nodeId;
+		filename += "_";
+		filename += newChannel.name;
+		filename += ".continuous";
+
+		newChannel.filename = filename;
+		newChannel.file = 0; 
 
 		if (newChannel.isRecording)
 			std::cout << "  This channel will be recorded." << std::endl;
@@ -136,11 +140,37 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 void RecordNode::setParameter (int parameterIndex, float newValue)
 {
  	if (parameterIndex == 1) {
+
  		isRecording = true;
- 		// create necessary files
+ 		std::cout << "START RECORDING." << std::endl;
+
+ 		// create / open necessary files
+ 		for (int i = 0; i < continuousChannels.size(); i++)
+ 		{
+ 			if (continuousChannels[i].isRecording)
+ 			{
+ 				std::cout << "OPENING FILE: " << continuousChannels[i].filename << std::endl;
+ 				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a");
+ 			}
+ 		}
+ 		
 
  	} else if (parameterIndex == 0) {
+
+
  		isRecording = false;
+ 		std::cout << "STOP RECORDING." << std::endl;
+
+ 		// close necessary files
+ 		for (int i = 0; i < continuousChannels.size(); i++)
+ 		{
+ 			if (continuousChannels[i].isRecording)
+ 			{
+ 				std::cout << "CLOSING FILE: " << continuousChannels[i].filename << std::endl;
+ 				fclose(continuousChannels[i].file);
+ 			}
+ 		}
+
  		// close necessary files
  	} else if (parameterIndex == 2) {
 
@@ -148,26 +178,30 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 
  			std::cout << "Toggling channel " << currentChannel << std::endl;
 
-	 		if (newValue == 0.0f)
+	 		if (newValue == 0.0f) {
 	 			continuousChannels[currentChannel].isRecording = false;
-	 		else
+
+	 			if (isRecording) {
+	 				std::cout << "CLOSING FILE: " << continuousChannels[currentChannel].filename << std::endl;
+	 				fclose(continuousChannels[currentChannel].file);
+	 			}
+
+	 		}
+	 		else {
 	 			continuousChannels[currentChannel].isRecording = true;
+
+	 			if (isRecording) {
+	 				std::cout << "OPENING FILE: " << continuousChannels[currentChannel].filename << std::endl;
+	 				continuousChannels[currentChannel].file = 
+	 					fopen(continuousChannels[currentChannel].filename.toUTF8(), "a");
+	 			}
+	 		}
  		}
  	}
 }
 
 bool RecordNode::enable()
 {
-	// figure out the folder structure
-
-	isProcessing = true;
-	// File dir = File(dataFolder);
-
-	// if (!dir.exists())
-	// 	dir.createDirectory();
-
-	//FILE* pFile;
-   // pFile = fopen("Test.bin", "wb");
 
 	return true;
 }
@@ -177,7 +211,7 @@ bool RecordNode::disable()
 {	
 	
 	// close files if necessary
-	isProcessing = false;
+	setParameter(0, 10.0f);
 
 	return true;
 }
@@ -227,7 +261,7 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 									  nSamples,
 									  i);
 				// write buffer to disk!
-				std::cout << "Record channel " << i << std::endl;
+				//std::cout << "Record channel " << i << std::endl;
 			}
 				
 

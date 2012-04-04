@@ -400,6 +400,9 @@ void ControlPanel::buttonClicked(Button* button)
 			
 			if (graph->enableProcessors()) 
 			{
+				if (recordButton->getToggleState())
+					graph->getRecordNode()->setParameter(1,10.0f);
+				
 				audio->beginCallbacks();
 				masterClock->start();
 			}
