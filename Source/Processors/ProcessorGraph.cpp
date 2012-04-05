@@ -40,7 +40,6 @@
 #include "Utilities/Splitter.h"
 #include "Utilities/Merger.h"
 #include "../UI/UIComponent.h"
-#include "../UI/Configuration.h"
 #include "../UI/EditorViewport.h"
 
 ProcessorGraph::ProcessorGraph() : currentNodeId(100)	

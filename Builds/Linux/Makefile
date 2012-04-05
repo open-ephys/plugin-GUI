@@ -63,6 +63,7 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/Parameter_ae008024.o \
   $(OBJDIR)/SpikeDisplayNode_9c52e4ad.o \
   $(OBJDIR)/WiFiOutput_fa464ec5.o \
   $(OBJDIR)/LfpDisplayNode_30ef22fd.o \
@@ -119,7 +120,6 @@ OBJECTS := \
   $(OBJDIR)/CustomLookAndFeel_53a8fcdb.o \
   $(OBJDIR)/InfoLabel_a2051bf4.o \
   $(OBJDIR)/DataViewport_2cf95d2c.o \
-  $(OBJDIR)/Configuration_6915cd84.o \
   $(OBJDIR)/MessageCenter_748a1cca.o \
   $(OBJDIR)/ControlPanel_a895ede3.o \
   $(OBJDIR)/UIComponent_d667ba37.o \
@@ -244,6 +244,11 @@ $(OBJDIR)/State_22979684.o: ../../Source/Dsp/State.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Parameter_ae008024.o: ../../Source/Processors/Parameter.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Parameter.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/SpikeDisplayNode_9c52e4ad.o: ../../Source/Processors/SpikeDisplayNode.cpp
@@ -524,11 +529,6 @@ $(OBJDIR)/InfoLabel_a2051bf4.o: ../../Source/UI/InfoLabel.cpp
 $(OBJDIR)/DataViewport_2cf95d2c.o: ../../Source/UI/DataViewport.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling DataViewport.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Configuration_6915cd84.o: ../../Source/UI/Configuration.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Configuration.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/MessageCenter_748a1cca.o: ../../Source/UI/MessageCenter.cpp

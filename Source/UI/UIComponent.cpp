@@ -39,9 +39,8 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 
 	std::cout << "Created data viewport." << std::endl;
 
-	editorViewport = new EditorViewport();//(processorGraph, dataViewport);
-	//processorGraph->setEditorViewport(editorViewport);
-	
+	editorViewport = new EditorViewport();
+
 	addAndMakeVisible(editorViewport);
 
 	std::cout << "Created filter viewport." << std::endl;
@@ -55,22 +54,15 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	std::cout << "Created control panel." << std::endl;
 
 	processorList = new ProcessorList();
-	//filterList->setUIComponent(this);
 	addAndMakeVisible(processorList);
 
 	std::cout << "Created filter list." << std::endl;
 
 	messageCenter = new MessageCenter();
-	//processorGraph->addActionListener(messageCenter);
 	addActionListener(messageCenter);
 	addAndMakeVisible(messageCenter);
 
 	std::cout << "Created message center." << std::endl;
-
-	config = new Configuration();
-	//processorGraph->setConfiguration(config);
-
-	std::cout << "Created configuration object." << std::endl;
 
 	setBounds(0,0,500,400);
 
@@ -79,9 +71,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 
 	std::cout << "UI component data viewport: " << dataViewport << std::endl;
 
-
 	std::cout << "Finished UI stuff." << std::endl << std::endl << std::endl;
-
 
 	processorGraph->setUIComponent(this);
 	processorList->setUIComponent(this);
@@ -96,7 +86,6 @@ UIComponent::~UIComponent()
 {
 	deleteAllChildren();
 
-	deleteAndZero(config);
 	deleteAndZero(infoLabel);
 
 	processorGraph = 0;

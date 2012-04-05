@@ -33,7 +33,6 @@ class DataViewport;
 class ProcessorGraph;
 class MessageCenter;
 class ControlPanel;
-class Configuration;
 class AudioComponent;
 
 
@@ -61,7 +60,6 @@ public:
 	ControlPanel* getControlPanel() {return cp;}
 	MessageCenter* getMessageCenter() {return mc;}
 	UIComponent* getUIComponent() {return ui;}
-	Configuration* getConfiguration() {return cf;}
 	AudioComponent* getAudioComponent() {return ac;}
 
 private:
@@ -73,7 +71,6 @@ private:
 	ProcessorGraph* pg;
 	ControlPanel* cp;
 	MessageCenter* mc;
-	Configuration* cf;
 	AudioComponent* ac;
 
 };

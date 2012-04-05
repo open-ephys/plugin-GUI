@@ -49,8 +49,6 @@ public:
 
 	void setParameter (int parameterIndex, float newValue);
 
-	void setConfiguration(Configuration* cf);
-
 	float getSampleRate() {return 44100.0;}
 
 	AudioProcessorEditor* createEditor();

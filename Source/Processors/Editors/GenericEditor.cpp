@@ -27,9 +27,6 @@
 #include "../RecordNode.h"
 
 #include "../../UI/EditorViewport.h"
-#include "../../UI/Configuration.h"
-
-
 
 #include <math.h>
 

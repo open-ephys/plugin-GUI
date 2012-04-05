@@ -27,7 +27,6 @@
 #include "UI/EditorViewport.h"
 #include "UI/ProcessorList.h"
 #include "UI/DataViewport.h"
-#include "UI/Configuration.h"
 #include "UI/ControlPanel.h"
 #include "UI/MessageCenter.h"
 #include "Audio/AudioComponent.h"
@@ -43,7 +42,6 @@ void AccessClass::setUIComponent(UIComponent* ui_)
 	pg = ui->getProcessorGraph();
 	cp = ui->getControlPanel();
 	mc = ui->getMessageCenter();
-	cf = ui->getConfiguration();
 	ac = ui->getAudioComponent();
 
 	addActionListener(mc);
