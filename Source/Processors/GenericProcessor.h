@@ -27,7 +27,6 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/GenericEditor.h"
-#include "../UI/Configuration.h"
 #include "../AccessClass.h"
 #include <time.h>
 #include <stdio.h>
