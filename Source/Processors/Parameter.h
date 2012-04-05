@@ -26,6 +26,7 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/GenericEditor.h"
+#include "GenericProcessor.h"
 #include "../AccessClass.h"
 
 #include <stdio.h>
@@ -38,53 +39,54 @@
 
 */
 
-class Parameter :
+class GenericProcessor;
+class GenericEditor;
+
+class Parameter
 {
 public:
 
-	Parameter(const String name_);
-	~Parameter();
+	Parameter(const String& name_) : name(name_), description("") {}
+	~Parameter() {}
 
-	const String getName() {return name;}
+	const String& getName() {return name;}
+	const String& getDescription() {return description;}
 
-	virtual Array<var> getPossibleValues() {return possibleValues}
-	virtual void setValue(var val, int chan);
+	void addDescription(const String& desc) {description = desc;}
 
-	var getValue(int chan);
-	var operator[](int chan);
+	Array<var> getPossibleValues() {return possibleValues;}
+	var getDefaultValue() {return defaultValue;}
+
+	bool setValue(var val, int chan);
+
+	const var& getValue(int chan);
+	const var& operator[](int chan);
 
 	virtual bool isBoolean() {return false;}
 	virtual bool isContinuous() {return false;}
 	virtual bool isDiscrete() {return false;}
-	virtual bool isString() {return false;}
 
 protected:
 
 	const String name;
+	String description;
 
 	GenericProcessor* processor;
 	GenericEditor* editor;
-	Array<Channel*> channels;
+	//Array<Channel*> channels;
 
 	Array<var> possibleValues;
 	Array<var> values;
+
+	var defaultValue;
 
 };
 
 class BooleanParameter : public Parameter
 {
 public:
-	BooleanParameter(const String name_);
-	~BooleanParameter();
-
-	Array<var> getPossibleValues()
-	{
-		Array<var> possibleValues;
-		possibleValues.add(true);
-		possibleValues.add(false);
-
-		return possibleValues;
-	}
+	BooleanParameter(const String& name_, bool& defaultVal);
+	~BooleanParameter() {}
 
 	bool isBoolean() {return true;}
 
@@ -93,22 +95,10 @@ public:
 class ContinuousParameter : public Parameter
 {
 public:
-	ContinuousParameter(const String name_, double low, double high);
-	~ContinuousParameter();
-
-	Array<var> getPossibleValues()
-	{
-		Array<var> possibleValues;
-		possibleValues.add(low);
-		possibleValues.add(high);
-
-		return possibleValues;
-	}
+	ContinuousParameter(const String& name_, double low, double high, double& defaultVal);
+	~ContinuousParameter() {}
 
 	bool isContinuous() {return true;}
-
-private:
-	double low, high;
 
 };
 
@@ -116,20 +106,10 @@ private:
 class DiscreteParameter : public Parameter
 {
 public:
-	DiscreteParameter(const String name_, Array<var> possibleValues);
-	~DiscreteParameter();
+	DiscreteParameter(const String& name_, Array<var> a, int defaultVal);
+	~DiscreteParameter() {}
 
-	Array<var> getPossibleValues()
-	{
-		return possibleValues;
-	}
-
-	bool isContinuous() {return true;}
-
-private:
-	
-	Array<var> possibleValues;
-
+	bool isDiscrete() {return true;}
 };
 
 #endif  // __PARAMETER_H_62922AE5__

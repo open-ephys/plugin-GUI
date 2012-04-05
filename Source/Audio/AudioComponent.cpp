@@ -68,7 +68,7 @@ AudioComponent::AudioComponent() : isPlaying(false)
 	std::cout << "Audio device sample rate: " <<  sr << std::endl;
 	std::cout << "Audio device buffer size: " << buffSize << std::endl << std::endl;
 
-	graphPlayer = new AudioProcessorPlayer();
+	 graphPlayer = new AudioProcessorPlayer();
 
 }
 

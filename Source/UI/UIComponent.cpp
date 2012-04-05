@@ -139,6 +139,17 @@ void UIComponent::resized()
 	if (messageCenter != 0)
 		messageCenter->setBounds(6,h-35,w-241,30);
 
+	// for debugging purposes:
+	if (false) {
+		dataViewport->setVisible(false);
+		editorViewport->setVisible(false);
+		processorList->setVisible(false);
+		messageCenter->setVisible(false);
+		controlPanel->setVisible(false);
+		editorViewportButton->setVisible(false);
+	}
+
+
 }
 
 void UIComponent::disableCallbacks()
@@ -250,8 +261,6 @@ void EditorViewportButton::drawName()
 	glRasterPos2f(8.0/getWidth(),0.75f);
 	font->FaceSize(23);
 	font->Render("SIGNAL CHAIN");
-	
-
 	
 }
 

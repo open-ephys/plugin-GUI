@@ -27,7 +27,9 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/GenericEditor.h"
+#include "Parameter.h"
 #include "../AccessClass.h"
+
 #include <time.h>
 #include <stdio.h>
 
@@ -49,6 +51,7 @@ class EditorViewport;
 class DataViewport;
 class UIComponent;
 class GenericEditor;
+class Parameter;
 
 class GenericProcessor : public AudioProcessor,
 						 public AccessClass
@@ -82,9 +85,9 @@ public:
 
 	const String getInputChannelName (int channelIndex) const {return settings.inputChannelNames[channelIndex];}
 	const String getOutputChannelName (int channelIndex) const {return settings.outputChannelNames[channelIndex];}
-	const String getParameterName (int parameterIndex) {return T(" ");}
-	const String getParameterText (int parameterIndex) {return T(" ");}
-	const String getProgramName (int index) {return T(" ");}
+	const String getParameterName (int parameterIndex); //{return parameters[parameterIndex]->getName();}
+	const String getParameterText (int parameterIndex); //{return parameters[parameterIndex]->getDescription();}
+	const String getProgramName (int index) {return "";}
 	
 	bool isInputChannelStereoPair (int index) const {return true;}
 	bool isOutputChannelStereoPair (int index) const {return true;}
@@ -94,7 +97,7 @@ public:
 	bool isParameterAutomatable(int parameterIndex) {return false;}
 	bool isMetaParameter(int parameterIndex) {return false;}
 	
-	int getNumParameters() {return 0;}
+	int getNumParameters() {return parameters.size();}
 	int getNumPrograms() {return 0;}
 	int getCurrentProgram() {return 0;}
 	
@@ -225,6 +228,9 @@ public:
 	virtual void updateSettings() {} // custom node updating
 
 	int nodeId;
+
+	// parameters:
+	OwnedArray<Parameter> parameters;
 
 private:
 

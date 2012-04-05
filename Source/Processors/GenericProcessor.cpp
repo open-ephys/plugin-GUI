@@ -47,9 +47,23 @@ AudioProcessorEditor* GenericProcessor::createEditor()
 
 void GenericProcessor::setParameter (int parameterIndex, float newValue)
 {
-
+	if (currentChannel > 0)
+	{
+		parameters[parameterIndex]->setValue((double) newValue, currentChannel);
+	}
 
 }
+
+const String GenericProcessor::getParameterName (int parameterIndex)
+{
+	return parameters[parameterIndex]->getName();
+}
+
+const String GenericProcessor::getParameterText (int parameterIndex)
+{
+	return parameters[parameterIndex]->getDescription();
+}
+	
 
 void GenericProcessor::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
 {
@@ -88,29 +102,29 @@ void GenericProcessor::resetConnections()
 	wasConnected = false;
 }
 
-void GenericProcessor::setNumSamples(MidiBuffer& midiMessages, int sampleIndex) {
+void GenericProcessor::setNumSamples(MidiBuffer& events, int sampleIndex) {
 
 	uint8 data[2];
 
 	data[0] = BUFFER_SIZE; 	// most-significant byte
     data[1] = nodeId; 		// least-significant byte
 
-    midiMessages.addEvent(data, 		// spike data
-                          2, 			// total bytes
-                          sampleIndex); // sample index
+    events.addEvent(data, 		// spike data
+                    2, 			// total bytes
+                    sampleIndex); // sample index
 
 }
 
-int GenericProcessor::getNumSamples(MidiBuffer& midiMessages) {
+int GenericProcessor::getNumSamples(MidiBuffer& events) {
 
 	int numRead = 0;
 
-	if (midiMessages.getNumEvents() > 0) 
+	if (events.getNumEvents() > 0) 
 	{
 			
-		int m = midiMessages.getNumEvents();
+		int m = events.getNumEvents();
 
-		MidiBuffer::Iterator i (midiMessages);
+		MidiBuffer::Iterator i (events);
 		MidiMessage message(0xf4);
 
 		int samplePosition = -5;
