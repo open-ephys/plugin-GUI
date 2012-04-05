@@ -76,7 +76,7 @@ private:
 
 	enum wvfrm
 	{
-		SINE, SQUARE, SAW, TRIANGLE, NOISE
+		TRIANGLE, SINE, SQUARE, SAW, NOISE
 	};
 
 	Array<int> waveformType;

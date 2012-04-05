@@ -71,7 +71,10 @@ private:
     
     int type;
 
-    Image icon;
+    Image neutral;
+    Image neutralOver;
+    Image selected;
+    Image selectedOver;
 
 };
 

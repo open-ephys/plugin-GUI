@@ -76,6 +76,12 @@ private:
 
   String dataFolder;
 
+  int16* continuousDataBuffer;
+
+  int64 timestamp;
+
+  Time timer;
+
   struct Channel
   {
     int nodeId;

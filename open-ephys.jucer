@@ -48,6 +48,46 @@
       </GROUP>
       <GROUP id="W2L6BdA" name="Images">
         <GROUP id="Gu1BsKu" name="Icons">
+          <FILE id="AQfzTI0" name="RadioButtons-01.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons-01.png"/>
+          <FILE id="zaiYTpn" name="RadioButtons-02.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons-02.png"/>
+          <FILE id="tMMIgNQ" name="RadioButtons-03.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons-03.png"/>
+          <FILE id="izT7ken" name="RadioButtons-04.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons-04.png"/>
+          <FILE id="wUnR602" name="RadioButtons-05.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons-05.png"/>
+          <FILE id="imnUJ17" name="RadioButtons_neutral-01.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons_neutral-01.png"/>
+          <FILE id="lSUFFn" name="RadioButtons_neutral-02.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons_neutral-02.png"/>
+          <FILE id="RLptoX" name="RadioButtons_neutral-03.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons_neutral-03.png"/>
+          <FILE id="cTSMIj9" name="RadioButtons_neutral-04.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons_neutral-04.png"/>
+          <FILE id="e2xa4yY" name="RadioButtons_neutral-05.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons_neutral-05.png"/>
+          <FILE id="uRp98Z6" name="RadioButtons_selected-01.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected-01.png"/>
+          <FILE id="TSUeLsT" name="RadioButtons_selected-02.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected-02.png"/>
+          <FILE id="3iZ1q0" name="RadioButtons_selected-03.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons_selected-03.png"/>
+          <FILE id="eBBTz15" name="RadioButtons_selected-04.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected-04.png"/>
+          <FILE id="3UcfCgS" name="RadioButtons_selected-05.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected-05.png"/>
+          <FILE id="dwuGoW2" name="RadioButtons_selected_over-01.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected_over-01.png"/>
+          <FILE id="sNKpDX4" name="RadioButtons_selected_over-02.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected_over-02.png"/>
+          <FILE id="3hxkdcI" name="RadioButtons_selected_over-03.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected_over-03.png"/>
+          <FILE id="NJA55tz" name="RadioButtons_selected_over-04.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected_over-04.png"/>
+          <FILE id="SDmWsOz" name="RadioButtons_selected_over-05.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected_over-05.png"/>
           <FILE id="rdA7uYL" name="noise_wave.png" compile="0" resource="1" file="Resources/Images/Icons/noise_wave.png"/>
           <FILE id="s0uKcoP" name="saw_wave.png" compile="0" resource="1" file="Resources/Images/Icons/saw_wave.png"/>
           <FILE id="4jA1Wxu" name="sine_wave.png" compile="0" resource="1" file="Resources/Images/Icons/sine_wave.png"/>

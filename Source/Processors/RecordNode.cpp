@@ -30,6 +30,8 @@ RecordNode::RecordNode()
 
 	dataFolder = "./Data";
 
+	continuousDataBuffer = new int16[10000];
+
 }
 
 
@@ -203,6 +205,7 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 bool RecordNode::enable()
 {
 
+	isProcessing = true;
 	return true;
 }
 
@@ -212,6 +215,8 @@ bool RecordNode::disable()
 	
 	// close files if necessary
 	setParameter(0, 10.0f);
+
+	isProcessing = false;
 
 	return true;
 }
@@ -228,6 +233,26 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 {
 
 	// find file and write samples to disk
+
+	AudioDataConverters::convertFloatToInt16BE(data, continuousDataBuffer, nSamples);
+
+	//int16 samps = nSamples;
+
+	fwrite(&timestamp,							// ptr
+			   8,   							// size of each element
+			   1, 		  						// count 
+			   continuousChannels[channel].file);   // ptr to FILE object
+
+	fwrite(&nSamples,								// ptr
+			   sizeof(nSamples),   				// size of each element
+			   1, 		  						// count 
+			   continuousChannels[channel].file);   // ptr to FILE object
+
+	int n = fwrite(continuousDataBuffer,			// ptr
+			   2,			     					// size of each element
+			   nSamples, 		  					// count 
+			   continuousChannels[channel].file);   // ptr to FILE object
+	// n must equal "count", otherwise there was an error
 }
  
 void RecordNode::writeEventBuffer(MidiMessage& event, int node, int channel)
@@ -244,7 +269,11 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 	//std::cout << "Record node processing block." << std::endl;
 	//std::cout << "Num channels: " << buffer.getNumChannels() << std::endl;
 
+	timestamp = timer.getHighResolutionTicks();
+
 	if (isRecording) {
+
+		buffer.applyGain(0, nSamples, 0.1);
 
 		// cycle through events -- extract the samples per channel
 
@@ -253,28 +282,18 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 		for (int i = 0; i < buffer.getNumChannels(); i++)
 		{
 
-			//std::cout << "CH" << i << " " << continuousChannels[i].isRecording << std::endl;
-
 			if (continuousChannels[i].isRecording)
 			{
+				// write buffer to disk!
 				writeContinuousBuffer(buffer.getSampleData(i),
 									  nSamples,
 									  i);
-				// write buffer to disk!
+				
 				//std::cout << "Record channel " << i << std::endl;
 			}
 				
 
 		}
-
-		//int n = fwrite(vector, // ptr
-		//	   1,      		   // size of each element
-		//	   sizeof(vector), // count 
-		//	   pFile);         /// ptr to FILE object
-		// n must equal "count", otherwise there was an error
-
-		// cycle through buffer channels, saving them to the appropriate places
-
 
 	}
 

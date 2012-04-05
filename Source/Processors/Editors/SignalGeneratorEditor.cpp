@@ -34,13 +34,13 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 {
 	desiredWidth = 270;
 
-	int buttonWidth = 30;
-	int buttonHeight = 20;
+	int buttonWidth = 31;
+	int buttonHeight = 19;
 
 	for (int i = 0; i < 5; i++)
 	{
 		WaveformSelector* ws = new WaveformSelector(i);
-		ws->setBounds(15 + (buttonWidth+3)*i, 30, buttonWidth, buttonHeight);
+		ws->setBounds(15 + (buttonWidth)*i, 30, buttonWidth, buttonHeight);
 		ws->addListener(this);
 		waveformSelectors.add(ws);
 		addAndMakeVisible(ws);
@@ -171,21 +171,56 @@ WaveformSelector::WaveformSelector(int type) : Button("Waveform")
 	setRadioGroupId(299);
 	setClickingTogglesState(true);
 
-	if (type == 0)
-	 	icon = ImageCache::getFromMemory (BinaryData::sine_wave_png, 
-	 								    BinaryData::sine_wave_pngSize);
-	else if (type == 1)
-		icon = ImageCache::getFromMemory (BinaryData::square_wave_png, 
-	 								    BinaryData::square_wave_pngSize);
-	else if (type == 2)
-		icon = ImageCache::getFromMemory (BinaryData::saw_wave_png, 
-	 								    BinaryData::saw_wave_pngSize);
-	else if (type == 3)
-		icon = ImageCache::getFromMemory (BinaryData::triangle_wave_png, 
-	 								    BinaryData::triangle_wave_pngSize);
-	else if (type == 4)
-		icon = ImageCache::getFromMemory (BinaryData::noise_wave_png, 
-	 								    BinaryData::noise_wave_pngSize);
+	if (type == 0) {
+	 	selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected01_png, 
+	 								    BinaryData::RadioButtons_selected01_pngSize);
+	 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over01_png, 
+	 								    BinaryData::RadioButtons_selected_over01_pngSize);
+	 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral01_png, 
+	 								    BinaryData::RadioButtons_neutral01_pngSize);
+	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons01_png, 
+	 								    BinaryData::RadioButtons01_pngSize);
+	 } 
+	else if (type == 1) {
+		selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected02_png, 
+	 								    BinaryData::RadioButtons_selected02_pngSize);
+	 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over02_png, 
+	 								    BinaryData::RadioButtons_selected_over02_pngSize);
+	 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral02_png, 
+	 								    BinaryData::RadioButtons_neutral02_pngSize);
+	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons02_png, 
+	 								    BinaryData::RadioButtons02_pngSize);
+	 }
+	else if (type == 2) {
+		selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected03_png, 
+	 								    BinaryData::RadioButtons_selected03_pngSize);
+	 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over03_png, 
+	 								    BinaryData::RadioButtons_selected_over03_pngSize);
+	 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral03_png, 
+	 								    BinaryData::RadioButtons_neutral03_pngSize);
+	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons03_png, 
+	 								    BinaryData::RadioButtons03_pngSize);
+	 }
+	else if (type == 3) {
+		selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected04_png, 
+	 								    BinaryData::RadioButtons_selected04_pngSize);
+	 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over04_png, 
+	 								    BinaryData::RadioButtons_selected_over04_pngSize);
+	 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral04_png, 
+	 								    BinaryData::RadioButtons_neutral04_pngSize);
+	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons04_png, 
+	 								    BinaryData::RadioButtons04_pngSize);
+	 }
+	else if (type == 4) {
+		selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected05_png, 
+	 								    BinaryData::RadioButtons_selected05_pngSize);
+	 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over05_png, 
+	 								    BinaryData::RadioButtons_selected_over05_pngSize);
+	 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral05_png, 
+	 								    BinaryData::RadioButtons_neutral05_pngSize);
+	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons05_png, 
+	 								    BinaryData::RadioButtons05_pngSize);
+	 }
 
 }
 
@@ -193,19 +228,24 @@ void WaveformSelector::paintButton(Graphics& g, bool isMouseOver, bool isButtonD
 {
  
 
-    if (getToggleState())
-    {
-        g.setColour(Colours::orange);
-    } else {
-        g.setColour(Colours::grey);
-    }
+     if (getToggleState())
+     {
+     	if (isMouseOver)
+        	g.drawImage(selectedOver, 0, 0, 31, 19, 0, 0, 31, 19);
+        else
+        	g.drawImage(selected, 0, 0, 31, 19, 0, 0, 31, 19);
+     } else {
+         if (isMouseOver)
+         	g.drawImage(neutralOver, 0, 0, 31, 19, 0, 0, 31, 19);
+        else
+        	g.drawImage(neutral, 0, 0, 31, 19, 0, 0, 31, 19);
+     }
 
-    g.fillAll();
+    // g.fillAll();
 
-    g.setColour(Colours::black);
-    g.drawRect(0, 0, getWidth(), getHeight());
+    // g.setColour(Colours::black);
+    // g.drawRect(0, 0, getWidth(), getHeight());
 
-    g.setImageResamplingQuality(Graphics::highResamplingQuality);
-     g.drawImage(icon, 2, 2, getWidth()-4, getHeight()-4,
-     			0, 0, icon.getWidth(), icon.getHeight());
+    // g.setImageResamplingQuality(Graphics::highResamplingQuality);
+     
 }
