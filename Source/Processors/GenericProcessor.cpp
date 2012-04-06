@@ -49,19 +49,22 @@ void GenericProcessor::setParameter (int parameterIndex, float newValue)
 {
 	if (currentChannel > 0)
 	{
-		parameters[parameterIndex]->setValue(newValue, currentChannel);
+		//Parameter& p = parameters[parameterIndex];
+		//parameters[parameterIndex].setValue(newValue, currentChannel);
 	}
 
 }
 
 const String GenericProcessor::getParameterName (int parameterIndex)
 {
-	return parameters[parameterIndex]->getName();
+	//Parameter& p = parameters[parameterIndex];
+	//return parameters[parameterIndex].getName();
 }
 
 const String GenericProcessor::getParameterText (int parameterIndex)
 {
-	return parameters[parameterIndex]->getDescription();
+	//Parameter& p = parameters[parameterIndex];
+	//return parameters[parameterIndex].getDescription();
 }
 	
 

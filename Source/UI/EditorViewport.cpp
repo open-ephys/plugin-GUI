@@ -663,15 +663,44 @@ void SignalChainTabButton::clicked()
 
 void SignalChainTabButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
-    if (getToggleState() == true)
-        g.setColour(Colours::orange);
-    else 
-        g.setColour(Colours::darkgrey);
 
-    if (isMouseOver)
-        g.setColour(Colours::white);
+    ColourGradient grad1, grad2;
 
+    if (getToggleState() == true) {
+
+        grad1 = ColourGradient(Colour(255, 136, 34), 0.0f, 0.0f, 
+                               Colour(230, 193, 32), 0.0f, 20.0f,
+                               false);
+
+        grad2 = ColourGradient(Colour(255, 136, 34), 0.0f, 20.0f, 
+                               Colour(230, 193, 32), 0.0f, 0.0f,
+                               false);
+    }
+    else { 
+         grad2 = ColourGradient(Colour(80, 80, 80), 0.0f, 20.0f, 
+                               Colour(120, 120, 120), 0.0f, 0.0f,
+                               false);
+
+        grad1 =  ColourGradient(Colour(80, 80, 80), 0.0f, 0.0f, 
+                               Colour(120, 120, 120), 0.0f, 20.0f,
+                               false);
+    }
+
+    if (isMouseOver) {
+         grad1 = ColourGradient(Colour(255, 255, 255), 0.0f, 20.0f, 
+                                Colour(180, 180, 180), 0.0f, 0.0f,
+                               false);
+
+        grad2 = ColourGradient(Colour(255, 255, 255), 0.0f, 0.0f, 
+                                Colour(180, 180, 180), 0.0f, 20.0f,
+                               false);
+    }
+
+    g.setGradientFill(grad2);
     g.fillEllipse(0,0,getWidth(),getHeight());
+
+    g.setGradientFill(grad1);
+    g.fillEllipse(2,2,getWidth()-4,getHeight()-4);
 
     g.setFont(buttonFont);
     g.setColour(Colours::black);

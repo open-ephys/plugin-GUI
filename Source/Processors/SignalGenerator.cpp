@@ -42,7 +42,7 @@ SignalGenerator::SignalGenerator()
 	p.setValue(0.0f, 0);
 	bool a = p[0];
 
-	parameters.add(&p);
+	parameters.add(p);
 
 
 }

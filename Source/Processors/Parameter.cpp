@@ -68,14 +68,14 @@ Parameter::Parameter(const String& name_, Array<var> a, int defaultVal)
 
 void Parameter::setValue(float val, int chan)
 {
-	if (isBoolean)
+	if (isBoolean())
 	{
 		if (val > 0.0f)
 			values.set(chan, true);
 		else
 			values.set(chan, false);
 	} 
-	else if (isContinuous) {
+	else if (isContinuous()) {
 
 		if (val < (float) possibleValues[0])
 		{

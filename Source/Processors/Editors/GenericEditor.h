@@ -133,6 +133,7 @@ private:
 	virtual void destroyChannelSelectors();
 
 	Colour backgroundColor;
+	ColourGradient backgroundGradient;
 
 	bool isSelected;
 	bool isEnabled;

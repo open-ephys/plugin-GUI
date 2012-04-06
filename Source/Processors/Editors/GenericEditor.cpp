@@ -79,6 +79,13 @@ GenericEditor::GenericEditor (GenericProcessor* owner)//, FilterViewport* vp)
 	audioChannels.clear();
 	recordChannels.clear();
 
+	backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f, 
+										 Colour(145, 145, 145), 0.0f, 150.0f, false);
+
+	//grad.addColour(0.5f, Colour(170, 170, 170));
+	//grad.addColour(0.5, Colours::lightgrey);
+	//grad.addColour(1.0f, Colours::grey);
+
 
 	fadeIn();
 }
@@ -223,7 +230,10 @@ void GenericEditor::paint (Graphics& g)
 	g.fillRect(1,1,getWidth()-(2+offset),getHeight()-2);
 
 	// draw gray workspace
-	g.setColour(Colour(140, 140, 140));
+	//g.setColour(Colour(140, 140, 140));
+	
+
+	g.setGradientFill(backgroundGradient);
 	g.fillRect(1,22,getWidth()-2, getHeight()-29);
 
 	g.setFont(titleFont);
@@ -252,7 +262,7 @@ void GenericEditor::paint (Graphics& g)
 
 	if (isFading)
 	{
-		g.setColour(Colours::black.withAlpha((float) (15.0-accumulator)/15.0f));
+		g.setColour(Colours::black.withAlpha((float) (10.0-accumulator)/10.0f));
 		if (getWidth() > 0 && getHeight() > 0)
 			g.fillAll();
 	}
@@ -265,7 +275,7 @@ void GenericEditor::timerCallback()
 
 	repaint();
 
-	if (accumulator > 15.0)
+	if (accumulator > 10.0)
 	{
 		stopTimer();
 		isFading = false;
