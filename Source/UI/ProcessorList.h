@@ -89,7 +89,7 @@ private:
 
 };
 
-class ProcessorListItem
+class ProcessorListItem //: public Component
 {
 public:
 	ProcessorListItem(const String& name);
@@ -114,7 +114,8 @@ public:
 	const String& getParentName();
 	void setParentName(const String& name);
 
-	Colour color;
+	//Colour color;
+	int colorId;
 
 private:
 

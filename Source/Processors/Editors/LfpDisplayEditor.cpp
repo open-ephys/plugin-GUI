@@ -29,6 +29,8 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode)
 
 {
 
+	tabText = "LFP";
+
 	desiredWidth = 250;
 
 	StringArray timeBaseValues;

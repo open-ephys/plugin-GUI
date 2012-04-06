@@ -106,6 +106,8 @@ public:
 
 	void selectChannels(Array<int>);
 
+	void refreshColors();
+
 	virtual void update();
 	virtual void updateVisualizer() {}
 

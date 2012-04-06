@@ -216,9 +216,10 @@ void EditorViewport::itemDropped (const String& sourceDescription, Component* /*
 
         if (activeEditor != 0)
         {
-            addChildComponent(activeEditor);
             activeEditor->setUIComponent(getUIComponent());
-
+            activeEditor->refreshColors();
+            addChildComponent(activeEditor);
+            
             lastEditor = activeEditor;
 
             signalChainManager->updateVisibleEditors(activeEditor, indexOfMovingComponent, insertionPoint, ADD);

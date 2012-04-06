@@ -20,6 +20,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef SPIKEDISPLAYCANVAS_H_
 #define SPIKEDISPLAYCANVAS_H_
 
@@ -33,6 +34,14 @@
 
 #include "Visualizer.h"
 #include <vector>
+
+ /**
+  
+  Displays spike waveforms and projections.
+
+  @see SpikeDisplayNode, SpikeDisplayEditor, Visualizer
+
+*/
 
 #define MAX_NUMBER_OF_SPIKE_SOURCES = 128;
 

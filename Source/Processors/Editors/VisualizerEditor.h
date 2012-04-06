@@ -71,6 +71,8 @@ public:
 	ScopedPointer<DataWindow> dataWindow;
 	ScopedPointer<Visualizer> canvas;
 
+	String tabText;
+
 private:	
 
 	void initializeSelectors();
@@ -80,6 +82,8 @@ private:
 	SelectorButton* tabSelector;
 
 	int tabIndex;
+
+
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VisualizerEditor);
 

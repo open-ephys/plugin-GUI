@@ -17,6 +17,8 @@ SpikeDisplayEditor::SpikeDisplayEditor (GenericProcessor* parentNode)
 
 	initializeButtons();
 
+	tabText = "Spikes";
+
 }
 
 SpikeDisplayEditor::~SpikeDisplayEditor()

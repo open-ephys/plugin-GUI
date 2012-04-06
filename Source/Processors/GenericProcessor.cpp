@@ -49,7 +49,7 @@ void GenericProcessor::setParameter (int parameterIndex, float newValue)
 {
 	if (currentChannel > 0)
 	{
-		parameters[parameterIndex]->setValue((double) newValue, currentChannel);
+		parameters[parameterIndex]->setValue(newValue, currentChannel);
 	}
 
 }

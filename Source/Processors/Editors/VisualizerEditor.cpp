@@ -28,6 +28,7 @@ SelectorButton::SelectorButton(const String& name_)
 {
 	setClickingTogglesState (true);
     setTooltip ("Toggle a state.");
+
 }
 
 SelectorButton::~SelectorButton()
@@ -64,7 +65,7 @@ VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width)
 : GenericEditor(parentNode),
 	  tabIndex(-1), dataWindow(0),
 	  isPlaying(false),
-	  canvas(0)
+	  canvas(0), tabText("Tab")
 
 {
 
@@ -207,7 +208,7 @@ void VisualizerEditor::buttonEvent(Button* button)
 				 	dataWindow->setVisible(false);
 				 }
 
-				tabIndex = getDataViewport()->addTabToDataViewport("LFP",canvas);
+				tabIndex = getDataViewport()->addTabToDataViewport(tabText,canvas);
 
 
 			} else if (!tabSelector->getToggleState() && tabIndex > -1)

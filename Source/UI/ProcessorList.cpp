@@ -36,6 +36,20 @@ ProcessorList::ProcessorList() : isDragging(false),
                            yBuffer(1)
 {
 
+	enum {
+		PROCESSOR_COLOR = 801,
+		FILTER_COLOR = 802,
+		SINK_COLOR = 803,
+		SOURCE_COLOR = 804,
+		UTILITY_COLOR = 805,
+	};
+
+	setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
+	setColour(FILTER_COLOR, Colour(103, 107, 158));//Colour(255, 89, 0));
+	setColour(SINK_COLOR, Colour(150, 62, 150));//Colour(255, 149, 0));
+	setColour(SOURCE_COLOR, Colour(116, 166, 128)); //Colour(255, 0, 0));
+	setColour(UTILITY_COLOR, Colour(90, 80, 80));
+
 	ProcessorListItem* sources = new ProcessorListItem("Sources");
 	sources->addSubItem(new ProcessorListItem("Intan Demo Board"));
 	sources->addSubItem(new ProcessorListItem("Signal Generator"));
@@ -153,10 +167,12 @@ void ProcessorList::drawItems()
 
 void ProcessorList::drawItem(ProcessorListItem* item)
 {
-	
-	glColor4f(item->color.getFloatRed(),
-		      item->color.getFloatGreen(),
-		      item->color.getFloatBlue(),
+
+	Colour c = findColour(item->colorId);
+
+	glColor4f(c.getFloatRed(),
+		      c.getFloatGreen(),
+		      c.getFloatBlue(),
 		      1.0f);
 
 	glBegin(GL_POLYGON);
@@ -406,7 +422,7 @@ void ProcessorList::mouseDragInCanvas(const MouseEvent& e)
 						Image dragImage (Image::ARGB, 100, 15, true);
 
 						Graphics g(dragImage);
-						g.setColour (fli->color);
+						g.setColour (findColour(fli->colorId));
 						g.fillAll();
 						g.setColour(Colours::white);
 						g.setFont(14);
@@ -492,22 +508,35 @@ void ProcessorListItem::setParentName(const String& name)
 {
 	parentName = name;
 
+	enum {
+		PROCESSOR_COLOR = 801,
+		FILTER_COLOR = 802,
+		SINK_COLOR = 803,
+		SOURCE_COLOR = 804,
+		UTILITY_COLOR = 805,
+	};
+
 	if (parentName.equalsIgnoreCase("Processors"))
 	{
-		color = Colour(59, 59, 59);
+		colorId = PROCESSOR_COLOR;
+		//color = Colour(59, 59, 59);
 
 	} else if (parentName.equalsIgnoreCase("Filters"))
 	{
-		color = Colour(255, 89, 0);
+		colorId = FILTER_COLOR;
+		//color = Colour(255, 89, 0);
 	} else if (parentName.equalsIgnoreCase("Sinks"))
 	{
-		color = Colour(255, 149, 0);
+		colorId = SINK_COLOR;
+		//color = Colour(255, 149, 0);
 	} else if (parentName.equalsIgnoreCase("Sources"))
 	{
-		color = Colour(255, 0, 0);
+		colorId = SOURCE_COLOR;
+		//color = Colour(255, 0, 0);
 
 	} else {
-		color = Colour(90, 80, 80);
+		colorId = UTILITY_COLOR;
+		//color = Colour(90, 80, 80);
 	}
 }
 

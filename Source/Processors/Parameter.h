@@ -25,9 +25,9 @@
 #define __PARAMETER_H_62922AE5__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "Editors/GenericEditor.h"
-#include "GenericProcessor.h"
-#include "../AccessClass.h"
+// #include "Editors/GenericEditor.h"
+// #include "GenericProcessor.h"
+// #include "../AccessClass.h"
 
 #include <stdio.h>
 
@@ -39,77 +39,123 @@
 
 */
 
-class GenericProcessor;
-class GenericEditor;
-
 class Parameter
 {
 public:
 
-	Parameter(const String& name_) : name(name_), description("") {}
+	Parameter(const String& name_, bool defaultVal);
+	Parameter(const String& name_, float low, float high, float defaultVal);
+	Parameter(const String& name_, Array<var> a, int defaultVal);
+
 	~Parameter() {}
 
 	const String& getName() {return name;}
 	const String& getDescription() {return description;}
-
 	void addDescription(const String& desc) {description = desc;}
 
 	Array<var> getPossibleValues() {return possibleValues;}
-	var getDefaultValue() {return defaultValue;}
+	void setValue(float val, int chan);
 
-	bool setValue(var val, int chan);
+	var operator[](int chan) {return values[chan];}
+	Parameter& operator=(const Parameter& other);
 
-	const var& getValue(int chan);
-	const var& operator[](int chan);
+	bool isBoolean() {return isBool;}
+	bool isContinuous() {return isCont;}
+	bool isDiscrete() {return isDisc;}
 
-	virtual bool isBoolean() {return false;}
-	virtual bool isContinuous() {return false;}
-	virtual bool isDiscrete() {return false;}
+private:
 
-protected:
 
 	const String name;
 	String description;
 
-	GenericProcessor* processor;
-	GenericEditor* editor;
-	//Array<Channel*> channels;
-
-	Array<var> possibleValues;
-	Array<var> values;
+	bool isBool, isCont, isDisc;
 
 	var defaultValue;
+	Array<var> values;
+	Array<var> possibleValues;
 
 };
 
-class BooleanParameter : public Parameter
-{
-public:
-	BooleanParameter(const String& name_, bool& defaultVal);
-	~BooleanParameter() {}
+// class BooleanParameter : public Parameter
+// {
+// public:
+// 	BooleanParameter(const String name_, bool defaultVal);
+// 	~BooleanParameter() {}
 
-	bool isBoolean() {return true;}
+// 	Array<var> getPossibleValues();
+// 	void setValue(float val, int chan);
+// 	void* operator[](int chan);
 
-};
+// 	bool isBoolean() {return true;}
 
-class ContinuousParameter : public Parameter
-{
-public:
-	ContinuousParameter(const String& name_, double low, double high, double& defaultVal);
-	~ContinuousParameter() {}
+// 	bool defaultValue;
 
-	bool isContinuous() {return true;}
+// 	Array<bool> values;
 
-};
+// };
+
+// class ContinuousParameter : public Parameter
+// {
+// public:
+// 	ContinuousParameter(const String name_, float low, float high, float defaultVal);
+// 	~ContinuousParameter() {}
+
+// 	Array<var> getPossibleValues();
+// 	void setValue(float val, int chan);
+// 	void* operator[](int chan);
+
+// 	bool isContinuous() {return true;}
+
+// 	float low, high, defaultValue;
+
+// 	Array<float> values;
+
+// };
 
 
-class DiscreteParameter : public Parameter
-{
-public:
-	DiscreteParameter(const String& name_, Array<var> a, int defaultVal);
-	~DiscreteParameter() {}
+// class DiscreteParameter : public Parameter
+// {
+// public:
+// 	DiscreteParameter(const String name_, Array<var> a, int defaultVal);
+// 	~DiscreteParameter() {}
 
-	bool isDiscrete() {return true;}
-};
+// 	Array<var> getPossibleValues();
+// 	void setValue(float val, int chan);
+// 	void* operator[](int chan);
+
+// 	bool isDiscrete() {return true;}
+
+// 	Array<var> possibleValues;
+// 	Array<var> values;
+
+// 	int defaultValue;
+// };
+
+
+// template <class Type>
+
+// class Parameter
+// {
+// public:
+// 	Parameter(const String& name_,
+// 			  Type defaultVal,
+// 			  Array<var> possibleVals = Array<var>()) :
+// 			   name(name_), defaultValue(defaultVal), possibleValues(possibleVals)
+// 	{
+
+// 	}
+
+// 	Type operator[](int chan) {return values[chan];}
+
+// private:
+
+// 	const String name;
+// 	Type defaultValue;
+// 	Array<Type> values;
+// 	Array<var> possibleValues;
+
+// };
+
 
 #endif  // __PARAMETER_H_62922AE5__

@@ -27,6 +27,21 @@ CustomLookAndFeel::CustomLookAndFeel()
 {
   MemoryInputStream mis(BinaryData::misoserialized, BinaryData::misoserializedSize, false);
   Miso = new CustomTypeface(mis);
+
+  enum {
+    PROCESSOR_COLOR = 0x801,
+    FILTER_COLOR = 0x802,
+    SINK_COLOR = 0x803,
+    SOURCE_COLOR = 0x804,
+    UTILITY_COLOR = 0x805,
+  };
+
+  setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
+  setColour(FILTER_COLOR, Colour(255, 89, 0));
+  setColour(SINK_COLOR, Colour(255, 149, 0));
+  setColour(SOURCE_COLOR, Colour(255, 0, 0));
+  setColour(UTILITY_COLOR, Colour(90, 80, 80));
+
 }
 
 CustomLookAndFeel::~CustomLookAndFeel() {}

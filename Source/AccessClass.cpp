@@ -34,6 +34,7 @@
 
 void AccessClass::setUIComponent(UIComponent* ui_)
 {
+
 	ui = ui_;
 
 	ev = ui->getEditorViewport();

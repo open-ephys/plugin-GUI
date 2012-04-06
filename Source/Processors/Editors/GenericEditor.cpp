@@ -25,6 +25,7 @@
 
 #include "../ProcessorGraph.h"
 #include "../RecordNode.h"
+#include "../../UI/ProcessorList.h"
 
 #include "../../UI/EditorViewport.h"
 
@@ -72,19 +73,7 @@ GenericEditor::GenericEditor (GenericProcessor* owner)//, FilterViewport* vp)
     		paramsButton->setToggleState(true, true);
     	}
 
-    	
-
 	}
-
-	if (owner->isSource())
-		backgroundColor = Colour(255, 0, 0);//Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
-	else if (owner->isSink())
-		backgroundColor = Colour(255, 149, 0);//Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
-	else if (owner->isSplitter() || owner->isMerger())
-		backgroundColor = Colour(40, 40, 40);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
-	else
-		backgroundColor = Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
-
 
 	paramsChannels.clear();
 	audioChannels.clear();
@@ -101,6 +90,27 @@ GenericEditor::~GenericEditor()
 	//delete titleFont;
 }
 
+void GenericEditor::refreshColors()
+{
+
+	enum {
+		PROCESSOR_COLOR = 801,
+		FILTER_COLOR = 802,
+		SINK_COLOR = 803,
+		SOURCE_COLOR = 804,
+		UTILITY_COLOR = 805,
+	};
+
+	if (getProcessor()->isSource())
+		backgroundColor = getProcessorList()->findColour(SOURCE_COLOR);// Colour(255, 0, 0);//Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
+	else if (getProcessor()->isSink())
+		backgroundColor = getProcessorList()->findColour(SINK_COLOR);//Colour(255, 149, 0);//Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
+	else if (getProcessor()->isSplitter() || getProcessor()->isMerger())
+		backgroundColor =  getProcessorList()->findColour(UTILITY_COLOR);//Colour(40, 40, 40);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
+	else
+		backgroundColor =  getProcessorList()->findColour(FILTER_COLOR);//Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
+
+}
 
 
 void GenericEditor::resized()

@@ -35,7 +35,18 @@ SignalGenerator::SignalGenerator()
 	
 {
 
+	// const String n = "Test";
+
+	Parameter p = Parameter("Bill",true);
+
+	p.setValue(0.0f, 0);
+	bool a = p[0];
+
+	parameters.add(&p);
+
+
 }
+
 
 SignalGenerator::~SignalGenerator()
 {
