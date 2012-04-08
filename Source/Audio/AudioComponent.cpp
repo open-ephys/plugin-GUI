@@ -68,7 +68,10 @@ AudioComponent::AudioComponent() : isPlaying(false)
 	std::cout << "Audio device sample rate: " <<  sr << std::endl;
 	std::cout << "Audio device buffer size: " << buffSize << std::endl << std::endl;
 
-	 graphPlayer = new AudioProcessorPlayer();
+	graphPlayer = new AudioProcessorPlayer();
+
+	stopDevice(); // reduces the amount of background processing when
+				  // device is not in use
 
 }
 
@@ -99,8 +102,22 @@ bool AudioComponent::callbacksAreActive() {
 	return isPlaying;
 }
 
+void AudioComponent::restartDevice()
+{
+	deviceManager.restartLastAudioDevice();
+
+}
+
+void AudioComponent::stopDevice()
+{
+
+	deviceManager.closeAudioDevice();
+}
+
 void AudioComponent::beginCallbacks() {
 	
+	restartDevice();
+
 	std::cout << std::endl << "Adding audio callback." << std::endl;
 	deviceManager.addAudioCallback(graphPlayer);
 	isPlaying = true;
@@ -112,6 +129,8 @@ void AudioComponent::endCallbacks() {
 	std::cout << std::endl << "Removing audio callback." << std::endl;
 	deviceManager.removeAudioCallback(graphPlayer);
 	isPlaying = false;
+
+	stopDevice();
 
 }
 

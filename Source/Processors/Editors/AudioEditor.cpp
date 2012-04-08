@@ -136,16 +136,23 @@ void AudioEditor::buttonClicked(Button* button)
 		{
 			if (acw == 0) {
 				
-				AudioComponent* ac = getAudioComponent();
+				// AudioComponent* audioComponent = getAudioComponent();
+				// audioComponent->restartDevice();
 
-				if (ac != 0)
-					acw = new AudioConfigurationWindow(ac->deviceManager, (Button*) audioWindowButton);
-
+				// if (audioComponent != 0) {
+					acw = new AudioConfigurationWindow(getAudioComponent()->deviceManager, (Button*) audioWindowButton);
+					acw->setUIComponent(getUIComponent());
+				//}
 			}
 
+			getAudioComponent()->restartDevice();
 			acw->setVisible(true);
+
 		} else {
+
 			acw->setVisible(false);
+			//deleteAndZero(acw);
+			getAudioComponent()->stopDevice();
 		}
 	}
 
@@ -205,6 +212,7 @@ AudioConfigurationWindow::~AudioConfigurationWindow()
 void AudioConfigurationWindow::closeButtonPressed()
 {
 	controlButton->setToggleState(false,false);
+	getAudioComponent()->stopDevice();
 	setVisible(false);
 }
 

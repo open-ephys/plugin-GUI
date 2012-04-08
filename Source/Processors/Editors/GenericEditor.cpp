@@ -79,8 +79,8 @@ GenericEditor::GenericEditor (GenericProcessor* owner)//, FilterViewport* vp)
 	audioChannels.clear();
 	recordChannels.clear();
 
-	backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f, 
-										 Colour(145, 145, 145), 0.0f, 150.0f, false);
+	backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 150.0f, 
+										 Colour(145, 145, 145), 0.0f, 0.0f, false);
 
 	//grad.addColour(0.5f, Colour(170, 170, 170));
 	//grad.addColour(0.5, Colours::lightgrey);

@@ -56,6 +56,9 @@ public:
 
 	bool callbacksAreActive();
 
+  void restartDevice();
+  void stopDevice();
+
   AudioDeviceManager deviceManager;
 
 private:

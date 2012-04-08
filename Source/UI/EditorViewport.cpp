@@ -687,13 +687,26 @@ void SignalChainTabButton::paintButton(Graphics &g, bool isMouseOver, bool isBut
     }
 
     if (isMouseOver) {
-         grad1 = ColourGradient(Colour(255, 255, 255), 0.0f, 20.0f, 
-                                Colour(180, 180, 180), 0.0f, 0.0f,
-                               false);
+        
+        grad1.multiplyOpacity(0.7f);
+        grad2.multiplyOpacity(0.7f);
+        //  grad1 = ColourGradient(Colour(255, 255, 255), 0.0f, 20.0f, 
+        //                         Colour(180, 180, 180), 0.0f, 0.0f,
+        //                        false);
 
-        grad2 = ColourGradient(Colour(255, 255, 255), 0.0f, 0.0f, 
-                                Colour(180, 180, 180), 0.0f, 20.0f,
-                               false);
+        // grad2 = ColourGradient(Colour(255, 255, 255), 0.0f, 0.0f, 
+        //                         Colour(180, 180, 180), 0.0f, 20.0f,
+        //                        false);
+    }
+
+    if (isButtonDown) {
+
+        // ColourGradient grad3 = grad1;
+        // grad1 = grad2;
+        // grad2 = grad3;
+        // grad1.multiplyOpacity(0.7f);
+        // grad2.multiplyOpacity(0.7f);
+
     }
 
     g.setGradientFill(grad2);
