@@ -42,7 +42,7 @@ public:
 	MergerEditor (GenericProcessor* parentNode);
 	virtual ~MergerEditor();
 
-	virtual void buttonClicked (Button* button);
+	virtual void buttonEvent (Button* button);
 
     void switchSource(int);
     void switchSource ();

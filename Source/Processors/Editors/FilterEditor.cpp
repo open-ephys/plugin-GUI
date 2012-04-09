@@ -75,11 +75,11 @@ FilterEditor::~FilterEditor()
 
 // }
 
-void FilterEditor::buttonClicked (Button* button)
+void FilterEditor::buttonEvent (Button* button)
 {
 	//std::cout << button->getRadioGroupId() << " " << button->getName() << std::endl;
 	
-	if (!checkDrawerButton(button) && !checkChannelSelectors(button)) {
+	//if (!checkDrawerButton(button) && !checkChannelSelectors(button)) {
 
 		String value = button->getName();
 		float val;
@@ -102,6 +102,6 @@ void FilterEditor::buttonClicked (Button* button)
 		}	
 
  	//std::cout << button->getRadioGroupId() << " " << val << std::endl;
- 	}
+ //	}
 
 }

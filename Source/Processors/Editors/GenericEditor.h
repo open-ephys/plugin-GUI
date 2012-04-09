@@ -33,7 +33,7 @@
   
   Base class for creating processor editors.
 
-  If a processor doesn't have an editor defined, a GenericEditor will be used.
+  If a processor doesn't havesign an editor defined, a GenericEditor will be used.
 
   Classes derived from this class must place their controls as child components.
   They shouldn't try to re-draw any aspects of their background.
@@ -46,19 +46,21 @@ class GenericProcessor;
 class DrawerButton;
 class EditorButton;
 class ChannelSelectorButton;
+class TriangleButton;
+class PlusButton;
 
 class GenericEditor : public AudioProcessorEditor,
                       public Timer,
                       public AccessClass,
-                      public Button::Listener
+                      public Button::Listener,
+                      public Slider::Listener
 
 {
 public:
-	GenericEditor (GenericProcessor* owner);//, FilterViewport* vp);
+	GenericEditor (GenericProcessor* owner);
 	virtual ~GenericEditor();
 
 	void paint (Graphics& g);
-	//void setViewport(FilterViewport*);
 
 	bool keyPressed (const KeyPress& key);
 
@@ -83,7 +85,7 @@ public:
 	virtual void switchSource(int) { }  // needed for MergerEditor
 	virtual void switchSource() { }; // needed for MergerEditor
 
-	AudioProcessor* getProcessor() const {return getAudioProcessor();}
+	GenericProcessor* getProcessor() const {return (GenericProcessor*) getAudioProcessor();}
 	
 	void createRadioButtons(int x, int y, int w, StringArray values, const String& name);
 		
@@ -96,13 +98,29 @@ public:
 	float accumulator;
 
 	virtual void buttonClicked(Button* button);
+	virtual void buttonEvent(Button* button) {}
+	virtual void sliderValueChanged(Slider* slider) {}
 
 	bool checkDrawerButton(Button* button);
 	bool checkChannelSelectors(Button* button);
 
+	void selectChannels(Array<int>);
+
+	void refreshColors();
+
 	virtual void update();
+	virtual void updateVisualizer() {}
 
 	Array<int> getActiveChannels();
+
+	Array<bool> audioChannels;
+	Array<bool> recordChannels;
+	Array<bool> paramsChannels;
+
+protected:
+	DrawerButton* drawerButton;
+	int drawerWidth;
+
 	
 private:
 
@@ -115,6 +133,7 @@ private:
 	virtual void destroyChannelSelectors();
 
 	Colour backgroundColor;
+	ColourGradient backgroundGradient;
 
 	bool isSelected;
 	bool isEnabled;
@@ -123,26 +142,26 @@ private:
 
 	int numChannels;
 
-	int drawerWidth;
 
-	DrawerButton* drawerButton;
 
 	EditorButton* audioButton;
 	EditorButton* recordButton;
 	EditorButton* paramsButton;
 
-	Array<bool> audioChannels;
-	Array<bool> recordChannels;
-	Array<bool> paramsChannels;
+	
 
 	Array<ChannelSelectorButton*> channelSelectorButtons;
 
 	ChannelSelectorButton* allButton;
 	ChannelSelectorButton* noneButton;
 
-	Font titleFont;
 
 	String name;
+
+protected:
+
+	Font titleFont;
+
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericEditor);
 
@@ -196,6 +215,28 @@ private:
 	
 	int type;
 	Font buttonFont;
+};
+
+class TriangleButton : public Button
+{
+public:
+    TriangleButton(int direction_) : Button("Arrow") 
+        {direction = direction_;}
+    ~TriangleButton() {}
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    
+    int direction;
+};
+
+class PlusButton : public Button
+{
+public:
+    PlusButton() : Button("Plus") {}
+    ~PlusButton() {}
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+
 };
 
 

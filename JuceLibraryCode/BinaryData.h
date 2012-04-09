@@ -46,6 +46,81 @@ namespace BinaryData
     extern const char*   silkscreen_ttf;
     const int            silkscreen_ttfSize = 18336;
 
+    extern const char*   RadioButtons01_png;
+    const int            RadioButtons01_pngSize = 818;
+
+    extern const char*   RadioButtons02_png;
+    const int            RadioButtons02_pngSize = 824;
+
+    extern const char*   RadioButtons03_png;
+    const int            RadioButtons03_pngSize = 704;
+
+    extern const char*   RadioButtons04_png;
+    const int            RadioButtons04_pngSize = 792;
+
+    extern const char*   RadioButtons05_png;
+    const int            RadioButtons05_pngSize = 942;
+
+    extern const char*   RadioButtons_neutral01_png;
+    const int            RadioButtons_neutral01_pngSize = 730;
+
+    extern const char*   RadioButtons_neutral02_png;
+    const int            RadioButtons_neutral02_pngSize = 681;
+
+    extern const char*   RadioButtons_neutral03_png;
+    const int            RadioButtons_neutral03_pngSize = 536;
+
+    extern const char*   RadioButtons_neutral04_png;
+    const int            RadioButtons_neutral04_pngSize = 654;
+
+    extern const char*   RadioButtons_neutral05_png;
+    const int            RadioButtons_neutral05_pngSize = 821;
+
+    extern const char*   RadioButtons_selected01_png;
+    const int            RadioButtons_selected01_pngSize = 761;
+
+    extern const char*   RadioButtons_selected02_png;
+    const int            RadioButtons_selected02_pngSize = 729;
+
+    extern const char*   RadioButtons_selected03_png;
+    const int            RadioButtons_selected03_pngSize = 561;
+
+    extern const char*   RadioButtons_selected04_png;
+    const int            RadioButtons_selected04_pngSize = 727;
+
+    extern const char*   RadioButtons_selected05_png;
+    const int            RadioButtons_selected05_pngSize = 869;
+
+    extern const char*   RadioButtons_selected_over01_png;
+    const int            RadioButtons_selected_over01_pngSize = 866;
+
+    extern const char*   RadioButtons_selected_over02_png;
+    const int            RadioButtons_selected_over02_pngSize = 843;
+
+    extern const char*   RadioButtons_selected_over03_png;
+    const int            RadioButtons_selected_over03_pngSize = 728;
+
+    extern const char*   RadioButtons_selected_over04_png;
+    const int            RadioButtons_selected_over04_pngSize = 838;
+
+    extern const char*   RadioButtons_selected_over05_png;
+    const int            RadioButtons_selected_over05_pngSize = 977;
+
+    extern const char*   noise_wave_png;
+    const int            noise_wave_pngSize = 19800;
+
+    extern const char*   saw_wave_png;
+    const int            saw_wave_pngSize = 10801;
+
+    extern const char*   sine_wave_png;
+    const int            sine_wave_pngSize = 12863;
+
+    extern const char*   square_wave_png;
+    const int            square_wave_pngSize = 6208;
+
+    extern const char*   triangle_wave_png;
+    const int            triangle_wave_pngSize = 8480;
+
     extern const char*   wifi_png;
     const int            wifi_pngSize = 3412;
 

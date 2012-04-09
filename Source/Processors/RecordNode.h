@@ -27,6 +27,7 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
+#include <map>
 
 #include "GenericProcessor.h"
 
@@ -51,21 +52,51 @@ public:
 	RecordNode();
 	~RecordNode();
 	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
+	void process(AudioSampleBuffer &buffer, MidiBuffer &eventBuffer, int& nSamples);
 
 	void setParameter (int parameterIndex, float newValue);
+
+  void addInputChannel(GenericProcessor* sourceNode, int chan);
 
 	bool enable();
 	bool disable();
 
 	float getFreeSpace();
+
+  void setChannel(int id, int chan);
+
+  void resetConnections();
 	
 private:
-
-	File outputFile;
+	
+  File headerFile;
 	FileOutputStream* outputStream;
 
-	bool isRecording;
+	bool isRecording, isProcessing;
+
+  String dataFolder;
+
+  int16* continuousDataBuffer;
+
+  int64 timestamp;
+
+  Time timer;
+
+  struct Channel
+  {
+    int nodeId;
+    int chan;
+    String name;
+    bool isRecording;
+    String filename;
+    FILE* file;
+  };
+
+  std::map<int, Channel> continuousChannels;
+  std::map<int, std::map<int,Channel> > eventChannels;
+
+  void writeContinuousBuffer(float* data, int nSamples, int channel);
+  void writeEventBuffer(MidiMessage& event, int node, int channel);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNode);
 

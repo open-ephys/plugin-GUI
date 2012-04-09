@@ -31,20 +31,22 @@ MainWindow::MainWindow()
                       Colour(Colours::black),
                       DocumentWindow::allButtons)
 {
-    //centreWithSize (500, 400);
+
     setResizable (true,     // isResizable
                   false);   // useBottomCornerRisizer -- doesn't work very well
-    
+   // centreWithSize(500,400);
+
     // Constraining the window's size doesn't seem to work:
     //setResizeLimits(500, 400, 10000, 10000);
 
     // Create ProcessorGraph and AudioComponent, and connect them.
     // Callbacks will be set by the play button in the control panel
-    processorGraph = new ProcessorGraph();
-    audioComponent = new AudioComponent();
-    audioComponent->connectToProcessorGraph(processorGraph);
 
-    setContentComponent (new UIComponent(this, processorGraph, audioComponent), true, true);
+     processorGraph = new ProcessorGraph();
+     audioComponent = new AudioComponent();
+     audioComponent->connectToProcessorGraph(processorGraph);
+
+     setContentComponent (new UIComponent(this, processorGraph, audioComponent), true, true);
 
     // commandManager.registerAllCommandsForTarget (getContentComponent());
     // commandManager.registerAllCommandsForTarget (JUCEApplication::getInstance());
@@ -61,16 +63,16 @@ MainWindow::MainWindow()
 MainWindow::~MainWindow()
 {
 
-  saveWindowBounds();
-  processorGraph->saveState();
+   saveWindowBounds();
+   processorGraph->saveState();
 
-  audioComponent->disconnectProcessorGraph();
+   audioComponent->disconnectProcessorGraph();
 
    deleteAndZero(processorGraph);
    deleteAndZero(audioComponent);
 
-  setContentComponent (0);
-  setMenuBar(0);
+   setContentComponent (0);
+  // setMenuBar(0);
 
 }
 

@@ -25,163 +25,393 @@
 #include "SpikeDetector.h"
 
 SpikeDetector::SpikeDetector()
-    : GenericProcessor("Spike Detector"), 
-	  sampleRate (40000.0), threshold(5000.0), prePeakMs(0.2), postPeakMs(0.6),
-	  accumulator(0)
+    : GenericProcessor("Spike Detector"), overflowBufferSize(100),
+      overflowBuffer(2,100), dataBuffer(overflowBuffer)
 	
 {
 
-	spikeBuffer = new MidiBuffer();
+    electrodeTypes.add("hentrode");
+    electrodeTypes.add("duotrode");
+    electrodeTypes.add("triode");
+    electrodeTypes.add("tetrode");
+    electrodeTypes.add("pentrode");
+    electrodeTypes.add("hextrode");
+    electrodeTypes.add("heptrode");
+    electrodeTypes.add("octrode");
+    electrodeTypes.add("enneatrode");
+    electrodeTypes.add("decatrode");
+    electrodeTypes.add("hendecatrode");
+    electrodeTypes.add("dodecatrode");
+    electrodeTypes.add("triskaidecatrode");
+    electrodeTypes.add("tetrakaidecatrode");
+    electrodeTypes.add("pentakaidecatrode");
+    electrodeTypes.add("hexadecatrode");
+    electrodeTypes.add("heptakaidecatrode");
+    electrodeTypes.add("octakaidecatrode");
+    electrodeTypes.add("enneakaidecatrode");
+    electrodeTypes.add("icosatrode");
+
+    for (int i = 0; i < 21; i++)
+    {
+        electrodeCounter.add(0);
+    }
 
 }
 
 SpikeDetector::~SpikeDetector()
 {
-	deleteAndZero(spikeBuffer);
+
 }
 
 
 AudioProcessorEditor* SpikeDetector::createEditor()
 {
-
-	SpikeDetectorEditor* editor = new SpikeDetectorEditor(this);
-	
-	std::cout << "Creating editor." << std::endl;
-
-    setEditor(editor);
-
+	editor = new SpikeDetectorEditor(this);
 	return editor;
+}
+
+void SpikeDetector::updateSettings()
+{
+
+    overflowBuffer.setSize(getNumInputs(),overflowBufferSize);
+
+}
+
+bool SpikeDetector::addElectrode(int nChans)
+{
+    int firstChan;
+
+    int currentVal = electrodeCounter[nChans];
+    electrodeCounter.set(nChans,++currentVal);
+
+    String electrodeName = electrodeTypes[nChans-1];
+    String newName = electrodeName.substring(0,1);
+    newName = newName.toUpperCase();
+    electrodeName = electrodeName.substring(1,electrodeName.length());
+    newName += electrodeName;
+    newName += " ";
+    newName += electrodeCounter[nChans];
+
+    if (electrodes.size() == 0)
+    {
+        firstChan = 0;
+    } else {
+        Electrode* e = electrodes.getLast();
+        firstChan = *(e->channels+(e->numChannels-1))+1;
+    }
+
+    Electrode* newElectrode = new Electrode();
+
+    newElectrode->name = newName;
+    newElectrode->numChannels = nChans;
+    newElectrode->prePeakSamples = 8;
+    newElectrode->postPeakSamples = 32;
+    newElectrode->thresholds = new double[nChans];
+    newElectrode->isActive = new bool[nChans];
+    newElectrode->channels = new int[nChans];
+
+    for (int i = 0; i < nChans; i++)
+    {
+        *(newElectrode->channels+i) = firstChan+i;
+        *(newElectrode->thresholds+i) = getDefaultThreshold();
+        *(newElectrode->isActive+i) = true;
+    }
+
+    resetElectrode(newElectrode);
+
+    electrodes.add(newElectrode);
+
+}
+
+float SpikeDetector::getDefaultThreshold()
+{
+    return 0.14;
+}
+
+StringArray SpikeDetector::getElectrodeNames()
+{
+    StringArray names;
+
+    for (int i = 0; i < electrodes.size(); i++)
+    {
+        names.add(electrodes[i]->name);
+    }
+
+    return names;
+}
+
+void SpikeDetector::resetElectrode(Electrode* e)
+{
+    e->lastBufferIndex = 0;
+}
+
+bool SpikeDetector::removeElectrode(int index) 
+{
+
+   // std::cout << "Spike detector removing electrode" << std::endl;
+
+    if (index > electrodes.size() || index < 0)
+        return false;
+
+    electrodes.remove(index);
+    return true;
+}
+
+bool SpikeDetector::setName(int index, String newName)
+{
+    electrodes[index-1]->name = newName;
+}
+
+bool SpikeDetector::setChannel(int electrodeIndex, int channelNum, int newChannel) 
+{
+    *(electrodes[electrodeIndex]->channels+channelNum) = newChannel;
+}
+
+int SpikeDetector::getNumChannels(int index)
+{
+    return electrodes[index]->numChannels;
+}
+
+int SpikeDetector::getChannel(int index, int i)
+{
+    return *(electrodes[index]->channels+i);
 }
 
 void SpikeDetector::setParameter (int parameterIndex, float newValue)
 {
 	//std::cout << "Message received." << std::endl;
-	if (parameterIndex == 0) {
-		for (int n = 0; n < getNumOutputs(); n++)
-        {
-            thresh.set(n,newValue);
-        }
-	}
+	// if (parameterIndex == 0) 
+ //    {
+ //        thresh.set(currentChannel,newValue);
+	// }
 
 }
 
 
 bool SpikeDetector::enable()
 {
-	//std::cout << "SpikeDetector node preparing." << std::endl;
-	prePeakSamples = int((prePeakMs / 1000.0f) / (1/getSampleRate()));
-	postPeakSamples = int((postPeakMs / 1000.0f) / (1/getSampleRate()));
 
-    thresh.ensureStorageAllocated(getNumOutputs());
-    channels.ensureStorageAllocated(getNumOutputs());
-    nChans.ensureStorageAllocated(getNumOutputs());
-    isActive.ensureStorageAllocated(getNumOutputs());
-    lastSpike.ensureStorageAllocated(getNumOutputs());
-
-    for (int n = 0; n < getNumOutputs(); n++)
-    {
-        isActive.set(n,false);
-        lastSpike.set(n,-40);
-    }
-
-    // check configuration
-    for (int ds = 0; ds < getConfiguration()->numDataSources(); ds++)
-    {
-        for (int tt = 0; tt < getConfiguration()->getSource(ds)->numTetrodes(); tt++)
-        {
-
-            Trode* t = getConfiguration()->getSource(ds)->getTetrode(tt);
-
-            for (int ch = 0; ch < t->numChannels(); ch++)
-            {
-                thresh.set(t->getChannel(ch),t->getThreshold(ch));
-                channels.set(t->getChannel(ch),t->getRawDataPointer());
-                nChans.set(t->getChannel(ch),t->numChannels());
-                isActive.set(t->getChannel(ch),t->getState(ch));
-            }
-        }
-    }
-
+    useOverflowBuffer = false;
     return true;
-
 }
 
 bool SpikeDetector::disable() 
 {	
-    thresh.clear();
-    channels.clear();
-    nChans.clear();
-    isActive.clear();
-    lastSpike.clear();
+
+    for (int n = 0; n < electrodes.size(); n++)
+    {
+        resetElectrode(electrodes[n]);
+    }
 
     return true;
 }
 
+void SpikeDetector::createSpikeEvent(int& peakIndex,
+                                     int& electrodeNumber, int& currentChannel,
+                                     MidiBuffer& eventBuffer)
+{
+
+    int spikeLength = electrodes[electrodeNumber]->prePeakSamples +
+                        + electrodes[electrodeNumber]->postPeakSamples;
+
+    uint8 dataSize = spikeLength*2;
+
+    uint8 data[dataSize];
+    uint8* dataptr = data;
+
+    // cycle through buffer
+    for (int sample = 0; sample < spikeLength; sample++)
+    {
+         uint16 sampleValue = uint16(getNextSample(currentChannel) + 32768);
+
+         *dataptr++ = uint8(sampleValue >> 8);
+         *dataptr++ = uint8(sampleValue & 255);
+
+         sampleIndex++;
+
+    }
+
+    addEvent(eventBuffer,
+             SPIKE,
+             peakIndex,
+             uint8(electrodeNumber),
+             uint8(currentChannel),
+             dataSize,
+             data);
+
+    sampleIndex -= spikeLength; // reset sample index
+
+}
+
 void SpikeDetector::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &midiMessages,
+                            MidiBuffer &events,
                             int& nSamples)
 {
 
-	int maxSamples = nSamples;//getNumSamples(midiMessages);
-	int spikeSize = 2 + prePeakSamples*2 + postPeakSamples*2; 
+    // cycle through electrodes
+    Electrode* electrode;
+    dataBuffer = buffer;
 
-    spikeBuffer->clear();
+    //std::cout << dataBuffer.getMagnitude(0,nSamples) << std::endl;
 
-    for (int sample = prePeakSamples + 1; sample < maxSamples - postPeakSamples - 1; sample++)
+    for (int i = 0; i < electrodes.size(); i++)
     {
-        for (int chan = 0; chan < getNumOutputs(); chan++) 
+
+        //std::cout << "ELECTRODE " << i << std::endl;
+
+        electrode = electrodes[i];
+
+        // refresh buffer index for this electrode
+        sampleIndex = electrode->lastBufferIndex - 1; // subtract 1 to account for
+                                                      // increment at start of getNextSample()
+
+        // cycle through samples
+        while (samplesAvailable(nSamples))
         {
-            if (isActive[chan] && lastSpike[chan]+spikeSize < sample) // channel is active
+
+            sampleIndex++;
+
+
+            // cycle through channels
+            for (int chan = 0; chan < electrode->numChannels; chan++)
             {
-                if (*buffer.getSampleData(chan,sample) > thresh[chan])
+
+             //   std::cout << "  channel " << chan << std::endl;
+
+                if (*(electrode->isActive+chan))
                 {
-                    // if thresh cross is detected on one channel
-                    // save a waveform on all of them
-                   // std::cout << "Thresh cross on channel " << chan << ": " << thresh[chan] << std::endl;
-                   // std::cout << "  Capturing spikes on " << nChans[chan] << " channels." << std::endl;
 
-                    for (int wire = 0; wire < nChans[chan]; wire++)
+                    int currentChannel = *(electrode->channels+chan);
+
+                    if (getNextSample(currentChannel) > *(electrode->thresholds+chan)) // trigger spike
                     {
-                        int* firstChan = channels[chan];
-                        int channelNum = *(firstChan+wire);
 
-                        //std::cout << "     Found spike on channel " << channelNum << std::endl;
+                        //std::cout << "Spike detected on electrode " << i << std::endl;
+                        // find the peak
+                        int peakIndex = sampleIndex;
 
-                        uint8 data[spikeSize];
-                        data[0] = channelNum >> 8; // channel most-significant byte
-                        data[1] = channelNum & 0xFF; // channel least-significant byte
-
-                        // not currently looking for peak, just centering on thresh cross
-                        uint8* dataptr = data+2;
-
-                        for (int s = -prePeakSamples; s < postPeakSamples; s++) {
-                
-                            uint16 sampleValue = uint16(*buffer.getSampleData(channelNum, sample+s) + 32768);
-
-                            *dataptr++ = uint8(sampleValue >> 8);
-                            *dataptr++ = uint8(sampleValue & 255);
-
+                        while (getCurrentSample(currentChannel) <
+                               getNextSample(currentChannel) &&
+                               sampleIndex < peakIndex + electrode->postPeakSamples) 
+                        {
+                            sampleIndex++;
                         }
 
-                        // broadcast spike
-                        spikeBuffer->addEvent(data, // spike data
-                              sizeof(data), // total bytes
-                              sample);           // sample index
-                        
-                        // keep track of last spike
-                        lastSpike.set(channelNum, sample-prePeakSamples);
+                        peakIndex = sampleIndex;
+                        sampleIndex -= (electrode->prePeakSamples+1);
 
-                    }
-                }                
-            }
-        }
-    }
+                        // package spikes;
+                        for (int currentChannel = 0; currentChannel < electrode->numChannels; currentChannel++)
+                        {
 
-    // reset lastSpike at the end of each buffer
-    for (int n = 0; n < getNumOutputs(); n++)
+                            if (*(electrode->isActive+currentChannel))
+                            {
+
+                                createSpikeEvent(peakIndex,       // peak index
+                                                 i,               // electrodeNumber
+                                                 currentChannel,  // channel number
+                                                 events);         // event buffer
+
+
+                            } // end if channel is active
+                        }
+
+                        // advance the sample index
+                        sampleIndex = peakIndex + electrode->postPeakSamples;
+
+                        break; // quit "for" loop
+                   } // end spike trigger
+
+               } // end if chanel is active
+            } // end cycle through channels
+           
+        } // end cycle through samples
+
+        electrode->lastBufferIndex = sampleIndex - nSamples; // should be negative
+
+        jassert(electrode->lastBufferIndex < 0);
+
+    } // end cycle through electrodes
+
+    // copy end of this buffer into the overflow buffer
+
+    //std::cout << "Copying buffer" << std::endl;
+   // std::cout << "nSamples: " << nSamples;
+    //std::cout << "overflowBufferSize:" << overflowBufferSize;
+
+    //if (nSamples > overflowBufferSize) {
+
+    for (int i = 0; i < overflowBuffer.getNumChannels(); i++)
     {
-        lastSpike.set(n,-40);
+        overflowBuffer.copyFrom(i, 0, 
+                                buffer, i, 
+                                nSamples-overflowBufferSize, 
+                                overflowBufferSize);
     }
+        useOverflowBuffer = true;
+    //} else {
+   //     useOverflowBuffer = false;
+   // }
+    
+}
 
+float SpikeDetector::getNextSample(int& chan)
+{
+
+    
+
+    //if (useOverflowBuffer)
+    //{
+        if (sampleIndex < 0)
+        {
+          // std::cout << "  sample index " << sampleIndex << "from overflowBuffer" << std::endl;
+            return *overflowBuffer.getSampleData(chan, overflowBufferSize + sampleIndex);
+        } else {
+          //  useOverflowBuffer = false;
+          // std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
+            return *dataBuffer.getSampleData(chan, sampleIndex);
+        }   
+    //} else {
+    //    std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
+   //     return *dataBuffer.getSampleData(chan, sampleIndex);
+    //}
 
 }
+
+float SpikeDetector::getCurrentSample(int& chan)
+{
+
+    // if (useOverflowBuffer)
+    // {
+    //     return *overflowBuffer.getSampleData(chan, overflowBufferSize + sampleIndex - 1);
+    // } else {
+    //     return *dataBuffer.getSampleData(chan, sampleIndex - 1);
+    // }
+
+    if (sampleIndex < 1)
+        {
+            //std::cout << "  sample index " << sampleIndex << "from overflowBuffer" << std::endl;
+            return *overflowBuffer.getSampleData(chan, overflowBufferSize + sampleIndex - 1);
+        } else {
+          //  useOverflowBuffer = false;
+           // std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
+            return *dataBuffer.getSampleData(chan, sampleIndex - 1);
+        }   
+    //} else {
+
+}
+
+
+bool SpikeDetector::samplesAvailable(int& nSamples)
+{
+
+    if (sampleIndex > nSamples - overflowBufferSize/2)
+    {
+        return false;
+    } else {
+        return true;
+    }
+
+}
+
+

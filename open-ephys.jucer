@@ -10,15 +10,16 @@
               pluginRTASCategory="" bundleIdentifier="" jucerVersion="3.0.0">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
-               juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi -lftgl"/>
+               juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi -lftgl"
+               objCExtraSuffix="fea2mT"/>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-lftdi -lftgl" extraCompilerFlags="-export-dynamic"/>
+                extraLinkerFlags="-lftdi -lftgl" extraCompilerFlags="-export-dynamic -pg"/>
   </EXPORTFORMATS>
   <CONFIGURATIONS>
     <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="open-ephys"
-                   osxSDK="default" osxCompatibility="default"/>
+                   osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
     <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
-                   osxSDK="default" osxCompatibility="default"/>
+                   osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
   </CONFIGURATIONS>
   <MAINGROUP id="h3HbSTV" name="open-ephys">
     <GROUP id="0wpTCpt" name="Resources">
@@ -47,6 +48,52 @@
       </GROUP>
       <GROUP id="W2L6BdA" name="Images">
         <GROUP id="Gu1BsKu" name="Icons">
+          <FILE id="AQfzTI0" name="RadioButtons-01.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons-01.png"/>
+          <FILE id="zaiYTpn" name="RadioButtons-02.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons-02.png"/>
+          <FILE id="tMMIgNQ" name="RadioButtons-03.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons-03.png"/>
+          <FILE id="izT7ken" name="RadioButtons-04.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons-04.png"/>
+          <FILE id="wUnR602" name="RadioButtons-05.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons-05.png"/>
+          <FILE id="imnUJ17" name="RadioButtons_neutral-01.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons_neutral-01.png"/>
+          <FILE id="lSUFFn" name="RadioButtons_neutral-02.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons_neutral-02.png"/>
+          <FILE id="RLptoX" name="RadioButtons_neutral-03.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons_neutral-03.png"/>
+          <FILE id="cTSMIj9" name="RadioButtons_neutral-04.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons_neutral-04.png"/>
+          <FILE id="e2xa4yY" name="RadioButtons_neutral-05.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons_neutral-05.png"/>
+          <FILE id="uRp98Z6" name="RadioButtons_selected-01.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected-01.png"/>
+          <FILE id="TSUeLsT" name="RadioButtons_selected-02.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected-02.png"/>
+          <FILE id="3iZ1q0" name="RadioButtons_selected-03.png" compile="0" resource="1"
+                file="Resources/Images/Icons/RadioButtons_selected-03.png"/>
+          <FILE id="eBBTz15" name="RadioButtons_selected-04.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected-04.png"/>
+          <FILE id="3UcfCgS" name="RadioButtons_selected-05.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected-05.png"/>
+          <FILE id="dwuGoW2" name="RadioButtons_selected_over-01.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected_over-01.png"/>
+          <FILE id="sNKpDX4" name="RadioButtons_selected_over-02.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected_over-02.png"/>
+          <FILE id="3hxkdcI" name="RadioButtons_selected_over-03.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected_over-03.png"/>
+          <FILE id="NJA55tz" name="RadioButtons_selected_over-04.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected_over-04.png"/>
+          <FILE id="SDmWsOz" name="RadioButtons_selected_over-05.png" compile="0"
+                resource="1" file="Resources/Images/Icons/RadioButtons_selected_over-05.png"/>
+          <FILE id="rdA7uYL" name="noise_wave.png" compile="0" resource="1" file="Resources/Images/Icons/noise_wave.png"/>
+          <FILE id="s0uKcoP" name="saw_wave.png" compile="0" resource="1" file="Resources/Images/Icons/saw_wave.png"/>
+          <FILE id="4jA1Wxu" name="sine_wave.png" compile="0" resource="1" file="Resources/Images/Icons/sine_wave.png"/>
+          <FILE id="goY3ZC" name="square_wave.png" compile="0" resource="1" file="Resources/Images/Icons/square_wave.png"/>
+          <FILE id="gkPmriI" name="triangle_wave.png" compile="0" resource="1"
+                file="Resources/Images/Icons/triangle_wave.png"/>
           <FILE id="wI03PLF" name="wifi.png" compile="0" resource="1" file="Resources/Images/Icons/wifi.png"/>
           <FILE id="p1qlCZ5" name="SourceDrop.png" compile="0" resource="1" file="Resources/Images/Icons/SourceDrop.png"/>
           <FILE id="nWbYpu" name="DefaultDataSource.png" compile="0" resource="1"
@@ -137,6 +184,12 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <FILE id="pQaYQiE" name="Parameter.cpp" compile="1" resource="0" file="Source/Processors/Parameter.cpp"/>
+        <FILE id="0jxvc4H" name="Parameter.h" compile="0" resource="0" file="Source/Processors/Parameter.h"/>
+        <FILE id="arRy5R" name="SpikeDisplayNode.cpp" compile="1" resource="0"
+              file="Source/Processors/SpikeDisplayNode.cpp"/>
+        <FILE id="VwDxj" name="SpikeDisplayNode.h" compile="0" resource="0"
+              file="Source/Processors/SpikeDisplayNode.h"/>
         <FILE id="Poqus0b" name="WiFiOutput.cpp" compile="1" resource="0" file="Source/Processors/WiFiOutput.cpp"/>
         <FILE id="IklsJpw" name="WiFiOutput.h" compile="0" resource="0" file="Source/Processors/WiFiOutput.h"/>
         <FILE id="ZuMpSio" name="LfpDisplayNode.cpp" compile="1" resource="0"
@@ -150,6 +203,39 @@
           <FILE id="DXYynnz" name="Splitter.h" compile="0" resource="0" file="Source/Processors/Utilities/Splitter.h"/>
         </GROUP>
         <GROUP id="W4eqkOy" name="Visualization">
+          <GROUP id="g8GOfh" name="SpikePlotting">
+            <FILE id="PzmX0I" name="StereotrodePlot.cpp" compile="1" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/StereotrodePlot.cpp"/>
+            <FILE id="LPK6G1" name="StereotrodePlot.h" compile="0" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/StereotrodePlot.h"/>
+            <FILE id="EgoljI" name="ElectrodePlot.cpp" compile="1" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/ElectrodePlot.cpp"/>
+            <FILE id="oFUMq0" name="ElectrodePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/ElectrodePlot.h"/>
+            <FILE id="Qq75l" name="BaseUIElement.cpp" compile="1" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp"/>
+            <FILE id="PZdkKU" name="BaseUIElement.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.h"/>
+            <FILE id="lFRVqc" name="GenericAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/GenericAxes.cpp"/>
+            <FILE id="BP8BOa" name="GenericAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/GenericAxes.h"/>
+            <FILE id="f7vOFh" name="PlotUtils.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/PlotUtils.cpp"/>
+            <FILE id="TQfHuh" name="PlotUtils.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/PlotUtils.h"/>
+            <FILE id="d3ducO" name="ProjectionAxes.cpp" compile="1" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.cpp"/>
+            <FILE id="BdHvyv" name="ProjectionAxes.h" compile="0" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.h"/>
+            <FILE id="RnnkTt" name="SimpleKeyEvent.h" compile="0" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/SimpleKeyEvent.h"/>
+            <FILE id="dP2Ikw" name="TetrodePlot.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/TetrodePlot.cpp"/>
+            <FILE id="SH9Un2" name="TetrodePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/TetrodePlot.h"/>
+            <FILE id="yg1Xuq" name="WaveAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp"/>
+            <FILE id="cZX4SM" name="WaveAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.h"/>
+          </GROUP>
+          <FILE id="ajAJi" name="SpikeObject.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikeObject.cpp"/>
+          <FILE id="xqF5zL" name="SpikeObject.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikeObject.h"/>
+          <FILE id="jGEqDp" name="SpikeDisplayCanvas.cpp" compile="1" resource="0"
+                file="Source/Processors/Visualization/SpikeDisplayCanvas.cpp"/>
+          <FILE id="LVHMu2" name="SpikeDisplayCanvas.h" compile="0" resource="0"
+                file="Source/Processors/Visualization/SpikeDisplayCanvas.h"/>
+          <FILE id="yDPZGpt" name="Visualizer.h" compile="0" resource="0" file="Source/Processors/Visualization/Visualizer.h"/>
           <FILE id="BX1Vj3V" name="DataWindow.cpp" compile="1" resource="0" file="Source/Processors/Visualization/DataWindow.cpp"/>
           <FILE id="l2VKLuP" name="DataWindow.h" compile="0" resource="0" file="Source/Processors/Visualization/DataWindow.h"/>
           <FILE id="2rXPco7" name="LfpDisplayCanvas.cpp" compile="1" resource="0"
@@ -164,13 +250,19 @@
               file="Source/Processors/SpikeDetector.cpp"/>
         <FILE id="jIX00WN" name="SpikeDetector.h" compile="0" resource="0"
               file="Source/Processors/SpikeDetector.h"/>
-        <FILE id="sKJ2lid" name="FileReader.cpp" compile="1" resource="0" file="Source/Processors/FileReader.cpp"/>
-        <FILE id="9o71Tr2" name="FileReader.h" compile="0" resource="0" file="Source/Processors/FileReader.h"/>
         <FILE id="gZRZq2O" name="AudioNode.cpp" compile="1" resource="0" file="Source/Processors/AudioNode.cpp"/>
         <FILE id="ZPSmLKn" name="AudioNode.h" compile="0" resource="0" file="Source/Processors/AudioNode.h"/>
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="s5YUmi" name="SpikeDisplayEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/SpikeDisplayEditor.cpp"/>
+          <FILE id="EE43GV" name="SpikeDisplayEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/SpikeDisplayEditor.h"/>
+          <FILE id="2XqqPOS" name="VisualizerEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/VisualizerEditor.cpp"/>
+          <FILE id="CUHGPJF" name="VisualizerEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/VisualizerEditor.h"/>
           <FILE id="bsIZbuu" name="MergerEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/MergerEditor.cpp"/>
           <FILE id="vfmEY5L" name="MergerEditor.h" compile="0" resource="0" file="Source/Processors/Editors/MergerEditor.h"/>
@@ -287,10 +379,6 @@
         <FILE id="bWElQSS" name="DataViewport.cpp" compile="1" resource="0"
               file="Source/UI/DataViewport.cpp"/>
         <FILE id="mMoQ3ls" name="DataViewport.h" compile="0" resource="0" file="Source/UI/DataViewport.h"/>
-        <FILE id="iFsLzAy" name="Configuration.cpp" compile="1" resource="0"
-              file="Source/UI/Configuration.cpp"/>
-        <FILE id="vNTFgW9" name="Configuration.h" compile="0" resource="0"
-              file="Source/UI/Configuration.h"/>
         <FILE id="rRa3X6v" name="MessageCenter.cpp" compile="1" resource="0"
               file="Source/UI/MessageCenter.cpp"/>
         <FILE id="Gwnvgdy" name="MessageCenter.h" compile="0" resource="0"

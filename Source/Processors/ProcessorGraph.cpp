@@ -27,8 +27,8 @@
 
 #include "AudioNode.h"
 #include "LfpDisplayNode.h"
+#include "SpikeDisplayNode.h"
 #include "EventNode.h"
-#include "FileReader.h"
 #include "FilterNode.h"
 #include "GenericProcessor.h"
 #include "RecordNode.h"
@@ -40,21 +40,12 @@
 #include "Utilities/Splitter.h"
 #include "Utilities/Merger.h"
 #include "../UI/UIComponent.h"
-#include "../UI/Configuration.h"
 #include "../UI/EditorViewport.h"
 
-ProcessorGraph::ProcessorGraph() : 
-	currentNodeId(100),
-	RECORD_NODE_ID(199), 
-	AUDIO_NODE_ID(200), 
-	OUTPUT_NODE_ID(201), 
-	RESAMPLING_NODE_ID(202)
-	//totalAudioConnections(0),
-	//totalRecordConnections(0)
-	
+ProcessorGraph::ProcessorGraph() : currentNodeId(100)	
 	{
 
-	// ProcessorGraph will always have 0 inputs (all content is generated within graph)
+	// The ProcessorGraph will always have 0 inputs (all content is generated within graph)
 	// but it will have N outputs, where N is the number of channels for the audio monitor
 	setPlayConfigDetails(0, // number of inputs
 				         2, // number of outputs
@@ -78,12 +69,10 @@ void ProcessorGraph::createDefaultNodes()
 	// add record node -- sends output to disk
 	RecordNode* recn = new RecordNode();
 	recn->setNodeId(RECORD_NODE_ID);
-	//recn->setConfiguration(config);
 
 	// add audio node -- takes all inputs and selects those to be used for audio monitoring
 	AudioNode* an = new AudioNode();
 	recn->setNodeId(AUDIO_NODE_ID);
-	//an->setConfiguration(config);
 
 	// add resampling node -- resamples continuous signals to 44.1kHz
 	ResamplingNode* rn = new ResamplingNode(true);
@@ -94,7 +83,7 @@ void ProcessorGraph::createDefaultNodes()
 	addNode(an, AUDIO_NODE_ID);
 	addNode(rn, RESAMPLING_NODE_ID);
 
-	// connect audio network
+	// connect audio subnetwork
 	for (int n = 0; n < 2; n++) {
 		
 		addConnection(AUDIO_NODE_ID, n,
@@ -150,21 +139,21 @@ void ProcessorGraph::clearConnections()
 		 {
 		 	; // leave it   	
 		 } else {
-
-		 	Node* node = getNodeForId(connection->sourceNodeId);
-		 	GenericProcessor* p =(GenericProcessor*) node->getProcessor();
-		 	//if (p->getNextChannel(false) > 0)
-		 		p->resetConnections();
-
-		 	node = getNodeForId(connection->destNodeId);
-		 	p =(GenericProcessor*) node->getProcessor();
-		 	//if (p->getNextChannel(false) > 0)
-		 		p->resetConnections();
-
 		 	removeConnection(i);
 		 }
 	}
+
+	for (int i = 0; i < getNumNodes(); i++)
+	{
+		 Node* node = getNode(i);
+
+		 if (node->nodeId != OUTPUT_NODE_ID) {
+			 GenericProcessor* p =(GenericProcessor*) node->getProcessor();
+			 p->resetConnections();
+		}
+	}
 }
+
 
 void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSection> tabs)
 {
@@ -208,8 +197,6 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 			{
 
 				// add the connections to audio and record nodes if necessary
-
-
 				if (!(source->isSink() ||
 				      source->isSplitter() || source->isMerger()) && !(source->wasConnected))
 				{
@@ -217,17 +204,37 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
 					for (int chan = 0; chan < source->getNumOutputs(); chan++) {
 
-						addConnection(source->getNodeId(), // sourceNodeID
-						  	chan, // sourceNodeChannelIndex
-						   	AUDIO_NODE_ID, // destNodeID
+						//getAudioNode()->addInputChannel(source, chan);
+
+						addConnection(source->getNodeId(), 		   // sourceNodeID
+						  	chan, 						           // sourceNodeChannelIndex
+						   	AUDIO_NODE_ID, 					       // destNodeID
 						  	getAudioNode()->getNextChannel(true)); // destNodeChannelIndex
 
-						addConnection(source->getNodeId(), // sourceNodeID
-						  	chan, // sourceNodeChannelIndex
-						   	RECORD_NODE_ID, // destNodeID
+						
+						//std::cout << getAudioNode()->getNextChannel(false) << " ";
+
+						getRecordNode()->addInputChannel(source, chan);
+
+						addConnection(source->getNodeId(),          // sourceNodeID
+						  	chan,                                   // sourceNodeChannelIndex
+						   	RECORD_NODE_ID, 					    // destNodeID
 						  	getRecordNode()->getNextChannel(true)); // destNodeChannelIndex
+					
+						
 					}
+
+					// connect event channel
+					addConnection(source->getNodeId(), 				// sourceNodeID
+					  	midiChannelIndex, 							// sourceNodeChannelIndex
+					   	RECORD_NODE_ID, 							// destNodeID
+					  	midiChannelIndex);							// destNodeChannelIndex
+
+					getRecordNode()->addInputChannel(source, midiChannelIndex);
+
 				}
+
+				std::cout << std::endl;
 
 				if (dest != 0) {
 
@@ -241,12 +248,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
 						std::cout << "     Connecting " << source->getName() << " channel ";
 
-						//int nextChan;
-						//int chan = 0;
-
 						for (int chan = 0; chan < source->getNumOutputs(); chan++) 
-						
-						//ile ((nextChan = dest->getNextChannel(true)) != -1)
 						{
 							std::cout << chan << " ";
 							           
@@ -258,14 +260,15 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
 						std::cout << " to " << dest->getName() << std::endl;
 							
-							std::cout << "     Connecting " << source->getName() <<
-							           " event channel to " <<
-							           dest->getName() << std::endl;
-							// connect event channel
-							addConnection(source->getNodeId(), // sourceNodeID
-							  	midiChannelIndex, // sourceNodeChannelIndex
-							   	dest->getNodeId(), // destNodeID
-							  	midiChannelIndex); // destNodeChannelIndex
+						std::cout << "     Connecting " << source->getName() <<
+						           " event channel to " <<
+						           dest->getName() << std::endl;
+
+						// connect event channel
+						addConnection(source->getNodeId(), // sourceNodeID
+						  	midiChannelIndex, // sourceNodeChannelIndex
+						   	dest->getNodeId(), // destNodeID
+						  	midiChannelIndex); // destNodeChannelIndex
 
 					}
 
@@ -279,7 +282,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 			{
 				dest = splitters.getFirst(); // dest is now the splitter
 				splitters.remove(0); // take it out of the 
-				dest->switchDest(); // switch to the other destination
+				dest->switchIO(); // switch to the other destination
 				dest->wasConnected = true; // don't want to re-add splitter
 				source = dest->getSourceNode(); // splitter is now source
 			}
@@ -288,15 +291,6 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 	} // end "tabs" for loop
 } // end method
 
-// int ProcessorGraph::getNextFreeAudioChannel()
-// {
-// 	return totalAudioConnections++;
-// }
-
-// int ProcessorGraph::getNextFreeRecordChannel()
-// {
-// 	return totalRecordConnections++;
-// }
 
 GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& description)
 {
@@ -310,7 +304,8 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 
 	if (processorType.equalsIgnoreCase("Sources")) {
 
-		if (subProcessorType.equalsIgnoreCase("Intan Demo Board")) {
+		if (subProcessorType.equalsIgnoreCase("Intan Demo Board") || 
+			subProcessorType.equalsIgnoreCase("File Reader")) {
 			
 			// only one Intan Demo Board at a time, please
 			if (!processorWithSameNameExists(subProcessorType)) {
@@ -329,7 +324,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		}
 
 		
-		sendActionMessage("New source node created.");
+		//sendActionMessage("New source node created.");
 		
 
 	} else if (processorType.equalsIgnoreCase("Filters")) {
@@ -347,7 +342,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			processor = new SpikeDetector();
 		}
 
-		sendActionMessage("New filter node created.");
+		//sendActionMessage("New filter node created.");
 
 	} else if (processorType.equalsIgnoreCase("Utilities")) {
 
@@ -356,14 +351,14 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			std::cout << "Creating a new splitter." << std::endl;
 			processor = new Splitter();
 
-			sendActionMessage("New splitter created.");
+		//	sendActionMessage("New splitter created.");
 
 	 	} else if (subProcessorType.equalsIgnoreCase("Merger")) {
 	 		
 	 		std::cout << "Creating a new merger." << std::endl;
 			processor = new Merger();
 
-			sendActionMessage("New merger created.");
+		//	sendActionMessage("New merger created.");
 
 	 	}
 
@@ -376,12 +371,17 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		   // std::cout << "Graph data viewport: " << UI->getDataViewport() << std::endl;
 			// processor->setDataViewport(getDataViewport());
 			//processor->setUIComponent(UI);
-		} else if (subProcessorType.equalsIgnoreCase("WiFi Output")) {
+		} 
+		else if (subProcessorType.equalsIgnoreCase("Spike Viewer")) {
+			std::cout << "Creating an SpikeDisplayNode." << std::endl;
+			processor = new SpikeDisplayNode();	 
+		}
+		else if (subProcessorType.equalsIgnoreCase("WiFi Output")) {
 			std::cout << "Creating a WiFi node." << std::endl;
 			processor = new WiFiOutput();
 		}
 	
-		sendActionMessage("New sink created.");
+		//sendActionMessage("New sink created.");
 	}
 
 	return processor;
@@ -403,6 +403,7 @@ bool ProcessorGraph::processorWithSameNameExists(const String& name)
 
 }
 
+
 void ProcessorGraph::removeProcessor(GenericProcessor* processor) {
 	
 	std::cout << "Removing processor with ID " << processor->getNodeId() << std::endl;
@@ -410,27 +411,6 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor) {
 	removeNode(processor->getNodeId());
 
 }
-
-// void ProcessorGraph::setUIComponent(UIComponent* ui)
-// {
-// 	UI = ui;
-// }
-
-// void ProcessorGraph::setFilterViewport(FilterViewport* fv)
-// {
-// 	filterViewport = fv;
-// }
-
-// void ProcessorGraph::setMessageCenter(MessageCenter* mc)
-// {
-// 	messageCenter = mc;
-// }
-
-// void ProcessorGraph::setConfiguration(Configuration* c)
-// {
-// 	config = c;
-// }
-
 
 bool ProcessorGraph::enableProcessors() {
 
@@ -458,7 +438,7 @@ bool ProcessorGraph::enableProcessors() {
 
 			if (!allClear) {
 				std::cout << p->getName() << " said it's not OK." << std::endl;
-				sendActionMessage("Could not initialize acquisition.");
+			//	sendActionMessage("Could not initialize acquisition.");
 				getUIComponent()->disableCallbacks();
 				return false;
 
@@ -480,7 +460,7 @@ bool ProcessorGraph::enableProcessors() {
 	
 	getEditorViewport()->signalChainCanBeEdited(false);
 
-	sendActionMessage("Acquisition started.");
+//	sendActionMessage("Acquisition started.");
 
 	return true;
 }
@@ -501,7 +481,7 @@ bool ProcessorGraph::disableProcessors() {
 			allClear = p->disable();
 
 			if (!allClear) {
-				sendActionMessage("Could not stop acquisition.");
+			//	sendActionMessage("Could not stop acquisition.");
 				return false;
 			}
 		}
@@ -509,7 +489,7 @@ bool ProcessorGraph::disableProcessors() {
 
 	getEditorViewport()->signalChainCanBeEdited(true);
 
-	sendActionMessage("Acquisition ended.");
+//	sendActionMessage("Acquisition ended.");
 
 	return true;
 }

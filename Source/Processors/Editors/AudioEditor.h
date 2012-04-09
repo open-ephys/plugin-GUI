@@ -48,7 +48,8 @@ class AudioWindowButton : public Button
 		Font font;
 };
 
-class AudioConfigurationWindow : public DocumentWindow
+class AudioConfigurationWindow : public DocumentWindow,
+								 public AccessClass
 {
 public:
 	AudioConfigurationWindow(AudioDeviceManager& adm, Button* b);

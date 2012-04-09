@@ -105,12 +105,10 @@ void InfoLabel::drawLabel()
 
 }
 
-void InfoLabel::resized() 
+void InfoLabel::canvasWasResized() 
 {
 
 	layout.SetLineLength(getWidth()-45);
-
-	canvasWasResized();
 
 }
 

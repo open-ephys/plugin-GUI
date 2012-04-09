@@ -30,64 +30,32 @@ LfpDisplayNode::LfpDisplayNode()
 	  displayBufferIndex(0), abstractFifo(100)
 
 {
-
-	numInputs = 2;
-	numOutputs = 0;
-	sampleRate = 44100.0;
-
-	setPlayConfigDetails(2,0,44100.0,128);
-
-	displayBuffer = new AudioSampleBuffer (8, 100);
+	displayBuffer = new AudioSampleBuffer(8, 100);
 	eventBuffer = new MidiBuffer();
 }
 
 LfpDisplayNode::~LfpDisplayNode()
 {
-
-	deleteAndZero(displayBuffer);
-	deleteAndZero(eventBuffer);
+	//deleteAndZero(displayBuffer);
+	//deleteAndZero(eventBuffer);
 }
 
 AudioProcessorEditor* LfpDisplayNode::createEditor()
 {
 
-	LfpDisplayEditor* editor = new LfpDisplayEditor(this);
-
-	//editor->setBuffers (displayBuffer, eventBuffer);
-	//editor->setUIComponent (getUIComponent());
-	//editor->setConfiguration (config);
-	//editor->updateNumInputs(getNumInputs());
-	//editor->updateSampleRate(sampleRate);
-
-	setEditor(editor);
-	
+	editor = new LfpDisplayEditor(this);	
 	return editor;
 
 }
 
-void LfpDisplayNode::setNumInputs(int inputs)
+void LfpDisplayNode::updateSettings()
 {
-	std::cout << "Setting num inputs on LfpDisplayNode to " << inputs << std::endl;
-	numInputs = inputs;	
-	setNumOutputs(0);
-
-	setPlayConfigDetails(getNumInputs(),0,44100.0,128);
-
-	LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
-	editor->updateNumInputs(inputs);
-}
-
-void LfpDisplayNode::setSampleRate(float r)
-{
-	sampleRate = r;
-
-	LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
-	editor->updateSampleRate(r);
+	std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
 }
 
 bool LfpDisplayNode::resizeBuffer()
 {
-	int nSamples = (int) sampleRate*bufferLength;
+	int nSamples = (int) getSampleRate()*bufferLength;
 	int nInputs = getNumInputs();
 
 	std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
@@ -132,6 +100,7 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples)
 {
 	// 1. place any new samples into the displayBuffer
+
 	int samplesLeft = displayBuffer->getNumSamples() - displayBufferIndex;
 
 	if (nSamples < samplesLeft)

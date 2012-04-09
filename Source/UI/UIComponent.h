@@ -31,7 +31,6 @@
 #include "EditorViewport.h"
 #include "DataViewport.h"
 #include "MessageCenter.h"
-#include "Configuration.h"
 #include "../Processors/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
@@ -71,7 +70,6 @@ public:
 	EditorViewport* getEditorViewport() {return editorViewport;}
 	ProcessorList* getProcessorList() {return processorList;}
 	DataViewport* getDataViewport() {return dataViewport;}
-	Configuration* getConfiguration() {return config;}
 	ProcessorGraph* getProcessorGraph() {return processorGraph;}
 	ControlPanel* getControlPanel() {return controlPanel;}
 	MessageCenter* getMessageCenter() {return messageCenter;}
@@ -95,7 +93,6 @@ private:
 	ProcessorList* processorList;
 	ControlPanel* controlPanel;
 	MessageCenter* messageCenter;
-	Configuration* config;
 	InfoLabel* infoLabel;
 
 	MainWindow* mainWindow;

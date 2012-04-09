@@ -53,11 +53,10 @@ public:
 
 	bool isSplitter() {return true;}
 
-	void switchDest(int);
-    void switchDest();
+	void switchIO(int);
+    void switchIO();
 	void setSplitterDestNode(GenericProcessor* dn);
 
-    void setNumInputs(int);
 
 private:
 

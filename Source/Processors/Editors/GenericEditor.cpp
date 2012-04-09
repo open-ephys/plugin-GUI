@@ -23,8 +23,11 @@
 
 #include "GenericEditor.h"
 
+#include "../ProcessorGraph.h"
+#include "../RecordNode.h"
+#include "../../UI/ProcessorList.h"
+
 #include "../../UI/EditorViewport.h"
-#include "../../UI/Configuration.h"
 
 #include <math.h>
 
@@ -70,23 +73,18 @@ GenericEditor::GenericEditor (GenericProcessor* owner)//, FilterViewport* vp)
     		paramsButton->setToggleState(true, true);
     	}
 
-    	
-
 	}
-
-	if (owner->isSource())
-		backgroundColor = Colour(255, 0, 0);//Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
-	else if (owner->isSink())
-		backgroundColor = Colour(255, 149, 0);//Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
-	else if (owner->isSplitter() || owner->isMerger())
-		backgroundColor = Colour(40, 40, 40);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
-	else
-		backgroundColor = Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
-
 
 	paramsChannels.clear();
 	audioChannels.clear();
 	recordChannels.clear();
+
+	backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 150.0f, 
+										 Colour(145, 145, 145), 0.0f, 0.0f, false);
+
+	//grad.addColour(0.5f, Colour(170, 170, 170));
+	//grad.addColour(0.5, Colours::lightgrey);
+	//grad.addColour(1.0f, Colours::grey);
 
 
 	fadeIn();
@@ -99,6 +97,27 @@ GenericEditor::~GenericEditor()
 	//delete titleFont;
 }
 
+void GenericEditor::refreshColors()
+{
+
+	enum {
+		PROCESSOR_COLOR = 801,
+		FILTER_COLOR = 802,
+		SINK_COLOR = 803,
+		SOURCE_COLOR = 804,
+		UTILITY_COLOR = 805,
+	};
+
+	if (getProcessor()->isSource())
+		backgroundColor = getProcessorList()->findColour(SOURCE_COLOR);// Colour(255, 0, 0);//Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
+	else if (getProcessor()->isSink())
+		backgroundColor = getProcessorList()->findColour(SINK_COLOR);//Colour(255, 149, 0);//Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
+	else if (getProcessor()->isSplitter() || getProcessor()->isMerger())
+		backgroundColor =  getProcessorList()->findColour(UTILITY_COLOR);//Colour(40, 40, 40);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
+	else
+		backgroundColor =  getProcessorList()->findColour(FILTER_COLOR);//Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
+
+}
 
 
 void GenericEditor::resized()
@@ -211,7 +230,10 @@ void GenericEditor::paint (Graphics& g)
 	g.fillRect(1,1,getWidth()-(2+offset),getHeight()-2);
 
 	// draw gray workspace
-	g.setColour(Colour(140, 140, 140));
+	//g.setColour(Colour(140, 140, 140));
+	
+
+	g.setGradientFill(backgroundGradient);
 	g.fillRect(1,22,getWidth()-2, getHeight()-29);
 
 	g.setFont(titleFont);
@@ -240,7 +262,7 @@ void GenericEditor::paint (Graphics& g)
 
 	if (isFading)
 	{
-		g.setColour(Colours::black.withAlpha((float) (15.0-accumulator)/15.0f));
+		g.setColour(Colours::black.withAlpha((float) (10.0-accumulator)/10.0f));
 		if (getWidth() > 0 && getHeight() > 0)
 			g.fillAll();
 	}
@@ -253,7 +275,7 @@ void GenericEditor::timerCallback()
 
 	repaint();
 
-	if (accumulator > 15.0)
+	if (accumulator > 10.0)
 	{
 		stopTimer();
 		isFading = false;
@@ -265,6 +287,9 @@ void GenericEditor::buttonClicked(Button* button)
 	
 	checkDrawerButton(button);
 	checkChannelSelectors(button);
+
+	buttonEvent(button); // needed to inform subclasses of 
+						 // button event
 }
 
 bool GenericEditor::checkDrawerButton(Button* button)
@@ -329,8 +354,18 @@ bool GenericEditor::checkChannelSelectors(Button* button)
 			}
 			else if (recordButton->getToggleState())
 			{
-				recordChannels.set(n,button->getToggleState());	
-				//type = "Record ";
+				recordChannels.set(n,button->getToggleState());
+				int id = getProcessor()->getNodeId();
+
+				RecordNode* rn = getProcessorGraph()->getRecordNode();
+
+				std::cout << "Button " << n << " was pressed." << std::endl;
+				rn->setChannel(id, n);
+
+				if (button->getToggleState())
+					rn->setParameter(2, 1.0f);
+				else
+					rn->setParameter(2, 0.0f);
 			}		
 			else if (paramsButton->getToggleState())
 			{
@@ -410,12 +445,31 @@ bool GenericEditor::checkChannelSelectors(Button* button)
 
 }
 
+void GenericEditor::selectChannels(Array<int> arr)
+{
+	for (int i = 0; i < channelSelectorButtons.size(); i++)
+	{
+		channelSelectorButtons[i]->setToggleState(false, false);
+	}
+
+	for (int i = 0; i < arr.size(); i++)
+	{
+		if (i > -1 && i < channelSelectorButtons.size())
+		{
+			channelSelectorButtons[i]->setToggleState(true,false);
+		}
+	}
+
+}
+
 void GenericEditor::update()
 {
 
-	std::cout << "Updating" << std::endl;
+	std::cout << "Editor for ";
 
 	GenericProcessor* p = (GenericProcessor*) getProcessor();
+
+	std::cout << p->getName() << " updating settings." << std::endl;
 
 	if (!p->isSink())
 	{
@@ -436,6 +490,18 @@ void GenericEditor::update()
 
 		numChannels = p->getNumInputs();
 	}
+
+	if (numChannels == 0)
+	{
+		if (drawerButton != 0)
+			drawerButton->setVisible(false);
+	} else {
+		if (drawerButton != 0)
+			drawerButton->setVisible(true);
+	}
+
+	updateVisualizer(); // does nothing unless this method
+						// has been implemented
 
 }
 
@@ -488,11 +554,9 @@ void GenericEditor::createRadioButtons(int x, int y, int w, StringArray values, 
 int GenericEditor::createChannelSelectors()
 {
 
-	GenericProcessor* p = (GenericProcessor*) getProcessor();
-
+	GenericProcessor* p = getProcessor();
 
 	if (channelSelectorButtons.size() == 0) {
-
 
 		int width = 20;
 		int height = 14;
@@ -503,7 +567,9 @@ int GenericEditor::createChannelSelectors()
 		else
 			numChannels = p->getNumInputs();
 
-		int nColumns = ceil(numChannels/4);
+		int nColumns = jmax((int) ceil(numChannels/4),1);
+		//std::cout << numChannels << " channels" << std::endl;
+		//std::cout << nColumns << " columns" << std::endl;
 
 		for (int n = 1; n < numChannels+1; n++)
 		{
@@ -725,3 +791,82 @@ void ChannelSelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isBu
 
     g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
 }
+
+//// BUTTONS ////
+
+void PlusButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    g.fillAll(Colours::orange);
+    g.setColour(Colours::black);
+    g.drawRect(0,0,getWidth(),getHeight(),1.0);
+
+    if (isMouseOver)
+    {
+        g.setColour(Colours::white);
+    } else {
+        g.setColour(Colours::black);
+    }
+
+    // if (isButtonDown)
+    // {
+    //     g.setColour(Colours::white);
+    // }
+
+    int thickness = 1;
+    int offset = 3;
+
+    g.fillRect(getWidth()/2-thickness,
+               offset, 
+               thickness*2,
+               getHeight()-offset*2);
+
+    g.fillRect(offset,
+               getHeight()/2-thickness,
+               getWidth()-offset*2,
+               thickness*2);
+}
+   
+
+void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+
+    //  g.fillAll(Colours::orange);
+    // g.setColour(Colours::black);
+    // g.drawRect(0,0,getWidth(),getHeight(),1.0);
+
+    if (isMouseOver)
+    {
+        g.setColour(Colours::grey);
+    } else {
+        g.setColour(Colours::black);
+    }
+
+    if (isButtonDown)
+    {
+        g.setColour(Colours::white);
+    }
+
+    int inset = 1;
+    int x1, y1, x2, y2, x3;
+
+    x1 = inset;
+    x2 = getWidth()/2;
+    x3 = getWidth()-inset;
+
+    if (direction == 1)
+    {
+        y1 = getHeight()-inset;
+        y2 = inset;
+
+    } else {
+        y1 = inset;
+        y2 = getHeight()-inset;
+    }
+
+    g.drawLine(x1, y1, x2, y2);
+    g.drawLine(x2, y2, x3, y1);
+    g.drawLine(x3, y1, x1, y1);
+
+
+}
+

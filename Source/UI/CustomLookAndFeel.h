@@ -142,6 +142,13 @@ public:
 
     const Typeface::Ptr getTypefaceForFont (const Font& font);
 
+    // ======== custom combo box methods: =============================
+
+    void drawComboBox (Graphics& g, int width, int height,
+                                const bool isButtonDown,
+                                int buttonX, int buttonY,
+                                int buttonW, int buttonH,
+                                ComboBox& box);
 
 private:	
 

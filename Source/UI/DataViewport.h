@@ -49,7 +49,7 @@ public:
     int addTabToDataViewport(String tabName, Component* componentToAdd);
 
     /** Removes a tab with a specified index.*/
-    void removeTab(int);
+    void destroyTab(int);
 
     /** Informs the component of the current tab that it's now active.*/
     void currentTabChanged(int newIndex, const String& newTabName);

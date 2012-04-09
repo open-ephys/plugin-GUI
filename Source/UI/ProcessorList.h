@@ -78,16 +78,10 @@ private:
 	int totalHeight, itemHeight, subItemHeight;
 	int xBuffer, yBuffer;
 
-	//UIComponent* UI;
-
 	String category;
 	
-	void resized();
-	void mouseDown(const MouseEvent& e);
-	void mouseDrag(const MouseEvent& e);
-	void mouseMove(const MouseEvent& e);
-	void mouseUp(const MouseEvent& e);
-	void mouseWheelMove(const MouseEvent&, float, float);
+	void mouseDownInCanvas(const MouseEvent& e);
+	void mouseDragInCanvas(const MouseEvent& e);
 
 	ProcessorListItem* baseItem;
 
@@ -95,7 +89,7 @@ private:
 
 };
 
-class ProcessorListItem
+class ProcessorListItem //: public Component
 {
 public:
 	ProcessorListItem(const String& name);
@@ -120,7 +114,8 @@ public:
 	const String& getParentName();
 	void setParentName(const String& name);
 
-	Colour color;
+	//Colour color;
+	int colorId;
 
 private:
 

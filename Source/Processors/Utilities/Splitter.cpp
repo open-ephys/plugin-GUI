@@ -31,10 +31,6 @@ Splitter::Splitter()
 		destNodeA(0), destNodeB(0), activePath(0)
 {
 
-	setNumOutputs(0);
-	setNumInputs(0);
-
-	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
 }
 
 Splitter::~Splitter()
@@ -44,10 +40,10 @@ Splitter::~Splitter()
 
 AudioProcessorEditor* Splitter::createEditor()
 {
-	SplitterEditor* editor = new SplitterEditor(this);
-	setEditor(editor);
+	editor = new SplitterEditor(this);
+	//tEditor(editor);
 	
-	std::cout << "Creating editor." << std::endl;
+	//std::cout << "Creating editor." << std::endl;
 	return editor;
 }
 
@@ -65,7 +61,7 @@ void Splitter::setSplitterDestNode(GenericProcessor* dn)
 	}
 }
 
-void Splitter::switchDest(int destNum) {
+void Splitter::switchIO(int destNum) {
 	
 	std::cout << "Switching to dest number " << destNum << std::endl;
 	
@@ -81,12 +77,15 @@ void Splitter::switchDest(int destNum) {
 		std::cout << "Dest node: " << getDestNode() << std::endl;
 	}
 
-	getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor());
+	getEditorViewport()->makeEditorVisible(getEditor());
 
 }
 
-void Splitter::switchDest()
+void Splitter::switchIO()
 {
+
+	std::cout << "Splitter switching source." << std::endl;
+
 	if (activePath == 0) {
 		activePath = 1;
 		destNode = destNodeB;
@@ -96,10 +95,4 @@ void Splitter::switchDest()
 	    destNode = destNodeA;
 	}
 
-}
-
-void Splitter::setNumInputs(int n)
-{
-	numInputs = n;
-	setNumOutputs(getNumInputs());
 }

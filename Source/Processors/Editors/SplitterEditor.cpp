@@ -94,21 +94,21 @@ SplitterEditor::~SplitterEditor()
 	deleteAllChildren();
 }
 
-void SplitterEditor::buttonClicked(Button* button)
+void SplitterEditor::buttonEvent(Button* button)
 {
 	if (button == pipelineSelectorA)
 	{
 		pipelineSelectorA->setToggleState(true,false);
 		pipelineSelectorB->setToggleState(false,false);
 		Splitter* processor = (Splitter*) getProcessor();
-		processor->switchDest(0);
+		processor->switchIO(0);
 
 	} else if (button == pipelineSelectorB) 
 	{
 		pipelineSelectorB->setToggleState(true,false);
 		pipelineSelectorA->setToggleState(false,false);
 		Splitter* processor = (Splitter*) getProcessor();
-		processor->switchDest(1);
+		processor->switchIO(1);
 		
 	}
 }
@@ -120,14 +120,14 @@ void SplitterEditor::switchDest(int dest)
 		pipelineSelectorA->setToggleState(true,false);
 		pipelineSelectorB->setToggleState(false,false);
 		Splitter* processor = (Splitter*) getProcessor();
-		processor->switchDest(0);
+		processor->switchIO(0);
 
 	} else if (dest == 1)
 	{
 		pipelineSelectorB->setToggleState(true,false);
 		pipelineSelectorA->setToggleState(false,false);
 		Splitter* processor = (Splitter*) getProcessor();
-		processor->switchDest(1);
+		processor->switchIO(1);
 		
 	}
 }

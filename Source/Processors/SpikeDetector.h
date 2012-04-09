@@ -25,13 +25,13 @@
 #define __SPIKEDETECTOR_H_3F920F95__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+
 #include "GenericProcessor.h"
 #include "Editors/SpikeDetectorEditor.h"
-#include "../UI/Configuration.h"
 
 /**
 
-  --UNDER CONSTRUCTION--
+  == UNDER CONSTRUCTION ==
 
   Detects spikes in a continuous signal and outputs events containing the spike data.
 
@@ -40,7 +40,6 @@
 */
 
 class SpikeDetectorEditor;
-class FilterViewport;
 
 class SpikeDetector : public GenericProcessor
 
@@ -50,33 +49,70 @@ public:
 	SpikeDetector();
 	~SpikeDetector();
 	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
+	void process(AudioSampleBuffer &buffer, MidiBuffer &events, int& nSamples);
 	void setParameter (int parameterIndex, float newValue);
+
+	void updateSettings();
 
 	bool enable();
 	bool disable();
 
-	MidiBuffer* getEventBuffer() {return spikeBuffer;}
-
 	AudioProcessorEditor* createEditor();
 
-	bool hasEditor() const {return true;}
-	
+	AudioSampleBuffer overflowBuffer;
+	AudioSampleBuffer& dataBuffer;
+
+	bool addElectrode(int nChans);
+	bool removeElectrode(int index);
+	bool setChannel(int electrodeIndex, int channelNum, int newChannel);
+	bool setName(int index, String newName);
+
+	int getNumChannels(int index);
+	int getChannel(int index, int chan);
+
+	StringArray electrodeTypes;
+
+	StringArray getElectrodeNames();
+
 private:
-	double sampleRate, threshold;
-	double prePeakMs, postPeakMs;
-	int prePeakSamples, postPeakSamples;
-	int accumulator;
 
-	Array<float> thresh;
-	Array<int*> channels;
-	Array<int> nChans;
-	Array<bool> isActive;
-	Array<int> lastSpike;
+	float getDefaultThreshold();
 
-	MidiBuffer* spikeBuffer;
+	int overflowBufferSize;
 
-	//AudioData::ConverterInstance<AudioData::Float32, AudioData::Int16> converter;
+	int sampleIndex;
+	//int lastBufferIndex;
+
+	Array<int> electrodeCounter;
+
+	float getNextSample(int& chan);
+	float getCurrentSample(int& chan);
+	bool samplesAvailable(int& nSamples);
+
+	bool useOverflowBuffer;
+
+	struct Electrode {
+
+		String name;
+
+		int numChannels;
+		int prePeakSamples, postPeakSamples;
+		int lastBufferIndex;
+
+		int* channels;
+		double* thresholds;
+		bool* isActive;
+
+	};
+
+	Array<Electrode*> electrodes;
+
+	void createSpikeEvent(int& peakIndex,
+						  int& electrodeNumber,
+						  int& currentChannel,
+						  MidiBuffer& eventBuffer);
+
+	void resetElectrode(Electrode*);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetector);
 

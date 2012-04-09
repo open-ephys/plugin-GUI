@@ -62,9 +62,14 @@ private:
 	int numChannels;
 	int samplesPerBlock;
 
+    int lengthOfInputFile;
+
+    int playHead;
+
 	FileInputStream* input;
 
 	float thisSample[16];
+    float readBuffer[1600];
 
 	bool updateBuffer();
 

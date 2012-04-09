@@ -23,15 +23,13 @@
 #ifndef __LFPDISPLAYCANVAS_H_B711873A__
 #define __LFPDISPLAYCANVAS_H_B711873A__
 
-
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "OpenGLCanvas.h"
-#include "../../UI/Configuration.h"
 #include "../LfpDisplayNode.h"
+#include "Visualizer.h"
 
 class LfpDisplayNode;
 
-class LfpDisplayCanvas : public OpenGLCanvas
+class LfpDisplayCanvas : public Visualizer
 
 {
 public: 
@@ -45,10 +43,11 @@ public:
 
 	void refreshState();
 
-	void updateNumInputs(int);
-	void updateSampleRate(float);
+	void update();
 
 	void setParameter(int, float);
+	void setParameter(int, int, int, float){}
+
 
 private:
 
@@ -57,7 +56,6 @@ private:
 	float sampleRate;
 	float timebase;
 	float displayGain;
-	//float ratio;
 
 	LfpDisplayNode* processor;
 	AudioSampleBuffer* displayBuffer;
@@ -73,8 +71,6 @@ private:
 
 	bool checkBounds(int chan);
 
-
-
 	void updateScreenBuffer();
 	int screenBufferIndex;
 	int displayBufferIndex;
@@ -85,8 +81,8 @@ private:
 
 	int getTotalHeight();
 
-	// void resized();
-	 void mouseDown(const MouseEvent& e);
+	 void canvasWasResized();
+	 void mouseDownInCanvas(const MouseEvent& e);
 	// void mouseDrag(const MouseEvent& e);
 	// void mouseMove(const MouseEvent& e);
 	// void mouseUp(const MouseEvent& e);

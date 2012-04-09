@@ -26,6 +26,7 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/LfpDisplayEditor.h"
+#include "Editors/VisualizerEditor.h"
 #include "GenericProcessor.h"
 
 /**
@@ -56,8 +57,7 @@ public:
 
 	void setParameter(int, float);
 
-	void setNumInputs(int inputs);
-	void setSampleRate(float r);
+	void updateSettings();
 
 	bool enable();
 	bool disable();
@@ -67,10 +67,8 @@ public:
 
 private:
 
-	DataViewport* dataViewport;
-
-	AudioSampleBuffer* displayBuffer;
-	MidiBuffer* eventBuffer;
+	ScopedPointer<AudioSampleBuffer> displayBuffer;
+	ScopedPointer<MidiBuffer> eventBuffer;
 
 	int displayBufferIndex;
 

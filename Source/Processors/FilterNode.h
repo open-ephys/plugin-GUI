@@ -52,9 +52,8 @@ public:
 	AudioProcessorEditor* createEditor();
 
 	bool hasEditor() const {return true;}
-	
-	void setNumInputs(int);
-	void setSampleRate(float);
+
+    void updateSettings();
 	
 private:
 

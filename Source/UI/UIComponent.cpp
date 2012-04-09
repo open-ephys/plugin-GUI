@@ -39,9 +39,8 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 
 	std::cout << "Created data viewport." << std::endl;
 
-	editorViewport = new EditorViewport();//(processorGraph, dataViewport);
-	//processorGraph->setEditorViewport(editorViewport);
-	
+	editorViewport = new EditorViewport();
+
 	addAndMakeVisible(editorViewport);
 
 	std::cout << "Created filter viewport." << std::endl;
@@ -55,22 +54,15 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	std::cout << "Created control panel." << std::endl;
 
 	processorList = new ProcessorList();
-	//filterList->setUIComponent(this);
 	addAndMakeVisible(processorList);
 
 	std::cout << "Created filter list." << std::endl;
 
 	messageCenter = new MessageCenter();
-	//processorGraph->addActionListener(messageCenter);
 	addActionListener(messageCenter);
 	addAndMakeVisible(messageCenter);
 
 	std::cout << "Created message center." << std::endl;
-
-	config = new Configuration();
-	//processorGraph->setConfiguration(config);
-
-	std::cout << "Created configuration object." << std::endl;
 
 	setBounds(0,0,500,400);
 
@@ -79,9 +71,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 
 	std::cout << "UI component data viewport: " << dataViewport << std::endl;
 
-
 	std::cout << "Finished UI stuff." << std::endl << std::endl << std::endl;
-
 
 	processorGraph->setUIComponent(this);
 	processorList->setUIComponent(this);
@@ -96,7 +86,6 @@ UIComponent::~UIComponent()
 {
 	deleteAllChildren();
 
-	deleteAndZero(config);
 	deleteAndZero(infoLabel);
 
 	processorGraph = 0;
@@ -149,6 +138,17 @@ void UIComponent::resized()
 
 	if (messageCenter != 0)
 		messageCenter->setBounds(6,h-35,w-241,30);
+
+	// for debugging purposes:
+	if (false) {
+		dataViewport->setVisible(false);
+		editorViewport->setVisible(false);
+		processorList->setVisible(false);
+		messageCenter->setVisible(false);
+		controlPanel->setVisible(false);
+		editorViewportButton->setVisible(false);
+	}
+
 
 }
 
@@ -261,8 +261,6 @@ void EditorViewportButton::drawName()
 	glRasterPos2f(8.0/getWidth(),0.75f);
 	font->FaceSize(23);
 	font->Render("SIGNAL CHAIN");
-	
-
 	
 }
 

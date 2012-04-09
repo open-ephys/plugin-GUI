@@ -27,8 +27,9 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/GenericEditor.h"
-#include "../UI/Configuration.h"
+#include "Parameter.h"
 #include "../AccessClass.h"
+
 #include <time.h>
 #include <stdio.h>
 
@@ -49,9 +50,10 @@
 class EditorViewport;
 class DataViewport;
 class UIComponent;
+class GenericEditor;
+//class Parameter;
 
 class GenericProcessor : public AudioProcessor,
-						// public ActionBroadcaster,
 						 public AccessClass
 
 {
@@ -81,11 +83,11 @@ public:
 	void changeProgramName (int index, const String &newName) {}
 	void setCurrentProgram (int index) {}
 
-	const String getInputChannelName (int channelIndex) const {return T(" ");}
-	const String getOutputChannelName (int channelIndex) const {return T(" ");}
-	const String getParameterName (int parameterIndex) {return T(" ");}
-	const String getParameterText (int parameterIndex) {return T(" ");}
-	const String getProgramName (int index) {return T(" ");}
+	const String getInputChannelName (int channelIndex) const {return settings.inputChannelNames[channelIndex];}
+	const String getOutputChannelName (int channelIndex) const {return settings.outputChannelNames[channelIndex];}
+	const String getParameterName (int parameterIndex); //{return parameters[parameterIndex]->getName();}
+	const String getParameterText (int parameterIndex); //{return parameters[parameterIndex]->getDescription();}
+	const String getProgramName (int index) {return "";}
 	
 	bool isInputChannelStereoPair (int index) const {return true;}
 	bool isOutputChannelStereoPair (int index) const {return true;}
@@ -95,11 +97,12 @@ public:
 	bool isParameterAutomatable(int parameterIndex) {return false;}
 	bool isMetaParameter(int parameterIndex) {return false;}
 	
-	int getNumParameters() {return 0;}
+	int getNumParameters() {return parameters.size();}
 	int getNumPrograms() {return 0;}
 	int getCurrentProgram() {return 0;}
 	
 	float getParameter (int parameterIndex) {return 1.0;}
+	Parameter& getParameterByName(String parameterName);
 
 	//----------------------------------------------------------------------
 	// Custom methods:
@@ -109,37 +112,22 @@ public:
 						 MidiBuffer& /*buffer*/,
 						 int& /*nSamples*/) = 0;
 
-	
-
 	GenericProcessor* sourceNode;
 	GenericProcessor* destNode;
 
-	int numInputs;
-	int numOutputs;
-
-	float sampleRate;
-
-	//void sendMessage(const String& msg);
-
-	virtual float getSampleRate();
-	virtual void setSampleRate(float sr);
+	virtual float getSampleRate() {return settings.sampleRate;}
 	virtual float getDefaultSampleRate() {return 44100.0;}
 
-	virtual int getNumInputs();
-	virtual void setNumInputs(int);
-	virtual void setNumInputs();
-	
-	virtual int getNumOutputs();
-	virtual void setNumOutputs(int);
-	virtual void setNumOutputs();
-	virtual int getDefaultNumOutputs();
+	virtual int getNumInputs() {return settings.numInputs;}
+	virtual int getNumOutputs() {return settings.numOutputs;}
+	virtual int getDefaultNumOutputs() {return 2;}
+
+	//virtual float getBitVolts() {return settings.bitVolts;}
+	virtual float getDefaultBitVolts() {return 1.0;}
 
 	virtual int getNextChannel(bool);
 	virtual void resetConnections();
 	
-	virtual void updateSettings(); // updates sample rate and number of channels
-	virtual void updateParameters(); // called in updateSettings() to update params
-
 	virtual void setCurrentChannel(int chan) {currentChannel = chan;}
 
 	int getNodeId() {return nodeId;}
@@ -148,12 +136,9 @@ public:
 	// get/set source node functions
 	GenericProcessor* getSourceNode() {return sourceNode;}
 	GenericProcessor* getDestNode() {return destNode;}
-	GenericProcessor* getOriginalSourceNode();
 
-	virtual void switchSource(int) { };
-	virtual void switchSource() { };
-	virtual void switchDest() { };
-	virtual void switchDest(int) { };
+	virtual void switchIO(int) { };
+	virtual void switchIO() { };
 
 	virtual void setSourceNode(GenericProcessor* sn);
 	virtual void setDestNode(GenericProcessor* dn);
@@ -176,59 +161,84 @@ public:
 
 	virtual bool stillHasSource() {return true;}
 
+	bool isEnabled;
+	bool wasConnected;
+
 	virtual AudioSampleBuffer* getContinuousBuffer() {return 0;}
 	virtual MidiBuffer* getEventBuffer() {return 0;}
 
 	int nextAvailableChannel;
 
-	int checkForMidiEvents(MidiBuffer& mb);
-	void addMidiEvent(MidiBuffer& mb, int a, int b);
+	// event buffers
+	virtual int checkForEvents(MidiBuffer& mb);
+	virtual void addEvent(MidiBuffer& mb,
+	                      uint8 type,
+	                      int sampleNum,
+	                      uint8 eventID = 0,
+	                      uint8 eventChannel = 0,
+	                      uint8 numBytes = 0,
+	                      uint8* data = 0);
 
-	bool isEnabled;
+	virtual void handleEvent(int eventType, MidiMessage& event) {}
 
-	bool wasConnected;
+	enum eventTypes 
+ 	{
+ 		TIMESTAMP = 0,
+ 		BUFFER_SIZE = 1,
+ 		PARAMETER_CHANGE = 2,
+ 		TTL = 3,
+ 		SPIKE = 4,
+ 		EEG = 5,
+ 		CONTINUOUS = 6
+ 	};
 
 	int saveOrder;
 	int loadOrder;
 
 	int currentChannel;
 
+	virtual GenericEditor* getEditor() {return editor;}
+	ScopedPointer<GenericEditor> editor;
 
-	// Getting and setting:
+	struct ProcessorSettings {
 
-	AudioProcessorEditor* getEditor() {return editor;}
-	void setEditor(AudioProcessorEditor* e) {editor = e;}
+		GenericProcessor* originalSource;
 
-	// void setUIComponent(UIComponent* ui) {UI = ui;}
-	// UIComponent* getUIComponent() {return UI;}
+		int numInputs;
+		int numOutputs;
+		StringArray inputChannelNames;
+		StringArray outputChannelNames;
 
-	// virtual void setConfiguration(Configuration* cf) {config = cf;}
-	// Configuration* getConfiguration() {return config;}
+		float sampleRate;
+		Array<float> bitVolts;
 
-	// void setFilterViewport(FilterViewport* vp) {viewport = vp;}
-	// FilterViewport* getFilterViewport() {return viewport;}
+		Array<int> eventChannelIds;
+		StringArray eventChannelNames;
 
-	// void setDataViewport(DataViewport* dv) {dataViewport = dv;}
-	// DataViewport* getDataViewport() {return dataViewport;}
+	};
 
+	ProcessorSettings settings;
 
-	//FilterViewport* viewport;
-	//DataViewport* dataViewport;
-	//UIComponent* UI;
+	virtual bool recordStatus(int chan);
 
-	//Configuration* config;
+	virtual void clearSettings();
 
-	//int tabA, tabB; // needed for Merger
+	virtual void generateDefaultChannelNames(StringArray&);
 
-	AudioProcessorEditor* editor;
+	virtual void update(); // default node updating
+	virtual void updateSettings() {} // custom node updating
+
+	int nodeId;
+
+	// parameters:
+	Array<Parameter> parameters;
+	StringArray parameterNames;
 
 private:
 
 	void processBlock (AudioSampleBuffer &buffer, MidiBuffer &midiMessages);
 
 	const String name;
-
-	int nodeId;
 	
 	int getNumSamples(MidiBuffer&);
 	void setNumSamples(MidiBuffer&, int);

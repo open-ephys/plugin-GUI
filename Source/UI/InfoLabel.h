@@ -54,7 +54,7 @@ private:
 
 	int getTotalHeight();
 
-	void resized();
+	void canvasWasResized();
 
 	FTSimpleLayout layout;	
 	String infoString;

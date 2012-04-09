@@ -27,6 +27,21 @@ CustomLookAndFeel::CustomLookAndFeel()
 {
   MemoryInputStream mis(BinaryData::misoserialized, BinaryData::misoserializedSize, false);
   Miso = new CustomTypeface(mis);
+
+  enum {
+    PROCESSOR_COLOR = 0x801,
+    FILTER_COLOR = 0x802,
+    SINK_COLOR = 0x803,
+    SOURCE_COLOR = 0x804,
+    UTILITY_COLOR = 0x805,
+  };
+
+  setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
+  setColour(FILTER_COLOR, Colour(255, 89, 0));
+  setColour(SINK_COLOR, Colour(255, 149, 0));
+  setColour(SOURCE_COLOR, Colour(255, 0, 0));
+  setColour(UTILITY_COLOR, Colour(90, 80, 80));
+
 }
 
 CustomLookAndFeel::~CustomLookAndFeel() {}
@@ -538,4 +553,61 @@ void CustomLookAndFeel::drawGlassPointer (Graphics& g,
 
     g.setColour (Colours::black.withAlpha (0.5f * colour.getFloatAlpha()));
     g.strokePath (p, PathStrokeType (outlineThickness));
+}
+
+/// ------ combo box ---------------///
+
+
+void CustomLookAndFeel::drawComboBox (Graphics& g, int width, int height,
+                                const bool isButtonDown,
+                                int buttonX, int buttonY,
+                                int buttonW, int buttonH,
+                                ComboBox& box)
+{
+
+    g.fillAll (box.findColour (ComboBox::backgroundColourId));
+
+    if (box.isEnabled() && box.hasKeyboardFocus (false))
+    {
+        g.setColour (box.findColour (TextButton::buttonColourId));
+        g.drawRect (0, 0, width, height, 2);
+    }
+    else
+    {
+        g.setColour (box.findColour (ComboBox::outlineColourId));
+        g.drawRect (0, 0, width, height);
+    }
+
+    const float outlineThickness = box.isEnabled() ? (isButtonDown ? 1.2f : 0.5f) : 0.3f;
+
+    const Colour baseColour (Colours::orange);/*LookAndFeelHelpers::createBaseColour (box.findColour (ComboBox::buttonColourId),
+                                                                   box.hasKeyboardFocus (true),
+                                                                   false, isButtonDown)
+                                .withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.5f));*/
+
+    drawGlassLozenge (g,
+                      buttonX + outlineThickness, buttonY + outlineThickness,
+                      buttonW - outlineThickness * 2.0f, buttonH - outlineThickness * 2.0f,
+                      baseColour, outlineThickness, -1.0f,
+                      true, true, true, true);
+
+    if (box.isEnabled())
+    {
+        const float arrowX = 0.3f;
+        const float arrowH = 0.2f;
+
+        Path p;
+        p.addTriangle (buttonX + buttonW * 0.5f,            buttonY + buttonH * (0.45f - arrowH),
+                       buttonX + buttonW * (1.0f - arrowX), buttonY + buttonH * 0.45f,
+                       buttonX + buttonW * arrowX,          buttonY + buttonH * 0.45f);
+
+        p.addTriangle (buttonX + buttonW * 0.5f,            buttonY + buttonH * (0.55f + arrowH),
+                       buttonX + buttonW * (1.0f - arrowX), buttonY + buttonH * 0.55f,
+                       buttonX + buttonW * arrowX,          buttonY + buttonH * 0.55f);
+
+        g.setColour (box.findColour (ComboBox::arrowColourId));
+        g.fillPath (p);
+    }
+
+
 }

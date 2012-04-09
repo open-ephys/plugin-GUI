@@ -29,21 +29,21 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	    timebase(1.0f), displayGain(5.0f), displayBufferIndex(0)
 {
 
-	//GenericProcessor* gp = (GenericProcessor*) editor->getProcessor();
-
-
 	nChans = processor->getNumInputs();
 	sampleRate = processor->getSampleRate();
 	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
 	displayBuffer = processor->getDisplayBufferAddress();
 	displayBufferSize = displayBuffer->getNumSamples();
-		std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
+	std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
 
 	totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
 
-	screenBuffer = new AudioSampleBuffer(nChans, 10000);
+	if (nChans > 0)
+		screenBuffer = new AudioSampleBuffer(nChans, 10000);
+	else
+		screenBuffer = new AudioSampleBuffer(1, 10000);
 	
 }
 
@@ -86,21 +86,23 @@ void LfpDisplayCanvas::endAnimation()
 	stopCallbacks();
 }
 
-void LfpDisplayCanvas::updateNumInputs(int n)
+void LfpDisplayCanvas::update()
 {
-	std::cout << "Setting num inputs on LfpDisplayCanvas to " << n << std::endl;
-	nChans = n;
-	if (n < 200 && n > 0)
+	nChans = processor->getNumInputs();
+	sampleRate = processor->getSampleRate();
+
+	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+	if (nChans < 200 && nChans > 0)
 		screenBuffer->setSize(nChans, 10000);
 	//sampleRate = processor->getSampleRate();
+
+	screenBuffer->clear();
+
+	repaint();
+
+	totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
 }
 
-void LfpDisplayCanvas::updateSampleRate(float r)
-{
-	sampleRate = r;
-	//displayBufferSize = displayBuffer->getNumSamples();
-	std::cout << "Display canvas updating sample rate to " << r << std::endl;
-}
 
 void LfpDisplayCanvas::setParameter(int param, float val)
 {
@@ -116,6 +118,8 @@ void LfpDisplayCanvas::refreshState()
 	// called when the component's tab becomes visible again
 	displayBufferIndex = processor->getDisplayBufferIndex();
 	screenBufferIndex = 0;
+
+	//resized();
 
 }
 
@@ -202,6 +206,10 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	}
 }
 
+void LfpDisplayCanvas::canvasWasResized()
+{
+	//std::cout << "Resized!" << std::endl;	
+}
 
 void LfpDisplayCanvas::renderOpenGL()
 {
@@ -343,7 +351,7 @@ int LfpDisplayCanvas::getTotalHeight()
 }
 
 
-void LfpDisplayCanvas::mouseDown(const MouseEvent& e) 
+void LfpDisplayCanvas::mouseDownInCanvas(const MouseEvent& e) 
 {
 
 	Point<int> pos = e.getPosition();
@@ -358,7 +366,6 @@ void LfpDisplayCanvas::mouseDown(const MouseEvent& e)
 		repaint();
 	}
 
-	mouseDownInCanvas(e);
 }
 
 // void LfpDisplayCanvas::mouseDrag(const MouseEvent& e) {mouseDragInCanvas(e);}

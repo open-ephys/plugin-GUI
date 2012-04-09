@@ -323,7 +323,7 @@ const Colour LookAndFeel::findColour (const int colourId) const throw()
     if (index >= 0)
         return colours [index];
 
-    jassertfalse;
+    //jassertfalse;
     return Colours::black;
 }
 

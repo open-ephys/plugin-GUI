@@ -25,29 +25,38 @@
 #include "AudioNode.h"
 
 AudioNode::AudioNode()
-	: GenericProcessor("Audio Node"), volume(5.0f)
+	: GenericProcessor("Audio Node"), volume(5.0f), audioEditor(0)
 {
 
+	settings.numInputs = 64;
+	settings.numOutputs = 2;
+
 	// 64 inputs, 2 outputs (left and right channel)
-	setPlayConfigDetails(64,2,44100.0,128);
+	setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 
 	leftChan.add(0);
 	rightChan.add(1);
+
+	currentChannel = 0;
+
+
 }
 
 
 AudioNode::~AudioNode() {
+
+
 
 }
 
 AudioProcessorEditor* AudioNode::createEditor()
 {
 	
-	AudioEditor* editor = new AudioEditor(this);
+	audioEditor = new AudioEditor(this);
 
-	setEditor(editor);
+	//setEditor(editor);
 	
-	return editor; 
+	return audioEditor; 
 
 }
 
@@ -64,6 +73,16 @@ void AudioNode::process(AudioSampleBuffer &buffer,
                             MidiBuffer &midiMessages,
                             int& nSamples)
 {
+
+	// if (currentChannel == 0)
+	// {
+	// 	buffer.clear(1,0,buffer.getNumSamples());
+	// 	buffer.copyFrom();
+	// } else if (currentChannel == 1)
+	// {
+	// 	buffer.clear(0,0,buffer.getNumSamples());
+	// 	buffer.copyFrom();
+	// } else {
 
 	buffer.clear(0,0,buffer.getNumSamples());
 	buffer.clear(1,0,buffer.getNumSamples());
@@ -89,4 +108,5 @@ void AudioNode::process(AudioSampleBuffer &buffer,
 					   volume       // gain to apply
 					   );
 	}
+	//}
 }

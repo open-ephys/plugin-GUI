@@ -33,8 +33,6 @@
 
 #include "../OpenGL.h"
 
-//------------------------------------------------------------------------
-
 /**
   
   Displays information and provides buttons to control acquistion and recording.

@@ -35,14 +35,13 @@
 // 		~PipelineSelectorButton();	
 // };
 
-class SplitterEditor : public GenericEditor//,
-				//	   public Button::Listener
+class SplitterEditor : public GenericEditor
 {
 public:
 	SplitterEditor (GenericProcessor* parentNode);
 	virtual ~SplitterEditor();
 
-	void buttonClicked (Button* button);
+	void buttonEvent (Button* button);
 
     void switchDest(int);
 

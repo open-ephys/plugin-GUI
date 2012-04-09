@@ -53,21 +53,14 @@ public:
 	~SourceNode();
 
 	void enabledState(bool t);
-
-	//void setName(const String name_);
 	
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 
 	void setParameter (int parameterIndex, float newValue);
 
-	void setConfiguration(Configuration* cf);
-
 	float getSampleRate();
 	float getDefaultSampleRate();
 	int getDefaultNumOutputs();
-
-	// void setSourceNode(GenericProcessor* sn);
-	// void setDestNode(GenericProcessor* dn);
 
 	AudioProcessorEditor* createEditor();
 	bool hasEditor() const {return true;}
@@ -87,11 +80,12 @@ private:
 
 	bool wasDisabled;
 
-	//const String name;
 	void timerCallback();
 
-	DataThread* dataThread;
+	ScopedPointer<DataThread> dataThread;
 	DataBuffer* inputBuffer;
+
+	void updateSettings();
 
 	int* numSamplesInThisBuffer;
 

@@ -24,20 +24,18 @@
 #include "GenericProcessor.h"
 #include "../UI/UIComponent.h"
 
-GenericProcessor::GenericProcessor(const String& name_) : name(name_),
-	sourceNode(0), destNode(0), editor(0), isEnabled(true), saveOrder(-1), loadOrder(-1),
-	nextAvailableChannel(0), wasConnected(false), currentChannel(-1)
-	
+GenericProcessor::GenericProcessor(const String& name_) : 
+    name(name_),
+	sourceNode(0), destNode(0),
+	isEnabled(true), 
+	saveOrder(-1), loadOrder(-1),
+	nextAvailableChannel(0), currentChannel(-1),
+	wasConnected(false)
 {
-
 }
 
 GenericProcessor::~GenericProcessor()
 {
-	if (editor != 0)
-	{
-		deleteAndZero(editor);
-	}
 }
 
 AudioProcessorEditor* GenericProcessor::createEditor()
@@ -49,44 +47,26 @@ AudioProcessorEditor* GenericProcessor::createEditor()
 
 void GenericProcessor::setParameter (int parameterIndex, float newValue)
 {
-
-
-}
-
-GenericProcessor* GenericProcessor::getOriginalSourceNode()
-{
-	if (isSource())
+	if (currentChannel > 0)
 	{
-		return this;
-	} else {
-		
-		GenericProcessor* source = getSourceNode();
-
-		if (source != 0)
-		{
-			while (!source->isSource() && source != 0)
-			{
-				source = source->getSourceNode();
-			}
-
-			return source;
-
-		} else {
-			return 0;
-		}
+		//Parameter& p = parameters[parameterIndex];
+		//parameters[parameterIndex].setValue(newValue, currentChannel);
 	}
+
 }
 
-int GenericProcessor::getDefaultNumOutputs()
+const String GenericProcessor::getParameterName (int parameterIndex)
 {
-	if (!isSink())
-	{
-		return 10;
-	} else {
-		return 0;
-	}
+	//Parameter& p = parameters[parameterIndex];
+	//return parameters[parameterIndex].getName();
 }
 
+const String GenericProcessor::getParameterText (int parameterIndex)
+{
+	//Parameter& p = parameters[parameterIndex];
+	//return parameters[parameterIndex].getDescription();
+}
+	
 
 void GenericProcessor::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
 {
@@ -102,21 +82,12 @@ void GenericProcessor::releaseResources()
 	// disable() is only called by the ProcessorGraph at the end of acquisition
 }
 
-
-// void GenericProcessor::sendMessage(const String& msg)
-// {
-// 	std::cout << "Message: ";
-// 	std::cout << msg << "...." << std::endl;
-// 	UI->transmitMessage(msg);
-// }
-
-
 int GenericProcessor::getNextChannel(bool increment)
 {
 	int chan = nextAvailableChannel;
 
 	//std::cout << chan << std::endl;
-
+ 
 	if (increment)
 		nextAvailableChannel++;
 	
@@ -134,43 +105,42 @@ void GenericProcessor::resetConnections()
 	wasConnected = false;
 }
 
-void GenericProcessor::setNumSamples(MidiBuffer& midiMessages, int numberToAdd) {
+void GenericProcessor::setNumSamples(MidiBuffer& events, int sampleIndex) {
 
 	uint8 data[2];
 
-	data[0] = numberToAdd >> 8; 	// most-significant byte
-    data[1] = numberToAdd & 0xFF; 	// least-significant byte
+	data[0] = BUFFER_SIZE; 	// most-significant byte
+    data[1] = nodeId; 		// least-significant byte
 
-    midiMessages.addEvent(data, 		// spike data
-                          sizeof(data), // total bytes
-                          -1);           // sample index
-
+    events.addEvent(data, 		// spike data
+                    2, 			// total bytes
+                    sampleIndex); // sample index
 
 }
 
-int GenericProcessor::getNumSamples(MidiBuffer& midiMessages) {
+int GenericProcessor::getNumSamples(MidiBuffer& events) {
 
 	int numRead = 0;
 
-	if (midiMessages.getNumEvents() > 0) 
+	if (events.getNumEvents() > 0) 
 	{
 			
-		int m = midiMessages.getNumEvents();
+		int m = events.getNumEvents();
 
-		MidiBuffer::Iterator i (midiMessages);
+		MidiBuffer::Iterator i (events);
 		MidiMessage message(0xf4);
 
 		int samplePosition = -5;
 
 		while (i.getNextEvent (message, samplePosition)) {
 			
-				int numbytes = message.getRawDataSize();
-				uint8* dataptr = message.getRawData();
+			uint8* dataptr = message.getRawData();
 
-				if (message.getTimeStamp() < 0)
-					numRead = (*dataptr<<8) + *(dataptr+1);
+			if (*dataptr == BUFFER_SIZE)
+			{
+				numRead = message.getTimeStamp();
+			}
 		}
-
 	}
 
 	return numRead;
@@ -279,80 +249,86 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 	}
 }
 
-void GenericProcessor::updateSettings()
+void GenericProcessor::clearSettings()
 {
+	settings.originalSource = 0;
+	settings.numInputs = 0;
+	settings.numOutputs = 0;
+	settings.inputChannelNames.clear();
+	settings.outputChannelNames.clear();
+	settings.bitVolts.clear();
+	settings.eventChannelIds.clear();
+	settings.eventChannelNames.clear();
+}
+
+void GenericProcessor::update()
+{
+
+	std::cout << getName() << " updating settings." << std::endl;
+
+	clearSettings();
 	
 	if (sourceNode != 0)
 	{
-		setSampleRate(sourceNode->getSampleRate());
-		setNumInputs(sourceNode->getNumOutputs());
+		// everything is inherited except numOutputs
+		settings = sourceNode->settings;
+		settings.numInputs = settings.numOutputs;
+		settings.numOutputs = settings.numInputs;
+
 	} else {
-		setSampleRate(getDefaultSampleRate());
-		setNumInputs(0);
-		setNumOutputs(getDefaultNumOutputs());
+
+		settings.sampleRate = getDefaultSampleRate();
+		settings.numOutputs = getDefaultNumOutputs();
+
+		for (int i = 0; i < getNumOutputs(); i++)
+			settings.bitVolts.add(getDefaultBitVolts());
+
+		generateDefaultChannelNames(settings.outputChannelNames);
+
 	}
 
-	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
+	if (this->isSink())
+	{
+		settings.numOutputs = 0;
+		settings.outputChannelNames.clear();
+	}
 
-	updateParameters();
+	updateSettings(); // custom settings code
 
-	GenericEditor* editor = (GenericEditor*) getEditor();
+	// required for the ProcessorGraph to know the
+	// details of this processor:
+	setPlayConfigDetails(getNumInputs(),  // numIns
+		                 getNumOutputs(), // numOuts
+		                 44100.0,         // sampleRate
+		                 128);            // blockSize
 
-	editor->update();
+	editor->update(); // update editor settings
 
 }
 
-void GenericProcessor::updateParameters()
+bool GenericProcessor::recordStatus(int chan)
 {
-	
+
+	return getEditor()->recordChannels[chan];
+
+
 }
 
-
-int GenericProcessor::getNumInputs()
+void GenericProcessor::generateDefaultChannelNames(StringArray& names)
 {
-	return numInputs;
+	names.clear();
+
+	for (int i = 0; i < settings.numOutputs; i++)
+	{
+		String channelName = "CH";
+		channelName += (i+1);
+		names.add(channelName);
+	}
+
 }
 
-int GenericProcessor::getNumOutputs()
-{
-	return numOutputs;
-}
 
-void GenericProcessor::setNumInputs(int n) {
-	numInputs = n;
-	// if (destNode != 0)
-	// {
-	// 	destNode->setNumInputs();
-	// }
-	//setPlayConfigDetails(numInputs,numOutputs,44100.0,1024);
-}
-
-void GenericProcessor::setNumInputs() {
-	
-	int n = getSourceNode()->getNumOutputs();
-	setNumInputs(n);
-}
-
-void GenericProcessor::setNumOutputs()
-{
-	setNumOutputs(getNumInputs());
-}
-
-void GenericProcessor::setNumOutputs(int n) {
-	numOutputs = n;
-	//setPlayConfigDetails(numInputs,numOutputs,44100.0,1024);
-}
-
-float GenericProcessor::getSampleRate()
-{
-	return sampleRate;
-}
-void GenericProcessor::setSampleRate(float sr)
-{
-	sampleRate = sr;
-}
-
-int GenericProcessor::checkForMidiEvents(MidiBuffer& midiMessages)
+int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)
 {
 
 	if (midiMessages.getNumEvents() > 0) 
@@ -369,18 +345,10 @@ int GenericProcessor::checkForMidiEvents(MidiBuffer& midiMessages)
 
 		while (i.getNextEvent (message, samplePosition)) {
 			
-				int numbytes = message.getRawDataSize();
-				uint8* dataptr = message.getRawData();
+			uint8* dataptr = message.getRawData();
 
-				//std::cout << " Bytes received: " << numbytes << std::endl;
-				//std::cout << " Message timestamp = " << message.getTimeStamp() << std::endl;
+			handleEvent(*dataptr, message);
 
-				if (message.getTimeStamp() >= 0)
-				{
-					int value = (*dataptr<<8) + *(dataptr+1);
-					//std::cout << "   " << value << std::endl;
-					return value;
-				}
 		}
 
 	}
@@ -389,26 +357,35 @@ int GenericProcessor::checkForMidiEvents(MidiBuffer& midiMessages)
 
 }
 
-void GenericProcessor::addMidiEvent(MidiBuffer& midiMessages, int numberToAdd, int sampleNum)
+void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
+							    uint8 type,
+							    int sampleNum,
+							    uint8 eventId,
+							    uint8 eventChannel,
+							    uint8 numBytes,
+							    uint8* eventData)
 {
-	uint8 data[2];
+	uint8 data[4+numBytes];
 
-	data[0] = numberToAdd >> 8; 	// most-significant byte
-    data[1] = numberToAdd & 0xFF; 	// least-significant byte
+	data[0] = type;    // event type
+    data[1] = nodeId;  // processor ID
+    data[2] = eventId; // event ID
+    data[3] = eventChannel; // event channel
+    memcpy(&data[4], eventData, numBytes);
 
-    midiMessages.addEvent(data, 		// spike data
+    eventBuffer.addEvent(data, 		// spike data
                           sizeof(data), // total bytes
                           sampleNum);     // sample index
 }
 
-void GenericProcessor::processBlock (AudioSampleBuffer &buffer, MidiBuffer &midiMessages)
+void GenericProcessor::processBlock (AudioSampleBuffer &buffer, MidiBuffer &eventBuffer)
 {
 	
-	int nSamples = getNumSamples(midiMessages); // removes first value from midimessages
+	int nSamples = getNumSamples(eventBuffer); // removes first value from midimessages
 
-	process(buffer, midiMessages, nSamples);
+	process(buffer, eventBuffer, nSamples);
 
-	setNumSamples(midiMessages, nSamples); // adds it back,
-										   // even if it's unchanged
+	setNumSamples(eventBuffer, nSamples); // adds it back,
+										  // even if it's unchanged
 
 }

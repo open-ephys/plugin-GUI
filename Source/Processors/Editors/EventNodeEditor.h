@@ -30,13 +30,12 @@
 
 class FilterViewport;
 
-class EventNodeEditor : public GenericEditor//,
-					// public Button::Listener
+class EventNodeEditor : public GenericEditor
 {
 public:
 	EventNodeEditor (GenericProcessor* parentNode);
 	virtual ~EventNodeEditor();
-	void buttonClicked(Button* button);
+	void buttonEvent(Button* button);
 
 private:	
 

@@ -28,17 +28,17 @@
 
 EditorViewport::EditorViewport()
     : message ("Drag-and-drop some rows from the top-left box onto this component!"),
-      somethingIsBeingDraggedOver (false), shiftDown(false), leftmostEditor(0),
+      somethingIsBeingDraggedOver(false), shiftDown(false), leftmostEditor(0),
        insertionPoint(0), componentWantsToMove(false), indexOfMovingComponent(-1), 
-       borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true), currentTab(-1)//, signalChainNeedsSource(true)
+       borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true), currentTab(-1)
 {
 
-  addMouseListener(this, true);
+    addMouseListener(this, true);
 
-  MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-  Typeface::Ptr typeface = new CustomTypeface(mis);
-  font = Font(typeface);
-  font.setHeight(10);
+    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    Typeface::Ptr typeface = new CustomTypeface(mis);
+    font = Font(typeface);
+    font.setHeight(10);
 
     sourceDropImage = ImageCache::getFromMemory (BinaryData::SourceDrop_png, 
                                       BinaryData::SourceDrop_pngSize);
@@ -64,13 +64,11 @@ EditorViewport::EditorViewport()
     addAndMakeVisible(rightButton);
     addAndMakeVisible(leftButton);
 
-
-
 }
 
 EditorViewport::~EditorViewport()
 {
-    deleteAndZero(signalChainManager);
+   // deleteAndZero(signalChainManager);
     deleteAllChildren();
 }
 
@@ -218,9 +216,10 @@ void EditorViewport::itemDropped (const String& sourceDescription, Component* /*
 
         if (activeEditor != 0)
         {
-            addChildComponent(activeEditor);
             activeEditor->setUIComponent(getUIComponent());
-
+            activeEditor->refreshColors();
+            addChildComponent(activeEditor);
+            
             lastEditor = activeEditor;
 
             signalChainManager->updateVisibleEditors(activeEditor, indexOfMovingComponent, insertionPoint, ADD);
@@ -480,8 +479,6 @@ void EditorViewport::mouseDown(const MouseEvent &e) {
         }
     } 
 
-   // selectEditor((GenericEditor*) e.eventComponent);
-
 }
 
 void EditorViewport::mouseDrag(const MouseEvent &e) {
@@ -572,7 +569,7 @@ void EditorViewport::mouseExit(const MouseEvent &e) {
 void EditorViewport::checkScrollButtons(int topTab)
 {
     
-    if (editorArray.size() - topTab > 4)
+    if (signalChainArray.size() - topTab > 4)
     {
         downButton->setActive(true);
     } else {
@@ -638,73 +635,114 @@ void EditorViewport::buttonClicked (Button* button)
 
 SignalChainTabButton::SignalChainTabButton() : Button("Name"),
         configurationChanged(true)
-    {
-        setRadioGroupId(99);
-        //setToggleState(false,true);
-        setClickingTogglesState(true);
+{
+    setRadioGroupId(99);
+    setClickingTogglesState(true);
 
-        MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-        Typeface::Ptr typeface = new CustomTypeface(mis);
-        buttonFont = Font(typeface);
-        buttonFont.setHeight(14);
+    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    Typeface::Ptr typeface = new CustomTypeface(mis);
+    buttonFont = Font(typeface);
+    buttonFont.setHeight(14);
 
-        offset = 0;
-    }
+    offset = 0;
+}
 
 
 void SignalChainTabButton::clicked() 
 {
     
-        //std::cout << "Button clicked: " << firstEditor->getName() << std::endl;
-        EditorViewport* ev = (EditorViewport*) getParentComponent();
-    
-        scm->updateVisibleEditors(firstEditor, 0, 0, ACTIVATE); 
-        ev->leftmostEditor = offset;
-        ev->refreshEditors();   
+    //std::cout << "Button clicked: " << firstEditor->getName() << std::endl;
+    EditorViewport* ev = (EditorViewport*) getParentComponent();
+
+    scm->updateVisibleEditors(firstEditor, 0, 0, ACTIVATE); 
+    ev->leftmostEditor = offset;
+    ev->refreshEditors();   
 
     
 }
 
 void SignalChainTabButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
-        if (getToggleState() == true)
-            g.setColour(Colours::orange);
-        else 
-            g.setColour(Colours::darkgrey);
 
-        if (isMouseOver)
-            g.setColour(Colours::white);
+    ColourGradient grad1, grad2;
 
-        g.fillEllipse(0,0,getWidth(),getHeight());
+    if (getToggleState() == true) {
 
-        g.setFont(buttonFont);
-        g.setColour(Colours::black);
+        grad1 = ColourGradient(Colour(255, 136, 34), 0.0f, 0.0f, 
+                               Colour(230, 193, 32), 0.0f, 20.0f,
+                               false);
 
-        String n;
-
-        if (num == 0)
-            n = "A";
-        else if (num == 1)
-            n = "B";
-        else if (num == 2)
-            n = "C";
-        else if (num == 3)
-            n = "D";
-        else if (num == 4)
-            n = "E";
-        else if (num == 5)
-            n = "F";
-        else if (num == 6)
-            n = "G";
-        else if (num == 7)
-            n = "H";
-        else if (num == 8)
-            n = "I";
-        else
-            n = "-";
-
-        g.drawText(n,0,0,getWidth(),getHeight(),Justification::centred,true);
+        grad2 = ColourGradient(Colour(255, 136, 34), 0.0f, 20.0f, 
+                               Colour(230, 193, 32), 0.0f, 0.0f,
+                               false);
     }
+    else { 
+         grad2 = ColourGradient(Colour(80, 80, 80), 0.0f, 20.0f, 
+                               Colour(120, 120, 120), 0.0f, 0.0f,
+                               false);
+
+        grad1 =  ColourGradient(Colour(80, 80, 80), 0.0f, 0.0f, 
+                               Colour(120, 120, 120), 0.0f, 20.0f,
+                               false);
+    }
+
+    if (isMouseOver) {
+        
+        grad1.multiplyOpacity(0.7f);
+        grad2.multiplyOpacity(0.7f);
+        //  grad1 = ColourGradient(Colour(255, 255, 255), 0.0f, 20.0f, 
+        //                         Colour(180, 180, 180), 0.0f, 0.0f,
+        //                        false);
+
+        // grad2 = ColourGradient(Colour(255, 255, 255), 0.0f, 0.0f, 
+        //                         Colour(180, 180, 180), 0.0f, 20.0f,
+        //                        false);
+    }
+
+    if (isButtonDown) {
+
+        // ColourGradient grad3 = grad1;
+        // grad1 = grad2;
+        // grad2 = grad3;
+        // grad1.multiplyOpacity(0.7f);
+        // grad2.multiplyOpacity(0.7f);
+
+    }
+
+    g.setGradientFill(grad2);
+    g.fillEllipse(0,0,getWidth(),getHeight());
+
+    g.setGradientFill(grad1);
+    g.fillEllipse(2,2,getWidth()-4,getHeight()-4);
+
+    g.setFont(buttonFont);
+    g.setColour(Colours::black);
+
+    String n;
+
+    if (num == 0)
+        n = "A";
+    else if (num == 1)
+        n = "B";
+    else if (num == 2)
+        n = "C";
+    else if (num == 3)
+        n = "D";
+    else if (num == 4)
+        n = "E";
+    else if (num == 5)
+        n = "F";
+    else if (num == 6)
+        n = "G";
+    else if (num == 7)
+        n = "H";
+    else if (num == 8)
+        n = "I";
+    else
+        n = "-";
+
+    g.drawText(n,0,0,getWidth(),getHeight(),Justification::centred,true);
+}
 
 
 
@@ -811,10 +849,7 @@ const String EditorViewport::saveState(const File& file)
                 {
                     splitPoints.add(nextProcessor);
 
-                    if (nextProcessor->isSplitter())
-                        nextProcessor->switchDest(0);
-                    else
-                        nextProcessor->switchSource(0);
+                    nextProcessor->switchIO(0);
                 }
 
             } else {
@@ -826,22 +861,19 @@ const String EditorViewport::saveState(const File& file)
                     nextProcessor = splitPoints.getFirst();
                     splitPoints.remove(0);
 
+                    nextProcessor->switchIO(1);
+                    signalChain->addChildElement(switchNodeXml(nextProcessor));
+                    
                     if (nextProcessor->isMerger())
                     {
-                        std::cout << "    Switching merger source." << std::endl;
-                        nextProcessor->switchSource(1);
-                        signalChain->addChildElement(switchNodeXml(nextProcessor));
                         insertionPt = 0;
                         moveForward = false;
-                    } else {
-                        std::cout << "    Switching splitter dest." << std::endl;
-                        nextProcessor->switchDest(1);
-                        signalChain->addChildElement(switchNodeXml(nextProcessor));
+                    } else { 
                         insertionPt = 1;
                         moveForward = true;
                     }
 
-                    editor = (GenericEditor*) nextProcessor->getEditor();
+                    editor = nextProcessor->getEditor();
 
                 } else {
 
@@ -882,7 +914,6 @@ const String EditorViewport::loadState(const File& file)
     {
         std::cout << "File not found." << std::endl;
         delete xml;
-        // don't do anything
         return "Not a valid file.";
     }
 
@@ -948,8 +979,5 @@ const String EditorViewport::loadState(const File& file)
 
     delete xml;
     return "Everything went ok.";
-
-   // refreshEditors();
-
 }
 

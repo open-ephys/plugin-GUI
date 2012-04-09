@@ -19,7 +19,7 @@ ifeq ($(CONFIG),Debug)
   OUTDIR := build
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I "/usr/include" -I "/usr/include/freetype2"
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0
-  CXXFLAGS += $(CFLAGS) -export-dynamic
+  CXXFLAGS += $(CFLAGS) -export-dynamic -pg
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L"/usr/X11R6/lib/" -L"../../JuceLibraryCode/bin" -lfreetype -lpthread -lrt -lX11 -lGL -lGLU -lXinerama -lasound -lftdi -lftgl
   LDDEPS :=
   RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I "/usr/include" -I "/usr/include/freetype2"
@@ -34,7 +34,7 @@ ifeq ($(CONFIG),Release)
   OUTDIR := build
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I "/usr/include" -I "/usr/include/freetype2"
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3
-  CXXFLAGS += $(CFLAGS) -export-dynamic
+  CXXFLAGS += $(CFLAGS) -export-dynamic -pg
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L"/usr/X11R6/lib/" -L"../../JuceLibraryCode/bin" -lfreetype -lpthread -lrt -lX11 -lGL -lGLU -lXinerama -lasound -lftdi -lftgl
   LDDEPS :=
   RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I "/usr/include" -I "/usr/include/freetype2"
@@ -63,17 +63,30 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/Parameter_ae008024.o \
+  $(OBJDIR)/SpikeDisplayNode_9c52e4ad.o \
   $(OBJDIR)/WiFiOutput_fa464ec5.o \
   $(OBJDIR)/LfpDisplayNode_30ef22fd.o \
   $(OBJDIR)/Merger_2f90542e.o \
   $(OBJDIR)/Splitter_6e27a57b.o \
+  $(OBJDIR)/StereotrodePlot_4710b8f1.o \
+  $(OBJDIR)/ElectrodePlot_7a206ec4.o \
+  $(OBJDIR)/BaseUIElement_ec903c4d.o \
+  $(OBJDIR)/GenericAxes_d802ed92.o \
+  $(OBJDIR)/PlotUtils_9ef52686.o \
+  $(OBJDIR)/ProjectionAxes_7c67c3e8.o \
+  $(OBJDIR)/TetrodePlot_b42fd798.o \
+  $(OBJDIR)/WaveAxes_8adc45d2.o \
+  $(OBJDIR)/SpikeObject_24e8c655.o \
+  $(OBJDIR)/SpikeDisplayCanvas_b208ff6e.o \
   $(OBJDIR)/DataWindow_83ce6754.o \
   $(OBJDIR)/LfpDisplayCanvas_4a58e87e.o \
   $(OBJDIR)/OpenGLCanvas_3c775a41.o \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
-  $(OBJDIR)/FileReader_18023b0e.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/SpikeDisplayEditor_e1812c1.o \
+  $(OBJDIR)/VisualizerEditor_3672b003.o \
   $(OBJDIR)/MergerEditor_d1fcc0df.o \
   $(OBJDIR)/ImageIcon_c89b23a6.o \
   $(OBJDIR)/WiFiOutputEditor_1d3ba5bb.o \
@@ -107,7 +120,6 @@ OBJECTS := \
   $(OBJDIR)/CustomLookAndFeel_53a8fcdb.o \
   $(OBJDIR)/InfoLabel_a2051bf4.o \
   $(OBJDIR)/DataViewport_2cf95d2c.o \
-  $(OBJDIR)/Configuration_6915cd84.o \
   $(OBJDIR)/MessageCenter_748a1cca.o \
   $(OBJDIR)/ControlPanel_a895ede3.o \
   $(OBJDIR)/UIComponent_d667ba37.o \
@@ -234,6 +246,16 @@ $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	@echo "Compiling AudioComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/Parameter_ae008024.o: ../../Source/Processors/Parameter.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Parameter.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SpikeDisplayNode_9c52e4ad.o: ../../Source/Processors/SpikeDisplayNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SpikeDisplayNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/WiFiOutput_fa464ec5.o: ../../Source/Processors/WiFiOutput.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling WiFiOutput.cpp"
@@ -252,6 +274,56 @@ $(OBJDIR)/Merger_2f90542e.o: ../../Source/Processors/Utilities/Merger.cpp
 $(OBJDIR)/Splitter_6e27a57b.o: ../../Source/Processors/Utilities/Splitter.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Splitter.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/StereotrodePlot_4710b8f1.o: ../../Source/Processors/Visualization/SpikePlotting/StereotrodePlot.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling StereotrodePlot.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ElectrodePlot_7a206ec4.o: ../../Source/Processors/Visualization/SpikePlotting/ElectrodePlot.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ElectrodePlot.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/BaseUIElement_ec903c4d.o: ../../Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling BaseUIElement.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/GenericAxes_d802ed92.o: ../../Source/Processors/Visualization/SpikePlotting/GenericAxes.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GenericAxes.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PlotUtils_9ef52686.o: ../../Source/Processors/Visualization/SpikePlotting/PlotUtils.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PlotUtils.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ProjectionAxes_7c67c3e8.o: ../../Source/Processors/Visualization/SpikePlotting/ProjectionAxes.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ProjectionAxes.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/TetrodePlot_b42fd798.o: ../../Source/Processors/Visualization/SpikePlotting/TetrodePlot.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling TetrodePlot.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/WaveAxes_8adc45d2.o: ../../Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling WaveAxes.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SpikeObject_24e8c655.o: ../../Source/Processors/Visualization/SpikeObject.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SpikeObject.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SpikeDisplayCanvas_b208ff6e.o: ../../Source/Processors/Visualization/SpikeDisplayCanvas.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SpikeDisplayCanvas.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/DataWindow_83ce6754.o: ../../Source/Processors/Visualization/DataWindow.cpp
@@ -274,11 +346,6 @@ $(OBJDIR)/SpikeDetector_300d85e7.o: ../../Source/Processors/SpikeDetector.cpp
 	@echo "Compiling SpikeDetector.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/FileReader_18023b0e.o: ../../Source/Processors/FileReader.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FileReader.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioNode.cpp"
@@ -287,6 +354,16 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SpikeDisplayEditor_e1812c1.o: ../../Source/Processors/Editors/SpikeDisplayEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SpikeDisplayEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/VisualizerEditor_3672b003.o: ../../Source/Processors/Editors/VisualizerEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling VisualizerEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/MergerEditor_d1fcc0df.o: ../../Source/Processors/Editors/MergerEditor.cpp
@@ -452,11 +529,6 @@ $(OBJDIR)/InfoLabel_a2051bf4.o: ../../Source/UI/InfoLabel.cpp
 $(OBJDIR)/DataViewport_2cf95d2c.o: ../../Source/UI/DataViewport.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling DataViewport.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Configuration_6915cd84.o: ../../Source/UI/Configuration.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Configuration.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/MessageCenter_748a1cca.o: ../../Source/UI/MessageCenter.cpp

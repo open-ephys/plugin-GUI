@@ -30,10 +30,7 @@ Merger::Merger()
 	: GenericProcessor("Merger"), 
 		sourceNodeA(0), sourceNodeB(0), activePath(0)//, tabA(-1), tabB(-1)
 {
-	setNumOutputs(0);
-	setNumInputs(0);
-
-	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
+	
 }
 
 Merger::~Merger()
@@ -43,10 +40,10 @@ Merger::~Merger()
 
 AudioProcessorEditor* Merger::createEditor()
 {
-	MergerEditor* editor = new MergerEditor(this);
-	setEditor(editor);
+	editor = new MergerEditor(this);
+	//tEditor(editor);
 	
-	std::cout << "Creating editor." << std::endl;
+	//std::cout << "Creating editor." << std::endl;
 	return editor;
 }
 
@@ -64,7 +61,7 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 	}
 }
 
-void Merger::switchSource(int sourceNum) {
+void Merger::switchIO(int sourceNum) {
 
 	//std::cout << "Switching to source number " << sourceNum << std::endl;
 	
@@ -95,8 +92,11 @@ bool Merger::stillHasSource()
 
 }
 
-void Merger::switchSource()
+void Merger::switchIO()
 {
+
+	std::cout << "Merger switching source." << std::endl;
+
 	if (activePath == 0) {
 		activePath = 1;
 		sourceNode = sourceNodeB;
@@ -108,24 +108,54 @@ void Merger::switchSource()
 
 }
 
-void Merger::setNumInputs(int n)
+void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
 {
-	numInputs = 0;
+
+	settings.numInputs += sn->getNumOutputs();
+	settings.inputChannelNames.addArray(sn->settings.inputChannelNames);
+	settings.eventChannelIds.addArray(sn->settings.eventChannelIds);
+	settings.eventChannelNames.addArray(sn->settings.eventChannelNames);
+	settings.bitVolts.addArray(sn->settings.bitVolts);
+
+	settings.originalSource = sn->settings.originalSource;
+	settings.sampleRate = sn->settings.sampleRate;
+
+	settings.numOutputs = settings.numInputs;
+	settings.outputChannelNames = settings.inputChannelNames;
+
+}
+
+void Merger::updateSettings()
+{
+
+	// default is to get everything from sourceNodeA,
+	// but this might not be ideal
+	clearSettings();
 
 	if (sourceNodeA != 0)
 	{
 		std::cout << "   Merger source A found." << std::endl;
-		numInputs += sourceNodeA->getNumOutputs();
+		addSettingsFromSourceNode(sourceNodeA);
 	}
+
 	if (sourceNodeB != 0)
 	{
 		std::cout << "   Merger source B found." << std::endl;
-		numInputs += sourceNodeB->getNumOutputs();
+		addSettingsFromSourceNode(sourceNodeB);
+	}	
+
+	if (sourceNodeA == 0 && sourceNodeB == 0) {
+
+		settings.sampleRate = getDefaultSampleRate();
+		settings.numOutputs = getDefaultNumOutputs();
+
+		for (int i = 0; i < getNumOutputs(); i++)
+			settings.bitVolts.add(getDefaultBitVolts());
+
+		generateDefaultChannelNames(settings.outputChannelNames);
 	}
 
 	std::cout << "Number of merger outputs: " << getNumInputs() << std::endl;
-
-	setNumOutputs(getNumInputs());
 
 }
 

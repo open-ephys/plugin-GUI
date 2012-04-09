@@ -31,7 +31,10 @@ DataThread::DataThread(SourceNode* s) : Thread ("Data Thread"), dataBuffer(0)
 	setPriority(10);
 }
 
-DataThread::~DataThread() {}
+DataThread::~DataThread() 
+{
+    deleteAndZero(dataBuffer);
+}
 
 void DataThread::run() {
 

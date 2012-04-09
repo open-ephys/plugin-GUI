@@ -36,8 +36,6 @@
 
 */
 
-class FilterViewport;
-
 class EventNode : public GenericProcessor
 
 {
@@ -50,11 +48,10 @@ public:
 	void setParameter (int parameterIndex, float newValue);
 
 	bool isSource() {return true;}
-	bool hasEditor() const {return true;}
 
-	float getSampleRate() {return 44100.0;}
+    int getDefaultNumOutputs() {return 0;}
 
-	bool canSendSignalTo(GenericProcessor*);
+    void updateSettings();
 
 	AudioProcessorEditor* createEditor();
 	
