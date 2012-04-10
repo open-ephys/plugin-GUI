@@ -363,6 +363,13 @@ void SpikeDisplayCanvas::zoomPlot(int p, int c, bool in){
 	plots[p].zoom(c, in);
 }
 
+void SpikeDisplayCanvas::disableAntiAliasing(){
+
+	glDisable(GL_LINE_SMOOTH);
+	glDisable(GL_POINT_SMOOTH);
+	glDisable(GL_POLYGON_SMOOTH);
+}
+
 // void SpikeDisplayCanvas::resized()
 // {
 // 	//screenBuffer = new AudioSampleBuffer(nChans, getWidth());
