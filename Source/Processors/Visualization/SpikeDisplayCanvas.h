@@ -96,7 +96,8 @@ private:
 
 	int getTotalHeight();
 
-	int nSources;
+	int nPlots;
+	int nCols;
 	int nChannels[MAX_NUMBER_OF_SPIKE_CHANNELS];
 
 	void initializeSpikePlots();

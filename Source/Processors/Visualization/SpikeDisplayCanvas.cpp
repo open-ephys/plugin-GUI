@@ -24,19 +24,20 @@
 #include "SpikeDisplayCanvas.h"
 
 SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
-	 	xBuffer(25), yBuffer(25),  newSpike(false), plotsInitialized(false),
+	 	xBuffer(25), yBuffer(25), newSpike(false), plotsInitialized(false),
 	 	totalScrollPix(0)
 {
 
 	
 
-	nSources = 0; //processor->getNumInputs();
-	std::cout<<"SpikeDisplayNode has :"<<nSources<<" outputs!"<<std::endl;
+	nPlots = 8;
+	nCols = 2; //processor->getNumInputs();
+	std::cout<<"SpikeDisplayNode has :"<<nPlots<<" outputs!"<<std::endl;
 	
-	for (int i=0; i<nSources; i++)
+	for (int i=0; i<nPlots; i++)
 		nChannels[i] = processor->getNumberOfChannelsForInput(i);
 
-	std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nSources << std::endl;
+	std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nPlots << std::endl;
 	
 	
 	
@@ -50,18 +51,13 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 void SpikeDisplayCanvas::initializeSpikePlots(){
 	std::cout<<"Initializing Plots"<<std::endl;
 
-
-	int nPlots = 4;
-	int nCols = 4;
-
 	int totalWidth = getWidth(); 
 	
 	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
 	int plotHeight = plotWidth / 2 + .5;
 	int rowCount = 0;
-	int i;
 
-	for (i=0; i<nPlots; i++)
+	for (int i=0; i<nPlots; i++)
 	{
 
 		StereotrodePlot p = StereotrodePlot( 
@@ -79,7 +75,8 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 			rowCount++;
 
 	}
-	totalHeight = yBuffer + rowCount * (plotHeight + yBuffer) + yBuffer;
+
+	totalHeight = rowCount * (plotHeight + yBuffer) + yBuffer * 2;
 
 	// Set the total height of the Canvas to the top of the top most plot
 	plotsInitialized = true;
@@ -88,9 +85,6 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 
 void SpikeDisplayCanvas::repositionSpikePlots(){
 	
-	int nPlots = plots.size();
-	int nCols = 2;
-
 	int totalWidth = getWidth(); 
 	
 	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
@@ -110,12 +104,11 @@ void SpikeDisplayCanvas::repositionSpikePlots(){
 	 }
 
 	// Set the total height of the Canvas to the top of the top most plot
-	totalHeight = yBuffer + rowCount * (plotHeight + yBuffer) + yBuffer;
+	totalHeight = rowCount * (plotHeight + yBuffer) + yBuffer * 2;
 }
 
 void SpikeDisplayCanvas::newOpenGLContextCreated()
 {
-
 	std::cout<<"SpikeDisplayCanvas::newOpenGLContextCreated()"<<std::endl;
 	setUp2DCanvas();
 	//activateAntiAliasing();
@@ -123,8 +116,6 @@ void SpikeDisplayCanvas::newOpenGLContextCreated()
 	glClearColor (0.667, 0.698, 0.718, 1.0);
 	resized();
 	endAnimation();
-	//startTimer(50);
-
 }
 
 void SpikeDisplayCanvas::beginAnimation()
@@ -217,7 +208,8 @@ void SpikeDisplayCanvas::canvasWasResized()
 void SpikeDisplayCanvas::renderOpenGL()
 {
 	if(!plotsInitialized)
-			initializeSpikePlots();
+		initializeSpikePlots();
+
 	glClearColor (0.667, 0.698, 0.718, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
 //	std::cout<<"SpikeDisplayCanvas::renderOpenGL"<<std::endl;
