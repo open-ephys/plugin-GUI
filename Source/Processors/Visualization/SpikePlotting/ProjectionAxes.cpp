@@ -8,7 +8,8 @@ ProjectionAxes::ProjectionAxes():
 					buffIdx(-1),
 					totalSpikes(0),
 					newSpike(false),
-					isTextureValid(false), 
+					isTextureValid(false),
+                    fboCreated(false),
 					allSpikesNextRender(false)
 {	
 	GenericAxes::type = PROJ1x2;
@@ -20,6 +21,7 @@ ProjectionAxes::ProjectionAxes():
 	n2ProjIdx(type, &ampDim1, &ampDim2);
 
 	clearOnNextDraw = false;
+
 }
 
 ProjectionAxes::ProjectionAxes(int x, int y, double w, double h, int t):
@@ -31,6 +33,7 @@ ProjectionAxes::ProjectionAxes(int x, int y, double w, double h, int t):
 					totalSpikes(0),
 					newSpike(false),
 					isTextureValid(false),
+                    fboCreated(false),
 					allSpikesNextRender(false)
 {	
 	GenericAxes::gotFirstSpike = false;
@@ -103,6 +106,8 @@ void ProjectionAxes::plot(){
 	   plot();
 	   return;
 	}
+//    else
+//        std::cout<<"All is good no errors detected"<<std::endl;
 }
 
 void ProjectionAxes::plotOldSpikes(bool allSpikes){
@@ -194,15 +199,17 @@ void ProjectionAxes::createTexture(){
 	texWidth = BaseUIElement::width;
 	texHeight = BaseUIElement::height;
 
-  	std::cout<<"Creating a new texture of size:"<<texWidth<<"x"<<texHeight<<std::endl;
+  	std::cout<<"Creating a new texture of size:"<<texWidth<<"x"<<texHeight;//<<std::endl;
   	// Delete the old texture
     glDeleteTextures(1, &textureId);
     // Generate a new texture 
     glGenTextures(1, &textureId);
+    std::cout<<" textureId:"<<textureId<<std::endl;
     // Bind the texture, and set the appropriate parameters
     glBindTexture(GL_TEXTURE_2D, textureId);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glGenerateMipmap(GL_TEXTURE_2D);
     // generate a new FrameBufferObject
     createFBO();
 
@@ -212,13 +219,15 @@ void ProjectionAxes::createTexture(){
 }
 
 void ProjectionAxes::createFBO(){
-	std::cout<<"Creating a new frame buffer object"<<std::endl;
+	std::cout<<"Creating a new FBO, is already created?:"<<fboCreated<<" ";//<<std::endl;
 
 	// if (!isTextureValid)
 	// 	createTexture();
 	// Delete the old frame buffer, render buffer
-	glDeleteFramebuffers(1, &fboId);
-	glDeleteRenderbuffers(1, &rboId);
+    if (fboCreated){
+        glDeleteFramebuffers(1, &fboId);
+        glDeleteRenderbuffers(1, &rboId);
+    }
 
 	// Generate and Bind the frame buffer
 	glGenFramebuffersEXT(1, &fboId);
@@ -227,22 +236,29 @@ void ProjectionAxes::createFBO(){
 	// Generate and bind the new Render Buffer
 	glGenRenderbuffersEXT(1, &rboId);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, rboId);
+    std::cout<<" fboID:"<<fboId<<" rboID:"<<rboId<<std::endl;
+
+    
 	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, texWidth, texHeight);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 
 	// Attach the texture to the framebuffer
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, textureId, 0);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, rboId);
-
+    
 	// If the FrameBuffer wasn't created then we have a bigger problem. Abort the program.
 	if(!checkFramebufferStatus()){
 	    std::cout<<"FrameBufferObject not created! Are you running the newest version of OpenGL?"<<std::endl;
 	    std::cout<<"FrameBufferObjects are REQUIRED! Quitting!"<<std::endl;
 	    exit(1);
 	}
-
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    fboCreated = true;
 }
+
 
 void ProjectionAxes::drawSpikesToTexture(bool allSpikes){
 	

@@ -82,7 +82,7 @@ void WaveAxes::plot(){
 
 	//Draw the individual waveform points connected with a line
 	glColor3fv(waveColor);
-	glLineWidth(1);
+	glLineWidth(2);
 	glBegin( GL_LINE_STRIP );
 	
 	int dSamples = 1;
