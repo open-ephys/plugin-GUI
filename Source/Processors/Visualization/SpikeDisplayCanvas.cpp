@@ -51,8 +51,8 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 	std::cout<<"Initializing Plots"<<std::endl;
 
 
-	int nPlots = 6;
-	int nCols = 2;
+	int nPlots = 4;
+	int nCols = 4;
 
 	int totalWidth = getWidth(); 
 	
