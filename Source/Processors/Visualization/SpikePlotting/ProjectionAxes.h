@@ -54,6 +54,7 @@ class ProjectionAxes: public GenericAxes{
 
   	bool clearOnNextDraw;
  	bool isTextureValid;
+    bool fboCreated;
   	void clearTexture();
 
   	void validateTexture();

@@ -8,7 +8,8 @@ ProjectionAxes::ProjectionAxes():
 					buffIdx(-1),
 					totalSpikes(0),
 					newSpike(false),
-					isTextureValid(false), 
+					isTextureValid(false),
+                    fboCreated(false),
 					allSpikesNextRender(false)
 {	
 	GenericAxes::type = PROJ1x2;
@@ -20,6 +21,7 @@ ProjectionAxes::ProjectionAxes():
 	n2ProjIdx(type, &ampDim1, &ampDim2);
 
 	clearOnNextDraw = false;
+
 }
 
 ProjectionAxes::ProjectionAxes(int x, int y, double w, double h, int t):
@@ -31,6 +33,7 @@ ProjectionAxes::ProjectionAxes(int x, int y, double w, double h, int t):
 					totalSpikes(0),
 					newSpike(false),
 					isTextureValid(false),
+                    fboCreated(false),
 					allSpikesNextRender(false)
 {	
 	GenericAxes::gotFirstSpike = false;
@@ -216,13 +219,15 @@ void ProjectionAxes::createTexture(){
 }
 
 void ProjectionAxes::createFBO(){
-	std::cout<<"Creating a new frame buffer object";//<<std::endl;
+	std::cout<<"Creating a new FBO, is already created?:"<<fboCreated<<" ";//<<std::endl;
 
 	// if (!isTextureValid)
 	// 	createTexture();
 	// Delete the old frame buffer, render buffer
-	glDeleteFramebuffers(1, &fboId);
-	glDeleteRenderbuffers(1, &rboId);
+    if (fboCreated){
+        glDeleteFramebuffers(1, &fboId);
+        glDeleteRenderbuffers(1, &rboId);
+    }
 
 	// Generate and Bind the frame buffer
 	glGenFramebuffersEXT(1, &fboId);
@@ -251,7 +256,9 @@ void ProjectionAxes::createFBO(){
     glClear(GL_COLOR_BUFFER_BIT);
     
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    fboCreated = true;
 }
+
 
 void ProjectionAxes::drawSpikesToTexture(bool allSpikes){
 	
