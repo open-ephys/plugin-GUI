@@ -128,7 +128,7 @@ void ProjectionAxes::plotOldSpikes(bool allSpikes){
 	// 	std::cout<<"\tUpdating texture with all spikes: "<< stopIdx - startIdx + 1 <<std::endl;
 
 	glColor3f(1.0, 1.0, 1.0);
-	glPointSize(1);
+	glPointSize(2);
 	glBegin(GL_POINTS);
 		for (int i=startIdx; i<=stopIdx; i++)		
 			glVertex2i(ampBuffer[0][i], ampBuffer[1][i]);
