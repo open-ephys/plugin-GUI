@@ -37,7 +37,6 @@ class ProjectionAxes: public GenericAxes{
   	void createFBO();
 
   	void drawSpikesToTexture(bool allSpikes);
-  	// void updateTexture();
   	void drawTexturedQuad();
   	void plotOldSpikes(bool allSpikes);
   	void plotNewestSpike();

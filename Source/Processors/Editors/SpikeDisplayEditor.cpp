@@ -46,28 +46,30 @@ void SpikeDisplayEditor::initializeButtons(){
 	x = xInitial;
 	y += h + yPad/2;
 
-	panUpBtn = new ChannelSelectorButton("+", titleFont);
-	panUpBtn->setBounds(x, y, w, h); 
-	panUpBtn->setClickingTogglesState(false);
-	panUpBtn->addListener(this);
-	x+= w+xPad;
-
+	
 	panDownBtn = new ChannelSelectorButton("-", titleFont);
 	panDownBtn->setBounds(x, y, w, h);
 	panDownBtn->setClickingTogglesState(false);
 	panDownBtn->addListener(this);
+	x+= w+xPad;
+
+	panUpBtn = new ChannelSelectorButton("+", titleFont);
+	panUpBtn->setBounds(x, y, w, h); 
+	panUpBtn->setClickingTogglesState(false);
+	panUpBtn->addListener(this);
 	x+= w+xPad*2;
+
+	
+	zoomOutBtn = new ChannelSelectorButton("-", titleFont);
+	zoomOutBtn->setBounds(x,y,w,h);
+	zoomOutBtn->setClickingTogglesState(false);
+	zoomOutBtn->addListener(this);
+	x += w + xPad;
 
 	zoomInBtn = new ChannelSelectorButton("+", titleFont);
 	zoomInBtn->setBounds(x,y,w,h);
 	zoomInBtn->setClickingTogglesState(false);
 	zoomInBtn->addListener(this);
-	x += w + xPad;
-
-	zoomOutBtn = new ChannelSelectorButton("-", titleFont);
-	zoomOutBtn->setBounds(x,y,w,h);
-	zoomOutBtn->setClickingTogglesState(false);
-	zoomOutBtn->addListener(this);
 	x += w + xPad*3;
 
 
@@ -76,8 +78,6 @@ void SpikeDisplayEditor::initializeButtons(){
 	clearBtn->setClickingTogglesState(false);
 	clearBtn->addListener(this);
 	x += (w + xPad) *2;
-	
-	
 	
 /*
 	x = xInitial;
@@ -125,15 +125,14 @@ void SpikeDisplayEditor::initializeButtons(){
 	}
 
 
-
-	addAndMakeVisible(panUpBtn);
 	addAndMakeVisible(panDownBtn);
+	addAndMakeVisible(panUpBtn);
 	addAndMakeVisible(panLabel);
 
-
-	addAndMakeVisible(zoomInBtn);
 	addAndMakeVisible(zoomOutBtn);
+	addAndMakeVisible(zoomInBtn);
 	addAndMakeVisible(zoomLabel);
+
 	addAndMakeVisible(clearBtn);
 	//addAndMakeVisible(saveImgBtn);
 
