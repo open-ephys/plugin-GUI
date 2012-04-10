@@ -97,7 +97,7 @@ void EditorViewport::paint (Graphics& g)
     g.drawRect (0, 0, getWidth(), getHeight(), 2.0);
     g.drawVerticalLine(tabSize, 0, getHeight());
     g.drawVerticalLine(getWidth()-tabSize, 0, getHeight());
-    g.drawHorizontalLine(getHeight()/2, getWidth()-tabSize, tabSize);
+   // g.drawHorizontalLine(getHeight()/2, getWidth()-tabSize, tabSize);
 
     for (int n = 0; n < 4; n++)
     {
