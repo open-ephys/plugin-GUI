@@ -43,7 +43,7 @@ SignalGenerator::SignalGenerator()
 	a.add(2);
 	a.add(3);
 
-	Parameter p = Parameter("Paramter name",a,0);
+	Parameter p = Parameter("Parameter name",true);//a,0);
 
 	parameters.add(p);
 

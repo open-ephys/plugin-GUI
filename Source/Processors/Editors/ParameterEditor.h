@@ -48,8 +48,6 @@ public:
 
 private:
 
-	void paint(Graphics& g);
-
 	Array<Component*> componentArray;
 
 	enum {
@@ -91,6 +89,22 @@ private:
 		RIGHT
 	};
 
+};
+
+class ParameterCheckbox : public Button
+
+{
+public:
+    ParameterCheckbox(bool defaultState);
+    ~ParameterCheckbox() {}
+
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    
+    ColourGradient selectedGrad;
+    ColourGradient selectedOverGrad;
+    ColourGradient neutralGrad;
+    ColourGradient neutralOverGrad;
 };
 
 #endif  // __PARAMETEREDITOR_H_44537DA9__

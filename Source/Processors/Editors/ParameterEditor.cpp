@@ -30,9 +30,16 @@ ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
 	{
 		std::cout << "Boolean parameter. Creating checkbox." << std::endl;
 		// create checkbox
-		//ParameterCheckbox* pc = new ParameterCheckbox(p.getName());
-		//addAndMakeVisible(pc);
-		//pc->setBounds(0,0,getWidth(), getHeight());
+		ParameterCheckbox* pc = new ParameterCheckbox((bool) p.getDefaultValue());
+		addAndMakeVisible(pc);
+		pc->setBounds(0,0,12, 12);
+
+		Label* label = new Label(p.getName(), p.getName());
+		labelFont.setHeight(10);
+		label->setColour(Label::textColourId, Colours::darkgrey);
+		label->setFont(labelFont);
+		label->setBounds(10, 1, 100, 10);
+		addAndMakeVisible(label);
 
 	} else if (p.isContinuous())
 	{
@@ -86,46 +93,6 @@ ParameterEditor::~ParameterEditor()
 	deleteAllChildren();
 }
 
-void ParameterEditor::paint(Graphics& g)
-{
-
-	// Path p;
-	// PathStrokeType pst = PathStrokeType(2.0f);
-
-	// float radius = 10.0f;
-
-	// p.startNewSubPath(0, radius);
-	// p.addArc(0, 0, radius*2, radius*2, 1.5*double_Pi, 2.0*double_Pi );
-
-	// p.lineTo(getWidth() - radius, 0);//getHeight());
-	// p.addArc(getWidth()-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
-
-	// p.lineTo(getWidth(), getHeight()-radius);
-	// p.addArc(getWidth()-radius*2, getHeight()-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
-
-	// p.lineTo(radius, getHeight());
-	// p.addArc(0, getHeight()-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
-	// p.closeSubPath();
-	// //p.lineTo(0, radius);
-
-	// g.setColour(Colours::grey);
-	// //g.strokePath(p, pst);
-	// g.fillPath(p);
-	// //g.setColour(Colours::grey)
-	// ColourGradient grad = ColourGradient(Colour(220,220,220),0.0,0.0,
-	// 									 Colour(170,170,170),0.0, getHeight(),
-	// 									 false);
-	// //grad.addColour(0.5f, Colour(50,50,50));
-	// g.setGradientFill(grad);
-
-	// AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth())/2.0f,
-	// 														float(getHeight())/2.0f);
-	// //a.scaled(0.7, 0.7);
-	// g.fillPath(p, a);
-
-
-
-}
 
 /// ============= PARAMETER BUTTON ==================
 
@@ -229,3 +196,51 @@ void ParameterButton::resized()
 	}
 }
 
+
+// ==== PARAMETER CHECKBOX =======================
+
+
+ParameterCheckbox::ParameterCheckbox(bool defaultState) : Button("name")
+{
+	setToggleState(defaultState, false);
+	setClickingTogglesState(true);
+
+	selectedGrad = ColourGradient(Colour(240,179,12),0.0,0.0,
+										 Colour(207,160,33),0.0, 20.0f,
+										 true);
+    selectedOverGrad = ColourGradient(Colour(209,162,33),0.0, 5.0f,
+										 Colour(190,150,25),0.0, 0.0f,
+										 true);
+    neutralGrad = ColourGradient(Colour(220,220,220),0.0,0.0,
+										 Colour(170,170,170),0.0, 20.0f,
+										 true);
+    neutralOverGrad = ColourGradient(Colour(180,180,180),0.0,5.0f,
+										 Colour(150,150,150),0.0, 0.0,
+										 true);
+}
+
+void ParameterCheckbox::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+
+	g.setColour(Colours::grey);
+	g.fillRoundedRectangle(0, 0, getWidth(), getHeight(), 2.0f);
+
+	 if (getToggleState())
+     {
+     	if (isMouseOver)
+     		g.setGradientFill(selectedOverGrad);
+        else
+        	g.setGradientFill(selectedGrad);
+     } else {
+         if (isMouseOver)
+         	g.setGradientFill(neutralOverGrad);
+        else
+        	g.setGradientFill(neutralGrad);
+     }
+
+	AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth())/2.0f,
+												float(getHeight())/2.0f);
+	
+	g.fillRoundedRectangle(1, 1, getWidth()-2, getHeight()-2, 2.0f);
+
+}
