@@ -30,7 +30,7 @@ GenericProcessor::GenericProcessor(const String& name_) :
 	isEnabled(true), 
 	saveOrder(-1), loadOrder(-1),
 	nextAvailableChannel(0), currentChannel(-1),
-	wasConnected(false)
+	wasConnected(false), nullParam("VOID", false)
 {
 }
 
@@ -44,13 +44,37 @@ AudioProcessorEditor* GenericProcessor::createEditor()
 	return editor;
 }
 
+Parameter& GenericProcessor::getParameterByName(String name_)
+{
+	// doesn't work
+	for (int i = 0; i < getNumParameters(); i++)
+	{
+
+		Parameter& p =  parameters.getReference(i);
+		const String parameterName = p.getName();
+
+		if (parameterName.compare(name_) == 0) // fails at this point
+			return p;//parameters.getReference(i);
+	} 
+
+
+	return nullParam;
+
+}
+
+Parameter& GenericProcessor::getParameterReference(int parameterIndex)
+{
+
+	return parameters.getReference(parameterIndex);
+
+}
 
 void GenericProcessor::setParameter (int parameterIndex, float newValue)
 {
 	if (currentChannel > 0)
 	{
-		//Parameter& p = parameters[parameterIndex];
-		//parameters[parameterIndex].setValue(newValue, currentChannel);
+		Parameter& p =  parameters.getReference(parameterIndex);
+		p.setValue(newValue, currentChannel);
 	}
 
 }

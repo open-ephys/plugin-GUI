@@ -35,12 +35,15 @@ SignalGenerator::SignalGenerator()
 	
 {
 
-	// const String n = "Test";
+	// create parameters, to be passed to the GenericEditor
 
-	Parameter p = Parameter("Bill",true);
+	//String paramName = String("Bill");
+	Array<var> a;
+	a.add(1);
+	a.add(2);
+	a.add(3);
 
-	p.setValue(0.0f, 0);
-	bool a = p[0];
+	Parameter p = Parameter("Paramter name",a,0);
 
 	parameters.add(p);
 

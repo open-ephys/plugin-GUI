@@ -255,6 +255,10 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="qWhyk9h" name="ParameterEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/ParameterEditor.cpp"/>
+          <FILE id="3PkZxza" name="ParameterEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/ParameterEditor.h"/>
           <FILE id="s5YUmi" name="SpikeDisplayEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/SpikeDisplayEditor.cpp"/>
           <FILE id="EE43GV" name="SpikeDisplayEditor.h" compile="0" resource="0"

@@ -53,6 +53,8 @@ public:
 	const String& getDescription() {return description;}
 	void addDescription(const String& desc) {description = desc;}
 
+	var getDefaultValue() {return defaultValue;}
+
 	Array<var> getPossibleValues() {return possibleValues;}
 	void setValue(float val, int chan);
 

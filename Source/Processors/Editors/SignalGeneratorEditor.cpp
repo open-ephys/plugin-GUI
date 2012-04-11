@@ -43,7 +43,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 		ws->setBounds(15 + (buttonWidth)*i, 30, buttonWidth, buttonHeight);
 		ws->addListener(this);
 		waveformSelectors.add(ws);
-		addAndMakeVisible(ws);
+		addChildComponent(ws);
 	}
 
 	amplitudeSlider = new Slider ("Amplitude Slider");
@@ -52,7 +52,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 	amplitudeSlider->addListener(this);
 	amplitudeSlider->setSliderStyle(Slider::Rotary);
 	amplitudeSlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
-	addAndMakeVisible(amplitudeSlider);
+	addChildComponent(amplitudeSlider);
 
 	frequencySlider = new Slider ("Frequency Slider");
 	frequencySlider->setBounds(70,60,50,60);
@@ -60,7 +60,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 	frequencySlider->addListener(this);
 	frequencySlider->setSliderStyle(Slider::Rotary);
 	frequencySlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
-	addAndMakeVisible(frequencySlider);
+	addChildComponent(frequencySlider);
 
 	phaseSlider = new Slider ("Phase Slider");
 	phaseSlider->setBounds(130,60,50,60);
@@ -68,7 +68,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 	phaseSlider->addListener(this);
 	phaseSlider->setSliderStyle(Slider::Rotary);
 	phaseSlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
-	addAndMakeVisible(phaseSlider);
+	addChildComponent(phaseSlider);
 
 	numChannelsLabel = new Label("Number of Channels","1");
     numChannelsLabel->setEditable(true);

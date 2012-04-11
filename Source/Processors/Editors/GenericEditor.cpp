@@ -23,6 +23,7 @@
 
 #include "GenericEditor.h"
 
+#include "ParameterEditor.h"
 #include "../ProcessorGraph.h"
 #include "../RecordNode.h"
 #include "../../UI/ProcessorList.h"
@@ -79,13 +80,24 @@ GenericEditor::GenericEditor (GenericProcessor* owner)//, FilterViewport* vp)
 	audioChannels.clear();
 	recordChannels.clear();
 
-	backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 150.0f, 
-										 Colour(145, 145, 145), 0.0f, 0.0f, false);
+	backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f, 
+										 Colour(185, 185, 185), 0.0f, 120.0f, false);
 
-	//grad.addColour(0.5f, Colour(170, 170, 170));
+	//backgroundGradient.addColour(0.05f, Colour(255, 255, 255));
+	backgroundGradient.addColour(0.2f, Colour(155, 155, 155));
 	//grad.addColour(0.5, Colours::lightgrey);
 	//grad.addColour(1.0f, Colours::grey);
 
+	for (int i = 0; i < owner->getNumParameters(); i++)
+	{
+		ParameterEditor* p = new ParameterEditor(owner->getParameterReference(i), titleFont);												
+		p->setBounds(20, 40, 120, 30);
+		addAndMakeVisible(p);
+	}
+
+	backgroundColor = Colour(10,10,10);
+
+	//refreshColors();
 
 	fadeIn();
 }
@@ -260,12 +272,12 @@ void GenericEditor::paint (Graphics& g)
 	// draw highlight box
 	g.drawRect(0,0,getWidth(),getHeight(),2.0);
 
-	if (isFading)
-	{
-		g.setColour(Colours::black.withAlpha((float) (10.0-accumulator)/10.0f));
-		if (getWidth() > 0 && getHeight() > 0)
-			g.fillAll();
-	}
+	// if (isFading)
+	// {
+	// 	g.setColour(Colours::black.withAlpha((float) (10.0-accumulator)/10.0f));
+	// 	if (getWidth() > 0 && getHeight() > 0)
+	// 		g.fillAll();
+	// }
 
 }
 

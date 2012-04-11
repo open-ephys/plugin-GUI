@@ -51,7 +51,7 @@ class EditorViewport;
 class DataViewport;
 class UIComponent;
 class GenericEditor;
-//class Parameter;
+class Parameter;
 
 class GenericProcessor : public AudioProcessor,
 						 public AccessClass
@@ -103,6 +103,7 @@ public:
 	
 	float getParameter (int parameterIndex) {return 1.0;}
 	Parameter& getParameterByName(String parameterName);
+	Parameter& getParameterReference(int parameterIndex);
 
 	//----------------------------------------------------------------------
 	// Custom methods:
@@ -233,6 +234,8 @@ public:
 	// parameters:
 	Array<Parameter> parameters;
 	StringArray parameterNames;
+
+	Parameter nullParam;
 
 private:
 

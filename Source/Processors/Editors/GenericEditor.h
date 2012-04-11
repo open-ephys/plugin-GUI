@@ -48,6 +48,7 @@ class EditorButton;
 class ChannelSelectorButton;
 class TriangleButton;
 class PlusButton;
+class ParameterEditor;
 
 class GenericEditor : public AudioProcessorEditor,
                       public Timer,

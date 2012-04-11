@@ -57,7 +57,7 @@ Parameter::Parameter(const String& name_, Array<var> a, int defaultVal)
 	 : name(name_), description("")
 {
 	possibleValues = a;
-	defaultValue = possibleValues[defaultVal];
+	defaultValue = defaultVal; //possibleValues[defaultVal];
 
 	isCont = false;
 	isDisc = true;
