@@ -29,6 +29,7 @@ ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
 	if (p.isBoolean())
 	{
 		std::cout << "Boolean parameter. Creating checkbox." << std::endl;
+		
 		// create checkbox
 		ParameterCheckbox* pc = new ParameterCheckbox((bool) p.getDefaultValue());
 		addAndMakeVisible(pc);
@@ -41,11 +42,32 @@ ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
 		label->setBounds(10, 1, 100, 10);
 		addAndMakeVisible(label);
 
+		desiredWidth = 120;
+		desiredHeight = 25;
+
 	} else if (p.isContinuous())
 	{
 		std::cout << "Continuous parameter. Creating slider." << std::endl;
 		// create slider
-		//ParameterSlider* ps = new ParameterSlider(p.getName(), p.getPossibleValues());
+		Array<var> possibleValues = p.getPossibleValues();
+		ParameterSlider* ps = new ParameterSlider((float) possibleValues[0],
+												  (float) possibleValues[1],
+												  (float) p.getDefaultValue(),
+												  labelFont);
+
+		ps->setBounds(0,0, 40, 40);
+		addAndMakeVisible(ps);
+
+		Label* label = new Label(p.getName(), p.getName());
+		labelFont.setHeight(10);
+		int width = labelFont.getStringWidth(p.getName());
+		label->setColour(Label::textColourId, Colours::darkgrey);
+		label->setFont(labelFont);
+		label->setBounds((40-width)/2-5, 40, 100, 10);
+		addAndMakeVisible(label);
+
+		desiredWidth = 50;
+		desiredHeight = 50;
 
 	} else if (p.isDiscrete())
 	{
@@ -85,6 +107,9 @@ ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
 			addAndMakeVisible(pb);
 
 		}
+
+		desiredWidth = 120;
+		desiredHeight = 30;
 	}
 }
 
@@ -243,4 +268,72 @@ void ParameterCheckbox::paintButton(Graphics& g, bool isMouseOver, bool isButton
 	
 	g.fillRoundedRectangle(1, 1, getWidth()-2, getHeight()-2, 2.0f);
 
+}
+
+// ========== PARAMETER SLIDER ====================
+
+ParameterSlider::ParameterSlider(float min, float max, 
+						float def, Font labelFont) : Slider("name"), font(labelFont)
+{
+
+	setSliderStyle(Slider::Rotary);
+	setRange(min,max,1.0f);
+	setValue(def);
+	setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
+
+}
+
+void ParameterSlider::paint(Graphics& g)
+{
+
+	ColourGradient grad = ColourGradient(Colour(40, 40, 40), 0.0f, 0.0f,
+	
+							  Colour(80, 80, 80), 0.0, 40.0f, false);
+
+	Path p;
+	p.addPieSegment(3, 3, getWidth()-6, getHeight()-6, 5*double_Pi/4-0.2, 5*double_Pi/4+3*double_Pi/2+0.2, 0.5);
+
+	g.setGradientFill(grad);
+	g.fillPath(p);
+	//g.fillEllipse(3, 3, getWidth()-6, getHeight()-6);
+
+	//g.setColour(Colours::lightgrey);
+	//g.fillEllipse(12, 12, getWidth()-24, getHeight()-24);
+
+	p = makeRotaryPath(getMinimum(), getMaximum(), getValue());
+	g.setColour(Colour(240,179,12));
+	g.fillPath(p);
+	
+	//g.setColour(Colours::darkgrey);
+	font.setHeight(9.0);
+	g.setFont(font);
+
+
+	String valueString = String( (int) getValue());
+
+	int stringWidth = font.getStringWidth(valueString);
+
+	g.setFont(font);
+
+	g.setColour(Colours::darkgrey);
+	g.drawSingleLineText(valueString, getWidth()/2 - stringWidth/2, getHeight()/2+3);
+
+}
+
+Path ParameterSlider::makeRotaryPath(double min, double max, double val)
+{
+	Path p;
+
+	double start = 5*double_Pi/4;
+
+	double range = (val-min)/(max - min)*1.5*double_Pi + start;
+
+	p.addPieSegment(6,6, getWidth()-12, getHeight()-12, start, range, 0.8);
+
+	// p.startNewSubPath(5, getHeight()-5);
+	// p.addArc(5, 5, getWidth()-10, getWidth()-10, 5/4*double_Pi, range);
+	// //p.addArc(getWidth()-5, getHeight()-5, getWidth()-16, getWidth()-16, 5/4*double_Pi, range);
+	// p.closeSubPath();
+
+	return p;
 }

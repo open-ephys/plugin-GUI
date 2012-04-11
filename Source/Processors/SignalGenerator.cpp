@@ -37,16 +37,18 @@ SignalGenerator::SignalGenerator()
 
 	// create parameters, to be passed to the GenericEditor
 
-	//String paramName = String("Bill");
 	Array<var> a;
 	a.add(1);
 	a.add(2);
 	a.add(3);
 
-	Parameter p = Parameter("Parameter name",true);//a,0);
+	//parameters.add(Parameter("SVN",0.0f, 100.0f, 50.0f));
 
-	parameters.add(p);
+	parameters.add(Parameter("Param 1",a, 0));//true);//a,0);
 
+	parameters.add(Parameter("Param 1",a, 0));//true);//a,0);
+
+	parameters.add(Parameter("Param 2",true));
 
 }
 

@@ -45,6 +45,9 @@ public:
 	ParameterEditor(Parameter& p, Font labelFont);
 	~ParameterEditor();
 
+	
+    int desiredWidth;
+    int desiredHeight;
 
 private:
 
@@ -65,6 +68,7 @@ public:
     ParameterButton(var value, int buttonType, Font labelFont);
     ~ParameterButton() {}
 
+
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
     
@@ -82,6 +86,8 @@ private:
     ColourGradient selectedOverGrad;
     ColourGradient neutralGrad;
     ColourGradient neutralOverGrad;
+
+
 
     enum {
 		LEFT,
@@ -106,5 +112,25 @@ private:
     ColourGradient neutralGrad;
     ColourGradient neutralOverGrad;
 };
+
+class ParameterSlider : public Slider
+
+{
+public:
+    ParameterSlider(float min, float max, float defaultValue, Font f);
+    ~ParameterSlider() {}
+
+private:
+    void paint(Graphics& g);//Button(Graphics& g, bool isMouseOver, bool isButtonDown);
+    
+    Path makeRotaryPath(double, double, double);
+
+    Font font;
+    // ColourGradient selectedGrad;
+    // ColourGradient selectedOverGrad;
+    // ColourGradient neutralGrad;
+    // ColourGradient neutralOverGrad;
+};
+
 
 #endif  // __PARAMETEREDITOR_H_44537DA9__
