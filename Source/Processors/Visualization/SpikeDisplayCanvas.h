@@ -105,12 +105,14 @@ private:
 
 	int getTotalHeight();
 
-	int nSources;
+	int nPlots;
+	int nCols;
 	int nChannels[MAX_NUMBER_OF_SPIKE_CHANNELS];
 
 	void initializeSpikePlots();
 	void repositionSpikePlots();
 
+	void disableAntiAliasing();
 	void canvasWasResized();
 	void mouseDownInCanvas(const MouseEvent& e);
 	// void mouseDrag(const MouseEvent& e);
