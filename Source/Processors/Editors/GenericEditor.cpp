@@ -88,23 +88,7 @@ GenericEditor::GenericEditor (GenericProcessor* owner)//, FilterViewport* vp)
 	//grad.addColour(0.5, Colours::lightgrey);
 	//grad.addColour(1.0f, Colours::grey);
 
-	int maxX = 20;
-	int maxY = 30;
-
-	for (int i = 0; i < owner->getNumParameters(); i++)
-	{
-		ParameterEditor* p = new ParameterEditor(owner->getParameterReference(i), titleFont);												
-		
-		int dWidth = p->desiredWidth;
-		int dHeight = p->desiredHeight;
-
-		p->setBounds(maxX, maxY, dWidth, dHeight);
-		addAndMakeVisible(p);
-
-		maxY += dHeight;
-		maxY += 10;
-
-	}
+	addParameterEditors();
 
 	backgroundColor = Colour(10,10,10);
 
@@ -119,6 +103,28 @@ GenericEditor::~GenericEditor()
 	deleteAllChildren();
 	//delete titleFont;
 }
+
+void GenericEditor::addParameterEditors()
+{
+	
+	int maxX = 15;
+	int maxY = 30;
+
+	for (int i = 0; i < getProcessor()->getNumParameters(); i++)
+	{
+		ParameterEditor* p = new ParameterEditor(getProcessor()->getParameterReference(i), titleFont);												
+		
+		int dWidth = p->desiredWidth;
+		int dHeight = p->desiredHeight;
+
+		p->setBounds(maxX, maxY, dWidth, dHeight);
+		addAndMakeVisible(p);
+
+		maxY += dHeight;
+		maxY += 5;
+	}
+}
+
 
 void GenericEditor::refreshColors()
 {

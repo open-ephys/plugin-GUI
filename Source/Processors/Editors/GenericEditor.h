@@ -118,10 +118,12 @@ public:
 	Array<bool> recordChannels;
 	Array<bool> paramsChannels;
 
+
 protected:
 	DrawerButton* drawerButton;
 	int drawerWidth;
 
+	virtual void addParameterEditors();
 	
 private:
 
