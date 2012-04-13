@@ -32,17 +32,21 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
 	moveRight(false), moveLeft(false), desiredOffset(0)
 {
 
-	if (createButtons)
-	{
-		audioButton = new EditorButton("A", titleFont);
+	//if (createButtons)
+	//{
+		audioButton = new EditorButton("AUDIO", titleFont);
 	    audioButton->addListener(this);
 	    addAndMakeVisible(audioButton);
+	    if (!createButtons)
+	    	audioButton->setState(false);
 
-	 	recordButton = new EditorButton("R", titleFont);
+	 	recordButton = new EditorButton("REC", titleFont);
 		recordButton->addListener(this);
 		addAndMakeVisible(recordButton);
+		 if (!createButtons)
+	    	recordButton->setState(false);
 
-		paramsButton = new EditorButton("P", titleFont);
+		paramsButton = new EditorButton("PARAM", titleFont);
 		paramsButton->addListener(this);
 		addAndMakeVisible(paramsButton);
 		
@@ -50,7 +54,7 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
 
 		audioButtons.clear();
 		recordButtons.clear();
-	}	
+	//}	
 
 
 	parameterOffset = 0;//
@@ -81,19 +85,19 @@ void ChannelSelector::paint(Graphics& g)
 										  Colours::black.withAlpha(0.1f),0.0,25.0f,
 										  false);
 	g.setGradientFill(grad1);
-	g.fillRect(0, 15, getWidth()-1, getHeight()-30);
+	g.fillRect(0, 15, getWidth(), getHeight()-30);
 
 	ColourGradient grad2 = ColourGradient(Colours::black.withAlpha(0.2f),0.0,0.0,
 										  Colours::black.withAlpha(0.0f),5.0f,0.0f,
 										  false);
 	g.setGradientFill(grad2);
-	g.fillRect(0, 15, getWidth()-1, getHeight()-30);
+	g.fillRect(0, 15, getWidth(), getHeight()-30);
 
 	ColourGradient grad3 = ColourGradient(Colours::black.withAlpha(0.2f),(float) getDesiredWidth(),0.0,
 										  Colours::black.withAlpha(0.0f),(float) getDesiredWidth()-5.0f,0.0f,
 										  false);
 	g.setGradientFill(grad3);
-	g.fillRect(0, 15, getWidth()-1, getHeight()-30);
+	g.fillRect(0, 15, getWidth(), getHeight()-30);
 }
 
 void ChannelSelector::setNumChannels(int numChans)
@@ -152,8 +156,8 @@ void ChannelSelector::refreshButtonBoundaries()
 
 	}
 
-	if (isNotSink)
-	{
+	//if (isNotSink)
+	//{
 		int w = getWidth()/3;
 		int h = 15;
 
@@ -161,7 +165,7 @@ void ChannelSelector::refreshButtonBoundaries()
 		recordButton->setBounds(w, 0, w, h);
 		paramsButton->setBounds(w*2, 0, w, h);
 
-	}
+	//}
 
 	allButton->setBounds(0, getHeight()-15, getWidth()/2, 15);
 	noneButton->setBounds(getWidth()/2, getHeight()-15, getWidth()/2, 15);
@@ -176,15 +180,17 @@ void ChannelSelector::resized()
 void ChannelSelector::timerCallback()
 {
 
-	std::cout << desiredOffset - offsetLR << std::endl;
+	//std::cout << desiredOffset - offsetLR << std::endl;
 
 	if (offsetLR != desiredOffset)
 	{
 		if (desiredOffset - offsetLR > 0)
 		{
-			offsetLR += 5;
+			offsetLR += 25; // be careful what you set this value to!
+							// if it's not a multiple of the desired
+							// width, things could go badly!
 		} else {
-			offsetLR -= 5;
+			offsetLR -= 25;
 		}
 
 	} else {
@@ -273,22 +279,33 @@ void ChannelSelector::buttonClicked(Button* button)
 		// make sure param buttons are visible
 		allButton->setState(true);
 		desiredOffset = parameterOffset;
-		startTimer(5);
+		startTimer(20);
 		return;
 	} else if (button == audioButton)
 	{
 		// make sure audio buttons are visible
+
+		if (audioButton->getState())
+		{
 		allButton->setState(false);
 			
 		desiredOffset = audioOffset;
-		startTimer(5);
+		startTimer(20);
+		} else {
+			paramsButton->setToggleState(true, false);
+		}
 		return;
 	} else if (button == recordButton)
 	{
 		// make sure record buttons are visible;
+		if (recordButton->getState())
+			{
 		allButton->setState(true);
 		desiredOffset = recordOffset;
-		startTimer(5);
+		startTimer(20);
+		} else {
+				paramsButton->setToggleState(true, false);
+			}
 		return;
 	} 
 	else if (button == allButton)	
@@ -297,11 +314,12 @@ void ChannelSelector::buttonClicked(Button* button)
 		if (offsetLR == recordOffset)
 		{
 			
-
+			
 			for (int i = 0; i < recordButtons.size(); i++)
 			{
 				recordButtons[i]->setToggleState(true, true);
 			}
+			
 		} else if (offsetLR == parameterOffset)
 		{
 			
@@ -399,7 +417,7 @@ void EditorButton::resized()
     float width = (float) getWidth();
     float height = (float) getHeight();
 
-    if (getName().equalsIgnoreCase("A"))
+    if (getName().equalsIgnoreCase("AUDIO"))
 	{
 		//outlinePath.startNewSubPath(0, height);
 		outlinePath.lineTo(0, radius);
@@ -414,7 +432,7 @@ void EditorButton::resized()
 		//outlinePath.lineTo(0, radius);
 		outlinePath.closeSubPath();
 
-	} else if (getName().equalsIgnoreCase("P"))
+	} else if (getName().equalsIgnoreCase("PARAM"))
 	{
 		//outlinePath.startNewSubPath(0, 0);
 
@@ -431,7 +449,7 @@ void EditorButton::resized()
 		//outlinePath.closeSubPath();
 
 
-	} else if (getName().equalsIgnoreCase("R"))
+	} else if (getName().equalsIgnoreCase("REC"))
 	{
 
 		outlinePath.addRectangle(0,0,getWidth(),getHeight());
@@ -501,7 +519,7 @@ void EditorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 												float(getHeight())/2.0f);
 	g.fillPath(outlinePath, a);
 
-	buttonFont.setHeight(12.0f);
+	buttonFont.setHeight(10.0f);
 	int stringWidth = buttonFont.getStringWidth(getName());
 
 	g.setFont(buttonFont);
@@ -511,7 +529,7 @@ void EditorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 	else
 		g.setColour(Colours::lightgrey);
 
-	g.drawSingleLineText(getName(), getWidth()/2 - stringWidth/2, 10);
+	g.drawSingleLineText(getName(), getWidth()/2 - stringWidth/2, 11);
 
 }
 

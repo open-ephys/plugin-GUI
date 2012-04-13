@@ -396,9 +396,9 @@ DrawerButton::DrawerButton(const String& name) : Button(name)
 void DrawerButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
 	if (isMouseOver)
-		g.setColour(Colours::yellow);
+		g.setColour(Colour(210,210,210));
 	else
-		g.setColour(Colours::darkgrey);
+		g.setColour(Colour(110, 110, 110));
 	
 	g.drawVerticalLine(3, 0.0f, getHeight());
 	g.drawVerticalLine(5, 0.0f, getHeight());

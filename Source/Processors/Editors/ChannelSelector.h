@@ -109,6 +109,8 @@ public:
 	EditorButton(const String& name, Font& f);
 	~EditorButton() {}
 
+	bool getState() {return isEnabled;}
+
 	void setState(bool state) 
 	{
 		isEnabled = state;
