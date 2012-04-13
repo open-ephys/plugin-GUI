@@ -36,7 +36,7 @@ class SignalGeneratorEditor : public GenericEditor,
 public:
 	SignalGeneratorEditor (GenericProcessor* parentNode);
 	virtual ~SignalGeneratorEditor();
-	void sliderValueChanged (Slider* slider);
+	//void sliderValueChanged (Slider* slider);
     void buttonEvent(Button* button);
     void labelTextChanged(Label* label);
 

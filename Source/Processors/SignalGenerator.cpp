@@ -42,13 +42,14 @@ SignalGenerator::SignalGenerator()
 	a.add(2);
 	a.add(3);
 
-	//parameters.add(Parameter("SVN",0.0f, 100.0f, 50.0f));
 
 	parameters.add(Parameter("Param 1",a, 0));//true);//a,0);
 
-	parameters.add(Parameter("Param 1",a, 0));//true);//a,0);
+	parameters.add(Parameter("PARAM",0.0f, 100.0f, 50.0f));
 
-	parameters.add(Parameter("Param 2",true));
+	//parameters.add(Parameter("Param 1",a, 0));//true);//a,0);
+
+	//parameters.add(Parameter("Param 2",true));
 
 }
 

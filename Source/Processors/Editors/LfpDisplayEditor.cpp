@@ -39,7 +39,7 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode)
 	timeBaseValues.add("5");
 	timeBaseValues.add("10");
 
-	createRadioButtons(35, 50, 160, timeBaseValues, "Display width (s)");
+	//createRadioButtons(35, 50, 160, timeBaseValues, "Display width (s)");
 
 	StringArray displayGainValues;
 	displayGainValues.add("1");
@@ -47,7 +47,7 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode)
 	displayGainValues.add("4");
 	displayGainValues.add("8");
 
-	createRadioButtons(35, 90, 160, displayGainValues, "Display Gain");
+	//createRadioButtons(35, 90, 160, displayGainValues, "Display Gain");
 
 
 }

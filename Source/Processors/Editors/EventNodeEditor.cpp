@@ -37,7 +37,7 @@ EventNodeEditor::EventNodeEditor (GenericProcessor* parentNode)
 	hzValues.add("1");
 	hzValues.add("2");
 
-	createRadioButtons(35, 65, 160, hzValues, "Event frequency");
+	//createRadioButtons(35, 65, 160, hzValues, "Event frequency");
 
 	// for (int n = 0; n < getNumChildComponents(); n++)
 	// {

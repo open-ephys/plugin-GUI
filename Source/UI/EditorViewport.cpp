@@ -472,7 +472,9 @@ void EditorViewport::mouseDown(const MouseEvent &e) {
     for (int i = 0; i < editorArray.size(); i++) {
         
         if (e.eventComponent == editorArray[i]
-             || e.eventComponent->getParentComponent() == editorArray[i]) {
+             || e.eventComponent->getParentComponent() == editorArray[i] ||
+                e.eventComponent->getParentComponent()->getParentComponent() ==
+                        editorArray[i]) {
             editorArray[i]->select();
         } else {
             editorArray[i]->deselect();

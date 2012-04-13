@@ -34,6 +34,8 @@ ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
 		ParameterCheckbox* pc = new ParameterCheckbox((bool) p.getDefaultValue());
 		addAndMakeVisible(pc);
 		pc->setBounds(0,0,12, 12);
+		pc->setName(p.getName());
+		buttonArray.add(pc);
 
 		Label* label = new Label(p.getName(), p.getName());
 		labelFont.setHeight(10);
@@ -56,7 +58,9 @@ ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
 												  labelFont);
 
 		ps->setBounds(0,0, 40, 40);
+		ps->setName(p.getName());
 		addAndMakeVisible(ps);
+		sliderArray.add(ps);
 
 		Label* label = new Label(p.getName(), p.getName());
 		labelFont.setHeight(10);
@@ -99,11 +103,12 @@ ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
 
 			ParameterButton* pb = new ParameterButton(possibleValues[i], buttonType, labelFont);
 			pb->setBounds(buttonWidth*i, 12, buttonWidth, 18);
+			pb->setName(p.getName());
+			buttonArray.add(pb);
 
 			if (i == (int) p.getDefaultValue())
 				pb->setToggleState(true, false);
 
-			componentArray.add(pb);
 			addAndMakeVisible(pb);
 
 		}
@@ -118,6 +123,26 @@ ParameterEditor::~ParameterEditor()
 	deleteAllChildren();
 }
 
+void ParameterEditor::parentHierarchyChanged()
+{
+	std::cout << "Parent hierarchy changed." << std::endl;
+
+	// register all children with parent --> not currently working
+	if (getParentComponent() != 0) {
+
+		for (int i = 0; i < sliderArray.size(); i++)
+		{
+			sliderArray[i]->addListener((Slider::Listener*) getParentComponent());
+		}
+
+		for (int i = 0; i < buttonArray.size(); i++)
+		{
+			buttonArray[i]->addListener((Button::Listener*) getParentComponent());
+		}
+	}
+
+}
+
 
 /// ============= PARAMETER BUTTON ==================
 
@@ -126,6 +151,7 @@ ParameterButton::ParameterButton(var value, int buttonType, Font labelFont) :
 	font(labelFont)
 {
 
+	setButtonText(valueString);
 	setRadioGroupId(1999);
 	setClickingTogglesState(true);
 
@@ -176,8 +202,6 @@ void ParameterButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDo
 	g.setColour(Colours::darkgrey);
 	g.drawSingleLineText(valueString, getWidth()/2 - stringWidth/2, 12);
 
-
- 
 };
 
 void ParameterButton::resized()

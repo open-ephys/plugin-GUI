@@ -21,13 +21,13 @@
 
 */
 
+#ifndef __PARAMETEREDITOR_H_44537DA9__
+#define __PARAMETEREDITOR_H_44537DA9__
+
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "../Parameter.h"
 #include <stdio.h>
-
-#ifndef __PARAMETEREDITOR_H_44537DA9__
-#define __PARAMETEREDITOR_H_44537DA9__
 
 /**
   
@@ -45,13 +45,16 @@ public:
 	ParameterEditor(Parameter& p, Font labelFont);
 	~ParameterEditor();
 
-	
+
     int desiredWidth;
     int desiredHeight;
 
+    void parentHierarchyChanged();
+
 private:
 
-	Array<Component*> componentArray;
+	Array<Slider*> sliderArray;
+	Array<Button*> buttonArray;
 
 	enum {
 		LEFT,
@@ -86,8 +89,6 @@ private:
     ColourGradient selectedOverGrad;
     ColourGradient neutralGrad;
     ColourGradient neutralOverGrad;
-
-
 
     enum {
 		LEFT,

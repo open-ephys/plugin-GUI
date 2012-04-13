@@ -78,7 +78,7 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode)
     downButton->setBounds(50,50,10,8);
     addAndMakeVisible(downButton);
 
-    plusButton = new PlusButton();
+    plusButton = new UtilityButton("+", titleFont);
     plusButton->addListener(this);
     plusButton->setBounds(15,42,14,14);
     addAndMakeVisible(plusButton);

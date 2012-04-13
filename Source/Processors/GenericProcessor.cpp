@@ -333,7 +333,7 @@ void GenericProcessor::update()
 bool GenericProcessor::recordStatus(int chan)
 {
 
-	return getEditor()->recordChannels[chan];
+	return getEditor()->getRecordStatus(chan);//recordChannels[chan];
 
 
 }

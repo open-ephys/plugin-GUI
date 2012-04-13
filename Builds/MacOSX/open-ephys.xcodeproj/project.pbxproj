@@ -59,6 +59,7 @@
 		4BE0DDA01B73223EF0BD934A = { isa = PBXBuildFile; fileRef = 3DD0741FCFBC7563EC722D9B; };
 		08B501E0D7764C6B613AF529 = { isa = PBXBuildFile; fileRef = B7750B27E4F3748ECCCCF69D; };
 		9CBA3837CC8CAA03A03F2D9C = { isa = PBXBuildFile; fileRef = FA57CE4F63FF1592D6B3F9B5; };
+		BCB6C021A03F0AB0248C7F8A = { isa = PBXBuildFile; fileRef = 51D2678E9F30DC261CCB61B0; };
 		632C915D01C42D27E828BFA9 = { isa = PBXBuildFile; fileRef = 47ECF9384C1D27EB2FBEBF9E; };
 		DD22A06702F4CF995893DD5C = { isa = PBXBuildFile; fileRef = F0B09605D4108F0F94EF3B57; };
 		F4CEF74DDCD7EFA0891249B5 = { isa = PBXBuildFile; fileRef = 9A3976537C96B39716B5312D; };
@@ -264,6 +265,8 @@
 		12866D44BE115E8837468F48 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AudioNode.h; path = ../../Source/Processors/AudioNode.h; sourceTree = SOURCE_ROOT; };
 		FA57CE4F63FF1592D6B3F9B5 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EventNode.cpp; path = ../../Source/Processors/EventNode.cpp; sourceTree = SOURCE_ROOT; };
 		32163C956C8A6F5C1DD7FE7F = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EventNode.h; path = ../../Source/Processors/EventNode.h; sourceTree = SOURCE_ROOT; };
+		51D2678E9F30DC261CCB61B0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ChannelSelector.cpp; path = ../../Source/Processors/Editors/ChannelSelector.cpp; sourceTree = SOURCE_ROOT; };
+		1A64B7009173729093BA3D96 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ChannelSelector.h; path = ../../Source/Processors/Editors/ChannelSelector.h; sourceTree = SOURCE_ROOT; };
 		47ECF9384C1D27EB2FBEBF9E = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ParameterEditor.cpp; path = ../../Source/Processors/Editors/ParameterEditor.cpp; sourceTree = SOURCE_ROOT; };
 		07363B9FB8F988D45C4F0FE2 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ParameterEditor.h; path = ../../Source/Processors/Editors/ParameterEditor.h; sourceTree = SOURCE_ROOT; };
 		F0B09605D4108F0F94EF3B57 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SpikeDisplayEditor.cpp; path = ../../Source/Processors/Editors/SpikeDisplayEditor.cpp; sourceTree = SOURCE_ROOT; };
@@ -501,6 +504,8 @@
 				0C5335B0E57C9DC92FC57E5F,
 				7738F51AE0EC63D76EE0F761 ); name = Visualization; sourceTree = "<group>"; };
 		953CC35B9116404D6AA8D1C7 = { isa = PBXGroup; children = (
+				51D2678E9F30DC261CCB61B0,
+				1A64B7009173729093BA3D96,
 				47ECF9384C1D27EB2FBEBF9E,
 				07363B9FB8F988D45C4F0FE2,
 				F0B09605D4108F0F94EF3B57,
@@ -758,6 +763,7 @@
 				4BE0DDA01B73223EF0BD934A,
 				08B501E0D7764C6B613AF529,
 				9CBA3837CC8CAA03A03F2D9C,
+				BCB6C021A03F0AB0248C7F8A,
 				632C915D01C42D27E828BFA9,
 				DD22A06702F4CF995893DD5C,
 				F4CEF74DDCD7EFA0891249B5,

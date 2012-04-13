@@ -24,6 +24,7 @@
 #include "GenericEditor.h"
 
 #include "ParameterEditor.h"
+#include "ChannelSelector.h"
 #include "../ProcessorGraph.h"
 #include "../RecordNode.h"
 #include "../../UI/ProcessorList.h"
@@ -32,12 +33,11 @@
 
 #include <math.h>
 
-GenericEditor::GenericEditor (GenericProcessor* owner)//, FilterViewport* vp) 
+GenericEditor::GenericEditor (GenericProcessor* owner) 
 	: AudioProcessorEditor (owner), isSelected(false),
-	  desiredWidth(150), tNum(-1), isEnabled(true), radioGroupId(1),
-	  accumulator(0.0), isFading(false), drawerButton(0), audioButton(0),
-	  recordButton(0), paramsButton(0), allButton(0), noneButton(0),
-	  numChannels(-1)
+	  desiredWidth(150), tNum(-1), isEnabled(true),
+	  accumulator(0.0), isFading(false), drawerButton(0),
+	  channelSelector(0)
 
 {
 	name = getAudioProcessor()->getName();
@@ -56,52 +56,30 @@ GenericEditor::GenericEditor (GenericProcessor* owner)//, FilterViewport* vp)
 
     	if (!owner->isSink())
     	{
-    		audioButton = new EditorButton("A", titleFont);
-    		audioButton->addListener(this);
-    		addChildComponent(audioButton);
-    		audioButton->setVisible(false);
-
-    		recordButton = new EditorButton("R", titleFont);
-    		recordButton->addListener(this);
-    		addChildComponent(recordButton);
-    		recordButton->setVisible(false);
-
-    		paramsButton = new EditorButton("P", titleFont);
-    		paramsButton->addListener(this);
-    		paramsButton->setVisible(false);
-    		addChildComponent(paramsButton);
-    		
-    		paramsButton->setToggleState(true, true);
+    		channelSelector = new ChannelSelector(true, titleFont);
+    	} else {
+    		channelSelector = new ChannelSelector(false, titleFont);
     	}
+
+    	addChildComponent(channelSelector);
+    	channelSelector->setVisible(false);
 
 	}
 
-	paramsChannels.clear();
-	audioChannels.clear();
-	recordChannels.clear();
-
 	backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f, 
 										 Colour(185, 185, 185), 0.0f, 120.0f, false);
-
-	//backgroundGradient.addColour(0.05f, Colour(255, 255, 255));
 	backgroundGradient.addColour(0.2f, Colour(155, 155, 155));
-	//grad.addColour(0.5, Colours::lightgrey);
-	//grad.addColour(1.0f, Colours::grey);
 
 	addParameterEditors();
 
 	backgroundColor = Colour(10,10,10);
-
-	//refreshColors();
 
 	fadeIn();
 }
 
 GenericEditor::~GenericEditor()
 {
-	//std::cout << "  Generic editor for " << getName() << " being deleted with " << getNumChildComponents() << " children. " << std::endl;
 	deleteAllChildren();
-	//delete titleFont;
 }
 
 void GenericEditor::addParameterEditors()
@@ -109,6 +87,8 @@ void GenericEditor::addParameterEditors()
 	
 	int maxX = 15;
 	int maxY = 30;
+
+	std::cout << "Adding parameter editors." << std::endl;
 
 	for (int i = 0; i < getProcessor()->getNumParameters(); i++)
 	{
@@ -121,7 +101,7 @@ void GenericEditor::addParameterEditors()
 		addAndMakeVisible(p);
 
 		maxY += dHeight;
-		maxY += 5;
+		maxY += 10;
 	}
 }
 
@@ -154,15 +134,8 @@ void GenericEditor::resized()
 	if (drawerButton != 0)
 		drawerButton->setBounds(getWidth()-14, 40, 10, getHeight()-60);
 	
-	if (audioButton != 0)
-		audioButton->setBounds(getWidth()-60, 4, 15, 15);
-	
-	if (recordButton != 0)
-		recordButton->setBounds(getWidth()-40, 4, 15, 15);
-	
-	if (paramsButton != 0)
-		paramsButton->setBounds(getWidth()-20, 4, 15, 15);
-
+	if (channelSelector != 0)
+	 	channelSelector->setBounds(desiredWidth - drawerWidth, 30, channelSelector->getDesiredWidth(), getHeight()-45);
 }
 
 
@@ -259,9 +232,6 @@ void GenericEditor::paint (Graphics& g)
 	g.fillRect(1,1,getWidth()-(2+offset),getHeight()-2);
 
 	// draw gray workspace
-	//g.setColour(Colour(140, 140, 140));
-	
-
 	g.setGradientFill(backgroundGradient);
 	g.fillRect(1,22,getWidth()-2, getHeight()-29);
 
@@ -313,12 +283,30 @@ void GenericEditor::timerCallback()
 
 void GenericEditor::buttonClicked(Button* button)
 {
+
+	std::cout << "Button clicked." << std::endl;
+
+	checkParameterButtons(button);
 	
 	checkDrawerButton(button);
-	checkChannelSelectors(button);
 
 	buttonEvent(button); // needed to inform subclasses of 
 						 // button event
+}
+
+void GenericEditor::sliderValueChanged(Slider* slider)
+{
+	std::cout << "Slider name: " << slider->getName() << std::endl;
+	std::cout << "Slider value: " << slider->getValue() << std::endl;
+
+	sliderEvent(slider);
+
+}
+
+bool GenericEditor::checkParameterButtons(Button* button)
+{
+	std::cout << "Button name: " << button->getName() << std::endl;
+	std::cout << "Button value: " << button->getButtonText() << std::endl;
 }
 
 bool GenericEditor::checkDrawerButton(Button* button)
@@ -328,29 +316,15 @@ bool GenericEditor::checkDrawerButton(Button* button)
 		if (drawerButton->getToggleState()) 
 		{
 			
+			channelSelector->setVisible(true);
 
-			if (recordButton != 0)
-				recordButton->setVisible(true);
-			if (audioButton != 0)
-				audioButton->setVisible(true);
-			if (paramsButton != 0)
-				paramsButton->setVisible(true);
-
-			drawerWidth = createChannelSelectors();
+			drawerWidth = channelSelector->getDesiredWidth() + 20;
 
 			desiredWidth += drawerWidth;
 
 		} else {
 			
-
-			if (recordButton != 0)
-				recordButton->setVisible(false);
-			if (audioButton != 0)
-				audioButton->setVisible(false);
-			if (paramsButton != 0)
-				paramsButton->setVisible(false);
-
-			removeChannelSelectors();
+			channelSelector->setVisible(false);
 
 			desiredWidth -= drawerWidth;
 		}
@@ -364,132 +338,6 @@ bool GenericEditor::checkDrawerButton(Button* button)
 
 }
 
-bool GenericEditor::checkChannelSelectors(Button* button)
-{
-
-
-
-	for (int n = 0; n < channelSelectorButtons.size(); n++)
-	{
-		if (button == channelSelectorButtons[n])
-		{
-
-		//	String type;
-
-			if (audioButton->getToggleState())
-			{
-				audioChannels.set(n,button->getToggleState());
-				//type = "Audio ";
-			}
-			else if (recordButton->getToggleState())
-			{
-				recordChannels.set(n,button->getToggleState());
-				int id = getProcessor()->getNodeId();
-
-				RecordNode* rn = getProcessorGraph()->getRecordNode();
-
-				std::cout << "Button " << n << " was pressed." << std::endl;
-				rn->setChannel(id, n);
-
-				if (button->getToggleState())
-					rn->setParameter(2, 1.0f);
-				else
-					rn->setParameter(2, 0.0f);
-			}		
-			else if (paramsButton->getToggleState())
-			{
-				paramsChannels.set(n,button->getToggleState());
-				//type = "Params ";	
-			}
-			
-			//std::cout << type << "button " << n << " clicked." << std::endl;
-			return true;
-			
-		}
-	}
-
-	Array<bool> arr;
-
-	if (button == audioButton)
-		{arr = audioChannels; allButton->setVisible(false);}// std::cout << "AUDIO" << std::endl;}
-	else if (button == paramsButton)
-		{arr = paramsChannels; if (allButton != 0) {allButton->setVisible(true);}}// std::cout << "PARAMS" << std::endl;}
-	else if (button == recordButton)
-		{arr = recordChannels; allButton->setVisible(true);}// std::cout << "RECORD" << std::endl;}
-
-	if (arr.size() > 0)
-	{
-		for (int n = 0; n < channelSelectorButtons.size(); n++)
-		{
-			channelSelectorButtons[n]->setToggleState(arr[n],false);
-		}
-
-		allButton->setToggleState(false,false);
-
-		return true;
-	}
-
-	if (button == noneButton)
-	{
-		for (int n = 0; n < channelSelectorButtons.size(); n++) 
-		{
-
-			channelSelectorButtons[n]->setToggleState(false,false);
-
-			if (audioButton->getToggleState())
-				audioChannels.set(n,false);
-			else if (recordButton->getToggleState())
-				recordChannels.set(n,false);			
-			else if (paramsButton->getToggleState())
-				paramsChannels.set(n,false);	
-
-		}
-
-		//allButton->setToggleState(false,false);
-
-		return true;
-	}
-
-	if (button == allButton)
-	{
-
-		for (int n = 0; n < channelSelectorButtons.size(); n++) 
-		{
-
-			channelSelectorButtons[n]->setToggleState(true,false);
-
-			if (audioButton->getToggleState())
-				audioChannels.set(n,true);
-			else if (recordButton->getToggleState())
-				recordChannels.set(n,true);			
-			else if (paramsButton->getToggleState())
-				paramsChannels.set(n,true);	
-
-		}
-
-		return true;
-	}
-
-	return false;
-
-}
-
-void GenericEditor::selectChannels(Array<int> arr)
-{
-	for (int i = 0; i < channelSelectorButtons.size(); i++)
-	{
-		channelSelectorButtons[i]->setToggleState(false, false);
-	}
-
-	for (int i = 0; i < arr.size(); i++)
-	{
-		if (i > -1 && i < channelSelectorButtons.size())
-		{
-			channelSelectorButtons[i]->setToggleState(true,false);
-		}
-	}
-
-}
 
 void GenericEditor::update()
 {
@@ -500,24 +348,16 @@ void GenericEditor::update()
 
 	std::cout << p->getName() << " updating settings." << std::endl;
 
-	if (!p->isSink())
+	int numChannels;
+
+	if (channelSelector != 0)
 	{
+		if (!p->isSink())
+			numChannels = p->getNumOutputs();
+		else
+			numChannels = p->getNumInputs();
 
-		if (p->getNumOutputs() != numChannels)
-		{
-			destroyChannelSelectors();
-		}
-
-		numChannels = p->getNumOutputs();
-
-	} else {
-
-		if (p->getNumInputs() != numChannels)
-		{
-			destroyChannelSelectors();
-		}
-
-		numChannels = p->getNumInputs();
+		channelSelector->setNumChannels(numChannels);
 	}
 
 	if (numChannels == 0)
@@ -536,207 +376,17 @@ void GenericEditor::update()
 
 Array<int> GenericEditor::getActiveChannels()
 {
-	Array<int> chans;
-
-	for (int n = 0; n < paramsChannels.size(); n++)
-	{
-		if (paramsChannels[n])
-		{
-			chans.add(n);
-		}
-
-	}
-
-	return chans;
+	Array<int> a;// = channelSelector->getActiveChannels();
+	return a;
 }
 
-void GenericEditor::createRadioButtons(int x, int y, int w, StringArray values, const String& groupName)
+bool GenericEditor::getRecordStatus(int chan)
 {
-	int numButtons = values.size();
-	int width = w / numButtons;
-
-	for (int i = 0; i < numButtons; i++)
-	{
-
-		RadioButton* b = new RadioButton(values[i], radioGroupId, titleFont);
-		addAndMakeVisible(b);
-		b->setBounds(x+width*i,y,width,15);
-		b->addListener(this);
-		
-
-		// if (i == numButtons-1)
-		// {
-		// 	b->setToggleState(true, true);
-		// }
-	}
-
-	Label* l = new Label("Label",groupName);
-	addAndMakeVisible(l);
-	l->setBounds(x,y-15,200,10);
-	titleFont.setHeight(10);
-	l->setFont(titleFont);
-
-	radioGroupId++;
+	return channelSelector->getRecordStatus(chan);
 }
 
 
-int GenericEditor::createChannelSelectors()
-{
-
-	GenericProcessor* p = getProcessor();
-
-	if (channelSelectorButtons.size() == 0) {
-
-		int width = 20;
-		int height = 14;
-		int numChannels;
-
-		if (!p->isSink())
-			numChannels = p->getNumOutputs();
-		else
-			numChannels = p->getNumInputs();
-
-		int nColumns = jmax((int) ceil(numChannels/4),1);
-		//std::cout << numChannels << " channels" << std::endl;
-		//std::cout << nColumns << " columns" << std::endl;
-
-		for (int n = 1; n < numChannels+1; n++)
-		{
-			String channelName = "";
-			channelName += n;
-			ChannelSelectorButton* b = new ChannelSelectorButton(channelName, titleFont);
-			channelSelectorButtons.add(b);
-			addAndMakeVisible(b);
-			b->addListener(this);
-			b->setBounds(desiredWidth+width*((n-1)%nColumns)-12,
-			  floor((n-1)/nColumns)*height+40, width-1, height-1);
-			  
-			audioChannels.add(false);
-			recordChannels.add(false);
-			paramsChannels.add(false);
-
-		}
-
-		if (allButton == 0)
-		{
-			allButton = new ChannelSelectorButton("+",titleFont);
-			addAndMakeVisible(allButton);
-			allButton->addListener(this);
-			allButton->setVisible(true);
-			allButton->setClickingTogglesState(false);
-			allButton->setBounds(desiredWidth-30,
-				  40, height, height);
-		}
-
-		if (noneButton == 0)
-		{
-			noneButton = new ChannelSelectorButton("-",titleFont);
-			addAndMakeVisible(noneButton);
-			noneButton->addListener(this);
-			noneButton->setVisible(true);
-			noneButton->setClickingTogglesState(false);
-			noneButton->setBounds(desiredWidth-30,
-				  60, height, height);
-		}
-
-		 return nColumns*width+ 15;
-
-	} else {
-
-		for (int n = 0; n < channelSelectorButtons.size(); n++)
-		{
-			channelSelectorButtons[n]->setVisible(true);
-
-			if (!p->isSink()) {
-
-				if (audioButton->getToggleState())
-					channelSelectorButtons[n]->setToggleState(audioChannels[n],false);
-				else if (recordButton->getToggleState())
-					channelSelectorButtons[n]->setToggleState(recordChannels[n],false);
-				else if (paramsButton->getToggleState())
-					channelSelectorButtons[n]->setToggleState(paramsChannels[n],false);
-				
-			}
-
-		}
-
-		allButton->setVisible(true);
-		noneButton->setVisible(true);
-
-		return drawerWidth;
-	}
-
-}
-
-void GenericEditor::removeChannelSelectors()
-{
-	for (int n = 0; n < channelSelectorButtons.size(); n++)
-	{
-		channelSelectorButtons[n]->setVisible(false);
-	}
-
-	allButton->setVisible(false);
-	noneButton->setVisible(false);
-
-}
-
-void GenericEditor::destroyChannelSelectors()
-{
-	for (int n = 0; n < channelSelectorButtons.size(); n++)
-	{
-		removeChildComponent(channelSelectorButtons[n]);
-		ChannelSelectorButton* t = channelSelectorButtons.remove(n);
-     	deleteAndZero(t);
-	}
-
-	if (allButton != 0)
-		allButton->setVisible(false);
-	
-	if (allButton != 0)
-		noneButton->setVisible(false);
-
-	recordChannels.clear();
-	audioChannels.clear();
-	paramsChannels.clear();
-	channelSelectorButtons.clear();
-}
-
-RadioButton::RadioButton(const String& name, int groupId, Font f) : Button(name) 
-{
-
-    setRadioGroupId(groupId);
-    setClickingTogglesState(true);
-
-    buttonFont = f;
-    buttonFont.setHeight(10);
-
-    // MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    // Typeface::Ptr typeface = new CustomTypeface(mis);
-    // buttonFont = Font(typeface);
-    // 
-}
-
-
-void RadioButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
-{
-    if (getToggleState() == true)
-        g.setColour(Colours::orange);
-    else 
-        g.setColour(Colours::darkgrey);
-
-    if (isMouseOver)
-        g.setColour(Colours::white);
-
-    g.fillRect(0,0,getWidth(),getHeight());
-
-    g.setFont(buttonFont);
-    g.setColour(Colours::black);
-
-    g.drawRect(0,0,getWidth(),getHeight(),1.0);
-
-    g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
-}
-
+/////////////////////// BUTTONS ///////////////////////////////
 
 DrawerButton::DrawerButton(const String& name) : Button(name)
 {
@@ -746,7 +396,7 @@ DrawerButton::DrawerButton(const String& name) : Button(name)
 void DrawerButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
 	if (isMouseOver)
-		g.setColour(Colours::white);
+		g.setColour(Colours::yellow);
 	else
 		g.setColour(Colours::darkgrey);
 	
@@ -756,56 +406,11 @@ void DrawerButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 
 }
 
-
-EditorButton::EditorButton(const String& name, Font f) : Button(name) 
+void UtilityButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-
-	buttonFont = f;
-	buttonFont.setHeight(10);
-
-    setRadioGroupId(999);
-    setClickingTogglesState(true);
-
-}
-
-
-void EditorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
-{
-    if (getToggleState() == true)
+ 	if (getToggleState() == true)
         g.setColour(Colours::orange);
-    else 
-        g.setColour(Colours::darkgrey);
-
-    if (isMouseOver)
-        g.setColour(Colours::white);
-
-    int b = 2;
-
-    g.fillEllipse(b,b,getWidth()-2*b,getHeight()-2*b);
-
-    g.setFont(buttonFont);
-    g.setColour(Colours::black);
-
-    g.drawEllipse(b,b,getWidth()-2*b,getHeight()-2*b,1.0);
-
-    g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
-}
-
-
-ChannelSelectorButton::ChannelSelectorButton(const String& name, Font f) : Button(name) 
-{
-    setClickingTogglesState(true);
-
-    buttonFont = f;
-    buttonFont.setHeight(10);
-}
-
-
-void ChannelSelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
-{
-    if (getToggleState() == true)
-        g.setColour(Colours::orange);
-    else 
+    else
         g.setColour(Colours::darkgrey);
 
     if (isMouseOver)
@@ -813,46 +418,29 @@ void ChannelSelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isBu
 
     g.fillRect(0,0,getWidth(),getHeight());
 
-    g.setFont(buttonFont);
+    g.setFont(font);
     g.setColour(Colours::black);
 
     g.drawRect(0,0,getWidth(),getHeight(),1.0);
 
     g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
-}
-
-//// BUTTONS ////
-
-void PlusButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
-{
-    g.fillAll(Colours::orange);
-    g.setColour(Colours::black);
-    g.drawRect(0,0,getWidth(),getHeight(),1.0);
-
-    if (isMouseOver)
-    {
-        g.setColour(Colours::white);
-    } else {
-        g.setColour(Colours::black);
-    }
-
     // if (isButtonDown)
     // {
     //     g.setColour(Colours::white);
     // }
 
-    int thickness = 1;
-    int offset = 3;
+    // int thickness = 1;
+    // int offset = 3;
 
-    g.fillRect(getWidth()/2-thickness,
-               offset, 
-               thickness*2,
-               getHeight()-offset*2);
+    // g.fillRect(getWidth()/2-thickness,
+    //            offset, 
+    //            thickness*2,
+    //            getHeight()-offset*2);
 
-    g.fillRect(offset,
-               getHeight()/2-thickness,
-               getWidth()-offset*2,
-               thickness*2);
+    // g.fillRect(offset,
+    //            getHeight()/2-thickness,
+    //            getWidth()-offset*2,
+    //            thickness*2);
 }
    
 

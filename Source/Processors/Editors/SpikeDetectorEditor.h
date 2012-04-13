@@ -29,7 +29,7 @@
 #include "GenericEditor.h"
 
 class TriangleButton;
-class PlusButton;
+class UtilityButton;
 
 class ElectrodeButton : public Button
 {
@@ -90,7 +90,7 @@ private:
     Label* numElectrodes;
     TriangleButton* upButton;
     TriangleButton* downButton;
-    PlusButton* plusButton;
+    UtilityButton* plusButton;
 
     OwnedArray<ElectrodeButton> electrodeButtons;
     Array<ElectrodeEditorButton*> electrodeEditorButtons;

@@ -49,33 +49,33 @@ void SpikeDisplayEditor::initializeButtons(){
 	y += h + yPad/2;
 
 	
-	panDownBtn = new ChannelSelectorButton("-", titleFont);
+	panDownBtn = new UtilityButton("-", titleFont);
 	panDownBtn->setBounds(x, y, w, h);
 	panDownBtn->setClickingTogglesState(false);
 	panDownBtn->addListener(this);
 	x+= w+xPad;
 
-	panUpBtn = new ChannelSelectorButton("+", titleFont);
+	panUpBtn = new UtilityButton("+", titleFont);
 	panUpBtn->setBounds(x, y, w, h); 
 	panUpBtn->setClickingTogglesState(false);
 	panUpBtn->addListener(this);
 	x+= w+xPad*2;
 
 	
-	zoomOutBtn = new ChannelSelectorButton("-", titleFont);
+	zoomOutBtn = new UtilityButton("-", titleFont);
 	zoomOutBtn->setBounds(x,y,w,h);
 	zoomOutBtn->setClickingTogglesState(false);
 	zoomOutBtn->addListener(this);
 	x += w + xPad;
 
-	zoomInBtn = new ChannelSelectorButton("+", titleFont);
+	zoomInBtn = new UtilityButton("+", titleFont);
 	zoomInBtn->setBounds(x,y,w,h);
 	zoomInBtn->setClickingTogglesState(false);
 	zoomInBtn->addListener(this);
 	x += w + xPad*3;
 
 
-	clearBtn = new ChannelSelectorButton("Clear", titleFont);
+	clearBtn = new UtilityButton("Clear", titleFont);
 	clearBtn->setBounds(x, y, w*2 + xPad, h);
 	clearBtn->setClickingTogglesState(false);
 	clearBtn->addListener(this);
@@ -87,7 +87,7 @@ void SpikeDisplayEditor::initializeButtons(){
 
 	//panLabel->setFont(titleFont);
 
-	saveImgBtn = new ChannelSelectorButton("Save", titleFont);
+	saveImgBtn = new UtilityButton("Save", titleFont);
 	saveImgBtn->setBounds(x,y,w*2 + xPad, h);
 	saveImgBtn->setClickingTogglesState(false);
 	saveImgBtn->addListener(this);
@@ -108,7 +108,7 @@ void SpikeDisplayEditor::initializeButtons(){
 	y += h + yPad/2;
 	//x += w/2;
 
-	allSubChansBtn = new ChannelSelectorButton("All", titleFont);
+	allSubChansBtn = new UtilityButton("All", titleFont);
 	allSubChansBtn->setBounds(x,y,w*2+xPad,h);
 	allSubChansBtn->addListener(this);
 	allSubChansBtn->setToggleState(true, false);
@@ -119,7 +119,7 @@ void SpikeDisplayEditor::initializeButtons(){
 		String s = "";
 		s += i;
 
-		subChanBtn[i] = new ChannelSelectorButton(s, titleFont);
+		subChanBtn[i] = new UtilityButton(s, titleFont);
 		subChanBtn[i]->setBounds(x,y,w,h);
 		subChanBtn[i]->addListener(this);
 		subChanBtn[i]->setToggleState(true, false);
@@ -203,7 +203,7 @@ void SpikeDisplayEditor::buttonCallback(Button* button)
 			if(button == subChanBtn[i])
 			{
 				std::cout<<"SubChannel:"<<i<< " set to:";
-				subChanSelected[i] = ((ChannelSelectorButton*) button)->getToggleState();
+				subChanSelected[i] = ((UtilityButton*) button)->getToggleState();
 				std::cout<< subChanSelected[i]<<std::endl;
 			}
 

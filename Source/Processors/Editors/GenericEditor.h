@@ -44,11 +44,10 @@
 
 class GenericProcessor;
 class DrawerButton;
-class EditorButton;
-class ChannelSelectorButton;
 class TriangleButton;
-class PlusButton;
+class UtilityButton;
 class ParameterEditor;
+class ChannelSelector;
 
 class GenericEditor : public AudioProcessorEditor,
                       public Timer,
@@ -87,12 +86,8 @@ public:
 	virtual void switchSource() { }; // needed for MergerEditor
 
 	GenericProcessor* getProcessor() const {return (GenericProcessor*) getAudioProcessor();}
-	
-	void createRadioButtons(int x, int y, int w, StringArray values, const String& name);
-		
-	void fadeIn();
 
-	int radioGroupId;
+	void fadeIn();
 
 	bool isFading;
 
@@ -100,10 +95,13 @@ public:
 
 	virtual void buttonClicked(Button* button);
 	virtual void buttonEvent(Button* button) {}
-	virtual void sliderValueChanged(Slider* slider) {}
+	virtual void sliderValueChanged(Slider* slider);
+	virtual void sliderEvent(Slider* slider) {}
 
 	bool checkDrawerButton(Button* button);
-	bool checkChannelSelectors(Button* button);
+	bool checkParameterButtons(Button* button);
+
+	bool getRecordStatus(int chan);
 
 	void selectChannels(Array<int>);
 
@@ -114,26 +112,21 @@ public:
 
 	Array<int> getActiveChannels();
 
-	Array<bool> audioChannels;
-	Array<bool> recordChannels;
-	Array<bool> paramsChannels;
-
+	Font titleFont;
 
 protected:
 	DrawerButton* drawerButton;
 	int drawerWidth;
 
 	virtual void addParameterEditors();
-	
+
+	ChannelSelector* channelSelector;
+
 private:
 
 	virtual void timerCallback();
 
 	virtual void resized();
-
-	virtual int createChannelSelectors();
-	virtual void removeChannelSelectors();
-	virtual void destroyChannelSelectors();
 
 	Colour backgroundColor;
 	ColourGradient backgroundGradient;
@@ -143,48 +136,12 @@ private:
 
 	int tNum;
 
-	int numChannels;
-
-
-
-	EditorButton* audioButton;
-	EditorButton* recordButton;
-	EditorButton* paramsButton;
-
-	
-
-	Array<ChannelSelectorButton*> channelSelectorButtons;
-
-	ChannelSelectorButton* allButton;
-	ChannelSelectorButton* noneButton;
-
-
 	String name;
-
-protected:
-
-	Font titleFont;
-
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericEditor);
 
 };
 
-
-
-
-class RadioButton : public Button
-{
-public:
-    RadioButton(const String& name, int groupId, Font f);// : Button("Name") {configurationChanged = true;}
-    ~RadioButton() {}
-
-private:
-
-    void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
-
-    Font buttonFont;
-};
 
 class DrawerButton : public Button
 {
@@ -196,29 +153,6 @@ private:
 		
 };
 
-class EditorButton : public Button
-{
-public:
-	EditorButton(const String& name, Font f);
-	~EditorButton() {}
-private:
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-	
-	int type;
-	Font buttonFont;
-};
-
-class ChannelSelectorButton : public Button
-{
-public:
-	ChannelSelectorButton(const String& name, Font f);
-	~ChannelSelectorButton() {}
-private:
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-	
-	int type;
-	Font buttonFont;
-};
 
 class TriangleButton : public Button
 {
@@ -232,13 +166,17 @@ private:
     int direction;
 };
 
-class PlusButton : public Button
+class UtilityButton : public Button
 {
 public:
-    PlusButton() : Button("Plus") {}
-    ~PlusButton() {}
+    UtilityButton(const String& label_, Font font_) :
+    	 Button("Utility"), label(label_), font(font_) {}
+    ~UtilityButton() {}
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+
+    const String label;
+    Font font;
 
 };
 

@@ -85,6 +85,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/ChannelSelector_c1430874.o \
   $(OBJDIR)/ParameterEditor_91f62ae8.o \
   $(OBJDIR)/SpikeDisplayEditor_e1812c1.o \
   $(OBJDIR)/VisualizerEditor_3672b003.o \
@@ -355,6 +356,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ChannelSelector_c1430874.o: ../../Source/Processors/Editors/ChannelSelector.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ChannelSelector.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ParameterEditor_91f62ae8.o: ../../Source/Processors/Editors/ParameterEditor.cpp
