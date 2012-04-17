@@ -55,6 +55,9 @@ void DataThread::run() {
 }
 
 DataBuffer* DataThread::getBufferAddress() {
+
+    std::cout << "Setting buffer address to " << dataBuffer << std::endl;
+
 	return dataBuffer;
 }
 

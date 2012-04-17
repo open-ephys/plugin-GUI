@@ -305,7 +305,8 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 	if (processorType.equalsIgnoreCase("Sources")) {
 
 		if (subProcessorType.equalsIgnoreCase("Intan Demo Board") || 
-			subProcessorType.equalsIgnoreCase("File Reader")) {
+			subProcessorType.equalsIgnoreCase("File Reader") || 
+			subProcessorType.equalsIgnoreCase("Custom FPGA")) {
 			
 			// only one Intan Demo Board at a time, please
 			if (!processorWithSameNameExists(subProcessorType)) {
@@ -330,6 +331,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 	} else if (processorType.equalsIgnoreCase("Filters")) {
 
 		if (subProcessorType.equalsIgnoreCase("Bandpass Filter")) {
+
 			std::cout << "Creating a new filter." << std::endl;
 			processor = new FilterNode();
 

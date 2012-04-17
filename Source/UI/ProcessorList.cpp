@@ -53,7 +53,7 @@ ProcessorList::ProcessorList() : isDragging(false),
 	ProcessorListItem* sources = new ProcessorListItem("Sources");
 	sources->addSubItem(new ProcessorListItem("Intan Demo Board"));
 	sources->addSubItem(new ProcessorListItem("Signal Generator"));
-	//sources->addSubItem(new ProcessorListItem("Custom FPGA"));
+	sources->addSubItem(new ProcessorListItem("Custom FPGA"));
 	sources->addSubItem(new ProcessorListItem("File Reader"));
 	sources->addSubItem(new ProcessorListItem("Event Generator"));
 

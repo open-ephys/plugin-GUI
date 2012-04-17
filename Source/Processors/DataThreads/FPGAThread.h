@@ -55,8 +55,8 @@ public:
 	~FPGAThread();
 
 	bool foundInputSource() {return true;}
-	bool startAcquisition() {return true;}
-	bool stopAcquisition() {return true;}
+	bool startAcquisition();
+	bool stopAcquisition();
 	int getNumChannels() {return 32;}
 	float getSampleRate() {return 25000.0;}
 	
@@ -69,11 +69,9 @@ private:
 
 	int m_u32SegmentSize;
 	
-	unsigned char pBuffer[500000];  // request a 1MB block of data
+	unsigned char pBuffer[50000];  // request a 1MB block of data
 
 	bool isRunning;
-
-	DataBuffer* dataBuffer;
 
 	float thisSample[32];
 
