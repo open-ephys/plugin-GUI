@@ -26,7 +26,7 @@
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	 	xBuffer(0), yBuffer(0),
 	    plotHeight(40), selectedChan(-1), screenBufferIndex(0),
-	    timebase(1.0f), displayGain(5.0f), displayBufferIndex(0)
+	    timebase(1.0f), displayGain(15.0f), displayBufferIndex(0)
 {
 
 	nChans = processor->getNumInputs();

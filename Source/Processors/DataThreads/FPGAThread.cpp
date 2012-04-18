@@ -55,25 +55,46 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 	
 	std::cout << "FPGA interface initialized." << std::endl;
 
+	std::cout << "DataBuffer address is " << dataBuffer << std::endl;
+
 	dataBuffer = new DataBuffer(32, 10000);
 
-	startThread();
+	std::cout << "DataBuffer address is " << dataBuffer << std::endl;
+
+	//deviceFound = true;
+
+	//startThread();
 
 }
 
 
 FPGAThread::~FPGAThread() {
 	
-	stopThread(500);
-
 	std::cout << "FPGA interface destroyed." << std::endl;
 
 	// probably not the best way to do this:
-	delete dataBuffer;
+	deleteAndZero(dataBuffer);
 	delete dev;
 	dev = 0;
-	dataBuffer = 0;
 
+}
+
+bool FPGAThread::startAcquisition()
+{
+  startThread();
+
+    //isTransmitting = true;
+
+    return true;
+}
+
+bool FPGAThread::stopAcquisition()
+{
+	if (isThreadRunning()) {
+        signalThreadShouldExit();
+    }
+
+    return true;
 }
 
 bool FPGAThread::updateBuffer() {
@@ -107,13 +128,15 @@ bool FPGAThread::updateBuffer() {
 					j += 3;
 
 					//thisSample[n] = float( hi  - 256)/256; 
-					thisSample[n] = float(float(hi)*256 + lo - 32768)/32768; 
+					uint16 samp = ((hi << 8) + lo);
+					thisSample[n] = (float(samp) - 32768.0f)/92768.0f; 
 
 				}
 				dataBuffer->addToBuffer(thisSample,1);
 			}
 		j++; // keep scanning for timecodes
 	}
+
 
 	return true;
 }
