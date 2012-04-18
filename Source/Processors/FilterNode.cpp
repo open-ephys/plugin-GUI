@@ -30,6 +30,22 @@ FilterNode::FilterNode()
 
 {
 
+	Array<var> lowCutValues;
+	lowCutValues.add(1.0f);
+	lowCutValues.add(10.0f);
+	lowCutValues.add(100.0f);
+	lowCutValues.add(500.0f);
+
+	parameters.add(Parameter("low cut",lowCutValues, 0, 0));
+
+	Array<var> highCutValues;
+	highCutValues.add(1000.0f);
+	highCutValues.add(3000.0f);
+	highCutValues.add(6000.0f);
+	highCutValues.add(9000.0f);
+
+	parameters.add(Parameter("high cut",highCutValues, 0, 1));
+
 }
 
 FilterNode::~FilterNode()
@@ -85,8 +101,8 @@ void FilterNode::updateSettings()
 {		
 
 	filters.clear();
-	lowCuts.clear();
-	highCuts.clear();
+//	lowCuts.clear();
+	//highCuts.clear();
 
 	if (getNumInputs() < 100) {
 
@@ -101,8 +117,11 @@ void FilterNode::updateSettings()
 				Dsp::DirectFormII>						// realization
 				(1024));	 
 
-			lowCuts.add(1.0f);
-			highCuts.add(1000.0f);
+			Parameter& p1 =  parameters.getReference(0);
+			p1.setValue(1.0f, n);
+
+			Parameter& p2 =  parameters.getReference(1);
+			p2.setValue(1000.0f, n);
 			
 			setFilterParameters(1.0f, 1000.0f, n);
 		}
@@ -128,13 +147,41 @@ void FilterNode::setFilterParameters(double lowCut, double highCut, int chan)
 void FilterNode::setParameter (int parameterIndex, float newValue)
 {
 
-	if (parameterIndex == 0) {
-		lowCuts.set(currentChannel, newValue);
-		setFilterParameters(newValue, highCuts[currentChannel], currentChannel);
+	std::cout << "Setting channel " << currentChannel;// << std::endl;
+
+	if (parameterIndex == 0)
+	{
+		std::cout << " low cut to ";
 	} else {
-		highCuts.set(currentChannel, newValue);
-		setFilterParameters(lowCuts[currentChannel], newValue, currentChannel);
+		std::cout << " high cut to ";
 	}
+
+	std::cout << newValue << std::endl;
+
+	//if (parameterIndex)
+//
+	Parameter& p =  parameters.getReference(parameterIndex);
+
+	p.setValue(newValue, currentChannel);
+
+
+	Parameter& p1 =  parameters.getReference(0);
+	Parameter& p2 =  parameters.getReference(1);
+
+	std::cout << float(p1[currentChannel]) << " ";
+	std::cout << float(p2[currentChannel]) << std::endl;
+
+	setFilterParameters(float(p1[currentChannel]),
+						float(p2[currentChannel]),
+						currentChannel);
+
+	// if (parameterIndex == 0) {
+	// 	parameters[0].setValue(newValue, currentChannel);
+	// 	setFilterParameters(newValue, parameters[0][currentChannel], currentChannel);
+	// } else {
+	// 	parameters[1].setValue(newValue, currentChannel);
+	// 	setFilterParameters(lowCuts[currentChannel], newValue, currentChannel);
+	// }
 
 }
 

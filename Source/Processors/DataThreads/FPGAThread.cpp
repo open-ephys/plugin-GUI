@@ -74,8 +74,7 @@ FPGAThread::~FPGAThread() {
 
 	// probably not the best way to do this:
 	deleteAndZero(dataBuffer);
-	delete dev;
-	dev = 0;
+	deleteAndZero(dev);
 
 }
 

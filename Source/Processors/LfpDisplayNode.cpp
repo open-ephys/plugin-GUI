@@ -22,6 +22,7 @@
 */
 
 #include "LfpDisplayNode.h"
+#include "Visualization/LfpDisplayCanvas.h"
 #include <stdio.h>
 
 LfpDisplayNode::LfpDisplayNode()
@@ -32,6 +33,23 @@ LfpDisplayNode::LfpDisplayNode()
 {
 	displayBuffer = new AudioSampleBuffer(8, 100);
 	eventBuffer = new MidiBuffer();
+
+	Array<var> timeBaseValues;
+	timeBaseValues.add(1);
+	timeBaseValues.add(2);
+	timeBaseValues.add(5);
+	timeBaseValues.add(10);
+
+	parameters.add(Parameter("timebase",timeBaseValues, 0, 0));//true);//a,0);
+
+	Array<var> displayGainValues;
+	displayGainValues.add(1);
+	displayGainValues.add(2);
+	displayGainValues.add(4);
+	displayGainValues.add(8);
+
+	parameters.add(Parameter("display gain",displayGainValues, 0, 1));//true);//a,0);
+
 }
 
 LfpDisplayNode::~LfpDisplayNode()
@@ -94,7 +112,8 @@ bool LfpDisplayNode::disable()
 
 void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 {
-
+	LfpDisplayEditor* ed = (LfpDisplayEditor*) getEditor();
+	ed->canvas->setParameter(parameterIndex, newValue);
 }
 
 void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples)

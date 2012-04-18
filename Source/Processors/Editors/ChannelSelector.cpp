@@ -100,6 +100,7 @@ void ChannelSelector::paint(Graphics& g)
 	g.fillRect(0, 15, getWidth(), getHeight()-30);
 }
 
+
 void ChannelSelector::setNumChannels(int numChans)
 {
 

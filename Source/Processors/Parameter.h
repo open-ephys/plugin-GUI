@@ -43,9 +43,9 @@ class Parameter
 {
 public:
 
-	Parameter(const String& name_, bool defaultVal);
-	Parameter(const String& name_, float low, float high, float defaultVal);
-	Parameter(const String& name_, Array<var> a, int defaultVal);
+	Parameter(const String& name_, bool defaultVal, int ID);
+	Parameter(const String& name_, float low, float high, float defaultVal, int ID);
+	Parameter(const String& name_, Array<var> a, int defaultVal, int ID);
 
 	~Parameter() {}
 
@@ -54,6 +54,8 @@ public:
 	void addDescription(const String& desc) {description = desc;}
 
 	var getDefaultValue() {return defaultValue;}
+
+	int getID() {return parameterId;}
 
 	Array<var> getPossibleValues() {return possibleValues;}
 	void setValue(float val, int chan);
@@ -70,6 +72,8 @@ private:
 
 	const String name;
 	String description;
+
+	int parameterId;
 
 	bool isBool, isCont, isDisc;
 

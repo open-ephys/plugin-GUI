@@ -99,7 +99,7 @@ public:
 	virtual void sliderEvent(Slider* slider) {}
 
 	bool checkDrawerButton(Button* button);
-	bool checkParameterButtons(Button* button);
+//	bool checkParameterButtons(Button* button);
 
 	bool getRecordStatus(int chan);
 

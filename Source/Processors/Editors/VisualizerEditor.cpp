@@ -84,7 +84,7 @@ VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode)
 
 {
 
-	desiredWidth = 250;
+	desiredWidth = 180;
 	initializeSelectors();
 
 

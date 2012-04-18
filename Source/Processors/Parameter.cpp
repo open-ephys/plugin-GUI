@@ -24,8 +24,8 @@
 #include "Parameter.h"
 
 
-Parameter::Parameter(const String& name_, bool defaultVal) 
-		: name(name_), description("")
+Parameter::Parameter(const String& name_, bool defaultVal, int ID) 
+		: name(name_), description(""), parameterId(ID)
 {
 
 	defaultValue = defaultVal;
@@ -39,8 +39,8 @@ Parameter::Parameter(const String& name_, bool defaultVal)
 
 }
 
-Parameter::Parameter(const String& name_, float low, float high, float defaultVal)
-	 : name(name_), description("")
+Parameter::Parameter(const String& name_, float low, float high, float defaultVal, int ID)
+	 : name(name_), description(""), parameterId(ID)
 {
 	defaultValue = defaultVal;
 
@@ -53,8 +53,8 @@ Parameter::Parameter(const String& name_, float low, float high, float defaultVa
 
 }
 
-Parameter::Parameter(const String& name_, Array<var> a, int defaultVal)
-	 : name(name_), description("")
+Parameter::Parameter(const String& name_, Array<var> a, int defaultVal, int ID)
+	 : name(name_), description(""), parameterId(ID)
 {
 	possibleValues = a;
 	defaultValue = defaultVal; //possibleValues[defaultVal];
@@ -87,12 +87,12 @@ void Parameter::setValue(float val, int chan)
 		}
 
 	} else {
-		int index = (int) val;
+		//int index = (int) val;
 
-		if (index >= 0 && index < possibleValues.size())
-		{
-			values.set(chan, possibleValues[index]);
-		}
+		//if (index >= 0 && index < possibleValues.size())
+		//{
+			values.set(chan, val);
+		//}
 
 	}
 

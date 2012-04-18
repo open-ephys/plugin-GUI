@@ -45,7 +45,7 @@ public:
 	~EventNode();
 	
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void setParameter (int parameterIndex, float newValue);
+	//void setParameter (int parameterIndex, float newValue);
 
 	bool isSource() {return true;}
 

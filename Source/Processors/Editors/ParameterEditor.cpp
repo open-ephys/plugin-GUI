@@ -23,8 +23,10 @@
 
 #include "ParameterEditor.h"
 
-ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
+ParameterEditor::ParameterEditor(GenericProcessor* proc, Parameter& p, Font labelFont)
 {
+
+	processor = proc;
 
 	if (p.isBoolean())
 	{
@@ -34,8 +36,10 @@ ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
 		ParameterCheckbox* pc = new ParameterCheckbox((bool) p.getDefaultValue());
 		addAndMakeVisible(pc);
 		pc->setBounds(0,0,12, 12);
-		pc->setName(p.getName());
+		pc->setName(String(p.getID()));
 		buttonArray.add(pc);
+		//buttonIdArray.add(p.getID());
+		pc->addListener(this);
 
 		Label* label = new Label(p.getName(), p.getName());
 		labelFont.setHeight(10);
@@ -58,9 +62,11 @@ ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
 												  labelFont);
 
 		ps->setBounds(0,0, 40, 40);
-		ps->setName(p.getName());
+		ps->setName(String(p.getID()));
 		addAndMakeVisible(ps);
 		sliderArray.add(ps);
+		//sliderIdArray.add(p.getID());
+		ps->addListener(this);
 
 		Label* label = new Label(p.getName(), p.getName());
 		labelFont.setHeight(10);
@@ -92,7 +98,9 @@ ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
 
 		std::cout << "Default value: " << (int) p.getDefaultValue() << std::endl;
 
-		for (int i = 0; i < possibleValues.size(); i++)
+		int i;
+
+		for (i = 0; i < possibleValues.size(); i++)
 		{
 			std::cout << "Creating button " << i << std::endl;
 			int buttonType = MIDDLE;
@@ -103,8 +111,10 @@ ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
 
 			ParameterButton* pb = new ParameterButton(possibleValues[i], buttonType, labelFont);
 			pb->setBounds(buttonWidth*i, 12, buttonWidth, 18);
-			pb->setName(p.getName());
+			pb->setName(String(p.getID()));
 			buttonArray.add(pb);
+			//buttonIdArray.add(p.getID());
+			pb->addListener(this);
 
 			if (i == (int) p.getDefaultValue())
 				pb->setToggleState(true, false);
@@ -113,7 +123,7 @@ ParameterEditor::ParameterEditor(Parameter& p, Font labelFont)
 
 		}
 
-		desiredWidth = 120;
+		desiredWidth = buttonWidth*i;
 		desiredHeight = 30;
 	}
 }
@@ -125,23 +135,67 @@ ParameterEditor::~ParameterEditor()
 
 void ParameterEditor::parentHierarchyChanged()
 {
-	std::cout << "Parent hierarchy changed." << std::endl;
+	// std::cout << "Parent hierarchy changed." << std::endl;
 
-	// register all children with parent --> not currently working
-	if (getParentComponent() != 0) {
+	// // register all children with parent --> not currently working
+	// if (getParentComponent() != 0) {
 
-		for (int i = 0; i < sliderArray.size(); i++)
-		{
-			sliderArray[i]->addListener((Slider::Listener*) getParentComponent());
-		}
+	// 	for (int i = 0; i < sliderArray.size(); i++)
+	// 	{
+	// 		sliderArray[i]->addListener((Slider::Listener*) getParentComponent());
+	// 	}
 
-		for (int i = 0; i < buttonArray.size(); i++)
-		{
-			buttonArray[i]->addListener((Button::Listener*) getParentComponent());
-		}
-	}
+	// 	for (int i = 0; i < buttonArray.size(); i++)
+	// 	{
+	// 		buttonArray[i]->addListener((Button::Listener*) getParentComponent());
+	// 	}
+	// }
 
 }
+
+void ParameterEditor::buttonClicked(Button* button)
+{
+	//std::cout << "Button name: " << button->getName() << std::endl;
+	//std::cout << "Button value: " << button->getButtonText() << std::endl;
+	
+	Array<int> a = channelSelector->getActiveChannels();
+	{
+		for (int i = 0; i < a.size(); i++)
+		{
+			//std::cout << a[i] << " ";
+			processor->setCurrentChannel(a[i]);
+			processor->setParameter(button->getName().getIntValue(),
+									button->getButtonText().getFloatValue());
+			//processor->
+		}
+		//std::cout << std::endl;
+	}
+
+	//processor->sliderValueChanged(slider);
+
+}
+
+void ParameterEditor::sliderValueChanged(Slider* slider)
+{
+
+
+	//std::cout << "Slider name: " << slider->getName() << std::endl;
+	//std::cout << "Slider value: " << slider->getValue() << std::endl;
+	
+	Array<int> a = channelSelector->getActiveChannels();
+	{
+		for (int i = 0; i < a.size(); i++)
+		{
+			//std::cout << a[i] << " ";
+			processor->setCurrentChannel(a[i]);
+			processor->setParameter(slider->getName().getIntValue(),
+									slider->getValue());
+			//processor->
+		}
+		//std::cout << std::endl;
+	}
+}
+
 
 
 /// ============= PARAMETER BUTTON ==================

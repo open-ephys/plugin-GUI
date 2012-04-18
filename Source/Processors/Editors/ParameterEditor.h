@@ -25,7 +25,8 @@
 #define __PARAMETEREDITOR_H_44537DA9__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
+#include "../GenericProcessor.h"
+#include "ChannelSelector.h"
 #include "../Parameter.h"
 #include <stdio.h>
 
@@ -34,15 +35,17 @@
   Automatically creates an interactive editor for a particular
   parameter.
 
-  @see GenericEditor, Parameter
+  @see GenericEditor, GenericProcessor, Parameter
 
 */
 
-class ParameterEditor : public Component
+class ParameterEditor : public Component,
+						public Button::Listener,
+						public Slider::Listener
 
 {
 public:
-	ParameterEditor(Parameter& p, Font labelFont);
+	ParameterEditor(GenericProcessor* proc, Parameter& p, Font labelFont);
 	~ParameterEditor();
 
 
@@ -51,10 +54,23 @@ public:
 
     void parentHierarchyChanged();
 
+    void buttonClicked(Button* button);
+    void sliderValueChanged(Slider* slider);
+
+    void setChannelSelector(ChannelSelector* ch)
+    {
+    	channelSelector = ch;
+    }
+
 private:
 
 	Array<Slider*> sliderArray;
 	Array<Button*> buttonArray;
+	Array<int> buttonIdArray;
+	Array<int> sliderIdArray;
+
+	GenericProcessor* processor;
+	ChannelSelector* channelSelector;
 
 	enum {
 		LEFT,

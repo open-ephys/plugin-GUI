@@ -92,8 +92,9 @@ void GenericEditor::addParameterEditors()
 
 	for (int i = 0; i < getProcessor()->getNumParameters(); i++)
 	{
-		ParameterEditor* p = new ParameterEditor(getProcessor()->getParameterReference(i), titleFont);												
+		ParameterEditor* p = new ParameterEditor(getProcessor(), getProcessor()->getParameterReference(i), titleFont);												
 		
+		p->setChannelSelector(channelSelector);
 		int dWidth = p->desiredWidth;
 		int dHeight = p->desiredHeight;
 
@@ -285,8 +286,6 @@ void GenericEditor::buttonClicked(Button* button)
 {
 
 	std::cout << "Button clicked." << std::endl;
-
-	checkParameterButtons(button);
 	
 	checkDrawerButton(button);
 
@@ -294,20 +293,6 @@ void GenericEditor::buttonClicked(Button* button)
 						 // button event
 }
 
-void GenericEditor::sliderValueChanged(Slider* slider)
-{
-	std::cout << "Slider name: " << slider->getName() << std::endl;
-	std::cout << "Slider value: " << slider->getValue() << std::endl;
-
-	sliderEvent(slider);
-
-}
-
-bool GenericEditor::checkParameterButtons(Button* button)
-{
-	std::cout << "Button name: " << button->getName() << std::endl;
-	std::cout << "Button value: " << button->getButtonText() << std::endl;
-}
 
 bool GenericEditor::checkDrawerButton(Button* button)
 {
@@ -336,6 +321,12 @@ bool GenericEditor::checkDrawerButton(Button* button)
 		return false;
 	}
 
+}
+
+void GenericEditor::sliderValueChanged(Slider* slider)
+{
+
+	sliderEvent(slider);
 }
 
 
