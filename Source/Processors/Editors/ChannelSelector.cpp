@@ -420,8 +420,8 @@ void EditorButton::resized()
     if (getName().equalsIgnoreCase("AUDIO"))
 	{
 		//outlinePath.startNewSubPath(0, height);
-		outlinePath.lineTo(0, radius);
-		outlinePath.addArc(0, 0, radius*2, radius*2, 1.5*double_Pi, 2.0*double_Pi );
+		outlinePath.lineTo(0, 0);//radius);
+		//outlinePath.addArc(0, 0, radius*2, radius*2, 1.5*double_Pi, 2.0*double_Pi );
 
 		outlinePath.lineTo(width, 0);//getHeight());
 
@@ -436,9 +436,9 @@ void EditorButton::resized()
 	{
 		//outlinePath.startNewSubPath(0, 0);
 
-		outlinePath.lineTo(width-radius, 0);
+		outlinePath.lineTo(width, 0);
 	
-		outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
+		//outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
 
 		outlinePath.lineTo(getWidth(), height);
 
@@ -467,8 +467,8 @@ void EditorButton::resized()
 
 		//outlinePath.addArc(getWidth()-radius*2, getHeight()-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
 
-		outlinePath.lineTo(radius, height);
-		outlinePath.addArc(0, height-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
+		outlinePath.lineTo(0, height);
+		//outlinePath.addArc(0, height-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
 
 		outlinePath.lineTo(0, 0);
 		//outlinePath.closeSubPath();
@@ -482,9 +482,9 @@ void EditorButton::resized()
 	
 		//outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
 
-		outlinePath.lineTo(width, height-radius);
+		outlinePath.lineTo(width, height);
 
-		outlinePath.addArc(width-radius*2, height-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
+		//outlinePath.addArc(width-radius*2, height-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
 
 		outlinePath.lineTo(0, height);
 
