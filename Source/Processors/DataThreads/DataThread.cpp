@@ -33,7 +33,7 @@ DataThread::DataThread(SourceNode* s) : Thread ("Data Thread"), dataBuffer(0)
 
 DataThread::~DataThread() 
 {
-    deleteAndZero(dataBuffer);
+    //deleteAndZero(dataBuffer);
 }
 
 void DataThread::run() {

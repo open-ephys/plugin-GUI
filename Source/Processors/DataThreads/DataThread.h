@@ -54,7 +54,7 @@ public:
 
 	virtual bool updateBuffer() = 0;
 
-	DataBuffer* dataBuffer;
+	ScopedPointer<DataBuffer> dataBuffer;
 
 	virtual bool foundInputSource() = 0;
 	virtual bool startAcquisition() = 0;

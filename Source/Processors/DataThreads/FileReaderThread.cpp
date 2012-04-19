@@ -45,7 +45,7 @@ FileReaderThread::~FileReaderThread() {
 
 	deleteAndZero(input);
 
-	deleteAndZero(dataBuffer);
+	//deleteAndZero(dataBuffer);
 
 }
 

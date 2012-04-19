@@ -72,8 +72,6 @@ FPGAThread::~FPGAThread() {
 	
 	std::cout << "FPGA interface destroyed." << std::endl;
 
-	// probably not the best way to do this:
-	deleteAndZero(dataBuffer);
 	deleteAndZero(dev);
 
 }

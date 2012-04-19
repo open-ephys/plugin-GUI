@@ -43,7 +43,7 @@ IntanThread::IntanThread(SourceNode* sn) : DataThread(sn),
 IntanThread::~IntanThread() 
 {
 	//closeUSB();
-	deleteAndZero(dataBuffer);
+	//deleteAndZero(dataBuffer);
 }
 
 int IntanThread::getNumChannels()

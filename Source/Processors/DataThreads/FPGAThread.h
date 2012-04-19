@@ -37,8 +37,6 @@
 
 /**
 
-  --UNDER CONSTRUCTION--
-
   Communicates with the custom acquisition board via an Opal Kelly FPGA.
 
   @see DataThread, SourceNode
@@ -54,11 +52,9 @@ public:
 	FPGAThread(SourceNode* sn);
 	~FPGAThread();
 
-	bool foundInputSource() {return true;}
-	bool startAcquisition();
-	bool stopAcquisition();
-	int getNumChannels() {return 32;}
-	float getSampleRate() {return 25000.0;}
+	bool foundInputSource(); // {return true;}
+	int getNumChannels();// {return 32;}
+	float getSampleRate();// {return 25000.0;}
 	
 private:
 
@@ -66,6 +62,12 @@ private:
 	char bitfile[128];
 	char dll_date[32], dll_time[32];
 	UINT32 i;
+
+	bool initializeFPGA(okCFrontPanel*, char*);
+	bool closeFPGA();
+
+	bool startAcquisition();
+	bool stopAcquisition();
 
 	int m_u32SegmentSize;
 	
@@ -79,8 +81,7 @@ private:
 	int Ndatabytes;
 
 	bool updateBuffer();
-	bool initializeFPGA(okCFrontPanel*, char*);
-
+	
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FPGAThread);
 };
 
