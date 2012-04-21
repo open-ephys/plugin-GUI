@@ -170,7 +170,7 @@ class UtilityButton : public Button
 {
 public:
     UtilityButton(const String& label_, Font font_) :
-    	 Button("Utility"), label(label_), font(font_) {}
+    	 Button(label_), label(label_), font(font_) {}
     ~UtilityButton() {}
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);

@@ -31,21 +31,20 @@
 #include "Visualization/SpikeObject.h"
 
 
-
-#define SPIKE_CMD_CLEAR_ALL 	10000
-#define SPIKE_CMD_CLEAR_SEL 	10001
-#define SPIKE_CMD_PAN_AXES	 	10002    
-#define SPIKE_CMD_ZOOM_AXES		10003
-
-    
 /**
   
- Takes in MidiEvents and extracts SpikeObjects from the MidiEvent buffers. Those Events are then held in a queue until they are pulled by the spikeviewer
+ Takes in MidiEvents and extracts SpikeObjects from the MidiEvent buffers. 
+ Those Events are then held in a queue until they are pulled by the SpikeDisplayCanvas.
 
   @see GenericProcessor, SpikeDisplayEditor, SpikeDisplayCanvas
 
 */
 
+
+#define SPIKE_CMD_CLEAR_ALL 	10000
+#define SPIKE_CMD_CLEAR_SEL 	10001
+#define SPIKE_CMD_PAN_AXES	 	10002    
+#define SPIKE_CMD_ZOOM_AXES		10003
 
 
 class DataViewport;
@@ -77,15 +76,12 @@ public:
 private:
 
 	int numberOfSources;
-	AbstractFifo abstractFifo;
 
-	ScopedPointer<AudioSampleBuffer> displayBuffer;
 	ScopedPointer<MidiBuffer> eventBuffer;
 
 	//std::queue<SpikeObject> spikebuffer;
 
 	int bufferSize;
-	//bool resizeBuffer();
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayNode);
 

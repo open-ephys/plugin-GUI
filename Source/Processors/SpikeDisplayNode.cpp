@@ -28,7 +28,7 @@
 
 SpikeDisplayNode::SpikeDisplayNode()
 	: GenericProcessor("Spike Viewer"),
-	  bufferSize(0), abstractFifo(100)
+	  bufferSize(0)
 
 {
 //	displayBuffer = new AudioSampleBuffer(8, 100);
@@ -43,7 +43,7 @@ SpikeDisplayNode::~SpikeDisplayNode()
 
 AudioProcessorEditor* SpikeDisplayNode::createEditor()
 {
-	std::cout<<"SpikeDisplayNode Created!"<<std::endl;
+	std::cout<<"Creating SpikeDisplayCanvas."<<std::endl;
 
 	editor = new SpikeDisplayEditor(this);	
 	return editor;

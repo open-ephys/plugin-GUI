@@ -30,8 +30,8 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
 
 	
 
-	nPlots = 8;
-	nCols = 2; //processor->getNumInputs();
+	nPlots = 1; //8;
+	nCols = 3; //processor->getNumInputs();
 	std::cout<<"SpikeDisplayNode has :"<<nPlots<<" outputs!"<<std::endl;
 	
 	for (int i=0; i<nPlots; i++)
@@ -111,10 +111,10 @@ void SpikeDisplayCanvas::newOpenGLContextCreated()
 {
 	std::cout<<"SpikeDisplayCanvas::newOpenGLContextCreated()"<<std::endl;
 	setUp2DCanvas();
-//	activateAntiAliasing();
-	disableAntiAliasing();
+	activateAntiAliasing();
+	disablePointSmoothing();
 
-	glClearColor (0.667, 0.698, 0.718, 1.0);
+	glClearColor (0.667, 0.698, 0.918, 1.0);
 	resized();
 	endAnimation();
 }
@@ -222,7 +222,7 @@ void SpikeDisplayCanvas::renderOpenGL()
 		
 	// Identify which plot the spike should go to
 	
-	// Distribute those spike to the appropriate plot object
+	// Distribute thoses spike to the appropriate plot object
 	
 	
 	SpikeObject tmpSpike;
@@ -364,11 +364,12 @@ void SpikeDisplayCanvas::zoomPlot(int p, int c, bool in){
 	plots[p].zoom(c, in);
 }
 
-void SpikeDisplayCanvas::disableAntiAliasing(){
+void SpikeDisplayCanvas::disablePointSmoothing(){
 
-	glDisable(GL_LINE_SMOOTH);
+//	glDisable(GL_LINE_SMOOTH);
 	glDisable(GL_POINT_SMOOTH);
-	glDisable(GL_POLYGON_SMOOTH);
+//	glDisable(GL_POLYGON_SMOOTH);
+
 }
 
 // void SpikeDisplayCanvas::resized()

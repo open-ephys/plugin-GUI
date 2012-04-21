@@ -112,7 +112,7 @@ private:
 	void initializeSpikePlots();
 	void repositionSpikePlots();
 
-	void disableAntiAliasing();
+	void disablePointSmoothing();
 	void canvasWasResized();
 	void mouseDownInCanvas(const MouseEvent& e);
 	// void mouseDrag(const MouseEvent& e);
