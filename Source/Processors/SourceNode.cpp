@@ -202,6 +202,8 @@ void SourceNode::process(AudioSampleBuffer &buffer,
                             int& nSamples)
 {
 	
+	//std::cout << "SOURCE NODE" << std::endl;
+
 	 buffer.clear();
 	 nSamples = inputBuffer->readAllFromBuffer(buffer,buffer.getNumSamples());
 	

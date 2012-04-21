@@ -163,8 +163,8 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
  		isRecording = false;
  		std::cout << "STOP RECORDING." << std::endl;
 
- 		// close necessary files
- 		for (int i = 0; i < continuousChannels.size(); i++)
+ 		// DANGER
+ 		for (int i = 0; i < jmin(int(continuousChannels.size()), 32); i++)
  		{
  			if (continuousChannels[i].isRecording)
  			{

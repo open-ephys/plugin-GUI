@@ -26,8 +26,9 @@
 
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include <ftdi.h>
+
 #include <stdio.h>
+#include <time.h>
 #include "DataThread.h"
 
 /**
@@ -50,26 +51,28 @@ public:
 	FileReaderThread(SourceNode* sn);
 	~FileReaderThread();
 
-	bool foundInputSource() {return true;}
+	bool foundInputSource();// {return true;}
 	bool startAcquisition();
 	bool stopAcquisition();
-	int getNumChannels() {return 16;}
-	float getSampleRate() {return 40000.0;}
+	int getNumChannels();// {return 16;}
+	float getSampleRate();// {return 40000.0;}
 	
 private:
 
-	float sampleRate;
-	int numChannels;
 	int samplesPerBlock;
 
     int lengthOfInputFile;
 
     int playHead;
 
-	FileInputStream* input;
+    FILE* input;
+
+	//FileInputStream* input;
 
 	float thisSample[16];
-    float readBuffer[1600];
+    int16 readBuffer[1600];
+
+    int bufferSize;
 
 	bool updateBuffer();
 
