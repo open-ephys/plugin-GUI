@@ -36,7 +36,7 @@ SourceNode::SourceNode(const String& name_)
 	if (getName().equalsIgnoreCase("Intan Demo Board")) {
 		dataThread = new IntanThread(this);
 	} else if (getName().equalsIgnoreCase("Custom FPGA")) {
-		dataThread = new FPGAThread(this);
+		dataThread = new FPGAThread(this);//FPGAThread(this);
 	} else if (getName().equalsIgnoreCase("File Reader")) {
 		dataThread = new FileReaderThread(this);
 	}
