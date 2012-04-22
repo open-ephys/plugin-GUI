@@ -52,7 +52,7 @@ bool packSpike(SpikeObject *s, char* buffer, int bufferSize){
 	memcpy(buffer+idx, &(s->threshold), s->nChannels);
 	idx += s->nChannels;
 
-if (idx>=bufferSize)
+	if (idx >= bufferSize)
 		std::cout<<"Buffer Overrun! More data packaged than space provided!"<<std::endl;
 	// makeBufferValid(buffer, bufferSize);
 
@@ -86,7 +86,7 @@ bool unpackSpike(SpikeObject *s, char* buffer, int bufferSize){
 	memcpy( &(s->threshold), buffer+idx, s->nChannels *2);
 	idx += s->nChannels * 2;
 
-	if (idx>=bufferSize)
+	if (idx >= bufferSize)
 		std::cout<<"Buffer Overrun! More data extracted than was given!"<<std::endl;
 	
 }
@@ -102,7 +102,7 @@ bool isBufferValid(char *buffer, int bufferSize){
 	
 	int idx = 0;
 
-	for (idx; idx<bufferSize-2; idx+=2){
+	for (idx; idx < bufferSize-2; idx += 2){
 		memcpy(buffer + idx, &value, 2);
 		runningSum += value;
 	}
@@ -123,7 +123,7 @@ void makeBufferValid(char *buffer, int bufferSize){
 	
 	int idx = 0;
 
-	for (idx; idx<bufferSize-2; idx+=2){
+	for (idx; idx < bufferSize-2; idx += 2){
 		memcpy(buffer + idx, &value, 2);
 		runningSum += value;
 	}

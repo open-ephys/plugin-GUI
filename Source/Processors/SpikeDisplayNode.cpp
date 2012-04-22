@@ -126,17 +126,19 @@ void SpikeDisplayNode::setParameter (int param, float val)
 
 void SpikeDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples)
 {
-	//std::cout<<"SpikeDisplayNode::process"<<std::endl;
-	/*
-	uint64_t ts =  00000; 
-	int noise = 10;
-	SpikeObject newSpike;
-
-	generateSimulatedSpike(&newSpike, ts, noise);
 	
-	spikebuffer.push(newSpike);
-	bufferSize++;
-	*/
+	checkForEvents(midiMessages); // automatically calls 'handleEvent'
+
+}
+
+void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event)
+{
+
+	if (eventType == SPIKE)
+	{
+		eventBuffer->addEvent(event, 0);
+	}
+
 }
 
 bool SpikeDisplayNode::getNextSpike(SpikeObject *spike){

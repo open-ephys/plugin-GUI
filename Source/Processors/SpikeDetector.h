@@ -29,6 +29,8 @@
 #include "GenericProcessor.h"
 #include "Editors/SpikeDetectorEditor.h"
 
+#include "Visualization/SpikeObject.h"
+
 /**
 
   == UNDER CONSTRUCTION ==

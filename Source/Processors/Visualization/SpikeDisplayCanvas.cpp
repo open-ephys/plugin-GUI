@@ -32,7 +32,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
 
 	update();
 	
-	
+	spikeBuffer = processor->getSpikeBufferAddress();
 	// std::cout<<"SpikeDisplayNode has :"<<nPlots<<" outputs!"<<std::endl;
 	
 	// // for (int i=0; i<nPlots; i++)
@@ -208,33 +208,65 @@ void SpikeDisplayCanvas::renderOpenGL()
 	//if(!plotsInitialized)
 	//	initializeSpikePlots();
 
-	glClearColor (0.667, 0.698, 0.918, 1.0);
+	glClearColor (0.667, 0.698, 0.618, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
 
-	//std::cout<<"SpikeDisplayCanvas::renderOpenGL"<<std::endl;
 	// Get Spikes from the processor
 	// Iterate through each spike, passing them individually to the appropriate plots and calling redraw before moving on to the next spike
-	
-	//while(processor->getNextSpike(&spike))
-	//{
-		
-	// Identify which plot the spike should go to
-	
-	// Distribute thoses spike to the appropriate plot object
-	
-	// Generate fake spikes
-	SpikeObject tmpSpike;
+	processSpikeEvents();
 
-	 for (int i=0; i<plots.size(); i++){
-		generateSimulatedSpike(&tmpSpike, 0, 150);
-		plots[i].processSpikeObject(tmpSpike);
- 		plots[i].redraw();
- 		drawPlotTitle( i );
-	 }
-	
-	//}
-	//std::cout << getHeight()<<" "<< getTotalHeight()<<" "<<std::endl;
- 	drawScrollBars();
+	for (int i = 0; i < plots.size(); i++){
+		plots[i].redraw();
+		drawPlotTitle(i);
+	}
+
+	drawScrollBars();
+ 	
+}
+
+void SpikeDisplayCanvas::processSpikeEvents()
+{
+
+	if (spikeBuffer->getNumEvents() > 0) 
+	{
+			
+		int m = spikeBuffer->getNumEvents();
+		//std::cout << m << " events received by node " << getNodeId() << std::endl;
+
+		MidiBuffer::Iterator i (*spikeBuffer);
+		MidiMessage message(0xf4);
+
+		int samplePosition;
+		i.setNextSamplePosition(samplePosition);
+
+		while (i.getNextEvent (message, samplePosition)) {
+			
+			 uint8* dataptr = message.getRawData();
+			// int bufferSize = message.getRawDataSize();
+			// int nSamples = (bufferSize-4)/2;
+
+			SpikeObject newSpike;
+
+			generateSimulatedSpike(&newSpike, 0, 0);
+
+			int chan = *(dataptr+2);
+			//newSpike.nChannels = 1;
+
+			// int16 waveform[nSamples];
+
+			// for (int i = 0; i < nSamples; i++)
+			// {
+			// 	waveform[i] = (*(dataptr+4+i*2) << 8) + *(dataptr+4+i*2+1);
+			// }
+
+			plots[chan].processSpikeObject(newSpike);
+
+		}
+
+	}
+
+	spikeBuffer->clear();
+
 }
 
 void SpikeDisplayCanvas::drawPlotTitle(int chan){

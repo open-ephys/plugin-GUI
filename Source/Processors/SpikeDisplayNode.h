@@ -64,10 +64,15 @@ public:
 
 	void setParameter(int, float);
 
+	void handleEvent(int, MidiMessage&);
+
 	//void updateSettings();
 
 	bool enable();
 	bool disable();
+
+	MidiBuffer* getSpikeBufferAddress() {return eventBuffer;}
+
 
 	int getNumberOfChannelsForElectrode(int i);
 	int getNumElectrodes();

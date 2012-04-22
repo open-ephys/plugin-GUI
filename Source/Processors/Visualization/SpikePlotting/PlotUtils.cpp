@@ -217,7 +217,7 @@ bool checkFramebufferStatus()
         return false;
 
     default:
-        std::cout << "[ERROR] Unknow error." << std::endl;
+        std::cout << "[ERROR] Unknown error." << std::endl;
         return false;
     }
 }

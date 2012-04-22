@@ -56,6 +56,8 @@ public:
 	void newOpenGLContextCreated();
 	void renderOpenGL();
 
+	void processSpikeEvents();
+
 	void beginAnimation();
 	void endAnimation();
 
@@ -70,6 +72,9 @@ public:
 	void zoomPlot(int, int, bool);
 
 private:
+
+
+	MidiBuffer* spikeBuffer;
 
 	int xBuffer, yBuffer;
 
