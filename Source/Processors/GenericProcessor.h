@@ -193,6 +193,14 @@ public:
  		CONTINUOUS = 6
  	};
 
+ 	enum eventChannelTypes
+ 	{
+ 		GENERIC_EVENT = 999,
+ 		SINGLE_ELECTRODE = 1,
+ 		STEREOTRODE = 2,
+ 		TETRODE = 4
+ 	};
+
 	int saveOrder;
 	int loadOrder;
 
@@ -215,6 +223,7 @@ public:
 
 		Array<int> eventChannelIds;
 		StringArray eventChannelNames;
+		Array<int> eventChannelTypes;
 
 	};
 

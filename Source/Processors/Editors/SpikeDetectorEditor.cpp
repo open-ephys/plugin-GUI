@@ -23,6 +23,7 @@
 
 #include "SpikeDetectorEditor.h"
 #include "../SpikeDetector.h"
+#include "../../UI/EditorViewport.h"
 #include <stdio.h>
 
 
@@ -51,7 +52,7 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode)
     electrodeTypes->setJustificationType (Justification::centredLeft);
     electrodeTypes->addListener(this);
     electrodeTypes->setBounds(65,40,130,16);
-    electrodeTypes->setSelectedId(4);
+    electrodeTypes->setSelectedId(2);
     addAndMakeVisible(electrodeTypes);
 
     electrodeList = new ComboBox("Electrode List");
@@ -61,7 +62,7 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode)
     electrodeList->setBounds(20,80,115,20);
     addAndMakeVisible(electrodeList);
 
-    numElectrodes = new Label("Number of Electrodes","4");
+    numElectrodes = new Label("Number of Electrodes","2");
     numElectrodes->setEditable(true);
     numElectrodes->addListener(this);
     numElectrodes->setBounds(30,40,25,20);
@@ -149,6 +150,8 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
         drawElectrodeButtons(electrodeList->getNumItems()-1);
 
+        getEditorViewport()->makeEditorVisible(this);
+
     } else if (button == electrodeEditorButtons[0]) // EDIT
     {
 
@@ -220,7 +223,7 @@ void SpikeDetectorEditor::labelTextChanged(Label* label)
 {
     if (label->getText().equalsIgnoreCase("1") && isPlural)
     {
-        for (int n = 1; n < 21; n++)
+        for (int n = 1; n < electrodeTypes->getNumItems()+1; n++)
         {
             electrodeTypes->changeItemText(n,
                     electrodeTypes->getItemText(n-1).trimCharactersAtEnd("s"));
@@ -236,7 +239,7 @@ void SpikeDetectorEditor::labelTextChanged(Label* label)
         const String s = "s";
         size_t one = 1;
 
-        for (int n = 1; n < 21; n++)
+        for (int n = 1; n < electrodeTypes->getNumItems()+1; n++)
         {
             String currentString = electrodeTypes->getItemText(n-1);
             currentString += "s";

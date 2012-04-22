@@ -64,12 +64,13 @@ public:
 
 	void setParameter(int, float);
 
-	void updateSettings();
+	//void updateSettings();
 
 	bool enable();
 	bool disable();
 
-	int getNumberOfChannelsForInput(int i);
+	int getNumberOfChannelsForElectrode(int i);
+	int getNumElectrodes();
 
 	bool getNextSpike(SpikeObject *spike);
 	

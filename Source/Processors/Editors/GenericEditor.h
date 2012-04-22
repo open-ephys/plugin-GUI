@@ -108,6 +108,7 @@ public:
 	void refreshColors();
 
 	virtual void update();
+	virtual void updateSettings() {}
 	virtual void updateVisualizer() {}
 
 	Array<int> getActiveChannels();
