@@ -247,7 +247,7 @@ void OpenGLCanvas::drawScrollBars()
 void OpenGLCanvas::drawScrollBar(float y1, float y2, float alpha)
 {
 	glViewport(0,0,getWidth(),getHeight());
-	glOrtho (0, 1, 1, 0, 0, 1);
+	//glOrtho (0, 1, 1, 0, 0, 1);
 	//setViewportRange(0, 0, getWidth(), getHeight());
 
 	float x1 = (getWidth()-8.0f)/getWidth();
