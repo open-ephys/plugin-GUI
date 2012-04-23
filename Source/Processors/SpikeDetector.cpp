@@ -73,7 +73,8 @@ AudioProcessorEditor* SpikeDetector::createEditor()
 void SpikeDetector::updateSettings()
 {
 
-    overflowBuffer.setSize(getNumInputs(),overflowBufferSize);
+    if (getNumInputs() > 0)
+        overflowBuffer.setSize(getNumInputs(), overflowBufferSize);
 
 }
 

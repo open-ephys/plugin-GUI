@@ -30,7 +30,7 @@ void GenericAxes::updateSpikeData(SpikeObject newSpike){
 
 void GenericAxes::loadFont(){
 	const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_plain_otf);
-	size_t bufferSize = BinaryData::misoregular_ttfSize;
+	size_t bufferSize = BinaryData::cpmono_plain_otfSize;
 	font = new FTPixmapFont(buffer, bufferSize);
 }
 

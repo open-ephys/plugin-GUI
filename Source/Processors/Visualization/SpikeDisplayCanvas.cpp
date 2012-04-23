@@ -30,7 +30,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
 
 	
 
-	nPlots = 8;
+	nPlots = 1;
 	nCols = 2; //processor->getNumInputs();
 	std::cout<<"SpikeDisplayNode has :"<<nPlots<<" outputs!"<<std::endl;
 	
@@ -174,7 +174,7 @@ void SpikeDisplayCanvas::setParameter(int param, float val)
 		//clear plot number val
 			break;
 		default:
-			std::cout<<"Unkown Commad specified! "<<param<<std::endl;
+			std::cout<<"Unknown command specified! "<<param<<std::endl;
 	}
 }
 

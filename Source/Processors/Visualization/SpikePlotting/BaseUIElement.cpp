@@ -15,7 +15,7 @@ BaseUIElement::BaseUIElement(int x, int y, double w, double h):
 	height = h-padding*2;
 }
 BaseUIElement::BaseUIElement(int x, int y, double w, double h, int p):
-	enabled(true), padding(0)
+	enabled(true), padding(p)
 {
 	xpos = x+padding;
 	ypos = y+padding;	
