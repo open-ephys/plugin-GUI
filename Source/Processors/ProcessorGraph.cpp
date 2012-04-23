@@ -314,6 +314,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			}
 				
 			std::cout << "Creating a new data source." << std::endl;
+			
 		} else if (subProcessorType.equalsIgnoreCase("Signal Generator"))
 		{
 			processor = new SignalGenerator();

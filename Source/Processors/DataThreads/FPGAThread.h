@@ -25,12 +25,10 @@
 #define __FPGATHREAD_H_FBB22A45__
 
 
+#include "../../../JuceLibraryCode/JuceHeader.h"
+
 #include <stdio.h>
 #include <string.h>
-#include <iostream>
-#include <time.h>
-
-#include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "okFrontPanelDLL.h"
 #include "DataThread.h"
@@ -52,28 +50,25 @@ public:
 	FPGAThread(SourceNode* sn);
 	~FPGAThread();
 
-	bool foundInputSource() {return true;}
-	int getNumChannels() {return 32;}
-	float getSampleRate() {return 25000.0;}
-	
+	bool foundInputSource();
+	int getNumChannels();
+	float getSampleRate();
+
 private:
 
 	okCFrontPanel* dev;
 	char bitfile[128];
 	char dll_date[32], dll_time[32];
-	UINT32 i;
+	bool isTransmitting;
+	bool deviceFound;
 
-	bool initializeFPGA(okCFrontPanel*, char*);
+	bool initializeFPGA(bool);
 	bool closeFPGA();
 
 	bool startAcquisition();
 	bool stopAcquisition();
 
-	int m_u32SegmentSize;
-	
-	unsigned char pBuffer[50000];  // request a 1MB block of data
-
-	bool isRunning;
+	unsigned char pBuffer[50000];  // request a 50kb block of data
 
 	float thisSample[32];
 

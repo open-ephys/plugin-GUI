@@ -24,19 +24,18 @@
 #include "FPGAThread.h"
 
 FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
-			isRunning(false),
+			isTransmitting(false),
 			numchannels(32),
-			m_u32SegmentSize(1048576)
+			deviceFound(false)
 
 {
 
-	// Initialize the FPGA with our configuration bitfile.
-	printf("New device created.\n");
+	
 	const char* bitfilename = "./pipetest.bit";
 
 	printf("---- Opal Kelly ---- PipeTest Application v1.0 ----\n");
 	
-	if (FALSE == okFrontPanelDLL_LoadLib(NULL)) {
+	if (!okFrontPanelDLL_LoadLib(NULL)) {
 		printf("FrontPanel DLL could not be loaded.\n");
 	}
 	
@@ -47,23 +46,18 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 
 	strncpy(bitfile, bitfilename, 128);
 
-	if (!initializeFPGA(dev, bitfile)) {
+	// Initialize the FPGA with our configuration bitfile.
+	deviceFound = initializeFPGA(true);
+
+	if (!deviceFound) {
 		printf("FPGA could not be initialized.\n");
+	} else {
+		printf("FPGA interface initialized.\n");
 	}
 
 	Ndatabytes = numchannels*3;
 	
-	std::cout << "FPGA interface initialized." << std::endl;
-
-	std::cout << "DataBuffer address is " << dataBuffer << std::endl;
-
 	dataBuffer = new DataBuffer(32, 10000);
-
-	std::cout << "DataBuffer address is " << dataBuffer << std::endl;
-
-	//deviceFound = true;
-
-	//startThread();
 
 }
 
@@ -76,27 +70,72 @@ FPGAThread::~FPGAThread() {
 
 }
 
+int FPGAThread::getNumChannels()
+{
+	return 32;
+}
+
+float FPGAThread::getSampleRate()
+{
+	return 25000.0;
+}
+
+bool FPGAThread::foundInputSource()
+{
+
+	if (deviceFound)
+	{
+		if (okCFrontPanel::NoError != dev->ConfigureFPGA(bitfile)) 
+		{
+			printf("FPGA configuration failed.\n");
+			deviceFound = false;
+			return false;
+		}
+
+	} else {
+
+		// if (!initializeFPGA(false))
+		// {
+		// 	return false;
+		// } else {
+		// 	deviceFound = true;
+		// }
+
+	}
+
+}
+
 bool FPGAThread::startAcquisition()
 {
-  startThread();
+   startThread();
 
-    //isTransmitting = true;
+   isTransmitting = true;
 
-    return true;
+   return true;
 }
 
 bool FPGAThread::stopAcquisition()
 {
+
+	isTransmitting = false;
+
 	if (isThreadRunning()) {
+
         signalThreadShouldExit();
     }
+
 
     return true;
 }
 
 bool FPGAThread::updateBuffer() {
+
+	long return_code;
 	
-	dev->ReadFromPipeOut(0xA0, sizeof(pBuffer), pBuffer);
+	return_code = dev->ReadFromPipeOut(0xA0, sizeof(pBuffer), pBuffer);
+
+	if (return_code == 0)
+		return false;
 
     int j = 0;
 
@@ -141,40 +180,48 @@ bool FPGAThread::updateBuffer() {
 
 
 
-bool FPGAThread::initializeFPGA(okCFrontPanel *dev, char *bitfile)
+bool FPGAThread::initializeFPGA(bool verbose)
 {
+
 	if (okCFrontPanel::NoError != dev->OpenBySerial()) {
-		delete dev;
-		printf("Device could not be opened.  Is one connected?\n");
-		return(NULL);
+		if (verbose)
+			printf("Device could not be opened.  Is one connected?\n");
+		return false;
 	}
 	
-	printf("Found a device: %s\n", dev->GetBoardModelString(dev->GetBoardModel()).c_str());
+	if (verbose)
+		printf("Found a device: %s\n", dev->GetBoardModelString(dev->GetBoardModel()).c_str());
 
 	dev->LoadDefaultPLLConfiguration();	
 
 	// Get some general information about the XEM.
-	std::string str;
-	printf("Device firmware version: %d.%d\n", dev->GetDeviceMajorVersion(), dev->GetDeviceMinorVersion());
-	str = dev->GetSerialNumber();
-	printf("Device serial number: %s\n", str.c_str());
-	str = dev->GetDeviceID();
-	printf("Device device ID: %s\n", str.c_str());
+	if (verbose) {
+		std::string str;
+		printf("Device firmware version: %d.%d\n", dev->GetDeviceMajorVersion(), dev->GetDeviceMinorVersion());
+		str = dev->GetSerialNumber();
+		printf("Device serial number: %s\n", str.c_str());
+		str = dev->GetDeviceID();
+		printf("Device device ID: %s\n", str.c_str());
+	}
 
 	// Download the configuration file.
 	if (okCFrontPanel::NoError != dev->ConfigureFPGA(bitfile)) {
-		printf("FPGA configuration failed.\n");
-		return(false);
+		if (verbose)
+			printf("FPGA configuration failed.\n");
+		return false;
 	}
 
 	// Check for FrontPanel support in the FPGA configuration.
-	if (dev->IsFrontPanelEnabled())
-		printf("FrontPanel support is enabled.\n");
-	else
-		printf("FrontPanel support is not enabled.\n");
+	if (verbose) {
+		if (dev->IsFrontPanelEnabled())
+			printf("FrontPanel support is enabled.\n");
+		else
+			printf("FrontPanel support is not enabled.\n");
+	}
 
-	return(true);
+	return true;
 
+	// this is not executed
 	dev->SetWireInValue(0x00, 1<<2);  // set reset bit in cmd wire to 1 and back to 0
 	dev->UpdateWireIns();
 	dev->SetWireInValue(0x00, 0<<2);  
