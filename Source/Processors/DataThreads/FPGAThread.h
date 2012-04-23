@@ -52,9 +52,9 @@ public:
 	FPGAThread(SourceNode* sn);
 	~FPGAThread();
 
-	bool foundInputSource(); // {return true;}
-	int getNumChannels();// {return 32;}
-	float getSampleRate();// {return 25000.0;}
+	bool foundInputSource() {return true;}
+	int getNumChannels() {return 32;}
+	float getSampleRate() {return 25000.0;}
 	
 private:
 
