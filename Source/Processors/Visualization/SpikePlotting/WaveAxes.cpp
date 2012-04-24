@@ -66,7 +66,7 @@ void WaveAxes::plot(){
 	setViewportRange(0, ylims[0], s.nSamples-1, ylims[1]);
 	
 	// draw the grid lines for the waveforms?
-	 if(drawGrid)
+	 if (drawGrid)
 	 	drawWaveformGrid(s.threshold[chan], s.gain[chan]);
 	
 	//compute the spatial width for each wawveform sample	

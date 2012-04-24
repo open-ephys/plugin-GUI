@@ -73,7 +73,7 @@ void BaseUIElement::getPosition(int *x, int *y, double *w, double *h){
 // }
 
 bool BaseUIElement::hitTest(int x, int y){
-    return (x>xpos && x<xpos+width) && (y>ypos && y<ypos+height);
+    return (x > xpos && x < xpos+width) && (y > ypos && y < ypos+height);
 }
 
 double BaseUIElement::getHeight(){

@@ -236,7 +236,7 @@ void ProjectionAxes::createFBO(){
 	// Generate and bind the new Render Buffer
 	glGenRenderbuffersEXT(1, &rboId);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, rboId);
-    std::cout<<" fboID:"<<fboId<<" rboID:"<<rboId<<std::endl;
+    std::cout << " fboID:" << fboId << " rboID:" << rboId << std::endl;
 
     
 	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, texWidth, texHeight);
@@ -266,7 +266,7 @@ void ProjectionAxes::drawSpikesToTexture(bool allSpikes){
 	
 
 	// For some reason if we want to plot ALL the spikes to a texture we must plot two draw cycles
-	// in a row, perhaps this has to do with double buffering, i'm not sure why... investigae this!
+	// in a row, perhaps this has to do with double buffering, I'm not sure why... investigate this!
 	
 	// if the allSpikes flag is set we set the allSpikesNextRender as true so we plot next
 	// all spikes next render cycle too, if only the allSpikesNextRender is true we set all spikes

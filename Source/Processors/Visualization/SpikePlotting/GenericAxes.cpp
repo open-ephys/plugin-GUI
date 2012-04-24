@@ -52,7 +52,7 @@ void GenericAxes::getXLims(double *min, double *max){
 }
 
 void GenericAxes::setType(int t){
-	 if (t<WAVE1 || t>PROJ3x4){
+	 if (t < WAVE1 || t > PROJ3x4){
 		std::cout<<"Invalid Axes type specified";
 		return;
 	}	

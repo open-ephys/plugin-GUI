@@ -235,6 +235,7 @@ void SpikeDisplayCanvas::renderOpenGL()
 	
 	//}
 	//std::cout << getHeight()<<" "<< getTotalHeight()<<" "<<std::endl;
+ 	glLoadIdentity();
  	drawScrollBars();
 }
 
