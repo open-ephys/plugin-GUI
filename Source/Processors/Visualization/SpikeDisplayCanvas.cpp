@@ -123,7 +123,7 @@ void SpikeDisplayCanvas::newOpenGLContextCreated()
 	activateAntiAliasing();
 	disablePointSmoothing();
 
-	glClearColor (0.667, 0.698, 0.918, 1.0);
+	glClearColor (0.667, 0.698, 0.718, 1.0);
 	resized();
 	//endAnimation();
 }
@@ -208,7 +208,7 @@ void SpikeDisplayCanvas::renderOpenGL()
 	//if(!plotsInitialized)
 	//	initializeSpikePlots();
 
-	glClearColor (0.667, 0.698, 0.618, 1.0);
+	glClearColor (0.667, 0.698, 0.718, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
 
 	// Get Spikes from the processor
