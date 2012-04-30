@@ -28,7 +28,7 @@
 OpenGLCanvas::OpenGLCanvas() : //OpenGLComponent(OpenGLComponent::OpenGLType::openGLDefault, true),
 	scrollPix(0), scrollTime(0), scrollDiff(0), originalScrollPix(0), 
 	scrollBarWidth(15), PI(3.1415926), showScrollTrack(true),
-	animationIsActive(false), refreshMs(50)
+	animationIsActive(false), refreshMs(100)
 {
 
 	loadFonts();
