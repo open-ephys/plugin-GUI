@@ -66,6 +66,7 @@ public:
 
 	void switchSelectedState();
 	void select();
+	void highlight();
 	void deselect();
 	bool getSelectionState();
 

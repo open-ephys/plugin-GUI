@@ -245,9 +245,9 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor)
     signalChainManager->updateVisibleEditors(editor, 0, 0, ACTIVATE);
     refreshEditors();
 
+    editor->highlight();
+
 }
-
-
 
 void EditorViewport::deleteNode (GenericEditor* editor) {
 

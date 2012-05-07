@@ -175,6 +175,12 @@ void GenericEditor::select()
 	editorWasClicked();
 }
 
+void GenericEditor::highlight()
+{
+	isSelected = true;
+	repaint();
+}
+
 bool GenericEditor::getSelectionState() {
 	return isSelected;
 }
