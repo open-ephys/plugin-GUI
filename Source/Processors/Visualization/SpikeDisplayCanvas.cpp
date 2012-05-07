@@ -28,16 +28,17 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
 	 	totalScrollPix(0)
 {
 
-	
+	nCols = 3;
 
-	nPlots = 1;
-	nCols = 2; //processor->getNumInputs();
-	std::cout<<"SpikeDisplayNode has :"<<nPlots<<" outputs!"<<std::endl;
+	update();
 	
-	for (int i=0; i<nPlots; i++)
-		nChannels[i] = processor->getNumberOfChannelsForInput(i);
+	spikeBuffer = processor->getSpikeBufferAddress();
+	// std::cout<<"SpikeDisplayNode has :"<<nPlots<<" outputs!"<<std::endl;
+	
+	// // for (int i=0; i<nPlots; i++)
+	// // 	nChannels[i] = processor->getNumberOfChannelsForElectrode(i);
 
-	std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nPlots << std::endl;
+	// std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nPlots << std::endl;
 	
 	
 	
@@ -49,7 +50,11 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 }
 
 void SpikeDisplayCanvas::initializeSpikePlots(){
+
 	std::cout<<"Initializing Plots"<<std::endl;
+
+	if (plots.size() != nPlots)
+	{
 
 	int totalWidth = getWidth(); 
 	
@@ -57,7 +62,9 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 	int plotHeight = plotWidth / 2 + .5;
 	int rowCount = 0;
 
-	for (int i=0; i<nPlots; i++)
+	plots.clear();
+
+	for (int i=0; i < nPlots; i++)
 	{
 
 		StereotrodePlot p = StereotrodePlot( 
@@ -76,11 +83,13 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 
 	}
 
-	totalHeight = rowCount * (plotHeight + yBuffer) + yBuffer * 2;
+	//totalHeight = rowCount * (plotHeight + yBuffer) + yBuffer * 2;
 
 	// Set the total height of the Canvas to the top of the top most plot
 	plotsInitialized = true;
+
 	repositionSpikePlots();
+	}
 }
 
 void SpikeDisplayCanvas::repositionSpikePlots(){
@@ -91,11 +100,11 @@ void SpikeDisplayCanvas::repositionSpikePlots(){
 	int plotHeight = plotWidth / 2 + .5;
 	int rowCount = 0;
 
-	for (int i=0; i<plots.size(); i++)
+	for (int i=0; i < plots.size(); i++)
 	{
 
 		plots[i].setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
-								yBuffer + rowCount * (plotHeight + yBuffer), 
+								getHeight() - ( yBuffer + plotHeight + rowCount * (plotHeight + yBuffer)) + getScrollAmount(), 
 								plotWidth, 
 								plotHeight); // deprecated conversion from string constant to char
 
@@ -104,31 +113,24 @@ void SpikeDisplayCanvas::repositionSpikePlots(){
 	 }
 
 	// Set the total height of the Canvas to the top of the top most plot
-	totalHeight = rowCount * (plotHeight + yBuffer) + yBuffer * 2;
+	totalHeight = (rowCount + 1) * (plotHeight + yBuffer) + yBuffer;
 }
 
 void SpikeDisplayCanvas::newOpenGLContextCreated()
 {
 	std::cout<<"SpikeDisplayCanvas::newOpenGLContextCreated()"<<std::endl;
 	setUp2DCanvas();
-//	activateAntiAliasing();
-	disableAntiAliasing();
+	activateAntiAliasing();
+	disablePointSmoothing();
 
 	glClearColor (0.667, 0.698, 0.718, 1.0);
 	resized();
-	endAnimation();
+	//endAnimation();
 }
 
 void SpikeDisplayCanvas::beginAnimation()
 {
 	std::cout << "Beginning animation." << std::endl;
-
-	// displayBufferSize = displayBuffer->getNumSamples();
-
-	// screenBuffer->clear();
-
-	//displayBufferIndex = 0;
-//	screenBufferIndex = 0;
 	
 	startCallbacks();
 }
@@ -141,19 +143,14 @@ void SpikeDisplayCanvas::endAnimation()
 
 void SpikeDisplayCanvas::update()
 {
-	// nChans = processor->getNumInputs();
-	// sampleRate = processor->getSampleRate();
 
-	// std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nChans << std::endl;
-	// if (nChans < 200 && nChans > 0)
-	// 	screenBuffer->setSize(nChans, 10000);
-	// //sampleRate = processor->getSampleRate();
+	std::cout << "UPDATING SpikeDisplayCanvas" << std::endl;
 
-    // screenBuffer->clear();
+	nPlots = processor->getNumElectrodes();
+
+	initializeSpikePlots();
 
 	repaint();
-
-	// totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
 }
 
 
@@ -198,7 +195,7 @@ void SpikeDisplayCanvas::refreshState()
 	// screenBufferIndex = 0;
 
 	//resized();
-	totalScrollPix = 0;
+	//totalScrollPix = 0;
 }
 
 void SpikeDisplayCanvas::canvasWasResized()
@@ -208,14 +205,15 @@ void SpikeDisplayCanvas::canvasWasResized()
 
 void SpikeDisplayCanvas::renderOpenGL()
 {
-	if(!plotsInitialized)
-		initializeSpikePlots();
+	//if(!plotsInitialized)
+	//	initializeSpikePlots();
 
 	glClearColor (0.667, 0.698, 0.718, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
-//	std::cout<<"SpikeDisplayCanvas::renderOpenGL"<<std::endl;
+
 	// Get Spikes from the processor
 	// Iterate through each spike, passing them individually to the appropriate plots and calling redraw before moving on to the next spike
+
 	
 	//while(processor->getNextSpike(&spike))
 	//{
@@ -225,18 +223,73 @@ void SpikeDisplayCanvas::renderOpenGL()
 	// Distribute those spike to the appropriate plot object
 	
 	
-	SpikeObject tmpSpike;
-	 for (int i=0; i<plots.size(); i++){
-		generateSimulatedSpike(&tmpSpike, 0, 150);
-		plots[i].processSpikeObject(tmpSpike);
- 		plots[i].redraw();
- 		drawPlotTitle( i );
-	 }
+// 	SpikeObject tmpSpike;
+// 	 for (int i=0; i<plots.size(); i++){
+// 		generateSimulatedSpike(&tmpSpike, 0, 150);
+// 		plots[i].processSpikeObject(tmpSpike);
+//  		plots[i].redraw();
+//  		drawPlotTitle( i );
+// 	 }
 	
-	//}
-	//std::cout << getHeight()<<" "<< getTotalHeight()<<" "<<std::endl;
- 	glLoadIdentity();
- 	drawScrollBars();
+// 	//}
+// 	//std::cout << getHeight()<<" "<< getTotalHeight()<<" "<<std::endl;
+//  	glLoadIdentity();
+//  	drawScrollBars();
+// =======
+	processSpikeEvents();
+
+	for (int i = 0; i < plots.size(); i++){
+		plots[i].redraw();
+		drawPlotTitle(i);
+	}
+
+	drawScrollBars();
+ 	
+}
+
+void SpikeDisplayCanvas::processSpikeEvents()
+{
+
+	if (spikeBuffer->getNumEvents() > 0) 
+	{
+			
+		int m = spikeBuffer->getNumEvents();
+		//std::cout << m << " events received by node " << getNodeId() << std::endl;
+
+		MidiBuffer::Iterator i (*spikeBuffer);
+		MidiMessage message(0xf4);
+
+		int samplePosition;
+		i.setNextSamplePosition(samplePosition);
+
+		while (i.getNextEvent (message, samplePosition)) {
+			
+			 uint8* dataptr = message.getRawData();
+			// int bufferSize = message.getRawDataSize();
+			// int nSamples = (bufferSize-4)/2;
+
+			SpikeObject newSpike;
+
+			generateSimulatedSpike(&newSpike, 0, 0);
+
+			int chan = *(dataptr+2);
+			//newSpike.nChannels = 1;
+
+			// int16 waveform[nSamples];
+
+			// for (int i = 0; i < nSamples; i++)
+			// {
+			// 	waveform[i] = (*(dataptr+4+i*2) << 8) + *(dataptr+4+i*2+1);
+			// }
+
+			plots[chan].processSpikeObject(newSpike);
+
+		}
+
+	}
+
+	spikeBuffer->clear();
+
 }
 
 void SpikeDisplayCanvas::drawPlotTitle(int chan){
@@ -256,12 +309,13 @@ void SpikeDisplayCanvas::drawPlotTitle(int chan){
 	String s = "Source:";//String("Channel ");
 	s += (chan+1);
 
-	getFont(String("cpmono-bold"))->FaceSize(25);
+	getFont(String("cpmono-bold"))->FaceSize(15);
 	getFont(String("cpmono-bold"))->Render(s);
 }
 
 int SpikeDisplayCanvas::getTotalHeight() 
 {
+	//std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
 	return totalHeight;
 }
 
@@ -286,7 +340,7 @@ void SpikeDisplayCanvas::mouseDownInCanvas(const MouseEvent& e)
 
 // void SpikeDisplayCanvas::mouseDrag(const MouseEvent& e) {mouseDragInCanvas(e);}
 // void SpikeDisplayCanvas::mouseMove(const MouseEvent& e) {mouseMoveInCanvas(e);}
-void SpikeDisplayCanvas::mouseUp(const MouseEvent& e) 	{
+void SpikeDisplayCanvas::mouseUpInCanvas(const MouseEvent& e) 	{
 	// std::cout<<"Mouse Event!"<<std::endl;
 
 	// bool inout = false;
@@ -301,54 +355,15 @@ void SpikeDisplayCanvas::mouseUp(const MouseEvent& e) 	{
 	// else
 	// 	panPlot(0,0,inout);
 }
-void SpikeDisplayCanvas::mouseWheelMove(const MouseEvent& e, float wheelIncrementX, float wheelIncrementY) {
+void SpikeDisplayCanvas::mouseWheelMoveInCanvas(const MouseEvent& e, float wheelIncrementX, float wheelIncrementY)
+{
 
-	// std::cout<<"Mouse Wheel Move:"<< wheelIncrementX<<","<<wheelIncrementY;
-	// std::cout<<" Scroll Pix:"<<scrollPix<<std::endl;
+	repositionSpikePlots();
 
-	int scrollAmount = 0;
-	// std::cout<<getTotalHeight()<<" "<<getHeight()<<std::endl;
+	repaint();
+	//repaint();
 
-	if (getTotalHeight() > getHeight()) {
-		//if (wheelIncrementY > 0 )
-			scrollAmount += int(100.0f*wheelIncrementY);	
-		//else if (wheelIncrementY < 0)
-			
-		totalScrollPix += scrollAmount;
-		
-		// don't let the user scroll too far down
-		int minScrollDown = (-1 * totalHeight) + getHeight();
-		int maxScrollUp = 0; // never scroll plots up, there is nothing below the bottom plot
-
-		// std::cout<<"TotalScrollPix:"<<totalScrollPix<<" min:"<<minScrollDown<<" max:"<<maxScrollUp<<std::endl;
-		
-		if (totalScrollPix < minScrollDown){
-			totalScrollPix= minScrollDown;
-			scrollAmount = 0;
-		}
-		
-		else if (totalScrollPix > maxScrollUp)
-		{
-			totalScrollPix = maxScrollUp;
-			scrollAmount = 0;
-		}
-
-		for (int i=0; i<plots.size(); i++){
-			int x,y;
-			double w,h;
-			plots[i].getPosition(&x, &y, &w, &h);
-			plots[i].setPosition(x,y+scrollAmount, w, h);
-		}
-
-		scrollPix = 0;//totalScrollPix;
-
-		repaint();
-
-		showScrollBars();
-
-	}
-
-	mouseWheelMoveInCanvas(e, wheelIncrementX, wheelIncrementY);
+	// mouseWheelMoveInCanvas(e, wheelIncrementX, wheelIncrementY);
 }
 
 void SpikeDisplayCanvas::panPlot(int p, int c, bool up){
@@ -365,26 +380,7 @@ void SpikeDisplayCanvas::zoomPlot(int p, int c, bool in){
 	plots[p].zoom(c, in);
 }
 
-void SpikeDisplayCanvas::disableAntiAliasing(){
-
-	glDisable(GL_LINE_SMOOTH);
-	glDisable(GL_POINT_SMOOTH);
-	glDisable(GL_POLYGON_SMOOTH);
+void SpikeDisplayCanvas::disablePointSmoothing()
+{
+	glDisable(GL_POINT_SMOOTH); // needed to make projections visible
 }
-
-// void SpikeDisplayCanvas::resized()
-// {
-// 	//screenBuffer = new AudioSampleBuffer(nChans, getWidth());
-
-// 	// glClear(GL_COLOR_BUFFER_BIT);
-
-// 	// //int h = getParentComponent()->getHeight();
-
-// 	// if (scrollPix + getHeight() > getTotalHeight() && getTotalHeight() > getHeight())
-// 	// 	scrollPix = getTotalHeight() - getHeight();
-// 	// else
-// 	// 	scrollPix = 0;
-
-// 	// showScrollBars();
-// 	canvasWasResized();
-// }

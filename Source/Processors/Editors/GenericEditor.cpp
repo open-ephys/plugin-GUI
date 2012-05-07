@@ -360,6 +360,8 @@ void GenericEditor::update()
 			drawerButton->setVisible(true);
 	}
 
+	updateSettings();
+
 	updateVisualizer(); // does nothing unless this method
 						// has been implemented
 

@@ -44,6 +44,9 @@ public:
 
 	void buttonCallback (Button* button);
 
+    // void updateSettings();
+    // void updateVisualizer();
+
 	Visualizer* createNewCanvas();
 
 private:	

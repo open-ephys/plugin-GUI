@@ -113,7 +113,8 @@ bool LfpDisplayNode::disable()
 void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 {
 	LfpDisplayEditor* ed = (LfpDisplayEditor*) getEditor();
-	ed->canvas->setParameter(parameterIndex, newValue);
+	if (ed->canvas != 0)
+		ed->canvas->setParameter(parameterIndex, newValue);
 }
 
 void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples)

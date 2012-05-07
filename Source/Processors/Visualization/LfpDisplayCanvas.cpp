@@ -234,9 +234,9 @@ void LfpDisplayCanvas::renderOpenGL()
 			drawWaveform(i,isSelected);
 		}	
 	}
-	drawScrollBars();
 
-	//std::cout << "Render." << std::endl;
+	drawScrollBars();
+	
 }
 
 void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
@@ -367,25 +367,3 @@ void LfpDisplayCanvas::mouseDownInCanvas(const MouseEvent& e)
 	}
 
 }
-
-// void LfpDisplayCanvas::mouseDrag(const MouseEvent& e) {mouseDragInCanvas(e);}
-// void LfpDisplayCanvas::mouseMove(const MouseEvent& e) {mouseMoveInCanvas(e);}
-// void LfpDisplayCanvas::mouseUp(const MouseEvent& e) 	{mouseUpInCanvas(e);}
-// void LfpDisplayCanvas::mouseWheelMove(const MouseEvent& e, float a, float b) {mouseWheelMoveInCanvas(e,a,b);}
-
-// void LfpDisplayCanvas::resized()
-// {
-// 	//screenBuffer = new AudioSampleBuffer(nChans, getWidth());
-
-// 	// glClear(GL_COLOR_BUFFER_BIT);
-
-// 	// //int h = getParentComponent()->getHeight();
-
-// 	// if (scrollPix + getHeight() > getTotalHeight() && getTotalHeight() > getHeight())
-// 	// 	scrollPix = getTotalHeight() - getHeight();
-// 	// else
-// 	// 	scrollPix = 0;
-
-// 	// showScrollBars();
-// 	canvasWasResized();
-// }

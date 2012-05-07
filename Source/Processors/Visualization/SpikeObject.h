@@ -55,7 +55,7 @@ struct SpikeObject{
   Finally the buffer will have an additional byte on the end that is used to check the integerity of the entire package.
   The way this works is the buffer is divivded up into a series of 16 bit unsigned integers. The sum of all these integers
   (except the last 16 bit integer) is taken and the sum should equal that 16 bit integer. If not then the data is corrupted 
-  and should be dropped or delt with another way.
+  and should be dropped or dealt with another way.
 */
 
 // Simple method for serializing a SpikeObject into a string of bytes, returns true is the packaged spike buffer is valid

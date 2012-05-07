@@ -56,6 +56,8 @@ public:
 	void newOpenGLContextCreated();
 	void renderOpenGL();
 
+	void processSpikeEvents();
+
 	void beginAnimation();
 	void endAnimation();
 
@@ -70,6 +72,9 @@ public:
 	void zoomPlot(int, int, bool);
 
 private:
+
+
+	MidiBuffer* spikeBuffer;
 
 	int xBuffer, yBuffer;
 
@@ -112,13 +117,13 @@ private:
 	void initializeSpikePlots();
 	void repositionSpikePlots();
 
-	void disableAntiAliasing();
+	void disablePointSmoothing();
 	void canvasWasResized();
 	void mouseDownInCanvas(const MouseEvent& e);
-	// void mouseDrag(const MouseEvent& e);
-	// void mouseMove(const MouseEvent& e);
-	void mouseUp(const MouseEvent& e);
-	void mouseWheelMove(const MouseEvent&, float, float);
+	//void mouseDragInCanvas(const MouseEvent& e);
+	//void mouseMoveInCanvas(const MouseEvent& e);
+	void mouseUpInCanvas(const MouseEvent& e);
+	void mouseWheelMoveInCanvas(const MouseEvent&, float, float);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayCanvas);
 	

@@ -210,6 +210,8 @@ void OpenGLCanvas::stopCallbacks()
 
 void OpenGLCanvas::drawScrollBars()
 {
+
+	//std::cout << "Drawing scroll bars" << std::endl;
 	
 	float scrollBarY = float(getHeight())/float(getTotalHeight());
 	float timeSinceScroll = timer->getMillisecondCounter()-scrollTime;
@@ -244,7 +246,12 @@ void OpenGLCanvas::drawScrollBars()
 
 void OpenGLCanvas::drawScrollBar(float y1, float y2, float alpha)
 {
+
+	//glLoadIdentity();
+
 	glViewport(0,0,getWidth(),getHeight());
+	//glOrtho (0, 1, 1, 0, 0, 1);
+	//setViewportRange(0, 0, getWidth(), getHeight());
 
 	float x1 = (getWidth()-8.0f)/getWidth();
 	float x2 = (getWidth()-2.0f)/getWidth();

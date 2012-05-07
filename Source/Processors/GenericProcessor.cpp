@@ -283,6 +283,7 @@ void GenericProcessor::clearSettings()
 	settings.bitVolts.clear();
 	settings.eventChannelIds.clear();
 	settings.eventChannelNames.clear();
+	settings.eventChannelTypes.clear();
 }
 
 void GenericProcessor::update()

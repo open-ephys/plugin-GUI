@@ -28,7 +28,7 @@
 
 SpikeDisplayNode::SpikeDisplayNode()
 	: GenericProcessor("Spike Viewer"),
-	  bufferSize(0), abstractFifo(100)
+	  bufferSize(0)
 
 {
 //	displayBuffer = new AudioSampleBuffer(8, 100);
@@ -43,18 +43,23 @@ SpikeDisplayNode::~SpikeDisplayNode()
 
 AudioProcessorEditor* SpikeDisplayNode::createEditor()
 {
-	std::cout<<"SpikeDisplayNode Created!"<<std::endl;
+	std::cout<<"Creating SpikeDisplayCanvas."<<std::endl;
 
 	editor = new SpikeDisplayEditor(this);	
 	return editor;
 
 }
 
-void SpikeDisplayNode::updateSettings()
-{
-	std::cout << "Setting num inputs on SpikeDisplayNode to " << getNumInputs() << std::endl;
-}
+// void SpikeDisplayNode::updateSettings()
+// {
+// 	//std::cout << "Setting num inputs on SpikeDisplayNode to " << getNumInputs() << std::endl;
 
+// }
+
+// void SpikeDisplayNode::updateVisualizer()
+// {
+
+// }
 
 bool SpikeDisplayNode::enable()
 {
@@ -73,9 +78,42 @@ bool SpikeDisplayNode::disable()
 	return true;
 }
 
-int SpikeDisplayNode::getNumberOfChannelsForInput(int i){
-	std::cout<<"SpikeDisplayNode::getNumberOfChannelsForInput()"<<std::endl;
-	return 1;
+int SpikeDisplayNode::getNumberOfChannelsForElectrode(int i)
+{
+	//std::cout<<"SpikeDisplayNode::getNumberOfChannelsForInput()"<<std::endl;
+	
+	int electrodeIndex = -1;
+
+	for (int i = 0; i < settings.eventChannelTypes.size(); i++)
+	{
+		if (settings.eventChannelTypes[i] < 999)
+		{
+			electrodeIndex++;
+
+			if (electrodeIndex == i)
+			{
+				return settings.eventChannelTypes[i];
+			}
+		}
+	}
+
+	return 0;
+}
+
+int SpikeDisplayNode::getNumElectrodes()
+{
+	int nElectrodes = 0;
+
+	for (int i = 0; i < settings.eventChannelTypes.size(); i++)
+	{
+		if (settings.eventChannelTypes[i] < 999)
+		{
+			nElectrodes++;
+		}
+	}
+
+	return nElectrodes;
+
 }
 
 
@@ -88,17 +126,19 @@ void SpikeDisplayNode::setParameter (int param, float val)
 
 void SpikeDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples)
 {
-	//std::cout<<"SpikeDisplayNode::process"<<std::endl;
-	/*
-	uint64_t ts =  00000; 
-	int noise = 10;
-	SpikeObject newSpike;
-
-	generateSimulatedSpike(&newSpike, ts, noise);
 	
-	spikebuffer.push(newSpike);
-	bufferSize++;
-	*/
+	checkForEvents(midiMessages); // automatically calls 'handleEvent'
+
+}
+
+void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event)
+{
+
+	if (eventType == SPIKE)
+	{
+		eventBuffer->addEvent(event, 0);
+	}
+
 }
 
 bool SpikeDisplayNode::getNextSpike(SpikeObject *spike){

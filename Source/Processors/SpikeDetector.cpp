@@ -29,29 +29,34 @@ SpikeDetector::SpikeDetector()
       overflowBuffer(2,100), dataBuffer(overflowBuffer)
 	
 {
-
-    electrodeTypes.add("hentrode");
-    electrodeTypes.add("duotrode");
-    electrodeTypes.add("triode");
+    //// the standard form:
+    electrodeTypes.add("single electrode");
+    electrodeTypes.add("stereotrode");
     electrodeTypes.add("tetrode");
-    electrodeTypes.add("pentrode");
-    electrodeTypes.add("hextrode");
-    electrodeTypes.add("heptrode");
-    electrodeTypes.add("octrode");
-    electrodeTypes.add("enneatrode");
-    electrodeTypes.add("decatrode");
-    electrodeTypes.add("hendecatrode");
-    electrodeTypes.add("dodecatrode");
-    electrodeTypes.add("triskaidecatrode");
-    electrodeTypes.add("tetrakaidecatrode");
-    electrodeTypes.add("pentakaidecatrode");
-    electrodeTypes.add("hexadecatrode");
-    electrodeTypes.add("heptakaidecatrode");
-    electrodeTypes.add("octakaidecatrode");
-    electrodeTypes.add("enneakaidecatrode");
-    electrodeTypes.add("icosatrode");
 
-    for (int i = 0; i < 21; i++)
+    //// the technically correct form (Greek cardinal prefixes):
+    // electrodeTypes.add("hentrode");
+    // electrodeTypes.add("duotrode");
+    // electrodeTypes.add("triode");
+    // electrodeTypes.add("tetrode");
+    // electrodeTypes.add("pentrode");
+    // electrodeTypes.add("hextrode");
+    // electrodeTypes.add("heptrode");
+    // electrodeTypes.add("octrode");
+    // electrodeTypes.add("enneatrode");
+    // electrodeTypes.add("decatrode");
+    // electrodeTypes.add("hendecatrode");
+    // electrodeTypes.add("dodecatrode");
+    // electrodeTypes.add("triskaidecatrode");
+    // electrodeTypes.add("tetrakaidecatrode");
+    // electrodeTypes.add("pentakaidecatrode");
+    // electrodeTypes.add("hexadecatrode");
+    // electrodeTypes.add("heptakaidecatrode");
+    // electrodeTypes.add("octakaidecatrode");
+    // electrodeTypes.add("enneakaidecatrode");
+    // electrodeTypes.add("icosatrode");
+
+    for (int i = 0; i < electrodeTypes.size()+1; i++)
     {
         electrodeCounter.add(0);
     }
@@ -75,6 +80,13 @@ void SpikeDetector::updateSettings()
 
     if (getNumInputs() > 0)
         overflowBuffer.setSize(getNumInputs(), overflowBufferSize);
+
+    for (int i = 0; i < electrodes.size(); i++)
+    {
+       settings.eventChannelIds.add(i);
+       settings.eventChannelNames.add(electrodes[i]->name);
+       settings.eventChannelTypes.add(electrodes[i]->numChannels);
+    }
 
 }
 
@@ -126,7 +138,7 @@ bool SpikeDetector::addElectrode(int nChans)
 
 float SpikeDetector::getDefaultThreshold()
 {
-    return 0.14;
+    return 0.08;
 }
 
 StringArray SpikeDetector::getElectrodeNames()

@@ -45,8 +45,8 @@ ProcessorList::ProcessorList() : isDragging(false),
 	};
 
 	setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
-	setColour(FILTER_COLOR, Colour(27, 86, 224));//Colour(255, 89, 0));
-	setColour(SINK_COLOR, Colour(41, 76, 158));//Colour(255, 149, 0));
+	setColour(FILTER_COLOR, Colour(41, 76, 158));//Colour(255, 89, 0));
+	setColour(SINK_COLOR, Colour(93, 125, 199));//Colour(255, 149, 0));
 	setColour(SOURCE_COLOR, Colour(48, 67, 112)); //Colour(255, 0, 0));
 	setColour(UTILITY_COLOR, Colour(90, 80, 80));
 

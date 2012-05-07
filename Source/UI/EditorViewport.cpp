@@ -259,14 +259,14 @@ void EditorViewport::deleteNode (GenericEditor* editor) {
         getProcessorGraph()->removeProcessor((GenericProcessor*) editor->getProcessor());
     }
 
-    int64 t1 = Time::currentTimeMillis();
-    int64 t2 = t1;
+    // int64 t1 = Time::currentTimeMillis();
+    // int64 t2 = t1;
 
-    // pause for 50 ms so multiple editors are not accidentally deleted
-    while (t2 < t1+50)
-    {
-        t2 = Time::currentTimeMillis();
-    }
+    // // pause for 50 ms so multiple editors are not accidentally deleted
+    // while (t2 < t1+50)
+    // {
+    //     t2 = Time::currentTimeMillis();
+    // }
 
 }
 
@@ -421,7 +421,7 @@ bool EditorViewport::keyPressed (const KeyPress &key) {
         
             if (editorArray[i]->getSelectionState()) {
 #if !JUCE_MAC
-                deleteNode(editorArray[i]);
+           //     deleteNode(editorArray[i]);
                 break;
 #endif
             }               
