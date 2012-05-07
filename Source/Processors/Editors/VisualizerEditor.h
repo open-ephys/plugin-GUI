@@ -66,6 +66,8 @@ public:
 	virtual void enable();
 	virtual void disable();
 
+	void editorWasClicked();
+
 	void updateVisualizer();
 
 	ScopedPointer<DataWindow> dataWindow;

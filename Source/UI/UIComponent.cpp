@@ -35,7 +35,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 
 	dataViewport = new DataViewport ();
 	addChildComponent(dataViewport);
-	dataViewport->addTabToDataViewport("Info",infoLabel);
+	dataViewport->addTabToDataViewport("Info",infoLabel,0);
 
 	std::cout << "Created data viewport." << std::endl;
 
@@ -76,6 +76,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	processorGraph->setUIComponent(this);
 	processorList->setUIComponent(this);
 	editorViewport->setUIComponent(this);
+	dataViewport->setUIComponent(this);
 	controlPanel->getAudioEditor()->setUIComponent(this);
 
 	processorGraph->loadState();
@@ -84,9 +85,10 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 
 UIComponent::~UIComponent()
 {
-	deleteAllChildren();
+
 
 	deleteAndZero(infoLabel);
+	deleteAllChildren();
 
 	processorGraph = 0;
 	audio = 0;
@@ -156,6 +158,11 @@ void UIComponent::disableCallbacks()
 {
 	//sendActionMessage("Data acquisition terminated.");
 	controlPanel->disableCallbacks();
+}
+
+void UIComponent::disableDataViewport()
+{
+	dataViewport->disableConnectionToEditorViewport();
 }
 
 void UIComponent::childComponentChanged()

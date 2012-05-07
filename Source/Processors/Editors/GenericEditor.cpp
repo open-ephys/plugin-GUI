@@ -171,6 +171,8 @@ void GenericEditor::select()
 	repaint();
 	setWantsKeyboardFocus(true);
 	grabKeyboardFocus();
+
+	editorWasClicked();
 }
 
 bool GenericEditor::getSelectionState() {

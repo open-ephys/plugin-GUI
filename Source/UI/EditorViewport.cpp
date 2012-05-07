@@ -239,9 +239,12 @@ void EditorViewport::itemDropped (const String& sourceDescription, Component* /*
 void EditorViewport::makeEditorVisible(GenericEditor* editor)
 {
     
-    signalChainManager->updateVisibleEditors(editor, 0, 0, ACTIVATE);
+    if (editor == 0)
+        return;
 
+    signalChainManager->updateVisibleEditors(editor, 0, 0, ACTIVATE);
     refreshEditors();
+
 }
 
 

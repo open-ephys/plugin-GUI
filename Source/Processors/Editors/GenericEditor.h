@@ -97,6 +97,7 @@ public:
 	virtual void buttonEvent(Button* button) {}
 	virtual void sliderValueChanged(Slider* slider);
 	virtual void sliderEvent(Slider* slider) {}
+	virtual void editorWasClicked() {}
 
 	bool checkDrawerButton(Button* button);
 //	bool checkParameterButtons(Button* button);

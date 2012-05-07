@@ -22,14 +22,16 @@
 */
 
 #include "DataViewport.h"
+#include "EditorViewport.h"
 #include "../Processors/Visualization/OpenGLCanvas.h"
 
 DataViewport::DataViewport() :
 	TabbedComponent(TabbedButtonBar::TabsAtRight),
-	tabDepth(32)
+	tabDepth(32), shutdown(false)
 {
 
-    tabArray = new Array<int>;
+    tabArray.clear();
+    editorArray.clear();
 
 	setTabBarDepth(tabDepth);
 	setIndent(8); // gap to leave around the edge
@@ -43,12 +45,12 @@ DataViewport::DataViewport() :
 
 DataViewport::~DataViewport()
 {
-	deleteAndZero(tabArray);
+
 }
 
- int DataViewport::addTabToDataViewport(String name, Component* component) {
+ int DataViewport::addTabToDataViewport(String name, Component* component, GenericEditor* editor) {
 
- 	if (tabArray->size() == 0)
+ 	if (tabArray.size() == 0)
  		setVisible(true);
 
      int tabIndex = getTabbedButtonBar().getNumTabs();
@@ -57,29 +59,54 @@ DataViewport::~DataViewport()
 
      setOutline(0);
 
-     tabArray->add(tabIndex);
+     tabArray.add(tabIndex);
+
+     editorArray.add(editor);
 
      return tabIndex;
 
  }
 
+
+ void DataViewport::selectTab(int index) {
+        
+    int newIndex = tabArray.indexOf(index);
+
+    getTabbedButtonBar().setCurrentTabIndex(newIndex);
+
+ }
+
  void DataViewport::destroyTab(int index) {
         
-    int newIndex = tabArray->indexOf(index);
+    int newIndex = tabArray.indexOf(index);
 
-    Component* canvas = getTabContentComponent(newIndex);
-    Component* parent = canvas->getParentComponent();
-    parent->removeChildComponent(canvas);
+    Component* canvas;
+    Component* parent;
 
-    tabArray->remove(newIndex);
+    canvas = getTabContentComponent(newIndex);
 
-    removeTab(newIndex);
-    //getTabbedButtonBar().removeTab(newIndex);
+    if (canvas != 0)
+        parent = canvas->getParentComponent();
 
-    if (tabArray->size() == 0)
+    if (parent != 0 && canvas != 0)
+        parent->removeChildComponent(canvas);
+
+    tabArray.remove(newIndex);
+    editorArray.remove(newIndex);
+
+    //removeTab(newIndex);
+    getTabbedButtonBar().removeTab(newIndex);
+
+    if (tabArray.size() == 0)
      	setVisible(false);
 
  }
+
+ void DataViewport::disableConnectionToEditorViewport()
+ {
+    std::cout << "DISABLING DATAVIEWPORT CONNECTION" << std::endl;
+    shutdown = true;
+} 
 
  void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
  {
@@ -88,6 +115,12 @@ DataViewport::~DataViewport()
      if (canvas != 0) {
          canvas->refreshState();
      }
+
+     std::cout << "CURRENT TAB CHANGED" << std::endl;
+     std::cout << "number of editors remaining: " << editorArray.size() << std::endl;
+
+     if (!shutdown)
+        getEditorViewport()->makeEditorVisible(editorArray[newIndex]);
  }
 
 void DataViewport::paint(Graphics& g)

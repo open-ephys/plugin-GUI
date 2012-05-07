@@ -111,7 +111,7 @@ VisualizerEditor::~VisualizerEditor()
 
 	if (tabIndex > -1)
 	{
-		getDataViewport()->removeTab(tabIndex);
+		getDataViewport()->destroyTab(tabIndex);
 	}
 
 	deleteAllChildren();
@@ -140,6 +140,17 @@ void VisualizerEditor::updateVisualizer()
 
 	if (canvas != 0)
 		canvas->update();
+
+}
+
+void VisualizerEditor::editorWasClicked()
+{
+
+	if (tabIndex > -1)
+	{
+		std::cout << "Setting tab index to " << tabIndex << std::endl;
+		getDataViewport()->selectTab(tabIndex);
+	}
 
 }
 
@@ -208,7 +219,7 @@ void VisualizerEditor::buttonEvent(Button* button)
 				 	dataWindow->setVisible(false);
 				 }
 
-				tabIndex = getDataViewport()->addTabToDataViewport(tabText,canvas);
+				tabIndex = getDataViewport()->addTabToDataViewport(tabText, canvas, this);
 
 
 			} else if (!tabSelector->getToggleState() && tabIndex > -1)
