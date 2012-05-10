@@ -352,8 +352,6 @@ void SpikeDetector::process(AudioSampleBuffer &buffer,
    // std::cout << "nSamples: " << nSamples;
     //std::cout << "overflowBufferSize:" << overflowBufferSize;
 
-    //if (nSamples > overflowBufferSize) {
-
     for (int i = 0; i < overflowBuffer.getNumChannels(); i++)
     {
         overflowBuffer.copyFrom(i, 0, 
@@ -361,11 +359,9 @@ void SpikeDetector::process(AudioSampleBuffer &buffer,
                                 nSamples-overflowBufferSize, 
                                 overflowBufferSize);
     }
-        useOverflowBuffer = true;
-    //} else {
-   //     useOverflowBuffer = false;
-   // }
     
+    useOverflowBuffer = true;
+
 }
 
 float SpikeDetector::getNextSample(int& chan)

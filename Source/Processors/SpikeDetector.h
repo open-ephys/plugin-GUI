@@ -48,33 +48,79 @@ class SpikeDetector : public GenericProcessor
 {
 public:
 	
+	// CONSTRUCTOR AND DESTRUCTOR // 
+
+	/** constructor */
 	SpikeDetector();
+
+	/** destructor */
 	~SpikeDetector();
+
 	
+	// PROCESSOR METHODS // 
+
+	/** Processes an incoming continuous buffer and places new
+	    spikes into the event buffer. */
 	void process(AudioSampleBuffer &buffer, MidiBuffer &events, int& nSamples);
+	
+	/** Used to alter parameters of data acquisition. */
 	void setParameter (int parameterIndex, float newValue);
 
+	/** Called whenever the signal chain is altered. */
 	void updateSettings();
 
+	/** Called prior to start of acquisition. */
 	bool enable();
+
+	/** Called after acquisition is finished. */
 	bool disable();
 
+	/** Creates the SpikeDetectorEditor. */
 	AudioProcessorEditor* createEditor();
 
+
+	// INTERNAL BUFFERS // 
+
+	/** Extra samples are placed in this buffer to allow seamless
+	    transitions between callbacks. */
 	AudioSampleBuffer overflowBuffer;
+
+	/** Reference to a continuous buffer (for internal use only). */
 	AudioSampleBuffer& dataBuffer;
 
-	bool addElectrode(int nChans);
-	bool removeElectrode(int index);
-	bool setChannel(int electrodeIndex, int channelNum, int newChannel);
-	bool setName(int index, String newName);
 
+	// CREATE AND DELETE ELECTRODES // 
+
+	/** Adds an electrode with n channels to be processed. */
+	bool addElectrode(int nChans);
+
+	/** Removes an electrode with a given index. */
+	bool removeElectrode(int index);
+
+
+	// EDIT AND QUERY ELECTRODE SETTINGS // 
+
+	/** Returns the number of channels for a given electrode. */
 	int getNumChannels(int index);
+
+	/** Edits the mapping between input channels and electrode channels. */
+	bool setChannel(int electrodeIndex, int channelNum, int newChannel);
+
+	/** Returns the continuous channel that maps to a given 
+		electrode channel. */
 	int getChannel(int index, int chan);
 
-	StringArray electrodeTypes;
+	/** Sets the name of a given electrode. */
+	bool setElectrodeName(int index, String newName);
 
+
+	// RETURN STRING ARRAYS // 
+
+	/** Returns a StringArray containing the names of all electrodes */
 	StringArray getElectrodeNames();
+
+	/** Returns a list of possible electrode types (e.g., stereotrode, tetrode). */
+	StringArray electrodeTypes;
 
 private:
 
@@ -83,7 +129,6 @@ private:
 	int overflowBufferSize;
 
 	int sampleIndex;
-	//int lastBufferIndex;
 
 	Array<int> electrodeCounter;
 

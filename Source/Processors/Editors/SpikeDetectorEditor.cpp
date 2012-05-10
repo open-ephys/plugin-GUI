@@ -51,7 +51,7 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode)
     electrodeTypes->setEditableText(false);
     electrodeTypes->setJustificationType (Justification::centredLeft);
     electrodeTypes->addListener(this);
-    electrodeTypes->setBounds(65,40,130,16);
+    electrodeTypes->setBounds(65,40,110,20);
     electrodeTypes->setSelectedId(2);
     addAndMakeVisible(electrodeTypes);
 
@@ -59,7 +59,7 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode)
     electrodeList->setEditableText(false);
     electrodeList->setJustificationType (Justification::centredLeft);
     electrodeList->addListener(this);
-    electrodeList->setBounds(20,80,115,20);
+    electrodeList->setBounds(15,75,115,20);
     addAndMakeVisible(electrodeList);
 
     numElectrodes = new Label("Number of Electrodes","2");
@@ -87,19 +87,19 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode)
     ElectrodeEditorButton* e1 = new ElectrodeEditorButton("EDIT",font);
     e1->addListener(this);
     addAndMakeVisible(e1);
-    e1->setBounds(250,80,70,10);
+    e1->setBounds(15,110,40,10);
     electrodeEditorButtons.add(e1);
 
     ElectrodeEditorButton* e2 = new ElectrodeEditorButton("MONITOR",font);
     e2->addListener(this);
     addAndMakeVisible(e2);
-    e2->setBounds(250,95,70,10);
+    e2->setBounds(55,110,70,10);
     electrodeEditorButtons.add(e2);
 
     ElectrodeEditorButton* e3 = new ElectrodeEditorButton("DELETE",font);
     e3->addListener(this);
     addAndMakeVisible(e3);
-    e3->setBounds(250,110,70,10);
+    e3->setBounds(130,110,70,10);
     electrodeEditorButtons.add(e3);
 
 
