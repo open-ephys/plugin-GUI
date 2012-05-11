@@ -29,35 +29,34 @@
 
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
 	isNotSink(createButtons), titleFont(titleFont_), offsetLR(0), offsetUD(0),
-	moveRight(false), moveLeft(false), desiredOffset(0)
+	moveRight(false), moveLeft(false), desiredOffset(0), paramsActive(true), paramsToggled(true),
+	radioStatus(false)
 {
 
-	//if (createButtons)
-	//{
-		audioButton = new EditorButton("AUDIO", titleFont);
-	    audioButton->addListener(this);
-	    addAndMakeVisible(audioButton);
-	    if (!createButtons)
-	    	audioButton->setState(false);
+	// initialize buttons
+	audioButton = new EditorButton("AUDIO", titleFont);
+    audioButton->addListener(this);
+    addAndMakeVisible(audioButton);
+    if (!createButtons)
+    	audioButton->setState(false);
 
-	 	recordButton = new EditorButton("REC", titleFont);
-		recordButton->addListener(this);
-		addAndMakeVisible(recordButton);
-		 if (!createButtons)
-	    	recordButton->setState(false);
+ 	recordButton = new EditorButton("REC", titleFont);
+	recordButton->addListener(this);
+	addAndMakeVisible(recordButton);
+	 if (!createButtons)
+    	recordButton->setState(false);
 
-		paramsButton = new EditorButton("PARAM", titleFont);
-		paramsButton->addListener(this);
-		addAndMakeVisible(paramsButton);
-		
-		paramsButton->setToggleState(true, false);
+	paramsButton = new EditorButton("PARAM", titleFont);
+	paramsButton->addListener(this);
+	addAndMakeVisible(paramsButton);
+	
+	paramsButton->setToggleState(true, false);
 
-		audioButtons.clear();
-		recordButtons.clear();
-	//}	
+	audioButtons.clear();
+	recordButtons.clear();
 
-
-	parameterOffset = 0;//
+	// set button layout parameters
+	parameterOffset = 0;
 	recordOffset = getDesiredWidth();
 	audioOffset = getDesiredWidth()*2;
 
@@ -105,7 +104,6 @@ void ChannelSelector::setNumChannels(int numChans)
 {
 
 	int difference = numChans - parameterButtons.size();
-
 
 	std::cout << difference << " buttons needed." << std::endl;
 
@@ -157,16 +155,12 @@ void ChannelSelector::refreshButtonBoundaries()
 
 	}
 
-	//if (isNotSink)
-	//{
-		int w = getWidth()/3;
-		int h = 15;
+	int w = getWidth()/3;
+	int h = 15;
 
-		audioButton->setBounds(0, 0, w, h);
-		recordButton->setBounds(w, 0, w, h);
-		paramsButton->setBounds(w*2, 0, w, h);
-
-	//}
+	audioButton->setBounds(0, 0, w, h);
+	recordButton->setBounds(w, 0, w, h);
+	paramsButton->setBounds(w*2, 0, w, h);
 
 	allButton->setBounds(0, getHeight()-15, getWidth()/2, 15);
 	noneButton->setBounds(getWidth()/2, getHeight()-15, getWidth()/2, 15);
@@ -210,7 +204,15 @@ void ChannelSelector::addButton()
 	ChannelSelectorButton* b = new ChannelSelectorButton(size+1, PARAMETER, titleFont);
 	parameterButtons.add(b);
 	addAndMakeVisible(b);
-	b->setToggleState(true, false);
+
+	if (paramsToggled)
+		b->setToggleState(true, false);
+	else 
+		b->setToggleState(false, false);
+
+	if (!paramsActive)
+		b->setActive(false);
+
 	b->addListener(this);
 
 	if (isNotSink)
@@ -250,6 +252,7 @@ void ChannelSelector::removeButton()
 Array<int> ChannelSelector::getActiveChannels()
 {
 	Array<int> a;
+
 	for (int i = 0; i < parameterButtons.size(); i++)
 	{
 		if (parameterButtons[i]->getToggleState())
@@ -257,6 +260,65 @@ Array<int> ChannelSelector::getActiveChannels()
 	}
 
 	return a;
+}
+
+void ChannelSelector::setActiveChannels(Array<int> a)
+{
+
+	std::cout << "Setting active channels!" << std::endl;
+
+	for (int i = 0; i < parameterButtons.size(); i++)
+	{
+		parameterButtons[i]->setToggleState(false,false);
+	}
+
+	for (int i = 0; i < a.size(); i++)
+	{
+		parameterButtons[a[i]]->setToggleState(true,false);
+	}
+}
+
+void ChannelSelector::inactivateButtons()
+{
+
+	paramsActive = false;
+
+	for (int i = 0; i < parameterButtons.size(); i++)
+	{
+		parameterButtons[i]->setActive(false);
+		parameterButtons[i]->repaint();
+	}
+}
+
+void ChannelSelector::activateButtons()
+{
+
+	paramsActive = true;
+
+	for (int i = 0; i < parameterButtons.size(); i++)
+	{
+		parameterButtons[i]->setActive(true);
+		parameterButtons[i]->repaint();
+	}
+
+}
+
+void ChannelSelector::setRadioStatus(bool radioOn)
+{
+
+	radioStatus = radioOn;
+
+	for (int i = 0; i < parameterButtons.size(); i++)
+	{
+		if (radioOn) {
+			parameterButtons[i]->setToggleState(false, false);
+			parameterButtons[i]->setRadioGroupId(999);
+		} else {
+			parameterButtons[i]->setToggleState(false, false);
+			parameterButtons[i]->setRadioGroupId(0);
+		}
+	}
+
 }
 
 bool ChannelSelector::getRecordStatus(int chan)
@@ -372,6 +434,12 @@ void ChannelSelector::buttonClicked(Button* button)
 			//getProcessorGraph()->getRecordNode()->setParameter();
 		} else {
 			// do nothing
+			if (radioStatus) // if radio buttons are active
+			{
+				// send a message to parent
+				GenericEditor* editor = (GenericEditor*) getParentComponent();
+				editor->channelChanged(b->getChannel());
+			}
 		}
 
 	}
@@ -537,6 +605,7 @@ void EditorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 
 ChannelSelectorButton::ChannelSelectorButton(int num_, int type_, Font& f) : Button("name") 
 {
+	isActive = true;
 	num = num_;
 	type = type_;
 
@@ -549,13 +618,20 @@ ChannelSelectorButton::ChannelSelectorButton(int num_, int type_, Font& f) : But
 
 void ChannelSelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
-    if (getToggleState() == true)
-        g.setColour(Colours::orange);
-    else 
-        g.setColour(Colours::darkgrey);
+	if (isActive) {
+		if (getToggleState() == true)
+		    g.setColour(Colours::orange);
+		else 
+		    g.setColour(Colours::darkgrey);
 
-    if (isMouseOver)
-        g.setColour(Colours::white);
+		if (isMouseOver)
+		    g.setColour(Colours::white);
+	} else {
+		if (getToggleState() == true)
+			g.setColour(Colours::yellow);
+		else
+			g.setColour(Colours::lightgrey);
+	}
 
     // g.fillRect(0,0,getWidth(),getHeight());
 
@@ -564,4 +640,10 @@ void ChannelSelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isBu
     // g.drawRect(0,0,getWidth(),getHeight(),1.0);
 
     g.drawText(String(num),0,0,getWidth(),getHeight(),Justification::centred,true);
+}
+
+void ChannelSelectorButton::setActive(bool t)
+{
+	isActive = t;
+	setClickingTogglesState(t);
 }

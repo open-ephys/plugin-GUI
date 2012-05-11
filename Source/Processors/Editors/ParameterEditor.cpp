@@ -355,9 +355,9 @@ ParameterSlider::ParameterSlider(float min, float max,
 {
 
 	setSliderStyle(Slider::Rotary);
-	setRange(min,max,1.0f);
-	setValue(def);
-	setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
+    setRange(min,max,1.0f);
+    setValue(def);
+    setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
 
 }
 

@@ -122,6 +122,10 @@ public:
 	/** Returns a list of possible electrode types (e.g., stereotrode, tetrode). */
 	StringArray electrodeTypes;
 
+	void setChannelThreshold(int electrodeNum, int channelNum, float threshold);
+
+	double getChannelThreshold(int electrodeNum, int channelNum);
+
 private:
 
 	float getDefaultThreshold();
@@ -137,6 +141,9 @@ private:
 	bool samplesAvailable(int& nSamples);
 
 	bool useOverflowBuffer;
+
+	int currentElectrode;
+	int currentChannelIndex;
 
 	struct Electrode {
 

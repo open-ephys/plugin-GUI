@@ -113,6 +113,8 @@ public:
 	virtual void updateSettings() {}
 	virtual void updateVisualizer() {}
 
+	virtual void channelChanged(int chan) {}
+
 	Array<int> getActiveChannels();
 
 	Font titleFont;

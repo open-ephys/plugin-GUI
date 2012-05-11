@@ -22,6 +22,7 @@
 */
 
 #include "SpikeDisplayEditor.h"
+
 #include <string>
 
 SpikeDisplayEditor::SpikeDisplayEditor (GenericProcessor* parentNode) 
@@ -39,6 +40,8 @@ SpikeDisplayEditor::SpikeDisplayEditor (GenericProcessor* parentNode)
 	initializeButtons();
 
 	tabText = "Spikes";
+
+
 
 }
 

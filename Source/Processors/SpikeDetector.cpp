@@ -26,7 +26,7 @@
 
 SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"), overflowBufferSize(100),
-      overflowBuffer(2,100), dataBuffer(overflowBuffer)
+      overflowBuffer(2,100), dataBuffer(overflowBuffer), currentElectrode(-1)
 	
 {
     //// the standard form:
@@ -94,17 +94,6 @@ bool SpikeDetector::addElectrode(int nChans)
 {
     int firstChan;
 
-    int currentVal = electrodeCounter[nChans];
-    electrodeCounter.set(nChans,++currentVal);
-
-    String electrodeName = electrodeTypes[nChans-1];
-    String newName = electrodeName.substring(0,1);
-    newName = newName.toUpperCase();
-    electrodeName = electrodeName.substring(1,electrodeName.length());
-    newName += electrodeName;
-    newName += " ";
-    newName += electrodeCounter[nChans];
-
     if (electrodes.size() == 0)
     {
         firstChan = 0;
@@ -112,6 +101,29 @@ bool SpikeDetector::addElectrode(int nChans)
         Electrode* e = electrodes.getLast();
         firstChan = *(e->channels+(e->numChannels-1))+1;
     }
+
+    if (firstChan + nChans > getNumInputs())
+    {
+        return false;
+    }
+
+    int currentVal = electrodeCounter[nChans];
+    electrodeCounter.set(nChans,++currentVal);
+
+    String electrodeName;
+
+    // hard-coded for tetrode configuration
+    if (nChans < 3)
+        electrodeName = electrodeTypes[nChans-1];
+    else
+        electrodeName = electrodeTypes[nChans-2];
+
+    String newName = electrodeName.substring(0,1);
+    newName = newName.toUpperCase();
+    electrodeName = electrodeName.substring(1,electrodeName.length());
+    newName += electrodeName;
+    newName += " ";
+    newName += electrodeCounter[nChans];
 
     Electrode* newElectrode = new Electrode();
 
@@ -134,11 +146,13 @@ bool SpikeDetector::addElectrode(int nChans)
 
     electrodes.add(newElectrode);
 
+    return true;
+
 }
 
 float SpikeDetector::getDefaultThreshold()
 {
-    return 0.08;
+    return 75.0f;
 }
 
 StringArray SpikeDetector::getElectrodeNames()
@@ -170,7 +184,7 @@ bool SpikeDetector::removeElectrode(int index)
     return true;
 }
 
-bool SpikeDetector::setName(int index, String newName)
+bool SpikeDetector::setElectrodeName(int index, String newName)
 {
     electrodes[index-1]->name = newName;
 }
@@ -190,14 +204,24 @@ int SpikeDetector::getChannel(int index, int i)
     return *(electrodes[index]->channels+i);
 }
 
+void SpikeDetector::setChannelThreshold(int electrodeNum, int channelNum, float thresh)
+{
+    currentElectrode = electrodeNum;
+    currentChannelIndex = channelNum;
+    setParameter(99, thresh);
+}
+
+double SpikeDetector::getChannelThreshold(int electrodeNum, int channelNum)
+{
+    return *(electrodes[electrodeNum]->thresholds+channelNum);
+}
+
 void SpikeDetector::setParameter (int parameterIndex, float newValue)
 {
-	//std::cout << "Message received." << std::endl;
-	// if (parameterIndex == 0) 
- //    {
- //        thresh.set(currentChannel,newValue);
-	// }
-
+    if (parameterIndex == 99 && currentElectrode > -1)
+    {
+        *(electrodes[currentElectrode]->thresholds+currentChannelIndex) = newValue;
+    }
 }
 
 

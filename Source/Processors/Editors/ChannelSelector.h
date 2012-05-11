@@ -48,18 +48,39 @@ class ChannelSelector : public Component,
 {
 public:
 
+	/** constructor */
 	ChannelSelector(bool createButtons, Font& titleFont);
+
+	/** destructor */
 	~ChannelSelector();
 
+	/** button callback */
 	void buttonClicked(Button* button);
 
+	/** Return an array of selected channels. */
 	Array<int> getActiveChannels();
 
+	/** Set the selected channels. */
+	void setActiveChannels(Array<int>);
+
+	/** Set the total number of channels. */
 	void setNumChannels(int);
 
+	/** Return whether a particular channel should be recording. */
 	bool getRecordStatus(int chan);
 
+	/** Return component's desired width. */
 	int getDesiredWidth();
+
+
+	void inactivateButtons();
+
+	void activateButtons();
+
+	void setRadioStatus(bool);
+
+	void paramButtonsToggledByDefault(bool t) {paramsToggled = t;}
+	//void paramButtonsActiveByDefault(bool t) {paramsActive = t;}
 
 private:
 
@@ -72,6 +93,10 @@ private:
 	Array<ChannelSelectorButton*> parameterButtons;
 	Array<ChannelSelectorButton*> audioButtons;
 	Array<ChannelSelectorButton*> recordButtons;
+
+	bool paramsToggled;
+	bool paramsActive;
+	bool radioStatus;
 
 	bool isNotSink;
 	bool moveRight;
@@ -132,8 +157,6 @@ private:
 
 	Path outlinePath;
 
-	
-
 	int type;
 	Font buttonFont;
 
@@ -150,6 +173,7 @@ public:
 
 	int getType() {return type;}
 	int getChannel() {return num;}
+	void setActive(bool t);
 
 private:
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
@@ -157,6 +181,7 @@ private:
 	int type;
 	int num;
 	Font buttonFont;
+	bool isActive;
 };
 
 
