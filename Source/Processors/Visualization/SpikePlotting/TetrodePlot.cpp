@@ -110,6 +110,23 @@ void TetrodePlot::initAxes(){
 
 }
 
+void TetrodePlot::setLimitsOnAxes(){
+    std::cout<<"TetrodePlot::setLimitsOnAxes()"<<std::endl;
+    
+    wAxes[0].setYLims(limits[0][0], limits[0][1]);
+    wAxes[1].setYLims(limits[1][0], limits[1][1]);
+    wAxes[2].setYLims(limits[0][0], limits[0][1]);
+    wAxes[3].setYLims(limits[1][0], limits[1][1]);
+
+    for (int i=0; i<6; i++)
+    {
+        pAxes[i].setYLims(limits[0][0], limits[0][1]);
+        pAxes[i].setXLims(limits[1][0], limits[1][1]);
+    }
+    
+
+}
+
 void TetrodePlot::setPosition(int x, int y, double w, double h){
     BaseUIElement::setPosition(x,y,w,h);
     int minX = BaseUIElement::xpos;
@@ -133,16 +150,16 @@ void TetrodePlot::setPosition(int x, int y, double w, double h){
     //titleBox.setPosition(x, y+h-titleHeight-3, w, titleHeight+3);
 }
 
-void TetrodePlot::setPosition(int x, int y){
-    setPosition(x,y, BaseUIElement::width, BaseUIElement::height );
-}
+// void TetrodePlot::setPosition(int x, int y){
+//     setPosition(x,y, BaseUIElement::width, BaseUIElement::height );
+// }
 
-void TetrodePlot::setDimensions(double w, double h){
-    setPosition(BaseUIElement::xpos, BaseUIElement::ypos, w, h);
-}
+// void TetrodePlot::setDimensions(double w, double h){
+//     setPosition(BaseUIElement::xpos, BaseUIElement::ypos, w, h);
+// }
 
 int TetrodePlot::getNumberOfAxes(){
-    return 1;;
+    return 4;
 }
 
 
@@ -317,4 +334,52 @@ bool TetrodePlot::processKeyEvent(SimpleKeyEvent k){
     // }
 }
 
+
+void TetrodePlot::clear(){
+    std::cout<<"TetrodePlot::clear()"<<std::endl;
+    
+    for (int i = 0; i < 6; i++)
+        pAxes[i].clear();
+}
+
+
+
+void TetrodePlot::pan(int dim, bool up){
+
+    std::cout<<"TetrodePlot::pan() dim:"<<dim<<std::endl;
+    if (dim>1 || dim<0)
+        return;
+    
+    int mean = (limits[dim][0] + limits[dim][1])/2;
+    int dLim = limits[dim][1] - mean;
+    
+    if (up)
+        mean = mean + dLim/20;
+    else
+        mean = mean - dLim/20;
+
+    limits[dim][0] = mean-dLim;
+    limits[dim][1] = mean+dLim;
+
+    setLimitsOnAxes();
+}
+void TetrodePlot::zoom(int dim, bool in){
+    std::cout<<"TetrodePlot::zoom()"<<std::endl;
+
+    if (dim>1 || dim<0)
+        return;
+    
+    int mean = (limits[dim][0] + limits[dim][1])/2;
+    int dLim = limits[dim][1] - mean;
+    
+    if (in)
+        dLim = dLim * .90;
+    else
+        dLim = dLim / .90;
+
+    limits[dim][0] = mean-dLim;
+    limits[dim][1] = mean+dLim;
+
+    setLimitsOnAxes();
+}
 

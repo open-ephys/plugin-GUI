@@ -407,24 +407,95 @@ void DrawerButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 
 }
 
+UtilityButton::UtilityButton(const String& label_, Font font_) :
+    	 Button(label_), label(label_), font(font_)
+ {
+ 	selectedGrad = ColourGradient(Colour(240,179,12),0.0,0.0,
+										 Colour(207,160,33),0.0, 20.0f,
+										 false);
+    selectedOverGrad = ColourGradient(Colour(209,162,33),0.0, 5.0f,
+										 Colour(190,150,25),0.0, 0.0f,
+										 false);
+    neutralGrad = ColourGradient(Colour(220,220,220),0.0,0.0,
+										 Colour(170,170,170),0.0, 20.0f,
+										 false);
+    neutralOverGrad = ColourGradient(Colour(180,180,180),0.0,5.0f,
+										 Colour(150,150,150),0.0, 0.0,
+										 false);
+    roundUL = true;
+	roundUR = true;
+	roundLL = true;
+	roundLR = true;
+
+	radius = 5.0f;
+
+	font.setHeight(12.0f);
+
+ }
+
+void UtilityButton::setCorners(bool UL, bool UR, bool LL, bool LR)
+{
+	roundUL = UL;
+	roundUR = UR;
+	roundLL = LL;
+	roundLR = LR;
+}
+
+void UtilityButton::setRadius(float r)
+{
+	radius = r;
+}
+
 void UtilityButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
- 	if (getToggleState() == true)
-        g.setColour(Colours::orange);
-    else
-        g.setColour(Colours::darkgrey);
 
-    if (isMouseOver)
-        g.setColour(Colours::white);
+	g.setColour(Colours::grey);
+	g.fillPath(outlinePath);
 
-    g.fillRect(0,0,getWidth(),getHeight());
+	 if (getToggleState())
+     {
+     	if (isMouseOver)
+     		g.setGradientFill(selectedOverGrad);
+        else
+        	g.setGradientFill(selectedGrad);
+     } else {
+         if (isMouseOver)
+         	g.setGradientFill(neutralOverGrad);
+        else
+        	g.setGradientFill(neutralGrad);
+     }
 
-    g.setFont(font);
-    g.setColour(Colours::black);
+	AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth())/2.0f,
+												float(getHeight())/2.0f);
+	g.fillPath(outlinePath, a);
 
-    g.drawRect(0,0,getWidth(),getHeight(),1.0);
+	
+	//int stringWidth = font.getStringWidth(getName());
 
-    g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
+	g.setFont(font);
+
+	g.setColour(Colours::darkgrey);
+	g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
+
+	//g.drawSingleLineText(getName(), getWidth()/2 - stringWidth/2, 12);
+
+ 	// if (getToggleState() == true)
+  //       g.setColour(Colours::orange);
+  //   else
+  //       g.setColour(Colours::darkgrey);
+
+  //   if (isMouseOver)
+  //       g.setColour(Colours::white);
+
+  //   g.fillRect(0,0,getWidth(),getHeight());
+
+  //   font.setHeight(10);
+  //   g.setFont(font);
+  //   g.setColour(Colours::black);
+
+  //   g.drawRect(0,0,getWidth(),getHeight(),1.0);
+
+    //g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
     // if (isButtonDown)
     // {
     //     g.setColour(Colours::white);
@@ -444,6 +515,51 @@ void UtilityButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown
     //            thickness*2);
 }
    
+void UtilityButton::resized()
+{
+
+	outlinePath.clear();
+
+	if (roundUL)
+	{
+		outlinePath.startNewSubPath(radius, 0);
+	} else {
+		outlinePath.startNewSubPath(0, 0);
+	}
+
+	if (roundUR)
+	{
+		outlinePath.lineTo(getWidth()-radius, 0);
+		outlinePath.addArc(getWidth()-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
+	} else {
+		outlinePath.lineTo(getWidth(), 0);
+	}
+
+	if (roundLR)
+	{
+		outlinePath.lineTo(getWidth(), getHeight()-radius);
+		outlinePath.addArc(getWidth()-radius*2, getHeight()-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
+	} else {
+		outlinePath.lineTo(getWidth(), getHeight());
+	}
+
+	if (roundLL)
+	{
+		outlinePath.lineTo(radius, getHeight());
+		outlinePath.addArc(0, getHeight()-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
+	} else {
+		outlinePath.lineTo(0, getHeight());
+	}
+
+	if (roundUL)
+	{
+		outlinePath.lineTo(0, radius);
+		outlinePath.addArc(0, 0, radius*2, radius*2, 1.5*double_Pi, 2.0*double_Pi);
+	} 
+	
+	outlinePath.closeSubPath();
+
+}
 
 void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {

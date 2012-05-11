@@ -83,7 +83,14 @@ private:
 	bool newSpike;
 	SpikeObject spike;
 	SpikeDisplayNode* processor;
-	std::vector<StereotrodePlot> plots;
+
+	Array<BaseUIElement*> plots;
+
+	// std::vector<StereotrodePlot> STplots;
+	// std::vector<TetrodePlot> TTplots;
+	// std::vector<ElectrodePlot> SEplots;
+
+	Array<int> numChannelsPerPlot;
 
 	int totalScrollPix;
 	// AudioSampleBuffer* displayBuffer;

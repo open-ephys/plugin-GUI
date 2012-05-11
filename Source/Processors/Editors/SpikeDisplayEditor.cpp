@@ -64,7 +64,7 @@ void SpikeDisplayEditor::initializeButtons(){
 	panLabel = new Label("PanLabel", "Pan:");	
 	panLabel->setBounds(x-xPad, y, w*2 + xPad, h);
 	panLabel->setJustificationType(Justification::centredLeft );
-	x+= 2*w+3*xPad;
+	x+= 2*w+2*xPad;
 
 	zoomLabel = new Label("ZoomLabel", "Zoom:");
 	zoomLabel->setBounds(x-xPad,y,w*3+xPad, h);
@@ -74,12 +74,14 @@ void SpikeDisplayEditor::initializeButtons(){
 
 	
 	panDownBtn = new UtilityButton("-", titleFont);
+	panDownBtn->setCorners(true, false, true, false);
 	panDownBtn->setBounds(x, y, w, h);
 	panDownBtn->setClickingTogglesState(false);
 	panDownBtn->addListener(this);
-	x+= w+xPad;
+	x+= w;//+xPad;
 
 	panUpBtn = new UtilityButton("+", titleFont);
+	panUpBtn->setCorners(false, true, false, true);
 	panUpBtn->setBounds(x, y, w, h); 
 	panUpBtn->setClickingTogglesState(false);
 	panUpBtn->addListener(this);
@@ -87,12 +89,14 @@ void SpikeDisplayEditor::initializeButtons(){
 
 	
 	zoomOutBtn = new UtilityButton("-", titleFont);
+	zoomOutBtn->setCorners(true, false, true, false);
 	zoomOutBtn->setBounds(x,y,w,h);
 	zoomOutBtn->setClickingTogglesState(false);
 	zoomOutBtn->addListener(this);
-	x += w + xPad;
+	x += w;// + xPad;
 
 	zoomInBtn = new UtilityButton("+", titleFont);
+	zoomInBtn->setCorners(false, true, false, true);
 	zoomInBtn->setBounds(x,y,w,h);
 	zoomInBtn->setClickingTogglesState(false);
 	zoomInBtn->addListener(this);

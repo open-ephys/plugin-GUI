@@ -83,6 +83,7 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode)
 
     plusButton = new UtilityButton("+", titleFont);
     plusButton->addListener(this);
+    plusButton->setRadius(3.0f);
     plusButton->setBounds(15,42,14,14);
     addAndMakeVisible(plusButton);
 
@@ -291,6 +292,9 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     {
 
         removeElectrode(electrodeList->getSelectedItemIndex());
+
+        getEditorViewport()->makeEditorVisible(this);
+
         return;
     }
 

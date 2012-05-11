@@ -72,69 +72,69 @@ void RecordNode::resetConnections()
 void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
 
-	if (chan != getProcessorGraph()->midiChannelIndex)
-	{
-		Channel newChannel;
+	// if (chan != getProcessorGraph()->midiChannelIndex)
+	// {
+	// 	Channel newChannel;
 
-		std::cout << "Record node adding channel." << std::endl;
+	// 	std::cout << "Record node adding channel." << std::endl;
 
-		newChannel.nodeId = sourceNode->getNodeId();
-		newChannel.chan = chan;
-		newChannel.name = sourceNode->getOutputChannelName(chan);
-		newChannel.isRecording = sourceNode->recordStatus(chan);
+	// 	newChannel.nodeId = sourceNode->getNodeId();
+	// 	newChannel.chan = chan;
+	// 	newChannel.name = sourceNode->getOutputChannelName(chan);
+	// 	newChannel.isRecording = sourceNode->recordStatus(chan);
 
-		String filename = dataFolder;
-		filename += "/";
-		filename += newChannel.nodeId;
-		filename += "_";
-		filename += newChannel.name;
-		filename += ".continuous";
+	// 	String filename = dataFolder;
+	// 	filename += "/";
+	// 	filename += newChannel.nodeId;
+	// 	filename += "_";
+	// 	filename += newChannel.name;
+	// 	filename += ".continuous";
 
-		newChannel.filename = filename;
-		newChannel.file = 0; 
+	// 	newChannel.filename = filename;
+	// 	newChannel.file = 0; 
 
-		if (newChannel.isRecording)
-			std::cout << "  This channel will be recorded." << std::endl;
-		else 
-			std::cout << "  This channel will NOT be recorded." << std::endl;
+	// 	if (newChannel.isRecording)
+	// 		std::cout << "  This channel will be recorded." << std::endl;
+	// 	else 
+	// 		std::cout << "  This channel will NOT be recorded." << std::endl;
 	
-		std::cout << "adding channel " << getNextChannel(false) << std::endl;
+	// 	std::cout << "adding channel " << getNextChannel(false) << std::endl;
 
-		std::pair<int, Channel> newPair (getNextChannel(false), newChannel);
+	// 	std::pair<int, Channel> newPair (getNextChannel(false), newChannel);
 
-		continuousChannels.insert(newPair);
+	// 	continuousChannels.insert(newPair);
 
-		setPlayConfigDetails(getNextChannel(false)+1,0,44100.0,128);
+	// 	setPlayConfigDetails(getNextChannel(false)+1,0,44100.0,128);
 
-	} else {
+	// } else {
 
 
-		std::map<int, Channel> eventChans;
+	// 	std::map<int, Channel> eventChans;
 
-		int ID = sourceNode->getNodeId();
+	// 	int ID = sourceNode->getNodeId();
 
-		for (int n = 0; n < sourceNode->settings.eventChannelIds.size(); n++)
-		{
+	// 	for (int n = 0; n < sourceNode->settings.eventChannelIds.size(); n++)
+	// 	{
 
-			Channel newChannel;
+	// 		Channel newChannel;
 
-			newChannel.nodeId = ID;
-			newChannel.chan = sourceNode->settings.eventChannelIds[n];
-			newChannel.name = sourceNode->settings.eventChannelNames[n];
-			newChannel.isRecording = true;
-			newChannel.file = 0;
+	// 		newChannel.nodeId = ID;
+	// 		newChannel.chan = sourceNode->settings.eventChannelIds[n];
+	// 		newChannel.name = sourceNode->settings.eventChannelNames[n];
+	// 		newChannel.isRecording = true;
+	// 		newChannel.file = 0;
 
-			std::pair<int, Channel> newPair (newChannel.chan, newChannel);
+	// 		std::pair<int, Channel> newPair (newChannel.chan, newChannel);
 
-			eventChans.insert(newPair);
+	// 		eventChans.insert(newPair);
 
-		}
+	// 	}
 
-		std::pair<int, std::map<int, Channel> > newPair (ID, eventChans);
+	// 	std::pair<int, std::map<int, Channel> > newPair (ID, eventChans);
 
-		eventChannels.insert(newPair);
+	// 	eventChannels.insert(newPair);
 
-	}
+	// }
 
 }
 

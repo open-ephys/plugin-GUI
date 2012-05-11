@@ -174,14 +174,24 @@ private:
 class UtilityButton : public Button
 {
 public:
-    UtilityButton(const String& label_, Font font_) :
-    	 Button(label_), label(label_), font(font_) {}
+    UtilityButton(const String& label_, Font font_);
     ~UtilityButton() {}
+
+    void setCorners(bool UL, bool UR, bool LL, bool LR);
+    void setRadius(float r);
+
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
     const String label;
     Font font;
+    bool roundUL, roundUR, roundLL, roundLR;
+    float radius;
+    ColourGradient selectedGrad, selectedOverGrad, neutralGrad, neutralOverGrad;
+    Path outlinePath;
+
+
+    void resized();
 
 };
 

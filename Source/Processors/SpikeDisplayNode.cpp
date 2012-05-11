@@ -78,9 +78,9 @@ bool SpikeDisplayNode::disable()
 	return true;
 }
 
-int SpikeDisplayNode::getNumberOfChannelsForElectrode(int i)
+int SpikeDisplayNode::getNumberOfChannelsForElectrode(int elec)
 {
-	//std::cout<<"SpikeDisplayNode::getNumberOfChannelsForInput()"<<std::endl;
+	std::cout<<"SpikeDisplayNode::getNumberOfChannelsForInput(" << elec << ")"<<std::endl;
 	
 	int electrodeIndex = -1;
 
@@ -90,8 +90,9 @@ int SpikeDisplayNode::getNumberOfChannelsForElectrode(int i)
 		{
 			electrodeIndex++;
 
-			if (electrodeIndex == i)
+			if (electrodeIndex == elec)
 			{
+				std::cout << "Electrode " << elec << " has " << settings.eventChannelTypes[i] << " channels" << std::endl;
 				return settings.eventChannelTypes[i];
 			}
 		}

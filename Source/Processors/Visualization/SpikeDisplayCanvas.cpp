@@ -64,19 +64,68 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 
 	plots.clear();
 
-	for (int i=0; i < nPlots; i++)
+	for (int i = 0; i < nPlots; i++)
 	{
 
-		StereotrodePlot p = StereotrodePlot( 
+		switch (processor->getNumberOfChannelsForElectrode(i))
+		{
+			case 1:
+			{
+
+				std::cout << "Creating single electrode plot." << std::endl;
+
+				ElectrodePlot* p1 = new ElectrodePlot( 
 									xBuffer + i%nCols * (plotWidth + xBuffer) , 
 									yBuffer + rowCount * (plotHeight + yBuffer), 
 									plotWidth, 
-									plotHeight); // deprecated conversion from string constant to char
-		SpikeObject tmpSpike;
-		generateEmptySpike(&tmpSpike, 4);
-		p.processSpikeObject(tmpSpike);
+									plotHeight);
+				plots.add(p1);
+				break;
+			}
+			case 2:
+			{
+
+				std::cout << "Creating stereotrode plot." << std::endl;
+
+				StereotrodePlot* p2 = new StereotrodePlot( 
+									xBuffer + i%nCols * (plotWidth + xBuffer) , 
+									yBuffer + rowCount * (plotHeight + yBuffer), 
+									plotWidth, 
+									plotHeight);
+				plots.add(p2);
+				break;
+			}
+			case 4:
+			{
+				std::cout << "Creating tetrode plot." << std::endl;
+
+				TetrodePlot* p3 = new TetrodePlot( 
+									xBuffer + i%nCols * (plotWidth + xBuffer) , 
+									yBuffer + rowCount * (plotHeight + yBuffer), 
+									plotWidth, 
+									plotHeight);
+				plots.add(p3);
+				break;
+			}
+			default:
+			{
+
+				std::cout << "Not sure what to do, creating single electrode plot." << std::endl;
+
+				ElectrodePlot* p4 = new ElectrodePlot( 
+									xBuffer + i%nCols * (plotWidth + xBuffer) , 
+									yBuffer + rowCount * (plotHeight + yBuffer), 
+									plotWidth, 
+									plotHeight);
+				plots.add(p4);
+			}
+		}
+
+		// SpikeObject tmpSpike;
+		// generateEmptySpike(&tmpSpike, 4);
+		// p.processSpikeObject(tmpSpike);
 		
-		plots.push_back(p);
+		// plots.push_back(p);
 
 		if (i%nCols == nCols-1)
 			rowCount++;
@@ -103,7 +152,7 @@ void SpikeDisplayCanvas::repositionSpikePlots(){
 	for (int i=0; i < plots.size(); i++)
 	{
 
-		plots[i].setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
+		plots[i]->setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
 								getHeight() - ( yBuffer + plotHeight + rowCount * (plotHeight + yBuffer)) + getScrollAmount(), 
 								plotWidth, 
 								plotHeight); // deprecated conversion from string constant to char
@@ -147,6 +196,12 @@ void SpikeDisplayCanvas::update()
 	std::cout << "UPDATING SpikeDisplayCanvas" << std::endl;
 
 	nPlots = processor->getNumElectrodes();
+	// numChannelsPerPlot.clear();
+
+	// for (int i = 0; i < nPlots; i++)
+	// {
+	// 	numChannelsPerPlot.add(processor->getNumberOfChannelsForElectrode(i));
+	// }
 
 	initializeSpikePlots();
 
@@ -163,8 +218,8 @@ void SpikeDisplayCanvas::setParameter(int param, float val)
 	switch (param)
 	{
 		case SPIKE_CMD_CLEAR_ALL :
-			for (int i=0; i<plots.size(); i++)
-				plots[i].clear();
+			for (int i=0; i < plots.size(); i++)
+				plots[i]->clear();
 			break;
 	
 		case SPIKE_CMD_CLEAR_SEL:
@@ -223,25 +278,25 @@ void SpikeDisplayCanvas::renderOpenGL()
 	// Distribute those spike to the appropriate plot object
 	
 	
-// 	SpikeObject tmpSpike;
-// 	 for (int i=0; i<plots.size(); i++){
-// 		generateSimulatedSpike(&tmpSpike, 0, 150);
-// 		plots[i].processSpikeObject(tmpSpike);
-//  		plots[i].redraw();
-//  		drawPlotTitle( i );
-// 	 }
+	SpikeObject tmpSpike;
+	 for (int i=0; i<plots.size(); i++){
+		generateSimulatedSpike(&tmpSpike, 0, 150);
+		plots[i]->processSpikeObject(tmpSpike);
+ 		plots[i]->redraw();
+ 		drawPlotTitle( i );
+	 }
 	
 // 	//}
 // 	//std::cout << getHeight()<<" "<< getTotalHeight()<<" "<<std::endl;
 //  	glLoadIdentity();
 //  	drawScrollBars();
 // =======
-	processSpikeEvents();
+	// processSpikeEvents();
 
-	for (int i = 0; i < plots.size(); i++){
-		plots[i].redraw();
-		drawPlotTitle(i);
-	}
+	// for (int i = 0; i < plots.size(); i++){
+	// 	plots[i]->redraw();
+	// 	drawPlotTitle(i);
+	// }
 
 	drawScrollBars();
  	
@@ -282,7 +337,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 			// 	waveform[i] = (*(dataptr+4+i*2) << 8) + *(dataptr+4+i*2+1);
 			// }
 
-			plots[chan].processSpikeObject(newSpike);
+			plots[chan]->processSpikeObject(newSpike);
 
 		}
 
@@ -299,7 +354,7 @@ void SpikeDisplayCanvas::drawPlotTitle(int chan){
 
 	int x, y;
 	double w,h;
- 	plots[chan].getPosition(&x,&y,&w,&h);
+ 	plots[chan]->getPosition(&x,&y,&w,&h);
 
 	float alpha = 0.50f;
 
@@ -367,17 +422,19 @@ void SpikeDisplayCanvas::mouseWheelMoveInCanvas(const MouseEvent& e, float wheel
 }
 
 void SpikeDisplayCanvas::panPlot(int p, int c, bool up){
-	std::cout<<"SpikeDisplayCanvas::panPlot()"<<std::endl;
-	if (p<0 || p>plots.size())
+
+	std::cout << "SpikeDisplayCanvas::panPlot()" << std::endl;
+	if (p < 0 || p > plots.size())
 		return;
-	plots[p].pan(c, up);
+	plots[p]->pan(c, up);
 
 }
 void SpikeDisplayCanvas::zoomPlot(int p, int c, bool in){
-	std::cout<<"SpikeDisplayCanvas::panPlot()"<<std::endl;
-	if (p<0 || p>plots.size())
+
+	std::cout << "SpikeDisplayCanvas::panPlot()" << std::endl;
+	if (p < 0 || p > plots.size())
 		return;
-	plots[p].zoom(c, in);
+	plots[p]->zoom(c, in);
 }
 
 void SpikeDisplayCanvas::disablePointSmoothing()
