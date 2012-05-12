@@ -120,6 +120,8 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples)
 {
 	// 1. place any new samples into the displayBuffer
+	//std::cout << "Display node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
+
 
 	int samplesLeft = displayBuffer->getNumSamples() - displayBufferIndex;
 

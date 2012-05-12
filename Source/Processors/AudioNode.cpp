@@ -25,7 +25,7 @@
 #include "AudioNode.h"
 
 AudioNode::AudioNode()
-	: GenericProcessor("Audio Node"), volume(5.0f), audioEditor(0)
+	: GenericProcessor("Audio Node"), volume(1.0f), audioEditor(0)
 {
 
 	settings.numInputs = 64;
@@ -73,6 +73,9 @@ void AudioNode::process(AudioSampleBuffer &buffer,
                             MidiBuffer &midiMessages,
                             int& nSamples)
 {
+
+	//std::cout << "Audio node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
+
 
 	// if (currentChannel == 0)
 	// {

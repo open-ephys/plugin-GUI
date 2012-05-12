@@ -29,9 +29,9 @@
 SignalGenerator::SignalGenerator()
 	: GenericProcessor("Signal Generator"),
 
-	  defaultFrequency(10.0),
+	  defaultFrequency(200.0),
 	  defaultAmplitude (0.02f),
-	  nOut(1)
+	  nOut(4)
 	
 {
 
@@ -72,7 +72,7 @@ void SignalGenerator::updateSettings()
 
 	while (waveformType.size() < getNumOutputs())
 	{
-		waveformType.add(NOISE);
+		waveformType.add(TRIANGLE);
 		frequency.add(defaultFrequency);
 		amplitude.add(defaultAmplitude);
 		phase.add(0);

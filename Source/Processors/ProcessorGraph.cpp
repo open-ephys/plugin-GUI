@@ -94,6 +94,9 @@ void ProcessorGraph::createDefaultNodes()
 
 	}
 
+	addConnection(AUDIO_NODE_ID, midiChannelIndex,
+		              RESAMPLING_NODE_ID, midiChannelIndex);
+
 	std::cout << "Default nodes created." << std::endl;
 	
 }
@@ -206,6 +209,9 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
 						//getAudioNode()->addInputChannel(source, chan);
 
+						std::cout << "Connecting to audio channel: " << 
+							      getAudioNode()->getNextChannel(false) << std::endl;
+
 						addConnection(source->getNodeId(), 		   // sourceNodeID
 						  	chan, 						           // sourceNodeChannelIndex
 						   	AUDIO_NODE_ID, 					       // destNodeID
@@ -215,6 +221,10 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 						//std::cout << getAudioNode()->getNextChannel(false) << " ";
 
 						getRecordNode()->addInputChannel(source, chan);
+
+						std::cout << "Connecting to record channel: " << 
+							      getRecordNode()->getNextChannel(false) << std::endl;
+
 
 						addConnection(source->getNodeId(),          // sourceNodeID
 						  	chan,                                   // sourceNodeChannelIndex
@@ -229,6 +239,13 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 					  	midiChannelIndex, 							// sourceNodeChannelIndex
 					   	RECORD_NODE_ID, 							// destNodeID
 					  	midiChannelIndex);							// destNodeChannelIndex
+
+					// connect event channel
+					addConnection(source->getNodeId(), 				// sourceNodeID
+					  	midiChannelIndex, 							// sourceNodeChannelIndex
+					   	AUDIO_NODE_ID, 							// destNodeID
+					  	midiChannelIndex);							// destNodeChannelIndex
+
 
 					getRecordNode()->addInputChannel(source, midiChannelIndex);
 

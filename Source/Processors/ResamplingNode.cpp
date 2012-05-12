@@ -54,6 +54,7 @@ ResamplingNode::ResamplingNode(bool destBufferType)
 	destBuffer = new AudioSampleBuffer(16, destBufferWidth);
 	tempBuffer = new AudioSampleBuffer(16, destBufferWidth);
 
+	continuousDataBuffer = new int16[10000];
 	
 
 	// filter->getKind()
@@ -151,6 +152,8 @@ void ResamplingNode::prepareToPlay (double sampleRate_, int estimatedSamplesPerB
 
 	updateFilter();
 
+
+	file = fopen("resampling_data", "w");
 }
 
 void ResamplingNode::updateFilter() {
@@ -172,7 +175,7 @@ void ResamplingNode::updateFilter() {
 
 void ResamplingNode::releaseResources() 
 {	
-
+	fclose(file);
 }
 
 void ResamplingNode::process(AudioSampleBuffer &buffer, 
@@ -180,7 +183,11 @@ void ResamplingNode::process(AudioSampleBuffer &buffer,
                             int& nSamples)
 {
 
-	//std::cout << "Resampling node sample count: " << buffer.getNumSamples() << std::endl;
+	//std::cout << "Resampling node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
+
+	// save data at the beginning of each round of processing
+    writeContinuousBuffer(buffer.getSampleData(0), nSamples, 0);
+
 
 	int nSamps = nSamples;
 	int valuesNeeded;
@@ -337,5 +344,35 @@ void ResamplingNode::process(AudioSampleBuffer &buffer,
 
     }
 
+    // save data at the end of each round of processing
+   // writeContinuousBuffer(buffer.getSampleData(0), nSamples, 0);
 
+}
+
+
+void ResamplingNode::writeContinuousBuffer(float* data, int nSamples, int channel)
+{
+
+	// find file and write samples to disk
+	timestamp = timer.getHighResolutionTicks();
+
+	AudioDataConverters::convertFloatToInt16BE(data, continuousDataBuffer, nSamples);
+
+	//int16 samps = nSamples;
+
+	fwrite(&timestamp,							// ptr
+			   8,   							// size of each element
+			   1, 		  						// count 
+			   file);   // ptr to FILE object
+
+	fwrite(&nSamples,								// ptr
+			   sizeof(nSamples),   				// size of each element
+			   1, 		  						// count 
+			   file);   // ptr to FILE object
+
+	int n = fwrite(continuousDataBuffer,			// ptr
+			   2,			     					// size of each element
+			   nSamples, 		  					// count 
+			   file);   // ptr to FILE object
+	// n must equal "count", otherwise there was an error
 }

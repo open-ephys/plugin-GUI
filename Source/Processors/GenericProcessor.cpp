@@ -151,6 +151,8 @@ int GenericProcessor::getNumSamples(MidiBuffer& events) {
 			
 		int m = events.getNumEvents();
 
+		//std::cout << getName() << " received " << m << " events." << std::endl;
+
 		MidiBuffer::Iterator i (events);
 		MidiMessage message(0xf4);
 
