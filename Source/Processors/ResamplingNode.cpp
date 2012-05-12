@@ -186,7 +186,7 @@ void ResamplingNode::process(AudioSampleBuffer &buffer,
 	//std::cout << "Resampling node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
 
 	// save data at the beginning of each round of processing
-    writeContinuousBuffer(buffer.getSampleData(0), nSamples, 0);
+    //writeContinuousBuffer(buffer.getSampleData(0), nSamples, 0);
 
 
 	int nSamps = nSamples;
@@ -259,6 +259,8 @@ void ResamplingNode::process(AudioSampleBuffer &buffer,
 
         subSampleOffset += ratio;
 
+
+
         while (subSampleOffset >= 1.0)
         {
             if (++sourceBufferPos >= sourceBufferSize)
@@ -268,6 +270,8 @@ void ResamplingNode::process(AudioSampleBuffer &buffer,
             subSampleOffset -= 1.0;
         }
     }
+
+   // std::cout << sourceBufferPos << " " << tempBufferPos << std::endl;
 
 
 	if (ratio < 0.9999) {
@@ -287,8 +291,8 @@ void ResamplingNode::process(AudioSampleBuffer &buffer,
     	// copy the temp buffer into the original buffer
 
 
-    	buffer = *tempBuffer;
-    	//buffer = AudioSampleBuffer(tempBuffer->getArrayOfChannels(), 2, buffer.getNumSamples());
+    	//buffer = *tempBuffer;
+    	buffer = AudioSampleBuffer(tempBuffer->getArrayOfChannels(), 2, tempBufferPos);//buffer.getNumSamples());
 
     	//buffer.setSize(2,0,true,false,true);
 
@@ -345,7 +349,7 @@ void ResamplingNode::process(AudioSampleBuffer &buffer,
     }
 
     // save data at the end of each round of processing
-   // writeContinuousBuffer(buffer.getSampleData(0), nSamples, 0);
+    //writeContinuousBuffer(buffer.getSampleData(0), buffer.getNumSamples(), 0);
 
 }
 

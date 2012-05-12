@@ -80,6 +80,11 @@ float FPGAThread::getSampleRate()
 	return 25000.0;
 }
 
+float FPGAThread::getBitVolts()
+{
+	return 0.1907;
+}
+
 bool FPGAThread::foundInputSource()
 {
 

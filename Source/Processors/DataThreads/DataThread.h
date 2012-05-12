@@ -61,6 +61,7 @@ public:
 	virtual bool stopAcquisition() = 0;
 	virtual int getNumChannels() = 0;
 	virtual float getSampleRate() = 0;
+    virtual float getBitVolts() = 0;
 
 	SourceNode* sn;
 

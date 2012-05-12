@@ -72,13 +72,17 @@ void SignalGenerator::updateSettings()
 
 	while (waveformType.size() < getNumOutputs())
 	{
-		waveformType.add(TRIANGLE);
+		waveformType.add(SINE);
 		frequency.add(defaultFrequency);
 		amplitude.add(defaultAmplitude);
 		phase.add(0);
 		phasePerSample.add(double_Pi * 2.0 / (getSampleRate() / frequency.getLast()));
 		currentPhase.add(0);
 	}
+
+	sampleRateRatio = getSampleRate() / 44100.0;
+
+	std::cout << "Sample rate ratio: " << sampleRateRatio << std::endl;
 
 }
 
@@ -169,7 +173,7 @@ void SignalGenerator::process(AudioSampleBuffer &buffer,
                             int& nSamps)
 {
 
-	nSamps = buffer.getNumSamples();
+	nSamps = int((float) buffer.getNumSamples() * sampleRateRatio);
 
     for (int i = 0; i < nSamps; ++i)
     {

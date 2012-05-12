@@ -56,6 +56,7 @@ public:
 	bool stopAcquisition();
 	int getNumChannels();// {return 16;}
 	float getSampleRate();// {return 40000.0;}
+    float getBitVolts();
 	
 private:
 

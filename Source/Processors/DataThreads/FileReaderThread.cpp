@@ -66,6 +66,11 @@ float FileReaderThread::getSampleRate()
     return 40000.0f;
 }
 
+float FileReaderThread::getBitVolts()
+{
+    return 1.0f;
+}
+
 bool FileReaderThread::startAcquisition()
 {
 	startThread();

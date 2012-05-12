@@ -49,6 +49,7 @@ public:
 	bool foundInputSource();
 	int getNumChannels();
 	float getSampleRate();
+	float getBitVolts();
 	
 private:
 

@@ -61,6 +61,7 @@ public:
 	float getSampleRate();
 	float getDefaultSampleRate();
 	int getDefaultNumOutputs();
+	float getDefaultBitVolts();
 
 	AudioProcessorEditor* createEditor();
 	bool hasEditor() const {return true;}

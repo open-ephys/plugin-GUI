@@ -49,7 +49,7 @@ public:
 
 	void setParameter (int parameterIndex, float newValue);
 
-	float getSampleRate() {return 44100.0;}
+	float getSampleRate() {return 22100.0;}
 
 	AudioProcessorEditor* createEditor();
 	bool hasEditor() const {return true;}
@@ -69,6 +69,8 @@ private:
 	
 	double defaultFrequency;
 	double defaultAmplitude;
+
+	float sampleRateRatio;
 
 	//void updateWaveform(int chan);
 

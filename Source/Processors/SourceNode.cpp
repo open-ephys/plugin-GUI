@@ -96,6 +96,14 @@ int SourceNode::getDefaultNumOutputs()
 		return 0;
 }
 
+float SourceNode::getDefaultBitVolts()
+{
+	if (dataThread != 0)
+		return dataThread->getBitVolts();
+	else
+		return 1.0f;
+}
+
 void SourceNode::enabledState(bool t)
 {
 	if (t && !dataThread->foundInputSource())

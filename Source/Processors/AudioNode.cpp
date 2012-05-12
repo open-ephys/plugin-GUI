@@ -25,7 +25,7 @@
 #include "AudioNode.h"
 
 AudioNode::AudioNode()
-	: GenericProcessor("Audio Node"), volume(1.0f), audioEditor(0)
+	: GenericProcessor("Audio Node"), volume(0.00001f), audioEditor(0)
 {
 
 	settings.numInputs = 64;
@@ -65,7 +65,7 @@ void AudioNode::setParameter (int parameterIndex, float newValue)
 {
 	// change left channel, right channel, or volume
 	if (parameterIndex == 1) // volume level
-		volume = newValue;
+		volume = newValue*0.00001f;
 
 }
 
