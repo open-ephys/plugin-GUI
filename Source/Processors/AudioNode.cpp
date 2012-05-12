@@ -87,6 +87,8 @@ void AudioNode::process(AudioSampleBuffer &buffer,
 	// 	buffer.copyFrom();
 	// } else {
 
+	// currently monitoring channels 2 and 3 ONLY!
+
 	buffer.clear(0,0,buffer.getNumSamples());
 	buffer.clear(1,0,buffer.getNumSamples());
 

@@ -43,24 +43,24 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 		ws->setBounds(15 + (buttonWidth)*i, 30, buttonWidth, buttonHeight);
 		ws->addListener(this);
 		waveformSelectors.add(ws);
-		addChildComponent(ws);
+		addAndMakeVisible(ws);
 	}
 
 	amplitudeSlider = new Slider ("Amplitude Slider");
 	amplitudeSlider->setBounds(10,60,50,60);
-	amplitudeSlider->setRange(0,1000,10);
+	amplitudeSlider->setRange(0,5,0.5);
 	amplitudeSlider->addListener(this);
 	amplitudeSlider->setSliderStyle(Slider::Rotary);
 	amplitudeSlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
-	addChildComponent(amplitudeSlider);
+	addAndMakeVisible(amplitudeSlider);
 
 	frequencySlider = new Slider ("Frequency Slider");
 	frequencySlider->setBounds(70,60,50,60);
-	frequencySlider->setRange(1,1000,1);
+	frequencySlider->setRange(10,1000,10);
 	frequencySlider->addListener(this);
 	frequencySlider->setSliderStyle(Slider::Rotary);
 	frequencySlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
-	addChildComponent(frequencySlider);
+	addAndMakeVisible(frequencySlider);
 
 	phaseSlider = new Slider ("Phase Slider");
 	phaseSlider->setBounds(130,60,50,60);
@@ -68,7 +68,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 	phaseSlider->addListener(this);
 	phaseSlider->setSliderStyle(Slider::Rotary);
 	phaseSlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
-	addChildComponent(phaseSlider);
+	addAndMakeVisible(phaseSlider);
 
 	numChannelsLabel = new Label("Number of Channels","1");
     numChannelsLabel->setEditable(true);
@@ -156,6 +156,35 @@ void SignalGeneratorEditor::buttonEvent (Button* button)
     }
 }
 
+void SignalGeneratorEditor::sliderEvent(Slider* slider)
+{
+
+	int paramIndex;
+
+	if (slider == amplitudeSlider)
+	{
+		paramIndex = 0;
+	} else if (slider == frequencySlider)
+	{
+		paramIndex = 1;
+	} else if (slider == phaseSlider)
+	{
+		paramIndex = 2;
+	}
+
+
+	GenericProcessor* p = getProcessor();
+
+	Array<int> chans = getActiveChannels();
+
+	for (int n = 0; n < chans.size(); n++) {
+
+		p->setCurrentChannel(chans[n]);
+		p->setParameter(paramIndex, slider->getValue());
+
+	}
+
+}
 
 void SignalGeneratorEditor::labelTextChanged (Label* label)
 {

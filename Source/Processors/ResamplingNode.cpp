@@ -153,7 +153,7 @@ void ResamplingNode::prepareToPlay (double sampleRate_, int estimatedSamplesPerB
 	updateFilter();
 
 
-	file = fopen("resampling_data", "w");
+	//file = fopen("resampling_data", "w");
 }
 
 void ResamplingNode::updateFilter() {
@@ -175,7 +175,7 @@ void ResamplingNode::updateFilter() {
 
 void ResamplingNode::releaseResources() 
 {	
-	fclose(file);
+	//fclose(file);
 }
 
 void ResamplingNode::process(AudioSampleBuffer &buffer, 

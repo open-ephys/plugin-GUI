@@ -29,26 +29,12 @@
 SignalGenerator::SignalGenerator()
 	: GenericProcessor("Signal Generator"),
 
-	  defaultFrequency(200.0),
-	  defaultAmplitude (0.02f),
-	  nOut(4)
+	  defaultFrequency(10.0),
+	  defaultAmplitude (100.0f),
+	  nOut(1)
 	
 {
 
-	// create parameters, to be passed to the GenericEditor
-
-	Array<var> a;
-	a.add(1);
-	a.add(2);
-	a.add(3);
-
-	parameters.add(Parameter("Param 1",a, 0, 0));//true);//a,0);
-
-	parameters.add(Parameter("PARAM",0.0f, 100.0f, 50.0f, 1));
-
-	//parameters.add(Parameter("Param 1",a, 0));//true);//a,0);
-
-	//parameters.add(Parameter("Param 2",true));
 
 }
 
@@ -92,7 +78,7 @@ void SignalGenerator::setParameter (int parameterIndex, float newValue)
 
 	if (currentChannel > -1) {
 		if (parameterIndex == 0) {
-			amplitude.set(currentChannel,newValue);
+			amplitude.set(currentChannel,newValue*100.0f);
 		} else if (parameterIndex == 1) {
 			frequency.set(currentChannel,newValue);
 			phasePerSample.set(currentChannel, double_Pi * 2.0 / (getSampleRate() / frequency[currentChannel]));

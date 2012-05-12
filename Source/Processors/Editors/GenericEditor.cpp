@@ -377,7 +377,7 @@ void GenericEditor::update()
 
 Array<int> GenericEditor::getActiveChannels()
 {
-	Array<int> a;// = channelSelector->getActiveChannels();
+	Array<int> a = channelSelector->getActiveChannels();
 	return a;
 }
 
