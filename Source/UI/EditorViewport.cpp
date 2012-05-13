@@ -970,18 +970,26 @@ const String EditorViewport::loadState(const File& file)
 
             } else if (processor->hasTagName("SWITCH"))
             {
-                int processorNum = processor->getIntAttribute("number");
+                int processorNum = processor->getIntAttribute("number") + 1;
+
+                std::cout << "SWITCHING number " << processorNum << std::endl;
 
                 for (int n = 0; n < splitPoints.size(); n++)
                 {
+
+                    std::cout << "Trying split point " << n 
+                        << ", load order: " << splitPoints[n]->loadOrder << std::endl;
+
                     if (splitPoints[n]->loadOrder == processorNum)
                     {
 
                         if (splitPoints[n]->isMerger())
                         {
+                            std::cout << "Switching merger source." << std::endl;
                             MergerEditor* editor = (MergerEditor*) splitPoints[n]->getEditor();
                            editor->switchSource(1);
                         } else {
+                            std::cout << "Switching splitter destination." << std::endl;
                             SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
                             editor->switchDest(1);
                         }
