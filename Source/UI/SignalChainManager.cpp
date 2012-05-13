@@ -151,7 +151,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
 
 {
 
-	enum actions {ADD, MOVE, REMOVE, ACTIVATE };
+	enum actions {ADD, MOVE, REMOVE, ACTIVATE, UPDATE};
 
     // Step 1: update the editor array
     if (action == ADD) /// add
@@ -237,7 +237,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     }
 
     // Step 2: update connections
-    if (action != ACTIVATE && editorArray.size() > 0) {
+    if (action != ACTIVATE && action != UPDATE && editorArray.size() > 0) {
 
     	std::cout << "Updating connections." << std::endl;
 
@@ -260,7 +260,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     }
 
     // Step 3: check for new tabs
-   if (action != ACTIVATE) {
+   if (action != ACTIVATE && action != UPDATE) {
 
         std::cout << "Checking for new tabs." << std::endl;
 
@@ -365,7 +365,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     }
 
     // Step 5: check the validity of the signal chain
-    if (true) {
+    if (action != ACTIVATE) {
         bool enable = true;
 
         if (editorArray.size() == 1) {
@@ -414,7 +414,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     }
 
     // Step 7: update all settings
-    if (true) {//action != ACTIVATE) {
+    if (action != ACTIVATE) {
 
         std::cout << "Updating settings." << std::endl;
 

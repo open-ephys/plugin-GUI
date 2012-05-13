@@ -249,7 +249,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
         drawElectrodeButtons(electrodeList->getNumItems()-1);
 
-        getEditorViewport()->makeEditorVisible(this);
+        getEditorViewport()->makeEditorVisibleAndUpdateSettings(this);
         return;
 
     } else if (button == electrodeEditorButtons[0]) // EDIT
@@ -293,7 +293,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
         removeElectrode(electrodeList->getSelectedItemIndex());
 
-        getEditorViewport()->makeEditorVisible(this);
+        getEditorViewport()->makeEditorVisibleAndUpdateSettings(this);
 
         return;
     }
@@ -517,7 +517,7 @@ ThresholdSlider::ThresholdSlider(Font f) : Slider("name"), font(f)
 {
 
     setSliderStyle(Slider::Rotary);
-    setRange(25.0f,200.0f,1.0f);
+    setRange(25.0f,400.0f,25.0f);
     setValue(75.0f);
     setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
 

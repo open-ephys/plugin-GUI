@@ -152,7 +152,7 @@ bool SpikeDetector::addElectrode(int nChans)
 
 float SpikeDetector::getDefaultThreshold()
 {
-    return 75.0f;
+    return 250.0f;
 }
 
 StringArray SpikeDetector::getElectrodeNames()
@@ -398,11 +398,21 @@ float SpikeDetector::getNextSample(int& chan)
         if (sampleIndex < 0)
         {
           // std::cout << "  sample index " << sampleIndex << "from overflowBuffer" << std::endl;
-            return *overflowBuffer.getSampleData(chan, overflowBufferSize + sampleIndex);
+            int ind = overflowBufferSize + sampleIndex;
+
+            if (ind < overflowBuffer.getNumChannels())
+                return *overflowBuffer.getSampleData(chan, ind);
+            else
+                return 0;
+
         } else {
           //  useOverflowBuffer = false;
           // std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
-            return *dataBuffer.getSampleData(chan, sampleIndex);
+            
+            if (sampleIndex < dataBuffer.getNumChannels())
+                return *dataBuffer.getSampleData(chan, sampleIndex);
+            else
+                return 0;
         }   
     //} else {
     //    std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;

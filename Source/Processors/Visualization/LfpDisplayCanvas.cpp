@@ -249,7 +249,8 @@ void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
 
 	for (float i = 0; i < float(getWidth()); i++)
 	{
-		glVertex2f(i/w,*screenBuffer->getSampleData(chan, int(i))+0.5);
+		if ((int) i < screenBuffer->getNumSamples()) // check to avoid triggering assertion at juce_AudioSampleBuffer.h: 126
+			glVertex2f(i/w,*screenBuffer->getSampleData(chan, int(i))+0.5);
 	}
 
 	glEnd();

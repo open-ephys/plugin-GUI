@@ -249,6 +249,20 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor)
 
 }
 
+
+void EditorViewport::makeEditorVisibleAndUpdateSettings(GenericEditor* editor)
+{
+    
+    if (editor == 0)
+        return;
+
+    signalChainManager->updateVisibleEditors(editor, 0, 0, UPDATE);
+    refreshEditors();
+
+    editor->highlight();
+
+}
+
 void EditorViewport::deleteNode (GenericEditor* editor) {
 
     if (canEdit) {

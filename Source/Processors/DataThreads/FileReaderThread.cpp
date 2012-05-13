@@ -31,7 +31,7 @@ FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn)
 	//input = file.createInputStream();
     bufferSize = 1600;
 
-    input = fopen("./data_stream_16ch", "r");
+    input = fopen("./data_stream_16ch_2", "r");
 
     fseek(input, 0, SEEK_END);
     lengthOfInputFile = ftell(input);
@@ -68,7 +68,7 @@ float FileReaderThread::getSampleRate()
 
 float FileReaderThread::getBitVolts()
 {
-    return 1.0f;
+    return 0.0305f;
 }
 
 bool FileReaderThread::startAcquisition()
@@ -109,7 +109,7 @@ bool FileReaderThread::updateBuffer()
 
         for (int n = 0; n < bufferSize; n++)
         {
-            thisSample[chan] = float(readBuffer[n])/80000.0f;
+            thisSample[chan] = float(-readBuffer[n])*0.0305f;
 
             if (chan == 15)
             {
