@@ -78,6 +78,7 @@ public:
 
 	//void transmitMessage(const String& message);
 	void disableCallbacks();
+	void disableDataViewport();
 
 	void childComponentChanged();
 

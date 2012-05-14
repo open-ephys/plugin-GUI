@@ -30,11 +30,13 @@ void GenericAxes::updateSpikeData(SpikeObject newSpike){
 
 void GenericAxes::loadFont(){
 	const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_plain_otf);
-	size_t bufferSize = BinaryData::misoregular_ttfSize;
+	size_t bufferSize = BinaryData::cpmono_plain_otfSize;
 	font = new FTPixmapFont(buffer, bufferSize);
 }
 
 void GenericAxes::setYLims(double ymin, double ymax){
+
+	std::cout << "setting y limits to " << ymin << " " << ymax << std::endl;
 	ylims[0] = ymin;
 	ylims[1] = ymax;
 }
@@ -52,7 +54,7 @@ void GenericAxes::getXLims(double *min, double *max){
 }
 
 void GenericAxes::setType(int t){
-	 if (t<WAVE1 || t>PROJ3x4){
+	 if (t < WAVE1 || t > PROJ3x4){
 		std::cout<<"Invalid Axes type specified";
 		return;
 	}	

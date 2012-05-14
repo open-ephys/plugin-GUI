@@ -15,7 +15,8 @@
 #include "SimpleKeyEvent.h"
 
 
-class ElectrodePlot : public BaseUIElement{
+class ElectrodePlot : public BaseUIElement 
+{
 	
 	bool enabled;
     

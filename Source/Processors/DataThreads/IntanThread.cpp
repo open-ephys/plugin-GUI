@@ -43,7 +43,7 @@ IntanThread::IntanThread(SourceNode* sn) : DataThread(sn),
 IntanThread::~IntanThread() 
 {
 	//closeUSB();
-	deleteAndZero(dataBuffer);
+	//deleteAndZero(dataBuffer);
 }
 
 int IntanThread::getNumChannels()
@@ -54,6 +54,11 @@ int IntanThread::getNumChannels()
 float IntanThread::getSampleRate()
 {
     return 25000.0;
+}
+
+float IntanThread::getBitVolts()
+{
+    return 0.1907;
 }
 
 bool IntanThread::foundInputSource()
@@ -205,9 +210,22 @@ bool IntanThread::updateBuffer()
            
          for (int n = 0; n < 1; n++) { // 
 
+        // after accounting for bit volts:
          thisSample[ch%16+n*16] = float((buffer[index] & 127) + 
                      ((buffer[index+1] & 127) << 7) + 
-                     ((buffer[index+2] & 3) << 14) - 32768)/32768;
+                     ((buffer[index+2] & 3) << 14)) * 0.1907f - 6175.0f;
+         // these samples should now be in microvolts!
+
+         // bit volt calculation:
+         // 2.5 V range / 2^16 = 38.14 uV
+         // 38.14 uV / 200x gain = 0.1907
+         // also need to account for 1.235 V offset (where does this come from?)
+         //    1.235 / 200 * 1e6 = 6175 uV 
+
+         // before accounting for bit volts:
+         // thisSample[ch%16+n*16] = float((buffer[index] & 127) + 
+         //             ((buffer[index+1] & 127) << 7) + 
+         //             ((buffer[index+2] & 3) << 14) - 32768)/32768;
 
          }
   

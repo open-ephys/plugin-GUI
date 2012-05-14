@@ -70,6 +70,8 @@ private:
 	double defaultFrequency;
 	double defaultAmplitude;
 
+	float sampleRateRatio;
+
 	//void updateWaveform(int chan);
 
 	enum wvfrm

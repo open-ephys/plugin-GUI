@@ -54,13 +54,14 @@ public:
 
 	virtual bool updateBuffer() = 0;
 
-	DataBuffer* dataBuffer;
+	ScopedPointer<DataBuffer> dataBuffer;
 
 	virtual bool foundInputSource() = 0;
 	virtual bool startAcquisition() = 0;
 	virtual bool stopAcquisition() = 0;
 	virtual int getNumChannels() = 0;
 	virtual float getSampleRate() = 0;
+    virtual float getBitVolts() = 0;
 
 	SourceNode* sn;
 

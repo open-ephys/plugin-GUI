@@ -1,7 +1,29 @@
+/*
+    ------------------------------------------------------------------
+
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2012 Open Ephys
+
+    ------------------------------------------------------------------
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #include "SpikeDisplayEditor.h"
+
 #include <string>
-
-
 
 SpikeDisplayEditor::SpikeDisplayEditor (GenericProcessor* parentNode) 
 	: VisualizerEditor(parentNode,200)
@@ -18,6 +40,8 @@ SpikeDisplayEditor::SpikeDisplayEditor (GenericProcessor* parentNode)
 	initializeButtons();
 
 	tabText = "Spikes";
+
+
 
 }
 
@@ -40,7 +64,7 @@ void SpikeDisplayEditor::initializeButtons(){
 	panLabel = new Label("PanLabel", "Pan:");	
 	panLabel->setBounds(x-xPad, y, w*2 + xPad, h);
 	panLabel->setJustificationType(Justification::centredLeft );
-	x+= 2*w+3*xPad;
+	x+= 2*w+2*xPad;
 
 	zoomLabel = new Label("ZoomLabel", "Zoom:");
 	zoomLabel->setBounds(x-xPad,y,w*3+xPad, h);
@@ -49,33 +73,37 @@ void SpikeDisplayEditor::initializeButtons(){
 	y += h + yPad/2;
 
 	
-	panDownBtn = new ChannelSelectorButton("-", titleFont);
+	panDownBtn = new UtilityButton("-", titleFont);
+	panDownBtn->setCorners(true, false, true, false);
 	panDownBtn->setBounds(x, y, w, h);
 	panDownBtn->setClickingTogglesState(false);
 	panDownBtn->addListener(this);
-	x+= w+xPad;
+	x+= w;//+xPad;
 
-	panUpBtn = new ChannelSelectorButton("+", titleFont);
+	panUpBtn = new UtilityButton("+", titleFont);
+	panUpBtn->setCorners(false, true, false, true);
 	panUpBtn->setBounds(x, y, w, h); 
 	panUpBtn->setClickingTogglesState(false);
 	panUpBtn->addListener(this);
 	x+= w+xPad*2;
 
 	
-	zoomOutBtn = new ChannelSelectorButton("-", titleFont);
+	zoomOutBtn = new UtilityButton("-", titleFont);
+	zoomOutBtn->setCorners(true, false, true, false);
 	zoomOutBtn->setBounds(x,y,w,h);
 	zoomOutBtn->setClickingTogglesState(false);
 	zoomOutBtn->addListener(this);
-	x += w + xPad;
+	x += w;// + xPad;
 
-	zoomInBtn = new ChannelSelectorButton("+", titleFont);
+	zoomInBtn = new UtilityButton("+", titleFont);
+	zoomInBtn->setCorners(false, true, false, true);
 	zoomInBtn->setBounds(x,y,w,h);
 	zoomInBtn->setClickingTogglesState(false);
 	zoomInBtn->addListener(this);
 	x += w + xPad*3;
 
 
-	clearBtn = new ChannelSelectorButton("Clear", titleFont);
+	clearBtn = new UtilityButton("Clear", titleFont);
 	clearBtn->setBounds(x, y, w*2 + xPad, h);
 	clearBtn->setClickingTogglesState(false);
 	clearBtn->addListener(this);
@@ -87,7 +115,7 @@ void SpikeDisplayEditor::initializeButtons(){
 
 	//panLabel->setFont(titleFont);
 
-	saveImgBtn = new ChannelSelectorButton("Save", titleFont);
+	saveImgBtn = new UtilityButton("Save", titleFont);
 	saveImgBtn->setBounds(x,y,w*2 + xPad, h);
 	saveImgBtn->setClickingTogglesState(false);
 	saveImgBtn->addListener(this);
@@ -108,7 +136,7 @@ void SpikeDisplayEditor::initializeButtons(){
 	y += h + yPad/2;
 	//x += w/2;
 
-	allSubChansBtn = new ChannelSelectorButton("All", titleFont);
+	allSubChansBtn = new UtilityButton("All", titleFont);
 	allSubChansBtn->setBounds(x,y,w*2+xPad,h);
 	allSubChansBtn->addListener(this);
 	allSubChansBtn->setToggleState(true, false);
@@ -119,7 +147,7 @@ void SpikeDisplayEditor::initializeButtons(){
 		String s = "";
 		s += i;
 
-		subChanBtn[i] = new ChannelSelectorButton(s, titleFont);
+		subChanBtn[i] = new UtilityButton(s, titleFont);
 		subChanBtn[i]->setBounds(x,y,w,h);
 		subChanBtn[i]->addListener(this);
 		subChanBtn[i]->setToggleState(true, false);
@@ -152,6 +180,17 @@ Visualizer* SpikeDisplayEditor::createNewCanvas()
 	return new SpikeDisplayCanvas(processor);
 
 }
+
+// void SpikeDisplayEditor::updateSettings()
+// {
+// 	// called by base class
+
+// }
+
+// void SpikeDisplayEditor::updateVisualizer()
+// {
+	
+// }
 
 void SpikeDisplayEditor::buttonCallback(Button* button)
 {
@@ -203,7 +242,7 @@ void SpikeDisplayEditor::buttonCallback(Button* button)
 			if(button == subChanBtn[i])
 			{
 				std::cout<<"SubChannel:"<<i<< " set to:";
-				subChanSelected[i] = ((ChannelSelectorButton*) button)->getToggleState();
+				subChanSelected[i] = ((UtilityButton*) button)->getToggleState();
 				std::cout<< subChanSelected[i]<<std::endl;
 			}
 

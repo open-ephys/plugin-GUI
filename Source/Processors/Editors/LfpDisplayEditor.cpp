@@ -31,24 +31,7 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode)
 
 	tabText = "LFP";
 
-	desiredWidth = 250;
-
-	StringArray timeBaseValues;
-	timeBaseValues.add("1");
-	timeBaseValues.add("2");
-	timeBaseValues.add("5");
-	timeBaseValues.add("10");
-
-	createRadioButtons(35, 50, 160, timeBaseValues, "Display width (s)");
-
-	StringArray displayGainValues;
-	displayGainValues.add("1");
-	displayGainValues.add("2");
-	displayGainValues.add("4");
-	displayGainValues.add("8");
-
-	createRadioButtons(35, 90, 160, displayGainValues, "Display Gain");
-
+	desiredWidth = 180;
 
 }
 

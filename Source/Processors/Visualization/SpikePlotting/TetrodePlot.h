@@ -37,6 +37,7 @@ class TetrodePlot : public BaseUIElement{
     // void panWaveform(int n, bool xdim, int panval);
     
     void initLimits();
+    void setLimitsOnAxes();
 	
 public:
 	TetrodePlot();
@@ -45,12 +46,13 @@ public:
 
 	void initAxes();
 	void redraw();
+
 	void setEnabled(bool enabled);
 	bool getEnabled();
 	
 	void setPosition(int,int,double,double);
-	void setPosition(int, int);
-	void setDimensions(double,double);
+	//void setPosition(int, int);
+	//void setDimensions(double,double);
 
 	void getPreferredDimensions(double*, double*);
 
@@ -64,6 +66,10 @@ public:
     bool processKeyEvent(SimpleKeyEvent k);
 
     void processSpikeObject(SpikeObject s);
+
+    void clear();
+    void zoom(int, bool);
+    void pan(int, bool);
 };
 
 

@@ -28,6 +28,14 @@ EventNode::EventNode()
 	: GenericProcessor("Event Generator"), Hz(1), accumulator(0)
 {
 
+	Array<var> hzValues;
+	hzValues.add(0.25f);
+	hzValues.add(0.5f);
+	hzValues.add(1.0f);
+	hzValues.add(2.0f);
+
+	parameters.add(Parameter("Frequency",hzValues, 0, 0));
+
 }
 
 EventNode::~EventNode()
@@ -49,11 +57,11 @@ void EventNode::updateSettings()
 }
 
 
-void EventNode::setParameter (int parameterIndex, float newValue)
-{
-	std::cout << "Setting frequency to " << newValue << " Hz." << std::endl;
-	Hz = newValue;
-}
+// void EventNode::setParameter (int parameterIndex, float newValue)
+// {
+// 	std::cout << "Setting frequency to " << newValue << " Hz." << std::endl;
+// 	Hz = newValue;
+// }
 
 
 void EventNode::process(AudioSampleBuffer &buffer, 

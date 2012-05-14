@@ -32,20 +32,10 @@ FilterEditor::FilterEditor (GenericProcessor* parentNode)
 {
 	desiredWidth = 250;
 
-	StringArray lowCutValues;
-	lowCutValues.add("1");
-	lowCutValues.add("10");
-	lowCutValues.add("100");
-	lowCutValues.add("500");
 
-	StringArray highCutValues;
-	highCutValues.add("1K");
-	highCutValues.add("3K");
-	highCutValues.add("6K");
-	highCutValues.add("9K");
 
-	createRadioButtons(35, 50, 160, lowCutValues, "Low Cutoff");
-	createRadioButtons(35, 90, 160, highCutValues, "High Cutoff");
+	//createRadioButtons(35, 50, 160, lowCutValues, "Low Cutoff");
+	//createRadioButtons(35, 90, 160, highCutValues, "High Cutoff");
 
 	// for (int n = 0; n < getNumChildComponents(); n++)
 	// {

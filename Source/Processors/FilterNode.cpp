@@ -30,6 +30,22 @@ FilterNode::FilterNode()
 
 {
 
+	Array<var> lowCutValues;
+	lowCutValues.add(1.0f);
+	lowCutValues.add(10.0f);
+	lowCutValues.add(100.0f);
+	lowCutValues.add(300.0f);
+
+	parameters.add(Parameter("low cut",lowCutValues, 0, 0));
+
+	Array<var> highCutValues;
+	highCutValues.add(1000.0f);
+	highCutValues.add(3000.0f);
+	highCutValues.add(5000.0f);
+	highCutValues.add(9000.0f);
+
+	parameters.add(Parameter("high cut",highCutValues, 0, 1));
+
 }
 
 FilterNode::~FilterNode()
@@ -85,8 +101,8 @@ void FilterNode::updateSettings()
 {		
 
 	filters.clear();
-	lowCuts.clear();
-	highCuts.clear();
+//	lowCuts.clear();
+	//highCuts.clear();
 
 	if (getNumInputs() < 100) {
 
@@ -96,13 +112,16 @@ void FilterNode::updateSettings()
 
 			filters.add(new Dsp::SmoothedFilterDesign 
 				<Dsp::Butterworth::Design::BandPass 	// design type
-				<4>,								 	// order
+				<3>,								 	// order
 				1,										// number of channels (must be const)
 				Dsp::DirectFormII>						// realization
 				(1024));	 
 
-			lowCuts.add(1.0f);
-			highCuts.add(1000.0f);
+			Parameter& p1 =  parameters.getReference(0);
+			p1.setValue(1.0f, n);
+
+			Parameter& p2 =  parameters.getReference(1);
+			p2.setValue(1000.0f, n);
 			
 			setFilterParameters(1.0f, 1000.0f, n);
 		}
@@ -116,7 +135,7 @@ void FilterNode::setFilterParameters(double lowCut, double highCut, int chan)
 
 	Dsp::Params params;
 	params[0] = getSampleRate(); // sample rate
-	params[1] = 4; // order
+	params[1] = 3; // order
 	params[2] = (highCut + lowCut)/2; // center frequency
 	params[3] = highCut - lowCut; // bandwidth
 
@@ -128,13 +147,41 @@ void FilterNode::setFilterParameters(double lowCut, double highCut, int chan)
 void FilterNode::setParameter (int parameterIndex, float newValue)
 {
 
-	if (parameterIndex == 0) {
-		lowCuts.set(currentChannel, newValue);
-		setFilterParameters(newValue, highCuts[currentChannel], currentChannel);
+	std::cout << "Setting channel " << currentChannel;// << std::endl;
+
+	if (parameterIndex == 0)
+	{
+		std::cout << " low cut to ";
 	} else {
-		highCuts.set(currentChannel, newValue);
-		setFilterParameters(lowCuts[currentChannel], newValue, currentChannel);
+		std::cout << " high cut to ";
 	}
+
+	std::cout << newValue << std::endl;
+
+	//if (parameterIndex)
+//
+	Parameter& p =  parameters.getReference(parameterIndex);
+
+	p.setValue(newValue, currentChannel);
+
+
+	Parameter& p1 =  parameters.getReference(0);
+	Parameter& p2 =  parameters.getReference(1);
+
+	std::cout << float(p1[currentChannel]) << " ";
+	std::cout << float(p2[currentChannel]) << std::endl;
+
+	setFilterParameters(float(p1[currentChannel]),
+						float(p2[currentChannel]),
+						currentChannel);
+
+	// if (parameterIndex == 0) {
+	// 	parameters[0].setValue(newValue, currentChannel);
+	// 	setFilterParameters(newValue, parameters[0][currentChannel], currentChannel);
+	// } else {
+	// 	parameters[1].setValue(newValue, currentChannel);
+	// 	setFilterParameters(lowCuts[currentChannel], newValue, currentChannel);
+	// }
 
 }
 
@@ -149,3 +196,4 @@ void FilterNode::process(AudioSampleBuffer &buffer,
     }
 
 }
+

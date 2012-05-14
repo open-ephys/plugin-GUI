@@ -35,6 +35,7 @@
 
 #define MAX_N_SUB_CHAN 8
 class Visualizer;
+class UtilityButton;
 
 class SpikeDisplayEditor : public VisualizerEditor
 {
@@ -44,25 +45,28 @@ public:
 
 	void buttonCallback (Button* button);
 
+    // void updateSettings();
+    // void updateVisualizer();
+
 	Visualizer* createNewCanvas();
 
 private:	
 
-    Button *panUpBtn;
-    Button *panDownBtn;
-    Button *zoomInBtn;
-    Button *zoomOutBtn;
-    Button *clearBtn;
-    Button *saveImgBtn;
+    UtilityButton *panUpBtn;
+    UtilityButton *panDownBtn;
+    UtilityButton *zoomInBtn;
+    UtilityButton *zoomOutBtn;
+    UtilityButton *clearBtn;
+    UtilityButton *saveImgBtn;
 
     Label *panLabel;
     Label *zoomLabel;
 
-    Button *allSubChansBtn;
+    UtilityButton *allSubChansBtn;
 
     int nSubChannels;
     Label *subChanLabel;
-    Button *subChanBtn[MAX_N_SUB_CHAN];
+    UtilityButton *subChanBtn[MAX_N_SUB_CHAN];
     bool subChanSelected[MAX_N_SUB_CHAN];
 
     void initializeButtons();

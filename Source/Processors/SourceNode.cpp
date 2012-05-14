@@ -30,10 +30,13 @@ SourceNode::SourceNode(const String& name_)
 	  dataThread(0), inputBuffer(0),
 	  sourceCheckInterval(2000), wasDisabled(true)
 {
+
+	std::cout << "creating source node." << std::endl;
+
 	if (getName().equalsIgnoreCase("Intan Demo Board")) {
 		dataThread = new IntanThread(this);
 	} else if (getName().equalsIgnoreCase("Custom FPGA")) {
-		dataThread = new FPGAThread(this);
+		dataThread = new FPGAThread(this);//FPGAThread(this);
 	} else if (getName().equalsIgnoreCase("File Reader")) {
 		dataThread = new FileReaderThread(this);
 	}
@@ -61,7 +64,9 @@ void SourceNode::updateSettings()
 {
 	if (inputBuffer == 0 && dataThread != 0)
 	{
+
 		inputBuffer = dataThread->getBufferAddress();
+		std::cout << "Input buffer address is " << inputBuffer << std::endl;
 	}
 
 }
@@ -89,6 +94,14 @@ int SourceNode::getDefaultNumOutputs()
 		return dataThread->getNumChannels();
 	else
 		return 0;
+}
+
+float SourceNode::getDefaultBitVolts()
+{
+	if (dataThread != 0)
+		return dataThread->getBitVolts();
+	else
+		return 1.0f;
 }
 
 void SourceNode::enabledState(bool t)
@@ -197,6 +210,8 @@ void SourceNode::process(AudioSampleBuffer &buffer,
                             int& nSamples)
 {
 	
+	//std::cout << "SOURCE NODE" << std::endl;
+
 	 buffer.clear();
 	 nSamples = inputBuffer->readAllFromBuffer(buffer,buffer.getNumSamples());
 	

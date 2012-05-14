@@ -51,7 +51,7 @@ class EditorViewport;
 class DataViewport;
 class UIComponent;
 class GenericEditor;
-//class Parameter;
+class Parameter;
 
 class GenericProcessor : public AudioProcessor,
 						 public AccessClass
@@ -103,6 +103,7 @@ public:
 	
 	float getParameter (int parameterIndex) {return 1.0;}
 	Parameter& getParameterByName(String parameterName);
+	Parameter& getParameterReference(int parameterIndex);
 
 	//----------------------------------------------------------------------
 	// Custom methods:
@@ -192,6 +193,14 @@ public:
  		CONTINUOUS = 6
  	};
 
+ 	enum eventChannelTypes
+ 	{
+ 		GENERIC_EVENT = 999,
+ 		SINGLE_ELECTRODE = 1,
+ 		STEREOTRODE = 2,
+ 		TETRODE = 4
+ 	};
+
 	int saveOrder;
 	int loadOrder;
 
@@ -214,6 +223,7 @@ public:
 
 		Array<int> eventChannelIds;
 		StringArray eventChannelNames;
+		Array<int> eventChannelTypes;
 
 	};
 
@@ -233,6 +243,8 @@ public:
 	// parameters:
 	Array<Parameter> parameters;
 	StringArray parameterNames;
+
+	Parameter nullParam;
 
 private:
 

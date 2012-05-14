@@ -6,7 +6,7 @@ WaveAxes::WaveAxes():
 					drawWaveformPoints(false),
 					drawGrid(true),
 					overlay(false),
-					convertLabelUnits(true)
+					convertLabelUnits(false)
 {	
 	GenericAxes::gotFirstSpike = false;
 
@@ -24,7 +24,7 @@ WaveAxes::WaveAxes(int x, int y, double w, double h, int t):
 					drawWaveformPoints(false),
 					drawGrid(true),
 					overlay(false),
-					convertLabelUnits(true)
+					convertLabelUnits(false)
 {	
 	GenericAxes::gotFirstSpike = false;
 
@@ -57,19 +57,27 @@ void WaveAxes::plot(){
 	// If no spikes have been received then don't plot anything
 	if (!gotFirstSpike)
 	{
-		std::cout<<"\tWaiting for the first spike"<<std::endl;
+		//std::cout<<"\tWaiting for the first spike"<<std::endl;
 		return;
 	}
+
+	//setYLims(-20000,20000);
 	
 	// Set the plotting range for the current axes the xlims member is ignored as the xdims are 0->number of samples per waveform minus one
     // so the line goes all the way to the edges ydims are specified by the ylims vector		
 	setViewportRange(0, ylims[0], s.nSamples-1, ylims[1]);
-	
+	//setViewportRange(0, -2000, s.nSamples-1, 20000);
+
+	//std::cout << "ylims set to " << ylims[0] << " " << ylims[1] << std::endl;
+
 	// draw the grid lines for the waveforms?
-	 if(drawGrid)
+	 if (drawGrid)
 	 	drawWaveformGrid(s.threshold[chan], s.gain[chan]);
 	
-	//compute the spatial width for each wawveform sample	
+
+	//std::cout << "ylims set to " << ylims[0] << " " << ylims[1] << std::endl;
+
+	//compute the spatial width for each waveform sample	
 	float dx = 1;
 	float x = 0;
 
@@ -86,10 +94,10 @@ void WaveAxes::plot(){
 	glBegin( GL_LINE_STRIP );
 	
 	int dSamples = 1;
-	for (int i=0; i<s.nSamples; i++)
+	for (int i = 0; i < s.nSamples; i++)
 	{
 		//std::cout<<"\t"<<s.data[sampIdx];
-		glVertex2f(x, s.data[sampIdx]);
+		glVertex2f(x, s.data[sampIdx] - 32768);
 		sampIdx += dSamples;
 		x +=dx; 
 	}
@@ -121,6 +129,8 @@ void WaveAxes::plot(){
 
 void WaveAxes::drawWaveformGrid(int thold, int gain){
 
+	//setYLims(-20000,20000);
+
 	double voltRange = ylims[1] - ylims[0];
 	double pixelRange = BaseUIElement::height;
 	//This is a totally arbitrary value that seemed to lok the best for me
@@ -128,7 +138,7 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 	int MAX_N_TICKS = 10;
 
 	int nTicks = pixelRange / minPixelsPerTick;
-	while(nTicks>MAX_N_TICKS){
+	while(nTicks > MAX_N_TICKS){
 		minPixelsPerTick += 5;
 		nTicks = pixelRange / minPixelsPerTick;
 	}
@@ -147,7 +157,7 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 	// If the limits are bad we don't want to hang the program trying to draw too many ticks
 	// so count the number of ticks drawn and kill the routine after 100 draws
 	int tickCount=0;
-	while(tickVoltage < ylims[1] - voltPerTick*1.5) // Draw the ticks above the thold line
+	while (tickVoltage < ylims[1] - voltPerTick*1.5) // Draw the ticks above the thold line
 	{
 		tickVoltage = roundUp(tickVoltage + voltPerTick, 100);
 		
@@ -166,7 +176,8 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 	
 	tickVoltage = thold;
 	tickCount = 0;
-	while(tickVoltage > ylims[0] + voltPerTick) // draw the ticks below the thold line
+
+	while (tickVoltage > ylims[0] + voltPerTick) // draw the ticks below the thold line
 	{
 		tickVoltage = roundUp(tickVoltage - voltPerTick, 100);
 

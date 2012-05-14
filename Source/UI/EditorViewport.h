@@ -67,6 +67,7 @@ public:
     void selectEditor(GenericEditor* e);
 
     void makeEditorVisible(GenericEditor* e);
+    void makeEditorVisibleAndUpdateSettings(GenericEditor* e);
     void refreshEditors();
 
     void signalChainCanBeEdited(bool t);
@@ -131,7 +132,7 @@ private:
 
     int currentTab;
 
-    enum actions {ADD, MOVE, REMOVE, ACTIVATE};
+    enum actions {ADD, MOVE, REMOVE, ACTIVATE, UPDATE};
     enum directions1 {LEFT, RIGHT};
     enum directions2 {UP, DOWN};
 

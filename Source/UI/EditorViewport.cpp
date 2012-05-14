@@ -239,12 +239,29 @@ void EditorViewport::itemDropped (const String& sourceDescription, Component* /*
 void EditorViewport::makeEditorVisible(GenericEditor* editor)
 {
     
-    signalChainManager->updateVisibleEditors(editor, 0, 0, ACTIVATE);
+    if (editor == 0)
+        return;
 
+    signalChainManager->updateVisibleEditors(editor, 0, 0, ACTIVATE);
     refreshEditors();
+
+    editor->highlight();
+
 }
 
 
+void EditorViewport::makeEditorVisibleAndUpdateSettings(GenericEditor* editor)
+{
+    
+    if (editor == 0)
+        return;
+
+    signalChainManager->updateVisibleEditors(editor, 0, 0, UPDATE);
+    refreshEditors();
+
+    editor->highlight();
+
+}
 
 void EditorViewport::deleteNode (GenericEditor* editor) {
 
@@ -259,14 +276,14 @@ void EditorViewport::deleteNode (GenericEditor* editor) {
         getProcessorGraph()->removeProcessor((GenericProcessor*) editor->getProcessor());
     }
 
-    int64 t1 = Time::currentTimeMillis();
-    int64 t2 = t1;
+    // int64 t1 = Time::currentTimeMillis();
+    // int64 t2 = t1;
 
-    // pause for 50 ms so multiple editors are not accidentally deleted
-    while (t2 < t1+50)
-    {
-        t2 = Time::currentTimeMillis();
-    }
+    // // pause for 50 ms so multiple editors are not accidentally deleted
+    // while (t2 < t1+50)
+    // {
+    //     t2 = Time::currentTimeMillis();
+    // }
 
 }
 
@@ -421,7 +438,7 @@ bool EditorViewport::keyPressed (const KeyPress &key) {
         
             if (editorArray[i]->getSelectionState()) {
 #if !JUCE_MAC
-                deleteNode(editorArray[i]);
+           //     deleteNode(editorArray[i]);
                 break;
 #endif
             }               
@@ -472,7 +489,9 @@ void EditorViewport::mouseDown(const MouseEvent &e) {
     for (int i = 0; i < editorArray.size(); i++) {
         
         if (e.eventComponent == editorArray[i]
-             || e.eventComponent->getParentComponent() == editorArray[i]) {
+             || e.eventComponent->getParentComponent() == editorArray[i] ||
+                e.eventComponent->getParentComponent()->getParentComponent() ==
+                        editorArray[i]) {
             editorArray[i]->select();
         } else {
             editorArray[i]->deselect();
@@ -951,18 +970,26 @@ const String EditorViewport::loadState(const File& file)
 
             } else if (processor->hasTagName("SWITCH"))
             {
-                int processorNum = processor->getIntAttribute("number");
+                int processorNum = processor->getIntAttribute("number") + 1;
+
+                std::cout << "SWITCHING number " << processorNum << std::endl;
 
                 for (int n = 0; n < splitPoints.size(); n++)
                 {
+
+                    std::cout << "Trying split point " << n 
+                        << ", load order: " << splitPoints[n]->loadOrder << std::endl;
+
                     if (splitPoints[n]->loadOrder == processorNum)
                     {
 
                         if (splitPoints[n]->isMerger())
                         {
+                            std::cout << "Switching merger source." << std::endl;
                             MergerEditor* editor = (MergerEditor*) splitPoints[n]->getEditor();
                            editor->switchSource(1);
                         } else {
+                            std::cout << "Switching splitter destination." << std::endl;
                             SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
                             editor->switchDest(1);
                         }

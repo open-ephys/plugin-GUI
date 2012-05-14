@@ -15,7 +15,7 @@ BaseUIElement::BaseUIElement(int x, int y, double w, double h):
 	height = h-padding*2;
 }
 BaseUIElement::BaseUIElement(int x, int y, double w, double h, int p):
-	enabled(true), padding(0)
+	enabled(true), padding(p)
 {
 	xpos = x+padding;
 	ypos = y+padding;	
@@ -73,7 +73,7 @@ void BaseUIElement::getPosition(int *x, int *y, double *w, double *h){
 // }
 
 bool BaseUIElement::hitTest(int x, int y){
-    return (x>xpos && x<xpos+width) && (y>ypos && y<ypos+height);
+    return (x > xpos && x < xpos+width) && (y > ypos && y < ypos+height);
 }
 
 double BaseUIElement::getHeight(){

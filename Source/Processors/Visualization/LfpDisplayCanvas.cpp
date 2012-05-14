@@ -26,7 +26,7 @@
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	 	xBuffer(0), yBuffer(0),
 	    plotHeight(40), selectedChan(-1), screenBufferIndex(0),
-	    timebase(1.0f), displayGain(5.0f), displayBufferIndex(0)
+	    timebase(1.0f), displayGain(0.001f), displayBufferIndex(0)
 {
 
 	nChans = processor->getNumInputs();
@@ -109,7 +109,7 @@ void LfpDisplayCanvas::setParameter(int param, float val)
 	if (param == 0)
 		timebase = val;
 	else
-		displayGain = val;
+		displayGain = val * 0.001f;
 	
 }
 
@@ -234,9 +234,9 @@ void LfpDisplayCanvas::renderOpenGL()
 			drawWaveform(i,isSelected);
 		}	
 	}
-	drawScrollBars();
 
-	//std::cout << "Render." << std::endl;
+	drawScrollBars();
+	
 }
 
 void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
@@ -249,7 +249,8 @@ void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
 
 	for (float i = 0; i < float(getWidth()); i++)
 	{
-		glVertex2f(i/w,*screenBuffer->getSampleData(chan, int(i))+0.5);
+		if ((int) i < screenBuffer->getNumSamples()) // check to avoid triggering assertion at juce_AudioSampleBuffer.h: 126
+			glVertex2f(i/w,*screenBuffer->getSampleData(chan, int(i))+0.5);
 	}
 
 	glEnd();
@@ -367,25 +368,3 @@ void LfpDisplayCanvas::mouseDownInCanvas(const MouseEvent& e)
 	}
 
 }
-
-// void LfpDisplayCanvas::mouseDrag(const MouseEvent& e) {mouseDragInCanvas(e);}
-// void LfpDisplayCanvas::mouseMove(const MouseEvent& e) {mouseMoveInCanvas(e);}
-// void LfpDisplayCanvas::mouseUp(const MouseEvent& e) 	{mouseUpInCanvas(e);}
-// void LfpDisplayCanvas::mouseWheelMove(const MouseEvent& e, float a, float b) {mouseWheelMoveInCanvas(e,a,b);}
-
-// void LfpDisplayCanvas::resized()
-// {
-// 	//screenBuffer = new AudioSampleBuffer(nChans, getWidth());
-
-// 	// glClear(GL_COLOR_BUFFER_BIT);
-
-// 	// //int h = getParentComponent()->getHeight();
-
-// 	// if (scrollPix + getHeight() > getTotalHeight() && getTotalHeight() > getHeight())
-// 	// 	scrollPix = getTotalHeight() - getHeight();
-// 	// else
-// 	// 	scrollPix = 0;
-
-// 	// showScrollBars();
-// 	canvasWasResized();
-// }

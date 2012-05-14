@@ -29,7 +29,7 @@
 #include "GenericEditor.h"
 
 class TriangleButton;
-class PlusButton;
+class UtilityButton;
 
 class ElectrodeButton : public Button
 {
@@ -41,6 +41,9 @@ public:
         setToggleState(true, false);
     }
     ~ElectrodeButton() {}
+
+    int getChannelNum() {return chan;}
+    void setChannelNum(int i) {chan = i;}
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
@@ -66,6 +69,28 @@ private:
 
 };
 
+class ThresholdSlider : public Slider
+{
+public: 
+    ThresholdSlider(Font f);
+    ~ThresholdSlider() {}
+
+    void setActive(bool);
+
+    void setValues(Array<double>);
+
+private:
+    void paint(Graphics& g);
+
+    Path makeRotaryPath(double, double, double);
+
+    Font font;
+
+    bool isActive;
+
+    Array<double> valueArray;
+
+};
 
 class SpikeDetectorEditor : public GenericEditor,
                             public Label::Listener,
@@ -78,6 +103,9 @@ public:
     void buttonEvent(Button* button);
     void labelTextChanged(Label* label);
     void comboBoxChanged(ComboBox* comboBox);
+    void sliderEvent(Slider* slider);
+
+    void channelChanged(int chan);
 
 private:	
 
@@ -88,14 +116,17 @@ private:
     ComboBox* electrodeTypes;
     ComboBox* electrodeList;
     Label* numElectrodes;
+    Label* thresholdLabel;
     TriangleButton* upButton;
     TriangleButton* downButton;
-    PlusButton* plusButton;
+    UtilityButton* plusButton;
+
+    ThresholdSlider* thresholdSlider;
 
     OwnedArray<ElectrodeButton> electrodeButtons;
     Array<ElectrodeEditorButton*> electrodeEditorButtons;
 
-    void addElectrode(int nChans);
+    bool addElectrode(int nChans);
     void removeElectrode(int index);
     void editElectrode(int index, int chan, int newChan);
 
@@ -103,8 +134,6 @@ private:
     bool isPlural;
 
     Font font;
-
-    //ThresholdSlider* thresholdSlider;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetectorEditor);
 

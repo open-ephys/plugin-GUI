@@ -24,18 +24,22 @@
 
 #include "FileReaderThread.h"
 
-FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn),
-			sampleRate(40000.0),
-			numChannels(16),
-			samplesPerBlock(1024)
+FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn)
 
 {
-	File file = File("./data_stream_16ch");
-	input = file.createInputStream();
+	//File file = File("./data_stream_16ch");
+	//input = file.createInputStream();
+    bufferSize = 1600;
 
-   // lengthOfInputFile = file
+    input = fopen("./data_stream_16ch_2", "r");
 
-	dataBuffer = new DataBuffer(16, 4096);
+    fseek(input, 0, SEEK_END);
+    lengthOfInputFile = ftell(input);
+    rewind(input);
+
+	dataBuffer = new DataBuffer(16, bufferSize*3);
+
+   
 
 	std::cout << "File Reader Thread initialized." << std::endl;
 
@@ -45,44 +49,83 @@ FileReaderThread::~FileReaderThread() {
 
 	deleteAndZero(input);
 
-	deleteAndZero(dataBuffer);
+}
 
+bool FileReaderThread::foundInputSource()
+{
+    return true;
+}
+
+int FileReaderThread::getNumChannels()
+{
+    return 16;
+}
+
+float FileReaderThread::getSampleRate()
+{
+    return 44100.0f;
+}
+
+float FileReaderThread::getBitVolts()
+{
+    return 0.0305f;
 }
 
 bool FileReaderThread::startAcquisition()
 {
 	startThread();
 
+    return true;
+
 }
 
 bool FileReaderThread::stopAcquisition()
 {
-	stopThread(500);
-	std::cout << "File reader received disable signal." << std::endl;
+    std::cout << "File reader received disable signal." << std::endl;
+	if (isThreadRunning()) {
+        signalThreadShouldExit();
+    }
+	
+
+    return true;
+
 }
 
 bool FileReaderThread::updateBuffer()
 {
 
-	while (dataBuffer->getNumSamples() < 4096)
-	{
+	if (dataBuffer->getNumSamples() < bufferSize)
+	 {
+ //       // std::cout << dataBuffer->getNumSamples() << std::endl;
 
-       // if (input->getTotalLength())
+       if (ftell(input) >= lengthOfInputFile - bufferSize)
+       {
+           rewind(input);
+       }
 
-        //input->read(thisSample, 4*)
+         fread(readBuffer, 2, bufferSize, input);
 
-    	for (int ch = 0; ch < numChannels; ch++) {
-    		
-    		if (input->isExhausted())
-    			input->setPosition(0);   			
+        int chan = 0;
+
+        for (int n = 0; n < bufferSize; n++)
+        {
+            thisSample[chan] = float(-readBuffer[n])*0.0305f;
+
+            if (chan == 15)
+            {
+                dataBuffer->addToBuffer(thisSample,1);
+                chan = 0;
+            } else {
+                chan++;
+            }
+
+
+         }
     	
-    		thisSample[ch%numChannels] = float(input->readShort())/80000.0f;
 
-    	}
-
-    	dataBuffer->addToBuffer(thisSample,1);
-
-    }
+     } else {
+        wait(25); // pause for 12 ms -- about 40kHz for a 1600-sample buffer
+     }
 
     return true;
 }

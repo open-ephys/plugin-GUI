@@ -32,7 +32,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 	: GenericEditor(parentNode), amplitudeSlider(0), frequencySlider(0), phaseSlider(0)
 
 {
-	desiredWidth = 270;
+	desiredWidth = 250;
 
 	int buttonWidth = 31;
 	int buttonHeight = 19;
@@ -48,7 +48,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 
 	amplitudeSlider = new Slider ("Amplitude Slider");
 	amplitudeSlider->setBounds(10,60,50,60);
-	amplitudeSlider->setRange(0,1000,10);
+	amplitudeSlider->setRange(0,5,0.5);
 	amplitudeSlider->addListener(this);
 	amplitudeSlider->setSliderStyle(Slider::Rotary);
 	amplitudeSlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
@@ -56,7 +56,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 
 	frequencySlider = new Slider ("Frequency Slider");
 	frequencySlider->setBounds(70,60,50,60);
-	frequencySlider->setRange(1,1000,1);
+	frequencySlider->setRange(10,1000,10);
 	frequencySlider->addListener(this);
 	frequencySlider->setSliderStyle(Slider::Rotary);
 	frequencySlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
@@ -93,30 +93,30 @@ SignalGeneratorEditor::~SignalGeneratorEditor()
 	deleteAllChildren();
 }
 
-void SignalGeneratorEditor::sliderValueChanged (Slider* slider)
-{
+// void SignalGeneratorEditor::sliderValueChanged (Slider* slider)
+// {
 
-	Array<int> chans = getActiveChannels();
+// 	// Array<int> chans = getActiveChannels();
 	
-	//std::cout << chans.size() << " channels selected." << std::endl;
+// 	// //std::cout << chans.size() << " channels selected." << std::endl;
 
-	GenericProcessor* p = (GenericProcessor*) getAudioProcessor();
+// 	// GenericProcessor* p = (GenericProcessor*) getAudioProcessor();
 
-	for (int n = 0; n < chans.size(); n++) {
+// 	// for (int n = 0; n < chans.size(); n++) {
 		
-		p->setCurrentChannel(chans[n]);
+// 	// 	p->setCurrentChannel(chans[n]);
 
-		if (slider == amplitudeSlider)
-			p->setParameter(0,slider->getValue());
-		else if (slider == frequencySlider)
-			p->setParameter(1,slider->getValue());
-		else if (slider == phaseSlider)
-			p->setParameter(2,slider->getValue());
+// 	// 	if (slider == amplitudeSlider)
+// 	// 		p->setParameter(0,slider->getValue());
+// 	// 	else if (slider == frequencySlider)
+// 	// 		p->setParameter(1,slider->getValue());
+// 	// 	else if (slider == phaseSlider)
+// 	// 		p->setParameter(2,slider->getValue());
 
-	}
+// 	// }
 
 
-}
+// }
 
 void SignalGeneratorEditor::buttonEvent (Button* button)
 {
@@ -156,6 +156,35 @@ void SignalGeneratorEditor::buttonEvent (Button* button)
     }
 }
 
+void SignalGeneratorEditor::sliderEvent(Slider* slider)
+{
+
+	int paramIndex;
+
+	if (slider == amplitudeSlider)
+	{
+		paramIndex = 0;
+	} else if (slider == frequencySlider)
+	{
+		paramIndex = 1;
+	} else if (slider == phaseSlider)
+	{
+		paramIndex = 2;
+	}
+
+
+	GenericProcessor* p = getProcessor();
+
+	Array<int> chans = getActiveChannels();
+
+	for (int n = 0; n < chans.size(); n++) {
+
+		p->setCurrentChannel(chans[n]);
+		p->setParameter(paramIndex, slider->getValue());
+
+	}
+
+}
 
 void SignalGeneratorEditor::labelTextChanged (Label* label)
 {

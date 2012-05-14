@@ -25,6 +25,7 @@
 #define __DATAVIEWPORT_H_B38FE628__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "../AccessClass.h"
 
 /**
   
@@ -38,7 +39,10 @@
 
 */
 
-class DataViewport : public TabbedComponent
+class GenericEditor;
+
+class DataViewport : public TabbedComponent,
+                     public AccessClass
 
 {
 public: 
@@ -46,19 +50,28 @@ public:
 	~DataViewport();
 
 	/** Adds a new tab and returns the tab index.*/
-    int addTabToDataViewport(String tabName, Component* componentToAdd);
+    int addTabToDataViewport(String tabName, Component* componentToAdd, GenericEditor* editor);
 
     /** Removes a tab with a specified index.*/
     void destroyTab(int);
 
+    /** Select a tab with a specified index.*/
+    void selectTab(int);
+
     /** Informs the component of the current tab that it's now active.*/
     void currentTabChanged(int newIndex, const String& newTabName);
 
+    /** Prevent DataViewport from signaling EditorViewport when changing tabs.*/
+    void disableConnectionToEditorViewport();
+
 private:
 
-	Array<int>* tabArray;
+	Array<int> tabArray;
+  Array<GenericEditor*> editorArray;
 	void paint(Graphics& g);
 	int tabDepth;
+
+  bool shutdown;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataViewport);
 	

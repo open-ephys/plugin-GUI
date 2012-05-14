@@ -25,7 +25,7 @@
 #include "AudioNode.h"
 
 AudioNode::AudioNode()
-	: GenericProcessor("Audio Node"), volume(5.0f), audioEditor(0)
+	: GenericProcessor("Audio Node"), volume(0.00001f), audioEditor(0)
 {
 
 	settings.numInputs = 64;
@@ -65,7 +65,7 @@ void AudioNode::setParameter (int parameterIndex, float newValue)
 {
 	// change left channel, right channel, or volume
 	if (parameterIndex == 1) // volume level
-		volume = newValue;
+		volume = newValue*0.00001f;
 
 }
 
@@ -73,6 +73,9 @@ void AudioNode::process(AudioSampleBuffer &buffer,
                             MidiBuffer &midiMessages,
                             int& nSamples)
 {
+
+	//std::cout << "Audio node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
+
 
 	// if (currentChannel == 0)
 	// {
@@ -83,6 +86,8 @@ void AudioNode::process(AudioSampleBuffer &buffer,
 	// 	buffer.clear(0,0,buffer.getNumSamples());
 	// 	buffer.copyFrom();
 	// } else {
+
+	// currently monitoring channels 2 and 3 ONLY!
 
 	buffer.clear(0,0,buffer.getNumSamples());
 	buffer.clear(1,0,buffer.getNumSamples());

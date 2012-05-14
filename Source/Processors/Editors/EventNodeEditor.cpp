@@ -29,15 +29,11 @@ EventNodeEditor::EventNodeEditor (GenericProcessor* parentNode)
 	: GenericEditor(parentNode)
 
 {
-	desiredWidth = 250;
+	desiredWidth = 200;
 
-	StringArray hzValues;
-	hzValues.add("0.25");
-	hzValues.add("0.5");
-	hzValues.add("1");
-	hzValues.add("2");
+	
 
-	createRadioButtons(35, 65, 160, hzValues, "Event frequency");
+	//createRadioButtons(35, 65, 160, hzValues, "Event frequency");
 
 	// for (int n = 0; n < getNumChildComponents(); n++)
 	// {

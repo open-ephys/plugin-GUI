@@ -25,19 +25,15 @@
 #define __FPGATHREAD_H_FBB22A45__
 
 
+#include "../../../JuceLibraryCode/JuceHeader.h"
+
 #include <stdio.h>
 #include <string.h>
-#include <iostream>
-#include <time.h>
-
-#include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "okFrontPanelDLL.h"
 #include "DataThread.h"
 
 /**
-
-  --UNDER CONSTRUCTION--
 
   Communicates with the custom acquisition board via an Opal Kelly FPGA.
 
@@ -54,26 +50,26 @@ public:
 	FPGAThread(SourceNode* sn);
 	~FPGAThread();
 
-	bool foundInputSource() {return true;}
-	bool startAcquisition() {return true;}
-	bool stopAcquisition() {return true;}
-	int getNumChannels() {return 32;}
-	float getSampleRate() {return 25000.0;}
-	
+	bool foundInputSource();
+	int getNumChannels();
+	float getSampleRate();
+	float getBitVolts();
+
 private:
 
 	okCFrontPanel* dev;
 	char bitfile[128];
 	char dll_date[32], dll_time[32];
-	UINT32 i;
+	bool isTransmitting;
+	bool deviceFound;
 
-	int m_u32SegmentSize;
-	
-	unsigned char pBuffer[500000];  // request a 1MB block of data
+	bool initializeFPGA(bool);
+	bool closeFPGA();
 
-	bool isRunning;
+	bool startAcquisition();
+	bool stopAcquisition();
 
-	DataBuffer* dataBuffer;
+	unsigned char pBuffer[50000];  // request a 50kb block of data
 
 	float thisSample[32];
 
@@ -81,8 +77,7 @@ private:
 	int Ndatabytes;
 
 	bool updateBuffer();
-	bool initializeFPGA(okCFrontPanel*, char*);
-
+	
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FPGAThread);
 };
 

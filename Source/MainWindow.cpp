@@ -67,6 +67,8 @@ MainWindow::~MainWindow()
    processorGraph->saveState();
 
    audioComponent->disconnectProcessorGraph();
+   UIComponent* ui = (UIComponent*) getContentComponent();
+   ui->disableDataViewport();
 
    deleteAndZero(processorGraph);
    deleteAndZero(audioComponent);

@@ -81,6 +81,15 @@ private:
 	// indexing objects that persist between rounds:
 	int destBufferPos;
 
+	// for testing purposes only:
+	void writeContinuousBuffer(float*, int, int);
+
+	FILE* file;
+	int64 timestamp;
+	Time timer;
+
+	int16* continuousDataBuffer;
+
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResamplingNode);
 
 };

@@ -30,19 +30,10 @@ SignalGenerator::SignalGenerator()
 	: GenericProcessor("Signal Generator"),
 
 	  defaultFrequency(10.0),
-	  defaultAmplitude (0.02f),
+	  defaultAmplitude (100.0f),
 	  nOut(1)
 	
 {
-
-	// const String n = "Test";
-
-	Parameter p = Parameter("Bill",true);
-
-	p.setValue(0.0f, 0);
-	bool a = p[0];
-
-	parameters.add(p);
 
 
 }
@@ -67,13 +58,17 @@ void SignalGenerator::updateSettings()
 
 	while (waveformType.size() < getNumOutputs())
 	{
-		waveformType.add(NOISE);
+		waveformType.add(SINE);
 		frequency.add(defaultFrequency);
 		amplitude.add(defaultAmplitude);
 		phase.add(0);
 		phasePerSample.add(double_Pi * 2.0 / (getSampleRate() / frequency.getLast()));
 		currentPhase.add(0);
 	}
+
+	sampleRateRatio = getSampleRate() / 44100.0;
+
+	std::cout << "Sample rate ratio: " << sampleRateRatio << std::endl;
 
 }
 
@@ -83,7 +78,7 @@ void SignalGenerator::setParameter (int parameterIndex, float newValue)
 
 	if (currentChannel > -1) {
 		if (parameterIndex == 0) {
-			amplitude.set(currentChannel,newValue);
+			amplitude.set(currentChannel,newValue*100.0f);
 		} else if (parameterIndex == 1) {
 			frequency.set(currentChannel,newValue);
 			phasePerSample.set(currentChannel, double_Pi * 2.0 / (getSampleRate() / frequency[currentChannel]));
@@ -164,7 +159,7 @@ void SignalGenerator::process(AudioSampleBuffer &buffer,
                             int& nSamps)
 {
 
-	nSamps = buffer.getNumSamples();
+	nSamps = int((float) buffer.getNumSamples() * sampleRateRatio);
 
     for (int i = 0; i < nSamps; ++i)
     {

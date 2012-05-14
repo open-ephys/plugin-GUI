@@ -565,11 +565,11 @@ void CustomLookAndFeel::drawComboBox (Graphics& g, int width, int height,
                                 ComboBox& box)
 {
 
-    g.fillAll (box.findColour (ComboBox::backgroundColourId));
+    g.fillAll (Colours::lightgrey);//box.findColour (ComboBox::backgroundColourId));
 
     if (box.isEnabled() && box.hasKeyboardFocus (false))
     {
-        g.setColour (box.findColour (TextButton::buttonColourId));
+        g.setColour (Colours::lightgrey);//box.findColour (TextButton::buttonColourId));
         g.drawRect (0, 0, width, height, 2);
     }
     else
