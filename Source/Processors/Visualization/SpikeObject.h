@@ -30,9 +30,11 @@
 #define MAX_NUMBER_OF_SPIKE_CHANNELS 4
 #define MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES 256
 #define CHECK_BUFFER_VALIDITY true
+#define SPIKE_EVENT_CODE 4;
 
 struct SpikeObject{
 
+  uint8_t     eventType;
   uint64_t    timestamp;                                           
   uint16_t    source;                                        
   uint16_t    nChannels;                                      
@@ -59,16 +61,16 @@ struct SpikeObject{
 */
 
 // Simple method for serializing a SpikeObject into a string of bytes, returns true is the packaged spike buffer is valid
-bool packSpike(SpikeObject *s, char* buffer, int bufferLength);
+int packSpike(SpikeObject *s, uint8_t* buffer, int bufferLength);
 
 // Simple method for deserializing a string of bytes into a Spike object, returns true is the provided spike buffer is valid
-bool unpackSpike(SpikeObject *s, char* buffer, int bufferLength);
+bool unpackSpike(SpikeObject *s, uint8_t* buffer, int bufferLength);
 
 // Checks the validity of the buffer, this should be run before unpacking the buffer
-bool isBufferValid(char *buffer, int bufferLength);
+bool isBufferValid(uint8_t *buffer, int bufferLength);
 
 // Computes the validity value for the buffer, this should be called after packing the buffer
-void makeBufferValid(char *buffer, int bufferLength);
+void makeBufferValid(uint8_t *buffer, int bufferLength);
 
 // Help function for generating fake spikes in the absence of a real spike source. 
 // Can be used to generate a sign wave with a fixed Frequency of 1000 hz or a basic spike waveform

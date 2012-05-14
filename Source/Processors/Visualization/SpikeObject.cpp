@@ -28,9 +28,15 @@
 #include "time.h"
       
 // Simple method for serializing a SpikeObject into a string of bytes
-bool packSpike(SpikeObject *s, char* buffer, int bufferSize){
+int packSpike(SpikeObject *s, uint8_t* buffer, int bufferSize){
 
 	int idx = 0;
+
+	s->eventType = SPIKE_EVENT_CODE;
+
+	memcpy(buffer+idx, &(s->eventType), 1);
+	idx += 1;
+
 	memcpy(buffer+idx, &(s->timestamp), 4);
 	idx += 4;
 
@@ -56,14 +62,19 @@ bool packSpike(SpikeObject *s, char* buffer, int bufferSize){
 		std::cout<<"Buffer Overrun! More data packaged than space provided!"<<std::endl;
 	// makeBufferValid(buffer, bufferSize);
 
+	return idx;
+
 }
 
 // Simple method for deserializing a string of bytes into a Spike object
-bool unpackSpike(SpikeObject *s, char* buffer, int bufferSize){
+bool unpackSpike(SpikeObject *s, uint8_t* buffer, int bufferSize){
 	// if !(isBufferValid(buffer, bufferSize));
 	// 	return false;
 
 	int idx = 0;
+
+	memcpy (&(s->eventType), buffer+idx, 1);
+	idx += 1;
 	
 	memcpy( &(s->timestamp), buffer+idx, 4);
 	idx += 4;
@@ -86,13 +97,13 @@ bool unpackSpike(SpikeObject *s, char* buffer, int bufferSize){
 	memcpy( &(s->threshold), buffer+idx, s->nChannels *2);
 	idx += s->nChannels * 2;
 
-	if (idx >= bufferSize)
-		std::cout<<"Buffer Overrun! More data extracted than was given!"<<std::endl;
+	//if (idx >= bufferSize)
+	//	std::cout<<"Buffer Overrun! More data extracted than was given!"<<std::endl;
 	
 }
 
 // Checks the validity of the buffer, this should be run before unpacking and after packing the buffer
-bool isBufferValid(char *buffer, int bufferSize){
+bool isBufferValid(uint8_t *buffer, int bufferSize){
 
 	if (! CHECK_BUFFER_VALIDITY )
 		return true;
@@ -114,7 +125,7 @@ bool isBufferValid(char *buffer, int bufferSize){
 	return (integrityCheck == runningSum);
 }
 
-void makeBufferValid(char *buffer, int bufferSize){
+void makeBufferValid(uint8_t *buffer, int bufferSize){
 	if (! CHECK_BUFFER_VALIDITY )
 		return;
 
@@ -158,6 +169,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 
     uint16_t gain = 2000;
 
+    s->eventType = SPIKE_EVENT_CODE;
     s->timestamp = timestamp;
     s->source = 0;
     s->nChannels = 4;
@@ -165,7 +177,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
     int idx=0;
     
     int waveType = rand()%2; // Pick one of the three predefined waveshapes to generate
-    int shift = 1000;
+    int shift = 1000 + 32768;
 
     for (int i=0; i<4; i++)
     {
@@ -188,6 +200,7 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise)
 }
 void generateEmptySpike(SpikeObject *s, int nChannels){
 
+	s->eventType = SPIKE_EVENT_CODE; 
 	s->timestamp = 0;
     s->source = 0;
     s->nChannels = 4;

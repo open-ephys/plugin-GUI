@@ -56,8 +56,8 @@ void ProjectionAxes::updateSpikeData(SpikeObject s){
 	int idx1, idx2;
 	calcWaveformPeakIdx(ampDim1,ampDim2,&idx1, &idx2);
 
-	ampBuffer[0][buffIdx] = s.data[idx1];
-	ampBuffer[1][buffIdx] = s.data[idx2];
+	ampBuffer[0][buffIdx] = s.data[idx1] - 32768;
+	ampBuffer[1][buffIdx] = s.data[idx2] - 32768;
 	newSpike = true;
 }
 

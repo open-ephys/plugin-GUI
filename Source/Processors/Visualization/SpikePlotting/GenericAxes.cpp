@@ -35,6 +35,8 @@ void GenericAxes::loadFont(){
 }
 
 void GenericAxes::setYLims(double ymin, double ymax){
+
+	std::cout << "setting y limits to " << ymin << " " << ymax << std::endl;
 	ylims[0] = ymin;
 	ylims[1] = ymax;
 }

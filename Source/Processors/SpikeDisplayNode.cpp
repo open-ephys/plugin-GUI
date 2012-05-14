@@ -135,6 +135,8 @@ void SpikeDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessag
 void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event)
 {
 
+//	std::cout << "Received event of type " << eventType << std::endl;
+
 	if (eventType == SPIKE)
 	{
 		eventBuffer->addEvent(event, 0);

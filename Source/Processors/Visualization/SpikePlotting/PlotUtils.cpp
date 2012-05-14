@@ -30,6 +30,7 @@ void drawString(float x, float y, int size, String s, FTPixmapFont* f){
 }
 
 void drawViewportEdge(){
+	
 	glPushMatrix();
 	glLoadIdentity();
 	
@@ -44,6 +45,7 @@ void drawViewportEdge(){
 }
 
 void drawViewportCross(){
+
 	glColor3f(0.0,1.0,1.0);
 	
 	glPushMatrix();

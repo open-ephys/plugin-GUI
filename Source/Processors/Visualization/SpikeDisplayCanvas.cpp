@@ -268,35 +268,13 @@ void SpikeDisplayCanvas::renderOpenGL()
 
 	// Get Spikes from the processor
 	// Iterate through each spike, passing them individually to the appropriate plots and calling redraw before moving on to the next spike
+	 processSpikeEvents();
 
-	
-	//while(processor->getNextSpike(&spike))
-	//{
-		
-	// Identify which plot the spike should go to
-	
-	// Distribute those spike to the appropriate plot object
-	
-	
-	SpikeObject tmpSpike;
-	 for (int i=0; i<plots.size(); i++){
-		generateSimulatedSpike(&tmpSpike, 0, 150);
-		plots[i]->processSpikeObject(tmpSpike);
- 		plots[i]->redraw();
- 		drawPlotTitle( i );
+	 for (int i = 0; i < plots.size(); i++)
+	 {
+	 	plots[i]->redraw();
+	 	//drawPlotTitle(i);
 	 }
-	
-// 	//}
-// 	//std::cout << getHeight()<<" "<< getTotalHeight()<<" "<<std::endl;
-//  	glLoadIdentity();
-//  	drawScrollBars();
-// =======
-	// processSpikeEvents();
-
-	// for (int i = 0; i < plots.size(); i++){
-	// 	plots[i]->redraw();
-	// 	drawPlotTitle(i);
-	// }
 
 	drawScrollBars();
  	
@@ -307,8 +285,11 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
 	if (spikeBuffer->getNumEvents() > 0) 
 	{
-			
+		
 		int m = spikeBuffer->getNumEvents();
+
+		std::cout << "Received " << m << " events." << std::endl;
+			
 		//std::cout << m << " events received by node " << getNodeId() << std::endl;
 
 		MidiBuffer::Iterator i (*spikeBuffer);
@@ -319,23 +300,33 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
 		while (i.getNextEvent (message, samplePosition)) {
 			
-			 uint8* dataptr = message.getRawData();
-			// int bufferSize = message.getRawDataSize();
+			 uint8_t* dataptr = message.getRawData();
+			 int bufferSize = message.getRawDataSize();
 			// int nSamples = (bufferSize-4)/2;
 
 			SpikeObject newSpike;
 
+			unpackSpike(&newSpike, dataptr, bufferSize);
+
+			//
+
+			int chan = newSpike.source;
+
 			generateSimulatedSpike(&newSpike, 0, 0);
 
-			int chan = *(dataptr+2);
-			//newSpike.nChannels = 1;
+			// std::cout << "Received spike on electrode " << chan << std::endl;
 
-			// int16 waveform[nSamples];
+			// std::cout << "Spike has " << newSpike.nChannels << " channels and " <<
+			//              newSpike.nSamples << " samples." << std::endl;
 
-			// for (int i = 0; i < nSamples; i++)
+			// std::cout << "Data: ";
+
+			// for (int n = 0; n < newSpike.nSamples; n++)
 			// {
-			// 	waveform[i] = (*(dataptr+4+i*2) << 8) + *(dataptr+4+i*2+1);
+			// 	std::cout << newSpike.data[n] << " ";
 			// }
+
+		//	std::cout << std::endl;
 
 			plots[chan]->processSpikeObject(newSpike);
 

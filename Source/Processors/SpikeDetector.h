@@ -144,6 +144,7 @@ private:
 
 	int currentElectrode;
 	int currentChannelIndex;
+	int currentIndex;
 
 	struct Electrode {
 
@@ -159,12 +160,20 @@ private:
 
 	};
 
+	uint8_t* spikeBuffer;///[256];
+
 	Array<Electrode*> electrodes;
 
-	void createSpikeEvent(int& peakIndex,
-						  int& electrodeNumber,
-						  int& currentChannel,
-						  MidiBuffer& eventBuffer);
+	// void createSpikeEvent(int& peakIndex,
+	// 					  int& electrodeNumber,
+	// 					  int& currentChannel,
+	// 					  MidiBuffer& eventBuffer);
+
+	void addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int peakIndex);
+	void addWaveformToSpikeObject(SpikeObject* s,
+								  int& peakIndex,
+								  int& electrodeNumber,
+								  int& currentChannel);
 
 	void resetElectrode(Electrode*);
 
