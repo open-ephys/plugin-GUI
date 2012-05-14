@@ -34,14 +34,14 @@ FilterNode::FilterNode()
 	lowCutValues.add(1.0f);
 	lowCutValues.add(10.0f);
 	lowCutValues.add(100.0f);
-	lowCutValues.add(500.0f);
+	lowCutValues.add(300.0f);
 
 	parameters.add(Parameter("low cut",lowCutValues, 0, 0));
 
 	Array<var> highCutValues;
 	highCutValues.add(1000.0f);
 	highCutValues.add(3000.0f);
-	highCutValues.add(6000.0f);
+	highCutValues.add(5000.0f);
 	highCutValues.add(9000.0f);
 
 	parameters.add(Parameter("high cut",highCutValues, 0, 1));
@@ -112,7 +112,7 @@ void FilterNode::updateSettings()
 
 			filters.add(new Dsp::SmoothedFilterDesign 
 				<Dsp::Butterworth::Design::BandPass 	// design type
-				<4>,								 	// order
+				<3>,								 	// order
 				1,										// number of channels (must be const)
 				Dsp::DirectFormII>						// realization
 				(1024));	 
@@ -135,7 +135,7 @@ void FilterNode::setFilterParameters(double lowCut, double highCut, int chan)
 
 	Dsp::Params params;
 	params[0] = getSampleRate(); // sample rate
-	params[1] = 4; // order
+	params[1] = 3; // order
 	params[2] = (highCut + lowCut)/2; // center frequency
 	params[3] = highCut - lowCut; // bandwidth
 
@@ -196,3 +196,4 @@ void FilterNode::process(AudioSampleBuffer &buffer,
     }
 
 }
+

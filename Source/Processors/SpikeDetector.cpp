@@ -316,7 +316,7 @@ void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,
     {
 
         // warning -- be careful of bitvolts conversion
-        s->data[currentIndex] = uint16(getNextSample(currentChannel) / settings.bitVolts[0] + 32768);
+        s->data[currentIndex] = uint16(getNextSample(*(electrodes[electrodeNumber]->channels+currentChannel)) / settings.bitVolts[0] + 32768);
 
         currentIndex++;
         sampleIndex++;
@@ -345,7 +345,7 @@ void SpikeDetector::process(AudioSampleBuffer &buffer,
     for (int i = 0; i < electrodes.size(); i++)
     {
 
-        //std::cout << "ELECTRODE " << i << std::endl;
+      //  std::cout << "ELECTRODE " << i << std::endl;
 
         electrode = electrodes[i];
 
@@ -364,7 +364,7 @@ void SpikeDetector::process(AudioSampleBuffer &buffer,
             for (int chan = 0; chan < electrode->numChannels; chan++)
             {
 
-             //   std::cout << "  channel " << chan << std::endl;
+               // std::cout << "  channel " << chan << std::endl;
 
                 if (*(electrode->isActive+chan))
                 {

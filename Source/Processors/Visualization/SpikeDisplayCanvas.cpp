@@ -273,7 +273,7 @@ void SpikeDisplayCanvas::renderOpenGL()
 	 for (int i = 0; i < plots.size(); i++)
 	 {
 	 	plots[i]->redraw();
-	 	//drawPlotTitle(i);
+	 	drawPlotTitle(i);
 	 }
 
 	drawScrollBars();
@@ -305,6 +305,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 			// int nSamples = (bufferSize-4)/2;
 
 			SpikeObject newSpike;
+			SpikeObject simSpike;
 
 			unpackSpike(&newSpike, dataptr, bufferSize);
 
@@ -312,7 +313,17 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
 			int chan = newSpike.source;
 
-			generateSimulatedSpike(&newSpike, 0, 0);
+			generateSimulatedSpike(&simSpike, 0, 0);
+
+
+			for (int i = 0; i < 80; i++)
+			{
+				simSpike.data[i] = newSpike.data[i] * 3 - 10000;
+			}
+
+			simSpike.nSamples = 40;
+
+			
 
 			// std::cout << "Received spike on electrode " << chan << std::endl;
 
@@ -328,7 +339,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
 		//	std::cout << std::endl;
 
-			plots[chan]->processSpikeObject(newSpike);
+			plots[chan]->processSpikeObject(simSpike);
 
 		}
 

@@ -63,7 +63,7 @@ int FileReaderThread::getNumChannels()
 
 float FileReaderThread::getSampleRate()
 {
-    return 40000.0f;
+    return 44100.0f;
 }
 
 float FileReaderThread::getBitVolts()
@@ -124,7 +124,7 @@ bool FileReaderThread::updateBuffer()
     	
 
      } else {
-        wait(5); // pause for 5 ms
+        wait(25); // pause for 12 ms -- about 40kHz for a 1600-sample buffer
      }
 
     return true;
