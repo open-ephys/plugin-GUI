@@ -34,17 +34,17 @@ FilterNode::FilterNode()
 	lowCutValues.add(1.0f);
 	lowCutValues.add(10.0f);
 	lowCutValues.add(100.0f);
-	lowCutValues.add(300.0f);
+	lowCutValues.add(600.0f);
 
-	parameters.add(Parameter("low cut",lowCutValues, 0, 0));
+	parameters.add(Parameter("low cut",lowCutValues, 3, 0));
 
 	Array<var> highCutValues;
 	highCutValues.add(1000.0f);
 	highCutValues.add(3000.0f);
-	highCutValues.add(5000.0f);
+	highCutValues.add(6000.0f);
 	highCutValues.add(9000.0f);
 
-	parameters.add(Parameter("high cut",highCutValues, 0, 1));
+	parameters.add(Parameter("high cut",highCutValues, 1, 1));
 
 }
 
@@ -118,12 +118,12 @@ void FilterNode::updateSettings()
 				(1024));	 
 
 			Parameter& p1 =  parameters.getReference(0);
-			p1.setValue(1.0f, n);
+			p1.setValue(600.0f, n);
 
 			Parameter& p2 =  parameters.getReference(1);
-			p2.setValue(1000.0f, n);
+			p2.setValue(6000.0f, n);
 			
-			setFilterParameters(1.0f, 1000.0f, n);
+			setFilterParameters(600.0f, 3000.0f, n);
 		}
 
 	}

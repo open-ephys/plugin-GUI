@@ -30,7 +30,7 @@
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
 	isNotSink(createButtons), titleFont(titleFont_), offsetLR(0), offsetUD(0),
 	moveRight(false), moveLeft(false), desiredOffset(0), paramsActive(true), paramsToggled(true),
-	radioStatus(false)
+	radioStatus(false), eventsOnly(false)
 {
 
 	// initialize buttons
@@ -253,11 +253,15 @@ Array<int> ChannelSelector::getActiveChannels()
 {
 	Array<int> a;
 
+    if (!eventsOnly) {
 	for (int i = 0; i < parameterButtons.size(); i++)
 	{
 		if (parameterButtons[i]->getToggleState())
 			a.add(i);
 	}
+    } else {
+        a.add(0);
+    }
 
 	return a;
 }

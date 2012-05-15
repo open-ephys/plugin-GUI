@@ -218,7 +218,8 @@ void LfpDisplayCanvas::renderOpenGL()
 
 	//drawTicks();
 
-	updateScreenBuffer();
+    if (animationIsActive)
+        updateScreenBuffer();
 
 	for (int i = 0; i < nChans; i++)
 	{

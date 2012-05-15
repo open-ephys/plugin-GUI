@@ -40,6 +40,14 @@ AudioProcessorEditor* WiFiOutput::createEditor()
 	return editor;
 }
 
+void WiFiOutput::handleEvent(int eventType, MidiMessage& event)
+{
+    if (eventType == TTL)
+    {
+        startTimer((int) float(event.getTimeStamp())/getSampleRate()*1000.0);
+    }
+    
+}
 
 void WiFiOutput::setParameter (int parameterIndex, float newValue)
 {
@@ -52,19 +60,15 @@ void WiFiOutput::process(AudioSampleBuffer &buffer,
 {
 	
 
-	int sampleNum = checkForEvents(events);
-
-	if (sampleNum >= 0)
-	{
-		startTimer((int) float(sampleNum)/getSampleRate()*1000.0);
-	}
+	checkForEvents(events);
 	
 
 }
 
 void WiFiOutput::timerCallback()
 {
-	//std::cout << "FIRE!" << std::endl;
+	std::cout << "FIRE!" << std::endl;
+    
 	try {
 		socket.sendTo("hi",2,"169.254.1.1",2000);
 	

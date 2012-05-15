@@ -70,7 +70,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 	phaseSlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
 	addAndMakeVisible(phaseSlider);
 
-	numChannelsLabel = new Label("Number of Channels","1");
+	numChannelsLabel = new Label("Number of Channels","4");
     numChannelsLabel->setEditable(true);
     numChannelsLabel->addListener(this);
     numChannelsLabel->setBounds(200,50,25,20);

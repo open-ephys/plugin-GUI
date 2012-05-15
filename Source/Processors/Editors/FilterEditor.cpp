@@ -30,7 +30,7 @@ FilterEditor::FilterEditor (GenericProcessor* parentNode)
 	: GenericEditor(parentNode)
 
 {
-	desiredWidth = 250;
+	desiredWidth = 180;
 
 
 
