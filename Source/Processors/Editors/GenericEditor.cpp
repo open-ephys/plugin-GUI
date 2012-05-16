@@ -63,7 +63,7 @@ GenericEditor::GenericEditor (GenericProcessor* owner)
 
     	addChildComponent(channelSelector);
     	channelSelector->setVisible(false);
-    	
+
 
 	}
 
@@ -145,18 +145,19 @@ bool GenericEditor::keyPressed (const KeyPress& key)
 {
 	//std::cout << name << " received " << key.getKeyCode() << std::endl;
 
-	if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey) {
+	// if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey) {
 		
-		//std::cout << name << " should be deleted." << std::endl;
-		if (getSelectionState())
-			getEditorViewport()->deleteNode(this);
+	// 	//std::cout << name << " should be deleted." << std::endl;
+	// 	if (getSelectionState())
+	// 		getEditorViewport()->deleteNode(this);
 
-	} else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
+	// } else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
 
-		if (getSelectionState())
-			getEditorViewport()->moveSelection(key);
+	// 	if (getSelectionState())
+	// 		getEditorViewport()->moveSelection(key);
 
-	}
+	// }
+	return false;
 }
 
 void GenericEditor::switchSelectedState() 
@@ -170,8 +171,8 @@ void GenericEditor::select()
 {
 	isSelected = true;
 	repaint();
-	setWantsKeyboardFocus(true);
-	grabKeyboardFocus();
+	//setWantsKeyboardFocus(true);
+	//grabKeyboardFocus();
 
 	editorWasClicked();
 }
@@ -190,7 +191,7 @@ void GenericEditor::deselect()
 {
 	isSelected = false;
 	repaint();
-	setWantsKeyboardFocus(false);
+	//setWantsKeyboardFocus(false);
 }
 
 void GenericEditor::enable() 

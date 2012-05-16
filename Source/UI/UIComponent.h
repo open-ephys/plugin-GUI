@@ -116,7 +116,10 @@ private:
 		loadConfiguration 	= 0x2000,
 		saveConfiguration 	= 0x2001,
 		clearSignalChain	= 0x2002,
-		showHelp			= 0x2003
+		showHelp			= 0x2003,
+		
+		moveSelectionLeft	= 0x9003,
+		moveSelectionRight	= 0x9004
 	};
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (UIComponent);

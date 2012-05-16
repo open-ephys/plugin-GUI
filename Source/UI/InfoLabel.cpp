@@ -28,6 +28,7 @@ InfoLabel::InfoLabel() : xBuffer(10), yBuffer(10)
 	layout.SetAlignment(FTGL::ALIGN_LEFT);
 	
 	layout.SetFont(getFont(String("miso-regular")));
+	
 	infoString = "Welcome to the Open Ephys GUI!\n \n"
 				 "To get starting using the GUI, drag a processor from the list "
 				 "on the left and drop it onto the signal chain. Each processor is "

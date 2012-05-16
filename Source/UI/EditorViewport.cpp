@@ -428,7 +428,7 @@ void EditorViewport::moveSelection (const KeyPress &key) {
 
 bool EditorViewport::keyPressed (const KeyPress &key) {
     
-   //std::cout << key.getKeyCode() << std::endl;
+   std::cout << "Editor viewport received " << key.getKeyCode() << std::endl;
 
    if (canEdit) {
 
@@ -438,20 +438,24 @@ bool EditorViewport::keyPressed (const KeyPress &key) {
         
             if (editorArray[i]->getSelectionState()) {
 #if !JUCE_MAC
-           //     deleteNode(editorArray[i]);
+                deleteNode(editorArray[i]);
                 break;
 #endif
             }               
         }
 
+        return true;
+
     } else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
 
         moveSelection(key);
 
+        return true;
+
     }
     }
 
-   return true;
+   return false;
 
 }
 

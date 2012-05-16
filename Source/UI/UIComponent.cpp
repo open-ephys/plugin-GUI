@@ -242,7 +242,9 @@ void UIComponent::getAllCommands (Array <CommandID>& commands)
 	 const CommandID ids[] = {loadConfiguration,
 	 					      saveConfiguration,
 	 					      clearSignalChain,
-	 					      showHelp};
+	 					      showHelp,
+	 					      moveSelectionLeft,
+	 					      moveSelectionRight};
 
 	 commands.addArray (ids, numElementsInArray (ids));
 
@@ -270,6 +272,16 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
 		result.setInfo("Show help...", "Show some freakin' help.", "General", 0);
 		break;
 
+	case moveSelectionLeft:
+		result.setInfo("Move left", "Move left", "General", 0);
+		result.addDefaultKeypress (KeyPress::leftKey, 0);// ModifierKeys::noModifiers);
+		break;
+
+	case moveSelectionRight:
+		result.setInfo("Move right", "Move right", "General", 0);
+		result.addDefaultKeypress (KeyPress::rightKey, 0);//ModifierKeys::noModifiers);
+		break;
+
 	default:
 		break;
 	};
@@ -294,6 +306,14 @@ bool UIComponent::perform (const InvocationInfo& info)
 
 	case showHelp:
 		std::cout << "SHOW ME SOME HELP!" << std::endl;
+		break;
+
+	case moveSelectionRight:
+		std::cout << "MOVE RIGHT!" << std::endl;
+		break;
+
+	case moveSelectionLeft:
+		std::cout << "MOVE LEFT!" << std::endl;
 		break;
 		
 	default:

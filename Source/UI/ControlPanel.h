@@ -161,6 +161,8 @@ private:
 
 	void timerCallback();
 
+	bool keyPressed(const KeyPress &key);
+
 	Font font;
 
 };

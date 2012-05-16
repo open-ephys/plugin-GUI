@@ -321,6 +321,8 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) :
 	Typeface::Ptr typeface = new CustomTypeface(mis);
 	font = Font(typeface);
 	}
+
+	setWantsKeyboardFocus(true);
 }
 
 ControlPanel::~ControlPanel()
@@ -476,4 +478,12 @@ void ControlPanel::timerCallback()
 	diskMeter->repaint();
 	
 	
+}
+
+bool ControlPanel::keyPressed(const KeyPress& key)
+{
+	 std::cout << "Control panel received" << key.getKeyCode() << std::endl;
+
+	 return false;
+
 }

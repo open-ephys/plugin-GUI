@@ -46,4 +46,5 @@ void AccessClass::setUIComponent(UIComponent* ui_)
 	ac = ui->getAudioComponent();
 
 	addActionListener(mc);
+   // Component::addKeyListener((KeyListener*) ui);
 }

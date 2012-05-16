@@ -36,7 +36,7 @@ MainWindow::MainWindow()
                   false);   // useBottomCornerRisizer -- doesn't work very well
    // centreWithSize(500,400);
 
-    // Constraining the window's size doesn't seem to work:
+    // Constraining th window's size doesn't seem to work:
     //setResizeLimits(500, 400, 10000, 10000);
 
     // Create ProcessorGraph and AudioComponent, and connect them.
@@ -56,10 +56,10 @@ MainWindow::MainWindow()
      setMenuBar (ui);
      ui->setApplicationCommandManagerToWatch(&commandManager);
 
-     addKeyListener( commandManager.getKeyMappings());
+     addKeyListener(commandManager.getKeyMappings());
 
-    loadWindowBounds();
-    setVisible (true);
+     loadWindowBounds();
+     setVisible (true);
 
 }
 

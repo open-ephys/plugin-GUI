@@ -211,7 +211,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
             int nextEditor = jmin(index,editorArray.size()-1);
             activeEditor = editorArray[nextEditor];
             activeEditor->select();
-            activeEditor->grabKeyboardFocus();
+            //activeEditor->grabKeyboardFocus();
             
         } else {
 
