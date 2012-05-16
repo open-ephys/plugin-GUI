@@ -437,10 +437,8 @@ bool EditorViewport::keyPressed (const KeyPress &key) {
         for (int i = 0; i < editorArray.size(); i++) {
         
             if (editorArray[i]->getSelectionState()) {
-#if !JUCE_MAC
                 deleteNode(editorArray[i]);
                 break;
-#endif
             }               
         }
 

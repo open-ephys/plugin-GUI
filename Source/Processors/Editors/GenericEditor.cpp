@@ -143,20 +143,6 @@ void GenericEditor::resized()
 
 bool GenericEditor::keyPressed (const KeyPress& key)
 {
-	//std::cout << name << " received " << key.getKeyCode() << std::endl;
-
-	// if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey) {
-		
-	// 	//std::cout << name << " should be deleted." << std::endl;
-	// 	if (getSelectionState())
-	// 		getEditorViewport()->deleteNode(this);
-
-	// } else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
-
-	// 	if (getSelectionState())
-	// 		getEditorViewport()->moveSelection(key);
-
-	// }
 	return false;
 }
 
