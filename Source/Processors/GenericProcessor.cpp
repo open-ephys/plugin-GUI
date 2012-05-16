@@ -71,7 +71,9 @@ Parameter& GenericProcessor::getParameterReference(int parameterIndex)
 
 void GenericProcessor::setParameter (int parameterIndex, float newValue)
 {
-	if (currentChannel > 0)
+    std::cout << "Setting parameter" << std::endl;
+    
+	if (currentChannel >= 0)
 	{
 		Parameter& p =  parameters.getReference(parameterIndex);
 		p.setValue(newValue, currentChannel);

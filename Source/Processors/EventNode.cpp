@@ -69,14 +69,20 @@ void EventNode::process(AudioSampleBuffer &buffer,
                             int& nSamples)
 {
 	midiMessages.clear();
+    
+    //std::cout << "Adding message." << std::endl;
+    
+    Parameter& p1 =  parameters.getReference(0);
+    
+    //std::cout << (float) p1[0] << std::endl;
 
 	for (int i = 0; i < buffer.getNumSamples(); i++)
 	{
 		accumulator += 1.0f;
 
-		if (accumulator > getSampleRate()/Hz)
+		if (accumulator > getSampleRate() / (float) p1[0])
 		{
-			//std::cout << "Adding message." << std::endl;
+			std::cout << "Adding message." << std::endl;
 			addEvent(midiMessages, TTL, i);
 			accumulator = 0;
 		}

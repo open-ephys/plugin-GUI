@@ -75,10 +75,12 @@ protected:
 	virtual int getTotalHeight() = 0;
 	int scrollPix;
 	void showScrollBars();
+    
+    bool animationIsActive;
 
 private:
 
-	bool animationIsActive;
+
 
 	int refreshMs;
 

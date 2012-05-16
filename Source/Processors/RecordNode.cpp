@@ -143,62 +143,61 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 {
  	if (parameterIndex == 1) {
 
- 		isRecording = true;
- 		std::cout << "START RECORDING." << std::endl;
-
- 		// create / open necessary files
- 		for (int i = 0; i < continuousChannels.size(); i++)
- 		{
- 			if (continuousChannels[i].isRecording)
- 			{
- 				std::cout << "OPENING FILE: " << continuousChannels[i].filename << std::endl;
- 				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a");
- 			}
- 		}
+// 		isRecording = true;
+// 		std::cout << "START RECORDING." << std::endl;
+//
+// 		// create / open necessary files
+// 		for (int i = 0; i < continuousChannels.size(); i++)
+// 		{
+// 			if (continuousChannels[i].isRecording)
+// 			{
+// 				std::cout << "OPENING FILE: " << continuousChannels[i].filename << std::endl;
+// 				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a");
+// 			}
+// 		}
  		
 
  	} else if (parameterIndex == 0) {
 
-
- 		isRecording = false;
- 		std::cout << "STOP RECORDING." << std::endl;
-
- 		// DANGER
- 		for (int i = 0; i < jmin(int(continuousChannels.size()), 32); i++)
- 		{
- 			if (continuousChannels[i].isRecording)
- 			{
- 				std::cout << "CLOSING FILE: " << continuousChannels[i].filename << std::endl;
- 				fclose(continuousChannels[i].file);
- 			}
- 		}
+// 		isRecording = false;
+// 		std::cout << "STOP RECORDING." << std::endl;
+//
+// 		// close necessary files
+// 		for (int i = 0; i < continuousChannels.size(); i++)
+// 		{
+// 			if (continuousChannels[i].isRecording)
+// 			{
+// 				//std::cout << "CLOSING FILE: " << continuousChannels[i].filename << std::endl;
+// 				//fclose(continuousChannels[i].file);
+// 			}
+// 		}
 
  		// close necessary files
  	} else if (parameterIndex == 2) {
 
- 		if (isProcessing) {
-
- 			std::cout << "Toggling channel " << currentChannel << std::endl;
-
-	 		if (newValue == 0.0f) {
-	 			continuousChannels[currentChannel].isRecording = false;
-
-	 			if (isRecording) {
-	 				std::cout << "CLOSING FILE: " << continuousChannels[currentChannel].filename << std::endl;
-	 				fclose(continuousChannels[currentChannel].file);
-	 			}
-
-	 		}
-	 		else {
-	 			continuousChannels[currentChannel].isRecording = true;
-
-	 			if (isRecording) {
-	 				std::cout << "OPENING FILE: " << continuousChannels[currentChannel].filename << std::endl;
-	 				continuousChannels[currentChannel].file = 
-	 					fopen(continuousChannels[currentChannel].filename.toUTF8(), "a");
-	 			}
-	 		}
- 		}
+// 		if (isProcessing) {
+//
+// 			std::cout << "Toggling channel " << currentChannel << std::endl;
+//
+//	 		if (newValue == 0.0f) {
+//	 			continuousChannels[currentChannel].isRecording = false;
+//
+//	 			if (isRecording) {
+//	 				//std::cout << "CLOSING FILE: " << continuousChannels[currentChannel].filename << std::endl;
+//	 				//fclose(continuousChannels[currentChannel].file);
+//	 			}
+//
+//	 		}
+//	 		else {
+//	 			continuousChannels[currentChannel].isRecording = true;
+//
+//	 			if (isRecording) {
+//	 				std::cout << "OPENING FILE: " << continuousChannels[currentChannel].filename << std::endl;
+//	 				continuousChannels[currentChannel].file = 
+//	 					fopen(continuousChannels[currentChannel].filename.toUTF8(), "a");
+//	 			}
+//	 		}
+// 		}
  	}
 }
 

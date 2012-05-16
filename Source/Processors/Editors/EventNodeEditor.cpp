@@ -22,6 +22,7 @@
 */
 
 #include "EventNodeEditor.h"
+#include "ChannelSelector.h"
 #include <stdio.h>
 
 
@@ -44,6 +45,8 @@ EventNodeEditor::EventNodeEditor (GenericProcessor* parentNode)
 
 	// 	c->setVisible(true);
 	// }
+    
+    channelSelector->eventsOnly = true;
 
 }
 
@@ -64,7 +67,8 @@ EventNodeEditor::~EventNodeEditor()
 
 void EventNodeEditor::buttonEvent (Button* button)
 {
-	//std::cout << button->getRadioGroupId() << " " << button->getName() << std::endl;
+	std::cout << button->getRadioGroupId() << " " << button->getName() << std::endl;
+    
 	String value = button->getName();
 	//float val;
 

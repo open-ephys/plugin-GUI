@@ -56,8 +56,8 @@ void ProjectionAxes::updateSpikeData(SpikeObject s){
 	int idx1, idx2;
 	calcWaveformPeakIdx(ampDim1,ampDim2,&idx1, &idx2);
 
-	ampBuffer[0][buffIdx] = s.data[idx1] - 32768;
-	ampBuffer[1][buffIdx] = s.data[idx2] - 32768;
+	ampBuffer[0][buffIdx] = (s.data[idx1] - 32768);
+	ampBuffer[1][buffIdx] = (s.data[idx2] - 32768);
 	newSpike = true;
 }
 
@@ -145,10 +145,14 @@ void ProjectionAxes::plotNewestSpike(){
 	// draw the newest spike as a big red point so it stands out against the old spikes
 	glColor3f(1.0, 0.0, 0.0);
 	glPointSize(4);
+    
+    if (gotFirstSpike)
+    {
 
 	glBegin(GL_POINTS);
         glVertex2i(ampBuffer[0][buffIdx], ampBuffer[1][buffIdx]);
 	glEnd();
+    }
 
 	newSpike = false;
 }
@@ -285,7 +289,8 @@ void ProjectionAxes::drawSpikesToTexture(bool allSpikes){
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboId);    
 	
     // plot to the texture
-    plotOldSpikes(allSpikes);
+    if (gotFirstSpike)
+        plotOldSpikes(allSpikes);
 
     // bind the original FrameBuffer
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0); 

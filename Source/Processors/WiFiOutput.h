@@ -56,6 +56,8 @@ public:
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 	void setParameter (int parameterIndex, float newValue);
 
+    void handleEvent(int eventType, MidiMessage& event);
+    
 	AudioProcessorEditor* createEditor();
 
 	bool isSink() {return true;}

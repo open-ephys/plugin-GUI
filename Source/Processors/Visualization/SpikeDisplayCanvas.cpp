@@ -318,7 +318,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
 			for (int i = 0; i < 80; i++)
 			{
-				simSpike.data[i] = newSpike.data[i] * 3 - 10000;
+				simSpike.data[i] = newSpike.data[i] + 5000;// * 3 - 10000;
 			}
 
 			simSpike.nSamples = 40;

@@ -81,6 +81,8 @@ public:
 
 	void paramButtonsToggledByDefault(bool t) {paramsToggled = t;}
 	//void paramButtonsActiveByDefault(bool t) {paramsActive = t;}
+    
+    bool eventsOnly;
 
 private:
 

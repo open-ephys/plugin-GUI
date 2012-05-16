@@ -104,14 +104,14 @@ bool AudioComponent::callbacksAreActive() {
 
 void AudioComponent::restartDevice()
 {
-	deviceManager.restartLastAudioDevice();
+	//deviceManager.restartLastAudioDevice();
 
 }
 
 void AudioComponent::stopDevice()
 {
 
-	deviceManager.closeAudioDevice();
+	//deviceManager.closeAudioDevice();
 }
 
 void AudioComponent::beginCallbacks() {

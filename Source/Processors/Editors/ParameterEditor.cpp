@@ -155,8 +155,8 @@ void ParameterEditor::parentHierarchyChanged()
 
 void ParameterEditor::buttonClicked(Button* button)
 {
-	//std::cout << "Button name: " << button->getName() << std::endl;
-	//std::cout << "Button value: " << button->getButtonText() << std::endl;
+	std::cout << "Button name: " << button->getName() << std::endl;
+	std::cout << "Button value: " << button->getButtonText() << std::endl;
 	
 	Array<int> a = channelSelector->getActiveChannels();
 	{

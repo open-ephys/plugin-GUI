@@ -31,8 +31,7 @@ SignalGenerator::SignalGenerator()
 
 	  defaultFrequency(10.0),
 	  defaultAmplitude (100.0f),
-	  nOut(5)
-	
+	  nOut(5)	
 {
 
 

@@ -6,7 +6,7 @@ WaveAxes::WaveAxes():
 					drawWaveformPoints(false),
 					drawGrid(true),
 					overlay(false),
-					convertLabelUnits(false)
+					convertLabelUnits(true)
 {	
 	GenericAxes::gotFirstSpike = false;
 
@@ -24,7 +24,7 @@ WaveAxes::WaveAxes(int x, int y, double w, double h, int t):
 					drawWaveformPoints(false),
 					drawGrid(true),
 					overlay(false),
-					convertLabelUnits(false)
+					convertLabelUnits(true)
 {	
 	GenericAxes::gotFirstSpike = false;
 
