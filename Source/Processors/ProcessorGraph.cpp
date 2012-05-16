@@ -72,14 +72,14 @@ void ProcessorGraph::createDefaultNodes()
 
 	// add audio node -- takes all inputs and selects those to be used for audio monitoring
 	AudioNode* an = new AudioNode();
-	recn->setNodeId(AUDIO_NODE_ID);
+	an->setNodeId(AUDIO_NODE_ID);
 
 	// add resampling node -- resamples continuous signals to 44.1kHz
 	ResamplingNode* rn = new ResamplingNode(true);
 	rn->setNodeId(RESAMPLING_NODE_ID);
 
-	addNode(on,OUTPUT_NODE_ID);
-	addNode(recn,RECORD_NODE_ID);
+	addNode(on, OUTPUT_NODE_ID);
+	addNode(recn, RECORD_NODE_ID);
 	addNode(an, AUDIO_NODE_ID);
 	addNode(rn, RESAMPLING_NODE_ID);
 
@@ -205,6 +205,10 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 				{
 					std::cout << "   Connecting to audio and record nodes." << std::endl;
 
+
+					source->setStartChannel(getAudioNode()->getNextChannel(false));
+
+
 					for (int chan = 0; chan < source->getNumOutputs(); chan++) {
 
 						//getAudioNode()->addInputChannel(source, chan);
@@ -212,6 +216,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 						std::cout << "Connecting to audio channel: " << 
 							      getAudioNode()->getNextChannel(false) << std::endl;
 
+					    
 						addConnection(source->getNodeId(), 		   // sourceNodeID
 						  	chan, 						           // sourceNodeChannelIndex
 						   	AUDIO_NODE_ID, 					       // destNodeID

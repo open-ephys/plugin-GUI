@@ -125,7 +125,11 @@ int GenericProcessor::getNextChannel(bool increment)
 void GenericProcessor::resetConnections()
 {
 	//std::cout << "Resetting connections" << std::endl;
-	nextAvailableChannel = 0;
+	if (isAudioOrRecordNode())
+		nextAvailableChannel = 2;
+	else
+		nextAvailableChannel = 0;
+
 	wasConnected = false;
 }
 

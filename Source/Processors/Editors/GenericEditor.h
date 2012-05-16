@@ -119,6 +119,8 @@ public:
 
 	Font titleFont;
 
+	int getStartChannel();
+
 protected:
 	DrawerButton* drawerButton;
 	int drawerWidth;

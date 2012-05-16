@@ -63,6 +63,7 @@ GenericEditor::GenericEditor (GenericProcessor* owner)
 
     	addChildComponent(channelSelector);
     	channelSelector->setVisible(false);
+    	
 
 	}
 
@@ -337,6 +338,10 @@ void GenericEditor::sliderValueChanged(Slider* slider)
 	sliderEvent(slider);
 }
 
+int GenericEditor::getStartChannel()
+{
+	return getProcessor()->getStartChannel();
+}
 
 void GenericEditor::update()
 {

@@ -26,6 +26,7 @@
 
 #include "../RecordNode.h"
 #include "../AudioNode.h"
+#include "../ProcessorGraph.h"
 
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
 	isNotSink(createButtons), titleFont(titleFont_), offsetLR(0), offsetUD(0),
@@ -424,8 +425,23 @@ void ChannelSelector::buttonClicked(Button* button)
 		if (b->getType() == AUDIO)
 		{
 			// get audio node, and inform it of the change
-			//getProcessorGraph()->getAudioNode()->setChannel();
-			//getProcessorGraph()->getAudioNode()->setParameter();
+			GenericEditor* editor = (GenericEditor*) getParentComponent();
+
+			int channelNum = editor->getStartChannel() + b->getChannel() - 1;
+			bool status = b->getToggleState();
+
+			std::cout << "Setting audio monitor for channel " << channelNum;
+
+			if (status)
+			{
+				std::cout << " to true." << std::endl;
+			} else {
+				std::cout << " to false." << std::endl;
+			}
+			
+			editor->getProcessorGraph()->
+					getAudioNode()->
+					setChannelStatus(channelNum, status);
 
 		} else if (b->getType() == RECORD)
 		{

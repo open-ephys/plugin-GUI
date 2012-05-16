@@ -56,6 +56,10 @@ public:
 
 	AudioProcessorEditor* createEditor();
 
+  void setChannelStatus(int, bool);
+
+  bool isAudioOrRecordNode() {return true;}
+
    // AudioEditor* getEditor() {return audioEditor;}
 
     ScopedPointer<AudioEditor> audioEditor;

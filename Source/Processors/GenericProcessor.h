@@ -229,6 +229,8 @@ public:
 
 	ProcessorSettings settings;
 
+	virtual bool isAudioOrRecordNode() {return false;}
+
 	virtual bool recordStatus(int chan);
 
 	virtual void clearSettings();
@@ -246,7 +248,12 @@ public:
 
 	Parameter nullParam;
 
+	void setStartChannel(int i) {audioAndRecordNodeStartChannel = i;}
+	int getStartChannel() {return audioAndRecordNodeStartChannel;}
+
 private:
+
+	int audioAndRecordNodeStartChannel;
 
 	void processBlock (AudioSampleBuffer &buffer, MidiBuffer &midiMessages);
 

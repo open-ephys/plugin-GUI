@@ -28,16 +28,16 @@ AudioNode::AudioNode()
 	: GenericProcessor("Audio Node"), volume(0.00001f), audioEditor(0)
 {
 
-	settings.numInputs = 64;
+	settings.numInputs = 128;
 	settings.numOutputs = 2;
 
 	// 64 inputs, 2 outputs (left and right channel)
 	setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 
-	leftChan.add(0);
-	rightChan.add(1);
+	leftChan.clear();
+	rightChan.clear();
 
-	currentChannel = 0;
+	nextAvailableChannel = 2; // keep first two channels empty
 
 
 }
@@ -60,12 +60,45 @@ AudioProcessorEditor* AudioNode::createEditor()
 
 }
 
+void AudioNode::setChannelStatus(int chan, bool status)
+{
+
+	setCurrentChannel(chan);
+
+	if (status)
+	{
+		setParameter(100, 0.0f); // add channel
+	} else {
+		setParameter(99, 0.0f);
+	}
+
+}
+
 
 void AudioNode::setParameter (int parameterIndex, float newValue)
 {
 	// change left channel, right channel, or volume
-	if (parameterIndex == 1) // volume level
+	if (parameterIndex == 1) 
+	{
+	// volume level
 		volume = newValue*0.00001f;
+	} else if (parameterIndex == 100) 
+	{
+		// add current channel
+		if (!leftChan.contains(currentChannel))
+		{
+			leftChan.add(currentChannel);
+			rightChan.add(currentChannel);
+		} 
+	} else if (parameterIndex == 99)
+	{
+		// remove current channel
+		if (leftChan.contains(currentChannel))
+		{
+			leftChan.remove(leftChan.indexOf(currentChannel));
+			rightChan.remove(rightChan.indexOf(currentChannel));
+		}
+	}
 
 }
 
@@ -77,41 +110,33 @@ void AudioNode::process(AudioSampleBuffer &buffer,
 	//std::cout << "Audio node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
 
 
-	// if (currentChannel == 0)
-	// {
-	// 	buffer.clear(1,0,buffer.getNumSamples());
-	// 	buffer.copyFrom();
-	// } else if (currentChannel == 1)
-	// {
-	// 	buffer.clear(0,0,buffer.getNumSamples());
-	// 	buffer.copyFrom();
-	// } else {
-
-	// currently monitoring channels 2 and 3 ONLY!
-
 	buffer.clear(0,0,buffer.getNumSamples());
 	buffer.clear(1,0,buffer.getNumSamples());
 
-	for (int n = 0; n < leftChan.size(); n++) {
+	for (int n = 0; n < leftChan.size(); n++) 
+	{
+
 		buffer.addFrom(0,  // destination channel
 					   0,  // destination start sample
 					   buffer,      // source
-					   leftChan[n]+2, // source channel
+					   leftChan[n], // source channel
 					   0,           // source start sample
 					   buffer.getNumSamples(), //  number of samples
 					   volume       // gain to apply
 					   );
 	}
 	
-	for (int n = 0; n < rightChan.size(); n++) {
+	for (int n = 0; n < rightChan.size(); n++) 
+	{
+
 		buffer.addFrom(1,  // destination channel
 					   0,  // destination start sample
 					   buffer,      // source
-					   rightChan[n]+2, // source channel
+					   rightChan[n], // source channel
 					   0,           // source start sample
 					   buffer.getNumSamples(), //  number of samples
 					   volume       // gain to apply
 					   );
 	}
-	//}
+
 }
