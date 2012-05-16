@@ -55,6 +55,7 @@ public:
 
         customLookAndFeel = new CustomLookAndFeel();
         LookAndFeel::setDefaultLookAndFeel(customLookAndFeel);
+  
     }
 
     void shutdown() { }

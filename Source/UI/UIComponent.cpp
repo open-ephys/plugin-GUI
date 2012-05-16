@@ -80,6 +80,10 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	controlPanel->getAudioEditor()->setUIComponent(this);
 
 	processorGraph->loadState();
+
+#if JUCE_MAC
+	setMacMainMenu(this);
+#endif
 	
 }
 
@@ -170,13 +174,21 @@ void UIComponent::childComponentChanged()
 	resized();
 }
 
+
+
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 // MENU BAR METHODS
 
 const StringArray UIComponent::getMenuBarNames() {
 
-	const char* const names[] = { "File", "Edit", "Help" };
+	// StringArray names;
+	// names.add("File");
+	// names.add("Edit");
+	// names.add("Help");
+
+	const char* const names[] = { "File", "Edit", "Help", 0 };
 
     return StringArray (names);
 
@@ -184,20 +196,26 @@ const StringArray UIComponent::getMenuBarNames() {
 
 const PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 {
-	 //ApplicationCommandManager* commandManager = &(mainWindow->commandManager);
+	 ApplicationCommandManager* commandManager = &(mainWindow->commandManager);
 
      PopupMenu menu;
 
      if (menuIndex == 0)
      {
-     	menu.addItem (0, "Load configuration");
-     	menu.addItem (1, "Save configuration");
+     	// menu.addItem (1, "Load configuration");
+     	// menu.addItem (2, "Save configuration");
+     	menu.addCommandItem (commandManager, loadConfiguration);
+        menu.addCommandItem (commandManager, saveConfiguration);
+        menu.addSeparator();
+        menu.addCommandItem (commandManager, StandardApplicationCommandIDs::quit);
      } else if (menuIndex == 1)
      {
-     	menu.addItem (0, "Clear signal chain");
+     	menu.addCommandItem (commandManager, clearSignalChain);
+     	//menu.addItem (1, "Clear signal chain");
      } else if (menuIndex == 2)
      {
-     	menu.addItem (0, "Show help...");
+     	menu.addCommandItem (commandManager, showHelp);
+     	//menu.addItem (1, "Show help...");
      }
 
      return menu;
@@ -210,6 +228,82 @@ void UIComponent::menuItemSelected(int menuItemID, int topLevelMenuIndex)
  //
 }
 
+// ApplicationCommandTarget methods
+
+ApplicationCommandTarget* UIComponent::getNextCommandTarget()
+{
+	// this will return the next parent component that is an ApplicationCommandTarget (in this
+        // case, there probably isn't one, but it's best to use this method in your own apps).
+	return findFirstTargetParentComponent();
+}
+
+void UIComponent::getAllCommands (Array <CommandID>& commands)
+{
+	 const CommandID ids[] = {loadConfiguration,
+	 					      saveConfiguration,
+	 					      clearSignalChain,
+	 					      showHelp};
+
+	 commands.addArray (ids, numElementsInArray (ids));
+
+}
+
+void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& result)
+{
+
+	switch (commandID)
+	{
+	case loadConfiguration:
+		result.setInfo("Load configuration", "Load a saved processor graph.", "General", 0);
+		result.addDefaultKeypress (T('1'), ModifierKeys::commandModifier);
+		break;
+
+	case saveConfiguration:
+		result.setInfo("Save configuration", "Save the current processor graph.", "General", 0);
+		break;
+
+	case clearSignalChain:
+		result.setInfo("Clear signal chain", "Clear the current signal chain.", "General", 0);
+		break;
+
+	case showHelp:
+		result.setInfo("Show help...", "Show some freakin' help.", "General", 0);
+		break;
+
+	default:
+		break;
+	};
+
+}
+
+bool UIComponent::perform (const InvocationInfo& info)
+{
+	switch (info.commandID)
+	{
+	case loadConfiguration:
+		std::cout << "LOAD THAT CONFIG!" << std::endl;
+		break;
+
+	case saveConfiguration:
+		std::cout << "SAVE THAT CONFIG!" << std::endl;
+		break;
+
+	case clearSignalChain:
+		std::cout << "CLEAR THAT SIGNAL CHAIN!" << std::endl;
+		break;
+
+	case showHelp:
+		std::cout << "SHOW ME SOME HELP!" << std::endl;
+		break;
+		
+	default:
+		break;
+
+	}
+
+	return true;
+
+}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

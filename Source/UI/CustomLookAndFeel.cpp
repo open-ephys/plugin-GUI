@@ -42,6 +42,12 @@ CustomLookAndFeel::CustomLookAndFeel()
   setColour(SOURCE_COLOR, Colour(255, 0, 0));
   setColour(UTILITY_COLOR, Colour(90, 80, 80));
 
+  setColour(PopupMenu::backgroundColourId, Colours::darkgrey);
+  setColour(PopupMenu::textColourId, Colours::white);
+  setColour(PopupMenu::highlightedBackgroundColourId, Colours::grey);
+  setColour(PopupMenu::highlightedTextColourId, Colours::yellow);
+
+
 }
 
 CustomLookAndFeel::~CustomLookAndFeel() {}

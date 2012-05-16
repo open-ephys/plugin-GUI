@@ -57,6 +57,7 @@ class EditorViewportButton;
 class UIComponent : public Component,
 				    public ActionBroadcaster,
 				    public MenuBarModel,
+				    public ApplicationCommandTarget,
 				    public DragAndDropContainer // required for 
 				    				            // drag-and-drop
 				    				            // internal components
@@ -86,6 +87,12 @@ public:
 	const PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
 	void menuItemSelected(int menuItemID, int topLevelMenuIndex);
 
+	//ApplicationCommandTarget interface:
+	ApplicationCommandTarget* getNextCommandTarget();
+	void getAllCommands (Array <CommandID>& commands);
+	void getCommandInfo (CommandID commandID, ApplicationCommandInfo& result);
+	bool perform (const InvocationInfo& info);
+
 private:
 
 	DataViewport* dataViewport;
@@ -97,11 +104,20 @@ private:
 	InfoLabel* infoLabel;
 
 	MainWindow* mainWindow;
+	TooltipWindow tooltipWindow;
 
 	ProcessorGraph* processorGraph;
 	AudioComponent* audio;
 
 	void resized();
+
+	enum CommandIDs
+	{
+		loadConfiguration 	= 0x2000,
+		saveConfiguration 	= 0x2001,
+		clearSignalChain	= 0x2002,
+		showHelp			= 0x2003
+	};
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (UIComponent);
 	

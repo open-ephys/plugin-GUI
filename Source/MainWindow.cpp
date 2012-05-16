@@ -48,12 +48,15 @@ MainWindow::MainWindow()
 
      setContentComponent (new UIComponent(this, processorGraph, audioComponent), true, true);
 
-    // commandManager.registerAllCommandsForTarget (getContentComponent());
-    // commandManager.registerAllCommandsForTarget (JUCEApplication::getInstance());
-    
-    // setMenuBar ((MenuBarModel*) getContentComponent());
+     UIComponent* ui = (UIComponent*) getContentComponent();
 
-    // addKeyListener( commandManager.getKeyMappings());
+     commandManager.registerAllCommandsForTarget (ui);
+     commandManager.registerAllCommandsForTarget (JUCEApplication::getInstance());
+
+     setMenuBar (ui);
+     ui->setApplicationCommandManagerToWatch(&commandManager);
+
+     addKeyListener( commandManager.getKeyMappings());
 
     loadWindowBounds();
     setVisible (true);
@@ -73,8 +76,13 @@ MainWindow::~MainWindow()
    deleteAndZero(processorGraph);
    deleteAndZero(audioComponent);
 
+   setMenuBar(0);
+
+   #if JUCE_MAC 
+       MenuBarModel::setMacMainMenu (0);
+  #endif
+
    setContentComponent (0);
-  // setMenuBar(0);
 
 }
 
