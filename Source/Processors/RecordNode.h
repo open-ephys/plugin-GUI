@@ -65,6 +65,8 @@ public:
 
   void setChannel(int id, int chan);
 
+  void setChannelStatus(int chan, bool status);
+
   void resetConnections();
 
   bool isAudioOrRecordNode() {return true;}

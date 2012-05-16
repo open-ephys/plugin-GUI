@@ -450,8 +450,24 @@ void ChannelSelector::buttonClicked(Button* button)
 		} else if (b->getType() == RECORD)
 		{
 			// get record node, and inform it of the change
-			//getProcessorGraph()->getRecordNode()->setChannel();
-			//getProcessorGraph()->getRecordNode()->setParameter();
+			GenericEditor* editor = (GenericEditor*) getParentComponent();
+
+			int channelNum = editor->getStartChannel() + b->getChannel() - 1;
+			bool status = b->getToggleState();
+
+			std::cout << "Setting record status for channel " << channelNum;
+
+			if (status)
+			{
+				std::cout << " to true." << std::endl;
+			} else {
+				std::cout << " to false." << std::endl;
+			}
+			
+			editor->getProcessorGraph()->
+					getRecordNode()->
+					setChannelStatus(channelNum, status);
+					
 		} else {
 			// do nothing
 			if (radioStatus) // if radio buttons are active

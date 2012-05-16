@@ -220,8 +220,8 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 						addConnection(source->getNodeId(), 		   // sourceNodeID
 						  	chan, 						           // sourceNodeChannelIndex
 						   	AUDIO_NODE_ID, 					       // destNodeID
-						  	getAudioNode()->getNextChannel(true)); // destNodeChannelIndex
-
+						  	getAudioNode()->getNextChannel(true) + 2); // destNodeChannelIndex
+									// add 2 to account for 2 output channels
 						
 						//std::cout << getAudioNode()->getNextChannel(false) << " ";
 

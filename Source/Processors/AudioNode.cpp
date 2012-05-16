@@ -63,7 +63,7 @@ AudioProcessorEditor* AudioNode::createEditor()
 void AudioNode::setChannelStatus(int chan, bool status)
 {
 
-	setCurrentChannel(chan);
+	setCurrentChannel(chan+2); // add 2 to account for 2 output channels
 
 	if (status)
 	{

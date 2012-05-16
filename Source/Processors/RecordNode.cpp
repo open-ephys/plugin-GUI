@@ -58,6 +58,14 @@ void RecordNode::setChannel(int id, int chan)
 	}
 }
 
+void RecordNode::setChannelStatus(int chan, bool status)
+{
+
+	std::cout << "Setting channel status!" << std::endl;
+
+
+}
+
 void RecordNode::resetConnections()
 {
 	//std::cout << "Resetting connections" << std::endl;
@@ -206,12 +214,12 @@ bool RecordNode::enable()
 
 	isProcessing = true;
 	return true;
+
 }
 
 
 bool RecordNode::disable() 
 {	
-	
 	// close files if necessary
 	setParameter(0, 10.0f);
 
