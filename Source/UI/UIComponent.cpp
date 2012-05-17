@@ -78,6 +78,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	editorViewport->setUIComponent(this);
 	dataViewport->setUIComponent(this);
 	controlPanel->getAudioEditor()->setUIComponent(this);
+	controlPanel->setUIComponent(this);
 
 	processorGraph->loadState();
 
@@ -105,14 +106,41 @@ void UIComponent::resized()
 	int h = getHeight();
 	
 	if (dataViewport != 0) {
-		if (processorList->isOpen() && editorViewportButton->isOpen())
-			dataViewport->setBounds(202,40,w-207,h-235);
-		else if (!processorList->isOpen() && editorViewportButton->isOpen())
-			dataViewport->setBounds(6,40,w-11,h-235);
-		else if (processorList->isOpen() && !editorViewportButton->isOpen())
-			dataViewport->setBounds(202,40,w-207,h-85);
-		else	
-			dataViewport->setBounds(6,40,w-11,h-85);
+
+		int left, top, width, height;
+		left = 6;
+		top = 40;
+		
+		if (processorList->isOpen())
+			left = 202;
+		else
+			left = 6;
+
+		if (controlPanel->isOpen())
+			top = 72;
+		else
+			top = 40;
+
+		if (editorViewportButton->isOpen())
+			height = h - top - 195;
+		else
+			height = h - top - 90;
+
+		width = w - left - 5;
+
+		//std::cout << left << " " << top << " " << width << " " << height;
+
+		dataViewport->setBounds(left, top, width, height);
+
+
+		// if (processorList->isOpen() && editorViewportButton->isOpen())
+		// 	dataViewport->setBounds(202,40,w-207,h-235);
+		// else if (!processorList->isOpen() && editorViewportButton->isOpen())
+		// 	dataViewport->setBounds(6,40,w-11,h-235);
+		// else if (processorList->isOpen() && !editorViewportButton->isOpen())
+		// 	dataViewport->setBounds(202,40,w-207,h-85);
+		// else	
+		// 	dataViewport->setBounds(6,40,w-11,h-85);
 	}
 
 	if (editorViewportButton != 0)
@@ -130,7 +158,12 @@ void UIComponent::resized()
 	}
 
 	if (controlPanel != 0)
-		controlPanel->setBounds(201,6,w-210,32);
+	{
+		if (controlPanel->isOpen())
+			controlPanel->setBounds(201,6,w-210,64);
+		else
+			controlPanel->setBounds(201,6,w-210,32);
+	}
 
 	if (processorList != 0) {
 		if (processorList->isOpen())

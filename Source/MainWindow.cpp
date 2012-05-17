@@ -66,6 +66,11 @@ MainWindow::MainWindow()
 MainWindow::~MainWindow()
 {
 
+  if (audioComponent->callbacksAreActive()) {
+      audioComponent->endCallbacks();
+      processorGraph->disableProcessors();
+    }
+
    saveWindowBounds();
    processorGraph->saveState();
 

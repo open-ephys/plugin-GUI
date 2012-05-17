@@ -30,6 +30,7 @@
 #include "../Processors/ProcessorGraph.h"
 #include "../Processors/RecordNode.h"
 #include "CustomLookAndFeel.h"
+#include "../AccessClass.h"
 
 #include "../OpenGL.h"
 
@@ -126,12 +127,34 @@ class Clock : public OpenGLComponent
 		FTPixmapFont* font;
 };
 
-class AccessClass;
+class ControlPanelButton : public OpenGLComponent
+{
+public:
+	ControlPanelButton(ControlPanel* cp_);
+	~ControlPanelButton();
+
+	bool isOpen() {return open;}
+
+	void newOpenGLContextCreated();
+	void renderOpenGL();
+
+	void drawButton();
+
+	void mouseDown(const MouseEvent& e);
+
+private:	
+
+	ControlPanel* cp;
+
+	bool open;
+
+};
 
 class ControlPanel : public Component, 
 					 public Button::Listener,
 					 public ActionListener,
-					 public Timer
+					 public Timer,
+					 public AccessClass
 
 {
 public:
@@ -142,6 +165,10 @@ public:
 
 	AccessClass* getAudioEditor() {return (AccessClass*) audioEditor;}
 
+	void openState(bool);
+
+	bool isOpen() {return open;}
+ 
 private:	
 	PlayButton* playButton;
 	RecordButton* recordButton;
@@ -151,6 +178,8 @@ private:
 	AudioComponent* audio;
 	ProcessorGraph* graph;
 	AudioEditor* audioEditor;
+
+	ControlPanelButton* cpb;
 
 	void paint(Graphics& g);
 
@@ -164,6 +193,12 @@ private:
 	bool keyPressed(const KeyPress &key);
 
 	Font font;
+
+	bool open;
+
+	Path p1, p2;
+
+	void createPaths();
 
 };
 
