@@ -28,7 +28,7 @@ RecordNode::RecordNode()
 	: GenericProcessor("Record Node"), isRecording(false), isProcessing(false)
 {
 
-	dataFolder = "./Data";
+	//dataFolder = "./Data";
 
 	continuousDataBuffer = new int16[10000];
 
@@ -243,10 +243,7 @@ bool RecordNode::disable()
 
 float RecordNode::getFreeSpace()
 {
-	// this needs to be updated:
-
-	return 0.5;
-	//return (1.0f-float(outputFile.getBytesFreeOnVolume())/float(outputFile.getVolumeTotalSize()));
+	return 1.0f - float(dataDirectory.getBytesFreeOnVolume())/float(dataDirectory.getVolumeTotalSize());
 }
 
 void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)

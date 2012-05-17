@@ -444,7 +444,7 @@ void ControlPanel::createPaths()
 	int w = 150;
 	int h1 = 32;
 	int h2 = 64;
-	int indent = 8;
+	int indent = 5;
 
 	p1.clear();
 	p1.startNewSubPath(0, h1);

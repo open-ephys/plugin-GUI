@@ -76,12 +76,12 @@ public:
 	
 private:
 	
-  File headerFile;
-	FileOutputStream* outputStream;
+  //File headerFile;
+	//FileOutputStream* outputStream;
 
 	bool isRecording, isProcessing;
 
-  String dataFolder;
+  //String dataFolder;
 
   File dataDirectory;
 
