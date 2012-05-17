@@ -84,6 +84,9 @@ private:
   //String dataFolder;
 
   File dataDirectory;
+  File rootFolder;
+
+  bool newDataFolder;
 
   int16* continuousDataBuffer;
 

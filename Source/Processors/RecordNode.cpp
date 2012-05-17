@@ -28,7 +28,7 @@ RecordNode::RecordNode()
 	: GenericProcessor("Record Node"), isRecording(false), isProcessing(false)
 {
 
-	//dataFolder = "./Data";
+	newDataFolder = true;
 
 	continuousDataBuffer = new int16[10000];
 
@@ -176,6 +176,42 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 // 				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a");
 // 			}
 // 		}
+
+ 		if (newDataFolder)
+ 		{
+
+ 			Time calendar = Time::getCurrentTime();
+
+ 			Array<int> t;
+ 			t.add(calendar.getYear()-2000);
+ 			t.add(calendar.getMonth()+1); // January = 0
+ 			t.add(calendar.getDayOfMonth());
+ 			t.add(calendar.getHours());
+ 			t.add(calendar.getMinutes());
+ 			t.add(calendar.getSeconds());
+
+ 			String filename = "";
+ 			
+ 			for (int n = 0; n < t.size(); n++)
+ 			{
+ 				if (t[n] < 10)
+ 					filename += "0";
+
+ 				filename += t[n];
+
+ 				if (n == 2)
+ 					filename += "_";
+ 				else if (n < 5)
+ 					filename += "-";
+ 			}
+
+	 		rootFolder = File(dataDirectory.getFullPathName() + File::separator + filename);
+
+	 		if (!rootFolder.exists())
+	 			rootFolder.createDirectory();
+
+	 		newDataFolder = false;
+ 		}
  		
 
  	} else if (parameterIndex == 0) {
@@ -302,9 +338,9 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 			if (continuousChannels[i].isRecording)
 			{
 				// write buffer to disk!
-				writeContinuousBuffer(buffer.getSampleData(i),
-									  nSamples,
-									  i);
+				//writeContinuousBuffer(buffer.getSampleData(i),
+				//					  nSamples,
+				//					  i);
 				
 				//std::cout << "Record channel " << i << std::endl;
 			}
