@@ -124,7 +124,7 @@ void UIComponent::resized()
 		if (editorViewportButton->isOpen())
 			height = h - top - 195;
 		else
-			height = h - top - 90;
+			height = h - top - 45;
 
 		width = w - left - 5;
 
