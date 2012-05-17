@@ -45,7 +45,8 @@
 */
 
 
-class RecordNode : public GenericProcessor
+class RecordNode : public GenericProcessor,
+                   public FilenameComponentListener
 {
 public:
 	
@@ -70,6 +71,8 @@ public:
   void resetConnections();
 
   bool isAudioOrRecordNode() {return true;}
+
+  void filenameComponentChanged(FilenameComponent*);
 	
 private:
 	
@@ -79,6 +82,8 @@ private:
 	bool isRecording, isProcessing;
 
   String dataFolder;
+
+  File dataDirectory;
 
   int16* continuousDataBuffer;
 

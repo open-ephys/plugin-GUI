@@ -178,6 +178,7 @@ private:
 	AudioComponent* audio;
 	ProcessorGraph* graph;
 	AudioEditor* audioEditor;
+	FilenameComponent* filenameComponent;
 
 	ControlPanelButton* cpb;
 
@@ -187,6 +188,8 @@ private:
 	void buttonClicked(Button* button);
 
 	void actionListenerCallback(const String& msg);
+
+	void updateChildComponents();
 
 	void timerCallback();
 

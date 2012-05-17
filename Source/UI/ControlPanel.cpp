@@ -52,6 +52,8 @@ PlayButton::PlayButton()
         setBackgroundColours(Colours::darkgrey, Colours::yellow);
         setClickingTogglesState (true);
         setTooltip ("Start/stop acquisition");
+
+
 }
 
 PlayButton::~PlayButton()
@@ -392,6 +394,17 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) :
 	cpb = new ControlPanelButton(this);
 	addAndMakeVisible(cpb);
 
+
+	filenameComponent = new FilenameComponent("folder selector",
+		 									  File::getSpecialLocation (File::userHomeDirectory), 
+		 									  true,
+		 									  true,
+		 									  true,
+		 									  "*",
+		 									  "",
+		 									  "");
+	addChildComponent(filenameComponent);
+
 	startTimer(100);
 
 	if (1) {
@@ -413,9 +426,17 @@ ControlPanel::~ControlPanel()
 	deleteAndZero(cpuMeter);
 	deleteAndZero(diskMeter);
 	deleteAndZero(cpb);
+	deleteAndZero(filenameComponent);
 	//audioEditor will delete itself
 
 	graph = 0;
+}
+
+void ControlPanel::updateChildComponents()
+{
+
+	filenameComponent->addListener(getProcessorGraph()->getRecordNode());
+
 }
 
 void ControlPanel::createPaths()
@@ -483,6 +504,14 @@ void ControlPanel::resized()
 		cpb->setBounds(w-28,5,h-10,h-10);
 
 	createPaths();
+
+	if (open)
+	{
+		filenameComponent->setBounds(200, h+5, w-250, h-10);
+		filenameComponent->setVisible(true);
+	} else {
+		filenameComponent->setVisible(false);
+	}
 
 	repaint();
 }

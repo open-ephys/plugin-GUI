@@ -76,6 +76,19 @@ void RecordNode::resetConnections()
 	eventChannels.clear();
 }
 
+void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
+{
+
+	std::cout << "Got a new file" << std::endl;
+	dataDirectory = fnc->getCurrentFile();
+	std::cout << "File name: " << dataDirectory.getFullPathName();
+	if (dataDirectory.isDirectory())
+		std::cout << " is a directory." << std::endl;
+	else
+		std::cout << " is NOT a directory." << std::endl;
+
+}
+
 
 void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {

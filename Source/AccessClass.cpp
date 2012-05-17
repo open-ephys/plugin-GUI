@@ -46,5 +46,8 @@ void AccessClass::setUIComponent(UIComponent* ui_)
 	ac = ui->getAudioComponent();
 
 	addActionListener(mc);
-   // Component::addKeyListener((KeyListener*) ui);
+
+    // called to enable subclasses to connect their
+    // children and private objects:
+    updateChildComponents();
 }
