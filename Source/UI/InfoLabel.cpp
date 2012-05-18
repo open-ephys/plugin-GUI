@@ -48,7 +48,7 @@ InfoLabel::InfoLabel() : xBuffer(10), yBuffer(10)
 				 "only begin if all of the processors in the signal chain are enabled. Disabled "
 				 "processors appear gray. Processors may be disabled if they aren't connected to a "
 				 "source, or if they receive input from a processor to which they cannot connect." 
-				 "You'll have to fix these issues before you can acquire data.\n \n"
+				 " You'll have to fix these issues before you can acquire data.\n \n"
 				 "You can also start acquisition by pressing the record button, but it's "
 				 "not programmed to do anything just yet.\n \n"
 				 "The GUI is still being actively developed, so it lacks "

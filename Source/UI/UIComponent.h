@@ -113,13 +113,17 @@ private:
 
 	enum CommandIDs
 	{
-		loadConfiguration 	= 0x2000,
-		saveConfiguration 	= 0x2001,
-		clearSignalChain	= 0x2002,
-		showHelp			= 0x2003,
-		
-		moveSelectionLeft	= 0x9003,
-		moveSelectionRight	= 0x9004
+		loadConfiguration 		= 0x2001,
+	 	saveConfiguration		= 0x2002,
+	 	undo					= 0x2003,
+	 	redo 					= 0x2004,
+	 	copySignalChain			= 0x2005,
+	 	pasteSignalChain		= 0x2006,
+	 	clearSignalChain		= 0x2007,
+	 	toggleProcessorList 	= 0x2008,
+	 	toggleSignalChain	    = 0x2009,
+	 	toggleFileInfo			= 0x2010,
+	 	showHelp				= 0x2011
 	};
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (UIComponent);
@@ -141,6 +145,8 @@ public:
 
 	void drawName();
 	void drawButton();
+
+	void toggleState();
 
 	void mouseDown(const MouseEvent& e);
 

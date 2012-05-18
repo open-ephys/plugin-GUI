@@ -641,3 +641,10 @@ bool ControlPanel::keyPressed(const KeyPress& key)
 	 return false;
 
 }
+
+void ControlPanel::toggleState()
+{
+	open = !open;
+
+	getUIComponent()->childComponentChanged();
+}

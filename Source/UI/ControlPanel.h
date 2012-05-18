@@ -166,6 +166,8 @@ public:
 	AccessClass* getAudioEditor() {return (AccessClass*) audioEditor;}
 
 	void openState(bool);
+	
+	void toggleState();
 
 	bool isOpen() {return open;}
  

@@ -56,7 +56,7 @@ public:
 	void renderOpenGL();
 
 	//void setUIComponent(UIComponent* ui) {UI = ui;}
-
+	void toggleState();
 
 	bool isOpen();
 
