@@ -290,15 +290,17 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
 	{
 	case loadConfiguration:
 		result.setInfo("Load configuration", "Load a saved processor graph.", "General", 0);
-		result.addDefaultKeypress (T('1'), ModifierKeys::commandModifier);
+		result.addDefaultKeypress (T('L'), ModifierKeys::commandModifier);
 		break;
 
 	case saveConfiguration:
 		result.setInfo("Save configuration", "Save the current processor graph.", "General", 0);
+		result.addDefaultKeypress (T('S'), ModifierKeys::commandModifier);
 		break;
 
 	case clearSignalChain:
 		result.setInfo("Clear signal chain", "Clear the current signal chain.", "General", 0);
+		result.addDefaultKeypress (KeyPress::backspaceKey, ModifierKeys::commandModifier);
 		break;
 
 	case showHelp:
@@ -334,7 +336,7 @@ bool UIComponent::perform (const InvocationInfo& info)
 		break;
 
 	case clearSignalChain:
-		std::cout << "CLEAR THAT SIGNAL CHAIN!" << std::endl;
+		getEditorViewport()->clearSignalChain();
 		break;
 
 	case showHelp:

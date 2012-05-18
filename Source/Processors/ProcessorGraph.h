@@ -60,6 +60,8 @@ public:
 
 	void removeProcessor(GenericProcessor* processor);
 
+	void clearSignalChain();
+
 	bool enableProcessors();
 	bool disableProcessors();
 

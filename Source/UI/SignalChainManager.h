@@ -57,6 +57,8 @@ public:
 	void scrollUp();
 	void scrollDown();
 
+    void clearSignalChain();
+
 private:	
 
 	Array<GenericEditor*, CriticalSection>& editorArray;
