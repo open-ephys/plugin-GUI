@@ -282,6 +282,11 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
 		result.addDefaultKeypress (KeyPress::rightKey, 0);//ModifierKeys::noModifiers);
 		break;
 
+	// case quit:
+	// 	result.setInfo("Quit", "Quit", "General", 0);
+	// 	result.addDefaultKeypress (T('Q'), ModifierKeys::commandModifier);//ModifierKeys::noModifiers);
+	// 	break;
+
 	default:
 		break;
 	};
@@ -315,6 +320,11 @@ bool UIComponent::perform (const InvocationInfo& info)
 	case moveSelectionLeft:
 		std::cout << "MOVE LEFT!" << std::endl;
 		break;
+
+	// case quit:
+	// 	std::cout << "REQUEST TO QUIT." << std::endl;
+	// 	mainWindow->closeButtonPressed();
+	// 	break;
 		
 	default:
 		break;

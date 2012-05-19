@@ -25,6 +25,8 @@
 #include "MainWindow.h"
 #include "UI/CustomLookAndFeel.h"
 
+#include <stdio.h>
+
 //------------------------------------------------------------------
 
 /**
@@ -62,7 +64,10 @@ public:
 
     //==============================================================================
     void systemRequestedQuit()
-    {quit();}
+    {
+        std::cout << "Quit requested" << std::endl;
+        quit();
+    }
 
     //==============================================================================
     const String getApplicationName() { return "Open Ephys GUI";}

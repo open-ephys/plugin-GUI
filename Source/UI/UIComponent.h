@@ -119,7 +119,9 @@ private:
 		showHelp			= 0x2003,
 		
 		moveSelectionLeft	= 0x9003,
-		moveSelectionRight	= 0x9004
+		moveSelectionRight	= 0x9004,
+
+		quit				= 0x0001
 	};
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (UIComponent);
