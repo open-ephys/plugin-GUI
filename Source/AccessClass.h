@@ -53,6 +53,8 @@ public:
 	
 	void setUIComponent(UIComponent*);
 
+	virtual void updateChildComponents() {}
+
 	EditorViewport* getEditorViewport() {return ev;}
 	DataViewport* getDataViewport() {return dv;}
 	ProcessorList* getProcessorList() {return pl;}

@@ -256,12 +256,12 @@ void GenericEditor::paint (Graphics& g)
 	// draw highlight box
 	g.drawRect(0,0,getWidth(),getHeight(),2.0);
 
-	// if (isFading)
-	// {
-	// 	g.setColour(Colours::black.withAlpha((float) (10.0-accumulator)/10.0f));
-	// 	if (getWidth() > 0 && getHeight() > 0)
-	// 		g.fillAll();
-	// }
+	if (isFading)
+	{
+		g.setColour(Colours::black.withAlpha((float) (10.0-accumulator)/10.0f));
+		if (getWidth() > 0 && getHeight() > 0)
+			g.fillAll();
+	}
 
 }
 

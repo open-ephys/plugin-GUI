@@ -66,7 +66,7 @@ MainWindow::MainWindow()
 MainWindow::~MainWindow()
 {
 
-   if (audioComponent->callbacksAreActive()) {
+  if (audioComponent->callbacksAreActive()) {
       audioComponent->endCallbacks();
       processorGraph->disableProcessors();
     }

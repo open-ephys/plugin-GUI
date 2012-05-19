@@ -338,6 +338,14 @@ int ProcessorList::getTotalHeight()
  	return totalHeight;
 }
 
+void ProcessorList::toggleState()
+{
+	ProcessorListItem* fli = getListItemForYPos(0);
+	fli->reverseOpenState();
+	getUIComponent()->childComponentChanged();
+	repaint();
+}
+
 void ProcessorList::mouseDownInCanvas(const MouseEvent& e) 
 {
 

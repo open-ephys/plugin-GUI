@@ -78,6 +78,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	editorViewport->setUIComponent(this);
 	dataViewport->setUIComponent(this);
 	controlPanel->getAudioEditor()->setUIComponent(this);
+	controlPanel->setUIComponent(this);
 
 	processorGraph->loadState();
 
@@ -105,14 +106,41 @@ void UIComponent::resized()
 	int h = getHeight();
 	
 	if (dataViewport != 0) {
-		if (processorList->isOpen() && editorViewportButton->isOpen())
-			dataViewport->setBounds(202,40,w-207,h-235);
-		else if (!processorList->isOpen() && editorViewportButton->isOpen())
-			dataViewport->setBounds(6,40,w-11,h-235);
-		else if (processorList->isOpen() && !editorViewportButton->isOpen())
-			dataViewport->setBounds(202,40,w-207,h-85);
-		else	
-			dataViewport->setBounds(6,40,w-11,h-85);
+
+		int left, top, width, height;
+		left = 6;
+		top = 40;
+		
+		if (processorList->isOpen())
+			left = 202;
+		else
+			left = 6;
+
+		if (controlPanel->isOpen())
+			top = 72;
+		else
+			top = 40;
+
+		if (editorViewportButton->isOpen())
+			height = h - top - 195;
+		else
+			height = h - top - 45;
+
+		width = w - left - 5;
+
+		//std::cout << left << " " << top << " " << width << " " << height;
+
+		dataViewport->setBounds(left, top, width, height);
+
+
+		// if (processorList->isOpen() && editorViewportButton->isOpen())
+		// 	dataViewport->setBounds(202,40,w-207,h-235);
+		// else if (!processorList->isOpen() && editorViewportButton->isOpen())
+		// 	dataViewport->setBounds(6,40,w-11,h-235);
+		// else if (processorList->isOpen() && !editorViewportButton->isOpen())
+		// 	dataViewport->setBounds(202,40,w-207,h-85);
+		// else	
+		// 	dataViewport->setBounds(6,40,w-11,h-85);
 	}
 
 	if (editorViewportButton != 0)
@@ -130,7 +158,12 @@ void UIComponent::resized()
 	}
 
 	if (controlPanel != 0)
-		controlPanel->setBounds(201,6,w-210,32);
+	{
+		if (controlPanel->isOpen())
+			controlPanel->setBounds(201,6,w-210,64);
+		else
+			controlPanel->setBounds(201,6,w-210,32);
+	}
 
 	if (processorList != 0) {
 		if (processorList->isOpen())
@@ -188,7 +221,7 @@ const StringArray UIComponent::getMenuBarNames() {
 	// names.add("Edit");
 	// names.add("Help");
 
-	const char* const names[] = { "File", "Edit", "Help", 0 };
+	const char* const names[] = { "File", "Edit", "View", "Help", 0 };
 
     return StringArray (names);
 
@@ -202,20 +235,29 @@ const PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuNa
 
      if (menuIndex == 0)
      {
-     	// menu.addItem (1, "Load configuration");
-     	// menu.addItem (2, "Save configuration");
      	menu.addCommandItem (commandManager, loadConfiguration);
         menu.addCommandItem (commandManager, saveConfiguration);
         menu.addSeparator();
         menu.addCommandItem (commandManager, StandardApplicationCommandIDs::quit);
      } else if (menuIndex == 1)
      {
+     	menu.addCommandItem (commandManager, undo);
+     	menu.addCommandItem (commandManager, redo);
+     	menu.addSeparator();
+     	menu.addCommandItem (commandManager, copySignalChain);
+     	menu.addCommandItem (commandManager, pasteSignalChain);
+     	menu.addSeparator();
      	menu.addCommandItem (commandManager, clearSignalChain);
-     	//menu.addItem (1, "Clear signal chain");
-     } else if (menuIndex == 2)
+     
+     } else if (menuIndex == 2) {
+
+     	menu.addCommandItem (commandManager, toggleProcessorList);
+     	menu.addCommandItem (commandManager, toggleSignalChain);
+     	menu.addCommandItem (commandManager, toggleFileInfo);
+     
+     } else if (menuIndex == 3)
      {
      	menu.addCommandItem (commandManager, showHelp);
-     	//menu.addItem (1, "Show help...");
      }
 
      return menu;
@@ -241,10 +283,15 @@ void UIComponent::getAllCommands (Array <CommandID>& commands)
 {
 	 const CommandID ids[] = {loadConfiguration,
 	 					      saveConfiguration,
+	 					      undo,
+	 					      redo,
+	 					      copySignalChain,
+	 					      pasteSignalChain,
 	 					      clearSignalChain,
-	 					      showHelp,
-	 					      moveSelectionLeft,
-	 					      moveSelectionRight};
+	 					      toggleProcessorList,
+	 					      toggleSignalChain,
+	 					      toggleFileInfo,
+	 					      showHelp};
 
 	 commands.addArray (ids, numElementsInArray (ids));
 
@@ -253,33 +300,73 @@ void UIComponent::getAllCommands (Array <CommandID>& commands)
 void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& result)
 {
 
+	bool acquisitionStarted = getAudioComponent()->callbacksAreActive();
+
 	switch (commandID)
 	{
 	case loadConfiguration:
 		result.setInfo("Load configuration", "Load a saved processor graph.", "General", 0);
-		result.addDefaultKeypress (T('1'), ModifierKeys::commandModifier);
+		result.addDefaultKeypress (T('L'), ModifierKeys::commandModifier);
+		result.setActive(!acquisitionStarted);
 		break;
 
 	case saveConfiguration:
 		result.setInfo("Save configuration", "Save the current processor graph.", "General", 0);
+		result.addDefaultKeypress (T('S'), ModifierKeys::commandModifier);
+		result.setActive(!acquisitionStarted);
+		break;
+
+	case undo:
+		result.setInfo("Undo", "Undo the last action.", "General", 0);
+		result.addDefaultKeypress (T('Z'), ModifierKeys::commandModifier);
+		result.setActive(false);
+		break;
+
+	case redo:
+		result.setInfo("Redo", "Undo the last action.", "General", 0);
+		result.addDefaultKeypress (T('Y'), ModifierKeys::commandModifier);
+		result.setActive(false);
+		break;
+
+	case copySignalChain:
+		result.setInfo("Copy", "Copy a portion of the signal chain.", "General", 0);
+		result.addDefaultKeypress (T('C'), ModifierKeys::commandModifier);
+		result.setActive(false);
+		break;
+
+	case pasteSignalChain:
+		result.setInfo("Paste", "Paste a portion of the signal chain.", "General", 0);
+		result.addDefaultKeypress (T('V'), ModifierKeys::commandModifier);
+		result.setActive(false);
 		break;
 
 	case clearSignalChain:
 		result.setInfo("Clear signal chain", "Clear the current signal chain.", "General", 0);
+		result.addDefaultKeypress (KeyPress::backspaceKey, ModifierKeys::commandModifier);
+		result.setActive(!acquisitionStarted);
+		break;
+
+	case toggleProcessorList:
+		result.setInfo("Processor List", "Show/hide Processor List.", "General", 0);
+		result.addDefaultKeypress (T('P'), ModifierKeys::shiftModifier);
+		result.setTicked(processorList->isOpen());
+		break;
+
+	case toggleSignalChain:
+		result.setInfo("Signal Chain", "Show/hide Signal Chain.", "General", 0);
+		result.addDefaultKeypress (T('S'), ModifierKeys::shiftModifier);
+		result.setTicked(editorViewportButton->isOpen());
+		break;
+
+	case toggleFileInfo:
+		result.setInfo("File Info", "Show/hide File Info.", "General", 0);
+		result.addDefaultKeypress (T('F'), ModifierKeys::shiftModifier);
+		result.setTicked(controlPanel->isOpen());
 		break;
 
 	case showHelp:
 		result.setInfo("Show help...", "Show some freakin' help.", "General", 0);
-		break;
-
-	case moveSelectionLeft:
-		result.setInfo("Move left", "Move left", "General", 0);
-		result.addDefaultKeypress (KeyPress::leftKey, 0);// ModifierKeys::noModifiers);
-		break;
-
-	case moveSelectionRight:
-		result.setInfo("Move right", "Move right", "General", 0);
-		result.addDefaultKeypress (KeyPress::rightKey, 0);//ModifierKeys::noModifiers);
+		result.setActive(false);
 		break;
 
 	// case quit:
@@ -306,19 +393,23 @@ bool UIComponent::perform (const InvocationInfo& info)
 		break;
 
 	case clearSignalChain:
-		std::cout << "CLEAR THAT SIGNAL CHAIN!" << std::endl;
+		getEditorViewport()->clearSignalChain();
 		break;
 
 	case showHelp:
 		std::cout << "SHOW ME SOME HELP!" << std::endl;
 		break;
 
-	case moveSelectionRight:
-		std::cout << "MOVE RIGHT!" << std::endl;
+	case toggleProcessorList:
+		processorList->toggleState();
 		break;
 
-	case moveSelectionLeft:
-		std::cout << "MOVE LEFT!" << std::endl;
+	case toggleFileInfo:
+		controlPanel->toggleState();
+		break;
+
+	case toggleSignalChain:
+		editorViewportButton->toggleState();
 		break;
 
 	// case quit:
@@ -421,4 +512,11 @@ void EditorViewportButton::mouseDown(const MouseEvent& e)
 	UI->childComponentChanged();
 	repaint();
 
+}
+
+void EditorViewportButton::toggleState()
+{
+	open = !open;
+	UI->childComponentChanged();
+	repaint();
 }

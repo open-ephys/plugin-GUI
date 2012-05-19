@@ -40,6 +40,7 @@ SignalChainManager::SignalChainManager (EditorViewport* ev_, Array<GenericEditor
 
 SignalChainManager::~SignalChainManager()
 {
+
 	
 }
 
@@ -68,6 +69,18 @@ void SignalChainManager::scrollDown()
 	}
 
 	refreshTabs();
+
+}
+
+void SignalChainManager::clearSignalChain()
+{
+    editorArray.clear();
+
+    while (signalChainArray.size() > 0)
+    {
+        SignalChainTabButton* t = signalChainArray.remove(signalChainArray.size()-1);
+        deleteAndZero(t);
+    }
 
 }
 

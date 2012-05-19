@@ -22,6 +22,7 @@
 */
 
 #include "ControlPanel.h"
+#include "UIComponent.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -51,6 +52,8 @@ PlayButton::PlayButton()
         setBackgroundColours(Colours::darkgrey, Colours::yellow);
         setClickingTogglesState (true);
         setTooltip ("Start/stop acquisition");
+
+
 }
 
 PlayButton::~PlayButton()
@@ -290,8 +293,82 @@ void Clock::stopRecording()
 
 }
 
+
+ControlPanelButton::ControlPanelButton(ControlPanel* cp_) : cp(cp_)
+{
+	open = false;
+
+}
+
+ControlPanelButton::~ControlPanelButton()
+{
+	
+}
+
+void ControlPanelButton::newOpenGLContextCreated()
+{
+	
+	glMatrixMode (GL_PROJECTION);
+
+	glLoadIdentity();
+	glOrtho (0, 1, 1, 0, 0, 1);
+	glMatrixMode (GL_MODELVIEW);
+	
+	glEnable(GL_TEXTURE_2D);
+
+	glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
+
+	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+	glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_POINT_SMOOTH);
+	glEnable(GL_POLYGON_SMOOTH);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+
+void ControlPanelButton::renderOpenGL()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	drawButton();
+}
+
+void ControlPanelButton::drawButton()
+{
+	glColor4f(1.0f,1.0f,1.0f,1.0f);
+	glLineWidth(1.0f);
+
+	glBegin(GL_LINE_LOOP);
+
+	if (open)
+	{
+		glVertex2f(0.5, 0.8);
+		glVertex2f(0.2, 0.2);
+	} else {
+		glVertex2f(0.8, 0.8);
+		glVertex2f(0.2, 0.5);
+	}
+	glVertex2f(0.8, 0.2);
+	glEnd();
+
+}
+
+void ControlPanelButton::mouseDown(const MouseEvent& e)
+{
+	open = !open;
+	cp->openState(open);
+	repaint();
+
+}
+
+
+
 ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) : 
-			graph (graph_), audio(audio_)
+			graph (graph_), audio(audio_), open(false)
 {
 
 	audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
@@ -314,6 +391,20 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) :
 	diskMeter = new DiskSpaceMeter();
 	addAndMakeVisible(diskMeter);
 
+	cpb = new ControlPanelButton(this);
+	addAndMakeVisible(cpb);
+
+
+	filenameComponent = new FilenameComponent("folder selector",
+		 									  File::getSpecialLocation (File::userHomeDirectory), 
+		 									  true,
+		 									  true,
+		 									  true,
+		 									  "*",
+		 									  "",
+		 									  "");
+	addChildComponent(filenameComponent);
+
 	startTimer(100);
 
 	if (1) {
@@ -323,6 +414,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) :
 	}
 
 	setWantsKeyboardFocus(true);
+
 }
 
 ControlPanel::~ControlPanel()
@@ -333,22 +425,62 @@ ControlPanel::~ControlPanel()
 	deleteAndZero(masterClock);
 	deleteAndZero(cpuMeter);
 	deleteAndZero(diskMeter);
+	deleteAndZero(cpb);
+	deleteAndZero(filenameComponent);
 	//audioEditor will delete itself
 
 	graph = 0;
+}
+
+void ControlPanel::updateChildComponents()
+{
+
+	filenameComponent->addListener(getProcessorGraph()->getRecordNode());
+
+}
+
+void ControlPanel::createPaths()
+{
+	int w = 150;
+	int h1 = 32;
+	int h2 = 64;
+	int indent = 5;
+
+	p1.clear();
+	p1.startNewSubPath(0, h1);
+	p1.lineTo(w, h1);
+	p1.lineTo(w + indent, h1 + indent);
+	p1.lineTo(w + indent, h2 - indent);
+	p1.lineTo(w + indent*2, h2);
+	p1.lineTo(0, h2);
+	p1.closeSubPath();
+
+	p2.clear();
+	p2.startNewSubPath(getWidth(), h2-indent);
+	p2.lineTo(getWidth(), h2);
+	p2.lineTo(getWidth()-indent, h2);
+	p2.closeSubPath();
+
 }
 
 void ControlPanel::paint(Graphics& g)
 {
 	g.setColour(Colour(58,58,58));
 	g.fillRect(0,0,getWidth(),getHeight());
+
+	if (open)
+	{
+		g.setColour(Colours::black);
+		g.fillPath(p1);
+		g.fillPath(p2);
+	}
 	
 }
 
 void ControlPanel::resized()
 {
 	int w = getWidth();
-	int h = getHeight();
+	int h = 32; //getHeight();
 
 	if (playButton != 0)
 		playButton->setBounds(w-h*9,5,h-5,h-10);
@@ -357,7 +489,7 @@ void ControlPanel::resized()
 		recordButton->setBounds(w-h*8,5,h-5,h-10);
 
 	if (masterClock != 0)
-		masterClock->setBounds(w-h*6,0,h*6,h);
+		masterClock->setBounds(w-h*6-15,0,h*6,h);
 	
 	if (cpuMeter != 0)
 		cpuMeter->setBounds(8,h/4,h*3,h/2);
@@ -367,6 +499,28 @@ void ControlPanel::resized()
 
 	if (audioEditor != 0)
 		audioEditor->setBounds(h*7,5,h*8,h-10);
+
+	if (cpb != 0)
+		cpb->setBounds(w-28,5,h-10,h-10);
+
+	createPaths();
+
+	if (open)
+	{
+		filenameComponent->setBounds(200, h+5, w-250, h-10);
+		filenameComponent->setVisible(true);
+	} else {
+		filenameComponent->setVisible(false);
+	}
+
+	repaint();
+}
+
+void ControlPanel::openState(bool os)
+{
+	open = os;
+
+	getUIComponent()->childComponentChanged();
 }
 
 void ControlPanel::buttonClicked(Button* button) 
@@ -486,4 +640,11 @@ bool ControlPanel::keyPressed(const KeyPress& key)
 
 	 return false;
 
+}
+
+void ControlPanel::toggleState()
+{
+	open = !open;
+
+	getUIComponent()->childComponentChanged();
 }

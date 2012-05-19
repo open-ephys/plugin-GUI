@@ -28,7 +28,7 @@
 
 EditorViewport::EditorViewport()
     : message ("Drag-and-drop some rows from the top-left box onto this component!"),
-      somethingIsBeingDraggedOver(false), shiftDown(false), leftmostEditor(0),
+      somethingIsBeingDraggedOver(false), shiftDown(false), selectionIndex(0), leftmostEditor(0), lastEditorClicked(0),
        insertionPoint(0), componentWantsToMove(false), indexOfMovingComponent(-1), 
        borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true), currentTab(-1)
 {
@@ -224,6 +224,14 @@ void EditorViewport::itemDropped (const String& sourceDescription, Component* /*
 
             signalChainManager->updateVisibleEditors(activeEditor, indexOfMovingComponent, insertionPoint, ADD);
 
+            for (int i = 0; i < editorArray.size(); i++)
+            {
+                if (editorArray[i] == activeEditor)
+                    editorArray[i]->select();
+                else
+                    editorArray[i]->deselect();
+            }
+
         } 
         
         insertionPoint = -1; // make sure all editors are left-justified
@@ -234,6 +242,23 @@ void EditorViewport::itemDropped (const String& sourceDescription, Component* /*
 
         repaint();
     }
+}
+
+void EditorViewport::clearSignalChain()
+{
+    if (canEdit)
+    {
+        std::cout << "Clearing signal chain." << std::endl;
+        signalChainManager->clearSignalChain();
+        getProcessorGraph()->clearSignalChain();
+
+    } else {
+
+        sendActionMessage("Cannot clear signal chain while acquisition is active.");
+    
+    }
+
+    repaint();
 }
 
 void EditorViewport::makeEditorVisible(GenericEditor* editor)
@@ -389,68 +414,134 @@ void EditorViewport::refreshEditors () {
 
 void EditorViewport::moveSelection (const KeyPress &key) {
     
+    ModifierKeys mk = key.getModifiers();
+
     if (key.getKeyCode() == key.leftKey) {
+
+        if (mk.isShiftDown())
+        {
+            selectionIndex--;
+        } else {
+            
+            selectionIndex = 0;
+
+            for (int i = 0; i < editorArray.size(); i++) {
         
-        for (int i = 0; i < editorArray.size(); i++) {
-        
-            if (editorArray[i]->getSelectionState() && i > 0) {
-                
-                editorArray[i-1]->select();
-                editorArray[i]->deselect();
-                break;
-            }               
+                if (editorArray[i]->getSelectionState() && i > 0) {
+                    editorArray[i-1]->select();
+                    lastEditorClicked = editorArray[i-1];
+                    editorArray[i]->deselect();
+                }               
+            }
+
         }
+        
     } else if (key.getKeyCode() == key.rightKey) {
          
-         for (int i = 0; i < editorArray.size()-1; i++) {
-        
-            if (editorArray[i]->getSelectionState()) {
-                
-                // if (i == editorArray.size()-1)
-                // {
-                //     editorArray[i]->deselect();
-                //     break;
-                // } else {
+        if (mk.isShiftDown())
+        {
+            selectionIndex++;
+        } else {
+            
+            selectionIndex = 0;
+
+            bool stopSelection = false;
+            int i = 0;
+
+            while (i < editorArray.size()-1)
+            {
+
+                if (editorArray[i]->getSelectionState()) {
+
+                  //  if (!stopSelection)
+                    // {
+                    lastEditorClicked = editorArray[i+1];
                     editorArray[i+1]->select();
+                    stopSelection = true;
+                  //  }
+
                     editorArray[i]->deselect();
-                    break;
-                // }
-            }  
+                    i += 2;
+                } else {
+                    editorArray[i]->deselect();
+                    i++;
+                }
+
+            }
+
         }
-    } else if (key.getKeyCode() == key.upKey) {
-        
-        // move one tab up
-    } else if (key.getKeyCode() == key.downKey) {
-        
-        // move one tab down
     }
+
+    if (mk.isShiftDown() && lastEditorClicked != 0 && editorArray.contains(lastEditorClicked))
+    {
+
+       // std::cout << "Selection index: " << selectionIndex << std::endl;
+
+        // int startIndex = editorArray.indexOf(lastEditorClicked);
+
+        // if (selectionIndex < 0)
+        // {
+
+        //     for (int i = startIndex-1; i >= startIndex + selectionIndex; i--)
+        //     {
+        //         editorArray[i]->select();
+        //     }
+
+        // } else if (selectionIndex > 0)
+        // {
+        //     for (int i = startIndex+1; i <= startIndex + selectionIndex; i++)
+        //     {
+        //         editorArray[i]->select();
+        //     }
+
+        // }
+
+    }
+
+    // } else if (key.getKeyCode() == key.upKey) {
+        
+    //     // move one tab up
+    // } else if (key.getKeyCode() == key.downKey) {
+        
+    //     // move one tab down
+    // }
 }
 
 bool EditorViewport::keyPressed (const KeyPress &key) {
     
-   std::cout << "Editor viewport received " << key.getKeyCode() << std::endl;
+   //std::cout << "Editor viewport received " << key.getKeyCode() << std::endl;
 
-   if (canEdit) {
+   if (canEdit) 
+   {
 
-    if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey) {
-        
-        for (int i = 0; i < editorArray.size(); i++) {
-        
-            if (editorArray[i]->getSelectionState()) {
-                deleteNode(editorArray[i]);
-                break;
-            }               
+        ModifierKeys mk = key.getModifiers();
+
+        if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey) {
+
+            if (!mk.isAnyModifierKeyDown()) 
+            {
+
+                Array<GenericEditor*> editorsToRemove;
+
+                for (int i = 0; i < editorArray.size(); i++)
+                {
+                    if (editorArray[i]->getSelectionState())
+                        editorsToRemove.add(editorArray[i]);
+                }
+
+                for (int i = 0; i < editorsToRemove.size(); i++)
+                    deleteNode(editorsToRemove[i]);
+
+                return true;
+            }
+
+        } else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
+
+            moveSelection(key);
+
+            return true;
+
         }
-
-        return true;
-
-    } else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
-
-        moveSelection(key);
-
-        return true;
-
-    }
     }
 
    return false;
@@ -488,17 +579,107 @@ void EditorViewport::selectEditor(GenericEditor* editor)
 
 void EditorViewport::mouseDown(const MouseEvent &e) {
     
+
+   // std::cout << "Mouse click at " << e.x << " " << e.y << std::endl;
+
+    bool clickInEditor = false;
+
     for (int i = 0; i < editorArray.size(); i++) {
         
-        if (e.eventComponent == editorArray[i]
-             || e.eventComponent->getParentComponent() == editorArray[i] ||
-                e.eventComponent->getParentComponent()->getParentComponent() ==
-                        editorArray[i]) {
+        if (e.eventComponent == editorArray[i] && e.y < 22)
+            // event must take place along title bar
+             // || e.eventComponent->getParentComponent() == editorArray[i] ||
+             //    e.eventComponent->getParentComponent()->getParentComponent() ==
+             //            editorArray[i]) 
+        {
+
+            clickInEditor = true;
             editorArray[i]->select();
+
+            if (e.mods.isShiftDown())
+            {
+                if (editorArray.contains(lastEditorClicked))
+                {
+
+                    int index = editorArray.indexOf(lastEditorClicked);
+
+                    if (index > i)
+                    {
+                        for (int j = i+1; j <= index; j++)
+                        {
+                            editorArray[j]->select();
+                        }
+
+                    } else {
+                        for (int j = i-1; j >= index; j-- )
+                        {
+                            editorArray[j]->select();
+                        }
+
+                    }
+                }
+
+                lastEditorClicked = editorArray[i];
+                break;
+            }
+
+             lastEditorClicked = editorArray[i];
+
+
+            //     Array<GenericEditor*> editorsToSelect;
+            //     bool foundSelected = false;
+
+            //     for (int j = i; j < editorArray.size(); j++)
+            //     {
+            //         editorsToSelect.add(editorArray[j]);
+
+            //         if (editorArray[j]->getSelectionState())
+            //         {
+            //             foundSelected = true;
+            //             break;
+            //         }
+            //     }
+
+            //     if (!foundSelected)
+            //         editorsToSelect.clear();
+
+            //     for (int j = 0; j < editorsToSelect.size(); j++)
+            //     {
+            //         editorsToSelect[j]->select();
+            //     }
+
+            //     for (int j = i; j > -1; j--)
+            //     {
+            //         editorsToSelect.add(editorArray[j]);
+            //         if (editorArray[j]->getSelectionState())
+            //         {
+            //             foundSelected = true;
+            //             break;
+            //         }
+            //     }
+
+            //     if (!foundSelected)
+            //         editorsToSelect.clear();
+
+            //     for (int j = 0; j < editorsToSelect.size(); j++)
+            //     {
+            //         editorsToSelect[j]->select();
+            //     }
+
+            //     break;
+
+           // }
+
         } else {
-            editorArray[i]->deselect();
+
+            if (!e.mods.isCtrlDown() && !e.mods.isShiftDown())
+                editorArray[i]->deselect();
+
         }
     } 
+
+    if (!clickInEditor)
+        lastEditorClicked = 0;
 
 }
 
@@ -1004,6 +1185,12 @@ const String EditorViewport::loadState(const File& file)
 
         }
 
+    }
+
+    for (int i = 0; i < editorArray.size(); i++)
+    {
+        // deselect everything initially
+        editorArray[i]->deselect();
     }
 
     delete xml;

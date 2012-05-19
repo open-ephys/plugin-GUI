@@ -70,6 +70,8 @@ public:
     void makeEditorVisibleAndUpdateSettings(GenericEditor* e);
     void refreshEditors();
 
+    void clearSignalChain();
+
     void signalChainCanBeEdited(bool t);
 
     // DragAndDropTarget methods:
@@ -112,6 +114,9 @@ private:
 
     bool canEdit;
     GenericEditor* lastEditor;
+    GenericEditor* lastEditorClicked;
+
+    int selectionIndex;
 
     Array<GenericEditor*, CriticalSection> editorArray;
     Array<SignalChainTabButton*, CriticalSection> signalChainArray;

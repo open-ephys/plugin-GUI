@@ -130,6 +130,30 @@ void* ProcessorGraph::createNewProcessor(String& description)//,
 
 }
 
+void ProcessorGraph::clearSignalChain()
+{
+
+	int n = 0;
+
+	while (getNumNodes() > 4) 
+	{
+		 Node* node = getNode(n);
+		 int nodeId = node->nodeId;
+
+		 if (nodeId != OUTPUT_NODE_ID && 
+		 	 nodeId != AUDIO_NODE_ID &&
+		 	 nodeId != RECORD_NODE_ID &&
+		 	 nodeId != RESAMPLING_NODE_ID)
+		 {
+			 GenericProcessor* p =(GenericProcessor*) node->getProcessor();
+			 removeProcessor(p);
+		 } else {
+		 	n++;
+		 }
+	}
+
+}
+
 void ProcessorGraph::clearConnections()
 {
 
@@ -348,7 +372,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		}
 
 		
-		//sendActionMessage("New source node created.");
+		sendActionMessage("New source node created.");
 		
 
 	} else if (processorType.equalsIgnoreCase("Filters")) {
@@ -367,7 +391,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			processor = new SpikeDetector();
 		}
 
-		//sendActionMessage("New filter node created.");
+		sendActionMessage("New filter node created.");
 
 	} else if (processorType.equalsIgnoreCase("Utilities")) {
 
@@ -376,14 +400,14 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			std::cout << "Creating a new splitter." << std::endl;
 			processor = new Splitter();
 
-		//	sendActionMessage("New splitter created.");
+			sendActionMessage("New splitter created.");
 
 	 	} else if (subProcessorType.equalsIgnoreCase("Merger")) {
 	 		
 	 		std::cout << "Creating a new merger." << std::endl;
 			processor = new Merger();
 
-		//	sendActionMessage("New merger created.");
+			sendActionMessage("New merger created.");
 
 	 	}
 
@@ -406,7 +430,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			processor = new WiFiOutput();
 		}
 	
-		//sendActionMessage("New sink created.");
+		sendActionMessage("New sink created.");
 	}
 
 	return processor;
