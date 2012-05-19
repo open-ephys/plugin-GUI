@@ -72,7 +72,7 @@ MainWindow::~MainWindow()
     }
 
    saveWindowBounds();
-   processorGraph->saveState();
+  // processorGraph->saveState();
 
    audioComponent->disconnectProcessorGraph();
    UIComponent* ui = (UIComponent*) getContentComponent();

@@ -72,8 +72,8 @@ public:
 
 	bool processorWithSameNameExists(const String& name);
 
-	void saveState();
-	void loadState();
+	// void saveState();
+	// void loadState();
 
 private:	
 

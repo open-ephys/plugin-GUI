@@ -80,7 +80,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	controlPanel->getAudioEditor()->setUIComponent(this);
 	controlPanel->setUIComponent(this);
 
-	processorGraph->loadState();
+	//processorGraph->loadState();
 
 #if JUCE_MAC
 	setMacMainMenu(this);
@@ -235,7 +235,7 @@ const PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuNa
 
      if (menuIndex == 0)
      {
-     	menu.addCommandItem (commandManager, loadConfiguration);
+     	menu.addCommandItem (commandManager, openConfiguration);
         menu.addCommandItem (commandManager, saveConfiguration);
         menu.addSeparator();
         menu.addCommandItem (commandManager, StandardApplicationCommandIDs::quit);
@@ -281,7 +281,7 @@ ApplicationCommandTarget* UIComponent::getNextCommandTarget()
 
 void UIComponent::getAllCommands (Array <CommandID>& commands)
 {
-	 const CommandID ids[] = {loadConfiguration,
+	 const CommandID ids[] = {openConfiguration,
 	 					      saveConfiguration,
 	 					      undo,
 	 					      redo,
@@ -304,9 +304,9 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
 
 	switch (commandID)
 	{
-	case loadConfiguration:
-		result.setInfo("Load configuration", "Load a saved processor graph.", "General", 0);
-		result.addDefaultKeypress (T('L'), ModifierKeys::commandModifier);
+	case openConfiguration:
+		result.setInfo("Open configuration", "Load a saved processor graph.", "General", 0);
+		result.addDefaultKeypress (T('O'), ModifierKeys::commandModifier);
 		result.setActive(!acquisitionStarted);
 		break;
 
@@ -382,16 +382,19 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
 
 bool UIComponent::perform (const InvocationInfo& info)
 {
+
 	switch (info.commandID)
 	{
-	case loadConfiguration:
-		std::cout << "LOAD THAT CONFIG!" << std::endl;
+	case openConfiguration:
+	{
+		sendActionMessage(getEditorViewport()->loadState());
 		break;
-
+	}
 	case saveConfiguration:
-		std::cout << "SAVE THAT CONFIG!" << std::endl;
+	{
+		sendActionMessage(getEditorViewport()->saveState());
 		break;
-
+	}
 	case clearSignalChain:
 		getEditorViewport()->clearSignalChain();
 		break;

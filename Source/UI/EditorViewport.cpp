@@ -996,8 +996,25 @@ XmlElement* EditorViewport::switchNodeXml (GenericProcessor* processor)
 
 }
 
-const String EditorViewport::saveState(const File& file) 
+const String EditorViewport::saveState() 
 {
+
+     String error;
+
+    FileChooser fc ("Choose the file to save...",
+                        File::getCurrentWorkingDirectory(),
+                        "*",
+                        true);
+
+    if (fc.browseForFileToSave(true))
+    {
+        currentFile = fc.getResult();
+        std::cout << currentFile.getFileName() << std::endl;
+    } else {
+        error = "No file chosen.";
+        std::cout << "no file chosen." << std::endl;
+        return error;
+    }
 
     Array<GenericProcessor*> splitPoints;
 
@@ -1091,11 +1108,11 @@ const String EditorViewport::saveState(const File& file)
         xml->addChildElement(signalChain);
     }
  
-    String error;
+   
 
     std::cout << "Saving processor graph." << std::endl;
 
-    if (! xml->writeToFile (file, String::empty))
+    if (! xml->writeToFile (currentFile, String::empty))
         error = "Couldn't write to file";
     
     delete xml;
@@ -1103,13 +1120,28 @@ const String EditorViewport::saveState(const File& file)
     return error;
 }
 
-const String EditorViewport::loadState(const File& file) 
-{
+const String EditorViewport::loadState() 
+{  
+
+    FileChooser fc ("Choose a file to load...",
+                    File::getCurrentWorkingDirectory(),
+                    "*.xml",
+                    true);
+
+    if (fc.browseForFileToOpen())
+    {
+        currentFile = fc.getResult();
+        std::cout << currentFile.getFileName() << std::endl;
+        // //getEditorViewport()->loadState(chosenFile);
+    } else {
+        return "No configuration selected.";
+    }
+
     std::cout << "Loading processor graph." << std::endl;
 
      Array<GenericProcessor*> splitPoints;
     
-    XmlDocument doc (file);
+    XmlDocument doc (currentFile);
     XmlElement* xml = doc.getDocumentElement();
 
     if (xml == 0 || ! xml->hasTagName (T("PROCESSORGRAPH")))
@@ -1118,6 +1150,8 @@ const String EditorViewport::loadState(const File& file)
         delete xml;
         return "Not a valid file.";
     }
+
+    clearSignalChain();
 
     String description;// = T(" ");
     int loadOrder;

@@ -140,7 +140,7 @@ public:
                                     const Colour& colour, const float outlineThickness,
                                     const int direction) throw();
 
-    const Typeface::Ptr getTypefaceForFont (const Font& font);
+   // const Typeface::Ptr getTypefaceForFont (const Font& font);
 
     // ======== custom combo box methods: =============================
 

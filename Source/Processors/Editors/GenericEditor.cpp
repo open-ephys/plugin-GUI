@@ -75,7 +75,7 @@ GenericEditor::GenericEditor (GenericProcessor* owner)
 
 	backgroundColor = Colour(10,10,10);
 
-	fadeIn();
+	//fadeIn();
 }
 
 GenericEditor::~GenericEditor()

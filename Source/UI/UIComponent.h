@@ -113,7 +113,7 @@ private:
 
 	enum CommandIDs
 	{
-		loadConfiguration 		= 0x2001,
+		openConfiguration 		= 0x2001,
 	 	saveConfiguration		= 0x2002,
 	 	undo					= 0x2003,
 	 	redo 					= 0x2004,

@@ -96,8 +96,8 @@ public:
     Array<SignalChainTabButton*, CriticalSection> requestSignalChain() {return signalChainArray;}
 
     // loading and saving!
-    const String saveState(const File& file);
-    const String loadState(const File& file);
+    const String saveState();
+    const String loadState();
 
     XmlElement* createNodeXml(GenericEditor*, int);
     XmlElement* switchNodeXml(GenericProcessor*);
@@ -105,6 +105,8 @@ public:
     void checkScrollButtons(int topTab);
 
     int leftmostEditor;
+
+    File currentFile;
     
 private:
 

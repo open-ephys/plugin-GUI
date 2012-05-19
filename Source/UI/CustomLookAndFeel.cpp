@@ -53,12 +53,12 @@ CustomLookAndFeel::CustomLookAndFeel()
 CustomLookAndFeel::~CustomLookAndFeel() {}
 
 //  ===============
-const Typeface::Ptr CustomLookAndFeel::getTypefaceForFont (const Font& font)
-{
+// const Typeface::Ptr CustomLookAndFeel::getTypefaceForFont (const Font& font)
+// {
   
-  return Miso;
+//   return Miso;
 
-}
+// }
 
 
 //==============================================================================
