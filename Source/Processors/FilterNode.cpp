@@ -100,11 +100,9 @@ AudioProcessorEditor* FilterNode::createEditor()
 void FilterNode::updateSettings()
 {		
 
-	filters.clear();
-//	lowCuts.clear();
-	//highCuts.clear();
+	if (getNumInputs() < 100 && getNumInputs() != filters.size()) {
 
-	if (getNumInputs() < 100) {
+		filters.clear();
 
 		for (int n = 0; n < getNumInputs(); n++)
 		{

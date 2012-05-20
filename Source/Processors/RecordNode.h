@@ -32,8 +32,6 @@
 #include "GenericProcessor.h"
 
 /**
-  
-  --UNDER CONSTRUCTION--
 
   Receives inputs from all processors that want to save their data.
   Writes data to disk using fwrite.
@@ -83,7 +81,7 @@ private:
 
   /** Keep the RecordNode informed of acquisition and record states. 
   */
-	bool isRecording, isProcessing;
+	bool isRecording, isProcessing, signalFilesShouldClose;
 
   /** User-selectable directory for saving data files. Currently
       defaults to the user's home directory. 
@@ -124,6 +122,8 @@ private:
     String filename;
     FILE* file;
   };
+
+  void closeAllFiles();
 
   /** Map of continuous channels. 
   */ 

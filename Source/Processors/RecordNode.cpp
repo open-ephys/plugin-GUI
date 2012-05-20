@@ -31,6 +31,7 @@ RecordNode::RecordNode()
 	
 //	newDataFolder = true; // defaults to creating a new data folder on startup
 	continuousDataBuffer = new int16[10000];
+	signalFilesShouldClose = false;
 
 }
 
@@ -238,14 +239,10 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 
 		if (isRecording) {
 			// close necessary files
-			for (int i = 0; i < continuousChannels.size(); i++)
-			{
-				if (continuousChannels[i].isRecording)
-				{
-					std::cout << "CLOSING FILE: " << continuousChannels[i].filename << std::endl;
-					fclose(continuousChannels[i].file);
-				}
-			}
+
+			signalFilesShouldClose = true;
+
+			
 		}
 
 		isRecording = false;
@@ -277,6 +274,19 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 	 		}
 		}
  	}
+}
+
+void RecordNode::closeAllFiles()
+{
+
+	for (int i = 0; i < continuousChannels.size(); i++)
+	{
+		if (continuousChannels[i].isRecording)
+		{
+			std::cout << "CLOSING FILE: " << continuousChannels[i].filename << std::endl;
+			fclose(continuousChannels[i].file);
+		}
+	}
 }
 
 bool RecordNode::enable()
@@ -349,7 +359,7 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 		//buffer.applyGain(0, nSamples, 0.5);
 
 		// cycle through events -- extract the samples per channel
-
+		// NOT YET IMPLEMENTED
 
 		// cycle through buffer channels
 		for (int i = 0; i < buffer.getNumChannels(); i++)
@@ -368,6 +378,16 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 
 		}
 
+		return;
+
+	}
+
+	if (signalFilesShouldClose)
+	{
+		// prevent parameter changes from closing files
+		// before recording stops
+		closeAllFiles();
+		signalFilesShouldClose = false;
 	}
 
 }
