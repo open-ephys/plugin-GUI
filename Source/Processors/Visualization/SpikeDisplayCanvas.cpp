@@ -288,7 +288,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 		
 		int m = spikeBuffer->getNumEvents();
 
-		std::cout << "Received " << m << " events." << std::endl;
+		//std::cout << "Received " << m << " events." << std::endl;
 			
 		//std::cout << m << " events received by node " << getNodeId() << std::endl;
 

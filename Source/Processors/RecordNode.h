@@ -42,7 +42,6 @@
 
 */
 
-
 class RecordNode : public GenericProcessor,
                    public FilenameComponentListener
 {

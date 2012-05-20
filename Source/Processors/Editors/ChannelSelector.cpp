@@ -329,14 +329,20 @@ void ChannelSelector::setRadioStatus(bool radioOn)
 bool ChannelSelector::getRecordStatus(int chan)
 {
 
-	return recordButtons[chan]->getToggleState();
+	if (chan >= 0 && chan < recordButtons.size())
+		return recordButtons[chan]->getToggleState();
+	else 
+		return false;
 
 }
 
 bool ChannelSelector::getAudioStatus(int chan)
 {
 
-	return audioButtons[chan]->getToggleState();
+	if (chan >= 0 && chan < recordButtons.size())
+		return audioButtons[chan]->getToggleState();
+	else 
+		return false;
 
 }
 
