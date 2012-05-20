@@ -154,6 +154,33 @@ void ProcessorGraph::clearSignalChain()
 
 }
 
+void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
+{
+
+	//std::cout << "received change" << std::endl;
+
+	ColourSelector* cs = dynamic_cast <ColourSelector*> (source);
+
+	for (int i = 0; i < getNumNodes(); i++)
+	{
+		 Node* node = getNode(i);
+
+		 int nodeId = node->nodeId;
+
+		 if (nodeId != OUTPUT_NODE_ID && 
+		 	 nodeId != AUDIO_NODE_ID &&
+		 	 nodeId != RECORD_NODE_ID &&
+		 	 nodeId != RESAMPLING_NODE_ID)
+		 {
+			 GenericProcessor* p =(GenericProcessor*) node->getProcessor();
+			 GenericEditor* e = (GenericEditor*) p->getEditor();
+			 e->refreshColors();
+		 } 
+	}
+
+}
+
+
 void ProcessorGraph::clearConnections()
 {
 

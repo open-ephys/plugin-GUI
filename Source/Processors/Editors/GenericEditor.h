@@ -94,6 +94,9 @@ public:
 
 	float accumulator;
 
+	virtual void switchDest() { }
+	virtual void switchIO(int) { }
+
 	virtual void buttonClicked(Button* button);
 	virtual void buttonEvent(Button* button) {}
 	virtual void sliderValueChanged(Slider* slider);

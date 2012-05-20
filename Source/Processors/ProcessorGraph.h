@@ -49,7 +49,8 @@ class AudioNode;
 class SignalChainTabButton;
 
 class ProcessorGraph : public AudioProcessorGraph,
-					   public AccessClass
+					   public AccessClass,
+					   public ChangeListener
 {
 public:
 	ProcessorGraph();
@@ -71,6 +72,8 @@ public:
 	void updateConnections(Array<SignalChainTabButton*, CriticalSection>);
 
 	bool processorWithSameNameExists(const String& name);
+
+	void changeListenerCallback(ChangeBroadcaster* source);
 
 	// void saveState();
 	// void loadState();

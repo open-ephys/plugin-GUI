@@ -47,6 +47,21 @@ AudioProcessorEditor* Splitter::createEditor()
 	return editor;
 }
 
+void Splitter::setPathToProcessor(GenericProcessor* p)
+{
+
+	if (destNodeA == p)
+	{
+		switchIO(0);
+		
+	} else if (destNodeB == p)
+	{
+		switchIO(1);
+	}
+
+
+}
+
 void Splitter::setSplitterDestNode(GenericProcessor* dn)
 {
 	destNode = dn;
@@ -77,7 +92,7 @@ void Splitter::switchIO(int destNum) {
 		std::cout << "Dest node: " << getDestNode() << std::endl;
 	}
 
-	getEditorViewport()->makeEditorVisible(getEditor());
+	getEditorViewport()->makeEditorVisible(getEditor(), false);
 
 }
 
@@ -95,4 +110,9 @@ void Splitter::switchIO()
 	    destNode = destNodeA;
 	}
 
+}
+
+int Splitter::getPath()
+{
+	return activePath;
 }

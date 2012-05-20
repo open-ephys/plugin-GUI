@@ -133,6 +133,13 @@ void MergerEditor::switchSource(int source)
 }
 
 
+void MergerEditor::switchIO(int source)
+{
+	switchSource(source);
+
+	select();
+}
+
 void MergerEditor::switchSource()
 {
 	

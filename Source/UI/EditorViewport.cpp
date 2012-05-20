@@ -261,7 +261,7 @@ void EditorViewport::clearSignalChain()
     repaint();
 }
 
-void EditorViewport::makeEditorVisible(GenericEditor* editor)
+void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight)
 {
     
     if (editor == 0)
@@ -270,7 +270,13 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor)
     signalChainManager->updateVisibleEditors(editor, 0, 0, ACTIVATE);
     refreshEditors();
 
-    editor->highlight();
+    for (int i = 0; i < editorArray.size(); i++)
+    {
+        editorArray[i]->deselect();
+    }
+
+    if (highlight)
+        editor->highlight();
 
 }
 
@@ -283,6 +289,11 @@ void EditorViewport::makeEditorVisibleAndUpdateSettings(GenericEditor* editor)
 
     signalChainManager->updateVisibleEditors(editor, 0, 0, UPDATE);
     refreshEditors();
+
+    for (int i = 0; i < editorArray.size(); i++)
+    {
+        editorArray[i]->deselect();
+    }
 
     editor->highlight();
 
@@ -535,12 +546,20 @@ bool EditorViewport::keyPressed (const KeyPress &key) {
                 return true;
             }
 
-        } else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey) {
+        } else if (key.getKeyCode() == key.leftKey || 
+                   key.getKeyCode() == key.rightKey) {
 
             moveSelection(key);
 
             return true;
 
+        } else if (key.getKeyCode() == key.upKey)
+        {
+
+            lastEditorClicked->switchIO(0);
+        } else if (key.getKeyCode() == key.downKey)
+        {
+            lastEditorClicked->switchIO(1);
         }
     }
 
@@ -1108,12 +1127,14 @@ const String EditorViewport::saveState()
         xml->addChildElement(signalChain);
     }
  
-   
-
     std::cout << "Saving processor graph." << std::endl;
 
     if (! xml->writeToFile (currentFile, String::empty))
-        error = "Couldn't write to file";
+        error = "Couldn't write to file ";
+    else 
+        error = "Saved configuration as ";
+
+    error += currentFile.getFileName();
     
     delete xml;
 
@@ -1131,8 +1152,6 @@ const String EditorViewport::loadState()
     if (fc.browseForFileToOpen())
     {
         currentFile = fc.getResult();
-        std::cout << currentFile.getFileName() << std::endl;
-        // //getEditorViewport()->loadState(chosenFile);
     } else {
         return "No configuration selected.";
     }
@@ -1154,7 +1173,7 @@ const String EditorViewport::loadState()
     clearSignalChain();
 
     String description;// = T(" ");
-    int loadOrder;
+    int loadOrder = 0;
 
     forEachXmlChildElement (*xml, signalChain)
     {
@@ -1187,7 +1206,7 @@ const String EditorViewport::loadState()
 
             } else if (processor->hasTagName("SWITCH"))
             {
-                int processorNum = processor->getIntAttribute("number") + 1;
+                int processorNum = processor->getIntAttribute("number");
 
                 std::cout << "SWITCHING number " << processorNum << std::endl;
 
@@ -1227,7 +1246,10 @@ const String EditorViewport::loadState()
         editorArray[i]->deselect();
     }
 
+    String error = "Opened ";
+    error += currentFile.getFileName();
+
     delete xml;
-    return "Everything went ok.";
+    return error;
 }
 

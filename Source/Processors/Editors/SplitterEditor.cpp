@@ -131,3 +131,31 @@ void SplitterEditor::switchDest(int dest)
 		
 	}
 }
+
+void SplitterEditor::switchIO(int dest)
+{
+	switchDest(dest);
+
+	select();
+}
+
+
+void SplitterEditor::switchDest()
+{
+	Splitter* processor = (Splitter*) getProcessor();
+	processor->switchIO();
+
+	int path = processor->getPath();
+
+	if (path == 0)
+	{
+		pipelineSelectorA->setToggleState(true,false);
+		pipelineSelectorB->setToggleState(false,false);
+
+	} else if (path == 1)
+	{
+		pipelineSelectorB->setToggleState(true,false);
+		pipelineSelectorA->setToggleState(false,false);
+		
+	}
+}

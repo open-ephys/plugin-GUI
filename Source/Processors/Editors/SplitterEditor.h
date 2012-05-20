@@ -44,6 +44,9 @@ public:
 	void buttonEvent (Button* button);
 
     void switchDest(int);
+    void switchDest();
+
+    void switchIO(int i);
 
 private:	
 	

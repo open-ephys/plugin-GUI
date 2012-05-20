@@ -47,6 +47,8 @@ public:
     void switchSource(int);
     void switchSource ();
 
+    void switchIO(int);
+
 private:	
 	
 	ImageButton* pipelineSelectorA;

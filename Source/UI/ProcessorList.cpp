@@ -36,13 +36,6 @@ ProcessorList::ProcessorList() : isDragging(false),
                            yBuffer(1)
 {
 
-	enum {
-		PROCESSOR_COLOR = 801,
-		FILTER_COLOR = 802,
-		SINK_COLOR = 803,
-		SOURCE_COLOR = 804,
-		UTILITY_COLOR = 805,
-	};
 
 	setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
 	setColour(FILTER_COLOR, Colour(41, 76, 158));//Colour(255, 89, 0));
@@ -374,7 +367,42 @@ void ProcessorList::mouseDownInCanvas(const MouseEvent& e)
 	if (fli != 0) {
 		if (xcoord < getWidth() - getScrollBarWidth())
 		{
-			fli->reverseOpenState();
+			if (e.mods.isRightButtonDown() || e.mods.isCtrlDown())
+			{
+
+				if (fli->getName().equalsIgnoreCase("Sources"))
+				{
+					currentColor = SOURCE_COLOR;
+				} else if (fli->getName().equalsIgnoreCase("Filters"))
+				{
+					currentColor = FILTER_COLOR;
+				} else if (fli->getName().equalsIgnoreCase("Utilities"))
+				{
+					currentColor = UTILITY_COLOR;
+				} else if (fli->getName().equalsIgnoreCase("Sinks"))
+				{
+					currentColor = SINK_COLOR;
+				} else {
+					return;
+				}
+				 // text colour..
+
+		        ColourSelector colourSelector;
+		        colourSelector.setName ("background");
+		        colourSelector.setCurrentColour (findColour (currentColor));
+		        colourSelector.addChangeListener (this);
+		        colourSelector.addChangeListener (getProcessorGraph());
+		        colourSelector.setColour (ColourSelector::backgroundColourId, Colours::transparentBlack);
+		        colourSelector.setSize (300, 400);
+
+		        CallOutBox callOut (colourSelector, *this, 0);
+		        callOut.setTopLeftPosition (e.getScreenX(), e.getScreenY());
+
+		        callOut.runModalLoop();
+
+			} else {
+				fli->reverseOpenState();
+			}
 		}
 
 		if (fli == baseItem)
@@ -393,6 +421,16 @@ void ProcessorList::mouseDownInCanvas(const MouseEvent& e)
 	}
 
 	repaint();
+}
+
+void ProcessorList::changeListenerCallback(ChangeBroadcaster* source)
+{
+	ColourSelector* cs = dynamic_cast <ColourSelector*> (source);
+
+    setColour (currentColor, cs->getCurrentColour());
+
+    repaint();
+
 }
 
 void ProcessorList::mouseDragInCanvas(const MouseEvent& e) 

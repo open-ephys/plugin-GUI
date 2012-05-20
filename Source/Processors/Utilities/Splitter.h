@@ -57,6 +57,9 @@ public:
     void switchIO();
 	void setSplitterDestNode(GenericProcessor* dn);
 
+    void setPathToProcessor(GenericProcessor* processor);
+
+    int getPath();
 
 private:
 

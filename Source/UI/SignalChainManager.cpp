@@ -110,8 +110,6 @@ void SignalChainManager::createNewTab(GenericEditor* editor)
     
     refreshTabs();
 
-    
-
 }
 
 void SignalChainManager::removeTab(int tabIndex)
@@ -167,20 +165,22 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
 	enum actions {ADD, MOVE, REMOVE, ACTIVATE, UPDATE};
 
     // Step 1: update the editor array
-    if (action == ADD) /// add
+    if (action == ADD) 
     {
         std::cout << "    Adding editor." << std::endl;
         editorArray.insert(insertionPoint, activeEditor);
-        //activeEditor->select();
-    } else if (action == MOVE) {  /// move
+
+    } else if (action == MOVE) 
+    {
         std::cout << "    Moving editors." << std::endl;
         if (insertionPoint < index)
            editorArray.move(index, insertionPoint);
         else if (insertionPoint > index)
            editorArray.move(index, insertionPoint-1);
 
-        //activeEditor->select();
-    } else if (action == REMOVE) {/// remove
+    } else if (action == REMOVE) 
+    {
+
         std::cout << "    Removing editor." << std::endl;
 
         GenericProcessor* p = (GenericProcessor*) editorArray[index]->getProcessor();
@@ -196,7 +196,6 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
         editorArray.remove(index);
 
         int t = activeEditor->tabNumber();
-
 
        // std::cout << editorArray.size() << " " << t << std::endl;
 
@@ -245,7 +244,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
         }
 
     } else { //no change
-       	
+       
         std::cout << "Activating editor" << std::endl;
     }
 
@@ -333,7 +332,19 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
         if (source != 0)
         {
             std::cout << "Source: " << source->getName() << std::endl;
+
+            // need to switch the splitter somehow
+            // if (action == ACTIVATE || action == UPDATE)
+            // {
+            //  if (source->isSplitter())
+            //  {
+            //      source->setPathToProcessor(currentProcessor);
+            //  }
+            // }
+
             editorToAdd = (GenericEditor*) source->getEditor();
+
+
         } else {
             
             if (editorToAdd->tabNumber() >= 0)
@@ -378,7 +389,8 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     }
 
     // Step 5: check the validity of the signal chain
-    if (action != ACTIVATE) {
+    if (true) 
+    {//action != ACTIVATE) {
         bool enable = true;
 
         if (editorArray.size() == 1) {
@@ -405,6 +417,15 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
                     enable = true;
                 else 
                     enable = false;
+
+                if (source->isSplitter())
+                {
+                    if (source->getDestNode() != dest)
+                    {
+                        //source->switchIO();
+                        editorArray[n]->switchDest();
+                    }
+                }
 
                 if (enable)
                     std::cout << "Enabling node." << std::endl;

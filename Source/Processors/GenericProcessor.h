@@ -138,8 +138,9 @@ public:
 	GenericProcessor* getSourceNode() {return sourceNode;}
 	GenericProcessor* getDestNode() {return destNode;}
 
-	virtual void switchIO(int) { };
-	virtual void switchIO() { };
+	virtual void switchIO(int) { }
+	virtual void switchIO() { }
+	virtual void setPathToProcessor(GenericProcessor* p) { }
 
 	virtual void setSourceNode(GenericProcessor* sn);
 	virtual void setDestNode(GenericProcessor* dn);

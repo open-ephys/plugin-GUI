@@ -66,7 +66,7 @@ public:
     void deleteNode(GenericEditor* editor);
     void selectEditor(GenericEditor* e);
 
-    void makeEditorVisible(GenericEditor* e);
+    void makeEditorVisible(GenericEditor* e, bool highlight = true);
     void makeEditorVisibleAndUpdateSettings(GenericEditor* e);
     void refreshEditors();
 

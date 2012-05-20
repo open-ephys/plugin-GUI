@@ -111,6 +111,8 @@ void GenericEditor::addParameterEditors()
 void GenericEditor::refreshColors()
 {
 
+	//std::cout << getName() << " refreshing colors." << std::endl;
+
 	enum {
 		PROCESSOR_COLOR = 801,
 		FILTER_COLOR = 802,
@@ -127,6 +129,8 @@ void GenericEditor::refreshColors()
 		backgroundColor =  getProcessorList()->findColour(UTILITY_COLOR);//Colour(40, 40, 40);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
 	else
 		backgroundColor =  getProcessorList()->findColour(FILTER_COLOR);//Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
+
+	repaint();
 
 }
 

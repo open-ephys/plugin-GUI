@@ -77,7 +77,7 @@ void Merger::switchIO(int sourceNum) {
 		//std::cout << "Source node: " << getSourceNode() << std::endl;
 	}
 
-	getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor());
+	getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor(), false);
 
 }
 

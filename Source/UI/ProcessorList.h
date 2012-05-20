@@ -45,7 +45,8 @@ class UIComponent;
 
 class ProcessorList : public OpenGLCanvas,
 				   public DragAndDropContainer,
-				   public AccessClass
+				   public AccessClass,
+				   public ChangeListener
 
 {
 public:
@@ -57,6 +58,8 @@ public:
 
 	//void setUIComponent(UIComponent* ui) {UI = ui;}
 	void toggleState();
+
+	void changeListenerCallback(ChangeBroadcaster* source);
 
 	bool isOpen();
 
@@ -70,6 +73,17 @@ private:
 	ProcessorListItem* getListItemForYPos(int y);
 
 	void setViewport(bool);
+
+
+	enum {
+		PROCESSOR_COLOR = 801,
+		FILTER_COLOR = 802,
+		SINK_COLOR = 803,
+		SOURCE_COLOR = 804,
+		UTILITY_COLOR = 805,
+	};
+
+	int currentColor;
 
 	int getTotalHeight();
 	void clearSelectionState();
@@ -126,5 +140,6 @@ private:
 	OwnedArray<ProcessorListItem> subItems;
 	
 };
+
 
 #endif  // __PROCESSORLIST_H_C3A661E9__

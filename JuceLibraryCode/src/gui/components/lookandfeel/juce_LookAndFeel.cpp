@@ -1722,7 +1722,7 @@ void LookAndFeel::getTooltipSize (const String& tipText, int& width, int& height
 
 void LookAndFeel::drawTooltip (Graphics& g, const String& text, int width, int height)
 {
-    g.fillAll (findColour (TooltipWindow::backgroundColourId));
+    g.fillAll (Colours::lightgrey);
 
     const Colour textCol (findColour (TooltipWindow::textColourId));
 
