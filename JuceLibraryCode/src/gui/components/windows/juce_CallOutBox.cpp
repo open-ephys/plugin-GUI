@@ -218,42 +218,42 @@ void CallOutBox::refreshPath()
 
     outline.startNewSubPath (left + cornerSize, top);
 
-    if (targetY <= top)
-    {
-        outline.lineTo (targetX - arrowBaseWidth, top);
-        outline.lineTo (targetX, targetY);
-        outline.lineTo (targetX + arrowBaseWidth, top);
-    }
+    // if (targetY <= top)
+    // {
+    //     outline.lineTo (targetX - arrowBaseWidth, top);
+    //     outline.lineTo (targetX, targetY);
+    //     outline.lineTo (targetX + arrowBaseWidth, top);
+    // }
 
     outline.lineTo (right - cornerSize, top);
     outline.addArc (right - cornerSize2, top, cornerSize2, cornerSize2, 0, float_Pi * 0.5f);
 
-    if (targetX >= right)
-    {
-        outline.lineTo (right, targetY - arrowBaseWidth);
-        outline.lineTo (targetX, targetY);
-        outline.lineTo (right, targetY + arrowBaseWidth);
-    }
+    // if (targetX >= right)
+    // {
+    //     outline.lineTo (right, targetY - arrowBaseWidth);
+    //     outline.lineTo (targetX, targetY);
+    //     outline.lineTo (right, targetY + arrowBaseWidth);
+    // }
 
     outline.lineTo (right, bottom - cornerSize);
     outline.addArc (right - cornerSize2, bottom - cornerSize2, cornerSize2, cornerSize2, float_Pi * 0.5f, float_Pi);
 
-    if (targetY >= bottom)
-    {
-        outline.lineTo (targetX + arrowBaseWidth, bottom);
-        outline.lineTo (targetX, targetY);
-        outline.lineTo (targetX - arrowBaseWidth, bottom);
-    }
+    // if (targetY >= bottom)
+    // {
+    //     outline.lineTo (targetX + arrowBaseWidth, bottom);
+    //     outline.lineTo (targetX, targetY);
+    //     outline.lineTo (targetX - arrowBaseWidth, bottom);
+    // }
 
     outline.lineTo (left + cornerSize, bottom);
     outline.addArc (left, bottom - cornerSize2, cornerSize2, cornerSize2, float_Pi, float_Pi * 1.5f);
 
-    if (targetX <= left)
-    {
-        outline.lineTo (left, targetY + arrowBaseWidth);
-        outline.lineTo (targetX, targetY);
-        outline.lineTo (left, targetY - arrowBaseWidth);
-    }
+    // if (targetX <= left)
+    // {
+    //     outline.lineTo (left, targetY + arrowBaseWidth);
+    //     outline.lineTo (targetX, targetY);
+    //     outline.lineTo (left, targetY - arrowBaseWidth);
+    // }
 
     outline.lineTo (left, top + cornerSize);
     outline.addArc (left, top, cornerSize2, cornerSize2, float_Pi * 1.5f, float_Pi * 2.0f - 0.05f);

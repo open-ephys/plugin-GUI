@@ -103,7 +103,7 @@ private:
 
 };
 
-class ProcessorListItem //: public Component
+class ProcessorListItem : public Component
 {
 public:
 	ProcessorListItem(const String& name);
