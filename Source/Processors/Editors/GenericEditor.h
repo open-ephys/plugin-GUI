@@ -107,6 +107,7 @@ public:
 //	bool checkParameterButtons(Button* button);
 
 	bool getRecordStatus(int chan);
+	bool getAudioStatus(int chan);
 
 	void selectChannels(Array<int>);
 
@@ -185,6 +186,9 @@ public:
     void setCorners(bool UL, bool UR, bool LL, bool LR);
     void setRadius(float r);
 
+    void setEnabledState(bool);
+    bool getEnabledState() {return isEnabled;}
+
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
@@ -193,8 +197,10 @@ private:
     bool roundUL, roundUR, roundLL, roundLR;
     float radius;
     ColourGradient selectedGrad, selectedOverGrad, neutralGrad, neutralOverGrad;
+    Colour fontColor;
     Path outlinePath;
 
+    bool isEnabled;
 
     void resized();
 

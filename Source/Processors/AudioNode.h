@@ -60,6 +60,8 @@ public:
 
   bool isAudioOrRecordNode() {return true;}
 
+  void enableCurrentChannel(bool);
+
    // AudioEditor* getEditor() {return audioEditor;}
 
     ScopedPointer<AudioEditor> audioEditor;

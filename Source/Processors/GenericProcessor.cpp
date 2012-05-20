@@ -347,6 +347,14 @@ bool GenericProcessor::recordStatus(int chan)
 
 }
 
+bool GenericProcessor::audioStatus(int chan)
+{
+
+	return getEditor()->getAudioStatus(chan);//recordChannels[chan];
+
+
+}
+
 void GenericProcessor::generateDefaultChannelNames(StringArray& names)
 {
 	names.clear();

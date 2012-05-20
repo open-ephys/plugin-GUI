@@ -382,6 +382,12 @@ bool GenericEditor::getRecordStatus(int chan)
 	return channelSelector->getRecordStatus(chan);
 }
 
+bool GenericEditor::getAudioStatus(int chan)
+{
+	return channelSelector->getAudioStatus(chan);
+}
+
+
 
 /////////////////////// BUTTONS ///////////////////////////////
 
@@ -406,18 +412,7 @@ void DrawerButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 UtilityButton::UtilityButton(const String& label_, Font font_) :
     	 Button(label_), label(label_), font(font_)
  {
- 	selectedGrad = ColourGradient(Colour(240,179,12),0.0,0.0,
-										 Colour(207,160,33),0.0, 20.0f,
-										 false);
-    selectedOverGrad = ColourGradient(Colour(209,162,33),0.0, 5.0f,
-										 Colour(190,150,25),0.0, 0.0f,
-										 false);
-    neutralGrad = ColourGradient(Colour(220,220,220),0.0,0.0,
-										 Colour(170,170,170),0.0, 20.0f,
-										 false);
-    neutralOverGrad = ColourGradient(Colour(180,180,180),0.0,5.0f,
-										 Colour(150,150,150),0.0, 0.0,
-										 false);
+ 
     roundUL = true;
 	roundUR = true;
 	roundLL = true;
@@ -427,6 +422,8 @@ UtilityButton::UtilityButton(const String& label_, Font font_) :
 
 	font.setHeight(12.0f);
 
+	setEnabledState(true);
+
  }
 
 void UtilityButton::setCorners(bool UL, bool UR, bool LL, bool LR)
@@ -435,6 +432,47 @@ void UtilityButton::setCorners(bool UL, bool UR, bool LL, bool LR)
 	roundUR = UR;
 	roundLL = LL;
 	roundLR = LR;
+}
+
+void UtilityButton::setEnabledState(bool state)
+{
+
+	isEnabled = state;
+
+	if (state)
+	{
+		selectedGrad = ColourGradient(Colour(240,179,12),0.0,0.0,
+											 Colour(207,160,33),0.0, 20.0f,
+											 false);
+		selectedOverGrad = ColourGradient(Colour(209,162,33),0.0, 5.0f,
+											 Colour(190,150,25),0.0, 0.0f,
+											 false);
+		neutralGrad = ColourGradient(Colour(220,220,220),0.0,0.0,
+											 Colour(170,170,170),0.0, 20.0f,
+											 false);
+		neutralOverGrad = ColourGradient(Colour(180,180,180),0.0,5.0f,
+											 Colour(150,150,150),0.0, 0.0,
+											 false);
+		fontColor = Colours::darkgrey;
+
+	} else {
+
+		selectedGrad = ColourGradient(Colour(240,240,240),0.0,0.0,
+											 Colour(200,200,200),0.0, 20.0f,
+											 false);
+		selectedOverGrad = ColourGradient(Colour(240,240,240),0.0,0.0,
+											 Colour(200,200,200),0.0, 20.0f,
+											 false);
+		neutralGrad = ColourGradient(Colour(240,240,240),0.0,0.0,
+											 Colour(200,200,200),0.0, 20.0f,
+											 false);
+		neutralOverGrad = ColourGradient(Colour(240,240,240),0.0,0.0,
+											 Colour(200,200,200),0.0, 20.0f,
+											 false);
+		fontColor = Colours::white;
+	}
+
+	repaint();
 }
 
 void UtilityButton::setRadius(float r)
@@ -470,7 +508,7 @@ void UtilityButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown
 
 	g.setFont(font);
 
-	g.setColour(Colours::darkgrey);
+	g.setColour(fontColor);
 	g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
 
 	//g.drawSingleLineText(getName(), getWidth()/2 - stringWidth/2, 12);

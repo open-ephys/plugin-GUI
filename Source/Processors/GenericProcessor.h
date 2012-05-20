@@ -161,6 +161,8 @@ public:
 	virtual bool enabledState() {return isEnabled;}
 	virtual void enabledState(bool t) {isEnabled = t;}
 
+	virtual void enableCurrentChannel(bool) {}
+
 	virtual bool stillHasSource() {return true;}
 
 	bool isEnabled;
@@ -232,7 +234,8 @@ public:
 
 	virtual bool isAudioOrRecordNode() {return false;}
 
-	virtual bool recordStatus(int chan);
+	virtual bool recordStatus (int chan);
+	virtual bool audioStatus (int chan);
 
 	virtual void clearSettings();
 

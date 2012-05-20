@@ -117,7 +117,7 @@ void MainWindow::saveWindowBounds()
     bounds->setAttribute("y",getScreenY());
     bounds->setAttribute("w",getContentComponent()->getWidth());
     bounds->setAttribute("h",getContentComponent()->getHeight());
-    bounds->setAttribute("fullscreen",isFullScreen());
+    bounds->setAttribute("fullscreen", isFullScreen());
 
     xml->addChildElement(bounds);
 
@@ -162,7 +162,7 @@ void MainWindow::loadWindowBounds()
 
             // without the correction, you get drift over time
             setTopLeftPosition(x,y-27);
-            getContentComponent()->setBounds(0,0,w,h-33);
+            getContentComponent()->setBounds(0,0,w-10,h-33);
             //setFullScreen(fs);
 
         }

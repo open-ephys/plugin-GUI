@@ -69,6 +69,9 @@ public:
 	/** Return whether a particular channel should be recording. */
 	bool getRecordStatus(int chan);
 
+	/** Return whether a particular channel should be monitored. */
+	bool getAudioStatus(int chan);
+
 	/** Return component's desired width. */
 	int getDesiredWidth();
 

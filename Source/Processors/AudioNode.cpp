@@ -69,11 +69,23 @@ void AudioNode::setChannelStatus(int chan, bool status)
 	{
 		setParameter(100, 0.0f); // add channel
 	} else {
-		setParameter(99, 0.0f);
+		setParameter(-100, 0.0f);
 	}
 
 }
 
+void AudioNode::enableCurrentChannel(bool state)
+{
+
+	setCurrentChannel(nextAvailableChannel);
+
+	if (state)
+	{
+		setParameter(100, 0.0f);
+	} else {
+		setParameter(-100, 0.0f);
+	}
+}
 
 void AudioNode::setParameter (int parameterIndex, float newValue)
 {
@@ -90,7 +102,7 @@ void AudioNode::setParameter (int parameterIndex, float newValue)
 			leftChan.add(currentChannel);
 			rightChan.add(currentChannel);
 		} 
-	} else if (parameterIndex == 99)
+	} else if (parameterIndex == -100)
 	{
 		// remove current channel
 		if (leftChan.contains(currentChannel))

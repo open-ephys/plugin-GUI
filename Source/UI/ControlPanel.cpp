@@ -266,6 +266,11 @@ void Clock::start()
 	}
 }
 
+void Clock::resetRecordTime()
+{
+	totalRecordTime = 0;
+}
+
 void Clock::startRecording()
 {
 	if (!isRecording)
@@ -365,11 +370,24 @@ void ControlPanelButton::mouseDown(const MouseEvent& e)
 
 }
 
+void ControlPanelButton::toggleState()
+{
+	open = !open;
+	repaint();
+}
+
 
 
 ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) : 
 			graph (graph_), audio(audio_), open(false)
 {
+
+	if (1) {
+		MemoryInputStream mis(BinaryData::misoserialized, BinaryData::misoserializedSize, false);
+		Typeface::Ptr typeface = new CustomTypeface(mis);
+		font = Font(typeface);
+		font.setHeight(15);
+	}
 
 	audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
 	addAndMakeVisible(audioEditor);
@@ -394,9 +412,15 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) :
 	cpb = new ControlPanelButton(this);
 	addAndMakeVisible(cpb);
 
+	newDirectoryButton = new UtilityButton("+", font);
+	newDirectoryButton->setEnabledState(false);
+	newDirectoryButton->addListener (this);
+	addChildComponent(newDirectoryButton);
+
+
 
 	filenameComponent = new FilenameComponent("folder selector",
-		 									  File::getSpecialLocation (File::userHomeDirectory), 
+		 									  File::getSpecialLocation (File::hostApplicationPath), 
 		 									  true,
 		 									  true,
 		 									  true,
@@ -407,11 +431,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) :
 
 	startTimer(100);
 
-	if (1) {
-	MemoryInputStream mis(BinaryData::misoserialized, BinaryData::misoserializedSize, false);
-	Typeface::Ptr typeface = new CustomTypeface(mis);
-	font = Font(typeface);
-	}
+	
 
 	setWantsKeyboardFocus(true);
 
@@ -427,6 +447,7 @@ ControlPanel::~ControlPanel()
 	deleteAndZero(diskMeter);
 	deleteAndZero(cpb);
 	deleteAndZero(filenameComponent);
+	deleteAndZero(newDirectoryButton);
 	//audioEditor will delete itself
 
 	graph = 0;
@@ -509,8 +530,13 @@ void ControlPanel::resized()
 	{
 		filenameComponent->setBounds(200, h+5, w-250, h-10);
 		filenameComponent->setVisible(true);
+
+		newDirectoryButton->setBounds(165, h+5, h-10, h-10);
+		newDirectoryButton->setVisible(true);
+
 	} else {
 		filenameComponent->setVisible(false);
+		newDirectoryButton->setVisible(false);
 	}
 
 	repaint();
@@ -538,14 +564,27 @@ void ControlPanel::buttonClicked(Button* button)
 		} else {
 			graph->getRecordNode()->setParameter(0,10.0f); // turn off recording
 			masterClock->stopRecording();
+			newDirectoryButton->setEnabledState(true);
 		}
 
 	} else if (button == playButton) {
 		std::cout << "Play button pressed." << std::endl;
 		if (!playButton->getToggleState())
 		{
-			recordButton->setToggleState(false,false);
+			if (recordButton->getToggleState())
+			{
+				recordButton->setToggleState(false,false);
+				newDirectoryButton->setEnabledState(true);
+			}
+			
 		}
+
+	} else if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
+	{
+		getProcessorGraph()->getRecordNode()->createNewDirectory();
+		newDirectoryButton->setEnabledState(false);
+		masterClock->resetRecordTime();
+		return;
 
 	}
 
@@ -572,6 +611,7 @@ void ControlPanel::buttonClicked(Button* button)
 			graph->disableProcessors();
 			cpuMeter->updateCPU(0.0f);
 			masterClock->stop();
+
 		}
 
 	}
@@ -646,5 +686,6 @@ void ControlPanel::toggleState()
 {
 	open = !open;
 
+	cpb->toggleState();
 	getUIComponent()->childComponentChanged();
 }

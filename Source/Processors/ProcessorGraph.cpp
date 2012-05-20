@@ -157,8 +157,6 @@ void ProcessorGraph::clearSignalChain()
 void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
 {
 
-	//std::cout << "received change" << std::endl;
-
 	ColourSelector* cs = dynamic_cast <ColourSelector*> (source);
 
 	for (int i = 0; i < getNumNodes(); i++)
@@ -264,22 +262,24 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
 						//getAudioNode()->addInputChannel(source, chan);
 
-						std::cout << "Connecting to audio channel: " << 
-							      getAudioNode()->getNextChannel(false) << std::endl;
+						// std::cout << "Connecting to audio channel: " << 
+						// 	      getAudioNode()->getNextChannel(false) << std::endl;
 
-					    
+						getAudioNode()->enableCurrentChannel(source->audioStatus(chan));
+				    
 						addConnection(source->getNodeId(), 		   // sourceNodeID
 						  	chan, 						           // sourceNodeChannelIndex
 						   	AUDIO_NODE_ID, 					       // destNodeID
 						  	getAudioNode()->getNextChannel(true) + 2); // destNodeChannelIndex
 									// add 2 to account for 2 output channels
+
 						
 						//std::cout << getAudioNode()->getNextChannel(false) << " ";
 
 						getRecordNode()->addInputChannel(source, chan);
 
-						std::cout << "Connecting to record channel: " << 
-							      getRecordNode()->getNextChannel(false) << std::endl;
+						// std::cout << "Connecting to record channel: " << 
+						// 	      getRecordNode()->getNextChannel(false) << std::endl;
 
 
 						addConnection(source->getNodeId(),          // sourceNodeID
@@ -287,7 +287,6 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 						   	RECORD_NODE_ID, 					    // destNodeID
 						  	getRecordNode()->getNextChannel(true)); // destNodeChannelIndex
 					
-						
 					}
 
 					// connect event channel

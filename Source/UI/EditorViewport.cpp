@@ -1126,7 +1126,7 @@ const String EditorViewport::saveState()
 
         xml->addChildElement(signalChain);
     }
- 
+
     std::cout << "Saving processor graph." << std::endl;
 
     if (! xml->writeToFile (currentFile, String::empty))

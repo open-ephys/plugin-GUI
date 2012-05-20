@@ -385,9 +385,14 @@ void ProcessorList::mouseDownInCanvas(const MouseEvent& e)
 				} else {
 					return;
 				}
-				 // text colour..
 
-		        ColourSelector colourSelector;
+				int options;
+				options += (0 << 0); // showAlpha
+				options += (0 << 1); // showColorAtTop
+				options += (0 << 2); // showSliders
+				//options += (1 << 3); // showColourSpace
+
+		        ColourSelector colourSelector(options);
 		        colourSelector.setName ("background");
 		        colourSelector.setCurrentColour (findColour (currentColor));
 		        colourSelector.addChangeListener (this);
@@ -398,7 +403,6 @@ void ProcessorList::mouseDownInCanvas(const MouseEvent& e)
 		        CallOutBox callOut (colourSelector, *fli, 0);//*this, 0);
 		        callOut.setTopLeftPosition (e.getScreenX(), e.getScreenY());
 		        callOut.setArrowSize(0.0f);
-
 
 		        callOut.runModalLoop();
 
@@ -415,7 +419,6 @@ void ProcessorList::mouseDownInCanvas(const MouseEvent& e)
 			else
 			{
 				getUIComponent()->childComponentChanged();
-				//setBounds(0,0,225,itemHeight + 2*yBuffer); 
 				totalHeight = itemHeight + 2*yBuffer;
 			}
 			

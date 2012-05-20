@@ -333,6 +333,13 @@ bool ChannelSelector::getRecordStatus(int chan)
 
 }
 
+bool ChannelSelector::getAudioStatus(int chan)
+{
+
+	return audioButtons[chan]->getToggleState();
+
+}
+
 
 int ChannelSelector::getDesiredWidth()
 {

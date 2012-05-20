@@ -31,6 +31,7 @@
 #include "../Processors/RecordNode.h"
 #include "CustomLookAndFeel.h"
 #include "../AccessClass.h"
+#include "../Processors/Editors/GenericEditor.h" // for UtilityButton
 
 #include "../OpenGL.h"
 
@@ -112,6 +113,8 @@ class Clock : public OpenGLComponent
 		void startRecording();
 		void stopRecording();
 
+		void resetRecordTime();
+
 	private:
 
 		void drawTime();
@@ -134,6 +137,7 @@ public:
 	~ControlPanelButton();
 
 	bool isOpen() {return open;}
+	void toggleState();
 
 	void newOpenGLContextCreated();
 	void renderOpenGL();
@@ -149,6 +153,8 @@ private:
 	bool open;
 
 };
+
+class UtilityButton;
 
 class ControlPanel : public Component, 
 					 public Button::Listener,
@@ -181,6 +187,7 @@ private:
 	ProcessorGraph* graph;
 	AudioEditor* audioEditor;
 	FilenameComponent* filenameComponent;
+	UtilityButton* newDirectoryButton;
 
 	ControlPanelButton* cpb;
 

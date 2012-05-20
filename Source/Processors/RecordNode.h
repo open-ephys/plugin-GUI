@@ -35,8 +35,8 @@
   
   --UNDER CONSTRUCTION--
 
-  Receives inputs from all processors that want to save their data,
-  and writes it to disk using a FileOutputStream.
+  Receives inputs from all processors that want to save their data.
+  Writes data to disk using fwrite.
 
   Receives a signal from the ControlPanel to begin recording.
 
@@ -62,6 +62,9 @@ public:
 	bool enable();
 	bool disable();
 
+  /** Called by the ControlPanel to determine the amount of space
+      left in the current dataDirectory.
+  */
 	float getFreeSpace();
 
   void setChannel(int id, int chan);
@@ -73,27 +76,45 @@ public:
   bool isAudioOrRecordNode() {return true;}
 
   void filenameComponentChanged(FilenameComponent*);
+
+  void createNewDirectory();
 	
 private:
-	
-  //File headerFile;
-	//FileOutputStream* outputStream;
 
+  /** Keep the RecordNode informed of acquisition and record states. 
+  */
 	bool isRecording, isProcessing;
 
-  //String dataFolder;
-
+  /** User-selectable directory for saving data files. Currently
+      defaults to the user's home directory. 
+  */
   File dataDirectory;
+
+  /** Automatically generated folder for each recording session. 
+  */
   File rootFolder;
 
+  /** Determines whether a new rootFolder is created when recording
+      begins. 
+  */
   bool newDataFolder;
 
+  /** Holds data that has been converted from float to int16 before
+      saving. 
+  */
   int16* continuousDataBuffer;
 
+  /** Integer timestamp saved for each buffer. 
+  */ 
   int64 timestamp;
 
+  /** Used to generate timestamps if none are given. 
+  */ 
   Time timer;
 
+  /** Holds information for a given channel to be recorded to 
+      its own file. 
+  */ 
   struct Channel
   {
     int nodeId;
@@ -104,10 +125,20 @@ private:
     FILE* file;
   };
 
+  /** Map of continuous channels. 
+  */ 
   std::map<int, Channel> continuousChannels;
+
+  /** Map of event channels. 
+  */ 
   std::map<int, std::map<int,Channel> > eventChannels;
 
+  /** Method for writing continuous buffers to disk. 
+  */ 
   void writeContinuousBuffer(float* data, int nSamples, int channel);
+  
+  /** Method for writing event buffers to disk. 
+  */ 
   void writeEventBuffer(MidiMessage& event, int node, int channel);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNode);
