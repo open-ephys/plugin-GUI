@@ -420,7 +420,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) :
 
 
 	filenameComponent = new FilenameComponent("folder selector",
-		 									  File::getSpecialLocation (File::hostApplicationPath), 
+		 									  File::getCurrentWorkingDirectory().getFullPathName(), 
 		 									  true,
 		 									  true,
 		 									  true,

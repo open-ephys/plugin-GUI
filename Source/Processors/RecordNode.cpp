@@ -28,7 +28,8 @@ RecordNode::RecordNode()
 	: GenericProcessor("Record Node"), isRecording(false), isProcessing(false)
 {
 
-	newDataFolder = true; // defaults to creating a new data folder on startup
+	
+//	newDataFolder = true; // defaults to creating a new data folder on startup
 	continuousDataBuffer = new int16[10000];
 
 }
@@ -61,6 +62,12 @@ void RecordNode::setChannelStatus(int chan, bool status)
 {
 
 	std::cout << "Setting channel status!" << std::endl;
+	setCurrentChannel(chan);
+
+	if (status)
+		setParameter(2, 1.0f);
+	else
+		setParameter(2, 0.0f);
 
 }
 
@@ -89,6 +96,8 @@ void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 		std::cout << " is a directory." << std::endl;
 	else
 		std::cout << " is NOT a directory." << std::endl;
+
+	createNewDirectory();
 
 }
 
@@ -164,8 +173,35 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
 void RecordNode::createNewDirectory()
 {
-	std::cout << "Setting newDataFolder to true." << std::endl;
-	newDataFolder = true;
+	std::cout << "Creating new directory." << std::endl;
+
+	Time calendar = Time::getCurrentTime();
+
+	Array<int> t;
+	t.add(calendar.getYear()-2000);
+	t.add(calendar.getMonth()+1); // January = 0
+	t.add(calendar.getDayOfMonth());
+	t.add(calendar.getHours());
+	t.add(calendar.getMinutes());
+	t.add(calendar.getSeconds());
+
+	String filename = "";
+	
+	for (int n = 0; n < t.size(); n++)
+	{
+		if (t[n] < 10)
+			filename += "0";
+
+		filename += t[n];
+
+		if (n == 2)
+			filename += "_";
+		else if (n < 5)
+			filename += "-";
+	}
+
+	rootFolder = File(dataDirectory.getFullPathName() + File::separator + filename);
+
 }
 
 
@@ -181,6 +217,9 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 		isRecording = true;
 		std::cout << "START RECORDING." << std::endl;
 
+ 		if (!rootFolder.exists())
+ 			rootFolder.createDirectory();
+
 		// create / open necessary files
 		for (int i = 0; i < continuousChannels.size(); i++)
 		{
@@ -190,58 +229,26 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a");
 			}
 		}
-
- 		if (newDataFolder)
- 		{
-
- 			Time calendar = Time::getCurrentTime();
-
- 			Array<int> t;
- 			t.add(calendar.getYear()-2000);
- 			t.add(calendar.getMonth()+1); // January = 0
- 			t.add(calendar.getDayOfMonth());
- 			t.add(calendar.getHours());
- 			t.add(calendar.getMinutes());
- 			t.add(calendar.getSeconds());
-
- 			String filename = "";
- 			
- 			for (int n = 0; n < t.size(); n++)
- 			{
- 				if (t[n] < 10)
- 					filename += "0";
-
- 				filename += t[n];
-
- 				if (n == 2)
- 					filename += "_";
- 				else if (n < 5)
- 					filename += "-";
- 			}
-
-	 		rootFolder = File(dataDirectory.getFullPathName() + File::separator + filename);
-
-	 		if (!rootFolder.exists())
-	 			rootFolder.createDirectory();
-
-	 		newDataFolder = false;
- 		}
  		
 
  	} else if (parameterIndex == 0) {
 
-		isRecording = false;
+		
 		std::cout << "STOP RECORDING." << std::endl;
 
-		// close necessary files
-		for (int i = 0; i < continuousChannels.size(); i++)
-		{
-			if (continuousChannels[i].isRecording)
+		if (isRecording) {
+			// close necessary files
+			for (int i = 0; i < continuousChannels.size(); i++)
 			{
-				std::cout << "CLOSING FILE: " << continuousChannels[i].filename << std::endl;
-				fclose(continuousChannels[i].file);
+				if (continuousChannels[i].isRecording)
+				{
+					std::cout << "CLOSING FILE: " << continuousChannels[i].filename << std::endl;
+					fclose(continuousChannels[i].file);
+				}
 			}
 		}
+
+		isRecording = false;
 
  		
  	} else if (parameterIndex == 2) {
@@ -350,9 +357,9 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 			if (continuousChannels[i].isRecording)
 			{
 				// write buffer to disk!
-				//writeContinuousBuffer(buffer.getSampleData(i),
-				//					  nSamples,
-				//					  i);
+				writeContinuousBuffer(buffer.getSampleData(i),
+									  nSamples,
+									  i);
 				
 				//std::cout << "Record channel " << i << std::endl;
 			}
