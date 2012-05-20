@@ -104,6 +104,8 @@ public:
 
     void checkScrollButtons(int topTab);
 
+    bool isSignalChainEmpty();
+
     int leftmostEditor;
 
     File currentFile;

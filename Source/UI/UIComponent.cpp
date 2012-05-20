@@ -343,7 +343,7 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
 	case clearSignalChain:
 		result.setInfo("Clear signal chain", "Clear the current signal chain.", "General", 0);
 		result.addDefaultKeypress (KeyPress::backspaceKey, ModifierKeys::commandModifier);
-		result.setActive(!acquisitionStarted);
+		result.setActive(!getEditorViewport()->isSignalChainEmpty() && !acquisitionStarted);
 		break;
 
 	case toggleProcessorList:

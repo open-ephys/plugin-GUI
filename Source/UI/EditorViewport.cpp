@@ -806,6 +806,16 @@ void EditorViewport::checkScrollButtons(int topTab)
 
 }
 
+bool EditorViewport::isSignalChainEmpty()
+{
+
+    if (editorArray.size() == 0)
+        return true;
+    else
+        return false;
+
+}
+
 void EditorViewport::resized() {
 
     int b = 2; // border
