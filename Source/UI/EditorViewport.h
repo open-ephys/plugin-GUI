@@ -57,7 +57,10 @@ class EditorViewport  : public Component,
 {
 public:
 
-    EditorViewport();//ProcessorGraph* pgraph, DataViewport* tabComp);
+    /** Constructor. */
+    EditorViewport();
+
+    /** Destructor. */
     ~EditorViewport();
 
     void paint (Graphics& g);
@@ -95,8 +98,10 @@ public:
 
     Array<SignalChainTabButton*, CriticalSection> requestSignalChain() {return signalChainArray;}
 
-    // loading and saving!
+    /** Save the current configuration as an XML file. */
     const String saveState();
+
+    /** Load a saved configuration from an XML file. */
     const String loadState();
 
     XmlElement* createNodeXml(GenericEditor*, int);

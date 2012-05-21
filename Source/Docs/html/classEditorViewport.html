@@ -108,7 +108,9 @@ Inheritance diagram for EditorViewport:</div>
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a02d864af547853f7ce276edf27f32816"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a02d864af547853f7ce276edf27f32816">EditorViewport</a> ()</td></tr>
+<tr class="memdesc:a02d864af547853f7ce276edf27f32816"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="#a02d864af547853f7ce276edf27f32816"></a><br/></td></tr>
 <tr class="memitem:a87b604c8133b8a39122c78d0dd6102ca"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a87b604c8133b8a39122c78d0dd6102ca">~EditorViewport</a> ()</td></tr>
+<tr class="memdesc:a87b604c8133b8a39122c78d0dd6102ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="#a87b604c8133b8a39122c78d0dd6102ca"></a><br/></td></tr>
 <tr class="memitem:a9e1acddb0e1bd9de0ee5c144d65d231b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a9e1acddb0e1bd9de0ee5c144d65d231b">paint</a> (Graphics &amp;g)</td></tr>
 <tr class="memitem:ad0b9dfd4b77ca870e76f174032e12fd0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#ad0b9dfd4b77ca870e76f174032e12fd0">deleteNode</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *editor)</td></tr>
 <tr class="memitem:aa788025ac31951eb6b3db55f5da19350"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#aa788025ac31951eb6b3db55f5da19350">selectEditor</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *e)</td></tr>
@@ -132,7 +134,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aea2c840f1ca1309f483b7ff600e9e4ad"><td class="memItemLeft" align="right" valign="top">Array&lt; <a class="el" href="classSignalChainTabButton.html">SignalChainTabButton</a> <br class="typebreak"/>
 *, CriticalSection &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#aea2c840f1ca1309f483b7ff600e9e4ad">requestSignalChain</a> ()</td></tr>
 <tr class="memitem:a00ade83a870133a9ddf339a38dd06b3c"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a00ade83a870133a9ddf339a38dd06b3c">saveState</a> ()</td></tr>
+<tr class="memdesc:a00ade83a870133a9ddf339a38dd06b3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save the current configuration as an XML file.  <a href="#a00ade83a870133a9ddf339a38dd06b3c"></a><br/></td></tr>
 <tr class="memitem:a2ae2ff8e05fca5d7717fbce441fb2412"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a2ae2ff8e05fca5d7717fbce441fb2412">loadState</a> ()</td></tr>
+<tr class="memdesc:a2ae2ff8e05fca5d7717fbce441fb2412"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a saved configuration from an XML file.  <a href="#a2ae2ff8e05fca5d7717fbce441fb2412"></a><br/></td></tr>
 <tr class="memitem:a231c3600cecadafa2b6c01dc39515c7b"><td class="memItemLeft" align="right" valign="top">XmlElement *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a231c3600cecadafa2b6c01dc39515c7b">createNodeXml</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *, int)</td></tr>
 <tr class="memitem:a6d055783c0fe0c8cea45a9924b45d99a"><td class="memItemLeft" align="right" valign="top">XmlElement *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a6d055783c0fe0c8cea45a9924b45d99a">switchNodeXml</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *)</td></tr>
 <tr class="memitem:aada77ca562341a093410527034b10818"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#aada77ca562341a093410527034b10818">checkScrollButtons</a> (int topTab)</td></tr>
@@ -174,6 +178,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Constructor. </p>
+
 </div>
 </div>
 <a class="anchor" id="a87b604c8133b8a39122c78d0dd6102ca"></a>
@@ -188,6 +194,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Destructor. </p>
 
 </div>
 </div>
@@ -491,6 +499,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Load a saved configuration from an XML file. </p>
+
 </div>
 </div>
 <a class="anchor" id="a48ffa818358a263ac61221d5e94a14cc"></a>
@@ -682,6 +692,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Save the current configuration as an XML file. </p>
+
 </div>
 </div>
 <a class="anchor" id="aa788025ac31951eb6b3db55f5da19350"></a>
@@ -763,7 +775,7 @@ Public Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:31:55 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>
