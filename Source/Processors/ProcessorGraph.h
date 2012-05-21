@@ -37,7 +37,9 @@
   all of the processors that handle data, and holds the rules for connecting
   them prior to data acquisition.
 
-  @see FilterViewport, GenericProcessor, GenericEditor, RecordNode,
+  The user is able to modify the ProcessGraph through the EditorViewport
+
+  @see EditorViewport, GenericProcessor, GenericEditor, RecordNode,
        AudioNode, Configuration, MessageCenter
 
 */

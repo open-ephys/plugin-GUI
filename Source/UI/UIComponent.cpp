@@ -90,8 +90,6 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 
 UIComponent::~UIComponent()
 {
-
-
 	deleteAndZero(infoLabel);
 	deleteAllChildren();
 
@@ -105,8 +103,8 @@ void UIComponent::resized()
 	int w = getWidth();
 	int h = getHeight();
 	
-	if (dataViewport != 0) {
-
+	if (dataViewport != 0) 
+	{
 		int left, top, width, height;
 		left = 6;
 		top = 40;
@@ -128,19 +126,7 @@ void UIComponent::resized()
 
 		width = w - left - 5;
 
-		//std::cout << left << " " << top << " " << width << " " << height;
-
 		dataViewport->setBounds(left, top, width, height);
-
-
-		// if (processorList->isOpen() && editorViewportButton->isOpen())
-		// 	dataViewport->setBounds(202,40,w-207,h-235);
-		// else if (!processorList->isOpen() && editorViewportButton->isOpen())
-		// 	dataViewport->setBounds(6,40,w-11,h-235);
-		// else if (processorList->isOpen() && !editorViewportButton->isOpen())
-		// 	dataViewport->setBounds(202,40,w-207,h-85);
-		// else	
-		// 	dataViewport->setBounds(6,40,w-11,h-85);
 	}
 
 	if (editorViewportButton != 0)
@@ -148,7 +134,8 @@ void UIComponent::resized()
 		editorViewportButton->setBounds(w-230, h-40, 225, 35);
 	}
 	
-	if (editorViewport != 0) {
+	if (editorViewport != 0) 
+	{
 		if (editorViewportButton->isOpen() && !editorViewport->isVisible())
 			editorViewport->setVisible(true);
 		else if (!editorViewportButton->isOpen() && editorViewport->isVisible())
@@ -165,7 +152,8 @@ void UIComponent::resized()
 			controlPanel->setBounds(201,6,w-210,32);
 	}
 
-	if (processorList != 0) {
+	if (processorList != 0) 
+	{
 		if (processorList->isOpen())
 			if (editorViewportButton->isOpen())
 				processorList->setBounds(5,5,195,h-200);
@@ -179,7 +167,8 @@ void UIComponent::resized()
 		messageCenter->setBounds(6,h-35,w-241,30);
 
 	// for debugging purposes:
-	if (false) {
+	if (false) 
+	{
 		dataViewport->setVisible(false);
 		editorViewport->setVisible(false);
 		processorList->setVisible(false);
@@ -187,7 +176,6 @@ void UIComponent::resized()
 		controlPanel->setVisible(false);
 		editorViewportButton->setVisible(false);
 	}
-
 
 }
 
@@ -369,11 +357,6 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
 		result.setActive(false);
 		break;
 
-	// case quit:
-	// 	result.setInfo("Quit", "Quit", "General", 0);
-	// 	result.addDefaultKeypress (T('Q'), ModifierKeys::commandModifier);//ModifierKeys::noModifiers);
-	// 	break;
-
 	default:
 		break;
 	};
@@ -414,11 +397,6 @@ bool UIComponent::perform (const InvocationInfo& info)
 	case toggleSignalChain:
 		editorViewportButton->toggleState();
 		break;
-
-	// case quit:
-	// 	std::cout << "REQUEST TO QUIT." << std::endl;
-	// 	mainWindow->closeButtonPressed();
-	// 	break;
 		
 	default:
 		break;
