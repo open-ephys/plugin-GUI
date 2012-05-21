@@ -316,6 +316,8 @@ bool GenericEditor::checkDrawerButton(Button* button)
 
 		getEditorViewport()->makeEditorVisible(this);
 
+		deselect();
+
 		return true;
 	} else {
 		return false;

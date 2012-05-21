@@ -49,8 +49,6 @@ public:
 
 	virtual void refreshState() {};
 
-
-
 	void resized();
 	virtual void canvasWasResized() { }
 
@@ -89,15 +87,12 @@ protected:
 
 private:
 
-
-
 	int refreshMs;
 
 	void loadFonts();
 
 	void drawScrollBar(float y1, float y2, float alpha);
 	
-
 	int scrollBarWidth, scrollDiff, originalScrollPix;
 	int scrollTime;
 	bool showScrollTrack;
