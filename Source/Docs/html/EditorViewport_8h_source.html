@@ -36,6 +36,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -66,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -119,16 +120,26 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#include &quot;../AccessClass.h&quot;</span></div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#include &quot;DataViewport.h&quot;</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">/**</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">  </span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">  Allows the user to view and edit the signal chain.</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">  The EditorViewport is one of the most important classes in the GUI application.</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">  @see UIComponent, ProcessorGraph</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keyword">class </span><a class="code" href="classGenericEditor.html">GenericEditor</a>;</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keyword">class </span><a class="code" href="classSignalChainTabButton.html">SignalChainTabButton</a>;</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">class </span><a class="code" href="classSignalChainManager.html">SignalChainManager</a>;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">class </span><a class="code" href="classEditorScrollButton.html">EditorScrollButton</a>;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">class </span><a class="code" href="classEditorScrollButton.html" title="A set of buttons for scrolling through editors and signal chains.">EditorScrollButton</a>;</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="keyword">class </span><a class="code" href="classSignalChainScrollButton.html">SignalChainScrollButton</a>;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
 <div class="line"><a name="l00052"></a><span class="lineno"><a class="code" href="classEditorViewport.html">   52</a></span>&#160;<span class="keyword">class </span><a class="code" href="classEditorViewport.html">EditorViewport</a>  : <span class="keyword">public</span> Component,</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;                        <span class="keyword">public</span> DragAndDropTarget,</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                        <span class="keyword">public</span> <a class="code" href="classAccessClass.html">AccessClass</a>,</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                        <span class="keyword">public</span> <a class="code" href="classAccessClass.html" title="Allows subclasses to access important pointers within the application.">AccessClass</a>,</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                        <span class="keyword">public</span> Button::Listener</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;{</div>
@@ -222,8 +233,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    <span class="keyword">enum</span> directions1 {LEFT, RIGHT};</div>
 <div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="keyword">enum</span> directions2 {UP, DOWN};</div>
 <div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    <a class="code" href="classEditorScrollButton.html">EditorScrollButton</a>* leftButton;</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <a class="code" href="classEditorScrollButton.html">EditorScrollButton</a>* rightButton;</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    <a class="code" href="classEditorScrollButton.html" title="A set of buttons for scrolling through editors and signal chains.">EditorScrollButton</a>* leftButton;</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <a class="code" href="classEditorScrollButton.html" title="A set of buttons for scrolling through editors and signal chains.">EditorScrollButton</a>* rightButton;</div>
 <div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    <a class="code" href="classSignalChainScrollButton.html">SignalChainScrollButton</a>* upButton;</div>
 <div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    <a class="code" href="classSignalChainScrollButton.html">SignalChainScrollButton</a>* downButton;</div>
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;</div>
@@ -273,7 +284,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 20:47:55 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

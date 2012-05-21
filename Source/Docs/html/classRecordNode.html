@@ -36,6 +36,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -69,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -90,6 +91,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
+<p>Receives inputs from all processors that want to save their data.  
+ <a href="classRecordNode.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="RecordNode_8h_source.html">RecordNode.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for RecordNode:</div>
@@ -98,7 +102,7 @@ Inheritance diagram for RecordNode:</div>
   <img src="classRecordNode.png" usemap="#RecordNode_map" alt=""/>
   <map id="RecordNode_map" name="RecordNode_map">
 <area href="classGenericProcessor.html" alt="GenericProcessor" shape="rect" coords="0,56,115,80"/>
-<area href="classAccessClass.html" alt="AccessClass" shape="rect" coords="0,0,115,24"/>
+<area href="classAccessClass.html" title="Allows subclasses to access important pointers within the application." alt="AccessClass" shape="rect" coords="0,0,115,24"/>
 </map>
  </div></div>
 
@@ -107,6 +111,7 @@ Inheritance diagram for RecordNode:</div>
 <tr class="heading"><td colspan="2"><h2><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRecordNode_1_1Channel.html">Channel</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Holds information for a given channel to be recorded to its own file.  <a href="structRecordNode_1_1Channel.html#details">More...</a><br/></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -120,7 +125,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>addInputChannel</b> (
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>enable</b> ()</td></tr>
 <tr class="memitem:ae020d2f723fb1468f48f14d76d007202"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae020d2f723fb1468f48f14d76d007202"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>disable</b> ()</td></tr>
-<tr class="memitem:a208709d4b0f959a845f10490acde9ca8"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a208709d4b0f959a845f10490acde9ca8">getFreeSpace</a> ()</td></tr>
+<tr class="memitem:a208709d4b0f959a845f10490acde9ca8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a208709d4b0f959a845f10490acde9ca8"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a208709d4b0f959a845f10490acde9ca8">getFreeSpace</a> ()</td></tr>
+<tr class="memdesc:a208709d4b0f959a845f10490acde9ca8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called by the <a class="el" href="classControlPanel.html">ControlPanel</a> to determine the amount of space left in the current dataDirectory. <br/></td></tr>
 <tr class="memitem:a7fd11ada72f04467e0dc8fc9a55fba42"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7fd11ada72f04467e0dc8fc9a55fba42"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setChannel</b> (int id, int chan)</td></tr>
 <tr class="memitem:afe6506668d8072656c54a843abde276d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afe6506668d8072656c54a843abde276d"></a>
@@ -306,27 +313,48 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>updateChildCo
 Private Member Functions</h2></td></tr>
 <tr class="memitem:ac0b7f68959e87a84b7c8dd2e31dce4cd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac0b7f68959e87a84b7c8dd2e31dce4cd"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>closeAllFiles</b> ()</td></tr>
-<tr class="memitem:a8ef29a4715a5034bf2e101ac9a06a1d7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a8ef29a4715a5034bf2e101ac9a06a1d7">writeContinuousBuffer</a> (float *data, int nSamples, int channel)</td></tr>
-<tr class="memitem:ade1f1f1fdff335a3d67632368154b853"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#ade1f1f1fdff335a3d67632368154b853">writeEventBuffer</a> (MidiMessage &amp;event, int node, int channel)</td></tr>
+<tr class="memitem:a8ef29a4715a5034bf2e101ac9a06a1d7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8ef29a4715a5034bf2e101ac9a06a1d7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a8ef29a4715a5034bf2e101ac9a06a1d7">writeContinuousBuffer</a> (float *data, int nSamples, int channel)</td></tr>
+<tr class="memdesc:a8ef29a4715a5034bf2e101ac9a06a1d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method for writing continuous buffers to disk. <br/></td></tr>
+<tr class="memitem:ade1f1f1fdff335a3d67632368154b853"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ade1f1f1fdff335a3d67632368154b853"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#ade1f1f1fdff335a3d67632368154b853">writeEventBuffer</a> (MidiMessage &amp;event, int node, int channel)</td></tr>
+<tr class="memdesc:ade1f1f1fdff335a3d67632368154b853"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method for writing event buffers to disk. <br/></td></tr>
 <tr class="memitem:adfd8695c0064f1306a66c9096e486375"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adfd8695c0064f1306a66c9096e486375"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</b> (<a class="el" href="classRecordNode.html">RecordNode</a>)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a70adffca8ea1721773c80ad6c4a844e1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a70adffca8ea1721773c80ad6c4a844e1">isRecording</a></td></tr>
+<tr class="memitem:a70adffca8ea1721773c80ad6c4a844e1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a70adffca8ea1721773c80ad6c4a844e1"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a70adffca8ea1721773c80ad6c4a844e1">isRecording</a></td></tr>
+<tr class="memdesc:a70adffca8ea1721773c80ad6c4a844e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Keep the <a class="el" href="classRecordNode.html" title="Receives inputs from all processors that want to save their data.">RecordNode</a> informed of acquisition and record states. <br/></td></tr>
 <tr class="memitem:a872f0369bb5a3eb28b0368efecdd27d5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a872f0369bb5a3eb28b0368efecdd27d5"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>isProcessing</b></td></tr>
 <tr class="memitem:a35774cd75d42f08f8bdec2132d0529e3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a35774cd75d42f08f8bdec2132d0529e3"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>signalFilesShouldClose</b></td></tr>
 <tr class="memitem:a5109feb0a2d1821616f3ff8ba04ee8e1"><td class="memItemLeft" align="right" valign="top">File&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a5109feb0a2d1821616f3ff8ba04ee8e1">dataDirectory</a></td></tr>
-<tr class="memitem:a6b6bbb72fc226f1de138175d575e62e1"><td class="memItemLeft" align="right" valign="top">File&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a6b6bbb72fc226f1de138175d575e62e1">rootFolder</a></td></tr>
-<tr class="memitem:abc8b3b93a3912fa0c0ed6438508a7c78"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#abc8b3b93a3912fa0c0ed6438508a7c78">newDataFolder</a></td></tr>
-<tr class="memitem:a01ef6a171ab8d2a81e5cbc54293ca4cc"><td class="memItemLeft" align="right" valign="top">int16 *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a01ef6a171ab8d2a81e5cbc54293ca4cc">continuousDataBuffer</a></td></tr>
-<tr class="memitem:a154d4c809090e282cdd99098c0d701c9"><td class="memItemLeft" align="right" valign="top">int64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a154d4c809090e282cdd99098c0d701c9">timestamp</a></td></tr>
-<tr class="memitem:a406bc13e786db7c14f1cd8b183ebc0e0"><td class="memItemLeft" align="right" valign="top">Time&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a406bc13e786db7c14f1cd8b183ebc0e0">timer</a></td></tr>
-<tr class="memitem:a5a1f8fe9e3100ab74d4bb2650be91f6d"><td class="memItemLeft" align="right" valign="top">std::map&lt; int, <a class="el" href="structRecordNode_1_1Channel.html">Channel</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a5a1f8fe9e3100ab74d4bb2650be91f6d">continuousChannels</a></td></tr>
-<tr class="memitem:a1abec1e7ff14c068315ba3d661339553"><td class="memItemLeft" align="right" valign="top">std::map&lt; int, std::map&lt; int, <br class="typebreak"/>
+<tr class="memdesc:a5109feb0a2d1821616f3ff8ba04ee8e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">User-selectable directory for saving data files.  <a href="#a5109feb0a2d1821616f3ff8ba04ee8e1"></a><br/></td></tr>
+<tr class="memitem:a6b6bbb72fc226f1de138175d575e62e1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6b6bbb72fc226f1de138175d575e62e1"></a>
+File&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a6b6bbb72fc226f1de138175d575e62e1">rootFolder</a></td></tr>
+<tr class="memdesc:a6b6bbb72fc226f1de138175d575e62e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Automatically generated folder for each recording session. <br/></td></tr>
+<tr class="memitem:abc8b3b93a3912fa0c0ed6438508a7c78"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abc8b3b93a3912fa0c0ed6438508a7c78"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#abc8b3b93a3912fa0c0ed6438508a7c78">newDataFolder</a></td></tr>
+<tr class="memdesc:abc8b3b93a3912fa0c0ed6438508a7c78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines whether a new rootFolder is created when recording begins. <br/></td></tr>
+<tr class="memitem:a01ef6a171ab8d2a81e5cbc54293ca4cc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a01ef6a171ab8d2a81e5cbc54293ca4cc"></a>
+int16 *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a01ef6a171ab8d2a81e5cbc54293ca4cc">continuousDataBuffer</a></td></tr>
+<tr class="memdesc:a01ef6a171ab8d2a81e5cbc54293ca4cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Holds data that has been converted from float to int16 before saving. <br/></td></tr>
+<tr class="memitem:a154d4c809090e282cdd99098c0d701c9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a154d4c809090e282cdd99098c0d701c9"></a>
+int64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a154d4c809090e282cdd99098c0d701c9">timestamp</a></td></tr>
+<tr class="memdesc:a154d4c809090e282cdd99098c0d701c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Integer timestamp saved for each buffer. <br/></td></tr>
+<tr class="memitem:a406bc13e786db7c14f1cd8b183ebc0e0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a406bc13e786db7c14f1cd8b183ebc0e0"></a>
+Time&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a406bc13e786db7c14f1cd8b183ebc0e0">timer</a></td></tr>
+<tr class="memdesc:a406bc13e786db7c14f1cd8b183ebc0e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used to generate timestamps if none are given. <br/></td></tr>
+<tr class="memitem:a5a1f8fe9e3100ab74d4bb2650be91f6d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5a1f8fe9e3100ab74d4bb2650be91f6d"></a>
+std::map&lt; int, <a class="el" href="structRecordNode_1_1Channel.html">Channel</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a5a1f8fe9e3100ab74d4bb2650be91f6d">continuousChannels</a></td></tr>
+<tr class="memdesc:a5a1f8fe9e3100ab74d4bb2650be91f6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map of continuous channels. <br/></td></tr>
+<tr class="memitem:a1abec1e7ff14c068315ba3d661339553"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1abec1e7ff14c068315ba3d661339553"></a>
+std::map&lt; int, std::map&lt; int, <br class="typebreak"/>
 <a class="el" href="structRecordNode_1_1Channel.html">Channel</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a1abec1e7ff14c068315ba3d661339553">eventChannels</a></td></tr>
+<tr class="memdesc:a1abec1e7ff14c068315ba3d661339553"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map of event channels. <br/></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -378,151 +406,11 @@ StringArray&#160;</td><td class="memItemRight" valign="bottom"><b>parameterNames
 <a class="el" href="classParameter.html">Parameter</a>&#160;</td><td class="memItemRight" valign="bottom"><b>nullParam</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>Receives inputs from all processors that want to save their data. Writes data to disk using fwrite.</p>
+<div class="textblock"><p>Receives inputs from all processors that want to save their data. </p>
+<p>Writes data to disk using fwrite.</p>
 <p>Receives a signal from the <a class="el" href="classControlPanel.html">ControlPanel</a> to begin recording.</p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericProcessor.html">GenericProcessor</a>, <a class="el" href="classControlPanel.html">ControlPanel</a> </dd></dl>
-</div><hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a208709d4b0f959a845f10490acde9ca8"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">float RecordNode::getFreeSpace </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Called by the <a class="el" href="classControlPanel.html">ControlPanel</a> to determine the amount of space left in the current dataDirectory. </p>
-
-</div>
-</div>
-<a class="anchor" id="a8ef29a4715a5034bf2e101ac9a06a1d7"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void RecordNode::writeContinuousBuffer </td>
-          <td>(</td>
-          <td class="paramtype">float *&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>nSamples</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>channel</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Method for writing continuous buffers to disk. </p>
-
-</div>
-</div>
-<a class="anchor" id="ade1f1f1fdff335a3d67632368154b853"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void RecordNode::writeEventBuffer </td>
-          <td>(</td>
-          <td class="paramtype">MidiMessage &amp;&#160;</td>
-          <td class="paramname"><em>event</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>node</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>channel</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Method for writing event buffers to disk. </p>
-
-</div>
-</div>
-<hr/><h2>Member Data Documentation</h2>
-<a class="anchor" id="a5a1f8fe9e3100ab74d4bb2650be91f6d"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::map&lt;int, <a class="el" href="structRecordNode_1_1Channel.html">Channel</a>&gt; RecordNode::continuousChannels</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Map of continuous channels. </p>
-
-</div>
-</div>
-<a class="anchor" id="a01ef6a171ab8d2a81e5cbc54293ca4cc"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">int16* RecordNode::continuousDataBuffer</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Holds data that has been converted from float to int16 before saving. </p>
-
-</div>
-</div>
+</div><hr/><h2>Member Data Documentation</h2>
 <a class="anchor" id="a5109feb0a2d1821616f3ff8ba04ee8e1"></a>
 <div class="memitem">
 <div class="memproto">
@@ -540,133 +428,9 @@ StringArray&#160;</td><td class="memItemRight" valign="bottom"><b>parameterNames
   </tr>
 </table>
 </div><div class="memdoc">
-<p>User-selectable directory for saving data files. Currently defaults to the user's home directory. </p>
 
-</div>
-</div>
-<a class="anchor" id="a1abec1e7ff14c068315ba3d661339553"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::map&lt;int, std::map&lt;int,<a class="el" href="structRecordNode_1_1Channel.html">Channel</a>&gt; &gt; RecordNode::eventChannels</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Map of event channels. </p>
-
-</div>
-</div>
-<a class="anchor" id="a70adffca8ea1721773c80ad6c4a844e1"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool RecordNode::isRecording</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Keep the <a class="el" href="classRecordNode.html">RecordNode</a> informed of acquisition and record states. </p>
-
-</div>
-</div>
-<a class="anchor" id="abc8b3b93a3912fa0c0ed6438508a7c78"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool RecordNode::newDataFolder</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Determines whether a new rootFolder is created when recording begins. </p>
-
-</div>
-</div>
-<a class="anchor" id="a6b6bbb72fc226f1de138175d575e62e1"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">File RecordNode::rootFolder</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Automatically generated folder for each recording session. </p>
-
-</div>
-</div>
-<a class="anchor" id="a406bc13e786db7c14f1cd8b183ebc0e0"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">Time RecordNode::timer</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Used to generate timestamps if none are given. </p>
-
-</div>
-</div>
-<a class="anchor" id="a154d4c809090e282cdd99098c0d701c9"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">int64 RecordNode::timestamp</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Integer timestamp saved for each buffer. </p>
+<p>User-selectable directory for saving data files. </p>
+<p>Currently defaults to the user's home directory. </p>
 
 </div>
 </div>
@@ -676,7 +440,7 @@ StringArray&#160;</td><td class="memItemRight" valign="bottom"><b>parameterNames
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 20:47:56 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

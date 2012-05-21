@@ -36,6 +36,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -66,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -121,12 +122,23 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#include &quot;../Processors/Editors/GenericEditor.h&quot;</span> <span class="comment">// for UtilityButton</span></div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &quot;../OpenGL.h&quot;</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno"><a class="code" href="classPlayButton.html">   49</a></span>&#160;<span class="keyword">class </span><a class="code" href="classPlayButton.html">PlayButton</a> : <span class="keyword">public</span> DrawableButton</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">/**</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">  </span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">  Displays information and provides buttons to control acquistion and recording.</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">  The ControlPanel is located along the top of the application window.</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">  @see UIComponent</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
+<div class="line"><a name="l00049"></a><span class="lineno"><a class="code" href="classPlayButton.html">   49</a></span>&#160;<span class="keyword">class </span><a class="code" href="classPlayButton.html" title="Displays information and provides buttons to control acquistion and recording.">PlayButton</a> : <span class="keyword">public</span> DrawableButton</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;{</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;                <a class="code" href="classPlayButton.html">PlayButton</a>();</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;                ~<a class="code" href="classPlayButton.html">PlayButton</a>();</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;                <a class="code" href="classPlayButton.html" title="Displays information and provides buttons to control acquistion and recording.">PlayButton</a>();</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;                ~<a class="code" href="classPlayButton.html" title="Displays information and provides buttons to control acquistion and recording.">PlayButton</a>();</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;};</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
 <div class="line"><a name="l00056"></a><span class="lineno"><a class="code" href="classRecordButton.html">   56</a></span>&#160;<span class="keyword">class </span><a class="code" href="classRecordButton.html">RecordButton</a> : <span class="keyword">public</span> DrawableButton</div>
@@ -236,16 +248,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;                                         <span class="keyword">public</span> Button::Listener,</div>
 <div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;                                         <span class="keyword">public</span> ActionListener,</div>
 <div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;                                         <span class="keyword">public</span> Timer,</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;                                         <span class="keyword">public</span> <a class="code" href="classAccessClass.html">AccessClass</a></div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;                                         <span class="keyword">public</span> <a class="code" href="classAccessClass.html" title="Allows subclasses to access important pointers within the application.">AccessClass</a></div>
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;</div>
 <div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;{</div>
 <div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;        <a class="code" href="classControlPanel.html">ControlPanel</a>(<a class="code" href="classProcessorGraph.html">ProcessorGraph</a>* graph, <a class="code" href="classAudioComponent.html">AudioComponent</a>* audio);</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;        <a class="code" href="classControlPanel.html">ControlPanel</a>(<a class="code" href="classProcessorGraph.html">ProcessorGraph</a>* graph, <a class="code" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>* audio);</div>
 <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;        ~<a class="code" href="classControlPanel.html">ControlPanel</a>();</div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;        <span class="keywordtype">void</span> disableCallbacks();</div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        <a class="code" href="classAccessClass.html">AccessClass</a>* getAudioEditor() {<span class="keywordflow">return</span> (<a class="code" href="classAccessClass.html">AccessClass</a>*) audioEditor;}</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        <a class="code" href="classAccessClass.html" title="Allows subclasses to access important pointers within the application.">AccessClass</a>* getAudioEditor() {<span class="keywordflow">return</span> (<a class="code" href="classAccessClass.html" title="Allows subclasses to access important pointers within the application.">AccessClass</a>*) audioEditor;}</div>
 <div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;</div>
 <div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;        <span class="keywordtype">void</span> openState(<span class="keywordtype">bool</span>);</div>
 <div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;        </div>
@@ -254,12 +266,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;        <span class="keywordtype">bool</span> isOpen() {<span class="keywordflow">return</span> open;}</div>
 <div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160; </div>
 <div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;<span class="keyword">private</span>:        </div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;        <a class="code" href="classPlayButton.html">PlayButton</a>* playButton;</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;        <a class="code" href="classPlayButton.html" title="Displays information and provides buttons to control acquistion and recording.">PlayButton</a>* playButton;</div>
 <div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;        <a class="code" href="classRecordButton.html">RecordButton</a>* recordButton;</div>
 <div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;        <a class="code" href="classClock.html">Clock</a>* masterClock;</div>
 <div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;        <a class="code" href="classCPUMeter.html">CPUMeter</a>* cpuMeter;</div>
 <div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;        <a class="code" href="classDiskSpaceMeter.html">DiskSpaceMeter</a>* diskMeter;</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;        <a class="code" href="classAudioComponent.html">AudioComponent</a>* audio;</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;        <a class="code" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>* audio;</div>
 <div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;        <a class="code" href="classProcessorGraph.html">ProcessorGraph</a>* graph;</div>
 <div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;        <a class="code" href="classAudioEditor.html">AudioEditor</a>* audioEditor;</div>
 <div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;        FilenameComponent* filenameComponent;</div>
@@ -295,7 +307,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 20:47:55 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

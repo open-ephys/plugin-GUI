@@ -36,6 +36,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -69,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -94,7 +95,7 @@ Inheritance diagram for DataViewport:</div>
  <div class="center">
   <img src="classDataViewport.png" usemap="#DataViewport_map" alt=""/>
   <map id="DataViewport_map" name="DataViewport_map">
-<area href="classAccessClass.html" alt="AccessClass" shape="rect" coords="0,0,88,24"/>
+<area href="classAccessClass.html" title="Allows subclasses to access important pointers within the application." alt="AccessClass" shape="rect" coords="0,0,88,24"/>
 </map>
  </div></div>
 
@@ -103,10 +104,15 @@ Inheritance diagram for DataViewport:</div>
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:accdcf7187ec5864fdbf0c2a3e605b072"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataViewport.html#accdcf7187ec5864fdbf0c2a3e605b072">addTabToDataViewport</a> (String tabName, Component *componentToAdd, <a class="el" href="classGenericEditor.html">GenericEditor</a> *editor)</td></tr>
+<tr class="memdesc:accdcf7187ec5864fdbf0c2a3e605b072"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new tab and returns the tab index.  <a href="#accdcf7187ec5864fdbf0c2a3e605b072"></a><br/></td></tr>
 <tr class="memitem:ad68668771aa73c3cdcefcfa692fe0098"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataViewport.html#ad68668771aa73c3cdcefcfa692fe0098">destroyTab</a> (int)</td></tr>
+<tr class="memdesc:ad68668771aa73c3cdcefcfa692fe0098"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes a tab with a specified index.  <a href="#ad68668771aa73c3cdcefcfa692fe0098"></a><br/></td></tr>
 <tr class="memitem:a03221f79ac5f5edd473221bfc8f42dcc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataViewport.html#a03221f79ac5f5edd473221bfc8f42dcc">selectTab</a> (int)</td></tr>
+<tr class="memdesc:a03221f79ac5f5edd473221bfc8f42dcc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Select a tab with a specified index.  <a href="#a03221f79ac5f5edd473221bfc8f42dcc"></a><br/></td></tr>
 <tr class="memitem:a3d468d1c0f59f84165be4b68c0882c8d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataViewport.html#a3d468d1c0f59f84165be4b68c0882c8d">currentTabChanged</a> (int newIndex, const String &amp;newTabName)</td></tr>
+<tr class="memdesc:a3d468d1c0f59f84165be4b68c0882c8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Informs the component of the current tab that it's now active.  <a href="#a3d468d1c0f59f84165be4b68c0882c8d"></a><br/></td></tr>
 <tr class="memitem:a6f501d921cd1b2539790624accc6ea00"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataViewport.html#a6f501d921cd1b2539790624accc6ea00">disableConnectionToEditorViewport</a> ()</td></tr>
+<tr class="memdesc:a6f501d921cd1b2539790624accc6ea00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prevent <a class="el" href="classDataViewport.html">DataViewport</a> from signaling <a class="el" href="classEditorViewport.html">EditorViewport</a> when changing tabs.  <a href="#a6f501d921cd1b2539790624accc6ea00"></a><br/></td></tr>
 <tr class="inherit_header pub_methods_classAccessClass"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classAccessClass')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classAccessClass.html">AccessClass</a></td></tr>
 <tr class="memitem:ae6c601f53b3fd103bd7cd40f51c9c235 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae6c601f53b3fd103bd7cd40f51c9c235"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setUIComponent</b> (<a class="el" href="classUIComponent.html">UIComponent</a> *)</td></tr>
@@ -177,6 +183,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>shutdown</b></td></tr
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Adds a new tab and returns the tab index. </p>
 
 </div>
@@ -204,6 +211,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>shutdown</b></td></tr
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Informs the component of the current tab that it's now active. </p>
 
 </div>
@@ -221,6 +229,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>shutdown</b></td></tr
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Removes a tab with a specified index. </p>
 
 </div>
@@ -237,6 +246,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>shutdown</b></td></tr
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Prevent <a class="el" href="classDataViewport.html">DataViewport</a> from signaling <a class="el" href="classEditorViewport.html">EditorViewport</a> when changing tabs. </p>
 
 </div>
@@ -254,6 +264,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>shutdown</b></td></tr
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Select a tab with a specified index. </p>
 
 </div>
@@ -264,7 +275,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>shutdown</b></td></tr
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 20:47:55 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

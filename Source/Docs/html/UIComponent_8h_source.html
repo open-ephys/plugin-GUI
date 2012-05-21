@@ -36,6 +36,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -66,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -123,8 +124,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &quot;../MainWindow.h&quot;</span></div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#include &quot;../OpenGL.h&quot;</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keyword">class </span><a class="code" href="classMainWindow.html">MainWindow</a>;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">/**</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">  </span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">  Creates objects for user interaction.</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">  The UIComponent can relay messages its sub-components, such as</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">  the MessageCenter</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">  @see ControlPanel, ProcessorList, EditorViewport, DataViewport,</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">       MessageCenter, Configuration</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keyword">class </span><a class="code" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a>;</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keyword">class </span><a class="code" href="classProcessorList.html">ProcessorList</a>;</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keyword">class </span><a class="code" href="classEditorViewportButton.html">EditorViewportButton</a>;</div>
@@ -140,7 +153,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;{</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keyword">public</span>: </div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        <a class="code" href="classUIComponent.html">UIComponent</a>(<a class="code" href="classMainWindow.html">MainWindow</a>* mainWindow_, <a class="code" href="classProcessorGraph.html">ProcessorGraph</a>* pgraph, <a class="code" href="classAudioComponent.html">AudioComponent</a>* audio);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        <a class="code" href="classUIComponent.html">UIComponent</a>(<a class="code" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a>* mainWindow_, <a class="code" href="classProcessorGraph.html">ProcessorGraph</a>* pgraph, <a class="code" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>* audio);</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        ~<a class="code" href="classUIComponent.html">UIComponent</a>();</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        <a class="code" href="classEditorViewport.html">EditorViewport</a>* getEditorViewport() {<span class="keywordflow">return</span> editorViewport;}</div>
@@ -148,9 +161,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        <a class="code" href="classDataViewport.html">DataViewport</a>* getDataViewport() {<span class="keywordflow">return</span> dataViewport;}</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        <a class="code" href="classProcessorGraph.html">ProcessorGraph</a>* getProcessorGraph() {<span class="keywordflow">return</span> processorGraph;}</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        <a class="code" href="classControlPanel.html">ControlPanel</a>* getControlPanel() {<span class="keywordflow">return</span> controlPanel;}</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        <a class="code" href="classMessageCenter.html">MessageCenter</a>* getMessageCenter() {<span class="keywordflow">return</span> messageCenter;}</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        <a class="code" href="classMessageCenter.html" title="Allows the application to display messages to the user.">MessageCenter</a>* getMessageCenter() {<span class="keywordflow">return</span> messageCenter;}</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;        <a class="code" href="classUIComponent.html">UIComponent</a>* getUIComponent() {<span class="keywordflow">return</span> <span class="keyword">this</span>;}</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        <a class="code" href="classAudioComponent.html">AudioComponent</a>* getAudioComponent() {<span class="keywordflow">return</span> audio;}</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        <a class="code" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>* getAudioComponent() {<span class="keywordflow">return</span> audio;}</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;        <span class="comment">//void transmitMessage(const String&amp; message);</span></div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;        <span class="keywordtype">void</span> disableCallbacks();</div>
@@ -175,14 +188,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;        <a class="code" href="classEditorViewportButton.html">EditorViewportButton</a>* editorViewportButton;</div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;        <a class="code" href="classProcessorList.html">ProcessorList</a>* processorList;</div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;        <a class="code" href="classControlPanel.html">ControlPanel</a>* controlPanel;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        <a class="code" href="classMessageCenter.html">MessageCenter</a>* messageCenter;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        <a class="code" href="classInfoLabel.html">InfoLabel</a>* infoLabel;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        <a class="code" href="classMessageCenter.html" title="Allows the application to display messages to the user.">MessageCenter</a>* messageCenter;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        <a class="code" href="classInfoLabel.html" title="Displays general instructions about how to use the application.">InfoLabel</a>* infoLabel;</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        <a class="code" href="classMainWindow.html">MainWindow</a>* mainWindow;</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        <a class="code" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a>* mainWindow;</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        TooltipWindow tooltipWindow;</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;        <a class="code" href="classProcessorGraph.html">ProcessorGraph</a>* processorGraph;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;        <a class="code" href="classAudioComponent.html">AudioComponent</a>* audio;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;        <a class="code" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>* audio;</div>
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;        <span class="keywordtype">void</span> resized();</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;</div>
@@ -238,7 +251,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 20:47:55 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

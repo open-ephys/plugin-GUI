@@ -49,6 +49,7 @@
 #endif
 
 /**
+    \deprecated
   
   --THIS FILE IS OBSOLETE, BUT REMAINS FOR REFERENCE PURPOSES--
 

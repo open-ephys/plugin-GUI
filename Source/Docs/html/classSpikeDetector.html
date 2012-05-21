@@ -36,6 +36,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -69,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -97,7 +98,7 @@ Inheritance diagram for SpikeDetector:</div>
   <img src="classSpikeDetector.png" usemap="#SpikeDetector_map" alt=""/>
   <map id="SpikeDetector_map" name="SpikeDetector_map">
 <area href="classGenericProcessor.html" alt="GenericProcessor" shape="rect" coords="0,56,115,80"/>
-<area href="classAccessClass.html" alt="AccessClass" shape="rect" coords="0,0,115,24"/>
+<area href="classAccessClass.html" title="Allows subclasses to access important pointers within the application." alt="AccessClass" shape="rect" coords="0,0,115,24"/>
 </map>
  </div></div>
 
@@ -109,21 +110,39 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a3e3101762b27b1df8be6e8fd1a0bca22"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a3e3101762b27b1df8be6e8fd1a0bca22">SpikeDetector</a> ()</td></tr>
-<tr class="memitem:a1cd55b8cabe87b211d7f077ea3003a65"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a1cd55b8cabe87b211d7f077ea3003a65">~SpikeDetector</a> ()</td></tr>
+<tr class="memitem:a3e3101762b27b1df8be6e8fd1a0bca22"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3e3101762b27b1df8be6e8fd1a0bca22"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a3e3101762b27b1df8be6e8fd1a0bca22">SpikeDetector</a> ()</td></tr>
+<tr class="memdesc:a3e3101762b27b1df8be6e8fd1a0bca22"><td class="mdescLeft">&#160;</td><td class="mdescRight">constructor <br/></td></tr>
+<tr class="memitem:a1cd55b8cabe87b211d7f077ea3003a65"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1cd55b8cabe87b211d7f077ea3003a65"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a1cd55b8cabe87b211d7f077ea3003a65">~SpikeDetector</a> ()</td></tr>
+<tr class="memdesc:a1cd55b8cabe87b211d7f077ea3003a65"><td class="mdescLeft">&#160;</td><td class="mdescRight">destructor <br/></td></tr>
 <tr class="memitem:a9ba352094475b7be33ca36ae918492d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a9ba352094475b7be33ca36ae918492d1">process</a> (AudioSampleBuffer &amp;buffer, MidiBuffer &amp;events, int &amp;nSamples)</td></tr>
+<tr class="memdesc:a9ba352094475b7be33ca36ae918492d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes an incoming continuous buffer and places new spikes into the event buffer.  <a href="#a9ba352094475b7be33ca36ae918492d1"></a><br/></td></tr>
 <tr class="memitem:a679f5e087dfb959d61f3dd9cdf364cf2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a679f5e087dfb959d61f3dd9cdf364cf2">setParameter</a> (int parameterIndex, float newValue)</td></tr>
+<tr class="memdesc:a679f5e087dfb959d61f3dd9cdf364cf2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used to alter parameters of data acquisition.  <a href="#a679f5e087dfb959d61f3dd9cdf364cf2"></a><br/></td></tr>
 <tr class="memitem:a3c764b20638e3cd2245cab442ce434ca"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a3c764b20638e3cd2245cab442ce434ca">updateSettings</a> ()</td></tr>
+<tr class="memdesc:a3c764b20638e3cd2245cab442ce434ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called whenever the signal chain is altered.  <a href="#a3c764b20638e3cd2245cab442ce434ca"></a><br/></td></tr>
 <tr class="memitem:a50b98fa352359b8dec78b21356c9acbb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a50b98fa352359b8dec78b21356c9acbb">enable</a> ()</td></tr>
+<tr class="memdesc:a50b98fa352359b8dec78b21356c9acbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called prior to start of acquisition.  <a href="#a50b98fa352359b8dec78b21356c9acbb"></a><br/></td></tr>
 <tr class="memitem:aeaaac10f4059ee1cdabcff58d24b5f52"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#aeaaac10f4059ee1cdabcff58d24b5f52">disable</a> ()</td></tr>
+<tr class="memdesc:aeaaac10f4059ee1cdabcff58d24b5f52"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called after acquisition is finished.  <a href="#aeaaac10f4059ee1cdabcff58d24b5f52"></a><br/></td></tr>
 <tr class="memitem:af96da67cfafdba1e59b7eb88b3ed0de6"><td class="memItemLeft" align="right" valign="top">AudioProcessorEditor *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#af96da67cfafdba1e59b7eb88b3ed0de6">createEditor</a> ()</td></tr>
+<tr class="memdesc:af96da67cfafdba1e59b7eb88b3ed0de6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the <a class="el" href="classSpikeDetectorEditor.html">SpikeDetectorEditor</a>.  <a href="#af96da67cfafdba1e59b7eb88b3ed0de6"></a><br/></td></tr>
 <tr class="memitem:a59b4ac520a1831ecd5e02df4a58e6735"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a59b4ac520a1831ecd5e02df4a58e6735">addElectrode</a> (int nChans)</td></tr>
+<tr class="memdesc:a59b4ac520a1831ecd5e02df4a58e6735"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an electrode with n channels to be processed.  <a href="#a59b4ac520a1831ecd5e02df4a58e6735"></a><br/></td></tr>
 <tr class="memitem:ae05d17ef7b8706a370d4d7e049cec877"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#ae05d17ef7b8706a370d4d7e049cec877">removeElectrode</a> (int index)</td></tr>
+<tr class="memdesc:ae05d17ef7b8706a370d4d7e049cec877"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes an electrode with a given index.  <a href="#ae05d17ef7b8706a370d4d7e049cec877"></a><br/></td></tr>
 <tr class="memitem:a2e5115a6d0508a3476601856eab7ebbe"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a2e5115a6d0508a3476601856eab7ebbe">getNumChannels</a> (int index)</td></tr>
+<tr class="memdesc:a2e5115a6d0508a3476601856eab7ebbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of channels for a given electrode.  <a href="#a2e5115a6d0508a3476601856eab7ebbe"></a><br/></td></tr>
 <tr class="memitem:a44be956ab12ff6a6d69ad90dd732ad51"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a44be956ab12ff6a6d69ad90dd732ad51">setChannel</a> (int electrodeIndex, int channelNum, int newChannel)</td></tr>
+<tr class="memdesc:a44be956ab12ff6a6d69ad90dd732ad51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Edits the mapping between input channels and electrode channels.  <a href="#a44be956ab12ff6a6d69ad90dd732ad51"></a><br/></td></tr>
 <tr class="memitem:ad43da7a9241a36b6d04c99c6821752d9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#ad43da7a9241a36b6d04c99c6821752d9">getChannel</a> (int index, int chan)</td></tr>
+<tr class="memdesc:ad43da7a9241a36b6d04c99c6821752d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the continuous channel that maps to a given electrode channel.  <a href="#ad43da7a9241a36b6d04c99c6821752d9"></a><br/></td></tr>
 <tr class="memitem:a41023a894e0d32db949a823b469eb4d6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a41023a894e0d32db949a823b469eb4d6">setElectrodeName</a> (int index, String newName)</td></tr>
-<tr class="memitem:a6acb52a82fec95ad7b44cf2584fcdc0d"><td class="memItemLeft" align="right" valign="top">StringArray&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a6acb52a82fec95ad7b44cf2584fcdc0d">getElectrodeNames</a> ()</td></tr>
+<tr class="memdesc:a41023a894e0d32db949a823b469eb4d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the name of a given electrode.  <a href="#a41023a894e0d32db949a823b469eb4d6"></a><br/></td></tr>
+<tr class="memitem:a6acb52a82fec95ad7b44cf2584fcdc0d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6acb52a82fec95ad7b44cf2584fcdc0d"></a>
+StringArray&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a6acb52a82fec95ad7b44cf2584fcdc0d">getElectrodeNames</a> ()</td></tr>
+<tr class="memdesc:a6acb52a82fec95ad7b44cf2584fcdc0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a StringArray containing the names of all electrodes. <br/></td></tr>
 <tr class="memitem:a6fc7b97799e3c1d6d4841d489b8bc854"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6fc7b97799e3c1d6d4841d489b8bc854"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setChannelThreshold</b> (int electrodeNum, int channelNum, float threshold)</td></tr>
 <tr class="memitem:aa00bc3a6b29da73fdc75517579289b13"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa00bc3a6b29da73fdc75517579289b13"></a>
@@ -300,8 +319,11 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>updateChildCo
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a789328f70cc6f1de8f0b862189ce23bd"><td class="memItemLeft" align="right" valign="top">AudioSampleBuffer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a789328f70cc6f1de8f0b862189ce23bd">overflowBuffer</a></td></tr>
+<tr class="memdesc:a789328f70cc6f1de8f0b862189ce23bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extra samples are placed in this buffer to allow seamless transitions between callbacks.  <a href="#a789328f70cc6f1de8f0b862189ce23bd"></a><br/></td></tr>
 <tr class="memitem:a050b87d647b7d12dd76e6e4fde9f932f"><td class="memItemLeft" align="right" valign="top">AudioSampleBuffer &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a050b87d647b7d12dd76e6e4fde9f932f">dataBuffer</a></td></tr>
+<tr class="memdesc:a050b87d647b7d12dd76e6e4fde9f932f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reference to a continuous buffer (for internal use only).  <a href="#a050b87d647b7d12dd76e6e4fde9f932f"></a><br/></td></tr>
 <tr class="memitem:a23eaf5359b4d13f75a16a28190014619"><td class="memItemLeft" align="right" valign="top">StringArray&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetector.html#a23eaf5359b4d13f75a16a28190014619">electrodeTypes</a></td></tr>
+<tr class="memdesc:a23eaf5359b4d13f75a16a28190014619"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of possible electrode types (e.g., stereotrode, tetrode).  <a href="#a23eaf5359b4d13f75a16a28190014619"></a><br/></td></tr>
 <tr class="inherit_header pub_attribs_classGenericProcessor"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classGenericProcessor')"><img src="closed.png" alt="-"/>&nbsp;Public Attributes inherited from <a class="el" href="classGenericProcessor.html">GenericProcessor</a></td></tr>
 <tr class="memitem:a0c25ce11948ca53f2028d05799b8396e inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0c25ce11948ca53f2028d05799b8396e"></a>
 <a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>sourceNode</b></td></tr>
@@ -393,39 +415,6 @@ Additional Inherited Members</h2></td></tr>
 <b>TETRODE</b> =  4
  }</td></tr>
 </table>
-<hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a3e3101762b27b1df8be6e8fd1a0bca22"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">SpikeDetector::SpikeDetector </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>constructor </p>
-
-</div>
-</div>
-<a class="anchor" id="a1cd55b8cabe87b211d7f077ea3003a65"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">SpikeDetector::~SpikeDetector </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>destructor </p>
-
-</div>
-</div>
 <hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="a59b4ac520a1831ecd5e02df4a58e6735"></a>
 <div class="memitem">
@@ -440,6 +429,7 @@ Additional Inherited Members</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Adds an electrode with n channels to be processed. </p>
 
 </div>
@@ -464,6 +454,7 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
 <p>Creates the <a class="el" href="classSpikeDetectorEditor.html">SpikeDetectorEditor</a>. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html">GenericProcessor</a>.</p>
@@ -490,6 +481,7 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
 <p>Called after acquisition is finished. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html">GenericProcessor</a>.</p>
@@ -516,6 +508,7 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
 <p>Called prior to start of acquisition. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html">GenericProcessor</a>.</p>
@@ -545,23 +538,8 @@ Additional Inherited Members</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Returns the continuous channel that maps to a given electrode channel. </p>
 
-</div>
-</div>
-<a class="anchor" id="a6acb52a82fec95ad7b44cf2584fcdc0d"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">StringArray SpikeDetector::getElectrodeNames </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Returns a StringArray containing the names of all electrodes </p>
+<p>Returns the continuous channel that maps to a given electrode channel. </p>
 
 </div>
 </div>
@@ -578,6 +556,7 @@ Additional Inherited Members</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Returns the number of channels for a given electrode. </p>
 
 </div>
@@ -619,6 +598,7 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
 <p>Processes an incoming continuous buffer and places new spikes into the event buffer. </p>
 
 <p>Implements <a class="el" href="classGenericProcessor.html">GenericProcessor</a>.</p>
@@ -638,6 +618,7 @@ Additional Inherited Members</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Removes an electrode with a given index. </p>
 
 </div>
@@ -671,6 +652,7 @@ Additional Inherited Members</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Edits the mapping between input channels and electrode channels. </p>
 
 </div>
@@ -698,6 +680,7 @@ Additional Inherited Members</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Sets the name of a given electrode. </p>
 
 </div>
@@ -733,6 +716,7 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
 <p>Used to alter parameters of data acquisition. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html">GenericProcessor</a>.</p>
@@ -759,6 +743,7 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
 <p>Called whenever the signal chain is altered. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html">GenericProcessor</a>.</p>
@@ -775,6 +760,7 @@ Additional Inherited Members</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Reference to a continuous buffer (for internal use only). </p>
 
 </div>
@@ -788,6 +774,7 @@ Additional Inherited Members</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Returns a list of possible electrode types (e.g., stereotrode, tetrode). </p>
 
 </div>
@@ -801,6 +788,7 @@ Additional Inherited Members</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
 <p>Extra samples are placed in this buffer to allow seamless transitions between callbacks. </p>
 
 </div>
@@ -811,7 +799,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 20:47:57 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

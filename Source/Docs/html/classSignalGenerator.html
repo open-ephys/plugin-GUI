@@ -36,6 +36,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -69,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -91,6 +92,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
+<p>Outputs synthesized data of one of 5 different waveform types.  
+ <a href="classSignalGenerator.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="SignalGenerator_8h_source.html">SignalGenerator.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for SignalGenerator:</div>
@@ -99,7 +103,7 @@ Inheritance diagram for SignalGenerator:</div>
   <img src="classSignalGenerator.png" usemap="#SignalGenerator_map" alt=""/>
   <map id="SignalGenerator_map" name="SignalGenerator_map">
 <area href="classGenericProcessor.html" alt="GenericProcessor" shape="rect" coords="0,56,115,80"/>
-<area href="classAccessClass.html" alt="AccessClass" shape="rect" coords="0,0,115,24"/>
+<area href="classAccessClass.html" title="Allows subclasses to access important pointers within the application." alt="AccessClass" shape="rect" coords="0,0,115,24"/>
 </map>
  </div></div>
 
@@ -381,7 +385,7 @@ Additional Inherited Members</h2></td></tr>
  }</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>Outputs synthesized data of one of 5 different waveform types.</p>
+<div class="textblock"><p>Outputs synthesized data of one of 5 different waveform types. </p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericProcessor.html">GenericProcessor</a>, <a class="el" href="classSignalGeneratorEditor.html">SignalGeneratorEditor</a> </dd></dl>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>Processors/<a class="el" href="SignalGenerator_8h_source.html">SignalGenerator.h</a></li>
@@ -389,7 +393,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 20:47:56 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

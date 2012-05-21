@@ -36,6 +36,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -69,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -97,19 +98,19 @@ Inheritance diagram for GenericProcessor:</div>
  <div class="center">
   <img src="classGenericProcessor.png" usemap="#GenericProcessor_map" alt=""/>
   <map id="GenericProcessor_map" name="GenericProcessor_map">
-<area href="classAccessClass.html" alt="AccessClass" shape="rect" coords="0,0,115,24"/>
+<area href="classAccessClass.html" title="Allows subclasses to access important pointers within the application." alt="AccessClass" shape="rect" coords="0,0,115,24"/>
 <area href="classAudioNode.html" alt="AudioNode" shape="rect" coords="125,112,240,136"/>
-<area href="classEventNode.html" alt="EventNode" shape="rect" coords="125,168,240,192"/>
-<area href="classFilterNode.html" alt="FilterNode" shape="rect" coords="125,224,240,248"/>
+<area href="classEventNode.html" title="Generates events at regular intervals." alt="EventNode" shape="rect" coords="125,168,240,192"/>
+<area href="classFilterNode.html" title="Filters data using a filter from the DSP library." alt="FilterNode" shape="rect" coords="125,224,240,248"/>
 <area href="classLfpDisplayNode.html" alt="LfpDisplayNode" shape="rect" coords="125,280,240,304"/>
-<area href="classMerger.html" alt="Merger" shape="rect" coords="125,336,240,360"/>
-<area href="classRecordNode.html" alt="RecordNode" shape="rect" coords="125,392,240,416"/>
-<area href="classResamplingNode.html" alt="ResamplingNode" shape="rect" coords="125,448,240,472"/>
-<area href="classSignalGenerator.html" alt="SignalGenerator" shape="rect" coords="125,504,240,528"/>
-<area href="classSourceNode.html" alt="SourceNode" shape="rect" coords="125,560,240,584"/>
+<area href="classMerger.html" title="Allows the user to merge two signal chains." alt="Merger" shape="rect" coords="125,336,240,360"/>
+<area href="classRecordNode.html" title="Receives inputs from all processors that want to save their data." alt="RecordNode" shape="rect" coords="125,392,240,416"/>
+<area href="classResamplingNode.html" title="&ndash;UNDER CONSTRUCTION&ndash;" alt="ResamplingNode" shape="rect" coords="125,448,240,472"/>
+<area href="classSignalGenerator.html" title="Outputs synthesized data of one of 5 different waveform types." alt="SignalGenerator" shape="rect" coords="125,504,240,528"/>
+<area href="classSourceNode.html" title="Creates and controls a thread for reading data from external sources." alt="SourceNode" shape="rect" coords="125,560,240,584"/>
 <area href="classSpikeDetector.html" alt="SpikeDetector" shape="rect" coords="125,616,240,640"/>
 <area href="classSpikeDisplayNode.html" alt="SpikeDisplayNode" shape="rect" coords="125,672,240,696"/>
-<area href="classSplitter.html" alt="Splitter" shape="rect" coords="125,728,240,752"/>
+<area href="classSplitter.html" title="Allows the user to split the signal chain." alt="Splitter" shape="rect" coords="125,728,240,752"/>
 <area href="classWiFiOutput.html" alt="WiFiOutput" shape="rect" coords="125,784,240,808"/>
 </map>
  </div></div>
@@ -376,7 +377,7 @@ const String&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 20:47:56 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>
