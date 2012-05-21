@@ -59,7 +59,10 @@ MainWindow::MainWindow()
      addKeyListener(commandManager.getKeyMappings());
 
      loadWindowBounds();
+     setUsingNativeTitleBar (true);
+     Component::addToDesktop (getDesktopWindowStyleFlags()); 
      setVisible (true);
+    
 
 }
 

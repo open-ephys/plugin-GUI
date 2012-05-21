@@ -53,7 +53,7 @@ public:
     void initialise (const String& commandLine)
     {
         mainWindow = new MainWindow();
-        mainWindow->setUsingNativeTitleBar (true);
+       
 
         customLookAndFeel = new CustomLookAndFeel();
         LookAndFeel::setDefaultLookAndFeel(customLookAndFeel);
