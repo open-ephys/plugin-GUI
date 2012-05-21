@@ -390,7 +390,7 @@ void ProcessorList::mouseDownInCanvas(const MouseEvent& e)
 				options += (0 << 0); // showAlpha
 				options += (0 << 1); // showColorAtTop
 				options += (0 << 2); // showSliders
-				//options += (1 << 3); // showColourSpace
+				options += (1 << 3); // showColourSpace
 
 		        ColourSelector colourSelector(options);
 		        colourSelector.setName ("background");
@@ -398,7 +398,7 @@ void ProcessorList::mouseDownInCanvas(const MouseEvent& e)
 		        colourSelector.addChangeListener (this);
 		        colourSelector.addChangeListener (getProcessorGraph());
 		        colourSelector.setColour (ColourSelector::backgroundColourId, Colours::transparentBlack);
-		        colourSelector.setSize (300, 400);
+		        colourSelector.setSize (300, 275);
 
 		        CallOutBox callOut (colourSelector, *fli, 0);//*this, 0);
 		        callOut.setTopLeftPosition (e.getScreenX(), e.getScreenY());
