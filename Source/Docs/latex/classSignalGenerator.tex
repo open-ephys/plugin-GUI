@@ -1,0 +1,114 @@
+\hypertarget{classSignalGenerator}{\section{Signal\-Generator Class Reference}
+\label{classSignalGenerator}\index{Signal\-Generator@{Signal\-Generator}}
+}
+
+
+{\ttfamily \#include $<$Signal\-Generator.\-h$>$}
+
+Inheritance diagram for Signal\-Generator\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classSignalGenerator}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSignalGenerator_a86bf3bfff12cee52e76031bad0e6d7be}{void {\bfseries process} (Audio\-Sample\-Buffer \&buffer, Midi\-Buffer \&midi\-Messages, int \&n\-Samples)}\label{classSignalGenerator_a86bf3bfff12cee52e76031bad0e6d7be}
+
+\item 
+\hypertarget{classSignalGenerator_a988310f92a5493a81084bc674a16fa7b}{void {\bfseries set\-Parameter} (int parameter\-Index, float new\-Value)}\label{classSignalGenerator_a988310f92a5493a81084bc674a16fa7b}
+
+\item 
+\hypertarget{classSignalGenerator_aa1eaf3cbb3f0ba0cfd30a3bfb1640680}{float {\bfseries get\-Sample\-Rate} ()}\label{classSignalGenerator_aa1eaf3cbb3f0ba0cfd30a3bfb1640680}
+
+\item 
+\hypertarget{classSignalGenerator_a91924c5fb098363a4c8f4fd8270d5606}{Audio\-Processor\-Editor $\ast$ {\bfseries create\-Editor} ()}\label{classSignalGenerator_a91924c5fb098363a4c8f4fd8270d5606}
+
+\item 
+\hypertarget{classSignalGenerator_ae9967d5c19f63a30c317c7a262ffcb29}{bool {\bfseries has\-Editor} () const }\label{classSignalGenerator_ae9967d5c19f63a30c317c7a262ffcb29}
+
+\item 
+\hypertarget{classSignalGenerator_af22d1b1c3413686860b7b1c5a79030fc}{bool {\bfseries enable} ()}\label{classSignalGenerator_af22d1b1c3413686860b7b1c5a79030fc}
+
+\item 
+\hypertarget{classSignalGenerator_a748a502090ae4b04e2c4390410c3b737}{bool {\bfseries disable} ()}\label{classSignalGenerator_a748a502090ae4b04e2c4390410c3b737}
+
+\item 
+\hypertarget{classSignalGenerator_a461b122b1e4f19b577adb49c4c81e628}{bool {\bfseries is\-Source} ()}\label{classSignalGenerator_a461b122b1e4f19b577adb49c4c81e628}
+
+\item 
+\hypertarget{classSignalGenerator_ac35ec79d7494b49f7fd756e58a861d8f}{void {\bfseries update\-Settings} ()}\label{classSignalGenerator_ac35ec79d7494b49f7fd756e58a861d8f}
+
+\item 
+\hypertarget{classSignalGenerator_a35ea67882b0fe64389d61ef4a4112f6a}{int {\bfseries get\-Default\-Num\-Outputs} ()}\label{classSignalGenerator_a35ea67882b0fe64389d61ef4a4112f6a}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSignalGenerator_a62af0523f11ba4ad7ca44e9c8f42cf60}{int {\bfseries n\-Out}}\label{classSignalGenerator_a62af0523f11ba4ad7ca44e9c8f42cf60}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Types}
+\begin{DoxyCompactItemize}
+\item 
+enum {\bfseries wvfrm} \{ \\*
+{\bfseries T\-R\-I\-A\-N\-G\-L\-E}, 
+{\bfseries S\-I\-N\-E}, 
+{\bfseries S\-Q\-U\-A\-R\-E}, 
+{\bfseries S\-A\-W}, 
+\\*
+{\bfseries N\-O\-I\-S\-E}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSignalGenerator_a59740d579ce5c8517eb58bf9026a6dd3}{{\bfseries J\-U\-C\-E\-\_\-\-D\-E\-C\-L\-A\-R\-E\-\_\-\-N\-O\-N\-\_\-\-C\-O\-P\-Y\-A\-B\-L\-E\-\_\-\-W\-I\-T\-H\-\_\-\-L\-E\-A\-K\-\_\-\-D\-E\-T\-E\-C\-T\-O\-R} (\hyperlink{classSignalGenerator}{Signal\-Generator})}\label{classSignalGenerator_a59740d579ce5c8517eb58bf9026a6dd3}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSignalGenerator_a99f2b86b186147180c176586cbd217cd}{double {\bfseries default\-Frequency}}\label{classSignalGenerator_a99f2b86b186147180c176586cbd217cd}
+
+\item 
+\hypertarget{classSignalGenerator_adb7437b20ad94c87a8c6e8ca7f7f1e17}{double {\bfseries default\-Amplitude}}\label{classSignalGenerator_adb7437b20ad94c87a8c6e8ca7f7f1e17}
+
+\item 
+\hypertarget{classSignalGenerator_ab689b0db43d2cca457ad2b4f5cc06e62}{float {\bfseries sample\-Rate\-Ratio}}\label{classSignalGenerator_ab689b0db43d2cca457ad2b4f5cc06e62}
+
+\item 
+\hypertarget{classSignalGenerator_aea1e4c686d397deb8d9b9dc531fbac43}{Array$<$ int $>$ {\bfseries waveform\-Type}}\label{classSignalGenerator_aea1e4c686d397deb8d9b9dc531fbac43}
+
+\item 
+\hypertarget{classSignalGenerator_a47382f5d907635faf8303acb3eaca095}{Array$<$ double $>$ {\bfseries frequency}}\label{classSignalGenerator_a47382f5d907635faf8303acb3eaca095}
+
+\item 
+\hypertarget{classSignalGenerator_a9254969b56415ed531b98d4a1b9b956d}{Array$<$ double $>$ {\bfseries amplitude}}\label{classSignalGenerator_a9254969b56415ed531b98d4a1b9b956d}
+
+\item 
+\hypertarget{classSignalGenerator_ab9e8d7d1917c680a5a096a1cb9c20bb5}{Array$<$ double $>$ {\bfseries phase}}\label{classSignalGenerator_ab9e8d7d1917c680a5a096a1cb9c20bb5}
+
+\item 
+\hypertarget{classSignalGenerator_a288b97f9277a0961d43e9c126ea41b39}{Array$<$ double $>$ {\bfseries phase\-Per\-Sample}}\label{classSignalGenerator_a288b97f9277a0961d43e9c126ea41b39}
+
+\item 
+\hypertarget{classSignalGenerator_a70e172f8dd38cee5f73564c013bf93b6}{Array$<$ double $>$ {\bfseries current\-Phase}}\label{classSignalGenerator_a70e172f8dd38cee5f73564c013bf93b6}
+
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+Outputs synthesized data of one of 5 different waveform types.
+
+\begin{DoxySeeAlso}{See also}
+\hyperlink{classGenericProcessor}{Generic\-Processor}, \hyperlink{classSignalGeneratorEditor}{Signal\-Generator\-Editor} 
+\end{DoxySeeAlso}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+Processors/Signal\-Generator.\-h\end{DoxyCompactItemize}

@@ -1,0 +1,118 @@
+\hypertarget{classResamplingNode}{\section{Resampling\-Node Class Reference}
+\label{classResamplingNode}\index{Resampling\-Node@{Resampling\-Node}}
+}
+
+
+{\ttfamily \#include $<$Resampling\-Node.\-h$>$}
+
+Inheritance diagram for Resampling\-Node\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classResamplingNode}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classResamplingNode_acd5711ddad27cdd6155e53b180d5b387}{{\bfseries Resampling\-Node} (bool dest\-Buffer\-Is\-Temp\-Buffer)}\label{classResamplingNode_acd5711ddad27cdd6155e53b180d5b387}
+
+\item 
+\hypertarget{classResamplingNode_a02443ca9ed779e974ff222cfa0d4bbdd}{Audio\-Sample\-Buffer $\ast$ {\bfseries get\-Buffer\-Address} ()}\label{classResamplingNode_a02443ca9ed779e974ff222cfa0d4bbdd}
+
+\item 
+\hypertarget{classResamplingNode_afe65c4c590a9d2839982e3d9c1dbdbca}{void {\bfseries update\-Filter} ()}\label{classResamplingNode_afe65c4c590a9d2839982e3d9c1dbdbca}
+
+\item 
+\hypertarget{classResamplingNode_ad20396badb3000d315392d059846c803}{void {\bfseries prepare\-To\-Play} (double sample\-Rate, int estimated\-Samples\-Per\-Block)}\label{classResamplingNode_ad20396badb3000d315392d059846c803}
+
+\item 
+\hypertarget{classResamplingNode_af1298a6340299392d6e5503a29dca423}{void {\bfseries release\-Resources} ()}\label{classResamplingNode_af1298a6340299392d6e5503a29dca423}
+
+\item 
+\hypertarget{classResamplingNode_aad4c79707b095fa925c33ccaa208b576}{void {\bfseries process} (Audio\-Sample\-Buffer \&buffer, Midi\-Buffer \&midi\-Messages, int \&n\-Samples)}\label{classResamplingNode_aad4c79707b095fa925c33ccaa208b576}
+
+\item 
+\hypertarget{classResamplingNode_a52b642ff6993476725a1f38bfde2abff}{void {\bfseries set\-Parameter} (int parameter\-Index, float new\-Value)}\label{classResamplingNode_a52b642ff6993476725a1f38bfde2abff}
+
+\item 
+\hypertarget{classResamplingNode_a897e78c484e825a5809033d241a41d63}{Audio\-Sample\-Buffer $\ast$ {\bfseries get\-Continuous\-Buffer} ()}\label{classResamplingNode_a897e78c484e825a5809033d241a41d63}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classResamplingNode_a83436544ad2834b542f804dd5885373f}{void {\bfseries write\-Continuous\-Buffer} (float $\ast$, int, int)}\label{classResamplingNode_a83436544ad2834b542f804dd5885373f}
+
+\item 
+\hypertarget{classResamplingNode_a26703f2abf9ffc9cf6a878118e3445cf}{{\bfseries J\-U\-C\-E\-\_\-\-D\-E\-C\-L\-A\-R\-E\-\_\-\-N\-O\-N\-\_\-\-C\-O\-P\-Y\-A\-B\-L\-E\-\_\-\-W\-I\-T\-H\-\_\-\-L\-E\-A\-K\-\_\-\-D\-E\-T\-E\-C\-T\-O\-R} (\hyperlink{classResamplingNode}{Resampling\-Node})}\label{classResamplingNode_a26703f2abf9ffc9cf6a878118e3445cf}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classResamplingNode_aa7f05e66d2921ccbacf1cabcca4a4651}{double {\bfseries source\-Buffer\-Sample\-Rate}}\label{classResamplingNode_aa7f05e66d2921ccbacf1cabcca4a4651}
+
+\item 
+\hypertarget{classResamplingNode_a67cd9e26669a6bf8106d3c04d139ddb3}{double {\bfseries dest\-Buffer\-Sample\-Rate}}\label{classResamplingNode_a67cd9e26669a6bf8106d3c04d139ddb3}
+
+\item 
+\hypertarget{classResamplingNode_a5fa83e04825b666f7d235daa51d7e957}{double {\bfseries ratio}}\label{classResamplingNode_a5fa83e04825b666f7d235daa51d7e957}
+
+\item 
+\hypertarget{classResamplingNode_a913ecb94e7f645956509b4596fb5bb48}{double {\bfseries last\-Ratio}}\label{classResamplingNode_a913ecb94e7f645956509b4596fb5bb48}
+
+\item 
+\hypertarget{classResamplingNode_a636ee58c8031d2dc4f54d39e22733cbe}{double {\bfseries dest\-Buffer\-Timebase\-Secs}}\label{classResamplingNode_a636ee58c8031d2dc4f54d39e22733cbe}
+
+\item 
+\hypertarget{classResamplingNode_aba52166a272e55c3ecac9b04def5f9f9}{int {\bfseries dest\-Buffer\-Width}}\label{classResamplingNode_aba52166a272e55c3ecac9b04def5f9f9}
+
+\item 
+\hypertarget{classResamplingNode_a277d1f3135f2990a337db2361ea0136d}{Dsp\-::\-Filter $\ast$ {\bfseries filter}}\label{classResamplingNode_a277d1f3135f2990a337db2361ea0136d}
+
+\item 
+\hypertarget{classResamplingNode_a6f839a4ec227047b673b7fd3693e4a37}{Audio\-Sample\-Buffer $\ast$ {\bfseries dest\-Buffer}}\label{classResamplingNode_a6f839a4ec227047b673b7fd3693e4a37}
+
+\item 
+\hypertarget{classResamplingNode_ac3c65285bdbbe5f9d939322345bdce9c}{Audio\-Sample\-Buffer $\ast$ {\bfseries temp\-Buffer}}\label{classResamplingNode_ac3c65285bdbbe5f9d939322345bdce9c}
+
+\item 
+\hypertarget{classResamplingNode_ae4abec313401261b728017a8906b30ad}{bool {\bfseries dest\-Buffer\-Is\-Temp\-Buffer}}\label{classResamplingNode_ae4abec313401261b728017a8906b30ad}
+
+\item 
+\hypertarget{classResamplingNode_a2b59f3115c928b57d13d07278a529557}{bool {\bfseries is\-Transmitting}}\label{classResamplingNode_a2b59f3115c928b57d13d07278a529557}
+
+\item 
+\hypertarget{classResamplingNode_ad1e104d2967a8192cf32c0100d0a9973}{int {\bfseries dest\-Buffer\-Pos}}\label{classResamplingNode_ad1e104d2967a8192cf32c0100d0a9973}
+
+\item 
+\hypertarget{classResamplingNode_a826f8f43016e44c1ef9d1de590f2fa87}{F\-I\-L\-E $\ast$ {\bfseries file}}\label{classResamplingNode_a826f8f43016e44c1ef9d1de590f2fa87}
+
+\item 
+\hypertarget{classResamplingNode_a639bf4cd47488ab90226f396a90a7620}{int64 {\bfseries timestamp}}\label{classResamplingNode_a639bf4cd47488ab90226f396a90a7620}
+
+\item 
+\hypertarget{classResamplingNode_a5d37e35ee5f83c4d9a2c3d582071f72c}{Time {\bfseries timer}}\label{classResamplingNode_a5d37e35ee5f83c4d9a2c3d582071f72c}
+
+\item 
+\hypertarget{classResamplingNode_abfc9d5a8d0cbfa093fbb35a8e24d574c}{int16 $\ast$ {\bfseries continuous\-Data\-Buffer}}\label{classResamplingNode_abfc9d5a8d0cbfa093fbb35a8e24d574c}
+
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+--U\-N\-D\-E\-R C\-O\-N\-S\-T\-R\-U\-C\-T\-I\-O\-N--
+
+Changes the sample rate of continuous data.
+
+Code is based on Juce's Resampling\-Audio\-Source class.
+
+\begin{DoxySeeAlso}{See also}
+\hyperlink{classGenericProcessor}{Generic\-Processor} 
+\end{DoxySeeAlso}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+Processors/Resampling\-Node.\-h\end{DoxyCompactItemize}

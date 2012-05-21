@@ -1,0 +1,279 @@
+\hypertarget{classSpikeDetector}{\section{Spike\-Detector Class Reference}
+\label{classSpikeDetector}\index{Spike\-Detector@{Spike\-Detector}}
+}
+Inheritance diagram for Spike\-Detector\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classSpikeDetector}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structSpikeDetector_1_1Electrode}{Electrode}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classSpikeDetector_a3e3101762b27b1df8be6e8fd1a0bca22}{Spike\-Detector} ()
+\item 
+\hyperlink{classSpikeDetector_a1cd55b8cabe87b211d7f077ea3003a65}{$\sim$\-Spike\-Detector} ()
+\item 
+void \hyperlink{classSpikeDetector_a9ba352094475b7be33ca36ae918492d1}{process} (Audio\-Sample\-Buffer \&buffer, Midi\-Buffer \&events, int \&n\-Samples)
+\item 
+void \hyperlink{classSpikeDetector_a679f5e087dfb959d61f3dd9cdf364cf2}{set\-Parameter} (int parameter\-Index, float new\-Value)
+\item 
+void \hyperlink{classSpikeDetector_a3c764b20638e3cd2245cab442ce434ca}{update\-Settings} ()
+\item 
+bool \hyperlink{classSpikeDetector_a50b98fa352359b8dec78b21356c9acbb}{enable} ()
+\item 
+bool \hyperlink{classSpikeDetector_aeaaac10f4059ee1cdabcff58d24b5f52}{disable} ()
+\item 
+Audio\-Processor\-Editor $\ast$ \hyperlink{classSpikeDetector_af96da67cfafdba1e59b7eb88b3ed0de6}{create\-Editor} ()
+\item 
+bool \hyperlink{classSpikeDetector_a59b4ac520a1831ecd5e02df4a58e6735}{add\-Electrode} (int n\-Chans)
+\item 
+bool \hyperlink{classSpikeDetector_ae05d17ef7b8706a370d4d7e049cec877}{remove\-Electrode} (int index)
+\item 
+int \hyperlink{classSpikeDetector_a2e5115a6d0508a3476601856eab7ebbe}{get\-Num\-Channels} (int index)
+\item 
+bool \hyperlink{classSpikeDetector_a44be956ab12ff6a6d69ad90dd732ad51}{set\-Channel} (int electrode\-Index, int channel\-Num, int new\-Channel)
+\item 
+int \hyperlink{classSpikeDetector_ad43da7a9241a36b6d04c99c6821752d9}{get\-Channel} (int index, int chan)
+\item 
+bool \hyperlink{classSpikeDetector_a41023a894e0d32db949a823b469eb4d6}{set\-Electrode\-Name} (int index, String new\-Name)
+\item 
+String\-Array \hyperlink{classSpikeDetector_a6acb52a82fec95ad7b44cf2584fcdc0d}{get\-Electrode\-Names} ()
+\item 
+\hypertarget{classSpikeDetector_a6fc7b97799e3c1d6d4841d489b8bc854}{void {\bfseries set\-Channel\-Threshold} (int electrode\-Num, int channel\-Num, float threshold)}\label{classSpikeDetector_a6fc7b97799e3c1d6d4841d489b8bc854}
+
+\item 
+\hypertarget{classSpikeDetector_aa00bc3a6b29da73fdc75517579289b13}{double {\bfseries get\-Channel\-Threshold} (int electrode\-Num, int channel\-Num)}\label{classSpikeDetector_aa00bc3a6b29da73fdc75517579289b13}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+Audio\-Sample\-Buffer \hyperlink{classSpikeDetector_a789328f70cc6f1de8f0b862189ce23bd}{overflow\-Buffer}
+\item 
+Audio\-Sample\-Buffer \& \hyperlink{classSpikeDetector_a050b87d647b7d12dd76e6e4fde9f932f}{data\-Buffer}
+\item 
+String\-Array \hyperlink{classSpikeDetector_a23eaf5359b4d13f75a16a28190014619}{electrode\-Types}
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSpikeDetector_a7c562f7bf7f40e605a5e157ee1e7cdcd}{float {\bfseries get\-Default\-Threshold} ()}\label{classSpikeDetector_a7c562f7bf7f40e605a5e157ee1e7cdcd}
+
+\item 
+\hypertarget{classSpikeDetector_aada970694c2dfca0f446efade94f7c86}{float {\bfseries get\-Next\-Sample} (int \&chan)}\label{classSpikeDetector_aada970694c2dfca0f446efade94f7c86}
+
+\item 
+\hypertarget{classSpikeDetector_af2792d58c9cf0685b082b055df685761}{float {\bfseries get\-Current\-Sample} (int \&chan)}\label{classSpikeDetector_af2792d58c9cf0685b082b055df685761}
+
+\item 
+\hypertarget{classSpikeDetector_adcc1f42731e9b6b48ab089a07dde86f3}{bool {\bfseries samples\-Available} (int \&n\-Samples)}\label{classSpikeDetector_adcc1f42731e9b6b48ab089a07dde86f3}
+
+\item 
+\hypertarget{classSpikeDetector_a209554bc3445b84c9c8bad5301385da8}{void {\bfseries add\-Spike\-Event} (\hyperlink{structSpikeObject}{Spike\-Object} $\ast$s, Midi\-Buffer \&event\-Buffer, int peak\-Index)}\label{classSpikeDetector_a209554bc3445b84c9c8bad5301385da8}
+
+\item 
+\hypertarget{classSpikeDetector_aad6ba0205c76fec7aa84769937e24ef9}{void {\bfseries add\-Waveform\-To\-Spike\-Object} (\hyperlink{structSpikeObject}{Spike\-Object} $\ast$s, int \&peak\-Index, int \&electrode\-Number, int \&current\-Channel)}\label{classSpikeDetector_aad6ba0205c76fec7aa84769937e24ef9}
+
+\item 
+\hypertarget{classSpikeDetector_a779cd2ac50c56febd836d9aaddbdcd5a}{void {\bfseries reset\-Electrode} (\hyperlink{structSpikeDetector_1_1Electrode}{Electrode} $\ast$)}\label{classSpikeDetector_a779cd2ac50c56febd836d9aaddbdcd5a}
+
+\item 
+\hypertarget{classSpikeDetector_a8fb28af27a5b3b47d69faacec0f73c41}{{\bfseries J\-U\-C\-E\-\_\-\-D\-E\-C\-L\-A\-R\-E\-\_\-\-N\-O\-N\-\_\-\-C\-O\-P\-Y\-A\-B\-L\-E\-\_\-\-W\-I\-T\-H\-\_\-\-L\-E\-A\-K\-\_\-\-D\-E\-T\-E\-C\-T\-O\-R} (\hyperlink{classSpikeDetector}{Spike\-Detector})}\label{classSpikeDetector_a8fb28af27a5b3b47d69faacec0f73c41}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSpikeDetector_a9bb9fe494706442edbe6f95556c92230}{int {\bfseries overflow\-Buffer\-Size}}\label{classSpikeDetector_a9bb9fe494706442edbe6f95556c92230}
+
+\item 
+\hypertarget{classSpikeDetector_a744815ecabf7d3dff9c654a57ee11259}{int {\bfseries sample\-Index}}\label{classSpikeDetector_a744815ecabf7d3dff9c654a57ee11259}
+
+\item 
+\hypertarget{classSpikeDetector_a45c1e8ff8c6a8c5f531ca496e41009a9}{Array$<$ int $>$ {\bfseries electrode\-Counter}}\label{classSpikeDetector_a45c1e8ff8c6a8c5f531ca496e41009a9}
+
+\item 
+\hypertarget{classSpikeDetector_ab718028e4e8bc0d4fa094d84c38bb50b}{bool {\bfseries use\-Overflow\-Buffer}}\label{classSpikeDetector_ab718028e4e8bc0d4fa094d84c38bb50b}
+
+\item 
+\hypertarget{classSpikeDetector_ab0519461dcd76c40bbfc535ebaeb17cf}{int {\bfseries current\-Electrode}}\label{classSpikeDetector_ab0519461dcd76c40bbfc535ebaeb17cf}
+
+\item 
+\hypertarget{classSpikeDetector_a0deaa79b22ff4b1516961ee8c1806883}{int {\bfseries current\-Channel\-Index}}\label{classSpikeDetector_a0deaa79b22ff4b1516961ee8c1806883}
+
+\item 
+\hypertarget{classSpikeDetector_a06af1d21348b9a71f22b59f36e5c013c}{int {\bfseries current\-Index}}\label{classSpikeDetector_a06af1d21348b9a71f22b59f36e5c013c}
+
+\item 
+\hypertarget{classSpikeDetector_a89bb86011a66eebed04fbb48f62768e8}{uint8\-\_\-t $\ast$ {\bfseries spike\-Buffer}}\label{classSpikeDetector_a89bb86011a66eebed04fbb48f62768e8}
+
+\item 
+\hypertarget{classSpikeDetector_a40e46503e06199b8366f2f02c064f388}{Array$<$ \hyperlink{structSpikeDetector_1_1Electrode}{Electrode} $\ast$ $>$ \hyperlink{classSpikeDetector_a40e46503e06199b8366f2f02c064f388}{electrodes}}\label{classSpikeDetector_a40e46503e06199b8366f2f02c064f388}
+
+\begin{DoxyCompactList}\small\item\em \mbox{[}256\mbox{]}; \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classSpikeDetector_a3e3101762b27b1df8be6e8fd1a0bca22}{\index{Spike\-Detector@{Spike\-Detector}!Spike\-Detector@{Spike\-Detector}}
+\index{Spike\-Detector@{Spike\-Detector}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{Spike\-Detector}]{\setlength{\rightskip}{0pt plus 5cm}Spike\-Detector\-::\-Spike\-Detector (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classSpikeDetector_a3e3101762b27b1df8be6e8fd1a0bca22}
+constructor \hypertarget{classSpikeDetector_a1cd55b8cabe87b211d7f077ea3003a65}{\index{Spike\-Detector@{Spike\-Detector}!$\sim$\-Spike\-Detector@{$\sim$\-Spike\-Detector}}
+\index{$\sim$\-Spike\-Detector@{$\sim$\-Spike\-Detector}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{$\sim$\-Spike\-Detector}]{\setlength{\rightskip}{0pt plus 5cm}Spike\-Detector\-::$\sim$\-Spike\-Detector (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classSpikeDetector_a1cd55b8cabe87b211d7f077ea3003a65}
+destructor 
+
+\subsection{Member Function Documentation}
+\hypertarget{classSpikeDetector_a59b4ac520a1831ecd5e02df4a58e6735}{\index{Spike\-Detector@{Spike\-Detector}!add\-Electrode@{add\-Electrode}}
+\index{add\-Electrode@{add\-Electrode}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{add\-Electrode}]{\setlength{\rightskip}{0pt plus 5cm}bool Spike\-Detector\-::add\-Electrode (
+\begin{DoxyParamCaption}
+\item[{int}]{n\-Chans}
+\end{DoxyParamCaption}
+)}}\label{classSpikeDetector_a59b4ac520a1831ecd5e02df4a58e6735}
+Adds an electrode with n channels to be processed. \hypertarget{classSpikeDetector_af96da67cfafdba1e59b7eb88b3ed0de6}{\index{Spike\-Detector@{Spike\-Detector}!create\-Editor@{create\-Editor}}
+\index{create\-Editor@{create\-Editor}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{create\-Editor}]{\setlength{\rightskip}{0pt plus 5cm}Audio\-Processor\-Editor$\ast$ Spike\-Detector\-::create\-Editor (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classSpikeDetector_af96da67cfafdba1e59b7eb88b3ed0de6}
+Creates the \hyperlink{classSpikeDetectorEditor}{Spike\-Detector\-Editor}. 
+
+Reimplemented from \hyperlink{classGenericProcessor}{Generic\-Processor}.
+
+\hypertarget{classSpikeDetector_aeaaac10f4059ee1cdabcff58d24b5f52}{\index{Spike\-Detector@{Spike\-Detector}!disable@{disable}}
+\index{disable@{disable}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{disable}]{\setlength{\rightskip}{0pt plus 5cm}bool Spike\-Detector\-::disable (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classSpikeDetector_aeaaac10f4059ee1cdabcff58d24b5f52}
+Called after acquisition is finished. 
+
+Reimplemented from \hyperlink{classGenericProcessor}{Generic\-Processor}.
+
+\hypertarget{classSpikeDetector_a50b98fa352359b8dec78b21356c9acbb}{\index{Spike\-Detector@{Spike\-Detector}!enable@{enable}}
+\index{enable@{enable}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{enable}]{\setlength{\rightskip}{0pt plus 5cm}bool Spike\-Detector\-::enable (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classSpikeDetector_a50b98fa352359b8dec78b21356c9acbb}
+Called prior to start of acquisition. 
+
+Reimplemented from \hyperlink{classGenericProcessor}{Generic\-Processor}.
+
+\hypertarget{classSpikeDetector_ad43da7a9241a36b6d04c99c6821752d9}{\index{Spike\-Detector@{Spike\-Detector}!get\-Channel@{get\-Channel}}
+\index{get\-Channel@{get\-Channel}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{get\-Channel}]{\setlength{\rightskip}{0pt plus 5cm}int Spike\-Detector\-::get\-Channel (
+\begin{DoxyParamCaption}
+\item[{int}]{index, }
+\item[{int}]{chan}
+\end{DoxyParamCaption}
+)}}\label{classSpikeDetector_ad43da7a9241a36b6d04c99c6821752d9}
+Returns the continuous channel that maps to a given electrode channel. \hypertarget{classSpikeDetector_a6acb52a82fec95ad7b44cf2584fcdc0d}{\index{Spike\-Detector@{Spike\-Detector}!get\-Electrode\-Names@{get\-Electrode\-Names}}
+\index{get\-Electrode\-Names@{get\-Electrode\-Names}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{get\-Electrode\-Names}]{\setlength{\rightskip}{0pt plus 5cm}String\-Array Spike\-Detector\-::get\-Electrode\-Names (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classSpikeDetector_a6acb52a82fec95ad7b44cf2584fcdc0d}
+Returns a String\-Array containing the names of all electrodes \hypertarget{classSpikeDetector_a2e5115a6d0508a3476601856eab7ebbe}{\index{Spike\-Detector@{Spike\-Detector}!get\-Num\-Channels@{get\-Num\-Channels}}
+\index{get\-Num\-Channels@{get\-Num\-Channels}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{get\-Num\-Channels}]{\setlength{\rightskip}{0pt plus 5cm}int Spike\-Detector\-::get\-Num\-Channels (
+\begin{DoxyParamCaption}
+\item[{int}]{index}
+\end{DoxyParamCaption}
+)}}\label{classSpikeDetector_a2e5115a6d0508a3476601856eab7ebbe}
+Returns the number of channels for a given electrode. \hypertarget{classSpikeDetector_a9ba352094475b7be33ca36ae918492d1}{\index{Spike\-Detector@{Spike\-Detector}!process@{process}}
+\index{process@{process}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{process}]{\setlength{\rightskip}{0pt plus 5cm}void Spike\-Detector\-::process (
+\begin{DoxyParamCaption}
+\item[{Audio\-Sample\-Buffer \&}]{buffer, }
+\item[{Midi\-Buffer \&}]{events, }
+\item[{int \&}]{n\-Samples}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classSpikeDetector_a9ba352094475b7be33ca36ae918492d1}
+Processes an incoming continuous buffer and places new spikes into the event buffer. 
+
+Implements \hyperlink{classGenericProcessor}{Generic\-Processor}.
+
+\hypertarget{classSpikeDetector_ae05d17ef7b8706a370d4d7e049cec877}{\index{Spike\-Detector@{Spike\-Detector}!remove\-Electrode@{remove\-Electrode}}
+\index{remove\-Electrode@{remove\-Electrode}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{remove\-Electrode}]{\setlength{\rightskip}{0pt plus 5cm}bool Spike\-Detector\-::remove\-Electrode (
+\begin{DoxyParamCaption}
+\item[{int}]{index}
+\end{DoxyParamCaption}
+)}}\label{classSpikeDetector_ae05d17ef7b8706a370d4d7e049cec877}
+Removes an electrode with a given index. \hypertarget{classSpikeDetector_a44be956ab12ff6a6d69ad90dd732ad51}{\index{Spike\-Detector@{Spike\-Detector}!set\-Channel@{set\-Channel}}
+\index{set\-Channel@{set\-Channel}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{set\-Channel}]{\setlength{\rightskip}{0pt plus 5cm}bool Spike\-Detector\-::set\-Channel (
+\begin{DoxyParamCaption}
+\item[{int}]{electrode\-Index, }
+\item[{int}]{channel\-Num, }
+\item[{int}]{new\-Channel}
+\end{DoxyParamCaption}
+)}}\label{classSpikeDetector_a44be956ab12ff6a6d69ad90dd732ad51}
+Edits the mapping between input channels and electrode channels. \hypertarget{classSpikeDetector_a41023a894e0d32db949a823b469eb4d6}{\index{Spike\-Detector@{Spike\-Detector}!set\-Electrode\-Name@{set\-Electrode\-Name}}
+\index{set\-Electrode\-Name@{set\-Electrode\-Name}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{set\-Electrode\-Name}]{\setlength{\rightskip}{0pt plus 5cm}bool Spike\-Detector\-::set\-Electrode\-Name (
+\begin{DoxyParamCaption}
+\item[{int}]{index, }
+\item[{String}]{new\-Name}
+\end{DoxyParamCaption}
+)}}\label{classSpikeDetector_a41023a894e0d32db949a823b469eb4d6}
+Sets the name of a given electrode. \hypertarget{classSpikeDetector_a679f5e087dfb959d61f3dd9cdf364cf2}{\index{Spike\-Detector@{Spike\-Detector}!set\-Parameter@{set\-Parameter}}
+\index{set\-Parameter@{set\-Parameter}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{set\-Parameter}]{\setlength{\rightskip}{0pt plus 5cm}void Spike\-Detector\-::set\-Parameter (
+\begin{DoxyParamCaption}
+\item[{int}]{parameter\-Index, }
+\item[{float}]{new\-Value}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classSpikeDetector_a679f5e087dfb959d61f3dd9cdf364cf2}
+Used to alter parameters of data acquisition. 
+
+Reimplemented from \hyperlink{classGenericProcessor}{Generic\-Processor}.
+
+\hypertarget{classSpikeDetector_a3c764b20638e3cd2245cab442ce434ca}{\index{Spike\-Detector@{Spike\-Detector}!update\-Settings@{update\-Settings}}
+\index{update\-Settings@{update\-Settings}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{update\-Settings}]{\setlength{\rightskip}{0pt plus 5cm}void Spike\-Detector\-::update\-Settings (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classSpikeDetector_a3c764b20638e3cd2245cab442ce434ca}
+Called whenever the signal chain is altered. 
+
+Reimplemented from \hyperlink{classGenericProcessor}{Generic\-Processor}.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classSpikeDetector_a050b87d647b7d12dd76e6e4fde9f932f}{\index{Spike\-Detector@{Spike\-Detector}!data\-Buffer@{data\-Buffer}}
+\index{data\-Buffer@{data\-Buffer}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{data\-Buffer}]{\setlength{\rightskip}{0pt plus 5cm}Audio\-Sample\-Buffer\& Spike\-Detector\-::data\-Buffer}}\label{classSpikeDetector_a050b87d647b7d12dd76e6e4fde9f932f}
+Reference to a continuous buffer (for internal use only). \hypertarget{classSpikeDetector_a23eaf5359b4d13f75a16a28190014619}{\index{Spike\-Detector@{Spike\-Detector}!electrode\-Types@{electrode\-Types}}
+\index{electrode\-Types@{electrode\-Types}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{electrode\-Types}]{\setlength{\rightskip}{0pt plus 5cm}String\-Array Spike\-Detector\-::electrode\-Types}}\label{classSpikeDetector_a23eaf5359b4d13f75a16a28190014619}
+Returns a list of possible electrode types (e.\-g., stereotrode, tetrode). \hypertarget{classSpikeDetector_a789328f70cc6f1de8f0b862189ce23bd}{\index{Spike\-Detector@{Spike\-Detector}!overflow\-Buffer@{overflow\-Buffer}}
+\index{overflow\-Buffer@{overflow\-Buffer}!SpikeDetector@{Spike\-Detector}}
+\subsubsection[{overflow\-Buffer}]{\setlength{\rightskip}{0pt plus 5cm}Audio\-Sample\-Buffer Spike\-Detector\-::overflow\-Buffer}}\label{classSpikeDetector_a789328f70cc6f1de8f0b862189ce23bd}
+Extra samples are placed in this buffer to allow seamless transitions between callbacks. 
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+Processors/Spike\-Detector.\-h\end{DoxyCompactItemize}

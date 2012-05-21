@@ -1,0 +1,140 @@
+\hypertarget{classDsp_1_1ParamInfo}{\section{Dsp\-:\-:Param\-Info Class Reference}
+\label{classDsp_1_1ParamInfo}\index{Dsp\-::\-Param\-Info@{Dsp\-::\-Param\-Info}}
+}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classDsp_1_1ParamInfo_ad8db2a15c0f661552d7a72139934459c}{typedef double(Param\-Info\-::$\ast$ {\bfseries to\-Control\-Value\-\_\-t} )(double) const }\label{classDsp_1_1ParamInfo_ad8db2a15c0f661552d7a72139934459c}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_af63f46674a70a3bcc763331faf53c1bd}{typedef double(Param\-Info\-::$\ast$ {\bfseries to\-Native\-Value\-\_\-t} )(double) const }\label{classDsp_1_1ParamInfo_af63f46674a70a3bcc763331faf53c1bd}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_aae48d9a4cce89b7e0f733df9b7f7bd05}{typedef std\-::string(Param\-Info\-::$\ast$ {\bfseries to\-String\-\_\-t} )(double) const }\label{classDsp_1_1ParamInfo_aae48d9a4cce89b7e0f733df9b7f7bd05}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classDsp_1_1ParamInfo_ad7ff3963d5b5704319e3fa8e994084d5}{{\bfseries Param\-Info} (Param\-I\-D id, const char $\ast$sz\-Label, const char $\ast$sz\-Name, double arg1, double arg2, double default\-Native\-Value, to\-Control\-Value\-\_\-t to\-Control\-Value\-\_\-proc, to\-Native\-Value\-\_\-t to\-Native\-Value\-\_\-proc, to\-String\-\_\-t to\-String\-\_\-proc)}\label{classDsp_1_1ParamInfo_ad7ff3963d5b5704319e3fa8e994084d5}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a15fe177fadc6dae7fd462ddc26392438}{Param\-I\-D {\bfseries get\-Id} () const }\label{classDsp_1_1ParamInfo_a15fe177fadc6dae7fd462ddc26392438}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_ac030672041b9f8a3fdea4f2a8fa5a2b1}{const char $\ast$ {\bfseries get\-Label} () const }\label{classDsp_1_1ParamInfo_ac030672041b9f8a3fdea4f2a8fa5a2b1}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a21ed7591e423e56fdcf2469975bfc785}{const char $\ast$ {\bfseries get\-Name} () const }\label{classDsp_1_1ParamInfo_a21ed7591e423e56fdcf2469975bfc785}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a90c137bfc25bffc065405d1ce9a42cea}{double {\bfseries get\-Default\-Value} () const }\label{classDsp_1_1ParamInfo_a90c137bfc25bffc065405d1ce9a42cea}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a058eaf3a352ed931fb71f0a62e923d12}{double {\bfseries to\-Control\-Value} (double native\-Value) const }\label{classDsp_1_1ParamInfo_a058eaf3a352ed931fb71f0a62e923d12}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a60ebabb3867b8f6af22a1b184bee2070}{double {\bfseries to\-Native\-Value} (double control\-Value) const }\label{classDsp_1_1ParamInfo_a60ebabb3867b8f6af22a1b184bee2070}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a9999624b99355d32b343417ada5e8a76}{std\-::string {\bfseries to\-String} (double native\-Value) const }\label{classDsp_1_1ParamInfo_a9999624b99355d32b343417ada5e8a76}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a43874a484e70b9702b44f883140302fa}{double {\bfseries clamp} (double native\-Value) const }\label{classDsp_1_1ParamInfo_a43874a484e70b9702b44f883140302fa}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_ac71e99751758d05bb46eb64cd67f89e1}{double {\bfseries Int\-\_\-to\-Control\-Value} (double native\-Value) const }\label{classDsp_1_1ParamInfo_ac71e99751758d05bb46eb64cd67f89e1}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_adb0cad27a39c38fcf2c1d76aed574a69}{double {\bfseries Int\-\_\-to\-Native\-Value} (double control\-Value) const }\label{classDsp_1_1ParamInfo_adb0cad27a39c38fcf2c1d76aed574a69}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_afbd0782a3efe5f1dcbf38b74e56a5ab3}{double {\bfseries Real\-\_\-to\-Control\-Value} (double native\-Value) const }\label{classDsp_1_1ParamInfo_afbd0782a3efe5f1dcbf38b74e56a5ab3}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a5515b2987a664f0794c1d1f1d05f2884}{double {\bfseries Real\-\_\-to\-Native\-Value} (double control\-Value) const }\label{classDsp_1_1ParamInfo_a5515b2987a664f0794c1d1f1d05f2884}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a4a497f48b2dda61287150ff51c8783fc}{double {\bfseries Log\-\_\-to\-Control\-Value} (double native\-Value) const }\label{classDsp_1_1ParamInfo_a4a497f48b2dda61287150ff51c8783fc}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_ab5267cc6ee496faa5eedd56117ce32c6}{double {\bfseries Log\-\_\-to\-Native\-Value} (double control\-Value) const }\label{classDsp_1_1ParamInfo_ab5267cc6ee496faa5eedd56117ce32c6}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_aa18713600936045f2a19d18979df1e2a}{double {\bfseries Pow2\-\_\-to\-Control\-Value} (double native\-Value) const }\label{classDsp_1_1ParamInfo_aa18713600936045f2a19d18979df1e2a}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a7e7d89915a7d3de802fcbe1cc7be735a}{double {\bfseries Pow2\-\_\-to\-Native\-Value} (double control\-Value) const }\label{classDsp_1_1ParamInfo_a7e7d89915a7d3de802fcbe1cc7be735a}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_af86599598baa839c444cd1ee19cdcba5}{std\-::string {\bfseries Int\-\_\-to\-String} (double native\-Value) const }\label{classDsp_1_1ParamInfo_af86599598baa839c444cd1ee19cdcba5}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_afe91f5a5008b8f03463970b713eac297}{std\-::string {\bfseries Hz\-\_\-to\-String} (double native\-Value) const }\label{classDsp_1_1ParamInfo_afe91f5a5008b8f03463970b713eac297}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a22452f15f3752eba505395bb2ac0db6b}{std\-::string {\bfseries Real\-\_\-to\-String} (double native\-Value) const }\label{classDsp_1_1ParamInfo_a22452f15f3752eba505395bb2ac0db6b}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a1f62c0ef8c1689355dfea7993c87c03c}{std\-::string {\bfseries Db\-\_\-to\-String} (double native\-Value) const }\label{classDsp_1_1ParamInfo_a1f62c0ef8c1689355dfea7993c87c03c}
+
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classDsp_1_1ParamInfo_ab0f41d6bf0777442a30d4f58e43cd5ec}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Sample\-Rate\-Param} ()}\label{classDsp_1_1ParamInfo_ab0f41d6bf0777442a30d4f58e43cd5ec}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a21b5bbf4f22d8836aa4f097f9697de68}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Cutoff\-Frequency\-Param} ()}\label{classDsp_1_1ParamInfo_a21b5bbf4f22d8836aa4f097f9697de68}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a1d2399011a5f0b8025e5dcc4df7702d1}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Center\-Frequency\-Param} ()}\label{classDsp_1_1ParamInfo_a1d2399011a5f0b8025e5dcc4df7702d1}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a31a00a7dd7fc0d8e83f0685f71eb3f5c}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Q\-Param} ()}\label{classDsp_1_1ParamInfo_a31a00a7dd7fc0d8e83f0685f71eb3f5c}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a39bd04117d6f87a02344cd610dc9d0f5}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Bandwidth\-Param} ()}\label{classDsp_1_1ParamInfo_a39bd04117d6f87a02344cd610dc9d0f5}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_abcf3cd3ce180caae4f950e798d7dc5dd}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Bandwidth\-Hz\-Param} ()}\label{classDsp_1_1ParamInfo_abcf3cd3ce180caae4f950e798d7dc5dd}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a5fc8f44da8efad6686547e3917f79a10}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Gain\-Param} ()}\label{classDsp_1_1ParamInfo_a5fc8f44da8efad6686547e3917f79a10}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a390747cacf72bd358768219b5597cf7d}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Slope\-Param} ()}\label{classDsp_1_1ParamInfo_a390747cacf72bd358768219b5597cf7d}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a6248d83092044674fcc9fa8d1397bf6d}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Ripple\-Db\-Param} ()}\label{classDsp_1_1ParamInfo_a6248d83092044674fcc9fa8d1397bf6d}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_af6ad2079480a4f7746dbed670a0450ec}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Stop\-Db\-Param} ()}\label{classDsp_1_1ParamInfo_af6ad2079480a4f7746dbed670a0450ec}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_ac69352aaf467c26c984448bbe3df588c}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Rolloff\-Param} ()}\label{classDsp_1_1ParamInfo_ac69352aaf467c26c984448bbe3df588c}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a0e8fb9840b361fdfca599486ba65ecdc}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Pole\-Rho\-Param} ()}\label{classDsp_1_1ParamInfo_a0e8fb9840b361fdfca599486ba65ecdc}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a80c6c04850eb4b3abae9fe7cb6f59a6e}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Pole\-Theta\-Param} ()}\label{classDsp_1_1ParamInfo_a80c6c04850eb4b3abae9fe7cb6f59a6e}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_aa2d3cca7cb61162b92b0668d03f7a73f}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Zero\-Rho\-Param} ()}\label{classDsp_1_1ParamInfo_aa2d3cca7cb61162b92b0668d03f7a73f}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a640de3ae4fb65a4f87662a2a8ae41439}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Zero\-Theta\-Param} ()}\label{classDsp_1_1ParamInfo_a640de3ae4fb65a4f87662a2a8ae41439}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a493551d486a78b17d18f881e66d52db4}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Pole\-Real\-Param} ()}\label{classDsp_1_1ParamInfo_a493551d486a78b17d18f881e66d52db4}
+
+\item 
+\hypertarget{classDsp_1_1ParamInfo_a49d0a913099554b4ef4696bf5766b6c6}{static \hyperlink{classDsp_1_1ParamInfo}{Param\-Info} {\bfseries default\-Zero\-Real\-Param} ()}\label{classDsp_1_1ParamInfo_a49d0a913099554b4ef4696bf5766b6c6}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+Dsp/Params.\-h\end{DoxyCompactItemize}
