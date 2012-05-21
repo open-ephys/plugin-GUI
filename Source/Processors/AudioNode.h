@@ -31,17 +31,15 @@
 #include "GenericProcessor.h"
 #include "Editors/AudioEditor.h"
 
+class AudioEditor;
+
 /**
-  
-  --NOT YET IMPLEMENTED--
 
   Selects which channels to send to the audio monitor. Controls output volume.
 
   @see GenericProcessor, AudioEditor
 
 */
-
-class AudioEditor;
 
 class AudioNode : public GenericProcessor
 {

@@ -28,20 +28,19 @@
 #include "../Processors/Editors/GenericEditor.h"
 #include "../AccessClass.h"
 
+class GenericEditor;
+class SignalChainTabButton;
+class EditorViewport;
 
 /**
   
-  Helper functions for editing the signal chain.
+  Provides helper functions for editing the signal chain.
 
   Created and owned by the EditorViewport.
 
   @see EditorViewport.
 
 */
-
-class GenericEditor;
-class SignalChainTabButton;
-class EditorViewport;
 
 class SignalChainManager : AccessClass
 {

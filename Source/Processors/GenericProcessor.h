@@ -33,6 +33,12 @@
 #include <time.h>
 #include <stdio.h>
 
+class EditorViewport;
+class DataViewport;
+class UIComponent;
+class GenericEditor;
+class Parameter;
+
 /**
   
   Abstract base class for creating processors.
@@ -46,12 +52,6 @@
   @see ProcessorGraph, GenericEditor, SourceNode, FilterNode, LfpDisplayNode
 
 */
-
-class EditorViewport;
-class DataViewport;
-class UIComponent;
-class GenericEditor;
-class Parameter;
 
 class GenericProcessor : public AudioProcessor,
 						 public AccessClass

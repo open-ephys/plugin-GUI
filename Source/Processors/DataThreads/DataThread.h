@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include "DataBuffer.h"
 
+class SourceNode;
+
 /**
 
   Abstract base class for a data input thread owned by the SourceNode.
@@ -35,10 +37,6 @@
   @see SourceNode
 
 */
-
-
-class SourceNode;
-
 
 class DataThread : public Thread
 {

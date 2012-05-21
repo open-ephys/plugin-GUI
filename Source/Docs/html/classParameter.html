@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,8 +82,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">Parameter Class Reference</div>  </div>
 </div><!--header-->
@@ -92,74 +91,452 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Class for holding user-definable processor parameters.  
  <a href="classParameter.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="Parameter_8h_source.html">Parameter.h</a>&gt;</code></p>
+<p><code>#include &lt;Parameter.h&gt;</code></p>
 
 <p><a href="classParameter-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a21c5d8266e270b1f23295eabbe35d37f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a21c5d8266e270b1f23295eabbe35d37f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Parameter</b> (const String &amp;name_, bool defaultVal, int ID)</td></tr>
-<tr class="memitem:a2ee8423ed28378b77eff4e69ebe31be1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2ee8423ed28378b77eff4e69ebe31be1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Parameter</b> (const String &amp;name_, float low, float high, float defaultVal, int ID)</td></tr>
-<tr class="memitem:a481767bd518c8c75459dc16580b19199"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a481767bd518c8c75459dc16580b19199"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Parameter</b> (const String &amp;name_, Array&lt; var &gt; a, int defaultVal, int ID)</td></tr>
-<tr class="memitem:a40dd77acd828bd3f50832548ec3b8cfd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a40dd77acd828bd3f50832548ec3b8cfd"></a>
-const String &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getName</b> ()</td></tr>
-<tr class="memitem:ad2a916413e8cf95f677a5f2e12ddb919"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad2a916413e8cf95f677a5f2e12ddb919"></a>
-const String &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getDescription</b> ()</td></tr>
-<tr class="memitem:a2e5de29da44e4d0f04a236c862cce2dc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2e5de29da44e4d0f04a236c862cce2dc"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>addDescription</b> (const String &amp;desc)</td></tr>
-<tr class="memitem:a6ce1f8114743d115e7d697d186a07f3b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6ce1f8114743d115e7d697d186a07f3b"></a>
-var&#160;</td><td class="memItemRight" valign="bottom"><b>getDefaultValue</b> ()</td></tr>
-<tr class="memitem:ac26fceaf830c0a9d8378fcb1266a6895"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac26fceaf830c0a9d8378fcb1266a6895"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getID</b> ()</td></tr>
-<tr class="memitem:a9c111935ac7686c6d553e8cbfdcd6586"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c111935ac7686c6d553e8cbfdcd6586"></a>
-Array&lt; var &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>getPossibleValues</b> ()</td></tr>
-<tr class="memitem:a8e5409218cb787ff761c69ca9f77c438"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8e5409218cb787ff761c69ca9f77c438"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setValue</b> (float val, int chan)</td></tr>
-<tr class="memitem:a62dcb99c0702e094dab71655d5d7fed8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a62dcb99c0702e094dab71655d5d7fed8"></a>
-var&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (int chan)</td></tr>
-<tr class="memitem:a1f27fe3b3fc432f646d0c5244f495b8d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1f27fe3b3fc432f646d0c5244f495b8d"></a>
-<a class="el" href="classParameter.html">Parameter</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classParameter.html">Parameter</a> &amp;other)</td></tr>
-<tr class="memitem:a0c25100815bda4ae19801fc146529535"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0c25100815bda4ae19801fc146529535"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isBoolean</b> ()</td></tr>
-<tr class="memitem:a022c66a8409c6456f9b2d8a3465f0560"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a022c66a8409c6456f9b2d8a3465f0560"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isContinuous</b> ()</td></tr>
-<tr class="memitem:ac048c296eaaad1d1b168875c932b5681"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac048c296eaaad1d1b168875c932b5681"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isDiscrete</b> ()</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a18c92c8190d681c49fc6ff60f94245b6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18c92c8190d681c49fc6ff60f94245b6"></a>
-const String&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
-<tr class="memitem:a5aacdf5c58652cc6840ebfbe2a748d29"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5aacdf5c58652cc6840ebfbe2a748d29"></a>
-String&#160;</td><td class="memItemRight" valign="bottom"><b>description</b></td></tr>
-<tr class="memitem:ab06e79287bec9288210c65cd6f623851"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab06e79287bec9288210c65cd6f623851"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>parameterId</b></td></tr>
-<tr class="memitem:a5006ffe49af0534876d7e6e1fc63d1db"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5006ffe49af0534876d7e6e1fc63d1db"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isBool</b></td></tr>
-<tr class="memitem:a33f6f455be804dbc9743d7b9124bc1e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a33f6f455be804dbc9743d7b9124bc1e4"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isCont</b></td></tr>
-<tr class="memitem:afceec950c5fa0b6968dd87bc6a652740"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afceec950c5fa0b6968dd87bc6a652740"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isDisc</b></td></tr>
-<tr class="memitem:a7876f41120778114b3c61671e8531c05"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7876f41120778114b3c61671e8531c05"></a>
-var&#160;</td><td class="memItemRight" valign="bottom"><b>defaultValue</b></td></tr>
-<tr class="memitem:a75745989a25c8ef2b3c6d25bc22963c4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a75745989a25c8ef2b3c6d25bc22963c4"></a>
-Array&lt; var &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>values</b></td></tr>
-<tr class="memitem:a67fc656af78ffe47e4cdefc99bc21e91"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a67fc656af78ffe47e4cdefc99bc21e91"></a>
-Array&lt; var &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>possibleValues</b></td></tr>
+<tr class="memitem:a21c5d8266e270b1f23295eabbe35d37f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a21c5d8266e270b1f23295eabbe35d37f">Parameter</a> (const String &amp;name_, bool defaultVal, int ID)</td></tr>
+<tr class="memitem:a2ee8423ed28378b77eff4e69ebe31be1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a2ee8423ed28378b77eff4e69ebe31be1">Parameter</a> (const String &amp;name_, float low, float high, float defaultVal, int ID)</td></tr>
+<tr class="memitem:a481767bd518c8c75459dc16580b19199"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a481767bd518c8c75459dc16580b19199">Parameter</a> (const String &amp;name_, Array&lt; var &gt; a, int defaultVal, int ID)</td></tr>
+<tr class="memitem:a6e2ade42a712f1d3675653329266e42d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a6e2ade42a712f1d3675653329266e42d">~Parameter</a> ()</td></tr>
+<tr class="memitem:a40dd77acd828bd3f50832548ec3b8cfd"><td class="memItemLeft" align="right" valign="top">const String &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a40dd77acd828bd3f50832548ec3b8cfd">getName</a> ()</td></tr>
+<tr class="memitem:ad2a916413e8cf95f677a5f2e12ddb919"><td class="memItemLeft" align="right" valign="top">const String &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#ad2a916413e8cf95f677a5f2e12ddb919">getDescription</a> ()</td></tr>
+<tr class="memitem:a2e5de29da44e4d0f04a236c862cce2dc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a2e5de29da44e4d0f04a236c862cce2dc">addDescription</a> (const String &amp;desc)</td></tr>
+<tr class="memitem:a6ce1f8114743d115e7d697d186a07f3b"><td class="memItemLeft" align="right" valign="top">var&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a6ce1f8114743d115e7d697d186a07f3b">getDefaultValue</a> ()</td></tr>
+<tr class="memitem:ac26fceaf830c0a9d8378fcb1266a6895"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#ac26fceaf830c0a9d8378fcb1266a6895">getID</a> ()</td></tr>
+<tr class="memitem:a9c111935ac7686c6d553e8cbfdcd6586"><td class="memItemLeft" align="right" valign="top">Array&lt; var &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a9c111935ac7686c6d553e8cbfdcd6586">getPossibleValues</a> ()</td></tr>
+<tr class="memitem:a8e5409218cb787ff761c69ca9f77c438"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a8e5409218cb787ff761c69ca9f77c438">setValue</a> (float val, int chan)</td></tr>
+<tr class="memitem:a62dcb99c0702e094dab71655d5d7fed8"><td class="memItemLeft" align="right" valign="top">var&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a62dcb99c0702e094dab71655d5d7fed8">operator[]</a> (int chan)</td></tr>
+<tr class="memitem:a1f27fe3b3fc432f646d0c5244f495b8d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classParameter.html">Parameter</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a1f27fe3b3fc432f646d0c5244f495b8d">operator=</a> (const <a class="el" href="classParameter.html">Parameter</a> &amp;other)</td></tr>
+<tr class="memitem:a0c25100815bda4ae19801fc146529535"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a0c25100815bda4ae19801fc146529535">isBoolean</a> ()</td></tr>
+<tr class="memitem:a022c66a8409c6456f9b2d8a3465f0560"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#a022c66a8409c6456f9b2d8a3465f0560">isContinuous</a> ()</td></tr>
+<tr class="memitem:ac048c296eaaad1d1b168875c932b5681"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameter.html#ac048c296eaaad1d1b168875c932b5681">isDiscrete</a> ()</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Class for holding user-definable processor parameters. </p>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericProcessor.html">GenericProcessor</a>, <a class="el" href="classGenericEditor.html">GenericEditor</a> </dd></dl>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/<a class="el" href="Parameter_8h_source.html">Parameter.h</a></li>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>, <a class="el" href="classGenericEditor.html" title="Base class for creating processor editors.">GenericEditor</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a21c5d8266e270b1f23295eabbe35d37f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Parameter::Parameter </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname"><em>name_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>defaultVal</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>ID</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a2ee8423ed28378b77eff4e69ebe31be1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Parameter::Parameter </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname"><em>name_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>low</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>high</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>defaultVal</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>ID</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a481767bd518c8c75459dc16580b19199"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Parameter::Parameter </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname"><em>name_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Array&lt; var &gt;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>defaultVal</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>ID</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6e2ade42a712f1d3675653329266e42d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Parameter::~Parameter </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a2e5de29da44e4d0f04a236c862cce2dc"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Parameter::addDescription </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname"><em>desc</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6ce1f8114743d115e7d697d186a07f3b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">var Parameter::getDefaultValue </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad2a916413e8cf95f677a5f2e12ddb919"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const String&amp; Parameter::getDescription </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac26fceaf830c0a9d8378fcb1266a6895"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Parameter::getID </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a40dd77acd828bd3f50832548ec3b8cfd"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const String&amp; Parameter::getName </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a9c111935ac7686c6d553e8cbfdcd6586"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Array&lt;var&gt; Parameter::getPossibleValues </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0c25100815bda4ae19801fc146529535"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Parameter::isBoolean </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a022c66a8409c6456f9b2d8a3465f0560"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Parameter::isContinuous </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac048c296eaaad1d1b168875c932b5681"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Parameter::isDiscrete </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a1f27fe3b3fc432f646d0c5244f495b8d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classParameter.html">Parameter</a>&amp; Parameter::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classParameter.html">Parameter</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a62dcb99c0702e094dab71655d5d7fed8"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">var Parameter::operator[] </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>chan</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a8e5409218cb787ff761c69ca9f77c438"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Parameter::setValue </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>val</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>chan</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="Parameter_8h.html">Parameter.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:39 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

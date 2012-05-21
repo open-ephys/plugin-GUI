@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -83,9 +83,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-attribs">Public Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">MainWindow Class Reference</div>  </div>
 </div><!--header-->
@@ -94,45 +92,91 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>The main window for the GUI application.  
  <a href="classMainWindow.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="MainWindow_8h_source.html">MainWindow.h</a>&gt;</code></p>
+<p><code>#include &lt;MainWindow.h&gt;</code></p>
 
 <p><a href="classMainWindow-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac422fd3f1931a97b30d5efc8b6fc3123"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac422fd3f1931a97b30d5efc8b6fc3123"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>closeButtonPressed</b> ()</td></tr>
+<tr class="memitem:a34c4b4207b46d11a4100c9b19f0e81bb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMainWindow.html#a34c4b4207b46d11a4100c9b19f0e81bb">MainWindow</a> ()</td></tr>
+<tr class="memitem:ae98d00a93bc118200eeef9f9bba1dba7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMainWindow.html#ae98d00a93bc118200eeef9f9bba1dba7">~MainWindow</a> ()</td></tr>
+<tr class="memitem:ac422fd3f1931a97b30d5efc8b6fc3123"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMainWindow.html#ac422fd3f1931a97b30d5efc8b6fc3123">closeButtonPressed</a> ()</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ae36bb0085b5650e00bca6bab107dc691"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae36bb0085b5650e00bca6bab107dc691"></a>
-ApplicationCommandManager&#160;</td><td class="memItemRight" valign="bottom"><b>commandManager</b></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:ae568da7ab0da00891e838c197e9b0904"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae568da7ab0da00891e838c197e9b0904"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>saveWindowBounds</b> ()</td></tr>
-<tr class="memitem:a0787392bb77872c6765a390918cca794"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0787392bb77872c6765a390918cca794"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>loadWindowBounds</b> ()</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:acdaba8b56c01e387346f503c46070d60"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acdaba8b56c01e387346f503c46070d60"></a>
-<a class="el" href="classAudioComponent.html">AudioComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>audioComponent</b></td></tr>
-<tr class="memitem:a5a30971233877ddb0bf2fb3436d39bfb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5a30971233877ddb0bf2fb3436d39bfb"></a>
-<a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>processorGraph</b></td></tr>
+<tr class="memitem:ae36bb0085b5650e00bca6bab107dc691"><td class="memItemLeft" align="right" valign="top">ApplicationCommandManager&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMainWindow.html#ae36bb0085b5650e00bca6bab107dc691">commandManager</a></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>The main window for the GUI application. </p>
-<p>This object creates and destroys the <a class="el" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>, the <a class="el" href="classProcessorGraph.html">ProcessorGraph</a>, and the <a class="el" href="classUIComponent.html">UIComponent</a> (which exists as the ContentComponent of this window).</p>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>, <a class="el" href="classProcessorGraph.html">ProcessorGraph</a>, <a class="el" href="classUIComponent.html">UIComponent</a> </dd></dl>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="MainWindow_8h_source.html">MainWindow.h</a></li>
+<p>This object creates and destroys the <a class="el" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>, the <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a>, and the <a class="el" href="classUIComponent.html">UIComponent</a> (which exists as the ContentComponent of this window).</p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>, <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a>, <a class="el" href="classUIComponent.html">UIComponent</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a34c4b4207b46d11a4100c9b19f0e81bb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">MainWindow::MainWindow </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae98d00a93bc118200eeef9f9bba1dba7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">MainWindow::~MainWindow </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="ac422fd3f1931a97b30d5efc8b6fc3123"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MainWindow::closeButtonPressed </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="ae36bb0085b5650e00bca6bab107dc691"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ApplicationCommandManager MainWindow::commandManager</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="MainWindow_8h.html">MainWindow.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

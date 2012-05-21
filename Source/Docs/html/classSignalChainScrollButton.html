@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -90,43 +90,181 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
+<p><code>#include &lt;EditorViewportButtons.h&gt;</code></p>
+
 <p><a href="classSignalChainScrollButton-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:ae5e70b93f5184eb7ecc4b322dde3ceb7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>type</b> { <b>UP</b>, 
-<b>DOWN</b>
+<tr class="memitem:ae5e70b93f5184eb7ecc4b322dde3ceb7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainScrollButton.html#ae5e70b93f5184eb7ecc4b322dde3ceb7">type</a> { <a class="el" href="classSignalChainScrollButton.html#ae5e70b93f5184eb7ecc4b322dde3ceb7a630e722c17146fa245c2d82f7e8ffde5">UP</a>, 
+<a class="el" href="classSignalChainScrollButton.html#ae5e70b93f5184eb7ecc4b322dde3ceb7a9ab31466fd755065637083d4b6ab4480">DOWN</a>
  }</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5fddb0fbc5fd4a2fead7884a06852207"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5fddb0fbc5fd4a2fead7884a06852207"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>SignalChainScrollButton</b> (int type)</td></tr>
-<tr class="memitem:a5e7091c485f0dee550c8b881d016edd6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5e7091c485f0dee550c8b881d016edd6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setActive</b> (bool)</td></tr>
+<tr class="memitem:a5fddb0fbc5fd4a2fead7884a06852207"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainScrollButton.html#a5fddb0fbc5fd4a2fead7884a06852207">SignalChainScrollButton</a> (int <a class="el" href="classSignalChainScrollButton.html#ae5e70b93f5184eb7ecc4b322dde3ceb7">type</a>)</td></tr>
+<tr class="memitem:a00e5d456862b7bbeb59c3f61fe1a6de2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainScrollButton.html#a00e5d456862b7bbeb59c3f61fe1a6de2">~SignalChainScrollButton</a> ()</td></tr>
+<tr class="memitem:a5e7091c485f0dee550c8b881d016edd6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainScrollButton.html#a5e7091c485f0dee550c8b881d016edd6">setActive</a> (bool)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a5f9a528838cea1709e984c5937d11e1d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f9a528838cea1709e984c5937d11e1d"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isActive</b></td></tr>
-<tr class="memitem:a85745c7a19685327478de02182277c4c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a85745c7a19685327478de02182277c4c"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>direction</b></td></tr>
-<tr class="memitem:ad58deaed9ccbd226a3f267ec9b65fc35"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad58deaed9ccbd226a3f267ec9b65fc35"></a>
-DrawablePath&#160;</td><td class="memItemRight" valign="bottom"><b>inactive</b></td></tr>
-<tr class="memitem:a29548e0209d31b560c5d2d1b175f81fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29548e0209d31b560c5d2d1b175f81fe"></a>
-DrawablePath&#160;</td><td class="memItemRight" valign="bottom"><b>activeNormal</b></td></tr>
-<tr class="memitem:a56bc06f2905a748dbe3318ba02e95148"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a56bc06f2905a748dbe3318ba02e95148"></a>
-DrawablePath&#160;</td><td class="memItemRight" valign="bottom"><b>activeOver</b></td></tr>
-<tr class="memitem:a6f33a146e8e19e8accf5ede376eb7010"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6f33a146e8e19e8accf5ede376eb7010"></a>
-DrawablePath&#160;</td><td class="memItemRight" valign="bottom"><b>activeDown</b></td></tr>
+<tr class="memitem:a5f9a528838cea1709e984c5937d11e1d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainScrollButton.html#a5f9a528838cea1709e984c5937d11e1d">isActive</a></td></tr>
+<tr class="memitem:a85745c7a19685327478de02182277c4c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainScrollButton.html#a85745c7a19685327478de02182277c4c">direction</a></td></tr>
+<tr class="memitem:ad58deaed9ccbd226a3f267ec9b65fc35"><td class="memItemLeft" align="right" valign="top">DrawablePath&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainScrollButton.html#ad58deaed9ccbd226a3f267ec9b65fc35">inactive</a></td></tr>
+<tr class="memitem:a29548e0209d31b560c5d2d1b175f81fe"><td class="memItemLeft" align="right" valign="top">DrawablePath&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainScrollButton.html#a29548e0209d31b560c5d2d1b175f81fe">activeNormal</a></td></tr>
+<tr class="memitem:a56bc06f2905a748dbe3318ba02e95148"><td class="memItemLeft" align="right" valign="top">DrawablePath&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainScrollButton.html#a56bc06f2905a748dbe3318ba02e95148">activeOver</a></td></tr>
+<tr class="memitem:a6f33a146e8e19e8accf5ede376eb7010"><td class="memItemLeft" align="right" valign="top">DrawablePath&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainScrollButton.html#a6f33a146e8e19e8accf5ede376eb7010">activeDown</a></td></tr>
 </table>
+<hr/><h2>Member Enumeration Documentation</h2>
+<a class="anchor" id="ae5e70b93f5184eb7ecc4b322dde3ceb7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="classSignalChainScrollButton.html#ae5e70b93f5184eb7ecc4b322dde3ceb7">SignalChainScrollButton::type</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="ae5e70b93f5184eb7ecc4b322dde3ceb7a630e722c17146fa245c2d82f7e8ffde5"></a>UP</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ae5e70b93f5184eb7ecc4b322dde3ceb7a9ab31466fd755065637083d4b6ab4480"></a>DOWN</em>&nbsp;</td><td>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+</div>
+</div>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a5fddb0fbc5fd4a2fead7884a06852207"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SignalChainScrollButton::SignalChainScrollButton </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>type</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a00e5d456862b7bbeb59c3f61fe1a6de2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SignalChainScrollButton::~SignalChainScrollButton </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a5e7091c485f0dee550c8b881d016edd6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SignalChainScrollButton::setActive </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="a6f33a146e8e19e8accf5ede376eb7010"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DrawablePath SignalChainScrollButton::activeDown</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a29548e0209d31b560c5d2d1b175f81fe"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DrawablePath SignalChainScrollButton::activeNormal</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a56bc06f2905a748dbe3318ba02e95148"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DrawablePath SignalChainScrollButton::activeOver</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a85745c7a19685327478de02182277c4c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int SignalChainScrollButton::direction</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad58deaed9ccbd226a3f267ec9b65fc35"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DrawablePath SignalChainScrollButton::inactive</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a5f9a528838cea1709e984c5937d11e1d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool SignalChainScrollButton::isActive</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>UI/<a class="el" href="EditorViewportButtons_8h_source.html">EditorViewportButtons.h</a></li>
+<li><a class="el" href="EditorViewportButtons_8h.html">EditorViewportButtons.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:39 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

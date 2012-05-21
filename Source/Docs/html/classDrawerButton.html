@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,32 +82,74 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-methods">Private Member Functions</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">DrawerButton Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p>Used to show and hide the <a class="el" href="classChannelSelector.html" title="Automatically creates an interactive editor for selecting channels.">ChannelSelector</a>.  
+ <a href="classDrawerButton.html#details">More...</a></p>
+
+<p><code>#include &lt;GenericEditor.h&gt;</code></p>
+
 <p><a href="classDrawerButton-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a152c65b0b22c997a9424f5d45bbdabc3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a152c65b0b22c997a9424f5d45bbdabc3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>DrawerButton</b> (const String &amp;name)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a94263ddea088b6c16793d79682df6c40"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a94263ddea088b6c16793d79682df6c40"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paintButton</b> (Graphics &amp;g, bool isMouseOver, bool isButtonDown)</td></tr>
+<tr class="memitem:a152c65b0b22c997a9424f5d45bbdabc3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDrawerButton.html#a152c65b0b22c997a9424f5d45bbdabc3">DrawerButton</a> (const String &amp;name)</td></tr>
+<tr class="memitem:a694729454f8a44d59c76a6ab849b53d7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDrawerButton.html#a694729454f8a44d59c76a6ab849b53d7">~DrawerButton</a> ()</td></tr>
 </table>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>Used to show and hide the <a class="el" href="classChannelSelector.html" title="Automatically creates an interactive editor for selecting channels.">ChannelSelector</a>. </p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericEditor.html" title="Base class for creating processor editors.">GenericEditor</a>, <a class="el" href="classChannelSelector.html" title="Automatically creates an interactive editor for selecting channels.">ChannelSelector</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a152c65b0b22c997a9424f5d45bbdabc3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DrawerButton::DrawerButton </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a694729454f8a44d59c76a6ab849b53d7"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">DrawerButton::~DrawerButton </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/Editors/<a class="el" href="GenericEditor_8h_source.html">GenericEditor.h</a></li>
+<li><a class="el" href="GenericEditor_8h.html">GenericEditor.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

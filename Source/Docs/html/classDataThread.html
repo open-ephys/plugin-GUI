@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -83,12 +83,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="#pri-methods">Private Member Functions</a>  </div>
+<a href="#pub-attribs">Public Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">DataThread Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Abstract base class for a data input thread owned by the <a class="el" href="classSourceNode.html" title="Creates and controls a thread for reading data from external sources.">SourceNode</a>.  
+ <a href="classDataThread.html#details">More...</a></p>
+
+<p><code>#include &lt;DataThread.h&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for DataThread:</div>
 <div class="dyncontent">
@@ -106,46 +110,294 @@ Inheritance diagram for DataThread:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:acb6f10d03646d7c2faff5c7e3bc1a5e7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acb6f10d03646d7c2faff5c7e3bc1a5e7"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>DataThread</b> (<a class="el" href="classSourceNode.html">SourceNode</a> *sn)</td></tr>
-<tr class="memitem:ae1d41cdc6b7fbd8160e18c3cf1812471"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae1d41cdc6b7fbd8160e18c3cf1812471"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>run</b> ()</td></tr>
-<tr class="memitem:aba376e486bef12a53c588f65e20d7978"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba376e486bef12a53c588f65e20d7978"></a>
-<a class="el" href="classDataBuffer.html">DataBuffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getBufferAddress</b> ()</td></tr>
-<tr class="memitem:adbd6623e8892aad3c5f5588aff3ff195"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adbd6623e8892aad3c5f5588aff3ff195"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>updateBuffer</b> ()=0</td></tr>
-<tr class="memitem:af62fa85b1ac69f1f3b3f53150bf55f23"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af62fa85b1ac69f1f3b3f53150bf55f23"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>foundInputSource</b> ()=0</td></tr>
-<tr class="memitem:a0ff3b07535413c15cc515bd65b2ce2b8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0ff3b07535413c15cc515bd65b2ce2b8"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>startAcquisition</b> ()=0</td></tr>
-<tr class="memitem:a81cbc75ecf5ddb83d64d56da13b10a29"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a81cbc75ecf5ddb83d64d56da13b10a29"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>stopAcquisition</b> ()=0</td></tr>
-<tr class="memitem:a2eb3af064cfe39d83dc19dd6e4f5de06"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2eb3af064cfe39d83dc19dd6e4f5de06"></a>
-virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumChannels</b> ()=0</td></tr>
-<tr class="memitem:a86f12c1b334ae8c4cd39c493cc123302"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a86f12c1b334ae8c4cd39c493cc123302"></a>
-virtual float&#160;</td><td class="memItemRight" valign="bottom"><b>getSampleRate</b> ()=0</td></tr>
-<tr class="memitem:a679d8b6d9c25dba87cdf8b248eb96d4c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a679d8b6d9c25dba87cdf8b248eb96d4c"></a>
-virtual float&#160;</td><td class="memItemRight" valign="bottom"><b>getBitVolts</b> ()=0</td></tr>
+<tr class="memitem:acb6f10d03646d7c2faff5c7e3bc1a5e7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#acb6f10d03646d7c2faff5c7e3bc1a5e7">DataThread</a> (<a class="el" href="classSourceNode.html">SourceNode</a> *<a class="el" href="classDataThread.html#a6a26fc244b2ce396c5c013353fb6293e">sn</a>)</td></tr>
+<tr class="memitem:a4e93964d269593f0ede1724df2899f97"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a4e93964d269593f0ede1724df2899f97">~DataThread</a> ()</td></tr>
+<tr class="memitem:ae1d41cdc6b7fbd8160e18c3cf1812471"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#ae1d41cdc6b7fbd8160e18c3cf1812471">run</a> ()</td></tr>
+<tr class="memitem:aba376e486bef12a53c588f65e20d7978"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classDataBuffer.html">DataBuffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#aba376e486bef12a53c588f65e20d7978">getBufferAddress</a> ()</td></tr>
+<tr class="memitem:adbd6623e8892aad3c5f5588aff3ff195"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#adbd6623e8892aad3c5f5588aff3ff195">updateBuffer</a> ()=0</td></tr>
+<tr class="memitem:af62fa85b1ac69f1f3b3f53150bf55f23"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#af62fa85b1ac69f1f3b3f53150bf55f23">foundInputSource</a> ()=0</td></tr>
+<tr class="memitem:a0ff3b07535413c15cc515bd65b2ce2b8"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a0ff3b07535413c15cc515bd65b2ce2b8">startAcquisition</a> ()=0</td></tr>
+<tr class="memitem:a81cbc75ecf5ddb83d64d56da13b10a29"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a81cbc75ecf5ddb83d64d56da13b10a29">stopAcquisition</a> ()=0</td></tr>
+<tr class="memitem:a2eb3af064cfe39d83dc19dd6e4f5de06"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a2eb3af064cfe39d83dc19dd6e4f5de06">getNumChannels</a> ()=0</td></tr>
+<tr class="memitem:a86f12c1b334ae8c4cd39c493cc123302"><td class="memItemLeft" align="right" valign="top">virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a86f12c1b334ae8c4cd39c493cc123302">getSampleRate</a> ()=0</td></tr>
+<tr class="memitem:a679d8b6d9c25dba87cdf8b248eb96d4c"><td class="memItemLeft" align="right" valign="top">virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a679d8b6d9c25dba87cdf8b248eb96d4c">getBitVolts</a> ()=0</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a70d6a9b3496ef57ce2b55a4af6ee8de5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a70d6a9b3496ef57ce2b55a4af6ee8de5"></a>
-ScopedPointer&lt; <a class="el" href="classDataBuffer.html">DataBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>dataBuffer</b></td></tr>
-<tr class="memitem:a6a26fc244b2ce396c5c013353fb6293e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6a26fc244b2ce396c5c013353fb6293e"></a>
-<a class="el" href="classSourceNode.html">SourceNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>sn</b></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a86d08fbb9f2ee6534129671959f5de6d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a86d08fbb9f2ee6534129671959f5de6d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</b> (<a class="el" href="classDataThread.html">DataThread</a>)</td></tr>
+<tr class="memitem:a70d6a9b3496ef57ce2b55a4af6ee8de5"><td class="memItemLeft" align="right" valign="top">ScopedPointer&lt; <a class="el" href="classDataBuffer.html">DataBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a70d6a9b3496ef57ce2b55a4af6ee8de5">dataBuffer</a></td></tr>
+<tr class="memitem:a6a26fc244b2ce396c5c013353fb6293e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSourceNode.html">SourceNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a6a26fc244b2ce396c5c013353fb6293e">sn</a></td></tr>
 </table>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>Abstract base class for a data input thread owned by the <a class="el" href="classSourceNode.html" title="Creates and controls a thread for reading data from external sources.">SourceNode</a>. </p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classSourceNode.html" title="Creates and controls a thread for reading data from external sources.">SourceNode</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="acb6f10d03646d7c2faff5c7e3bc1a5e7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DataThread::DataThread </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classSourceNode.html">SourceNode</a> *&#160;</td>
+          <td class="paramname"><em>sn</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a4e93964d269593f0ede1724df2899f97"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DataThread::~DataThread </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="af62fa85b1ac69f1f3b3f53150bf55f23"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool DataThread::foundInputSource </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="classFileReaderThread.html#ae1e58d2033c87cd71cff4d2e45360087">FileReaderThread</a>, <a class="el" href="classNetworkThread.html#a8ded78dab341e5c7c98ccf5fa34f6bb5">NetworkThread</a>, <a class="el" href="classFPGAThread.html#a58958c632739119e57126ceaf7ae9210">FPGAThread</a>, and <a class="el" href="classIntanThread.html#acd7222cc5aa5495fc9b99ccc89b57fc2">IntanThread</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a679d8b6d9c25dba87cdf8b248eb96d4c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual float DataThread::getBitVolts </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="classFileReaderThread.html#a50b11fd1f129af9488134d1b6e31e93b">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a30096ea04ec85c0aa301f167fd7a42c4">FPGAThread</a>, and <a class="el" href="classIntanThread.html#ad2020007cf90134f414a6c0413e63127">IntanThread</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aba376e486bef12a53c588f65e20d7978"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classDataBuffer.html">DataBuffer</a>* DataThread::getBufferAddress </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a2eb3af064cfe39d83dc19dd6e4f5de06"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int DataThread::getNumChannels </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="classFileReaderThread.html#aea6f87741b16e78b29f32b2efccf5664">FileReaderThread</a>, <a class="el" href="classNetworkThread.html#a37d244c39c0b0c52882a439638942d40">NetworkThread</a>, <a class="el" href="classFPGAThread.html#a67ff95c727afa4c92d9705c3b1d9c3ee">FPGAThread</a>, and <a class="el" href="classIntanThread.html#a8b5d9057c93ce0e476e994274cdd35fc">IntanThread</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a86f12c1b334ae8c4cd39c493cc123302"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual float DataThread::getSampleRate </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="classFileReaderThread.html#ab6360a15dd538bb78dfd3c52fa6fa1d2">FileReaderThread</a>, <a class="el" href="classNetworkThread.html#a7212f2e4b930e2831e79143bd90b07ab">NetworkThread</a>, <a class="el" href="classFPGAThread.html#a8d1bd558f7e72a8f578db63736df22cf">FPGAThread</a>, and <a class="el" href="classIntanThread.html#af75991b755889843df9e30e259fe7465">IntanThread</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ae1d41cdc6b7fbd8160e18c3cf1812471"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void DataThread::run </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0ff3b07535413c15cc515bd65b2ce2b8"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool DataThread::startAcquisition </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="classFileReaderThread.html#a4d5c3434d7b635d25bbc4c2014b95a61">FileReaderThread</a>, and <a class="el" href="classNetworkThread.html#ae30402dfc01f183929896c07b2efeec5">NetworkThread</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a81cbc75ecf5ddb83d64d56da13b10a29"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool DataThread::stopAcquisition </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="classFileReaderThread.html#ad2abbe666106abe215753a9b3ff328d4">FileReaderThread</a>, and <a class="el" href="classNetworkThread.html#a2cc1f3d1e83ab57c2a55657fb6d63956">NetworkThread</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="adbd6623e8892aad3c5f5588aff3ff195"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool DataThread::updateBuffer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="a70d6a9b3496ef57ce2b55a4af6ee8de5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ScopedPointer&lt;<a class="el" href="classDataBuffer.html">DataBuffer</a>&gt; DataThread::dataBuffer</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6a26fc244b2ce396c5c013353fb6293e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classSourceNode.html">SourceNode</a>* DataThread::sn</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/DataThreads/<a class="el" href="DataThread_8h_source.html">DataThread.h</a></li>
+<li><a class="el" href="DataThread_8h.html">DataThread.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

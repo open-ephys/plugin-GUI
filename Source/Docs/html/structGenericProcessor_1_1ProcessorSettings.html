@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -92,38 +92,161 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
+<p><code>#include &lt;GenericProcessor.h&gt;</code></p>
+
 <p><a href="structGenericProcessor_1_1ProcessorSettings-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ab0ba3880def3c20e2ab2560ec7c6e5cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0ba3880def3c20e2ab2560ec7c6e5cb"></a>
-<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>originalSource</b></td></tr>
-<tr class="memitem:a76691b54183d1d91d63ebe0e6e24db18"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a76691b54183d1d91d63ebe0e6e24db18"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>numInputs</b></td></tr>
-<tr class="memitem:a5024da44b1a3390b6d35e1c1a0676103"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5024da44b1a3390b6d35e1c1a0676103"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>numOutputs</b></td></tr>
-<tr class="memitem:aae6022216dd984111385087145c82b1f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae6022216dd984111385087145c82b1f"></a>
-StringArray&#160;</td><td class="memItemRight" valign="bottom"><b>inputChannelNames</b></td></tr>
-<tr class="memitem:a280cd570b263d71dd222b9615a87a90a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a280cd570b263d71dd222b9615a87a90a"></a>
-StringArray&#160;</td><td class="memItemRight" valign="bottom"><b>outputChannelNames</b></td></tr>
-<tr class="memitem:aa843e36bf3dd136bc5685d327fd13452"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa843e36bf3dd136bc5685d327fd13452"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>sampleRate</b></td></tr>
-<tr class="memitem:aee620ffae429abba415bd912cad2c57d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee620ffae429abba415bd912cad2c57d"></a>
-Array&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>bitVolts</b></td></tr>
-<tr class="memitem:a17416831390807a264da580946106eb0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a17416831390807a264da580946106eb0"></a>
-Array&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>eventChannelIds</b></td></tr>
-<tr class="memitem:a674f507298219773baa69e479ed79db3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a674f507298219773baa69e479ed79db3"></a>
-StringArray&#160;</td><td class="memItemRight" valign="bottom"><b>eventChannelNames</b></td></tr>
-<tr class="memitem:a4bd13b2961e673d5765e6cd4671a2866"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4bd13b2961e673d5765e6cd4671a2866"></a>
-Array&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>eventChannelTypes</b></td></tr>
+<tr class="memitem:ab0ba3880def3c20e2ab2560ec7c6e5cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGenericProcessor_1_1ProcessorSettings.html#ab0ba3880def3c20e2ab2560ec7c6e5cb">originalSource</a></td></tr>
+<tr class="memitem:a76691b54183d1d91d63ebe0e6e24db18"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGenericProcessor_1_1ProcessorSettings.html#a76691b54183d1d91d63ebe0e6e24db18">numInputs</a></td></tr>
+<tr class="memitem:a5024da44b1a3390b6d35e1c1a0676103"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGenericProcessor_1_1ProcessorSettings.html#a5024da44b1a3390b6d35e1c1a0676103">numOutputs</a></td></tr>
+<tr class="memitem:aae6022216dd984111385087145c82b1f"><td class="memItemLeft" align="right" valign="top">StringArray&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGenericProcessor_1_1ProcessorSettings.html#aae6022216dd984111385087145c82b1f">inputChannelNames</a></td></tr>
+<tr class="memitem:a280cd570b263d71dd222b9615a87a90a"><td class="memItemLeft" align="right" valign="top">StringArray&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGenericProcessor_1_1ProcessorSettings.html#a280cd570b263d71dd222b9615a87a90a">outputChannelNames</a></td></tr>
+<tr class="memitem:aa843e36bf3dd136bc5685d327fd13452"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGenericProcessor_1_1ProcessorSettings.html#aa843e36bf3dd136bc5685d327fd13452">sampleRate</a></td></tr>
+<tr class="memitem:aee620ffae429abba415bd912cad2c57d"><td class="memItemLeft" align="right" valign="top">Array&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGenericProcessor_1_1ProcessorSettings.html#aee620ffae429abba415bd912cad2c57d">bitVolts</a></td></tr>
+<tr class="memitem:a17416831390807a264da580946106eb0"><td class="memItemLeft" align="right" valign="top">Array&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGenericProcessor_1_1ProcessorSettings.html#a17416831390807a264da580946106eb0">eventChannelIds</a></td></tr>
+<tr class="memitem:a674f507298219773baa69e479ed79db3"><td class="memItemLeft" align="right" valign="top">StringArray&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGenericProcessor_1_1ProcessorSettings.html#a674f507298219773baa69e479ed79db3">eventChannelNames</a></td></tr>
+<tr class="memitem:a4bd13b2961e673d5765e6cd4671a2866"><td class="memItemLeft" align="right" valign="top">Array&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structGenericProcessor_1_1ProcessorSettings.html#a4bd13b2961e673d5765e6cd4671a2866">eventChannelTypes</a></td></tr>
 </table>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="aee620ffae429abba415bd912cad2c57d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Array&lt;float&gt; GenericProcessor::ProcessorSettings::bitVolts</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a17416831390807a264da580946106eb0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Array&lt;int&gt; GenericProcessor::ProcessorSettings::eventChannelIds</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a674f507298219773baa69e479ed79db3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">StringArray GenericProcessor::ProcessorSettings::eventChannelNames</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a4bd13b2961e673d5765e6cd4671a2866"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Array&lt;int&gt; GenericProcessor::ProcessorSettings::eventChannelTypes</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aae6022216dd984111385087145c82b1f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">StringArray GenericProcessor::ProcessorSettings::inputChannelNames</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Referenced by <a class="el" href="classGenericProcessor.html#acc50df9e1f4d532070c4cf93f73c3766">GenericProcessor::getInputChannelName()</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a76691b54183d1d91d63ebe0e6e24db18"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int GenericProcessor::ProcessorSettings::numInputs</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Referenced by <a class="el" href="classGenericProcessor.html#aee3dea28d03bb09bdb4799343aaa2388">GenericProcessor::getNumInputs()</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a5024da44b1a3390b6d35e1c1a0676103"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int GenericProcessor::ProcessorSettings::numOutputs</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Referenced by <a class="el" href="classGenericProcessor.html#a25f5d4ef799bdb5029ea96eedf462bf3">GenericProcessor::getNumOutputs()</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ab0ba3880def3c20e2ab2560ec7c6e5cb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classGenericProcessor.html">GenericProcessor</a>* GenericProcessor::ProcessorSettings::originalSource</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a280cd570b263d71dd222b9615a87a90a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">StringArray GenericProcessor::ProcessorSettings::outputChannelNames</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Referenced by <a class="el" href="classGenericProcessor.html#a58d462c3907932f6beed365b959b9e0e">GenericProcessor::getOutputChannelName()</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aa843e36bf3dd136bc5685d327fd13452"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float GenericProcessor::ProcessorSettings::sampleRate</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Referenced by <a class="el" href="classGenericProcessor.html#a31f587ffcaddf91918013605d58651fe">GenericProcessor::getSampleRate()</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>Processors/<a class="el" href="GenericProcessor_8h_source.html">GenericProcessor.h</a></li>
+<li><a class="el" href="GenericProcessor_8h.html">GenericProcessor.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

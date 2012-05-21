@@ -6,6 +6,14 @@
 
 class SpikeObject;
 
+/**
+	
+	Base class for drawing spike plots in OpenGL.
+
+	@see SpikeDisplayCanvas
+
+*/
+
 class BaseUIElement{
 
 protected:	

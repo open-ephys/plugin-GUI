@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,50 +82,182 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">EditorViewportButton Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p><code>#include &lt;UIComponent.h&gt;</code></p>
+
 <p><a href="classEditorViewportButton-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a4aacb445c8515a6d5713b3542d12d4d5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4aacb445c8515a6d5713b3542d12d4d5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>EditorViewportButton</b> (<a class="el" href="classUIComponent.html">UIComponent</a> *ui)</td></tr>
-<tr class="memitem:ac6ede44d50ca1bb6879c4dbe469520c0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac6ede44d50ca1bb6879c4dbe469520c0"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isOpen</b> ()</td></tr>
-<tr class="memitem:aa33c3aaa4badc7f52dad8ed2e4812eee"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa33c3aaa4badc7f52dad8ed2e4812eee"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>newOpenGLContextCreated</b> ()</td></tr>
-<tr class="memitem:aa80cea482fd8a27fe27ce42334772b4c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa80cea482fd8a27fe27ce42334772b4c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>renderOpenGL</b> ()</td></tr>
-<tr class="memitem:ac59d52952099fd8e225ad2d08eaff16c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac59d52952099fd8e225ad2d08eaff16c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>drawName</b> ()</td></tr>
-<tr class="memitem:ae802cc7116cb80264fb137aa67468402"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae802cc7116cb80264fb137aa67468402"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>drawButton</b> ()</td></tr>
-<tr class="memitem:a857d674515278d616cec9b26bb44330d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a857d674515278d616cec9b26bb44330d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>toggleState</b> ()</td></tr>
-<tr class="memitem:adc62cdc302d3fe04080459aa0ec97e73"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adc62cdc302d3fe04080459aa0ec97e73"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseDown</b> (const MouseEvent &amp;e)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a76782e6db44130c925ca51412ea82b2b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a76782e6db44130c925ca51412ea82b2b"></a>
-<a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>UI</b></td></tr>
-<tr class="memitem:a66ba90699ffe12aa26640fb21a9ab2e0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a66ba90699ffe12aa26640fb21a9ab2e0"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>open</b></td></tr>
-<tr class="memitem:ac95459c5ba70fe32af94e07c40299548"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac95459c5ba70fe32af94e07c40299548"></a>
-FTPixmapFont *&#160;</td><td class="memItemRight" valign="bottom"><b>font</b></td></tr>
+<tr class="memitem:a4aacb445c8515a6d5713b3542d12d4d5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewportButton.html#a4aacb445c8515a6d5713b3542d12d4d5">EditorViewportButton</a> (<a class="el" href="classUIComponent.html">UIComponent</a> *ui)</td></tr>
+<tr class="memitem:ae4bc38314ad7f34c96b718ce8157ab00"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewportButton.html#ae4bc38314ad7f34c96b718ce8157ab00">~EditorViewportButton</a> ()</td></tr>
+<tr class="memitem:ac6ede44d50ca1bb6879c4dbe469520c0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewportButton.html#ac6ede44d50ca1bb6879c4dbe469520c0">isOpen</a> ()</td></tr>
+<tr class="memitem:aa33c3aaa4badc7f52dad8ed2e4812eee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewportButton.html#aa33c3aaa4badc7f52dad8ed2e4812eee">newOpenGLContextCreated</a> ()</td></tr>
+<tr class="memitem:aa80cea482fd8a27fe27ce42334772b4c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewportButton.html#aa80cea482fd8a27fe27ce42334772b4c">renderOpenGL</a> ()</td></tr>
+<tr class="memitem:ac59d52952099fd8e225ad2d08eaff16c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewportButton.html#ac59d52952099fd8e225ad2d08eaff16c">drawName</a> ()</td></tr>
+<tr class="memitem:ae802cc7116cb80264fb137aa67468402"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewportButton.html#ae802cc7116cb80264fb137aa67468402">drawButton</a> ()</td></tr>
+<tr class="memitem:a857d674515278d616cec9b26bb44330d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewportButton.html#a857d674515278d616cec9b26bb44330d">toggleState</a> ()</td></tr>
+<tr class="memitem:adc62cdc302d3fe04080459aa0ec97e73"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewportButton.html#adc62cdc302d3fe04080459aa0ec97e73">mouseDown</a> (const MouseEvent &amp;e)</td></tr>
 </table>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a4aacb445c8515a6d5713b3542d12d4d5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">EditorViewportButton::EditorViewportButton </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td>
+          <td class="paramname"><em>ui</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae4bc38314ad7f34c96b718ce8157ab00"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">EditorViewportButton::~EditorViewportButton </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="ae802cc7116cb80264fb137aa67468402"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewportButton::drawButton </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac59d52952099fd8e225ad2d08eaff16c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewportButton::drawName </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac6ede44d50ca1bb6879c4dbe469520c0"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool EditorViewportButton::isOpen </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="adc62cdc302d3fe04080459aa0ec97e73"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewportButton::mouseDown </td>
+          <td>(</td>
+          <td class="paramtype">const MouseEvent &amp;&#160;</td>
+          <td class="paramname"><em>e</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa33c3aaa4badc7f52dad8ed2e4812eee"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewportButton::newOpenGLContextCreated </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa80cea482fd8a27fe27ce42334772b4c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewportButton::renderOpenGL </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a857d674515278d616cec9b26bb44330d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewportButton::toggleState </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>UI/<a class="el" href="UIComponent_8h_source.html">UIComponent.h</a></li>
+<li><a class="el" href="UIComponent_8h.html">UIComponent.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

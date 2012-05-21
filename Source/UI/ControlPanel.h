@@ -35,13 +35,12 @@
 
 #include "../OpenGL.h"
 
+
 /**
   
-  Displays information and provides buttons to control acquistion and recording.
+  Toggles data acquisition on and off.
 
-  The ControlPanel is located along the top of the application window.
-
-  @see UIComponent
+  @see ControlPanel
 
 */
 
@@ -53,12 +52,28 @@ class PlayButton : public DrawableButton
 		~PlayButton();
 };
 
+/**
+  
+  Toggles recording on and off.
+
+  @see ControlPanel
+
+*/
+
 class RecordButton : public DrawableButton
 {
 	public:
 		RecordButton();
 		~RecordButton();
 };
+
+/**
+  
+  Displays the CPU load used up by the data processing callbacks.
+
+  @see ControlPanel
+
+*/
 
 class CPUMeter : public Label
 {
@@ -79,6 +94,14 @@ class CPUMeter : public Label
 
 };
 
+/**
+  
+  Displays the amount of disk space left in the current data directory.
+
+  @see ControlPanel
+
+*/
+
 class DiskSpaceMeter : public Component
 {
 public:
@@ -97,6 +120,14 @@ private:
 	ProcessorGraph* graph;
 	
 };
+
+/**
+  
+  Displays the time.
+
+  @see ControlPanel
+
+*/
 
 class Clock : public OpenGLComponent
 {
@@ -130,6 +161,14 @@ class Clock : public OpenGLComponent
 		FTPixmapFont* font;
 };
 
+/**
+  
+  Used to show and hide the file browser within the ControlPanel.
+
+  @see ControlPanel
+
+*/
+
 class ControlPanelButton : public OpenGLComponent
 {
 public:
@@ -155,6 +194,18 @@ private:
 };
 
 class UtilityButton;
+
+/**
+  
+  Provides general application controls.
+
+  Displays useful information and provides buttons to control acquistion and recording.
+
+  The ControlPanel is located along the top of the application window.
+
+  @see UIComponent
+
+*/
 
 class ControlPanel : public Component, 
 					 public Button::Listener,

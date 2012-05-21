@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -83,9 +83,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-attribs">Public Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">AudioComponent Class Reference</div>  </div>
 </div><!--header-->
@@ -94,57 +92,190 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Interfaces with system audio hardware.  
  <a href="classAudioComponent.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="AudioComponent_8h_source.html">AudioComponent.h</a>&gt;</code></p>
+<p><code>#include &lt;AudioComponent.h&gt;</code></p>
 
 <p><a href="classAudioComponent-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a39ef696dde4891e20b17adb0c8057740"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a39ef696dde4891e20b17adb0c8057740"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>beginCallbacks</b> ()</td></tr>
-<tr class="memitem:a78e2a818d271fb26387d41875271e4ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a78e2a818d271fb26387d41875271e4ba"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>endCallbacks</b> ()</td></tr>
-<tr class="memitem:aaffe78d6dae978d9905cf2caf2f883b2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaffe78d6dae978d9905cf2caf2f883b2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>connectToProcessorGraph</b> (AudioProcessorGraph *processorGraph)</td></tr>
-<tr class="memitem:a8570488c01bd73e836cfb1f153d7ec86"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8570488c01bd73e836cfb1f153d7ec86"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>disconnectProcessorGraph</b> ()</td></tr>
-<tr class="memitem:a5f6d992b7a5c267332416f8ee0b1aff0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f6d992b7a5c267332416f8ee0b1aff0"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>callbacksAreActive</b> ()</td></tr>
-<tr class="memitem:afa720e702e65def918da93505a4a9e7e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa720e702e65def918da93505a4a9e7e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>restartDevice</b> ()</td></tr>
-<tr class="memitem:ac85bf5472fbb1112b8429e26bcea6bc1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac85bf5472fbb1112b8429e26bcea6bc1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>stopDevice</b> ()</td></tr>
+<tr class="memitem:aaea64af7cd81778f6737f0a4bee35394"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioComponent.html#aaea64af7cd81778f6737f0a4bee35394">AudioComponent</a> ()</td></tr>
+<tr class="memitem:a68bf2351458d61601aad7abeb3f58588"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioComponent.html#a68bf2351458d61601aad7abeb3f58588">~AudioComponent</a> ()</td></tr>
+<tr class="memitem:a39ef696dde4891e20b17adb0c8057740"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioComponent.html#a39ef696dde4891e20b17adb0c8057740">beginCallbacks</a> ()</td></tr>
+<tr class="memitem:a78e2a818d271fb26387d41875271e4ba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioComponent.html#a78e2a818d271fb26387d41875271e4ba">endCallbacks</a> ()</td></tr>
+<tr class="memitem:aaffe78d6dae978d9905cf2caf2f883b2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioComponent.html#aaffe78d6dae978d9905cf2caf2f883b2">connectToProcessorGraph</a> (AudioProcessorGraph *processorGraph)</td></tr>
+<tr class="memitem:a8570488c01bd73e836cfb1f153d7ec86"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioComponent.html#a8570488c01bd73e836cfb1f153d7ec86">disconnectProcessorGraph</a> ()</td></tr>
+<tr class="memitem:a5f6d992b7a5c267332416f8ee0b1aff0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioComponent.html#a5f6d992b7a5c267332416f8ee0b1aff0">callbacksAreActive</a> ()</td></tr>
+<tr class="memitem:afa720e702e65def918da93505a4a9e7e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioComponent.html#afa720e702e65def918da93505a4a9e7e">restartDevice</a> ()</td></tr>
+<tr class="memitem:ac85bf5472fbb1112b8429e26bcea6bc1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioComponent.html#ac85bf5472fbb1112b8429e26bcea6bc1">stopDevice</a> ()</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a84f78369c478a8531a258ba8683033e1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a84f78369c478a8531a258ba8683033e1"></a>
-AudioDeviceManager&#160;</td><td class="memItemRight" valign="bottom"><b>deviceManager</b></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a7a880353dbbe26c1e6ab830bea62d340"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a880353dbbe26c1e6ab830bea62d340"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</b> (<a class="el" href="classAudioComponent.html">AudioComponent</a>)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:afc6f4562aa55d071a5f2a9607899ee91"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc6f4562aa55d071a5f2a9607899ee91"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isPlaying</b></td></tr>
-<tr class="memitem:adebf82b36bfd76e3bfd9bbe3d40d4dad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adebf82b36bfd76e3bfd9bbe3d40d4dad"></a>
-AudioProcessorPlayer *&#160;</td><td class="memItemRight" valign="bottom"><b>graphPlayer</b></td></tr>
+<tr class="memitem:a84f78369c478a8531a258ba8683033e1"><td class="memItemLeft" align="right" valign="top">AudioDeviceManager&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioComponent.html#a84f78369c478a8531a258ba8683033e1">deviceManager</a></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Interfaces with system audio hardware. </p>
-<p>Uses the audio card to generate the callbacks to run the <a class="el" href="classProcessorGraph.html">ProcessorGraph</a> during data acquisition.</p>
+<p>Uses the audio card to generate the callbacks to run the <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> during data acquisition.</p>
 <p>Sends output to the audio card for audio monitoring.</p>
 <p>Determines the initial size of the sample buffer (crucial for real-time feedback latency).</p>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a>, <a class="el" href="classProcessorGraph.html">ProcessorGraph</a> </dd></dl>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
-<li>Audio/<a class="el" href="AudioComponent_8h_source.html">AudioComponent.h</a></li>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a>, <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="aaea64af7cd81778f6737f0a4bee35394"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AudioComponent::AudioComponent </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a68bf2351458d61601aad7abeb3f58588"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AudioComponent::~AudioComponent </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a39ef696dde4891e20b17adb0c8057740"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioComponent::beginCallbacks </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a5f6d992b7a5c267332416f8ee0b1aff0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool AudioComponent::callbacksAreActive </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aaffe78d6dae978d9905cf2caf2f883b2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioComponent::connectToProcessorGraph </td>
+          <td>(</td>
+          <td class="paramtype">AudioProcessorGraph *&#160;</td>
+          <td class="paramname"><em>processorGraph</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a8570488c01bd73e836cfb1f153d7ec86"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioComponent::disconnectProcessorGraph </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a78e2a818d271fb26387d41875271e4ba"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioComponent::endCallbacks </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="afa720e702e65def918da93505a4a9e7e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioComponent::restartDevice </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac85bf5472fbb1112b8429e26bcea6bc1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioComponent::stopDevice </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="a84f78369c478a8531a258ba8683033e1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AudioDeviceManager AudioComponent::deviceManager</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="AudioComponent_8h.html">AudioComponent.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

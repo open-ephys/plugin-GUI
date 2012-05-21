@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,38 +82,100 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">CPUMeter Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p>Displays the CPU load used up by the data processing callbacks.  
+ <a href="classCPUMeter.html#details">More...</a></p>
+
+<p><code>#include &lt;ControlPanel.h&gt;</code></p>
+
 <p><a href="classCPUMeter-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:acec74e9f60516cd756c0f4a6e8cc7c60"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acec74e9f60516cd756c0f4a6e8cc7c60"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>updateCPU</b> (float usage)</td></tr>
-<tr class="memitem:a010aa0a79b6ad5056ea7805266f36403"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a010aa0a79b6ad5056ea7805266f36403"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paint</b> (Graphics &amp;g)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a0f6d8aec5c432c61c8f7a1fe255967da"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0f6d8aec5c432c61c8f7a1fe255967da"></a>
-Font&#160;</td><td class="memItemRight" valign="bottom"><b>font</b></td></tr>
-<tr class="memitem:a630638ac674c7dbd9d29e058f5005fb5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a630638ac674c7dbd9d29e058f5005fb5"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>cpu</b></td></tr>
-<tr class="memitem:a8112f3d9893336aa9dbdc61050304e81"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8112f3d9893336aa9dbdc61050304e81"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>lastCpu</b></td></tr>
+<tr class="memitem:aa84fe9b89bf375e3389c1745631e9762"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUMeter.html#aa84fe9b89bf375e3389c1745631e9762">CPUMeter</a> ()</td></tr>
+<tr class="memitem:a44d1ffc07adda9aeb9639f7889f2b1a0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUMeter.html#a44d1ffc07adda9aeb9639f7889f2b1a0">~CPUMeter</a> ()</td></tr>
+<tr class="memitem:acec74e9f60516cd756c0f4a6e8cc7c60"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUMeter.html#acec74e9f60516cd756c0f4a6e8cc7c60">updateCPU</a> (float usage)</td></tr>
+<tr class="memitem:a010aa0a79b6ad5056ea7805266f36403"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUMeter.html#a010aa0a79b6ad5056ea7805266f36403">paint</a> (Graphics &amp;g)</td></tr>
 </table>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>Displays the CPU load used up by the data processing callbacks. </p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classControlPanel.html" title="Provides general application controls.">ControlPanel</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="aa84fe9b89bf375e3389c1745631e9762"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">CPUMeter::CPUMeter </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a44d1ffc07adda9aeb9639f7889f2b1a0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">CPUMeter::~CPUMeter </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a010aa0a79b6ad5056ea7805266f36403"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CPUMeter::paint </td>
+          <td>(</td>
+          <td class="paramtype">Graphics &amp;&#160;</td>
+          <td class="paramname"><em>g</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="acec74e9f60516cd756c0f4a6e8cc7c60"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CPUMeter::updateCPU </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>usage</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>UI/<a class="el" href="ControlPanel_8h_source.html">ControlPanel.h</a></li>
+<li><a class="el" href="ControlPanel_8h.html">ControlPanel.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

@@ -30,16 +30,18 @@
 
 #include <stdio.h>
 
+
+class ChannelSelectorButton;
+class EditorButton;
+
 /**
   
-  Automatically creates an interactive editor for selecting channels
+  Automatically creates an interactive editor for selecting channels.
 
   @see GenericEditor
 
 */
 
-class ChannelSelectorButton;
-class EditorButton;
 
 class ChannelSelector : public Component,
 						public Button::Listener,
@@ -132,6 +134,13 @@ private:
 
 };
 
+/**
+  
+  A button within the ChannelSelector representing an individual channel.
+
+  @see ChannelSelector
+
+*/
 
 class EditorButton : public Button
 {

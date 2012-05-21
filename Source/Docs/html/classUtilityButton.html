@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,74 +82,182 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">UtilityButton Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p>A button that displays text.  
+ <a href="classUtilityButton.html#details">More...</a></p>
+
+<p><code>#include &lt;GenericEditor.h&gt;</code></p>
+
 <p><a href="classUtilityButton-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5eefdacd94ea6636c1671bd30268ae76"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5eefdacd94ea6636c1671bd30268ae76"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>UtilityButton</b> (const String &amp;label_, Font font_)</td></tr>
-<tr class="memitem:adae51ec7dbb328f92aeee30d0b96ea80"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adae51ec7dbb328f92aeee30d0b96ea80"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setCorners</b> (bool UL, bool UR, bool LL, bool LR)</td></tr>
-<tr class="memitem:aa703482b887e1f8d4b123cf11549619a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa703482b887e1f8d4b123cf11549619a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setRadius</b> (float r)</td></tr>
-<tr class="memitem:a81ac09396e3475f7d3ec20299b1ba445"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a81ac09396e3475f7d3ec20299b1ba445"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setEnabledState</b> (bool)</td></tr>
-<tr class="memitem:a247a7d048da7deb4f4b8537f1cce05e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a247a7d048da7deb4f4b8537f1cce05e4"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>getEnabledState</b> ()</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:aaa24c18aee5f1df3ee10277a8f558f3a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa24c18aee5f1df3ee10277a8f558f3a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paintButton</b> (Graphics &amp;g, bool isMouseOver, bool isButtonDown)</td></tr>
-<tr class="memitem:ac08e08174673146fddc257f3bc5972d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac08e08174673146fddc257f3bc5972d1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>resized</b> ()</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:aa546e57b46b8421960a2f44356519374"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa546e57b46b8421960a2f44356519374"></a>
-const String&#160;</td><td class="memItemRight" valign="bottom"><b>label</b></td></tr>
-<tr class="memitem:a167cd427e65ee235d7cd7cbf1c5bd0b1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a167cd427e65ee235d7cd7cbf1c5bd0b1"></a>
-Font&#160;</td><td class="memItemRight" valign="bottom"><b>font</b></td></tr>
-<tr class="memitem:a5764d2ecaf8d351ddfec645cc5c8c9b8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5764d2ecaf8d351ddfec645cc5c8c9b8"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>roundUL</b></td></tr>
-<tr class="memitem:a28ac7cdc8989d02ed9de37fee2a69d60"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a28ac7cdc8989d02ed9de37fee2a69d60"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>roundUR</b></td></tr>
-<tr class="memitem:abe36ec1a745ae8038577a93b83cc64a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe36ec1a745ae8038577a93b83cc64a8"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>roundLL</b></td></tr>
-<tr class="memitem:ae164d537e1a9de5b4876aea19091468f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae164d537e1a9de5b4876aea19091468f"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>roundLR</b></td></tr>
-<tr class="memitem:ab077438a18aee979e440f8e240cf7ec7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab077438a18aee979e440f8e240cf7ec7"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>radius</b></td></tr>
-<tr class="memitem:a69b52bad0ed0e10436b850db09822d5f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a69b52bad0ed0e10436b850db09822d5f"></a>
-ColourGradient&#160;</td><td class="memItemRight" valign="bottom"><b>selectedGrad</b></td></tr>
-<tr class="memitem:a1a8c608e3e9accf5ffbc66ad182d61e3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1a8c608e3e9accf5ffbc66ad182d61e3"></a>
-ColourGradient&#160;</td><td class="memItemRight" valign="bottom"><b>selectedOverGrad</b></td></tr>
-<tr class="memitem:a18ca4f6648554c0f744f09ee78365843"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18ca4f6648554c0f744f09ee78365843"></a>
-ColourGradient&#160;</td><td class="memItemRight" valign="bottom"><b>neutralGrad</b></td></tr>
-<tr class="memitem:aa808a3cb8673c8148fee1450ce7c4648"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa808a3cb8673c8148fee1450ce7c4648"></a>
-ColourGradient&#160;</td><td class="memItemRight" valign="bottom"><b>neutralOverGrad</b></td></tr>
-<tr class="memitem:ae32c460e56bbeaaa7ab2bcd9081bb35c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae32c460e56bbeaaa7ab2bcd9081bb35c"></a>
-Colour&#160;</td><td class="memItemRight" valign="bottom"><b>fontColor</b></td></tr>
-<tr class="memitem:a70fe4c7e3ad6f5267bbcc304f324747c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a70fe4c7e3ad6f5267bbcc304f324747c"></a>
-Path&#160;</td><td class="memItemRight" valign="bottom"><b>outlinePath</b></td></tr>
-<tr class="memitem:ae37208d29f863b9405b5990016c13ce3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae37208d29f863b9405b5990016c13ce3"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isEnabled</b></td></tr>
+<tr class="memitem:a5eefdacd94ea6636c1671bd30268ae76"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUtilityButton.html#a5eefdacd94ea6636c1671bd30268ae76">UtilityButton</a> (const String &amp;label_, Font font_)</td></tr>
+<tr class="memitem:aea304fe753556270f75eab29d9d2c7f7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUtilityButton.html#aea304fe753556270f75eab29d9d2c7f7">~UtilityButton</a> ()</td></tr>
+<tr class="memitem:adae51ec7dbb328f92aeee30d0b96ea80"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUtilityButton.html#adae51ec7dbb328f92aeee30d0b96ea80">setCorners</a> (bool UL, bool UR, bool LL, bool LR)</td></tr>
+<tr class="memitem:aa703482b887e1f8d4b123cf11549619a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUtilityButton.html#aa703482b887e1f8d4b123cf11549619a">setRadius</a> (float r)</td></tr>
+<tr class="memitem:a81ac09396e3475f7d3ec20299b1ba445"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUtilityButton.html#a81ac09396e3475f7d3ec20299b1ba445">setEnabledState</a> (bool)</td></tr>
+<tr class="memitem:a247a7d048da7deb4f4b8537f1cce05e4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUtilityButton.html#a247a7d048da7deb4f4b8537f1cce05e4">getEnabledState</a> ()</td></tr>
 </table>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>A button that displays text. </p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericEditor.html" title="Base class for creating processor editors.">GenericEditor</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a5eefdacd94ea6636c1671bd30268ae76"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">UtilityButton::UtilityButton </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname"><em>label_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Font&#160;</td>
+          <td class="paramname"><em>font_</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aea304fe753556270f75eab29d9d2c7f7"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">UtilityButton::~UtilityButton </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a247a7d048da7deb4f4b8537f1cce05e4"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool UtilityButton::getEnabledState </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="adae51ec7dbb328f92aeee30d0b96ea80"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void UtilityButton::setCorners </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>UL</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>UR</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>LL</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>LR</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a81ac09396e3475f7d3ec20299b1ba445"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void UtilityButton::setEnabledState </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa703482b887e1f8d4b123cf11549619a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void UtilityButton::setRadius </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>r</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/Editors/<a class="el" href="GenericEditor_8h_source.html">GenericEditor.h</a></li>
+<li><a class="el" href="GenericEditor_8h.html">GenericEditor.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:39 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

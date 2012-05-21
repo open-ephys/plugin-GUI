@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,50 +82,150 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">ChannelSelectorButton Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p><code>#include &lt;ChannelSelector.h&gt;</code></p>
+
 <p><a href="classChannelSelectorButton-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a603b11b50a5d7d0ab0584d96c5df5af6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a603b11b50a5d7d0ab0584d96c5df5af6"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ChannelSelectorButton</b> (int num, int type, Font &amp;f)</td></tr>
-<tr class="memitem:aede9669c1eb850ea9fad5951191a1395"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aede9669c1eb850ea9fad5951191a1395"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getType</b> ()</td></tr>
-<tr class="memitem:a72a60be5744bd2b48c73d22ba8a521ef"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a72a60be5744bd2b48c73d22ba8a521ef"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getChannel</b> ()</td></tr>
-<tr class="memitem:ab7e744dcfc1f0d55ab6181b4efe67cd7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab7e744dcfc1f0d55ab6181b4efe67cd7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setActive</b> (bool t)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a186afb04c09259eda02e7b71e9621048"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a186afb04c09259eda02e7b71e9621048"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paintButton</b> (Graphics &amp;g, bool isMouseOver, bool isButtonDown)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a8fe985d2a919345df765645ab0739a34"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8fe985d2a919345df765645ab0739a34"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
-<tr class="memitem:a028cf4444da6e26567607fab6ce22480"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a028cf4444da6e26567607fab6ce22480"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>num</b></td></tr>
-<tr class="memitem:afc4bc7b11806000fe2cd73bdee3162e8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc4bc7b11806000fe2cd73bdee3162e8"></a>
-Font&#160;</td><td class="memItemRight" valign="bottom"><b>buttonFont</b></td></tr>
-<tr class="memitem:a233145792539cd5f20fefaa60ca568f1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a233145792539cd5f20fefaa60ca568f1"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isActive</b></td></tr>
+<tr class="memitem:a603b11b50a5d7d0ab0584d96c5df5af6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classChannelSelectorButton.html#a603b11b50a5d7d0ab0584d96c5df5af6">ChannelSelectorButton</a> (int num, int type, Font &amp;f)</td></tr>
+<tr class="memitem:a44115efdcc440d35d08fb79aac361fb5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classChannelSelectorButton.html#a44115efdcc440d35d08fb79aac361fb5">~ChannelSelectorButton</a> ()</td></tr>
+<tr class="memitem:aede9669c1eb850ea9fad5951191a1395"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classChannelSelectorButton.html#aede9669c1eb850ea9fad5951191a1395">getType</a> ()</td></tr>
+<tr class="memitem:a72a60be5744bd2b48c73d22ba8a521ef"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classChannelSelectorButton.html#a72a60be5744bd2b48c73d22ba8a521ef">getChannel</a> ()</td></tr>
+<tr class="memitem:ab7e744dcfc1f0d55ab6181b4efe67cd7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classChannelSelectorButton.html#ab7e744dcfc1f0d55ab6181b4efe67cd7">setActive</a> (bool t)</td></tr>
 </table>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a603b11b50a5d7d0ab0584d96c5df5af6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ChannelSelectorButton::ChannelSelectorButton </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Font &amp;&#160;</td>
+          <td class="paramname"><em>f</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a44115efdcc440d35d08fb79aac361fb5"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">ChannelSelectorButton::~ChannelSelectorButton </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a72a60be5744bd2b48c73d22ba8a521ef"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ChannelSelectorButton::getChannel </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aede9669c1eb850ea9fad5951191a1395"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ChannelSelectorButton::getType </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ab7e744dcfc1f0d55ab6181b4efe67cd7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ChannelSelectorButton::setActive </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>t</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/Editors/<a class="el" href="ChannelSelector_8h_source.html">ChannelSelector.h</a></li>
+<li><a class="el" href="ChannelSelector_8h.html">ChannelSelector.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

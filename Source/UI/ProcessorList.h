@@ -28,6 +28,9 @@
 #include "../Processors/Visualization/OpenGLCanvas.h"
 #include "../AccessClass.h"
 
+class ProcessorListItem;
+class UIComponent;
+
 /**
   
   Holds a list of processors that can be used to build the signal
@@ -36,12 +39,9 @@
   Must be manually updated every time a new processor is created,
   and the names must match those recognized by the ProcessorGraph.
 
-  @see ProcessorViewport, ProcessorGraph
+  @see EditorViewport, ProcessorGraph
 
 */
-
-class ProcessorListItem;
-class UIComponent;
 
 class ProcessorList : public OpenGLCanvas,
 				   public DragAndDropContainer,

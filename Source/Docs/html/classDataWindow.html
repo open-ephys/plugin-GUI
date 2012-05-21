@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,9 +82,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">DataWindow Class Reference</div>  </div>
 </div><!--header-->
@@ -93,37 +91,74 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Allows OpenGL visualizers to be placed in their own window.  
  <a href="classDataWindow.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="DataWindow_8h_source.html">DataWindow.h</a>&gt;</code></p>
+<p><code>#include &lt;DataWindow.h&gt;</code></p>
 
 <p><a href="classDataWindow-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a2c1a0313c6a13ebf16c40db1a5832cca"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2c1a0313c6a13ebf16c40db1a5832cca"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>DataWindow</b> (Button *button)</td></tr>
-<tr class="memitem:ad3e0318d8e542aa12b30791441cae5ab"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3e0318d8e542aa12b30791441cae5ab"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>closeButtonPressed</b> ()</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a4e4c8bb6b88c32202f4ee263aef5cbf5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4e4c8bb6b88c32202f4ee263aef5cbf5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</b> (<a class="el" href="classDataWindow.html">DataWindow</a>)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a561ef07ade52eb60a50a13c1c6fc1622"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a561ef07ade52eb60a50a13c1c6fc1622"></a>
-Button *&#160;</td><td class="memItemRight" valign="bottom"><b>controlButton</b></td></tr>
+<tr class="memitem:a2c1a0313c6a13ebf16c40db1a5832cca"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataWindow.html#a2c1a0313c6a13ebf16c40db1a5832cca">DataWindow</a> (Button *button)</td></tr>
+<tr class="memitem:a6e72c3705abc085d3d84cb182493cd6a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataWindow.html#a6e72c3705abc085d3d84cb182493cd6a">~DataWindow</a> ()</td></tr>
+<tr class="memitem:ad3e0318d8e542aa12b30791441cae5ab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataWindow.html#ad3e0318d8e542aa12b30791441cae5ab">closeButtonPressed</a> ()</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Allows OpenGL visualizers to be placed in their own window. </p>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classDataViewport.html">DataViewport</a>, <a class="el" href="classOpenGLCanvas.html">OpenGLCanvas</a> </dd></dl>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/Visualization/<a class="el" href="DataWindow_8h_source.html">DataWindow.h</a></li>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classDataViewport.html" title="Holds tabs for visualizers.">DataViewport</a>, <a class="el" href="classOpenGLCanvas.html" title="Can be subclassed to create OpenGL visualizers.">OpenGLCanvas</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a2c1a0313c6a13ebf16c40db1a5832cca"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DataWindow::DataWindow </td>
+          <td>(</td>
+          <td class="paramtype">Button *&#160;</td>
+          <td class="paramname"><em>button</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6e72c3705abc085d3d84cb182493cd6a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DataWindow::~DataWindow </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="ad3e0318d8e542aa12b30791441cae5ab"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void DataWindow::closeButtonPressed </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="DataWindow_8h.html">DataWindow.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

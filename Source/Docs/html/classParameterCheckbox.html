@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,44 +82,68 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">ParameterCheckbox Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p><code>#include &lt;ParameterEditor.h&gt;</code></p>
+
 <p><a href="classParameterCheckbox-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a0cbf41733b9adf5c052a6191471a3bf1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0cbf41733b9adf5c052a6191471a3bf1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ParameterCheckbox</b> (bool defaultState)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a5c4f3c9168930acba05420d73eef27d7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5c4f3c9168930acba05420d73eef27d7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paintButton</b> (Graphics &amp;g, bool isMouseOver, bool isButtonDown)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:ac5c3d91e3a6d989d5221f47c36174823"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac5c3d91e3a6d989d5221f47c36174823"></a>
-ColourGradient&#160;</td><td class="memItemRight" valign="bottom"><b>selectedGrad</b></td></tr>
-<tr class="memitem:a3176afbf0afc9747b3a8eae6d03515e7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3176afbf0afc9747b3a8eae6d03515e7"></a>
-ColourGradient&#160;</td><td class="memItemRight" valign="bottom"><b>selectedOverGrad</b></td></tr>
-<tr class="memitem:a0a1063e260bee5d2cb5e930c498768f7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0a1063e260bee5d2cb5e930c498768f7"></a>
-ColourGradient&#160;</td><td class="memItemRight" valign="bottom"><b>neutralGrad</b></td></tr>
-<tr class="memitem:a38234e37e544e473f48c3e540db1de8f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a38234e37e544e473f48c3e540db1de8f"></a>
-ColourGradient&#160;</td><td class="memItemRight" valign="bottom"><b>neutralOverGrad</b></td></tr>
+<tr class="memitem:a0cbf41733b9adf5c052a6191471a3bf1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameterCheckbox.html#a0cbf41733b9adf5c052a6191471a3bf1">ParameterCheckbox</a> (bool defaultState)</td></tr>
+<tr class="memitem:a412e6d5007f438fa6a3614b56e48e8bb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameterCheckbox.html#a412e6d5007f438fa6a3614b56e48e8bb">~ParameterCheckbox</a> ()</td></tr>
 </table>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a0cbf41733b9adf5c052a6191471a3bf1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ParameterCheckbox::ParameterCheckbox </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>defaultState</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a412e6d5007f438fa6a3614b56e48e8bb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">ParameterCheckbox::~ParameterCheckbox </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/Editors/<a class="el" href="ParameterEditor_8h_source.html">ParameterEditor.h</a></li>
+<li><a class="el" href="ParameterEditor_8h.html">ParameterEditor.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:39 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

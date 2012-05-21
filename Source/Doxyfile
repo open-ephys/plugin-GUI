@@ -119,7 +119,7 @@ INLINE_INHERITED_MEMB  = NO
 # path before files name in the file list and in the header files. If set
 # to NO the shortest path that makes the file name unique will be used.
 
-FULL_PATH_NAMES        = YES
+FULL_PATH_NAMES        = NO
 
 # If the FULL_PATH_NAMES tag is set to YES then the STRIP_FROM_PATH tag
 # can be used to strip a user-defined part of the path. Stripping is
@@ -184,7 +184,7 @@ SEPARATE_MEMBER_PAGES  = NO
 # The TAB_SIZE tag can be used to set the number of spaces in a tab.
 # Doxygen uses this value to replace tabs by spaces in code fragments.
 
-TAB_SIZE               = 8
+TAB_SIZE               = 4
 
 # This tag can be used to specify a number of aliases that acts
 # as commands in the documentation. An alias has the form "name=value".
@@ -355,12 +355,12 @@ LOOKUP_CACHE_SIZE      = 0
 # Private class members and static file members will be hidden unless
 # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
 
-EXTRACT_ALL            = NO
+EXTRACT_ALL            = YES
 
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
 
-EXTRACT_PRIVATE        = YES
+EXTRACT_PRIVATE        = NO
 
 # If the EXTRACT_PACKAGE tag is set to YES all members with package or internal scope will be included in the documentation.
 
@@ -419,14 +419,14 @@ HIDE_FRIEND_COMPOUNDS  = NO
 # If set to NO (the default) these blocks will be appended to the
 # function's detailed documentation block.
 
-HIDE_IN_BODY_DOCS      = NO
+HIDE_IN_BODY_DOCS      = YES
 
 # The INTERNAL_DOCS tag determines if documentation
 # that is typed after a \internal command is included. If the tag is set
 # to NO (the default) then the documentation will be excluded.
 # Set it to YES to include the internal documentation.
 
-INTERNAL_DOCS          = NO
+INTERNAL_DOCS          = YES
 
 # If the CASE_SENSE_NAMES tag is set to NO then Doxygen will only generate
 # file names in lower-case letters. If set to YES upper-case letters are also
@@ -545,7 +545,7 @@ ENABLED_SECTIONS       =
 # documentation can be controlled using \showinitializer or \hideinitializer
 # command in the documentation regardless of this setting.
 
-MAX_INITIALIZER_LINES  = 30
+MAX_INITIALIZER_LINES  = 32
 
 # Set the SHOW_USED_FILES tag to NO to disable the list of files generated
 # at the bottom of the documentation of classes and structs. If set to YES the
@@ -564,7 +564,7 @@ SHOW_FILES             = YES
 # This will remove the Namespaces entry from the Quick Index
 # and from the Folder Tree View (if specified). The default is YES.
 
-SHOW_NAMESPACES        = YES
+SHOW_NAMESPACES        = NO
 
 # The FILE_VERSION_FILTER tag can be used to specify a program or script that
 # doxygen should invoke to get the current version for each file (typically from
@@ -793,19 +793,19 @@ INLINE_SOURCES         = NO
 # doxygen to hide any special comment blocks from generated source code
 # fragments. Normal C and C++ comments will always remain visible.
 
-STRIP_CODE_COMMENTS    = NO
+STRIP_CODE_COMMENTS    = YES
 
 # If the REFERENCED_BY_RELATION tag is set to YES
 # then for each documented function all documented
 # functions referencing it will be listed.
 
-REFERENCED_BY_RELATION = NO
+REFERENCED_BY_RELATION = YES
 
 # If the REFERENCES_RELATION tag is set to YES
 # then for each documented function all documented entities
 # called/used by that function will be listed.
 
-REFERENCES_RELATION    = NO
+REFERENCES_RELATION    = YES
 
 # If the REFERENCES_LINK_SOURCE tag is set to YES (the default)
 # and SOURCE_BROWSER tag is set to YES, then the hyperlinks from
@@ -827,7 +827,7 @@ USE_HTAGS              = NO
 # will generate a verbatim copy of the header file for each class for
 # which an include is specified. Set to NO to disable this.
 
-VERBATIM_HEADERS       = YES
+VERBATIM_HEADERS       = NO
 
 #---------------------------------------------------------------------------
 # configuration options related to the alphabetical class index

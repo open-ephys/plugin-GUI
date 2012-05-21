@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -83,9 +83,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="#pri-types">Private Types</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-attribs">Public Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">ParameterEditor Class Reference</div>  </div>
 </div><!--header-->
@@ -94,62 +92,179 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Automatically creates an interactive editor for a particular parameter.  
  <a href="classParameterEditor.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="ParameterEditor_8h_source.html">ParameterEditor.h</a>&gt;</code></p>
+<p><code>#include &lt;ParameterEditor.h&gt;</code></p>
 
 <p><a href="classParameterEditor-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5dc3516d57088e43b2594077abac9229"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5dc3516d57088e43b2594077abac9229"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ParameterEditor</b> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *proc, <a class="el" href="classParameter.html">Parameter</a> &amp;p, Font labelFont)</td></tr>
-<tr class="memitem:a3642982edfaf45fcd4a75251de47a7d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3642982edfaf45fcd4a75251de47a7d1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>parentHierarchyChanged</b> ()</td></tr>
-<tr class="memitem:aa4cc89334e9f4060253a68854ffbf6a5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa4cc89334e9f4060253a68854ffbf6a5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>buttonClicked</b> (Button *button)</td></tr>
-<tr class="memitem:a4d01772de9fcc90aa059172aac956183"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4d01772de9fcc90aa059172aac956183"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>sliderValueChanged</b> (Slider *slider)</td></tr>
-<tr class="memitem:a2bbf1ac9398bb026cb2de2f493ab7c08"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2bbf1ac9398bb026cb2de2f493ab7c08"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setChannelSelector</b> (<a class="el" href="classChannelSelector.html">ChannelSelector</a> *ch)</td></tr>
+<tr class="memitem:a5dc3516d57088e43b2594077abac9229"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameterEditor.html#a5dc3516d57088e43b2594077abac9229">ParameterEditor</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *proc, <a class="el" href="classParameter.html">Parameter</a> &amp;p, Font labelFont)</td></tr>
+<tr class="memitem:a560115dc28e3b1ea465e9cc9b155e40f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameterEditor.html#a560115dc28e3b1ea465e9cc9b155e40f">~ParameterEditor</a> ()</td></tr>
+<tr class="memitem:a3642982edfaf45fcd4a75251de47a7d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameterEditor.html#a3642982edfaf45fcd4a75251de47a7d1">parentHierarchyChanged</a> ()</td></tr>
+<tr class="memitem:aa4cc89334e9f4060253a68854ffbf6a5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameterEditor.html#aa4cc89334e9f4060253a68854ffbf6a5">buttonClicked</a> (Button *button)</td></tr>
+<tr class="memitem:a4d01772de9fcc90aa059172aac956183"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameterEditor.html#a4d01772de9fcc90aa059172aac956183">sliderValueChanged</a> (Slider *slider)</td></tr>
+<tr class="memitem:a2bbf1ac9398bb026cb2de2f493ab7c08"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameterEditor.html#a2bbf1ac9398bb026cb2de2f493ab7c08">setChannelSelector</a> (<a class="el" href="classChannelSelector.html">ChannelSelector</a> *ch)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:aaf62ff28c11605e190aa098d0af13907"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaf62ff28c11605e190aa098d0af13907"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>desiredWidth</b></td></tr>
-<tr class="memitem:a558f492aa13acaef4cd65132fbbcdc9f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a558f492aa13acaef4cd65132fbbcdc9f"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>desiredHeight</b></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-types"></a>
-Private Types</h2></td></tr>
-<tr class="memitem:a04266c981ea6b22c5a9fd4727f428463"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>LEFT</b>, 
-<b>MIDDLE</b>, 
-<b>RIGHT</b>
- }</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a32f7ab3ffbe27803677295a51aa15a8e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a32f7ab3ffbe27803677295a51aa15a8e"></a>
-Array&lt; Slider * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sliderArray</b></td></tr>
-<tr class="memitem:a386d3dd60d24695937c2013a969196c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a386d3dd60d24695937c2013a969196c5"></a>
-Array&lt; Button * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>buttonArray</b></td></tr>
-<tr class="memitem:ad44b9f967fdc823f8d079253dd49744c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad44b9f967fdc823f8d079253dd49744c"></a>
-Array&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>buttonIdArray</b></td></tr>
-<tr class="memitem:a0b47ca4f8e1b04d8fa0e74f65202af57"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b47ca4f8e1b04d8fa0e74f65202af57"></a>
-Array&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sliderIdArray</b></td></tr>
-<tr class="memitem:ae0cc3f3aa09a4e490891ba4f860544fd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae0cc3f3aa09a4e490891ba4f860544fd"></a>
-<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>processor</b></td></tr>
-<tr class="memitem:acc6ef739b4229d97fa45d026293296a9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acc6ef739b4229d97fa45d026293296a9"></a>
-<a class="el" href="classChannelSelector.html">ChannelSelector</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>channelSelector</b></td></tr>
+<tr class="memitem:aaf62ff28c11605e190aa098d0af13907"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameterEditor.html#aaf62ff28c11605e190aa098d0af13907">desiredWidth</a></td></tr>
+<tr class="memitem:a558f492aa13acaef4cd65132fbbcdc9f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParameterEditor.html#a558f492aa13acaef4cd65132fbbcdc9f">desiredHeight</a></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Automatically creates an interactive editor for a particular parameter. </p>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericEditor.html">GenericEditor</a>, <a class="el" href="classGenericProcessor.html">GenericProcessor</a>, <a class="el" href="classParameter.html" title="Class for holding user-definable processor parameters.">Parameter</a> </dd></dl>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/Editors/<a class="el" href="ParameterEditor_8h_source.html">ParameterEditor.h</a></li>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericEditor.html" title="Base class for creating processor editors.">GenericEditor</a>, <a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>, <a class="el" href="classParameter.html" title="Class for holding user-definable processor parameters.">Parameter</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a5dc3516d57088e43b2594077abac9229"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ParameterEditor::ParameterEditor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td>
+          <td class="paramname"><em>proc</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classParameter.html">Parameter</a> &amp;&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Font&#160;</td>
+          <td class="paramname"><em>labelFont</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a560115dc28e3b1ea465e9cc9b155e40f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ParameterEditor::~ParameterEditor </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="aa4cc89334e9f4060253a68854ffbf6a5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ParameterEditor::buttonClicked </td>
+          <td>(</td>
+          <td class="paramtype">Button *&#160;</td>
+          <td class="paramname"><em>button</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a3642982edfaf45fcd4a75251de47a7d1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ParameterEditor::parentHierarchyChanged </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a2bbf1ac9398bb026cb2de2f493ab7c08"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ParameterEditor::setChannelSelector </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classChannelSelector.html">ChannelSelector</a> *&#160;</td>
+          <td class="paramname"><em>ch</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a4d01772de9fcc90aa059172aac956183"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ParameterEditor::sliderValueChanged </td>
+          <td>(</td>
+          <td class="paramtype">Slider *&#160;</td>
+          <td class="paramname"><em>slider</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="a558f492aa13acaef4cd65132fbbcdc9f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ParameterEditor::desiredHeight</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aaf62ff28c11605e190aa098d0af13907"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ParameterEditor::desiredWidth</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="ParameterEditor_8h.html">ParameterEditor.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:39 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

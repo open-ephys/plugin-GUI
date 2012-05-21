@@ -27,6 +27,8 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../AccessClass.h"
 
+class GenericEditor;
+
 /**
   
   Holds tabs for visualizers.
@@ -38,8 +40,6 @@
   @see GenericEditor, InfoLabel, LfpDisplayCanvas
 
 */
-
-class GenericEditor;
 
 class DataViewport : public TabbedComponent,
                      public AccessClass

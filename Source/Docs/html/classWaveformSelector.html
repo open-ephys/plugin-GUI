@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,46 +82,68 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">WaveformSelector Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p><code>#include &lt;SignalGeneratorEditor.h&gt;</code></p>
+
 <p><a href="classWaveformSelector-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a8dd23f58ec9ec1e6d3030f4c28d8f6e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8dd23f58ec9ec1e6d3030f4c28d8f6e4"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>WaveformSelector</b> (int type_)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:acf4b6f9652840b65cbc8953ed2b8ef7a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf4b6f9652840b65cbc8953ed2b8ef7a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paintButton</b> (Graphics &amp;g, bool isMouseOver, bool isButtonDown)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:ac828bb6e30456480ae5ab92fe57d8946"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac828bb6e30456480ae5ab92fe57d8946"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
-<tr class="memitem:aa803c3c12878b8e364187e210921e082"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa803c3c12878b8e364187e210921e082"></a>
-Image&#160;</td><td class="memItemRight" valign="bottom"><b>neutral</b></td></tr>
-<tr class="memitem:a5f660ceb49563f4dba7530ee269ec120"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f660ceb49563f4dba7530ee269ec120"></a>
-Image&#160;</td><td class="memItemRight" valign="bottom"><b>neutralOver</b></td></tr>
-<tr class="memitem:abfc2cf4873c6d6fe367802fd10389e01"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abfc2cf4873c6d6fe367802fd10389e01"></a>
-Image&#160;</td><td class="memItemRight" valign="bottom"><b>selected</b></td></tr>
-<tr class="memitem:a942f1ecd144807b5699dc8124d5e82aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a942f1ecd144807b5699dc8124d5e82aa"></a>
-Image&#160;</td><td class="memItemRight" valign="bottom"><b>selectedOver</b></td></tr>
+<tr class="memitem:a8dd23f58ec9ec1e6d3030f4c28d8f6e4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classWaveformSelector.html#a8dd23f58ec9ec1e6d3030f4c28d8f6e4">WaveformSelector</a> (int type_)</td></tr>
+<tr class="memitem:ac9ce5af7909e877522b5cf759708ef5c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classWaveformSelector.html#ac9ce5af7909e877522b5cf759708ef5c">~WaveformSelector</a> ()</td></tr>
 </table>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a8dd23f58ec9ec1e6d3030f4c28d8f6e4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">WaveformSelector::WaveformSelector </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>type_</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac9ce5af7909e877522b5cf759708ef5c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">WaveformSelector::~WaveformSelector </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/Editors/<a class="el" href="SignalGeneratorEditor_8h_source.html">SignalGeneratorEditor.h</a></li>
+<li><a class="el" href="SignalGeneratorEditor_8h.html">SignalGeneratorEditor.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:39 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

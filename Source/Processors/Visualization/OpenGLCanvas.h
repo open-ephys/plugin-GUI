@@ -28,6 +28,15 @@
 
 #include "../../OpenGL.h"
 
+/** 
+
+	Can be subclassed to create OpenGL visualizers.
+
+	Provides convenient methods for loading fonts, setting up a 2D canvas,
+	and drawing scroll bars.
+
+*/
+
 class OpenGLCanvas : public OpenGLComponent, Timer
 
 {

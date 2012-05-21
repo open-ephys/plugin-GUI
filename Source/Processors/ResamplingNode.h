@@ -30,8 +30,6 @@
 #include "GenericProcessor.h"
 
 /**
-  
-  --UNDER CONSTRUCTION--
 
   Changes the sample rate of continuous data.
 

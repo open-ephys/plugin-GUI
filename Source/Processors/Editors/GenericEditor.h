@@ -29,6 +29,13 @@
 #include "../../AccessClass.h"
 #include <stdio.h>
 
+class GenericProcessor;
+class DrawerButton;
+class TriangleButton;
+class UtilityButton;
+class ParameterEditor;
+class ChannelSelector;
+
 /**
   
   Base class for creating processor editors.
@@ -41,13 +48,6 @@
   @see GenericProcessor, EditorViewport
 
 */
-
-class GenericProcessor;
-class DrawerButton;
-class TriangleButton;
-class UtilityButton;
-class ParameterEditor;
-class ChannelSelector;
 
 class GenericEditor : public AudioProcessorEditor,
                       public Timer,
@@ -153,6 +153,13 @@ private:
 
 };
 
+/**
+  
+  Used to show and hide the ChannelSelector.
+
+  @see GenericEditor, ChannelSelector
+
+*/
 
 class DrawerButton : public Button
 {
@@ -164,6 +171,13 @@ private:
 		
 };
 
+/**
+  
+  A button that displays a triangle facing up or down.
+
+  @see GenericEditor
+
+*/
 
 class TriangleButton : public Button
 {
@@ -176,6 +190,14 @@ private:
     
     int direction;
 };
+
+/**
+  
+  A button that displays text.
+
+  @see GenericEditor
+
+*/
 
 class UtilityButton : public Button
 {

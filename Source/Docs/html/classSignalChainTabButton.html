@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -83,72 +83,233 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="#pri-types">Private Types</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-attribs">Public Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">SignalChainTabButton Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p><code>#include &lt;EditorViewport.h&gt;</code></p>
+
 <p><a href="classSignalChainTabButton-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1cf991048d95a2d4f61b337b00fc998c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1cf991048d95a2d4f61b337b00fc998c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setEditor</b> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *p)</td></tr>
-<tr class="memitem:af1a7b2e2ad12fb97ef23faf0546c65e9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af1a7b2e2ad12fb97ef23faf0546c65e9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setManager</b> (<a class="el" href="classSignalChainManager.html">SignalChainManager</a> *scm_)</td></tr>
-<tr class="memitem:a4fa278c7907b1f0d0b2284fc0e2c278e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4fa278c7907b1f0d0b2284fc0e2c278e"></a>
-<a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getEditor</b> ()</td></tr>
-<tr class="memitem:a6eea9cfbb95c76436324c8863121e6b5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6eea9cfbb95c76436324c8863121e6b5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setNumber</b> (int n)</td></tr>
-<tr class="memitem:a79640058185f7d202bc2b8ef001cdcb3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79640058185f7d202bc2b8ef001cdcb3"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>hasNewConnections</b> ()</td></tr>
-<tr class="memitem:a72c57cd3c717b6f9e60e85f6f303f275"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a72c57cd3c717b6f9e60e85f6f303f275"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>hasNewConnections</b> (bool t)</td></tr>
+<tr class="memitem:a862ad928b777d28ddace88d5aa67937a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainTabButton.html#a862ad928b777d28ddace88d5aa67937a">SignalChainTabButton</a> ()</td></tr>
+<tr class="memitem:afdf9b3b767f86176e4e9159d97ce0604"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainTabButton.html#afdf9b3b767f86176e4e9159d97ce0604">~SignalChainTabButton</a> ()</td></tr>
+<tr class="memitem:a1cf991048d95a2d4f61b337b00fc998c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainTabButton.html#a1cf991048d95a2d4f61b337b00fc998c">setEditor</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *p)</td></tr>
+<tr class="memitem:af1a7b2e2ad12fb97ef23faf0546c65e9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainTabButton.html#af1a7b2e2ad12fb97ef23faf0546c65e9">setManager</a> (<a class="el" href="classSignalChainManager.html">SignalChainManager</a> *scm_)</td></tr>
+<tr class="memitem:a4fa278c7907b1f0d0b2284fc0e2c278e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainTabButton.html#a4fa278c7907b1f0d0b2284fc0e2c278e">getEditor</a> ()</td></tr>
+<tr class="memitem:a6eea9cfbb95c76436324c8863121e6b5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainTabButton.html#a6eea9cfbb95c76436324c8863121e6b5">setNumber</a> (int n)</td></tr>
+<tr class="memitem:a79640058185f7d202bc2b8ef001cdcb3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainTabButton.html#a79640058185f7d202bc2b8ef001cdcb3">hasNewConnections</a> ()</td></tr>
+<tr class="memitem:a72c57cd3c717b6f9e60e85f6f303f275"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainTabButton.html#a72c57cd3c717b6f9e60e85f6f303f275">hasNewConnections</a> (bool t)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:aa496c1fd1cff3b6c3026166443053b83"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa496c1fd1cff3b6c3026166443053b83"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>offset</b></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-types"></a>
-Private Types</h2></td></tr>
-<tr class="memitem:ab3cad159d5f50c30aa66e1e371bfab20"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>actions</b> { <b>ADD</b>, 
-<b>MOVE</b>, 
-<b>REMOVE</b>, 
-<b>ACTIVATE</b>
- }</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a22ce515c7e6f5593e9b8becea7bf2228"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a22ce515c7e6f5593e9b8becea7bf2228"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paintButton</b> (Graphics &amp;g, bool isMouseOver, bool isButtonDown)</td></tr>
-<tr class="memitem:a7f4d77fb33b45457bae9b5f7e09d04e7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7f4d77fb33b45457bae9b5f7e09d04e7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>clicked</b> ()</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:afc50b5a3bd5a04c9a6551f8cbb8c017e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc50b5a3bd5a04c9a6551f8cbb8c017e"></a>
-<a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>firstEditor</b></td></tr>
-<tr class="memitem:ae06686616b8f68e3194e3f6e7d9a134d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae06686616b8f68e3194e3f6e7d9a134d"></a>
-<a class="el" href="classSignalChainManager.html">SignalChainManager</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>scm</b></td></tr>
-<tr class="memitem:aaf93a820d48a088fce328e71831c88b8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaf93a820d48a088fce328e71831c88b8"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>num</b></td></tr>
-<tr class="memitem:a183bb733239fb3179fe00aecdc1c555f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a183bb733239fb3179fe00aecdc1c555f"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>configurationChanged</b></td></tr>
-<tr class="memitem:a4ea8ef80ddbcdfa60a869a20f6136080"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4ea8ef80ddbcdfa60a869a20f6136080"></a>
-Font&#160;</td><td class="memItemRight" valign="bottom"><b>buttonFont</b></td></tr>
+<tr class="memitem:aa496c1fd1cff3b6c3026166443053b83"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainTabButton.html#aa496c1fd1cff3b6c3026166443053b83">offset</a></td></tr>
 </table>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a862ad928b777d28ddace88d5aa67937a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SignalChainTabButton::SignalChainTabButton </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="afdf9b3b767f86176e4e9159d97ce0604"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">SignalChainTabButton::~SignalChainTabButton </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a4fa278c7907b1f0d0b2284fc0e2c278e"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classGenericEditor.html">GenericEditor</a>* SignalChainTabButton::getEditor </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a79640058185f7d202bc2b8ef001cdcb3"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool SignalChainTabButton::hasNewConnections </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a72c57cd3c717b6f9e60e85f6f303f275"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SignalChainTabButton::hasNewConnections </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>t</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a1cf991048d95a2d4f61b337b00fc998c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SignalChainTabButton::setEditor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
+          <td class="paramname"><em>p</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="af1a7b2e2ad12fb97ef23faf0546c65e9"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SignalChainTabButton::setManager </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classSignalChainManager.html">SignalChainManager</a> *&#160;</td>
+          <td class="paramname"><em>scm_</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6eea9cfbb95c76436324c8863121e6b5"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SignalChainTabButton::setNumber </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>n</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="aa496c1fd1cff3b6c3026166443053b83"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int SignalChainTabButton::offset</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>UI/<a class="el" href="EditorViewport_8h_source.html">EditorViewport.h</a></li>
+<li><a class="el" href="EditorViewport_8h.html">EditorViewport.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:39 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

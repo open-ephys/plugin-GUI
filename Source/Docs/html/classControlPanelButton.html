@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,46 +82,172 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">ControlPanelButton Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p>Used to show and hide the file browser within the <a class="el" href="classControlPanel.html" title="Provides general application controls.">ControlPanel</a>.  
+ <a href="classControlPanelButton.html#details">More...</a></p>
+
+<p><code>#include &lt;ControlPanel.h&gt;</code></p>
+
 <p><a href="classControlPanelButton-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aeeb4bd4128b5301ac902f5e1d3da1eea"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeeb4bd4128b5301ac902f5e1d3da1eea"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ControlPanelButton</b> (<a class="el" href="classControlPanel.html">ControlPanel</a> *cp_)</td></tr>
-<tr class="memitem:a49dd109b769582b9598a0f454fd39f06"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a49dd109b769582b9598a0f454fd39f06"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isOpen</b> ()</td></tr>
-<tr class="memitem:a0158e881227f2382bdd3c71dada7f7f6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0158e881227f2382bdd3c71dada7f7f6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>toggleState</b> ()</td></tr>
-<tr class="memitem:a84715321abda621693cec2bab8c283fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a84715321abda621693cec2bab8c283fe"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>newOpenGLContextCreated</b> ()</td></tr>
-<tr class="memitem:a9ea43519c7ca66fb9920625936564a9f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9ea43519c7ca66fb9920625936564a9f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>renderOpenGL</b> ()</td></tr>
-<tr class="memitem:afdf353dfcec135b9150a3bda9e2da0e6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afdf353dfcec135b9150a3bda9e2da0e6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>drawButton</b> ()</td></tr>
-<tr class="memitem:a9b3041e05e6dcdb77020e78a3b0c2e26"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b3041e05e6dcdb77020e78a3b0c2e26"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseDown</b> (const MouseEvent &amp;e)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:af324dcbcd32fdd7e7a1636ba8749f1c1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af324dcbcd32fdd7e7a1636ba8749f1c1"></a>
-<a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>cp</b></td></tr>
-<tr class="memitem:a8963abee7f6d639bf0f192532d465f95"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8963abee7f6d639bf0f192532d465f95"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>open</b></td></tr>
+<tr class="memitem:aeeb4bd4128b5301ac902f5e1d3da1eea"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanelButton.html#aeeb4bd4128b5301ac902f5e1d3da1eea">ControlPanelButton</a> (<a class="el" href="classControlPanel.html">ControlPanel</a> *cp_)</td></tr>
+<tr class="memitem:a022daabb4666cf8f3d61a8cf28353b86"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanelButton.html#a022daabb4666cf8f3d61a8cf28353b86">~ControlPanelButton</a> ()</td></tr>
+<tr class="memitem:a49dd109b769582b9598a0f454fd39f06"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanelButton.html#a49dd109b769582b9598a0f454fd39f06">isOpen</a> ()</td></tr>
+<tr class="memitem:a0158e881227f2382bdd3c71dada7f7f6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanelButton.html#a0158e881227f2382bdd3c71dada7f7f6">toggleState</a> ()</td></tr>
+<tr class="memitem:a84715321abda621693cec2bab8c283fe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanelButton.html#a84715321abda621693cec2bab8c283fe">newOpenGLContextCreated</a> ()</td></tr>
+<tr class="memitem:a9ea43519c7ca66fb9920625936564a9f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanelButton.html#a9ea43519c7ca66fb9920625936564a9f">renderOpenGL</a> ()</td></tr>
+<tr class="memitem:afdf353dfcec135b9150a3bda9e2da0e6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanelButton.html#afdf353dfcec135b9150a3bda9e2da0e6">drawButton</a> ()</td></tr>
+<tr class="memitem:a9b3041e05e6dcdb77020e78a3b0c2e26"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanelButton.html#a9b3041e05e6dcdb77020e78a3b0c2e26">mouseDown</a> (const MouseEvent &amp;e)</td></tr>
 </table>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>Used to show and hide the file browser within the <a class="el" href="classControlPanel.html" title="Provides general application controls.">ControlPanel</a>. </p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classControlPanel.html" title="Provides general application controls.">ControlPanel</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="aeeb4bd4128b5301ac902f5e1d3da1eea"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ControlPanelButton::ControlPanelButton </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td>
+          <td class="paramname"><em>cp_</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a022daabb4666cf8f3d61a8cf28353b86"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ControlPanelButton::~ControlPanelButton </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="afdf353dfcec135b9150a3bda9e2da0e6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ControlPanelButton::drawButton </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a49dd109b769582b9598a0f454fd39f06"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ControlPanelButton::isOpen </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a9b3041e05e6dcdb77020e78a3b0c2e26"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ControlPanelButton::mouseDown </td>
+          <td>(</td>
+          <td class="paramtype">const MouseEvent &amp;&#160;</td>
+          <td class="paramname"><em>e</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a84715321abda621693cec2bab8c283fe"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ControlPanelButton::newOpenGLContextCreated </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a9ea43519c7ca66fb9920625936564a9f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ControlPanelButton::renderOpenGL </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0158e881227f2382bdd3c71dada7f7f6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ControlPanelButton::toggleState </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>UI/<a class="el" href="ControlPanel_8h_source.html">ControlPanel.h</a></li>
+<li><a class="el" href="ControlPanel_8h.html">ControlPanel.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

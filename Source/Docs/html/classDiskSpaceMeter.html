@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,38 +82,100 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">DiskSpaceMeter Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p>Displays the amount of disk space left in the current data directory.  
+ <a href="classDiskSpaceMeter.html#details">More...</a></p>
+
+<p><code>#include &lt;ControlPanel.h&gt;</code></p>
+
 <p><a href="classDiskSpaceMeter-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:acc3483e3a49b12a9c5dd13568c98aeec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acc3483e3a49b12a9c5dd13568c98aeec"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>updateDiskSpace</b> (float percent)</td></tr>
-<tr class="memitem:a11df895ab492661e07e3b6c4393c75b2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a11df895ab492661e07e3b6c4393c75b2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paint</b> (Graphics &amp;g)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a8f740abddda096f2d51f289f2bf995af"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8f740abddda096f2d51f289f2bf995af"></a>
-Font&#160;</td><td class="memItemRight" valign="bottom"><b>font</b></td></tr>
-<tr class="memitem:a1174c651208caa6c7528a948cb4b4514"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1174c651208caa6c7528a948cb4b4514"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>diskFree</b></td></tr>
-<tr class="memitem:aa0cfc8c37918982d8ddee518e91d7565"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa0cfc8c37918982d8ddee518e91d7565"></a>
-<a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>graph</b></td></tr>
+<tr class="memitem:a3dc3b039e5415ec58300952c67df4809"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDiskSpaceMeter.html#a3dc3b039e5415ec58300952c67df4809">DiskSpaceMeter</a> ()</td></tr>
+<tr class="memitem:a46cbfb363ebe3a6593221c18133d253d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDiskSpaceMeter.html#a46cbfb363ebe3a6593221c18133d253d">~DiskSpaceMeter</a> ()</td></tr>
+<tr class="memitem:acc3483e3a49b12a9c5dd13568c98aeec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDiskSpaceMeter.html#acc3483e3a49b12a9c5dd13568c98aeec">updateDiskSpace</a> (float percent)</td></tr>
+<tr class="memitem:a11df895ab492661e07e3b6c4393c75b2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDiskSpaceMeter.html#a11df895ab492661e07e3b6c4393c75b2">paint</a> (Graphics &amp;g)</td></tr>
 </table>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>Displays the amount of disk space left in the current data directory. </p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classControlPanel.html" title="Provides general application controls.">ControlPanel</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a3dc3b039e5415ec58300952c67df4809"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DiskSpaceMeter::DiskSpaceMeter </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a46cbfb363ebe3a6593221c18133d253d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DiskSpaceMeter::~DiskSpaceMeter </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a11df895ab492661e07e3b6c4393c75b2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void DiskSpaceMeter::paint </td>
+          <td>(</td>
+          <td class="paramtype">Graphics &amp;&#160;</td>
+          <td class="paramname"><em>g</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="acc3483e3a49b12a9c5dd13568c98aeec"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void DiskSpaceMeter::updateDiskSpace </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>percent</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>UI/<a class="el" href="ControlPanel_8h_source.html">ControlPanel.h</a></li>
+<li><a class="el" href="ControlPanel_8h.html">ControlPanel.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

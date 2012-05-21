@@ -31,12 +31,26 @@
 class AudioNode;
 class AudioComponent;
 
+/**
+	Toggles audio output on and off.
+
+	@see AudioNode, AudioEditor
+
+*/
+
 class MuteButton : public ImageButton
 {
 	public:
 		MuteButton();
 		~MuteButton();	
 };
+
+/**
+	Used to show and hide the AudioConfigurationWindow.
+
+	@see AudioNode, AudioEditor
+
+*/
 
 class AudioWindowButton : public Button
 {
@@ -47,6 +61,13 @@ class AudioWindowButton : public Button
 	private:
 		Font font;
 };
+
+/**
+	Allows the user to access audio output settings.
+
+	@see AudioNode, AudioEditor
+
+*/
 
 class AudioConfigurationWindow : public DocumentWindow,
 								 public AccessClass
@@ -63,9 +84,15 @@ private:
 	void closeButtonPressed();
 
 	Button* controlButton;
-	//AudioDeviceManager* deviceManager;
 
 };
+
+/**
+	Holds the interface for editing audio output parameters.
+
+	@see AudioNode
+
+*/
 
 class AudioEditor : public AudioProcessorEditor,
 					public Button::Listener,

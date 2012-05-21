@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,8 +82,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">AccessClass Class Reference</div>  </div>
 </div><!--header-->
@@ -92,24 +91,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Allows subclasses to access important pointers within the application.  
  <a href="classAccessClass.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="AccessClass_8h_source.html">AccessClass.h</a>&gt;</code></p>
+<p><code>#include &lt;AccessClass.h&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AccessClass:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classAccessClass.png" usemap="#AccessClass_map" alt=""/>
   <map id="AccessClass_map" name="AccessClass_map">
-<area href="classAudioConfigurationWindow.html" alt="AudioConfigurationWindow" shape="rect" coords="175,56,340,80"/>
-<area href="classAudioEditor.html" alt="AudioEditor" shape="rect" coords="175,112,340,136"/>
-<area href="classChannelSelector.html" alt="ChannelSelector" shape="rect" coords="175,168,340,192"/>
-<area href="classControlPanel.html" alt="ControlPanel" shape="rect" coords="175,224,340,248"/>
-<area href="classDataViewport.html" alt="DataViewport" shape="rect" coords="175,280,340,304"/>
-<area href="classEditorViewport.html" alt="EditorViewport" shape="rect" coords="175,336,340,360"/>
-<area href="classGenericEditor.html" alt="GenericEditor" shape="rect" coords="175,392,340,416"/>
-<area href="classGenericProcessor.html" alt="GenericProcessor" shape="rect" coords="175,448,340,472"/>
-<area href="classProcessorGraph.html" alt="ProcessorGraph" shape="rect" coords="175,504,340,528"/>
-<area href="classProcessorList.html" alt="ProcessorList" shape="rect" coords="175,560,340,584"/>
-<area href="classSignalChainManager.html" alt="SignalChainManager" shape="rect" coords="175,616,340,640"/>
+<area href="classAudioConfigurationWindow.html" title="Allows the user to access audio output settings." alt="AudioConfigurationWindow" shape="rect" coords="175,56,340,80"/>
+<area href="classAudioEditor.html" title="Holds the interface for editing audio output parameters." alt="AudioEditor" shape="rect" coords="175,112,340,136"/>
+<area href="classChannelSelector.html" title="Automatically creates an interactive editor for selecting channels." alt="ChannelSelector" shape="rect" coords="175,168,340,192"/>
+<area href="classControlPanel.html" title="Provides general application controls." alt="ControlPanel" shape="rect" coords="175,224,340,248"/>
+<area href="classDataViewport.html" title="Holds tabs for visualizers." alt="DataViewport" shape="rect" coords="175,280,340,304"/>
+<area href="classEditorViewport.html" title="Allows the user to view and edit the signal chain." alt="EditorViewport" shape="rect" coords="175,336,340,360"/>
+<area href="classGenericEditor.html" title="Base class for creating processor editors." alt="GenericEditor" shape="rect" coords="175,392,340,416"/>
+<area href="classGenericProcessor.html" title="Abstract base class for creating processors." alt="GenericProcessor" shape="rect" coords="175,448,340,472"/>
+<area href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain." alt="ProcessorGraph" shape="rect" coords="175,504,340,528"/>
+<area href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain." alt="ProcessorList" shape="rect" coords="175,560,340,584"/>
+<area href="classSignalChainManager.html" title="Provides helper functions for editing the signal chain." alt="SignalChainManager" shape="rect" coords="175,616,340,640"/>
 </map>
  </div></div>
 
@@ -117,56 +116,300 @@ Inheritance diagram for AccessClass:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae6c601f53b3fd103bd7cd40f51c9c235"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae6c601f53b3fd103bd7cd40f51c9c235"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setUIComponent</b> (<a class="el" href="classUIComponent.html">UIComponent</a> *)</td></tr>
-<tr class="memitem:aa23dfab04264a78db261ccb8ac30f1ff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa23dfab04264a78db261ccb8ac30f1ff"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>updateChildComponents</b> ()</td></tr>
-<tr class="memitem:a72bef8d5db8f8984f7b40f627a43998d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a72bef8d5db8f8984f7b40f627a43998d"></a>
-<a class="el" href="classEditorViewport.html">EditorViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getEditorViewport</b> ()</td></tr>
-<tr class="memitem:a69500d6b6d466414e92eb9b31c8cb90d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a69500d6b6d466414e92eb9b31c8cb90d"></a>
-<a class="el" href="classDataViewport.html">DataViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getDataViewport</b> ()</td></tr>
-<tr class="memitem:a18c4d1e45c74d6564d534bfe86bfc5da"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18c4d1e45c74d6564d534bfe86bfc5da"></a>
-<a class="el" href="classProcessorList.html">ProcessorList</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getProcessorList</b> ()</td></tr>
-<tr class="memitem:abe0403e279f6047b2f307eaf9c913404"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe0403e279f6047b2f307eaf9c913404"></a>
-<a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getProcessorGraph</b> ()</td></tr>
-<tr class="memitem:ae2559bca16f366b3b60bb64b062259cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae2559bca16f366b3b60bb64b062259cb"></a>
-<a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getControlPanel</b> ()</td></tr>
-<tr class="memitem:abb4f62a65c45128a71eee802544fd3d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb4f62a65c45128a71eee802544fd3d1"></a>
-<a class="el" href="classMessageCenter.html">MessageCenter</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getMessageCenter</b> ()</td></tr>
-<tr class="memitem:a45bcba11a6ba8a754d76d6a3ee11fb26"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45bcba11a6ba8a754d76d6a3ee11fb26"></a>
-<a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getUIComponent</b> ()</td></tr>
-<tr class="memitem:adca6f9ebbe535a03c024eb673a096972"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adca6f9ebbe535a03c024eb673a096972"></a>
-<a class="el" href="classAudioComponent.html">AudioComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getAudioComponent</b> ()</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a8d6f39cc955e6eb2f450bb377b7e23ca"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8d6f39cc955e6eb2f450bb377b7e23ca"></a>
-<a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ui</b></td></tr>
-<tr class="memitem:a8732d9ac39d09ad512ad5d969a2f6388"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8732d9ac39d09ad512ad5d969a2f6388"></a>
-<a class="el" href="classEditorViewport.html">EditorViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ev</b></td></tr>
-<tr class="memitem:a35894b8eb8810f3221c17f63f15c2406"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a35894b8eb8810f3221c17f63f15c2406"></a>
-<a class="el" href="classProcessorList.html">ProcessorList</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>pl</b></td></tr>
-<tr class="memitem:ad518f5fc0a11e84473da5653505d8975"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad518f5fc0a11e84473da5653505d8975"></a>
-<a class="el" href="classDataViewport.html">DataViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>dv</b></td></tr>
-<tr class="memitem:a0f2a6b6031e117e17acf84f6816bfe3b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0f2a6b6031e117e17acf84f6816bfe3b"></a>
-<a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>pg</b></td></tr>
-<tr class="memitem:a042707e5c002043506d4bf8744735077"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a042707e5c002043506d4bf8744735077"></a>
-<a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>cp</b></td></tr>
-<tr class="memitem:a948163dad2f276abb80524aab2b8d256"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a948163dad2f276abb80524aab2b8d256"></a>
-<a class="el" href="classMessageCenter.html">MessageCenter</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>mc</b></td></tr>
-<tr class="memitem:aedc7ed8d7ef232bac40515fd87d5e7f5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aedc7ed8d7ef232bac40515fd87d5e7f5"></a>
-<a class="el" href="classAudioComponent.html">AudioComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ac</b></td></tr>
+<tr class="memitem:a4479402a420cf84c0b8ec1abd4a43d9c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a4479402a420cf84c0b8ec1abd4a43d9c">AccessClass</a> ()</td></tr>
+<tr class="memitem:a68da6863bc0d2a4c5f84f9ed8dd4053f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a68da6863bc0d2a4c5f84f9ed8dd4053f">~AccessClass</a> ()</td></tr>
+<tr class="memitem:ae6c601f53b3fd103bd7cd40f51c9c235"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#ae6c601f53b3fd103bd7cd40f51c9c235">setUIComponent</a> (<a class="el" href="classUIComponent.html">UIComponent</a> *)</td></tr>
+<tr class="memitem:aa23dfab04264a78db261ccb8ac30f1ff"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#aa23dfab04264a78db261ccb8ac30f1ff">updateChildComponents</a> ()</td></tr>
+<tr class="memitem:a72bef8d5db8f8984f7b40f627a43998d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEditorViewport.html">EditorViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a72bef8d5db8f8984f7b40f627a43998d">getEditorViewport</a> ()</td></tr>
+<tr class="memitem:a69500d6b6d466414e92eb9b31c8cb90d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classDataViewport.html">DataViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a69500d6b6d466414e92eb9b31c8cb90d">getDataViewport</a> ()</td></tr>
+<tr class="memitem:a18c4d1e45c74d6564d534bfe86bfc5da"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classProcessorList.html">ProcessorList</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a18c4d1e45c74d6564d534bfe86bfc5da">getProcessorList</a> ()</td></tr>
+<tr class="memitem:abe0403e279f6047b2f307eaf9c913404"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#abe0403e279f6047b2f307eaf9c913404">getProcessorGraph</a> ()</td></tr>
+<tr class="memitem:ae2559bca16f366b3b60bb64b062259cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#ae2559bca16f366b3b60bb64b062259cb">getControlPanel</a> ()</td></tr>
+<tr class="memitem:abb4f62a65c45128a71eee802544fd3d1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classMessageCenter.html">MessageCenter</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#abb4f62a65c45128a71eee802544fd3d1">getMessageCenter</a> ()</td></tr>
+<tr class="memitem:a45bcba11a6ba8a754d76d6a3ee11fb26"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a45bcba11a6ba8a754d76d6a3ee11fb26">getUIComponent</a> ()</td></tr>
+<tr class="memitem:adca6f9ebbe535a03c024eb673a096972"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classAudioComponent.html">AudioComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#adca6f9ebbe535a03c024eb673a096972">getAudioComponent</a> ()</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Allows subclasses to access important pointers within the application. </p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classUIComponent.html">UIComponent</a> </dd></dl>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="AccessClass_8h_source.html">AccessClass.h</a></li>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a4479402a420cf84c0b8ec1abd4a43d9c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AccessClass::AccessClass </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a68da6863bc0d2a4c5f84f9ed8dd4053f"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AccessClass::~AccessClass </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="adca6f9ebbe535a03c024eb673a096972"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classAudioComponent.html">AudioComponent</a>* AccessClass::getAudioComponent </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae2559bca16f366b3b60bb64b062259cb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classControlPanel.html">ControlPanel</a>* AccessClass::getControlPanel </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a69500d6b6d466414e92eb9b31c8cb90d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classDataViewport.html">DataViewport</a>* AccessClass::getDataViewport </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a72bef8d5db8f8984f7b40f627a43998d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classEditorViewport.html">EditorViewport</a>* AccessClass::getEditorViewport </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="abb4f62a65c45128a71eee802544fd3d1"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classMessageCenter.html">MessageCenter</a>* AccessClass::getMessageCenter </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="abe0403e279f6047b2f307eaf9c913404"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classProcessorGraph.html">ProcessorGraph</a>* AccessClass::getProcessorGraph </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a18c4d1e45c74d6564d534bfe86bfc5da"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classProcessorList.html">ProcessorList</a>* AccessClass::getProcessorList </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a45bcba11a6ba8a754d76d6a3ee11fb26"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classUIComponent.html">UIComponent</a>* AccessClass::getUIComponent </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae6c601f53b3fd103bd7cd40f51c9c235"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AccessClass::setUIComponent </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa23dfab04264a78db261ccb8ac30f1ff"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void AccessClass::updateChildComponents </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="AccessClass_8h.html">AccessClass.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

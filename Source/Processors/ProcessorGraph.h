@@ -28,6 +28,11 @@
 
 #include "../AccessClass.h"
 
+class GenericProcessor;
+class RecordNode;
+class AudioNode;
+class SignalChainTabButton;
+
 /**
   
   Owns all processors and constructs the signal chain.
@@ -43,12 +48,6 @@
        AudioNode, Configuration, MessageCenter
 
 */
-
-
-class GenericProcessor;
-class RecordNode;
-class AudioNode;
-class SignalChainTabButton;
 
 class ProcessorGraph : public AudioProcessorGraph,
 					   public AccessClass,

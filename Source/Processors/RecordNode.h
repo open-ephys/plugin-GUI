@@ -110,7 +110,7 @@ private:
   Time timer;
 
   /** Holds information for a given channel to be recorded to 
-      its own file. 
+      its own file.
   */ 
   struct Channel
   {

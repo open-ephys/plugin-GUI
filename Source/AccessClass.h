@@ -35,7 +35,6 @@ class MessageCenter;
 class ControlPanel;
 class AudioComponent;
 
-
 /**
   
   Allows subclasses to access important pointers within the application.

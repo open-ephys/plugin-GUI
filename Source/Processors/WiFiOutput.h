@@ -31,18 +31,19 @@
 
 #include "../Network/PracticalSocket.h"  // For UDPSocket and SocketException
 
+
+class FilterViewport;
+
 /**
 
   Allows the signal chain to send outputs to a client with a specific
-  IP address; used in conjunction with the Arduino WiFly shield, these
+  IP address. Used in conjunction with the Arduino WiFly shield, these
   signals can be sent wirelessly.
 
   @see GenericProcessor, WiFiOutputEditor
 
 */
 
-
-class FilterViewport;
 
 class WiFiOutput : public GenericProcessor,
 		           public Timer

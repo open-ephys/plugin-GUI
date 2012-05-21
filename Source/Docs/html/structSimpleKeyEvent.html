@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -88,26 +88,73 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
+<p><code>#include &lt;SimpleKeyEvent.h&gt;</code></p>
+
 <p><a href="structSimpleKeyEvent-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ac3f519a65f1b8bc757ca8560a3c1a4f0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac3f519a65f1b8bc757ca8560a3c1a4f0"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>key</b></td></tr>
-<tr class="memitem:adf840a9b2662f5e709ee40e245e988ad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adf840a9b2662f5e709ee40e245e988ad"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>shift</b></td></tr>
-<tr class="memitem:a594a56922b5f00a178d7abb76ae43c02"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a594a56922b5f00a178d7abb76ae43c02"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>ctrl</b></td></tr>
-<tr class="memitem:aec2639c73f1ee6fff8f894ccd6454a3f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aec2639c73f1ee6fff8f894ccd6454a3f"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>alt</b></td></tr>
+<tr class="memitem:ac3f519a65f1b8bc757ca8560a3c1a4f0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structSimpleKeyEvent.html#ac3f519a65f1b8bc757ca8560a3c1a4f0">key</a></td></tr>
+<tr class="memitem:adf840a9b2662f5e709ee40e245e988ad"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structSimpleKeyEvent.html#adf840a9b2662f5e709ee40e245e988ad">shift</a></td></tr>
+<tr class="memitem:a594a56922b5f00a178d7abb76ae43c02"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structSimpleKeyEvent.html#a594a56922b5f00a178d7abb76ae43c02">ctrl</a></td></tr>
+<tr class="memitem:aec2639c73f1ee6fff8f894ccd6454a3f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structSimpleKeyEvent.html#aec2639c73f1ee6fff8f894ccd6454a3f">alt</a></td></tr>
 </table>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="aec2639c73f1ee6fff8f894ccd6454a3f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool SimpleKeyEvent::alt</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a594a56922b5f00a178d7abb76ae43c02"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool SimpleKeyEvent::ctrl</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac3f519a65f1b8bc757ca8560a3c1a4f0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int SimpleKeyEvent::key</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="adf840a9b2662f5e709ee40e245e988ad"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool SimpleKeyEvent::shift</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>Processors/Visualization/SpikePlotting/<a class="el" href="SimpleKeyEvent_8h_source.html">SimpleKeyEvent.h</a></li>
+<li><a class="el" href="SimpleKeyEvent_8h.html">SimpleKeyEvent.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:39 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

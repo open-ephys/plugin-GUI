@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,20 +82,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">TetrodePlot Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;TetrodePlot.h&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for TetrodePlot:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classTetrodePlot.png" usemap="#TetrodePlot_map" alt=""/>
   <map id="TetrodePlot_map" name="TetrodePlot_map">
-<area href="classBaseUIElement.html" alt="BaseUIElement" shape="rect" coords="0,0,95,24"/>
+<area href="classBaseUIElement.html" title="Base class for drawing spike plots in OpenGL." alt="BaseUIElement" shape="rect" coords="0,0,95,24"/>
 </map>
  </div></div>
 
@@ -103,106 +103,535 @@ Inheritance diagram for TetrodePlot:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a656ee6137f078f758e1be6dcfdddbc21"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a656ee6137f078f758e1be6dcfdddbc21"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>TetrodePlot</b> (int x, int y, int w, int h)</td></tr>
-<tr class="memitem:ae440c2b24680f270d8dd5458280c9d64"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae440c2b24680f270d8dd5458280c9d64"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>initAxes</b> ()</td></tr>
-<tr class="memitem:a6d4494f6721849cad393a7be6ff6ef72"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6d4494f6721849cad393a7be6ff6ef72"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>redraw</b> ()</td></tr>
-<tr class="memitem:a9791b6a0cc8f8378edbc37ff054feca2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9791b6a0cc8f8378edbc37ff054feca2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setEnabled</b> (bool enabled)</td></tr>
-<tr class="memitem:a9128abaa352225ddb4959408f8b30f2e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9128abaa352225ddb4959408f8b30f2e"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>getEnabled</b> ()</td></tr>
-<tr class="memitem:ae3a380278f0197a92bb5a359a75553b8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae3a380278f0197a92bb5a359a75553b8"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setPosition</b> (int, int, double, double)</td></tr>
-<tr class="memitem:ac1c5202ac6a0ecfdcc846657c597b76d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac1c5202ac6a0ecfdcc846657c597b76d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>getPreferredDimensions</b> (double *, double *)</td></tr>
-<tr class="memitem:ae7a0c92060e12abe0c407324a4f572d8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae7a0c92060e12abe0c407324a4f572d8"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumberOfAxes</b> ()</td></tr>
-<tr class="memitem:abff5bd0246a2b648ebd6dfc1a0f93f4a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abff5bd0246a2b648ebd6dfc1a0f93f4a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseDown</b> (int x, int y)</td></tr>
-<tr class="memitem:ae695cb5485e28e7eb925207fe0b89630"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae695cb5485e28e7eb925207fe0b89630"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseDragX</b> (int dx, bool shift, bool ctr)</td></tr>
-<tr class="memitem:a3e14ad4c305364e1b935fe0574457735"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3e14ad4c305364e1b935fe0574457735"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseDragY</b> (int dy, bool shift, bool ctr)</td></tr>
-<tr class="memitem:aed9d207dbb3f6b08aeaf71232fbbbbd5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed9d207dbb3f6b08aeaf71232fbbbbd5"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>processKeyEvent</b> (<a class="el" href="structSimpleKeyEvent.html">SimpleKeyEvent</a> k)</td></tr>
-<tr class="memitem:abdd11b1351085b0398944fdfa514b747"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abdd11b1351085b0398944fdfa514b747"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>processSpikeObject</b> (<a class="el" href="structSpikeObject.html">SpikeObject</a> s)</td></tr>
-<tr class="memitem:a5135b3a4b280524ce48fa2167c266cd6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5135b3a4b280524ce48fa2167c266cd6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> ()</td></tr>
-<tr class="memitem:a86363d2346402271e993b31bcfde43fd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a86363d2346402271e993b31bcfde43fd"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>zoom</b> (int, bool)</td></tr>
-<tr class="memitem:aed977b68cd1b2cfd2e155d58ec6f25da"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed977b68cd1b2cfd2e155d58ec6f25da"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>pan</b> (int, bool)</td></tr>
+<tr class="memitem:ac06cf6330d1b61fdd3b312c981761bd3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#ac06cf6330d1b61fdd3b312c981761bd3">TetrodePlot</a> ()</td></tr>
+<tr class="memitem:a656ee6137f078f758e1be6dcfdddbc21"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#a656ee6137f078f758e1be6dcfdddbc21">TetrodePlot</a> (int x, int y, int w, int h)</td></tr>
+<tr class="memitem:a3a30777e3088ff543919db88176acdf3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#a3a30777e3088ff543919db88176acdf3">~TetrodePlot</a> ()</td></tr>
+<tr class="memitem:ae440c2b24680f270d8dd5458280c9d64"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#ae440c2b24680f270d8dd5458280c9d64">initAxes</a> ()</td></tr>
+<tr class="memitem:a6d4494f6721849cad393a7be6ff6ef72"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#a6d4494f6721849cad393a7be6ff6ef72">redraw</a> ()</td></tr>
+<tr class="memitem:a9791b6a0cc8f8378edbc37ff054feca2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#a9791b6a0cc8f8378edbc37ff054feca2">setEnabled</a> (bool enabled)</td></tr>
+<tr class="memitem:a9128abaa352225ddb4959408f8b30f2e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#a9128abaa352225ddb4959408f8b30f2e">getEnabled</a> ()</td></tr>
+<tr class="memitem:ae3a380278f0197a92bb5a359a75553b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#ae3a380278f0197a92bb5a359a75553b8">setPosition</a> (int, int, double, double)</td></tr>
+<tr class="memitem:ac1c5202ac6a0ecfdcc846657c597b76d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#ac1c5202ac6a0ecfdcc846657c597b76d">getPreferredDimensions</a> (double *, double *)</td></tr>
+<tr class="memitem:ae7a0c92060e12abe0c407324a4f572d8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#ae7a0c92060e12abe0c407324a4f572d8">getNumberOfAxes</a> ()</td></tr>
+<tr class="memitem:abff5bd0246a2b648ebd6dfc1a0f93f4a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#abff5bd0246a2b648ebd6dfc1a0f93f4a">mouseDown</a> (int x, int y)</td></tr>
+<tr class="memitem:ae695cb5485e28e7eb925207fe0b89630"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#ae695cb5485e28e7eb925207fe0b89630">mouseDragX</a> (int dx, bool shift, bool ctr)</td></tr>
+<tr class="memitem:a3e14ad4c305364e1b935fe0574457735"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#a3e14ad4c305364e1b935fe0574457735">mouseDragY</a> (int dy, bool shift, bool ctr)</td></tr>
+<tr class="memitem:aed9d207dbb3f6b08aeaf71232fbbbbd5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#aed9d207dbb3f6b08aeaf71232fbbbbd5">processKeyEvent</a> (<a class="el" href="structSimpleKeyEvent.html">SimpleKeyEvent</a> k)</td></tr>
+<tr class="memitem:abdd11b1351085b0398944fdfa514b747"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#abdd11b1351085b0398944fdfa514b747">processSpikeObject</a> (<a class="el" href="structSpikeObject.html">SpikeObject</a> s)</td></tr>
+<tr class="memitem:a5135b3a4b280524ce48fa2167c266cd6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#a5135b3a4b280524ce48fa2167c266cd6">clear</a> ()</td></tr>
+<tr class="memitem:a86363d2346402271e993b31bcfde43fd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#a86363d2346402271e993b31bcfde43fd">zoom</a> (int, bool)</td></tr>
+<tr class="memitem:aed977b68cd1b2cfd2e155d58ec6f25da"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTetrodePlot.html#aed977b68cd1b2cfd2e155d58ec6f25da">pan</a> (int, bool)</td></tr>
 <tr class="inherit_header pub_methods_classBaseUIElement"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classBaseUIElement')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classBaseUIElement.html">BaseUIElement</a></td></tr>
-<tr class="memitem:a504a9fc6aa113993c16e24d2a128b383 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a504a9fc6aa113993c16e24d2a128b383"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>BaseUIElement</b> (int x, int y, double w, double h)</td></tr>
-<tr class="memitem:a788f73bf664936f6140525e7870927b7 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a788f73bf664936f6140525e7870927b7"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>BaseUIElement</b> (int x, int y, double w, double h, int p)</td></tr>
-<tr class="memitem:acb89742a813bbb3c564bdeeca82f5ec1 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acb89742a813bbb3c564bdeeca82f5ec1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>drawElementEdges</b> ()</td></tr>
-<tr class="memitem:a83102b6dd32ab18487d0c222e4c49b37 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a83102b6dd32ab18487d0c222e4c49b37"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setPosition</b> (int, int)</td></tr>
-<tr class="memitem:ac26f4c69ee4d1a2b1a822efd5a10ee93 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac26f4c69ee4d1a2b1a822efd5a10ee93"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>getPosition</b> (int *, int *, double *, double *)</td></tr>
-<tr class="memitem:a8f8022d087c697c5a04c10417ea1ca20 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8f8022d087c697c5a04c10417ea1ca20"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>getHeight</b> ()</td></tr>
-<tr class="memitem:ae32de848136eca61c71830aa8b48ed95 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae32de848136eca61c71830aa8b48ed95"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>getWidth</b> ()</td></tr>
-<tr class="memitem:a74aa4569d1c6e3edbad13b7f29de8d56 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a74aa4569d1c6e3edbad13b7f29de8d56"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getX</b> ()</td></tr>
-<tr class="memitem:a6e512068c7a0b1c0aa6b1e04bd72d5a7 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6e512068c7a0b1c0aa6b1e04bd72d5a7"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getY</b> ()</td></tr>
-<tr class="memitem:aa064979e30e4573dd5d477e2dda0cbd7 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa064979e30e4573dd5d477e2dda0cbd7"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>hitTest</b> (int x, int y)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a6ac2b954365575b90c3b4ea09bca05cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6ac2b954365575b90c3b4ea09bca05cb"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>initLimits</b> ()</td></tr>
-<tr class="memitem:a6c55a9182b40a5f81e5c6ed13d3f9512"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6c55a9182b40a5f81e5c6ed13d3f9512"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setLimitsOnAxes</b> ()</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a108da4895456bcab9f9a09830fe4488b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a108da4895456bcab9f9a09830fe4488b"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>enabled</b></td></tr>
-<tr class="memitem:a8b19fe1a2fe811922ae72726eb2920fa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8b19fe1a2fe811922ae72726eb2920fa"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>limitsChanged</b></td></tr>
-<tr class="memitem:a563321643780b4c28b5625dbc68a0cbb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a563321643780b4c28b5625dbc68a0cbb"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>limits</b> [1][2]</td></tr>
-<tr class="memitem:adccda029fea54263cadda8346c3d1777"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adccda029fea54263cadda8346c3d1777"></a>
-<a class="el" href="classWaveAxes.html">WaveAxes</a>&#160;</td><td class="memItemRight" valign="bottom"><b>wAxes</b> [4]</td></tr>
-<tr class="memitem:a29821ae3a96010d4c4db91ab44b59424"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29821ae3a96010d4c4db91ab44b59424"></a>
-<a class="el" href="classProjectionAxes.html">ProjectionAxes</a>&#160;</td><td class="memItemRight" valign="bottom"><b>pAxes</b> [6]</td></tr>
+<tr class="memitem:af21a04a3c33cb9f04c0c6901ffc995df inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#af21a04a3c33cb9f04c0c6901ffc995df">BaseUIElement</a> ()</td></tr>
+<tr class="memitem:a504a9fc6aa113993c16e24d2a128b383 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#a504a9fc6aa113993c16e24d2a128b383">BaseUIElement</a> (int x, int y, double w, double h)</td></tr>
+<tr class="memitem:a788f73bf664936f6140525e7870927b7 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#a788f73bf664936f6140525e7870927b7">BaseUIElement</a> (int x, int y, double w, double h, int p)</td></tr>
+<tr class="memitem:acb89742a813bbb3c564bdeeca82f5ec1 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#acb89742a813bbb3c564bdeeca82f5ec1">drawElementEdges</a> ()</td></tr>
+<tr class="memitem:a83102b6dd32ab18487d0c222e4c49b37 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#a83102b6dd32ab18487d0c222e4c49b37">setPosition</a> (int, int)</td></tr>
+<tr class="memitem:ac26f4c69ee4d1a2b1a822efd5a10ee93 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#ac26f4c69ee4d1a2b1a822efd5a10ee93">getPosition</a> (int *, int *, double *, double *)</td></tr>
+<tr class="memitem:a8f8022d087c697c5a04c10417ea1ca20 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#a8f8022d087c697c5a04c10417ea1ca20">getHeight</a> ()</td></tr>
+<tr class="memitem:ae32de848136eca61c71830aa8b48ed95 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#ae32de848136eca61c71830aa8b48ed95">getWidth</a> ()</td></tr>
+<tr class="memitem:a74aa4569d1c6e3edbad13b7f29de8d56 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#a74aa4569d1c6e3edbad13b7f29de8d56">getX</a> ()</td></tr>
+<tr class="memitem:a6e512068c7a0b1c0aa6b1e04bd72d5a7 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#a6e512068c7a0b1c0aa6b1e04bd72d5a7">getY</a> ()</td></tr>
+<tr class="memitem:aa064979e30e4573dd5d477e2dda0cbd7 inherit pub_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#aa064979e30e4573dd5d477e2dda0cbd7">hitTest</a> (int x, int y)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pro_methods_classBaseUIElement"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classBaseUIElement')"><img src="closed.png" alt="-"/>&nbsp;Protected Member Functions inherited from <a class="el" href="classBaseUIElement.html">BaseUIElement</a></td></tr>
-<tr class="memitem:a01f712833dbbdfc29fc8614eb34e79e5 inherit pro_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a01f712833dbbdfc29fc8614eb34e79e5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setGlViewport</b> ()</td></tr>
+<tr class="memitem:a01f712833dbbdfc29fc8614eb34e79e5 inherit pro_methods_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#a01f712833dbbdfc29fc8614eb34e79e5">setGlViewport</a> ()</td></tr>
 <tr class="inherit_header pro_attribs_classBaseUIElement"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classBaseUIElement')"><img src="closed.png" alt="-"/>&nbsp;Protected Attributes inherited from <a class="el" href="classBaseUIElement.html">BaseUIElement</a></td></tr>
-<tr class="memitem:ad65449ac10a833a2ecf48315b17bfbba inherit pro_attribs_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad65449ac10a833a2ecf48315b17bfbba"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>xpos</b></td></tr>
-<tr class="memitem:a730d67d2f53f256ffcd2caf2db166f59 inherit pro_attribs_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a730d67d2f53f256ffcd2caf2db166f59"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>ypos</b></td></tr>
-<tr class="memitem:a23a5dcf0e8fe642f779b0fe73f02584f inherit pro_attribs_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a23a5dcf0e8fe642f779b0fe73f02584f"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>yOffset</b></td></tr>
-<tr class="memitem:a4fc207e53cafb2e7a072ba1ea931eff3 inherit pro_attribs_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4fc207e53cafb2e7a072ba1ea931eff3"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>height</b></td></tr>
-<tr class="memitem:a913b0634330b02a5aa2d0dad22982cc4 inherit pro_attribs_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a913b0634330b02a5aa2d0dad22982cc4"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>width</b></td></tr>
-<tr class="memitem:a4dca2aac9fd607791c7702d8fedb4bb2 inherit pro_attribs_classBaseUIElement"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4dca2aac9fd607791c7702d8fedb4bb2"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>padding</b></td></tr>
+<tr class="memitem:ad65449ac10a833a2ecf48315b17bfbba inherit pro_attribs_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#ad65449ac10a833a2ecf48315b17bfbba">xpos</a></td></tr>
+<tr class="memitem:a730d67d2f53f256ffcd2caf2db166f59 inherit pro_attribs_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#a730d67d2f53f256ffcd2caf2db166f59">ypos</a></td></tr>
+<tr class="memitem:a23a5dcf0e8fe642f779b0fe73f02584f inherit pro_attribs_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#a23a5dcf0e8fe642f779b0fe73f02584f">yOffset</a></td></tr>
+<tr class="memitem:a4fc207e53cafb2e7a072ba1ea931eff3 inherit pro_attribs_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#a4fc207e53cafb2e7a072ba1ea931eff3">height</a></td></tr>
+<tr class="memitem:a913b0634330b02a5aa2d0dad22982cc4 inherit pro_attribs_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#a913b0634330b02a5aa2d0dad22982cc4">width</a></td></tr>
+<tr class="memitem:a4dca2aac9fd607791c7702d8fedb4bb2 inherit pro_attribs_classBaseUIElement"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBaseUIElement.html#a4dca2aac9fd607791c7702d8fedb4bb2">padding</a></td></tr>
 </table>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="ac06cf6330d1b61fdd3b312c981761bd3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TetrodePlot::TetrodePlot </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a656ee6137f078f758e1be6dcfdddbc21"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TetrodePlot::TetrodePlot </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>w</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>h</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a3a30777e3088ff543919db88176acdf3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TetrodePlot::~TetrodePlot </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a5135b3a4b280524ce48fa2167c266cd6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TetrodePlot::clear </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classBaseUIElement.html#a5c498c11811c0ef30e7dce0cf71dd386">BaseUIElement</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a9128abaa352225ddb4959408f8b30f2e"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool TetrodePlot::getEnabled </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classBaseUIElement.html#a560672179cd7a782c76f520e9b7ecc29">BaseUIElement</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ae7a0c92060e12abe0c407324a4f572d8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int TetrodePlot::getNumberOfAxes </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac1c5202ac6a0ecfdcc846657c597b76d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TetrodePlot::getPreferredDimensions </td>
+          <td>(</td>
+          <td class="paramtype">double *&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double *&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae440c2b24680f270d8dd5458280c9d64"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TetrodePlot::initAxes </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="abff5bd0246a2b648ebd6dfc1a0f93f4a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TetrodePlot::mouseDown </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>y</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae695cb5485e28e7eb925207fe0b89630"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TetrodePlot::mouseDragX </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>dx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>shift</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>ctr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a3e14ad4c305364e1b935fe0574457735"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TetrodePlot::mouseDragY </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>dy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>shift</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>ctr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aed977b68cd1b2cfd2e155d58ec6f25da"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TetrodePlot::pan </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classBaseUIElement.html#a80bf90bc03c8c39f71b523f7f5735ab0">BaseUIElement</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aed9d207dbb3f6b08aeaf71232fbbbbd5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool TetrodePlot::processKeyEvent </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structSimpleKeyEvent.html">SimpleKeyEvent</a>&#160;</td>
+          <td class="paramname"><em>k</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="abdd11b1351085b0398944fdfa514b747"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TetrodePlot::processSpikeObject </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structSpikeObject.html">SpikeObject</a>&#160;</td>
+          <td class="paramname"><em>s</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classBaseUIElement.html#a20e0a11922c3290dc85e64e13fa86b65">BaseUIElement</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6d4494f6721849cad393a7be6ff6ef72"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TetrodePlot::redraw </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classBaseUIElement.html#a8e39a18f63d75f2c790b57e1639c984b">BaseUIElement</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a9791b6a0cc8f8378edbc37ff054feca2"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TetrodePlot::setEnabled </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>enabled</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classBaseUIElement.html#a474f083d9b09d0aa0ad81a861c440179">BaseUIElement</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ae3a380278f0197a92bb5a359a75553b8"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TetrodePlot::setPosition </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classBaseUIElement.html#a6387aa84bf1c2893f850041684c34640">BaseUIElement</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a86363d2346402271e993b31bcfde43fd"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TetrodePlot::zoom </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classBaseUIElement.html#ab3777efcbb469ba0050f1cdd9fcfc1f1">BaseUIElement</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/Visualization/SpikePlotting/<a class="el" href="TetrodePlot_8h_source.html">TetrodePlot.h</a></li>
+<li><a class="el" href="TetrodePlot_8h.html">TetrodePlot.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:39 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,13 +82,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">DataViewport Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Holds tabs for visualizers.  
+ <a href="classDataViewport.html#details">More...</a></p>
+
+<p><code>#include &lt;DataViewport.h&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for DataViewport:</div>
 <div class="dyncontent">
@@ -103,6 +106,8 @@ Inheritance diagram for DataViewport:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a1ed58b893e6e51a6ae16963bbd4ec121"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataViewport.html#a1ed58b893e6e51a6ae16963bbd4ec121">DataViewport</a> ()</td></tr>
+<tr class="memitem:aa5dcbdd8713e4aefa474bf725aa5b68b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataViewport.html#aa5dcbdd8713e4aefa474bf725aa5b68b">~DataViewport</a> ()</td></tr>
 <tr class="memitem:accdcf7187ec5864fdbf0c2a3e605b072"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataViewport.html#accdcf7187ec5864fdbf0c2a3e605b072">addTabToDataViewport</a> (String tabName, Component *componentToAdd, <a class="el" href="classGenericEditor.html">GenericEditor</a> *editor)</td></tr>
 <tr class="memdesc:accdcf7187ec5864fdbf0c2a3e605b072"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new tab and returns the tab index.  <a href="#accdcf7187ec5864fdbf0c2a3e605b072"></a><br/></td></tr>
 <tr class="memitem:ad68668771aa73c3cdcefcfa692fe0098"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataViewport.html#ad68668771aa73c3cdcefcfa692fe0098">destroyTab</a> (int)</td></tr>
@@ -112,47 +117,56 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3d468d1c0f59f84165be4b68c0882c8d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataViewport.html#a3d468d1c0f59f84165be4b68c0882c8d">currentTabChanged</a> (int newIndex, const String &amp;newTabName)</td></tr>
 <tr class="memdesc:a3d468d1c0f59f84165be4b68c0882c8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Informs the component of the current tab that it's now active.  <a href="#a3d468d1c0f59f84165be4b68c0882c8d"></a><br/></td></tr>
 <tr class="memitem:a6f501d921cd1b2539790624accc6ea00"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataViewport.html#a6f501d921cd1b2539790624accc6ea00">disableConnectionToEditorViewport</a> ()</td></tr>
-<tr class="memdesc:a6f501d921cd1b2539790624accc6ea00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prevent <a class="el" href="classDataViewport.html">DataViewport</a> from signaling <a class="el" href="classEditorViewport.html">EditorViewport</a> when changing tabs.  <a href="#a6f501d921cd1b2539790624accc6ea00"></a><br/></td></tr>
+<tr class="memdesc:a6f501d921cd1b2539790624accc6ea00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prevent <a class="el" href="classDataViewport.html" title="Holds tabs for visualizers.">DataViewport</a> from signaling <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> when changing tabs.  <a href="#a6f501d921cd1b2539790624accc6ea00"></a><br/></td></tr>
 <tr class="inherit_header pub_methods_classAccessClass"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classAccessClass')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classAccessClass.html">AccessClass</a></td></tr>
-<tr class="memitem:ae6c601f53b3fd103bd7cd40f51c9c235 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae6c601f53b3fd103bd7cd40f51c9c235"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setUIComponent</b> (<a class="el" href="classUIComponent.html">UIComponent</a> *)</td></tr>
-<tr class="memitem:aa23dfab04264a78db261ccb8ac30f1ff inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa23dfab04264a78db261ccb8ac30f1ff"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>updateChildComponents</b> ()</td></tr>
-<tr class="memitem:a72bef8d5db8f8984f7b40f627a43998d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a72bef8d5db8f8984f7b40f627a43998d"></a>
-<a class="el" href="classEditorViewport.html">EditorViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getEditorViewport</b> ()</td></tr>
-<tr class="memitem:a69500d6b6d466414e92eb9b31c8cb90d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a69500d6b6d466414e92eb9b31c8cb90d"></a>
-<a class="el" href="classDataViewport.html">DataViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getDataViewport</b> ()</td></tr>
-<tr class="memitem:a18c4d1e45c74d6564d534bfe86bfc5da inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18c4d1e45c74d6564d534bfe86bfc5da"></a>
-<a class="el" href="classProcessorList.html">ProcessorList</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getProcessorList</b> ()</td></tr>
-<tr class="memitem:abe0403e279f6047b2f307eaf9c913404 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe0403e279f6047b2f307eaf9c913404"></a>
-<a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getProcessorGraph</b> ()</td></tr>
-<tr class="memitem:ae2559bca16f366b3b60bb64b062259cb inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae2559bca16f366b3b60bb64b062259cb"></a>
-<a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getControlPanel</b> ()</td></tr>
-<tr class="memitem:abb4f62a65c45128a71eee802544fd3d1 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb4f62a65c45128a71eee802544fd3d1"></a>
-<a class="el" href="classMessageCenter.html">MessageCenter</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getMessageCenter</b> ()</td></tr>
-<tr class="memitem:a45bcba11a6ba8a754d76d6a3ee11fb26 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45bcba11a6ba8a754d76d6a3ee11fb26"></a>
-<a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getUIComponent</b> ()</td></tr>
-<tr class="memitem:adca6f9ebbe535a03c024eb673a096972 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adca6f9ebbe535a03c024eb673a096972"></a>
-<a class="el" href="classAudioComponent.html">AudioComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getAudioComponent</b> ()</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a0edb05653624ca748aa2fb99be4a92d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0edb05653624ca748aa2fb99be4a92d1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paint</b> (Graphics &amp;g)</td></tr>
-<tr class="memitem:ade8ef66cda0ef16c1e8bac8acb0bb6f5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ade8ef66cda0ef16c1e8bac8acb0bb6f5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</b> (<a class="el" href="classDataViewport.html">DataViewport</a>)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:aed6c8f52223b4a0f18522b5d955ebb78"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed6c8f52223b4a0f18522b5d955ebb78"></a>
-Array&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>tabArray</b></td></tr>
-<tr class="memitem:af20639966e4c4ac17eeaf2ff76fb4067"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af20639966e4c4ac17eeaf2ff76fb4067"></a>
-Array&lt; <a class="el" href="classGenericEditor.html">GenericEditor</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>editorArray</b></td></tr>
-<tr class="memitem:a1ede587e57426d557975837ecef551f4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1ede587e57426d557975837ecef551f4"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>tabDepth</b></td></tr>
-<tr class="memitem:a5e55f6f3324b280f3e26993b52ba3192"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5e55f6f3324b280f3e26993b52ba3192"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>shutdown</b></td></tr>
+<tr class="memitem:a4479402a420cf84c0b8ec1abd4a43d9c inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a4479402a420cf84c0b8ec1abd4a43d9c">AccessClass</a> ()</td></tr>
+<tr class="memitem:a68da6863bc0d2a4c5f84f9ed8dd4053f inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a68da6863bc0d2a4c5f84f9ed8dd4053f">~AccessClass</a> ()</td></tr>
+<tr class="memitem:ae6c601f53b3fd103bd7cd40f51c9c235 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#ae6c601f53b3fd103bd7cd40f51c9c235">setUIComponent</a> (<a class="el" href="classUIComponent.html">UIComponent</a> *)</td></tr>
+<tr class="memitem:aa23dfab04264a78db261ccb8ac30f1ff inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#aa23dfab04264a78db261ccb8ac30f1ff">updateChildComponents</a> ()</td></tr>
+<tr class="memitem:a72bef8d5db8f8984f7b40f627a43998d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEditorViewport.html">EditorViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a72bef8d5db8f8984f7b40f627a43998d">getEditorViewport</a> ()</td></tr>
+<tr class="memitem:a69500d6b6d466414e92eb9b31c8cb90d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classDataViewport.html">DataViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a69500d6b6d466414e92eb9b31c8cb90d">getDataViewport</a> ()</td></tr>
+<tr class="memitem:a18c4d1e45c74d6564d534bfe86bfc5da inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classProcessorList.html">ProcessorList</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a18c4d1e45c74d6564d534bfe86bfc5da">getProcessorList</a> ()</td></tr>
+<tr class="memitem:abe0403e279f6047b2f307eaf9c913404 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#abe0403e279f6047b2f307eaf9c913404">getProcessorGraph</a> ()</td></tr>
+<tr class="memitem:ae2559bca16f366b3b60bb64b062259cb inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#ae2559bca16f366b3b60bb64b062259cb">getControlPanel</a> ()</td></tr>
+<tr class="memitem:abb4f62a65c45128a71eee802544fd3d1 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classMessageCenter.html">MessageCenter</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#abb4f62a65c45128a71eee802544fd3d1">getMessageCenter</a> ()</td></tr>
+<tr class="memitem:a45bcba11a6ba8a754d76d6a3ee11fb26 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a45bcba11a6ba8a754d76d6a3ee11fb26">getUIComponent</a> ()</td></tr>
+<tr class="memitem:adca6f9ebbe535a03c024eb673a096972 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classAudioComponent.html">AudioComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#adca6f9ebbe535a03c024eb673a096972">getAudioComponent</a> ()</td></tr>
 </table>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>Holds tabs for visualizers. </p>
+<p>Editors that create OpenGL visualizers can either place them in the <a class="el" href="classDataViewport.html" title="Holds tabs for visualizers.">DataViewport</a>, for easy access on small monitors, or in a separate window, for maximum flexibility.</p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericEditor.html" title="Base class for creating processor editors.">GenericEditor</a>, <a class="el" href="classInfoLabel.html" title="Displays general instructions about how to use the application.">InfoLabel</a>, <a class="el" href="classLfpDisplayCanvas.html">LfpDisplayCanvas</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a1ed58b893e6e51a6ae16963bbd4ec121"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DataViewport::DataViewport </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa5dcbdd8713e4aefa474bf725aa5b68b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">DataViewport::~DataViewport </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="accdcf7187ec5864fdbf0c2a3e605b072"></a>
 <div class="memitem">
@@ -247,7 +261,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>shutdown</b></td></tr
       </table>
 </div><div class="memdoc">
 
-<p>Prevent <a class="el" href="classDataViewport.html">DataViewport</a> from signaling <a class="el" href="classEditorViewport.html">EditorViewport</a> when changing tabs. </p>
+<p>Prevent <a class="el" href="classDataViewport.html" title="Holds tabs for visualizers.">DataViewport</a> from signaling <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> when changing tabs. </p>
 
 </div>
 </div>
@@ -270,12 +284,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>shutdown</b></td></tr
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>UI/<a class="el" href="DataViewport_8h_source.html">DataViewport.h</a></li>
+<li><a class="el" href="DataViewport_8h.html">DataViewport.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

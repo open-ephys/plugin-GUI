@@ -33,6 +33,12 @@
 #include "../AccessClass.h"
 #include "DataViewport.h"
 
+class GenericEditor;
+class SignalChainTabButton;
+class SignalChainManager;
+class EditorScrollButton;
+class SignalChainScrollButton;
+
 /**
   
   Allows the user to view and edit the signal chain.
@@ -42,12 +48,6 @@
   @see UIComponent, ProcessorGraph
 
 */
-
-class GenericEditor;
-class SignalChainTabButton;
-class SignalChainManager;
-class EditorScrollButton;
-class SignalChainScrollButton;
 
 class EditorViewport  : public Component,
                         public DragAndDropTarget,

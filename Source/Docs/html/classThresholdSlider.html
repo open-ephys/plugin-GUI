@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,48 +82,103 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">ThresholdSlider Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
+<p><code>#include &lt;SpikeDetectorEditor.h&gt;</code></p>
+
 <p><a href="classThresholdSlider-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5398c8e3554363cd303fa92882316ffd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5398c8e3554363cd303fa92882316ffd"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ThresholdSlider</b> (Font f)</td></tr>
-<tr class="memitem:ac83ea11e9500f031115e483b24e1a5c7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac83ea11e9500f031115e483b24e1a5c7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setActive</b> (bool)</td></tr>
-<tr class="memitem:a9f1539033db04ee192efd8797c6de47e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9f1539033db04ee192efd8797c6de47e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setValues</b> (Array&lt; double &gt;)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a61dc99677aec47179be42eb57f6f27d8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a61dc99677aec47179be42eb57f6f27d8"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paint</b> (Graphics &amp;g)</td></tr>
-<tr class="memitem:a7c3fe6e93477cb6280c44dd8dde8ccc8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7c3fe6e93477cb6280c44dd8dde8ccc8"></a>
-Path&#160;</td><td class="memItemRight" valign="bottom"><b>makeRotaryPath</b> (double, double, double)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a8a9253483d81108291ae60a4ac33e9e7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8a9253483d81108291ae60a4ac33e9e7"></a>
-Font&#160;</td><td class="memItemRight" valign="bottom"><b>font</b></td></tr>
-<tr class="memitem:a79e4ddcfe860a4ed441f834aa28237ef"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79e4ddcfe860a4ed441f834aa28237ef"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isActive</b></td></tr>
-<tr class="memitem:a1e0ae8d93bca3f3321d2f051e8ec3fc6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1e0ae8d93bca3f3321d2f051e8ec3fc6"></a>
-Array&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>valueArray</b></td></tr>
+<tr class="memitem:a5398c8e3554363cd303fa92882316ffd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classThresholdSlider.html#a5398c8e3554363cd303fa92882316ffd">ThresholdSlider</a> (Font f)</td></tr>
+<tr class="memitem:ab0262877e25bfdb7c62505925b14f0fa"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classThresholdSlider.html#ab0262877e25bfdb7c62505925b14f0fa">~ThresholdSlider</a> ()</td></tr>
+<tr class="memitem:ac83ea11e9500f031115e483b24e1a5c7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classThresholdSlider.html#ac83ea11e9500f031115e483b24e1a5c7">setActive</a> (bool)</td></tr>
+<tr class="memitem:a9f1539033db04ee192efd8797c6de47e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classThresholdSlider.html#a9f1539033db04ee192efd8797c6de47e">setValues</a> (Array&lt; double &gt;)</td></tr>
 </table>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a5398c8e3554363cd303fa92882316ffd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ThresholdSlider::ThresholdSlider </td>
+          <td>(</td>
+          <td class="paramtype">Font&#160;</td>
+          <td class="paramname"><em>f</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ab0262877e25bfdb7c62505925b14f0fa"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">ThresholdSlider::~ThresholdSlider </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="ac83ea11e9500f031115e483b24e1a5c7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ThresholdSlider::setActive </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a9f1539033db04ee192efd8797c6de47e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ThresholdSlider::setValues </td>
+          <td>(</td>
+          <td class="paramtype">Array&lt; double &gt;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/Editors/<a class="el" href="SpikeDetectorEditor_8h_source.html">SpikeDetectorEditor.h</a></li>
+<li><a class="el" href="SpikeDetectorEditor_8h.html">SpikeDetectorEditor.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:39 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -83,14 +83,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="#pri-types">Private Types</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-attribs">Public Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">EditorViewport Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Allows the user to view and edit the signal chain.  
+ <a href="classEditorViewport.html#details">More...</a></p>
+
+<p><code>#include &lt;EditorViewport.h&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for EditorViewport:</div>
 <div class="dyncontent">
@@ -105,177 +107,663 @@ Inheritance diagram for EditorViewport:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a9e1acddb0e1bd9de0ee5c144d65d231b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9e1acddb0e1bd9de0ee5c144d65d231b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paint</b> (Graphics &amp;g)</td></tr>
-<tr class="memitem:ad0b9dfd4b77ca870e76f174032e12fd0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0b9dfd4b77ca870e76f174032e12fd0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>deleteNode</b> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *editor)</td></tr>
-<tr class="memitem:aa788025ac31951eb6b3db55f5da19350"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa788025ac31951eb6b3db55f5da19350"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>selectEditor</b> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *e)</td></tr>
-<tr class="memitem:a48ffa818358a263ac61221d5e94a14cc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a48ffa818358a263ac61221d5e94a14cc"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>makeEditorVisible</b> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *e, bool highlight=true)</td></tr>
-<tr class="memitem:a70a4e6431ea881b26efcecab2ce9f736"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a70a4e6431ea881b26efcecab2ce9f736"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>makeEditorVisibleAndUpdateSettings</b> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *e)</td></tr>
-<tr class="memitem:a2537b32aa2b8e90835770e5543ba3da7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2537b32aa2b8e90835770e5543ba3da7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>refreshEditors</b> ()</td></tr>
-<tr class="memitem:a02c672bb7b4695eec9c6c61eaac389bf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a02c672bb7b4695eec9c6c61eaac389bf"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>clearSignalChain</b> ()</td></tr>
-<tr class="memitem:a507e141c15a124aef3c307bab7e4e5c6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a507e141c15a124aef3c307bab7e4e5c6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>signalChainCanBeEdited</b> (bool t)</td></tr>
-<tr class="memitem:adb0fd596073954d1ece43739e5925d33"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adb0fd596073954d1ece43739e5925d33"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isInterestedInDragSource</b> (const String &amp;, Component *)</td></tr>
-<tr class="memitem:a14cb153a6f1ca97584c3bfa88d5839e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a14cb153a6f1ca97584c3bfa88d5839e4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>itemDragEnter</b> (const String &amp;, Component *, int, int)</td></tr>
-<tr class="memitem:a99630d7cff4060355eb33b523a1ff662"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a99630d7cff4060355eb33b523a1ff662"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>itemDragMove</b> (const String &amp;, Component *, int, int)</td></tr>
-<tr class="memitem:aa0a6e241e6900665b4cd83ca75da169c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa0a6e241e6900665b4cd83ca75da169c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>itemDragExit</b> (const String &amp;, Component *)</td></tr>
-<tr class="memitem:a28feb4315615bf02650df7d9df8230da"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a28feb4315615bf02650df7d9df8230da"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>itemDropped</b> (const String &amp;sourceDescription, Component *, int, int)</td></tr>
-<tr class="memitem:ae5ea71d59fb37b2888a451d7ad96a0af"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae5ea71d59fb37b2888a451d7ad96a0af"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseDown</b> (const MouseEvent &amp;e)</td></tr>
-<tr class="memitem:a0945e16ac793100d8a30d1f0b9dd7618"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0945e16ac793100d8a30d1f0b9dd7618"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseDrag</b> (const MouseEvent &amp;e)</td></tr>
-<tr class="memitem:a839c651c6aaf978166a59eb8268c9728"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a839c651c6aaf978166a59eb8268c9728"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseUp</b> (const MouseEvent &amp;e)</td></tr>
-<tr class="memitem:a30efef0c60d508fdb5f94efc6729e315"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a30efef0c60d508fdb5f94efc6729e315"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseExit</b> (const MouseEvent &amp;e)</td></tr>
-<tr class="memitem:a949986b1e5866860a76b91f96fc68c54"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a949986b1e5866860a76b91f96fc68c54"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>keyPressed</b> (const KeyPress &amp;key)</td></tr>
-<tr class="memitem:a49167a0ba2902fc95199ca4897f773c6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a49167a0ba2902fc95199ca4897f773c6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>moveSelection</b> (const KeyPress &amp;key)</td></tr>
-<tr class="memitem:a993f75f13ab62e1cea1ce38da1f046d5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a993f75f13ab62e1cea1ce38da1f046d5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>buttonClicked</b> (Button *button)</td></tr>
-<tr class="memitem:aea2c840f1ca1309f483b7ff600e9e4ad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aea2c840f1ca1309f483b7ff600e9e4ad"></a>
-Array&lt; <a class="el" href="classSignalChainTabButton.html">SignalChainTabButton</a> <br class="typebreak"/>
-*, CriticalSection &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>requestSignalChain</b> ()</td></tr>
-<tr class="memitem:a00ade83a870133a9ddf339a38dd06b3c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a00ade83a870133a9ddf339a38dd06b3c"></a>
-const String&#160;</td><td class="memItemRight" valign="bottom"><b>saveState</b> ()</td></tr>
-<tr class="memitem:a2ae2ff8e05fca5d7717fbce441fb2412"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2ae2ff8e05fca5d7717fbce441fb2412"></a>
-const String&#160;</td><td class="memItemRight" valign="bottom"><b>loadState</b> ()</td></tr>
-<tr class="memitem:a231c3600cecadafa2b6c01dc39515c7b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a231c3600cecadafa2b6c01dc39515c7b"></a>
-XmlElement *&#160;</td><td class="memItemRight" valign="bottom"><b>createNodeXml</b> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *, int)</td></tr>
-<tr class="memitem:a6d055783c0fe0c8cea45a9924b45d99a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6d055783c0fe0c8cea45a9924b45d99a"></a>
-XmlElement *&#160;</td><td class="memItemRight" valign="bottom"><b>switchNodeXml</b> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *)</td></tr>
-<tr class="memitem:aada77ca562341a093410527034b10818"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aada77ca562341a093410527034b10818"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>checkScrollButtons</b> (int topTab)</td></tr>
-<tr class="memitem:a1b5cea1e2a181d39375b025a5c1dd047"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1b5cea1e2a181d39375b025a5c1dd047"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isSignalChainEmpty</b> ()</td></tr>
+<tr class="memitem:a02d864af547853f7ce276edf27f32816"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a02d864af547853f7ce276edf27f32816">EditorViewport</a> ()</td></tr>
+<tr class="memitem:a87b604c8133b8a39122c78d0dd6102ca"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a87b604c8133b8a39122c78d0dd6102ca">~EditorViewport</a> ()</td></tr>
+<tr class="memitem:a9e1acddb0e1bd9de0ee5c144d65d231b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a9e1acddb0e1bd9de0ee5c144d65d231b">paint</a> (Graphics &amp;g)</td></tr>
+<tr class="memitem:ad0b9dfd4b77ca870e76f174032e12fd0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#ad0b9dfd4b77ca870e76f174032e12fd0">deleteNode</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *editor)</td></tr>
+<tr class="memitem:aa788025ac31951eb6b3db55f5da19350"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#aa788025ac31951eb6b3db55f5da19350">selectEditor</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *e)</td></tr>
+<tr class="memitem:a48ffa818358a263ac61221d5e94a14cc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a48ffa818358a263ac61221d5e94a14cc">makeEditorVisible</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *e, bool highlight=true)</td></tr>
+<tr class="memitem:a70a4e6431ea881b26efcecab2ce9f736"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a70a4e6431ea881b26efcecab2ce9f736">makeEditorVisibleAndUpdateSettings</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *e)</td></tr>
+<tr class="memitem:a2537b32aa2b8e90835770e5543ba3da7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a2537b32aa2b8e90835770e5543ba3da7">refreshEditors</a> ()</td></tr>
+<tr class="memitem:a02c672bb7b4695eec9c6c61eaac389bf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a02c672bb7b4695eec9c6c61eaac389bf">clearSignalChain</a> ()</td></tr>
+<tr class="memitem:a507e141c15a124aef3c307bab7e4e5c6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a507e141c15a124aef3c307bab7e4e5c6">signalChainCanBeEdited</a> (bool t)</td></tr>
+<tr class="memitem:adb0fd596073954d1ece43739e5925d33"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#adb0fd596073954d1ece43739e5925d33">isInterestedInDragSource</a> (const String &amp;, Component *)</td></tr>
+<tr class="memitem:a14cb153a6f1ca97584c3bfa88d5839e4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a14cb153a6f1ca97584c3bfa88d5839e4">itemDragEnter</a> (const String &amp;, Component *, int, int)</td></tr>
+<tr class="memitem:a99630d7cff4060355eb33b523a1ff662"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a99630d7cff4060355eb33b523a1ff662">itemDragMove</a> (const String &amp;, Component *, int, int)</td></tr>
+<tr class="memitem:aa0a6e241e6900665b4cd83ca75da169c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#aa0a6e241e6900665b4cd83ca75da169c">itemDragExit</a> (const String &amp;, Component *)</td></tr>
+<tr class="memitem:a28feb4315615bf02650df7d9df8230da"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a28feb4315615bf02650df7d9df8230da">itemDropped</a> (const String &amp;sourceDescription, Component *, int, int)</td></tr>
+<tr class="memitem:ae5ea71d59fb37b2888a451d7ad96a0af"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#ae5ea71d59fb37b2888a451d7ad96a0af">mouseDown</a> (const MouseEvent &amp;e)</td></tr>
+<tr class="memitem:a0945e16ac793100d8a30d1f0b9dd7618"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a0945e16ac793100d8a30d1f0b9dd7618">mouseDrag</a> (const MouseEvent &amp;e)</td></tr>
+<tr class="memitem:a839c651c6aaf978166a59eb8268c9728"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a839c651c6aaf978166a59eb8268c9728">mouseUp</a> (const MouseEvent &amp;e)</td></tr>
+<tr class="memitem:a30efef0c60d508fdb5f94efc6729e315"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a30efef0c60d508fdb5f94efc6729e315">mouseExit</a> (const MouseEvent &amp;e)</td></tr>
+<tr class="memitem:a949986b1e5866860a76b91f96fc68c54"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a949986b1e5866860a76b91f96fc68c54">keyPressed</a> (const KeyPress &amp;key)</td></tr>
+<tr class="memitem:a49167a0ba2902fc95199ca4897f773c6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a49167a0ba2902fc95199ca4897f773c6">moveSelection</a> (const KeyPress &amp;key)</td></tr>
+<tr class="memitem:a993f75f13ab62e1cea1ce38da1f046d5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a993f75f13ab62e1cea1ce38da1f046d5">buttonClicked</a> (Button *button)</td></tr>
+<tr class="memitem:aea2c840f1ca1309f483b7ff600e9e4ad"><td class="memItemLeft" align="right" valign="top">Array&lt; <a class="el" href="classSignalChainTabButton.html">SignalChainTabButton</a> <br class="typebreak"/>
+*, CriticalSection &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#aea2c840f1ca1309f483b7ff600e9e4ad">requestSignalChain</a> ()</td></tr>
+<tr class="memitem:a00ade83a870133a9ddf339a38dd06b3c"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a00ade83a870133a9ddf339a38dd06b3c">saveState</a> ()</td></tr>
+<tr class="memitem:a2ae2ff8e05fca5d7717fbce441fb2412"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a2ae2ff8e05fca5d7717fbce441fb2412">loadState</a> ()</td></tr>
+<tr class="memitem:a231c3600cecadafa2b6c01dc39515c7b"><td class="memItemLeft" align="right" valign="top">XmlElement *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a231c3600cecadafa2b6c01dc39515c7b">createNodeXml</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *, int)</td></tr>
+<tr class="memitem:a6d055783c0fe0c8cea45a9924b45d99a"><td class="memItemLeft" align="right" valign="top">XmlElement *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a6d055783c0fe0c8cea45a9924b45d99a">switchNodeXml</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *)</td></tr>
+<tr class="memitem:aada77ca562341a093410527034b10818"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#aada77ca562341a093410527034b10818">checkScrollButtons</a> (int topTab)</td></tr>
+<tr class="memitem:a1b5cea1e2a181d39375b025a5c1dd047"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a1b5cea1e2a181d39375b025a5c1dd047">isSignalChainEmpty</a> ()</td></tr>
 <tr class="inherit_header pub_methods_classAccessClass"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classAccessClass')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classAccessClass.html">AccessClass</a></td></tr>
-<tr class="memitem:ae6c601f53b3fd103bd7cd40f51c9c235 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae6c601f53b3fd103bd7cd40f51c9c235"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setUIComponent</b> (<a class="el" href="classUIComponent.html">UIComponent</a> *)</td></tr>
-<tr class="memitem:aa23dfab04264a78db261ccb8ac30f1ff inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa23dfab04264a78db261ccb8ac30f1ff"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>updateChildComponents</b> ()</td></tr>
-<tr class="memitem:a72bef8d5db8f8984f7b40f627a43998d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a72bef8d5db8f8984f7b40f627a43998d"></a>
-<a class="el" href="classEditorViewport.html">EditorViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getEditorViewport</b> ()</td></tr>
-<tr class="memitem:a69500d6b6d466414e92eb9b31c8cb90d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a69500d6b6d466414e92eb9b31c8cb90d"></a>
-<a class="el" href="classDataViewport.html">DataViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getDataViewport</b> ()</td></tr>
-<tr class="memitem:a18c4d1e45c74d6564d534bfe86bfc5da inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18c4d1e45c74d6564d534bfe86bfc5da"></a>
-<a class="el" href="classProcessorList.html">ProcessorList</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getProcessorList</b> ()</td></tr>
-<tr class="memitem:abe0403e279f6047b2f307eaf9c913404 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe0403e279f6047b2f307eaf9c913404"></a>
-<a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getProcessorGraph</b> ()</td></tr>
-<tr class="memitem:ae2559bca16f366b3b60bb64b062259cb inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae2559bca16f366b3b60bb64b062259cb"></a>
-<a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getControlPanel</b> ()</td></tr>
-<tr class="memitem:abb4f62a65c45128a71eee802544fd3d1 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb4f62a65c45128a71eee802544fd3d1"></a>
-<a class="el" href="classMessageCenter.html">MessageCenter</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getMessageCenter</b> ()</td></tr>
-<tr class="memitem:a45bcba11a6ba8a754d76d6a3ee11fb26 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45bcba11a6ba8a754d76d6a3ee11fb26"></a>
-<a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getUIComponent</b> ()</td></tr>
-<tr class="memitem:adca6f9ebbe535a03c024eb673a096972 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adca6f9ebbe535a03c024eb673a096972"></a>
-<a class="el" href="classAudioComponent.html">AudioComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getAudioComponent</b> ()</td></tr>
+<tr class="memitem:a4479402a420cf84c0b8ec1abd4a43d9c inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a4479402a420cf84c0b8ec1abd4a43d9c">AccessClass</a> ()</td></tr>
+<tr class="memitem:a68da6863bc0d2a4c5f84f9ed8dd4053f inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a68da6863bc0d2a4c5f84f9ed8dd4053f">~AccessClass</a> ()</td></tr>
+<tr class="memitem:ae6c601f53b3fd103bd7cd40f51c9c235 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#ae6c601f53b3fd103bd7cd40f51c9c235">setUIComponent</a> (<a class="el" href="classUIComponent.html">UIComponent</a> *)</td></tr>
+<tr class="memitem:aa23dfab04264a78db261ccb8ac30f1ff inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#aa23dfab04264a78db261ccb8ac30f1ff">updateChildComponents</a> ()</td></tr>
+<tr class="memitem:a72bef8d5db8f8984f7b40f627a43998d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEditorViewport.html">EditorViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a72bef8d5db8f8984f7b40f627a43998d">getEditorViewport</a> ()</td></tr>
+<tr class="memitem:a69500d6b6d466414e92eb9b31c8cb90d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classDataViewport.html">DataViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a69500d6b6d466414e92eb9b31c8cb90d">getDataViewport</a> ()</td></tr>
+<tr class="memitem:a18c4d1e45c74d6564d534bfe86bfc5da inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classProcessorList.html">ProcessorList</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a18c4d1e45c74d6564d534bfe86bfc5da">getProcessorList</a> ()</td></tr>
+<tr class="memitem:abe0403e279f6047b2f307eaf9c913404 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#abe0403e279f6047b2f307eaf9c913404">getProcessorGraph</a> ()</td></tr>
+<tr class="memitem:ae2559bca16f366b3b60bb64b062259cb inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#ae2559bca16f366b3b60bb64b062259cb">getControlPanel</a> ()</td></tr>
+<tr class="memitem:abb4f62a65c45128a71eee802544fd3d1 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classMessageCenter.html">MessageCenter</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#abb4f62a65c45128a71eee802544fd3d1">getMessageCenter</a> ()</td></tr>
+<tr class="memitem:a45bcba11a6ba8a754d76d6a3ee11fb26 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a45bcba11a6ba8a754d76d6a3ee11fb26">getUIComponent</a> ()</td></tr>
+<tr class="memitem:adca6f9ebbe535a03c024eb673a096972 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classAudioComponent.html">AudioComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#adca6f9ebbe535a03c024eb673a096972">getAudioComponent</a> ()</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ab05cd676ab48b8e252d56d1fb9f07d4f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab05cd676ab48b8e252d56d1fb9f07d4f"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>leftmostEditor</b></td></tr>
-<tr class="memitem:a09ffd88dead53e37ce7701adeda3ce8a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a09ffd88dead53e37ce7701adeda3ce8a"></a>
-File&#160;</td><td class="memItemRight" valign="bottom"><b>currentFile</b></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-types"></a>
-Private Types</h2></td></tr>
-<tr class="memitem:a42d7fd031136ecfb49a2d4fbf7d79d7a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>actions</b> { <br/>
-&#160;&#160;<b>ADD</b>, 
-<b>MOVE</b>, 
-<b>REMOVE</b>, 
-<b>ACTIVATE</b>, 
-<br/>
-&#160;&#160;<b>UPDATE</b>
-<br/>
- }</td></tr>
-<tr class="memitem:a334ecded4cb8699c5e717535e7af6f9c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>directions1</b> { <b>LEFT</b>, 
-<b>RIGHT</b>
- }</td></tr>
-<tr class="memitem:a2a2e9b68ca0c575d26a37a2378ee9ee4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>directions2</b> { <b>UP</b>, 
-<b>DOWN</b>
- }</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a93de817036f82c0a1253f81343e34347"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a93de817036f82c0a1253f81343e34347"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>createNewTab</b> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *editor)</td></tr>
-<tr class="memitem:ad78263f172f5ee69109bcdb728e22aeb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad78263f172f5ee69109bcdb728e22aeb"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>removeTab</b> (int tabIndex)</td></tr>
-<tr class="memitem:a1c0ecac694cc8340d464391778b5f727"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1c0ecac694cc8340d464391778b5f727"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>resized</b> ()</td></tr>
-<tr class="memitem:a3216cc1566e1b5e891b1825436abb9dc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3216cc1566e1b5e891b1825436abb9dc"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</b> (<a class="el" href="classEditorViewport.html">EditorViewport</a>)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:aebcce72fe2d98eed5690cdea87bbd776"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aebcce72fe2d98eed5690cdea87bbd776"></a>
-String&#160;</td><td class="memItemRight" valign="bottom"><b>message</b></td></tr>
-<tr class="memitem:a152689484821c227a7909c6087b41e6c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a152689484821c227a7909c6087b41e6c"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>somethingIsBeingDraggedOver</b></td></tr>
-<tr class="memitem:a04fad22528a1dd4d5d68fd6cec4d0dd4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a04fad22528a1dd4d5d68fd6cec4d0dd4"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>shiftDown</b></td></tr>
-<tr class="memitem:ada0e62d14a51a7ffda1e396a5b66061c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ada0e62d14a51a7ffda1e396a5b66061c"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>canEdit</b></td></tr>
-<tr class="memitem:aa4e7f71ad4823d393a489853d2760ba8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa4e7f71ad4823d393a489853d2760ba8"></a>
-<a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>lastEditor</b></td></tr>
-<tr class="memitem:a7964a4d304213a3d5a40c3f7ea48257e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7964a4d304213a3d5a40c3f7ea48257e"></a>
-<a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>lastEditorClicked</b></td></tr>
-<tr class="memitem:a4b8c16b1db82e6f7949be357ee9ce644"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b8c16b1db82e6f7949be357ee9ce644"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>selectionIndex</b></td></tr>
-<tr class="memitem:afb84ce94749157028397417b95b70aba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afb84ce94749157028397417b95b70aba"></a>
-Array&lt; <a class="el" href="classGenericEditor.html">GenericEditor</a> <br class="typebreak"/>
-*, CriticalSection &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>editorArray</b></td></tr>
-<tr class="memitem:a1f7e1003e9ad42e10eb6154a756735ec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1f7e1003e9ad42e10eb6154a756735ec"></a>
-Array&lt; <a class="el" href="classSignalChainTabButton.html">SignalChainTabButton</a> <br class="typebreak"/>
-*, CriticalSection &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>signalChainArray</b></td></tr>
-<tr class="memitem:addbe939901e75ce05fd7c6bc25ed8099"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="addbe939901e75ce05fd7c6bc25ed8099"></a>
-ScopedPointer&lt; <a class="el" href="classSignalChainManager.html">SignalChainManager</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>signalChainManager</b></td></tr>
-<tr class="memitem:a742248bc2ce37fd7e511e027b8369579"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a742248bc2ce37fd7e511e027b8369579"></a>
-Font&#160;</td><td class="memItemRight" valign="bottom"><b>font</b></td></tr>
-<tr class="memitem:a0a000a563a6839777c1e37a382b99990"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0a000a563a6839777c1e37a382b99990"></a>
-Image&#160;</td><td class="memItemRight" valign="bottom"><b>sourceDropImage</b></td></tr>
-<tr class="memitem:a6efd91ca1ea24c0f728c420f5a9a5c3d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6efd91ca1ea24c0f728c420f5a9a5c3d"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>borderSize</b></td></tr>
-<tr class="memitem:a9a6174e30d66ec370e34380346d31880"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9a6174e30d66ec370e34380346d31880"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>tabSize</b></td></tr>
-<tr class="memitem:aea33d0cdc5fdd65ad1ba286ce8b160c8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aea33d0cdc5fdd65ad1ba286ce8b160c8"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>tabButtonSize</b></td></tr>
-<tr class="memitem:a4232494d0a71542296b93c7eaa7da579"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4232494d0a71542296b93c7eaa7da579"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>insertionPoint</b></td></tr>
-<tr class="memitem:a26f22e7827e51fb66d3a5262e90ef6ab"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a26f22e7827e51fb66d3a5262e90ef6ab"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>componentWantsToMove</b></td></tr>
-<tr class="memitem:a05ba5e48e39f716d312c1667e9a80954"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a05ba5e48e39f716d312c1667e9a80954"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>indexOfMovingComponent</b></td></tr>
-<tr class="memitem:ad10d97f0189b0c4bba4d3998f91c24e2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad10d97f0189b0c4bba4d3998f91c24e2"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>currentTab</b></td></tr>
-<tr class="memitem:acac49fef76c61a2c390f61940d859283"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acac49fef76c61a2c390f61940d859283"></a>
-<a class="el" href="classEditorScrollButton.html">EditorScrollButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>leftButton</b></td></tr>
-<tr class="memitem:a0683397c25ec6c4193322cb44b317d10"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0683397c25ec6c4193322cb44b317d10"></a>
-<a class="el" href="classEditorScrollButton.html">EditorScrollButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>rightButton</b></td></tr>
-<tr class="memitem:aca0a1943bce0ec9b5950b6c395df2094"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aca0a1943bce0ec9b5950b6c395df2094"></a>
-<a class="el" href="classSignalChainScrollButton.html">SignalChainScrollButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>upButton</b></td></tr>
-<tr class="memitem:a0749ed016653202a8bed9447b45de1b6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0749ed016653202a8bed9447b45de1b6"></a>
-<a class="el" href="classSignalChainScrollButton.html">SignalChainScrollButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>downButton</b></td></tr>
+<tr class="memitem:ab05cd676ab48b8e252d56d1fb9f07d4f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#ab05cd676ab48b8e252d56d1fb9f07d4f">leftmostEditor</a></td></tr>
+<tr class="memitem:a09ffd88dead53e37ce7701adeda3ce8a"><td class="memItemLeft" align="right" valign="top">File&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a09ffd88dead53e37ce7701adeda3ce8a">currentFile</a></td></tr>
 </table>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>Allows the user to view and edit the signal chain. </p>
+<p>The <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> is one of the most important classes in the GUI application.</p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classUIComponent.html">UIComponent</a>, <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a02d864af547853f7ce276edf27f32816"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">EditorViewport::EditorViewport </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a87b604c8133b8a39122c78d0dd6102ca"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">EditorViewport::~EditorViewport </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a993f75f13ab62e1cea1ce38da1f046d5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::buttonClicked </td>
+          <td>(</td>
+          <td class="paramtype">Button *&#160;</td>
+          <td class="paramname"><em>button</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aada77ca562341a093410527034b10818"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::checkScrollButtons </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>topTab</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a02c672bb7b4695eec9c6c61eaac389bf"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::clearSignalChain </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a231c3600cecadafa2b6c01dc39515c7b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">XmlElement* EditorViewport::createNodeXml </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad0b9dfd4b77ca870e76f174032e12fd0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::deleteNode </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
+          <td class="paramname"><em>editor</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="adb0fd596073954d1ece43739e5925d33"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool EditorViewport::isInterestedInDragSource </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Component *&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a1b5cea1e2a181d39375b025a5c1dd047"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool EditorViewport::isSignalChainEmpty </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a14cb153a6f1ca97584c3bfa88d5839e4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::itemDragEnter </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Component *&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa0a6e241e6900665b4cd83ca75da169c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::itemDragExit </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Component *&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a99630d7cff4060355eb33b523a1ff662"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::itemDragMove </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Component *&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a28feb4315615bf02650df7d9df8230da"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::itemDropped </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname"><em>sourceDescription</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Component *&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a949986b1e5866860a76b91f96fc68c54"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool EditorViewport::keyPressed </td>
+          <td>(</td>
+          <td class="paramtype">const KeyPress &amp;&#160;</td>
+          <td class="paramname"><em>key</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a2ae2ff8e05fca5d7717fbce441fb2412"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const String EditorViewport::loadState </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a48ffa818358a263ac61221d5e94a14cc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::makeEditorVisible </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
+          <td class="paramname"><em>e</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>highlight</em> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a70a4e6431ea881b26efcecab2ce9f736"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::makeEditorVisibleAndUpdateSettings </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
+          <td class="paramname"><em>e</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae5ea71d59fb37b2888a451d7ad96a0af"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::mouseDown </td>
+          <td>(</td>
+          <td class="paramtype">const MouseEvent &amp;&#160;</td>
+          <td class="paramname"><em>e</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0945e16ac793100d8a30d1f0b9dd7618"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::mouseDrag </td>
+          <td>(</td>
+          <td class="paramtype">const MouseEvent &amp;&#160;</td>
+          <td class="paramname"><em>e</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a30efef0c60d508fdb5f94efc6729e315"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::mouseExit </td>
+          <td>(</td>
+          <td class="paramtype">const MouseEvent &amp;&#160;</td>
+          <td class="paramname"><em>e</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a839c651c6aaf978166a59eb8268c9728"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::mouseUp </td>
+          <td>(</td>
+          <td class="paramtype">const MouseEvent &amp;&#160;</td>
+          <td class="paramname"><em>e</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a49167a0ba2902fc95199ca4897f773c6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::moveSelection </td>
+          <td>(</td>
+          <td class="paramtype">const KeyPress &amp;&#160;</td>
+          <td class="paramname"><em>key</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a9e1acddb0e1bd9de0ee5c144d65d231b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::paint </td>
+          <td>(</td>
+          <td class="paramtype">Graphics &amp;&#160;</td>
+          <td class="paramname"><em>g</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a2537b32aa2b8e90835770e5543ba3da7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::refreshEditors </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aea2c840f1ca1309f483b7ff600e9e4ad"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Array&lt;<a class="el" href="classSignalChainTabButton.html">SignalChainTabButton</a>*, CriticalSection&gt; EditorViewport::requestSignalChain </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a00ade83a870133a9ddf339a38dd06b3c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const String EditorViewport::saveState </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa788025ac31951eb6b3db55f5da19350"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::selectEditor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
+          <td class="paramname"><em>e</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a507e141c15a124aef3c307bab7e4e5c6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::signalChainCanBeEdited </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>t</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6d055783c0fe0c8cea45a9924b45d99a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">XmlElement* EditorViewport::switchNodeXml </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="a09ffd88dead53e37ce7701adeda3ce8a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">File EditorViewport::currentFile</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ab05cd676ab48b8e252d56d1fb9f07d4f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int EditorViewport::leftmostEditor</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>UI/<a class="el" href="EditorViewport_8h_source.html">EditorViewport.h</a></li>
+<li><a class="el" href="EditorViewport_8h.html">EditorViewport.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

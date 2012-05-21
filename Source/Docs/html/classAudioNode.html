@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -83,20 +83,23 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-attribs">Public Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">AudioNode Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Selects which channels to send to the audio monitor.  
+ <a href="classAudioNode.html#details">More...</a></p>
+
+<p><code>#include &lt;AudioNode.h&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for AudioNode:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classAudioNode.png" usemap="#AudioNode_map" alt=""/>
   <map id="AudioNode_map" name="AudioNode_map">
-<area href="classGenericProcessor.html" alt="GenericProcessor" shape="rect" coords="0,56,115,80"/>
+<area href="classGenericProcessor.html" title="Abstract base class for creating processors." alt="GenericProcessor" shape="rect" coords="0,56,115,80"/>
 <area href="classAccessClass.html" title="Allows subclasses to access important pointers within the application." alt="AccessClass" shape="rect" coords="0,0,115,24"/>
 </map>
  </div></div>
@@ -105,264 +108,379 @@ Inheritance diagram for AudioNode:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a90d23dc83c27a5ff3a8e5029a5498b35"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a90d23dc83c27a5ff3a8e5029a5498b35"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>process</b> (AudioSampleBuffer &amp;buffer, MidiBuffer &amp;midiMessages, int &amp;nSamples)</td></tr>
-<tr class="memitem:a61ca4c81f908093001fd7805951274a2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a61ca4c81f908093001fd7805951274a2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setParameter</b> (int parameterIndex, float newValue)</td></tr>
-<tr class="memitem:a46c720536cf4b8502d841a65f9dccd1d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a46c720536cf4b8502d841a65f9dccd1d"></a>
-AudioProcessorEditor *&#160;</td><td class="memItemRight" valign="bottom"><b>createEditor</b> ()</td></tr>
-<tr class="memitem:a66b3cdf827054c9fdcdc667918a1f159"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a66b3cdf827054c9fdcdc667918a1f159"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setChannelStatus</b> (int, bool)</td></tr>
-<tr class="memitem:ae3ac34b77bc9663868c5739cb891d1a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae3ac34b77bc9663868c5739cb891d1a8"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isAudioOrRecordNode</b> ()</td></tr>
-<tr class="memitem:a94937d356ee86b72eed82fad0337f9e7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a94937d356ee86b72eed82fad0337f9e7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>enableCurrentChannel</b> (bool)</td></tr>
+<tr class="memitem:af1fe2b7723ff6f515228a671f61f073d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#af1fe2b7723ff6f515228a671f61f073d">AudioNode</a> ()</td></tr>
+<tr class="memitem:ad0ee4acfaea8f9ddbc80842a3baa69b9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#ad0ee4acfaea8f9ddbc80842a3baa69b9">~AudioNode</a> ()</td></tr>
+<tr class="memitem:a90d23dc83c27a5ff3a8e5029a5498b35"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a90d23dc83c27a5ff3a8e5029a5498b35">process</a> (AudioSampleBuffer &amp;buffer, MidiBuffer &amp;midiMessages, int &amp;nSamples)</td></tr>
+<tr class="memitem:a61ca4c81f908093001fd7805951274a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a61ca4c81f908093001fd7805951274a2">setParameter</a> (int parameterIndex, float newValue)</td></tr>
+<tr class="memitem:a46c720536cf4b8502d841a65f9dccd1d"><td class="memItemLeft" align="right" valign="top">AudioProcessorEditor *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a46c720536cf4b8502d841a65f9dccd1d">createEditor</a> ()</td></tr>
+<tr class="memitem:a66b3cdf827054c9fdcdc667918a1f159"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a66b3cdf827054c9fdcdc667918a1f159">setChannelStatus</a> (int, bool)</td></tr>
+<tr class="memitem:ae3ac34b77bc9663868c5739cb891d1a8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#ae3ac34b77bc9663868c5739cb891d1a8">isAudioOrRecordNode</a> ()</td></tr>
+<tr class="memitem:a94937d356ee86b72eed82fad0337f9e7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a94937d356ee86b72eed82fad0337f9e7">enableCurrentChannel</a> (bool)</td></tr>
 <tr class="inherit_header pub_methods_classGenericProcessor"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classGenericProcessor')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classGenericProcessor.html">GenericProcessor</a></td></tr>
-<tr class="memitem:a907fc14eecca11021d9e129d0aee9700 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a907fc14eecca11021d9e129d0aee9700"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>GenericProcessor</b> (const String &amp;name_)</td></tr>
-<tr class="memitem:aad3c1acb9fdeda122892ab9c5276119f inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aad3c1acb9fdeda122892ab9c5276119f"></a>
-const String&#160;</td><td class="memItemRight" valign="bottom"><b>getName</b> () const </td></tr>
-<tr class="memitem:a38456d9796c0fcf521c173cf4338c728 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a38456d9796c0fcf521c173cf4338c728"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>prepareToPlay</b> (double sampleRate, int estimatedSamplesPerBlock)</td></tr>
-<tr class="memitem:a53daa94f674d6b7e5e3d55fda717ec96 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a53daa94f674d6b7e5e3d55fda717ec96"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>releaseResources</b> ()</td></tr>
-<tr class="memitem:a225a527d11f4ba694bc9557cf57ce656 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a225a527d11f4ba694bc9557cf57ce656"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>hasEditor</b> () const </td></tr>
-<tr class="memitem:ac5d607b4b7202294d26bbdbe61abd9a8 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac5d607b4b7202294d26bbdbe61abd9a8"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>reset</b> ()</td></tr>
-<tr class="memitem:aab9014ebf17e362217a92f8f5b911e9d inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aab9014ebf17e362217a92f8f5b911e9d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setCurrentProgramStateInformation</b> (const void *data, int sizeInBytes)</td></tr>
-<tr class="memitem:ab405c546f5403871bf1855294a7cd0ff inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab405c546f5403871bf1855294a7cd0ff"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setStateInformation</b> (const void *data, int sizeInBytes)</td></tr>
-<tr class="memitem:a472e86370ddb3adc0bb45aea1cca6dc0 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a472e86370ddb3adc0bb45aea1cca6dc0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>getCurrentProgramStateInformation</b> (MemoryBlock &amp;destData)</td></tr>
-<tr class="memitem:a042fc5bbfe1d25cc70b605fa7b591666 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a042fc5bbfe1d25cc70b605fa7b591666"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>getStateInformation</b> (MemoryBlock &amp;destData)</td></tr>
-<tr class="memitem:acf6b9ccfb9be861035dbb919d8fcc290 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf6b9ccfb9be861035dbb919d8fcc290"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>changeProgramName</b> (int index, const String &amp;newName)</td></tr>
-<tr class="memitem:ac8949ad0240cb8f5167da076d1fc287b inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac8949ad0240cb8f5167da076d1fc287b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setCurrentProgram</b> (int index)</td></tr>
-<tr class="memitem:acc50df9e1f4d532070c4cf93f73c3766 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acc50df9e1f4d532070c4cf93f73c3766"></a>
-const String&#160;</td><td class="memItemRight" valign="bottom"><b>getInputChannelName</b> (int channelIndex) const </td></tr>
-<tr class="memitem:a58d462c3907932f6beed365b959b9e0e inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a58d462c3907932f6beed365b959b9e0e"></a>
-const String&#160;</td><td class="memItemRight" valign="bottom"><b>getOutputChannelName</b> (int channelIndex) const </td></tr>
-<tr class="memitem:a353b144b431efafb2b830b1ff759c808 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a353b144b431efafb2b830b1ff759c808"></a>
-const String&#160;</td><td class="memItemRight" valign="bottom"><b>getParameterName</b> (int parameterIndex)</td></tr>
-<tr class="memitem:abcfc1c5ffe90cb744e455d287e6059a6 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abcfc1c5ffe90cb744e455d287e6059a6"></a>
-const String&#160;</td><td class="memItemRight" valign="bottom"><b>getParameterText</b> (int parameterIndex)</td></tr>
-<tr class="memitem:a58b6841219060ffda3a8ed8f34eea3ed inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a58b6841219060ffda3a8ed8f34eea3ed"></a>
-const String&#160;</td><td class="memItemRight" valign="bottom"><b>getProgramName</b> (int index)</td></tr>
-<tr class="memitem:a8809dc1000c5efec6b81d8080e586d5a inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8809dc1000c5efec6b81d8080e586d5a"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isInputChannelStereoPair</b> (int index) const </td></tr>
-<tr class="memitem:a81b7c0491e5f7d9577b07db5652bed6c inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a81b7c0491e5f7d9577b07db5652bed6c"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isOutputChannelStereoPair</b> (int index) const </td></tr>
-<tr class="memitem:af9133c109e5251413b322145aa7620b2 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9133c109e5251413b322145aa7620b2"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>acceptsMidi</b> () const </td></tr>
-<tr class="memitem:af93f01089518726922286c9bb74419ee inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af93f01089518726922286c9bb74419ee"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>producesMidi</b> () const </td></tr>
-<tr class="memitem:af7af56aa3afd875ed377d54f2ddeb941 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af7af56aa3afd875ed377d54f2ddeb941"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isParameterAutomatable</b> (int parameterIndex)</td></tr>
-<tr class="memitem:a9a666aa80a84fdffcb2f3cf8b7599183 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9a666aa80a84fdffcb2f3cf8b7599183"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isMetaParameter</b> (int parameterIndex)</td></tr>
-<tr class="memitem:a37f3bb2d2c4aa385b41f324beecc03eb inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a37f3bb2d2c4aa385b41f324beecc03eb"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumParameters</b> ()</td></tr>
-<tr class="memitem:ad80d3c00c3f8fa1a719196a447b9670d inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad80d3c00c3f8fa1a719196a447b9670d"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumPrograms</b> ()</td></tr>
-<tr class="memitem:a13228cdfe7cd15d89bcc7c4061e0a797 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a13228cdfe7cd15d89bcc7c4061e0a797"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getCurrentProgram</b> ()</td></tr>
-<tr class="memitem:ae857c2fdef2d84ad20957a992889cdd7 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae857c2fdef2d84ad20957a992889cdd7"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>getParameter</b> (int parameterIndex)</td></tr>
-<tr class="memitem:a7b3c8dcb0ba4bf1f71a65da4ad47f063 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7b3c8dcb0ba4bf1f71a65da4ad47f063"></a>
-<a class="el" href="classParameter.html">Parameter</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getParameterByName</b> (String parameterName)</td></tr>
-<tr class="memitem:a1d58b5412eb6d031ad77ebf90cf7eeac inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1d58b5412eb6d031ad77ebf90cf7eeac"></a>
-<a class="el" href="classParameter.html">Parameter</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getParameterReference</b> (int parameterIndex)</td></tr>
-<tr class="memitem:a31f587ffcaddf91918013605d58651fe inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a31f587ffcaddf91918013605d58651fe"></a>
-virtual float&#160;</td><td class="memItemRight" valign="bottom"><b>getSampleRate</b> ()</td></tr>
-<tr class="memitem:ad82b2eb662c16c4509ecd84d33e01eba inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad82b2eb662c16c4509ecd84d33e01eba"></a>
-virtual float&#160;</td><td class="memItemRight" valign="bottom"><b>getDefaultSampleRate</b> ()</td></tr>
-<tr class="memitem:aee3dea28d03bb09bdb4799343aaa2388 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee3dea28d03bb09bdb4799343aaa2388"></a>
-virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumInputs</b> ()</td></tr>
-<tr class="memitem:a25f5d4ef799bdb5029ea96eedf462bf3 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a25f5d4ef799bdb5029ea96eedf462bf3"></a>
-virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumOutputs</b> ()</td></tr>
-<tr class="memitem:aef569283cc91483814b210922cf96d26 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef569283cc91483814b210922cf96d26"></a>
-virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>getDefaultNumOutputs</b> ()</td></tr>
-<tr class="memitem:ac72dab4ba6fd23478986c4927d30ae46 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac72dab4ba6fd23478986c4927d30ae46"></a>
-virtual float&#160;</td><td class="memItemRight" valign="bottom"><b>getDefaultBitVolts</b> ()</td></tr>
-<tr class="memitem:a85a573cbf094b9e0b58caad89598b9b6 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a85a573cbf094b9e0b58caad89598b9b6"></a>
-virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>getNextChannel</b> (bool)</td></tr>
-<tr class="memitem:a79f6e2e58b138bf070001d6bc8b7bb1d inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79f6e2e58b138bf070001d6bc8b7bb1d"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>resetConnections</b> ()</td></tr>
-<tr class="memitem:a887bc67d4ac284b65e3708e598845fa1 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a887bc67d4ac284b65e3708e598845fa1"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setCurrentChannel</b> (int chan)</td></tr>
-<tr class="memitem:ac9b78cf88078958fa27b08981f46e170 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac9b78cf88078958fa27b08981f46e170"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getNodeId</b> ()</td></tr>
-<tr class="memitem:a4d4245a009780a334517b0c242323f1b inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4d4245a009780a334517b0c242323f1b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setNodeId</b> (int id)</td></tr>
-<tr class="memitem:a1f395b8e7bab82f54293337debcc9377 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1f395b8e7bab82f54293337debcc9377"></a>
-<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getSourceNode</b> ()</td></tr>
-<tr class="memitem:a222183cb80918b031531f381462a7a27 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a222183cb80918b031531f381462a7a27"></a>
-<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getDestNode</b> ()</td></tr>
-<tr class="memitem:ab0fabe67cc2f3f8f5708ffba648a7178 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0fabe67cc2f3f8f5708ffba648a7178"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>switchIO</b> (int)</td></tr>
-<tr class="memitem:a2081dd06eba70e46ba5770dbf04fadff inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2081dd06eba70e46ba5770dbf04fadff"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>switchIO</b> ()</td></tr>
-<tr class="memitem:a4aa819589398e892b3ceb89364db2b4c inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4aa819589398e892b3ceb89364db2b4c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setPathToProcessor</b> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *p)</td></tr>
-<tr class="memitem:a6a21d25d3ad79fb4867c732c64322d54 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6a21d25d3ad79fb4867c732c64322d54"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setSourceNode</b> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *sn)</td></tr>
-<tr class="memitem:af133f0046c23153f46cc5aa3b6980b93 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af133f0046c23153f46cc5aa3b6980b93"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setDestNode</b> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *dn)</td></tr>
-<tr class="memitem:aba1548d2f5671b90d9c9bf716fafaeb4 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba1548d2f5671b90d9c9bf716fafaeb4"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setMergerSourceNode</b> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *sn)</td></tr>
-<tr class="memitem:ac553d8495ef07f5971a1f2abd0506b7e inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac553d8495ef07f5971a1f2abd0506b7e"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setSplitterDestNode</b> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *dn)</td></tr>
-<tr class="memitem:ab24b6dcb56efe4b66ced5bdddf2093de inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab24b6dcb56efe4b66ced5bdddf2093de"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isSource</b> ()</td></tr>
-<tr class="memitem:a38f377ecefaad8269198403205159bb3 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a38f377ecefaad8269198403205159bb3"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isSink</b> ()</td></tr>
-<tr class="memitem:a990ea34d9f34d482ef26e618f7990b36 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a990ea34d9f34d482ef26e618f7990b36"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isSplitter</b> ()</td></tr>
-<tr class="memitem:ab0a0cdb5233b92d5552e9db6566d1445 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0a0cdb5233b92d5552e9db6566d1445"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isMerger</b> ()</td></tr>
-<tr class="memitem:a3802e6cb4f8bd84840408bae0434bb8e inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3802e6cb4f8bd84840408bae0434bb8e"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>canSendSignalTo</b> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *)</td></tr>
-<tr class="memitem:a019dc0a595127889b42e835b23db07f5 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a019dc0a595127889b42e835b23db07f5"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isReady</b> ()</td></tr>
-<tr class="memitem:aef8d92d5d667f0e9d4b2d334ddf37380 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef8d92d5d667f0e9d4b2d334ddf37380"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>enable</b> ()</td></tr>
-<tr class="memitem:aac6a1a695bce499b07418efa1fde55f2 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aac6a1a695bce499b07418efa1fde55f2"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>disable</b> ()</td></tr>
-<tr class="memitem:a3f74e259858f741b6f1435ad8557884c inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3f74e259858f741b6f1435ad8557884c"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>enabledState</b> ()</td></tr>
-<tr class="memitem:a82e6b660b3ccdd175b26ca1f7c89155e inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a82e6b660b3ccdd175b26ca1f7c89155e"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>enabledState</b> (bool t)</td></tr>
-<tr class="memitem:a93c1a537897142d16003a45661b95920 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a93c1a537897142d16003a45661b95920"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>stillHasSource</b> ()</td></tr>
-<tr class="memitem:a2cc31f766d9e375cda9e240aa99d7f69 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2cc31f766d9e375cda9e240aa99d7f69"></a>
-virtual AudioSampleBuffer *&#160;</td><td class="memItemRight" valign="bottom"><b>getContinuousBuffer</b> ()</td></tr>
-<tr class="memitem:af0e8c9ba31626a779d4543b88925a0b1 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af0e8c9ba31626a779d4543b88925a0b1"></a>
-virtual MidiBuffer *&#160;</td><td class="memItemRight" valign="bottom"><b>getEventBuffer</b> ()</td></tr>
-<tr class="memitem:a3670d2c14be198001b086cf9c8fc45b6 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3670d2c14be198001b086cf9c8fc45b6"></a>
-virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>checkForEvents</b> (MidiBuffer &amp;mb)</td></tr>
-<tr class="memitem:ad6edfd929eaffda941ebc61ebc8559a4 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad6edfd929eaffda941ebc61ebc8559a4"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>addEvent</b> (MidiBuffer &amp;mb, uint8 type, int sampleNum, uint8 eventID=0, uint8 eventChannel=0, uint8 numBytes=0, uint8 *data=0)</td></tr>
-<tr class="memitem:a304bd82f97d26b385dd99df04042723e inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a304bd82f97d26b385dd99df04042723e"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>handleEvent</b> (int eventType, MidiMessage &amp;event)</td></tr>
-<tr class="memitem:ab2224d9c803f4282e8c8de729be58779 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab2224d9c803f4282e8c8de729be58779"></a>
-virtual <a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getEditor</b> ()</td></tr>
-<tr class="memitem:a6c4ac8dc9f66ffe8ccc100eb3cedbbe4 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6c4ac8dc9f66ffe8ccc100eb3cedbbe4"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>recordStatus</b> (int chan)</td></tr>
-<tr class="memitem:a29cd0895c183a1edb44ab3b3e7f3b262 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29cd0895c183a1edb44ab3b3e7f3b262"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>audioStatus</b> (int chan)</td></tr>
-<tr class="memitem:a860285332129a657c4e479a1ba59fa18 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a860285332129a657c4e479a1ba59fa18"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>clearSettings</b> ()</td></tr>
-<tr class="memitem:a5302ede3e22cc1511390dae4a7511766 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5302ede3e22cc1511390dae4a7511766"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>generateDefaultChannelNames</b> (StringArray &amp;)</td></tr>
-<tr class="memitem:a73073787f0a760c1896522c934e94211 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a73073787f0a760c1896522c934e94211"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> ()</td></tr>
-<tr class="memitem:a4020d7853cad011cbed7d71b5d6fddba inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4020d7853cad011cbed7d71b5d6fddba"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>updateSettings</b> ()</td></tr>
-<tr class="memitem:a43c6c63d2650ca92a556b656e88544ac inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a43c6c63d2650ca92a556b656e88544ac"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setStartChannel</b> (int i)</td></tr>
-<tr class="memitem:af4528a6eeda231a290eaa57676ebd6ec inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af4528a6eeda231a290eaa57676ebd6ec"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getStartChannel</b> ()</td></tr>
+<tr class="memitem:a907fc14eecca11021d9e129d0aee9700 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a907fc14eecca11021d9e129d0aee9700">GenericProcessor</a> (const String &amp;name_)</td></tr>
+<tr class="memitem:a6e81acc6125ba498c95993a530c60a4f inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a6e81acc6125ba498c95993a530c60a4f">~GenericProcessor</a> ()</td></tr>
+<tr class="memitem:aad3c1acb9fdeda122892ab9c5276119f inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#aad3c1acb9fdeda122892ab9c5276119f">getName</a> () const </td></tr>
+<tr class="memitem:a38456d9796c0fcf521c173cf4338c728 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a38456d9796c0fcf521c173cf4338c728">prepareToPlay</a> (double sampleRate, int estimatedSamplesPerBlock)</td></tr>
+<tr class="memitem:a53daa94f674d6b7e5e3d55fda717ec96 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a53daa94f674d6b7e5e3d55fda717ec96">releaseResources</a> ()</td></tr>
+<tr class="memitem:a225a527d11f4ba694bc9557cf57ce656 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a225a527d11f4ba694bc9557cf57ce656">hasEditor</a> () const </td></tr>
+<tr class="memitem:ac5d607b4b7202294d26bbdbe61abd9a8 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ac5d607b4b7202294d26bbdbe61abd9a8">reset</a> ()</td></tr>
+<tr class="memitem:aab9014ebf17e362217a92f8f5b911e9d inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#aab9014ebf17e362217a92f8f5b911e9d">setCurrentProgramStateInformation</a> (const void *data, int sizeInBytes)</td></tr>
+<tr class="memitem:ab405c546f5403871bf1855294a7cd0ff inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ab405c546f5403871bf1855294a7cd0ff">setStateInformation</a> (const void *data, int sizeInBytes)</td></tr>
+<tr class="memitem:a472e86370ddb3adc0bb45aea1cca6dc0 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a472e86370ddb3adc0bb45aea1cca6dc0">getCurrentProgramStateInformation</a> (MemoryBlock &amp;destData)</td></tr>
+<tr class="memitem:a042fc5bbfe1d25cc70b605fa7b591666 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a042fc5bbfe1d25cc70b605fa7b591666">getStateInformation</a> (MemoryBlock &amp;destData)</td></tr>
+<tr class="memitem:acf6b9ccfb9be861035dbb919d8fcc290 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#acf6b9ccfb9be861035dbb919d8fcc290">changeProgramName</a> (int index, const String &amp;newName)</td></tr>
+<tr class="memitem:ac8949ad0240cb8f5167da076d1fc287b inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ac8949ad0240cb8f5167da076d1fc287b">setCurrentProgram</a> (int index)</td></tr>
+<tr class="memitem:acc50df9e1f4d532070c4cf93f73c3766 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#acc50df9e1f4d532070c4cf93f73c3766">getInputChannelName</a> (int channelIndex) const </td></tr>
+<tr class="memitem:a58d462c3907932f6beed365b959b9e0e inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a58d462c3907932f6beed365b959b9e0e">getOutputChannelName</a> (int channelIndex) const </td></tr>
+<tr class="memitem:a353b144b431efafb2b830b1ff759c808 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a353b144b431efafb2b830b1ff759c808">getParameterName</a> (int parameterIndex)</td></tr>
+<tr class="memitem:abcfc1c5ffe90cb744e455d287e6059a6 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#abcfc1c5ffe90cb744e455d287e6059a6">getParameterText</a> (int parameterIndex)</td></tr>
+<tr class="memitem:a58b6841219060ffda3a8ed8f34eea3ed inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a58b6841219060ffda3a8ed8f34eea3ed">getProgramName</a> (int index)</td></tr>
+<tr class="memitem:a8809dc1000c5efec6b81d8080e586d5a inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a8809dc1000c5efec6b81d8080e586d5a">isInputChannelStereoPair</a> (int index) const </td></tr>
+<tr class="memitem:a81b7c0491e5f7d9577b07db5652bed6c inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a81b7c0491e5f7d9577b07db5652bed6c">isOutputChannelStereoPair</a> (int index) const </td></tr>
+<tr class="memitem:af9133c109e5251413b322145aa7620b2 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#af9133c109e5251413b322145aa7620b2">acceptsMidi</a> () const </td></tr>
+<tr class="memitem:af93f01089518726922286c9bb74419ee inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#af93f01089518726922286c9bb74419ee">producesMidi</a> () const </td></tr>
+<tr class="memitem:af7af56aa3afd875ed377d54f2ddeb941 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#af7af56aa3afd875ed377d54f2ddeb941">isParameterAutomatable</a> (int parameterIndex)</td></tr>
+<tr class="memitem:a9a666aa80a84fdffcb2f3cf8b7599183 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a9a666aa80a84fdffcb2f3cf8b7599183">isMetaParameter</a> (int parameterIndex)</td></tr>
+<tr class="memitem:a37f3bb2d2c4aa385b41f324beecc03eb inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a37f3bb2d2c4aa385b41f324beecc03eb">getNumParameters</a> ()</td></tr>
+<tr class="memitem:ad80d3c00c3f8fa1a719196a447b9670d inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ad80d3c00c3f8fa1a719196a447b9670d">getNumPrograms</a> ()</td></tr>
+<tr class="memitem:a13228cdfe7cd15d89bcc7c4061e0a797 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a13228cdfe7cd15d89bcc7c4061e0a797">getCurrentProgram</a> ()</td></tr>
+<tr class="memitem:ae857c2fdef2d84ad20957a992889cdd7 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ae857c2fdef2d84ad20957a992889cdd7">getParameter</a> (int parameterIndex)</td></tr>
+<tr class="memitem:a7b3c8dcb0ba4bf1f71a65da4ad47f063 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classParameter.html">Parameter</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a7b3c8dcb0ba4bf1f71a65da4ad47f063">getParameterByName</a> (String parameterName)</td></tr>
+<tr class="memitem:a1d58b5412eb6d031ad77ebf90cf7eeac inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classParameter.html">Parameter</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a1d58b5412eb6d031ad77ebf90cf7eeac">getParameterReference</a> (int parameterIndex)</td></tr>
+<tr class="memitem:a31f587ffcaddf91918013605d58651fe inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a31f587ffcaddf91918013605d58651fe">getSampleRate</a> ()</td></tr>
+<tr class="memitem:ad82b2eb662c16c4509ecd84d33e01eba inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ad82b2eb662c16c4509ecd84d33e01eba">getDefaultSampleRate</a> ()</td></tr>
+<tr class="memitem:aee3dea28d03bb09bdb4799343aaa2388 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#aee3dea28d03bb09bdb4799343aaa2388">getNumInputs</a> ()</td></tr>
+<tr class="memitem:a25f5d4ef799bdb5029ea96eedf462bf3 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a25f5d4ef799bdb5029ea96eedf462bf3">getNumOutputs</a> ()</td></tr>
+<tr class="memitem:aef569283cc91483814b210922cf96d26 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#aef569283cc91483814b210922cf96d26">getDefaultNumOutputs</a> ()</td></tr>
+<tr class="memitem:ac72dab4ba6fd23478986c4927d30ae46 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ac72dab4ba6fd23478986c4927d30ae46">getDefaultBitVolts</a> ()</td></tr>
+<tr class="memitem:a85a573cbf094b9e0b58caad89598b9b6 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a85a573cbf094b9e0b58caad89598b9b6">getNextChannel</a> (bool)</td></tr>
+<tr class="memitem:a79f6e2e58b138bf070001d6bc8b7bb1d inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a79f6e2e58b138bf070001d6bc8b7bb1d">resetConnections</a> ()</td></tr>
+<tr class="memitem:a887bc67d4ac284b65e3708e598845fa1 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a887bc67d4ac284b65e3708e598845fa1">setCurrentChannel</a> (int chan)</td></tr>
+<tr class="memitem:ac9b78cf88078958fa27b08981f46e170 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ac9b78cf88078958fa27b08981f46e170">getNodeId</a> ()</td></tr>
+<tr class="memitem:a4d4245a009780a334517b0c242323f1b inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a4d4245a009780a334517b0c242323f1b">setNodeId</a> (int id)</td></tr>
+<tr class="memitem:a1f395b8e7bab82f54293337debcc9377 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a1f395b8e7bab82f54293337debcc9377">getSourceNode</a> ()</td></tr>
+<tr class="memitem:a222183cb80918b031531f381462a7a27 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a222183cb80918b031531f381462a7a27">getDestNode</a> ()</td></tr>
+<tr class="memitem:ab0fabe67cc2f3f8f5708ffba648a7178 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ab0fabe67cc2f3f8f5708ffba648a7178">switchIO</a> (int)</td></tr>
+<tr class="memitem:a2081dd06eba70e46ba5770dbf04fadff inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a2081dd06eba70e46ba5770dbf04fadff">switchIO</a> ()</td></tr>
+<tr class="memitem:a4aa819589398e892b3ceb89364db2b4c inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a4aa819589398e892b3ceb89364db2b4c">setPathToProcessor</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *p)</td></tr>
+<tr class="memitem:a6a21d25d3ad79fb4867c732c64322d54 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a6a21d25d3ad79fb4867c732c64322d54">setSourceNode</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *sn)</td></tr>
+<tr class="memitem:af133f0046c23153f46cc5aa3b6980b93 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#af133f0046c23153f46cc5aa3b6980b93">setDestNode</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *dn)</td></tr>
+<tr class="memitem:aba1548d2f5671b90d9c9bf716fafaeb4 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#aba1548d2f5671b90d9c9bf716fafaeb4">setMergerSourceNode</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *sn)</td></tr>
+<tr class="memitem:ac553d8495ef07f5971a1f2abd0506b7e inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ac553d8495ef07f5971a1f2abd0506b7e">setSplitterDestNode</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *dn)</td></tr>
+<tr class="memitem:ab24b6dcb56efe4b66ced5bdddf2093de inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ab24b6dcb56efe4b66ced5bdddf2093de">isSource</a> ()</td></tr>
+<tr class="memitem:a38f377ecefaad8269198403205159bb3 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a38f377ecefaad8269198403205159bb3">isSink</a> ()</td></tr>
+<tr class="memitem:a990ea34d9f34d482ef26e618f7990b36 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a990ea34d9f34d482ef26e618f7990b36">isSplitter</a> ()</td></tr>
+<tr class="memitem:ab0a0cdb5233b92d5552e9db6566d1445 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ab0a0cdb5233b92d5552e9db6566d1445">isMerger</a> ()</td></tr>
+<tr class="memitem:a3802e6cb4f8bd84840408bae0434bb8e inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a3802e6cb4f8bd84840408bae0434bb8e">canSendSignalTo</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *)</td></tr>
+<tr class="memitem:a019dc0a595127889b42e835b23db07f5 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a019dc0a595127889b42e835b23db07f5">isReady</a> ()</td></tr>
+<tr class="memitem:aef8d92d5d667f0e9d4b2d334ddf37380 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#aef8d92d5d667f0e9d4b2d334ddf37380">enable</a> ()</td></tr>
+<tr class="memitem:aac6a1a695bce499b07418efa1fde55f2 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#aac6a1a695bce499b07418efa1fde55f2">disable</a> ()</td></tr>
+<tr class="memitem:a3f74e259858f741b6f1435ad8557884c inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a3f74e259858f741b6f1435ad8557884c">enabledState</a> ()</td></tr>
+<tr class="memitem:a82e6b660b3ccdd175b26ca1f7c89155e inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a82e6b660b3ccdd175b26ca1f7c89155e">enabledState</a> (bool t)</td></tr>
+<tr class="memitem:a93c1a537897142d16003a45661b95920 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a93c1a537897142d16003a45661b95920">stillHasSource</a> ()</td></tr>
+<tr class="memitem:a2cc31f766d9e375cda9e240aa99d7f69 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual AudioSampleBuffer *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a2cc31f766d9e375cda9e240aa99d7f69">getContinuousBuffer</a> ()</td></tr>
+<tr class="memitem:af0e8c9ba31626a779d4543b88925a0b1 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual MidiBuffer *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#af0e8c9ba31626a779d4543b88925a0b1">getEventBuffer</a> ()</td></tr>
+<tr class="memitem:a3670d2c14be198001b086cf9c8fc45b6 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a3670d2c14be198001b086cf9c8fc45b6">checkForEvents</a> (MidiBuffer &amp;mb)</td></tr>
+<tr class="memitem:ad6edfd929eaffda941ebc61ebc8559a4 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ad6edfd929eaffda941ebc61ebc8559a4">addEvent</a> (MidiBuffer &amp;mb, uint8 type, int sampleNum, uint8 eventID=0, uint8 eventChannel=0, uint8 numBytes=0, uint8 *data=0)</td></tr>
+<tr class="memitem:a304bd82f97d26b385dd99df04042723e inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a304bd82f97d26b385dd99df04042723e">handleEvent</a> (int eventType, MidiMessage &amp;event)</td></tr>
+<tr class="memitem:ab2224d9c803f4282e8c8de729be58779 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ab2224d9c803f4282e8c8de729be58779">getEditor</a> ()</td></tr>
+<tr class="memitem:a6c4ac8dc9f66ffe8ccc100eb3cedbbe4 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a6c4ac8dc9f66ffe8ccc100eb3cedbbe4">recordStatus</a> (int chan)</td></tr>
+<tr class="memitem:a29cd0895c183a1edb44ab3b3e7f3b262 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a29cd0895c183a1edb44ab3b3e7f3b262">audioStatus</a> (int chan)</td></tr>
+<tr class="memitem:a860285332129a657c4e479a1ba59fa18 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a860285332129a657c4e479a1ba59fa18">clearSettings</a> ()</td></tr>
+<tr class="memitem:a5302ede3e22cc1511390dae4a7511766 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a5302ede3e22cc1511390dae4a7511766">generateDefaultChannelNames</a> (StringArray &amp;)</td></tr>
+<tr class="memitem:a73073787f0a760c1896522c934e94211 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a73073787f0a760c1896522c934e94211">update</a> ()</td></tr>
+<tr class="memitem:a4020d7853cad011cbed7d71b5d6fddba inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a4020d7853cad011cbed7d71b5d6fddba">updateSettings</a> ()</td></tr>
+<tr class="memitem:a43c6c63d2650ca92a556b656e88544ac inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a43c6c63d2650ca92a556b656e88544ac">setStartChannel</a> (int i)</td></tr>
+<tr class="memitem:af4528a6eeda231a290eaa57676ebd6ec inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#af4528a6eeda231a290eaa57676ebd6ec">getStartChannel</a> ()</td></tr>
 <tr class="inherit_header pub_methods_classAccessClass"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classAccessClass')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classAccessClass.html">AccessClass</a></td></tr>
-<tr class="memitem:ae6c601f53b3fd103bd7cd40f51c9c235 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae6c601f53b3fd103bd7cd40f51c9c235"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setUIComponent</b> (<a class="el" href="classUIComponent.html">UIComponent</a> *)</td></tr>
-<tr class="memitem:aa23dfab04264a78db261ccb8ac30f1ff inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa23dfab04264a78db261ccb8ac30f1ff"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>updateChildComponents</b> ()</td></tr>
-<tr class="memitem:a72bef8d5db8f8984f7b40f627a43998d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a72bef8d5db8f8984f7b40f627a43998d"></a>
-<a class="el" href="classEditorViewport.html">EditorViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getEditorViewport</b> ()</td></tr>
-<tr class="memitem:a69500d6b6d466414e92eb9b31c8cb90d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a69500d6b6d466414e92eb9b31c8cb90d"></a>
-<a class="el" href="classDataViewport.html">DataViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getDataViewport</b> ()</td></tr>
-<tr class="memitem:a18c4d1e45c74d6564d534bfe86bfc5da inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18c4d1e45c74d6564d534bfe86bfc5da"></a>
-<a class="el" href="classProcessorList.html">ProcessorList</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getProcessorList</b> ()</td></tr>
-<tr class="memitem:abe0403e279f6047b2f307eaf9c913404 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe0403e279f6047b2f307eaf9c913404"></a>
-<a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getProcessorGraph</b> ()</td></tr>
-<tr class="memitem:ae2559bca16f366b3b60bb64b062259cb inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae2559bca16f366b3b60bb64b062259cb"></a>
-<a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getControlPanel</b> ()</td></tr>
-<tr class="memitem:abb4f62a65c45128a71eee802544fd3d1 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb4f62a65c45128a71eee802544fd3d1"></a>
-<a class="el" href="classMessageCenter.html">MessageCenter</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getMessageCenter</b> ()</td></tr>
-<tr class="memitem:a45bcba11a6ba8a754d76d6a3ee11fb26 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45bcba11a6ba8a754d76d6a3ee11fb26"></a>
-<a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getUIComponent</b> ()</td></tr>
-<tr class="memitem:adca6f9ebbe535a03c024eb673a096972 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adca6f9ebbe535a03c024eb673a096972"></a>
-<a class="el" href="classAudioComponent.html">AudioComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getAudioComponent</b> ()</td></tr>
+<tr class="memitem:a4479402a420cf84c0b8ec1abd4a43d9c inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a4479402a420cf84c0b8ec1abd4a43d9c">AccessClass</a> ()</td></tr>
+<tr class="memitem:a68da6863bc0d2a4c5f84f9ed8dd4053f inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a68da6863bc0d2a4c5f84f9ed8dd4053f">~AccessClass</a> ()</td></tr>
+<tr class="memitem:ae6c601f53b3fd103bd7cd40f51c9c235 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#ae6c601f53b3fd103bd7cd40f51c9c235">setUIComponent</a> (<a class="el" href="classUIComponent.html">UIComponent</a> *)</td></tr>
+<tr class="memitem:aa23dfab04264a78db261ccb8ac30f1ff inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#aa23dfab04264a78db261ccb8ac30f1ff">updateChildComponents</a> ()</td></tr>
+<tr class="memitem:a72bef8d5db8f8984f7b40f627a43998d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEditorViewport.html">EditorViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a72bef8d5db8f8984f7b40f627a43998d">getEditorViewport</a> ()</td></tr>
+<tr class="memitem:a69500d6b6d466414e92eb9b31c8cb90d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classDataViewport.html">DataViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a69500d6b6d466414e92eb9b31c8cb90d">getDataViewport</a> ()</td></tr>
+<tr class="memitem:a18c4d1e45c74d6564d534bfe86bfc5da inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classProcessorList.html">ProcessorList</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a18c4d1e45c74d6564d534bfe86bfc5da">getProcessorList</a> ()</td></tr>
+<tr class="memitem:abe0403e279f6047b2f307eaf9c913404 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#abe0403e279f6047b2f307eaf9c913404">getProcessorGraph</a> ()</td></tr>
+<tr class="memitem:ae2559bca16f366b3b60bb64b062259cb inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#ae2559bca16f366b3b60bb64b062259cb">getControlPanel</a> ()</td></tr>
+<tr class="memitem:abb4f62a65c45128a71eee802544fd3d1 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classMessageCenter.html">MessageCenter</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#abb4f62a65c45128a71eee802544fd3d1">getMessageCenter</a> ()</td></tr>
+<tr class="memitem:a45bcba11a6ba8a754d76d6a3ee11fb26 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a45bcba11a6ba8a754d76d6a3ee11fb26">getUIComponent</a> ()</td></tr>
+<tr class="memitem:adca6f9ebbe535a03c024eb673a096972 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classAudioComponent.html">AudioComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#adca6f9ebbe535a03c024eb673a096972">getAudioComponent</a> ()</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a23fc8aba3a18b99825bed4836eb6f647"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a23fc8aba3a18b99825bed4836eb6f647"></a>
-ScopedPointer&lt; <a class="el" href="classAudioEditor.html">AudioEditor</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>audioEditor</b></td></tr>
+<tr class="memitem:a23fc8aba3a18b99825bed4836eb6f647"><td class="memItemLeft" align="right" valign="top">ScopedPointer&lt; <a class="el" href="classAudioEditor.html">AudioEditor</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a23fc8aba3a18b99825bed4836eb6f647">audioEditor</a></td></tr>
 <tr class="inherit_header pub_attribs_classGenericProcessor"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classGenericProcessor')"><img src="closed.png" alt="-"/>&nbsp;Public Attributes inherited from <a class="el" href="classGenericProcessor.html">GenericProcessor</a></td></tr>
-<tr class="memitem:a0c25ce11948ca53f2028d05799b8396e inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0c25ce11948ca53f2028d05799b8396e"></a>
-<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>sourceNode</b></td></tr>
-<tr class="memitem:a3ad44d191c2086d2cfbf2d6c0dbc8fc8 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ad44d191c2086d2cfbf2d6c0dbc8fc8"></a>
-<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>destNode</b></td></tr>
-<tr class="memitem:a246d0fc22327b8488bbf8f59244c3254 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a246d0fc22327b8488bbf8f59244c3254"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isEnabled</b></td></tr>
-<tr class="memitem:a49e52ec50d06b105a31a6c210e90ad64 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a49e52ec50d06b105a31a6c210e90ad64"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>wasConnected</b></td></tr>
-<tr class="memitem:a1b3ee7e7633630f4bfb249e238b26f0f inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1b3ee7e7633630f4bfb249e238b26f0f"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>nextAvailableChannel</b></td></tr>
-<tr class="memitem:adf4d162c8152a5396b44f3ed06ddd0d5 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adf4d162c8152a5396b44f3ed06ddd0d5"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>saveOrder</b></td></tr>
-<tr class="memitem:a9fbf3349950427f863e7ada1c358a2f7 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9fbf3349950427f863e7ada1c358a2f7"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>loadOrder</b></td></tr>
-<tr class="memitem:ae0027dc36c2b2148f3f939d8193975c2 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae0027dc36c2b2148f3f939d8193975c2"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>currentChannel</b></td></tr>
-<tr class="memitem:a9d482fa552a6a45d417012351bd2f6d3 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9d482fa552a6a45d417012351bd2f6d3"></a>
-ScopedPointer&lt; <a class="el" href="classGenericEditor.html">GenericEditor</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>editor</b></td></tr>
-<tr class="memitem:afa3995f77ca03fa6b684869c58136dac inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa3995f77ca03fa6b684869c58136dac"></a>
-<a class="el" href="structGenericProcessor_1_1ProcessorSettings.html">ProcessorSettings</a>&#160;</td><td class="memItemRight" valign="bottom"><b>settings</b></td></tr>
-<tr class="memitem:a456658153f517e2e083134dcc4f6ec2a inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a456658153f517e2e083134dcc4f6ec2a"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>nodeId</b></td></tr>
-<tr class="memitem:a6cbe35e8fda628f79bdf246e37094af7 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6cbe35e8fda628f79bdf246e37094af7"></a>
-Array&lt; <a class="el" href="classParameter.html">Parameter</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>parameters</b></td></tr>
-<tr class="memitem:a7d2b1ae9789baa1804650c34ea555fb7 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7d2b1ae9789baa1804650c34ea555fb7"></a>
-StringArray&#160;</td><td class="memItemRight" valign="bottom"><b>parameterNames</b></td></tr>
-<tr class="memitem:ab771cefa0d0e56f9d2d407cbd9f0b5bc inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab771cefa0d0e56f9d2d407cbd9f0b5bc"></a>
-<a class="el" href="classParameter.html">Parameter</a>&#160;</td><td class="memItemRight" valign="bottom"><b>nullParam</b></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:af61664bac9bbf287c15f909b70fadc5e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af61664bac9bbf287c15f909b70fadc5e"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</b> (<a class="el" href="classAudioNode.html">AudioNode</a>)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a751bace950ee0682227d0b488e8fd71b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a751bace950ee0682227d0b488e8fd71b"></a>
-Array&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>leftChan</b></td></tr>
-<tr class="memitem:a8e0286ba3263d2a4ad84c8c51cab98f6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8e0286ba3263d2a4ad84c8c51cab98f6"></a>
-Array&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>rightChan</b></td></tr>
-<tr class="memitem:ab269ffd3dc0f501984db1be343f9f70d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab269ffd3dc0f501984db1be343f9f70d"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>volume</b></td></tr>
+<tr class="memitem:a0c25ce11948ca53f2028d05799b8396e inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a0c25ce11948ca53f2028d05799b8396e">sourceNode</a></td></tr>
+<tr class="memitem:a3ad44d191c2086d2cfbf2d6c0dbc8fc8 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a3ad44d191c2086d2cfbf2d6c0dbc8fc8">destNode</a></td></tr>
+<tr class="memitem:a246d0fc22327b8488bbf8f59244c3254 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a246d0fc22327b8488bbf8f59244c3254">isEnabled</a></td></tr>
+<tr class="memitem:a49e52ec50d06b105a31a6c210e90ad64 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a49e52ec50d06b105a31a6c210e90ad64">wasConnected</a></td></tr>
+<tr class="memitem:a1b3ee7e7633630f4bfb249e238b26f0f inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a1b3ee7e7633630f4bfb249e238b26f0f">nextAvailableChannel</a></td></tr>
+<tr class="memitem:adf4d162c8152a5396b44f3ed06ddd0d5 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#adf4d162c8152a5396b44f3ed06ddd0d5">saveOrder</a></td></tr>
+<tr class="memitem:a9fbf3349950427f863e7ada1c358a2f7 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a9fbf3349950427f863e7ada1c358a2f7">loadOrder</a></td></tr>
+<tr class="memitem:ae0027dc36c2b2148f3f939d8193975c2 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ae0027dc36c2b2148f3f939d8193975c2">currentChannel</a></td></tr>
+<tr class="memitem:a9d482fa552a6a45d417012351bd2f6d3 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">ScopedPointer&lt; <a class="el" href="classGenericEditor.html">GenericEditor</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a9d482fa552a6a45d417012351bd2f6d3">editor</a></td></tr>
+<tr class="memitem:afa3995f77ca03fa6b684869c58136dac inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structGenericProcessor_1_1ProcessorSettings.html">ProcessorSettings</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#afa3995f77ca03fa6b684869c58136dac">settings</a></td></tr>
+<tr class="memitem:a456658153f517e2e083134dcc4f6ec2a inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a456658153f517e2e083134dcc4f6ec2a">nodeId</a></td></tr>
+<tr class="memitem:a6cbe35e8fda628f79bdf246e37094af7 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">Array&lt; <a class="el" href="classParameter.html">Parameter</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a6cbe35e8fda628f79bdf246e37094af7">parameters</a></td></tr>
+<tr class="memitem:a7d2b1ae9789baa1804650c34ea555fb7 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">StringArray&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a7d2b1ae9789baa1804650c34ea555fb7">parameterNames</a></td></tr>
+<tr class="memitem:ab771cefa0d0e56f9d2d407cbd9f0b5bc inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classParameter.html">Parameter</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#ab771cefa0d0e56f9d2d407cbd9f0b5bc">nullParam</a></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pub_types_classGenericProcessor"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classGenericProcessor')"><img src="closed.png" alt="-"/>&nbsp;Public Types inherited from <a class="el" href="classGenericProcessor.html">GenericProcessor</a></td></tr>
-<tr class="memitem:a574987318ddd7d5d77f5b07cd1651462 inherit pub_types_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>eventTypes</b> { <br/>
-&#160;&#160;<b>TIMESTAMP</b> =  0, 
-<b>BUFFER_SIZE</b> =  1, 
-<b>PARAMETER_CHANGE</b> =  2, 
-<b>TTL</b> =  3, 
+<tr class="memitem:a574987318ddd7d5d77f5b07cd1651462 inherit pub_types_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a574987318ddd7d5d77f5b07cd1651462">eventTypes</a> { <br/>
+&#160;&#160;<a class="el" href="classGenericProcessor.html#a574987318ddd7d5d77f5b07cd1651462a1a8fe6d18270c0a75dd0681333cabd30">TIMESTAMP</a> =  0, 
+<a class="el" href="classGenericProcessor.html#a574987318ddd7d5d77f5b07cd1651462a9663a381d9318c1f02fdea463fc0214c">BUFFER_SIZE</a> =  1, 
+<a class="el" href="classGenericProcessor.html#a574987318ddd7d5d77f5b07cd1651462a9c137b849a25c80423b1a27196219a43">PARAMETER_CHANGE</a> =  2, 
+<a class="el" href="classGenericProcessor.html#a574987318ddd7d5d77f5b07cd1651462ad99e1cb35a7980717807cd62617d4831">TTL</a> =  3, 
 <br/>
-&#160;&#160;<b>SPIKE</b> =  4, 
-<b>EEG</b> =  5, 
-<b>CONTINUOUS</b> =  6
+&#160;&#160;<a class="el" href="classGenericProcessor.html#a574987318ddd7d5d77f5b07cd1651462ab16098b48ab22176460394733fefbd86">SPIKE</a> =  4, 
+<a class="el" href="classGenericProcessor.html#a574987318ddd7d5d77f5b07cd1651462a97929891c71d840790489f393ca3d456">EEG</a> =  5, 
+<a class="el" href="classGenericProcessor.html#a574987318ddd7d5d77f5b07cd1651462a960109473157ac1900775a1df560a31f">CONTINUOUS</a> =  6
 <br/>
  }</td></tr>
-<tr class="memitem:a8e980839171fcb70ba8c782264ea2311 inherit pub_types_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>eventChannelTypes</b> { <b>GENERIC_EVENT</b> =  999, 
-<b>SINGLE_ELECTRODE</b> =  1, 
-<b>STEREOTRODE</b> =  2, 
-<b>TETRODE</b> =  4
+<tr class="memitem:a8e980839171fcb70ba8c782264ea2311 inherit pub_types_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a8e980839171fcb70ba8c782264ea2311">eventChannelTypes</a> { <a class="el" href="classGenericProcessor.html#a8e980839171fcb70ba8c782264ea2311ac0653b4004edbe22d207c2bf0748f900">GENERIC_EVENT</a> =  999, 
+<a class="el" href="classGenericProcessor.html#a8e980839171fcb70ba8c782264ea2311a1a7d84634ba10b3aa0971cf7f425bbe3">SINGLE_ELECTRODE</a> =  1, 
+<a class="el" href="classGenericProcessor.html#a8e980839171fcb70ba8c782264ea2311a95905bd60090f6eb70eddfe4172b2cfd">STEREOTRODE</a> =  2, 
+<a class="el" href="classGenericProcessor.html#a8e980839171fcb70ba8c782264ea2311ade5aee0e674163e83bc64c1eafb446d1">TETRODE</a> =  4
  }</td></tr>
 </table>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>Selects which channels to send to the audio monitor. </p>
+<p>Controls output volume.</p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>, <a class="el" href="classAudioEditor.html" title="Holds the interface for editing audio output parameters.">AudioEditor</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="af1fe2b7723ff6f515228a671f61f073d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AudioNode::AudioNode </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad0ee4acfaea8f9ddbc80842a3baa69b9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AudioNode::~AudioNode </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a46c720536cf4b8502d841a65f9dccd1d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AudioProcessorEditor* AudioNode::createEditor </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classGenericProcessor.html#a4336e8c17d1ba015933628d6902896fa">GenericProcessor</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a94937d356ee86b72eed82fad0337f9e7"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioNode::enableCurrentChannel </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classGenericProcessor.html#ad5f545d93e0409b97f0f5a2a27a83b3a">GenericProcessor</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ae3ac34b77bc9663868c5739cb891d1a8"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool AudioNode::isAudioOrRecordNode </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classGenericProcessor.html#a13960169926ae10febca934d12fbf4d7">GenericProcessor</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a90d23dc83c27a5ff3a8e5029a5498b35"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioNode::process </td>
+          <td>(</td>
+          <td class="paramtype">AudioSampleBuffer &amp;&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">MidiBuffer &amp;&#160;</td>
+          <td class="paramname"><em>midiMessages</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int &amp;&#160;</td>
+          <td class="paramname"><em>nSamples</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="classGenericProcessor.html#ac8746345d01c5de419d944ef20bc98e5">GenericProcessor</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a66b3cdf827054c9fdcdc667918a1f159"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioNode::setChannelStatus </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a61ca4c81f908093001fd7805951274a2"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioNode::setParameter </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>parameterIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>newValue</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classGenericProcessor.html#ad8c8e91c2204a1d48d2d3b3bf117c09d">GenericProcessor</a>.</p>
+
+</div>
+</div>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="a23fc8aba3a18b99825bed4836eb6f647"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ScopedPointer&lt;<a class="el" href="classAudioEditor.html">AudioEditor</a>&gt; AudioNode::audioEditor</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/<a class="el" href="AudioNode_8h_source.html">AudioNode.h</a></li>
+<li><a class="el" href="AudioNode_8h.html">AudioNode.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:38 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

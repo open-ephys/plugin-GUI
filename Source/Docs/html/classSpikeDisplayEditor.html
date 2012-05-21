@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -82,13 +82,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">SpikeDisplayEditor Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;SpikeDisplayEditor.h&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for SpikeDisplayEditor:</div>
 <div class="dyncontent">
@@ -96,7 +96,7 @@ Inheritance diagram for SpikeDisplayEditor:</div>
   <img src="classSpikeDisplayEditor.png" usemap="#SpikeDisplayEditor_map" alt=""/>
   <map id="SpikeDisplayEditor_map" name="SpikeDisplayEditor_map">
 <area href="classVisualizerEditor.html" alt="VisualizerEditor" shape="rect" coords="0,112,118,136"/>
-<area href="classGenericEditor.html" alt="GenericEditor" shape="rect" coords="0,56,118,80"/>
+<area href="classGenericEditor.html" title="Base class for creating processor editors." alt="GenericEditor" shape="rect" coords="0,56,118,80"/>
 <area href="classAccessClass.html" title="Allows subclasses to access important pointers within the application." alt="AccessClass" shape="rect" coords="0,0,118,24"/>
 </map>
  </div></div>
@@ -105,178 +105,171 @@ Inheritance diagram for SpikeDisplayEditor:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac983964da6dcf139ffaaa93473d8bc58"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac983964da6dcf139ffaaa93473d8bc58"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>SpikeDisplayEditor</b> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *)</td></tr>
-<tr class="memitem:a5c622a46511053389820d631f2dcc88d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5c622a46511053389820d631f2dcc88d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>buttonCallback</b> (Button *button)</td></tr>
-<tr class="memitem:a050a9b899e6028b6ec87b0b2a97d1a97"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a050a9b899e6028b6ec87b0b2a97d1a97"></a>
-<a class="el" href="classVisualizer.html">Visualizer</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>createNewCanvas</b> ()</td></tr>
+<tr class="memitem:ac983964da6dcf139ffaaa93473d8bc58"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDisplayEditor.html#ac983964da6dcf139ffaaa93473d8bc58">SpikeDisplayEditor</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *)</td></tr>
+<tr class="memitem:ae775457751f10da264cca3245466fb4d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDisplayEditor.html#ae775457751f10da264cca3245466fb4d">~SpikeDisplayEditor</a> ()</td></tr>
+<tr class="memitem:a5c622a46511053389820d631f2dcc88d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDisplayEditor.html#a5c622a46511053389820d631f2dcc88d">buttonCallback</a> (Button *button)</td></tr>
+<tr class="memitem:a050a9b899e6028b6ec87b0b2a97d1a97"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classVisualizer.html">Visualizer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDisplayEditor.html#a050a9b899e6028b6ec87b0b2a97d1a97">createNewCanvas</a> ()</td></tr>
 <tr class="inherit_header pub_methods_classVisualizerEditor"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classVisualizerEditor')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classVisualizerEditor.html">VisualizerEditor</a></td></tr>
-<tr class="memitem:a42310e08d09f3f6d933959b1af373eb8 inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a42310e08d09f3f6d933959b1af373eb8"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>VisualizerEditor</b> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *, int)</td></tr>
-<tr class="memitem:a0b39da0ca87e1ae2642787bc53d2772c inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b39da0ca87e1ae2642787bc53d2772c"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>VisualizerEditor</b> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *)</td></tr>
-<tr class="memitem:a5f0dc2c7132660a5ce1fd9d5cbc9c6ff inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f0dc2c7132660a5ce1fd9d5cbc9c6ff"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>buttonEvent</b> (Button *button)</td></tr>
-<tr class="memitem:a784c317c2b9bb06e25e287c4ecf0670e inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a784c317c2b9bb06e25e287c4ecf0670e"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>enable</b> ()</td></tr>
-<tr class="memitem:a9277b0aa356ea41040b9c9960abda21b inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9277b0aa356ea41040b9c9960abda21b"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>disable</b> ()</td></tr>
-<tr class="memitem:a852c519636c0428a2d2b2b7219108f67 inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a852c519636c0428a2d2b2b7219108f67"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>editorWasClicked</b> ()</td></tr>
-<tr class="memitem:a11c5e6386531cff49e6babfeb18a8885 inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a11c5e6386531cff49e6babfeb18a8885"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>updateVisualizer</b> ()</td></tr>
+<tr class="memitem:a42310e08d09f3f6d933959b1af373eb8 inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classVisualizerEditor.html#a42310e08d09f3f6d933959b1af373eb8">VisualizerEditor</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *, int)</td></tr>
+<tr class="memitem:a0b39da0ca87e1ae2642787bc53d2772c inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classVisualizerEditor.html#a0b39da0ca87e1ae2642787bc53d2772c">VisualizerEditor</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *)</td></tr>
+<tr class="memitem:a862e3cdebbd1f46ba631c4cf1c3c44c0 inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classVisualizerEditor.html#a862e3cdebbd1f46ba631c4cf1c3c44c0">~VisualizerEditor</a> ()</td></tr>
+<tr class="memitem:a5f0dc2c7132660a5ce1fd9d5cbc9c6ff inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classVisualizerEditor.html#a5f0dc2c7132660a5ce1fd9d5cbc9c6ff">buttonEvent</a> (Button *button)</td></tr>
+<tr class="memitem:a784c317c2b9bb06e25e287c4ecf0670e inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classVisualizerEditor.html#a784c317c2b9bb06e25e287c4ecf0670e">enable</a> ()</td></tr>
+<tr class="memitem:a9277b0aa356ea41040b9c9960abda21b inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classVisualizerEditor.html#a9277b0aa356ea41040b9c9960abda21b">disable</a> ()</td></tr>
+<tr class="memitem:a852c519636c0428a2d2b2b7219108f67 inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classVisualizerEditor.html#a852c519636c0428a2d2b2b7219108f67">editorWasClicked</a> ()</td></tr>
+<tr class="memitem:a11c5e6386531cff49e6babfeb18a8885 inherit pub_methods_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classVisualizerEditor.html#a11c5e6386531cff49e6babfeb18a8885">updateVisualizer</a> ()</td></tr>
 <tr class="inherit_header pub_methods_classGenericEditor"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classGenericEditor')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classGenericEditor.html">GenericEditor</a></td></tr>
-<tr class="memitem:a2e9634ca6753f1f4729cb8cc1b1e1757 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2e9634ca6753f1f4729cb8cc1b1e1757"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>GenericEditor</b> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *owner)</td></tr>
-<tr class="memitem:a6da2cb554793f7c24919ca0d3a860807 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6da2cb554793f7c24919ca0d3a860807"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>paint</b> (Graphics &amp;g)</td></tr>
-<tr class="memitem:a1d95f3fa72eff3aca781736951052dd9 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1d95f3fa72eff3aca781736951052dd9"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>keyPressed</b> (const KeyPress &amp;key)</td></tr>
-<tr class="memitem:adf3039a522fd423bb090ab31041748fe inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adf3039a522fd423bb090ab31041748fe"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>switchSelectedState</b> ()</td></tr>
-<tr class="memitem:a6b2fc0a74e858b94cefa70fd6c2dfbf9 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6b2fc0a74e858b94cefa70fd6c2dfbf9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>select</b> ()</td></tr>
-<tr class="memitem:a0d24085ae8fd1b230c028495f47f5d33 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0d24085ae8fd1b230c028495f47f5d33"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>highlight</b> ()</td></tr>
-<tr class="memitem:ab81335b8bae46480ffbfc6d3a049ce76 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab81335b8bae46480ffbfc6d3a049ce76"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>deselect</b> ()</td></tr>
-<tr class="memitem:af8c36ade567c70457ff8b9034ed3a5a0 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af8c36ade567c70457ff8b9034ed3a5a0"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>getSelectionState</b> ()</td></tr>
-<tr class="memitem:aaf58e7b9b61880c663f1ae893795536d inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaf58e7b9b61880c663f1ae893795536d"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>getEnabledState</b> ()</td></tr>
-<tr class="memitem:a4f3cc622bce35efefa9e40dc7514e8cb inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4f3cc622bce35efefa9e40dc7514e8cb"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setEnabledState</b> (bool)</td></tr>
-<tr class="memitem:a4f4d9db286b2518197a3b96ec1b0c754 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4f4d9db286b2518197a3b96ec1b0c754"></a>
-String&#160;</td><td class="memItemRight" valign="bottom"><b>getName</b> ()</td></tr>
-<tr class="memitem:afc1b81bb8204c4caf1bf20197fa9fd5a inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc1b81bb8204c4caf1bf20197fa9fd5a"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>tabNumber</b> (int t)</td></tr>
-<tr class="memitem:a505b9b2710a39cdeb7645e3316331167 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a505b9b2710a39cdeb7645e3316331167"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>tabNumber</b> ()</td></tr>
-<tr class="memitem:a3fd6b67a679044960a2c702ecff9e978 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3fd6b67a679044960a2c702ecff9e978"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>switchSource</b> (int)</td></tr>
-<tr class="memitem:a5660d57f3a50a580a78c5da7ebaa5052 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5660d57f3a50a580a78c5da7ebaa5052"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>switchSource</b> ()</td></tr>
-<tr class="memitem:a78be9c8932e8b069861ffe5b5933ece2 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a78be9c8932e8b069861ffe5b5933ece2"></a>
-<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getProcessor</b> () const </td></tr>
-<tr class="memitem:af0234d4371dfe907e0654b9d68902644 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af0234d4371dfe907e0654b9d68902644"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>fadeIn</b> ()</td></tr>
-<tr class="memitem:a4185563e9254688df9bf552d2e5d2cec inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4185563e9254688df9bf552d2e5d2cec"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>switchDest</b> ()</td></tr>
-<tr class="memitem:acd818101b35bd11e9d2399397a7c6ce7 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd818101b35bd11e9d2399397a7c6ce7"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>switchIO</b> (int)</td></tr>
-<tr class="memitem:a173791183751d6d59a82d56bf1e76073 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a173791183751d6d59a82d56bf1e76073"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>buttonClicked</b> (Button *button)</td></tr>
-<tr class="memitem:aba93f26ee969aa06a78e723378a175ad inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba93f26ee969aa06a78e723378a175ad"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>sliderValueChanged</b> (Slider *slider)</td></tr>
-<tr class="memitem:a0d8e6f21e173e9ab2588ee69b94483b0 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0d8e6f21e173e9ab2588ee69b94483b0"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>sliderEvent</b> (Slider *slider)</td></tr>
-<tr class="memitem:ac25d5d6e473cf8c8dde7490e5008c4fb inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac25d5d6e473cf8c8dde7490e5008c4fb"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>checkDrawerButton</b> (Button *button)</td></tr>
-<tr class="memitem:a506f7e0099f41148a4a930f19eb9a13c inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a506f7e0099f41148a4a930f19eb9a13c"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>getRecordStatus</b> (int chan)</td></tr>
-<tr class="memitem:a3b176ac12dd5f498630ee131be1338f3 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3b176ac12dd5f498630ee131be1338f3"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>getAudioStatus</b> (int chan)</td></tr>
-<tr class="memitem:a2a60858cac03995dc95a77fef58de214 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2a60858cac03995dc95a77fef58de214"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>selectChannels</b> (Array&lt; int &gt;)</td></tr>
-<tr class="memitem:acc0898d4f9b1c5850e89967150bb3711 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acc0898d4f9b1c5850e89967150bb3711"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>refreshColors</b> ()</td></tr>
-<tr class="memitem:a571efb4db3a66c9e4622c16de2459e46 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a571efb4db3a66c9e4622c16de2459e46"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> ()</td></tr>
-<tr class="memitem:aebe91d40297fc4dfe6c1b783811f1d2c inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aebe91d40297fc4dfe6c1b783811f1d2c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>updateSettings</b> ()</td></tr>
-<tr class="memitem:a61e0bb3378d87a69ad58a487d34afd70 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a61e0bb3378d87a69ad58a487d34afd70"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>channelChanged</b> (int chan)</td></tr>
-<tr class="memitem:a42a9df2a674bbbf9dfa3ed221aa43e4a inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a42a9df2a674bbbf9dfa3ed221aa43e4a"></a>
-Array&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>getActiveChannels</b> ()</td></tr>
-<tr class="memitem:ada6b7835cbd9b2170b5dc46316068978 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ada6b7835cbd9b2170b5dc46316068978"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getStartChannel</b> ()</td></tr>
+<tr class="memitem:a2e9634ca6753f1f4729cb8cc1b1e1757 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a2e9634ca6753f1f4729cb8cc1b1e1757">GenericEditor</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *owner)</td></tr>
+<tr class="memitem:ae36d804e3b5752528e6dccbc375b926a inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#ae36d804e3b5752528e6dccbc375b926a">~GenericEditor</a> ()</td></tr>
+<tr class="memitem:a6da2cb554793f7c24919ca0d3a860807 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a6da2cb554793f7c24919ca0d3a860807">paint</a> (Graphics &amp;g)</td></tr>
+<tr class="memitem:a1d95f3fa72eff3aca781736951052dd9 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a1d95f3fa72eff3aca781736951052dd9">keyPressed</a> (const KeyPress &amp;key)</td></tr>
+<tr class="memitem:adf3039a522fd423bb090ab31041748fe inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#adf3039a522fd423bb090ab31041748fe">switchSelectedState</a> ()</td></tr>
+<tr class="memitem:a6b2fc0a74e858b94cefa70fd6c2dfbf9 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a6b2fc0a74e858b94cefa70fd6c2dfbf9">select</a> ()</td></tr>
+<tr class="memitem:a0d24085ae8fd1b230c028495f47f5d33 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a0d24085ae8fd1b230c028495f47f5d33">highlight</a> ()</td></tr>
+<tr class="memitem:ab81335b8bae46480ffbfc6d3a049ce76 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#ab81335b8bae46480ffbfc6d3a049ce76">deselect</a> ()</td></tr>
+<tr class="memitem:af8c36ade567c70457ff8b9034ed3a5a0 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#af8c36ade567c70457ff8b9034ed3a5a0">getSelectionState</a> ()</td></tr>
+<tr class="memitem:aaf58e7b9b61880c663f1ae893795536d inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#aaf58e7b9b61880c663f1ae893795536d">getEnabledState</a> ()</td></tr>
+<tr class="memitem:a4f3cc622bce35efefa9e40dc7514e8cb inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a4f3cc622bce35efefa9e40dc7514e8cb">setEnabledState</a> (bool)</td></tr>
+<tr class="memitem:a4f4d9db286b2518197a3b96ec1b0c754 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a4f4d9db286b2518197a3b96ec1b0c754">getName</a> ()</td></tr>
+<tr class="memitem:afc1b81bb8204c4caf1bf20197fa9fd5a inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#afc1b81bb8204c4caf1bf20197fa9fd5a">tabNumber</a> (int t)</td></tr>
+<tr class="memitem:a505b9b2710a39cdeb7645e3316331167 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a505b9b2710a39cdeb7645e3316331167">tabNumber</a> ()</td></tr>
+<tr class="memitem:a3fd6b67a679044960a2c702ecff9e978 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a3fd6b67a679044960a2c702ecff9e978">switchSource</a> (int)</td></tr>
+<tr class="memitem:a5660d57f3a50a580a78c5da7ebaa5052 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a5660d57f3a50a580a78c5da7ebaa5052">switchSource</a> ()</td></tr>
+<tr class="memitem:a78be9c8932e8b069861ffe5b5933ece2 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a78be9c8932e8b069861ffe5b5933ece2">getProcessor</a> () const </td></tr>
+<tr class="memitem:af0234d4371dfe907e0654b9d68902644 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#af0234d4371dfe907e0654b9d68902644">fadeIn</a> ()</td></tr>
+<tr class="memitem:a4185563e9254688df9bf552d2e5d2cec inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a4185563e9254688df9bf552d2e5d2cec">switchDest</a> ()</td></tr>
+<tr class="memitem:acd818101b35bd11e9d2399397a7c6ce7 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#acd818101b35bd11e9d2399397a7c6ce7">switchIO</a> (int)</td></tr>
+<tr class="memitem:a173791183751d6d59a82d56bf1e76073 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a173791183751d6d59a82d56bf1e76073">buttonClicked</a> (Button *button)</td></tr>
+<tr class="memitem:aba93f26ee969aa06a78e723378a175ad inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#aba93f26ee969aa06a78e723378a175ad">sliderValueChanged</a> (Slider *slider)</td></tr>
+<tr class="memitem:a0d8e6f21e173e9ab2588ee69b94483b0 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a0d8e6f21e173e9ab2588ee69b94483b0">sliderEvent</a> (Slider *slider)</td></tr>
+<tr class="memitem:ac25d5d6e473cf8c8dde7490e5008c4fb inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#ac25d5d6e473cf8c8dde7490e5008c4fb">checkDrawerButton</a> (Button *button)</td></tr>
+<tr class="memitem:a506f7e0099f41148a4a930f19eb9a13c inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a506f7e0099f41148a4a930f19eb9a13c">getRecordStatus</a> (int chan)</td></tr>
+<tr class="memitem:a3b176ac12dd5f498630ee131be1338f3 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a3b176ac12dd5f498630ee131be1338f3">getAudioStatus</a> (int chan)</td></tr>
+<tr class="memitem:a2a60858cac03995dc95a77fef58de214 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a2a60858cac03995dc95a77fef58de214">selectChannels</a> (Array&lt; int &gt;)</td></tr>
+<tr class="memitem:acc0898d4f9b1c5850e89967150bb3711 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#acc0898d4f9b1c5850e89967150bb3711">refreshColors</a> ()</td></tr>
+<tr class="memitem:a571efb4db3a66c9e4622c16de2459e46 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a571efb4db3a66c9e4622c16de2459e46">update</a> ()</td></tr>
+<tr class="memitem:aebe91d40297fc4dfe6c1b783811f1d2c inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#aebe91d40297fc4dfe6c1b783811f1d2c">updateSettings</a> ()</td></tr>
+<tr class="memitem:a61e0bb3378d87a69ad58a487d34afd70 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a61e0bb3378d87a69ad58a487d34afd70">channelChanged</a> (int chan)</td></tr>
+<tr class="memitem:a42a9df2a674bbbf9dfa3ed221aa43e4a inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">Array&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a42a9df2a674bbbf9dfa3ed221aa43e4a">getActiveChannels</a> ()</td></tr>
+<tr class="memitem:ada6b7835cbd9b2170b5dc46316068978 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#ada6b7835cbd9b2170b5dc46316068978">getStartChannel</a> ()</td></tr>
 <tr class="inherit_header pub_methods_classAccessClass"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classAccessClass')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classAccessClass.html">AccessClass</a></td></tr>
-<tr class="memitem:ae6c601f53b3fd103bd7cd40f51c9c235 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae6c601f53b3fd103bd7cd40f51c9c235"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setUIComponent</b> (<a class="el" href="classUIComponent.html">UIComponent</a> *)</td></tr>
-<tr class="memitem:aa23dfab04264a78db261ccb8ac30f1ff inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa23dfab04264a78db261ccb8ac30f1ff"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>updateChildComponents</b> ()</td></tr>
-<tr class="memitem:a72bef8d5db8f8984f7b40f627a43998d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a72bef8d5db8f8984f7b40f627a43998d"></a>
-<a class="el" href="classEditorViewport.html">EditorViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getEditorViewport</b> ()</td></tr>
-<tr class="memitem:a69500d6b6d466414e92eb9b31c8cb90d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a69500d6b6d466414e92eb9b31c8cb90d"></a>
-<a class="el" href="classDataViewport.html">DataViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getDataViewport</b> ()</td></tr>
-<tr class="memitem:a18c4d1e45c74d6564d534bfe86bfc5da inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18c4d1e45c74d6564d534bfe86bfc5da"></a>
-<a class="el" href="classProcessorList.html">ProcessorList</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getProcessorList</b> ()</td></tr>
-<tr class="memitem:abe0403e279f6047b2f307eaf9c913404 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe0403e279f6047b2f307eaf9c913404"></a>
-<a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getProcessorGraph</b> ()</td></tr>
-<tr class="memitem:ae2559bca16f366b3b60bb64b062259cb inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae2559bca16f366b3b60bb64b062259cb"></a>
-<a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getControlPanel</b> ()</td></tr>
-<tr class="memitem:abb4f62a65c45128a71eee802544fd3d1 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb4f62a65c45128a71eee802544fd3d1"></a>
-<a class="el" href="classMessageCenter.html">MessageCenter</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getMessageCenter</b> ()</td></tr>
-<tr class="memitem:a45bcba11a6ba8a754d76d6a3ee11fb26 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45bcba11a6ba8a754d76d6a3ee11fb26"></a>
-<a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getUIComponent</b> ()</td></tr>
-<tr class="memitem:adca6f9ebbe535a03c024eb673a096972 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adca6f9ebbe535a03c024eb673a096972"></a>
-<a class="el" href="classAudioComponent.html">AudioComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getAudioComponent</b> ()</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a2be7b29f480be05058f1c214a4458a0b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2be7b29f480be05058f1c214a4458a0b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>initializeButtons</b> ()</td></tr>
-<tr class="memitem:acfc32c99c09564b8885cb882638a677f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acfc32c99c09564b8885cb882638a677f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</b> (<a class="el" href="classSpikeDisplayEditor.html">SpikeDisplayEditor</a>)</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a984755ff3624a85c5d31c2350080d700"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a984755ff3624a85c5d31c2350080d700"></a>
-<a class="el" href="classUtilityButton.html">UtilityButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>panUpBtn</b></td></tr>
-<tr class="memitem:afee4c5306fdaf4cb3548af17f4d23786"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afee4c5306fdaf4cb3548af17f4d23786"></a>
-<a class="el" href="classUtilityButton.html">UtilityButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>panDownBtn</b></td></tr>
-<tr class="memitem:acf23b32593c1379f58a2e110baa91ed8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf23b32593c1379f58a2e110baa91ed8"></a>
-<a class="el" href="classUtilityButton.html">UtilityButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>zoomInBtn</b></td></tr>
-<tr class="memitem:ab303083b47b70e8ecfbd3a44f2106be4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab303083b47b70e8ecfbd3a44f2106be4"></a>
-<a class="el" href="classUtilityButton.html">UtilityButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>zoomOutBtn</b></td></tr>
-<tr class="memitem:a8f6876e9e2c2eca307ec71bd756f8c79"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8f6876e9e2c2eca307ec71bd756f8c79"></a>
-<a class="el" href="classUtilityButton.html">UtilityButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>clearBtn</b></td></tr>
-<tr class="memitem:abf4ea3ab5df0a76c1f6f76751289da00"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abf4ea3ab5df0a76c1f6f76751289da00"></a>
-<a class="el" href="classUtilityButton.html">UtilityButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>saveImgBtn</b></td></tr>
-<tr class="memitem:a1a540bb1adbed3f96051a1370c1d8221"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1a540bb1adbed3f96051a1370c1d8221"></a>
-Label *&#160;</td><td class="memItemRight" valign="bottom"><b>panLabel</b></td></tr>
-<tr class="memitem:ad465a9ce6db3d09a5b94bccd2af1fa8e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad465a9ce6db3d09a5b94bccd2af1fa8e"></a>
-Label *&#160;</td><td class="memItemRight" valign="bottom"><b>zoomLabel</b></td></tr>
-<tr class="memitem:aaf44191f75ab94175249b6e844c63bce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaf44191f75ab94175249b6e844c63bce"></a>
-<a class="el" href="classUtilityButton.html">UtilityButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>allSubChansBtn</b></td></tr>
-<tr class="memitem:a5c008c4e2d3b39d96046f1e9c0784802"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5c008c4e2d3b39d96046f1e9c0784802"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>nSubChannels</b></td></tr>
-<tr class="memitem:a3291774d897476b171ebbfcd76101520"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3291774d897476b171ebbfcd76101520"></a>
-Label *&#160;</td><td class="memItemRight" valign="bottom"><b>subChanLabel</b></td></tr>
-<tr class="memitem:af49e74e3dec861024f2c501218c5d1c9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af49e74e3dec861024f2c501218c5d1c9"></a>
-<a class="el" href="classUtilityButton.html">UtilityButton</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>subChanBtn</b> [MAX_N_SUB_CHAN]</td></tr>
-<tr class="memitem:ae7e6e3e7c3a263144f1981cb6bd090db"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae7e6e3e7c3a263144f1981cb6bd090db"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>subChanSelected</b> [MAX_N_SUB_CHAN]</td></tr>
+<tr class="memitem:a4479402a420cf84c0b8ec1abd4a43d9c inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a4479402a420cf84c0b8ec1abd4a43d9c">AccessClass</a> ()</td></tr>
+<tr class="memitem:a68da6863bc0d2a4c5f84f9ed8dd4053f inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a68da6863bc0d2a4c5f84f9ed8dd4053f">~AccessClass</a> ()</td></tr>
+<tr class="memitem:ae6c601f53b3fd103bd7cd40f51c9c235 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#ae6c601f53b3fd103bd7cd40f51c9c235">setUIComponent</a> (<a class="el" href="classUIComponent.html">UIComponent</a> *)</td></tr>
+<tr class="memitem:aa23dfab04264a78db261ccb8ac30f1ff inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#aa23dfab04264a78db261ccb8ac30f1ff">updateChildComponents</a> ()</td></tr>
+<tr class="memitem:a72bef8d5db8f8984f7b40f627a43998d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEditorViewport.html">EditorViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a72bef8d5db8f8984f7b40f627a43998d">getEditorViewport</a> ()</td></tr>
+<tr class="memitem:a69500d6b6d466414e92eb9b31c8cb90d inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classDataViewport.html">DataViewport</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a69500d6b6d466414e92eb9b31c8cb90d">getDataViewport</a> ()</td></tr>
+<tr class="memitem:a18c4d1e45c74d6564d534bfe86bfc5da inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classProcessorList.html">ProcessorList</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a18c4d1e45c74d6564d534bfe86bfc5da">getProcessorList</a> ()</td></tr>
+<tr class="memitem:abe0403e279f6047b2f307eaf9c913404 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#abe0403e279f6047b2f307eaf9c913404">getProcessorGraph</a> ()</td></tr>
+<tr class="memitem:ae2559bca16f366b3b60bb64b062259cb inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classControlPanel.html">ControlPanel</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#ae2559bca16f366b3b60bb64b062259cb">getControlPanel</a> ()</td></tr>
+<tr class="memitem:abb4f62a65c45128a71eee802544fd3d1 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classMessageCenter.html">MessageCenter</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#abb4f62a65c45128a71eee802544fd3d1">getMessageCenter</a> ()</td></tr>
+<tr class="memitem:a45bcba11a6ba8a754d76d6a3ee11fb26 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classUIComponent.html">UIComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a45bcba11a6ba8a754d76d6a3ee11fb26">getUIComponent</a> ()</td></tr>
+<tr class="memitem:adca6f9ebbe535a03c024eb673a096972 inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classAudioComponent.html">AudioComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#adca6f9ebbe535a03c024eb673a096972">getAudioComponent</a> ()</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pub_attribs_classVisualizerEditor"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classVisualizerEditor')"><img src="closed.png" alt="-"/>&nbsp;Public Attributes inherited from <a class="el" href="classVisualizerEditor.html">VisualizerEditor</a></td></tr>
-<tr class="memitem:ab8caef8de0f8eeedb81a936d81b354bc inherit pub_attribs_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab8caef8de0f8eeedb81a936d81b354bc"></a>
-ScopedPointer&lt; <a class="el" href="classDataWindow.html">DataWindow</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>dataWindow</b></td></tr>
-<tr class="memitem:a31c5fc40fd3bb3f3777a600c75c57171 inherit pub_attribs_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a31c5fc40fd3bb3f3777a600c75c57171"></a>
-ScopedPointer&lt; <a class="el" href="classVisualizer.html">Visualizer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>canvas</b></td></tr>
-<tr class="memitem:a3a412027e66432c1d399e00a089f414e inherit pub_attribs_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3a412027e66432c1d399e00a089f414e"></a>
-String&#160;</td><td class="memItemRight" valign="bottom"><b>tabText</b></td></tr>
+<tr class="memitem:ab8caef8de0f8eeedb81a936d81b354bc inherit pub_attribs_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top">ScopedPointer&lt; <a class="el" href="classDataWindow.html">DataWindow</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classVisualizerEditor.html#ab8caef8de0f8eeedb81a936d81b354bc">dataWindow</a></td></tr>
+<tr class="memitem:a31c5fc40fd3bb3f3777a600c75c57171 inherit pub_attribs_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top">ScopedPointer&lt; <a class="el" href="classVisualizer.html">Visualizer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classVisualizerEditor.html#a31c5fc40fd3bb3f3777a600c75c57171">canvas</a></td></tr>
+<tr class="memitem:a3a412027e66432c1d399e00a089f414e inherit pub_attribs_classVisualizerEditor"><td class="memItemLeft" align="right" valign="top">String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classVisualizerEditor.html#a3a412027e66432c1d399e00a089f414e">tabText</a></td></tr>
 <tr class="inherit_header pub_attribs_classGenericEditor"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classGenericEditor')"><img src="closed.png" alt="-"/>&nbsp;Public Attributes inherited from <a class="el" href="classGenericEditor.html">GenericEditor</a></td></tr>
-<tr class="memitem:ab5b6f3450c9376c313fe8925bfbe4bc9 inherit pub_attribs_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab5b6f3450c9376c313fe8925bfbe4bc9"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>desiredWidth</b></td></tr>
-<tr class="memitem:a53166218592772efb4f6ef664ec4763b inherit pub_attribs_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a53166218592772efb4f6ef664ec4763b"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>nodeId</b></td></tr>
-<tr class="memitem:af961769014471610d0eeeeefb8e712ef inherit pub_attribs_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af961769014471610d0eeeeefb8e712ef"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isFading</b></td></tr>
-<tr class="memitem:ab4430a824b8ea6f3d3bd55ef037c40d2 inherit pub_attribs_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab4430a824b8ea6f3d3bd55ef037c40d2"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>accumulator</b></td></tr>
-<tr class="memitem:ac544d3401113c612bf992feacc68d961 inherit pub_attribs_classGenericEditor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac544d3401113c612bf992feacc68d961"></a>
-Font&#160;</td><td class="memItemRight" valign="bottom"><b>titleFont</b></td></tr>
+<tr class="memitem:ab5b6f3450c9376c313fe8925bfbe4bc9 inherit pub_attribs_classGenericEditor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#ab5b6f3450c9376c313fe8925bfbe4bc9">desiredWidth</a></td></tr>
+<tr class="memitem:a53166218592772efb4f6ef664ec4763b inherit pub_attribs_classGenericEditor"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a53166218592772efb4f6ef664ec4763b">nodeId</a></td></tr>
+<tr class="memitem:af961769014471610d0eeeeefb8e712ef inherit pub_attribs_classGenericEditor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#af961769014471610d0eeeeefb8e712ef">isFading</a></td></tr>
+<tr class="memitem:ab4430a824b8ea6f3d3bd55ef037c40d2 inherit pub_attribs_classGenericEditor"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#ab4430a824b8ea6f3d3bd55ef037c40d2">accumulator</a></td></tr>
+<tr class="memitem:ac544d3401113c612bf992feacc68d961 inherit pub_attribs_classGenericEditor"><td class="memItemLeft" align="right" valign="top">Font&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#ac544d3401113c612bf992feacc68d961">titleFont</a></td></tr>
 </table>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="ac983964da6dcf139ffaaa93473d8bc58"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SpikeDisplayEditor::SpikeDisplayEditor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae775457751f10da264cca3245466fb4d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SpikeDisplayEditor::~SpikeDisplayEditor </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a5c622a46511053389820d631f2dcc88d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SpikeDisplayEditor::buttonCallback </td>
+          <td>(</td>
+          <td class="paramtype">Button *&#160;</td>
+          <td class="paramname"><em>button</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classVisualizerEditor.html#a28603b8f37f5d74a064cee42981be368">VisualizerEditor</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a050a9b899e6028b6ec87b0b2a97d1a97"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classVisualizer.html">Visualizer</a>* SpikeDisplayEditor::createNewCanvas </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="classVisualizerEditor.html#ad9e8d76310366869e3f2f51ac4a2dc65">VisualizerEditor</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>Processors/Editors/<a class="el" href="SpikeDisplayEditor_8h_source.html">SpikeDisplayEditor.h</a></li>
+<li><a class="el" href="SpikeDisplayEditor_8h.html">SpikeDisplayEditor.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun May 20 2012 21:06:26 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun May 20 2012 22:03:39 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>
