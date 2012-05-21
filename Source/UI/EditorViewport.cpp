@@ -557,9 +557,12 @@ bool EditorViewport::keyPressed (const KeyPress &key) {
         {
 
             lastEditorClicked->switchIO(0);
+            
+            return true;
         } else if (key.getKeyCode() == key.downKey)
         {
             lastEditorClicked->switchIO(1);
+            return true;
         }
     }
 

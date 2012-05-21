@@ -31,8 +31,11 @@ FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn)
 	//input = file.createInputStream();
     bufferSize = 1600;
 
-   // input = fopen("/Users/Josh/Documents/Programming/open-ephys/GUI/Builds/Linux/build/data_stream_16ch_2", "r");
+#if JUCE_MAC
+    input = fopen("/Users/Josh/Documents/Programming/open-ephys/GUI/Builds/Linux/build/data_stream_16ch_2", "r");
+#else
     input = fopen("./data_stream_16ch_2","r");
+#endif
 
     fseek(input, 0, SEEK_END);
     lengthOfInputFile = ftell(input);

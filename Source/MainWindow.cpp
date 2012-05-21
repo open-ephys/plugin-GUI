@@ -53,7 +53,7 @@ MainWindow::MainWindow()
      commandManager.registerAllCommandsForTarget (ui);
      commandManager.registerAllCommandsForTarget (JUCEApplication::getInstance());
 
-     setMenuBar (ui);
+     //setMenuBar (ui);
      ui->setApplicationCommandManagerToWatch(&commandManager);
 
      addKeyListener(commandManager.getKeyMappings());

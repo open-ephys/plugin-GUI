@@ -83,7 +83,10 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 	//processorGraph->loadState();
 
 #if JUCE_MAC
-	setMacMainMenu(this);
+    MenuBarModel::setMacMainMenu(this);
+    mainWindow->setMenuBar(0);
+#else
+    mainWindow->setMenuBar(this);
 #endif
 	
 }
