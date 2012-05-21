@@ -1,0 +1,74 @@
+\hypertarget{classProcessorGraph}{\section{Processor\-Graph Class Reference}
+\label{classProcessorGraph}\index{Processor\-Graph@{Processor\-Graph}}
+}
+Inheritance diagram for Processor\-Graph\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classProcessorGraph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classProcessorGraph_a75a8c555386eb322aabb83b6cb651f76}{void $\ast$ {\bfseries create\-New\-Processor} (String \&description)}\label{classProcessorGraph_a75a8c555386eb322aabb83b6cb651f76}
+
+\item 
+\hypertarget{classProcessorGraph_a91f653d71fcc41eb5ac7976da64be5f5}{\hyperlink{classGenericProcessor}{Generic\-Processor} $\ast$ {\bfseries create\-Processor\-From\-Description} (String \&description)}\label{classProcessorGraph_a91f653d71fcc41eb5ac7976da64be5f5}
+
+\item 
+\hypertarget{classProcessorGraph_a3ca938850a4e4f27cae467eeff5046cf}{void {\bfseries remove\-Processor} (\hyperlink{classGenericProcessor}{Generic\-Processor} $\ast$processor)}\label{classProcessorGraph_a3ca938850a4e4f27cae467eeff5046cf}
+
+\item 
+\hypertarget{classProcessorGraph_a9affe0a1bddce5272cab547d4c38472a}{void {\bfseries clear\-Signal\-Chain} ()}\label{classProcessorGraph_a9affe0a1bddce5272cab547d4c38472a}
+
+\item 
+\hypertarget{classProcessorGraph_acece6f68878404ef8672af84a10e23f3}{bool {\bfseries enable\-Processors} ()}\label{classProcessorGraph_acece6f68878404ef8672af84a10e23f3}
+
+\item 
+\hypertarget{classProcessorGraph_a2c0c9688eeaea12a8fe5357b73e58785}{bool {\bfseries disable\-Processors} ()}\label{classProcessorGraph_a2c0c9688eeaea12a8fe5357b73e58785}
+
+\item 
+\hypertarget{classProcessorGraph_a1ff73af3414c2329cf1db7d3dc5ccc78}{\hyperlink{classRecordNode}{Record\-Node} $\ast$ {\bfseries get\-Record\-Node} ()}\label{classProcessorGraph_a1ff73af3414c2329cf1db7d3dc5ccc78}
+
+\item 
+\hypertarget{classProcessorGraph_af34c4fcdf99f327c922daf6a9e4c9caf}{\hyperlink{classAudioNode}{Audio\-Node} $\ast$ {\bfseries get\-Audio\-Node} ()}\label{classProcessorGraph_af34c4fcdf99f327c922daf6a9e4c9caf}
+
+\item 
+\hypertarget{classProcessorGraph_ae183b5807e57ec401d4d3517fc457e2a}{void {\bfseries update\-Connections} (Array$<$ \hyperlink{classSignalChainTabButton}{Signal\-Chain\-Tab\-Button} $\ast$, Critical\-Section $>$)}\label{classProcessorGraph_ae183b5807e57ec401d4d3517fc457e2a}
+
+\item 
+\hypertarget{classProcessorGraph_a7ddf86dcf1c88e6da9095396734d560c}{bool {\bfseries processor\-With\-Same\-Name\-Exists} (const String \&name)}\label{classProcessorGraph_a7ddf86dcf1c88e6da9095396734d560c}
+
+\item 
+\hypertarget{classProcessorGraph_ae9c9c8963bd984fe099792770a64d596}{void {\bfseries change\-Listener\-Callback} (Change\-Broadcaster $\ast$source)}\label{classProcessorGraph_ae9c9c8963bd984fe099792770a64d596}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Types}
+\begin{DoxyCompactItemize}
+\item 
+enum {\bfseries node\-Ids} \{ {\bfseries R\-E\-C\-O\-R\-D\-\_\-\-N\-O\-D\-E\-\_\-\-I\-D} =  900, 
+{\bfseries A\-U\-D\-I\-O\-\_\-\-N\-O\-D\-E\-\_\-\-I\-D} =  901, 
+{\bfseries O\-U\-T\-P\-U\-T\-\_\-\-N\-O\-D\-E\-\_\-\-I\-D} =  902, 
+{\bfseries R\-E\-S\-A\-M\-P\-L\-I\-N\-G\-\_\-\-N\-O\-D\-E\-\_\-\-I\-D} =  903
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classProcessorGraph_a3f10a351d6c862e4496b52a45d69b908}{void {\bfseries create\-Default\-Nodes} ()}\label{classProcessorGraph_a3f10a351d6c862e4496b52a45d69b908}
+
+\item 
+\hypertarget{classProcessorGraph_a8a04cdeb5ab26780f2aac2ff3335c6d2}{void {\bfseries clear\-Connections} ()}\label{classProcessorGraph_a8a04cdeb5ab26780f2aac2ff3335c6d2}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classProcessorGraph_a680233a4621ccf825cce29625cca6fc0}{int {\bfseries current\-Node\-Id}}\label{classProcessorGraph_a680233a4621ccf825cce29625cca6fc0}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+Processors/Processor\-Graph.\-h\end{DoxyCompactItemize}

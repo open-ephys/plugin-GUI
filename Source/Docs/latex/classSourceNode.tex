@@ -1,0 +1,105 @@
+\hypertarget{classSourceNode}{\section{Source\-Node Class Reference}
+\label{classSourceNode}\index{Source\-Node@{Source\-Node}}
+}
+
+
+{\ttfamily \#include $<$Source\-Node.\-h$>$}
+
+Inheritance diagram for Source\-Node\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classSourceNode}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSourceNode_ab4f329f2c043ff22b7111b2d4f858914}{{\bfseries Source\-Node} (const String \&name)}\label{classSourceNode_ab4f329f2c043ff22b7111b2d4f858914}
+
+\item 
+\hypertarget{classSourceNode_af79d18af3b7ccc5d429ec9821c8ed8e0}{void {\bfseries enabled\-State} (bool t)}\label{classSourceNode_af79d18af3b7ccc5d429ec9821c8ed8e0}
+
+\item 
+\hypertarget{classSourceNode_a7878b4b9142e39d9bf2ffc583ba09330}{void {\bfseries process} (Audio\-Sample\-Buffer \&buffer, Midi\-Buffer \&midi\-Messages, int \&n\-Samples)}\label{classSourceNode_a7878b4b9142e39d9bf2ffc583ba09330}
+
+\item 
+\hypertarget{classSourceNode_a188872e7c56ea9d8408228632cedd95d}{void {\bfseries set\-Parameter} (int parameter\-Index, float new\-Value)}\label{classSourceNode_a188872e7c56ea9d8408228632cedd95d}
+
+\item 
+\hypertarget{classSourceNode_a777f8795ab9dc3c9561e60bdcef6a9bb}{float {\bfseries get\-Sample\-Rate} ()}\label{classSourceNode_a777f8795ab9dc3c9561e60bdcef6a9bb}
+
+\item 
+\hypertarget{classSourceNode_acaf6815c0144908b659752e474fb1f4e}{float {\bfseries get\-Default\-Sample\-Rate} ()}\label{classSourceNode_acaf6815c0144908b659752e474fb1f4e}
+
+\item 
+\hypertarget{classSourceNode_a17ba5887e1fea781462df6225b9b5e0f}{int {\bfseries get\-Default\-Num\-Outputs} ()}\label{classSourceNode_a17ba5887e1fea781462df6225b9b5e0f}
+
+\item 
+\hypertarget{classSourceNode_abb6c608b0619608c92985fb3bceef43e}{float {\bfseries get\-Default\-Bit\-Volts} ()}\label{classSourceNode_abb6c608b0619608c92985fb3bceef43e}
+
+\item 
+\hypertarget{classSourceNode_a7359ff763096c94605c022b528a66382}{Audio\-Processor\-Editor $\ast$ {\bfseries create\-Editor} ()}\label{classSourceNode_a7359ff763096c94605c022b528a66382}
+
+\item 
+\hypertarget{classSourceNode_a9bad4ed9244b490448b712776ff78123}{bool {\bfseries has\-Editor} () const }\label{classSourceNode_a9bad4ed9244b490448b712776ff78123}
+
+\item 
+\hypertarget{classSourceNode_a34ef124baa3dd9d3d94f92a8ce40dd94}{bool {\bfseries enable} ()}\label{classSourceNode_a34ef124baa3dd9d3d94f92a8ce40dd94}
+
+\item 
+\hypertarget{classSourceNode_ab611b02d5535aa01cdebc0fea95f349e}{bool {\bfseries disable} ()}\label{classSourceNode_ab611b02d5535aa01cdebc0fea95f349e}
+
+\item 
+\hypertarget{classSourceNode_aac2b14b5eb996f44bb81ea0a097ec1d5}{bool {\bfseries is\-Ready} ()}\label{classSourceNode_aac2b14b5eb996f44bb81ea0a097ec1d5}
+
+\item 
+\hypertarget{classSourceNode_a08d7383fb2cae095356c45ed91d491ad}{bool {\bfseries is\-Source} ()}\label{classSourceNode_a08d7383fb2cae095356c45ed91d491ad}
+
+\item 
+\hypertarget{classSourceNode_ab86697fbc4618026ce0a51087f9537b9}{void {\bfseries acquisition\-Stopped} ()}\label{classSourceNode_ab86697fbc4618026ce0a51087f9537b9}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSourceNode_ac0529c95b1179f9a62d9d3d5b94e4a54}{void {\bfseries timer\-Callback} ()}\label{classSourceNode_ac0529c95b1179f9a62d9d3d5b94e4a54}
+
+\item 
+\hypertarget{classSourceNode_acda032e8fe961d76456ea81913892627}{void {\bfseries update\-Settings} ()}\label{classSourceNode_acda032e8fe961d76456ea81913892627}
+
+\item 
+\hypertarget{classSourceNode_a363a1e41e163aa2373f81a006be110bf}{{\bfseries J\-U\-C\-E\-\_\-\-D\-E\-C\-L\-A\-R\-E\-\_\-\-N\-O\-N\-\_\-\-C\-O\-P\-Y\-A\-B\-L\-E\-\_\-\-W\-I\-T\-H\-\_\-\-L\-E\-A\-K\-\_\-\-D\-E\-T\-E\-C\-T\-O\-R} (\hyperlink{classSourceNode}{Source\-Node})}\label{classSourceNode_a363a1e41e163aa2373f81a006be110bf}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSourceNode_a41ccf1b5806b6ce87f830120089302b7}{int {\bfseries source\-Check\-Interval}}\label{classSourceNode_a41ccf1b5806b6ce87f830120089302b7}
+
+\item 
+\hypertarget{classSourceNode_aa29195288c1bf19bd692e2ef4f44a262}{bool {\bfseries was\-Disabled}}\label{classSourceNode_aa29195288c1bf19bd692e2ef4f44a262}
+
+\item 
+\hypertarget{classSourceNode_ae6fb14e27892f11368f1951c7c34b275}{Scoped\-Pointer$<$ \hyperlink{classDataThread}{Data\-Thread} $>$ {\bfseries data\-Thread}}\label{classSourceNode_ae6fb14e27892f11368f1951c7c34b275}
+
+\item 
+\hypertarget{classSourceNode_a4fe4bcde50cf6efe07c199a648e5bc6b}{\hyperlink{classDataBuffer}{Data\-Buffer} $\ast$ {\bfseries input\-Buffer}}\label{classSourceNode_a4fe4bcde50cf6efe07c199a648e5bc6b}
+
+\item 
+\hypertarget{classSourceNode_a3fbec02fc3223e1e982db3867323538f}{int $\ast$ {\bfseries num\-Samples\-In\-This\-Buffer}}\label{classSourceNode_a3fbec02fc3223e1e982db3867323538f}
+
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+Creates and controls a thread for reading data from external sources.
+
+\begin{DoxySeeAlso}{See also}
+\hyperlink{classGenericProcessor}{Generic\-Processor}, \hyperlink{classSourceNodeEditor}{Source\-Node\-Editor}, \hyperlink{classDataThread}{Data\-Thread}, \hyperlink{classIntanThread}{Intan\-Thread} 
+\end{DoxySeeAlso}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+Processors/Source\-Node.\-h\end{DoxyCompactItemize}

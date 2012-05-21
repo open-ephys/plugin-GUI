@@ -1,0 +1,71 @@
+\hypertarget{classAudioComponent}{\section{Audio\-Component Class Reference}
+\label{classAudioComponent}\index{Audio\-Component@{Audio\-Component}}
+}
+
+
+{\ttfamily \#include $<$Audio\-Component.\-h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classAudioComponent_a39ef696dde4891e20b17adb0c8057740}{void {\bfseries begin\-Callbacks} ()}\label{classAudioComponent_a39ef696dde4891e20b17adb0c8057740}
+
+\item 
+\hypertarget{classAudioComponent_a78e2a818d271fb26387d41875271e4ba}{void {\bfseries end\-Callbacks} ()}\label{classAudioComponent_a78e2a818d271fb26387d41875271e4ba}
+
+\item 
+\hypertarget{classAudioComponent_aaffe78d6dae978d9905cf2caf2f883b2}{void {\bfseries connect\-To\-Processor\-Graph} (Audio\-Processor\-Graph $\ast$processor\-Graph)}\label{classAudioComponent_aaffe78d6dae978d9905cf2caf2f883b2}
+
+\item 
+\hypertarget{classAudioComponent_a8570488c01bd73e836cfb1f153d7ec86}{void {\bfseries disconnect\-Processor\-Graph} ()}\label{classAudioComponent_a8570488c01bd73e836cfb1f153d7ec86}
+
+\item 
+\hypertarget{classAudioComponent_a5f6d992b7a5c267332416f8ee0b1aff0}{bool {\bfseries callbacks\-Are\-Active} ()}\label{classAudioComponent_a5f6d992b7a5c267332416f8ee0b1aff0}
+
+\item 
+\hypertarget{classAudioComponent_afa720e702e65def918da93505a4a9e7e}{void {\bfseries restart\-Device} ()}\label{classAudioComponent_afa720e702e65def918da93505a4a9e7e}
+
+\item 
+\hypertarget{classAudioComponent_ac85bf5472fbb1112b8429e26bcea6bc1}{void {\bfseries stop\-Device} ()}\label{classAudioComponent_ac85bf5472fbb1112b8429e26bcea6bc1}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classAudioComponent_a84f78369c478a8531a258ba8683033e1}{Audio\-Device\-Manager {\bfseries device\-Manager}}\label{classAudioComponent_a84f78369c478a8531a258ba8683033e1}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classAudioComponent_a7a880353dbbe26c1e6ab830bea62d340}{{\bfseries J\-U\-C\-E\-\_\-\-D\-E\-C\-L\-A\-R\-E\-\_\-\-N\-O\-N\-\_\-\-C\-O\-P\-Y\-A\-B\-L\-E\-\_\-\-W\-I\-T\-H\-\_\-\-L\-E\-A\-K\-\_\-\-D\-E\-T\-E\-C\-T\-O\-R} (\hyperlink{classAudioComponent}{Audio\-Component})}\label{classAudioComponent_a7a880353dbbe26c1e6ab830bea62d340}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classAudioComponent_afc6f4562aa55d071a5f2a9607899ee91}{bool {\bfseries is\-Playing}}\label{classAudioComponent_afc6f4562aa55d071a5f2a9607899ee91}
+
+\item 
+\hypertarget{classAudioComponent_adebf82b36bfd76e3bfd9bbe3d40d4dad}{Audio\-Processor\-Player $\ast$ {\bfseries graph\-Player}}\label{classAudioComponent_adebf82b36bfd76e3bfd9bbe3d40d4dad}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Interfaces with system audio hardware.
+
+Uses the audio card to generate the callbacks to run the \hyperlink{classProcessorGraph}{Processor\-Graph} during data acquisition.
+
+Sends output to the audio card for audio monitoring.
+
+Determines the initial size of the sample buffer (crucial for real-\/time feedback latency).
+
+\begin{DoxySeeAlso}{See also}
+\hyperlink{classMainWindow}{Main\-Window}, \hyperlink{classProcessorGraph}{Processor\-Graph} 
+\end{DoxySeeAlso}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+Audio/Audio\-Component.\-h\end{DoxyCompactItemize}

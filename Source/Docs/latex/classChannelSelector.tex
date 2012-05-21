@@ -1,0 +1,218 @@
+\hypertarget{classChannelSelector}{\section{Channel\-Selector Class Reference}
+\label{classChannelSelector}\index{Channel\-Selector@{Channel\-Selector}}
+}
+Inheritance diagram for Channel\-Selector\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classChannelSelector}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classChannelSelector_a593fc6e836661a86e0ca788bffdb4d24}{Channel\-Selector} (bool create\-Buttons, Font \&title\-Font)
+\item 
+\hyperlink{classChannelSelector_a918cd253d71e3a26e6b6bb8b1be52eed}{$\sim$\-Channel\-Selector} ()
+\item 
+void \hyperlink{classChannelSelector_afe0c3299f08f26d6872a7bfe6b20069e}{button\-Clicked} (Button $\ast$button)
+\item 
+Array$<$ int $>$ \hyperlink{classChannelSelector_ad2397a6d709a0ef783527e4c5f2fbf9f}{get\-Active\-Channels} ()
+\item 
+void \hyperlink{classChannelSelector_a30faca8ee72022f68e2ea776453f801a}{set\-Active\-Channels} (Array$<$ int $>$)
+\item 
+void \hyperlink{classChannelSelector_a717956a6b754e1aa157371851c396c79}{set\-Num\-Channels} (int)
+\item 
+bool \hyperlink{classChannelSelector_a1de299562edcbc0d4249a7fc5d22917f}{get\-Record\-Status} (int chan)
+\item 
+bool \hyperlink{classChannelSelector_a846b95d112e09cec70d426a80731eda5}{get\-Audio\-Status} (int chan)
+\item 
+int \hyperlink{classChannelSelector_a7865695da614c8ee1e3106c545dd12f4}{get\-Desired\-Width} ()
+\item 
+\hypertarget{classChannelSelector_a53d43af4d197bd3def9c96b0c98811e2}{void {\bfseries inactivate\-Buttons} ()}\label{classChannelSelector_a53d43af4d197bd3def9c96b0c98811e2}
+
+\item 
+\hypertarget{classChannelSelector_adcc831c5ba479d04df8ee711f169311d}{void {\bfseries activate\-Buttons} ()}\label{classChannelSelector_adcc831c5ba479d04df8ee711f169311d}
+
+\item 
+\hypertarget{classChannelSelector_ae4fc9b23915004fb4f1ade854e7dddb4}{void {\bfseries set\-Radio\-Status} (bool)}\label{classChannelSelector_ae4fc9b23915004fb4f1ade854e7dddb4}
+
+\item 
+\hypertarget{classChannelSelector_a10b3542c4c5f2815b663692649b69eea}{void {\bfseries param\-Buttons\-Toggled\-By\-Default} (bool t)}\label{classChannelSelector_a10b3542c4c5f2815b663692649b69eea}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classChannelSelector_aa3a3c5a34e0c20248c1283acc0e91e3d}{bool {\bfseries events\-Only}}\label{classChannelSelector_aa3a3c5a34e0c20248c1283acc0e91e3d}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ {\bfseries A\-U\-D\-I\-O}, 
+{\bfseries R\-E\-C\-O\-R\-D}, 
+{\bfseries P\-A\-R\-A\-M\-E\-T\-E\-R}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classChannelSelector_acdc19312c258596a5786983526f8d5da}{void {\bfseries resized} ()}\label{classChannelSelector_acdc19312c258596a5786983526f8d5da}
+
+\item 
+\hypertarget{classChannelSelector_a05c5201380ab52ab9b310fcbb4ed11df}{void {\bfseries add\-Button} ()}\label{classChannelSelector_a05c5201380ab52ab9b310fcbb4ed11df}
+
+\item 
+\hypertarget{classChannelSelector_a999257dab86b930e09e64227e65b1c6a}{void {\bfseries remove\-Button} ()}\label{classChannelSelector_a999257dab86b930e09e64227e65b1c6a}
+
+\item 
+\hypertarget{classChannelSelector_a0b1994f1bc6978c452be67441f988144}{void {\bfseries refresh\-Button\-Boundaries} ()}\label{classChannelSelector_a0b1994f1bc6978c452be67441f988144}
+
+\item 
+\hypertarget{classChannelSelector_a0d7c58692724a9a47afbd2eea26f6453}{void {\bfseries timer\-Callback} ()}\label{classChannelSelector_a0d7c58692724a9a47afbd2eea26f6453}
+
+\item 
+\hypertarget{classChannelSelector_aa9a1eb97aa4f3760fb3777b50f7aac83}{void {\bfseries paint} (Graphics \&g)}\label{classChannelSelector_aa9a1eb97aa4f3760fb3777b50f7aac83}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classChannelSelector_a125d243727b3c6eb3a3e805d393ff655}{\hyperlink{classEditorButton}{Editor\-Button} $\ast$ {\bfseries audio\-Button}}\label{classChannelSelector_a125d243727b3c6eb3a3e805d393ff655}
+
+\item 
+\hypertarget{classChannelSelector_ad5613602460b2a19bd0c6e720488c406}{\hyperlink{classEditorButton}{Editor\-Button} $\ast$ {\bfseries record\-Button}}\label{classChannelSelector_ad5613602460b2a19bd0c6e720488c406}
+
+\item 
+\hypertarget{classChannelSelector_a1d83f4095fbeec31e17cd8ad9211c2d4}{\hyperlink{classEditorButton}{Editor\-Button} $\ast$ {\bfseries params\-Button}}\label{classChannelSelector_a1d83f4095fbeec31e17cd8ad9211c2d4}
+
+\item 
+\hypertarget{classChannelSelector_a0d3097d2e792c9b61a1977d49c43e9a9}{\hyperlink{classEditorButton}{Editor\-Button} $\ast$ {\bfseries all\-Button}}\label{classChannelSelector_a0d3097d2e792c9b61a1977d49c43e9a9}
+
+\item 
+\hypertarget{classChannelSelector_a4bad9aed3443274ab65b227f48e1d2a3}{\hyperlink{classEditorButton}{Editor\-Button} $\ast$ {\bfseries none\-Button}}\label{classChannelSelector_a4bad9aed3443274ab65b227f48e1d2a3}
+
+\item 
+\hypertarget{classChannelSelector_a90f23d0226bfeb29ea5d261bb602be9b}{Array$<$ \hyperlink{classChannelSelectorButton}{Channel\-Selector\-Button} $\ast$ $>$ {\bfseries parameter\-Buttons}}\label{classChannelSelector_a90f23d0226bfeb29ea5d261bb602be9b}
+
+\item 
+\hypertarget{classChannelSelector_ac50e843be255ca04b83a4d28907511a1}{Array$<$ \hyperlink{classChannelSelectorButton}{Channel\-Selector\-Button} $\ast$ $>$ {\bfseries audio\-Buttons}}\label{classChannelSelector_ac50e843be255ca04b83a4d28907511a1}
+
+\item 
+\hypertarget{classChannelSelector_ae7cbcfb0a437434a59077847cbf48360}{Array$<$ \hyperlink{classChannelSelectorButton}{Channel\-Selector\-Button} $\ast$ $>$ {\bfseries record\-Buttons}}\label{classChannelSelector_ae7cbcfb0a437434a59077847cbf48360}
+
+\item 
+\hypertarget{classChannelSelector_ab71b9a6f51948339fa8cc02622bd4bac}{bool {\bfseries params\-Toggled}}\label{classChannelSelector_ab71b9a6f51948339fa8cc02622bd4bac}
+
+\item 
+\hypertarget{classChannelSelector_a7548f321c4c91a64fea36d62854d5459}{bool {\bfseries params\-Active}}\label{classChannelSelector_a7548f321c4c91a64fea36d62854d5459}
+
+\item 
+\hypertarget{classChannelSelector_adaed7f23325155b9c11138dd2bbcaad0}{bool {\bfseries radio\-Status}}\label{classChannelSelector_adaed7f23325155b9c11138dd2bbcaad0}
+
+\item 
+\hypertarget{classChannelSelector_abfc6c6199895c7303606af884fa65b3f}{bool {\bfseries is\-Not\-Sink}}\label{classChannelSelector_abfc6c6199895c7303606af884fa65b3f}
+
+\item 
+\hypertarget{classChannelSelector_a780d94efaf61716df4b3a4b6d9e98376}{bool {\bfseries move\-Right}}\label{classChannelSelector_a780d94efaf61716df4b3a4b6d9e98376}
+
+\item 
+\hypertarget{classChannelSelector_ab6442cee85bfbab885bec0e1c91d85de}{bool {\bfseries move\-Left}}\label{classChannelSelector_ab6442cee85bfbab885bec0e1c91d85de}
+
+\item 
+\hypertarget{classChannelSelector_acdfddce909bd2d5ea67437d7b21782d7}{int {\bfseries offset\-L\-R}}\label{classChannelSelector_acdfddce909bd2d5ea67437d7b21782d7}
+
+\item 
+\hypertarget{classChannelSelector_ae81b21b00c4e19045b4becb7a856aec9}{int {\bfseries offset\-U\-D}}\label{classChannelSelector_ae81b21b00c4e19045b4becb7a856aec9}
+
+\item 
+\hypertarget{classChannelSelector_a83a2b3f79caa247f61e29b5f67ef3582}{int {\bfseries parameter\-Offset}}\label{classChannelSelector_a83a2b3f79caa247f61e29b5f67ef3582}
+
+\item 
+\hypertarget{classChannelSelector_a42a3b8d0333e186f44cfc09deb4771cf}{int {\bfseries audio\-Offset}}\label{classChannelSelector_a42a3b8d0333e186f44cfc09deb4771cf}
+
+\item 
+\hypertarget{classChannelSelector_a324c95cbb8a3bcaa6304f533dce9040c}{int {\bfseries record\-Offset}}\label{classChannelSelector_a324c95cbb8a3bcaa6304f533dce9040c}
+
+\item 
+\hypertarget{classChannelSelector_a60c31518c310f5ec8fb1aa5f6af0110b}{int {\bfseries desired\-Offset}}\label{classChannelSelector_a60c31518c310f5ec8fb1aa5f6af0110b}
+
+\item 
+\hypertarget{classChannelSelector_aaa491ce371b18cdc6974d377ed8c06ad}{Font \& {\bfseries title\-Font}}\label{classChannelSelector_aaa491ce371b18cdc6974d377ed8c06ad}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classChannelSelector_a593fc6e836661a86e0ca788bffdb4d24}{\index{Channel\-Selector@{Channel\-Selector}!Channel\-Selector@{Channel\-Selector}}
+\index{Channel\-Selector@{Channel\-Selector}!ChannelSelector@{Channel\-Selector}}
+\subsubsection[{Channel\-Selector}]{\setlength{\rightskip}{0pt plus 5cm}Channel\-Selector\-::\-Channel\-Selector (
+\begin{DoxyParamCaption}
+\item[{bool}]{create\-Buttons, }
+\item[{Font \&}]{title\-Font}
+\end{DoxyParamCaption}
+)}}\label{classChannelSelector_a593fc6e836661a86e0ca788bffdb4d24}
+constructor \hypertarget{classChannelSelector_a918cd253d71e3a26e6b6bb8b1be52eed}{\index{Channel\-Selector@{Channel\-Selector}!$\sim$\-Channel\-Selector@{$\sim$\-Channel\-Selector}}
+\index{$\sim$\-Channel\-Selector@{$\sim$\-Channel\-Selector}!ChannelSelector@{Channel\-Selector}}
+\subsubsection[{$\sim$\-Channel\-Selector}]{\setlength{\rightskip}{0pt plus 5cm}Channel\-Selector\-::$\sim$\-Channel\-Selector (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classChannelSelector_a918cd253d71e3a26e6b6bb8b1be52eed}
+destructor 
+
+\subsection{Member Function Documentation}
+\hypertarget{classChannelSelector_afe0c3299f08f26d6872a7bfe6b20069e}{\index{Channel\-Selector@{Channel\-Selector}!button\-Clicked@{button\-Clicked}}
+\index{button\-Clicked@{button\-Clicked}!ChannelSelector@{Channel\-Selector}}
+\subsubsection[{button\-Clicked}]{\setlength{\rightskip}{0pt plus 5cm}void Channel\-Selector\-::button\-Clicked (
+\begin{DoxyParamCaption}
+\item[{Button $\ast$}]{button}
+\end{DoxyParamCaption}
+)}}\label{classChannelSelector_afe0c3299f08f26d6872a7bfe6b20069e}
+button callback \hypertarget{classChannelSelector_ad2397a6d709a0ef783527e4c5f2fbf9f}{\index{Channel\-Selector@{Channel\-Selector}!get\-Active\-Channels@{get\-Active\-Channels}}
+\index{get\-Active\-Channels@{get\-Active\-Channels}!ChannelSelector@{Channel\-Selector}}
+\subsubsection[{get\-Active\-Channels}]{\setlength{\rightskip}{0pt plus 5cm}Array$<$int$>$ Channel\-Selector\-::get\-Active\-Channels (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classChannelSelector_ad2397a6d709a0ef783527e4c5f2fbf9f}
+Return an array of selected channels. \hypertarget{classChannelSelector_a846b95d112e09cec70d426a80731eda5}{\index{Channel\-Selector@{Channel\-Selector}!get\-Audio\-Status@{get\-Audio\-Status}}
+\index{get\-Audio\-Status@{get\-Audio\-Status}!ChannelSelector@{Channel\-Selector}}
+\subsubsection[{get\-Audio\-Status}]{\setlength{\rightskip}{0pt plus 5cm}bool Channel\-Selector\-::get\-Audio\-Status (
+\begin{DoxyParamCaption}
+\item[{int}]{chan}
+\end{DoxyParamCaption}
+)}}\label{classChannelSelector_a846b95d112e09cec70d426a80731eda5}
+Return whether a particular channel should be monitored. \hypertarget{classChannelSelector_a7865695da614c8ee1e3106c545dd12f4}{\index{Channel\-Selector@{Channel\-Selector}!get\-Desired\-Width@{get\-Desired\-Width}}
+\index{get\-Desired\-Width@{get\-Desired\-Width}!ChannelSelector@{Channel\-Selector}}
+\subsubsection[{get\-Desired\-Width}]{\setlength{\rightskip}{0pt plus 5cm}int Channel\-Selector\-::get\-Desired\-Width (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classChannelSelector_a7865695da614c8ee1e3106c545dd12f4}
+Return component's desired width. \hypertarget{classChannelSelector_a1de299562edcbc0d4249a7fc5d22917f}{\index{Channel\-Selector@{Channel\-Selector}!get\-Record\-Status@{get\-Record\-Status}}
+\index{get\-Record\-Status@{get\-Record\-Status}!ChannelSelector@{Channel\-Selector}}
+\subsubsection[{get\-Record\-Status}]{\setlength{\rightskip}{0pt plus 5cm}bool Channel\-Selector\-::get\-Record\-Status (
+\begin{DoxyParamCaption}
+\item[{int}]{chan}
+\end{DoxyParamCaption}
+)}}\label{classChannelSelector_a1de299562edcbc0d4249a7fc5d22917f}
+Return whether a particular channel should be recording. \hypertarget{classChannelSelector_a30faca8ee72022f68e2ea776453f801a}{\index{Channel\-Selector@{Channel\-Selector}!set\-Active\-Channels@{set\-Active\-Channels}}
+\index{set\-Active\-Channels@{set\-Active\-Channels}!ChannelSelector@{Channel\-Selector}}
+\subsubsection[{set\-Active\-Channels}]{\setlength{\rightskip}{0pt plus 5cm}void Channel\-Selector\-::set\-Active\-Channels (
+\begin{DoxyParamCaption}
+\item[{Array$<$ int $>$}]{}
+\end{DoxyParamCaption}
+)}}\label{classChannelSelector_a30faca8ee72022f68e2ea776453f801a}
+Set the selected channels. \hypertarget{classChannelSelector_a717956a6b754e1aa157371851c396c79}{\index{Channel\-Selector@{Channel\-Selector}!set\-Num\-Channels@{set\-Num\-Channels}}
+\index{set\-Num\-Channels@{set\-Num\-Channels}!ChannelSelector@{Channel\-Selector}}
+\subsubsection[{set\-Num\-Channels}]{\setlength{\rightskip}{0pt plus 5cm}void Channel\-Selector\-::set\-Num\-Channels (
+\begin{DoxyParamCaption}
+\item[{int}]{}
+\end{DoxyParamCaption}
+)}}\label{classChannelSelector_a717956a6b754e1aa157371851c396c79}
+Set the total number of channels. 
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+Processors/\-Editors/Channel\-Selector.\-h\end{DoxyCompactItemize}

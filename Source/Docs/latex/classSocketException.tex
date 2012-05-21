@@ -1,0 +1,62 @@
+\hypertarget{classSocketException}{\section{Socket\-Exception Class Reference}
+\label{classSocketException}\index{Socket\-Exception@{Socket\-Exception}}
+}
+
+
+{\ttfamily \#include $<$Practical\-Socket.\-h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classSocketException_abb5bcecd9d9e20868c237ec5a82cf5c3}{Socket\-Exception} (const string \&message, bool incl\-Sys\-Msg=false)  throw ()
+\item 
+\hyperlink{classSocketException_a659557c899329aea01977c980c4db9b9}{$\sim$\-Socket\-Exception} ()  throw ()
+\item 
+const char $\ast$ \hyperlink{classSocketException_aba95967e3d7a0496d831d9608f6ead97}{what} () const   throw ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Signals a problem with the execution of a socket call. 
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classSocketException_abb5bcecd9d9e20868c237ec5a82cf5c3}{\index{Socket\-Exception@{Socket\-Exception}!Socket\-Exception@{Socket\-Exception}}
+\index{Socket\-Exception@{Socket\-Exception}!SocketException@{Socket\-Exception}}
+\subsubsection[{Socket\-Exception}]{\setlength{\rightskip}{0pt plus 5cm}Socket\-Exception\-::\-Socket\-Exception (
+\begin{DoxyParamCaption}
+\item[{const string \&}]{message, }
+\item[{bool}]{incl\-Sys\-Msg = {\ttfamily false}}
+\end{DoxyParamCaption}
+)  throw ()}}\label{classSocketException_abb5bcecd9d9e20868c237ec5a82cf5c3}
+Construct a \hyperlink{classSocketException}{Socket\-Exception} with a explanatory message. 
+\begin{DoxyParams}{Parameters}
+{\em message} & explanatory message \\
+\hline
+{\em inc\-Sys\-Msg} & true if system message (from strerror(errno)) should be postfixed to the user provided message \\
+\hline
+\end{DoxyParams}
+\hypertarget{classSocketException_a659557c899329aea01977c980c4db9b9}{\index{Socket\-Exception@{Socket\-Exception}!$\sim$\-Socket\-Exception@{$\sim$\-Socket\-Exception}}
+\index{$\sim$\-Socket\-Exception@{$\sim$\-Socket\-Exception}!SocketException@{Socket\-Exception}}
+\subsubsection[{$\sim$\-Socket\-Exception}]{\setlength{\rightskip}{0pt plus 5cm}Socket\-Exception\-::$\sim$\-Socket\-Exception (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)  throw ()}}\label{classSocketException_a659557c899329aea01977c980c4db9b9}
+Provided just to guarantee that no exceptions are thrown. 
+
+\subsection{Member Function Documentation}
+\hypertarget{classSocketException_aba95967e3d7a0496d831d9608f6ead97}{\index{Socket\-Exception@{Socket\-Exception}!what@{what}}
+\index{what@{what}!SocketException@{Socket\-Exception}}
+\subsubsection[{what}]{\setlength{\rightskip}{0pt plus 5cm}const char$\ast$ Socket\-Exception\-::what (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const  throw ()}}\label{classSocketException_aba95967e3d7a0496d831d9608f6ead97}
+Get the exception message \begin{DoxyReturn}{Returns}
+exception message 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+Network/Practical\-Socket.\-h\end{DoxyCompactItemize}
