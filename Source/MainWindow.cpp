@@ -37,7 +37,7 @@ MainWindow::MainWindow()
    // centreWithSize(500,400);
 
     // Constraining th window's size doesn't seem to work:
-    //setResizeLimits(500, 400, 10000, 10000);
+    //
 
     // Create ProcessorGraph and AudioComponent, and connect them.
     // Callbacks will be set by the play button in the control panel
@@ -62,6 +62,8 @@ MainWindow::MainWindow()
      setUsingNativeTitleBar (true);
      Component::addToDesktop (getDesktopWindowStyleFlags()); 
      setVisible (true);
+
+     setResizeLimits(500, 400, 10000, 10000);
     
 
 }

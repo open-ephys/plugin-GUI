@@ -113,7 +113,7 @@ void FilterNode::updateSettings()
 				<3>,								 	// order
 				1,										// number of channels (must be const)
 				Dsp::DirectFormII>						// realization
-				(1024));	 
+				(1));	 
 
 			Parameter& p1 =  parameters.getReference(0);
 			p1.setValue(600.0f, n);
