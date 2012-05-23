@@ -209,7 +209,7 @@ class UtilityButton;
 
 class ControlPanel : public Component, 
 					 public Button::Listener,
-					 public ActionListener,
+					// public ActionListener,
 					 public Timer,
 					 public AccessClass
 
@@ -247,11 +247,12 @@ private:
 	void resized();
 	void buttonClicked(Button* button);
 
-	void actionListenerCallback(const String& msg);
+	//void actionListenerCallback(const String& msg);
 
 	void updateChildComponents();
 
 	void timerCallback();
+	void refreshMeters();
 
 	bool keyPressed(const KeyPress &key);
 

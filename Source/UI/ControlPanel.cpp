@@ -429,9 +429,10 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) :
 		 									  "");
 	addChildComponent(filenameComponent);
 
-	startTimer(100);
-
-	
+	//diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
+	//diskMeter->repaint();
+	refreshMeters();
+	startTimer(5000); // update disk space every 10 seconds
 
 	setWantsKeyboardFocus(true);
 
@@ -557,9 +558,11 @@ void ControlPanel::buttonClicked(Button* button)
 		std::cout << "Record button pressed." << std::endl;
 		if (recordButton->getToggleState())
 		{
+
 			playButton->setToggleState(true,false);
 			graph->getRecordNode()->setParameter(1,10.0f);
 			masterClock->startRecording(); // turn on recording
+
 
 		} else {
 			graph->getRecordNode()->setParameter(0,10.0f); // turn off recording
@@ -598,6 +601,8 @@ void ControlPanel::buttonClicked(Button* button)
 				if (recordButton->getToggleState())
 					graph->getRecordNode()->setParameter(1,10.0f);
 				
+				stopTimer();
+				startTimer(250); // refresh every 250 ms
 				audio->beginCallbacks();
 				masterClock->start();
 			}
@@ -609,8 +614,10 @@ void ControlPanel::buttonClicked(Button* button)
 		if (audio->callbacksAreActive()) {
 			audio->endCallbacks();
 			graph->disableProcessors();
-			cpuMeter->updateCPU(0.0f);
+			refreshMeters();
 			masterClock->stop();
+			stopTimer();
+			startTimer(10000); // back to refresh every 10 seconds
 
 		}
 
@@ -630,7 +637,9 @@ void ControlPanel::disableCallbacks()
 		std::cout << "Disabling processors." << std::endl;
 		graph->disableProcessors();
 		std::cout << "Updating control panel." << std::endl;
-		cpuMeter->updateCPU(0.0f);
+		refreshMeters();
+		stopTimer();
+		startTimer(10000); // back to refresh every 10 seconds
 		
 	}
 
@@ -642,26 +651,35 @@ void ControlPanel::disableCallbacks()
 
 }
 
-void ControlPanel::actionListenerCallback(const String & msg)
-{
-	//std::cout << "Message Received." << std::endl;
-	if (playButton->getToggleState()) {
-		cpuMeter->updateCPU(audio->deviceManager.getCpuUsage());
-	}
+// void ControlPanel::actionListenerCallback(const String & msg)
+// {
+// 	//std::cout << "Message Received." << std::endl;
+// 	if (playButton->getToggleState()) {
+// 		cpuMeter->updateCPU(audio->deviceManager.getCpuUsage());
+// 	}
 
-	cpuMeter->repaint();
+// 	cpuMeter->repaint();
 
-	diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
-	diskMeter->repaint();
+// 	diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
+// 	diskMeter->repaint();
 	
 	
-}
+// }
 
 void ControlPanel::timerCallback()
 {
 	//std::cout << "Message Received." << std::endl;
+	
+	refreshMeters();
+	
+}
+
+void ControlPanel::refreshMeters()
+{
 	if (playButton->getToggleState()) {
 		cpuMeter->updateCPU(audio->deviceManager.getCpuUsage());
+	} else {
+		cpuMeter->updateCPU(0.0f);
 	}
 
 	cpuMeter->repaint();
@@ -670,8 +688,6 @@ void ControlPanel::timerCallback()
 
 	diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
 	diskMeter->repaint();
-	
-	
 }
 
 bool ControlPanel::keyPressed(const KeyPress& key)
