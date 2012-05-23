@@ -43,7 +43,7 @@ class StereotrodePlot : public BaseUIElement{
 public:
 	StereotrodePlot();
 	StereotrodePlot(int x, int y,int w,int h);
-	~StereotrodePlot();
+	virtual ~StereotrodePlot();
 
 	void initAxes();
 	void redraw();

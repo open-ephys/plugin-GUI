@@ -96,11 +96,11 @@ void makeLabel(int val, int gain, bool convert, char * s){
 	if (convert){
 		double volt = ad16ToUv(val, gain)/1000.;
 		if (abs(val)>1e6){
-			val = val/(1e6);
+			//val = val/(1e6);
 			sprintf(s, "%.2fV", volt);
 		}
 		else if(abs(val)>1e3){
-			val = val/(1e3);
+			//val = val/(1e3);
 			sprintf(s, "%.2fmV", volt);
 		}
 		else

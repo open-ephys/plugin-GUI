@@ -67,6 +67,7 @@ protected:
 public:
 	ProjectionAxes();
 	ProjectionAxes(int x, int y, double w, double h, int t);
+    virtual ~ProjectionAxes() {}
     
    	void setPosition(int, int, int, int);
    	void updateSpikeData(SpikeObject s);

@@ -42,7 +42,7 @@ class TetrodePlot : public BaseUIElement{
 public:
 	TetrodePlot();
 	TetrodePlot(int x, int y,int w,int h);
-	~TetrodePlot();
+	virtual ~TetrodePlot();
 
 	void initAxes();
 	void redraw();

@@ -81,7 +81,7 @@ DataViewport::~DataViewport()
     int newIndex = tabArray.indexOf(index);
 
     Component* canvas;
-    Component* parent;
+    Component* parent = 0;
 
     canvas = getTabContentComponent(newIndex);
 
