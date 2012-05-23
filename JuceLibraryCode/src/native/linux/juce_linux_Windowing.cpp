@@ -821,6 +821,40 @@ public:
 
     void setBounds (int x, int y, int w, int h, bool isNowFullScreen)
     {
+
+        // transitioning back from fullscreen, we might need to remove
+        // the FULLSCREEN window property
+        // if (fullScreen && (! isNowFullScreen))
+        // {
+        //     Atom fs = Atoms::getIfExists ("_NET_WM_STATE_FULLSCREEN");
+       
+        //     if (fs != None)
+        //     {
+        //         Window root = RootWindow (display, DefaultScreen (display));
+
+        //         XClientMessageEvent clientMsg;
+        //         clientMsg.display = display;
+        //         clientMsg.window = windowH;
+        //         clientMsg.type = ClientMessage;
+        //         clientMsg.format = 32;
+        //         clientMsg.message_type = Atoms::WindowState;
+        //         clientMsg.data.l[0] = 0;  // Remove
+        //         clientMsg.data.l[1] = fs;
+        //         clientMsg.data.l[2] = 0;
+        //         clientMsg.data.l[3] = 1;  // Normal Source
+
+        //         ScopedXLock xlock;
+        //         XSendEvent (display, root, false,
+        //                     SubstructureRedirectMask | SubstructureNotifyMask,
+        //                     (XEvent*) &clientMsg);
+        //     }
+        // }
+        // jsiegle added the above code on 5/22/12 to attempt to fix window
+        // resize button issues
+        // -- doesn't work with old Juce library
+        // -- see: http://www.rawmaterialsoftware.com/viewtopic.php?f=5&t=8832
+        //         for more info
+
         fullScreen = isNowFullScreen;
 
         if (windowH != 0)

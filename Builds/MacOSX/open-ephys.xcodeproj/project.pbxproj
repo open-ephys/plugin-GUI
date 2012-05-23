@@ -1019,7 +1019,6 @@
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/usr/local/include/freetype2,
@@ -1048,7 +1047,6 @@
 					"JUCE_ObjCExtraSuffix=fea2mT",
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
 				);
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/usr/local/include/freetype2,

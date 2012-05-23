@@ -228,9 +228,13 @@ const PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuNa
      {
      	menu.addCommandItem (commandManager, openConfiguration);
         menu.addCommandItem (commandManager, saveConfiguration);
-        menu.addSeparator();
-        menu.addCommandItem (commandManager, StandardApplicationCommandIDs::quit);
-     } else if (menuIndex == 1)
+        
+#if !JUCE_MAC
+       	menu.addSeparator();
+       	menu.addCommandItem (commandManager, StandardApplicationCommandIDs::quit);
+#endif
+
+       } else if (menuIndex == 1)
      {
      	menu.addCommandItem (commandManager, undo);
      	menu.addCommandItem (commandManager, redo);

@@ -13,7 +13,10 @@
                juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi -lftgl"
                objCExtraSuffix="fea2mT"/>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-lftdi -lftgl" extraCompilerFlags="-export-dynamic -pg"/>
+                extraLinkerFlags="-lftdi -lftgl -pg" extraCompilerFlags="-export-dynamic -g -pg"/>
+    <VS2010 targetFolder="Builds/VisualStudio2010" vstFolder="c:\SDKs\vstsdk2.4"
+            rtasFolder="c:\SDKs\PT_80_SDK" libraryType="1" juceFolder="JuceLibraryCode"
+            extraLinkerFlags="-lftdi -lftgl"/>
   </EXPORTFORMATS>
   <CONFIGURATIONS>
     <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="open-ephys"
