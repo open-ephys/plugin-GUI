@@ -63,7 +63,7 @@ MainWindow::MainWindow()
      Component::addToDesktop (getDesktopWindowStyleFlags()); 
      setVisible (true);
 
-     setResizeLimits(500, 400, 10000, 10000);
+    // setResizeLimits(500, 400, 10000, 10000);
     
 
 }
