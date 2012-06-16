@@ -43,7 +43,7 @@ FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn)
 
 	dataBuffer = new DataBuffer(16, bufferSize*3);
 
-   
+   eventCode = 0;
 
 	std::cout << "File Reader Thread initialized." << std::endl;
 
@@ -117,7 +117,8 @@ bool FileReaderThread::updateBuffer()
 
             if (chan == 15)
             {
-                dataBuffer->addToBuffer(thisSample,1);
+                timestamp = timer.getHighResolutionTicks();
+                dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
                 chan = 0;
             } else {
                 chan++;

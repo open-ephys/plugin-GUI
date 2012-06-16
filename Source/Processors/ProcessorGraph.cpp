@@ -37,6 +37,7 @@
 #include "SourceNode.h"
 #include "SpikeDetector.h"
 #include "WiFiOutput.h"
+#include "ArduinoOutput.h"
 #include "Utilities/Splitter.h"
 #include "Utilities/Merger.h"
 #include "../UI/UIComponent.h"
@@ -454,6 +455,10 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		else if (subProcessorType.equalsIgnoreCase("WiFi Output")) {
 			std::cout << "Creating a WiFi node." << std::endl;
 			processor = new WiFiOutput();
+		}
+		else if (subProcessorType.equalsIgnoreCase("Arduino Output")) {
+			std::cout << "Creating an Arduino node." << std::endl;
+			processor = new ArduinoOutput();
 		}
 	
 		//sendActionMessage("New sink created.");

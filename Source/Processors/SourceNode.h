@@ -77,6 +77,8 @@ public:
 	
 private:
 
+	int numEventChannels;
+
 	int sourceCheckInterval;
 
 	bool wasDisabled;
@@ -85,6 +87,10 @@ private:
 
 	ScopedPointer<DataThread> dataThread;
 	DataBuffer* inputBuffer;
+
+	int64* timestampBuffer;
+	int16* eventCodeBuffer;
+	int* eventChannelState;
 
 	void updateSettings();
 

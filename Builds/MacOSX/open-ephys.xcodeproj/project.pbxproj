@@ -37,6 +37,7 @@
 		8E138283FC265B58D252AAC3 = { isa = PBXBuildFile; fileRef = F4A53064BA75472765338C1D; };
 		EE1DC0B09AE0727BC7A5A99C = { isa = PBXBuildFile; fileRef = 0D20C3399D0492771F7A808A; };
 		4ACF816CB5CDB285D8005AB8 = { isa = PBXBuildFile; fileRef = F74662D3D82975EDB5AD42E0; };
+		AEB65E53845FA668D89CE15E = { isa = PBXBuildFile; fileRef = C42446F8ABB3627870E9677D; };
 		717D108DC8B2379D556C4B2F = { isa = PBXBuildFile; fileRef = 751C52F2BEA7F1328ED13333; };
 		1F67A9ACD509FB4DC5A633DF = { isa = PBXBuildFile; fileRef = 4AEDD076CCA918481C6F9CF2; };
 		B992DDBFF8928A985EEE1557 = { isa = PBXBuildFile; fileRef = 268005410FB62BCB9099A762; };
@@ -219,6 +220,8 @@
 		E27B5891A52FDAB2B00901A0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = ../../Source/Dsp/Utilities.h; sourceTree = SOURCE_ROOT; };
 		F74662D3D82975EDB5AD42E0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AudioComponent.cpp; path = ../../Source/Audio/AudioComponent.cpp; sourceTree = SOURCE_ROOT; };
 		FA55B9FDE138CCB1F16BA905 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AudioComponent.h; path = ../../Source/Audio/AudioComponent.h; sourceTree = SOURCE_ROOT; };
+		C42446F8ABB3627870E9677D = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ArduinoOutput.cpp; path = ../../Source/Processors/ArduinoOutput.cpp; sourceTree = SOURCE_ROOT; };
+		5779673F042A62E02C4AC06B = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ArduinoOutput.h; path = ../../Source/Processors/ArduinoOutput.h; sourceTree = SOURCE_ROOT; };
 		751C52F2BEA7F1328ED13333 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Parameter.cpp; path = ../../Source/Processors/Parameter.cpp; sourceTree = SOURCE_ROOT; };
 		7B825983F25D8984E02F6FFB = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Parameter.h; path = ../../Source/Processors/Parameter.h; sourceTree = SOURCE_ROOT; };
 		4AEDD076CCA918481C6F9CF2 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SpikeDisplayNode.cpp; path = ../../Source/Processors/SpikeDisplayNode.cpp; sourceTree = SOURCE_ROOT; };
@@ -552,6 +555,8 @@
 				72123888A7DD78159AA032AF,
 				2164BFCDF57A5AA752CAA3A2 ); name = DataThreads; sourceTree = "<group>"; };
 		33A88A7C3FF426F051834D6A = { isa = PBXGroup; children = (
+				C42446F8ABB3627870E9677D,
+				5779673F042A62E02C4AC06B,
 				751C52F2BEA7F1328ED13333,
 				7B825983F25D8984E02F6FFB,
 				4AEDD076CCA918481C6F9CF2,
@@ -652,7 +657,7 @@
 		C3E8FB47D6069235EA9D6FD7 = { isa = XCBuildConfiguration; buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				PREBINDING = NO;
-				HEADER_SEARCH_PATHS = "/usr/local/include /usr/local/include/freetype2 $(inherited)";
+				HEADER_SEARCH_PATHS = " $(inherited)";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -670,7 +675,7 @@
 		5D7484BAF16E272FF0E9EEAE = { isa = XCBuildConfiguration; buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				PREBINDING = NO;
-				HEADER_SEARCH_PATHS = "/usr/local/include /usr/local/include/freetype2 $(inherited)";
+				HEADER_SEARCH_PATHS = " $(inherited)";
 				GCC_OPTIMIZATION_LEVEL = 3;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -741,6 +746,7 @@
 				8E138283FC265B58D252AAC3,
 				EE1DC0B09AE0727BC7A5A99C,
 				4ACF816CB5CDB285D8005AB8,
+				AEB65E53845FA668D89CE15E,
 				717D108DC8B2379D556C4B2F,
 				1F67A9ACD509FB4DC5A633DF,
 				B992DDBFF8928A985EEE1557,

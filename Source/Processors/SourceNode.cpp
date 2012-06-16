@@ -47,12 +47,25 @@ SourceNode::SourceNode(const String& name_)
 		{
 			enabledState(false);
 		}
+
+		numEventChannels = dataThread->getNumEventChannels();
+		eventChannelState = new int[numEventChannels];
+		for (int i = 0; i < numEventChannels; i++)
+		{
+			eventChannelState[i] = 0;
+		}
+
 	} else {
 		enabledState(false);
+		numEventChannels = 0;
 	}
 
 	// check for input source every few seconds
 	startTimer(sourceCheckInterval); 
+
+	timestampBuffer = new int64[10000]; // 10000 samples per buffer max?
+	eventCodeBuffer = new int16[10000];
+
 
 }
 
@@ -213,8 +226,33 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	//std::cout << "SOURCE NODE" << std::endl;
 
 	 buffer.clear();
-	 nSamples = inputBuffer->readAllFromBuffer(buffer,buffer.getNumSamples());
+	 nSamples = inputBuffer->readAllFromBuffer(buffer, timestampBuffer, eventCodeBuffer, buffer.getNumSamples());
 	
+	 // generate timestamp
+
+	 // generate events
+
+	 for (int i = 0; i < nSamples; i++)
+	 {
+	 	for (int c = 0; c < numEventChannels; c++)
+	 	{
+	 		int state = eventCodeBuffer[i] & (1 << c);
+
+	 		if (eventChannelState[c] != state)
+	 		{
+	 			if (state == 0)
+	 				std::cout << "Channel " << c << " off!" << std::endl;
+	 			else
+	 				addEvent(events, TTL, state);
+	 				//std::cout << "Channel " << c << " on!" << std::endl;
+
+	 			eventChannelState[c] = state;
+	 		}
+	 	}
+	 }
+
+	 //std::cout << *eventCodeBuffer << std::endl;
+
 }
 
 

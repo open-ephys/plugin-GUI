@@ -59,6 +59,7 @@ ProcessorList::ProcessorList() : isDragging(false),
 	sinks->addSubItem(new ProcessorListItem("LFP Viewer"));
 	sinks->addSubItem(new ProcessorListItem("Spike Viewer"));
 	sinks->addSubItem(new ProcessorListItem("WiFi Output"));
+	sinks->addSubItem(new ProcessorListItem("Arduino Output"));
 
 	ProcessorListItem* utilities = new ProcessorListItem("Utilities");
 	utilities->addSubItem(new ProcessorListItem("Splitter"));

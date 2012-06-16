@@ -50,6 +50,7 @@ public:
 	int getNumChannels();
 	float getSampleRate();
 	float getBitVolts();
+	int getNumEventChannels();
 	
 private:
 
@@ -68,7 +69,7 @@ private:
 	unsigned char startCode, stopCode;
 	unsigned char buffer[240]; // should be 5 samples per channel
 
-	float thisSample[16];
+	float thisSample[17]; // 17 continuous channels and one event channel
 
 	int ch;
 

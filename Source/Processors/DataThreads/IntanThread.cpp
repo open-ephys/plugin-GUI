@@ -34,9 +34,11 @@ IntanThread::IntanThread(SourceNode* sn) : DataThread(sn),
 
 {
 
-	 dataBuffer = new DataBuffer(16,4096);
+	 dataBuffer = new DataBuffer(17,4096);
 
      deviceFound = initializeUSB(true);
+
+     eventCode = 0;
 
 }
 
@@ -49,6 +51,11 @@ IntanThread::~IntanThread()
 int IntanThread::getNumChannels()
 {
     return 16;
+}
+
+int IntanThread::getNumEventChannels()
+{
+    return 6;   
 }
 
 float IntanThread::getSampleRate()
@@ -208,13 +215,13 @@ bool IntanThread::updateBuffer()
            
           ++ch;
            
-         for (int n = 0; n < 1; n++) { // 
+        // for (int n = 0; n < 1; n++) { // 
 
         // after accounting for bit volts:
-         thisSample[ch%16+n*16] = float((buffer[index] & 127) + 
+         thisSample[ch%16] = float((buffer[index] & 127) + 
                      ((buffer[index+1] & 127) << 7) + 
                      ((buffer[index+2] & 3) << 14)) * 0.1907f - 6175.0f;
-         // these samples should now be in microvolts!
+        // these samples should now be in microvolts!
 
          // bit volt calculation:
          // 2.5 V range / 2^16 = 38.14 uV
@@ -227,14 +234,27 @@ bool IntanThread::updateBuffer()
          //             ((buffer[index+1] & 127) << 7) + 
          //             ((buffer[index+2] & 3) << 14) - 32768)/32768;
 
-         }
-  
-         TTLval = (buffer[index+2] & 4) >> 2; // extract TTL value (bit 3)
+         //}
+
+         if (ch > 0 && ch < 7) // event channels
+        {
+            TTLval = (buffer[index+2] & 4) >> 2; // extract TTL value (bit 3)
+
+            eventCode += (TTLval << (ch-1));
+
+        }
+
          channelVal = buffer[index+2] & 60;   // extract channel value
 
          if (channelVal == 60) {
-         	dataBuffer->addToBuffer(thisSample,1);
+
+            timestamp = timer.getHighResolutionTicks();
+
+         	dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+
+            // reset values
          	ch = -1;
+            eventCode = 0;
          }
 
     }
