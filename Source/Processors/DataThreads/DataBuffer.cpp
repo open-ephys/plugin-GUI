@@ -62,7 +62,7 @@ int DataBuffer::getNumSamples() {
 }
 
 
-int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, int64* timestamps, int16* eventCodes, int maxSize)
+int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, int64* timestamp, int16* eventCodes, int maxSize)
 {
 	// check to see if the maximum size is smaller than the total number of available ints
 	int numItems = (maxSize < abstractFifo.getNumReady()) ? 
@@ -82,8 +82,10 @@ int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, int64* timestamps, i
 						   blockSize1); // numSamples
 		}
 
-		memcpy(timestamps, timestampBuffer+startIndex1, blockSize1*4);
+		memcpy(timestamp, timestampBuffer+startIndex1, 4);
 		memcpy(eventCodes, eventCodeBuffer+startIndex1, blockSize1*2);
+	} else {
+		memcpy(timestamp, timestampBuffer+startIndex2, 4);
 	}
 
 	if (blockSize2 > 0) {
@@ -96,8 +98,6 @@ int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, int64* timestamps, i
 						   startIndex2,     // sourceStartSample
 						   blockSize2); // numSamples
 		}
-
-		memcpy(timestamps + blockSize1, timestampBuffer+startIndex2, blockSize2*4);
 		memcpy(eventCodes + blockSize1, eventCodeBuffer+startIndex2, blockSize2*2);
 	}
 

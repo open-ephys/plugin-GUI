@@ -50,11 +50,21 @@ void ArduinoOutput::handleEvent(int eventType, MidiMessage& event)
 {
     if (eventType == TTL)
     {
-    	std::cout << "Received event!" << std::endl;
+    	uint8* dataptr = event.getRawData();
 
-    	const char byte = 0;
-    	write(handle, &byte, 1);
-        //startTimer((int) float(event.getTimeStamp())/getSampleRate()*1000.0);
+    	int eventNodeId = *(dataptr+1);
+    	int eventId = *(dataptr+2);
+    	int eventChannel = *(dataptr+3);
+
+    	// std::cout << "Received event from " << eventNodeId <<
+    	//              " on channel " << eventChannel << 
+    	//              " with value " << eventId << std::endl;
+
+    	// if (eventChannel == 0)
+    	// {
+    	// 	const char byte = 0;
+    	// 	write(handle, &byte, 1);
+    	// }
     }
     
 }
