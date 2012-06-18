@@ -112,7 +112,7 @@ int GenericProcessor::getNextChannel(bool increment)
 {
 	int chan = nextAvailableChannel;
 
-	//std::cout << chan << std::endl;
+	std::cout << "Next channel: " << chan << ", num inputs: " << getNumInputs() << std::endl;
  
 	if (increment)
 		nextAvailableChannel++;
