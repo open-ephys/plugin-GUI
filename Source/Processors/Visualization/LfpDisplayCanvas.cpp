@@ -37,13 +37,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	displayBufferSize = displayBuffer->getNumSamples();
 	std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
-
 	totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
-
-	// if (nChans > 0)
-	// 	screenBuffer = new AudioSampleBuffer(nChans, 10000);
-	// else
-	// 	screenBuffer = new AudioSampleBuffer(1, 10000);
 	
 }
 
@@ -69,9 +63,6 @@ void LfpDisplayCanvas::beginAnimation()
 
 	displayBufferSize = displayBuffer->getNumSamples();
 
-	//screenBuffer->clear();
-
-	//displayBufferIndex = 0;
 	screenBufferIndex = 0;
 	
 	startCallbacks();
@@ -89,11 +80,7 @@ void LfpDisplayCanvas::update()
 	sampleRate = processor->getSampleRate();
 
 	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
-	//if (nChans < 200 && nChans > 0)
-	//	screenBuffer->setSize(nChans, 10000);
-	//sampleRate = processor->getSampleRate();
-
-	//screenBuffer->clear();
+	
 	refreshScreenBuffer();
 
 	repaint();

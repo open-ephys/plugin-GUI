@@ -63,7 +63,6 @@ private:
 
 	LfpDisplayNode* processor;
 	AudioSampleBuffer* displayBuffer;
-	//ScopedPointer<AudioSampleBuffer> screenBuffer;
 	MidiBuffer* eventBuffer;
 
 	void setViewport(int chan);
