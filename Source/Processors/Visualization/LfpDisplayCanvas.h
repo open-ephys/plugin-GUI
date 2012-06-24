@@ -57,9 +57,13 @@ private:
 	float timebase;
 	float displayGain;
 
+	static const int MAX_N_CHAN = 128;
+	static const int MAX_N_SAMP = 3000;
+	GLfloat waves[MAX_N_SAMP][MAX_N_SAMP*2]; // we need an x and y point for each sample
+
 	LfpDisplayNode* processor;
 	AudioSampleBuffer* displayBuffer;
-	ScopedPointer<AudioSampleBuffer> screenBuffer;
+	//ScopedPointer<AudioSampleBuffer> screenBuffer;
 	MidiBuffer* eventBuffer;
 
 	void setViewport(int chan);
@@ -71,6 +75,7 @@ private:
 
 	bool checkBounds(int chan);
 
+	void refreshScreenBuffer();
 	void updateScreenBuffer();
 	int screenBufferIndex;
 	int displayBufferIndex;

@@ -40,10 +40,10 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 
 	totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
 
-	if (nChans > 0)
-		screenBuffer = new AudioSampleBuffer(nChans, 10000);
-	else
-		screenBuffer = new AudioSampleBuffer(1, 10000);
+	// if (nChans > 0)
+	// 	screenBuffer = new AudioSampleBuffer(nChans, 10000);
+	// else
+	// 	screenBuffer = new AudioSampleBuffer(1, 10000);
 	
 }
 
@@ -61,9 +61,6 @@ void LfpDisplayCanvas::newOpenGLContextCreated()
 	glClearColor (0.667, 0.698, 0.718, 1.0);
 	resized();
 
-
-	//startTimer(50);
-
 }
 
 void LfpDisplayCanvas::beginAnimation()
@@ -72,7 +69,7 @@ void LfpDisplayCanvas::beginAnimation()
 
 	displayBufferSize = displayBuffer->getNumSamples();
 
-	screenBuffer->clear();
+	//screenBuffer->clear();
 
 	//displayBufferIndex = 0;
 	screenBufferIndex = 0;
@@ -91,12 +88,12 @@ void LfpDisplayCanvas::update()
 	nChans = processor->getNumInputs();
 	sampleRate = processor->getSampleRate();
 
-	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
-	if (nChans < 200 && nChans > 0)
-		screenBuffer->setSize(nChans, 10000);
+	//std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+	//if (nChans < 200 && nChans > 0)
+	//	screenBuffer->setSize(nChans, 10000);
 	//sampleRate = processor->getSampleRate();
 
-	screenBuffer->clear();
+	//screenBuffer->clear();
 
 	repaint();
 
@@ -106,10 +103,12 @@ void LfpDisplayCanvas::update()
 
 void LfpDisplayCanvas::setParameter(int param, float val)
 {
-	if (param == 0)
+	if (param == 0) {
 		timebase = val;
-	else
+		refreshScreenBuffer();
+	} else {
 		displayGain = val * 0.001f;
+	}
 	
 }
 
@@ -120,6 +119,27 @@ void LfpDisplayCanvas::refreshState()
 	screenBufferIndex = 0;
 
 	//resized();
+
+}
+
+void LfpDisplayCanvas::refreshScreenBuffer()
+{
+
+	screenBufferIndex = 0;
+
+	int w = getWidth(); 
+	std::cout << "Refreshing buffer size to " << w << "pixels." << std::endl;
+
+	for (int i = 0; i < w; i++)
+	{
+		float x = float(i) / float(w);
+
+		for (int n = 0; n < displayBuffer->getNumChannels(); n++)
+		{
+			waves[n][i*2] = x;
+			waves[n][i*2+1] = 0.0f;
+		}
+	}
 
 }
 
@@ -134,7 +154,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
 	int nSamples = index - displayBufferIndex;
 
-	if (nSamples < 0)
+	if (nSamples < 0) // buffer has reset to 0
 	{
 		nSamples = (displayBufferSize - displayBufferIndex) + index;
 	}
@@ -144,21 +164,10 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	// this number is crucial:
 	int valuesNeeded = (int) float(nSamples) / ratio;
 
-	//lock->enterRead();
 	float subSampleOffset = 0.0;
 	int nextPos = (displayBufferIndex + 1) % displayBufferSize;
-	
-	//int screenBufferPos; 
 
 	if (valuesNeeded > 0 && valuesNeeded < 1000) {
-
-		int maxVal = screenBufferIndex + valuesNeeded;
-		int overflow = maxVal - maxSamples;
-
-		screenBuffer->clear(screenBufferIndex, valuesNeeded);
-
-		if (overflow > 0)
-			screenBuffer->clear(0, overflow);
 
 	    for (int i = 0; i < valuesNeeded; i++)
 	    {
@@ -168,21 +177,14 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
 	        for (int channel = 0; channel < displayBuffer->getNumChannels(); channel++) {
 
-	        	screenBuffer->addFrom(channel,
-	        						  screenBufferIndex,
-	        						  *displayBuffer,
-	        						  channel,
-	        						  displayBufferIndex,
-	        						  1,
-	        						  invAlpha*gain*displayGain);
-	        	
-	        	screenBuffer->addFrom(channel,
-	        						  screenBufferIndex,
-	        						  *displayBuffer,
-	        						  channel,
-	        						  nextPos,
-	        						  1,
-	        						  alpha*gain*displayGain);
+	        	waves[channel][screenBufferIndex*2+1] = 
+	        		*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
+
+	        	waves[channel][screenBufferIndex*2+1] += 
+	        		*(displayBuffer->getSampleData(channel, nextPos))*alpha*gain*displayGain;
+
+	        	waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
+
 	       	}
 
 	       	subSampleOffset += ratio;
@@ -209,6 +211,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 void LfpDisplayCanvas::canvasWasResized()
 {
 	//std::cout << "Resized!" << std::endl;	
+	refreshScreenBuffer();
 }
 
 void LfpDisplayCanvas::renderOpenGL()
@@ -244,19 +247,29 @@ void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
 {
 	// draw the screen buffer for a given channel
 
-	float w = float(getWidth());
+	int w = getWidth();
 
-	glBegin(GL_LINE_STRIP);
+	// if (dIdx==0)
+	//	return;
+	glColor4f(1.0, 1.0, 1.0, 0.4);
 
-	for (float i = 0; i < float(getWidth()); i++)
-	{
-		if ((int) i < screenBuffer->getNumSamples()) // check to avoid triggering assertion at juce_AudioSampleBuffer.h: 126
-			glVertex2f(i/w,*screenBuffer->getSampleData(chan, int(i))+0.5);
-	}
+	glEnableClientState(GL_VERTEX_ARRAY);
+	// setWaveformColor(chan, isSelected);
+	
+	glVertexPointer( 2,         // number of coordinates per vertex (2, 3, or 4)
+	     			 GL_FLOAT,  // data type
+		   			 0, 	    // byte offset between consecutive vertices
+		   			 waves[chan]); // pointer to the first coordinate of the first vertex
 
-	glEnd();
+    glDrawArrays(GL_LINE_STRIP, // mode
+    			 0,				// starting index
+    			 w);  // number of indices to be rendered
+	
+	glDisableClientState(GL_VERTEX_ARRAY);
 
+	// color of progress bar
 	glColor4f(1.0, 1.0, 0.1, 1.0);
+
 	glBegin(GL_LINE_STRIP);
 	glVertex2f(float(screenBufferIndex)/w,0);
 	glVertex2f(float(screenBufferIndex)/w,1);
