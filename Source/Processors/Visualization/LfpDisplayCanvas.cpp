@@ -88,12 +88,13 @@ void LfpDisplayCanvas::update()
 	nChans = processor->getNumInputs();
 	sampleRate = processor->getSampleRate();
 
-	//std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 	//if (nChans < 200 && nChans > 0)
 	//	screenBuffer->setSize(nChans, 10000);
 	//sampleRate = processor->getSampleRate();
 
 	//screenBuffer->clear();
+	refreshScreenBuffer();
 
 	repaint();
 
@@ -134,7 +135,7 @@ void LfpDisplayCanvas::refreshScreenBuffer()
 	{
 		float x = float(i) / float(w);
 
-		for (int n = 0; n < displayBuffer->getNumChannels(); n++)
+		for (int n = 0; n < nChans; n++)
 		{
 			waves[n][i*2] = x;
 			waves[n][i*2+1] = 0.0f;
@@ -145,12 +146,10 @@ void LfpDisplayCanvas::refreshScreenBuffer()
 
 void LfpDisplayCanvas::updateScreenBuffer()
 {
-	// copy new samples from the displayBuffer into the screenBuffer
+	// copy new samples from the displayBuffer into the screenBuffer (waves)
 	int maxSamples = getWidth();
 
 	int index = processor->getDisplayBufferIndex();
-
-	//std::cout << index << screenBufferIndex << std::endl;
 
 	int nSamples = index - displayBufferIndex;
 
@@ -175,7 +174,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	    	float alpha = (float) subSampleOffset;
 	    	float invAlpha = 1.0f - alpha;
 
-	        for (int channel = 0; channel < displayBuffer->getNumChannels(); channel++) {
+	        for (int channel = 0; channel < nChans; channel++) {
 
 	        	waves[channel][screenBufferIndex*2+1] = 
 	        		*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
@@ -219,8 +218,6 @@ void LfpDisplayCanvas::renderOpenGL()
 	
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
 
-	//drawTicks();
-
     if (animationIsActive)
         updateScreenBuffer();
 
@@ -240,21 +237,22 @@ void LfpDisplayCanvas::renderOpenGL()
 	}
 
 	drawScrollBars();
+
+	drawProgressBar();
+
+	drawTicks();
 	
 }
 
 void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
 {
-	// draw the screen buffer for a given channel
-
+	// draw the screenBuffer for a given channel
 	int w = getWidth();
 
-	// if (dIdx==0)
-	//	return;
+	// setWaveformColor(chan, isSelected);
 	glColor4f(1.0, 1.0, 1.0, 0.4);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
-	// setWaveformColor(chan, isSelected);
 	
 	glVertexPointer( 2,         // number of coordinates per vertex (2, 3, or 4)
 	     			 GL_FLOAT,  // data type
@@ -267,6 +265,15 @@ void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
 	
 	glDisableClientState(GL_VERTEX_ARRAY);
 
+
+}
+
+void LfpDisplayCanvas::drawProgressBar()
+{
+
+	glViewport(0,0,getWidth(),getHeight());
+	int w = getWidth();
+
 	// color of progress bar
 	glColor4f(1.0, 1.0, 0.1, 1.0);
 
@@ -274,9 +281,7 @@ void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
 	glVertex2f(float(screenBufferIndex)/w,0);
 	glVertex2f(float(screenBufferIndex)/w,1);
 	glEnd();
-
 }
-
 
 void LfpDisplayCanvas::drawTicks()
 {

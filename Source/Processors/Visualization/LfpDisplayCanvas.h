@@ -70,6 +70,7 @@ private:
 	void drawBorder(bool isSelected);
 	void drawChannelInfo(int chan, bool isSelected);
 	void drawWaveform(int chan, bool isSelected);
+	void drawProgressBar();
 
 	void drawTicks();
 
