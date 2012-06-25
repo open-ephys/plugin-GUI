@@ -82,6 +82,9 @@ private:
 	int displayBufferSize;
 
 	int nChans, plotHeight, totalHeight;
+	int headerHeight;
+	int interplotDistance;
+	int plotOverlap;
 	int selectedChan;
 
 	int getTotalHeight();

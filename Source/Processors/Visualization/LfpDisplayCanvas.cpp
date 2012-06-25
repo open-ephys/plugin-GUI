@@ -25,8 +25,9 @@
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	 	xBuffer(0), yBuffer(0),
-	    plotHeight(40), selectedChan(-1), screenBufferIndex(0),
-	    timebase(1.0f), displayGain(0.001f), displayBufferIndex(0)
+	    plotHeight(180), selectedChan(-1), screenBufferIndex(0),
+	    timebase(1.0f), displayGain(0.0001f), displayBufferIndex(0),
+	    headerHeight(20), plotOverlap(200), interplotDistance(50)
 {
 
 	nChans = processor->getNumInputs();
@@ -37,7 +38,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	displayBufferSize = displayBuffer->getNumSamples();
 	std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
-	totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
+	totalHeight = nChans*(interplotDistance) + plotHeight/2; // + headerHeight;
 	
 }
 
@@ -80,12 +81,12 @@ void LfpDisplayCanvas::update()
 	sampleRate = processor->getSampleRate();
 
 	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
-	
+
 	refreshScreenBuffer();
 
 	repaint();
 
-	totalHeight = (plotHeight+yBuffer)*nChans + yBuffer;
+	totalHeight = nChans*(interplotDistance) + plotHeight/2; // + headerHeight;//(plotHeight+yBuffer)*nChans + yBuffer + headerHeight;
 }
 
 
@@ -95,7 +96,7 @@ void LfpDisplayCanvas::setParameter(int param, float val)
 		timebase = val;
 		refreshScreenBuffer();
 	} else {
-		displayGain = val * 0.001f;
+		displayGain = val * 0.0001f;
 	}
 	
 }
@@ -116,7 +117,7 @@ void LfpDisplayCanvas::refreshScreenBuffer()
 	screenBufferIndex = 0;
 
 	int w = getWidth(); 
-	std::cout << "Refreshing buffer size to " << w << "pixels." << std::endl;
+	//std::cout << "Refreshing buffer size to " << w << "pixels." << std::endl;
 
 	for (int i = 0; i < w; i++)
 	{
@@ -125,7 +126,7 @@ void LfpDisplayCanvas::refreshScreenBuffer()
 		for (int n = 0; n < nChans; n++)
 		{
 			waves[n][i*2] = x;
-			waves[n][i*2+1] = 0.0f;
+			waves[n][i*2+1] = 0.5f; // line in center of display
 		}
 	}
 
@@ -237,7 +238,10 @@ void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
 	int w = getWidth();
 
 	// setWaveformColor(chan, isSelected);
-	glColor4f(1.0, 1.0, 1.0, 0.4);
+	if (isSelected)
+		glColor4f(1.0, 1.0, 1.0, 1.0);
+	else
+		glColor4f(1.0, 1.0, 1.0, 0.4);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	
@@ -273,7 +277,9 @@ void LfpDisplayCanvas::drawProgressBar()
 void LfpDisplayCanvas::drawTicks()
 {
 	
-	glViewport(0,0,getWidth(),getHeight());
+	glViewport(0,getHeight()-headerHeight,getWidth(),headerHeight);
+	glColor4f(0.2f, 0.2f, 0.2f, 1.0f);
+	glRectf(0,0,1,1);
 
 	glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
 
@@ -290,7 +296,20 @@ void LfpDisplayCanvas::drawTicks()
 		glVertex2f(0.1*i,0);
 		glVertex2f(0.1*i,1);
 		glEnd();
+
+		String s = "";//String("Channel ");
+		s += i;
+
+		glRasterPos2f(0.1*i+0.01, 0.8);
+
+		getFont(String("cpmono"))->FaceSize(15);
+		getFont(String("cpmono"))->Render(s);
 	}
+
+
+	
+
+	
 }
 
 
@@ -298,8 +317,8 @@ bool LfpDisplayCanvas::checkBounds(int chan)
 {
 	bool isVisible;
 
-	int lowerBound = (chan+1)*(plotHeight+yBuffer);
-	int upperBound = chan*(plotHeight+yBuffer);
+	int lowerBound = (chan+1)*(interplotDistance)+plotHeight/2;//(chan+1)*(plotHeight+yBuffer);
+	int upperBound = chan*(interplotDistance)-plotHeight/2;
 
 	if (getScrollAmount() < lowerBound && getScrollAmount() + getHeight() > upperBound)
 		isVisible = true;
@@ -312,8 +331,10 @@ bool LfpDisplayCanvas::checkBounds(int chan)
 
 void LfpDisplayCanvas::setViewport(int chan)
 {
+	int y = (chan+1)*(interplotDistance); //interplotDistance - plotHeight/2);
+
 	glViewport(xBuffer,
-			   getHeight()-(chan+1)*(plotHeight+yBuffer)+getScrollAmount(),
+			   getHeight()-y+getScrollAmount()-plotHeight/2,
 	           getWidth()-2*xBuffer,
 	           plotHeight);
 }
@@ -344,7 +365,7 @@ void LfpDisplayCanvas::drawChannelInfo(int chan, bool isSelected)
 		alpha = 1.0f;
 
 	glColor4f(0.0f,0.0f,0.0f,alpha);
-	glRasterPos2f(5.0f/getWidth(),0.9);
+	glRasterPos2f(5.0f/getWidth(),0.6);
 	String s = "";//String("Channel ");
 	s += (chan+1);
 
@@ -366,7 +387,8 @@ void LfpDisplayCanvas::mouseDownInCanvas(const MouseEvent& e)
 
 	if (xcoord < getWidth()-getScrollBarWidth())
 	{
-		int chan = (e.getMouseDownY() + getScrollAmount())/(yBuffer+plotHeight);
+		int ycoord = e.getMouseDownY() - interplotDistance/2;// - interplotDistance/2;// - interplotDistance;
+		int chan = (ycoord + getScrollAmount())/(yBuffer+interplotDistance);
 
 			selectedChan = chan;
 
