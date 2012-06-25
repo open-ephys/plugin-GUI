@@ -24,10 +24,10 @@
 #include "LfpDisplayCanvas.h"
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
-	 	xBuffer(0), yBuffer(0),
+	 	xBuffer(105), yBuffer(2),
 	    plotHeight(180), selectedChan(-1), screenBufferIndex(0),
 	    timebase(1.0f), displayGain(0.0001f), displayBufferIndex(0),
-	    headerHeight(20), plotOverlap(200), interplotDistance(50)
+	    headerHeight(20), plotOverlap(200), interplotDistance(70)
 {
 
 	nChans = processor->getNumInputs();
@@ -217,10 +217,11 @@ void LfpDisplayCanvas::renderOpenGL()
 			isSelected = true;
 
 		if (checkBounds(i)) {
-			setViewport(i);
+			//setViewport(i);
 			//drawBorder(isSelected);
-			drawChannelInfo(i,isSelected);
 			drawWaveform(i,isSelected);
+			drawChannelInfo(i,isSelected);
+			
 		}	
 	}
 
@@ -234,7 +235,8 @@ void LfpDisplayCanvas::renderOpenGL()
 
 void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
 {
-	// draw the screenBuffer for a given channel
+	setViewport(chan);
+
 	int w = getWidth();
 
 	// setWaveformColor(chan, isSelected);
@@ -262,7 +264,7 @@ void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
 void LfpDisplayCanvas::drawProgressBar()
 {
 
-	glViewport(0,0,getWidth(),getHeight());
+	glViewport(xBuffer,0,getWidth()-xBuffer,getHeight());
 	int w = getWidth();
 
 	// color of progress bar
@@ -283,6 +285,15 @@ void LfpDisplayCanvas::drawTicks()
 
 	glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
 
+	String s = "TIME (s)";
+
+	glRasterPos2f(5.0f/float(getWidth()), 0.7);
+
+	getFont(String("cpmono-plain"))->FaceSize(14);
+	getFont(String("cpmono-plain"))->Render(s);
+
+	glViewport(xBuffer,getHeight()-headerHeight,getWidth()-xBuffer,headerHeight);
+
 	for (int i = 0; i < 10; i++)
 	{
 		if (i == 5)
@@ -301,13 +312,8 @@ void LfpDisplayCanvas::drawTicks()
 
 		glRasterPos2f(0.1*i+5.0f/float(getWidth()), 0.7);
 
-		getFont(String("cpmono-plain"))->FaceSize(14);
 		getFont(String("cpmono-plain"))->Render(s);
 	}
-
-
-	
-
 	
 }
 
@@ -334,8 +340,18 @@ void LfpDisplayCanvas::setViewport(int chan)
 
 	glViewport(xBuffer,
 			   getHeight()-y+getScrollAmount()- headerHeight - plotHeight/2,
-	           getWidth()-2*xBuffer,
+	           getWidth()-xBuffer,
 	           plotHeight);
+}
+
+void LfpDisplayCanvas::setInfoViewport(int chan)
+{
+	int y = (chan+1)*(interplotDistance); //interplotDistance - plotHeight/2);
+
+	glViewport(yBuffer,
+			   getHeight()-y+getScrollAmount()- headerHeight - interplotDistance/2 - yBuffer,
+	           xBuffer-yBuffer,
+	           interplotDistance - yBuffer*2);
 }
 
 void LfpDisplayCanvas::drawBorder(bool isSelected)
@@ -358,6 +374,10 @@ void LfpDisplayCanvas::drawBorder(bool isSelected)
 
 void LfpDisplayCanvas::drawChannelInfo(int chan, bool isSelected)
 {
+
+	setInfoViewport(chan);
+	drawBorder(isSelected);
+
 	float alpha = 0.5f;
 
 	if (isSelected)

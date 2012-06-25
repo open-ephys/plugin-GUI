@@ -66,6 +66,7 @@ private:
 	MidiBuffer* eventBuffer;
 
 	void setViewport(int chan);
+	void setInfoViewport(int chan);
 	void drawBorder(bool isSelected);
 	void drawChannelInfo(int chan, bool isSelected);
 	void drawWaveform(int chan, bool isSelected);
@@ -103,3 +104,4 @@ private:
 
 
 #endif  // __LFPDISPLAYCANVAS_H_B711873A__
+ 
