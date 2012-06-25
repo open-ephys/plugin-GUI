@@ -38,7 +38,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	displayBufferSize = displayBuffer->getNumSamples();
 	std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
-	totalHeight = nChans*(interplotDistance) + plotHeight/2; // + headerHeight;
+	totalHeight = nChans*(interplotDistance) + plotHeight/2 + headerHeight;
 	
 }
 
@@ -86,7 +86,7 @@ void LfpDisplayCanvas::update()
 
 	repaint();
 
-	totalHeight = nChans*(interplotDistance) + plotHeight/2; // + headerHeight;//(plotHeight+yBuffer)*nChans + yBuffer + headerHeight;
+	totalHeight = nChans*(interplotDistance) + plotHeight/2 + headerHeight;//(plotHeight+yBuffer)*nChans + yBuffer + headerHeight;
 }
 
 
@@ -297,13 +297,12 @@ void LfpDisplayCanvas::drawTicks()
 		glVertex2f(0.1*i,1);
 		glEnd();
 
-		String s = "";//String("Channel ");
-		s += i;
+		String s = String((timebase / 10)*i, 2);
 
-		glRasterPos2f(0.1*i+0.01, 0.8);
+		glRasterPos2f(0.1*i+5.0f/float(getWidth()), 0.7);
 
-		getFont(String("cpmono"))->FaceSize(15);
-		getFont(String("cpmono"))->Render(s);
+		getFont(String("cpmono-plain"))->FaceSize(14);
+		getFont(String("cpmono-plain"))->Render(s);
 	}
 
 
@@ -334,7 +333,7 @@ void LfpDisplayCanvas::setViewport(int chan)
 	int y = (chan+1)*(interplotDistance); //interplotDistance - plotHeight/2);
 
 	glViewport(xBuffer,
-			   getHeight()-y+getScrollAmount()-plotHeight/2,
+			   getHeight()-y+getScrollAmount()- headerHeight - plotHeight/2,
 	           getWidth()-2*xBuffer,
 	           plotHeight);
 }
@@ -384,10 +383,11 @@ void LfpDisplayCanvas::mouseDownInCanvas(const MouseEvent& e)
 
 	Point<int> pos = e.getPosition();
 	int xcoord = pos.getX();
+	int ycoord = pos.getY();
 
-	if (xcoord < getWidth()-getScrollBarWidth())
+	if (xcoord < getWidth()-getScrollBarWidth() && ycoord > headerHeight)
 	{
-		int ycoord = e.getMouseDownY() - interplotDistance/2;// - interplotDistance/2;// - interplotDistance;
+		int ycoord = e.getMouseDownY() - headerHeight - interplotDistance/2;// - interplotDistance/2;// - interplotDistance;
 		int chan = (ycoord + getScrollAmount())/(yBuffer+interplotDistance);
 
 			selectedChan = chan;
