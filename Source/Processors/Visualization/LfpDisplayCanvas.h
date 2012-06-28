@@ -48,6 +48,8 @@ public:
 	void setParameter(int, float);
 	void setParameter(int, int, int, float){}
 
+	const MouseCursor getMouseCursor();
+
 
 private:
 
@@ -88,12 +90,14 @@ private:
 	int plotOverlap;
 	int selectedChan;
 
+	MouseCursor::StandardCursorType cursorType;
+
 	int getTotalHeight();
 
 	 void canvasWasResized();
 	 void mouseDownInCanvas(const MouseEvent& e);
 	// void mouseDrag(const MouseEvent& e);
-	// void mouseMove(const MouseEvent& e);
+	 void mouseMoveInCanvas(const MouseEvent& e);
 	// void mouseUp(const MouseEvent& e);
 	// void mouseWheelMove(const MouseEvent&, float, float);
 

@@ -239,6 +239,14 @@ void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
 
 	int w = getWidth();
 
+	// draw zero line
+	glColor4f(1.0, 1.0, 1.0, 0.2);
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(0, 0.5);
+	glVertex2f(1, 0.5);
+	glEnd();
+
+
 	// setWaveformColor(chan, isSelected);
 	if (isSelected)
 		glColor4f(1.0, 1.0, 1.0, 1.0);
@@ -415,4 +423,24 @@ void LfpDisplayCanvas::mouseDownInCanvas(const MouseEvent& e)
 		repaint();
 	}
 
+}
+
+void LfpDisplayCanvas::mouseMoveInCanvas(const MouseEvent &e)
+{
+
+	if (e.getMouseDownY() < headerHeight)
+	{
+		cursorType = MouseCursor::UpDownResizeCursor;
+	} else {
+		cursorType = MouseCursor::NormalCursor;
+	}
+
+}
+
+const MouseCursor LfpDisplayCanvas::getMouseCursor()
+{
+
+	const MouseCursor c = MouseCursor(cursorType);
+
+	return c;
 }
