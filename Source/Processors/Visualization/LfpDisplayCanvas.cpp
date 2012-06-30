@@ -23,11 +23,14 @@
 
 #include "LfpDisplayCanvas.h"
 
+#include <math.h>
+
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	 	xBuffer(105), yBuffer(2),
 	    plotHeight(180), selectedChan(-1), screenBufferIndex(0),
 	    timebase(1.0f), displayGain(0.0001f), displayBufferIndex(0),
-	    headerHeight(20), plotOverlap(200), interplotDistance(70)
+	    headerHeight(40), plotOverlap(200), interplotDistance(70),
+	    timeOffset(0.0f)
 {
 
 	nChans = processor->getNumInputs();
@@ -98,6 +101,8 @@ void LfpDisplayCanvas::setParameter(int param, float val)
 	} else {
 		displayGain = val * 0.0001f;
 	}
+
+	repaint();
 	
 }
 
@@ -229,7 +234,7 @@ void LfpDisplayCanvas::renderOpenGL()
 
 	drawProgressBar();
 
-	drawTicks();
+	drawTimeline();
 	
 }
 
@@ -284,7 +289,7 @@ void LfpDisplayCanvas::drawProgressBar()
 	glEnd();
 }
 
-void LfpDisplayCanvas::drawTicks()
+void LfpDisplayCanvas::drawTimeline()
 {
 	
 	glViewport(0,getHeight()-headerHeight,getWidth(),headerHeight);
@@ -302,27 +307,71 @@ void LfpDisplayCanvas::drawTicks()
 
 	glViewport(xBuffer,getHeight()-headerHeight,getWidth()-xBuffer,headerHeight);
 
-	for (int i = 0; i < 10; i++)
+	float step;
+
+	if (timebase < 1)
 	{
-		if (i == 5)
-			glLineWidth(3.0);
-		else if (i == 1 || i == 3 || i == 7 || i == 9)
-			glLineWidth(2.0);
-		else
-			glLineWidth(1.0);
+		step = 0.1;
+	} else if (timebase >= 1 && timebase < 2)
+	{
+		step = 0.2;
+	} else if (timebase >= 2 && timebase < 5)
+	{
+		step = 0.5;
+	} else {
+		step = 1.0;
+	}
+
+	float currentPos = 0;
+	glLineWidth(2.0);
+
+	while (currentPos < timebase)
+	{
+
+		float xcoord = currentPos / timebase;
 
 		glBegin(GL_LINE_STRIP);
-		glVertex2f(0.1*i,0);
-		glVertex2f(0.1*i,1);
+		glVertex2f(xcoord,0);
+		glVertex2f(xcoord,1);
 		glEnd();
 
-		String s = String((timebase / 10)*i, 2);
+		String s = String(currentPos, 1);
 
-		glRasterPos2f(0.1*i+5.0f/float(getWidth()), 0.7);
+		glRasterPos2f(xcoord + 5.0f/float(getWidth()), 0.4);
 
 		getFont(String("cpmono-plain"))->Render(s);
+
+		currentPos += step;
 	}
-	
+
+	glViewport(xBuffer, getHeight()-headerHeight, getWidth()-xBuffer, headerHeight/2);
+	glColor4f(0.2f, 0.2f, 0.4f, 1.0f);
+	glRectf(0,0,1,1);
+
+	currentPos = 0;
+
+
+	glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+
+	while (currentPos < timebase)
+	{
+
+		float xcoord = currentPos/timebase + timeOffset / float(getWidth());
+
+		glBegin(GL_LINE_STRIP);
+		glVertex2f(xcoord,0);
+		glVertex2f(xcoord,1);
+		glEnd();
+
+		String s = String(currentPos, 1);
+
+		glRasterPos2f(xcoord+5.0f/float(getWidth()), 0.85);
+
+		getFont(String("cpmono-plain"))->Render(s);
+
+		currentPos += step;
+	}
+
 }
 
 
@@ -425,12 +474,45 @@ void LfpDisplayCanvas::mouseDownInCanvas(const MouseEvent& e)
 
 }
 
+void LfpDisplayCanvas::mouseDragInCanvas(const MouseEvent& e) 
+{
+
+	int ypos = e.getMouseDownY();
+
+	if (ypos <= headerHeight/2) {
+
+		float scaleFactor = (float) e.getDistanceFromDragStartY();
+
+		if (scaleFactor < 60.0 && scaleFactor > -200.0f)
+		{
+			timebase = pow(10.0f, -scaleFactor/200.0f);
+		}
+
+		repaint();
+
+	} else if (ypos > headerHeight/2 && ypos < headerHeight) {
+
+		float scaleFactor = (float) e.getDistanceFromDragStartX();
+
+		timeOffset = scaleFactor;
+
+		repaint();
+
+	}
+
+
+}
+
 void LfpDisplayCanvas::mouseMoveInCanvas(const MouseEvent &e)
 {
 
-	if (e.getMouseDownY() < headerHeight)
+	int ypos = e.getMouseDownY();
+
+	if (ypos <= headerHeight/2)
 	{
 		cursorType = MouseCursor::UpDownResizeCursor;
+	} else if (ypos > headerHeight/2 && ypos < headerHeight) {
+		cursorType = MouseCursor::LeftRightResizeCursor;
 	} else {
 		cursorType = MouseCursor::NormalCursor;
 	}

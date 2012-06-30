@@ -58,6 +58,7 @@ private:
 	float sampleRate;
 	float timebase;
 	float displayGain;
+	float timeOffset;
 
 	static const int MAX_N_CHAN = 128;
 	static const int MAX_N_SAMP = 3000;
@@ -73,8 +74,7 @@ private:
 	void drawChannelInfo(int chan, bool isSelected);
 	void drawWaveform(int chan, bool isSelected);
 	void drawProgressBar();
-
-	void drawTicks();
+	void drawTimeline();
 
 	bool checkBounds(int chan);
 
@@ -96,7 +96,7 @@ private:
 
 	 void canvasWasResized();
 	 void mouseDownInCanvas(const MouseEvent& e);
-	// void mouseDrag(const MouseEvent& e);
+	 void mouseDragInCanvas(const MouseEvent& e);
 	 void mouseMoveInCanvas(const MouseEvent& e);
 	// void mouseUp(const MouseEvent& e);
 	// void mouseWheelMove(const MouseEvent&, float, float);
