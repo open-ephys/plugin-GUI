@@ -79,7 +79,7 @@ public:
 
 protected:
 
-	virtual int getTotalHeight() = 0;
+	virtual int getTotalHeight() {return getHeight();}
 	int scrollPix;
 	void showScrollBars();
     

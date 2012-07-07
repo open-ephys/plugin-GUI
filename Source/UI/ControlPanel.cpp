@@ -159,10 +159,10 @@ void DiskSpaceMeter::paint(Graphics& g)
 
 Clock::Clock() : isRunning(false), isRecording(false)
 {
-	const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_light_otf);
-	size_t bufferSize = BinaryData::cpmono_light_otfSize;
+	// const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_light_otf);
+	// size_t bufferSize = BinaryData::cpmono_light_otfSize;
 
-	font = new FTPixmapFont(buffer, bufferSize);
+	// font = new FTPixmapFont(buffer, bufferSize);
 
 	totalTime = 0;
 	totalRecordTime = 0;
@@ -174,26 +174,11 @@ Clock::~Clock()
 
 void Clock::newOpenGLContextCreated()
 {
-	glMatrixMode (GL_PROJECTION);
-
-	glLoadIdentity();
-	glOrtho (0, 1, 1, 0, 0, 1);
-	glMatrixMode (GL_MODELVIEW);
-	
-	glEnable(GL_TEXTURE_2D);
+	setUp2DCanvas();
+	activateAntiAliasing();
 
 	glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
 
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-
-	glEnable(GL_LINE_SMOOTH);
-	glEnable(GL_POINT_SMOOTH);
-	glEnable(GL_POLYGON_SMOOTH);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 }
 
@@ -251,8 +236,8 @@ void Clock::drawTime()
 
 	glRasterPos2f(8.0/getWidth(),0.75f);
 
-	font->FaceSize(23);
-	font->Render(timeString);
+	getFont(String("cpmono-light"))->FaceSize(23);
+	getFont(String("cpmono-light"))->Render(timeString);
 
 
 } 
@@ -312,27 +297,11 @@ ControlPanelButton::~ControlPanelButton()
 
 void ControlPanelButton::newOpenGLContextCreated()
 {
-	
-	glMatrixMode (GL_PROJECTION);
 
-	glLoadIdentity();
-	glOrtho (0, 1, 1, 0, 0, 1);
-	glMatrixMode (GL_MODELVIEW);
-	
-	glEnable(GL_TEXTURE_2D);
+	setUp2DCanvas();
+	activateAntiAliasing();
 
 	glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
-
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-
-	glEnable(GL_LINE_SMOOTH);
-	glEnable(GL_POINT_SMOOTH);
-	glEnable(GL_POLYGON_SMOOTH);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 

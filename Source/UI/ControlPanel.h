@@ -32,6 +32,7 @@
 #include "CustomLookAndFeel.h"
 #include "../AccessClass.h"
 #include "../Processors/Editors/GenericEditor.h" // for UtilityButton
+#include "../Processors/Visualization/OpenGLCanvas.h"
 
 #include "../OpenGL.h"
 
@@ -129,7 +130,7 @@ private:
 
 */
 
-class Clock : public OpenGLComponent
+class Clock : public OpenGLCanvas
 {
 	public:
 		Clock();
@@ -158,7 +159,7 @@ class Clock : public OpenGLComponent
 		bool isRunning;
 		bool isRecording;
 
-		FTPixmapFont* font;
+		//FTPixmapFont* font;
 };
 
 /**
@@ -169,7 +170,7 @@ class Clock : public OpenGLComponent
 
 */
 
-class ControlPanelButton : public OpenGLComponent
+class ControlPanelButton : public OpenGLCanvas
 {
 public:
 	ControlPanelButton(ControlPanel* cp_);
