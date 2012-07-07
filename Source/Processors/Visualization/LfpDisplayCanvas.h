@@ -48,6 +48,8 @@ public:
 	void setParameter(int, float);
 	void setParameter(int, int, int, float){}
 
+	const MouseCursor getMouseCursor();
+
 
 private:
 
@@ -56,35 +58,46 @@ private:
 	float sampleRate;
 	float timebase;
 	float displayGain;
+	float timeOffset;
+
+	static const int MAX_N_CHAN = 128;
+	static const int MAX_N_SAMP = 3000;
+	GLfloat waves[MAX_N_SAMP][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
 	LfpDisplayNode* processor;
 	AudioSampleBuffer* displayBuffer;
-	ScopedPointer<AudioSampleBuffer> screenBuffer;
 	MidiBuffer* eventBuffer;
 
 	void setViewport(int chan);
+	void setInfoViewport(int chan);
 	void drawBorder(bool isSelected);
 	void drawChannelInfo(int chan, bool isSelected);
 	void drawWaveform(int chan, bool isSelected);
-
-	void drawTicks();
+	void drawProgressBar();
+	void drawTimeline();
 
 	bool checkBounds(int chan);
 
+	void refreshScreenBuffer();
 	void updateScreenBuffer();
 	int screenBufferIndex;
 	int displayBufferIndex;
 	int displayBufferSize;
 
 	int nChans, plotHeight, totalHeight;
+	int headerHeight;
+	int interplotDistance;
+	int plotOverlap;
 	int selectedChan;
+
+	MouseCursor::StandardCursorType cursorType;
 
 	int getTotalHeight();
 
 	 void canvasWasResized();
 	 void mouseDownInCanvas(const MouseEvent& e);
-	// void mouseDrag(const MouseEvent& e);
-	// void mouseMove(const MouseEvent& e);
+	 void mouseDragInCanvas(const MouseEvent& e);
+	 void mouseMoveInCanvas(const MouseEvent& e);
 	// void mouseUp(const MouseEvent& e);
 	// void mouseWheelMove(const MouseEvent&, float, float);
 
@@ -95,3 +108,4 @@ private:
 
 
 #endif  // __LFPDISPLAYCANVAS_H_B711873A__
+ 
