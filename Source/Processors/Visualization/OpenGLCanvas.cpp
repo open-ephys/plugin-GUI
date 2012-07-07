@@ -33,8 +33,6 @@ OpenGLCanvas::OpenGLCanvas() : //OpenGLComponent(OpenGLComponent::OpenGLType::op
 
 	loadFonts();
 
-	timer = new Time();
-
 }
 
 OpenGLCanvas::~OpenGLCanvas()
@@ -214,7 +212,7 @@ void OpenGLCanvas::drawScrollBars()
 	//std::cout << "Drawing scroll bars" << std::endl;
 	
 	float scrollBarY = float(getHeight())/float(getTotalHeight());
-	float timeSinceScroll = timer->getMillisecondCounter()-scrollTime;
+	float timeSinceScroll = timer.getMillisecondCounter()-scrollTime;
 	
 	if (scrollBarY < 1.0f && timeSinceScroll < 1300)
 	{
@@ -276,7 +274,7 @@ void OpenGLCanvas::drawScrollBar(float y1, float y2, float alpha)
 
 void OpenGLCanvas::showScrollBars()
 {
-	scrollTime = timer->getMillisecondCounter();
+	scrollTime = timer.getMillisecondCounter();
 	startTimer(refreshMs);
 }
 
@@ -437,7 +435,7 @@ void OpenGLCanvas::mouseDrag(const MouseEvent& e)
 			if (scrollPix + getHeight() > getTotalHeight())
 				scrollPix = getTotalHeight() - getHeight();
 	
-			scrollTime = timer->getMillisecondCounter();
+			scrollTime = timer.getMillisecondCounter();
 			showScrollTrack = true;
 			repaint();
 		} 

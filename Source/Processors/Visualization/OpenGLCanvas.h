@@ -77,6 +77,9 @@ public:
 	
 	FTGLPixmapFont* getFont(String fontName);
 
+	virtual int getHeaderHeight() {return 0;}
+	virtual int getFooterHeight() {return 0;}
+
 protected:
 
 	virtual int getTotalHeight() {return getHeight();}
@@ -97,7 +100,7 @@ private:
 	int scrollTime;
 	bool showScrollTrack;
 
-	Time* timer;
+	Time timer;
 	void timerCallback();
 
 	float scrollBarTop, scrollBarBottom;
