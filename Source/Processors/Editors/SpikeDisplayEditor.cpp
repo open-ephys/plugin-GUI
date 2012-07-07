@@ -107,7 +107,7 @@ void SpikeDisplayEditor::initializeButtons(){
 	clearBtn->setBounds(x, y, w*2 + xPad, h);
 	clearBtn->setClickingTogglesState(false);
 	clearBtn->addListener(this);
-	x += (w + xPad) *2;
+	//x += (w + xPad) *2;
 	
 /*
 	x = xInitial;

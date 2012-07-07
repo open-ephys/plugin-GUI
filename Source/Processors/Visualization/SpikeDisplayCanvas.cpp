@@ -286,7 +286,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 	if (spikeBuffer->getNumEvents() > 0) 
 	{
 		
-		int m = spikeBuffer->getNumEvents();
+		//int m = spikeBuffer->getNumEvents();
 
 		//std::cout << "Received " << m << " events." << std::endl;
 			

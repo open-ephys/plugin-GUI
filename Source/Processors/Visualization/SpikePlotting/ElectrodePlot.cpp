@@ -252,6 +252,8 @@ bool ElectrodePlot::processKeyEvent(SimpleKeyEvent k){
     //         clearOnNextDraw(true);
     //         break;
     // }
+    
+    return true;
 }
 
 

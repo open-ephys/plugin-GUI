@@ -95,7 +95,9 @@ bool unpackSpike(SpikeObject *s, uint8_t* buffer, int bufferSize){
 	idx += s->nChannels * 2;
 
 	memcpy( &(s->threshold), buffer+idx, s->nChannels *2);
-	idx += s->nChannels * 2;
+	//idx += s->nChannels * 2;
+    
+    return true;
 
 	//if (idx >= bufferSize)
 	//	std::cout<<"Buffer Overrun! More data extracted than was given!"<<std::endl;
@@ -122,6 +124,7 @@ bool isBufferValid(uint8_t *buffer, int bufferSize){
 	memcpy(buffer + idx, &integrityCheck, 2);
 
 	std::cout<<integrityCheck<<" == "<< runningSum <<std::endl;
+    
 	return (integrityCheck == runningSum);
 }
 

@@ -235,8 +235,8 @@ private:
 	Clock* masterClock;
 	CPUMeter* cpuMeter;
 	DiskSpaceMeter* diskMeter;
+    ProcessorGraph* graph;
 	AudioComponent* audio;
-	ProcessorGraph* graph;
 	AudioEditor* audioEditor;
 	FilenameComponent* filenameComponent;
 	UtilityButton* newDirectoryButton;

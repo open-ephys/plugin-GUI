@@ -32,7 +32,7 @@ FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn)
     bufferSize = 1600;
 
 #if JUCE_MAC
-    input = fopen("/Users/Josh/Documents/Programming/open-ephys/GUI/Builds/Linux/build/data_stream_16ch_2", "r");
+    input = fopen("/Users/Josh/Programming/open-ephys/GUI/Builds/Linux/build/data_stream_16ch_2", "r");
 #else
     input = fopen("./data_stream_16ch_2","r");
 #endif

@@ -149,6 +149,8 @@ bool StereotrodePlot::processKeyEvent(SimpleKeyEvent k){
     //         clearOnNextDraw(true);
     //         break;
     // }
+    
+    return true;
 }
 
 void StereotrodePlot::pan(int dim, bool up){
