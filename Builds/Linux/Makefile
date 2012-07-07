@@ -63,6 +63,7 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/ArduinoOutput_391e90c4.o \
   $(OBJDIR)/Parameter_ae008024.o \
   $(OBJDIR)/SpikeDisplayNode_9c52e4ad.o \
   $(OBJDIR)/WiFiOutput_fa464ec5.o \
@@ -246,6 +247,11 @@ $(OBJDIR)/State_22979684.o: ../../Source/Dsp/State.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ArduinoOutput_391e90c4.o: ../../Source/Processors/ArduinoOutput.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ArduinoOutput.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Parameter_ae008024.o: ../../Source/Processors/Parameter.cpp

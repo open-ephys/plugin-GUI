@@ -21,40 +21,55 @@
 
 */
 
-#ifndef __DATABUFFER_H_11C6C591__
-#define __DATABUFFER_H_11C6C591__
+#ifndef __ARDUINOOUTPUT_H_F7BDA585__
+#define __ARDUINOOUTPUT_H_F7BDA585__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 
-/**
+#include "GenericProcessor.h"
 
-	Manages reading and writing data to a circular buffer.
+/** 
+
+	Provides a serial interface to an Arduino board.
+
+	Based on arduino-serial.c (http://todbot.com/blog/2006/12/06/arduino-serial-c-code-to-talk-to-arduino/)
+
+	@see GenericProcessor
 
 */
 
-class DataBuffer
+class ArduinoOutput : public GenericProcessor
 {
-	
 public:
-	DataBuffer(int chans, int size);
-	~DataBuffer();
-	void clear();
-	void addToBuffer(float* data, int64* ts, int16* eventCodes, int numItems);
-	int getNumSamples();
-	int readAllFromBuffer(AudioSampleBuffer& data, int64* ts, int16* eventCodes, int maxSize);
+	
+	ArduinoOutput();
+	~ArduinoOutput();
+	
+	void process(AudioSampleBuffer &buffer, MidiBuffer &events, int& nSamples);
+	
+	void setParameter (int parameterIndex, float newValue);
 
+    void handleEvent(int eventType, MidiMessage& event);
+
+    bool enable();
+    bool disable();
+    
+	//AudioProcessorEditor* createEditor();
+
+	bool isSink() {return true;}
+	
 private:
-	AbstractFifo abstractFifo;
-	AudioSampleBuffer buffer;
 
-    int64* timestampBuffer;
-    int16* eventCodeBuffer;
+	//void timerCallback();
+	int handle;
 
-	int numChans;
+	const char* serialport;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataBuffer);
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArduinoOutput);
 
 };
 
 
-#endif  // __DATABUFFER_H_11C6C591__
+
+
+#endif  // __ARDUINOOUTPUT_H_F7BDA585__

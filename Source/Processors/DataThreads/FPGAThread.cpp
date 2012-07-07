@@ -59,6 +59,8 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 	
 	dataBuffer = new DataBuffer(32, 10000);
 
+	eventCode = 0;
+
 }
 
 
@@ -173,7 +175,11 @@ bool FPGAThread::updateBuffer() {
 					thisSample[n] = (float(samp) - 32768.0f)/92768.0f; 
 
 				}
-				dataBuffer->addToBuffer(thisSample,1);
+				
+				// should actually be converting timecode to timestamp: 
+				timestamp = timer.getHighResolutionTicks();
+
+				dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
 			}
 		j++; // keep scanning for timecodes
 	}

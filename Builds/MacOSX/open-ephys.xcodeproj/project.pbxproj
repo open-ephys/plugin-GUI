@@ -69,6 +69,7 @@
 		AD58AC45D09BA8A736B3D67C /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39FAF9808D0EFB6C8170D8B8 /* Carbon.framework */; };
 		AD6DD37DB41B1177F9F77F51 /* FilterNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2342EA3BD783D3A81006606 /* FilterNode.cpp */; };
 		AEA369E154CA607D8D62CC2E /* ChebyshevI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D44DBE2FF15A98834F222766 /* ChebyshevI.cpp */; };
+		AEB65E53845FA668D89CE15E /* ArduinoOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C42446F8ABB3627870E9677D /* ArduinoOutput.cpp */; };
 		B092C479F4C92AF2FEBE5A11 /* AudioEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5DDBEE64DC706CE804E5F0AA /* AudioEditor.cpp */; };
 		B11D72764B1B17BF2B8C6E67 /* StereotrodePlot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92B3F413B0F24752ADE6730 /* StereotrodePlot.cpp */; };
 		B13883377C9316B9603336B4 /* LfpDisplayCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E96DA81EE37A0ECE471A928 /* LfpDisplayCanvas.cpp */; };
@@ -205,6 +206,7 @@
 		54A33424E41D55153F6EB422 /* EditorViewport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EditorViewport.h; path = ../../Source/UI/EditorViewport.h; sourceTree = SOURCE_ROOT; };
 		553E92DB60C7D5104B780781 /* ChebyshevI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ChebyshevI.h; path = ../../Source/Dsp/ChebyshevI.h; sourceTree = SOURCE_ROOT; };
 		55F7FFF9942627D7FC46C6C1 /* JuceLibraryCode4.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = JuceLibraryCode4.mm; path = ../../JuceLibraryCode/JuceLibraryCode4.mm; sourceTree = SOURCE_ROOT; };
+		5779673F042A62E02C4AC06B /* ArduinoOutput.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ArduinoOutput.h; path = ../../Source/Processors/ArduinoOutput.h; sourceTree = SOURCE_ROOT; };
 		5935F823A2EE45AC36A0201F /* LfpDisplayNode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LfpDisplayNode.cpp; path = ../../Source/Processors/LfpDisplayNode.cpp; sourceTree = SOURCE_ROOT; };
 		59CAEFDE36164ABB19B3CA76 /* RadioButtons_neutral-01.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "RadioButtons_neutral-01.png"; path = "../../Resources/Images/Icons/RadioButtons_neutral-01.png"; sourceTree = SOURCE_ROOT; };
 		5AB4A3A63B9FDEAB09EEC9C8 /* ControlPanel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ControlPanel.cpp; path = ../../Source/UI/ControlPanel.cpp; sourceTree = SOURCE_ROOT; };
@@ -309,6 +311,7 @@
 		C2ED801EA28FBA9764E76349 /* SplitterEditor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SplitterEditor.cpp; path = ../../Source/Processors/Editors/SplitterEditor.cpp; sourceTree = SOURCE_ROOT; };
 		C3B95EF26B5F3281447FCF42 /* JuceLibraryCode2.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = JuceLibraryCode2.mm; path = ../../JuceLibraryCode/JuceLibraryCode2.mm; sourceTree = SOURCE_ROOT; };
 		C4197FDA1B4D4F1D58F6A5A0 /* GenericProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GenericProcessor.h; path = ../../Source/Processors/GenericProcessor.h; sourceTree = SOURCE_ROOT; };
+		C42446F8ABB3627870E9677D /* ArduinoOutput.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ArduinoOutput.cpp; path = ../../Source/Processors/ArduinoOutput.cpp; sourceTree = SOURCE_ROOT; };
 		C4DA9685E5637B03F00E5E79 /* ProcessorGraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ProcessorGraph.cpp; path = ../../Source/Processors/ProcessorGraph.cpp; sourceTree = SOURCE_ROOT; };
 		C546D55EDE65ADDD95C6A6F5 /* VisualizerEditor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VisualizerEditor.h; path = ../../Source/Processors/Editors/VisualizerEditor.h; sourceTree = SOURCE_ROOT; };
 		C586714DD22C96F569FDC716 /* cpmono_extra_light.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; name = cpmono_extra_light.otf; path = ../../Resources/Fonts/cpmono_extra_light.otf; sourceTree = SOURCE_ROOT; };
@@ -518,6 +521,8 @@
 		33A88A7C3FF426F051834D6A /* Processors */ = {
 			isa = PBXGroup;
 			children = (
+				C42446F8ABB3627870E9677D /* ArduinoOutput.cpp */,
+				5779673F042A62E02C4AC06B /* ArduinoOutput.h */,
 				751C52F2BEA7F1328ED13333 /* Parameter.cpp */,
 				7B825983F25D8984E02F6FFB /* Parameter.h */,
 				4AEDD076CCA918481C6F9CF2 /* SpikeDisplayNode.cpp */,
@@ -889,6 +894,7 @@
 				8E138283FC265B58D252AAC3 /* RootFinder.cpp in Sources */,
 				EE1DC0B09AE0727BC7A5A99C /* State.cpp in Sources */,
 				4ACF816CB5CDB285D8005AB8 /* AudioComponent.cpp in Sources */,
+				AEB65E53845FA668D89CE15E /* ArduinoOutput.cpp in Sources */,
 				717D108DC8B2379D556C4B2F /* Parameter.cpp in Sources */,
 				1F67A9ACD509FB4DC5A633DF /* SpikeDisplayNode.cpp in Sources */,
 				B992DDBFF8928A985EEE1557 /* WiFiOutput.cpp in Sources */,
@@ -1019,18 +1025,16 @@
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				HEADER_SEARCH_PATHS = (
-					/usr/local/include,
-					/usr/local/include/freetype2,
-					"$(inherited)",
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lftdi",
 					"-lftgl",
 				);
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -1047,11 +1051,7 @@
 					"JUCE_ObjCExtraSuffix=fea2mT",
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
 				);
-				HEADER_SEARCH_PATHS = (
-					/usr/local/include,
-					/usr/local/include/freetype2,
-					"$(inherited)",
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
@@ -1060,6 +1060,7 @@
 					"-lftdi",
 					"-lftgl",
 				);
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};

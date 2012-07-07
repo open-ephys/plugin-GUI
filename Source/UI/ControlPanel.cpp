@@ -379,7 +379,7 @@ void ControlPanelButton::toggleState()
 
 
 ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) : 
-			graph (graph_), audio(audio_), open(false)
+			graph (graph_), audio(audio_), open(false), initialize(true)
 {
 
 	if (1) {
@@ -431,8 +431,8 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) :
 
 	//diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
 	//diskMeter->repaint();
-	refreshMeters();
-	startTimer(5000); // update disk space every 10 seconds
+	//refreshMeters();
+	startTimer(10);
 
 	setWantsKeyboardFocus(true);
 
@@ -688,6 +688,13 @@ void ControlPanel::refreshMeters()
 
 	diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
 	diskMeter->repaint();
+
+	if (initialize)
+	{
+		stopTimer();
+		startTimer(5000); // check for disk updates every 5 seconds
+		initialize = false;
+	}
 }
 
 bool ControlPanel::keyPressed(const KeyPress& key)

@@ -60,10 +60,18 @@ public:
 	virtual int getNumChannels() = 0;
 	virtual float getSampleRate() = 0;
     virtual float getBitVolts() = 0;
+    virtual int getNumEventChannels() {return 0;}
 
 	SourceNode* sn;
 
+    int16 eventCode;
+    int64 timestamp;
+
+    Time timer;
+
 private:
+
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataThread);
 

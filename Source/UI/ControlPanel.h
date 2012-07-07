@@ -247,6 +247,8 @@ private:
 	void resized();
 	void buttonClicked(Button* button);
 
+	bool initialize;
+
 	//void actionListenerCallback(const String& msg);
 
 	void updateChildComponents();

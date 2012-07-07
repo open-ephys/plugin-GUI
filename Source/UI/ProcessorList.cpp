@@ -59,6 +59,7 @@ ProcessorList::ProcessorList() : isDragging(false),
 	sinks->addSubItem(new ProcessorListItem("LFP Viewer"));
 	sinks->addSubItem(new ProcessorListItem("Spike Viewer"));
 	sinks->addSubItem(new ProcessorListItem("WiFi Output"));
+	sinks->addSubItem(new ProcessorListItem("Arduino Output"));
 
 	ProcessorListItem* utilities = new ProcessorListItem("Utilities");
 	utilities->addSubItem(new ProcessorListItem("Splitter"));
@@ -118,6 +119,7 @@ void ProcessorList::renderOpenGL()
 	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
 	drawItems();
 	drawScrollBars();
+	glFlush();
 }
 
 

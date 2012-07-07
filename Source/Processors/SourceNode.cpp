@@ -47,12 +47,25 @@ SourceNode::SourceNode(const String& name_)
 		{
 			enabledState(false);
 		}
+
+		numEventChannels = dataThread->getNumEventChannels();
+		eventChannelState = new int[numEventChannels];
+		for (int i = 0; i < numEventChannels; i++)
+		{
+			eventChannelState[i] = 0;
+		}
+
 	} else {
 		enabledState(false);
+		numEventChannels = 0;
 	}
 
 	// check for input source every few seconds
 	startTimer(sourceCheckInterval); 
+
+	timestamp = 0; 
+	eventCodeBuffer = new int16[10000]; //10000 samples per buffer max?
+
 
 }
 
@@ -212,9 +225,61 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	
 	//std::cout << "SOURCE NODE" << std::endl;
 
-	 buffer.clear();
-	 nSamples = inputBuffer->readAllFromBuffer(buffer,buffer.getNumSamples());
+	// clear the input buffers
+	events.clear();
+	buffer.clear();
+
+	nSamples = inputBuffer->readAllFromBuffer(buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
 	
+	uint8 data[4];
+	memcpy(data, &timestamp, 4);
+
+	 // generate timestamp
+	 addEvent(events,    // MidiBuffer
+	 		  TIMESTAMP, // eventType
+	 		  0,         // sampleNum
+	 		  nodeId,    // eventID
+	 		  0,		 // eventChannel
+	 		  4,         // numBytes
+	 		  data   // data
+	 		 );
+
+	 // fill event buffer
+	 for (int i = 0; i < nSamples; i++)
+	 {
+	 	for (int c = 0; c < numEventChannels; c++)
+	 	{
+	 		int state = eventCodeBuffer[i] & (1 << c);
+
+	 		if (eventChannelState[c] != state)
+	 		{
+	 			if (state == 0) {
+
+	 				// signal channel state is OFF
+	 				addEvent(events, // MidiBuffer
+	 						 TTL,    // eventType
+	 						 i,      // sampleNum
+	 						 0,	     // eventID
+	 						 c		 // eventChannel
+	 						 );
+	 			} else {
+
+	 				// signal channel state is ON
+	 				addEvent(events, // MidiBuffer
+	 						 TTL,    // eventType
+	 						 i,      // sampleNum
+	 						 1,		 // eventID
+	 						 c		 // eventChannel
+	 						 );
+	 			}
+
+	 			eventChannelState[c] = state;
+	 		}
+	 	}
+	 }
+
+	 //std::cout << *eventCodeBuffer << std::endl;
+
 }
 
 
