@@ -173,12 +173,15 @@ void ProcessorList::drawItem(ProcessorListItem* item)
 		      c.getFloatBlue(),
 		      1.0f);
 
-	glBegin(GL_POLYGON);
-	glVertex2f(0,0);
-	glVertex2f(1,0);
-	glVertex2f(1,1);
-	glVertex2f(0,1);
-	glEnd();
+	// see if this helps drawing issues on Windows:
+	glRectf(0.0, 0.0, 1.0, 1.0);
+
+	// glBegin(GL_POLYGON);
+	// glVertex2f(0,0);
+	// glVertex2f(1,0);
+	// glVertex2f(1,1);
+	// glVertex2f(0,1);
+	// glEnd();
 
 	drawItemName(item);
 
