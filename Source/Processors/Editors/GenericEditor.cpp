@@ -251,7 +251,9 @@ void GenericEditor::paint (Graphics& g)
 
 
 	if (isSelected) {
-		g.setColour(Colours::yellow);
+		//g.setColour(Colours::yellow);
+		//g.drawRect(0,0,getWidth(),getHeight(),1.0);
+		g.setColour(Colours::yellow.withAlpha(0.5f));
 		
 	} else {
 		g.setColour(Colours::black);

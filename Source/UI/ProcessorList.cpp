@@ -108,9 +108,9 @@ void ProcessorList::newOpenGLContextCreated()
 	setUp2DCanvas();
 	activateAntiAliasing();
 
-	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
-	resized();
+	setClearColor(black);
 
+	resized();
 }
 
 void ProcessorList::renderOpenGL()
@@ -118,7 +118,6 @@ void ProcessorList::renderOpenGL()
 	
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffers to preset values
 
-	//glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
 	drawItems();
 	drawScrollBars();
 	

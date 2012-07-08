@@ -419,12 +419,6 @@ bool UIComponent::perform (const InvocationInfo& info)
 EditorViewportButton::EditorViewportButton(UIComponent* ui) : UI(ui)
 {
 	open = true;
-
-	// const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_light_otf);
-	// size_t bufferSize = BinaryData::cpmono_light_otfSize;
-
-	// font = new FTPixmapFont(buffer, bufferSize);
-	
 }
 
 EditorViewportButton::~EditorViewportButton()
@@ -438,7 +432,9 @@ void EditorViewportButton::newOpenGLContextCreated()
 	setUp2DCanvas();
 	activateAntiAliasing();
 
-	glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
+	setClearColor(darkgrey);
+
+	//glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
 
 }
 

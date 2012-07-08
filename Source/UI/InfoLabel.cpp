@@ -73,7 +73,8 @@ void InfoLabel::newOpenGLContextCreated()
 	setUp2DCanvas();
 	activateAntiAliasing();
 
-	glClearColor (0.667, 0.698, 0.718, 1.0);
+	setClearColor(lightgrey);
+	
 	resized();
 
 

@@ -176,10 +176,7 @@ void Clock::newOpenGLContextCreated()
 {
 	setUp2DCanvas();
 	activateAntiAliasing();
-
-	glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
-
-
+	setClearColor(darkgrey);
 }
 
 void Clock::renderOpenGL()
@@ -300,8 +297,7 @@ void ControlPanelButton::newOpenGLContextCreated()
 
 	setUp2DCanvas();
 	activateAntiAliasing();
-
-	glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
+	setClearColor(darkgrey);
 }
 
 

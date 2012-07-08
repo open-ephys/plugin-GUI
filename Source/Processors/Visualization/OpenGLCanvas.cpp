@@ -80,6 +80,29 @@ void OpenGLCanvas::activateAntiAliasing()
 	glShadeModel(GL_FLAT);
 }
 
+void OpenGLCanvas::setClearColor(int colorCode)
+{
+
+	switch (colorCode)
+	{
+		case white:
+			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			break;
+		case black:
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			break;
+		case lightgrey:
+			glClearColor (0.667f, 0.698f, 0.718f, 1.0f);
+			break;
+		case darkgrey:
+			glClearColor (0.23f, 0.23f, 0.23f, 1.0f);
+			break;
+		default:
+			glClearColor (0.23f, 0.23f, 0.23f, 1.0f);
+	}
+
+}
+
 
 void OpenGLCanvas::loadFonts()
 {

@@ -80,6 +80,12 @@ public:
 	virtual int getHeaderHeight() {return 0;}
 	virtual int getFooterHeight() {return 0;}
 
+	void setClearColor(int colorCode);
+
+	enum colorCodes {
+		white, black, lightgrey, darkgrey
+	};
+
 protected:
 
 	virtual int getTotalHeight() {return getHeight();}
