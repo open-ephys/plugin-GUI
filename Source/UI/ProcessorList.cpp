@@ -206,8 +206,8 @@ void ProcessorList::drawItemName(ProcessorListItem* item)
 		if (item->isSelected())
 		{
 			glRasterPos2f(9.0/getWidth(),0.72);
-			getFont(String("cpmono-plain"))->FaceSize(15);
-			getFont(String("cpmono-plain"))->Render(">");
+			getFont(cpmono_plain)->FaceSize(15);
+			getFont(cpmono_plain)->Render(">");
 		}
 
 		name = item->getName();
@@ -226,11 +226,11 @@ void ProcessorList::drawItemName(ProcessorListItem* item)
 	glRasterPos2f(offsetX/getWidth(),offsetY);
 
 	if (item->getNumSubItems() == 0) {
-		getFont(String("cpmono-plain"))->FaceSize(15);
-		getFont(String("cpmono-plain"))->Render(name);
+		getFont(cpmono_plain)->FaceSize(15);
+		getFont(cpmono_plain)->Render(name);
 	} else {
-		getFont(String("cpmono-light"))->FaceSize(23);
-		getFont(String("cpmono-light"))->Render(name);
+		getFont(cpmono_light)->FaceSize(23);
+		getFont(cpmono_light)->Render(name);
 	}
 }
 

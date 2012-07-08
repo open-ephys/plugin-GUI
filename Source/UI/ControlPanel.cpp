@@ -233,8 +233,8 @@ void Clock::drawTime()
 
 	glRasterPos2f(8.0/getWidth(),0.75f);
 
-	getFont(String("cpmono-light"))->FaceSize(23);
-	getFont(String("cpmono-light"))->Render(timeString);
+	getFont(cpmono_light)->FaceSize(23);
+	getFont(cpmono_light)->Render(timeString);
 
 
 } 

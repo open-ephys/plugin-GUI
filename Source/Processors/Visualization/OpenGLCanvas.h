@@ -75,7 +75,7 @@ public:
 
 	void drawRoundedRect(float x, float y, float w, float h, float r, int n);
 	
-	FTGLPixmapFont* getFont(String fontName);
+	FTGLPixmapFont* getFont(int fontCode);
 
 	virtual int getHeaderHeight() {return 0;}
 	virtual int getFooterHeight() {return 0;}
@@ -84,6 +84,20 @@ public:
 
 	enum colorCodes {
 		white, black, lightgrey, darkgrey
+	};
+
+	enum fontCodes {
+		miso_regular = 0,
+		miso_bold = 1,
+		miso_light = 2,
+		bebas_neue = 3,
+		ostrich = 4,
+		cpmono_extra_light = 5,
+		cpmono_light = 6,
+		cpmono_plain = 7,
+		cpmono_bold = 8,
+		nordic = 9,
+		silkscreen = 10
 	};
 
 protected:

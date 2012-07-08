@@ -450,8 +450,8 @@ void EditorViewportButton::drawName()
 {
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 	glRasterPos2f(8.0/getWidth(),0.75f);
-	getFont(String("cpmono-light"))->FaceSize(23);
-	getFont(String("cpmono-light"))->Render("SIGNAL CHAIN");
+	getFont(cpmono_light)->FaceSize(23);
+	getFont(cpmono_light)->Render("SIGNAL CHAIN");
 	
 }
 

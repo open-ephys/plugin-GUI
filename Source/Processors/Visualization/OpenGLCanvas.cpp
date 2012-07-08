@@ -186,33 +186,35 @@ void OpenGLCanvas::loadFonts()
 
 }
 
-FTPixmapFont* OpenGLCanvas::getFont(String fontName)
+FTPixmapFont* OpenGLCanvas::getFont(int fontCode)
 {
-	
-	if (fontName.equalsIgnoreCase("miso-regular"))
-		return fontList[0];
-	else if (fontName.equalsIgnoreCase("miso-bold"))
-		return fontList[1];
-	else if (fontName.equalsIgnoreCase("miso-light"))
-		return fontList[2];
-	else if (fontName.equalsIgnoreCase("bebas-neue"))
-		return fontList[3];
-	else if (fontName.equalsIgnoreCase("ostrich"))
-		return fontList[4];
-	else if (fontName.equalsIgnoreCase("cpmono-extra-light"))
-		return fontList[5];
-	else if (fontName.equalsIgnoreCase("cpmono-light"))
-		return fontList[6];
-	else if (fontName.equalsIgnoreCase("cpmono-plain"))
-		return fontList[7];
-	else if (fontName.equalsIgnoreCase("cpmono-bold"))
-		return fontList[8];
-	else if (fontName.equalsIgnoreCase("nordic"))
-		return fontList[9];
-	else if (fontName.equalsIgnoreCase("silkscreen"))
-		return fontList[10];
-	else
-		return fontList[0]; // miso-regular is default font
+
+	return fontList[fontCode];
+
+	//  if (fontCode == miso_regular)
+	//  	return fontList[0];
+	// else if (fontCode == miso_bold)
+	// 	return fontList[1];
+	// else if (fontCode == miso_light)
+	// 	return fontList[2];
+	// else if (fontCode == bebas_neue)
+	// 	return fontList[3];
+	// else if (fontCode == ostrich)
+	// 	return fontList[4];
+	// else if (fontCode == cpmono_extra_light)
+	// 	return fontList[5];
+	// else if (fontCode == cpmono_light)
+	// 	return fontList[6];
+	// else if (fontCode == cpmono_plain)
+	// 	return fontList[7];
+	// else if (fontCode == cpmono_bold)
+	// 	return fontList[8];
+	// else if (fontCode == nordic)
+	// 	return fontList[9];
+	// else if (fontCode == silkscreen)
+	// 	return fontList[10];
+	// else
+	// 	return fontList[0]; // miso-regular is default font
 
 }
 
@@ -382,12 +384,13 @@ void OpenGLCanvas::drawRoundedRect(float x,
 void OpenGLCanvas::mouseMove(const MouseEvent& e)
 {
 	if (getTotalHeight() > getHeight()) {
-	Point<int> pos = e.getPosition();
-	int xcoord = pos.getX();
-	if (xcoord > getWidth() - scrollBarWidth)
-	{
-		showScrollTrack = true; showScrollBars();
-	}
+
+		Point<int> pos = e.getPosition();
+		int xcoord = pos.getX();
+		if (xcoord > getWidth() - scrollBarWidth)
+		{
+			showScrollTrack = true; showScrollBars();
+		}
 	}
 
 	mouseMoveInCanvas(e);
