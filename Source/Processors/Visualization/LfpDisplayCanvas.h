@@ -48,6 +48,9 @@ public:
 	void setParameter(int, float);
 	void setParameter(int, int, int, float){}
 
+	int getHeaderHeight() {return headerHeight;}
+	int getFooterHeight() {return footerHeight;}
+
 	const MouseCursor getMouseCursor();
 
 
@@ -85,7 +88,7 @@ private:
 	int displayBufferSize;
 
 	int nChans, plotHeight, totalHeight;
-	int headerHeight;
+	int headerHeight, footerHeight;
 	int interplotDistance;
 	int plotOverlap;
 	int selectedChan;

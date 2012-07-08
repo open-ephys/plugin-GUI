@@ -270,27 +270,20 @@ void OpenGLCanvas::drawScrollBars()
 void OpenGLCanvas::drawScrollBar(float y1, float y2, float alpha)
 {
 
-	//glLoadIdentity();
-
-	glViewport(0,0,getWidth(),getHeight());
-	//glOrtho (0, 1, 1, 0, 0, 1);
-	//setViewportRange(0, 0, getWidth(), getHeight());
+	glViewport(0, getFooterHeight(),
+		       getWidth(),
+		       getHeight()-getHeaderHeight()-getFooterHeight());
 
 	float x1 = (getWidth()-8.0f)/getWidth();
 	float x2 = (getWidth()-2.0f)/getWidth();
-	//float px2 = 2.0f/getWidth();
 
 	glColor4f(0.0f, 0.0f, 0.0f, alpha);
 
 	glBegin(GL_POLYGON);
 
 	glVertex2f(x1,y1);
-	//glVertex2f(x1+px2,y1+px2);
-	///glVertex2f(x1+px2*2,y1+px2);
 	glVertex2f(x2,y1);
 	glVertex2f(x2,y2);
-	//glVertex2f(x2-px2,y2-px2);
-	//glVertex2f(x2-px2*2,y2-px2);
 	glVertex2f(x1,y2);
 
 	glEnd();

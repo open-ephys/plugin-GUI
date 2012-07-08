@@ -30,7 +30,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	    plotHeight(180), selectedChan(-1), screenBufferIndex(0),
 	    timebase(1.0f), displayGain(0.0001f), displayBufferIndex(0),
 	    headerHeight(40), plotOverlap(200), interplotDistance(70),
-	    timeOffset(0.0f)
+	    timeOffset(0.0f), footerHeight(0)
 {
 
 	nChans = processor->getNumInputs();
