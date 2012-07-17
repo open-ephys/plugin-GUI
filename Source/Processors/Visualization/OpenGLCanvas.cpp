@@ -33,8 +33,6 @@ OpenGLCanvas::OpenGLCanvas() : //OpenGLComponent(OpenGLComponent::OpenGLType::op
 
 	loadFonts();
 
-	timer = new Time();
-
 }
 
 OpenGLCanvas::~OpenGLCanvas()
@@ -80,6 +78,29 @@ void OpenGLCanvas::activateAntiAliasing()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glShadeModel(GL_FLAT);
+}
+
+void OpenGLCanvas::setClearColor(int colorCode)
+{
+
+	switch (colorCode)
+	{
+		case white:
+			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			break;
+		case black:
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			break;
+		case lightgrey:
+			glClearColor (0.667f, 0.698f, 0.718f, 1.0f);
+			break;
+		case darkgrey:
+			glClearColor (0.23f, 0.23f, 0.23f, 1.0f);
+			break;
+		default:
+			glClearColor (0.23f, 0.23f, 0.23f, 1.0f);
+	}
+
 }
 
 
@@ -165,33 +186,35 @@ void OpenGLCanvas::loadFonts()
 
 }
 
-FTPixmapFont* OpenGLCanvas::getFont(String fontName)
+FTPixmapFont* OpenGLCanvas::getFont(int fontCode)
 {
-	
-	if (fontName.equalsIgnoreCase("miso-regular"))
-		return fontList[0];
-	else if (fontName.equalsIgnoreCase("miso-bold"))
-		return fontList[1];
-	else if (fontName.equalsIgnoreCase("miso-light"))
-		return fontList[2];
-	else if (fontName.equalsIgnoreCase("bebas-neue"))
-		return fontList[3];
-	else if (fontName.equalsIgnoreCase("ostrich"))
-		return fontList[4];
-	else if (fontName.equalsIgnoreCase("cpmono-extra-light"))
-		return fontList[5];
-	else if (fontName.equalsIgnoreCase("cpmono-light"))
-		return fontList[6];
-	else if (fontName.equalsIgnoreCase("cpmono-plain"))
-		return fontList[7];
-	else if (fontName.equalsIgnoreCase("cpmono-bold"))
-		return fontList[8];
-	else if (fontName.equalsIgnoreCase("nordic"))
-		return fontList[9];
-	else if (fontName.equalsIgnoreCase("silkscreen"))
-		return fontList[10];
-	else
-		return fontList[0]; // miso-regular is default font
+
+	return fontList[fontCode];
+
+	//  if (fontCode == miso_regular)
+	//  	return fontList[0];
+	// else if (fontCode == miso_bold)
+	// 	return fontList[1];
+	// else if (fontCode == miso_light)
+	// 	return fontList[2];
+	// else if (fontCode == bebas_neue)
+	// 	return fontList[3];
+	// else if (fontCode == ostrich)
+	// 	return fontList[4];
+	// else if (fontCode == cpmono_extra_light)
+	// 	return fontList[5];
+	// else if (fontCode == cpmono_light)
+	// 	return fontList[6];
+	// else if (fontCode == cpmono_plain)
+	// 	return fontList[7];
+	// else if (fontCode == cpmono_bold)
+	// 	return fontList[8];
+	// else if (fontCode == nordic)
+	// 	return fontList[9];
+	// else if (fontCode == silkscreen)
+	// 	return fontList[10];
+	// else
+	// 	return fontList[0]; // miso-regular is default font
 
 }
 
@@ -214,7 +237,7 @@ void OpenGLCanvas::drawScrollBars()
 	//std::cout << "Drawing scroll bars" << std::endl;
 	
 	float scrollBarY = float(getHeight())/float(getTotalHeight());
-	float timeSinceScroll = timer->getMillisecondCounter()-scrollTime;
+	float timeSinceScroll = timer.getMillisecondCounter()-scrollTime;
 	
 	if (scrollBarY < 1.0f && timeSinceScroll < 1300)
 	{
@@ -247,27 +270,20 @@ void OpenGLCanvas::drawScrollBars()
 void OpenGLCanvas::drawScrollBar(float y1, float y2, float alpha)
 {
 
-	//glLoadIdentity();
-
-	glViewport(0,0,getWidth(),getHeight());
-	//glOrtho (0, 1, 1, 0, 0, 1);
-	//setViewportRange(0, 0, getWidth(), getHeight());
+	glViewport(0, getFooterHeight(),
+		       getWidth(),
+		       getHeight()-getHeaderHeight()-getFooterHeight());
 
 	float x1 = (getWidth()-8.0f)/getWidth();
 	float x2 = (getWidth()-2.0f)/getWidth();
-	//float px2 = 2.0f/getWidth();
 
 	glColor4f(0.0f, 0.0f, 0.0f, alpha);
 
 	glBegin(GL_POLYGON);
 
 	glVertex2f(x1,y1);
-	//glVertex2f(x1+px2,y1+px2);
-	///glVertex2f(x1+px2*2,y1+px2);
 	glVertex2f(x2,y1);
 	glVertex2f(x2,y2);
-	//glVertex2f(x2-px2,y2-px2);
-	//glVertex2f(x2-px2*2,y2-px2);
 	glVertex2f(x1,y2);
 
 	glEnd();
@@ -276,7 +292,7 @@ void OpenGLCanvas::drawScrollBar(float y1, float y2, float alpha)
 
 void OpenGLCanvas::showScrollBars()
 {
-	scrollTime = timer->getMillisecondCounter();
+	scrollTime = timer.getMillisecondCounter();
 	startTimer(refreshMs);
 }
 
@@ -361,12 +377,13 @@ void OpenGLCanvas::drawRoundedRect(float x,
 void OpenGLCanvas::mouseMove(const MouseEvent& e)
 {
 	if (getTotalHeight() > getHeight()) {
-	Point<int> pos = e.getPosition();
-	int xcoord = pos.getX();
-	if (xcoord > getWidth() - scrollBarWidth)
-	{
-		showScrollTrack = true; showScrollBars();
-	}
+
+		Point<int> pos = e.getPosition();
+		int xcoord = pos.getX();
+		if (xcoord > getWidth() - scrollBarWidth)
+		{
+			showScrollTrack = true; showScrollBars();
+		}
 	}
 
 	mouseMoveInCanvas(e);
@@ -437,7 +454,7 @@ void OpenGLCanvas::mouseDrag(const MouseEvent& e)
 			if (scrollPix + getHeight() > getTotalHeight())
 				scrollPix = getTotalHeight() - getHeight();
 	
-			scrollTime = timer->getMillisecondCounter();
+			scrollTime = timer.getMillisecondCounter();
 			showScrollTrack = true;
 			repaint();
 		} 

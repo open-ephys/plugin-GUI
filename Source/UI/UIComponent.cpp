@@ -228,9 +228,13 @@ const PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuNa
      {
      	menu.addCommandItem (commandManager, openConfiguration);
         menu.addCommandItem (commandManager, saveConfiguration);
-        menu.addSeparator();
-        menu.addCommandItem (commandManager, StandardApplicationCommandIDs::quit);
-     } else if (menuIndex == 1)
+        
+#if !JUCE_MAC
+       	menu.addSeparator();
+       	menu.addCommandItem (commandManager, StandardApplicationCommandIDs::quit);
+#endif
+
+       } else if (menuIndex == 1)
      {
      	menu.addCommandItem (commandManager, undo);
      	menu.addCommandItem (commandManager, redo);
@@ -415,12 +419,6 @@ bool UIComponent::perform (const InvocationInfo& info)
 EditorViewportButton::EditorViewportButton(UIComponent* ui) : UI(ui)
 {
 	open = true;
-
-	const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_light_otf);
-	size_t bufferSize = BinaryData::cpmono_light_otfSize;
-
-	font = new FTPixmapFont(buffer, bufferSize);
-	
 }
 
 EditorViewportButton::~EditorViewportButton()
@@ -431,26 +429,13 @@ EditorViewportButton::~EditorViewportButton()
 void EditorViewportButton::newOpenGLContextCreated()
 {
 	
-	glMatrixMode (GL_PROJECTION);
+	setUp2DCanvas();
+	activateAntiAliasing();
 
-	glLoadIdentity();
-	glOrtho (0, 1, 1, 0, 0, 1);
-	glMatrixMode (GL_MODELVIEW);
-	
-	glEnable(GL_TEXTURE_2D);
+	setClearColor(darkgrey);
 
-	glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
+	//glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
 
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-
-	glEnable(GL_LINE_SMOOTH);
-	glEnable(GL_POINT_SMOOTH);
-	glEnable(GL_POLYGON_SMOOTH);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 
@@ -465,8 +450,8 @@ void EditorViewportButton::drawName()
 {
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 	glRasterPos2f(8.0/getWidth(),0.75f);
-	font->FaceSize(23);
-	font->Render("SIGNAL CHAIN");
+	getFont(cpmono_light)->FaceSize(23);
+	getFont(cpmono_light)->Render("SIGNAL CHAIN");
 	
 }
 

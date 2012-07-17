@@ -13,7 +13,10 @@
                juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi -lftgl"
                objCExtraSuffix="fea2mT"/>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-lftdi -lftgl" extraCompilerFlags="-export-dynamic -pg"/>
+                extraLinkerFlags="-lftdi -lftgl -pg" extraCompilerFlags="-export-dynamic -g -pg"/>
+    <VS2010 targetFolder="Builds/VisualStudio2010" vstFolder="c:\SDKs\vstsdk2.4"
+            rtasFolder="c:\SDKs\PT_80_SDK" libraryType="1" juceFolder="JuceLibraryCode"
+            extraLinkerFlags="-lftdi -lftgl"/>
   </EXPORTFORMATS>
   <CONFIGURATIONS>
     <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="open-ephys"
@@ -184,6 +187,10 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <FILE id="wBm4y2" name="ArduinoOutput.cpp" compile="1" resource="0"
+              file="Source/Processors/ArduinoOutput.cpp"/>
+        <FILE id="1sbSwS7" name="ArduinoOutput.h" compile="0" resource="0"
+              file="Source/Processors/ArduinoOutput.h"/>
         <FILE id="pQaYQiE" name="Parameter.cpp" compile="1" resource="0" file="Source/Processors/Parameter.cpp"/>
         <FILE id="0jxvc4H" name="Parameter.h" compile="0" resource="0" file="Source/Processors/Parameter.h"/>
         <FILE id="arRy5R" name="SpikeDisplayNode.cpp" compile="1" resource="0"

@@ -27,7 +27,7 @@ InfoLabel::InfoLabel() : xBuffer(10), yBuffer(10)
 {
 	layout.SetAlignment(FTGL::ALIGN_LEFT);
 	
-	layout.SetFont(getFont(String("miso-regular")));
+	layout.SetFont(getFont(miso_regular));
 	
 	infoString = "Welcome to the Open Ephys GUI!\n \n"
 				 "To get starting using the GUI, drag a processor from the list "
@@ -73,7 +73,8 @@ void InfoLabel::newOpenGLContextCreated()
 	setUp2DCanvas();
 	activateAntiAliasing();
 
-	glClearColor (0.667, 0.698, 0.718, 1.0);
+	setClearColor(lightgrey);
+	
 	resized();
 
 
@@ -82,10 +83,12 @@ void InfoLabel::newOpenGLContextCreated()
 void InfoLabel::renderOpenGL()
 {
 
-	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffers to preset values
 	drawLabel();
 	drawScrollBars();
 
+   // glFlush();
+    swapBuffers();
 }
 
 
@@ -100,7 +103,7 @@ void InfoLabel::drawLabel()
 	glColor4f(0.3,0.3,0.3,1.0);
 
 	glRasterPos2f(15.0/float(getWidth()),0.05f);
-	getFont(String("miso-regular"))->FaceSize(18.0f);
+	getFont(miso_regular)->FaceSize(18.0f);
 	layout.Render(infoString, -1, FTPoint(), FTGL::RENDER_FRONT);
 
 }

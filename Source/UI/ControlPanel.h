@@ -32,6 +32,7 @@
 #include "CustomLookAndFeel.h"
 #include "../AccessClass.h"
 #include "../Processors/Editors/GenericEditor.h" // for UtilityButton
+#include "../Processors/Visualization/OpenGLCanvas.h"
 
 #include "../OpenGL.h"
 
@@ -129,7 +130,7 @@ private:
 
 */
 
-class Clock : public OpenGLComponent
+class Clock : public OpenGLCanvas
 {
 	public:
 		Clock();
@@ -158,7 +159,7 @@ class Clock : public OpenGLComponent
 		bool isRunning;
 		bool isRecording;
 
-		FTPixmapFont* font;
+		//FTPixmapFont* font;
 };
 
 /**
@@ -169,7 +170,7 @@ class Clock : public OpenGLComponent
 
 */
 
-class ControlPanelButton : public OpenGLComponent
+class ControlPanelButton : public OpenGLCanvas
 {
 public:
 	ControlPanelButton(ControlPanel* cp_);
@@ -209,7 +210,7 @@ class UtilityButton;
 
 class ControlPanel : public Component, 
 					 public Button::Listener,
-					 public ActionListener,
+					// public ActionListener,
 					 public Timer,
 					 public AccessClass
 
@@ -234,8 +235,8 @@ private:
 	Clock* masterClock;
 	CPUMeter* cpuMeter;
 	DiskSpaceMeter* diskMeter;
+    ProcessorGraph* graph;
 	AudioComponent* audio;
-	ProcessorGraph* graph;
 	AudioEditor* audioEditor;
 	FilenameComponent* filenameComponent;
 	UtilityButton* newDirectoryButton;
@@ -247,11 +248,14 @@ private:
 	void resized();
 	void buttonClicked(Button* button);
 
-	void actionListenerCallback(const String& msg);
+	bool initialize;
+
+	//void actionListenerCallback(const String& msg);
 
 	void updateChildComponents();
 
 	void timerCallback();
+	void refreshMeters();
 
 	bool keyPressed(const KeyPress &key);
 

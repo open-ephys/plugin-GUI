@@ -34,6 +34,7 @@
 #include "../Processors/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
+#include "../Processors/Visualization/OpenGLCanvas.h"
 
 #include "../OpenGL.h"
 
@@ -132,7 +133,7 @@ private:
 
 
 
-class EditorViewportButton : public OpenGLComponent
+class EditorViewportButton : public OpenGLCanvas
 {
 public:
 	EditorViewportButton(UIComponent* ui);
@@ -155,7 +156,7 @@ private:
 	UIComponent* UI;
 	bool open;
 
-	FTPixmapFont* font;
+	//FTPixmapFont* font;
 
 };
 

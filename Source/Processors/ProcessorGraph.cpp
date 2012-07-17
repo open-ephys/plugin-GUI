@@ -37,6 +37,7 @@
 #include "SourceNode.h"
 #include "SpikeDetector.h"
 #include "WiFiOutput.h"
+#include "ArduinoOutput.h"
 #include "Utilities/Splitter.h"
 #include "Utilities/Merger.h"
 #include "../UI/UIComponent.h"
@@ -398,7 +399,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		}
 
 		
-		sendActionMessage("New source node created.");
+		//sendActionMessage("New source node created.");
 		
 
 	} else if (processorType.equalsIgnoreCase("Filters")) {
@@ -417,7 +418,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			processor = new SpikeDetector();
 		}
 
-		sendActionMessage("New filter node created.");
+		//sendActionMessage("New filter node created.");
 
 	} else if (processorType.equalsIgnoreCase("Utilities")) {
 
@@ -426,14 +427,14 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			std::cout << "Creating a new splitter." << std::endl;
 			processor = new Splitter();
 
-			sendActionMessage("New splitter created.");
+			//sendActionMessage("New splitter created.");
 
 	 	} else if (subProcessorType.equalsIgnoreCase("Merger")) {
 	 		
 	 		std::cout << "Creating a new merger." << std::endl;
 			processor = new Merger();
 
-			sendActionMessage("New merger created.");
+			//sendActionMessage("New merger created.");
 
 	 	}
 
@@ -455,8 +456,12 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			std::cout << "Creating a WiFi node." << std::endl;
 			processor = new WiFiOutput();
 		}
+		else if (subProcessorType.equalsIgnoreCase("Arduino Output")) {
+			std::cout << "Creating an Arduino node." << std::endl;
+			processor = new ArduinoOutput();
+		}
 	
-		sendActionMessage("New sink created.");
+		//sendActionMessage("New sink created.");
 	}
 
 	return processor;

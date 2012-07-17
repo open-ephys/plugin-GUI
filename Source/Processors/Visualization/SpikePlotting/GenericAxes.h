@@ -36,7 +36,7 @@ protected:
 public:
 	GenericAxes();
 	GenericAxes(int x, int y, double w, double h, int t);
-	~GenericAxes();
+	virtual ~GenericAxes();
 
 	void updateSpikeData(SpikeObject s);
 

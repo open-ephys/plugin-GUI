@@ -112,7 +112,7 @@ int GenericProcessor::getNextChannel(bool increment)
 {
 	int chan = nextAvailableChannel;
 
-	//std::cout << chan << std::endl;
+	std::cout << "Next channel: " << chan << ", num inputs: " << getNumInputs() << std::endl;
  
 	if (increment)
 		nextAvailableChannel++;
@@ -409,7 +409,7 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
 	uint8 data[4+numBytes];
 
 	data[0] = type;    // event type
-    data[1] = nodeId;  // processor ID
+    data[1] = nodeId;  // processor ID automatically added
     data[2] = eventId; // event ID
     data[3] = eventChannel; // event channel
     memcpy(&data[4], eventData, numBytes);
@@ -418,6 +418,13 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
                           sizeof(data), // total bytes
                           sampleNum);     // sample index
 }
+
+// void GenericProcessor::unpackEvent(int type,
+// 								   MidiMessage& event)
+// {
+
+
+// }
 
 void GenericProcessor::processBlock (AudioSampleBuffer &buffer, MidiBuffer &eventBuffer)
 {

@@ -159,10 +159,10 @@ void DiskSpaceMeter::paint(Graphics& g)
 
 Clock::Clock() : isRunning(false), isRecording(false)
 {
-	const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_light_otf);
-	size_t bufferSize = BinaryData::cpmono_light_otfSize;
+	// const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_light_otf);
+	// size_t bufferSize = BinaryData::cpmono_light_otfSize;
 
-	font = new FTPixmapFont(buffer, bufferSize);
+	// font = new FTPixmapFont(buffer, bufferSize);
 
 	totalTime = 0;
 	totalRecordTime = 0;
@@ -174,27 +174,9 @@ Clock::~Clock()
 
 void Clock::newOpenGLContextCreated()
 {
-	glMatrixMode (GL_PROJECTION);
-
-	glLoadIdentity();
-	glOrtho (0, 1, 1, 0, 0, 1);
-	glMatrixMode (GL_MODELVIEW);
-	
-	glEnable(GL_TEXTURE_2D);
-
-	glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
-
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-
-	glEnable(GL_LINE_SMOOTH);
-	glEnable(GL_POINT_SMOOTH);
-	glEnable(GL_POLYGON_SMOOTH);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	setUp2DCanvas();
+	activateAntiAliasing();
+	setClearColor(darkgrey);
 }
 
 void Clock::renderOpenGL()
@@ -251,8 +233,8 @@ void Clock::drawTime()
 
 	glRasterPos2f(8.0/getWidth(),0.75f);
 
-	font->FaceSize(23);
-	font->Render(timeString);
+	getFont(cpmono_light)->FaceSize(23);
+	getFont(cpmono_light)->Render(timeString);
 
 
 } 
@@ -312,27 +294,10 @@ ControlPanelButton::~ControlPanelButton()
 
 void ControlPanelButton::newOpenGLContextCreated()
 {
-	
-	glMatrixMode (GL_PROJECTION);
 
-	glLoadIdentity();
-	glOrtho (0, 1, 1, 0, 0, 1);
-	glMatrixMode (GL_MODELVIEW);
-	
-	glEnable(GL_TEXTURE_2D);
-
-	glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
-
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-
-	glEnable(GL_LINE_SMOOTH);
-	glEnable(GL_POINT_SMOOTH);
-	glEnable(GL_POLYGON_SMOOTH);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	setUp2DCanvas();
+	activateAntiAliasing();
+	setClearColor(darkgrey);
 }
 
 
@@ -379,7 +344,7 @@ void ControlPanelButton::toggleState()
 
 
 ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) : 
-			graph (graph_), audio(audio_), open(false)
+			graph (graph_), audio(audio_), open(false), initialize(true)
 {
 
 	if (1) {
@@ -429,9 +394,10 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) :
 		 									  "");
 	addChildComponent(filenameComponent);
 
-	startTimer(100);
-
-	
+	//diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
+	//diskMeter->repaint();
+	//refreshMeters();
+	startTimer(10);
 
 	setWantsKeyboardFocus(true);
 
@@ -557,9 +523,11 @@ void ControlPanel::buttonClicked(Button* button)
 		std::cout << "Record button pressed." << std::endl;
 		if (recordButton->getToggleState())
 		{
+
 			playButton->setToggleState(true,false);
 			graph->getRecordNode()->setParameter(1,10.0f);
 			masterClock->startRecording(); // turn on recording
+
 
 		} else {
 			graph->getRecordNode()->setParameter(0,10.0f); // turn off recording
@@ -598,6 +566,8 @@ void ControlPanel::buttonClicked(Button* button)
 				if (recordButton->getToggleState())
 					graph->getRecordNode()->setParameter(1,10.0f);
 				
+				stopTimer();
+				startTimer(250); // refresh every 250 ms
 				audio->beginCallbacks();
 				masterClock->start();
 			}
@@ -609,8 +579,10 @@ void ControlPanel::buttonClicked(Button* button)
 		if (audio->callbacksAreActive()) {
 			audio->endCallbacks();
 			graph->disableProcessors();
-			cpuMeter->updateCPU(0.0f);
+			refreshMeters();
 			masterClock->stop();
+			stopTimer();
+			startTimer(10000); // back to refresh every 10 seconds
 
 		}
 
@@ -630,7 +602,9 @@ void ControlPanel::disableCallbacks()
 		std::cout << "Disabling processors." << std::endl;
 		graph->disableProcessors();
 		std::cout << "Updating control panel." << std::endl;
-		cpuMeter->updateCPU(0.0f);
+		refreshMeters();
+		stopTimer();
+		startTimer(10000); // back to refresh every 10 seconds
 		
 	}
 
@@ -642,26 +616,35 @@ void ControlPanel::disableCallbacks()
 
 }
 
-void ControlPanel::actionListenerCallback(const String & msg)
-{
-	//std::cout << "Message Received." << std::endl;
-	if (playButton->getToggleState()) {
-		cpuMeter->updateCPU(audio->deviceManager.getCpuUsage());
-	}
+// void ControlPanel::actionListenerCallback(const String & msg)
+// {
+// 	//std::cout << "Message Received." << std::endl;
+// 	if (playButton->getToggleState()) {
+// 		cpuMeter->updateCPU(audio->deviceManager.getCpuUsage());
+// 	}
 
-	cpuMeter->repaint();
+// 	cpuMeter->repaint();
 
-	diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
-	diskMeter->repaint();
+// 	diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
+// 	diskMeter->repaint();
 	
 	
-}
+// }
 
 void ControlPanel::timerCallback()
 {
 	//std::cout << "Message Received." << std::endl;
+	
+	refreshMeters();
+	
+}
+
+void ControlPanel::refreshMeters()
+{
 	if (playButton->getToggleState()) {
 		cpuMeter->updateCPU(audio->deviceManager.getCpuUsage());
+	} else {
+		cpuMeter->updateCPU(0.0f);
 	}
 
 	cpuMeter->repaint();
@@ -670,8 +653,13 @@ void ControlPanel::timerCallback()
 
 	diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
 	diskMeter->repaint();
-	
-	
+
+	if (initialize)
+	{
+		stopTimer();
+		startTimer(5000); // check for disk updates every 5 seconds
+		initialize = false;
+	}
 }
 
 bool ControlPanel::keyPressed(const KeyPress& key)

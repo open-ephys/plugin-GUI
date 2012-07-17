@@ -29,6 +29,7 @@ protected:
 public:
 	WaveAxes();
 	WaveAxes(int x, int y, double w, double h, int t);
+    virtual ~WaveAxes() {}
     
    	void updateSpikeData(SpikeObject s);
 

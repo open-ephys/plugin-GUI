@@ -108,6 +108,9 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
 	if (chan != getProcessorGraph()->midiChannelIndex)
 	{
+        
+        setPlayConfigDetails(getNextChannel(false)+1,0,44100.0,128);
+        
 		Channel newChannel;
 
 		std::cout << "Record node adding channel." << std::endl;
@@ -138,7 +141,7 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
 		continuousChannels.insert(newPair);
 
-		setPlayConfigDetails(getNextChannel(false)+1,0,44100.0,128);
+		
 
 	} else {
 

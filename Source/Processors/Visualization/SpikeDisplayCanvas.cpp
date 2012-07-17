@@ -286,7 +286,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 	if (spikeBuffer->getNumEvents() > 0) 
 	{
 		
-		int m = spikeBuffer->getNumEvents();
+		//int m = spikeBuffer->getNumEvents();
 
 		//std::cout << "Received " << m << " events." << std::endl;
 			
@@ -366,8 +366,8 @@ void SpikeDisplayCanvas::drawPlotTitle(int chan){
 	String s = "Source:";//String("Channel ");
 	s += (chan+1);
 
-	getFont(String("cpmono-bold"))->FaceSize(15);
-	getFont(String("cpmono-bold"))->Render(s);
+	getFont(cpmono_bold)->FaceSize(15);
+	getFont(cpmono_bold)->Render(s);
 }
 
 int SpikeDisplayCanvas::getTotalHeight() 

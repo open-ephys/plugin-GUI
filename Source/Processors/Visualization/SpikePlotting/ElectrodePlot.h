@@ -40,7 +40,7 @@ class ElectrodePlot : public BaseUIElement
 public:
 	ElectrodePlot();
 	ElectrodePlot(int x, int y,int w,int h);
-	~ElectrodePlot();
+	virtual ~ElectrodePlot();
 
 	void initAxes();
 	void redraw();
