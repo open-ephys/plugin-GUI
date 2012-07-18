@@ -90,25 +90,27 @@ float FPGAThread::getBitVolts()
 bool FPGAThread::foundInputSource()
 {
 
-	if (deviceFound)
-	{
-		if (okCFrontPanel::NoError != dev->ConfigureFPGA(bitfile)) 
-		{
-			printf("FPGA configuration failed.\n");
-			deviceFound = false;
-			return false;
-		}
+	return true;
 
-	} else {
+	// if (deviceFound)
+	// {
+	// 	if (okCFrontPanel::NoError != dev->ConfigureFPGA(bitfile)) 
+	// 	{
+	// 		printf("FPGA configuration failed.\n");
+	// 		deviceFound = false;
+	// 		return false;
+	// 	}
 
-		// if (!initializeFPGA(false))
-		// {
-		// 	return false;
-		// } else {
-		// 	deviceFound = true;
-		// }
+	// } else {
 
-	}
+	// 	// if (!initializeFPGA(false))
+	// 	// {
+	// 	// 	return false;
+	// 	// } else {
+	// 	// 	deviceFound = true;
+	// 	// }
+
+	// }
 
 }
 
@@ -172,7 +174,7 @@ bool FPGAThread::updateBuffer() {
 
 					//thisSample[n] = float( hi  - 256)/256; 
 					uint16 samp = ((hi << 8) + lo);
-					thisSample[n] = (float(samp) - 32768.0f)/92768.0f; 
+					thisSample[n] = float(samp) * 0.1907f - 6175.0f; 
 
 				}
 				
@@ -193,6 +195,8 @@ bool FPGAThread::updateBuffer() {
 
 bool FPGAThread::initializeFPGA(bool verbose)
 {
+
+	std::cout << "okCFrontPanel found " << dev->GetDeviceCount() << " devices." << std::endl;
 
 	if (okCFrontPanel::NoError != dev->OpenBySerial()) {
 		if (verbose)
@@ -220,6 +224,8 @@ bool FPGAThread::initializeFPGA(bool verbose)
 		if (verbose)
 			printf("FPGA configuration failed.\n");
 		return false;
+	} else {
+		printf("Bitfile uploaded.\n");
 	}
 
 	// Check for FrontPanel support in the FPGA configuration.
