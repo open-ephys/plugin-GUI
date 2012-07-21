@@ -31,11 +31,15 @@ class GenericEditor;
 
 /**
   
-  Holds tabs for visualizers.
+  Holds tabs containing the application's visualizers.
 
-  Editors that create OpenGL visualizers can either place them
-  in the DataViewport, for easy access on small monitors, or in
-  a separate window, for maximum flexibility.
+  The DataViewport sits in the center of the MainWindow
+  and is always visible. Editors that create data 
+  visualizations can place them in the
+  DataViewport for easy access on small monitors, or in
+  a separate window for maximum flexibility.
+
+  This class is a subclass of juce_TabbedComponent.h
 
   @see GenericEditor, InfoLabel, LfpDisplayCanvas
 
@@ -46,26 +50,27 @@ class DataViewport : public TabbedComponent,
 
 {
 public: 
-	DataViewport();
-	~DataViewport();
+  DataViewport();
+  ~DataViewport();
 
-	/** Adds a new tab and returns the tab index.*/
-    int addTabToDataViewport(String tabName, Component* componentToAdd, GenericEditor* editor);
+  /** Adds a new visualizer within a tab and returns the tab index.*/
+  int addTabToDataViewport(String tabName, Component* componentToAdd, GenericEditor* editor);
 
-    /** Removes a tab with a specified index.*/
-    void destroyTab(int);
+  /** Removes a tab with a specified index.*/
+  void destroyTab(int);
 
-    /** Select a tab with a specified index.*/
-    void selectTab(int);
+  /** Selects a tab with a specified index.*/
+  void selectTab(int);
 
-    /** Informs the component of the current tab that it's now active.*/
-    void currentTabChanged(int newIndex, const String& newTabName);
+  /** Informs the component within the current tab that it's now active.*/
+  void currentTabChanged(int newIndex, const String& newTabName);
 
-    /** Prevent DataViewport from signaling EditorViewport when changing tabs.*/
-    void disableConnectionToEditorViewport();
+  /** Prevents the DataViewport from signaling EditorViewport when changing tabs.*/
+  void disableConnectionToEditorViewport();
 
 private:
 
+  /** Maps original tab indices to their location within the */
 	Array<int> tabArray;
   Array<GenericEditor*> editorArray;
 	void paint(Graphics& g);
