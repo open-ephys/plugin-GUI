@@ -989,6 +989,7 @@
 					/usr/local/include/freetype2,
 					/usr/local/include,
 				);
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				PRODUCT_NAME = "open-ephys";
 				SDKROOT = macosx;
 				WARNING_CFLAGS = "-Wreorder";
@@ -1015,6 +1016,7 @@
 					/usr/local/include/freetype2,
 					/usr/local/include,
 				);
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				PRODUCT_NAME = "open-ephys";
 				SDKROOT = macosx;
 				WARNING_CFLAGS = "-Wreorder";

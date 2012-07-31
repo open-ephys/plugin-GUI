@@ -120,10 +120,10 @@ void ProcessorList::renderOpenGL()
 
 	//glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
 	drawItems();
-	drawScrollBars();
+	//drawScrollBars();
 	
     //glFlush();
-    swapBuffers();
+    //swapBuffers();
 }
 
 

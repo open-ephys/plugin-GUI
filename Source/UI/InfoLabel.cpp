@@ -87,7 +87,7 @@ void InfoLabel::renderOpenGL()
 	drawScrollBars();
 
    // glFlush();
-    swapBuffers();
+    //swapBuffers();
 }
 
 
