@@ -25,7 +25,7 @@
 
 FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 			isTransmitting(false),
-			numchannels(32),
+			numchannels(16),
 			deviceFound(false)
 
 {
@@ -33,8 +33,6 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 	
 	const char* bitfilename = "./pipetest.bit";
 
-	printf("---- Opal Kelly ---- PipeTest Application v1.0 ----\n");
-	
 	if (!okFrontPanelDLL_LoadLib(NULL)) {
 		printf("FrontPanel DLL could not be loaded.\n");
 	}
