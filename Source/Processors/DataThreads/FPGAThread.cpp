@@ -57,7 +57,7 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 
 	Ndatabytes = numchannels*3;
 	
-	dataBuffer = new DataBuffer(32, 10000);
+	dataBuffer = new DataBuffer(numchannels, 10000);
 
 	eventCode = 0;
 
@@ -74,7 +74,7 @@ FPGAThread::~FPGAThread() {
 
 int FPGAThread::getNumChannels()
 {
-	return 32;
+	return numchannels;
 }
 
 float FPGAThread::getSampleRate()
@@ -148,41 +148,81 @@ bool FPGAThread::updateBuffer() {
 
     int j = 0;
 
+    // coding scheme:
+	// the code works on a per-byte level where each byte ends in a 0 for data bytes
+	// or in 1 for timecode bytes. This is some overhead but makes data integrity checks 
+	// pretty trivial.
+	// 
+	// headstages are A,B,C,D and another one for the breakout box T for the 0-5v TTL input
+	// A1 is stage A channel 1 etc
+	//
+	// ...............
+	// tc     ttttttt1   
+	// tc     ttttttt1    (6*7bit timecode gives 42 bit gives 4.3980e+12 samples max
+	// tc     ttttttt1     which should be about 7 years at 30KHz)
+	// tc     ttttttt1     
+	// tc     ttttttt1   
+	// tc     ttttttt1 
+	// A1  Hi xxxxxxx0    
+	// A1  Lo xxxxxxx0    (last bits 0)
+	// A1  ch 00000HL0    (L and h H are the two missing bits from A1, hi and lo bytes)
+	// B1  Hi xxxxxxx0   
+	// B1  Lo xxxxxxx0
+	// B1  ch cccccYY0
+	// A2  Hi ........
+	// ... remaining channel data ...
+	// B16 ch cccccYY0
+	// T1     yyyyyyy0   
+	// T2     yyyyyyy0    (space for 14 TTL channels)
+	// ... next sample ...
+	//
+
 	while (j < sizeof(pBuffer))
 	{
 		// look for timecode block (6 bytes)
-		if (  (pBuffer[j] & 1) && (pBuffer[j+1] & 1) && (pBuffer[j+2] & 1) && (pBuffer[j+3] & 1) && (pBuffer[j+4] & 1) && (pBuffer[j+5] & 1) &&  (j+5+Ndatabytes <= sizeof(pBuffer))   ) // indicated by last bit being 1
+		if (  (pBuffer[j] & 1) 
+				&& (pBuffer[j+1] & 1) 
+				&& (pBuffer[j+2] & 1) 
+				&& (pBuffer[j+3] & 1) 
+				&& (pBuffer[j+4] & 1) 
+				&& (pBuffer[j+5] & 1) 
+				&& (j+5+Ndatabytes <= sizeof(pBuffer))   ) // indicated by last bit being 1
 		{ //read 6 bytes, assemble to 6*7 = 42 bits,  arranged in 6 bytes
-				char timecode[6]; // 1st byte throw out last bit of each byte and just concatenate the other bytes in ascending order 
-				timecode[0] = (pBuffer[j] >> 1) | ((pBuffer[j+1] >> 1) << 7); // 2nd byte
-				timecode[1] = (pBuffer[j+1] >> 2) | ((pBuffer[j+2] >> 1) << 6); // 3rd byte
-				timecode[2] = (pBuffer[j+2] >> 3) | ((pBuffer[j+3] >> 1) << 5); // 4th byte
-				timecode[3] = (pBuffer[j+3] >> 4) | ((pBuffer[j+4] >> 1) << 4); // 5th byte
-				timecode[4] = (pBuffer[j+4] >> 5) | ((pBuffer[j+5] >> 1) << 3); // 6th byte
-				timecode[5] = (pBuffer[j+5] >> 6);
 			
-				j += 6; //move cursor to 1st data byte
+			char timecode[6]; // 1st byte throw out last bit of each byte and just concatenate the other bytes in ascending order 
+			timecode[0] = (pBuffer[j] >> 1) | ((pBuffer[j+1] >> 1) << 7); // 2nd byte
+			timecode[1] = (pBuffer[j+1] >> 2) | ((pBuffer[j+2] >> 1) << 6); // 3rd byte
+			timecode[2] = (pBuffer[j+2] >> 3) | ((pBuffer[j+3] >> 1) << 5); // 4th byte
+			timecode[3] = (pBuffer[j+3] >> 4) | ((pBuffer[j+4] >> 1) << 4); // 5th byte
+			timecode[4] = (pBuffer[j+4] >> 5) | ((pBuffer[j+5] >> 1) << 3); // 6th byte
+			timecode[5] = (pBuffer[j+5] >> 6);
+		
+			j += 6; //move cursor to 1st data byte
 
-				// loop through sample data and condense from 3 bytes to 2 bytes
-				char hi; char lo;
-				for (int n = 0;  n < numchannels ; n++) 
-				{
-					// last bit of first 2 is zero, replace with bits 1 and 2 from 3rd byte
-					hi = (pBuffer[j])    | (((  pBuffer[j+2]  >> 2) & ~(1<<6)) & ~(1<<7)) ;
-					lo = (pBuffer[j+1])  | (((  pBuffer[j+2]  >> 1) & ~(1<<1)) & ~(1<<7)) ;
-					j += 3;
+			// loop through sample data and condense from 3 bytes to 2 bytes
+			uint16 hi; uint16 lo;
 
-					//thisSample[n] = float( hi  - 256)/256; 
-					uint16 samp = ((hi << 8) + lo);
-					thisSample[n] = float(samp) * 0.1907f - 6175.0f; 
+			for (int n = 0;  n < numchannels ; n++) 
+			{
+				// last bit of first 2 is zero, replace with bits 1 and 2 from 3rd byte
+				hi = (pBuffer[j])    | (((  pBuffer[j+2]  >> 2) & ~(1<<6)) & ~(1<<7)) ;
+				lo = (pBuffer[j+1])  | (((  pBuffer[j+2]  >> 1) & ~(1<<1)) & ~(1<<7)) ;
+				j += 3;
 
-				}
-				
-				// should actually be converting timecode to timestamp: 
-				timestamp = timer.getHighResolutionTicks();
+				//thisSample[n] = float( hi  - 256)/256; 
+				uint16 samp = ((hi << 8) + lo);
 
-				dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+				thisSample[n] = float(samp) * 0.1907f - 6175.0f; 
+
+
 			}
+
+			// should actually be converting timecode to timestamp: 
+			timestamp = timer.getHighResolutionTicks();
+
+			dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+		}
+		
 		j++; // keep scanning for timecodes
 	}
 

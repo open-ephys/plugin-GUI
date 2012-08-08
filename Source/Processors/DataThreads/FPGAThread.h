@@ -69,9 +69,9 @@ private:
 	bool startAcquisition();
 	bool stopAcquisition();
 
-	unsigned char pBuffer[50000];  // request a 50kb block of data
+	unsigned char pBuffer[10200];  // request a 54kb block of data
 
-	float thisSample[32];
+	float thisSample[256];
 
 	int numchannels;
 	int Ndatabytes;
