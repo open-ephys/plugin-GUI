@@ -108,9 +108,9 @@ void ProcessorList::newOpenGLContextCreated()
 	setUp2DCanvas();
 	activateAntiAliasing();
 
-	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
-	resized();
+	setClearColor(black);
 
+	resized();
 }
 
 void ProcessorList::renderOpenGL()
@@ -118,7 +118,6 @@ void ProcessorList::renderOpenGL()
 	
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffers to preset values
 
-	//glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
 	drawItems();
 	//drawScrollBars();
 	
@@ -174,12 +173,15 @@ void ProcessorList::drawItem(ProcessorListItem* item)
 		      c.getFloatBlue(),
 		      1.0f);
 
-	glBegin(GL_POLYGON);
-	glVertex2f(0,0);
-	glVertex2f(1,0);
-	glVertex2f(1,1);
-	glVertex2f(0,1);
-	glEnd();
+	// see if this helps drawing issues on Windows:
+	glRectf(0.0, 0.0, 1.0, 1.0);
+
+	// glBegin(GL_POLYGON);
+	// glVertex2f(0,0);
+	// glVertex2f(1,0);
+	// glVertex2f(1,1);
+	// glVertex2f(0,1);
+	// glEnd();
 
 	drawItemName(item);
 
@@ -204,8 +206,8 @@ void ProcessorList::drawItemName(ProcessorListItem* item)
 		if (item->isSelected())
 		{
 			glRasterPos2f(9.0/getWidth(),0.72);
-			getFont(String("cpmono-plain"))->FaceSize(15);
-			getFont(String("cpmono-plain"))->Render(">");
+			getFont(cpmono_plain)->FaceSize(15);
+			getFont(cpmono_plain)->Render(">");
 		}
 
 		name = item->getName();
@@ -224,11 +226,11 @@ void ProcessorList::drawItemName(ProcessorListItem* item)
 	glRasterPos2f(offsetX/getWidth(),offsetY);
 
 	if (item->getNumSubItems() == 0) {
-		getFont(String("cpmono-plain"))->FaceSize(15);
-		getFont(String("cpmono-plain"))->Render(name);
+		getFont(cpmono_plain)->FaceSize(15);
+		getFont(cpmono_plain)->Render(name);
 	} else {
-		getFont(String("cpmono-light"))->FaceSize(23);
-		getFont(String("cpmono-light"))->Render(name);
+		getFont(cpmono_light)->FaceSize(23);
+		getFont(cpmono_light)->Render(name);
 	}
 }
 

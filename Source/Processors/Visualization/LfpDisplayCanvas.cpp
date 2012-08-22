@@ -30,7 +30,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	    plotHeight(180), selectedChan(-1), screenBufferIndex(0),
 	    timebase(1.0f), displayGain(0.0001f), displayBufferIndex(0),
 	    headerHeight(40), plotOverlap(200), interplotDistance(70),
-	    timeOffset(0.0f)
+	    timeOffset(0.0f), footerHeight(0)
 {
 
 	nChans = processor->getNumInputs();
@@ -56,7 +56,7 @@ void LfpDisplayCanvas::newOpenGLContextCreated()
 	setUp2DCanvas();
 	activateAntiAliasing();
 
-	glClearColor (0.667, 0.698, 0.718, 1.0);
+	glClearColor (0.2, 0.2, 0.2, 1.0);
 	resized();
 
 }
@@ -307,8 +307,8 @@ void LfpDisplayCanvas::drawTimeline()
 
 	glRasterPos2f(5.0f/float(getWidth()), 0.7);
 
-	getFont(String("cpmono-plain"))->FaceSize(14);
-	getFont(String("cpmono-plain"))->Render(s);
+	getFont(cpmono_plain)->FaceSize(14);
+	getFont(cpmono_plain)->Render(s);
 
 	glViewport(xBuffer,getHeight()-headerHeight,getWidth()-xBuffer,headerHeight);
 
@@ -344,7 +344,7 @@ void LfpDisplayCanvas::drawTimeline()
 
 		glRasterPos2f(xcoord + 5.0f/float(getWidth()), 0.4);
 
-		getFont(String("cpmono-plain"))->Render(s);
+		getFont(cpmono_plain)->Render(s);
 
 		currentPos += step;
 	}
@@ -372,7 +372,7 @@ void LfpDisplayCanvas::drawTimeline()
 
 		glRasterPos2f(xcoord+5.0f/float(getWidth()), 0.85);
 
-		getFont(String("cpmono-plain"))->Render(s);
+		getFont(cpmono_plain)->Render(s);
 
 		currentPos += step;
 	}
@@ -450,8 +450,8 @@ void LfpDisplayCanvas::drawChannelInfo(int chan, bool isSelected)
 	String s = "";//String("Channel ");
 	s += (chan+1);
 
-	getFont(String("cpmono-bold"))->FaceSize(35);
-	getFont(String("cpmono-bold"))->Render(s);
+	getFont(cpmono_bold)->FaceSize(35);
+	getFont(cpmono_bold)->Render(s);
 }
 
 int LfpDisplayCanvas::getTotalHeight() 

@@ -359,7 +359,7 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 	if (isRecording) {
 
 		// WHY IS THIS AFFECTING THE LFP DISPLAY?
-		//buffer.applyGain(0, nSamples, 0.5);
+		//buffer.applyGain(0, nSamples, 5.2438f);
 
 		// cycle through events -- extract the samples per channel
 		// NOT YET IMPLEMENTED
