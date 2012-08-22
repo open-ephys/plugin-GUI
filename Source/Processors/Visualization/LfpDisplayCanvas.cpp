@@ -239,7 +239,7 @@ void LfpDisplayCanvas::renderOpenGL()
 	drawTimeline();
     
    // glFlush();
-    swapBuffers();
+    //swapBuffers();
 	
 }
 
