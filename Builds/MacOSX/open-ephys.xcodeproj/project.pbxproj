@@ -989,6 +989,7 @@
 					/usr/local/include/freetype2,
 					/usr/local/include,
 				);
+				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/libokFrontPanel.dylib";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				PRODUCT_NAME = "open-ephys";
 				SDKROOT = macosx;
@@ -1016,6 +1017,7 @@
 					/usr/local/include/freetype2,
 					/usr/local/include,
 				);
+				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/libokFrontPanel.dylib";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				PRODUCT_NAME = "open-ephys";
 				SDKROOT = macosx;
@@ -1040,6 +1042,11 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../Resources/DLLs\"",
+					"\"$(SRCROOT)\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -1066,6 +1073,11 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../Resources/DLLs\"",
+					"\"$(SRCROOT)\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (

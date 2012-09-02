@@ -31,9 +31,11 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 {
 
 	
-	const char* bitfilename = "./pipetest.bit";
+	//const char* bitfilename = "./pipetest.bit";
+    const char* bitfilename = "/Users/Josh/Programming/open-ephys/GUI/Resources/DLLs/pipetest.bit";
+    const char* libname = "/Users/Josh/Programming/open-ephys/GUI/Resources/DLLs/libokFrontPanel.dylib";
 
-	if (!okFrontPanelDLL_LoadLib(NULL)) {
+	if (!okFrontPanelDLL_LoadLib(libname)) {
 		printf("FrontPanel DLL could not be loaded.\n");
 	}
 	
