@@ -28,7 +28,7 @@
 LfpDisplayNode::LfpDisplayNode()
 	: GenericProcessor("LFP Viewer"),
 	  bufferLength(5.0f), displayBufferIndex(0), displayGain(1),
-	  abstractFifo(100)
+	  abstractFifo(100), ttlState(0)
 
 {
 	displayBuffer = new AudioSampleBuffer(8, 100);
@@ -49,6 +49,13 @@ LfpDisplayNode::LfpDisplayNode()
 	displayGainValues.add(8);
 
 	parameters.add(Parameter("display gain",displayGainValues, 0, 1));//true);//a,0);
+
+	arrayOfOnes = new float[5000];
+
+	for (int n = 0; n < 5000; n++)
+	{
+		arrayOfOnes[n] = 1;
+	}
 
 }
 
@@ -81,7 +88,7 @@ bool LfpDisplayNode::resizeBuffer()
 	if (nSamples > 0 && nInputs > 0)
 	{
 		abstractFifo.setTotalSize(nSamples);
-		displayBuffer->setSize(nInputs, nSamples);
+		displayBuffer->setSize(nInputs+1, nSamples); // add an extra channel for TTLs
 		return true;
 	} else {
 		return false;
@@ -117,11 +124,154 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 		ed->canvas->setParameter(parameterIndex, newValue);
 }
 
-void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples)
+void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event)
+{
+	if (eventType == TTL)
+	{
+		uint8* dataptr = event.getRawData();
+
+    	int eventNodeId = *(dataptr+1);
+    	int eventId = *(dataptr+2);
+    	int eventChannel = *(dataptr+3);
+    	int eventTime = event.getTimeStamp();
+
+    	int samplesLeft = totalSamples - eventTime;
+
+    	int bufferIndex = (displayBufferIndex + eventTime);// % displayBuffer->getNumSamples();
+
+    	if (eventId == 1)
+    	{
+    		ttlState |= (1L << eventChannel);
+    	} else {
+    		ttlState &= ~(1L << eventChannel);
+    	}
+
+    	if (samplesLeft + bufferIndex < displayBuffer->getNumSamples())
+    	{
+
+    	//	std::cout << bufferIndex << " " << samplesLeft << " " << ttlState << std::endl;
+
+    	 displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
+					 		    bufferIndex,		// destStartSample
+					 		    arrayOfOnes, 		// source
+					 		    samplesLeft, 		// numSamples
+					 		    float(ttlState));   // gain
+    	} else {
+
+    		int block2Size = (samplesLeft + bufferIndex) % displayBuffer->getNumSamples();
+    		int block1Size = samplesLeft - block2Size;
+
+    		std::cout << "OVERFLOW." << std::endl;
+
+    		std::cout << bufferIndex << " " << block1Size << " " << ttlState << std::endl;
+
+    		displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
+					 		    bufferIndex,		// destStartSample
+					 		    arrayOfOnes, 		// source
+					 		    block1Size, 		// numSamples
+					 		    float(ttlState));   // gain
+
+    		std::cout << 0 << " " << block2Size << " " << ttlState << std::endl;
+
+    		displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
+					 		    0,		// destStartSample
+					 		    arrayOfOnes, 		// source
+					 		    block2Size, 		// numSamples
+					 		    float(ttlState));   // gain
+
+
+    	}
+
+
+    //	std::cout << "ttlState: " << ttlState << std::endl;
+
+    	// std::cout << "Received event from " << eventNodeId <<
+    	//              " on channel " << eventChannel << 
+    	 //             " with value " << eventId << 
+    	 //             " at timestamp " << event.getTimeStamp() << std::endl;
+
+
+	} else if (eventType == TIMESTAMP)
+	{
+
+		uint8* dataptr = event.getRawData();
+
+    	int eventNodeId = *(dataptr+1);
+    	int eventId = *(dataptr+2);
+    	int eventChannel = *(dataptr+3);
+    	
+    	// update the timestamp for the current buffer:
+    	memcpy(&bufferTimestamp, dataptr+4, 4);
+
+
+
+  //   	double timeInSeconds = double(ts)/Time::getHighResolutionTicksPerSecond();
+  //   	//int64 timestamp = ts[0] << 32 +
+  //   	//				  ts[1] << 16 +
+  //   	//				  ts[2] << 8 +
+  //   	//				  ts[3];
+  //   	//memcpy(ts, dataptr+4, 1);
+
+  //   	std::cout << "Time in seconds is " << timeInSeconds << std::endl;
+
+		// // std::cout << "Received event from " << eventNodeId <<
+  //    	//              " on channel " << eventChannel << 
+  //    	 //             " with value " << eventId << 
+  //    	 //             " for time: " << ts << std::endl;
+	}
+}
+
+void LfpDisplayNode::initializeEventChannel()
+{
+		if (displayBufferIndex + totalSamples < displayBuffer->getNumSamples())
+    	{
+
+    	//	std::cout << getNumInputs()+1 << " " << displayBufferIndex << " " << totalSamples << " " << ttlState << std::endl;
+//
+    	  displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
+					  		    displayBufferIndex,		// destStartSample
+					  		    arrayOfOnes, 		// source
+					  		    totalSamples, 		// numSamples
+					  		    float(ttlState));   // gain
+    	} else {
+
+    		 int block2Size = (displayBufferIndex + totalSamples) % displayBuffer->getNumSamples();
+    		 int block1Size = totalSamples - block2Size;
+
+    		// std::cout << "OVERFLOW." << std::endl;
+
+    		// std::cout << bufferIndex << " " << block1Size << " " << ttlState << std::endl;
+
+    		 displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
+					 		    displayBufferIndex,		// destStartSample
+					 		    arrayOfOnes, 		// source
+					 		    block1Size, 		// numSamples
+		   			 		    float(ttlState));   // gain
+    		// std::cout << 0 << " " << block2Size << " " << ttlState << std::endl;
+
+    		displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
+							    0,		// destStartSample
+					 		    arrayOfOnes, 		// source
+					 		    block2Size, 		// numSamples
+					 		    float(ttlState));   // gain
+
+
+    	}
+}
+
+void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &events, int& nSamples)
 {
 	// 1. place any new samples into the displayBuffer
 	//std::cout << "Display node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
 
+	totalSamples = nSamples;
+	displayBufferIndexEvents = displayBufferIndex;
+
+	initializeEventChannel();
+
+
+
+	checkForEvents(events); // update timestamp, see if we got any TTL events
 
 	int samplesLeft = displayBuffer->getNumSamples() - displayBufferIndex;
 
@@ -130,7 +280,7 @@ void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages
 
 		for (int chan = 0; chan < buffer.getNumChannels(); chan++)
 		{	
-			displayBuffer->copyFrom(chan,  				// destChannel
+			displayBuffer->copyFrom(chan,  			// destChannel
 							    displayBufferIndex, // destStartSample
 							    buffer, 			// source
 							    chan, 				// source channel
@@ -163,6 +313,9 @@ void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages
 
 		displayBufferIndex = extraSamples;
 	}
+
+	//std::cout << *displayBuffer->getSampleData(displayBuffer->getNumChannels()-1, 
+	//										  displayBufferIndex-1) << std::endl;
 
 
 	///// failed attempt to use abstractFifo:

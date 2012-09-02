@@ -250,6 +250,8 @@ bool IntanThread::updateBuffer()
 
             timestamp = timer.getHighResolutionTicks();
 
+           
+
          	dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
 
             // reset values

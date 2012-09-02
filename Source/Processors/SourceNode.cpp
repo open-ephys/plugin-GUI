@@ -231,6 +231,8 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 
 	nSamples = inputBuffer->readAllFromBuffer(buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
 	
+	 //std::cout << "TIMESTAMP: " << timestamp << std::endl;
+
 	uint8 data[4];
 	memcpy(data, &timestamp, 4);
 

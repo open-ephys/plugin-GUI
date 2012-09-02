@@ -56,7 +56,7 @@ void LfpDisplayCanvas::newOpenGLContextCreated()
 	setUp2DCanvas();
 	activateAntiAliasing();
 
-	glClearColor (0.2, 0.2, 0.2, 1.0);
+	glClearColor (0.667, 0.698, 0.718, 1.0);
 	resized();
 
 }
@@ -167,7 +167,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	    	float alpha = (float) subSampleOffset;
 	    	float invAlpha = 1.0f - alpha;
 
-	        for (int channel = 0; channel < nChans; channel++) {
+	    	for (int channel = 0; channel < nChans; channel++) {
 
 	        	waves[channel][screenBufferIndex*2+1] = 
 	        		*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
@@ -178,6 +178,11 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	        	waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
 
 	       	}
+
+	       	//// now do the event channel
+	       	waves[nChans][screenBufferIndex*2+1] = 
+	       		*(displayBuffer->getSampleData(nChans, displayBufferIndex));
+
 
 	       	subSampleOffset += ratio;
 
@@ -232,6 +237,8 @@ void LfpDisplayCanvas::renderOpenGL()
 		}	
 	}
 
+	drawEvents();
+
 	drawScrollBars();
 
 	drawProgressBar();
@@ -239,8 +246,100 @@ void LfpDisplayCanvas::renderOpenGL()
 	drawTimeline();
     
    // glFlush();
-    //swapBuffers();
+    swapBuffers();
 	
+}
+
+void LfpDisplayCanvas::drawEvents()
+{
+
+	//std::cout << waves[nChans][1] << std::endl;
+
+	glViewport(xBuffer, 0, getWidth()-xBuffer, getHeight());
+
+	glLineWidth(1.0f);
+	
+
+	// loop through events
+	for (int n = 1; n < getWidth()*2; n += 2)
+	{
+
+		if (waves[nChans][n] > 0)
+		{
+
+			float x = (float(n-1)/2)/float(getWidth());
+
+			int ttlState = int(waves[nChans][n]);
+			//std::cout << x << std::endl;
+
+			if ((ttlState & 0x20) >> 5)
+			{
+				glColor4f(1.0, 0.0, 0.0, 0.3);
+
+				glBegin(GL_LINE_STRIP);
+					glVertex2f(x, 0);
+					glVertex2f(x, 1);
+				glEnd();
+			}
+
+			if ((ttlState & 0x10) >> 4)
+			{
+				glColor4f(0.0, 1.0, 0.0, 0.3);
+
+				glBegin(GL_LINE_STRIP);
+					glVertex2f(x, 0);
+					glVertex2f(x, 1);
+				glEnd();
+
+			}
+
+			if ((ttlState & 0x8) >> 3)
+			{
+				glColor4f(0.0, 0.0, 1.0, 0.3);
+
+				glBegin(GL_LINE_STRIP);
+					glVertex2f(x, 0);
+					glVertex2f(x, 1);
+				glEnd();
+
+			}
+
+			if ((ttlState & 0x4) >> 2)
+			{
+				glColor4f(0.0, 1.0, 1.0, 0.3);
+
+				glBegin(GL_LINE_STRIP);
+					glVertex2f(x, 0);
+					glVertex2f(x, 1);
+				glEnd();
+
+			}
+
+			if ((ttlState & 0x2) >> 1)
+			{
+				glColor4f(1.0, 1.0, 0.0, 0.3);
+
+				glBegin(GL_LINE_STRIP);
+					glVertex2f(x, 0);
+					glVertex2f(x, 1);
+				glEnd();
+
+			}
+
+			if ((ttlState & 0x1))
+			{
+				glColor4f(1.0, 1.0, 1.0, 0.3);
+
+				glBegin(GL_LINE_STRIP);
+					glVertex2f(x, 0);
+					glVertex2f(x, 1);
+				glEnd();
+
+			}
+
+		}
+
+	}
 }
 
 void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
@@ -248,7 +347,7 @@ void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
 	setViewport(chan);
 
 	int w = getWidth();
-
+	
 	// draw zero line
 	glColor4f(1.0, 1.0, 1.0, 0.2);
 	glBegin(GL_LINE_STRIP);
@@ -530,4 +629,5 @@ const MouseCursor LfpDisplayCanvas::getMouseCursor()
 	const MouseCursor c = MouseCursor(cursorType);
 
 	return c;
+
 }

@@ -61,20 +61,32 @@ public:
 	bool enable();
 	bool disable();
 
+	void handleEvent(int, MidiMessage&);
+
 	AudioSampleBuffer* getDisplayBufferAddress() {return displayBuffer;}
 	int getDisplayBufferIndex() {return displayBufferIndex;}
 
 private:
 
+	void initializeEventChannel();
+
 	ScopedPointer<AudioSampleBuffer> displayBuffer;
 	ScopedPointer<MidiBuffer> eventBuffer;
 
 	int displayBufferIndex;
+	int displayBufferIndexEvents;
 
 	float displayGain; // 
 	float bufferLength; // s
 
 	AbstractFifo abstractFifo;
+
+	int64 bufferTimestamp;
+	int ttlState;
+	float* arrayOfOnes;
+	int totalSamples;
+
+	//Time timer;
 
 	bool resizeBuffer();
 
