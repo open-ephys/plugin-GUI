@@ -26,7 +26,7 @@
 DataBuffer::DataBuffer(int chans, int size)
 	 : abstractFifo (size), buffer(chans, size), numChans(chans) 
 {
-	timestampBuffer = new int64[size];
+	timestampBuffer = new uint64[size];
 	eventCodeBuffer = new int16[size];
 
 }
@@ -38,7 +38,7 @@ void DataBuffer::clear() {
 	buffer.clear();
 }
 
-void DataBuffer::addToBuffer(float* data, int64* timestamps, int16* eventCodes, int numItems) {
+void DataBuffer::addToBuffer(float* data, uint64* timestamps, int16* eventCodes, int numItems) {
 	// writes one sample for all channels
 	int startIndex1, blockSize1, startIndex2, blockSize2;
 	abstractFifo.prepareToWrite(numItems, startIndex1, blockSize1, startIndex2, blockSize2);
@@ -62,7 +62,7 @@ int DataBuffer::getNumSamples() {
 }
 
 
-int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, int64* timestamp, int16* eventCodes, int maxSize)
+int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, uint64* timestamp, int16* eventCodes, int maxSize)
 {
 	// check to see if the maximum size is smaller than the total number of available ints
 	int numItems = (maxSize < abstractFifo.getNumReady()) ? 

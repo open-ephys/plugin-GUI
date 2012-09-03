@@ -232,6 +232,8 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	nSamples = inputBuffer->readAllFromBuffer(buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
 	
 	 //std::cout << "TIMESTAMP: " << timestamp << std::endl;
+    
+    //std::cout << "Samples per buffer: " << nSamples << std::endl;
 
 	uint8 data[4];
 	memcpy(data, &timestamp, 4);
@@ -257,6 +259,8 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	 		{
 	 			if (state == 0) {
 
+                    //std::cout << "OFF" << std::endl;
+                    //std::cout << *eventCodeBuffer << std::endl;
 	 				// signal channel state is OFF
 	 				addEvent(events, // MidiBuffer
 	 						 TTL,    // eventType
@@ -266,6 +270,9 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	 						 );
 	 			} else {
 
+                    //std::cout << "ON" << std::endl;
+                    //std::cout << *eventCodeBuffer << std::endl;
+                    
 	 				// signal channel state is ON
 	 				addEvent(events, // MidiBuffer
 	 						 TTL,    // eventType
@@ -280,7 +287,7 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	 	}
 	 }
 
-	 //std::cout << *eventCodeBuffer << std::endl;
+	 
 
 }
 

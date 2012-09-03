@@ -54,6 +54,8 @@ public:
 	int getNumChannels();
 	float getSampleRate();
 	float getBitVolts();
+    
+    int getNumEventChannels();
 
 private:
 
@@ -69,7 +71,13 @@ private:
 	bool startAcquisition();
 	bool stopAcquisition();
 
-	unsigned char pBuffer[10200];  // request a 54kb block of data
+	unsigned char pBuffer[20000];  // size of the data requested in each buffer
+    unsigned char overflowBuffer[20000];
+    
+    int overflowSize;
+    
+    int ttlOutputVal;
+    int accumulator;
 
 	float thisSample[256];
 

@@ -246,7 +246,7 @@ void LfpDisplayCanvas::renderOpenGL()
 	drawTimeline();
     
    // glFlush();
-    swapBuffers();
+    //swapBuffers();
 	
 }
 
@@ -257,7 +257,7 @@ void LfpDisplayCanvas::drawEvents()
 
 	glViewport(xBuffer, 0, getWidth()-xBuffer, getHeight());
 
-	glLineWidth(1.0f);
+	glLineWidth(2.0f);
 	
 
 	// loop through events
@@ -271,10 +271,30 @@ void LfpDisplayCanvas::drawEvents()
 
 			int ttlState = int(waves[nChans][n]);
 			//std::cout << x << std::endl;
+            
+            if ((ttlState & 0x80) >> 7)
+			{
+				glColor4f(0.5, 0.3, 0.2, 0.1);
+                
+				glBegin(GL_LINE_STRIP);
+                glVertex2f(x, 0);
+                glVertex2f(x, 1);
+				glEnd();
+			}
 
+            if ((ttlState & 0x40) >> 6)
+			{
+				glColor4f(1.0, 0.3, 0.0, 0.1);
+                
+				glBegin(GL_LINE_STRIP);
+                glVertex2f(x, 0);
+                glVertex2f(x, 1);
+				glEnd();
+			}
+            
 			if ((ttlState & 0x20) >> 5)
 			{
-				glColor4f(1.0, 0.0, 0.0, 0.3);
+				glColor4f(1.0, 0.0, 0.0, 0.1);
 
 				glBegin(GL_LINE_STRIP);
 					glVertex2f(x, 0);
@@ -284,7 +304,7 @@ void LfpDisplayCanvas::drawEvents()
 
 			if ((ttlState & 0x10) >> 4)
 			{
-				glColor4f(0.0, 1.0, 0.0, 0.3);
+				glColor4f(0.0, 1.0, 0.0, 0.1);
 
 				glBegin(GL_LINE_STRIP);
 					glVertex2f(x, 0);
@@ -295,7 +315,7 @@ void LfpDisplayCanvas::drawEvents()
 
 			if ((ttlState & 0x8) >> 3)
 			{
-				glColor4f(0.0, 0.0, 1.0, 0.3);
+				glColor4f(0.0, 0.0, 1.0, 0.1);
 
 				glBegin(GL_LINE_STRIP);
 					glVertex2f(x, 0);
@@ -306,7 +326,7 @@ void LfpDisplayCanvas::drawEvents()
 
 			if ((ttlState & 0x4) >> 2)
 			{
-				glColor4f(0.0, 1.0, 1.0, 0.3);
+				glColor4f(0.0, 1.0, 1.0, 0.1);
 
 				glBegin(GL_LINE_STRIP);
 					glVertex2f(x, 0);
@@ -317,7 +337,7 @@ void LfpDisplayCanvas::drawEvents()
 
 			if ((ttlState & 0x2) >> 1)
 			{
-				glColor4f(1.0, 1.0, 0.0, 0.3);
+				glColor4f(1.0, 1.0, 0.0, 0.1);
 
 				glBegin(GL_LINE_STRIP);
 					glVertex2f(x, 0);
@@ -328,7 +348,7 @@ void LfpDisplayCanvas::drawEvents()
 
 			if ((ttlState & 0x1))
 			{
-				glColor4f(1.0, 1.0, 1.0, 0.3);
+				glColor4f(1.0, 1.0, 1.0, 0.1);
 
 				glBegin(GL_LINE_STRIP);
 					glVertex2f(x, 0);

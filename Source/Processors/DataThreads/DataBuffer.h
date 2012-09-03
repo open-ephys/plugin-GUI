@@ -39,15 +39,15 @@ public:
 	DataBuffer(int chans, int size);
 	~DataBuffer();
 	void clear();
-	void addToBuffer(float* data, int64* ts, int16* eventCodes, int numItems);
+	void addToBuffer(float* data, uint64* ts, int16* eventCodes, int numItems);
 	int getNumSamples();
-	int readAllFromBuffer(AudioSampleBuffer& data, int64* ts, int16* eventCodes, int maxSize);
+	int readAllFromBuffer(AudioSampleBuffer& data, uint64* ts, int16* eventCodes, int maxSize);
 
 private:
 	AbstractFifo abstractFifo;
 	AudioSampleBuffer buffer;
 
-    int64* timestampBuffer;
+    uint64* timestampBuffer;
     int16* eventCodeBuffer;
 
 	int numChans;

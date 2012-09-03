@@ -23,10 +23,13 @@
 
 #include "FPGAThread.h"
 
+#include <string.h>
+
 FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 			isTransmitting(false),
-			numchannels(16),
-			deviceFound(false)
+			numchannels(32),
+			deviceFound(false),
+            ttlOutputVal(0)
 
 {
 
@@ -77,9 +80,14 @@ int FPGAThread::getNumChannels()
 	return numchannels;
 }
 
+int FPGAThread::getNumEventChannels()
+{
+    return 8;
+}
+
 float FPGAThread::getSampleRate()
 {
-	return 25000.0;
+	return 12500.0;
 }
 
 float FPGAThread::getBitVolts()
@@ -143,6 +151,8 @@ bool FPGAThread::updateBuffer() {
 	
 	return_code = dev->ReadFromPipeOut(0xA0, sizeof(pBuffer), pBuffer);
 
+    //std::cout << return_code << std::endl; should return number of bytes read [sizeof(pBuffer)]
+    
 	if (return_code == 0)
 		return false;
 
@@ -155,30 +165,35 @@ bool FPGAThread::updateBuffer() {
 	// 
 	// headstages are A,B,C,D and another one for the breakout box T for the 0-5v TTL input
 	// A1 is stage A channel 1 etc
-	//
-	// ...............
-	// tc     ttttttt1   
-	// tc     ttttttt1    (6*7bit timecode gives 42 bit gives 4.3980e+12 samples max
-	// tc     ttttttt1     which should be about 7 years at 30KHz)
-	// tc     ttttttt1     
-	// tc     ttttttt1   
-	// tc     ttttttt1 
-	// A1  Hi xxxxxxx0    
-	// A1  Lo xxxxxxx0    (last bits 0)
-	// A1  ch 00000HL0    (L and h H are the two missing bits from A1, hi and lo bytes)
-	// B1  Hi xxxxxxx0   
-	// B1  Lo xxxxxxx0
-	// B1  ch cccccYY0
-	// A2  Hi ........
-	// ... remaining channel data ...
-	// B16 ch cccccYY0
-	// T1     yyyyyyy0   
-	// T2     yyyyyyy0    (space for 14 TTL channels)
-	// ... next sample ...
-	//
+    // ...............
+    // tc     ttttttt1
+    // tc     ttttttt1    (6*7bit timecode gives 42 bit gives 4.3980e+12 samples max
+    // tc     ttttttt1     which should be about 7 years at 30KHz)
+    // tc     ttttttt1
+    // tc     ttttttt1
+    // tc     ttttttt1
+    // ttl_in xxxxxxxx
+    // ttl_o  xxxxxxxx
+    // A1  Hi xxxxxxx0
+    // A1  Lo xxxxxxx0    (last bits 0)
+    // A1  ch cccccYY0
+    // B1  Hi xxxxxxx0    (YY are the two missing bits from A1, cccc is a 5bit ch code 1-32, or maybe checksum?)
+    // B1  Lo xxxxxxx0
+    // B1  ch cccccYY0
+    // A2  Hi ........
+    // ... remaining channel data ...
+    // B32 ch cccccYY0
+    //
+    // ... next sample ...
+    //
+    
 
+    int i = 0;
+    int samplesUsed = 0;
+    
 	while (j < sizeof(pBuffer))
 	{
+        
 		// look for timecode block (6 bytes)
 		if (  (pBuffer[j] & 1) 
 				&& (pBuffer[j+1] & 1) 
@@ -189,44 +204,103 @@ bool FPGAThread::updateBuffer() {
 				&& (j+5+Ndatabytes <= sizeof(pBuffer))   ) // indicated by last bit being 1
 		{ //read 6 bytes, assemble to 6*7 = 42 bits,  arranged in 6 bytes
 			
-			char timecode[6]; // 1st byte throw out last bit of each byte and just concatenate the other bytes in ascending order 
+            
+            i++;
+            
+			unsigned char timecode[6]; // 1st byte throw out last bit of each byte and just concatenate the other bytes in ascending order
 			timecode[0] = (pBuffer[j] >> 1) | ((pBuffer[j+1] >> 1) << 7); // 2nd byte
 			timecode[1] = (pBuffer[j+1] >> 2) | ((pBuffer[j+2] >> 1) << 6); // 3rd byte
 			timecode[2] = (pBuffer[j+2] >> 3) | ((pBuffer[j+3] >> 1) << 5); // 4th byte
 			timecode[3] = (pBuffer[j+3] >> 4) | ((pBuffer[j+4] >> 1) << 4); // 5th byte
 			timecode[4] = (pBuffer[j+4] >> 5) | ((pBuffer[j+5] >> 1) << 3); // 6th byte
 			timecode[5] = (pBuffer[j+5] >> 6);
+            
+            timestamp = (uint64(timecode[5]) << 35) +
+                        (uint64(timecode[4]) << 28) +
+                        (uint64(timecode[3]) << 32) +
+                        (uint64(timecode[2]) << 16) +
+                        (uint64(timecode[1]) << 8) +
+                        (uint64(timecode[0]));
+            
+           //  if (i == 1)
+           // {
+            //    std::cout << "Start time: " << timestamp << std::endl;
+           // }
+            
+            eventCode = pBuffer[j+6];
+            //std::cout << eventCode << std::endl;
+            //int ttl_out = pBuffer[j+7];
 		
-			j += 6; //move cursor to 1st data byte
+			j += 8; //move cursor to 1st data byte
 
 			// loop through sample data and condense from 3 bytes to 2 bytes
 			uint16 hi; uint16 lo;
 
-			for (int n = 0;  n < numchannels ; n++) 
+            // only take data from the first headstage (i.e., skip every other channel)
+			for (int n = 0;  n < numchannels*2 ; n++)
 			{
-				// last bit of first 2 is zero, replace with bits 1 and 2 from 3rd byte
-				hi = (pBuffer[j])    | (((  pBuffer[j+2]  >> 2) & ~(1<<6)) & ~(1<<7)) ;
-				lo = (pBuffer[j+1])  | (((  pBuffer[j+2]  >> 1) & ~(1<<1)) & ~(1<<7)) ;
-				j += 3;
+                
+                if (n % 2 == 0)
+                {
+                
+                    // last bit of first 2 is zero, replace with bits 1 and 2 from 3rd byte
+                    hi = (pBuffer[j])    | (((  pBuffer[j+2]  >> 2) & ~(1<<6)) & ~(1<<7)) ;
+                    lo = (pBuffer[j+1])  | (((  pBuffer[j+2]  >> 1) & ~(1<<1)) & ~(1<<7)) ;
 
-				//thisSample[n] = float( hi  - 256)/256; 
-				uint16 samp = ((hi << 8) + lo);
+                    uint16 samp = ((hi << 8) + lo);
 
-				thisSample[n] = float(samp) * 0.1907f - 6175.0f; 
+                    thisSample[n/2] = float(samp) * 0.1907f - 6175.0f;
+                }
+                
+                j += 3;
 
 
 			}
+            
+            j -= 3; // step back in time
 
-			// should actually be converting timecode to timestamp: 
-			timestamp = timer.getHighResolutionTicks();
+			// should actually be converting timecode to timestamp, but skip for now: 
+			//timestamp = timer.getHighResolutionTicks();
 
 			dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+            
+            samplesUsed += 200;
+            
 		}
 		
 		j++; // keep scanning for timecodes
 	}
+    
+    overflowSize = sizeof(pBuffer) - samplesUsed;
+    
+//    if (overflowSize != 0)
+//    {
+//        memcpy(&overflowBuffer, &pBuffer[j-overflowSize], overflowSize);
+//        
+//    }
+    
+  //  std::cout << "Overflow size: " << overflowSize << std::endl;
 
+   // std::cout << "End time: " << timestamp << std::endl;
 
+  //  std::cout << return_code << " " << i << std::endl; // number of samples found
+    
+    if (ttlOutputVal == 1 && accumulator > 100)
+    {
+        dev->SetWireInValue(1, 0x00);
+        ttlOutputVal = 0;
+        accumulator = 0;
+    } else if (ttlOutputVal == 0 && accumulator > 100) {
+        dev->SetWireInValue(1, 0x06);
+        ttlOutputVal = 1;
+        accumulator = 0;
+    }
+    
+    accumulator++;
+    
+    dev->UpdateWireIns();
+    
+    
 	return true;
 }
 
