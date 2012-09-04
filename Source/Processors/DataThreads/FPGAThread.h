@@ -71,10 +71,13 @@ private:
 	bool startAcquisition();
 	bool stopAcquisition();
 
-	unsigned char pBuffer[20000];  // size of the data requested in each buffer
+	unsigned char pBuffer[50000];  // size of the data requested in each buffer
+    int bytesToRead;
     unsigned char overflowBuffer[20000];
     
     int overflowSize;
+    
+    int ttl_out;
     
     int ttlOutputVal;
     int accumulator;

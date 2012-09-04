@@ -29,7 +29,8 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 			isTransmitting(false),
 			numchannels(32),
 			deviceFound(false),
-            ttlOutputVal(0)
+            ttlOutputVal(0),
+            bytesToRead(20000)
 
 {
 
@@ -87,7 +88,7 @@ int FPGAThread::getNumEventChannels()
 
 float FPGAThread::getSampleRate()
 {
-	return 12500.0;
+	return 12520.0;
 }
 
 float FPGAThread::getBitVolts()
@@ -149,7 +150,7 @@ bool FPGAThread::updateBuffer() {
 
 	long return_code;
 	
-	return_code = dev->ReadFromPipeOut(0xA0, sizeof(pBuffer), pBuffer);
+	return_code = dev->ReadFromPipeOut(0xA0, bytesToRead, pBuffer);
 
     //std::cout << return_code << std::endl; should return number of bytes read [sizeof(pBuffer)]
     
@@ -190,8 +191,9 @@ bool FPGAThread::updateBuffer() {
 
     int i = 0;
     int samplesUsed = 0;
+    int startSample = 0;
     
-	while (j < sizeof(pBuffer))
+	while (j < bytesToRead)
 	{
         
 		// look for timecode block (6 bytes)
@@ -201,7 +203,7 @@ bool FPGAThread::updateBuffer() {
 				&& (pBuffer[j+3] & 1) 
 				&& (pBuffer[j+4] & 1) 
 				&& (pBuffer[j+5] & 1) 
-				&& (j+5+Ndatabytes <= sizeof(pBuffer))   ) // indicated by last bit being 1
+				&& (j+5+Ndatabytes <= bytesToRead)   ) // indicated by last bit being 1
 		{ //read 6 bytes, assemble to 6*7 = 42 bits,  arranged in 6 bytes
 			
             
@@ -222,14 +224,15 @@ bool FPGAThread::updateBuffer() {
                         (uint64(timecode[1]) << 8) +
                         (uint64(timecode[0]));
             
-           //  if (i == 1)
-           // {
-            //    std::cout << "Start time: " << timestamp << std::endl;
-           // }
+             if (i == 1)
+            {
+            //    startSample = j;
+            //   std::cout << "Start sample: " << j <<
+             //               "     Bytes read: " << bytesToRead << std::endl;
+            }
             
-            eventCode = pBuffer[j+6];
-            //std::cout << eventCode << std::endl;
-            //int ttl_out = pBuffer[j+7];
+            eventCode = pBuffer[j+6]; // TTL input
+            ttl_out = pBuffer[j+7];   // TTL output
 		
 			j += 8; //move cursor to 1st data byte
 
@@ -264,14 +267,22 @@ bool FPGAThread::updateBuffer() {
 
 			dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
             
-            samplesUsed += 200;
+           // samplesUsed += 200;
             
 		}
 		
 		j++; // keep scanning for timecodes
 	}
     
-    overflowSize = sizeof(pBuffer) - samplesUsed;
+   // if (startSample != 0 && bytesToRead > 10000)
+    //    bytesToRead -= 2;
+    //else
+     //   bytesToRead = 20000;
+    
+    
+    // - startSample - 199;// + (200-startSample) - 1;// + startSample +1;
+    
+    //overflowSize = sizeof(pBuffer) - samplesUsed;
     
 //    if (overflowSize != 0)
 //    {
@@ -285,21 +296,22 @@ bool FPGAThread::updateBuffer() {
 
   //  std::cout << return_code << " " << i << std::endl; // number of samples found
     
+   // std::cout << "TTL out:" << ttl_out << std::endl;
+    
     if (ttlOutputVal == 1 && accumulator > 100)
     {
-        dev->SetWireInValue(1, 0x00);
+        dev->SetWireInValue(0x01, 0x00, 0x06);
         ttlOutputVal = 0;
         accumulator = 0;
+        dev->UpdateWireIns();
     } else if (ttlOutputVal == 0 && accumulator > 100) {
-        dev->SetWireInValue(1, 0x06);
+        dev->SetWireInValue(0x01, 0x06, 0x06);
         ttlOutputVal = 1;
         accumulator = 0;
+        dev->UpdateWireIns();
     }
     
     accumulator++;
-    
-    dev->UpdateWireIns();
-    
     
 	return true;
 }
