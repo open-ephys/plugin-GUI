@@ -294,18 +294,18 @@ bool FPGAThread::updateBuffer() {
 
    // std::cout << "End time: " << timestamp << std::endl;
 
-  //  std::cout << return_code << " " << i << std::endl; // number of samples found
+    std::cout << return_code << " " << i << std::endl; // number of samples found
     
    // std::cout << "TTL out:" << ttl_out << std::endl;
     
     if (ttlOutputVal == 1 && accumulator > 100)
     {
-        dev->SetWireInValue(0x01, 0x00, 0x06);
+        dev->SetWireInValue(0x01, 0x00); //, 0x06);
         ttlOutputVal = 0;
         accumulator = 0;
         dev->UpdateWireIns();
     } else if (ttlOutputVal == 0 && accumulator > 100) {
-        dev->SetWireInValue(0x01, 0x06, 0x06);
+        dev->SetWireInValue(0x01, 0x08);//, 0x06);
         ttlOutputVal = 1;
         accumulator = 0;
         dev->UpdateWireIns();
