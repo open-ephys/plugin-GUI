@@ -16,3 +16,13 @@ Builds/Linux/build/windowState.xml
 Builds/Linux/build/Data
 Builds/Linux/build/*.xml
 Builds/Linux/build/*.out
+
+# 4. Windows related
+Builds/VisualStudio2010/Debug
+Builds/VisualStudio2010/Release
+Builds/VisualStudio2010/ipch
+Builds/VisualStudio2010/open-ephys.sdf
+Builds/VisualStudio2010/open-ephys.suo
+Builds/VisualStudio2010/open-ephys.v11.suo
+Builds/VisualStudio2010/open-ephys.vcxproj.user
+Builds/VisualStudio2010/windowState.xml
