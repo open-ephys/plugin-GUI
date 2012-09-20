@@ -31,7 +31,7 @@ void StereotrodePlot::redraw(){
 
 	wAxes[0].redraw();
     wAxes[1].redraw();
-    pAxes.redraw();
+    pAxes[0].redraw();
 }
 
 // This would normally happen for collection of axes but an electrode plot doesn't have a collection instead its a single axes
@@ -39,7 +39,7 @@ void StereotrodePlot::processSpikeObject(SpikeObject s){
 	//std::cout<<"ElectrdePlot::processSpikeObject()"<<std::endl;
 	wAxes[0].updateSpikeData(s);
     wAxes[1].updateSpikeData(s);
-    pAxes.updateSpikeData(s);
+    pAxes[0].updateSpikeData(s);
 }
 
 void StereotrodePlot::setEnabled(bool e){
@@ -47,7 +47,7 @@ void StereotrodePlot::setEnabled(bool e){
 
 	wAxes[0].setEnabled(e);
     wAxes[1].setEnabled(e);
-    pAxes.setEnabled(e);
+    pAxes[0].setEnabled(e);
 }
 
 bool StereotrodePlot::getEnabled(){
@@ -67,11 +67,11 @@ void StereotrodePlot::initAxes(){
 	
 	wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
     wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);
-    pAxes = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2);
-
     wAxes[0].setWaveformColor(1.0, 1.0, 1.0);
     wAxes[1].setWaveformColor(1.0, 1.0, 1.0);
-    pAxes.setPointColor(1.0, 1.0, 1.0);
+    
+    pAxes[0] = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2);
+    pAxes[0].setPointColor(1.0, 1.0, 1.0);
 
     setLimitsOnAxes();
 }
@@ -81,8 +81,8 @@ void StereotrodePlot::setLimitsOnAxes(){
     
     wAxes[0].setYLims(limits[0][0], limits[0][1]);
     wAxes[1].setYLims(limits[1][0], limits[1][1]);
-    pAxes.setYLims(limits[0][0], limits[0][1]);
-    pAxes.setXLims(limits[1][0], limits[1][1]);
+    pAxes[0].setYLims(limits[0][0], limits[0][1]);
+    pAxes[0].setXLims(limits[1][0], limits[1][1]);
     
 
 }
@@ -98,7 +98,7 @@ void StereotrodePlot::setPosition(int x, int y, double w, double h){
 	
     wAxes[0].setPosition(minX, minY, axesWidth/2, axesHeight);
     wAxes[1].setPosition(minX + axesWidth/2, minY, axesWidth/2, axesHeight);	
-    pAxes.setPosition(minX + axesWidth, minY, axesWidth, axesHeight);
+    pAxes[0].setPosition(minX + axesWidth, minY, axesWidth, axesHeight);
 }
 
 int StereotrodePlot::getNumberOfAxes(){
@@ -121,7 +121,7 @@ void StereotrodePlot::getPreferredDimensions(double *w, double *h){
 
 void StereotrodePlot::clear(){
     std::cout<<"StereotrodePlot::clear()"<<std::endl;
-    pAxes.clear();
+    pAxes[0].clear();
 }
 
 

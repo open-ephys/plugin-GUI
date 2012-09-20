@@ -25,7 +25,6 @@ TetrodePlot::~TetrodePlot(){
 //  the right direction
 
 void TetrodePlot::redraw(){
-    //std::cout<<"TetrodePlot() starting drawing"<<std::endl;\
     //BaseUIElement::clearNextDraw = true;
     //BaseUIElement::redraw();
     for (int i = 0; i < 4; i++)
@@ -36,7 +35,7 @@ void TetrodePlot::redraw(){
 
 // This would normally happen for collection of axes but an electrode plot doesn't have a collection instead its a single axes
 void TetrodePlot::processSpikeObject(SpikeObject s){
-    //std::cout<<"ElectrdePlot::processSpikeObject()"<<std::endl;
+    // std::cout<<"TetrodePlot::processSpikeObject()"<<std::endl;
     for (int i = 0; i < 4; i++)
         wAxes[i].updateSpikeData(s);
     for (int i = 0; i < 6; i++)
@@ -45,7 +44,6 @@ void TetrodePlot::processSpikeObject(SpikeObject s){
 
 void TetrodePlot::setEnabled(bool e){
     BaseUIElement::enabled = e;
-
     for (int i = 0; i < 4; i++)
         wAxes[i].setEnabled(e);
     for (int i = 0; i < 6; i++)

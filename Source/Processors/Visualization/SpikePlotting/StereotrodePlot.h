@@ -24,7 +24,7 @@ class StereotrodePlot : public BaseUIElement{
     double limits[2][2];
     
     WaveAxes wAxes[2];
-    ProjectionAxes pAxes;
+    ProjectionAxes pAxes[1];
     
     
     
@@ -38,6 +38,7 @@ class StereotrodePlot : public BaseUIElement{
     
     void initLimits();
     void setLimitsOnAxes();
+    void updateAxesPositions();
 
 	
 public:
