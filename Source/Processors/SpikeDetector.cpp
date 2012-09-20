@@ -61,7 +61,7 @@ SpikeDetector::SpikeDetector()
         electrodeCounter.add(0);
     }
 
-    spikeBuffer = new uint8_t[256];
+    spikeBuffer = new uint8_t[MAX_SPIKE_BUFFER_LEN]; // MAX_SPIKE_BUFFER_LEN defined in SpikeObject.h
 
 }
 
@@ -414,6 +414,7 @@ void SpikeDetector::process(AudioSampleBuffer &buffer,
 
 
                             // } // end if channel is active
+
                         }
 
                         addSpikeEvent(&newSpike, events, peakIndex);
