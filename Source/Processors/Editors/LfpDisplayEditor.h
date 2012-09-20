@@ -24,6 +24,9 @@
 #ifndef __LFPDISPLAYEDITOR_H_3438800D__
 #define __LFPDISPLAYEDITOR_H_3438800D__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "../../UI/UIComponent.h"

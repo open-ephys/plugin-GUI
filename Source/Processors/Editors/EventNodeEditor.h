@@ -25,6 +25,9 @@
 #define __EVENTNODEEDITOR_H_A681BEBC__
 
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 

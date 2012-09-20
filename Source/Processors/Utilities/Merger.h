@@ -24,6 +24,9 @@
 #ifndef __MERGER_H_ED548E77__
 #define __MERGER_H_ED548E77__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor.h"
 

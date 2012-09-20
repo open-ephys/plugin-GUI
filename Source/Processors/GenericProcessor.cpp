@@ -406,7 +406,7 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
 							    uint8 numBytes,
 							    uint8* eventData)
 {
-	uint8 data[4+numBytes];
+	uint8 *data = new uint8[4+numBytes];
 
 	data[0] = type;    // event type
     data[1] = nodeId;  // processor ID automatically added
@@ -417,6 +417,7 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
     eventBuffer.addEvent(data, 		// spike data
                           sizeof(data), // total bytes
                           sampleNum);     // sample index
+	delete data;
 }
 
 // void GenericProcessor::unpackEvent(int type,

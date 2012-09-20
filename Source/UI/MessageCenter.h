@@ -25,6 +25,9 @@
 #define __MESSAGECENTER_H_2695FC38__
 
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 //---------------------------------------------------------------

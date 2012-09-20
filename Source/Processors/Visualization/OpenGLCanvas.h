@@ -24,6 +24,9 @@
 #ifndef __OPENGLCANVAS_H_98F0C13D__
 #define __OPENGLCANVAS_H_98F0C13D__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../../OpenGL.h"

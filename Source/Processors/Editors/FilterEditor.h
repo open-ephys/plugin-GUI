@@ -25,6 +25,9 @@
 #define __FILTEREDITOR_H_969BDB5__
 
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 

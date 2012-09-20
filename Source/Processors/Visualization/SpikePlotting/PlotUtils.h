@@ -5,6 +5,12 @@
 
 #if defined(__linux__)
 	#include <GL/glut.h>
+#elif defined(WIN32)
+	#undef GL_GLEXT_PROTOTYPES
+	#include <Windows.h>
+	#include <GLUT/glut.h>
+	#include <gl/GLU.h>
+	#include "..\..\..\glWinInit.h"
 #else // assume OS X
 	#include <GLUT/glut.h>
 	#include <OpenGL/glu.h>
@@ -14,6 +20,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <cstring>
+#include <string>
 #include <iostream>
 #include <vector>
 #include <FTGL/ftgl.h>

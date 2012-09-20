@@ -24,6 +24,9 @@
 #ifndef __UICOMPONENT_H_D97C73CF__
 #define __UICOMPONENT_H_D97C73CF__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "InfoLabel.h"
 #include "ControlPanel.h"

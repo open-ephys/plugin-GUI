@@ -24,7 +24,9 @@
 #ifndef __FPGATHREAD_H_FBB22A45__
 #define __FPGATHREAD_H_FBB22A45__
 
-
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include <stdio.h>

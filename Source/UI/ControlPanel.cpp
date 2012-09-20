@@ -476,7 +476,7 @@ void ControlPanel::resized()
 		recordButton->setBounds(w-h*8,5,h-5,h-10);
 
 	if (masterClock != 0)
-		masterClock->setBounds(w-h*6-15,0,h*6,h);
+		masterClock->setBounds(w-h*6-15,0,h*6-15,h);
 	
 	if (cpuMeter != 0)
 		cpuMeter->setBounds(8,h/4,h*3,h/2);

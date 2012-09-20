@@ -119,8 +119,10 @@ DataViewport::~DataViewport()
      std::cout << "CURRENT TAB CHANGED" << std::endl;
      std::cout << "number of editors remaining: " << editorArray.size() << std::endl;
 
-     if (!shutdown)
+     if (!shutdown) {
         getEditorViewport()->makeEditorVisible(editorArray[newIndex]);
+		getTopLevelComponent()->repaint();
+	 }
  }
 
 void DataViewport::paint(Graphics& g)

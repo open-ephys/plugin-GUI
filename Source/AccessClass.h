@@ -24,6 +24,9 @@
 #ifndef __ACCESSCLASS_H_CE1DC2DE__
 #define __ACCESSCLASS_H_CE1DC2DE__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class UIComponent;

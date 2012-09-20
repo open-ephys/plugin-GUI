@@ -24,6 +24,9 @@
 #ifndef __SPIKEDETECTOR_H_3F920F95__
 #define __SPIKEDETECTOR_H_3F920F95__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 #include "GenericProcessor.h"

@@ -456,10 +456,12 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			std::cout << "Creating a WiFi node." << std::endl;
 			processor = new WiFiOutput();
 		}
+#ifndef WIN32 //Arduino not supported on windows yet
 		else if (subProcessorType.equalsIgnoreCase("Arduino Output")) {
 			std::cout << "Creating an Arduino node." << std::endl;
 			processor = new ArduinoOutput();
 		}
+#endif
 	
 		//sendActionMessage("New sink created.");
 	}

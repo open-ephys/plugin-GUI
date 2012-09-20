@@ -26,6 +26,9 @@
 
 #include <stdio.h>
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 // #include "../../Network/unp.h"

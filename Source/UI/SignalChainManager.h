@@ -24,6 +24,9 @@
 #ifndef __SIGNALCHAINMANAGER_H_948769B9__
 #define __SIGNALCHAINMANAGER_H_948769B9__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/Editors/GenericEditor.h"
 #include "../AccessClass.h"

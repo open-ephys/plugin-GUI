@@ -24,6 +24,9 @@
 #ifndef __MAINWINDOW_H_BA75E17__
 #define __MAINWINDOW_H_BA75E17__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "UI/UIComponent.h"
 #include "Audio/AudioComponent.h"

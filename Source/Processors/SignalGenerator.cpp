@@ -26,6 +26,10 @@
 #include <stdio.h>
 #include <math.h>
 
+#ifdef WIN32
+#define copysign(x,y) _copysign(x,y)
+#endif
+
 SignalGenerator::SignalGenerator()
 	: GenericProcessor("Signal Generator"),
 
