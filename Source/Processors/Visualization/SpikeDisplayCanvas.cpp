@@ -283,6 +283,7 @@ void SpikeDisplayCanvas::renderOpenGL()
 void SpikeDisplayCanvas::processSpikeEvents()
 {
 
+
 	if (spikeBuffer->getNumEvents() > 0) 
 	{
 		
@@ -291,15 +292,17 @@ void SpikeDisplayCanvas::processSpikeEvents()
 		//std::cout << "Received " << m << " events." << std::endl;
 			
 		//std::cout << m << " events received by node " << getNodeId() << std::endl;
-
 		MidiBuffer::Iterator i (*spikeBuffer);
 		MidiMessage message(0xf4);
 
-		int samplePosition;
-		i.setNextSamplePosition(samplePosition);
+		int samplePosition = 0;
 
+		i.setNextSamplePosition(samplePosition);
+		
+		//int eventCount = 0;
+		
 		while (i.getNextEvent (message, samplePosition)) {
-			
+			//eventCount++;
 			 uint8_t* dataptr = message.getRawData();
 			 int bufferSize = message.getRawDataSize();
 			// int nSamples = (bufferSize-4)/2;
@@ -337,7 +340,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 			// 	std::cout << newSpike.data[n] << " ";
 			// }
 
-		//	std::cout << std::endl;
+			//	std::cout << std::endl;
 
 			plots[chan]->processSpikeObject(simSpike);
 
