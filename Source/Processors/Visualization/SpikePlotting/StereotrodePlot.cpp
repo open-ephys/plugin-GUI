@@ -102,7 +102,7 @@ void StereotrodePlot::setPosition(int x, int y, double w, double h){
 }
 
 int StereotrodePlot::getNumberOfAxes(){
-	return 2;
+	return 3;
 }
 
 void StereotrodePlot::initLimits(){
