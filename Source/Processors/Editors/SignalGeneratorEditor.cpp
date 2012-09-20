@@ -52,6 +52,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 	amplitudeSlider->addListener(this);
 	amplitudeSlider->setSliderStyle(Slider::Rotary);
 	amplitudeSlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
+	amplitudeSlider->setValue(5);
 	addAndMakeVisible(amplitudeSlider);
 
 	frequencySlider = new Slider ("Frequency Slider");
@@ -60,6 +61,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 	frequencySlider->addListener(this);
 	frequencySlider->setSliderStyle(Slider::Rotary);
 	frequencySlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
+	frequencySlider->setValue(1000);
 	addAndMakeVisible(frequencySlider);
 
 	phaseSlider = new Slider ("Phase Slider");
