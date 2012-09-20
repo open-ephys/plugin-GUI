@@ -24,13 +24,15 @@
 #ifndef SPIKEOBJECT_H_
 #define SPIKEOBJECT_H_
 
+#include <iostream>
 #include <stdint.h>
 #include <math.h>
 
 #define MAX_NUMBER_OF_SPIKE_CHANNELS 4
-#define MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES 256
+#define MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES 60
 #define CHECK_BUFFER_VALIDITY true
 #define SPIKE_EVENT_CODE 4;
+#define MAX_SPIKE_BUFFER_LEN 512 // the true max calculated from the spike values below is actually 507
 
 struct SpikeObject{
 
@@ -82,6 +84,8 @@ void generateSimulatedSpike(SpikeObject *s, uint64_t timestamp, int noise);
 
 // Helper function for zeroing out a spike object with a specified number of channels
 void generateEmptySpike(SpikeObject *s, int nChannels);
+
+void printSpike(SpikeObject *s);
 
 
 #endif //SPIKEOBJECT_H_

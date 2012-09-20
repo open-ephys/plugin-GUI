@@ -2,9 +2,9 @@
 #define TETRODE_PLOT_H_
 
 #if defined(__linux__)
-	#include <GL/glut.h>
+    #include <GL/glut.h>
 #else
-	#include <GLUT/glut.h>
+    #include <GLUT/glut.h>
 #endif
 #include <list>
 #include <math.h>
@@ -17,17 +17,17 @@
 
 
 class TetrodePlot : public BaseUIElement{
-	
-
-	bool enabled;
-
-	    
+    
+    bool enabled;   
+    
     bool limitsChanged;
-    double limits[1][2];
+    double limits[2][2];
     
     WaveAxes wAxes[4];
     ProjectionAxes pAxes[6];
-       
+    
+    
+    
     // void zoomAxes(int n, bool xdim, int zoomval);
     // void zoomProjection (int n, bool xdim, int zoomval);
     // void zoomWaveform (int n, bool xdim, int zoomval);
@@ -38,25 +38,23 @@ class TetrodePlot : public BaseUIElement{
     
     void initLimits();
     void setLimitsOnAxes();
-	
+
+    
 public:
-	TetrodePlot();
-	TetrodePlot(int x, int y,int w,int h);
-	virtual ~TetrodePlot();
+    TetrodePlot();
+    TetrodePlot(int x, int y,int w,int h);
+    virtual ~TetrodePlot();
 
-	void initAxes();
-	void redraw();
+    void initAxes();
+    void redraw();
 
-	void setEnabled(bool enabled);
-	bool getEnabled();
-	
-	void setPosition(int,int,double,double);
-	//void setPosition(int, int);
-	//void setDimensions(double,double);
+    void setEnabled(bool enabled);
+    bool getEnabled();
+    void setPosition(int,int,double,double);
 
-	void getPreferredDimensions(double*, double*);
+    void getPreferredDimensions(double*, double*);
 
-	int getNumberOfAxes();
+    int getNumberOfAxes();
     
     void mouseDown(int x, int y);
     

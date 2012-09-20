@@ -28,7 +28,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
 	 	totalScrollPix(0)
 {
 
-	nCols = 3;
+	nCols = 2;
 
 	update();
 	
