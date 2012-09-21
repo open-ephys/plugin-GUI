@@ -150,7 +150,7 @@ void SpikePlot::updateAxesPositions(){
     }
     
     for (int i=0; i<nWaveAx; i++)
-        wAxes[i].setPosition(minX + (i % nWaveCols) * axesWidth, minY + (i/nWaveCols) * axesHeight, axesWidth, axesHeight);
+        wAxes[i].setPosition(minX + (i % nWaveCols) * axesWidth/nWaveCols, minY + (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
 
     for (int i=0; i<nProjAx; i++)
         pAxes[i].setPosition(minX + (1 + i%nProjCols) * axesWidth, minY + (i/nProjCols) * axesHeight, axesWidth, axesHeight);
@@ -180,8 +180,8 @@ void SpikePlot::setPosition(int x, int y, double w, double h){
 void SpikePlot::initLimits(){
     for (int i=0; i<nChannels; i++)
     {
-        limits[i][0] = 3045;//-1*pow(2,11);
-        limits[i][1] = 9503;//pow(2,14)*1.6;
+        limits[i][0] = 2209;//-1*pow(2,11);
+        limits[i][1] = 11059;//pow(2,14)*1.6;
     }
 
 }

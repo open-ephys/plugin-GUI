@@ -69,14 +69,16 @@ private:
 	
 	double defaultFrequency;
 	double defaultAmplitude;
-
+    
+    float generateSpikeSample(double amp, double phase, double noise);
+    
 	float sampleRateRatio;
 
 	//void updateWaveform(int chan);
 
 	enum wvfrm
 	{
-		TRIANGLE, SINE, SQUARE, SAW, NOISE
+		TRIANGLE, SINE, SQUARE, SAW, NOISE, SPIKE
 	};
 
 	Array<int> waveformType;

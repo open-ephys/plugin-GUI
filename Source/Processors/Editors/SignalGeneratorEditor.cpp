@@ -37,7 +37,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 	int buttonWidth = 31;
 	int buttonHeight = 19;
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		WaveformSelector* ws = new WaveformSelector(i);
 		ws->setBounds(15 + (buttonWidth)*i, 30, buttonWidth, buttonHeight);
@@ -52,7 +52,7 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 	amplitudeSlider->addListener(this);
 	amplitudeSlider->setSliderStyle(Slider::Rotary);
 	amplitudeSlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
-	amplitudeSlider->setValue(5);
+	amplitudeSlider->setValue(2.5);
 	addAndMakeVisible(amplitudeSlider);
 
 	frequencySlider = new Slider ("Frequency Slider");
@@ -252,6 +252,16 @@ WaveformSelector::WaveformSelector(int type) : Button("Waveform")
 	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons05_png, 
 	 								    BinaryData::RadioButtons05_pngSize);
 	 }
+    else if (type == 5) {
+		selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected05_png,
+                                              BinaryData::RadioButtons_selected05_pngSize);
+	 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over05_png,
+                                                 BinaryData::RadioButtons_selected_over05_pngSize);
+	 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral05_png,
+                                             BinaryData::RadioButtons_neutral05_pngSize);
+	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons05_png,
+                                                 BinaryData::RadioButtons05_pngSize);
+    }
 
 }
 

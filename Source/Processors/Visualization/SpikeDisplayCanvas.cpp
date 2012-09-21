@@ -28,7 +28,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
 	 	totalScrollPix(0)
 {
 
-	nCols = 2;
+	nCols = 1;
 
 	update();
 	
@@ -301,7 +301,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
 			for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
 			{
-				simSpike.data[i] = newSpike.data[i] + 5000;// * 3 - 10000;
+                    simSpike.data[i] = newSpike.data[i%80] + 5000;// * 3 - 10000;
 			}
 
 			simSpike.nSamples = 40;

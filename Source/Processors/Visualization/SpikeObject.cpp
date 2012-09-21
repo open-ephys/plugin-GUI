@@ -29,7 +29,7 @@
 // Simple method for serializing a SpikeObject into a string of bytes
 int packSpike(SpikeObject *s, uint8_t* buffer, int bufferSize){
 
-	int reqBytes = 1 + 4 + 2 + 2 + 2 + 2 * s->nChannels * s->nSamples + 2 * s->nChannels * 2;
+	//int reqBytes = 1 + 4 + 2 + 2 + 2 + 2 * s->nChannels * s->nSamples + 2 * s->nChannels * 2;
 
 	int idx = 0;
 
@@ -101,12 +101,13 @@ bool unpackSpike(SpikeObject *s, uint8_t* buffer, int bufferSize){
 	idx += s->nChannels * 2;
 
 	memcpy( &(s->threshold), buffer+idx, s->nChannels *2);
-	//idx += s->nChannels * 2;
+	idx += s->nChannels * 2;
+    
+//    if (idx >= bufferSize)
+//		std::cout<<"Buffer Overrun! More data extracted than was given!"<<std::endl;
     
     return true;
 
-	//if (idx >= bufferSize)
-	//	std::cout<<"Buffer Overrun! More data extracted than was given!"<<std::endl;
 	
 }
 

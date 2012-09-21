@@ -54,7 +54,7 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode)
     electrodeTypes->setJustificationType (Justification::centredLeft);
     electrodeTypes->addListener(this);
     electrodeTypes->setBounds(65,40,110,20);
-    electrodeTypes->setSelectedId(3);
+    electrodeTypes->setSelectedId(2);
     addAndMakeVisible(electrodeTypes);
 
     electrodeList = new ComboBox("Electrode List");

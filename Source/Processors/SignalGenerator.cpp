@@ -153,7 +153,8 @@ bool SignalGenerator::disable() {
 	return true;
 }
 
-void SignalGenerator::process(AudioSampleBuffer &buffer, 
+
+void SignalGenerator::process(AudioSampleBuffer &buffer,
                             MidiBuffer &midiMessages,
                             int& nSamps)
 {
@@ -184,6 +185,9 @@ void SignalGenerator::process(AudioSampleBuffer &buffer,
 				case NOISE:
 					sample = amplitude[j] * (float(rand()) / float(RAND_MAX)-0.5f);
 					break;
+                case SPIKE:
+                    sample = generateSpikeSample(amplitude[j], currentPhase[j], phase[j]);
+                    break;
 				default:
 					sample = 0;
         	}
@@ -198,8 +202,6 @@ void SignalGenerator::process(AudioSampleBuffer &buffer,
         }
     }
 
-
- 	
 
 	// for (int chan = 0; chan < buffer.getNumChannels(); chan++)
 	// {
@@ -265,4 +267,37 @@ void SignalGenerator::process(AudioSampleBuffer &buffer,
 
 	// }
 
+}
+float SignalGenerator::generateSpikeSample(double amp, double phase, double noise){
+    
+    const int N_SAMP = 80;
+    
+    double waveform[80] =
+    {   1.0000, 1.0002, 1.0003, 1.0006, 1.0009, 1.0016, 1.0026, 1.0041, 1.0065, 1.0101, 1.0152, 1.0225, 1.0324, 1.0455, 1.0623, 1.0831, 1.1079,
+        1.1363, 1.1675, 1.2001, 1.2324, 1.2623, 1.2876, 1.3061, 1.3161, 1.3163, 1.3062, 1.2863, 1.2575, 1.2216, 1.1808, 1.1375, 1.0941, 1.0527,
+        1.0151, 0.9827, 0.9562, 0.9360, 0.9220, 0.9137, 0.9105, 0.9117, 0.9162, 0.9231, 0.9317, 0.9410, 0.9505, 0.9595, 0.9678, 0.9750, 0.9811,
+        0.9861, 0.9900, 0.9931, 0.9953, 0.9969, 0.9980, 0.9987, 0.9992, 0.9995, 0.9997, 0.9999, 0.9999, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,
+        1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000};
+    
+    
+    // We don't want to shift the waveform but scale it, and we don't want to scale
+    // the baseline, just the peak of the waveform
+    double scale[80] =
+    {	1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0001, 1.0004, 1.0009, 1.0020, 1.0044, 1.0091, 1.0175, 1.0317, 1.0540, 1.0863, 1.1295, 1.1827, 1.2420, 1.3011, 1.3521, 1.3867, 1.3990, 1.3867, 1.3521, 1.3011, 1.2420, 1.1827, 1.1295, 1.0863, 1.0540, 1.0317, 1.0175, 1.0091, 1.0044, 1.0020, 1.0009, 1.0004, 1.0001, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000};
+    
+    
+    
+    int shift = -4500;//1000 + 32768;
+    int sampIdx = 0;
+    int gain = 3000;
+
+    double r = ((rand() % 201) - 100) / 1000.0; // Generate random number between -.1 and .1
+    noise = r  * noise / (double_Pi * 2); // Shrink the range of r based upon the value of noise
+   
+    sampIdx = (int) (phase / (2 * double_Pi) * (N_SAMP-1)); // bind between 0 and N_SAMP-1, too tired to figure out the proper math
+    //sampIdx = sampIdx + 8;
+
+    float sample = shift + gain * ( ( waveform[sampIdx] + noise ) * pow( scale[sampIdx], amp / 250.0 ) ) ;
+    
+    return sample;
 }
