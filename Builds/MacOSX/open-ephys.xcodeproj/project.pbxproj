@@ -988,6 +988,8 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include/freetype2,
 					/usr/local/include,
+					/opt/local/include,
+					/opt/local/include/freetype2,
 				);
 				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/libokFrontPanel.dylib";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
@@ -1016,6 +1018,8 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include/freetype2,
 					/usr/local/include,
+					/opt/local/include,
+					/opt/local/include/freetype2,
 				);
 				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/libokFrontPanel.dylib";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
