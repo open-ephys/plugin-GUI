@@ -52,12 +52,25 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 void SpikeDisplayCanvas::initializeSpikePlots(){
 
 	std::cout<<"Initializing Plots"<<std::endl;
+    
+    // This layout system really only works if plot types are aggregated together.
+    // It might be worthwhile to investigate the merits of using a grid system
+    // The canvas is defined as N grid widths wide. Each SpikePlot defines its
+    // dimensions in grid widths.
+    //
+    // Plots are added from left to right, top to bottom.  A plot is put into place
+    // if it can fit into the next grid location w/o its top going above the current
+    // row and w/o its bottom going below the current row
+    //
+    // This would lead to dead space but it would allow the plots to all scale accoring
+    // to how much space they need.  The current system of deciding plot sizes, isn't going
+    // to scale well.... this needs more thought
 
 	if (plots.size() != nPlots)
 	{
 
 	int totalWidth = getWidth(); 
-	
+
 	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
 	int plotHeight = plotWidth / 2 + .5;
 	int rowCount = 0;
@@ -66,77 +79,44 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 
 	for (int i = 0; i < nPlots; i++)
 	{
-
-		switch (processor->getNumberOfChannelsForElectrode(i))
-		{
+        int pType;
+		switch (processor->getNumberOfChannelsForElectrode(i)){
 			case 1:
-			{
-
-				std::cout << "Creating single electrode plot." << std::endl;
-
-				ElectrodePlot* p1 = new ElectrodePlot( 
-									xBuffer + i%nCols * (plotWidth + xBuffer) , 
-									yBuffer + rowCount * (plotHeight + yBuffer), 
-									plotWidth, 
-									plotHeight);
-				plots.add(p1);
-				break;
-			}
+                pType = SINGLE_PLOT;
+                break;
 			case 2:
-			{
-
-				std::cout << "Creating stereotrode plot." << std::endl;
-
-				StereotrodePlot* p2 = new StereotrodePlot( 
-									xBuffer + i%nCols * (plotWidth + xBuffer) , 
-									yBuffer + rowCount * (plotHeight + yBuffer), 
-									plotWidth, 
-									plotHeight);
-				plots.add(p2);
-				break;
-			}
+                pType = STEREO_PLOT;
+                break;
 			case 4:
-			{
-				std::cout << "Creating tetrode plot." << std::endl;
-
-				TetrodePlot* p3 = new TetrodePlot( 
-									xBuffer + i%nCols * (plotWidth + xBuffer) , 
-									yBuffer + rowCount * (plotHeight + yBuffer), 
-									plotWidth, 
-									plotHeight);
-				plots.add(p3);
-				break;
-			}
-			default:
-			{
-
-				std::cout << "Not sure what to do, creating single electrode plot." << std::endl;
-
-				ElectrodePlot* p4 = new ElectrodePlot( 
-									xBuffer + i%nCols * (plotWidth + xBuffer) , 
-									yBuffer + rowCount * (plotHeight + yBuffer), 
-									plotWidth, 
-									plotHeight);
-				plots.add(p4);
-			}
-		}
-
-		// SpikeObject tmpSpike;
-		// generateEmptySpike(&tmpSpike, 4);
-		// p.processSpikeObject(tmpSpike);
-		
-		// plots.push_back(p);
+                pType = TETRODE_PLOT;
+                break;
+            default:
+                pType = SINGLE_PLOT;
+                break;
+        }
+        
+//        bool use_generic_plots_flag = true;
+        
+//        BaseUIElement *sp;
+        
+  //      if (use_generic_plots_flag)
+        SpikePlot *sp = new SpikePlot(xBuffer + i%nCols * (plotWidth + xBuffer) ,
+                               yBuffer + rowCount * (plotHeight + yBuffer),
+                               plotWidth, plotHeight, pType);
+        
+//        else
+//            sp = new StereotrodePlot(xBuffer + i%nCols * (plotWidth + xBuffer) ,
+//                                      yBuffer + rowCount * (plotHeight + yBuffer),
+//                                      plotWidth, plotHeight);
+        plots.add(sp);
 
 		if (i%nCols == nCols-1)
 			rowCount++;
-
 	}
-
 	//totalHeight = rowCount * (plotHeight + yBuffer) + yBuffer * 2;
-
 	// Set the total height of the Canvas to the top of the top most plot
-	plotsInitialized = true;
 
+    plotsInitialized = true;
 	repositionSpikePlots();
 	}
 }
@@ -319,7 +299,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 			generateSimulatedSpike(&simSpike, 0, 0);
 
 
-			for (int i = 0; i < 80; i++)
+			for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
 			{
 				simSpike.data[i] = newSpike.data[i] + 5000;// * 3 - 10000;
 			}

@@ -16,6 +16,7 @@
 		0BBDB7C2B8CE82F1B0844B70 /* Documentation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E8214D83845C25F39EEC13CD /* Documentation.cpp */; };
 		0DDC562EC2B04A26AE6CBB2B /* TetrodePlot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FBB9A423728922E96F55074F /* TetrodePlot.cpp */; };
 		116BB2F62451986C75586F9D /* ControlPanel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AB4A3A63B9FDEAB09EEC9C8 /* ControlPanel.cpp */; };
+		1180A1E3160BF28E0075D163 /* SpikePlot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1180A1E1160BF28E0075D163 /* SpikePlot.cpp */; };
 		11885833D32D03BA7E17138A /* DiscRecording.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFA895DFA2087804F47ECF9 /* DiscRecording.framework */; };
 		13457B3248E7646270A4FF88 /* CustomLookAndFeel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A32D8455B95FD230EBFD7891 /* CustomLookAndFeel.cpp */; };
 		14BE1E76E7BB3593A5F66DCC /* QuickTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF41F256D0C244C2C02AE6E1 /* QuickTime.framework */; };
@@ -123,6 +124,8 @@
 		0D20C3399D0492771F7A808A /* State.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../../Source/Dsp/State.cpp; sourceTree = SOURCE_ROOT; };
 		0D2903C450AE862C2C0060AA /* FileReaderThread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FileReaderThread.cpp; path = ../../Source/Processors/DataThreads/FileReaderThread.cpp; sourceTree = SOURCE_ROOT; };
 		10F82563E4A633BC234B2800 /* SignalGeneratorEditor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SignalGeneratorEditor.h; path = ../../Source/Processors/Editors/SignalGeneratorEditor.h; sourceTree = SOURCE_ROOT; };
+		1180A1E1160BF28E0075D163 /* SpikePlot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpikePlot.cpp; path = ../../Source/Processors/Visualization/SpikePlotting/SpikePlot.cpp; sourceTree = "<group>"; };
+		1180A1E2160BF28E0075D163 /* SpikePlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpikePlot.h; path = ../../Source/Processors/Visualization/SpikePlotting/SpikePlot.h; sourceTree = "<group>"; };
 		126B0DE9B8D4E42DA7D57AAB /* sine_wave.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = sine_wave.png; path = ../../Resources/Images/Icons/sine_wave.png; sourceTree = SOURCE_ROOT; };
 		12866D44BE115E8837468F48 /* AudioNode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AudioNode.h; path = ../../Source/Processors/AudioNode.h; sourceTree = SOURCE_ROOT; };
 		137CF1AB4144076D79D50975 /* PoleFilter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PoleFilter.cpp; path = ../../Source/Dsp/PoleFilter.cpp; sourceTree = SOURCE_ROOT; };
@@ -398,6 +401,8 @@
 		1255E9B28ADAA1A1CADC4A6E /* SpikePlotting */ = {
 			isa = PBXGroup;
 			children = (
+				1180A1E1160BF28E0075D163 /* SpikePlot.cpp */,
+				1180A1E2160BF28E0075D163 /* SpikePlot.h */,
 				C92B3F413B0F24752ADE6730 /* StereotrodePlot.cpp */,
 				FDD549F527C378CF36BDB8C7 /* StereotrodePlot.h */,
 				3BB44F767E701E3642435FA0 /* ElectrodePlot.cpp */,
@@ -964,6 +969,7 @@
 				FD157D98C4C31AE782659718 /* JuceLibraryCode2.mm in Sources */,
 				09AC8D29A08EE1FFBC4ADB23 /* JuceLibraryCode3.mm in Sources */,
 				05339DCA8C59B707E61F1F2E /* JuceLibraryCode4.mm in Sources */,
+				1180A1E3160BF28E0075D163 /* SpikePlot.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

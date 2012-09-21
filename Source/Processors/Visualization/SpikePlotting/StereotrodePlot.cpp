@@ -29,25 +29,31 @@ void StereotrodePlot::redraw(){
 	//BaseUIElement::clearNextDraw = true;
 	//BaseUIElement::redraw();
 
-	wAxes[0].redraw();
-    wAxes[1].redraw();
-    pAxes[0].redraw();
+    for (int i=0; i<nWaveAx; i++)
+        wAxes[i].redraw();
+//    wAxes[1].redraw();
+    for (int i=0; i<nProjAx; i++)
+        pAxes[i].redraw();
 }
 
 // This would normally happen for collection of axes but an electrode plot doesn't have a collection instead its a single axes
 void StereotrodePlot::processSpikeObject(SpikeObject s){
 	//std::cout<<"ElectrdePlot::processSpikeObject()"<<std::endl;
-	wAxes[0].updateSpikeData(s);
-    wAxes[1].updateSpikeData(s);
-    pAxes[0].updateSpikeData(s);
+    for (int i=0; i<nWaveAx; i++)
+        wAxes[i].updateSpikeData(s);
+//    wAxes[1].updateSpikeData(s);
+    for (int i=0; i<nProjAx; i++)
+        pAxes[i].updateSpikeData(s);
 }
 
 void StereotrodePlot::setEnabled(bool e){
 	BaseUIElement::enabled = e;
-
-	wAxes[0].setEnabled(e);
-    wAxes[1].setEnabled(e);
-    pAxes[0].setEnabled(e);
+    
+    for (int i=0; i<nWaveAx; i++)
+        wAxes[i].setEnabled(e);
+//    wAxes[1].setEnabled(e);
+    for (int i=0; i<nProjAx; i++)
+        pAxes[i].setEnabled(e);
 }
 
 bool StereotrodePlot::getEnabled(){
@@ -57,32 +63,47 @@ bool StereotrodePlot::getEnabled(){
 
 void StereotrodePlot::initAxes(){
 	initLimits();
+	
+    for (int i=0; i<nWaveAx; i++){
+        wAxes[i] = WaveAxes(0, 0, 1, 1, WAVE1 + i); // add i to increment the wave channel
+        wAxes[i].setWaveformColor(1.0, 1.0, 1.0);
+    }
+//    wAxes[1] = WaveAxes(0, 0, 1, 1, WAVE2);
+//   wAxes[0].setWaveformColor(1.0, 1.0, 1.0);
+//    wAxes[1].setWaveformColor(1.0, 1.0, 1.0);
     
+    for (int i=0; i<nProjAx; i++){
+        pAxes[i] = ProjectionAxes(0, 0, 1, 1, PROJ1x2 + i);
+        pAxes[i].setPointColor(1.0, 1.0, 1.0);
+    }
+
+    updateAxesPositions();
+    setLimitsOnAxes();
+}
+void StereotrodePlot::updateAxesPositions(){
     int minX = BaseUIElement::xpos;
 	int minY = BaseUIElement::ypos;
 	
 	double axesWidth = BaseUIElement::width/2;
 	double axesHeight = BaseUIElement::height;
 	
-	
-	wAxes[0] = WaveAxes(minX, minY, axesWidth/2, axesHeight, WAVE1);
-    wAxes[1] = WaveAxes(minX + axesWidth/2, minY, axesWidth/2, axesHeight, WAVE2);
-    wAxes[0].setWaveformColor(1.0, 1.0, 1.0);
-    wAxes[1].setWaveformColor(1.0, 1.0, 1.0);
-    
-    pAxes[0] = ProjectionAxes(minX + axesWidth, minY, axesWidth, axesHeight, PROJ1x2);
-    pAxes[0].setPointColor(1.0, 1.0, 1.0);
-
-    setLimitsOnAxes();
+    for (int i=0; i<nWaveAx; i++)
+        wAxes[i].setPosition(minX + (i%2) * axesWidth/2, minY + (i/2) * axesHeight, axesWidth/2, axesHeight);
+//    wAxes[1].setPosition(minX + axesWidth/2, minY, axesWidth/2, axesHeight);
+    for (int i=0; i<nProjAx; i++)
+        pAxes[0].setPosition(minX + (1 + i%2) * axesWidth, minY + (i/2) * axesHeight, axesWidth, axesHeight);
 }
 
 void StereotrodePlot::setLimitsOnAxes(){
     std::cout<<"StereotrodePlot::setLimitsOnAxes()"<<std::endl;
     
-    wAxes[0].setYLims(limits[0][0], limits[0][1]);
-    wAxes[1].setYLims(limits[1][0], limits[1][1]);
-    pAxes[0].setYLims(limits[0][0], limits[0][1]);
-    pAxes[0].setXLims(limits[1][0], limits[1][1]);
+    for (int i=0; i<nWaveAx; i++)
+        wAxes[i].setYLims(limits[0][0], limits[0][1]);
+//    wAxes[1].setYLims(limits[1][0], limits[1][1]);
+    for (int i=0; i<nProjAx; i++){
+        pAxes[i].setYLims(limits[0][0], limits[0][1]);
+        pAxes[i].setXLims(limits[1][0], limits[1][1]);
+    }
     
 
 }
@@ -90,15 +111,8 @@ void StereotrodePlot::setPosition(int x, int y, double w, double h){
     
 //    std::cout<<"StereotrodePlot::setPosition()"<<std::endl;
 	BaseUIElement::setPosition(x,y,w,h);
-	int minX = BaseUIElement::xpos;
-	int minY = BaseUIElement::ypos;
-	
-	double axesWidth = BaseUIElement::width/2;
-	double axesHeight = BaseUIElement::height;
-	
-    wAxes[0].setPosition(minX, minY, axesWidth/2, axesHeight);
-    wAxes[1].setPosition(minX + axesWidth/2, minY, axesWidth/2, axesHeight);	
-    pAxes[0].setPosition(minX + axesWidth, minY, axesWidth, axesHeight);
+	updateAxesPositions();
+    
 }
 
 int StereotrodePlot::getNumberOfAxes(){
@@ -106,16 +120,15 @@ int StereotrodePlot::getNumberOfAxes(){
 }
 
 void StereotrodePlot::initLimits(){
-    for (int i=0; i<2; i++)
+    for (int i=0; i<nChannel; i++)
     {
-        limits[i][0] = -1*pow(2,11);
-        limits[i][1] = pow(2,14)*1.6;
+        limits[i][0] = 3705;//-1*pow(2,11);
+        limits[i][1] = 6201;//pow(2,14)*1.6;
     }
-
 }
 
 void StereotrodePlot::getPreferredDimensions(double *w, double *h){
-    *w = 75;
+    *w = 150;
     *h = 75;
 }
 
@@ -126,30 +139,7 @@ void StereotrodePlot::clear(){
 
 
 bool StereotrodePlot::processKeyEvent(SimpleKeyEvent k){
-    // std::cout<<"Key:"<<(char)k.key<<std::endl;
-    // switch(k.key)
-    // {
-    //     case '=':
-    //         for (int i=0; i<=WAVE4; i++)
-    //             zoomWaveform(i, false, 3);
-    //         break;        
-    //     case '+':
-    //         for (int i=0; i<=WAVE4; i++)
-    //             panWaveform(i, false, 3);
-    //         break;
-    //     case '-':
-    //         for (int i=0; i<=WAVE4; i++)
-    //             zoomWaveform(i, false, -3);
-    //         break;    
-    //     case '_':
-    //         for (int i=0; i<=WAVE4; i++)
-    //             panWaveform(i, false, -3);
-    //         break;
-    //     case 'C':
-    //         clearOnNextDraw(true);
-    //         break;
-    // }
-    
+
     return true;
 }
 

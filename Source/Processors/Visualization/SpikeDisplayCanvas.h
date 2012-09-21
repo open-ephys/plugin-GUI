@@ -30,6 +30,7 @@
 #include "SpikePlotting/ElectrodePlot.h"
 #include "SpikePlotting/StereotrodePlot.h"
 #include "SpikePlotting/TetrodePlot.h"
+#include "SpikePlotting/SpikePlot.h"
 #include "SpikeObject.h"
 
 #include "Visualizer.h"
