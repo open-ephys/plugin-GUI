@@ -171,7 +171,7 @@ void SpikePlot::setPosition(int x, int y, double w, double h){
 void SpikePlot::initLimits(){
     for (int i=0; i<nChannels; i++)
     {
-        limits[i][0] = 2209;//-1*pow(2,11);
+        limits[i][0] = 1209;//-1*pow(2,11);
         limits[i][1] = 11059;//pow(2,14)*1.6;
     }
 

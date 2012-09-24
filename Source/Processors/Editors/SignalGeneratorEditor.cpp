@@ -37,10 +37,10 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode)
 	int buttonWidth = 31;
 	int buttonHeight = 19;
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		WaveformSelector* ws = new WaveformSelector(i);
-		ws->setBounds(15 + (buttonWidth)*i, 30, buttonWidth, buttonHeight);
+		ws->setBounds(8 + (buttonWidth)*i, 30, buttonWidth, buttonHeight);
 		ws->addListener(this);
 		waveformSelectors.add(ws);
 		addAndMakeVisible(ws);
@@ -252,16 +252,16 @@ WaveformSelector::WaveformSelector(int type) : Button("Waveform")
 	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons05_png, 
 	 								    BinaryData::RadioButtons05_pngSize);
 	 }
-    else if (type == 5) {
-		selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected05_png,
-                                              BinaryData::RadioButtons_selected05_pngSize);
-	 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over05_png,
-                                                 BinaryData::RadioButtons_selected_over05_pngSize);
-	 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral05_png,
-                                             BinaryData::RadioButtons_neutral05_pngSize);
-	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons05_png,
-                                                 BinaryData::RadioButtons05_pngSize);
-    }
+  //   else if (type == 5) {
+		// selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected05_png,
+  //                                             BinaryData::RadioButtons_selected05_pngSize);
+	 // 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over05_png,
+  //                                                BinaryData::RadioButtons_selected_over05_pngSize);
+	 // 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral05_png,
+  //                                            BinaryData::RadioButtons_neutral05_pngSize);
+	 // 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons05_png,
+  //                                                BinaryData::RadioButtons05_pngSize);
+  //   }
 
 }
 
