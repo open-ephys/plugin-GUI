@@ -13,7 +13,7 @@
                juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi -lftgl"
                objCExtraSuffix="fea2mT"/>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-lftdi -lftgl -pg" extraCompilerFlags="-export-dynamic -g -pg"/>
+                extraLinkerFlags="-lftdi -lftgl -pg -ldl -lXext" extraCompilerFlags="-export-dynamic -g -pg"/>
     <VS2010 targetFolder="Builds/VisualStudio2010" vstFolder="c:\SDKs\vstsdk2.4"
             rtasFolder="c:\SDKs\PT_80_SDK" libraryType="1" juceFolder="JuceLibraryCode"
             extraLinkerFlags="-lftdi -lftgl"/>
@@ -211,13 +211,8 @@
         </GROUP>
         <GROUP id="W4eqkOy" name="Visualization">
           <GROUP id="g8GOfh" name="SpikePlotting">
-            <FILE id="PzmX0I" name="StereotrodePlot.cpp" compile="1" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/StereotrodePlot.cpp"/>
-            <FILE id="LPK6G1" name="StereotrodePlot.h" compile="0" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/StereotrodePlot.h"/>
-            <FILE id="EgoljI" name="ElectrodePlot.cpp" compile="1" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/ElectrodePlot.cpp"/>
-            <FILE id="oFUMq0" name="ElectrodePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/ElectrodePlot.h"/>
+            <FILE id="AD91jR" name="SpikePlot.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/SpikePlot.cpp"/>
+            <FILE id="iO3abH" name="SpikePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/SpikePlot.h"/>
             <FILE id="Qq75l" name="BaseUIElement.cpp" compile="1" resource="0"
                   file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp"/>
             <FILE id="PZdkKU" name="BaseUIElement.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.h"/>
@@ -231,8 +226,6 @@
                   file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.h"/>
             <FILE id="RnnkTt" name="SimpleKeyEvent.h" compile="0" resource="0"
                   file="Source/Processors/Visualization/SpikePlotting/SimpleKeyEvent.h"/>
-            <FILE id="dP2Ikw" name="TetrodePlot.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/TetrodePlot.cpp"/>
-            <FILE id="SH9Un2" name="TetrodePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/TetrodePlot.h"/>
             <FILE id="yg1Xuq" name="WaveAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp"/>
             <FILE id="cZX4SM" name="WaveAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.h"/>
           </GROUP>

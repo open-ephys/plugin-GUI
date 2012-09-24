@@ -304,10 +304,7 @@
     <ClCompile Include="..\..\Source\Processors\Utilities\Splitter.cpp">
       <Filter>open-ephys\Source\Processors\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\StereotrodePlot.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\ElectrodePlot.cpp">
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.cpp">
@@ -320,9 +317,6 @@
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\ProjectionAxes.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\TetrodePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\WaveAxes.cpp">
@@ -594,10 +588,7 @@
     <ClInclude Include="..\..\Source\Processors\Utilities\Splitter.h">
       <Filter>open-ephys\Source\Processors\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\StereotrodePlot.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\ElectrodePlot.h">
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.h">
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.h">
@@ -613,9 +604,6 @@
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SimpleKeyEvent.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\TetrodePlot.h">
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\WaveAxes.h">
