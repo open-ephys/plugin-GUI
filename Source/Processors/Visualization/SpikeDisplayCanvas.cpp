@@ -23,13 +23,13 @@
 
 #include "SpikeDisplayCanvas.h"
 
-SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
-	 	xBuffer(25), yBuffer(25), newSpike(false), plotsInitialized(false),
-	 	totalScrollPix(0)
+SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
+        xBuffer(18), yBuffer(18),
+	 	plotsInitialized(false), newSpike(false),
+        processor(n), totalScrollPix(0)
 {
-
-	nCols = 1;
-
+    nCols = 8;
+    
 	update();
 	
 	spikeBuffer = processor->getSpikeBufferAddress();
@@ -123,26 +123,72 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 
 void SpikeDisplayCanvas::repositionSpikePlots(){
 	
-	int totalWidth = getWidth(); 
-	
-	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
-	int plotHeight = plotWidth / 2 + .5;
-	int rowCount = 0;
+	int canvasWidth = getWidth();
+	int gridSize = canvasWidth / nCols;
+    
+    gridSize = (gridSize > MIN_GRID_SIZE) ? gridSize : MIN_GRID_SIZE;
+    gridSize = (gridSize < MAX_GRID_SIZE) ? gridSize : MAX_GRID_SIZE;
+        
+    
+    
+    int x = xBuffer;
+    int y = getHeight() - yBuffer;
+    int p = 0;
+    int w,h;
+    int yIncrement = 0;
+    bool loopCheck = false;
+    std::cout<<"Positioning Spike Plots"<<std::endl;
+    while (p < plots.size()){
+        
+        // Ask the current plot for its desired dims
+        plots[p]->getBestDimensions(&w, &h);
+        w *= gridSize;
+        h *= gridSize;
+        
+        // Check to see if plot exceeds width of canvas, if yes, set x back to 0 and go to the bottom most plot on the canvas
+        if ( (x + w + xBuffer > canvasWidth - xBuffer) && !loopCheck){
+            std::cout<<"Collision with the edge of the canvas, going down a row"<<std::endl;
+            x = xBuffer;
+            y = y - yIncrement - yBuffer;
+            yIncrement = 0;
+            loopCheck = true;
+            continue;
+        }
+        // else place the plot
+        else{
+            std::cout<<"Positioning p:"<<p<<" at "<<x<<","<<y - h<<"  "<<w<<","<<h<<std::endl;
+            plots[p]->setPosition(x, y - h + getScrollAmount(), w, h);
+            x = x + w + xBuffer;
 
-	for (int i=0; i < plots.size(); i++)
-	{
+            // set a new minimum
+            if (h > yIncrement)
+                yIncrement = h;
+            
+            // increment p
+            p++;
+            loopCheck = false;
+        }
+    }
 
-		plots[i]->setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
-								getHeight() - ( yBuffer + plotHeight + rowCount * (plotHeight + yBuffer)) + getScrollAmount(), 
-								plotWidth, 
-								plotHeight); // deprecated conversion from string constant to char
+//  int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
+//	int plotHeight = plotWidth / 2 + .5;
+//	int rowCount = 0;
 
-		if (i%nCols == nCols-1)
-			rowCount++;	
-	 }
+//	for (int i=0; i < plots.size(); i++)
+//	{
+//
+//		plots[i]->setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
+//								getHeight() - ( yBuffer + plotHeight + rowCount * (plotHeight + yBuffer)) + getScrollAmount(), 
+//								plotWidth, 
+//								plotHeight); // deprecated conversion from string constant to char
+//
+//		if (i%nCols == nCols-1)
+//			rowCount++;	
+//	 }
 
 	// Set the total height of the Canvas to the top of the top most plot
-	totalHeight = (rowCount + 1) * (plotHeight + yBuffer) + yBuffer;
+//	totalHeight = (rowCount + 1) * (plotHeight + yBuffer) + yBuffer;
+    totalHeight = getHeight() + (y + yIncrement);
 }
 
 void SpikeDisplayCanvas::newOpenGLContextCreated()
