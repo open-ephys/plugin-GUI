@@ -67,7 +67,7 @@ public:
 	bool getEnabled();
 	void setPosition(int,int,double,double);
     
-	void getPreferredDimensions(double*, double*);
+	void getBestDimensions(int*, int*);
     
     void mouseDown(int x, int y);
     
