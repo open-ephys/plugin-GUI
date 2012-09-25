@@ -32,7 +32,7 @@ SignalGenerator::SignalGenerator()
 
 	  defaultFrequency(10.0),
 	  defaultAmplitude (100.0f),
-	  nOut(5), previousPhase(1000), spikeDelay(-1)
+	  nOut(5), previousPhase(1000), spikeDelay(0)
 {
 
 
@@ -273,12 +273,16 @@ float SignalGenerator::generateSpikeSample(double amp, double phase, double nois
     
     
     // if the current phase is less than the previous phase we've probably wrapped and its time to select a new spike
-
+    // if we've delayed long enough then draw a new spike otherwise wait until spikeDelay==0
     if (phase < previousPhase){ 
     	spikeIdx = rand()%5;
     	
-    	spikeDelay = rand()%100;
+    	if( spikeDelay <= 0)
+    		spikeDelay = rand()%200 + 50;
+    	if (spikeDelay > 0)
+    		spikeDelay --;
     }
+  
 
     previousPhase = phase;
 

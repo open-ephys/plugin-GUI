@@ -28,7 +28,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
 	 	plotsInitialized(false), newSpike(false),
         processor(n), totalScrollPix(0)
 {
-    nCols = 8;
+    nCols = 6;
     
 	update();
 	
@@ -137,7 +137,7 @@ void SpikeDisplayCanvas::repositionSpikePlots(){
     int w,h;
     int yIncrement = 0;
     bool loopCheck = false;
-    std::cout<<"Positioning Spike Plots"<<std::endl;
+    //std::cout<<"Positioning Spike Plots"<<std::endl;
     while (p < plots.size()){
         
         // Ask the current plot for its desired dims
@@ -147,7 +147,7 @@ void SpikeDisplayCanvas::repositionSpikePlots(){
         
         // Check to see if plot exceeds width of canvas, if yes, set x back to 0 and go to the bottom most plot on the canvas
         if ( (x + w + xBuffer > canvasWidth - xBuffer) && !loopCheck){
-            std::cout<<"Collision with the edge of the canvas, going down a row"<<std::endl;
+            //std::cout<<"Collision with the edge of the canvas, going down a row"<<std::endl;
             x = xBuffer;
             y = y - yIncrement - yBuffer;
             yIncrement = 0;
@@ -156,7 +156,7 @@ void SpikeDisplayCanvas::repositionSpikePlots(){
         }
         // else place the plot
         else{
-            std::cout<<"Positioning p:"<<p<<" at "<<x<<","<<y - h<<"  "<<w<<","<<h<<std::endl;
+            //std::cout<<"Positioning p:"<<p<<" at "<<x<<","<<y - h<<"  "<<w<<","<<h<<std::endl;
             plots[p]->setPosition(x, y - h + getScrollAmount(), w, h);
             x = x + w + xBuffer;
 
