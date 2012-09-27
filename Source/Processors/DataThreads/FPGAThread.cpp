@@ -88,7 +88,7 @@ int FPGAThread::getNumEventChannels()
 
 float FPGAThread::getSampleRate()
 {
-	return 12520.0;
+	return 28344.67;//12520.0;
 }
 
 float FPGAThread::getBitVolts()
