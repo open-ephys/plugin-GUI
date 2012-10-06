@@ -30,14 +30,15 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 			numchannels(32),
 			deviceFound(false),
             ttlOutputVal(0),
-            bytesToRead(20000)
+            bytesToRead(20000),
+            bufferWasAligned(false)
 
 {
 
 	
 	//const char* bitfilename = "./pipetest.bit";
-    const char* bitfilename = "/Users/Josh/Programming/open-ephys/GUI/Resources/DLLs/pipetest.bit";
-    const char* libname = "/Users/Josh/Programming/open-ephys/GUI/Resources/DLLs/libokFrontPanel.dylib";
+    const char* bitfilename = "./pipetest.bit";
+    const char* libname = "./libokFrontPanel64.so";
 
 	if (!okFrontPanelDLL_LoadLib(libname)) {
 		printf("FrontPanel DLL could not be loaded.\n");
@@ -125,9 +126,22 @@ bool FPGAThread::foundInputSource()
 
 bool FPGAThread::startAcquisition()
 {
+
+   
+   //alignBuffer(200);
+   //alignBuffer(200);
+   //alignBuffer(200);
+
+  // alignBuffer();
+
+  // alignBuffer();
+
+	bufferWasAligned = false;
+
    startThread();
 
    isTransmitting = true;
+   accumulator = 0;
 
    return true;
 }
@@ -146,9 +160,60 @@ bool FPGAThread::stopAcquisition()
     return true;
 }
 
-bool FPGAThread::updateBuffer() {
+int FPGAThread::alignBuffer(int nBytes)
+{
+	long return_code;
+
+	return_code = dev->ReadFromPipeOut(0xA0, nBytes, pBuffer);
+
+	//std::cout << "Bytes read: " << return_code << std::endl;
+
+	int j = 0;
+
+
+	while (j < nBytes)
+	{
+        
+		// look for timecode block (6 bytes)
+		if (  (pBuffer[j] & 1) 
+				&& (pBuffer[j+1] & 1) 
+				&& (pBuffer[j+2] & 1) 
+				&& (pBuffer[j+3] & 1) 
+				&& (pBuffer[j+4] & 1) 
+				&& (pBuffer[j+5] & 1) )
+				//&& (j+5+Ndatabytes <= bytesToRead)   ) // indicated by last bit being 1
+		{ 
+			int numNeeded = j;
+
+			std::cout << j << " ";
+
+			return_code = dev->ReadFromPipeOut(0xA0, numNeeded, pBuffer);
+			//std::cout << "First sample is " << j << std::endl;
+			//std::cout << "Samples needed:  " << numNeeded << std::endl;
+			break;
+		}
+
+		j++;	
+	}
+
+	return j;
+
+}
+
+bool FPGAThread::updateBuffer() 
+{
 
 	long return_code;
+
+	if (!bufferWasAligned)
+	{
+		alignBuffer(100000);
+		alignBuffer(2000);
+		//return_code = dev->ReadFromPipeOut(0xA0, 206, pBuffer);
+		//alignBuffer(2000);
+		//alignBuffer(200);
+		bufferWasAligned = true;
+	}
 	
 	return_code = dev->ReadFromPipeOut(0xA0, bytesToRead, pBuffer);
 
@@ -164,7 +229,7 @@ bool FPGAThread::updateBuffer() {
 	// or in 1 for timecode bytes. This is some overhead but makes data integrity checks 
 	// pretty trivial.
 	// 
-	// headstages are A,B,C,D and another one for the breakout box T for the 0-5v TTL input
+	// headstages are A, B, C, D and another one for the breakout box T for the 0-5v TTL input
 	// A1 is stage A channel 1 etc
     // ...............
     // tc     ttttttt1
@@ -190,24 +255,42 @@ bool FPGAThread::updateBuffer() {
     
 
     int i = 0;
-    int samplesUsed = 0;
-    int startSample = 0;
+   // int samplesUsed = 0;
+   // int startSample = 0;
+
+    // new strategy: read in 201 bytes & find the first sample
+
+    int firstSample;
     
 	while (j < bytesToRead)
 	{
         
 		// look for timecode block (6 bytes)
-		if (  (pBuffer[j] & 1) 
-				&& (pBuffer[j+1] & 1) 
-				&& (pBuffer[j+2] & 1) 
-				&& (pBuffer[j+3] & 1) 
-				&& (pBuffer[j+4] & 1) 
-				&& (pBuffer[j+5] & 1) 
-				&& (j+5+Ndatabytes <= bytesToRead)   ) // indicated by last bit being 1
-		{ //read 6 bytes, assemble to 6*7 = 42 bits,  arranged in 6 bytes
+		 if (  (pBuffer[j] & 1) 
+		 		&& (pBuffer[j+1] & 1) 
+		 		&& (pBuffer[j+2] & 1) 
+		 		&& (pBuffer[j+3] & 1) 
+		 		&& (pBuffer[j+4] & 1) 
+		 		&& (pBuffer[j+5] & 1)
+		 		&& (j+5+Ndatabytes <= bytesToRead)   ) // indicated by last bit being 1
+		 { //read 6 bytes, assemble to 6*7 = 42 bits,  arranged in 6 bytes
 			
+			//std::cout << j << std::endl;
             
             i++;
+
+            if (j % 200 != 0)
+            {
+            	std::cout << "Buffer not aligned " << j << " " << accumulator << std::endl;
+            	return false;
+            }
+
+            if (i == 1)
+            {
+                firstSample = j;
+               
+               //             "     Bytes read: " << bytesToRead << std::endl;
+            }
             
 			unsigned char timecode[6]; // 1st byte throw out last bit of each byte and just concatenate the other bytes in ascending order
 			timecode[0] = (pBuffer[j] >> 1) | ((pBuffer[j+1] >> 1) << 7); // 2nd byte
@@ -224,12 +307,7 @@ bool FPGAThread::updateBuffer() {
                         (uint64(timecode[1]) << 8) +
                         (uint64(timecode[0]));
             
-             if (i == 1)
-            {
-            //    startSample = j;
-            //   std::cout << "Start sample: " << j <<
-             //               "     Bytes read: " << bytesToRead << std::endl;
-            }
+             
             
             eventCode = pBuffer[j+6]; // TTL input
             ttl_out = pBuffer[j+7];   // TTL output
@@ -260,10 +338,7 @@ bool FPGAThread::updateBuffer() {
 
 			}
             
-            j -= 3; // step back in time
-
-			// should actually be converting timecode to timestamp, but skip for now: 
-			//timestamp = timer.getHighResolutionTicks();
+            j -= 1; // step back in time
 
 			dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
             
@@ -294,26 +369,31 @@ bool FPGAThread::updateBuffer() {
 
    // std::cout << "End time: " << timestamp << std::endl;
 
-    std::cout << return_code << " " << i << std::endl; // number of samples found
+    
     
    // std::cout << "TTL out:" << ttl_out << std::endl;
     
-    if (ttlOutputVal == 1 && accumulator > 100)
+	accumulator++;
+
+    if (accumulator == 3)
     {
-        dev->SetWireInValue(0x01, 0x00); //, 0x06);
+        //dev->SetWireInValue(0x01, 0x00); //, 0x06);
         ttlOutputVal = 0;
-        accumulator = 0;
-        dev->UpdateWireIns();
-    } else if (ttlOutputVal == 0 && accumulator > 100) {
-        dev->SetWireInValue(0x01, 0x08);//, 0x06);
+        //accumulator = 0;
+        //dev->UpdateWireIns();
+     //   std::cout << return_code << " " << i << std::endl; // number of samples found
+       // std::cout << "Start sample: " << firstSample << std::endl;
+    } else if (accumulator > 100) {
+        //dev->SetWireInValue(0x01, 0x08);//, 0x06);
         ttlOutputVal = 1;
-        accumulator = 0;
-        dev->UpdateWireIns();
+        //accumulator = 0;
+        //dev->UpdateWireIns();
     }
     
-    accumulator++;
+    
     
 	return true;
+
 }
 
 
@@ -364,7 +444,7 @@ bool FPGAThread::initializeFPGA(bool verbose)
 
 	return true;
 
-	// this is not executed
+	// this is not executed (after returning true)
 	dev->SetWireInValue(0x00, 1<<2);  // set reset bit in cmd wire to 1 and back to 0
 	dev->UpdateWireIns();
 	dev->SetWireInValue(0x00, 0<<2);  

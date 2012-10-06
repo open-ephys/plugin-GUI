@@ -25,13 +25,14 @@
 #include "SignalGenerator.h"
 #include <stdio.h>
 #include <math.h>
+#include "Visualization/SpikeObject.h"
 
 SignalGenerator::SignalGenerator()
 	: GenericProcessor("Signal Generator"),
 
 	  defaultFrequency(10.0),
 	  defaultAmplitude (100.0f),
-	  nOut(5)	
+	  nOut(5), previousPhase(1000), spikeDelay(0)
 {
 
 
@@ -183,8 +184,8 @@ void SignalGenerator::process(AudioSampleBuffer &buffer,
 					sample = amplitude[j] * ((currentPhase[j] + phase[j]) / double_Pi - 1);
 					break;
 				case NOISE:
-					sample = amplitude[j] * (float(rand()) / float(RAND_MAX)-0.5f);
-					break;
+					// sample = amplitude[j] * (float(rand()) / float(RAND_MAX)-0.5f);
+					// break;
                 case SPIKE:
                     sample = generateSpikeSample(amplitude[j], currentPhase[j], phase[j]);
                     break;
@@ -270,34 +271,40 @@ void SignalGenerator::process(AudioSampleBuffer &buffer,
 }
 float SignalGenerator::generateSpikeSample(double amp, double phase, double noise){
     
-    const int N_SAMP = 80;
     
-    double waveform[80] =
-    {   1.0000, 1.0002, 1.0003, 1.0006, 1.0009, 1.0016, 1.0026, 1.0041, 1.0065, 1.0101, 1.0152, 1.0225, 1.0324, 1.0455, 1.0623, 1.0831, 1.1079,
-        1.1363, 1.1675, 1.2001, 1.2324, 1.2623, 1.2876, 1.3061, 1.3161, 1.3163, 1.3062, 1.2863, 1.2575, 1.2216, 1.1808, 1.1375, 1.0941, 1.0527,
-        1.0151, 0.9827, 0.9562, 0.9360, 0.9220, 0.9137, 0.9105, 0.9117, 0.9162, 0.9231, 0.9317, 0.9410, 0.9505, 0.9595, 0.9678, 0.9750, 0.9811,
-        0.9861, 0.9900, 0.9931, 0.9953, 0.9969, 0.9980, 0.9987, 0.9992, 0.9995, 0.9997, 0.9999, 0.9999, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,
-        1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000};
-    
-    
-    // We don't want to shift the waveform but scale it, and we don't want to scale
-    // the baseline, just the peak of the waveform
-    double scale[80] =
-    {	1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0001, 1.0004, 1.0009, 1.0020, 1.0044, 1.0091, 1.0175, 1.0317, 1.0540, 1.0863, 1.1295, 1.1827, 1.2420, 1.3011, 1.3521, 1.3867, 1.3990, 1.3867, 1.3521, 1.3011, 1.2420, 1.1827, 1.1295, 1.0863, 1.0540, 1.0317, 1.0175, 1.0091, 1.0044, 1.0020, 1.0009, 1.0004, 1.0001, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000};
-    
-    
-    
-    int shift = -4500;//1000 + 32768;
-    int sampIdx = 0;
-    int gain = 3000;
+    // if the current phase is less than the previous phase we've probably wrapped and its time to select a new spike
+    // if we've delayed long enough then draw a new spike otherwise wait until spikeDelay==0
+    if (phase < previousPhase){ 
+    	spikeIdx = rand()%5;
+    	
+    	if( spikeDelay <= 0)
+    		spikeDelay = rand()%200 + 50;
+    	if (spikeDelay > 0)
+    		spikeDelay --;
+    }
+  
+
+    previousPhase = phase;
+
+    int shift = -9500;//1000 + 32768;
+    int gain = 8000;
 
     double r = ((rand() % 201) - 100) / 1000.0; // Generate random number between -.1 and .1
     noise = r  * noise / (double_Pi * 2); // Shrink the range of r based upon the value of noise
    
-    sampIdx = (int) (phase / (2 * double_Pi) * (N_SAMP-1)); // bind between 0 and N_SAMP-1, too tired to figure out the proper math
+    int sampIdx = (int) (phase / (2 * double_Pi) * (N_WAVEFORM_SAMPLES-1)); // bind between 0 and N_SAMP-1, too tired to figure out the proper math
     //sampIdx = sampIdx + 8;
 
-    float sample = shift + gain * ( ( waveform[sampIdx] + noise ) * pow( scale[sampIdx], amp / 250.0 ) ) ;
-    
-    return sample;
+    // Right now only sample from the 3rd waveform. I need to figure out a way to only sample from a single spike until the phase wraps
+    float baseline = shift + gain *  SPIKE_WAVEFORMS[spikeIdx][1] ;
+
+    float sample = shift + gain * ( SPIKE_WAVEFORMS[spikeIdx][sampIdx] + noise );// * pow( WAVEFORM_SCALE[sampIdx], amp / 200.0 ) ) ;
+    float dV = sample  - baseline;
+    dV = dV * (1 + amp / 250);
+    sample = baseline + dV;
+
+    if (spikeDelay==0)
+    	return sample;
+    else
+    	return baseline;
 }

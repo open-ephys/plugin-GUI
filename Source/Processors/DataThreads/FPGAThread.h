@@ -71,7 +71,9 @@ private:
 	bool startAcquisition();
 	bool stopAcquisition();
 
-	unsigned char pBuffer[50000];  // size of the data requested in each buffer
+    int alignBuffer(int nBytes);
+
+	unsigned char pBuffer[500000];  // size of the data requested in each buffer
     int bytesToRead;
     unsigned char overflowBuffer[20000];
     
@@ -81,6 +83,8 @@ private:
     
     int ttlOutputVal;
     int accumulator;
+
+    bool bufferWasAligned;
 
 	float thisSample[256];
 
