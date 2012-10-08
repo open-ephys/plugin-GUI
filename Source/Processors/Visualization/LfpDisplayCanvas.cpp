@@ -28,7 +28,7 @@
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	 	xBuffer(105), yBuffer(2),
 	    plotHeight(180), selectedChan(-1), screenBufferIndex(0),
-	    timebase(1.0f), displayGain(0.0004f), displayBufferIndex(0),
+	    timebase(1.0f), displayGain(0.0001f), displayBufferIndex(0),
 	    headerHeight(40), plotOverlap(200), interplotDistance(70),
 	    timeOffset(0.0f), footerHeight(0)
 {
@@ -175,7 +175,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	        	waves[channel][screenBufferIndex*2+1] += 
 	        		*(displayBuffer->getSampleData(channel, nextPos))*alpha*gain*displayGain;
 
-	        	waves[channel][screenBufferIndex*2+1] += 1.1f; // to center in viewport
+	        	waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
 
 	       	}
 

@@ -26,7 +26,7 @@
 #include <stdio.h>
 
 ArduinoOutput::ArduinoOutput()
-	: GenericProcessor("Arduino Output")
+	: GenericProcessor("Arduino Output"), state(false)
 {
 
 }
@@ -52,15 +52,18 @@ void ArduinoOutput::handleEvent(int eventType, MidiMessage& event)
     	int eventId = *(dataptr+2);
     	int eventChannel = *(dataptr+3);
 
-    	// std::cout << "Received event from " << eventNodeId <<
-    	//              " on channel " << eventChannel << 
-    	//              " with value " << eventId << std::endl;
+    	 std::cout << "Received event from " << eventNodeId <<
+    	              " on channel " << eventChannel << 
+    	              " with value " << eventId << std::endl;
 
-    	// if (eventChannel == 0)
-    	// {
-    	// 	const char byte = 0;
-    	// 	write(handle, &byte, 1);
-    	// }
+    	if (state)
+        {
+            arduino.sendDigital(13, ARD_LOW);
+            state = false;
+        } else {
+            arduino.sendDigital(13, ARD_HIGH);
+            state = true;
+        }
     }
     
 }
@@ -72,6 +75,9 @@ void ArduinoOutput::setParameter (int parameterIndex, float newValue)
 
 bool ArduinoOutput::enable()
 {
+
+    Time timer;
+
 	if (arduino.connect("ttyACM0"))
     {
        
@@ -80,17 +86,29 @@ bool ArduinoOutput::enable()
     if (arduino.isArduinoReady()) 
     {  
 
+        uint32 currentTime = timer.getMillisecondCounter();
+
         arduino.sendProtocolVersionRequest();
-        //sleep(2);
+        timer.waitForMillisecondCounter(currentTime + 2000);
         arduino.update();
         arduino.sendFirmwareVersionRequest();
 
-        //sleep(2);
+        timer.waitForMillisecondCounter(currentTime + 4000);
         arduino.update();
  
         std::cout << "firmata v" << arduino.getMajorFirmwareVersion() 
              << "." << arduino.getMinorFirmwareVersion() << std::endl;
 
+    }
+
+    if (arduino.isInitialized())
+    {
+
+        std::cout << "Arduino is initialized." << std::endl;
+        arduino.sendDigitalPinMode(13, ARD_OUTPUT);
+
+    } else {
+        std::cout << "Arduino is NOT initialized." << std::endl;
     }
 }
 

@@ -54,6 +54,7 @@ public:
 private:
 
 	float threshold;
+    float bufferZone;
     bool state;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EventDetector);
