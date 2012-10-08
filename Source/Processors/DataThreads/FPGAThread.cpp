@@ -38,7 +38,7 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 	}
 	
 	okFrontPanelDLL_GetVersion(dll_date, dll_time);
-	printf("FrontPanel DLL loaded.  Built: %s  %s\n", dll_date, dll_time);
+	//printf("FrontPanel DLL loaded.  Built: %s  %s\n", dll_date, dll_time);
 
 	dev = new okCFrontPanel;
 
