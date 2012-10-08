@@ -106,6 +106,15 @@
     <ClCompile Include="..\..\Resources\Fonts\unibody-8.otf">
       <Filter>open-ephys\Resources\Fonts</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Resources\Images\Icons\ArduinoIcon.png">
+      <Filter>open-ephys\Resources\Images\Icons</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Resources\Images\Icons\OpenEphysBoardLogoBlack.png">
+      <Filter>open-ephys\Resources\Images\Icons</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Resources\Images\Icons\OpenEphysBoardLogoGray.png">
+      <Filter>open-ephys\Resources\Images\Icons</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Resources\Images\Icons\RadioButtons-01.png">
       <Filter>open-ephys\Resources\Images\Icons</Filter>
     </ClCompile>
@@ -286,17 +295,17 @@
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\FPGAOutput.cpp">
-      <Filter>open-ephys\Source\Processors</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\EventDetector.cpp">
-      <Filter>open-ephys\Source\Processors</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Serial\ofArduino.cpp">
       <Filter>open-ephys\Source\Processors\Serial</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Serial\ofSerial.cpp">
       <Filter>open-ephys\Source\Processors\Serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\EventDetector.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\FPGAOutput.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\ArduinoOutput.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
@@ -582,12 +591,6 @@
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\FPGAOutput.h">
-      <Filter>open-ephys\Source\Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\EventDetector.h">
-      <Filter>open-ephys\Source\Processors</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Serial\ofArduino.h">
       <Filter>open-ephys\Source\Processors\Serial</Filter>
     </ClInclude>
@@ -596,6 +599,12 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Serial\ofSerial.h">
       <Filter>open-ephys\Source\Processors\Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\EventDetector.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\FPGAOutput.h">
+      <Filter>open-ephys\Source\Processors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\ArduinoOutput.h">
       <Filter>open-ephys\Source\Processors</Filter>

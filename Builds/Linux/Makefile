@@ -63,10 +63,10 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
-  $(OBJDIR)/FPGAOutput_73b5ffd4.o \
-  $(OBJDIR)/EventDetector_4807aa7b.o \
   $(OBJDIR)/ofArduino_12f202a5.o \
   $(OBJDIR)/ofSerial_c3b0a9e1.o \
+  $(OBJDIR)/EventDetector_4807aa7b.o \
+  $(OBJDIR)/FPGAOutput_73b5ffd4.o \
   $(OBJDIR)/ArduinoOutput_391e90c4.o \
   $(OBJDIR)/Parameter_ae008024.o \
   $(OBJDIR)/SpikeDisplayNode_9c52e4ad.o \
@@ -251,16 +251,6 @@ $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	@echo "Compiling AudioComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/FPGAOutput_73b5ffd4.o: ../../Source/Processors/FPGAOutput.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FPGAOutput.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/EventDetector_4807aa7b.o: ../../Source/Processors/EventDetector.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling EventDetector.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/ofArduino_12f202a5.o: ../../Source/Processors/Serial/ofArduino.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ofArduino.cpp"
@@ -269,6 +259,16 @@ $(OBJDIR)/ofArduino_12f202a5.o: ../../Source/Processors/Serial/ofArduino.cpp
 $(OBJDIR)/ofSerial_c3b0a9e1.o: ../../Source/Processors/Serial/ofSerial.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ofSerial.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/EventDetector_4807aa7b.o: ../../Source/Processors/EventDetector.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling EventDetector.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/FPGAOutput_73b5ffd4.o: ../../Source/Processors/FPGAOutput.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling FPGAOutput.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ArduinoOutput_391e90c4.o: ../../Source/Processors/ArduinoOutput.cpp

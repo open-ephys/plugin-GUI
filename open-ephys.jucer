@@ -51,6 +51,12 @@
       </GROUP>
       <GROUP id="W2L6BdA" name="Images">
         <GROUP id="Gu1BsKu" name="Icons">
+          <FILE id="Ke1Tihu" name="ArduinoIcon.png" compile="0" resource="1"
+                file="Resources/Images/Icons/ArduinoIcon.png"/>
+          <FILE id="zPy0mgT" name="OpenEphysBoardLogoBlack.png" compile="0" resource="1"
+                file="Resources/Images/Icons/OpenEphysBoardLogoBlack.png"/>
+          <FILE id="Swb7oDw" name="OpenEphysBoardLogoGray.png" compile="0" resource="1"
+                file="Resources/Images/Icons/OpenEphysBoardLogoGray.png"/>
           <FILE id="AQfzTI0" name="RadioButtons-01.png" compile="0" resource="1"
                 file="Resources/Images/Icons/RadioButtons-01.png"/>
           <FILE id="zaiYTpn" name="RadioButtons-02.png" compile="0" resource="1"
@@ -187,6 +193,19 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <GROUP id="gFSbZKw" name="Serial">
+          <FILE id="3t2ez3c" name="ofArduino.cpp" compile="1" resource="0" file="Source/Processors/Serial/ofArduino.cpp"/>
+          <FILE id="bXASAoT" name="ofArduino.h" compile="0" resource="0" file="Source/Processors/Serial/ofArduino.h"/>
+          <FILE id="hNTT1i1" name="ofConstants.h" compile="0" resource="0" file="Source/Processors/Serial/ofConstants.h"/>
+          <FILE id="F97Ylmz" name="ofSerial.cpp" compile="1" resource="0" file="Source/Processors/Serial/ofSerial.cpp"/>
+          <FILE id="wV1xn3Z" name="ofSerial.h" compile="0" resource="0" file="Source/Processors/Serial/ofSerial.h"/>
+        </GROUP>
+        <FILE id="rlxg06" name="EventDetector.cpp" compile="1" resource="0"
+              file="Source/Processors/EventDetector.cpp"/>
+        <FILE id="LWuAoXl" name="EventDetector.h" compile="0" resource="0"
+              file="Source/Processors/EventDetector.h"/>
+        <FILE id="caGBzB" name="FPGAOutput.cpp" compile="1" resource="0" file="Source/Processors/FPGAOutput.cpp"/>
+        <FILE id="IUvIxV7" name="FPGAOutput.h" compile="0" resource="0" file="Source/Processors/FPGAOutput.h"/>
         <FILE id="wBm4y2" name="ArduinoOutput.cpp" compile="1" resource="0"
               file="Source/Processors/ArduinoOutput.cpp"/>
         <FILE id="1sbSwS7" name="ArduinoOutput.h" compile="0" resource="0"

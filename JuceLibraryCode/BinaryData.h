@@ -1,6 +1,6 @@
 /* =========================================================================================
 
-   This is an auto-generated file, created by The Introjucer 3.0.0
+   This is an auto-generated file, created by The Jucer V3.0.0
    Do not edit anything in this file!
 
 */
@@ -45,6 +45,15 @@ namespace BinaryData
 
     extern const char*   silkscreen_ttf;
     const int            silkscreen_ttfSize = 18336;
+
+    extern const char*   ArduinoIcon_png;
+    const int            ArduinoIcon_pngSize = 56888;
+
+    extern const char*   OpenEphysBoardLogoBlack_png;
+    const int            OpenEphysBoardLogoBlack_pngSize = 36120;
+
+    extern const char*   OpenEphysBoardLogoGray_png;
+    const int            OpenEphysBoardLogoGray_pngSize = 35843;
 
     extern const char*   RadioButtons01_png;
     const int            RadioButtons01_pngSize = 818;

@@ -75,7 +75,6 @@
       <ProgramDatabaseFile>.\Debug\open-ephys.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalOptions>-lftdi -lftgl %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -116,7 +115,6 @@
       <TargetMachine>MachineX86</TargetMachine>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalOptions>-lftdi -lftgl %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -144,10 +142,10 @@
     <ClCompile Include="..\..\Source\Dsp\RootFinder.cpp"/>
     <ClCompile Include="..\..\Source\Dsp\State.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\FPGAOutput.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\EventDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Serial\ofArduino.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Serial\ofSerial.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\EventDetector.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\FPGAOutput.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ArduinoOutput.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Parameter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode.cpp"/>
@@ -244,11 +242,11 @@
     <ClInclude Include="..\..\Source\Dsp\Types.h"/>
     <ClInclude Include="..\..\Source\Dsp\Utilities.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
-    <ClInclude Include="..\..\Source\Processors\FPGAOutput.h"/>
-    <ClInclude Include="..\..\Source\Processors\EventDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\Serial\ofArduino.h"/>
     <ClInclude Include="..\..\Source\Processors\Serial\ofConstants.h"/>
     <ClInclude Include="..\..\Source\Processors\Serial\ofSerial.h"/>
+    <ClInclude Include="..\..\Source\Processors\EventDetector.h"/>
+    <ClInclude Include="..\..\Source\Processors\FPGAOutput.h"/>
     <ClInclude Include="..\..\Source\Processors\ArduinoOutput.h"/>
     <ClInclude Include="..\..\Source\Processors\Parameter.h"/>
     <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode.h"/>
