@@ -88,7 +88,7 @@ private:
 	ScopedPointer<DataThread> dataThread;
 	DataBuffer* inputBuffer;
 
-	int64 timestamp;
+	uint64 timestamp;
 	int16* eventCodeBuffer;
 	int* eventChannelState;
 

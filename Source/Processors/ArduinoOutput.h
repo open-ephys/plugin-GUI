@@ -26,13 +26,16 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
+#include "Serial/ofArduino.h"
 #include "GenericProcessor.h"
 
 /** 
 
+	*UNDER CONSTRUCTION*
+
 	Provides a serial interface to an Arduino board.
 
-	Based on arduino-serial.c (http://todbot.com/blog/2006/12/06/arduino-serial-c-code-to-talk-to-arduino/)
+	Based on Open Frameworks ofArduino class
 
 	@see GenericProcessor
 
@@ -60,10 +63,7 @@ public:
 	
 private:
 
-	//void timerCallback();
-	int handle;
-
-	const char* serialport;
+	ofArduino arduino;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArduinoOutput);
 

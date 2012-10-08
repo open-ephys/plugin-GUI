@@ -52,7 +52,7 @@ ProcessorList::ProcessorList() : isDragging(false),
 
 	ProcessorListItem* filters = new ProcessorListItem("Filters");
 	filters->addSubItem(new ProcessorListItem("Bandpass Filter"));
-	//filters->addSubItem(new ProcessorListItem("Resampler"));
+	filters->addSubItem(new ProcessorListItem("Event Detector"));
 	filters->addSubItem(new ProcessorListItem("Spike Detector"));
 
 	ProcessorListItem* sinks = new ProcessorListItem("Sinks");
@@ -60,6 +60,7 @@ ProcessorList::ProcessorList() : isDragging(false),
 	sinks->addSubItem(new ProcessorListItem("Spike Viewer"));
 	sinks->addSubItem(new ProcessorListItem("WiFi Output"));
 	sinks->addSubItem(new ProcessorListItem("Arduino Output"));
+	sinks->addSubItem(new ProcessorListItem("FPGA Output"));
 
 	ProcessorListItem* utilities = new ProcessorListItem("Utilities");
 	utilities->addSubItem(new ProcessorListItem("Splitter"));
@@ -119,10 +120,10 @@ void ProcessorList::renderOpenGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffers to preset values
 
 	drawItems();
-	drawScrollBars();
+	//drawScrollBars();
 	
     //glFlush();
-    swapBuffers();
+    //swapBuffers();
 }
 
 
@@ -174,14 +175,15 @@ void ProcessorList::drawItem(ProcessorListItem* item)
 		      1.0f);
 
 	// see if this helps drawing issues on Windows:
+	// (draw rectangle below polygon)
 	glRectf(0.0, 0.0, 1.0, 1.0);
 
-	// glBegin(GL_POLYGON);
-	// glVertex2f(0,0);
-	// glVertex2f(1,0);
-	// glVertex2f(1,1);
-	// glVertex2f(0,1);
-	// glEnd();
+	glBegin(GL_POLYGON);
+	glVertex2f(0,0);
+	glVertex2f(1,0);
+	glVertex2f(1,1);
+	glVertex2f(0,1);
+	glEnd();
 
 	drawItemName(item);
 

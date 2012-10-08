@@ -69,14 +69,16 @@ private:
 	
 	double defaultFrequency;
 	double defaultAmplitude;
-
+    
+    float generateSpikeSample(double amp, double phase, double noise);
+    
 	float sampleRateRatio;
 
 	//void updateWaveform(int chan);
 
 	enum wvfrm
 	{
-		TRIANGLE, SINE, SQUARE, SAW, NOISE
+		TRIANGLE, SINE, SQUARE, SAW, NOISE, SPIKE
 	};
 
 	Array<int> waveformType;
@@ -85,6 +87,10 @@ private:
 	Array<double> phase;
 	Array<double> phasePerSample;
 	Array<double> currentPhase;
+
+	double previousPhase;
+	int spikeIdx;
+	int spikeDelay;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalGenerator);
 

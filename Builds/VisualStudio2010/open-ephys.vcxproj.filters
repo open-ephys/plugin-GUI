@@ -38,6 +38,9 @@
     <Filter Include="open-ephys\Source\Processors">
       <UniqueIdentifier>{3B2598F1-7B02-E3D4-A09B-367B20D97672}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Source\Processors\Serial">
+      <UniqueIdentifier>{BE825C10-A046-0824-C18C-358D08C18D78}</UniqueIdentifier>
+    </Filter>
     <Filter Include="open-ephys\Source\Processors\Utilities">
       <UniqueIdentifier>{A81F416A-5186-4D5E-E159-A4E41A74C9AB}</UniqueIdentifier>
     </Filter>
@@ -283,6 +286,18 @@
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\FPGAOutput.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\EventDetector.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Serial\ofArduino.cpp">
+      <Filter>open-ephys\Source\Processors\Serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Serial\ofSerial.cpp">
+      <Filter>open-ephys\Source\Processors\Serial</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\ArduinoOutput.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
@@ -304,10 +319,7 @@
     <ClCompile Include="..\..\Source\Processors\Utilities\Splitter.cpp">
       <Filter>open-ephys\Source\Processors\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\StereotrodePlot.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\ElectrodePlot.cpp">
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.cpp">
@@ -320,9 +332,6 @@
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\ProjectionAxes.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\TetrodePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\WaveAxes.cpp">
@@ -573,6 +582,21 @@
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\FPGAOutput.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\EventDetector.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Serial\ofArduino.h">
+      <Filter>open-ephys\Source\Processors\Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Serial\ofConstants.h">
+      <Filter>open-ephys\Source\Processors\Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Serial\ofSerial.h">
+      <Filter>open-ephys\Source\Processors\Serial</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\ArduinoOutput.h">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClInclude>
@@ -594,10 +618,7 @@
     <ClInclude Include="..\..\Source\Processors\Utilities\Splitter.h">
       <Filter>open-ephys\Source\Processors\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\StereotrodePlot.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\ElectrodePlot.h">
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.h">
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.h">
@@ -613,9 +634,6 @@
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SimpleKeyEvent.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\TetrodePlot.h">
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\WaveAxes.h">

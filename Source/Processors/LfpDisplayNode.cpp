@@ -183,7 +183,7 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event)
     	}
 
 
-    //	std::cout << "ttlState: " << ttlState << std::endl;
+  // 	std::cout << "ttlState: " << ttlState << std::endl;
 
     	// std::cout << "Received event from " << eventNodeId <<
     	//              " on channel " << eventChannel << 

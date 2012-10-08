@@ -24,13 +24,9 @@
 #include "ArduinoOutput.h"
 
 #include <stdio.h>
-#include <unistd.h>  /*UNIX standard function definitions */
-#include <termios.h> /*POSIX terminal control definitions */
-#include <fcntl.h>   /*File control definitions */
-
 
 ArduinoOutput::ArduinoOutput()
-	: GenericProcessor("Arduino Output"), serialport("/dev/ttyACM0")
+	: GenericProcessor("Arduino Output")
 {
 
 }
@@ -76,55 +72,30 @@ void ArduinoOutput::setParameter (int parameterIndex, float newValue)
 
 bool ArduinoOutput::enable()
 {
-	struct termios toptions;
-	int fd;
+	if (arduino.connect("ttyACM0"))
+    {
+       
+    } 
 
-	handle = open(serialport, O_RDWR | O_NOCTTY | O_NDELAY);
+    if (arduino.isArduinoReady()) 
+    {  
 
-	if (handle == -1)
-	{
-		std::cout << "Arduino Output unable to open port." << std::endl;
-		return false;
-	}
+        arduino.sendProtocolVersionRequest();
+        //sleep(2);
+        arduino.update();
+        arduino.sendFirmwareVersionRequest();
 
-	if (tcgetattr(handle, &toptions) < 0)
-	{
-		std::cout << "Arduino Output couldn't get term attributes" << std::endl;
-		return false;
-	}
+        //sleep(2);
+        arduino.update();
+ 
+        std::cout << "firmata v" << arduino.getMajorFirmwareVersion() 
+             << "." << arduino.getMinorFirmwareVersion() << std::endl;
 
-	speed_t brate = B9600;
-
-	cfsetispeed(&toptions, brate);
-	cfsetospeed(&toptions, brate);
-
-	  // 8N1
-    toptions.c_cflag &= ~PARENB;
-    toptions.c_cflag &= ~CSTOPB;
-    toptions.c_cflag &= ~CSIZE;
-    toptions.c_cflag |= CS8;
-    // no flow control
-    toptions.c_cflag &= ~CRTSCTS;
-
-    toptions.c_cflag |= CREAD | CLOCAL;  // turn on READ & ignore ctrl lines
-    toptions.c_iflag &= ~(IXON | IXOFF | IXANY); // turn off s/w flow ctrl
-
-    toptions.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG); // make raw
-    toptions.c_oflag &= ~OPOST; // make raw
-
-    // see: http://unixwiz.net/techtips/termios-vmin-vtime.html
-    toptions.c_cc[VMIN]  = 0;
-    toptions.c_cc[VTIME] = 20;
-    
-    if( tcsetattr(handle, TCSANOW, &toptions) < 0) {
-        std::cout << "Arduino Output couldn't set term attributes" << std::endl;
-        return false;
     }
 }
 
 bool ArduinoOutput::disable()
 {
-
 
 
 }

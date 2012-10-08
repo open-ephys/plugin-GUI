@@ -35,9 +35,11 @@
 #include "ResamplingNode.h"
 #include "SignalGenerator.h"
 #include "SourceNode.h"
+#include "EventDetector.h"
 #include "SpikeDetector.h"
 #include "WiFiOutput.h"
 #include "ArduinoOutput.h"
+#include "FPGAOutput.h"
 #include "Utilities/Splitter.h"
 #include "Utilities/Merger.h"
 #include "../UI/UIComponent.h"
@@ -417,6 +419,10 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			std::cout << "Creating a new spike detector." << std::endl;
 			processor = new SpikeDetector();
 		}
+		else if (subProcessorType.equalsIgnoreCase("Event Detector")) {
+			std::cout << "Creating a new event detector." << std::endl;
+			processor = new EventDetector();
+		}
 
 		//sendActionMessage("New filter node created.");
 
@@ -459,6 +465,10 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		else if (subProcessorType.equalsIgnoreCase("Arduino Output")) {
 			std::cout << "Creating an Arduino node." << std::endl;
 			processor = new ArduinoOutput();
+		}
+		else if (subProcessorType.equalsIgnoreCase("FPGA Output")) {
+			std::cout << "Creating an FPGA output node." << std::endl;
+			processor = new FPGAOutput();
 		}
 	
 		//sendActionMessage("New sink created.");

@@ -64,7 +64,7 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode)
     electrodeList->setBounds(15,75,115,20);
     addAndMakeVisible(electrodeList);
 
-    numElectrodes = new Label("Number of Electrodes","2");
+    numElectrodes = new Label("Number of Electrodes","1");
     numElectrodes->setEditable(true);
     numElectrodes->addListener(this);
     numElectrodes->setBounds(30,40,25,20);

@@ -170,7 +170,7 @@ void UIComponent::resized()
 		messageCenter->setBounds(6,h-35,w-241,30);
 
 	// for debugging purposes:
-	if (false) 
+	if (false)
 	{
 		dataViewport->setVisible(false);
 		editorViewport->setVisible(false);

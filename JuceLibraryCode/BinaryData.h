@@ -1,6 +1,6 @@
 /* =========================================================================================
 
-   This is an auto-generated file, created by The Jucer V3.0.0
+   This is an auto-generated file, created by The Introjucer 3.0.0
    Do not edit anything in this file!
 
 */
@@ -59,7 +59,7 @@ namespace BinaryData
     const int            RadioButtons04_pngSize = 792;
 
     extern const char*   RadioButtons05_png;
-    const int            RadioButtons05_pngSize = 942;
+    const int            RadioButtons05_pngSize = 3561;
 
     extern const char*   RadioButtons_neutral01_png;
     const int            RadioButtons_neutral01_pngSize = 730;
@@ -74,7 +74,7 @@ namespace BinaryData
     const int            RadioButtons_neutral04_pngSize = 654;
 
     extern const char*   RadioButtons_neutral05_png;
-    const int            RadioButtons_neutral05_pngSize = 821;
+    const int            RadioButtons_neutral05_pngSize = 3440;
 
     extern const char*   RadioButtons_selected01_png;
     const int            RadioButtons_selected01_pngSize = 761;
@@ -89,7 +89,7 @@ namespace BinaryData
     const int            RadioButtons_selected04_pngSize = 727;
 
     extern const char*   RadioButtons_selected05_png;
-    const int            RadioButtons_selected05_pngSize = 869;
+    const int            RadioButtons_selected05_pngSize = 3463;
 
     extern const char*   RadioButtons_selected_over01_png;
     const int            RadioButtons_selected_over01_pngSize = 866;
@@ -104,7 +104,7 @@ namespace BinaryData
     const int            RadioButtons_selected_over04_pngSize = 838;
 
     extern const char*   RadioButtons_selected_over05_png;
-    const int            RadioButtons_selected_over05_pngSize = 977;
+    const int            RadioButtons_selected_over05_pngSize = 3571;
 
     extern const char*   noise_wave_png;
     const int            noise_wave_pngSize = 19800;
