@@ -28,11 +28,12 @@
 
 
 EventDetector::EventDetector()
-	: GenericProcessor("Event Detector")
+	: GenericProcessor("Event Detector"), state(0), threshold(250)
 
 {
 
-	
+    parameters.add(Parameter("thresh", 0.0, 5000.0, 250.0, 0));
+
 }
 
 EventDetector::~EventDetector()
@@ -55,15 +56,37 @@ EventDetector::~EventDetector()
 void EventDetector::setParameter (int parameterIndex, float newValue)
 {
 
+    Parameter& p =  parameters.getReference(parameterIndex);
+    p.setValue(newValue, 0);
 
+    //std::cout << float(p[0]) << std::endl;
 
 }
 
 void EventDetector::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &midiMessages,
+                            MidiBuffer &events,
                             int& nSamples)
 {
 
+
+    for (int i = 0; i < nSamples; i++)
+    {
+
+        if (*buffer.getSampleData(0, i) > threshold && !state)
+        {
+
+            // generate midi event
+            addEvent(events, TTL, i);
+
+            state = true;
+
+        } else if (*buffer.getSampleData(0, i) < threshold && state)
+        {
+            state = false;
+        }
+
+
+    }
 
 
 }
