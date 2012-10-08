@@ -1007,10 +1007,11 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/usr/local/include/freetype2,
+					/opt/local/include,
 				);
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_64)";
 				PRODUCT_NAME = "open-ephys";
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				WARNING_CFLAGS = "-Wreorder";
 				ZERO_LINK = NO;
 			};
@@ -1034,10 +1035,11 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/usr/local/include/freetype2,
+					/opt/local/include,
 				);
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_64)";
 				PRODUCT_NAME = "open-ephys";
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				WARNING_CFLAGS = "-Wreorder";
 				ZERO_LINK = NO;
 			};
@@ -1058,6 +1060,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
 					/usr/local/include,
 					/usr/local/include/freetype2,
 					"$(inherited)",
@@ -1071,7 +1074,7 @@
 					"-lftgl",
 				);
 				PREBINDING = NO;
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -1091,12 +1094,14 @@
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
 				);
 				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
 					/usr/local/include,
 					/usr/local/include/freetype2,
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_64)";
 				OTHER_LDFLAGS = (
@@ -1104,7 +1109,7 @@
 					"-lftgl",
 				);
 				PREBINDING = NO;
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
