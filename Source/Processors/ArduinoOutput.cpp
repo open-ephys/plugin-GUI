@@ -36,11 +36,11 @@ ArduinoOutput::~ArduinoOutput()
 
 }
 
-// AudioProcessorEditor* ArduinoOutput::createEditor()
-// {
-// 	editor = new ArduinoOutputEditor(this);
-// 	return editor;
-// }
+AudioProcessorEditor* ArduinoOutput::createEditor()
+{
+    editor = new ArduinoOutputEditor(this);
+ 	return editor;
+}
 
 void ArduinoOutput::handleEvent(int eventType, MidiMessage& event)
 {
@@ -64,6 +64,9 @@ void ArduinoOutput::handleEvent(int eventType, MidiMessage& event)
             arduino.sendDigital(13, ARD_HIGH);
             state = true;
         }
+
+        //ArduinoOutputEditor* ed = (ArduinoOutputEditor*) getEditor();
+        //ed->receivedEvent();
     }
     
 }

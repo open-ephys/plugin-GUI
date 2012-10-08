@@ -26,8 +26,10 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
+#include "Editors/ArduinoOutputEditor.h"
 #include "Serial/ofArduino.h"
 #include "GenericProcessor.h"
+
 
 /** 
 
@@ -57,7 +59,7 @@ public:
     bool enable();
     bool disable();
     
-	//AudioProcessorEditor* createEditor();
+	AudioProcessorEditor* createEditor();
 
 	bool isSink() {return true;}
 	

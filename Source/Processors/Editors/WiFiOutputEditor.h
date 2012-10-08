@@ -27,7 +27,6 @@
 #include "GenericEditor.h"
 #include "ImageIcon.h"
 
-class FilterViewport;
 class ImageIcon;
 
 class WiFiOutputEditor : public GenericEditor

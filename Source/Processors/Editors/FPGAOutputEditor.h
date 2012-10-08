@@ -21,50 +21,35 @@
 
 */
 
-#ifndef __FPGAOUTPUT_H_33275017__
-#define __FPGAOUTPUT_H_33275017__
+#ifndef __FPGAOUTPUTEDITOR_H_5A646CD3__
+#define __FPGAOUTPUTEDITOR_H_5A646CD3__
 
 
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "GenericEditor.h"
+#include "ImageIcon.h"
 
-#include "../../JuceLibraryCode/JuceHeader.h"
-#include "GenericProcessor.h"
-#include "Editors/FPGAOutputEditor.h"
+class ImageIcon;
 
-
-/**
-
-  Allows the signal chain to send outputs to the Open Ephys acquisition board.
-
-  @see GenericProcessor, FPGAOutputEditor
-
-*/
-
-
-class FPGAOutput : public GenericProcessor,
-		           public Timer
+class FPGAOutputEditor : public GenericEditor
 
 {
 public:
-	
-	FPGAOutput();
-	~FPGAOutput();
-	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void setParameter (int parameterIndex, float newValue);
+	FPGAOutputEditor (GenericProcessor* parentNode);
+	virtual ~FPGAOutputEditor();
 
-    void handleEvent(int eventType, MidiMessage& event);
-    
-	AudioProcessorEditor* createEditor();
+	void receivedEvent();
 
-	bool isSink() {return true;}
-	
-private:
+	ImageIcon* icon;
+
+private:	
 
 	void timerCallback();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FPGAOutput);
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FPGAOutputEditor);
 
 };
 
 
-#endif  // __FPGAOUTPUT_H_33275017__
+
+#endif  // __FPGAOUTPUTEDITOR_H_5A646CD3__

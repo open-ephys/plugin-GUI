@@ -22,54 +22,69 @@
 */
 
 
-
+#include "FPGAOutputEditor.h"
 #include <stdio.h>
-#include "FPGAOutput.h"
 
-FPGAOutput::FPGAOutput()
-	: GenericProcessor("FPGA Output")
-{
-}
 
-FPGAOutput::~FPGAOutput()
+FPGAOutputEditor::FPGAOutputEditor (GenericProcessor* parentNode) 
+	: GenericEditor(parentNode)
+
 {
 
-}
+	accumulator = 0;
 
-AudioProcessorEditor* FPGAOutput::createEditor()
-{
-	editor = new FPGAOutputEditor(this);
-	return editor;
-}
+	desiredWidth = 150;
 
-void FPGAOutput::handleEvent(int eventType, MidiMessage& event)
-{
-    if (eventType == TTL)
-    {
-        //startTimer((int) float(event.getTimeStamp())/getSampleRate()*1000.0);
-    }
-    
-}
+	Image im;
+	im = ImageCache::getFromMemory (BinaryData::OpenEphysBoardLogoBlack_png, 
+	 								BinaryData::OpenEphysBoardLogoBlack_pngSize);
 
-void FPGAOutput::setParameter (int parameterIndex, float newValue)
-{
+	icon = new ImageIcon(im);
+	addAndMakeVisible(icon);
+	icon->setBounds(15,15,120,120);
+
+	icon->setOpacity(0.3f);
 
 }
 
-void FPGAOutput::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &events,
-                            int& nSamples)
+FPGAOutputEditor::~FPGAOutputEditor()
+{
+	deleteAllChildren();
+}
+
+void FPGAOutputEditor::receivedEvent()
 {
 	
-
-	checkForEvents(events);
-	
+	icon->setOpacity(0.8f);
+	startTimer(50);
 
 }
 
-void FPGAOutput::timerCallback()
+void FPGAOutputEditor::timerCallback()
 {
-	std::cout << "FIRE!" << std::endl;
-    
-	stopTimer();
+
+	repaint();
+
+	accumulator++;
+
+	if (isFading) {
+
+		if (accumulator > 15.0)
+		{
+			stopTimer();
+			isFading = false;
+		}
+
+	} else {
+
+		if (accumulator < 10.0)
+		{
+			icon->setOpacity(0.8f-(0.05*float(accumulator)));
+			accumulator++;
+		} else {
+			icon->setOpacity(0.3f);
+			stopTimer();
+			accumulator = 0;
+		}
+	}
 }

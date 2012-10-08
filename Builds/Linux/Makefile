@@ -88,6 +88,8 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/FPGAOutputEditor_cfe00f8a.o \
+  $(OBJDIR)/ArduinoOutputEditor_1118f008.o \
   $(OBJDIR)/ChannelSelector_c1430874.o \
   $(OBJDIR)/ParameterEditor_91f62ae8.o \
   $(OBJDIR)/SpikeDisplayEditor_e1812c1.o \
@@ -374,6 +376,16 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/FPGAOutputEditor_cfe00f8a.o: ../../Source/Processors/Editors/FPGAOutputEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling FPGAOutputEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ArduinoOutputEditor_1118f008.o: ../../Source/Processors/Editors/ArduinoOutputEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ArduinoOutputEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ChannelSelector_c1430874.o: ../../Source/Processors/Editors/ChannelSelector.cpp
