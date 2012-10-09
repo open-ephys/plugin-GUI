@@ -22,6 +22,7 @@
 */
 
 #include "FPGAThread.h"
+#include "../SourceNode.h"
 
 #include <string.h>
 
@@ -31,14 +32,22 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 			deviceFound(false),
             ttlOutputVal(0),
             bytesToRead(20000),
-            bufferWasAligned(false)
+            bufferWasAligned(false),
+            ttlState(0)
 
 {
 
 	
 	//const char* bitfilename = "./pipetest.bit";
-    const char* bitfilename = "./pipetest.bit";
+#if JUCE_LINUX
+	const char* bitfilename = "./pipetest.bit";
     const char* libname = "./libokFrontPanel64.so";
+#endif
+#if JUCE_MAC
+    const char* bitfilename = "/Users/Josh/Programming/open-ephys/GUI/Resources/DLLs/pipetest.bit";
+    const char* libname = "/Users/Josh/Programming/open-ephys/GUI/Resources/DLLs/libokFrontPanel.dylib";
+#endif
+    
 
 	if (!okFrontPanelDLL_LoadLib(libname)) {
 		printf("FrontPanel DLL could not be loaded.\n");
@@ -330,7 +339,7 @@ bool FPGAThread::updateBuffer()
 
                     uint16 samp = ((hi << 8) + lo);
 
-                    thisSample[n/2] = float(samp) * 0.1907f - 6175.0f;
+                    thisSample[n/2] = -float(samp) * 0.1907f + 3000.0f; //- 6175.0f;
                 }
                 
                 j += 3;
@@ -373,22 +382,24 @@ bool FPGAThread::updateBuffer()
     
    // std::cout << "TTL out:" << ttl_out << std::endl;
     
-	accumulator++;
+	//accumulator++;
+    
+    checkTTLState();
 
-    if (accumulator == 3)
-    {
-        //dev->SetWireInValue(0x01, 0x00); //, 0x06);
-        ttlOutputVal = 0;
-        //accumulator = 0;
-        //dev->UpdateWireIns();
-     //   std::cout << return_code << " " << i << std::endl; // number of samples found
-       // std::cout << "Start sample: " << firstSample << std::endl;
-    } else if (accumulator > 100) {
-        //dev->SetWireInValue(0x01, 0x08);//, 0x06);
-        ttlOutputVal = 1;
-        //accumulator = 0;
-        //dev->UpdateWireIns();
-    }
+//    if (accumulator == 50)
+//    {
+//        //dev->SetWireInValue(0x01, 0x00); //, 0x06);
+//        ttlOutputVal = 0;
+//        //accumulator = 0;
+//        //dev->UpdateWireIns();
+//     //   std::cout << return_code << " " << i << std::endl; // number of samples found
+//       // std::cout << "Start sample: " << firstSample << std::endl;
+//    } else if (accumulator > 100) {
+//        //dev->SetWireInValue(0x01, 0xFF);//, 0x06);
+//        //ttlOutputVal = 1;
+//        accumulator = 0;
+//        //dev->UpdateWireIns();
+//    }
     
     
     
@@ -396,8 +407,38 @@ bool FPGAThread::updateBuffer()
 
 }
 
+void FPGAThread::checkTTLState()
+{
+    if (sn->getTTLState() != ttlState)
+    {
+        ttlState = sn->getTTLState();
+        
+        if (ttlState == 1)
+        {
+            dev->SetWireInValue(0x01, 0xFF);
+        } else {
+            dev->SetWireInValue(0x01, 0x00);
+        }
+        
+        dev->UpdateWireIns();
+    }
+}
 
+void FPGAThread::setOutputHigh()
+{
+    dev->SetWireInValue(0x01, 0x01); //, 0x06);
+    
+    dev->UpdateWireIns();
 
+   
+}
+
+void FPGAThread::setOutputLow()
+{
+    dev->SetWireInValue(0x01, 0x00); //, 0x06);
+    
+    dev->UpdateWireIns();
+}
 
 bool FPGAThread::initializeFPGA(bool verbose)
 {

@@ -57,6 +57,10 @@ public:
     
     int getNumEventChannels();
 
+    
+    void setOutputHigh();
+    void setOutputLow();
+
 private:
 
 	okCFrontPanel* dev;
@@ -72,6 +76,8 @@ private:
 	bool stopAcquisition();
 
     int alignBuffer(int nBytes);
+    
+    void checkTTLState();
 
 	unsigned char pBuffer[500000];  // size of the data requested in each buffer
     int bytesToRead;
@@ -80,6 +86,8 @@ private:
     int overflowSize;
     
     int ttl_out;
+    
+    int ttlState;
     
     int ttlOutputVal;
     int accumulator;

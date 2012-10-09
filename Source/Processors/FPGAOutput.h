@@ -29,6 +29,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GenericProcessor.h"
 #include "Editors/FPGAOutputEditor.h"
+#include "DataThreads/FPGAThread.h"
 
 
 /**
@@ -42,6 +43,7 @@
 
 class FPGAOutput : public GenericProcessor,
 		           public Timer
+                   //public ActionBroadcaster
 
 {
 public:
@@ -57,12 +59,20 @@ public:
 	AudioProcessorEditor* createEditor();
 
 	bool isSink() {return true;}
+    
+     void updateSettings();
 	
 private:
 
 	void timerCallback();
+    
+    bool isEnabled;
+    
+    FPGAThread* dataThread;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FPGAOutput);
+    
+    
 
 };
 

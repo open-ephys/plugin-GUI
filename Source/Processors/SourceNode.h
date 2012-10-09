@@ -43,7 +43,8 @@
 */
 
 class SourceNode : public GenericProcessor,
-				   public Timer
+				   public Timer,
+                   public ActionListener
 
 {
 public:
@@ -74,6 +75,12 @@ public:
 	bool isSource() {return true;}
 
 	void acquisitionStopped();
+    
+    DataThread* getThread();
+    
+    void actionListenerCallback(const String& message);
+    
+    int getTTLState();
 	
 private:
 
@@ -91,6 +98,9 @@ private:
 	uint64 timestamp;
 	int16* eventCodeBuffer;
 	int* eventChannelState;
+    
+    
+    int ttlState;
 
 	void updateSettings();
 

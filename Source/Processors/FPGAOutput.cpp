@@ -25,10 +25,13 @@
 
 #include <stdio.h>
 #include "FPGAOutput.h"
+#include "SourceNode.h"
 
 FPGAOutput::FPGAOutput()
-	: GenericProcessor("FPGA Output")
+	: GenericProcessor("FPGA Output"), isEnabled(true)
 {
+    
+
 }
 
 FPGAOutput::~FPGAOutput()
@@ -44,11 +47,39 @@ AudioProcessorEditor* FPGAOutput::createEditor()
 
 void FPGAOutput::handleEvent(int eventType, MidiMessage& event)
 {
-    if (eventType == TTL)
+    if (eventType == TTL && isEnabled)
     {
-        //startTimer((int) float(event.getTimeStamp())/getSampleRate()*1000.0);
+        //dataThread->setOutputHigh();
+        sendActionMessage("HI");
+        isEnabled = false;
+        startTimer(1200);
     }
     
+}
+
+void FPGAOutput::updateSettings()
+{
+    removeAllActionListeners();
+    
+    GenericProcessor* src;
+    GenericProcessor* lastSrc;
+    
+    lastSrc = getSourceNode();
+    src = getSourceNode();
+    
+    while (src != 0)
+    {
+        lastSrc = src;
+        src = lastSrc->getSourceNode();
+    }
+    
+    //SourceNode* s = (SourceNode*) settings.originalSource;
+    std::cout << lastSrc->getName() << std::endl;
+    
+    SourceNode* s = (SourceNode*) lastSrc;
+    
+    addActionListener(s);
+    //dataThread = (FPGAThread*) s->getThread();
 }
 
 void FPGAOutput::setParameter (int parameterIndex, float newValue)
@@ -69,7 +100,9 @@ void FPGAOutput::process(AudioSampleBuffer &buffer,
 
 void FPGAOutput::timerCallback()
 {
-	std::cout << "FIRE!" << std::endl;
+	//dataThread->setOutputLow();
+    sendActionMessage("LO");
     
+    isEnabled = true;
 	stopTimer();
 }

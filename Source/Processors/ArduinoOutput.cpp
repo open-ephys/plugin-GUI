@@ -81,10 +81,13 @@ bool ArduinoOutput::enable()
 
     Time timer;
 
-	if (arduino.connect("ttyACM0"))
-    {
-       
-    } 
+#if JUCE_LINUX
+	arduino.connect("ttyACM0");
+#endif
+#if JUCE_MAC
+    arduino.connect("tty.usbmodemfd121");
+#endif
+    
 
     if (arduino.isArduinoReady()) 
     {  
