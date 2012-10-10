@@ -28,11 +28,11 @@
 
 
 EventDetector::EventDetector()
-	: GenericProcessor("Event Detector"), state(false), threshold(50.0), bufferZone(5.0f)
+	: GenericProcessor("Event Detector"), state(false), threshold(200.0), bufferZone(5.0f)
 
 {
 
-    parameters.add(Parameter("thresh", 0.0, 200.0, 50.0, 0));
+    parameters.add(Parameter("thresh", 0.0, 500.0, 200.0, 0));
 
 }
 
@@ -76,7 +76,7 @@ void EventDetector::process(AudioSampleBuffer &buffer,
     for (int i = 0; i < nSamples; i++)
     {
 
-        if ((*buffer.getSampleData(0, i) > threshold) && !state)
+        if ((*buffer.getSampleData(0, i) < -threshold) && !state)
         {
 
             // generate midi event
@@ -85,7 +85,7 @@ void EventDetector::process(AudioSampleBuffer &buffer,
 
             state = true;
 
-        } else if ((*buffer.getSampleData(0, i) < threshold - bufferZone)  && state)
+        } else if ((*buffer.getSampleData(0, i) > -threshold + bufferZone)  && state)
         {
             state = false;
         }

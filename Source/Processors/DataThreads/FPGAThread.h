@@ -57,7 +57,6 @@ public:
     
     int getNumEventChannels();
 
-    
     void setOutputHigh();
     void setOutputLow();
 
