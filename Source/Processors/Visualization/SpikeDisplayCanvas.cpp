@@ -23,13 +23,13 @@
 
 #include "SpikeDisplayCanvas.h"
 
-SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) : processor(n),
-	 	xBuffer(25), yBuffer(25), newSpike(false), plotsInitialized(false),
-	 	totalScrollPix(0)
+SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
+        xBuffer(18), yBuffer(18),
+	 	plotsInitialized(false), newSpike(false),
+        processor(n), totalScrollPix(0)
 {
-
-	nCols = 3;
-
+    nCols = 6;
+    
 	update();
 	
 	spikeBuffer = processor->getSpikeBufferAddress();
@@ -52,12 +52,25 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 void SpikeDisplayCanvas::initializeSpikePlots(){
 
 	std::cout<<"Initializing Plots"<<std::endl;
+    
+    // This layout system really only works if plot types are aggregated together.
+    // It might be worthwhile to investigate the merits of using a grid system
+    // The canvas is defined as N grid widths wide. Each SpikePlot defines its
+    // dimensions in grid widths.
+    //
+    // Plots are added from left to right, top to bottom.  A plot is put into place
+    // if it can fit into the next grid location w/o its top going above the current
+    // row and w/o its bottom going below the current row
+    //
+    // This would lead to dead space but it would allow the plots to all scale accoring
+    // to how much space they need.  The current system of deciding plot sizes, isn't going
+    // to scale well.... this needs more thought
 
 	if (plots.size() != nPlots)
 	{
 
 	int totalWidth = getWidth(); 
-	
+
 	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
 	int plotHeight = plotWidth / 2 + .5;
 	int rowCount = 0;
@@ -66,103 +79,116 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
 
 	for (int i = 0; i < nPlots; i++)
 	{
-
-		switch (processor->getNumberOfChannelsForElectrode(i))
-		{
+        int pType;
+		switch (processor->getNumberOfChannelsForElectrode(i)){
 			case 1:
-			{
-
-				std::cout << "Creating single electrode plot." << std::endl;
-
-				ElectrodePlot* p1 = new ElectrodePlot( 
-									xBuffer + i%nCols * (plotWidth + xBuffer) , 
-									yBuffer + rowCount * (plotHeight + yBuffer), 
-									plotWidth, 
-									plotHeight);
-				plots.add(p1);
-				break;
-			}
+                pType = SINGLE_PLOT;
+                break;
 			case 2:
-			{
-
-				std::cout << "Creating stereotrode plot." << std::endl;
-
-				StereotrodePlot* p2 = new StereotrodePlot( 
-									xBuffer + i%nCols * (plotWidth + xBuffer) , 
-									yBuffer + rowCount * (plotHeight + yBuffer), 
-									plotWidth, 
-									plotHeight);
-				plots.add(p2);
-				break;
-			}
+                pType = STEREO_PLOT;
+                break;
 			case 4:
-			{
-				std::cout << "Creating tetrode plot." << std::endl;
-
-				TetrodePlot* p3 = new TetrodePlot( 
-									xBuffer + i%nCols * (plotWidth + xBuffer) , 
-									yBuffer + rowCount * (plotHeight + yBuffer), 
-									plotWidth, 
-									plotHeight);
-				plots.add(p3);
-				break;
-			}
-			default:
-			{
-
-				std::cout << "Not sure what to do, creating single electrode plot." << std::endl;
-
-				ElectrodePlot* p4 = new ElectrodePlot( 
-									xBuffer + i%nCols * (plotWidth + xBuffer) , 
-									yBuffer + rowCount * (plotHeight + yBuffer), 
-									plotWidth, 
-									plotHeight);
-				plots.add(p4);
-			}
-		}
-
-		// SpikeObject tmpSpike;
-		// generateEmptySpike(&tmpSpike, 4);
-		// p.processSpikeObject(tmpSpike);
-		
-		// plots.push_back(p);
+                pType = TETRODE_PLOT;
+                break;
+            default:
+                pType = SINGLE_PLOT;
+                break;
+        }
+        
+//        bool use_generic_plots_flag = true;
+        
+//        BaseUIElement *sp;
+        
+  //      if (use_generic_plots_flag)
+        SpikePlot *sp = new SpikePlot(xBuffer + i%nCols * (plotWidth + xBuffer) ,
+                               yBuffer + rowCount * (plotHeight + yBuffer),
+                               plotWidth, plotHeight, pType);
+        
+//        else
+//            sp = new StereotrodePlot(xBuffer + i%nCols * (plotWidth + xBuffer) ,
+//                                      yBuffer + rowCount * (plotHeight + yBuffer),
+//                                      plotWidth, plotHeight);
+        plots.add(sp);
 
 		if (i%nCols == nCols-1)
 			rowCount++;
-
 	}
-
 	//totalHeight = rowCount * (plotHeight + yBuffer) + yBuffer * 2;
-
 	// Set the total height of the Canvas to the top of the top most plot
-	plotsInitialized = true;
 
+    plotsInitialized = true;
 	repositionSpikePlots();
 	}
 }
 
 void SpikeDisplayCanvas::repositionSpikePlots(){
 	
-	int totalWidth = getWidth(); 
-	
-	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
-	int plotHeight = plotWidth / 2 + .5;
-	int rowCount = 0;
+	int canvasWidth = getWidth();
+	int gridSize = canvasWidth / nCols;
+    
+    gridSize = (gridSize > MIN_GRID_SIZE) ? gridSize : MIN_GRID_SIZE;
+    gridSize = (gridSize < MAX_GRID_SIZE) ? gridSize : MAX_GRID_SIZE;
+        
+    
+    
+    int x = xBuffer;
+    int y = getHeight() - yBuffer;
+    int p = 0;
+    int w,h;
+    int yIncrement = 0;
+    bool loopCheck = false;
+    //std::cout<<"Positioning Spike Plots"<<std::endl;
+    while (p < plots.size()){
+        
+        // Ask the current plot for its desired dims
+        plots[p]->getBestDimensions(&w, &h);
+        w *= gridSize;
+        h *= gridSize;
+        
+        // Check to see if plot exceeds width of canvas, if yes, set x back to 0 and go to the bottom most plot on the canvas
+        if ( (x + w + xBuffer > canvasWidth - xBuffer) && !loopCheck){
+            //std::cout<<"Collision with the edge of the canvas, going down a row"<<std::endl;
+            x = xBuffer;
+            y = y - yIncrement - yBuffer;
+            yIncrement = 0;
+            loopCheck = true;
+            continue;
+        }
+        // else place the plot
+        else{
+            //std::cout<<"Positioning p:"<<p<<" at "<<x<<","<<y - h<<"  "<<w<<","<<h<<std::endl;
+            plots[p]->setPosition(x, y - h + getScrollAmount(), w, h);
+            x = x + w + xBuffer;
 
-	for (int i=0; i < plots.size(); i++)
-	{
+            // set a new minimum
+            if (h > yIncrement)
+                yIncrement = h;
+            
+            // increment p
+            p++;
+            loopCheck = false;
+        }
+    }
 
-		plots[i]->setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
-								getHeight() - ( yBuffer + plotHeight + rowCount * (plotHeight + yBuffer)) + getScrollAmount(), 
-								plotWidth, 
-								plotHeight); // deprecated conversion from string constant to char
+//  int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
+//	int plotHeight = plotWidth / 2 + .5;
+//	int rowCount = 0;
 
-		if (i%nCols == nCols-1)
-			rowCount++;	
-	 }
+//	for (int i=0; i < plots.size(); i++)
+//	{
+//
+//		plots[i]->setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
+//								getHeight() - ( yBuffer + plotHeight + rowCount * (plotHeight + yBuffer)) + getScrollAmount(), 
+//								plotWidth, 
+//								plotHeight); // deprecated conversion from string constant to char
+//
+//		if (i%nCols == nCols-1)
+//			rowCount++;	
+//	 }
 
 	// Set the total height of the Canvas to the top of the top most plot
-	totalHeight = (rowCount + 1) * (plotHeight + yBuffer) + yBuffer;
+//	totalHeight = (rowCount + 1) * (plotHeight + yBuffer) + yBuffer;
+    totalHeight = getHeight() + (y + yIncrement);
 }
 
 void SpikeDisplayCanvas::newOpenGLContextCreated()
@@ -283,6 +309,7 @@ void SpikeDisplayCanvas::renderOpenGL()
 void SpikeDisplayCanvas::processSpikeEvents()
 {
 
+
 	if (spikeBuffer->getNumEvents() > 0) 
 	{
 		
@@ -291,15 +318,17 @@ void SpikeDisplayCanvas::processSpikeEvents()
 		//std::cout << "Received " << m << " events." << std::endl;
 			
 		//std::cout << m << " events received by node " << getNodeId() << std::endl;
-
 		MidiBuffer::Iterator i (*spikeBuffer);
 		MidiMessage message(0xf4);
 
-		int samplePosition;
-		i.setNextSamplePosition(samplePosition);
+		int samplePosition = 0;
 
+		i.setNextSamplePosition(samplePosition);
+		
+		//int eventCount = 0;
+		
 		while (i.getNextEvent (message, samplePosition)) {
-			
+			//eventCount++;
 			 uint8_t* dataptr = message.getRawData();
 			 int bufferSize = message.getRawDataSize();
 			// int nSamples = (bufferSize-4)/2;
@@ -316,9 +345,9 @@ void SpikeDisplayCanvas::processSpikeEvents()
 			generateSimulatedSpike(&simSpike, 0, 0);
 
 
-			for (int i = 0; i < 80; i++)
+			for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
 			{
-				simSpike.data[i] = newSpike.data[i] + 5000;// * 3 - 10000;
+                    simSpike.data[i] = newSpike.data[i%80] + 5000;// * 3 - 10000;
 			}
 
 			simSpike.nSamples = 40;
@@ -337,7 +366,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 			// 	std::cout << newSpike.data[n] << " ";
 			// }
 
-		//	std::cout << std::endl;
+			//	std::cout << std::endl;
 
 			plots[chan]->processSpikeObject(simSpike);
 

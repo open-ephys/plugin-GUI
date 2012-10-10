@@ -61,7 +61,7 @@ ParameterEditor::ParameterEditor(GenericProcessor* proc, Parameter& p, Font labe
 												  (float) p.getDefaultValue(),
 												  labelFont);
 
-		ps->setBounds(0,0, 40, 40);
+		ps->setBounds(0,0, 80, 80);
 		ps->setName(String(p.getID()));
 		addAndMakeVisible(ps);
 		sliderArray.add(ps);
@@ -73,11 +73,11 @@ ParameterEditor::ParameterEditor(GenericProcessor* proc, Parameter& p, Font labe
 		int width = labelFont.getStringWidth(p.getName());
 		label->setColour(Label::textColourId, Colours::darkgrey);
 		label->setFont(labelFont);
-		label->setBounds((40-width)/2-5, 40, 100, 10);
+		label->setBounds((80-width)/2-5, 70, 100, 10);
 		addAndMakeVisible(label);
 
-		desiredWidth = 50;
-		desiredHeight = 50;
+		desiredWidth = 80;
+		desiredHeight = 80;
 
 	} else if (p.isDiscrete())
 	{
@@ -402,11 +402,11 @@ Path ParameterSlider::makeRotaryPath(double min, double max, double val)
 {
 	Path p;
 
-	double start = 5*double_Pi/4;
+	double start = 5*double_Pi/4 - 0.11;
 
-	double range = (val-min)/(max - min)*1.5*double_Pi + start;
+	double range = (val-min)/(max - min)*1.5*double_Pi + start + 0.22;
 
-	p.addPieSegment(6,6, getWidth()-12, getHeight()-12, start, range, 0.8);
+	p.addPieSegment(6,6, getWidth()-12, getHeight()-12, start, range, 0.65);
 
 	// p.startNewSubPath(5, getHeight()-5);
 	// p.addArc(5, 5, getWidth()-10, getWidth()-10, 5/4*double_Pi, range);

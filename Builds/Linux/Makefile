@@ -20,7 +20,7 @@ ifeq ($(CONFIG),Debug)
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I "/usr/include" -I "/usr/include/freetype2"
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0
   CXXFLAGS += $(CFLAGS) -export-dynamic -g -pg
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L"/usr/X11R6/lib/" -L"../../JuceLibraryCode/bin" -lfreetype -lpthread -lrt -lX11 -lGL -lGLU -lXinerama -lasound -lftdi -lftgl -pg
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L"/usr/X11R6/lib/" -L"../../JuceLibraryCode/bin" -lfreetype -lpthread -lrt -lX11 -lGL -lGLU -lXinerama -lasound -lftdi -lftgl -pg -ldl -lXext
   LDDEPS :=
   RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I "/usr/include" -I "/usr/include/freetype2"
   TARGET := open-ephys
@@ -35,7 +35,7 @@ ifeq ($(CONFIG),Release)
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I "/usr/include" -I "/usr/include/freetype2"
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3
   CXXFLAGS += $(CFLAGS) -export-dynamic -g -pg
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L"/usr/X11R6/lib/" -L"../../JuceLibraryCode/bin" -lfreetype -lpthread -lrt -lX11 -lGL -lGLU -lXinerama -lasound -lftdi -lftgl -pg
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L"/usr/X11R6/lib/" -L"../../JuceLibraryCode/bin" -lfreetype -lpthread -lrt -lX11 -lGL -lGLU -lXinerama -lasound -lftdi -lftgl -pg -ldl -lXext
   LDDEPS :=
   RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I "/usr/include" -I "/usr/include/freetype2"
   TARGET := open-ephys
@@ -63,6 +63,10 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/ofArduino_12f202a5.o \
+  $(OBJDIR)/ofSerial_c3b0a9e1.o \
+  $(OBJDIR)/EventDetector_4807aa7b.o \
+  $(OBJDIR)/FPGAOutput_73b5ffd4.o \
   $(OBJDIR)/ArduinoOutput_391e90c4.o \
   $(OBJDIR)/Parameter_ae008024.o \
   $(OBJDIR)/SpikeDisplayNode_9c52e4ad.o \
@@ -70,13 +74,11 @@ OBJECTS := \
   $(OBJDIR)/LfpDisplayNode_30ef22fd.o \
   $(OBJDIR)/Merger_2f90542e.o \
   $(OBJDIR)/Splitter_6e27a57b.o \
-  $(OBJDIR)/StereotrodePlot_4710b8f1.o \
-  $(OBJDIR)/ElectrodePlot_7a206ec4.o \
+  $(OBJDIR)/SpikePlot_c1cf98bd.o \
   $(OBJDIR)/BaseUIElement_ec903c4d.o \
   $(OBJDIR)/GenericAxes_d802ed92.o \
   $(OBJDIR)/PlotUtils_9ef52686.o \
   $(OBJDIR)/ProjectionAxes_7c67c3e8.o \
-  $(OBJDIR)/TetrodePlot_b42fd798.o \
   $(OBJDIR)/WaveAxes_8adc45d2.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/SpikeDisplayCanvas_b208ff6e.o \
@@ -86,6 +88,8 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/FPGAOutputEditor_cfe00f8a.o \
+  $(OBJDIR)/ArduinoOutputEditor_1118f008.o \
   $(OBJDIR)/ChannelSelector_c1430874.o \
   $(OBJDIR)/ParameterEditor_91f62ae8.o \
   $(OBJDIR)/SpikeDisplayEditor_e1812c1.o \
@@ -249,6 +253,26 @@ $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	@echo "Compiling AudioComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/ofArduino_12f202a5.o: ../../Source/Processors/Serial/ofArduino.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ofArduino.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ofSerial_c3b0a9e1.o: ../../Source/Processors/Serial/ofSerial.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ofSerial.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/EventDetector_4807aa7b.o: ../../Source/Processors/EventDetector.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling EventDetector.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/FPGAOutput_73b5ffd4.o: ../../Source/Processors/FPGAOutput.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling FPGAOutput.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/ArduinoOutput_391e90c4.o: ../../Source/Processors/ArduinoOutput.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ArduinoOutput.cpp"
@@ -284,14 +308,9 @@ $(OBJDIR)/Splitter_6e27a57b.o: ../../Source/Processors/Utilities/Splitter.cpp
 	@echo "Compiling Splitter.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/StereotrodePlot_4710b8f1.o: ../../Source/Processors/Visualization/SpikePlotting/StereotrodePlot.cpp
+$(OBJDIR)/SpikePlot_c1cf98bd.o: ../../Source/Processors/Visualization/SpikePlotting/SpikePlot.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling StereotrodePlot.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ElectrodePlot_7a206ec4.o: ../../Source/Processors/Visualization/SpikePlotting/ElectrodePlot.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ElectrodePlot.cpp"
+	@echo "Compiling SpikePlot.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/BaseUIElement_ec903c4d.o: ../../Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp
@@ -312,11 +331,6 @@ $(OBJDIR)/PlotUtils_9ef52686.o: ../../Source/Processors/Visualization/SpikePlott
 $(OBJDIR)/ProjectionAxes_7c67c3e8.o: ../../Source/Processors/Visualization/SpikePlotting/ProjectionAxes.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ProjectionAxes.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/TetrodePlot_b42fd798.o: ../../Source/Processors/Visualization/SpikePlotting/TetrodePlot.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling TetrodePlot.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/WaveAxes_8adc45d2.o: ../../Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp
@@ -362,6 +376,16 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/FPGAOutputEditor_cfe00f8a.o: ../../Source/Processors/Editors/FPGAOutputEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling FPGAOutputEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ArduinoOutputEditor_1118f008.o: ../../Source/Processors/Editors/ArduinoOutputEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ArduinoOutputEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ChannelSelector_c1430874.o: ../../Source/Processors/Editors/ChannelSelector.cpp

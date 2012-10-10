@@ -29,13 +29,18 @@
 #endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
+#include "Editors/ArduinoOutputEditor.h"
+#include "Serial/ofArduino.h"
 #include "GenericProcessor.h"
+
 
 /** 
 
+	*UNDER CONSTRUCTION*
+
 	Provides a serial interface to an Arduino board.
 
-	Based on arduino-serial.c (http://todbot.com/blog/2006/12/06/arduino-serial-c-code-to-talk-to-arduino/)
+	Based on Open Frameworks ofArduino class
 
 	@see GenericProcessor
 
@@ -57,16 +62,15 @@ public:
     bool enable();
     bool disable();
     
-	//AudioProcessorEditor* createEditor();
+	AudioProcessorEditor* createEditor();
 
 	bool isSink() {return true;}
 	
 private:
 
-	//void timerCallback();
-	int handle;
+	ofArduino arduino;
 
-	const char* serialport;
+	bool state;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArduinoOutput);
 

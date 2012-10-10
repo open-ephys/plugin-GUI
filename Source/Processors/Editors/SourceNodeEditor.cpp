@@ -44,6 +44,10 @@ SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode)
 	 } else if (getName().equalsIgnoreCase("File Reader")) {
 	 	im = ImageCache::getFromMemory (BinaryData::FileReaderIcon_png, 
 	 								    BinaryData::FileReaderIcon_pngSize);	
+	} else if (getName().equalsIgnoreCase("Custom FPGA")) {
+		im = ImageCache::getFromMemory (BinaryData::OpenEphysBoardLogoGray_png, 
+	 								    BinaryData::OpenEphysBoardLogoGray_pngSize);	
+
 	} else {
 	 	im = ImageCache::getFromMemory (BinaryData::DefaultDataSource_png, 
 	 								    BinaryData::DefaultDataSource_pngSize);
@@ -52,6 +56,10 @@ SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode)
 	 icon = new ImageIcon(im);
 	 addAndMakeVisible(icon);
 	 icon->setBounds(50,40,70,70);
+
+	 if (getName().equalsIgnoreCase("Custom FPGA")) {
+		icon->setBounds(20,15,120,120);
+	}
 
 	//Array<int> values;
 	//values.add(1); values.add(2), values.add(3);

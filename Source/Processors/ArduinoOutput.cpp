@@ -24,13 +24,9 @@
 #include "ArduinoOutput.h"
 
 #include <stdio.h>
-#include <unistd.h>  /*UNIX standard function definitions */
-#include <termios.h> /*POSIX terminal control definitions */
-#include <fcntl.h>   /*File control definitions */
-
 
 ArduinoOutput::ArduinoOutput()
-	: GenericProcessor("Arduino Output"), serialport("/dev/ttyACM0")
+	: GenericProcessor("Arduino Output"), state(false)
 {
 
 }
@@ -40,11 +36,11 @@ ArduinoOutput::~ArduinoOutput()
 
 }
 
-// AudioProcessorEditor* ArduinoOutput::createEditor()
-// {
-// 	editor = new ArduinoOutputEditor(this);
-// 	return editor;
-// }
+AudioProcessorEditor* ArduinoOutput::createEditor()
+{
+    editor = new ArduinoOutputEditor(this);
+ 	return editor;
+}
 
 void ArduinoOutput::handleEvent(int eventType, MidiMessage& event)
 {
@@ -56,15 +52,21 @@ void ArduinoOutput::handleEvent(int eventType, MidiMessage& event)
     	int eventId = *(dataptr+2);
     	int eventChannel = *(dataptr+3);
 
-    	// std::cout << "Received event from " << eventNodeId <<
-    	//              " on channel " << eventChannel << 
-    	//              " with value " << eventId << std::endl;
+    	 std::cout << "Received event from " << eventNodeId <<
+    	              " on channel " << eventChannel << 
+    	              " with value " << eventId << std::endl;
 
-    	// if (eventChannel == 0)
-    	// {
-    	// 	const char byte = 0;
-    	// 	write(handle, &byte, 1);
-    	// }
+    	if (state)
+        {
+            arduino.sendDigital(13, ARD_LOW);
+            state = false;
+        } else {
+            arduino.sendDigital(13, ARD_HIGH);
+            state = true;
+        }
+
+        //ArduinoOutputEditor* ed = (ArduinoOutputEditor*) getEditor();
+        //ed->receivedEvent();
     }
     
 }
@@ -76,55 +78,48 @@ void ArduinoOutput::setParameter (int parameterIndex, float newValue)
 
 bool ArduinoOutput::enable()
 {
-	struct termios toptions;
-	int fd;
 
-	handle = open(serialport, O_RDWR | O_NOCTTY | O_NDELAY);
+    Time timer;
 
-	if (handle == -1)
-	{
-		std::cout << "Arduino Output unable to open port." << std::endl;
-		return false;
-	}
-
-	if (tcgetattr(handle, &toptions) < 0)
-	{
-		std::cout << "Arduino Output couldn't get term attributes" << std::endl;
-		return false;
-	}
-
-	speed_t brate = B9600;
-
-	cfsetispeed(&toptions, brate);
-	cfsetospeed(&toptions, brate);
-
-	  // 8N1
-    toptions.c_cflag &= ~PARENB;
-    toptions.c_cflag &= ~CSTOPB;
-    toptions.c_cflag &= ~CSIZE;
-    toptions.c_cflag |= CS8;
-    // no flow control
-    toptions.c_cflag &= ~CRTSCTS;
-
-    toptions.c_cflag |= CREAD | CLOCAL;  // turn on READ & ignore ctrl lines
-    toptions.c_iflag &= ~(IXON | IXOFF | IXANY); // turn off s/w flow ctrl
-
-    toptions.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG); // make raw
-    toptions.c_oflag &= ~OPOST; // make raw
-
-    // see: http://unixwiz.net/techtips/termios-vmin-vtime.html
-    toptions.c_cc[VMIN]  = 0;
-    toptions.c_cc[VTIME] = 20;
+#if JUCE_LINUX
+	arduino.connect("ttyACM0");
+#endif
+#if JUCE_MAC
+    arduino.connect("tty.usbmodemfd121");
+#endif
     
-    if( tcsetattr(handle, TCSANOW, &toptions) < 0) {
-        std::cout << "Arduino Output couldn't set term attributes" << std::endl;
-        return false;
+
+    if (arduino.isArduinoReady()) 
+    {  
+
+        uint32 currentTime = timer.getMillisecondCounter();
+
+        arduino.sendProtocolVersionRequest();
+        timer.waitForMillisecondCounter(currentTime + 2000);
+        arduino.update();
+        arduino.sendFirmwareVersionRequest();
+
+        timer.waitForMillisecondCounter(currentTime + 4000);
+        arduino.update();
+ 
+        std::cout << "firmata v" << arduino.getMajorFirmwareVersion() 
+             << "." << arduino.getMinorFirmwareVersion() << std::endl;
+
+    }
+
+    if (arduino.isInitialized())
+    {
+
+        std::cout << "Arduino is initialized." << std::endl;
+        arduino.sendDigitalPinMode(13, ARD_OUTPUT);
+
+    } else {
+        std::cout << "Arduino is NOT initialized." << std::endl;
     }
 }
 
 bool ArduinoOutput::disable()
 {
-
 
 
 }

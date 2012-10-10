@@ -25,6 +25,7 @@
 #include "SignalGenerator.h"
 #include <stdio.h>
 #include <math.h>
+#include "Visualization/SpikeObject.h"
 
 #ifdef WIN32
 #define copysign(x,y) _copysign(x,y)
@@ -35,7 +36,7 @@ SignalGenerator::SignalGenerator()
 
 	  defaultFrequency(10.0),
 	  defaultAmplitude (100.0f),
-	  nOut(5)	
+	  nOut(5), previousPhase(1000), spikeDelay(0)
 {
 
 
@@ -157,7 +158,8 @@ bool SignalGenerator::disable() {
 	return true;
 }
 
-void SignalGenerator::process(AudioSampleBuffer &buffer, 
+
+void SignalGenerator::process(AudioSampleBuffer &buffer,
                             MidiBuffer &midiMessages,
                             int& nSamps)
 {
@@ -186,8 +188,11 @@ void SignalGenerator::process(AudioSampleBuffer &buffer,
 					sample = amplitude[j] * ((currentPhase[j] + phase[j]) / double_Pi - 1);
 					break;
 				case NOISE:
-					sample = amplitude[j] * (float(rand()) / float(RAND_MAX)-0.5f);
-					break;
+					// sample = amplitude[j] * (float(rand()) / float(RAND_MAX)-0.5f);
+					// break;
+                case SPIKE:
+                    sample = generateSpikeSample(amplitude[j], currentPhase[j], phase[j]);
+                    break;
 				default:
 					sample = 0;
         	}
@@ -202,8 +207,6 @@ void SignalGenerator::process(AudioSampleBuffer &buffer,
         }
     }
 
-
- 	
 
 	// for (int chan = 0; chan < buffer.getNumChannels(); chan++)
 	// {
@@ -269,4 +272,43 @@ void SignalGenerator::process(AudioSampleBuffer &buffer,
 
 	// }
 
+}
+float SignalGenerator::generateSpikeSample(double amp, double phase, double noise){
+    
+    
+    // if the current phase is less than the previous phase we've probably wrapped and its time to select a new spike
+    // if we've delayed long enough then draw a new spike otherwise wait until spikeDelay==0
+    if (phase < previousPhase){ 
+    	spikeIdx = rand()%5;
+    	
+    	if( spikeDelay <= 0)
+    		spikeDelay = rand()%200 + 50;
+    	if (spikeDelay > 0)
+    		spikeDelay --;
+    }
+  
+
+    previousPhase = phase;
+
+    int shift = -9500;//1000 + 32768;
+    int gain = 8000;
+
+    double r = ((rand() % 201) - 100) / 1000.0; // Generate random number between -.1 and .1
+    noise = r  * noise / (double_Pi * 2); // Shrink the range of r based upon the value of noise
+   
+    int sampIdx = (int) (phase / (2 * double_Pi) * (N_WAVEFORM_SAMPLES-1)); // bind between 0 and N_SAMP-1, too tired to figure out the proper math
+    //sampIdx = sampIdx + 8;
+
+    // Right now only sample from the 3rd waveform. I need to figure out a way to only sample from a single spike until the phase wraps
+    float baseline = shift + gain *  SPIKE_WAVEFORMS[spikeIdx][1] ;
+
+    float sample = shift + gain * ( SPIKE_WAVEFORMS[spikeIdx][sampIdx] + noise );// * pow( WAVEFORM_SCALE[sampIdx], amp / 200.0 ) ) ;
+    float dV = sample  - baseline;
+    dV = dV * (1 + amp / 250);
+    sample = baseline + dV;
+
+    if (spikeDelay==0)
+    	return sample;
+    else
+    	return baseline;
 }

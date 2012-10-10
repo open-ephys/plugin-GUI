@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="open-ephys">
@@ -36,6 +36,9 @@
     </Filter>
     <Filter Include="open-ephys\Source\Processors">
       <UniqueIdentifier>{3B2598F1-7B02-E3D4-A09B-367B20D97672}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Processors\Serial">
+      <UniqueIdentifier>{BE825C10-A046-0824-C18C-358D08C18D78}</UniqueIdentifier>
     </Filter>
     <Filter Include="open-ephys\Source\Processors\Utilities">
       <UniqueIdentifier>{A81F416A-5186-4D5E-E159-A4E41A74C9AB}</UniqueIdentifier>
@@ -138,10 +141,7 @@
     <ClCompile Include="..\..\Source\Processors\Utilities\Splitter.cpp">
       <Filter>open-ephys\Source\Processors\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\StereotrodePlot.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\ElectrodePlot.cpp">
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.cpp">
@@ -154,9 +154,6 @@
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\ProjectionAxes.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\TetrodePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\WaveAxes.cpp">
@@ -185,6 +182,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\FPGAOutputEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\ChannelSelector.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
@@ -425,10 +428,7 @@
     <ClInclude Include="..\..\Source\Processors\Utilities\Splitter.h">
       <Filter>open-ephys\Source\Processors\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\StereotrodePlot.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\ElectrodePlot.h">
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.h">
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.h">
@@ -444,9 +444,6 @@
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SimpleKeyEvent.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\TetrodePlot.h">
       <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\WaveAxes.h">
@@ -478,6 +475,12 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\EventNode.h">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\FPGAOutputEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\ChannelSelector.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>

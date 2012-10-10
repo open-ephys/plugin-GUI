@@ -1,5 +1,5 @@
-#ifndef STEROETRODE_PLOT_H_
-#define STEROETRODE_PLOT_H_
+#ifndef SPIKE_PLOT_H_
+#define SPIKE_PLOT_H_
 
 #if defined(__linux__)
 	#include <GL/glut.h>
@@ -15,16 +15,30 @@
 #include "PlotUtils.h"
 #include "SimpleKeyEvent.h"
 
+#define TETRODE_PLOT 1004
+#define STEREO_PLOT  1002
+#define SINGLE_PLOT  1001
+//#define HIST_PLOT    1000 // perhaps we'll use hist plots at a later date but not for now
 
-class StereotrodePlot : public BaseUIElement{
+
+class SpikePlot : public BaseUIElement{
 	
 	bool enabled;	
     
     bool limitsChanged;
-    double limits[2][2];
+
+    static const int MAX_N_CHAN = 4;
+    static const int MAX_N_PROJ = 6;
+
+    int nChannels;
+    int plotType;
+    int nWaveAx;
+    int nProjAx;
     
-    WaveAxes wAxes[2];
-    ProjectionAxes pAxes;
+    double limits[MAX_N_CHAN][2];
+
+    WaveAxes wAxes[MAX_N_CHAN];
+    ProjectionAxes pAxes[MAX_N_PROJ];
     
     
     
@@ -38,12 +52,13 @@ class StereotrodePlot : public BaseUIElement{
     
     void initLimits();
     void setLimitsOnAxes();
+    void updateAxesPositions();
 
 	
 public:
-	StereotrodePlot();
-	StereotrodePlot(int x, int y,int w,int h);
-	virtual ~StereotrodePlot();
+	SpikePlot();
+	SpikePlot(int x, int y,int w,int h, int pType);
+	virtual ~SpikePlot();
 
 	void initAxes();
 	void redraw();
@@ -51,10 +66,8 @@ public:
 	void setEnabled(bool enabled);
 	bool getEnabled();
 	void setPosition(int,int,double,double);
-
-	void getPreferredDimensions(double*, double*);
-
-	int getNumberOfAxes();
+    
+	void getBestDimensions(int*, int*);
     
     void mouseDown(int x, int y);
     

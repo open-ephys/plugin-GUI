@@ -13,7 +13,7 @@
                juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi -lftgl"
                objCExtraSuffix="fea2mT"/>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-lftdi -lftgl -pg" extraCompilerFlags="-export-dynamic -g -pg"/>
+                extraLinkerFlags="-lftdi -lftgl -pg -ldl -lXext" extraCompilerFlags="-export-dynamic -g -pg"/>
     <VS2010 targetFolder="Builds/VisualStudio2010" vstFolder="c:\SDKs\vstsdk2.4"
             rtasFolder="c:\SDKs\PT_80_SDK" libraryType="1" juceFolder="JuceLibraryCode"
             extraLinkerFlags="-lftdi -lftgl"/>
@@ -51,6 +51,12 @@
       </GROUP>
       <GROUP id="W2L6BdA" name="Images">
         <GROUP id="Gu1BsKu" name="Icons">
+          <FILE id="Ke1Tihu" name="ArduinoIcon.png" compile="0" resource="1"
+                file="Resources/Images/Icons/ArduinoIcon.png"/>
+          <FILE id="zPy0mgT" name="OpenEphysBoardLogoBlack.png" compile="0" resource="1"
+                file="Resources/Images/Icons/OpenEphysBoardLogoBlack.png"/>
+          <FILE id="Swb7oDw" name="OpenEphysBoardLogoGray.png" compile="0" resource="1"
+                file="Resources/Images/Icons/OpenEphysBoardLogoGray.png"/>
           <FILE id="AQfzTI0" name="RadioButtons-01.png" compile="0" resource="1"
                 file="Resources/Images/Icons/RadioButtons-01.png"/>
           <FILE id="zaiYTpn" name="RadioButtons-02.png" compile="0" resource="1"
@@ -187,6 +193,19 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <GROUP id="gFSbZKw" name="Serial">
+          <FILE id="3t2ez3c" name="ofArduino.cpp" compile="1" resource="0" file="Source/Processors/Serial/ofArduino.cpp"/>
+          <FILE id="bXASAoT" name="ofArduino.h" compile="0" resource="0" file="Source/Processors/Serial/ofArduino.h"/>
+          <FILE id="hNTT1i1" name="ofConstants.h" compile="0" resource="0" file="Source/Processors/Serial/ofConstants.h"/>
+          <FILE id="F97Ylmz" name="ofSerial.cpp" compile="1" resource="0" file="Source/Processors/Serial/ofSerial.cpp"/>
+          <FILE id="wV1xn3Z" name="ofSerial.h" compile="0" resource="0" file="Source/Processors/Serial/ofSerial.h"/>
+        </GROUP>
+        <FILE id="rlxg06" name="EventDetector.cpp" compile="1" resource="0"
+              file="Source/Processors/EventDetector.cpp"/>
+        <FILE id="LWuAoXl" name="EventDetector.h" compile="0" resource="0"
+              file="Source/Processors/EventDetector.h"/>
+        <FILE id="caGBzB" name="FPGAOutput.cpp" compile="1" resource="0" file="Source/Processors/FPGAOutput.cpp"/>
+        <FILE id="IUvIxV7" name="FPGAOutput.h" compile="0" resource="0" file="Source/Processors/FPGAOutput.h"/>
         <FILE id="wBm4y2" name="ArduinoOutput.cpp" compile="1" resource="0"
               file="Source/Processors/ArduinoOutput.cpp"/>
         <FILE id="1sbSwS7" name="ArduinoOutput.h" compile="0" resource="0"
@@ -211,13 +230,8 @@
         </GROUP>
         <GROUP id="W4eqkOy" name="Visualization">
           <GROUP id="g8GOfh" name="SpikePlotting">
-            <FILE id="PzmX0I" name="StereotrodePlot.cpp" compile="1" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/StereotrodePlot.cpp"/>
-            <FILE id="LPK6G1" name="StereotrodePlot.h" compile="0" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/StereotrodePlot.h"/>
-            <FILE id="EgoljI" name="ElectrodePlot.cpp" compile="1" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/ElectrodePlot.cpp"/>
-            <FILE id="oFUMq0" name="ElectrodePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/ElectrodePlot.h"/>
+            <FILE id="AD91jR" name="SpikePlot.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/SpikePlot.cpp"/>
+            <FILE id="iO3abH" name="SpikePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/SpikePlot.h"/>
             <FILE id="Qq75l" name="BaseUIElement.cpp" compile="1" resource="0"
                   file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp"/>
             <FILE id="PZdkKU" name="BaseUIElement.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.h"/>
@@ -231,8 +245,6 @@
                   file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.h"/>
             <FILE id="RnnkTt" name="SimpleKeyEvent.h" compile="0" resource="0"
                   file="Source/Processors/Visualization/SpikePlotting/SimpleKeyEvent.h"/>
-            <FILE id="dP2Ikw" name="TetrodePlot.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/TetrodePlot.cpp"/>
-            <FILE id="SH9Un2" name="TetrodePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/TetrodePlot.h"/>
             <FILE id="yg1Xuq" name="WaveAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp"/>
             <FILE id="cZX4SM" name="WaveAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.h"/>
           </GROUP>
@@ -262,6 +274,14 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="mvixd58" name="FPGAOutputEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/FPGAOutputEditor.cpp"/>
+          <FILE id="phTDDOR" name="FPGAOutputEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/FPGAOutputEditor.h"/>
+          <FILE id="oYeB8Hh" name="ArduinoOutputEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/ArduinoOutputEditor.cpp"/>
+          <FILE id="xfwOAJs" name="ArduinoOutputEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/ArduinoOutputEditor.h"/>
           <FILE id="rZGNxjv" name="ChannelSelector.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/ChannelSelector.cpp"/>
           <FILE id="Yga4B3Z" name="ChannelSelector.h" compile="0" resource="0"

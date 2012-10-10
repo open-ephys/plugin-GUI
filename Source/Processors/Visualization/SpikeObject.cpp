@@ -22,7 +22,6 @@
 */
 
 #include "SpikeObject.h"
-#include <iostream>
 #include "memory.h"
 #include <stdlib.h>
 #include "time.h"
@@ -30,36 +29,43 @@
 // Simple method for serializing a SpikeObject into a string of bytes
 int packSpike(SpikeObject *s, uint8_t* buffer, int bufferSize){
 
+	//int reqBytes = 1 + 4 + 2 + 2 + 2 + 2 * s->nChannels * s->nSamples + 2 * s->nChannels * 2;
+
 	int idx = 0;
 
 	s->eventType = SPIKE_EVENT_CODE;
 
+
 	memcpy(buffer+idx, &(s->eventType), 1);
 	idx += 1;
-
+	
 	memcpy(buffer+idx, &(s->timestamp), 4);
 	idx += 4;
-
+	
 	memcpy(buffer+idx, &(s->source), 2);
 	idx +=2;
-
+	
 	memcpy(buffer+idx, &(s->nChannels), 2);
 	idx +=2;
-
+	
 	memcpy(buffer+idx, &(s->nSamples), 2);
 	idx +=2;
-
+	
 	memcpy(buffer+idx, &(s->data), s->nChannels * s->nSamples * 2);
 	idx += s->nChannels * s->nSamples * 2;
+	
+	memcpy(buffer+idx, &(s->gain), s->nChannels * 2);
+	idx += s->nChannels * 2;
+	
+	memcpy(buffer+idx, &(s->threshold), s->nChannels * 2);
+	idx += s->nChannels * 2;
+	
 
-	memcpy(buffer+idx, &(s->gain), s->nChannels);
-	idx += s->nChannels;
 
-	memcpy(buffer+idx, &(s->threshold), s->nChannels);
-	idx += s->nChannels;
-
-	if (idx >= bufferSize)
-		std::cout<<"Buffer Overrun! More data packaged than space provided!"<<std::endl;
+	if (idx >= MAX_SPIKE_BUFFER_LEN){
+		std::cout<<"Spike is larger than it should be. Size was:"<<idx<<" Max Size is:"<<MAX_SPIKE_BUFFER_LEN<<std::endl;
+		
+	}
 	// makeBufferValid(buffer, bufferSize);
 
 	return idx;
@@ -95,12 +101,13 @@ bool unpackSpike(SpikeObject *s, uint8_t* buffer, int bufferSize){
 	idx += s->nChannels * 2;
 
 	memcpy( &(s->threshold), buffer+idx, s->nChannels *2);
-	//idx += s->nChannels * 2;
+	idx += s->nChannels * 2;
+    
+//    if (idx >= bufferSize)
+//		std::cout<<"Buffer Overrun! More data extracted than was given!"<<std::endl;
     
     return true;
 
-	//if (idx >= bufferSize)
-	//	std::cout<<"Buffer Overrun! More data extracted than was given!"<<std::endl;
 	
 }
 
@@ -221,16 +228,15 @@ void generateEmptySpike(SpikeObject *s, int nChannels){
     }
 }
 
+void printSpike(SpikeObject *s){
 
-// std::ostream& operator<<(std::ostream &strm, const SpikeObject s){
-
-// 	strm << " SpikeObject:\n";
-// 	strm << "\tTimestamp:" << s.timestamp;
-// 	strm << "\tSource:" << s.source;
-// 	strm << "\tnChannels:" <<s.nChannels;
-// 	strm <<"\tnSamples" << s.nSamples;
-// 	strm <<"\n\t 8 Data Samples:";
-// 	for (int i=0; i<8; i++)
-// 		strm << s.data[i]<<" ";
-// 	return strm;
-// }
+  std::cout<< " SpikeObject:\n";
+  std::cout<< "\tTimestamp:" << s->timestamp;
+  std::cout<< "\tSource:" << s->source;
+  std::cout<< "\tnChannels:" <<s->nChannels;
+  std::cout<<"\tnSamples" << s->nSamples;
+  std::cout<<"\n\t 8 Data Samples:";
+  for (int i=0; i<8; i++)
+    std::cout<<s->data+i<<" ";
+  std::cout<<std::endl;
+}

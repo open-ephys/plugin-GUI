@@ -28,7 +28,7 @@
 SourceNode::SourceNode(const String& name_)
 	: GenericProcessor(name_),
 	  dataThread(0), inputBuffer(0),
-	  sourceCheckInterval(2000), wasDisabled(true)
+	  sourceCheckInterval(2000), wasDisabled(true), ttlState(0)
 {
 
 	std::cout << "creating source node." << std::endl;
@@ -73,6 +73,11 @@ SourceNode::~SourceNode()
 {
 }
 
+DataThread* SourceNode::getThread()
+{
+    return dataThread;
+}
+
 void SourceNode::updateSettings()
 {
 	if (inputBuffer == 0 && dataThread != 0)
@@ -82,6 +87,29 @@ void SourceNode::updateSettings()
 		std::cout << "Input buffer address is " << inputBuffer << std::endl;
 	}
 
+}
+
+void SourceNode::actionListenerCallback(const String& msg)
+{
+    
+    //std::cout << msg << std::endl;
+    
+    if (msg.equalsIgnoreCase("HI"))
+    {
+        std::cout << "HI." << std::endl;
+       // dataThread->setOutputHigh();
+        ttlState = 1;
+    } else if (msg.equalsIgnoreCase("LO"))
+    {
+        std::cout << "LO." << std::endl;
+       // dataThread->setOutputLow();
+        ttlState = 0;
+    }
+}
+
+int SourceNode::getTTLState()
+{
+    return ttlState;
 }
 
 float SourceNode::getSampleRate()

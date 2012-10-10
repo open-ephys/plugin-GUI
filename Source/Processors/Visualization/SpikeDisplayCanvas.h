@@ -30,9 +30,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../SpikeDisplayNode.h"
-#include "SpikePlotting/ElectrodePlot.h"
-#include "SpikePlotting/StereotrodePlot.h"
-#include "SpikePlotting/TetrodePlot.h"
+#include "SpikePlotting/SpikePlot.h"
 #include "SpikeObject.h"
 
 #include "Visualizer.h"
@@ -87,43 +85,26 @@ private:
 	SpikeObject spike;
 	SpikeDisplayNode* processor;
 
-	Array<BaseUIElement*> plots;
-
-	// std::vector<StereotrodePlot> STplots;
-	// std::vector<TetrodePlot> TTplots;
-	// std::vector<ElectrodePlot> SEplots;
-
+	Array<SpikePlot*> plots;
 	Array<int> numChannelsPerPlot;
 
 	int totalScrollPix;
-	// AudioSampleBuffer* displayBuffer;
-	// ScopedPointer<AudioSampleBuffer> screenBuffer;
-	// MidiBuffer* eventBuffer;
-
-	// void setViewport(int chan);
-	// void drawBorder(bool isSelected);
-	// void drawChannelInfo(int chan, bool isSelected);
-	// void drawWaveform(int chan, bool isSelected);
 
 	void drawPlotTitle(int chan);
-	//void drawTicks();
-
-	// bool checkBounds(int chan);
-
-	// void updateScreenBuffer();
-	// int screenBufferIndex;
-	// int displayBufferIndex;
-	// int displayBufferSize;
-
+	
 	int totalHeight;
-	// int selectedChan;
 
 	int getTotalHeight();
 
 	int nPlots;
-	int nCols;
+
+    int nCols;
+    static const int MIN_GRID_SIZE = 10;
+    static const int MAX_GRID_SIZE = 125;
+  
 	int nChannels[MAX_NUMBER_OF_SPIKE_CHANNELS];
 
+    void computeColumnLayout();
 	void initializeSpikePlots();
 	void repositionSpikePlots();
 

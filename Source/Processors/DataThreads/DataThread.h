@@ -54,6 +54,9 @@ public:
 	DataBuffer* getBufferAddress();
 
 	virtual bool updateBuffer() = 0;
+    
+    virtual void setOutputHigh() {}
+    virtual void setOutputLow() {}
 
 	ScopedPointer<DataBuffer> dataBuffer;
 
@@ -71,6 +74,8 @@ public:
     uint64 timestamp;
 
     Time timer;
+    
+    virtual void* getDevice() {return 0;}
 
 private:
 
