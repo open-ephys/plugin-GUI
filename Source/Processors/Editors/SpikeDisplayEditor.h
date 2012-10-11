@@ -24,6 +24,9 @@
 #ifndef SPIKEDISPLAYEDITOR_H_
 #define SPIKEDISPLAYEDITOR_H_
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "../../UI/UIComponent.h"

@@ -24,6 +24,9 @@
 #ifndef __SOURCENODEEDITOR_H_A1B19E1E__
 #define __SOURCENODEEDITOR_H_A1B19E1E__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "ImageIcon.h"

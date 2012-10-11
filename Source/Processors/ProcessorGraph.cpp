@@ -1,5 +1,5 @@
 /*
-    ------------------------------------------------------------------
+------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
     Copyright (C) 2012 Open Ephys
@@ -610,3 +610,4 @@ RecordNode* ProcessorGraph::getRecordNode() {
 // 	File file = File("./savedState.xml");
 // 	getEditorViewport()->loadState(file);
 // }
+

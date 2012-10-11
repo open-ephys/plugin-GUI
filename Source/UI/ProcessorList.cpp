@@ -396,7 +396,7 @@ void ProcessorList::mouseDownInCanvas(const MouseEvent& e)
 					return;
 				}
 
-				int options;
+				int options=0;
 				options += (0 << 0); // showAlpha
 				options += (0 << 1); // showColorAtTop
 				options += (0 << 2); // showSliders

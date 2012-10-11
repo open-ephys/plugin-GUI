@@ -24,6 +24,9 @@
 #ifndef __PROCESSORLIST_H_C3A661E9__
 #define __PROCESSORLIST_H_C3A661E9__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/Visualization/OpenGLCanvas.h"
 #include "../AccessClass.h"

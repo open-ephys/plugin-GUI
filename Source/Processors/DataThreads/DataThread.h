@@ -24,6 +24,9 @@
 #ifndef __DATATHREAD_H_C454F4DB__
 #define __DATATHREAD_H_C454F4DB__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 #include "DataBuffer.h"

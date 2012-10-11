@@ -24,6 +24,9 @@
 #ifndef __SPLITTER_H_A75239F7__
 #define __SPLITTER_H_A75239F7__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor.h"
 

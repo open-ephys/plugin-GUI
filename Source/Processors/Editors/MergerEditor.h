@@ -25,6 +25,9 @@
 #define __MERGEREDITOR_H_33F644A8__
 
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 

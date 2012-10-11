@@ -23,6 +23,9 @@
 #ifndef __WIFIOUTPUTEDITOR_H_7161DB44__
 #define __WIFIOUTPUTEDITOR_H_7161DB44__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "ImageIcon.h"

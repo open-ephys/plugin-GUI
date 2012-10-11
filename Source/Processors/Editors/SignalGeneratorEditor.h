@@ -24,6 +24,9 @@
 #ifndef __SIGNALGENERATOREDITOR_H_841A7078__
 #define __SIGNALGENERATOREDITOR_H_841A7078__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 

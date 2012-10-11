@@ -1,6 +1,9 @@
 #ifndef GENERIC_AXES_H_
 #define GENERIC_AXES_H_
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 
 #if defined(__linux__)
 	#include <GL/glut.h>

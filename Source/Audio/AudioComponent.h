@@ -24,6 +24,9 @@
 #ifndef __AUDIOCOMPONENT_H_D97C73CF__
 #define __AUDIOCOMPONENT_H_D97C73CF__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 /**

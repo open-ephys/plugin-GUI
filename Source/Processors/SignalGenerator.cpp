@@ -27,6 +27,10 @@
 #include <math.h>
 #include "Visualization/SpikeObject.h"
 
+#ifdef WIN32
+#define copysign(x,y) _copysign(x,y)
+#endif
+
 SignalGenerator::SignalGenerator()
 	: GenericProcessor("Signal Generator"),
 

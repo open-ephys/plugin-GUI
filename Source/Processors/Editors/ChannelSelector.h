@@ -24,6 +24,9 @@
 #ifndef __CHANNELSELECTOR_H_68124E35__
 #define __CHANNELSELECTOR_H_68124E35__
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "../../AccessClass.h"

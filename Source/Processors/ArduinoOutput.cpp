@@ -84,6 +84,9 @@ bool ArduinoOutput::enable()
 #if JUCE_LINUX
 	arduino.connect("ttyACM0");
 #endif
+#if JUCE_WIN32
+	arduino.connect("COM1");
+#endif
 #if JUCE_MAC
     arduino.connect("tty.usbmodemfd121");
 #endif

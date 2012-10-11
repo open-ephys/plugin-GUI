@@ -43,6 +43,10 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 	const char* bitfilename = "./pipetest.bit";
     const char* libname = "./libokFrontPanel64.so";
 #endif
+#if JUCE_WIN32
+	const char* bitfilename = "pipetest.bit";
+    const char* libname = NULL;
+#endif
 #if JUCE_MAC
     const char* bitfilename = "/Users/Josh/Programming/open-ephys/GUI/Resources/DLLs/pipetest.bit";
     const char* libname = "/Users/Josh/Programming/open-ephys/GUI/Resources/DLLs/libokFrontPanel.dylib";
@@ -213,7 +217,7 @@ bool FPGAThread::updateBuffer()
 {
 
 	long return_code;
-
+	
 	if (!bufferWasAligned)
 	{
 		alignBuffer(100000);
@@ -238,7 +242,7 @@ bool FPGAThread::updateBuffer()
 	// or in 1 for timecode bytes. This is some overhead but makes data integrity checks 
 	// pretty trivial.
 	// 
-	// headstages are A, B, C, D and another one for the breakout box T for the 0-5v TTL input
+	// headstages are A,B,C,D and another one for the breakout box T for the 0-5v TTL input
 	// A1 is stage A channel 1 etc
     // ...............
     // tc     ttttttt1
@@ -266,7 +270,7 @@ bool FPGAThread::updateBuffer()
     int i = 0;
    // int samplesUsed = 0;
    // int startSample = 0;
-
+    
     // new strategy: read in 201 bytes & find the first sample
 
     int firstSample;
@@ -275,19 +279,19 @@ bool FPGAThread::updateBuffer()
 	{
         
 		// look for timecode block (6 bytes)
-		 if (  (pBuffer[j] & 1) 
-		 		&& (pBuffer[j+1] & 1) 
-		 		&& (pBuffer[j+2] & 1) 
-		 		&& (pBuffer[j+3] & 1) 
-		 		&& (pBuffer[j+4] & 1) 
-		 		&& (pBuffer[j+5] & 1)
-		 		&& (j+5+Ndatabytes <= bytesToRead)   ) // indicated by last bit being 1
-		 { //read 6 bytes, assemble to 6*7 = 42 bits,  arranged in 6 bytes
+		if (  (pBuffer[j] & 1) 
+				&& (pBuffer[j+1] & 1) 
+				&& (pBuffer[j+2] & 1) 
+				&& (pBuffer[j+3] & 1) 
+				&& (pBuffer[j+4] & 1) 
+				&& (pBuffer[j+5] & 1) 
+				&& (j+5+Ndatabytes <= bytesToRead)   ) // indicated by last bit being 1
+		{ //read 6 bytes, assemble to 6*7 = 42 bits,  arranged in 6 bytes
 			
 			//std::cout << j << std::endl;
             
             i++;
-
+            
             if (j % 200 != 0)
             {
             	std::cout << "Buffer not aligned " << j << " " << accumulator << std::endl;
@@ -316,7 +320,7 @@ bool FPGAThread::updateBuffer()
                         (uint64(timecode[1]) << 8) +
                         (uint64(timecode[0]));
             
-             
+            
             
             eventCode = pBuffer[j+6]; // TTL input
             ttl_out = pBuffer[j+7];   // TTL output
@@ -408,7 +412,7 @@ bool FPGAThread::updateBuffer()
 }
 
 void FPGAThread::checkTTLState()
-{
+    {
     if (sn->getTTLState() != ttlState)
     {
         ttlState = sn->getTTLState();
@@ -423,7 +427,7 @@ void FPGAThread::checkTTLState()
         dev->UpdateWireIns();
     }
 }
-
+    
 void FPGAThread::setOutputHigh()
 {
     dev->SetWireInValue(0x01, 0x01); //, 0x06);
@@ -436,7 +440,7 @@ void FPGAThread::setOutputHigh()
 void FPGAThread::setOutputLow()
 {
     dev->SetWireInValue(0x01, 0x00); //, 0x06);
-    
+
     dev->UpdateWireIns();
 }
 
@@ -465,7 +469,6 @@ bool FPGAThread::initializeFPGA(bool verbose)
 		str = dev->GetDeviceID();
 		printf("Device device ID: %s\n", str.c_str());
 	}
-
 	// Download the configuration file.
 	if (okCFrontPanel::NoError != dev->ConfigureFPGA(bitfile)) {
 		if (verbose)
