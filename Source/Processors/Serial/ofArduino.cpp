@@ -1,3 +1,7 @@
+//
+// code taken from openFrameworks (http://www.openframeworks.cc)
+//
+
 /*
  * 9/28/11:
  *   - updated to be Firmata 2.3/Arduino 1.0 compatible

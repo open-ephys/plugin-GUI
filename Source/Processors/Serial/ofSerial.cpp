@@ -1,3 +1,7 @@
+//
+// code taken from openFrameworks (http://www.openframeworks.cc)
+//
+
 #include "ofSerial.h"
 //#include "ofUtils.h"
 //#include "ofTypes.h"

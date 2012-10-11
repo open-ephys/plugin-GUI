@@ -1,3 +1,7 @@
+//
+// code taken from openFrameworks (http://www.openframeworks.cc)
+//
+
 /*
  * Copyright 2007-2008 (c) Erik Sjodin, eriksjodin.net
  *
@@ -22,6 +26,9 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
+
+
+
 #pragma once
 
 #include <list>

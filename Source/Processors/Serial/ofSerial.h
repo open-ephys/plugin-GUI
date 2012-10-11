@@ -1,3 +1,7 @@
+//
+// code taken from openFrameworks (http://www.openframeworks.cc)
+//
+
 #pragma once
 
 #include "ofConstants.h"
