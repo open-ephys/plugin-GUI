@@ -1,5 +1,5 @@
 /*
-    ------------------------------------------------------------------
+------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
     Copyright (C) 2012 Open Ephys
@@ -462,7 +462,6 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			std::cout << "Creating a WiFi node." << std::endl;
 			processor = new WiFiOutput();
 		}
-#ifndef WIN32 //Arduino not supported on windows yet
 		else if (subProcessorType.equalsIgnoreCase("Arduino Output")) {
 			std::cout << "Creating an Arduino node." << std::endl;
 			processor = new ArduinoOutput();
@@ -611,3 +610,4 @@ RecordNode* ProcessorGraph::getRecordNode() {
 // 	File file = File("./savedState.xml");
 // 	getEditorViewport()->loadState(file);
 // }
+

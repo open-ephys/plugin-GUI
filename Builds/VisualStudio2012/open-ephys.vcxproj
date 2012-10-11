@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -84,7 +84,7 @@
       <ProgramDatabaseFile>.\Debug\open-ephys.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;ftgl.lib;libftdi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;ftgl.lib;libftdi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -129,7 +129,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;ftgl.lib;libftdi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;ftgl.lib;libftdi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -160,13 +160,18 @@
     <ClCompile Include="..\..\Source\Dsp\RootFinder.cpp" />
     <ClCompile Include="..\..\Source\Dsp\State.cpp" />
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp" />
+    <ClCompile Include="..\..\Source\Processors\ArduinoOutput.cpp" />
+    <ClCompile Include="..\..\Source\Processors\EventDetector.cpp" />
+    <ClCompile Include="..\..\Source\Processors\FPGAOutput.cpp" />
     <ClCompile Include="..\..\Source\Processors\Parameter.cpp" />
+    <ClCompile Include="..\..\Source\Processors\Serial\ofArduino.cpp" />
+    <ClCompile Include="..\..\Source\Processors\Serial\ofSerial.cpp" />
     <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode.cpp" />
     <ClCompile Include="..\..\Source\Processors\WiFiOutput.cpp" />
     <ClCompile Include="..\..\Source\Processors\LfpDisplayNode.cpp" />
     <ClCompile Include="..\..\Source\Processors\Utilities\Merger.cpp" />
     <ClCompile Include="..\..\Source\Processors\Utilities\Splitter.cpp" />
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.cpp" />
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.cpp" />
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\GenericAxes.cpp" />
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\PlotUtils.cpp" />
@@ -180,8 +185,8 @@
     <ClCompile Include="..\..\Source\Processors\SpikeDetector.cpp" />
     <ClCompile Include="..\..\Source\Processors\AudioNode.cpp" />
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp" />
-    <ClCompile Include="..\..\Source\Processors\Editors\FPGAOutputEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\FPGAOutputEditor.cpp" />
+    <ClCompile Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.cpp" />
     <ClCompile Include="..\..\Source\Processors\Editors\ChannelSelector.cpp" />
     <ClCompile Include="..\..\Source\Processors\Editors\ParameterEditor.cpp" />
     <ClCompile Include="..\..\Source\Processors\Editors\SpikeDisplayEditor.cpp" />
@@ -257,13 +262,19 @@
     <ClInclude Include="..\..\Source\Dsp\Types.h" />
     <ClInclude Include="..\..\Source\Dsp\Utilities.h" />
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h" />
+    <ClInclude Include="..\..\Source\Processors\ArduinoOutput.h" />
+    <ClInclude Include="..\..\Source\Processors\EventDetector.h" />
+    <ClInclude Include="..\..\Source\Processors\FPGAOutput.h" />
     <ClInclude Include="..\..\Source\Processors\Parameter.h" />
+    <ClInclude Include="..\..\Source\Processors\Serial\ofArduino.h" />
+    <ClInclude Include="..\..\Source\Processors\Serial\ofConstants.h" />
+    <ClInclude Include="..\..\Source\Processors\Serial\ofSerial.h" />
     <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode.h" />
     <ClInclude Include="..\..\Source\Processors\WiFiOutput.h" />
     <ClInclude Include="..\..\Source\Processors\LfpDisplayNode.h" />
     <ClInclude Include="..\..\Source\Processors\Utilities\Merger.h" />
     <ClInclude Include="..\..\Source\Processors\Utilities\Splitter.h" />
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.h"/>
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.h" />
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.h" />
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\GenericAxes.h" />
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\PlotUtils.h" />
@@ -279,8 +290,8 @@
     <ClInclude Include="..\..\Source\Processors\SpikeDetector.h" />
     <ClInclude Include="..\..\Source\Processors\AudioNode.h" />
     <ClInclude Include="..\..\Source\Processors\EventNode.h" />
-    <ClInclude Include="..\..\Source\Processors\Editors\FPGAOutputEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\FPGAOutputEditor.h" />
+    <ClInclude Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.h" />
     <ClInclude Include="..\..\Source\Processors\Editors\ChannelSelector.h" />
     <ClInclude Include="..\..\Source\Processors\Editors\ParameterEditor.h" />
     <ClInclude Include="..\..\Source\Processors\Editors\SpikeDisplayEditor.h" />

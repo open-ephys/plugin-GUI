@@ -24,6 +24,9 @@
 #ifndef __FPGAOUTPUTEDITOR_H_5A646CD3__
 #define __FPGAOUTPUTEDITOR_H_5A646CD3__
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"

@@ -37,7 +37,13 @@
  */
 
 #include "ofArduino.h"
+#ifdef _WIN32
+#include <time.h>
+#include <Windows.h>
+#include <Mmsystem.h>
+#else
 #include <sys/time.h>
+#endif
 //#include "ofUtils.h"
 
 // TODO thread it?

@@ -9,6 +9,7 @@
 #endif
 
 
+
 #include <fcntl.h>
 #include <errno.h>
 #include <ctype.h>
@@ -422,7 +423,7 @@ bool ofSerial::setup(string portName, int baud){
 	if(!SetCommState(hComm,&cfg.dcb)){
 		printf("ofSerial: Can't set comm state");
 	}
-	sprtinf(buf,"bps=%d, xio=%d/%d",cfg.dcb.BaudRate,cfg.dcb.fOutX,cfg.dcb.fInX);
+	sprintf(buf,"bps=%d, xio=%d/%d",cfg.dcb.BaudRate,cfg.dcb.fOutX,cfg.dcb.fInX);
 
 	// Set communication timeouts (NT)
 	COMMTIMEOUTS tOut;

@@ -43,6 +43,10 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 	const char* bitfilename = "./pipetest.bit";
     const char* libname = "./libokFrontPanel64.so";
 #endif
+#if JUCE_WIN32
+	const char* bitfilename = "pipetest.bit";
+    const char* libname = NULL;
+#endif
 #if JUCE_MAC
     const char* bitfilename = "/Users/Josh/Programming/open-ephys/GUI/Resources/DLLs/pipetest.bit";
     const char* libname = "/Users/Josh/Programming/open-ephys/GUI/Resources/DLLs/libokFrontPanel.dylib";
@@ -465,7 +469,6 @@ bool FPGAThread::initializeFPGA(bool verbose)
 		str = dev->GetDeviceID();
 		printf("Device device ID: %s\n", str.c_str());
 	}
-
 	// Download the configuration file.
 	if (okCFrontPanel::NoError != dev->ConfigureFPGA(bitfile)) {
 		if (verbose)

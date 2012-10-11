@@ -24,7 +24,9 @@
 #ifndef __FPGAOUTPUT_H_33275017__
 #define __FPGAOUTPUT_H_33275017__
 
-
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GenericProcessor.h"
