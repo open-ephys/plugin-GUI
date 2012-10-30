@@ -59,6 +59,8 @@ InfoLabel::InfoLabel() : xBuffer(10), yBuffer(10)
 				 "DISCLAIMER: This software should be used for demonstration and testing purposes only. "
 				 "It is not fit for conducting scientific experiments of any kind."
 				 ;
+
+	refreshMs = 100; // override 5 s refresh rate
 }
 
 InfoLabel::~InfoLabel()
