@@ -275,10 +275,18 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
         }
 
 
-        if (!button->getToggleState()) {
-          thresholdSlider->setActive(false);
-          electrodeButtons.clear();
-          drawElectrodeButtons(electrodeList->getSelectedItemIndex());
+        if (!button->getToggleState())
+        {
+            thresholdSlider->setActive(false);
+
+            // This will be -1 with nothing selected
+            int selectedItemIndex = electrodeList->getSelectedItemIndex();
+            if (selectedItemIndex != -1)
+            {
+                drawElectrodeButtons(selectedItemIndex);
+            } else {
+                electrodeButtons.clear();
+            }
         }
 
       //   channelSelector->setActiveChannels(activeChannels);
