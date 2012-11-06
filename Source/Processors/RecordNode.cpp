@@ -241,7 +241,6 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 					fileExists = true;
 				}
 
-
 				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a");
 
 				if (!fileExists)
