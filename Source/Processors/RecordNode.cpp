@@ -233,7 +233,7 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 			{
 				std::cout << "OPENING FILE: " << continuousChannels[i].filename << std::endl;
 
-				File f = File(continuousChannels.filename);
+				File f = File(continuousChannels[i].filename);
 				bool fileExists = false;
 
 				if (f.exists())
