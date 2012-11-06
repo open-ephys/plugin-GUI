@@ -141,6 +141,8 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
 		std::pair<int, Channel> newPair (getNextChannel(false), newChannel);
 
+		//std::cout << "adding channel " << getNextChannel(false) << std::endl;
+
 		continuousChannels.insert(newPair);
 
 		
@@ -230,7 +232,25 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 			if (continuousChannels[i].isRecording)
 			{
 				std::cout << "OPENING FILE: " << continuousChannels[i].filename << std::endl;
+
+				File f = File(continuousChannels.filename);
+				bool fileExists = false;
+
+				if (f.exists())
+				{
+					fileExists = true;
+				}
+
+
 				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a");
+
+				if (!fileExists)
+				{
+					// create header (needs more details, obviously)
+					String header = "THIS IS A HEADER.";
+					fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), continuousChannels[i].file);
+				}
+
 			}
 		}
  		
