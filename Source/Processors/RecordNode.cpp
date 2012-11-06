@@ -30,7 +30,8 @@ RecordNode::RecordNode()
 
 	
 //	newDataFolder = true; // defaults to creating a new data folder on startup
-	continuousDataBuffer = new int16[10000];
+	continuousDataIntegerBuffer = new int16[10000];
+	continuousDataFloatBuffer = new float[10000];
 	signalFilesShouldClose = false;
 
 }
@@ -142,9 +143,7 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 		continuousChannels.insert(newPair);
 
 		
-
 	} else {
-
 
 		std::map<int, Channel> eventChans;
 
@@ -317,9 +316,15 @@ float RecordNode::getFreeSpace()
 void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 {
 
+	// scale the data appropriately
+	for (int n = 0; n < nSamples; n++)
+	{
+		*(continuousDataFloatBuffer+n) = *(data+n) / 10000.0f; 
+	}
+
 	// find file and write samples to disk
 
-	AudioDataConverters::convertFloatToInt16BE(data, continuousDataBuffer, nSamples);
+	AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
 
 	//int16 samps = nSamples;
 
@@ -333,7 +338,7 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 			   1, 		  						// count 
 			   continuousChannels[channel].file);   // ptr to FILE object
 
-	int n = fwrite(continuousDataBuffer,			// ptr
+	int n = fwrite(continuousDataIntegerBuffer,		// ptr
 			   2,			     					// size of each element
 			   nSamples, 		  					// count 
 			   continuousChannels[channel].file);   // ptr to FILE object
@@ -354,9 +359,10 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 	//std::cout << "Record node processing block." << std::endl;
 	//std::cout << "Num channels: " << buffer.getNumChannels() << std::endl;
 
-	timestamp = timer.getHighResolutionTicks();
 
 	if (isRecording) {
+
+		timestamp = timer.getHighResolutionTicks();
 
 		// WHY IS THIS AFFECTING THE LFP DISPLAY?
 		//buffer.applyGain(0, nSamples, 5.2438f);
@@ -385,10 +391,10 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 
 	}
 
+	// this is intended to prevent parameter changes from closing files
+	// before recording stops
 	if (signalFilesShouldClose)
 	{
-		// prevent parameter changes from closing files
-		// before recording stops
 		closeAllFiles();
 		signalFilesShouldClose = false;
 	}
