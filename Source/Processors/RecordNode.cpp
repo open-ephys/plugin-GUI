@@ -25,7 +25,8 @@
 #include "ProcessorGraph.h"
 
 RecordNode::RecordNode()
-	: GenericProcessor("Record Node"), isRecording(false), isProcessing(false)
+	: GenericProcessor("Record Node"), isRecording(false), isProcessing(false),
+		timestamp(0), signalFilesShouldClose(false)
 {
 
 	
@@ -316,7 +317,8 @@ float RecordNode::getFreeSpace()
 void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 {
 
-	// scale the data appropriately
+	// scale the data appropriately -- currently just getting it into the right
+	// range; actually need to take into account the gain of each channel
 	for (int n = 0; n < nSamples; n++)
 	{
 		*(continuousDataFloatBuffer+n) = *(data+n) / 10000.0f; 

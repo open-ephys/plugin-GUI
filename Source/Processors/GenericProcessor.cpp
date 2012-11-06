@@ -30,7 +30,8 @@ GenericProcessor::GenericProcessor(const String& name_) :
 	isEnabled(true), 
 	saveOrder(-1), loadOrder(-1),
 	nextAvailableChannel(0), currentChannel(-1),
-	wasConnected(false), nullParam("VOID", false, -1)
+	wasConnected(false), nullParam("VOID", false, -1),
+	audioAndRecordNodeStartChannel(0)
 {
 }
 
