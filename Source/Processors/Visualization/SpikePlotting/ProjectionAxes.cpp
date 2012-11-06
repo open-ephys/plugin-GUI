@@ -159,7 +159,7 @@ void ProjectionAxes::plotNewestSpike(){
 
  void ProjectionAxes::calcWaveformPeakIdx(int d1, int d2, int *idx1, int *idx2){
 
-	int max1 = -1*pow(2,15);
+	int max1 = -1*pow(2.0,15);
 	int max2 = max1;
 	
 	for (int i=0; i<s.nSamples ; i++){

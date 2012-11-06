@@ -138,19 +138,19 @@ void ChannelSelector::refreshButtonBoundaries()
 	{
 		parameterButtons[i]->setBounds(columnWidth/2 + offsetLR +
 									   columnWidth*((i)%nColumns),
-									   floor((i)/nColumns)*rowHeight+offsetUD + topOffset,
+									   floor(double(i)/nColumns)*rowHeight+offsetUD + topOffset,
 									   columnWidth, rowHeight);
 
 		if (isNotSink)
 		{
 			recordButtons[i]->setBounds(columnWidth/2 + offsetLR +
 									   columnWidth*((i)%nColumns) - getDesiredWidth(),
-									   floor((i)/nColumns)*rowHeight+offsetUD + topOffset,
+									   floor(double(i)/nColumns)*rowHeight+offsetUD + topOffset,
 									   columnWidth, rowHeight);
 			audioButtons[i]->setBounds(columnWidth/2 + offsetLR +
 									   columnWidth*((i)%nColumns) -
 									   	getDesiredWidth()*2,
-									   floor((i)/nColumns)*rowHeight+offsetUD + topOffset,
+									   floor(double(i)/nColumns)*rowHeight+offsetUD + topOffset,
 									   columnWidth, rowHeight);
 		}
 

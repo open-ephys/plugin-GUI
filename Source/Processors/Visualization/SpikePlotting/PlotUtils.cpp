@@ -88,7 +88,7 @@ int roundUp(int numToRound, int multiple)
 }
 
 double ad16ToUv(int x, int gain){	
-	int result =  (double)(x * 20e6) / (double)(gain * pow(2,16));
+	int result =  (double)(x * 20e6) / (double)(gain * pow(2.0,16));
 	return result;
 }
 
