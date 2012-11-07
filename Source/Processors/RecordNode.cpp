@@ -35,6 +35,8 @@ RecordNode::RecordNode()
 	continuousDataFloatBuffer = new float[10000];
 	signalFilesShouldClose = false;
 
+	settings.numInputs = 128;
+
 }
 
 
