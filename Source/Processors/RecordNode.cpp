@@ -240,16 +240,10 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 				std::cout << "OPENING FILE: " << continuousChannels[i].filename << std::endl;
 
 				File f = File(continuousChannels[i].filename);
-				bool fileExists = false;
-
-				if (f.exists())
-				{
-					fileExists = true;
-				}
 
 				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a");
 
-				if (!fileExists)
+				if (!f.exists())
 				{
 					// create header (needs more details, obviously)
 					String header = "THIS IS A HEADER.";
