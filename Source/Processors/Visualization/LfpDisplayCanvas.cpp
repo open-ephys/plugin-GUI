@@ -42,6 +42,8 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
 	totalHeight = nChans*(interplotDistance) + plotHeight/2 + headerHeight;
+
+	refreshMs = 100; // override 5 s refresh rate
 	
 }
 

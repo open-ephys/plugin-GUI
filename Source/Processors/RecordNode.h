@@ -52,9 +52,20 @@ public:
 	
 	RecordNode();
 	~RecordNode();
-	
+
+  /** Handle incoming data and decide which files and events to write to disk.
+  */	
 	void process(AudioSampleBuffer &buffer, MidiBuffer &eventBuffer, int& nSamples);
 
+  /** Overrides implementation in GenericProcessor; used to change recording parameters
+      on the fly.
+
+      parameterIndex = 0: stop recording
+      parameterIndex = 1: start recording
+      parameterIndex = 2: 
+            newValue = 0: turn off recording for current channel
+            newValue = 1: turn on recording for current channel
+  */
 	void setParameter (int parameterIndex, float newValue);
 
   void addInputChannel(GenericProcessor* sourceNode, int chan);
@@ -67,16 +78,30 @@ public:
   */
 	float getFreeSpace();
 
+  /** Selects a channel relative to a particular processor with ID = id
+  */
   void setChannel(int id, int chan);
 
+  /** Turns recording on and off for a particular channel.
+
+      Channel numbers are absolute (based on RecordNode channel mapping).
+  */
   void setChannelStatus(int chan, bool status);
 
+  /** Used to clear all connections prior to the start of acquisition.
+  */
   void resetConnections();
 
+  /** Overrides implementation by GenericProcessor.
+  */
   bool isAudioOrRecordNode() {return true;}
 
+  /** Callback to indicate when user has chosen a new data directory.
+  */
   void filenameComponentChanged(FilenameComponent*);
 
+  /** Creates a new data directory in the location specified by the fileNameComponent.
+  */
   void createNewDirectory();
 	
 private:
@@ -102,7 +127,12 @@ private:
   /** Holds data that has been converted from float to int16 before
       saving. 
   */
-  int16* continuousDataBuffer;
+  int16* continuousDataIntegerBuffer;
+
+  /** Holds data that has been converted from float to int16 before
+      saving. 
+  */
+  float* continuousDataFloatBuffer;
 
   /** Integer timestamp saved for each buffer. 
   */ 
@@ -125,6 +155,8 @@ private:
     FILE* file;
   };
 
+  /** Closes all open files after recording has finished.
+  */ 
   void closeAllFiles();
 
   /** Map of continuous channels. 

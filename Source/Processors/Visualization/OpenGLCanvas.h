@@ -111,9 +111,9 @@ protected:
     
     bool animationIsActive;
 
-private:
+    int refreshMs;
 
-	int refreshMs;
+private:
 
 	void loadFonts();
 

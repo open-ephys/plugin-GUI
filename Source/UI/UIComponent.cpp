@@ -169,7 +169,7 @@ void UIComponent::resized()
 	if (messageCenter != 0)
 		messageCenter->setBounds(6,h-35,w-241,30);
 
-	// for debugging purposes:
+	// for debugging qpurposes:
 	if (false)
 	{
 		dataViewport->setVisible(false);
