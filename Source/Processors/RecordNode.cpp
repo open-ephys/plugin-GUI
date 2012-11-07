@@ -36,6 +36,10 @@ RecordNode::RecordNode()
 	signalFilesShouldClose = false;
 
 	settings.numInputs = 128;
+	settings.numOutputs = 0;
+
+	// 64 inputs, 2 outputs (left and right channel)
+	setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 
 }
 
