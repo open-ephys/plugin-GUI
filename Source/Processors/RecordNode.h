@@ -119,11 +119,6 @@ private:
   */
   File rootFolder;
 
-  /** Determines whether a new rootFolder is created when recording
-      begins. 
-  */
-  bool newDataFolder;
-
   /** Holds data that has been converted from float to int16 before
       saving. 
   */

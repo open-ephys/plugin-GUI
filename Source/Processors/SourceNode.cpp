@@ -315,8 +315,6 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	 	}
 	 }
 
-	 
-
 }
 
 

@@ -30,7 +30,6 @@ RecordNode::RecordNode()
 {
 
 	
-//	newDataFolder = true; // defaults to creating a new data folder on startup
 	continuousDataIntegerBuffer = new int16[10000];
 	continuousDataFloatBuffer = new float[10000];
 	signalFilesShouldClose = false;
