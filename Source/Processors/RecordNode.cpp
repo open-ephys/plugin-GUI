@@ -262,7 +262,6 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 			// close necessary files
 
 			signalFilesShouldClose = true;
-
 			
 		}
 
