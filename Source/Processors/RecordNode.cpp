@@ -38,7 +38,7 @@ RecordNode::RecordNode()
 	settings.numInputs = 128;
 	settings.numOutputs = 0;
 
-	// 64 inputs, 2 outputs (left and right channel)
+	// 128 inputs, 0 outputs
 	setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 
 }
