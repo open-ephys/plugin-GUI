@@ -30,10 +30,15 @@ RecordNode::RecordNode()
 {
 
 	
-//	newDataFolder = true; // defaults to creating a new data folder on startup
 	continuousDataIntegerBuffer = new int16[10000];
 	continuousDataFloatBuffer = new float[10000];
 	signalFilesShouldClose = false;
+
+	settings.numInputs = 128;
+	settings.numOutputs = 0;
+
+	// 128 inputs, 0 outputs
+	setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 
 }
 
@@ -234,17 +239,10 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 				std::cout << "OPENING FILE: " << continuousChannels[i].filename << std::endl;
 
 				File f = File(continuousChannels[i].filename);
-				bool fileExists = false;
 
-				if (f.exists())
-				{
-					fileExists = true;
-				}
+				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a+b");
 
-
-				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a");
-
-				if (!fileExists)
+				if (!f.exists())
 				{
 					// create header (needs more details, obviously)
 					String header = "THIS IS A HEADER.";
@@ -264,7 +262,6 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 			// close necessary files
 
 			signalFilesShouldClose = true;
-
 			
 		}
 
@@ -292,7 +289,7 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 	 			if (isRecording) {
 	 				std::cout << "OPENING FILE: " << continuousChannels[currentChannel].filename << std::endl;
 	 				continuousChannels[currentChannel].file = 
-	 					fopen(continuousChannels[currentChannel].filename.toUTF8(), "a");
+	 					fopen(continuousChannels[currentChannel].filename.toUTF8(), "a+b");
 	 			}
 	 		}
 		}

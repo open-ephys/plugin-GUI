@@ -1,0 +1,651 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="open-ephys">
+      <UniqueIdentifier>{B78BD5C6-A89B-0111-0C5E-ACFD94B107C9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Resources">
+      <UniqueIdentifier>{54A5F0A2-18D0-77C1-C41D-FCD97E8C369F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Resources\Fonts">
+      <UniqueIdentifier>{4DF2CF07-8CD2-BEA6-2E97-90F31E36F399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Resources\Images">
+      <UniqueIdentifier>{262DCEB9-919C-F953-B756-B3E5D4A192BD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Resources\Images\Icons">
+      <UniqueIdentifier>{2442E922-1933-9371-14A7-B72EFCB63769}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Resources\Images\Buttons">
+      <UniqueIdentifier>{48C052A5-026C-7C55-D992-4AA64B68EC6D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source">
+      <UniqueIdentifier>{26871150-DC43-ADFC-0CD8-F18B3EF18ED3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Plugins">
+      <UniqueIdentifier>{1D172B45-BC84-A080-B9A6-AEDBCF2FF9E1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Network">
+      <UniqueIdentifier>{3C9DBE75-8CDA-3DF5-6D37-AB0501C055F9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Dsp">
+      <UniqueIdentifier>{8A26D3EE-21DD-86F1-A447-8BEC62871365}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Audio">
+      <UniqueIdentifier>{2D549BF5-A738-8204-8C93-0E494C58DAB2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Processors">
+      <UniqueIdentifier>{3B2598F1-7B02-E3D4-A09B-367B20D97672}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Processors\Serial">
+      <UniqueIdentifier>{BE825C10-A046-0824-C18C-358D08C18D78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Processors\Utilities">
+      <UniqueIdentifier>{A81F416A-5186-4D5E-E159-A4E41A74C9AB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Processors\Visualization">
+      <UniqueIdentifier>{84AAFE68-C197-9A6B-4524-27E33F7D77DE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Processors\Visualization\SpikePlotting">
+      <UniqueIdentifier>{9281EF66-B5A5-2D7E-4735-B2D27AE862E9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Processors\Editors">
+      <UniqueIdentifier>{B226D1DC-8127-60DF-F9CE-61461D82968B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Processors\DataThreads">
+      <UniqueIdentifier>{9504915A-A697-5C7F-E059-D7DAD23F3320}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\UI">
+      <UniqueIdentifier>{3AB2454E-6609-8229-51CB-D99A79A068ED}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Juce Library Code">
+      <UniqueIdentifier>{F7048EA6-F4B2-F31B-E402-E05D678A1111}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Source\AccessClass.cpp">
+      <Filter>open-ephys\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Network\PracticalSocket.cpp">
+      <Filter>open-ephys\Source\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\Bessel.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\Biquad.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\Butterworth.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\Cascade.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\ChebyshevI.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\ChebyshevII.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\Custom.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\Design.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\Documentation.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\Elliptic.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\Filter.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\Legendre.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\Param.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\PoleFilter.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\RBJ.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\RootFinder.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Dsp\State.cpp">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
+      <Filter>open-ephys\Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Parameter.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\WiFiOutput.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\LfpDisplayNode.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Utilities\Merger.cpp">
+      <Filter>open-ephys\Source\Processors\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Utilities\Splitter.cpp">
+      <Filter>open-ephys\Source\Processors\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\GenericAxes.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\PlotUtils.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\ProjectionAxes.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\WaveAxes.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikeDisplayCanvas.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\LfpDisplayCanvas.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\OpenGLCanvas.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\SpikeDetector.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\AudioNode.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\EventNode.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\FPGAOutputEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\ChannelSelector.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\ParameterEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\SpikeDisplayEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\MergerEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\ImageIcon.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\WiFiOutputEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\EventNodeEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\SignalGeneratorEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\LfpDisplayEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\SourceNodeEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\SplitterEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\SpikeDetectorEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\AudioEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\FilterEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\GenericEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\DataThreads\FileReaderThread.cpp">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\DataThreads\okFrontPanelDLL.cpp">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\DataThreads\NetworkThread.cpp">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\DataThreads\FPGAThread.cpp">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\DataThreads\DataBuffer.cpp">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\DataThreads\IntanThread.cpp">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\DataThreads\DataThread.cpp">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\RecordNode.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\SignalGenerator.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\ResamplingNode.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\FilterNode.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\SourceNode.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\GenericProcessor.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\ProcessorGraph.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\EditorViewportButtons.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\SignalChainManager.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\EditorViewport.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\ProcessorList.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\CustomLookAndFeel.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\InfoLabel.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\DataViewport.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\MessageCenter.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\ControlPanel.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\UIComponent.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MainWindow.cpp">
+      <Filter>open-ephys\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Main.cpp">
+      <Filter>open-ephys\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\BinaryData.cpp">
+      <Filter>Juce Library Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\JuceLibraryCode1.cpp">
+      <Filter>Juce Library Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\JuceLibraryCode2.cpp">
+      <Filter>Juce Library Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\JuceLibraryCode3.cpp">
+      <Filter>Juce Library Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\JuceLibraryCode4.cpp">
+      <Filter>Juce Library Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\ArduinoOutput.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Serial\ofArduino.cpp">
+      <Filter>open-ephys\Source\Processors\Serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Serial\ofSerial.cpp">
+      <Filter>open-ephys\Source\Processors\Serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\EventDetector.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\FPGAOutput.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\AccessClass.h">
+      <Filter>open-ephys\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Network\PracticalSocket.h">
+      <Filter>open-ephys\Source\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Bessel.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Biquad.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Butterworth.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Cascade.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\ChebyshevI.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\ChebyshevII.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Common.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Custom.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Design.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Dsp.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Elliptic.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Filter.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Layout.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Legendre.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\MathSupplement.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Params.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\PoleFilter.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\RBJ.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\RootFinder.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\SmoothedFilter.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\State.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Types.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dsp\Utilities.h">
+      <Filter>open-ephys\Source\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
+      <Filter>open-ephys\Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Parameter.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\WiFiOutput.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\LfpDisplayNode.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Utilities\Merger.h">
+      <Filter>open-ephys\Source\Processors\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Utilities\Splitter.h">
+      <Filter>open-ephys\Source\Processors\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.h">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.h">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\GenericAxes.h">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\PlotUtils.h">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\ProjectionAxes.h">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SimpleKeyEvent.h">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\WaveAxes.h">
+      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikeDisplayCanvas.h">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\DataWindow.h">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\LfpDisplayCanvas.h">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\OpenGLCanvas.h">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\SpikeDetector.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\AudioNode.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\EventNode.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\FPGAOutputEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\ChannelSelector.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\ParameterEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\SpikeDisplayEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\MergerEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\ImageIcon.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\WiFiOutputEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\EventNodeEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\SignalGeneratorEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\LfpDisplayEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\SourceNodeEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\SplitterEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\SpikeDetectorEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\AudioEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\FilterEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\GenericEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\DataThreads\FileReaderThread.h">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\DataThreads\okFrontPanelDLL.h">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\DataThreads\NetworkThread.h">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\DataThreads\FPGAThread.h">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\DataThreads\DataBuffer.h">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\DataThreads\IntanThread.h">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\DataThreads\DataThread.h">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordNode.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\SignalGenerator.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\ResamplingNode.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\FilterNode.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\SourceNode.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\GenericProcessor.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\ProcessorGraph.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\EditorViewportButtons.h">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\SignalChainManager.h">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\EditorViewport.h">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\ProcessorList.h">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\CustomLookAndFeel.h">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\InfoLabel.h">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\DataViewport.h">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\MessageCenter.h">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\ControlPanel.h">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\UIComponent.h">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\MainWindow.h">
+      <Filter>open-ephys\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\AppConfig.h">
+      <Filter>Juce Library Code</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h">
+      <Filter>Juce Library Code</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\BinaryData.h">
+      <Filter>Juce Library Code</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\ArduinoOutput.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Serial\ofArduino.h">
+      <Filter>open-ephys\Source\Processors\Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Serial\ofConstants.h">
+      <Filter>open-ephys\Source\Processors\Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Serial\ofSerial.h">
+      <Filter>open-ephys\Source\Processors\Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\EventDetector.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\FPGAOutput.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
