@@ -240,7 +240,7 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 
 				File f = File(continuousChannels[i].filename);
 
-				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a");
+				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a+b");
 
 				if (!f.exists())
 				{
@@ -289,7 +289,7 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 	 			if (isRecording) {
 	 				std::cout << "OPENING FILE: " << continuousChannels[currentChannel].filename << std::endl;
 	 				continuousChannels[currentChannel].file = 
-	 					fopen(continuousChannels[currentChannel].filename.toUTF8(), "a");
+	 					fopen(continuousChannels[currentChannel].filename.toUTF8(), "a+b");
 	 			}
 	 		}
 		}
