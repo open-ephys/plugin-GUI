@@ -2667,7 +2667,9 @@ void* MouseCursor::createStandardMouseCursor (const MouseCursor::StandardCursorT
         }
 
         default:
-            jassertfalse; break;
+			//jassertfalse; // SO. This causes crashes in Debug mode in Windows. Removing it doesn't seem to make much difference.
+             break;
+			 
     }
 
     HCURSOR cursorH = LoadCursor (0, cursorName);
