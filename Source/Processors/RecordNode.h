@@ -94,7 +94,7 @@ public:
 
   /** Overrides implementation by GenericProcessor.
   */
-  bool isAudioOrRecordNode() {return true;}
+ // bool isAudioOrRecordNode() {return true;}
 
   /** Callback to indicate when user has chosen a new data directory.
   */

@@ -284,15 +284,12 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 
 void GenericProcessor::clearSettings()
 {
-	settings.originalSource = 0;
-	settings.numInputs = 0;
-	settings.numOutputs = 0;
-	settings.inputChannelNames.clear();
-	settings.outputChannelNames.clear();
-	settings.bitVolts.clear();
-	settings.eventChannelIds.clear();
-	settings.eventChannelNames.clear();
-	settings.eventChannelTypes.clear();
+	originalSource = 0;
+	numInputs = 0;
+	numOutputs = 0;
+
+	channels.clear();
+
 }
 
 void GenericProcessor::update()
@@ -356,18 +353,18 @@ bool GenericProcessor::audioStatus(int chan)
 
 }
 
-void GenericProcessor::generateDefaultChannelNames(StringArray& names)
-{
-	names.clear();
+// void GenericProcessor::generateDefaultChannelNames(StringArray& names)
+// {
+// 	names.clear();
 
-	for (int i = 0; i < settings.numOutputs; i++)
-	{
-		String channelName = "CH";
-		channelName += (i+1);
-		names.add(channelName);
-	}
+// 	for (int i = 0; i < settings.numOutputs; i++)
+// 	{
+// 		String channelName = "CH";
+// 		channelName += (i+1);
+// 		names.add(channelName);
+// 	}
 
-}
+// }
 
 
 int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)

@@ -59,7 +59,7 @@ public:
 
   void setChannelStatus(int, bool);
 
-  bool isAudioOrRecordNode() {return true;}
+ // bool isAudioOrRecordNode() {return true;}
 
   void enableCurrentChannel(bool);
 

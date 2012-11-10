@@ -41,6 +41,7 @@ class DataViewport;
 class UIComponent;
 class GenericEditor;
 class Parameter;
+class Channel;
 
 /**
   
@@ -215,34 +216,42 @@ public:
 	virtual GenericEditor* getEditor() {return editor;}
 	ScopedPointer<GenericEditor> editor;
 
-	struct ProcessorSettings {
+	GenericProcessor* originalSource;
 
-		GenericProcessor* originalSource;
+	OwnedArray<Channel*> channels;
 
-		int numInputs;
-		int numOutputs;
-		StringArray inputChannelNames;
-		StringArray outputChannelNames;
+	int numInputs;
+	int numOutputs;
 
-		float sampleRate;
-		Array<float> bitVolts;
+	// OBSOLETE PROCESSOR SETTINGS:
+	// struct ProcessorSettings {
 
-		Array<int> eventChannelIds;
-		StringArray eventChannelNames;
-		Array<int> eventChannelTypes;
+	// 	GenericProcessor* originalSource;
 
-	};
+	// 	int numInputs;
+	// 	int numOutputs;
+	// 	StringArray inputChannelNames;
+	// 	StringArray outputChannelNames;
 
-	ProcessorSettings settings;
+	// 	float sampleRate;
+	// 	Array<float> bitVolts;
 
-	virtual bool isAudioOrRecordNode() {return false;}
+	// 	Array<int> eventChannelIds;
+	// 	StringArray eventChannelNames;
+	// 	Array<int> eventChannelTypes;
 
-	virtual bool recordStatus (int chan);
-	virtual bool audioStatus (int chan);
+	// };
+
+	//ProcessorSettings settings;
+
+	//virtual bool isAudioOrRecordNode() {return false;}
+
+	//virtual bool recordStatus (int chan);
+	//virtual bool audioStatus (int chan);
 
 	virtual void clearSettings();
 
-	virtual void generateDefaultChannelNames(StringArray&);
+	//virtual void generateDefaultChannelNames(StringArray&);
 
 	virtual void update(); // default node updating
 	virtual void updateSettings() {} // custom node updating
