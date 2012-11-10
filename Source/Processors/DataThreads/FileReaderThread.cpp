@@ -129,7 +129,7 @@ bool FileReaderThread::updateBuffer()
     	
 
      } else {
-        wait(25); // pause for 12 ms -- about 40kHz for a 1600-sample buffer
+        wait(25); // pause for 25 ms to decrease sample rate
      }
 
     return true;
