@@ -127,10 +127,7 @@ int GenericProcessor::getNextChannel(bool increment)
 
 void GenericProcessor::resetConnections()
 {
-	//std::cout << "Resetting connections" << std::endl;
-	// if (isAudioOrRecordNode())
-	// 	nextAvailableChannel = 2;
-	// else
+
 	nextAvailableChannel = 0;
 
 	wasConnected = false;
@@ -206,8 +203,7 @@ void GenericProcessor::setSourceNode(GenericProcessor* sn)
 						sourceNode = sn;
 
 					sn->setDestNode(this);
-					//setNumInputs(sn->getNumOutputs());
-					//setSampleRate(sn->getSampleRate());
+
 				} else {
 		//			std::cout << "  The source node is not new." << std::endl;
 				}
@@ -258,8 +254,7 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 						destNode = dn;
 
 					dn->setSourceNode(this);
-					//dn->setNumInputs(getNumOutputs());
-					//dn->setSampleRate(getSampleRate());
+
 				} else {
 			//		std::cout << "  The dest node is not new." << std::endl;
 				}
@@ -306,22 +301,31 @@ void GenericProcessor::update()
 		settings.numInputs = settings.numOutputs;
 		settings.numOutputs = settings.numInputs;
 
+		for (int i = 0; i < getNumInputs(); i++)
+		{
+			Channel* sourceChan = sourceNode->channels[i];
+			Channel* ch = new Channel(*sourceChan);
+			channels.add(ch);
+		}
+
 	} else {
 
-		settings.sampleRate = getDefaultSampleRate();
 		settings.numOutputs = getDefaultNumOutputs();
 
 		for (int i = 0; i < getNumOutputs(); i++)
-			settings.bitVolts.add(getDefaultBitVolts());
+		{
+			Channel* ch = new Channel(this, i);
+			ch->sampleRate = getDefaultSampleRate();
+			ch->bitVolts = getDefaultBitVolts();
 
-		generateDefaultChannelNames(settings.outputChannelNames);
+			channels.add(ch);
+		}
 
 	}
 
 	if (this->isSink())
 	{
 		settings.numOutputs = 0;
-		settings.outputChannelNames.clear();
 	}
 
 	updateSettings(); // custom settings code
@@ -337,21 +341,21 @@ void GenericProcessor::update()
 
 }
 
-bool GenericProcessor::recordStatus(int chan)
-{
+// bool GenericProcessor::recordStatus(int chan)
+// {
 
-	return getEditor()->getRecordStatus(chan);//recordChannels[chan];
-
-
-}
-
-bool GenericProcessor::audioStatus(int chan)
-{
-
-	return getEditor()->getAudioStatus(chan);//recordChannels[chan];
+// 	return getEditor()->getRecordStatus(chan);//recordChannels[chan];
 
 
-}
+// }
+
+// bool GenericProcessor::audioStatus(int chan)
+// {
+
+// 	return getEditor()->getAudioStatus(chan);//recordChannels[chan];
+
+
+// }
 
 // void GenericProcessor::generateDefaultChannelNames(StringArray& names)
 // {

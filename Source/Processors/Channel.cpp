@@ -34,6 +34,19 @@ Channel::Channel(GenericProcessor* p, int n) :
 	createDefaultName();
 }
 
+Channel::Channel(const Channel& ch)
+{
+	processor = ch.processor;
+	isEventChannel = ch.isEventChannel;
+	isEnabled = ch.isEnabled;
+	isRecording = false;
+	isMonitored = false;
+	sampleRate = ch.sampleRate;
+	bitVolts = ch.bitVolts;
+	name = ch.name;
+
+}
+
 String Channel::getName()
 {
 	return name;

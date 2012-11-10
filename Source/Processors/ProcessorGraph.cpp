@@ -257,8 +257,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 				{
 					std::cout << "   Connecting to audio and record nodes." << std::endl;
 
-
-					source->setStartChannel(getAudioNode()->getNextChannel(false));
+					//source->setStartChannel(getAudioNode()->getNextChannel(false));
 
 
 					for (int chan = 0; chan < source->getNumOutputs(); chan++) {
@@ -273,7 +272,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 						addConnection(source->getNodeId(), 		   // sourceNodeID
 						  	chan, 						           // sourceNodeChannelIndex
 						   	AUDIO_NODE_ID, 					       // destNodeID
-						  	getAudioNode()->getNextChannel(true) + 2); // destNodeChannelIndex
+						  	getAudioNode()->getNextChannel(true)); // destNodeChannelIndex
 									// add 2 to account for 2 output channels
 
 						

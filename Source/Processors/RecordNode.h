@@ -92,10 +92,6 @@ public:
   */
   void resetConnections();
 
-  /** Overrides implementation by GenericProcessor.
-  */
- // bool isAudioOrRecordNode() {return true;}
-
   /** Callback to indicate when user has chosen a new data directory.
   */
   void filenameComponentChanged(FilenameComponent*);
@@ -140,27 +136,31 @@ private:
   /** Holds information for a given channel to be recorded to 
       its own file.
   */ 
-  struct Channel
-  {
-    int nodeId;
-    int chan;
-    String name;
-    bool isRecording;
-    String filename;
-    FILE* file;
-  };
+  // struct Channel
+  // {
+  //   int nodeId;
+  //   int chan;
+  //   String name;
+  //   bool isRecording;
+  //   String filename;
+  //   FILE* file;
+  // };
 
   /** Closes all open files after recording has finished.
   */ 
   void closeAllFiles();
 
+
+  Array<Channel*> channelPointers;
+  Array<Channel*> eventChannelPointers;
+
   /** Map of continuous channels. 
   */ 
-  std::map<int, Channel> continuousChannels;
+  //std::map<int, Channel> continuousChannels;
 
   /** Map of event channels. 
   */ 
-  std::map<int, std::map<int,Channel> > eventChannels;
+  //std::map<int, std::map<int,Channel> > eventChannels;
 
   /** Method for writing continuous buffers to disk. 
   */ 

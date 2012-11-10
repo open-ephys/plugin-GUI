@@ -90,8 +90,8 @@ void RecordNode::resetConnections()
 	nextAvailableChannel = 0;
 	wasConnected = false;
 
-	continuousChannels.clear();
-	eventChannels.clear();
+	channelPointers.clear();
+	eventChannelPointers.clear();
 }
 
 void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
@@ -116,67 +116,44 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 	if (chan != getProcessorGraph()->midiChannelIndex)
 	{
         
-        setPlayConfigDetails(getNextChannel(false)+1,0,44100.0,128);
-        
-		Channel newChannel;
+		int channelIndex = getNextChannel(false);
 
-		std::cout << "Record node adding channel." << std::endl;
+        setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
-		newChannel.nodeId = sourceNode->getNodeId();
-		newChannel.chan = chan;
-		newChannel.name = sourceNode->getOutputChannelName(chan);
-		newChannel.isRecording = sourceNode->recordStatus(chan);
+        channelPointers.add(sourceNode->channelPointers[chan]);
 
-		String filename = rootFolder.getFullPathName();
+        String filename = rootFolder.getFullPathName();
 		filename += "/";
-		filename += newChannel.nodeId;
+		filename += sourceNode->getNodeId();
 		filename += "_";
-		filename += newChannel.name;
+		filename += channelPointers[channelIndex]->name;
 		filename += ".continuous";
 
-		newChannel.filename = filename;
-		newChannel.file = 0; 
+        channelPointers[channelIndex]->filename = filename;
+        channelPointers[channelIndex]->file = 0;
 
-		if (newChannel.isRecording)
+		if (channelPointers[channelIndex]->isRecording)
 			std::cout << "  This channel will be recorded." << std::endl;
 		else 
 			std::cout << "  This channel will NOT be recorded." << std::endl;
 	
 		std::cout << "adding channel " << getNextChannel(false) << std::endl;
 
-		std::pair<int, Channel> newPair (getNextChannel(false), newChannel);
+		//std::pair<int, Channel> newPair (getNextChannel(false), newChannel);
 
 		//std::cout << "adding channel " << getNextChannel(false) << std::endl;
 
-		continuousChannels.insert(newPair);
+		//continuouschannelPointers.insert(newPair);
 
 		
 	} else {
 
-		std::map<int, Channel> eventChans;
-
-		int ID = sourceNode->getNodeId();
-
-		for (int n = 0; n < sourceNode->settings.eventChannelIds.size(); n++)
+		for (int n = 0; n < sourceNode->eventChannels.size(); n++)
 		{
 
-			Channel newChannel;
-
-			newChannel.nodeId = ID;
-			newChannel.chan = sourceNode->settings.eventChannelIds[n];
-			newChannel.name = sourceNode->settings.eventChannelNames[n];
-			newChannel.isRecording = true;
-			newChannel.file = 0;
-
-			std::pair<int, Channel> newPair (newChannel.chan, newChannel);
-
-			eventChans.insert(newPair);
+			eventChannelPointers.add(sourceNode->eventChannels[n]);
 
 		}
-
-		std::pair<int, std::map<int, Channel> > newPair (ID, eventChans);
-
-		eventChannels.insert(newPair);
 
 	}
 
@@ -232,21 +209,21 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
  			rootFolder.createDirectory();
 
 		// create / open necessary files
-		for (int i = 0; i < continuousChannels.size(); i++)
+		for (int i = 0; i < channelPointers.size(); i++)
 		{
-			if (continuousChannels[i].isRecording)
+			if (channelPointers[i]->isRecording)
 			{
-				std::cout << "OPENING FILE: " << continuousChannels[i].filename << std::endl;
+				std::cout << "OPENING FILE: " << channelPointers[i]->filename << std::endl;
 
-				File f = File(continuousChannels[i].filename);
+				File f = File(channelPointers[i]->filename);
 
-				continuousChannels[i].file = fopen(continuousChannels[i].filename.toUTF8(), "a+b");
+				channelPointers[i]->file = fopen(channelPointers[i]->filename.toUTF8(), "a+b");
 
 				if (!f.exists())
 				{
 					// create header (needs more details, obviously)
 					String header = "THIS IS A HEADER.";
-					fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), continuousChannels[i].file);
+					fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), channelPointers[i]->file);
 				}
 
 			}
@@ -275,21 +252,21 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 			std::cout << "Toggling channel " << currentChannel << std::endl;
 
 	 		if (newValue == 0.0f) {
-	 			continuousChannels[currentChannel].isRecording = false;
+	 			channelPointers[currentChannel]->isRecording = false;
 
 	 			if (isRecording) {
-	 				std::cout << "CLOSING FILE: " << continuousChannels[currentChannel].filename << std::endl;
-	 				fclose(continuousChannels[currentChannel].file);
+	 				std::cout << "CLOSING FILE: " << channelPointers[currentChannel]->filename << std::endl;
+	 				fclose(channelPointers[currentChannel]->file);
 	 			}
 
 	 		}
 	 		else {
-	 			continuousChannels[currentChannel].isRecording = true;
+	 			channelPointers[currentChannel]->isRecording = true;
 
 	 			if (isRecording) {
-	 				std::cout << "OPENING FILE: " << continuousChannels[currentChannel].filename << std::endl;
-	 				continuousChannels[currentChannel].file = 
-	 					fopen(continuousChannels[currentChannel].filename.toUTF8(), "a+b");
+	 				std::cout << "OPENING FILE: " << channelPointers[currentChannel]->filename << std::endl;
+	 				channelPointers[currentChannel]->file = 
+	 					fopen(channelPointers[currentChannel]->filename.toUTF8(), "a+b");
 	 			}
 	 		}
 		}
@@ -299,12 +276,12 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 void RecordNode::closeAllFiles()
 {
 
-	for (int i = 0; i < continuousChannels.size(); i++)
+	for (int i = 0; i < channelPointers.size(); i++)
 	{
-		if (continuousChannels[i].isRecording)
+		if (channelPointers[i]->isRecording)
 		{
-			std::cout << "CLOSING FILE: " << continuousChannels[i].filename << std::endl;
-			fclose(continuousChannels[i].file);
+			std::cout << "CLOSING FILE: " << channelPointers[i]->filename << std::endl;
+			fclose(channelPointers[i]->file);
 		}
 	}
 }
@@ -350,17 +327,17 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 	fwrite(&timestamp,							// ptr
 			   8,   							// size of each element
 			   1, 		  						// count 
-			   continuousChannels[channel].file);   // ptr to FILE object
+			   channelPointers[channel]->file);   // ptr to FILE object
 
 	fwrite(&nSamples,								// ptr
 			   sizeof(nSamples),   				// size of each element
 			   1, 		  						// count 
-			   continuousChannels[channel].file);   // ptr to FILE object
+			   channelPointers[channel]->file);   // ptr to FILE object
 
 	int n = fwrite(continuousDataIntegerBuffer,		// ptr
 			   2,			     					// size of each element
 			   nSamples, 		  					// count 
-			   continuousChannels[channel].file);   // ptr to FILE object
+			   channelPointers[channel]->file);   // ptr to FILE object
 	// n must equal "count", otherwise there was an error
 }
  
@@ -393,7 +370,7 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 		for (int i = 0; i < buffer.getNumChannels(); i++)
 		{
 
-			if (continuousChannels[i].isRecording)
+			if (channelPointers[i]->isRecording)
 			{
 				// write buffer to disk!
 				writeContinuousBuffer(buffer.getSampleData(i),

@@ -49,7 +49,11 @@ class Channel
 {
 public:
 
+	// Default constructor:
 	Channel(GenericProcessor* p, int n);
+
+	// Copy constructor:
+	Channel(const Channel& ch);
 
 	String getName();
 
@@ -66,10 +70,14 @@ public:
 
 	// pointer to parent processor:
 	GenericProcessor* processor;
-
+	
 	// crucial information:
 	float sampleRate;
 	float bitVolts;
+
+	// file info (for disk writing):
+	String filename;
+	FILE* file;
 
 
 private:

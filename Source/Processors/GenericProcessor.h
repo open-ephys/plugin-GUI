@@ -216,33 +216,19 @@ public:
 	virtual GenericEditor* getEditor() {return editor;}
 	ScopedPointer<GenericEditor> editor;
 
-	GenericProcessor* originalSource;
-
 	OwnedArray<Channel*> channels;
+	OwnedArray<Channel*> eventChannels;
 
-	int numInputs;
-	int numOutputs;
+	struct ProcessorSettings {
 
-	// OBSOLETE PROCESSOR SETTINGS:
-	// struct ProcessorSettings {
+	 	GenericProcessor* originalSource;
 
-	// 	GenericProcessor* originalSource;
+		int numInputs;
+	 	int numOutputs;
 
-	// 	int numInputs;
-	// 	int numOutputs;
-	// 	StringArray inputChannelNames;
-	// 	StringArray outputChannelNames;
+	};
 
-	// 	float sampleRate;
-	// 	Array<float> bitVolts;
-
-	// 	Array<int> eventChannelIds;
-	// 	StringArray eventChannelNames;
-	// 	Array<int> eventChannelTypes;
-
-	// };
-
-	//ProcessorSettings settings;
+	ProcessorSettings settings;
 
 	//virtual bool isAudioOrRecordNode() {return false;}
 

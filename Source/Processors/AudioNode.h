@@ -48,30 +48,40 @@ class AudioNode : public GenericProcessor
 {
 public:
 	
-	// real member functions:
 	AudioNode();
 	~AudioNode();
-	
+
+
+	/** Handle incoming data and decide which channels to monitor
+  */  
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
+
+  /** Overrides implementation in GenericProcessor; used to change audio monitoring
+      parameters on the fly.
+  */
 	void setParameter (int parameterIndex, float newValue);
 
 	AudioProcessorEditor* createEditor();
 
   void setChannelStatus(int, bool);
 
- // bool isAudioOrRecordNode() {return true;}
+  void resetConnections();
 
   void enableCurrentChannel(bool);
 
-   // AudioEditor* getEditor() {return audioEditor;}
+  void addInputChannel(GenericProcessor* source, int chan);
 
-    ScopedPointer<AudioEditor> audioEditor;
+  // AudioEditor* getEditor() {return audioEditor;}
+
+  ScopedPointer<AudioEditor> audioEditor;
 	
 private:
 
 	Array<int> leftChan;
 	Array<int> rightChan;
 	float volume;
+
+  Array<Channel*> audioChannels;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioNode);
 
