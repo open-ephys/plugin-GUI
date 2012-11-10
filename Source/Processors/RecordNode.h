@@ -32,7 +32,9 @@
 #include <stdio.h>
 #include <map>
 
+
 #include "GenericProcessor.h"
+#include "Channel.h"
 
 /**
 
@@ -80,21 +82,17 @@ public:
 
   /** Selects a channel relative to a particular processor with ID = id
   */
-  void setChannel(int id, int chan);
+  void setChannel(Channel* ch);
 
   /** Turns recording on and off for a particular channel.
 
       Channel numbers are absolute (based on RecordNode channel mapping).
   */
-  void setChannelStatus(int chan, bool status);
+  void setChannelStatus(Channel* ch, bool status);
 
   /** Used to clear all connections prior to the start of acquisition.
   */
   void resetConnections();
-
-  /** Overrides implementation by GenericProcessor.
-  */
-  bool isAudioOrRecordNode() {return true;}
 
   /** Callback to indicate when user has chosen a new data directory.
   */
@@ -140,27 +138,31 @@ private:
   /** Holds information for a given channel to be recorded to 
       its own file.
   */ 
-  struct Channel
-  {
-    int nodeId;
-    int chan;
-    String name;
-    bool isRecording;
-    String filename;
-    FILE* file;
-  };
+  // struct Channel
+  // {
+  //   int nodeId;
+  //   int chan;
+  //   String name;
+  //   bool isRecording;
+  //   String filename;
+  //   FILE* file;
+  // };
 
   /** Closes all open files after recording has finished.
   */ 
   void closeAllFiles();
 
+
+  Array<Channel*> channelPointers;
+  Array<Channel*> eventChannelPointers;
+
   /** Map of continuous channels. 
   */ 
-  std::map<int, Channel> continuousChannels;
+  //std::map<int, Channel> continuousChannels;
 
   /** Map of event channels. 
   */ 
-  std::map<int, std::map<int,Channel> > eventChannels;
+  //std::map<int, std::map<int,Channel> > eventChannels;
 
   /** Method for writing continuous buffers to disk. 
   */ 

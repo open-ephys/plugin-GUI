@@ -193,6 +193,8 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <FILE id="oYWM1J" name="Channel.cpp" compile="1" resource="0" file="Source/Processors/Channel.cpp"/>
+        <FILE id="oBVEMRc" name="Channel.h" compile="0" resource="0" file="Source/Processors/Channel.h"/>
         <GROUP id="gFSbZKw" name="Serial">
           <FILE id="3t2ez3c" name="ofArduino.cpp" compile="1" resource="0" file="Source/Processors/Serial/ofArduino.cpp"/>
           <FILE id="bXASAoT" name="ofArduino.h" compile="0" resource="0" file="Source/Processors/Serial/ofArduino.h"/>

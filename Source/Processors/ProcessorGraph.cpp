@@ -257,23 +257,22 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 				{
 					std::cout << "   Connecting to audio and record nodes." << std::endl;
 
-
-					source->setStartChannel(getAudioNode()->getNextChannel(false));
+					//source->setStartChannel(getAudioNode()->getNextChannel(false));
 
 
 					for (int chan = 0; chan < source->getNumOutputs(); chan++) {
 
-						//getAudioNode()->addInputChannel(source, chan);
+						getAudioNode()->addInputChannel(source, chan);
 
 						// std::cout << "Connecting to audio channel: " << 
 						// 	      getAudioNode()->getNextChannel(false) << std::endl;
 
-						getAudioNode()->enableCurrentChannel(source->audioStatus(chan));
+						//getAudioNode()->enableCurrentChannel(source->audioStatus(chan));
 				    
 						addConnection(source->getNodeId(), 		   // sourceNodeID
 						  	chan, 						           // sourceNodeChannelIndex
 						   	AUDIO_NODE_ID, 					       // destNodeID
-						  	getAudioNode()->getNextChannel(true) + 2); // destNodeChannelIndex
+						  	getAudioNode()->getNextChannel(true)); // destNodeChannelIndex
 									// add 2 to account for 2 output channels
 
 						
@@ -544,6 +543,7 @@ bool ProcessorGraph::enableProcessors() {
 		if (node->nodeId != OUTPUT_NODE_ID)
 		{
 			GenericProcessor* p = (GenericProcessor*) node->getProcessor();
+			p->enableEditor();
 			p->enable();
 		}
 	}
@@ -568,6 +568,7 @@ bool ProcessorGraph::disableProcessors() {
 		{
 			GenericProcessor* p = (GenericProcessor*) node->getProcessor();
 			std::cout << "Disabling " << p->getName() << std::endl;
+			p->disableEditor();
 			allClear = p->disable();
 
 			if (!allClear) {

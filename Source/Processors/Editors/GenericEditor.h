@@ -30,6 +30,9 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor.h"
 #include "../../AccessClass.h"
+
+#include "../Channel.h"
+
 #include <stdio.h>
 
 class GenericProcessor;
@@ -38,6 +41,8 @@ class TriangleButton;
 class UtilityButton;
 class ParameterEditor;
 class ChannelSelector;
+class Channel;
+
 
 /**
   
@@ -77,6 +82,8 @@ public:
 	void disable();
 	bool getEnabledState();
 	void setEnabledState(bool);
+	void startAcquisition();
+	void stopAcquisition();
 
 	String getName() {return name;}
 
@@ -123,6 +130,9 @@ public:
 	virtual void channelChanged(int chan) {}
 
 	Array<int> getActiveChannels();
+
+	Channel* getChannel(int chan);
+	Channel* getEventChannel(int chan);
 
 	Font titleFont;
 

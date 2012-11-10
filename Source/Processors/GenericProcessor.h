@@ -41,6 +41,7 @@ class DataViewport;
 class UIComponent;
 class GenericEditor;
 class Parameter;
+class Channel;
 
 /**
   
@@ -86,8 +87,8 @@ public:
 	void changeProgramName (int index, const String &newName) {}
 	void setCurrentProgram (int index) {}
 
-	const String getInputChannelName (int channelIndex) const {return settings.inputChannelNames[channelIndex];}
-	const String getOutputChannelName (int channelIndex) const {return settings.outputChannelNames[channelIndex];}
+	const String getInputChannelName (int channelIndex) const { }
+	const String getOutputChannelName (int channelIndex) const { }
 	const String getParameterName (int parameterIndex); //{return parameters[parameterIndex]->getName();}
 	const String getParameterText (int parameterIndex); //{return parameters[parameterIndex]->getDescription();}
 	const String getProgramName (int index) {return "";}
@@ -160,6 +161,8 @@ public:
 	virtual bool isReady() {return isEnabled;}
 	virtual bool enable() {return isEnabled;}
 	virtual bool disable() {return true;}
+	virtual void enableEditor();
+	virtual void disableEditor();
 
 	virtual bool enabledState() {return isEnabled;}
 	virtual void enabledState(bool t) {isEnabled = t;}
@@ -215,34 +218,30 @@ public:
 	virtual GenericEditor* getEditor() {return editor;}
 	ScopedPointer<GenericEditor> editor;
 
+	OwnedArray<Channel> channels;
+	OwnedArray<Channel> eventChannels;
+
 	struct ProcessorSettings {
 
-		GenericProcessor* originalSource;
+	 	GenericProcessor* originalSource;
 
 		int numInputs;
-		int numOutputs;
-		StringArray inputChannelNames;
-		StringArray outputChannelNames;
+	 	int numOutputs;
 
-		float sampleRate;
-		Array<float> bitVolts;
-
-		Array<int> eventChannelIds;
-		StringArray eventChannelNames;
-		Array<int> eventChannelTypes;
+	 	float sampleRate;
 
 	};
 
 	ProcessorSettings settings;
 
-	virtual bool isAudioOrRecordNode() {return false;}
+	//virtual bool isAudioOrRecordNode() {return false;}
 
-	virtual bool recordStatus (int chan);
-	virtual bool audioStatus (int chan);
+	//virtual bool recordStatus (int chan);
+	//virtual bool audioStatus (int chan);
 
 	virtual void clearSettings();
 
-	virtual void generateDefaultChannelNames(StringArray&);
+	//virtual void generateDefaultChannelNames(StringArray&);
 
 	virtual void update(); // default node updating
 	virtual void updateSettings() {} // custom node updating

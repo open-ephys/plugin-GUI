@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include "EventNode.h"
 
+#include "Channel.h"
+
 EventNode::EventNode()
 	: GenericProcessor("Event Generator"), Hz(1), accumulator(0)
 {
@@ -52,8 +54,12 @@ AudioProcessorEditor* EventNode::createEditor()
 void EventNode::updateSettings()
 {
 	// add event channels
-	settings.eventChannelIds.add(1);
-	settings.eventChannelNames.add("Trigger");
+
+	Channel* ch = new Channel(this, 1);
+	ch->name = "Trigger";
+
+	eventChannels.add(ch);
+
 }
 
 

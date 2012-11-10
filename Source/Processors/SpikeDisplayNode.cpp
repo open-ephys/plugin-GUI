@@ -24,7 +24,7 @@
 #include "SpikeDisplayNode.h"
 #include <stdio.h>
 
-
+#include "Channel.h"
 
 SpikeDisplayNode::SpikeDisplayNode()
 	: GenericProcessor("Spike Viewer"),
@@ -84,16 +84,16 @@ int SpikeDisplayNode::getNumberOfChannelsForElectrode(int elec)
 	
 	int electrodeIndex = -1;
 
-	for (int i = 0; i < settings.eventChannelTypes.size(); i++)
+	for (int i = 0; i < eventChannels.size(); i++)
 	{
-		if (settings.eventChannelTypes[i] < 999)
+		if (eventChannels[i]->eventType < 999)
 		{
 			electrodeIndex++;
 
 			if (electrodeIndex == elec)
 			{
-				std::cout << "Electrode " << elec << " has " << settings.eventChannelTypes[i] << " channels" << std::endl;
-				return settings.eventChannelTypes[i];
+				std::cout << "Electrode " << elec << " has " << eventChannels[i]->eventType << " channels" << std::endl;
+				return eventChannels[i]->eventType;
 			}
 		}
 	}
@@ -105,9 +105,9 @@ int SpikeDisplayNode::getNumElectrodes()
 {
 	int nElectrodes = 0;
 
-	for (int i = 0; i < settings.eventChannelTypes.size(); i++)
+	for (int i = 0; i < eventChannels.size(); i++)
 	{
-		if (settings.eventChannelTypes[i] < 999)
+		if (eventChannels[i]->eventType < 999)
 		{
 			nElectrodes++;
 		}
