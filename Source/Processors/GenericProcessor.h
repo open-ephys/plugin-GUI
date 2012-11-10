@@ -87,8 +87,8 @@ public:
 	void changeProgramName (int index, const String &newName) {}
 	void setCurrentProgram (int index) {}
 
-	const String getInputChannelName (int channelIndex) const {return settings.inputChannelNames[channelIndex];}
-	const String getOutputChannelName (int channelIndex) const {return settings.outputChannelNames[channelIndex];}
+	const String getInputChannelName (int channelIndex) const { }
+	const String getOutputChannelName (int channelIndex) const { }
 	const String getParameterName (int parameterIndex); //{return parameters[parameterIndex]->getName();}
 	const String getParameterText (int parameterIndex); //{return parameters[parameterIndex]->getDescription();}
 	const String getProgramName (int index) {return "";}
@@ -161,6 +161,8 @@ public:
 	virtual bool isReady() {return isEnabled;}
 	virtual bool enable() {return isEnabled;}
 	virtual bool disable() {return true;}
+	virtual void enableEditor();
+	virtual void disableEditor();
 
 	virtual bool enabledState() {return isEnabled;}
 	virtual void enabledState(bool t) {isEnabled = t;}
@@ -216,8 +218,8 @@ public:
 	virtual GenericEditor* getEditor() {return editor;}
 	ScopedPointer<GenericEditor> editor;
 
-	OwnedArray<Channel*> channels;
-	OwnedArray<Channel*> eventChannels;
+	OwnedArray<Channel> channels;
+	OwnedArray<Channel> eventChannels;
 
 	struct ProcessorSettings {
 
@@ -225,6 +227,8 @@ public:
 
 		int numInputs;
 	 	int numOutputs;
+
+	 	float sampleRate;
 
 	};
 

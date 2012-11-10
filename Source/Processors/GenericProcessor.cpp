@@ -279,9 +279,10 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 
 void GenericProcessor::clearSettings()
 {
-	originalSource = 0;
-	numInputs = 0;
-	numOutputs = 0;
+	settings.originalSource = 0;
+	settings.numInputs = 0;
+	settings.numOutputs = 0;
+	settings.sampleRate = getDefaultSampleRate();
 
 	channels.clear();
 
@@ -301,16 +302,24 @@ void GenericProcessor::update()
 		settings.numInputs = settings.numOutputs;
 		settings.numOutputs = settings.numInputs;
 
-		for (int i = 0; i < getNumInputs(); i++)
+		for (int i = 0; i < sourceNode->channels.size(); i++)
 		{
 			Channel* sourceChan = sourceNode->channels[i];
 			Channel* ch = new Channel(*sourceChan);
 			channels.add(ch);
 		}
 
+		for (int i = 0; i < sourceNode->eventChannels.size(); i++)
+		{
+			Channel* sourceChan = sourceNode->eventChannels[i];
+			Channel* ch = new Channel(*sourceChan);
+			eventChannels.add(ch);
+		}
+
 	} else {
 
 		settings.numOutputs = getDefaultNumOutputs();
+		settings.sampleRate = getDefaultSampleRate();
 
 		for (int i = 0; i < getNumOutputs(); i++)
 		{
@@ -369,6 +378,25 @@ void GenericProcessor::update()
 // 	}
 
 // }
+
+void GenericProcessor::enableEditor()
+{
+
+	GenericEditor* ed = getEditor();
+
+	if (ed != 0)
+	 	ed->startAcquisition();
+
+}
+
+void GenericProcessor::disableEditor()
+{
+
+	GenericEditor* ed = getEditor();
+
+	if (ed != 0)
+	 	ed->stopAcquisition();
+}
 
 
 int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)

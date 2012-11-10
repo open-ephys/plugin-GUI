@@ -27,7 +27,7 @@
 Channel::Channel(GenericProcessor* p, int n) :
 	processor(p), num(n), 
 	isEventChannel(false), isEnabled(true), isRecording(false), isMonitored(false), 
-	sampleRate(44100.0f), bitVolts(1.0f) 
+	sampleRate(44100.0f), bitVolts(1.0f), eventType(0)
 
 {
 
@@ -44,6 +44,7 @@ Channel::Channel(const Channel& ch)
 	sampleRate = ch.sampleRate;
 	bitVolts = ch.bitVolts;
 	name = ch.name;
+	eventType = ch.eventType;
 
 }
 
@@ -65,5 +66,5 @@ void Channel::reset()
 void Channel::createDefaultName()
 {
 	name = String("Channel ");
-	name += n;
+	name += num;
 }

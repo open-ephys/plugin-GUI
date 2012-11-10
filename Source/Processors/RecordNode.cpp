@@ -24,6 +24,8 @@
 #include "RecordNode.h"
 #include "ProcessorGraph.h"
 
+#include "Channel.h"
+
 RecordNode::RecordNode()
 	: GenericProcessor("Record Node"), isRecording(false), isProcessing(false),
 		timestamp(0), signalFilesShouldClose(false)
@@ -47,30 +49,32 @@ RecordNode::~RecordNode() {
 
 }
 
-void RecordNode::setChannel(int id, int chan)
+void RecordNode::setChannel(Channel* ch)
 {
 
 	std::cout << "Record node setting channel." << std::endl;
 
-	for (int i = 0; i < continuousChannels.size(); i++)
-	{
+	setCurrentChannel(channelPointers.indexOf(ch));
 
-		if (continuousChannels[i].nodeId == id &&
-			continuousChannels[i].chan == chan)
-		{
-			std::cout << "Found channel " << i << std::endl;
-			setCurrentChannel(i);
-			break;
-		}
+	// for (int i = 0; i < con.size(); i++)
+	// {
 
-	}
+	// 	if (continuousChannels[i].nodeId == id &&
+	// 		continuousChannels[i].chan == chan)
+	// 	{
+	// 		std::cout << "Found channel " << i << std::endl;
+	// 		setCurrentChannel(i);
+	// 		break;
+	// 	}
+
+	// }
 }
 
-void RecordNode::setChannelStatus(int chan, bool status)
+void RecordNode::setChannelStatus(Channel* ch, bool status)
 {
 
-	std::cout << "Setting channel status!" << std::endl;
-	setCurrentChannel(chan);
+	//std::cout << "Setting channel status!" << std::endl;
+	setChannel(ch);
 
 	if (status)
 		setParameter(2, 1.0f);
@@ -120,7 +124,7 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
         setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
-        channelPointers.add(sourceNode->channelPointers[chan]);
+        channelPointers.add(sourceNode->channels[chan]);
 
         String filename = rootFolder.getFullPathName();
 		filename += "/";

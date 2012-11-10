@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 
+class GenericProcessor;
 
 /**
   
@@ -62,6 +63,9 @@ public:
 	// channel number:
 	int num;
 
+	// event info:
+	int eventType;
+
 	// boolean values:
 	bool isEventChannel;
 	bool isRecording;
@@ -70,7 +74,7 @@ public:
 
 	// pointer to parent processor:
 	GenericProcessor* processor;
-	
+
 	// crucial information:
 	float sampleRate;
 	float bitVolts;
@@ -79,10 +83,11 @@ public:
 	String filename;
 	FILE* file;
 
+	String name;
 
 private:
 
-	String name;
+	
 
 	void createDefaultName();
 

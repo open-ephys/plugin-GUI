@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include "SpikeDetector.h"
 
+#include "Channel.h"
+
 SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"), overflowBufferSize(100),
       overflowBuffer(2,100), dataBuffer(overflowBuffer), currentElectrode(-1)
@@ -85,9 +87,13 @@ void SpikeDetector::updateSettings()
 
     for (int i = 0; i < electrodes.size(); i++)
     {
-       settings.eventChannelIds.add(i);
-       settings.eventChannelNames.add(electrodes[i]->name);
-       settings.eventChannelTypes.add(electrodes[i]->numChannels);
+
+       Channel* ch = new Channel(this, i);
+       ch->isEventChannel = true;
+       ch->eventType = electrodes[i]->numChannels;
+       ch->name = electrodes[i]->name;
+
+       eventChannels.add(ch);
     }
 
 }
@@ -308,15 +314,17 @@ void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,
 
     s->nSamples = spikeLength;
 
-    s->gain[currentChannel] = (int) (1.0f / settings.bitVolts[0])*1000;
-    s->threshold[currentChannel] = (int) *(electrodes[electrodeNumber]->thresholds+currentChannel) / settings.bitVolts[0] * 1000;
+    int chan = *(electrodes[electrodeNumber]->channels+currentChannel);
+
+    s->gain[currentChannel] = (int) (1.0f / channels[chan]->bitVolts)*1000;
+    s->threshold[currentChannel] = (int) *(electrodes[electrodeNumber]->thresholds+currentChannel) / channels[chan]->bitVolts * 1000;
 
     // cycle through buffer
     for (int sample = 0; sample < spikeLength; sample++)
     {
 
         // warning -- be careful of bitvolts conversion
-        s->data[currentIndex] = uint16(getNextSample(*(electrodes[electrodeNumber]->channels+currentChannel)) / settings.bitVolts[0] + 32768);
+        s->data[currentIndex] = uint16(getNextSample(*(electrodes[electrodeNumber]->channels+currentChannel)) / channels[chan]->bitVolts + 32768);
 
         currentIndex++;
         sampleIndex++;

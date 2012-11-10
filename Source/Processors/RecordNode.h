@@ -32,7 +32,9 @@
 #include <stdio.h>
 #include <map>
 
+
 #include "GenericProcessor.h"
+#include "Channel.h"
 
 /**
 
@@ -80,13 +82,13 @@ public:
 
   /** Selects a channel relative to a particular processor with ID = id
   */
-  void setChannel(int id, int chan);
+  void setChannel(Channel* ch);
 
   /** Turns recording on and off for a particular channel.
 
       Channel numbers are absolute (based on RecordNode channel mapping).
   */
-  void setChannelStatus(int chan, bool status);
+  void setChannelStatus(Channel* ch, bool status);
 
   /** Used to clear all connections prior to the start of acquisition.
   */

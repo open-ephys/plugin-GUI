@@ -212,6 +212,19 @@ void GenericEditor::setEnabledState(bool t)
 	isEnabled = p->enabledState();
 }
 
+void GenericEditor::startAcquisition()
+{
+
+	channelSelector->startAcquisition();
+
+}
+
+void GenericEditor::stopAcquisition()
+{
+	channelSelector->stopAcquisition();
+
+}
+
 void GenericEditor::fadeIn()
 {
 	isFading = true;
@@ -373,6 +386,17 @@ void GenericEditor::update()
 	updateVisualizer(); // does nothing unless this method
 						// has been implemented
 
+}
+
+Channel* GenericEditor::getChannel(int chan)
+{
+	return getProcessor()->channels[chan];
+
+}
+
+Channel* GenericEditor::getEventChannel(int chan)
+{
+	return getProcessor()->eventChannels[chan];
 }
 
 Array<int> GenericEditor::getActiveChannels()

@@ -23,6 +23,7 @@
 
 
 #include "AudioNode.h"
+#include "Channel.h"
 
 AudioNode::AudioNode()
 	: GenericProcessor("Audio Node"), volume(0.00001f), audioEditor(0)
@@ -70,17 +71,19 @@ void AudioNode::resetConnections()
 
 }
 
-void AudioNode::setChannelStatus(int chan, bool status)
+void AudioNode::setChannel(Channel* ch)
+{
+	std::cout << "Audio node setting channel." << std::endl;
+
+	setCurrentChannel(channelPointers.indexOf(ch)+2);
+}
+
+void AudioNode::setChannelStatus(Channel* chan, bool status)
 {
 
-	setCurrentChannel(chan+2); // add 2 to account for 2 output channels
+	setChannel(chan); // add 2 to account for 2 output channels
 
-	if (status)
-	{
-		setParameter(100, 0.0f); // add channel
-	} else {
-		setParameter(-100, 0.0f);
-	}
+	enableCurrentChannel(status);
 
 }
 
@@ -101,8 +104,8 @@ void AudioNode::enableCurrentChannel(bool state)
 void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
 
-	if (chan != getProcessorGraph()->midiChannelIndex)
-	{
+	//if (chan != getProcessorGraph()->midiChannelIndex)
+	//{
         
 		int channelIndex = getNextChannel(false);
 
@@ -110,10 +113,10 @@ void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
         channelPointers.add(sourceNode->channels[chan]);
 		
-	} else {
+	//} else {
 
 		// Can't monitor events at the moment!
-	}
+//	}
 
 }
 
@@ -127,6 +130,9 @@ void AudioNode::setParameter (int parameterIndex, float newValue)
 
 	} else if (parameterIndex == 100) 
 	{
+
+		channelPointers[currentChannel]->isMonitored = true;
+
 		// add current channel
 		// if (!leftChan.contains(currentChannel))
 		// {
@@ -135,6 +141,8 @@ void AudioNode::setParameter (int parameterIndex, float newValue)
 		// } 
 	} else if (parameterIndex == -100)
 	{
+
+		channelPointers[currentChannel]->isMonitored = false;
 		// remove current channel
 		// if (leftChan.contains(currentChannel))
 		// {

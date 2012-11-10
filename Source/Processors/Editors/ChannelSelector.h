@@ -31,6 +31,8 @@
 #include "GenericEditor.h"
 #include "../../AccessClass.h"
 
+#include "../Channel.h"
+
 #include <stdio.h>
 
 
@@ -80,6 +82,9 @@ public:
 	/** Return component's desired width. */
 	int getDesiredWidth();
 
+	void startAcquisition();
+
+	void stopAcquisition();
 
 	void inactivateButtons();
 
@@ -134,6 +139,8 @@ private:
 	Font& titleFont;
 
 	enum {AUDIO, RECORD, PARAMETER};
+
+	bool acquisitionIsActive;
 
 };
 
@@ -190,11 +197,14 @@ public:
 
 	int getType() {return type;}
 	int getChannel() {return num;}
+	//Channel* getChannel() {return ch;}
 	void setActive(bool t);
 
 private:
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 	
+	//Channel* ch;
+
 	int type;
 	int num;
 	Font buttonFont;

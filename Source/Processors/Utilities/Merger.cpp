@@ -26,6 +26,8 @@
 
 #include "../../UI/EditorViewport.h"
 
+#include "../Channel.h"
+
 Merger::Merger()
 	: GenericProcessor("Merger"), 
 		sourceNodeA(0), sourceNodeB(0), activePath(0)//, tabA(-1), tabB(-1)
@@ -112,16 +114,30 @@ void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
 {
 
 	settings.numInputs += sn->getNumOutputs();
-	settings.inputChannelNames.addArray(sn->settings.inputChannelNames);
-	settings.eventChannelIds.addArray(sn->settings.eventChannelIds);
-	settings.eventChannelNames.addArray(sn->settings.eventChannelNames);
-	settings.bitVolts.addArray(sn->settings.bitVolts);
+	//settings.inputChannelNames.addArray(sn->settings.inputChannelNames);
+	//settings.eventChannelIds.addArray(sn->settings.eventChannelIds);
+	//settings.eventChannelNames.addArray(sn->settings.eventChannelNames);
+	//settings.bitVolts.addArray(sn->settings.bitVolts);
+
+	for (int i = 0; i < sn->channels.size(); i++)
+	{
+		Channel* sourceChan = sn->channels[i];
+		Channel* ch = new Channel(*sourceChan);
+		channels.add(ch);
+	}
+
+	for (int i = 0; i < sn->eventChannels.size(); i++)
+	{
+		Channel* sourceChan = sn->eventChannels[i];
+		Channel* ch = new Channel(*sourceChan);
+		eventChannels.add(ch);
+	}
 
 	settings.originalSource = sn->settings.originalSource;
 	settings.sampleRate = sn->settings.sampleRate;
 
 	settings.numOutputs = settings.numInputs;
-	settings.outputChannelNames = settings.inputChannelNames;
+	//settings.outputChannelNames = settings.inputChannelNames;
 
 }
 
@@ -150,9 +166,15 @@ void Merger::updateSettings()
 		settings.numOutputs = getDefaultNumOutputs();
 
 		for (int i = 0; i < getNumOutputs(); i++)
-			settings.bitVolts.add(getDefaultBitVolts());
+		{
+			Channel* ch = new Channel(this, i);
+			ch->sampleRate = getDefaultSampleRate();
+			ch->bitVolts = getDefaultBitVolts();
 
-		generateDefaultChannelNames(settings.outputChannelNames);
+			channels.add(ch);
+		}
+
+		//generateDefaultChannelNames(settings.outputChannelNames);
 	}
 
 	std::cout << "Number of merger outputs: " << getNumInputs() << std::endl;

@@ -31,7 +31,7 @@
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
 	isNotSink(createButtons), titleFont(titleFont_), offsetLR(0), offsetUD(0),
 	moveRight(false), moveLeft(false), desiredOffset(0), paramsActive(true), paramsToggled(true),
-	radioStatus(false), eventsOnly(false)
+	radioStatus(false), eventsOnly(false), acquisitionIsActive(false)
 {
 
 	// initialize buttons
@@ -308,6 +308,16 @@ void ChannelSelector::activateButtons()
 
 }
 
+void ChannelSelector::startAcquisition()
+{
+	acquisitionIsActive = true;
+}
+
+void ChannelSelector::stopAcquisition()
+{
+	acquisitionIsActive = false;
+}
+
 void ChannelSelector::setRadioStatus(bool radioOn)
 {
 
@@ -444,42 +454,37 @@ void ChannelSelector::buttonClicked(Button* button)
 			// get audio node, and inform it of the change
 			GenericEditor* editor = (GenericEditor*) getParentComponent();
 
-			int channelNum = editor->getStartChannel() + b->getChannel() - 1;
+			Channel* ch = editor->getChannel(b->getChannel());
+			//int channelNum = editor->getStartChannel() + b->getChannel() - 1;
 			bool status = b->getToggleState();
-
-			std::cout << "Setting audio monitor for channel " << channelNum;
-
-			if (status)
+			
+			if (acquisitionIsActive) // use setParameter to change parameter safely
 			{
-				std::cout << " to true." << std::endl;
-			} else {
-				std::cout << " to false." << std::endl;
+				editor->getProcessorGraph()->
+					getAudioNode()->
+					setChannelStatus(ch, status);
+			} else { // change parameter directly
+				ch->isMonitored = status;
 			}
 			
-			editor->getProcessorGraph()->
-					getAudioNode()->
-					setChannelStatus(channelNum, status);
 
 		} else if (b->getType() == RECORD)
 		{
 			// get record node, and inform it of the change
 			GenericEditor* editor = (GenericEditor*) getParentComponent();
 
-			int channelNum = editor->getStartChannel() + b->getChannel() - 1;
+			Channel* ch = editor->getChannel(b->getChannel());
+			//int channelNum = editor->getStartChannel() + b->getChannel() - 1;
 			bool status = b->getToggleState();
 
-			std::cout << "Setting record status for channel " << channelNum;
-
-			if (status)
+			if (acquisitionIsActive) // use setParameter to change parameter safely
 			{
-				std::cout << " to true." << std::endl;
-			} else {
-				std::cout << " to false." << std::endl;
-			}
-			
 			editor->getProcessorGraph()->
 					getRecordNode()->
-					setChannelStatus(channelNum, status);
+					setChannelStatus(ch, status);
+			} else { // change parameter directly
+				ch->isRecording = status;
+			}
 					
 		} else {
 			// do nothing

@@ -34,6 +34,8 @@
 #include "GenericProcessor.h"
 #include "Editors/AudioEditor.h"
 
+#include "Channel.h"
+
 class AudioEditor;
 
 /**
@@ -63,7 +65,9 @@ public:
 
 	AudioProcessorEditor* createEditor();
 
-  void setChannelStatus(int, bool);
+  void setChannel(Channel* ch);
+
+  void setChannelStatus(Channel* ch, bool status);
 
   void resetConnections();
 
@@ -81,7 +85,7 @@ private:
 	Array<int> rightChan;
 	float volume;
 
-  Array<Channel*> audioChannels;
+  Array<Channel*> channelPointers;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioNode);
 
