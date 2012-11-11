@@ -35,7 +35,8 @@
 
 /**
 
-  Changes the sample rate of continuous data.
+  Changes the sample rate of continuous data, specialized for increasing
+  the sample rate to 44.1 kHz for audio output.
 
   Code is based on Juce's ResamplingAudioSource class.
 
@@ -49,7 +50,7 @@ class AudioResamplingNode : public GenericProcessor
 public:
 	
 	// real member functions:
-	AudioResamplingNode(bool destBufferIsTempBuffer);
+	AudioResamplingNode();
 	~AudioResamplingNode();
 	
 	AudioSampleBuffer* getBufferAddress() { return destBuffer; }
@@ -92,7 +93,7 @@ private:
 
 	int16* continuousDataBuffer;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResamplingNode);
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioResamplingNode);
 
 };
 

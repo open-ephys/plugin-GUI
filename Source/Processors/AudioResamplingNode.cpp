@@ -24,10 +24,10 @@
 #include "AudioResamplingNode.h"
 #include <stdio.h>
 
-AudioResamplingNode::AudioResamplingNode(bool destBufferType)
+AudioResamplingNode::AudioResamplingNode()
 	: GenericProcessor("Resampling Node"), 
 	  ratio (1.0), lastRatio (1.0),
-	  destBufferPos(0), destBufferIsTempBuffer(destBufferType),
+	  destBufferPos(0), destBufferIsTempBuffer(true),
 	  destBufferSampleRate(44100.0), sourceBufferSampleRate(40000.0),
 	  destBuffer(0), tempBuffer(0), isTransmitting(false)
 	
@@ -55,40 +55,7 @@ AudioResamplingNode::AudioResamplingNode(bool destBufferType)
 	tempBuffer = new AudioSampleBuffer(16, destBufferWidth);
 
 	continuousDataBuffer = new int16[10000];
-	
 
-	// filter->getKind()
-	// filter->getName()
-	// filter->getNumParams()
-	// filter->getParamInfo()
-	// filter->getDefaultParams()
-	// filter->getParams()
-	// filter->getParam()
-
-	// filter->setParam()
-	// filter->findParamId()
-	// filter->setParamById()
-	// filter->setParams()
-	// filter->copyParamsFrom()
-
-	// filter->getPoleZeros()
-	// filter->response()
-	// filter->getNumChannels()
-	// filter->reset()
-	// filter->process()
-
-	// Filter families:
-	// RBJ: from RBJ cookbook (audio-specific)
-	// Butterworth
-	// ChebyshevI: ripple in the passband
-	// ChebyshevII: ripple in the stopband
-	// Elliptic: ripple in passband and stopband
-	// Bessel: theoretically with linear phase
-	// Legendre: steepest transition and monotonic passband
-	// Custom: poles and zeros can be specified directly
-
-	// Filter classes:
-	// vary by filter family
 }
 
 AudioResamplingNode::~AudioResamplingNode()
@@ -96,19 +63,9 @@ AudioResamplingNode::~AudioResamplingNode()
 	filter = 0;
 	deleteAndZero(destBuffer);
 	deleteAndZero(tempBuffer);
-	//filterEditor = 0;
+
 }
 
-//AudioProcessorEditor* AudioResamplingNode::createEditor( )
-//{
-	//filterEditor = new FilterEditor(this);
-	
-	//std::cout << "Creating editor." << std::endl;
-	//filterEditor = new FilterEditor(this);
-	//return filterEditor;
-
-//	return 0;
-//}
 
 
 void AudioResamplingNode::setParameter (int parameterIndex, float newValue)
@@ -152,8 +109,6 @@ void AudioResamplingNode::prepareToPlay (double sampleRate_, int estimatedSample
 
 	updateFilter();
 
-
-	//file = fopen("resampling_data", "w");
 }
 
 void AudioResamplingNode::updateFilter() {
@@ -175,7 +130,7 @@ void AudioResamplingNode::updateFilter() {
 
 void AudioResamplingNode::releaseResources() 
 {	
-	//fclose(file);
+
 }
 
 void AudioResamplingNode::process(AudioSampleBuffer &buffer, 
@@ -183,16 +138,8 @@ void AudioResamplingNode::process(AudioSampleBuffer &buffer,
                             int& nSamples)
 {
 
-	//std::cout << "Resampling node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
-
-	// save data at the beginning of each round of processing
-    //writeContinuousBuffer(buffer.getSampleData(0), nSamples, 0);
-
-
 	int nSamps = nSamples;
 	int valuesNeeded;
-
-    //std::cout << "END OF OLD BUFFER." << std::endl;
 
 	if (destBufferIsTempBuffer) {
 		ratio = float(nSamps) / float(buffer.getNumSamples());
@@ -289,17 +236,7 @@ void AudioResamplingNode::process(AudioSampleBuffer &buffer,
 	if (destBufferIsTempBuffer) {
     	
     	// copy the temp buffer into the original buffer
-
-
-    	//buffer = *tempBuffer;
     	buffer = AudioSampleBuffer(tempBuffer->getArrayOfChannels(), 2, tempBufferPos);//buffer.getNumSamples());
-
-    	//buffer.setSize(2,0,true,false,true);
-
-    	//for (int n = 0; n < buffer.getNumSamples(); n+= 10)
-    	//std::cout << buffer.getRMSLevel(1,0,buffer.getNumSamples()) << " ";
-    
-    	//std::cout << "END OF NEW BUFFER." << std::endl;
 
     } else {
 
@@ -347,9 +284,6 @@ void AudioResamplingNode::process(AudioSampleBuffer &buffer,
     	//std::cout << "Resampling node value:" << *destBuffer->getSampleData(0,0) << std::endl;
 
     }
-
-    // save data at the end of each round of processing
-    //writeContinuousBuffer(buffer.getSampleData(0), buffer.getNumSamples(), 0);
 
 }
 

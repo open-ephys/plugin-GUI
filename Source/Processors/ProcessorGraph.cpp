@@ -78,8 +78,8 @@ void ProcessorGraph::createDefaultNodes()
 	AudioNode* an = new AudioNode();
 	an->setNodeId(AUDIO_NODE_ID);
 
-	// add resampling node -- resamples continuous signals to 44.1kHz
-	AudioResamplingNode* arn = new AudioResamplingNode(true);
+	// add audio resampling node -- resamples continuous signals to 44.1kHz
+	AudioResamplingNode* arn = new AudioResamplingNode();
 	arn->setNodeId(RESAMPLING_NODE_ID);
 
 	addNode(on, OUTPUT_NODE_ID);
