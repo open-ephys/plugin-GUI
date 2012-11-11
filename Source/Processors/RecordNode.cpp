@@ -223,12 +223,16 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 
 				File f = File(channelPointers[i]->filename);
 
+				bool fileExists = f.exists();
+
 				channelPointers[i]->file = fopen(channelPointers[i]->filename.toUTF8(), "a+b");
 
-				if (!f.exists())
+				if (!fileExists)
 				{
-					// create header (needs more details, obviously)
-					String header = "THIS IS A HEADER.";
+					// create header
+					String header = generateHeader(channelPointers[i]);
+
+					std::cout << "Header size: " << header.getNumBytesAsUTF8() << std::endl;
 					fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), channelPointers[i]->file);
 				}
 
@@ -271,12 +275,45 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 
 	 			if (isRecording) {
 	 				std::cout << "OPENING FILE: " << channelPointers[currentChannel]->filename << std::endl;
+	 				
+	 				File f = File(channelPointers[currentChannel]->filename);
+
+	 				bool fileExists = f.exists();
+
 	 				channelPointers[currentChannel]->file = 
 	 					fopen(channelPointers[currentChannel]->filename.toUTF8(), "a+b");
+
+	 				if (!fileExists)
+					{
+						// create header
+						String header = generateHeader(channelPointers[currentChannel]);
+
+						fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), channelPointers[currentChannel]->file);
+					}
+	 			
 	 			}
 	 		}
 		}
  	}
+}
+
+String RecordNode::generateHeader(Channel* ch)
+{
+
+	String header = "header.description = 'OPEN EPHYS DATA FORMAT v0.0;' \n";
+	header += "header.channel = '";
+	header += ch->name;
+	header += "';\n";
+	header += "header.bitVolts = ";
+	header += String(ch->bitVolts);
+	header += ";\n";
+
+	header = header.paddedRight(' ', HEADER_SIZE);
+
+	std::cout << header << std::endl;
+
+	return header;
+
 }
 
 void RecordNode::closeAllFiles()

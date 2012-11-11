@@ -36,6 +36,8 @@
 #include "GenericProcessor.h"
 #include "Channel.h"
 
+#define HEADER_SIZE 1024
+
 /**
 
   Receives inputs from all processors that want to save their data.
@@ -135,34 +137,18 @@ private:
   */ 
   Time timer;
 
-  /** Holds information for a given channel to be recorded to 
-      its own file.
-  */ 
-  // struct Channel
-  // {
-  //   int nodeId;
-  //   int chan;
-  //   String name;
-  //   bool isRecording;
-  //   String filename;
-  //   FILE* file;
-  // };
-
   /** Closes all open files after recording has finished.
   */ 
   void closeAllFiles();
 
-
+  /** Pointers to all continuous channels */
   Array<Channel*> channelPointers;
+
+  /** Pointers to all event channels */
   Array<Channel*> eventChannelPointers;
 
-  /** Map of continuous channels. 
-  */ 
-  //std::map<int, Channel> continuousChannels;
-
-  /** Map of event channels. 
-  */ 
-  //std::map<int, std::map<int,Channel> > eventChannels;
+  /** Generates a header for a given channel */
+  String generateHeader(Channel* ch);
 
   /** Method for writing continuous buffers to disk. 
   */ 
