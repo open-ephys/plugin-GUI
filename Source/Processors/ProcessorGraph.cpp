@@ -33,6 +33,7 @@
 #include "GenericProcessor.h"
 #include "RecordNode.h"
 #include "ResamplingNode.h"
+#include "AudioResamplingNode.h"
 #include "SignalGenerator.h"
 #include "SourceNode.h"
 #include "EventDetector.h"
@@ -78,13 +79,13 @@ void ProcessorGraph::createDefaultNodes()
 	an->setNodeId(AUDIO_NODE_ID);
 
 	// add resampling node -- resamples continuous signals to 44.1kHz
-	ResamplingNode* rn = new ResamplingNode(true);
-	rn->setNodeId(RESAMPLING_NODE_ID);
+	AudioResamplingNode* arn = new AudioResamplingNode(true);
+	arn->setNodeId(RESAMPLING_NODE_ID);
 
 	addNode(on, OUTPUT_NODE_ID);
 	addNode(recn, RECORD_NODE_ID);
 	addNode(an, AUDIO_NODE_ID);
-	addNode(rn, RESAMPLING_NODE_ID);
+	addNode(arn, RESAMPLING_NODE_ID);
 
 	// connect audio subnetwork
 	for (int n = 0; n < 2; n++) {
