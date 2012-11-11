@@ -411,7 +411,7 @@ int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)
 		MidiBuffer::Iterator i (midiMessages);
 		MidiMessage message(0xf4);
 
-		int samplePosition;
+		int samplePosition = 0;
 		i.setNextSamplePosition(samplePosition);
 
 		while (i.getNextEvent (message, samplePosition)) {
