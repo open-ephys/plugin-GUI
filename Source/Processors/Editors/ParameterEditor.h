@@ -65,12 +65,21 @@ public:
     	channelSelector = ch;
     }
 
+    void setEnabled(bool t) {activationState = t;}
+
+     bool shouldDeactivateDuringAcquisition;
+
+      bool activationState;
+
 private:
 
 	Array<Slider*> sliderArray;
 	Array<Button*> buttonArray;
 	Array<int> buttonIdArray;
 	Array<int> sliderIdArray;
+
+   
+   
 
 	GenericProcessor* processor;
 	ChannelSelector* channelSelector;

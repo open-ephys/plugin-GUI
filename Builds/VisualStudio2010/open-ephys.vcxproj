@@ -169,6 +169,7 @@
     <ClCompile Include="..\..\Source\Processors\SpikeDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\FPGAOutputEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ChannelSelector.cpp"/>
@@ -276,6 +277,7 @@
     <ClInclude Include="..\..\Source\Processors\SpikeDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\FPGAOutputEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ChannelSelector.h"/>

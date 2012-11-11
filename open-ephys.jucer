@@ -280,6 +280,10 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="vcZeT2R" name="ResamplingNodeEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/ResamplingNodeEditor.cpp"/>
+          <FILE id="pMjiz6m" name="ResamplingNodeEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/ResamplingNodeEditor.h"/>
           <FILE id="mvixd58" name="FPGAOutputEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/FPGAOutputEditor.cpp"/>
           <FILE id="phTDDOR" name="FPGAOutputEditor.h" compile="0" resource="0"

@@ -24,8 +24,8 @@
 #include "Parameter.h"
 
 
-Parameter::Parameter(const String& name_, bool defaultVal, int ID) 
-		: name(name_), description(""), parameterId(ID)
+Parameter::Parameter(const String& name_, bool defaultVal, int ID, bool t) 
+		: name(name_), description(""), parameterId(ID), shouldDeactivateDuringAcquisition(t)
 {
 
 	defaultValue = defaultVal;
@@ -39,8 +39,8 @@ Parameter::Parameter(const String& name_, bool defaultVal, int ID)
 
 }
 
-Parameter::Parameter(const String& name_, float low, float high, float defaultVal, int ID)
-	 : name(name_), description(""), parameterId(ID)
+Parameter::Parameter(const String& name_, float low, float high, float defaultVal, int ID, bool t)
+	 : name(name_), description(""), parameterId(ID), shouldDeactivateDuringAcquisition(t)
 {
 	defaultValue = defaultVal;
 
@@ -53,8 +53,8 @@ Parameter::Parameter(const String& name_, float low, float high, float defaultVa
 
 }
 
-Parameter::Parameter(const String& name_, Array<var> a, int defaultVal, int ID)
-	 : name(name_), description(""), parameterId(ID)
+Parameter::Parameter(const String& name_, Array<var> a, int defaultVal, int ID, bool t)
+	 : name(name_), description(""), parameterId(ID), shouldDeactivateDuringAcquisition(t)
 {
 	possibleValues = a;
 	defaultValue = defaultVal; //possibleValues[defaultVal];

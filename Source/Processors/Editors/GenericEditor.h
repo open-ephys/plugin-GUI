@@ -130,6 +130,7 @@ public:
 	virtual void channelChanged(int chan) {}
 
 	Array<int> getActiveChannels();
+	Array<ParameterEditor*> parameterEditors;
 
 	Channel* getChannel(int chan);
 	Channel* getEventChannel(int chan);

@@ -26,7 +26,12 @@
 ParameterEditor::ParameterEditor(GenericProcessor* proc, Parameter& p, Font labelFont)
 {
 
+	activationState = true;
+
+
 	processor = proc;
+
+	shouldDeactivateDuringAcquisition = p.shouldDeactivateDuringAcquisition;
 
 	if (p.isBoolean())
 	{
@@ -379,7 +384,12 @@ void ParameterSlider::paint(Graphics& g)
 	//g.fillEllipse(12, 12, getWidth()-24, getHeight()-24);
 
 	p = makeRotaryPath(getMinimum(), getMaximum(), getValue());
-	g.setColour(Colour(240,179,12));
+
+	//if (activationState)
+		g.setColour(Colour(240,179,12));
+	//else
+	//	g.setColour(Colour(75,75,75));
+
 	g.fillPath(p);
 	
 	//g.setColour(Colours::darkgrey);

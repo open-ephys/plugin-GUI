@@ -32,6 +32,8 @@
 #include "../Dsp/Dsp.h"
 #include "GenericProcessor.h"
 
+#define TEMP_BUFFER_WIDTH 5000
+
 /**
 
   Changes the sample rate of continuous data.
@@ -48,48 +50,41 @@ class ResamplingNode : public GenericProcessor
 public:
 	
 	// real member functions:
-	ResamplingNode(bool destBufferIsTempBuffer);
+	ResamplingNode();
 	~ResamplingNode();
-	
-	AudioSampleBuffer* getBufferAddress() { return destBuffer; }
-	void updateFilter();
-	
-	void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
-	void releaseResources();
+
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 	void setParameter (int parameterIndex, float newValue);
+	
+	void updateSettings();
 
-	AudioSampleBuffer* getContinuousBuffer() {return destBuffer;}
+	void updateFilter();
 
+	bool enable();
+	
+	AudioProcessorEditor* createEditor();
+	bool hasEditor() const {return true;}
 
 private:
 
 	// sample rate, timebase, and ratio info:
-	double sourceBufferSampleRate, destBufferSampleRate;
-	double ratio, lastRatio;
-	double destBufferTimebaseSecs;
-	int destBufferWidth;
+	double targetSampleRate;
+	double sourceBufferSampleRate; //, destBufferSampleRate;
+	double ratio; //, lastRatio;
+	//double destBufferTimebaseSecs;
+	//int destBufferWidth;
 	
 	// major objects:
 	Dsp::Filter* filter;
-	AudioSampleBuffer* destBuffer;
-	AudioSampleBuffer* tempBuffer;
+	//ScopedPointer<AudioSampleBuffer> destBuffer;
+	ScopedPointer<AudioSampleBuffer> tempBuffer;
 
 	// is the destBuffer a temp buffer or not?
-	bool destBufferIsTempBuffer;
-	bool isTransmitting;
+	//bool destBufferIsTempBuffer;
+	//bool isTransmitting;
 
 	// indexing objects that persist between rounds:
-	int destBufferPos;
-
-	// for testing purposes only:
-	void writeContinuousBuffer(float*, int, int);
-
-	FILE* file;
-	int64 timestamp;
-	Time timer;
-
-	int16* continuousDataBuffer;
+	//int destBufferPos;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResamplingNode);
 

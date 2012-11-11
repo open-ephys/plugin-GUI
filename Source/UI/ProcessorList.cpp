@@ -54,6 +54,7 @@ ProcessorList::ProcessorList() : isDragging(false),
 	filters->addSubItem(new ProcessorListItem("Bandpass Filter"));
 	filters->addSubItem(new ProcessorListItem("Event Detector"));
 	filters->addSubItem(new ProcessorListItem("Spike Detector"));
+	filters->addSubItem(new ProcessorListItem("Resampler"));
 
 	ProcessorListItem* sinks = new ProcessorListItem("Sinks");
 	sinks->addSubItem(new ProcessorListItem("LFP Viewer"));

@@ -96,6 +96,27 @@ AudioProcessorEditor* FilterNode::createEditor()
 //  the Params style of changing filter settings, and in general all fo the features
 //  necessary to interoperate with the Filter virtual base class and its derived classes
 
+// available methods:
+//
+// filter->getKind()
+// filter->getName()
+// filter->getNumParams()
+// filter->getParamInfo()
+// filter->getDefaultParams()
+// filter->getParams()
+// filter->getParam()
+
+// filter->setParam()
+// filter->findParamId()
+// filter->setParamById()
+// filter->setParams()
+// filter->copyParamsFrom()
+
+// filter->getPoleZeros()
+// filter->response()
+// filter->getNumChannels()
+// filter->reset()
+// filter->process()
 
 void FilterNode::updateSettings()
 {		

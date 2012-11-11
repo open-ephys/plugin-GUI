@@ -90,6 +90,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/ResamplingNodeEditor_f2d6f061.o \
   $(OBJDIR)/FPGAOutputEditor_cfe00f8a.o \
   $(OBJDIR)/ArduinoOutputEditor_1118f008.o \
   $(OBJDIR)/ChannelSelector_c1430874.o \
@@ -388,6 +389,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ResamplingNodeEditor_f2d6f061.o: ../../Source/Processors/Editors/ResamplingNodeEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ResamplingNodeEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/FPGAOutputEditor_cfe00f8a.o: ../../Source/Processors/Editors/FPGAOutputEditor.cpp

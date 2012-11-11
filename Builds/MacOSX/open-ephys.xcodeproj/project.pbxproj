@@ -64,6 +64,7 @@
 		4BE0DDA01B73223EF0BD934A = { isa = PBXBuildFile; fileRef = 3DD0741FCFBC7563EC722D9B; };
 		08B501E0D7764C6B613AF529 = { isa = PBXBuildFile; fileRef = B7750B27E4F3748ECCCCF69D; };
 		9CBA3837CC8CAA03A03F2D9C = { isa = PBXBuildFile; fileRef = FA57CE4F63FF1592D6B3F9B5; };
+		6F41ED502815AAF2F2EAB8B7 = { isa = PBXBuildFile; fileRef = EE3AAE8BD520868168064D38; };
 		9C77BFFE7BA865E20121E707 = { isa = PBXBuildFile; fileRef = 7738196148E539781B237854; };
 		BA64AA28A3E0DC10AB0A9380 = { isa = PBXBuildFile; fileRef = DAFD5D2E1F875321584C7147; };
 		BCB6C021A03F0AB0248C7F8A = { isa = PBXBuildFile; fileRef = 51D2678E9F30DC261CCB61B0; };
@@ -286,6 +287,8 @@
 		12866D44BE115E8837468F48 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AudioNode.h; path = ../../Source/Processors/AudioNode.h; sourceTree = SOURCE_ROOT; };
 		FA57CE4F63FF1592D6B3F9B5 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EventNode.cpp; path = ../../Source/Processors/EventNode.cpp; sourceTree = SOURCE_ROOT; };
 		32163C956C8A6F5C1DD7FE7F = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EventNode.h; path = ../../Source/Processors/EventNode.h; sourceTree = SOURCE_ROOT; };
+		EE3AAE8BD520868168064D38 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ResamplingNodeEditor.cpp; path = ../../Source/Processors/Editors/ResamplingNodeEditor.cpp; sourceTree = SOURCE_ROOT; };
+		E177F2FF11601F6E11498390 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ResamplingNodeEditor.h; path = ../../Source/Processors/Editors/ResamplingNodeEditor.h; sourceTree = SOURCE_ROOT; };
 		7738196148E539781B237854 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FPGAOutputEditor.cpp; path = ../../Source/Processors/Editors/FPGAOutputEditor.cpp; sourceTree = SOURCE_ROOT; };
 		5F43022E89D254273CF827A5 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FPGAOutputEditor.h; path = ../../Source/Processors/Editors/FPGAOutputEditor.h; sourceTree = SOURCE_ROOT; };
 		DAFD5D2E1F875321584C7147 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ArduinoOutputEditor.cpp; path = ../../Source/Processors/Editors/ArduinoOutputEditor.cpp; sourceTree = SOURCE_ROOT; };
@@ -534,6 +537,8 @@
 				0C5335B0E57C9DC92FC57E5F,
 				7738F51AE0EC63D76EE0F761 ); name = Visualization; sourceTree = "<group>"; };
 		953CC35B9116404D6AA8D1C7 = { isa = PBXGroup; children = (
+				EE3AAE8BD520868168064D38,
+				E177F2FF11601F6E11498390,
 				7738196148E539781B237854,
 				5F43022E89D254273CF827A5,
 				DAFD5D2E1F875321584C7147,
@@ -813,6 +818,7 @@
 				4BE0DDA01B73223EF0BD934A,
 				08B501E0D7764C6B613AF529,
 				9CBA3837CC8CAA03A03F2D9C,
+				6F41ED502815AAF2F2EAB8B7,
 				9C77BFFE7BA865E20121E707,
 				BA64AA28A3E0DC10AB0A9380,
 				BCB6C021A03F0AB0248C7F8A,

@@ -413,7 +413,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 
 		} else if (subProcessorType.equalsIgnoreCase("Resampler")) {
 			std::cout << "Creating a new resampler." << std::endl;
-			processor = new ResamplingNode(false);
+			processor = new ResamplingNode();
 		
 		} else if (subProcessorType.equalsIgnoreCase("Spike Detector")) {
 			std::cout << "Creating a new spike detector." << std::endl;

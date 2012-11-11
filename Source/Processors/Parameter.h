@@ -46,9 +46,9 @@ class Parameter
 {
 public:
 
-	Parameter(const String& name_, bool defaultVal, int ID);
-	Parameter(const String& name_, float low, float high, float defaultVal, int ID);
-	Parameter(const String& name_, Array<var> a, int defaultVal, int ID);
+	Parameter(const String& name_, bool defaultVal, int ID, bool t = false);
+	Parameter(const String& name_, float low, float high, float defaultVal, int ID, bool t = false);
+	Parameter(const String& name_, Array<var> a, int defaultVal, int ID, bool t = false);
 
 	~Parameter() {}
 
@@ -69,6 +69,8 @@ public:
 	bool isBoolean() {return isBool;}
 	bool isContinuous() {return isCont;}
 	bool isDiscrete() {return isDisc;}
+
+	bool shouldDeactivateDuringAcquisition;
 
 private:
 
