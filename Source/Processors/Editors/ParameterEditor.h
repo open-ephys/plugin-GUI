@@ -33,6 +33,10 @@
 #include "../Parameter.h"
 #include <stdio.h>
 
+class ParameterButton;
+class ParameterSlider;
+class ParameterCheckbox;
+
 /**
   
   Automatically creates an interactive editor for a particular
@@ -65,21 +69,19 @@ public:
     	channelSelector = ch;
     }
 
-    void setEnabled(bool t) {activationState = t;}
-
-     bool shouldDeactivateDuringAcquisition;
-
-      bool activationState;
+    // for inactivation during acquisition:
+    void setEnabled(bool t);
+    bool shouldDeactivateDuringAcquisition;
+    bool activationState;
 
 private:
 
-	Array<Slider*> sliderArray;
-	Array<Button*> buttonArray;
+	Array<ParameterSlider*> sliderArray;
+	Array<ParameterButton*> buttonArray;
+    Array<ParameterCheckbox*> checkboxArray;
 	Array<int> buttonIdArray;
 	Array<int> sliderIdArray;
-
-   
-   
+    Array<int> checkboxIdArray;
 
 	GenericProcessor* processor;
 	ChannelSelector* channelSelector;
@@ -99,6 +101,7 @@ public:
     ParameterButton(var value, int buttonType, Font labelFont);
     ~ParameterButton() {}
 
+    bool isEnabled;
 
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
@@ -117,6 +120,7 @@ private:
     ColourGradient selectedOverGrad;
     ColourGradient neutralGrad;
     ColourGradient neutralOverGrad;
+    ColourGradient deactivatedGrad;
 
     enum {
 		LEFT,
@@ -133,6 +137,8 @@ public:
     ParameterCheckbox(bool defaultState);
     ~ParameterCheckbox() {}
 
+    bool isEnabled;
+
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
     
@@ -140,6 +146,7 @@ private:
     ColourGradient selectedOverGrad;
     ColourGradient neutralGrad;
     ColourGradient neutralOverGrad;
+    ColourGradient deactivatedGrad;
 };
 
 class ParameterSlider : public Slider
@@ -148,6 +155,8 @@ class ParameterSlider : public Slider
 public:
     ParameterSlider(float min, float max, float defaultValue, Font f);
     ~ParameterSlider() {}
+
+    bool isEnabled;
 
 private:
     void paint(Graphics& g);//Button(Graphics& g, bool isMouseOver, bool isButtonDown);

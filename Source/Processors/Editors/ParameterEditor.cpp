@@ -28,7 +28,6 @@ ParameterEditor::ParameterEditor(GenericProcessor* proc, Parameter& p, Font labe
 
 	activationState = true;
 
-
 	processor = proc;
 
 	shouldDeactivateDuringAcquisition = p.shouldDeactivateDuringAcquisition;
@@ -42,7 +41,7 @@ ParameterEditor::ParameterEditor(GenericProcessor* proc, Parameter& p, Font labe
 		addAndMakeVisible(pc);
 		pc->setBounds(0,0,12, 12);
 		pc->setName(String(p.getID()));
-		buttonArray.add(pc);
+		checkboxArray.add(pc);
 		//buttonIdArray.add(p.getID());
 		pc->addListener(this);
 
@@ -158,24 +157,62 @@ void ParameterEditor::parentHierarchyChanged()
 
 }
 
+void ParameterEditor::setEnabled(bool state)
+{
+
+	std::cout << "Changing editor state!" << std::endl;
+
+	if (shouldDeactivateDuringAcquisition)
+	{
+
+		for (int i = 0; i < sliderArray.size(); i++)
+		{
+			sliderArray[i]->isEnabled = state;
+			sliderArray[i]->setInterceptsMouseClicks(state, state);
+			sliderArray[i]->repaint();
+		}
+
+		for (int i = 0; i < buttonArray.size(); i++)
+		{
+			buttonArray[i]->isEnabled = state;
+			buttonArray[i]->setInterceptsMouseClicks(state, state);
+			buttonArray[i]->repaint();
+		}
+
+		for (int i = 0; i < checkboxArray.size(); i++)
+		{
+			checkboxArray[i]->isEnabled = state;
+			checkboxArray[i]->setInterceptsMouseClicks(state, state);
+			checkboxArray[i]->repaint();
+		}
+
+	}
+
+}
+
 void ParameterEditor::buttonClicked(Button* button)
 {
 	std::cout << "Button name: " << button->getName() << std::endl;
 	std::cout << "Button value: " << button->getButtonText() << std::endl;
-	
-	Array<int> a = channelSelector->getActiveChannels();
-	{
-		for (int i = 0; i < a.size(); i++)
-		{
-			//std::cout << a[i] << " ";
-			processor->setCurrentChannel(a[i]);
-			processor->setParameter(button->getName().getIntValue(),
-									button->getButtonText().getFloatValue());
-			//processor->
-		}
-		//std::cout << std::endl;
-	}
 
+	ParameterButton* b = (ParameterButton*) button;
+
+	if (b->isEnabled)
+	{
+
+		Array<int> a = channelSelector->getActiveChannels();
+		{
+			for (int i = 0; i < a.size(); i++)
+			{
+				//std::cout << a[i] << " ";
+				processor->setCurrentChannel(a[i]);
+				processor->setParameter(button->getName().getIntValue(),
+										button->getButtonText().getFloatValue());
+				//processor->
+			}
+			//std::cout << std::endl;
+		}
+	}
 	//processor->sliderValueChanged(slider);
 
 }
@@ -186,18 +223,23 @@ void ParameterEditor::sliderValueChanged(Slider* slider)
 
 	//std::cout << "Slider name: " << slider->getName() << std::endl;
 	//std::cout << "Slider value: " << slider->getValue() << std::endl;
-	
-	Array<int> a = channelSelector->getActiveChannels();
+
+	ParameterSlider* s = (ParameterSlider*) slider;
+
+	if (s->isEnabled)
 	{
-		for (int i = 0; i < a.size(); i++)
+		Array<int> a = channelSelector->getActiveChannels();
 		{
-			//std::cout << a[i] << " ";
-			processor->setCurrentChannel(a[i]);
-			processor->setParameter(slider->getName().getIntValue(),
-									slider->getValue());
-			//processor->
+			for (int i = 0; i < a.size(); i++)
+			{
+				//std::cout << a[i] << " ";
+				processor->setCurrentChannel(a[i]);
+				processor->setParameter(slider->getName().getIntValue(),
+										slider->getValue());
+				//processor->
+			}
+			//std::cout << std::endl;
 		}
-		//std::cout << std::endl;
 	}
 }
 
@@ -207,7 +249,7 @@ void ParameterEditor::sliderValueChanged(Slider* slider)
 
 ParameterButton::ParameterButton(var value, int buttonType, Font labelFont) :
 	Button("parameter"), type(buttonType), valueString(value.toString()),
-	font(labelFont)
+	font(labelFont), isEnabled(true)
 {
 
 	setButtonText(valueString);
@@ -227,7 +269,9 @@ ParameterButton::ParameterButton(var value, int buttonType, Font labelFont) :
     neutralOverGrad = ColourGradient(Colour(180,180,180),0.0,5.0f,
 										 Colour(150,150,150),0.0, 0.0,
 										 false);
-
+    deactivatedGrad = ColourGradient(Colour(120, 120, 120), 0.0, 5.0f,
+    									  Colour(100, 100, 100), 0.0, 0.0,
+    									  false);
 
 }
 
@@ -247,6 +291,11 @@ void ParameterButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDo
          	g.setGradientFill(neutralOverGrad);
         else
         	g.setGradientFill(neutralGrad);
+     }
+
+     if (!isEnabled)
+     {
+     	g.setGradientFill(deactivatedGrad);
      }
 
 	AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth())/2.0f,
@@ -308,7 +357,7 @@ void ParameterButton::resized()
 // ==== PARAMETER CHECKBOX =======================
 
 
-ParameterCheckbox::ParameterCheckbox(bool defaultState) : Button("name")
+ParameterCheckbox::ParameterCheckbox(bool defaultState) : Button("name"), isEnabled(true)
 {
 	setToggleState(defaultState, false);
 	setClickingTogglesState(true);
@@ -325,6 +374,9 @@ ParameterCheckbox::ParameterCheckbox(bool defaultState) : Button("name")
     neutralOverGrad = ColourGradient(Colour(180,180,180),0.0,5.0f,
 										 Colour(150,150,150),0.0, 0.0,
 										 true);
+    deactivatedGrad = ColourGradient(Colour(120, 120, 120), 0.0, 5.0f,
+    									  Colour(100, 100, 100), 0.0, 0.0,
+    									  false);
 }
 
 void ParameterCheckbox::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
@@ -346,6 +398,11 @@ void ParameterCheckbox::paintButton(Graphics& g, bool isMouseOver, bool isButton
         	g.setGradientFill(neutralGrad);
      }
 
+      if (!isEnabled)
+     {
+     	g.setGradientFill(deactivatedGrad);
+     }
+
 	AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth())/2.0f,
 												float(getHeight())/2.0f);
 	
@@ -356,7 +413,7 @@ void ParameterCheckbox::paintButton(Graphics& g, bool isMouseOver, bool isButton
 // ========== PARAMETER SLIDER ====================
 
 ParameterSlider::ParameterSlider(float min, float max, 
-						float def, Font labelFont) : Slider("name"), font(labelFont)
+						float def, Font labelFont) : Slider("name"), font(labelFont), isEnabled(true)
 {
 
 	setSliderStyle(Slider::Rotary);
@@ -385,10 +442,10 @@ void ParameterSlider::paint(Graphics& g)
 
 	p = makeRotaryPath(getMinimum(), getMaximum(), getValue());
 
-	//if (activationState)
+	if (isEnabled)
 		g.setColour(Colour(240,179,12));
-	//else
-	//	g.setColour(Colour(75,75,75));
+	else
+		g.setColour(Colour(75,75,75));
 
 	g.fillPath(p);
 	

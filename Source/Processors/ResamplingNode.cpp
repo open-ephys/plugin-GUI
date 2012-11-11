@@ -29,16 +29,13 @@
 ResamplingNode::ResamplingNode()
 	: GenericProcessor("Resampler"), 
 	  ratio (1.0), targetSampleRate(20000.0f)
-	 // destBufferPos(0),
-	 /// destBufferSampleRate(44100.0), sourceBufferSampleRate(40000.0),
-	//  destBuffer(0), tempBuffer(0)
 	
 {
 
 	filter = new Dsp::SmoothedFilterDesign 
 		<Dsp::RBJ::Design::LowPass, 1> (1024);
 
-	parameters.add(Parameter("Hz",500.0f, 44100.0f, targetSampleRate, 1, false));
+	parameters.add(Parameter("Hz",500.0f, 44100.0f, targetSampleRate, 0, true));
 
 	tempBuffer = new AudioSampleBuffer(16, TEMP_BUFFER_WIDTH);
 
@@ -61,7 +58,7 @@ AudioProcessorEditor* ResamplingNode::createEditor()
 void ResamplingNode::setParameter (int parameterIndex, float newValue)
 {
 
-	if (parameterIndex == 1)
+	if (parameterIndex == 0)
 	{
 		Parameter& p =  parameters.getReference(parameterIndex);
     	p.setValue(newValue, 0);
@@ -78,6 +75,8 @@ void ResamplingNode::setParameter (int parameterIndex, float newValue)
 		}
 
 		updateFilter();
+
+		//std::cout << "Got parameter update." << std::endl;
 	}
 
 	//std::cout << float(p[0]) << std::endl;
@@ -102,7 +101,8 @@ void ResamplingNode::updateSettings()
 	sourceBufferSampleRate = settings.sampleRate;
 	settings.sampleRate = targetSampleRate;
 
-	tempBuffer->setSize(getNumInputs(), TEMP_BUFFER_WIDTH);
+	if (getNumInputs() > 0)
+		tempBuffer->setSize(getNumInputs(), TEMP_BUFFER_WIDTH);
 
 	ratio = sourceBufferSampleRate / targetSampleRate;
 

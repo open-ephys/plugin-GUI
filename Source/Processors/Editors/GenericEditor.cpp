@@ -216,6 +216,8 @@ void GenericEditor::setEnabledState(bool t)
 void GenericEditor::startAcquisition()
 {
 
+	std::cout << "GenericEditor received message to start acquisition." << std::endl;
+
 	channelSelector->startAcquisition();
 
 	for (int n = 0; n < parameterEditors.size(); n++)
