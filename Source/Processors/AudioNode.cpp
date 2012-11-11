@@ -73,9 +73,12 @@ void AudioNode::resetConnections()
 
 void AudioNode::setChannel(Channel* ch)
 {
-	std::cout << "Audio node setting channel." << std::endl;
 
-	setCurrentChannel(channelPointers.indexOf(ch)+2);
+	int channelNum = channelPointers.indexOf(ch);
+
+	std::cout << "Audio node setting channel to " << channelNum << std::endl;
+
+	setCurrentChannel(channelNum);
 }
 
 void AudioNode::setChannelStatus(Channel* chan, bool status)
@@ -90,7 +93,7 @@ void AudioNode::setChannelStatus(Channel* chan, bool status)
 void AudioNode::enableCurrentChannel(bool state)
 {
 
-	setCurrentChannel(nextAvailableChannel);
+	//setCurrentChannel(nextAvailableChannel);
 
 	if (state)
 	{

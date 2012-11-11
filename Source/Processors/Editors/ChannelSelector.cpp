@@ -454,7 +454,7 @@ void ChannelSelector::buttonClicked(Button* button)
 			// get audio node, and inform it of the change
 			GenericEditor* editor = (GenericEditor*) getParentComponent();
 
-			Channel* ch = editor->getChannel(b->getChannel());
+			Channel* ch = editor->getChannel(b->getChannel()-1);
 			//int channelNum = editor->getStartChannel() + b->getChannel() - 1;
 			bool status = b->getToggleState();
 			
@@ -473,7 +473,7 @@ void ChannelSelector::buttonClicked(Button* button)
 			// get record node, and inform it of the change
 			GenericEditor* editor = (GenericEditor*) getParentComponent();
 
-			Channel* ch = editor->getChannel(b->getChannel());
+			Channel* ch = editor->getChannel(b->getChannel()-1);
 			//int channelNum = editor->getStartChannel() + b->getChannel() - 1;
 			bool status = b->getToggleState();
 
