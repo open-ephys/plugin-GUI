@@ -169,6 +169,12 @@ void RecordNode::createNewDirectory()
 {
 	std::cout << "Creating new directory." << std::endl;
 
+	rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName());
+
+}
+
+String RecordNode::generateDirectoryName()
+{
 	Time calendar = Time::getCurrentTime();
 
 	Array<int> t;
@@ -194,7 +200,29 @@ void RecordNode::createNewDirectory()
 			filename += "-";
 	}
 
-	rootFolder = File(dataDirectory.getFullPathName() + File::separator + filename);
+	return filename;
+
+}
+
+String RecordNode::generateDateString()
+{
+	Time calendar = Time::getCurrentTime();
+
+	String datestring;
+
+	datestring += String(calendar.getDayOfMonth());
+	datestring += "-";
+	datestring += calendar.getMonthName(true);
+	datestring += "-";
+	datestring += String(calendar.getYear());
+	datestring += " ";
+	datestring += calendar.getHours();
+	datestring += ":";
+	datestring += calendar.getMinutes();
+	datestring += ":";
+	datestring += calendar.getSeconds();
+	
+	return datestring;
 
 }
 
@@ -219,23 +247,7 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 		{
 			if (channelPointers[i]->isRecording)
 			{
-				std::cout << "OPENING FILE: " << channelPointers[i]->filename << std::endl;
-
-				File f = File(channelPointers[i]->filename);
-
-				bool fileExists = f.exists();
-
-				channelPointers[i]->file = fopen(channelPointers[i]->filename.toUTF8(), "a+b");
-
-				if (!fileExists)
-				{
-					// create header
-					String header = generateHeader(channelPointers[i]);
-
-					std::cout << "Header size: " << header.getNumBytesAsUTF8() << std::endl;
-					fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), channelPointers[i]->file);
-				}
-
+				openFile(channelPointers[i]);
 			}
 		}
  		
@@ -246,8 +258,8 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 		std::cout << "STOP RECORDING." << std::endl;
 
 		if (isRecording) {
-			// close necessary files
 
+			// close necessary files
 			signalFilesShouldClose = true;
 			
 		}
@@ -265,8 +277,7 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 	 			channelPointers[currentChannel]->isRecording = false;
 
 	 			if (isRecording) {
-	 				std::cout << "CLOSING FILE: " << channelPointers[currentChannel]->filename << std::endl;
-	 				fclose(channelPointers[currentChannel]->file);
+	 				closeFile(channelPointers[currentChannel]);
 	 			}
 
 	 		}
@@ -274,22 +285,8 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 	 			channelPointers[currentChannel]->isRecording = true;
 
 	 			if (isRecording) {
-	 				std::cout << "OPENING FILE: " << channelPointers[currentChannel]->filename << std::endl;
-	 				
-	 				File f = File(channelPointers[currentChannel]->filename);
 
-	 				bool fileExists = f.exists();
-
-	 				channelPointers[currentChannel]->file = 
-	 					fopen(channelPointers[currentChannel]->filename.toUTF8(), "a+b");
-
-	 				if (!fileExists)
-					{
-						// create header
-						String header = generateHeader(channelPointers[currentChannel]);
-
-						fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), channelPointers[currentChannel]->file);
-					}
+	 				openFile(channelPointers[currentChannel]);
 	 			
 	 			}
 	 		}
@@ -297,20 +294,65 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
  	}
 }
 
+void RecordNode::openFile(Channel* ch)
+{
+	std::cout << "OPENING FILE: " << ch->filename << std::endl;
+
+	File f = File(ch->filename);
+
+	bool fileExists = f.exists();
+
+	ch->file = fopen(ch->filename.toUTF8(), "a+b");
+
+	if (!fileExists)
+	{
+		// create and write header
+		String header = generateHeader(ch);
+		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), ch->file);
+	}
+}
+
+void RecordNode::closeFile(Channel* ch)
+{
+	std::cout << "CLOSING FILE: " << ch->filename << std::endl;
+	fclose(ch->file);
+}
+
 String RecordNode::generateHeader(Channel* ch)
 {
 
-	String header = "header.description = 'OPEN EPHYS DATA FORMAT v0.0;' \n";
+	String header = "header.format = 'OPEN EPHYS DATA FORMAT v0.0'; \n";
+	header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample count (N), and N 16-bit samples'; \n";
+
+	header += "header.date_created = '";
+	header += generateDateString();
+	header += "';\n";
+
 	header += "header.channel = '";
 	header += ch->name;
 	header += "';\n";
+
+	if (ch->isEventChannel)
+	{
+
+		header += "header.channelType = 'Event';\n";
+
+	} else {
+
+		header += "header.channelType = 'Continuous';\n";
+
+		header += "header.sampleRate = '";
+		header += String(ch->sampleRate);
+		header += "';\n";
+	}
+
 	header += "header.bitVolts = ";
 	header += String(ch->bitVolts);
 	header += ";\n";
 
 	header = header.paddedRight(' ', HEADER_SIZE);
 
-	std::cout << header << std::endl;
+	//std::cout << header << std::endl;
 
 	return header;
 
@@ -323,8 +365,7 @@ void RecordNode::closeAllFiles()
 	{
 		if (channelPointers[i]->isRecording)
 		{
-			std::cout << "CLOSING FILE: " << channelPointers[i]->filename << std::endl;
-			fclose(channelPointers[i]->file);
+			closeFile(channelPointers[i]);
 		}
 	}
 }
@@ -365,15 +406,15 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 
 	AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
 
-	//int16 samps = nSamples;
+	int16 samps = nSamples;
 
 	fwrite(&timestamp,							// ptr
 			   8,   							// size of each element
 			   1, 		  						// count 
 			   channelPointers[channel]->file);   // ptr to FILE object
 
-	fwrite(&nSamples,								// ptr
-			   sizeof(nSamples),   				// size of each element
+	fwrite(&samps,								// ptr
+			   sizeof(samps),   				// size of each element
 			   1, 		  						// count 
 			   channelPointers[channel]->file);   // ptr to FILE object
 

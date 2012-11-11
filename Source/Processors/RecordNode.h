@@ -137,6 +137,12 @@ private:
   */ 
   Time timer;
 
+  /** Opens a single file */
+  void openFile(Channel* ch);
+
+  /** Closes a single file */
+  void closeFile(Channel* ch);
+
   /** Closes all open files after recording has finished.
   */ 
   void closeAllFiles();
@@ -149,6 +155,12 @@ private:
 
   /** Generates a header for a given channel */
   String generateHeader(Channel* ch);
+
+  /** Generates a default directory name, based on the current date and time */
+  String generateDirectoryName();
+
+  /** Generate a Matlab-compatible datestring */
+  String generateDateString();
 
   /** Method for writing continuous buffers to disk. 
   */ 
