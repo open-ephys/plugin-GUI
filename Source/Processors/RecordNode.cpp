@@ -52,9 +52,11 @@ RecordNode::~RecordNode() {
 void RecordNode::setChannel(Channel* ch)
 {
 
-	std::cout << "Record node setting channel." << std::endl;
+	int channelNum = channelPointers.indexOf(ch);
 
-	setCurrentChannel(channelPointers.indexOf(ch));
+	std::cout << "Record node setting channel to " << channelNum << std::endl;
+
+	setCurrentChannel(channelNum);
 
 	// for (int i = 0; i < con.size(); i++)
 	// {
@@ -136,12 +138,12 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
         channelPointers[channelIndex]->filename = filename;
         channelPointers[channelIndex]->file = 0;
 
-		if (channelPointers[channelIndex]->isRecording)
-			std::cout << "  This channel will be recorded." << std::endl;
-		else 
-			std::cout << "  This channel will NOT be recorded." << std::endl;
+		//if (channelPointers[channelIndex]->isRecording)
+		//	std::cout << "  This channel will be recorded." << std::endl;
+		//else 
+		//	std::cout << "  This channel will NOT be recorded." << std::endl;
 	
-		std::cout << "adding channel " << getNextChannel(false) << std::endl;
+		//std::cout << "adding channel " << getNextChannel(false) << std::endl;
 
 		//std::pair<int, Channel> newPair (getNextChannel(false), newChannel);
 
