@@ -162,13 +162,16 @@ private:
   /** Generate a Matlab-compatible datestring */
   String generateDateString();
 
+  /** Cycle through the event buffer, looking for data to save */
+  void handleEvent(int eventType, MidiMessage& event);
+
   /** Method for writing continuous buffers to disk. 
   */ 
   void writeContinuousBuffer(float* data, int nSamples, int channel);
   
   /** Method for writing event buffers to disk. 
   */ 
-  void writeEventBuffer(MidiMessage& event, int node, int channel);
+  void writeEventBuffer(MidiMessage& event);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNode);
 

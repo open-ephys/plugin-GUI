@@ -23,6 +23,7 @@
 
 #include "SourceNode.h"
 #include "Editors/SourceNodeEditor.h"
+#include "Channel.h"
 #include <stdio.h>
 
 SourceNode::SourceNode(const String& name_)
@@ -85,6 +86,14 @@ void SourceNode::updateSettings()
 
 		inputBuffer = dataThread->getBufferAddress();
 		std::cout << "Input buffer address is " << inputBuffer << std::endl;
+	}
+
+	for (int i = 0; i < dataThread->getNumEventChannels(); i++)
+	{
+		Channel* ch = new Channel(this, i);
+		ch->eventType = TTL;
+		ch->isEventChannel = true;
+		eventChannels.add(ch);
 	}
 
 }

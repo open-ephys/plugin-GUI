@@ -93,7 +93,7 @@ void PhaseDetector::process(AudioSampleBuffer &buffer,
 	    	numPeakIntervals++;
 
 	    	// entering falling phase (just reached peak)
-	        addEvent(events, TTL, i, 1, 0);
+	        addEvent(events, TTL, i, 1, 3);
 
 	        peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
 
@@ -111,7 +111,7 @@ void PhaseDetector::process(AudioSampleBuffer &buffer,
 
 	    	if (nSamplesSinceLastPeak == 100)
 	    	{
-	    		addEvent(events, TTL, i, 0, 0);
+	    		addEvent(events, TTL, i, 0, 3);
 	    	}
 
 	    }

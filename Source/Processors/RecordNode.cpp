@@ -425,14 +425,24 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 	// n must equal "count", otherwise there was an error
 }
  
-void RecordNode::writeEventBuffer(MidiMessage& event, int node, int channel)
+void RecordNode::writeEventBuffer(MidiMessage& event) //, int node, int channel)
 {
 	// find file and write samples to disk
+	//std::cout << "Received event!" << std::endl;
+
+}
+
+void RecordNode::handleEvent(int eventType, MidiMessage& event)
+{
+	if (eventType == TTL)
+	{
+		writeEventBuffer(event);
+	}
 
 }
 
 void RecordNode::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &midiMessages,
+                            MidiBuffer &events,
                             int& nSamples)
 {
 
@@ -466,6 +476,9 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 				
 
 		}
+
+		// cycle through events
+		checkForEvents(events);
 
 		return;
 
