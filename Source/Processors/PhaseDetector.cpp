@@ -27,7 +27,7 @@
 
 PhaseDetector::PhaseDetector()
 	: GenericProcessor("Phase Detector"),
-	   maxFrequency(20), isIncreasing(true)
+	   maxFrequency(20), isIncreasing(true), canBeTriggered(false)
 
 {
 
@@ -71,10 +71,34 @@ bool PhaseDetector::enable()
 	return true;
 }
 
+void PhaseDetector::handleEvent(int eventType, MidiMessage& event)
+{
+	if (eventType == TTL)
+	{
+		uint8* dataptr = event.getRawData();
+
+    	//int eventNodeId = *(dataptr+1);
+    	int eventId = *(dataptr+2);
+    	//int eventChannel = *(dataptr+3);
+    	//int eventTime = event.getTimeStamp();
+
+    	if (eventId == 1)
+    	{
+    		canBeTriggered = true;
+    	} else {
+    		canBeTriggered = false;
+    	}
+
+    }
+
+}
+
 void PhaseDetector::process(AudioSampleBuffer &buffer, 
                             MidiBuffer &events,
                             int& nSamples)
 {
+
+	checkForEvents(events);
 
 	for (int i = 0; i < nSamples; i++)
 	{

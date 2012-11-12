@@ -69,6 +69,10 @@ private:
 
 	bool isIncreasing;
 
+	bool canBeTriggered;
+
+	void handleEvent(int eventType, MidiMessage& event);
+
 	float estimatedFrequency;
 
 	int nSamplesSinceLastPeak;
