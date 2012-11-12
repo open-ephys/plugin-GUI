@@ -27,7 +27,7 @@
 
 PhaseDetector::PhaseDetector()
 	: GenericProcessor("Phase Detector"),
-	   maxFrequency(20)
+	   maxFrequency(20), isIncreasing(true)
 
 {
 
@@ -88,15 +88,16 @@ void PhaseDetector::process(AudioSampleBuffer &buffer,
 	    	isIncreasing = true;
 	    	nSamplesSinceLastPeak++;
 
-	    } else if (sample < lastSample && isIncreasing && nSamplesSinceLastPeak < minSamplesToNextPeak) {
+	    } else if (sample < lastSample && isIncreasing && nSamplesSinceLastPeak >= minSamplesToNextPeak) {
 
 	    	numPeakIntervals++;
 
 	    	// entering falling phase (just reached peak)
-	        addEvent(events, TTL, i);
+	        addEvent(events, TTL, i, 1, 0);
 
 	        peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
 
+	        isIncreasing = false;
 
 	        nSamplesSinceLastPeak = 0;
 
@@ -107,6 +108,11 @@ void PhaseDetector::process(AudioSampleBuffer &buffer,
 
 	    	// either rising or falling
 	    	nSamplesSinceLastPeak++;
+
+	    	if (nSamplesSinceLastPeak == 100)
+	    	{
+	    		addEvent(events, TTL, i, 0, 0);
+	    	}
 
 	    }
 
