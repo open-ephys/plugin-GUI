@@ -39,8 +39,8 @@ int packSpike(SpikeObject *s, uint8_t* buffer, int bufferSize){
 	memcpy(buffer+idx, &(s->eventType), 1);
 	idx += 1;
 	
-	memcpy(buffer+idx, &(s->timestamp), 4);
-	idx += 4;
+	memcpy(buffer+idx, &(s->timestamp), 8);
+	idx += 8;
 	
 	memcpy(buffer+idx, &(s->source), 2);
 	idx +=2;
@@ -82,8 +82,8 @@ bool unpackSpike(SpikeObject *s, uint8_t* buffer, int bufferSize){
 	memcpy (&(s->eventType), buffer+idx, 1);
 	idx += 1;
 	
-	memcpy( &(s->timestamp), buffer+idx, 4);
-	idx += 4;
+	memcpy( &(s->timestamp), buffer+idx, 8);
+	idx += 8;
 
 	memcpy( &(s->source), buffer+idx, 2);
 	idx += 2;
