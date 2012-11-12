@@ -142,6 +142,7 @@
     <ClCompile Include="..\..\Source\Dsp\RootFinder.cpp"/>
     <ClCompile Include="..\..\Source\Dsp\State.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\PhaseDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioResamplingNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Channel.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Serial\ofArduino.cpp"/>
@@ -247,6 +248,7 @@
     <ClInclude Include="..\..\Source\Dsp\Types.h"/>
     <ClInclude Include="..\..\Source\Dsp\Utilities.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
+    <ClInclude Include="..\..\Source\Processors\PhaseDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioResamplingNode.h"/>
     <ClInclude Include="..\..\Source\Processors\Channel.h"/>
     <ClInclude Include="..\..\Source\Processors\Serial\ofArduino.h"/>

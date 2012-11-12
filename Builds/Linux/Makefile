@@ -63,6 +63,7 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/PhaseDetector_7193f7dc.o \
   $(OBJDIR)/AudioResamplingNode_3dbffa2d.o \
   $(OBJDIR)/Channel_33a3e5fe.o \
   $(OBJDIR)/ofArduino_12f202a5.o \
@@ -254,6 +255,11 @@ $(OBJDIR)/State_22979684.o: ../../Source/Dsp/State.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PhaseDetector_7193f7dc.o: ../../Source/Processors/PhaseDetector.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PhaseDetector.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/AudioResamplingNode_3dbffa2d.o: ../../Source/Processors/AudioResamplingNode.cpp

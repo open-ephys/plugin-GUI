@@ -28,14 +28,14 @@
 
 ResamplingNode::ResamplingNode()
 	: GenericProcessor("Resampler"), 
-	  ratio (1.0), targetSampleRate(20000.0f)
+	  ratio (1.0), targetSampleRate(5000.0f)
 	
 {
 
 	filter = new Dsp::SmoothedFilterDesign 
 		<Dsp::RBJ::Design::LowPass, 1> (1024);
 
-	parameters.add(Parameter("Hz",500.0f, 44100.0f, targetSampleRate, 0, true));
+	parameters.add(Parameter("Hz",500.0f, 10000.0f, targetSampleRate, 0, true));
 
 	tempBuffer = new AudioSampleBuffer(16, TEMP_BUFFER_WIDTH);
 

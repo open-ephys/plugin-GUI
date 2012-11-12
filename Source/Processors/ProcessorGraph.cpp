@@ -38,6 +38,7 @@
 #include "SourceNode.h"
 #include "EventDetector.h"
 #include "SpikeDetector.h"
+#include "PhaseDetector.h"
 #include "WiFiOutput.h"
 #include "ArduinoOutput.h"
 #include "FPGAOutput.h"
@@ -422,6 +423,10 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		else if (subProcessorType.equalsIgnoreCase("Event Detector")) {
 			std::cout << "Creating a new event detector." << std::endl;
 			processor = new EventDetector();
+		}
+		 else if (subProcessorType.equalsIgnoreCase("Phase Detector")) {
+			std::cout << "Creating a new phase detector." << std::endl;
+			processor = new PhaseDetector();
 		}
 
 		//sendActionMessage("New filter node created.");
