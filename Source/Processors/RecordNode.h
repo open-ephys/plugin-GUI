@@ -165,6 +165,9 @@ private:
   /** Cycle through the event buffer, looking for data to save */
   void handleEvent(int eventType, MidiMessage& event);
 
+  /** Object for holding information about the events file */
+  Channel* eventChannel;
+
   /** Method for writing continuous buffers to disk. 
   */ 
   void writeContinuousBuffer(float* data, int nSamples, int channel);

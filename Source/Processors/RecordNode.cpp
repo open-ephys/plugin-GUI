@@ -39,6 +39,9 @@ RecordNode::RecordNode()
 	settings.numInputs = 128;
 	settings.numOutputs = 0;
 
+	eventChannel = new Channel(this, 0);
+	eventChannel->isEventChannel = true;
+
 	// 128 inputs, 0 outputs
 	setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 
@@ -98,6 +101,9 @@ void RecordNode::resetConnections()
 
 	channelPointers.clear();
 	eventChannelPointers.clear();
+
+	
+
 }
 
 void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
@@ -112,6 +118,10 @@ void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 		std::cout << " is NOT a directory." << std::endl;
 
 	createNewDirectory();
+
+	String filename = rootFolder.getFullPathName();
+	filename += "/all_channels.events";
+	eventChannel->filename = filename;
 
 }
 
@@ -250,6 +260,8 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 				openFile(channelPointers[i]);
 			}
 		}
+
+		openFile(eventChannel);
  		
 
  	} else if (parameterIndex == 0) {
@@ -368,6 +380,8 @@ void RecordNode::closeAllFiles()
 			closeFile(channelPointers[i]);
 		}
 	}
+
+	closeFile(eventChannel);
 }
 
 bool RecordNode::enable()
@@ -429,6 +443,17 @@ void RecordNode::writeEventBuffer(MidiMessage& event) //, int node, int channel)
 {
 	// find file and write samples to disk
 	//std::cout << "Received event!" << std::endl;
+
+	uint8* dataptr = event.getRawData();
+
+	// write timestamp (for buffer only, not the actual event timestamp!!!!!)
+	fwrite(&timestamp,							// ptr
+			   8,   							// size of each element
+			   1, 		  						// count 
+			   eventChannel->file);   			// ptr to FILE object
+
+	// write 1st four bytes of event (type, nodeId, eventId, eventChannel)
+	fwrite(dataptr, 1, 4, eventChannel->file);
 
 }
 
