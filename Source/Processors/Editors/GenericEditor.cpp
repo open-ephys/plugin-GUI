@@ -233,7 +233,8 @@ void GenericEditor::startAcquisition()
 
 void GenericEditor::stopAcquisition()
 {
-	channelSelector->stopAcquisition();
+	if (channelSelector != 0)
+		channelSelector->stopAcquisition();
 
 	for (int n = 0; n < parameterEditors.size(); n++)
 	{

@@ -60,7 +60,7 @@ void FPGAOutput::handleEvent(int eventType, MidiMessage& event)
         {
             sendActionMessage("HI");
             isEnabled = false;
-            startTimer(2); // 2 ms pulses
+            startTimer(10); // pulse width
         }
 
         
