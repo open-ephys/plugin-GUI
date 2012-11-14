@@ -49,10 +49,21 @@ void FPGAOutput::handleEvent(int eventType, MidiMessage& event)
 {
     if (eventType == TTL && isEnabled)
     {
-        //dataThread->setOutputHigh();
-        sendActionMessage("HI");
-        isEnabled = false;
-        startTimer(1200);
+
+        uint8* dataptr = event.getRawData();
+
+        int eventNodeId = *(dataptr+1);
+        int eventId = *(dataptr+2);
+        int eventChannel = *(dataptr+3);
+
+        if (eventId == 1 && eventChannel == 3) // channel 3 only at the moment
+        {
+            sendActionMessage("HI");
+            isEnabled = false;
+            startTimer(2); // 2 ms pulses
+        }
+
+        
     }
     
 }
@@ -74,7 +85,7 @@ void FPGAOutput::updateSettings()
     }
     
     //SourceNode* s = (SourceNode*) settings.originalSource;
-    std::cout << lastSrc->getName() << std::endl;
+    std::cout << "FPGA Output node communicating with " << lastSrc->getName() << std::endl;
     
     SourceNode* s = (SourceNode*) lastSrc;
     
