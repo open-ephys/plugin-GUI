@@ -218,7 +218,8 @@ void GenericEditor::startAcquisition()
 
 	std::cout << "GenericEditor received message to start acquisition." << std::endl;
 
-	channelSelector->startAcquisition();
+	if (channelSelector != 0)
+		channelSelector->startAcquisition();
 
 	for (int n = 0; n < parameterEditors.size(); n++)
 	{
