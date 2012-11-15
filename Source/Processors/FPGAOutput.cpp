@@ -28,9 +28,24 @@
 #include "SourceNode.h"
 
 FPGAOutput::FPGAOutput()
-	: GenericProcessor("FPGA Output"), isEnabled(true)
+	: GenericProcessor("FPGA Output"), isEnabled(true), TTLchannel(3), continuousStim(false)
 {
     
+    Array<var> channelNumbers;
+    channelNumbers.add(0);
+    channelNumbers.add(3);
+    channelNumbers.add(5);
+    //
+   // channelNumbers.add(6);
+
+    parameters.add(Parameter("TTL channel",channelNumbers, 1, 0));
+
+    Array<var> stimType;
+    stimType.add(0);
+    stimType.add(1);
+    stimType.add(2);
+
+    parameters.add(Parameter("Stim Type",stimType, 0, 1));
 
 }
 
@@ -56,11 +71,24 @@ void FPGAOutput::handleEvent(int eventType, MidiMessage& event)
         int eventId = *(dataptr+2);
         int eventChannel = *(dataptr+3);
 
-        if (eventId == 1 && eventChannel == 3) // channel 3 only at the moment
+        if (eventId == 1 && eventChannel == TTLchannel) // channel 3 only at the moment
         {
             sendActionMessage("HI");
             isEnabled = false;
-            startTimer(10); // pulse width
+
+            if (!continuousStim)
+                startTimer(5); // pulse width
+            else
+                startTimer(10); // pulse width
+
+        } else if (eventId == 0 && eventChannel == TTLchannel)
+        {
+            if (!continuousStim)
+            {
+                sendActionMessage("LO");
+                isEnabled = false;
+                stopTimer();
+            }
         }
 
         
@@ -84,17 +112,36 @@ void FPGAOutput::updateSettings()
         src = lastSrc->getSourceNode();
     }
     
-    //SourceNode* s = (SourceNode*) settings.originalSource;
-    std::cout << "FPGA Output node communicating with " << lastSrc->getName() << std::endl;
+    if (lastSrc != 0)
+    {
+        SourceNode* s = (SourceNode*) lastSrc;
+        addActionListener(s);
+        std::cout << "FPGA Output node communicating with " << lastSrc->getName() << std::endl;
+    } else {
+        std::cout << "FPGA Output couldn't find a source" << std::endl;
+    }
+
     
-    SourceNode* s = (SourceNode*) lastSrc;
-    
-    addActionListener(s);
     //dataThread = (FPGAThread*) s->getThread();
 }
 
 void FPGAOutput::setParameter (int parameterIndex, float newValue)
 {
+
+    //std::cout << "FPGAOutput received parameter change notification." << std::endl;
+
+    if (parameterIndex == 0)
+    {
+        TTLchannel = int(newValue);
+    } else if (parameterIndex == 1)
+    {
+        if (newValue == 0.0f)
+        {
+            continuousStim = false;
+        } else {
+            continuousStim = true;
+        }
+   }
 
 }
 
@@ -112,8 +159,25 @@ void FPGAOutput::process(AudioSampleBuffer &buffer,
 void FPGAOutput::timerCallback()
 {
 	//dataThread->setOutputLow();
-    sendActionMessage("LO");
+
+    if (!continuousStim)
+    {
+        sendActionMessage("LO");
     
-    isEnabled = true;
-	stopTimer();
+        isEnabled = true;
+        stopTimer();
+    } else {
+
+        if (isEnabled)
+        {
+            sendActionMessage("HI");
+            isEnabled = false;
+        } else {
+            sendActionMessage("LO");
+            isEnabled = true;
+        }
+            
+
+    }
+    
 }

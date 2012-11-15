@@ -66,9 +66,13 @@ public:
 	
 private:
 
+    int TTLchannel;
+
 	void timerCallback();
     
     bool isEnabled;
+
+    bool continuousStim;
     
     FPGAThread* dataThread;
 
