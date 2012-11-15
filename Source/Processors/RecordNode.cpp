@@ -314,7 +314,7 @@ void RecordNode::openFile(Channel* ch)
 
 	bool fileExists = f.exists();
 
-	ch->file = fopen(ch->filename.toUTF8(), "a+b");
+	ch->file = fopen(ch->filename.toUTF8(), "ab");
 
 	if (!fileExists)
 	{
