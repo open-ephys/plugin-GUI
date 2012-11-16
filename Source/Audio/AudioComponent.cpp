@@ -27,14 +27,34 @@
 
 AudioComponent::AudioComponent() : isPlaying(false)
 {
-	
-	deviceManager.initialise(0,  // numInputChannelsNeeded
-			   2,  // numOutputChannelsNeeded
-			   0,  // *savedState (XmlElement)
-			   true, // selectDefaultDeviceOnFailure
-			   String::empty, // preferred device
-			   0); // preferred device setup options
-	
+	// if this is nonempty, we got an error
+	String error = deviceManager.initialise(0,  // numInputChannelsNeeded
+						2,  // numOutputChannelsNeeded
+						0,  // *savedState (XmlElement)
+						true, // selectDefaultDeviceOnFailure
+						String::empty, // preferred device
+						0); // preferred device setup options
+	if (error != String::empty)
+	{
+	  String titleMessage = String("Audio Device Initialization Error");
+	  String contentMessage = String("There was a problem grabbing the audio device:\n" + error);
+	  // this uses a bool since there's only two options
+	  // also, omitting parameters works fine, even though the docs don't show defaults
+	  bool retryButtonClicked = AlertWindow::showOkCancelBox(AlertWindow::WarningIcon,
+								 titleMessage,
+								 contentMessage,
+								 String("Retry"),
+								 String("Quit"));
+
+	  if (retryButtonClicked)
+	  {
+	    error = deviceManager.initialise(0, 2, 0, true, String::empty, 0);
+	  } else { // quit button clicked
+	    JUCEApplication::quit();
+	  }
+	}
+							    
+							    
 	AudioIODevice* aIOd = deviceManager.getCurrentAudioDevice();
 
 	std::cout << "Got audio device." << std::endl;
