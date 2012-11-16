@@ -522,7 +522,7 @@ bool EditorViewport::keyPressed (const KeyPress &key) {
     
    //std::cout << "Editor viewport received " << key.getKeyCode() << std::endl;
 
-   if (canEdit) 
+  if (canEdit && editorArray.size() > 0) 
    {
 
         ModifierKeys mk = key.getModifiers();
