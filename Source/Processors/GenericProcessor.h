@@ -189,7 +189,7 @@ public:
 	                      uint8 numBytes = 0,
 	                      uint8* data = 0);
 
-	virtual void handleEvent(int eventType, MidiMessage& event) {}
+	virtual void handleEvent(int eventType, MidiMessage& event, int samplePosition = 0) {}
 
 	enum eventTypes 
  	{

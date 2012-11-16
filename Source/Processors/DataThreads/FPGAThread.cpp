@@ -97,7 +97,7 @@ int FPGAThread::getNumChannels()
 
 int FPGAThread::getNumEventChannels()
 {
-    return 8;
+    return 16; // 8 inputs, 8 outputs
 }
 
 float FPGAThread::getSampleRate()
@@ -323,7 +323,7 @@ bool FPGAThread::updateBuffer()
             
             
             eventCode = pBuffer[j+6]; // TTL input
-            ttl_out = pBuffer[j+7];   // TTL output
+            eventCode += (pBuffer[j+7] << 8);   // TTL output
 		
 			j += 8; //move cursor to 1st data byte
 

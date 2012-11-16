@@ -418,7 +418,7 @@ int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)
 			
 			uint8* dataptr = message.getRawData();
 
-			handleEvent(*dataptr, message);
+			handleEvent(*dataptr, message, samplePosition);
 
 		}
 

@@ -439,16 +439,22 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 	// n must equal "count", otherwise there was an error
 }
  
-void RecordNode::writeEventBuffer(MidiMessage& event) //, int node, int channel)
+void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, int node, int channel)
 {
 	// find file and write samples to disk
 	//std::cout << "Received event!" << std::endl;
 
 	uint8* dataptr = event.getRawData();
+	int16 samplePos = (int16) samplePosition;
 
 	// write timestamp (for buffer only, not the actual event timestamp!!!!!)
 	fwrite(&timestamp,							// ptr
 			   8,   							// size of each element
+			   1, 		  						// count 
+			   eventChannel->file);   			// ptr to FILE object
+
+	fwrite(&samplePos,							// ptr
+			   2,   							// size of each element
 			   1, 		  						// count 
 			   eventChannel->file);   			// ptr to FILE object
 
@@ -457,11 +463,11 @@ void RecordNode::writeEventBuffer(MidiMessage& event) //, int node, int channel)
 
 }
 
-void RecordNode::handleEvent(int eventType, MidiMessage& event)
+void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
 {
 	if (eventType == TTL)
 	{
-		writeEventBuffer(event);
+		writeEventBuffer(event, samplePosition);
 	}
 
 }

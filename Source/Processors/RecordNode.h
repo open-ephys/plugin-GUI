@@ -163,7 +163,7 @@ private:
   String generateDateString();
 
   /** Cycle through the event buffer, looking for data to save */
-  void handleEvent(int eventType, MidiMessage& event);
+  void handleEvent(int eventType, MidiMessage& event, int samplePos);
 
   /** Object for holding information about the events file */
   Channel* eventChannel;
@@ -174,7 +174,7 @@ private:
   
   /** Method for writing event buffers to disk. 
   */ 
-  void writeEventBuffer(MidiMessage& event);
+  void writeEventBuffer(MidiMessage& event, int samplePos);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNode);
 
