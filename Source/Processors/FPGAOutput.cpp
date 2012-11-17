@@ -60,7 +60,7 @@ AudioProcessorEditor* FPGAOutput::createEditor()
 	return editor;
 }
 
-void FPGAOutput::handleEvent(int eventType, MidiMessage& event)
+void FPGAOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 {
     if (eventType == TTL && isEnabled)
     {

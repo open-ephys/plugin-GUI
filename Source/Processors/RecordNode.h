@@ -162,6 +162,9 @@ private:
   /** Generate a Matlab-compatible datestring */
   String generateDateString();
 
+  /** Generate filename for a given channel */
+  void updateFileName(Channel* ch);
+
   /** Cycle through the event buffer, looking for data to save */
   void handleEvent(int eventType, MidiMessage& event, int samplePos);
 

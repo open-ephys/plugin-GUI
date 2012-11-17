@@ -124,7 +124,7 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 		ed->canvas->setParameter(parameterIndex, newValue);
 }
 
-void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event)
+void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 {
 	if (eventType == TTL)
 	{
@@ -138,9 +138,9 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event)
     	int samplesLeft = totalSamples - eventTime;
 
 
-    	std::cout << "Received event from " << eventNodeId << ", channel "
-    	          << eventChannel << ", with ID " << eventId << std::endl;
-
+    //	std::cout << "Received event from " << eventNodeId << ", channel "
+    //	          << eventChannel << ", with ID " << eventId << std::endl;
+//
     	int bufferIndex = (displayBufferIndex + eventTime);// % displayBuffer->getNumSamples();
 
     	if (eventId == 1)

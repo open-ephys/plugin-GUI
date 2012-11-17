@@ -119,9 +119,7 @@ void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 
 	createNewDirectory();
 
-	String filename = rootFolder.getFullPathName();
-	filename += "/all_channels.events";
-	eventChannel->filename = filename;
+	
 
 }
 
@@ -138,15 +136,9 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
         channelPointers.add(sourceNode->channels[chan]);
 
-        String filename = rootFolder.getFullPathName();
-		filename += "/";
-		filename += sourceNode->getNodeId();
-		filename += "_";
-		filename += channelPointers[channelIndex]->name;
-		filename += ".continuous";
+        updateFileName(channelPointers[channelIndex]);
 
-        channelPointers[channelIndex]->filename = filename;
-        channelPointers[channelIndex]->file = 0;
+        
 
 		//if (channelPointers[channelIndex]->isRecording)
 		//	std::cout << "  This channel will be recorded." << std::endl;
@@ -175,11 +167,38 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
 }
 
+void RecordNode::updateFileName(Channel* ch)
+{
+	String filename = rootFolder.getFullPathName();
+	filename += rootFolder.separatorString;
+
+	if (!ch->isEventChannel)
+	{
+		filename += ch->processor->getNodeId();
+		filename += "_";
+		filename += ch->name;
+		filename += ".continuous";
+	} else {
+		filename += "all_channels.events";
+	}
+	
+    ch->filename = filename;
+    ch->file = 0;
+
+}
+
 void RecordNode::createNewDirectory()
 {
 	std::cout << "Creating new directory." << std::endl;
 
 	rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName());
+
+	updateFileName(eventChannel);
+
+	for (int i = 0; i < channelPointers.size(); i++)
+	{
+		updateFileName(channelPointers[i]);
+	}
 
 }
 
@@ -252,6 +271,8 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
  		if (!rootFolder.exists())
  			rootFolder.createDirectory();
 
+ 		openFile(eventChannel);
+
 		// create / open necessary files
 		for (int i = 0; i < channelPointers.size(); i++)
 		{
@@ -261,7 +282,7 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 			}
 		}
 
-		openFile(eventChannel);
+		
  		
 
  	} else if (parameterIndex == 0) {
@@ -319,8 +340,11 @@ void RecordNode::openFile(Channel* ch)
 	if (!fileExists)
 	{
 		// create and write header
+		std::cout << "Writing header." << std::endl;
 		String header = generateHeader(ch);
 		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), ch->file);
+	} else {
+		std::cout << "File already exists, just opening." << std::endl;
 	}
 }
 
@@ -386,6 +410,9 @@ void RecordNode::closeAllFiles()
 
 bool RecordNode::enable()
 {
+
+	//updateFileName(eventChannel);
+
 	isProcessing = true;
 	return true;
 }

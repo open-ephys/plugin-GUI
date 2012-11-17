@@ -57,7 +57,7 @@ public:
 	
 	void setParameter (int parameterIndex, float newValue);
 
-    void handleEvent(int eventType, MidiMessage& event);
+    void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
     bool enable();
     bool disable();

@@ -323,7 +323,10 @@ bool FPGAThread::updateBuffer()
             
             
             eventCode = pBuffer[j+6]; // TTL input
-            eventCode += (pBuffer[j+7] << 3);   // TTL output
+            ttl_out = pBuffer[j+7];
+
+            if (ttl_out > 0)
+            	eventCode |= 8;   // TTL output
 		
 			j += 8; //move cursor to 1st data byte
 

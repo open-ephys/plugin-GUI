@@ -448,8 +448,8 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
                           sizeof(data), // total bytes
                           sampleNum);     // sample index
 
-    if (type == TTL)
-    	std::cout << "Adding event for channel " << (int) eventChannel << " with ID " << (int) eventId << std::endl;
+    //if (type == TTL)
+    //	std::cout << "Adding event for channel " << (int) eventChannel << " with ID " << (int) eventId << std::endl;
 
 	delete data;
 }
