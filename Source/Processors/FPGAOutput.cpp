@@ -71,6 +71,8 @@ void FPGAOutput::handleEvent(int eventType, MidiMessage& event)
         int eventId = *(dataptr+2);
         int eventChannel = *(dataptr+3);
 
+       // std::cout << "FPGA output received event: " << eventNodeId << " " << eventId << " " << eventChannel << std::endl;
+
         if (eventId == 1 && eventChannel == TTLchannel) // channel 3 only at the moment
         {
             sendActionMessage("HI");
@@ -78,16 +80,16 @@ void FPGAOutput::handleEvent(int eventType, MidiMessage& event)
 
             if (!continuousStim)
                 startTimer(5); // pulse width
-            else
-                startTimer(10); // pulse width
+           // else
+            //    startTimer(25); // pulse width
 
-        } else if (eventId == 0 && eventChannel == TTLchannel)
+        } else if (eventId == 0 && eventChannel == TTLchannel)// && eventChannel == TTLchannel)
         {
-            if (!continuousStim)
-            {
+            if (continuousStim)
+            { /// this isn't working
                 sendActionMessage("LO");
-                isEnabled = false;
-                stopTimer();
+                isEnabled = true;
+             //   stopTimer();
             }
         }
 
@@ -166,6 +168,7 @@ void FPGAOutput::timerCallback()
     
         isEnabled = true;
         stopTimer();
+
     } else {
 
         if (isEnabled)

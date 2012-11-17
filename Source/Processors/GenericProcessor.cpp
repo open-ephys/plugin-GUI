@@ -113,7 +113,7 @@ int GenericProcessor::getNextChannel(bool increment)
 {
 	int chan = nextAvailableChannel;
 
-	std::cout << "Next channel: " << chan << ", num inputs: " << getNumInputs() << std::endl;
+	//std::cout << "Next channel: " << chan << ", num inputs: " << getNumInputs() << std::endl;
  
 	if (increment)
 		nextAvailableChannel++;
@@ -447,6 +447,10 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
     eventBuffer.addEvent(data, 		// spike data
                           sizeof(data), // total bytes
                           sampleNum);     // sample index
+
+    if (type == TTL)
+    	std::cout << "Adding event for channel " << (int) eventChannel << " with ID " << (int) eventId << std::endl;
+
 	delete data;
 }
 

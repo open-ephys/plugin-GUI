@@ -295,7 +295,7 @@ bool FPGAThread::updateBuffer()
             if (j % 200 != 0)
             {
             	std::cout << "Buffer not aligned " << j << " " << accumulator << std::endl;
-            	return false;
+            	//return false;
             }
 
             if (i == 1)
@@ -323,7 +323,7 @@ bool FPGAThread::updateBuffer()
             
             
             eventCode = pBuffer[j+6]; // TTL input
-            eventCode += (pBuffer[j+7] << 8);   // TTL output
+            eventCode += (pBuffer[j+7] << 3);   // TTL output
 		
 			j += 8; //move cursor to 1st data byte
 
@@ -485,6 +485,9 @@ bool FPGAThread::initializeFPGA(bool verbose)
 		else
 			printf("FrontPanel support is not enabled.\n");
 	}
+
+	dev->SetWireInValue(0x01, 0);
+    dev->UpdateWireIns();
 
 	return true;
 

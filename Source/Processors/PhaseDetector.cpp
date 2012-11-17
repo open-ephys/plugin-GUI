@@ -73,14 +73,20 @@ bool PhaseDetector::enable()
 
 void PhaseDetector::handleEvent(int eventType, MidiMessage& event)
 {
+
+	std::cout << "GOT EVENT." << std::endl;
+
 	if (eventType == TTL)
 	{
 		uint8* dataptr = event.getRawData();
 
-    	//int eventNodeId = *(dataptr+1);
+    	int eventNodeId = *(dataptr+1);
     	int eventId = *(dataptr+2);
-    	//int eventChannel = *(dataptr+3);
+    	int eventChannel = *(dataptr+3);
     	//int eventTime = event.getTimeStamp();
+
+    	std::cout << "Received event from " << eventNodeId << ", channel "
+    	          << eventChannel << ", with ID " << eventId << std::endl;
 
     	if (eventId == 1)
     	{
