@@ -447,7 +447,9 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 
 	AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
 
-	int16 samps = nSamples;
+	int16 samps = (int16) nSamples;
+
+	//std::cout << samps << std::endl;
 
 	fwrite(&timestamp,							// ptr
 			   8,   							// size of each element
@@ -455,7 +457,7 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 			   channelPointers[channel]->file);   // ptr to FILE object
 
 	fwrite(&samps,								// ptr
-			   sizeof(samps),   				// size of each element
+			   2,   							// size of each element
 			   1, 		  						// count 
 			   channelPointers[channel]->file);   // ptr to FILE object
 

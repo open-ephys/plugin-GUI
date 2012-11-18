@@ -326,7 +326,11 @@ bool FPGAThread::updateBuffer()
             ttl_out = pBuffer[j+7];
 
             if (ttl_out > 0)
-            	eventCode |= 8;   // TTL output
+            {
+            	eventCode |= 0x100;   // TTL output
+            	//std::cout << "TLL out!" << std::endl;
+            }
+            	
 		
 			j += 8; //move cursor to 1st data byte
 
