@@ -179,6 +179,9 @@ private:
   */ 
   void writeEventBuffer(MidiMessage& event, int samplePos);
 
+  /** Used to indicate the end of each record */
+  char* recordMarker;
+
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNode);
 
 };

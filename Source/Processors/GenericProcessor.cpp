@@ -306,6 +306,7 @@ void GenericProcessor::update()
 		{
 			Channel* sourceChan = sourceNode->channels[i];
 			Channel* ch = new Channel(*sourceChan);
+			ch->setProcessor(this);
 			channels.add(ch);
 		}
 

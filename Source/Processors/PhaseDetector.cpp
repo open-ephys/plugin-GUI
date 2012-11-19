@@ -88,10 +88,10 @@ void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
     //	std::cout << "Received event from " << eventNodeId << ", channel "
     	//          << eventChannel << ", with ID " << eventId << std::endl;
 
-    	if (eventId == 1)
+    	if (eventId == 1 && eventChannel == 5)
     	{
     		canBeTriggered = true;
-    	} else {
+    	} else if (eventId == 0 && eventChannel == 5) {
     		canBeTriggered = false;
     	}
 
