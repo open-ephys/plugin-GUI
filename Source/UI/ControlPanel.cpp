@@ -419,6 +419,13 @@ ControlPanel::~ControlPanel()
 	graph = 0;
 }
 
+void ControlPanel::setRecordState(bool t)
+{
+
+	recordButton->setToggleState(t, true);
+
+}
+
 void ControlPanel::updateChildComponents()
 {
 

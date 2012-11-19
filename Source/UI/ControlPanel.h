@@ -187,6 +187,8 @@ public:
 
 	void drawButton();
 
+	void setRecordState(bool t);
+
 	void mouseDown(const MouseEvent& e);
 
 private:	
