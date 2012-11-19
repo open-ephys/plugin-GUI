@@ -32,19 +32,19 @@ FilterNode::FilterNode()
 
 	Array<var> lowCutValues;
 	lowCutValues.add(1.0f);
-	lowCutValues.add(10.0f);
+	lowCutValues.add(4.0f);
 	lowCutValues.add(100.0f);
 	lowCutValues.add(600.0f);
 
-	parameters.add(Parameter("low cut",lowCutValues, 3, 0));
+	parameters.add(Parameter("low cut",lowCutValues, 1, 0));
 
 	Array<var> highCutValues;
-	highCutValues.add(1000.0f);
+	highCutValues.add(12.0f);
 	highCutValues.add(3000.0f);
 	highCutValues.add(6000.0f);
 	highCutValues.add(9000.0f);
 
-	parameters.add(Parameter("high cut",highCutValues, 1, 1));
+	parameters.add(Parameter("high cut",highCutValues, 0, 1));
 
 }
 
@@ -96,6 +96,27 @@ AudioProcessorEditor* FilterNode::createEditor()
 //  the Params style of changing filter settings, and in general all fo the features
 //  necessary to interoperate with the Filter virtual base class and its derived classes
 
+// available methods:
+//
+// filter->getKind()
+// filter->getName()
+// filter->getNumParams()
+// filter->getParamInfo()
+// filter->getDefaultParams()
+// filter->getParams()
+// filter->getParam()
+
+// filter->setParam()
+// filter->findParamId()
+// filter->setParamById()
+// filter->setParams()
+// filter->copyParamsFrom()
+
+// filter->getPoleZeros()
+// filter->response()
+// filter->getNumChannels()
+// filter->reset()
+// filter->process()
 
 void FilterNode::updateSettings()
 {		

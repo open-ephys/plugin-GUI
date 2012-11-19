@@ -40,7 +40,7 @@ AudioProcessorEditor* WiFiOutput::createEditor()
 	return editor;
 }
 
-void WiFiOutput::handleEvent(int eventType, MidiMessage& event)
+void WiFiOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 {
     if (eventType == TTL)
     {

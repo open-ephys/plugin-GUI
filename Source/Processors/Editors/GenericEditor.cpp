@@ -101,6 +101,7 @@ void GenericEditor::addParameterEditors()
 
 		p->setBounds(maxX, maxY, dWidth, dHeight);
 		addAndMakeVisible(p);
+		parameterEditors.add(p);
 
 		maxY += dHeight;
 		maxY += 10;
@@ -215,13 +216,34 @@ void GenericEditor::setEnabledState(bool t)
 void GenericEditor::startAcquisition()
 {
 
-	channelSelector->startAcquisition();
+	std::cout << "GenericEditor received message to start acquisition." << std::endl;
+
+	if (channelSelector != 0)
+		channelSelector->startAcquisition();
+
+	for (int n = 0; n < parameterEditors.size(); n++)
+	{
+
+		if (parameterEditors[n]->shouldDeactivateDuringAcquisition)
+			parameterEditors[n]->setEnabled(false);
+
+	}
 
 }
 
 void GenericEditor::stopAcquisition()
 {
-	channelSelector->stopAcquisition();
+	if (channelSelector != 0)
+		channelSelector->stopAcquisition();
+
+	for (int n = 0; n < parameterEditors.size(); n++)
+	{
+
+		if (parameterEditors[n]->shouldDeactivateDuringAcquisition)
+			parameterEditors[n]->setEnabled(true);
+
+	}
+
 
 }
 

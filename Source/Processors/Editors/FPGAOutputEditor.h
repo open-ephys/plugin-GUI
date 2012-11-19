@@ -43,6 +43,8 @@ public:
 
 	void receivedEvent();
 
+   // void buttonEvent(Button* button);
+
 	ImageIcon* icon;
 
 private:	

@@ -65,6 +65,6 @@ void Channel::reset()
 
 void Channel::createDefaultName()
 {
-	name = String("Channel ");
+	name = String("CH");
 	name += num;
 }

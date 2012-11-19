@@ -56,7 +56,7 @@ public:
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 	void setParameter (int parameterIndex, float newValue);
 
-    void handleEvent(int eventType, MidiMessage& event);
+    void handleEvent(int eventType, MidiMessage& event, int sampleNum);
     
 	AudioProcessorEditor* createEditor();
 
@@ -66,9 +66,13 @@ public:
 	
 private:
 
+    int TTLchannel;
+
 	void timerCallback();
     
     bool isEnabled;
+
+    bool continuousStim;
     
     FPGAThread* dataThread;
 

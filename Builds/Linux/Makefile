@@ -63,6 +63,8 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/PhaseDetector_7193f7dc.o \
+  $(OBJDIR)/AudioResamplingNode_3dbffa2d.o \
   $(OBJDIR)/Channel_33a3e5fe.o \
   $(OBJDIR)/ofArduino_12f202a5.o \
   $(OBJDIR)/ofSerial_c3b0a9e1.o \
@@ -89,6 +91,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/ResamplingNodeEditor_f2d6f061.o \
   $(OBJDIR)/FPGAOutputEditor_cfe00f8a.o \
   $(OBJDIR)/ArduinoOutputEditor_1118f008.o \
   $(OBJDIR)/ChannelSelector_c1430874.o \
@@ -254,6 +257,16 @@ $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	@echo "Compiling AudioComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/PhaseDetector_7193f7dc.o: ../../Source/Processors/PhaseDetector.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PhaseDetector.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/AudioResamplingNode_3dbffa2d.o: ../../Source/Processors/AudioResamplingNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling AudioResamplingNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/Channel_33a3e5fe.o: ../../Source/Processors/Channel.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Channel.cpp"
@@ -382,6 +395,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ResamplingNodeEditor_f2d6f061.o: ../../Source/Processors/Editors/ResamplingNodeEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ResamplingNodeEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/FPGAOutputEditor_cfe00f8a.o: ../../Source/Processors/Editors/FPGAOutputEditor.cpp

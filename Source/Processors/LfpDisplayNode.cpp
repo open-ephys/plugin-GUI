@@ -124,7 +124,7 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 		ed->canvas->setParameter(parameterIndex, newValue);
 }
 
-void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event)
+void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 {
 	if (eventType == TTL)
 	{
@@ -137,6 +137,10 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event)
 
     	int samplesLeft = totalSamples - eventTime;
 
+
+    //	std::cout << "Received event from " << eventNodeId << ", channel "
+    //	          << eventChannel << ", with ID " << eventId << std::endl;
+//
     	int bufferIndex = (displayBufferIndex + eventTime);// % displayBuffer->getNumSamples();
 
     	if (eventId == 1)
@@ -161,9 +165,9 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event)
     		int block2Size = (samplesLeft + bufferIndex) % displayBuffer->getNumSamples();
     		int block1Size = samplesLeft - block2Size;
 
-    		std::cout << "OVERFLOW." << std::endl;
+    		//std::cout << "OVERFLOW." << std::endl;
 
-    		std::cout << bufferIndex << " " << block1Size << " " << ttlState << std::endl;
+    		//std::cout << bufferIndex << " " << block1Size << " " << ttlState << std::endl;
 
     		displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
 					 		    bufferIndex,		// destStartSample
@@ -171,7 +175,7 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event)
 					 		    block1Size, 		// numSamples
 					 		    float(ttlState));   // gain
 
-    		std::cout << 0 << " " << block2Size << " " << ttlState << std::endl;
+    		//std::cout << 0 << " " << block2Size << " " << ttlState << std::endl;
 
     		displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
 					 		    0,		// destStartSample

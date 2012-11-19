@@ -33,10 +33,12 @@
 #include "GenericProcessor.h"
 #include "RecordNode.h"
 #include "ResamplingNode.h"
+#include "AudioResamplingNode.h"
 #include "SignalGenerator.h"
 #include "SourceNode.h"
 #include "EventDetector.h"
 #include "SpikeDetector.h"
+#include "PhaseDetector.h"
 #include "WiFiOutput.h"
 #include "ArduinoOutput.h"
 #include "FPGAOutput.h"
@@ -77,14 +79,14 @@ void ProcessorGraph::createDefaultNodes()
 	AudioNode* an = new AudioNode();
 	an->setNodeId(AUDIO_NODE_ID);
 
-	// add resampling node -- resamples continuous signals to 44.1kHz
-	ResamplingNode* rn = new ResamplingNode(true);
-	rn->setNodeId(RESAMPLING_NODE_ID);
+	// add audio resampling node -- resamples continuous signals to 44.1kHz
+	AudioResamplingNode* arn = new AudioResamplingNode();
+	arn->setNodeId(RESAMPLING_NODE_ID);
 
 	addNode(on, OUTPUT_NODE_ID);
 	addNode(recn, RECORD_NODE_ID);
 	addNode(an, AUDIO_NODE_ID);
-	addNode(rn, RESAMPLING_NODE_ID);
+	addNode(arn, RESAMPLING_NODE_ID);
 
 	// connect audio subnetwork
 	for (int n = 0; n < 2; n++) {
@@ -412,7 +414,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 
 		} else if (subProcessorType.equalsIgnoreCase("Resampler")) {
 			std::cout << "Creating a new resampler." << std::endl;
-			processor = new ResamplingNode(false);
+			processor = new ResamplingNode();
 		
 		} else if (subProcessorType.equalsIgnoreCase("Spike Detector")) {
 			std::cout << "Creating a new spike detector." << std::endl;
@@ -421,6 +423,10 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		else if (subProcessorType.equalsIgnoreCase("Event Detector")) {
 			std::cout << "Creating a new event detector." << std::endl;
 			processor = new EventDetector();
+		}
+		 else if (subProcessorType.equalsIgnoreCase("Phase Detector")) {
+			std::cout << "Creating a new phase detector." << std::endl;
+			processor = new PhaseDetector();
 		}
 
 		//sendActionMessage("New filter node created.");

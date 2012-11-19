@@ -21,60 +21,70 @@
 
 */
 
-#ifndef __WIFIOUTPUT_H_94D625CE__
-#define __WIFIOUTPUT_H_94D625CE__
+#ifndef __PHASEDETECTOR_H_F411F29D__
+#define __PHASEDETECTOR_H_F411F29D__
 
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <Windows.h>
 #endif
+
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GenericProcessor.h"
-#include "Editors/WiFiOutputEditor.h"
 
-#include "../Network/PracticalSocket.h"  // For UDPSocket and SocketException
-
-
-class FilterViewport;
+#define NUM_INTERVALS 5
 
 /**
 
-  Allows the signal chain to send outputs to a client with a specific
-  IP address. Used in conjunction with the Arduino WiFly shield, these
-  signals can be sent wirelessly.
+  Uses peaks to estimate the phase of a continuous signal.
 
-  @see GenericProcessor, WiFiOutputEditor
+  @see GenericProcessor, PhaseDetectorEditor
 
 */
 
-
-class WiFiOutput : public GenericProcessor,
-		           public Timer
+class PhaseDetector : public GenericProcessor
 
 {
 public:
 	
-	WiFiOutput();
-	~WiFiOutput();
+	PhaseDetector();
+	~PhaseDetector();
 	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
+	void process (AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 	void setParameter (int parameterIndex, float newValue);
 
-    void handleEvent(int eventType, MidiMessage& event, int sampleNum);
-    
-	AudioProcessorEditor* createEditor();
+	//AudioProcessorEditor* createEditor();
 
-	bool isSink() {return true;}
-	
+	bool hasEditor() const {return false;}
+
+	bool enable();
+
+	void updateSettings();
+
 private:
 
-	UDPSocket socket;
+	float lastPeak;
+	float maxFrequency;
+	float lastSample;
 
-	void timerCallback();
+	bool isIncreasing;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WiFiOutput);
+	bool canBeTriggered;
+
+	void handleEvent(int eventType, MidiMessage& event, int sampleNum);
+
+	float estimatedFrequency;
+
+	int nSamplesSinceLastPeak;
+	int minSamplesToNextPeak;
+
+	int* peakIntervals;
+	int numPeakIntervals;
+
+	void estimateFrequency();
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhaseDetector);
 
 };
 
-
-#endif  // __WIFIOUTPUT_H_94D625CE__
+#endif  // __PHASEDETECTOR_H_F411F29D__

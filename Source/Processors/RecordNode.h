@@ -36,6 +36,8 @@
 #include "GenericProcessor.h"
 #include "Channel.h"
 
+#define HEADER_SIZE 1024
+
 /**
 
   Receives inputs from all processors that want to save their data.
@@ -135,34 +137,39 @@ private:
   */ 
   Time timer;
 
-  /** Holds information for a given channel to be recorded to 
-      its own file.
-  */ 
-  // struct Channel
-  // {
-  //   int nodeId;
-  //   int chan;
-  //   String name;
-  //   bool isRecording;
-  //   String filename;
-  //   FILE* file;
-  // };
+  /** Opens a single file */
+  void openFile(Channel* ch);
+
+  /** Closes a single file */
+  void closeFile(Channel* ch);
 
   /** Closes all open files after recording has finished.
   */ 
   void closeAllFiles();
 
-
+  /** Pointers to all continuous channels */
   Array<Channel*> channelPointers;
+
+  /** Pointers to all event channels */
   Array<Channel*> eventChannelPointers;
 
-  /** Map of continuous channels. 
-  */ 
-  //std::map<int, Channel> continuousChannels;
+  /** Generates a header for a given channel */
+  String generateHeader(Channel* ch);
 
-  /** Map of event channels. 
-  */ 
-  //std::map<int, std::map<int,Channel> > eventChannels;
+  /** Generates a default directory name, based on the current date and time */
+  String generateDirectoryName();
+
+  /** Generate a Matlab-compatible datestring */
+  String generateDateString();
+
+  /** Generate filename for a given channel */
+  void updateFileName(Channel* ch);
+
+  /** Cycle through the event buffer, looking for data to save */
+  void handleEvent(int eventType, MidiMessage& event, int samplePos);
+
+  /** Object for holding information about the events file */
+  Channel* eventChannel;
 
   /** Method for writing continuous buffers to disk. 
   */ 
@@ -170,7 +177,7 @@ private:
   
   /** Method for writing event buffers to disk. 
   */ 
-  void writeEventBuffer(MidiMessage& event, int node, int channel);
+  void writeEventBuffer(MidiMessage& event, int samplePos);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNode);
 

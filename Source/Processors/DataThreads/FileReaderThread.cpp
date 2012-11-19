@@ -34,7 +34,7 @@ FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn)
 #if JUCE_MAC
     input = fopen("/Users/Josh/Programming/open-ephys/GUI/Builds/Linux/build/data_stream_16ch_2", "r");
 #else
-    input = fopen("./data_stream_16ch_2","r");
+    input = fopen("./data_stream_16ch_theta","r");
 #endif
 
     fseek(input, 0, SEEK_END);
@@ -67,7 +67,7 @@ int FileReaderThread::getNumChannels()
 
 float FileReaderThread::getSampleRate()
 {
-    return 44100.0f;
+    return 28000.0f;
 }
 
 float FileReaderThread::getBitVolts()
@@ -129,7 +129,7 @@ bool FileReaderThread::updateBuffer()
     	
 
      } else {
-        wait(25); // pause for 25 ms to decrease sample rate
+        wait(50); // pause for 50 ms to decrease sample rate
      }
 
     return true;

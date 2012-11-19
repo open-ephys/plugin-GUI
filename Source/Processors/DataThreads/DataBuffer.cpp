@@ -82,10 +82,10 @@ int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, uint64* timestamp, i
 						   blockSize1); // numSamples
 		}
 
-		memcpy(timestamp, timestampBuffer+startIndex1, 4);
+		memcpy(timestamp, timestampBuffer+startIndex1, 8);
 		memcpy(eventCodes, eventCodeBuffer+startIndex1, blockSize1*2);
 	} else {
-		memcpy(timestamp, timestampBuffer+startIndex2, 4);
+		memcpy(timestamp, timestampBuffer+startIndex2, 8);
 	}
 
 	if (blockSize2 > 0) {

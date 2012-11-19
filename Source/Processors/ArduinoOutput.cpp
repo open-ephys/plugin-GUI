@@ -42,7 +42,7 @@ AudioProcessorEditor* ArduinoOutput::createEditor()
  	return editor;
 }
 
-void ArduinoOutput::handleEvent(int eventType, MidiMessage& event)
+void ArduinoOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 {
     if (eventType == TTL)
     {

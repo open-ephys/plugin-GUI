@@ -21,62 +21,32 @@
 
 */
 
-#ifndef __ARDUINOOUTPUT_H_F7BDA585__
-#define __ARDUINOOUTPUT_H_F7BDA585__
+#ifndef __RESAMPLINGNODEEDITOR_H_B7FD956A__
+#define __RESAMPLINGNODEEDITOR_H_B7FD956A__
+
 
 #ifdef WIN32
 #include <Windows.h>
 #endif
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "GenericEditor.h"
 
-#include "Editors/ArduinoOutputEditor.h"
-#include "Serial/ofArduino.h"
-#include "GenericProcessor.h"
-
-
-/** 
-
-	*UNDER CONSTRUCTION*
-
-	Provides a serial interface to an Arduino board.
-
-	Based on Open Frameworks ofArduino class
-
-	@see GenericProcessor
-
-*/
-
-class ArduinoOutput : public GenericProcessor
+class ResamplingNodeEditor : public GenericEditor
 {
 public:
-	
-	ArduinoOutput();
-	~ArduinoOutput();
-	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &events, int& nSamples);
-	
-	void setParameter (int parameterIndex, float newValue);
+	ResamplingNodeEditor (GenericProcessor* parentNode);
+	virtual ~ResamplingNodeEditor();
 
-    void handleEvent(int eventType, MidiMessage& event, int sampleNum);
+	void startAcquisition();
+	void stopAcquisition();
 
-    bool enable();
-    bool disable();
-    
-	AudioProcessorEditor* createEditor();
+private:	
 
-	bool isSink() {return true;}
-	
-private:
-
-	ofArduino arduino;
-
-	bool state;
-
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArduinoOutput);
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResamplingNodeEditor);
 
 };
 
 
 
 
-#endif  // __ARDUINOOUTPUT_H_F7BDA585__
+#endif  // __RESAMPLINGNODEEDITOR_H_B7FD956A__

@@ -33,17 +33,17 @@ FPGAOutputEditor::FPGAOutputEditor (GenericProcessor* parentNode)
 
 	accumulator = 0;
 
-	desiredWidth = 150;
+	desiredWidth = 180;
 
-	Image im;
-	im = ImageCache::getFromMemory (BinaryData::OpenEphysBoardLogoBlack_png, 
-	 								BinaryData::OpenEphysBoardLogoBlack_pngSize);
+	// Image im;
+	// im = ImageCache::getFromMemory (BinaryData::OpenEphysBoardLogoBlack_png, 
+	//  								BinaryData::OpenEphysBoardLogoBlack_pngSize);
 
-	icon = new ImageIcon(im);
-	addAndMakeVisible(icon);
-	icon->setBounds(15,15,120,120);
+	// icon = new ImageIcon(im);
+	// addAndMakeVisible(icon);
+	// icon->setBounds(15,15,120,120);
 
-	icon->setOpacity(0.3f);
+	// icon->setOpacity(0.3f);
 
 }
 
@@ -55,8 +55,8 @@ FPGAOutputEditor::~FPGAOutputEditor()
 void FPGAOutputEditor::receivedEvent()
 {
 	
-	icon->setOpacity(0.8f);
-	startTimer(50);
+	//icon->setOpacity(0.8f);
+	//startTimer(50);
 
 }
 

@@ -273,8 +273,18 @@ void LfpDisplayCanvas::drawEvents()
 
 			int ttlState = int(waves[nChans][n]);
 			//std::cout << x << std::endl;
+
+			if ((ttlState & 0x100) >> 8) // channel 8
+			{
+				glColor4f(0.9, 0.9, 0.9, 0.4);
+                
+				glBegin(GL_LINE_STRIP);
+                glVertex2f(x, 0);
+                glVertex2f(x, 1);
+				glEnd();
+			}
             
-            if ((ttlState & 0x80) >> 7)
+            if ((ttlState & 0x80) >> 7) // channel 7
 			{
 				glColor4f(0.5, 0.3, 0.2, 0.1);
                 
@@ -284,7 +294,7 @@ void LfpDisplayCanvas::drawEvents()
 				glEnd();
 			}
 
-            if ((ttlState & 0x40) >> 6)
+            if ((ttlState & 0x40) >> 6) // channel 6
 			{
 				glColor4f(1.0, 0.3, 0.0, 0.1);
                 
@@ -294,7 +304,7 @@ void LfpDisplayCanvas::drawEvents()
 				glEnd();
 			}
             
-			if ((ttlState & 0x20) >> 5)
+			if ((ttlState & 0x20) >> 5) // channel 5
 			{
 				glColor4f(1.0, 0.0, 0.0, 0.1);
 
@@ -304,7 +314,7 @@ void LfpDisplayCanvas::drawEvents()
 				glEnd();
 			}
 
-			if ((ttlState & 0x10) >> 4)
+			if ((ttlState & 0x10) >> 4) // channel 4
 			{
 				glColor4f(0.0, 1.0, 0.0, 0.1);
 
@@ -315,7 +325,7 @@ void LfpDisplayCanvas::drawEvents()
 
 			}
 
-			if ((ttlState & 0x8) >> 3)
+			if ((ttlState & 0x8) >> 3) // channel 3
 			{
 				glColor4f(0.0, 0.0, 1.0, 0.1);
 
@@ -326,7 +336,7 @@ void LfpDisplayCanvas::drawEvents()
 
 			}
 
-			if ((ttlState & 0x4) >> 2)
+			if ((ttlState & 0x4) >> 2) // channel 2
 			{
 				glColor4f(0.0, 1.0, 1.0, 0.1);
 
@@ -337,7 +347,7 @@ void LfpDisplayCanvas::drawEvents()
 
 			}
 
-			if ((ttlState & 0x2) >> 1)
+			if ((ttlState & 0x2) >> 1) // channel 1
 			{
 				glColor4f(1.0, 1.0, 0.0, 0.1);
 
@@ -348,7 +358,7 @@ void LfpDisplayCanvas::drawEvents()
 
 			}
 
-			if ((ttlState & 0x1))
+			if ((ttlState & 0x1)) // channel 0
 			{
 				glColor4f(1.0, 1.0, 1.0, 0.1);
 
