@@ -187,8 +187,6 @@ public:
 
 	void drawButton();
 
-	void setRecordState(bool t);
-
 	void mouseDown(const MouseEvent& e);
 
 private:	
@@ -231,6 +229,7 @@ public:
 	void openState(bool);
 	
 	void toggleState();
+	void setRecordState(bool t);
 
 	bool isOpen() {return open;}
  
