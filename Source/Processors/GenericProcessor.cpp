@@ -285,6 +285,7 @@ void GenericProcessor::clearSettings()
 	settings.sampleRate = getDefaultSampleRate();
 
 	channels.clear();
+	eventChannels.clear();
 
 }
 
