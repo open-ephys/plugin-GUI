@@ -307,8 +307,8 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	 						 );
 	 			} else {
 
-                    std::cout << "ON" << std::endl;
-                    std::cout << c << std::endl;
+                   // std::cout << "ON" << std::endl;
+                   // std::cout << c << std::endl;
                     
 	 				// signal channel state is ON
 	 				addEvent(events, // MidiBuffer

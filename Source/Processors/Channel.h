@@ -60,8 +60,13 @@ public:
 
 	void reset();
 
+	void setProcessor(GenericProcessor*);
+
 	// channel number:
 	int num;
+
+	// node id
+	int nodeId;
 
 	// event info:
 	int eventType;
