@@ -47,7 +47,7 @@ Channel::Channel(const Channel& ch)
 	name = ch.name;
 	eventType = ch.eventType;
 	nodeId = ch.nodeId;
-
+	num = ch.num;
 }
 
 void Channel::setProcessor(GenericProcessor* p)
