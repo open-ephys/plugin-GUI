@@ -42,6 +42,7 @@
 #include "WiFiOutput.h"
 #include "ArduinoOutput.h"
 #include "FPGAOutput.h"
+#include "Utilities/RecordControl.h"
 #include "Utilities/Splitter.h"
 #include "Utilities/Merger.h"
 #include "../UI/UIComponent.h"
@@ -447,7 +448,12 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 
 			//sendActionMessage("New merger created.");
 
-	 	}
+		} else if (subProcessorType.equalsIgnoreCase("Record Controller")) {
+
+			std::cout << "Creating a new record controller." << std::endl;
+			processor = new RecordControl();
+
+		}
 
 	} else if (processorType.equalsIgnoreCase("Sinks")) {
 

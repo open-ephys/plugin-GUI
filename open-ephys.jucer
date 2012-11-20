@@ -233,6 +233,10 @@
         <FILE id="VynGpEg" name="LfpDisplayNode.h" compile="0" resource="0"
               file="Source/Processors/LfpDisplayNode.h"/>
         <GROUP id="Enz7QFy" name="Utilities">
+          <FILE id="G3r9HB" name="RecordControl.cpp" compile="1" resource="0"
+                file="Source\Processors\Utilities\RecordControl.cpp"/>
+          <FILE id="JUx3i6g" name="RecordControl.h" compile="0" resource="0"
+                file="Source\Processors\Utilities\RecordControl.h"/>
           <FILE id="qt6uLka" name="Merger.cpp" compile="1" resource="0" file="Source/Processors/Utilities/Merger.cpp"/>
           <FILE id="XNRlWg8" name="Merger.h" compile="0" resource="0" file="Source/Processors/Utilities/Merger.h"/>
           <FILE id="YMFH4P2" name="Splitter.cpp" compile="1" resource="0" file="Source/Processors/Utilities/Splitter.cpp"/>
@@ -284,6 +288,10 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="ddLPZcq" name="RecordControlEditor.cpp" compile="1" resource="0"
+                file="Source\Processors\Editors\RecordControlEditor.cpp"/>
+          <FILE id="lWrE0xQ" name="RecordControlEditor.h" compile="0" resource="0"
+                file="Source\Processors\Editors\RecordControlEditor.h"/>
           <FILE id="vcZeT2R" name="ResamplingNodeEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/ResamplingNodeEditor.cpp"/>
           <FILE id="pMjiz6m" name="ResamplingNodeEditor.h" compile="0" resource="0"
