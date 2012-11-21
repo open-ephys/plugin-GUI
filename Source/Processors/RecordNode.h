@@ -162,8 +162,11 @@ private:
   /** Generate a Matlab-compatible datestring */
   String generateDateString();
 
+  /** Generate filename for a given channel */
+  void updateFileName(Channel* ch);
+
   /** Cycle through the event buffer, looking for data to save */
-  void handleEvent(int eventType, MidiMessage& event);
+  void handleEvent(int eventType, MidiMessage& event, int samplePos);
 
   /** Object for holding information about the events file */
   Channel* eventChannel;
@@ -174,7 +177,10 @@ private:
   
   /** Method for writing event buffers to disk. 
   */ 
-  void writeEventBuffer(MidiMessage& event);
+  void writeEventBuffer(MidiMessage& event, int samplePos);
+
+  /** Used to indicate the end of each record */
+  char* recordMarker;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNode);
 

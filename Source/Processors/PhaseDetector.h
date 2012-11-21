@@ -71,7 +71,7 @@ private:
 
 	bool canBeTriggered;
 
-	void handleEvent(int eventType, MidiMessage& event);
+	void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
 	float estimatedFrequency;
 

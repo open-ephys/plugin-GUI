@@ -64,7 +64,7 @@ public:
 	bool enable();
 	bool disable();
 
-	void handleEvent(int, MidiMessage&);
+	void handleEvent(int, MidiMessage&, int);
 
 	AudioSampleBuffer* getDisplayBufferAddress() {return displayBuffer;}
 	int getDisplayBufferIndex() {return displayBufferIndex;}

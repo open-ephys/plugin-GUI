@@ -345,6 +345,24 @@
     <ClCompile Include="..\..\Source\Processors\FPGAOutput.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Channel.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\AudioResamplingNode.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\PhaseDetector.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\RecordControlEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Utilities\RecordControl.cpp">
+      <Filter>open-ephys\Source\Processors\Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\AccessClass.h">
@@ -646,6 +664,24 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\FPGAOutput.h">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Channel.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\AudioResamplingNode.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\PhaseDetector.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\RecordControlEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Utilities\RecordControl.h">
+      <Filter>open-ephys\Source\Processors\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

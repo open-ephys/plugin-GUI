@@ -75,6 +75,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDisplayNode_9c52e4ad.o \
   $(OBJDIR)/WiFiOutput_fa464ec5.o \
   $(OBJDIR)/LfpDisplayNode_30ef22fd.o \
+  $(OBJDIR)/RecordControl_3e1c6062.o \
   $(OBJDIR)/Merger_2f90542e.o \
   $(OBJDIR)/Splitter_6e27a57b.o \
   $(OBJDIR)/SpikePlot_c1cf98bd.o \
@@ -91,6 +92,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/RecordControlEditor_244084cb.o \
   $(OBJDIR)/ResamplingNodeEditor_f2d6f061.o \
   $(OBJDIR)/FPGAOutputEditor_cfe00f8a.o \
   $(OBJDIR)/ArduinoOutputEditor_1118f008.o \
@@ -317,6 +319,11 @@ $(OBJDIR)/LfpDisplayNode_30ef22fd.o: ../../Source/Processors/LfpDisplayNode.cpp
 	@echo "Compiling LfpDisplayNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/RecordControl_3e1c6062.o: ../../Source/Processors/Utilities/RecordControl.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RecordControl.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/Merger_2f90542e.o: ../../Source/Processors/Utilities/Merger.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Merger.cpp"
@@ -395,6 +402,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RecordControlEditor_244084cb.o: ../../Source/Processors/Editors/RecordControlEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RecordControlEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ResamplingNodeEditor_f2d6f061.o: ../../Source/Processors/Editors/ResamplingNodeEditor.cpp

@@ -419,6 +419,13 @@ ControlPanel::~ControlPanel()
 	graph = 0;
 }
 
+void ControlPanel::setRecordState(bool t)
+{
+
+	recordButton->setToggleState(t, true);
+
+}
+
 void ControlPanel::updateChildComponents()
 {
 
@@ -525,7 +532,7 @@ void ControlPanel::buttonClicked(Button* button)
 		{
 
 			playButton->setToggleState(true,false);
-			graph->getRecordNode()->setParameter(1,10.0f);
+			//graph->getRecordNode()->setParameter(1,10.0f);
 			masterClock->startRecording(); // turn on recording
 
 
@@ -572,6 +579,11 @@ void ControlPanel::buttonClicked(Button* button)
 				masterClock->start();
 			}
 			
+		} else {
+
+			if (recordButton->getToggleState())
+				graph->getRecordNode()->setParameter(1,10.0f);
+
 		}
 
 	} else {

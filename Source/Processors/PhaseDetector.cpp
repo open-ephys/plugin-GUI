@@ -71,21 +71,27 @@ bool PhaseDetector::enable()
 	return true;
 }
 
-void PhaseDetector::handleEvent(int eventType, MidiMessage& event)
+void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 {
+
+	//std::cout << "GOT EVENT." << std::endl;
+
 	if (eventType == TTL)
 	{
 		uint8* dataptr = event.getRawData();
 
-    	//int eventNodeId = *(dataptr+1);
+    	int eventNodeId = *(dataptr+1);
     	int eventId = *(dataptr+2);
-    	//int eventChannel = *(dataptr+3);
+    	int eventChannel = *(dataptr+3);
     	//int eventTime = event.getTimeStamp();
 
-    	if (eventId == 1)
+    //	std::cout << "Received event from " << eventNodeId << ", channel "
+    	//          << eventChannel << ", with ID " << eventId << std::endl;
+
+    	if (eventId == 1 && eventChannel == 5)
     	{
     		canBeTriggered = true;
-    	} else {
+    	} else if (eventId == 0 && eventChannel == 5) {
     		canBeTriggered = false;
     	}
 

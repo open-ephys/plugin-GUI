@@ -97,7 +97,7 @@ int FPGAThread::getNumChannels()
 
 int FPGAThread::getNumEventChannels()
 {
-    return 8;
+    return 16; // 8 inputs, 8 outputs
 }
 
 float FPGAThread::getSampleRate()
@@ -295,7 +295,7 @@ bool FPGAThread::updateBuffer()
             if (j % 200 != 0)
             {
             	std::cout << "Buffer not aligned " << j << " " << accumulator << std::endl;
-            	return false;
+            	//return false;
             }
 
             if (i == 1)
@@ -323,7 +323,14 @@ bool FPGAThread::updateBuffer()
             
             
             eventCode = pBuffer[j+6]; // TTL input
-            ttl_out = pBuffer[j+7];   // TTL output
+            ttl_out = pBuffer[j+7];
+
+            if (ttl_out > 0)
+            {
+            	eventCode |= 0x100;   // TTL output
+            	//std::cout << "TLL out!" << std::endl;
+            }
+            	
 		
 			j += 8; //move cursor to 1st data byte
 
@@ -485,6 +492,9 @@ bool FPGAThread::initializeFPGA(bool verbose)
 		else
 			printf("FrontPanel support is not enabled.\n");
 	}
+
+	dev->SetWireInValue(0x01, 0);
+    dev->UpdateWireIns();
 
 	return true;
 

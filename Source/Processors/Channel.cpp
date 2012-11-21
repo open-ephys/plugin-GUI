@@ -30,6 +30,7 @@ Channel::Channel(GenericProcessor* p, int n) :
 	sampleRate(44100.0f), bitVolts(1.0f), eventType(0)
 
 {
+	nodeId = p->getNodeId();
 
 	createDefaultName();
 }
@@ -45,7 +46,14 @@ Channel::Channel(const Channel& ch)
 	bitVolts = ch.bitVolts;
 	name = ch.name;
 	eventType = ch.eventType;
+	nodeId = ch.nodeId;
+	num = ch.num;
+}
 
+void Channel::setProcessor(GenericProcessor* p)
+{
+	processor = p;
+	nodeId = p->getNodeId();
 }
 
 String Channel::getName()
@@ -66,5 +74,5 @@ void Channel::reset()
 void Channel::createDefaultName()
 {
 	name = String("CH");
-	name += num;
+	name += (num + 1);
 }

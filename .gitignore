@@ -8,6 +8,11 @@
 Builds/Linux/build/open-ephys
 Resources/Fonts/font_serializer/Builds/Linux/build/
 JuceLibraryCode/jucer/Builds/Linux/build
+JuceLibraryCode/jucer/Builds/VisualStudio2010/Debug
+JuceLibraryCode/jucer/Builds/VisualStudio2010/Release
+JuceLibraryCode/jucer/Builds/VisualStudio2010/*.user
+JuceLibraryCode/jucer/Builds/VisualStudio2010/The Jucer.sdf
+JuceLibraryCode/jucer/Builds/VisualStudio2010/The Jucer.v11.suo
 
 # 3. extra files
 Builds/Linux/build/data
@@ -22,6 +27,7 @@ Builds/VisualStudio2012/Debug
 Builds/VisualStudio2012/Release
 Builds/VisualStudio2012/ipch
 Builds/VisualStudio2012/open-ephys.sdf
+Builds/VisualStudio2012/open-ephys.opensdf
 Builds/VisualStudio2012/open-ephys.suo
 Builds/VisualStudio2012/open-ephys.v11.suo
 Builds/VisualStudio2012/open-ephys.vcxproj.user
