@@ -166,32 +166,35 @@ void AudioNode::process(AudioSampleBuffer &buffer,
 	// clear the left and right channels
 	buffer.clear(0,0,buffer.getNumSamples());
 	buffer.clear(1,0,buffer.getNumSamples());
-
-	for (int i = 2; i < buffer.getNumChannels(); i++)
+	
+	if (channelPointers.size() > 0) 
 	{
-
-		if (channelPointers[i-2]->isMonitored)
+		for (int i = 2; i < buffer.getNumChannels(); i++)
 		{
-			buffer.addFrom(0,  		// destination channel
-					   0,  			// destination start sample
-					   buffer,      // source
-					   i, 			// source channel
-					   0,           // source start sample
-					   buffer.getNumSamples(), //  number of samples
-					   volume       // gain to apply
-					   );
 
-			buffer.addFrom(1,  		// destination channel
-					   0,  			// destination start sample
-					   buffer,      // source
-					   i, 			// source channel
-					   0,           // source start sample
-					   buffer.getNumSamples(), //  number of samples
-					   volume       // gain to apply
-					   );
+			if (channelPointers[i-2]->isMonitored)
+			{
+				buffer.addFrom(0,  		// destination channel
+					0,  			// destination start sample
+					buffer,      // source
+					i, 			// source channel
+					0,           // source start sample
+					buffer.getNumSamples(), //  number of samples
+					volume       // gain to apply
+					);
+
+				buffer.addFrom(1,  		// destination channel
+					0,  			// destination start sample
+					buffer,      // source
+					i, 			// source channel
+					0,           // source start sample
+					buffer.getNumSamples(), //  number of samples
+					volume       // gain to apply
+					);
+
+			}
 
 		}
-
 	}
 
 }
