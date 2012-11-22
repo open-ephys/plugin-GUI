@@ -1,12 +1,27 @@
 /* =========================================================================================
 
-   This is an auto-generated file, created by The Jucer V3.0.0
+   This is an auto-generated file, created by The Introjucer 3.0.0
    Do not edit anything in this file!
 
 */
 
 namespace BinaryData
 {
+    extern const char*   cpmonoblackserialized;
+    const int            cpmonoblackserializedSize = 15547;
+
+    extern const char*   cpmonoboldserialized;
+    const int            cpmonoboldserializedSize = 16442;
+
+    extern const char*   cpmonoextralightserialized;
+    const int            cpmonoextralightserializedSize = 17136;
+
+    extern const char*   cpmonolightserialized;
+    const int            cpmonolightserializedSize = 18090;
+
+    extern const char*   cpmonoplainserialized;
+    const int            cpmonoplainserializedSize = 17831;
+
     extern const char*   BebasNeue_otf;
     const int            BebasNeue_otfSize = 48648;
 

@@ -27,6 +27,16 @@
   <MAINGROUP id="h3HbSTV" name="open-ephys">
     <GROUP id="0wpTCpt" name="Resources">
       <GROUP id="kVU7EYu" name="Fonts">
+        <FILE id="g9dipB" name="cpmono-black-serialized" compile="0" resource="1"
+              file="Resources/Fonts/cpmono-black-serialized"/>
+        <FILE id="GORUO5" name="cpmono-bold-serialized" compile="0" resource="1"
+              file="Resources/Fonts/cpmono-bold-serialized"/>
+        <FILE id="UmmEdQ" name="cpmono-extralight-serialized" compile="0" resource="1"
+              file="Resources/Fonts/cpmono-extralight-serialized"/>
+        <FILE id="KSV8xW" name="cpmono-light-serialized" compile="0" resource="1"
+              file="Resources/Fonts/cpmono-light-serialized"/>
+        <FILE id="TOP1Rx" name="cpmono-plain-serialized" compile="0" resource="1"
+              file="Resources/Fonts/cpmono-plain-serialized"/>
         <FILE id="ihWw2VV" name="BebasNeue.otf" compile="0" resource="1" file="Resources/Fonts/BebasNeue.otf"/>
         <FILE id="frMIT7f" name="cpmono_bold.otf" compile="0" resource="1"
               file="Resources/Fonts/cpmono_bold.otf"/>
