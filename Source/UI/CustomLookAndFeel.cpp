@@ -23,10 +23,50 @@
 
 #include "CustomLookAndFeel.h"
 
-CustomLookAndFeel::CustomLookAndFeel() 
+CustomLookAndFeel::CustomLookAndFeel() :
+  // third argument to MIS means don't copy the binary data to make a new stream
+  cpmonoExtraLightStream(BinaryData::cpmonoextralightserialized,
+                         BinaryData::cpmonoextralightserializedSize,
+                         false),
+  cpmonoLightStream(BinaryData::cpmonolightserialized,
+                    BinaryData::cpmonolightserializedSize,
+                    false),
+  cpmonoPlainStream(BinaryData::cpmonoplainserialized,
+                    BinaryData::cpmonoplainserializedSize,
+                    false),
+  cpmonoBoldStream(BinaryData::cpmonoboldserialized,
+                   BinaryData::cpmonoboldserializedSize,
+                   false),
+  cpmonoBlackStream(BinaryData::cpmonoblackserialized,
+                    BinaryData::cpmonoblackserializedSize,
+                    false),
+  misoRegularStream(BinaryData::misoserialized,
+                    BinaryData::misoserializedSize,
+                    false),
+  silkscreenStream(BinaryData::silkscreenserialized,
+                   BinaryData::silkscreenserializedSize,
+                   false),
+  // heap allocation is necessary here, because otherwise the typefaces are
+  // deleted too soon (there's a singleton typefacecache that holds references
+  // to them whenever they're used).
+  cpmonoExtraLight(new CustomTypeface(cpmonoExtraLightStream)),
+  cpmonoLight(new CustomTypeface(cpmonoLightStream)),
+  cpmonoPlain(new CustomTypeface(cpmonoPlainStream)),
+  cpmonoBold(new CustomTypeface(cpmonoBoldStream)),
+  cpmonoBlack(new CustomTypeface(cpmonoBlackStream)),
+  misoRegular(new CustomTypeface(misoRegularStream)),
+  silkscreen(new CustomTypeface(silkscreenStream))
+
 {
-  MemoryInputStream mis(BinaryData::misoserialized, BinaryData::misoserializedSize, false);
-  Miso = new CustomTypeface(mis);
+
+  // UNCOMMENT AFTER UPDATE
+  // typefaceMap.set(String("Default Extra Light"), cpmonoExtraLight);
+  // typefaceMap.set(String("Default Light"), cpmonoLight);
+  // typefaceMap.set(String("Default"), cpmonoPlain);
+  // typefaceMap.set(String("Default Bold"), cpmonoBold);
+  // typefaceMap.set(String("Default Black"), cpmonoBlack);
+  // typefaceMap.set(String("Paragraph"), misoRegular);
+  // typefaceMap.set(String("Silkscreen"), silkscreen);
 
   enum {
     PROCESSOR_COLOR = 0x801,
@@ -47,21 +87,57 @@ CustomLookAndFeel::CustomLookAndFeel()
   setColour(PopupMenu::highlightedBackgroundColourId, Colours::grey);
   setColour(PopupMenu::highlightedTextColourId, Colours::yellow);
 
-
 }
 
 CustomLookAndFeel::~CustomLookAndFeel() {}
 
-//  ===============
-// const Typeface::Ptr CustomLookAndFeel::getTypefaceForFont (const Font& font)
-// {
-  
-//   return Miso;
+//==============================================================================
+// FONT/TYPEFACE METHODS :
+//==============================================================================
 
-// }
+const Typeface::Ptr CustomLookAndFeel::getTypefaceForFont (const Font& font)
+{
+    String typefaceName = font.getTypefaceName();
 
+    // some of these names might be unnecessary, and there may be good ones
+    // missing.  adjust as needed
+    if (typefaceName.equalsIgnoreCase("Default Extra Light"))
+    {
+        return cpmonoExtraLight;
+    } else if (typefaceName.equalsIgnoreCase("Default Light"))
+    {
+        return cpmonoLight;
+    } else if (typefaceName.equalsIgnoreCase("Default"))
+    {
+        return cpmonoPlain;
+    } else if (typefaceName.equalsIgnoreCase("Default Bold"))
+    {
+        return cpmonoBold;
+    } else if (typefaceName.equalsIgnoreCase("Default Black"))
+    {
+        return cpmonoBlack;
+    } else if (typefaceName.equalsIgnoreCase("Paragraph"))
+    {
+        return misoRegular;
+    } else if (typefaceName.equalsIgnoreCase("Small Text"))
+    {
+        return silkscreen;
+    } else // default
+    {
+        return LookAndFeel::getTypefaceForFont(font);
+    }
+
+    // UNCOMMENT AFTER UPDATE
+    // if (typefaceMap.contains(typefaceName))
+    //     return typefaceMap[typefaceName];
+    // else
+    //     return LookAndFeel::getTypefaceForFont(font);
+}
 
 //==============================================================================
+// TAB METHODS :
+//==============================================================================
+
 int CustomLookAndFeel::getTabButtonOverlap (int tabDepth)
 {
     return 0; //1 + tabDepth / 4;
