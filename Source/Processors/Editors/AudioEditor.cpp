@@ -87,7 +87,7 @@ AudioEditor::AudioEditor (AudioNode* owner)
 	audioWindowButton->setToggleState(false,false);
 	addAndMakeVisible(audioWindowButton);
 
-	volumeSlider = new Slider (T("High-Cut Slider"));
+	volumeSlider = new Slider ("High-Cut Slider");
 	volumeSlider->setRange(0,100,1);
 	volumeSlider->addListener(this);
 	volumeSlider->setTextBoxStyle(Slider::NoTextBox,

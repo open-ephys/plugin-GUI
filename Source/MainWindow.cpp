@@ -152,7 +152,7 @@ void MainWindow::loadWindowBounds()
     XmlDocument doc (file);
     XmlElement* xml = doc.getDocumentElement();
 
-    if (xml == 0 || ! xml->hasTagName (T("MAINWINDOW")))
+    if (xml == 0 || ! xml->hasTagName ("MAINWINDOW"))
     {
         
         std::cout << "File not found." << std::endl;
@@ -161,7 +161,7 @@ void MainWindow::loadWindowBounds()
 
     } else {
 
-        String description;// = T(" ");
+        String description;
 
         forEachXmlChildElement (*xml, e)
         {
