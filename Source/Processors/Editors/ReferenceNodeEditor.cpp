@@ -21,48 +21,28 @@
 
 */
 
-#ifndef __REFERENCENODE_H_786EA929__
-#define __REFERENCENODE_H_786EA929__
+
+#include "ReferenceNodeEditor.h"
+#include "../ReferenceNode.h"
+#include <stdio.h>
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
-#include "../../JuceLibraryCode/JuceHeader.h"
-
-#include "GenericProcessor.h"
-
-
-/**
-
-  Digital reference node
-
-  @see GenericProcessor
-
-*/
-
-class ReferenceNode : public GenericProcessor
+ReferenceNodeEditor::ReferenceNodeEditor (GenericProcessor* parentNode) 
+	: GenericEditor(parentNode)
 
 {
-public:
+	desiredWidth = 180;
+
+
+}
+
+ReferenceNodeEditor::~ReferenceNodeEditor()
+{
+	deleteAllChildren();
+}
+
+void ReferenceNodeEditor::buttonEvent (Button* button)
+{
 	
-	ReferenceNode();
-	~ReferenceNode();
-	
-	void process (AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void setParameter (int parameterIndex, float newValue);
 
-	AudioProcessorEditor* createEditor();
-
-	bool hasEditor() const {return true;}
-
-    void updateSettings();
-	
-private:
-
-
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ReferenceNode);
-
-};
-
-#endif  // __REFERENCENODE_H_786EA929__
+}
