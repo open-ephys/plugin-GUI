@@ -295,6 +295,9 @@
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\ReferenceNode.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\PhaseDetector.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
@@ -330,9 +333,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\LfpDisplayNode.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Utilities\RecordControl.cpp">
-      <Filter>open-ephys\Source\Processors\Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Utilities\Merger.cpp">
       <Filter>open-ephys\Source\Processors\Utilities</Filter>
@@ -381,9 +381,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Editors\RecordControlEditor.cpp">
-      <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
@@ -615,6 +612,9 @@
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\ReferenceNode.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\PhaseDetector.h">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClInclude>
@@ -653,9 +653,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\LfpDisplayNode.h">
       <Filter>open-ephys\Source\Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Utilities\RecordControl.h">
-      <Filter>open-ephys\Source\Processors\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Utilities\Merger.h">
       <Filter>open-ephys\Source\Processors\Utilities</Filter>
@@ -710,9 +707,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\EventNode.h">
       <Filter>open-ephys\Source\Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Editors\RecordControlEditor.h">
-      <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
