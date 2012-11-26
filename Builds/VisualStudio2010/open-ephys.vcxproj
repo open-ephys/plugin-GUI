@@ -155,6 +155,7 @@
     <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\WiFiOutput.cpp"/>
     <ClCompile Include="..\..\Source\Processors\LfpDisplayNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Utilities\RecordControl.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Utilities\Merger.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Utilities\Splitter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.cpp"/>
@@ -171,6 +172,7 @@
     <ClCompile Include="..\..\Source\Processors\SpikeDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\RecordControlEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\FPGAOutputEditor.cpp"/>
@@ -264,6 +266,7 @@
     <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode.h"/>
     <ClInclude Include="..\..\Source\Processors\WiFiOutput.h"/>
     <ClInclude Include="..\..\Source\Processors\LfpDisplayNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\Utilities\RecordControl.h"/>
     <ClInclude Include="..\..\Source\Processors\Utilities\Merger.h"/>
     <ClInclude Include="..\..\Source\Processors\Utilities\Splitter.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.h"/>
@@ -282,6 +285,7 @@
     <ClInclude Include="..\..\Source\Processors\SpikeDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\RecordControlEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\FPGAOutputEditor.h"/>

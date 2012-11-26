@@ -237,6 +237,10 @@
         <FILE id="VynGpEg" name="LfpDisplayNode.h" compile="0" resource="0"
               file="Source/Processors/LfpDisplayNode.h"/>
         <GROUP id="Enz7QFy" name="Utilities">
+          <FILE id="llkb8mQ" name="RecordControl.cpp" compile="1" resource="0"
+                file="Source/Processors/Utilities/RecordControl.cpp"/>
+          <FILE id="jRqpt5T" name="RecordControl.h" compile="0" resource="0"
+                file="Source/Processors/Utilities/RecordControl.h"/>
           <FILE id="qt6uLka" name="Merger.cpp" compile="1" resource="0" file="Source/Processors/Utilities/Merger.cpp"/>
           <FILE id="XNRlWg8" name="Merger.h" compile="0" resource="0" file="Source/Processors/Utilities/Merger.h"/>
           <FILE id="YMFH4P2" name="Splitter.cpp" compile="1" resource="0" file="Source/Processors/Utilities/Splitter.cpp"/>
@@ -288,6 +292,10 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="3P8oDf3" name="RecordControlEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/RecordControlEditor.cpp"/>
+          <FILE id="hFb27ev" name="RecordControlEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/RecordControlEditor.h"/>
           <FILE id="tz64eOn" name="ReferenceNodeEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/ReferenceNodeEditor.cpp"/>
           <FILE id="sxR3wcq" name="ReferenceNodeEditor.h" compile="0" resource="0"
