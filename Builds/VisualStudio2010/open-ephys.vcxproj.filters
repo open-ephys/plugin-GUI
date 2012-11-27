@@ -295,6 +295,9 @@
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\ReferenceNode.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\PhaseDetector.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
@@ -383,6 +386,9 @@
       <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\RecordControlEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.cpp">
@@ -615,6 +621,9 @@
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\ReferenceNode.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\PhaseDetector.h">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClInclude>
@@ -712,6 +721,9 @@
       <Filter>open-ephys\Source\Processors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\RecordControlEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.h">

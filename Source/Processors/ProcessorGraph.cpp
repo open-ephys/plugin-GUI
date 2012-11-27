@@ -33,6 +33,7 @@
 #include "GenericProcessor.h"
 #include "RecordNode.h"
 #include "ResamplingNode.h"
+#include "ReferenceNode.h"
 #include "AudioResamplingNode.h"
 #include "SignalGenerator.h"
 #include "SourceNode.h"
@@ -428,6 +429,10 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		 else if (subProcessorType.equalsIgnoreCase("Phase Detector")) {
 			std::cout << "Creating a new phase detector." << std::endl;
 			processor = new PhaseDetector();
+		}
+		else if (subProcessorType.equalsIgnoreCase("Digital Reference")) {
+			std::cout << "Creating a new digital reference." << std::endl;
+			processor = new ReferenceNode();
 		}
 
 		//sendActionMessage("New filter node created.");
