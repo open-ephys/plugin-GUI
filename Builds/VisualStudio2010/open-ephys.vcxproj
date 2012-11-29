@@ -144,6 +144,7 @@
     <ClCompile Include="..\..\Source\Dsp\RootFinder.cpp"/>
     <ClCompile Include="..\..\Source\Dsp\State.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ReferenceNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PhaseDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioResamplingNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Channel.cpp"/>
@@ -174,6 +175,7 @@
     <ClCompile Include="..\..\Source\Processors\AudioNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\RecordControlEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\FPGAOutputEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.cpp"/>
@@ -252,6 +254,7 @@
     <ClInclude Include="..\..\Source\Dsp\Types.h"/>
     <ClInclude Include="..\..\Source\Dsp\Utilities.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
+    <ClInclude Include="..\..\Source\Processors\ReferenceNode.h"/>
     <ClInclude Include="..\..\Source\Processors\PhaseDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioResamplingNode.h"/>
     <ClInclude Include="..\..\Source\Processors\Channel.h"/>
@@ -285,6 +288,7 @@
     <ClInclude Include="..\..\Source\Processors\AudioNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\RecordControlEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\FPGAOutputEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.h"/>
