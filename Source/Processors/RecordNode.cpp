@@ -372,7 +372,7 @@ String RecordNode::generateHeader(Channel* ch)
 
 	header += "header.header_bytes = ";
 	header += String(HEADER_SIZE);
-	header += ";";
+	header += ";\n";
 
 	if (ch->isEventChannel)
 	{
