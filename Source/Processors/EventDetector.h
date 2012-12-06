@@ -35,7 +35,7 @@
 
   Searches for threshold crossings and sends out TTL events.
 
-  @see GenericProcessor, EventDetectorEditor
+  @see GenericProcessor
 
 */
 
