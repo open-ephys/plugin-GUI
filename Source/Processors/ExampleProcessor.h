@@ -44,18 +44,42 @@ class ExampleProcessor : public GenericProcessor
 {
 public:
 	
+    /** The class constructor, used to initialize any members. */
 	ExampleProcessor();
+
+    /** The class destructor, used to deallocate memory */
 	~ExampleProcessor();
 
+    /** Determines whether the processor is treated as a source. 
+        Re-implemented from GenericProcessor.h */
     bool isSource() {return false;}
+
+    /** Determines whether the processor is treated as a sink. 
+        Re-implemented from GenericProcessor.h */
     bool isSink() {return false;}
 	
+    /** Defines the functionality of the processor.
+
+        The process method is called every time a new data buffer is available.
+
+        Processors can either use this method to add new data, manipulate existing
+        data, or send data to an external target (such as a display or other hardware).
+
+        Continuous signals arrive in the "buffer" variable, event data (such as TTLs
+        and spikes) is contained in the "events" variable, and "nSamples" holds the
+        number of continous samples in the current buffer (which may differ from the
+        size of the buffer).
+         */
 	void process (AudioSampleBuffer &buffer, MidiBuffer &events, int& nSamples);
+
+    /** Any variables used by the "process" function _must_ be modified only through
+        this method while data acquisition is active. If they are modified in any
+        other way, the application will crash.  */
 	void setParameter (int parameterIndex, float newValue);
 
 private:
 
-    // private variables and methods go here
+    // private members and methods go here
     // 
     // e.g.:
     //
