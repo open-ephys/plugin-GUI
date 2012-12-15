@@ -557,6 +557,14 @@ const String juce_getOutputFromCommand (const String& command)
     return result;
 }
 
+//=============================================================================
+String SystemStats::getEnvironmentVariable (const String& name, const String& defaultValue)
+{
+    if (const char* s = ::getenv (name.toUTF8()))
+        return String::fromUTF8 (s);
+
+    return defaultValue;
+}
 
 //==============================================================================
 class InterProcessLock::Pimpl
