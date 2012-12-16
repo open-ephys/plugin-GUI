@@ -369,7 +369,19 @@ String RecordNode::generateHeader(Channel* ch)
 {
 
 	String header = "header.format = 'OPEN EPHYS DATA FORMAT v0.0'; \n";
-	header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample count (N), and N 16-bit samples'; \n";
+
+	header += "header.header_bytes = ";
+	header += String(HEADER_SIZE);
+	header += ";\n";
+
+	if (ch->isEventChannel)
+	{
+		header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample position, one uint8 event type, one uint8 processor ID, one uint8 event ID, and one uint8 event channel'; \n";
+
+	} else {
+		header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample count (N), N 16-bit samples, and one 10-byte record marker (0 0 0 0 0 0 0 0 0 255)'; \n";
+	}
+
 
 	header += "header.date_created = '";
 	header += generateDateString();
@@ -388,9 +400,9 @@ String RecordNode::generateHeader(Channel* ch)
 
 		header += "header.channelType = 'Continuous';\n";
 
-		header += "header.sampleRate = '";
+		header += "header.sampleRate = ";
 		header += String(ch->sampleRate);
-		header += "';\n";
+		header += ";\n";
 	}
 
 	header += "header.bitVolts = ";

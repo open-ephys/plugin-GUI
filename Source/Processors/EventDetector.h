@@ -35,7 +35,7 @@
 
   Searches for threshold crossings and sends out TTL events.
 
-  @see GenericProcessor, EventDetectorEditor
+  @see GenericProcessor
 
 */
 
@@ -49,10 +49,6 @@ public:
 	
 	void process (AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 	void setParameter (int parameterIndex, float newValue);
-
-	//AudioProcessorEditor* createEditor();
-
-	bool hasEditor() const {return false;}
 
 private:
 

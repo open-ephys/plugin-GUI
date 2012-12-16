@@ -77,7 +77,7 @@ public:
 	virtual void setParameter (int parameterIndex, float newValue);
 
 	virtual AudioProcessorEditor* createEditor();
-	bool hasEditor() const {return true;}
+	bool hasEditor() const {return false;}
 	
 	void reset() {}
 	void setCurrentProgramStateInformation(const void* data, int sizeInBytes) {}

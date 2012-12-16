@@ -145,9 +145,16 @@ public:
     */
     static int getPageSize();
 
+    /** Returns an environment variable.
+    If the named value isn't set, this will return the defaultValue string instead.
+    */
+    static String getEnvironmentVariable (const String& name, const String& defaultValue);
+
     //==============================================================================
     // not-for-public-use platform-specific method gets called at startup to initialise things.
     static void initialiseStats();
+
+    
 
 private:
     struct CPUFlags

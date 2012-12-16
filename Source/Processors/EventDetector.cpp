@@ -41,16 +41,6 @@ EventDetector::~EventDetector()
    
 }
 
-// AudioProcessorEditor* EventDetector::createEditor()
-// {
-//     editor = new EventDetectorEditor(this);
-//     //setEditor(filterEditor);
-    
-//     std::cout << "Creating editor." << std::endl;
-
-//     return editor;
-// }
-
 
 
 void EventDetector::setParameter (int parameterIndex, float newValue)
