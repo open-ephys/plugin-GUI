@@ -25,7 +25,7 @@
 #include "../Utilities/Merger.h"
 
 // PipelineSelectorButton::PipelineSelectorButton()
-// 	: DrawableButton (T("Selector"), DrawableButton::ImageFitted)
+// 	: DrawableButton ("Selector", DrawableButton::ImageFitted)
 // {
 // 	DrawablePath normal, over, down;
 

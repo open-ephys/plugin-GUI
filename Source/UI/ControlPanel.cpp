@@ -27,7 +27,7 @@
 #include <math.h>
 
 PlayButton::PlayButton()
-	: DrawableButton (T("PlayButton"), DrawableButton::ImageFitted)
+	: DrawableButton ("PlayButton", DrawableButton::ImageFitted)
 {
 
 		DrawablePath normal, over, down;
@@ -61,7 +61,7 @@ PlayButton::~PlayButton()
 }
 
 RecordButton::RecordButton()
-	: DrawableButton (T("RecordButton"), DrawableButton::ImageFitted)
+	: DrawableButton ("RecordButton", DrawableButton::ImageFitted)
 {
 
 		DrawablePath normal, over, down;
@@ -88,7 +88,7 @@ RecordButton::~RecordButton()
 }
 
 
-CPUMeter::CPUMeter() : Label(T("CPU Meter"),"0.0"), cpu(0.0f), lastCpu(0.0f)
+CPUMeter::CPUMeter() : Label("CPU Meter","0.0"), cpu(0.0f), lastCpu(0.0f)
 {
 	MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
         Typeface::Ptr typeface = new CustomTypeface(mis);

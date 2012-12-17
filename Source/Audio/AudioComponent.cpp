@@ -27,19 +27,52 @@
 
 AudioComponent::AudioComponent() : isPlaying(false)
 {
-	
-	deviceManager.initialise(0,  // numInputChannelsNeeded
-			   2,  // numOutputChannelsNeeded
-			   0,  // *savedState (XmlElement)
-			   true, // selectDefaultDeviceOnFailure
-			   String::empty, // preferred device
-			   0); // preferred device setup options
-	
+	// if this is nonempty, we got an error
+	String error = deviceManager.initialise(0,  // numInputChannelsNeeded
+						2,  // numOutputChannelsNeeded
+						0,  // *savedState (XmlElement)
+						true, // selectDefaultDeviceOnFailure
+						String::empty, // preferred device
+						0); // preferred device setup options
+	if (error != String::empty)
+	{
+		String titleMessage = String("Audio device initialization error");
+		String contentMessage = String("There was a problem initializing the audio device:\n" + error);
+		// this uses a bool since there are only two options
+		// also, omitting parameters works fine, even though the docs don't show defaults
+		bool retryButtonClicked = AlertWindow::showOkCancelBox(AlertWindow::QuestionIcon,
+								       titleMessage,
+								       contentMessage,
+								       String("Retry"),
+								       String("Quit"));
+
+		if (retryButtonClicked)
+		{
+			// as above
+			error = deviceManager.initialise(0, 2, 0, true, String::empty, 0);
+		} else { // quit button clicked
+			JUCEApplication::quit();
+		}
+	}
+							    
+							    
 	AudioIODevice* aIOd = deviceManager.getCurrentAudioDevice();
+
+	// the error string doesn't tell you if there's no audio device found...
+	if (aIOd == 0)
+	{
+	  String titleMessage = String("No audio device found");
+	  String contentMessage = String("Couldn't find an audio device. ") +
+	    String("Perhaps some other program has control of the default one.");
+	  AlertWindow::showMessageBox(AlertWindow::InfoIcon,
+				      titleMessage,
+				      contentMessage);
+	  JUCEApplication::quit();
+	}
+					   
 
 	std::cout << "Got audio device." << std::endl;
 
-	String devType = deviceManager.getCurrentAudioDeviceType();
 	String devName = aIOd->getName();
 	
 	std::cout << std::endl << "Audio device name: " << devName << std::endl;
@@ -56,7 +89,7 @@ AudioComponent::AudioComponent() : isPlaying(false)
 
 	String msg = deviceManager.setAudioDeviceSetup(setup, false);
 
-	devType = deviceManager.getCurrentAudioDeviceType();
+	String devType = deviceManager.getCurrentAudioDeviceType();
 	std::cout << "Audio device type: " << devType << std::endl;
 
 	float sr = setup.sampleRate;

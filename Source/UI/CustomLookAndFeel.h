@@ -31,24 +31,23 @@
 
 /**
   
-  Used to modify the appearance of the application.
+   Used to modify the appearance of the application.
 
-  Currently contains methods for drawing custom tabs, custom 
-     scroll bars, and custom sliders.
+   Currently contains methods for drawing custom tabs, scroll bars, and sliders.
+   It also takes care of custom fonts via getTypefaceForFont().
 
-  @see MainWindow
+   @see MainWindow
 
 */
 
 class CustomLookAndFeel : public LookAndFeel
-
 {
 public:
-	CustomLookAndFeel();
+    CustomLookAndFeel();
 	~CustomLookAndFeel();
 
-  // ======== custom fonts ================
-  Typeface::Ptr Miso;
+	// ======== custom typeface getter: =============================
+	const Typeface::Ptr getTypefaceForFont (const Font& font);
 
 	// ======== custom tab methods: ============================= 
 
@@ -74,9 +73,9 @@ public:
 						    bool isFrontTab);
 
 	int getTabButtonBestWidth (int tabIndex,
-								const String& text,
-								int tabDepth,
-								Button& button);
+                               const String& text,
+                               int tabDepth,
+                               Button& button);
 
 	int getTabButtonSpaceAroundImage ();
 
@@ -111,50 +110,69 @@ public:
    	// ======== custom slider methods: =============================
 
     void drawLinearSliderThumb (Graphics& g,
-                                 int x, int y,
-                                 int width, int height,
-                                 float sliderPos,
-                                 float minSliderPos,
-                                 float maxSliderPos,
-                                 const Slider::SliderStyle style,
-                                 Slider& slider);
+                                int x, int y,
+                                int width, int height,
+                                float sliderPos,
+                                float minSliderPos,
+                                float maxSliderPos,
+                                const Slider::SliderStyle style,
+                                Slider& slider);
 
 	void drawLinearSliderBackground (Graphics& g,
-                                              int x, int y,
-                                              int width, int height,
-                                              float /*sliderPos*/,
-                                              float /*minSliderPos*/,
-                                              float /*maxSliderPos*/,
-                                              const Slider::SliderStyle /*style*/,
-                                              Slider& slider);
+                                     int x, int y,
+                                     int width, int height,
+                                     float /*sliderPos*/,
+                                     float /*minSliderPos*/,
+                                     float /*maxSliderPos*/,
+                                     const Slider::SliderStyle /*style*/,
+                                     Slider& slider);
 
 
     int getSliderThumbRadius (Slider& slider);
 
     void drawSliderKnob (Graphics& g,
-                                   const float x, const float y,
-                                   const float diameter,
-                                   const Colour& colour,
-                                   const float outlineThickness) throw();
+                         const float x, const float y,
+                         const float diameter,
+                         const Colour& colour,
+                         const float outlineThickness) throw();
 
     void drawGlassPointer (Graphics& g,
-                                    const float x, const float y,
-                                    const float diameter,
-                                    const Colour& colour, const float outlineThickness,
-                                    const int direction) throw();
-
-   // const Typeface::Ptr getTypefaceForFont (const Font& font);
+                           const float x, const float y,
+                           const float diameter,
+                           const Colour& colour, const float outlineThickness,
+                           const int direction) throw();
 
     // ======== custom combo box methods: =============================
 
     void drawComboBox (Graphics& g, int width, int height,
-                                const bool isButtonDown,
-                                int buttonX, int buttonY,
-                                int buttonW, int buttonH,
-                                ComboBox& box);
+                       const bool isButtonDown,
+                       int buttonX, int buttonY,
+                       int buttonW, int buttonH,
+                       ComboBox& box);
 
-private:	
+private:
 
+    // UNCOMMENT AFTER UPDATE
+    // this maps strings to customtypeface pointers
+    //HashMap<String, Typeface::Ptr> typefaceMap;
+
+    MemoryInputStream
+        cpmonoExtraLightStream,
+        cpmonoLightStream,
+        cpmonoPlainStream,
+        cpmonoBoldStream,
+        cpmonoBlackStream,
+        misoRegularStream,
+        silkscreenStream;
+
+    Typeface::Ptr
+        cpmonoExtraLight,
+        cpmonoLight,
+        cpmonoPlain,
+        cpmonoBold,
+        cpmonoBlack,
+        misoRegular,
+        silkscreen;
 
 };
 

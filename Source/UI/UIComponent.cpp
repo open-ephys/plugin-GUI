@@ -303,37 +303,37 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
 	{
 	case openConfiguration:
 		result.setInfo("Open configuration", "Load a saved processor graph.", "General", 0);
-		result.addDefaultKeypress (T('O'), ModifierKeys::commandModifier);
+		result.addDefaultKeypress ('O', ModifierKeys::commandModifier);
 		result.setActive(!acquisitionStarted);
 		break;
 
 	case saveConfiguration:
 		result.setInfo("Save configuration", "Save the current processor graph.", "General", 0);
-		result.addDefaultKeypress (T('S'), ModifierKeys::commandModifier);
+		result.addDefaultKeypress ('S', ModifierKeys::commandModifier);
 		result.setActive(!acquisitionStarted);
 		break;
 
 	case undo:
 		result.setInfo("Undo", "Undo the last action.", "General", 0);
-		result.addDefaultKeypress (T('Z'), ModifierKeys::commandModifier);
+		result.addDefaultKeypress ('Z', ModifierKeys::commandModifier);
 		result.setActive(false);
 		break;
 
 	case redo:
 		result.setInfo("Redo", "Undo the last action.", "General", 0);
-		result.addDefaultKeypress (T('Y'), ModifierKeys::commandModifier);
+		result.addDefaultKeypress ('Y', ModifierKeys::commandModifier);
 		result.setActive(false);
 		break;
 
 	case copySignalChain:
 		result.setInfo("Copy", "Copy a portion of the signal chain.", "General", 0);
-		result.addDefaultKeypress (T('C'), ModifierKeys::commandModifier);
+		result.addDefaultKeypress ('C', ModifierKeys::commandModifier);
 		result.setActive(false);
 		break;
 
 	case pasteSignalChain:
 		result.setInfo("Paste", "Paste a portion of the signal chain.", "General", 0);
-		result.addDefaultKeypress (T('V'), ModifierKeys::commandModifier);
+		result.addDefaultKeypress ('V', ModifierKeys::commandModifier);
 		result.setActive(false);
 		break;
 
@@ -345,19 +345,19 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
 
 	case toggleProcessorList:
 		result.setInfo("Processor List", "Show/hide Processor List.", "General", 0);
-		result.addDefaultKeypress (T('P'), ModifierKeys::shiftModifier);
+		result.addDefaultKeypress ('P', ModifierKeys::shiftModifier);
 		result.setTicked(processorList->isOpen());
 		break;
 
 	case toggleSignalChain:
 		result.setInfo("Signal Chain", "Show/hide Signal Chain.", "General", 0);
-		result.addDefaultKeypress (T('S'), ModifierKeys::shiftModifier);
+		result.addDefaultKeypress ('S', ModifierKeys::shiftModifier);
 		result.setTicked(editorViewportButton->isOpen());
 		break;
 
 	case toggleFileInfo:
 		result.setInfo("File Info", "Show/hide File Info.", "General", 0);
-		result.addDefaultKeypress (T('F'), ModifierKeys::shiftModifier);
+		result.addDefaultKeypress ('F', ModifierKeys::shiftModifier);
 		result.setTicked(controlPanel->isOpen());
 		break;
 

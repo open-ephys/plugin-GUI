@@ -522,7 +522,7 @@ bool EditorViewport::keyPressed (const KeyPress &key) {
     
    //std::cout << "Editor viewport received " << key.getKeyCode() << std::endl;
 
-   if (canEdit) 
+  if (canEdit && editorArray.size() > 0) 
    {
 
         ModifierKeys mk = key.getModifiers();
@@ -1005,8 +1005,8 @@ XmlElement* EditorViewport::createNodeXml (GenericEditor* editor,
 
     std::cout << name << std::endl;
 
-    e->setAttribute (T("name"), name);
-    e->setAttribute (T("insertionPoint"), insertionPt);
+    e->setAttribute ("name", name);
+    e->setAttribute ("insertionPoint", insertionPt);
 
    // source->stateSaved = true;
   
@@ -1176,7 +1176,7 @@ const String EditorViewport::loadState()
     XmlDocument doc (currentFile);
     XmlElement* xml = doc.getDocumentElement();
 
-    if (xml == 0 || ! xml->hasTagName (T("PROCESSORGRAPH")))
+    if (xml == 0 || ! xml->hasTagName ("PROCESSORGRAPH"))
     {
         std::cout << "File not found." << std::endl;
         delete xml;
@@ -1185,7 +1185,7 @@ const String EditorViewport::loadState()
 
     clearSignalChain();
 
-    String description;// = T(" ");
+    String description;// = " ";
     int loadOrder = 0;
 
     forEachXmlChildElement (*xml, signalChain)
