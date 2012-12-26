@@ -99,11 +99,16 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa84fe9b89bf375e3389c1745631e9762"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUMeter.html#aa84fe9b89bf375e3389c1745631e9762">CPUMeter</a> ()</td></tr>
 <tr class="memitem:a44d1ffc07adda9aeb9639f7889f2b1a0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUMeter.html#a44d1ffc07adda9aeb9639f7889f2b1a0">~CPUMeter</a> ()</td></tr>
 <tr class="memitem:acec74e9f60516cd756c0f4a6e8cc7c60"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUMeter.html#acec74e9f60516cd756c0f4a6e8cc7c60">updateCPU</a> (float usage)</td></tr>
+<tr class="memdesc:acec74e9f60516cd756c0f4a6e8cc7c60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the load level displayed by the <a class="el" href="classCPUMeter.html" title="Displays the CPU load used up by the data processing callbacks.">CPUMeter</a>.  <a href="#acec74e9f60516cd756c0f4a6e8cc7c60"></a><br/></td></tr>
 <tr class="memitem:a010aa0a79b6ad5056ea7805266f36403"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUMeter.html#a010aa0a79b6ad5056ea7805266f36403">paint</a> (Graphics &amp;g)</td></tr>
+<tr class="memdesc:a010aa0a79b6ad5056ea7805266f36403"><td class="mdescLeft">&#160;</td><td class="mdescRight">Draws the <a class="el" href="classCPUMeter.html" title="Displays the CPU load used up by the data processing callbacks.">CPUMeter</a>.  <a href="#a010aa0a79b6ad5056ea7805266f36403"></a><br/></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Displays the CPU load used up by the data processing callbacks. </p>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classControlPanel.html" title="Provides general application controls.">ControlPanel</a> </dd></dl>
+<p>The <a class="el" href="classCPUMeter.html" title="Displays the CPU load used up by the data processing callbacks.">CPUMeter</a> is located in the <a class="el" href="classControlPanel.html" title="Provides general application controls along the top of the MainWindow.">ControlPanel</a>. Whenever acquisition is active, it uses a built-in JUCE method to display the CPU load required to run the <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a>.</p>
+<p>It's not clear how accurate the meter is, nor how it deals with CPUs using multiple cores.</p>
+<p>For a more accurate measurement of CPU load, it's recommended to use a graphical interface or type 'top' inside a terminal.</p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classControlPanel.html" title="Provides general application controls along the top of the MainWindow.">ControlPanel</a> </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="aa84fe9b89bf375e3389c1745631e9762"></a>
 <div class="memitem">
@@ -150,6 +155,9 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Updates the load level displayed by the <a class="el" href="classCPUMeter.html" title="Displays the CPU load used up by the data processing callbacks.">CPUMeter</a>. </p>
+<p>Called by the <a class="el" href="classControlPanel.html" title="Provides general application controls along the top of the MainWindow.">ControlPanel</a>. </p>
+
 </div>
 </div>
 <a class="anchor" id="a010aa0a79b6ad5056ea7805266f36403"></a>
@@ -166,6 +174,8 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Draws the <a class="el" href="classCPUMeter.html" title="Displays the CPU load used up by the data processing callbacks.">CPUMeter</a>. </p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
@@ -174,7 +184,7 @@ Public Member Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 13:10:14 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 13:55:20 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

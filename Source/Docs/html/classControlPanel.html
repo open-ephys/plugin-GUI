@@ -87,7 +87,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Provides general application controls.  
+<p>Provides general application controls along the top of the <a class="el" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a>.  
  <a href="classControlPanel.html#details">More...</a></p>
 
 <p><code>#include &lt;ControlPanel.h&gt;</code></p>
@@ -108,11 +108,17 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3d1860dbaa23c7c0b98b9f8caddaeef3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanel.html#a3d1860dbaa23c7c0b98b9f8caddaeef3">ControlPanel</a> (<a class="el" href="classProcessorGraph.html">ProcessorGraph</a> *graph, <a class="el" href="classAudioComponent.html">AudioComponent</a> *audio)</td></tr>
 <tr class="memitem:aaa18bb1c97830df080f39d8abb2d1bd5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanel.html#aaa18bb1c97830df080f39d8abb2d1bd5">~ControlPanel</a> ()</td></tr>
 <tr class="memitem:a0e95cce1ecb861a21ae5aeb07a5c8820"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanel.html#a0e95cce1ecb861a21ae5aeb07a5c8820">disableCallbacks</a> ()</td></tr>
+<tr class="memdesc:a0e95cce1ecb861a21ae5aeb07a5c8820"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disables the callbacks of the <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> (used to drive data acquisition).  <a href="#a0e95cce1ecb861a21ae5aeb07a5c8820"></a><br/></td></tr>
 <tr class="memitem:a180e7c402f30514d8e4667afb61d5647"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classAccessClass.html">AccessClass</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanel.html#a180e7c402f30514d8e4667afb61d5647">getAudioEditor</a> ()</td></tr>
+<tr class="memdesc:a180e7c402f30514d8e4667afb61d5647"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a pointer to the <a class="el" href="classAudioEditor.html" title="Holds the interface for editing audio output parameters.">AudioEditor</a>.  <a href="#a180e7c402f30514d8e4667afb61d5647"></a><br/></td></tr>
 <tr class="memitem:a79310ce5e86258dd74d4afcdb624a0ec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanel.html#a79310ce5e86258dd74d4afcdb624a0ec">openState</a> (bool)</td></tr>
+<tr class="memdesc:a79310ce5e86258dd74d4afcdb624a0ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets whether or not the FilenameComponent is visible.  <a href="#a79310ce5e86258dd74d4afcdb624a0ec"></a><br/></td></tr>
 <tr class="memitem:a40df9a6291f6f8325db76e51cda37d63"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanel.html#a40df9a6291f6f8325db76e51cda37d63">toggleState</a> ()</td></tr>
+<tr class="memdesc:a40df9a6291f6f8325db76e51cda37d63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Toggles the visibility of the FilenameComponent.  <a href="#a40df9a6291f6f8325db76e51cda37d63"></a><br/></td></tr>
 <tr class="memitem:abcaa15e880507c991cabd1a98dcea73f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanel.html#abcaa15e880507c991cabd1a98dcea73f">setRecordState</a> (bool t)</td></tr>
+<tr class="memdesc:abcaa15e880507c991cabd1a98dcea73f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used to manually turn recording on and off.  <a href="#abcaa15e880507c991cabd1a98dcea73f"></a><br/></td></tr>
 <tr class="memitem:af5834f9032f88c6578b557cbd9e5f5eb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classControlPanel.html#af5834f9032f88c6578b557cbd9e5f5eb">isOpen</a> ()</td></tr>
+<tr class="memdesc:af5834f9032f88c6578b557cbd9e5f5eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a boolean that indicates whether or not the FilenameComponet is visible.  <a href="#af5834f9032f88c6578b557cbd9e5f5eb"></a><br/></td></tr>
 <tr class="inherit_header pub_methods_classAccessClass"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classAccessClass')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classAccessClass.html">AccessClass</a></td></tr>
 <tr class="memitem:a4479402a420cf84c0b8ec1abd4a43d9c inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a4479402a420cf84c0b8ec1abd4a43d9c">AccessClass</a> ()</td></tr>
 <tr class="memitem:a68da6863bc0d2a4c5f84f9ed8dd4053f inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a68da6863bc0d2a4c5f84f9ed8dd4053f">~AccessClass</a> ()</td></tr>
@@ -136,9 +142,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:adca6f9ebbe535a03c024eb673a096972 inherit pub_methods_classAccessClass"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a pointer to the application's <a class="el" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>.  <a href="#adca6f9ebbe535a03c024eb673a096972"></a><br/></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>Provides general application controls. </p>
+<div class="textblock"><p>Provides general application controls along the top of the <a class="el" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a>. </p>
 <p>Displays useful information and provides buttons to control acquistion and recording.</p>
-<p>The <a class="el" href="classControlPanel.html" title="Provides general application controls.">ControlPanel</a> is located along the top of the application window.</p>
+<p>The <a class="el" href="classControlPanel.html" title="Provides general application controls along the top of the MainWindow.">ControlPanel</a> contains the <a class="el" href="classPlayButton.html" title="Toggles data acquisition on and off.">PlayButton</a>, the <a class="el" href="classRecordButton.html" title="Toggles recording on and off.">RecordButton</a>, the <a class="el" href="classCPUMeter.html" title="Displays the CPU load used up by the data processing callbacks.">CPUMeter</a>, the <a class="el" href="classDiskSpaceMeter.html" title="Displays the amount of disk space left in the current data directory.">DiskSpaceMeter</a>, the <a class="el" href="classClock.html" title="Displays the time.">Clock</a>, the <a class="el" href="classAudioEditor.html" title="Holds the interface for editing audio output parameters.">AudioEditor</a>, and a FilenameComponent for switching the current data directory.</p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classUIComponent.html">UIComponent</a> </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a3d1860dbaa23c7c0b98b9f8caddaeef3"></a>
@@ -196,6 +202,8 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Disables the callbacks of the <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> (used to drive data acquisition). </p>
+
 </div>
 </div>
 <a class="anchor" id="a180e7c402f30514d8e4667afb61d5647"></a>
@@ -210,6 +218,8 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Returns a pointer to the <a class="el" href="classAudioEditor.html" title="Holds the interface for editing audio output parameters.">AudioEditor</a>. </p>
 
 </div>
 </div>
@@ -227,6 +237,8 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Sets whether or not the FilenameComponent is visible. </p>
+
 </div>
 </div>
 <a class="anchor" id="a40df9a6291f6f8325db76e51cda37d63"></a>
@@ -241,6 +253,8 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Toggles the visibility of the FilenameComponent. </p>
 
 </div>
 </div>
@@ -258,6 +272,8 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Used to manually turn recording on and off. </p>
+
 </div>
 </div>
 <a class="anchor" id="af5834f9032f88c6578b557cbd9e5f5eb"></a>
@@ -273,6 +289,8 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Returns a boolean that indicates whether or not the FilenameComponet is visible. </p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
@@ -281,7 +299,7 @@ Public Member Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 13:10:14 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 13:55:20 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

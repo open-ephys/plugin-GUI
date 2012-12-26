@@ -99,11 +99,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3dc3b039e5415ec58300952c67df4809"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDiskSpaceMeter.html#a3dc3b039e5415ec58300952c67df4809">DiskSpaceMeter</a> ()</td></tr>
 <tr class="memitem:a46cbfb363ebe3a6593221c18133d253d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDiskSpaceMeter.html#a46cbfb363ebe3a6593221c18133d253d">~DiskSpaceMeter</a> ()</td></tr>
 <tr class="memitem:acc3483e3a49b12a9c5dd13568c98aeec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDiskSpaceMeter.html#acc3483e3a49b12a9c5dd13568c98aeec">updateDiskSpace</a> (float percent)</td></tr>
+<tr class="memdesc:acc3483e3a49b12a9c5dd13568c98aeec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the free disk space displayed by the <a class="el" href="classDiskSpaceMeter.html" title="Displays the amount of disk space left in the current data directory.">DiskSpaceMeter</a>.  <a href="#acc3483e3a49b12a9c5dd13568c98aeec"></a><br/></td></tr>
 <tr class="memitem:a11df895ab492661e07e3b6c4393c75b2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDiskSpaceMeter.html#a11df895ab492661e07e3b6c4393c75b2">paint</a> (Graphics &amp;g)</td></tr>
+<tr class="memdesc:a11df895ab492661e07e3b6c4393c75b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Draws the <a class="el" href="classDiskSpaceMeter.html" title="Displays the amount of disk space left in the current data directory.">DiskSpaceMeter</a>.  <a href="#a11df895ab492661e07e3b6c4393c75b2"></a><br/></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Displays the amount of disk space left in the current data directory. </p>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classControlPanel.html" title="Provides general application controls.">ControlPanel</a> </dd></dl>
+<p>The <a class="el" href="classDiskSpaceMeter.html" title="Displays the amount of disk space left in the current data directory.">DiskSpaceMeter</a> is located in the <a class="el" href="classControlPanel.html" title="Provides general application controls along the top of the MainWindow.">ControlPanel</a>. When the GUI is launched (or the data directory is changed), a built-in JUCE method is used to find the amount of free space.</p>
+<p>Note that the <a class="el" href="classDiskSpaceMeter.html" title="Displays the amount of disk space left in the current data directory.">DiskSpaceMeter</a> currently displays only relative, not absolute disk space.</p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classControlPanel.html" title="Provides general application controls along the top of the MainWindow.">ControlPanel</a> </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a3dc3b039e5415ec58300952c67df4809"></a>
 <div class="memitem">
@@ -150,6 +154,9 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Updates the free disk space displayed by the <a class="el" href="classDiskSpaceMeter.html" title="Displays the amount of disk space left in the current data directory.">DiskSpaceMeter</a>. </p>
+<p>Called by the <a class="el" href="classControlPanel.html" title="Provides general application controls along the top of the MainWindow.">ControlPanel</a>. </p>
+
 </div>
 </div>
 <a class="anchor" id="a11df895ab492661e07e3b6c4393c75b2"></a>
@@ -166,6 +173,8 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Draws the <a class="el" href="classDiskSpaceMeter.html" title="Displays the amount of disk space left in the current data directory.">DiskSpaceMeter</a>. </p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
@@ -174,7 +183,7 @@ Public Member Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 13:10:14 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 13:55:20 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

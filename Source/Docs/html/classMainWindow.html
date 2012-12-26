@@ -98,12 +98,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a34c4b4207b46d11a4100c9b19f0e81bb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMainWindow.html#a34c4b4207b46d11a4100c9b19f0e81bb">MainWindow</a> ()</td></tr>
+<tr class="memdesc:a34c4b4207b46d11a4100c9b19f0e81bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the <a class="el" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a>, creates the <a class="el" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>, <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a>, and <a class="el" href="classUIComponent.html">UIComponent</a>, and sets the window boundaries.  <a href="#a34c4b4207b46d11a4100c9b19f0e81bb"></a><br/></td></tr>
 <tr class="memitem:ae98d00a93bc118200eeef9f9bba1dba7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMainWindow.html#ae98d00a93bc118200eeef9f9bba1dba7">~MainWindow</a> ()</td></tr>
+<tr class="memdesc:ae98d00a93bc118200eeef9f9bba1dba7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys the <a class="el" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>, <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a>, and <a class="el" href="classUIComponent.html">UIComponent</a>, and saves the window boundaries.  <a href="#ae98d00a93bc118200eeef9f9bba1dba7"></a><br/></td></tr>
 <tr class="memitem:ac422fd3f1931a97b30d5efc8b6fc3123"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMainWindow.html#ac422fd3f1931a97b30d5efc8b6fc3123">closeButtonPressed</a> ()</td></tr>
+<tr class="memdesc:ac422fd3f1931a97b30d5efc8b6fc3123"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when the user hits the close button of the <a class="el" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a>.  <a href="#ac422fd3f1931a97b30d5efc8b6fc3123"></a><br/></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:ae36bb0085b5650e00bca6bab107dc691"><td class="memItemLeft" align="right" valign="top">ApplicationCommandManager&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMainWindow.html#ae36bb0085b5650e00bca6bab107dc691">commandManager</a></td></tr>
+<tr class="memdesc:ae36bb0085b5650e00bca6bab107dc691"><td class="mdescLeft">&#160;</td><td class="mdescRight">A JUCE class that allows the <a class="el" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a> to respond to keyboard and menubar commands.  <a href="#ae36bb0085b5650e00bca6bab107dc691"></a><br/></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>The main window for the GUI application. </p>
@@ -123,6 +127,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Initializes the <a class="el" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a>, creates the <a class="el" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>, <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a>, and <a class="el" href="classUIComponent.html">UIComponent</a>, and sets the window boundaries. </p>
+
 </div>
 </div>
 <a class="anchor" id="ae98d00a93bc118200eeef9f9bba1dba7"></a>
@@ -137,6 +143,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Destroys the <a class="el" href="classAudioComponent.html" title="Interfaces with system audio hardware.">AudioComponent</a>, <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a>, and <a class="el" href="classUIComponent.html">UIComponent</a>, and saves the window boundaries. </p>
 
 </div>
 </div>
@@ -154,6 +162,9 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Called when the user hits the close button of the <a class="el" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a>. </p>
+<p>This destroys the <a class="el" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a> and closes the application. </p>
+
 </div>
 </div>
 <hr/><h2>Member Data Documentation</h2>
@@ -167,6 +178,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>A JUCE class that allows the <a class="el" href="classMainWindow.html" title="The main window for the GUI application.">MainWindow</a> to respond to keyboard and menubar commands. </p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
@@ -175,7 +188,7 @@ Public Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 13:10:14 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 13:55:20 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

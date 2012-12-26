@@ -100,7 +100,7 @@ Inheritance diagram for AccessClass:</div>
 <area href="classAudioConfigurationWindow.html" title="Allows the user to access audio output settings." alt="AudioConfigurationWindow" shape="rect" coords="175,56,340,80"/>
 <area href="classAudioEditor.html" title="Holds the interface for editing audio output parameters." alt="AudioEditor" shape="rect" coords="175,112,340,136"/>
 <area href="classChannelSelector.html" title="Automatically creates an interactive editor for selecting channels." alt="ChannelSelector" shape="rect" coords="175,168,340,192"/>
-<area href="classControlPanel.html" title="Provides general application controls." alt="ControlPanel" shape="rect" coords="175,224,340,248"/>
+<area href="classControlPanel.html" title="Provides general application controls along the top of the MainWindow." alt="ControlPanel" shape="rect" coords="175,224,340,248"/>
 <area href="classDataViewport.html" title="Holds tabs containing the application&#39;s visualizers." alt="DataViewport" shape="rect" coords="175,280,340,304"/>
 <area href="classEditorViewport.html" title="Allows the user to view and edit the signal chain." alt="EditorViewport" shape="rect" coords="175,336,340,360"/>
 <area href="classGenericEditor.html" title="Base class for creating processor editors." alt="GenericEditor" shape="rect" coords="175,392,340,416"/>
@@ -140,7 +140,7 @@ Public Member Functions</h2></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Allows subclasses to access important pointers within the application. </p>
-<p>When an object inherits from <a class="el" href="classAccessClass.html" title="Allows subclasses to access important pointers within the application.">AccessClass</a>, it's much more convenient to get and set pointers to other objects, such as the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>, <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>, and <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> that are used throughout the application. In addition, every subclass of <a class="el" href="classAccessClass.html" title="Allows subclasses to access important pointers within the application.">AccessClass</a> automatically adds the <a class="el" href="classMessageCenter.html" title="Allows the application to display messages to the user.">MessageCenter</a> as an ActionListener, which means messages sent by that object [using sendActionMessage("Message.")] will appear in the <a class="el" href="classMessageCenter.html" title="Allows the application to display messages to the user.">MessageCenter</a> by default.</p>
+<p>When an object inherits from <a class="el" href="classAccessClass.html" title="Allows subclasses to access important pointers within the application.">AccessClass</a>, it makes it much more convenient to get and set pointers to other objects, such as the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>, <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>, and <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> that are used throughout the application. In addition, every subclass of <a class="el" href="classAccessClass.html" title="Allows subclasses to access important pointers within the application.">AccessClass</a> automatically adds the <a class="el" href="classMessageCenter.html" title="Allows the application to display messages to the user.">MessageCenter</a> as an ActionListener, which means messages sent by that object [using sendActionMessage("Message.")] will appear in the <a class="el" href="classMessageCenter.html" title="Allows the application to display messages to the user.">MessageCenter</a> by default.</p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classUIComponent.html">UIComponent</a>, <a class="el" href="classMessageCenter.html" title="Allows the application to display messages to the user.">MessageCenter</a> </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a4479402a420cf84c0b8ec1abd4a43d9c"></a>
@@ -360,7 +360,7 @@ Public Member Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 13:10:13 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 13:55:20 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

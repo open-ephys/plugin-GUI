@@ -73,8 +73,10 @@ public:
 
 private:
 
-  /** Maps original tab indices to their location within the */
+  /** Maps original tab indices to their location within the DataViewport. */
 	Array<int> tabArray;
+
+  /** Maps processor editors to their respective tabs within the DataViewport. */
   Array<GenericEditor*> editorArray;
 	void paint(Graphics& g);
 	int tabDepth;
