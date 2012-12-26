@@ -249,7 +249,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
         drawElectrodeButtons(electrodeList->getNumItems()-1);
 
-        getEditorViewport()->makeEditorVisibleAndUpdateSettings(this);
+        getEditorViewport()->makeEditorVisible(this, true, true);
         return;
 
     } else if (button == electrodeEditorButtons[0]) // EDIT
@@ -301,7 +301,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
         removeElectrode(electrodeList->getSelectedItemIndex());
 
-        getEditorViewport()->makeEditorVisibleAndUpdateSettings(this);
+        getEditorViewport()->makeEditorVisible(this, true, true);
 
         return;
     }

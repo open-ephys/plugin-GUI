@@ -68,7 +68,6 @@ EditorViewport::EditorViewport()
 
 EditorViewport::~EditorViewport()
 {
-   // deleteAndZero(signalChainManager);
     deleteAllChildren();
 }
 
@@ -261,13 +260,17 @@ void EditorViewport::clearSignalChain()
     repaint();
 }
 
-void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight)
+void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bool updateSettings)
 {
     
     if (editor == 0)
         return;
 
-    signalChainManager->updateVisibleEditors(editor, 0, 0, ACTIVATE);
+    if (!updateSettings)
+        signalChainManager->updateVisibleEditors(editor, 0, 0, ACTIVATE);
+    else
+        signalChainManager->updateVisibleEditors(editor, 0, 0, UPDATE);
+
     refreshEditors();
 
     for (int i = 0; i < editorArray.size(); i++)
@@ -277,25 +280,6 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight)
 
     if (highlight)
         editor->highlight();
-
-}
-
-
-void EditorViewport::makeEditorVisibleAndUpdateSettings(GenericEditor* editor)
-{
-    
-    if (editor == 0)
-        return;
-
-    signalChainManager->updateVisibleEditors(editor, 0, 0, UPDATE);
-    refreshEditors();
-
-    for (int i = 0; i < editorArray.size(); i++)
-    {
-        editorArray[i]->deselect();
-    }
-
-    editor->highlight();
 
 }
 
@@ -311,16 +295,6 @@ void EditorViewport::deleteNode (GenericEditor* editor) {
 
         getProcessorGraph()->removeProcessor((GenericProcessor*) editor->getProcessor());
     }
-
-    // int64 t1 = Time::currentTimeMillis();
-    // int64 t2 = t1;
-
-    // // pause for 50 ms so multiple editors are not accidentally deleted
-    // while (t2 < t1+50)
-    // {
-    //     t2 = Time::currentTimeMillis();
-    // }
-
 }
 
 

@@ -296,13 +296,13 @@ public:
 	AccessClass* getAudioEditor() {return (AccessClass*) audioEditor;}
 
 	/** Sets whether or not the FilenameComponent is visible.*/
-	void openState(bool);
+	void openState(bool isOpen);
 	
 	/** Toggles the visibility of the FilenameComponent.*/
 	void toggleState();
 
 	/** Used to manually turn recording on and off.*/
-	void setRecordState(bool t);
+	void setRecordState(bool isRecording);
 
 	/** Returns a boolean that indicates whether or not the FilenameComponet
 	    is visible. */
