@@ -284,83 +284,6 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="af3f7c97002f66948d21f4e6fe05d1a8a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void AudioNode::addInputChannel </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td>
-          <td class="paramname"><em>source</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>chan</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a46c720536cf4b8502d841a65f9dccd1d"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">AudioProcessorEditor* AudioNode::createEditor </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reimplemented from <a class="el" href="classGenericProcessor.html#a4336e8c17d1ba015933628d6902896fa">GenericProcessor</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a94937d356ee86b72eed82fad0337f9e7"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void AudioNode::enableCurrentChannel </td>
-          <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reimplemented from <a class="el" href="classGenericProcessor.html#ad5f545d93e0409b97f0f5a2a27a83b3a">GenericProcessor</a>.</p>
-
-</div>
-</div>
 <a class="anchor" id="a90d23dc83c27a5ff3a8e5029a5498b35"></a>
 <div class="memitem">
 <div class="memproto">
@@ -405,7 +328,7 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a390f72b38da27e367dde1a6dc22a5fa5"></a>
+<a class="anchor" id="a61ca4c81f908093001fd7805951274a2"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -413,7 +336,45 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void AudioNode::resetConnections </td>
+          <td class="memname">void AudioNode::setParameter </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>parameterIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>newValue</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Overrides implementation in <a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>; used to change audio monitoring parameters on the fly. </p>
+
+<p>Reimplemented from <a class="el" href="classGenericProcessor.html#ad8c8e91c2204a1d48d2d3b3bf117c09d">GenericProcessor</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a46c720536cf4b8502d841a65f9dccd1d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">AudioProcessorEditor* AudioNode::createEditor </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -426,7 +387,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented from <a class="el" href="classGenericProcessor.html#a79f6e2e58b138bf070001d6bc8b7bb1d">GenericProcessor</a>.</p>
+<p>Reimplemented from <a class="el" href="classGenericProcessor.html#a4336e8c17d1ba015933628d6902896fa">GenericProcessor</a>.</p>
 
 </div>
 </div>
@@ -472,7 +433,7 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a61ca4c81f908093001fd7805951274a2"></a>
+<a class="anchor" id="a390f72b38da27e367dde1a6dc22a5fa5"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -480,21 +441,10 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void AudioNode::setParameter </td>
+          <td class="memname">void AudioNode::resetConnections </td>
           <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>parameterIndex</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>newValue</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -504,9 +454,59 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Overrides implementation in <a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>; used to change audio monitoring parameters on the fly. </p>
+<p>Reimplemented from <a class="el" href="classGenericProcessor.html#a79f6e2e58b138bf070001d6bc8b7bb1d">GenericProcessor</a>.</p>
 
-<p>Reimplemented from <a class="el" href="classGenericProcessor.html#ad8c8e91c2204a1d48d2d3b3bf117c09d">GenericProcessor</a>.</p>
+</div>
+</div>
+<a class="anchor" id="a94937d356ee86b72eed82fad0337f9e7"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioNode::enableCurrentChannel </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classGenericProcessor.html#ad5f545d93e0409b97f0f5a2a27a83b3a">GenericProcessor</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="af3f7c97002f66948d21f4e6fe05d1a8a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioNode::addInputChannel </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td>
+          <td class="paramname"><em>source</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>chan</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -529,7 +529,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 12:16:43 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 12:48:12 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

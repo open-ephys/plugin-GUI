@@ -169,37 +169,6 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="ae9c9c8963bd984fe099792770a64d596"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ProcessorGraph::changeListenerCallback </td>
-          <td>(</td>
-          <td class="paramtype">ChangeBroadcaster *&#160;</td>
-          <td class="paramname"><em>source</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a9affe0a1bddce5272cab547d4c38472a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ProcessorGraph::clearSignalChain </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="a75a8c555386eb322aabb83b6cb651f76"></a>
 <div class="memitem">
 <div class="memproto">
@@ -232,12 +201,28 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a2c0c9688eeaea12a8fe5357b73e58785"></a>
+<a class="anchor" id="a3ca938850a4e4f27cae467eeff5046cf"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool ProcessorGraph::disableProcessors </td>
+          <td class="memname">void ProcessorGraph::removeProcessor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td>
+          <td class="paramname"><em>processor</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a9affe0a1bddce5272cab547d4c38472a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ProcessorGraph::clearSignalChain </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -262,12 +247,12 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="af34c4fcdf99f327c922daf6a9e4c9caf"></a>
+<a class="anchor" id="a2c0c9688eeaea12a8fe5357b73e58785"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classAudioNode.html">AudioNode</a>* ProcessorGraph::getAudioNode </td>
+          <td class="memname">bool ProcessorGraph::disableProcessors </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -292,31 +277,14 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a7ddf86dcf1c88e6da9095396734d560c"></a>
+<a class="anchor" id="af34c4fcdf99f327c922daf6a9e4c9caf"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool ProcessorGraph::processorWithSameNameExists </td>
+          <td class="memname"><a class="el" href="classAudioNode.html">AudioNode</a>* ProcessorGraph::getAudioNode </td>
           <td>(</td>
-          <td class="paramtype">const String &amp;&#160;</td>
-          <td class="paramname"><em>name</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a3ca938850a4e4f27cae467eeff5046cf"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ProcessorGraph::removeProcessor </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td>
-          <td class="paramname"><em>processor</em></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -340,13 +308,45 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a7ddf86dcf1c88e6da9095396734d560c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ProcessorGraph::processorWithSameNameExists </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae9c9c8963bd984fe099792770a64d596"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ProcessorGraph::changeListenerCallback </td>
+          <td>(</td>
+          <td class="paramtype">ChangeBroadcaster *&#160;</td>
+          <td class="paramname"><em>source</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="ProcessorGraph_8h.html">ProcessorGraph.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 12:16:44 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 12:48:13 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

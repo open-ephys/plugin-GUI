@@ -288,134 +288,6 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a4047f96e619200aeaf00795e70c7cef6"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void RecordNode::addInputChannel </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td>
-          <td class="paramname"><em>sourceNode</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>chan</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="abbbb21fd91cc96595d377addb3e71bf5"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void RecordNode::createNewDirectory </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Creates a new data directory in the location specified by the fileNameComponent. </p>
-
-</div>
-</div>
-<a class="anchor" id="ae020d2f723fb1468f48f14d76d007202"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool RecordNode::disable </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reimplemented from <a class="el" href="classGenericProcessor.html#aac6a1a695bce499b07418efa1fde55f2">GenericProcessor</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a9b4fa6a3b6662d9888184dd3ad013872"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool RecordNode::enable </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reimplemented from <a class="el" href="classGenericProcessor.html#aef8d92d5d667f0e9d4b2d334ddf37380">GenericProcessor</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a18e27b2842124012d915fdfd2e272d96"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void RecordNode::filenameComponentChanged </td>
-          <td>(</td>
-          <td class="paramtype">FilenameComponent *&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Callback to indicate when user has chosen a new data directory. </p>
-
-</div>
-</div>
-<a class="anchor" id="a208709d4b0f959a845f10490acde9ca8"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">float RecordNode::getFreeSpace </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Called by the <a class="el" href="classControlPanel.html" title="Provides general application controls.">ControlPanel</a> to determine the amount of space left in the current dataDirectory. </p>
-
-</div>
-</div>
 <a class="anchor" id="aca58ffeeeb9a112bfe4a8275d3e8e3ba"></a>
 <div class="memitem">
 <div class="memproto">
@@ -460,7 +332,7 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aaa35ce70d9da415b021a426e8cd43765"></a>
+<a class="anchor" id="a8a63274afcbea876bb3d83b47ca40c2f"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -468,7 +340,72 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void RecordNode::resetConnections </td>
+          <td class="memname">void RecordNode::setParameter </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>parameterIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>newValue</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Overrides implementation in <a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>; used to change recording parameters on the fly. </p>
+<p>parameterIndex = 0: stop recording parameterIndex = 1: start recording parameterIndex = 2: newValue = 0: turn off recording for current channel newValue = 1: turn on recording for current channel </p>
+
+<p>Reimplemented from <a class="el" href="classGenericProcessor.html#ad8c8e91c2204a1d48d2d3b3bf117c09d">GenericProcessor</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a4047f96e619200aeaf00795e70c7cef6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void RecordNode::addInputChannel </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td>
+          <td class="paramname"><em>sourceNode</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>chan</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a9b4fa6a3b6662d9888184dd3ad013872"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool RecordNode::enable </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -481,9 +418,49 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Used to clear all connections prior to the start of acquisition. </p>
+<p>Reimplemented from <a class="el" href="classGenericProcessor.html#aef8d92d5d667f0e9d4b2d334ddf37380">GenericProcessor</a>.</p>
 
-<p>Reimplemented from <a class="el" href="classGenericProcessor.html#a79f6e2e58b138bf070001d6bc8b7bb1d">GenericProcessor</a>.</p>
+</div>
+</div>
+<a class="anchor" id="ae020d2f723fb1468f48f14d76d007202"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool RecordNode::disable </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classGenericProcessor.html#aac6a1a695bce499b07418efa1fde55f2">GenericProcessor</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a208709d4b0f959a845f10490acde9ca8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float RecordNode::getFreeSpace </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Called by the <a class="el" href="classControlPanel.html" title="Provides general application controls.">ControlPanel</a> to determine the amount of space left in the current dataDirectory. </p>
 
 </div>
 </div>
@@ -534,7 +511,7 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a8a63274afcbea876bb3d83b47ca40c2f"></a>
+<a class="anchor" id="aaa35ce70d9da415b021a426e8cd43765"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -542,21 +519,10 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void RecordNode::setParameter </td>
+          <td class="memname">void RecordNode::resetConnections </td>
           <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>parameterIndex</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>newValue</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -566,10 +532,44 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Overrides implementation in <a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>; used to change recording parameters on the fly. </p>
-<p>parameterIndex = 0: stop recording parameterIndex = 1: start recording parameterIndex = 2: newValue = 0: turn off recording for current channel newValue = 1: turn on recording for current channel </p>
+<p>Used to clear all connections prior to the start of acquisition. </p>
 
-<p>Reimplemented from <a class="el" href="classGenericProcessor.html#ad8c8e91c2204a1d48d2d3b3bf117c09d">GenericProcessor</a>.</p>
+<p>Reimplemented from <a class="el" href="classGenericProcessor.html#a79f6e2e58b138bf070001d6bc8b7bb1d">GenericProcessor</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a18e27b2842124012d915fdfd2e272d96"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void RecordNode::filenameComponentChanged </td>
+          <td>(</td>
+          <td class="paramtype">FilenameComponent *&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Callback to indicate when user has chosen a new data directory. </p>
+
+</div>
+</div>
+<a class="anchor" id="abbbb21fd91cc96595d377addb3e71bf5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void RecordNode::createNewDirectory </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Creates a new data directory in the location specified by the fileNameComponent. </p>
 
 </div>
 </div>
@@ -579,7 +579,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 12:16:44 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 12:48:13 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

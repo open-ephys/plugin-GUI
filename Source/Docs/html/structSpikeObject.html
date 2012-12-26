@@ -103,18 +103,6 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:aa3b4cec4bcc9b1e1ad0f50d8babead63"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structSpikeObject.html#aa3b4cec4bcc9b1e1ad0f50d8babead63">threshold</a> [<a class="el" href="SpikeObject_8h.html#a3fcfe0b88f179a22edaf6f3f8189d13d">MAX_NUMBER_OF_SPIKE_CHANNELS</a>]</td></tr>
 </table>
 <hr/><h2>Member Data Documentation</h2>
-<a class="anchor" id="ab64109049bbe27ddbf44fa7441698103"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint16_t SpikeObject::data[<a class="el" href="SpikeObject_8h.html#a3fcfe0b88f179a22edaf6f3f8189d13d">MAX_NUMBER_OF_SPIKE_CHANNELS</a> *<a class="el" href="SpikeObject_8h.html#ac691e78cc03b1fa0332388aa6f03f821">MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES</a>]</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="a89a9d28a3f76e004c5434ab87a13f6ce"></a>
 <div class="memitem">
 <div class="memproto">
@@ -127,12 +115,24 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aeb26d8b44806e5d80ee785e28db122ce"></a>
+<a class="anchor" id="ad9b485d97938e01e1e8ed5044d26aaf5"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint16_t SpikeObject::gain[<a class="el" href="SpikeObject_8h.html#a3fcfe0b88f179a22edaf6f3f8189d13d">MAX_NUMBER_OF_SPIKE_CHANNELS</a>]</td>
+          <td class="memname">uint64_t SpikeObject::timestamp</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad82d2c52cd9262794947807cc70f0bc8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t SpikeObject::source</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -163,12 +163,24 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ad82d2c52cd9262794947807cc70f0bc8"></a>
+<a class="anchor" id="ab64109049bbe27ddbf44fa7441698103"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint16_t SpikeObject::source</td>
+          <td class="memname">uint16_t SpikeObject::data[<a class="el" href="SpikeObject_8h.html#a3fcfe0b88f179a22edaf6f3f8189d13d">MAX_NUMBER_OF_SPIKE_CHANNELS</a> *<a class="el" href="SpikeObject_8h.html#ac691e78cc03b1fa0332388aa6f03f821">MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES</a>]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aeb26d8b44806e5d80ee785e28db122ce"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t SpikeObject::gain[<a class="el" href="SpikeObject_8h.html#a3fcfe0b88f179a22edaf6f3f8189d13d">MAX_NUMBER_OF_SPIKE_CHANNELS</a>]</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -187,25 +199,13 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ad9b485d97938e01e1e8ed5044d26aaf5"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint64_t SpikeObject::timestamp</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="SpikeObject_8h.html">SpikeObject.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 12:16:44 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 12:48:13 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

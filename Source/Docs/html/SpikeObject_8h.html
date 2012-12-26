@@ -117,12 +117,12 @@ Functions</h2></td></tr>
 <tr class="memitem:adfe3c360ef05292a702f9bec74b49b5d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="SpikeObject_8h.html#adfe3c360ef05292a702f9bec74b49b5d">printSpike</a> (<a class="el" href="structSpikeObject.html">SpikeObject</a> *s)</td></tr>
 </table>
 <hr/><h2>Macro Definition Documentation</h2>
-<a class="anchor" id="a04956a2dc4bda3460a08632c5ff1dabd"></a>
+<a class="anchor" id="a3fcfe0b88f179a22edaf6f3f8189d13d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CHECK_BUFFER_VALIDITY&#160;&#160;&#160;true</td>
+          <td class="memname">#define MAX_NUMBER_OF_SPIKE_CHANNELS&#160;&#160;&#160;4</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -141,24 +141,12 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a3fcfe0b88f179a22edaf6f3f8189d13d"></a>
+<a class="anchor" id="a04956a2dc4bda3460a08632c5ff1dabd"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define MAX_NUMBER_OF_SPIKE_CHANNELS&#160;&#160;&#160;4</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a34f7c6bf0affe54d746dced91920d66d"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define MAX_SPIKE_BUFFER_LEN&#160;&#160;&#160;512</td>
+          <td class="memname">#define CHECK_BUFFER_VALIDITY&#160;&#160;&#160;true</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -177,13 +165,25 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<hr/><h2>Function Documentation</h2>
-<a class="anchor" id="a982bd08d21e5c3f738ee7705c935eec8"></a>
+<a class="anchor" id="a34f7c6bf0affe54d746dced91920d66d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void generateEmptySpike </td>
+          <td class="memname">#define MAX_SPIKE_BUFFER_LEN&#160;&#160;&#160;512</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Function Documentation</h2>
+<a class="anchor" id="abd45f9baa51d7d2318794f8e6a4ed3ff"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int packSpike </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structSpikeObject.html">SpikeObject</a> *&#160;</td>
           <td class="paramname"><em>s</em>, </td>
@@ -191,8 +191,14 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>nChannels</em>&#160;</td>
+          <td class="paramname"><em>bufferLength</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -204,12 +210,12 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a142f1137362a497a20e5aae95830f522"></a>
+<a class="anchor" id="aec8b97eb2bb464ea9ec6b03d24e8d501"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void generateSimulatedSpike </td>
+          <td class="memname">bool unpackSpike </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structSpikeObject.html">SpikeObject</a> *&#160;</td>
           <td class="paramname"><em>s</em>, </td>
@@ -217,14 +223,14 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint64_t&#160;</td>
-          <td class="paramname"><em>timestamp</em>, </td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>noise</em>&#160;</td>
+          <td class="paramname"><em>bufferLength</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -288,12 +294,12 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="abd45f9baa51d7d2318794f8e6a4ed3ff"></a>
+<a class="anchor" id="a142f1137362a497a20e5aae95830f522"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int packSpike </td>
+          <td class="memname">void generateSimulatedSpike </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structSpikeObject.html">SpikeObject</a> *&#160;</td>
           <td class="paramname"><em>s</em>, </td>
@@ -301,14 +307,40 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>buffer</em>, </td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>timestamp</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>bufferLength</em>&#160;</td>
+          <td class="paramname"><em>noise</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a982bd08d21e5c3f738ee7705c935eec8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void generateEmptySpike </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structSpikeObject.html">SpikeObject</a> *&#160;</td>
+          <td class="paramname"><em>s</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nChannels</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -336,42 +368,10 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aec8b97eb2bb464ea9ec6b03d24e8d501"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool unpackSpike </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structSpikeObject.html">SpikeObject</a> *&#160;</td>
-          <td class="paramname"><em>s</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>buffer</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>bufferLength</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 12:16:43 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 12:48:12 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

@@ -169,53 +169,18 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="af62fa85b1ac69f1f3b3f53150bf55f23"></a>
+<a class="anchor" id="ae1d41cdc6b7fbd8160e18c3cf1812471"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual bool DataThread::foundInputSource </td>
+          <td class="memname">void DataThread::run </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
-
-<p>Implemented in <a class="el" href="classNetworkThread.html#a8ded78dab341e5c7c98ccf5fa34f6bb5">NetworkThread</a>, <a class="el" href="classFileReaderThread.html#ae1e58d2033c87cd71cff4d2e45360087">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a58958c632739119e57126ceaf7ae9210">FPGAThread</a>, and <a class="el" href="classIntanThread.html#acd7222cc5aa5495fc9b99ccc89b57fc2">IntanThread</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a679d8b6d9c25dba87cdf8b248eb96d4c"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual float DataThread::getBitVolts </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Implemented in <a class="el" href="classFileReaderThread.html#a50b11fd1f129af9488134d1b6e31e93b">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a30096ea04ec85c0aa301f167fd7a42c4">FPGAThread</a>, and <a class="el" href="classIntanThread.html#ad2020007cf90134f414a6c0413e63127">IntanThread</a>.</p>
 
 </div>
 </div>
@@ -234,7 +199,7 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ac121f35bf9b7626d0c32ed03d8962aeb"></a>
+<a class="anchor" id="adbd6623e8892aad3c5f5588aff3ff195"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -242,30 +207,7 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void* DataThread::getDevice </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a2eb3af064cfe39d83dc19dd6e4f5de06"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual int DataThread::getNumChannels </td>
+          <td class="memname">virtual bool DataThread::updateBuffer </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -276,73 +218,6 @@ Public Attributes</h2></td></tr>
 <span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
   </tr>
 </table>
-</div><div class="memdoc">
-
-<p>Implemented in <a class="el" href="classNetworkThread.html#a37d244c39c0b0c52882a439638942d40">NetworkThread</a>, <a class="el" href="classFileReaderThread.html#aea6f87741b16e78b29f32b2efccf5664">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a67ff95c727afa4c92d9705c3b1d9c3ee">FPGAThread</a>, and <a class="el" href="classIntanThread.html#a8b5d9057c93ce0e476e994274cdd35fc">IntanThread</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a229e56dd57b71a2692a8130086858288"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual int DataThread::getNumEventChannels </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reimplemented in <a class="el" href="classFPGAThread.html#a01f656a35601081f567b0df2d39d62c5">FPGAThread</a>, and <a class="el" href="classIntanThread.html#a4d09acff7877805aec7484cac63d451c">IntanThread</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a86f12c1b334ae8c4cd39c493cc123302"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual float DataThread::getSampleRate </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Implemented in <a class="el" href="classNetworkThread.html#a7212f2e4b930e2831e79143bd90b07ab">NetworkThread</a>, <a class="el" href="classFileReaderThread.html#ab6360a15dd538bb78dfd3c52fa6fa1d2">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a8d1bd558f7e72a8f578db63736df22cf">FPGAThread</a>, and <a class="el" href="classIntanThread.html#af75991b755889843df9e30e259fe7465">IntanThread</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ae1d41cdc6b7fbd8160e18c3cf1812471"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void DataThread::run </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
 </div><div class="memdoc">
 
 </div>
@@ -363,7 +238,7 @@ Public Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -388,12 +263,37 @@ Public Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 <p>Reimplemented in <a class="el" href="classFPGAThread.html#ae2692f0080cc304cc31d39a8d8c528fe">FPGAThread</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="af62fa85b1ac69f1f3b3f53150bf55f23"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool DataThread::foundInputSource </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="classNetworkThread.html#a8ded78dab341e5c7c98ccf5fa34f6bb5">NetworkThread</a>, <a class="el" href="classFileReaderThread.html#ae1e58d2033c87cd71cff4d2e45360087">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a58958c632739119e57126ceaf7ae9210">FPGAThread</a>, and <a class="el" href="classIntanThread.html#acd7222cc5aa5495fc9b99ccc89b57fc2">IntanThread</a>.</p>
 
 </div>
 </div>
@@ -447,7 +347,7 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="adbd6623e8892aad3c5f5588aff3ff195"></a>
+<a class="anchor" id="a2eb3af064cfe39d83dc19dd6e4f5de06"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -455,7 +355,7 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual bool DataThread::updateBuffer </td>
+          <td class="memname">virtual int DataThread::getNumChannels </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -464,6 +364,106 @@ Public Attributes</h2></td></tr>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="classNetworkThread.html#a37d244c39c0b0c52882a439638942d40">NetworkThread</a>, <a class="el" href="classFileReaderThread.html#aea6f87741b16e78b29f32b2efccf5664">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a67ff95c727afa4c92d9705c3b1d9c3ee">FPGAThread</a>, and <a class="el" href="classIntanThread.html#a8b5d9057c93ce0e476e994274cdd35fc">IntanThread</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a86f12c1b334ae8c4cd39c493cc123302"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual float DataThread::getSampleRate </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="classNetworkThread.html#a7212f2e4b930e2831e79143bd90b07ab">NetworkThread</a>, <a class="el" href="classFileReaderThread.html#ab6360a15dd538bb78dfd3c52fa6fa1d2">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a8d1bd558f7e72a8f578db63736df22cf">FPGAThread</a>, and <a class="el" href="classIntanThread.html#af75991b755889843df9e30e259fe7465">IntanThread</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a679d8b6d9c25dba87cdf8b248eb96d4c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual float DataThread::getBitVolts </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="classFileReaderThread.html#a50b11fd1f129af9488134d1b6e31e93b">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a30096ea04ec85c0aa301f167fd7a42c4">FPGAThread</a>, and <a class="el" href="classIntanThread.html#ad2020007cf90134f414a6c0413e63127">IntanThread</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a229e56dd57b71a2692a8130086858288"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int DataThread::getNumEventChannels </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented in <a class="el" href="classFPGAThread.html#a01f656a35601081f567b0df2d39d62c5">FPGAThread</a>, and <a class="el" href="classIntanThread.html#a4d09acff7877805aec7484cac63d451c">IntanThread</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ac121f35bf9b7626d0c32ed03d8962aeb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void* DataThread::getDevice </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -483,18 +483,6 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4bb1f1cee2b4a22ea3d5cf46474cdf44"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int16 DataThread::eventCode</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="a6a26fc244b2ce396c5c013353fb6293e"></a>
 <div class="memitem">
 <div class="memproto">
@@ -507,12 +495,12 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="accc54752eabe9a03592be371f622877d"></a>
+<a class="anchor" id="a4bb1f1cee2b4a22ea3d5cf46474cdf44"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Time DataThread::timer</td>
+          <td class="memname">int16 DataThread::eventCode</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -531,13 +519,25 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="accc54752eabe9a03592be371f622877d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Time DataThread::timer</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="DataThread_8h.html">DataThread.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 12:16:43 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 12:48:12 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

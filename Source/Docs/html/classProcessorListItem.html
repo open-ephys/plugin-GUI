@@ -148,15 +148,30 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a8aa12edb07c98dbb694db1676b6e1031"></a>
+<a class="anchor" id="ad783cc2b23fcebf02e905675c681a585"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void ProcessorListItem::addSubItem </td>
+          <td class="memname">int ProcessorListItem::getNumSubItems </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classProcessorListItem.html">ProcessorListItem</a> *&#160;</td>
-          <td class="paramname"><em>newItem</em></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a090fba411589dbfe64c11284f15338e6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classProcessorListItem.html">ProcessorListItem</a>* ProcessorListItem::getSubItem </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>index</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -179,14 +194,15 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="af7ab7fd5ad3b16069ed44100a9a1436f"></a>
+<a class="anchor" id="a8aa12edb07c98dbb694db1676b6e1031"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const String&amp; ProcessorListItem::getName </td>
+          <td class="memname">void ProcessorListItem::addSubItem </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classProcessorListItem.html">ProcessorListItem</a> *&#160;</td>
+          <td class="paramname"><em>newItem</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -194,42 +210,12 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ad783cc2b23fcebf02e905675c681a585"></a>
+<a class="anchor" id="a7f69ff3e9d1768c659f779d089306845"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int ProcessorListItem::getNumSubItems </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a643aa9eba406af23ce41c31b784b8290"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const String&amp; ProcessorListItem::getParentName </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a090fba411589dbfe64c11284f15338e6"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classProcessorListItem.html">ProcessorListItem</a>* ProcessorListItem::getSubItem </td>
+          <td class="memname">void ProcessorListItem::removeSubItem </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>index</em></td><td>)</td>
@@ -270,12 +256,25 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a0316c822a9900c1b905d1aa7cdcac959"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ProcessorListItem::setOpen </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a73019958aff6397cf7d84e5bd7296ebd"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">bool ProcessorListItem::isSelected </td>
@@ -284,24 +283,19 @@ Public Attributes</h2></td></tr>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a class="anchor" id="a7f69ff3e9d1768c659f779d089306845"></a>
+<a class="anchor" id="a52859c6b7cafd0506839dfa4d21a9753"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void ProcessorListItem::removeSubItem </td>
+          <td class="memname">void ProcessorListItem::setSelected </td>
           <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>index</em></td><td>)</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>b</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -312,9 +306,6 @@ Public Attributes</h2></td></tr>
 <a class="anchor" id="a237afc4c1c5d76e9747b99dbe731352e"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void ProcessorListItem::reverseOpenState </td>
@@ -323,23 +314,32 @@ Public Attributes</h2></td></tr>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a class="anchor" id="a0316c822a9900c1b905d1aa7cdcac959"></a>
+<a class="anchor" id="af7ab7fd5ad3b16069ed44100a9a1436f"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void ProcessorListItem::setOpen </td>
+          <td class="memname">const String&amp; ProcessorListItem::getName </td>
           <td>(</td>
-          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a643aa9eba406af23ce41c31b784b8290"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const String&amp; ProcessorListItem::getParentName </td>
+          <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
@@ -364,30 +364,6 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a52859c6b7cafd0506839dfa4d21a9753"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ProcessorListItem::setSelected </td>
-          <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>b</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <hr/><h2>Member Data Documentation</h2>
 <a class="anchor" id="adb7ccd81ccfc66575555f2f5f0ccc460"></a>
 <div class="memitem">
@@ -407,7 +383,7 @@ Public Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 12:16:44 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 12:48:13 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

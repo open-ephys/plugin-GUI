@@ -199,15 +199,15 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a993f75f13ab62e1cea1ce38da1f046d5"></a>
+<a class="anchor" id="a9e1acddb0e1bd9de0ee5c144d65d231b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void EditorViewport::buttonClicked </td>
+          <td class="memname">void EditorViewport::paint </td>
           <td>(</td>
-          <td class="paramtype">Button *&#160;</td>
-          <td class="paramname"><em>button</em></td><td>)</td>
+          <td class="paramtype">Graphics &amp;&#160;</td>
+          <td class="paramname"><em>g</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -215,15 +215,88 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aada77ca562341a093410527034b10818"></a>
+<a class="anchor" id="ad0b9dfd4b77ca870e76f174032e12fd0"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void EditorViewport::checkScrollButtons </td>
+          <td class="memname">void EditorViewport::deleteNode </td>
           <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>topTab</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
+          <td class="paramname"><em>editor</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa788025ac31951eb6b3db55f5da19350"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::selectEditor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
+          <td class="paramname"><em>e</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a48ffa818358a263ac61221d5e94a14cc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::makeEditorVisible </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
+          <td class="paramname"><em>e</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>highlight</em> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a70a4e6431ea881b26efcecab2ce9f736"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::makeEditorVisibleAndUpdateSettings </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
+          <td class="paramname"><em>e</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a2537b32aa2b8e90835770e5543ba3da7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::refreshEditors </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -246,41 +319,15 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a231c3600cecadafa2b6c01dc39515c7b"></a>
+<a class="anchor" id="a507e141c15a124aef3c307bab7e4e5c6"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">XmlElement* EditorViewport::createNodeXml </td>
+          <td class="memname">void EditorViewport::signalChainCanBeEdited </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
-          <td class="paramname">, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname">&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ad0b9dfd4b77ca870e76f174032e12fd0"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void EditorViewport::deleteNode </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
-          <td class="paramname"><em>editor</em></td><td>)</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>t</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -314,27 +361,50 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a1b5cea1e2a181d39375b025a5c1dd047"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool EditorViewport::isSignalChainEmpty </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="a14cb153a6f1ca97584c3bfa88d5839e4"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void EditorViewport::itemDragEnter </td>
+          <td>(</td>
+          <td class="paramtype">const String &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Component *&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a99630d7cff4060355eb33b523a1ff662"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::itemDragMove </td>
           <td>(</td>
           <td class="paramtype">const String &amp;&#160;</td>
           <td class="paramname">, </td>
@@ -393,44 +463,6 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a99630d7cff4060355eb33b523a1ff662"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void EditorViewport::itemDragMove </td>
-          <td>(</td>
-          <td class="paramtype">const String &amp;&#160;</td>
-          <td class="paramname">, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Component *&#160;</td>
-          <td class="paramname">, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname">, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname">&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="a28feb4315615bf02650df7d9df8230da"></a>
 <div class="memitem">
 <div class="memproto">
@@ -469,81 +501,6 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a949986b1e5866860a76b91f96fc68c54"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool EditorViewport::keyPressed </td>
-          <td>(</td>
-          <td class="paramtype">const KeyPress &amp;&#160;</td>
-          <td class="paramname"><em>key</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a2ae2ff8e05fca5d7717fbce441fb2412"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const String EditorViewport::loadState </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Load a saved configuration from an XML file. </p>
-
-</div>
-</div>
-<a class="anchor" id="a48ffa818358a263ac61221d5e94a14cc"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void EditorViewport::makeEditorVisible </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
-          <td class="paramname"><em>e</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>highlight</em> = <code>true</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a70a4e6431ea881b26efcecab2ce9f736"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void EditorViewport::makeEditorVisibleAndUpdateSettings </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
-          <td class="paramname"><em>e</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="ae5ea71d59fb37b2888a451d7ad96a0af"></a>
 <div class="memitem">
 <div class="memproto">
@@ -576,6 +533,22 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a839c651c6aaf978166a59eb8268c9728"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EditorViewport::mouseUp </td>
+          <td>(</td>
+          <td class="paramtype">const MouseEvent &amp;&#160;</td>
+          <td class="paramname"><em>e</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a30efef0c60d508fdb5f94efc6729e315"></a>
 <div class="memitem">
 <div class="memproto">
@@ -592,15 +565,15 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a839c651c6aaf978166a59eb8268c9728"></a>
+<a class="anchor" id="a949986b1e5866860a76b91f96fc68c54"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void EditorViewport::mouseUp </td>
+          <td class="memname">bool EditorViewport::keyPressed </td>
           <td>(</td>
-          <td class="paramtype">const MouseEvent &amp;&#160;</td>
-          <td class="paramname"><em>e</em></td><td>)</td>
+          <td class="paramtype">const KeyPress &amp;&#160;</td>
+          <td class="paramname"><em>key</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -624,30 +597,15 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a9e1acddb0e1bd9de0ee5c144d65d231b"></a>
+<a class="anchor" id="a993f75f13ab62e1cea1ce38da1f046d5"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void EditorViewport::paint </td>
+          <td class="memname">void EditorViewport::buttonClicked </td>
           <td>(</td>
-          <td class="paramtype">Graphics &amp;&#160;</td>
-          <td class="paramname"><em>g</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a2537b32aa2b8e90835770e5543ba3da7"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void EditorViewport::refreshEditors </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">Button *&#160;</td>
+          <td class="paramname"><em>button</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -658,9 +616,6 @@ Public Attributes</h2></td></tr>
 <a class="anchor" id="aea2c840f1ca1309f483b7ff600e9e4ad"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">Array&lt;<a class="el" href="classSignalChainTabButton.html">SignalChainTabButton</a>*, CriticalSection&gt; EditorViewport::requestSignalChain </td>
@@ -669,11 +624,6 @@ Public Attributes</h2></td></tr>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>
@@ -695,32 +645,43 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aa788025ac31951eb6b3db55f5da19350"></a>
+<a class="anchor" id="a2ae2ff8e05fca5d7717fbce441fb2412"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void EditorViewport::selectEditor </td>
+          <td class="memname">const String EditorViewport::loadState </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
-          <td class="paramname"><em>e</em></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
+<p>Load a saved configuration from an XML file. </p>
+
 </div>
 </div>
-<a class="anchor" id="a507e141c15a124aef3c307bab7e4e5c6"></a>
+<a class="anchor" id="a231c3600cecadafa2b6c01dc39515c7b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void EditorViewport::signalChainCanBeEdited </td>
+          <td class="memname">XmlElement* EditorViewport::createNodeXml </td>
           <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>t</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -743,19 +704,38 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<hr/><h2>Member Data Documentation</h2>
-<a class="anchor" id="a09ffd88dead53e37ce7701adeda3ce8a"></a>
+<a class="anchor" id="aada77ca562341a093410527034b10818"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">File EditorViewport::currentFile</td>
+          <td class="memname">void EditorViewport::checkScrollButtons </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>topTab</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
+<a class="anchor" id="a1b5cea1e2a181d39375b025a5c1dd047"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool EditorViewport::isSignalChainEmpty </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Member Data Documentation</h2>
 <a class="anchor" id="ab05cd676ab48b8e252d56d1fb9f07d4f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -768,13 +748,25 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a09ffd88dead53e37ce7701adeda3ce8a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">File EditorViewport::currentFile</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="EditorViewport_8h.html">EditorViewport.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 12:16:44 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 12:48:12 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>
