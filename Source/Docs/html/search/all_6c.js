@@ -9,8 +9,8 @@ var searchData=
   ['lfpdisplayeditor_2eh',['LfpDisplayEditor.h',['../LfpDisplayEditor_8h.html',1,'']]],
   ['lfpdisplaynode',['LfpDisplayNode',['../classLfpDisplayNode.html',1,'LfpDisplayNode'],['../classLfpDisplayNode.html#ab08f45389565a55b9e97c8477da7a16d',1,'LfpDisplayNode::LfpDisplayNode()']]],
   ['lfpdisplaynode_2eh',['LfpDisplayNode.h',['../LfpDisplayNode_8h.html',1,'']]],
-  ['lfpviewer',['LfpViewer',['../classLfpViewer.html',1,'LfpViewer'],['../classLfpViewer.html#a899a37851745963d4ee126916ec3fa92',1,'LfpViewer::LfpViewer()']]],
-  ['lfpviewer_2eh',['LfpViewer.h',['../LfpViewer_8h.html',1,'']]],
+  ['lightgrey',['lightgrey',['../classOpenGLCanvas.html#a8a39cd54c4b34f3962c31dc7ec1659c2a7d71033aa15c973f457854f315115949',1,'OpenGLCanvas']]],
+  ['listdevices',['listDevices',['../classofSerial.html#aba21737b03fbafd2bdf79e35e28477ec',1,'ofSerial']]],
   ['loadfont',['loadFont',['../classGenericAxes.html#a6d73141222a531855a768646f05e79e6',1,'GenericAxes']]],
   ['loadorder',['loadOrder',['../classGenericProcessor.html#a9fbf3349950427f863e7ada1c358a2f7',1,'GenericProcessor']]],
   ['loadstate',['loadState',['../classEditorViewport.html#a2ae2ff8e05fca5d7717fbce441fb2412',1,'EditorViewport']]]

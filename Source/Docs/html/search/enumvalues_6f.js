@@ -50,5 +50,6 @@ var searchData=
   ['ok_5fnoerror',['ok_NoError',['../okFrontPanelDLL_8h.html#a4964296e2f723ba74dd75d8932b9e182a355838d3e914829ddf83736cdb79c8e5',1,'okFrontPanelDLL.h']]],
   ['ok_5ftimeout',['ok_Timeout',['../okFrontPanelDLL_8h.html#a4964296e2f723ba74dd75d8932b9e182aec17f5b38fceb93578ebbfe408b27061',1,'okFrontPanelDLL.h']]],
   ['ok_5ftransfererror',['ok_TransferError',['../okFrontPanelDLL_8h.html#a4964296e2f723ba74dd75d8932b9e182a90933c8bb1dc1c7725abf506af82cb1a',1,'okFrontPanelDLL.h']]],
-  ['ok_5funsupportedfeature',['ok_UnsupportedFeature',['../okFrontPanelDLL_8h.html#a4964296e2f723ba74dd75d8932b9e182afeba1bbb9602fb45373e62a4c54a8352',1,'okFrontPanelDLL.h']]]
+  ['ok_5funsupportedfeature',['ok_UnsupportedFeature',['../okFrontPanelDLL_8h.html#a4964296e2f723ba74dd75d8932b9e182afeba1bbb9602fb45373e62a4c54a8352',1,'okFrontPanelDLL.h']]],
+  ['ostrich',['ostrich',['../classOpenGLCanvas.html#a5488a7a875628ad3413d66e89955d439a0068632602449278e64a13fe500e603d',1,'OpenGLCanvas']]]
 ];

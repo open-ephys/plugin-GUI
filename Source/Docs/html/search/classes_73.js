@@ -15,7 +15,7 @@ var searchData=
   ['spikedisplayeditor',['SpikeDisplayEditor',['../classSpikeDisplayEditor.html',1,'']]],
   ['spikedisplaynode',['SpikeDisplayNode',['../classSpikeDisplayNode.html',1,'']]],
   ['spikeobject',['SpikeObject',['../structSpikeObject.html',1,'']]],
+  ['spikeplot',['SpikePlot',['../classSpikePlot.html',1,'']]],
   ['splitter',['Splitter',['../classSplitter.html',1,'']]],
-  ['splittereditor',['SplitterEditor',['../classSplitterEditor.html',1,'']]],
-  ['stereotrodeplot',['StereotrodePlot',['../classStereotrodePlot.html',1,'']]]
+  ['splittereditor',['SplitterEditor',['../classSplitterEditor.html',1,'']]]
 ];

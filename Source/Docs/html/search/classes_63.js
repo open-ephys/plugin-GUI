@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['channel',['Channel',['../classChannel.html',1,'']]],
   ['channelselector',['ChannelSelector',['../classChannelSelector.html',1,'']]],
   ['channelselectorbutton',['ChannelSelectorButton',['../classChannelSelectorButton.html',1,'']]],
   ['clock',['Clock',['../classClock.html',1,'']]],

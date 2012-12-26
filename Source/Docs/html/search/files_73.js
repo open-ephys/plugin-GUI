@@ -12,7 +12,7 @@ var searchData=
   ['spikedisplayeditor_2eh',['SpikeDisplayEditor.h',['../SpikeDisplayEditor_8h.html',1,'']]],
   ['spikedisplaynode_2eh',['SpikeDisplayNode.h',['../SpikeDisplayNode_8h.html',1,'']]],
   ['spikeobject_2eh',['SpikeObject.h',['../SpikeObject_8h.html',1,'']]],
+  ['spikeplot_2eh',['SpikePlot.h',['../SpikePlot_8h.html',1,'']]],
   ['splitter_2eh',['Splitter.h',['../Splitter_8h.html',1,'']]],
-  ['splittereditor_2eh',['SplitterEditor.h',['../SplitterEditor_8h.html',1,'']]],
-  ['stereotrodeplot_2eh',['StereotrodePlot.h',['../StereotrodePlot_8h.html',1,'']]]
+  ['splittereditor_2eh',['SplitterEditor.h',['../SplitterEditor_8h.html',1,'']]]
 ];

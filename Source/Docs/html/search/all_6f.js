@@ -1,6 +1,20 @@
 var searchData=
 [
+  ['of_5farduino_5fdelay_5flength',['OF_ARDUINO_DELAY_LENGTH',['../ofArduino_8h.html#a69111f892d740629f41d43df88540f1b',1,'ofArduino.h']]],
+  ['of_5fexit_5fapp',['OF_EXIT_APP',['../ofConstants_8h.html#ad3ce3643be28964c1c81fdd9a20523c3',1,'ofConstants.h']]],
+  ['of_5fserial_5ferror',['OF_SERIAL_ERROR',['../ofSerial_8h.html#a46d645cf62bc6e98f659b4597e189a66',1,'ofSerial.h']]],
+  ['of_5fserial_5fno_5fdata',['OF_SERIAL_NO_DATA',['../ofSerial_8h.html#a28cbca029a748e7d044d1e515cca05da',1,'ofSerial.h']]],
+  ['ofarduino',['ofArduino',['../classofArduino.html',1,'ofArduino'],['../classofArduino.html#a0439de433dec757c82f6d689f519119f',1,'ofArduino::ofArduino()']]],
+  ['ofarduino_2eh',['ofArduino.h',['../ofArduino_8h.html',1,'']]],
+  ['ofconstants_2eh',['ofConstants.h',['../ofConstants_8h.html',1,'']]],
   ['offset',['offset',['../classSignalChainTabButton.html#aa496c1fd1cff3b6c3026166443053b83',1,'SignalChainTabButton']]],
+  ['ofgetelapsedtimef',['ofGetElapsedTimef',['../classofArduino.html#ab53ffa91b9924b2f0fdc9e4d5026da69',1,'ofArduino']]],
+  ['ofgetelapsedtimemicros',['ofGetElapsedTimeMicros',['../classofArduino.html#a75c4dbc73fb228bc1673836c262d706b',1,'ofArduino']]],
+  ['ofgetsystemtimemicros',['ofGetSystemTimeMicros',['../classofArduino.html#a6fa007a413bbd0624b70abf21e4aa54f',1,'ofArduino']]],
+  ['ofserial',['ofSerial',['../classofSerial.html',1,'ofSerial'],['../classofSerialDeviceInfo.html#a738b5a6b2bbb311ba6946feda233b755',1,'ofSerialDeviceInfo::ofSerial()'],['../classofSerial.html#ae6a6a1d5912cce9d4d7256b0ce4ba624',1,'ofSerial::ofSerial()']]],
+  ['ofserial_2eh',['ofSerial.h',['../ofSerial_8h.html',1,'']]],
+  ['ofserialdeviceinfo',['ofSerialDeviceInfo',['../classofSerialDeviceInfo.html',1,'ofSerialDeviceInfo'],['../classofSerialDeviceInfo.html#a8450a8c81f18cadec7be90a87f81ccfa',1,'ofSerialDeviceInfo::ofSerialDeviceInfo(string devicePathIn, string deviceNameIn, int deviceIDIn)'],['../classofSerialDeviceInfo.html#a65097c45e9bb5d470ddf9747125e283d',1,'ofSerialDeviceInfo::ofSerialDeviceInfo()']]],
+  ['ofstandardfirmata',['ofStandardFirmata',['../ofArduino_8h.html#aaec58dfca8bc5450347136f6f9f1f556',1,'ofArduino.h']]],
   ['ok_5fboardmodel',['ok_BoardModel',['../okFrontPanelDLL_8h.html#a83aab74fa612e37dc99f788971a94a28',1,'okFrontPanelDLL.h']]],
   ['ok_5fbrdunknown',['ok_brdUnknown',['../okFrontPanelDLL_8h.html#a83aab74fa612e37dc99f788971a94a28a3f5199b8f8edb0bfdb8d6e2afbc6fbd6',1,'okFrontPanelDLL.h']]],
   ['ok_5fbrdxem3001cl',['ok_brdXEM3001CL',['../okFrontPanelDLL_8h.html#a83aab74fa612e37dc99f788971a94a28a64f8b2bbe435bfdb572ae1a5c82b4c84',1,'okFrontPanelDLL.h']]],
@@ -153,6 +167,7 @@ var searchData=
   ['okpll22393_5fsetplllf',['okPLL22393_SetPLLLF',['../okFrontPanelDLL_8h.html#af4bf780bcd502527eb7968221e38a03a',1,'okFrontPanelDLL.h']]],
   ['okpll22393_5fsetpllparameters',['okPLL22393_SetPLLParameters',['../okFrontPanelDLL_8h.html#a072dfcd229212df0ce4aa397a2542a53',1,'okFrontPanelDLL.h']]],
   ['okpll22393_5fsetreference',['okPLL22393_SetReference',['../okFrontPanelDLL_8h.html#ac1986b315ff5ba1f52db58812ef689f3',1,'okFrontPanelDLL.h']]],
+  ['oldoptions',['oldoptions',['../classofSerial.html#a5595ce6d3541a1b2bc52d2977e5afd04',1,'ofSerial']]],
   ['opengl_2eh',['OpenGL.h',['../OpenGL_8h.html',1,'']]],
   ['openglcanvas',['OpenGLCanvas',['../classOpenGLCanvas.html',1,'OpenGLCanvas'],['../classOpenGLCanvas.html#af73a98885d6ce913295e0f6ee63d85ec',1,'OpenGLCanvas::OpenGLCanvas()']]],
   ['openglcanvas_2eh',['OpenGLCanvas.h',['../OpenGLCanvas_8h.html',1,'']]],
@@ -160,7 +175,7 @@ var searchData=
   ['operator_3d',['operator=',['../classParameter.html#a1f27fe3b3fc432f646d0c5244f495b8d',1,'Parameter']]],
   ['operator_5b_5d',['operator[]',['../classParameter.html#a62dcb99c0702e094dab71655d5d7fed8',1,'Parameter']]],
   ['originalsource',['originalSource',['../structGenericProcessor_1_1ProcessorSettings.html#ab0ba3880def3c20e2ab2560ec7c6e5cb',1,'GenericProcessor::ProcessorSettings']]],
-  ['outputchannelnames',['outputChannelNames',['../structGenericProcessor_1_1ProcessorSettings.html#a280cd570b263d71dd222b9615a87a90a',1,'GenericProcessor::ProcessorSettings']]],
+  ['ostrich',['ostrich',['../classOpenGLCanvas.html#a5488a7a875628ad3413d66e89955d439a0068632602449278e64a13fe500e603d',1,'OpenGLCanvas']]],
   ['overflowbuffer',['overflowBuffer',['../classSpikeDetector.html#a789328f70cc6f1de8f0b862189ce23bd',1,'SpikeDetector']]],
   ['overlay',['overlay',['../classProjectionAxes.html#af7f323bed1ddf6b125cf45bf8852d4c8',1,'ProjectionAxes::overlay()'],['../classWaveAxes.html#a48c33abae62a2c2449c5ed19436f44ca',1,'WaveAxes::overlay()']]]
 ];

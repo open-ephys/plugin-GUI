@@ -5,6 +5,7 @@ var searchData=
   ['parametercheckbox',['ParameterCheckbox',['../classParameterCheckbox.html',1,'']]],
   ['parametereditor',['ParameterEditor',['../classParameterEditor.html',1,'']]],
   ['parameterslider',['ParameterSlider',['../classParameterSlider.html',1,'']]],
+  ['phasedetector',['PhaseDetector',['../classPhaseDetector.html',1,'']]],
   ['playbutton',['PlayButton',['../classPlayButton.html',1,'']]],
   ['processorgraph',['ProcessorGraph',['../classProcessorGraph.html',1,'']]],
   ['processorlist',['ProcessorList',['../classProcessorList.html',1,'']]],
