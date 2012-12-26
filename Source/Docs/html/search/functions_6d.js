@@ -2,8 +2,7 @@ var searchData=
 [
   ['mainwindow',['MainWindow',['../classMainWindow.html#a34c4b4207b46d11a4100c9b19f0e81bb',1,'MainWindow']]],
   ['makebuffervalid',['makeBufferValid',['../SpikeObject_8h.html#a4b18397dd9b9c7324cf468685ac46681',1,'SpikeObject.h']]],
-  ['makeeditorvisible',['makeEditorVisible',['../classEditorViewport.html#a48ffa818358a263ac61221d5e94a14cc',1,'EditorViewport']]],
-  ['makeeditorvisibleandupdatesettings',['makeEditorVisibleAndUpdateSettings',['../classEditorViewport.html#a70a4e6431ea881b26efcecab2ce9f736',1,'EditorViewport']]],
+  ['makeeditorvisible',['makeEditorVisible',['../classEditorViewport.html#a8d88c0450c587eef5c9b4b64f1590a50',1,'EditorViewport']]],
   ['makelabel',['makeLabel',['../PlotUtils_8h.html#a7279ebe49b5436f478a44d8affa43503',1,'PlotUtils.h']]],
   ['menuitemselected',['menuItemSelected',['../classUIComponent.html#a011b702a81af51214ec797416cfe5b6c',1,'UIComponent']]],
   ['merger',['Merger',['../classMerger.html#aa778178338ad58684ad6bd19d26f6ba9',1,'Merger']]],

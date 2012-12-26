@@ -108,11 +108,19 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4c9c6d8e9d696ccd5a4abc92be3ffd53"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainManager.html#a4c9c6d8e9d696ccd5a4abc92be3ffd53">SignalChainManager</a> (<a class="el" href="classEditorViewport.html">EditorViewport</a> *, Array&lt; <a class="el" href="classGenericEditor.html">GenericEditor</a> *, CriticalSection &gt; &amp;, Array&lt; <a class="el" href="classSignalChainTabButton.html">SignalChainTabButton</a> *, CriticalSection &gt; &amp;)</td></tr>
 <tr class="memitem:a037dfc358dcb481f7dc5f7279e754dc4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainManager.html#a037dfc358dcb481f7dc5f7279e754dc4">~SignalChainManager</a> ()</td></tr>
 <tr class="memitem:a5810903aa311504a5f645ab8e3407621"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainManager.html#a5810903aa311504a5f645ab8e3407621">updateVisibleEditors</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *activeEditor, int index, int insertionPoint, int action)</td></tr>
+<tr class="memdesc:a5810903aa311504a5f645ab8e3407621"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the editors currently displayed by the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>.  <a href="#a5810903aa311504a5f645ab8e3407621"></a><br/></td></tr>
 <tr class="memitem:ac41a67727bc44712f423037cab412c93"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainManager.html#ac41a67727bc44712f423037cab412c93">createNewTab</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *editor)</td></tr>
+<tr class="memdesc:ac41a67727bc44712f423037cab412c93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a tab button for a new signal chain.  <a href="#ac41a67727bc44712f423037cab412c93"></a><br/></td></tr>
 <tr class="memitem:af82c227f0c963a6520a50c2556380a27"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainManager.html#af82c227f0c963a6520a50c2556380a27">removeTab</a> (int tabIndex)</td></tr>
+<tr class="memdesc:af82c227f0c963a6520a50c2556380a27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the tab button for a deleted signal chain.  <a href="#af82c227f0c963a6520a50c2556380a27"></a><br/></td></tr>
 <tr class="memitem:a81fbdd194556d6c45024aaa4078e10a4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainManager.html#a81fbdd194556d6c45024aaa4078e10a4">scrollUp</a> ()</td></tr>
+<tr class="memdesc:a81fbdd194556d6c45024aaa4078e10a4"><td class="mdescLeft">&#160;</td><td class="mdescRight"><pre class="fragment">Scrolls the SignalChainTabButtons up, if there are more signal chains
+</pre><p> than can be viewed at once.  <a href="#a81fbdd194556d6c45024aaa4078e10a4"></a><br/></td></tr>
 <tr class="memitem:a8d764a6707907ac99ffb22dd01286452"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainManager.html#a8d764a6707907ac99ffb22dd01286452">scrollDown</a> ()</td></tr>
+<tr class="memdesc:a8d764a6707907ac99ffb22dd01286452"><td class="mdescLeft">&#160;</td><td class="mdescRight"><pre class="fragment">Scrolls the SignalChainTabButtons down, if there are more signal chains
+</pre><p> than can be viewed at once.  <a href="#a8d764a6707907ac99ffb22dd01286452"></a><br/></td></tr>
 <tr class="memitem:a4653928f580543c4b9f8e995a6c50007"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSignalChainManager.html#a4653928f580543c4b9f8e995a6c50007">clearSignalChain</a> ()</td></tr>
+<tr class="memdesc:a4653928f580543c4b9f8e995a6c50007"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears the signal chain.  <a href="#a4653928f580543c4b9f8e995a6c50007"></a><br/></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -229,6 +237,8 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Updates the editors currently displayed by the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>. </p>
+
 </div>
 </div>
 <a class="anchor" id="ac41a67727bc44712f423037cab412c93"></a>
@@ -244,6 +254,8 @@ Additional Inherited Members</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Creates a tab button for a new signal chain. </p>
 
 </div>
 </div>
@@ -261,6 +273,8 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Removes the tab button for a deleted signal chain. </p>
+
 </div>
 </div>
 <a class="anchor" id="a81fbdd194556d6c45024aaa4078e10a4"></a>
@@ -275,6 +289,9 @@ Additional Inherited Members</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p><pre class="fragment">Scrolls the SignalChainTabButtons up, if there are more signal chains
+</pre><p> than can be viewed at once. </p>
 
 </div>
 </div>
@@ -291,6 +308,9 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p><pre class="fragment">Scrolls the SignalChainTabButtons down, if there are more signal chains
+</pre><p> than can be viewed at once. </p>
+
 </div>
 </div>
 <a class="anchor" id="a4653928f580543c4b9f8e995a6c50007"></a>
@@ -306,6 +326,8 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Clears the signal chain. </p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
@@ -314,7 +336,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 13:55:20 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 16:01:08 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

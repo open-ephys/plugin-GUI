@@ -93,7 +93,7 @@ var searchData=
   ['okpll22393_5fsetpllparameters',['okPLL22393_SetPLLParameters',['../okFrontPanelDLL_8h.html#a072dfcd229212df0ce4aa397a2542a53',1,'okFrontPanelDLL.h']]],
   ['okpll22393_5fsetreference',['okPLL22393_SetReference',['../okFrontPanelDLL_8h.html#ac1986b315ff5ba1f52db58812ef689f3',1,'okFrontPanelDLL.h']]],
   ['openglcanvas',['OpenGLCanvas',['../classOpenGLCanvas.html#af73a98885d6ce913295e0f6ee63d85ec',1,'OpenGLCanvas']]],
-  ['openstate',['openState',['../classControlPanel.html#a79310ce5e86258dd74d4afcdb624a0ec',1,'ControlPanel']]],
+  ['openstate',['openState',['../classControlPanel.html#a754ef0fe8e045275fa1a0e8b269806c9',1,'ControlPanel']]],
   ['operator_3d',['operator=',['../classParameter.html#a1f27fe3b3fc432f646d0c5244f495b8d',1,'Parameter']]],
   ['operator_5b_5d',['operator[]',['../classParameter.html#a62dcb99c0702e094dab71655d5d7fed8',1,'Parameter']]]
 ];

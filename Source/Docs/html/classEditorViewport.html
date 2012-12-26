@@ -111,35 +111,59 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a87b604c8133b8a39122c78d0dd6102ca"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a87b604c8133b8a39122c78d0dd6102ca">~EditorViewport</a> ()</td></tr>
 <tr class="memdesc:a87b604c8133b8a39122c78d0dd6102ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="#a87b604c8133b8a39122c78d0dd6102ca"></a><br/></td></tr>
 <tr class="memitem:a9e1acddb0e1bd9de0ee5c144d65d231b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a9e1acddb0e1bd9de0ee5c144d65d231b">paint</a> (Graphics &amp;g)</td></tr>
+<tr class="memdesc:a9e1acddb0e1bd9de0ee5c144d65d231b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Draws the background of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>.  <a href="#a9e1acddb0e1bd9de0ee5c144d65d231b"></a><br/></td></tr>
 <tr class="memitem:ad0b9dfd4b77ca870e76f174032e12fd0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#ad0b9dfd4b77ca870e76f174032e12fd0">deleteNode</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *editor)</td></tr>
-<tr class="memitem:aa788025ac31951eb6b3db55f5da19350"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#aa788025ac31951eb6b3db55f5da19350">selectEditor</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *e)</td></tr>
-<tr class="memitem:a48ffa818358a263ac61221d5e94a14cc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a48ffa818358a263ac61221d5e94a14cc">makeEditorVisible</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *e, bool highlight=true)</td></tr>
-<tr class="memitem:a70a4e6431ea881b26efcecab2ce9f736"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a70a4e6431ea881b26efcecab2ce9f736">makeEditorVisibleAndUpdateSettings</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *e)</td></tr>
+<tr class="memdesc:ad0b9dfd4b77ca870e76f174032e12fd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the processor associated with a given editor.  <a href="#ad0b9dfd4b77ca870e76f174032e12fd0"></a><br/></td></tr>
+<tr class="memitem:a7fa14edbb5448f4ba2f9165a8616a9ef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a7fa14edbb5448f4ba2f9165a8616a9ef">selectEditor</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *editor)</td></tr>
+<tr class="memdesc:a7fa14edbb5448f4ba2f9165a8616a9ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the processor associated with a given editor.  <a href="#a7fa14edbb5448f4ba2f9165a8616a9ef"></a><br/></td></tr>
+<tr class="memitem:a8d88c0450c587eef5c9b4b64f1590a50"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a8d88c0450c587eef5c9b4b64f1590a50">makeEditorVisible</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *editor, bool highlight=true, bool updateSettings=false)</td></tr>
+<tr class="memdesc:a8d88c0450c587eef5c9b4b64f1590a50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensures that the user can see the requested editor.  <a href="#a8d88c0450c587eef5c9b4b64f1590a50"></a><br/></td></tr>
 <tr class="memitem:a2537b32aa2b8e90835770e5543ba3da7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a2537b32aa2b8e90835770e5543ba3da7">refreshEditors</a> ()</td></tr>
+<tr class="memdesc:a2537b32aa2b8e90835770e5543ba3da7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the boundaries and visibility of all the editors in the signal chain.  <a href="#a2537b32aa2b8e90835770e5543ba3da7"></a><br/></td></tr>
 <tr class="memitem:a02c672bb7b4695eec9c6c61eaac389bf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a02c672bb7b4695eec9c6c61eaac389bf">clearSignalChain</a> ()</td></tr>
-<tr class="memitem:a507e141c15a124aef3c307bab7e4e5c6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a507e141c15a124aef3c307bab7e4e5c6">signalChainCanBeEdited</a> (bool t)</td></tr>
-<tr class="memitem:adb0fd596073954d1ece43739e5925d33"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#adb0fd596073954d1ece43739e5925d33">isInterestedInDragSource</a> (const String &amp;, Component *)</td></tr>
-<tr class="memitem:a14cb153a6f1ca97584c3bfa88d5839e4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a14cb153a6f1ca97584c3bfa88d5839e4">itemDragEnter</a> (const String &amp;, Component *, int, int)</td></tr>
-<tr class="memitem:a99630d7cff4060355eb33b523a1ff662"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a99630d7cff4060355eb33b523a1ff662">itemDragMove</a> (const String &amp;, Component *, int, int)</td></tr>
-<tr class="memitem:aa0a6e241e6900665b4cd83ca75da169c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#aa0a6e241e6900665b4cd83ca75da169c">itemDragExit</a> (const String &amp;, Component *)</td></tr>
-<tr class="memitem:a28feb4315615bf02650df7d9df8230da"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a28feb4315615bf02650df7d9df8230da">itemDropped</a> (const String &amp;sourceDescription, Component *, int, int)</td></tr>
+<tr class="memdesc:a02c672bb7b4695eec9c6c61eaac389bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all processors from the signal chain(s).  <a href="#a02c672bb7b4695eec9c6c61eaac389bf"></a><br/></td></tr>
+<tr class="memitem:a742cc810636b00221795e9a0a1944a13"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a742cc810636b00221795e9a0a1944a13">signalChainCanBeEdited</a> (bool canEdit)</td></tr>
+<tr class="memdesc:a742cc810636b00221795e9a0a1944a13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used to enable and disable drag-and-drop signal chain editing.  <a href="#a742cc810636b00221795e9a0a1944a13"></a><br/></td></tr>
+<tr class="memitem:a074a48e4d1206c39df3dad00d2736847"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a074a48e4d1206c39df3dad00d2736847">isInterestedInDragSource</a> (const String &amp;sourceDescription, Component *sourceComponent)</td></tr>
+<tr class="memdesc:a074a48e4d1206c39df3dad00d2736847"><td class="mdescLeft">&#160;</td><td class="mdescRight"><pre class="fragment">Determines whether or not the EditorViewport should respond to 
+</pre><p> the component that is currently being dragged.  <a href="#a074a48e4d1206c39df3dad00d2736847"></a><br/></td></tr>
+<tr class="memitem:a7ef4e0cab195e4a3289a4c0d5e2750f9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a7ef4e0cab195e4a3289a4c0d5e2750f9">itemDragEnter</a> (const String &amp;sourceDescription, Component *sourceComponent, int x, int y)</td></tr>
+<tr class="memdesc:a7ef4e0cab195e4a3289a4c0d5e2750f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a dragged item (usually a name from the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>) enters the boundaries of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>.  <a href="#a7ef4e0cab195e4a3289a4c0d5e2750f9"></a><br/></td></tr>
+<tr class="memitem:aa8e4fce89fcc267e9de04dd89f96d34f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#aa8e4fce89fcc267e9de04dd89f96d34f">itemDragMove</a> (const String &amp;sourceDescription, Component *sourceComponent, int x, int y)</td></tr>
+<tr class="memdesc:aa8e4fce89fcc267e9de04dd89f96d34f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a dragged item (usually a name from the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>) moves within the boundaries of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>.  <a href="#aa8e4fce89fcc267e9de04dd89f96d34f"></a><br/></td></tr>
+<tr class="memitem:ac5ead2bda0b2a0928363c6fb385b5ba6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#ac5ead2bda0b2a0928363c6fb385b5ba6">itemDragExit</a> (const String &amp;sourceDescription, Component *sourceComponent)</td></tr>
+<tr class="memdesc:ac5ead2bda0b2a0928363c6fb385b5ba6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a dragged item (usually a name from the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>) leaves the boundaries of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>.  <a href="#ac5ead2bda0b2a0928363c6fb385b5ba6"></a><br/></td></tr>
+<tr class="memitem:a4d6691a826fa5893f606858c6160fde1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a4d6691a826fa5893f606858c6160fde1">itemDropped</a> (const String &amp;sourceDescription, Component *sourceComponent, int x, int y)</td></tr>
+<tr class="memdesc:a4d6691a826fa5893f606858c6160fde1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a dragged item (usually a name from the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>) is released within the boundaries of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>.  <a href="#a4d6691a826fa5893f606858c6160fde1"></a><br/></td></tr>
 <tr class="memitem:ae5ea71d59fb37b2888a451d7ad96a0af"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#ae5ea71d59fb37b2888a451d7ad96a0af">mouseDown</a> (const MouseEvent &amp;e)</td></tr>
+<tr class="memdesc:ae5ea71d59fb37b2888a451d7ad96a0af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a mouse click begins within the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>.  <a href="#ae5ea71d59fb37b2888a451d7ad96a0af"></a><br/></td></tr>
 <tr class="memitem:a0945e16ac793100d8a30d1f0b9dd7618"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a0945e16ac793100d8a30d1f0b9dd7618">mouseDrag</a> (const MouseEvent &amp;e)</td></tr>
+<tr class="memdesc:a0945e16ac793100d8a30d1f0b9dd7618"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a mouse drag occurs within the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>.  <a href="#a0945e16ac793100d8a30d1f0b9dd7618"></a><br/></td></tr>
 <tr class="memitem:a839c651c6aaf978166a59eb8268c9728"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a839c651c6aaf978166a59eb8268c9728">mouseUp</a> (const MouseEvent &amp;e)</td></tr>
+<tr class="memdesc:a839c651c6aaf978166a59eb8268c9728"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a mouse click ends within the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>.  <a href="#a839c651c6aaf978166a59eb8268c9728"></a><br/></td></tr>
 <tr class="memitem:a30efef0c60d508fdb5f94efc6729e315"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a30efef0c60d508fdb5f94efc6729e315">mouseExit</a> (const MouseEvent &amp;e)</td></tr>
+<tr class="memdesc:a30efef0c60d508fdb5f94efc6729e315"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when the mouse leaves the boundaries of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>.  <a href="#a30efef0c60d508fdb5f94efc6729e315"></a><br/></td></tr>
 <tr class="memitem:a949986b1e5866860a76b91f96fc68c54"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a949986b1e5866860a76b91f96fc68c54">keyPressed</a> (const KeyPress &amp;key)</td></tr>
+<tr class="memdesc:a949986b1e5866860a76b91f96fc68c54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a key is pressed an the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> has keyboard focus.  <a href="#a949986b1e5866860a76b91f96fc68c54"></a><br/></td></tr>
 <tr class="memitem:a49167a0ba2902fc95199ca4897f773c6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a49167a0ba2902fc95199ca4897f773c6">moveSelection</a> (const KeyPress &amp;key)</td></tr>
+<tr class="memdesc:a49167a0ba2902fc95199ca4897f773c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Changes which editor is selected, depending on the keypress (and modifier keys).  <a href="#a49167a0ba2902fc95199ca4897f773c6"></a><br/></td></tr>
 <tr class="memitem:a993f75f13ab62e1cea1ce38da1f046d5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a993f75f13ab62e1cea1ce38da1f046d5">buttonClicked</a> (Button *button)</td></tr>
+<tr class="memdesc:a993f75f13ab62e1cea1ce38da1f046d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when one of the buttons the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> listens to has been clicked.  <a href="#a993f75f13ab62e1cea1ce38da1f046d5"></a><br/></td></tr>
 <tr class="memitem:aea2c840f1ca1309f483b7ff600e9e4ad"><td class="memItemLeft" align="right" valign="top">Array&lt; <a class="el" href="classSignalChainTabButton.html">SignalChainTabButton</a> <br class="typebreak"/>
 *, CriticalSection &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#aea2c840f1ca1309f483b7ff600e9e4ad">requestSignalChain</a> ()</td></tr>
+<tr class="memdesc:aea2c840f1ca1309f483b7ff600e9e4ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns an array of pointers to SignalChainTabButtons (which themselves hold pointers to the sources of each signal chain).  <a href="#aea2c840f1ca1309f483b7ff600e9e4ad"></a><br/></td></tr>
 <tr class="memitem:a00ade83a870133a9ddf339a38dd06b3c"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a00ade83a870133a9ddf339a38dd06b3c">saveState</a> ()</td></tr>
 <tr class="memdesc:a00ade83a870133a9ddf339a38dd06b3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save the current configuration as an XML file.  <a href="#a00ade83a870133a9ddf339a38dd06b3c"></a><br/></td></tr>
 <tr class="memitem:a2ae2ff8e05fca5d7717fbce441fb2412"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a2ae2ff8e05fca5d7717fbce441fb2412">loadState</a> ()</td></tr>
 <tr class="memdesc:a2ae2ff8e05fca5d7717fbce441fb2412"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a saved configuration from an XML file.  <a href="#a2ae2ff8e05fca5d7717fbce441fb2412"></a><br/></td></tr>
 <tr class="memitem:a231c3600cecadafa2b6c01dc39515c7b"><td class="memItemLeft" align="right" valign="top">XmlElement *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a231c3600cecadafa2b6c01dc39515c7b">createNodeXml</a> (<a class="el" href="classGenericEditor.html">GenericEditor</a> *, int)</td></tr>
+<tr class="memdesc:a231c3600cecadafa2b6c01dc39515c7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts information about a given editor to XML.  <a href="#a231c3600cecadafa2b6c01dc39515c7b"></a><br/></td></tr>
 <tr class="memitem:a6d055783c0fe0c8cea45a9924b45d99a"><td class="memItemLeft" align="right" valign="top">XmlElement *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a6d055783c0fe0c8cea45a9924b45d99a">switchNodeXml</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *)</td></tr>
+<tr class="memdesc:a6d055783c0fe0c8cea45a9924b45d99a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts information about a splitter or merge to XML.  <a href="#a6d055783c0fe0c8cea45a9924b45d99a"></a><br/></td></tr>
 <tr class="memitem:aada77ca562341a093410527034b10818"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#aada77ca562341a093410527034b10818">checkScrollButtons</a> (int topTab)</td></tr>
+<tr class="memdesc:aada77ca562341a093410527034b10818"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether or not the signal chain scroll buttons need to be activated.  <a href="#aada77ca562341a093410527034b10818"></a><br/></td></tr>
 <tr class="memitem:a1b5cea1e2a181d39375b025a5c1dd047"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a1b5cea1e2a181d39375b025a5c1dd047">isSignalChainEmpty</a> ()</td></tr>
+<tr class="memdesc:a1b5cea1e2a181d39375b025a5c1dd047"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a boolean indicating whether or not the signal chain is empty.  <a href="#a1b5cea1e2a181d39375b025a5c1dd047"></a><br/></td></tr>
 <tr class="inherit_header pub_methods_classAccessClass"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classAccessClass')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classAccessClass.html">AccessClass</a></td></tr>
 <tr class="memitem:a4479402a420cf84c0b8ec1abd4a43d9c inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a4479402a420cf84c0b8ec1abd4a43d9c">AccessClass</a> ()</td></tr>
 <tr class="memitem:a68da6863bc0d2a4c5f84f9ed8dd4053f inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a68da6863bc0d2a4c5f84f9ed8dd4053f">~AccessClass</a> ()</td></tr>
@@ -167,11 +191,13 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:ab05cd676ab48b8e252d56d1fb9f07d4f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#ab05cd676ab48b8e252d56d1fb9f07d4f">leftmostEditor</a></td></tr>
+<tr class="memdesc:ab05cd676ab48b8e252d56d1fb9f07d4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The index of the left-most editor (used for scrolling purposes).  <a href="#ab05cd676ab48b8e252d56d1fb9f07d4f"></a><br/></td></tr>
 <tr class="memitem:a09ffd88dead53e37ce7701adeda3ce8a"><td class="memItemLeft" align="right" valign="top">File&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEditorViewport.html#a09ffd88dead53e37ce7701adeda3ce8a">currentFile</a></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Allows the user to view and edit the signal chain. </p>
-<p>The <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> is one of the most important classes in the GUI application.</p>
+<p>The <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> is one of the most important classes in the GUI application. Dragging processors from the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a> adds them to the signal chain. The newly added processor appears as an editor in the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>, which allows the user to edit the parameters of that processor. Deleting the editor from the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> removes it from the signal chain. Moving an editor (by dragging and dropping within the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>) rearranges the order of processing.</p>
+<p>The <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> can be used to browse through multiple parallel signal chains (by clicking the buttons on the far left), or to navigate around branching signal chains.</p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classUIComponent.html">UIComponent</a>, <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a02d864af547853f7ce276edf27f32816"></a>
@@ -188,6 +214,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Constructor. </p>
+<p>Adds the buttons for browsing through the signal chains. </p>
 
 </div>
 </div>
@@ -223,6 +250,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Draws the background of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>. </p>
+
 </div>
 </div>
 <a class="anchor" id="ad0b9dfd4b77ca870e76f174032e12fd0"></a>
@@ -239,9 +268,11 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Removes the processor associated with a given editor. </p>
+
 </div>
 </div>
-<a class="anchor" id="aa788025ac31951eb6b3db55f5da19350"></a>
+<a class="anchor" id="a7fa14edbb5448f4ba2f9165a8616a9ef"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -249,15 +280,17 @@ Public Attributes</h2></td></tr>
           <td class="memname">void EditorViewport::selectEditor </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
-          <td class="paramname"><em>e</em></td><td>)</td>
+          <td class="paramname"><em>editor</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
+<p>Removes the processor associated with a given editor. </p>
+
 </div>
 </div>
-<a class="anchor" id="a48ffa818358a263ac61221d5e94a14cc"></a>
+<a class="anchor" id="a8d88c0450c587eef5c9b4b64f1590a50"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -265,13 +298,19 @@ Public Attributes</h2></td></tr>
           <td class="memname">void EditorViewport::makeEditorVisible </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
-          <td class="paramname"><em>e</em>, </td>
+          <td class="paramname"><em>editor</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>highlight</em> = <code>true</code>&#160;</td>
+          <td class="paramname"><em>highlight</em> = <code>true</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>updateSettings</em> = <code>false</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -281,21 +320,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-</div>
-</div>
-<a class="anchor" id="a70a4e6431ea881b26efcecab2ce9f736"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void EditorViewport::makeEditorVisibleAndUpdateSettings </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classGenericEditor.html">GenericEditor</a> *&#160;</td>
-          <td class="paramname"><em>e</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
+<p>Ensures that the user can see the requested editor. </p>
 
 </div>
 </div>
@@ -312,6 +337,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Updates the boundaries and visibility of all the editors in the signal chain. </p>
+
 </div>
 </div>
 <a class="anchor" id="a02c672bb7b4695eec9c6c61eaac389bf"></a>
@@ -327,9 +354,11 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Removes all processors from the signal chain(s). </p>
+
 </div>
 </div>
-<a class="anchor" id="a507e141c15a124aef3c307bab7e4e5c6"></a>
+<a class="anchor" id="a742cc810636b00221795e9a0a1944a13"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -337,15 +366,18 @@ Public Attributes</h2></td></tr>
           <td class="memname">void EditorViewport::signalChainCanBeEdited </td>
           <td>(</td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>t</em></td><td>)</td>
+          <td class="paramname"><em>canEdit</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
+<p>Used to enable and disable drag-and-drop signal chain editing. </p>
+<p>Called by the <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> when data acquisition begins and ends. </p>
+
 </div>
 </div>
-<a class="anchor" id="adb0fd596073954d1ece43739e5925d33"></a>
+<a class="anchor" id="a074a48e4d1206c39df3dad00d2736847"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -353,13 +385,13 @@ Public Attributes</h2></td></tr>
           <td class="memname">bool EditorViewport::isInterestedInDragSource </td>
           <td>(</td>
           <td class="paramtype">const String &amp;&#160;</td>
-          <td class="paramname">, </td>
+          <td class="paramname"><em>sourceDescription</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">Component *&#160;</td>
-          <td class="paramname">&#160;</td>
+          <td class="paramname"><em>sourceComponent</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -369,9 +401,12 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p><pre class="fragment">Determines whether or not the EditorViewport should respond to 
+</pre><p> the component that is currently being dragged. </p>
+
 </div>
 </div>
-<a class="anchor" id="a14cb153a6f1ca97584c3bfa88d5839e4"></a>
+<a class="anchor" id="a7ef4e0cab195e4a3289a4c0d5e2750f9"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -379,25 +414,25 @@ Public Attributes</h2></td></tr>
           <td class="memname">void EditorViewport::itemDragEnter </td>
           <td>(</td>
           <td class="paramtype">const String &amp;&#160;</td>
-          <td class="paramname">, </td>
+          <td class="paramname"><em>sourceDescription</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">Component *&#160;</td>
-          <td class="paramname">, </td>
+          <td class="paramname"><em>sourceComponent</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname">, </td>
+          <td class="paramname"><em>x</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname">&#160;</td>
+          <td class="paramname"><em>y</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -407,9 +442,12 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Called when a dragged item (usually a name from the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>) enters the boundaries of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>. </p>
+<p>Causes the background of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> to change color. </p>
+
 </div>
 </div>
-<a class="anchor" id="a99630d7cff4060355eb33b523a1ff662"></a>
+<a class="anchor" id="aa8e4fce89fcc267e9de04dd89f96d34f"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -417,25 +455,25 @@ Public Attributes</h2></td></tr>
           <td class="memname">void EditorViewport::itemDragMove </td>
           <td>(</td>
           <td class="paramtype">const String &amp;&#160;</td>
-          <td class="paramname">, </td>
+          <td class="paramname"><em>sourceDescription</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">Component *&#160;</td>
-          <td class="paramname">, </td>
+          <td class="paramname"><em>sourceComponent</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname">, </td>
+          <td class="paramname"><em>x</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname">&#160;</td>
+          <td class="paramname"><em>y</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -445,9 +483,12 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Called when a dragged item (usually a name from the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>) moves within the boundaries of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>. </p>
+<p>Causes existing editors (if any) to shift their position to make room for the new processor that could be dropped. </p>
+
 </div>
 </div>
-<a class="anchor" id="aa0a6e241e6900665b4cd83ca75da169c"></a>
+<a class="anchor" id="ac5ead2bda0b2a0928363c6fb385b5ba6"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -455,13 +496,13 @@ Public Attributes</h2></td></tr>
           <td class="memname">void EditorViewport::itemDragExit </td>
           <td>(</td>
           <td class="paramtype">const String &amp;&#160;</td>
-          <td class="paramname">, </td>
+          <td class="paramname"><em>sourceDescription</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">Component *&#160;</td>
-          <td class="paramname">&#160;</td>
+          <td class="paramname"><em>sourceComponent</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -471,9 +512,12 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Called when a dragged item (usually a name from the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>) leaves the boundaries of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>. </p>
+<p>Causes the background of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> to change color. </p>
+
 </div>
 </div>
-<a class="anchor" id="a28feb4315615bf02650df7d9df8230da"></a>
+<a class="anchor" id="a4d6691a826fa5893f606858c6160fde1"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -487,19 +531,19 @@ Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">Component *&#160;</td>
-          <td class="paramname">, </td>
+          <td class="paramname"><em>sourceComponent</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname">, </td>
+          <td class="paramname"><em>x</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname">&#160;</td>
+          <td class="paramname"><em>y</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -508,6 +552,9 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Called when a dragged item (usually a name from the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>) is released within the boundaries of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>. </p>
+<p>Adds the dropped processor to the signal chain. </p>
 
 </div>
 </div>
@@ -525,6 +572,9 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Called when a mouse click begins within the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>. </p>
+<p>Usually used to select editors. </p>
+
 </div>
 </div>
 <a class="anchor" id="a0945e16ac793100d8a30d1f0b9dd7618"></a>
@@ -540,6 +590,9 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Called when a mouse drag occurs within the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>. </p>
+<p>Usually used to move editors around in the signal chain. </p>
 
 </div>
 </div>
@@ -557,6 +610,9 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Called when a mouse click ends within the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>. </p>
+<p>Usually used to indicate that a moving editor has been dropped. </p>
+
 </div>
 </div>
 <a class="anchor" id="a30efef0c60d508fdb5f94efc6729e315"></a>
@@ -572,6 +628,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Called when the mouse leaves the boundaries of the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a>. </p>
 
 </div>
 </div>
@@ -589,6 +647,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Called when a key is pressed an the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> has keyboard focus. </p>
+
 </div>
 </div>
 <a class="anchor" id="a49167a0ba2902fc95199ca4897f773c6"></a>
@@ -604,6 +664,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Changes which editor is selected, depending on the keypress (and modifier keys). </p>
 
 </div>
 </div>
@@ -621,6 +683,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Called when one of the buttons the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> listens to has been clicked. </p>
+
 </div>
 </div>
 <a class="anchor" id="aea2c840f1ca1309f483b7ff600e9e4ad"></a>
@@ -635,6 +699,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Returns an array of pointers to SignalChainTabButtons (which themselves hold pointers to the sources of each signal chain). </p>
 
 </div>
 </div>
@@ -696,6 +762,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Converts information about a given editor to XML. </p>
+
 </div>
 </div>
 <a class="anchor" id="a6d055783c0fe0c8cea45a9924b45d99a"></a>
@@ -711,6 +779,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Converts information about a splitter or merge to XML. </p>
 
 </div>
 </div>
@@ -728,6 +798,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Checks whether or not the signal chain scroll buttons need to be activated. </p>
+
 </div>
 </div>
 <a class="anchor" id="a1b5cea1e2a181d39375b025a5c1dd047"></a>
@@ -743,6 +815,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Returns a boolean indicating whether or not the signal chain is empty. </p>
+
 </div>
 </div>
 <hr/><h2>Member Data Documentation</h2>
@@ -755,6 +829,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>The index of the left-most editor (used for scrolling purposes). </p>
 
 </div>
 </div>
@@ -776,7 +852,7 @@ Public Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 13:55:20 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 26 2012 16:01:08 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>
