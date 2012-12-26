@@ -42,7 +42,7 @@ class AudioComponent;
   
   Allows subclasses to access important pointers within the application.
 
-  When an object inherits from AccessClass, it's much more convenient to get and
+  When an object inherits from AccessClass, it makes it much more convenient to get and
   set pointers to other objects, such as the EditorViewport, ProcessorList, and
   ProcessorGraph that are used throughout the application. In addition, every subclass 
   of AccessClass automatically adds the MessageCenter as an ActionListener, which means
