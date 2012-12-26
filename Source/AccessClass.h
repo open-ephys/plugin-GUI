@@ -42,7 +42,14 @@ class AudioComponent;
   
   Allows subclasses to access important pointers within the application.
 
-  @see UIComponent
+  When an object inherits from AccessClass, it's much more convenient to get and
+  set pointers to other objects, such as the EditorViewport, ProcessorList, and
+  ProcessorGraph that are used throughout the application. In addition, every subclass 
+  of AccessClass automatically adds the MessageCenter as an ActionListener, which means
+  messages sent by that object [using sendActionMessage("Message.")] will appear 
+  in the MessageCenter by default.
+
+  @see UIComponent, MessageCenter
 
 */
 
@@ -53,17 +60,41 @@ public:
 	AccessClass() { }
 	~AccessClass() { }
 	
+	/** Sets the object's UIComponent and copies all the necessary pointers
+	    from the UIComponent. 
+
+	    Automatically adds the MessageCenter as an ActionListener, which causes
+	    messages sent using sendActionMessage("Message") to appear in the 
+	    MessageCenter. */
 	void setUIComponent(UIComponent*);
 
+	/** Called within setUIComponent() to enable subclasses to update their 
+	    members' pointers. */
 	virtual void updateChildComponents() {}
 
+
+	/** Returns a pointer to the application's EditorViewport. */
 	EditorViewport* getEditorViewport() {return ev;}
+
+	/** Returns a pointer to the application's DataViewport. */
 	DataViewport* getDataViewport() {return dv;}
+
+	/** Returns a pointer to the application's ProcessorList. */
 	ProcessorList* getProcessorList() {return pl;}
+
+	/** Returns a pointer to the application's ProcessorGraph. */
 	ProcessorGraph* getProcessorGraph() {return pg;}
+
+	/** Returns a pointer to the application's DataViewport. */
 	ControlPanel* getControlPanel() {return cp;}
+
+	/** Returns a pointer to the application's MessageCenter. */
 	MessageCenter* getMessageCenter() {return mc;}
+
+	/** Returns a pointer to the application's UIComponent. */
 	UIComponent* getUIComponent() {return ui;}
+
+	/** Returns a pointer to the application's AudioComponent. */
 	AudioComponent* getAudioComponent() {return ac;}
 
 private:

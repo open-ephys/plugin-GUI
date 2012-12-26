@@ -47,7 +47,5 @@ void AccessClass::setUIComponent(UIComponent* ui_)
 
 	addActionListener(mc);
 
-    // called to enable subclasses to connect their
-    // children and private objects:
     updateChildComponents();
 }
