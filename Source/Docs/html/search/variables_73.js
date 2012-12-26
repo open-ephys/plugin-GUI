@@ -9,6 +9,5 @@ var searchData=
   ['shoulddeactivateduringacquisition',['shouldDeactivateDuringAcquisition',['../classParameterEditor.html#a6f0e897decb69462b7555a93bc818d88',1,'ParameterEditor::shouldDeactivateDuringAcquisition()'],['../classParameter.html#ab31d093b144af1b662b8732a1c3a51a8',1,'Parameter::shouldDeactivateDuringAcquisition()']]],
   ['sn',['sn',['../classDataThread.html#a6a26fc244b2ce396c5c013353fb6293e',1,'DataThread']]],
   ['source',['source',['../structSpikeObject.html#ad82d2c52cd9262794947807cc70f0bc8',1,'SpikeObject']]],
-  ['sourcenode',['sourceNode',['../classGenericProcessor.html#a0c25ce11948ca53f2028d05799b8396e',1,'GenericProcessor']]],
-  ['starttimemicros',['startTimeMicros',['../classofArduino.html#a78ce4dbaf79a3b97a1a3f87b932bd954',1,'ofArduino']]]
+  ['sourcenode',['sourceNode',['../classGenericProcessor.html#a0c25ce11948ca53f2028d05799b8396e',1,'GenericProcessor']]]
 ];

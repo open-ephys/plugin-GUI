@@ -20,7 +20,6 @@ var searchData=
   ['enableprocessors',['enableProcessors',['../classProcessorGraph.html#acece6f68878404ef8672af84a10e23f3',1,'ProcessorGraph']]],
   ['endanimation',['endAnimation',['../classLfpDisplayCanvas.html#af670120f5fdcee9c1c340f30b99fcf38',1,'LfpDisplayCanvas::endAnimation()'],['../classSpikeDisplayCanvas.html#a41c67fb1fe854bfc911c5377957c0bb3',1,'SpikeDisplayCanvas::endAnimation()'],['../classVisualizer.html#a990653e6c62bd9e7fbc183fd14820a4f',1,'Visualizer::endAnimation()']]],
   ['endcallbacks',['endCallbacks',['../classAudioComponent.html#a78e2a818d271fb26387d41875271e4ba',1,'AudioComponent']]],
-  ['enumeratedevices',['enumerateDevices',['../classofSerial.html#a2d611327c85655cf94b957bd62fc707f',1,'ofSerial']]],
   ['eventchannels',['eventChannels',['../classGenericProcessor.html#a249a419d52b6b88c2d24c4f41a523474',1,'GenericProcessor']]],
   ['eventchanneltypes',['eventChannelTypes',['../classGenericProcessor.html#a8e980839171fcb70ba8c782264ea2311',1,'GenericProcessor']]],
   ['eventcode',['eventCode',['../classDataThread.html#a4bb1f1cee2b4a22ea3d5cf46474cdf44',1,'DataThread']]],
@@ -34,6 +33,5 @@ var searchData=
   ['eventtype',['eventType',['../classChannel.html#aa2dd8828c59318ce096e096250b8ebb0',1,'Channel::eventType()'],['../structSpikeObject.html#a89a9d28a3f76e004c5434ab87a13f6ce',1,'SpikeObject::eventType()']]],
   ['eventtypes',['eventTypes',['../classGenericProcessor.html#a574987318ddd7d5d77f5b07cd1651462',1,'GenericProcessor']]],
   ['exampleprocessor',['ExampleProcessor',['../classExampleProcessor.html',1,'ExampleProcessor'],['../classExampleProcessor.html#afa728679141ce0070fc07c8627cb7ba0',1,'ExampleProcessor::ExampleProcessor()']]],
-  ['exampleprocessor_2eh',['ExampleProcessor.h',['../ExampleProcessor_8h.html',1,'']]],
-  ['extended_5fanalog',['EXTENDED_ANALOG',['../ofArduino_8h.html#a6b1a9cda8c6ee228df3ed787d1278a15',1,'ofArduino.h']]]
+  ['exampleprocessor_2eh',['ExampleProcessor.h',['../ExampleProcessor_8h.html',1,'']]]
 ];

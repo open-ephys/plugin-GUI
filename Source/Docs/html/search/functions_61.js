@@ -24,6 +24,5 @@ var searchData=
   ['audioeditor',['AudioEditor',['../classAudioEditor.html#a5be323528c200416d7f1e649a7f3bc30',1,'AudioEditor']]],
   ['audionode',['AudioNode',['../classAudioNode.html#af1fe2b7723ff6f515228a671f61f073d',1,'AudioNode']]],
   ['audioresamplingnode',['AudioResamplingNode',['../classAudioResamplingNode.html#a715e2fb6e779e369475161fc3696e020',1,'AudioResamplingNode']]],
-  ['audiowindowbutton',['AudioWindowButton',['../classAudioWindowButton.html#a84c65b030a96ed9cf18706f8178859b2',1,'AudioWindowButton']]],
-  ['available',['available',['../classofSerial.html#ab0b70837b7a0ffc7f71d4ae381857c41',1,'ofSerial']]]
+  ['audiowindowbutton',['AudioWindowButton',['../classAudioWindowButton.html#a84c65b030a96ed9cf18706f8178859b2',1,'AudioWindowButton']]]
 ];

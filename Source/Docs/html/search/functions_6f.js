@@ -1,11 +1,5 @@
 var searchData=
 [
-  ['ofarduino',['ofArduino',['../classofArduino.html#a0439de433dec757c82f6d689f519119f',1,'ofArduino']]],
-  ['ofgetelapsedtimef',['ofGetElapsedTimef',['../classofArduino.html#ab53ffa91b9924b2f0fdc9e4d5026da69',1,'ofArduino']]],
-  ['ofgetelapsedtimemicros',['ofGetElapsedTimeMicros',['../classofArduino.html#a75c4dbc73fb228bc1673836c262d706b',1,'ofArduino']]],
-  ['ofgetsystemtimemicros',['ofGetSystemTimeMicros',['../classofArduino.html#a6fa007a413bbd0624b70abf21e4aa54f',1,'ofArduino']]],
-  ['ofserial',['ofSerial',['../classofSerial.html#ae6a6a1d5912cce9d4d7256b0ce4ba624',1,'ofSerial']]],
-  ['ofserialdeviceinfo',['ofSerialDeviceInfo',['../classofSerialDeviceInfo.html#a8450a8c81f18cadec7be90a87f81ccfa',1,'ofSerialDeviceInfo::ofSerialDeviceInfo(string devicePathIn, string deviceNameIn, int deviceIDIn)'],['../classofSerialDeviceInfo.html#a65097c45e9bb5d470ddf9747125e283d',1,'ofSerialDeviceInfo::ofSerialDeviceInfo()']]],
   ['okfrontpanel_5factivatetriggerin',['okFrontPanel_ActivateTriggerIn',['../okFrontPanelDLL_8h.html#af8fa2ebcd7f62adb8586de6b8a0138f5',1,'okFrontPanelDLL.h']]],
   ['okfrontpanel_5fconfigurefpga',['okFrontPanel_ConfigureFPGA',['../okFrontPanelDLL_8h.html#a254da83cbe4907a20efc3be70f60ee8d',1,'okFrontPanelDLL.h']]],
   ['okfrontpanel_5fconfigurefpgafrommemory',['okFrontPanel_ConfigureFPGAFromMemory',['../okFrontPanelDLL_8h.html#a58e48da896140f6de5e607c638cb50bf',1,'okFrontPanelDLL.h']]],

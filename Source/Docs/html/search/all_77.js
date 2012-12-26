@@ -14,7 +14,5 @@ var searchData=
   ['wifioutput',['WiFiOutput',['../classWiFiOutput.html',1,'WiFiOutput'],['../classWiFiOutput.html#a6fd169ac92ab5d84ec8c9da29b095455',1,'WiFiOutput::WiFiOutput()']]],
   ['wifioutput_2eh',['WiFiOutput.h',['../WiFiOutput_8h.html',1,'']]],
   ['wifioutputeditor',['WiFiOutputEditor',['../classWiFiOutputEditor.html',1,'WiFiOutputEditor'],['../classWiFiOutputEditor.html#a13b5925f4abc796e8ff832452f31f675',1,'WiFiOutputEditor::WiFiOutputEditor()']]],
-  ['wifioutputeditor_2eh',['WiFiOutputEditor.h',['../WiFiOutputEditor_8h.html',1,'']]],
-  ['writebyte',['writeByte',['../classofSerial.html#aacce7088833acbe9b0825b2cab14eea4',1,'ofSerial']]],
-  ['writebytes',['writeBytes',['../classofSerial.html#aba92e180e606f798070f4c04bb9e7a8b',1,'ofSerial']]]
+  ['wifioutputeditor_2eh',['WiFiOutputEditor.h',['../WiFiOutputEditor_8h.html',1,'']]]
 ];

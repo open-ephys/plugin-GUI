@@ -53,8 +53,6 @@ var searchData=
   ['_7emessagecenter',['~MessageCenter',['../classMessageCenter.html#a1c34ca5f0ee3aa61e0768db7b7ff8cc0',1,'MessageCenter']]],
   ['_7emutebutton',['~MuteButton',['../classMuteButton.html#ac7015ee4f0e61334f51bab526e1a8a62',1,'MuteButton']]],
   ['_7enetworkthread',['~NetworkThread',['../classNetworkThread.html#adaed788a9be6fbb4ed1aef9905e3e18f',1,'NetworkThread']]],
-  ['_7eofarduino',['~ofArduino',['../classofArduino.html#acd4bd5b935f2322a40fb1a8ed0e65bc2',1,'ofArduino']]],
-  ['_7eofserial',['~ofSerial',['../classofSerial.html#a85bd634adc0d12c4536355c554102eba',1,'ofSerial']]],
   ['_7eopenglcanvas',['~OpenGLCanvas',['../classOpenGLCanvas.html#a6f8508a5061ba00df8cae2ca0f6ed0b9',1,'OpenGLCanvas']]],
   ['_7eparameter',['~Parameter',['../classParameter.html#a6e2ade42a712f1d3675653329266e42d',1,'Parameter']]],
   ['_7eparameterbutton',['~ParameterButton',['../classParameterButton.html#a5c0b8062fe322e7c718604d67926ee24',1,'ParameterButton']]],

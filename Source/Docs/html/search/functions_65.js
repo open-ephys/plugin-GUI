@@ -14,7 +14,6 @@ var searchData=
   ['enableprocessors',['enableProcessors',['../classProcessorGraph.html#acece6f68878404ef8672af84a10e23f3',1,'ProcessorGraph']]],
   ['endanimation',['endAnimation',['../classLfpDisplayCanvas.html#af670120f5fdcee9c1c340f30b99fcf38',1,'LfpDisplayCanvas::endAnimation()'],['../classSpikeDisplayCanvas.html#a41c67fb1fe854bfc911c5377957c0bb3',1,'SpikeDisplayCanvas::endAnimation()'],['../classVisualizer.html#a990653e6c62bd9e7fbc183fd14820a4f',1,'Visualizer::endAnimation()']]],
   ['endcallbacks',['endCallbacks',['../classAudioComponent.html#a78e2a818d271fb26387d41875271e4ba',1,'AudioComponent']]],
-  ['enumeratedevices',['enumerateDevices',['../classofSerial.html#a2d611327c85655cf94b957bd62fc707f',1,'ofSerial']]],
   ['eventdetector',['EventDetector',['../classEventDetector.html#ab435641607edb51d823f225057cde9fd',1,'EventDetector']]],
   ['eventnode',['EventNode',['../classEventNode.html#a9ee041edc7b2e5d1e5d86d0d958d6603',1,'EventNode']]],
   ['eventnodeeditor',['EventNodeEditor',['../classEventNodeEditor.html#afc10c0210f8f2d53842723ce9d0cb477',1,'EventNodeEditor']]],

@@ -2,7 +2,7 @@ var searchData=
 [
   ['uicomponent',['UIComponent',['../classUIComponent.html#a4fa1a33a7e8d5edc2b60b14ac49639aa',1,'UIComponent']]],
   ['unpackspike',['unpackSpike',['../SpikeObject_8h.html#aec8b97eb2bb464ea9ec6b03d24e8d501',1,'SpikeObject.h']]],
-  ['update',['update',['../classGenericEditor.html#a571efb4db3a66c9e4622c16de2459e46',1,'GenericEditor::update()'],['../classGenericProcessor.html#a73073787f0a760c1896522c934e94211',1,'GenericProcessor::update()'],['../classofArduino.html#a818fcb4aafc5884bbeadafc94f47a5ed',1,'ofArduino::update()'],['../classLfpDisplayCanvas.html#a0f600e6a270078464154341dffd7312a',1,'LfpDisplayCanvas::update()'],['../classSpikeDisplayCanvas.html#a55358b1cffea350a07f9f9f407f24324',1,'SpikeDisplayCanvas::update()'],['../classVisualizer.html#a0fe43ca2f65258eeb5612a52495d4ce5',1,'Visualizer::update()']]],
+  ['update',['update',['../classGenericEditor.html#a571efb4db3a66c9e4622c16de2459e46',1,'GenericEditor::update()'],['../classGenericProcessor.html#a73073787f0a760c1896522c934e94211',1,'GenericProcessor::update()'],['../classLfpDisplayCanvas.html#a0f600e6a270078464154341dffd7312a',1,'LfpDisplayCanvas::update()'],['../classSpikeDisplayCanvas.html#a55358b1cffea350a07f9f9f407f24324',1,'SpikeDisplayCanvas::update()'],['../classVisualizer.html#a0fe43ca2f65258eeb5612a52495d4ce5',1,'Visualizer::update()']]],
   ['updatebuffer',['updateBuffer',['../classDataThread.html#adbd6623e8892aad3c5f5588aff3ff195',1,'DataThread']]],
   ['updatechildcomponents',['updateChildComponents',['../classAccessClass.html#aa23dfab04264a78db261ccb8ac30f1ff',1,'AccessClass']]],
   ['updateconnections',['updateConnections',['../classProcessorGraph.html#ae183b5807e57ec401d4d3517fc457e2a',1,'ProcessorGraph']]],

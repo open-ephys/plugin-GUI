@@ -1,8 +1,6 @@
 var searchData=
 [
   ['readallfrombuffer',['readAllFromBuffer',['../classDataBuffer.html#add618799299e51babed341e0c63d6ba1',1,'DataBuffer']]],
-  ['readbyte',['readByte',['../classofSerial.html#aa368e0f97f7c0c4f6542d94091740e5f',1,'ofSerial']]],
-  ['readbytes',['readBytes',['../classofSerial.html#ad81fa0fda972ef28778e9e016f2ad24a',1,'ofSerial']]],
   ['receivedevent',['receivedEvent',['../classArduinoOutputEditor.html#a0592c29891fb823c15f971ff874ae809',1,'ArduinoOutputEditor::receivedEvent()'],['../classFPGAOutputEditor.html#a656ccd071eb45631cb902aaf4a0da394',1,'FPGAOutputEditor::receivedEvent()'],['../classWiFiOutputEditor.html#ae5491f857b3beaa7a1468464388262da',1,'WiFiOutputEditor::receivedEvent()']]],
   ['recordbutton',['RecordButton',['../classRecordButton.html',1,'RecordButton'],['../classRecordButton.html#a0e140306f616ebe78c450599e293f552',1,'RecordButton::RecordButton()']]],
   ['recordcontrol',['RecordControl',['../classRecordControl.html',1,'RecordControl'],['../classRecordControl.html#a9b28e95808d7ded2446c441360486d04',1,'RecordControl::RecordControl()']]],
