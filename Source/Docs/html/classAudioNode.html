@@ -88,7 +88,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Selects which channels to send to the audio monitor.  
+<p>The default processor for sending output to the audio monitor.  
  <a href="classAudioNode.html#details">More...</a></p>
 
 <p><code>#include &lt;AudioNode.h&gt;</code></p>
@@ -112,13 +112,20 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a90d23dc83c27a5ff3a8e5029a5498b35"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a90d23dc83c27a5ff3a8e5029a5498b35">process</a> (AudioSampleBuffer &amp;buffer, MidiBuffer &amp;midiMessages, int &amp;nSamples)</td></tr>
 <tr class="memdesc:a90d23dc83c27a5ff3a8e5029a5498b35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle incoming data and decide which channels to monitor.  <a href="#a90d23dc83c27a5ff3a8e5029a5498b35"></a><br/></td></tr>
 <tr class="memitem:a61ca4c81f908093001fd7805951274a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a61ca4c81f908093001fd7805951274a2">setParameter</a> (int parameterIndex, float newValue)</td></tr>
-<tr class="memdesc:a61ca4c81f908093001fd7805951274a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overrides implementation in <a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>; used to change audio monitoring parameters on the fly.  <a href="#a61ca4c81f908093001fd7805951274a2"></a><br/></td></tr>
+<tr class="memdesc:a61ca4c81f908093001fd7805951274a2"><td class="mdescLeft">&#160;</td><td class="mdescRight"><pre class="fragment">Used to change audio monitoring parameters (such as channels to monitor and volume)
+</pre><p> while acquisition is active.  <a href="#a61ca4c81f908093001fd7805951274a2"></a><br/></td></tr>
 <tr class="memitem:a46c720536cf4b8502d841a65f9dccd1d"><td class="memItemLeft" align="right" valign="top">AudioProcessorEditor *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a46c720536cf4b8502d841a65f9dccd1d">createEditor</a> ()</td></tr>
+<tr class="memdesc:a46c720536cf4b8502d841a65f9dccd1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the <a class="el" href="classAudioEditor.html" title="Holds the interface for editing audio output parameters.">AudioEditor</a> (located in the <a class="el" href="classControlPanel.html" title="Provides general application controls along the top of the MainWindow.">ControlPanel</a>).  <a href="#a46c720536cf4b8502d841a65f9dccd1d"></a><br/></td></tr>
 <tr class="memitem:a2d81bc20f5e278823f8871240d3dcc3c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a2d81bc20f5e278823f8871240d3dcc3c">setChannel</a> (<a class="el" href="classChannel.html">Channel</a> *ch)</td></tr>
+<tr class="memdesc:a2d81bc20f5e278823f8871240d3dcc3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the current channel (in advance of a parameter change).  <a href="#a2d81bc20f5e278823f8871240d3dcc3c"></a><br/></td></tr>
 <tr class="memitem:ad06df671336851b97b97c1e180adec46"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#ad06df671336851b97b97c1e180adec46">setChannelStatus</a> (<a class="el" href="classChannel.html">Channel</a> *ch, bool status)</td></tr>
+<tr class="memdesc:ad06df671336851b97b97c1e180adec46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used to turn audio monitoring on and off for individual channels.  <a href="#ad06df671336851b97b97c1e180adec46"></a><br/></td></tr>
 <tr class="memitem:a390f72b38da27e367dde1a6dc22a5fa5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a390f72b38da27e367dde1a6dc22a5fa5">resetConnections</a> ()</td></tr>
+<tr class="memdesc:a390f72b38da27e367dde1a6dc22a5fa5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the connections prior to a new round of data acquisition.  <a href="#a390f72b38da27e367dde1a6dc22a5fa5"></a><br/></td></tr>
 <tr class="memitem:a94937d356ee86b72eed82fad0337f9e7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a94937d356ee86b72eed82fad0337f9e7">enableCurrentChannel</a> (bool)</td></tr>
+<tr class="memdesc:a94937d356ee86b72eed82fad0337f9e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the connections prior to a new round of data acquisition.  <a href="#a94937d356ee86b72eed82fad0337f9e7"></a><br/></td></tr>
 <tr class="memitem:af3f7c97002f66948d21f4e6fe05d1a8a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#af3f7c97002f66948d21f4e6fe05d1a8a">addInputChannel</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *source, int chan)</td></tr>
+<tr class="memdesc:af3f7c97002f66948d21f4e6fe05d1a8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Establishes a connection between a channel of a <a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a> and the <a class="el" href="classAudioNode.html" title="The default processor for sending output to the audio monitor.">AudioNode</a>.  <a href="#af3f7c97002f66948d21f4e6fe05d1a8a"></a><br/></td></tr>
 <tr class="inherit_header pub_methods_classGenericProcessor"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classGenericProcessor')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classGenericProcessor.html">GenericProcessor</a></td></tr>
 <tr class="memitem:a907fc14eecca11021d9e129d0aee9700 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a907fc14eecca11021d9e129d0aee9700">GenericProcessor</a> (const String &amp;name_)</td></tr>
 <tr class="memitem:a6e81acc6125ba498c95993a530c60a4f inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a6e81acc6125ba498c95993a530c60a4f">~GenericProcessor</a> ()</td></tr>
@@ -220,6 +227,7 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a23fc8aba3a18b99825bed4836eb6f647"><td class="memItemLeft" align="right" valign="top">ScopedPointer&lt; <a class="el" href="classAudioEditor.html">AudioEditor</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAudioNode.html#a23fc8aba3a18b99825bed4836eb6f647">audioEditor</a></td></tr>
+<tr class="memdesc:a23fc8aba3a18b99825bed4836eb6f647"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to the <a class="el" href="classAudioNode.html" title="The default processor for sending output to the audio monitor.">AudioNode</a>'s editor.  <a href="#a23fc8aba3a18b99825bed4836eb6f647"></a><br/></td></tr>
 <tr class="inherit_header pub_attribs_classGenericProcessor"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classGenericProcessor')"><img src="closed.png" alt="-"/>&nbsp;Public Attributes inherited from <a class="el" href="classGenericProcessor.html">GenericProcessor</a></td></tr>
 <tr class="memitem:a0c25ce11948ca53f2028d05799b8396e inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a0c25ce11948ca53f2028d05799b8396e">sourceNode</a></td></tr>
 <tr class="memitem:a3ad44d191c2086d2cfbf2d6c0dbc8fc8 inherit pub_attribs_classGenericProcessor"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGenericProcessor.html">GenericProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a3ad44d191c2086d2cfbf2d6c0dbc8fc8">destNode</a></td></tr>
@@ -259,8 +267,10 @@ Additional Inherited Members</h2></td></tr>
  }</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>Selects which channels to send to the audio monitor. </p>
-<p>Controls output volume.</p>
+<div class="textblock"><p>The default processor for sending output to the audio monitor. </p>
+<p>The <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> has two default nodes: the <a class="el" href="classAudioNode.html" title="The default processor for sending output to the audio monitor.">AudioNode</a> and the <a class="el" href="classRecordNode.html" title="Receives inputs from all processors that want to save their data.">RecordNode</a>. Every channel of every processor (that's not a sink or a utility) is automatically connected to both of these nodes. The <a class="el" href="classAudioNode.html" title="The default processor for sending output to the audio monitor.">AudioNode</a> is used to filter out channels to be sent to the audio output device, which can be selected by the user through the <a class="el" href="classAudioEditor.html" title="Holds the interface for editing audio output parameters.">AudioEditor</a> (located in the <a class="el" href="classControlPanel.html" title="Provides general application controls along the top of the MainWindow.">ControlPanel</a>).</p>
+<p>Since the <a class="el" href="classAudioNode.html" title="The default processor for sending output to the audio monitor.">AudioNode</a> exists no matter what, it doesn't appear in the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>. Instead, it's created by the <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> at startup.</p>
+<p>Each processor has an "Audio" tab within its channel-selector drawer that determines which channels will be monitored. At the moment's there's no centralized way to control the channels going to the audio monitor; it all happens in a distributed way through the individual processors.</p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>, <a class="el" href="classAudioEditor.html" title="Holds the interface for editing audio output parameters.">AudioEditor</a> </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="af1fe2b7723ff6f515228a671f61f073d"></a>
@@ -370,7 +380,8 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Overrides implementation in <a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>; used to change audio monitoring parameters on the fly. </p>
+<p><pre class="fragment">Used to change audio monitoring parameters (such as channels to monitor and volume)
+</pre><p> while acquisition is active. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html#ad8c8e91c2204a1d48d2d3b3bf117c09d">GenericProcessor</a>.</p>
 
@@ -397,6 +408,8 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Creates the <a class="el" href="classAudioEditor.html" title="Holds the interface for editing audio output parameters.">AudioEditor</a> (located in the <a class="el" href="classControlPanel.html" title="Provides general application controls along the top of the MainWindow.">ControlPanel</a>). </p>
+
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html#a4336e8c17d1ba015933628d6902896fa">GenericProcessor</a>.</p>
 
 </div>
@@ -414,6 +427,8 @@ Additional Inherited Members</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Sets the current channel (in advance of a parameter change). </p>
 
 </div>
 </div>
@@ -441,6 +456,8 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Used to turn audio monitoring on and off for individual channels. </p>
+
 </div>
 </div>
 <a class="anchor" id="a390f72b38da27e367dde1a6dc22a5fa5"></a>
@@ -463,6 +480,8 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Resets the connections prior to a new round of data acquisition. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html#a79f6e2e58b138bf070001d6bc8b7bb1d">GenericProcessor</a>.</p>
 
@@ -489,6 +508,8 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Resets the connections prior to a new round of data acquisition. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html#ad5f545d93e0409b97f0f5a2a27a83b3a">GenericProcessor</a>.</p>
 
@@ -518,6 +539,8 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Establishes a connection between a channel of a <a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a> and the <a class="el" href="classAudioNode.html" title="The default processor for sending output to the audio monitor.">AudioNode</a>. </p>
+
 </div>
 </div>
 <hr/><h2>Member Data Documentation</h2>
@@ -531,6 +554,8 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>A pointer to the <a class="el" href="classAudioNode.html" title="The default processor for sending output to the audio monitor.">AudioNode</a>'s editor. </p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
@@ -539,7 +564,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Dec 27 2012 00:42:28 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Dec 27 2012 13:56:41 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

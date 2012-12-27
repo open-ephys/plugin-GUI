@@ -40,7 +40,7 @@
 
 	Provides a serial interface to an Arduino board.
 
-	Based on Open Frameworks ofArduino class
+	Based on Open Frameworks ofArduino class.
 
 	@see GenericProcessor
 
@@ -53,21 +53,31 @@ public:
 	ArduinoOutput();
 	~ArduinoOutput();
 	
+	/** Searches for events and triggers the Arduino output when appropriate. */
 	void process(AudioSampleBuffer &buffer, MidiBuffer &events, int& nSamples);
 	
+	/** Currently unused. Future uses may include changing the TTL trigger channel
+	or the output channel of the Arduino. */
 	void setParameter (int parameterIndex, float newValue);
 
+	/** Convenient interface for responding to incoming events. */
     void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
+    /** Called immediately prior to the start of data acquisition. */
     bool enable();
+
+    /** Called immediately after the end of data acquisition. */
     bool disable();
     
+    /** Creates the ArduinoOutputEditor. */
 	AudioProcessorEditor* createEditor();
 
+	/** Defines the ArduinoOutput processor as a sink. */
 	bool isSink() {return true;}
 	
 private:
 
+	/** An open-frameworks Arduino object. */
 	ofArduino arduino;
 
 	bool state;

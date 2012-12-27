@@ -109,12 +109,19 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:acbd99e62c187b15fa9732f7fd4b8e8b6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArduinoOutput.html#acbd99e62c187b15fa9732f7fd4b8e8b6">ArduinoOutput</a> ()</td></tr>
 <tr class="memitem:a613b84cd3602aadaae4a91d61baf1ba4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArduinoOutput.html#a613b84cd3602aadaae4a91d61baf1ba4">~ArduinoOutput</a> ()</td></tr>
 <tr class="memitem:a9cc7aa4a292efa14c2434f994c21bc2a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArduinoOutput.html#a9cc7aa4a292efa14c2434f994c21bc2a">process</a> (AudioSampleBuffer &amp;buffer, MidiBuffer &amp;events, int &amp;nSamples)</td></tr>
+<tr class="memdesc:a9cc7aa4a292efa14c2434f994c21bc2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Searches for events and triggers the Arduino output when appropriate.  <a href="#a9cc7aa4a292efa14c2434f994c21bc2a"></a><br/></td></tr>
 <tr class="memitem:a92d284665ee14acb227c5190353ee12c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArduinoOutput.html#a92d284665ee14acb227c5190353ee12c">setParameter</a> (int parameterIndex, float newValue)</td></tr>
+<tr class="memdesc:a92d284665ee14acb227c5190353ee12c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Currently unused.  <a href="#a92d284665ee14acb227c5190353ee12c"></a><br/></td></tr>
 <tr class="memitem:abcf3bd1a8c2cc38b9427d24a4b65da7d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArduinoOutput.html#abcf3bd1a8c2cc38b9427d24a4b65da7d">handleEvent</a> (int eventType, MidiMessage &amp;event, int sampleNum)</td></tr>
+<tr class="memdesc:abcf3bd1a8c2cc38b9427d24a4b65da7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenient interface for responding to incoming events.  <a href="#abcf3bd1a8c2cc38b9427d24a4b65da7d"></a><br/></td></tr>
 <tr class="memitem:afe03990cb5c01623a246fd809476fba9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArduinoOutput.html#afe03990cb5c01623a246fd809476fba9">enable</a> ()</td></tr>
+<tr class="memdesc:afe03990cb5c01623a246fd809476fba9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called immediately prior to the start of data acquisition.  <a href="#afe03990cb5c01623a246fd809476fba9"></a><br/></td></tr>
 <tr class="memitem:a51eba9f12fda49918723ab2d2d7680d3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArduinoOutput.html#a51eba9f12fda49918723ab2d2d7680d3">disable</a> ()</td></tr>
+<tr class="memdesc:a51eba9f12fda49918723ab2d2d7680d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called immediately after the end of data acquisition.  <a href="#a51eba9f12fda49918723ab2d2d7680d3"></a><br/></td></tr>
 <tr class="memitem:ac146f90c256b38d2e072150ed944df35"><td class="memItemLeft" align="right" valign="top">AudioProcessorEditor *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArduinoOutput.html#ac146f90c256b38d2e072150ed944df35">createEditor</a> ()</td></tr>
+<tr class="memdesc:ac146f90c256b38d2e072150ed944df35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the <a class="el" href="classArduinoOutputEditor.html">ArduinoOutputEditor</a>.  <a href="#ac146f90c256b38d2e072150ed944df35"></a><br/></td></tr>
 <tr class="memitem:a50f2e136424f142da2ce6447bc936a7e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArduinoOutput.html#a50f2e136424f142da2ce6447bc936a7e">isSink</a> ()</td></tr>
+<tr class="memdesc:a50f2e136424f142da2ce6447bc936a7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines the <a class="el" href="classArduinoOutput.html" title="UNDER CONSTRUCTION">ArduinoOutput</a> processor as a sink.  <a href="#a50f2e136424f142da2ce6447bc936a7e"></a><br/></td></tr>
 <tr class="inherit_header pub_methods_classGenericProcessor"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classGenericProcessor')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classGenericProcessor.html">GenericProcessor</a></td></tr>
 <tr class="memitem:a907fc14eecca11021d9e129d0aee9700 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a907fc14eecca11021d9e129d0aee9700">GenericProcessor</a> (const String &amp;name_)</td></tr>
 <tr class="memitem:a6e81acc6125ba498c95993a530c60a4f inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a6e81acc6125ba498c95993a530c60a4f">~GenericProcessor</a> ()</td></tr>
@@ -251,7 +258,7 @@ Additional Inherited Members</h2></td></tr>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p><em>UNDER CONSTRUCTION</em> </p>
 <p>Provides a serial interface to an Arduino board.</p>
-<p>Based on Open Frameworks ofArduino class</p>
+<p>Based on Open Frameworks ofArduino class.</p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a> </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="acbd99e62c187b15fa9732f7fd4b8e8b6"></a>
@@ -323,6 +330,8 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Searches for events and triggers the Arduino output when appropriate. </p>
+
 <p>Implements <a class="el" href="classGenericProcessor.html#ac8746345d01c5de419d944ef20bc98e5">GenericProcessor</a>.</p>
 
 </div>
@@ -358,6 +367,9 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Currently unused. </p>
+<p>Future uses may include changing the TTL trigger channel or the output channel of the Arduino. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html#ad8c8e91c2204a1d48d2d3b3bf117c09d">GenericProcessor</a>.</p>
 
@@ -401,6 +413,8 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Convenient interface for responding to incoming events. </p>
+
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html#aac9fa146b67873a7e9a2c8f7fe032f88">GenericProcessor</a>.</p>
 
 </div>
@@ -425,6 +439,8 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Called immediately prior to the start of data acquisition. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html#aef8d92d5d667f0e9d4b2d334ddf37380">GenericProcessor</a>.</p>
 
@@ -451,6 +467,8 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Called immediately after the end of data acquisition. </p>
+
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html#aac6a1a695bce499b07418efa1fde55f2">GenericProcessor</a>.</p>
 
 </div>
@@ -475,6 +493,8 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Creates the <a class="el" href="classArduinoOutputEditor.html">ArduinoOutputEditor</a>. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html#a4336e8c17d1ba015933628d6902896fa">GenericProcessor</a>.</p>
 
@@ -501,6 +521,8 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Defines the <a class="el" href="classArduinoOutput.html" title="UNDER CONSTRUCTION">ArduinoOutput</a> processor as a sink. </p>
+
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html#a38f377ecefaad8269198403205159bb3">GenericProcessor</a>.</p>
 
 </div>
@@ -511,7 +533,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Dec 27 2012 00:42:28 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Dec 27 2012 13:56:41 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

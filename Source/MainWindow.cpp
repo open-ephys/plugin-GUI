@@ -36,7 +36,7 @@ MainWindow::MainWindow()
                   false);   // useBottomCornerRisizer -- doesn't work very well
    // centreWithSize(500,400);
 
-    // Constraining th window's size doesn't seem to work:
+    // Constraining the window's size doesn't seem to work:
     //
 
     // Create ProcessorGraph and AudioComponent, and connect them.

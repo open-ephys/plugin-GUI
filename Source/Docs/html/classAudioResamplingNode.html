@@ -253,6 +253,7 @@ Additional Inherited Members</h2></td></tr>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Changes the sample rate of continuous data, specialized for increasing the sample rate to 44.1 kHz for audio output. </p>
 <p>Code is based on Juce's ResamplingAudioSource class.</p>
+<p>This processor could be vastly improved by implementing a scheme to handle inputs that do not provide the same amount of samples in each buffer. At the moment, the resampling process shifts the pitch of the incoming signal.</p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a> </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a715e2fb6e779e369475161fc3696e020"></a>
@@ -478,7 +479,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Dec 27 2012 00:42:28 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Dec 27 2012 13:56:41 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

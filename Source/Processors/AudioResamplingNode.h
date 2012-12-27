@@ -40,6 +40,10 @@
 
   Code is based on Juce's ResamplingAudioSource class.
 
+  This processor could be vastly improved by implementing a scheme to handle
+  inputs that do not provide the same amount of samples in each buffer. At the 
+  moment, the resampling process shifts the pitch of the incoming signal.
+
   @see GenericProcessor
 
 */
@@ -49,7 +53,6 @@ class AudioResamplingNode : public GenericProcessor
 {
 public:
 	
-	// real member functions:
 	AudioResamplingNode();
 	~AudioResamplingNode();
 	

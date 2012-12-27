@@ -283,7 +283,8 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bo
 
 }
 
-void EditorViewport::deleteNode (GenericEditor* editor) {
+void EditorViewport::deleteNode (GenericEditor* editor) 
+{
 
     if (canEdit) {
         indexOfMovingComponent = editorArray.indexOf(editor);

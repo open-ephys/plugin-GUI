@@ -33,7 +33,10 @@
 
 /**
 
-  This is a description of the processor's function.
+  This class serves as a template for creating new processors.
+
+  If this were a real processor, this comment section would be used to 
+  describe the processor's function.
 
   @see GenericProcessor
 
@@ -50,12 +53,10 @@ public:
     /** The class destructor, used to deallocate memory */
 	~ExampleProcessor();
 
-    /** Determines whether the processor is treated as a source. 
-        Re-implemented from GenericProcessor.h */
+    /** Determines whether the processor is treated as a source. */
     bool isSource() {return false;}
 
-    /** Determines whether the processor is treated as a sink. 
-        Re-implemented from GenericProcessor.h */
+    /** Determines whether the processor is treated as a sink. */
     bool isSink() {return false;}
 	
     /** Defines the functionality of the processor.
