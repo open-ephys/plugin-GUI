@@ -19,7 +19,14 @@
 #include "BaseUIElement.h"
 #include "PlotUtils.h"
 
- 	
+/**
+
+  Base class for drawing axes with OpenGL.
+
+  @see BaseUIElement, ProjectionAxes, WaveAxes
+
+*/
+
 class GenericAxes: public BaseUIElement{
 
 protected:

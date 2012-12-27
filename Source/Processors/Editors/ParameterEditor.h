@@ -94,6 +94,12 @@ private:
 
 };
 
+/**
+
+  Used to edit discrete parameters.
+
+*/
+
 class ParameterButton : public Button
 
 {
@@ -130,6 +136,12 @@ private:
 
 };
 
+/**
+
+  Used to edit boolean parameters.
+
+*/
+
 class ParameterCheckbox : public Button
 
 {
@@ -149,6 +161,12 @@ private:
     ColourGradient deactivatedGrad;
 };
 
+/**
+
+  Used to edit continuous parameters.
+
+*/
+
 class ParameterSlider : public Slider
 
 {
@@ -164,10 +182,6 @@ private:
     Path makeRotaryPath(double, double, double);
 
     Font font;
-    // ColourGradient selectedGrad;
-    // ColourGradient selectedOverGrad;
-    // ColourGradient neutralGrad;
-    // ColourGradient neutralOverGrad;
 };
 
 

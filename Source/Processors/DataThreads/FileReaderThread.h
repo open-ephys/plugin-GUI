@@ -35,8 +35,6 @@
 
 /**
 
-  --UNDER CONSTRUCTION--
-
   Fills a buffer with data from a file.
 
   Has issues with setting the correct sampling rate.

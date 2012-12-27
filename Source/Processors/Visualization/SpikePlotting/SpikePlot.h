@@ -21,6 +21,12 @@
 //#define HIST_PLOT    1000 // perhaps we'll use hist plots at a later date but not for now
 
 
+/**
+
+  Class for drawing the waveforms and projections of incoming spikes.
+
+*/
+
 class SpikePlot : public BaseUIElement{
 	
 	bool enabled;	

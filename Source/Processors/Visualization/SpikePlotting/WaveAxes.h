@@ -12,6 +12,11 @@
 #include "PlotUtils.h"
 #include "GenericAxes.h"
 
+/**
+
+  Class for drawing spike waveforms.
+
+*/
  	
 class WaveAxes: public GenericAxes{
 	

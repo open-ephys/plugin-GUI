@@ -17,7 +17,14 @@
 
 #define AMP_BUFF_MAX_SIZE 50000
  	
-class ProjectionAxes: public GenericAxes{
+/**
+
+  Class for drawing the peak projections of spike waveforms.
+
+*/
+
+class ProjectionAxes: public GenericAxes
+{
 	
 	GLfloat pointColor[3];
 	GLfloat gridColor[3];
