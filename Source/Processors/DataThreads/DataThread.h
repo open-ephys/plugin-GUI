@@ -37,6 +37,11 @@ class SourceNode;
 
   Abstract base class for a data input thread owned by the SourceNode.
 
+  To communicate with input sources that may have a different clock as the
+  data acquisition callbacks, it's most efficient to use a separate thread.
+  The DataThread class makes it easy to create threads that interact with
+  new data sources, such as an FPGA, an Arduino, or a network stream.
+
   @see SourceNode
 
 */
@@ -49,23 +54,43 @@ public:
 	DataThread(SourceNode* sn);
 	~DataThread();
 
+    /** Calls 'updateBuffer()' continuously while the thread is being run.*/
 	void run();
 
+    /** Returns the address of the DataBuffer that the input source will fill.*/
 	DataBuffer* getBufferAddress();
 
+    /** Fills the DataBuffer with incoming data. This is the most important 
+    method for each DataThread.*/
 	virtual bool updateBuffer() = 0;
     
+    /** Experimental method used for testing data sources that can deliver outputs.*/
     virtual void setOutputHigh() {}
+
+    /** Experimental method used for testing data sources that can deliver outputs.*/
     virtual void setOutputLow() {}
 
 	ScopedPointer<DataBuffer> dataBuffer;
 
+    /** Returns true if the data source is connected, false otherwise.*/
 	virtual bool foundInputSource() = 0;
+
+    /** Initializes data transfer.*/
 	virtual bool startAcquisition() = 0;
+
+    /** Stops data transfer.*/
 	virtual bool stopAcquisition() = 0;
+
+    /** Returns the number of continuous channels the data source can provide.*/
 	virtual int getNumChannels() = 0;
+
+    /** Returns the sample rate of the data source.*/
 	virtual float getSampleRate() = 0;
+
+    /** Returns the volts per bit of the data source.*/
     virtual float getBitVolts() = 0;
+
+    /** Returns the number of event channels of the data source.*/
     virtual int getNumEventChannels() {return 0;}
 
 	SourceNode* sn;
@@ -75,6 +100,8 @@ public:
 
     Time timer;
     
+    /** Returns a pointer to the data input device, in case other processors
+    need to communicate with it.*/
     virtual void* getDevice() {return 0;}
 
 private:

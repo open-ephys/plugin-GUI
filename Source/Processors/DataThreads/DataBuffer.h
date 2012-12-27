@@ -33,6 +33,8 @@
 
 	Manages reading and writing data to a circular buffer.
 
+    See @DataThread
+
 */
 
 class DataBuffer
@@ -41,9 +43,17 @@ class DataBuffer
 public:
 	DataBuffer(int chans, int size);
 	~DataBuffer();
+
+    /** Clears the buffer.*/
 	void clear();
+
+    /** Add an array of floats to the buffer.*/
 	void addToBuffer(float* data, uint64* ts, int16* eventCodes, int numItems);
+
+    /** Returns the number of samples currently available in the buffer.*/
 	int getNumSamples();
+
+    /** Copies as many samples as possible from the DataBuffer to an AudioSampleBuffer.*/
 	int readAllFromBuffer(AudioSampleBuffer& data, uint64* ts, int16* eventCodes, int maxSize);
 
 private:

@@ -48,7 +48,6 @@ var searchData=
   ['setselected',['setSelected',['../classProcessorListItem.html#a52859c6b7cafd0506839dfa4d21a9753',1,'ProcessorListItem']]],
   ['setsourcenode',['setSourceNode',['../classGenericProcessor.html#a6a21d25d3ad79fb4867c732c64322d54',1,'GenericProcessor']]],
   ['setsplitterdestnode',['setSplitterDestNode',['../classGenericProcessor.html#ac553d8495ef07f5971a1f2abd0506b7e',1,'GenericProcessor::setSplitterDestNode()'],['../classSplitter.html#ae11524d844f439fc3a101cc7de534c1b',1,'Splitter::setSplitterDestNode()']]],
-  ['setstartchannel',['setStartChannel',['../classGenericProcessor.html#a43c6c63d2650ca92a556b656e88544ac',1,'GenericProcessor']]],
   ['setstate',['setState',['../classEditorButton.html#a214cdec9d7b55f60c1bcbf1ba9c66067',1,'EditorButton']]],
   ['setstateinformation',['setStateInformation',['../classGenericProcessor.html#ab405c546f5403871bf1855294a7cd0ff',1,'GenericProcessor']]],
   ['setthresholdcolor',['setThresholdColor',['../classWaveAxes.html#ac7eb4c088dfe493ff3304681321c1d9e',1,'WaveAxes']]],

@@ -11,7 +11,6 @@ var searchData=
   ['nordic',['nordic',['../classOpenGLCanvas.html#a5488a7a875628ad3413d66e89955d439a297e8c6ded25a410e7ea931283c2e981',1,'OpenGLCanvas']]],
   ['nout',['nOut',['../classSignalGenerator.html#a62af0523f11ba4ad7ca44e9c8f42cf60',1,'SignalGenerator']]],
   ['nsamples',['nSamples',['../structSpikeObject.html#addde0b7ca60cad4b48e8def822eee034',1,'SpikeObject']]],
-  ['nullparam',['nullParam',['../classGenericProcessor.html#ab771cefa0d0e56f9d2d407cbd9f0b5bc',1,'GenericProcessor']]],
   ['num',['num',['../classChannel.html#ad8843c590e1e86428d158d047d4490ec',1,'Channel']]],
   ['num_5fintervals',['NUM_INTERVALS',['../PhaseDetector_8h.html#ae5217300ae24c7c2c2f3312dead5ffa7',1,'PhaseDetector.h']]],
   ['numinputs',['numInputs',['../structGenericProcessor_1_1ProcessorSettings.html#a76691b54183d1d91d63ebe0e6e24db18',1,'GenericProcessor::ProcessorSettings']]],

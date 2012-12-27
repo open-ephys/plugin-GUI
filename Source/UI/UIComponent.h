@@ -102,7 +102,8 @@ public:
 	/** Disables the connection between the DataViewport and the EditorViewport. */
 	void disableDataViewport();
 
-	/** Called whenever a major change takes place within a child component, in order
+	/** 
+	Called whenever a major change takes place within a child component, in order
 	to make sure the UIComponent's other children get resized appropriately. */
 	void childComponentChanged();
 

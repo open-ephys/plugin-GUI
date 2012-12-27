@@ -43,6 +43,8 @@
 
   Receives data from a network source.
 
+  Based on the network communication protocol from ArTE (https://code.google.com/p/arte-ephys/)
+
   @see DataThread
 
 */

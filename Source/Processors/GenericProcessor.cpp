@@ -30,8 +30,7 @@ GenericProcessor::GenericProcessor(const String& name_) :
 	isEnabled(true), 
 	saveOrder(-1), loadOrder(-1),
 	nextAvailableChannel(0), currentChannel(-1),
-	wasConnected(false), nullParam("VOID", false, -1),
-	audioAndRecordNodeStartChannel(0)
+	wasConnected(false)
 {
 }
 
@@ -58,6 +57,7 @@ Parameter& GenericProcessor::getParameterByName(String name_)
 			return p;//parameters.getReference(i);
 	} 
 
+	Parameter nullParam = Parameter("VOID", false, -1);
 
 	return nullParam;
 
@@ -97,9 +97,7 @@ const String GenericProcessor::getParameterText (int parameterIndex)
 
 void GenericProcessor::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
 {
-	// use the enable() function instead
-	// prepareToPlay() is called by Juce as soon as a processor is created
-	// enable() is only called by the ProcessorGraph just before the start of acquisition
+
 }
 
 void GenericProcessor::releaseResources() 

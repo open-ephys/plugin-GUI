@@ -137,7 +137,7 @@ public:
 
 	Font titleFont;
 
-	int getStartChannel();
+	//int getStartChannel();
 
 protected:
 	DrawerButton* drawerButton;

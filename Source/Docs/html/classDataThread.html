@@ -112,18 +112,32 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:acb6f10d03646d7c2faff5c7e3bc1a5e7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#acb6f10d03646d7c2faff5c7e3bc1a5e7">DataThread</a> (<a class="el" href="classSourceNode.html">SourceNode</a> *<a class="el" href="classDataThread.html#a6a26fc244b2ce396c5c013353fb6293e">sn</a>)</td></tr>
 <tr class="memitem:a4e93964d269593f0ede1724df2899f97"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a4e93964d269593f0ede1724df2899f97">~DataThread</a> ()</td></tr>
 <tr class="memitem:ae1d41cdc6b7fbd8160e18c3cf1812471"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#ae1d41cdc6b7fbd8160e18c3cf1812471">run</a> ()</td></tr>
+<tr class="memdesc:ae1d41cdc6b7fbd8160e18c3cf1812471"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls '<a class="el" href="classDataThread.html#adbd6623e8892aad3c5f5588aff3ff195" title="Fills the DataBuffer with incoming data.">updateBuffer()</a>' continuously while the thread is being run.  <a href="#ae1d41cdc6b7fbd8160e18c3cf1812471"></a><br/></td></tr>
 <tr class="memitem:aba376e486bef12a53c588f65e20d7978"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classDataBuffer.html">DataBuffer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#aba376e486bef12a53c588f65e20d7978">getBufferAddress</a> ()</td></tr>
+<tr class="memdesc:aba376e486bef12a53c588f65e20d7978"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the address of the <a class="el" href="classDataBuffer.html" title="Manages reading and writing data to a circular buffer.">DataBuffer</a> that the input source will fill.  <a href="#aba376e486bef12a53c588f65e20d7978"></a><br/></td></tr>
 <tr class="memitem:adbd6623e8892aad3c5f5588aff3ff195"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#adbd6623e8892aad3c5f5588aff3ff195">updateBuffer</a> ()=0</td></tr>
+<tr class="memdesc:adbd6623e8892aad3c5f5588aff3ff195"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fills the <a class="el" href="classDataBuffer.html" title="Manages reading and writing data to a circular buffer.">DataBuffer</a> with incoming data.  <a href="#adbd6623e8892aad3c5f5588aff3ff195"></a><br/></td></tr>
 <tr class="memitem:ae67e5fe3f208cb774a334ff5427dd88f"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#ae67e5fe3f208cb774a334ff5427dd88f">setOutputHigh</a> ()</td></tr>
+<tr class="memdesc:ae67e5fe3f208cb774a334ff5427dd88f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Experimental method used for testing data sources that can deliver outputs.  <a href="#ae67e5fe3f208cb774a334ff5427dd88f"></a><br/></td></tr>
 <tr class="memitem:a4df083f5550f98dc23b0352df1e566ce"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a4df083f5550f98dc23b0352df1e566ce">setOutputLow</a> ()</td></tr>
+<tr class="memdesc:a4df083f5550f98dc23b0352df1e566ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Experimental method used for testing data sources that can deliver outputs.  <a href="#a4df083f5550f98dc23b0352df1e566ce"></a><br/></td></tr>
 <tr class="memitem:af62fa85b1ac69f1f3b3f53150bf55f23"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#af62fa85b1ac69f1f3b3f53150bf55f23">foundInputSource</a> ()=0</td></tr>
+<tr class="memdesc:af62fa85b1ac69f1f3b3f53150bf55f23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if the data source is connected, false otherwise.  <a href="#af62fa85b1ac69f1f3b3f53150bf55f23"></a><br/></td></tr>
 <tr class="memitem:a0ff3b07535413c15cc515bd65b2ce2b8"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a0ff3b07535413c15cc515bd65b2ce2b8">startAcquisition</a> ()=0</td></tr>
+<tr class="memdesc:a0ff3b07535413c15cc515bd65b2ce2b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes data transfer.  <a href="#a0ff3b07535413c15cc515bd65b2ce2b8"></a><br/></td></tr>
 <tr class="memitem:a81cbc75ecf5ddb83d64d56da13b10a29"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a81cbc75ecf5ddb83d64d56da13b10a29">stopAcquisition</a> ()=0</td></tr>
+<tr class="memdesc:a81cbc75ecf5ddb83d64d56da13b10a29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops data transfer.  <a href="#a81cbc75ecf5ddb83d64d56da13b10a29"></a><br/></td></tr>
 <tr class="memitem:a2eb3af064cfe39d83dc19dd6e4f5de06"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a2eb3af064cfe39d83dc19dd6e4f5de06">getNumChannels</a> ()=0</td></tr>
+<tr class="memdesc:a2eb3af064cfe39d83dc19dd6e4f5de06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of continuous channels the data source can provide.  <a href="#a2eb3af064cfe39d83dc19dd6e4f5de06"></a><br/></td></tr>
 <tr class="memitem:a86f12c1b334ae8c4cd39c493cc123302"><td class="memItemLeft" align="right" valign="top">virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a86f12c1b334ae8c4cd39c493cc123302">getSampleRate</a> ()=0</td></tr>
+<tr class="memdesc:a86f12c1b334ae8c4cd39c493cc123302"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the sample rate of the data source.  <a href="#a86f12c1b334ae8c4cd39c493cc123302"></a><br/></td></tr>
 <tr class="memitem:a679d8b6d9c25dba87cdf8b248eb96d4c"><td class="memItemLeft" align="right" valign="top">virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a679d8b6d9c25dba87cdf8b248eb96d4c">getBitVolts</a> ()=0</td></tr>
+<tr class="memdesc:a679d8b6d9c25dba87cdf8b248eb96d4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the volts per bit of the data source.  <a href="#a679d8b6d9c25dba87cdf8b248eb96d4c"></a><br/></td></tr>
 <tr class="memitem:a229e56dd57b71a2692a8130086858288"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#a229e56dd57b71a2692a8130086858288">getNumEventChannels</a> ()</td></tr>
+<tr class="memdesc:a229e56dd57b71a2692a8130086858288"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of event channels of the data source.  <a href="#a229e56dd57b71a2692a8130086858288"></a><br/></td></tr>
 <tr class="memitem:ac121f35bf9b7626d0c32ed03d8962aeb"><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataThread.html#ac121f35bf9b7626d0c32ed03d8962aeb">getDevice</a> ()</td></tr>
+<tr class="memdesc:ac121f35bf9b7626d0c32ed03d8962aeb"><td class="mdescLeft">&#160;</td><td class="mdescRight"><pre class="fragment">Returns a pointer to the data input device, in case other processors
+</pre><p> need to communicate with it.  <a href="#ac121f35bf9b7626d0c32ed03d8962aeb"></a><br/></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -135,6 +149,7 @@ Public Attributes</h2></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Abstract base class for a data input thread owned by the <a class="el" href="classSourceNode.html" title="Creates and controls a thread for reading data from external sources.">SourceNode</a>. </p>
+<p>To communicate with input sources that may have a different clock as the data acquisition callbacks, it's most efficient to use a separate thread. The <a class="el" href="classDataThread.html" title="Abstract base class for a data input thread owned by the SourceNode.">DataThread</a> class makes it easy to create threads that interact with new data sources, such as an FPGA, an Arduino, or a network stream.</p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classSourceNode.html" title="Creates and controls a thread for reading data from external sources.">SourceNode</a> </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="acb6f10d03646d7c2faff5c7e3bc1a5e7"></a>
@@ -182,6 +197,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Calls '<a class="el" href="classDataThread.html#adbd6623e8892aad3c5f5588aff3ff195" title="Fills the DataBuffer with incoming data.">updateBuffer()</a>' continuously while the thread is being run. </p>
+
 </div>
 </div>
 <a class="anchor" id="aba376e486bef12a53c588f65e20d7978"></a>
@@ -196,6 +213,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Returns the address of the <a class="el" href="classDataBuffer.html" title="Manages reading and writing data to a circular buffer.">DataBuffer</a> that the input source will fill. </p>
 
 </div>
 </div>
@@ -220,6 +239,9 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Fills the <a class="el" href="classDataBuffer.html" title="Manages reading and writing data to a circular buffer.">DataBuffer</a> with incoming data. </p>
+<p>This is the most important method for each <a class="el" href="classDataThread.html" title="Abstract base class for a data input thread owned by the SourceNode.">DataThread</a>. </p>
+
 </div>
 </div>
 <a class="anchor" id="ae67e5fe3f208cb774a334ff5427dd88f"></a>
@@ -242,6 +264,8 @@ Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Experimental method used for testing data sources that can deliver outputs. </p>
 
 <p>Reimplemented in <a class="el" href="classFPGAThread.html#ae2ecb56608b2e8e3779baa7a0f602a39">FPGAThread</a>.</p>
 
@@ -268,6 +292,8 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Experimental method used for testing data sources that can deliver outputs. </p>
+
 <p>Reimplemented in <a class="el" href="classFPGAThread.html#ae2692f0080cc304cc31d39a8d8c528fe">FPGAThread</a>.</p>
 
 </div>
@@ -292,6 +318,8 @@ Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Returns true if the data source is connected, false otherwise. </p>
 
 <p>Implemented in <a class="el" href="classNetworkThread.html#a8ded78dab341e5c7c98ccf5fa34f6bb5">NetworkThread</a>, <a class="el" href="classFileReaderThread.html#ae1e58d2033c87cd71cff4d2e45360087">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a58958c632739119e57126ceaf7ae9210">FPGAThread</a>, and <a class="el" href="classIntanThread.html#acd7222cc5aa5495fc9b99ccc89b57fc2">IntanThread</a>.</p>
 
@@ -318,6 +346,8 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Initializes data transfer. </p>
+
 <p>Implemented in <a class="el" href="classNetworkThread.html#ae30402dfc01f183929896c07b2efeec5">NetworkThread</a>, and <a class="el" href="classFileReaderThread.html#a4d5c3434d7b635d25bbc4c2014b95a61">FileReaderThread</a>.</p>
 
 </div>
@@ -342,6 +372,8 @@ Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Stops data transfer. </p>
 
 <p>Implemented in <a class="el" href="classNetworkThread.html#a2cc1f3d1e83ab57c2a55657fb6d63956">NetworkThread</a>, and <a class="el" href="classFileReaderThread.html#ad2abbe666106abe215753a9b3ff328d4">FileReaderThread</a>.</p>
 
@@ -368,6 +400,8 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Returns the number of continuous channels the data source can provide. </p>
+
 <p>Implemented in <a class="el" href="classNetworkThread.html#a37d244c39c0b0c52882a439638942d40">NetworkThread</a>, <a class="el" href="classFileReaderThread.html#aea6f87741b16e78b29f32b2efccf5664">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a67ff95c727afa4c92d9705c3b1d9c3ee">FPGAThread</a>, and <a class="el" href="classIntanThread.html#a8b5d9057c93ce0e476e994274cdd35fc">IntanThread</a>.</p>
 
 </div>
@@ -392,6 +426,8 @@ Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Returns the sample rate of the data source. </p>
 
 <p>Implemented in <a class="el" href="classNetworkThread.html#a7212f2e4b930e2831e79143bd90b07ab">NetworkThread</a>, <a class="el" href="classFileReaderThread.html#ab6360a15dd538bb78dfd3c52fa6fa1d2">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a8d1bd558f7e72a8f578db63736df22cf">FPGAThread</a>, and <a class="el" href="classIntanThread.html#af75991b755889843df9e30e259fe7465">IntanThread</a>.</p>
 
@@ -418,6 +454,8 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Returns the volts per bit of the data source. </p>
+
 <p>Implemented in <a class="el" href="classFileReaderThread.html#a50b11fd1f129af9488134d1b6e31e93b">FileReaderThread</a>, <a class="el" href="classFPGAThread.html#a30096ea04ec85c0aa301f167fd7a42c4">FPGAThread</a>, and <a class="el" href="classIntanThread.html#ad2020007cf90134f414a6c0413e63127">IntanThread</a>.</p>
 
 </div>
@@ -443,6 +481,8 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Returns the number of event channels of the data source. </p>
+
 <p>Reimplemented in <a class="el" href="classFPGAThread.html#a01f656a35601081f567b0df2d39d62c5">FPGAThread</a>, and <a class="el" href="classIntanThread.html#a4d09acff7877805aec7484cac63d451c">IntanThread</a>.</p>
 
 </div>
@@ -467,6 +507,9 @@ Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p><pre class="fragment">Returns a pointer to the data input device, in case other processors
+</pre><p> need to communicate with it. </p>
 
 </div>
 </div>
@@ -537,7 +580,7 @@ Public Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Dec 27 2012 13:56:41 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Dec 27 2012 15:17:05 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>
