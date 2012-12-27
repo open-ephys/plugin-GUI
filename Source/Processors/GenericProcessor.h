@@ -81,8 +81,7 @@ public:
 	/** Returns the name of the processor. */
 	const String getName() const {return name;}
 	
-	/** Called by JUCE as soon as a processor is created, as well as before the
-	start of audio callbacks. To avoid starting data acquisition prematurely, use the enable() function instead.
+	/** Called by JUCE as soon as a processor is created, as well as before the start of audio callbacks. To avoid starting data acquisition prematurely, use the enable() function instead.
 	*/
 	virtual void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
 
@@ -268,12 +267,10 @@ public:
 	    when this is not possible.*/
 	virtual bool canSendSignalTo(GenericProcessor*) {return true;}
 
-	/** Returns true if a processor is ready to process data (e.g., all of its
-	parameters are initialized, and its data source is connected).*/
+	/** Returns true if a processor is ready to process data (e.g., all of its parameters are initialized, and its data source is connected).*/
 	virtual bool isReady() {return isEnabled;}
 
-	/** Called immediately prior to the start of data acquisition, once all
-	processors in the signal chain have indicated they are ready to process data.*/
+	/** Called immediately prior to the start of data acquisition, once all processors in the signal chain have indicated they are ready to process data.*/
 	virtual bool enable() {return isEnabled;}
 
 	/** Called immediately after the end of data acquisition.*/

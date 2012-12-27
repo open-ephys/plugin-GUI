@@ -38,6 +38,11 @@
   
   Class for holding user-definable processor parameters.
 
+  Parameters can either hold boolean, categorical, or continuous (float) values.
+
+  Using the Parameter class makes it easier to create a graphical interface for editing
+  parameters, because each Parameter has a ParameterEditor that is created automatically.
+
   @see GenericProcessor, GenericEditor
 
 */
@@ -46,34 +51,60 @@ class Parameter
 {
 public:
 
+	/** Constructor for boolean parameters.*/
 	Parameter(const String& name_, bool defaultVal, int ID, bool t = false);
+
+	/** Constructor for continuous (float) parameters.*/
 	Parameter(const String& name_, float low, float high, float defaultVal, int ID, bool t = false);
+	
+	/** Constructor for categorical parameters.*/
 	Parameter(const String& name_, Array<var> a, int defaultVal, int ID, bool t = false);
 
+	/** Destructor.*/
 	~Parameter() {}
 
+	/** Returns the name of the parameter.*/
 	const String& getName() {return name;}
+
+	/** Returns a description of the parameter.*/
 	const String& getDescription() {return description;}
+
+	/** Sets the description of the parameter.*/
 	void addDescription(const String& desc) {description = desc;}
 
+	/** Returns the default value of a parameter (can be boolean, int, or float).*/
 	var getDefaultValue() {return defaultValue;}
 
+	/** Returns the unique integer ID of a parameter.*/
 	int getID() {return parameterId;}
 
+	/** Returns all the possible values that a parameter can take.*/
 	Array<var> getPossibleValues() {return possibleValues;}
+
+	/** Sets the value of a parameter for a given channel.*/
 	void setValue(float val, int chan);
 
+	/** Returns the value of a parameter for a given channel.*/
 	var operator[](int chan) {return values[chan];}
+
+	/** Copies a parameter.*/
 	Parameter& operator=(const Parameter& other);
 
+	/** Returns true if a parameter is boolean, false otherwise.*/
 	bool isBoolean() {return isBool;}
+
+	/** Returns true if a parameter is continuous, false otherwise.*/
 	bool isContinuous() {return isCont;}
+
+	/** Returns true if a parameter is discrete, false otherwise.*/
 	bool isDiscrete() {return isDisc;}
 
+	/** Certain parameters should not be changed while data acquisition is active. 
+
+	     This variable indicates whether or not these parameters can be edited.*/
 	bool shouldDeactivateDuringAcquisition;
 
 private:
-
 
 	const String name;
 	String description;

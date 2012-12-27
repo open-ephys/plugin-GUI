@@ -114,8 +114,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a8a63274afcbea876bb3d83b47ca40c2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overrides implementation in <a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>; used to change recording parameters on the fly.  <a href="#a8a63274afcbea876bb3d83b47ca40c2f"></a><br/></td></tr>
 <tr class="memitem:a4047f96e619200aeaf00795e70c7cef6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a4047f96e619200aeaf00795e70c7cef6">addInputChannel</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *<a class="el" href="classGenericProcessor.html#a0c25ce11948ca53f2028d05799b8396e">sourceNode</a>, int chan)</td></tr>
 <tr class="memitem:a9b4fa6a3b6662d9888184dd3ad013872"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a9b4fa6a3b6662d9888184dd3ad013872">enable</a> ()</td></tr>
-<tr class="memdesc:a9b4fa6a3b6662d9888184dd3ad013872"><td class="mdescLeft">&#160;</td><td class="mdescRight"><pre class="fragment">Called immediately prior to the start of data acquisition, once all
-</pre><p> processors in the signal chain have indicated they are ready to process data.  <a href="#a9b4fa6a3b6662d9888184dd3ad013872"></a><br/></td></tr>
+<tr class="memdesc:a9b4fa6a3b6662d9888184dd3ad013872"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called immediately prior to the start of data acquisition, once all processors in the signal chain have indicated they are ready to process data.  <a href="#a9b4fa6a3b6662d9888184dd3ad013872"></a><br/></td></tr>
 <tr class="memitem:ae020d2f723fb1468f48f14d76d007202"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#ae020d2f723fb1468f48f14d76d007202">disable</a> ()</td></tr>
 <tr class="memdesc:ae020d2f723fb1468f48f14d76d007202"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called immediately after the end of data acquisition.  <a href="#ae020d2f723fb1468f48f14d76d007202"></a><br/></td></tr>
 <tr class="memitem:a208709d4b0f959a845f10490acde9ca8"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classRecordNode.html#a208709d4b0f959a845f10490acde9ca8">getFreeSpace</a> ()</td></tr>
@@ -138,8 +137,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aad3c1acb9fdeda122892ab9c5276119f inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">const String&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#aad3c1acb9fdeda122892ab9c5276119f">getName</a> () const </td></tr>
 <tr class="memdesc:aad3c1acb9fdeda122892ab9c5276119f inherit pub_methods_classGenericProcessor"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the name of the processor.  <a href="#aad3c1acb9fdeda122892ab9c5276119f"></a><br/></td></tr>
 <tr class="memitem:a38456d9796c0fcf521c173cf4338c728 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a38456d9796c0fcf521c173cf4338c728">prepareToPlay</a> (double sampleRate, int estimatedSamplesPerBlock)</td></tr>
-<tr class="memdesc:a38456d9796c0fcf521c173cf4338c728 inherit pub_methods_classGenericProcessor"><td class="mdescLeft">&#160;</td><td class="mdescRight"><pre class="fragment">Called by JUCE as soon as a processor is created, as well as before the
-</pre><p> start of audio callbacks.  <a href="#a38456d9796c0fcf521c173cf4338c728"></a><br/></td></tr>
+<tr class="memdesc:a38456d9796c0fcf521c173cf4338c728 inherit pub_methods_classGenericProcessor"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called by JUCE as soon as a processor is created, as well as before the start of audio callbacks.  <a href="#a38456d9796c0fcf521c173cf4338c728"></a><br/></td></tr>
 <tr class="memitem:a53daa94f674d6b7e5e3d55fda717ec96 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a53daa94f674d6b7e5e3d55fda717ec96">releaseResources</a> ()</td></tr>
 <tr class="memdesc:a53daa94f674d6b7e5e3d55fda717ec96 inherit pub_methods_classGenericProcessor"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called by JUCE as soon as audio callbacks end.  <a href="#a53daa94f674d6b7e5e3d55fda717ec96"></a><br/></td></tr>
 <tr class="memitem:a4336e8c17d1ba015933628d6902896fa inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual AudioProcessorEditor *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a4336e8c17d1ba015933628d6902896fa">createEditor</a> ()</td></tr>
@@ -239,8 +237,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3802e6cb4f8bd84840408bae0434bb8e inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a3802e6cb4f8bd84840408bae0434bb8e">canSendSignalTo</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *)</td></tr>
 <tr class="memdesc:a3802e6cb4f8bd84840408bae0434bb8e inherit pub_methods_classGenericProcessor"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if a processor is able to send its output to a given processor.  <a href="#a3802e6cb4f8bd84840408bae0434bb8e"></a><br/></td></tr>
 <tr class="memitem:a019dc0a595127889b42e835b23db07f5 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a019dc0a595127889b42e835b23db07f5">isReady</a> ()</td></tr>
-<tr class="memdesc:a019dc0a595127889b42e835b23db07f5 inherit pub_methods_classGenericProcessor"><td class="mdescLeft">&#160;</td><td class="mdescRight"><pre class="fragment">Returns true if a processor is ready to process data (e.g., all of its
-</pre><p> parameters are initialized, and its data source is connected).  <a href="#a019dc0a595127889b42e835b23db07f5"></a><br/></td></tr>
+<tr class="memdesc:a019dc0a595127889b42e835b23db07f5 inherit pub_methods_classGenericProcessor"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if a processor is ready to process data (e.g., all of its parameters are initialized, and its data source is connected).  <a href="#a019dc0a595127889b42e835b23db07f5"></a><br/></td></tr>
 <tr class="memitem:a9985bc49aa7843600f8c143857deede8 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#a9985bc49aa7843600f8c143857deede8">enableEditor</a> ()</td></tr>
 <tr class="memdesc:a9985bc49aa7843600f8c143857deede8 inherit pub_methods_classGenericProcessor"><td class="mdescLeft">&#160;</td><td class="mdescRight">Informs a processor's editor that data acquisition is about to begin.  <a href="#a9985bc49aa7843600f8c143857deede8"></a><br/></td></tr>
 <tr class="memitem:aa8f002be3556dd873bfe6054b438eb82 inherit pub_methods_classGenericProcessor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericProcessor.html#aa8f002be3556dd873bfe6054b438eb82">disableEditor</a> ()</td></tr>
@@ -509,8 +506,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p><pre class="fragment">Called immediately prior to the start of data acquisition, once all
-</pre><p> processors in the signal chain have indicated they are ready to process data. </p>
+<p>Called immediately prior to the start of data acquisition, once all processors in the signal chain have indicated they are ready to process data. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericProcessor.html#aef8d92d5d667f0e9d4b2d334ddf37380">GenericProcessor</a>.</p>
 
@@ -675,7 +671,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Dec 27 2012 15:17:05 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Dec 27 2012 18:10:00 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>
