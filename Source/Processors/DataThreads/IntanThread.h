@@ -32,6 +32,8 @@
 #include <stdio.h>
 #include "DataThread.h"
 
+class SourceNode;
+
 /**
 
   Interface to the Intan Demo Board.
@@ -39,8 +41,6 @@
   @see SourceNode, DataThread
 
 */
-
-class SourceNode;
 
 class IntanThread : public DataThread
 

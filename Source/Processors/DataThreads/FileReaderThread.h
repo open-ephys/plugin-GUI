@@ -33,6 +33,8 @@
 #include <time.h>
 #include "DataThread.h"
 
+class SourceNode;
+
 /**
 
   Fills a buffer with data from a file.
@@ -42,9 +44,6 @@
   @see DataThread, FileReader
 
 */
-
-
-class SourceNode;
 
 class FileReaderThread : public DataThread
 

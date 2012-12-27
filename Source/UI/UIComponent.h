@@ -41,6 +41,11 @@
 
 #include "../OpenGL.h"
 
+class MainWindow;
+class ProcessorList;
+
+class EditorViewportButton;
+
 /**
   
   Creates objects for user interaction.
@@ -52,11 +57,6 @@
        MessageCenter
 
 */
-
-class MainWindow;
-class ProcessorList;
-
-class EditorViewportButton;
 
 class UIComponent : public Component,
 				    public ActionBroadcaster,
