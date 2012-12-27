@@ -43,6 +43,9 @@ class EditorButton;
   
   Automatically creates an interactive editor for selecting channels.
 
+  Contains tabs for "Params", "Audio", and "Record", which allow
+  channels to be selected for different purposes.
+
   @see GenericEditor
 
 */
@@ -82,14 +85,21 @@ public:
 	/** Return component's desired width. */
 	int getDesiredWidth();
 
+	/** Called prior to the start of data acquisition.*/
 	void startAcquisition();
 
+	/** Called immediately after data acquisition ends.*/
 	void stopAcquisition();
 
+	/** Inactivates all the ChannelSelectorButtons under the "param" tab.*/
 	void inactivateButtons();
 
+	/** Activates all the ChannelSelectorButtons under the "param" tab.*/
 	void activateButtons();
 
+	/** Controls the behavior of ChannelSelectorButtons; they can either behave
+	like radio buttons (only one selected at a time) or like toggle buttons (an
+	arbitrary number can be selected at once).*/
 	void setRadioStatus(bool);
 
 	void paramButtonsToggledByDefault(bool t) {paramsToggled = t;}
@@ -105,8 +115,16 @@ private:
 	EditorButton* allButton;
 	EditorButton* noneButton;
 
+	/** An array of ChannelSelectorButtons used to select the channels that
+	   will be updated when a parameter is changed. */
 	Array<ChannelSelectorButton*> parameterButtons;
+
+	/** An array of ChannelSelectorButtons used to select the channels that
+	   are sent to the audio monitor. */
 	Array<ChannelSelectorButton*> audioButtons;
+
+	/** An array of ChannelSelectorButtons used to select the channels that
+	   will be written to disk when the record button is pressed. */
 	Array<ChannelSelectorButton*> recordButtons;
 
 	bool paramsToggled;
@@ -132,8 +150,10 @@ private:
 	void removeButton();
 	void refreshButtonBoundaries();
 
+	/** Controls the speed of animations. */
 	void timerCallback();
 
+	/** Draws the ChannelSelector. */
 	void paint(Graphics& g);
 
 	Font& titleFont;
@@ -146,7 +166,8 @@ private:
 
 /**
   
-  A button within the ChannelSelector representing an individual channel.
+  A button within the ChannelSelector that allows the user to switch
+  between tabs of all the channels.
 
   @see ChannelSelector
 
@@ -188,6 +209,14 @@ private:
 
 	ColourGradient selectedGrad, selectedOverGrad, neutralGrad, neutralOverGrad;
 };
+
+/**
+  
+  A button within the ChannelSelector representing an individual channel.
+
+  @see ChannelSelector
+
+*/
 
 class ChannelSelectorButton : public Button
 {

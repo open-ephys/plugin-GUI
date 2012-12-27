@@ -37,6 +37,10 @@
 
   Allows the user to merge two signal chains.
 
+  This processor doesn't modify the data passing through it. In fact,
+  it has no incoming or outgoing connections. It just allows the outputs from
+  TWO source nodes to be connected to ONE destination.
+
   @see GenericProcessor, ProcessorGraph
 
 */
@@ -50,6 +54,7 @@ public:
 
 	AudioProcessorEditor* createEditor();
 
+    /** Nothing happens here, because Mergers are not part of the ProcessorGraph. */
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples) {}
 
 	bool isMerger() {return true;}

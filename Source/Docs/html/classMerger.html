@@ -111,7 +111,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2e381efbef8d22df3b6522bb04325ced"><td class="memItemLeft" align="right" valign="top">AudioProcessorEditor *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMerger.html#a2e381efbef8d22df3b6522bb04325ced">createEditor</a> ()</td></tr>
 <tr class="memdesc:a2e381efbef8d22df3b6522bb04325ced"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a <a class="el" href="classGenericEditor.html" title="Base class for creating processor editors.">GenericEditor</a>.  <a href="#a2e381efbef8d22df3b6522bb04325ced"></a><br/></td></tr>
 <tr class="memitem:aa486022781477e2602efa1edac73d69a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMerger.html#aa486022781477e2602efa1edac73d69a">process</a> (AudioSampleBuffer &amp;buffer, MidiBuffer &amp;midiMessages, int &amp;nSamples)</td></tr>
-<tr class="memdesc:aa486022781477e2602efa1edac73d69a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines a processor's functionality.  <a href="#aa486022781477e2602efa1edac73d69a"></a><br/></td></tr>
+<tr class="memdesc:aa486022781477e2602efa1edac73d69a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nothing happens here, because Mergers are not part of the <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a>.  <a href="#aa486022781477e2602efa1edac73d69a"></a><br/></td></tr>
 <tr class="memitem:aff9f501ad9eb8bf1cd85570860cbc24c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMerger.html#aff9f501ad9eb8bf1cd85570860cbc24c">isMerger</a> ()</td></tr>
 <tr class="memdesc:aff9f501ad9eb8bf1cd85570860cbc24c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if a processor is a merger, false otherwise.  <a href="#aff9f501ad9eb8bf1cd85570860cbc24c"></a><br/></td></tr>
 <tr class="memitem:a7175efb6c9552ca22f9f902417232f06"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMerger.html#a7175efb6c9552ca22f9f902417232f06">switchIO</a> (int)</td></tr>
@@ -333,6 +333,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Allows the user to merge two signal chains. </p>
+<p>This processor doesn't modify the data passing through it. In fact, it has no incoming or outgoing connections. It just allows the outputs from TWO source nodes to be connected to ONE destination.</p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>, <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="aa778178338ad58684ad6bd19d26f6ba9"></a>
@@ -404,13 +405,13 @@ Additional Inherited Members</h2></td></tr>
           <td class="memname">void Merger::process </td>
           <td>(</td>
           <td class="paramtype">AudioSampleBuffer &amp;&#160;</td>
-          <td class="paramname"><em>continuousBuffer</em>, </td>
+          <td class="paramname"><em>buffer</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">MidiBuffer &amp;&#160;</td>
-          <td class="paramname"><em>eventBuffer</em>, </td>
+          <td class="paramname"><em>midiMessages</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -431,8 +432,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Defines a processor's functionality. </p>
-<p>This is the most important function for each processor, as it determines how it creates, modifies, or responds to incoming data streams. Rather than use the default JUCE processBlock() method, processBlock() automatically calls <a class="el" href="classMerger.html#aa486022781477e2602efa1edac73d69a" title="Defines a processor&#39;s functionality.">process()</a> in order to add the 'nSamples' variable to indicate the number of samples in the current buffer. </p>
+<p>Nothing happens here, because Mergers are not part of the <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a>. </p>
 
 <p>Implements <a class="el" href="classGenericProcessor.html#a0668eed6ba75dc94a693a23da945ef97">GenericProcessor</a>.</p>
 
@@ -624,7 +624,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Dec 27 2012 18:10:00 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Dec 27 2012 18:27:30 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

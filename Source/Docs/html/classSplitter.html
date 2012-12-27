@@ -111,7 +111,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1efaec57eeafba93724921f8de2fc296"><td class="memItemLeft" align="right" valign="top">AudioProcessorEditor *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSplitter.html#a1efaec57eeafba93724921f8de2fc296">createEditor</a> ()</td></tr>
 <tr class="memdesc:a1efaec57eeafba93724921f8de2fc296"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a <a class="el" href="classGenericEditor.html" title="Base class for creating processor editors.">GenericEditor</a>.  <a href="#a1efaec57eeafba93724921f8de2fc296"></a><br/></td></tr>
 <tr class="memitem:a0ad1211a06e6a6317d89eb6257d178d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSplitter.html#a0ad1211a06e6a6317d89eb6257d178d3">process</a> (AudioSampleBuffer &amp;buffer, MidiBuffer &amp;midiMessages, int &amp;nSamples)</td></tr>
-<tr class="memdesc:a0ad1211a06e6a6317d89eb6257d178d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines a processor's functionality.  <a href="#a0ad1211a06e6a6317d89eb6257d178d3"></a><br/></td></tr>
+<tr class="memdesc:a0ad1211a06e6a6317d89eb6257d178d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nothing happens here, because Splitters are not part of the <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a>.  <a href="#a0ad1211a06e6a6317d89eb6257d178d3"></a><br/></td></tr>
 <tr class="memitem:ac63efb523b23518f2417b9e983affa31"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSplitter.html#ac63efb523b23518f2417b9e983affa31">isSplitter</a> ()</td></tr>
 <tr class="memdesc:ac63efb523b23518f2417b9e983affa31"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if a processor is a splitter, false otherwise.  <a href="#ac63efb523b23518f2417b9e983affa31"></a><br/></td></tr>
 <tr class="memitem:a760a6d86203940549bc096e2fa224be3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSplitter.html#a760a6d86203940549bc096e2fa224be3">switchIO</a> (int)</td></tr>
@@ -333,6 +333,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Allows the user to split the signal chain. </p>
+<p>This processor doesn't modify the data passing through it. In fact, it has no incoming or outgoing connections. It just allows the outputs from its source node to be connected to TWO destination nodes.</p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericProcessor.html" title="Abstract base class for creating processors.">GenericProcessor</a>, <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a> </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="ac62b02b8374ebe8dfdf6c34fbd59c2a1"></a>
@@ -404,13 +405,13 @@ Additional Inherited Members</h2></td></tr>
           <td class="memname">void Splitter::process </td>
           <td>(</td>
           <td class="paramtype">AudioSampleBuffer &amp;&#160;</td>
-          <td class="paramname"><em>continuousBuffer</em>, </td>
+          <td class="paramname"><em>buffer</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">MidiBuffer &amp;&#160;</td>
-          <td class="paramname"><em>eventBuffer</em>, </td>
+          <td class="paramname"><em>midiMessages</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -431,8 +432,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Defines a processor's functionality. </p>
-<p>This is the most important function for each processor, as it determines how it creates, modifies, or responds to incoming data streams. Rather than use the default JUCE processBlock() method, processBlock() automatically calls <a class="el" href="classSplitter.html#a0ad1211a06e6a6317d89eb6257d178d3" title="Defines a processor&#39;s functionality.">process()</a> in order to add the 'nSamples' variable to indicate the number of samples in the current buffer. </p>
+<p>Nothing happens here, because Splitters are not part of the <a class="el" href="classProcessorGraph.html" title="Owns all processors and constructs the signal chain.">ProcessorGraph</a>. </p>
 
 <p>Implements <a class="el" href="classGenericProcessor.html#a0668eed6ba75dc94a693a23da945ef97">GenericProcessor</a>.</p>
 
@@ -597,7 +597,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Dec 27 2012 18:10:01 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Dec 27 2012 18:27:30 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

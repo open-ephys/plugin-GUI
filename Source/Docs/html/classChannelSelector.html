@@ -125,10 +125,16 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7865695da614c8ee1e3106c545dd12f4"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classChannelSelector.html#a7865695da614c8ee1e3106c545dd12f4">getDesiredWidth</a> ()</td></tr>
 <tr class="memdesc:a7865695da614c8ee1e3106c545dd12f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return component's desired width.  <a href="#a7865695da614c8ee1e3106c545dd12f4"></a><br/></td></tr>
 <tr class="memitem:a5f1c49da5eaa27a86f098517661157a1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classChannelSelector.html#a5f1c49da5eaa27a86f098517661157a1">startAcquisition</a> ()</td></tr>
+<tr class="memdesc:a5f1c49da5eaa27a86f098517661157a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called prior to the start of data acquisition.  <a href="#a5f1c49da5eaa27a86f098517661157a1"></a><br/></td></tr>
 <tr class="memitem:a9ef6bad354cedcf5b7c5ba2669eca7fd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classChannelSelector.html#a9ef6bad354cedcf5b7c5ba2669eca7fd">stopAcquisition</a> ()</td></tr>
+<tr class="memdesc:a9ef6bad354cedcf5b7c5ba2669eca7fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called immediately after data acquisition ends.  <a href="#a9ef6bad354cedcf5b7c5ba2669eca7fd"></a><br/></td></tr>
 <tr class="memitem:a53d43af4d197bd3def9c96b0c98811e2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classChannelSelector.html#a53d43af4d197bd3def9c96b0c98811e2">inactivateButtons</a> ()</td></tr>
+<tr class="memdesc:a53d43af4d197bd3def9c96b0c98811e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inactivates all the ChannelSelectorButtons under the "param" tab.  <a href="#a53d43af4d197bd3def9c96b0c98811e2"></a><br/></td></tr>
 <tr class="memitem:adcc831c5ba479d04df8ee711f169311d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classChannelSelector.html#adcc831c5ba479d04df8ee711f169311d">activateButtons</a> ()</td></tr>
+<tr class="memdesc:adcc831c5ba479d04df8ee711f169311d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Activates all the ChannelSelectorButtons under the "param" tab.  <a href="#adcc831c5ba479d04df8ee711f169311d"></a><br/></td></tr>
 <tr class="memitem:ae4fc9b23915004fb4f1ade854e7dddb4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classChannelSelector.html#ae4fc9b23915004fb4f1ade854e7dddb4">setRadioStatus</a> (bool)</td></tr>
+<tr class="memdesc:ae4fc9b23915004fb4f1ade854e7dddb4"><td class="mdescLeft">&#160;</td><td class="mdescRight"><pre class="fragment">Controls the behavior of ChannelSelectorButtons; they can either behave
+</pre><p> like radio buttons (only one selected at a time) or like toggle buttons (an arbitrary number can be selected at once).  <a href="#ae4fc9b23915004fb4f1ade854e7dddb4"></a><br/></td></tr>
 <tr class="memitem:a10b3542c4c5f2815b663692649b69eea"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classChannelSelector.html#a10b3542c4c5f2815b663692649b69eea">paramButtonsToggledByDefault</a> (bool t)</td></tr>
 <tr class="inherit_header pub_methods_classAccessClass"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classAccessClass')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classAccessClass.html">AccessClass</a></td></tr>
 <tr class="memitem:a4479402a420cf84c0b8ec1abd4a43d9c inherit pub_methods_classAccessClass"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAccessClass.html#a4479402a420cf84c0b8ec1abd4a43d9c">AccessClass</a> ()</td></tr>
@@ -160,6 +166,7 @@ Public Attributes</h2></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Automatically creates an interactive editor for selecting channels. </p>
+<p>Contains tabs for "Params", "Audio", and "Record", which allow channels to be selected for different purposes.</p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classGenericEditor.html" title="Base class for creating processor editors.">GenericEditor</a> </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a593fc6e836661a86e0ca788bffdb4d24"></a>
@@ -345,6 +352,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Called prior to the start of data acquisition. </p>
+
 </div>
 </div>
 <a class="anchor" id="a9ef6bad354cedcf5b7c5ba2669eca7fd"></a>
@@ -359,6 +368,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Called immediately after data acquisition ends. </p>
 
 </div>
 </div>
@@ -375,6 +386,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Inactivates all the ChannelSelectorButtons under the "param" tab. </p>
+
 </div>
 </div>
 <a class="anchor" id="adcc831c5ba479d04df8ee711f169311d"></a>
@@ -389,6 +402,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Activates all the ChannelSelectorButtons under the "param" tab. </p>
 
 </div>
 </div>
@@ -405,6 +420,9 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p><pre class="fragment">Controls the behavior of ChannelSelectorButtons; they can either behave
+</pre><p> like radio buttons (only one selected at a time) or like toggle buttons (an arbitrary number can be selected at once). </p>
 
 </div>
 </div>
@@ -443,7 +461,7 @@ Public Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Dec 27 2012 18:09:59 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Dec 27 2012 18:27:29 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

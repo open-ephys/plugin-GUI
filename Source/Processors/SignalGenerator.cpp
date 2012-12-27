@@ -35,7 +35,7 @@ SignalGenerator::SignalGenerator()
 	: GenericProcessor("Signal Generator"),
 
 	  defaultFrequency(10.0),
-	  defaultAmplitude (100.0f),
+	  defaultAmplitude (0.5f),
 	  nOut(5), previousPhase(1000), spikeDelay(0)
 {
 

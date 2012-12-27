@@ -37,6 +37,10 @@
 
   Allows the user to split the signal chain.
 
+  This processor doesn't modify the data passing through it. In fact,
+  it has no incoming or outgoing connections. It just allows the outputs from
+  its source node to be connected to TWO destination nodes.
+
   @see GenericProcessor, ProcessorGraph
 
 */
@@ -51,8 +55,8 @@ public:
 
 	AudioProcessorEditor* createEditor();
 
+    /** Nothing happens here, because Splitters are not part of the ProcessorGraph. */
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples) {}
-   // void setParameter (int parameterIndex, float newValue) {}
 
 	bool isSplitter() {return true;}
 
