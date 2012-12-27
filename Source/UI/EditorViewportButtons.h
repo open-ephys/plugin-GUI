@@ -31,7 +31,9 @@
 
 /**
   
-  A set of buttons for scrolling through editors and signal chains.
+  Allows the user to scroll through visible editors when
+  there are more than can fit within the boundaries of the
+  EditorViewport.
 
   @see EditorViewport.
 
@@ -55,6 +57,15 @@ public:
 
 };
 
+/**
+  
+  Allows the user to scroll through signal chains when
+  there are more than can fit within the boundaries of the
+  EditorViewport.
+
+  @see EditorViewport.
+
+*/
 
 class SignalChainScrollButton : public DrawableButton
 {

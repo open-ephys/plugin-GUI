@@ -88,6 +88,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
+<p>An item within the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>.  
+ <a href="classProcessorListItem.html#details">More...</a></p>
+
 <p><code>#include &lt;ProcessorList.h&gt;</code></p>
 
 <p><a href="classProcessorListItem-members.html">List of all members.</a></p>
@@ -97,25 +100,44 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6089a302cb290dead024ad158ae8e28f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a6089a302cb290dead024ad158ae8e28f">ProcessorListItem</a> (const String &amp;name)</td></tr>
 <tr class="memitem:a06ef731510a0cb904f6993e63f5ec124"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a06ef731510a0cb904f6993e63f5ec124">~ProcessorListItem</a> ()</td></tr>
 <tr class="memitem:ad783cc2b23fcebf02e905675c681a585"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#ad783cc2b23fcebf02e905675c681a585">getNumSubItems</a> ()</td></tr>
+<tr class="memdesc:ad783cc2b23fcebf02e905675c681a585"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of sub-items for a given <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a>.  <a href="#ad783cc2b23fcebf02e905675c681a585"></a><br/></td></tr>
 <tr class="memitem:a090fba411589dbfe64c11284f15338e6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classProcessorListItem.html">ProcessorListItem</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a090fba411589dbfe64c11284f15338e6">getSubItem</a> (int index)</td></tr>
+<tr class="memdesc:a090fba411589dbfe64c11284f15338e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the sub-item for a given index.  <a href="#a090fba411589dbfe64c11284f15338e6"></a><br/></td></tr>
 <tr class="memitem:a5eb6d9eee08bb55eb66fec2439cbac4a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a5eb6d9eee08bb55eb66fec2439cbac4a">clearSubItems</a> ()</td></tr>
+<tr class="memdesc:a5eb6d9eee08bb55eb66fec2439cbac4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears all the sub-items owned by the <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a>.  <a href="#a5eb6d9eee08bb55eb66fec2439cbac4a"></a><br/></td></tr>
 <tr class="memitem:a8aa12edb07c98dbb694db1676b6e1031"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a8aa12edb07c98dbb694db1676b6e1031">addSubItem</a> (<a class="el" href="classProcessorListItem.html">ProcessorListItem</a> *newItem)</td></tr>
+<tr class="memdesc:a8aa12edb07c98dbb694db1676b6e1031"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a sub-item.  <a href="#a8aa12edb07c98dbb694db1676b6e1031"></a><br/></td></tr>
 <tr class="memitem:a7f69ff3e9d1768c659f779d089306845"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a7f69ff3e9d1768c659f779d089306845">removeSubItem</a> (int index)</td></tr>
+<tr class="memdesc:a7f69ff3e9d1768c659f779d089306845"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes a sub-item with a given index.  <a href="#a7f69ff3e9d1768c659f779d089306845"></a><br/></td></tr>
 <tr class="memitem:a4067f5a19339bbafab90a3174e6b03a9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a4067f5a19339bbafab90a3174e6b03a9">hasSubItems</a> ()</td></tr>
+<tr class="memdesc:a4067f5a19339bbafab90a3174e6b03a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> has sub-items, false otherwise.  <a href="#a4067f5a19339bbafab90a3174e6b03a9"></a><br/></td></tr>
 <tr class="memitem:a1818202eeefd19ef582260fc44da8fe5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a1818202eeefd19ef582260fc44da8fe5">isOpen</a> ()</td></tr>
+<tr class="memdesc:a1818202eeefd19ef582260fc44da8fe5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes true if a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> with sub-items is open, false otherwise.  <a href="#a1818202eeefd19ef582260fc44da8fe5"></a><br/></td></tr>
 <tr class="memitem:a0316c822a9900c1b905d1aa7cdcac959"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a0316c822a9900c1b905d1aa7cdcac959">setOpen</a> (bool)</td></tr>
-<tr class="memitem:a73019958aff6397cf7d84e5bd7296ebd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a73019958aff6397cf7d84e5bd7296ebd">isSelected</a> ()</td></tr>
-<tr class="memitem:a52859c6b7cafd0506839dfa4d21a9753"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a52859c6b7cafd0506839dfa4d21a9753">setSelected</a> (bool b)</td></tr>
+<tr class="memdesc:a0316c822a9900c1b905d1aa7cdcac959"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the open/closed state of a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> with sub-items.  <a href="#a0316c822a9900c1b905d1aa7cdcac959"></a><br/></td></tr>
 <tr class="memitem:a237afc4c1c5d76e9747b99dbe731352e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a237afc4c1c5d76e9747b99dbe731352e">reverseOpenState</a> ()</td></tr>
+<tr class="memdesc:a237afc4c1c5d76e9747b99dbe731352e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Toggles the open/closed state of a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> with sub-items.  <a href="#a237afc4c1c5d76e9747b99dbe731352e"></a><br/></td></tr>
+<tr class="memitem:a73019958aff6397cf7d84e5bd7296ebd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a73019958aff6397cf7d84e5bd7296ebd">isSelected</a> ()</td></tr>
+<tr class="memdesc:a73019958aff6397cf7d84e5bd7296ebd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> has been selected by the user, false otherwise.  <a href="#a73019958aff6397cf7d84e5bd7296ebd"></a><br/></td></tr>
+<tr class="memitem:a52859c6b7cafd0506839dfa4d21a9753"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a52859c6b7cafd0506839dfa4d21a9753">setSelected</a> (bool b)</td></tr>
+<tr class="memdesc:a52859c6b7cafd0506839dfa4d21a9753"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets selection state of a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a>.  <a href="#a52859c6b7cafd0506839dfa4d21a9753"></a><br/></td></tr>
 <tr class="memitem:af7ab7fd5ad3b16069ed44100a9a1436f"><td class="memItemLeft" align="right" valign="top">const String &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#af7ab7fd5ad3b16069ed44100a9a1436f">getName</a> ()</td></tr>
+<tr class="memdesc:af7ab7fd5ad3b16069ed44100a9a1436f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the name of a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a>.  <a href="#af7ab7fd5ad3b16069ed44100a9a1436f"></a><br/></td></tr>
 <tr class="memitem:a643aa9eba406af23ce41c31b784b8290"><td class="memItemLeft" align="right" valign="top">const String &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a643aa9eba406af23ce41c31b784b8290">getParentName</a> ()</td></tr>
+<tr class="memdesc:a643aa9eba406af23ce41c31b784b8290"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the name of the parent of a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a>.  <a href="#a643aa9eba406af23ce41c31b784b8290"></a><br/></td></tr>
 <tr class="memitem:a802e11ca96c271c24f52924e6433d405"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#a802e11ca96c271c24f52924e6433d405">setParentName</a> (const String &amp;name)</td></tr>
+<tr class="memdesc:a802e11ca96c271c24f52924e6433d405"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the name of the parent of a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a>.  <a href="#a802e11ca96c271c24f52924e6433d405"></a><br/></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:adb7ccd81ccfc66575555f2f5f0ccc460"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessorListItem.html#adb7ccd81ccfc66575555f2f5f0ccc460">colorId</a></td></tr>
+<tr class="memdesc:adb7ccd81ccfc66575555f2f5f0ccc460"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines the color of the <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> (based on enumerator defined in <a class="el" href="classProcessorListItem.html#a802e11ca96c271c24f52924e6433d405" title="Sets the name of the parent of a ProcessorListItem.">setParentName()</a> method).  <a href="#adb7ccd81ccfc66575555f2f5f0ccc460"></a><br/></td></tr>
 </table>
-<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>An item within the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>. </p>
+<p>If a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> has sub-items, it acts as a button that can be used to show/hide segments of the <a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a>. If it has no sub-items, then it holds the name of a processor which can be dragged onto the <a class="el" href="classEditorViewport.html" title="Allows the user to view and edit the signal chain.">EditorViewport</a> to construct the signal chain.</p>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classProcessorList.html" title="Holds a list of processors that can be used to build the signal chain.">ProcessorList</a> </dd></dl>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a6089a302cb290dead024ad158ae8e28f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -161,6 +183,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Returns the number of sub-items for a given <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a>. </p>
+
 </div>
 </div>
 <a class="anchor" id="a090fba411589dbfe64c11284f15338e6"></a>
@@ -177,6 +201,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Returns the sub-item for a given index. </p>
+
 </div>
 </div>
 <a class="anchor" id="a5eb6d9eee08bb55eb66fec2439cbac4a"></a>
@@ -191,6 +217,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Clears all the sub-items owned by the <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a>. </p>
 
 </div>
 </div>
@@ -208,6 +236,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Adds a sub-item. </p>
+
 </div>
 </div>
 <a class="anchor" id="a7f69ff3e9d1768c659f779d089306845"></a>
@@ -224,6 +254,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Removes a sub-item with a given index. </p>
+
 </div>
 </div>
 <a class="anchor" id="a4067f5a19339bbafab90a3174e6b03a9"></a>
@@ -239,6 +271,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Returns true if a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> has sub-items, false otherwise. </p>
+
 </div>
 </div>
 <a class="anchor" id="a1818202eeefd19ef582260fc44da8fe5"></a>
@@ -253,6 +287,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Removes true if a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> with sub-items is open, false otherwise. </p>
 
 </div>
 </div>
@@ -270,6 +306,25 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Sets the open/closed state of a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> with sub-items. </p>
+
+</div>
+</div>
+<a class="anchor" id="a237afc4c1c5d76e9747b99dbe731352e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ProcessorListItem::reverseOpenState </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Toggles the open/closed state of a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> with sub-items. </p>
+
 </div>
 </div>
 <a class="anchor" id="a73019958aff6397cf7d84e5bd7296ebd"></a>
@@ -284,6 +339,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Returns true if a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> has been selected by the user, false otherwise. </p>
 
 </div>
 </div>
@@ -301,20 +358,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-</div>
-</div>
-<a class="anchor" id="a237afc4c1c5d76e9747b99dbe731352e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ProcessorListItem::reverseOpenState </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
+<p>Sets selection state of a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a>. </p>
 
 </div>
 </div>
@@ -331,6 +375,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Returns the name of a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a>. </p>
+
 </div>
 </div>
 <a class="anchor" id="a643aa9eba406af23ce41c31b784b8290"></a>
@@ -345,6 +391,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Returns the name of the parent of a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a>. </p>
 
 </div>
 </div>
@@ -362,6 +410,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Sets the name of the parent of a <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a>. </p>
+
 </div>
 </div>
 <hr/><h2>Member Data Documentation</h2>
@@ -375,6 +425,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Determines the color of the <a class="el" href="classProcessorListItem.html" title="An item within the ProcessorList.">ProcessorListItem</a> (based on enumerator defined in <a class="el" href="classProcessorListItem.html#a802e11ca96c271c24f52924e6433d405" title="Sets the name of the parent of a ProcessorListItem.">setParentName()</a> method). </p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
@@ -383,7 +435,7 @@ Public Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 26 2012 16:01:08 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Dec 27 2012 00:38:01 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

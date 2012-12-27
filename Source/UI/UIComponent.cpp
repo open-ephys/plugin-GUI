@@ -272,7 +272,7 @@ void UIComponent::menuItemSelected(int menuItemID, int topLevelMenuIndex)
 ApplicationCommandTarget* UIComponent::getNextCommandTarget()
 {
 	// this will return the next parent component that is an ApplicationCommandTarget (in this
-        // case, there probably isn't one, but it's best to use this method in your own apps).
+    // case, there probably isn't one, but it's best to use this method anyway).
 	return findFirstTargetParentComponent();
 }
 

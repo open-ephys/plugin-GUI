@@ -30,8 +30,6 @@
 #endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
-//---------------------------------------------------------------
-
 /**
   
   Allows the application to display messages to the user.
@@ -50,15 +48,21 @@ public:
     MessageCenter();
     ~MessageCenter();
 
+    /** Draws the message center.*/
     void paint (Graphics& g);
 
 private:
+
+   /** A JUCE label used to display message text. */
    Label* messageDisplayArea;
 
+   /** Called when the boundaries of the MessageCenter are changed. */
    void resized();
 
+   /** Called when a new message is received. */
    void actionListenerCallback(const String& message);
 
+   /** The background color (changes to yellow when a new message arrives). */
    Colour messageBackground;
 
 };

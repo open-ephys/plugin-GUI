@@ -47,17 +47,16 @@ class SignalChainScrollButton;
   Allows the user to view and edit the signal chain.
 
   The EditorViewport is one of the most important classes in the GUI application.
-  Dragging processors from the ProcessorList adds them to the signal chain. The
-  newly added processor appears as an editor in the EditorViewport, which allows
-  the user to edit the parameters of that processor. Deleting the editor from the 
-  EditorViewport removes it from the signal chain. Moving an editor (by dragging
+  Dragging processors from the ProcessorList into the EditorViewport adds them to the signal chain. The
+  newly added processors appear an editors in the EditorViewport. Deleting the editor from the 
+  EditorViewport removes its associated processor from the signal chain. Moving an editor (by dragging
   and dropping within the EditorViewport) rearranges the order of processing.
 
   The EditorViewport can be used to browse through multiple parallel signal chains
   (by clicking the buttons on the far left), or to navigate around branching
   signal chains.
 
-  @see UIComponent, ProcessorGraph
+  @see UIComponent, ProcessorGraph, SignalChainManager
 
 */
 

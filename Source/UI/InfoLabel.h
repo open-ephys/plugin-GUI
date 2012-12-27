@@ -46,20 +46,31 @@ class InfoLabel : public OpenGLCanvas
 public: 
 	InfoLabel();
 	~InfoLabel();
+
+    /** Initializes an OpenGL context for drawing.*/
 	void newOpenGLContextCreated();
+
+    /** Draws the InfoLabel.*/
 	void renderOpenGL();
 
 private:
 
 	int xBuffer, yBuffer;
 
+    /** Draws the InfoLabel.*/
 	void drawLabel();
 
+    /** Returns the requested height of the InfoLabel (used to create
+    scroll bars if the height exceeds the actual height of the component).*/
 	int getTotalHeight();
 
+    /** Called when the boundaries of the InfoLabel are changed.*/
 	void canvasWasResized();
 
+    /** An FTGL layout class used to constrain the text.*/
 	FTSimpleLayout layout;	
+
+    /** The text displayed to the user.*/
 	String infoString;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InfoLabel);
