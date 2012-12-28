@@ -31,6 +31,14 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
+/**
+  
+  User interface for the ResamplingNode processor.
+
+  @see ResamplingNode
+
+*/
+
 class ResamplingNodeEditor : public GenericEditor
 {
 public:

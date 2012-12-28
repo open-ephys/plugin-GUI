@@ -38,6 +38,14 @@
 
 class Visualizer;
 
+/**
+  
+  User interface for the LfpDisplayNode sink.
+
+  @see LfpDisplayNode, LfpDisplayCanvas
+
+*/
+
 class LfpDisplayEditor : public VisualizerEditor
 {
 public:

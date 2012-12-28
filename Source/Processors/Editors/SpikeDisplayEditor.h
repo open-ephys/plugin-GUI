@@ -40,6 +40,14 @@
 class Visualizer;
 class UtilityButton;
 
+/**
+  
+  User interface for the SpikeDisplayNode sink.
+
+  @see SpikeDisplayNode, SpikeDisplayCanvas
+
+*/
+
 class SpikeDisplayEditor : public VisualizerEditor
 {
 public:

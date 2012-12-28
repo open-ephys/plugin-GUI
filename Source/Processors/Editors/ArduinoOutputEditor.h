@@ -34,6 +34,14 @@
 
 class ImageIcon;
 
+/**
+
+  User interface for the ArduinoOutput processor.
+
+  @see ArduinoOutput
+
+*/
+
 class ArduinoOutputEditor : public GenericEditor
 
 {

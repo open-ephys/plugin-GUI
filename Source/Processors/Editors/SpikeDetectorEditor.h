@@ -121,7 +121,7 @@ private:
 
 /**
 
-  Provides the user-interface for the SpikeDetector.
+  User interface for the SpikeDetector processor.
 
   Allows the user to add single electrodes, stereotrodes, or tetrodes.
 

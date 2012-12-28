@@ -34,6 +34,14 @@
 
 class ImageIcon;
 
+/**
+  
+  User interface for the FPGAOutput sink.
+
+  @see FPGAOutput
+
+*/
+
 class FPGAOutputEditor : public GenericEditor
 
 {

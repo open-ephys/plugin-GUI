@@ -34,16 +34,17 @@
 #include "../Visualization/DataWindow.h"
 #include "../Visualization/Visualizer.h"
 
-/**
-  
-  Base class for creating editors with visualizers.
-
-  @see GenericEditor, Visualizer
-
-*/
 
 class DataWindow;
 class Visualizer;
+
+/**
+  
+  Button for selecting the location of a visualizer.
+
+  @see VisualizerEditor
+
+*/
 
 class SelectorButton : public Button
 {
@@ -53,6 +54,15 @@ class SelectorButton : public Button
 	private:
 		void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 };
+
+
+/**
+  
+  Base class for creating editors with visualizers.
+
+  @see GenericEditor, Visualizer
+
+*/
 
 class VisualizerEditor : public GenericEditor
 {

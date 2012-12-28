@@ -87,7 +87,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Provides the user-interface for the <a class="el" href="classSpikeDetector.html" title="Detects spikes in a continuous signal and outputs events containing the spike data.">SpikeDetector</a>.  
+<p>User interface for the <a class="el" href="classSpikeDetector.html" title="Detects spikes in a continuous signal and outputs events containing the spike data.">SpikeDetector</a> processor.  
  <a href="classSpikeDetectorEditor.html#details">More...</a></p>
 
 <p><code>#include &lt;SpikeDetectorEditor.h&gt;</code></p>
@@ -115,7 +115,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af44153e6745ac264da123f8c3f97c805"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetectorEditor.html#af44153e6745ac264da123f8c3f97c805">sliderEvent</a> (Slider *slider)</td></tr>
 <tr class="memdesc:af44153e6745ac264da123f8c3f97c805"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called by <a class="el" href="classGenericEditor.html#aba93f26ee969aa06a78e723378a175ad" title="Handles slider events for all editors.">sliderValueChanged()</a>.  <a href="#af44153e6745ac264da123f8c3f97c805"></a><br/></td></tr>
 <tr class="memitem:a24dcb89b8160a0ee92437ff45309abbb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSpikeDetectorEditor.html#a24dcb89b8160a0ee92437ff45309abbb">channelChanged</a> (int chan)</td></tr>
-<tr class="memdesc:a24dcb89b8160a0ee92437ff45309abbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used by <a class="el" href="classSpikeDetectorEditor.html" title="Provides the user-interface for the SpikeDetector.">SpikeDetectorEditor</a>.  <a href="#a24dcb89b8160a0ee92437ff45309abbb"></a><br/></td></tr>
+<tr class="memdesc:a24dcb89b8160a0ee92437ff45309abbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used by <a class="el" href="classSpikeDetectorEditor.html" title="User interface for the SpikeDetector processor.">SpikeDetectorEditor</a>.  <a href="#a24dcb89b8160a0ee92437ff45309abbb"></a><br/></td></tr>
 <tr class="inherit_header pub_methods_classGenericEditor"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classGenericEditor')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="classGenericEditor.html">GenericEditor</a></td></tr>
 <tr class="memitem:a2e9634ca6753f1f4729cb8cc1b1e1757 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a2e9634ca6753f1f4729cb8cc1b1e1757">GenericEditor</a> (<a class="el" href="classGenericProcessor.html">GenericProcessor</a> *owner)</td></tr>
 <tr class="memdesc:a2e9634ca6753f1f4729cb8cc1b1e1757 inherit pub_methods_classGenericEditor"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="#a2e9634ca6753f1f4729cb8cc1b1e1757"></a><br/></td></tr>
@@ -170,7 +170,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aba93f26ee969aa06a78e723378a175ad inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#aba93f26ee969aa06a78e723378a175ad">sliderValueChanged</a> (Slider *slider)</td></tr>
 <tr class="memdesc:aba93f26ee969aa06a78e723378a175ad inherit pub_methods_classGenericEditor"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles slider events for all editors.  <a href="#aba93f26ee969aa06a78e723378a175ad"></a><br/></td></tr>
 <tr class="memitem:a255d76cc78f46761e10d65523512f306 inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a255d76cc78f46761e10d65523512f306">editorWasClicked</a> ()</td></tr>
-<tr class="memdesc:a255d76cc78f46761e10d65523512f306 inherit pub_methods_classGenericEditor"><td class="mdescLeft">&#160;</td><td class="mdescRight">Required for opening displays in a <a class="el" href="classVisualizerEditor.html">VisualizerEditor</a>.  <a href="#a255d76cc78f46761e10d65523512f306"></a><br/></td></tr>
+<tr class="memdesc:a255d76cc78f46761e10d65523512f306 inherit pub_methods_classGenericEditor"><td class="mdescLeft">&#160;</td><td class="mdescRight">Required for opening displays in a <a class="el" href="classVisualizerEditor.html" title="Base class for creating editors with visualizers.">VisualizerEditor</a>.  <a href="#a255d76cc78f46761e10d65523512f306"></a><br/></td></tr>
 <tr class="memitem:ac25d5d6e473cf8c8dde7490e5008c4fb inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#ac25d5d6e473cf8c8dde7490e5008c4fb">checkDrawerButton</a> (Button *button)</td></tr>
 <tr class="memdesc:ac25d5d6e473cf8c8dde7490e5008c4fb inherit pub_methods_classGenericEditor"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks to see if a button click occurred on the <a class="el" href="classChannelSelector.html" title="Automatically creates an interactive editor for selecting channels.">ChannelSelector</a> drawer button.  <a href="#ac25d5d6e473cf8c8dde7490e5008c4fb"></a><br/></td></tr>
 <tr class="memitem:a506f7e0099f41148a4a930f19eb9a13c inherit pub_methods_classGenericEditor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGenericEditor.html#a506f7e0099f41148a4a930f19eb9a13c">getRecordStatus</a> (int chan)</td></tr>
@@ -244,7 +244,7 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memdesc:ab8a5e6c65cf62c23e9a9b2856c9b78f9 inherit pro_attribs_classGenericEditor"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pointer to the editor's <a class="el" href="classChannelSelector.html" title="Automatically creates an interactive editor for selecting channels.">ChannelSelector</a>.  <a href="#ab8a5e6c65cf62c23e9a9b2856c9b78f9"></a><br/></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>Provides the user-interface for the <a class="el" href="classSpikeDetector.html" title="Detects spikes in a continuous signal and outputs events containing the spike data.">SpikeDetector</a>. </p>
+<div class="textblock"><p>User interface for the <a class="el" href="classSpikeDetector.html" title="Detects spikes in a continuous signal and outputs events containing the spike data.">SpikeDetector</a> processor. </p>
 <p>Allows the user to add single electrodes, stereotrodes, or tetrodes.</p>
 <p>Parameters of individual channels, such as channel mapping, threshold, and enabled state, can be edited.</p>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="classSpikeDetector.html" title="Detects spikes in a continuous signal and outputs events containing the spike data.">SpikeDetector</a> </dd></dl>
@@ -401,7 +401,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Used by <a class="el" href="classSpikeDetectorEditor.html" title="Provides the user-interface for the SpikeDetector.">SpikeDetectorEditor</a>. </p>
+<p>Used by <a class="el" href="classSpikeDetectorEditor.html" title="User interface for the SpikeDetector processor.">SpikeDetectorEditor</a>. </p>
 
 <p>Reimplemented from <a class="el" href="classGenericEditor.html#a61e0bb3378d87a69ad58a487d34afd70">GenericEditor</a>.</p>
 
@@ -413,7 +413,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Dec 28 2012 00:20:21 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Dec 28 2012 00:24:01 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>
