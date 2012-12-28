@@ -33,6 +33,14 @@
 
 class FilterViewport;
 
+/**
+
+  User interface for the EventNode processor.
+
+  @see EventNode
+
+*/
+
 class EventNodeEditor : public GenericEditor
 {
 public:

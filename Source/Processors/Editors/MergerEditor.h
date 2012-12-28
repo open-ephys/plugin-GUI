@@ -31,12 +31,13 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
-// class PipelineSelectorButton : public DrawableButton
-// {
-// 	public:
-// 		PipelineSelectorButton();
-// 		~PipelineSelectorButton();	
-// };
+/**
+
+  User interface for the Merger utility.
+
+  @see Merger
+
+*/
 
 class MergerEditor : public GenericEditor
 

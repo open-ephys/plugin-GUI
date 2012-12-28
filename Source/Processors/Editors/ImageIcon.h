@@ -29,6 +29,14 @@
 #endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
+/**
+
+  Convenient class for displaying an image within an editor.
+
+  @see GenericEditor
+
+*/
+
 class ImageIcon : public Component
 {
 public:

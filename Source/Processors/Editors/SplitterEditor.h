@@ -31,12 +31,13 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
-// class PipelineSelectorButton : public DrawableButton
-// {
-// 	public:
-// 		PipelineSelectorButton();
-// 		~PipelineSelectorButton();	
-// };
+/**
+
+  User interface for the Splitter utility.
+
+  @see Splitter
+
+*/
 
 class SplitterEditor : public GenericEditor
 {

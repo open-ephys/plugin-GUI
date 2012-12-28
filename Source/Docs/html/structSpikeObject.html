@@ -87,6 +87,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
+<p>Allows spikes to be transmitted between processors.  
+ <a href="structSpikeObject.html#details">More...</a></p>
+
 <p><code>#include &lt;SpikeObject.h&gt;</code></p>
 
 <p><a href="structSpikeObject-members.html">List of all members.</a></p>
@@ -102,7 +105,12 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:aeb26d8b44806e5d80ee785e28db122ce"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structSpikeObject.html#aeb26d8b44806e5d80ee785e28db122ce">gain</a> [<a class="el" href="SpikeObject_8h.html#a3fcfe0b88f179a22edaf6f3f8189d13d">MAX_NUMBER_OF_SPIKE_CHANNELS</a>]</td></tr>
 <tr class="memitem:aa3b4cec4bcc9b1e1ad0f50d8babead63"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structSpikeObject.html#aa3b4cec4bcc9b1e1ad0f50d8babead63">threshold</a> [<a class="el" href="SpikeObject_8h.html#a3fcfe0b88f179a22edaf6f3f8189d13d">MAX_NUMBER_OF_SPIKE_CHANNELS</a>]</td></tr>
 </table>
-<hr/><h2>Member Data Documentation</h2>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>Allows spikes to be transmitted between processors. </p>
+<p>For transmission between processors SpikeObjects must be packaged up into buffers that can fit into MidiEvents The following two methods can be used to package the above spike object into a buffer and unpackage a buffer into a <a class="el" href="structSpikeObject.html" title="Allows spikes to be transmitted between processors.">SpikeObject</a>.</p>
+<p>The buffer is LittleEndian (thank Intel) and the byte order is the same as the <a class="el" href="structSpikeObject.html" title="Allows spikes to be transmitted between processors.">SpikeObject</a> definition. IE. the first 2 bytes are the timestamp, the next two bytes are the source identifier, etc... with the last set of bytes corresponding to the thresholds of the different channels.</p>
+<p>Finally the buffer will have an additional byte on the end that is used to check the integerity of the entire package. The way this works is the buffer is divivded up into a series of 16 bit unsigned integers. The sum of all these integers (except the last 16 bit integer) is taken and the sum should equal that 16 bit integer. If not then the data is corrupted and should be dropped or dealt with another way. </p>
+</div><hr/><h2>Member Data Documentation</h2>
 <a class="anchor" id="a89a9d28a3f76e004c5434ab87a13f6ce"></a>
 <div class="memitem">
 <div class="memproto">
@@ -205,7 +213,7 @@ Public Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Dec 27 2012 18:51:22 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Dec 28 2012 00:20:22 for Open Ephys GUI by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

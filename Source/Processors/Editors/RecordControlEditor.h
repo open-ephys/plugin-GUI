@@ -30,6 +30,13 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
+/**
+
+  User interface for the RecordControl processor.
+
+  @see RecordControl
+
+*/
 
 class RecordControlEditor : public GenericEditor,
 							public ComboBox::Listener

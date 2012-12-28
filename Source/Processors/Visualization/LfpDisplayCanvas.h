@@ -32,6 +32,14 @@
 
 class LfpDisplayNode;
 
+/**
+
+  Displays multiple channels of continuous data.
+
+  @see LfpDisplayNode, LfpDisplayEditor
+
+*/
+
 class LfpDisplayCanvas : public Visualizer
 
 {

@@ -34,6 +34,14 @@
 class TriangleButton;
 class UtilityButton;
 
+/**
+
+  Used to select individual electrodes within a multichannel electrode.
+
+  @see SpikeDetectorEditor.
+
+*/
+
 class ElectrodeButton : public Button
 {
 public:
@@ -53,6 +61,14 @@ private:
     int chan;
 };
 
+/**
+
+  Utility button for the SpikeDetectorEditor.
+
+  @see SpikeDetectorEditor
+
+*/
+
 class ElectrodeEditorButton : public Button
 {
 public:
@@ -71,6 +87,14 @@ private:
     Font font;
 
 };
+
+/**
+
+  Used to change the spike detection threshold.
+
+  @see SpikeDetectorEditor
+
+*/
 
 class ThresholdSlider : public Slider
 {
@@ -94,6 +118,19 @@ private:
     Array<double> valueArray;
 
 };
+
+/**
+
+  Provides the user-interface for the SpikeDetector.
+
+  Allows the user to add single electrodes, stereotrodes, or tetrodes.
+
+  Parameters of individual channels, such as channel mapping, threshold,
+  and enabled state, can be edited.
+
+  @see SpikeDetector
+
+*/
 
 class SpikeDetectorEditor : public GenericEditor,
                             public Label::Listener,

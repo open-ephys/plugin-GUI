@@ -33,6 +33,16 @@
 class FilterViewport;
 class WaveformSelector;
 
+/**
+
+  User interface for the SignalGenerator.
+
+  Allows the user to edit the waveform type, amplitude, frequency, and phase of individual channels.
+
+  @see SignalGenerator
+
+*/
+
 class SignalGeneratorEditor : public GenericEditor,
                               public Label::Listener
 {
@@ -65,6 +75,16 @@ private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalGeneratorEditor);
 
 };
+
+/**
+
+  Customized buttons for selecting different waveforms.
+
+  Currently supports triangle wave, sine wave, square wave, saw wave, and noise.
+
+  @see SignalGeneratorEditor
+
+*/
 
 class WaveformSelector : public Button
 {

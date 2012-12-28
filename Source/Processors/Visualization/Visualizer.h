@@ -30,6 +30,14 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "OpenGLCanvas.h"
 
+/**
+
+  Abstract base class for displaying data.
+
+  @see LfpDisplayCanvas, SpikeDisplayCanvas
+
+*/
+
 class Visualizer : public OpenGLCanvas
 
 {

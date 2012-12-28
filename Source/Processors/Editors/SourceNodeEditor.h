@@ -34,6 +34,15 @@
 class FilterViewport;
 class ImageIcon;
 
+/**
+
+  User interface for the SourceNode.
+
+  @see SourceNode
+
+*/
+
+
 class SourceNodeEditor : public GenericEditor
 
 {

@@ -30,6 +30,14 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
+/**
+
+  User interface for the ReferenceNode processor.
+
+  @see ReferenceNode
+
+*/
+
 class ReferenceNodeEditor : public GenericEditor
 {
 public:

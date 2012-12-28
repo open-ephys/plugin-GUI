@@ -32,6 +32,14 @@
 
 class ImageIcon;
 
+/**
+
+  User interface for the WiFiOutput.
+
+  @see WiFiOutput
+
+*/
+
 class WiFiOutputEditor : public GenericEditor
 
 {

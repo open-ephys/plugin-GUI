@@ -36,17 +36,17 @@
 #include "Visualizer.h"
 #include <vector>
 
- /**
+#define MAX_NUMBER_OF_SPIKE_SOURCES = 128;
+
+class SpikeDisplayNode;
+
+/**
   
   Displays spike waveforms and projections.
 
   @see SpikeDisplayNode, SpikeDisplayEditor, Visualizer
 
 */
-
-#define MAX_NUMBER_OF_SPIKE_SOURCES = 128;
-
-class SpikeDisplayNode;
 
 class SpikeDisplayCanvas : public Visualizer
 

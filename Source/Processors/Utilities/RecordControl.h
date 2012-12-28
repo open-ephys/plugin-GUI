@@ -32,6 +32,14 @@
 #include "../GenericProcessor.h"
 #include "../Editors/RecordControlEditor.h"
 
+/**
+
+  Stops and stops recording in response to incoming events.
+
+  @see RecordNode
+
+*/
+
 class RecordControl : public GenericProcessor
 {
 public:

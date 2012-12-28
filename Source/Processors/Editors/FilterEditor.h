@@ -33,6 +33,14 @@
 
 class FilterViewport;
 
+/**
+
+  User interface for the FilterNode processor.
+
+  @see FilterNode
+
+*/
+
 class FilterEditor : public GenericEditor
 {
 public:
