@@ -359,17 +359,15 @@ const String SystemStats::getFullUserName()
 
 String SystemStats::getEnvironmentVariable (const String& name, const String& defaultValue)
 {
-    DWORD len = GetEnvironmentVariableW (name.toWideCharPointer(), 0, 0);
-    if (GetLastError() == ERROR_ENVVAR_NOT_FOUND)
+	DWORD len = GetEnvironmentVariable(name,0,0);
+	if (GetLastError() == ERROR_ENVVAR_NOT_FOUND)
         return String (defaultValue);
 
-    HeapBlock<WCHAR> buffer (len);
-    len = GetEnvironmentVariableW (name.toWideCharPointer(), buffer, len);
+	HeapBlock<WCHAR> buffer (len);
+    len = GetEnvironmentVariable (name, buffer, len);
 
-    return String (CharPointer_wchar_t (buffer),
-                   CharPointer_wchar_t (buffer + len));
+    return String (buffer,len);
+
 }
-
-
 
 #endif
