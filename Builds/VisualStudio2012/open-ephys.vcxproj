@@ -164,11 +164,13 @@
     <ClCompile Include="..\..\Source\Processors\AudioResamplingNode.cpp" />
     <ClCompile Include="..\..\Source\Processors\Channel.cpp" />
     <ClCompile Include="..\..\Source\Processors\Editors\RecordControlEditor.cpp" />
+    <ClCompile Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.cpp" />
     <ClCompile Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.cpp" />
     <ClCompile Include="..\..\Source\Processors\EventDetector.cpp" />
     <ClCompile Include="..\..\Source\Processors\FPGAOutput.cpp" />
     <ClCompile Include="..\..\Source\Processors\Parameter.cpp" />
     <ClCompile Include="..\..\Source\Processors\PhaseDetector.cpp" />
+    <ClCompile Include="..\..\Source\Processors\ReferenceNode.cpp" />
     <ClCompile Include="..\..\Source\Processors\Serial\ofArduino.cpp" />
     <ClCompile Include="..\..\Source\Processors\Serial\ofSerial.cpp" />
     <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode.cpp" />
@@ -272,11 +274,13 @@
     <ClInclude Include="..\..\Source\Processors\AudioResamplingNode.h" />
     <ClInclude Include="..\..\Source\Processors\Channel.h" />
     <ClInclude Include="..\..\Source\Processors\Editors\RecordControlEditor.h" />
+    <ClInclude Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.h" />
     <ClInclude Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.h" />
     <ClInclude Include="..\..\Source\Processors\EventDetector.h" />
     <ClInclude Include="..\..\Source\Processors\FPGAOutput.h" />
     <ClInclude Include="..\..\Source\Processors\Parameter.h" />
     <ClInclude Include="..\..\Source\Processors\PhaseDetector.h" />
+    <ClInclude Include="..\..\Source\Processors\ReferenceNode.h" />
     <ClInclude Include="..\..\Source\Processors\Serial\ofArduino.h" />
     <ClInclude Include="..\..\Source\Processors\Serial\ofConstants.h" />
     <ClInclude Include="..\..\Source\Processors\Serial\ofSerial.h" />

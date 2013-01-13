@@ -363,6 +363,12 @@
     <ClCompile Include="..\..\Source\Processors\Utilities\RecordControl.cpp">
       <Filter>open-ephys\Source\Processors\Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\ReferenceNode.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\AccessClass.h">
@@ -682,6 +688,12 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Utilities\RecordControl.h">
       <Filter>open-ephys\Source\Processors\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\ReferenceNode.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
