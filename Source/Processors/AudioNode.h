@@ -72,8 +72,7 @@ public:
   */  
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 
-  /** Used to change audio monitoring parameters (such as channels to monitor and volume)
-  while acquisition is active.
+  /** Used to change audio monitoring parameters (such as channels to monitor and volume) while acquisition is active.
   */
 	void setParameter (int parameterIndex, float newValue);
 
