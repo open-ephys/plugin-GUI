@@ -40,7 +40,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
 
 	// std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nPlots << std::endl;
 	
-	
+	refreshMs = 100; // override 5 s refresh rate
 	
 }
 
