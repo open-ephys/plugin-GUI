@@ -64,7 +64,7 @@ public:
 
 	void setParameter(int, float);
 
-	void handleEvent(int, MidiMessage&);
+	void handleEvent(int, MidiMessage&, int);
 
 	//void updateSettings();
 

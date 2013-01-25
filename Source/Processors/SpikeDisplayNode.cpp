@@ -128,14 +128,14 @@ void SpikeDisplayNode::setParameter (int param, float val)
 void SpikeDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples)
 {
 	
-	checkForEvents(midiMessages); // automatically calls 'handleEvent'
+	checkForEvents(midiMessages); // automatically calls 'handleEvent
 
 }
 
-void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event)
+void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
 {
 
-//	std::cout << "Received event of type " << eventType << std::endl;
+	//std::cout << "Received event of type " << eventType << std::endl;
 
 	if (eventType == SPIKE)
 	{

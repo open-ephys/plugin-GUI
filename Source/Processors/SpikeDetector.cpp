@@ -291,7 +291,7 @@ bool SpikeDetector::disable()
 void SpikeDetector::addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int peakIndex)
 {
 
-    //std::cout << "Adding spike event for index " << peakIndex << std::endl;
+   // std::cout << "Adding spike event for index " << peakIndex << std::endl;
 
     int numBytes = packSpike(s, spikeBuffer, 256);
 
@@ -450,15 +450,30 @@ void SpikeDetector::process(AudioSampleBuffer &buffer,
    // std::cout << "nSamples: " << nSamples;
     //std::cout << "overflowBufferSize:" << overflowBufferSize;
 
-    for (int i = 0; i < overflowBuffer.getNumChannels(); i++)
+    //std::cout << "sourceStartSample = " << nSamples-overflowBufferSize << std::endl;
+       // std::cout << "numSamples = " << overflowBufferSize << std::endl;
+       // std::cout << "buffer size = " << buffer.getNumSamples() << std::endl;
+
+    if (nSamples > overflowBufferSize)
     {
-        overflowBuffer.copyFrom(i, 0, 
-                                buffer, i, 
-                                nSamples-overflowBufferSize, 
-                                overflowBufferSize);
+
+        for (int i = 0; i < overflowBuffer.getNumChannels(); i++)
+        {
+
+            overflowBuffer.copyFrom(i, 0, 
+                                    buffer, i, 
+                                    nSamples-overflowBufferSize, 
+                                    overflowBufferSize);
+
+            useOverflowBuffer = true;
+        }
+
+    } else {
+
+        useOverflowBuffer = false;
     }
     
-    useOverflowBuffer = true;
+    
 
 }
 
