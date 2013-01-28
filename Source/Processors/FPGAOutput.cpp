@@ -56,7 +56,7 @@ FPGAOutput::~FPGAOutput()
 
 AudioProcessorEditor* FPGAOutput::createEditor()
 {
-	editor = new FPGAOutputEditor(this);
+	editor = new FPGAOutputEditor(this, true);
 	return editor;
 }
 

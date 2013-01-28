@@ -43,7 +43,7 @@ class MergerEditor : public GenericEditor
 
 {
 public:
-	MergerEditor (GenericProcessor* parentNode);
+	MergerEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
 	virtual ~MergerEditor();
 
 	virtual void buttonEvent (Button* button);

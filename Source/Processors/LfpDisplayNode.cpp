@@ -31,6 +31,7 @@ LfpDisplayNode::LfpDisplayNode()
 	  abstractFifo(100), ttlState(0)
 
 {
+    std::cout << " LFPDisplayNodeConstructor" << std::endl;
 	displayBuffer = new AudioSampleBuffer(8, 100);
 	eventBuffer = new MidiBuffer();
 
@@ -40,7 +41,7 @@ LfpDisplayNode::LfpDisplayNode()
 	timeBaseValues.add(5);
 	timeBaseValues.add(10);
 
-	parameters.add(Parameter("timebase",timeBaseValues, 0, 0));//true);//a,0);
+	parameters.add(Parameter("timebase",timeBaseValues, 1, 0));//true);//a,0);
 
 	Array<var> displayGainValues;
 	displayGainValues.add(1);
@@ -48,7 +49,7 @@ LfpDisplayNode::LfpDisplayNode()
 	displayGainValues.add(4);
 	displayGainValues.add(8);
 
-	parameters.add(Parameter("display gain",displayGainValues, 0, 1));//true);//a,0);
+	parameters.add(Parameter("display gain",displayGainValues, 1, 1));//true);//a,0);
 
 	arrayOfOnes = new float[5000];
 
@@ -68,7 +69,7 @@ LfpDisplayNode::~LfpDisplayNode()
 AudioProcessorEditor* LfpDisplayNode::createEditor()
 {
 
-	editor = new LfpDisplayEditor(this);	
+	editor = new LfpDisplayEditor(this, true);
 	return editor;
 
 }
@@ -119,6 +120,13 @@ bool LfpDisplayNode::disable()
 
 void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 {
+    //Sets Parameter in parameters array for processor
+    Parameter* parameterPointer=parameters.getRawDataPointer();
+    parameterPointer=parameterPointer+parameterIndex;
+    parameterPointer->setValue(newValue, currentChannel);
+
+    std::cout << "Saving Parameter from " << currentChannel << ", channel ";
+    
 	LfpDisplayEditor* ed = (LfpDisplayEditor*) getEditor();
 	if (ed->canvas != 0)
 		ed->canvas->setParameter(parameterIndex, newValue);

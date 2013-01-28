@@ -65,8 +65,12 @@ class GenericEditor : public AudioProcessorEditor,
 
 {
 public:
-	/** Constructor. Loads fonts and creates default buttons.*/
-	GenericEditor (GenericProcessor* owner);
+    /** Constructor. Loads fonts and creates default buttons. 
+     useDefaultParameter Editors false means custom parameter editors will be used.*/
+	GenericEditor (GenericProcessor* owner, bool useDefaultParameterEditors);
+    
+    /** Constructor. Loads fonts and creates default buttons.*/
+    //GenericEditor (GenericProcessor* owner);
 
 	/** Destructor.*/
 	virtual ~GenericEditor();
@@ -209,6 +213,7 @@ public:
 	/** Stores the font used to display the editor's name. */
 	Font titleFont;
 
+
 protected:
 
 	/** A pointer to the button that opens the drawer for the ChannelSelector. */
@@ -217,11 +222,16 @@ protected:
 	/** Determines the width of the ChannelSelector drawer when opened. */
 	int drawerWidth;
 
+
 	/** Can be overridden to customize the layout of ParameterEditors. */
-	virtual void addParameterEditors();
+    //Ideally this would be virtual, but since it's run in the construct and because virtual functions don't get overriden in the constructor, it's not.
+    void addParameterEditors(bool useStandard);
+
 
 	/** A pointer to the editor's ChannelSelector. */
 	ChannelSelector* channelSelector;
+    
+    
 
 private:
 
@@ -241,6 +251,9 @@ private:
 	bool isEnabled;
 
 	int tNum;
+   
+    /**initializing function Used to share constructor functions*/
+    void constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors);
 
 	String name;
 
@@ -324,7 +337,6 @@ private:
     bool isEnabled;
 
     void resized();
-
 };
 
 

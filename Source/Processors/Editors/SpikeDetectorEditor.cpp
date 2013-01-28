@@ -29,8 +29,8 @@
 
 
 
-SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode), isPlural(true)
+SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors), isPlural(true)
 
 {
 

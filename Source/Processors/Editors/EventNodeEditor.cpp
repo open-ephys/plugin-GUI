@@ -26,8 +26,8 @@
 #include <stdio.h>
 
 
-EventNodeEditor::EventNodeEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+EventNodeEditor::EventNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
 	desiredWidth = 200;

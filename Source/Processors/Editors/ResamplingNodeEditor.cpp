@@ -26,8 +26,8 @@
 #include <stdio.h>
 
 
-ResamplingNodeEditor::ResamplingNodeEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+ResamplingNodeEditor::ResamplingNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
 	desiredWidth = 180;

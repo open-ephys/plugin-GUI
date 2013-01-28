@@ -42,7 +42,7 @@ ReferenceNode::~ReferenceNode()
 
 AudioProcessorEditor* ReferenceNode::createEditor()
 {
-	editor = new ReferenceNodeEditor(this);
+	editor = new ReferenceNodeEditor(this, true);
 	
 	std::cout << "Creating editor." << std::endl;
 

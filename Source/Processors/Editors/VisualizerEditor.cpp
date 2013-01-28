@@ -61,8 +61,8 @@ void SelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDow
 }
 
 
-VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width)
-: GenericEditor(parentNode),
+VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width, bool useDefaultParameterEditors=true)
+: GenericEditor(parentNode, useDefaultParameterEditors=true),
 	  tabIndex(-1), dataWindow(0),
 	  isPlaying(false),
 	  canvas(0), tabText("Tab")
@@ -72,23 +72,22 @@ VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width)
 	desiredWidth = width;
 
 	initializeSelectors();
-
 }
 
 
-VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode),
+VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors),
 	  tabIndex(-1), dataWindow(0),
 	  isPlaying(false),
 	  canvas(0)
-
+    
 {
 
 	desiredWidth = 180;
 	initializeSelectors();
 
-
 }
+
 void VisualizerEditor::initializeSelectors(){
 
 	windowSelector = new SelectorButton("window");

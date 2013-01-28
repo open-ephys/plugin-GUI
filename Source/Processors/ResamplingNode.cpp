@@ -48,7 +48,7 @@ ResamplingNode::~ResamplingNode()
 
 AudioProcessorEditor* ResamplingNode::createEditor()
 {
-	editor = new ResamplingNodeEditor(this);
+	editor = new ResamplingNodeEditor(this, true);
 
 	//std::cout << "Creating editor." << std::endl;
 

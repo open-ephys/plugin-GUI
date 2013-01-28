@@ -132,9 +132,13 @@ public:
 	/** Returns additional details about the parameter with a given index.*/
 	const String getParameterText (int parameterIndex); 
 
-	/** Returns the current value of a parameter with a given index.*/
-	float getParameter (int parameterIndex) {return 1.0;}
+	/** Returns the current value of a parameter with a given index.
+     Currently set to always return 1. See getParameterVar below*/
+	float getParameter (int parameterIndex){return 1.0;};
 
+    /**Returns the current value of a parameter with a give index */
+    var getParameterVar (int parameterIndex, int parameterChannel);
+    
 	/** JUCE method. Not used.*/
 	const String getProgramName (int index) {return "";}
 	
@@ -390,13 +394,22 @@ public:
 
 	/** An array of parameters that the user can modify.*/
 	Array<Parameter> parameters;
-
+    
+    /** Initialize Parameters */
+    //virtual void initializeParameters();
+    
 	/** Returns the parameter for a given name.*/
 	Parameter& getParameterByName(String parameterName);
 
 	/** Returns the parameter for a given index.*/
 	Parameter& getParameterReference(int parameterIndex);
+    
+    /** Saving all settings to XML*/
+    void saveToXML(XmlElement* parentElement);
 
+    /** Saving Parameters for each Channel */
+    void saveParametersToChannelsXML(XmlElement* channelParent, int channelNumber);
+    
 private:
 
 	/** Automatically extracts the number of samples in the buffer, then 
@@ -417,6 +430,7 @@ private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericProcessor);
 
 };
+
 
 
 

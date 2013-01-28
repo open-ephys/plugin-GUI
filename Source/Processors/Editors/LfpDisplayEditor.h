@@ -49,7 +49,7 @@ class Visualizer;
 class LfpDisplayEditor : public VisualizerEditor
 {
 public:
-	LfpDisplayEditor (GenericProcessor*);
+	LfpDisplayEditor (GenericProcessor*, bool useDefaultParameterEditors);
 	~LfpDisplayEditor();
 
 	void buttonCallback (Button* button);
