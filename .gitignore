@@ -36,3 +36,7 @@ Builds/VisualStudio2012/pipetest.bit
 
 # 5. Miscellanous generated files (Doxygen, etc.)
 Source/Docs/*
+
+# 6. IDE and code analyzer cruft
+cscope.files
+cscope.out
