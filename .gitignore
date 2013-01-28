@@ -40,3 +40,5 @@ Source/Docs/*
 # 6. IDE and code analyzer cruft
 cscope.files
 cscope.out
+*~
+.dir-locals.el
