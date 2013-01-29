@@ -76,7 +76,15 @@ public:
     {
 #ifdef WIN32
 		glWinInit();
+#ifdef DEBUG
+		if (AllocConsole())
+		{
+			freopen("CONOUT$","w",stdout);
+			SetConsoleTitle("Debug Console");
+		}
 #endif
+#endif
+
         mainWindow = new MainWindow();
        
 
