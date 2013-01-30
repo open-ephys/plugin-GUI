@@ -242,12 +242,15 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
         refreshElectrodeList();
 
-        electrodeList->setSelectedId(electrodeList->getNumItems(), true);
-        electrodeList->setText(electrodeList->getItemText(electrodeList->getNumItems()-1));
-        lastId = electrodeList->getNumItems();
-        electrodeList->setEditableText(true);
+		if (electrodeList->getNumItems() > 0) 
+		{
+			electrodeList->setSelectedId(electrodeList->getNumItems(), true);
+			electrodeList->setText(electrodeList->getItemText(electrodeList->getNumItems()-1));
+			lastId = electrodeList->getNumItems();
+			electrodeList->setEditableText(true);
 
-        drawElectrodeButtons(electrodeList->getNumItems()-1);
+			drawElectrodeButtons(electrodeList->getNumItems()-1);
+		}
 
         getEditorViewport()->makeEditorVisible(this, true, true);
         return;
