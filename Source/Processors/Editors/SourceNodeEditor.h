@@ -47,7 +47,7 @@ class SourceNodeEditor : public GenericEditor
 
 {
 public:
-	SourceNodeEditor (GenericProcessor* parentNode);
+	SourceNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
 	virtual ~SourceNodeEditor();
 
 private:	

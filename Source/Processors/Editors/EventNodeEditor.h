@@ -44,7 +44,7 @@ class FilterViewport;
 class EventNodeEditor : public GenericEditor
 {
 public:
-	EventNodeEditor (GenericProcessor* parentNode);
+	EventNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
 	virtual ~EventNodeEditor();
 	void buttonEvent(Button* button);
 

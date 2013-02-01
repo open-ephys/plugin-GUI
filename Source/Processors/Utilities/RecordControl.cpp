@@ -39,7 +39,7 @@ RecordControl::~RecordControl()
 
 AudioProcessorEditor* RecordControl::createEditor()
 {
-	editor = new RecordControlEditor(this);
+	editor = new RecordControlEditor(this, true);
 	return editor;
 }
 

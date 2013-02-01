@@ -40,7 +40,7 @@ GenericProcessor::~GenericProcessor()
 
 AudioProcessorEditor* GenericProcessor::createEditor()
 {
-	editor = new GenericEditor (this); 
+	editor = new GenericEditor (this, true);
 	return editor;
 }
 
@@ -84,17 +84,22 @@ void GenericProcessor::setParameter (int parameterIndex, float newValue)
 
 const String GenericProcessor::getParameterName (int parameterIndex)
 {
-	//Parameter& p = parameters[parameterIndex];
-	//return parameters[parameterIndex].getName();
+    Parameter& p=parameters.getReference(parameterIndex);
+    return p.getName();
 }
 
 const String GenericProcessor::getParameterText (int parameterIndex)
 {
-	//Parameter& p = parameters[parameterIndex];
-	//return parameters[parameterIndex].getDescription();
+	Parameter& p = parameters.getReference(parameterIndex);
+	return p.getDescription();
+}
+
+var GenericProcessor::getParameterVar(int parameterIndex, int parameterChannel)
+{
+    Parameter& p=parameters.getReference(parameterIndex);
+    return p.operator[](parameterChannel);
 }
 	
-
 void GenericProcessor::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
 {
 
@@ -471,4 +476,51 @@ void GenericProcessor::processBlock (AudioSampleBuffer &buffer, MidiBuffer &even
 	setNumSamples(eventBuffer, nSamples); // adds it back,
 										  // even if it's unchanged
 
+}
+
+void GenericProcessor::saveParametersToChannelsXML(juce::XmlElement* channelParent, int channelNumber){
+    //std::cout <<"Creating Parameters" << std::endl;
+    int maxsize=parameters.size();
+    String parameterName;
+    String parameterValue;
+    XmlElement* parameterChildNode;
+    
+    for (int n=0; n<maxsize; n++){
+        parameterName=getParameterName(n);
+        
+        parameterChildNode = channelParent->createNewChildElement("PARAMETER");
+        parameterChildNode->setAttribute("name", parameterName);
+        
+        var parameterVar=getParameterVar(n, channelNumber-1);
+        parameterValue=parameterVar.toString();
+        parameterChildNode->addTextElement(parameterValue);
+    }
+    
+}
+
+void GenericProcessor::saveToXML(juce::XmlElement* parentElement){
+    std::cout <<"Creating Channels" << std::endl;
+    String channelName;
+    XmlElement* channelChildNode;
+
+    int numChannels=channels.size();
+    //I'm unsure whether or not the name or XML elements should include whether they're normal or event channels–it probably depends on loading implementation
+    for (int i=1; i<=numChannels; i++) {
+        channelName=/**String("Ch:")+*/String(i);
+        channelChildNode = parentElement->createNewChildElement("CHANNEL");
+        channelChildNode->setAttribute("name", channelName);
+        saveParametersToChannelsXML(channelChildNode, i);
+    }
+        
+    int numEventChannels=eventChannels.size();
+        
+    for (int i=1; i<=numEventChannels; i++) {
+            
+        channelName=/**String("EventCh:")+*/String(i);
+        channelChildNode = parentElement->createNewChildElement("EVENTCHANNEL");
+        channelChildNode->setAttribute("name", channelName);
+        saveParametersToChannelsXML(channelChildNode, i);
+    }
+    
+    
 }

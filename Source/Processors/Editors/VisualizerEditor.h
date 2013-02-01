@@ -67,8 +67,8 @@ class SelectorButton : public Button
 class VisualizerEditor : public GenericEditor
 {
 public:
-	VisualizerEditor (GenericProcessor*, int);
-	VisualizerEditor (GenericProcessor*);
+	VisualizerEditor (GenericProcessor*, int, bool useDefaultParameterEditors);
+	VisualizerEditor (GenericProcessor*, bool useDefaultParameterEditors);
 	~VisualizerEditor();
 
 	void buttonEvent (Button* button);

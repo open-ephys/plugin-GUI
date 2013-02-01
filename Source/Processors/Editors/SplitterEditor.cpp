@@ -51,8 +51,8 @@
 // {
 // }
 
-SplitterEditor::SplitterEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+SplitterEditor::SplitterEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
 	desiredWidth = 90;

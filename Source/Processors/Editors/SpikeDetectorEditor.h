@@ -138,7 +138,7 @@ class SpikeDetectorEditor : public GenericEditor,
 
 {
 public:
-	SpikeDetectorEditor (GenericProcessor* parentNode);
+	SpikeDetectorEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
 	virtual ~SpikeDetectorEditor();
     void buttonEvent(Button* button);
     void labelTextChanged(Label* label);

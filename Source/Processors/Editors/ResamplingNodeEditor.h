@@ -42,7 +42,7 @@
 class ResamplingNodeEditor : public GenericEditor
 {
 public:
-	ResamplingNodeEditor (GenericProcessor* parentNode);
+	ResamplingNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
 	virtual ~ResamplingNodeEditor();
 
 	void startAcquisition();

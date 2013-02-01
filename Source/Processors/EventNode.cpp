@@ -47,7 +47,7 @@ EventNode::~EventNode()
 
 AudioProcessorEditor* EventNode::createEditor()
 {
-	editor = new EventNodeEditor(this);
+	editor = new EventNodeEditor(this, true);
 	return editor;
 }
 

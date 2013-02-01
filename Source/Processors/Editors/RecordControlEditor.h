@@ -42,7 +42,7 @@ class RecordControlEditor : public GenericEditor,
 							public ComboBox::Listener
 {
 public:
-	RecordControlEditor (GenericProcessor* parentNode);
+	RecordControlEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
 	~RecordControlEditor();
 	void comboBoxChanged(ComboBox* comboBox);
 	void updateSettings();
