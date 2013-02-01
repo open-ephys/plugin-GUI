@@ -63,13 +63,24 @@ void RecordControl::handleEvent(int eventType, MidiMessage& event, int)
     int eventId = *(dataptr+2);
     int eventChannel = *(dataptr+3);
 
+    //std::cout << "Received event with id=" << eventId << " and ch=" << eventChannel << std::endl;
+
 	if (eventType == TTL && eventChannel == triggerChannel)
 	{
 
-		if (eventId == 1)
-			getControlPanel()->setRecordState(true);
-		else
-			getControlPanel()->setRecordState(false);
+		//std::cout << "Trigger!" << std::endl;
+
+		const MessageManagerLock mmLock;
+
+		 if (eventId == 1)
+		 {
+		 	getControlPanel()->setRecordState(true);
+		 }
+		 else
+		 {
+		 	getControlPanel()->setRecordState(false);
+		 }
+		 	
 
 	}
 
