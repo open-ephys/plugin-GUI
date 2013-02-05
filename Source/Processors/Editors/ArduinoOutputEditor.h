@@ -46,7 +46,7 @@ class ArduinoOutputEditor : public GenericEditor
 
 {
 public:
-	ArduinoOutputEditor (GenericProcessor* parentNode);
+	ArduinoOutputEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
 	virtual ~ArduinoOutputEditor();
 
 	void receivedEvent();

@@ -75,7 +75,7 @@ SpikeDetector::~SpikeDetector()
 
 AudioProcessorEditor* SpikeDetector::createEditor()
 {
-	editor = new SpikeDetectorEditor(this);
+	editor = new SpikeDetectorEditor(this, true);
 	return editor;
 }
 

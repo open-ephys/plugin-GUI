@@ -26,8 +26,8 @@
 #include <stdio.h>
 
 
-FilterEditor::FilterEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+FilterEditor::FilterEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
 	desiredWidth = 180;

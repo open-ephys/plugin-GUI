@@ -58,7 +58,7 @@ public:
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 
 	void setParameter(int, float);
-
+    
 	void updateSettings();
 
 	bool enable();

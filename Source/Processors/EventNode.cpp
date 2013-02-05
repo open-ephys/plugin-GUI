@@ -47,7 +47,7 @@ EventNode::~EventNode()
 
 AudioProcessorEditor* EventNode::createEditor()
 {
-	editor = new EventNodeEditor(this);
+	editor = new EventNodeEditor(this, true);
 	return editor;
 }
 
@@ -71,10 +71,10 @@ void EventNode::updateSettings()
 
 
 void EventNode::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &midiMessages,
+                            MidiBuffer &events,
                             int& nSamples)
 {
-	midiMessages.clear();
+	events.clear();
     
     //std::cout << "Adding message." << std::endl;
     
@@ -89,7 +89,13 @@ void EventNode::process(AudioSampleBuffer &buffer,
 		if (accumulator > getSampleRate() / (float) p1[0])
 		{
 			std::cout << "Adding message." << std::endl;
-			addEvent(midiMessages, TTL, i);
+			addEvent(events, // MidiBuffer
+	 						 TTL,    // eventType
+	 						 i,      // sampleNum
+	 						 1,	     // eventID
+	 						 1		 // eventChannel
+	 						 );
+
 			accumulator = 0;
 		}
 

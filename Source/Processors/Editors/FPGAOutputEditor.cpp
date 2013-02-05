@@ -26,8 +26,8 @@
 #include <stdio.h>
 
 
-FPGAOutputEditor::FPGAOutputEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+FPGAOutputEditor::FPGAOutputEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
 

@@ -46,7 +46,7 @@ class FPGAOutputEditor : public GenericEditor
 
 {
 public:
-	FPGAOutputEditor (GenericProcessor* parentNode);
+	FPGAOutputEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
 	virtual ~FPGAOutputEditor();
 
 	void receivedEvent();

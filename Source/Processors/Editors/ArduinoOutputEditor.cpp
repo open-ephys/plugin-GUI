@@ -25,8 +25,8 @@
 #include <stdio.h>
 
 
-ArduinoOutputEditor::ArduinoOutputEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+ArduinoOutputEditor::ArduinoOutputEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
 

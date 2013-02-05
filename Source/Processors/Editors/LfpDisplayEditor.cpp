@@ -24,8 +24,8 @@
 #include "LfpDisplayEditor.h"
 
 
-LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode) 
-	: VisualizerEditor(parentNode)
+LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: VisualizerEditor(parentNode, useDefaultParameterEditors)
 
 {
 

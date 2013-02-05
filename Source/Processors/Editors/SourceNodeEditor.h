@@ -47,14 +47,12 @@ class SourceNodeEditor : public GenericEditor
 
 {
 public:
-	SourceNodeEditor (GenericProcessor* parentNode);
+	SourceNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
 	virtual ~SourceNodeEditor();
 
 private:	
 
 	ImageIcon* icon;
-
-    //FileChooser fileChooser;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceNodeEditor);
 

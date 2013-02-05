@@ -47,13 +47,11 @@ class SignalGeneratorEditor : public GenericEditor,
                               public Label::Listener
 {
 public:
-	SignalGeneratorEditor (GenericProcessor* parentNode);
+	SignalGeneratorEditor (GenericProcessor* parentNode, bool useDefaultParameters);
 	virtual ~SignalGeneratorEditor();
     void sliderEvent(Slider* slider);
     void buttonEvent(Button* button);
     void labelTextChanged(Label* label);
-
-    void addParameterEditors() {}
 
 private:	
 
@@ -71,7 +69,6 @@ private:
     {
         SINE, SQUARE, SAW, TRIANGLE, NOISE
     };
-
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalGeneratorEditor);
 
 };

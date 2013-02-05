@@ -36,7 +36,7 @@ WiFiOutput::~WiFiOutput()
 
 AudioProcessorEditor* WiFiOutput::createEditor()
 {
-	editor = new WiFiOutputEditor(this);
+	editor = new WiFiOutputEditor(this, true);
 	return editor;
 }
 

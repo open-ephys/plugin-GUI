@@ -41,7 +41,7 @@
 class ReferenceNodeEditor : public GenericEditor
 {
 public:
-	ReferenceNodeEditor (GenericProcessor* parentNode);
+	ReferenceNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
 	virtual ~ReferenceNodeEditor();
 	void buttonEvent(Button* button);
 

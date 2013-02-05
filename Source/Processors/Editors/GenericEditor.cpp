@@ -33,59 +33,78 @@
 
 #include <math.h>
 
-GenericEditor::GenericEditor (GenericProcessor* owner) 
+GenericEditor::GenericEditor (GenericProcessor* owner, bool useDefaultParameterEditors=true)
 	: AudioProcessorEditor (owner), isSelected(false),
 	  desiredWidth(150), tNum(-1), isEnabled(true),
 	  accumulator(0.0), isFading(false), drawerButton(0),
 	  channelSelector(0)
 
 {
+    constructorInitialize(owner, useDefaultParameterEditors);
+}
+
+
+/*GenericEditor::GenericEditor (GenericProcessor* owner)
+: AudioProcessorEditor (owner), isSelected(false),
+desiredWidth(150), tNum(-1), isEnabled(true),
+accumulator(0.0), isFading(false), drawerButton(0),
+channelSelector(0)
+
+{
+    bool useDefaultParameterEditors=true;
+    constructorInitialize(owner, useDefaultParameterEditors);
+}
+*/
+GenericEditor::~GenericEditor()
+{
+	deleteAllChildren();
+}
+
+void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors){
+    
 	name = getAudioProcessor()->getName();
-
+    
 	nodeId = owner->getNodeId();
-
+    
 	MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
     Typeface::Ptr typeface = new CustomTypeface(mis);
     titleFont = Font(typeface);
-
+    
     if (!owner->isMerger() && !owner->isSplitter())
     {
     	drawerButton = new DrawerButton("name");
     	drawerButton->addListener(this);
     	addAndMakeVisible(drawerButton);
-
+        
     	if (!owner->isSink())
     	{
     		channelSelector = new ChannelSelector(true, titleFont);
     	} else {
     		channelSelector = new ChannelSelector(false, titleFont);
     	}
-
+        
     	addChildComponent(channelSelector);
     	channelSelector->setVisible(false);
-
-
+        
+        
 	}
-
-	backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f, 
-										 Colour(185, 185, 185), 0.0f, 120.0f, false);
+    
+	backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f,
+                                        Colour(185, 185, 185), 0.0f, 120.0f, false);
 	backgroundGradient.addColour(0.2f, Colour(155, 155, 155));
-
-	addParameterEditors();
-
+    
+    addParameterEditors(useDefaultParameterEditors);
+    
 	backgroundColor = Colour(10,10,10);
-
+    
 	//fadeIn();
+    
 }
 
-GenericEditor::~GenericEditor()
+void GenericEditor::addParameterEditors(bool useDefaultParameterEditors)
 {
-	deleteAllChildren();
-}
-
-void GenericEditor::addParameterEditors()
-{
-	
+	if (useDefaultParameterEditors) {
+        
 	int maxX = 15;
 	int maxY = 30;
 
@@ -106,7 +125,10 @@ void GenericEditor::addParameterEditors()
 		maxY += dHeight;
 		maxY += 10;
 	}
+    }
 }
+
+
 
 
 void GenericEditor::refreshColors()

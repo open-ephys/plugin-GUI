@@ -25,8 +25,8 @@
 #include <stdio.h>
 
 
-WiFiOutputEditor::WiFiOutputEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+WiFiOutputEditor::WiFiOutputEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
 

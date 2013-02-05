@@ -28,8 +28,8 @@
 #include <stdio.h>
 
 
-SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode), amplitudeSlider(0), frequencySlider(0), phaseSlider(0)
+SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode, bool useDefaultParameters=false)
+	: GenericEditor(parentNode, useDefaultParameters), amplitudeSlider(0), frequencySlider(0), phaseSlider(0)
 
 {
 	desiredWidth = 250;

@@ -558,20 +558,26 @@ void RecordNode::process(AudioSampleBuffer &buffer,
 		// NOT YET IMPLEMENTED
 
 		// cycle through buffer channels
-		for (int i = 0; i < buffer.getNumChannels(); i++)
+
+		if (channelPointers.size() > 0)
 		{
 
-			if (channelPointers[i]->isRecording)
+			for (int i = 0; i < buffer.getNumChannels(); i++)
 			{
-				// write buffer to disk!
-				writeContinuousBuffer(buffer.getSampleData(i),
-									  nSamples,
-									  i);
-				
-				//std::cout << "Record channel " << i << std::endl;
-			}
-				
 
+
+				if (channelPointers[i]->isRecording)
+				{
+					// write buffer to disk!
+					writeContinuousBuffer(buffer.getSampleData(i),
+										  nSamples,
+										  i);
+					
+					//std::cout << "Record channel " << i << std::endl;
+				}
+					
+
+			}
 		}
 
 		// cycle through events

@@ -27,8 +27,8 @@
 #include <stdio.h>
 
 
-SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
 	desiredWidth = 170;

@@ -172,7 +172,7 @@ void SourceNode::setParameter (int parameterIndex, float newValue)
 
 AudioProcessorEditor* SourceNode::createEditor()
 {
-	editor = new SourceNodeEditor(this);
+	editor = new SourceNodeEditor(this, true);
 	return editor;
 }
 

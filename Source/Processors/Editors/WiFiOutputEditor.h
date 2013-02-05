@@ -44,7 +44,7 @@ class WiFiOutputEditor : public GenericEditor
 
 {
 public:
-	WiFiOutputEditor (GenericProcessor* parentNode);
+	WiFiOutputEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
 	virtual ~WiFiOutputEditor();
 
 	void receivedEvent();

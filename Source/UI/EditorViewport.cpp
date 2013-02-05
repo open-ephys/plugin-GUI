@@ -982,7 +982,10 @@ XmlElement* EditorViewport::createNodeXml (GenericEditor* editor,
 
     e->setAttribute ("name", name);
     e->setAttribute ("insertionPoint", insertionPt);
-
+    
+    /**Saves parameters to XML */
+    std::cout << "Create subnotes with parameters" << std::endl;
+    source->saveToXML(e);
    // source->stateSaved = true;
   
     //GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
@@ -1024,7 +1027,9 @@ const String EditorViewport::saveState()
     }
 
     Array<GenericProcessor*> splitPoints;
-
+    /** Used to reset saveOrder at end, to allow saving the same processor multiple times*/
+    Array<GenericProcessor*> allProcessors;
+    
     bool moveForward;
     int saveOrder = 0;
 
@@ -1034,7 +1039,7 @@ const String EditorViewport::saveState()
     {
 
         moveForward = true;
-        
+
         XmlElement* signalChain = new XmlElement("SIGNALCHAIN");
 
         GenericEditor* editor = signalChainArray[n]->getEditor();
@@ -1051,6 +1056,7 @@ const String EditorViewport::saveState()
 
                 signalChain->addChildElement(createNodeXml(editor, insertionPt));
                 currentProcessor->saveOrder = saveOrder;
+                allProcessors.addIfNotAlreadyThere(currentProcessor);
                 saveOrder++;
 
             } else {
@@ -1116,7 +1122,13 @@ const String EditorViewport::saveState()
     }
 
     std::cout << "Saving processor graph." << std::endl;
-
+    
+    //Resets Save Order for processors, allowing them to be saved again without omitting themselves from the order.
+    int allProcessorSize=allProcessors.size();
+    for (int i=0; i<allProcessorSize; i++) {
+        allProcessors.operator[](i)->saveOrder=-1;
+    }
+    
     if (! xml->writeToFile (currentFile, String::empty))
         error = "Couldn't write to file ";
     else 

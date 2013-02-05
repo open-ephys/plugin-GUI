@@ -51,8 +51,8 @@
 // {
 // }
 
-MergerEditor::MergerEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+MergerEditor::MergerEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
 	desiredWidth = 90;

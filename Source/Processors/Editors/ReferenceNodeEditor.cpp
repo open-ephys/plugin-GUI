@@ -27,8 +27,8 @@
 #include <stdio.h>
 
 
-ReferenceNodeEditor::ReferenceNodeEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+ReferenceNodeEditor::ReferenceNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
 	desiredWidth = 180;

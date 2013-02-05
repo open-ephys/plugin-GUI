@@ -26,8 +26,8 @@
 #include "ChannelSelector.h"
 #include <stdio.h>
 
-RecordControlEditor::RecordControlEditor (GenericProcessor* parentNode)
-	: GenericEditor(parentNode)
+RecordControlEditor::RecordControlEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+	: GenericEditor(parentNode, useDefaultParameterEditors)
 {
 	desiredWidth = 170;
 

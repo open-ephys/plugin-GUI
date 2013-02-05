@@ -49,7 +49,7 @@ public:
 	~SignalGenerator();
 	
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-
+    
 	void setParameter (int parameterIndex, float newValue);
 
 	float getSampleRate() {return 44100.0;}
@@ -68,6 +68,7 @@ public:
 
 	int nOut;
 
+    
 private:
 	
 	double defaultFrequency;
@@ -79,11 +80,13 @@ private:
 
 	//void updateWaveform(int chan);
 
-	enum wvfrm
-	{
+    void initializeParameters();
+
+	enum wvfrm{
 		TRIANGLE, SINE, SQUARE, SAW, NOISE, SPIKE
 	};
-
+    
+    Array<var> waveformParameter;
 	Array<int> waveformType;
 	Array<double> frequency;
 	Array<double> amplitude;

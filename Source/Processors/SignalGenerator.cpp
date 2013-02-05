@@ -35,11 +35,13 @@ SignalGenerator::SignalGenerator()
 	: GenericProcessor("Signal Generator"),
 
 	  defaultFrequency(10.0),
-	  defaultAmplitude (0.5f),
+	  defaultAmplitude(0.5f),
 	  nOut(5), previousPhase(1000), spikeDelay(0)
 {
-
-
+    parameters.add(Parameter("Amplitude", 0.0005f, 500.0f, .5f, 0, true));
+    parameters.add(Parameter("Frequency", 0.01, 10000.0, 10, 1, true));
+    parameters.add(Parameter("Phase", -double_Pi, double_Pi, 0, 2, true));
+    parameters.add(Parameter("Waveform Type", waveformParameter, 0, 3, true));
 }
 
 
@@ -48,10 +50,17 @@ SignalGenerator::~SignalGenerator()
 
 }
 
+/*void SignalGenerator::initializeParameters(){
+    parameters.add(Parameter("Amplitude", 0.0005f, 500.0f, .5f, 1, true));
+    parameters.add(Parameter("Frequency", 0.01, 10000.0, 10, 2, true));
+    parameters.add(Parameter("Phase", -double_Pi, double_Pi, 0, 3, true));
+    parameters.add(Parameter("Waveform Type", waveformParameter, 0, 0, true));
+}
+*/
 
 AudioProcessorEditor* SignalGenerator::createEditor( )
 {
-	editor = new SignalGeneratorEditor(this);
+	editor = new SignalGeneratorEditor(this, false);
 	return editor;
 }
 
@@ -78,20 +87,25 @@ void SignalGenerator::updateSettings()
 
 void SignalGenerator::setParameter (int parameterIndex, float newValue)
 {
-	//std::cout << "Message received." << std::endl;
-
+	std::cout << "Message received." << std::endl;
+    Parameter* parameterPointer=parameters.getRawDataPointer();
+    parameterPointer=parameterPointer+parameterIndex;
+    
 	if (currentChannel > -1) {
 		if (parameterIndex == 0) {
 			amplitude.set(currentChannel,newValue*100.0f);
+            parameterPointer->setValue(newValue*100.0f, currentChannel);
 		} else if (parameterIndex == 1) {
 			frequency.set(currentChannel,newValue);
 			phasePerSample.set(currentChannel, double_Pi * 2.0 / (getSampleRate() / frequency[currentChannel]));
+            parameterPointer->setValue(newValue, currentChannel);
 		} else if (parameterIndex == 2) {
 			phase.set(currentChannel, newValue/360.0f * (double_Pi * 2.0));
+            parameterPointer->setValue(newValue/360.0f * (double_Pi * 2.0), currentChannel);
 		} else if (parameterIndex == 3) {
 			waveformType.set(currentChannel, (int) newValue);
+            parameterPointer->setValue(newValue, currentChannel);
 		}
-
 		//updateWaveform(currentChannel);
 	}
 
