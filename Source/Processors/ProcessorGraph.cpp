@@ -386,12 +386,14 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			subProcessorType.equalsIgnoreCase("File Reader") ||
 			subProcessorType.equalsIgnoreCase("Custom FPGA")) {
 
-			// only one Intan Demo Board at a time, please
-			if (!processorWithSameNameExists(subProcessorType)) {
+			if (subProcessorType.equalsIgnoreCase("Intan Demo Board") &&
+				!processorWithSameNameExists(subProcessorType)) {
+				std::cout << "Only one Intan Demo Board is allowed at a time."
+						  << std::endl;
+			} else {
 				processor = new SourceNode(subProcessorType);
+				std::cout << "Creating a new data source." << std::endl;
 			}
-
-			std::cout << "Creating a new data source." << std::endl;
 
 		} else if (subProcessorType.equalsIgnoreCase("Signal Generator"))
 		{
