@@ -33,3 +33,6 @@ Builds/VisualStudio2012/open-ephys.v11.suo
 Builds/VisualStudio2012/open-ephys.vcxproj.user
 Builds/VisualStudio2012/windowState.xml
 Builds/VisualStudio2012/pipetest.bit
+
+# 5. Miscellanous generated files (Doxygen, etc.)
+Source/Docs/*
