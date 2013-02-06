@@ -54,6 +54,8 @@ public:
 
 	float getSampleRate() {return 44100.0;}
 
+	float getDefaultBitVolts() { return 0.03; }
+
 	AudioProcessorEditor* createEditor();
 	bool hasEditor() const {return true;}
 

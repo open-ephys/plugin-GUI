@@ -458,12 +458,12 @@ float RecordNode::getFreeSpace()
 
 void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 {
-
+	float scaleFactor = float(0x7fff) * channelPointers[channel]->bitVolts;
 	// scale the data appropriately -- currently just getting it into the right
 	// range; actually need to take into account the gain of each channel
 	for (int n = 0; n < nSamples; n++)
 	{
-		*(continuousDataFloatBuffer+n) = *(data+n) / 10000.0f; 
+		*(continuousDataFloatBuffer+n) = *(data+n) / scaleFactor; // 10000.0f; 
 	}
 
 	// find file and write samples to disk
