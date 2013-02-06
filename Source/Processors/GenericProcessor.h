@@ -208,7 +208,7 @@ public:
 	/** Returns the default number of outputs, in case a processor has no source (or is itself a source).*/
 	virtual int getDefaultNumOutputs() {return 2;}
 
-	/** Returns the default number of volts per bit, in case a processor has no source (or is itself a source).*/
+	/** Returns the default number of volts per bit, in case a processor is a source, of the processor gain otherwise. (assumes data comes from a 16bit source)*/
 	virtual float getDefaultBitVolts() {return 1.0;}
 
 	/** Returns the next available channel (and increments the channel if the input is set to 'true'. */
