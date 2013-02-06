@@ -28,7 +28,7 @@
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
 	 	xBuffer(105), yBuffer(2),
 	    plotHeight(180), selectedChan(-1), screenBufferIndex(0),
-	    timebase(1.0f), displayGain(0.0001f), displayBufferIndex(0),
+	    timebase(1.0f), displayGain(2.f), displayBufferIndex(0),
 	    headerHeight(40), plotOverlap(200), interplotDistance(70),
 	    timeOffset(0.0f), footerHeight(0)
 {
@@ -101,7 +101,7 @@ void LfpDisplayCanvas::setParameter(int param, float val)
 		timebase = val;
 		refreshScreenBuffer();
 	} else {
-		displayGain = val * 0.0001f;
+		displayGain = val; //* 0.0001f;
 	}
 
 	repaint();
@@ -171,6 +171,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
 	    	for (int channel = 0; channel < nChans; channel++) {
 
+				gain = 1 / (processor->channels[channel]->bitVolts * float(0x7fff));
+				float bp =*(displayBuffer->getSampleData(channel, displayBufferIndex));
 	        	waves[channel][screenBufferIndex*2+1] = 
 	        		*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
 
