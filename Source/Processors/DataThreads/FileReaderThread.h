@@ -41,7 +41,7 @@ class SourceNode;
 
   Has issues with setting the correct sampling rate.
 
-  @see DataThread, FileReader
+  @see DataThread
 
 */
 
