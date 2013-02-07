@@ -62,6 +62,7 @@ SourceNode::SourceNode(const String& name_)
 
 	} else {
 		enabledState(false);
+		eventChannelState = 0;
 		numEventChannels = 0;
 	}
 
@@ -76,6 +77,8 @@ SourceNode::SourceNode(const String& name_)
 
 SourceNode::~SourceNode()
 {
+	if (eventChannelState)
+		delete[] eventChannelState;
 }
 
 DataThread* SourceNode::getThread()
