@@ -62,15 +62,15 @@ SourceNode::SourceNode(const String& name_)
 	}
 
 	// check for input source every few seconds
-	startTimer(sourceCheckInterval); 
+	startTimer(sourceCheckInterval);
 
-	timestamp = 0; 
+	timestamp = 0;
 	eventCodeBuffer = new int16[10000]; //10000 samples per buffer max?
 
 
 }
 
-SourceNode::~SourceNode() 
+SourceNode::~SourceNode()
 {
 }
 
@@ -100,9 +100,9 @@ void SourceNode::updateSettings()
 
 void SourceNode::actionListenerCallback(const String& msg)
 {
-    
+
     //std::cout << msg << std::endl;
-    
+
     if (msg.equalsIgnoreCase("HI"))
     {
        // std::cout << "HI." << std::endl;
@@ -198,7 +198,7 @@ void SourceNode::timerCallback()
 }
 
 bool SourceNode::isReady() {
-	
+
 	if (dataThread != 0) {
 		return dataThread->foundInputSource();
 	} else {
@@ -207,7 +207,7 @@ bool SourceNode::isReady() {
 }
 
 bool SourceNode::enable() {
-	
+
 	std::cout << "Source node received enable signal" << std::endl;
 
 	wasDisabled = false;
@@ -230,7 +230,7 @@ bool SourceNode::disable() {
 
 	if (dataThread != 0)
 		dataThread->stopAcquisition();
-	
+
 	startTimer(2000);
 
 	wasDisabled = true;
@@ -243,7 +243,7 @@ bool SourceNode::disable() {
 void SourceNode::acquisitionStopped()
 {
 	//if (!dataThread->foundInputSource()) {
-		
+
 		if (!wasDisabled) {
 			std::cout << "Source node sending signal to UI." << std::endl;
 			getUIComponent()->disableCallbacks();
@@ -255,11 +255,11 @@ void SourceNode::acquisitionStopped()
 }
 
 
-void SourceNode::process(AudioSampleBuffer &buffer, 
+void SourceNode::process(AudioSampleBuffer &buffer,
                             MidiBuffer &events,
                             int& nSamples)
 {
-	
+
 	//std::cout << "SOURCE NODE" << std::endl;
 
 	// clear the input buffers
@@ -267,9 +267,9 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	buffer.clear();
 
 	nSamples = inputBuffer->readAllFromBuffer(buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
-	
+
 	 //std::cout << "TIMESTAMP: " << timestamp << std::endl;
-    
+
     //std::cout << "Samples per buffer: " << nSamples << std::endl;
 
 	uint8 data[4];
@@ -309,7 +309,7 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 
                    // std::cout << "ON" << std::endl;
                    // std::cout << c << std::endl;
-                    
+
 	 				// signal channel state is ON
 	 				addEvent(events, // MidiBuffer
 	 						 TTL,    // eventType
@@ -317,7 +317,7 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	 						 1,		 // eventID
 	 						 c		 // eventChannel
 	 						 );
-	 			
+
 
 	 			}
 
@@ -327,6 +327,3 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	 }
 
 }
-
-
-
