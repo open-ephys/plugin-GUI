@@ -22,6 +22,10 @@
 */
 
 #include "SourceNode.h"
+#include "DataThreads/DataBuffer.h"
+#include "DataThreads/IntanThread.h"
+#include "DataThreads/FPGAThread.h"
+#include "DataThreads/FileReaderThread.h"
 #include "Editors/SourceNodeEditor.h"
 #include "Channel.h"
 #include <stdio.h>

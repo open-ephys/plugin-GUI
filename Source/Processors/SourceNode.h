@@ -30,10 +30,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include <ftdi.h>
 #include <stdio.h>
-#include "DataThreads/DataBuffer.h"
-#include "DataThreads/IntanThread.h"
-#include "DataThreads/FPGAThread.h"
-#include "DataThreads/FileReaderThread.h"
+#include "DataThreads/DataThread.h"
 #include "GenericProcessor.h"
 #include "../UI/UIComponent.h"
 
