@@ -60,13 +60,7 @@ public:
     float getBitVolts();
 	
 private:
-
-	int samplesPerBlock;
-
     int lengthOfInputFile;
-
-    int playHead;
-
     FILE* input;
 
 	float thisSample[16];
