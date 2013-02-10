@@ -54,7 +54,7 @@ FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn)
 
 	dataBuffer = new DataBuffer(16, bufferSize*3);
 
-   eventCode = 0;
+	eventCode = 0;
 
 	std::cout << "File Reader Thread initialized." << std::endl;
 
@@ -100,7 +100,7 @@ bool FileReaderThread::stopAcquisition()
 	if (isThreadRunning()) {
         signalThreadShouldExit();
     }
-	
+
 
     return true;
 
@@ -137,7 +137,7 @@ bool FileReaderThread::updateBuffer()
 
 
          }
-    	
+
 
      } else {
         wait(50); // pause for 50 ms to decrease sample rate
