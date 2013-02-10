@@ -103,6 +103,7 @@ private:
     int ttlState;
 
 	void updateSettings();
+	bool tryEnablingEditor();
 
 	int* numSamplesInThisBuffer;
 

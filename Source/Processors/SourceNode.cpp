@@ -183,24 +183,32 @@ AudioProcessorEditor* SourceNode::createEditor()
 	return editor;
 }
 
+bool SourceNode::tryEnablingEditor()
+{
+	if (!isReady()) {
+		std::cout << "No input source found." << std::endl;
+		return false;
+	} else if (isEnabled) {
+		// If we're already enabled (e.g. if we're being called again
+		// due to timerCallback()), then there's no need to go through
+		// the editor again.
+		return true;
+	}
+
+	std::cout << "Input source found." << std::endl;
+	enabledState(true);
+	GenericEditor* ed = getEditor();
+	getEditorViewport()->makeEditorVisible(ed);
+	return true;
+}
+
 void SourceNode::timerCallback()
 {
-	if (dataThread->foundInputSource())
-	{
-		if (!isEnabled) {
-			std::cout << "Input source found." << std::endl;
-			//stopTimer(); // check for input source every two seconds
-			enabledState(true);
-			GenericEditor* ed = getEditor();
-			getEditorViewport()->makeEditorVisible(ed);
-		}
-	} else {
-		if (isEnabled) {
-			std::cout << "No input source found." << std::endl;
-			enabledState(false);
-			GenericEditor* ed = getEditor();
-			getEditorViewport()->makeEditorVisible(ed);
-		}
+	if (!tryEnablingEditor() && isEnabled) {
+		std::cout << "Input source lost." << std::endl;
+		enabledState(false);
+		GenericEditor* ed = getEditor();
+		getEditorViewport()->makeEditorVisible(ed);
 	}
 }
 
