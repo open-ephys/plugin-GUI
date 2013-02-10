@@ -213,12 +213,7 @@ void SourceNode::timerCallback()
 }
 
 bool SourceNode::isReady() {
-
-	if (dataThread != 0) {
-		return dataThread->foundInputSource();
-	} else {
-		return false;
-	}
+	return dataThread && dataThread->foundInputSource();
 }
 
 bool SourceNode::enable() {
