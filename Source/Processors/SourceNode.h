@@ -48,13 +48,13 @@ class SourceNode : public GenericProcessor,
 
 {
 public:
-	
+
 	// real member functions:
 	SourceNode(const String& name);
 	~SourceNode();
 
 	void enabledState(bool t);
-	
+
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 
 	void setParameter (int parameterIndex, float newValue);
@@ -75,13 +75,13 @@ public:
 	bool isSource() {return true;}
 
 	void acquisitionStopped();
-    
+
     DataThread* getThread();
-    
+
     void actionListenerCallback(const String& message);
-    
+
     int getTTLState();
-	
+
 private:
 
 	int numEventChannels;
@@ -98,8 +98,8 @@ private:
 	uint64 timestamp;
 	int16* eventCodeBuffer;
 	int* eventChannelState;
-    
-    
+
+
     int ttlState;
 
 	void updateSettings();
@@ -113,4 +113,3 @@ private:
 
 
 #endif  // __SOURCENODE_H_DCE798F1__
-
