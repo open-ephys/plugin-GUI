@@ -27,6 +27,13 @@
 
 #include "UIComponent.h"
 
+enum colorIds {
+    PROCESSOR_COLOR = 801,
+    FILTER_COLOR = 802,
+    SINK_COLOR = 803,
+    SOURCE_COLOR = 804,
+    UTILITY_COLOR = 805,
+};
 
 ProcessorList::ProcessorList() : isDragging(false),
                            itemHeight(32),
@@ -572,14 +579,6 @@ const String& ProcessorListItem::getParentName()
 void ProcessorListItem::setParentName(const String& name)
 {
 	parentName = name;
-
-	enum {
-		PROCESSOR_COLOR = 801,
-		FILTER_COLOR = 802,
-		SINK_COLOR = 803,
-		SOURCE_COLOR = 804,
-		UTILITY_COLOR = 805,
-	};
 
 	if (parentName.equalsIgnoreCase("Processors"))
 	{
