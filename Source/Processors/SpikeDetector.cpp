@@ -192,12 +192,12 @@ bool SpikeDetector::removeElectrode(int index)
     return true;
 }
 
-bool SpikeDetector::setElectrodeName(int index, String newName)
+void SpikeDetector::setElectrodeName(int index, String newName)
 {
     electrodes[index-1]->name = newName;
 }
 
-bool SpikeDetector::setChannel(int electrodeIndex, int channelNum, int newChannel) 
+void SpikeDetector::setChannel(int electrodeIndex, int channelNum, int newChannel) 
 {
     *(electrodes[electrodeIndex]->channels+channelNum) = newChannel;
 }

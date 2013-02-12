@@ -102,14 +102,14 @@ public:
 	int getNumChannels(int index);
 
 	/** Edits the mapping between input channels and electrode channels. */
-	bool setChannel(int electrodeIndex, int channelNum, int newChannel);
+	void setChannel(int electrodeIndex, int channelNum, int newChannel);
 
 	/** Returns the continuous channel that maps to a given 
 		electrode channel. */
 	int getChannel(int index, int chan);
 
 	/** Sets the name of a given electrode. */
-	bool setElectrodeName(int index, String newName);
+	void setElectrodeName(int index, String newName);
 
 
 	// RETURN STRING ARRAYS // 
