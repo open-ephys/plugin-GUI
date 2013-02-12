@@ -86,9 +86,6 @@ public:
 	    transitions between callbacks. */
 	AudioSampleBuffer overflowBuffer;
 
-	/** Reference to a continuous buffer (for internal use only). */
-	AudioSampleBuffer& dataBuffer;
-
 
 	// CREATE AND DELETE ELECTRODES // 
 
@@ -128,6 +125,8 @@ public:
 	double getChannelThreshold(int electrodeNum, int channelNum);
 
 private:
+	/** Reference to a continuous buffer. */
+	AudioSampleBuffer& dataBuffer;
 
 	float getDefaultThreshold();
 
