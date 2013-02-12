@@ -522,3 +522,5 @@ void GenericProcessor::saveToXML(juce::XmlElement* parentElement){
     
     
 }
+
+const String GenericProcessor::unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");

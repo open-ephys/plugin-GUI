@@ -121,10 +121,14 @@ public:
 	void setCurrentProgram (int index) {}
 
 	/** Returns the name of the input channel with a given index.*/
-	const String getInputChannelName (int channelIndex) const { }
+	virtual const String getInputChannelName (int channelIndex) const {
+		return GenericProcessor::unusedNameString;
+	}
 
 	/** Returns the name of the output channel with a given index.*/
-	const String getOutputChannelName (int channelIndex) const { }
+	virtual const String getOutputChannelName (int channelIndex) const {
+		return GenericProcessor::unusedNameString;
+	}
 
 	/** Returns the name of the parameter with a given index.*/
 	const String getParameterName (int parameterIndex);
@@ -426,6 +430,9 @@ private:
 	/** Updates the number of samples for the current continuous buffer (assumed to be
 	the same for all channels).*/
 	void setNumSamples(MidiBuffer&, int);
+
+	/** For getInputChannelName() and getOutputChannelName() */
+	static const String unusedNameString;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericProcessor);
 
