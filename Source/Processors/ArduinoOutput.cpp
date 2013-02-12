@@ -81,6 +81,9 @@ bool ArduinoOutput::enable()
 
     Time timer;
 
+	// FIXME: Remove hard-coded serial port paths. These aren't always
+	// right, and in some cases (JUCE_MAC) are almost certainly wrong.
+	std::cout << "Warning: using hard-coded path to Arduino." << std::endl;
 #if JUCE_LINUX
 	arduino.connect("ttyACM0");
 #endif
