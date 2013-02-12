@@ -54,7 +54,7 @@ Parameter& GenericProcessor::getParameterByName(String name_)
 			return p;//parameters.getReference(i);
 	} 
 
-	Parameter nullParam = Parameter("VOID", false, -1);
+	static Parameter nullParam = Parameter("VOID", false, -1);
 
 	return nullParam;
 
