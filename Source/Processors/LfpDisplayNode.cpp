@@ -27,9 +27,8 @@
 
 LfpDisplayNode::LfpDisplayNode()
 	: GenericProcessor("LFP Viewer"),
-	  bufferLength(5.0f), displayBufferIndex(0), displayGain(1),
+	  displayBufferIndex(0), displayGain(1), bufferLength(5.0f),
 	  abstractFifo(100), ttlState(0)
-
 {
     std::cout << " LFPDisplayNodeConstructor" << std::endl;
 	displayBuffer = new AudioSampleBuffer(8, 100);

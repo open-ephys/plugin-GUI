@@ -27,10 +27,12 @@
 #include "EditorViewportButtons.h"
 
 EditorViewport::EditorViewport()
-    : message ("Drag-and-drop some rows from the top-left box onto this component!"),
-      somethingIsBeingDraggedOver(false), shiftDown(false), selectionIndex(0), leftmostEditor(0), lastEditorClicked(0),
-       insertionPoint(0), componentWantsToMove(false), indexOfMovingComponent(-1), 
-       borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true), currentTab(-1)
+    : leftmostEditor(0),
+	  message("Drag-and-drop some rows from the top-left box onto this component!"),
+	  somethingIsBeingDraggedOver(false), shiftDown(false), canEdit(true),
+	  lastEditorClicked(0), selectionIndex(0), borderSize(6), tabSize(30),
+	  tabButtonSize(15), insertionPoint(0), componentWantsToMove(false),
+	  indexOfMovingComponent(-1), currentTab(-1)
 {
 
     addMouseListener(this, true);

@@ -1,20 +1,14 @@
 #include "ProjectionAxes.h"
 
-ProjectionAxes::ProjectionAxes():
-					GenericAxes(),
-					drawGrid(false),
-					overlay(false),
-					convertLabelUnits(true),
-					buffIdx(-1),
-					totalSpikes(0),
-					newSpike(false),
-					isTextureValid(false),
-                    fboCreated(false),
-					allSpikesNextRender(false)
-{	
+ProjectionAxes::ProjectionAxes()
+	: GenericAxes(),
+	  buffIdx(-1), totalSpikes(0), newSpike(false), isTextureValid(false),
+	  fboCreated(false), allSpikesNextRender(false), overlay(false),
+	  drawGrid(false), convertLabelUnits(true)
+{
 	GenericAxes::type = PROJ1x2;
 	GenericAxes::gotFirstSpike = false;
-	
+
 	ylims[0] = 0;
 	ylims[1] = 1;
 	setPointColor(1.0,1.0,1.0);
@@ -24,18 +18,12 @@ ProjectionAxes::ProjectionAxes():
 
 }
 
-ProjectionAxes::ProjectionAxes(int x, int y, double w, double h, int t):
-					GenericAxes(x,y,w,h,t),
-					drawGrid(true),
-					overlay(false),
-					convertLabelUnits(true),
-					buffIdx(-1),
-					totalSpikes(0),
-					newSpike(false),
-					isTextureValid(false),
-                    fboCreated(false),
-					allSpikesNextRender(false)
-{	
+ProjectionAxes::ProjectionAxes(int x, int y, double w, double h, int t)
+	: GenericAxes(x,y,w,h,t),
+	  buffIdx(-1), totalSpikes(0), newSpike(false), isTextureValid(false),
+	  fboCreated(false), allSpikesNextRender(false), overlay(false),
+	  drawGrid(true), convertLabelUnits(true)
+{
 	GenericAxes::gotFirstSpike = false;
 
 	setPointColor(1.0,1.0,1.0);

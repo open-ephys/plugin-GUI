@@ -24,13 +24,10 @@
 #include "GenericProcessor.h"
 #include "../UI/UIComponent.h"
 
-GenericProcessor::GenericProcessor(const String& name_) : 
-    name(name_),
-	sourceNode(0), destNode(0),
-	isEnabled(true), 
-	saveOrder(-1), loadOrder(-1),
-	nextAvailableChannel(0), currentChannel(-1),
-	wasConnected(false)
+GenericProcessor::GenericProcessor(const String& name_) :
+	sourceNode(0), destNode(0), isEnabled(true), wasConnected(false),
+	nextAvailableChannel(0), saveOrder(-1), loadOrder(-1), currentChannel(-1),
+	name(name_)
 {
 }
 

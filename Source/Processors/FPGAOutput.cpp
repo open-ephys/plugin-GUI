@@ -28,7 +28,8 @@
 #include "SourceNode.h"
 
 FPGAOutput::FPGAOutput()
-	: GenericProcessor("FPGA Output"), isEnabled(true), TTLchannel(3), continuousStim(false)
+	: GenericProcessor("FPGA Output"), TTLchannel(3),
+	  isEnabled(true),  continuousStim(false)
 {
     
     Array<var> channelNumbers;

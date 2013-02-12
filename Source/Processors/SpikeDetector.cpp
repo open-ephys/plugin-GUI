@@ -27,9 +27,9 @@
 #include "Channel.h"
 
 SpikeDetector::SpikeDetector()
-    : GenericProcessor("Spike Detector"), overflowBufferSize(100),
-      overflowBuffer(2,100), dataBuffer(overflowBuffer), currentElectrode(-1)
-	
+    : GenericProcessor("Spike Detector"),
+      overflowBuffer(2,100), dataBuffer(overflowBuffer),
+	  overflowBufferSize(100), currentElectrode(-1)
 {
     //// the standard form:
     electrodeTypes.add("single electrode");

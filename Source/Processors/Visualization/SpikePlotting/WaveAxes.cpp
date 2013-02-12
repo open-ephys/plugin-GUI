@@ -1,13 +1,13 @@
 #include "WaveAxes.h"
 
-WaveAxes::WaveAxes():
-					GenericAxes(),
-					drawWaveformLine(true),
-					drawWaveformPoints(false),
-					drawGrid(true),
-					overlay(false),
-					convertLabelUnits(true)
-{	
+WaveAxes::WaveAxes()
+	: GenericAxes(),
+	  drawWaveformLine(true),
+	  drawWaveformPoints(false),
+	  overlay(false),
+	  drawGrid(true),
+	  convertLabelUnits(true)
+{
 	GenericAxes::gotFirstSpike = false;
 
 	ylims[0] = 0;
@@ -15,17 +15,16 @@ WaveAxes::WaveAxes():
 	setWaveformColor(1.0,1.0,0.6);
 	setThresholdColor(1.0, 0.1, 0.1);
 	setGridColor(0.4, 0.2, 0.2);
-	
 }
 
-WaveAxes::WaveAxes(int x, int y, double w, double h, int t):
-					GenericAxes(x,y,w,h,t),
-					drawWaveformLine(true),
-					drawWaveformPoints(false),
-					drawGrid(true),
-					overlay(false),
-					convertLabelUnits(true)
-{	
+WaveAxes::WaveAxes(int x, int y, double w, double h, int t)
+	: GenericAxes(x,y,w,h,t),
+	  drawWaveformLine(true),
+	  drawWaveformPoints(false),
+	  overlay(false),
+	  drawGrid(true),
+	  convertLabelUnits(true)
+{
 	GenericAxes::gotFirstSpike = false;
 
 	setWaveformColor(1.0,1.0,0.6);

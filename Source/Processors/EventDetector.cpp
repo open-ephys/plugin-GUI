@@ -28,7 +28,7 @@
 
 
 EventDetector::EventDetector()
-	: GenericProcessor("Event Detector"), state(false), threshold(200.0), bufferZone(5.0f)
+	: GenericProcessor("Event Detector"), threshold(200.0), bufferZone(5.0f), state(false)
 
 {
 

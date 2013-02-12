@@ -248,8 +248,8 @@ void ParameterEditor::sliderValueChanged(Slider* slider)
 /// ============= PARAMETER BUTTON ==================
 
 ParameterButton::ParameterButton(var value, int buttonType, Font labelFont) :
-	Button("parameter"), type(buttonType), valueString(value.toString()),
-	font(labelFont), isEnabled(true)
+	Button("parameter"), isEnabled(true), type(buttonType),
+	valueString(value.toString()), font(labelFont)
 {
 
 	setButtonText(valueString);
@@ -412,8 +412,8 @@ void ParameterCheckbox::paintButton(Graphics& g, bool isMouseOver, bool isButton
 
 // ========== PARAMETER SLIDER ====================
 
-ParameterSlider::ParameterSlider(float min, float max, 
-						float def, Font labelFont) : Slider("name"), font(labelFont), isEnabled(true)
+ParameterSlider::ParameterSlider(float min, float max, float def, Font labelFont) :
+	Slider("name"), isEnabled(true), font(labelFont)
 {
 
 	setSliderStyle(Slider::Rotary);

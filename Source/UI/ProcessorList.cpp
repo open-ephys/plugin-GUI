@@ -35,12 +35,9 @@ enum colorIds {
     UTILITY_COLOR = 805,
 };
 
-ProcessorList::ProcessorList() : isDragging(false),
-                           itemHeight(32),
-                           subItemHeight(22),
-                           totalHeight(800),
-                           xBuffer(1),
-                           yBuffer(1)
+ProcessorList::ProcessorList()
+	: isDragging(false), totalHeight(800), itemHeight(32), subItemHeight(22),
+	  xBuffer(1), yBuffer(1)
 {
 
 
@@ -513,7 +510,8 @@ void ProcessorList::mouseDragInCanvas(const MouseEvent& e)
 
 }
 
-ProcessorListItem::ProcessorListItem(const String& name_) : name(name_), open(true), selected(false)
+ProcessorListItem::ProcessorListItem(const String& name_)
+	: selected(false), open(true), name(name_)
 {
 }
 

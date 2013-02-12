@@ -32,8 +32,8 @@
 
 SourceNode::SourceNode(const String& name_)
 	: GenericProcessor(name_),
-	  dataThread(0), inputBuffer(0),
-	  sourceCheckInterval(2000), wasDisabled(true), ttlState(0)
+	  sourceCheckInterval(2000), wasDisabled(true), dataThread(0),
+	  inputBuffer(0), ttlState(0)
 {
 
 	std::cout << "creating source node." << std::endl;

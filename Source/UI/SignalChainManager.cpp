@@ -27,15 +27,14 @@
 
 #include <iostream>
 
-SignalChainManager::SignalChainManager (EditorViewport* ev_, Array<GenericEditor*, CriticalSection>& editorArray_,
-	 				   Array<SignalChainTabButton*, CriticalSection>& signalChainArray_) :
-
-	 				   tabSize(30), ev(ev_), editorArray(editorArray_), signalChainArray(signalChainArray_)
+SignalChainManager::SignalChainManager
+    (EditorViewport* ev_,
+	 Array<GenericEditor*, CriticalSection>& editorArray_,
+	 Array<SignalChainTabButton*, CriticalSection>& signalChainArray_)
+		: editorArray(editorArray_), signalChainArray(signalChainArray_),
+		   ev(ev_), tabSize(30)
 {
-	
 	topTab = 0;
-	
-
 }
 
 SignalChainManager::~SignalChainManager()

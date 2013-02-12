@@ -25,12 +25,10 @@
 #include <stdio.h>
 
 AudioResamplingNode::AudioResamplingNode()
-	: GenericProcessor("Resampling Node"), 
-	  ratio (1.0), lastRatio (1.0),
-	  destBufferPos(0), destBufferIsTempBuffer(true),
-	  destBufferSampleRate(44100.0), sourceBufferSampleRate(40000.0),
-	  destBuffer(0), tempBuffer(0), isTransmitting(false)
-	
+	: GenericProcessor("Resampling Node"),
+	  sourceBufferSampleRate(40000.0), destBufferSampleRate(44100.0),
+	  ratio(1.0), lastRatio(1.0), destBuffer(0), tempBuffer(0),
+	  destBufferIsTempBuffer(true), isTransmitting(false), destBufferPos(0)
 {
 
 	settings.numInputs = 2;

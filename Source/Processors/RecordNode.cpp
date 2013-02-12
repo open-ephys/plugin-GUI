@@ -27,8 +27,9 @@
 #include "Channel.h"
 
 RecordNode::RecordNode()
-	: GenericProcessor("Record Node"), isRecording(false), isProcessing(false),
-		timestamp(0), signalFilesShouldClose(false)
+	: GenericProcessor("Record Node"),
+	  isRecording(false), isProcessing(false), signalFilesShouldClose(false),
+	  timestamp(0)
 {
 
 	

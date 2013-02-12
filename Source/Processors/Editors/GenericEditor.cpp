@@ -34,11 +34,10 @@
 #include <math.h>
 
 GenericEditor::GenericEditor (GenericProcessor* owner, bool useDefaultParameterEditors=true)
-	: AudioProcessorEditor (owner), isSelected(false),
-	  desiredWidth(150), tNum(-1), isEnabled(true),
-	  accumulator(0.0), isFading(false), drawerButton(0),
-	  channelSelector(0)
-
+	: AudioProcessorEditor(owner),
+	  desiredWidth(150), isFading(false), accumulator(0.0),
+	  drawerButton(0), channelSelector(0),
+	  isSelected(false), isEnabled(true), tNum(-1)
 {
     constructorInitialize(owner, useDefaultParameterEditors);
 }
