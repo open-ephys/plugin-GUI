@@ -118,16 +118,18 @@ bool ArduinoOutput::enable()
 
         std::cout << "Arduino is initialized." << std::endl;
         arduino.sendDigitalPinMode(13, ARD_OUTPUT);
-
+		return true;
     } else {
         std::cout << "Arduino is NOT initialized." << std::endl;
+		return false;
     }
 }
 
 bool ArduinoOutput::disable()
 {
-
-
+	if (arduino.isInitialized())
+		arduino.disconnect();
+	return true;
 }
 
 void ArduinoOutput::process(AudioSampleBuffer &buffer, 
