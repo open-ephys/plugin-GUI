@@ -116,7 +116,6 @@ OBJECTS := \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
   $(OBJDIR)/FileReaderThread_933ea08.o \
   $(OBJDIR)/okFrontPanelDLL_158af498.o \
-  $(OBJDIR)/NetworkThread_276b0d43.o \
   $(OBJDIR)/FPGAThread_a8dc34ed.o \
   $(OBJDIR)/DataBuffer_6ae4f549.o \
   $(OBJDIR)/IntanThread_32126b71.o \
@@ -524,11 +523,6 @@ $(OBJDIR)/FileReaderThread_933ea08.o: ../../Source/Processors/DataThreads/FileRe
 $(OBJDIR)/okFrontPanelDLL_158af498.o: ../../Source/Processors/DataThreads/okFrontPanelDLL.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling okFrontPanelDLL.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/NetworkThread_276b0d43.o: ../../Source/Processors/DataThreads/NetworkThread.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling NetworkThread.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/FPGAThread_a8dc34ed.o: ../../Source/Processors/DataThreads/FPGAThread.cpp

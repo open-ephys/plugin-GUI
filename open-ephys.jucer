@@ -391,10 +391,6 @@
                 file="Source/Processors/DataThreads/okFrontPanelDLL.cpp"/>
           <FILE id="LlZ0Bjn" name="okFrontPanelDLL.h" compile="0" resource="0"
                 file="Source/Processors/DataThreads/okFrontPanelDLL.h"/>
-          <FILE id="WBgyi43" name="NetworkThread.cpp" compile="1" resource="0"
-                file="Source/Processors/DataThreads/NetworkThread.cpp"/>
-          <FILE id="7gIytex" name="NetworkThread.h" compile="0" resource="0"
-                file="Source/Processors/DataThreads/NetworkThread.h"/>
           <FILE id="KEzbFux" name="FPGAThread.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/FPGAThread.cpp"/>
           <FILE id="6iEndcT" name="FPGAThread.h" compile="0" resource="0" file="Source/Processors/DataThreads/FPGAThread.h"/>
           <FILE id="Qfe0ygk" name="DataBuffer.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/DataBuffer.cpp"/>
