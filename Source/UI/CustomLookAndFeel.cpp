@@ -169,7 +169,7 @@ void CustomLookAndFeel::drawTabButton (Graphics& g,
     }
 
     int borderSize = 3; // border between adjacent tabs
-    int innerBorderSize = 3;
+    // int innerBorderSize = 3;
     int gapSize = 6;     // gap between tab and tabbedComponent
     float cornerSize = 5.0f; // how rounded should the corners be?
 

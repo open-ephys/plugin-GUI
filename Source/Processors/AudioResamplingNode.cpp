@@ -306,9 +306,10 @@ void AudioResamplingNode::writeContinuousBuffer(float* data, int nSamples, int c
 			   1, 		  						// count 
 			   file);   // ptr to FILE object
 
-	int n = fwrite(continuousDataBuffer,			// ptr
+	fwrite(continuousDataBuffer,			// ptr
 			   2,			     					// size of each element
 			   nSamples, 		  					// count 
 			   file);   // ptr to FILE object
-	// n must equal "count", otherwise there was an error
+	// FIXME: check that return value of each fwrite() equals "count";
+	// otherwise, there was an error.
 }

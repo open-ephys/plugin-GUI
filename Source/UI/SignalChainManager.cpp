@@ -114,8 +114,6 @@ void SignalChainManager::createNewTab(GenericEditor* editor)
 void SignalChainManager::removeTab(int tabIndex)
 {
 
-	int tabSize = 30; // also set in EditorViewport
-
     SignalChainTabButton* t = signalChainArray.remove(tabIndex);
     deleteAndZero(t);
 

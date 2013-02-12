@@ -153,7 +153,7 @@ int GenericProcessor::getNumSamples(MidiBuffer& events) {
 	if (events.getNumEvents() > 0) 
 	{
 			
-		int m = events.getNumEvents();
+		// int m = events.getNumEvents();
 
 		//std::cout << getName() << " received " << m << " events." << std::endl;
 
@@ -408,7 +408,7 @@ int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)
 	if (midiMessages.getNumEvents() > 0) 
 	{
 			
-		int m = midiMessages.getNumEvents();
+		// int m = midiMessages.getNumEvents();
 		//std::cout << m << " events received by node " << getNodeId() << std::endl;
 
 		MidiBuffer::Iterator i (midiMessages);

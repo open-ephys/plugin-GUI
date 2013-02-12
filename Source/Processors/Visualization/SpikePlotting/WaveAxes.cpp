@@ -144,7 +144,6 @@ void WaveAxes::drawWaveformGrid(int thold, int gain){
 
 	int voltPerTick = (voltRange / nTicks);
 
-	double meanRange = voltRange/2;
 	glColor3fv(gridColor);
 
 	glLineWidth(1);

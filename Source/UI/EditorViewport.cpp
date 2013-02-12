@@ -433,7 +433,7 @@ void EditorViewport::moveSelection (const KeyPress &key) {
             
             selectionIndex = 0;
 
-            bool stopSelection = false;
+            // bool stopSelection = false;
             int i = 0;
 
             while (i < editorArray.size()-1)
@@ -445,7 +445,7 @@ void EditorViewport::moveSelection (const KeyPress &key) {
                     // {
                     lastEditorClicked = editorArray[i+1];
                     editorArray[i+1]->select();
-                    stopSelection = true;
+                    // stopSelection = true;
                   //  }
 
                     editorArray[i]->deselect();

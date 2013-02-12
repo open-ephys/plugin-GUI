@@ -537,7 +537,7 @@ EditorButton::EditorButton(const String& name, Font& f) : Button(name)
 
 void EditorButton::resized()
 {
-    float radius = 5.0f;
+    // float radius = 5.0f;
     float width = (float) getWidth();
     float height = (float) getHeight();
 

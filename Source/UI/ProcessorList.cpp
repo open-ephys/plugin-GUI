@@ -137,7 +137,6 @@ void ProcessorList::renderOpenGL()
 
 void ProcessorList::drawItems()
 {
-	int itemNum = 0;
 	totalHeight = yBuffer;
 
 	setViewport(true);

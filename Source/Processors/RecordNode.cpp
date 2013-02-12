@@ -489,11 +489,12 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 				   1, 		  						// count 
 				   channelPointers[channel]->file);   // ptr to FILE object
 
-		int n = fwrite(continuousDataIntegerBuffer,		// ptr
+		fwrite(continuousDataIntegerBuffer,		// ptr
 				   2,			     					// size of each element
 				   nSamples, 		  					// count 
 				   channelPointers[channel]->file);   // ptr to FILE object
-		// n must equal "count", otherwise there was an error
+		// FIXME: ensure fwrite returns equal "count"; otherwise,
+		// there was an error.
 
 		// write a 10-byte marker indicating the end of a record
 		fwrite(recordMarker,		// ptr

@@ -172,7 +172,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	    	for (int channel = 0; channel < nChans; channel++) {
 
 				gain = 1 / (processor->channels[channel]->bitVolts * float(0x7fff));
-				float bp =*(displayBuffer->getSampleData(channel, displayBufferIndex));
 	        	waves[channel][screenBufferIndex*2+1] = 
 	        		*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
 

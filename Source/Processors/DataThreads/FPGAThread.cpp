@@ -277,7 +277,7 @@ bool FPGAThread::updateBuffer()
     
     // new strategy: read in 201 bytes & find the first sample
 
-    int firstSample;
+    // int firstSample;
     
 	while (j < bytesToRead)
 	{
@@ -304,7 +304,7 @@ bool FPGAThread::updateBuffer()
 
             if (i == 1)
             {
-                firstSample = j;
+                // firstSample = j;
                
                //             "     Bytes read: " << bytesToRead << std::endl;
             }

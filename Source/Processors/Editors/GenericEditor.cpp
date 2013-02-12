@@ -278,8 +278,6 @@ void GenericEditor::paint (Graphics& g)
 {
 	int offset = 0;
 
-	GenericProcessor* p = (GenericProcessor*) getProcessor();
-
 	if (isEnabled)
 		g.setColour(backgroundColor);
 	else 
