@@ -207,7 +207,7 @@ bool IntanThread::updateBuffer()
 	// Step 2: sort data
 	int TTLval, channelVal;
 
-    for (int index = 0; index < sizeof(buffer); index += 3) { 
+    for (size_t index = 0; index < sizeof(buffer); index += 3) { 
            
           ++ch;
            
