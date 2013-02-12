@@ -114,6 +114,7 @@ void AudioEditor::resized()
 bool AudioEditor::keyPressed (const KeyPress& key)
 {
 	//std::cout << name << " received " << key.getKeyCode() << std::endl;
+	return false;
 }
 
 

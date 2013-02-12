@@ -182,6 +182,7 @@ bool IntanThread::closeUSB()
     ftdi_usb_close(&ftdic);
     ftdi_deinit(&ftdic);
     std::cout << "FTDI interface destroyed." << std::endl;
+    return true;
 }
 
 
