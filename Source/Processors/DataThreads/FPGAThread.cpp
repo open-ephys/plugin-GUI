@@ -25,6 +25,8 @@
 #include "../SourceNode.h"
 
 #include <string.h>
+#include <math.h>
+#define M_PI       3.14159265358979323846
 
 FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 			isTransmitting(false),
@@ -78,6 +80,12 @@ FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
 	dataBuffer = new DataBuffer(numchannels, 10000);
 
 	eventCode = 0;
+
+	//High-Pass filter
+	const double fL=0.5;
+
+	filter_A = exp(-2*M_PI*fL/getSampleRate());
+	filter_B = (double)1.0	- filter_A;
 
 }
 
@@ -151,6 +159,8 @@ bool FPGAThread::startAcquisition()
 
 	bufferWasAligned = false;
 
+	memset(filter_states,0,256*sizeof(double)); 
+
    startThread();
 
    isTransmitting = true;
@@ -217,6 +227,7 @@ bool FPGAThread::updateBuffer()
 {
 
 	long return_code;
+	double currentSample;
 	
 	if (!bufferWasAligned)
 	{
@@ -350,7 +361,11 @@ bool FPGAThread::updateBuffer()
 
                     uint16 samp = ((hi << 8) + lo);
 
-                    thisSample[n/2] = -float(samp) * 0.1907f + 3000.0f; //- 6175.0f;
+                   // thisSample[n/2] = -float(samp) * 0.1907f + 3000.0f; //- 6175.0f;
+					//high-pass filter
+					currentSample = -double(samp) * 0.1907f + 3000.0f; //- 6175.0f;
+					thisSample[n/2] = float(currentSample - filter_states[n/2]);
+					filter_states[n/2] = filter_B*currentSample + filter_A*filter_states[n/2];
                 }
                 
                 j += 3;

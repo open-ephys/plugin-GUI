@@ -70,6 +70,11 @@ private:
 	bool isTransmitting;
 	bool deviceFound;
 
+	double filter_A;
+	double filter_B;
+	double filter_states[256];
+
+
 	bool initializeFPGA(bool);
 	bool closeFPGA();
 

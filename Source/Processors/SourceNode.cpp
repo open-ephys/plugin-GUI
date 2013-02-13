@@ -22,6 +22,10 @@
 */
 
 #include "SourceNode.h"
+#include "DataThreads/DataBuffer.h"
+#include "DataThreads/IntanThread.h"
+#include "DataThreads/FPGAThread.h"
+#include "DataThreads/FileReaderThread.h"
 #include "Editors/SourceNodeEditor.h"
 #include "Channel.h"
 #include <stdio.h>
@@ -58,20 +62,23 @@ SourceNode::SourceNode(const String& name_)
 
 	} else {
 		enabledState(false);
+		eventChannelState = 0;
 		numEventChannels = 0;
 	}
 
 	// check for input source every few seconds
-	startTimer(sourceCheckInterval); 
+	startTimer(sourceCheckInterval);
 
-	timestamp = 0; 
+	timestamp = 0;
 	eventCodeBuffer = new int16[10000]; //10000 samples per buffer max?
 
 
 }
 
-SourceNode::~SourceNode() 
+SourceNode::~SourceNode()
 {
+	if (eventChannelState)
+		delete[] eventChannelState;
 }
 
 DataThread* SourceNode::getThread()
@@ -100,9 +107,9 @@ void SourceNode::updateSettings()
 
 void SourceNode::actionListenerCallback(const String& msg)
 {
-    
+
     //std::cout << msg << std::endl;
-    
+
     if (msg.equalsIgnoreCase("HI"))
     {
        // std::cout << "HI." << std::endl;
@@ -176,38 +183,41 @@ AudioProcessorEditor* SourceNode::createEditor()
 	return editor;
 }
 
+bool SourceNode::tryEnablingEditor()
+{
+	if (!isReady()) {
+		std::cout << "No input source found." << std::endl;
+		return false;
+	} else if (isEnabled) {
+		// If we're already enabled (e.g. if we're being called again
+		// due to timerCallback()), then there's no need to go through
+		// the editor again.
+		return true;
+	}
+
+	std::cout << "Input source found." << std::endl;
+	enabledState(true);
+	GenericEditor* ed = getEditor();
+	getEditorViewport()->makeEditorVisible(ed);
+	return true;
+}
+
 void SourceNode::timerCallback()
 {
-	if (dataThread->foundInputSource())
-	{
-		if (!isEnabled) {
-			std::cout << "Input source found." << std::endl;
-			//stopTimer(); // check for input source every two seconds
-			enabledState(true);
-			GenericEditor* ed = getEditor();
-			getEditorViewport()->makeEditorVisible(ed);
-		}
-	} else {
-		if (isEnabled) {
-			std::cout << "No input source found." << std::endl;
-			enabledState(false);
-			GenericEditor* ed = getEditor();
-			getEditorViewport()->makeEditorVisible(ed);
-		}
+	if (!tryEnablingEditor() && isEnabled) {
+		std::cout << "Input source lost." << std::endl;
+		enabledState(false);
+		GenericEditor* ed = getEditor();
+		getEditorViewport()->makeEditorVisible(ed);
 	}
 }
 
 bool SourceNode::isReady() {
-	
-	if (dataThread != 0) {
-		return dataThread->foundInputSource();
-	} else {
-		return false;
-	}
+	return dataThread && dataThread->foundInputSource();
 }
 
 bool SourceNode::enable() {
-	
+
 	std::cout << "Source node received enable signal" << std::endl;
 
 	wasDisabled = false;
@@ -230,7 +240,7 @@ bool SourceNode::disable() {
 
 	if (dataThread != 0)
 		dataThread->stopAcquisition();
-	
+
 	startTimer(2000);
 
 	wasDisabled = true;
@@ -243,7 +253,7 @@ bool SourceNode::disable() {
 void SourceNode::acquisitionStopped()
 {
 	//if (!dataThread->foundInputSource()) {
-		
+
 		if (!wasDisabled) {
 			std::cout << "Source node sending signal to UI." << std::endl;
 			getUIComponent()->disableCallbacks();
@@ -255,11 +265,11 @@ void SourceNode::acquisitionStopped()
 }
 
 
-void SourceNode::process(AudioSampleBuffer &buffer, 
+void SourceNode::process(AudioSampleBuffer &buffer,
                             MidiBuffer &events,
                             int& nSamples)
 {
-	
+
 	//std::cout << "SOURCE NODE" << std::endl;
 
 	// clear the input buffers
@@ -267,9 +277,9 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	buffer.clear();
 
 	nSamples = inputBuffer->readAllFromBuffer(buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
-	
+
 	 //std::cout << "TIMESTAMP: " << timestamp << std::endl;
-    
+
     //std::cout << "Samples per buffer: " << nSamples << std::endl;
 
 	uint8 data[4];
@@ -309,7 +319,7 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 
                    // std::cout << "ON" << std::endl;
                    // std::cout << c << std::endl;
-                    
+
 	 				// signal channel state is ON
 	 				addEvent(events, // MidiBuffer
 	 						 TTL,    // eventType
@@ -317,7 +327,7 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	 						 1,		 // eventID
 	 						 c		 // eventChannel
 	 						 );
-	 			
+
 
 	 			}
 
@@ -327,6 +337,3 @@ void SourceNode::process(AudioSampleBuffer &buffer,
 	 }
 
 }
-
-
-

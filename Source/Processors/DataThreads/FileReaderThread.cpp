@@ -24,13 +24,9 @@
 
 #include "FileReaderThread.h"
 
-FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn)
-
+FileReaderThread::FileReaderThread(SourceNode* sn) :
+    DataThread(sn), lengthOfInputFile(0), bufferSize(0)
 {
-	//File file = File("./data_stream_16ch");
-	//input = file.createInputStream();
-    bufferSize = 1600;
-
     //  FileChooser chooseFileReaderFile ("Please select the file you want to load...",
     //                            File::getSpecialLocation (File::userHomeDirectory),
     //                            "*");
@@ -42,33 +38,48 @@ FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn)
     //     input = fopen(fileName.String::toCString(), "r");
     // }
 
+    // FIXME stop hard-coding `path' once DataThread gives us a proper
+    // mechanism for accepting arguments (the above commented-out code
+    // is a layering violation that's best avoided).
 #if JUCE_MAC
-    input = fopen("/Users/Josh/Programming/open-ephys/GUI/Builds/Linux/build/data_stream_16ch_2", "r");
+    const char *path = "/Users/Josh/Programming/open-ephys/GUI/Builds/Linux/build/data_stream_16ch_2";
 #else
-    input = fopen("./data_stream_16ch_2","r");
+    const char *path = "./data_stream_16ch_2";
 #endif
+
+    input = fopen(path, "r");
+
+    // Avoid a segfault if crock above fails.
+    if (!input) {
+        std::cout << "Can't find data file "
+                  << '"' << path << "\", "
+                  << "either make sure you're Josh on OS X, "
+                  << "or run open-ephys from the build directory on Linux."
+                  << std::endl;
+        return;
+    }
 
     fseek(input, 0, SEEK_END);
     lengthOfInputFile = ftell(input);
     rewind(input);
 
+    bufferSize = 1600;
 	dataBuffer = new DataBuffer(16, bufferSize*3);
 
-   eventCode = 0;
+	eventCode = 0;
 
 	std::cout << "File Reader Thread initialized." << std::endl;
 
 }
 
 FileReaderThread::~FileReaderThread() {
-
-	//deleteAndZero(input);
-
+    if (input)
+        fclose(input);
 }
 
 bool FileReaderThread::foundInputSource()
 {
-    return true;
+    return input != 0;
 }
 
 int FileReaderThread::getNumChannels()
@@ -88,10 +99,11 @@ float FileReaderThread::getBitVolts()
 
 bool FileReaderThread::startAcquisition()
 {
-	startThread();
+    if (!input)
+        return false;
 
+    startThread();
     return true;
-
 }
 
 bool FileReaderThread::stopAcquisition()
@@ -100,7 +112,7 @@ bool FileReaderThread::stopAcquisition()
 	if (isThreadRunning()) {
         signalThreadShouldExit();
     }
-	
+
 
     return true;
 
@@ -108,7 +120,8 @@ bool FileReaderThread::stopAcquisition()
 
 bool FileReaderThread::updateBuffer()
 {
-
+    if (!input)
+        return false;
 	if (dataBuffer->getNumSamples() < bufferSize)
 	 {
  //       // std::cout << dataBuffer->getNumSamples() << std::endl;
@@ -137,7 +150,7 @@ bool FileReaderThread::updateBuffer()
 
 
          }
-    	
+
 
      } else {
         wait(50); // pause for 50 ms to decrease sample rate
