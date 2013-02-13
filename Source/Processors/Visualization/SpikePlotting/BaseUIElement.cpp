@@ -1,9 +1,9 @@
 #include "BaseUIElement.h"
 
 BaseUIElement::BaseUIElement():
-	xpos(0),  ypos(0), yOffset(0), 
-	width(100), height(100), enabled(true), padding(0)
-{	
+	xpos(0), ypos(0), yOffset(0),
+	height(100), width(100), enabled(true), padding(0)
+{
 }
 
 BaseUIElement::BaseUIElement(int x, int y, double w, double h):

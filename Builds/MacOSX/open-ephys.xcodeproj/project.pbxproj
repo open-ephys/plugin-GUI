@@ -90,7 +90,6 @@
 		CFE62980E342BE2875BB3586 = { isa = PBXBuildFile; fileRef = 22FD0613BADE6C36A6A7A25C; };
 		A1B4D286AC7ED372742C41B2 = { isa = PBXBuildFile; fileRef = 0D2903C450AE862C2C0060AA; };
 		25D4C87F4C7C842B0522DA5F = { isa = PBXBuildFile; fileRef = 24616D6D2297C87D371B0363; };
-		E82FBA173C87CE2AADB84942 = { isa = PBXBuildFile; fileRef = 6B156D132738F6C7C948378F; };
 		2F21546229BEF148C74ECA45 = { isa = PBXBuildFile; fileRef = A9142BFEFE7EB34D919ED0A0; };
 		9549DA2D2FF0614B155990A0 = { isa = PBXBuildFile; fileRef = F20726FD9F586FDE2CB42901; };
 		DF15E1683A3722FE88EE5C7F = { isa = PBXBuildFile; fileRef = 6D94C2733E967EC6A91B719A; };
@@ -349,8 +348,6 @@
 		BD07C36AC2ECF10942F0A229 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FileReaderThread.h; path = ../../Source/Processors/DataThreads/FileReaderThread.h; sourceTree = SOURCE_ROOT; };
 		24616D6D2297C87D371B0363 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = okFrontPanelDLL.cpp; path = ../../Source/Processors/DataThreads/okFrontPanelDLL.cpp; sourceTree = SOURCE_ROOT; };
 		AA7B88F969CE43331035DE98 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = okFrontPanelDLL.h; path = ../../Source/Processors/DataThreads/okFrontPanelDLL.h; sourceTree = SOURCE_ROOT; };
-		6B156D132738F6C7C948378F = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NetworkThread.cpp; path = ../../Source/Processors/DataThreads/NetworkThread.cpp; sourceTree = SOURCE_ROOT; };
-		7BD204C890F9A2F301B15128 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NetworkThread.h; path = ../../Source/Processors/DataThreads/NetworkThread.h; sourceTree = SOURCE_ROOT; };
 		A9142BFEFE7EB34D919ED0A0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FPGAThread.cpp; path = ../../Source/Processors/DataThreads/FPGAThread.cpp; sourceTree = SOURCE_ROOT; };
 		46E436D1B9538DB8487F0D8D = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FPGAThread.h; path = ../../Source/Processors/DataThreads/FPGAThread.h; sourceTree = SOURCE_ROOT; };
 		F20726FD9F586FDE2CB42901 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DataBuffer.cpp; path = ../../Source/Processors/DataThreads/DataBuffer.cpp; sourceTree = SOURCE_ROOT; };
@@ -611,8 +608,6 @@
 				BD07C36AC2ECF10942F0A229,
 				24616D6D2297C87D371B0363,
 				AA7B88F969CE43331035DE98,
-				6B156D132738F6C7C948378F,
-				7BD204C890F9A2F301B15128,
 				A9142BFEFE7EB34D919ED0A0,
 				46E436D1B9538DB8487F0D8D,
 				F20726FD9F586FDE2CB42901,
@@ -879,7 +874,6 @@
 				CFE62980E342BE2875BB3586,
 				A1B4D286AC7ED372742C41B2,
 				25D4C87F4C7C842B0522DA5F,
-				E82FBA173C87CE2AADB84942,
 				2F21546229BEF148C74ECA45,
 				9549DA2D2FF0614B155990A0,
 				DF15E1683A3722FE88EE5C7F,
@@ -928,3 +922,4 @@
 	};
 	rootObject = CC82D4D2B9F0219708ACBEB3;
 }
+

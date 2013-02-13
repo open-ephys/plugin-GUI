@@ -26,7 +26,7 @@
 #include "Channel.h"
 
 AudioNode::AudioNode()
-	: GenericProcessor("Audio Node"), volume(0.00001f), audioEditor(0)
+	: GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f)
 {
 
 	settings.numInputs = 128;

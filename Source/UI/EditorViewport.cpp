@@ -27,10 +27,12 @@
 #include "EditorViewportButtons.h"
 
 EditorViewport::EditorViewport()
-    : message ("Drag-and-drop some rows from the top-left box onto this component!"),
-      somethingIsBeingDraggedOver(false), shiftDown(false), selectionIndex(0), leftmostEditor(0), lastEditorClicked(0),
-       insertionPoint(0), componentWantsToMove(false), indexOfMovingComponent(-1), 
-       borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true), currentTab(-1)
+    : leftmostEditor(0),
+	  message("Drag-and-drop some rows from the top-left box onto this component!"),
+	  somethingIsBeingDraggedOver(false), shiftDown(false), canEdit(true),
+	  lastEditorClicked(0), selectionIndex(0), borderSize(6), tabSize(30),
+	  tabButtonSize(15), insertionPoint(0), componentWantsToMove(false),
+	  indexOfMovingComponent(-1), currentTab(-1)
 {
 
     addMouseListener(this, true);
@@ -431,7 +433,7 @@ void EditorViewport::moveSelection (const KeyPress &key) {
             
             selectionIndex = 0;
 
-            bool stopSelection = false;
+            // bool stopSelection = false;
             int i = 0;
 
             while (i < editorArray.size()-1)
@@ -443,7 +445,7 @@ void EditorViewport::moveSelection (const KeyPress &key) {
                     // {
                     lastEditorClicked = editorArray[i+1];
                     editorArray[i+1]->select();
-                    stopSelection = true;
+                    // stopSelection = true;
                   //  }
 
                     editorArray[i]->deselect();

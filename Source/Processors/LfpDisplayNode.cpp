@@ -27,9 +27,8 @@
 
 LfpDisplayNode::LfpDisplayNode()
 	: GenericProcessor("LFP Viewer"),
-	  bufferLength(5.0f), displayBufferIndex(0), displayGain(1),
+	  displayBufferIndex(0), displayGain(1), bufferLength(5.0f),
 	  abstractFifo(100), ttlState(0)
-
 {
     std::cout << " LFPDisplayNodeConstructor" << std::endl;
 	displayBuffer = new AudioSampleBuffer(8, 100);
@@ -138,13 +137,12 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
 	{
 		uint8* dataptr = event.getRawData();
 
-    	int eventNodeId = *(dataptr+1);
+    	// int eventNodeId = *(dataptr+1);
     	int eventId = *(dataptr+2);
     	int eventChannel = *(dataptr+3);
     	int eventTime = event.getTimeStamp();
 
     	int samplesLeft = totalSamples - eventTime;
-
 
     //	std::cout << "Received event from " << eventNodeId << ", channel "
     //	          << eventChannel << ", with ID " << eventId << std::endl;
@@ -208,9 +206,9 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
 
 		uint8* dataptr = event.getRawData();
 
-    	int eventNodeId = *(dataptr+1);
-    	int eventId = *(dataptr+2);
-    	int eventChannel = *(dataptr+3);
+    	// int eventNodeId = *(dataptr+1);
+    	// int eventId = *(dataptr+2);
+    	// int eventChannel = *(dataptr+3);
     	
     	// update the timestamp for the current buffer:
     	memcpy(&bufferTimestamp, dataptr+4, 4);

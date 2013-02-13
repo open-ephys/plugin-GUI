@@ -25,7 +25,7 @@
 #include <stdio.h>
 
 UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_) 
-	: processorGraph(pgraph), audio(audio_), mainWindow(mainWindow_)
+	: mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_)
 
 {	
 
