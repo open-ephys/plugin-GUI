@@ -74,15 +74,19 @@ public:
     //==============================================================================
     void initialise (const String& commandLine)
     {
+		StringArray parameters;
+		parameters.addTokens(commandLine," ","\"");
 #ifdef WIN32
 		glWinInit();
-#ifdef DEBUG
-		if (AllocConsole())
-		{
-			freopen("CONOUT$","w",stdout);
-			SetConsoleTitle("Debug Console");
+
+		if (parameters.contains("--console",true)) {
+			if (AllocConsole())
+			{
+				freopen("CONOUT$","w",stdout);
+				SetConsoleTitle("Debug Console");
+			}
 		}
-#endif
+
 #endif
 
         mainWindow = new MainWindow();
