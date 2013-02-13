@@ -124,7 +124,7 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
     parameterPointer=parameterPointer+parameterIndex;
     parameterPointer->setValue(newValue, currentChannel);
 
-    std::cout << "Saving Parameter from " << currentChannel << ", channel ";
+    //std::cout << "Saving Parameter from " << currentChannel << ", channel ";
     
 	LfpDisplayEditor* ed = (LfpDisplayEditor*) getEditor();
 	if (ed->canvas != 0)
