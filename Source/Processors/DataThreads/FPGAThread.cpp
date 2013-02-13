@@ -354,9 +354,8 @@ bool FPGAThread::updateBuffer()
 
                     uint16 samp = ((hi << 8) + lo);
 
-                   // thisSample[n/2] = -float(samp) * 0.1907f + 3000.0f; //- 6175.0f;
 					//high-pass filter
-					currentSample = -double(samp) * 0.1907f + 3000.0f; //- 6175.0f;
+					currentSample = double(samp) * 0.1907f - 3000.0f; //- 6175.0f;
 					thisSample[n/2] = float(currentSample - filter_states[n/2]);
 					filter_states[n/2] = filter_B*currentSample + filter_A*filter_states[n/2];
                 }
