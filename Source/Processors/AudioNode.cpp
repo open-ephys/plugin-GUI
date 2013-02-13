@@ -129,7 +129,7 @@ void AudioNode::setParameter (int parameterIndex, float newValue)
 	if (parameterIndex == 1) 
 	{
 		// volume level
-		volume = newValue*0.00001f;
+		volume = newValue*0.1f;
 
 	} else if (parameterIndex == 100) 
 	{
@@ -160,7 +160,7 @@ void AudioNode::process(AudioSampleBuffer &buffer,
                             MidiBuffer &midiMessages,
                             int& nSamples)
 {
-
+	float gain;
 	//std::cout << "Audio node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
 
 	// clear the left and right channels
@@ -174,13 +174,14 @@ void AudioNode::process(AudioSampleBuffer &buffer,
 
 			if (channelPointers[i-2]->isMonitored)
 			{
+				gain=volume/( float(0x7fff) * channelPointers[i-2]->bitVolts );
 				buffer.addFrom(0,  		// destination channel
 					0,  			// destination start sample
 					buffer,      // source
 					i, 			// source channel
 					0,           // source start sample
 					buffer.getNumSamples(), //  number of samples
-					volume       // gain to apply
+					gain       // gain to apply
 					);
 
 				buffer.addFrom(1,  		// destination channel
@@ -189,7 +190,7 @@ void AudioNode::process(AudioSampleBuffer &buffer,
 					i, 			// source channel
 					0,           // source start sample
 					buffer.getNumSamples(), //  number of samples
-					volume       // gain to apply
+					gain       // gain to apply
 					);
 
 			}

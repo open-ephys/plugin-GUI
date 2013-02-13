@@ -97,15 +97,6 @@ private:
 	/** Sets the appropriate OpenGL viewport for drawing.*/
 	void setViewport(bool);
 
-
-	enum colorIds {
-		PROCESSOR_COLOR = 801,
-		FILTER_COLOR = 802,
-		SINK_COLOR = 803,
-		SOURCE_COLOR = 804,
-		UTILITY_COLOR = 805,
-	};
-
 	int currentColor;
 
 	/** Returns the height requested by the ProcessorList. Determines whether or not

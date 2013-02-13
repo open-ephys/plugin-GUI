@@ -30,10 +30,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include <ftdi.h>
 #include <stdio.h>
-#include "DataThreads/DataBuffer.h"
-#include "DataThreads/IntanThread.h"
-#include "DataThreads/FPGAThread.h"
-#include "DataThreads/FileReaderThread.h"
+#include "DataThreads/DataThread.h"
 #include "GenericProcessor.h"
 #include "../UI/UIComponent.h"
 
@@ -51,13 +48,13 @@ class SourceNode : public GenericProcessor,
 
 {
 public:
-	
+
 	// real member functions:
 	SourceNode(const String& name);
 	~SourceNode();
 
 	void enabledState(bool t);
-	
+
 	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
 
 	void setParameter (int parameterIndex, float newValue);
@@ -78,13 +75,13 @@ public:
 	bool isSource() {return true;}
 
 	void acquisitionStopped();
-    
+
     DataThread* getThread();
-    
+
     void actionListenerCallback(const String& message);
-    
+
     int getTTLState();
-	
+
 private:
 
 	int numEventChannels;
@@ -101,13 +98,12 @@ private:
 	uint64 timestamp;
 	int16* eventCodeBuffer;
 	int* eventChannelState;
-    
-    
+
+
     int ttlState;
 
 	void updateSettings();
-
-	int* numSamplesInThisBuffer;
+	bool tryEnablingEditor();
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceNode);
 
@@ -115,4 +111,3 @@ private:
 
 
 #endif  // __SOURCENODE_H_DCE798F1__
-

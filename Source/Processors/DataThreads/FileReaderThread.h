@@ -41,7 +41,7 @@ class SourceNode;
 
   Has issues with setting the correct sampling rate.
 
-  @see DataThread, FileReader
+  @see DataThread
 
 */
 
@@ -60,13 +60,7 @@ public:
     float getBitVolts();
 	
 private:
-
-	int samplesPerBlock;
-
     int lengthOfInputFile;
-
-    int playHead;
-
     FILE* input;
 
 	float thisSample[16];
