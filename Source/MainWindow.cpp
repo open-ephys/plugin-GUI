@@ -171,7 +171,7 @@ void MainWindow::loadWindowBounds()
             int w = e->getIntAttribute("w");
             int h = e->getIntAttribute("h");
 
-            bool fs = e->getBoolAttribute("fullscreen");
+            // bool fs = e->getBoolAttribute("fullscreen");
 
             // without the correction, you get drift over time
 #ifdef WIN32

@@ -27,7 +27,7 @@
 #include "Channel.h"
 
 EventNode::EventNode()
-	: GenericProcessor("Event Generator"), Hz(1), accumulator(0)
+	: GenericProcessor("Event Generator"), accumulator(0), Hz(1)
 {
 
 	Array<var> hzValues;

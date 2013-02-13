@@ -80,7 +80,7 @@ void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
 	{
 		uint8* dataptr = event.getRawData();
 
-    	int eventNodeId = *(dataptr+1);
+    	// int eventNodeId = *(dataptr+1);
     	int eventId = *(dataptr+2);
     	int eventChannel = *(dataptr+3);
     	//int eventTime = event.getTimeStamp();

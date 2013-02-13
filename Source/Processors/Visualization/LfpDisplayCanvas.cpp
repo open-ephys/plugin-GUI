@@ -25,12 +25,12 @@
 
 #include <math.h>
 
-LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
-	 	xBuffer(105), yBuffer(2),
-	    plotHeight(180), selectedChan(-1), screenBufferIndex(0),
-	    timebase(1.0f), displayGain(2.f), displayBufferIndex(0),
-	    headerHeight(40), plotOverlap(200), interplotDistance(70),
-	    timeOffset(0.0f), footerHeight(0)
+LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) :
+	xBuffer(105), yBuffer(2),
+	timebase(1.0f), displayGain(2.f), timeOffset(0.0f), processor(n),
+	screenBufferIndex(0), displayBufferIndex(0),
+	plotHeight(180), headerHeight(40), footerHeight(0),
+	interplotDistance(70), plotOverlap(200), selectedChan(-1)
 {
 
 	nChans = processor->getNumInputs();
@@ -172,7 +172,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	    	for (int channel = 0; channel < nChans; channel++) {
 
 				gain = 1 / (processor->channels[channel]->bitVolts * float(0x7fff));
-				float bp =*(displayBuffer->getSampleData(channel, displayBufferIndex));
 	        	waves[channel][screenBufferIndex*2+1] = 
 	        		*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
 

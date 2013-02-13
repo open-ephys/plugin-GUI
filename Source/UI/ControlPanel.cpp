@@ -343,8 +343,8 @@ void ControlPanelButton::toggleState()
 
 
 
-ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) : 
-			graph (graph_), audio(audio_), open(false), initialize(true)
+ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
+	: graph (graph_), audio(audio_), initialize(true), open(false)
 {
 
 	if (1) {

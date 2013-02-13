@@ -164,8 +164,6 @@ void ProcessorGraph::clearSignalChain()
 void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
 {
 
-	ColourSelector* cs = dynamic_cast <ColourSelector*> (source);
-
 	for (int i = 0; i < getNumNodes(); i++)
 	{
 		 Node* node = getNode(i);

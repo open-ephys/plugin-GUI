@@ -25,10 +25,9 @@
 
 
 Channel::Channel(GenericProcessor* p, int n) :
-	processor(p), num(n), 
-	isEventChannel(false), isEnabled(true), isRecording(false), isMonitored(false), 
-	sampleRate(44100.0f), bitVolts(1.0f), eventType(0)
-
+	num(n), eventType(0), isEventChannel(false), isRecording(false),
+	isMonitored(false), isEnabled(true), processor(p),
+	sampleRate(44100.0f), bitVolts(1.0f)
 {
 	nodeId = p->getNodeId();
 

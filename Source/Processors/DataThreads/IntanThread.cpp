@@ -23,15 +23,10 @@
 
 #include "IntanThread.h"
 
-IntanThread::IntanThread(SourceNode* sn) : DataThread(sn),
-			vendorID(0x0403),
-			productID(0x6010),
-			baudrate(115200),
-			startCode(83),
-			stopCode(115),
-			ch(-1),
-			isTransmitting(false)
-
+IntanThread::IntanThread(SourceNode* sn)
+	: DataThread(sn),
+	  vendorID(0x0403), productID(0x6010), baudrate(115200),
+	  isTransmitting(false), startCode(83), stopCode(115), ch(-1)
 {
 
 	 dataBuffer = new DataBuffer(17,4096);
@@ -187,6 +182,7 @@ bool IntanThread::closeUSB()
     ftdi_usb_close(&ftdic);
     ftdi_deinit(&ftdic);
     std::cout << "FTDI interface destroyed." << std::endl;
+    return true;
 }
 
 
@@ -211,7 +207,7 @@ bool IntanThread::updateBuffer()
 	// Step 2: sort data
 	int TTLval, channelVal;
 
-    for (int index = 0; index < sizeof(buffer); index += 3) { 
+    for (size_t index = 0; index < sizeof(buffer); index += 3) { 
            
           ++ch;
            
