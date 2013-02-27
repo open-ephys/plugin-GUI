@@ -344,26 +344,31 @@ void RecordNode::openFile(Channel* ch)
 	std::cout << "OPENING FILE: " << ch->filename << std::endl;
 
 	File f = File(ch->filename);
+	FILE *chFile;
 
 	bool fileExists = f.exists();
 
-	ch->file = fopen(ch->filename.toUTF8(), "ab");
+	chFile = fopen(ch->filename.toUTF8(), "ab");
 
 	if (!fileExists)
 	{
 		// create and write header
 		std::cout << "Writing header." << std::endl;
 		String header = generateHeader(ch);
-		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), ch->file);
+		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), chFile);
 	} else {
 		std::cout << "File already exists, just opening." << std::endl;
 	}
+	//To avoid a race condition resulting on data written before the header, 
+	//do not assign the channel pointer until the header has been written
+	ch->file = chFile; 
 }
 
 void RecordNode::closeFile(Channel* ch)
 {
 	std::cout << "CLOSING FILE: " << ch->filename << std::endl;
-	fclose(ch->file);
+	if (ch->file != NULL)
+		fclose(ch->file);
 }
 
 String RecordNode::generateHeader(Channel* ch)
@@ -459,6 +464,9 @@ float RecordNode::getFreeSpace()
 
 void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 {
+	if (channelPointers[channel]->file == NULL)
+		return;
+
 	float scaleFactor = float(0x7fff) * channelPointers[channel]->bitVolts;
 	// scale the data appropriately -- currently just getting it into the right
 	// range; actually need to take into account the gain of each channel
