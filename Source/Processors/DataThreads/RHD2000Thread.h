@@ -20,9 +20,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+  
 
-#ifndef __FPGATHREAD_H_FBB22A45__
-#define __FPGATHREAD_H_FBB22A45__
+#ifndef __RHD2000THREAD_H_2C4CBD67__
+#define __RHD2000THREAD_H_2C4CBD67__
+
 
 #ifdef WIN32
 #include <Windows.h>
@@ -32,25 +34,30 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "rhythm-api/rhd2000evalboard.h"
+#include "rhythm-api/rhd2000registers.h"
+#include "rhythm-api/rhd2000datablock.h"
 #include "rhythm-api/okFrontPanelDLL.h"
+
 #include "DataThread.h"
+
 
 class SourceNode;
 
 /**
  
-  Communicates with the Open Ephys acquisition board via an Opal Kelly FPGA.
+  Communicates with the RHD2000 Evaluation Board from Intan Technologies
 
   @see DataThread, SourceNode
 
 */
 
-class FPGAThread : public DataThread
+class RHD2000Thread : public DataThread
 
 {
 public:
-	FPGAThread(SourceNode* sn);
-	~FPGAThread();
+	RHD2000Thread(SourceNode* sn);
+	~RHD2000Thread();
 
 	bool foundInputSource();
 	int getNumChannels();
@@ -59,57 +66,21 @@ public:
     
     int getNumEventChannels();
 
-    void setOutputHigh();
-    void setOutputLow();
+   // void setOutputHigh();
+    //void setOutputLow();
 
 private:
 
-	okCFrontPanel* dev;
-	char bitfile[128];
-	char dll_date[32], dll_time[32];
-	bool isTransmitting;
-	bool deviceFound;
+	Rhd2000EvalBoard *evalBoard;
 
-	double filter_A;
-	double filter_B;
-	double filter_states[256];
-
-
-	bool initializeFPGA(bool);
-	bool closeFPGA();
+	int numChannels;
 
 	bool startAcquisition();
 	bool stopAcquisition();
 
-    int alignBuffer(int nBytes);
-    
-    void checkTTLState();
-
-	unsigned char pBuffer[500000];  // size of the data requested in each buffer
-    int bytesToRead;
-    unsigned char overflowBuffer[20000];
-    
-    int overflowSize;
-    
-    int ttl_out;
-    
-    int ttlState;
-    
-    int ttlOutputVal;
-    int accumulator;
-
-    bool bufferWasAligned;
-
-	float thisSample[256];
-
-	int numchannels;
-	int Ndatabytes;
-
 	bool updateBuffer();
 	
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FPGAThread);
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RHD2000Thread);
 };
 
-
-
-#endif  // __FPGATHREAD_H_FBB22A45__
+#endif  // __RHD2000THREAD_H_2C4CBD67__

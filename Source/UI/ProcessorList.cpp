@@ -51,6 +51,7 @@ ProcessorList::ProcessorList()
 	sources->addSubItem(new ProcessorListItem("Intan Demo Board"));
 	sources->addSubItem(new ProcessorListItem("Signal Generator"));
 	sources->addSubItem(new ProcessorListItem("Custom FPGA"));
+	sources->addSubItem(new ProcessorListItem("RHD2000 USB Board"));
 	sources->addSubItem(new ProcessorListItem("File Reader"));
 	sources->addSubItem(new ProcessorListItem("Event Generator"));
 

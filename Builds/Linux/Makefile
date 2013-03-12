@@ -114,8 +114,12 @@ OBJECTS := \
   $(OBJDIR)/AudioEditor_fb2c6555.o \
   $(OBJDIR)/FilterEditor_dfe1f39d.o \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
+  $(OBJDIR)/okFrontPanelDLL_87687880.o \
+  $(OBJDIR)/rhd2000datablock_722d8dae.o \
+  $(OBJDIR)/rhd2000evalboard_e0b412d5.o \
+  $(OBJDIR)/rhd2000registers_cf6cd63b.o \
+  $(OBJDIR)/RHD2000Thread_23e0b041.o \
   $(OBJDIR)/FileReaderThread_933ea08.o \
-  $(OBJDIR)/okFrontPanelDLL_158af498.o \
   $(OBJDIR)/FPGAThread_a8dc34ed.o \
   $(OBJDIR)/DataBuffer_6ae4f549.o \
   $(OBJDIR)/IntanThread_32126b71.o \
@@ -515,14 +519,34 @@ $(OBJDIR)/GenericEditor_becb2ad6.o: ../../Source/Processors/Editors/GenericEdito
 	@echo "Compiling GenericEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/okFrontPanelDLL_87687880.o: ../../Source/Processors/DataThreads/rhythm-api/okFrontPanelDLL.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling okFrontPanelDLL.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/rhd2000datablock_722d8dae.o: ../../Source/Processors/DataThreads/rhythm-api/rhd2000datablock.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling rhd2000datablock.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/rhd2000evalboard_e0b412d5.o: ../../Source/Processors/DataThreads/rhythm-api/rhd2000evalboard.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling rhd2000evalboard.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/rhd2000registers_cf6cd63b.o: ../../Source/Processors/DataThreads/rhythm-api/rhd2000registers.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling rhd2000registers.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RHD2000Thread_23e0b041.o: ../../Source/Processors/DataThreads/RHD2000Thread.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RHD2000Thread.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/FileReaderThread_933ea08.o: ../../Source/Processors/DataThreads/FileReaderThread.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling FileReaderThread.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/okFrontPanelDLL_158af498.o: ../../Source/Processors/DataThreads/okFrontPanelDLL.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling okFrontPanelDLL.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/FPGAThread_a8dc34ed.o: ../../Source/Processors/DataThreads/FPGAThread.cpp

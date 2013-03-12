@@ -382,7 +382,8 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 
 		if (subProcessorType.equalsIgnoreCase("Intan Demo Board") ||
 			subProcessorType.equalsIgnoreCase("File Reader") ||
-			subProcessorType.equalsIgnoreCase("Custom FPGA")) {
+			subProcessorType.equalsIgnoreCase("Custom FPGA") ||
+			subProcessorType.equalsIgnoreCase("RHD2000 Eval Board")) {
 
 			if (subProcessorType.equalsIgnoreCase("Intan Demo Board") &&
 				!processorWithSameNameExists(subProcessorType)) {

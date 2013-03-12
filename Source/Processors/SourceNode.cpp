@@ -26,6 +26,7 @@
 #include "DataThreads/IntanThread.h"
 #include "DataThreads/FPGAThread.h"
 #include "DataThreads/FileReaderThread.h"
+#include "DataThreads/RHD2000Thread.h"
 #include "Editors/SourceNodeEditor.h"
 #include "Channel.h"
 #include <stdio.h>
@@ -44,6 +45,8 @@ SourceNode::SourceNode(const String& name_)
 		dataThread = new FPGAThread(this);//FPGAThread(this);
 	} else if (getName().equalsIgnoreCase("File Reader")) {
 		dataThread = new FileReaderThread(this);
+	} else if (getName().equalsIgnoreCase("RHD2000 USB Board")) {
+		dataThread = new RHD2000Thread(this);
 	}
 
 	if (dataThread != 0)
