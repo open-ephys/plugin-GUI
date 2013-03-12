@@ -36,7 +36,7 @@ FPGAThread::FPGAThread(SourceNode* sn)
 	//const char* bitfilename = "./pipetest.bit";
 #if JUCE_LINUX
 	const char* bitfilename = "./pipetest.bit";
-    const char* libname = "./libokFrontPanel64.so";
+    const char* libname = "./libokFrontPanel.so";
 #endif
 #if JUCE_WIN32
 	const char* bitfilename = "pipetest.bit";

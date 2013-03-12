@@ -59,6 +59,9 @@ RHD2000Thread::~RHD2000Thread() {
 	
 	std::cout << "RHD2000 interface destroyed." << std::endl;
 
+	int ledArray[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    evalBoard->setLedDisplay(ledArray);
+
 	deleteAndZero(evalBoard);
 
 }
@@ -120,5 +123,5 @@ bool RHD2000Thread::updateBuffer()
 {
 
 	// data transfer and sorting code goes here
-	
+
 }
