@@ -38,7 +38,7 @@ DataThread::~DataThread()
 
 void DataThread::run() {
 
-	while (! threadShouldExit())
+	while (!threadShouldExit())
 	{
 
 		if (!updateBuffer()) {

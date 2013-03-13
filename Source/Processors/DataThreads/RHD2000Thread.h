@@ -66,14 +66,18 @@ public:
     
     int getNumEventChannels();
 
-   // void setOutputHigh();
-    //void setOutputLow();
-
 private:
 
-	Rhd2000EvalBoard *evalBoard;
+	ScopedPointer<Rhd2000EvalBoard> evalBoard;
+	ScopedPointer<Rhd2000Registers> chipRegisters;
+	ScopedPointer<Rhd2000DataBlock> dataBlock;
 
 	int numChannels;
+	bool deviceFound;
+
+	float thisSample[256];
+
+	int blockSize;
 
 	bool startAcquisition();
 	bool stopAcquisition();

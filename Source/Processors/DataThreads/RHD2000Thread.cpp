@@ -29,40 +29,70 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn)
 	evalBoard = new Rhd2000EvalBoard;
 
 	 // Open Opal Kelly XEM6010 board.
-    evalBoard->open();
+    int return_code = evalBoard->open();
 
-    string bitfilename;
-    bitfilename = "rhd2000.bit"; 
-    evalBoard->uploadFpgaBitfile(bitfilename);
+    if (return_code == 1)
+    {
+    	deviceFound = true;
+    } else {
+    	deviceFound = false;
+    }
 
-     // Initialize board.
-    evalBoard->initialize();
-    evalBoard->setDataSource(0, Rhd2000EvalBoard::PortA1);
+    if (deviceFound)
+    {
+	    string bitfilename;
+	    bitfilename = "rhd2000.bit"; 
+	    evalBoard->uploadFpgaBitfile(bitfilename);
 
-    numChannels = 32;
+	     // Initialize board.
+	    evalBoard->initialize();
+	    evalBoard->setDataSource(0, Rhd2000EvalBoard::PortA1);
+	    evalBoard->setContinuousRunMode(false);
 
-    // Select per-channel amplifier sampling rate.
-    evalBoard->setSampleRate(Rhd2000EvalBoard::SampleRate20000Hz);
+	    numChannels = 32;
 
-    // Now that we have set our sampling rate, we can set the MISO sampling delay
-    // which is dependent on the sample rate.  We assume a 3-foot cable.
-    evalBoard->setCableLengthFeet(Rhd2000EvalBoard::PortA, 3.0);
+	    // Select per-channel amplifier sampling rate.
+	    evalBoard->setSampleRate(Rhd2000EvalBoard::SampleRate10000Hz);
 
-    // Let's turn one LED on to indicate that the program is running.
-    int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
-    evalBoard->setLedDisplay(ledArray);
+	    // Now that we have set our sampling rate, we can set the MISO sampling delay
+	    // which is dependent on the sample rate.  We assume a 3-foot cable.
+	    evalBoard->setCableLengthFeet(Rhd2000EvalBoard::PortA, 3.0);
+
+	    // Let's turn one LED on to indicate that the program is running.
+	    int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
+	    evalBoard->setLedDisplay(ledArray);
+
+	    // Set up an RHD2000 register object using this sample rate to optimize MUX-related
+    	// register settings.
+    	chipRegisters = new Rhd2000Registers(evalBoard->getSampleRate());
+
+    	// Before generating register configuration command sequences, set amplifier
+    	// bandwidth paramters.
+    	double dspCutoffFreq;
+    	dspCutoffFreq = chipRegisters->setDspCutoffFreq(10.0);
+    	cout << "Actual DSP cutoff frequency: " << dspCutoffFreq << " Hz" << endl;
+
+    	chipRegisters->setLowerBandwidth(1.0);
+    	chipRegisters->setUpperBandwidth(7500.0);
+
+  		dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
+
+  		dataBuffer = new DataBuffer(numChannels, 10000);
+
+
+	}
 
 }
-
 
 RHD2000Thread::~RHD2000Thread() {
 	
 	std::cout << "RHD2000 interface destroyed." << std::endl;
 
-	int ledArray[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    evalBoard->setLedDisplay(ledArray);
-
-	deleteAndZero(evalBoard);
+	if (deviceFound)
+	{
+		int ledArray[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    	evalBoard->setLedDisplay(ledArray);
+	}
 
 }
 
@@ -79,7 +109,7 @@ int RHD2000Thread::getNumEventChannels()
 
 float RHD2000Thread::getSampleRate()
 {
-	return 28344.67;
+	return 10000.00;
 }
 
 float RHD2000Thread::getBitVolts()
@@ -90,7 +120,7 @@ float RHD2000Thread::getBitVolts()
 bool RHD2000Thread::foundInputSource()
 {
 
-	return true;
+	return deviceFound;
 
 }
 
@@ -99,7 +129,30 @@ bool RHD2000Thread::startAcquisition()
 
 	//memset(filter_states,0,256*sizeof(double)); 
 
+	 int ledArray[8] = {1, 1, 0, 0, 0, 0, 0, 0};
+    evalBoard->setLedDisplay(ledArray);
+
+    cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
+    cout << "Is eval board running: " << evalBoard->isRunning() << endl;
+
+
+    // If this happens too soon after acquisition is stopped, problems ensue
+    std::cout << "Flushing FIFO." << std::endl;
+    evalBoard->flush();
+
+
+    std::cout << "Setting max timestep." << std::endl;
+    evalBoard->setMaxTimeStep(100);
+	evalBoard->setContinuousRunMode(true);
+
+	std::cout << "Starting acquisition." << std::endl;
+	evalBoard->run();
+
+	   blockSize = dataBlock->calculateDataBlockSizeInWords(evalBoard->getNumEnabledDataStreams());
+
+
    startThread();
+
 
   // isTransmitting = true;
   // accumulator = 0;
@@ -111,10 +164,22 @@ bool RHD2000Thread::stopAcquisition()
 {
 
 //	isTransmitting = false;
+	std::cout << "RHD2000 data thread stopping acquisition." << std::endl;
 
 	if (isThreadRunning()) {
         signalThreadShouldExit();
     }
+
+	evalBoard->setContinuousRunMode(false);
+	evalBoard->setMaxTimeStep(0);
+
+	cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
+
+   	std::cout << "Stopped eval board." << std::endl;
+
+
+    int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
+    evalBoard->setLedDisplay(ledArray);
 
     return true;
 }
@@ -122,6 +187,40 @@ bool RHD2000Thread::stopAcquisition()
 bool RHD2000Thread::updateBuffer()
 {
 
-	// data transfer and sorting code goes here
+	//cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
+	//cout << "Block size: " << blockSize << endl;
+
+	bool return_code;
+	int lastBlock;
+
+	for (int n = 0; n < 1; n++)
+	{
+		if (evalBoard->numWordsInFifo() >= blockSize)
+		{
+
+			return_code = evalBoard->readDataBlock(dataBlock);
+
+			for (int samp = 0; samp < dataBlock->getSamplesPerDataBlock(); samp++)
+			{
+
+				for (int chan = 0; chan < numChannels; chan++)
+				{
+
+					int value = dataBlock->amplifierData[0][chan][samp];
+
+					thisSample[chan] = double(value)*0.01;
+				}
+
+				timestamp = dataBlock->timeStamp[samp];
+				eventCode = dataBlock->ttlIn[samp];
+
+				dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+			}
+
+		} 
+	}
+	
+
+	return true;
 
 }
