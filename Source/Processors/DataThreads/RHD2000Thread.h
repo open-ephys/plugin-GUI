@@ -72,6 +72,8 @@ private:
 	ScopedPointer<Rhd2000Registers> chipRegisters;
 	ScopedPointer<Rhd2000DataBlock> dataBlock;
 
+	Array<int> numChannelsPerDataStream;
+
 	int numChannels;
 	bool deviceFound;
 

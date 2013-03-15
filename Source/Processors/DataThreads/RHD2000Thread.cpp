@@ -47,9 +47,13 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn)
 	     // Initialize board.
 	    evalBoard->initialize();
 	    evalBoard->setDataSource(0, Rhd2000EvalBoard::PortA1);
+	    evalBoard->setDataSource(1, Rhd2000EvalBoard::PortB1);
 	    evalBoard->setContinuousRunMode(false);
 
-	    numChannels = 32;
+	    numChannelsPerDataStream.add(32);
+	    numChannelsPerDataStream.add(32);
+
+	    numChannels = 64;
 
 	    // Select per-channel amplifier sampling rate.
 	    evalBoard->setSampleRate(Rhd2000EvalBoard::SampleRate10000Hz);
@@ -57,6 +61,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn)
 	    // Now that we have set our sampling rate, we can set the MISO sampling delay
 	    // which is dependent on the sample rate.  We assume a 3-foot cable.
 	    evalBoard->setCableLengthFeet(Rhd2000EvalBoard::PortA, 3.0);
+	    evalBoard->setCableLengthFeet(Rhd2000EvalBoard::PortB, 3.0);
 
 	    // Let's turn one LED on to indicate that the program is running.
 	    int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
@@ -99,7 +104,7 @@ RHD2000Thread::~RHD2000Thread() {
 
 int RHD2000Thread::getNumChannels()
 {
-	return 32;
+	return numChannels;
 }
 
 int RHD2000Thread::getNumEventChannels()
@@ -142,16 +147,15 @@ bool RHD2000Thread::startAcquisition()
 
 
     std::cout << "Setting max timestep." << std::endl;
-    evalBoard->setMaxTimeStep(100);
+    //evalBoard->setMaxTimeStep(100);
 	evalBoard->setContinuousRunMode(true);
 
 	std::cout << "Starting acquisition." << std::endl;
 	evalBoard->run();
 
-	   blockSize = dataBlock->calculateDataBlockSizeInWords(evalBoard->getNumEnabledDataStreams());
+	blockSize = dataBlock->calculateDataBlockSizeInWords(evalBoard->getNumEnabledDataStreams());
 
-
-   startThread();
+    startThread();
 
 
   // isTransmitting = true;
@@ -191,9 +195,8 @@ bool RHD2000Thread::updateBuffer()
 	//cout << "Block size: " << blockSize << endl;
 
 	bool return_code;
-	int lastBlock;
 
-	for (int n = 0; n < 1; n++)
+	for (int n = 0; n < 10; n++)
 	{
 		if (evalBoard->numWordsInFifo() >= blockSize)
 		{
@@ -203,12 +206,17 @@ bool RHD2000Thread::updateBuffer()
 			for (int samp = 0; samp < dataBlock->getSamplesPerDataBlock(); samp++)
 			{
 
-				for (int chan = 0; chan < numChannels; chan++)
+				for (int dataStream = 0; dataStream < 1; dataStream++)
 				{
 
-					int value = dataBlock->amplifierData[0][chan][samp];
+					for (int chan = 0; chan < numChannelsPerDataStream[dataStream]; chan++)
+					{
 
-					thisSample[chan] = double(value)*0.01;
+						int value = dataBlock->amplifierData[dataStream][chan][samp];
+
+						thisSample[chan] = float(value-32768)*0.195f;
+					}
+
 				}
 
 				timestamp = dataBlock->timeStamp[samp];
