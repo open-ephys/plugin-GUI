@@ -160,9 +160,9 @@ void DiskSpaceMeter::paint(Graphics& g)
 Clock::Clock() : isRunning(false), isRecording(false)
 {
 
-	MemoryInputStream mis(BinaryData::cpmonolightserialized, BinaryData::cpmonolightserializedSize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    clockFont = Font(typeface);
+	//MemoryInputStream mis(BinaryData::cpmonolightserialized, BinaryData::cpmonolightserializedSize, false);
+    //Typeface::Ptr typeface = new CustomTypeface(mis);
+    clockFont = Font("Default Light", 30, Font::plain);
 
 	totalTime = 0;
 	totalRecordTime = 0;
@@ -224,7 +224,7 @@ void Clock::drawTime(Graphics& g)
 	timeString += " s";
 
 	g.setFont(clockFont);
-	g.setFont(30);
+	//g.setFont(30);
 	g.drawText(timeString, 0, 0, getWidth(), getHeight(), Justification::left, false);
 
 } 

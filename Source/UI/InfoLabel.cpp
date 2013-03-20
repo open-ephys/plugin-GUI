@@ -23,12 +23,11 @@
 
 #include "InfoLabel.h"
 
-InfoLabel::InfoLabel() : xBuffer(10), yBuffer(10)
+InfoLabel::InfoLabel()
 {
-	layout.SetAlignment(FTGL::ALIGN_LEFT);
-	
-	layout.SetFont(getFont(miso_regular));
-	
+
+	labelFont = Font("Paragraph", 18, Font::plain);
+
 	infoString = "Welcome to the Open Ephys GUI!\n \n"
 				 "To get starting using the GUI, drag a processor from the list "
 				 "on the left and drop it onto the signal chain. Each processor is "
@@ -60,7 +59,6 @@ InfoLabel::InfoLabel() : xBuffer(10), yBuffer(10)
 				 "It is not fit for conducting scientific experiments of any kind."
 				 ;
 
-	refreshMs = 100; // override 5 s refresh rate
 }
 
 InfoLabel::~InfoLabel()
@@ -69,60 +67,14 @@ InfoLabel::~InfoLabel()
 }
 
 
-void InfoLabel::newOpenGLContextCreated()
+void InfoLabel::paint(Graphics& g)
 {
+	g.fillAll(Colours::grey);
 
-	setUp2DCanvas();
-	activateAntiAliasing();
+	g.setFont(labelFont);
 
-	setClearColor(lightgrey);
-	
-	resized();
+	g.setColour(Colours::black);
 
+	g.drawFittedText(infoString, 10, 10, getWidth()-10, getHeight()-10, Justification::left, 100);
 
-}
-
-void InfoLabel::renderOpenGL()
-{
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffers to preset values
-	drawLabel();
-	drawScrollBars();
-
-   // glFlush();
-    //swapBuffers();
-}
-
-
-void InfoLabel::drawLabel()
-{
-	
-	glViewport(xBuffer,
-		 	   getHeight()-getTotalHeight()-yBuffer + getScrollAmount(),
-		 	   getWidth()-2*xBuffer,
-		 	   getTotalHeight());
-
-	glColor4f(0.3,0.3,0.3,1.0);
-
-	glRasterPos2f(15.0/float(getWidth()),0.05f);
-	getFont(miso_regular)->FaceSize(18.0f);
-	layout.Render(infoString, -1, FTPoint(), FTGL::RENDER_FRONT);
-
-}
-
-void InfoLabel::canvasWasResized() 
-{
-
-	layout.SetLineLength(getWidth()-45);
-
-}
-
-int InfoLabel::getTotalHeight() 
-{
-
-	float H = layout.BBox(infoString).Lower().Yf();
-
-	//std::cout << H << std::endl;
-
-	return int(-H) + 100;
 }

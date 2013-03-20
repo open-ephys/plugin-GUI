@@ -110,14 +110,14 @@ DataViewport::~DataViewport()
 
  void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
  {
-     OpenGLCanvas* canvas = (OpenGLCanvas*) getTabContentComponent(newIndex);
+    // OpenGLCanvas* canvas = (OpenGLCanvas*) getTabContentComponent(newIndex);
 
-     if (canvas != 0) {
-         canvas->refreshState();
-     }
+    // if (canvas != 0) {
+    //     canvas->refreshState();
+    // }
 
-     std::cout << "CURRENT TAB CHANGED" << std::endl;
-     std::cout << "number of editors remaining: " << editorArray.size() << std::endl;
+    // std::cout << "CURRENT TAB CHANGED" << std::endl;
+     //std::cout << "number of editors remaining: " << editorArray.size() << std::endl;
 
      if (!shutdown) {
         getEditorViewport()->makeEditorVisible(editorArray[newIndex]);

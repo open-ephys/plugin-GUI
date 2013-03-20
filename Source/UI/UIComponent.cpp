@@ -35,7 +35,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 
 	dataViewport = new DataViewport ();
 	addChildComponent(dataViewport);
-	dataViewport->addTabToDataViewport("Info",infoLabel,0);
+	dataViewport->addTabToDataViewport("Info", infoLabel,0);
 
 	std::cout << "Created data viewport." << std::endl;
 
