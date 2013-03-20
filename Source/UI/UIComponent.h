@@ -183,7 +183,7 @@ private:
 
 */
 
-class EditorViewportButton : public OpenGLCanvas
+class EditorViewportButton : public Component
 {
 public:
 	EditorViewportButton(UIComponent* ui);
@@ -192,17 +192,8 @@ public:
 	/** Returns the open/closed state of the button. */
 	bool isOpen() {return open;}
 
-	/** Configures a new OpenGL context for drawing. */
-	void newOpenGLContextCreated();
-
 	/** Draws the button. */
-	void renderOpenGL();
-
-	/** Draws the name of the button. */
-	void drawName();
-
-	/** Draws the button. */
-	void drawButton();
+	void paint(Graphics& g);
 
 	/** Switches the open/closed state of the button. */
 	void toggleState();
@@ -215,6 +206,8 @@ private:
 
 	UIComponent* UI;
 	bool open;
+
+	Font buttonFont;
 
 };
 

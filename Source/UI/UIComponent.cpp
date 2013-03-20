@@ -421,6 +421,8 @@ bool UIComponent::perform (const InvocationInfo& info)
 EditorViewportButton::EditorViewportButton(UIComponent* ui) : UI(ui)
 {
 	open = true;
+
+	buttonFont = Font("Default Light", 25, Font::plain);
 }
 
 EditorViewportButton::~EditorViewportButton()
@@ -428,54 +430,40 @@ EditorViewportButton::~EditorViewportButton()
 	
 }
 
-void EditorViewportButton::newOpenGLContextCreated()
+
+void EditorViewportButton::paint(Graphics& g)
 {
-	
-	setUp2DCanvas();
-	activateAntiAliasing();
 
-	setClearColor(darkgrey);
+	g.fillAll(Colour(58,58,58));
 
-	//glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
+	g.setColour(Colours::white);
+	g.setFont(buttonFont);
+	g.drawText("SIGNAL CHAIN", 10, 0, getWidth(), getHeight(), Justification::left, false);
 
-}
+	g.setColour(Colours::white);
 
+	Path p;
 
-void EditorViewportButton::renderOpenGL()
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-	drawName();
-	drawButton();
-}
-
-void EditorViewportButton::drawName()
-{
-	glColor4f(1.0f,1.0f,1.0f,1.0f);
-	glRasterPos2f(8.0/getWidth(),0.75f);
-	getFont(cpmono_light)->FaceSize(23);
-	getFont(cpmono_light)->Render("SIGNAL CHAIN");
-	
-}
-
-void EditorViewportButton::drawButton()
-{
-	glColor4f(1.0f,1.0f,1.0f,1.0f);
-	glLineWidth(1.0f);
-
-	glBegin(GL_LINE_LOOP);
+	float h = getHeight();
+	float w = getWidth()-5;
 
 	if (open)
 	{
-		glVertex2f(0.90,0.65);
-		glVertex2f(0.925,0.35);
+		p.addTriangle(w-h+0.2f*h, 0.8f*h,
+			          w-h+0.5f*h, 0.2f*h,
+			          w-h+0.8f*h, 0.8f*h);
 	} else {
-		glVertex2f(0.95,0.35);
-		glVertex2f(0.90,0.5);
+		p.addTriangle(w-h+0.2f*h, 0.5f*h,
+			          w-h+0.8f*h, 0.2f*h,
+			          w-h+0.8f*h, 0.8f*h);
 	}
-	glVertex2f(0.95,0.65);
-	glEnd();
+
+	PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
+
+	g.strokePath(p, pst);
 
 }
+
 
 void EditorViewportButton::mouseDown(const MouseEvent& e)
 {
