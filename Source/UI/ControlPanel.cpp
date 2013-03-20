@@ -217,10 +217,6 @@ void Clock::drawTime(Graphics& g)
 	}
 
 	String timeString = "";
-
-	// if (m < 10)
-	// 	String timeString = "  ";
-	// else if (m < 100)
 		
 	timeString += m;
 	timeString += " min ";
@@ -230,12 +226,6 @@ void Clock::drawTime(Graphics& g)
 	g.setFont(clockFont);
 	g.setFont(30);
 	g.drawText(timeString, 0, 0, getWidth(), getHeight(), Justification::left, false);
-
-	// glRasterPos2f(8.0/getWidth(),0.75f);
-
-	// getFont(cpmono_light)->FaceSize(23);
-	// getFont(cpmono_light)->Render(timeString);
-
 
 } 
 
@@ -292,40 +282,34 @@ ControlPanelButton::~ControlPanelButton()
 	
 }
 
-void ControlPanelButton::newOpenGLContextCreated()
+void ControlPanelButton::paint(Graphics& g)
 {
+	g.fillAll(Colour(58,58,58));
 
-	setUp2DCanvas();
-	activateAntiAliasing();
-	setClearColor(darkgrey);
-}
+	g.setColour(Colours::white);
 
+	Path p;
 
-void ControlPanelButton::renderOpenGL()
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-	drawButton();
-}
-
-void ControlPanelButton::drawButton()
-{
-	glColor4f(1.0f,1.0f,1.0f,1.0f);
-	glLineWidth(1.0f);
-
-	glBegin(GL_LINE_LOOP);
+	float h = getHeight();
+	float w = getWidth();
 
 	if (open)
 	{
-		glVertex2f(0.5, 0.8);
-		glVertex2f(0.2, 0.2);
+		p.addTriangle(0.5f*w, 0.8f*h,
+			          0.2f*w, 0.2f*h,
+			          0.8f*w, 0.2f*h);
 	} else {
-		glVertex2f(0.8, 0.8);
-		glVertex2f(0.2, 0.5);
+		p.addTriangle(0.8f*w, 0.8f*h,
+			          0.2f*w, 0.5f*h,
+			          0.8f*w, 0.2f*h);
 	}
-	glVertex2f(0.8, 0.2);
-	glEnd();
+
+	PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
+
+	g.strokePath(p, pst);
 
 }
+
 
 void ControlPanelButton::mouseDown(const MouseEvent& e)
 {

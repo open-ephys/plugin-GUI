@@ -196,7 +196,7 @@ class Clock : public Component
 		/** Sets the cumulative recording time to zero.*/
 		void resetRecordTime();
 
-		/** Draws the current time.*/
+		/** Renders the clock.*/
 		void paint(Graphics& g);
 
 	private:
@@ -214,7 +214,6 @@ class Clock : public Component
 
 		Font clockFont;
 
-		//FTPixmapFont* font;
 };
 
 /**
@@ -229,7 +228,7 @@ class Clock : public Component
 
 */
 
-class ControlPanelButton : public OpenGLCanvas
+class ControlPanelButton : public Component
 {
 public:
 	ControlPanelButton(ControlPanel* cp_);
@@ -241,14 +240,8 @@ public:
 	/** Toggles the open/closed state of the ControlPanelButton.*/
 	void toggleState();
 
-	/** Initializes an OpenGL context in which drawing occurs.*/
-	void newOpenGLContextCreated();
-
 	/** Draws the button. */
-	void renderOpenGL();
-
-	/** Draws the button. */
-	void drawButton();
+	void paint(Graphics& g);
 
 	/** Responds to mouse clicks within the button. */
 	void mouseDown(const MouseEvent& e);
