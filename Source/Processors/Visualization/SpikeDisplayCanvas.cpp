@@ -191,17 +191,17 @@ void SpikeDisplayCanvas::repositionSpikePlots(){
     totalHeight = getHeight() + (y + yIncrement);
 }
 
-void SpikeDisplayCanvas::newOpenGLContextCreated()
-{
-	std::cout<<"SpikeDisplayCanvas::newOpenGLContextCreated()"<<std::endl;
-	setUp2DCanvas();
-	activateAntiAliasing();
-	disablePointSmoothing();
+// void SpikeDisplayCanvas::newOpenGLContextCreated()
+// {
+// 	std::cout<<"SpikeDisplayCanvas::newOpenGLContextCreated()"<<std::endl;
+// 	setUp2DCanvas();
+// 	activateAntiAliasing();
+// 	disablePointSmoothing();
 
-	glClearColor (0.667, 0.698, 0.718, 1.0);
-	resized();
-	//endAnimation();
-}
+// 	glClearColor (0.667, 0.698, 0.718, 1.0);
+// 	resized();
+// 	//endAnimation();
+// }
 
 void SpikeDisplayCanvas::beginAnimation()
 {
@@ -284,25 +284,25 @@ void SpikeDisplayCanvas::canvasWasResized()
 	repositionSpikePlots();
 }
 
-void SpikeDisplayCanvas::renderOpenGL()
+void SpikeDisplayCanvas::paintCanvas(Graphics& g)
 {
-	//if(!plotsInitialized)
-	//	initializeSpikePlots();
+	// //if(!plotsInitialized)
+	// //	initializeSpikePlots();
 
-	glClearColor (0.667, 0.698, 0.718, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
+	// glClearColor (0.667, 0.698, 0.718, 1.0);
+	// glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
 
-	// Get Spikes from the processor
-	// Iterate through each spike, passing them individually to the appropriate plots and calling redraw before moving on to the next spike
-	 processSpikeEvents();
+	// // Get Spikes from the processor
+	// // Iterate through each spike, passing them individually to the appropriate plots and calling redraw before moving on to the next spike
+	//  processSpikeEvents();
 
-	 for (int i = 0; i < plots.size(); i++)
-	 {
-	 	plots[i]->redraw();
-	 	drawPlotTitle(i);
-	 }
+	//  for (int i = 0; i < plots.size(); i++)
+	//  {
+	//  	plots[i]->redraw();
+	//  	drawPlotTitle(i);
+	//  }
 
-	drawScrollBars();
+	// drawScrollBars();
  	
 }
 
@@ -395,8 +395,8 @@ void SpikeDisplayCanvas::drawPlotTitle(int chan){
 	String s = "Source:";//String("Channel ");
 	s += (chan+1);
 
-	getFont(cpmono_bold)->FaceSize(15);
-	getFont(cpmono_bold)->Render(s);
+//	getFont(cpmono_bold)->FaceSize(15);
+	//getFont(cpmono_bold)->Render(s);
 }
 
 int SpikeDisplayCanvas::getTotalHeight() 

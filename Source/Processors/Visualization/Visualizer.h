@@ -45,8 +45,8 @@ public:
 	Visualizer() {}
 	~Visualizer() {}
 
-	virtual void newOpenGLContextCreated() = 0;
-	virtual void renderOpenGL() = 0;
+	//virtual void newOpenGLContextCreated() = 0;
+	//virtual void renderOpenGL() = 0;
 
 	virtual void refreshState() = 0;
 

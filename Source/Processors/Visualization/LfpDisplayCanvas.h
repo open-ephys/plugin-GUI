@@ -46,8 +46,9 @@ class LfpDisplayCanvas : public Visualizer
 public: 
 	LfpDisplayCanvas(LfpDisplayNode* n);
 	~LfpDisplayCanvas();
-	void newOpenGLContextCreated();
-	void renderOpenGL();
+	//void newOpenGLContextCreated();
+	//void renderOpenGL();
+	void paintCanvas(Graphics& g);
 
 	void beginAnimation();
 	void endAnimation();
@@ -76,20 +77,20 @@ private:
 
 	static const int MAX_N_CHAN = 128;
 	static const int MAX_N_SAMP = 3000;
-	GLfloat waves[MAX_N_SAMP][MAX_N_SAMP*2]; // we need an x and y point for each sample
+//	GLfloat waves[MAX_N_SAMP][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
 	LfpDisplayNode* processor;
 	AudioSampleBuffer* displayBuffer;
 	MidiBuffer* eventBuffer;
 
-	void setViewport(int chan);
-	void setInfoViewport(int chan);
-	void drawBorder(bool isSelected);
-	void drawChannelInfo(int chan, bool isSelected);
-	void drawWaveform(int chan, bool isSelected);
-	void drawEvents();
-	void drawProgressBar();
-	void drawTimeline();
+	void setViewport(Graphics& g, int chan);
+	void setInfoViewport(Graphics& g, int chan);
+	void drawBorder(Graphics& g, bool isSelected);
+	void drawChannelInfo(Graphics& g, int chan, bool isSelected);
+	void drawWaveform(Graphics& g, int chan, bool isSelected);
+	void drawEvents(Graphics& g);
+	void drawProgressBar(Graphics& g);
+	void drawTimeline(Graphics& g);
 
 	bool checkBounds(int chan);
 

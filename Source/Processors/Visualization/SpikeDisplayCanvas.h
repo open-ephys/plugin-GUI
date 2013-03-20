@@ -54,8 +54,10 @@ class SpikeDisplayCanvas : public Visualizer
 public: 
 	SpikeDisplayCanvas(SpikeDisplayNode* n);
 	~SpikeDisplayCanvas();
-	void newOpenGLContextCreated();
-	void renderOpenGL();
+	//void newOpenGLContextCreated();
+	//void renderOpenGL();
+
+	void paintCanvas(Graphics& g);
 
 	void processSpikeEvents();
 

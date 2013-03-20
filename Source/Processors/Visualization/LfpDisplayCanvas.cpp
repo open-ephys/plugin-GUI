@@ -52,16 +52,16 @@ LfpDisplayCanvas::~LfpDisplayCanvas()
 }
 
 
-void LfpDisplayCanvas::newOpenGLContextCreated()
-{
+// void LfpDisplayCanvas::newOpenGLContextCreated()
+// {
 
-	setUp2DCanvas();
-	activateAntiAliasing();
+// 	setUp2DCanvas();
+// 	activateAntiAliasing();
 
-	glClearColor (0.667, 0.698, 0.718, 1.0);
-	resized();
+// 	glClearColor (0.667, 0.698, 0.718, 1.0);
+// 	resized();
 
-}
+// }
 
 void LfpDisplayCanvas::beginAnimation()
 {
@@ -132,8 +132,8 @@ void LfpDisplayCanvas::refreshScreenBuffer()
 
 		for (int n = 0; n < nChans; n++)
 		{
-			waves[n][i*2] = x;
-			waves[n][i*2+1] = 0.5f; // line in center of display
+			//waves[n][i*2] = x;
+			//waves[n][i*2+1] = 0.5f; // line in center of display
 		}
 	}
 
@@ -172,19 +172,19 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	    	for (int channel = 0; channel < nChans; channel++) {
 
 				gain = -1.0f / (processor->channels[channel]->bitVolts * float(0x7fff));
-	        	waves[channel][screenBufferIndex*2+1] = 
-	        		*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
+	       // 	waves[channel][screenBufferIndex*2+1] = 
+	        //		*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
 
-	        	waves[channel][screenBufferIndex*2+1] += 
-	        		*(displayBuffer->getSampleData(channel, nextPos))*alpha*gain*displayGain;
+	       // 	waves[channel][screenBufferIndex*2+1] += 
+	       // 		*(displayBuffer->getSampleData(channel, nextPos))*alpha*gain*displayGain;
 
-	        	waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
+	        //	waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
 
 	       	}
 
 	       	//// now do the event channel
-	       	waves[nChans][screenBufferIndex*2+1] = 
-	       		*(displayBuffer->getSampleData(nChans, displayBufferIndex));
+	       ////	waves[nChans][screenBufferIndex*2+1] = 
+	       //		*(displayBuffer->getSampleData(nChans, displayBufferIndex));
 
 
 	       	subSampleOffset += ratio;
@@ -214,9 +214,9 @@ void LfpDisplayCanvas::canvasWasResized()
 	refreshScreenBuffer();
 }
 
-void LfpDisplayCanvas::renderOpenGL()
+void LfpDisplayCanvas::paintCanvas(Graphics& g)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffers to preset values
+   // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffers to preset values
 
 	
 	//glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
@@ -234,280 +234,280 @@ void LfpDisplayCanvas::renderOpenGL()
 		if (checkBounds(i)) {
 			//setViewport(i);
 			//drawBorder(isSelected);
-			drawWaveform(i,isSelected);
-			drawChannelInfo(i,isSelected);
+			drawWaveform(g, i,isSelected);
+			drawChannelInfo(g, i,isSelected);
 			
 		}	
 	}
 
-	drawEvents();
+	drawEvents(g);
 
-	drawScrollBars();
+	drawScrollBars(g);
 
-	drawProgressBar();
+	drawProgressBar(g);
 
-	drawTimeline();
+	drawTimeline(g);
     
    // glFlush();
     //swapBuffers();
 	
 }
 
-void LfpDisplayCanvas::drawEvents()
+void LfpDisplayCanvas::drawEvents(Graphics& g)
 {
 
 	//std::cout << waves[nChans][1] << std::endl;
 
-	glViewport(xBuffer, 0, getWidth()-xBuffer, getHeight());
+	// glViewport(xBuffer, 0, getWidth()-xBuffer, getHeight());
 
-	glLineWidth(2.0f);
+	// glLineWidth(2.0f);
 	
 
-	// loop through events
-	for (int n = 1; n < getWidth()*2; n += 2)
-	{
+	// // loop through events
+	// for (int n = 1; n < getWidth()*2; n += 2)
+	// {
 
-		if (waves[nChans][n] > 0)
-		{
+	// 	if (waves[nChans][n] > 0)
+	// 	{
 
-			float x = (float(n-1)/2)/float(getWidth());
+	// 		float x = (float(n-1)/2)/float(getWidth());
 
-			int ttlState = int(waves[nChans][n]);
-			//std::cout << x << std::endl;
+	// 		int ttlState = int(waves[nChans][n]);
+	// 		//std::cout << x << std::endl;
 
-			if ((ttlState & 0x100) >> 8) // channel 8
-			{
-				glColor4f(0.9, 0.9, 0.9, 0.4);
+	// 		if ((ttlState & 0x100) >> 8) // channel 8
+	// 		{
+	// 			glColor4f(0.9, 0.9, 0.9, 0.4);
                 
-				glBegin(GL_LINE_STRIP);
-                glVertex2f(x, 0);
-                glVertex2f(x, 1);
-				glEnd();
-			}
+	// 			glBegin(GL_LINE_STRIP);
+ //                glVertex2f(x, 0);
+ //                glVertex2f(x, 1);
+	// 			glEnd();
+	// 		}
             
-            if ((ttlState & 0x80) >> 7) // channel 7
-			{
-				glColor4f(0.5, 0.3, 0.2, 0.1);
+ //            if ((ttlState & 0x80) >> 7) // channel 7
+	// 		{
+	// 			glColor4f(0.5, 0.3, 0.2, 0.1);
                 
-				glBegin(GL_LINE_STRIP);
-                glVertex2f(x, 0);
-                glVertex2f(x, 1);
-				glEnd();
-			}
+	// 			glBegin(GL_LINE_STRIP);
+ //                glVertex2f(x, 0);
+ //                glVertex2f(x, 1);
+	// 			glEnd();
+	// 		}
 
-            if ((ttlState & 0x40) >> 6) // channel 6
-			{
-				glColor4f(1.0, 0.3, 0.0, 0.1);
+ //            if ((ttlState & 0x40) >> 6) // channel 6
+	// 		{
+	// 			glColor4f(1.0, 0.3, 0.0, 0.1);
                 
-				glBegin(GL_LINE_STRIP);
-                glVertex2f(x, 0);
-                glVertex2f(x, 1);
-				glEnd();
-			}
+	// 			glBegin(GL_LINE_STRIP);
+ //                glVertex2f(x, 0);
+ //                glVertex2f(x, 1);
+	// 			glEnd();
+	// 		}
             
-			if ((ttlState & 0x20) >> 5) // channel 5
-			{
-				glColor4f(1.0, 0.0, 0.0, 0.1);
+	// 		if ((ttlState & 0x20) >> 5) // channel 5
+	// 		{
+	// 			glColor4f(1.0, 0.0, 0.0, 0.1);
 
-				glBegin(GL_LINE_STRIP);
-					glVertex2f(x, 0);
-					glVertex2f(x, 1);
-				glEnd();
-			}
+	// 			glBegin(GL_LINE_STRIP);
+	// 				glVertex2f(x, 0);
+	// 				glVertex2f(x, 1);
+	// 			glEnd();
+	// 		}
 
-			if ((ttlState & 0x10) >> 4) // channel 4
-			{
-				glColor4f(0.0, 1.0, 0.0, 0.1);
+	// 		if ((ttlState & 0x10) >> 4) // channel 4
+	// 		{
+	// 			glColor4f(0.0, 1.0, 0.0, 0.1);
 
-				glBegin(GL_LINE_STRIP);
-					glVertex2f(x, 0);
-					glVertex2f(x, 1);
-				glEnd();
+	// 			glBegin(GL_LINE_STRIP);
+	// 				glVertex2f(x, 0);
+	// 				glVertex2f(x, 1);
+	// 			glEnd();
 
-			}
+	// 		}
 
-			if ((ttlState & 0x8) >> 3) // channel 3
-			{
-				glColor4f(0.0, 0.0, 1.0, 0.1);
+	// 		if ((ttlState & 0x8) >> 3) // channel 3
+	// 		{
+	// 			glColor4f(0.0, 0.0, 1.0, 0.1);
 
-				glBegin(GL_LINE_STRIP);
-					glVertex2f(x, 0);
-					glVertex2f(x, 1);
-				glEnd();
+	// 			glBegin(GL_LINE_STRIP);
+	// 				glVertex2f(x, 0);
+	// 				glVertex2f(x, 1);
+	// 			glEnd();
 
-			}
+	// 		}
 
-			if ((ttlState & 0x4) >> 2) // channel 2
-			{
-				glColor4f(0.0, 1.0, 1.0, 0.1);
+	// 		if ((ttlState & 0x4) >> 2) // channel 2
+	// 		{
+	// 			glColor4f(0.0, 1.0, 1.0, 0.1);
 
-				glBegin(GL_LINE_STRIP);
-					glVertex2f(x, 0);
-					glVertex2f(x, 1);
-				glEnd();
+	// 			glBegin(GL_LINE_STRIP);
+	// 				glVertex2f(x, 0);
+	// 				glVertex2f(x, 1);
+	// 			glEnd();
 
-			}
+	// 		}
 
-			if ((ttlState & 0x2) >> 1) // channel 1
-			{
-				glColor4f(1.0, 1.0, 0.0, 0.1);
+	// 		if ((ttlState & 0x2) >> 1) // channel 1
+	// 		{
+	// 			glColor4f(1.0, 1.0, 0.0, 0.1);
 
-				glBegin(GL_LINE_STRIP);
-					glVertex2f(x, 0);
-					glVertex2f(x, 1);
-				glEnd();
+	// 			glBegin(GL_LINE_STRIP);
+	// 				glVertex2f(x, 0);
+	// 				glVertex2f(x, 1);
+	// 			glEnd();
 
-			}
+	// 		}
 
-			if ((ttlState & 0x1)) // channel 0
-			{
-				glColor4f(1.0, 1.0, 1.0, 0.1);
+	// 		if ((ttlState & 0x1)) // channel 0
+	// 		{
+	// 			glColor4f(1.0, 1.0, 1.0, 0.1);
 
-				glBegin(GL_LINE_STRIP);
-					glVertex2f(x, 0);
-					glVertex2f(x, 1);
-				glEnd();
+	// 			glBegin(GL_LINE_STRIP);
+	// 				glVertex2f(x, 0);
+	// 				glVertex2f(x, 1);
+	// 			glEnd();
 
-			}
+	// 		}
 
-		}
+	// 	}
 
-	}
+	// }
 }
 
-void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
+void LfpDisplayCanvas::drawWaveform(Graphics& g, int chan, bool isSelected)
 {
-	setViewport(chan);
+	setViewport(g, chan);
 
 	int w = getWidth();
 	
 	// draw zero line
-	glColor4f(1.0, 1.0, 1.0, 0.2);
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(0, 0.5);
-	glVertex2f(1, 0.5);
-	glEnd();
+	// glColor4f(1.0, 1.0, 1.0, 0.2);
+	// glBegin(GL_LINE_STRIP);
+	// glVertex2f(0, 0.5);
+	// glVertex2f(1, 0.5);
+	// glEnd();
 
 
-	// setWaveformColor(chan, isSelected);
-	if (isSelected)
-		glColor4f(1.0, 1.0, 1.0, 1.0);
-	else
-		glColor4f(1.0, 1.0, 1.0, 0.4);
+	// // setWaveformColor(chan, isSelected);
+	// if (isSelected)
+	// 	glColor4f(1.0, 1.0, 1.0, 1.0);
+	// else
+	// 	glColor4f(1.0, 1.0, 1.0, 0.4);
 
-	glEnableClientState(GL_VERTEX_ARRAY);
+	// glEnableClientState(GL_VERTEX_ARRAY);
 	
-	glVertexPointer( 2,         // number of coordinates per vertex (2, 3, or 4)
-	     			 GL_FLOAT,  // data type
-		   			 0, 	    // byte offset between consecutive vertices
-		   			 waves[chan]); // pointer to the first coordinate of the first vertex
+	// glVertexPointer( 2,         // number of coordinates per vertex (2, 3, or 4)
+	//      			 GL_FLOAT,  // data type
+	// 	   			 0, 	    // byte offset between consecutive vertices
+	// 	   			 waves[chan]); // pointer to the first coordinate of the first vertex
 
-    glDrawArrays(GL_LINE_STRIP, // mode
-    			 0,				// starting index
-    			 w);  // number of indices to be rendered
+ //    glDrawArrays(GL_LINE_STRIP, // mode
+ //    			 0,				// starting index
+ //    			 w);  // number of indices to be rendered
 	
-	glDisableClientState(GL_VERTEX_ARRAY);
+	// glDisableClientState(GL_VERTEX_ARRAY);
 
 
 }
 
-void LfpDisplayCanvas::drawProgressBar()
+void LfpDisplayCanvas::drawProgressBar(Graphics& g)
 {
 
-	glViewport(xBuffer,0,getWidth()-xBuffer,getHeight());
-	int w = getWidth();
+	// glViewport(xBuffer,0,getWidth()-xBuffer,getHeight());
+	// int w = getWidth();
 
-	// color of progress bar
-	glColor4f(1.0, 1.0, 0.1, 1.0);
+	// // color of progress bar
+	// glColor4f(1.0, 1.0, 0.1, 1.0);
 
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(float(screenBufferIndex)/w,0);
-	glVertex2f(float(screenBufferIndex)/w,1);
-	glEnd();
+	// glBegin(GL_LINE_STRIP);
+	// glVertex2f(float(screenBufferIndex)/w,0);
+	// glVertex2f(float(screenBufferIndex)/w,1);
+	// glEnd();
 }
 
-void LfpDisplayCanvas::drawTimeline()
+void LfpDisplayCanvas::drawTimeline(Graphics& g)
 {
 	
-	glViewport(0,getHeight()-headerHeight,getWidth(),headerHeight);
-	glColor4f(0.2f, 0.2f, 0.2f, 1.0f);
-	glRectf(0,0,1,1);
+	// glViewport(0,getHeight()-headerHeight,getWidth(),headerHeight);
+	// glColor4f(0.2f, 0.2f, 0.2f, 1.0f);
+	// glRectf(0,0,1,1);
 
-	glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+	// glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
 
-	String s = "TIME (s)";
+	// String s = "TIME (s)";
 
-	glRasterPos2f(5.0f/float(getWidth()), 0.7);
+	// glRasterPos2f(5.0f/float(getWidth()), 0.7);
 
-	getFont(cpmono_plain)->FaceSize(14);
-	getFont(cpmono_plain)->Render(s);
+	// getFont(cpmono_plain)->FaceSize(14);
+	// getFont(cpmono_plain)->Render(s);
 
-	glViewport(xBuffer,getHeight()-headerHeight,getWidth()-xBuffer,headerHeight);
+	// glViewport(xBuffer,getHeight()-headerHeight,getWidth()-xBuffer,headerHeight);
 
-	float step;
+	// float step;
 
-	if (timebase < 1)
-	{
-		step = 0.1;
-	} else if (timebase >= 1 && timebase < 2)
-	{
-		step = 0.2;
-	} else if (timebase >= 2 && timebase < 5)
-	{
-		step = 0.5;
-	} else {
-		step = 1.0;
-	}
+	// if (timebase < 1)
+	// {
+	// 	step = 0.1;
+	// } else if (timebase >= 1 && timebase < 2)
+	// {
+	// 	step = 0.2;
+	// } else if (timebase >= 2 && timebase < 5)
+	// {
+	// 	step = 0.5;
+	// } else {
+	// 	step = 1.0;
+	// }
 
-	float currentPos = 0;
-	glLineWidth(2.0);
+	// float currentPos = 0;
+	// glLineWidth(2.0);
 
-	while (currentPos < timebase)
-	{
+	// while (currentPos < timebase)
+	// {
 
-		float xcoord = currentPos / timebase;
+	// 	float xcoord = currentPos / timebase;
 
-		glBegin(GL_LINE_STRIP);
-		glVertex2f(xcoord,0);
-		glVertex2f(xcoord,1);
-		glEnd();
+	// 	glBegin(GL_LINE_STRIP);
+	// 	glVertex2f(xcoord,0);
+	// 	glVertex2f(xcoord,1);
+	// 	glEnd();
 
-		String s = String(currentPos, 1);
+	// 	String s = String(currentPos, 1);
 
-		glRasterPos2f(xcoord + 5.0f/float(getWidth()), 0.4);
+	// 	glRasterPos2f(xcoord + 5.0f/float(getWidth()), 0.4);
 
-		getFont(cpmono_plain)->Render(s);
+	// 	getFont(cpmono_plain)->Render(s);
 
-		currentPos += step;
-	}
+	// 	currentPos += step;
+	// }
 
-	glViewport(xBuffer, getHeight()-headerHeight, getWidth()-xBuffer, headerHeight/2);
-	glColor4f(0.2f, 0.2f, 0.4f, 1.0f);
-	glRectf(0,0,1,1);
+	// glViewport(xBuffer, getHeight()-headerHeight, getWidth()-xBuffer, headerHeight/2);
+	// glColor4f(0.2f, 0.2f, 0.4f, 1.0f);
+	// glRectf(0,0,1,1);
 
-	currentPos = 0;
+	// currentPos = 0;
 
 
-	glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+	// glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
 
-	while (currentPos < timebase)
-	{
+	// while (currentPos < timebase)
+	// {
 
-		float xcoord = currentPos/timebase + timeOffset / float(getWidth());
+	// 	float xcoord = currentPos/timebase + timeOffset / float(getWidth());
 
-		glBegin(GL_LINE_STRIP);
-		glVertex2f(xcoord,0);
-		glVertex2f(xcoord,1);
-		glEnd();
+	// 	glBegin(GL_LINE_STRIP);
+	// 	glVertex2f(xcoord,0);
+	// 	glVertex2f(xcoord,1);
+	// 	glEnd();
 
-		String s = String(currentPos, 1);
+	// 	String s = String(currentPos, 1);
 
-		glRasterPos2f(xcoord+5.0f/float(getWidth()), 0.85);
+	// 	glRasterPos2f(xcoord+5.0f/float(getWidth()), 0.85);
 
-		getFont(cpmono_plain)->Render(s);
+	// 	getFont(cpmono_plain)->Render(s);
 
-		currentPos += step;
-	}
+	// 	currentPos += step;
+	// }
 
 }
 
@@ -528,62 +528,62 @@ bool LfpDisplayCanvas::checkBounds(int chan)
 
 }
 
-void LfpDisplayCanvas::setViewport(int chan)
+void LfpDisplayCanvas::setViewport(Graphics& g, int chan)
 {
-	int y = (chan+1)*(interplotDistance); //interplotDistance - plotHeight/2);
+	// int y = (chan+1)*(interplotDistance); //interplotDistance - plotHeight/2);
 
-	glViewport(xBuffer,
-			   getHeight()-y+getScrollAmount()- headerHeight - plotHeight/2,
-	           getWidth()-xBuffer,
-	           plotHeight);
+	// glViewport(xBuffer,
+	// 		   getHeight()-y+getScrollAmount()- headerHeight - plotHeight/2,
+	//            getWidth()-xBuffer,
+	//            plotHeight);
 }
 
-void LfpDisplayCanvas::setInfoViewport(int chan)
+void LfpDisplayCanvas::setInfoViewport(Graphics& g, int chan)
 {
-	int y = (chan+1)*(interplotDistance); //interplotDistance - plotHeight/2);
+	// int y = (chan+1)*(interplotDistance); //interplotDistance - plotHeight/2);
 
-	glViewport(yBuffer,
-			   getHeight()-y+getScrollAmount()- headerHeight - interplotDistance/2 - yBuffer,
-	           xBuffer-yBuffer,
-	           interplotDistance - yBuffer*2);
+	// glViewport(yBuffer,
+	// 		   getHeight()-y+getScrollAmount()- headerHeight - interplotDistance/2 - yBuffer,
+	//            xBuffer-yBuffer,
+	//            interplotDistance - yBuffer*2);
 }
 
-void LfpDisplayCanvas::drawBorder(bool isSelected)
+void LfpDisplayCanvas::drawBorder(Graphics& g, bool isSelected)
 {
-	float alpha = 0.5f;
+	// float alpha = 0.5f;
 
-	if (isSelected)
-		alpha = 1.0f;
+	// if (isSelected)
+	// 	alpha = 1.0f;
 
-	glColor4f(0.0f, 0.0f, 0.0f, alpha);
-	glBegin(GL_LINE_STRIP);
- 	glVertex2f(0.0f, 0.0f);
- 	glVertex2f(1.0f, 0.0f);
- 	glVertex2f(1.0f, 1.0f);
- 	glVertex2f(0.0f, 1.0f);
- 	glVertex2f(0.0f, 0.0f);
- 	glEnd();
+	// glColor4f(0.0f, 0.0f, 0.0f, alpha);
+	// glBegin(GL_LINE_STRIP);
+ // 	glVertex2f(0.0f, 0.0f);
+ // 	glVertex2f(1.0f, 0.0f);
+ // 	glVertex2f(1.0f, 1.0f);
+ // 	glVertex2f(0.0f, 1.0f);
+ // 	glVertex2f(0.0f, 0.0f);
+ // 	glEnd();
 
 }
 
-void LfpDisplayCanvas::drawChannelInfo(int chan, bool isSelected)
+void LfpDisplayCanvas::drawChannelInfo(Graphics& g, int chan, bool isSelected)
 {
 
-	setInfoViewport(chan);
-	drawBorder(isSelected);
+	// setInfoViewport(chan);
+	// drawBorder(isSelected);
 
-	float alpha = 0.5f;
+	// float alpha = 0.5f;
 
-	if (isSelected)
-		alpha = 1.0f;
+	// if (isSelected)
+	// 	alpha = 1.0f;
 
-	glColor4f(0.0f,0.0f,0.0f,alpha);
-	glRasterPos2f(5.0f/getWidth(),0.6);
-	String s = "";//String("Channel ");
-	s += (chan+1);
+	// glColor4f(0.0f,0.0f,0.0f,alpha);
+	// glRasterPos2f(5.0f/getWidth(),0.6);
+	// String s = "";//String("Channel ");
+	// s += (chan+1);
 
-	getFont(cpmono_bold)->FaceSize(35);
-	getFont(cpmono_bold)->Render(s);
+	// getFont(cpmono_bold)->FaceSize(35);
+	// getFont(cpmono_bold)->Render(s);
 }
 
 int LfpDisplayCanvas::getTotalHeight() 
