@@ -175,17 +175,11 @@ private:
 
 */
 
-class Clock : public OpenGLCanvas
+class Clock : public Component
 {
 	public:
 		Clock();
 		~Clock();
-
-		/** Initializes an OpenGL context in which drawing occurs.*/
-		void newOpenGLContextCreated();
-
-		/** Draws the current time.*/
-		void renderOpenGL();
 
 		/** Starts the acquisition (yellow) clock.*/
 		void start();
@@ -202,10 +196,13 @@ class Clock : public OpenGLCanvas
 		/** Sets the cumulative recording time to zero.*/
 		void resetRecordTime();
 
+		/** Draws the current time.*/
+		void paint(Graphics& g);
+
 	private:
 
 		/** Draws the current time.*/
-		void drawTime();
+		void drawTime(Graphics& g);
 
 		int64 lastTime;
 
@@ -214,6 +211,8 @@ class Clock : public OpenGLCanvas
 
 		bool isRunning;
 		bool isRecording;
+
+		Font clockFont;
 
 		//FTPixmapFont* font;
 };

@@ -159,10 +159,10 @@ void DiskSpaceMeter::paint(Graphics& g)
 
 Clock::Clock() : isRunning(false), isRecording(false)
 {
-	// const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_light_otf);
-	// size_t bufferSize = BinaryData::cpmono_light_otfSize;
 
-	// font = new FTPixmapFont(buffer, bufferSize);
+	MemoryInputStream mis(BinaryData::cpmonolightserialized, BinaryData::cpmonolightserializedSize, false);
+    Typeface::Ptr typeface = new CustomTypeface(mis);
+    clockFont = Font(typeface);
 
 	totalTime = 0;
 	totalRecordTime = 0;
@@ -172,20 +172,14 @@ Clock::~Clock()
 {
 }
 
-void Clock::newOpenGLContextCreated()
+
+void Clock::paint(Graphics& g)
 {
-	setUp2DCanvas();
-	activateAntiAliasing();
-	setClearColor(darkgrey);
+	g.fillAll(Colour(58,58,58));
+	drawTime(g);
 }
 
-void Clock::renderOpenGL()
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-	drawTime();
-}
-
-void Clock::drawTime()
+void Clock::drawTime(Graphics& g)
 {
 
 	if (isRunning)
@@ -207,15 +201,17 @@ void Clock::drawTime()
 
 	if (isRecording)
 	{
-		glColor4f(1.0, 0.0, 0.0, 1.0);
+		g.setColour(Colours::red);
 		m = floor(totalRecordTime/60000.0);
 		s = floor((totalRecordTime - m*60000.0)/1000.0);
 
 	} else {
+
 		if (isRunning)
-			glColor4f(1.0, 1.0, 0.0, 1.0);
+			g.setColour(Colours::yellow);
 		else
-			glColor4f(1.0, 1.0, 1.0, 1.0);
+			g.setColour(Colours::white);
+
 		m = floor(totalTime/60000.0);
 		s = floor((totalTime - m*60000.0)/1000.0);
 	}
@@ -231,10 +227,14 @@ void Clock::drawTime()
 	timeString += s;
 	timeString += " s";
 
-	glRasterPos2f(8.0/getWidth(),0.75f);
+	g.setFont(clockFont);
+	g.setFont(30);
+	g.drawText(timeString, 0, 0, getWidth(), getHeight(), Justification::left, false);
 
-	getFont(cpmono_light)->FaceSize(23);
-	getFont(cpmono_light)->Render(timeString);
+	// glRasterPos2f(8.0/getWidth(),0.75f);
+
+	// getFont(cpmono_light)->FaceSize(23);
+	// getFont(cpmono_light)->Render(timeString);
 
 
 } 
