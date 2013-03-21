@@ -34,10 +34,9 @@ MainWindow::MainWindow()
 
     setResizable (true,     // isResizable
                   false);   // useBottomCornerRisizer -- doesn't work very well
-   // centreWithSize(500,400);
 
     // Constraining the window's size doesn't seem to work:
-    //
+    // setResizeLimits(500, 400, 10000, 10000);
 
     // Create ProcessorGraph and AudioComponent, and connect them.
     // Callbacks will be set by the play button in the control panel
@@ -53,19 +52,16 @@ MainWindow::MainWindow()
      commandManager.registerAllCommandsForTarget (ui);
      commandManager.registerAllCommandsForTarget (JUCEApplication::getInstance());
 
-     //setMenuBar (ui);
      ui->setApplicationCommandManagerToWatch(&commandManager);
 
      addKeyListener(commandManager.getKeyMappings());
 
      loadWindowBounds();
      setUsingNativeTitleBar (true);
-     Component::addToDesktop (getDesktopWindowStyleFlags()); 
+     Component::addToDesktop (getDesktopWindowStyleFlags()); // prevents the maximize
+                                                             // button from randomly disappearing
      setVisible (true);
-
-    // setResizeLimits(500, 400, 10000, 10000);
     
-
 }
 
 MainWindow::~MainWindow()
