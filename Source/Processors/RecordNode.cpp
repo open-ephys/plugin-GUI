@@ -294,9 +294,6 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 			}
 		}
 
-		
- 		
-
  	} else if (parameterIndex == 0) {
 
 		
@@ -355,7 +352,13 @@ void RecordNode::openFile(Channel* ch)
 		// create and write header
 		std::cout << "Writing header." << std::endl;
 		String header = generateHeader(ch);
+		//std::cout << header << std::endl;
+		std::cout << "File ID: " << chFile << ", number of bytes: " << header.getNumBytesAsUTF8() << std::endl;
+
 		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), chFile);
+
+		std::cout << "Wrote header." << std::endl;
+
 	} else {
 		std::cout << "File already exists, just opening." << std::endl;
 	}

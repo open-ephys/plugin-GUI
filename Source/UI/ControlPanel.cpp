@@ -416,6 +416,7 @@ void ControlPanel::updateChildComponents()
 {
 
 	filenameComponent->addListener(getProcessorGraph()->getRecordNode());
+	getProcessorGraph()->getRecordNode()->filenameComponentChanged(filenameComponent);
 
 }
 
