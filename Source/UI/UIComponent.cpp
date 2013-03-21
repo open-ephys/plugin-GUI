@@ -95,11 +95,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 
 UIComponent::~UIComponent()
 {
-	deleteAndZero(infoLabel);
-	deleteAllChildren();
 
-	processorGraph = 0;
-	audio = 0;
 }
 
 void UIComponent::resized()

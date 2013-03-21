@@ -130,13 +130,13 @@ public:
 
 private:
 
-	DataViewport* dataViewport;
-	EditorViewport* editorViewport;
-	EditorViewportButton* editorViewportButton;
-	ProcessorList* processorList;
-	ControlPanel* controlPanel;
-	MessageCenter* messageCenter;
-	InfoLabel* infoLabel;
+	ScopedPointer<DataViewport> dataViewport;
+	ScopedPointer<EditorViewport> editorViewport;
+	ScopedPointer<EditorViewportButton> editorViewportButton;
+	ScopedPointer<ProcessorList> processorList;
+	ScopedPointer<ControlPanel> controlPanel;
+	ScopedPointer<MessageCenter> messageCenter;
+	ScopedPointer<InfoLabel> infoLabel;
 
 	/** Pointer to the GUI's MainWindow, which owns the UIComponent. */
 	MainWindow* mainWindow;

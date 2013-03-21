@@ -116,7 +116,7 @@ private:
 	void mouseDragInCanvas(const MouseEvent& e);
 
 	/** The base item in the list.*/
-	ProcessorListItem* baseItem;
+	ScopedPointer<ProcessorListItem> baseItem;
 
 	Font listFontLight;
 	Font listFontPlain;

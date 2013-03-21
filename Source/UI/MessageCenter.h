@@ -54,7 +54,7 @@ public:
 private:
 
    /** A JUCE label used to display message text. */
-   Label* messageDisplayArea;
+   ScopedPointer<Label> messageDisplayArea;
 
    /** Called when the boundaries of the MessageCenter are changed. */
    void resized();

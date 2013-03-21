@@ -301,18 +301,18 @@ public:
 	bool isOpen() {return open;}
  
 private:	
-	PlayButton* playButton;
-	RecordButton* recordButton;
-	Clock* masterClock;
-	CPUMeter* cpuMeter;
-	DiskSpaceMeter* diskMeter;
-    ProcessorGraph* graph;
+	ScopedPointer<PlayButton> playButton;
+	ScopedPointer<RecordButton> recordButton;
+	ScopedPointer<Clock> masterClock;
+	ScopedPointer<CPUMeter> cpuMeter;
+	ScopedPointer<DiskSpaceMeter> diskMeter;
+	ScopedPointer<FilenameComponent> filenameComponent;
+	ScopedPointer<UtilityButton> newDirectoryButton;
+	ScopedPointer<ControlPanelButton> cpb;
+
+	ProcessorGraph* graph;
 	AudioComponent* audio;
 	AudioEditor* audioEditor;
-	FilenameComponent* filenameComponent;
-	UtilityButton* newDirectoryButton;
-
-	ControlPanelButton* cpb;
 
 	void paint(Graphics& g);
 

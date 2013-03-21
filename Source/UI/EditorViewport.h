@@ -196,10 +196,10 @@ private:
     enum directions1 {LEFT, RIGHT};
     enum directions2 {UP, DOWN};
 
-    EditorScrollButton* leftButton;
-    EditorScrollButton* rightButton;
-    SignalChainScrollButton* upButton;
-    SignalChainScrollButton* downButton;
+    ScopedPointer<EditorScrollButton> leftButton;
+    ScopedPointer<EditorScrollButton> rightButton;
+    ScopedPointer<SignalChainScrollButton> upButton;
+    ScopedPointer<SignalChainScrollButton> downButton;
 
     void resized();
 

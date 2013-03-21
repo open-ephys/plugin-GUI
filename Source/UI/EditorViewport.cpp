@@ -70,7 +70,7 @@ EditorViewport::EditorViewport()
 
 EditorViewport::~EditorViewport()
 {
-    deleteAllChildren();
+  
 }
 
 void EditorViewport::signalChainCanBeEdited(bool t)

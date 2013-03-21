@@ -389,18 +389,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
 
 ControlPanel::~ControlPanel()
 {
-	//deleteAllChildren() -> if this is used, audioEditor will be deleted
-	deleteAndZero(playButton);
-	deleteAndZero(recordButton);
-	deleteAndZero(masterClock);
-	deleteAndZero(cpuMeter);
-	deleteAndZero(diskMeter);
-	deleteAndZero(cpb);
-	deleteAndZero(filenameComponent);
-	deleteAndZero(newDirectoryButton);
-	//audioEditor will delete itself
 
-	graph = 0;
 }
 
 void ControlPanel::setRecordState(bool t)

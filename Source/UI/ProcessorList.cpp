@@ -105,7 +105,7 @@ ProcessorList::ProcessorList()
 
 ProcessorList::~ProcessorList()
 {
-	deleteAndZero(baseItem);
+	
 }
 
 bool ProcessorList::isOpen()
