@@ -148,192 +148,187 @@ int CustomLookAndFeel::getTabButtonSpaceAroundImage()
     return 6;
 }
 
-void CustomLookAndFeel::drawTabButton (Graphics& g,
-                                 int w, int h,
-                                 const Colour& preferredColour,
-                                 int tabIndex,
-                                 const String& text,
-                                 Button& button,
-                                 TabbedButtonBar::Orientation orientation,
-                                 const bool isMouseOver,
-                                 const bool isMouseDown,
-                                 const bool isFrontTab)
+ void CustomLookAndFeel::drawTabButton(TabBarButton& tbb, Graphics& g, bool isMouseOver, bool isMouseDown)
 {
-    int length = w;
-    int depth = h;
 
-    if (orientation == TabbedButtonBar::TabsAtLeft
-            || orientation == TabbedButtonBar::TabsAtRight)
-    {
-       swapVariables (length, depth);
-    }
 
-    int borderSize = 3; // border between adjacent tabs
-    // int innerBorderSize = 3;
-    int gapSize = 6;     // gap between tab and tabbedComponent
-    float cornerSize = 5.0f; // how rounded should the corners be?
+ //    Rectangle<int> area = tbb.getActiveArea();
 
-    g.setColour(Colour(48,48,48));
+ //    int length = area.getWidth();
+ //    int depth = area.getHeight();
+
+ //    int x = width;
+ //    int y = height;
+
+ //    int orientation = TabbedButtonBar::TabsAtRight;
+
+ //    if (orientation == TabbedButtonBar::TabsAtLeft
+ //            || orientation == TabbedButtonBar::TabsAtRight)
+ //    {
+ //       swapVariables (length, depth);
+ //    }
+
+ //    int borderSize = 3; // border between adjacent tabs
+ //    // int innerBorderSize = 3;
+ //    int gapSize = 6;     // gap between tab and tabbedComponent
+ //    float cornerSize = 5.0f; // how rounded should the corners be?
+
+ //    g.setColour(Colour(48,48,48));
    
-	if (orientation == TabbedButtonBar::TabsAtRight)
-	{
-		g.fillRoundedRectangle(gapSize, borderSize, w-gapSize, h-2*borderSize, cornerSize-2.0);
+	// if (orientation == TabbedButtonBar::TabsAtRight)
+	// {
+	// 	g.fillRoundedRectangle(gapSize, borderSize, w-gapSize, h-2*borderSize, cornerSize-2.0);
 
-		if (isFrontTab) {
-			g.setColour(Colour(48,48,48));
-      g.fillRect(0,borderSize,gapSize*2,h-2*borderSize);
-      g.fillRect(0,0,gapSize,h);
+	// 	if (isFrontTab) {
+	// 		g.setColour(Colour(48,48,48));
+ //      g.fillRect(0,borderSize,gapSize*2,h-2*borderSize);
+ //      g.fillRect(0,0,gapSize,h);
       
-      //g.setColour(Colour(170,178,183));
-      //g.fillRect(borderSize+innerBorderSize,innerBorderSize
-         //        ,w-2*borderSize-2*innerBorderSize,h-gapSize-2*innerBorderSize);
+ //      //g.setColour(Colour(170,178,183));
+ //      //g.fillRect(borderSize+innerBorderSize,innerBorderSize
+ //         //        ,w-2*borderSize-2*innerBorderSize,h-gapSize-2*innerBorderSize);
 
-      g.setColour(Colour(0, 0, 0));
-      g.fillRoundedRectangle(0,h-borderSize,w,2*borderSize,cornerSize);
-      g.fillRoundedRectangle(0,-borderSize,w,2*borderSize,cornerSize);
-    }
-  }
+ //      g.setColour(Colour(0, 0, 0));
+ //      g.fillRoundedRectangle(0,h-borderSize,w,2*borderSize,cornerSize);
+ //      g.fillRoundedRectangle(0,-borderSize,w,2*borderSize,cornerSize);
+ //    }
+ //  }
 
-	else if (orientation == TabbedButtonBar::TabsAtTop)
-	{
-		g.fillRoundedRectangle(borderSize,0,w-2*borderSize,h-gapSize,cornerSize-2.0);
-		//g.setColour(Colour(170,178,183));
-		//g.fillRect(borderSize+innerBorderSize,innerBorderSize
-		//             ,w-2*borderSize-2*innerBorderSize,h-gapSize-2*innerBorderSize);
+	// else if (orientation == TabbedButtonBar::TabsAtTop)
+	// {
+	// 	g.fillRoundedRectangle(borderSize,0,w-2*borderSize,h-gapSize,cornerSize-2.0);
+	// 	//g.setColour(Colour(170,178,183));
+	// 	//g.fillRect(borderSize+innerBorderSize,innerBorderSize
+	// 	//             ,w-2*borderSize-2*innerBorderSize,h-gapSize-2*innerBorderSize);
 
-		if (isFrontTab) {
-			g.setColour(Colour(103,116,140));
-			g.fillRect(borderSize,h-2*gapSize,w-2*borderSize,2*gapSize);
-			g.fillRect(0,h-gapSize,w,gapSize);
+	// 	if (isFrontTab) {
+	// 		g.setColour(Colour(103,116,140));
+	// 		g.fillRect(borderSize,h-2*gapSize,w-2*borderSize,2*gapSize);
+	// 		g.fillRect(0,h-gapSize,w,gapSize);
 			
-			//g.setColour(Colour(170,178,183));
-			//g.fillRect(borderSize+innerBorderSize,innerBorderSize
-		     //        ,w-2*borderSize-2*innerBorderSize,h-gapSize-2*innerBorderSize);
+	// 		//g.setColour(Colour(170,178,183));
+	// 		//g.fillRect(borderSize+innerBorderSize,innerBorderSize
+	// 	     //        ,w-2*borderSize-2*innerBorderSize,h-gapSize-2*innerBorderSize);
 
-			g.setColour(Colour(0,0,0));
-			g.fillRoundedRectangle(-borderSize,0,2*borderSize,h,cornerSize);
-			g.fillRoundedRectangle(w-borderSize,0,2*borderSize,h,cornerSize);
-		}
-	}
-	else if (orientation == TabbedButtonBar::TabsAtBottom)
-	{
-		g.fillRoundedRectangle(5,5,w-5,h-5,5);
+	// 		g.setColour(Colour(0,0,0));
+	// 		g.fillRoundedRectangle(-borderSize,0,2*borderSize,h,cornerSize);
+	// 		g.fillRoundedRectangle(w-borderSize,0,2*borderSize,h,cornerSize);
+	// 	}
+	// }
+	// else if (orientation == TabbedButtonBar::TabsAtBottom)
+	// {
+	// 	g.fillRoundedRectangle(5,5,w-5,h-5,5);
 
-		if (isFrontTab)
-			g.fillRect(5,10,w-5,20);
-	}
-	else if (orientation == TabbedButtonBar::TabsAtLeft)
-	{
-		g.fillRoundedRectangle(5,5,w-5,h-5,5);
+	// 	if (isFrontTab)
+	// 		g.fillRect(5,10,w-5,20);
+	// }
+	// else if (orientation == TabbedButtonBar::TabsAtLeft)
+	// {
+	// 	g.fillRoundedRectangle(5,5,w-5,h-5,5);
 
-		if (isFrontTab)
-			g.fillRect(5,10,w-5,20);
-	}
+	// 	if (isFrontTab)
+	// 		g.fillRect(5,10,w-5,20);
+	// }
 	
-    const int indent = getTabButtonOverlap (depth);
-    int x = 0, y = 0;
+ //    const int indent = getTabButtonOverlap (depth);
+ //    int x = 0, y = 0;
 
-    if (orientation == TabbedButtonBar::TabsAtLeft
-         || orientation == TabbedButtonBar::TabsAtRight)
-    {
-        y += indent;
-        h -= indent * 2;
-    }
-    else
-    {
-        x += indent;
-        w -= indent * 2;
-    }
+ //    if (orientation == TabbedButtonBar::TabsAtLeft
+ //         || orientation == TabbedButtonBar::TabsAtRight)
+ //    {
+ //        y += indent;
+ //        h -= indent * 2;
+ //    }
+ //    else
+ //    {
+ //        x += indent;
+ //        w -= indent * 2;
+ //    }
 
-    drawTabButtonText (g, x, y, w, h, preferredColour,
-                       tabIndex, text, button, orientation,
-                       isMouseOver, isMouseDown, isFrontTab);
+ //    drawTabButtonText (g, x, y, w, h, preferredColour,
+ //                       tabIndex, text, button, orientation,
+ //                       isMouseOver, isMouseDown, isFrontTab);
 }
 
 
-void CustomLookAndFeel::drawTabButtonText (Graphics& g,
-                                     int x, int y, int w, int h,
-                                     const Colour& preferredBackgroundColour,
-                                     int /*tabIndex*/,
-                                     const String& text,
-                                     Button& button,
-                                     TabbedButtonBar::Orientation orientation,
-                                     const bool isMouseOver,
-                                     const bool isMouseDown,
-                                     const bool isFrontTab)
+ void CustomLookAndFeel::drawTabButtonText(TabBarButton& tbb, Graphics& g, bool isMouseOver, bool isMouseDown)
+
 {
-    int length = w;
-    int depth = h;
+   //   Rectangle<int> area = tbb.getActiveArea();
 
-    if (orientation == TabbedButtonBar::TabsAtLeft
-         || orientation == TabbedButtonBar::TabsAtRight)
-    {
-        swapVariables (length, depth);
-    }
+   //  int length = area.getWidth();
+   //  int depth = area.getHeight();
 
-    Font font (depth * 0.6f);
-    font.setUnderline (button.hasKeyboardFocus (false));
+   //  int x = width;
+   //  int y = height;
 
-    GlyphArrangement textLayout;
-    textLayout.addFittedText (font, text.trim(),
-                              0.0f, 0.0f, (float) length, (float) depth,
-                              Justification::centred,
-                              jmax (1, depth / 12));
+   //  int orientation = TabbedButtonBar::TabsAtRight;
 
-    AffineTransform transform;
+   //  if (orientation == TabbedButtonBar::TabsAtLeft
+   //       || orientation == TabbedButtonBar::TabsAtRight)
+   //  {
+   //      swapVariables (length, depth);
+   //  }
 
-    if (orientation == TabbedButtonBar::TabsAtLeft)
-    {
-        transform = transform.rotated (float_Pi * -0.5f)
-                             .translated ((float) x, (float) (y + h));
-    }
-    else if (orientation  == TabbedButtonBar::TabsAtRight)
-    {
-        transform = transform.rotated (float_Pi * 0.5f)
-                             .translated ((float) (x + w*1.1), (float) y);
-    }
-    else if (orientation == TabbedButtonBar::TabsAtTop)
-    {
-        transform = transform.translated ((float) x, (float) y - 3.0f);
-    }
-    else
-    {
-    	transform = transform.translated ((float) x, (float) y + 3.0f);
-    }
+   //  Font font (depth * 0.6f);
+   //  font.setUnderline (tbb.hasKeyboardFocus (false));
 
-    // if (isFrontTab && (button.isColourSpecified (TabbedButtonBar::frontTextColourId) || isColourSpecified (TabbedButtonBar::frontTextColourId)))
-    //     g.setColour (findColour (TabbedButtonBar::frontTextColourId));
-    // else if (button.isColourSpecified (TabbedButtonBar::tabTextColourId) || isColourSpecified (TabbedButtonBar::tabTextColourId))
-    //     g.setColour (findColour (TabbedButtonBar::tabTextColourId));
-    // else
-    //     g.setColour (preferredBackgroundColour.contrasting());
+   //  GlyphArrangement textLayout;
+   //  textLayout.addFittedText (font, tbb.name.trim(),
+   //                            0.0f, 0.0f, (float) length, (float) depth,
+   //                            Justification::centred,
+   //                            jmax (1, depth / 12));
 
-    g.setColour(Colour(255,255,255));
+   //  AffineTransform transform;
 
-   if (! (isMouseOver || isMouseDown))
-        g.setOpacity (0.8f);
+   //  if (orientation == TabbedButtonBar::TabsAtLeft)
+   //  {
+   //      transform = transform.rotated (float_Pi * -0.5f)
+   //                           .translated ((float) x, (float) (y + h));
+   //  }
+   //  else if (orientation  == TabbedButtonBar::TabsAtRight)
+   //  {
+   //      transform = transform.rotated (float_Pi * 0.5f)
+   //                           .translated ((float) (x + w*1.1), (float) y);
+   //  }
+   //  else if (orientation == TabbedButtonBar::TabsAtTop)
+   //  {
+   //      transform = transform.translated ((float) x, (float) y - 3.0f);
+   //  }
+   //  else
+   //  {
+   //  	transform = transform.translated ((float) x, (float) y + 3.0f);
+   //  }
 
-    if (! button.isEnabled())
-        g.setOpacity (0.3f);
+   //  // if (isFrontTab && (button.isColourSpecified (TabbedButtonBar::frontTextColourId) || isColourSpecified (TabbedButtonBar::frontTextColourId)))
+   //  //     g.setColour (findColour (TabbedButtonBar::frontTextColourId));
+   //  // else if (button.isColourSpecified (TabbedButtonBar::tabTextColourId) || isColourSpecified (TabbedButtonBar::tabTextColourId))
+   //  //     g.setColour (findColour (TabbedButtonBar::tabTextColourId));
+   //  // else
+   //  //     g.setColour (preferredBackgroundColour.contrasting());
 
-    textLayout.draw (g, transform);
+   //  g.setColour(Colour(255,255,255));
+
+   // if (! (isMouseOver || isMouseDown))
+   //      g.setOpacity (0.8f);
+
+   //  if (! button.isEnabled())
+   //      g.setOpacity (0.3f);
+
+   //  textLayout.draw (g, transform);
 }
 
-int CustomLookAndFeel::getTabButtonBestWidth (int /*tabIndex*/,
-                                        const String& text,
-                                        int tabDepth,
-                                        Button&)
+int CustomLookAndFeel::getTabButtonBestWidth(TabBarButton& tbb, int tabDepth)
 {
-    Font f (tabDepth * 0.6f);
-    return f.getStringWidth (text.trim()) + getTabButtonOverlap (tabDepth) * 2 + 40;
+
+
+    //Font f (tabDepth * 0.6f);
+    return 10; //f.getStringWidth (tbb.name.trim()) + getTabButtonOverlap (tabDepth) * 2 + 40;
 }
 
 
 
-void CustomLookAndFeel::drawTabAreaBehindFrontButton (Graphics& g,
-                                                int w, int h,
-                                                TabbedButtonBar& tabBar,
-                                                TabbedButtonBar::Orientation orientation)
+void CustomLookAndFeel::drawTabAreaBehindFrontButton(TabbedButtonBar& tbb, Graphics& g, int w, int h)
 {
    
 }

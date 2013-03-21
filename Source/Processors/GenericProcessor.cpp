@@ -164,7 +164,7 @@ int GenericProcessor::getNumSamples(MidiBuffer& events) {
 
 		while (i.getNextEvent (message, samplePosition)) {
 			
-			uint8* dataptr = message.getRawData();
+			const uint8* dataptr = message.getRawData();
 
 			if (*dataptr == BUFFER_SIZE)
 			{
@@ -419,7 +419,7 @@ int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)
 
 		while (i.getNextEvent (message, samplePosition)) {
 			
-			uint8* dataptr = message.getRawData();
+			const uint8* dataptr = message.getRawData();
 
 			handleEvent(*dataptr, message, samplePosition);
 

@@ -135,7 +135,7 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
 {
 	if (eventType == TTL)
 	{
-		uint8* dataptr = event.getRawData();
+		const uint8* dataptr = event.getRawData();
 
     	// int eventNodeId = *(dataptr+1);
     	int eventId = *(dataptr+2);
@@ -204,7 +204,7 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
 	} else if (eventType == TIMESTAMP)
 	{
 
-		uint8* dataptr = event.getRawData();
+		const uint8* dataptr = event.getRawData();
 
     	// int eventNodeId = *(dataptr+1);
     	// int eventId = *(dataptr+2);

@@ -46,7 +46,7 @@ void ArduinoOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum
 {
     if (eventType == TTL)
     {
-    	uint8* dataptr = event.getRawData();
+    	const uint8* dataptr = event.getRawData();
 
     	int eventNodeId = *(dataptr+1);
     	int eventId = *(dataptr+2);

@@ -137,10 +137,10 @@ void EditorViewport::paint (Graphics& g)
 
 }
 
-bool EditorViewport::isInterestedInDragSource (const String& description, Component* component)
+bool EditorViewport::isInterestedInDragSource (const SourceDetails& dragSourceDetails)
 {
 
-    if (canEdit && description.startsWith("Processors")) {
+    if (canEdit && dragSourceDetails.description.toString().startsWith("Processors")) {
         return false;
     } else {
         return true;
@@ -148,7 +148,7 @@ bool EditorViewport::isInterestedInDragSource (const String& description, Compon
 
 }
 
-void EditorViewport::itemDragEnter (const String& /*sourceDescription*/, Component* /*sourceComponent*/, int /*x*/, int /*y*/)
+void EditorViewport::itemDragEnter (const SourceDetails& dragSourceDetails)
 {
     if (canEdit) {
         somethingIsBeingDraggedOver = true;
@@ -156,8 +156,11 @@ void EditorViewport::itemDragEnter (const String& /*sourceDescription*/, Compone
     }   
 }
 
-void EditorViewport::itemDragMove (const String& /*sourceDescription*/, Component* /*sourceComponent*/, int x, int /*y*/)
+void EditorViewport::itemDragMove (const SourceDetails& dragSourceDetails)
 {
+
+    int x = dragSourceDetails.localPosition.getX();
+    int y = dragSourceDetails.localPosition.getY();
 
     if (canEdit) {
         bool foundInsertionPoint = false;
@@ -189,7 +192,7 @@ void EditorViewport::itemDragMove (const String& /*sourceDescription*/, Componen
 
 }
 
-void EditorViewport::itemDragExit (const String& /*sourceDescription*/, Component* /*sourceComponent*/)
+void EditorViewport::itemDragExit(const SourceDetails& dragSourceDetails)
 {
     somethingIsBeingDraggedOver = false;
 
@@ -199,17 +202,19 @@ void EditorViewport::itemDragExit (const String& /*sourceDescription*/, Componen
 
 }
 
-void EditorViewport::itemDropped (const String& sourceDescription, Component* /*sourceComponent*/, int /*x*/, int /*y*/)
+void EditorViewport::itemDropped (const SourceDetails& dragSourceDetails)
 {
+
+    String description = dragSourceDetails.description.toString();
 
     if (canEdit) {
 
-        message = "last filter dropped: " + sourceDescription;
+        message = "last filter dropped: " + description;
 
         std::cout << "Item dropped at insertion point " << insertionPoint << std::endl;
 
         /// needed to remove const cast --> should be a better way to do this
-        String description = sourceDescription.substring(0);
+        //String description = sourceDescription.substring(0);
 
         GenericEditor* activeEditor = (GenericEditor*) getProcessorGraph()->createNewProcessor(description);//, source, dest);
 
@@ -1194,7 +1199,12 @@ const String EditorViewport::loadState()
                     insertionPoint = 0;
                 }
 
-                itemDropped(processor->getStringAttribute("name"),0,0,0);
+                //Point<int> pt = 
+                SourceDetails sd = SourceDetails(processor->getStringAttribute("name"), 
+                                                0,
+                                                Point<int>(0,0));
+
+                itemDropped(sd);
 
                 GenericProcessor* p = (GenericProcessor*) lastEditor->getProcessor();
                 p->loadOrder = loadOrder;

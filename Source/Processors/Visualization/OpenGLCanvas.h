@@ -56,7 +56,7 @@ public:
 	void mouseDrag(const MouseEvent& e);
 	void mouseMove(const MouseEvent& e);
 	void mouseUp(const MouseEvent& e);
-	void mouseWheelMove(const MouseEvent&, float, float);
+	int mouseWheelMove(const MouseEvent&, float, float);
 
 	virtual void mouseDownInCanvas(const MouseEvent& e) {}
 	virtual void mouseDragInCanvas(const MouseEvent& e) {}

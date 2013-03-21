@@ -49,7 +49,7 @@ PlayButton::PlayButton()
         down.setStrokeThickness (5.0f);
 
         setImages (&normal, &over, &over);
-        setBackgroundColours(Colours::darkgrey, Colours::yellow);
+       // setBackgroundColours(Colours::darkgrey, Colours::yellow);
         setClickingTogglesState (true);
         setTooltip ("Start/stop acquisition");
 
@@ -78,7 +78,7 @@ RecordButton::RecordButton()
         over.setStrokeThickness (5.0f);
 
         setImages (&normal, &over, &over);
-        setBackgroundColours(Colours::darkgrey, Colours::red);
+        //setBackgroundColours(Colours::darkgrey, Colours::red);
         setClickingTogglesState (true);
         setTooltip ("Start/stop writing to disk");
 }

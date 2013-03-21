@@ -207,7 +207,7 @@ void UIComponent::childComponentChanged()
 
 // MENU BAR METHODS
 
-const StringArray UIComponent::getMenuBarNames() {
+StringArray UIComponent::getMenuBarNames() {
 
 	// StringArray names;
 	// names.add("File");
@@ -220,7 +220,7 @@ const StringArray UIComponent::getMenuBarNames() {
 
 }
 
-const PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
+PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 {
 	 ApplicationCommandManager* commandManager = &(mainWindow->commandManager);
 

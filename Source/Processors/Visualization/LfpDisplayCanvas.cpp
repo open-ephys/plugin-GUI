@@ -656,7 +656,7 @@ void LfpDisplayCanvas::mouseMoveInCanvas(const MouseEvent &e)
 
 }
 
-const MouseCursor LfpDisplayCanvas::getMouseCursor()
+MouseCursor LfpDisplayCanvas::getMouseCursor()
 {
 
 	const MouseCursor c = MouseCursor(cursorType);

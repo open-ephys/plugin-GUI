@@ -58,7 +58,7 @@ void RecordControl::process(AudioSampleBuffer &buffer,
 
 void RecordControl::handleEvent(int eventType, MidiMessage& event, int)
 {
-	uint8* dataptr = event.getRawData();
+	const uint8* dataptr = event.getRawData();
 
     int eventId = *(dataptr+2);
     int eventChannel = *(dataptr+3);

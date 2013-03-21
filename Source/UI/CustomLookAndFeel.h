@@ -51,38 +51,47 @@ public:
 
 	// ======== custom tab methods: ============================= 
 
-	void drawTabButton (Graphics & g, 
-						int w, int h, 
-						const Colour& preferredColour,
-						int tabIndex, const String& text,
-						Button& button,
-						TabbedButtonBar::Orientation,
-						bool isMouseOver,
-						bool isMouseDown,
-						bool isFrontTab);
+	// int drawTabButton (Graphics & g, 
+	// 					int w, int h, 
+	// 					const Colour& preferredColour,
+	// 					int tabIndex, const String& text,
+	// 					Button& button,
+	// 					TabbedButtonBar::Orientation,
+	// 					bool isMouseOver,
+	// 					bool isMouseDown,
+	// 					bool isFrontTab);
 
-	void drawTabButtonText (Graphics& g,
-						    int x, int y, int w, int h,
-						    const Colour& preferredBackgroundColour,
-						    int tabIndex,
-						    const String& text,
-						    Button& button,
-						    TabbedButtonBar::Orientation o,
-						    bool isMouseOver,
-						    bool isMouseDown,
-						    bool isFrontTab);
+  void drawTabButton(TabBarButton& tbb, Graphics& g, bool isMouseOver, bool isMouseDown);
 
-	int getTabButtonBestWidth (int tabIndex,
-                               const String& text,
-                               int tabDepth,
-                               Button& button);
+	// int drawTabButtonText (Graphics& g,
+	// 					    int x, int y, int w, int h,
+	// 					    const Colour& preferredBackgroundColour,
+	// 					    int tabIndex,
+	// 					    const String& text,
+	// 					    Button& button,
+	// 					    TabbedButtonBar::Orientation o,
+	// 					    bool isMouseOver,
+	// 					    bool isMouseDown,
+	// 					    bool isFrontTab);
+
+  void drawTabButtonText(TabBarButton& tbb, Graphics& g, bool isMouseOver, bool isMouseDown);
+
+
+	// int getTabButtonBestWidth (int tabIndex,
+ //                               const String& text,
+ //                               int tabDepth,
+ //                               Button& button);
+
+  int getTabButtonBestWidth(TabBarButton& tbb, int tabDepth);
 
 	int getTabButtonSpaceAroundImage ();
 
-	void drawTabAreaBehindFrontButton (Graphics& g,
-									   int w, int h,
-									   TabbedButtonBar& tabBar,
-									   TabbedButtonBar::Orientation o);
+	// int drawTabAreaBehindFrontButton (Graphics& g,
+	// 								   int w, int h,
+	// 								   TabbedButtonBar& tabBar,
+	// 								   TabbedButtonBar::Orientation o);
+
+  void drawTabAreaBehindFrontButton(TabbedButtonBar& tbb, Graphics& g, int w, int h);
 
 	int getTabButtonOverlap (int tabDepth);
 

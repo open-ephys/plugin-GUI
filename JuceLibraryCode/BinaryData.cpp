@@ -1,90 +1,11 @@
 /* ==================================== JUCER_BINARY_RESOURCE ====================================
 
-   This is an auto-generated file, created by The Jucer V3.0.0
-   Do not edit anything in this file!
+   This is an auto-generated file: Any edits you make may be overwritten!
 
 */
 
-#include "BinaryData.h"
-
-
-const char* BinaryData::getNamedResource (const char* resourceNameUTF8, int& numBytes) throw()
+namespace BinaryData
 {
-    int hash = 0;
-    if (resourceNameUTF8 != 0)
-        while (*resourceNameUTF8 != 0)
-            hash = 31 * hash + *resourceNameUTF8++;
-
-    switch (hash)
-    {
-        case 0x9ad84ff3:  numBytes = BinaryData::cpmonoblackserializedSize; return BinaryData::cpmonoblackserialized;
-        case 0x430faa99:  numBytes = BinaryData::cpmonoboldserializedSize; return BinaryData::cpmonoboldserialized;
-        case 0x804451da:  numBytes = BinaryData::cpmonoextralightserializedSize; return BinaryData::cpmonoextralightserialized;
-        case 0x7165c44a:  numBytes = BinaryData::cpmonolightserializedSize; return BinaryData::cpmonolightserialized;
-        case 0x71b017fe:  numBytes = BinaryData::cpmonoplainserializedSize; return BinaryData::cpmonoplainserialized;
-        case 0x03d0455a:  numBytes = BinaryData::BebasNeue_otfSize; return BinaryData::BebasNeue_otf;
-        case 0xd23520f6:  numBytes = BinaryData::cpmono_bold_otfSize; return BinaryData::cpmono_bold_otf;
-        case 0x89b1519a:  numBytes = BinaryData::cpmono_extra_light_otfSize; return BinaryData::cpmono_extra_light_otf;
-        case 0xcf4917c9:  numBytes = BinaryData::cpmono_light_otfSize; return BinaryData::cpmono_light_otf;
-        case 0x1bf9427d:  numBytes = BinaryData::cpmono_plain_otfSize; return BinaryData::cpmono_plain_otf;
-        case 0xd11b0e24:  numBytes = BinaryData::misobold_ttfSize; return BinaryData::misobold_ttf;
-        case 0xad1e9d45:  numBytes = BinaryData::misolight_ttfSize; return BinaryData::misolight_ttf;
-        case 0x2ea472cb:  numBytes = BinaryData::misoregular_ttfSize; return BinaryData::misoregular_ttf;
-        case 0xdf7ec47c:  numBytes = BinaryData::misoserializedSize; return BinaryData::misoserialized;
-        case 0xe63cbeb4:  numBytes = BinaryData::nordic_ttfSize; return BinaryData::nordic_ttf;
-        case 0x1eb42b13:  numBytes = BinaryData::ostrich_ttfSize; return BinaryData::ostrich_ttf;
-        case 0xafad3345:  numBytes = BinaryData::silkscreenserializedSize; return BinaryData::silkscreenserialized;
-        case 0xac0c53a8:  numBytes = BinaryData::silkscreen_ttfSize; return BinaryData::silkscreen_ttf;
-        case 0x3fc48d8b:  numBytes = BinaryData::ArduinoIcon_pngSize; return BinaryData::ArduinoIcon_png;
-        case 0xe36802c5:  numBytes = BinaryData::OpenEphysBoardLogoBlack_pngSize; return BinaryData::OpenEphysBoardLogoBlack_png;
-        case 0xf27b4df1:  numBytes = BinaryData::OpenEphysBoardLogoGray_pngSize; return BinaryData::OpenEphysBoardLogoGray_png;
-        case 0x9dbdc191:  numBytes = BinaryData::RadioButtons01_pngSize; return BinaryData::RadioButtons01_png;
-        case 0x9dcbd912:  numBytes = BinaryData::RadioButtons02_pngSize; return BinaryData::RadioButtons02_png;
-        case 0x9dd9f093:  numBytes = BinaryData::RadioButtons03_pngSize; return BinaryData::RadioButtons03_png;
-        case 0x9de80814:  numBytes = BinaryData::RadioButtons04_pngSize; return BinaryData::RadioButtons04_png;
-        case 0x9df61f95:  numBytes = BinaryData::RadioButtons05_pngSize; return BinaryData::RadioButtons05_png;
-        case 0xa1a5fa19:  numBytes = BinaryData::RadioButtons_neutral01_pngSize; return BinaryData::RadioButtons_neutral01_png;
-        case 0xa1b4119a:  numBytes = BinaryData::RadioButtons_neutral02_pngSize; return BinaryData::RadioButtons_neutral02_png;
-        case 0xa1c2291b:  numBytes = BinaryData::RadioButtons_neutral03_pngSize; return BinaryData::RadioButtons_neutral03_png;
-        case 0xa1d0409c:  numBytes = BinaryData::RadioButtons_neutral04_pngSize; return BinaryData::RadioButtons_neutral04_png;
-        case 0xa1de581d:  numBytes = BinaryData::RadioButtons_neutral05_pngSize; return BinaryData::RadioButtons_neutral05_png;
-        case 0x91e6977f:  numBytes = BinaryData::RadioButtons_selected01_pngSize; return BinaryData::RadioButtons_selected01_png;
-        case 0x91f4af00:  numBytes = BinaryData::RadioButtons_selected02_pngSize; return BinaryData::RadioButtons_selected02_png;
-        case 0x9202c681:  numBytes = BinaryData::RadioButtons_selected03_pngSize; return BinaryData::RadioButtons_selected03_png;
-        case 0x9210de02:  numBytes = BinaryData::RadioButtons_selected04_pngSize; return BinaryData::RadioButtons_selected04_png;
-        case 0x921ef583:  numBytes = BinaryData::RadioButtons_selected05_pngSize; return BinaryData::RadioButtons_selected05_png;
-        case 0x0634464a:  numBytes = BinaryData::RadioButtons_selected_over01_pngSize; return BinaryData::RadioButtons_selected_over01_png;
-        case 0x06425dcb:  numBytes = BinaryData::RadioButtons_selected_over02_pngSize; return BinaryData::RadioButtons_selected_over02_png;
-        case 0x0650754c:  numBytes = BinaryData::RadioButtons_selected_over03_pngSize; return BinaryData::RadioButtons_selected_over03_png;
-        case 0x065e8ccd:  numBytes = BinaryData::RadioButtons_selected_over04_pngSize; return BinaryData::RadioButtons_selected_over04_png;
-        case 0x066ca44e:  numBytes = BinaryData::RadioButtons_selected_over05_pngSize; return BinaryData::RadioButtons_selected_over05_png;
-        case 0x0d14b768:  numBytes = BinaryData::noise_wave_pngSize; return BinaryData::noise_wave_png;
-        case 0x96fe1b79:  numBytes = BinaryData::saw_wave_pngSize; return BinaryData::saw_wave_png;
-        case 0xd15cb155:  numBytes = BinaryData::sine_wave_pngSize; return BinaryData::sine_wave_png;
-        case 0xd4df18c5:  numBytes = BinaryData::square_wave_pngSize; return BinaryData::square_wave_png;
-        case 0x5f96403a:  numBytes = BinaryData::triangle_wave_pngSize; return BinaryData::triangle_wave_png;
-        case 0xb01cfdff:  numBytes = BinaryData::wifi_pngSize; return BinaryData::wifi_png;
-        case 0x593e4e34:  numBytes = BinaryData::SourceDrop_pngSize; return BinaryData::SourceDrop_png;
-        case 0x6189efd0:  numBytes = BinaryData::DefaultDataSource_pngSize; return BinaryData::DefaultDataSource_png;
-        case 0x3862b802:  numBytes = BinaryData::FileReaderIcon_pngSize; return BinaryData::FileReaderIcon_png;
-        case 0xe67215bf:  numBytes = BinaryData::IntanIcon_pngSize; return BinaryData::IntanIcon_png;
-        case 0xd9760f20:  numBytes = BinaryData::muteoff_pngSize; return BinaryData::muteoff_png;
-        case 0x7b0e8322:  numBytes = BinaryData::muteon_pngSize; return BinaryData::muteon_png;
-        case 0xe26621d2:  numBytes = BinaryData::MergerA01_pngSize; return BinaryData::MergerA01_png;
-        case 0xe2743953:  numBytes = BinaryData::MergerA02_pngSize; return BinaryData::MergerA02_png;
-        case 0x174c5d13:  numBytes = BinaryData::MergerB01_pngSize; return BinaryData::MergerB01_png;
-        case 0x175a7494:  numBytes = BinaryData::MergerB02_pngSize; return BinaryData::MergerB02_png;
-        case 0x92083d6a:  numBytes = BinaryData::PipelineA01_pngSize; return BinaryData::PipelineA01_png;
-        case 0x921654eb:  numBytes = BinaryData::PipelineA02_pngSize; return BinaryData::PipelineA02_png;
-        case 0xc6ee78ab:  numBytes = BinaryData::PipelineB01_pngSize; return BinaryData::PipelineB01_png;
-        case 0xc6fc902c:  numBytes = BinaryData::PipelineB02_pngSize; return BinaryData::PipelineB02_png;
-        default: break;
-    }
-
-    numBytes = 0;
-    return 0;
-}
-
 
 //================== cpmono-black-serialized ==================
 static const unsigned char temp_77517bbb[] =
@@ -308,7 +229,7 @@ static const unsigned char temp_77517bbb[] =
 33,16,98,208,66,64,165,133,0,168,139,0,116,17,81,213,69,164,165,35,200,236,208,187,111,169,2,12,170,46,2,72,31,2,160,188,148,147,168,140,108,213,204,0,29,214,114,202,236,65,226,103,102,120,232,129,212,29,171,247,93,105,234,14,91,227,94,138,253,11,117,
 39,245,137,109,181,198,15,39,160,102,201,43,166,238,224,78,3,234,14,168,158,218,3,104,152,0,24,38,68,213,48,33,173,29,159,199,233,48,177,155,126,42,15,0,3,176,29,101,254,118,116,116,191,107,163,251,200,205,65,174,242,37,255,15,41,157,224,99,0,0 };
 
-const char* BinaryData::cpmonoblackserialized = (const char*) temp_77517bbb;
+const char* cpmonoblackserialized = (const char*) temp_77517bbb;
 
 //================== cpmono-bold-serialized ==================
 static const unsigned char temp_62a06903[] =
@@ -545,7 +466,7 @@ static const unsigned char temp_62a06903[] =
 51,181,25,217,171,205,216,211,1,112,175,76,109,134,99,37,218,12,170,54,3,48,217,40,132,199,124,136,58,145,7,18,72,11,71,57,175,81,45,31,86,203,0,116,100,204,109,66,15,50,39,17,131,66,15,180,131,130,86,170,29,20,118,124,144,10,58,153,164,3,85,87,26,1,
 62,84,1,80,61,172,2,144,220,0,108,87,189,201,228,134,196,146,27,228,18,64,246,48,21,21,94,58,34,238,127,63,113,63,124,163,148,171,141,54,255,15,230,92,172,169,0,0 };
 
-const char* BinaryData::cpmonoboldserialized = (const char*) temp_62a06903;
+const char* cpmonoboldserialized = (const char*) temp_62a06903;
 
 //================== cpmono-extralight-serialized ==================
 static const unsigned char temp_b510c8a2[] =
@@ -792,7 +713,7 @@ static const unsigned char temp_b510c8a2[] =
 120,66,120,32,139,155,40,15,180,126,150,157,113,154,128,107,216,179,37,108,220,194,47,233,224,13,93,89,4,92,176,15,24,56,101,167,173,159,113,105,17,195,62,33,235,103,186,197,72,130,4,64,144,72,42,65,34,47,226,66,97,18,36,138,143,5,233,108,1,8,128,236,
 48,253,183,227,242,255,46,202,255,177,211,99,142,61,245,254,7,170,167,234,165,0,0 };
 
-const char* BinaryData::cpmonoextralightserialized = (const char*) temp_b510c8a2;
+const char* cpmonoextralightserialized = (const char*) temp_b510c8a2;
 
 //================== cpmono-light-serialized ==================
 static const unsigned char temp_72729244[] =
@@ -1052,7 +973,7 @@ static const unsigned char temp_72729244[] =
 195,60,113,76,68,82,189,98,69,94,234,75,40,9,179,212,163,142,0,200,180,129,55,79,61,208,165,32,162,60,208,222,215,218,99,87,216,222,23,55,12,225,138,77,27,99,207,194,67,59,175,52,141,128,61,47,211,39,127,99,123,95,139,154,253,81,123,95,132,58,191,0,136,
 145,0,48,18,73,197,72,228,133,93,40,76,140,68,241,98,164,228,70,35,4,64,118,152,254,203,57,254,127,13,249,255,236,201,49,215,60,13,254,47,224,111,82,132,0,0 };
 
-const char* BinaryData::cpmonolightserialized = (const char*) temp_72729244;
+const char* cpmonolightserialized = (const char*) temp_72729244;
 
 //================== cpmono-plain-serialized ==================
 static const unsigned char temp_7b72b510[] =
@@ -1309,7 +1230,7 @@ static const unsigned char temp_7b72b510[] =
 0,27,91,68,213,198,22,105,225,40,227,53,170,180,27,162,231,22,196,138,108,12,220,164,29,120,160,235,41,4,121,160,125,43,154,68,251,86,204,159,72,5,47,118,73,58,120,227,78,42,194,244,187,14,10,64,101,123,97,160,204,66,144,14,162,74,110,72,156,118,156,
 171,5,200,30,166,162,220,75,39,196,253,141,19,247,215,110,148,114,252,151,253,15,5,44,29,103,0,0 };
 
-const char* BinaryData::cpmonoplainserialized = (const char*) temp_7b72b510;
+const char* cpmonoplainserialized = (const char*) temp_7b72b510;
 
 //================== BebasNeue.otf ==================
 static const unsigned char temp_7b880677[] =
@@ -1922,7 +1843,7 @@ static const unsigned char temp_7b880677[] =
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,10,0,3,0,10,0,3,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,0,24,0,22,0,24,0,22,0,24,0,22,0,24,0,4,0,11,0,4,0,11,0,4,0,11,0,23,0,25,0,23,0,25,0,23,0,25,0,23,0,25,0,23,0,25,0,23,0,25,0,5,0,12,0,6,0,13,0,6,0,19,
 0,21,0,19,0,21,0,19,0,21,0,15,0,17,0,3,0,10,0,22,0,24,0,4,0,11,0,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,0,24,0,4,0,11,0,5,0,12,0,5,0,12,0,5,0,12,0,6,0,13,0,0 };
 
-const char* BinaryData::BebasNeue_otf = (const char*) temp_7b880677;
+const char* BebasNeue_otf = (const char*) temp_7b880677;
 
 //================== cpmono_bold.otf ==================
 static const unsigned char temp_8e883f13[] =
@@ -2269,7 +2190,7 @@ static const unsigned char temp_8e883f13[] =
 0,2,0,21,0,4,0,12,0,0,0,14,0,19,0,9,0,21,0,23,0,15,0,28,0,28,0,18,0,36,0,51,0,19,0,53,0,54,0,35,0,57,0,60,0,37,0,63,0,66,0,41,0,71,0,72,0,45,0,82,0,82,0,47,0,92,0,92,0,48,0,99,0,99,0,49,0,103,0,106,0,50,0,140,0,162,0,54,0,165,0,168,0,77,0,179,0,184,0,
 81,0,208,0,209,0,87,0,214,0,214,0,89,0,224,1,6,0,90,1,8,1,8,0,129,1,13,1,13,0,130,0,1,0,26,0,3,0,13,0,20,0,24,0,25,0,26,0,27,0,52,0,55,0,56,0,61,0,62,0,67,0,68,0,69,0,70,0,134,0,135,0,136,0,137,0,138,0,139,0,163,0,164,0,169,1,7,0,0 };
 
-const char* BinaryData::cpmono_bold_otf = (const char*) temp_8e883f13;
+const char* cpmono_bold_otf = (const char*) temp_8e883f13;
 
 //================== cpmono_extra_light.otf ==================
 static const unsigned char temp_8172799f[] =
@@ -2597,7 +2518,7 @@ static const unsigned char temp_8172799f[] =
 0,55,0,61,0,62,0,70,0,2,0,21,0,4,0,12,0,0,0,14,0,19,0,9,0,21,0,23,0,15,0,28,0,28,0,18,0,36,0,51,0,19,0,53,0,54,0,35,0,57,0,60,0,37,0,63,0,66,0,41,0,71,0,72,0,45,0,82,0,82,0,47,0,92,0,92,0,48,0,99,0,99,0,49,0,103,0,106,0,50,0,140,0,162,0,54,0,165,0,168,
 0,77,0,179,0,184,0,81,0,208,0,209,0,87,0,214,0,214,0,89,0,224,1,6,0,90,1,8,1,8,0,129,1,13,1,13,0,130,0,1,0,26,0,3,0,13,0,20,0,24,0,25,0,26,0,27,0,52,0,55,0,56,0,61,0,62,0,67,0,68,0,69,0,70,0,134,0,135,0,136,0,137,0,138,0,139,0,163,0,164,0,169,1,7,0,0 };
 
-const char* BinaryData::cpmono_extra_light_otf = (const char*) temp_8172799f;
+const char* cpmono_extra_light_otf = (const char*) temp_8172799f;
 
 //================== cpmono_light.otf ==================
 static const unsigned char temp_9ff5f6ce[] =
@@ -2935,7 +2856,7 @@ static const unsigned char temp_9ff5f6ce[] =
 0,4,0,12,0,0,0,14,0,19,0,9,0,21,0,23,0,15,0,28,0,28,0,18,0,36,0,51,0,19,0,53,0,54,0,35,0,57,0,60,0,37,0,63,0,66,0,41,0,71,0,72,0,45,0,82,0,82,0,47,0,92,0,92,0,48,0,99,0,99,0,49,0,103,0,106,0,50,0,140,0,162,0,54,0,165,0,168,0,77,0,179,0,184,0,81,0,208,
 0,209,0,87,0,214,0,214,0,89,0,224,1,6,0,90,1,8,1,8,0,129,1,13,1,13,0,130,0,1,0,26,0,3,0,13,0,20,0,24,0,25,0,26,0,27,0,52,0,55,0,56,0,61,0,62,0,67,0,68,0,69,0,70,0,134,0,135,0,136,0,137,0,138,0,139,0,163,0,164,0,169,1,7,0,0 };
 
-const char* BinaryData::cpmono_light_otf = (const char*) temp_9ff5f6ce;
+const char* cpmono_light_otf = (const char*) temp_9ff5f6ce;
 
 //================== cpmono_plain.otf ==================
 static const unsigned char temp_eca62182[] =
@@ -3272,7 +3193,7 @@ static const unsigned char temp_eca62182[] =
 0,50,0,140,0,162,0,54,0,165,0,168,0,77,0,179,0,184,0,81,0,208,0,209,0,87,0,214,0,214,0,89,0,224,1,6,0,90,1,8,1,8,0,129,1,13,1,13,0,130,0,1,0,26,0,3,0,13,0,20,0,24,0,25,0,26,0,27,0,52,0,55,0,56,0,61,0,62,0,67,0,68,0,69,0,70,0,134,0,135,0,136,0,137,0,138,
 0,139,0,163,0,164,0,169,1,7,0,0 };
 
-const char* BinaryData::cpmono_plain_otf = (const char*) temp_eca62182;
+const char* cpmono_plain_otf = (const char*) temp_eca62182;
 
 //================== miso-bold.ttf ==================
 static const unsigned char temp_7dfa977e[] =
@@ -3959,7 +3880,7 @@ static const unsigned char temp_7dfa977e[] =
 255,203,0,239,0,212,255,203,0,240,0,213,255,203,0,241,0,214,255,202,0,242,0,215,255,202,0,243,0,216,255,202,0,244,0,217,255,202,0,245,0,218,255,202,0,246,0,218,255,201,0,247,0,219,255,201,0,248,0,220,255,201,0,249,0,221,255,201,0,250,0,222,255,201,0,
 251,0,223,255,200,0,252,0,224,255,200,0,253,0,225,255,200,0,254,0,226,255,200,0,255,0,226,255,199,0,0 };
 
-const char* BinaryData::misobold_ttf = (const char*) temp_7dfa977e;
+const char* misobold_ttf = (const char*) temp_7dfa977e;
 
 //================== miso-light.ttf ==================
 static const unsigned char temp_9ecc78ad[] =
@@ -4628,7 +4549,7 @@ static const unsigned char temp_9ecc78ad[] =
 203,0,243,0,216,255,203,0,244,0,217,255,203,0,245,0,218,255,202,0,246,0,218,255,202,0,247,0,219,255,202,0,248,0,220,255,202,0,249,0,221,255,201,0,250,0,222,255,201,0,251,0,223,255,201,0,252,0,224,255,201,0,253,0,225,255,201,0,254,0,226,255,200,0,255,
 0,226,255,200,0,0 };
 
-const char* BinaryData::misolight_ttf = (const char*) temp_9ecc78ad;
+const char* misolight_ttf = (const char*) temp_9ecc78ad;
 
 //================== miso-regular.ttf ==================
 static const unsigned char temp_bfd04473[] =
@@ -5295,7 +5216,7 @@ static const unsigned char temp_bfd04473[] =
 0,206,255,208,0,236,0,207,255,207,0,237,0,207,255,207,0,238,0,208,255,207,0,239,0,209,255,207,0,240,0,210,255,207,0,241,0,211,255,206,0,242,0,212,255,206,0,243,0,213,255,206,0,244,0,214,255,206,0,245,0,214,255,206,0,246,0,215,255,205,0,247,0,216,255,
 205,0,248,0,217,255,205,0,249,0,218,255,205,0,250,0,219,255,205,0,251,0,220,255,204,0,252,0,220,255,204,0,253,0,221,255,204,0,254,0,222,255,204,0,255,0,223,255,203,0,0 };
 
-const char* BinaryData::misoregular_ttf = (const char*) temp_bfd04473;
+const char* misoregular_ttf = (const char*) temp_bfd04473;
 
 //================== miso-serialized ==================
 static const unsigned char temp_263ed5c5[] =
@@ -6349,7 +6270,7 @@ static const unsigned char temp_263ed5c5[] =
 219,114,86,91,239,25,109,89,219,189,161,215,207,60,247,238,205,109,203,166,45,119,111,203,250,157,123,151,118,230,189,119,251,157,251,182,245,247,109,219,239,219,214,223,183,212,95,163,80,149,125,75,61,229,188,222,155,243,251,188,182,254,188,182,254,
 188,182,254,188,82,223,122,206,43,245,149,251,181,245,246,107,235,237,215,214,219,175,212,91,173,244,183,95,169,167,124,91,91,239,109,109,189,203,123,251,166,252,89,91,222,212,150,255,15,63,201,76,247,0,0 };
 
-const char* BinaryData::misoserialized = (const char*) temp_263ed5c5;
+const char* misoserialized = (const char*) temp_263ed5c5;
 
 //================== nordic.ttf ==================
 static const unsigned char temp_bcaa94b9[] =
@@ -6593,7 +6514,7 @@ static const unsigned char temp_bcaa94b9[] =
 6,7,6,39,53,54,55,51,22,23,185,30,74,27,4,1,23,86,22,3,204,31,74,27,4,2,22,86,22,4,2,126,88,56,12,28,214,22,3,3,22,86,88,56,12,28,214,22,3,3,22,0,0,0,2,0,50,1,226,1,133,2,237,0,10,0,21,0,3,0,48,49,19,6,7,6,39,53,54,55,51,22,31,1,6,7,6,39,53,54,55,51,
 22,23,185,30,74,27,4,1,23,86,22,3,204,31,74,27,4,2,22,86,22,4,2,126,88,56,12,28,214,22,3,3,22,86,88,56,12,28,214,22,3,3,22,0,0,0,0 };
 
-const char* BinaryData::nordic_ttf = (const char*) temp_bcaa94b9;
+const char* nordic_ttf = (const char*) temp_bcaa94b9;
 
 //================== ostrich.ttf ==================
 static const unsigned char temp_189d4f30[] =
@@ -6848,7 +6769,7 @@ static const unsigned char temp_189d4f30[] =
 32,69,176,3,43,68,176,12,32,69,186,0,11,127,255,0,2,43,177,3,70,118,43,68,176,13,32,69,178,12,9,2,43,177,3,70,118,43,68,176,14,32,69,178,13,8,2,43,177,3,70,118,43,68,176,15,32,69,186,0,14,1,56,0,2,43,177,3,70,118,43,68,176,16,32,69,178,15,7,2,43,177,
 3,70,118,43,68,89,176,20,43,0,0,0,0 };
 
-const char* BinaryData::ostrich_ttf = (const char*) temp_189d4f30;
+const char* ostrich_ttf = (const char*) temp_189d4f30;
 
 //================== silkscreen-serialized ==================
 static const unsigned char temp_4c9cd71c[] =
@@ -6886,7 +6807,7 @@ static const unsigned char temp_4c9cd71c[] =
 2,78,156,0,39,126,9,39,126,5,39,126,13,39,126,3,39,126,11,39,126,7,39,126,15,39,254,0,39,78,132,19,127,132,19,127,130,19,203,112,226,207,112,226,36,56,241,23,56,241,87,56,241,55,56,113,50,156,248,59,156,248,7,156,248,39,156,248,23,156,248,55,156,56,5,
 78,12,128,255,0,255,66,227,172,0,0 };
 
-const char* BinaryData::silkscreenserialized = (const char*) temp_4c9cd71c;
+const char* silkscreenserialized = (const char*) temp_4c9cd71c;
 
 //================== silkscreen.ttf ==================
 static const unsigned char temp_2de8efad[] =
@@ -7096,7 +7017,7 @@ static const unsigned char temp_2de8efad[] =
 14,16,19,16,16,16,16,14,14,16,16,8,16,16,14,19,19,16,16,16,16,16,14,16,19,19,19,19,14,11,14,11,14,16,11,16,16,16,16,14,14,16,16,8,16,16,14,19,19,16,16,16,16,16,14,16,19,19,19,19,14,14,8,14,16,24,20,12,0,11,11,9,14,20,17,20,17,9,11,11,20,20,9,14,6,14,
 17,14,17,17,17,17,17,17,17,17,6,9,14,14,14,17,20,17,17,17,17,14,14,17,17,9,17,17,14,20,20,17,17,17,17,17,14,17,20,20,20,20,14,11,14,11,14,17,11,17,17,17,17,14,14,17,17,9,17,17,14,20,20,17,17,17,17,17,14,17,20,20,20,20,14,14,9,14,17,0,0 };
 
-const char* BinaryData::silkscreen_ttf = (const char*) temp_2de8efad;
+const char* silkscreen_ttf = (const char*) temp_2de8efad;
 
 //================== ArduinoIcon.png ==================
 static const unsigned char temp_dd579bb9[] =
@@ -7888,7 +7809,7 @@ static const unsigned char temp_dd579bb9[] =
 223,255,212,213,121,32,27,7,166,188,232,223,182,138,0,0,0,0,0,32,99,109,205,214,129,253,183,63,255,249,207,94,222,126,236,75,57,185,187,67,8,23,75,2,0,0,0,0,32,163,252,123,8,225,191,255,169,171,243,68,54,14,206,157,23,76,13,33,108,19,3,0,0,0,0,64,198,
 248,117,8,97,92,182,22,23,33,184,243,130,147,190,148,147,59,46,132,48,51,132,240,223,165,1,0,0,0,0,16,73,39,66,8,91,255,212,213,249,84,182,15,244,255,63,0,215,70,173,194,31,62,235,52,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::ArduinoIcon_png = (const char*) temp_dd579bb9;
+const char* ArduinoIcon_png = (const char*) temp_dd579bb9;
 
 //================== OpenEphysBoardLogoBlack.png ==================
 static const unsigned char temp_ef366d73[] =
@@ -8365,7 +8286,7 @@ static const unsigned char temp_ef366d73[] =
 38,188,253,43,192,21,222,214,75,152,155,65,10,120,183,225,238,40,149,248,181,93,188,0,0,0,0,0,0,228,118,87,109,194,218,69,42,243,248,20,220,54,79,152,91,152,116,76,115,188,135,119,148,74,245,197,215,187,226,247,220,209,11,0,0,0,0,0,192,215,196,99,144,
 23,247,124,127,177,243,253,237,215,183,235,213,242,218,144,149,227,255,1,23,88,237,144,160,48,169,201,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::OpenEphysBoardLogoBlack_png = (const char*) temp_ef366d73;
+const char* OpenEphysBoardLogoBlack_png = (const char*) temp_ef366d73;
 
 //================== OpenEphysBoardLogoGray.png ==================
 static const unsigned char temp_76e84745[] =
@@ -8839,7 +8760,7 @@ static const unsigned char temp_76e84745[] =
 194,221,105,190,210,239,85,241,2,0,0,0,0,0,80,218,125,179,13,107,55,249,90,167,187,224,182,127,194,220,202,228,109,154,211,57,188,211,124,53,127,249,253,190,244,103,206,232,5,0,0,0,0,0,224,107,210,54,200,155,7,254,124,179,247,231,187,223,223,133,16,110,
 12,89,61,254,7,181,146,230,16,82,63,166,171,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::OpenEphysBoardLogoGray_png = (const char*) temp_76e84745;
+const char* OpenEphysBoardLogoGray_png = (const char*) temp_76e84745;
 
 //================== RadioButtons-01.png ==================
 static const unsigned char temp_bcea9320[] =
@@ -8856,7 +8777,7 @@ static const unsigned char temp_bcea9320[] =
 139,193,13,163,246,157,221,112,9,202,148,32,17,195,47,19,116,2,18,208,41,176,105,214,127,97,252,42,65,58,157,174,251,62,248,31,166,235,142,2,247,227,241,216,176,215,219,78,23,198,225,66,100,179,25,231,142,164,143,146,97,122,12,31,197,55,193,15,1,6,0,
 156,20,41,102,255,70,71,224,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons01_png = (const char*) temp_bcea9320;
+const char* RadioButtons01_png = (const char*) temp_bcea9320;
 
 //================== RadioButtons-02.png ==================
 static const unsigned char temp_bcf8aaa1[] =
@@ -8873,7 +8794,7 @@ static const unsigned char temp_bcf8aaa1[] =
 11,27,40,149,78,239,65,201,21,129,236,150,85,243,77,37,93,83,233,37,76,125,252,132,11,205,13,216,219,207,83,89,124,42,135,255,215,254,175,75,246,147,9,20,10,192,254,126,241,159,47,156,95,178,215,183,243,90,135,228,138,98,177,128,157,237,237,51,135,75,
 46,163,63,153,39,231,245,39,243,67,128,1,0,60,21,103,165,70,150,193,96,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons02_png = (const char*) temp_bcf8aaa1;
+const char* RadioButtons02_png = (const char*) temp_bcf8aaa1;
 
 //================== RadioButtons-03.png ==================
 static const unsigned char temp_bd06c222[] =
@@ -8888,7 +8809,7 @@ static const unsigned char temp_bd06c222[] =
 253,155,136,179,130,202,88,194,31,61,126,114,163,110,191,63,32,93,202,60,245,225,204,45,203,158,54,203,60,163,88,191,255,56,193,206,246,75,186,44,236,245,21,162,183,228,232,243,49,205,71,74,109,170,102,254,143,101,103,57,59,51,56,120,254,14,66,220,208,
 30,190,255,169,31,214,214,111,160,121,217,155,103,254,63,132,185,58,142,35,244,207,207,87,14,103,174,160,47,153,167,183,245,37,243,91,128,1,0,11,149,65,182,96,70,58,8,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons03_png = (const char*) temp_bd06c222;
+const char* RadioButtons03_png = (const char*) temp_bd06c222;
 
 //================== RadioButtons-04.png ==================
 static const unsigned char temp_bd14d9a3[] =
@@ -8904,7 +8825,7 @@ static const unsigned char temp_bd14d9a3[] =
 83,92,187,240,93,35,132,215,5,220,9,154,224,30,184,235,122,161,255,167,29,66,196,171,165,45,164,51,219,152,156,184,142,241,241,41,112,101,8,165,210,14,89,236,208,155,19,245,79,112,27,182,219,118,203,190,92,66,196,194,98,14,233,244,39,18,208,143,106,213,
 167,134,182,195,202,209,74,219,255,52,42,21,134,61,109,61,188,246,253,224,196,7,233,200,246,214,86,254,183,67,112,185,101,85,176,171,170,103,14,23,92,70,127,50,47,206,235,79,230,155,0,3,0,91,7,91,249,23,102,61,167,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons04_png = (const char*) temp_bd14d9a3;
+const char* RadioButtons04_png = (const char*) temp_bd14d9a3;
 
 //================== RadioButtons-05.png ==================
 static const unsigned char temp_bd22f124[] =
@@ -8959,7 +8880,7 @@ static const unsigned char temp_bd22f124[] =
 162,63,207,207,191,252,78,47,76,49,6,14,15,19,62,191,243,5,198,88,140,57,95,51,207,205,73,170,147,228,66,176,16,240,240,225,99,176,159,49,24,68,52,91,17,113,60,230,203,175,118,209,74,32,4,164,153,37,207,237,84,135,186,200,254,53,213,207,44,73,224,94,
 237,224,164,117,254,119,192,197,96,131,206,243,127,62,241,255,97,121,158,163,163,104,72,171,217,188,84,112,20,13,17,213,106,245,211,23,241,3,249,115,0,245,214,95,36,216,96,243,208,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons05_png = (const char*) temp_bd22f124;
+const char* RadioButtons05_png = (const char*) temp_bd22f124;
 
 //================== RadioButtons_neutral-01.png ==================
 static const unsigned char temp_fbf03e98[] =
@@ -8975,7 +8896,7 @@ static const unsigned char temp_fbf03e98[] =
 209,58,51,61,253,79,231,101,53,3,162,36,255,136,126,90,197,177,158,19,45,255,25,169,101,99,120,129,127,176,188,242,62,176,83,42,193,108,110,237,123,68,18,69,80,191,94,68,151,140,6,131,75,71,211,7,90,157,133,159,2,12,0,238,13,9,71,19,58,158,165,0,0,0,
 0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_neutral01_png = (const char*) temp_fbf03e98;
+const char* RadioButtons_neutral01_png = (const char*) temp_fbf03e98;
 
 //================== RadioButtons_neutral-02.png ==================
 static const unsigned char temp_fbfe5619[] =
@@ -8990,7 +8911,7 @@ static const unsigned char temp_fbfe5619[] =
 158,112,24,14,246,30,124,249,26,199,204,244,76,213,60,81,121,133,87,94,7,156,75,60,62,42,212,235,245,34,111,113,126,44,225,188,114,42,122,174,29,201,123,157,205,102,14,29,75,69,207,217,150,233,53,246,188,30,225,92,98,148,203,88,77,47,55,28,206,185,68,
 85,11,175,152,54,229,79,230,159,0,3,0,178,38,58,166,235,164,14,20,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_neutral02_png = (const char*) temp_fbfe5619;
+const char* RadioButtons_neutral02_png = (const char*) temp_fbfe5619;
 
 //================== RadioButtons_neutral-03.png ==================
 static const unsigned char temp_fc0c6d9a[] =
@@ -9003,7 +8924,7 @@ static const unsigned char temp_fc0c6d9a[] =
 66,33,48,174,82,42,65,235,237,3,239,156,137,206,35,192,219,29,13,170,181,122,104,220,211,115,21,173,47,184,132,58,115,254,127,184,200,185,40,22,35,239,237,212,153,115,190,98,141,8,115,62,174,4,151,136,143,71,179,241,50,113,184,224,146,126,191,119,206,
 207,169,252,201,252,8,48,0,227,76,197,247,89,122,10,69,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_neutral03_png = (const char*) temp_fc0c6d9a;
+const char* RadioButtons_neutral03_png = (const char*) temp_fc0c6d9a;
 
 //================== RadioButtons_neutral-04.png ==================
 static const unsigned char temp_fc1a851b[] =
@@ -9018,7 +8939,7 @@ static const unsigned char temp_fc1a851b[] =
 106,149,103,195,180,60,111,59,212,159,113,9,229,123,110,93,200,247,251,217,218,211,158,26,229,123,78,233,185,14,87,212,193,184,132,221,229,253,47,159,251,14,103,92,162,235,237,71,222,24,200,159,204,111,1,6,0,203,214,249,255,62,204,159,178,0,0,0,0,73,
 69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_neutral04_png = (const char*) temp_fc1a851b;
+const char* RadioButtons_neutral04_png = (const char*) temp_fc1a851b;
 
 //================== RadioButtons_neutral-05.png ==================
 static const unsigned char temp_fc289c9c[] =
@@ -9072,7 +8993,7 @@ static const unsigned char temp_fc289c9c[] =
 229,42,213,143,142,62,250,227,151,203,24,65,139,24,130,192,255,173,248,237,236,204,95,123,50,69,12,90,68,234,14,193,191,10,17,65,135,229,50,139,153,249,134,130,195,114,25,157,207,187,183,242,121,183,225,63,144,239,3,0,218,200,55,245,184,64,106,163,0,
 0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_neutral05_png = (const char*) temp_fc289c9c;
+const char* RadioButtons_neutral05_png = (const char*) temp_fc289c9c;
 
 //================== RadioButtons_selected-01.png ==================
 static const unsigned char temp_789007d8[] =
@@ -9088,7 +9009,7 @@ static const unsigned char temp_789007d8[] =
 201,56,82,41,9,166,77,13,152,187,228,46,9,35,137,52,171,0,207,211,101,41,173,252,195,9,229,57,81,242,122,81,82,20,72,73,50,247,52,160,67,163,73,84,189,25,101,114,32,250,75,112,79,250,5,79,108,173,1,171,85,110,138,73,65,6,89,252,35,106,169,54,232,28,74,
 103,210,171,173,194,111,1,6,0,169,191,241,34,56,210,107,35,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_selected01_png = (const char*) temp_789007d8;
+const char* RadioButtons_selected01_png = (const char*) temp_789007d8;
 
 //================== RadioButtons_selected-02.png ==================
 static const unsigned char temp_789e1f59[] =
@@ -9104,7 +9025,7 @@ static const unsigned char temp_789e1f59[] =
 177,168,3,67,121,209,135,31,212,156,94,31,213,57,81,82,12,227,146,130,166,67,150,141,37,57,175,101,249,119,201,115,25,215,212,92,206,26,21,191,88,76,205,213,188,142,47,169,202,223,106,140,75,98,178,113,47,38,107,203,242,39,243,71,128,1,0,163,90,231,150,
 52,232,169,252,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_selected02_png = (const char*) temp_789e1f59;
+const char* RadioButtons_selected02_png = (const char*) temp_789e1f59;
 
 //================== RadioButtons_selected-03.png ==================
 static const unsigned char temp_78ac36da[] =
@@ -9117,7 +9038,7 @@ static const unsigned char temp_78ac36da[] =
 133,212,250,251,240,134,191,185,236,26,30,27,107,26,174,31,92,181,157,187,187,60,209,250,43,46,229,76,162,246,213,61,220,204,102,80,127,56,237,56,55,116,123,140,90,61,232,175,184,148,113,1,219,238,30,14,187,134,199,163,195,158,223,237,138,235,103,110,
 247,176,249,95,203,207,220,105,8,60,85,250,255,175,166,184,52,111,203,227,188,205,255,229,75,230,91,128,1,0,165,175,191,223,100,163,205,167,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_selected03_png = (const char*) temp_78ac36da;
+const char* RadioButtons_selected03_png = (const char*) temp_78ac36da;
 
 //================== RadioButtons_selected-04.png ==================
 static const unsigned char temp_78ba4e5b[] =
@@ -9133,7 +9054,7 @@ static const unsigned char temp_78ba4e5b[] =
 225,201,103,241,213,66,95,231,178,74,73,133,44,107,107,178,127,71,158,62,174,24,211,185,70,205,229,156,86,243,131,197,168,121,161,168,98,54,83,251,83,77,231,146,206,157,219,70,215,235,79,230,135,0,3,0,71,200,242,251,63,187,157,122,0,0,0,0,73,69,78,68,
 174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_selected04_png = (const char*) temp_78ba4e5b;
+const char* RadioButtons_selected04_png = (const char*) temp_78ba4e5b;
 
 //================== RadioButtons_selected-05.png ==================
 static const unsigned char temp_78c865dc[] =
@@ -9187,7 +9108,7 @@ static const unsigned char temp_78c865dc[] =
 67,47,42,109,196,133,131,158,216,185,173,106,221,105,147,89,82,137,21,26,39,18,154,254,235,201,213,60,226,64,151,202,198,52,99,235,6,155,222,129,127,54,50,165,90,172,177,249,59,150,208,89,45,165,141,110,69,109,250,195,137,253,157,172,168,141,30,48,99,
 15,3,166,34,209,235,207,0,161,143,20,90,35,156,236,45,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_selected05_png = (const char*) temp_78c865dc;
+const char* RadioButtons_selected05_png = (const char*) temp_78c865dc;
 
 //================== RadioButtons_selected_over-01.png ==================
 static const unsigned char temp_a1a89ec7[] =
@@ -9204,7 +9125,7 @@ static const unsigned char temp_a1a89ec7[] =
 210,200,69,104,11,12,70,130,75,111,58,47,213,51,4,0,45,145,231,72,227,242,106,99,67,8,38,77,148,214,236,194,252,232,29,104,81,10,211,2,167,127,95,102,242,166,180,21,136,199,55,103,184,171,35,195,246,76,128,201,96,234,185,135,164,97,114,5,210,38,85,167,
 34,110,212,151,24,155,244,143,219,120,49,86,15,144,64,32,112,130,63,143,52,87,40,40,47,236,113,0,95,227,156,192,218,137,168,105,171,226,238,226,127,38,185,208,39,162,95,2,12,0,137,200,31,90,212,72,119,82,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_selected_over01_png = (const char*) temp_a1a89ec7;
+const char* RadioButtons_selected_over01_png = (const char*) temp_a1a89ec7;
 
 //================== RadioButtons_selected_over-02.png ==================
 static const unsigned char temp_a1b6b648[] =
@@ -9221,7 +9142,7 @@ static const unsigned char temp_a1b6b648[] =
 152,175,120,22,147,161,155,152,126,23,130,33,206,65,238,121,14,87,54,121,150,74,104,139,72,214,60,247,176,246,86,140,116,182,65,45,41,130,30,157,134,153,180,97,25,88,240,254,59,92,217,48,45,48,246,31,94,138,152,141,217,169,169,116,251,47,220,57,92,161,
 57,211,236,37,127,82,133,230,201,148,133,254,25,186,228,112,135,43,143,50,251,225,40,51,177,28,229,167,0,3,0,110,188,26,228,110,165,221,163,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_selected_over02_png = (const char*) temp_a1b6b648;
+const char* RadioButtons_selected_over02_png = (const char*) temp_a1b6b648;
 
 //================== RadioButtons_selected_over-03.png ==================
 static const unsigned char temp_a1c4cdc9[] =
@@ -9237,7 +9158,7 @@ static const unsigned char temp_a1c4cdc9[] =
 233,51,62,35,150,31,110,188,153,144,140,121,129,186,80,115,61,175,185,138,254,243,233,48,250,71,191,5,102,89,205,39,124,122,125,24,138,149,63,82,45,87,182,149,217,110,43,125,40,111,50,191,5,24,0,98,67,27,130,54,13,67,66,0,0,0,0,73,69,78,68,174,66,96,
 130,0,0 };
 
-const char* BinaryData::RadioButtons_selected_over03_png = (const char*) temp_a1c4cdc9;
+const char* RadioButtons_selected_over03_png = (const char*) temp_a1c4cdc9;
 
 //================== RadioButtons_selected_over-04.png ==================
 static const unsigned char temp_a1d2e54a[] =
@@ -9254,7 +9175,7 @@ static const unsigned char temp_a1d2e54a[] =
 109,113,164,210,69,236,159,73,142,228,203,87,66,196,56,202,58,175,192,79,85,68,23,8,212,117,6,61,143,227,112,169,37,154,133,166,237,66,243,222,224,248,250,98,12,114,73,174,166,109,131,131,153,121,49,183,55,99,174,165,119,249,84,35,238,30,144,141,185,
 110,50,204,38,164,61,63,82,29,46,93,212,248,211,69,205,222,151,63,153,191,2,12,0,199,181,70,142,38,155,205,86,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::RadioButtons_selected_over04_png = (const char*) temp_a1d2e54a;
+const char* RadioButtons_selected_over04_png = (const char*) temp_a1d2e54a;
 
 //================== RadioButtons_selected_over-05.png ==================
 static const unsigned char temp_a1e0fccb[] =
@@ -9310,7 +9231,7 @@ static const unsigned char temp_a1e0fccb[] =
 210,38,160,217,252,135,89,141,144,218,222,213,127,69,126,47,211,166,159,227,102,123,180,167,147,214,1,202,239,5,92,241,228,72,133,253,94,128,218,110,134,159,111,55,205,200,111,32,127,13,0,111,180,58,50,205,148,146,75,0,0,0,0,73,69,78,68,174,66,96,130,
 0,0 };
 
-const char* BinaryData::RadioButtons_selected_over05_png = (const char*) temp_a1e0fccb;
+const char* RadioButtons_selected_over05_png = (const char*) temp_a1e0fccb;
 
 //================== noise_wave.png ==================
 static const unsigned char temp_2ada9d3c[] =
@@ -9595,7 +9516,7 @@ static const unsigned char temp_2ada9d3c[] =
 73,212,228,227,97,186,249,117,163,15,151,199,251,203,99,220,30,131,176,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 176,175,255,47,192,0,205,180,140,11,223,168,97,120,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::noise_wave_png = (const char*) temp_2ada9d3c;
+const char* noise_wave_png = (const char*) temp_2ada9d3c;
 
 //================== saw_wave.png ==================
 static const unsigned char temp_fad5260d[] =
@@ -9740,7 +9661,7 @@ static const unsigned char temp_fad5260d[] =
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,231,254,191,0,3,0,11,98,146,161,132,82,43,233,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::saw_wave_png = (const char*) temp_fad5260d;
+const char* saw_wave_png = (const char*) temp_fad5260d;
 
 //================== sine_wave.png ==================
 static const unsigned char temp_eb0332c3[] =
@@ -9916,7 +9837,7 @@ static const unsigned char temp_eb0332c3[] =
 104,1,0,0,0,144,20,9,45,0,0,0,0,146,34,161,5,0,0,0,64,82,36,180,0,0,0,0,72,138,132,22,0,0,0,0,73,145,208,2,0,0,0,32,41,18,90,0,0,0,0,36,69,66,11,0,0,0,128,164,72,104,1,0,0,0,144,20,9,45,0,0,0,0,146,242,255,5,24,0,142,248,78,14,98,33,228,71,0,0,0,0,73,
 69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::sine_wave_png = (const char*) temp_eb0332c3;
+const char* sine_wave_png = (const char*) temp_eb0332c3;
 
 //================== square_wave.png ==================
 static const unsigned char temp_727226f3[] =
@@ -9990,7 +9911,7 @@ static const unsigned char temp_727226f3[] =
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,240,14,253,79,128,1,0,153,2,27,8,33,213,49,244,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::square_wave_png = (const char*) temp_727226f3;
+const char* square_wave_png = (const char*) temp_727226f3;
 
 //================== triangle_wave.png ==================
 static const unsigned char temp_3825ab28[] =
@@ -10102,7 +10023,7 @@ static const unsigned char temp_3825ab28[] =
 253,85,213,43,183,1,0,0,0,128,31,189,110,95,226,209,150,161,42,46,59,0,0,0,0,207,121,117,88,239,219,122,161,234,248,107,174,184,204,0,0,0,0,156,235,248,247,73,165,125,137,87,215,254,171,130,199,72,245,166,125,249,203,222,1,88,193,47,46,1,0,0,48,161,151,
 183,235,230,176,254,235,153,255,236,127,31,214,223,135,245,231,97,253,225,210,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,244,239,255,5,24,0,2,125,7,137,153,101,243,194,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::triangle_wave_png = (const char*) temp_3825ab28;
+const char* triangle_wave_png = (const char*) temp_3825ab28;
 
 //================== wifi.png ==================
 static const unsigned char temp_4168e213[] =
@@ -10155,7 +10076,7 @@ static const unsigned char temp_4168e213[] =
 242,3,16,82,130,228,7,32,164,4,201,15,64,72,9,146,31,128,144,18,36,63,0,33,37,72,126,0,66,74,144,252,0,132,148,32,249,1,8,41,65,242,3,16,82,130,228,7,32,164,4,201,15,64,72,9,146,31,128,144,18,36,63,0,33,37,72,126,0,66,74,144,252,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,45,252,95,128,1,0,166,155,18,218,219,72,225,153,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::wifi_png = (const char*) temp_4168e213;
+const char* wifi_png = (const char*) temp_4168e213;
 
 //================== SourceDrop.png ==================
 static const unsigned char temp_77043408[] =
@@ -10248,7 +10169,7 @@ static const unsigned char temp_77043408[] =
 26,164,75,209,72,34,211,28,63,74,138,38,66,201,96,214,123,31,215,202,78,82,52,153,53,99,58,3,113,133,118,4,84,67,196,90,153,246,239,131,61,5,46,8,209,140,108,43,83,16,183,166,173,177,173,50,183,237,162,119,53,170,131,166,73,95,128,80,217,182,35,165,183,
 255,53,143,89,151,98,217,252,191,0,3,0,92,224,0,25,78,103,130,40,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::SourceDrop_png = (const char*) temp_77043408;
+const char* SourceDrop_png = (const char*) temp_77043408;
 
 //================== DefaultDataSource.png ==================
 static const unsigned char temp_1f71843e[] =
@@ -10450,7 +10371,7 @@ static const unsigned char temp_1f71843e[] =
 124,222,248,247,158,65,139,0,193,1,192,126,193,98,168,90,68,177,106,209,200,63,55,193,126,229,98,168,20,12,255,252,175,252,243,80,45,88,50,72,17,32,56,0,200,27,52,54,181,59,252,95,159,110,249,207,134,39,255,135,220,74,24,248,166,114,64,133,0,40,207,255,
 11,48,0,82,9,189,51,228,54,205,183,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::DefaultDataSource_png = (const char*) temp_1f71843e;
+const char* DefaultDataSource_png = (const char*) temp_1f71843e;
 
 //================== FileReaderIcon.png ==================
 static const unsigned char temp_745ce456[] =
@@ -10499,7 +10420,7 @@ static const unsigned char temp_745ce456[] =
 127,254,79,195,56,173,205,12,0,100,141,149,205,253,1,0,120,20,143,129,0,0,177,2,0,32,86,0,0,177,2,0,32,86,0,0,196,10,0,32,86,0,0,196,10,0,32,86,0,0,196,10,0,128,88,1,0,196,10,0,128,88,1,0,196,10,0,128,88,1,0,16,43,0,128,88,1,0,16,43,0,128,88,1,0,16,43,
 0,0,98,5,0,16,43,0,0,167,240,135,0,3,0,22,72,102,252,69,115,49,232,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::FileReaderIcon_png = (const char*) temp_745ce456;
+const char* FileReaderIcon_png = (const char*) temp_745ce456;
 
 //================== IntanIcon.png ==================
 static const unsigned char temp_18972d[] =
@@ -10733,7 +10654,7 @@ static const unsigned char temp_18972d[] =
 105,213,2,0,154,55,203,151,219,124,121,95,245,202,192,206,6,172,21,97,107,148,47,175,178,199,150,45,115,105,1,0,85,133,57,172,66,144,250,152,47,211,54,67,85,39,2,214,154,192,53,140,97,235,167,236,223,22,174,97,166,181,11,0,248,215,44,46,243,255,254,43,
 134,170,217,174,2,213,178,255,23,96,0,208,173,232,3,246,227,153,225,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::IntanIcon_png = (const char*) temp_18972d;
+const char* IntanIcon_png = (const char*) temp_18972d;
 
 //================== muteoff.png ==================
 static const unsigned char temp_bf129135[] =
@@ -10767,7 +10688,7 @@ static const unsigned char temp_bf129135[] =
 182,24,66,64,147,106,154,30,135,13,0,193,84,19,102,16,80,165,154,3,134,10,8,141,134,174,87,64,96,182,129,104,196,220,157,81,72,16,210,2,119,24,2,81,172,102,34,110,136,127,239,56,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,153,224,63,1,6,0,199,74,112,
 188,78,34,32,245,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::muteoff_png = (const char*) temp_bf129135;
+const char* muteoff_png = (const char*) temp_bf129135;
 
 //================== muteon.png ==================
 static const unsigned char temp_a3695c2f[] =
@@ -10795,7 +10716,7 @@ static const unsigned char temp_a3695c2f[] =
 38,65,91,214,228,14,14,168,202,154,60,228,30,130,203,121,233,105,25,123,202,54,196,20,179,57,87,115,131,144,221,96,31,27,191,114,218,182,163,21,113,215,246,185,227,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,112,61,252,35,192,0,171,7,136,102,133,179,227,147,0,0,0,
 0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::muteon_png = (const char*) temp_a3695c2f;
+const char* muteon_png = (const char*) temp_a3695c2f;
 
 //================== MergerA-01.png ==================
 static const unsigned char temp_7677e5e[] =
@@ -10876,7 +10797,7 @@ static const unsigned char temp_7677e5e[] =
 248,195,31,30,43,12,66,17,148,105,26,154,109,180,127,89,116,32,18,138,24,98,32,26,159,252,207,126,241,139,191,60,90,127,252,246,219,240,242,229,255,41,18,66,17,148,97,18,215,111,98,24,186,179,204,71,246,189,163,25,108,32,154,249,139,79,63,13,127,253,
 55,127,27,254,251,191,254,83,48,66,40,130,124,82,39,232,183,113,253,99,12,67,15,114,28,238,248,255,2,12,0,160,41,104,168,212,59,220,159,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::MergerA01_png = (const char*) temp_7677e5e;
+const char* MergerA01_png = (const char*) temp_7677e5e;
 
 //================== MergerA-02.png ==================
 static const unsigned char temp_77595df[] =
@@ -10959,7 +10880,7 @@ static const unsigned char temp_77595df[] =
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,7,243,255,2,12,0,244,180,87,201,128,90,137,162,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::MergerA02_png = (const char*) temp_77595df;
+const char* MergerA02_png = (const char*) temp_77595df;
 
 //================== MergerB-01.png ==================
 static const unsigned char temp_6f48ab3d[] =
@@ -11043,7 +10964,7 @@ static const unsigned char temp_6f48ab3d[] =
 90,156,33,18,68,136,34,40,194,36,100,60,119,36,138,232,108,24,185,195,12,81,4,197,154,214,113,52,21,69,112,201,254,254,31,254,241,240,179,63,125,218,55,9,68,17,20,109,30,214,248,42,17,81,68,23,221,138,215,77,99,64,20,65,99,164,67,217,31,94,246,182,218,
 187,230,76,199,92,248,185,69,0,100,51,13,107,124,50,182,40,66,16,1,80,154,73,200,240,14,53,81,132,32,2,160,4,199,117,12,221,205,117,247,217,255,11,48,0,4,145,141,135,126,85,212,174,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::MergerB01_png = (const char*) temp_6f48ab3d;
+const char* MergerB01_png = (const char*) temp_6f48ab3d;
 
 //================== MergerB-02.png ==================
 static const unsigned char temp_6f56c2be[] =
@@ -11113,7 +11034,7 @@ static const unsigned char temp_6f56c2be[] =
 0,0,68,17,0,128,40,2,0,16,69,0,0,162,8,0,64,20,1,0,136,34,0,0,81,4,0,32,138,0,0,68,17,0,128,40,2,0,16,69,0,0,162,8,0,64,20,1,0,136,34,0,0,81,4,0,32,138,0,0,68,17,0,128,40,2,0,16,69,0,0,162,8,0,64,20,1,0,136,34,0,0,81,4,0,32,138,0,0,68,17,0,128,40,2,0,
 16,69,0,0,162,8,0,64,20,1,0,136,34,0,0,81,4,0,32,138,0,0,68,17,0,128,40,2,0,16,69,0,0,181,248,175,0,3,0,94,88,236,111,126,120,246,51,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::MergerB02_png = (const char*) temp_6f56c2be;
+const char* MergerB02_png = (const char*) temp_6f56c2be;
 
 //================== PipelineA-01.png ==================
 static const unsigned char temp_a2c576c6[] =
@@ -11191,7 +11112,7 @@ static const unsigned char temp_a2c576c6[] =
 0,132,24,40,73,28,224,125,17,12,242,2,8,49,80,88,128,137,91,72,6,121,1,132,24,40,138,147,72,0,66,12,20,25,96,174,148,1,64,136,129,210,2,204,74,25,0,132,24,40,201,107,1,6,96,222,188,39,134,18,197,240,242,66,25,0,230,77,39,6,1,6,0,33,6,4,24,0,132,24,16,
 96,0,16,98,16,96,0,152,154,111,149,128,204,57,70,13,192,157,116,98,16,96,0,40,210,255,4,24,0,27,12,93,110,21,245,184,159,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::PipelineA01_png = (const char*) temp_a2c576c6;
+const char* PipelineA01_png = (const char*) temp_a2c576c6;
 
 //================== PipelineA-02.png ==================
 static const unsigned char temp_a2d38e47[] =
@@ -11286,7 +11207,7 @@ static const unsigned char temp_a2d38e47[] =
 25,5,136,24,128,212,157,133,243,243,140,198,198,1,34,6,32,117,49,88,28,9,0,34,6,32,27,85,152,172,186,28,26,5,136,24,128,28,148,77,188,156,26,5,136,24,128,212,77,143,4,40,237,119,1,17,3,144,131,24,44,251,110,145,6,17,3,144,139,170,137,151,202,40,64,196,
 0,228,160,12,142,4,0,17,3,144,137,24,44,142,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,210,240,127,2,12,0,195,72,32,13,219,83,201,41,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::PipelineA02_png = (const char*) temp_a2d38e47;
+const char* PipelineA02_png = (const char*) temp_a2d38e47;
 
 //================== PipelineB-01.png ==================
 static const unsigned char temp_aa6a3a5[] =
@@ -11376,7 +11297,7 @@ static const unsigned char temp_aa6a3a5[] =
 175,127,249,203,162,231,100,4,12,0,223,240,55,237,231,137,49,144,218,31,254,240,73,248,235,95,255,18,14,14,14,5,12,0,34,134,178,252,239,159,254,20,254,239,243,207,195,221,31,223,13,223,253,238,223,206,254,114,124,140,250,196,116,0,120,145,47,125,124,
 114,250,220,190,115,231,203,255,250,239,255,249,114,52,158,28,251,159,39,0,47,243,255,2,12,0,38,140,193,224,172,166,247,238,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::PipelineB01_png = (const char*) temp_aa6a3a5;
+const char* PipelineB01_png = (const char*) temp_aa6a3a5;
 
 //================== PipelineB-02.png ==================
 static const unsigned char temp_ab4bb26[] =
@@ -11454,4 +11375,85 @@ static const unsigned char temp_ab4bb26[] =
 228,45,210,23,73,191,11,0,16,36,196,184,18,0,0,8,21,98,242,146,209,66,105,1,128,8,33,38,247,187,92,38,253,46,0,64,144,16,227,74,0,0,32,84,136,201,253,46,103,202,7,0,68,9,49,185,223,229,84,217,0,128,8,33,102,125,37,64,165,92,0,64,132,16,179,238,119,1,
 0,8,17,98,114,191,203,66,105,0,128,40,33,198,149,0,0,64,24,174,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,202,241,119,1,6,0,159,157,76,71,98,187,78,10,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* BinaryData::PipelineB02_png = (const char*) temp_ab4bb26;
+const char* PipelineB02_png = (const char*) temp_ab4bb26;
+
+
+const char* getNamedResource (const char*, int&) throw();
+const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw()
+{
+    unsigned int hash = 0;
+    if (resourceNameUTF8 != 0)
+        while (*resourceNameUTF8 != 0)
+            hash = 31 * hash + (unsigned int) *resourceNameUTF8++;
+
+    switch (hash)
+    {
+        case 0x9ad84ff3:  numBytes = 15547; return cpmonoblackserialized;
+        case 0x430faa99:  numBytes = 16442; return cpmonoboldserialized;
+        case 0x804451da:  numBytes = 17136; return cpmonoextralightserialized;
+        case 0x7165c44a:  numBytes = 18090; return cpmonolightserialized;
+        case 0x71b017fe:  numBytes = 17831; return cpmonoplainserialized;
+        case 0x03d0455a:  numBytes = 48648; return BebasNeue_otf;
+        case 0xd23520f6:  numBytes = 26604; return cpmono_bold_otf;
+        case 0x89b1519a:  numBytes = 25016; return cpmono_extra_light_otf;
+        case 0xcf4917c9:  numBytes = 25776; return cpmono_light_otf;
+        case 0x1bf9427d:  numBytes = 25692; return cpmono_plain_otf;
+        case 0xd11b0e24:  numBytes = 60860; return misobold_ttf;
+        case 0xad1e9d45:  numBytes = 60196; return misolight_ttf;
+        case 0x2ea472cb:  numBytes = 59328; return misoregular_ttf;
+        case 0xdf7ec47c:  numBytes = 73774; return misoserialized;
+        case 0xe63cbeb4:  numBytes = 23508; return nordic_ttf;
+        case 0x1eb42b13:  numBytes = 21428; return ostrich_ttf;
+        case 0xafad3345:  numBytes = 2254; return silkscreenserialized;
+        case 0xac0c53a8:  numBytes = 18336; return silkscreen_ttf;
+        case 0x3fc48d8b:  numBytes = 56888; return ArduinoIcon_png;
+        case 0xe36802c5:  numBytes = 36120; return OpenEphysBoardLogoBlack_png;
+        case 0xf27b4df1:  numBytes = 35843; return OpenEphysBoardLogoGray_png;
+        case 0x9dbdc191:  numBytes = 818; return RadioButtons01_png;
+        case 0x9dcbd912:  numBytes = 824; return RadioButtons02_png;
+        case 0x9dd9f093:  numBytes = 704; return RadioButtons03_png;
+        case 0x9de80814:  numBytes = 792; return RadioButtons04_png;
+        case 0x9df61f95:  numBytes = 3561; return RadioButtons05_png;
+        case 0xa1a5fa19:  numBytes = 730; return RadioButtons_neutral01_png;
+        case 0xa1b4119a:  numBytes = 681; return RadioButtons_neutral02_png;
+        case 0xa1c2291b:  numBytes = 536; return RadioButtons_neutral03_png;
+        case 0xa1d0409c:  numBytes = 654; return RadioButtons_neutral04_png;
+        case 0xa1de581d:  numBytes = 3440; return RadioButtons_neutral05_png;
+        case 0x91e6977f:  numBytes = 761; return RadioButtons_selected01_png;
+        case 0x91f4af00:  numBytes = 729; return RadioButtons_selected02_png;
+        case 0x9202c681:  numBytes = 561; return RadioButtons_selected03_png;
+        case 0x9210de02:  numBytes = 727; return RadioButtons_selected04_png;
+        case 0x921ef583:  numBytes = 3463; return RadioButtons_selected05_png;
+        case 0x0634464a:  numBytes = 866; return RadioButtons_selected_over01_png;
+        case 0x06425dcb:  numBytes = 843; return RadioButtons_selected_over02_png;
+        case 0x0650754c:  numBytes = 728; return RadioButtons_selected_over03_png;
+        case 0x065e8ccd:  numBytes = 838; return RadioButtons_selected_over04_png;
+        case 0x066ca44e:  numBytes = 3571; return RadioButtons_selected_over05_png;
+        case 0x0d14b768:  numBytes = 19800; return noise_wave_png;
+        case 0x96fe1b79:  numBytes = 10801; return saw_wave_png;
+        case 0xd15cb155:  numBytes = 12863; return sine_wave_png;
+        case 0xd4df18c5:  numBytes = 6208; return square_wave_png;
+        case 0x5f96403a:  numBytes = 8480; return triangle_wave_png;
+        case 0xb01cfdff:  numBytes = 3412; return wifi_png;
+        case 0x593e4e34:  numBytes = 6274; return SourceDrop_png;
+        case 0x6189efd0:  numBytes = 14143; return DefaultDataSource_png;
+        case 0x3862b802:  numBytes = 3650; return FileReaderIcon_png;
+        case 0xe67215bf:  numBytes = 16352; return IntanIcon_png;
+        case 0xd9760f20:  numBytes = 2034; return muteoff_png;
+        case 0x7b0e8322:  numBytes = 1570; return muteon_png;
+        case 0xe26621d2:  numBytes = 5609; return MergerA01_png;
+        case 0xe2743953:  numBytes = 5712; return MergerA02_png;
+        case 0x174c5d13:  numBytes = 5818; return MergerB01_png;
+        case 0x175a7494:  numBytes = 4832; return MergerB02_png;
+        case 0x92083d6a:  numBytes = 5396; return PipelineA01_png;
+        case 0x921654eb:  numBytes = 6533; return PipelineA02_png;
+        case 0xc6ee78ab:  numBytes = 6205; return PipelineB01_png;
+        case 0xc6fc902c:  numBytes = 5390; return PipelineB02_png;
+        default: break;
+    }
+
+    numBytes = 0;
+    return 0;
+}
+
+}

@@ -98,24 +98,24 @@ public:
 
      /** Determines whether or not the EditorViewport should respond to 
      the component that is currently being dragged. */
-    bool isInterestedInDragSource (const String& sourceDescription, Component* sourceComponent);
+    bool isInterestedInDragSource (const SourceDetails& dragSourceDetails);
     
     /** Called when a dragged item (usually a name from the ProcessorList) enters the 
        boundaries of the EditorViewport. Causes the background of the EditorViewport to change color.*/
-    void itemDragEnter (const String& sourceDescription, Component* sourceComponent, int x, int y);
+    void itemDragEnter (const SourceDetails& dragSourceDetails);
     
     /** Called when a dragged item (usually a name from the ProcessorList) moves within the 
        boundaries of the EditorViewport. Causes existing editors (if any) to shift their position
        to make room for the new processor that could be dropped.*/
-    void itemDragMove (const String& sourceDescription, Component* sourceComponent, int x, int y);
+    void itemDragMove (const SourceDetails& dragSourceDetails);
     
     /** Called when a dragged item (usually a name from the ProcessorList) leaves the 
        boundaries of the EditorViewport. Causes the background of the EditorViewport to change color.*/
-    void itemDragExit (const String& sourceDescription, Component* sourceComponent);
+    void itemDragExit (const SourceDetails& dragSourceDetails);
     
     /** Called when a dragged item (usually a name from the ProcessorList) is released within the 
        boundaries of the EditorViewport. Adds the dropped processor to the signal chain.*/
-    void itemDropped (const String& sourceDescription, Component* sourceComponent, int x, int y);
+    void itemDropped (const SourceDetails& dragSourceDetails);
 
     /** Called when a mouse click begins within the EditorViewport. Usually used to select editors.*/
     void mouseDown(const MouseEvent &e);

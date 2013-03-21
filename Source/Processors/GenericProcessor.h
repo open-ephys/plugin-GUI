@@ -173,6 +173,12 @@ public:
 	/** JUCE method. Not used.*/
 	int getCurrentProgram() {return 0;}
 
+	/** JUCE method. Not used.*/
+	bool silenceInProducesSilenceOut() const {return false;}
+
+	/** JUCE method. Not used.*/
+	double getTailLengthSeconds() const {return 1.0f;}
+
 	/*
 	------------------------------------------------------------------------
 	---------------------------- CUSTOM METHODS ----------------------------

@@ -398,7 +398,9 @@ void ProcessorList::mouseDownInCanvas(const MouseEvent& e)
 		        colourSelector.setColour (ColourSelector::backgroundColourId, Colours::transparentBlack);
 		        colourSelector.setSize (300, 275);
 
-		        CallOutBox callOut (colourSelector, *fli, 0);//*this, 0);
+		        Rectangle<int> rect = Rectangle<int>(0,0,10,10);
+
+		        CallOutBox callOut (colourSelector, rect, nullptr);
 		        callOut.setTopLeftPosition (e.getScreenX(), e.getScreenY());
 		        callOut.setArrowSize(0.0f);
 

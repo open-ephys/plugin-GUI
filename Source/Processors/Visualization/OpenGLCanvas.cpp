@@ -214,7 +214,7 @@ void OpenGLCanvas::mouseUp(const MouseEvent& e)
 	mouseUpInCanvas(e);
 }
 
-void OpenGLCanvas::mouseWheelMove(const MouseEvent&e,
+int OpenGLCanvas::mouseWheelMove(const MouseEvent&e,
                                       float wheelIncrementX, float wheelIncrementY)
 
 {

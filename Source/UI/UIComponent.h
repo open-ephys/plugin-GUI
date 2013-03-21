@@ -108,10 +108,10 @@ public:
 	void childComponentChanged();
 
 	/** Returns the names of all the requested menubar drop-down lists (e.g., "File", "Edit", "Help", etc.). */
-	const StringArray getMenuBarNames();
+	StringArray getMenuBarNames();
 
 	/** Adds the commands contained within a given drop-down menu from the menubar. */
-	const PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
+	PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
 	
 	/** Called when a particular menu item is selected. Doesn't do anything yet. */
 	void menuItemSelected(int menuItemID, int topLevelMenuIndex);

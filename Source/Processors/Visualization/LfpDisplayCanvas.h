@@ -63,7 +63,7 @@ public:
 	int getHeaderHeight() {return headerHeight;}
 	int getFooterHeight() {return footerHeight;}
 
-	const MouseCursor getMouseCursor();
+	MouseCursor getMouseCursor();
 
 
 private:

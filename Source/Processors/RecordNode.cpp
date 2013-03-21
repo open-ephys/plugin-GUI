@@ -520,7 +520,7 @@ void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, in
 	// find file and write samples to disk
 	//std::cout << "Received event!" << std::endl;
 
-	uint8* dataptr = event.getRawData();
+	const uint8* dataptr = event.getRawData();
 	int16 samplePos = (int16) samplePosition;
 
 	// write timestamp (for buffer only, not the actual event timestamp!!!!!)

@@ -25,8 +25,8 @@ void drawString(float x, float y, int size, String s, FTPixmapFont* f){
 	
 	glRasterPos2f(x, y);
 
-	f->FaceSize(size);
-	f->Render(s);
+	//f->FaceSize(size);
+	//f->Render(s);
 }
 
 void drawViewportEdge(){

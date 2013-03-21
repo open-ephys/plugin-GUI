@@ -1,5 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
-Project("{8FA1AFF1-2558-DDD8-66E3-3288408D9CDF}") = "open-ephys", "open-ephys.vcxproj", "{92D8FACB-6E9B-1810-EC14-AD5A7FE1CD78}"
+# Visual Studio 2010
+Project("{5A05F353-1D63-394C-DFB0-981BB2309002}") = "open-ephys", "open-ephys.vcxproj", "{9C924D66-7DEC-1AEF-B375-DB8666BFB909}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -7,10 +8,10 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{92D8FACB-6E9B-1810-EC14-AD5A7FE1CD78}.Debug|Win32.ActiveCfg = Debug|Win32
-		{92D8FACB-6E9B-1810-EC14-AD5A7FE1CD78}.Debug|Win32.Build.0 = Debug|Win32
-		{92D8FACB-6E9B-1810-EC14-AD5A7FE1CD78}.Release|Win32.ActiveCfg = Release|Win32
-		{92D8FACB-6E9B-1810-EC14-AD5A7FE1CD78}.Release|Win32.Build.0 = Release|Win32
+		{9C924D66-7DEC-1AEF-B375-DB8666BFB909}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9C924D66-7DEC-1AEF-B375-DB8666BFB909}.Debug|Win32.Build.0 = Debug|Win32
+		{9C924D66-7DEC-1AEF-B375-DB8666BFB909}.Release|Win32.ActiveCfg = Release|Win32
+		{9C924D66-7DEC-1AEF-B375-DB8666BFB909}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

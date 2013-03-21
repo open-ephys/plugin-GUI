@@ -329,14 +329,14 @@ void SpikeDisplayCanvas::processSpikeEvents()
 		
 		while (i.getNextEvent (message, samplePosition)) {
 			//eventCount++;
-			 uint8_t* dataptr = message.getRawData();
+			 const uint8* dataptr = message.getRawData();
 			 int bufferSize = message.getRawDataSize();
 			// int nSamples = (bufferSize-4)/2;
 
 			SpikeObject newSpike;
 			SpikeObject simSpike;
 
-			unpackSpike(&newSpike, dataptr, bufferSize);
+			//unpackSpike(&newSpike, dataptr, bufferSize);
 
 			//
 
