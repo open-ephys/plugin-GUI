@@ -41,6 +41,8 @@ DataViewport::DataViewport() :
 	setColour(TabbedComponent::backgroundColourId,
 							Colours::darkgrey);
 
+
+
 }
 
 DataViewport::~DataViewport()
@@ -56,6 +58,8 @@ DataViewport::~DataViewport()
      int tabIndex = getTabbedButtonBar().getNumTabs();
      addTab(name, Colours::lightgrey, component, false, tabIndex);
      getTabbedButtonBar().setCurrentTabIndex(tabIndex);
+
+     getTabbedButtonBar().setTabBackgroundColour(tabIndex, Colours::darkgrey);
 
      setOutline(0);
 
