@@ -198,14 +198,14 @@ AudioConfigurationWindow::AudioConfigurationWindow(AudioDeviceManager& adm, Butt
 
 	adsc->setBounds(0,0,450,240);
 
-	setContentComponent (adsc, true, true);
+	setContentOwned (adsc, true);
 	setVisible(false);
 	//setContentComponentSize(getWidth(), getHeight());
 }
 
 AudioConfigurationWindow::~AudioConfigurationWindow()
 {
-	setContentComponent (0);
+	//setContentComponent (0);
 	//eleteAndZero(deviceManager);
 //	deleteAndZero (deviceSelector);
 }

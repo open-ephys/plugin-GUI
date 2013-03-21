@@ -46,7 +46,7 @@ MainWindow::MainWindow()
      audioComponent = new AudioComponent();
      audioComponent->connectToProcessorGraph(processorGraph);
 
-     setContentComponent (new UIComponent(this, processorGraph, audioComponent), true, true);
+     setContentOwned (new UIComponent(this, processorGraph, audioComponent), true);
 
      UIComponent* ui = (UIComponent*) getContentComponent();
 
@@ -92,7 +92,7 @@ MainWindow::~MainWindow()
        MenuBarModel::setMacMainMenu (0);
   #endif
 
-   setContentComponent (0);
+  // setContentComponent (0);
 
 }
 
