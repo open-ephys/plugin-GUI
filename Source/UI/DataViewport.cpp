@@ -23,7 +23,7 @@
 
 #include "DataViewport.h"
 #include "EditorViewport.h"
-#include "../Processors/Visualization/OpenGLCanvas.h"
+#include "../Processors/Visualization/Visualizer.h"
 
 DataViewport::DataViewport() :
 	TabbedComponent(TabbedButtonBar::TabsAtRight),
@@ -42,7 +42,6 @@ DataViewport::DataViewport() :
 							Colours::darkgrey);
 
 
-
 }
 
 DataViewport::~DataViewport()
@@ -56,7 +55,14 @@ DataViewport::~DataViewport()
  		setVisible(true);
 
      int tabIndex = getTabbedButtonBar().getNumTabs();
+
+    // Viewport* viewport = new Viewport();
+    // viewport->setViewedComponent(component, false);
+   //  viewport->setBounds(0,0,getWidth(), getHeight()); 
+   //  viewport->setVisible(true);
+
      addTab(name, Colours::lightgrey, component, false, tabIndex);
+
      getTabbedButtonBar().setCurrentTabIndex(tabIndex);
 
      getTabbedButtonBar().setTabBackgroundColour(tabIndex, Colours::darkgrey);
@@ -71,7 +77,6 @@ DataViewport::~DataViewport()
 
  }
 
-
  void DataViewport::selectTab(int index) {
         
     int newIndex = tabArray.indexOf(index);
@@ -84,16 +89,17 @@ DataViewport::~DataViewport()
         
     int newIndex = tabArray.indexOf(index);
 
-    Component* canvas;
-    Component* parent = 0;
+    //Component* component;
 
-    canvas = getTabContentComponent(newIndex);
+   // Viewport* viewport = (Viewport*) getTabContentComponent(newIndex);
 
-    if (canvas != 0)
-        parent = canvas->getParentComponent();
+   // deleteAndZero(viewport);
 
-    if (parent != 0 && canvas != 0)
-        parent->removeChildComponent(canvas);
+   // if (viewport != 0)
+   //     component =  viewport->getViewedComponent();
+
+   // if (parent != 0 && canvas != 0)
+   //     parent->removeChildComponent(canvas);
 
     tabArray.remove(newIndex);
     editorArray.remove(newIndex);

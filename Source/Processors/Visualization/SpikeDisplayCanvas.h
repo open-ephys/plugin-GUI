@@ -57,7 +57,7 @@ public:
 	//void newOpenGLContextCreated();
 	//void renderOpenGL();
 
-	void paintCanvas(Graphics& g);
+	void paint(Graphics& g);
 
 	void processSpikeEvents();
 

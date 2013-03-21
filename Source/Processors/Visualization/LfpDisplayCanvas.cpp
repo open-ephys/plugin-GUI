@@ -43,25 +43,13 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) :
 
 	totalHeight = nChans*(interplotDistance) + plotHeight/2 + headerHeight;
 
-	refreshMs = 100; // override 5 s refresh rate
+	//refreshMs = 100; // override 5 s refresh rate
 	
 }
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
 {
 }
-
-
-// void LfpDisplayCanvas::newOpenGLContextCreated()
-// {
-
-// 	setUp2DCanvas();
-// 	activateAntiAliasing();
-
-// 	glClearColor (0.667, 0.698, 0.718, 1.0);
-// 	resized();
-
-// }
 
 void LfpDisplayCanvas::beginAnimation()
 {
@@ -71,13 +59,13 @@ void LfpDisplayCanvas::beginAnimation()
 
 	screenBufferIndex = 0;
 	
-	startCallbacks();
+	//startCallbacks();
 }
 
 void LfpDisplayCanvas::endAnimation()
 {
 	std::cout << "Ending animation." << std::endl;
-	stopCallbacks();
+	//stopCallbacks();
 }
 
 void LfpDisplayCanvas::update()
@@ -214,39 +202,41 @@ void LfpDisplayCanvas::canvasWasResized()
 	refreshScreenBuffer();
 }
 
-void LfpDisplayCanvas::paintCanvas(Graphics& g)
+void LfpDisplayCanvas::paint(Graphics& g)
 {
    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffers to preset values
 
 	
 	//glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
 
-    if (animationIsActive)
-        updateScreenBuffer();
+    //if (animationIsActive)
+     //   updateScreenBuffer();
 
-	for (int i = 0; i < nChans; i++)
-	{
-		bool isSelected = false;
+	g.fillAll(Colours::magenta);
 
-		if (selectedChan == i)
-			isSelected = true;
+	// for (int i = 0; i < nChans; i++)
+	// {
+	// 	bool isSelected = false;
 
-		if (checkBounds(i)) {
-			//setViewport(i);
-			//drawBorder(isSelected);
-			drawWaveform(g, i,isSelected);
-			drawChannelInfo(g, i,isSelected);
+	// 	if (selectedChan == i)
+	// 		isSelected = true;
+
+	// 	if (checkBounds(i)) {
+	// 		//setViewport(i);
+	// 		//drawBorder(isSelected);
+	// 		drawWaveform(g, i,isSelected);
+	// 		drawChannelInfo(g, i,isSelected);
 			
-		}	
-	}
+	// 	}	
+	// }
 
-	drawEvents(g);
+	// drawEvents(g);
 
-	drawScrollBars(g);
+	// drawScrollBars(g);
 
-	drawProgressBar(g);
+	// drawProgressBar(g);
 
-	drawTimeline(g);
+	// drawTimeline(g);
     
    // glFlush();
     //swapBuffers();
@@ -519,10 +509,10 @@ bool LfpDisplayCanvas::checkBounds(int chan)
 	int lowerBound = (chan+1)*(interplotDistance)+plotHeight/2;//(chan+1)*(plotHeight+yBuffer);
 	int upperBound = chan*(interplotDistance)-plotHeight/2;
 
-	if (getScrollAmount() < lowerBound && getScrollAmount() + getHeight() > upperBound)
-		isVisible = true;
-	else
-		isVisible = false;
+	//if (getScrollAmount() < lowerBound && getScrollAmount() + getHeight() > upperBound)
+	//	isVisible = true;
+	//else
+	//	isVisible = false;
 	
 	return isVisible;
 
@@ -595,47 +585,47 @@ int LfpDisplayCanvas::getTotalHeight()
 void LfpDisplayCanvas::mouseDownInCanvas(const MouseEvent& e) 
 {
 
-	Point<int> pos = e.getPosition();
-	int xcoord = pos.getX();
-	int ycoord = pos.getY();
+	// Point<int> pos = e.getPosition();
+	// int xcoord = pos.getX();
+	// int ycoord = pos.getY();
 
-	if (xcoord < getWidth()-getScrollBarWidth() && ycoord > headerHeight)
-	{
-		int ycoord = e.getMouseDownY() - headerHeight - interplotDistance/2;// - interplotDistance/2;// - interplotDistance;
-		int chan = (ycoord + getScrollAmount())/(yBuffer+interplotDistance);
+	// if (xcoord < getWidth()-getScrollBarWidth() && ycoord > headerHeight)
+	// {
+	// 	int ycoord = e.getMouseDownY() - headerHeight - interplotDistance/2;// - interplotDistance/2;// - interplotDistance;
+	// 	int chan = (ycoord + getScrollAmount())/(yBuffer+interplotDistance);
 
-			selectedChan = chan;
+	// 		selectedChan = chan;
 
-		repaint();
-	}
+	// 	repaint();
+	// }
 
 }
 
 void LfpDisplayCanvas::mouseDragInCanvas(const MouseEvent& e) 
 {
 
-	int ypos = e.getMouseDownY();
+	// int ypos = e.getMouseDownY();
 
-	if (ypos <= headerHeight/2) {
+	// if (ypos <= headerHeight/2) {
 
-		float scaleFactor = (float) e.getDistanceFromDragStartY();
+	// 	float scaleFactor = (float) e.getDistanceFromDragStartY();
 
-		if (scaleFactor < 60.0 && scaleFactor > -200.0f)
-		{
-			timebase = pow(10.0f, -scaleFactor/200.0f);
-		}
+	// 	if (scaleFactor < 60.0 && scaleFactor > -200.0f)
+	// 	{
+	// 		timebase = pow(10.0f, -scaleFactor/200.0f);
+	// 	}
 
-		repaint();
+	// 	repaint();
 
-	} else if (ypos > headerHeight/2 && ypos < headerHeight) {
+	// } else if (ypos > headerHeight/2 && ypos < headerHeight) {
 
-		float scaleFactor = (float) e.getDistanceFromDragStartX();
+	// 	float scaleFactor = (float) e.getDistanceFromDragStartX();
 
-		timeOffset = scaleFactor;
+	// 	timeOffset = scaleFactor;
 
-		repaint();
+	// 	repaint();
 
-	}
+	// }
 
 
 }
@@ -643,24 +633,24 @@ void LfpDisplayCanvas::mouseDragInCanvas(const MouseEvent& e)
 void LfpDisplayCanvas::mouseMoveInCanvas(const MouseEvent &e)
 {
 
-	int ypos = e.getMouseDownY();
+	// int ypos = e.getMouseDownY();
 
-	if (ypos <= headerHeight/2)
-	{
-		cursorType = MouseCursor::UpDownResizeCursor;
-	} else if (ypos > headerHeight/2 && ypos < headerHeight) {
-		cursorType = MouseCursor::LeftRightResizeCursor;
-	} else {
-		cursorType = MouseCursor::NormalCursor;
-	}
-
-}
-
-MouseCursor LfpDisplayCanvas::getMouseCursor()
-{
-
-	const MouseCursor c = MouseCursor(cursorType);
-
-	return c;
+	// if (ypos <= headerHeight/2)
+	// {
+	// 	cursorType = MouseCursor::UpDownResizeCursor;
+	// } else if (ypos > headerHeight/2 && ypos < headerHeight) {
+	// 	cursorType = MouseCursor::LeftRightResizeCursor;
+	// } else {
+	// 	cursorType = MouseCursor::NormalCursor;
+	// }
 
 }
+
+// MouseCursor LfpDisplayCanvas::getMouseCursor()
+// {
+
+// 	// const MouseCursor c = MouseCursor(cursorType);
+
+// 	// return c;
+
+// }

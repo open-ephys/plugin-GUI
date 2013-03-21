@@ -40,7 +40,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
 
 	// std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nPlots << std::endl;
 	
-	refreshMs = 100; // override 5 s refresh rate
+	//refreshMs = 100; // override 5 s refresh rate
 	
 }
 
@@ -157,7 +157,7 @@ void SpikeDisplayCanvas::repositionSpikePlots(){
         // else place the plot
         else{
             //std::cout<<"Positioning p:"<<p<<" at "<<x<<","<<y - h<<"  "<<w<<","<<h<<std::endl;
-            plots[p]->setPosition(x, y - h + getScrollAmount(), w, h);
+           // plots[p]->setPosition(x, y - h + getScrollAmount(), w, h);
             x = x + w + xBuffer;
 
             // set a new minimum
@@ -207,13 +207,13 @@ void SpikeDisplayCanvas::beginAnimation()
 {
 	std::cout << "Beginning animation." << std::endl;
 	
-	startCallbacks();
+	//startCallbacks();
 }
 
 void SpikeDisplayCanvas::endAnimation()
 {
 	std::cout << "Ending animation." << std::endl;
-	stopCallbacks();
+	//stopCallbacks();
 }
 
 void SpikeDisplayCanvas::update()
@@ -284,8 +284,11 @@ void SpikeDisplayCanvas::canvasWasResized()
 	repositionSpikePlots();
 }
 
-void SpikeDisplayCanvas::paintCanvas(Graphics& g)
+void SpikeDisplayCanvas::paint(Graphics& g)
 {
+
+	g.fillAll(Colours::cyan);
+
 	// //if(!plotsInitialized)
 	// //	initializeSpikePlots();
 
@@ -444,9 +447,9 @@ void SpikeDisplayCanvas::mouseUpInCanvas(const MouseEvent& e) 	{
 void SpikeDisplayCanvas::mouseWheelMoveInCanvas(const MouseEvent& e, float wheelIncrementX, float wheelIncrementY)
 {
 
-	repositionSpikePlots();
+	// repositionSpikePlots();
 
-	repaint();
+	// repaint();
 	//repaint();
 
 	// mouseWheelMoveInCanvas(e, wheelIncrementX, wheelIncrementY);

@@ -46,9 +46,8 @@ class LfpDisplayCanvas : public Visualizer
 public: 
 	LfpDisplayCanvas(LfpDisplayNode* n);
 	~LfpDisplayCanvas();
-	//void newOpenGLContextCreated();
-	//void renderOpenGL();
-	void paintCanvas(Graphics& g);
+
+	//void paintCanvas(Graphics& g);
 
 	void beginAnimation();
 	void endAnimation();
@@ -63,8 +62,9 @@ public:
 	int getHeaderHeight() {return headerHeight;}
 	int getFooterHeight() {return footerHeight;}
 
-	MouseCursor getMouseCursor();
+	//MouseCursor getMouseCursor();
 
+	void paint(Graphics& g);
 
 private:
 

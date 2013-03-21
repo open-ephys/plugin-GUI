@@ -95,7 +95,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 
 UIComponent::~UIComponent()
 {
-
+	dataViewport->destroyTab(0); // get rid of tab for InfoLabel
 }
 
 void UIComponent::resized()
