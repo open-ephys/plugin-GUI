@@ -37,9 +37,9 @@ EditorViewport::EditorViewport()
 
     addMouseListener(this, true);
 
-    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    font = Font(typeface);
+    //MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    //Typeface::Ptr typeface = new CustomTypeface(mis);
+    font = Font("Small Text", 10, Font::plain);
     font.setHeight(10);
 
     sourceDropImage = ImageCache::getFromMemory (BinaryData::SourceDrop_png, 
@@ -70,7 +70,7 @@ EditorViewport::EditorViewport()
 
 EditorViewport::~EditorViewport()
 {
-  
+    deleteAllChildren();
 }
 
 void EditorViewport::signalChainCanBeEdited(bool t)
@@ -855,9 +855,9 @@ SignalChainTabButton::SignalChainTabButton() : Button("Name"),
     setRadioGroupId(99);
     setClickingTogglesState(true);
 
-    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    buttonFont = Font(typeface);
+   // MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    //Typeface::Ptr typeface = new CustomTypeface(mis);
+    buttonFont = Font("Small Text", 10, Font::plain);
     buttonFont.setHeight(14);
 
     offset = 0;

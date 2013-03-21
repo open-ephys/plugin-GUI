@@ -65,9 +65,9 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
     
 	nodeId = owner->getNodeId();
     
-	MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    titleFont = Font(typeface);
+	//MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    //Typeface::Ptr typeface = new CustomTypeface(mis);
+    titleFont = Font("Small Text", 10, Font::plain);
     
     if (!owner->isMerger() && !owner->isSplitter())
     {

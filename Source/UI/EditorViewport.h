@@ -179,7 +179,7 @@ private:
     Array<GenericEditor*, CriticalSection> editorArray;
     Array<SignalChainTabButton*, CriticalSection> signalChainArray;
 
-    ScopedPointer<SignalChainManager> signalChainManager;
+    SignalChainManager* signalChainManager;
 
     Font font;
     Image sourceDropImage;
@@ -196,10 +196,10 @@ private:
     enum directions1 {LEFT, RIGHT};
     enum directions2 {UP, DOWN};
 
-    ScopedPointer<EditorScrollButton> leftButton;
-    ScopedPointer<EditorScrollButton> rightButton;
-    ScopedPointer<SignalChainScrollButton> upButton;
-    ScopedPointer<SignalChainScrollButton> downButton;
+    EditorScrollButton* leftButton;
+    EditorScrollButton* rightButton;
+    SignalChainScrollButton* upButton;
+    SignalChainScrollButton* downButton;
 
     void resized();
 
