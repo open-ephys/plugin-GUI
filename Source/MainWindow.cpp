@@ -74,25 +74,19 @@ MainWindow::~MainWindow()
   if (audioComponent->callbacksAreActive()) {
       audioComponent->endCallbacks();
       processorGraph->disableProcessors();
-    }
+  } 
 
    saveWindowBounds();
-  // processorGraph->saveState();
 
    audioComponent->disconnectProcessorGraph();
    UIComponent* ui = (UIComponent*) getContentComponent();
    ui->disableDataViewport();
 
-   deleteAndZero(processorGraph);
-   deleteAndZero(audioComponent);
-
    setMenuBar(0);
 
    #if JUCE_MAC 
        MenuBarModel::setMacMainMenu (0);
-  #endif
-
-  // setContentComponent (0);
+   #endif
 
 }
 

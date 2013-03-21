@@ -73,10 +73,10 @@ private:
     void loadWindowBounds();
 
     /** A pointer to the application's AudioComponent (owned by the MainWindow). */
-   AudioComponent* audioComponent;
+   ScopedPointer<AudioComponent> audioComponent;
 
    /** A pointer to the application's ProcessorGraph (owned by the MainWindow). */
-   ProcessorGraph* processorGraph;
+   ScopedPointer<ProcessorGraph> processorGraph;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
 
