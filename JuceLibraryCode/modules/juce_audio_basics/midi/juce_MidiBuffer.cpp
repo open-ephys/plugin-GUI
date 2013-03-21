@@ -139,28 +139,50 @@ void MidiBuffer::addEvent (const MidiMessage& m, const int sampleNumber)
 
 void MidiBuffer::addEvent (const void* const newData, const int maxBytes, const int sampleNumber)
 {
-    const int numBytes = MidiBufferHelpers::findActualEventLength (static_cast <const uint8*> (newData), maxBytes);
+    
+    const int numBytes = maxBytes;
 
     if (numBytes > 0)
     {
-        size_t spaceNeeded = (size_t) bytesUsed + (size_t) numBytes + sizeof (int) + sizeof (uint16);
-        data.ensureSize ((spaceNeeded + spaceNeeded / 2 + 8) & ~(size_t) 7);
+        int spaceNeeded = bytesUsed + numBytes + sizeof (int) + sizeof (uint16); // factor in timestamp and size indicator
+        data.ensureSize ((spaceNeeded + spaceNeeded / 2 + 8) & ~7); // make sure there's enough size in the MemoryBlock
 
-        uint8* d = findEventAfter (getData(), sampleNumber);
-        const int bytesToMove = bytesUsed - (int) (d - getData());
-
-        if (bytesToMove > 0)
-            memmove (d + numBytes + sizeof (int) + sizeof (uint16), d, (size_t) bytesToMove);
+        uint8* d = getData() + bytesUsed;
 
         *reinterpret_cast <int*> (d) = sampleNumber;
         d += sizeof (int);
         *reinterpret_cast <uint16*> (d) = (uint16) numBytes;
         d += sizeof (uint16);
 
-        memcpy (d, newData, (size_t) numBytes);
+        memcpy (d, newData, numBytes);
 
-        bytesUsed += sizeof (int) + sizeof (uint16) + (size_t) numBytes;
+        bytesUsed += numBytes + sizeof (int) + sizeof (uint16);
     }
+
+    // Original JUCE library code:
+    //
+    //const int numBytes = MidiBufferHelpers::findActualEventLength (static_cast <const uint8*> (newData), maxBytes);
+    //
+    // if (numBytes > 0)
+    // {
+    //     size_t spaceNeeded = (size_t) bytesUsed + (size_t) numBytes + sizeof (int) + sizeof (uint16);
+    //     data.ensureSize ((spaceNeeded + spaceNeeded / 2 + 8) & ~(size_t) 7);
+    //
+    //     uint8* d = findEventAfter (getData(), sampleNumber);
+    //     const int bytesToMove = bytesUsed - (int) (d - getData());
+    //
+    //     if (bytesToMove > 0)
+    //         memmove (d + numBytes + sizeof (int) + sizeof (uint16), d, (size_t) bytesToMove);
+    //
+    //     *reinterpret_cast <int*> (d) = sampleNumber;
+    //     d += sizeof (int);
+    //     *reinterpret_cast <uint16*> (d) = (uint16) numBytes;
+    //     d += sizeof (uint16);
+    //
+    //     memcpy (d, newData, (size_t) numBytes);
+    //
+    //     bytesUsed += sizeof (int) + sizeof (uint16) + (size_t) numBytes;
+    // }
 }
 
 void MidiBuffer::addEvents (const MidiBuffer& otherBuffer,
