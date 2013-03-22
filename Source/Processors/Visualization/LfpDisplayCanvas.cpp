@@ -38,10 +38,37 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	displayBufferSize = displayBuffer->getNumSamples();
 	std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
+	viewport = new Viewport();
+	lfpDisplay = new LfpDisplay();
+	timescale = new LfpTimescale();
+
+	viewport->setViewedComponent(lfpDisplay, false);
+	viewport->setScrollBarsShown(true, false);
+
+	scrollBarThickness = viewport->getScrollBarThickness();
+
+
+	addAndMakeVisible(viewport);
+	addAndMakeVisible(timescale);
+
+	lfpDisplay->setNumChannels(nChans);
+
 }
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
 {
+}
+
+void LfpDisplayCanvas::resized()
+{
+
+
+
+	timescale->setBounds(0,0,getWidth(),30);
+	viewport->setBounds(scrollBarThickness,30,getWidth()-scrollBarThickness,getHeight()-90);
+
+	lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+
 }
 
 void LfpDisplayCanvas::beginAnimation()
@@ -70,6 +97,10 @@ void LfpDisplayCanvas::update()
 	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
 	refreshScreenBuffer();
+
+	lfpDisplay->setNumChannels(nChans);
+	lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+
 
 	repaint();
 
@@ -197,4 +228,110 @@ void LfpDisplayCanvas::paint(Graphics& g)
 	g.drawLine(0,0, getWidth(), getHeight());
 	g.drawLine(0,getHeight(),getWidth(), 0);
 	
+}
+
+// -------------------------------------------------------------
+
+LfpTimescale::LfpTimescale()
+{
+
+}
+
+LfpTimescale::~LfpTimescale()
+{
+
+}
+
+void LfpTimescale::paint(Graphics& g)
+{
+
+	g.fillAll(Colours::black);
+
+}
+
+
+// ---------------------------------------------------------------
+
+LfpDisplay::LfpDisplay()
+{
+	channelHeight = 100;
+	totalHeight = 0;
+}
+
+LfpDisplay::~LfpDisplay()
+{
+	deleteAllChildren();
+}
+
+void LfpDisplay::setNumChannels(int numChannels)
+{
+	numChans = numChannels;
+
+	deleteAllChildren();
+
+	for (int i = 0; i < numChans; i++)
+	{
+
+		//std::cout << "Adding new channel display." << std::endl;
+
+		LfpChannelDisplay* lfpChan = new LfpChannelDisplay();
+
+		addAndMakeVisible(lfpChan);
+
+		totalHeight += channelHeight;
+
+	}
+
+}
+
+void LfpDisplay::resized()
+{
+
+	int totalHeight = 0;
+
+	for (int i = 0; i < numChans; i++)
+	{
+
+		getChildComponent(i)->setBounds(0,totalHeight,getWidth(),channelHeight);
+
+		totalHeight += channelHeight;
+
+	}
+
+}
+
+void LfpDisplay::paint(Graphics& g)
+{
+
+	g.fillAll(Colours::grey);
+
+	g.setColour(Colours::white);
+
+	g.drawLine(0,0, getWidth(), getHeight());
+	g.drawLine(0,getHeight(),getWidth(), 0);
+
+}
+
+// ------------------------------------------------------------------
+
+LfpChannelDisplay::LfpChannelDisplay()
+{
+
+}
+
+LfpChannelDisplay::~LfpChannelDisplay()
+{
+
+}
+
+void LfpChannelDisplay::paint(Graphics& g)
+{
+
+//	g.fillAll(Colours::green);
+
+		g.setColour(Colours::white);
+
+	g.drawLine(0,0, getWidth(), getHeight());
+	g.drawLine(0,getHeight(),getWidth(), 0);
+
 }

@@ -51,8 +51,6 @@ public:
 	LfpDisplayCanvas(LfpDisplayNode* n);
 	~LfpDisplayCanvas();
 
-	//void paintCanvas(Graphics& g);
-
 	void beginAnimation();
 	void endAnimation();
 
@@ -64,6 +62,8 @@ public:
 	void setParameter(int, int, int, float){}
 
 	void paint(Graphics& g);
+
+	void resized();
 
 private:
 
@@ -80,11 +80,17 @@ private:
 	AudioSampleBuffer* displayBuffer;
 	MidiBuffer* eventBuffer;
 
+	ScopedPointer<LfpTimescale> timescale;
+	ScopedPointer<LfpDisplay> lfpDisplay;
+	ScopedPointer<Viewport> viewport;
+
 	void refreshScreenBuffer();
 	void updateScreenBuffer();
 	int screenBufferIndex;
 	int displayBufferIndex;
 	int displayBufferSize;
+
+	int scrollBarThickness;
 
 	int nChans;
 
@@ -94,21 +100,41 @@ private:
 
 class LfpTimescale : public Component
 {
+public:
+	LfpTimescale();
+	~LfpTimescale();
 
-
+	void paint(Graphics& g);
 
 };
 
 class LfpDisplay : public Component
 {
+public:
+	LfpDisplay();
+	~LfpDisplay();
 
+	void setNumChannels(int numChannels);
+	int getTotalHeight() {return totalHeight;}
 
+	void paint(Graphics& g);
+
+	void resized();
+
+private:
+	int numChans;
+	int channelHeight;
+	int totalHeight;
 
 };
 
 class LfpChannelDisplay : public Component
 {
+public:
+	LfpChannelDisplay();
+	~LfpChannelDisplay();
 
+	void paint(Graphics& g);
 
 };
 
