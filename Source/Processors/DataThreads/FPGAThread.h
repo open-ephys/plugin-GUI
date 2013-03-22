@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "okFrontPanelDLL.h"
+#include "rhythm-api/okFrontPanelDLL.h"
 #include "DataThread.h"
 
 class SourceNode;

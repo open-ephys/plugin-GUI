@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,15 +27,14 @@
 
 #include <iostream>
 
-SignalChainManager::SignalChainManager (EditorViewport* ev_, Array<GenericEditor*, CriticalSection>& editorArray_,
-	 				   Array<SignalChainTabButton*, CriticalSection>& signalChainArray_) :
-
-	 				   tabSize(30), ev(ev_), editorArray(editorArray_), signalChainArray(signalChainArray_)
+SignalChainManager::SignalChainManager
+    (EditorViewport* ev_,
+	 Array<GenericEditor*, CriticalSection>& editorArray_,
+	 Array<SignalChainTabButton*, CriticalSection>& signalChainArray_)
+		: editorArray(editorArray_), signalChainArray(signalChainArray_),
+		   ev(ev_), tabSize(30)
 {
-	
 	topTab = 0;
-	
-
 }
 
 SignalChainManager::~SignalChainManager()
@@ -114,8 +113,6 @@ void SignalChainManager::createNewTab(GenericEditor* editor)
 
 void SignalChainManager::removeTab(int tabIndex)
 {
-
-	int tabSize = 30; // also set in EditorViewport
 
     SignalChainTabButton* t = signalChainArray.remove(tabIndex);
     deleteAndZero(t);

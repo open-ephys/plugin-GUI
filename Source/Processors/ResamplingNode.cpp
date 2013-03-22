@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,9 +27,8 @@
 #include <stdio.h>
 
 ResamplingNode::ResamplingNode()
-	: GenericProcessor("Resampler"), 
-	  ratio (1.0), targetSampleRate(5000.0f)
-	
+	: GenericProcessor("Resampler"),
+	  targetSampleRate(5000.0f), ratio(1.0)
 {
 
 	filter = new Dsp::SmoothedFilterDesign 

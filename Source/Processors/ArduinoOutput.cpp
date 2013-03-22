@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ void ArduinoOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum
 {
     if (eventType == TTL)
     {
-    	uint8* dataptr = event.getRawData();
+    	const uint8* dataptr = event.getRawData();
 
     	int eventNodeId = *(dataptr+1);
     	int eventId = *(dataptr+2);
@@ -81,6 +81,9 @@ bool ArduinoOutput::enable()
 
     Time timer;
 
+	// FIXME: Remove hard-coded serial port paths. These aren't always
+	// right, and in some cases (JUCE_MAC) are almost certainly wrong.
+	std::cout << "Warning: using hard-coded path to Arduino." << std::endl;
 #if JUCE_LINUX
 	arduino.connect("ttyACM0");
 #endif
@@ -115,16 +118,18 @@ bool ArduinoOutput::enable()
 
         std::cout << "Arduino is initialized." << std::endl;
         arduino.sendDigitalPinMode(13, ARD_OUTPUT);
-
+		return true;
     } else {
         std::cout << "Arduino is NOT initialized." << std::endl;
+		return false;
     }
 }
 
 bool ArduinoOutput::disable()
 {
-
-
+	if (arduino.isInitialized())
+		arduino.disconnect();
+	return true;
 }
 
 void ArduinoOutput::process(AudioSampleBuffer &buffer, 

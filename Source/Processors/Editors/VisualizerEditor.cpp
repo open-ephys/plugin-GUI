@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -62,11 +62,8 @@ void SelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDow
 
 
 VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width, bool useDefaultParameterEditors=true)
-: GenericEditor(parentNode, useDefaultParameterEditors=true),
-	  tabIndex(-1), dataWindow(0),
-	  isPlaying(false),
-	  canvas(0), tabText("Tab")
-
+	: GenericEditor(parentNode, useDefaultParameterEditors=true),
+	  dataWindow(0), canvas(0), tabText("Tab"), isPlaying(false), tabIndex(-1)
 {
 
 	desiredWidth = width;
@@ -77,10 +74,7 @@ VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width, boo
 
 VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
 	: GenericEditor(parentNode, useDefaultParameterEditors),
-	  tabIndex(-1), dataWindow(0),
-	  isPlaying(false),
-	  canvas(0)
-    
+	  dataWindow(0), canvas(0), isPlaying(false), tabIndex(-1)
 {
 
 	desiredWidth = 180;
@@ -184,9 +178,19 @@ void VisualizerEditor::buttonEvent(Button* button)
 		 		tabIndex = -1;
 		 	}
 
+		 	// Component* parent = canvas->getParentComponent();
+
+		 	// if (parent != nullptr)
+		 	// {	
+		 	// 	std::cout << "Removing child." << std::endl;
+    //   			 parent->removeChildComponent(canvas);
+    //   		} else {
+    //   			std::cout << "Parent doesn't exist." << std::endl;
+    //   		}
+
 		 	if (dataWindow == 0) {
 
-				dataWindow = new DataWindow(windowSelector);
+				dataWindow = new DataWindow(windowSelector, tabText);
 		 		dataWindow->setContentNonOwned(canvas, false);
 		 		dataWindow->setVisible(true);
 		 		canvas->refreshState();
@@ -198,6 +202,7 @@ void VisualizerEditor::buttonEvent(Button* button)
 		 		if (windowSelector->getToggleState())
 		 		{
 		 			dataWindow->setContentNonOwned(canvas, false);
+		 			canvas->setBounds(0,0,canvas->getParentWidth(), canvas->getParentHeight());
 		 			canvas->refreshState();
 		 		} else {
 		 			dataWindow->setContentNonOwned(0, false);

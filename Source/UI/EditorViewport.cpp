@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,17 +27,19 @@
 #include "EditorViewportButtons.h"
 
 EditorViewport::EditorViewport()
-    : message ("Drag-and-drop some rows from the top-left box onto this component!"),
-      somethingIsBeingDraggedOver(false), shiftDown(false), selectionIndex(0), leftmostEditor(0), lastEditorClicked(0),
-       insertionPoint(0), componentWantsToMove(false), indexOfMovingComponent(-1), 
-       borderSize(6), tabSize(30), tabButtonSize(15), canEdit(true), currentTab(-1)
+    : leftmostEditor(0),
+	  message("Drag-and-drop some rows from the top-left box onto this component!"),
+	  somethingIsBeingDraggedOver(false), shiftDown(false), canEdit(true),
+	  lastEditorClicked(0), selectionIndex(0), borderSize(6), tabSize(30),
+	  tabButtonSize(15), insertionPoint(0), componentWantsToMove(false),
+	  indexOfMovingComponent(-1), currentTab(-1)
 {
 
     addMouseListener(this, true);
 
-    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    font = Font(typeface);
+    //MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    //Typeface::Ptr typeface = new CustomTypeface(mis);
+    font = Font("Small Text", 10, Font::plain);
     font.setHeight(10);
 
     sourceDropImage = ImageCache::getFromMemory (BinaryData::SourceDrop_png, 
@@ -135,10 +137,10 @@ void EditorViewport::paint (Graphics& g)
 
 }
 
-bool EditorViewport::isInterestedInDragSource (const String& description, Component* component)
+bool EditorViewport::isInterestedInDragSource (const SourceDetails& dragSourceDetails)
 {
 
-    if (canEdit && description.startsWith("Processors")) {
+    if (canEdit && dragSourceDetails.description.toString().startsWith("Processors")) {
         return false;
     } else {
         return true;
@@ -146,7 +148,7 @@ bool EditorViewport::isInterestedInDragSource (const String& description, Compon
 
 }
 
-void EditorViewport::itemDragEnter (const String& /*sourceDescription*/, Component* /*sourceComponent*/, int /*x*/, int /*y*/)
+void EditorViewport::itemDragEnter (const SourceDetails& dragSourceDetails)
 {
     if (canEdit) {
         somethingIsBeingDraggedOver = true;
@@ -154,8 +156,11 @@ void EditorViewport::itemDragEnter (const String& /*sourceDescription*/, Compone
     }   
 }
 
-void EditorViewport::itemDragMove (const String& /*sourceDescription*/, Component* /*sourceComponent*/, int x, int /*y*/)
+void EditorViewport::itemDragMove (const SourceDetails& dragSourceDetails)
 {
+
+    int x = dragSourceDetails.localPosition.getX();
+    int y = dragSourceDetails.localPosition.getY();
 
     if (canEdit) {
         bool foundInsertionPoint = false;
@@ -187,7 +192,7 @@ void EditorViewport::itemDragMove (const String& /*sourceDescription*/, Componen
 
 }
 
-void EditorViewport::itemDragExit (const String& /*sourceDescription*/, Component* /*sourceComponent*/)
+void EditorViewport::itemDragExit(const SourceDetails& dragSourceDetails)
 {
     somethingIsBeingDraggedOver = false;
 
@@ -197,17 +202,19 @@ void EditorViewport::itemDragExit (const String& /*sourceDescription*/, Componen
 
 }
 
-void EditorViewport::itemDropped (const String& sourceDescription, Component* /*sourceComponent*/, int /*x*/, int /*y*/)
+void EditorViewport::itemDropped (const SourceDetails& dragSourceDetails)
 {
+
+    String description = dragSourceDetails.description.toString();
 
     if (canEdit) {
 
-        message = "last filter dropped: " + sourceDescription;
+        message = "last filter dropped: " + description;
 
         std::cout << "Item dropped at insertion point " << insertionPoint << std::endl;
 
         /// needed to remove const cast --> should be a better way to do this
-        String description = sourceDescription.substring(0);
+        //String description = sourceDescription.substring(0);
 
         GenericEditor* activeEditor = (GenericEditor*) getProcessorGraph()->createNewProcessor(description);//, source, dest);
 
@@ -431,7 +438,7 @@ void EditorViewport::moveSelection (const KeyPress &key) {
             
             selectionIndex = 0;
 
-            bool stopSelection = false;
+            // bool stopSelection = false;
             int i = 0;
 
             while (i < editorArray.size()-1)
@@ -443,7 +450,7 @@ void EditorViewport::moveSelection (const KeyPress &key) {
                     // {
                     lastEditorClicked = editorArray[i+1];
                     editorArray[i+1]->select();
-                    stopSelection = true;
+                    // stopSelection = true;
                   //  }
 
                     editorArray[i]->deselect();
@@ -848,9 +855,9 @@ SignalChainTabButton::SignalChainTabButton() : Button("Name"),
     setRadioGroupId(99);
     setClickingTogglesState(true);
 
-    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    buttonFont = Font(typeface);
+   // MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    //Typeface::Ptr typeface = new CustomTypeface(mis);
+    buttonFont = Font("Small Text", 10, Font::plain);
     buttonFont.setHeight(14);
 
     offset = 0;
@@ -1192,7 +1199,12 @@ const String EditorViewport::loadState()
                     insertionPoint = 0;
                 }
 
-                itemDropped(processor->getStringAttribute("name"),0,0,0);
+                //Point<int> pt = 
+                SourceDetails sd = SourceDetails(processor->getStringAttribute("name"), 
+                                                0,
+                                                Point<int>(0,0));
+
+                itemDropped(sd);
 
                 GenericProcessor* p = (GenericProcessor*) lastEditor->getProcessor();
                 p->loadOrder = loadOrder;

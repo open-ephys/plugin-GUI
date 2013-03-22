@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,8 +27,9 @@
 #include "Channel.h"
 
 RecordNode::RecordNode()
-	: GenericProcessor("Record Node"), isRecording(false), isProcessing(false),
-		timestamp(0), signalFilesShouldClose(false)
+	: GenericProcessor("Record Node"),
+	  isRecording(false), isProcessing(false), signalFilesShouldClose(false),
+	  timestamp(0)
 {
 
 	
@@ -293,9 +294,6 @@ void RecordNode::setParameter (int parameterIndex, float newValue)
 			}
 		}
 
-		
- 		
-
  	} else if (parameterIndex == 0) {
 
 		
@@ -343,26 +341,37 @@ void RecordNode::openFile(Channel* ch)
 	std::cout << "OPENING FILE: " << ch->filename << std::endl;
 
 	File f = File(ch->filename);
+	FILE *chFile;
 
 	bool fileExists = f.exists();
 
-	ch->file = fopen(ch->filename.toUTF8(), "ab");
+	chFile = fopen(ch->filename.toUTF8(), "ab");
 
 	if (!fileExists)
 	{
 		// create and write header
 		std::cout << "Writing header." << std::endl;
 		String header = generateHeader(ch);
-		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), ch->file);
+		//std::cout << header << std::endl;
+		std::cout << "File ID: " << chFile << ", number of bytes: " << header.getNumBytesAsUTF8() << std::endl;
+
+		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), chFile);
+
+		std::cout << "Wrote header." << std::endl;
+
 	} else {
 		std::cout << "File already exists, just opening." << std::endl;
 	}
+	//To avoid a race condition resulting on data written before the header, 
+	//do not assign the channel pointer until the header has been written
+	ch->file = chFile; 
 }
 
 void RecordNode::closeFile(Channel* ch)
 {
 	std::cout << "CLOSING FILE: " << ch->filename << std::endl;
-	fclose(ch->file);
+	if (ch->file != NULL)
+		fclose(ch->file);
 }
 
 String RecordNode::generateHeader(Channel* ch)
@@ -458,6 +467,9 @@ float RecordNode::getFreeSpace()
 
 void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 {
+	if (channelPointers[channel]->file == NULL)
+		return;
+
 	float scaleFactor = float(0x7fff) * channelPointers[channel]->bitVolts;
 	// scale the data appropriately -- currently just getting it into the right
 	// range; actually need to take into account the gain of each channel
@@ -488,11 +500,12 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 				   1, 		  						// count 
 				   channelPointers[channel]->file);   // ptr to FILE object
 
-		int n = fwrite(continuousDataIntegerBuffer,		// ptr
+		fwrite(continuousDataIntegerBuffer,		// ptr
 				   2,			     					// size of each element
 				   nSamples, 		  					// count 
 				   channelPointers[channel]->file);   // ptr to FILE object
-		// n must equal "count", otherwise there was an error
+		// FIXME: ensure fwrite returns equal "count"; otherwise,
+		// there was an error.
 
 		// write a 10-byte marker indicating the end of a record
 		fwrite(recordMarker,		// ptr
@@ -510,7 +523,7 @@ void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, in
 	// find file and write samples to disk
 	//std::cout << "Received event!" << std::endl;
 
-	uint8* dataptr = event.getRawData();
+	const uint8* dataptr = event.getRawData();
 	int16 samplePos = (int16) samplePosition;
 
 	// write timestamp (for buffer only, not the actual event timestamp!!!!!)

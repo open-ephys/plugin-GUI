@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -48,43 +48,6 @@ public:
 
 	// ======== custom typeface getter: =============================
 	const Typeface::Ptr getTypefaceForFont (const Font& font);
-
-	// ======== custom tab methods: ============================= 
-
-	void drawTabButton (Graphics & g, 
-						int w, int h, 
-						const Colour& preferredColour,
-						int tabIndex, const String& text,
-						Button& button,
-						TabbedButtonBar::Orientation,
-						bool isMouseOver,
-						bool isMouseDown,
-						bool isFrontTab);
-
-	void drawTabButtonText (Graphics& g,
-						    int x, int y, int w, int h,
-						    const Colour& preferredBackgroundColour,
-						    int tabIndex,
-						    const String& text,
-						    Button& button,
-						    TabbedButtonBar::Orientation o,
-						    bool isMouseOver,
-						    bool isMouseDown,
-						    bool isFrontTab);
-
-	int getTabButtonBestWidth (int tabIndex,
-                               const String& text,
-                               int tabDepth,
-                               Button& button);
-
-	int getTabButtonSpaceAroundImage ();
-
-	void drawTabAreaBehindFrontButton (Graphics& g,
-									   int w, int h,
-									   TabbedButtonBar& tabBar,
-									   TabbedButtonBar::Orientation o);
-
-	int getTabButtonOverlap (int tabDepth);
 
 	// ======== custom scroll bar methods: =============================
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,8 +27,8 @@
 #ifdef WIN32
 #include <Windows.h>
 #endif
+    
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "../Processors/Visualization/OpenGLCanvas.h"
 
 /**
   
@@ -40,40 +40,26 @@
 
 */
 
-class InfoLabel : public OpenGLCanvas
+class InfoLabel : public Component
 
 {
 public: 
 	InfoLabel();
 	~InfoLabel();
 
-    /** Initializes an OpenGL context for drawing.*/
-	void newOpenGLContextCreated();
-
     /** Draws the InfoLabel.*/
-	void renderOpenGL();
+	void paint(Graphics& g);
 
 private:
-
-	int xBuffer, yBuffer;
-
-    /** Draws the InfoLabel.*/
-	void drawLabel();
-
-    /** Returns the requested height of the InfoLabel (used to create
-    scroll bars if the height exceeds the actual height of the component).*/
-	int getTotalHeight();
-
-    /** Called when the boundaries of the InfoLabel are changed.*/
-	void canvasWasResized();
-
-    /** An FTGL layout class used to constrain the text.*/
-	FTSimpleLayout layout;	
 
     /** The text displayed to the user.*/
 	String infoString;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InfoLabel);
+    /** Font used to draw the label.*/
+    Font labelFont;
+
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InfoLabel);
 
 
 };

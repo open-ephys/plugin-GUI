@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -120,9 +120,9 @@ bool isBufferValid(uint8_t *buffer, int bufferSize){
 	uint16_t runningSum = 0;
 	uint16_t value = 0;
 	
-	int idx = 0;
+	int idx;
 
-	for (idx; idx < bufferSize-2; idx += 2){
+	for (idx = 0; idx < bufferSize-2; idx += 2){
 		memcpy(buffer + idx, &value, 2);
 		runningSum += value;
 	}
@@ -142,9 +142,9 @@ void makeBufferValid(uint8_t *buffer, int bufferSize){
 	uint16_t runningSum = 0;
 	uint16_t value = 0;
 	
-	int idx = 0;
+	int idx;
 
-	for (idx; idx < bufferSize-2; idx += 2){
+	for (idx = 0; idx < bufferSize-2; idx += 2){
 		memcpy(buffer + idx, &value, 2);
 		runningSum += value;
 	}

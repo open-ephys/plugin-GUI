@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ DataThread::~DataThread()
 
 void DataThread::run() {
 
-	while (! threadShouldExit())
+	while (!threadShouldExit())
 	{
 
 		if (!updateBuffer()) {

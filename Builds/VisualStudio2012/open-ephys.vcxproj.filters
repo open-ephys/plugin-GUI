@@ -243,9 +243,6 @@
     <ClCompile Include="..\..\Source\Processors\DataThreads\okFrontPanelDLL.cpp">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\NetworkThread.cpp">
-      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\DataThreads\FPGAThread.cpp">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClCompile>
@@ -573,9 +570,6 @@
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\DataThreads\okFrontPanelDLL.h">
-      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\NetworkThread.h">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\DataThreads\FPGAThread.h">

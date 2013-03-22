@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,7 +27,7 @@
 #include "Channel.h"
 
 EventNode::EventNode()
-	: GenericProcessor("Event Generator"), Hz(1), accumulator(0)
+	: GenericProcessor("Event Generator"), accumulator(0), Hz(1)
 {
 
 	Array<var> hzValues;

@@ -2,7 +2,7 @@
     -----------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ public:
 private:
 
    /** A JUCE label used to display message text. */
-   Label* messageDisplayArea;
+   ScopedPointer<Label> messageDisplayArea;
 
    /** Called when the boundaries of the MessageCenter are changed. */
    void resized();

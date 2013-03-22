@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,14 +26,15 @@
 #include "DataThreads/IntanThread.h"
 #include "DataThreads/FPGAThread.h"
 #include "DataThreads/FileReaderThread.h"
+#include "DataThreads/RHD2000Thread.h"
 #include "Editors/SourceNodeEditor.h"
 #include "Channel.h"
 #include <stdio.h>
 
 SourceNode::SourceNode(const String& name_)
 	: GenericProcessor(name_),
-	  dataThread(0), inputBuffer(0),
-	  sourceCheckInterval(2000), wasDisabled(true), ttlState(0)
+	  sourceCheckInterval(2000), wasDisabled(true), dataThread(0),
+	  inputBuffer(0), ttlState(0)
 {
 
 	std::cout << "creating source node." << std::endl;
@@ -44,6 +45,8 @@ SourceNode::SourceNode(const String& name_)
 		dataThread = new FPGAThread(this);//FPGAThread(this);
 	} else if (getName().equalsIgnoreCase("File Reader")) {
 		dataThread = new FileReaderThread(this);
+	} else if (getName().equalsIgnoreCase("RHD2000 USB Board")) {
+		dataThread = new RHD2000Thread(this);
 	}
 
 	if (dataThread != 0)

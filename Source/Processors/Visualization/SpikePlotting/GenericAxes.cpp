@@ -1,10 +1,8 @@
 #include "GenericAxes.h"
 
-GenericAxes::GenericAxes():
-					BaseUIElement(),
-					type(0),
-					gotFirstSpike(false)
-{	
+GenericAxes::GenericAxes()
+	: BaseUIElement(), gotFirstSpike(false), type(0)
+{
 	ylims[0] = 0;
 	ylims[1] = 1;
 	loadFont();

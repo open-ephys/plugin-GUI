@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -175,17 +175,11 @@ private:
 
 */
 
-class Clock : public OpenGLCanvas
+class Clock : public Component
 {
 	public:
 		Clock();
 		~Clock();
-
-		/** Initializes an OpenGL context in which drawing occurs.*/
-		void newOpenGLContextCreated();
-
-		/** Draws the current time.*/
-		void renderOpenGL();
 
 		/** Starts the acquisition (yellow) clock.*/
 		void start();
@@ -202,10 +196,13 @@ class Clock : public OpenGLCanvas
 		/** Sets the cumulative recording time to zero.*/
 		void resetRecordTime();
 
+		/** Renders the clock.*/
+		void paint(Graphics& g);
+
 	private:
 
 		/** Draws the current time.*/
-		void drawTime();
+		void drawTime(Graphics& g);
 
 		int64 lastTime;
 
@@ -215,7 +212,8 @@ class Clock : public OpenGLCanvas
 		bool isRunning;
 		bool isRecording;
 
-		//FTPixmapFont* font;
+		Font clockFont;
+
 };
 
 /**
@@ -230,7 +228,7 @@ class Clock : public OpenGLCanvas
 
 */
 
-class ControlPanelButton : public OpenGLCanvas
+class ControlPanelButton : public Component
 {
 public:
 	ControlPanelButton(ControlPanel* cp_);
@@ -242,14 +240,8 @@ public:
 	/** Toggles the open/closed state of the ControlPanelButton.*/
 	void toggleState();
 
-	/** Initializes an OpenGL context in which drawing occurs.*/
-	void newOpenGLContextCreated();
-
 	/** Draws the button. */
-	void renderOpenGL();
-
-	/** Draws the button. */
-	void drawButton();
+	void paint(Graphics& g);
 
 	/** Responds to mouse clicks within the button. */
 	void mouseDown(const MouseEvent& e);
@@ -309,18 +301,18 @@ public:
 	bool isOpen() {return open;}
  
 private:	
-	PlayButton* playButton;
-	RecordButton* recordButton;
-	Clock* masterClock;
-	CPUMeter* cpuMeter;
-	DiskSpaceMeter* diskMeter;
-    ProcessorGraph* graph;
+	ScopedPointer<PlayButton> playButton;
+	ScopedPointer<RecordButton> recordButton;
+	ScopedPointer<Clock> masterClock;
+	ScopedPointer<CPUMeter> cpuMeter;
+	ScopedPointer<DiskSpaceMeter> diskMeter;
+	ScopedPointer<FilenameComponent> filenameComponent;
+	ScopedPointer<UtilityButton> newDirectoryButton;
+	ScopedPointer<ControlPanelButton> cpb;
+
+	ProcessorGraph* graph;
 	AudioComponent* audio;
 	AudioEditor* audioEditor;
-	FilenameComponent* filenameComponent;
-	UtilityButton* newDirectoryButton;
-
-	ControlPanelButton* cpb;
 
 	void paint(Graphics& g);
 

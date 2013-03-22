@@ -42,3 +42,7 @@ cscope.files
 cscope.out
 *~
 .dir-locals.el
+
+# 7. Open Ephys data files
+*.continuous
+*.events

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -108,10 +108,10 @@ public:
 	void childComponentChanged();
 
 	/** Returns the names of all the requested menubar drop-down lists (e.g., "File", "Edit", "Help", etc.). */
-	const StringArray getMenuBarNames();
+	StringArray getMenuBarNames();
 
 	/** Adds the commands contained within a given drop-down menu from the menubar. */
-	const PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
+	PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
 	
 	/** Called when a particular menu item is selected. Doesn't do anything yet. */
 	void menuItemSelected(int menuItemID, int topLevelMenuIndex);
@@ -130,13 +130,13 @@ public:
 
 private:
 
-	DataViewport* dataViewport;
-	EditorViewport* editorViewport;
-	EditorViewportButton* editorViewportButton;
-	ProcessorList* processorList;
-	ControlPanel* controlPanel;
-	MessageCenter* messageCenter;
-	InfoLabel* infoLabel;
+	ScopedPointer<DataViewport> dataViewport;
+	ScopedPointer<EditorViewport> editorViewport;
+	ScopedPointer<EditorViewportButton> editorViewportButton;
+	ScopedPointer<ProcessorList> processorList;
+	ScopedPointer<ControlPanel> controlPanel;
+	ScopedPointer<MessageCenter> messageCenter;
+	ScopedPointer<InfoLabel> infoLabel;
 
 	/** Pointer to the GUI's MainWindow, which owns the UIComponent. */
 	MainWindow* mainWindow;
@@ -183,7 +183,7 @@ private:
 
 */
 
-class EditorViewportButton : public OpenGLCanvas
+class EditorViewportButton : public Component
 {
 public:
 	EditorViewportButton(UIComponent* ui);
@@ -192,17 +192,8 @@ public:
 	/** Returns the open/closed state of the button. */
 	bool isOpen() {return open;}
 
-	/** Configures a new OpenGL context for drawing. */
-	void newOpenGLContextCreated();
-
 	/** Draws the button. */
-	void renderOpenGL();
-
-	/** Draws the name of the button. */
-	void drawName();
-
-	/** Draws the button. */
-	void drawButton();
+	void paint(Graphics& g);
 
 	/** Switches the open/closed state of the button. */
 	void toggleState();
@@ -215,6 +206,8 @@ private:
 
 	UIComponent* UI;
 	bool open;
+
+	Font buttonFont;
 
 };
 

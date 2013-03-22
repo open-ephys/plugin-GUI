@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -28,7 +28,8 @@
 #include "SourceNode.h"
 
 FPGAOutput::FPGAOutput()
-	: GenericProcessor("FPGA Output"), isEnabled(true), TTLchannel(3), continuousStim(false)
+	: GenericProcessor("FPGA Output"), TTLchannel(3),
+	  isEnabled(true),  continuousStim(false)
 {
     
     Array<var> channelNumbers;
@@ -65,9 +66,9 @@ void FPGAOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
     if (eventType == TTL && isEnabled)
     {
 
-        uint8* dataptr = event.getRawData();
+        const uint8* dataptr = event.getRawData();
 
-        int eventNodeId = *(dataptr+1);
+        // int eventNodeId = *(dataptr+1);
         int eventId = *(dataptr+2);
         int eventChannel = *(dataptr+3);
 

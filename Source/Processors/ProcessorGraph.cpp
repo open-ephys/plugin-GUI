@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -163,8 +163,6 @@ void ProcessorGraph::clearSignalChain()
 
 void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
 {
-
-	ColourSelector* cs = dynamic_cast <ColourSelector*> (source);
 
 	for (int i = 0; i < getNumNodes(); i++)
 	{
@@ -384,16 +382,18 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 
 		if (subProcessorType.equalsIgnoreCase("Intan Demo Board") ||
 			subProcessorType.equalsIgnoreCase("File Reader") ||
-			subProcessorType.equalsIgnoreCase("Custom FPGA")) {
+			subProcessorType.equalsIgnoreCase("Custom FPGA") ||
+			subProcessorType.equalsIgnoreCase("RHD2000 USB Board")) {
 
-			if (subProcessorType.equalsIgnoreCase("Intan Demo Board") &&
-				!processorWithSameNameExists(subProcessorType)) {
-				std::cout << "Only one Intan Demo Board is allowed at a time."
-						  << std::endl;
-			} else {
-				processor = new SourceNode(subProcessorType);
+			// if (subProcessorType.equalsIgnoreCase("Intan Demo Board") &&
+			// 	!processorWithSameNameExists(subProcessorType)) {
+			// 	std::cout << "Only one Intan Demo Board is allowed at a time."
+			// 			  << std::endl;
+			// } else {
 				std::cout << "Creating a new data source." << std::endl;
-			}
+				processor = new SourceNode(subProcessorType);
+				
+			//}
 
 		} else if (subProcessorType.equalsIgnoreCase("Signal Generator"))
 		{

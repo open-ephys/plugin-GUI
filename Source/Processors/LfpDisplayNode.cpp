@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,9 +27,8 @@
 
 LfpDisplayNode::LfpDisplayNode()
 	: GenericProcessor("LFP Viewer"),
-	  bufferLength(5.0f), displayBufferIndex(0), displayGain(1),
+	  displayBufferIndex(0), displayGain(1), bufferLength(5.0f),
 	  abstractFifo(100), ttlState(0)
-
 {
     std::cout << " LFPDisplayNodeConstructor" << std::endl;
 	displayBuffer = new AudioSampleBuffer(8, 100);
@@ -125,7 +124,7 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
     parameterPointer=parameterPointer+parameterIndex;
     parameterPointer->setValue(newValue, currentChannel);
 
-    std::cout << "Saving Parameter from " << currentChannel << ", channel ";
+    //std::cout << "Saving Parameter from " << currentChannel << ", channel ";
     
 	LfpDisplayEditor* ed = (LfpDisplayEditor*) getEditor();
 	if (ed->canvas != 0)
@@ -136,15 +135,14 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
 {
 	if (eventType == TTL)
 	{
-		uint8* dataptr = event.getRawData();
+		const uint8* dataptr = event.getRawData();
 
-    	int eventNodeId = *(dataptr+1);
+    	// int eventNodeId = *(dataptr+1);
     	int eventId = *(dataptr+2);
     	int eventChannel = *(dataptr+3);
     	int eventTime = event.getTimeStamp();
 
     	int samplesLeft = totalSamples - eventTime;
-
 
     //	std::cout << "Received event from " << eventNodeId << ", channel "
     //	          << eventChannel << ", with ID " << eventId << std::endl;
@@ -206,11 +204,11 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
 	} else if (eventType == TIMESTAMP)
 	{
 
-		uint8* dataptr = event.getRawData();
+		const uint8* dataptr = event.getRawData();
 
-    	int eventNodeId = *(dataptr+1);
-    	int eventId = *(dataptr+2);
-    	int eventChannel = *(dataptr+3);
+    	// int eventNodeId = *(dataptr+1);
+    	// int eventId = *(dataptr+2);
+    	// int eventChannel = *(dataptr+3);
     	
     	// update the timestamp for the current buffer:
     	memcpy(&bufferTimestamp, dataptr+4, 4);

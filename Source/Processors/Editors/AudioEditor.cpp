@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -114,6 +114,7 @@ void AudioEditor::resized()
 bool AudioEditor::keyPressed (const KeyPress& key)
 {
 	//std::cout << name << " received " << key.getKeyCode() << std::endl;
+	return false;
 }
 
 
@@ -197,14 +198,14 @@ AudioConfigurationWindow::AudioConfigurationWindow(AudioDeviceManager& adm, Butt
 
 	adsc->setBounds(0,0,450,240);
 
-	setContentComponent (adsc, true, true);
+	setContentOwned (adsc, true);
 	setVisible(false);
 	//setContentComponentSize(getWidth(), getHeight());
 }
 
 AudioConfigurationWindow::~AudioConfigurationWindow()
 {
-	setContentComponent (0);
+	//setContentComponent (0);
 	//eleteAndZero(deviceManager);
 //	deleteAndZero (deviceSelector);
 }

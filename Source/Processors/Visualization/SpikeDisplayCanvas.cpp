@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
 
 	// std::cout << "Setting num inputs on SpikeDisplayCanvas to " << nPlots << std::endl;
 	
-	refreshMs = 100; // override 5 s refresh rate
+	//refreshMs = 100; // override 5 s refresh rate
 	
 }
 
@@ -157,7 +157,7 @@ void SpikeDisplayCanvas::repositionSpikePlots(){
         // else place the plot
         else{
             //std::cout<<"Positioning p:"<<p<<" at "<<x<<","<<y - h<<"  "<<w<<","<<h<<std::endl;
-            plots[p]->setPosition(x, y - h + getScrollAmount(), w, h);
+           // plots[p]->setPosition(x, y - h + getScrollAmount(), w, h);
             x = x + w + xBuffer;
 
             // set a new minimum
@@ -191,29 +191,29 @@ void SpikeDisplayCanvas::repositionSpikePlots(){
     totalHeight = getHeight() + (y + yIncrement);
 }
 
-void SpikeDisplayCanvas::newOpenGLContextCreated()
-{
-	std::cout<<"SpikeDisplayCanvas::newOpenGLContextCreated()"<<std::endl;
-	setUp2DCanvas();
-	activateAntiAliasing();
-	disablePointSmoothing();
+// void SpikeDisplayCanvas::newOpenGLContextCreated()
+// {
+// 	std::cout<<"SpikeDisplayCanvas::newOpenGLContextCreated()"<<std::endl;
+// 	setUp2DCanvas();
+// 	activateAntiAliasing();
+// 	disablePointSmoothing();
 
-	glClearColor (0.667, 0.698, 0.718, 1.0);
-	resized();
-	//endAnimation();
-}
+// 	glClearColor (0.667, 0.698, 0.718, 1.0);
+// 	resized();
+// 	//endAnimation();
+// }
 
 void SpikeDisplayCanvas::beginAnimation()
 {
 	std::cout << "Beginning animation." << std::endl;
 	
-	startCallbacks();
+	//startCallbacks();
 }
 
 void SpikeDisplayCanvas::endAnimation()
 {
 	std::cout << "Ending animation." << std::endl;
-	stopCallbacks();
+	//stopCallbacks();
 }
 
 void SpikeDisplayCanvas::update()
@@ -284,25 +284,33 @@ void SpikeDisplayCanvas::canvasWasResized()
 	repositionSpikePlots();
 }
 
-void SpikeDisplayCanvas::renderOpenGL()
+void SpikeDisplayCanvas::paint(Graphics& g)
 {
-	//if(!plotsInitialized)
-	//	initializeSpikePlots();
 
-	glClearColor (0.667, 0.698, 0.718, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
+	g.fillAll(Colours::cyan);
 
-	// Get Spikes from the processor
-	// Iterate through each spike, passing them individually to the appropriate plots and calling redraw before moving on to the next spike
-	 processSpikeEvents();
+	g.setColour(Colours::white);
 
-	 for (int i = 0; i < plots.size(); i++)
-	 {
-	 	plots[i]->redraw();
-	 	drawPlotTitle(i);
-	 }
+	g.drawLine(0,0, getWidth(), getHeight());
+	g.drawLine(0,getHeight(),getWidth(), 0);
 
-	drawScrollBars();
+	// //if(!plotsInitialized)
+	// //	initializeSpikePlots();
+
+	// glClearColor (0.667, 0.698, 0.718, 1.0);
+	// glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
+
+	// // Get Spikes from the processor
+	// // Iterate through each spike, passing them individually to the appropriate plots and calling redraw before moving on to the next spike
+	//  processSpikeEvents();
+
+	//  for (int i = 0; i < plots.size(); i++)
+	//  {
+	//  	plots[i]->redraw();
+	//  	drawPlotTitle(i);
+	//  }
+
+	// drawScrollBars();
  	
 }
 
@@ -329,14 +337,14 @@ void SpikeDisplayCanvas::processSpikeEvents()
 		
 		while (i.getNextEvent (message, samplePosition)) {
 			//eventCount++;
-			 uint8_t* dataptr = message.getRawData();
+			 const uint8* dataptr = message.getRawData();
 			 int bufferSize = message.getRawDataSize();
 			// int nSamples = (bufferSize-4)/2;
 
 			SpikeObject newSpike;
 			SpikeObject simSpike;
 
-			unpackSpike(&newSpike, dataptr, bufferSize);
+			//unpackSpike(&newSpike, dataptr, bufferSize);
 
 			//
 
@@ -395,8 +403,8 @@ void SpikeDisplayCanvas::drawPlotTitle(int chan){
 	String s = "Source:";//String("Channel ");
 	s += (chan+1);
 
-	getFont(cpmono_bold)->FaceSize(15);
-	getFont(cpmono_bold)->Render(s);
+//	getFont(cpmono_bold)->FaceSize(15);
+	//getFont(cpmono_bold)->Render(s);
 }
 
 int SpikeDisplayCanvas::getTotalHeight() 
@@ -444,9 +452,9 @@ void SpikeDisplayCanvas::mouseUpInCanvas(const MouseEvent& e) 	{
 void SpikeDisplayCanvas::mouseWheelMoveInCanvas(const MouseEvent& e, float wheelIncrementX, float wheelIncrementY)
 {
 
-	repositionSpikePlots();
+	// repositionSpikePlots();
 
-	repaint();
+	// repaint();
 	//repaint();
 
 	// mouseWheelMoveInCanvas(e, wheelIncrementX, wheelIncrementY);

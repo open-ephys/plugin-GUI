@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -34,11 +34,10 @@
 #include <math.h>
 
 GenericEditor::GenericEditor (GenericProcessor* owner, bool useDefaultParameterEditors=true)
-	: AudioProcessorEditor (owner), isSelected(false),
-	  desiredWidth(150), tNum(-1), isEnabled(true),
-	  accumulator(0.0), isFading(false), drawerButton(0),
-	  channelSelector(0)
-
+	: AudioProcessorEditor(owner),
+	  desiredWidth(150), isFading(false), accumulator(0.0),
+	  drawerButton(0), channelSelector(0),
+	  isSelected(false), isEnabled(true), tNum(-1)
 {
     constructorInitialize(owner, useDefaultParameterEditors);
 }
@@ -66,9 +65,9 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
     
 	nodeId = owner->getNodeId();
     
-	MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    titleFont = Font(typeface);
+	//MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    //Typeface::Ptr typeface = new CustomTypeface(mis);
+    titleFont = Font("Small Text", 10, Font::plain);
     
     if (!owner->isMerger() && !owner->isSplitter())
     {
@@ -278,8 +277,6 @@ void GenericEditor::fadeIn()
 void GenericEditor::paint (Graphics& g)
 {
 	int offset = 0;
-
-	GenericProcessor* p = (GenericProcessor*) getProcessor();
 
 	if (isEnabled)
 		g.setColour(backgroundColor);

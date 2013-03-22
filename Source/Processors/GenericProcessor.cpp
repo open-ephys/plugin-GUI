@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,13 +24,10 @@
 #include "GenericProcessor.h"
 #include "../UI/UIComponent.h"
 
-GenericProcessor::GenericProcessor(const String& name_) : 
-    name(name_),
-	sourceNode(0), destNode(0),
-	isEnabled(true), 
-	saveOrder(-1), loadOrder(-1),
-	nextAvailableChannel(0), currentChannel(-1),
-	wasConnected(false)
+GenericProcessor::GenericProcessor(const String& name_) :
+	sourceNode(0), destNode(0), isEnabled(true), wasConnected(false),
+	nextAvailableChannel(0), saveOrder(-1), loadOrder(-1), currentChannel(-1),
+	name(name_)
 {
 }
 
@@ -57,7 +54,7 @@ Parameter& GenericProcessor::getParameterByName(String name_)
 			return p;//parameters.getReference(i);
 	} 
 
-	Parameter nullParam = Parameter("VOID", false, -1);
+	static Parameter nullParam = Parameter("VOID", false, -1);
 
 	return nullParam;
 
@@ -156,7 +153,7 @@ int GenericProcessor::getNumSamples(MidiBuffer& events) {
 	if (events.getNumEvents() > 0) 
 	{
 			
-		int m = events.getNumEvents();
+		// int m = events.getNumEvents();
 
 		//std::cout << getName() << " received " << m << " events." << std::endl;
 
@@ -167,7 +164,7 @@ int GenericProcessor::getNumSamples(MidiBuffer& events) {
 
 		while (i.getNextEvent (message, samplePosition)) {
 			
-			uint8* dataptr = message.getRawData();
+			const uint8* dataptr = message.getRawData();
 
 			if (*dataptr == BUFFER_SIZE)
 			{
@@ -411,7 +408,7 @@ int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)
 	if (midiMessages.getNumEvents() > 0) 
 	{
 			
-		int m = midiMessages.getNumEvents();
+		// int m = midiMessages.getNumEvents();
 		//std::cout << m << " events received by node " << getNodeId() << std::endl;
 
 		MidiBuffer::Iterator i (midiMessages);
@@ -422,7 +419,7 @@ int GenericProcessor::checkForEvents(MidiBuffer& midiMessages)
 
 		while (i.getNextEvent (message, samplePosition)) {
 			
-			uint8* dataptr = message.getRawData();
+			const uint8* dataptr = message.getRawData();
 
 			handleEvent(*dataptr, message, samplePosition);
 
@@ -525,3 +522,5 @@ void GenericProcessor::saveToXML(juce::XmlElement* parentElement){
     
     
 }
+
+const String GenericProcessor::unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");

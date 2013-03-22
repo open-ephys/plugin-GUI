@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -86,9 +86,6 @@ public:
 	    transitions between callbacks. */
 	AudioSampleBuffer overflowBuffer;
 
-	/** Reference to a continuous buffer (for internal use only). */
-	AudioSampleBuffer& dataBuffer;
-
 
 	// CREATE AND DELETE ELECTRODES // 
 
@@ -105,14 +102,14 @@ public:
 	int getNumChannels(int index);
 
 	/** Edits the mapping between input channels and electrode channels. */
-	bool setChannel(int electrodeIndex, int channelNum, int newChannel);
+	void setChannel(int electrodeIndex, int channelNum, int newChannel);
 
 	/** Returns the continuous channel that maps to a given 
 		electrode channel. */
 	int getChannel(int index, int chan);
 
 	/** Sets the name of a given electrode. */
-	bool setElectrodeName(int index, String newName);
+	void setElectrodeName(int index, String newName);
 
 
 	// RETURN STRING ARRAYS // 
@@ -128,6 +125,8 @@ public:
 	double getChannelThreshold(int electrodeNum, int channelNum);
 
 private:
+	/** Reference to a continuous buffer. */
+	AudioSampleBuffer& dataBuffer;
 
 	float getDefaultThreshold();
 

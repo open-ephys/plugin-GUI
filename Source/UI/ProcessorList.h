@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -62,12 +62,6 @@ public:
 	ProcessorList();
 	~ProcessorList();
 
-	/** Initializes an OpenGL context for drawing.*/
-	void newOpenGLContextCreated();
-
-	/** Draws the ProcessorList.*/
-	void renderOpenGL();
-
 	/** Switches the open/closed state of the ProcessorList.*/
 	void toggleState();
 
@@ -79,23 +73,26 @@ public:
 
 private:
 
+	/** Renders the canvas. */
+	void paintCanvas(Graphics& g);
+
 	/** The main method for drawing the ProcessorList.*/
-	void drawItems();
+	void drawItems(Graphics& g);
 
 	/** Draws a single item within the ProcessorList.*/
-	void drawItem(ProcessorListItem*);
+	void drawItem(Graphics& g, ProcessorListItem*);
 
 	/** Draws the name of a single item within the ProcessorList.*/
-	void drawItemName(ProcessorListItem*);
+	void drawItemName(Graphics& g, ProcessorListItem*);
 
 	/** Draws the open/close button.*/
-	void drawButton(bool isOpen);
+	void drawButton(Graphics& g, bool isOpen);
 
 	/** Returns the ProcessorListItem that sits at a given y coordinate.*/
 	ProcessorListItem* getListItemForYPos(int y);
 
 	/** Sets the appropriate OpenGL viewport for drawing.*/
-	void setViewport(bool);
+	void setViewport(Graphics& g, bool);
 
 	int currentColor;
 
@@ -118,7 +115,11 @@ private:
 	/** Called when a mouse drag occurs within the boundaries of the ProcessorList.*/
 	void mouseDragInCanvas(const MouseEvent& e);
 
-	ProcessorListItem* baseItem;
+	/** The base item in the list.*/
+	ScopedPointer<ProcessorListItem> baseItem;
+
+	Font listFontLight;
+	Font listFontPlain;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorList);	
 

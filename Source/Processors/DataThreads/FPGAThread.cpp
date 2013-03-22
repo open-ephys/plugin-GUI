@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -28,22 +28,15 @@
 #include <math.h>
 #define M_PI       3.14159265358979323846
 
-FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
-			isTransmitting(false),
-			numchannels(32),
-			deviceFound(false),
-            ttlOutputVal(0),
-            bytesToRead(20000),
-            bufferWasAligned(false),
-            ttlState(0)
-
+FPGAThread::FPGAThread(SourceNode* sn)
+	: DataThread(sn),
+	  isTransmitting(false), deviceFound(false), bytesToRead(20000),
+	  ttlState(0), ttlOutputVal(0), bufferWasAligned(false), numchannels(32)
 {
-
-	
 	//const char* bitfilename = "./pipetest.bit";
 #if JUCE_LINUX
 	const char* bitfilename = "./pipetest.bit";
-    const char* libname = "./libokFrontPanel64.so";
+    const char* libname = "./libokFrontPanel.so";
 #endif
 #if JUCE_WIN32
 	const char* bitfilename = "pipetest.bit";
@@ -284,7 +277,7 @@ bool FPGAThread::updateBuffer()
     
     // new strategy: read in 201 bytes & find the first sample
 
-    int firstSample;
+    // int firstSample;
     
 	while (j < bytesToRead)
 	{
@@ -311,7 +304,7 @@ bool FPGAThread::updateBuffer()
 
             if (i == 1)
             {
-                firstSample = j;
+                // firstSample = j;
                
                //             "     Bytes read: " << bytesToRead << std::endl;
             }
@@ -361,9 +354,8 @@ bool FPGAThread::updateBuffer()
 
                     uint16 samp = ((hi << 8) + lo);
 
-                   // thisSample[n/2] = -float(samp) * 0.1907f + 3000.0f; //- 6175.0f;
 					//high-pass filter
-					currentSample = -double(samp) * 0.1907f + 3000.0f; //- 6175.0f;
+					currentSample = double(samp) * 0.1907f - 3000.0f; //- 6175.0f;
 					thisSample[n/2] = float(currentSample - filter_states[n/2]);
 					filter_states[n/2] = filter_B*currentSample + filter_A*filter_states[n/2];
                 }

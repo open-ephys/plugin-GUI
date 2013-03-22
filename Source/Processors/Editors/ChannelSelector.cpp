@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -29,9 +29,10 @@
 #include "../ProcessorGraph.h"
 
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
-	isNotSink(createButtons), titleFont(titleFont_), offsetLR(0), offsetUD(0),
-	moveRight(false), moveLeft(false), desiredOffset(0), paramsActive(true), paramsToggled(true),
-	radioStatus(false), eventsOnly(false), acquisitionIsActive(false)
+	eventsOnly(false), paramsToggled(true), paramsActive(true),
+	radioStatus(false), isNotSink(createButtons), moveRight(false),
+	moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0),
+	titleFont(titleFont_), acquisitionIsActive(false)
 {
 
 	// initialize buttons
@@ -536,7 +537,7 @@ EditorButton::EditorButton(const String& name, Font& f) : Button(name)
 
 void EditorButton::resized()
 {
-    float radius = 5.0f;
+    // float radius = 5.0f;
     float width = (float) getWidth();
     float height = (float) getHeight();
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ PlayButton::PlayButton()
         down.setStrokeThickness (5.0f);
 
         setImages (&normal, &over, &over);
-        setBackgroundColours(Colours::darkgrey, Colours::yellow);
+       // setBackgroundColours(Colours::darkgrey, Colours::yellow);
         setClickingTogglesState (true);
         setTooltip ("Start/stop acquisition");
 
@@ -78,7 +78,7 @@ RecordButton::RecordButton()
         over.setStrokeThickness (5.0f);
 
         setImages (&normal, &over, &over);
-        setBackgroundColours(Colours::darkgrey, Colours::red);
+        //setBackgroundColours(Colours::darkgrey, Colours::red);
         setClickingTogglesState (true);
         setTooltip ("Start/stop writing to disk");
 }
@@ -159,10 +159,10 @@ void DiskSpaceMeter::paint(Graphics& g)
 
 Clock::Clock() : isRunning(false), isRecording(false)
 {
-	// const unsigned char* buffer = reinterpret_cast<const unsigned char*>(BinaryData::cpmono_light_otf);
-	// size_t bufferSize = BinaryData::cpmono_light_otfSize;
 
-	// font = new FTPixmapFont(buffer, bufferSize);
+	//MemoryInputStream mis(BinaryData::cpmonolightserialized, BinaryData::cpmonolightserializedSize, false);
+    //Typeface::Ptr typeface = new CustomTypeface(mis);
+    clockFont = Font("Default Light", 30, Font::plain);
 
 	totalTime = 0;
 	totalRecordTime = 0;
@@ -172,20 +172,14 @@ Clock::~Clock()
 {
 }
 
-void Clock::newOpenGLContextCreated()
+
+void Clock::paint(Graphics& g)
 {
-	setUp2DCanvas();
-	activateAntiAliasing();
-	setClearColor(darkgrey);
+	g.fillAll(Colour(58,58,58));
+	drawTime(g);
 }
 
-void Clock::renderOpenGL()
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-	drawTime();
-}
-
-void Clock::drawTime()
+void Clock::drawTime(Graphics& g)
 {
 
 	if (isRunning)
@@ -207,35 +201,31 @@ void Clock::drawTime()
 
 	if (isRecording)
 	{
-		glColor4f(1.0, 0.0, 0.0, 1.0);
+		g.setColour(Colours::red);
 		m = floor(totalRecordTime/60000.0);
 		s = floor((totalRecordTime - m*60000.0)/1000.0);
 
 	} else {
+
 		if (isRunning)
-			glColor4f(1.0, 1.0, 0.0, 1.0);
+			g.setColour(Colours::yellow);
 		else
-			glColor4f(1.0, 1.0, 1.0, 1.0);
+			g.setColour(Colours::white);
+
 		m = floor(totalTime/60000.0);
 		s = floor((totalTime - m*60000.0)/1000.0);
 	}
 
 	String timeString = "";
-
-	// if (m < 10)
-	// 	String timeString = "  ";
-	// else if (m < 100)
 		
 	timeString += m;
 	timeString += " min ";
 	timeString += s;
 	timeString += " s";
 
-	glRasterPos2f(8.0/getWidth(),0.75f);
-
-	getFont(cpmono_light)->FaceSize(23);
-	getFont(cpmono_light)->Render(timeString);
-
+	g.setFont(clockFont);
+	//g.setFont(30);
+	g.drawText(timeString, 0, 0, getWidth(), getHeight(), Justification::left, false);
 
 } 
 
@@ -292,40 +282,34 @@ ControlPanelButton::~ControlPanelButton()
 	
 }
 
-void ControlPanelButton::newOpenGLContextCreated()
+void ControlPanelButton::paint(Graphics& g)
 {
+	g.fillAll(Colour(58,58,58));
 
-	setUp2DCanvas();
-	activateAntiAliasing();
-	setClearColor(darkgrey);
-}
+	g.setColour(Colours::white);
 
+	Path p;
 
-void ControlPanelButton::renderOpenGL()
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-	drawButton();
-}
-
-void ControlPanelButton::drawButton()
-{
-	glColor4f(1.0f,1.0f,1.0f,1.0f);
-	glLineWidth(1.0f);
-
-	glBegin(GL_LINE_LOOP);
+	float h = getHeight();
+	float w = getWidth();
 
 	if (open)
 	{
-		glVertex2f(0.5, 0.8);
-		glVertex2f(0.2, 0.2);
+		p.addTriangle(0.5f*w, 0.8f*h,
+			          0.2f*w, 0.2f*h,
+			          0.8f*w, 0.2f*h);
 	} else {
-		glVertex2f(0.8, 0.8);
-		glVertex2f(0.2, 0.5);
+		p.addTriangle(0.8f*w, 0.8f*h,
+			          0.2f*w, 0.5f*h,
+			          0.8f*w, 0.2f*h);
 	}
-	glVertex2f(0.8, 0.2);
-	glEnd();
+
+	PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
+
+	g.strokePath(p, pst);
 
 }
+
 
 void ControlPanelButton::mouseDown(const MouseEvent& e)
 {
@@ -343,8 +327,8 @@ void ControlPanelButton::toggleState()
 
 
 
-ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) : 
-			graph (graph_), audio(audio_), open(false), initialize(true)
+ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
+	: graph (graph_), audio(audio_), initialize(true), open(false)
 {
 
 	if (1) {
@@ -405,18 +389,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_) :
 
 ControlPanel::~ControlPanel()
 {
-	//deleteAllChildren() -> if this is used, audioEditor will be deleted
-	deleteAndZero(playButton);
-	deleteAndZero(recordButton);
-	deleteAndZero(masterClock);
-	deleteAndZero(cpuMeter);
-	deleteAndZero(diskMeter);
-	deleteAndZero(cpb);
-	deleteAndZero(filenameComponent);
-	deleteAndZero(newDirectoryButton);
-	//audioEditor will delete itself
 
-	graph = 0;
 }
 
 void ControlPanel::setRecordState(bool t)
@@ -432,6 +405,7 @@ void ControlPanel::updateChildComponents()
 {
 
 	filenameComponent->addListener(getProcessorGraph()->getRecordNode());
+	getProcessorGraph()->getRecordNode()->filenameComponentChanged(filenameComponent);
 
 }
 

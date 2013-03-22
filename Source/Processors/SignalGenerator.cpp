@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -33,10 +33,8 @@
 
 SignalGenerator::SignalGenerator()
 	: GenericProcessor("Signal Generator"),
-
-	  defaultFrequency(10.0),
-	  defaultAmplitude(0.5f),
-	  nOut(5), previousPhase(1000), spikeDelay(0)
+	  nOut(5), defaultFrequency(10.0), defaultAmplitude(0.5f),
+	  previousPhase(1000), spikeDelay(0)
 {
     parameters.add(Parameter("Amplitude", 0.0005f, 500.0f, .5f, 0, true));
     parameters.add(Parameter("Frequency", 0.01, 10000.0, 10, 1, true));

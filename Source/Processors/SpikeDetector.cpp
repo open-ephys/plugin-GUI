@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,9 +27,9 @@
 #include "Channel.h"
 
 SpikeDetector::SpikeDetector()
-    : GenericProcessor("Spike Detector"), overflowBufferSize(100),
-      overflowBuffer(2,100), dataBuffer(overflowBuffer), currentElectrode(-1)
-	
+    : GenericProcessor("Spike Detector"),
+      overflowBuffer(2,100), dataBuffer(overflowBuffer),
+	  overflowBufferSize(100), currentElectrode(-1)
 {
     //// the standard form:
     electrodeTypes.add("single electrode");
@@ -192,12 +192,12 @@ bool SpikeDetector::removeElectrode(int index)
     return true;
 }
 
-bool SpikeDetector::setElectrodeName(int index, String newName)
+void SpikeDetector::setElectrodeName(int index, String newName)
 {
     electrodes[index-1]->name = newName;
 }
 
-bool SpikeDetector::setChannel(int electrodeIndex, int channelNum, int newChannel) 
+void SpikeDetector::setChannel(int electrodeIndex, int channelNum, int newChannel) 
 {
     *(electrodes[electrodeIndex]->channels+channelNum) = newChannel;
 }

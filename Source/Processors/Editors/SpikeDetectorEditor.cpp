@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -391,9 +391,6 @@ void SpikeDetectorEditor::labelTextChanged(Label* label)
 
     } else if (!label->getText().equalsIgnoreCase("1") && !isPlural)
     {
-        const String s = "s";
-        size_t one = 1;
-
         for (int n = 1; n < electrodeTypes->getNumItems()+1; n++)
         {
             String currentString = electrodeTypes->getItemText(n-1);

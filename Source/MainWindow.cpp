@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -34,10 +34,9 @@ MainWindow::MainWindow()
 
     setResizable (true,     // isResizable
                   false);   // useBottomCornerRisizer -- doesn't work very well
-   // centreWithSize(500,400);
 
     // Constraining the window's size doesn't seem to work:
-    //
+    // setResizeLimits(500, 400, 10000, 10000);
 
     // Create ProcessorGraph and AudioComponent, and connect them.
     // Callbacks will be set by the play button in the control panel
@@ -46,26 +45,23 @@ MainWindow::MainWindow()
      audioComponent = new AudioComponent();
      audioComponent->connectToProcessorGraph(processorGraph);
 
-     setContentComponent (new UIComponent(this, processorGraph, audioComponent), true, true);
+     setContentOwned (new UIComponent(this, processorGraph, audioComponent), true);
 
      UIComponent* ui = (UIComponent*) getContentComponent();
 
      commandManager.registerAllCommandsForTarget (ui);
      commandManager.registerAllCommandsForTarget (JUCEApplication::getInstance());
 
-     //setMenuBar (ui);
      ui->setApplicationCommandManagerToWatch(&commandManager);
 
      addKeyListener(commandManager.getKeyMappings());
 
      loadWindowBounds();
      setUsingNativeTitleBar (true);
-     Component::addToDesktop (getDesktopWindowStyleFlags()); 
+     Component::addToDesktop (getDesktopWindowStyleFlags()); // prevents the maximize
+                                                             // button from randomly disappearing
      setVisible (true);
-
-    // setResizeLimits(500, 400, 10000, 10000);
     
-
 }
 
 MainWindow::~MainWindow()
@@ -74,25 +70,19 @@ MainWindow::~MainWindow()
   if (audioComponent->callbacksAreActive()) {
       audioComponent->endCallbacks();
       processorGraph->disableProcessors();
-    }
+  } 
 
    saveWindowBounds();
-  // processorGraph->saveState();
 
    audioComponent->disconnectProcessorGraph();
    UIComponent* ui = (UIComponent*) getContentComponent();
    ui->disableDataViewport();
 
-   deleteAndZero(processorGraph);
-   deleteAndZero(audioComponent);
-
    setMenuBar(0);
 
    #if JUCE_MAC 
        MenuBarModel::setMacMainMenu (0);
-  #endif
-
-   setContentComponent (0);
+   #endif
 
 }
 
@@ -171,7 +161,7 @@ void MainWindow::loadWindowBounds()
             int w = e->getIntAttribute("w");
             int h = e->getIntAttribute("h");
 
-            bool fs = e->getBoolAttribute("fullscreen");
+            // bool fs = e->getBoolAttribute("fullscreen");
 
             // without the correction, you get drift over time
 #ifdef WIN32

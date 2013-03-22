@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -23,7 +23,7 @@
 
 #include "DataViewport.h"
 #include "EditorViewport.h"
-#include "../Processors/Visualization/OpenGLCanvas.h"
+#include "../Processors/Visualization/Visualizer.h"
 
 DataViewport::DataViewport() :
 	TabbedComponent(TabbedButtonBar::TabsAtRight),
@@ -41,6 +41,7 @@ DataViewport::DataViewport() :
 	setColour(TabbedComponent::backgroundColourId,
 							Colours::darkgrey);
 
+
 }
 
 DataViewport::~DataViewport()
@@ -54,8 +55,17 @@ DataViewport::~DataViewport()
  		setVisible(true);
 
      int tabIndex = getTabbedButtonBar().getNumTabs();
+
+    // Viewport* viewport = new Viewport();
+    // viewport->setViewedComponent(component, false);
+   //  viewport->setBounds(0,0,getWidth(), getHeight()); 
+   //  viewport->setVisible(true);
+
      addTab(name, Colours::lightgrey, component, false, tabIndex);
+
      getTabbedButtonBar().setCurrentTabIndex(tabIndex);
+
+     getTabbedButtonBar().setTabBackgroundColour(tabIndex, Colours::darkgrey);
 
      setOutline(0);
 
@@ -66,7 +76,6 @@ DataViewport::~DataViewport()
      return tabIndex;
 
  }
-
 
  void DataViewport::selectTab(int index) {
         
@@ -80,25 +89,15 @@ DataViewport::~DataViewport()
         
     int newIndex = tabArray.indexOf(index);
 
-    Component* canvas;
-    Component* parent = 0;
-
-    canvas = getTabContentComponent(newIndex);
-
-    if (canvas != 0)
-        parent = canvas->getParentComponent();
-
-    if (parent != 0 && canvas != 0)
-        parent->removeChildComponent(canvas);
-
     tabArray.remove(newIndex);
     editorArray.remove(newIndex);
 
-    //removeTab(newIndex);
-    getTabbedButtonBar().removeTab(newIndex);
+    removeTab(newIndex);
 
     if (tabArray.size() == 0)
      	setVisible(false);
+
+     setCurrentTabIndex(0);
 
  }
 
@@ -110,14 +109,14 @@ DataViewport::~DataViewport()
 
  void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
  {
-     OpenGLCanvas* canvas = (OpenGLCanvas*) getTabContentComponent(newIndex);
+    // OpenGLCanvas* canvas = (OpenGLCanvas*) getTabContentComponent(newIndex);
 
-     if (canvas != 0) {
-         canvas->refreshState();
-     }
+    // if (canvas != 0) {
+    //     canvas->refreshState();
+    // }
 
-     std::cout << "CURRENT TAB CHANGED" << std::endl;
-     std::cout << "number of editors remaining: " << editorArray.size() << std::endl;
+    // std::cout << "CURRENT TAB CHANGED" << std::endl;
+     //std::cout << "number of editors remaining: " << editorArray.size() << std::endl;
 
      if (!shutdown) {
         getEditorViewport()->makeEditorVisible(editorArray[newIndex]);

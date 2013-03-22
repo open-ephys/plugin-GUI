@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ EditorScrollButton::EditorScrollButton(int d)
         activeDown.setStrokeThickness (3.0f);
 
         setImages (&inactive, &inactive, &inactive);
-        setBackgroundColours(Colours::black, Colours::black);
+      //  setBackgroundColours(Colours::black, Colours::black);
         setClickingTogglesState (false);
 
 }
@@ -119,7 +119,7 @@ SignalChainScrollButton::SignalChainScrollButton(int d)
         activeDown.setStrokeThickness (3.0f);
 
         setImages (&inactive, &inactive, &inactive);
-        setBackgroundColours(Colours::black, Colours::black);
+        //setBackgroundColours(Colours::black, Colours::black);
         setClickingTogglesState (false);
 
 }

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -35,14 +35,13 @@ enum colorIds {
     UTILITY_COLOR = 805,
 };
 
-ProcessorList::ProcessorList() : isDragging(false),
-                           itemHeight(32),
-                           subItemHeight(22),
-                           totalHeight(800),
-                           xBuffer(1),
-                           yBuffer(1)
+ProcessorList::ProcessorList()
+	: isDragging(false), totalHeight(800), itemHeight(32), subItemHeight(22),
+	  xBuffer(1), yBuffer(1)
 {
 
+	listFontLight = Font("Default Light", 25, Font::plain);
+	listFontPlain = Font("Default", 20, Font::plain);
 
 	setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
 	setColour(FILTER_COLOR, Colour(41, 76, 158));//Colour(255, 89, 0));
@@ -54,6 +53,7 @@ ProcessorList::ProcessorList() : isDragging(false),
 	sources->addSubItem(new ProcessorListItem("Intan Demo Board"));
 	sources->addSubItem(new ProcessorListItem("Signal Generator"));
 	sources->addSubItem(new ProcessorListItem("Custom FPGA"));
+	sources->addSubItem(new ProcessorListItem("RHD2000 USB Board"));
 	sources->addSubItem(new ProcessorListItem("File Reader"));
 	sources->addSubItem(new ProcessorListItem("Event Generator"));
 
@@ -105,7 +105,7 @@ ProcessorList::ProcessorList() : isDragging(false),
 
 ProcessorList::~ProcessorList()
 {
-	deleteAndZero(baseItem);
+	
 }
 
 bool ProcessorList::isOpen()
@@ -113,60 +113,42 @@ bool ProcessorList::isOpen()
 	return baseItem->isOpen();
 }
 
-
-void ProcessorList::newOpenGLContextCreated()
+void ProcessorList::paintCanvas(Graphics& g)
 {
 
-	setUp2DCanvas();
-	activateAntiAliasing();
+	drawItems(g);
 
-	setClearColor(black);
+	///drawButton(g, true);
 
-	resized();
-}
-
-void ProcessorList::renderOpenGL()
-{
-	
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffers to preset values
-
-	drawItems();
-	//drawScrollBars();
-	
-    //glFlush();
-    //swapBuffers();
 }
 
 
-void ProcessorList::drawItems()
+void ProcessorList::drawItems(Graphics& g)
 {
-	int itemNum = 0;
 	totalHeight = yBuffer;
-
-	setViewport(true);
 
 	category = baseItem->getName();
 
-	drawItem(baseItem);
+	drawItem(g, baseItem);
 
 	if (baseItem->isOpen())
 	{
 		for (int n = 0; n < baseItem->getNumSubItems(); n++)
 		{
-			setViewport(baseItem->hasSubItems());
+			setViewport(g, baseItem->hasSubItems());
 			category = baseItem->getSubItem(n)->getName();
-			drawItem(baseItem->getSubItem(n));
+			drawItem(g, baseItem->getSubItem(n));
 			
 			if (baseItem->getSubItem(n)->isOpen())
 			{
 				for (int m = 0; m < baseItem->getSubItem(n)->getNumSubItems(); m++)
 				{
 
-					setViewport(baseItem->
+					setViewport(g, baseItem->
 								 getSubItem(n)->
 								 getSubItem(m)->
 								 hasSubItems());
-					drawItem(baseItem->getSubItem(n)->getSubItem(m));
+					drawItem(g, baseItem->getSubItem(n)->getSubItem(m));
 
 				}
 			}			
@@ -175,42 +157,33 @@ void ProcessorList::drawItems()
 
 }
 
-void ProcessorList::drawItem(ProcessorListItem* item)
+void ProcessorList::drawItem(Graphics& g, ProcessorListItem* item)
 {
 
 	Colour c = findColour(item->colorId);
 
-	glColor4f(c.getFloatRed(),
-		      c.getFloatGreen(),
-		      c.getFloatBlue(),
-		      1.0f);
+	g.setColour(c);
 
-	// see if this helps drawing issues on Windows:
-	// (draw rectangle below polygon)
-	glRectf(0.0, 0.0, 1.0, 1.0);
+	if (item->hasSubItems())
+		g.fillRect(1.0, 0.0, getWidth()-2, itemHeight);
+	else
+		g.fillRect(1.0, 10.0, getWidth()-2, subItemHeight);
 
-	glBegin(GL_POLYGON);
-	glVertex2f(0,0);
-	glVertex2f(1,0);
-	glVertex2f(1,1);
-	glVertex2f(0,1);
-	glEnd();
-
-	drawItemName(item);
+	drawItemName(g,item);
 
 	if (item->hasSubItems())
 	{
-		drawButton(item->isOpen());
+		drawButton(g, item->isOpen());
 	}
-
 }
 
-void ProcessorList::drawItemName(ProcessorListItem* item)
+void ProcessorList::drawItemName(Graphics& g, ProcessorListItem* item)
 {
 
 	String name; 
 
-	glColor4f(1.0f,1.0f,1.0f,1.0f);
+	g.setColour(Colours::white);
+	g.setFont(listFontPlain);
 
 	float offsetX, offsetY;
 
@@ -218,9 +191,10 @@ void ProcessorList::drawItemName(ProcessorListItem* item)
 	{
 		if (item->isSelected())
 		{
-			glRasterPos2f(9.0/getWidth(),0.72);
-			getFont(cpmono_plain)->FaceSize(15);
-			getFont(cpmono_plain)->Render(">");
+			g.drawText(">", 5, 5, getWidth()-9, itemHeight, Justification::left, false);
+			// glRasterPos2f(9.0/getWidth(),0.72);
+			// getFont(cpmono_plain)->FaceSize(15);
+			// getFont(cpmono_plain)->Render(">");
 		}
 
 		name = item->getName();
@@ -235,34 +209,37 @@ void ProcessorList::drawItemName(ProcessorListItem* item)
 		offsetY = 0.75f;
 	}
 
-	
-	glRasterPos2f(offsetX/getWidth(),offsetY);
-
 	if (item->getNumSubItems() == 0) {
-		getFont(cpmono_plain)->FaceSize(15);
-		getFont(cpmono_plain)->Render(name);
+		g.setFont(listFontPlain);
+		g.drawText(name, offsetX, 5, getWidth()-offsetX, itemHeight, Justification::left, false);
+
 	} else {
-		getFont(cpmono_light)->FaceSize(23);
-		getFont(cpmono_light)->Render(name);
+		g.setFont(listFontLight);
+		g.drawText(name, offsetX, 0, getWidth()-offsetX, itemHeight, Justification::left, false);
 	}
+
+	
 }
 
-void ProcessorList::drawButton(bool isOpen)
+void ProcessorList::drawButton(Graphics& g, bool isOpen)
 {
-	glColor4f(1.0f,1.0f,1.0f,1.0f);
-	glLineWidth(1.0f);
-	glBegin(GL_LINE_LOOP);
 
-	if (isOpen)
-	{
-		glVertex2f(0.875,0.35);
-		glVertex2f(0.9,0.65);
-	} else {
-		glVertex2f(0.925,0.65);
-		glVertex2f(0.875,0.5);
-	}
-	glVertex2f(0.925,0.35);
-	glEnd();
+
+
+	// glColor4f(1.0f,1.0f,1.0f,1.0f);
+	// glLineWidth(1.0f);
+	// glBegin(GL_LINE_LOOP);
+
+	// if (isOpen)
+	// {
+	// 	glVertex2f(0.875,0.35);
+	// 	glVertex2f(0.9,0.65);
+	// } else {
+	// 	glVertex2f(0.925,0.65);
+	// 	glVertex2f(0.875,0.5);
+	// }
+	// glVertex2f(0.925,0.35);
+	// glEnd();
 
 }
 
@@ -327,7 +304,7 @@ ProcessorListItem* ProcessorList::getListItemForYPos(int y)
 
 }
 
-void ProcessorList::setViewport(bool hasSubItems)
+void ProcessorList::setViewport(Graphics& g, bool hasSubItems)
 {
 
 	int height;
@@ -339,12 +316,12 @@ void ProcessorList::setViewport(bool hasSubItems)
 		height = subItemHeight;
 	}
 
-	glViewport(xBuffer,
-			   getHeight()-(totalHeight) - height + getScrollAmount(),
-	           getWidth()-2*xBuffer,
-	           height);
+	g.setOrigin(0, yBuffer + height); //xBuffer, getHeight()-(totalHeight) - height + getScrollAmount());
+
 
 	totalHeight += yBuffer + height;
+
+	//std::cout << totalHeight << std::endl;
 }
 
 int ProcessorList::getTotalHeight()
@@ -421,7 +398,9 @@ void ProcessorList::mouseDownInCanvas(const MouseEvent& e)
 		        colourSelector.setColour (ColourSelector::backgroundColourId, Colours::transparentBlack);
 		        colourSelector.setSize (300, 275);
 
-		        CallOutBox callOut (colourSelector, *fli, 0);//*this, 0);
+		        Rectangle<int> rect = Rectangle<int>(0,0,10,10);
+
+		        CallOutBox callOut (colourSelector, rect, nullptr);
 		        callOut.setTopLeftPosition (e.getScreenX(), e.getScreenY());
 		        callOut.setArrowSize(0.0f);
 
@@ -513,7 +492,8 @@ void ProcessorList::mouseDragInCanvas(const MouseEvent& e)
 
 }
 
-ProcessorListItem::ProcessorListItem(const String& name_) : name(name_), open(true), selected(false)
+ProcessorListItem::ProcessorListItem(const String& name_)
+	: selected(false), open(true), name(name_)
 {
 }
 

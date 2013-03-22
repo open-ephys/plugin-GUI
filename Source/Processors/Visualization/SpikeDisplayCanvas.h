@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -54,8 +54,10 @@ class SpikeDisplayCanvas : public Visualizer
 public: 
 	SpikeDisplayCanvas(SpikeDisplayNode* n);
 	~SpikeDisplayCanvas();
-	void newOpenGLContextCreated();
-	void renderOpenGL();
+	//void newOpenGLContextCreated();
+	//void renderOpenGL();
+
+	void paint(Graphics& g);
 
 	void processSpikeEvents();
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,12 +25,10 @@
 #include <stdio.h>
 
 AudioResamplingNode::AudioResamplingNode()
-	: GenericProcessor("Resampling Node"), 
-	  ratio (1.0), lastRatio (1.0),
-	  destBufferPos(0), destBufferIsTempBuffer(true),
-	  destBufferSampleRate(44100.0), sourceBufferSampleRate(40000.0),
-	  destBuffer(0), tempBuffer(0), isTransmitting(false)
-	
+	: GenericProcessor("Resampling Node"),
+	  sourceBufferSampleRate(40000.0), destBufferSampleRate(44100.0),
+	  ratio(1.0), lastRatio(1.0), destBuffer(0), tempBuffer(0),
+	  destBufferIsTempBuffer(true), isTransmitting(false), destBufferPos(0)
 {
 
 	settings.numInputs = 2;
@@ -308,9 +306,10 @@ void AudioResamplingNode::writeContinuousBuffer(float* data, int nSamples, int c
 			   1, 		  						// count 
 			   file);   // ptr to FILE object
 
-	int n = fwrite(continuousDataBuffer,			// ptr
+	fwrite(continuousDataBuffer,			// ptr
 			   2,			     					// size of each element
 			   nSamples, 		  					// count 
 			   file);   // ptr to FILE object
-	// n must equal "count", otherwise there was an error
+	// FIXME: check that return value of each fwrite() equals "count";
+	// otherwise, there was an error.
 }

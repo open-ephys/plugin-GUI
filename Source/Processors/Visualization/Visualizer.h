@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -28,7 +28,6 @@
 #include <Windows.h>
 #endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "OpenGLCanvas.h"
 
 /**
 
@@ -38,25 +37,29 @@
 
 */
 
-class Visualizer : public OpenGLCanvas
+class Visualizer : public Component
 
 {
 public: 
 	Visualizer() {}
 	~Visualizer() {}
 
-	virtual void newOpenGLContextCreated() = 0;
-	virtual void renderOpenGL() = 0;
-
+    /** Called when the component's tab becomes visible again.*/
 	virtual void refreshState() = 0;
 
+    /** Called when parameters of underlying data processor are changed.*/
 	virtual void update() = 0;
-	virtual int getTotalHeight() = 0;
 
+    /** Called when data acquisition is active.*/
 	virtual void beginAnimation() = 0;
+
+    /** Called when data acquisition ends.*/
 	virtual void endAnimation() = 0;
 
+    /** Called by an editor to initiate a parameter change.*/
 	virtual void setParameter(int, float) = 0;
+
+    /** Called by an editor to initiate a parameter change.*/
     virtual void setParameter(int, int, int, float) = 0;
 
 };

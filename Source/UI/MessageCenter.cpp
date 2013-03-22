@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,7 +26,8 @@
 //---------------------------------------------------------------------
 
 MessageCenter::MessageCenter() : 
-	messageBackground(Colours::grey.withAlpha(0.5f)) {
+	messageBackground(Colours::grey.withAlpha(0.5f)) 
+{
 	
 	messageDisplayArea = new Label("Message Display Area","No new messages.");
 
@@ -34,11 +35,9 @@ MessageCenter::MessageCenter() :
 
 }
 
-MessageCenter::~MessageCenter() {
+MessageCenter::~MessageCenter() 
+{
 	
-
-	deleteAllChildren();
-
 }
 
 void MessageCenter::paint(Graphics& g)

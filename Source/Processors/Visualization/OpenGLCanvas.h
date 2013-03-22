@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -40,15 +40,12 @@
 
 */
 
-class OpenGLCanvas : public OpenGLComponent, Timer
+class OpenGLCanvas : public Component, Timer
 
 {
 public:
 	OpenGLCanvas();
 	~OpenGLCanvas();
-
-	void setUp2DCanvas();
-	void activateAntiAliasing();
 
 	virtual void refreshState() {};
 
@@ -59,7 +56,7 @@ public:
 	void mouseDrag(const MouseEvent& e);
 	void mouseMove(const MouseEvent& e);
 	void mouseUp(const MouseEvent& e);
-	void mouseWheelMove(const MouseEvent&, float, float);
+	int mouseWheelMove(const MouseEvent&, float, float);
 
 	virtual void mouseDownInCanvas(const MouseEvent& e) {}
 	virtual void mouseDragInCanvas(const MouseEvent& e) {}
@@ -74,34 +71,14 @@ public:
 
 	int getScrollAmount() {return scrollPix;};
 	int getScrollBarWidth() {return scrollBarWidth;}
-	void drawScrollBars();
-
-	void drawRoundedRect(float x, float y, float w, float h, float r, int n);
-	
-	FTGLPixmapFont* getFont(int fontCode);
+	void drawScrollBars(Graphics& g);
 
 	virtual int getHeaderHeight() {return 0;}
 	virtual int getFooterHeight() {return 0;}
 
-	void setClearColor(int colorCode);
+	void paint(Graphics& g);
 
-	enum colorCodes {
-		white, black, lightgrey, darkgrey
-	};
-
-	enum fontCodes {
-		miso_regular = 0,
-		miso_bold = 1,
-		miso_light = 2,
-		bebas_neue = 3,
-		ostrich = 4,
-		cpmono_extra_light = 5,
-		cpmono_light = 6,
-		cpmono_plain = 7,
-		cpmono_bold = 8,
-		nordic = 9,
-		silkscreen = 10
-	};
+	virtual void paintCanvas(Graphics& g) = 0;
 
 protected:
 
@@ -115,9 +92,7 @@ protected:
 
 private:
 
-	void loadFonts();
-
-	void drawScrollBar(float y1, float y2, float alpha);
+	void drawScrollBar(Graphics& g, float y1, float y2, float alpha);
 	
 	int scrollBarWidth, scrollDiff, originalScrollPix;
 	int scrollTime;
@@ -127,8 +102,6 @@ private:
 	void timerCallback();
 
 	float scrollBarTop, scrollBarBottom;
-
-	OwnedArray<FTGLPixmapFont> fontList;
 
 	const float PI;
 
