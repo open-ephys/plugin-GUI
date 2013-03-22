@@ -7,12 +7,12 @@
 # 2. binaries
 Builds/Linux/build/open-ephys
 Resources/Fonts/font_serializer/Builds/Linux/build/
-JuceLibraryCode/Introjucer/Builds/Linux/build
-JuceLibraryCode/Introjucer/Builds/VisualStudio2010/Debug
-JuceLibraryCode/Introjucer/Builds/VisualStudio2010/Release
-JuceLibraryCode/Introjucer/Builds/VisualStudio2010/*.user
-JuceLibraryCode/Introjucer/Builds/VisualStudio2010/The Jucer.sdf
-JuceLibraryCode/Introjucer/Builds/VisualStudio2010/The Jucer.v11.suo
+Introjucer/Builds/Linux/build
+Introjucer/Builds/VisualStudio2010/Debug
+Introjucer/Builds/VisualStudio2010/Release
+Introjucer/Builds/VisualStudio2010/*.user
+Introjucer/Builds/VisualStudio2010/The Jucer.sdf
+Introjucer/Builds/VisualStudio2010/The Jucer.v11.suo
 
 # 3. extra files
 Builds/Linux/build/data
