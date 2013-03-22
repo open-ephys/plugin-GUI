@@ -23,7 +23,7 @@
 #include <math.h>
 #include <vector>
 #include <queue>
-#include <stdlib.h>
+#include <cmath>
 
 #include "rhd2000registers.h"
 

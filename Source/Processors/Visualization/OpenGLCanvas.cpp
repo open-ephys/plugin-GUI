@@ -97,39 +97,39 @@ void OpenGLCanvas::drawScrollBars(Graphics& g)
 
 void OpenGLCanvas::drawScrollBar(Graphics& g, float y1, float y2, float alpha)
 {
-
-	glViewport(0, getFooterHeight(),
-		       getWidth(),
-		       getHeight()-getHeaderHeight()-getFooterHeight());
-
-	float x1 = getWidth()-8.0f;
-
-	g.setColour(Colours::black.withAlpha(alpha));
-
-	g.fillRect(x1, y1, 1.0f, y2-y1);
+//
+//	glViewport(0, getFooterHeight(),
+//		       getWidth(),
+//		       getHeight()-getHeaderHeight()-getFooterHeight());
+//
+//	float x1 = getWidth()-8.0f;
+//
+//	g.setColour(Colours::black.withAlpha(alpha));
+//
+//	g.fillRect(x1, y1, 1.0f, y2-y1);
 
 }
 
 void OpenGLCanvas::showScrollBars()
 {
-	scrollTime = timer.getMillisecondCounter();
-	startTimer(refreshMs);
+//	scrollTime = timer.getMillisecondCounter();
+//	startTimer(refreshMs);
 }
 
 
 void OpenGLCanvas::mouseMove(const MouseEvent& e)
 {
-	if (getTotalHeight() > getHeight()) {
-
-		Point<int> pos = e.getPosition();
-		int xcoord = pos.getX();
-		if (xcoord > getWidth() - scrollBarWidth)
-		{
-			showScrollTrack = true; showScrollBars();
-		}
-	}
-
-	mouseMoveInCanvas(e);
+//	if (getTotalHeight() > getHeight()) {
+//
+//		Point<int> pos = e.getPosition();
+//		int xcoord = pos.getX();
+//		if (xcoord > getWidth() - scrollBarWidth)
+//		{
+//			showScrollTrack = true; showScrollBars();
+//		}
+//	}
+//
+//	mouseMoveInCanvas(e);
 }
 
 void OpenGLCanvas::mouseDown(const MouseEvent& e)
