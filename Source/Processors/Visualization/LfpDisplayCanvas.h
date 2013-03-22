@@ -32,6 +32,10 @@
 
 class LfpDisplayNode;
 
+class LfpTimescale;
+class LfpDisplay;
+class LfpChannelDisplay;
+
 /**
 
   Displays multiple channels of continuous data.
@@ -59,40 +63,22 @@ public:
 	void setParameter(int, float);
 	void setParameter(int, int, int, float){}
 
-	int getHeaderHeight() {return headerHeight;}
-	int getFooterHeight() {return footerHeight;}
-
-	//MouseCursor getMouseCursor();
-
 	void paint(Graphics& g);
 
 private:
-
-	int xBuffer, yBuffer;
 
 	float sampleRate;
 	float timebase;
 	float displayGain;
 	float timeOffset;
 
-	static const int MAX_N_CHAN = 128;
-	static const int MAX_N_SAMP = 3000;
-//	GLfloat waves[MAX_N_SAMP][MAX_N_SAMP*2]; // we need an x and y point for each sample
+	static const int MAX_N_CHAN = 256;  // maximum number of channels
+	static const int MAX_N_SAMP = 5000; // maximum display size in pixels
+	float waves[MAX_N_SAMP][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
 	LfpDisplayNode* processor;
 	AudioSampleBuffer* displayBuffer;
 	MidiBuffer* eventBuffer;
-
-	void setViewport(Graphics& g, int chan);
-	void setInfoViewport(Graphics& g, int chan);
-	void drawBorder(Graphics& g, bool isSelected);
-	void drawChannelInfo(Graphics& g, int chan, bool isSelected);
-	void drawWaveform(Graphics& g, int chan, bool isSelected);
-	void drawEvents(Graphics& g);
-	void drawProgressBar(Graphics& g);
-	void drawTimeline(Graphics& g);
-
-	bool checkBounds(int chan);
 
 	void refreshScreenBuffer();
 	void updateScreenBuffer();
@@ -100,27 +86,31 @@ private:
 	int displayBufferIndex;
 	int displayBufferSize;
 
-	int nChans, plotHeight, totalHeight;
-	int headerHeight, footerHeight;
-	int interplotDistance;
-	int plotOverlap;
-	int selectedChan;
-
-	MouseCursor::StandardCursorType cursorType;
-
-	int getTotalHeight();
-
-	 void canvasWasResized();
-	 void mouseDownInCanvas(const MouseEvent& e);
-	 void mouseDragInCanvas(const MouseEvent& e);
-	 void mouseMoveInCanvas(const MouseEvent& e);
-	// void mouseUp(const MouseEvent& e);
-	// void mouseWheelMove(const MouseEvent&, float, float);
+	int nChans;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayCanvas);
 	
 };
 
+class LfpTimescale : public Component
+{
+
+
+
+};
+
+class LfpDisplay : public Component
+{
+
+
+
+};
+
+class LfpChannelDisplay : public Component
+{
+
+
+};
 
 
 #endif  // __LFPDISPLAYCANVAS_H_B711873A__

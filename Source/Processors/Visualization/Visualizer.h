@@ -37,11 +37,12 @@
 
 */
 
-class Visualizer : public Component
+class Visualizer : public Component,
+                   public Timer
 
 {
 public: 
-	Visualizer() {}
+	Visualizer() { refreshRate = 10; } // 10 Hz default refresh rate
 	~Visualizer() {}
 
     /** Called when the component's tab becomes visible again.*/
@@ -61,6 +62,18 @@ public:
 
     /** Called by an editor to initiate a parameter change.*/
     virtual void setParameter(int, int, int, float) = 0;
+
+    /** Starts the timer callbacks. */
+    void startCallbacks() { startTimer(1/refreshRate); }
+
+    /** Stops the timer callbacks. */
+    void stopCallbacks() { stopTimer(); }
+
+    /** Called whenever the timer is triggered. */
+    void timerCallback() { repaint(); }
+
+    /** Refresh rate in Hz. */
+    float refreshRate;
 
 };
 
