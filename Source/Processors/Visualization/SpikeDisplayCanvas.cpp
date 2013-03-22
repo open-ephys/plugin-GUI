@@ -289,6 +289,11 @@ void SpikeDisplayCanvas::paint(Graphics& g)
 
 	g.fillAll(Colours::cyan);
 
+	g.setColour(Colours::white);
+
+	g.drawLine(0,0, getWidth(), getHeight());
+	g.drawLine(0,getHeight(),getWidth(), 0);
+
 	// //if(!plotsInitialized)
 	// //	initializeSpikePlots();
 

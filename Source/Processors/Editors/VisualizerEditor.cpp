@@ -178,9 +178,19 @@ void VisualizerEditor::buttonEvent(Button* button)
 		 		tabIndex = -1;
 		 	}
 
+		 	// Component* parent = canvas->getParentComponent();
+
+		 	// if (parent != nullptr)
+		 	// {	
+		 	// 	std::cout << "Removing child." << std::endl;
+    //   			 parent->removeChildComponent(canvas);
+    //   		} else {
+    //   			std::cout << "Parent doesn't exist." << std::endl;
+    //   		}
+
 		 	if (dataWindow == 0) {
 
-				dataWindow = new DataWindow(windowSelector);
+				dataWindow = new DataWindow(windowSelector, tabText);
 		 		dataWindow->setContentNonOwned(canvas, false);
 		 		dataWindow->setVisible(true);
 		 		canvas->refreshState();
@@ -192,6 +202,7 @@ void VisualizerEditor::buttonEvent(Button* button)
 		 		if (windowSelector->getToggleState())
 		 		{
 		 			dataWindow->setContentNonOwned(canvas, false);
+		 			canvas->setBounds(0,0,canvas->getParentWidth(), canvas->getParentHeight());
 		 			canvas->refreshState();
 		 		} else {
 		 			dataWindow->setContentNonOwned(0, false);

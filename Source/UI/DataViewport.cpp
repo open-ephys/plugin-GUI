@@ -89,26 +89,15 @@ DataViewport::~DataViewport()
         
     int newIndex = tabArray.indexOf(index);
 
-    //Component* component;
-
-   // Viewport* viewport = (Viewport*) getTabContentComponent(newIndex);
-
-   // deleteAndZero(viewport);
-
-   // if (viewport != 0)
-   //     component =  viewport->getViewedComponent();
-
-   // if (parent != 0 && canvas != 0)
-   //     parent->removeChildComponent(canvas);
-
     tabArray.remove(newIndex);
     editorArray.remove(newIndex);
 
-    //removeTab(newIndex);
-    getTabbedButtonBar().removeTab(newIndex);
+    removeTab(newIndex);
 
     if (tabArray.size() == 0)
      	setVisible(false);
+
+     setCurrentTabIndex(0);
 
  }
 

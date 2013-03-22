@@ -24,14 +24,14 @@
 #include "DataWindow.h"
 
 
-DataWindow::DataWindow(Button* cButton)
-	: DocumentWindow ("Stream Window", 
+DataWindow::DataWindow(Button* cButton, String name)
+	: DocumentWindow (name, 
 					  Colours::black, 
 					  DocumentWindow::allButtons),
 	  controlButton(cButton)
 
 {
-	centreWithSize(500,500);
+	centreWithSize(800,500);
 	setUsingNativeTitleBar(true);
 	setResizable(true,false);
 	//setTitleBarHeight(40);

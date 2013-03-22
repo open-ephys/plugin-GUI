@@ -40,7 +40,7 @@
 class DataWindow : public DocumentWindow
 {
 public:
-	DataWindow(Button* button);
+	DataWindow(Button* button, String name);
 	~DataWindow();
 
 	void closeButtonPressed();
