@@ -21,6 +21,7 @@ Builds/Linux/build/windowState.xml
 Builds/Linux/build/Data
 Builds/Linux/build/*.xml
 Builds/Linux/build/*.out
+Builds/MacOSX/build
 
 # 4. Windows related
 Builds/VisualStudio2012/Debug
