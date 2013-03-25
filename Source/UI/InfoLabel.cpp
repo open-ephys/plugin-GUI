@@ -26,7 +26,7 @@
 InfoLabel::InfoLabel()
 {
 
-	labelFont = Font("Paragraph", 20, Font::plain);
+	labelFont = Font("Small Text", 20, Font::plain);
 
 	infoString = "Welcome to the Open Ephys GUI!\n \n"
 				 "To get starting using the GUI, drag a processor from the list "
