@@ -25,9 +25,14 @@
 
 InfoLabel::InfoLabel()
 {
-
-	labelFont = Font("Small Text", 20, Font::plain);
-
+    
+    MemoryInputStream mis(BinaryData::misoserialized,
+                      BinaryData::misoserializedSize,
+                      false);
+    Typeface::Ptr tp = new CustomTypeface(mis);
+	labelFont = Font(tp);
+    labelFont.setHeight(24);
+    
 	infoString = "Welcome to the Open Ephys GUI!\n \n"
 				 "To get starting using the GUI, drag a processor from the list "
 				 "on the left and drop it onto the signal chain. Each processor is "
