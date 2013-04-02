@@ -64,10 +64,10 @@ void LfpDisplayCanvas::resized()
 
 
 
-	timescale->setBounds(0,0,getWidth(),30);
-	viewport->setBounds(0,30,getWidth()-scrollBarThickness,getHeight()-90);
+	timescale->setBounds(0,0,getWidth()-scrollBarThickness,30);
+	viewport->setBounds(0,30,getWidth(),getHeight()-90);
 
-	lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+	lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getTotalHeight());
 
 }
 
@@ -256,6 +256,8 @@ LfpDisplay::LfpDisplay()
 {
 	channelHeight = 100;
 	totalHeight = 0;
+
+	addMouseListener(this, true);
 }
 
 LfpDisplay::~LfpDisplay()
@@ -269,6 +271,8 @@ void LfpDisplay::setNumChannels(int numChannels)
 
 	deleteAllChildren();
 
+	channels.clear();
+
 	for (int i = 0; i < numChans; i++)
 	{
 
@@ -277,6 +281,8 @@ void LfpDisplay::setNumChannels(int numChannels)
 		LfpChannelDisplay* lfpChan = new LfpChannelDisplay();
 
 		addAndMakeVisible(lfpChan);
+
+		channels.add(lfpChan);
 
 		totalHeight += channelHeight;
 
@@ -312,9 +318,30 @@ void LfpDisplay::paint(Graphics& g)
 
 }
 
+void LfpDisplay::mouseDown(const MouseEvent& event)
+{
+	int x = event.getMouseDownX();
+	int y = event.getMouseDownY();
+
+	std::cout << "Mouse down at " << x << ", " << y << std::endl;
+
+
+	for (int n = 0; n < numChans; n++)
+	{
+		channels[n]->deselect();
+	}
+
+	LfpChannelDisplay* lcd = (LfpChannelDisplay*) event.eventComponent;
+
+	lcd->select();
+
+	repaint();
+
+}
+
 // ------------------------------------------------------------------
 
-LfpChannelDisplay::LfpChannelDisplay()
+LfpChannelDisplay::LfpChannelDisplay() : isSelected(false)
 {
 
 }
@@ -327,11 +354,23 @@ LfpChannelDisplay::~LfpChannelDisplay()
 void LfpChannelDisplay::paint(Graphics& g)
 {
 
-//	g.fillAll(Colours::green);
 
-	g.setColour(Colours::white);
+	if (isSelected)
+		g.setColour(Colours::white);
+	else
+		g.setColour(Colours::black);
 
 	g.drawLine(0,0, getWidth(), getHeight());
 	g.drawLine(0,getHeight(),getWidth(), 0);
 
+}
+
+void LfpChannelDisplay::select()
+{
+	isSelected = true;
+}
+
+void LfpChannelDisplay::deselect()
+{
+	isSelected = false;
 }

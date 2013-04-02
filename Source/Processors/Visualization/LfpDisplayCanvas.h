@@ -121,10 +121,14 @@ public:
 
 	void resized();
 
+	void mouseDown(const MouseEvent& event);
+
 private:
 	int numChans;
 	int channelHeight;
 	int totalHeight;
+
+	Array<LfpChannelDisplay*> channels;
 
 };
 
@@ -135,6 +139,13 @@ public:
 	~LfpChannelDisplay();
 
 	void paint(Graphics& g);
+
+	void select();
+	void deselect();
+
+private:
+
+	bool isSelected;
 
 };
 
