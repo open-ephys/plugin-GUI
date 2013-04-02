@@ -65,6 +65,9 @@ public:
 
 	void resized();
 
+	float getXCoord(int chan, int samp);
+	float getYCoord(int chan, int samp);
+
 private:
 
 	float sampleRate;
@@ -74,7 +77,7 @@ private:
 
 	static const int MAX_N_CHAN = 256;  // maximum number of channels
 	static const int MAX_N_SAMP = 5000; // maximum display size in pixels
-	float waves[MAX_N_SAMP][MAX_N_SAMP*2]; // we need an x and y point for each sample
+	float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
 	LfpDisplayNode* processor;
 	AudioSampleBuffer* displayBuffer;
@@ -101,17 +104,21 @@ private:
 class LfpTimescale : public Component
 {
 public:
-	LfpTimescale();
+	LfpTimescale(LfpDisplayCanvas*);
 	~LfpTimescale();
 
 	void paint(Graphics& g);
+
+private:
+
+	LfpDisplayCanvas* canvas;
 
 };
 
 class LfpDisplay : public Component
 {
 public:
-	LfpDisplay();
+	LfpDisplay(LfpDisplayCanvas*);
 	~LfpDisplay();
 
 	void setNumChannels(int numChannels);
@@ -128,6 +135,8 @@ private:
 	int channelHeight;
 	int totalHeight;
 
+	LfpDisplayCanvas* canvas;
+
 	Array<LfpChannelDisplay*> channels;
 
 };
@@ -135,7 +144,7 @@ private:
 class LfpChannelDisplay : public Component
 {
 public:
-	LfpChannelDisplay();
+	LfpChannelDisplay(LfpDisplayCanvas*, int channelNumber);
 	~LfpChannelDisplay();
 
 	void paint(Graphics& g);
@@ -143,9 +152,14 @@ public:
 	void select();
 	void deselect();
 
+
 private:
 
+	LfpDisplayCanvas* canvas;
+
 	bool isSelected;
+
+	int chan;
 
 };
 

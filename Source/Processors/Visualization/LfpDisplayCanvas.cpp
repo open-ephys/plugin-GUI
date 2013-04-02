@@ -39,14 +39,13 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
 	viewport = new Viewport();
-	lfpDisplay = new LfpDisplay();
-	timescale = new LfpTimescale();
+	lfpDisplay = new LfpDisplay(this);
+	timescale = new LfpTimescale(this);
 
 	viewport->setViewedComponent(lfpDisplay, false);
 	viewport->setScrollBarsShown(true, false);
 
 	scrollBarThickness = viewport->getScrollBarThickness();
-
 
 	addAndMakeVisible(viewport);
 	addAndMakeVisible(timescale);
@@ -104,6 +103,8 @@ void LfpDisplayCanvas::update()
 
 	repaint();
 
+	lfpDisplay->repaint();
+
 }
 
 
@@ -132,12 +133,12 @@ void LfpDisplayCanvas::refreshScreenBuffer()
 
 	screenBufferIndex = 0;
 
-	int w = getWidth(); 
+	int w = lfpDisplay->getWidth(); 
 	//std::cout << "Refreshing buffer size to " << w << "pixels." << std::endl;
 
 	for (int i = 0; i < w; i++)
 	{
-		float x = float(i) / float(w);
+		float x = float(i);
 
 		for (int n = 0; n < nChans; n++)
 		{
@@ -151,7 +152,7 @@ void LfpDisplayCanvas::refreshScreenBuffer()
 void LfpDisplayCanvas::updateScreenBuffer()
 {
 	// copy new samples from the displayBuffer into the screenBuffer (waves)
-	int maxSamples = getWidth();
+	int maxSamples = lfpDisplay->getWidth();
 
 	int index = processor->getDisplayBufferIndex();
 
@@ -217,6 +218,16 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	}
 }
 
+float LfpDisplayCanvas::getXCoord(int chan, int samp)
+{
+	return waves[chan][samp*2];
+}
+
+float LfpDisplayCanvas::getYCoord(int chan, int samp)
+{
+	return waves[chan][samp*2+1];
+}
+
 void LfpDisplayCanvas::paint(Graphics& g)
 {
 
@@ -232,7 +243,7 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
 // -------------------------------------------------------------
 
-LfpTimescale::LfpTimescale()
+LfpTimescale::LfpTimescale(LfpDisplayCanvas* c) : canvas(c)
 {
 
 }
@@ -252,7 +263,7 @@ void LfpTimescale::paint(Graphics& g)
 
 // ---------------------------------------------------------------
 
-LfpDisplay::LfpDisplay()
+LfpDisplay::LfpDisplay(LfpDisplayCanvas* c) : canvas(c)
 {
 	channelHeight = 100;
 	totalHeight = 0;
@@ -316,6 +327,14 @@ void LfpDisplay::paint(Graphics& g)
 	g.drawLine(0,0, getWidth(), getHeight());
 	g.drawLine(0,getHeight(),getWidth(), 0);
 
+
+	for (int i = 0; i < numChans; i++)
+	{
+
+		getChildComponent(i)->repaint();
+
+	}
+
 }
 
 void LfpDisplay::mouseDown(const MouseEvent& event)
@@ -341,7 +360,8 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 
 // ------------------------------------------------------------------
 
-LfpChannelDisplay::LfpChannelDisplay() : isSelected(false)
+LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, int channelNumber) : 
+	canvas(c), isSelected(false), chan(channelNumber)
 {
 
 }
@@ -354,14 +374,23 @@ LfpChannelDisplay::~LfpChannelDisplay()
 void LfpChannelDisplay::paint(Graphics& g)
 {
 
+	//if (isSelected)
+		g.setColour(Colours::lightgrey);
+	//else
+	//	g.setColour(Colours::black);
 
-	if (isSelected)
-		g.setColour(Colours::white);
-	else
-		g.setColour(Colours::black);
+	g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
 
-	g.drawLine(0,0, getWidth(), getHeight());
-	g.drawLine(0,getHeight(),getWidth(), 0);
+	for (int i = 0; i < getWidth()-1; i++)
+	{
+
+		drawLine(i,
+				 canvas->getYCoord(chan, i),
+				 i+1,
+				 canvas->getYCoord(chan, i+1));
+	}
+
+	}
 
 }
 
