@@ -117,7 +117,7 @@ private:
 
     // UNCOMMENT AFTER UPDATE
     // this maps strings to customtypeface pointers
-    //HashMap<String, Typeface::Ptr> typefaceMap;
+    HashMap<String, Typeface::Ptr> typefaceMap;
 
     MemoryInputStream
         cpmonoExtraLightStream,

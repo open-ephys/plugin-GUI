@@ -65,7 +65,7 @@ void LfpDisplayCanvas::resized()
 
 
 	timescale->setBounds(0,0,getWidth(),30);
-	viewport->setBounds(scrollBarThickness,30,getWidth()-scrollBarThickness,getHeight()-90);
+	viewport->setBounds(0,30,getWidth()-scrollBarThickness,getHeight()-90);
 
 	lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
 
