@@ -329,7 +329,7 @@ void LfpChannelDisplay::paint(Graphics& g)
 
 //	g.fillAll(Colours::green);
 
-		g.setColour(Colours::white);
+	g.setColour(Colours::white);
 
 	g.drawLine(0,0, getWidth(), getHeight());
 	g.drawLine(0,getHeight(),getWidth(), 0);
