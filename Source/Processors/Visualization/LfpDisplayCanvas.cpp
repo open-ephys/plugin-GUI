@@ -39,7 +39,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
 	viewport = new Viewport();
-	lfpDisplay = new LfpDisplay(this);
+	lfpDisplay = new LfpDisplay(this, viewport);
 	timescale = new LfpTimescale(this);
 
 	viewport->setViewedComponent(lfpDisplay, false);
@@ -231,13 +231,20 @@ float LfpDisplayCanvas::getYCoord(int chan, int samp)
 void LfpDisplayCanvas::paint(Graphics& g)
 {
 
+	//std::cout << "Painting" << std::endl;
 
-	g.fillAll(Colours::magenta);
+	updateScreenBuffer();
+
+	g.fillAll(Colours::grey);
 	
-	g.setColour(Colours::white);
+	g.setColour(Colours::yellow);
 
-	g.drawLine(0,0, getWidth(), getHeight());
-	g.drawLine(0,getHeight(),getWidth(), 0);
+	g.drawLine(screenBufferIndex, 0, screenBufferIndex, getHeight());
+
+	lfpDisplay->repaint();
+
+	//g.drawLine(0,0, getWidth(), getHeight());
+	//g.drawLine(0,getHeight(),getWidth(), 0);
 	
 }
 
@@ -263,7 +270,8 @@ void LfpTimescale::paint(Graphics& g)
 
 // ---------------------------------------------------------------
 
-LfpDisplay::LfpDisplay(LfpDisplayCanvas* c) : canvas(c)
+LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) : 
+		canvas(c), viewport(v)
 {
 	channelHeight = 100;
 	totalHeight = 0;
@@ -289,7 +297,7 @@ void LfpDisplay::setNumChannels(int numChannels)
 
 		//std::cout << "Adding new channel display." << std::endl;
 
-		LfpChannelDisplay* lfpChan = new LfpChannelDisplay();
+		LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvas, i);
 
 		addAndMakeVisible(lfpChan);
 
@@ -306,10 +314,12 @@ void LfpDisplay::resized()
 
 	int totalHeight = 0;
 
+	int overlap = 50;
+
 	for (int i = 0; i < numChans; i++)
 	{
 
-		getChildComponent(i)->setBounds(0,totalHeight,getWidth(),channelHeight);
+		getChildComponent(i)->setBounds(0,totalHeight-overlap/2,getWidth(),channelHeight+overlap);
 
 		totalHeight += channelHeight;
 
@@ -320,18 +330,23 @@ void LfpDisplay::resized()
 void LfpDisplay::paint(Graphics& g)
 {
 
-	g.fillAll(Colours::grey);
 
-	g.setColour(Colours::white);
+	int topBorder = viewport->getViewPositionY();
+	int bottomBorder = viewport->getViewHeight() + topBorder;
 
-	g.drawLine(0,0, getWidth(), getHeight());
-	g.drawLine(0,getHeight(),getWidth(), 0);
-
-
+	// ensure that only visible channels are redrawn
 	for (int i = 0; i < numChans; i++)
 	{
 
-		getChildComponent(i)->repaint();
+		int componentTop = getChildComponent(i)->getY();
+		int componentBottom = getChildComponent(i)->getHeight() + componentTop;
+
+		if ( (topBorder <= componentBottom && bottomBorder >= componentTop) )
+		{
+			getChildComponent(i)->repaint();
+
+			//std::cout << i << std::endl;
+		}
 
 	}
 
@@ -374,22 +389,20 @@ LfpChannelDisplay::~LfpChannelDisplay()
 void LfpChannelDisplay::paint(Graphics& g)
 {
 
-	//if (isSelected)
+	if (isSelected)
 		g.setColour(Colours::lightgrey);
-	//else
-	//	g.setColour(Colours::black);
+	else
+		g.setColour(Colours::black);
 
 	g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
 
 	for (int i = 0; i < getWidth()-1; i++)
 	{
 
-		drawLine(i,
-				 canvas->getYCoord(chan, i),
+		g.drawLine(i,
+				 canvas->getYCoord(chan, i)*getHeight(),
 				 i+1,
-				 canvas->getYCoord(chan, i+1));
-	}
-
+				 canvas->getYCoord(chan, i+1)*getHeight());
 	}
 
 }

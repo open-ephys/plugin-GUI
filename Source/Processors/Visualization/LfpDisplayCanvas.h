@@ -118,7 +118,7 @@ private:
 class LfpDisplay : public Component
 {
 public:
-	LfpDisplay(LfpDisplayCanvas*);
+	LfpDisplay(LfpDisplayCanvas*, Viewport*);
 	~LfpDisplay();
 
 	void setNumChannels(int numChannels);
@@ -136,6 +136,7 @@ private:
 	int totalHeight;
 
 	LfpDisplayCanvas* canvas;
+	Viewport* viewport;
 
 	Array<LfpChannelDisplay*> channels;
 
