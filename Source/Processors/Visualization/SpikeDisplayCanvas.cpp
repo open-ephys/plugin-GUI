@@ -300,7 +300,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
 	 		simSpike.nSamples = 40;
 
-			//spikeDisplay->plotSpike(simSpike);
+			spikeDisplay->plotSpike(simSpike);
 
 		}
 
@@ -316,7 +316,20 @@ void SpikeDisplayCanvas::processSpikeEvents()
 SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
 	canvas(sdc), viewport(v)
 {
+
+	minWidth = 300; 
+	maxWidth = 500;
+	minHeight = 100;
+	maxHeight = 200;
+
 	totalHeight = 1000;
+
+	for (int i = 0; i < 10; i++)
+	{
+		SpikePlot* spikePlot = new SpikePlot(canvas, i, 2);
+		spikePlots.add(spikePlot);
+		addAndMakeVisible(spikePlot);
+	}
 
 }
 
@@ -339,9 +352,49 @@ void SpikeDisplay::paint(Graphics& g)
 void SpikeDisplay::resized()
 {
 
+	int w = getWidth();
+
+	int numColumns = w / minWidth;
+	int column, row;
+
+	float width = (float) w / (float) numColumns;
+	float height = width * 0.75;
+
+	for (int i = 0; i < spikePlots.size(); i++)
+	{
+
+		column = i % numColumns;
+		row = i / numColumns;
+		spikePlots[i]->setBounds(width*column,row*height,width,height);
+
+	}
+
+	totalHeight = (int) height*(float(row)+1);
+
+	if (totalHeight < getHeight())
+	{
+		canvas->resized();
+	}
+
+	//setBounds(0,0,getWidth(), totalHeight);
+
+
+	 // layoutManagerX.layOutComponents((Component**) spikePlots.getRawDataPointer(), 
+	 // 							   spikePlots.size(),
+	 // 							   0,
+	 // 							   0,
+	 // 							   getWidth(),
+	 // 							   getHeight(),
+	 // 							   false,
+	 // 							   false);
 }
 
 void SpikeDisplay::mouseDown(const MouseEvent& event)
+{
+
+}
+
+void SpikeDisplay::plotSpike(const SpikeObject& spike)
 {
 
 }
@@ -367,7 +420,14 @@ SpikePlot::~SpikePlot()
 void SpikePlot::paint(Graphics& g)
 {
 
-	g.fillAll(Colours::yellow);
+	g.setColour(Colours::yellow);
+	g.fillRect(10, 10, getWidth()-20, getHeight()-20);
+
+	g.setColour(Colours::black);
+
+	g.drawLine(0, 0, getWidth(), getHeight());
+	g.drawLine(0, getHeight(), getWidth(), 0);
+
 }
 
 void SpikePlot::select()

@@ -102,7 +102,7 @@ public:
 
 	void mouseDown(const MouseEvent& event);
 
-	//void plotSpike(const SpikeObject& spike);
+	void plotSpike(const SpikeObject& spike);
 
 
 	int getTotalHeight() {return totalHeight;}
@@ -120,7 +120,9 @@ private:
 	SpikeDisplayCanvas* canvas;
 	Viewport* viewport;
 
-	Array<SpikePlot*> spikePlots;
+	OwnedArray<SpikePlot> spikePlots;
+
+	int maxWidth, maxHeight, minWidth, minHeight;
 
 };
 
