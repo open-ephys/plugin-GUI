@@ -24,9 +24,6 @@
 #ifndef __CUSTOMLOOKANDFEEL_H_6B021009__
 #define __CUSTOMLOOKANDFEEL_H_6B021009__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 /**

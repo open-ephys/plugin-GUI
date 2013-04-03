@@ -25,10 +25,6 @@
 #define __CHANNEL_H_DABDFE3F__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
-
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 #include "GenericProcessor.h"

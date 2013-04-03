@@ -24,9 +24,6 @@
 #ifndef SPIKEDISPLAYNODE_H_
 #define SPIKEDISPLAYNODE_H_
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/SpikeDisplayEditor.h"
 #include "Editors/VisualizerEditor.h"

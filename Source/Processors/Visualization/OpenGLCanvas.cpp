@@ -246,6 +246,7 @@ int OpenGLCanvas::mouseWheelMove(const MouseEvent&e,
 
 	mouseWheelMoveInCanvas(e, wheelIncrementX, wheelIncrementY);
 
+	return 0; //mouseWheelMove should be void according to juce's documentation.
 }
 
 void OpenGLCanvas::timerCallback()

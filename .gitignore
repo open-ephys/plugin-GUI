@@ -11,8 +11,8 @@ Introjucer/Builds/Linux/build
 Introjucer/Builds/VisualStudio2010/Debug
 Introjucer/Builds/VisualStudio2010/Release
 Introjucer/Builds/VisualStudio2010/*.user
-Introjucer/Builds/VisualStudio2010/The Jucer.sdf
-Introjucer/Builds/VisualStudio2010/The Jucer.v11.suo
+Introjucer/Builds/VisualStudio2010/*.sdf
+Introjucer/Builds/VisualStudio2010/*.suo
 
 # 3. extra files
 Builds/Linux/build/data
@@ -34,6 +34,17 @@ Builds/VisualStudio2012/open-ephys.v11.suo
 Builds/VisualStudio2012/open-ephys.vcxproj.user
 Builds/VisualStudio2012/windowState.xml
 Builds/VisualStudio2012/pipetest.bit
+
+Builds/VisualStudio2010/Debug
+Builds/VisualStudio2010/Release
+Builds/VisualStudio2010/ipch
+Builds/VisualStudio2010/open-ephys.sdf
+Builds/VisualStudio2010/open-ephys.opensdf
+Builds/VisualStudio2010/open-ephys.suo
+Builds/VisualStudio2010/open-ephys.v11.suo
+Builds/VisualStudio2010/open-ephys.vcxproj.user
+Builds/VisualStudio2010/windowState.xml
+Builds/VisualStudio2010/pipetest.bit
 
 # 5. Miscellanous generated files (Doxygen, etc.)
 Source/Docs/*

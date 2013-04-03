@@ -25,9 +25,6 @@
 #define __GENERICPROCESSOR_H_1F469DAF__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/GenericEditor.h"
 #include "Parameter.h"

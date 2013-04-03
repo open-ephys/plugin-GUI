@@ -24,9 +24,6 @@
 #ifndef __PARAMETER_H_62922AE5__
 #define __PARAMETER_H_62922AE5__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 // #include "Editors/GenericEditor.h"
 // #include "GenericProcessor.h"

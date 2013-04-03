@@ -24,9 +24,6 @@
 #ifndef __VISUALIZEREDITOR_H_17E6D78C__
 #define __VISUALIZEREDITOR_H_17E6D78C__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "../../UI/UIComponent.h"

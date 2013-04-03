@@ -24,9 +24,6 @@
 #ifndef __ARDUINOOUTPUTEDITOR_H_28EB4CC9__
 #define __ARDUINOOUTPUTEDITOR_H_28EB4CC9__
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"

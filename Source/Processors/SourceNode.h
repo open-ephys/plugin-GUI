@@ -24,9 +24,6 @@
 #ifndef __SOURCENODE_H_DCE798F1__
 #define __SOURCENODE_H_DCE798F1__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include <ftdi.h>
 #include <stdio.h>

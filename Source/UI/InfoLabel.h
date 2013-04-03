@@ -24,9 +24,6 @@
 #ifndef __INFOLABEL_H_14DA9A62__
 #define __INFOLABEL_H_14DA9A62__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
     
 #include "../../JuceLibraryCode/JuceHeader.h"
 

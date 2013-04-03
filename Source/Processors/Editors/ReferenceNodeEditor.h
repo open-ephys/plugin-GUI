@@ -24,9 +24,6 @@
 #ifndef __REFERENCENODEEDITOR_H_370C056D__
 #define __REFERENCENODEEDITOR_H_370C056D__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 

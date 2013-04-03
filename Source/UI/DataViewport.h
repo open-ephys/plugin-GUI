@@ -24,9 +24,6 @@
 #ifndef __DATAVIEWPORT_H_B38FE628__
 #define __DATAVIEWPORT_H_B38FE628__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../AccessClass.h"
 

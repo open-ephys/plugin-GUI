@@ -24,10 +24,6 @@
 #ifndef __RECORDCONTROL_H_120DD434__
 #define __RECORDCONTROL_H_120DD434__
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor.h"
 #include "../Editors/RecordControlEditor.h"

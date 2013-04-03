@@ -24,9 +24,6 @@
 #ifndef __LFPDISPLAYNODE_H_D969A379__
 #define __LFPDISPLAYNODE_H_D969A379__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/LfpDisplayEditor.h"
 #include "Editors/VisualizerEditor.h"

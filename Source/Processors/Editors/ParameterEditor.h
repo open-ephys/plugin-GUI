@@ -24,9 +24,6 @@
 #ifndef __PARAMETEREDITOR_H_44537DA9__
 #define __PARAMETEREDITOR_H_44537DA9__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor.h"
 #include "ChannelSelector.h"

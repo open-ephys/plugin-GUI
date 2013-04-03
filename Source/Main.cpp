@@ -77,7 +77,7 @@ public:
 		StringArray parameters;
 		parameters.addTokens(commandLine," ","\"");
 #ifdef WIN32
-		glWinInit();
+		//glWinInit();
 
 		if (parameters.contains("--console",true)) {
 			if (AllocConsole())

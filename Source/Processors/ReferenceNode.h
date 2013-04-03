@@ -25,9 +25,6 @@
 #define __REFERENCENODE_H_786EA929__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 #include "GenericProcessor.h"

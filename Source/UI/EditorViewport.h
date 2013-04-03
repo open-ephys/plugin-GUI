@@ -24,9 +24,6 @@
 #ifndef __EDITORVIEWPORT_H_80260F3F__
 #define __EDITORVIEWPORT_H_80260F3F__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/ProcessorGraph.h"
 #include "../Processors/Editors/GenericEditor.h"

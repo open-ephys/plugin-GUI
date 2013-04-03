@@ -26,9 +26,6 @@
 #define __RHD2000THREAD_H_2C4CBD67__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include <stdio.h>

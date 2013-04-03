@@ -25,9 +25,6 @@
 #define __SPIKEDETECTOREDITOR_H_F0BD2DD9__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 

@@ -24,9 +24,6 @@
 #ifndef __RECORDCONTROLEDITOR_H_F9C69E2B__
 #define __RECORDCONTROLEDITOR_H_F9C69E2B__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 

@@ -24,9 +24,6 @@
 #ifndef __VISUALIZER_H_C5943EC1__
 #define __VISUALIZER_H_C5943EC1__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 /**

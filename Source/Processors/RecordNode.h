@@ -25,9 +25,6 @@
 #define __RECORDNODE_H_FB9B1CA7__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 #include <map>

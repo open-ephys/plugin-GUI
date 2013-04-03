@@ -24,9 +24,6 @@
 #ifndef __UICOMPONENT_H_D97C73CF__
 #define __UICOMPONENT_H_D97C73CF__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "InfoLabel.h"
 #include "ControlPanel.h"
@@ -39,7 +36,7 @@
 #include "../MainWindow.h"
 #include "../Processors/Visualization/OpenGLCanvas.h"
 
-#include "../OpenGL.h"
+//#include "../OpenGL.h"
 
 class MainWindow;
 class ProcessorList;
