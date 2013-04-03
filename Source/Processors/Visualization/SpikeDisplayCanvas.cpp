@@ -240,9 +240,7 @@ void SpikeDisplayCanvas::refreshState()
 	// called when the component's tab becomes visible again
 	// displayBufferIndex = processor->getDisplayBufferIndex();
 	// screenBufferIndex = 0;
-
-	//resized();
-	//totalScrollPix = 0;
+	resized();
 }
 
 void SpikeDisplayCanvas::resized()
@@ -369,7 +367,7 @@ void SpikeDisplay::resized()
 
 	}
 
-	totalHeight = (int) height*(float(row)+1);
+	totalHeight = (int) (height*(float(row)+1));
 
 	if (totalHeight < getHeight())
 	{
