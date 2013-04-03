@@ -25,9 +25,6 @@
 #define __RESAMPLINGNODEEDITOR_H_B7FD956A__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 

@@ -7,7 +7,6 @@
 	#include <GL/glut.h>
 #elif defined(WIN32)
 	#undef GL_GLEXT_PROTOTYPES
-	#include <Windows.h>
 	#include <GLUT/glut.h>
 	#include <gl/GLU.h>
 	#include "..\..\..\glWinInit.h"

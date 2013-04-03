@@ -24,9 +24,6 @@
 #ifndef __EDITORVIEWPORTBUTTONS_H_2657C51D__
 #define __EDITORVIEWPORTBUTTONS_H_2657C51D__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 /**

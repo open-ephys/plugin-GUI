@@ -24,9 +24,6 @@
 #ifndef __INTANTHREAD_H_D9135C03__
 #define __INTANTHREAD_H_D9135C03__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include <ftdi.h>
 #include <stdio.h>

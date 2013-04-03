@@ -24,9 +24,6 @@
 #ifndef __FILEREADERTHREAD_H_82594504__
 #define __FILEREADERTHREAD_H_82594504__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include <stdio.h>

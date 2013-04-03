@@ -24,9 +24,6 @@
 #ifndef __CONTROLPANEL_H_AD81E528__
 #define __CONTROLPANEL_H_AD81E528__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Audio/AudioComponent.h"
 #include "../Processors/Editors/AudioEditor.h"
@@ -37,7 +34,7 @@
 #include "../Processors/Editors/GenericEditor.h" // for UtilityButton
 #include "../Processors/Visualization/OpenGLCanvas.h"
 
-#include "../OpenGL.h"
+//#include "../OpenGL.h"
 
 
 /**

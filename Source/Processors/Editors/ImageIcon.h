@@ -24,9 +24,6 @@
 #ifndef __IMAGEICON_H_ED764AE7__
 #define __IMAGEICON_H_ED764AE7__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 /**

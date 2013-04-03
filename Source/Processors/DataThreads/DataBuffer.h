@@ -24,9 +24,6 @@
 #ifndef __DATABUFFER_H_11C6C591__
 #define __DATABUFFER_H_11C6C591__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 /**
