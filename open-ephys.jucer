@@ -281,25 +281,6 @@
           <FILE id="DXYynnz" name="Splitter.h" compile="0" resource="0" file="Source/Processors/Utilities/Splitter.h"/>
         </GROUP>
         <GROUP id="W4eqkOy" name="Visualization">
-          <GROUP id="g8GOfh" name="SpikePlotting">
-            <FILE id="AD91jR" name="SpikePlot.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/SpikePlot.cpp"/>
-            <FILE id="iO3abH" name="SpikePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/SpikePlot.h"/>
-            <FILE id="Qq75l" name="BaseUIElement.cpp" compile="1" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp"/>
-            <FILE id="PZdkKU" name="BaseUIElement.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.h"/>
-            <FILE id="lFRVqc" name="GenericAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/GenericAxes.cpp"/>
-            <FILE id="BP8BOa" name="GenericAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/GenericAxes.h"/>
-            <FILE id="f7vOFh" name="PlotUtils.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/PlotUtils.cpp"/>
-            <FILE id="TQfHuh" name="PlotUtils.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/PlotUtils.h"/>
-            <FILE id="d3ducO" name="ProjectionAxes.cpp" compile="1" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.cpp"/>
-            <FILE id="BdHvyv" name="ProjectionAxes.h" compile="0" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.h"/>
-            <FILE id="RnnkTt" name="SimpleKeyEvent.h" compile="0" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/SimpleKeyEvent.h"/>
-            <FILE id="yg1Xuq" name="WaveAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp"/>
-            <FILE id="cZX4SM" name="WaveAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.h"/>
-          </GROUP>
           <FILE id="ajAJi" name="SpikeObject.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikeObject.cpp"/>
           <FILE id="xqF5zL" name="SpikeObject.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikeObject.h"/>
           <FILE id="jGEqDp" name="SpikeDisplayCanvas.cpp" compile="1" resource="0"

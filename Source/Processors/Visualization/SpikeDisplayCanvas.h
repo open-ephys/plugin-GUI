@@ -30,7 +30,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../SpikeDisplayNode.h"
-#include "SpikePlotting/SpikePlot.h"
+//#include "SpikePlotting/SpikePlot.h"
 #include "SpikeObject.h"
 
 #include "Visualizer.h"
@@ -39,6 +39,8 @@
 #define MAX_NUMBER_OF_SPIKE_SOURCES = 128;
 
 class SpikeDisplayNode;
+
+class SpikePlot;
 
 /**
   
@@ -54,8 +56,6 @@ class SpikeDisplayCanvas : public Visualizer
 public: 
 	SpikeDisplayCanvas(SpikeDisplayNode* n);
 	~SpikeDisplayCanvas();
-	//void newOpenGLContextCreated();
-	//void renderOpenGL();
 
 	void paint(Graphics& g);
 
@@ -70,9 +70,6 @@ public:
 
 	void setParameter(int, float);
 	void setParameter(int, int, int, float);
-
-	void panPlot(int, int, bool);
-	void zoomPlot(int, int, bool);
 
 private:
 

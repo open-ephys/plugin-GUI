@@ -66,129 +66,129 @@ void SpikeDisplayCanvas::initializeSpikePlots(){
     // to how much space they need.  The current system of deciding plot sizes, isn't going
     // to scale well.... this needs more thought
 
-	if (plots.size() != nPlots)
-	{
+// 	if (plots.size() != nPlots)
+// 	{
 
-	int totalWidth = getWidth(); 
+// 	int totalWidth = getWidth(); 
 
-	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
-	int plotHeight = plotWidth / 2 + .5;
-	int rowCount = 0;
+// 	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
+// 	int plotHeight = plotWidth / 2 + .5;
+// 	int rowCount = 0;
 
-	plots.clear();
+// 	plots.clear();
 
-	for (int i = 0; i < nPlots; i++)
-	{
-        int pType;
-		switch (processor->getNumberOfChannelsForElectrode(i)){
-			case 1:
-                pType = SINGLE_PLOT;
-                break;
-			case 2:
-                pType = STEREO_PLOT;
-                break;
-			case 4:
-                pType = TETRODE_PLOT;
-                break;
-            default:
-                pType = SINGLE_PLOT;
-                break;
-        }
+// 	for (int i = 0; i < nPlots; i++)
+// 	{
+//         int pType;
+// 		switch (processor->getNumberOfChannelsForElectrode(i)){
+// 			case 1:
+//                 pType = SINGLE_PLOT;
+//                 break;
+// 			case 2:
+//                 pType = STEREO_PLOT;
+//                 break;
+// 			case 4:
+//                 pType = TETRODE_PLOT;
+//                 break;
+//             default:
+//                 pType = SINGLE_PLOT;
+//                 break;
+//         }
         
-//        bool use_generic_plots_flag = true;
+// //        bool use_generic_plots_flag = true;
         
-//        BaseUIElement *sp;
+// //        BaseUIElement *sp;
         
-  //      if (use_generic_plots_flag)
-        SpikePlot *sp = new SpikePlot(xBuffer + i%nCols * (plotWidth + xBuffer) ,
-                               yBuffer + rowCount * (plotHeight + yBuffer),
-                               plotWidth, plotHeight, pType);
+//   //      if (use_generic_plots_flag)
+//         SpikePlot *sp = new SpikePlot(xBuffer + i%nCols * (plotWidth + xBuffer) ,
+//                                yBuffer + rowCount * (plotHeight + yBuffer),
+//                                plotWidth, plotHeight, pType);
         
-//        else
-//            sp = new StereotrodePlot(xBuffer + i%nCols * (plotWidth + xBuffer) ,
-//                                      yBuffer + rowCount * (plotHeight + yBuffer),
-//                                      plotWidth, plotHeight);
-        plots.add(sp);
+// //        else
+// //            sp = new StereotrodePlot(xBuffer + i%nCols * (plotWidth + xBuffer) ,
+// //                                      yBuffer + rowCount * (plotHeight + yBuffer),
+// //                                      plotWidth, plotHeight);
+//         plots.add(sp);
 
-		if (i%nCols == nCols-1)
-			rowCount++;
-	}
-	//totalHeight = rowCount * (plotHeight + yBuffer) + yBuffer * 2;
-	// Set the total height of the Canvas to the top of the top most plot
+// 		if (i%nCols == nCols-1)
+// 			rowCount++;
+// 	}
+// 	//totalHeight = rowCount * (plotHeight + yBuffer) + yBuffer * 2;
+// 	// Set the total height of the Canvas to the top of the top most plot
 
-    plotsInitialized = true;
-	repositionSpikePlots();
-	}
+//     plotsInitialized = true;
+// 	repositionSpikePlots();
+// 	}
 }
 
 void SpikeDisplayCanvas::repositionSpikePlots(){
 	
-	int canvasWidth = getWidth();
-	int gridSize = canvasWidth / nCols;
+// 	int canvasWidth = getWidth();
+// 	int gridSize = canvasWidth / nCols;
     
-    gridSize = (gridSize > MIN_GRID_SIZE) ? gridSize : MIN_GRID_SIZE;
-    gridSize = (gridSize < MAX_GRID_SIZE) ? gridSize : MAX_GRID_SIZE;
+//     gridSize = (gridSize > MIN_GRID_SIZE) ? gridSize : MIN_GRID_SIZE;
+//     gridSize = (gridSize < MAX_GRID_SIZE) ? gridSize : MAX_GRID_SIZE;
         
     
     
-    int x = xBuffer;
-    int y = getHeight() - yBuffer;
-    int p = 0;
-    int w,h;
-    int yIncrement = 0;
-    bool loopCheck = false;
-    //std::cout<<"Positioning Spike Plots"<<std::endl;
-    while (p < plots.size()){
+//     int x = xBuffer;
+//     int y = getHeight() - yBuffer;
+//     int p = 0;
+//     int w,h;
+//     int yIncrement = 0;
+//     bool loopCheck = false;
+//     //std::cout<<"Positioning Spike Plots"<<std::endl;
+//     while (p < plots.size()){
         
-        // Ask the current plot for its desired dims
-        plots[p]->getBestDimensions(&w, &h);
-        w *= gridSize;
-        h *= gridSize;
+//         // Ask the current plot for its desired dims
+//         plots[p]->getBestDimensions(&w, &h);
+//         w *= gridSize;
+//         h *= gridSize;
         
-        // Check to see if plot exceeds width of canvas, if yes, set x back to 0 and go to the bottom most plot on the canvas
-        if ( (x + w + xBuffer > canvasWidth - xBuffer) && !loopCheck){
-            //std::cout<<"Collision with the edge of the canvas, going down a row"<<std::endl;
-            x = xBuffer;
-            y = y - yIncrement - yBuffer;
-            yIncrement = 0;
-            loopCheck = true;
-            continue;
-        }
-        // else place the plot
-        else{
-            //std::cout<<"Positioning p:"<<p<<" at "<<x<<","<<y - h<<"  "<<w<<","<<h<<std::endl;
-           // plots[p]->setPosition(x, y - h + getScrollAmount(), w, h);
-            x = x + w + xBuffer;
+//         // Check to see if plot exceeds width of canvas, if yes, set x back to 0 and go to the bottom most plot on the canvas
+//         if ( (x + w + xBuffer > canvasWidth - xBuffer) && !loopCheck){
+//             //std::cout<<"Collision with the edge of the canvas, going down a row"<<std::endl;
+//             x = xBuffer;
+//             y = y - yIncrement - yBuffer;
+//             yIncrement = 0;
+//             loopCheck = true;
+//             continue;
+//         }
+//         // else place the plot
+//         else{
+//             //std::cout<<"Positioning p:"<<p<<" at "<<x<<","<<y - h<<"  "<<w<<","<<h<<std::endl;
+//            // plots[p]->setPosition(x, y - h + getScrollAmount(), w, h);
+//             x = x + w + xBuffer;
 
-            // set a new minimum
-            if (h > yIncrement)
-                yIncrement = h;
+//             // set a new minimum
+//             if (h > yIncrement)
+//                 yIncrement = h;
             
-            // increment p
-            p++;
-            loopCheck = false;
-        }
-    }
+//             // increment p
+//             p++;
+//             loopCheck = false;
+//         }
+//     }
 
-//  int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
-//	int plotHeight = plotWidth / 2 + .5;
-//	int rowCount = 0;
+// //  int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
+// //	int plotHeight = plotWidth / 2 + .5;
+// //	int rowCount = 0;
 
-//	for (int i=0; i < plots.size(); i++)
-//	{
-//
-//		plots[i]->setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
-//								getHeight() - ( yBuffer + plotHeight + rowCount * (plotHeight + yBuffer)) + getScrollAmount(), 
-//								plotWidth, 
-//								plotHeight); // deprecated conversion from string constant to char
-//
-//		if (i%nCols == nCols-1)
-//			rowCount++;	
-//	 }
+// //	for (int i=0; i < plots.size(); i++)
+// //	{
+// //
+// //		plots[i]->setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
+// //								getHeight() - ( yBuffer + plotHeight + rowCount * (plotHeight + yBuffer)) + getScrollAmount(), 
+// //								plotWidth, 
+// //								plotHeight); // deprecated conversion from string constant to char
+// //
+// //		if (i%nCols == nCols-1)
+// //			rowCount++;	
+// //	 }
 
-	// Set the total height of the Canvas to the top of the top most plot
-//	totalHeight = (rowCount + 1) * (plotHeight + yBuffer) + yBuffer;
-    totalHeight = getHeight() + (y + yIncrement);
+// 	// Set the total height of the Canvas to the top of the top most plot
+// //	totalHeight = (rowCount + 1) * (plotHeight + yBuffer) + yBuffer;
+//     totalHeight = getHeight() + (y + yIncrement);
 }
 
 // void SpikeDisplayCanvas::newOpenGLContextCreated()
@@ -207,13 +207,14 @@ void SpikeDisplayCanvas::beginAnimation()
 {
 	std::cout << "Beginning animation." << std::endl;
 	
-	//startCallbacks();
+	startCallbacks();
 }
 
 void SpikeDisplayCanvas::endAnimation()
 {
 	std::cout << "Ending animation." << std::endl;
-	//stopCallbacks();
+	
+	stopCallbacks();
 }
 
 void SpikeDisplayCanvas::update()
@@ -240,32 +241,32 @@ void SpikeDisplayCanvas::update()
 // for more complex messages use the other version of setParameter
 void SpikeDisplayCanvas::setParameter(int param, float val)
 {
-	std::cout<<"Got Param:"<< param<< " with value:"<<val<<std::endl;
-	switch (param)
-	{
-		case SPIKE_CMD_CLEAR_ALL :
-			for (int i=0; i < plots.size(); i++)
-				plots[i]->clear();
-			break;
+	// std::cout<<"Got Param:"<< param<< " with value:"<<val<<std::endl;
+	// switch (param)
+	// {
+	// 	case SPIKE_CMD_CLEAR_ALL :
+	// 		for (int i=0; i < plots.size(); i++)
+	// 			plots[i]->clear();
+	// 		break;
 	
-		case SPIKE_CMD_CLEAR_SEL:
-		//clear plot number val
-			break;
-		default:
-			std::cout<<"Unknown command specified! "<<param<<std::endl;
-	}
+	// 	case SPIKE_CMD_CLEAR_SEL:
+	// 	//clear plot number val
+	// 		break;
+	// 	default:
+	// 		std::cout<<"Unknown command specified! "<<param<<std::endl;
+	// }
 }
 
 void SpikeDisplayCanvas::setParameter(int param, int p2, int p3, float value){
-	std::cout<<"Got Parameter:"<<param<<" p2:"<<p2<<" p3:"<<p3<<" value:"<<value<<std::endl;
-	switch (param){
-		case SPIKE_CMD_PAN_AXES:
-			panPlot(p2, p3, value<=0);
-			break;
-		case SPIKE_CMD_ZOOM_AXES:
-			zoomPlot(p2, p3, value<=0);
-			break;
-	}
+	// std::cout<<"Got Parameter:"<<param<<" p2:"<<p2<<" p3:"<<p3<<" value:"<<value<<std::endl;
+	// switch (param){
+	// 	case SPIKE_CMD_PAN_AXES:
+	// 		panPlot(p2, p3, value<=0);
+	// 		break;
+	// 	case SPIKE_CMD_ZOOM_AXES:
+	// 		zoomPlot(p2, p3, value<=0);
+	// 		break;
+	// }
 }
 
 
@@ -318,93 +319,93 @@ void SpikeDisplayCanvas::processSpikeEvents()
 {
 
 
-	if (spikeBuffer->getNumEvents() > 0) 
-	{
+	// if (spikeBuffer->getNumEvents() > 0) 
+	// {
 		
-		//int m = spikeBuffer->getNumEvents();
+	// 	//int m = spikeBuffer->getNumEvents();
 
-		//std::cout << "Received " << m << " events." << std::endl;
+	// 	//std::cout << "Received " << m << " events." << std::endl;
 			
-		//std::cout << m << " events received by node " << getNodeId() << std::endl;
-		MidiBuffer::Iterator i (*spikeBuffer);
-		MidiMessage message(0xf4);
+	// 	//std::cout << m << " events received by node " << getNodeId() << std::endl;
+	// 	MidiBuffer::Iterator i (*spikeBuffer);
+	// 	MidiMessage message(0xf4);
 
-		int samplePosition = 0;
+	// 	int samplePosition = 0;
 
-		i.setNextSamplePosition(samplePosition);
+	// 	i.setNextSamplePosition(samplePosition);
 		
-		//int eventCount = 0;
+	// 	//int eventCount = 0;
 		
-		while (i.getNextEvent (message, samplePosition)) {
-			//eventCount++;
-			 const uint8* dataptr = message.getRawData();
-			 int bufferSize = message.getRawDataSize();
-			// int nSamples = (bufferSize-4)/2;
+	// 	while (i.getNextEvent (message, samplePosition)) {
+	// 		//eventCount++;
+	// 		 const uint8* dataptr = message.getRawData();
+	// 		 int bufferSize = message.getRawDataSize();
+	// 		// int nSamples = (bufferSize-4)/2;
 
-			SpikeObject newSpike;
-			SpikeObject simSpike;
+	// 		SpikeObject newSpike;
+	// 		SpikeObject simSpike;
 
-			//unpackSpike(&newSpike, dataptr, bufferSize);
+	// 		//unpackSpike(&newSpike, dataptr, bufferSize);
 
-			//
+	// 		//
 
-			int chan = newSpike.source;
+	// 		int chan = newSpike.source;
 
-			generateSimulatedSpike(&simSpike, 0, 0);
+	// 		generateSimulatedSpike(&simSpike, 0, 0);
 
 
-			for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
-			{
-                    simSpike.data[i] = newSpike.data[i%80] + 5000;// * 3 - 10000;
-			}
+	// 		for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
+	// 		{
+ //                    simSpike.data[i] = newSpike.data[i%80] + 5000;// * 3 - 10000;
+	// 		}
 
-			simSpike.nSamples = 40;
+	// 		simSpike.nSamples = 40;
 
 			
 
-			// std::cout << "Received spike on electrode " << chan << std::endl;
+	// 		// std::cout << "Received spike on electrode " << chan << std::endl;
 
-			// std::cout << "Spike has " << newSpike.nChannels << " channels and " <<
-			//              newSpike.nSamples << " samples." << std::endl;
+	// 		// std::cout << "Spike has " << newSpike.nChannels << " channels and " <<
+	// 		//              newSpike.nSamples << " samples." << std::endl;
 
-			// std::cout << "Data: ";
+	// 		// std::cout << "Data: ";
 
-			// for (int n = 0; n < newSpike.nSamples; n++)
-			// {
-			// 	std::cout << newSpike.data[n] << " ";
-			// }
+	// 		// for (int n = 0; n < newSpike.nSamples; n++)
+	// 		// {
+	// 		// 	std::cout << newSpike.data[n] << " ";
+	// 		// }
 
-			//	std::cout << std::endl;
+	// 		//	std::cout << std::endl;
 
-			plots[chan]->processSpikeObject(simSpike);
+	// 		plots[chan]->processSpikeObject(simSpike);
 
-		}
+	// 	}
 
-	}
+	// }
 
-	spikeBuffer->clear();
+	// spikeBuffer->clear();
 
 }
 
 void SpikeDisplayCanvas::drawPlotTitle(int chan){
 
-	glViewport(0,0,getWidth(), getHeight());
-	setViewportRange(0, 0, getWidth(), getHeight());
+// 	glViewport(0,0,getWidth(), getHeight());
+// 	setViewportRange(0, 0, getWidth(), getHeight());
 
-	int x, y;
-	double w,h;
- 	plots[chan]->getPosition(&x,&y,&w,&h);
+// 	int x, y;
+// 	double w,h;
+//  	plots[chan]->getPosition(&x,&y,&w,&h);
 
-	float alpha = 0.50f;
+// 	float alpha = 0.50f;
 
-	glColor4f(0.0f,0.0f,0.0f,alpha);
-	glRasterPos2f(x, y+h+2);
+// 	glColor4f(0.0f,0.0f,0.0f,alpha);
+// 	glRasterPos2f(x, y+h+2);
 	
-	String s = "Source:";//String("Channel ");
-	s += (chan+1);
+// 	String s = "Source:";//String("Channel ");
+// 	s += (chan+1);
 
-//	getFont(cpmono_bold)->FaceSize(15);
-	//getFont(cpmono_bold)->Render(s);
+// //	getFont(cpmono_bold)->FaceSize(15);
+// 	//getFont(cpmono_bold)->Render(s);
 }
 
 int SpikeDisplayCanvas::getTotalHeight() 
@@ -460,23 +461,23 @@ void SpikeDisplayCanvas::mouseWheelMoveInCanvas(const MouseEvent& e, float wheel
 	// mouseWheelMoveInCanvas(e, wheelIncrementX, wheelIncrementY);
 }
 
-void SpikeDisplayCanvas::panPlot(int p, int c, bool up){
+// void SpikeDisplayCanvas::panPlot(int p, int c, bool up){
 
-	std::cout << "SpikeDisplayCanvas::panPlot()" << std::endl;
-	if (p < 0 || p > plots.size())
-		return;
-	plots[p]->pan(c, up);
+// 	// std::cout << "SpikeDisplayCanvas::panPlot()" << std::endl;
+// 	// if (p < 0 || p > plots.size())
+// 	// 	return;
+// 	// plots[p]->pan(c, up);
 
-}
-void SpikeDisplayCanvas::zoomPlot(int p, int c, bool in){
+// }
+// void SpikeDisplayCanvas::zoomPlot(int p, int c, bool in){
 
-	std::cout << "SpikeDisplayCanvas::panPlot()" << std::endl;
-	if (p < 0 || p > plots.size())
-		return;
-	plots[p]->zoom(c, in);
-}
+// 	// std::cout << "SpikeDisplayCanvas::panPlot()" << std::endl;
+// 	// if (p < 0 || p > plots.size())
+// 	// 	return;
+// 	// plots[p]->zoom(c, in);
+// }
 
 void SpikeDisplayCanvas::disablePointSmoothing()
 {
-	glDisable(GL_POINT_SMOOTH); // needed to make projections visible
+	// glDisable(GL_POINT_SMOOTH); // needed to make projections visible
 }

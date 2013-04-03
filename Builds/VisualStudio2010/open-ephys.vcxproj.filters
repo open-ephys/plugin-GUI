@@ -47,9 +47,6 @@
     <Filter Include="open-ephys\Source\Processors\Visualization">
       <UniqueIdentifier>{851942D5-FED6-A7B2-6FAB-C278A247FE7A}</UniqueIdentifier>
     </Filter>
-    <Filter Include="open-ephys\Source\Processors\Visualization\SpikePlotting">
-      <UniqueIdentifier>{513EA02D-1407-2B30-B177-63B08F784C08}</UniqueIdentifier>
-    </Filter>
     <Filter Include="open-ephys\Source\Processors\Editors">
       <UniqueIdentifier>{E65874A6-23B2-9D76-B12A-15730E2192BC}</UniqueIdentifier>
     </Filter>
@@ -468,24 +465,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Utilities\Splitter.cpp">
       <Filter>open-ephys\Source\Processors\Utilities</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\GenericAxes.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\PlotUtils.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\ProjectionAxes.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\WaveAxes.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
@@ -1967,27 +1946,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Utilities\Splitter.h">
       <Filter>open-ephys\Source\Processors\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\GenericAxes.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\PlotUtils.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\ProjectionAxes.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SimpleKeyEvent.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\WaveAxes.h">
-      <Filter>open-ephys\Source\Processors\Visualization\SpikePlotting</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
