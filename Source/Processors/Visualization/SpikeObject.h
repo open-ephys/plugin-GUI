@@ -70,7 +70,7 @@ struct SpikeObject{
 int packSpike(SpikeObject *s, uint8_t* buffer, int bufferLength);
 
 /** Simple method for deserializing a string of bytes into a Spike object, returns true is the provided spike buffer is valid */
-bool unpackSpike(SpikeObject *s, uint8_t* buffer, int bufferLength);
+bool unpackSpike(SpikeObject *s, const uint8_t* buffer, int bufferLength);
 
 /** Checks the validity of the buffer, this should be run before unpacking the buffer */
 bool isBufferValid(uint8_t *buffer, int bufferLength);

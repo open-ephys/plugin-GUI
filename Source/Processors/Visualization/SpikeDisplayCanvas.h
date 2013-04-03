@@ -40,6 +40,7 @@
 
 class SpikeDisplayNode;
 
+class SpikeDisplay;
 class SpikePlot;
 
 /**
@@ -66,59 +67,90 @@ public:
 
 	void refreshState();
 
+	void setParameter(int, float) {}
+	void setParameter(int, int, int, float){}
+
 	void update();
 
-	void setParameter(int, float);
-	void setParameter(int, int, int, float);
+	void resized();
 
 private:
 
-
+	SpikeDisplayNode* processor;
 	MidiBuffer* spikeBuffer;
 
-	int xBuffer, yBuffer;
-
-	bool plotsInitialized;
+	ScopedPointer<SpikeDisplay> spikeDisplay;
+	ScopedPointer<Viewport> viewport;
 
 	bool newSpike;
 	SpikeObject spike;
-	SpikeDisplayNode* processor;
 
-	Array<SpikePlot*> plots;
-	Array<int> numChannelsPerPlot;
-
-	int totalScrollPix;
-
-	void drawPlotTitle(int chan);
-	
-	int totalHeight;
-
-	int getTotalHeight();
-
-	int nPlots;
-
-    int nCols;
-    static const int MIN_GRID_SIZE = 10;
-    static const int MAX_GRID_SIZE = 125;
-  
-	int nChannels[MAX_NUMBER_OF_SPIKE_CHANNELS];
-
-    void computeColumnLayout();
-	void initializeSpikePlots();
-	void repositionSpikePlots();
-
-	void disablePointSmoothing();
-	void canvasWasResized();
-	void mouseDownInCanvas(const MouseEvent& e);
-	//void mouseDragInCanvas(const MouseEvent& e);
-	//void mouseMoveInCanvas(const MouseEvent& e);
-	void mouseUpInCanvas(const MouseEvent& e);
-	void mouseWheelMoveInCanvas(const MouseEvent&, float, float);
+	int scrollBarThickness;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayCanvas);
 	
 };
 
+class SpikeDisplay : public Component
+{
+public:
+	SpikeDisplay(SpikeDisplayCanvas*, Viewport*);
+	~SpikeDisplay();
+
+	void addSpikePlot(int numChannels);
+
+	void paint(Graphics& g);
+
+	void resized();
+
+	void mouseDown(const MouseEvent& event);
+
+	//void plotSpike(const SpikeObject& spike);
+
+
+	int getTotalHeight() {return totalHeight;}
+
+private:
+
+	//void computeColumnLayout();
+	//void initializeSpikePlots();
+	//void repositionSpikePlots();
+
+	int numColumns;
+
+	int totalHeight;
+
+	SpikeDisplayCanvas* canvas;
+	Viewport* viewport;
+
+	Array<SpikePlot*> spikePlots;
+
+};
+
+class SpikePlot : public Component
+{
+public:
+	SpikePlot(SpikeDisplayCanvas*, int elecNum, int numChans);
+	~SpikePlot();
+
+	void paint(Graphics& g);
+
+	void select();
+	void deselect();
+
+	void resized();
+
+private:
+
+	SpikeDisplayCanvas* canvas;
+
+	bool isSelected;
+
+	int electrodeNumber;
+
+	int numChannels;
+
+};
 
 
 #endif  // SPIKEDISPLAYCANVAS_H_

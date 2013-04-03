@@ -73,7 +73,7 @@ int packSpike(SpikeObject *s, uint8_t* buffer, int bufferSize){
 }
 
 // Simple method for deserializing a string of bytes into a Spike object
-bool unpackSpike(SpikeObject *s, uint8_t* buffer, int bufferSize){
+bool unpackSpike(SpikeObject *s, const uint8_t* buffer, int bufferSize){
 	// if !(isBufferValid(buffer, bufferSize));
 	// 	return false;
 
