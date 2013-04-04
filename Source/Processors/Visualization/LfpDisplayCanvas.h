@@ -129,6 +129,8 @@ public:
 
 	void paint(Graphics& g);
 
+	void refresh();
+
 	void resized();
 
 	void mouseDown(const MouseEvent& event);

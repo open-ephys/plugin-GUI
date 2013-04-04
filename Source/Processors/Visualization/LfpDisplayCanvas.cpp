@@ -268,6 +268,10 @@ void LfpDisplayCanvas::refresh()
 {
 	updateScreenBuffer();
 
+	lfpDisplay->refresh();
+
+	getPeer()->performAnyPendingRepaintsNow();
+
 }
 
 // -------------------------------------------------------------
@@ -352,28 +356,33 @@ void LfpDisplay::resized()
 void LfpDisplay::paint(Graphics& g)
 {
 
+}
+
+void LfpDisplay::refresh()
+{
+
 
 	int topBorder = viewport->getViewPositionY();
 	int bottomBorder = viewport->getViewHeight() + topBorder;
 
 	// ensure that only visible channels are redrawn
-	// for (int i = 0; i < numChans; i++)
-	// {
+	for (int i = 0; i < numChans; i++)
+	{
 
-	// 	int componentTop = getChildComponent(i)->getY();
-	// 	int componentBottom = getChildComponent(i)->getHeight() + componentTop;
+		int componentTop = getChildComponent(i)->getY();
+		int componentBottom = getChildComponent(i)->getHeight() + componentTop;
 
-	// 	if ( (topBorder <= componentBottom && bottomBorder >= componentTop) )
-	// 	{
-	// 		getChildComponent(i)->repaint(canvas->lastScreenBufferIndex,
-	// 			 						  0,
-	// 			 						  canvas->screenBufferIndex,
-	// 			 						  getChildComponent(i)->getHeight());
+		if ( (topBorder <= componentBottom && bottomBorder >= componentTop) )
+		{
+			getChildComponent(i)->repaint(canvas->lastScreenBufferIndex,
+				 						  0,
+				 						  canvas->screenBufferIndex,
+				 						  getChildComponent(i)->getHeight());
 
-	// 		//std::cout << i << std::endl;
-	// 	}
+			//std::cout << i << std::endl;
+		}
 
-	// }
+	}
 
 }
 
@@ -423,7 +432,7 @@ void LfpChannelDisplay::paint(Graphics& g)
 
 	int stepSize = 1;
 
-	for (int i = 0; i < getWidth()-1; i += stepSize)
+	for (int i = 0; i < getWidth()-stepSize; i += stepSize)
 	{
 
 		g.drawLine(i,

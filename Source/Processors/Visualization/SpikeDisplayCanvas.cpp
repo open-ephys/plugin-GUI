@@ -252,7 +252,6 @@ void SpikeDisplayCanvas::resized()
 
 void SpikeDisplayCanvas::paint(Graphics& g)
 {
-	processSpikeEvents();
 
 	g.fillAll(Colours::cyan);
 
@@ -261,6 +260,11 @@ void SpikeDisplayCanvas::paint(Graphics& g)
 	g.drawLine(0,0, getWidth(), getHeight());
 	g.drawLine(0,getHeight(),getWidth(), 0);
  	
+}
+
+void SpikeDisplayCanvas::refresh()
+{
+	processSpikeEvents();
 }
 
 void SpikeDisplayCanvas::processSpikeEvents()

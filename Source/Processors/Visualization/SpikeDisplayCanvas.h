@@ -57,6 +57,8 @@ public:
 
 	void paint(Graphics& g);
 
+	void refresh();
+
 	void processSpikeEvents();
 
 	void beginAnimation();
