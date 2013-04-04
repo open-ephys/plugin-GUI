@@ -48,6 +48,9 @@ public:
     /** Called when parameters of underlying data processor are changed.*/
 	virtual void update() = 0;
 
+    /** Called instead of "repaint" to avoid redrawing underlying components if not necessary.*/
+    virtual void refresh() = 0;
+
     /** Called when data acquisition is active.*/
 	virtual void beginAnimation() = 0;
 
@@ -67,7 +70,7 @@ public:
     void stopCallbacks() { stopTimer(); }
 
     /** Called whenever the timer is triggered. */
-    void timerCallback() { repaint(); }
+    void timerCallback() { refresh(); }
 
     /** Refresh rate in Hz. */
     float refreshRate;

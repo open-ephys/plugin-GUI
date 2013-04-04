@@ -82,14 +82,14 @@ void LfpDisplayCanvas::beginAnimation()
 
 	screenBufferIndex = 0;
 	
-	startTimer(500);
+	startCallbacks();
 }
 
 void LfpDisplayCanvas::endAnimation()
 {
 	std::cout << "Ending animation." << std::endl;
 	
-	stopTimer();
+	stopCallbacks();
 }
 
 void LfpDisplayCanvas::update()
@@ -254,17 +254,20 @@ void LfpDisplayCanvas::paint(Graphics& g)
 {
 
 	//std::cout << "Painting" << std::endl;
-
-	updateScreenBuffer();
-
 	 g.setColour(Colours::grey);
 
 	 g.fillRect(0, 0, getWidth(), getHeight());
 	
-	 g.setColour(Colours::yellow);
+	 // g.setColour(Colours::yellow);
 
-	 g.drawLine(screenBufferIndex, 0, screenBufferIndex, getHeight());
+	 // g.drawLine(screenBufferIndex, 0, screenBufferIndex, getHeight());
 	
+}
+
+void LfpDisplayCanvas::refresh()
+{
+	updateScreenBuffer();
+
 }
 
 // -------------------------------------------------------------

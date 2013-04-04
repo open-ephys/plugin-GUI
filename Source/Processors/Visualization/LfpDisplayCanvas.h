@@ -60,6 +60,8 @@ public:
 
 	void paint(Graphics& g);
 
+	void refresh();
+
 	void resized();
 
 	float getXCoord(int chan, int samp);
