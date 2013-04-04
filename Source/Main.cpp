@@ -89,11 +89,13 @@ public:
 
 #endif
 
+        
+        customLookAndFeel = new CustomLookAndFeel();
+        LookAndFeel::setDefaultLookAndFeel(customLookAndFeel);
+
         mainWindow = new MainWindow();
        
 
-        customLookAndFeel = new CustomLookAndFeel();
-        LookAndFeel::setDefaultLookAndFeel(customLookAndFeel);
   
     }
 

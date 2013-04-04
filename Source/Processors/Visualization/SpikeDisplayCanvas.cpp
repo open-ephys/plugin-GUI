@@ -253,12 +253,7 @@ void SpikeDisplayCanvas::resized()
 void SpikeDisplayCanvas::paint(Graphics& g)
 {
 
-	g.fillAll(Colours::cyan);
-
-	g.setColour(Colours::white);
-
-	g.drawLine(0,0, getWidth(), getHeight());
-	g.drawLine(0,getHeight(),getWidth(), 0);
+	g.fillAll(Colours::darkgrey);
  	
 }
 
@@ -319,10 +314,13 @@ SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
 	canvas(sdc), viewport(v)
 {
 
-	minWidth = 300; 
-	maxWidth = 500;
-	minHeight = 100;
-	maxHeight = 200;
+	tetrodePlotMinWidth = 500;
+	stereotrodePlotMinWidth = 400;
+	singleElectrodePlotMinWidth = 200;
+
+	tetrodePlotRatio = 0.5;
+	stereotrodePlotRatio = 0.2;
+	singleElectrodePlotRatio = 1.0;
 
 	totalHeight = 1000;
 
@@ -348,7 +346,7 @@ void SpikeDisplay::addSpikePlot(int numChannels)
 void SpikeDisplay::paint(Graphics& g)
 {
 
-	g.fillAll(Colours::blue);
+	g.fillAll(Colours::grey);
 }
 
 void SpikeDisplay::resized()
@@ -356,11 +354,11 @@ void SpikeDisplay::resized()
 
 	int w = getWidth();
 
-	int numColumns = w / minWidth;
+	int numColumns = w / tetrodePlotMinWidth;
 	int column, row;
 
 	float width = (float) w / (float) numColumns;
-	float height = width * 0.75;
+	float height = width * tetrodePlotRatio;
 
 	for (int i = 0; i < tetrodePlots.size(); i++)
 	{
@@ -420,13 +418,8 @@ SpikePlot::~SpikePlot()
 void SpikePlot::paint(Graphics& g)
 {
 
-	g.setColour(Colours::yellow);
-	g.fillRect(10, 10, getWidth()-20, getHeight()-20);
-
-	g.setColour(Colours::black);
-
-	g.drawLine(0, 0, getWidth(), getHeight());
-	g.drawLine(0, getHeight(), getWidth(), 0);
+	//g.setColour(Colours::darkgrey);
+	//g.fillRect(2, 2, getWidth()-4, getHeight()-4);
 
 }
 
@@ -538,7 +531,8 @@ WaveformPlot::WaveformPlot()
 
 void WaveformPlot::paint(Graphics& g)
 {
-	g.fillAll(Colours::red);
+	g.setColour(Colours::black);
+	g.fillRect(5,5,getWidth()-5, getHeight()-5);
 }
 
 ProjectionPlot::ProjectionPlot()
@@ -548,5 +542,6 @@ ProjectionPlot::ProjectionPlot()
 
 void ProjectionPlot::paint(Graphics& g)
 {
-	g.fillAll(Colours::pink);
+	g.setColour(Colours::orange);
+	g.fillRect(5,5,getWidth()-5, getHeight()-5);
 }
