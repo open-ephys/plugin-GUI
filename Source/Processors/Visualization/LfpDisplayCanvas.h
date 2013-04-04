@@ -65,6 +65,9 @@ public:
 	float getXCoord(int chan, int samp);
 	float getYCoord(int chan, int samp);
 
+	int screenBufferIndex;
+	int lastScreenBufferIndex;
+
 private:
 
 	float sampleRate;
@@ -74,10 +77,11 @@ private:
 
 	static const int MAX_N_CHAN = 256;  // maximum number of channels
 	static const int MAX_N_SAMP = 5000; // maximum display size in pixels
-	float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
+	//float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
 	LfpDisplayNode* processor;
 	AudioSampleBuffer* displayBuffer;
+	AudioSampleBuffer* screenBuffer;
 	MidiBuffer* eventBuffer;
 
 	ScopedPointer<LfpTimescale> timescale;
@@ -86,7 +90,7 @@ private:
 
 	void refreshScreenBuffer();
 	void updateScreenBuffer();
-	int screenBufferIndex;
+
 	int displayBufferIndex;
 	int displayBufferSize;
 

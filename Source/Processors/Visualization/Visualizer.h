@@ -61,7 +61,7 @@ public:
     virtual void setParameter(int, int, int, float) = 0;
 
     /** Starts the timer callbacks. */
-    void startCallbacks() { startTimer(1/refreshRate); }
+    void startCallbacks() { startTimer(100); }
 
     /** Stops the timer callbacks. */
     void stopCallbacks() { stopTimer(); }

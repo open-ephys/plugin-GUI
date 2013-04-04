@@ -26,7 +26,7 @@
 #include <math.h>
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
-	timebase(1.0f), displayGain(2.f), timeOffset(0.0f), processor(processor_),
+	timebase(1.0f), displayGain(1.0f), timeOffset(0.0f), processor(processor_),
 	screenBufferIndex(0), displayBufferIndex(0)
 {
 
@@ -37,6 +37,8 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	displayBuffer = processor->getDisplayBufferAddress();
 	displayBufferSize = displayBuffer->getNumSamples();
 	std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
+
+	screenBuffer = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
 
 	viewport = new Viewport();
 	lfpDisplay = new LfpDisplay(this, viewport);
@@ -56,6 +58,8 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
 {
+
+	deleteAndZero(screenBuffer);
 }
 
 void LfpDisplayCanvas::resized()
@@ -78,14 +82,14 @@ void LfpDisplayCanvas::beginAnimation()
 
 	screenBufferIndex = 0;
 	
-	startCallbacks();
+	startTimer(500);
 }
 
 void LfpDisplayCanvas::endAnimation()
 {
 	std::cout << "Ending animation." << std::endl;
 	
-	stopCallbacks();
+	stopTimer();
 }
 
 void LfpDisplayCanvas::update()
@@ -102,8 +106,6 @@ void LfpDisplayCanvas::update()
 
 
 	repaint();
-
-	lfpDisplay->repaint();
 
 }
 
@@ -133,25 +135,30 @@ void LfpDisplayCanvas::refreshScreenBuffer()
 
 	screenBufferIndex = 0;
 
-	int w = lfpDisplay->getWidth(); 
-	//std::cout << "Refreshing buffer size to " << w << "pixels." << std::endl;
+	screenBuffer->clear();
 
-	for (int i = 0; i < w; i++)
-	{
-		float x = float(i);
+	// int w = lfpDisplay->getWidth(); 
+	// //std::cout << "Refreshing buffer size to " << w << "pixels." << std::endl;
 
-		for (int n = 0; n < nChans; n++)
-		{
-			waves[n][i*2] = x;
-			waves[n][i*2+1] = 0.5f; // line in center of display
-		}
-	}
+	// for (int i = 0; i < w; i++)
+	// {
+	// 	float x = float(i);
+
+	// 	for (int n = 0; n < nChans; n++)
+	// 	{
+	// 		waves[n][i*2] = x;
+	// 		waves[n][i*2+1] = 0.5f; // line in center of display
+	// 	}
+	// }
 
 }
 
 void LfpDisplayCanvas::updateScreenBuffer()
 {
 	// copy new samples from the displayBuffer into the screenBuffer (waves)
+
+	lastScreenBufferIndex = screenBufferIndex;
+
 	int maxSamples = lfpDisplay->getWidth();
 
 	int index = processor->getDisplayBufferIndex();
@@ -179,16 +186,31 @@ void LfpDisplayCanvas::updateScreenBuffer()
 	    	float alpha = (float) subSampleOffset;
 	    	float invAlpha = 1.0f - alpha;
 
+	    	screenBuffer->clear(screenBufferIndex, 1);
+
 	    	for (int channel = 0; channel < nChans; channel++) {
 
-				gain = -1.0f / (processor->channels[channel]->bitVolts * float(0x7fff));
-	        	waves[channel][screenBufferIndex*2+1] = 
-	        		*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
+				gain = 1.0f / (processor->channels[channel]->bitVolts * float(0x7fff));
 
-	        	waves[channel][screenBufferIndex*2+1] += 
-	        		*(displayBuffer->getSampleData(channel, nextPos))*alpha*gain*displayGain;
+				screenBuffer->addFrom(channel, // destChannel
+									  screenBufferIndex, // destStartSample
+									  displayBuffer->getSampleData(channel, displayBufferIndex), // source
+									  1, // numSamples
+									  invAlpha*gain*displayGain); // gain
 
-	        	waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
+				screenBuffer->addFrom(channel, // destChannel
+									  screenBufferIndex, // destStartSample
+									  displayBuffer->getSampleData(channel, nextPos), // source
+									  1, // numSamples
+									  alpha*gain*displayGain); // gain
+
+	        	//waves[channel][screenBufferIndex*2+1] = 
+	        	//	*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
+
+	        	//waves[channel][screenBufferIndex*2+1] += 
+	        	//	*(displayBuffer->getSampleData(channel, nextPos))*alpha*gain*displayGain;
+
+	        	//waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
 
 	       	}
 
@@ -220,12 +242,12 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
 float LfpDisplayCanvas::getXCoord(int chan, int samp)
 {
-	return waves[chan][samp*2];
+	return samp;
 }
 
 float LfpDisplayCanvas::getYCoord(int chan, int samp)
 {
-	return waves[chan][samp*2+1];
+	return *screenBuffer->getSampleData(chan, samp);
 }
 
 void LfpDisplayCanvas::paint(Graphics& g)
@@ -235,16 +257,13 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
 	updateScreenBuffer();
 
-	g.fillAll(Colours::grey);
+	 g.setColour(Colours::grey);
+
+	 g.fillRect(0, 0, getWidth(), getHeight());
 	
-	g.setColour(Colours::yellow);
+	 g.setColour(Colours::yellow);
 
-	g.drawLine(screenBufferIndex, 0, screenBufferIndex, getHeight());
-
-	lfpDisplay->repaint();
-
-	//g.drawLine(0,0, getWidth(), getHeight());
-	//g.drawLine(0,getHeight(),getWidth(), 0);
+	 g.drawLine(screenBufferIndex, 0, screenBufferIndex, getHeight());
 	
 }
 
@@ -335,20 +354,23 @@ void LfpDisplay::paint(Graphics& g)
 	int bottomBorder = viewport->getViewHeight() + topBorder;
 
 	// ensure that only visible channels are redrawn
-	for (int i = 0; i < numChans; i++)
-	{
+	// for (int i = 0; i < numChans; i++)
+	// {
 
-		int componentTop = getChildComponent(i)->getY();
-		int componentBottom = getChildComponent(i)->getHeight() + componentTop;
+	// 	int componentTop = getChildComponent(i)->getY();
+	// 	int componentBottom = getChildComponent(i)->getHeight() + componentTop;
 
-		if ( (topBorder <= componentBottom && bottomBorder >= componentTop) )
-		{
-			getChildComponent(i)->repaint();
+	// 	if ( (topBorder <= componentBottom && bottomBorder >= componentTop) )
+	// 	{
+	// 		getChildComponent(i)->repaint(canvas->lastScreenBufferIndex,
+	// 			 						  0,
+	// 			 						  canvas->screenBufferIndex,
+	// 			 						  getChildComponent(i)->getHeight());
 
-			//std::cout << i << std::endl;
-		}
+	// 		//std::cout << i << std::endl;
+	// 	}
 
-	}
+	// }
 
 }
 
@@ -396,13 +418,15 @@ void LfpChannelDisplay::paint(Graphics& g)
 
 	g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
 
-	for (int i = 0; i < getWidth()-1; i++)
+	int stepSize = 1;
+
+	for (int i = 0; i < getWidth()-1; i += stepSize)
 	{
 
 		g.drawLine(i,
-				 canvas->getYCoord(chan, i)*getHeight(),
-				 i+1,
-				 canvas->getYCoord(chan, i+1)*getHeight());
+				 (canvas->getYCoord(chan, i)+0.5f)*getHeight(),
+				 i+stepSize,
+				 (canvas->getYCoord(chan, i+stepSize)+0.5f)*getHeight());
 	}
 
 }

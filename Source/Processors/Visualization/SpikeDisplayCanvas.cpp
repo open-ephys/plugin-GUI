@@ -398,8 +398,6 @@ void SpikeDisplay::plotSpike(const SpikeObject& spike)
 }
 
 
-
-
 // ----------------------------------------------------------------
 
 SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int numChans) :

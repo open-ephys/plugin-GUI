@@ -279,8 +279,6 @@ void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &events, int&
 
 	initializeEventChannel();
 
-
-
 	checkForEvents(events); // update timestamp, see if we got any TTL events
 
 	int samplesLeft = displayBuffer->getNumSamples() - displayBufferIndex;
@@ -324,52 +322,7 @@ void LfpDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &events, int&
 		displayBufferIndex = extraSamples;
 	}
 
-	//std::cout << *displayBuffer->getSampleData(displayBuffer->getNumChannels()-1, 
-	//										  displayBufferIndex-1) << std::endl;
-
-
-	///// failed attempt to use abstractFifo:
-
-	// int start1, size1, start2, size2;
-
-	// abstractFifo.prepareToWrite(nSamples, start1, size1, start2, size2);
-
-	// if (size1 > 0)
-	// {
-	// 	for (int chan = 0; chan < buffer.getNumChannels(); chan++)
-	// 	{	
-	// 		displayBuffer->copyFrom(chan,  			// destChannel
-	// 						    start1, 			// destStartSample
-	// 						    buffer, 			// source
-	// 						    chan, 				// source channel
-	// 						    0,					// source start sample
-	// 						    size1); 			// numSamples
-
-	// 	}
-
-	// 	displayBufferIndex += size1;
-	// }
-
-	// if (size2 > 0)
-	// {
-	// 	for (int chan = 0; chan < buffer.getNumChannels(); chan++)
-	// 	{	
-	// 		displayBuffer->copyFrom(chan,  			// destChannel
-	// 						    start2, 			// destStartSample
-	// 						    buffer, 			// source
-	// 						    chan, 				// source channel
-	// 						    size1,				// source start sample
-	// 						    size2); 			// numSamples
-
-	// 	}
-
-	// 	displayBufferIndex = size2;
-	// }
-
-	// std::cout << displayBufferIndex << std::endl;
-
-	// abstractFifo.finishedWrite(size1 + size2);
-
+	
 
 }
 
