@@ -39,6 +39,11 @@ class SpikeDisplayNode;
 
 class SpikeDisplay;
 class SpikePlot;
+class TetrodePlot;
+class StereotrodePlot;
+class SingleElectrodePlot;
+class WaveformPlot;
+class ProjectionPlot;
 
 /**
   
@@ -122,11 +127,15 @@ private:
 	SpikeDisplayCanvas* canvas;
 	Viewport* viewport;
 
-	OwnedArray<SpikePlot> spikePlots;
+	OwnedArray<TetrodePlot> tetrodePlots;
+	OwnedArray<StereotrodePlot> stereotrodePlots;
+	OwnedArray<SingleElectrodePlot> singleElectrodePlots;
 
-	int maxWidth, maxHeight, minWidth, minHeight;
+	float tetrodePlotMinWidth, stereotrodePlotMinWidth, singleElectrodePlotMinWidth;
+	float tetrodePlotRatio, stereotrodePlotRatio, singleElectrodePlotRatio;
 
 };
+
 
 class SpikePlot : public Component
 {
@@ -139,10 +148,6 @@ public:
 	void select();
 	void deselect();
 
-	void resized();
-
-private:
-
 	SpikeDisplayCanvas* canvas;
 
 	bool isSelected;
@@ -150,6 +155,73 @@ private:
 	int electrodeNumber;
 
 	int numChannels;
+
+	OwnedArray<ProjectionPlot> projectionPlots;
+	OwnedArray<WaveformPlot> waveformPlots;
+
+private:
+
+
+};
+
+
+class TetrodePlot : public SpikePlot
+{
+public:
+	TetrodePlot(SpikeDisplayCanvas*, int elecNum);
+	~TetrodePlot() {}
+
+	void resized();
+
+private:
+
+};
+
+class StereotrodePlot : public SpikePlot
+{
+public:
+	StereotrodePlot(SpikeDisplayCanvas*, int elecNum);
+	~StereotrodePlot() {}
+
+	void resized();
+
+private:
+	
+};
+
+class SingleElectrodePlot : public SpikePlot
+{
+public:
+	SingleElectrodePlot(SpikeDisplayCanvas*, int elecNum);
+	~SingleElectrodePlot() {}
+
+	void resized();
+
+private:
+	
+};
+
+class WaveformPlot : public Component
+{
+public:
+	WaveformPlot();
+	~WaveformPlot() {}
+
+	void paint(Graphics& g);
+
+private:
+
+};
+
+class ProjectionPlot : public Component
+{
+public:
+	ProjectionPlot();
+	~ProjectionPlot() {}
+
+	void paint(Graphics& g);
+
+private:
 
 };
 

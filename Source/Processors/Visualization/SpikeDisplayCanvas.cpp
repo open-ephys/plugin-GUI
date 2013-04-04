@@ -328,9 +328,9 @@ SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
 
 	for (int i = 0; i < 10; i++)
 	{
-		SpikePlot* spikePlot = new SpikePlot(canvas, i, 2);
-		spikePlots.add(spikePlot);
-		addAndMakeVisible(spikePlot);
+		TetrodePlot* tetrodePlot = new TetrodePlot(canvas, i);
+		tetrodePlots.add(tetrodePlot);
+		addAndMakeVisible(tetrodePlot);
 	}
 
 }
@@ -362,12 +362,12 @@ void SpikeDisplay::resized()
 	float width = (float) w / (float) numColumns;
 	float height = width * 0.75;
 
-	for (int i = 0; i < spikePlots.size(); i++)
+	for (int i = 0; i < tetrodePlots.size(); i++)
 	{
 
 		column = i % numColumns;
 		row = i / numColumns;
-		spikePlots[i]->setBounds(width*column,row*height,width,height);
+		tetrodePlots[i]->setBounds(width*column,row*height,width,height);
 
 	}
 
@@ -440,9 +440,113 @@ void SpikePlot::deselect()
 	isSelected = false;
 }
 
-void SpikePlot::resized()
+
+// --------------------------------------------------
+
+
+TetrodePlot::TetrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
+	SpikePlot(sdc, elecNum, 4)
+{
+
+	for (int i = 0; i < numChannels; i++)
+	{
+		WaveformPlot* wp = new WaveformPlot();
+		addAndMakeVisible(wp);
+		waveformPlots.add(wp);
+	}
+
+	for (int i = 0; i < 6; i++)
+	{
+		ProjectionPlot* pp = new ProjectionPlot();
+		addAndMakeVisible(pp);
+		projectionPlots.add(pp);
+	}
+
+}
+
+void TetrodePlot::resized()
+{
+	float w = (float) getWidth() / 5.0f;
+	float h = (float) getHeight() / 2.0f;
+
+	waveformPlots[0]->setBounds(0, 0, w, h);
+	waveformPlots[1]->setBounds(w, 0, w, h);
+	waveformPlots[2]->setBounds(0, h, w, h);
+	waveformPlots[3]->setBounds(w, h, w, h);
+
+	projectionPlots[0]->setBounds(w*2, 0, w, h);
+	projectionPlots[1]->setBounds(w*3, 0, w, h);
+	projectionPlots[2]->setBounds(w*4, 0, w, h);
+	projectionPlots[3]->setBounds(w*2, h, w, h);
+	projectionPlots[4]->setBounds(w*3, h, w, h);
+	projectionPlots[5]->setBounds(w*4, h, w, h);
+
+}
+
+StereotrodePlot::StereotrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
+	SpikePlot(sdc, elecNum, 2)
+{
+
+	for (int i = 0; i < numChannels; i++)
+	{
+		WaveformPlot* wp = new WaveformPlot();
+		addAndMakeVisible(wp);
+		waveformPlots.add(wp);
+	}
+
+	ProjectionPlot* pp = new ProjectionPlot();
+	addAndMakeVisible(pp);
+	projectionPlots.add(pp);
+
+}
+
+void StereotrodePlot::resized()
+{
+	float w = (float) getWidth() / 3.0f;
+	float h = (float) getHeight() / 1.0f;
+
+	waveformPlots[0]->setBounds(0, 0, w, h);
+	waveformPlots[1]->setBounds(w, 0, w, h);
+
+	projectionPlots[0]->setBounds(w*2, 0, w, h);
+
+}
+
+SingleElectrodePlot::SingleElectrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
+	SpikePlot(sdc, elecNum, 1)
+{
+
+	WaveformPlot* wp = new WaveformPlot();
+	addAndMakeVisible(wp);
+	waveformPlots.add(wp);
+
+}
+
+void SingleElectrodePlot::resized()
+{
+	float w = (float) getWidth() / 1.0f;
+	float h = (float) getHeight() / 1.0f;
+
+	waveformPlots[0]->setBounds(0, 0, w, h);
+
+}
+
+WaveformPlot::WaveformPlot()
 {
 
 }
 
+void WaveformPlot::paint(Graphics& g)
+{
+	g.fillAll(Colours::red);
+}
 
+ProjectionPlot::ProjectionPlot()
+{
+
+}
+
+void ProjectionPlot::paint(Graphics& g)
+{
+	g.fillAll(Colours::pink);
+}
