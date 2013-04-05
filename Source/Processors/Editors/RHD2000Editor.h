@@ -36,20 +36,21 @@
 */
 
 class HeadstageOptionsInterface;
+class RHD2000Thread;
 
 
 class RHD2000Editor : public GenericEditor
 
 {
 public:
-    RHD2000Editor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    RHD2000Editor(GenericProcessor* parentNode, RHD2000Thread*, bool useDefaultParameterEditors);
     ~RHD2000Editor();
-
-    void resized();
 
 private:
 
 	OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
+
+	RHD2000Thread* board;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Editor);
 
@@ -68,6 +69,7 @@ private:
 
 	int hsNumber;
 	String name;
+
 
 };
 

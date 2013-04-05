@@ -90,6 +90,14 @@ SourceNode::SourceNode(const String& name_)
 
 SourceNode::~SourceNode()
 {
+
+    if (dataThread->isThreadRunning())
+    {
+        std::cout << "Forcing thread to stop." << std::endl;
+        dataThread->stopThread(500);
+    }
+
+
     if (eventChannelState)
         delete[] eventChannelState;
 }
@@ -198,7 +206,7 @@ AudioProcessorEditor* SourceNode::createEditor()
 
     if (getName().equalsIgnoreCase("RHD2000 USB Board"))
     {
-        editor = new RHD2000Editor(this, true);
+        editor = new RHD2000Editor(this, (RHD2000Thread*) dataThread.get(), true);
     }
     else
     {

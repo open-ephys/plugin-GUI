@@ -72,6 +72,8 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
     if (!owner->isMerger() && !owner->isSplitter())
     {
+        std::cout << "Adding drawer button." << std::endl;
+
         drawerButton = new DrawerButton("name");
         drawerButton->addListener(this);
         addAndMakeVisible(drawerButton);

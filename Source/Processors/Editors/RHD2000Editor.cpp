@@ -23,10 +23,17 @@
 
 #include "RHD2000Editor.h"
 
-RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : GenericEditor(parentNode, useDefaultParameterEditors)
+#include "../DataThreads/RHD2000Thread.h"
+
+RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode, 
+	 						 RHD2000Thread* board_,
+							 bool useDefaultParameterEditors=true
+							)
+    : GenericEditor(parentNode, useDefaultParameterEditors), board(board_)
 {
 	desiredWidth = 400;
+
+	int width = desiredWidth/4 - 10;
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -34,6 +41,8 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode, bool useDefaultParame
 		headstageOptionsInterfaces.add(hsOptions);
 
 		addAndMakeVisible(hsOptions);
+
+		hsOptions->setBounds(8+i*width,30, width, 85);
 	}
 
 }
@@ -43,16 +52,6 @@ RHD2000Editor::~RHD2000Editor()
     
 }
 
-void RHD2000Editor::resized()
-{
-
-	int width = getWidth()/4 - 20;
-
-	for (int i = 0; i < headstageOptionsInterfaces.size(); i++)
-	{
-		headstageOptionsInterfaces[i]->setBounds(10+i*width,30, width,getHeight()-50);
-	}
-}
 
 // --------------------------------------------------------------------
 
@@ -90,5 +89,11 @@ void HeadstageOptionsInterface::paint(Graphics& g)
 	g.setColour(Colours::lightgrey);
 
 	g.fillRoundedRectangle(5,0,getWidth()-10,getHeight(),4.0f);
+
+	g.setColour(Colours::grey);
+
+	g.setFont(Font("Small Text",10,Font::plain));
+
+	g.drawText("Headstage " + name, 8, 5, 200, 15, Justification::left, false);
 
 }

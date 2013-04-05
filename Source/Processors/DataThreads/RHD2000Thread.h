@@ -61,6 +61,10 @@ public:
     float getSampleRate();
     float getBitVolts();
 
+    void enableHeadstage(int hsNum, bool enabled);
+    void setCableLength(int hsNum, float length);
+    void setNumChannels(int hsNum, int nChannels);
+
     int getNumEventChannels();
 
 private:

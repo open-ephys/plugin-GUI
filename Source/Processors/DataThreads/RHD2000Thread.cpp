@@ -48,22 +48,35 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn)
 
         // Initialize board.
         evalBoard->initialize();
-        evalBoard->setDataSource(0, Rhd2000EvalBoard::PortA1);
-        evalBoard->setDataSource(1, Rhd2000EvalBoard::PortB1);
         evalBoard->setContinuousRunMode(false);
 
-        numChannelsPerDataStream.add(32);
-        numChannelsPerDataStream.add(32);
+        // set defaults
+        //  4 data sources : 0 -> PortA1
+        //                   1 -> PortB1
+        //                   2 -> PortC1
+        //                   3 -> PortD1
+        //  
+        //  source 0 is enabled with 32 channels; the rest are disabled
+        //
+        //  sample rate is 10 kHz
 
-        numChannels = 64;
+        evalBoard->setDataSource(0, Rhd2000EvalBoard::PortA1);
+        evalBoard->setDataSource(1, Rhd2000EvalBoard::PortB1);
+        evalBoard->setDataSource(2, Rhd2000EvalBoard::PortC1);
+        evalBoard->setDataSource(3, Rhd2000EvalBoard::PortD1);
+
+        for (int i = 0; i < 4; i++)
+        {
+            numChannelsPerDataStream.add(0);
+        }
+
+        enableHeadstage(0, true);
+        enableHeadstage(1, true);
+        enableHeadstage(2, false);
+        enableHeadstage(3, false);
 
         // Select per-channel amplifier sampling rate.
         evalBoard->setSampleRate(Rhd2000EvalBoard::SampleRate10000Hz);
-
-        // Now that we have set our sampling rate, we can set the MISO sampling delay
-        // which is dependent on the sample rate.  We assume a 3-foot cable.
-        evalBoard->setCableLengthFeet(Rhd2000EvalBoard::PortA, 3.0);
-        evalBoard->setCableLengthFeet(Rhd2000EvalBoard::PortB, 3.0);
 
         // Let's turn one LED on to indicate that the program is running.
         int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
@@ -84,8 +97,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn)
 
         dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
 
-        dataBuffer = new DataBuffer(numChannels, 10000);
-
+        dataBuffer = new DataBuffer(getNumChannels(), 10000);
 
     }
 
@@ -107,6 +119,14 @@ RHD2000Thread::~RHD2000Thread()
 
 int RHD2000Thread::getNumChannels()
 {
+
+    numChannels = 0;
+
+    for (int i = 0; i < numChannelsPerDataStream.size(); i++)
+    {
+        numChannels += numChannelsPerDataStream[i];
+    }
+
     return numChannels;
 }
 
@@ -130,6 +150,55 @@ bool RHD2000Thread::foundInputSource()
 
     return deviceFound;
 
+}
+
+void RHD2000Thread::enableHeadstage(int hsNum, bool enabled)
+{
+    
+    evalBoard->enableDataStream(hsNum, enabled);
+
+    if (enabled)
+    {
+        numChannelsPerDataStream.set(hsNum, 32);
+    } else {
+        numChannelsPerDataStream.set(hsNum, 0);
+    }
+
+    std::cout << "Enabled channels: " << numChannelsPerDataStream[0] <<
+                 " " << numChannelsPerDataStream[1] <<
+                 " " << numChannelsPerDataStream[2] <<
+                 " " << numChannelsPerDataStream[3] << std::endl;
+
+    std::cout << "Enabled data streams: " << evalBoard->getNumEnabledDataStreams() << std::endl;
+
+    delete(dataBlock);
+
+    dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
+    
+}
+
+void RHD2000Thread::setCableLength(int hsNum, float length)
+{
+     // Set the MISO sampling delay, which is dependent on the sample rate. 
+
+     switch (hsNum)
+    {
+        case 0: 
+            evalBoard->setCableLengthFeet(Rhd2000EvalBoard::PortA, length);
+            break;
+        case 1: 
+            evalBoard->setCableLengthFeet(Rhd2000EvalBoard::PortB, length);
+            break;
+        case 2: 
+            evalBoard->setCableLengthFeet(Rhd2000EvalBoard::PortC, length);
+            break;
+        case 3: 
+            evalBoard->setCableLengthFeet(Rhd2000EvalBoard::PortD, length);
+            break;
+        default:
+            break;
+    }
+        
 }
 
 bool RHD2000Thread::startAcquisition()
@@ -210,15 +279,26 @@ bool RHD2000Thread::updateBuffer()
             for (int samp = 0; samp < dataBlock->getSamplesPerDataBlock(); samp++)
             {
 
-                for (int dataStream = 0; dataStream < 1; dataStream++)
+                int ds = -1;
+                int channel = -1;
+
+                for (int dataStream = 0; dataStream < 2; dataStream++) //numChannelsPerDataStream.size(); dataStream++)
                 {
 
-                    for (int chan = 0; chan < numChannelsPerDataStream[dataStream]; chan++)
+                    if (numChannelsPerDataStream[dataStream] > 0)
                     {
 
-                        int value = dataBlock->amplifierData[dataStream][chan][samp];
+                        ds++;
 
-                        thisSample[chan] = float(value-32768)*0.195f;
+                        for (int chan = 0; chan < numChannelsPerDataStream[dataStream]; chan++)
+                        {
+
+                            channel++;
+
+                            int value = dataBlock->amplifierData[ds][chan][samp];
+
+                            thisSample[channel] = float(value-32768)*0.195f;
+                        }
                     }
 
                 }
