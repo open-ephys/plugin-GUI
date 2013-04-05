@@ -72,7 +72,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn)
 
         enableHeadstage(0, true);
         enableHeadstage(1, true);
-        enableHeadstage(2, false);
+        enableHeadstage(2, true);
         enableHeadstage(3, false);
 
         // Select per-channel amplifier sampling rate.
