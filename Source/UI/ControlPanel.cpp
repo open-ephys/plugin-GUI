@@ -90,10 +90,13 @@ RecordButton::~RecordButton()
 
 CPUMeter::CPUMeter() : Label("CPU Meter","0.0"), cpu(0.0f), lastCpu(0.0f)
 {
-    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    font = Font(typeface);
-    font.setHeight(12);
+	
+	font = Font("Small Text", 12, Font::plain);
+
+    // MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    // Typeface::Ptr typeface = new CustomTypeface(mis);
+    // font = Font(typeface);
+    // font.setHeight(12);
 }
 
 CPUMeter::~CPUMeter()
@@ -125,10 +128,13 @@ void CPUMeter::paint(Graphics& g)
 DiskSpaceMeter::DiskSpaceMeter()
 
 {
-    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    font = Font(typeface);
-    font.setHeight(12);
+
+	font = Font("Small Text", 12, Font::plain);
+
+    // MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    // Typeface::Ptr typeface = new CustomTypeface(mis);
+    // font = Font(typeface);
+    // font.setHeight(12);
 }
 
 
@@ -161,10 +167,12 @@ void DiskSpaceMeter::paint(Graphics& g)
 Clock::Clock() : isRunning(false), isRecording(false)
 {
 
-    MemoryInputStream mis(BinaryData::cpmonolightserialized, BinaryData::cpmonolightserializedSize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    clockFont = Font(typeface);
-    clockFont.setHeight(30);
+	clockFont = Font("Default Light", 30, Font::plain);
+
+    // MemoryInputStream mis(BinaryData::cpmonolightserialized, BinaryData::cpmonolightserializedSize, false);
+    // Typeface::Ptr typeface = new CustomTypeface(mis);
+    // clockFont = Font(typeface);
+    // clockFont.setHeight(30);
 
     totalTime = 0;
     totalRecordTime = 0;
@@ -339,10 +347,13 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
 
     if (1)
     {
-        MemoryInputStream mis(BinaryData::misoserialized, BinaryData::misoserializedSize, false);
-        Typeface::Ptr typeface = new CustomTypeface(mis);
-        font = Font(typeface);
-        font.setHeight(15);
+
+    	font = Font("Paragraph", 13, Font::plain);
+
+        // MemoryInputStream mis(BinaryData::misoserialized, BinaryData::misoserializedSize, false);
+        // Typeface::Ptr typeface = new CustomTypeface(mis);
+        // font = Font(typeface);
+        // font.setHeight(15);
     }
 
     audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();

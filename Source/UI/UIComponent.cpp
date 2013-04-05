@@ -424,12 +424,14 @@ EditorViewportButton::EditorViewportButton(UIComponent* ui) : UI(ui)
 {
     open = true;
 
-    MemoryInputStream mis1(BinaryData::cpmonolightserialized,
-                           BinaryData::cpmonolightserializedSize,
-                           false);
-    Typeface::Ptr tp1 = new CustomTypeface(mis1);
-    buttonFont = Font(tp1);
-    buttonFont.setHeight(25);
+    buttonFont = Font("Default Light", 25, Font::plain);
+
+    // MemoryInputStream mis1(BinaryData::cpmonolightserialized,
+    //                        BinaryData::cpmonolightserializedSize,
+    //                        false);
+    // Typeface::Ptr tp1 = new CustomTypeface(mis1);
+    // buttonFont = Font(tp1);
+    // buttonFont.setHeight(25);
 
 }
 
