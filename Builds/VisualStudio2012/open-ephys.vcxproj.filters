@@ -490,6 +490,9 @@
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\RHD2000Editor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\RecordControlEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
@@ -1973,6 +1976,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\EventNode.h">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\RHD2000Editor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\RecordControlEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>

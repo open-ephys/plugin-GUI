@@ -173,6 +173,7 @@
     <ClCompile Include="..\..\Source\Processors\SpikeDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\RHD2000Editor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\RecordControlEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.cpp"/>
@@ -1348,6 +1349,7 @@
     <ClInclude Include="..\..\Source\Processors\SpikeDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\RHD2000Editor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\RecordControlEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.h"/>

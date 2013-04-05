@@ -87,6 +87,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/RHD2000Editor_d7ddd6b.o \
   $(OBJDIR)/RecordControlEditor_244084cb.o \
   $(OBJDIR)/ReferenceNodeEditor_19ee0fac.o \
   $(OBJDIR)/ResamplingNodeEditor_f2d6f061.o \
@@ -390,6 +391,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RHD2000Editor_d7ddd6b.o: ../../Source/Processors/Editors/RHD2000Editor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RHD2000Editor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/RecordControlEditor_244084cb.o: ../../Source/Processors/Editors/RecordControlEditor.cpp

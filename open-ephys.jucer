@@ -307,6 +307,9 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="Xy7AJu" name="RHD2000Editor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/RHD2000Editor.cpp"/>
+          <FILE id="TKVa9h" name="RHD2000Editor.h" compile="0" resource="0" file="Source/Processors/Editors/RHD2000Editor.h"/>
           <FILE id="3P8oDf3" name="RecordControlEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/RecordControlEditor.cpp"/>
           <FILE id="hFb27ev" name="RecordControlEditor.h" compile="0" resource="0"

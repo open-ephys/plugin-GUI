@@ -21,39 +21,35 @@
 
 */
 
-#ifndef __SOURCENODEEDITOR_H_A1B19E1E__
-#define __SOURCENODEEDITOR_H_A1B19E1E__
+#ifndef __RHD2000EDITOR_H_2AD3C591__
+#define __RHD2000EDITOR_H_2AD3C591__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
-#include "ImageIcon.h"
-
-class ImageIcon;
 
 /**
 
-  User interface for the SourceNode.
+  User interface for the RHD2000 source module.
 
   @see SourceNode
 
 */
 
 
-class SourceNodeEditor : public GenericEditor
+class RHD2000Editor : public GenericEditor
 
 {
 public:
-    SourceNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
-    virtual ~SourceNodeEditor();
+    RHD2000Editor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~RHD2000Editor();
 
 private:
 
-    ImageIcon* icon;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SourceNodeEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Editor);
 
 };
 
 
 
-#endif  // __SOURCENODEEDITOR_H_A1B19E1E__
+
+#endif  // __RHD2000EDITOR_H_2AD3C591__

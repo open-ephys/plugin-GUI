@@ -28,6 +28,7 @@
 #include "DataThreads/FileReaderThread.h"
 #include "DataThreads/RHD2000Thread.h"
 #include "Editors/SourceNodeEditor.h"
+#include "Editors/RHD2000Editor.h"
 #include "Channel.h"
 #include <stdio.h>
 
@@ -194,7 +195,15 @@ void SourceNode::setParameter(int parameterIndex, float newValue)
 
 AudioProcessorEditor* SourceNode::createEditor()
 {
-    editor = new SourceNodeEditor(this, true);
+
+    if (getName().equalsIgnoreCase("RHD2000 USB Board"))
+    {
+        editor = new RHD2000Editor(this, false);
+    }
+    else
+    {
+        editor = new SourceNodeEditor(this, true);
+    }
     return editor;
 }
 
