@@ -26,36 +26,40 @@
 #include <math.h>
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
-	timebase(1.0f), displayGain(2.f), timeOffset(0.0f), processor(processor_),
-	screenBufferIndex(0), displayBufferIndex(0)
+    timebase(1.0f), displayGain(1.0f), timeOffset(0.0f), processor(processor_),
+    screenBufferIndex(0), displayBufferIndex(0)
 {
 
-	nChans = processor->getNumInputs();
-	sampleRate = processor->getSampleRate();
-	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+    nChans = processor->getNumInputs();
+    sampleRate = processor->getSampleRate();
+    std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
-	displayBuffer = processor->getDisplayBufferAddress();
-	displayBufferSize = displayBuffer->getNumSamples();
-	std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
+    displayBuffer = processor->getDisplayBufferAddress();
+    displayBufferSize = displayBuffer->getNumSamples();
+    std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
-	viewport = new Viewport();
-	lfpDisplay = new LfpDisplay(this, viewport);
-	timescale = new LfpTimescale(this);
+    screenBuffer = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
 
-	viewport->setViewedComponent(lfpDisplay, false);
-	viewport->setScrollBarsShown(true, false);
+    viewport = new Viewport();
+    lfpDisplay = new LfpDisplay(this, viewport);
+    timescale = new LfpTimescale(this);
 
-	scrollBarThickness = viewport->getScrollBarThickness();
+    viewport->setViewedComponent(lfpDisplay, false);
+    viewport->setScrollBarsShown(true, false);
 
-	addAndMakeVisible(viewport);
-	addAndMakeVisible(timescale);
+    scrollBarThickness = viewport->getScrollBarThickness();
 
-	lfpDisplay->setNumChannels(nChans);
+    addAndMakeVisible(viewport);
+    addAndMakeVisible(timescale);
+
+    lfpDisplay->setNumChannels(nChans);
 
 }
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
 {
+
+    deleteAndZero(screenBuffer);
 }
 
 void LfpDisplayCanvas::resized()
@@ -63,189 +67,218 @@ void LfpDisplayCanvas::resized()
 
 
 
-	timescale->setBounds(0,0,getWidth()-scrollBarThickness,30);
-	viewport->setBounds(0,30,getWidth(),getHeight()-90);
+    timescale->setBounds(0,0,getWidth()-scrollBarThickness,30);
+    viewport->setBounds(0,30,getWidth(),getHeight()-90);
 
-	lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getTotalHeight());
+    lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getTotalHeight());
 
 }
 
 void LfpDisplayCanvas::beginAnimation()
 {
-	std::cout << "Beginning animation." << std::endl;
+    std::cout << "Beginning animation." << std::endl;
 
-	displayBufferSize = displayBuffer->getNumSamples();
+    displayBufferSize = displayBuffer->getNumSamples();
 
-	screenBufferIndex = 0;
-	
-	startCallbacks();
+    screenBufferIndex = 0;
+
+    startCallbacks();
 }
 
 void LfpDisplayCanvas::endAnimation()
 {
-	std::cout << "Ending animation." << std::endl;
-	
-	stopCallbacks();
+    std::cout << "Ending animation." << std::endl;
+
+    stopCallbacks();
 }
 
 void LfpDisplayCanvas::update()
 {
-	nChans = processor->getNumInputs();
-	sampleRate = processor->getSampleRate();
+    nChans = processor->getNumInputs();
+    sampleRate = processor->getSampleRate();
 
-	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+    std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
-	refreshScreenBuffer();
+    refreshScreenBuffer();
 
-	lfpDisplay->setNumChannels(nChans);
-	lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+    lfpDisplay->setNumChannels(nChans);
+    lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
 
 
-	repaint();
-
-	lfpDisplay->repaint();
+    repaint();
 
 }
 
 
 void LfpDisplayCanvas::setParameter(int param, float val)
 {
-	if (param == 0) {
-		timebase = val;
-		refreshScreenBuffer();
-	} else {
-		displayGain = val; //* 0.0001f;
-	}
+    if (param == 0)
+    {
+        timebase = val;
+        refreshScreenBuffer();
+    }
+    else
+    {
+        displayGain = val; //* 0.0001f;
+    }
 
-	repaint();
+    repaint();
 }
 
 void LfpDisplayCanvas::refreshState()
 {
-	// called when the component's tab becomes visible again
-	displayBufferIndex = processor->getDisplayBufferIndex();
-	screenBufferIndex = 0;
+    // called when the component's tab becomes visible again
+    displayBufferIndex = processor->getDisplayBufferIndex();
+    screenBufferIndex = 0;
 
 }
 
 void LfpDisplayCanvas::refreshScreenBuffer()
 {
 
-	screenBufferIndex = 0;
+    screenBufferIndex = 0;
 
-	int w = lfpDisplay->getWidth(); 
-	//std::cout << "Refreshing buffer size to " << w << "pixels." << std::endl;
+    screenBuffer->clear();
 
-	for (int i = 0; i < w; i++)
-	{
-		float x = float(i);
+    // int w = lfpDisplay->getWidth();
+    // //std::cout << "Refreshing buffer size to " << w << "pixels." << std::endl;
 
-		for (int n = 0; n < nChans; n++)
-		{
-			waves[n][i*2] = x;
-			waves[n][i*2+1] = 0.5f; // line in center of display
-		}
-	}
+    // for (int i = 0; i < w; i++)
+    // {
+    // 	float x = float(i);
+
+    // 	for (int n = 0; n < nChans; n++)
+    // 	{
+    // 		waves[n][i*2] = x;
+    // 		waves[n][i*2+1] = 0.5f; // line in center of display
+    // 	}
+    // }
 
 }
 
 void LfpDisplayCanvas::updateScreenBuffer()
 {
-	// copy new samples from the displayBuffer into the screenBuffer (waves)
-	int maxSamples = lfpDisplay->getWidth();
+    // copy new samples from the displayBuffer into the screenBuffer (waves)
 
-	int index = processor->getDisplayBufferIndex();
+    lastScreenBufferIndex = screenBufferIndex;
 
-	int nSamples = index - displayBufferIndex;
+    int maxSamples = lfpDisplay->getWidth();
 
-	if (nSamples < 0) // buffer has reset to 0
-	{
-		nSamples = (displayBufferSize - displayBufferIndex) + index;
-	}
+    int index = processor->getDisplayBufferIndex();
 
-	float ratio = sampleRate * timebase / float(getWidth());
+    int nSamples = index - displayBufferIndex;
 
-	// this number is crucial:
-	int valuesNeeded = (int) float(nSamples) / ratio;
+    if (nSamples < 0) // buffer has reset to 0
+    {
+        nSamples = (displayBufferSize - displayBufferIndex) + index;
+    }
 
-	float subSampleOffset = 0.0;
-	int nextPos = (displayBufferIndex + 1) % displayBufferSize;
+    float ratio = sampleRate * timebase / float(getWidth());
 
-	if (valuesNeeded > 0 && valuesNeeded < 1000) {
+    // this number is crucial:
+    int valuesNeeded = (int) float(nSamples) / ratio;
 
-	    for (int i = 0; i < valuesNeeded; i++)
-	    {
-	    	float gain = 1.0;
-	    	float alpha = (float) subSampleOffset;
-	    	float invAlpha = 1.0f - alpha;
+    float subSampleOffset = 0.0;
+    int nextPos = (displayBufferIndex + 1) % displayBufferSize;
 
-	    	for (int channel = 0; channel < nChans; channel++) {
+    if (valuesNeeded > 0 && valuesNeeded < 1000)
+    {
 
-				gain = -1.0f / (processor->channels[channel]->bitVolts * float(0x7fff));
-	        	waves[channel][screenBufferIndex*2+1] = 
-	        		*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
+        for (int i = 0; i < valuesNeeded; i++)
+        {
+            float gain = 1.0;
+            float alpha = (float) subSampleOffset;
+            float invAlpha = 1.0f - alpha;
 
-	        	waves[channel][screenBufferIndex*2+1] += 
-	        		*(displayBuffer->getSampleData(channel, nextPos))*alpha*gain*displayGain;
+            screenBuffer->clear(screenBufferIndex, 1);
 
-	        	waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
+            for (int channel = 0; channel < nChans; channel++)
+            {
 
-	       	}
+                gain = 1.0f / (processor->channels[channel]->bitVolts * float(0x7fff));
 
-	       	//// now do the event channel
-	       ////	waves[nChans][screenBufferIndex*2+1] = 
-	       //		*(displayBuffer->getSampleData(nChans, displayBufferIndex));
+                screenBuffer->addFrom(channel, // destChannel
+                                      screenBufferIndex, // destStartSample
+                                      displayBuffer->getSampleData(channel, displayBufferIndex), // source
+                                      1, // numSamples
+                                      invAlpha*gain*displayGain); // gain
+
+                screenBuffer->addFrom(channel, // destChannel
+                                      screenBufferIndex, // destStartSample
+                                      displayBuffer->getSampleData(channel, nextPos), // source
+                                      1, // numSamples
+                                      alpha*gain*displayGain); // gain
+
+                //waves[channel][screenBufferIndex*2+1] =
+                //	*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
+
+                //waves[channel][screenBufferIndex*2+1] +=
+                //	*(displayBuffer->getSampleData(channel, nextPos))*alpha*gain*displayGain;
+
+                //waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
+
+            }
+
+            //// now do the event channel
+            ////	waves[nChans][screenBufferIndex*2+1] =
+            //		*(displayBuffer->getSampleData(nChans, displayBufferIndex));
 
 
-	       	subSampleOffset += ratio;
+            subSampleOffset += ratio;
 
-	       	while (subSampleOffset >= 1.0)
-	       	{
-	       		if (++displayBufferIndex >= displayBufferSize)
-	       			displayBufferIndex = 0;
-	       		
-	       		nextPos = (displayBufferIndex + 1) % displayBufferSize;
-	       		subSampleOffset -= 1.0;
-	       	}
+            while (subSampleOffset >= 1.0)
+            {
+                if (++displayBufferIndex >= displayBufferSize)
+                    displayBufferIndex = 0;
 
-	       	screenBufferIndex++;
-	       	screenBufferIndex %= maxSamples;
+                nextPos = (displayBufferIndex + 1) % displayBufferSize;
+                subSampleOffset -= 1.0;
+            }
 
-	    }
+            screenBufferIndex++;
+            screenBufferIndex %= maxSamples;
 
-	} else {
-		//std::cout << "Skip." << std::endl;
-	}
+        }
+
+    }
+    else
+    {
+        //std::cout << "Skip." << std::endl;
+    }
 }
 
 float LfpDisplayCanvas::getXCoord(int chan, int samp)
 {
-	return waves[chan][samp*2];
+    return samp;
 }
 
 float LfpDisplayCanvas::getYCoord(int chan, int samp)
 {
-	return waves[chan][samp*2+1];
+    return *screenBuffer->getSampleData(chan, samp);
 }
 
 void LfpDisplayCanvas::paint(Graphics& g)
 {
 
-	//std::cout << "Painting" << std::endl;
+    //std::cout << "Painting" << std::endl;
+    g.setColour(Colours::grey);
 
-	updateScreenBuffer();
+    g.fillRect(0, 0, getWidth(), getHeight());
 
-	g.fillAll(Colours::grey);
-	
-	g.setColour(Colours::yellow);
+    // g.setColour(Colours::yellow);
 
-	g.drawLine(screenBufferIndex, 0, screenBufferIndex, getHeight());
+    // g.drawLine(screenBufferIndex, 0, screenBufferIndex, getHeight());
 
-	lfpDisplay->repaint();
+}
 
-	//g.drawLine(0,0, getWidth(), getHeight());
-	//g.drawLine(0,getHeight(),getWidth(), 0);
-	
+void LfpDisplayCanvas::refresh()
+{
+    updateScreenBuffer();
+
+    lfpDisplay->refresh();
+
+    getPeer()->performAnyPendingRepaintsNow();
+
 }
 
 // -------------------------------------------------------------
@@ -263,120 +296,128 @@ LfpTimescale::~LfpTimescale()
 void LfpTimescale::paint(Graphics& g)
 {
 
-	g.fillAll(Colours::black);
+    g.fillAll(Colours::black);
 
 }
 
 
 // ---------------------------------------------------------------
 
-LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) : 
-		canvas(c), viewport(v)
+LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
+    canvas(c), viewport(v)
 {
-	channelHeight = 100;
-	totalHeight = 0;
+    channelHeight = 100;
+    totalHeight = 0;
 
-	addMouseListener(this, true);
+    addMouseListener(this, true);
 }
 
 LfpDisplay::~LfpDisplay()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }
 
 void LfpDisplay::setNumChannels(int numChannels)
 {
-	numChans = numChannels;
+    numChans = numChannels;
 
-	deleteAllChildren();
+    deleteAllChildren();
 
-	channels.clear();
+    channels.clear();
 
-	for (int i = 0; i < numChans; i++)
-	{
+    for (int i = 0; i < numChans; i++)
+    {
 
-		//std::cout << "Adding new channel display." << std::endl;
+        //std::cout << "Adding new channel display." << std::endl;
 
-		LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvas, i);
+        LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvas, i);
 
-		addAndMakeVisible(lfpChan);
+        addAndMakeVisible(lfpChan);
 
-		channels.add(lfpChan);
+        channels.add(lfpChan);
 
-		totalHeight += channelHeight;
+        totalHeight += channelHeight;
 
-	}
+    }
 
 }
 
 void LfpDisplay::resized()
 {
 
-	int totalHeight = 0;
+    int totalHeight = 0;
 
-	int overlap = 50;
+    int overlap = 50;
 
-	for (int i = 0; i < numChans; i++)
-	{
+    for (int i = 0; i < numChans; i++)
+    {
 
-		getChildComponent(i)->setBounds(0,totalHeight-overlap/2,getWidth(),channelHeight+overlap);
+        getChildComponent(i)->setBounds(0,totalHeight-overlap/2,getWidth(),channelHeight+overlap);
 
-		totalHeight += channelHeight;
+        totalHeight += channelHeight;
 
-	}
+    }
 
 }
 
 void LfpDisplay::paint(Graphics& g)
 {
 
+}
 
-	int topBorder = viewport->getViewPositionY();
-	int bottomBorder = viewport->getViewHeight() + topBorder;
+void LfpDisplay::refresh()
+{
 
-	// ensure that only visible channels are redrawn
-	for (int i = 0; i < numChans; i++)
-	{
 
-		int componentTop = getChildComponent(i)->getY();
-		int componentBottom = getChildComponent(i)->getHeight() + componentTop;
+    int topBorder = viewport->getViewPositionY();
+    int bottomBorder = viewport->getViewHeight() + topBorder;
 
-		if ( (topBorder <= componentBottom && bottomBorder >= componentTop) )
-		{
-			getChildComponent(i)->repaint();
+    // ensure that only visible channels are redrawn
+    for (int i = 0; i < numChans; i++)
+    {
 
-			//std::cout << i << std::endl;
-		}
+        int componentTop = getChildComponent(i)->getY();
+        int componentBottom = getChildComponent(i)->getHeight() + componentTop;
 
-	}
+        if ((topBorder <= componentBottom && bottomBorder >= componentTop))
+        {
+            getChildComponent(i)->repaint(canvas->lastScreenBufferIndex,
+                                          0,
+                                          canvas->screenBufferIndex,
+                                          getChildComponent(i)->getHeight());
+
+            //std::cout << i << std::endl;
+        }
+
+    }
 
 }
 
 void LfpDisplay::mouseDown(const MouseEvent& event)
 {
-	int x = event.getMouseDownX();
-	int y = event.getMouseDownY();
+    int x = event.getMouseDownX();
+    int y = event.getMouseDownY();
 
-	std::cout << "Mouse down at " << x << ", " << y << std::endl;
+    std::cout << "Mouse down at " << x << ", " << y << std::endl;
 
 
-	for (int n = 0; n < numChans; n++)
-	{
-		channels[n]->deselect();
-	}
+    for (int n = 0; n < numChans; n++)
+    {
+        channels[n]->deselect();
+    }
 
-	LfpChannelDisplay* lcd = (LfpChannelDisplay*) event.eventComponent;
+    LfpChannelDisplay* lcd = (LfpChannelDisplay*) event.eventComponent;
 
-	lcd->select();
+    lcd->select();
 
-	repaint();
+    repaint();
 
 }
 
 // ------------------------------------------------------------------
 
-LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, int channelNumber) : 
-	canvas(c), isSelected(false), chan(channelNumber)
+LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, int channelNumber) :
+    canvas(c), isSelected(false), chan(channelNumber)
 {
 
 }
@@ -389,30 +430,32 @@ LfpChannelDisplay::~LfpChannelDisplay()
 void LfpChannelDisplay::paint(Graphics& g)
 {
 
-	if (isSelected)
-		g.setColour(Colours::lightgrey);
-	else
-		g.setColour(Colours::black);
+    if (isSelected)
+        g.setColour(Colours::lightgrey);
+    else
+        g.setColour(Colours::black);
 
-	g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
+    g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
 
-	for (int i = 0; i < getWidth()-1; i++)
-	{
+    int stepSize = 1;
 
-		g.drawLine(i,
-				 canvas->getYCoord(chan, i)*getHeight(),
-				 i+1,
-				 canvas->getYCoord(chan, i+1)*getHeight());
-	}
+    for (int i = 0; i < getWidth()-stepSize; i += stepSize)
+    {
+
+        g.drawLine(i,
+                   (canvas->getYCoord(chan, i)+0.5f)*getHeight(),
+                   i+stepSize,
+                   (canvas->getYCoord(chan, i+stepSize)+0.5f)*getHeight());
+    }
 
 }
 
 void LfpChannelDisplay::select()
 {
-	isSelected = true;
+    isSelected = true;
 }
 
 void LfpChannelDisplay::deselect()
 {
-	isSelected = false;
+    isSelected = false;
 }

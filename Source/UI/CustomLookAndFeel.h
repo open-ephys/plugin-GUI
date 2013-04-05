@@ -24,13 +24,10 @@
 #ifndef __CUSTOMLOOKANDFEEL_H_6B021009__
 #define __CUSTOMLOOKANDFEEL_H_6B021009__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 /**
-  
+
    Used to modify the appearance of the application.
 
    Currently contains methods for drawing custom tabs, scroll bars, and sliders.
@@ -44,74 +41,74 @@ class CustomLookAndFeel : public LookAndFeel
 {
 public:
     CustomLookAndFeel();
-	~CustomLookAndFeel();
+    ~CustomLookAndFeel();
 
-	// ======== custom typeface getter: =============================
-	const Typeface::Ptr getTypefaceForFont (const Font& font);
+    // ======== custom typeface getter: =============================
+    const Typeface::Ptr getTypefaceForFont(const Font& font);
 
-	// ======== custom scroll bar methods: =============================
+    // ======== custom scroll bar methods: =============================
 
-	void drawScrollbarButton (Graphics& g,
-                              ScrollBar& scrollbar,
-                              int width, int height,
-                              int buttonDirection,
-                              bool isScrollBarVertical,
-                              bool isMouseOverButton,
-                              bool isButtonDown);
+    void drawScrollbarButton(Graphics& g,
+                             ScrollBar& scrollbar,
+                             int width, int height,
+                             int buttonDirection,
+                             bool isScrollBarVertical,
+                             bool isMouseOverButton,
+                             bool isButtonDown);
 
-    void drawScrollbar (Graphics& g,
-                        ScrollBar& scrollbar,
-                        int x, int y,
-                        int width, int height,
-                        bool isScrollbarVertical,
-                        int thumbStartPosition,
-                        int thumbSize,
-                        bool isMouseOver,
-                        bool isMouseDown);
-
-
-   	// ======== custom slider methods: =============================
-
-    void drawLinearSliderThumb (Graphics& g,
-                                int x, int y,
-                                int width, int height,
-                                float sliderPos,
-                                float minSliderPos,
-                                float maxSliderPos,
-                                const Slider::SliderStyle style,
-                                Slider& slider);
-
-	void drawLinearSliderBackground (Graphics& g,
-                                     int x, int y,
-                                     int width, int height,
-                                     float /*sliderPos*/,
-                                     float /*minSliderPos*/,
-                                     float /*maxSliderPos*/,
-                                     const Slider::SliderStyle /*style*/,
-                                     Slider& slider);
+    void drawScrollbar(Graphics& g,
+                       ScrollBar& scrollbar,
+                       int x, int y,
+                       int width, int height,
+                       bool isScrollbarVertical,
+                       int thumbStartPosition,
+                       int thumbSize,
+                       bool isMouseOver,
+                       bool isMouseDown);
 
 
-    int getSliderThumbRadius (Slider& slider);
+    // ======== custom slider methods: =============================
 
-    void drawSliderKnob (Graphics& g,
-                         const float x, const float y,
-                         const float diameter,
-                         const Colour& colour,
-                         const float outlineThickness) throw();
+    void drawLinearSliderThumb(Graphics& g,
+                               int x, int y,
+                               int width, int height,
+                               float sliderPos,
+                               float minSliderPos,
+                               float maxSliderPos,
+                               const Slider::SliderStyle style,
+                               Slider& slider);
 
-    void drawGlassPointer (Graphics& g,
-                           const float x, const float y,
-                           const float diameter,
-                           const Colour& colour, const float outlineThickness,
-                           const int direction) throw();
+    void drawLinearSliderBackground(Graphics& g,
+                                    int x, int y,
+                                    int width, int height,
+                                    float /*sliderPos*/,
+                                    float /*minSliderPos*/,
+                                    float /*maxSliderPos*/,
+                                    const Slider::SliderStyle /*style*/,
+                                    Slider& slider);
+
+
+    int getSliderThumbRadius(Slider& slider);
+
+    void drawSliderKnob(Graphics& g,
+                        const float x, const float y,
+                        const float diameter,
+                        const Colour& colour,
+                        const float outlineThickness) throw();
+
+    void drawGlassPointer(Graphics& g,
+                          const float x, const float y,
+                          const float diameter,
+                          const Colour& colour, const float outlineThickness,
+                          const int direction) throw();
 
     // ======== custom combo box methods: =============================
 
-    void drawComboBox (Graphics& g, int width, int height,
-                       const bool isButtonDown,
-                       int buttonX, int buttonY,
-                       int buttonW, int buttonH,
-                       ComboBox& box);
+    void drawComboBox(Graphics& g, int width, int height,
+                      const bool isButtonDown,
+                      int buttonX, int buttonY,
+                      int buttonW, int buttonH,
+                      ComboBox& box);
 
 private:
 
@@ -120,22 +117,22 @@ private:
     HashMap<String, Typeface::Ptr> typefaceMap;
 
     MemoryInputStream
-        cpmonoExtraLightStream,
-        cpmonoLightStream,
-        cpmonoPlainStream,
-        cpmonoBoldStream,
-        cpmonoBlackStream,
-        misoRegularStream,
-        silkscreenStream;
+    cpmonoExtraLightStream,
+    cpmonoLightStream,
+    cpmonoPlainStream,
+    cpmonoBoldStream,
+    cpmonoBlackStream,
+    misoRegularStream,
+    silkscreenStream;
 
     Typeface::Ptr
-        cpmonoExtraLight,
-        cpmonoLight,
-        cpmonoPlain,
-        cpmonoBold,
-        cpmonoBlack,
-        misoRegular,
-        silkscreen;
+    cpmonoExtraLight,
+    cpmonoLight,
+    cpmonoPlain,
+    cpmonoBold,
+    cpmonoBlack,
+    misoRegular,
+    silkscreen;
 
 };
 

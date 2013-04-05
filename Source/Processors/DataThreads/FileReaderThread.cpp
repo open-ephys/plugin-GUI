@@ -42,15 +42,16 @@ FileReaderThread::FileReaderThread(SourceNode* sn) :
     // mechanism for accepting arguments (the above commented-out code
     // is a layering violation that's best avoided).
 #if JUCE_MAC
-    const char *path = "/Users/Josh/Programming/open-ephys/GUI/Builds/Linux/build/data_stream_16ch_2";
+    const char* path = "/Users/Josh/Programming/open-ephys/GUI/Builds/Linux/build/data_stream_16ch_2";
 #else
-    const char *path = "./data_stream_16ch_2";
+    const char* path = "./data_stream_16ch_2";
 #endif
 
     input = fopen(path, "r");
 
     // Avoid a segfault if crock above fails.
-    if (!input) {
+    if (!input)
+    {
         std::cout << "Can't find data file "
                   << '"' << path << "\", "
                   << "either make sure you're Josh on OS X, "
@@ -64,15 +65,16 @@ FileReaderThread::FileReaderThread(SourceNode* sn) :
     rewind(input);
 
     bufferSize = 1600;
-	dataBuffer = new DataBuffer(16, bufferSize*3);
+    dataBuffer = new DataBuffer(16, bufferSize*3);
 
-	eventCode = 0;
+    eventCode = 0;
 
-	std::cout << "File Reader Thread initialized." << std::endl;
+    std::cout << "File Reader Thread initialized." << std::endl;
 
 }
 
-FileReaderThread::~FileReaderThread() {
+FileReaderThread::~FileReaderThread()
+{
     if (input)
         fclose(input);
 }
@@ -109,7 +111,8 @@ bool FileReaderThread::startAcquisition()
 bool FileReaderThread::stopAcquisition()
 {
     std::cout << "File reader received disable signal." << std::endl;
-	if (isThreadRunning()) {
+    if (isThreadRunning())
+    {
         signalThreadShouldExit();
     }
 
@@ -122,16 +125,16 @@ bool FileReaderThread::updateBuffer()
 {
     if (!input)
         return false;
-	if (dataBuffer->getNumSamples() < bufferSize)
-	 {
- //       // std::cout << dataBuffer->getNumSamples() << std::endl;
+    if (dataBuffer->getNumSamples() < bufferSize)
+    {
+        //       // std::cout << dataBuffer->getNumSamples() << std::endl;
 
-       if (ftell(input) >= lengthOfInputFile - bufferSize)
-       {
-           rewind(input);
-       }
+        if (ftell(input) >= lengthOfInputFile - bufferSize)
+        {
+            rewind(input);
+        }
 
-         fread(readBuffer, 2, bufferSize, input);
+        fread(readBuffer, 2, bufferSize, input);
 
         int chan = 0;
 
@@ -144,17 +147,21 @@ bool FileReaderThread::updateBuffer()
                 timestamp = timer.getHighResolutionTicks();
                 dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
                 chan = 0;
-            } else {
+            }
+            else
+            {
                 chan++;
             }
 
 
-         }
+        }
 
 
-     } else {
+    }
+    else
+    {
         wait(50); // pause for 50 ms to decrease sample rate
-     }
+    }
 
     return true;
 }

@@ -25,9 +25,6 @@
 #define __FILTEREDITOR_H_969BDB5__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
@@ -44,13 +41,13 @@ class FilterViewport;
 class FilterEditor : public GenericEditor
 {
 public:
-	FilterEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~FilterEditor();
-	void buttonEvent(Button* button);
+    FilterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~FilterEditor();
+    void buttonEvent(Button* button);
 
-private:	
+private:
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FilterEditor);
 
 };
 

@@ -24,13 +24,10 @@
 #ifndef SPIKEDISPLAYCANVAS_H_
 #define SPIKEDISPLAYCANVAS_H_
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../SpikeDisplayNode.h"
-#include "SpikePlotting/SpikePlot.h"
+//#include "SpikePlotting/SpikePlot.h"
 #include "SpikeObject.h"
 
 #include "Visualizer.h"
@@ -39,6 +36,14 @@
 #define MAX_NUMBER_OF_SPIKE_SOURCES = 128;
 
 class SpikeDisplayNode;
+
+class SpikeDisplay;
+class SpikePlot;
+class TetrodePlot;
+class StereotrodePlot;
+class SingleElectrodePlot;
+class WaveformPlot;
+class ProjectionPlot;
 
 /**
   
@@ -54,10 +59,10 @@ class SpikeDisplayCanvas : public Visualizer
 public: 
 	SpikeDisplayCanvas(SpikeDisplayNode* n);
 	~SpikeDisplayCanvas();
-	//void newOpenGLContextCreated();
-	//void renderOpenGL();
 
 	void paint(Graphics& g);
+
+	void refresh();
 
 	void processSpikeEvents();
 
@@ -66,62 +71,159 @@ public:
 
 	void refreshState();
 
+	void setParameter(int, float) {}
+	void setParameter(int, int, int, float){}
+
 	void update();
 
-	void setParameter(int, float);
-	void setParameter(int, int, int, float);
-
-	void panPlot(int, int, bool);
-	void zoomPlot(int, int, bool);
+	void resized();
 
 private:
 
-
+	SpikeDisplayNode* processor;
 	MidiBuffer* spikeBuffer;
 
-	int xBuffer, yBuffer;
-
-	bool plotsInitialized;
+	ScopedPointer<SpikeDisplay> spikeDisplay;
+	ScopedPointer<Viewport> viewport;
 
 	bool newSpike;
 	SpikeObject spike;
-	SpikeDisplayNode* processor;
 
-	Array<SpikePlot*> plots;
-	Array<int> numChannelsPerPlot;
-
-	int totalScrollPix;
-
-	void drawPlotTitle(int chan);
-	
-	int totalHeight;
-
-	int getTotalHeight();
-
-	int nPlots;
-
-    int nCols;
-    static const int MIN_GRID_SIZE = 10;
-    static const int MAX_GRID_SIZE = 125;
-  
-	int nChannels[MAX_NUMBER_OF_SPIKE_CHANNELS];
-
-    void computeColumnLayout();
-	void initializeSpikePlots();
-	void repositionSpikePlots();
-
-	void disablePointSmoothing();
-	void canvasWasResized();
-	void mouseDownInCanvas(const MouseEvent& e);
-	//void mouseDragInCanvas(const MouseEvent& e);
-	//void mouseMoveInCanvas(const MouseEvent& e);
-	void mouseUpInCanvas(const MouseEvent& e);
-	void mouseWheelMoveInCanvas(const MouseEvent&, float, float);
+	int scrollBarThickness;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayCanvas);
 	
 };
 
+class SpikeDisplay : public Component
+{
+public:
+	SpikeDisplay(SpikeDisplayCanvas*, Viewport*);
+	~SpikeDisplay();
+
+	void addSpikePlot(int numChannels);
+
+	void paint(Graphics& g);
+
+	void resized();
+
+	void mouseDown(const MouseEvent& event);
+
+	void plotSpike(const SpikeObject& spike);
+
+
+	int getTotalHeight() {return totalHeight;}
+
+private:
+
+	//void computeColumnLayout();
+//void initializeSpikePlots();
+	//void repositionSpikePlots();
+
+	int numColumns;
+
+	int totalHeight;
+
+	SpikeDisplayCanvas* canvas;
+	Viewport* viewport;
+
+	OwnedArray<TetrodePlot> tetrodePlots;
+	OwnedArray<StereotrodePlot> stereotrodePlots;
+	OwnedArray<SingleElectrodePlot> singleElectrodePlots;
+
+	float tetrodePlotMinWidth, stereotrodePlotMinWidth, singleElectrodePlotMinWidth;
+	float tetrodePlotRatio, stereotrodePlotRatio, singleElectrodePlotRatio;
+
+};
+
+
+class SpikePlot : public Component
+{
+public:
+	SpikePlot(SpikeDisplayCanvas*, int elecNum, int numChans);
+	~SpikePlot();
+
+	void paint(Graphics& g);
+
+	void select();
+	void deselect();
+
+	SpikeDisplayCanvas* canvas;
+
+	bool isSelected;
+
+	int electrodeNumber;
+
+	int numChannels;
+
+	OwnedArray<ProjectionPlot> projectionPlots;
+	OwnedArray<WaveformPlot> waveformPlots;
+
+private:
+
+
+};
+
+
+class TetrodePlot : public SpikePlot
+{
+public:
+	TetrodePlot(SpikeDisplayCanvas*, int elecNum);
+	~TetrodePlot() {}
+
+	void resized();
+
+private:
+
+};
+
+class StereotrodePlot : public SpikePlot
+{
+public:
+	StereotrodePlot(SpikeDisplayCanvas*, int elecNum);
+	~StereotrodePlot() {}
+
+	void resized();
+
+private:
+	
+};
+
+class SingleElectrodePlot : public SpikePlot
+{
+public:
+	SingleElectrodePlot(SpikeDisplayCanvas*, int elecNum);
+	~SingleElectrodePlot() {}
+
+	void resized();
+
+private:
+	
+};
+
+class WaveformPlot : public Component
+{
+public:
+	WaveformPlot();
+	~WaveformPlot() {}
+
+	void paint(Graphics& g);
+
+private:
+
+};
+
+class ProjectionPlot : public Component
+{
+public:
+	ProjectionPlot();
+	~ProjectionPlot() {}
+
+	void paint(Graphics& g);
+
+private:
+
+};
 
 
 #endif  // SPIKEDISPLAYCANVAS_H_

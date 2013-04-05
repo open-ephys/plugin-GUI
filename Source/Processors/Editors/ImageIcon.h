@@ -24,9 +24,6 @@
 #ifndef __IMAGEICON_H_ED764AE7__
 #define __IMAGEICON_H_ED764AE7__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 /**
@@ -40,26 +37,30 @@
 class ImageIcon : public Component
 {
 public:
-	ImageIcon (Image& image_) { image = image_; opacity = 1.0;}
-	~ImageIcon () {}
+    ImageIcon(Image& image_)
+    {
+        image = image_;
+        opacity = 1.0;
+    }
+    ~ImageIcon() {}
 
-	void setOpacity(float);
+    void setOpacity(float);
 
-private:	
+private:
 
-	void paint (Graphics& g)
-	{
-		g.setOpacity(opacity);
-		g.drawImageWithin(image, // image&
-				    0, // destX
-				    0, // destY
-				    getWidth(), // destWidth
-				    getHeight(), // destHeight
-				    RectanglePlacement::xLeft);
-	}
+    void paint(Graphics& g)
+    {
+        g.setOpacity(opacity);
+        g.drawImageWithin(image, // image&
+                          0, // destX
+                          0, // destY
+                          getWidth(), // destWidth
+                          getHeight(), // destHeight
+                          RectanglePlacement::xLeft);
+    }
 
-	Image image;
-	float opacity;
+    Image image;
+    float opacity;
 
 };
 

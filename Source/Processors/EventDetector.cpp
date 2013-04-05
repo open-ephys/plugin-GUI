@@ -28,7 +28,7 @@
 
 
 EventDetector::EventDetector()
-	: GenericProcessor("Event Detector"), threshold(200.0), bufferZone(5.0f), state(false)
+    : GenericProcessor("Event Detector"), threshold(200.0), bufferZone(5.0f), state(false)
 
 {
 
@@ -38,12 +38,12 @@ EventDetector::EventDetector()
 
 EventDetector::~EventDetector()
 {
-   
+
 }
 
 
 
-void EventDetector::setParameter (int parameterIndex, float newValue)
+void EventDetector::setParameter(int parameterIndex, float newValue)
 {
 
     Parameter& p =  parameters.getReference(parameterIndex);
@@ -55,8 +55,8 @@ void EventDetector::setParameter (int parameterIndex, float newValue)
 
 }
 
-void EventDetector::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &events,
+void EventDetector::process(AudioSampleBuffer& buffer,
+                            MidiBuffer& events,
                             int& nSamples)
 {
 
@@ -75,7 +75,8 @@ void EventDetector::process(AudioSampleBuffer &buffer,
 
             state = true;
 
-        } else if ((*buffer.getSampleData(0, i) > -threshold + bufferZone)  && state)
+        }
+        else if ((*buffer.getSampleData(0, i) > -threshold + bufferZone)  && state)
         {
             state = false;
         }

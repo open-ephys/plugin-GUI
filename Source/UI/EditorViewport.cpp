@@ -28,11 +28,11 @@
 
 EditorViewport::EditorViewport()
     : leftmostEditor(0),
-	  message("Drag-and-drop some rows from the top-left box onto this component!"),
-	  somethingIsBeingDraggedOver(false), shiftDown(false), canEdit(true),
-	  lastEditorClicked(0), selectionIndex(0), borderSize(6), tabSize(30),
-	  tabButtonSize(15), insertionPoint(0), componentWantsToMove(false),
-	  indexOfMovingComponent(-1), currentTab(-1)
+      message("Drag-and-drop some rows from the top-left box onto this component!"),
+      somethingIsBeingDraggedOver(false), shiftDown(false), canEdit(true),
+      lastEditorClicked(0), selectionIndex(0), borderSize(6), tabSize(30),
+      tabButtonSize(15), insertionPoint(0), componentWantsToMove(false),
+      indexOfMovingComponent(-1), currentTab(-1)
 {
 
     addMouseListener(this, true);
@@ -42,11 +42,11 @@ EditorViewport::EditorViewport()
     font = Font("Small Text", 10, Font::plain);
     font.setHeight(10);
 
-    sourceDropImage = ImageCache::getFromMemory (BinaryData::SourceDrop_png, 
-                                      BinaryData::SourceDrop_pngSize);
+    sourceDropImage = ImageCache::getFromMemory(BinaryData::SourceDrop_png,
+                                                BinaryData::SourceDrop_pngSize);
 
     sourceDropImage = sourceDropImage.rescaled(25, 135,
-                        Graphics::highResamplingQuality);
+                                               Graphics::highResamplingQuality);
 
     signalChainManager = new SignalChainManager(this, editorArray,
                                                 signalChainArray);
@@ -84,21 +84,23 @@ void EditorViewport::signalChainCanBeEdited(bool t)
 
 }
 
-void EditorViewport::paint (Graphics& g)
+void EditorViewport::paint(Graphics& g)
 {
 
     if (somethingIsBeingDraggedOver)
     {
-         g.setColour (Colours::yellow);
+        g.setColour(Colours::yellow);
 
-    } else {
-        g.setColour (Colour(48,48,48));
+    }
+    else
+    {
+        g.setColour(Colour(48,48,48));
     }
 
-    g.drawRect (0, 0, getWidth(), getHeight(), 2.0);
+    g.drawRect(0, 0, getWidth(), getHeight(), 2.0);
     g.drawVerticalLine(tabSize, 0, getHeight());
     g.drawVerticalLine(getWidth()-tabSize, 0, getHeight());
-   // g.drawHorizontalLine(getHeight()/2, getWidth()-tabSize, tabSize);
+    // g.drawHorizontalLine(getHeight()/2, getWidth()-tabSize, tabSize);
 
     for (int n = 0; n < 4; n++)
     {
@@ -107,13 +109,13 @@ void EditorViewport::paint (Graphics& g)
 
     if (somethingIsBeingDraggedOver)
     {
-        float insertionX = (float) (borderSize) * 2.5 + (float) tabSize;
+        float insertionX = (float)(borderSize) * 2.5 + (float) tabSize;
 
         int n;
         for (n = 0; n < insertionPoint; n++)
         {
             insertionX += editorArray[n]->getWidth();
-            
+
         }
 
         if (n > 1)
@@ -137,32 +139,37 @@ void EditorViewport::paint (Graphics& g)
 
 }
 
-bool EditorViewport::isInterestedInDragSource (const SourceDetails& dragSourceDetails)
+bool EditorViewport::isInterestedInDragSource(const SourceDetails& dragSourceDetails)
 {
 
-    if (canEdit && dragSourceDetails.description.toString().startsWith("Processors")) {
+    if (canEdit && dragSourceDetails.description.toString().startsWith("Processors"))
+    {
         return false;
-    } else {
+    }
+    else
+    {
         return true;
     }
 
 }
 
-void EditorViewport::itemDragEnter (const SourceDetails& dragSourceDetails)
+void EditorViewport::itemDragEnter(const SourceDetails& dragSourceDetails)
 {
-    if (canEdit) {
+    if (canEdit)
+    {
         somethingIsBeingDraggedOver = true;
         repaint();
-    }   
+    }
 }
 
-void EditorViewport::itemDragMove (const SourceDetails& dragSourceDetails)
+void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
 {
 
     int x = dragSourceDetails.localPosition.getX();
     int y = dragSourceDetails.localPosition.getY();
 
-    if (canEdit) {
+    if (canEdit)
+    {
         bool foundInsertionPoint = false;
 
         int lastCenterPoint = -1;
@@ -173,8 +180,9 @@ void EditorViewport::itemDragMove (const SourceDetails& dragSourceDetails)
         {
             leftEdge = editorArray[n]->getX();
             centerPoint = leftEdge + (editorArray[n]->getWidth())/2;
-            
-            if (x < centerPoint && x > lastCenterPoint) {
+
+            if (x < centerPoint && x > lastCenterPoint)
+            {
                 insertionPoint = n;
                 foundInsertionPoint = true;
             }
@@ -182,7 +190,8 @@ void EditorViewport::itemDragMove (const SourceDetails& dragSourceDetails)
             lastCenterPoint = centerPoint;
         }
 
-        if (!foundInsertionPoint) {
+        if (!foundInsertionPoint)
+        {
             insertionPoint = editorArray.size();
         }
 
@@ -202,12 +211,13 @@ void EditorViewport::itemDragExit(const SourceDetails& dragSourceDetails)
 
 }
 
-void EditorViewport::itemDropped (const SourceDetails& dragSourceDetails)
+void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
 {
 
     String description = dragSourceDetails.description.toString();
 
-    if (canEdit) {
+    if (canEdit)
+    {
 
         message = "last filter dropped: " + description;
 
@@ -225,7 +235,7 @@ void EditorViewport::itemDropped (const SourceDetails& dragSourceDetails)
             activeEditor->setUIComponent(getUIComponent());
             activeEditor->refreshColors();
             addChildComponent(activeEditor);
-            
+
             lastEditor = activeEditor;
 
             signalChainManager->updateVisibleEditors(activeEditor, indexOfMovingComponent, insertionPoint, ADD);
@@ -238,8 +248,8 @@ void EditorViewport::itemDropped (const SourceDetails& dragSourceDetails)
                     editorArray[i]->deselect();
             }
 
-        } 
-        
+        }
+
         insertionPoint = -1; // make sure all editors are left-justified
         indexOfMovingComponent = -1;
         refreshEditors();
@@ -258,10 +268,12 @@ void EditorViewport::clearSignalChain()
         signalChainManager->clearSignalChain();
         getProcessorGraph()->clearSignalChain();
 
-    } else {
+    }
+    else
+    {
 
         sendActionMessage("Cannot clear signal chain while acquisition is active.");
-    
+
     }
 
     repaint();
@@ -269,7 +281,7 @@ void EditorViewport::clearSignalChain()
 
 void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bool updateSettings)
 {
-    
+
     if (editor == 0)
         return;
 
@@ -290,15 +302,16 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bo
 
 }
 
-void EditorViewport::deleteNode (GenericEditor* editor) 
+void EditorViewport::deleteNode(GenericEditor* editor)
 {
 
-    if (canEdit) {
+    if (canEdit)
+    {
         indexOfMovingComponent = editorArray.indexOf(editor);
         editor->setVisible(false);
-   
+
         signalChainManager->updateVisibleEditors(editor, indexOfMovingComponent, insertionPoint, REMOVE);
-    
+
         refreshEditors();
 
         getProcessorGraph()->removeProcessor((GenericProcessor*) editor->getProcessor());
@@ -306,8 +319,9 @@ void EditorViewport::deleteNode (GenericEditor* editor)
 }
 
 
-void EditorViewport::refreshEditors () {
-    
+void EditorViewport::refreshEditors()
+{
+
     int lastBound = borderSize+tabSize;
     int totalWidth = 0;
 
@@ -324,22 +338,25 @@ void EditorViewport::refreshEditors () {
     for (int n = 0; n < editorArray.size(); n++)
     {
 
-     //   std::cout << "Refreshing editor number" << n << std::endl;
+        //   std::cout << "Refreshing editor number" << n << std::endl;
 
         int componentWidth = editorArray[n]->desiredWidth;
 
-        if (lastBound + componentWidth < getWidth()-tabSize && n >= leftmostEditor) {
+        if (lastBound + componentWidth < getWidth()-tabSize && n >= leftmostEditor)
+        {
 
             if (n == 0)
             {
-                 if (!editorArray[n]->getEnabledState()) 
-                 {
+                if (!editorArray[n]->getEnabledState())
+                {
                     GenericProcessor* p = (GenericProcessor*) editorArray[n]->getProcessor();
                     if (!p->isSource())
                         lastBound += borderSize*10;
-                   // signalChainNeedsSource = true;
-                } else {
-                  //  signalChainNeedsSource = false;
+                    // signalChainNeedsSource = true;
+                }
+                else
+                {
+                    //  signalChainNeedsSource = false;
                 }
             }
 
@@ -349,12 +366,14 @@ void EditorViewport::refreshEditors () {
                 {
                     if (n != indexOfMovingComponent && n != indexOfMovingComponent+1)
                     {
-                       if (n == 0)
-                        lastBound += borderSize*3;
-                       else
-                        lastBound += borderSize*2;
+                        if (n == 0)
+                            lastBound += borderSize*3;
+                        else
+                            lastBound += borderSize*2;
                     }
-                } else {
+                }
+                else
+                {
                     if (n == 0)
                         lastBound += borderSize*3;
                     else
@@ -364,7 +383,7 @@ void EditorViewport::refreshEditors () {
             }
 
             editorArray[n]->setVisible(true);
-          //   std::cout << "setting visible." << std::endl;
+            //   std::cout << "setting visible." << std::endl;
             editorArray[n]->setBounds(lastBound, borderSize, componentWidth, getHeight()-borderSize*2);
             lastBound+=(componentWidth + borderSize);
 
@@ -372,14 +391,16 @@ void EditorViewport::refreshEditors () {
 
             totalWidth = lastBound;
 
-        } else {
+        }
+        else
+        {
             editorArray[n]->setVisible(false);
 
             totalWidth += componentWidth + borderSize;
 
             // std::cout << "setting invisible." << std::endl;
 
-           if (lastBound + componentWidth > getWidth()-tabSize)
+            if (lastBound + componentWidth > getWidth()-tabSize)
                 tooLong = true;
 
         }
@@ -387,15 +408,15 @@ void EditorViewport::refreshEditors () {
 
     if (tooLong && editorArray.size() > 0)
         rightButton->setActive(true);
-    else 
+    else
         rightButton->setActive(false);
-    
+
     if (leftmostEditor == 0 || editorArray.size() == 0)
         leftButton->setActive(false);
     else
         leftButton->setActive(true);
 
-   // std::cout << totalWidth << " " << getWidth() - tabSize << std::endl;
+    // std::cout << totalWidth << " " << getWidth() - tabSize << std::endl;
 
     // if (totalWidth < getWidth()-tabSize && leftButton->isActive)
     // {
@@ -405,37 +426,47 @@ void EditorViewport::refreshEditors () {
 
 }
 
-void EditorViewport::moveSelection (const KeyPress &key) {
-    
+void EditorViewport::moveSelection(const KeyPress& key)
+{
+
     ModifierKeys mk = key.getModifiers();
 
-    if (key.getKeyCode() == key.leftKey) {
+    if (key.getKeyCode() == key.leftKey)
+    {
 
         if (mk.isShiftDown())
         {
             selectionIndex--;
-        } else {
-            
+        }
+        else
+        {
+
             selectionIndex = 0;
 
-            for (int i = 0; i < editorArray.size(); i++) {
-        
-                if (editorArray[i]->getSelectionState() && i > 0) {
+            for (int i = 0; i < editorArray.size(); i++)
+            {
+
+                if (editorArray[i]->getSelectionState() && i > 0)
+                {
                     editorArray[i-1]->select();
                     lastEditorClicked = editorArray[i-1];
                     editorArray[i]->deselect();
-                }               
+                }
             }
 
         }
-        
-    } else if (key.getKeyCode() == key.rightKey) {
-         
+
+    }
+    else if (key.getKeyCode() == key.rightKey)
+    {
+
         if (mk.isShiftDown())
         {
             selectionIndex++;
-        } else {
-            
+        }
+        else
+        {
+
             selectionIndex = 0;
 
             // bool stopSelection = false;
@@ -444,18 +475,21 @@ void EditorViewport::moveSelection (const KeyPress &key) {
             while (i < editorArray.size()-1)
             {
 
-                if (editorArray[i]->getSelectionState()) {
+                if (editorArray[i]->getSelectionState())
+                {
 
-                  //  if (!stopSelection)
+                    //  if (!stopSelection)
                     // {
                     lastEditorClicked = editorArray[i+1];
                     editorArray[i+1]->select();
                     // stopSelection = true;
-                  //  }
+                    //  }
 
                     editorArray[i]->deselect();
                     i += 2;
-                } else {
+                }
+                else
+                {
                     editorArray[i]->deselect();
                     i++;
                 }
@@ -468,7 +502,7 @@ void EditorViewport::moveSelection (const KeyPress &key) {
     if (mk.isShiftDown() && lastEditorClicked != 0 && editorArray.contains(lastEditorClicked))
     {
 
-       // std::cout << "Selection index: " << selectionIndex << std::endl;
+        // std::cout << "Selection index: " << selectionIndex << std::endl;
 
         // int startIndex = editorArray.indexOf(lastEditorClicked);
 
@@ -492,26 +526,28 @@ void EditorViewport::moveSelection (const KeyPress &key) {
     }
 
     // } else if (key.getKeyCode() == key.upKey) {
-        
+
     //     // move one tab up
     // } else if (key.getKeyCode() == key.downKey) {
-        
+
     //     // move one tab down
     // }
 }
 
-bool EditorViewport::keyPressed (const KeyPress &key) {
-    
-   //std::cout << "Editor viewport received " << key.getKeyCode() << std::endl;
+bool EditorViewport::keyPressed(const KeyPress& key)
+{
 
-  if (canEdit && editorArray.size() > 0) 
-   {
+    //std::cout << "Editor viewport received " << key.getKeyCode() << std::endl;
+
+    if (canEdit && editorArray.size() > 0)
+    {
 
         ModifierKeys mk = key.getModifiers();
 
-        if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey) {
+        if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey)
+        {
 
-            if (!mk.isAnyModifierKeyDown()) 
+            if (!mk.isAnyModifierKeyDown())
             {
 
                 Array<GenericEditor*> editorsToRemove;
@@ -528,34 +564,38 @@ bool EditorViewport::keyPressed (const KeyPress &key) {
                 return true;
             }
 
-        } else if (key.getKeyCode() == key.leftKey || 
-                   key.getKeyCode() == key.rightKey) {
+        }
+        else if (key.getKeyCode() == key.leftKey ||
+                 key.getKeyCode() == key.rightKey)
+        {
 
             moveSelection(key);
 
             return true;
 
-        } else if (key.getKeyCode() == key.upKey)
+        }
+        else if (key.getKeyCode() == key.upKey)
         {
 
             lastEditorClicked->switchIO(0);
-            
+
             return true;
-        } else if (key.getKeyCode() == key.downKey)
+        }
+        else if (key.getKeyCode() == key.downKey)
         {
             lastEditorClicked->switchIO(1);
             return true;
         }
     }
 
-   return false;
+    return false;
 
 }
 
 //void EditorViewport::modifierKeysChanged (const ModifierKeys & modifiers) {
-    
+
 /*     if (modifiers.isShiftDown()) {
-        
+
         std::cout << "Shift key pressed." << std::endl;
         shiftDown  = true;
 
@@ -569,32 +609,38 @@ bool EditorViewport::keyPressed (const KeyPress &key) {
 //}
 
 void EditorViewport::selectEditor(GenericEditor* editor)
-{  
-    for (int i = 0; i < editorArray.size(); i++) {
-        
+{
+    for (int i = 0; i < editorArray.size(); i++)
+    {
+
         if (editor == editorArray[i]
-             || editor->getParentComponent() == editorArray[i]) {
+            || editor->getParentComponent() == editorArray[i])
+        {
             editorArray[i]->select();
-        } else {
+        }
+        else
+        {
             editorArray[i]->deselect();
         }
-    } 
+    }
 }
 
-void EditorViewport::mouseDown(const MouseEvent &e) {
-    
+void EditorViewport::mouseDown(const MouseEvent& e)
+{
 
-   // std::cout << "Mouse click at " << e.x << " " << e.y << std::endl;
+
+    // std::cout << "Mouse click at " << e.x << " " << e.y << std::endl;
 
     bool clickInEditor = false;
 
-    for (int i = 0; i < editorArray.size(); i++) {
-        
+    for (int i = 0; i < editorArray.size(); i++)
+    {
+
         if (e.eventComponent == editorArray[i] && e.y < 22)
             // event must take place along title bar
-             // || e.eventComponent->getParentComponent() == editorArray[i] ||
-             //    e.eventComponent->getParentComponent()->getParentComponent() ==
-             //            editorArray[i]) 
+            // || e.eventComponent->getParentComponent() == editorArray[i] ||
+            //    e.eventComponent->getParentComponent()->getParentComponent() ==
+            //            editorArray[i])
         {
 
             clickInEditor = true;
@@ -614,8 +660,10 @@ void EditorViewport::mouseDown(const MouseEvent &e) {
                             editorArray[j]->select();
                         }
 
-                    } else {
-                        for (int j = i-1; j >= index; j-- )
+                    }
+                    else
+                    {
+                        for (int j = i-1; j >= index; j--)
                         {
                             editorArray[j]->select();
                         }
@@ -627,7 +675,7 @@ void EditorViewport::mouseDown(const MouseEvent &e) {
                 break;
             }
 
-             lastEditorClicked = editorArray[i];
+            lastEditorClicked = editorArray[i];
 
 
             //     Array<GenericEditor*> editorsToSelect;
@@ -672,35 +720,39 @@ void EditorViewport::mouseDown(const MouseEvent &e) {
 
             //     break;
 
-           // }
+            // }
 
-        } else {
+        }
+        else
+        {
 
             if (!e.mods.isCtrlDown() && !e.mods.isShiftDown())
                 editorArray[i]->deselect();
 
         }
-    } 
+    }
 
     if (!clickInEditor)
         lastEditorClicked = 0;
 
 }
 
-void EditorViewport::mouseDrag(const MouseEvent &e) {
-    
+void EditorViewport::mouseDrag(const MouseEvent& e)
+{
 
-    if (editorArray.contains((GenericEditor*) e.originalComponent) 
-        && e.y < 15 
+
+    if (editorArray.contains((GenericEditor*) e.originalComponent)
+        && e.y < 15
         && canEdit
-        && editorArray.size() > 1) {
+        && editorArray.size() > 1)
+    {
 
         componentWantsToMove = true;
         indexOfMovingComponent = editorArray.indexOf((GenericEditor*) e.originalComponent);
 
     }
 
-    if (componentWantsToMove) 
+    if (componentWantsToMove)
     {
 
         somethingIsBeingDraggedOver = true;
@@ -718,7 +770,7 @@ void EditorViewport::mouseDrag(const MouseEvent &e) {
             leftEdge = editorArray[n]->getX();
             centerPoint = leftEdge + (editorArray[n]->getWidth())/2;
 
-            if (event.x < centerPoint && event.x > lastCenterPoint) 
+            if (event.x < centerPoint && event.x > lastCenterPoint)
             {
                 insertionPoint = n;
                 foundInsertionPoint = true;
@@ -727,7 +779,8 @@ void EditorViewport::mouseDrag(const MouseEvent &e) {
             lastCenterPoint = centerPoint;
         }
 
-        if (!foundInsertionPoint && indexOfMovingComponent != editorArray.size()-1) {
+        if (!foundInsertionPoint && indexOfMovingComponent != editorArray.size()-1)
+        {
             insertionPoint = editorArray.size();
         }
 
@@ -737,11 +790,13 @@ void EditorViewport::mouseDrag(const MouseEvent &e) {
 
 }
 
-void EditorViewport::mouseUp(const MouseEvent &e) {
+void EditorViewport::mouseUp(const MouseEvent& e)
+{
 
 
-    if (componentWantsToMove) {
-        
+    if (componentWantsToMove)
+    {
+
         somethingIsBeingDraggedOver = false;
         componentWantsToMove = false;
 
@@ -757,10 +812,12 @@ void EditorViewport::mouseUp(const MouseEvent &e) {
 
 }
 
-void EditorViewport::mouseExit(const MouseEvent &e) {
+void EditorViewport::mouseExit(const MouseEvent& e)
+{
 
-    if (componentWantsToMove) {
-        
+    if (componentWantsToMove)
+    {
+
         somethingIsBeingDraggedOver = false;
         componentWantsToMove = false;
 
@@ -774,18 +831,22 @@ void EditorViewport::mouseExit(const MouseEvent &e) {
 
 void EditorViewport::checkScrollButtons(int topTab)
 {
-    
+
     if (signalChainArray.size() - topTab > 4)
     {
         downButton->setActive(true);
-    } else {
+    }
+    else
+    {
         downButton->setActive(false);
     }
 
     if (topTab > 0)
     {
         upButton->setActive(true);
-    } else {
+    }
+    else
+    {
         upButton->setActive(false);
     }
 
@@ -801,7 +862,8 @@ bool EditorViewport::isSignalChainEmpty()
 
 }
 
-void EditorViewport::resized() {
+void EditorViewport::resized()
+{
 
     int b = 2; // border
 
@@ -813,7 +875,7 @@ void EditorViewport::resized() {
     refreshEditors();
 }
 
-void EditorViewport::buttonClicked (Button* button)
+void EditorViewport::buttonClicked(Button* button)
 {
     if (button == upButton)
     {
@@ -822,20 +884,23 @@ void EditorViewport::buttonClicked (Button* button)
         if (upButton->isActive)
             signalChainManager->scrollUp();
 
-    } else if (button == downButton)
+    }
+    else if (button == downButton)
     {
         if (downButton->isActive)
             signalChainManager->scrollDown();
 
-    } else if (button == leftButton)
+    }
+    else if (button == leftButton)
     {
         if (leftButton->isActive)
         {
             leftmostEditor -= 1;
             refreshEditors();
         }
-        
-    } else if (button == rightButton)
+
+    }
+    else if (button == rightButton)
     {
         if (rightButton->isActive)
         {
@@ -850,12 +915,12 @@ void EditorViewport::buttonClicked (Button* button)
 ///////////////////////////////////////////////////////////////////
 
 SignalChainTabButton::SignalChainTabButton() : Button("Name"),
-        configurationChanged(true)
+    configurationChanged(true)
 {
     setRadioGroupId(99);
     setClickingTogglesState(true);
 
-   // MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    // MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
     //Typeface::Ptr typeface = new CustomTypeface(mis);
     buttonFont = Font("Small Text", 10, Font::plain);
     buttonFont.setHeight(14);
@@ -864,58 +929,62 @@ SignalChainTabButton::SignalChainTabButton() : Button("Name"),
 }
 
 
-void SignalChainTabButton::clicked() 
+void SignalChainTabButton::clicked()
 {
-    
+
     //std::cout << "Button clicked: " << firstEditor->getName() << std::endl;
     EditorViewport* ev = (EditorViewport*) getParentComponent();
 
-    scm->updateVisibleEditors(firstEditor, 0, 0, ACTIVATE); 
+    scm->updateVisibleEditors(firstEditor, 0, 0, ACTIVATE);
     ev->leftmostEditor = offset;
-    ev->refreshEditors();   
+    ev->refreshEditors();
 
-    
+
 }
 
-void SignalChainTabButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+void SignalChainTabButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
 
     ColourGradient grad1, grad2;
 
-    if (getToggleState() == true) {
+    if (getToggleState() == true)
+    {
 
-        grad1 = ColourGradient(Colour(255, 136, 34), 0.0f, 0.0f, 
+        grad1 = ColourGradient(Colour(255, 136, 34), 0.0f, 0.0f,
                                Colour(230, 193, 32), 0.0f, 20.0f,
                                false);
 
-        grad2 = ColourGradient(Colour(255, 136, 34), 0.0f, 20.0f, 
+        grad2 = ColourGradient(Colour(255, 136, 34), 0.0f, 20.0f,
                                Colour(230, 193, 32), 0.0f, 0.0f,
                                false);
     }
-    else { 
-         grad2 = ColourGradient(Colour(80, 80, 80), 0.0f, 20.0f, 
+    else
+    {
+        grad2 = ColourGradient(Colour(80, 80, 80), 0.0f, 20.0f,
                                Colour(120, 120, 120), 0.0f, 0.0f,
                                false);
 
-        grad1 =  ColourGradient(Colour(80, 80, 80), 0.0f, 0.0f, 
-                               Colour(120, 120, 120), 0.0f, 20.0f,
-                               false);
+        grad1 =  ColourGradient(Colour(80, 80, 80), 0.0f, 0.0f,
+                                Colour(120, 120, 120), 0.0f, 20.0f,
+                                false);
     }
 
-    if (isMouseOver) {
-        
+    if (isMouseOver)
+    {
+
         grad1.multiplyOpacity(0.7f);
         grad2.multiplyOpacity(0.7f);
-        //  grad1 = ColourGradient(Colour(255, 255, 255), 0.0f, 20.0f, 
+        //  grad1 = ColourGradient(Colour(255, 255, 255), 0.0f, 20.0f,
         //                         Colour(180, 180, 180), 0.0f, 0.0f,
         //                        false);
 
-        // grad2 = ColourGradient(Colour(255, 255, 255), 0.0f, 0.0f, 
+        // grad2 = ColourGradient(Colour(255, 255, 255), 0.0f, 0.0f,
         //                         Colour(180, 180, 180), 0.0f, 20.0f,
         //                        false);
     }
 
-    if (isButtonDown) {
+    if (isButtonDown)
+    {
 
         // ColourGradient grad3 = grad1;
         // grad1 = grad2;
@@ -964,14 +1033,14 @@ void SignalChainTabButton::paintButton(Graphics &g, bool isMouseOver, bool isBut
 
 // how about some loading and saving?
 
-XmlElement* EditorViewport::createNodeXml (GenericEditor* editor,
-                                           int insertionPt)
+XmlElement* EditorViewport::createNodeXml(GenericEditor* editor,
+                                          int insertionPt)
 {
 
     XmlElement* e = new XmlElement("PROCESSOR");
 
     GenericProcessor* source = (GenericProcessor*) editor->getProcessor();
-    
+
     String name = "";
 
     if (source->isSource())
@@ -987,14 +1056,14 @@ XmlElement* EditorViewport::createNodeXml (GenericEditor* editor,
 
     std::cout << name << std::endl;
 
-    e->setAttribute ("name", name);
-    e->setAttribute ("insertionPoint", insertionPt);
-    
+    e->setAttribute("name", name);
+    e->setAttribute("insertionPoint", insertionPt);
+
     /**Saves parameters to XML */
     std::cout << "Create subnotes with parameters" << std::endl;
     source->saveToXML(e);
-   // source->stateSaved = true;
-  
+    // source->stateSaved = true;
+
     //GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
 
     return e;
@@ -1002,32 +1071,34 @@ XmlElement* EditorViewport::createNodeXml (GenericEditor* editor,
 }
 
 
-XmlElement* EditorViewport::switchNodeXml (GenericProcessor* processor)
+XmlElement* EditorViewport::switchNodeXml(GenericProcessor* processor)
 {
 
     XmlElement* e = new XmlElement("SWITCH");
 
-    e->setAttribute ("number", processor->saveOrder);
+    e->setAttribute("number", processor->saveOrder);
 
     return e;
 
 }
 
-const String EditorViewport::saveState() 
+const String EditorViewport::saveState()
 {
 
-     String error;
+    String error;
 
-    FileChooser fc ("Choose the file to save...",
-                        File::getCurrentWorkingDirectory(),
-                        "*",
-                        true);
+    FileChooser fc("Choose the file to save...",
+                   File::getCurrentWorkingDirectory(),
+                   "*",
+                   true);
 
     if (fc.browseForFileToSave(true))
     {
         currentFile = fc.getResult();
         std::cout << currentFile.getFileName() << std::endl;
-    } else {
+    }
+    else
+    {
         error = "No file chosen.";
         std::cout << "no file chosen." << std::endl;
         return error;
@@ -1036,7 +1107,7 @@ const String EditorViewport::saveState()
     Array<GenericProcessor*> splitPoints;
     /** Used to reset saveOrder at end, to allow saving the same processor multiple times*/
     Array<GenericProcessor*> allProcessors;
-    
+
     bool moveForward;
     int saveOrder = 0;
 
@@ -1052,38 +1123,45 @@ const String EditorViewport::saveState()
         GenericEditor* editor = signalChainArray[n]->getEditor();
 
         int insertionPt = 1;
-        
+
         while (editor != 0)
         {
 
             GenericProcessor* currentProcessor = (GenericProcessor*) editor->getProcessor();
             GenericProcessor* nextProcessor;
 
-            if (currentProcessor->saveOrder < 0) { // create a new XML element
+            if (currentProcessor->saveOrder < 0)   // create a new XML element
+            {
 
                 signalChain->addChildElement(createNodeXml(editor, insertionPt));
                 currentProcessor->saveOrder = saveOrder;
                 allProcessors.addIfNotAlreadyThere(currentProcessor);
                 saveOrder++;
 
-            } else {
+            }
+            else
+            {
                 std::cout << "   Processor already saved as number " << currentProcessor->saveOrder << std::endl;
             }
-            
-            if (moveForward) {
+
+            if (moveForward)
+            {
                 std::cout << "  Moving forward along signal chain." << std::endl;
                 nextProcessor = currentProcessor->getDestNode();
-            } else {
+            }
+            else
+            {
                 std::cout << "  Moving backward along signal chain." << std::endl;
                 nextProcessor = currentProcessor->getSourceNode();
             }
 
-    
-            if (nextProcessor != 0) { // continue until the end of the chain
+
+            if (nextProcessor != 0)   // continue until the end of the chain
+            {
 
                 editor = (GenericEditor*) nextProcessor->getEditor();
 
-                if ((nextProcessor->isSplitter() || nextProcessor->isMerger()) 
+                if ((nextProcessor->isSplitter() || nextProcessor->isMerger())
                     && nextProcessor->saveOrder < 0)
                 {
                     splitPoints.add(nextProcessor);
@@ -1091,30 +1169,37 @@ const String EditorViewport::saveState()
                     nextProcessor->switchIO(0);
                 }
 
-            } else {
+            }
+            else
+            {
 
                 std::cout << "  No processor found." << std::endl;
 
-                if (splitPoints.size() > 0) {
+                if (splitPoints.size() > 0)
+                {
 
                     nextProcessor = splitPoints.getFirst();
                     splitPoints.remove(0);
 
                     nextProcessor->switchIO(1);
                     signalChain->addChildElement(switchNodeXml(nextProcessor));
-                    
+
                     if (nextProcessor->isMerger())
                     {
                         insertionPt = 0;
                         moveForward = false;
-                    } else { 
+                    }
+                    else
+                    {
                         insertionPt = 1;
                         moveForward = true;
                     }
 
                     editor = nextProcessor->getEditor();
 
-                } else {
+                }
+                else
+                {
 
                     std::cout << "  End of chain." << std::endl;
 
@@ -1129,48 +1214,51 @@ const String EditorViewport::saveState()
     }
 
     std::cout << "Saving processor graph." << std::endl;
-    
+
     //Resets Save Order for processors, allowing them to be saved again without omitting themselves from the order.
     int allProcessorSize=allProcessors.size();
-    for (int i=0; i<allProcessorSize; i++) {
+    for (int i=0; i<allProcessorSize; i++)
+    {
         allProcessors.operator[](i)->saveOrder=-1;
     }
-    
-    if (! xml->writeToFile (currentFile, String::empty))
+
+    if (! xml->writeToFile(currentFile, String::empty))
         error = "Couldn't write to file ";
-    else 
+    else
         error = "Saved configuration as ";
 
     error += currentFile.getFileName();
-    
+
     delete xml;
 
     return error;
 }
 
-const String EditorViewport::loadState() 
-{  
+const String EditorViewport::loadState()
+{
 
-    FileChooser fc ("Choose a file to load...",
-                    File::getCurrentWorkingDirectory(),
-                    "*.xml",
-                    true);
+    FileChooser fc("Choose a file to load...",
+                   File::getCurrentWorkingDirectory(),
+                   "*.xml",
+                   true);
 
     if (fc.browseForFileToOpen())
     {
         currentFile = fc.getResult();
-    } else {
+    }
+    else
+    {
         return "No configuration selected.";
     }
 
     std::cout << "Loading processor graph." << std::endl;
 
-     Array<GenericProcessor*> splitPoints;
-    
-    XmlDocument doc (currentFile);
+    Array<GenericProcessor*> splitPoints;
+
+    XmlDocument doc(currentFile);
     XmlElement* xml = doc.getDocumentElement();
 
-    if (xml == 0 || ! xml->hasTagName ("PROCESSORGRAPH"))
+    if (xml == 0 || ! xml->hasTagName("PROCESSORGRAPH"))
     {
         std::cout << "File not found." << std::endl;
         delete xml;
@@ -1182,7 +1270,7 @@ const String EditorViewport::loadState()
     String description;// = " ";
     int loadOrder = 0;
 
-    forEachXmlChildElement (*xml, signalChain)
+    forEachXmlChildElement(*xml, signalChain)
     {
         forEachXmlChildElement(*signalChain, processor)
         {
@@ -1195,20 +1283,22 @@ const String EditorViewport::loadState()
                 if (insertionPt == 1)
                 {
                     insertionPoint = editorArray.size();
-                } else {
+                }
+                else
+                {
                     insertionPoint = 0;
                 }
 
-                //Point<int> pt = 
-                SourceDetails sd = SourceDetails(processor->getStringAttribute("name"), 
-                                                0,
-                                                Point<int>(0,0));
+                //Point<int> pt =
+                SourceDetails sd = SourceDetails(processor->getStringAttribute("name"),
+                                                 0,
+                                                 Point<int>(0,0));
 
                 itemDropped(sd);
 
                 GenericProcessor* p = (GenericProcessor*) lastEditor->getProcessor();
                 p->loadOrder = loadOrder;
-                
+
                 loadOrder++;
 
                 if (p->isSplitter() || p->isMerger())
@@ -1216,7 +1306,8 @@ const String EditorViewport::loadState()
                     splitPoints.add(p);
                 }
 
-            } else if (processor->hasTagName("SWITCH"))
+            }
+            else if (processor->hasTagName("SWITCH"))
             {
                 int processorNum = processor->getIntAttribute("number");
 
@@ -1225,8 +1316,8 @@ const String EditorViewport::loadState()
                 for (int n = 0; n < splitPoints.size(); n++)
                 {
 
-                    std::cout << "Trying split point " << n 
-                        << ", load order: " << splitPoints[n]->loadOrder << std::endl;
+                    std::cout << "Trying split point " << n
+                              << ", load order: " << splitPoints[n]->loadOrder << std::endl;
 
                     if (splitPoints[n]->loadOrder == processorNum)
                     {
@@ -1235,8 +1326,10 @@ const String EditorViewport::loadState()
                         {
                             std::cout << "Switching merger source." << std::endl;
                             MergerEditor* editor = (MergerEditor*) splitPoints[n]->getEditor();
-                           editor->switchSource(1);
-                        } else {
+                            editor->switchSource(1);
+                        }
+                        else
+                        {
                             std::cout << "Switching splitter destination." << std::endl;
                             SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
                             editor->switchDest(1);

@@ -26,19 +26,19 @@
 
 
 MuteButton::MuteButton()
-	: ImageButton ("MuteButton")
+    : ImageButton("MuteButton")
 {
 
 
-	Image offimage = ImageCache::getFromMemory (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
-	Image onimage = ImageCache::getFromMemory (BinaryData::muteon_png, BinaryData::muteon_pngSize);
+    Image offimage = ImageCache::getFromMemory(BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
+    Image onimage = ImageCache::getFromMemory(BinaryData::muteon_png, BinaryData::muteon_pngSize);
 
-	setImages(false, true, true,
-			offimage, 1.0f, Colours::white.withAlpha(0.0f),
-			offimage, 1.0f, Colours::black.withAlpha(0.0f),
-			onimage, 1.0f, Colours::white.withAlpha(0.0f));
+    setImages(false, true, true,
+              offimage, 1.0f, Colours::white.withAlpha(0.0f),
+              offimage, 1.0f, Colours::black.withAlpha(0.0f),
+              onimage, 1.0f, Colours::white.withAlpha(0.0f));
 
-	setClickingTogglesState(true);
+    setClickingTogglesState(true);
 }
 
 MuteButton::~MuteButton()
@@ -46,11 +46,11 @@ MuteButton::~MuteButton()
 }
 
 AudioWindowButton::AudioWindowButton()
-	: Button ("AudioWindowButton")
+    : Button("AudioWindowButton")
 {
-	setClickingTogglesState(true);
+    setClickingTogglesState(true);
 
-	MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
     Typeface::Ptr typeface = new CustomTypeface(mis);
     font = Font(typeface);
     font.setHeight(12);
@@ -60,169 +60,176 @@ AudioWindowButton::~AudioWindowButton()
 {
 }
 
-void AudioWindowButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+void AudioWindowButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-	if (getToggleState())
-		g.setColour(Colours::yellow);
-	else
-		g.setColour(Colours::black);
+    if (getToggleState())
+        g.setColour(Colours::yellow);
+    else
+        g.setColour(Colours::black);
 
-	g.setFont(font);
-	//g.drawSingleLineText(" AUDIO",0,0);
-	g.drawSingleLineText("AUDIO",0,15);
+    g.setFont(font);
+    //g.drawSingleLineText(" AUDIO",0,0);
+    g.drawSingleLineText("AUDIO",0,15);
 }
 
-AudioEditor::AudioEditor (AudioNode* owner) 
-	: AudioProcessorEditor (owner), lastValue(1.0f), acw(0)
+AudioEditor::AudioEditor(AudioNode* owner)
+    : AudioProcessorEditor(owner), lastValue(1.0f), acw(0)
 
 {
 
-	muteButton = new MuteButton();
-	muteButton->addListener(this);
-	muteButton->setToggleState(false,false);
-	addAndMakeVisible(muteButton);
+    muteButton = new MuteButton();
+    muteButton->addListener(this);
+    muteButton->setToggleState(false,false);
+    addAndMakeVisible(muteButton);
 
-	audioWindowButton = new AudioWindowButton();
-	audioWindowButton->addListener(this);
-	audioWindowButton->setToggleState(false,false);
-	addAndMakeVisible(audioWindowButton);
+    audioWindowButton = new AudioWindowButton();
+    audioWindowButton->addListener(this);
+    audioWindowButton->setToggleState(false,false);
+    addAndMakeVisible(audioWindowButton);
 
-	volumeSlider = new Slider ("High-Cut Slider");
-	volumeSlider->setRange(0,100,1);
-	volumeSlider->addListener(this);
-	volumeSlider->setTextBoxStyle(Slider::NoTextBox,
-								false, 0, 0);
-	addAndMakeVisible(volumeSlider);
+    volumeSlider = new Slider("High-Cut Slider");
+    volumeSlider->setRange(0,100,1);
+    volumeSlider->addListener(this);
+    volumeSlider->setTextBoxStyle(Slider::NoTextBox,
+                                  false, 0, 0);
+    addAndMakeVisible(volumeSlider);
 
-	//acw = new AudioConfigurationWindow(getAudioComponent()->deviceManager, (Button*) audioWindowButton);
+    //acw = new AudioConfigurationWindow(getAudioComponent()->deviceManager, (Button*) audioWindowButton);
 
 }
 
 AudioEditor::~AudioEditor()
 {
-	deleteAllChildren();
-	deleteAndZero(acw);
+    deleteAllChildren();
+    deleteAndZero(acw);
 }
 
 void AudioEditor::resized()
 {
-	muteButton->setBounds(0,0,30,25);
-	volumeSlider->setBounds(35,0,100,getHeight());
-	audioWindowButton->setBounds(140,0,200,getHeight());
+    muteButton->setBounds(0,0,30,25);
+    volumeSlider->setBounds(35,0,100,getHeight());
+    audioWindowButton->setBounds(140,0,200,getHeight());
 }
 
-bool AudioEditor::keyPressed (const KeyPress& key)
+bool AudioEditor::keyPressed(const KeyPress& key)
 {
-	//std::cout << name << " received " << key.getKeyCode() << std::endl;
-	return false;
+    //std::cout << name << " received " << key.getKeyCode() << std::endl;
+    return false;
 }
 
 
 void AudioEditor::buttonClicked(Button* button)
 {
-	if (button == muteButton)
-	{
+    if (button == muteButton)
+    {
 
-		if(muteButton->getToggleState()) {
-			lastValue = volumeSlider->getValue();
-			getAudioProcessor()->setParameter(1,0.0f);
-			std::cout << "Mute on." << std::endl;
-	    } else {
-	    	getAudioProcessor()->setParameter(1,lastValue);
-	    	std::cout << "Mute off." << std::endl;
-	    }
-	} else if (button == audioWindowButton)
-	{
-		if (audioWindowButton->getToggleState())
-		{
-			if (acw == 0) {
-				
-				// AudioComponent* audioComponent = getAudioComponent();
-				// audioComponent->restartDevice();
+        if (muteButton->getToggleState())
+        {
+            lastValue = volumeSlider->getValue();
+            getAudioProcessor()->setParameter(1,0.0f);
+            std::cout << "Mute on." << std::endl;
+        }
+        else
+        {
+            getAudioProcessor()->setParameter(1,lastValue);
+            std::cout << "Mute off." << std::endl;
+        }
+    }
+    else if (button == audioWindowButton)
+    {
+        if (audioWindowButton->getToggleState())
+        {
+            if (acw == 0)
+            {
 
-				// if (audioComponent != 0) {
-					acw = new AudioConfigurationWindow(getAudioComponent()->deviceManager, (Button*) audioWindowButton);
-					acw->setUIComponent(getUIComponent());
-				//}
-			}
+                // AudioComponent* audioComponent = getAudioComponent();
+                // audioComponent->restartDevice();
 
-			getAudioComponent()->restartDevice();
-			acw->setVisible(true);
+                // if (audioComponent != 0) {
+                acw = new AudioConfigurationWindow(getAudioComponent()->deviceManager, (Button*) audioWindowButton);
+                acw->setUIComponent(getUIComponent());
+                //}
+            }
 
-		} else {
+            getAudioComponent()->restartDevice();
+            acw->setVisible(true);
 
-			acw->setVisible(false);
-			//deleteAndZero(acw);
-			getAudioComponent()->stopDevice();
-		}
-	}
+        }
+        else
+        {
+
+            acw->setVisible(false);
+            //deleteAndZero(acw);
+            getAudioComponent()->stopDevice();
+        }
+    }
 
 }
 
 void AudioEditor::sliderValueChanged(Slider* slider)
 {
-	getAudioProcessor()->setParameter(1,slider->getValue());
+    getAudioProcessor()->setParameter(1,slider->getValue());
 }
 
-void AudioEditor::paint (Graphics& g)
+void AudioEditor::paint(Graphics& g)
 {
-	//g.setColour(Colours::grey);
-	// g.fillRect(1,1,getWidth()-2,getHeight()-2);
+    //g.setColour(Colours::grey);
+    // g.fillRect(1,1,getWidth()-2,getHeight()-2);
 }
 
 
 
 AudioConfigurationWindow::AudioConfigurationWindow(AudioDeviceManager& adm, Button* cButton)
-	: DocumentWindow ("Audio Settings", 
-					  Colours::red, 
-					  DocumentWindow::closeButton),
-	  controlButton(cButton)
+    : DocumentWindow("Audio Settings",
+                     Colours::red,
+                     DocumentWindow::closeButton),
+    controlButton(cButton)
 
 {
-	centreWithSize(360,300);
-	setUsingNativeTitleBar(true);
-	setResizable(false,false);
+    centreWithSize(360,300);
+    setUsingNativeTitleBar(true);
+    setResizable(false,false);
 
-	//std::cout << "Audio CPU usage:" << adm.getCpuUsage() << std::endl;
+    //std::cout << "Audio CPU usage:" << adm.getCpuUsage() << std::endl;
 
-	AudioDeviceSelectorComponent* adsc = new AudioDeviceSelectorComponent 
-								(adm,
-								 0, // minAudioInputChannels
-								 2, // maxAudioInputChannels
-								 0, // minAudioOutputChannels
-								 2, // maxAudioOutputChannels
-								 false, // showMidiInputOptions
-								 false, // showMidiOutputSelector
-								 false, // showChannelsAsStereoPairs
-								 false); // hideAdvancedOptionsWithButton
+    AudioDeviceSelectorComponent* adsc = new AudioDeviceSelectorComponent
+    (adm,
+     0, // minAudioInputChannels
+     2, // maxAudioInputChannels
+     0, // minAudioOutputChannels
+     2, // maxAudioOutputChannels
+     false, // showMidiInputOptions
+     false, // showMidiOutputSelector
+     false, // showChannelsAsStereoPairs
+     false); // hideAdvancedOptionsWithButton
 
-	adsc->setBounds(0,0,450,240);
+    adsc->setBounds(0,0,450,240);
 
-	setContentOwned (adsc, true);
-	setVisible(false);
-	//setContentComponentSize(getWidth(), getHeight());
+    setContentOwned(adsc, true);
+    setVisible(false);
+    //setContentComponentSize(getWidth(), getHeight());
 }
 
 AudioConfigurationWindow::~AudioConfigurationWindow()
 {
-	//setContentComponent (0);
-	//eleteAndZero(deviceManager);
-//	deleteAndZero (deviceSelector);
+    //setContentComponent (0);
+    //eleteAndZero(deviceManager);
+    //	deleteAndZero (deviceSelector);
 }
 
 void AudioConfigurationWindow::closeButtonPressed()
 {
-	controlButton->setToggleState(false,false);
-	getAudioComponent()->stopDevice();
-	setVisible(false);
+    controlButton->setToggleState(false,false);
+    getAudioComponent()->stopDevice();
+    setVisible(false);
 }
 
 void AudioConfigurationWindow::resized()
 {
-	//deviceSelector->setBounds (8, 8, getWidth() - 16, getHeight() - 16);
+    //deviceSelector->setBounds (8, 8, getWidth() - 16, getHeight() - 16);
 }
 
 void AudioConfigurationWindow::paint(Graphics& g)
 {
-	g.fillAll(Colours::darkgrey);
+    g.fillAll(Colours::darkgrey);
 }

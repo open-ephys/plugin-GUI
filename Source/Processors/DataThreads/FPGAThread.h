@@ -24,9 +24,6 @@
 #ifndef __FPGATHREAD_H_FBB22A45__
 #define __FPGATHREAD_H_FBB22A45__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include <stdio.h>
@@ -38,7 +35,7 @@
 class SourceNode;
 
 /**
- 
+
   Communicates with the Open Ephys acquisition board via an Opal Kelly FPGA.
 
   @see DataThread, SourceNode
@@ -49,14 +46,14 @@ class FPGAThread : public DataThread
 
 {
 public:
-	FPGAThread(SourceNode* sn);
-	~FPGAThread();
+    FPGAThread(SourceNode* sn);
+    ~FPGAThread();
 
-	bool foundInputSource();
-	int getNumChannels();
-	float getSampleRate();
-	float getBitVolts();
-    
+    bool foundInputSource();
+    int getNumChannels();
+    float getSampleRate();
+    float getBitVolts();
+
     int getNumEventChannels();
 
     void setOutputHigh();
@@ -64,50 +61,50 @@ public:
 
 private:
 
-	okCFrontPanel* dev;
-	char bitfile[128];
-	char dll_date[32], dll_time[32];
-	bool isTransmitting;
-	bool deviceFound;
+    okCFrontPanel* dev;
+    char bitfile[128];
+    char dll_date[32], dll_time[32];
+    bool isTransmitting;
+    bool deviceFound;
 
-	double filter_A;
-	double filter_B;
-	double filter_states[256];
+    double filter_A;
+    double filter_B;
+    double filter_states[256];
 
 
-	bool initializeFPGA(bool);
-	bool closeFPGA();
+    bool initializeFPGA(bool);
+    bool closeFPGA();
 
-	bool startAcquisition();
-	bool stopAcquisition();
+    bool startAcquisition();
+    bool stopAcquisition();
 
     int alignBuffer(int nBytes);
-    
+
     void checkTTLState();
 
-	unsigned char pBuffer[500000];  // size of the data requested in each buffer
+    unsigned char pBuffer[500000];  // size of the data requested in each buffer
     int bytesToRead;
     unsigned char overflowBuffer[20000];
-    
+
     int overflowSize;
-    
+
     int ttl_out;
-    
+
     int ttlState;
-    
+
     int ttlOutputVal;
     int accumulator;
 
     bool bufferWasAligned;
 
-	float thisSample[256];
+    float thisSample[256];
 
-	int numchannels;
-	int Ndatabytes;
+    int numchannels;
+    int Ndatabytes;
 
-	bool updateBuffer();
-	
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FPGAThread);
+    bool updateBuffer();
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FPGAThread);
 };
 
 

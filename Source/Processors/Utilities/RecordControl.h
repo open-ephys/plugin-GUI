@@ -24,10 +24,6 @@
 #ifndef __RECORDCONTROL_H_120DD434__
 #define __RECORDCONTROL_H_120DD434__
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor.h"
 #include "../Editors/RecordControlEditor.h"
@@ -43,19 +39,19 @@
 class RecordControl : public GenericProcessor
 {
 public:
-	RecordControl();
-	~RecordControl();
+    RecordControl();
+    ~RecordControl();
 
-	void process (AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void updateTriggerChannel(int newChannel);
-	void handleEvent(int eventType, MidiMessage& event, int);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void updateTriggerChannel(int newChannel);
+    void handleEvent(int eventType, MidiMessage& event, int);
 
-	AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor();
 
 private:
-	int triggerChannel;
+    int triggerChannel;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordControl);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordControl);
 
 };
 

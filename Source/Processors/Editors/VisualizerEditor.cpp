@@ -178,16 +178,6 @@ void VisualizerEditor::buttonEvent(Button* button)
 		 		tabIndex = -1;
 		 	}
 
-		 	// Component* parent = canvas->getParentComponent();
-
-		 	// if (parent != nullptr)
-		 	// {	
-		 	// 	std::cout << "Removing child." << std::endl;
-    //   			 parent->removeChildComponent(canvas);
-    //   		} else {
-    //   			std::cout << "Parent doesn't exist." << std::endl;
-    //   		}
-
 		 	if (dataWindow == 0) {
 
 				dataWindow = new DataWindow(windowSelector, tabText);

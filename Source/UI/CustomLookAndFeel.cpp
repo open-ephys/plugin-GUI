@@ -60,13 +60,13 @@ CustomLookAndFeel::CustomLookAndFeel() :
 {
 
   // UNCOMMENT AFTER UPDATE
-    typefaceMap.set(String("Default Extra Light"), cpmonoExtraLight);
-    typefaceMap.set(String("Default Light"), cpmonoLight);
-    typefaceMap.set(String("Default"), cpmonoPlain);
-    typefaceMap.set(String("Default Bold"), cpmonoBold);
-    typefaceMap.set(String("Default Black"), cpmonoBlack);
-    typefaceMap.set(String("Miso Serialized"), misoRegular);
-    typefaceMap.set(String("Silkscreen"), silkscreen);
+  // typefaceMap.set(String("Default Extra Light"), cpmonoExtraLight);
+  // typefaceMap.set(String("Default Light"), cpmonoLight);
+  // typefaceMap.set(String("Default"), cpmonoPlain);
+  // typefaceMap.set(String("Default Bold"), cpmonoBold);
+  // typefaceMap.set(String("Default Black"), cpmonoBlack);
+  // typefaceMap.set(String("Paragraph"), misoRegular);
+  // typefaceMap.set(String("Silkscreen"), silkscreen);
 
   enum {
     PROCESSOR_COLOR = 0x801,
@@ -77,7 +77,7 @@ CustomLookAndFeel::CustomLookAndFeel() :
   };
 
   setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
-  setColour(FILTER_COLOR, Colour(99, 89, 0));
+  setColour(FILTER_COLOR, Colour(255, 89, 0));
   setColour(SINK_COLOR, Colour(255, 149, 0));
   setColour(SOURCE_COLOR, Colour(255, 0, 0));
   setColour(UTILITY_COLOR, Colour(90, 80, 80));
@@ -100,44 +100,38 @@ const Typeface::Ptr CustomLookAndFeel::getTypefaceForFont (const Font& font)
     String typefaceName = font.getTypefaceName();
 
     // some of these names might be unnecessary, and there may be good ones
-    // missing. adjust as needed
-//    if (typefaceName.equalsIgnoreCase("Default Extra Light"))
-//    {
-//        return cpmonoExtraLight;
-//    } else if (typefaceName.equalsIgnoreCase("Default Light"))
-//    {
-//        return cpmonoLight;
-//    } else if (typefaceName.equalsIgnoreCase("Default"))
-//    {
-//        return cpmonoPlain;
-//    } else if (typefaceName.equalsIgnoreCase("Default Bold"))
-//    {
-//        return cpmonoBold;
-//    } else if (typefaceName.equalsIgnoreCase("Default Black"))
-//    {
-//        return cpmonoBlack;
-//    } else if (typefaceName.equalsIgnoreCase("Paragraph"))
-//    {
-//        return misoRegular;
-//    } else if (typefaceName.equalsIgnoreCase("Small Text"))
-//    {
-//        return silkscreen;
-//    } else // default
-//    {
-//        return LookAndFeel::getTypefaceForFont(font);
-//    }
-    
-    std::cout << "Looking for typeface named " << typefaceName << std::endl;
+    // missing.  adjust as needed
+    if (typefaceName.equalsIgnoreCase("Default Extra Light"))
+    {
+        return cpmonoExtraLight;
+    } else if (typefaceName.equalsIgnoreCase("Default Light"))
+    {
+        return cpmonoLight;
+    } else if (typefaceName.equalsIgnoreCase("Default"))
+    {
+        return cpmonoPlain;
+    } else if (typefaceName.equalsIgnoreCase("Default Bold"))
+    {
+        return cpmonoBold;
+    } else if (typefaceName.equalsIgnoreCase("Default Black"))
+    {
+        return cpmonoBlack;
+    } else if (typefaceName.equalsIgnoreCase("Paragraph"))
+    {
+        return misoRegular;
+    } else if (typefaceName.equalsIgnoreCase("Small Text"))
+    {
+        return silkscreen;
+    } else // default
+    {
+        return LookAndFeel::getTypefaceForFont(font);
+    }
 
     // UNCOMMENT AFTER UPDATE
-    if (typefaceMap.contains(typefaceName))
-    {
-        std::cout << "Returning custom font." << std::endl;
-         return typefaceMap[typefaceName];
-    } else {
-        std::cout << "Returning standard font." << std::endl;
-         return LookAndFeel::getTypefaceForFont(font);
-    }
+    // if (typefaceMap.contains(typefaceName))
+    //     return typefaceMap[typefaceName];
+    // else
+    //     return LookAndFeel::getTypefaceForFont(font);
 }
 
 //==================================================================

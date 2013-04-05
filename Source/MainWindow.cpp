@@ -27,13 +27,13 @@
 //-----------------------------------------------------------------------
 
 MainWindow::MainWindow()
-    : DocumentWindow (JUCEApplication::getInstance()->getApplicationName(),
-                      Colour(Colours::black),
-                      DocumentWindow::allButtons)
+    : DocumentWindow(JUCEApplication::getInstance()->getApplicationName(),
+                     Colour(Colours::black),
+                     DocumentWindow::allButtons)
 {
 
-    setResizable (true,     // isResizable
-                  false);   // useBottomCornerRisizer -- doesn't work very well
+    setResizable(true,      // isResizable
+                 false);   // useBottomCornerRisizer -- doesn't work very well
 
     // Constraining the window's size doesn't seem to work:
     // setResizeLimits(500, 400, 10000, 10000);
@@ -41,56 +41,58 @@ MainWindow::MainWindow()
     // Create ProcessorGraph and AudioComponent, and connect them.
     // Callbacks will be set by the play button in the control panel
 
-     processorGraph = new ProcessorGraph();
-     audioComponent = new AudioComponent();
-     audioComponent->connectToProcessorGraph(processorGraph);
+    processorGraph = new ProcessorGraph();
+    audioComponent = new AudioComponent();
+    audioComponent->connectToProcessorGraph(processorGraph);
 
-     setContentOwned (new UIComponent(this, processorGraph, audioComponent), true);
+    setContentOwned(new UIComponent(this, processorGraph, audioComponent), true);
 
-     UIComponent* ui = (UIComponent*) getContentComponent();
+    UIComponent* ui = (UIComponent*) getContentComponent();
 
-     commandManager.registerAllCommandsForTarget (ui);
-     commandManager.registerAllCommandsForTarget (JUCEApplication::getInstance());
+    commandManager.registerAllCommandsForTarget(ui);
+    commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
 
-     ui->setApplicationCommandManagerToWatch(&commandManager);
+    ui->setApplicationCommandManagerToWatch(&commandManager);
 
-     addKeyListener(commandManager.getKeyMappings());
+    addKeyListener(commandManager.getKeyMappings());
 
-     loadWindowBounds();
-     setUsingNativeTitleBar (true);
-     Component::addToDesktop (getDesktopWindowStyleFlags()); // prevents the maximize
-                                                             // button from randomly disappearing
-     setVisible (true);
-    
+    loadWindowBounds();
+    setUsingNativeTitleBar(true);
+    Component::addToDesktop(getDesktopWindowStyleFlags());  // prevents the maximize
+    // button from randomly disappearing
+    setVisible(true);
+
 }
 
 MainWindow::~MainWindow()
 {
 
-  if (audioComponent->callbacksAreActive()) {
-      audioComponent->endCallbacks();
-      processorGraph->disableProcessors();
-  } 
+    if (audioComponent->callbacksAreActive())
+    {
+        audioComponent->endCallbacks();
+        processorGraph->disableProcessors();
+    }
 
-   saveWindowBounds();
+    saveWindowBounds();
 
-   audioComponent->disconnectProcessorGraph();
-   UIComponent* ui = (UIComponent*) getContentComponent();
-   ui->disableDataViewport();
+    audioComponent->disconnectProcessorGraph();
+    UIComponent* ui = (UIComponent*) getContentComponent();
+    ui->disableDataViewport();
 
-   setMenuBar(0);
+    setMenuBar(0);
 
-   #if JUCE_MAC 
-       MenuBarModel::setMacMainMenu (0);
-   #endif
+#if JUCE_MAC
+    MenuBarModel::setMacMainMenu(0);
+#endif
 
 }
 
 void MainWindow::closeButtonPressed()
-{ 
-    if (audioComponent->callbacksAreActive()) {
-      audioComponent->endCallbacks();
-      processorGraph->disableProcessors();
+{
+    if (audioComponent->callbacksAreActive())
+    {
+        audioComponent->endCallbacks();
+        processorGraph->disableProcessors();
     }
 
     JUCEApplication::getInstance()->systemRequestedQuit();
@@ -103,7 +105,7 @@ void MainWindow::saveWindowBounds()
     std::cout << "Saving window bounds." << std::endl;
 
 #ifdef WIN32
-	File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
+    File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
 #else
     File file = File("./windowState.xml");
 #endif
@@ -121,39 +123,41 @@ void MainWindow::saveWindowBounds()
     xml->addChildElement(bounds);
 
     String error;
-    
-    if (! xml->writeToFile (file, String::empty))
+
+    if (! xml->writeToFile(file, String::empty))
         error = "Couldn't write to file";
-    
+
     delete xml;
 }
 
 void MainWindow::loadWindowBounds()
 {
-  
+
     std::cout << "Loading window bounds." << std::endl;
-    
+
 #ifdef WIN32
-	File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
+    File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
 #else
     File file = File("./windowState.xml");
 #endif
 
-    XmlDocument doc (file);
+    XmlDocument doc(file);
     XmlElement* xml = doc.getDocumentElement();
 
-    if (xml == 0 || ! xml->hasTagName ("MAINWINDOW"))
+    if (xml == 0 || ! xml->hasTagName("MAINWINDOW"))
     {
-        
+
         std::cout << "File not found." << std::endl;
         delete xml;
-        centreWithSize (800, 600);
+        centreWithSize(800, 600);
 
-    } else {
+    }
+    else
+    {
 
         String description;
 
-        forEachXmlChildElement (*xml, e)
+        forEachXmlChildElement(*xml, e)
         {
 
             int x = e->getIntAttribute("x");
@@ -165,7 +169,7 @@ void MainWindow::loadWindowBounds()
 
             // without the correction, you get drift over time
 #ifdef WIN32
-			setTopLeftPosition(x,y); //Windows doesn't need correction
+            setTopLeftPosition(x,y); //Windows doesn't need correction
 #else
             setTopLeftPosition(x,y-27);
 #endif
@@ -176,5 +180,5 @@ void MainWindow::loadWindowBounds()
 
         delete xml;
     }
-   // return "Everything went ok.";
+    // return "Everything went ok.";
 }

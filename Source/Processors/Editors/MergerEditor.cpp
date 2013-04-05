@@ -51,105 +51,107 @@
 // {
 // }
 
-MergerEditor::MergerEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-	: GenericEditor(parentNode, useDefaultParameterEditors)
+MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-	desiredWidth = 90;
+    desiredWidth = 90;
 
-	pipelineSelectorA = new ImageButton("Pipeline A");
+    pipelineSelectorA = new ImageButton("Pipeline A");
 
-	Image normalImageA = ImageCache::getFromMemory (BinaryData::MergerB01_png, BinaryData::MergerB01_pngSize);
-	Image downImageA = ImageCache::getFromMemory (BinaryData::MergerA01_png, BinaryData::MergerA01_pngSize);
-	Image normalImageB = ImageCache::getFromMemory (BinaryData::MergerA02_png, BinaryData::MergerA02_pngSize);
-	Image downImageB = ImageCache::getFromMemory (BinaryData::MergerB02_png, BinaryData::MergerB02_pngSize);
+    Image normalImageA = ImageCache::getFromMemory(BinaryData::MergerB01_png, BinaryData::MergerB01_pngSize);
+    Image downImageA = ImageCache::getFromMemory(BinaryData::MergerA01_png, BinaryData::MergerA01_pngSize);
+    Image normalImageB = ImageCache::getFromMemory(BinaryData::MergerA02_png, BinaryData::MergerA02_pngSize);
+    Image downImageB = ImageCache::getFromMemory(BinaryData::MergerB02_png, BinaryData::MergerB02_pngSize);
 
-	pipelineSelectorA->setImages(true, true, true,
-								normalImageA, 1.0f, Colours::white.withAlpha(0.0f),
-								normalImageA, 1.0f, Colours::black.withAlpha(0.0f),
-								downImageA, 1.0f, Colours::white.withAlpha(0.0f));
+    pipelineSelectorA->setImages(true, true, true,
+                                 normalImageA, 1.0f, Colours::white.withAlpha(0.0f),
+                                 normalImageA, 1.0f, Colours::black.withAlpha(0.0f),
+                                 downImageA, 1.0f, Colours::white.withAlpha(0.0f));
 
 
-	pipelineSelectorA->addListener(this);
-	pipelineSelectorA->setBounds(-10,25,95,50);
-	pipelineSelectorA->setToggleState(true,false);
-	addAndMakeVisible(pipelineSelectorA);
+    pipelineSelectorA->addListener(this);
+    pipelineSelectorA->setBounds(-10,25,95,50);
+    pipelineSelectorA->setToggleState(true,false);
+    addAndMakeVisible(pipelineSelectorA);
 
-	pipelineSelectorB = new ImageButton("Pipeline B");
+    pipelineSelectorB = new ImageButton("Pipeline B");
 
-	pipelineSelectorB->setImages(true, true, true,
-								normalImageB, 1.0f, Colours::white.withAlpha(0.0f),
-								normalImageB, 1.0f, Colours::black.withAlpha(0.0f),
-								downImageB, 1.0f, Colours::white.withAlpha(0.0f));
+    pipelineSelectorB->setImages(true, true, true,
+                                 normalImageB, 1.0f, Colours::white.withAlpha(0.0f),
+                                 normalImageB, 1.0f, Colours::black.withAlpha(0.0f),
+                                 downImageB, 1.0f, Colours::white.withAlpha(0.0f));
 
-	pipelineSelectorB->addListener(this);
-	pipelineSelectorB->setBounds(-10,75,95,50);
-	pipelineSelectorB->setToggleState(false,false);
-	addAndMakeVisible(pipelineSelectorB);
+    pipelineSelectorB->addListener(this);
+    pipelineSelectorB->setBounds(-10,75,95,50);
+    pipelineSelectorB->setToggleState(false,false);
+    addAndMakeVisible(pipelineSelectorB);
 
 }
 
 MergerEditor::~MergerEditor()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }
 
 void MergerEditor::buttonEvent(Button* button)
 {
-	if (button == pipelineSelectorA)
-	{
-		pipelineSelectorA->setToggleState(true,false);
-		pipelineSelectorB->setToggleState(false,false);
-		Merger* processor = (Merger*) getProcessor();
-		processor->switchIO(0);
+    if (button == pipelineSelectorA)
+    {
+        pipelineSelectorA->setToggleState(true,false);
+        pipelineSelectorB->setToggleState(false,false);
+        Merger* processor = (Merger*) getProcessor();
+        processor->switchIO(0);
 
-	} else if (button == pipelineSelectorB) 
-	{
-		pipelineSelectorB->setToggleState(true,false);
-		pipelineSelectorA->setToggleState(false,false);
-		Merger* processor = (Merger*) getProcessor();
-		processor->switchIO(1);
-		
-	}
+    }
+    else if (button == pipelineSelectorB)
+    {
+        pipelineSelectorB->setToggleState(true,false);
+        pipelineSelectorA->setToggleState(false,false);
+        Merger* processor = (Merger*) getProcessor();
+        processor->switchIO(1);
+
+    }
 }
 
 void MergerEditor::switchSource(int source)
 {
-	if (source == 0)
-	{
-		pipelineSelectorA->setToggleState(true,false);
-		pipelineSelectorB->setToggleState(false,false);
-		Merger* processor = (Merger*) getProcessor();
-		processor->switchIO(0);
+    if (source == 0)
+    {
+        pipelineSelectorA->setToggleState(true,false);
+        pipelineSelectorB->setToggleState(false,false);
+        Merger* processor = (Merger*) getProcessor();
+        processor->switchIO(0);
 
-	} else if (source == 1)
-	{
-		pipelineSelectorB->setToggleState(true,false);
-		pipelineSelectorA->setToggleState(false,false);
-		Merger* processor = (Merger*) getProcessor();
-		processor->switchIO(1);
-		
-	}
+    }
+    else if (source == 1)
+    {
+        pipelineSelectorB->setToggleState(true,false);
+        pipelineSelectorA->setToggleState(false,false);
+        Merger* processor = (Merger*) getProcessor();
+        processor->switchIO(1);
+
+    }
 }
 
 
 void MergerEditor::switchIO(int source)
 {
-	switchSource(source);
+    switchSource(source);
 
-	select();
+    select();
 }
 
 void MergerEditor::switchSource()
 {
-	
-	bool isBOn = pipelineSelectorB->getToggleState();
-	bool isAOn = pipelineSelectorA->getToggleState();
 
-	pipelineSelectorB->setToggleState(!isBOn,false);
-	pipelineSelectorA->setToggleState(!isAOn,false);
+    bool isBOn = pipelineSelectorB->getToggleState();
+    bool isAOn = pipelineSelectorA->getToggleState();
 
-	Merger* processor = (Merger*) getProcessor();
-	processor->switchIO();
+    pipelineSelectorB->setToggleState(!isBOn,false);
+    pipelineSelectorA->setToggleState(!isAOn,false);
+
+    Merger* processor = (Merger*) getProcessor();
+    processor->switchIO();
 
 }

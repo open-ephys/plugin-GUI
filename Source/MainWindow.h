@@ -24,9 +24,6 @@
 #ifndef __MAINWINDOW_H_BA75E17__
 #define __MAINWINDOW_H_BA75E17__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "UI/UIComponent.h"
 #include "Audio/AudioComponent.h"
@@ -58,12 +55,12 @@ public:
         the MainWindow and closes the application. */
     void closeButtonPressed();
 
-     /** A JUCE class that allows the MainWindow to respond to keyboard and menubar
-         commands. */
+    /** A JUCE class that allows the MainWindow to respond to keyboard and menubar
+        commands. */
     ApplicationCommandManager commandManager;
 
 private:
-  
+
     /** Saves the MainWindow's boundaries into the file "windowState.xml", located in the directory
         from which the GUI is run. */
     void saveWindowBounds();
@@ -73,12 +70,12 @@ private:
     void loadWindowBounds();
 
     /** A pointer to the application's AudioComponent (owned by the MainWindow). */
-   ScopedPointer<AudioComponent> audioComponent;
+    ScopedPointer<AudioComponent> audioComponent;
 
-   /** A pointer to the application's ProcessorGraph (owned by the MainWindow). */
-   ScopedPointer<ProcessorGraph> processorGraph;
+    /** A pointer to the application's ProcessorGraph (owned by the MainWindow). */
+    ScopedPointer<ProcessorGraph> processorGraph;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 
 };
 

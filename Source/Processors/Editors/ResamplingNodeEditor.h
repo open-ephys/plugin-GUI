@@ -25,14 +25,11 @@
 #define __RESAMPLINGNODEEDITOR_H_B7FD956A__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
 /**
-  
+
   User interface for the ResamplingNode processor.
 
   @see ResamplingNode
@@ -42,15 +39,15 @@
 class ResamplingNodeEditor : public GenericEditor
 {
 public:
-	ResamplingNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~ResamplingNodeEditor();
+    ResamplingNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~ResamplingNodeEditor();
 
-	void startAcquisition();
-	void stopAcquisition();
+    void startAcquisition();
+    void stopAcquisition();
 
-private:	
+private:
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResamplingNodeEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ResamplingNodeEditor);
 
 };
 

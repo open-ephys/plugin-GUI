@@ -21,28 +21,56 @@
 
 */
 
+#ifndef __RHD2000EDITOR_H_2AD3C591__
+#define __RHD2000EDITOR_H_2AD3C591__
 
-#include "ReferenceNodeEditor.h"
-#include "../ReferenceNode.h"
-#include <stdio.h>
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "GenericEditor.h"
+
+/**
+
+  User interface for the RHD2000 source module.
+
+  @see SourceNode
+
+*/
+
+class HeadstageOptionsInterface;
 
 
-ReferenceNodeEditor::ReferenceNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : GenericEditor(parentNode, useDefaultParameterEditors)
+class RHD2000Editor : public GenericEditor
 
 {
-    desiredWidth = 180;
+public:
+    RHD2000Editor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    ~RHD2000Editor();
+
+    void resized();
+
+private:
+
+	OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Editor);
+
+};
 
 
-}
-
-ReferenceNodeEditor::~ReferenceNodeEditor()
+class HeadstageOptionsInterface : public Component
 {
-    deleteAllChildren();
-}
+public:
+	HeadstageOptionsInterface(int hsNum);
+	~HeadstageOptionsInterface();
 
-void ReferenceNodeEditor::buttonEvent(Button* button)
-{
+	void paint(Graphics& g);
+
+private:
+
+	int hsNumber;
+	String name;
+
+};
 
 
-}
+
+#endif  // __RHD2000EDITOR_H_2AD3C591__

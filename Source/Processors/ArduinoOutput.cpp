@@ -26,7 +26,7 @@
 #include <stdio.h>
 
 ArduinoOutput::ArduinoOutput()
-	: GenericProcessor("Arduino Output"), state(false)
+    : GenericProcessor("Arduino Output"), state(false)
 {
 
 }
@@ -39,28 +39,30 @@ ArduinoOutput::~ArduinoOutput()
 AudioProcessorEditor* ArduinoOutput::createEditor()
 {
     editor = new ArduinoOutputEditor(this, true);
- 	return editor;
+    return editor;
 }
 
 void ArduinoOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 {
     if (eventType == TTL)
     {
-    	const uint8* dataptr = event.getRawData();
+        const uint8* dataptr = event.getRawData();
 
-    	int eventNodeId = *(dataptr+1);
-    	int eventId = *(dataptr+2);
-    	int eventChannel = *(dataptr+3);
+        int eventNodeId = *(dataptr+1);
+        int eventId = *(dataptr+2);
+        int eventChannel = *(dataptr+3);
 
-    	 std::cout << "Received event from " << eventNodeId <<
-    	              " on channel " << eventChannel << 
-    	              " with value " << eventId << std::endl;
+        std::cout << "Received event from " << eventNodeId <<
+                  " on channel " << eventChannel <<
+                  " with value " << eventId << std::endl;
 
-    	if (state)
+        if (state)
         {
             arduino.sendDigital(13, ARD_LOW);
             state = false;
-        } else {
+        }
+        else
+        {
             arduino.sendDigital(13, ARD_HIGH);
             state = true;
         }
@@ -68,10 +70,10 @@ void ArduinoOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum
         //ArduinoOutputEditor* ed = (ArduinoOutputEditor*) getEditor();
         //ed->receivedEvent();
     }
-    
+
 }
 
-void ArduinoOutput::setParameter (int parameterIndex, float newValue)
+void ArduinoOutput::setParameter(int parameterIndex, float newValue)
 {
 
 }
@@ -81,22 +83,22 @@ bool ArduinoOutput::enable()
 
     Time timer;
 
-	// FIXME: Remove hard-coded serial port paths. These aren't always
-	// right, and in some cases (JUCE_MAC) are almost certainly wrong.
-	std::cout << "Warning: using hard-coded path to Arduino." << std::endl;
+    // FIXME: Remove hard-coded serial port paths. These aren't always
+    // right, and in some cases (JUCE_MAC) are almost certainly wrong.
+    std::cout << "Warning: using hard-coded path to Arduino." << std::endl;
 #if JUCE_LINUX
-	arduino.connect("ttyACM0");
+    arduino.connect("ttyACM0");
 #endif
 #if JUCE_WIN32
-	arduino.connect("COM1");
+    arduino.connect("COM1");
 #endif
 #if JUCE_MAC
     arduino.connect("tty.usbmodemfd121");
 #endif
-    
 
-    if (arduino.isArduinoReady()) 
-    {  
+
+    if (arduino.isArduinoReady())
+    {
 
         uint32 currentTime = timer.getMillisecondCounter();
 
@@ -107,9 +109,9 @@ bool ArduinoOutput::enable()
 
         timer.waitForMillisecondCounter(currentTime + 4000);
         arduino.update();
- 
-        std::cout << "firmata v" << arduino.getMajorFirmwareVersion() 
-             << "." << arduino.getMinorFirmwareVersion() << std::endl;
+
+        std::cout << "firmata v" << arduino.getMajorFirmwareVersion()
+                  << "." << arduino.getMinorFirmwareVersion() << std::endl;
 
     }
 
@@ -118,27 +120,29 @@ bool ArduinoOutput::enable()
 
         std::cout << "Arduino is initialized." << std::endl;
         arduino.sendDigitalPinMode(13, ARD_OUTPUT);
-		return true;
-    } else {
+        return true;
+    }
+    else
+    {
         std::cout << "Arduino is NOT initialized." << std::endl;
-		return false;
+        return false;
     }
 }
 
 bool ArduinoOutput::disable()
 {
-	if (arduino.isInitialized())
-		arduino.disconnect();
-	return true;
+    if (arduino.isInitialized())
+        arduino.disconnect();
+    return true;
 }
 
-void ArduinoOutput::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &events,
+void ArduinoOutput::process(AudioSampleBuffer& buffer,
+                            MidiBuffer& events,
                             int& nSamples)
 {
-	
 
-	checkForEvents(events);
-	
+
+    checkForEvents(events);
+
 
 }

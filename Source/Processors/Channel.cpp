@@ -25,53 +25,53 @@
 
 
 Channel::Channel(GenericProcessor* p, int n) :
-	num(n), eventType(0), isEventChannel(false), isRecording(false),
-	isMonitored(false), isEnabled(true), processor(p),
-	sampleRate(44100.0f), bitVolts(1.0f)
+    num(n), eventType(0), isEventChannel(false), isRecording(false),
+    isMonitored(false), isEnabled(true), processor(p),
+    sampleRate(44100.0f), bitVolts(1.0f)
 {
-	nodeId = p->getNodeId();
+    nodeId = p->getNodeId();
 
-	createDefaultName();
+    createDefaultName();
 }
 
 Channel::Channel(const Channel& ch)
 {
-	processor = ch.processor;
-	isEventChannel = ch.isEventChannel;
-	isEnabled = ch.isEnabled;
-	isRecording = false;
-	isMonitored = false;
-	sampleRate = ch.sampleRate;
-	bitVolts = ch.bitVolts;
-	name = ch.name;
-	eventType = ch.eventType;
-	nodeId = ch.nodeId;
-	num = ch.num;
+    processor = ch.processor;
+    isEventChannel = ch.isEventChannel;
+    isEnabled = ch.isEnabled;
+    isRecording = false;
+    isMonitored = false;
+    sampleRate = ch.sampleRate;
+    bitVolts = ch.bitVolts;
+    name = ch.name;
+    eventType = ch.eventType;
+    nodeId = ch.nodeId;
+    num = ch.num;
 }
 
 void Channel::setProcessor(GenericProcessor* p)
 {
-	processor = p;
-	nodeId = p->getNodeId();
+    processor = p;
+    nodeId = p->getNodeId();
 }
 
 String Channel::getName()
 {
-	return name;
+    return name;
 
 }
 
 void Channel::reset()
 {
-	createDefaultName();
+    createDefaultName();
 
-	sampleRate = 44100.0f;
-	bitVolts = 1.0f;
-	
+    sampleRate = 44100.0f;
+    bitVolts = 1.0f;
+
 }
 
 void Channel::createDefaultName()
 {
-	name = String("CH");
-	name += (num + 1);
+    name = String("CH");
+    name += (num + 1);
 }

@@ -28,7 +28,7 @@
 
 
 ReferenceNode::ReferenceNode()
-	: GenericProcessor("Digital Reference")
+    : GenericProcessor("Digital Reference")
 
 {
 
@@ -42,31 +42,31 @@ ReferenceNode::~ReferenceNode()
 
 AudioProcessorEditor* ReferenceNode::createEditor()
 {
-	editor = new ReferenceNodeEditor(this, true);
-	
-	std::cout << "Creating editor." << std::endl;
+    editor = new ReferenceNodeEditor(this, true);
 
-	return editor;
+    std::cout << "Creating editor." << std::endl;
+
+    return editor;
 }
 
 
 
 void ReferenceNode::updateSettings()
-{		
-
-
-				
-}
-
-void ReferenceNode::setParameter (int parameterIndex, float newValue)
 {
 
 
 
 }
 
-void ReferenceNode::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &midiMessages,
+void ReferenceNode::setParameter(int parameterIndex, float newValue)
+{
+
+
+
+}
+
+void ReferenceNode::process(AudioSampleBuffer& buffer,
+                            MidiBuffer& midiMessages,
                             int& nSamples)
 {
 

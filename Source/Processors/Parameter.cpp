@@ -25,84 +25,91 @@
 
 
 Parameter::Parameter(const String& name_, bool defaultVal, int ID, bool t)
-	: shouldDeactivateDuringAcquisition(t), name(name_), description(""),
-	  parameterId(ID)
+    : shouldDeactivateDuringAcquisition(t), name(name_), description(""),
+      parameterId(ID)
 {
 
-	defaultValue = defaultVal;
+    defaultValue = defaultVal;
 
-	possibleValues.add(true);
-	possibleValues.add(false);
+    possibleValues.add(true);
+    possibleValues.add(false);
 
-	isBool = true;
-	isCont = false;
-	isDisc = false;
+    isBool = true;
+    isCont = false;
+    isDisc = false;
 
 }
 
 Parameter::Parameter(const String& name_, float low, float high,
-					 float defaultVal, int ID, bool t)
-	: shouldDeactivateDuringAcquisition(t), name(name_), description(""),
-	  parameterId(ID)
+                     float defaultVal, int ID, bool t)
+    : shouldDeactivateDuringAcquisition(t), name(name_), description(""),
+      parameterId(ID)
 {
-	defaultValue = defaultVal;
+    defaultValue = defaultVal;
 
-	possibleValues.add(low);
-	possibleValues.add(high);
+    possibleValues.add(low);
+    possibleValues.add(high);
 
-	isCont = true;
-	isBool = false;
-	isDisc = false;
+    isCont = true;
+    isBool = false;
+    isDisc = false;
 
 }
 
 Parameter::Parameter(const String& name_, Array<var> a, int defaultVal,
-					 int ID, bool t)
-	: shouldDeactivateDuringAcquisition(t), name(name_), description(""),
-	  parameterId(ID)
+                     int ID, bool t)
+    : shouldDeactivateDuringAcquisition(t), name(name_), description(""),
+      parameterId(ID)
 {
-	possibleValues = a;
-	defaultValue = defaultVal; //possibleValues[defaultVal];
+    possibleValues = a;
+    defaultValue = defaultVal; //possibleValues[defaultVal];
 
-	isCont = false;
-	isDisc = true;
-	isBool = false;
+    isCont = false;
+    isDisc = true;
+    isBool = false;
 
 }
 
 
 void Parameter::setValue(float val, int chan)
 {
-    
-   // std::cout << "Setting value of " << chan << " to " << val << std::endl;
-    
-	if (isBoolean())
-	{
-		if (val > 0.0f)
-			values.set(chan, true);
-		else
-			values.set(chan, false);
-	} 
-	else if (isContinuous()) {
 
-		if (val < (float) possibleValues[0])
-		{
-			values.set(chan, possibleValues[0]);
-		} else if (val > (float) possibleValues[1]) {
-			values.set(chan, possibleValues[1]);
-		} else {
-			values.set(chan, val);
-		}
+    // std::cout << "Setting value of " << chan << " to " << val << std::endl;
 
-	} else {
-		//int index = (int) val;
+    if (isBoolean())
+    {
+        if (val > 0.0f)
+            values.set(chan, true);
+        else
+            values.set(chan, false);
+    }
+    else if (isContinuous())
+    {
 
-		//if (index >= 0 && index < possibleValues.size())
-		//{
-			values.set(chan, val);
-		//}
+        if (val < (float) possibleValues[0])
+        {
+            values.set(chan, possibleValues[0]);
+        }
+        else if (val > (float) possibleValues[1])
+        {
+            values.set(chan, possibleValues[1]);
+        }
+        else
+        {
+            values.set(chan, val);
+        }
 
-	}
+    }
+    else
+    {
+        //int index = (int) val;
+
+        //if (index >= 0 && index < possibleValues.size())
+        //{
+        values.set(chan, val);
+        //}
+
+    }
 
 }
 

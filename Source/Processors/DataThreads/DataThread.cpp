@@ -25,40 +25,43 @@
 #include "../SourceNode.h"
 
 
-DataThread::DataThread(SourceNode* s) : Thread ("Data Thread"), dataBuffer(0) 
+DataThread::DataThread(SourceNode* s) : Thread("Data Thread"), dataBuffer(0)
 {
-	sn = s;
-	setPriority(10);
+    sn = s;
+    setPriority(10);
 }
 
-DataThread::~DataThread() 
+DataThread::~DataThread()
 {
     //deleteAndZero(dataBuffer);
 }
 
-void DataThread::run() {
+void DataThread::run()
+{
 
-	while (!threadShouldExit())
-	{
+    while (!threadShouldExit())
+    {
 
-		if (!updateBuffer()) {
+        if (!updateBuffer())
+        {
 
-			const MessageManagerLock mmLock (Thread::getCurrentThread());
+            const MessageManagerLock mmLock(Thread::getCurrentThread());
 
-			std::cout << "Aquisition error...stopping thread." << std::endl;
-			signalThreadShouldExit();
-			std::cout << "Notifying source node to stop acqusition." << std::endl;
-			sn->acquisitionStopped();
-		}
+            std::cout << "Aquisition error...stopping thread." << std::endl;
+            signalThreadShouldExit();
+            std::cout << "Notifying source node to stop acqusition." << std::endl;
+            sn->acquisitionStopped();
+        }
 
-	}
+    }
 }
 
-DataBuffer* DataThread::getBufferAddress() {
+DataBuffer* DataThread::getBufferAddress()
+{
 
     std::cout << "Setting buffer address to " << dataBuffer << std::endl;
 
-	return dataBuffer;
+    return dataBuffer;
 }
 
 

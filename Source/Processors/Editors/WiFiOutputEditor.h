@@ -23,9 +23,6 @@
 #ifndef __WIFIOUTPUTEDITOR_H_7161DB44__
 #define __WIFIOUTPUTEDITOR_H_7161DB44__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "ImageIcon.h"
@@ -44,19 +41,19 @@ class WiFiOutputEditor : public GenericEditor
 
 {
 public:
-	WiFiOutputEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~WiFiOutputEditor();
+    WiFiOutputEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~WiFiOutputEditor();
 
-	void receivedEvent();
+    void receivedEvent();
 
 
-	ImageIcon* icon;
+    ImageIcon* icon;
 
-private:	
+private:
 
-	void timerCallback();
+    void timerCallback();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WiFiOutputEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WiFiOutputEditor);
 
 };
 

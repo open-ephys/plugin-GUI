@@ -26,9 +26,6 @@
 
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Dsp/Dsp.h"
 #include "GenericProcessor.h"
@@ -41,7 +38,7 @@
   Code is based on Juce's ResamplingAudioSource class.
 
   This processor could be vastly improved by implementing a scheme to handle
-  inputs that do not provide the same amount of samples in each buffer. At the 
+  inputs that do not provide the same amount of samples in each buffer. At the
   moment, the resampling process shifts the pitch of the incoming signal.
 
   @see GenericProcessor
@@ -52,51 +49,57 @@ class AudioResamplingNode : public GenericProcessor
 
 {
 public:
-	
-	AudioResamplingNode();
-	~AudioResamplingNode();
-	
-	AudioSampleBuffer* getBufferAddress() { return destBuffer; }
-	void updateFilter();
-	
-	void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
-	void releaseResources();
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void setParameter (int parameterIndex, float newValue);
 
-	AudioSampleBuffer* getContinuousBuffer() {return destBuffer;}
+    AudioResamplingNode();
+    ~AudioResamplingNode();
+
+    AudioSampleBuffer* getBufferAddress()
+    {
+        return destBuffer;
+    }
+    void updateFilter();
+
+    void prepareToPlay(double sampleRate, int estimatedSamplesPerBlock);
+    void releaseResources();
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void setParameter(int parameterIndex, float newValue);
+
+    AudioSampleBuffer* getContinuousBuffer()
+    {
+        return destBuffer;
+    }
 
 
 private:
 
-	// sample rate, timebase, and ratio info:
-	double sourceBufferSampleRate, destBufferSampleRate;
-	double ratio, lastRatio;
-	double destBufferTimebaseSecs;
-	int destBufferWidth;
-	
-	// major objects:
-	Dsp::Filter* filter;
-	AudioSampleBuffer* destBuffer;
-	AudioSampleBuffer* tempBuffer;
+    // sample rate, timebase, and ratio info:
+    double sourceBufferSampleRate, destBufferSampleRate;
+    double ratio, lastRatio;
+    double destBufferTimebaseSecs;
+    int destBufferWidth;
 
-	// is the destBuffer a temp buffer or not?
-	bool destBufferIsTempBuffer;
-	bool isTransmitting;
+    // major objects:
+    Dsp::Filter* filter;
+    AudioSampleBuffer* destBuffer;
+    AudioSampleBuffer* tempBuffer;
 
-	// indexing objects that persist between rounds:
-	int destBufferPos;
+    // is the destBuffer a temp buffer or not?
+    bool destBufferIsTempBuffer;
+    bool isTransmitting;
 
-	// for testing purposes only:
-	void writeContinuousBuffer(float*, int, int);
+    // indexing objects that persist between rounds:
+    int destBufferPos;
 
-	FILE* file;
-	int64 timestamp;
-	Time timer;
+    // for testing purposes only:
+    void writeContinuousBuffer(float*, int, int);
 
-	int16* continuousDataBuffer;
+    FILE* file;
+    int64 timestamp;
+    Time timer;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioResamplingNode);
+    int16* continuousDataBuffer;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioResamplingNode);
 
 };
 

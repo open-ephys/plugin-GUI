@@ -24,9 +24,6 @@
 #ifndef __SPIKEDETECTOR_H_3F920F95__
 #define __SPIKEDETECTOR_H_3F920F95__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 #include "GenericProcessor.h"
@@ -48,136 +45,137 @@ class SpikeDetector : public GenericProcessor
 
 {
 public:
-	
-	// CONSTRUCTOR AND DESTRUCTOR // 
 
-	/** constructor */
-	SpikeDetector();
+    // CONSTRUCTOR AND DESTRUCTOR //
 
-	/** destructor */
-	~SpikeDetector();
+    /** constructor */
+    SpikeDetector();
 
-	
-	// PROCESSOR METHODS // 
-
-	/** Processes an incoming continuous buffer and places new
-	    spikes into the event buffer. */
-	void process(AudioSampleBuffer &buffer, MidiBuffer &events, int& nSamples);
-	
-	/** Used to alter parameters of data acquisition. */
-	void setParameter (int parameterIndex, float newValue);
-
-	/** Called whenever the signal chain is altered. */
-	void updateSettings();
-
-	/** Called prior to start of acquisition. */
-	bool enable();
-
-	/** Called after acquisition is finished. */
-	bool disable();
-
-	/** Creates the SpikeDetectorEditor. */
-	AudioProcessorEditor* createEditor();
+    /** destructor */
+    ~SpikeDetector();
 
 
-	// INTERNAL BUFFERS // 
+    // PROCESSOR METHODS //
 
-	/** Extra samples are placed in this buffer to allow seamless
-	    transitions between callbacks. */
-	AudioSampleBuffer overflowBuffer;
+    /** Processes an incoming continuous buffer and places new
+        spikes into the event buffer. */
+    void process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples);
 
+    /** Used to alter parameters of data acquisition. */
+    void setParameter(int parameterIndex, float newValue);
 
-	// CREATE AND DELETE ELECTRODES // 
+    /** Called whenever the signal chain is altered. */
+    void updateSettings();
 
-	/** Adds an electrode with n channels to be processed. */
-	bool addElectrode(int nChans);
+    /** Called prior to start of acquisition. */
+    bool enable();
 
-	/** Removes an electrode with a given index. */
-	bool removeElectrode(int index);
+    /** Called after acquisition is finished. */
+    bool disable();
 
-
-	// EDIT AND QUERY ELECTRODE SETTINGS // 
-
-	/** Returns the number of channels for a given electrode. */
-	int getNumChannels(int index);
-
-	/** Edits the mapping between input channels and electrode channels. */
-	void setChannel(int electrodeIndex, int channelNum, int newChannel);
-
-	/** Returns the continuous channel that maps to a given 
-		electrode channel. */
-	int getChannel(int index, int chan);
-
-	/** Sets the name of a given electrode. */
-	void setElectrodeName(int index, String newName);
+    /** Creates the SpikeDetectorEditor. */
+    AudioProcessorEditor* createEditor();
 
 
-	// RETURN STRING ARRAYS // 
+    // INTERNAL BUFFERS //
 
-	/** Returns a StringArray containing the names of all electrodes */
-	StringArray getElectrodeNames();
+    /** Extra samples are placed in this buffer to allow seamless
+        transitions between callbacks. */
+    AudioSampleBuffer overflowBuffer;
 
-	/** Returns a list of possible electrode types (e.g., stereotrode, tetrode). */
-	StringArray electrodeTypes;
 
-	void setChannelThreshold(int electrodeNum, int channelNum, float threshold);
+    // CREATE AND DELETE ELECTRODES //
 
-	double getChannelThreshold(int electrodeNum, int channelNum);
+    /** Adds an electrode with n channels to be processed. */
+    bool addElectrode(int nChans);
+
+    /** Removes an electrode with a given index. */
+    bool removeElectrode(int index);
+
+
+    // EDIT AND QUERY ELECTRODE SETTINGS //
+
+    /** Returns the number of channels for a given electrode. */
+    int getNumChannels(int index);
+
+    /** Edits the mapping between input channels and electrode channels. */
+    void setChannel(int electrodeIndex, int channelNum, int newChannel);
+
+    /** Returns the continuous channel that maps to a given
+    	electrode channel. */
+    int getChannel(int index, int chan);
+
+    /** Sets the name of a given electrode. */
+    void setElectrodeName(int index, String newName);
+
+
+    // RETURN STRING ARRAYS //
+
+    /** Returns a StringArray containing the names of all electrodes */
+    StringArray getElectrodeNames();
+
+    /** Returns a list of possible electrode types (e.g., stereotrode, tetrode). */
+    StringArray electrodeTypes;
+
+    void setChannelThreshold(int electrodeNum, int channelNum, float threshold);
+
+    double getChannelThreshold(int electrodeNum, int channelNum);
 
 private:
-	/** Reference to a continuous buffer. */
-	AudioSampleBuffer& dataBuffer;
+    /** Reference to a continuous buffer. */
+    AudioSampleBuffer& dataBuffer;
 
-	float getDefaultThreshold();
+    float getDefaultThreshold();
 
-	int overflowBufferSize;
+    int overflowBufferSize;
 
-	int sampleIndex;
+    int sampleIndex;
 
-	Array<int> electrodeCounter;
+    Array<int> electrodeCounter;
 
-	float getNextSample(int& chan);
-	float getCurrentSample(int& chan);
-	bool samplesAvailable(int& nSamples);
+    float getNextSample(int& chan);
+    float getCurrentSample(int& chan);
+    bool samplesAvailable(int& nSamples);
 
-	bool useOverflowBuffer;
+    bool useOverflowBuffer;
 
-	int currentElectrode;
-	int currentChannelIndex;
-	int currentIndex;
+    int currentElectrode;
+    int currentChannelIndex;
+    int currentIndex;
 
-	struct Electrode {
+    struct Electrode
+    {
 
-		String name;
+        String name;
 
-		int numChannels;
-		int prePeakSamples, postPeakSamples;
-		int lastBufferIndex;
+        int numChannels;
+        int prePeakSamples, postPeakSamples;
+        int lastBufferIndex;
 
-		int* channels;
-		double* thresholds;
-		bool* isActive;
+        int* channels;
+        double* thresholds;
+        bool* isActive;
 
-	};
+    };
 
-	uint8_t* spikeBuffer;///[256];
+    uint8_t* spikeBuffer;///[256];
 
-	Array<Electrode*> electrodes;
+    Array<Electrode*> electrodes;
 
-	// void createSpikeEvent(int& peakIndex,
-	// 					  int& electrodeNumber,
-	// 					  int& currentChannel,
-	// 					  MidiBuffer& eventBuffer);
+    // void createSpikeEvent(int& peakIndex,
+    // 					  int& electrodeNumber,
+    // 					  int& currentChannel,
+    // 					  MidiBuffer& eventBuffer);
 
-	void addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int peakIndex);
-	void addWaveformToSpikeObject(SpikeObject* s,
-								  int& peakIndex,
-								  int& electrodeNumber,
-								  int& currentChannel);
+    void addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int peakIndex);
+    void addWaveformToSpikeObject(SpikeObject* s,
+                                  int& peakIndex,
+                                  int& electrodeNumber,
+                                  int& currentChannel);
 
-	void resetElectrode(Electrode*);
+    void resetElectrode(Electrode*);
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetector);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDetector);
 
 };
 

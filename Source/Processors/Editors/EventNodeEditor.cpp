@@ -26,33 +26,33 @@
 #include <stdio.h>
 
 
-EventNodeEditor::EventNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-	: GenericEditor(parentNode, useDefaultParameterEditors)
+EventNodeEditor::EventNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-	desiredWidth = 200;
+    desiredWidth = 200;
 
-	
 
-	//createRadioButtons(35, 65, 160, hzValues, "Event frequency");
 
-	// for (int n = 0; n < getNumChildComponents(); n++)
-	// {
-	// 	Button* c = (Button*) getChildComponent(n);
+    //createRadioButtons(35, 65, 160, hzValues, "Event frequency");
 
-	// 	if (c->isVisible())
-	// 		c->addListener(this);
+    // for (int n = 0; n < getNumChildComponents(); n++)
+    // {
+    // 	Button* c = (Button*) getChildComponent(n);
 
-	// 	c->setVisible(true);
-	// }
-    
+    // 	if (c->isVisible())
+    // 		c->addListener(this);
+
+    // 	c->setVisible(true);
+    // }
+
     channelSelector->eventsOnly = true;
 
 }
 
 EventNodeEditor::~EventNodeEditor()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }
 
 // void FilterEditor::sliderValueChanged (Slider* slider)
@@ -60,32 +60,32 @@ EventNodeEditor::~EventNodeEditor()
 
 // 	if (slider == lowSlider)
 // 		getAudioProcessor()->setParameter(0,slider->getValue());
-// 	else 
+// 	else
 // 		getAudioProcessor()->setParameter(1,slider->getValue());
 
 // }
 
-void EventNodeEditor::buttonEvent (Button* button)
+void EventNodeEditor::buttonEvent(Button* button)
 {
-	std::cout << button->getRadioGroupId() << " " << button->getName() << std::endl;
-    
-	String value = button->getName();
-	//float val;
+    std::cout << button->getRadioGroupId() << " " << button->getName() << std::endl;
 
-	getAudioProcessor()->setParameter(0,value.getFloatValue());
+    String value = button->getName();
+    //float val;
 
-	// if (value.getLastCharacter() == juce_wchar('k')) {
-	// 	val = value.dropLastCharacters(1).getFloatValue() * 1000.0f;
-	// }
-	// else {
-	// 	val = value.getFloatValue();
-	// }
+    getAudioProcessor()->setParameter(0,value.getFloatValue());
 
-	//if (button->getRadioGroupId() == 1)
- 	///	//getAudioProcessor()->setParameter(0,val);
- 	//else 
- 		//getAudioProcessor()->setParameter(1,val);
+    // if (value.getLastCharacter() == juce_wchar('k')) {
+    // 	val = value.dropLastCharacters(1).getFloatValue() * 1000.0f;
+    // }
+    // else {
+    // 	val = value.getFloatValue();
+    // }
 
- 	//std::cout << button->getRadioGroupId() << " " << val << std::endl;
+    //if (button->getRadioGroupId() == 1)
+    ///	//getAudioProcessor()->setParameter(0,val);
+    //else
+    //getAudioProcessor()->setParameter(1,val);
+
+    //std::cout << button->getRadioGroupId() << " " << val << std::endl;
 
 }

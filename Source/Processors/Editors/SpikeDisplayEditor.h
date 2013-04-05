@@ -24,9 +24,6 @@
 #ifndef SPIKEDISPLAYEDITOR_H_
 #define SPIKEDISPLAYEDITOR_H_
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "../../UI/UIComponent.h"
@@ -41,7 +38,7 @@ class Visualizer;
 class UtilityButton;
 
 /**
-  
+
   User interface for the SpikeDisplayNode sink.
 
   @see SpikeDisplayNode, SpikeDisplayCanvas
@@ -51,38 +48,38 @@ class UtilityButton;
 class SpikeDisplayEditor : public VisualizerEditor
 {
 public:
-	SpikeDisplayEditor (GenericProcessor*);
-	~SpikeDisplayEditor();
+    SpikeDisplayEditor(GenericProcessor*);
+    ~SpikeDisplayEditor();
 
-	void buttonCallback (Button* button);
+    void buttonCallback(Button* button);
 
     // void updateSettings();
     // void updateVisualizer();
 
-	Visualizer* createNewCanvas();
+    Visualizer* createNewCanvas();
 
-private:	
+private:
 
-    UtilityButton *panUpBtn;
-    UtilityButton *panDownBtn;
-    UtilityButton *zoomInBtn;
-    UtilityButton *zoomOutBtn;
-    UtilityButton *clearBtn;
-    UtilityButton *saveImgBtn;
+    UtilityButton* panUpBtn;
+    UtilityButton* panDownBtn;
+    UtilityButton* zoomInBtn;
+    UtilityButton* zoomOutBtn;
+    UtilityButton* clearBtn;
+    UtilityButton* saveImgBtn;
 
-    Label *panLabel;
-    Label *zoomLabel;
+    Label* panLabel;
+    Label* zoomLabel;
 
-    UtilityButton *allSubChansBtn;
+    UtilityButton* allSubChansBtn;
 
     int nSubChannels;
-    Label *subChanLabel;
-    UtilityButton *subChanBtn[MAX_N_SUB_CHAN];
+    Label* subChanLabel;
+    UtilityButton* subChanBtn[MAX_N_SUB_CHAN];
     bool subChanSelected[MAX_N_SUB_CHAN];
 
     void initializeButtons();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayEditor);
 
 };
 

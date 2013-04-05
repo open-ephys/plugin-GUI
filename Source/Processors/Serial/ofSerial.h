@@ -8,119 +8,126 @@
 //#include "ofTypes.h"
 
 #if defined( TARGET_OSX ) || defined( TARGET_LINUX ) || defined (TARGET_ANDROID)
-	#include <termios.h>
+#include <termios.h>
 #else
-	#include <winbase.h>
-	#include <tchar.h>
-	#include <iostream>
-	#include <string.h>
-	#include <setupapi.h>
-	#include <regstr.h>
-	#define MAX_SERIAL_PORTS 256
-	 #include <winioctl.h>
-	#ifdef __MINGW32__
-			#define INITGUID
-			#include <initguid.h> // needed for dev-c++ & DEFINE_GUID
-    #endif
+#include <winbase.h>
+#include <tchar.h>
+#include <iostream>
+#include <string.h>
+#include <setupapi.h>
+#include <regstr.h>
+#define MAX_SERIAL_PORTS 256
+#include <winioctl.h>
+#ifdef __MINGW32__
+#define INITGUID
+#include <initguid.h> // needed for dev-c++ & DEFINE_GUID
+#endif
 #endif
 
 #define OF_SERIAL_NO_DATA 	-2
 #define OF_SERIAL_ERROR		-1
 // notes below
 
-class ofSerialDeviceInfo{
-	friend class ofSerial;
+class ofSerialDeviceInfo
+{
+    friend class ofSerial;
 
-	public:
+public:
 
-	ofSerialDeviceInfo(string devicePathIn, string deviceNameIn, int deviceIDIn){
-	devicePath = devicePathIn;
-	deviceName = deviceNameIn;
-	deviceID = deviceIDIn;
-	}
+    ofSerialDeviceInfo(string devicePathIn, string deviceNameIn, int deviceIDIn)
+    {
+        devicePath = devicePathIn;
+        deviceName = deviceNameIn;
+        deviceID = deviceIDIn;
+    }
 
-	ofSerialDeviceInfo(){
-	deviceName = "device undefined";
-	deviceID = -1;
-	}
+    ofSerialDeviceInfo()
+    {
+        deviceName = "device undefined";
+        deviceID = -1;
+    }
 
-	string getDevicePath(){
-	return devicePath;
-	}
+    string getDevicePath()
+    {
+        return devicePath;
+    }
 
-	string getDeviceName(){
-	return deviceName;
-	}
+    string getDeviceName()
+    {
+        return deviceName;
+    }
 
-	int getDeviceID(){
-	return deviceID;
-	}
+    int getDeviceID()
+    {
+        return deviceID;
+    }
 
-	protected:
-	string devicePath; //eg: /dev/tty.cu/usbdevice-a440
-	string deviceName; //eg: usbdevice-a440 / COM4
-	int deviceID; //eg: 0,1,2,3 etc
+protected:
+    string devicePath; //eg: /dev/tty.cu/usbdevice-a440
+    string deviceName; //eg: usbdevice-a440 / COM4
+    int deviceID; //eg: 0,1,2,3 etc
 
-	//TODO: other stuff for serial ?
+    //TODO: other stuff for serial ?
 };
 
 
 
 //----------------------------------------------------------------------
-class ofSerial {
+class ofSerial
+{
 
-	public:
-			ofSerial();
-			virtual ~ofSerial();
+public:
+    ofSerial();
+    virtual ~ofSerial();
 
-			void			listDevices();
-							
-			//old method - deprecated
-			void 			enumerateDevices();
+    void			listDevices();
 
-			vector <ofSerialDeviceInfo> getDeviceList();
+    //old method - deprecated
+    void 			enumerateDevices();
 
-			void 			close();
-			bool			setup();	// use default port, baud (0,9600)
-			bool			setup(string portName, int baudrate);
-			bool			setup(int deviceNumber, int baudrate);
+    vector <ofSerialDeviceInfo> getDeviceList();
+
+    void 			close();
+    bool			setup();	// use default port, baud (0,9600)
+    bool			setup(string portName, int baudrate);
+    bool			setup(int deviceNumber, int baudrate);
 
 
-			int 			readBytes(unsigned char * buffer, int length);
-			int 			writeBytes(unsigned char * buffer, int length);
-			bool			writeByte(unsigned char singleByte);
-			int             readByte();  // returns -1 on no read or error...
-			void			flush(bool flushIn = true, bool flushOut = true);
-			int				available();
+    int 			readBytes(unsigned char* buffer, int length);
+    int 			writeBytes(unsigned char* buffer, int length);
+    bool			writeByte(unsigned char singleByte);
+    int             readByte();  // returns -1 on no read or error...
+    void			flush(bool flushIn = true, bool flushOut = true);
+    int				available();
 
-            void            drain();
+    void            drain();
 
-			
 
-	protected:
-			void			buildDeviceList();
-						
-			string				deviceType;
-			vector <ofSerialDeviceInfo> devices;
 
-			bool bHaveEnumeratedDevices;
+protected:
+    void			buildDeviceList();
 
-			bool 	bInited;
+    string				deviceType;
+    vector <ofSerialDeviceInfo> devices;
 
-			#ifdef TARGET_WIN32
+    bool bHaveEnumeratedDevices;
 
-				char 		** portNamesShort;//[MAX_SERIAL_PORTS];
-				char 		** portNamesFriendly; ///[MAX_SERIAL_PORTS];
-				HANDLE  	hComm;		// the handle to the serial port pc
-				int	 		nPorts;
-				bool 		bPortsEnumerated;
-				void 		enumerateWin32Ports();
-				COMMTIMEOUTS 	oldTimeout;	// we alter this, so keep a record
+    bool 	bInited;
 
-			#else
-				int 		fd;			// the handle to the serial port mac
-				struct 	termios oldoptions;
-			#endif
+#ifdef TARGET_WIN32
+
+    char**		  portNamesShort;//[MAX_SERIAL_PORTS];
+    char**		  portNamesFriendly; ///[MAX_SERIAL_PORTS];
+    HANDLE  	hComm;		// the handle to the serial port pc
+    int	 		nPorts;
+    bool 		bPortsEnumerated;
+    void 		enumerateWin32Ports();
+    COMMTIMEOUTS 	oldTimeout;	// we alter this, so keep a record
+
+#else
+    int 		fd;			// the handle to the serial port mac
+    struct 	termios oldoptions;
+#endif
 
 };
 

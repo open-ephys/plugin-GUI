@@ -29,8 +29,8 @@
 
 
 
-SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-	: GenericEditor(parentNode, useDefaultParameterEditors), isPlural(true)
+SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors), isPlural(true)
 
 {
 
@@ -38,7 +38,7 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode, bool use
     Typeface::Ptr typeface = new CustomTypeface(mis);
     font = Font(typeface);
 
-	desiredWidth = 300;
+    desiredWidth = 300;
 
     electrodeTypes = new ComboBox("Electrode Types");
 
@@ -47,11 +47,11 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode, bool use
     for (int i = 0; i < processor->electrodeTypes.size(); i++)
     {
         String type = processor->electrodeTypes[i];
-        electrodeTypes->addItem (type += "s", i+1); 
+        electrodeTypes->addItem(type += "s", i+1);
     }
 
     electrodeTypes->setEditableText(false);
-    electrodeTypes->setJustificationType (Justification::centredLeft);
+    electrodeTypes->setJustificationType(Justification::centredLeft);
     electrodeTypes->addListener(this);
     electrodeTypes->setBounds(65,40,110,20);
     electrodeTypes->setSelectedId(2);
@@ -59,7 +59,7 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode, bool use
 
     electrodeList = new ComboBox("Electrode List");
     electrodeList->setEditableText(false);
-    electrodeList->setJustificationType (Justification::centredLeft);
+    electrodeList->setJustificationType(Justification::centredLeft);
     electrodeList->addListener(this);
     electrodeList->setBounds(15,75,115,20);
     addAndMakeVisible(electrodeList);
@@ -127,11 +127,11 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode, bool use
     addChildComponent(channelSelector);
     channelSelector->setVisible(false);
 
-  //  Array<int> a;
+    //  Array<int> a;
 
     channelSelector->inactivateButtons();
     channelSelector->paramButtonsToggledByDefault(false);
-  //  channelSelector->paramButtonsActiveByDefault(false);
+    //  channelSelector->paramButtonsActiveByDefault(false);
 
 }
 
@@ -143,7 +143,7 @@ SpikeDetectorEditor::~SpikeDetectorEditor()
         removeChildComponent(electrodeButtons[i]);
     }
 
-	deleteAllChildren();	
+    deleteAllChildren();
 
 }
 
@@ -160,8 +160,9 @@ void SpikeDetectorEditor::sliderEvent(Slider* slider)
         }
     }
 
- //   std::cout << "Slider value changed." << std::endl;
-    if (electrodeNum > -1) {
+    //   std::cout << "Slider value changed." << std::endl;
+    if (electrodeNum > -1)
+    {
         SpikeDetector* processor = (SpikeDetector*) getProcessor();
         processor->setChannelThreshold(electrodeList->getSelectedItemIndex(),
                                        electrodeNum,
@@ -191,8 +192,8 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
             thresholdSlider->setActive(true);
-            thresholdSlider->setValue(processor->getChannelThreshold(electrodeList->getSelectedItemIndex(), 
-                                                                    electrodeButtons.indexOf((ElectrodeButton*) button)));
+            thresholdSlider->setValue(processor->getChannelThreshold(electrodeList->getSelectedItemIndex(),
+                                                                     electrodeButtons.indexOf((ElectrodeButton*) button)));
         }
     }
 
@@ -204,7 +205,8 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
         return;
 
-    } else if (button == downButton)
+    }
+    else if (button == downButton)
     {
 
         if (num > 1)
@@ -212,9 +214,10 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
         return;
 
-    } else if (button == plusButton)
+    }
+    else if (button == plusButton)
     {
-       // std::cout << "Plus button pressed!" << std::endl;
+        // std::cout << "Plus button pressed!" << std::endl;
 
         int type = electrodeTypes->getSelectedId();
         std::cout << type << std::endl;
@@ -223,39 +226,43 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
         switch (type)
         {
             case 1:
-                nChans = 1; break;
+                nChans = 1;
+                break;
             case 2:
-                nChans = 2; break;
+                nChans = 2;
+                break;
             case 3:
-                nChans = 4; break;
+                nChans = 4;
+                break;
             default:
                 nChans = 1;
         }
-       
+
         for (int n = 0; n < num; n++)
         {
             if (!addElectrode(nChans))
             {
                 sendActionMessage("Not enough channels to add electrode.");
-            } 
+            }
         }
 
         refreshElectrodeList();
 
-		if (electrodeList->getNumItems() > 0) 
-		{
-			electrodeList->setSelectedId(electrodeList->getNumItems(), true);
-			electrodeList->setText(electrodeList->getItemText(electrodeList->getNumItems()-1));
-			lastId = electrodeList->getNumItems();
-			electrodeList->setEditableText(true);
+        if (electrodeList->getNumItems() > 0)
+        {
+            electrodeList->setSelectedId(electrodeList->getNumItems(), true);
+            electrodeList->setText(electrodeList->getItemText(electrodeList->getNumItems()-1));
+            lastId = electrodeList->getNumItems();
+            electrodeList->setEditableText(true);
 
-			drawElectrodeButtons(electrodeList->getNumItems()-1);
-		}
+            drawElectrodeButtons(electrodeList->getNumItems()-1);
+        }
 
         getEditorViewport()->makeEditorVisible(this, true, true);
         return;
 
-    } else if (button == electrodeEditorButtons[0]) // EDIT
+    }
+    else if (button == electrodeEditorButtons[0])   // EDIT
     {
 
         Array<int> activeChannels;
@@ -268,7 +275,9 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
                 electrodeButtons[i]->setRadioGroupId(299);
                 channelSelector->activateButtons();
                 channelSelector->setRadioStatus(true);
-            } else {
+            }
+            else
+            {
                 electrodeButtons[i]->setToggleState(true, false);
                 electrodeButtons[i]->setRadioGroupId(0);
                 channelSelector->inactivateButtons();
@@ -287,19 +296,23 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             if (selectedItemIndex != -1)
             {
                 drawElectrodeButtons(selectedItemIndex);
-            } else {
+            }
+            else
+            {
                 electrodeButtons.clear();
             }
         }
 
-      //   channelSelector->setActiveChannels(activeChannels);
+        //   channelSelector->setActiveChannels(activeChannels);
 
         return;
 
-    } else if (button == electrodeEditorButtons[1]) // MONITOR
+    }
+    else if (button == electrodeEditorButtons[1])   // MONITOR
     {
         return;
-    } else if (button == electrodeEditorButtons[2]) // DELETE
+    }
+    else if (button == electrodeEditorButtons[2])   // DELETE
     {
 
         removeElectrode(electrodeList->getSelectedItemIndex());
@@ -317,19 +330,19 @@ void SpikeDetectorEditor::channelChanged(int chan)
 {
     //std::cout << "New channel: " << chan << std::endl;
 
-     for (int i = 0; i < electrodeButtons.size(); i++)
+    for (int i = 0; i < electrodeButtons.size(); i++)
+    {
+        if (electrodeButtons[i]->getToggleState())
         {
-            if (electrodeButtons[i]->getToggleState())
-            {
-                electrodeButtons[i]->setChannelNum(chan);
-                electrodeButtons[i]->repaint();
+            electrodeButtons[i]->setChannelNum(chan);
+            electrodeButtons[i]->repaint();
 
-                SpikeDetector* processor = (SpikeDetector*) getProcessor();
-                processor->setChannel(electrodeList->getSelectedItemIndex(),
-                                      i,
-                                      chan-1);
-            }
+            SpikeDetector* processor = (SpikeDetector*) getProcessor();
+            processor->setChannel(electrodeList->getSelectedItemIndex(),
+                                  i,
+                                  chan-1);
         }
+    }
 
 }
 
@@ -343,7 +356,7 @@ void SpikeDetectorEditor::refreshElectrodeList()
 
     for (int i = 0; i < electrodeNames.size(); i++)
     {
-        electrodeList->addItem (electrodeNames[i], electrodeList->getNumItems()+1);
+        electrodeList->addItem(electrodeNames[i], electrodeList->getNumItems()+1);
     }
 }
 
@@ -381,7 +394,7 @@ void SpikeDetectorEditor::labelTextChanged(Label* label)
         for (int n = 1; n < electrodeTypes->getNumItems()+1; n++)
         {
             electrodeTypes->changeItemText(n,
-                    electrodeTypes->getItemText(n-1).trimCharactersAtEnd("s"));
+                                           electrodeTypes->getItemText(n-1).trimCharactersAtEnd("s"));
         }
 
         isPlural = false;
@@ -389,7 +402,8 @@ void SpikeDetectorEditor::labelTextChanged(Label* label)
         String currentText = electrodeTypes->getText();
         electrodeTypes->setText(currentText.trimCharactersAtEnd("s"));
 
-    } else if (!label->getText().equalsIgnoreCase("1") && !isPlural)
+    }
+    else if (!label->getText().equalsIgnoreCase("1") && !isPlural)
     {
         for (int n = 1; n < electrodeTypes->getNumItems()+1; n++)
         {
@@ -408,7 +422,7 @@ void SpikeDetectorEditor::labelTextChanged(Label* label)
 
 void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
 {
-    
+
     if (comboBox == electrodeList)
     {
         int ID = comboBox->getSelectedId();
@@ -420,7 +434,9 @@ void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
             processor->setElectrodeName(lastId, comboBox->getText());
             refreshElectrodeList();
 
-        } else {
+        }
+        else
+        {
 
             lastId = ID;
 
@@ -460,13 +476,15 @@ void SpikeDetectorEditor::drawElectrodeButtons(int ID)
         {
             button->setToggleState(false, false);
             button->setRadioGroupId(299);
-        } else {
+        }
+        else
+        {
             activeChannels.add(processor->getChannel(ID,i));
         }
-        
+
         if (numChannels < 3)
             button->setBounds(145+(column++)*width, 78+row*height, width, 15);
-        else 
+        else
             button->setBounds(145+(column++)*width, 70+row*height, width, 15);
 
         addAndMakeVisible(button);
@@ -486,12 +504,12 @@ void SpikeDetectorEditor::drawElectrodeButtons(int ID)
 
 
 
-   
-void ElectrodeButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+
+void ElectrodeButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (getToggleState() == true)
         g.setColour(Colours::orange);
-    else 
+    else
         g.setColour(Colours::darkgrey);
 
     if (isMouseOver)
@@ -499,7 +517,7 @@ void ElectrodeButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDo
 
     g.fillRect(0,0,getWidth(),getHeight());
 
-   // g.setFont(buttonFont);
+    // g.setFont(buttonFont);
     g.setColour(Colours::black);
 
     g.drawRect(0,0,getWidth(),getHeight(),1.0);
@@ -507,12 +525,12 @@ void ElectrodeButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDo
     g.drawText(String(chan),0,0,getWidth(),getHeight(),Justification::centred,true);
 }
 
-   
-void ElectrodeEditorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+
+void ElectrodeEditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (getToggleState() == true)
         g.setColour(Colours::darkgrey);
-    else 
+    else
         g.setColour(Colours::lightgrey);
 
     g.setFont(font);
@@ -535,7 +553,7 @@ void ThresholdSlider::paint(Graphics& g)
 {
 
     ColourGradient grad = ColourGradient(Colour(40, 40, 40), 0.0f, 0.0f,
-                                  Colour(80, 80, 80), 0.0, 40.0f, false);
+                                         Colour(80, 80, 80), 0.0, 40.0f, false);
 
     Path p;
     p.addPieSegment(3, 3, getWidth()-6, getHeight()-6, 5*double_Pi/4-0.2, 5*double_Pi/4+3*double_Pi/2+0.2, 0.5);
@@ -545,13 +563,16 @@ void ThresholdSlider::paint(Graphics& g)
 
     String valueString;
 
-    if (isActive) {
+    if (isActive)
+    {
         p = makeRotaryPath(getMinimum(), getMaximum(), getValue());
         g.setColour(Colour(240,179,12));
         g.fillPath(p);
 
-        valueString = String( (int) getValue());
-    } else {
+        valueString = String((int) getValue());
+    }
+    else
+    {
 
         valueString = "";
 
@@ -562,11 +583,11 @@ void ThresholdSlider::paint(Graphics& g)
             g.fillPath(p);
             valueString = String((int) valueArray.getLast());
         }
-        
+
     }
-    
+
     font.setHeight(9.0);
-        g.setFont(font);
+    g.setFont(font);
     int stringWidth = font.getStringWidth(valueString);
 
     g.setFont(font);

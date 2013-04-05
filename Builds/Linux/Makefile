@@ -79,12 +79,6 @@ OBJECTS := \
   $(OBJDIR)/RecordControl_3e1c6062.o \
   $(OBJDIR)/Merger_2f90542e.o \
   $(OBJDIR)/Splitter_6e27a57b.o \
-  $(OBJDIR)/SpikePlot_c1cf98bd.o \
-  $(OBJDIR)/BaseUIElement_ec903c4d.o \
-  $(OBJDIR)/GenericAxes_d802ed92.o \
-  $(OBJDIR)/PlotUtils_9ef52686.o \
-  $(OBJDIR)/ProjectionAxes_7c67c3e8.o \
-  $(OBJDIR)/WaveAxes_8adc45d2.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/SpikeDisplayCanvas_b208ff6e.o \
   $(OBJDIR)/DataWindow_83ce6754.o \
@@ -93,6 +87,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/RHD2000Editor_d7ddd6b.o \
   $(OBJDIR)/RecordControlEditor_244084cb.o \
   $(OBJDIR)/ReferenceNodeEditor_19ee0fac.o \
   $(OBJDIR)/ResamplingNodeEditor_f2d6f061.o \
@@ -358,36 +353,6 @@ $(OBJDIR)/Splitter_6e27a57b.o: ../../Source/Processors/Utilities/Splitter.cpp
 	@echo "Compiling Splitter.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/SpikePlot_c1cf98bd.o: ../../Source/Processors/Visualization/SpikePlotting/SpikePlot.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikePlot.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/BaseUIElement_ec903c4d.o: ../../Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling BaseUIElement.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/GenericAxes_d802ed92.o: ../../Source/Processors/Visualization/SpikePlotting/GenericAxes.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling GenericAxes.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/PlotUtils_9ef52686.o: ../../Source/Processors/Visualization/SpikePlotting/PlotUtils.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PlotUtils.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ProjectionAxes_7c67c3e8.o: ../../Source/Processors/Visualization/SpikePlotting/ProjectionAxes.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ProjectionAxes.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/WaveAxes_8adc45d2.o: ../../Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling WaveAxes.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/SpikeObject_24e8c655.o: ../../Source/Processors/Visualization/SpikeObject.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SpikeObject.cpp"
@@ -426,6 +391,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RHD2000Editor_d7ddd6b.o: ../../Source/Processors/Editors/RHD2000Editor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RHD2000Editor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/RecordControlEditor_244084cb.o: ../../Source/Processors/Editors/RecordControlEditor.cpp

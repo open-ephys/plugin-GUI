@@ -23,9 +23,6 @@
 #ifndef __LFPDISPLAYCANVAS_H_B711873A__
 #define __LFPDISPLAYCANVAS_H_B711873A__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../LfpDisplayNode.h"
 #include "Visualizer.h"
@@ -47,123 +44,133 @@ class LfpChannelDisplay;
 class LfpDisplayCanvas : public Visualizer
 
 {
-public: 
-	LfpDisplayCanvas(LfpDisplayNode* n);
-	~LfpDisplayCanvas();
+public:
+    LfpDisplayCanvas(LfpDisplayNode* n);
+    ~LfpDisplayCanvas();
 
-	void beginAnimation();
-	void endAnimation();
+    void beginAnimation();
+    void endAnimation();
 
-	void refreshState();
+    void refreshState();
 
-	void update();
+    void update();
 
-	void setParameter(int, float);
-	void setParameter(int, int, int, float){}
+    void setParameter(int, float);
+    void setParameter(int, int, int, float) {}
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	void resized();
+    void refresh();
 
-	float getXCoord(int chan, int samp);
-	float getYCoord(int chan, int samp);
+    void resized();
+
+    float getXCoord(int chan, int samp);
+    float getYCoord(int chan, int samp);
+
+    int screenBufferIndex;
+    int lastScreenBufferIndex;
 
 private:
 
-	float sampleRate;
-	float timebase;
-	float displayGain;
-	float timeOffset;
+    float sampleRate;
+    float timebase;
+    float displayGain;
+    float timeOffset;
 
-	static const int MAX_N_CHAN = 256;  // maximum number of channels
-	static const int MAX_N_SAMP = 5000; // maximum display size in pixels
-	float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
+    static const int MAX_N_CHAN = 256;  // maximum number of channels
+    static const int MAX_N_SAMP = 5000; // maximum display size in pixels
+    //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
-	LfpDisplayNode* processor;
-	AudioSampleBuffer* displayBuffer;
-	MidiBuffer* eventBuffer;
+    LfpDisplayNode* processor;
+    AudioSampleBuffer* displayBuffer;
+    AudioSampleBuffer* screenBuffer;
+    MidiBuffer* eventBuffer;
 
-	ScopedPointer<LfpTimescale> timescale;
-	ScopedPointer<LfpDisplay> lfpDisplay;
-	ScopedPointer<Viewport> viewport;
+    ScopedPointer<LfpTimescale> timescale;
+    ScopedPointer<LfpDisplay> lfpDisplay;
+    ScopedPointer<Viewport> viewport;
 
-	void refreshScreenBuffer();
-	void updateScreenBuffer();
-	int screenBufferIndex;
-	int displayBufferIndex;
-	int displayBufferSize;
+    void refreshScreenBuffer();
+    void updateScreenBuffer();
 
-	int scrollBarThickness;
+    int displayBufferIndex;
+    int displayBufferSize;
 
-	int nChans;
+    int scrollBarThickness;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayCanvas);
-	
+    int nChans;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
+
 };
 
 class LfpTimescale : public Component
 {
 public:
-	LfpTimescale(LfpDisplayCanvas*);
-	~LfpTimescale();
+    LfpTimescale(LfpDisplayCanvas*);
+    ~LfpTimescale();
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
 private:
 
-	LfpDisplayCanvas* canvas;
+    LfpDisplayCanvas* canvas;
 
 };
 
 class LfpDisplay : public Component
 {
 public:
-	LfpDisplay(LfpDisplayCanvas*, Viewport*);
-	~LfpDisplay();
+    LfpDisplay(LfpDisplayCanvas*, Viewport*);
+    ~LfpDisplay();
 
-	void setNumChannels(int numChannels);
-	int getTotalHeight() {return totalHeight;}
+    void setNumChannels(int numChannels);
+    int getTotalHeight()
+    {
+        return totalHeight;
+    }
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	void resized();
+    void refresh();
 
-	void mouseDown(const MouseEvent& event);
+    void resized();
+
+    void mouseDown(const MouseEvent& event);
 
 private:
-	int numChans;
-	int channelHeight;
-	int totalHeight;
+    int numChans;
+    int channelHeight;
+    int totalHeight;
 
-	LfpDisplayCanvas* canvas;
-	Viewport* viewport;
+    LfpDisplayCanvas* canvas;
+    Viewport* viewport;
 
-	Array<LfpChannelDisplay*> channels;
+    Array<LfpChannelDisplay*> channels;
 
 };
 
 class LfpChannelDisplay : public Component
 {
 public:
-	LfpChannelDisplay(LfpDisplayCanvas*, int channelNumber);
-	~LfpChannelDisplay();
+    LfpChannelDisplay(LfpDisplayCanvas*, int channelNumber);
+    ~LfpChannelDisplay();
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	void select();
-	void deselect();
+    void select();
+    void deselect();
 
 
 private:
 
-	LfpDisplayCanvas* canvas;
+    LfpDisplayCanvas* canvas;
 
-	bool isSelected;
+    bool isSelected;
 
-	int chan;
+    int chan;
 
 };
 
 
 #endif  // __LFPDISPLAYCANVAS_H_B711873A__
- 

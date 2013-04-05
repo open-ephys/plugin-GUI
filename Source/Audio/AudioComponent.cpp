@@ -27,143 +27,149 @@
 
 AudioComponent::AudioComponent() : isPlaying(false)
 {
-	// if this is nonempty, we got an error
-	String error = deviceManager.initialise(0,  // numInputChannelsNeeded
-						2,  // numOutputChannelsNeeded
-						0,  // *savedState (XmlElement)
-						true, // selectDefaultDeviceOnFailure
-						String::empty, // preferred device
-						0); // preferred device setup options
-	if (error != String::empty)
-	{
-		String titleMessage = String("Audio device initialization error");
-		String contentMessage = String("There was a problem initializing the audio device:\n" + error);
-		// this uses a bool since there are only two options
-		// also, omitting parameters works fine, even though the docs don't show defaults
-		bool retryButtonClicked = AlertWindow::showOkCancelBox(AlertWindow::QuestionIcon,
-								       titleMessage,
-								       contentMessage,
-								       String("Retry"),
-								       String("Quit"));
+    // if this is nonempty, we got an error
+    String error = deviceManager.initialise(0,  // numInputChannelsNeeded
+                                            2,  // numOutputChannelsNeeded
+                                            0,  // *savedState (XmlElement)
+                                            true, // selectDefaultDeviceOnFailure
+                                            String::empty, // preferred device
+                                            0); // preferred device setup options
+    if (error != String::empty)
+    {
+        String titleMessage = String("Audio device initialization error");
+        String contentMessage = String("There was a problem initializing the audio device:\n" + error);
+        // this uses a bool since there are only two options
+        // also, omitting parameters works fine, even though the docs don't show defaults
+        bool retryButtonClicked = AlertWindow::showOkCancelBox(AlertWindow::QuestionIcon,
+                                                               titleMessage,
+                                                               contentMessage,
+                                                               String("Retry"),
+                                                               String("Quit"));
 
-		if (retryButtonClicked)
-		{
-			// as above
-			error = deviceManager.initialise(0, 2, 0, true, String::empty, 0);
-		} else { // quit button clicked
-			JUCEApplication::quit();
-		}
-	}
-							    
-							    
-	AudioIODevice* aIOd = deviceManager.getCurrentAudioDevice();
+        if (retryButtonClicked)
+        {
+            // as above
+            error = deviceManager.initialise(0, 2, 0, true, String::empty, 0);
+        }
+        else     // quit button clicked
+        {
+            JUCEApplication::quit();
+        }
+    }
 
-	// the error string doesn't tell you if there's no audio device found...
-	if (aIOd == 0)
-	{
-	  String titleMessage = String("No audio device found");
-	  String contentMessage = String("Couldn't find an audio device. ") +
-	    String("Perhaps some other program has control of the default one.");
-	  AlertWindow::showMessageBox(AlertWindow::InfoIcon,
-				      titleMessage,
-				      contentMessage);
-	  JUCEApplication::quit();
-	}
-					   
 
-	std::cout << "Got audio device." << std::endl;
+    AudioIODevice* aIOd = deviceManager.getCurrentAudioDevice();
 
-	String devName = aIOd->getName();
-	
-	std::cout << std::endl << "Audio device name: " << devName << std::endl;
+    // the error string doesn't tell you if there's no audio device found...
+    if (aIOd == 0)
+    {
+        String titleMessage = String("No audio device found");
+        String contentMessage = String("Couldn't find an audio device. ") +
+                                String("Perhaps some other program has control of the default one.");
+        AlertWindow::showMessageBox(AlertWindow::InfoIcon,
+                                    titleMessage,
+                                    contentMessage);
+        JUCEApplication::quit();
+    }
 
-	AudioDeviceManager::AudioDeviceSetup setup;
-	deviceManager.getAudioDeviceSetup(setup);
 
-	setup.bufferSize = 1024; /// larger buffer = fewer empty blocks, but longer latencies
-	setup.useDefaultInputChannels = false;
-	setup.inputChannels = 0;
-	setup.useDefaultOutputChannels = true;
-	setup.outputChannels = 2;
-	setup.sampleRate = 44100.0;
+    std::cout << "Got audio device." << std::endl;
 
-	String msg = deviceManager.setAudioDeviceSetup(setup, false);
+    String devName = aIOd->getName();
 
-	String devType = deviceManager.getCurrentAudioDeviceType();
-	std::cout << "Audio device type: " << devType << std::endl;
+    std::cout << std::endl << "Audio device name: " << devName << std::endl;
 
-	float sr = setup.sampleRate;
-	int buffSize = setup.bufferSize;
-	String oDN = setup.outputDeviceName;
-	BigInteger oC = setup.outputChannels;
+    AudioDeviceManager::AudioDeviceSetup setup;
+    deviceManager.getAudioDeviceSetup(setup);
 
-	std::cout << "Audio output channels: " <<  oC.toInteger() << std::endl;
-	std::cout << "Audio device sample rate: " <<  sr << std::endl;
-	std::cout << "Audio device buffer size: " << buffSize << std::endl << std::endl;
+    setup.bufferSize = 1024; /// larger buffer = fewer empty blocks, but longer latencies
+    setup.useDefaultInputChannels = false;
+    setup.inputChannels = 0;
+    setup.useDefaultOutputChannels = true;
+    setup.outputChannels = 2;
+    setup.sampleRate = 44100.0;
 
-	graphPlayer = new AudioProcessorPlayer();
+    String msg = deviceManager.setAudioDeviceSetup(setup, false);
 
-	stopDevice(); // reduces the amount of background processing when
-				  // device is not in use
+    String devType = deviceManager.getCurrentAudioDeviceType();
+    std::cout << "Audio device type: " << devType << std::endl;
+
+    float sr = setup.sampleRate;
+    int buffSize = setup.bufferSize;
+    String oDN = setup.outputDeviceName;
+    BigInteger oC = setup.outputChannels;
+
+    std::cout << "Audio output channels: " <<  oC.toInteger() << std::endl;
+    std::cout << "Audio device sample rate: " <<  sr << std::endl;
+    std::cout << "Audio device buffer size: " << buffSize << std::endl << std::endl;
+
+    graphPlayer = new AudioProcessorPlayer();
+
+    stopDevice(); // reduces the amount of background processing when
+    // device is not in use
 
 }
 
-AudioComponent::~AudioComponent() {
-	
-	if (callbacksAreActive())
-		endCallbacks();
+AudioComponent::~AudioComponent()
+{
 
-	deleteAndZero(graphPlayer);
+    if (callbacksAreActive())
+        endCallbacks();
+
+    deleteAndZero(graphPlayer);
 
 }
 
 void AudioComponent::connectToProcessorGraph(AudioProcessorGraph* processorGraph)
 {
-	
-	graphPlayer->setProcessor(processorGraph);
+
+    graphPlayer->setProcessor(processorGraph);
 
 }
 
 void AudioComponent::disconnectProcessorGraph()
 {
-	
-	graphPlayer->setProcessor(0);
+
+    graphPlayer->setProcessor(0);
 
 }
 
-bool AudioComponent::callbacksAreActive() {
-	return isPlaying;
+bool AudioComponent::callbacksAreActive()
+{
+    return isPlaying;
 }
 
 void AudioComponent::restartDevice()
 {
-	deviceManager.restartLastAudioDevice();
+    deviceManager.restartLastAudioDevice();
 
 }
 
 void AudioComponent::stopDevice()
 {
 
-	deviceManager.closeAudioDevice();
+    deviceManager.closeAudioDevice();
 }
 
-void AudioComponent::beginCallbacks() {
-	
-	restartDevice();
+void AudioComponent::beginCallbacks()
+{
 
-	std::cout << std::endl << "Adding audio callback." << std::endl;
-	deviceManager.addAudioCallback(graphPlayer);
-	isPlaying = true;
+    restartDevice();
+
+    std::cout << std::endl << "Adding audio callback." << std::endl;
+    deviceManager.addAudioCallback(graphPlayer);
+    isPlaying = true;
 
 }
 
-void AudioComponent::endCallbacks() {
-	
-	std::cout << std::endl << "Removing audio callback." << std::endl;
-	deviceManager.removeAudioCallback(graphPlayer);
-	isPlaying = false;
+void AudioComponent::endCallbacks()
+{
 
-	stopDevice();
+    std::cout << std::endl << "Removing audio callback." << std::endl;
+    deviceManager.removeAudioCallback(graphPlayer);
+    isPlaying = false;
+
+    stopDevice();
 
 }
 
