@@ -198,7 +198,7 @@ AudioProcessorEditor* SourceNode::createEditor()
 
     if (getName().equalsIgnoreCase("RHD2000 USB Board"))
     {
-        editor = new RHD2000Editor(this, false);
+        editor = new RHD2000Editor(this, true);
     }
     else
     {

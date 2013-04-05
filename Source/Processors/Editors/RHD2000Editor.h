@@ -35,20 +35,41 @@
 
 */
 
+class HeadstageOptionsInterface;
+
 
 class RHD2000Editor : public GenericEditor
 
 {
 public:
     RHD2000Editor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
-    virtual ~RHD2000Editor();
+    ~RHD2000Editor();
+
+    void resized();
 
 private:
+
+	OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Editor);
 
 };
 
+
+class HeadstageOptionsInterface : public Component
+{
+public:
+	HeadstageOptionsInterface(int hsNum);
+	~HeadstageOptionsInterface();
+
+	void paint(Graphics& g);
+
+private:
+
+	int hsNumber;
+	String name;
+
+};
 
 
 
