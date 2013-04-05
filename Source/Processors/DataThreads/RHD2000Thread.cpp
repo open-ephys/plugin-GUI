@@ -149,7 +149,7 @@ bool RHD2000Thread::startAcquisition()
     evalBoard->flush();
 
 
-    std::cout << "Setting max timestep." << std::endl;
+    //std::cout << "Setting max timestep." << std::endl;
     //evalBoard->setMaxTimeStep(100);
     evalBoard->setContinuousRunMode(true);
 
