@@ -459,15 +459,15 @@ void EditorViewportButton::paint(Graphics& g)
 
     if (open)
     {
-        p.addTriangle(w-h+0.2f*h, 0.8f*h,
-                      w-h+0.5f*h, 0.2f*h,
-                      w-h+0.8f*h, 0.8f*h);
+        p.addTriangle(w-h+0.3f*h, 0.7f*h,
+                      w-h+0.5f*h, 0.3f*h,
+                      w-h+0.7f*h, 0.7f*h);
     }
     else
     {
-        p.addTriangle(w-h+0.2f*h, 0.5f*h,
-                      w-h+0.8f*h, 0.2f*h,
-                      w-h+0.8f*h, 0.8f*h);
+        p.addTriangle(w-h+0.3f*h, 0.5f*h,
+                      w-h+0.7f*h, 0.3f*h,
+                      w-h+0.7f*h, 0.7f*h);
     }
 
     PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
