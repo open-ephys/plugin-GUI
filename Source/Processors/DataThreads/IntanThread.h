@@ -43,39 +43,39 @@ class IntanThread : public DataThread
 
 {
 public:
-	IntanThread(SourceNode* sn);
-	~IntanThread();
+    IntanThread(SourceNode* sn);
+    ~IntanThread();
 
-	bool foundInputSource();
-	int getNumChannels();
-	float getSampleRate();
-	float getBitVolts();
-	int getNumEventChannels();
-	
+    bool foundInputSource();
+    int getNumChannels();
+    float getSampleRate();
+    float getBitVolts();
+    int getNumEventChannels();
+
 private:
 
-	struct ftdi_context ftdic;
-	int vendorID, productID;
-	int baudrate;
-	bool isTransmitting;
-	bool deviceFound;
+    struct ftdi_context ftdic;
+    int vendorID, productID;
+    int baudrate;
+    bool isTransmitting;
+    bool deviceFound;
 
-	bool initializeUSB(bool);
-	bool closeUSB();
+    bool initializeUSB(bool);
+    bool closeUSB();
 
-	bool startAcquisition();
-	bool stopAcquisition();
-	
-	unsigned char startCode, stopCode;
-	unsigned char buffer[240]; // should be 5 samples per channel
+    bool startAcquisition();
+    bool stopAcquisition();
 
-	float thisSample[17]; // 17 continuous channels and one event channel
+    unsigned char startCode, stopCode;
+    unsigned char buffer[240]; // should be 5 samples per channel
 
-	int ch;
+    float thisSample[17]; // 17 continuous channels and one event channel
 
-	bool updateBuffer();
+    int ch;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (IntanThread);
+    bool updateBuffer();
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(IntanThread);
 };
 
 

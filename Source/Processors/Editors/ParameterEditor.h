@@ -35,7 +35,7 @@ class ParameterSlider;
 class ParameterCheckbox;
 
 /**
-  
+
   Automatically creates an interactive editor for a particular
   parameter.
 
@@ -44,13 +44,13 @@ class ParameterCheckbox;
 */
 
 class ParameterEditor : public Component,
-						public Button::Listener,
-						public Slider::Listener
+    public Button::Listener,
+    public Slider::Listener
 
 {
 public:
-	ParameterEditor(GenericProcessor* proc, Parameter& p, Font labelFont);
-	~ParameterEditor();
+    ParameterEditor(GenericProcessor* proc, Parameter& p, Font labelFont);
+    ~ParameterEditor();
 
 
     int desiredWidth;
@@ -63,7 +63,7 @@ public:
 
     void setChannelSelector(ChannelSelector* ch)
     {
-    	channelSelector = ch;
+        channelSelector = ch;
     }
 
     // for inactivation during acquisition:
@@ -73,21 +73,22 @@ public:
 
 private:
 
-	Array<ParameterSlider*> sliderArray;
-	Array<ParameterButton*> buttonArray;
+    Array<ParameterSlider*> sliderArray;
+    Array<ParameterButton*> buttonArray;
     Array<ParameterCheckbox*> checkboxArray;
-	Array<int> buttonIdArray;
-	Array<int> sliderIdArray;
+    Array<int> buttonIdArray;
+    Array<int> sliderIdArray;
     Array<int> checkboxIdArray;
 
-	GenericProcessor* processor;
-	ChannelSelector* channelSelector;
+    GenericProcessor* processor;
+    ChannelSelector* channelSelector;
 
-	enum {
-		LEFT,
-		MIDDLE,
-		RIGHT
-	};
+    enum
+    {
+        LEFT,
+        MIDDLE,
+        RIGHT
+    };
 
 };
 
@@ -108,7 +109,7 @@ public:
 
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-    
+
     void resized();
 
     int type;
@@ -125,11 +126,12 @@ private:
     ColourGradient neutralOverGrad;
     ColourGradient deactivatedGrad;
 
-    enum {
-		LEFT,
-		MIDDLE,
-		RIGHT
-	};
+    enum
+    {
+        LEFT,
+        MIDDLE,
+        RIGHT
+    };
 
 };
 
@@ -150,7 +152,7 @@ public:
 
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-    
+
     ColourGradient selectedGrad;
     ColourGradient selectedOverGrad;
     ColourGradient neutralGrad;
@@ -175,7 +177,7 @@ public:
 
 private:
     void paint(Graphics& g);//Button(Graphics& g, bool isMouseOver, bool isButtonDown);
-    
+
     Path makeRotaryPath(double, double, double);
 
     Font font;

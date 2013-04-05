@@ -40,38 +40,44 @@
 */
 
 class SourceNode : public GenericProcessor,
-				   public Timer,
-                   public ActionListener
+    public Timer,
+    public ActionListener
 
 {
 public:
 
-	// real member functions:
-	SourceNode(const String& name);
-	~SourceNode();
+    // real member functions:
+    SourceNode(const String& name);
+    ~SourceNode();
 
-	void enabledState(bool t);
+    void enabledState(bool t);
 
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
 
-	void setParameter (int parameterIndex, float newValue);
+    void setParameter(int parameterIndex, float newValue);
 
-	float getSampleRate();
-	float getDefaultSampleRate();
-	int getDefaultNumOutputs();
-	float getDefaultBitVolts();
+    float getSampleRate();
+    float getDefaultSampleRate();
+    int getDefaultNumOutputs();
+    float getDefaultBitVolts();
 
-	AudioProcessorEditor* createEditor();
-	bool hasEditor() const {return true;}
+    AudioProcessorEditor* createEditor();
+    bool hasEditor() const
+    {
+        return true;
+    }
 
-	bool enable();
-	bool disable();
+    bool enable();
+    bool disable();
 
-	bool isReady();
+    bool isReady();
 
-	bool isSource() {return true;}
+    bool isSource()
+    {
+        return true;
+    }
 
-	void acquisitionStopped();
+    void acquisitionStopped();
 
     DataThread* getThread();
 
@@ -81,28 +87,28 @@ public:
 
 private:
 
-	int numEventChannels;
+    int numEventChannels;
 
-	int sourceCheckInterval;
+    int sourceCheckInterval;
 
-	bool wasDisabled;
+    bool wasDisabled;
 
-	void timerCallback();
+    void timerCallback();
 
-	ScopedPointer<DataThread> dataThread;
-	DataBuffer* inputBuffer;
+    ScopedPointer<DataThread> dataThread;
+    DataBuffer* inputBuffer;
 
-	uint64 timestamp;
-	int16* eventCodeBuffer;
-	int* eventChannelState;
+    uint64 timestamp;
+    int16* eventCodeBuffer;
+    int* eventChannelState;
 
 
     int ttlState;
 
-	void updateSettings();
-	bool tryEnablingEditor();
+    void updateSettings();
+    bool tryEnablingEditor();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceNode);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SourceNode);
 
 };
 

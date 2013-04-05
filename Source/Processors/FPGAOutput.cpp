@@ -28,16 +28,16 @@
 #include "SourceNode.h"
 
 FPGAOutput::FPGAOutput()
-	: GenericProcessor("FPGA Output"), TTLchannel(3),
-	  isEnabled(true),  continuousStim(false)
+    : GenericProcessor("FPGA Output"), TTLchannel(3),
+      isEnabled(true),  continuousStim(false)
 {
-    
+
     Array<var> channelNumbers;
     channelNumbers.add(0);
     channelNumbers.add(3);
     channelNumbers.add(5);
     //
-   // channelNumbers.add(6);
+    // channelNumbers.add(6);
 
     parameters.add(Parameter("TTL channel",channelNumbers, 1, 0));
 
@@ -57,8 +57,8 @@ FPGAOutput::~FPGAOutput()
 
 AudioProcessorEditor* FPGAOutput::createEditor()
 {
-	editor = new FPGAOutputEditor(this, true);
-	return editor;
+    editor = new FPGAOutputEditor(this, true);
+    return editor;
 }
 
 void FPGAOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
@@ -72,7 +72,7 @@ void FPGAOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
         int eventId = *(dataptr+2);
         int eventChannel = *(dataptr+3);
 
-       // std::cout << "FPGA output received event: " << eventNodeId << " " << eventId << " " << eventChannel << std::endl;
+        // std::cout << "FPGA output received event: " << eventNodeId << " " << eventId << " " << eventChannel << std::endl;
 
         if (eventId == 1 && eventChannel == TTLchannel) // channel 3 only at the moment
         {
@@ -81,54 +81,58 @@ void FPGAOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 
             if (!continuousStim)
                 startTimer(5); // pulse width
-           // else
+            // else
             //    startTimer(25); // pulse width
 
-        } else if (eventId == 0 && eventChannel == TTLchannel)// && eventChannel == TTLchannel)
+        }
+        else if (eventId == 0 && eventChannel == TTLchannel)  // && eventChannel == TTLchannel)
         {
             if (continuousStim)
-            { /// this isn't working
+            {
+                /// this isn't working
                 sendActionMessage("LO");
                 isEnabled = true;
-             //   stopTimer();
+                //   stopTimer();
             }
         }
 
-        
+
     }
-    
+
 }
 
 void FPGAOutput::updateSettings()
 {
     removeAllActionListeners();
-    
+
     GenericProcessor* src;
     GenericProcessor* lastSrc;
-    
+
     lastSrc = getSourceNode();
     src = getSourceNode();
-    
+
     while (src != 0)
     {
         lastSrc = src;
         src = lastSrc->getSourceNode();
     }
-    
+
     if (lastSrc != 0)
     {
         SourceNode* s = (SourceNode*) lastSrc;
         addActionListener(s);
         std::cout << "FPGA Output node communicating with " << lastSrc->getName() << std::endl;
-    } else {
+    }
+    else
+    {
         std::cout << "FPGA Output couldn't find a source" << std::endl;
     }
 
-    
+
     //dataThread = (FPGAThread*) s->getThread();
 }
 
-void FPGAOutput::setParameter (int parameterIndex, float newValue)
+void FPGAOutput::setParameter(int parameterIndex, float newValue)
 {
 
     //std::cout << "FPGAOutput received parameter change notification." << std::endl;
@@ -136,52 +140,59 @@ void FPGAOutput::setParameter (int parameterIndex, float newValue)
     if (parameterIndex == 0)
     {
         TTLchannel = int(newValue);
-    } else if (parameterIndex == 1)
+    }
+    else if (parameterIndex == 1)
     {
         if (newValue == 0.0f)
         {
             continuousStim = false;
-        } else {
+        }
+        else
+        {
             continuousStim = true;
         }
-   }
+    }
 
 }
 
-void FPGAOutput::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &events,
-                            int& nSamples)
+void FPGAOutput::process(AudioSampleBuffer& buffer,
+                         MidiBuffer& events,
+                         int& nSamples)
 {
-	
 
-	checkForEvents(events);
-	
+
+    checkForEvents(events);
+
 
 }
 
 void FPGAOutput::timerCallback()
 {
-	//dataThread->setOutputLow();
+    //dataThread->setOutputLow();
 
     if (!continuousStim)
     {
         sendActionMessage("LO");
-    
+
         isEnabled = true;
         stopTimer();
 
-    } else {
+    }
+    else
+    {
 
         if (isEnabled)
         {
             sendActionMessage("HI");
             isEnabled = false;
-        } else {
+        }
+        else
+        {
             sendActionMessage("LO");
             isEnabled = true;
         }
-            
+
 
     }
-    
+
 }

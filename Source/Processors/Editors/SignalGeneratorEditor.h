@@ -41,23 +41,23 @@ class WaveformSelector;
 */
 
 class SignalGeneratorEditor : public GenericEditor,
-                              public Label::Listener
+    public Label::Listener
 {
 public:
-	SignalGeneratorEditor (GenericProcessor* parentNode, bool useDefaultParameters);
-	virtual ~SignalGeneratorEditor();
+    SignalGeneratorEditor(GenericProcessor* parentNode, bool useDefaultParameters);
+    virtual ~SignalGeneratorEditor();
     void sliderEvent(Slider* slider);
     void buttonEvent(Button* button);
     void labelTextChanged(Label* label);
 
-private:	
+private:
 
     Label* numChannelsLabel;
     TriangleButton* upButton;
     TriangleButton* downButton;
 
-	Slider* amplitudeSlider;
-	Slider* frequencySlider;
+    Slider* amplitudeSlider;
+    Slider* frequencySlider;
     Slider* phaseSlider;
 
     Array<WaveformSelector*> waveformSelectors;
@@ -66,7 +66,7 @@ private:
     {
         SINE, SQUARE, SAW, TRIANGLE, NOISE
     };
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalGeneratorEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SignalGeneratorEditor);
 
 };
 
@@ -87,7 +87,7 @@ public:
     ~WaveformSelector() {}
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-    
+
     int type;
 
     Image neutral;

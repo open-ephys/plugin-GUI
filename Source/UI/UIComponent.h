@@ -44,7 +44,7 @@ class ProcessorList;
 class EditorViewportButton;
 
 /**
-  
+
   Creates objects for user interaction.
 
   The UIComponent is responsible for the layout of the user interface and
@@ -56,124 +56,148 @@ class EditorViewportButton;
 */
 
 class UIComponent : public Component,
-				    public ActionBroadcaster,
-				    public MenuBarModel,
-				    public ApplicationCommandTarget,
-				    public DragAndDropContainer // required for 
-				    				            // drag-and-drop
-				    				            // internal components
-				    
+    public ActionBroadcaster,
+    public MenuBarModel,
+    public ApplicationCommandTarget,
+    public DragAndDropContainer // required for
+    // drag-and-drop
+    // internal components
+
 
 {
-public: 
-	UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio);
-	~UIComponent();
+public:
+    UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio);
+    ~UIComponent();
 
-	/** Returns a pointer to the EditorViewport. */
-	EditorViewport* getEditorViewport() {return editorViewport;}
+    /** Returns a pointer to the EditorViewport. */
+    EditorViewport* getEditorViewport()
+    {
+        return editorViewport;
+    }
 
-	/** Returns a pointer to the ProcessorList. */
-	ProcessorList* getProcessorList() {return processorList;}
+    /** Returns a pointer to the ProcessorList. */
+    ProcessorList* getProcessorList()
+    {
+        return processorList;
+    }
 
-	/** Returns a pointer to the DataViewport. */
-	DataViewport* getDataViewport() {return dataViewport;}
+    /** Returns a pointer to the DataViewport. */
+    DataViewport* getDataViewport()
+    {
+        return dataViewport;
+    }
 
-	/** Returns a pointer to the ProcessorGraph. */
-	ProcessorGraph* getProcessorGraph() {return processorGraph;}
+    /** Returns a pointer to the ProcessorGraph. */
+    ProcessorGraph* getProcessorGraph()
+    {
+        return processorGraph;
+    }
 
-	/** Returns a pointer to the ControlPanel. */
-	ControlPanel* getControlPanel() {return controlPanel;}
+    /** Returns a pointer to the ControlPanel. */
+    ControlPanel* getControlPanel()
+    {
+        return controlPanel;
+    }
 
-	/** Returns a pointer to the MessageCenter. */
-	MessageCenter* getMessageCenter() {return messageCenter;}
+    /** Returns a pointer to the MessageCenter. */
+    MessageCenter* getMessageCenter()
+    {
+        return messageCenter;
+    }
 
-	/** Returns a pointer to the UIComponent. */
-	UIComponent* getUIComponent() {return this;}
+    /** Returns a pointer to the UIComponent. */
+    UIComponent* getUIComponent()
+    {
+        return this;
+    }
 
-	/** Returns a pointer to the AudioComponent. */
-	AudioComponent* getAudioComponent() {return audio;}
+    /** Returns a pointer to the AudioComponent. */
+    AudioComponent* getAudioComponent()
+    {
+        return audio;
+    }
 
-	/** Stops the callbacks to the ProcessorGraph which drive data acquisition. */
-	void disableCallbacks();
+    /** Stops the callbacks to the ProcessorGraph which drive data acquisition. */
+    void disableCallbacks();
 
-	/** Disables the connection between the DataViewport and the EditorViewport. */
-	void disableDataViewport();
+    /** Disables the connection between the DataViewport and the EditorViewport. */
+    void disableDataViewport();
 
-	/** 
-	Called whenever a major change takes place within a child component, in order
-	to make sure the UIComponent's other children get resized appropriately. */
-	void childComponentChanged();
+    /**
+    Called whenever a major change takes place within a child component, in order
+    to make sure the UIComponent's other children get resized appropriately. */
+    void childComponentChanged();
 
-	/** Returns the names of all the requested menubar drop-down lists (e.g., "File", "Edit", "Help", etc.). */
-	StringArray getMenuBarNames();
+    /** Returns the names of all the requested menubar drop-down lists (e.g., "File", "Edit", "Help", etc.). */
+    StringArray getMenuBarNames();
 
-	/** Adds the commands contained within a given drop-down menu from the menubar. */
-	PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
-	
-	/** Called when a particular menu item is selected. Doesn't do anything yet. */
-	void menuItemSelected(int menuItemID, int topLevelMenuIndex);
+    /** Adds the commands contained within a given drop-down menu from the menubar. */
+    PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
 
-	/** Doesn't do anything yet. */
-	ApplicationCommandTarget* getNextCommandTarget();
+    /** Called when a particular menu item is selected. Doesn't do anything yet. */
+    void menuItemSelected(int menuItemID, int topLevelMenuIndex);
 
-	/** Returns a list of commands the application can perform. */
-	void getAllCommands (Array <CommandID>& commands);
+    /** Doesn't do anything yet. */
+    ApplicationCommandTarget* getNextCommandTarget();
 
-	/** Returns the info, default keypress, and activation state of all the application's commands. */
-	void getCommandInfo (CommandID commandID, ApplicationCommandInfo& result);
+    /** Returns a list of commands the application can perform. */
+    void getAllCommands(Array <CommandID>& commands);
 
-	/** Determines what takes place when a given command is executed by the user. */
-	bool perform (const InvocationInfo& info);
+    /** Returns the info, default keypress, and activation state of all the application's commands. */
+    void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result);
+
+    /** Determines what takes place when a given command is executed by the user. */
+    bool perform(const InvocationInfo& info);
 
 private:
 
-	ScopedPointer<DataViewport> dataViewport;
-	ScopedPointer<EditorViewport> editorViewport;
-	ScopedPointer<EditorViewportButton> editorViewportButton;
-	ScopedPointer<ProcessorList> processorList;
-	ScopedPointer<ControlPanel> controlPanel;
-	ScopedPointer<MessageCenter> messageCenter;
-	ScopedPointer<InfoLabel> infoLabel;
+    ScopedPointer<DataViewport> dataViewport;
+    ScopedPointer<EditorViewport> editorViewport;
+    ScopedPointer<EditorViewportButton> editorViewportButton;
+    ScopedPointer<ProcessorList> processorList;
+    ScopedPointer<ControlPanel> controlPanel;
+    ScopedPointer<MessageCenter> messageCenter;
+    ScopedPointer<InfoLabel> infoLabel;
 
-	/** Pointer to the GUI's MainWindow, which owns the UIComponent. */
-	MainWindow* mainWindow;
+    /** Pointer to the GUI's MainWindow, which owns the UIComponent. */
+    MainWindow* mainWindow;
 
-	/** Allows the application to use tooltips, which are messages
-	that appear when the mouse hovers over particular components. */
-	TooltipWindow tooltipWindow;
+    /** Allows the application to use tooltips, which are messages
+    that appear when the mouse hovers over particular components. */
+    TooltipWindow tooltipWindow;
 
-	/** Pointer to the GUI's ProcessorGraph. Owned by the MainWindow. */
-	ProcessorGraph* processorGraph;
+    /** Pointer to the GUI's ProcessorGraph. Owned by the MainWindow. */
+    ProcessorGraph* processorGraph;
 
-	/** Pointer to the GUI's AudioComponent. Owned by the MainWindow. */
-	AudioComponent* audio;
+    /** Pointer to the GUI's AudioComponent. Owned by the MainWindow. */
+    AudioComponent* audio;
 
-	/** Resizes all of components inside the UIComponent to fit the new boundaries
-	of the MainWindow, or to account for opening/closing events.*/
-	void resized();
+    /** Resizes all of components inside the UIComponent to fit the new boundaries
+    of the MainWindow, or to account for opening/closing events.*/
+    void resized();
 
-	/** Contains codes for common user commands to which the application must react.*/
-	enum CommandIDs
-	{
-		openConfiguration 		= 0x2001,
-	 	saveConfiguration		= 0x2002,
-	 	undo					= 0x2003,
-	 	redo 					= 0x2004,
-	 	copySignalChain			= 0x2005,
-	 	pasteSignalChain		= 0x2006,
-	 	clearSignalChain		= 0x2007,
-	 	toggleProcessorList 	= 0x2008,
-	 	toggleSignalChain	    = 0x2009,
-	 	toggleFileInfo			= 0x2010,
-	 	showHelp				= 0x2011
-	};
+    /** Contains codes for common user commands to which the application must react.*/
+    enum CommandIDs
+    {
+        openConfiguration 		= 0x2001,
+        saveConfiguration		= 0x2002,
+        undo					= 0x2003,
+        redo 					= 0x2004,
+        copySignalChain			= 0x2005,
+        pasteSignalChain		= 0x2006,
+        clearSignalChain		= 0x2007,
+        toggleProcessorList 	= 0x2008,
+        toggleSignalChain	    = 0x2009,
+        toggleFileInfo			= 0x2010,
+        showHelp				= 0x2011
+    };
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (UIComponent);
-	
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponent);
+
 };
 
 /**
-  
+
   A button used to show/hide the EditorViewport.
 
   @see UIComponent, EditorViewport
@@ -183,28 +207,31 @@ private:
 class EditorViewportButton : public Component
 {
 public:
-	EditorViewportButton(UIComponent* ui);
-	~EditorViewportButton();
+    EditorViewportButton(UIComponent* ui);
+    ~EditorViewportButton();
 
-	/** Returns the open/closed state of the button. */
-	bool isOpen() {return open;}
+    /** Returns the open/closed state of the button. */
+    bool isOpen()
+    {
+        return open;
+    }
 
-	/** Draws the button. */
-	void paint(Graphics& g);
+    /** Draws the button. */
+    void paint(Graphics& g);
 
-	/** Switches the open/closed state of the button. */
-	void toggleState();
+    /** Switches the open/closed state of the button. */
+    void toggleState();
 
-	/** Called when a mouse click begins inside the boundaries of the button. Used
-	to toggle the button's open/closed state. */
-	void mouseDown(const MouseEvent& e);
+    /** Called when a mouse click begins inside the boundaries of the button. Used
+    to toggle the button's open/closed state. */
+    void mouseDown(const MouseEvent& e);
 
-private:	
+private:
 
-	UIComponent* UI;
-	bool open;
+    UIComponent* UI;
+    bool open;
 
-	Font buttonFont;
+    Font buttonFont;
 
 };
 

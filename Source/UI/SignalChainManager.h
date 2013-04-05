@@ -33,7 +33,7 @@ class SignalChainTabButton;
 class EditorViewport;
 
 /**
-  
+
   Provides helper functions for editing the signal chain.
 
   Created and owned by the EditorViewport.
@@ -45,50 +45,50 @@ class EditorViewport;
 class SignalChainManager : AccessClass
 {
 public:
-	SignalChainManager(EditorViewport*, Array<GenericEditor*, CriticalSection>&,
-	 				   Array<SignalChainTabButton*, CriticalSection>&);
-	~SignalChainManager();
+    SignalChainManager(EditorViewport*, Array<GenericEditor*, CriticalSection>&,
+                       Array<SignalChainTabButton*, CriticalSection>&);
+    ~SignalChainManager();
 
     /** Updates the editors currently displayed by the EditorViewport.*/
-	void updateVisibleEditors(GenericEditor* activeEditor, int index, int insertionPoint, int action);
+    void updateVisibleEditors(GenericEditor* activeEditor, int index, int insertionPoint, int action);
 
     /** Creates a tab button for a new signal chain. */
-	void createNewTab(GenericEditor* editor);
+    void createNewTab(GenericEditor* editor);
 
     /** Removes the tab button for a deleted signal chain. */
-	void removeTab(int tabIndex);
+    void removeTab(int tabIndex);
 
     /** Scrolls the SignalChainTabButtons up, if there are more signal chains
     than can be viewed at once.*/
-	void scrollUp();
+    void scrollUp();
 
     /** Scrolls the SignalChainTabButtons down, if there are more signal chains
     than can be viewed at once.*/
-	void scrollDown();
+    void scrollDown();
 
     /** Clears the signal chain.*/
     void clearSignalChain();
 
-private:	
+private:
 
     /** An array of all currently visible editors.*/
-	Array<GenericEditor*, CriticalSection>& editorArray;
+    Array<GenericEditor*, CriticalSection>& editorArray;
 
     /** An array of all existing signal chains (as referenced by their associated
     SignalChainTabButtons).*/
-	Array<SignalChainTabButton*, CriticalSection>& signalChainArray;
+    Array<SignalChainTabButton*, CriticalSection>& signalChainArray;
 
     /** A pointer to the EditorViewport.*/
-	EditorViewport* ev;
+    EditorViewport* ev;
 
     /** Updates the visibility of SignalChainTabButtons.*/
-	void refreshTabs();
+    void refreshTabs();
 
     /** The index of the top tab (used for scrolling purposes).*/
-	int topTab;
+    int topTab;
 
-	const int tabSize;
-    
+    const int tabSize;
+
 
 };
 

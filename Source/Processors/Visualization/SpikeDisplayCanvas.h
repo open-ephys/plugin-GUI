@@ -46,7 +46,7 @@ class WaveformPlot;
 class ProjectionPlot;
 
 /**
-  
+
   Displays spike waveforms and projections.
 
   @see SpikeDisplayNode, SpikeDisplayEditor, Visualizer
@@ -56,83 +56,86 @@ class ProjectionPlot;
 class SpikeDisplayCanvas : public Visualizer
 
 {
-public: 
-	SpikeDisplayCanvas(SpikeDisplayNode* n);
-	~SpikeDisplayCanvas();
+public:
+    SpikeDisplayCanvas(SpikeDisplayNode* n);
+    ~SpikeDisplayCanvas();
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	void refresh();
+    void refresh();
 
-	void processSpikeEvents();
+    void processSpikeEvents();
 
-	void beginAnimation();
-	void endAnimation();
+    void beginAnimation();
+    void endAnimation();
 
-	void refreshState();
+    void refreshState();
 
-	void setParameter(int, float) {}
-	void setParameter(int, int, int, float){}
+    void setParameter(int, float) {}
+    void setParameter(int, int, int, float) {}
 
-	void update();
+    void update();
 
-	void resized();
+    void resized();
 
 private:
 
-	SpikeDisplayNode* processor;
-	MidiBuffer* spikeBuffer;
+    SpikeDisplayNode* processor;
+    MidiBuffer* spikeBuffer;
 
-	ScopedPointer<SpikeDisplay> spikeDisplay;
-	ScopedPointer<Viewport> viewport;
+    ScopedPointer<SpikeDisplay> spikeDisplay;
+    ScopedPointer<Viewport> viewport;
 
-	bool newSpike;
-	SpikeObject spike;
+    bool newSpike;
+    SpikeObject spike;
 
-	int scrollBarThickness;
+    int scrollBarThickness;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayCanvas);
-	
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayCanvas);
+
 };
 
 class SpikeDisplay : public Component
 {
 public:
-	SpikeDisplay(SpikeDisplayCanvas*, Viewport*);
-	~SpikeDisplay();
+    SpikeDisplay(SpikeDisplayCanvas*, Viewport*);
+    ~SpikeDisplay();
 
-	void addSpikePlot(int numChannels);
+    void addSpikePlot(int numChannels);
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	void resized();
+    void resized();
 
-	void mouseDown(const MouseEvent& event);
+    void mouseDown(const MouseEvent& event);
 
-	void plotSpike(const SpikeObject& spike);
+    void plotSpike(const SpikeObject& spike);
 
 
-	int getTotalHeight() {return totalHeight;}
+    int getTotalHeight()
+    {
+        return totalHeight;
+    }
 
 private:
 
-	//void computeColumnLayout();
-	//void initializeSpikePlots();
-	//void repositionSpikePlots();
+    //void computeColumnLayout();
+    //void initializeSpikePlots();
+    //void repositionSpikePlots();
 
-	int numColumns;
+    int numColumns;
 
-	int totalHeight;
+    int totalHeight;
 
-	SpikeDisplayCanvas* canvas;
-	Viewport* viewport;
+    SpikeDisplayCanvas* canvas;
+    Viewport* viewport;
 
-	OwnedArray<TetrodePlot> tetrodePlots;
-	OwnedArray<StereotrodePlot> stereotrodePlots;
-	OwnedArray<SingleElectrodePlot> singleElectrodePlots;
+    OwnedArray<TetrodePlot> tetrodePlots;
+    OwnedArray<StereotrodePlot> stereotrodePlots;
+    OwnedArray<SingleElectrodePlot> singleElectrodePlots;
 
-	float tetrodePlotMinWidth, stereotrodePlotMinWidth, singleElectrodePlotMinWidth;
-	float tetrodePlotRatio, stereotrodePlotRatio, singleElectrodePlotRatio;
+    float tetrodePlotMinWidth, stereotrodePlotMinWidth, singleElectrodePlotMinWidth;
+    float tetrodePlotRatio, stereotrodePlotRatio, singleElectrodePlotRatio;
 
 };
 
@@ -140,24 +143,24 @@ private:
 class SpikePlot : public Component
 {
 public:
-	SpikePlot(SpikeDisplayCanvas*, int elecNum, int numChans);
-	~SpikePlot();
+    SpikePlot(SpikeDisplayCanvas*, int elecNum, int numChans);
+    ~SpikePlot();
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	void select();
-	void deselect();
+    void select();
+    void deselect();
 
-	SpikeDisplayCanvas* canvas;
+    SpikeDisplayCanvas* canvas;
 
-	bool isSelected;
+    bool isSelected;
 
-	int electrodeNumber;
+    int electrodeNumber;
 
-	int numChannels;
+    int numChannels;
 
-	OwnedArray<ProjectionPlot> projectionPlots;
-	OwnedArray<WaveformPlot> waveformPlots;
+    OwnedArray<ProjectionPlot> projectionPlots;
+    OwnedArray<WaveformPlot> waveformPlots;
 
 private:
 
@@ -168,10 +171,10 @@ private:
 class TetrodePlot : public SpikePlot
 {
 public:
-	TetrodePlot(SpikeDisplayCanvas*, int elecNum);
-	~TetrodePlot() {}
+    TetrodePlot(SpikeDisplayCanvas*, int elecNum);
+    ~TetrodePlot() {}
 
-	void resized();
+    void resized();
 
 private:
 
@@ -180,34 +183,34 @@ private:
 class StereotrodePlot : public SpikePlot
 {
 public:
-	StereotrodePlot(SpikeDisplayCanvas*, int elecNum);
-	~StereotrodePlot() {}
+    StereotrodePlot(SpikeDisplayCanvas*, int elecNum);
+    ~StereotrodePlot() {}
 
-	void resized();
+    void resized();
 
 private:
-	
+
 };
 
 class SingleElectrodePlot : public SpikePlot
 {
 public:
-	SingleElectrodePlot(SpikeDisplayCanvas*, int elecNum);
-	~SingleElectrodePlot() {}
+    SingleElectrodePlot(SpikeDisplayCanvas*, int elecNum);
+    ~SingleElectrodePlot() {}
 
-	void resized();
+    void resized();
 
 private:
-	
+
 };
 
 class WaveformPlot : public Component
 {
 public:
-	WaveformPlot();
-	~WaveformPlot() {}
+    WaveformPlot();
+    ~WaveformPlot() {}
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
 private:
 
@@ -216,10 +219,10 @@ private:
 class ProjectionPlot : public Component
 {
 public:
-	ProjectionPlot();
-	~ProjectionPlot() {}
+    ProjectionPlot();
+    ~ProjectionPlot() {}
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
 private:
 

@@ -51,111 +51,114 @@
 // {
 // }
 
-SplitterEditor::SplitterEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-	: GenericEditor(parentNode, useDefaultParameterEditors)
+SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-	desiredWidth = 90;
+    desiredWidth = 90;
 
-	pipelineSelectorA = new ImageButton("Pipeline A");
+    pipelineSelectorA = new ImageButton("Pipeline A");
 
-	Image normalImageA = ImageCache::getFromMemory (BinaryData::PipelineB01_png, BinaryData::PipelineB01_pngSize);
-	Image downImageA = ImageCache::getFromMemory (BinaryData::PipelineA01_png, BinaryData::PipelineA01_pngSize);
-	Image normalImageB = ImageCache::getFromMemory (BinaryData::PipelineA02_png, BinaryData::PipelineA02_pngSize);
-	Image downImageB = ImageCache::getFromMemory (BinaryData::PipelineB02_png, BinaryData::PipelineB02_pngSize);
+    Image normalImageA = ImageCache::getFromMemory(BinaryData::PipelineB01_png, BinaryData::PipelineB01_pngSize);
+    Image downImageA = ImageCache::getFromMemory(BinaryData::PipelineA01_png, BinaryData::PipelineA01_pngSize);
+    Image normalImageB = ImageCache::getFromMemory(BinaryData::PipelineA02_png, BinaryData::PipelineA02_pngSize);
+    Image downImageB = ImageCache::getFromMemory(BinaryData::PipelineB02_png, BinaryData::PipelineB02_pngSize);
 
-	pipelineSelectorA->setImages(true, true, true,
-								normalImageA, 1.0f, Colours::white.withAlpha(0.0f),
-								normalImageA, 1.0f, Colours::black.withAlpha(0.0f),
-								downImageA, 1.0f, Colours::white.withAlpha(0.0f));
+    pipelineSelectorA->setImages(true, true, true,
+                                 normalImageA, 1.0f, Colours::white.withAlpha(0.0f),
+                                 normalImageA, 1.0f, Colours::black.withAlpha(0.0f),
+                                 downImageA, 1.0f, Colours::white.withAlpha(0.0f));
 
 
-	pipelineSelectorA->addListener(this);
-	pipelineSelectorA->setBounds(-10,25,95,50);
-	pipelineSelectorA->setToggleState(true,false);
-	addAndMakeVisible(pipelineSelectorA);
+    pipelineSelectorA->addListener(this);
+    pipelineSelectorA->setBounds(-10,25,95,50);
+    pipelineSelectorA->setToggleState(true,false);
+    addAndMakeVisible(pipelineSelectorA);
 
-	pipelineSelectorB = new ImageButton("Pipeline B");
+    pipelineSelectorB = new ImageButton("Pipeline B");
 
-	pipelineSelectorB->setImages(true, true, true,
-								normalImageB, 1.0f, Colours::white.withAlpha(0.0f),
-								normalImageB, 1.0f, Colours::black.withAlpha(0.0f),
-								downImageB, 1.0f, Colours::white.withAlpha(0.0f));
+    pipelineSelectorB->setImages(true, true, true,
+                                 normalImageB, 1.0f, Colours::white.withAlpha(0.0f),
+                                 normalImageB, 1.0f, Colours::black.withAlpha(0.0f),
+                                 downImageB, 1.0f, Colours::white.withAlpha(0.0f));
 
-	pipelineSelectorB->addListener(this);
-	pipelineSelectorB->setBounds(-10,75,95,50);
-	pipelineSelectorB->setToggleState(false,false);
-	addAndMakeVisible(pipelineSelectorB);
+    pipelineSelectorB->addListener(this);
+    pipelineSelectorB->setBounds(-10,75,95,50);
+    pipelineSelectorB->setToggleState(false,false);
+    addAndMakeVisible(pipelineSelectorB);
 
 }
 
 SplitterEditor::~SplitterEditor()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }
 
 void SplitterEditor::buttonEvent(Button* button)
 {
-	if (button == pipelineSelectorA)
-	{
-		pipelineSelectorA->setToggleState(true,false);
-		pipelineSelectorB->setToggleState(false,false);
-		Splitter* processor = (Splitter*) getProcessor();
-		processor->switchIO(0);
+    if (button == pipelineSelectorA)
+    {
+        pipelineSelectorA->setToggleState(true,false);
+        pipelineSelectorB->setToggleState(false,false);
+        Splitter* processor = (Splitter*) getProcessor();
+        processor->switchIO(0);
 
-	} else if (button == pipelineSelectorB) 
-	{
-		pipelineSelectorB->setToggleState(true,false);
-		pipelineSelectorA->setToggleState(false,false);
-		Splitter* processor = (Splitter*) getProcessor();
-		processor->switchIO(1);
-		
-	}
+    }
+    else if (button == pipelineSelectorB)
+    {
+        pipelineSelectorB->setToggleState(true,false);
+        pipelineSelectorA->setToggleState(false,false);
+        Splitter* processor = (Splitter*) getProcessor();
+        processor->switchIO(1);
+
+    }
 }
 
 void SplitterEditor::switchDest(int dest)
 {
-	if (dest == 0)
-	{
-		pipelineSelectorA->setToggleState(true,false);
-		pipelineSelectorB->setToggleState(false,false);
-		Splitter* processor = (Splitter*) getProcessor();
-		processor->switchIO(0);
+    if (dest == 0)
+    {
+        pipelineSelectorA->setToggleState(true,false);
+        pipelineSelectorB->setToggleState(false,false);
+        Splitter* processor = (Splitter*) getProcessor();
+        processor->switchIO(0);
 
-	} else if (dest == 1)
-	{
-		pipelineSelectorB->setToggleState(true,false);
-		pipelineSelectorA->setToggleState(false,false);
-		Splitter* processor = (Splitter*) getProcessor();
-		processor->switchIO(1);
-		
-	}
+    }
+    else if (dest == 1)
+    {
+        pipelineSelectorB->setToggleState(true,false);
+        pipelineSelectorA->setToggleState(false,false);
+        Splitter* processor = (Splitter*) getProcessor();
+        processor->switchIO(1);
+
+    }
 }
 
 void SplitterEditor::switchIO(int dest)
 {
-	switchDest(dest);
+    switchDest(dest);
 
-	select();
+    select();
 }
 
 
 void SplitterEditor::switchDest()
 {
-	Splitter* processor = (Splitter*) getProcessor();
-	processor->switchIO();
+    Splitter* processor = (Splitter*) getProcessor();
+    processor->switchIO();
 
-	int path = processor->getPath();
+    int path = processor->getPath();
 
-	if (path == 0)
-	{
-		pipelineSelectorA->setToggleState(true,false);
-		pipelineSelectorB->setToggleState(false,false);
+    if (path == 0)
+    {
+        pipelineSelectorA->setToggleState(true,false);
+        pipelineSelectorB->setToggleState(false,false);
 
-	} else if (path == 1)
-	{
-		pipelineSelectorB->setToggleState(true,false);
-		pipelineSelectorA->setToggleState(false,false);
-		
-	}
+    }
+    else if (path == 1)
+    {
+        pipelineSelectorB->setToggleState(true,false);
+        pipelineSelectorA->setToggleState(false,false);
+
+    }
 }

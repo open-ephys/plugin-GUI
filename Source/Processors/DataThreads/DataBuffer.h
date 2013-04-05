@@ -36,33 +36,33 @@
 
 class DataBuffer
 {
-	
+
 public:
-	DataBuffer(int chans, int size);
-	~DataBuffer();
+    DataBuffer(int chans, int size);
+    ~DataBuffer();
 
     /** Clears the buffer.*/
-	void clear();
+    void clear();
 
     /** Add an array of floats to the buffer.*/
-	void addToBuffer(float* data, uint64* ts, int16* eventCodes, int numItems);
+    void addToBuffer(float* data, uint64* ts, int16* eventCodes, int numItems);
 
     /** Returns the number of samples currently available in the buffer.*/
-	int getNumSamples();
+    int getNumSamples();
 
     /** Copies as many samples as possible from the DataBuffer to an AudioSampleBuffer.*/
-	int readAllFromBuffer(AudioSampleBuffer& data, uint64* ts, int16* eventCodes, int maxSize);
+    int readAllFromBuffer(AudioSampleBuffer& data, uint64* ts, int16* eventCodes, int maxSize);
 
 private:
-	AbstractFifo abstractFifo;
-	AudioSampleBuffer buffer;
+    AbstractFifo abstractFifo;
+    AudioSampleBuffer buffer;
 
     uint64* timestampBuffer;
     int16* eventCodeBuffer;
 
-	int numChans;
+    int numChans;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataBuffer);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataBuffer);
 
 };
 

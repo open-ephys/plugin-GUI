@@ -35,7 +35,7 @@
 
   This class serves as a template for creating new processors.
 
-  If this were a real processor, this comment section would be used to 
+  If this were a real processor, this comment section would be used to
   describe the processor's function.
 
   @see GenericProcessor
@@ -46,19 +46,25 @@ class ExampleProcessor : public GenericProcessor
 
 {
 public:
-	
+
     /** The class constructor, used to initialize any members. */
-	ExampleProcessor();
+    ExampleProcessor();
 
     /** The class destructor, used to deallocate memory */
-	~ExampleProcessor();
+    ~ExampleProcessor();
 
     /** Determines whether the processor is treated as a source. */
-    bool isSource() {return false;}
+    bool isSource()
+    {
+        return false;
+    }
 
     /** Determines whether the processor is treated as a sink. */
-    bool isSink() {return false;}
-	
+    bool isSink()
+    {
+        return false;
+    }
+
     /** Defines the functionality of the processor.
 
         The process method is called every time a new data buffer is available.
@@ -71,23 +77,23 @@ public:
         number of continous samples in the current buffer (which may differ from the
         size of the buffer).
          */
-	void process (AudioSampleBuffer &buffer, MidiBuffer &events, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples);
 
     /** Any variables used by the "process" function _must_ be modified only through
         this method while data acquisition is active. If they are modified in any
         other way, the application will crash.  */
-	void setParameter (int parameterIndex, float newValue);
+    void setParameter(int parameterIndex, float newValue);
 
 private:
 
     // private members and methods go here
-    // 
+    //
     // e.g.:
     //
     // float threshold;
     // bool state;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ExampleProcessor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ExampleProcessor);
 
 };
 

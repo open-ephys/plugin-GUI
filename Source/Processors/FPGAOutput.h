@@ -40,41 +40,44 @@
 
 
 class FPGAOutput : public GenericProcessor,
-		           public Timer
-                   //public ActionBroadcaster
+    public Timer
+    //public ActionBroadcaster
 
 {
 public:
-	
-	FPGAOutput();
-	~FPGAOutput();
-	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void setParameter (int parameterIndex, float newValue);
+
+    FPGAOutput();
+    ~FPGAOutput();
+
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void setParameter(int parameterIndex, float newValue);
 
     void handleEvent(int eventType, MidiMessage& event, int sampleNum);
-    
-	AudioProcessorEditor* createEditor();
 
-	bool isSink() {return true;}
-    
-     void updateSettings();
-	
+    AudioProcessorEditor* createEditor();
+
+    bool isSink()
+    {
+        return true;
+    }
+
+    void updateSettings();
+
 private:
 
     int TTLchannel;
 
-	void timerCallback();
-    
+    void timerCallback();
+
     bool isEnabled;
 
     bool continuousStim;
-    
+
     FPGAThread* dataThread;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FPGAOutput);
-    
-    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FPGAOutput);
+
+
 
 };
 

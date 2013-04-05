@@ -44,14 +44,14 @@ class SourceNodeEditor : public GenericEditor
 
 {
 public:
-	SourceNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~SourceNodeEditor();
+    SourceNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~SourceNodeEditor();
 
-private:	
+private:
 
-	ImageIcon* icon;
+    ImageIcon* icon;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceNodeEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SourceNodeEditor);
 
 };
 

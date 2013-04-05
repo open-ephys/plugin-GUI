@@ -39,20 +39,20 @@ class EventDetector : public GenericProcessor
 
 {
 public:
-	
-	EventDetector();
-	~EventDetector();
-	
-	void process (AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void setParameter (int parameterIndex, float newValue);
+
+    EventDetector();
+    ~EventDetector();
+
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void setParameter(int parameterIndex, float newValue);
 
 private:
 
-	float threshold;
+    float threshold;
     float bufferZone;
     bool state;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EventDetector);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventDetector);
 
 };
 

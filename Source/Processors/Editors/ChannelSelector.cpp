@@ -29,475 +29,506 @@
 #include "../ProcessorGraph.h"
 
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
-	eventsOnly(false), paramsToggled(true), paramsActive(true),
-	radioStatus(false), isNotSink(createButtons), moveRight(false),
-	moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0),
-	titleFont(titleFont_), acquisitionIsActive(false)
+    eventsOnly(false), paramsToggled(true), paramsActive(true),
+    radioStatus(false), isNotSink(createButtons), moveRight(false),
+    moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0),
+    titleFont(titleFont_), acquisitionIsActive(false)
 {
 
-	// initialize buttons
-	audioButton = new EditorButton("AUDIO", titleFont);
+    // initialize buttons
+    audioButton = new EditorButton("AUDIO", titleFont);
     audioButton->addListener(this);
     addAndMakeVisible(audioButton);
     if (!createButtons)
-    	audioButton->setState(false);
+        audioButton->setState(false);
 
- 	recordButton = new EditorButton("REC", titleFont);
-	recordButton->addListener(this);
-	addAndMakeVisible(recordButton);
-	 if (!createButtons)
-    	recordButton->setState(false);
+    recordButton = new EditorButton("REC", titleFont);
+    recordButton->addListener(this);
+    addAndMakeVisible(recordButton);
+    if (!createButtons)
+        recordButton->setState(false);
 
-	paramsButton = new EditorButton("PARAM", titleFont);
-	paramsButton->addListener(this);
-	addAndMakeVisible(paramsButton);
-	
-	paramsButton->setToggleState(true, false);
+    paramsButton = new EditorButton("PARAM", titleFont);
+    paramsButton->addListener(this);
+    addAndMakeVisible(paramsButton);
 
-	audioButtons.clear();
-	recordButtons.clear();
+    paramsButton->setToggleState(true, false);
 
-	// set button layout parameters
-	parameterOffset = 0;
-	recordOffset = getDesiredWidth();
-	audioOffset = getDesiredWidth()*2;
+    audioButtons.clear();
+    recordButtons.clear();
 
-	parameterButtons.clear();
+    // set button layout parameters
+    parameterOffset = 0;
+    recordOffset = getDesiredWidth();
+    audioOffset = getDesiredWidth()*2;
 
-	allButton = new EditorButton("all", titleFont);
-	allButton->addListener(this);
-	addAndMakeVisible(allButton);
+    parameterButtons.clear();
 
-	noneButton = new EditorButton("none", titleFont);
-	noneButton->addListener(this);
-	addAndMakeVisible(noneButton);
+    allButton = new EditorButton("all", titleFont);
+    allButton->addListener(this);
+    addAndMakeVisible(allButton);
+
+    noneButton = new EditorButton("none", titleFont);
+    noneButton->addListener(this);
+    addAndMakeVisible(noneButton);
 
 }
 
 ChannelSelector::~ChannelSelector()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 
 }
 
 void ChannelSelector::paint(Graphics& g)
 {
-	ColourGradient grad1 = ColourGradient(Colours::black.withAlpha(0.8f),0.0,0.0,
-										  Colours::black.withAlpha(0.1f),0.0,25.0f,
-										  false);
-	g.setGradientFill(grad1);
-	g.fillRect(0, 15, getWidth(), getHeight()-30);
+    ColourGradient grad1 = ColourGradient(Colours::black.withAlpha(0.8f),0.0,0.0,
+                                          Colours::black.withAlpha(0.1f),0.0,25.0f,
+                                          false);
+    g.setGradientFill(grad1);
+    g.fillRect(0, 15, getWidth(), getHeight()-30);
 
-	ColourGradient grad2 = ColourGradient(Colours::black.withAlpha(0.2f),0.0,0.0,
-										  Colours::black.withAlpha(0.0f),5.0f,0.0f,
-										  false);
-	g.setGradientFill(grad2);
-	g.fillRect(0, 15, getWidth(), getHeight()-30);
+    ColourGradient grad2 = ColourGradient(Colours::black.withAlpha(0.2f),0.0,0.0,
+                                          Colours::black.withAlpha(0.0f),5.0f,0.0f,
+                                          false);
+    g.setGradientFill(grad2);
+    g.fillRect(0, 15, getWidth(), getHeight()-30);
 
-	ColourGradient grad3 = ColourGradient(Colours::black.withAlpha(0.2f),(float) getDesiredWidth(),0.0,
-										  Colours::black.withAlpha(0.0f),(float) getDesiredWidth()-5.0f,0.0f,
-										  false);
-	g.setGradientFill(grad3);
-	g.fillRect(0, 15, getWidth(), getHeight()-30);
+    ColourGradient grad3 = ColourGradient(Colours::black.withAlpha(0.2f),(float) getDesiredWidth(),0.0,
+                                          Colours::black.withAlpha(0.0f),(float) getDesiredWidth()-5.0f,0.0f,
+                                          false);
+    g.setGradientFill(grad3);
+    g.fillRect(0, 15, getWidth(), getHeight()-30);
 }
 
 
 void ChannelSelector::setNumChannels(int numChans)
 {
 
-	int difference = numChans - parameterButtons.size();
+    int difference = numChans - parameterButtons.size();
 
-	std::cout << difference << " buttons needed." << std::endl;
+    std::cout << difference << " buttons needed." << std::endl;
 
-	if (difference > 0)
-	{
-		for (int n = 0; n < difference; n++)
-		{
-			addButton();
-		}
-	} else if (difference < 0)
-	{
-		for (int n = 0; n < -difference; n++)
-		{
-			removeButton();
-		}
-	}
+    if (difference > 0)
+    {
+        for (int n = 0; n < difference; n++)
+        {
+            addButton();
+        }
+    }
+    else if (difference < 0)
+    {
+        for (int n = 0; n < -difference; n++)
+        {
+            removeButton();
+        }
+    }
 
-	refreshButtonBoundaries();
+    refreshButtonBoundaries();
 
 }
 
 void ChannelSelector::refreshButtonBoundaries()
 {
 
-	int nColumns = 8;
-	int columnWidth = getDesiredWidth()/(nColumns + 1);
-	int rowHeight = 14;
-	int topOffset = 20;
+    int nColumns = 8;
+    int columnWidth = getDesiredWidth()/(nColumns + 1);
+    int rowHeight = 14;
+    int topOffset = 20;
 
-	for (int i = 0; i < parameterButtons.size(); i++)
-	{
-		parameterButtons[i]->setBounds(columnWidth/2 + offsetLR +
-									   columnWidth*((i)%nColumns),
-									   floor(double(i)/nColumns)*rowHeight+offsetUD + topOffset,
-									   columnWidth, rowHeight);
+    for (int i = 0; i < parameterButtons.size(); i++)
+    {
+        parameterButtons[i]->setBounds(columnWidth/2 + offsetLR +
+                                       columnWidth*((i)%nColumns),
+                                       floor(double(i)/nColumns)*rowHeight+offsetUD + topOffset,
+                                       columnWidth, rowHeight);
 
-		if (isNotSink)
-		{
-			recordButtons[i]->setBounds(columnWidth/2 + offsetLR +
-									   columnWidth*((i)%nColumns) - getDesiredWidth(),
-									   floor(double(i)/nColumns)*rowHeight+offsetUD + topOffset,
-									   columnWidth, rowHeight);
-			audioButtons[i]->setBounds(columnWidth/2 + offsetLR +
-									   columnWidth*((i)%nColumns) -
-									   	getDesiredWidth()*2,
-									   floor(double(i)/nColumns)*rowHeight+offsetUD + topOffset,
-									   columnWidth, rowHeight);
-		}
+        if (isNotSink)
+        {
+            recordButtons[i]->setBounds(columnWidth/2 + offsetLR +
+                                        columnWidth*((i)%nColumns) - getDesiredWidth(),
+                                        floor(double(i)/nColumns)*rowHeight+offsetUD + topOffset,
+                                        columnWidth, rowHeight);
+            audioButtons[i]->setBounds(columnWidth/2 + offsetLR +
+                                       columnWidth*((i)%nColumns) -
+                                       getDesiredWidth()*2,
+                                       floor(double(i)/nColumns)*rowHeight+offsetUD + topOffset,
+                                       columnWidth, rowHeight);
+        }
 
-	}
+    }
 
-	int w = getWidth()/3;
-	int h = 15;
+    int w = getWidth()/3;
+    int h = 15;
 
-	audioButton->setBounds(0, 0, w, h);
-	recordButton->setBounds(w, 0, w, h);
-	paramsButton->setBounds(w*2, 0, w, h);
+    audioButton->setBounds(0, 0, w, h);
+    recordButton->setBounds(w, 0, w, h);
+    paramsButton->setBounds(w*2, 0, w, h);
 
-	allButton->setBounds(0, getHeight()-15, getWidth()/2, 15);
-	noneButton->setBounds(getWidth()/2, getHeight()-15, getWidth()/2, 15);
+    allButton->setBounds(0, getHeight()-15, getWidth()/2, 15);
+    noneButton->setBounds(getWidth()/2, getHeight()-15, getWidth()/2, 15);
 
 }
 
 void ChannelSelector::resized()
 {
-	refreshButtonBoundaries();
+    refreshButtonBoundaries();
 }
 
 void ChannelSelector::timerCallback()
 {
 
-	//std::cout << desiredOffset - offsetLR << std::endl;
+    //std::cout << desiredOffset - offsetLR << std::endl;
 
-	if (offsetLR != desiredOffset)
-	{
-		if (desiredOffset - offsetLR > 0)
-		{
-			offsetLR += 25; // be careful what you set this value to!
-							// if it's not a multiple of the desired
-							// width, things could go badly!
-		} else {
-			offsetLR -= 25;
-		}
+    if (offsetLR != desiredOffset)
+    {
+        if (desiredOffset - offsetLR > 0)
+        {
+            offsetLR += 25; // be careful what you set this value to!
+            // if it's not a multiple of the desired
+            // width, things could go badly!
+        }
+        else
+        {
+            offsetLR -= 25;
+        }
 
-	} else {
-		stopTimer();
-	}
+    }
+    else
+    {
+        stopTimer();
+    }
 
-	refreshButtonBoundaries();
+    refreshButtonBoundaries();
 
 }
 
 void ChannelSelector::addButton()
 {
 
-	int size = parameterButtons.size();
+    int size = parameterButtons.size();
 
-	ChannelSelectorButton* b = new ChannelSelectorButton(size+1, PARAMETER, titleFont);
-	parameterButtons.add(b);
-	addAndMakeVisible(b);
+    ChannelSelectorButton* b = new ChannelSelectorButton(size+1, PARAMETER, titleFont);
+    parameterButtons.add(b);
+    addAndMakeVisible(b);
 
-	if (paramsToggled)
-		b->setToggleState(true, false);
-	else 
-		b->setToggleState(false, false);
+    if (paramsToggled)
+        b->setToggleState(true, false);
+    else
+        b->setToggleState(false, false);
 
-	if (!paramsActive)
-		b->setActive(false);
+    if (!paramsActive)
+        b->setActive(false);
 
-	b->addListener(this);
+    b->addListener(this);
 
-	if (isNotSink)
-	{
-		ChannelSelectorButton* br = new ChannelSelectorButton(size+1, RECORD, titleFont);
-		recordButtons.add(br);
-		addAndMakeVisible(br);
-		br->addListener(this);
+    if (isNotSink)
+    {
+        ChannelSelectorButton* br = new ChannelSelectorButton(size+1, RECORD, titleFont);
+        recordButtons.add(br);
+        addAndMakeVisible(br);
+        br->addListener(this);
 
-		ChannelSelectorButton* ba = new ChannelSelectorButton(size+1, AUDIO, titleFont);
-		audioButtons.add(ba);
-		addAndMakeVisible(ba);
-		ba->addListener(this);
-	}
+        ChannelSelectorButton* ba = new ChannelSelectorButton(size+1, AUDIO, titleFont);
+        audioButtons.add(ba);
+        addAndMakeVisible(ba);
+        ba->addListener(this);
+    }
 }
 
 void ChannelSelector::removeButton()
 {
-	int size = parameterButtons.size();
+    int size = parameterButtons.size();
 
-	ChannelSelectorButton* b = parameterButtons.remove(size-1);
-	removeChildComponent(b);
-	deleteAndZero(b);
+    ChannelSelectorButton* b = parameterButtons.remove(size-1);
+    removeChildComponent(b);
+    deleteAndZero(b);
 
-	if (isNotSink)
-	{
-		ChannelSelectorButton* br = recordButtons.remove(size-1);
-		removeChildComponent(br);
-		deleteAndZero(br);
+    if (isNotSink)
+    {
+        ChannelSelectorButton* br = recordButtons.remove(size-1);
+        removeChildComponent(br);
+        deleteAndZero(br);
 
-		ChannelSelectorButton* ba = audioButtons.remove(size-1);
-		removeChildComponent(ba);
-		deleteAndZero(ba);
-	}
+        ChannelSelectorButton* ba = audioButtons.remove(size-1);
+        removeChildComponent(ba);
+        deleteAndZero(ba);
+    }
 }
 
 Array<int> ChannelSelector::getActiveChannels()
 {
-	Array<int> a;
+    Array<int> a;
 
-    if (!eventsOnly) {
-	for (int i = 0; i < parameterButtons.size(); i++)
-	{
-		if (parameterButtons[i]->getToggleState())
-			a.add(i);
-	}
-    } else {
+    if (!eventsOnly)
+    {
+        for (int i = 0; i < parameterButtons.size(); i++)
+        {
+            if (parameterButtons[i]->getToggleState())
+                a.add(i);
+        }
+    }
+    else
+    {
         a.add(0);
     }
 
-	return a;
+    return a;
 }
 
 void ChannelSelector::setActiveChannels(Array<int> a)
 {
 
-	std::cout << "Setting active channels!" << std::endl;
+    std::cout << "Setting active channels!" << std::endl;
 
-	for (int i = 0; i < parameterButtons.size(); i++)
-	{
-		parameterButtons[i]->setToggleState(false,false);
-	}
+    for (int i = 0; i < parameterButtons.size(); i++)
+    {
+        parameterButtons[i]->setToggleState(false,false);
+    }
 
-	for (int i = 0; i < a.size(); i++)
-	{
-		parameterButtons[a[i]]->setToggleState(true,false);
-	}
+    for (int i = 0; i < a.size(); i++)
+    {
+        parameterButtons[a[i]]->setToggleState(true,false);
+    }
 }
 
 void ChannelSelector::inactivateButtons()
 {
 
-	paramsActive = false;
+    paramsActive = false;
 
-	for (int i = 0; i < parameterButtons.size(); i++)
-	{
-		parameterButtons[i]->setActive(false);
-		parameterButtons[i]->repaint();
-	}
+    for (int i = 0; i < parameterButtons.size(); i++)
+    {
+        parameterButtons[i]->setActive(false);
+        parameterButtons[i]->repaint();
+    }
 }
 
 void ChannelSelector::activateButtons()
 {
 
-	paramsActive = true;
+    paramsActive = true;
 
-	for (int i = 0; i < parameterButtons.size(); i++)
-	{
-		parameterButtons[i]->setActive(true);
-		parameterButtons[i]->repaint();
-	}
+    for (int i = 0; i < parameterButtons.size(); i++)
+    {
+        parameterButtons[i]->setActive(true);
+        parameterButtons[i]->repaint();
+    }
 
 }
 
 void ChannelSelector::startAcquisition()
 {
-	acquisitionIsActive = true;
+    acquisitionIsActive = true;
 }
 
 void ChannelSelector::stopAcquisition()
 {
-	acquisitionIsActive = false;
+    acquisitionIsActive = false;
 }
 
 void ChannelSelector::setRadioStatus(bool radioOn)
 {
 
-	radioStatus = radioOn;
+    radioStatus = radioOn;
 
-	for (int i = 0; i < parameterButtons.size(); i++)
-	{
-		if (radioOn) {
-			parameterButtons[i]->setToggleState(false, false);
-			parameterButtons[i]->setRadioGroupId(999);
-		} else {
-			parameterButtons[i]->setToggleState(false, false);
-			parameterButtons[i]->setRadioGroupId(0);
-		}
-	}
+    for (int i = 0; i < parameterButtons.size(); i++)
+    {
+        if (radioOn)
+        {
+            parameterButtons[i]->setToggleState(false, false);
+            parameterButtons[i]->setRadioGroupId(999);
+        }
+        else
+        {
+            parameterButtons[i]->setToggleState(false, false);
+            parameterButtons[i]->setRadioGroupId(0);
+        }
+    }
 
 }
 
 bool ChannelSelector::getRecordStatus(int chan)
 {
 
-	if (chan >= 0 && chan < recordButtons.size())
-		return recordButtons[chan]->getToggleState();
-	else 
-		return false;
+    if (chan >= 0 && chan < recordButtons.size())
+        return recordButtons[chan]->getToggleState();
+    else
+        return false;
 
 }
 
 bool ChannelSelector::getAudioStatus(int chan)
 {
 
-	if (chan >= 0 && chan < recordButtons.size())
-		return audioButtons[chan]->getToggleState();
-	else 
-		return false;
+    if (chan >= 0 && chan < recordButtons.size())
+        return audioButtons[chan]->getToggleState();
+    else
+        return false;
 
 }
 
 
 int ChannelSelector::getDesiredWidth()
 {
-	return 150;
+    return 150;
 }
 
 void ChannelSelector::buttonClicked(Button* button)
 {
-	//checkChannelSelectors();
-	if (button == paramsButton)
-	{
-		// make sure param buttons are visible
-		allButton->setState(true);
-		desiredOffset = parameterOffset;
-		startTimer(20);
-		return;
-	} else if (button == audioButton)
-	{
-		// make sure audio buttons are visible
+    //checkChannelSelectors();
+    if (button == paramsButton)
+    {
+        // make sure param buttons are visible
+        allButton->setState(true);
+        desiredOffset = parameterOffset;
+        startTimer(20);
+        return;
+    }
+    else if (button == audioButton)
+    {
+        // make sure audio buttons are visible
 
-		if (audioButton->getState())
-		{
-		allButton->setState(false);
-			
-		desiredOffset = audioOffset;
-		startTimer(20);
-		} else {
-			paramsButton->setToggleState(true, false);
-		}
-		return;
-	} else if (button == recordButton)
-	{
-		// make sure record buttons are visible;
-		if (recordButton->getState())
-			{
-		allButton->setState(true);
-		desiredOffset = recordOffset;
-		startTimer(20);
-		} else {
-				paramsButton->setToggleState(true, false);
-			}
-		return;
-	} 
-	else if (button == allButton)	
-	{
-		// select all active buttons
-		if (offsetLR == recordOffset)
-		{
-			
-			
-			for (int i = 0; i < recordButtons.size(); i++)
-			{
-				recordButtons[i]->setToggleState(true, true);
-			}
-			
-		} else if (offsetLR == parameterOffset)
-		{
-			
+        if (audioButton->getState())
+        {
+            allButton->setState(false);
 
-			for (int i = 0; i < parameterButtons.size(); i++)
-			{
-				parameterButtons[i]->setToggleState(true, true);
-			}
-		} else if (offsetLR == audioOffset)
-		{
-			// do nothing--> button is disabled
-		}
-	} else if (button == noneButton)
-	{
-		// deselect all active buttons
-		if (offsetLR == recordOffset)
-		{
-			for (int i = 0; i < recordButtons.size(); i++)
-			{
-				recordButtons[i]->setToggleState(false, true);
-			}
-		} else if (offsetLR == parameterOffset)
-		{
-			for (int i = 0; i < parameterButtons.size(); i++)
-			{
-				parameterButtons[i]->setToggleState(false, true);
-			}
-		} else if (offsetLR == audioOffset)
-		{
-			for (int i = 0; i < audioButtons.size(); i++)
-			{
-				audioButtons[i]->setToggleState(false, true);
-			}
-		}
-	} else {
+            desiredOffset = audioOffset;
+            startTimer(20);
+        }
+        else
+        {
+            paramsButton->setToggleState(true, false);
+        }
+        return;
+    }
+    else if (button == recordButton)
+    {
+        // make sure record buttons are visible;
+        if (recordButton->getState())
+        {
+            allButton->setState(true);
+            desiredOffset = recordOffset;
+            startTimer(20);
+        }
+        else
+        {
+            paramsButton->setToggleState(true, false);
+        }
+        return;
+    }
+    else if (button == allButton)
+    {
+        // select all active buttons
+        if (offsetLR == recordOffset)
+        {
 
-		ChannelSelectorButton* b = (ChannelSelectorButton*) button;
 
-		if (b->getType() == AUDIO)
-		{
-			// get audio node, and inform it of the change
-			GenericEditor* editor = (GenericEditor*) getParentComponent();
+            for (int i = 0; i < recordButtons.size(); i++)
+            {
+                recordButtons[i]->setToggleState(true, true);
+            }
 
-			Channel* ch = editor->getChannel(b->getChannel()-1);
-			//int channelNum = editor->getStartChannel() + b->getChannel() - 1;
-			bool status = b->getToggleState();
-			
-			if (acquisitionIsActive) // use setParameter to change parameter safely
-			{
-				editor->getProcessorGraph()->
-					getAudioNode()->
-					setChannelStatus(ch, status);
-			} else { // change parameter directly
-				ch->isMonitored = status;
-			}
-			
+        }
+        else if (offsetLR == parameterOffset)
+        {
 
-		} else if (b->getType() == RECORD)
-		{
-			// get record node, and inform it of the change
-			GenericEditor* editor = (GenericEditor*) getParentComponent();
 
-			Channel* ch = editor->getChannel(b->getChannel()-1);
-			//int channelNum = editor->getStartChannel() + b->getChannel() - 1;
-			bool status = b->getToggleState();
+            for (int i = 0; i < parameterButtons.size(); i++)
+            {
+                parameterButtons[i]->setToggleState(true, true);
+            }
+        }
+        else if (offsetLR == audioOffset)
+        {
+            // do nothing--> button is disabled
+        }
+    }
+    else if (button == noneButton)
+    {
+        // deselect all active buttons
+        if (offsetLR == recordOffset)
+        {
+            for (int i = 0; i < recordButtons.size(); i++)
+            {
+                recordButtons[i]->setToggleState(false, true);
+            }
+        }
+        else if (offsetLR == parameterOffset)
+        {
+            for (int i = 0; i < parameterButtons.size(); i++)
+            {
+                parameterButtons[i]->setToggleState(false, true);
+            }
+        }
+        else if (offsetLR == audioOffset)
+        {
+            for (int i = 0; i < audioButtons.size(); i++)
+            {
+                audioButtons[i]->setToggleState(false, true);
+            }
+        }
+    }
+    else
+    {
 
-			if (acquisitionIsActive) // use setParameter to change parameter safely
-			{
-			editor->getProcessorGraph()->
-					getRecordNode()->
-					setChannelStatus(ch, status);
-			} else { // change parameter directly
-				ch->isRecording = status;
-			}
-					
-		} else {
-			// do nothing
-			if (radioStatus) // if radio buttons are active
-			{
-				// send a message to parent
-				GenericEditor* editor = (GenericEditor*) getParentComponent();
-				editor->channelChanged(b->getChannel());
-			}
-		}
+        ChannelSelectorButton* b = (ChannelSelectorButton*) button;
 
-	}
+        if (b->getType() == AUDIO)
+        {
+            // get audio node, and inform it of the change
+            GenericEditor* editor = (GenericEditor*) getParentComponent();
+
+            Channel* ch = editor->getChannel(b->getChannel()-1);
+            //int channelNum = editor->getStartChannel() + b->getChannel() - 1;
+            bool status = b->getToggleState();
+
+            if (acquisitionIsActive) // use setParameter to change parameter safely
+            {
+                editor->getProcessorGraph()->
+                getAudioNode()->
+                setChannelStatus(ch, status);
+            }
+            else     // change parameter directly
+            {
+                ch->isMonitored = status;
+            }
+
+
+        }
+        else if (b->getType() == RECORD)
+        {
+            // get record node, and inform it of the change
+            GenericEditor* editor = (GenericEditor*) getParentComponent();
+
+            Channel* ch = editor->getChannel(b->getChannel()-1);
+            //int channelNum = editor->getStartChannel() + b->getChannel() - 1;
+            bool status = b->getToggleState();
+
+            if (acquisitionIsActive) // use setParameter to change parameter safely
+            {
+                editor->getProcessorGraph()->
+                getRecordNode()->
+                setChannelStatus(ch, status);
+            }
+            else     // change parameter directly
+            {
+                ch->isRecording = status;
+            }
+
+        }
+        else
+        {
+            // do nothing
+            if (radioStatus) // if radio buttons are active
+            {
+                // send a message to parent
+                GenericEditor* editor = (GenericEditor*) getParentComponent();
+                editor->channelChanged(b->getChannel());
+            }
+        }
+
+    }
 
 }
 
@@ -505,32 +536,32 @@ void ChannelSelector::buttonClicked(Button* button)
 ///////////// BUTTONS //////////////////////
 
 
-EditorButton::EditorButton(const String& name, Font& f) : Button(name) 
+EditorButton::EditorButton(const String& name, Font& f) : Button(name)
 {
 
-	isEnabled = true;
+    isEnabled = true;
 
-	buttonFont = f;
-	buttonFont.setHeight(10);
+    buttonFont = f;
+    buttonFont.setHeight(10);
 
-	if (!getName().equalsIgnoreCase("all") && !getName().equalsIgnoreCase("none"))
-	{
-    	setRadioGroupId(999);
-    	setClickingTogglesState(true);
+    if (!getName().equalsIgnoreCase("all") && !getName().equalsIgnoreCase("none"))
+    {
+        setRadioGroupId(999);
+        setClickingTogglesState(true);
     }
 
     selectedGrad = ColourGradient(Colour(240,179,12),0.0,0.0,
-										 Colour(207,160,33),0.0, 20.0f,
-										 false);
+                                  Colour(207,160,33),0.0, 20.0f,
+                                  false);
     selectedOverGrad = ColourGradient(Colour(209,162,33),0.0, 5.0f,
-										 Colour(190,150,25),0.0, 0.0f,
-										 false);
+                                      Colour(190,150,25),0.0, 0.0f,
+                                      false);
     neutralGrad = ColourGradient(Colour(220,220,220),0.0,0.0,
-										 Colour(170,170,170),0.0, 20.0f,
-										 false);
+                                 Colour(170,170,170),0.0, 20.0f,
+                                 false);
     neutralOverGrad = ColourGradient(Colour(180,180,180),0.0,5.0f,
-										 Colour(150,150,150),0.0, 0.0,
-										 false);
+                                     Colour(150,150,150),0.0, 0.0,
+                                     false);
 
 
 }
@@ -542,127 +573,133 @@ void EditorButton::resized()
     float height = (float) getHeight();
 
     if (getName().equalsIgnoreCase("AUDIO"))
-	{
-		//outlinePath.startNewSubPath(0, height);
-		outlinePath.lineTo(0, 0);//radius);
-		//outlinePath.addArc(0, 0, radius*2, radius*2, 1.5*double_Pi, 2.0*double_Pi );
+    {
+        //outlinePath.startNewSubPath(0, height);
+        outlinePath.lineTo(0, 0);//radius);
+        //outlinePath.addArc(0, 0, radius*2, radius*2, 1.5*double_Pi, 2.0*double_Pi );
 
-		outlinePath.lineTo(width, 0);//getHeight());
+        outlinePath.lineTo(width, 0);//getHeight());
 
-		outlinePath.lineTo(width, height);
+        outlinePath.lineTo(width, height);
 
-		outlinePath.lineTo(0, height);
-		//outlinePath.addArc(0, getHeight()-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
-		//outlinePath.lineTo(0, radius);
-		outlinePath.closeSubPath();
+        outlinePath.lineTo(0, height);
+        //outlinePath.addArc(0, getHeight()-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
+        //outlinePath.lineTo(0, radius);
+        outlinePath.closeSubPath();
 
-	} else if (getName().equalsIgnoreCase("PARAM"))
-	{
-		//outlinePath.startNewSubPath(0, 0);
+    }
+    else if (getName().equalsIgnoreCase("PARAM"))
+    {
+        //outlinePath.startNewSubPath(0, 0);
 
-		outlinePath.lineTo(width, 0);
-	
-		//outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
+        outlinePath.lineTo(width, 0);
 
-		outlinePath.lineTo(getWidth(), height);
+        //outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
 
-		//outlinePath.addArc(getWidth()-radius*2, getHeight()-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
+        outlinePath.lineTo(getWidth(), height);
 
-		outlinePath.lineTo(0, height);
-		outlinePath.lineTo(0, 0);
-		//outlinePath.closeSubPath();
+        //outlinePath.addArc(getWidth()-radius*2, getHeight()-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
 
-
-	} else if (getName().equalsIgnoreCase("REC"))
-	{
-
-		outlinePath.addRectangle(0,0,getWidth(),getHeight());
-
-	} else if (getName().equalsIgnoreCase("all"))
-	{
-
-		//outlinePath.startNewSubPath(0, 0);
-
-		outlinePath.lineTo(width, 0);
-	
-		//outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
-
-		outlinePath.lineTo(width, height);
-
-		//outlinePath.addArc(getWidth()-radius*2, getHeight()-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
-
-		outlinePath.lineTo(0, height);
-		//outlinePath.addArc(0, height-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
-
-		outlinePath.lineTo(0, 0);
-		//outlinePath.closeSubPath();
-
-	} else if (getName().equalsIgnoreCase("none"))
-	{
-
-		//outlinePath.startNewSubPath(0, 0);
-
-		outlinePath.lineTo(width, 0);
-	
-		//outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
-
-		outlinePath.lineTo(width, height);
-
-		//outlinePath.addArc(width-radius*2, height-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
-
-		outlinePath.lineTo(0, height);
-
-		outlinePath.lineTo(0, 0);
-		//outlinePath.closeSubPath();
-
-	}
-
-}
+        outlinePath.lineTo(0, height);
+        outlinePath.lineTo(0, 0);
+        //outlinePath.closeSubPath();
 
 
-void EditorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
-{
+    }
+    else if (getName().equalsIgnoreCase("REC"))
+    {
 
-	g.setColour(Colours::grey);
-	g.fillPath(outlinePath);
+        outlinePath.addRectangle(0,0,getWidth(),getHeight());
 
-	 if (getToggleState())
-     {
-     	if (isMouseOver && isEnabled)
-     		g.setGradientFill(selectedOverGrad);
-        else
-        	g.setGradientFill(selectedGrad);
-     } else {
-         if (isMouseOver && isEnabled)
-         	g.setGradientFill(neutralOverGrad);
-        else
-        	g.setGradientFill(neutralGrad);
-     }
+    }
+    else if (getName().equalsIgnoreCase("all"))
+    {
 
-	AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth())/2.0f,
-												float(getHeight())/2.0f);
-	g.fillPath(outlinePath, a);
+        //outlinePath.startNewSubPath(0, 0);
 
-	buttonFont.setHeight(10.0f);
-	int stringWidth = buttonFont.getStringWidth(getName());
+        outlinePath.lineTo(width, 0);
 
-	g.setFont(buttonFont);
+        //outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
 
-	if (isEnabled)
-		g.setColour(Colours::darkgrey);
-	else
-		g.setColour(Colours::lightgrey);
+        outlinePath.lineTo(width, height);
 
-	g.drawSingleLineText(getName(), getWidth()/2 - stringWidth/2, 11);
+        //outlinePath.addArc(getWidth()-radius*2, getHeight()-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
+
+        outlinePath.lineTo(0, height);
+        //outlinePath.addArc(0, height-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
+
+        outlinePath.lineTo(0, 0);
+        //outlinePath.closeSubPath();
+
+    }
+    else if (getName().equalsIgnoreCase("none"))
+    {
+
+        //outlinePath.startNewSubPath(0, 0);
+
+        outlinePath.lineTo(width, 0);
+
+        //outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
+
+        outlinePath.lineTo(width, height);
+
+        //outlinePath.addArc(width-radius*2, height-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
+
+        outlinePath.lineTo(0, height);
+
+        outlinePath.lineTo(0, 0);
+        //outlinePath.closeSubPath();
+
+    }
 
 }
 
 
-ChannelSelectorButton::ChannelSelectorButton(int num_, int type_, Font& f) : Button("name") 
+void EditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-	isActive = true;
-	num = num_;
-	type = type_;
+
+    g.setColour(Colours::grey);
+    g.fillPath(outlinePath);
+
+    if (getToggleState())
+    {
+        if (isMouseOver && isEnabled)
+            g.setGradientFill(selectedOverGrad);
+        else
+            g.setGradientFill(selectedGrad);
+    }
+    else
+    {
+        if (isMouseOver && isEnabled)
+            g.setGradientFill(neutralOverGrad);
+        else
+            g.setGradientFill(neutralGrad);
+    }
+
+    AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth())/2.0f,
+                                               float(getHeight())/2.0f);
+    g.fillPath(outlinePath, a);
+
+    buttonFont.setHeight(10.0f);
+    int stringWidth = buttonFont.getStringWidth(getName());
+
+    g.setFont(buttonFont);
+
+    if (isEnabled)
+        g.setColour(Colours::darkgrey);
+    else
+        g.setColour(Colours::lightgrey);
+
+    g.drawSingleLineText(getName(), getWidth()/2 - stringWidth/2, 11);
+
+}
+
+
+ChannelSelectorButton::ChannelSelectorButton(int num_, int type_, Font& f) : Button("name")
+{
+    isActive = true;
+    num = num_;
+    type = type_;
 
     setClickingTogglesState(true);
 
@@ -671,22 +708,25 @@ ChannelSelectorButton::ChannelSelectorButton(int num_, int type_, Font& f) : But
 }
 
 
-void ChannelSelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+void ChannelSelectorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-	if (isActive) {
-		if (getToggleState() == true)
-		    g.setColour(Colours::orange);
-		else 
-		    g.setColour(Colours::darkgrey);
+    if (isActive)
+    {
+        if (getToggleState() == true)
+            g.setColour(Colours::orange);
+        else
+            g.setColour(Colours::darkgrey);
 
-		if (isMouseOver)
-		    g.setColour(Colours::white);
-	} else {
-		if (getToggleState() == true)
-			g.setColour(Colours::yellow);
-		else
-			g.setColour(Colours::lightgrey);
-	}
+        if (isMouseOver)
+            g.setColour(Colours::white);
+    }
+    else
+    {
+        if (getToggleState() == true)
+            g.setColour(Colours::yellow);
+        else
+            g.setColour(Colours::lightgrey);
+    }
 
     // g.fillRect(0,0,getWidth(),getHeight());
 
@@ -699,6 +739,6 @@ void ChannelSelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isBu
 
 void ChannelSelectorButton::setActive(bool t)
 {
-	isActive = t;
-	setClickingTogglesState(t);
+    isActive = t;
+    setClickingTogglesState(t);
 }

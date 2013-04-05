@@ -27,22 +27,22 @@
 #include <stdio.h>
 
 
-ReferenceNodeEditor::ReferenceNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-	: GenericEditor(parentNode, useDefaultParameterEditors)
+ReferenceNodeEditor::ReferenceNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-	desiredWidth = 180;
+    desiredWidth = 180;
 
 
 }
 
 ReferenceNodeEditor::~ReferenceNodeEditor()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }
 
-void ReferenceNodeEditor::buttonEvent (Button* button)
+void ReferenceNodeEditor::buttonEvent(Button* button)
 {
-	
+
 
 }

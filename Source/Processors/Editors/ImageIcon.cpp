@@ -25,7 +25,7 @@
 
 void ImageIcon::setOpacity(float o)
 {
-	opacity = o;
-	repaint();
+    opacity = o;
+    repaint();
 
 }

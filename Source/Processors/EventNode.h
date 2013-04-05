@@ -29,7 +29,7 @@
 #include "Editors/EventNodeEditor.h"
 
 /**
-  
+
   Generates events at regular intervals.
 
   @see GenericProcessor, EventNodeEditor
@@ -40,27 +40,33 @@ class EventNode : public GenericProcessor
 
 {
 public:
-	
-	EventNode();
-	~EventNode();
-	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	//void setParameter (int parameterIndex, float newValue);
 
-	bool isSource() {return true;}
+    EventNode();
+    ~EventNode();
 
-    int getDefaultNumOutputs() {return 0;}
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    //void setParameter (int parameterIndex, float newValue);
+
+    bool isSource()
+    {
+        return true;
+    }
+
+    int getDefaultNumOutputs()
+    {
+        return 0;
+    }
 
     void updateSettings();
 
-	AudioProcessorEditor* createEditor();
-	
+    AudioProcessorEditor* createEditor();
+
 private:
 
-	float accumulator;
-	float Hz;
+    float accumulator;
+    float Hz;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EventNode);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventNode);
 
 };
 

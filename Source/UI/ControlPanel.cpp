@@ -27,107 +27,108 @@
 #include <math.h>
 
 PlayButton::PlayButton()
-	: DrawableButton ("PlayButton", DrawableButton::ImageFitted)
+    : DrawableButton("PlayButton", DrawableButton::ImageFitted)
 {
 
-		DrawablePath normal, over, down;
+    DrawablePath normal, over, down;
 
-        Path p;
-        p.addTriangle (0.0f, 0.0f, 0.0f, 20.0f, 18.0f, 10.0f);
-        normal.setPath (p);
-        normal.setFill (Colours::lightgrey);
-        normal.setStrokeThickness (0.0f);
+    Path p;
+    p.addTriangle(0.0f, 0.0f, 0.0f, 20.0f, 18.0f, 10.0f);
+    normal.setPath(p);
+    normal.setFill(Colours::lightgrey);
+    normal.setStrokeThickness(0.0f);
 
-        over.setPath (p);
-        over.setFill (Colours::black);
-        over.setStrokeFill (Colours::black);
-        over.setStrokeThickness (5.0f);
+    over.setPath(p);
+    over.setFill(Colours::black);
+    over.setStrokeFill(Colours::black);
+    over.setStrokeThickness(5.0f);
 
-        down.setPath (p);
-        down.setFill (Colours::pink);
-        down.setStrokeFill (Colours::pink);
-        down.setStrokeThickness (5.0f);
+    down.setPath(p);
+    down.setFill(Colours::pink);
+    down.setStrokeFill(Colours::pink);
+    down.setStrokeThickness(5.0f);
 
-        setImages (&normal, &over, &over);
-       // setBackgroundColours(Colours::darkgrey, Colours::yellow);
-        setClickingTogglesState (true);
-        setTooltip ("Start/stop acquisition");
+    setImages(&normal, &over, &over);
+    // setBackgroundColours(Colours::darkgrey, Colours::yellow);
+    setClickingTogglesState(true);
+    setTooltip("Start/stop acquisition");
 
 
 }
 
 PlayButton::~PlayButton()
-{	
+{
 }
 
 RecordButton::RecordButton()
-	: DrawableButton ("RecordButton", DrawableButton::ImageFitted)
+    : DrawableButton("RecordButton", DrawableButton::ImageFitted)
 {
 
-		DrawablePath normal, over, down;
+    DrawablePath normal, over, down;
 
-        Path p;
-        p.addEllipse (0.0,0.0,20.0,20.0);
-        normal.setPath (p);
-        normal.setFill (Colours::lightgrey);
-        normal.setStrokeThickness (0.0f);
+    Path p;
+    p.addEllipse(0.0,0.0,20.0,20.0);
+    normal.setPath(p);
+    normal.setFill(Colours::lightgrey);
+    normal.setStrokeThickness(0.0f);
 
-        over.setPath (p);
-        over.setFill (Colours::black);
-        over.setStrokeFill (Colours::black);
-        over.setStrokeThickness (5.0f);
+    over.setPath(p);
+    over.setFill(Colours::black);
+    over.setStrokeFill(Colours::black);
+    over.setStrokeThickness(5.0f);
 
-        setImages (&normal, &over, &over);
-        //setBackgroundColours(Colours::darkgrey, Colours::red);
-        setClickingTogglesState (true);
-        setTooltip ("Start/stop writing to disk");
+    setImages(&normal, &over, &over);
+    //setBackgroundColours(Colours::darkgrey, Colours::red);
+    setClickingTogglesState(true);
+    setTooltip("Start/stop writing to disk");
 }
 
 RecordButton::~RecordButton()
-{	
+{
 }
 
 
 CPUMeter::CPUMeter() : Label("CPU Meter","0.0"), cpu(0.0f), lastCpu(0.0f)
 {
-	MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-        Typeface::Ptr typeface = new CustomTypeface(mis);
-        font = Font(typeface);
-        font.setHeight(12);
+    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    Typeface::Ptr typeface = new CustomTypeface(mis);
+    font = Font(typeface);
+    font.setHeight(12);
 }
 
 CPUMeter::~CPUMeter()
 {
 }
 
-void CPUMeter::updateCPU(float usage) {
-	lastCpu = cpu;
-	cpu = usage;
+void CPUMeter::updateCPU(float usage)
+{
+    lastCpu = cpu;
+    cpu = usage;
 }
 
 void CPUMeter::paint(Graphics& g)
 {
-	g.fillAll(Colours::grey);
-	
-	g.setColour(Colours::yellow);
-	g.fillRect(0.0f,0.0f,getWidth()*cpu,float(getHeight()));
+    g.fillAll(Colours::grey);
 
-	g.setColour(Colours::black);
-	g.drawRect(0,0,getWidth(),getHeight(),1);
+    g.setColour(Colours::yellow);
+    g.fillRect(0.0f,0.0f,getWidth()*cpu,float(getHeight()));
 
-	g.setFont(font);
-	g.drawSingleLineText("CPU",65,12);
+    g.setColour(Colours::black);
+    g.drawRect(0,0,getWidth(),getHeight(),1);
+
+    g.setFont(font);
+    g.drawSingleLineText("CPU",65,12);
 
 }
 
 
 DiskSpaceMeter::DiskSpaceMeter()
 
-{	
-	MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-        Typeface::Ptr typeface = new CustomTypeface(mis);
-        font = Font(typeface);
-        font.setHeight(12);
+{
+    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    Typeface::Ptr typeface = new CustomTypeface(mis);
+    font = Font(typeface);
+    font.setHeight(12);
 }
 
 
@@ -137,36 +138,36 @@ DiskSpaceMeter::~DiskSpaceMeter()
 
 void DiskSpaceMeter::updateDiskSpace(float percent)
 {
-	diskFree = percent;
+    diskFree = percent;
 }
 
 void DiskSpaceMeter::paint(Graphics& g)
 {
 
-	g.fillAll(Colours::grey);
-	
-	g.setColour(Colours::lightgrey);
-	if (diskFree > 0)
-		g.fillRect(0.0f,0.0f,getWidth()*diskFree,float(getHeight()));
+    g.fillAll(Colours::grey);
 
-	g.setColour(Colours::black);
-	g.drawRect(0,0,getWidth(),getHeight(),1);
+    g.setColour(Colours::lightgrey);
+    if (diskFree > 0)
+        g.fillRect(0.0f,0.0f,getWidth()*diskFree,float(getHeight()));
 
-	g.setFont(font);
-	g.drawSingleLineText("DF",75,12);
-	
+    g.setColour(Colours::black);
+    g.drawRect(0,0,getWidth(),getHeight(),1);
+
+    g.setFont(font);
+    g.drawSingleLineText("DF",75,12);
+
 }
 
 Clock::Clock() : isRunning(false), isRecording(false)
 {
 
-	MemoryInputStream mis(BinaryData::cpmonolightserialized, BinaryData::cpmonolightserializedSize, false);
+    MemoryInputStream mis(BinaryData::cpmonolightserialized, BinaryData::cpmonolightserializedSize, false);
     Typeface::Ptr typeface = new CustomTypeface(mis);
     clockFont = Font(typeface);
     clockFont.setHeight(30);
 
-	totalTime = 0;
-	totalRecordTime = 0;
+    totalTime = 0;
+    totalRecordTime = 0;
 }
 
 Clock::~Clock()
@@ -176,215 +177,220 @@ Clock::~Clock()
 
 void Clock::paint(Graphics& g)
 {
-	g.fillAll(Colour(58,58,58));
-	drawTime(g);
+    g.fillAll(Colour(58,58,58));
+    drawTime(g);
 }
 
 void Clock::drawTime(Graphics& g)
 {
 
-	if (isRunning)
-	{
-		int64 now = Time::currentTimeMillis();
-		int64 diff = now - lastTime;
-		totalTime += diff;
+    if (isRunning)
+    {
+        int64 now = Time::currentTimeMillis();
+        int64 diff = now - lastTime;
+        totalTime += diff;
 
-		if (isRecording)
-		{
-			totalRecordTime += diff;
-		}
+        if (isRecording)
+        {
+            totalRecordTime += diff;
+        }
 
-		lastTime = Time::currentTimeMillis();
-	}
+        lastTime = Time::currentTimeMillis();
+    }
 
-	int m;
-	int s;
+    int m;
+    int s;
 
-	if (isRecording)
-	{
-		g.setColour(Colours::red);
-		m = floor(totalRecordTime/60000.0);
-		s = floor((totalRecordTime - m*60000.0)/1000.0);
+    if (isRecording)
+    {
+        g.setColour(Colours::red);
+        m = floor(totalRecordTime/60000.0);
+        s = floor((totalRecordTime - m*60000.0)/1000.0);
 
-	} else {
+    }
+    else
+    {
 
-		if (isRunning)
-			g.setColour(Colours::yellow);
-		else
-			g.setColour(Colours::white);
+        if (isRunning)
+            g.setColour(Colours::yellow);
+        else
+            g.setColour(Colours::white);
 
-		m = floor(totalTime/60000.0);
-		s = floor((totalTime - m*60000.0)/1000.0);
-	}
+        m = floor(totalTime/60000.0);
+        s = floor((totalTime - m*60000.0)/1000.0);
+    }
 
-	String timeString = "";
-		
-	timeString += m;
-	timeString += " min ";
-	timeString += s;
-	timeString += " s";
+    String timeString = "";
 
-	g.setFont(clockFont);
-	//g.setFont(30);
-	g.drawText(timeString, 0, 0, getWidth(), getHeight(), Justification::left, false);
+    timeString += m;
+    timeString += " min ";
+    timeString += s;
+    timeString += " s";
 
-} 
+    g.setFont(clockFont);
+    //g.setFont(30);
+    g.drawText(timeString, 0, 0, getWidth(), getHeight(), Justification::left, false);
+
+}
 
 void Clock::start()
 {
-	if (!isRunning)
-	{
-		isRunning = true;
-		lastTime = Time::currentTimeMillis();
-	}
+    if (!isRunning)
+    {
+        isRunning = true;
+        lastTime = Time::currentTimeMillis();
+    }
 }
 
 void Clock::resetRecordTime()
 {
-	totalRecordTime = 0;
+    totalRecordTime = 0;
 }
 
 void Clock::startRecording()
 {
-	if (!isRecording)
-	{
-		isRecording = true;
-		start();
-	}
+    if (!isRecording)
+    {
+        isRecording = true;
+        start();
+    }
 }
 
 void Clock::stop()
 {
-	if (isRunning)
-	{
-		isRunning = false;
-		isRecording = false;
-	}
+    if (isRunning)
+    {
+        isRunning = false;
+        isRecording = false;
+    }
 }
 
 void Clock::stopRecording()
 {
-	if (isRecording)
-	{
-		isRecording = false;
-	}
+    if (isRecording)
+    {
+        isRecording = false;
+    }
 
 }
 
 
 ControlPanelButton::ControlPanelButton(ControlPanel* cp_) : cp(cp_)
 {
-	open = false;
+    open = false;
 
 }
 
 ControlPanelButton::~ControlPanelButton()
 {
-	
+
 }
 
 void ControlPanelButton::paint(Graphics& g)
 {
-	g.fillAll(Colour(58,58,58));
+    g.fillAll(Colour(58,58,58));
 
-	g.setColour(Colours::white);
+    g.setColour(Colours::white);
 
-	Path p;
+    Path p;
 
-	float h = getHeight();
-	float w = getWidth();
+    float h = getHeight();
+    float w = getWidth();
 
-	if (open)
-	{
-		p.addTriangle(0.5f*w, 0.8f*h,
-			          0.2f*w, 0.2f*h,
-			          0.8f*w, 0.2f*h);
-	} else {
-		p.addTriangle(0.8f*w, 0.8f*h,
-			          0.2f*w, 0.5f*h,
-			          0.8f*w, 0.2f*h);
-	}
+    if (open)
+    {
+        p.addTriangle(0.5f*w, 0.8f*h,
+                      0.2f*w, 0.2f*h,
+                      0.8f*w, 0.2f*h);
+    }
+    else
+    {
+        p.addTriangle(0.8f*w, 0.8f*h,
+                      0.2f*w, 0.5f*h,
+                      0.8f*w, 0.2f*h);
+    }
 
-	PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
+    PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
 
-	g.strokePath(p, pst);
+    g.strokePath(p, pst);
 
 }
 
 
 void ControlPanelButton::mouseDown(const MouseEvent& e)
 {
-	open = !open;
-	cp->openState(open);
-	repaint();
+    open = !open;
+    cp->openState(open);
+    repaint();
 
 }
 
 void ControlPanelButton::toggleState()
 {
-	open = !open;
-	repaint();
+    open = !open;
+    repaint();
 }
 
 
 
 ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
-	: graph (graph_), audio(audio_), initialize(true), open(false)
+    : graph(graph_), audio(audio_), initialize(true), open(false)
 {
 
-	if (1) {
-		MemoryInputStream mis(BinaryData::misoserialized, BinaryData::misoserializedSize, false);
-		Typeface::Ptr typeface = new CustomTypeface(mis);
-		font = Font(typeface);
-		font.setHeight(15);
-	}
+    if (1)
+    {
+        MemoryInputStream mis(BinaryData::misoserialized, BinaryData::misoserializedSize, false);
+        Typeface::Ptr typeface = new CustomTypeface(mis);
+        font = Font(typeface);
+        font.setHeight(15);
+    }
 
-	audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
-	addAndMakeVisible(audioEditor);
+    audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
+    addAndMakeVisible(audioEditor);
 
-	playButton = new PlayButton();
-	playButton->addListener (this);
-	addAndMakeVisible(playButton);
+    playButton = new PlayButton();
+    playButton->addListener(this);
+    addAndMakeVisible(playButton);
 
-	recordButton = new RecordButton();
-	recordButton->addListener (this);
-	addAndMakeVisible(recordButton);
+    recordButton = new RecordButton();
+    recordButton->addListener(this);
+    addAndMakeVisible(recordButton);
 
-	masterClock = new Clock();
-	addAndMakeVisible(masterClock);
+    masterClock = new Clock();
+    addAndMakeVisible(masterClock);
 
-	cpuMeter = new CPUMeter();
-	addAndMakeVisible(cpuMeter);
+    cpuMeter = new CPUMeter();
+    addAndMakeVisible(cpuMeter);
 
-	diskMeter = new DiskSpaceMeter();
-	addAndMakeVisible(diskMeter);
+    diskMeter = new DiskSpaceMeter();
+    addAndMakeVisible(diskMeter);
 
-	cpb = new ControlPanelButton(this);
-	addAndMakeVisible(cpb);
+    cpb = new ControlPanelButton(this);
+    addAndMakeVisible(cpb);
 
-	newDirectoryButton = new UtilityButton("+", font);
-	newDirectoryButton->setEnabledState(false);
-	newDirectoryButton->addListener (this);
-	addChildComponent(newDirectoryButton);
+    newDirectoryButton = new UtilityButton("+", font);
+    newDirectoryButton->setEnabledState(false);
+    newDirectoryButton->addListener(this);
+    addChildComponent(newDirectoryButton);
 
 
 
-	filenameComponent = new FilenameComponent("folder selector",
-		 									  File::getCurrentWorkingDirectory().getFullPathName(), 
-		 									  true,
-		 									  true,
-		 									  true,
-		 									  "*",
-		 									  "",
-		 									  "");
-	addChildComponent(filenameComponent);
+    filenameComponent = new FilenameComponent("folder selector",
+                                              File::getCurrentWorkingDirectory().getFullPathName(),
+                                              true,
+                                              true,
+                                              true,
+                                              "*",
+                                              "",
+                                              "");
+    addChildComponent(filenameComponent);
 
-	//diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
-	//diskMeter->repaint();
-	//refreshMeters();
-	startTimer(10);
+    //diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
+    //diskMeter->repaint();
+    //refreshMeters();
+    startTimer(10);
 
-	setWantsKeyboardFocus(true);
+    setWantsKeyboardFocus(true);
 
 }
 
@@ -396,211 +402,224 @@ ControlPanel::~ControlPanel()
 void ControlPanel::setRecordState(bool t)
 {
 
-	//MessageManager* mm = MessageManager::getInstance();
+    //MessageManager* mm = MessageManager::getInstance();
 
-	recordButton->setToggleState(t, true);
+    recordButton->setToggleState(t, true);
 
 }
 
 void ControlPanel::updateChildComponents()
 {
 
-	filenameComponent->addListener(getProcessorGraph()->getRecordNode());
-	getProcessorGraph()->getRecordNode()->filenameComponentChanged(filenameComponent);
+    filenameComponent->addListener(getProcessorGraph()->getRecordNode());
+    getProcessorGraph()->getRecordNode()->filenameComponentChanged(filenameComponent);
 
 }
 
 void ControlPanel::createPaths()
 {
-	int w = 150;
-	int h1 = 32;
-	int h2 = 64;
-	int indent = 5;
+    int w = 150;
+    int h1 = 32;
+    int h2 = 64;
+    int indent = 5;
 
-	p1.clear();
-	p1.startNewSubPath(0, h1);
-	p1.lineTo(w, h1);
-	p1.lineTo(w + indent, h1 + indent);
-	p1.lineTo(w + indent, h2 - indent);
-	p1.lineTo(w + indent*2, h2);
-	p1.lineTo(0, h2);
-	p1.closeSubPath();
+    p1.clear();
+    p1.startNewSubPath(0, h1);
+    p1.lineTo(w, h1);
+    p1.lineTo(w + indent, h1 + indent);
+    p1.lineTo(w + indent, h2 - indent);
+    p1.lineTo(w + indent*2, h2);
+    p1.lineTo(0, h2);
+    p1.closeSubPath();
 
-	p2.clear();
-	p2.startNewSubPath(getWidth(), h2-indent);
-	p2.lineTo(getWidth(), h2);
-	p2.lineTo(getWidth()-indent, h2);
-	p2.closeSubPath();
+    p2.clear();
+    p2.startNewSubPath(getWidth(), h2-indent);
+    p2.lineTo(getWidth(), h2);
+    p2.lineTo(getWidth()-indent, h2);
+    p2.closeSubPath();
 
 }
 
 void ControlPanel::paint(Graphics& g)
 {
-	g.setColour(Colour(58,58,58));
-	g.fillRect(0,0,getWidth(),getHeight());
+    g.setColour(Colour(58,58,58));
+    g.fillRect(0,0,getWidth(),getHeight());
 
-	if (open)
-	{
-		g.setColour(Colours::black);
-		g.fillPath(p1);
-		g.fillPath(p2);
-	}
-	
+    if (open)
+    {
+        g.setColour(Colours::black);
+        g.fillPath(p1);
+        g.fillPath(p2);
+    }
+
 }
 
 void ControlPanel::resized()
 {
-	int w = getWidth();
-	int h = 32; //getHeight();
+    int w = getWidth();
+    int h = 32; //getHeight();
 
-	if (playButton != 0)
-		playButton->setBounds(w-h*9,5,h-5,h-10);
-	
-	if (recordButton != 0)
-		recordButton->setBounds(w-h*8,5,h-5,h-10);
+    if (playButton != 0)
+        playButton->setBounds(w-h*9,5,h-5,h-10);
 
-	if (masterClock != 0)
-		masterClock->setBounds(w-h*6-15,0,h*6-15,h);
-	
-	if (cpuMeter != 0)
-		cpuMeter->setBounds(8,h/4,h*3,h/2);
+    if (recordButton != 0)
+        recordButton->setBounds(w-h*8,5,h-5,h-10);
 
-	if (diskMeter != 0)
-		diskMeter->setBounds(16+h*3,h/4,h*3,h/2);
+    if (masterClock != 0)
+        masterClock->setBounds(w-h*6-15,0,h*6-15,h);
 
-	if (audioEditor != 0)
-		audioEditor->setBounds(h*7,5,h*8,h-10);
+    if (cpuMeter != 0)
+        cpuMeter->setBounds(8,h/4,h*3,h/2);
 
-	if (cpb != 0)
-		cpb->setBounds(w-28,5,h-10,h-10);
+    if (diskMeter != 0)
+        diskMeter->setBounds(16+h*3,h/4,h*3,h/2);
 
-	createPaths();
+    if (audioEditor != 0)
+        audioEditor->setBounds(h*7,5,h*8,h-10);
 
-	if (open)
-	{
-		filenameComponent->setBounds(200, h+5, w-250, h-10);
-		filenameComponent->setVisible(true);
+    if (cpb != 0)
+        cpb->setBounds(w-28,5,h-10,h-10);
 
-		newDirectoryButton->setBounds(165, h+5, h-10, h-10);
-		newDirectoryButton->setVisible(true);
+    createPaths();
 
-	} else {
-		filenameComponent->setVisible(false);
-		newDirectoryButton->setVisible(false);
-	}
+    if (open)
+    {
+        filenameComponent->setBounds(200, h+5, w-250, h-10);
+        filenameComponent->setVisible(true);
 
-	repaint();
+        newDirectoryButton->setBounds(165, h+5, h-10, h-10);
+        newDirectoryButton->setVisible(true);
+
+    }
+    else
+    {
+        filenameComponent->setVisible(false);
+        newDirectoryButton->setVisible(false);
+    }
+
+    repaint();
 }
 
 void ControlPanel::openState(bool os)
 {
-	open = os;
+    open = os;
 
-	getUIComponent()->childComponentChanged();
+    getUIComponent()->childComponentChanged();
 }
 
-void ControlPanel::buttonClicked(Button* button) 
+void ControlPanel::buttonClicked(Button* button)
 
 {
-	if (button == recordButton)
-	{
-		std::cout << "Record button pressed." << std::endl;
-		if (recordButton->getToggleState())
-		{
+    if (button == recordButton)
+    {
+        std::cout << "Record button pressed." << std::endl;
+        if (recordButton->getToggleState())
+        {
 
-			playButton->setToggleState(true,false);
-			//graph->getRecordNode()->setParameter(1,10.0f);
-			masterClock->startRecording(); // turn on recording
+            playButton->setToggleState(true,false);
+            //graph->getRecordNode()->setParameter(1,10.0f);
+            masterClock->startRecording(); // turn on recording
 
 
-		} else {
-			graph->getRecordNode()->setParameter(0,10.0f); // turn off recording
-			masterClock->stopRecording();
-			newDirectoryButton->setEnabledState(true);
-		}
+        }
+        else
+        {
+            graph->getRecordNode()->setParameter(0,10.0f); // turn off recording
+            masterClock->stopRecording();
+            newDirectoryButton->setEnabledState(true);
+        }
 
-	} else if (button == playButton) {
-		std::cout << "Play button pressed." << std::endl;
-		if (!playButton->getToggleState())
-		{
-			if (recordButton->getToggleState())
-			{
-				recordButton->setToggleState(false,false);
-				newDirectoryButton->setEnabledState(true);
-			}
-			
-		}
+    }
+    else if (button == playButton)
+    {
+        std::cout << "Play button pressed." << std::endl;
+        if (!playButton->getToggleState())
+        {
+            if (recordButton->getToggleState())
+            {
+                recordButton->setToggleState(false,false);
+                newDirectoryButton->setEnabledState(true);
+            }
 
-	} else if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
-	{
-		getProcessorGraph()->getRecordNode()->createNewDirectory();
-		newDirectoryButton->setEnabledState(false);
-		masterClock->resetRecordTime();
-		return;
+        }
 
-	}
+    }
+    else if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
+    {
+        getProcessorGraph()->getRecordNode()->createNewDirectory();
+        newDirectoryButton->setEnabledState(false);
+        masterClock->resetRecordTime();
+        return;
 
-	if (playButton->getToggleState())
-	{
+    }
 
-		if (!audio->callbacksAreActive()) {
-			
-			if (graph->enableProcessors()) 
-			{
-				if (recordButton->getToggleState())
-					graph->getRecordNode()->setParameter(1,10.0f);
-				
-				stopTimer();
-				startTimer(250); // refresh every 250 ms
-				audio->beginCallbacks();
-				masterClock->start();
-			}
-			
-		} else {
+    if (playButton->getToggleState())
+    {
 
-			if (recordButton->getToggleState())
-				graph->getRecordNode()->setParameter(1,10.0f);
+        if (!audio->callbacksAreActive())
+        {
 
-		}
+            if (graph->enableProcessors())
+            {
+                if (recordButton->getToggleState())
+                    graph->getRecordNode()->setParameter(1,10.0f);
 
-	} else {
+                stopTimer();
+                startTimer(250); // refresh every 250 ms
+                audio->beginCallbacks();
+                masterClock->start();
+            }
 
-		if (audio->callbacksAreActive()) {
-			audio->endCallbacks();
-			graph->disableProcessors();
-			refreshMeters();
-			masterClock->stop();
-			stopTimer();
-			startTimer(10000); // back to refresh every 10 seconds
+        }
+        else
+        {
 
-		}
+            if (recordButton->getToggleState())
+                graph->getRecordNode()->setParameter(1,10.0f);
 
-	}
+        }
+
+    }
+    else
+    {
+
+        if (audio->callbacksAreActive())
+        {
+            audio->endCallbacks();
+            graph->disableProcessors();
+            refreshMeters();
+            masterClock->stop();
+            stopTimer();
+            startTimer(10000); // back to refresh every 10 seconds
+
+        }
+
+    }
 
 }
 
 void ControlPanel::disableCallbacks()
 {
 
-	std::cout << "Control panel received signal to disable callbacks." << std::endl;
+    std::cout << "Control panel received signal to disable callbacks." << std::endl;
 
-	if (audio->callbacksAreActive())
-	{
-		std::cout << "Stopping audio." << std::endl;
-		audio->endCallbacks();
-		std::cout << "Disabling processors." << std::endl;
-		graph->disableProcessors();
-		std::cout << "Updating control panel." << std::endl;
-		refreshMeters();
-		stopTimer();
-		startTimer(10000); // back to refresh every 10 seconds
-		
-	}
+    if (audio->callbacksAreActive())
+    {
+        std::cout << "Stopping audio." << std::endl;
+        audio->endCallbacks();
+        std::cout << "Disabling processors." << std::endl;
+        graph->disableProcessors();
+        std::cout << "Updating control panel." << std::endl;
+        refreshMeters();
+        stopTimer();
+        startTimer(10000); // back to refresh every 10 seconds
 
-	playButton->setToggleState(false,false);
-	recordButton->setToggleState(false,false);
-	masterClock->stopRecording();
-	masterClock->stop();
+    }
+
+    playButton->setToggleState(false,false);
+    recordButton->setToggleState(false,false);
+    masterClock->stopRecording();
+    masterClock->stop();
 
 
 }
@@ -616,53 +635,56 @@ void ControlPanel::disableCallbacks()
 
 // 	diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
 // 	diskMeter->repaint();
-	
-	
+
+
 // }
 
 void ControlPanel::timerCallback()
 {
-	//std::cout << "Message Received." << std::endl;
-	
-	refreshMeters();
-	
+    //std::cout << "Message Received." << std::endl;
+
+    refreshMeters();
+
 }
 
 void ControlPanel::refreshMeters()
 {
-	if (playButton->getToggleState()) {
-		cpuMeter->updateCPU(audio->deviceManager.getCpuUsage());
-	} else {
-		cpuMeter->updateCPU(0.0f);
-	}
+    if (playButton->getToggleState())
+    {
+        cpuMeter->updateCPU(audio->deviceManager.getCpuUsage());
+    }
+    else
+    {
+        cpuMeter->updateCPU(0.0f);
+    }
 
-	cpuMeter->repaint();
+    cpuMeter->repaint();
 
-	masterClock->repaint();
+    masterClock->repaint();
 
-	diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
-	diskMeter->repaint();
+    diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
+    diskMeter->repaint();
 
-	if (initialize)
-	{
-		stopTimer();
-		startTimer(5000); // check for disk updates every 5 seconds
-		initialize = false;
-	}
+    if (initialize)
+    {
+        stopTimer();
+        startTimer(5000); // check for disk updates every 5 seconds
+        initialize = false;
+    }
 }
 
 bool ControlPanel::keyPressed(const KeyPress& key)
 {
-	 std::cout << "Control panel received" << key.getKeyCode() << std::endl;
+    std::cout << "Control panel received" << key.getKeyCode() << std::endl;
 
-	 return false;
+    return false;
 
 }
 
 void ControlPanel::toggleState()
 {
-	open = !open;
+    open = !open;
 
-	cpb->toggleState();
-	getUIComponent()->childComponentChanged();
+    cpb->toggleState();
+    getUIComponent()->childComponentChanged();
 }

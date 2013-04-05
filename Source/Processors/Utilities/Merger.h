@@ -46,34 +46,37 @@ class Merger : public GenericProcessor
 {
 public:
 
-	Merger();
-	~Merger();
+    Merger();
+    ~Merger();
 
-	AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor();
 
     /** Nothing happens here, because Mergers are not part of the ProcessorGraph. */
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples) {}
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples) {}
 
-	bool isMerger() {return true;}
+    bool isMerger()
+    {
+        return true;
+    }
 
-	void switchIO(int);
-	void switchIO();
-	void setMergerSourceNode(GenericProcessor* sn);
+    void switchIO(int);
+    void switchIO();
+    void setMergerSourceNode(GenericProcessor* sn);
 
     void updateSettings();
     void addSettingsFromSourceNode(GenericProcessor* sn);
 
-	bool stillHasSource();
+    bool stillHasSource();
 
 private:
 
-	GenericProcessor* sourceNodeA;
-	GenericProcessor* sourceNodeB;
+    GenericProcessor* sourceNodeA;
+    GenericProcessor* sourceNodeB;
 
-	int activePath;
+    int activePath;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Merger);
-	
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Merger);
+
 };
 
 

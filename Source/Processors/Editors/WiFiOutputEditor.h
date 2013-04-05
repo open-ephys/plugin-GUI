@@ -41,19 +41,19 @@ class WiFiOutputEditor : public GenericEditor
 
 {
 public:
-	WiFiOutputEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~WiFiOutputEditor();
+    WiFiOutputEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~WiFiOutputEditor();
 
-	void receivedEvent();
+    void receivedEvent();
 
 
-	ImageIcon* icon;
+    ImageIcon* icon;
 
-private:	
+private:
 
-	void timerCallback();
+    void timerCallback();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WiFiOutputEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WiFiOutputEditor);
 
 };
 

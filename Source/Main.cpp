@@ -35,24 +35,24 @@
 //Initializer function to load OpenGL Extensions on Windows
 void glWinInit()
 {
-glCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) wglGetProcAddress("glCheckFramebufferStatusEXT");
-glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC) wglGetProcAddress("glGenerateMipmap");
-glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) wglGetProcAddress("glFramebufferRenderbufferEXT");
-glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) wglGetProcAddress("glFramebufferTexture2DEXT");
-glRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC) wglGetProcAddress("glRenderbufferStorageEXT");
-glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) wglGetProcAddress("glBindRenderbufferEXT");
-glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC) wglGetProcAddress("glGenRenderbuffersEXT");
-glBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC) wglGetProcAddress("glBindFramebufferEXT");
-glGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC) wglGetProcAddress("glGenFramebuffersEXT");
-glDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC) wglGetProcAddress("glDeleteRenderbuffers");
-glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSPROC) wglGetProcAddress("glDeleteFramebuffers");
+    glCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) wglGetProcAddress("glCheckFramebufferStatusEXT");
+    glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC) wglGetProcAddress("glGenerateMipmap");
+    glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) wglGetProcAddress("glFramebufferRenderbufferEXT");
+    glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) wglGetProcAddress("glFramebufferTexture2DEXT");
+    glRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC) wglGetProcAddress("glRenderbufferStorageEXT");
+    glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) wglGetProcAddress("glBindRenderbufferEXT");
+    glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC) wglGetProcAddress("glGenRenderbuffersEXT");
+    glBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC) wglGetProcAddress("glBindFramebufferEXT");
+    glGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC) wglGetProcAddress("glGenFramebuffersEXT");
+    glDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC) wglGetProcAddress("glDeleteRenderbuffers");
+    glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSPROC) wglGetProcAddress("glDeleteFramebuffers");
 }
 #endif
 
 //------------------------------------------------------------------
 
 /**
-  
+
   Launches the application and creates the CustomLookAndFeelClass.
 
   The OpenEphysApplication class own the application's MainWindow (via
@@ -72,31 +72,32 @@ public:
     ~OpenEphysApplication() {}
 
     //==============================================================================
-    void initialise (const String& commandLine)
+    void initialise(const String& commandLine)
     {
-		StringArray parameters;
-		parameters.addTokens(commandLine," ","\"");
+        StringArray parameters;
+        parameters.addTokens(commandLine," ","\"");
 #ifdef WIN32
-		//glWinInit();
+        //glWinInit();
 
-		if (parameters.contains("--console",true)) {
-			if (AllocConsole())
-			{
-				freopen("CONOUT$","w",stdout);
-				SetConsoleTitle("Debug Console");
-			}
-		}
+        if (parameters.contains("--console",true))
+        {
+            if (AllocConsole())
+            {
+                freopen("CONOUT$","w",stdout);
+                SetConsoleTitle("Debug Console");
+            }
+        }
 
 #endif
 
-        
+
         customLookAndFeel = new CustomLookAndFeel();
         LookAndFeel::setDefaultLookAndFeel(customLookAndFeel);
 
         mainWindow = new MainWindow();
-       
 
-  
+
+
     }
 
     void shutdown() { }
@@ -109,10 +110,19 @@ public:
     }
 
     //==============================================================================
-    const String getApplicationName() { return "Open Ephys GUI";}
-    const String getApplicationVersion() {return ProjectInfo::versionString;}
-    bool moreThanOneInstanceAllowed() {return true;}
-    void anotherInstanceStarted (const String& commandLine)
+    const String getApplicationName()
+    {
+        return "Open Ephys GUI";
+    }
+    const String getApplicationVersion()
+    {
+        return ProjectInfo::versionString;
+    }
+    bool moreThanOneInstanceAllowed()
+    {
+        return true;
+    }
+    void anotherInstanceStarted(const String& commandLine)
     {}
 
 private:

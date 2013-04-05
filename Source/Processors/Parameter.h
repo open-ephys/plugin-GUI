@@ -32,7 +32,7 @@
 #include <stdio.h>
 
 /**
-  
+
   Class for holding user-definable processor parameters.
 
   Parameters can either hold boolean, categorical, or continuous (float) values.
@@ -48,71 +48,101 @@ class Parameter
 {
 public:
 
-	/** Constructor for boolean parameters.*/
-	Parameter(const String& name_, bool defaultVal, int ID, bool t = false);
+    /** Constructor for boolean parameters.*/
+    Parameter(const String& name_, bool defaultVal, int ID, bool t = false);
 
-	/** Constructor for continuous (float) parameters.*/
-	Parameter(const String& name_, float low, float high, float defaultVal, int ID, bool t = false);
-	
-	/** Constructor for categorical parameters.*/
-	Parameter(const String& name_, Array<var> a, int defaultVal, int ID, bool t = false);
+    /** Constructor for continuous (float) parameters.*/
+    Parameter(const String& name_, float low, float high, float defaultVal, int ID, bool t = false);
 
-	/** Destructor.*/
-	~Parameter() {}
+    /** Constructor for categorical parameters.*/
+    Parameter(const String& name_, Array<var> a, int defaultVal, int ID, bool t = false);
 
-	/** Returns the name of the parameter.*/
-	const String& getName() {return name;}
+    /** Destructor.*/
+    ~Parameter() {}
 
-	/** Returns a description of the parameter.*/
-	const String& getDescription() {return description;}
+    /** Returns the name of the parameter.*/
+    const String& getName()
+    {
+        return name;
+    }
 
-	/** Sets the description of the parameter.*/
-	void addDescription(const String& desc) {description = desc;}
+    /** Returns a description of the parameter.*/
+    const String& getDescription()
+    {
+        return description;
+    }
 
-	/** Returns the default value of a parameter (can be boolean, int, or float).*/
-	var getDefaultValue() {return defaultValue;}
+    /** Sets the description of the parameter.*/
+    void addDescription(const String& desc)
+    {
+        description = desc;
+    }
 
-	/** Returns the unique integer ID of a parameter.*/
-	int getID() {return parameterId;}
+    /** Returns the default value of a parameter (can be boolean, int, or float).*/
+    var getDefaultValue()
+    {
+        return defaultValue;
+    }
 
-	/** Returns all the possible values that a parameter can take.*/
-	Array<var> getPossibleValues() {return possibleValues;}
+    /** Returns the unique integer ID of a parameter.*/
+    int getID()
+    {
+        return parameterId;
+    }
 
-	/** Sets the value of a parameter for a given channel.*/
-	void setValue(float val, int chan);
+    /** Returns all the possible values that a parameter can take.*/
+    Array<var> getPossibleValues()
+    {
+        return possibleValues;
+    }
 
-	/** Returns the value of a parameter for a given channel.*/
-	var operator[](int chan) {return values[chan];}
+    /** Sets the value of a parameter for a given channel.*/
+    void setValue(float val, int chan);
 
-	/** Copies a parameter.*/
-	Parameter& operator=(const Parameter& other);
+    /** Returns the value of a parameter for a given channel.*/
+    var operator[](int chan)
+    {
+        return values[chan];
+    }
 
-	/** Returns true if a parameter is boolean, false otherwise.*/
-	bool isBoolean() {return isBool;}
+    /** Copies a parameter.*/
+    Parameter& operator=(const Parameter& other);
 
-	/** Returns true if a parameter is continuous, false otherwise.*/
-	bool isContinuous() {return isCont;}
+    /** Returns true if a parameter is boolean, false otherwise.*/
+    bool isBoolean()
+    {
+        return isBool;
+    }
 
-	/** Returns true if a parameter is discrete, false otherwise.*/
-	bool isDiscrete() {return isDisc;}
+    /** Returns true if a parameter is continuous, false otherwise.*/
+    bool isContinuous()
+    {
+        return isCont;
+    }
 
-	/** Certain parameters should not be changed while data acquisition is active. 
+    /** Returns true if a parameter is discrete, false otherwise.*/
+    bool isDiscrete()
+    {
+        return isDisc;
+    }
 
-	     This variable indicates whether or not these parameters can be edited.*/
-	bool shouldDeactivateDuringAcquisition;
+    /** Certain parameters should not be changed while data acquisition is active.
+
+         This variable indicates whether or not these parameters can be edited.*/
+    bool shouldDeactivateDuringAcquisition;
 
 private:
 
-	const String name;
-	String description;
+    const String name;
+    String description;
 
-	int parameterId;
+    int parameterId;
 
-	bool isBool, isCont, isDisc;
+    bool isBool, isCont, isDisc;
 
-	var defaultValue;
-	Array<var> values;
-	Array<var> possibleValues;
+    var defaultValue;
+    Array<var> values;
+    Array<var> possibleValues;
 
 };
 

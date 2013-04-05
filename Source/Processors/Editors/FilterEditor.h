@@ -41,13 +41,13 @@ class FilterViewport;
 class FilterEditor : public GenericEditor
 {
 public:
-	FilterEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~FilterEditor();
-	void buttonEvent(Button* button);
+    FilterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~FilterEditor();
+    void buttonEvent(Button* button);
 
-private:	
+private:
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FilterEditor);
 
 };
 

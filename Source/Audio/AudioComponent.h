@@ -27,7 +27,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 /**
-  
+
   Interfaces with system audio hardware.
 
   Uses the audio card to generate the callbacks to run the ProcessorGraph
@@ -42,48 +42,49 @@
 
 */
 
-class AudioComponent {
+class AudioComponent
+{
 
 public:
-  /** Constructor. Finds the audio component (if there is one), and sets the
-  default sample rate and buffer size.*/
-	AudioComponent();
-	~AudioComponent();
+    /** Constructor. Finds the audio component (if there is one), and sets the
+    default sample rate and buffer size.*/
+    AudioComponent();
+    ~AudioComponent();
 
-  /** Begins the audio callbacks that drive data acquisition.*/
-	void beginCallbacks();
+    /** Begins the audio callbacks that drive data acquisition.*/
+    void beginCallbacks();
 
-  /** Stops the audio callbacks that drive data acquisition.*/
-	void endCallbacks();
+    /** Stops the audio callbacks that drive data acquisition.*/
+    void endCallbacks();
 
-  /** Connects the AudioComponent to the ProcessorGraph (crucial for any sort of
-  data acquisition; done at startup).*/
-	void connectToProcessorGraph(AudioProcessorGraph* processorGraph);
+    /** Connects the AudioComponent to the ProcessorGraph (crucial for any sort of
+    data acquisition; done at startup).*/
+    void connectToProcessorGraph(AudioProcessorGraph* processorGraph);
 
-  /** Disconnects the AudioComponent to the ProcessorGraph (only done when the application
-  is about to close).*/
-	void disconnectProcessorGraph();
+    /** Disconnects the AudioComponent to the ProcessorGraph (only done when the application
+    is about to close).*/
+    void disconnectProcessorGraph();
 
-  /** Returns true if the audio callbacks are active, false otherwise.*/
-	bool callbacksAreActive();
+    /** Returns true if the audio callbacks are active, false otherwise.*/
+    bool callbacksAreActive();
 
-  /** Restarts communication with the audio device in order to update settings
-  or just prior the start of data acquisition callbacks.*/
-  void restartDevice();
+    /** Restarts communication with the audio device in order to update settings
+    or just prior the start of data acquisition callbacks.*/
+    void restartDevice();
 
-  /** Stops communication with the selected audio device (to conserve CPU load
-  when callbacks are not active).*/
-  void stopDevice();
+    /** Stops communication with the selected audio device (to conserve CPU load
+    when callbacks are not active).*/
+    void stopDevice();
 
-  AudioDeviceManager deviceManager;
+    AudioDeviceManager deviceManager;
 
 private:
 
-	bool isPlaying;
+    bool isPlaying;
 
-	AudioProcessorPlayer* graphPlayer;
+    AudioProcessorPlayer* graphPlayer;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioComponent);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioComponent);
 
 };
 

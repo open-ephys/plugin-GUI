@@ -26,25 +26,26 @@
 #include "Channel.h"
 
 AudioNode::AudioNode()
-	: GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f)
+    : GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f)
 {
 
-	settings.numInputs = 128;
-	settings.numOutputs = 2;
+    settings.numInputs = 128;
+    settings.numOutputs = 2;
 
-	// 128 inputs, 2 outputs (left and right channel)
-	setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
+    // 128 inputs, 2 outputs (left and right channel)
+    setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 
-	//leftChan.clear();
-	//rightChan.clear();
+    //leftChan.clear();
+    //rightChan.clear();
 
-	nextAvailableChannel = 2; // keep first two channels empty
+    nextAvailableChannel = 2; // keep first two channels empty
 
 
 }
 
 
-AudioNode::~AudioNode() {
+AudioNode::~AudioNode()
+{
 
 
 
@@ -52,150 +53,154 @@ AudioNode::~AudioNode() {
 
 AudioProcessorEditor* AudioNode::createEditor()
 {
-	
-	audioEditor = new AudioEditor(this);
 
-	//setEditor(editor);
-	
-	return audioEditor; 
+    audioEditor = new AudioEditor(this);
+
+    //setEditor(editor);
+
+    return audioEditor;
 
 }
 
 void AudioNode::resetConnections()
 {
 
-	nextAvailableChannel = 2; // start connections at channel 2
-	wasConnected = false;
+    nextAvailableChannel = 2; // start connections at channel 2
+    wasConnected = false;
 
-	channelPointers.clear();
+    channelPointers.clear();
 
 }
 
 void AudioNode::setChannel(Channel* ch)
 {
 
-	int channelNum = channelPointers.indexOf(ch);
+    int channelNum = channelPointers.indexOf(ch);
 
-	std::cout << "Audio node setting channel to " << channelNum << std::endl;
+    std::cout << "Audio node setting channel to " << channelNum << std::endl;
 
-	setCurrentChannel(channelNum);
+    setCurrentChannel(channelNum);
 }
 
 void AudioNode::setChannelStatus(Channel* chan, bool status)
 {
 
-	setChannel(chan); // add 2 to account for 2 output channels
+    setChannel(chan); // add 2 to account for 2 output channels
 
-	enableCurrentChannel(status);
+    enableCurrentChannel(status);
 
 }
 
 void AudioNode::enableCurrentChannel(bool state)
 {
 
-	//setCurrentChannel(nextAvailableChannel);
+    //setCurrentChannel(nextAvailableChannel);
 
-	if (state)
-	{
-		setParameter(100, 0.0f);
-	} else {
-		setParameter(-100, 0.0f);
-	}
+    if (state)
+    {
+        setParameter(100, 0.0f);
+    }
+    else
+    {
+        setParameter(-100, 0.0f);
+    }
 }
 
 
 void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
 
-	//if (chan != getProcessorGraph()->midiChannelIndex)
-	//{
-        
-		int channelIndex = getNextChannel(false);
+    //if (chan != getProcessorGraph()->midiChannelIndex)
+    //{
 
-        setPlayConfigDetails(channelIndex+1,0,44100.0,128);
+    int channelIndex = getNextChannel(false);
 
-        channelPointers.add(sourceNode->channels[chan]);
-		
-	//} else {
+    setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
-		// Can't monitor events at the moment!
-//	}
+    channelPointers.add(sourceNode->channels[chan]);
 
-}
+    //} else {
 
-void AudioNode::setParameter (int parameterIndex, float newValue)
-{
-	// change left channel, right channel, or volume
-	if (parameterIndex == 1) 
-	{
-		// volume level
-		volume = newValue*0.1f;
-
-	} else if (parameterIndex == 100) 
-	{
-
-		channelPointers[currentChannel]->isMonitored = true;
-
-		// add current channel
-		// if (!leftChan.contains(currentChannel))
-		// {
-		// 	leftChan.add(currentChannel);
-		// 	rightChan.add(currentChannel);
-		// } 
-	} else if (parameterIndex == -100)
-	{
-
-		channelPointers[currentChannel]->isMonitored = false;
-		// remove current channel
-		// if (leftChan.contains(currentChannel))
-		// {
-		// 	leftChan.remove(leftChan.indexOf(currentChannel));
-		// 	rightChan.remove(rightChan.indexOf(currentChannel));
-		// }
-	}
+    // Can't monitor events at the moment!
+    //	}
 
 }
 
-void AudioNode::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &midiMessages,
-                            int& nSamples)
+void AudioNode::setParameter(int parameterIndex, float newValue)
 {
-	float gain;
-	//std::cout << "Audio node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
+    // change left channel, right channel, or volume
+    if (parameterIndex == 1)
+    {
+        // volume level
+        volume = newValue*0.1f;
 
-	// clear the left and right channels
-	buffer.clear(0,0,buffer.getNumSamples());
-	buffer.clear(1,0,buffer.getNumSamples());
-	
-	if (channelPointers.size() > 0) 
-	{
-		for (int i = 2; i < buffer.getNumChannels(); i++)
-		{
+    }
+    else if (parameterIndex == 100)
+    {
 
-			if (channelPointers[i-2]->isMonitored)
-			{
-				gain=volume/( float(0x7fff) * channelPointers[i-2]->bitVolts );
-				buffer.addFrom(0,  		// destination channel
-					0,  			// destination start sample
-					buffer,      // source
-					i, 			// source channel
-					0,           // source start sample
-					buffer.getNumSamples(), //  number of samples
-					gain       // gain to apply
-					);
+        channelPointers[currentChannel]->isMonitored = true;
 
-				buffer.addFrom(1,  		// destination channel
-					0,  			// destination start sample
-					buffer,      // source
-					i, 			// source channel
-					0,           // source start sample
-					buffer.getNumSamples(), //  number of samples
-					gain       // gain to apply
-					);
+        // add current channel
+        // if (!leftChan.contains(currentChannel))
+        // {
+        // 	leftChan.add(currentChannel);
+        // 	rightChan.add(currentChannel);
+        // }
+    }
+    else if (parameterIndex == -100)
+    {
 
-			}
+        channelPointers[currentChannel]->isMonitored = false;
+        // remove current channel
+        // if (leftChan.contains(currentChannel))
+        // {
+        // 	leftChan.remove(leftChan.indexOf(currentChannel));
+        // 	rightChan.remove(rightChan.indexOf(currentChannel));
+        // }
+    }
 
-		}
-	}
+}
+
+void AudioNode::process(AudioSampleBuffer& buffer,
+                        MidiBuffer& midiMessages,
+                        int& nSamples)
+{
+    float gain;
+    //std::cout << "Audio node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
+
+    // clear the left and right channels
+    buffer.clear(0,0,buffer.getNumSamples());
+    buffer.clear(1,0,buffer.getNumSamples());
+
+    if (channelPointers.size() > 0)
+    {
+        for (int i = 2; i < buffer.getNumChannels(); i++)
+        {
+
+            if (channelPointers[i-2]->isMonitored)
+            {
+                gain=volume/(float(0x7fff) * channelPointers[i-2]->bitVolts);
+                buffer.addFrom(0,  		// destination channel
+                               0,  			// destination start sample
+                               buffer,      // source
+                               i, 			// source channel
+                               0,           // source start sample
+                               buffer.getNumSamples(), //  number of samples
+                               gain       // gain to apply
+                              );
+
+                buffer.addFrom(1,  		// destination channel
+                               0,  			// destination start sample
+                               buffer,      // source
+                               i, 			// source channel
+                               0,           // source start sample
+                               buffer.getNumSamples(), //  number of samples
+                               gain       // gain to apply
+                              );
+
+            }
+
+        }
+    }
 
 }

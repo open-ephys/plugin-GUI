@@ -35,42 +35,54 @@
 */
 
 class Visualizer : public Component,
-                   public Timer
+    public Timer
 
 {
-public: 
-	Visualizer() { refreshRate = 10; } // 10 Hz default refresh rate
-	~Visualizer() {}
+public:
+    Visualizer()
+    {
+        refreshRate = 10;    // 10 Hz default refresh rate
+    }
+    ~Visualizer() {}
 
     /** Called when the component's tab becomes visible again.*/
-	virtual void refreshState() = 0;
+    virtual void refreshState() = 0;
 
     /** Called when parameters of underlying data processor are changed.*/
-	virtual void update() = 0;
+    virtual void update() = 0;
 
     /** Called instead of "repaint" to avoid redrawing underlying components if not necessary.*/
     virtual void refresh() = 0;
 
     /** Called when data acquisition is active.*/
-	virtual void beginAnimation() = 0;
+    virtual void beginAnimation() = 0;
 
     /** Called when data acquisition ends.*/
-	virtual void endAnimation() = 0;
+    virtual void endAnimation() = 0;
 
     /** Called by an editor to initiate a parameter change.*/
-	virtual void setParameter(int, float) = 0;
+    virtual void setParameter(int, float) = 0;
 
     /** Called by an editor to initiate a parameter change.*/
     virtual void setParameter(int, int, int, float) = 0;
 
     /** Starts the timer callbacks. */
-    void startCallbacks() { startTimer(100); }
+    void startCallbacks()
+    {
+        startTimer(100);
+    }
 
     /** Stops the timer callbacks. */
-    void stopCallbacks() { stopTimer(); }
+    void stopCallbacks()
+    {
+        stopTimer();
+    }
 
     /** Called whenever the timer is triggered. */
-    void timerCallback() { refresh(); }
+    void timerCallback()
+    {
+        refresh();
+    }
 
     /** Refresh rate in Hz. */
     float refreshRate;

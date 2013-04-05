@@ -46,28 +46,28 @@ class FileReaderThread : public DataThread
 
 {
 public:
-	FileReaderThread(SourceNode* sn);
-	~FileReaderThread();
+    FileReaderThread(SourceNode* sn);
+    ~FileReaderThread();
 
-	bool foundInputSource();
-	bool startAcquisition();
-	bool stopAcquisition();
-	int getNumChannels();
-	float getSampleRate();
+    bool foundInputSource();
+    bool startAcquisition();
+    bool stopAcquisition();
+    int getNumChannels();
+    float getSampleRate();
     float getBitVolts();
-	
+
 private:
     int lengthOfInputFile;
     FILE* input;
 
-	float thisSample[16];
+    float thisSample[16];
     int16 readBuffer[1600];
 
     int bufferSize;
 
-	bool updateBuffer();
+    bool updateBuffer();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileReaderThread);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReaderThread);
 };
 
 

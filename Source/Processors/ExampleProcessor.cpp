@@ -27,7 +27,7 @@
 #include "ExampleProcessor.h"
 
 ExampleProcessor::ExampleProcessor()
-	: GenericProcessor("Example Processor") //, threshold(200.0), state(true)
+    : GenericProcessor("Example Processor") //, threshold(200.0), state(true)
 
 {
 
@@ -37,12 +37,12 @@ ExampleProcessor::ExampleProcessor()
 
 ExampleProcessor::~ExampleProcessor()
 {
-   
+
 }
 
 
 
-void ExampleProcessor::setParameter (int parameterIndex, float newValue)
+void ExampleProcessor::setParameter(int parameterIndex, float newValue)
 {
 
     //Parameter& p =  parameters.getReference(parameterIndex);
@@ -54,9 +54,9 @@ void ExampleProcessor::setParameter (int parameterIndex, float newValue)
 
 }
 
-void ExampleProcessor::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &events,
-                            int& nSamples)
+void ExampleProcessor::process(AudioSampleBuffer& buffer,
+                               MidiBuffer& events,
+                               int& nSamples)
 {
 
     // for (int i = 0; i < nSamples; i++)

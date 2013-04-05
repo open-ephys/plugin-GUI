@@ -7,8 +7,9 @@
 
 */
 
-struct SimpleKeyEvent{
-    
+struct SimpleKeyEvent
+{
+
     int key;
     bool shift;
     bool ctrl;

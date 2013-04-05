@@ -43,18 +43,18 @@ class ArduinoOutputEditor : public GenericEditor
 
 {
 public:
-	ArduinoOutputEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~ArduinoOutputEditor();
+    ArduinoOutputEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~ArduinoOutputEditor();
 
-	void receivedEvent();
+    void receivedEvent();
 
-	ImageIcon* icon;
+    ImageIcon* icon;
 
-private:	
+private:
 
-	void timerCallback();
+    void timerCallback();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArduinoOutputEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ArduinoOutputEditor);
 
 };
 

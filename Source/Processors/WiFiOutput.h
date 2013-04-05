@@ -46,30 +46,33 @@ class FilterViewport;
 
 
 class WiFiOutput : public GenericProcessor,
-		           public Timer
+    public Timer
 
 {
 public:
-	
-	WiFiOutput();
-	~WiFiOutput();
-	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void setParameter (int parameterIndex, float newValue);
+
+    WiFiOutput();
+    ~WiFiOutput();
+
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void setParameter(int parameterIndex, float newValue);
 
     void handleEvent(int eventType, MidiMessage& event, int sampleNum);
-    
-	AudioProcessorEditor* createEditor();
 
-	bool isSink() {return true;}
-	
+    AudioProcessorEditor* createEditor();
+
+    bool isSink()
+    {
+        return true;
+    }
+
 private:
 
-	UDPSocket socket;
+    UDPSocket socket;
 
-	void timerCallback();
+    void timerCallback();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WiFiOutput);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WiFiOutput);
 
 };
 

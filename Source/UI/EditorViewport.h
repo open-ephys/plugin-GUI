@@ -40,12 +40,12 @@ class EditorScrollButton;
 class SignalChainScrollButton;
 
 /**
-  
+
   Allows the user to view and edit the signal chain.
 
   The EditorViewport is one of the most important classes in the GUI application.
   Dragging processors from the ProcessorList into the EditorViewport adds them to the signal chain. The
-  newly added processors appear an editors in the EditorViewport. Deleting the editor from the 
+  newly added processors appear an editors in the EditorViewport. Deleting the editor from the
   EditorViewport removes its associated processor from the signal chain. Moving an editor (by dragging
   and dropping within the EditorViewport) rearranges the order of processing.
 
@@ -58,9 +58,9 @@ class SignalChainScrollButton;
 */
 
 class EditorViewport  : public Component,
-                        public DragAndDropTarget,
-                        public AccessClass,
-                        public Button::Listener
+    public DragAndDropTarget,
+    public AccessClass,
+    public Button::Listener
 
 {
 public:
@@ -72,7 +72,7 @@ public:
     ~EditorViewport();
 
     /** Draws the background of the EditorViewport. */
-    void paint (Graphics& g);
+    void paint(Graphics& g);
 
     /** Removes the processor associated with a given editor. */
     void deleteNode(GenericEditor* editor);
@@ -89,54 +89,57 @@ public:
     /** Removes all processors from the signal chain(s).*/
     void clearSignalChain();
 
-    /** Used to enable and disable drag-and-drop signal chain editing. Called by the 
+    /** Used to enable and disable drag-and-drop signal chain editing. Called by the
     ProcessorGraph when data acquisition begins and ends. */
     void signalChainCanBeEdited(bool canEdit);
 
-     /** Determines whether or not the EditorViewport should respond to 
-     the component that is currently being dragged. */
-    bool isInterestedInDragSource (const SourceDetails& dragSourceDetails);
-    
-    /** Called when a dragged item (usually a name from the ProcessorList) enters the 
+    /** Determines whether or not the EditorViewport should respond to
+    the component that is currently being dragged. */
+    bool isInterestedInDragSource(const SourceDetails& dragSourceDetails);
+
+    /** Called when a dragged item (usually a name from the ProcessorList) enters the
        boundaries of the EditorViewport. Causes the background of the EditorViewport to change color.*/
-    void itemDragEnter (const SourceDetails& dragSourceDetails);
-    
-    /** Called when a dragged item (usually a name from the ProcessorList) moves within the 
+    void itemDragEnter(const SourceDetails& dragSourceDetails);
+
+    /** Called when a dragged item (usually a name from the ProcessorList) moves within the
        boundaries of the EditorViewport. Causes existing editors (if any) to shift their position
        to make room for the new processor that could be dropped.*/
-    void itemDragMove (const SourceDetails& dragSourceDetails);
-    
-    /** Called when a dragged item (usually a name from the ProcessorList) leaves the 
+    void itemDragMove(const SourceDetails& dragSourceDetails);
+
+    /** Called when a dragged item (usually a name from the ProcessorList) leaves the
        boundaries of the EditorViewport. Causes the background of the EditorViewport to change color.*/
-    void itemDragExit (const SourceDetails& dragSourceDetails);
-    
-    /** Called when a dragged item (usually a name from the ProcessorList) is released within the 
+    void itemDragExit(const SourceDetails& dragSourceDetails);
+
+    /** Called when a dragged item (usually a name from the ProcessorList) is released within the
        boundaries of the EditorViewport. Adds the dropped processor to the signal chain.*/
-    void itemDropped (const SourceDetails& dragSourceDetails);
+    void itemDropped(const SourceDetails& dragSourceDetails);
 
     /** Called when a mouse click begins within the EditorViewport. Usually used to select editors.*/
-    void mouseDown(const MouseEvent &e);
+    void mouseDown(const MouseEvent& e);
 
     /** Called when a mouse drag occurs within the EditorViewport. Usually used to move editors around in the signal chain.*/
-    void mouseDrag(const MouseEvent &e);
+    void mouseDrag(const MouseEvent& e);
 
     /** Called when a mouse click ends within the EditorViewport. Usually used to indicate that a moving editor has been dropped.*/
-    void mouseUp(const MouseEvent &e);
+    void mouseUp(const MouseEvent& e);
 
     /** Called when the mouse leaves the boundaries of the EditorViewport.*/
-    void mouseExit(const MouseEvent &e);
+    void mouseExit(const MouseEvent& e);
 
     /** Called when a key is pressed an the EditorViewport has keyboard focus.*/
-    bool keyPressed (const KeyPress &key);
-    
+    bool keyPressed(const KeyPress& key);
+
     /** Changes which editor is selected, depending on the keypress (and modifier keys).*/
-    void moveSelection( const KeyPress &key);
-    
+    void moveSelection(const KeyPress& key);
+
     /** Called when one of the buttons the EditorViewport listens to has been clicked.*/
     void buttonClicked(Button* button);
 
     /** Returns an array of pointers to SignalChainTabButtons (which themselves hold pointers to the sources of each signal chain). */
-    Array<SignalChainTabButton*, CriticalSection> requestSignalChain() {return signalChainArray;}
+    Array<SignalChainTabButton*, CriticalSection> requestSignalChain()
+    {
+        return signalChainArray;
+    }
 
     /** Save the current configuration as an XML file. */
     const String saveState();
@@ -160,7 +163,7 @@ public:
     int leftmostEditor;
 
     File currentFile;
-    
+
 private:
 
     String message;
@@ -200,16 +203,16 @@ private:
 
     void resized();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EditorViewport);  
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EditorViewport);
 
 };
 
 /**
-  
+
   Allows the user to navigate between multiple parallel signal chains.
 
   Each SignalChainTabButton sits on the left-hand side of the EditorViewport
-  and is associated with a given signal chain. Clicking the tab button makes 
+  and is associated with a given signal chain. Clicking the tab button makes
   the editors for its signal chain visible.
 
   @see EditorViewport
@@ -223,22 +226,40 @@ public:
     ~SignalChainTabButton() {}
 
     /** Determines the first editor in the signal chain associated with a SignalChainTabButton.*/
-    void setEditor(GenericEditor* p) {firstEditor = p;}
-    
+    void setEditor(GenericEditor* p)
+    {
+        firstEditor = p;
+    }
+
     /** Sets the SignalChainManager for this SignalChainTabButton.*/
-    void setManager(SignalChainManager* scm_) {scm = scm_;}
+    void setManager(SignalChainManager* scm_)
+    {
+        scm = scm_;
+    }
 
     /** Returns the editor associated with this SignalChainTabButton.*/
-    GenericEditor* getEditor() {return firstEditor;}
+    GenericEditor* getEditor()
+    {
+        return firstEditor;
+    }
 
     /** Sets the number of this SignalChainTabButton.*/
-    void setNumber(int n) {num = n;}
+    void setNumber(int n)
+    {
+        num = n;
+    }
 
     /** Returns the state of the configurationChanged variable.*/
-    bool hasNewConnections() {return configurationChanged;}
+    bool hasNewConnections()
+    {
+        return configurationChanged;
+    }
 
     /** Sets the state of the configurationChanged variable.*/
-    void hasNewConnections(bool t) {configurationChanged = t;}
+    void hasNewConnections(bool t)
+    {
+        configurationChanged = t;
+    }
 
     int offset;
 
@@ -249,13 +270,13 @@ private:
     SignalChainManager* scm;
 
     /** Draws the SignalChainTabButton.*/
-    void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
     /** Called when a mouse click occurs inside a SignalChainTabButton.*/
     void clicked();
-    
+
     enum actions {ADD, MOVE, REMOVE, ACTIVATE};
-    
+
     int num;
     bool configurationChanged;
 

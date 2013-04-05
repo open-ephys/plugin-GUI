@@ -42,44 +42,47 @@ class PhaseDetector : public GenericProcessor
 
 {
 public:
-	
-	PhaseDetector();
-	~PhaseDetector();
-	
-	void process (AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void setParameter (int parameterIndex, float newValue);
 
-	//AudioProcessorEditor* createEditor();
+    PhaseDetector();
+    ~PhaseDetector();
 
-	bool hasEditor() const {return false;}
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void setParameter(int parameterIndex, float newValue);
 
-	bool enable();
+    //AudioProcessorEditor* createEditor();
 
-	void updateSettings();
+    bool hasEditor() const
+    {
+        return false;
+    }
+
+    bool enable();
+
+    void updateSettings();
 
 private:
 
-	float lastPeak;
-	float maxFrequency;
-	float lastSample;
+    float lastPeak;
+    float maxFrequency;
+    float lastSample;
 
-	bool isIncreasing;
+    bool isIncreasing;
 
-	bool canBeTriggered;
+    bool canBeTriggered;
 
-	void handleEvent(int eventType, MidiMessage& event, int sampleNum);
+    void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
-	float estimatedFrequency;
+    float estimatedFrequency;
 
-	int nSamplesSinceLastPeak;
-	int minSamplesToNextPeak;
+    int nSamplesSinceLastPeak;
+    int minSamplesToNextPeak;
 
-	int* peakIntervals;
-	int numPeakIntervals;
+    int* peakIntervals;
+    int numPeakIntervals;
 
-	void estimateFrequency();
+    void estimateFrequency();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhaseDetector);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhaseDetector);
 
 };
 

@@ -31,7 +31,7 @@
 #include "GenericProcessor.h"
 
 
-/** 
+/**
 
 	*UNDER CONSTRUCTION*
 
@@ -46,18 +46,18 @@
 class ArduinoOutput : public GenericProcessor
 {
 public:
-	
-	ArduinoOutput();
-	~ArduinoOutput();
-	
-	/** Searches for events and triggers the Arduino output when appropriate. */
-	void process(AudioSampleBuffer &buffer, MidiBuffer &events, int& nSamples);
-	
-	/** Currently unused. Future uses may include changing the TTL trigger channel
-	or the output channel of the Arduino. */
-	void setParameter (int parameterIndex, float newValue);
 
-	/** Convenient interface for responding to incoming events. */
+    ArduinoOutput();
+    ~ArduinoOutput();
+
+    /** Searches for events and triggers the Arduino output when appropriate. */
+    void process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples);
+
+    /** Currently unused. Future uses may include changing the TTL trigger channel
+    or the output channel of the Arduino. */
+    void setParameter(int parameterIndex, float newValue);
+
+    /** Convenient interface for responding to incoming events. */
     void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
     /** Called immediately prior to the start of data acquisition. */
@@ -65,21 +65,24 @@ public:
 
     /** Called immediately after the end of data acquisition. */
     bool disable();
-    
-    /** Creates the ArduinoOutputEditor. */
-	AudioProcessorEditor* createEditor();
 
-	/** Defines the ArduinoOutput processor as a sink. */
-	bool isSink() {return true;}
-	
+    /** Creates the ArduinoOutputEditor. */
+    AudioProcessorEditor* createEditor();
+
+    /** Defines the ArduinoOutput processor as a sink. */
+    bool isSink()
+    {
+        return true;
+    }
+
 private:
 
-	/** An open-frameworks Arduino object. */
-	ofArduino arduino;
+    /** An open-frameworks Arduino object. */
+    ofArduino arduino;
 
-	bool state;
+    bool state;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArduinoOutput);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ArduinoOutput);
 
 };
 

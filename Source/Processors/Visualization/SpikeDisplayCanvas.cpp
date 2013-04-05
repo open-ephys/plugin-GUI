@@ -24,34 +24,34 @@
 #include "SpikeDisplayCanvas.h"
 
 SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
-	 	newSpike(false), processor(n)
+    newSpike(false), processor(n)
 {
-    
-	update();
-	
-	spikeBuffer = processor->getSpikeBufferAddress();
 
-	viewport = new Viewport();
-	spikeDisplay = new SpikeDisplay(this, viewport);
+    update();
 
-	viewport->setViewedComponent(spikeDisplay, false);
-	viewport->setScrollBarsShown(true, false);
+    spikeBuffer = processor->getSpikeBufferAddress();
 
-	scrollBarThickness = viewport->getScrollBarThickness();
+    viewport = new Viewport();
+    spikeDisplay = new SpikeDisplay(this, viewport);
 
-	addAndMakeVisible(viewport);
-	
+    viewport->setViewedComponent(spikeDisplay, false);
+    viewport->setScrollBarsShown(true, false);
+
+    scrollBarThickness = viewport->getScrollBarThickness();
+
+    addAndMakeVisible(viewport);
+
 }
 
 SpikeDisplayCanvas::~SpikeDisplayCanvas()
 {
-	
+
 }
 
 // void SpikeDisplayCanvas::initializeSpikePlots(){
 
 // 	std::cout<<"Initializing Plots"<<std::endl;
-    
+
 //     // This layout system really only works if plot types are aggregated together.
 //     // It might be worthwhile to investigate the merits of using a grid system
 //     // The canvas is defined as N grid widths wide. Each SpikePlot defines its
@@ -68,7 +68,7 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 // // 	if (plots.size() != nPlots)
 // // 	{
 
-// // 	int totalWidth = getWidth(); 
+// // 	int totalWidth = getWidth();
 
 // // 	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
 // // 	int plotHeight = plotWidth / 2 + .5;
@@ -93,16 +93,16 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 // //                 pType = SINGLE_PLOT;
 // //                 break;
 // //         }
-        
+
 // // //        bool use_generic_plots_flag = true;
-        
+
 // // //        BaseUIElement *sp;
-        
+
 // //   //      if (use_generic_plots_flag)
 // //         SpikePlot *sp = new SpikePlot(xBuffer + i%nCols * (plotWidth + xBuffer) ,
 // //                                yBuffer + rowCount * (plotHeight + yBuffer),
 // //                                plotWidth, plotHeight, pType);
-        
+
 // // //        else
 // // //            sp = new StereotrodePlot(xBuffer + i%nCols * (plotWidth + xBuffer) ,
 // // //                                      yBuffer + rowCount * (plotHeight + yBuffer),
@@ -121,15 +121,15 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 // }
 
 // void SpikeDisplayCanvas::repositionSpikePlots(){
-	
+
 // // 	int canvasWidth = getWidth();
 // // 	int gridSize = canvasWidth / nCols;
-    
+
 // //     gridSize = (gridSize > MIN_GRID_SIZE) ? gridSize : MIN_GRID_SIZE;
 // //     gridSize = (gridSize < MAX_GRID_SIZE) ? gridSize : MAX_GRID_SIZE;
-        
-    
-    
+
+
+
 // //     int x = xBuffer;
 // //     int y = getHeight() - yBuffer;
 // //     int p = 0;
@@ -138,12 +138,12 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 // //     bool loopCheck = false;
 // //     //std::cout<<"Positioning Spike Plots"<<std::endl;
 // //     while (p < plots.size()){
-        
+
 // //         // Ask the current plot for its desired dims
 // //         plots[p]->getBestDimensions(&w, &h);
 // //         w *= gridSize;
 // //         h *= gridSize;
-        
+
 // //         // Check to see if plot exceeds width of canvas, if yes, set x back to 0 and go to the bottom most plot on the canvas
 // //         if ( (x + w + xBuffer > canvasWidth - xBuffer) && !loopCheck){
 // //             //std::cout<<"Collision with the edge of the canvas, going down a row"<<std::endl;
@@ -162,7 +162,7 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 // //             // set a new minimum
 // //             if (h > yIncrement)
 // //                 yIncrement = h;
-            
+
 // //             // increment p
 // //             p++;
 // //             loopCheck = false;
@@ -176,13 +176,13 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 // // //	for (int i=0; i < plots.size(); i++)
 // // //	{
 // // //
-// // //		plots[i]->setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) , 
-// // //								getHeight() - ( yBuffer + plotHeight + rowCount * (plotHeight + yBuffer)) + getScrollAmount(), 
-// // //								plotWidth, 
+// // //		plots[i]->setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) ,
+// // //								getHeight() - ( yBuffer + plotHeight + rowCount * (plotHeight + yBuffer)) + getScrollAmount(),
+// // //								plotWidth,
 // // //								plotHeight); // deprecated conversion from string constant to char
 // // //
 // // //		if (i%nCols == nCols-1)
-// // //			rowCount++;	
+// // //			rowCount++;
 // // //	 }
 
 // // 	// Set the total height of the Canvas to the top of the top most plot
@@ -204,106 +204,107 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 
 void SpikeDisplayCanvas::beginAnimation()
 {
-	std::cout << "Beginning animation." << std::endl;
-	
-	startCallbacks();
+    std::cout << "Beginning animation." << std::endl;
+
+    startCallbacks();
 }
 
 void SpikeDisplayCanvas::endAnimation()
 {
-	std::cout << "Ending animation." << std::endl;
-	
-	stopCallbacks();
+    std::cout << "Ending animation." << std::endl;
+
+    stopCallbacks();
 }
 
 void SpikeDisplayCanvas::update()
 {
 
-	std::cout << "UPDATING SpikeDisplayCanvas" << std::endl;
+    std::cout << "UPDATING SpikeDisplayCanvas" << std::endl;
 
-	//nPlots = processor->getNumElectrodes();
-	// numChannelsPerPlot.clear();
+    //nPlots = processor->getNumElectrodes();
+    // numChannelsPerPlot.clear();
 
-	// for (int i = 0; i < nPlots; i++)
-	// {
-	// 	numChannelsPerPlot.add(processor->getNumberOfChannelsForElectrode(i));
-	// }
+    // for (int i = 0; i < nPlots; i++)
+    // {
+    // 	numChannelsPerPlot.add(processor->getNumberOfChannelsForElectrode(i));
+    // }
 
-	//initializeSpikePlots();
+    //initializeSpikePlots();
 
-	repaint();
+    repaint();
 }
 
 
 void SpikeDisplayCanvas::refreshState()
 {
-	// called when the component's tab becomes visible again
-	// displayBufferIndex = processor->getDisplayBufferIndex();
-	// screenBufferIndex = 0;
-	resized();
+    // called when the component's tab becomes visible again
+    // displayBufferIndex = processor->getDisplayBufferIndex();
+    // screenBufferIndex = 0;
+    resized();
 }
 
 void SpikeDisplayCanvas::resized()
 {
-	viewport->setBounds(0,0,getWidth(),getHeight()-90);
+    viewport->setBounds(0,0,getWidth(),getHeight()-90);
 
-	spikeDisplay->setBounds(0,0,getWidth()-scrollBarThickness, spikeDisplay->getTotalHeight());
+    spikeDisplay->setBounds(0,0,getWidth()-scrollBarThickness, spikeDisplay->getTotalHeight());
 }
 
 void SpikeDisplayCanvas::paint(Graphics& g)
 {
 
-	g.fillAll(Colours::darkgrey);
- 	
+    g.fillAll(Colours::darkgrey);
+
 }
 
 void SpikeDisplayCanvas::refresh()
 {
-	processSpikeEvents();
+    processSpikeEvents();
 }
 
 void SpikeDisplayCanvas::processSpikeEvents()
 {
 
-	if (spikeBuffer->getNumEvents() > 0) 
-	{
-	
-		MidiBuffer::Iterator i (*spikeBuffer);
-	 	MidiMessage message(0xf4);
+    if (spikeBuffer->getNumEvents() > 0)
+    {
 
-	 	int samplePosition = 0;
+        MidiBuffer::Iterator i(*spikeBuffer);
+        MidiMessage message(0xf4);
 
-	 	i.setNextSamplePosition(samplePosition);
-			
-	 	while (i.getNextEvent (message, samplePosition)) {
+        int samplePosition = 0;
 
-	 		 const uint8_t* dataptr = message.getRawData();
-	 		 int bufferSize = message.getRawDataSize();
-	 		 int nSamples = (bufferSize-4)/2;
+        i.setNextSamplePosition(samplePosition);
 
-	 		SpikeObject newSpike;
-	 		SpikeObject simSpike;
+        while (i.getNextEvent(message, samplePosition))
+        {
 
-	 		unpackSpike(&newSpike, dataptr, bufferSize);
+            const uint8_t* dataptr = message.getRawData();
+            int bufferSize = message.getRawDataSize();
+            int nSamples = (bufferSize-4)/2;
 
-	 		int chan = newSpike.source;
+            SpikeObject newSpike;
+            SpikeObject simSpike;
 
-	 		generateSimulatedSpike(&simSpike, 0, 0);
+            unpackSpike(&newSpike, dataptr, bufferSize);
 
-	 		for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
-	 		{
-                     simSpike.data[i] = newSpike.data[i%80] + 5000;// * 3 - 10000;
-	 		}
+            int chan = newSpike.source;
 
-	 		simSpike.nSamples = 40;
+            generateSimulatedSpike(&simSpike, 0, 0);
 
-			spikeDisplay->plotSpike(simSpike);
+            for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
+            {
+                simSpike.data[i] = newSpike.data[i%80] + 5000;// * 3 - 10000;
+            }
 
-		}
+            simSpike.nSamples = 40;
 
-	}
+            spikeDisplay->plotSpike(simSpike);
 
-	spikeBuffer->clear();
+        }
+
+    }
+
+    spikeBuffer->clear();
 
 }
 
@@ -311,25 +312,25 @@ void SpikeDisplayCanvas::processSpikeEvents()
 // ----------------------------------------------------------------
 
 SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
-	canvas(sdc), viewport(v)
+    canvas(sdc), viewport(v)
 {
 
-	tetrodePlotMinWidth = 500;
-	stereotrodePlotMinWidth = 400;
-	singleElectrodePlotMinWidth = 200;
+    tetrodePlotMinWidth = 500;
+    stereotrodePlotMinWidth = 400;
+    singleElectrodePlotMinWidth = 200;
 
-	tetrodePlotRatio = 0.5;
-	stereotrodePlotRatio = 0.2;
-	singleElectrodePlotRatio = 1.0;
+    tetrodePlotRatio = 0.5;
+    stereotrodePlotRatio = 0.2;
+    singleElectrodePlotRatio = 1.0;
 
-	totalHeight = 1000;
+    totalHeight = 1000;
 
-	for (int i = 0; i < 10; i++)
-	{
-		TetrodePlot* tetrodePlot = new TetrodePlot(canvas, i);
-		tetrodePlots.add(tetrodePlot);
-		addAndMakeVisible(tetrodePlot);
-	}
+    for (int i = 0; i < 10; i++)
+    {
+        TetrodePlot* tetrodePlot = new TetrodePlot(canvas, i);
+        tetrodePlots.add(tetrodePlot);
+        addAndMakeVisible(tetrodePlot);
+    }
 
 }
 
@@ -346,47 +347,47 @@ void SpikeDisplay::addSpikePlot(int numChannels)
 void SpikeDisplay::paint(Graphics& g)
 {
 
-	g.fillAll(Colours::grey);
+    g.fillAll(Colours::grey);
 }
 
 void SpikeDisplay::resized()
 {
 
-	int w = getWidth();
+    int w = getWidth();
 
-	int numColumns = w / tetrodePlotMinWidth;
-	int column, row;
+    int numColumns = w / tetrodePlotMinWidth;
+    int column, row;
 
-	float width = (float) w / (float) numColumns;
-	float height = width * tetrodePlotRatio;
+    float width = (float) w / (float) numColumns;
+    float height = width * tetrodePlotRatio;
 
-	for (int i = 0; i < tetrodePlots.size(); i++)
-	{
+    for (int i = 0; i < tetrodePlots.size(); i++)
+    {
 
-		column = i % numColumns;
-		row = i / numColumns;
-		tetrodePlots[i]->setBounds(width*column,row*height,width,height);
+        column = i % numColumns;
+        row = i / numColumns;
+        tetrodePlots[i]->setBounds(width*column,row*height,width,height);
 
-	}
+    }
 
-	totalHeight = (int) (height*(float(row)+1));
+    totalHeight = (int)(height*(float(row)+1));
 
-	if (totalHeight < getHeight())
-	{
-		canvas->resized();
-	}
+    if (totalHeight < getHeight())
+    {
+        canvas->resized();
+    }
 
-	//setBounds(0,0,getWidth(), totalHeight);
+    //setBounds(0,0,getWidth(), totalHeight);
 
 
-	 // layoutManagerX.layOutComponents((Component**) spikePlots.getRawDataPointer(), 
-	 // 							   spikePlots.size(),
-	 // 							   0,
-	 // 							   0,
-	 // 							   getWidth(),
-	 // 							   getHeight(),
-	 // 							   false,
-	 // 							   false);
+    // layoutManagerX.layOutComponents((Component**) spikePlots.getRawDataPointer(),
+    // 							   spikePlots.size(),
+    // 							   0,
+    // 							   0,
+    // 							   getWidth(),
+    // 							   getHeight(),
+    // 							   false,
+    // 							   false);
 }
 
 void SpikeDisplay::mouseDown(const MouseEvent& event)
@@ -403,10 +404,10 @@ void SpikeDisplay::plotSpike(const SpikeObject& spike)
 // ----------------------------------------------------------------
 
 SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int numChans) :
-	canvas(sdc), electrodeNumber(elecNum), numChannels(numChans)
+    canvas(sdc), electrodeNumber(elecNum), numChannels(numChans)
 
 {
-	isSelected = false;
+    isSelected = false;
 
 }
 
@@ -418,19 +419,19 @@ SpikePlot::~SpikePlot()
 void SpikePlot::paint(Graphics& g)
 {
 
-	//g.setColour(Colours::darkgrey);
-	//g.fillRect(2, 2, getWidth()-4, getHeight()-4);
+    //g.setColour(Colours::darkgrey);
+    //g.fillRect(2, 2, getWidth()-4, getHeight()-4);
 
 }
 
 void SpikePlot::select()
 {
-	isSelected = true;
+    isSelected = true;
 }
 
 void SpikePlot::deselect()
 {
-	isSelected = false;
+    isSelected = false;
 }
 
 
@@ -438,89 +439,89 @@ void SpikePlot::deselect()
 
 
 TetrodePlot::TetrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
-	SpikePlot(sdc, elecNum, 4)
+    SpikePlot(sdc, elecNum, 4)
 {
 
-	for (int i = 0; i < numChannels; i++)
-	{
-		WaveformPlot* wp = new WaveformPlot();
-		addAndMakeVisible(wp);
-		waveformPlots.add(wp);
-	}
+    for (int i = 0; i < numChannels; i++)
+    {
+        WaveformPlot* wp = new WaveformPlot();
+        addAndMakeVisible(wp);
+        waveformPlots.add(wp);
+    }
 
-	for (int i = 0; i < 6; i++)
-	{
-		ProjectionPlot* pp = new ProjectionPlot();
-		addAndMakeVisible(pp);
-		projectionPlots.add(pp);
-	}
+    for (int i = 0; i < 6; i++)
+    {
+        ProjectionPlot* pp = new ProjectionPlot();
+        addAndMakeVisible(pp);
+        projectionPlots.add(pp);
+    }
 
 }
 
 void TetrodePlot::resized()
 {
-	float w = (float) getWidth() / 5.0f;
-	float h = (float) getHeight() / 2.0f;
+    float w = (float) getWidth() / 5.0f;
+    float h = (float) getHeight() / 2.0f;
 
-	waveformPlots[0]->setBounds(0, 0, w, h);
-	waveformPlots[1]->setBounds(w, 0, w, h);
-	waveformPlots[2]->setBounds(0, h, w, h);
-	waveformPlots[3]->setBounds(w, h, w, h);
+    waveformPlots[0]->setBounds(0, 0, w, h);
+    waveformPlots[1]->setBounds(w, 0, w, h);
+    waveformPlots[2]->setBounds(0, h, w, h);
+    waveformPlots[3]->setBounds(w, h, w, h);
 
-	projectionPlots[0]->setBounds(w*2, 0, w, h);
-	projectionPlots[1]->setBounds(w*3, 0, w, h);
-	projectionPlots[2]->setBounds(w*4, 0, w, h);
-	projectionPlots[3]->setBounds(w*2, h, w, h);
-	projectionPlots[4]->setBounds(w*3, h, w, h);
-	projectionPlots[5]->setBounds(w*4, h, w, h);
+    projectionPlots[0]->setBounds(w*2, 0, w, h);
+    projectionPlots[1]->setBounds(w*3, 0, w, h);
+    projectionPlots[2]->setBounds(w*4, 0, w, h);
+    projectionPlots[3]->setBounds(w*2, h, w, h);
+    projectionPlots[4]->setBounds(w*3, h, w, h);
+    projectionPlots[5]->setBounds(w*4, h, w, h);
 
 }
 
 StereotrodePlot::StereotrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
-	SpikePlot(sdc, elecNum, 2)
+    SpikePlot(sdc, elecNum, 2)
 {
 
-	for (int i = 0; i < numChannels; i++)
-	{
-		WaveformPlot* wp = new WaveformPlot();
-		addAndMakeVisible(wp);
-		waveformPlots.add(wp);
-	}
+    for (int i = 0; i < numChannels; i++)
+    {
+        WaveformPlot* wp = new WaveformPlot();
+        addAndMakeVisible(wp);
+        waveformPlots.add(wp);
+    }
 
-	ProjectionPlot* pp = new ProjectionPlot();
-	addAndMakeVisible(pp);
-	projectionPlots.add(pp);
+    ProjectionPlot* pp = new ProjectionPlot();
+    addAndMakeVisible(pp);
+    projectionPlots.add(pp);
 
 }
 
 void StereotrodePlot::resized()
 {
-	float w = (float) getWidth() / 3.0f;
-	float h = (float) getHeight() / 1.0f;
+    float w = (float) getWidth() / 3.0f;
+    float h = (float) getHeight() / 1.0f;
 
-	waveformPlots[0]->setBounds(0, 0, w, h);
-	waveformPlots[1]->setBounds(w, 0, w, h);
+    waveformPlots[0]->setBounds(0, 0, w, h);
+    waveformPlots[1]->setBounds(w, 0, w, h);
 
-	projectionPlots[0]->setBounds(w*2, 0, w, h);
+    projectionPlots[0]->setBounds(w*2, 0, w, h);
 
 }
 
 SingleElectrodePlot::SingleElectrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
-	SpikePlot(sdc, elecNum, 1)
+    SpikePlot(sdc, elecNum, 1)
 {
 
-	WaveformPlot* wp = new WaveformPlot();
-	addAndMakeVisible(wp);
-	waveformPlots.add(wp);
+    WaveformPlot* wp = new WaveformPlot();
+    addAndMakeVisible(wp);
+    waveformPlots.add(wp);
 
 }
 
 void SingleElectrodePlot::resized()
 {
-	float w = (float) getWidth() / 1.0f;
-	float h = (float) getHeight() / 1.0f;
+    float w = (float) getWidth() / 1.0f;
+    float h = (float) getHeight() / 1.0f;
 
-	waveformPlots[0]->setBounds(0, 0, w, h);
+    waveformPlots[0]->setBounds(0, 0, w, h);
 
 }
 
@@ -531,8 +532,8 @@ WaveformPlot::WaveformPlot()
 
 void WaveformPlot::paint(Graphics& g)
 {
-	g.setColour(Colours::black);
-	g.fillRect(5,5,getWidth()-5, getHeight()-5);
+    g.setColour(Colours::black);
+    g.fillRect(5,5,getWidth()-5, getHeight()-5);
 }
 
 ProjectionPlot::ProjectionPlot()
@@ -542,6 +543,6 @@ ProjectionPlot::ProjectionPlot()
 
 void ProjectionPlot::paint(Graphics& g)
 {
-	g.setColour(Colours::orange);
-	g.fillRect(5,5,getWidth()-5, getHeight()-5);
+    g.setColour(Colours::orange);
+    g.fillRect(5,5,getWidth()-5, getHeight()-5);
 }

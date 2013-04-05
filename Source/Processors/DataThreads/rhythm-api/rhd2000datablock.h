@@ -43,7 +43,7 @@ public:
     static unsigned int getSamplesPerDataBlock();
     void fillFromUsbBuffer(unsigned char usbBuffer[], int blockIndex, int numDataStreams);
     void print(int stream) const;
-    void write(ofstream &saveOut, int numDataStreams) const;
+    void write(ofstream& saveOut, int numDataStreams) const;
 
 private:
     void allocateIntArray3D(vector<vector<vector<int> > > &array3D, int xSize, int ySize, int zSize);
@@ -51,7 +51,7 @@ private:
     void allocateIntArray1D(vector<int> &array1D, int xSize);
     void allocateUIntArray1D(vector<unsigned int> &array1D, int xSize);
 
-    void writeWordLittleEndian(ofstream &outputStream, int dataWord) const;
+    void writeWordLittleEndian(ofstream& outputStream, int dataWord) const;
 
     bool checkUsbHeader(unsigned char usbBuffer[], int index);
     unsigned int convertUsbTimeStamp(unsigned char usbBuffer[], int index);

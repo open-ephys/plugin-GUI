@@ -36,7 +36,8 @@ THE SOFTWARE.
 #include "Common.h"
 #include "State.h"
 
-namespace Dsp {
+namespace Dsp
+{
 
 //------------------------------------------------------------------------------
 

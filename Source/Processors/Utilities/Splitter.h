@@ -47,19 +47,22 @@ class Splitter : public GenericProcessor
 {
 public:
 
-	Splitter();
-	~Splitter();
+    Splitter();
+    ~Splitter();
 
-	AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor();
 
     /** Nothing happens here, because Splitters are not part of the ProcessorGraph. */
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples) {}
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples) {}
 
-	bool isSplitter() {return true;}
+    bool isSplitter()
+    {
+        return true;
+    }
 
-	void switchIO(int);
+    void switchIO(int);
     void switchIO();
-	void setSplitterDestNode(GenericProcessor* dn);
+    void setSplitterDestNode(GenericProcessor* dn);
 
     void setPathToProcessor(GenericProcessor* processor);
 
@@ -67,12 +70,12 @@ public:
 
 private:
 
-	GenericProcessor* destNodeA;
-	GenericProcessor* destNodeB;
-	int activePath;
+    GenericProcessor* destNodeA;
+    GenericProcessor* destNodeB;
+    int activePath;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Splitter);
-	
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Splitter);
+
 };
 
 

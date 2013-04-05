@@ -36,7 +36,7 @@
 class Visualizer;
 
 /**
-  
+
   User interface for the LfpDisplayNode sink.
 
   @see LfpDisplayNode, LfpDisplayCanvas
@@ -46,17 +46,17 @@ class Visualizer;
 class LfpDisplayEditor : public VisualizerEditor
 {
 public:
-	LfpDisplayEditor (GenericProcessor*, bool useDefaultParameterEditors);
-	~LfpDisplayEditor();
+    LfpDisplayEditor(GenericProcessor*, bool useDefaultParameterEditors);
+    ~LfpDisplayEditor();
 
-	void buttonCallback (Button* button);
+    void buttonCallback(Button* button);
 
-	Visualizer* createNewCanvas();
+    Visualizer* createNewCanvas();
 
-private:	
+private:
 
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayEditor);
 
 };
 

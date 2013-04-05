@@ -32,14 +32,14 @@
 
 #define SPIKE_CMD_CLEAR_ALL 	10000
 #define SPIKE_CMD_CLEAR_SEL 	10001
-#define SPIKE_CMD_PAN_AXES	 	10002    
+#define SPIKE_CMD_PAN_AXES	 	10002
 #define SPIKE_CMD_ZOOM_AXES		10003
 
 class DataViewport;
 
 /**
-  
- Takes in MidiEvents and extracts SpikeObjects from the MidiEvent buffers. 
+
+ Takes in MidiEvents and extracts SpikeObjects from the MidiEvent buffers.
  Those Events are then held in a queue until they are pulled by the SpikeDisplayCanvas.
 
   @see GenericProcessor, SpikeDisplayEditor, SpikeDisplayCanvas
@@ -50,43 +50,49 @@ class SpikeDisplayNode :  public GenericProcessor
 {
 public:
 
-	SpikeDisplayNode();
-	~SpikeDisplayNode();
+    SpikeDisplayNode();
+    ~SpikeDisplayNode();
 
-	AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor();
 
-	bool isSink() {return true;}
+    bool isSink()
+    {
+        return true;
+    }
 
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
 
-	void setParameter(int, float);
+    void setParameter(int, float);
 
-	void handleEvent(int, MidiMessage&, int);
+    void handleEvent(int, MidiMessage&, int);
 
-	//void updateSettings();
+    //void updateSettings();
 
-	bool enable();
-	bool disable();
+    bool enable();
+    bool disable();
 
-	MidiBuffer* getSpikeBufferAddress() {return eventBuffer;}
+    MidiBuffer* getSpikeBufferAddress()
+    {
+        return eventBuffer;
+    }
 
 
-	int getNumberOfChannelsForElectrode(int i);
-	int getNumElectrodes();
+    int getNumberOfChannelsForElectrode(int i);
+    int getNumElectrodes();
 
-	bool getNextSpike(SpikeObject *spike);
-	
+    bool getNextSpike(SpikeObject* spike);
+
 private:
 
-	int numberOfSources;
+    int numberOfSources;
 
-	ScopedPointer<MidiBuffer> eventBuffer;
+    ScopedPointer<MidiBuffer> eventBuffer;
 
-	//std::queue<SpikeObject> spikebuffer;
+    //std::queue<SpikeObject> spikebuffer;
 
-	int bufferSize;
+    int bufferSize;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayNode);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayNode);
 
 };
 

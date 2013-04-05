@@ -48,64 +48,70 @@ class DataThread : public Thread
 
 public:
 
-	DataThread(SourceNode* sn);
-	~DataThread();
+    DataThread(SourceNode* sn);
+    ~DataThread();
 
     /** Calls 'updateBuffer()' continuously while the thread is being run.*/
-	void run();
+    void run();
 
     /** Returns the address of the DataBuffer that the input source will fill.*/
-	DataBuffer* getBufferAddress();
+    DataBuffer* getBufferAddress();
 
-    /** Fills the DataBuffer with incoming data. This is the most important 
+    /** Fills the DataBuffer with incoming data. This is the most important
     method for each DataThread.*/
-	virtual bool updateBuffer() = 0;
-    
+    virtual bool updateBuffer() = 0;
+
     /** Experimental method used for testing data sources that can deliver outputs.*/
     virtual void setOutputHigh() {}
 
     /** Experimental method used for testing data sources that can deliver outputs.*/
     virtual void setOutputLow() {}
 
-	ScopedPointer<DataBuffer> dataBuffer;
+    ScopedPointer<DataBuffer> dataBuffer;
 
     /** Returns true if the data source is connected, false otherwise.*/
-	virtual bool foundInputSource() = 0;
+    virtual bool foundInputSource() = 0;
 
     /** Initializes data transfer.*/
-	virtual bool startAcquisition() = 0;
+    virtual bool startAcquisition() = 0;
 
     /** Stops data transfer.*/
-	virtual bool stopAcquisition() = 0;
+    virtual bool stopAcquisition() = 0;
 
     /** Returns the number of continuous channels the data source can provide.*/
-	virtual int getNumChannels() = 0;
+    virtual int getNumChannels() = 0;
 
     /** Returns the sample rate of the data source.*/
-	virtual float getSampleRate() = 0;
+    virtual float getSampleRate() = 0;
 
     /** Returns the volts per bit of the data source.*/
     virtual float getBitVolts() = 0;
 
     /** Returns the number of event channels of the data source.*/
-    virtual int getNumEventChannels() {return 0;}
+    virtual int getNumEventChannels()
+    {
+        return 0;
+    }
 
-	SourceNode* sn;
+    SourceNode* sn;
 
     int16 eventCode;
     uint64 timestamp;
 
     Time timer;
-    
+
     /** Returns a pointer to the data input device, in case other processors
     need to communicate with it.*/
-    virtual void* getDevice() {return 0;}
+    virtual void* getDevice()
+    {
+        return 0;
+    }
 
 private:
 
 
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataThread);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataThread);
 
 
 };

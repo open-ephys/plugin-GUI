@@ -42,7 +42,7 @@ class UtilityButton;
 class ElectrodeButton : public Button
 {
 public:
-    ElectrodeButton(int chan_) : Button("Electrode"), chan(chan_) 
+    ElectrodeButton(int chan_) : Button("Electrode"), chan(chan_)
     {
         setClickingTogglesState(true);
         //setRadioGroupId(299);
@@ -50,8 +50,14 @@ public:
     }
     ~ElectrodeButton() {}
 
-    int getChannelNum() {return chan;}
-    void setChannelNum(int i) {chan = i;}
+    int getChannelNum()
+    {
+        return chan;
+    }
+    void setChannelNum(int i)
+    {
+        chan = i;
+    }
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
@@ -95,7 +101,7 @@ private:
 
 class ThresholdSlider : public Slider
 {
-public: 
+public:
     ThresholdSlider(Font f);
     ~ThresholdSlider() {}
 
@@ -130,13 +136,13 @@ private:
 */
 
 class SpikeDetectorEditor : public GenericEditor,
-                            public Label::Listener,
-                            public ComboBox::Listener
+    public Label::Listener,
+    public ComboBox::Listener
 
 {
 public:
-	SpikeDetectorEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~SpikeDetectorEditor();
+    SpikeDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~SpikeDetectorEditor();
     void buttonEvent(Button* button);
     void labelTextChanged(Label* label);
     void comboBoxChanged(ComboBox* comboBox);
@@ -144,12 +150,12 @@ public:
 
     void channelChanged(int chan);
 
-private:	
+private:
 
     void drawElectrodeButtons(int);
 
     void refreshElectrodeList();
-	
+
     ComboBox* electrodeTypes;
     ComboBox* electrodeList;
     Label* numElectrodes;
@@ -172,7 +178,7 @@ private:
 
     Font font;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetectorEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDetectorEditor);
 
 };
 

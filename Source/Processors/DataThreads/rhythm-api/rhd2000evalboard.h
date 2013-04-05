@@ -43,7 +43,8 @@ public:
     bool uploadFpgaBitfile(string filename);
     void initialize();
 
-    enum AmplifierSampleRate {
+    enum AmplifierSampleRate
+    {
         SampleRate1000Hz,
         SampleRate1250Hz,
         SampleRate1500Hz,
@@ -67,13 +68,15 @@ public:
     double getSampleRate() const;
     AmplifierSampleRate getSampleRateEnum() const;
 
-    enum AuxCmdSlot {
+    enum AuxCmdSlot
+    {
         AuxCmd1,
         AuxCmd2,
         AuxCmd3
     };
 
-    enum BoardPort {
+    enum BoardPort
+    {
         PortA,
         PortB,
         PortC,
@@ -101,7 +104,8 @@ public:
 
     void setDspSettle(bool enabled);
 
-    enum BoardDataSource {
+    enum BoardDataSource
+    {
         PortA1 = 0,
         PortA2 = 1,
         PortB1 = 2,
@@ -128,7 +132,8 @@ public:
     void setTtlOut(int ttlOutArray[]);
     void getTtlIn(int ttlInArray[]);
 
-    enum DacManual {
+    enum DacManual
+    {
         DacManual1,
         DacManual2
     };
@@ -144,12 +149,12 @@ public:
     void selectDacDataChannel(int dacChannel, int dataChannel);
 
     void flush();
-    bool readDataBlock(Rhd2000DataBlock *dataBlock);
+    bool readDataBlock(Rhd2000DataBlock* dataBlock);
     bool readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue);
-    int queueToFile(queue<Rhd2000DataBlock> &dataQueue, std::ofstream &saveOut);
+    int queueToFile(queue<Rhd2000DataBlock> &dataQueue, std::ofstream& saveOut);
 
 private:
-    okCFrontPanel *dev;
+    okCFrontPanel* dev;
     AmplifierSampleRate sampleRate;
     int numDataStreams; // total number of data streams currently enabled
     int dataStreamEnabled[MAX_NUM_DATA_STREAMS]; // 0 (disabled) or 1 (enabled)
@@ -158,7 +163,8 @@ private:
     unsigned char usbBuffer[USB_BUFFER_SIZE];
 
     // Opal Kelly module USB interface endpoint addresses
-    enum OkEndPoint {
+    enum OkEndPoint
+    {
         WireInResetRun = 0x00,
         WireInMaxTimeStepLsb = 0x01,
         WireInMaxTimeStepMsb = 0x02,

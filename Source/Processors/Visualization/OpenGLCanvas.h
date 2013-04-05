@@ -28,7 +28,7 @@
 
 //#include "../../OpenGL.h"
 
-/** 
+/**
 
 	Can be subclassed to create OpenGL visualizers.
 
@@ -41,68 +41,83 @@ class OpenGLCanvas : public Component, Timer
 
 {
 public:
-	OpenGLCanvas();
-	~OpenGLCanvas();
+    OpenGLCanvas();
+    ~OpenGLCanvas();
 
-	virtual void refreshState() {};
+    virtual void refreshState() {};
 
-	void resized();
-	virtual void canvasWasResized() { }
+    void resized();
+    virtual void canvasWasResized() { }
 
-	void mouseDown(const MouseEvent& e);
-	void mouseDrag(const MouseEvent& e);
-	void mouseMove(const MouseEvent& e);
-	void mouseUp(const MouseEvent& e);
-	int mouseWheelMove(const MouseEvent&, float, float);
+    void mouseDown(const MouseEvent& e);
+    void mouseDrag(const MouseEvent& e);
+    void mouseMove(const MouseEvent& e);
+    void mouseUp(const MouseEvent& e);
+    int mouseWheelMove(const MouseEvent&, float, float);
 
-	virtual void mouseDownInCanvas(const MouseEvent& e) {}
-	virtual void mouseDragInCanvas(const MouseEvent& e) {}
-	virtual void mouseMoveInCanvas(const MouseEvent& e) {}
-	virtual void mouseUpInCanvas(const MouseEvent& e) {}
-	virtual void mouseWheelMoveInCanvas(const MouseEvent&,
-									    float,
-									    float) {}
+    virtual void mouseDownInCanvas(const MouseEvent& e) {}
+    virtual void mouseDragInCanvas(const MouseEvent& e) {}
+    virtual void mouseMoveInCanvas(const MouseEvent& e) {}
+    virtual void mouseUpInCanvas(const MouseEvent& e) {}
+    virtual void mouseWheelMoveInCanvas(const MouseEvent&,
+                                        float,
+                                        float) {}
 
-	void startCallbacks();
-	void stopCallbacks();
+    void startCallbacks();
+    void stopCallbacks();
 
-	int getScrollAmount() {return scrollPix;};
-	int getScrollBarWidth() {return scrollBarWidth;}
-	void drawScrollBars(Graphics& g);
+    int getScrollAmount()
+    {
+        return scrollPix;
+    };
+    int getScrollBarWidth()
+    {
+        return scrollBarWidth;
+    }
+    void drawScrollBars(Graphics& g);
 
-	virtual int getHeaderHeight() {return 0;}
-	virtual int getFooterHeight() {return 0;}
+    virtual int getHeaderHeight()
+    {
+        return 0;
+    }
+    virtual int getFooterHeight()
+    {
+        return 0;
+    }
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	virtual void paintCanvas(Graphics& g) = 0;
+    virtual void paintCanvas(Graphics& g) = 0;
 
 protected:
 
-	virtual int getTotalHeight() {return getHeight();}
-	int scrollPix;
-	void showScrollBars();
-    
+    virtual int getTotalHeight()
+    {
+        return getHeight();
+    }
+    int scrollPix;
+    void showScrollBars();
+
     bool animationIsActive;
 
     int refreshMs;
 
 private:
 
-	void drawScrollBar(Graphics& g, float y1, float y2, float alpha);
-	
-	int scrollBarWidth, scrollDiff, originalScrollPix;
-	int scrollTime;
-	bool showScrollTrack;
+    void drawScrollBar(Graphics& g, float y1, float y2, float alpha);
 
-	Time timer;
-	void timerCallback();
+    int scrollBarWidth, scrollDiff, originalScrollPix;
+    int scrollTime;
+    bool showScrollTrack;
 
-	float scrollBarTop, scrollBarBottom;
+    Time timer;
+    void timerCallback();
 
-	const float PI;
+    float scrollBarTop, scrollBarBottom;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OpenGLCanvas);	
+    const float PI;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OpenGLCanvas);
 
 };
 

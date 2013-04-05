@@ -20,7 +20,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-  
+
 
 #ifndef __RHD2000THREAD_H_2C4CBD67__
 #define __RHD2000THREAD_H_2C4CBD67__
@@ -42,7 +42,7 @@
 class SourceNode;
 
 /**
- 
+
   Communicates with the RHD2000 Evaluation Board from Intan Technologies
 
   @see DataThread, SourceNode
@@ -53,37 +53,37 @@ class RHD2000Thread : public DataThread
 
 {
 public:
-	RHD2000Thread(SourceNode* sn);
-	~RHD2000Thread();
+    RHD2000Thread(SourceNode* sn);
+    ~RHD2000Thread();
 
-	bool foundInputSource();
-	int getNumChannels();
-	float getSampleRate();
-	float getBitVolts();
-    
+    bool foundInputSource();
+    int getNumChannels();
+    float getSampleRate();
+    float getBitVolts();
+
     int getNumEventChannels();
 
 private:
 
-	ScopedPointer<Rhd2000EvalBoard> evalBoard;
-	ScopedPointer<Rhd2000Registers> chipRegisters;
-	ScopedPointer<Rhd2000DataBlock> dataBlock;
+    ScopedPointer<Rhd2000EvalBoard> evalBoard;
+    ScopedPointer<Rhd2000Registers> chipRegisters;
+    ScopedPointer<Rhd2000DataBlock> dataBlock;
 
-	Array<int> numChannelsPerDataStream;
+    Array<int> numChannelsPerDataStream;
 
-	int numChannels;
-	bool deviceFound;
+    int numChannels;
+    bool deviceFound;
 
-	float thisSample[256];
+    float thisSample[256];
 
-	int blockSize;
+    int blockSize;
 
-	bool startAcquisition();
-	bool stopAcquisition();
+    bool startAcquisition();
+    bool stopAcquisition();
 
-	bool updateBuffer();
-	
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RHD2000Thread);
+    bool updateBuffer();
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);
 };
 
 #endif  // __RHD2000THREAD_H_2C4CBD67__

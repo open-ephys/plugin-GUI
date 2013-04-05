@@ -34,10 +34,10 @@ class AudioNode;
 class SignalChainTabButton;
 
 /**
-  
+
   Owns all processors and constructs the signal chain.
 
-  The GUI revolves around the ProcessorGraph, which enables the user to 
+  The GUI revolves around the ProcessorGraph, which enables the user to
   dynamically update the signal chain. This object creates and deletes
   all of the processors that handle data, and holds the rules for connecting
   them prior to data acquisition.
@@ -50,49 +50,49 @@ class SignalChainTabButton;
 */
 
 class ProcessorGraph : public AudioProcessorGraph,
-					   public AccessClass,
-					   public ChangeListener
+    public AccessClass,
+    public ChangeListener
 {
 public:
-	ProcessorGraph();
-	~ProcessorGraph();
+    ProcessorGraph();
+    ~ProcessorGraph();
 
-	void* createNewProcessor(String& description);
-	GenericProcessor* createProcessorFromDescription(String& description);
+    void* createNewProcessor(String& description);
+    GenericProcessor* createProcessorFromDescription(String& description);
 
-	void removeProcessor(GenericProcessor* processor);
+    void removeProcessor(GenericProcessor* processor);
 
-	void clearSignalChain();
+    void clearSignalChain();
 
-	bool enableProcessors();
-	bool disableProcessors();
+    bool enableProcessors();
+    bool disableProcessors();
 
-	RecordNode* getRecordNode();
-	AudioNode* getAudioNode();
+    RecordNode* getRecordNode();
+    AudioNode* getAudioNode();
 
-	void updateConnections(Array<SignalChainTabButton*, CriticalSection>);
+    void updateConnections(Array<SignalChainTabButton*, CriticalSection>);
 
-	bool processorWithSameNameExists(const String& name);
+    bool processorWithSameNameExists(const String& name);
 
-	void changeListenerCallback(ChangeBroadcaster* source);
+    void changeListenerCallback(ChangeBroadcaster* source);
 
-	// void saveState();
-	// void loadState();
+    // void saveState();
+    // void loadState();
 
-private:	
+private:
 
-	int currentNodeId;
+    int currentNodeId;
 
-	enum nodeIds
-	{
-		RECORD_NODE_ID = 900,
-		AUDIO_NODE_ID = 901,
-		OUTPUT_NODE_ID = 902,
-		RESAMPLING_NODE_ID = 903
-	};
+    enum nodeIds
+    {
+        RECORD_NODE_ID = 900,
+        AUDIO_NODE_ID = 901,
+        OUTPUT_NODE_ID = 902,
+        RESAMPLING_NODE_ID = 903
+    };
 
-	void createDefaultNodes();
-	void clearConnections();
+    void createDefaultNodes();
+    void clearConnections();
 
 };
 

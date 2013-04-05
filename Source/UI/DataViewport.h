@@ -30,11 +30,11 @@
 class GenericEditor;
 
 /**
-  
+
   Holds tabs containing the application's visualizers.
 
   The DataViewport sits in the center of the MainWindow
-  and is always visible. Editors that create data 
+  and is always visible. Editors that create data
   visualizations can place them in the
   DataViewport for easy access on small monitors, or in
   a separate window for maximum flexibility.
@@ -46,42 +46,42 @@ class GenericEditor;
 */
 
 class DataViewport : public TabbedComponent,
-                     public AccessClass
+    public AccessClass
 
 {
-public: 
-  DataViewport();
-  ~DataViewport();
+public:
+    DataViewport();
+    ~DataViewport();
 
-  /** Adds a new visualizer within a tab and returns the tab index.*/
-  int addTabToDataViewport(String tabName, Component* componentToAdd, GenericEditor* editor);
+    /** Adds a new visualizer within a tab and returns the tab index.*/
+    int addTabToDataViewport(String tabName, Component* componentToAdd, GenericEditor* editor);
 
-  /** Removes a tab with a specified index.*/
-  void destroyTab(int);
+    /** Removes a tab with a specified index.*/
+    void destroyTab(int);
 
-  /** Selects a tab with a specified index.*/
-  void selectTab(int);
+    /** Selects a tab with a specified index.*/
+    void selectTab(int);
 
-  /** Informs the component within the current tab that it's now active.*/
-  void currentTabChanged(int newIndex, const String& newTabName);
+    /** Informs the component within the current tab that it's now active.*/
+    void currentTabChanged(int newIndex, const String& newTabName);
 
-  /** Prevents the DataViewport from signaling EditorViewport when changing tabs.*/
-  void disableConnectionToEditorViewport();
+    /** Prevents the DataViewport from signaling EditorViewport when changing tabs.*/
+    void disableConnectionToEditorViewport();
 
 private:
 
-  /** Maps original tab indices to their location within the DataViewport. */
-	Array<int> tabArray;
+    /** Maps original tab indices to their location within the DataViewport. */
+    Array<int> tabArray;
 
-  /** Maps processor editors to their respective tabs within the DataViewport. */
-  Array<GenericEditor*> editorArray;
-	void paint(Graphics& g);
-	int tabDepth;
+    /** Maps processor editors to their respective tabs within the DataViewport. */
+    Array<GenericEditor*> editorArray;
+    void paint(Graphics& g);
+    int tabDepth;
 
-  bool shutdown;
+    bool shutdown;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataViewport);
-	
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataViewport);
+
 };
 
 

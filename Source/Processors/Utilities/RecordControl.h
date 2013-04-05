@@ -39,19 +39,19 @@
 class RecordControl : public GenericProcessor
 {
 public:
-	RecordControl();
-	~RecordControl();
+    RecordControl();
+    ~RecordControl();
 
-	void process (AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void updateTriggerChannel(int newChannel);
-	void handleEvent(int eventType, MidiMessage& event, int);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void updateTriggerChannel(int newChannel);
+    void handleEvent(int eventType, MidiMessage& event, int);
 
-	AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor();
 
 private:
-	int triggerChannel;
+    int triggerChannel;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordControl);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordControl);
 
 };
 

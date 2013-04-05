@@ -24,11 +24,11 @@
 #ifndef __INFOLABEL_H_14DA9A62__
 #define __INFOLABEL_H_14DA9A62__
 
-    
+
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 /**
-  
+
   Displays general instructions about how to use the application.
 
   Inhabits a tab in the DataViewport.
@@ -40,23 +40,23 @@
 class InfoLabel : public Component
 
 {
-public: 
-	InfoLabel();
-	~InfoLabel();
+public:
+    InfoLabel();
+    ~InfoLabel();
 
     /** Draws the InfoLabel.*/
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
 private:
 
     /** The text displayed to the user.*/
-	String infoString;
+    String infoString;
 
     /** Font used to draw the label.*/
     Font labelFont;
 
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InfoLabel);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(InfoLabel);
 
 
 };

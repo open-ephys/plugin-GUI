@@ -25,48 +25,48 @@
 
 //---------------------------------------------------------------------
 
-MessageCenter::MessageCenter() : 
-	messageBackground(Colours::grey.withAlpha(0.5f)) 
+MessageCenter::MessageCenter() :
+    messageBackground(Colours::grey.withAlpha(0.5f))
 {
-	
-	messageDisplayArea = new Label("Message Display Area","No new messages.");
 
-	addAndMakeVisible(messageDisplayArea);
+    messageDisplayArea = new Label("Message Display Area","No new messages.");
+
+    addAndMakeVisible(messageDisplayArea);
 
 }
 
-MessageCenter::~MessageCenter() 
+MessageCenter::~MessageCenter()
 {
-	
+
 }
 
 void MessageCenter::paint(Graphics& g)
 {
-	
-	g.setColour (Colour(58,58,58));
 
-	g.fillRect (0, 0, getWidth(), getHeight());
+    g.setColour(Colour(58,58,58));
 
-	g.setColour (messageBackground);
-   
-   	g.fillRect (5, 5, getWidth()-10, getHeight()-10);
+    g.fillRect(0, 0, getWidth(), getHeight());
+
+    g.setColour(messageBackground);
+
+    g.fillRect(5, 5, getWidth()-10, getHeight()-10);
 
 }
 
-void MessageCenter::resized() 
+void MessageCenter::resized()
 {
-	if (messageDisplayArea != 0)
-		messageDisplayArea->setBounds(5,0,getWidth(),getHeight());
+    if (messageDisplayArea != 0)
+        messageDisplayArea->setBounds(5,0,getWidth(),getHeight());
 
 }
 
 void MessageCenter::actionListenerCallback(const String& message)
 {
-	
-	messageDisplayArea->setText(message,false);
 
-	messageBackground = Colours::orange;
+    messageDisplayArea->setText(message,false);
 
-	repaint();
+    messageBackground = Colours::orange;
+
+    repaint();
 
 }
