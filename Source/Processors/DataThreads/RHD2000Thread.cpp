@@ -24,7 +24,7 @@
 #include "RHD2000Thread.h"
 #include "../SourceNode.h"
 
-RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn)
+RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(false)
 {
     evalBoard = new Rhd2000EvalBoard;
     dataBlock = new Rhd2000DataBlock(1);
@@ -123,6 +123,10 @@ RHD2000Thread::~RHD2000Thread()
 
 }
 
+bool RHD2000Thread::isAcquisitionActive()
+{
+    return isTransmitting;
+}
 
 int RHD2000Thread::getNumChannels()
 {
@@ -159,7 +163,7 @@ bool RHD2000Thread::foundInputSource()
 
 }
 
-void RHD2000Thread::enableHeadstage(int hsNum, bool enabled)
+bool RHD2000Thread::enableHeadstage(int hsNum, bool enabled)
 {
     
     evalBoard->enableDataStream(hsNum, enabled);
@@ -179,6 +183,8 @@ void RHD2000Thread::enableHeadstage(int hsNum, bool enabled)
     std::cout << "Enabled data streams: " << evalBoard->getNumEnabledDataStreams() << std::endl;
 
     dataBuffer->resize(getNumChannels(), 10000);
+
+    return true;
 }
 
 bool RHD2000Thread::isHeadstageEnabled(int hsNum)
@@ -245,8 +251,7 @@ bool RHD2000Thread::startAcquisition()
     startThread();
 
 
-    // isTransmitting = true;
-    // accumulator = 0;
+    isTransmitting = true;
 
     return true;
 }
@@ -282,6 +287,8 @@ bool RHD2000Thread::stopAcquisition()
 
     int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
     evalBoard->setLedDisplay(ledArray);
+
+    isTransmitting = false;
 
     return true;
 }

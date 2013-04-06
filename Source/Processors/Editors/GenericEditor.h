@@ -222,6 +222,9 @@ public:
     /** Stores the font used to display the editor's name. */
     Font titleFont;
 
+    /** True if data acquisition has begun. */
+  	bool acquisitionIsActive;
+
 
 protected:
 
@@ -258,6 +261,7 @@ private:
 
     bool isSelected;
     bool isEnabled;
+
 
     int tNum;
 

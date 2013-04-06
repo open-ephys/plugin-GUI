@@ -63,11 +63,13 @@ public:
 
     bool isHeadstageEnabled(int hsNum);
 
-    void enableHeadstage(int hsNum, bool enabled);
+    bool enableHeadstage(int hsNum, bool enabled);
     void setCableLength(int hsNum, float length);
     void setNumChannels(int hsNum, int nChannels);
 
     int getNumEventChannels();
+
+    bool isAcquisitionActive();
 
 private:
 
@@ -83,6 +85,8 @@ private:
     float thisSample[256];
 
     int blockSize;
+
+    bool isTransmitting;
 
     bool startAcquisition();
     bool stopAcquisition();

@@ -23,7 +23,7 @@
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
                 extraLinkerFlags="-lftdi -lftgl -pg -ldl -lXext" extraCompilerFlags="-export-dynamic -g -pg">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="open-ephys"
+        <CONFIGURATION name="Debug" isDebug="0" optimisation="3" targetName="open-ephys"
                        libraryPath="/usr/X11R6/lib/"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
                        libraryPath="/usr/X11R6/lib/"/>

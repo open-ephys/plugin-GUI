@@ -99,8 +99,11 @@ HeadstageOptionsInterface::~HeadstageOptionsInterface()
 
 void HeadstageOptionsInterface::buttonClicked(Button* button)
 {
-	if (~(board->isThreadRunning()))
+
+	if (!(editor->acquisitionIsActive))
 	{
+
+		//std::cout << "Acquisition is not active" << std::endl;
 		if (isEnabled)
 		{
 			isEnabled = false;
@@ -109,11 +112,12 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
 		}
 
 		board->enableHeadstage(hsNumber, isEnabled);
+
+		repaint();
+
+		editor->getEditorViewport()->makeEditorVisible(editor, false, true);
 	}
-
-	repaint();
-
-	editor->getEditorViewport()->makeEditorVisible(editor, false, true);
+	
 }
 
 // void HeadstageOptionsInterface::mouseUp(const MouseEvent& event)
