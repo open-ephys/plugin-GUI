@@ -383,10 +383,7 @@ void LfpDisplay::refresh()
 
         if ((topBorder <= componentBottom && bottomBorder >= componentTop))
         {
-            getChildComponent(i)->repaint(canvas->lastScreenBufferIndex,
-                                          0,
-                                          canvas->screenBufferIndex,
-                                          getChildComponent(i)->getHeight());
+            getChildComponent(i)->repaint();
 
             //std::cout << i << std::endl;
         }
@@ -434,6 +431,12 @@ LfpChannelDisplay::~LfpChannelDisplay()
 void LfpChannelDisplay::paint(Graphics& g)
 {
 
+	g.fillAll(Colours::grey);
+
+	 g.setColour(Colours::yellow);
+
+    g.drawLine(canvas->screenBufferIndex, 0, canvas->screenBufferIndex, getHeight());
+
     if (isSelected)
         g.setColour(Colours::lightgrey);
     else
@@ -442,6 +445,8 @@ void LfpChannelDisplay::paint(Graphics& g)
     g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
 
     int stepSize = 1;
+
+   
 
     for (int i = 0; i < getWidth()-stepSize; i += stepSize)
     {
