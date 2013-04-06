@@ -325,6 +325,8 @@ void LfpDisplay::setNumChannels(int numChannels)
 
     channels.clear();
 
+    totalHeight = 0;
+
     for (int i = 0; i < numChans; i++)
     {
 
@@ -420,6 +422,8 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, int channelNumber) :
     canvas(c), isSelected(false), chan(channelNumber)
 {
 
+	channelFont = Font("Default", 50, Font::plain);
+
 }
 
 LfpChannelDisplay::~LfpChannelDisplay()
@@ -447,6 +451,12 @@ void LfpChannelDisplay::paint(Graphics& g)
                    i+stepSize,
                    (canvas->getYCoord(chan, i+stepSize)+0.5f)*getHeight());
     }
+
+    g.setColour(Colours::black.withAlpha(0.3f));
+    g.setFont(channelFont);
+
+    g.drawText(String(chan+1), 10, 50, 200, 50, Justification::left, false);
+
 
 }
 

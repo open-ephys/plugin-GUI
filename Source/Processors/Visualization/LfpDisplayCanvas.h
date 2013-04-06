@@ -170,6 +170,8 @@ private:
 
     int chan;
 
+    Font channelFont;
+
 };
 
 

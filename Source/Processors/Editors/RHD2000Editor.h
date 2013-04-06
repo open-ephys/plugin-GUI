@@ -38,6 +38,7 @@
 class HeadstageOptionsInterface;
 class RHD2000Thread;
 
+class UtilityButton;
 
 class RHD2000Editor : public GenericEditor
 
@@ -57,19 +58,30 @@ private:
 };
 
 
-class HeadstageOptionsInterface : public Component
+class HeadstageOptionsInterface : public Component,
+								  public Button::Listener
 {
 public:
-	HeadstageOptionsInterface(int hsNum);
+	HeadstageOptionsInterface(RHD2000Thread*, RHD2000Editor*, int hsNum);
 	~HeadstageOptionsInterface();
 
+	//void mouseUp(const MouseEvent& event);
+
 	void paint(Graphics& g);
+
+	void buttonClicked(Button* button);
 
 private:
 
 	int hsNumber;
 	String name;
 
+	bool isEnabled;
+
+	RHD2000Thread* board;
+	RHD2000Editor* editor;
+
+	ScopedPointer<UtilityButton> enabledButton;
 
 };
 

@@ -27,6 +27,7 @@
 RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn)
 {
     evalBoard = new Rhd2000EvalBoard;
+    dataBlock = new Rhd2000DataBlock(1);
 
     // Open Opal Kelly XEM6010 board.
     int return_code = evalBoard->open();
@@ -49,6 +50,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn)
         // Initialize board.
         evalBoard->initialize();
         evalBoard->setContinuousRunMode(false);
+        evalBoard->flush(); // flush in case it crashed with data remaining
 
         // set defaults
         //  4 data sources : 0 -> PortA1
@@ -70,10 +72,17 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn)
             numChannelsPerDataStream.add(0);
         }
 
+        dataBuffer = new DataBuffer(32, 10000);
+
         enableHeadstage(0, true);
         enableHeadstage(1, true);
-        enableHeadstage(2, true);
-        enableHeadstage(3, false);
+       // enableHeadstage(2, false);
+      //  enableHeadstage(3, false);
+
+        setCableLength(0, 3.0f);
+        setCableLength(1, 3.0f);
+        setCableLength(2, 3.0f);
+        setCableLength(3, 3.0f);
 
         // Select per-channel amplifier sampling rate.
         evalBoard->setSampleRate(Rhd2000EvalBoard::SampleRate10000Hz);
@@ -95,10 +104,6 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn)
         chipRegisters->setLowerBandwidth(1.0);
         chipRegisters->setUpperBandwidth(7500.0);
 
-        dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
-
-        dataBuffer = new DataBuffer(getNumChannels(), 10000);
-
     }
 
 }
@@ -113,6 +118,8 @@ RHD2000Thread::~RHD2000Thread()
         int ledArray[8] = {0, 0, 0, 0, 0, 0, 0, 0};
         evalBoard->setLedDisplay(ledArray);
     }
+
+    deleteAndZero(dataBlock);
 
 }
 
@@ -171,10 +178,19 @@ void RHD2000Thread::enableHeadstage(int hsNum, bool enabled)
 
     std::cout << "Enabled data streams: " << evalBoard->getNumEnabledDataStreams() << std::endl;
 
-    delete(dataBlock);
+    dataBuffer->resize(getNumChannels(), 10000);
+}
 
-    dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
-    
+bool RHD2000Thread::isHeadstageEnabled(int hsNum)
+{
+
+    if (numChannelsPerDataStream[hsNum] > 0)
+    {
+        return true;
+    }
+
+    return false;
+
 }
 
 void RHD2000Thread::setCableLength(int hsNum, float length)
@@ -204,6 +220,10 @@ void RHD2000Thread::setCableLength(int hsNum, float length)
 bool RHD2000Thread::startAcquisition()
 {
 
+    dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
+
+    std::cout << "Expecting " << getNumChannels() << " channels." << std::endl;
+
     //memset(filter_states,0,256*sizeof(double));
 
     int ledArray[8] = {1, 1, 0, 0, 0, 0, 0, 0};
@@ -211,11 +231,6 @@ bool RHD2000Thread::startAcquisition()
 
     cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
     cout << "Is eval board running: " << evalBoard->isRunning() << endl;
-
-
-    // If this happens too soon after acquisition is stopped, problems ensue
-    std::cout << "Flushing FIFO." << std::endl;
-    evalBoard->flush();
 
 
     //std::cout << "Setting max timestep." << std::endl;
@@ -245,10 +260,20 @@ bool RHD2000Thread::stopAcquisition()
     if (isThreadRunning())
     {
         signalThreadShouldExit();
+
+    }
+
+    if (waitForThreadToExit(500))
+    {
+        std::cout << "Thread exited." << std::endl;
+    } else {
+        std::cout << "Thread failed to exit, continuing anyway..." << std::endl;
     }
 
     evalBoard->setContinuousRunMode(false);
     evalBoard->setMaxTimeStep(0);
+    std::cout << "Flushing FIFO." << std::endl;
+    evalBoard->flush();
 
     cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
 
@@ -279,29 +304,31 @@ bool RHD2000Thread::updateBuffer()
             for (int samp = 0; samp < dataBlock->getSamplesPerDataBlock(); samp++)
             {
 
-                int ds = -1;
+                int streamNumber = -1;
                 int channel = -1;
 
-                for (int dataStream = 0; dataStream < 2; dataStream++) //numChannelsPerDataStream.size(); dataStream++)
+                for (int dataStream = 0; dataStream < numChannelsPerDataStream.size(); dataStream++)
                 {
 
                     if (numChannelsPerDataStream[dataStream] > 0)
                     {
 
-                        ds++;
+                        streamNumber++;
 
                         for (int chan = 0; chan < numChannelsPerDataStream[dataStream]; chan++)
                         {
 
                             channel++;
 
-                            int value = dataBlock->amplifierData[ds][chan][samp];
+                            int value = dataBlock->amplifierData[streamNumber][chan][samp];
 
                             thisSample[channel] = float(value-32768)*0.195f;
                         }
                     }
 
                 }
+
+                // std::cout << channel << std::endl;
 
                 timestamp = dataBlock->timeStamp[samp];
                 eventCode = dataBlock->ttlIn[samp];
@@ -311,6 +338,8 @@ bool RHD2000Thread::updateBuffer()
 
         }
     }
+
+
 
 
     return true;

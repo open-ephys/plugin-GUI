@@ -22,6 +22,7 @@
 */
 
 #include "RHD2000Editor.h"
+#include "../../UI/EditorViewport.h"
 
 #include "../DataThreads/RHD2000Thread.h"
 
@@ -37,7 +38,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 
 	for (int i = 0; i < 4; i++)
 	{
-		HeadstageOptionsInterface* hsOptions = new HeadstageOptionsInterface(i);
+		HeadstageOptionsInterface* hsOptions = new HeadstageOptionsInterface(board, this, i);
 		headstageOptionsInterfaces.add(hsOptions);
 
 		addAndMakeVisible(hsOptions);
@@ -55,8 +56,10 @@ RHD2000Editor::~RHD2000Editor()
 
 // --------------------------------------------------------------------
 
-HeadstageOptionsInterface::HeadstageOptionsInterface(int hsNum) :
-	hsNumber(hsNum)
+HeadstageOptionsInterface::HeadstageOptionsInterface(RHD2000Thread* board_, 
+													 RHD2000Editor* editor_, 
+													 int hsNum) :
+	board(board_), editor(editor_), hsNumber(hsNum), isEnabled(false)
 {
 
 	switch (hsNumber)
@@ -77,12 +80,53 @@ HeadstageOptionsInterface::HeadstageOptionsInterface(int hsNum) :
 			name = "X";
 	}
 
+	isEnabled = board->isHeadstageEnabled(hsNumber);
+
+	enabledButton = new UtilityButton("enabled", Font("Small Text", 13, Font::plain));
+	enabledButton->addListener(this);
+	enabledButton->setRadius(3.0f);
+	enabledButton->setBounds(10,30,70,25);
+	addAndMakeVisible(enabledButton);
+
+	
+
 }
 
 HeadstageOptionsInterface::~HeadstageOptionsInterface()
 {
 
+}	
+
+void HeadstageOptionsInterface::buttonClicked(Button* button)
+{
+	if (~(board->isThreadRunning()))
+	{
+		if (isEnabled)
+		{
+			isEnabled = false;
+		} else {
+			isEnabled = true;
+		}
+
+		board->enableHeadstage(hsNumber, isEnabled);
+	}
+
+	repaint();
+
+	editor->getEditorViewport()->makeEditorVisible(editor, false, true);
 }
+
+// void HeadstageOptionsInterface::mouseUp(const MouseEvent& event)
+// {
+// 	///>>>> ???? WHY ISN"T THIS WORKING?
+
+// 	if (event.eventComponent == this)
+// 	{
+
+	
+// 	}
+
+// }
 
 void HeadstageOptionsInterface::paint(Graphics& g)
 {
@@ -90,10 +134,13 @@ void HeadstageOptionsInterface::paint(Graphics& g)
 
 	g.fillRoundedRectangle(5,0,getWidth()-10,getHeight(),4.0f);
 
-	g.setColour(Colours::grey);
+	if (isEnabled)
+		g.setColour(Colours::black);
+	else
+		g.setColour(Colours::grey);
 
-	g.setFont(Font("Small Text",10,Font::plain));
+	g.setFont(Font("Small Text",20,Font::plain));
 
-	g.drawText("Headstage " + name, 8, 5, 200, 15, Justification::left, false);
+	g.drawText(name, 8, 5, 200, 15, Justification::left, false);
 
 }

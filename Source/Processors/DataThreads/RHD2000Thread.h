@@ -61,6 +61,8 @@ public:
     float getSampleRate();
     float getBitVolts();
 
+    bool isHeadstageEnabled(int hsNum);
+
     void enableHeadstage(int hsNum, bool enabled);
     void setCableLength(int hsNum, float length);
     void setNumChannels(int hsNum, int nChannels);
@@ -71,7 +73,7 @@ private:
 
     ScopedPointer<Rhd2000EvalBoard> evalBoard;
     ScopedPointer<Rhd2000Registers> chipRegisters;
-    ScopedPointer<Rhd2000DataBlock> dataBlock;
+    Rhd2000DataBlock* dataBlock;
 
     Array<int> numChannelsPerDataStream;
 

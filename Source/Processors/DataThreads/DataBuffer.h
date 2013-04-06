@@ -53,6 +53,9 @@ public:
     /** Copies as many samples as possible from the DataBuffer to an AudioSampleBuffer.*/
     int readAllFromBuffer(AudioSampleBuffer& data, uint64* ts, int16* eventCodes, int maxSize);
 
+    /** Resizes the data buffer */
+    void resize(int chans, int size);
+
 private:
     AbstractFifo abstractFifo;
     AudioSampleBuffer buffer;

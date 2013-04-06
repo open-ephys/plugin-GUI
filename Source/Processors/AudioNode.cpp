@@ -29,7 +29,7 @@ AudioNode::AudioNode()
     : GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f)
 {
 
-    settings.numInputs = 128;
+    settings.numInputs = 256;
     settings.numOutputs = 2;
 
     // 128 inputs, 2 outputs (left and right channel)

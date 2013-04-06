@@ -39,6 +39,15 @@ void DataBuffer::clear()
     buffer.clear();
 }
 
+void DataBuffer::resize(int chans, int size)
+{
+	buffer.setSize(chans, size);
+	timestampBuffer = new uint64[size];
+	eventCodeBuffer = new int16[size];
+
+	numChans = chans;
+}
+
 void DataBuffer::addToBuffer(float* data, uint64* timestamps, int16* eventCodes, int numItems)
 {
     // writes one sample for all channels
