@@ -88,10 +88,18 @@ private:
 
     bool isTransmitting;
 
+    bool fastSettleEnabled;
+
     bool startAcquisition();
     bool stopAcquisition();
 
+    void initializeBoard();
+    void scanPorts();
+    int deviceId(Rhd2000DataBlock* dataBlock, int stream);
+
     bool updateBuffer();
+
+    double cableLengthPortA, cableLengthPortB, cableLengthPortC, cableLengthPortD;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);
 };
