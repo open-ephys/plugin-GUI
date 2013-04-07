@@ -24,38 +24,17 @@
 
 #include "FileReaderThread.h"
 
-FileReaderThread::FileReaderThread(SourceNode* sn) :
+FileReaderThread::FileReaderThread(SourceNode* sn, const char* path) :
     DataThread(sn), lengthOfInputFile(0), bufferSize(0)
 {
-    //  FileChooser chooseFileReaderFile ("Please select the file you want to load...",
-    //                            File::getSpecialLocation (File::userHomeDirectory),
-    //                            "*");
-
-    // if (chooseFileReaderFile.browseForFileToOpen())
-    // {
-    //     File fileToRead (chooseFileReaderFile.getResult());
-    //     String fileName(fileToRead.getFullPathName());
-    //     input = fopen(fileName.String::toCString(), "r");
-    // }
-
-    // FIXME stop hard-coding `path' once DataThread gives us a proper
-    // mechanism for accepting arguments (the above commented-out code
-    // is a layering violation that's best avoided).
-#if JUCE_MAC
-    const char* path = "/Users/Josh/Programming/open-ephys/GUI/Builds/Linux/build/data_stream_16ch_2";
-#else
-    const char* path = "./data_stream_16ch_2";
-#endif
 
     input = fopen(path, "r");
 
-    // Avoid a segfault if crock above fails.
+    // Avoid a segfault if file isn't found
     if (!input)
     {
         std::cout << "Can't find data file "
-                  << '"' << path << "\", "
-                  << "either make sure you're Josh on OS X, "
-                  << "or run open-ephys from the build directory on Linux."
+                  << '"' << path << "\""
                   << std::endl;
         return;
     }
@@ -116,9 +95,7 @@ bool FileReaderThread::stopAcquisition()
         signalThreadShouldExit();
     }
 
-
     return true;
-
 }
 
 bool FileReaderThread::updateBuffer()
@@ -134,7 +111,7 @@ bool FileReaderThread::updateBuffer()
             rewind(input);
         }
 
-        fread(readBuffer, 2, bufferSize, input);
+        size_t return_value = fread(readBuffer, 2, bufferSize, input);
 
         int chan = 0;
 
@@ -155,7 +132,6 @@ bool FileReaderThread::updateBuffer()
 
 
         }
-
 
     }
     else
