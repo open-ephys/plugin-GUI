@@ -315,22 +315,22 @@ SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
     canvas(sdc), viewport(v)
 {
 
-    tetrodePlotMinWidth = 500;
-    stereotrodePlotMinWidth = 400;
-    singleElectrodePlotMinWidth = 200;
+   // tetrodePlotMinWidth = 500;
+   // stereotrodePlotMinWidth = 400;
+  //  singleElectrodePlotMinWidth = 200;
 
-    tetrodePlotRatio = 0.5;
-    stereotrodePlotRatio = 0.2;
-    singleElectrodePlotRatio = 1.0;
+  //  tetrodePlotRatio = 0.5;
+  //  stereotrodePlotRatio = 0.2;
+  //  singleElectrodePlotRatio = 1.0;
 
     totalHeight = 1000;
 
-    for (int i = 0; i < 10; i++)
-    {
-        TetrodePlot* tetrodePlot = new TetrodePlot(canvas, i);
-        tetrodePlots.add(tetrodePlot);
-        addAndMakeVisible(tetrodePlot);
-    }
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     TetrodePlot* tetrodePlot = new TetrodePlot(canvas, i);
+    //     tetrodePlots.add(tetrodePlot);
+    //     addAndMakeVisible(tetrodePlot);
+    // }
 
 }
 
@@ -353,29 +353,29 @@ void SpikeDisplay::paint(Graphics& g)
 void SpikeDisplay::resized()
 {
 
-    int w = getWidth();
+    // int w = getWidth();
 
-    int numColumns = w / tetrodePlotMinWidth;
-    int column, row;
+    // int numColumns = w / tetrodePlotMinWidth;
+    // int column, row;
 
-    float width = (float) w / (float) numColumns;
-    float height = width * tetrodePlotRatio;
+    // float width = (float) w / (float) numColumns;
+    // float height = width * tetrodePlotRatio;
 
-    for (int i = 0; i < tetrodePlots.size(); i++)
-    {
+    // for (int i = 0; i < tetrodePlots.size(); i++)
+    // {
 
-        column = i % numColumns;
-        row = i / numColumns;
-        tetrodePlots[i]->setBounds(width*column,row*height,width,height);
+    //     column = i % numColumns;
+    //     row = i / numColumns;
+    //     tetrodePlots[i]->setBounds(width*column,row*height,width,height);
 
-    }
+    // }
 
-    totalHeight = (int)(height*(float(row)+1));
+    // totalHeight = (int)(height*(float(row)+1));
 
-    if (totalHeight < getHeight())
-    {
-        canvas->resized();
-    }
+    // if (totalHeight < getHeight())
+    // {
+    //     canvas->resized();
+    // }
 
     //setBounds(0,0,getWidth(), totalHeight);
 
@@ -403,11 +403,47 @@ void SpikeDisplay::plotSpike(const SpikeObject& spike)
 
 // ----------------------------------------------------------------
 
-SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int numChans) :
-    canvas(sdc), electrodeNumber(elecNum), numChannels(numChans)
+SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
+    canvas(sdc), electrodeNumber(elecNum), plotType(p), isSelected(false),
+    limitsChanged(true)
 
 {
     isSelected = false;
+
+     switch (p)
+    {
+        case SINGLE_PLOT:
+            std::cout<<"SpikePlot as SINGLE_PLOT"<<std::endl;
+            nWaveAx = 1;
+            nProjAx = 0;
+            nChannels = 1;
+            break;
+        case STEREO_PLOT:
+            std::cout<<"SpikePlot as STEREO_PLOT"<<std::endl;
+            nWaveAx = 2;
+            nProjAx = 1;
+            nChannels = 2;
+            break;
+        case TETRODE_PLOT:
+            std::cout<<"SpikePlot as TETRODE_PLOT"<<std::endl;
+            nWaveAx = 4;
+            nProjAx = 6;
+            nChannels = 4;
+            break;
+            //        case HIST_PLOT:
+            //            nWaveAx = 1;
+            //            nProjAx = 0;
+            //            nHistAx = 1;
+            //            break;
+        default: // unsupported number of axes provided
+            std::cout<<"SpikePlot as UNKNOWN, defaulting to SINGLE_PLOT"<<std::endl;
+            nWaveAx = 1;
+            nProjAx = 0;
+            plotType = SINGLE_PLOT;
+            nChannels = 1;
+    }
+
+    initAxes();
 
 }
 
@@ -424,6 +460,16 @@ void SpikePlot::paint(Graphics& g)
 
 }
 
+void SpikePlot::processSpikeObject(SpikeObject s)
+{
+    //std::cout<<"ElectrodePlot::processSpikeObject()"<<std::endl;
+    for (int i = 0; i < nWaveAx; i++)
+        wAxes[i]->updateSpikeData(s);
+    //    wAxes[1].updateSpikeData(s);
+    for (int i = 0; i < nProjAx; i++)
+        pAxes[i]->updateSpikeData(s);
+}
+
 void SpikePlot::select()
 {
     isSelected = true;
@@ -434,115 +480,405 @@ void SpikePlot::deselect()
     isSelected = false;
 }
 
+void SpikePlot::initAxes()
+{
+    initLimits();
+
+    for (int i = 0; i < nWaveAx; i++)
+    {
+    	WaveAxes* wAx = new WaveAxes(WAVE1 + i);
+    	wAxes.add(wAx);
+    	addAndMakeVisible(wAx);
+    }
+
+    for (int i = 0; i < nProjAx; i++)
+    {
+    	ProjectionAxes* pAx = new ProjectionAxes(PROJ1x2 + i);
+    	pAxes.add(pAx);
+    	addAndMakeVisible(pAx);
+    }
+
+    setLimitsOnAxes(); // initialize thel limits on the axes
+}
+
+void SpikePlot::resized()
+{
+
+	float width = getWidth();
+	float height = getHeight();
+
+	float axesWidth, axesHeight;
+
+  	// to compute the axes positions we need to know how many columns of proj and wave axes should exist
+    // using these two values we can calculate the positions of all of the sub axes
+    int nProjCols, nWaveCols;
+
+    switch (plotType)
+    {
+        case SINGLE_PLOT:
+            nProjCols = 0;
+            nWaveCols = 1;
+            axesWidth = width;
+            axesHeight = height;
+            break;
+
+        case STEREO_PLOT:
+            nProjCols = 1;
+            nWaveCols = 2;
+            axesWidth = width/2;
+            axesHeight = height;
+            break;
+        case TETRODE_PLOT:
+            nProjCols = 3;
+            nWaveCols = 2;
+            axesWidth = width/4;
+            axesHeight = height/2;
+            break;
+    }
+
+    for (int i = 0; i < nWaveAx; i++)
+        wAxes[i]->setBounds((i % nWaveCols) * axesWidth/nWaveCols, (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
+
+    for (int i = 0; i < nProjAx; i++)
+        pAxes[i]->setBounds((1 + i%nProjCols) * axesWidth, (i/nProjCols) * axesHeight, axesWidth, axesHeight);
+
+}
+
+void SpikePlot::setLimitsOnAxes()
+{
+ 	std::cout<<"SpikePlot::setLimitsOnAxes()"<<std::endl;
+
+    for (int i = 0; i < nWaveAx; i++)
+        wAxes[i]->setYLims(limits[i][0], limits[i][1]);
+
+    // Each Projection sets its limits using the limits of the two waveform dims it represents.
+    // Convert projection number to indecies, and then set the limits using those indices
+    int j1, j2;
+    for (int i = 0; i < nProjAx; i++)
+    {
+        n2ProjIdx(pAxes[i]->getType(), &j1, &j2);
+        pAxes[i]->setYLims(limits[j1][0], limits[j1][1]);
+        pAxes[i]->setXLims(limits[j2][0], limits[j2][1]);
+    }
+}
+
+void SpikePlot::initLimits()
+{
+    for (int i = 0; i < nChannels; i++)
+    {
+        limits[i][0] = 1209;//-1*pow(2,11);
+        limits[i][1] = 11059;//pow(2,14)*1.6;
+    }
+
+}
+
+void SpikePlot::getBestDimensions(int* w, int* h)
+{
+    switch (plotType)
+    {
+        case TETRODE_PLOT:
+            *w = 4;
+            *h = 2;
+            break;
+        case STEREO_PLOT:
+            *w = 2;
+            *h = 1;
+            break;
+        case SINGLE_PLOT:
+            *w = 1;
+            *h = 1;
+            break;
+        default:
+            *w = 1;
+            *h = 1;
+            break;
+    }
+}
+
+void SpikePlot::clear()
+{
+    std::cout << "SpikePlot::clear()" << std::endl;
+
+    for (int i = 0; i < nWaveAx; i++)
+        wAxes[i]->clear();
+    for (int i = 0; i < nProjAx; i++)
+        pAxes[i]->clear();
+}
+
+void SpikePlot::pan(int dim, bool up)
+{
+
+    std::cout << "SpikePlot::pan() dim:" << dim << std::endl;
+
+    int mean = (limits[dim][0] + limits[dim][1])/2;
+    int dLim = limits[dim][1] - mean;
+
+    if (up)
+        mean = mean + dLim/20;
+    else
+        mean = mean - dLim/20;
+
+    limits[dim][0] = mean-dLim;
+    limits[dim][1] = mean+dLim;
+
+    setLimitsOnAxes();
+}
+
+void SpikePlot::zoom(int dim, bool in)
+{
+    std::cout << "SpikePlot::zoom()" << std::endl;
+
+    int mean = (limits[dim][0] + limits[dim][1])/2;
+    int dLim = limits[dim][1] - mean;
+
+    if (in)
+        dLim = dLim * .90;
+    else
+        dLim = dLim / .90;
+
+    limits[dim][0] = mean-dLim;
+    limits[dim][1] = mean+dLim;
+
+    setLimitsOnAxes();
+}
+
+
+void SpikePlot::n2ProjIdx(int proj, int* p1, int* p2)
+{
+    int d1, d2;
+    if (proj==PROJ1x2)
+    {
+        d1 = 0;
+        d2 = 1;
+    }
+    else if (proj==PROJ1x3)
+    {
+        d1 = 0;
+        d2 = 2;
+    }
+    else if (proj==PROJ1x4)
+    {
+        d1 = 0;
+        d2 = 3;
+    }
+    else if (proj==PROJ2x3)
+    {
+        d1 = 1;
+        d2 = 2;
+    }
+    else if (proj==PROJ2x4)
+    {
+        d1 = 1;
+        d2 = 3;
+    }
+    else if (proj==PROJ3x4)
+    {
+        d1 = 2;
+        d2 = 3;
+    }
+    else
+    {
+        std::cout<<"Invalid projection:"<<proj<<"! Cannot determine d1 and d2"<<std::endl;
+        *p1 = -1;
+        *p2 = -1;
+        return;
+    }
+    *p1 = d1;
+    *p2 = d2;
+}
 
 // --------------------------------------------------
 
 
-TetrodePlot::TetrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
-    SpikePlot(sdc, elecNum, 4)
+// TetrodePlot::TetrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
+//     SpikePlot(sdc, elecNum, 4)
+// {
+
+//     for (int i = 0; i < numChannels; i++)
+//     {
+//         WaveformPlot* wp = new WaveformPlot();
+//         addAndMakeVisible(wp);
+//         waveformPlots.add(wp);
+//     }
+
+//     for (int i = 0; i < 6; i++)
+//     {
+//         ProjectionPlot* pp = new ProjectionPlot();
+//         addAndMakeVisible(pp);
+//         projectionPlots.add(pp);
+//     }
+
+// }
+
+// void TetrodePlot::resized()
+// {
+//     float w = (float) getWidth() / 5.0f;
+//     float h = (float) getHeight() / 2.0f;
+
+//     waveformPlots[0]->setBounds(0, 0, w, h);
+//     waveformPlots[1]->setBounds(w, 0, w, h);
+//     waveformPlots[2]->setBounds(0, h, w, h);
+//     waveformPlots[3]->setBounds(w, h, w, h);
+
+//     projectionPlots[0]->setBounds(w*2, 0, w, h);
+//     projectionPlots[1]->setBounds(w*3, 0, w, h);
+//     projectionPlots[2]->setBounds(w*4, 0, w, h);
+//     projectionPlots[3]->setBounds(w*2, h, w, h);
+//     projectionPlots[4]->setBounds(w*3, h, w, h);
+//     projectionPlots[5]->setBounds(w*4, h, w, h);
+
+// }
+
+// StereotrodePlot::StereotrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
+//     SpikePlot(sdc, elecNum, 2)
+// {
+
+//     for (int i = 0; i < numChannels; i++)
+//     {
+//         WaveformPlot* wp = new WaveformPlot();
+//         addAndMakeVisible(wp);
+//         waveformPlots.add(wp);
+//     }
+
+//     ProjectionPlot* pp = new ProjectionPlot();
+//     addAndMakeVisible(pp);
+//     projectionPlots.add(pp);
+
+// }
+
+// void StereotrodePlot::resized()
+// {
+//     float w = (float) getWidth() / 3.0f;
+//     float h = (float) getHeight() / 1.0f;
+
+//     waveformPlots[0]->setBounds(0, 0, w, h);
+//     waveformPlots[1]->setBounds(w, 0, w, h);
+
+//     projectionPlots[0]->setBounds(w*2, 0, w, h);
+
+// }
+
+// SingleElectrodePlot::SingleElectrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
+//     SpikePlot(sdc, elecNum, 1)
+// {
+
+//     WaveformPlot* wp = new WaveformPlot();
+//     addAndMakeVisible(wp);
+//     waveformPlots.add(wp);
+
+// }
+
+// void SingleElectrodePlot::resized()
+// {
+//     float w = (float) getWidth() / 1.0f;
+//     float h = (float) getHeight() / 1.0f;
+
+//     waveformPlots[0]->setBounds(0, 0, w, h);
+
+// }
+
+// -----------------------------------------------------
+
+WaveAxes::WaveAxes(int channel) : GenericAxes(channel)
 {
-
-    for (int i = 0; i < numChannels; i++)
-    {
-        WaveformPlot* wp = new WaveformPlot();
-        addAndMakeVisible(wp);
-        waveformPlots.add(wp);
-    }
-
-    for (int i = 0; i < 6; i++)
-    {
-        ProjectionPlot* pp = new ProjectionPlot();
-        addAndMakeVisible(pp);
-        projectionPlots.add(pp);
-    }
 
 }
 
-void TetrodePlot::resized()
-{
-    float w = (float) getWidth() / 5.0f;
-    float h = (float) getHeight() / 2.0f;
-
-    waveformPlots[0]->setBounds(0, 0, w, h);
-    waveformPlots[1]->setBounds(w, 0, w, h);
-    waveformPlots[2]->setBounds(0, h, w, h);
-    waveformPlots[3]->setBounds(w, h, w, h);
-
-    projectionPlots[0]->setBounds(w*2, 0, w, h);
-    projectionPlots[1]->setBounds(w*3, 0, w, h);
-    projectionPlots[2]->setBounds(w*4, 0, w, h);
-    projectionPlots[3]->setBounds(w*2, h, w, h);
-    projectionPlots[4]->setBounds(w*3, h, w, h);
-    projectionPlots[5]->setBounds(w*4, h, w, h);
-
-}
-
-StereotrodePlot::StereotrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
-    SpikePlot(sdc, elecNum, 2)
-{
-
-    for (int i = 0; i < numChannels; i++)
-    {
-        WaveformPlot* wp = new WaveformPlot();
-        addAndMakeVisible(wp);
-        waveformPlots.add(wp);
-    }
-
-    ProjectionPlot* pp = new ProjectionPlot();
-    addAndMakeVisible(pp);
-    projectionPlots.add(pp);
-
-}
-
-void StereotrodePlot::resized()
-{
-    float w = (float) getWidth() / 3.0f;
-    float h = (float) getHeight() / 1.0f;
-
-    waveformPlots[0]->setBounds(0, 0, w, h);
-    waveformPlots[1]->setBounds(w, 0, w, h);
-
-    projectionPlots[0]->setBounds(w*2, 0, w, h);
-
-}
-
-SingleElectrodePlot::SingleElectrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
-    SpikePlot(sdc, elecNum, 1)
-{
-
-    WaveformPlot* wp = new WaveformPlot();
-    addAndMakeVisible(wp);
-    waveformPlots.add(wp);
-
-}
-
-void SingleElectrodePlot::resized()
-{
-    float w = (float) getWidth() / 1.0f;
-    float h = (float) getHeight() / 1.0f;
-
-    waveformPlots[0]->setBounds(0, 0, w, h);
-
-}
-
-WaveformPlot::WaveformPlot()
-{
-
-}
-
-void WaveformPlot::paint(Graphics& g)
+void WaveAxes::paint(Graphics& g)
 {
     g.setColour(Colours::black);
     g.fillRect(5,5,getWidth()-5, getHeight()-5);
 }
 
-ProjectionPlot::ProjectionPlot()
+void WaveAxes::clear()
+{
+	
+}
+
+
+// --------------------------------------------------
+
+ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum)
 {
 
 }
 
-void ProjectionPlot::paint(Graphics& g)
+void ProjectionAxes::paint(Graphics& g)
 {
     g.setColour(Colours::orange);
     g.fillRect(5,5,getWidth()-5, getHeight()-5);
+}
+
+void ProjectionAxes::clear()
+{
+
+}
+
+// --------------------------------------------------
+
+GenericAxes::GenericAxes(int t)
+    : gotFirstSpike(false), type(t)
+{
+    ylims[0] = 0;
+    ylims[1] = 1;
+
+    xlims[0] = 0;
+    xlims[1] = 1;
+
+    font = Font("Default", 12, Font::plain);
+
+}
+
+GenericAxes::~GenericAxes()
+{
+
+}
+
+void GenericAxes::updateSpikeData(SpikeObject newSpike)
+{
+    if (!gotFirstSpike)
+    {
+        gotFirstSpike = true;
+    }
+
+    s = newSpike;
+}
+
+void GenericAxes::setYLims(double ymin, double ymax)
+{
+
+    std::cout << "setting y limits to " << ymin << " " << ymax << std::endl;
+    ylims[0] = ymin;
+    ylims[1] = ymax;
+}
+void GenericAxes::getYLims(double* min, double* max)
+{
+    *min = ylims[0];
+    *max = ylims[1];
+}
+void GenericAxes::setXLims(double xmin, double xmax)
+{
+    xlims[0] = xmin;
+    xlims[1] = xmax;
+}
+void GenericAxes::getXLims(double* min, double* max)
+{
+    *min = xlims[0];
+    *max = xlims[1];
+}
+
+
+void GenericAxes::setType(int t)
+{
+    if (t < WAVE1 || t > PROJ3x4)
+    {
+        std::cout<<"Invalid Axes type specified";
+        return;
+    }
+    type = t;
+}
+
+int GenericAxes::getType()
+{
+    return type;
 }

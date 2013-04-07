@@ -50,24 +50,27 @@ SourceNode::SourceNode(const String& name_)
     }
     else if (getName().equalsIgnoreCase("File Reader"))
     {
+
+       // sendActionMessage("Select a file...");
+
          FileChooser chooseFileReaderFile ("Please select the file you want to load...",
                                    File::getSpecialLocation (File::userHomeDirectory),
                                    "*");
 
-         sendActionMessage("Select a file...");
+        // if (chooseFileReaderFile.browseForFileToOpen())
+        // {
+        //     // Use the selected file
+        //     File fileToRead (chooseFileReaderFile.getResult());
+        //     String fileName(fileToRead.getFullPathName());
+        //     dataThread = new FileReaderThread(this, fileName.getCharPointer());
+        // } else {
+        //     // If cancelled, assume it's in the executable directory
+        //     dataThread = new FileReaderThread(this, "./data_stream_16ch_2");
+        // }
 
-        if (chooseFileReaderFile.browseForFileToOpen())
-        {
-            // Use the selected file
-            File fileToRead (chooseFileReaderFile.getResult());
-            String fileName(fileToRead.getFullPathName());
-            dataThread = new FileReaderThread(this, fileName.getCharPointer());
-        } else {
-            // If cancelled, assume it's in the executable directory
-            dataThread = new FileReaderThread(this, "./data_stream_16ch_2");
-        }
+         dataThread = new FileReaderThread(this, "./data_stream_16ch_2");
 
-        sendActionMessage("File loaded.");
+        //sendActionMessage("File loaded.");
 
         
     }
