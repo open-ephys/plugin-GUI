@@ -50,7 +50,29 @@ SourceNode::SourceNode(const String& name_)
     }
     else if (getName().equalsIgnoreCase("File Reader"))
     {
-        dataThread = new FileReaderThread(this);
+
+       // sendActionMessage("Select a file...");
+
+         FileChooser chooseFileReaderFile ("Please select the file you want to load...",
+                                   File::getSpecialLocation (File::userHomeDirectory),
+                                   "*");
+
+        if (chooseFileReaderFile.browseForFileToOpen())
+        {
+            // Use the selected file
+            File fileToRead (chooseFileReaderFile.getResult());
+            String fileName(fileToRead.getFullPathName());
+            dataThread = new FileReaderThread(this, fileName.getCharPointer());
+        } else {
+            // If cancelled, assume it's in the executable directory
+            dataThread = new FileReaderThread(this, "./data_stream_16ch_2");
+        }
+
+         //dataThread = new FileReaderThread(this, "./data_stream_16ch_2");
+
+        //sendActionMessage("File loaded.");
+
+        
     }
     else if (getName().equalsIgnoreCase("RHD2000 USB Board"))
     {
@@ -90,6 +112,14 @@ SourceNode::SourceNode(const String& name_)
 
 SourceNode::~SourceNode()
 {
+
+    if (dataThread->isThreadRunning())
+    {
+        std::cout << "Forcing thread to stop." << std::endl;
+        dataThread->stopThread(500);
+    }
+
+
     if (eventChannelState)
         delete[] eventChannelState;
 }
@@ -198,7 +228,7 @@ AudioProcessorEditor* SourceNode::createEditor()
 
     if (getName().equalsIgnoreCase("RHD2000 USB Board"))
     {
-        editor = new RHD2000Editor(this, true);
+        editor = new RHD2000Editor(this, (RHD2000Thread*) dataThread.get(), true);
     }
     else
     {

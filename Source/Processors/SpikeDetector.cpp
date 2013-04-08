@@ -381,15 +381,15 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
                     int currentChannel = *(electrode->channels+chan);
 
-                    if (getNextSample(currentChannel) > *(electrode->thresholds+chan)) // trigger spike
+                    if (-getNextSample(currentChannel) > *(electrode->thresholds+chan)) // trigger spike
                     {
 
                         //std::cout << "Spike detected on electrode " << i << std::endl;
                         // find the peak
                         int peakIndex = sampleIndex;
 
-                        while (getCurrentSample(currentChannel) <
-                               getNextSample(currentChannel) &&
+                        while (-getCurrentSample(currentChannel) <
+                               -getNextSample(currentChannel) &&
                                sampleIndex < peakIndex + electrode->postPeakSamples)
                         {
                             sampleIndex++;

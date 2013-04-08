@@ -424,12 +424,14 @@ EditorViewportButton::EditorViewportButton(UIComponent* ui) : UI(ui)
 {
     open = true;
 
-    MemoryInputStream mis1(BinaryData::cpmonolightserialized,
-                           BinaryData::cpmonolightserializedSize,
-                           false);
-    Typeface::Ptr tp1 = new CustomTypeface(mis1);
-    buttonFont = Font(tp1);
-    buttonFont.setHeight(25);
+    buttonFont = Font("Default Light", 25, Font::plain);
+
+    // MemoryInputStream mis1(BinaryData::cpmonolightserialized,
+    //                        BinaryData::cpmonolightserializedSize,
+    //                        false);
+    // Typeface::Ptr tp1 = new CustomTypeface(mis1);
+    // buttonFont = Font(tp1);
+    // buttonFont.setHeight(25);
 
 }
 
@@ -457,15 +459,15 @@ void EditorViewportButton::paint(Graphics& g)
 
     if (open)
     {
-        p.addTriangle(w-h+0.2f*h, 0.8f*h,
-                      w-h+0.5f*h, 0.2f*h,
-                      w-h+0.8f*h, 0.8f*h);
+        p.addTriangle(w-h+0.3f*h, 0.7f*h,
+                      w-h+0.5f*h, 0.3f*h,
+                      w-h+0.7f*h, 0.7f*h);
     }
     else
     {
-        p.addTriangle(w-h+0.2f*h, 0.5f*h,
-                      w-h+0.8f*h, 0.2f*h,
-                      w-h+0.8f*h, 0.8f*h);
+        p.addTriangle(w-h+0.3f*h, 0.5f*h,
+                      w-h+0.7f*h, 0.3f*h,
+                      w-h+0.7f*h, 0.7f*h);
     }
 
     PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);

@@ -41,7 +41,8 @@ class LfpChannelDisplay;
 
 */
 
-class LfpDisplayCanvas : public Visualizer
+class LfpDisplayCanvas : public Visualizer,
+						 public ComboBox::Listener
 
 {
 public:
@@ -70,6 +71,8 @@ public:
     int screenBufferIndex;
     int lastScreenBufferIndex;
 
+    void comboBoxChanged(ComboBox* cb);
+
 private:
 
     float sampleRate;
@@ -89,6 +92,12 @@ private:
     ScopedPointer<LfpTimescale> timescale;
     ScopedPointer<LfpDisplay> lfpDisplay;
     ScopedPointer<Viewport> viewport;
+
+    ScopedPointer<ComboBox> timebaseSelection;
+    ScopedPointer<ComboBox> rangeSelection;
+
+    StringArray voltageRanges;
+    StringArray timebases;
 
     void refreshScreenBuffer();
     void updateScreenBuffer();
@@ -112,9 +121,17 @@ public:
 
     void paint(Graphics& g);
 
+    void setTimebase(float t);
+
 private:
 
     LfpDisplayCanvas* canvas;
+
+    float timebase;
+
+    Font font;
+
+    StringArray labels;
 
 };
 
@@ -147,6 +164,7 @@ private:
     Viewport* viewport;
 
     Array<LfpChannelDisplay*> channels;
+    Array<Colour> channelColours;
 
 };
 
@@ -161,6 +179,8 @@ public:
     void select();
     void deselect();
 
+    void setColour(Colour c);
+
 
 private:
 
@@ -169,6 +189,10 @@ private:
     bool isSelected;
 
     int chan;
+
+    Font channelFont;
+
+    Colour lineColour;
 
 };
 

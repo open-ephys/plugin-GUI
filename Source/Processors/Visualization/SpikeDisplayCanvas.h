@@ -27,23 +27,36 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../SpikeDisplayNode.h"
-//#include "SpikePlotting/SpikePlot.h"
 #include "SpikeObject.h"
 
 #include "Visualizer.h"
 #include <vector>
 
-#define MAX_NUMBER_OF_SPIKE_SOURCES = 128;
+#define WAVE1 0
+#define WAVE2 1
+#define WAVE3 2
+#define WAVE4 3
+#define PROJ1x2 4
+#define PROJ1x3 5
+#define PROJ1x4 6
+#define PROJ2x3 7
+#define PROJ2x4 8
+#define PROJ3x4 9
+
+#define TETRODE_PLOT 1004
+#define STEREO_PLOT  1002
+#define SINGLE_PLOT  1001
+
+#define MAX_NUMBER_OF_SPIKE_SOURCES 128
+#define MAX_N_CHAN 4
 
 class SpikeDisplayNode;
 
 class SpikeDisplay;
+class GenericAxes;
+class ProjectionAxes;
+class WaveAxes;
 class SpikePlot;
-class TetrodePlot;
-class StereotrodePlot;
-class SingleElectrodePlot;
-class WaveformPlot;
-class ProjectionPlot;
 
 /**
   
@@ -101,7 +114,8 @@ public:
 	SpikeDisplay(SpikeDisplayCanvas*, Viewport*);
 	~SpikeDisplay();
 
-	void addSpikePlot(int numChannels);
+	void clear();
+	void addSpikePlot(int numChannels, int electrodeNum);
 
 	void paint(Graphics& g);
 
@@ -109,8 +123,7 @@ public:
 
 	void mouseDown(const MouseEvent& event);
 
-	void plotSpike(const SpikeObject& spike);
-
+	void plotSpike(const SpikeObject& spike, int electrodeNum);
 
 	int getTotalHeight() {return totalHeight;}
 
@@ -127,26 +140,32 @@ private:
 	SpikeDisplayCanvas* canvas;
 	Viewport* viewport;
 
-	OwnedArray<TetrodePlot> tetrodePlots;
-	OwnedArray<StereotrodePlot> stereotrodePlots;
-	OwnedArray<SingleElectrodePlot> singleElectrodePlots;
+	OwnedArray<SpikePlot> spikePlots;
 
-	float tetrodePlotMinWidth, stereotrodePlotMinWidth, singleElectrodePlotMinWidth;
-	float tetrodePlotRatio, stereotrodePlotRatio, singleElectrodePlotRatio;
+	// float tetrodePlotMinWidth, stereotrodePlotMinWidth, singleElectrodePlotMinWidth;
+	// float tetrodePlotRatio, stereotrodePlotRatio, singleElectrodePlotRatio;
 
 };
 
+/**
+
+  Class for drawing the waveforms and projections of incoming spikes.
+
+*/
 
 class SpikePlot : public Component
 {
 public:
-	SpikePlot(SpikeDisplayCanvas*, int elecNum, int numChans);
-	~SpikePlot();
+	SpikePlot(SpikeDisplayCanvas*, int elecNum, int plotType);
+	virtual ~SpikePlot();
 
 	void paint(Graphics& g);
+	void resized();
 
 	void select();
 	void deselect();
+
+	void processSpikeObject(const SpikeObject& s);
 
 	SpikeDisplayCanvas* canvas;
 
@@ -154,76 +173,146 @@ public:
 
 	int electrodeNumber;
 
-	int numChannels;
+	int nChannels;
 
-	OwnedArray<ProjectionPlot> projectionPlots;
-	OwnedArray<WaveformPlot> waveformPlots;
+	void initAxes();
+	void getBestDimensions(int*, int*);
 
-private:
+	void clear();
+	void zoom(int, bool);
+	void pan(int, bool);
 
-
-};
-
-
-class TetrodePlot : public SpikePlot
-{
-public:
-	TetrodePlot(SpikeDisplayCanvas*, int elecNum);
-	~TetrodePlot() {}
-
-	void resized();
+	float minWidth;
+	float aspectRatio;
 
 private:
 
-};
-
-class StereotrodePlot : public SpikePlot
-{
-public:
-	StereotrodePlot(SpikeDisplayCanvas*, int elecNum);
-	~StereotrodePlot() {}
-
-	void resized();
-
-private:
 	
+	int plotType;
+	int nWaveAx;
+	int nProjAx;
+
+	bool limitsChanged;
+
+	double limits[MAX_N_CHAN][2];
+
+	OwnedArray<ProjectionAxes> pAxes;
+	OwnedArray<WaveAxes> wAxes;
+
+	void initLimits();
+	void setLimitsOnAxes();
+	void updateAxesPositions();
+
+	void n2ProjIdx(int i, int* p1, int* p2);
+
+	Font font;
+
 };
 
-class SingleElectrodePlot : public SpikePlot
+/**
+
+  Base class for drawing axes for spike visualization.
+
+  @see SpikeDisplayCanvas
+
+*/
+
+class GenericAxes : public Component
 {
 public:
-	SingleElectrodePlot(SpikeDisplayCanvas*, int elecNum);
-	~SingleElectrodePlot() {}
 
-	void resized();
+    GenericAxes(int t);
 
-private:
-	
+    virtual ~GenericAxes();
+
+    void updateSpikeData(const SpikeObject& s);
+
+    void setXLims(double xmin, double xmax);
+    void getXLims(double* xmin, double* xmax);
+    void setYLims(double ymin, double ymax);
+    void getYLims(double* ymin, double* ymax);
+
+    void setType(int type);
+    int getType();
+
+    virtual void paint(Graphics& g) = 0;
+
+    int roundUp(int, int);
+    void makeLabel(int val, int gain, bool convert, char* s);
+
+protected:
+ 	double xlims[2];
+    double ylims[2];
+
+    SpikeObject s;
+
+    bool gotFirstSpike;
+
+    int type;
+
+    Font font;
+
+    double ad16ToUv(int x, int gain);
+
 };
 
-class WaveformPlot : public Component
+
+
+/**
+
+  Class for drawing spike waveforms.
+
+*/
+
+class WaveAxes : public GenericAxes
 {
 public:
-	WaveformPlot();
-	~WaveformPlot() {}
+	WaveAxes(int channel);
+	~WaveAxes() {}
 
 	void paint(Graphics& g);
 
+	void clear();
+
 private:
+
+	Colour waveColour;
+	Colour thresholdColour;
+	Colour gridColour;
+
+	bool drawGrid;
+
+	void drawWaveformGrid(int threshold, int gain, Graphics& g);
+
+	Font font;
 
 };
 
-class ProjectionPlot : public Component
+
+
+/**
+
+  Class for drawing the peak projections of spike waveforms.
+
+*/
+
+class ProjectionAxes : public GenericAxes
 {
 public:
-	ProjectionPlot();
-	~ProjectionPlot() {}
+	ProjectionAxes(int projectionNum);
+	~ProjectionAxes() {}
 
 	void paint(Graphics& g);
 
+	void clear();
+
 private:
 
+	Colour pointColour;
+	Colour gridColour;
+
 };
+
 
 
 #endif  // SPIKEDISPLAYCANVAS_H_

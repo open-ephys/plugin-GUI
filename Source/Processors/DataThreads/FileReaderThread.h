@@ -46,7 +46,7 @@ class FileReaderThread : public DataThread
 
 {
 public:
-    FileReaderThread(SourceNode* sn);
+    FileReaderThread(SourceNode* sn, const char* path);
     ~FileReaderThread();
 
     bool foundInputSource();

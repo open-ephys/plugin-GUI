@@ -30,11 +30,6 @@
 #include "GenericProcessor.h"
 #include "Visualization/SpikeObject.h"
 
-#define SPIKE_CMD_CLEAR_ALL 	10000
-#define SPIKE_CMD_CLEAR_SEL 	10001
-#define SPIKE_CMD_PAN_AXES	 	10002
-#define SPIKE_CMD_ZOOM_AXES		10003
-
 class DataViewport;
 
 /**
@@ -87,8 +82,6 @@ private:
     int numberOfSources;
 
     ScopedPointer<MidiBuffer> eventBuffer;
-
-    //std::queue<SpikeObject> spikebuffer;
 
     int bufferSize;
 

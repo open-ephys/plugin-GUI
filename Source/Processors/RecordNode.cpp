@@ -37,7 +37,7 @@ RecordNode::RecordNode()
     continuousDataFloatBuffer = new float[10000];
     signalFilesShouldClose = false;
 
-    settings.numInputs = 128;
+    settings.numInputs = 256;
     settings.numOutputs = 0;
 
     eventChannel = new Channel(this, 0);

@@ -29,15 +29,15 @@ SpikeDisplayEditor::SpikeDisplayEditor(GenericProcessor* parentNode)
     : VisualizerEditor(parentNode,200)
 
 {
-    // Get the number of sub channels from the parentNode
-    // Assume all plots have the same number of subChannels
-    // Otherwise we'll have to track the number of subChannels
-    nSubChannels = 4;
+    // // Get the number of sub channels from the parentNode
+    // // Assume all plots have the same number of subChannels
+    // // Otherwise we'll have to track the number of subChannels
+    // nSubChannels = 4;
 
-    for (int i=0; i<nSubChannels; i++)
-        subChanSelected[i] = true;
+    // for (int i=0; i<nSubChannels; i++)
+    //     subChanSelected[i] = true;
 
-    initializeButtons();
+    // initializeButtons();
 
     tabText = "Spikes";
 
@@ -197,72 +197,72 @@ void SpikeDisplayEditor::buttonCallback(Button* button)
 {
     //std::cout<<"Got event from component:"<<button<<std::endl;
 
-    int pIdx = 0;
-    if (button == panUpBtn)
-    {
-        for (int i=0; i<nSubChannels; i++)
-            if (subChanSelected[i])
-                canvas->setParameter(SPIKE_CMD_PAN_AXES, pIdx, i, 1);
-    }
-    else if (button == panDownBtn)
-    {
-        for (int i=0; i<nSubChannels; i++)
-            if (subChanSelected[i])
-                canvas->setParameter(SPIKE_CMD_PAN_AXES, pIdx, i, -1);
-    }
-    else if (button == zoomInBtn)
-    {
-        for (int i=0; i<nSubChannels; i++)
-            if (subChanSelected[i])
-                canvas->setParameter(SPIKE_CMD_ZOOM_AXES, pIdx, i, -1);
-    }
-    else if (button == zoomOutBtn)
-    {
-        for (int i=0; i<nSubChannels; i++)
-            if (subChanSelected[i])
-                canvas->setParameter(SPIKE_CMD_ZOOM_AXES, pIdx, i, 1);
-    }
+    // int pIdx = 0;
+    // if (button == panUpBtn)
+    // {
+    //     for (int i=0; i<nSubChannels; i++)
+    //         if (subChanSelected[i])
+    //             canvas->setParameter(SPIKE_CMD_PAN_AXES, pIdx, i, 1);
+    // }
+    // else if (button == panDownBtn)
+    // {
+    //     for (int i=0; i<nSubChannels; i++)
+    //         if (subChanSelected[i])
+    //             canvas->setParameter(SPIKE_CMD_PAN_AXES, pIdx, i, -1);
+    // }
+    // else if (button == zoomInBtn)
+    // {
+    //     for (int i=0; i<nSubChannels; i++)
+    //         if (subChanSelected[i])
+    //             canvas->setParameter(SPIKE_CMD_ZOOM_AXES, pIdx, i, -1);
+    // }
+    // else if (button == zoomOutBtn)
+    // {
+    //     for (int i=0; i<nSubChannels; i++)
+    //         if (subChanSelected[i])
+    //             canvas->setParameter(SPIKE_CMD_ZOOM_AXES, pIdx, i, 1);
+    // }
 
-    else if (button == clearBtn)
-    {
-        std::cout<<"Clear!"<<std::endl;
-        canvas->setParameter(SPIKE_CMD_CLEAR_ALL, 0);
-    }
-    else if (button == saveImgBtn)
-        std::cout<<"Save!"<<std::endl;
+    // else if (button == clearBtn)
+    // {
+    //     std::cout<<"Clear!"<<std::endl;
+    //     canvas->setParameter(SPIKE_CMD_CLEAR_ALL, 0);
+    // }
+    // else if (button == saveImgBtn)
+    //     std::cout<<"Save!"<<std::endl;
 
-    // toggle all sub channel buttons
-    else if (button == allSubChansBtn)
-    {
-        bool b = allSubChansBtn->getToggleState();
-        for (int i=0; i<nSubChannels; i++)
-            subChanBtn[i]->setToggleState(b, true);
+    // // toggle all sub channel buttons
+    // else if (button == allSubChansBtn)
+    // {
+    //     bool b = allSubChansBtn->getToggleState();
+    //     for (int i=0; i<nSubChannels; i++)
+    //         subChanBtn[i]->setToggleState(b, true);
 
-    }
-    // Check the sub Channel selection buttons one by one
-    else
-    {
-        // If the user has clicked a sub channel button then the all channels button should be untoggled if toggled
-        allSubChansBtn->setToggleState(false, false);
-        for (int i=0; i<nSubChannels; i++)
-            if (button == subChanBtn[i])
-            {
-                std::cout<<"SubChannel:"<<i<< " set to:";
-                subChanSelected[i] = ((UtilityButton*) button)->getToggleState();
-                std::cout<< subChanSelected[i]<<std::endl;
-            }
+    // }
+    // // Check the sub Channel selection buttons one by one
+    // else
+    // {
+    //     // If the user has clicked a sub channel button then the all channels button should be untoggled if toggled
+    //     allSubChansBtn->setToggleState(false, false);
+    //     for (int i=0; i<nSubChannels; i++)
+    //         if (button == subChanBtn[i])
+    //         {
+    //             std::cout<<"SubChannel:"<<i<< " set to:";
+    //             subChanSelected[i] = ((UtilityButton*) button)->getToggleState();
+    //             std::cout<< subChanSelected[i]<<std::endl;
+    //         }
 
-        // If the user has toggled all of the sub channels on, then set AllChans to on
-        bool allChansToggled = true;
-        for (int i=0; i<nSubChannels; i++)
-        {
-            if (subChanBtn[i]->getToggleState()!=allChansToggled)
-            {
-                allChansToggled = false;
-                break;
-            }
-        }
-        allSubChansBtn->setToggleState(allChansToggled, false);
+    //     // If the user has toggled all of the sub channels on, then set AllChans to on
+    //     bool allChansToggled = true;
+    //     for (int i=0; i<nSubChannels; i++)
+    //     {
+    //         if (subChanBtn[i]->getToggleState()!=allChansToggled)
+    //         {
+    //             allChansToggled = false;
+    //             break;
+    //         }
+    //     }
+    //     allSubChansBtn->setToggleState(allChansToggled, false);
 
-    }
+    // }
 }

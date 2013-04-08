@@ -61,13 +61,21 @@ public:
     float getSampleRate();
     float getBitVolts();
 
+    bool isHeadstageEnabled(int hsNum);
+
+    bool enableHeadstage(int hsNum, bool enabled);
+    void setCableLength(int hsNum, float length);
+    void setNumChannels(int hsNum, int nChannels);
+
     int getNumEventChannels();
+
+    bool isAcquisitionActive();
 
 private:
 
     ScopedPointer<Rhd2000EvalBoard> evalBoard;
     ScopedPointer<Rhd2000Registers> chipRegisters;
-    ScopedPointer<Rhd2000DataBlock> dataBlock;
+    Rhd2000DataBlock* dataBlock;
 
     Array<int> numChannelsPerDataStream;
 
@@ -78,10 +86,20 @@ private:
 
     int blockSize;
 
+    bool isTransmitting;
+
+    bool fastSettleEnabled;
+
     bool startAcquisition();
     bool stopAcquisition();
 
+    void initializeBoard();
+    void scanPorts();
+    int deviceId(Rhd2000DataBlock* dataBlock, int stream);
+
     bool updateBuffer();
+
+    double cableLengthPortA, cableLengthPortB, cableLengthPortC, cableLengthPortD;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);
 };

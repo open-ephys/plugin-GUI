@@ -11,19 +11,18 @@
               jucerVersion="3.0.0">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
-               juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi -lftgl"
-               objCExtraSuffix="fea2mT">
+               juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi" objCExtraSuffix="fea2mT">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="open-ephys"
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
       </CONFIGURATIONS>
     </XCODE_MAC>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-lftdi -lftgl -pg -ldl -lXext" extraCompilerFlags="-export-dynamic -g -pg">
+                extraLinkerFlags="-lftdi -pg -ldl -lXext" extraCompilerFlags="-export-dynamic -g -pg">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="open-ephys"
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        libraryPath="/usr/X11R6/lib/"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
                        libraryPath="/usr/X11R6/lib/"/>
@@ -31,9 +30,9 @@
     </LINUX_MAKE>
     <VS2010 targetFolder="Builds/VisualStudio2010" vstFolder="c:\SDKs\vstsdk2.4"
             rtasFolder="c:\SDKs\PT_80_SDK" libraryType="1" juceFolder="JuceLibraryCode"
-            extraLinkerFlags="-lftdi -lftgl">
+            extraLinkerFlags="-lftdi">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="open-ephys"
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
                        winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"/>
@@ -42,7 +41,7 @@
     <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" juceFolder="JuceLibraryCode/modules">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="open-ephys"/>
+                       isDebug="1" optimisation="3" targetName="open-ephys"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="0" optimisation="2" targetName="open-ephys"/>
       </CONFIGURATIONS>

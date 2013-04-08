@@ -41,19 +41,22 @@ ProcessorList::ProcessorList()
       xBuffer(1), yBuffer(1)
 {
 
-    MemoryInputStream mis1(BinaryData::cpmonolightserialized,
-                           BinaryData::cpmonolightserializedSize,
-                           false);
-    Typeface::Ptr tp1 = new CustomTypeface(mis1);
-    listFontLight = Font(tp1);
-    listFontLight.setHeight(25);
+	listFontLight = Font("Default Light", 25, Font::plain);
+	listFontPlain = Font("Default", 20, Font::plain);
 
-    MemoryInputStream mis2(BinaryData::cpmonoplainserialized,
-                           BinaryData::cpmonoplainserializedSize,
-                           false);
-    Typeface::Ptr tp2 = new CustomTypeface(mis2);
-    listFontPlain = Font(tp2);
-    listFontPlain.setHeight(20);
+    // MemoryInputStream mis1(BinaryData::cpmonolightserialized,
+    //                        BinaryData::cpmonolightserializedSize,
+    //                        false);
+    // Typeface::Ptr tp1 = new CustomTypeface(mis1);
+    // listFontLight = Font(tp1);
+    // listFontLight.setHeight(25);
+
+    // MemoryInputStream mis2(BinaryData::cpmonoplainserialized,
+    //                        BinaryData::cpmonoplainserializedSize,
+    //                        false);
+    // Typeface::Ptr tp2 = new CustomTypeface(mis2);
+    // listFontPlain = Font(tp2);
+    // listFontPlain.setHeight(20);
 
     setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
     setColour(FILTER_COLOR, Colour(41, 76, 158));//Colour(255, 89, 0));
