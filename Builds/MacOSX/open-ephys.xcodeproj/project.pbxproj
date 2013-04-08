@@ -2599,7 +2599,7 @@
 				FA0E0597ED415901958AD5AE ); name = Source; sourceTree = "<group>"; };
 		95F63B27BAC6E72226C3E356 = { isa = XCBuildConfiguration; buildSettings = {
 				HEADER_SEARCH_PATHS = "../../JuceLibraryCode $(inherited)";
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
