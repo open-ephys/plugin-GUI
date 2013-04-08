@@ -333,7 +333,7 @@ void LfpDisplayCanvas::refresh()
 
     lfpDisplay->refresh();
 
-    getPeer()->performAnyPendingRepaintsNow();
+    //getPeer()->performAnyPendingRepaintsNow();
 
 }
 
