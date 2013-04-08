@@ -26,7 +26,7 @@
 InfoLabel::InfoLabel()
 {
 
-	labelFont = Font("Paragraph", 24, Font::plain);
+    labelFont = Font("Paragraph", 24, Font::plain);
 
     // MemoryInputStream mis(BinaryData::misoserialized,
     //                       BinaryData::misoserializedSize,

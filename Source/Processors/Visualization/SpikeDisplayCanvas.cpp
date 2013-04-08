@@ -73,7 +73,7 @@ void SpikeDisplayCanvas::update()
 
     for (int i = 0; i < nPlots; i++)
     {
-    	spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i);
+        spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i);
     }
 
     //initializeSpikePlots();
@@ -139,14 +139,14 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
             int electrodeNum = newSpike.source;
 
-           // generateSimulatedSpike(&simSpike, 0, 0);
+            // generateSimulatedSpike(&simSpike, 0, 0);
 
-           // for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
-           // {
-           //     simSpike.data[i] = newSpike.data[i%80] + 5000;// * 3 - 10000;
-           // }
+            // for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
+            // {
+            //     simSpike.data[i] = newSpike.data[i%80] + 5000;// * 3 - 10000;
+            // }
 
-           // simSpike.nSamples = 40;
+            // simSpike.nSamples = 40;
 
             spikeDisplay->plotSpike(newSpike, electrodeNum);
 
@@ -175,16 +175,16 @@ SpikeDisplay::~SpikeDisplay()
 
 void SpikeDisplay::clear()
 {
-	if (spikePlots.size() > 0)
-		spikePlots.clear();
+    if (spikePlots.size() > 0)
+        spikePlots.clear();
 }
 
 void SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum)
 {
 
-	std::cout << "Adding new spike plot." << std::endl;
+    std::cout << "Adding new spike plot." << std::endl;
 
-	SpikePlot* spikePlot = new SpikePlot(canvas, electrodeNum, 1000 + numChannels);
+    SpikePlot* spikePlot = new SpikePlot(canvas, electrodeNum, 1000 + numChannels);
     spikePlots.add(spikePlot);
     addAndMakeVisible(spikePlot);
 }
@@ -192,99 +192,103 @@ void SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum)
 void SpikeDisplay::paint(Graphics& g)
 {
 
-	g.fillAll(Colours::grey);
+    g.fillAll(Colours::grey);
 
 }
 
 void SpikeDisplay::resized()
 {
-	// this is kind of a mess -- is there any way to optimize it?
+    // this is kind of a mess -- is there any way to optimize it?
 
-	if (spikePlots.size() > 0)
-	{
+    if (spikePlots.size() > 0)
+    {
 
-	    int w = getWidth();
+        int w = getWidth();
 
-	    int numColumns = 1;
-	    int column, row;
+        int numColumns = 1;
+        int column, row;
 
-	    int stereotrodeStart = 0;
-	    int tetrodeStart = 0;
+        int stereotrodeStart = 0;
+        int tetrodeStart = 0;
 
-	    int singlePlotIndex = -1;
-	    int stereotrodePlotIndex = -1;
-	    int tetrodePlotIndex = -1;
-	    int index;
+        int singlePlotIndex = -1;
+        int stereotrodePlotIndex = -1;
+        int tetrodePlotIndex = -1;
+        int index;
 
-	    float width, height;
+        float width, height;
 
-	    for (int i = 0; i < spikePlots.size(); i++)
-	    {
+        for (int i = 0; i < spikePlots.size(); i++)
+        {
 
-	    	if (spikePlots[i]->nChannels == 1)
-	    	{
-	    		index = ++singlePlotIndex;
-	    		numColumns = (int) jmax(w / spikePlots[i]->minWidth, 1.0f);
-	    		width = jmin((float) w / (float) numColumns, (float) getWidth());
-	    		height = width * spikePlots[i]->aspectRatio;
+            if (spikePlots[i]->nChannels == 1)
+            {
+                index = ++singlePlotIndex;
+                numColumns = (int) jmax(w / spikePlots[i]->minWidth, 1.0f);
+                width = jmin((float) w / (float) numColumns, (float) getWidth());
+                height = width * spikePlots[i]->aspectRatio;
 
-	    	} else if (spikePlots[i]->nChannels == 2)
-	    	{
-	    		index = ++stereotrodePlotIndex;
-	    		numColumns = (int) jmax(w / spikePlots[i]->minWidth, 1.0f);
-	    		width = jmin((float) w / (float) numColumns, (float) getWidth());
-	    		height = width * spikePlots[i]->aspectRatio;
+            }
+            else if (spikePlots[i]->nChannels == 2)
+            {
+                index = ++stereotrodePlotIndex;
+                numColumns = (int) jmax(w / spikePlots[i]->minWidth, 1.0f);
+                width = jmin((float) w / (float) numColumns, (float) getWidth());
+                height = width * spikePlots[i]->aspectRatio;
 
-	    	} else if (spikePlots[i]->nChannels == 4)
-	  		{
-	  			index = ++tetrodePlotIndex;
-	  			numColumns = (int) jmax(w / spikePlots[i]->minWidth, 1.0f);
-	    		width = jmin((float) w / (float) numColumns, (float) getWidth());
-	    		height = width * spikePlots[i]->aspectRatio;
-	  		}	
+            }
+            else if (spikePlots[i]->nChannels == 4)
+            {
+                index = ++tetrodePlotIndex;
+                numColumns = (int) jmax(w / spikePlots[i]->minWidth, 1.0f);
+                width = jmin((float) w / (float) numColumns, (float) getWidth());
+                height = width * spikePlots[i]->aspectRatio;
+            }
 
-	        column = index % numColumns;
+            column = index % numColumns;
 
-	        row = index / numColumns;
+            row = index / numColumns;
 
-	        spikePlots[i]->setBounds(width*column, row*height, width, height);
+            spikePlots[i]->setBounds(width*column, row*height, width, height);
 
-	        if (spikePlots[i]->nChannels == 1)
-	        {
-	        	stereotrodeStart = (int)(height*(float(row)+1));
-	        } else if (spikePlots[i]->nChannels == 2)
-	        {
-	        	tetrodeStart = (int)(height*(float(row)+1));
-	        }
+            if (spikePlots[i]->nChannels == 1)
+            {
+                stereotrodeStart = (int)(height*(float(row)+1));
+            }
+            else if (spikePlots[i]->nChannels == 2)
+            {
+                tetrodeStart = (int)(height*(float(row)+1));
+            }
 
-	    }
+        }
 
-	    for (int i = 0; i < spikePlots.size(); i++)
-	    {
+        for (int i = 0; i < spikePlots.size(); i++)
+        {
 
-	    	int x = spikePlots[i]->getX();
-	    	int y = spikePlots[i]->getY();
-	    	int w2 = spikePlots[i]->getWidth();
-	    	int h2 = spikePlots[i]->getHeight();
+            int x = spikePlots[i]->getX();
+            int y = spikePlots[i]->getY();
+            int w2 = spikePlots[i]->getWidth();
+            int h2 = spikePlots[i]->getHeight();
 
-	    	if (spikePlots[i]->nChannels == 2)
-	    	{
-	    		spikePlots[i]->setBounds(x, y+stereotrodeStart, w2, h2);
+            if (spikePlots[i]->nChannels == 2)
+            {
+                spikePlots[i]->setBounds(x, y+stereotrodeStart, w2, h2);
 
-	    	} else if (spikePlots[i]->nChannels == 4)
-	  		{
-	  			spikePlots[i]->setBounds(x, y+stereotrodeStart+tetrodeStart, w2, h2);
-	  		}	
+            }
+            else if (spikePlots[i]->nChannels == 4)
+            {
+                spikePlots[i]->setBounds(x, y+stereotrodeStart+tetrodeStart, w2, h2);
+            }
 
-	    }
+        }
 
-	    totalHeight = 5000; // don't even deal with making the display the correct height
+        totalHeight = 5000; // don't even deal with making the display the correct height
 
-	    if (totalHeight < getHeight())
-	    {
-	        canvas->resized();
-	    }
-	}
+        if (totalHeight < getHeight())
+        {
+            canvas->resized();
+        }
+    }
 
 }
 
@@ -295,7 +299,7 @@ void SpikeDisplay::mouseDown(const MouseEvent& event)
 
 void SpikeDisplay::plotSpike(const SpikeObject& spike, int electrodeNum)
 {
-	spikePlots[electrodeNum]->processSpikeObject(spike);
+    spikePlots[electrodeNum]->processSpikeObject(spike);
 }
 
 
@@ -309,10 +313,10 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
 
     font = Font("Default", 15, Font::plain);
 
-     switch (p)
+    switch (p)
     {
         case SINGLE_PLOT:
-           // std::cout<<"SpikePlot as SINGLE_PLOT"<<std::endl;
+            // std::cout<<"SpikePlot as SINGLE_PLOT"<<std::endl;
             nWaveAx = 1;
             nProjAx = 0;
             nChannels = 1;
@@ -320,7 +324,7 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
             aspectRatio = 1.0f;
             break;
         case STEREO_PLOT:
-          //  std::cout<<"SpikePlot as STEREO_PLOT"<<std::endl;
+            //  std::cout<<"SpikePlot as STEREO_PLOT"<<std::endl;
             nWaveAx = 2;
             nProjAx = 1;
             nChannels = 2;
@@ -328,7 +332,7 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
             aspectRatio = 0.5f;
             break;
         case TETRODE_PLOT:
-           // std::cout<<"SpikePlot as TETRODE_PLOT"<<std::endl;
+            // std::cout<<"SpikePlot as TETRODE_PLOT"<<std::endl;
             nWaveAx = 4;
             nProjAx = 6;
             nChannels = 4;
@@ -361,12 +365,12 @@ SpikePlot::~SpikePlot()
 void SpikePlot::paint(Graphics& g)
 {
 
-  	g.setColour(Colours::white);
+    g.setColour(Colours::white);
     g.drawRect(0,0,getWidth(),getHeight());
 
     g.setFont(font);
 
-	g.drawText(String(electrodeNumber+1),10,0,50,20,Justification::left,false);
+    g.drawText(String(electrodeNumber+1),10,0,50,20,Justification::left,false);
 
 }
 
@@ -397,16 +401,16 @@ void SpikePlot::initAxes()
 
     for (int i = 0; i < nWaveAx; i++)
     {
-    	WaveAxes* wAx = new WaveAxes(WAVE1 + i);
-    	wAxes.add(wAx);
-    	addAndMakeVisible(wAx);
+        WaveAxes* wAx = new WaveAxes(WAVE1 + i);
+        wAxes.add(wAx);
+        addAndMakeVisible(wAx);
     }
 
     for (int i = 0; i < nProjAx; i++)
     {
-    	ProjectionAxes* pAx = new ProjectionAxes(PROJ1x2 + i);
-    	pAxes.add(pAx);
-    	addAndMakeVisible(pAx);
+        ProjectionAxes* pAx = new ProjectionAxes(PROJ1x2 + i);
+        pAxes.add(pAx);
+        addAndMakeVisible(pAx);
     }
 
     setLimitsOnAxes(); // initialize thel limits on the axes
@@ -415,12 +419,12 @@ void SpikePlot::initAxes()
 void SpikePlot::resized()
 {
 
-	float width = getWidth()-10;
-	float height = getHeight()-20;
+    float width = getWidth()-10;
+    float height = getHeight()-20;
 
-	float axesWidth, axesHeight;
+    float axesWidth, axesHeight;
 
-  	// to compute the axes positions we need to know how many columns of proj and wave axes should exist
+    // to compute the axes positions we need to know how many columns of proj and wave axes should exist
     // using these two values we can calculate the positions of all of the sub axes
     int nProjCols, nWaveCols;
 
@@ -457,7 +461,7 @@ void SpikePlot::resized()
 
 void SpikePlot::setLimitsOnAxes()
 {
- 	//std::cout<<"SpikePlot::setLimitsOnAxes()"<<std::endl;
+    //std::cout<<"SpikePlot::setLimitsOnAxes()"<<std::endl;
 
     for (int i = 0; i < nWaveAx; i++)
         wAxes[i]->setYLims(limits[i][0], limits[i][1]);
@@ -603,7 +607,7 @@ void SpikePlot::n2ProjIdx(int proj, int* p1, int* p2)
 
 WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true)
 {
-	font = Font("Small Text",10,Font::plain);
+    font = Font("Small Text",10,Font::plain);
 }
 
 void WaveAxes::paint(Graphics& g)
@@ -616,13 +620,13 @@ void WaveAxes::paint(Graphics& g)
     // if no spikes have been received then don't plot anything
     if (!gotFirstSpike)
     {
-    	return; 
+        return;
     }
 
     float h = getHeight();
     // draw the grid lines for the waveforms
-     if (drawGrid)
-    	drawWaveformGrid(s.threshold[chan], s.gain[chan], g);
+    if (drawGrid)
+        drawWaveformGrid(s.threshold[chan], s.gain[chan], g);
 
     //compute the spatial width for each waveform sample
     float dx = (getWidth()-10)/s.nSamples;
@@ -631,7 +635,7 @@ void WaveAxes::paint(Graphics& g)
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
     int	sampIdx = s.nSamples * type; //
-    
+
     // draw the individual waveform points
     g.setColour(Colours::white);
 
@@ -639,10 +643,10 @@ void WaveAxes::paint(Graphics& g)
 
     for (int i = 0; i < s.nSamples-1; i++)
     {
-    	//std::cout << s.data[sampIdx] << std::endl;
-    	g.drawLine(x, h/2 + (s.data[sampIdx]-32768)/100, x+dx, h/2 + (s.data[sampIdx+1]-32768)/100);
-    	sampIdx += dSamples;
-    	x += dx;
+        //std::cout << s.data[sampIdx] << std::endl;
+        g.drawLine(x, h/2 + (s.data[sampIdx]-32768)/100, x+dx, h/2 + (s.data[sampIdx+1]-32768)/100);
+        sampIdx += dSamples;
+        x += dx;
     }
 
     // draw the threshold line and labels
@@ -651,7 +655,7 @@ void WaveAxes::paint(Graphics& g)
 
 void WaveAxes::drawWaveformGrid(int threshold, int gain, Graphics& g)
 {
-	double voltRange = ylims[1] - ylims[0];
+    double voltRange = ylims[1] - ylims[0];
     double pixelRange = getHeight();
     //This is a totally arbitrary value that seemed to lok the best for me
     int minPixelsPerTick = 25;
@@ -720,7 +724,7 @@ void WaveAxes::drawWaveformGrid(int threshold, int gain, Graphics& g)
 
 void WaveAxes::clear()
 {
-	
+
 }
 
 

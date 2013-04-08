@@ -223,7 +223,7 @@ public:
     Font titleFont;
 
     /** True if data acquisition has begun. */
-  	bool acquisitionIsActive;
+    bool acquisitionIsActive;
 
 
 protected:

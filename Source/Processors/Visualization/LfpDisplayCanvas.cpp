@@ -140,15 +140,16 @@ void LfpDisplayCanvas::update()
 void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 {
 
-	if (cb == timebaseSelection)
-	{
-		timebase = timebases[cb->getSelectedId()-1].getFloatValue();
-	} else if (cb == rangeSelection)
-	{
-		displayGain = 150.0f / voltageRanges[cb->getSelectedId()-1].getFloatValue(); // not sure this is right.
-	}
+    if (cb == timebaseSelection)
+    {
+        timebase = timebases[cb->getSelectedId()-1].getFloatValue();
+    }
+    else if (cb == rangeSelection)
+    {
+        displayGain = 150.0f / voltageRanges[cb->getSelectedId()-1].getFloatValue(); // not sure this is right.
+    }
 
-	timescale->setTimebase(timebase);
+    timescale->setTimebase(timebase);
 }
 
 
@@ -308,15 +309,15 @@ void LfpDisplayCanvas::paint(Graphics& g)
     g.fillRect(0, 0, getWidth(), getHeight());
 
     g.setColour(Colour(40,40,40));
-    
+
     int w = getWidth()-scrollBarThickness;
 
     for (int i = 1; i < 10; i++)
     {
-    	if (i == 5)
-    		g.drawLine(w/10*i,0,w/10*i,getHeight()-60,3.0f);
-    	else
-    		g.drawLine(w/10*i,0,w/10*i,getHeight()-60,1.0f);
+        if (i == 5)
+            g.drawLine(w/10*i,0,w/10*i,getHeight()-60,3.0f);
+        else
+            g.drawLine(w/10*i,0,w/10*i,getHeight()-60,1.0f);
     }
 
     g.drawLine(0,getHeight()-60,getWidth(),getHeight()-60,3.0f);
@@ -342,7 +343,7 @@ void LfpDisplayCanvas::refresh()
 LfpTimescale::LfpTimescale(LfpDisplayCanvas* c) : canvas(c)
 {
 
-	font = Font("Default", 16, Font::plain);
+    font = Font("Default", 16, Font::plain);
 }
 
 LfpTimescale::~LfpTimescale()
@@ -353,15 +354,15 @@ LfpTimescale::~LfpTimescale()
 void LfpTimescale::paint(Graphics& g)
 {
 
-	g.setGradientFill(ColourGradient(Colour(50,50,50),0,0, 
-		                             Colour(25,25,25),0,getHeight(),
-		                             false));
+    g.setGradientFill(ColourGradient(Colour(50,50,50),0,0,
+                                     Colour(25,25,25),0,getHeight(),
+                                     false));
 
     g.fillAll();
 
-     g.setColour(Colours::black);
+    g.setColour(Colours::black);
 
-     g.drawLine(0,getHeight(),getWidth(),getHeight());
+    g.drawLine(0,getHeight(),getWidth(),getHeight());
 
     g.setFont(font);
 
@@ -369,30 +370,30 @@ void LfpTimescale::paint(Graphics& g)
 
     for (int i = 1; i < 10; i++)
     {
-    	if (i == 5)
-    		g.drawLine(getWidth()/10*i,0,getWidth()/10*i,getHeight(),3.0f);
-    	else
-    		g.drawLine(getWidth()/10*i,0,getWidth()/10*i,getHeight(),1.0f);
+        if (i == 5)
+            g.drawLine(getWidth()/10*i,0,getWidth()/10*i,getHeight(),3.0f);
+        else
+            g.drawLine(getWidth()/10*i,0,getWidth()/10*i,getHeight(),1.0f);
 
-    	g.drawText(labels[i-1],getWidth()/10*i+1,0,100,getHeight(),Justification::left, false);
+        g.drawText(labels[i-1],getWidth()/10*i+1,0,100,getHeight(),Justification::left, false);
     }
 
 }
 
 void LfpTimescale::setTimebase(float t)
 {
-	timebase = t;
+    timebase = t;
 
-	labels.clear();
+    labels.clear();
 
-	for (float i = 1.0f; i < 10.0; i++)
-	{
-		String labelString = String(timebase/10.0f*i);
+    for (float i = 1.0f; i < 10.0; i++)
+    {
+        String labelString = String(timebase/10.0f*i);
 
-		labels.add(labelString.substring(1,4));
-	}
+        labels.add(labelString.substring(1,4));
+    }
 
-	repaint();
+    repaint();
 
 }
 
@@ -409,12 +410,12 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
 
     for (int i = 0; i < 10; i++)
     {
-    	channelColours.add(Colour(200,200,255-i*25));
+        channelColours.add(Colour(200,200,255-i*25));
     }
 
     for (int i = 10; i > -1; i--)
     {
-    	channelColours.add(Colour(200,200,255-i*25));
+        channelColours.add(Colour(200,200,255-i*25));
     }
 
 }
@@ -528,9 +529,9 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, int channelNumber) :
     canvas(c), isSelected(false), chan(channelNumber)
 {
 
-	channelFont = Font("Default", 50, Font::plain);
+    channelFont = Font("Default", 50, Font::plain);
 
-	lineColour = Colour(255,255,255);
+    lineColour = Colour(255,255,255);
 
 }
 
@@ -542,9 +543,9 @@ LfpChannelDisplay::~LfpChannelDisplay()
 void LfpChannelDisplay::paint(Graphics& g)
 {
 
-	//g.fillAll(Colours::grey);
+    //g.fillAll(Colours::grey);
 
-	 g.setColour(Colours::yellow);
+    g.setColour(Colours::yellow);
 
     g.drawLine(canvas->screenBufferIndex, 0, canvas->screenBufferIndex, getHeight());
 
@@ -552,19 +553,19 @@ void LfpChannelDisplay::paint(Graphics& g)
 
     if (isSelected)
     {
-    	g.setColour(Colours::lightgrey);
-    	g.fillRect(0,center-50,10,100);
-    	g.drawLine(0,center+50,getWidth(),center+50);
-    	g.drawLine(0,center-50,getWidth(),center-50);
+        g.setColour(Colours::lightgrey);
+        g.fillRect(0,center-50,10,100);
+        g.drawLine(0,center+50,getWidth(),center+50);
+        g.drawLine(0,center-50,getWidth(),center-50);
 
-    	g.setColour(Colour(25,25,25));
-    	g.drawLine(0,center+25,10,center+25);
-    	g.drawLine(0,center-25,10,center-25);
-    	
+        g.setColour(Colour(25,25,25));
+        g.drawLine(0,center+25,10,center+25);
+        g.drawLine(0,center-25,10,center-25);
+
     }
 
-    
-     g.setColour(Colour(40,40,40));
+
+    g.setColour(Colour(40,40,40));
     g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
 
     int stepSize = 1;
@@ -600,5 +601,5 @@ void LfpChannelDisplay::deselect()
 
 void LfpChannelDisplay::setColour(Colour c)
 {
-	lineColour = c;
+    lineColour = c;
 }

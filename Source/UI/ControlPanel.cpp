@@ -90,8 +90,8 @@ RecordButton::~RecordButton()
 
 CPUMeter::CPUMeter() : Label("CPU Meter","0.0"), cpu(0.0f), lastCpu(0.0f)
 {
-	
-	font = Font("Small Text", 12, Font::plain);
+
+    font = Font("Small Text", 12, Font::plain);
 
     // MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
     // Typeface::Ptr typeface = new CustomTypeface(mis);
@@ -129,7 +129,7 @@ DiskSpaceMeter::DiskSpaceMeter()
 
 {
 
-	font = Font("Small Text", 12, Font::plain);
+    font = Font("Small Text", 12, Font::plain);
 
     // MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
     // Typeface::Ptr typeface = new CustomTypeface(mis);
@@ -167,7 +167,7 @@ void DiskSpaceMeter::paint(Graphics& g)
 Clock::Clock() : isRunning(false), isRecording(false)
 {
 
-	clockFont = Font("Default Light", 30, Font::plain);
+    clockFont = Font("Default Light", 30, Font::plain);
 
     // MemoryInputStream mis(BinaryData::cpmonolightserialized, BinaryData::cpmonolightserializedSize, false);
     // Typeface::Ptr typeface = new CustomTypeface(mis);
@@ -348,7 +348,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     if (1)
     {
 
-    	font = Font("Paragraph", 13, Font::plain);
+        font = Font("Paragraph", 13, Font::plain);
 
         // MemoryInputStream mis(BinaryData::misoserialized, BinaryData::misoserializedSize, false);
         // Typeface::Ptr typeface = new CustomTypeface(mis);

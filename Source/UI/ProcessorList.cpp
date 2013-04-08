@@ -41,8 +41,8 @@ ProcessorList::ProcessorList()
       xBuffer(1), yBuffer(1)
 {
 
-	listFontLight = Font("Default Light", 25, Font::plain);
-	listFontPlain = Font("Default", 20, Font::plain);
+    listFontLight = Font("Default Light", 25, Font::plain);
+    listFontPlain = Font("Default", 20, Font::plain);
 
     // MemoryInputStream mis1(BinaryData::cpmonolightserialized,
     //                        BinaryData::cpmonolightserializedSize,

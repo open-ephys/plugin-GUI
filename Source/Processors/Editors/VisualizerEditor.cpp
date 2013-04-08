@@ -24,10 +24,10 @@
 #include "VisualizerEditor.h"
 
 SelectorButton::SelectorButton(const String& name_)
-	: Button(name_)
+    : Button(name_)
 {
-	setClickingTogglesState (true);
-    setTooltip ("Toggle a state.");
+    setClickingTogglesState(true);
+    setTooltip("Toggle a state.");
 
 }
 
@@ -35,206 +35,219 @@ SelectorButton::~SelectorButton()
 {
 }
 
-void SelectorButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+void SelectorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (getToggleState() == true)
         g.setColour(Colours::white);
-    else 
+    else
         g.setColour(Colours::darkgrey);
 
     if (isMouseOver)
         g.setColour(Colours::yellow);
 
 
-   	if (getName().equalsIgnoreCase("window"))
-   	{
-   		// window icon
-   		g.drawRect(0,0,getWidth(),getHeight(),1.0);
-   		g.fillRect(0,0,getWidth(),3.0);
-   	} else {
-   		// tab icon
-   		g.drawVerticalLine(5,0,getHeight());
-   		g.fillRoundedRectangle(5,2,4,getHeight()-4,4.0f);
-   		g.fillRect(5,2,4,getHeight()-4);
-   	}
-  
+    if (getName().equalsIgnoreCase("window"))
+    {
+        // window icon
+        g.drawRect(0,0,getWidth(),getHeight(),1.0);
+        g.fillRect(0,0,getWidth(),3.0);
+    }
+    else
+    {
+        // tab icon
+        g.drawVerticalLine(5,0,getHeight());
+        g.fillRoundedRectangle(5,2,4,getHeight()-4,4.0f);
+        g.fillRect(5,2,4,getHeight()-4);
+    }
+
 }
 
 
-VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width, bool useDefaultParameterEditors=true)
-	: GenericEditor(parentNode, useDefaultParameterEditors=true),
-	  dataWindow(0), canvas(0), tabText("Tab"), isPlaying(false), tabIndex(-1)
+VisualizerEditor::VisualizerEditor(GenericProcessor* parentNode, int width, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors=true),
+      dataWindow(0), canvas(0), tabText("Tab"), isPlaying(false), tabIndex(-1)
 {
 
-	desiredWidth = width;
+    desiredWidth = width;
 
-	initializeSelectors();
+    initializeSelectors();
 }
 
 
-VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-	: GenericEditor(parentNode, useDefaultParameterEditors),
-	  dataWindow(0), canvas(0), isPlaying(false), tabIndex(-1)
+VisualizerEditor::VisualizerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors),
+      dataWindow(0), canvas(0), isPlaying(false), tabIndex(-1)
 {
 
-	desiredWidth = 180;
-	initializeSelectors();
+    desiredWidth = 180;
+    initializeSelectors();
 
 }
 
-void VisualizerEditor::initializeSelectors(){
+void VisualizerEditor::initializeSelectors()
+{
 
-	windowSelector = new SelectorButton("window");
-	windowSelector->addListener(this);
-	windowSelector->setBounds(desiredWidth - 40,7,14,10);
+    windowSelector = new SelectorButton("window");
+    windowSelector->addListener(this);
+    windowSelector->setBounds(desiredWidth - 40,7,14,10);
 
-	windowSelector->setToggleState(false,false);
-	addAndMakeVisible(windowSelector);
+    windowSelector->setToggleState(false,false);
+    addAndMakeVisible(windowSelector);
 
-	tabSelector = new SelectorButton("tab");
-	tabSelector->addListener(this);
-	tabSelector->setBounds(desiredWidth - 20,7,15,10);
-	
-	addAndMakeVisible(tabSelector);
-	tabSelector->setToggleState(false,false);
+    tabSelector = new SelectorButton("tab");
+    tabSelector->addListener(this);
+    tabSelector->setBounds(desiredWidth - 20,7,15,10);
+
+    addAndMakeVisible(tabSelector);
+    tabSelector->setToggleState(false,false);
 }
 
 VisualizerEditor::~VisualizerEditor()
 {
 
-	if (tabIndex > -1)
-	{
-		getDataViewport()->destroyTab(tabIndex);
-	}
+    if (tabIndex > -1)
+    {
+        getDataViewport()->destroyTab(tabIndex);
+    }
 
-	deleteAllChildren();
+    deleteAllChildren();
 
 }
 
 void VisualizerEditor::enable()
 {
-	std::cout << "   Enabling VisualizerEditor" << std::endl;
-	if (canvas != 0)
-		canvas->beginAnimation();
-	
-	isPlaying = true;
+    std::cout << "   Enabling VisualizerEditor" << std::endl;
+    if (canvas != 0)
+        canvas->beginAnimation();
+
+    isPlaying = true;
 }
 
 void VisualizerEditor::disable()
 {
-	if (canvas != 0)
-		canvas->endAnimation();
+    if (canvas != 0)
+        canvas->endAnimation();
 
-	isPlaying = false;
+    isPlaying = false;
 }
 
 void VisualizerEditor::updateVisualizer()
 {
 
-	if (canvas != 0)
-		canvas->update();
+    if (canvas != 0)
+        canvas->update();
 
 }
 
 void VisualizerEditor::editorWasClicked()
 {
 
-	if (tabIndex > -1)
-	{
-		std::cout << "Setting tab index to " << tabIndex << std::endl;
-		getDataViewport()->selectTab(tabIndex);
-	}
+    if (tabIndex > -1)
+    {
+        std::cout << "Setting tab index to " << tabIndex << std::endl;
+        getDataViewport()->selectTab(tabIndex);
+    }
 
 }
 
 void VisualizerEditor::buttonEvent(Button* button)
 {
 
-	int gId = button->getRadioGroupId();
+    int gId = button->getRadioGroupId();
 
-	if (gId > 0) {
-		if (canvas != 0)
-		{
-			canvas->setParameter(gId-1, button->getName().getFloatValue());
-		}
+    if (gId > 0)
+    {
+        if (canvas != 0)
+        {
+            canvas->setParameter(gId-1, button->getName().getFloatValue());
+        }
 
-	} else {
+    }
+    else
+    {
 
-		if (canvas == 0) {
-			
-			canvas = createNewCanvas();
+        if (canvas == 0)
+        {
 
-			if (isPlaying)
-				canvas->beginAnimation();
-		}
+            canvas = createNewCanvas();
 
-		if (button == windowSelector)
-		{
+            if (isPlaying)
+                canvas->beginAnimation();
+        }
 
-			if (tabSelector->getToggleState() && windowSelector->getToggleState())
-		 	{
-		 		tabSelector->setToggleState(false, false);
-		 		getDataViewport()->destroyTab(tabIndex);
-		 		tabIndex = -1;
-		 	}
+        if (button == windowSelector)
+        {
 
-		 	if (dataWindow == 0) {
+            if (tabSelector->getToggleState() && windowSelector->getToggleState())
+            {
+                tabSelector->setToggleState(false, false);
+                getDataViewport()->destroyTab(tabIndex);
+                tabIndex = -1;
+            }
 
-				dataWindow = new DataWindow(windowSelector, tabText);
-		 		dataWindow->setContentNonOwned(canvas, false);
-		 		dataWindow->setVisible(true);
-		 		canvas->refreshState();
-				
-		 	} else {
+            if (dataWindow == 0)
+            {
 
-		 		dataWindow->setVisible(windowSelector->getToggleState());
-		 		
-		 		if (windowSelector->getToggleState())
-		 		{
-		 			dataWindow->setContentNonOwned(canvas, false);
-		 			canvas->setBounds(0,0,canvas->getParentWidth(), canvas->getParentHeight());
-		 			canvas->refreshState();
-		 		} else {
-		 			dataWindow->setContentNonOwned(0, false);
-		 		}
-		 		
-		 	}
+                dataWindow = new DataWindow(windowSelector, tabText);
+                dataWindow->setContentNonOwned(canvas, false);
+                dataWindow->setVisible(true);
+                canvas->refreshState();
 
-		} 
-		else if (button == tabSelector) 
-		{
-			if (tabSelector->getToggleState() && tabIndex < 0)
-			{
+            }
+            else
+            {
 
-				 if (windowSelector->getToggleState())
-				 {
-				 	dataWindow->setContentNonOwned(0, false);
-				 	windowSelector->setToggleState(false, false);
-				 	dataWindow->setVisible(false);
-				 }
+                dataWindow->setVisible(windowSelector->getToggleState());
 
-				tabIndex = getDataViewport()->addTabToDataViewport(tabText, canvas, this);
+                if (windowSelector->getToggleState())
+                {
+                    dataWindow->setContentNonOwned(canvas, false);
+                    canvas->setBounds(0,0,canvas->getParentWidth(), canvas->getParentHeight());
+                    canvas->refreshState();
+                }
+                else
+                {
+                    dataWindow->setContentNonOwned(0, false);
+                }
+
+            }
+
+        }
+        else if (button == tabSelector)
+        {
+            if (tabSelector->getToggleState() && tabIndex < 0)
+            {
+
+                if (windowSelector->getToggleState())
+                {
+                    dataWindow->setContentNonOwned(0, false);
+                    windowSelector->setToggleState(false, false);
+                    dataWindow->setVisible(false);
+                }
+
+                tabIndex = getDataViewport()->addTabToDataViewport(tabText, canvas, this);
 
 
-			} else if (!tabSelector->getToggleState() && tabIndex > -1)
-			{
-				getDataViewport()->destroyTab(tabIndex);
-				tabIndex = -1;
+            }
+            else if (!tabSelector->getToggleState() && tabIndex > -1)
+            {
+                getDataViewport()->destroyTab(tabIndex);
+                tabIndex = -1;
 
-			}
-		}
-		
-	}
+            }
+        }
 
-	buttonCallback(button);
+    }
 
-	if (button == drawerButton)
-	{
-		std::cout<<"Drawer button clicked"<<std::endl;
-		windowSelector->setBounds(desiredWidth - 40,7,14,10);
-		tabSelector->setBounds(desiredWidth - 20,7,15,10);
+    buttonCallback(button);
 
-	}
+    if (button == drawerButton)
+    {
+        std::cout<<"Drawer button clicked"<<std::endl;
+        windowSelector->setBounds(desiredWidth - 40,7,14,10);
+        tabSelector->setBounds(desiredWidth - 20,7,15,10);
+
+    }
 
 }
 

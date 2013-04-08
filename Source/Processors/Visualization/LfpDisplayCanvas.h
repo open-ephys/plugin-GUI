@@ -42,7 +42,7 @@ class LfpChannelDisplay;
 */
 
 class LfpDisplayCanvas : public Visualizer,
-						 public ComboBox::Listener
+    public ComboBox::Listener
 
 {
 public:

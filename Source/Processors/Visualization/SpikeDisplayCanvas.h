@@ -59,7 +59,7 @@ class WaveAxes;
 class SpikePlot;
 
 /**
-  
+
   Displays spike waveforms and projections.
 
   @see SpikeDisplayNode, SpikeDisplayEditor, Visualizer
@@ -69,81 +69,84 @@ class SpikePlot;
 class SpikeDisplayCanvas : public Visualizer
 
 {
-public: 
-	SpikeDisplayCanvas(SpikeDisplayNode* n);
-	~SpikeDisplayCanvas();
+public:
+    SpikeDisplayCanvas(SpikeDisplayNode* n);
+    ~SpikeDisplayCanvas();
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	void refresh();
+    void refresh();
 
-	void processSpikeEvents();
+    void processSpikeEvents();
 
-	void beginAnimation();
-	void endAnimation();
+    void beginAnimation();
+    void endAnimation();
 
-	void refreshState();
+    void refreshState();
 
-	void setParameter(int, float) {}
-	void setParameter(int, int, int, float){}
+    void setParameter(int, float) {}
+    void setParameter(int, int, int, float) {}
 
-	void update();
+    void update();
 
-	void resized();
+    void resized();
 
 private:
 
-	SpikeDisplayNode* processor;
-	MidiBuffer* spikeBuffer;
+    SpikeDisplayNode* processor;
+    MidiBuffer* spikeBuffer;
 
-	ScopedPointer<SpikeDisplay> spikeDisplay;
-	ScopedPointer<Viewport> viewport;
+    ScopedPointer<SpikeDisplay> spikeDisplay;
+    ScopedPointer<Viewport> viewport;
 
-	bool newSpike;
-	SpikeObject spike;
+    bool newSpike;
+    SpikeObject spike;
 
-	int scrollBarThickness;
+    int scrollBarThickness;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayCanvas);
-	
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayCanvas);
+
 };
 
 class SpikeDisplay : public Component
 {
 public:
-	SpikeDisplay(SpikeDisplayCanvas*, Viewport*);
-	~SpikeDisplay();
+    SpikeDisplay(SpikeDisplayCanvas*, Viewport*);
+    ~SpikeDisplay();
 
-	void clear();
-	void addSpikePlot(int numChannels, int electrodeNum);
+    void clear();
+    void addSpikePlot(int numChannels, int electrodeNum);
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	void resized();
+    void resized();
 
-	void mouseDown(const MouseEvent& event);
+    void mouseDown(const MouseEvent& event);
 
-	void plotSpike(const SpikeObject& spike, int electrodeNum);
+    void plotSpike(const SpikeObject& spike, int electrodeNum);
 
-	int getTotalHeight() {return totalHeight;}
+    int getTotalHeight()
+    {
+        return totalHeight;
+    }
 
 private:
 
-	//void computeColumnLayout();
-//void initializeSpikePlots();
-	//void repositionSpikePlots();
+    //void computeColumnLayout();
+    //void initializeSpikePlots();
+    //void repositionSpikePlots();
 
-	int numColumns;
+    int numColumns;
 
-	int totalHeight;
+    int totalHeight;
 
-	SpikeDisplayCanvas* canvas;
-	Viewport* viewport;
+    SpikeDisplayCanvas* canvas;
+    Viewport* viewport;
 
-	OwnedArray<SpikePlot> spikePlots;
+    OwnedArray<SpikePlot> spikePlots;
 
-	// float tetrodePlotMinWidth, stereotrodePlotMinWidth, singleElectrodePlotMinWidth;
-	// float tetrodePlotRatio, stereotrodePlotRatio, singleElectrodePlotRatio;
+    // float tetrodePlotMinWidth, stereotrodePlotMinWidth, singleElectrodePlotMinWidth;
+    // float tetrodePlotRatio, stereotrodePlotRatio, singleElectrodePlotRatio;
 
 };
 
@@ -156,56 +159,56 @@ private:
 class SpikePlot : public Component
 {
 public:
-	SpikePlot(SpikeDisplayCanvas*, int elecNum, int plotType);
-	virtual ~SpikePlot();
+    SpikePlot(SpikeDisplayCanvas*, int elecNum, int plotType);
+    virtual ~SpikePlot();
 
-	void paint(Graphics& g);
-	void resized();
+    void paint(Graphics& g);
+    void resized();
 
-	void select();
-	void deselect();
+    void select();
+    void deselect();
 
-	void processSpikeObject(const SpikeObject& s);
+    void processSpikeObject(const SpikeObject& s);
 
-	SpikeDisplayCanvas* canvas;
+    SpikeDisplayCanvas* canvas;
 
-	bool isSelected;
+    bool isSelected;
 
-	int electrodeNumber;
+    int electrodeNumber;
 
-	int nChannels;
+    int nChannels;
 
-	void initAxes();
-	void getBestDimensions(int*, int*);
+    void initAxes();
+    void getBestDimensions(int*, int*);
 
-	void clear();
-	void zoom(int, bool);
-	void pan(int, bool);
+    void clear();
+    void zoom(int, bool);
+    void pan(int, bool);
 
-	float minWidth;
-	float aspectRatio;
+    float minWidth;
+    float aspectRatio;
 
 private:
 
-	
-	int plotType;
-	int nWaveAx;
-	int nProjAx;
 
-	bool limitsChanged;
+    int plotType;
+    int nWaveAx;
+    int nProjAx;
 
-	double limits[MAX_N_CHAN][2];
+    bool limitsChanged;
 
-	OwnedArray<ProjectionAxes> pAxes;
-	OwnedArray<WaveAxes> wAxes;
+    double limits[MAX_N_CHAN][2];
 
-	void initLimits();
-	void setLimitsOnAxes();
-	void updateAxesPositions();
+    OwnedArray<ProjectionAxes> pAxes;
+    OwnedArray<WaveAxes> wAxes;
 
-	void n2ProjIdx(int i, int* p1, int* p2);
+    void initLimits();
+    void setLimitsOnAxes();
+    void updateAxesPositions();
 
-	Font font;
+    void n2ProjIdx(int i, int* p1, int* p2);
+
+    Font font;
 
 };
 
@@ -241,7 +244,7 @@ public:
     void makeLabel(int val, int gain, bool convert, char* s);
 
 protected:
- 	double xlims[2];
+    double xlims[2];
     double ylims[2];
 
     SpikeObject s;
@@ -267,24 +270,24 @@ protected:
 class WaveAxes : public GenericAxes
 {
 public:
-	WaveAxes(int channel);
-	~WaveAxes() {}
+    WaveAxes(int channel);
+    ~WaveAxes() {}
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	void clear();
+    void clear();
 
 private:
 
-	Colour waveColour;
-	Colour thresholdColour;
-	Colour gridColour;
+    Colour waveColour;
+    Colour thresholdColour;
+    Colour gridColour;
 
-	bool drawGrid;
+    bool drawGrid;
 
-	void drawWaveformGrid(int threshold, int gain, Graphics& g);
+    void drawWaveformGrid(int threshold, int gain, Graphics& g);
 
-	Font font;
+    Font font;
 
 };
 
@@ -299,17 +302,17 @@ private:
 class ProjectionAxes : public GenericAxes
 {
 public:
-	ProjectionAxes(int projectionNum);
-	~ProjectionAxes() {}
+    ProjectionAxes(int projectionNum);
+    ~ProjectionAxes() {}
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	void clear();
+    void clear();
 
 private:
 
-	Colour pointColour;
-	Colour gridColour;
+    Colour pointColour;
+    Colour gridColour;
 
 };
 

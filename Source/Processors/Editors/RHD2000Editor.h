@@ -49,9 +49,9 @@ public:
 
 private:
 
-	OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
+    OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
 
-	RHD2000Thread* board;
+    RHD2000Thread* board;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Editor);
 
@@ -59,29 +59,29 @@ private:
 
 
 class HeadstageOptionsInterface : public Component,
-								  public Button::Listener
+    public Button::Listener
 {
 public:
-	HeadstageOptionsInterface(RHD2000Thread*, RHD2000Editor*, int hsNum);
-	~HeadstageOptionsInterface();
+    HeadstageOptionsInterface(RHD2000Thread*, RHD2000Editor*, int hsNum);
+    ~HeadstageOptionsInterface();
 
-	//void mouseUp(const MouseEvent& event);
+    //void mouseUp(const MouseEvent& event);
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	void buttonClicked(Button* button);
+    void buttonClicked(Button* button);
 
 private:
 
-	int hsNumber;
-	String name;
+    int hsNumber;
+    String name;
 
-	bool isEnabled;
+    bool isEnabled;
 
-	RHD2000Thread* board;
-	RHD2000Editor* editor;
+    RHD2000Thread* board;
+    RHD2000Editor* editor;
 
-	ScopedPointer<UtilityButton> enabledButton;
+    ScopedPointer<UtilityButton> enabledButton;
 
 };
 
