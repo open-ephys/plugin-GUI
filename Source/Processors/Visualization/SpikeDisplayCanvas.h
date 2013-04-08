@@ -237,6 +237,9 @@ public:
 
     virtual void paint(Graphics& g) = 0;
 
+    int roundUp(int, int);
+    void makeLabel(int val, int gain, bool convert, char* s);
+
 protected:
  	double xlims[2];
     double ylims[2];
@@ -248,6 +251,8 @@ protected:
     int type;
 
     Font font;
+
+    double ad16ToUv(int x, int gain);
 
 };
 
@@ -275,7 +280,11 @@ private:
 	Colour thresholdColour;
 	Colour gridColour;
 
+	bool drawGrid;
 
+	void drawWaveformGrid(int threshold, int gain, Graphics& g);
+
+	Font font;
 
 };
 

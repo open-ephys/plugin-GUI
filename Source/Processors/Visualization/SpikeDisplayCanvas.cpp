@@ -366,7 +366,7 @@ void SpikePlot::paint(Graphics& g)
 
     g.setFont(font);
 
-	g.drawText(String(electrodeNumber),10,0,50,20,Justification::left,false);
+	g.drawText(String(electrodeNumber+1),10,0,50,20,Justification::left,false);
 
 }
 
@@ -601,9 +601,9 @@ void SpikePlot::n2ProjIdx(int proj, int* p1, int* p2)
 // --------------------------------------------------
 
 
-WaveAxes::WaveAxes(int channel) : GenericAxes(channel)
+WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true)
 {
-
+	font = Font("Small Text",10,Font::plain);
 }
 
 void WaveAxes::paint(Graphics& g)
@@ -619,14 +619,14 @@ void WaveAxes::paint(Graphics& g)
     	return; 
     }
 
+    float h = getHeight();
     // draw the grid lines for the waveforms
-   // if (drawGrid)
-    //	drawWaveformGrid(s.threshold[chan], s.gain[chan]);
+     if (drawGrid)
+    	drawWaveformGrid(s.threshold[chan], s.gain[chan], g);
 
-    // compute the spatial width for each waveform sample
     //compute the spatial width for each waveform sample
-    float dx = getWidth()/s.nSamples;
-    float x = 0;
+    float dx = (getWidth()-10)/s.nSamples;
+    float x = 5.0f;
 
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
@@ -640,13 +640,82 @@ void WaveAxes::paint(Graphics& g)
     for (int i = 0; i < s.nSamples-1; i++)
     {
     	//std::cout << s.data[sampIdx] << std::endl;
-    	g.drawLine(x, (s.data[sampIdx]-32768)/100, x+dx, (s.data[sampIdx+1]-32768)/100);
+    	g.drawLine(x, h/2 + (s.data[sampIdx]-32768)/100, x+dx, h/2 + (s.data[sampIdx+1]-32768)/100);
     	sampIdx += dSamples;
     	x += dx;
     }
 
     // draw the threshold line and labels
 
+}
+
+void WaveAxes::drawWaveformGrid(int threshold, int gain, Graphics& g)
+{
+	double voltRange = ylims[1] - ylims[0];
+    double pixelRange = getHeight();
+    //This is a totally arbitrary value that seemed to lok the best for me
+    int minPixelsPerTick = 25;
+    int MAX_N_TICKS = 10;
+
+    int nTicks = pixelRange / minPixelsPerTick;
+    while (nTicks > MAX_N_TICKS)
+    {
+        minPixelsPerTick += 5;
+        nTicks = pixelRange / minPixelsPerTick;
+    }
+
+    int voltPerTick = (voltRange / nTicks);
+
+    g.setColour(Colours::red);
+    char cstr[200] = {0};
+    String str;
+
+    double tickVoltage = (double) threshold;
+
+    // If the limits are bad we don't want to hang the program trying to draw too many ticks
+    // so count the number of ticks drawn and kill the routine after 100 draws
+    int tickCount=0;
+    while (tickVoltage < ylims[1] - voltPerTick*1.5) // Draw the ticks above the thold line
+    {
+        tickVoltage = (double) roundUp(tickVoltage + voltPerTick, 100);
+
+        g.drawLine(0, tickVoltage, s.nSamples, tickVoltage);
+
+        // glBegin(GL_LINE_STRIP);
+        // glVertex2i(0, tickVoltage);
+        // glVertex2i(s.nSamples, tickVoltage);
+        // glEnd();
+
+        makeLabel(tickVoltage, gain, true, cstr);
+        str = String(cstr);
+        g.setFont(font);
+        g.drawText(str, 1, tickVoltage+voltPerTick/10, 100, 15, Justification::left, false);
+
+        if (tickCount++>100)
+            return;
+    }
+
+    tickVoltage = threshold;
+    tickCount = 0;
+
+    while (tickVoltage > ylims[0] + voltPerTick) // draw the ticks below the thold line
+    {
+        tickVoltage = (double) roundUp(tickVoltage - voltPerTick, 100);
+
+        g.drawLine(0, tickVoltage, s.nSamples, tickVoltage);
+
+        // glBegin(GL_LINE_STRIP);
+        // glVertex2i(0, tickVoltage);
+        // glVertex2i(s.nSamples, tickVoltage);
+        // glEnd();
+
+        makeLabel(tickVoltage, gain, true, cstr);
+        str = String(cstr);
+        g.drawText(str, 1, tickVoltage+voltPerTick/10, 100, 15, Justification::left, false);
+
+        if (tickCount++>100)
+            return;
+    }
 }
 
 void WaveAxes::clear()
@@ -740,4 +809,46 @@ void GenericAxes::setType(int t)
 int GenericAxes::getType()
 {
     return type;
+}
+
+int GenericAxes::roundUp(int numToRound, int multiple)
+{
+    if (multiple == 0)
+    {
+        return numToRound;
+    }
+
+    int remainder = numToRound % multiple;
+    if (remainder == 0)
+        return numToRound;
+    return numToRound + multiple - remainder;
+}
+
+
+void GenericAxes::makeLabel(int val, int gain, bool convert, char* s)
+{
+    if (convert)
+    {
+        double volt = ad16ToUv(val, gain)/1000.;
+        if (abs(val)>1e6)
+        {
+            //val = val/(1e6);
+            sprintf(s, "%.2fV", volt);
+        }
+        else if (abs(val)>1e3)
+        {
+            //val = val/(1e3);
+            sprintf(s, "%.2fmV", volt);
+        }
+        else
+            sprintf(s, "%.2fuV", volt);
+    }
+    else
+        sprintf(s,"%d", (int)val);
+}
+
+double GenericAxes::ad16ToUv(int x, int gain)
+{
+    int result = (double)(x * 20e6) / (double)(gain * pow(2.0,16));
+    return result;
 }
