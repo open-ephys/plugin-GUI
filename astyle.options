@@ -13,8 +13,6 @@
 #  astyle --options="../astyle.options" "./*"
 #
 
-#  Special note to Josh: move Docs out of Source, or add --exclude="Docs"?
-
 #  The above commands will format the entire source tree using a style which
 #  mostly conforms to that of the Juce library
 #  (www.juce.com/wiki/index.php/Coding_Standards).
