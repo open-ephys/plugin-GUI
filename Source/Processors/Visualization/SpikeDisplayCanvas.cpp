@@ -48,160 +48,6 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 
 }
 
-// void SpikeDisplayCanvas::initializeSpikePlots(){
-
-// 	std::cout<<"Initializing Plots"<<std::endl;
-
-//     // This layout system really only works if plot types are aggregated together.
-//     // It might be worthwhile to investigate the merits of using a grid system
-//     // The canvas is defined as N grid widths wide. Each SpikePlot defines its
-//     // dimensions in grid widths.
-//     //
-//     // Plots are added from left to right, top to bottom.  A plot is put into place
-//     // if it can fit into the next grid location w/o its top going above the current
-//     // row and w/o its bottom going below the current row
-//     //
-//     // This would lead to dead space but it would allow the plots to all scale accoring
-//     // to how much space they need.  The current system of deciding plot sizes, isn't going
-//     // to scale well.... this needs more thought
-
-// // 	if (plots.size() != nPlots)
-// // 	{
-
-// // 	int totalWidth = getWidth();
-
-// // 	int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
-// // 	int plotHeight = plotWidth / 2 + .5;
-// // 	int rowCount = 0;
-
-// // 	plots.clear();
-
-// // 	for (int i = 0; i < nPlots; i++)
-// // 	{
-// //         int pType;
-// // 		switch (processor->getNumberOfChannelsForElectrode(i)){
-// // 			case 1:
-// //                 pType = SINGLE_PLOT;
-// //                 break;
-// // 			case 2:
-// //                 pType = STEREO_PLOT;
-// //                 break;
-// // 			case 4:
-// //                 pType = TETRODE_PLOT;
-// //                 break;
-// //             default:
-// //                 pType = SINGLE_PLOT;
-// //                 break;
-// //         }
-
-// // //        bool use_generic_plots_flag = true;
-
-// // //        BaseUIElement *sp;
-
-// //   //      if (use_generic_plots_flag)
-// //         SpikePlot *sp = new SpikePlot(xBuffer + i%nCols * (plotWidth + xBuffer) ,
-// //                                yBuffer + rowCount * (plotHeight + yBuffer),
-// //                                plotWidth, plotHeight, pType);
-
-// // //        else
-// // //            sp = new StereotrodePlot(xBuffer + i%nCols * (plotWidth + xBuffer) ,
-// // //                                      yBuffer + rowCount * (plotHeight + yBuffer),
-// // //                                      plotWidth, plotHeight);
-// //         plots.add(sp);
-
-// // 		if (i%nCols == nCols-1)
-// // 			rowCount++;
-// // 	}
-// // 	//totalHeight = rowCount * (plotHeight + yBuffer) + yBuffer * 2;
-// // 	// Set the total height of the Canvas to the top of the top most plot
-
-// //     plotsInitialized = true;
-// // 	repositionSpikePlots();
-// // 	}
-// }
-
-// void SpikeDisplayCanvas::repositionSpikePlots(){
-
-// // 	int canvasWidth = getWidth();
-// // 	int gridSize = canvasWidth / nCols;
-
-// //     gridSize = (gridSize > MIN_GRID_SIZE) ? gridSize : MIN_GRID_SIZE;
-// //     gridSize = (gridSize < MAX_GRID_SIZE) ? gridSize : MAX_GRID_SIZE;
-
-
-
-// //     int x = xBuffer;
-// //     int y = getHeight() - yBuffer;
-// //     int p = 0;
-// //     int w,h;
-// //     int yIncrement = 0;
-// //     bool loopCheck = false;
-// //     //std::cout<<"Positioning Spike Plots"<<std::endl;
-// //     while (p < plots.size()){
-
-// //         // Ask the current plot for its desired dims
-// //         plots[p]->getBestDimensions(&w, &h);
-// //         w *= gridSize;
-// //         h *= gridSize;
-
-// //         // Check to see if plot exceeds width of canvas, if yes, set x back to 0 and go to the bottom most plot on the canvas
-// //         if ( (x + w + xBuffer > canvasWidth - xBuffer) && !loopCheck){
-// //             //std::cout<<"Collision with the edge of the canvas, going down a row"<<std::endl;
-// //             x = xBuffer;
-// //             y = y - yIncrement - yBuffer;
-// //             yIncrement = 0;
-// //             loopCheck = true;
-// //             continue;
-// //         }
-// //         // else place the plot
-// //         else{
-// //             //std::cout<<"Positioning p:"<<p<<" at "<<x<<","<<y - h<<"  "<<w<<","<<h<<std::endl;
-// //            // plots[p]->setPosition(x, y - h + getScrollAmount(), w, h);
-// //             x = x + w + xBuffer;
-
-// //             // set a new minimum
-// //             if (h > yIncrement)
-// //                 yIncrement = h;
-
-// //             // increment p
-// //             p++;
-// //             loopCheck = false;
-// //         }
-// //     }
-
-// // //  int plotWidth =  (totalWidth - yBuffer * ( nCols+1)) / nCols + .99;
-// // //	int plotHeight = plotWidth / 2 + .5;
-// // //	int rowCount = 0;
-
-// // //	for (int i=0; i < plots.size(); i++)
-// // //	{
-// // //
-// // //		plots[i]->setPosition(	xBuffer + i%nCols * (plotWidth + xBuffer) ,
-// // //								getHeight() - ( yBuffer + plotHeight + rowCount * (plotHeight + yBuffer)) + getScrollAmount(),
-// // //								plotWidth,
-// // //								plotHeight); // deprecated conversion from string constant to char
-// // //
-// // //		if (i%nCols == nCols-1)
-// // //			rowCount++;
-// // //	 }
-
-// // 	// Set the total height of the Canvas to the top of the top most plot
-// // //	totalHeight = (rowCount + 1) * (plotHeight + yBuffer) + yBuffer;
-// //     totalHeight = getHeight() + (y + yIncrement);
-// }
-
-// void SpikeDisplayCanvas::newOpenGLContextCreated()
-// {
-// 	std::cout<<"SpikeDisplayCanvas::newOpenGLContextCreated()"<<std::endl;
-// 	setUp2DCanvas();
-// 	activateAntiAliasing();
-// 	disablePointSmoothing();
-
-// 	glClearColor (0.667, 0.698, 0.718, 1.0);
-// 	resized();
-// 	//endAnimation();
-// }
-
 void SpikeDisplayCanvas::beginAnimation()
 {
     std::cout << "Beginning animation." << std::endl;
@@ -262,6 +108,8 @@ void SpikeDisplayCanvas::paint(Graphics& g)
 void SpikeDisplayCanvas::refresh()
 {
     processSpikeEvents();
+
+    repaint();
 }
 
 void SpikeDisplayCanvas::processSpikeEvents()
@@ -285,22 +133,22 @@ void SpikeDisplayCanvas::processSpikeEvents()
             int nSamples = (bufferSize-4)/2;
 
             SpikeObject newSpike;
-            SpikeObject simSpike;
+            //SpikeObject simSpike;
 
             unpackSpike(&newSpike, dataptr, bufferSize);
 
-            int chan = newSpike.source;
+            int electrodeNum = newSpike.source;
 
-            generateSimulatedSpike(&simSpike, 0, 0);
+           // generateSimulatedSpike(&simSpike, 0, 0);
 
-            for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
-            {
-                simSpike.data[i] = newSpike.data[i%80] + 5000;// * 3 - 10000;
-            }
+           // for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
+           // {
+           //     simSpike.data[i] = newSpike.data[i%80] + 5000;// * 3 - 10000;
+           // }
 
-            simSpike.nSamples = 40;
+           // simSpike.nSamples = 40;
 
-            spikeDisplay->plotSpike(simSpike);
+            spikeDisplay->plotSpike(newSpike, electrodeNum);
 
         }
 
@@ -310,27 +158,11 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
 }
 
-
 // ----------------------------------------------------------------
 
 SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
     canvas(sdc), viewport(v)
 {
-
-    // for (int i = 0; i < 4; i++)
-    // {
-    //     addSpikePlot(2, i);
-    // }
-
-    // for (int i = 0; i < 4; i++)
-    // {
-    //     addSpikePlot(1, i);
-    // }
-
-    // for (int i = 0; i < 4; i++)
-    // {
-    //     addSpikePlot(4, i);
-    // }
 
     totalHeight = 1000;
 
@@ -366,9 +198,7 @@ void SpikeDisplay::paint(Graphics& g)
 
 void SpikeDisplay::resized()
 {
-	// this is kind of a mess -- is there any way to optimize?
-
-	//std::cout << "Resizing spike display" << std::endl;
+	// this is kind of a mess -- is there any way to optimize it?
 
 	if (spikePlots.size() > 0)
 	{
@@ -448,7 +278,7 @@ void SpikeDisplay::resized()
 
 	    }
 
-	    totalHeight = 5000;
+	    totalHeight = 5000; // don't even deal with making the display the correct height
 
 	    if (totalHeight < getHeight())
 	    {
@@ -463,9 +293,9 @@ void SpikeDisplay::mouseDown(const MouseEvent& event)
 
 }
 
-void SpikeDisplay::plotSpike(const SpikeObject& spike)
+void SpikeDisplay::plotSpike(const SpikeObject& spike, int electrodeNum)
 {
-
+	spikePlots[electrodeNum]->processSpikeObject(spike);
 }
 
 
@@ -540,12 +370,13 @@ void SpikePlot::paint(Graphics& g)
 
 }
 
-void SpikePlot::processSpikeObject(SpikeObject s)
+void SpikePlot::processSpikeObject(const SpikeObject& s)
 {
     //std::cout<<"ElectrodePlot::processSpikeObject()"<<std::endl;
+
     for (int i = 0; i < nWaveAx; i++)
         wAxes[i]->updateSpikeData(s);
-    //    wAxes[1].updateSpikeData(s);
+
     for (int i = 0; i < nProjAx; i++)
         pAxes[i]->updateSpikeData(s);
 }
@@ -770,95 +601,6 @@ void SpikePlot::n2ProjIdx(int proj, int* p1, int* p2)
 // --------------------------------------------------
 
 
-// TetrodePlot::TetrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
-//     SpikePlot(sdc, elecNum, 4)
-// {
-
-//     for (int i = 0; i < numChannels; i++)
-//     {
-//         WaveformPlot* wp = new WaveformPlot();
-//         addAndMakeVisible(wp);
-//         waveformPlots.add(wp);
-//     }
-
-//     for (int i = 0; i < 6; i++)
-//     {
-//         ProjectionPlot* pp = new ProjectionPlot();
-//         addAndMakeVisible(pp);
-//         projectionPlots.add(pp);
-//     }
-
-// }
-
-// void TetrodePlot::resized()
-// {
-//     float w = (float) getWidth() / 5.0f;
-//     float h = (float) getHeight() / 2.0f;
-
-//     waveformPlots[0]->setBounds(0, 0, w, h);
-//     waveformPlots[1]->setBounds(w, 0, w, h);
-//     waveformPlots[2]->setBounds(0, h, w, h);
-//     waveformPlots[3]->setBounds(w, h, w, h);
-
-//     projectionPlots[0]->setBounds(w*2, 0, w, h);
-//     projectionPlots[1]->setBounds(w*3, 0, w, h);
-//     projectionPlots[2]->setBounds(w*4, 0, w, h);
-//     projectionPlots[3]->setBounds(w*2, h, w, h);
-//     projectionPlots[4]->setBounds(w*3, h, w, h);
-//     projectionPlots[5]->setBounds(w*4, h, w, h);
-
-// }
-
-// StereotrodePlot::StereotrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
-//     SpikePlot(sdc, elecNum, 2)
-// {
-
-//     for (int i = 0; i < numChannels; i++)
-//     {
-//         WaveformPlot* wp = new WaveformPlot();
-//         addAndMakeVisible(wp);
-//         waveformPlots.add(wp);
-//     }
-
-//     ProjectionPlot* pp = new ProjectionPlot();
-//     addAndMakeVisible(pp);
-//     projectionPlots.add(pp);
-
-// }
-
-// void StereotrodePlot::resized()
-// {
-//     float w = (float) getWidth() / 3.0f;
-//     float h = (float) getHeight() / 1.0f;
-
-//     waveformPlots[0]->setBounds(0, 0, w, h);
-//     waveformPlots[1]->setBounds(w, 0, w, h);
-
-//     projectionPlots[0]->setBounds(w*2, 0, w, h);
-
-// }
-
-// SingleElectrodePlot::SingleElectrodePlot(SpikeDisplayCanvas* sdc, int elecNum) :
-//     SpikePlot(sdc, elecNum, 1)
-// {
-
-//     WaveformPlot* wp = new WaveformPlot();
-//     addAndMakeVisible(wp);
-//     waveformPlots.add(wp);
-
-// }
-
-// void SingleElectrodePlot::resized()
-// {
-//     float w = (float) getWidth() / 1.0f;
-//     float h = (float) getHeight() / 1.0f;
-
-//     waveformPlots[0]->setBounds(0, 0, w, h);
-
-// }
-
-// -----------------------------------------------------
-
 WaveAxes::WaveAxes(int channel) : GenericAxes(channel)
 {
 
@@ -867,7 +609,44 @@ WaveAxes::WaveAxes(int channel) : GenericAxes(channel)
 void WaveAxes::paint(Graphics& g)
 {
     g.setColour(Colours::black);
-    g.fillRect(5,5,getWidth()-5, getHeight()-5);
+    g.fillRect(5,5,getWidth()-10, getHeight()-10);
+
+    int chan = 0;
+
+    // if no spikes have been received then don't plot anything
+    if (!gotFirstSpike)
+    {
+    	return; 
+    }
+
+    // draw the grid lines for the waveforms
+   // if (drawGrid)
+    //	drawWaveformGrid(s.threshold[chan], s.gain[chan]);
+
+    // compute the spatial width for each waveform sample
+    //compute the spatial width for each waveform sample
+    float dx = getWidth()/s.nSamples;
+    float x = 0;
+
+    // type corresponds to channel so we need to calculate the starting
+    // sample based upon which channel is getting plotted
+    int	sampIdx = s.nSamples * type; //
+    
+    // draw the individual waveform points
+    g.setColour(Colours::white);
+
+    int dSamples = 1;
+
+    for (int i = 0; i < s.nSamples-1; i++)
+    {
+    	//std::cout << s.data[sampIdx] << std::endl;
+    	g.drawLine(x, (s.data[sampIdx]-32768)/100, x+dx, (s.data[sampIdx+1]-32768)/100);
+    	sampIdx += dSamples;
+    	x += dx;
+    }
+
+    // draw the threshold line and labels
+
 }
 
 void WaveAxes::clear()
@@ -914,7 +693,7 @@ GenericAxes::~GenericAxes()
 
 }
 
-void GenericAxes::updateSpikeData(SpikeObject newSpike)
+void GenericAxes::updateSpikeData(const SpikeObject& newSpike)
 {
     if (!gotFirstSpike)
     {

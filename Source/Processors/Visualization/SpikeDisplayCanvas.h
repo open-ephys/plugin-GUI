@@ -123,7 +123,7 @@ public:
 
 	void mouseDown(const MouseEvent& event);
 
-	void plotSpike(const SpikeObject& spike);
+	void plotSpike(const SpikeObject& spike, int electrodeNum);
 
 	int getTotalHeight() {return totalHeight;}
 
@@ -165,7 +165,7 @@ public:
 	void select();
 	void deselect();
 
-	void processSpikeObject(SpikeObject s);
+	void processSpikeObject(const SpikeObject& s);
 
 	SpikeDisplayCanvas* canvas;
 
@@ -191,7 +191,7 @@ private:
 	int plotType;
 	int nWaveAx;
 	int nProjAx;
-	
+
 	bool limitsChanged;
 
 	double limits[MAX_N_CHAN][2];
@@ -209,44 +209,6 @@ private:
 
 };
 
-
-// class TetrodePlot : public SpikePlot
-// {
-// public:
-// 	TetrodePlot(SpikeDisplayCanvas*, int elecNum);
-// 	~TetrodePlot() {}
-
-// 	void resized();
-
-// private:
-
-// };
-
-// class StereotrodePlot : public SpikePlot
-// {
-// public:
-// 	StereotrodePlot(SpikeDisplayCanvas*, int elecNum);
-// 	~StereotrodePlot() {}
-
-// 	void resized();
-
-// private:
-	
-// };
-
-// class SingleElectrodePlot : public SpikePlot
-// {
-// public:
-// 	SingleElectrodePlot(SpikeDisplayCanvas*, int elecNum);
-// 	~SingleElectrodePlot() {}
-
-// 	void resized();
-
-// private:
-	
-// };
-
-
 /**
 
   Base class for drawing axes for spike visualization.
@@ -263,7 +225,7 @@ public:
 
     virtual ~GenericAxes();
 
-    void updateSpikeData(SpikeObject s);
+    void updateSpikeData(const SpikeObject& s);
 
     void setXLims(double xmin, double xmax);
     void getXLims(double* xmin, double* xmax);
