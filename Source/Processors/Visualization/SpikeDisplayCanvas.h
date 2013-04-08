@@ -114,7 +114,8 @@ public:
 	SpikeDisplay(SpikeDisplayCanvas*, Viewport*);
 	~SpikeDisplay();
 
-	void addSpikePlot(int numChannels);
+	void clear();
+	void addSpikePlot(int numChannels, int electrodeNum);
 
 	void paint(Graphics& g);
 
@@ -172,7 +173,7 @@ public:
 
 	int electrodeNumber;
 
-	int numChannels;
+	int nChannels;
 
 	void initAxes();
 	void getBestDimensions(int*, int*);
@@ -181,13 +182,16 @@ public:
 	void zoom(int, bool);
 	void pan(int, bool);
 
+	float minWidth;
+	float aspectRatio;
+
 private:
 
-	int nChannels;
+	
 	int plotType;
 	int nWaveAx;
 	int nProjAx;
-
+	
 	bool limitsChanged;
 
 	double limits[MAX_N_CHAN][2];
@@ -200,6 +204,8 @@ private:
 	void updateAxesPositions();
 
 	void n2ProjIdx(int i, int* p1, int* p2);
+
+	Font font;
 
 };
 

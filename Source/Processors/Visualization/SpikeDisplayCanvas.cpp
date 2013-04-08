@@ -27,8 +27,6 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
     newSpike(false), processor(n)
 {
 
-    update();
-
     spikeBuffer = processor->getSpikeBufferAddress();
 
     viewport = new Viewport();
@@ -40,6 +38,8 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
     scrollBarThickness = viewport->getScrollBarThickness();
 
     addAndMakeVisible(viewport);
+
+    update();
 
 }
 
@@ -221,17 +221,19 @@ void SpikeDisplayCanvas::update()
 
     std::cout << "UPDATING SpikeDisplayCanvas" << std::endl;
 
-    //nPlots = processor->getNumElectrodes();
-    // numChannelsPerPlot.clear();
+    int nPlots = processor->getNumElectrodes();
+    spikeDisplay->clear();
+    //numChannelsPerPlot.clear();
 
-    // for (int i = 0; i < nPlots; i++)
-    // {
-    // 	numChannelsPerPlot.add(processor->getNumberOfChannelsForElectrode(i));
-    // }
+    for (int i = 0; i < nPlots; i++)
+    {
+    	spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i);
+    }
 
     //initializeSpikePlots();
 
-    repaint();
+    spikeDisplay->resized();
+    spikeDisplay->repaint();
 }
 
 
@@ -315,22 +317,22 @@ SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
     canvas(sdc), viewport(v)
 {
 
-   // tetrodePlotMinWidth = 500;
-   // stereotrodePlotMinWidth = 400;
-  //  singleElectrodePlotMinWidth = 200;
+    // for (int i = 0; i < 4; i++)
+    // {
+    //     addSpikePlot(2, i);
+    // }
 
-  //  tetrodePlotRatio = 0.5;
-  //  stereotrodePlotRatio = 0.2;
-  //  singleElectrodePlotRatio = 1.0;
+    // for (int i = 0; i < 4; i++)
+    // {
+    //     addSpikePlot(1, i);
+    // }
+
+    // for (int i = 0; i < 4; i++)
+    // {
+    //     addSpikePlot(4, i);
+    // }
 
     totalHeight = 1000;
-
-    // for (int i = 0; i < 10; i++)
-    // {
-    //     TetrodePlot* tetrodePlot = new TetrodePlot(canvas, i);
-    //     tetrodePlots.add(tetrodePlot);
-    //     addAndMakeVisible(tetrodePlot);
-    // }
 
 }
 
@@ -339,55 +341,121 @@ SpikeDisplay::~SpikeDisplay()
 
 }
 
-void SpikeDisplay::addSpikePlot(int numChannels)
+void SpikeDisplay::clear()
+{
+	if (spikePlots.size() > 0)
+		spikePlots.clear();
+}
+
+void SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum)
 {
 
+	std::cout << "Adding new spike plot." << std::endl;
+
+	SpikePlot* spikePlot = new SpikePlot(canvas, electrodeNum, 1000 + numChannels);
+    spikePlots.add(spikePlot);
+    addAndMakeVisible(spikePlot);
 }
 
 void SpikeDisplay::paint(Graphics& g)
 {
 
-    g.fillAll(Colours::grey);
+	g.fillAll(Colours::grey);
+
 }
 
 void SpikeDisplay::resized()
 {
+	// this is kind of a mess -- is there any way to optimize?
 
-    // int w = getWidth();
+	//std::cout << "Resizing spike display" << std::endl;
 
-    // int numColumns = w / tetrodePlotMinWidth;
-    // int column, row;
+	if (spikePlots.size() > 0)
+	{
 
-    // float width = (float) w / (float) numColumns;
-    // float height = width * tetrodePlotRatio;
+	    int w = getWidth();
 
-    // for (int i = 0; i < tetrodePlots.size(); i++)
-    // {
+	    int numColumns = 1;
+	    int column, row;
 
-    //     column = i % numColumns;
-    //     row = i / numColumns;
-    //     tetrodePlots[i]->setBounds(width*column,row*height,width,height);
+	    int stereotrodeStart = 0;
+	    int tetrodeStart = 0;
 
-    // }
+	    int singlePlotIndex = -1;
+	    int stereotrodePlotIndex = -1;
+	    int tetrodePlotIndex = -1;
+	    int index;
 
-    // totalHeight = (int)(height*(float(row)+1));
+	    float width, height;
 
-    // if (totalHeight < getHeight())
-    // {
-    //     canvas->resized();
-    // }
+	    for (int i = 0; i < spikePlots.size(); i++)
+	    {
 
-    //setBounds(0,0,getWidth(), totalHeight);
+	    	if (spikePlots[i]->nChannels == 1)
+	    	{
+	    		index = ++singlePlotIndex;
+	    		numColumns = (int) jmax(w / spikePlots[i]->minWidth, 1.0f);
+	    		width = jmin((float) w / (float) numColumns, (float) getWidth());
+	    		height = width * spikePlots[i]->aspectRatio;
 
+	    	} else if (spikePlots[i]->nChannels == 2)
+	    	{
+	    		index = ++stereotrodePlotIndex;
+	    		numColumns = (int) jmax(w / spikePlots[i]->minWidth, 1.0f);
+	    		width = jmin((float) w / (float) numColumns, (float) getWidth());
+	    		height = width * spikePlots[i]->aspectRatio;
 
-    // layoutManagerX.layOutComponents((Component**) spikePlots.getRawDataPointer(),
-    // 							   spikePlots.size(),
-    // 							   0,
-    // 							   0,
-    // 							   getWidth(),
-    // 							   getHeight(),
-    // 							   false,
-    // 							   false);
+	    	} else if (spikePlots[i]->nChannels == 4)
+	  		{
+	  			index = ++tetrodePlotIndex;
+	  			numColumns = (int) jmax(w / spikePlots[i]->minWidth, 1.0f);
+	    		width = jmin((float) w / (float) numColumns, (float) getWidth());
+	    		height = width * spikePlots[i]->aspectRatio;
+	  		}	
+
+	        column = index % numColumns;
+
+	        row = index / numColumns;
+
+	        spikePlots[i]->setBounds(width*column, row*height, width, height);
+
+	        if (spikePlots[i]->nChannels == 1)
+	        {
+	        	stereotrodeStart = (int)(height*(float(row)+1));
+	        } else if (spikePlots[i]->nChannels == 2)
+	        {
+	        	tetrodeStart = (int)(height*(float(row)+1));
+	        }
+
+	    }
+
+	    for (int i = 0; i < spikePlots.size(); i++)
+	    {
+
+	    	int x = spikePlots[i]->getX();
+	    	int y = spikePlots[i]->getY();
+	    	int w2 = spikePlots[i]->getWidth();
+	    	int h2 = spikePlots[i]->getHeight();
+
+	    	if (spikePlots[i]->nChannels == 2)
+	    	{
+	    		spikePlots[i]->setBounds(x, y+stereotrodeStart, w2, h2);
+
+	    	} else if (spikePlots[i]->nChannels == 4)
+	  		{
+	  			spikePlots[i]->setBounds(x, y+stereotrodeStart+tetrodeStart, w2, h2);
+	  		}	
+
+	    }
+
+	    totalHeight = 5000;
+
+	    if (totalHeight < getHeight())
+	    {
+	        canvas->resized();
+	    }
+	}
+
 }
 
 void SpikeDisplay::mouseDown(const MouseEvent& event)
@@ -408,27 +476,34 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
     limitsChanged(true)
 
 {
-    isSelected = false;
+
+    font = Font("Default", 15, Font::plain);
 
      switch (p)
     {
         case SINGLE_PLOT:
-            std::cout<<"SpikePlot as SINGLE_PLOT"<<std::endl;
+           // std::cout<<"SpikePlot as SINGLE_PLOT"<<std::endl;
             nWaveAx = 1;
             nProjAx = 0;
             nChannels = 1;
+            minWidth = 200;
+            aspectRatio = 1.0f;
             break;
         case STEREO_PLOT:
-            std::cout<<"SpikePlot as STEREO_PLOT"<<std::endl;
+          //  std::cout<<"SpikePlot as STEREO_PLOT"<<std::endl;
             nWaveAx = 2;
             nProjAx = 1;
             nChannels = 2;
+            minWidth = 300;
+            aspectRatio = 0.5f;
             break;
         case TETRODE_PLOT:
-            std::cout<<"SpikePlot as TETRODE_PLOT"<<std::endl;
+           // std::cout<<"SpikePlot as TETRODE_PLOT"<<std::endl;
             nWaveAx = 4;
             nProjAx = 6;
             nChannels = 4;
+            minWidth = 500;
+            aspectRatio = 0.5f;
             break;
             //        case HIST_PLOT:
             //            nWaveAx = 1;
@@ -445,6 +520,7 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
 
     initAxes();
 
+
 }
 
 SpikePlot::~SpikePlot()
@@ -455,8 +531,12 @@ SpikePlot::~SpikePlot()
 void SpikePlot::paint(Graphics& g)
 {
 
-    //g.setColour(Colours::darkgrey);
-    //g.fillRect(2, 2, getWidth()-4, getHeight()-4);
+  	g.setColour(Colours::white);
+    g.drawRect(0,0,getWidth(),getHeight());
+
+    g.setFont(font);
+
+	g.drawText(String(electrodeNumber),10,0,50,20,Justification::left,false);
 
 }
 
@@ -504,8 +584,8 @@ void SpikePlot::initAxes()
 void SpikePlot::resized()
 {
 
-	float width = getWidth();
-	float height = getHeight();
+	float width = getWidth()-10;
+	float height = getHeight()-20;
 
 	float axesWidth, axesHeight;
 
@@ -537,16 +617,16 @@ void SpikePlot::resized()
     }
 
     for (int i = 0; i < nWaveAx; i++)
-        wAxes[i]->setBounds((i % nWaveCols) * axesWidth/nWaveCols, (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
+        wAxes[i]->setBounds(5 + (i % nWaveCols) * axesWidth/nWaveCols, 15 + (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
 
     for (int i = 0; i < nProjAx; i++)
-        pAxes[i]->setBounds((1 + i%nProjCols) * axesWidth, (i/nProjCols) * axesHeight, axesWidth, axesHeight);
+        pAxes[i]->setBounds(5 + (1 + i%nProjCols) * axesWidth, 15 + (i/nProjCols) * axesHeight, axesWidth, axesHeight);
 
 }
 
 void SpikePlot::setLimitsOnAxes()
 {
- 	std::cout<<"SpikePlot::setLimitsOnAxes()"<<std::endl;
+ 	//std::cout<<"SpikePlot::setLimitsOnAxes()"<<std::endl;
 
     for (int i = 0; i < nWaveAx; i++)
         wAxes[i]->setYLims(limits[i][0], limits[i][1]);
@@ -847,7 +927,7 @@ void GenericAxes::updateSpikeData(SpikeObject newSpike)
 void GenericAxes::setYLims(double ymin, double ymax)
 {
 
-    std::cout << "setting y limits to " << ymin << " " << ymax << std::endl;
+    //std::cout << "setting y limits to " << ymin << " " << ymax << std::endl;
     ylims[0] = ymin;
     ylims[1] = ymax;
 }
