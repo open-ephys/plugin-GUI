@@ -348,8 +348,8 @@ void SourceNode::process(AudioSampleBuffer& buffer,
 
     //std::cout << "Samples per buffer: " << nSamples << std::endl;
 
-    uint8 data[4];
-    memcpy(data, &timestamp, 4);
+    uint8 data[8];
+    memcpy(data, &timestamp, 8);
 
     // generate timestamp
     addEvent(events,    // MidiBuffer
@@ -357,7 +357,7 @@ void SourceNode::process(AudioSampleBuffer& buffer,
              0,         // sampleNum
              nodeId,    // eventID
              0,		 // eventChannel
-             4,         // numBytes
+             8,         // numBytes
              data   // data
             );
 

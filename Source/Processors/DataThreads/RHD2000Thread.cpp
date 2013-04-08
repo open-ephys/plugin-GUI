@@ -571,6 +571,7 @@ bool RHD2000Thread::updateBuffer()
                 // std::cout << channel << std::endl;
 
                 timestamp = dataBlock->timeStamp[samp];
+                timestamp = timestamp;
                 eventCode = dataBlock->ttlIn[samp];
 
                 dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);

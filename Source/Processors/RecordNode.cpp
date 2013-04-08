@@ -569,6 +569,11 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
     if (eventType == TTL)
     {
         writeEventBuffer(event, samplePosition);
+    } 
+    else if (eventType == TIMESTAMP)
+    {
+    	const uint8* dataptr = event.getRawData();
+    	memcpy(&timestamp, dataptr, 8);
     }
 
 }
@@ -585,13 +590,13 @@ void RecordNode::process(AudioSampleBuffer& buffer,
     if (isRecording)
     {
 
-        timestamp = timer.getHighResolutionTicks();
+        //timestamp = timer.getHighResolutionTicks();
 
         // WHY IS THIS AFFECTING THE LFP DISPLAY?
         //buffer.applyGain(0, nSamples, 5.2438f);
 
-        // cycle through events -- extract the samples per channel
-        // NOT YET IMPLEMENTED
+        // cycle through events -- extract the TTLs and the timestamps
+        checkForEvents(events);
 
         // cycle through buffer channels
 
@@ -616,8 +621,7 @@ void RecordNode::process(AudioSampleBuffer& buffer,
             }
         }
 
-        // cycle through events
-        checkForEvents(events);
+        
 
         return;
 
