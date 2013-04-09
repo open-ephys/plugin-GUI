@@ -36,7 +36,7 @@ FilterNode::FilterNode()
     lowCutValues.add(100.0f);
     lowCutValues.add(600.0f);
 
-    parameters.add(Parameter("low cut",lowCutValues, 1, 0));
+    parameters.add(Parameter("low cut",lowCutValues, 3, 0));
 
     Array<var> highCutValues;
     highCutValues.add(1000.0f);
@@ -44,19 +44,18 @@ FilterNode::FilterNode()
     highCutValues.add(6000.0f);
     highCutValues.add(9000.0f);
 
-    parameters.add(Parameter("high cut",highCutValues, 0, 1));
+    parameters.add(Parameter("high cut",highCutValues, 2, 1));
 
 }
 
 FilterNode::~FilterNode()
 {
-    filters.clear();
+
 }
 
 AudioProcessorEditor* FilterNode::createEditor()
 {
     editor = new FilterEditor(this, true);
-    //setEditor(filterEditor);
 
     std::cout << "Creating editor." << std::endl;
 
@@ -121,7 +120,7 @@ AudioProcessorEditor* FilterNode::createEditor()
 void FilterNode::updateSettings()
 {
 
-    if (getNumInputs() < 100 && getNumInputs() != filters.size())
+    if (getNumInputs() < 1024 && getNumInputs() != filters.size())
     {
 
         filters.clear();
@@ -132,18 +131,23 @@ void FilterNode::updateSettings()
 
             filters.add(new Dsp::SmoothedFilterDesign
                         <Dsp::Butterworth::Design::BandPass 	// design type
-                        <3>,								 	// order
+                        <2>,								 	// order
                         1,										// number of channels (must be const)
                         Dsp::DirectFormII>						// realization
                         (1));
 
+            // restore defaults
             Parameter& p1 =  parameters.getReference(0);
-            p1.setValue(4.0f, n);
+            p1.setValue(600.0f, n);
 
             Parameter& p2 =  parameters.getReference(1);
-            p2.setValue(1000.0f, n);
+            p2.setValue(6000.0f, n);
 
-            setFilterParameters(4.0f, 1000.0f, n);
+            setFilterParameters(600.0f,
+                        600.0f,
+                        n);
+
+            setFilterParameters(600.0f, 6000.0f, n);
         }
 
     }
@@ -155,7 +159,7 @@ void FilterNode::setFilterParameters(double lowCut, double highCut, int chan)
 
     Dsp::Params params;
     params[0] = getSampleRate(); // sample rate
-    params[1] = 3; // order
+    params[1] = 2; // order
     params[2] = (highCut + lowCut)/2; // center frequency
     params[3] = highCut - lowCut; // bandwidth
 
@@ -189,7 +193,6 @@ void FilterNode::setParameter(int parameterIndex, float newValue)
     Parameter& p =  parameters.getReference(parameterIndex);
 
     p.setValue(newValue, currentChannel);
-
 
     Parameter& p1 =  parameters.getReference(0);
     Parameter& p2 =  parameters.getReference(1);

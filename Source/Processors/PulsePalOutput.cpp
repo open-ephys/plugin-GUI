@@ -78,7 +78,9 @@ PulsePalOutput::PulsePalOutput()
 
             uint8_t resp = serial.readByte();
 
-            if (resp == 5)
+            std::cout << "Got response: " << (int) resp << std::endl;
+
+            if (resp == 254)
             {
                 std::cout << "FOUND A PULSE PAL." << std::endl;
                 foundDevice = true;
@@ -115,9 +117,9 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
 
 void PulsePalOutput::triggerPulsePalChannel(uint8_t chan)
 {
-    //uint8_t bytesToWrite[2] = {84, chan};
+    uint8_t bytesToWrite[2] = {84, chan};
 
-    //serial.writeBytes(bytesToWrite, 2);
+    serial.writeBytes(bytesToWrite, 2);
 }
 
 void PulsePalOutput::setParameter(int parameterIndex, float newValue)
