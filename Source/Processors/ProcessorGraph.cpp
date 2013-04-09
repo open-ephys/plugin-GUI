@@ -395,7 +395,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
     if (processorType.equalsIgnoreCase("Sources"))
     {
 
-        if (subProcessorType.equalsIgnoreCase("Intan Demo Board") ||
+        if (subProcessorType.equalsIgnoreCase("RHA2000-EVAL") ||
             subProcessorType.equalsIgnoreCase("File Reader") ||
             subProcessorType.equalsIgnoreCase("Custom FPGA") ||
             subProcessorType.equalsIgnoreCase("RHD2000 USB Board"))
@@ -424,7 +424,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         }
 
 
-        //sendActionMessage("New source node created.");
+        sendActionMessage("New source node created.");
 
 
     }
@@ -459,13 +459,13 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             std::cout << "Creating a new phase detector." << std::endl;
             processor = new PhaseDetector();
         }
-        else if (subProcessorType.equalsIgnoreCase("Digital Reference"))
+        else if (subProcessorType.equalsIgnoreCase("Digital Ref"))
         {
             std::cout << "Creating a new digital reference." << std::endl;
             processor = new ReferenceNode();
         }
 
-        //sendActionMessage("New filter node created.");
+        sendActionMessage("New filter node created.");
 
     }
     else if (processorType.equalsIgnoreCase("Utilities"))
@@ -477,7 +477,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             std::cout << "Creating a new splitter." << std::endl;
             processor = new Splitter();
 
-            //sendActionMessage("New splitter created.");
+            sendActionMessage("New splitter created.");
 
         }
         else if (subProcessorType.equalsIgnoreCase("Merger"))
@@ -486,14 +486,16 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             std::cout << "Creating a new merger." << std::endl;
             processor = new Merger();
 
-            //sendActionMessage("New merger created.");
+            sendActionMessage("New merger created.");
 
         }
-        else if (subProcessorType.equalsIgnoreCase("Record Controller"))
+        else if (subProcessorType.equalsIgnoreCase("Record Control"))
         {
 
             std::cout << "Creating a new record controller." << std::endl;
             processor = new RecordControl();
+
+            sendActionMessage("New record controller created.");
 
         }
 
@@ -531,7 +533,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             processor = new FPGAOutput();
         }
 
-        //sendActionMessage("New sink created.");
+        sendActionMessage("New sink created.");
     }
 
     return processor;

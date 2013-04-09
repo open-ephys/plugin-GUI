@@ -65,32 +65,33 @@ ProcessorList::ProcessorList()
     setColour(UTILITY_COLOR, Colour(90, 80, 80));
 
     ProcessorListItem* sources = new ProcessorListItem("Sources");
-    sources->addSubItem(new ProcessorListItem("Intan Demo Board"));
-    sources->addSubItem(new ProcessorListItem("Signal Generator"));
-    sources->addSubItem(new ProcessorListItem("Custom FPGA"));
-    sources->addSubItem(new ProcessorListItem("RHD2000 USB Board"));
+    sources->addSubItem(new ProcessorListItem("RHA2000-EVAL"));
+    //sources->addSubItem(new ProcessorListItem("Signal Generator"));
+    //sources->addSubItem(new ProcessorListItem("Custom FPGA"));
+    sources->addSubItem(new ProcessorListItem("Rhythm FPGA"));
     sources->addSubItem(new ProcessorListItem("File Reader"));
-    sources->addSubItem(new ProcessorListItem("Event Generator"));
+    //sources->addSubItem(new ProcessorListItem("Event Generator"));
 
     ProcessorListItem* filters = new ProcessorListItem("Filters");
     filters->addSubItem(new ProcessorListItem("Bandpass Filter"));
-    filters->addSubItem(new ProcessorListItem("Event Detector"));
+    //filters->addSubItem(new ProcessorListItem("Event Detector"));
     filters->addSubItem(new ProcessorListItem("Spike Detector"));
-    filters->addSubItem(new ProcessorListItem("Resampler"));
-    filters->addSubItem(new ProcessorListItem("Phase Detector"));
-    filters->addSubItem(new ProcessorListItem("Digital Reference"));
+    //filters->addSubItem(new ProcessorListItem("Resampler"));
+    //filters->addSubItem(new ProcessorListItem("Phase Detector"));
+    filters->addSubItem(new ProcessorListItem("Digital Ref"));
 
     ProcessorListItem* sinks = new ProcessorListItem("Sinks");
     sinks->addSubItem(new ProcessorListItem("LFP Viewer"));
     sinks->addSubItem(new ProcessorListItem("Spike Viewer"));
-    sinks->addSubItem(new ProcessorListItem("WiFi Output"));
-    sinks->addSubItem(new ProcessorListItem("Arduino Output"));
-    sinks->addSubItem(new ProcessorListItem("FPGA Output"));
+    //sinks->addSubItem(new ProcessorListItem("WiFi Output"));
+    //sinks->addSubItem(new ProcessorListItem("Arduino Output"));
+   // sinks->addSubItem(new ProcessorListItem("FPGA Output"));
+    sinks->addSubItem(new ProcessorListItem("Pulse Pal"));
 
     ProcessorListItem* utilities = new ProcessorListItem("Utilities");
     utilities->addSubItem(new ProcessorListItem("Splitter"));
     utilities->addSubItem(new ProcessorListItem("Merger"));
-    utilities->addSubItem(new ProcessorListItem("Record Controller"));
+    utilities->addSubItem(new ProcessorListItem("Record Control"));
 
     baseItem = new ProcessorListItem("Processors");
     baseItem->addSubItem(sources);

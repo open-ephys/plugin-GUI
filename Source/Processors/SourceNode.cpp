@@ -40,7 +40,7 @@ SourceNode::SourceNode(const String& name_)
 
     std::cout << "creating source node." << std::endl;
 
-    if (getName().equalsIgnoreCase("Intan Demo Board"))
+    if (getName().equalsIgnoreCase("RHA2000-EVAL"))
     {
         dataThread = new IntanThread(this);
     }
