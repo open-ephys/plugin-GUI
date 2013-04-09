@@ -76,7 +76,7 @@ SourceNode::SourceNode(const String& name_)
 
 
     }
-    else if (getName().equalsIgnoreCase("RHD2000 USB Board"))
+    else if (getName().equalsIgnoreCase("Rhythm FPGA"))
     {
         dataThread = new RHD2000Thread(this);
     }
@@ -228,7 +228,7 @@ void SourceNode::setParameter(int parameterIndex, float newValue)
 AudioProcessorEditor* SourceNode::createEditor()
 {
 
-    if (getName().equalsIgnoreCase("RHD2000 USB Board"))
+    if (getName().equalsIgnoreCase("Rhythm FPGA"))
     {
         editor = new RHD2000Editor(this, (RHD2000Thread*) dataThread.get(), true);
     }

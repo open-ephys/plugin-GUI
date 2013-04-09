@@ -77,7 +77,7 @@ ProcessorList::ProcessorList()
     //filters->addSubItem(new ProcessorListItem("Event Detector"));
     filters->addSubItem(new ProcessorListItem("Spike Detector"));
     //filters->addSubItem(new ProcessorListItem("Resampler"));
-    //filters->addSubItem(new ProcessorListItem("Phase Detector"));
+    filters->addSubItem(new ProcessorListItem("Phase Detector"));
     filters->addSubItem(new ProcessorListItem("Digital Ref"));
 
     ProcessorListItem* sinks = new ProcessorListItem("Sinks");
