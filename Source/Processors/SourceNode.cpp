@@ -66,8 +66,8 @@ SourceNode::SourceNode(const String& name_)
         }
         else
         {
-            // If cancelled, assume it's in the executable directory
-            dataThread = new FileReaderThread(this, "./data_stream_16ch_2");
+            // If cancelled, assume it's in the resources directory (only works on Linux)
+            dataThread = new FileReaderThread(this, "../../../Resources/DataFiles/data_stream_16ch_2");
         }
 
         //dataThread = new FileReaderThread(this, "./data_stream_16ch_2");
