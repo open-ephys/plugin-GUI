@@ -51,7 +51,14 @@ PulsePalOutput::PulsePalOutput()
 
        // std::cout << "Device name: " << name << std::endl;
 
-        string acm0 = "ACM0";
+        #ifdef JUCE_LINUX
+            string acm0 = "ACM0";
+        #endif
+
+        #ifdef JUCE_MAC
+            string acm0 = "usbmodemfa131";
+        #endif
+
 
         size_t index = path.find(acm0);
 
@@ -60,12 +67,14 @@ PulsePalOutput::PulsePalOutput()
 
             serial.setup(id, 115200);
 
-            
+            uint8_t bytesToWrite[2] = {59, 59};
 
-            while (serial.available() == 0)
-            {
-                serial.writeByte(59);
-            }
+            serial.writeBytes(bytesToWrite, 2);
+
+            // while (serial.available() == 0)
+            // {
+            //     serial.writeByte(59);
+            // }
 
             uint8_t resp = serial.readByte();
 
@@ -106,9 +115,9 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
 
 void PulsePalOutput::triggerPulsePalChannel(uint8_t chan)
 {
-    uint8_t bytesToWrite[2] = {84, chan};
+    //uint8_t bytesToWrite[2] = {84, chan};
 
-    serial.writeBytes(bytesToWrite, 2);
+    //serial.writeBytes(bytesToWrite, 2);
 }
 
 void PulsePalOutput::setParameter(int parameterIndex, float newValue)
