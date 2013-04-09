@@ -32,7 +32,7 @@
 
 #include <stdio.h>
 
-
+class ChannelSelectorRegion;
 class ChannelSelectorButton;
 class EditorButton;
 
@@ -105,6 +105,9 @@ public:
     }
     //void paramButtonsActiveByDefault(bool t) {paramsActive = t;}
 
+    /** Used to scroll channels */
+    void shiftChannelsVertical(float amount);
+
     bool eventsOnly;
 
 private:
@@ -136,7 +139,7 @@ private:
     bool moveLeft;
 
     int offsetLR;
-    int offsetUD;
+    float offsetUD;
 
     int parameterOffset;
     int audioOffset;
@@ -161,6 +164,8 @@ private:
     enum {AUDIO, RECORD, PARAMETER};
 
     bool acquisitionIsActive;
+
+    ChannelSelectorRegion* channelSelectorRegion;
 
 };
 
@@ -213,6 +218,30 @@ private:
     bool isEnabled;
 
     ColourGradient selectedGrad, selectedOverGrad, neutralGrad, neutralOverGrad;
+};
+
+/**
+
+  Holds the ChannelSelector buttons.
+
+  @see ChannelSelector
+
+*/
+
+class ChannelSelectorRegion : public Component
+{
+
+public:
+    ChannelSelectorRegion(ChannelSelector* cs);
+    ~ChannelSelectorRegion();
+
+    /** Allows the user to scroll the channels if they are not all visible.*/
+    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails &wheel);
+    void paint(Graphics& g);
+
+private:
+    ChannelSelector* channelSelector;
+
 };
 
 /**

@@ -72,6 +72,10 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     noneButton->addListener(this);
     addAndMakeVisible(noneButton);
 
+    channelSelectorRegion = new ChannelSelectorRegion(this);
+    //channelSelectorRegion->setBounds(0,20,0,getHeight()-35);
+    addAndMakeVisible(channelSelectorRegion);
+
 }
 
 ChannelSelector::~ChannelSelector()
@@ -128,31 +132,49 @@ void ChannelSelector::setNumChannels(int numChans)
 
 }
 
+void ChannelSelector::shiftChannelsVertical(float amount)
+{
+
+    if (parameterButtons.size() > 32)
+    {
+        offsetUD -= amount*10;
+        offsetUD = jmin(offsetUD, 0.0f);
+        offsetUD = jmax(offsetUD, float(parameterButtons.size())/8*-10.68f);
+    }
+
+    std::cout << "offsetUD = " << offsetUD << std::endl;
+
+    refreshButtonBoundaries();
+
+}
+
 void ChannelSelector::refreshButtonBoundaries()
 {
+
+    channelSelectorRegion->setBounds(0,20,getWidth(),getHeight()-35);
 
     int nColumns = 8;
     int columnWidth = getDesiredWidth()/(nColumns + 1);
     int rowHeight = 14;
-    int topOffset = 20;
 
     for (int i = 0; i < parameterButtons.size(); i++)
     {
+
         parameterButtons[i]->setBounds(columnWidth/2 + offsetLR +
                                        columnWidth*((i)%nColumns),
-                                       floor(double(i)/nColumns)*rowHeight+offsetUD + topOffset,
+                                       floor(double(i)/nColumns)*rowHeight+(int) offsetUD,
                                        columnWidth, rowHeight);
 
         if (isNotSink)
         {
             recordButtons[i]->setBounds(columnWidth/2 + offsetLR +
                                         columnWidth*((i)%nColumns) - getDesiredWidth(),
-                                        floor(double(i)/nColumns)*rowHeight+offsetUD + topOffset,
+                                        floor(double(i)/nColumns)*rowHeight+(int) offsetUD,
                                         columnWidth, rowHeight);
             audioButtons[i]->setBounds(columnWidth/2 + offsetLR +
                                        columnWidth*((i)%nColumns) -
                                        getDesiredWidth()*2,
-                                       floor(double(i)/nColumns)*rowHeight+offsetUD + topOffset,
+                                       floor(double(i)/nColumns)*rowHeight+(int) offsetUD,
                                        columnWidth, rowHeight);
         }
 
@@ -210,7 +232,7 @@ void ChannelSelector::addButton()
 
     ChannelSelectorButton* b = new ChannelSelectorButton(size+1, PARAMETER, titleFont);
     parameterButtons.add(b);
-    addAndMakeVisible(b);
+    channelSelectorRegion->addAndMakeVisible(b);
 
     if (paramsToggled)
         b->setToggleState(true, false);
@@ -226,12 +248,12 @@ void ChannelSelector::addButton()
     {
         ChannelSelectorButton* br = new ChannelSelectorButton(size+1, RECORD, titleFont);
         recordButtons.add(br);
-        addAndMakeVisible(br);
+        channelSelectorRegion->addAndMakeVisible(br);
         br->addListener(this);
 
         ChannelSelectorButton* ba = new ChannelSelectorButton(size+1, AUDIO, titleFont);
         audioButtons.add(ba);
-        addAndMakeVisible(ba);
+        channelSelectorRegion->addAndMakeVisible(ba);
         ba->addListener(this);
     }
 }
@@ -241,17 +263,17 @@ void ChannelSelector::removeButton()
     int size = parameterButtons.size();
 
     ChannelSelectorButton* b = parameterButtons.remove(size-1);
-    removeChildComponent(b);
+    channelSelectorRegion->removeChildComponent(b);
     deleteAndZero(b);
 
     if (isNotSink)
     {
         ChannelSelectorButton* br = recordButtons.remove(size-1);
-        removeChildComponent(br);
+        channelSelectorRegion->removeChildComponent(br);
         deleteAndZero(br);
 
         ChannelSelectorButton* ba = audioButtons.remove(size-1);
-        removeChildComponent(ba);
+        channelSelectorRegion->removeChildComponent(ba);
         deleteAndZero(ba);
     }
 }
@@ -741,4 +763,29 @@ void ChannelSelectorButton::setActive(bool t)
 {
     isActive = t;
     setClickingTogglesState(t);
+}
+
+ChannelSelectorRegion::ChannelSelectorRegion(ChannelSelector* cs)
+{
+    channelSelector = cs;
+
+    addMouseListener((MouseListener*) this, true);
+}
+
+ChannelSelectorRegion::~ChannelSelectorRegion()
+{
+    deleteAllChildren();
+}
+
+void ChannelSelectorRegion::mouseWheelMove(const MouseEvent& event,
+                                           const MouseWheelDetails& wheel)
+{
+
+    std::cout << "Got wheel move: " << wheel.deltaY << std::endl;
+    channelSelector->shiftChannelsVertical(wheel.deltaY);
+}
+
+void ChannelSelectorRegion::paint(Graphics& g)
+{
+   // g.fillAll(Colours::white);
 }

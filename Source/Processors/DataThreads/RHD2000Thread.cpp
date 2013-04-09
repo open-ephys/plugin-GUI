@@ -86,75 +86,75 @@ void RHD2000Thread::initializeBoard()
     evalBoard->initialize();
 
     // Select per-channel amplifier sampling rate.
-    evalBoard->setSampleRate(Rhd2000EvalBoard::SampleRate10000Hz);
+    evalBoard->setSampleRate(Rhd2000EvalBoard::SampleRate30000Hz);
 
-    // Select RAM Bank 0 for AuxCmd3 initially, so the ADC is calibrated.
-    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3, 0);
-    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3, 0);
-    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3, 0);
-    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3, 0);
-    evalBoard->flush(); // flush in case it crashed with data remaining
+    // // Select RAM Bank 0 for AuxCmd3 initially, so the ADC is calibrated.
+    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3, 0);
+    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3, 0);
+    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3, 0);
+    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3, 0);
+    // evalBoard->flush(); // flush in case it crashed with data remaining
 
-    // Since our longest command sequence is 60 commands, run the SPI interface for
-    // 60 samples
-    evalBoard->setMaxTimeStep(60);
-    evalBoard->setContinuousRunMode(false);
+    // // Since our longest command sequence is 60 commands, run the SPI interface for
+    // // 60 samples
+    // evalBoard->setMaxTimeStep(60);
+    // evalBoard->setContinuousRunMode(false);
 
-    // Start SPI interface
-    evalBoard->run();
+    // // Start SPI interface
+    // evalBoard->run();
 
-    // Wait for the 60-sample run to complete
-    while (evalBoard->isRunning())
-    {
-        ;
-    }
+    // // Wait for the 60-sample run to complete
+    // while (evalBoard->isRunning())
+    // {
+    //     ;
+    // }
 
-    // Read the resulting single data block from the USB interface. We don't
-    // need to do anything with this, since it was only used for ADC calibration
-    Rhd2000DataBlock* dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
-    evalBoard->readDataBlock(dataBlock);
+    // // Read the resulting single data block from the USB interface. We don't
+    // // need to do anything with this, since it was only used for ADC calibration
+    // Rhd2000DataBlock* dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
+    // evalBoard->readDataBlock(dataBlock);
 
-    // Now that ADC calibration has been performed, we switch to the command sequence
-    // that does not execute ADC calibration.
-    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3,
-                                    fastSettleEnabled ? 2 : 1);
-    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3,
-                                    fastSettleEnabled ? 2 : 1);
-    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3,
-                                    fastSettleEnabled ? 2 : 1);
-    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3,
-                                    fastSettleEnabled ? 2 : 1);
+    // // Now that ADC calibration has been performed, we switch to the command sequence
+    // // that does not execute ADC calibration.
+    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3,
+    //                                 fastSettleEnabled ? 2 : 1);
+    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3,
+    //                                 fastSettleEnabled ? 2 : 1);
+    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3,
+    //                                 fastSettleEnabled ? 2 : 1);
+    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3,
+    //                                 fastSettleEnabled ? 2 : 1);
 
 
-    // Set default configuration for all eight DACs on interface board.
-    evalBoard->enableDac(0, false);
-    evalBoard->enableDac(1, false);
-    evalBoard->enableDac(2, false);
-    evalBoard->enableDac(3, false);
-    evalBoard->enableDac(4, false);
-    evalBoard->enableDac(5, false);
-    evalBoard->enableDac(6, false);
-    evalBoard->enableDac(7, false);
-    evalBoard->selectDacDataStream(0, 0);
-    evalBoard->selectDacDataStream(1, 0);
-    evalBoard->selectDacDataStream(2, 0);
-    evalBoard->selectDacDataStream(3, 0);
-    evalBoard->selectDacDataStream(4, 0);
-    evalBoard->selectDacDataStream(5, 0);
-    evalBoard->selectDacDataStream(6, 0);
-    evalBoard->selectDacDataStream(7, 0);
-    evalBoard->selectDacDataChannel(0, 0);
-    evalBoard->selectDacDataChannel(1, 1);
-    evalBoard->selectDacDataChannel(2, 0);
-    evalBoard->selectDacDataChannel(3, 0);
-    evalBoard->selectDacDataChannel(4, 0);
-    evalBoard->selectDacDataChannel(5, 0);
-    evalBoard->selectDacDataChannel(6, 0);
-    evalBoard->selectDacDataChannel(7, 0);
-    evalBoard->setDacManual(Rhd2000EvalBoard::DacManual1, 32768);
-    evalBoard->setDacManual(Rhd2000EvalBoard::DacManual2, 32768);
-    evalBoard->setDacGain(0);
-    evalBoard->setAudioNoiseSuppress(0);
+    // // Set default configuration for all eight DACs on interface board.
+    // evalBoard->enableDac(0, false);
+    // evalBoard->enableDac(1, false);
+    // evalBoard->enableDac(2, false);
+    // evalBoard->enableDac(3, false);
+    // evalBoard->enableDac(4, false);
+    // evalBoard->enableDac(5, false);
+    // evalBoard->enableDac(6, false);
+    // evalBoard->enableDac(7, false);
+    // evalBoard->selectDacDataStream(0, 0);
+    // evalBoard->selectDacDataStream(1, 0);
+    // evalBoard->selectDacDataStream(2, 0);
+    // evalBoard->selectDacDataStream(3, 0);
+    // evalBoard->selectDacDataStream(4, 0);
+    // evalBoard->selectDacDataStream(5, 0);
+    // evalBoard->selectDacDataStream(6, 0);
+    // evalBoard->selectDacDataStream(7, 0);
+    // evalBoard->selectDacDataChannel(0, 0);
+    // evalBoard->selectDacDataChannel(1, 1);
+    // evalBoard->selectDacDataChannel(2, 0);
+    // evalBoard->selectDacDataChannel(3, 0);
+    // evalBoard->selectDacDataChannel(4, 0);
+    // evalBoard->selectDacDataChannel(5, 0);
+    // evalBoard->selectDacDataChannel(6, 0);
+    // evalBoard->selectDacDataChannel(7, 0);
+    // evalBoard->setDacManual(Rhd2000EvalBoard::DacManual1, 32768);
+    // evalBoard->setDacManual(Rhd2000EvalBoard::DacManual2, 32768);
+    // evalBoard->setDacGain(0);
+    // evalBoard->setAudioNoiseSuppress(0);
 
 
     // Set up an RHD2000 register object using this sample rate to optimize MUX-related
@@ -377,7 +377,7 @@ int RHD2000Thread::getNumEventChannels()
 
 float RHD2000Thread::getSampleRate()
 {
-    return 10000.00;
+    return 30000.00;
 }
 
 float RHD2000Thread::getBitVolts()

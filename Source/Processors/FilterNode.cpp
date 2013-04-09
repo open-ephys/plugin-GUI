@@ -144,7 +144,7 @@ void FilterNode::updateSettings()
             p2.setValue(6000.0f, n);
 
             setFilterParameters(600.0f,
-                        600.0f,
+                        6000.0f,
                         n);
 
             setFilterParameters(600.0f, 6000.0f, n);
