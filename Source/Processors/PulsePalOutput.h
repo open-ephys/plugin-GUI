@@ -21,35 +21,31 @@
 
 */
 
-#ifndef __WIFIOUTPUT_H_94D625CE__
-#define __WIFIOUTPUT_H_94D625CE__
+#ifndef __PULSEPALOUTPUT_H_A8BF66D6__
+#define __PULSEPALOUTPUT_H_A8BF66D6__
 
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GenericProcessor.h"
-#include "Editors/WiFiOutputEditor.h"
-
-#include "../Network/PracticalSocket.h"  // For UDPSocket and SocketException
+#include "Editors/PulsePalOutputEditor.h"
 
 /**
 
-  Allows the signal chain to send outputs to a client with a specific
-  IP address. Used in conjunction with the Arduino WiFly shield, these
-  signals can be sent wirelessly.
+  Allows the signal chain to send outputs to the Pulse Pal 
+  from Lucid Biosystems (www.lucidbiosystems.com)
 
-  @see GenericProcessor, WiFiOutputEditor
+  @see GenericProcessor, PulsePalOutputEditor
 
 */
 
 
-class WiFiOutput : public GenericProcessor,
-    public Timer
+class PulsePalOutput : public GenericProcessor
 
 {
 public:
 
-    WiFiOutput();
-    ~WiFiOutput();
+    PulsePalOutput();
+    ~PulsePalOutput();
 
     void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
     void setParameter(int parameterIndex, float newValue);
@@ -65,13 +61,10 @@ public:
 
 private:
 
-    UDPSocket socket;
-
-    void timerCallback();
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WiFiOutput);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PulsePalOutput);
 
 };
 
 
-#endif  // __WIFIOUTPUT_H_94D625CE__
+
+#endif  // __PULSEPALOUTPUT_H_A8BF66D6__

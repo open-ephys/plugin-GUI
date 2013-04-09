@@ -63,6 +63,7 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/PulsePalOutput_9f4ef492.o \
   $(OBJDIR)/ReferenceNode_519d3b68.o \
   $(OBJDIR)/PhaseDetector_7193f7dc.o \
   $(OBJDIR)/AudioResamplingNode_3dbffa2d.o \
@@ -87,6 +88,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/PulsePalOutputEditor_ab5be148.o \
   $(OBJDIR)/RHD2000Editor_d7ddd6b.o \
   $(OBJDIR)/RecordControlEditor_244084cb.o \
   $(OBJDIR)/ReferenceNodeEditor_19ee0fac.o \
@@ -273,6 +275,11 @@ $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	@echo "Compiling AudioComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/PulsePalOutput_9f4ef492.o: ../../Source/Processors/PulsePalOutput.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PulsePalOutput.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/ReferenceNode_519d3b68.o: ../../Source/Processors/ReferenceNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ReferenceNode.cpp"
@@ -391,6 +398,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PulsePalOutputEditor_ab5be148.o: ../../Source/Processors/Editors/PulsePalOutputEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PulsePalOutputEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/RHD2000Editor_d7ddd6b.o: ../../Source/Processors/Editors/RHD2000Editor.cpp

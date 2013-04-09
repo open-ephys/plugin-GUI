@@ -226,6 +226,10 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <FILE id="iCR52Z" name="PulsePalOutput.cpp" compile="1" resource="0"
+              file="Source/Processors/PulsePalOutput.cpp"/>
+        <FILE id="P6I3cq" name="PulsePalOutput.h" compile="0" resource="0"
+              file="Source/Processors/PulsePalOutput.h"/>
         <FILE id="I3M3irE" name="ReferenceNode.cpp" compile="1" resource="0"
               file="Source/Processors/ReferenceNode.cpp"/>
         <FILE id="mkZIyij" name="ReferenceNode.h" compile="0" resource="0"
@@ -306,6 +310,10 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="NHDoDu" name="PulsePalOutputEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/PulsePalOutputEditor.cpp"/>
+          <FILE id="dVyt6h" name="PulsePalOutputEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/PulsePalOutputEditor.h"/>
           <FILE id="Xy7AJu" name="RHD2000Editor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/RHD2000Editor.cpp"/>
           <FILE id="TKVa9h" name="RHD2000Editor.h" compile="0" resource="0" file="Source/Processors/Editors/RHD2000Editor.h"/>

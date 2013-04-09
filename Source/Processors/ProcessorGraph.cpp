@@ -43,6 +43,7 @@
 #include "WiFiOutput.h"
 #include "ArduinoOutput.h"
 #include "FPGAOutput.h"
+#include "PulsePalOutput.h"
 #include "Utilities/RecordControl.h"
 #include "Utilities/Splitter.h"
 #include "Utilities/Merger.h"
@@ -531,6 +532,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             std::cout << "Creating an FPGA output node." << std::endl;
             processor = new FPGAOutput();
+        }
+        else if (subProcessorType.equalsIgnoreCase("Pulse Pal"))
+        {
+            std::cout << "Creating a Pulse Pal output node." << std::endl;
+            processor = new PulsePalOutput();
         }
 
         sendActionMessage("New sink created.");
