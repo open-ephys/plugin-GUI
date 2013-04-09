@@ -60,6 +60,8 @@ PulsePalOutput::PulsePalOutput()
 
             serial.setup(id, 115200);
 
+            
+
             while (serial.available() == 0)
             {
                 serial.writeByte(59);

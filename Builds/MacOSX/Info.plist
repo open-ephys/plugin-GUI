@@ -8,7 +8,7 @@
     <key>CFBundleIconFile</key>
     <string></string>
     <key>CFBundleIdentifier</key>
-    <string>com.yourcompany.openephys</string>
+    <string>org.open-ephys.gui</string>
     <key>CFBundleName</key>
     <string>open-ephys</string>
     <key>CFBundlePackageType</key>
@@ -16,11 +16,11 @@
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.0.0</string>
+    <string>0.1.0</string>
     <key>CFBundleVersion</key>
-    <string>0.0.0</string>
+    <string>0.1.0</string>
     <key>NSHumanReadableCopyright</key>
-    <string></string>
+    <string>Open Ephys</string>
     <key>NSHighResolutionCapable</key>
     <true/>
   </dict>
