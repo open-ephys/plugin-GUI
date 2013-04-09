@@ -20,6 +20,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+    
 #ifndef __WIFIOUTPUTEDITOR_H_7161DB44__
 #define __WIFIOUTPUTEDITOR_H_7161DB44__
 

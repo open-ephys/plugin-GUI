@@ -28,6 +28,8 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GenericProcessor.h"
 #include "Editors/PulsePalOutputEditor.h"
+#include "Serial/ofSerial.h"
+
 
 /**
 
@@ -37,7 +39,6 @@
   @see GenericProcessor, PulsePalOutputEditor
 
 */
-
 
 class PulsePalOutput : public GenericProcessor
 
@@ -60,6 +61,10 @@ public:
     }
 
 private:
+
+    void triggerPulsePalChannel(uint8_t chan);
+
+    ofSerial serial;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PulsePalOutput);
 

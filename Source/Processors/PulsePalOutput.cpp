@@ -21,7 +21,9 @@
 
 */
 
+#include <vector>
 #include <stdio.h>
+#include <string.h>
 #include "PulsePalOutput.h"
 
 
@@ -29,11 +31,60 @@
 PulsePalOutput::PulsePalOutput()
     : GenericProcessor("Pulse Pal")
 {
+
+	std::cout << "Searching for Pulse Pal..." << std::endl;
+
+    //
+	// lsusb shows Device 104: ID 1eaf:0004
+    // updated udev rules file, but still need to run as root -- no idea why
+    //
+
+	vector<ofSerialDeviceInfo> devices = serial.getDeviceList();
+
+	bool foundDevice = false;
+
+	for (int devNum; devNum < devices.size(); devNum++)
+	{
+		int id = devices[devNum].getDeviceID();
+		string path = devices[devNum].getDevicePath();
+        string name = devices[devNum].getDeviceName();
+
+       // std::cout << "Device name: " << name << std::endl;
+
+        string acm0 = "ACM0";
+
+        size_t index = path.find(acm0);
+
+        if (index != std::string::npos) // only open ttyACM0
+        {
+
+            serial.setup(id, 115200);
+
+            while (serial.available() == 0)
+            {
+                serial.writeByte(59);
+            }
+
+            uint8_t resp = serial.readByte();
+
+            if (resp == 5)
+            {
+                std::cout << "FOUND A PULSE PAL." << std::endl;
+                foundDevice = true;
+            }
+
+            break;
+        }
+
+	}
+
+    triggerPulsePalChannel(1);
+
 }
 
 PulsePalOutput::~PulsePalOutput()
 {
-
+    serial.close();
 }
 
 AudioProcessorEditor* PulsePalOutput::createEditor()
@@ -49,6 +100,13 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
        // do something cool
     }
 
+}
+
+void PulsePalOutput::triggerPulsePalChannel(uint8_t chan)
+{
+    uint8_t bytesToWrite[2] = {84, chan};
+
+    serial.writeBytes(bytesToWrite, 2);
 }
 
 void PulsePalOutput::setParameter(int parameterIndex, float newValue)
