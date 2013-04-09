@@ -68,6 +68,7 @@ OBJECTS := \
   $(OBJDIR)/PhaseDetector_7193f7dc.o \
   $(OBJDIR)/AudioResamplingNode_3dbffa2d.o \
   $(OBJDIR)/Channel_33a3e5fe.o \
+  $(OBJDIR)/PulsePal_14932a18.o \
   $(OBJDIR)/ofArduino_12f202a5.o \
   $(OBJDIR)/ofSerial_c3b0a9e1.o \
   $(OBJDIR)/EventDetector_4807aa7b.o \
@@ -298,6 +299,11 @@ $(OBJDIR)/AudioResamplingNode_3dbffa2d.o: ../../Source/Processors/AudioResamplin
 $(OBJDIR)/Channel_33a3e5fe.o: ../../Source/Processors/Channel.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Channel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PulsePal_14932a18.o: ../../Source/Processors/Serial/PulsePal.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PulsePal.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ofArduino_12f202a5.o: ../../Source/Processors/Serial/ofArduino.cpp

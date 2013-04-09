@@ -152,6 +152,7 @@
     <ClCompile Include="..\..\Source\Processors\PhaseDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioResamplingNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Channel.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Serial\PulsePal.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Serial\ofArduino.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Serial\ofSerial.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventDetector.cpp"/>
@@ -1328,6 +1329,7 @@
     <ClInclude Include="..\..\Source\Processors\PhaseDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioResamplingNode.h"/>
     <ClInclude Include="..\..\Source\Processors\Channel.h"/>
+    <ClInclude Include="..\..\Source\Processors\Serial\PulsePal.h"/>
     <ClInclude Include="..\..\Source\Processors\Serial\ofArduino.h"/>
     <ClInclude Include="..\..\Source\Processors\Serial\ofConstants.h"/>
     <ClInclude Include="..\..\Source\Processors\Serial\ofSerial.h"/>

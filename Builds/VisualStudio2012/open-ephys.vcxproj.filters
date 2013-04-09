@@ -23,9 +23,6 @@
     <Filter Include="open-ephys\Source">
       <UniqueIdentifier>{02B8D40A-0071-792E-592F-8A30DD87BAE6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="open-ephys\Source\Plugins">
-      <UniqueIdentifier>{D716F840-6B1A-0EA0-ADAB-72622698A6E7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="open-ephys\Source\Network">
       <UniqueIdentifier>{F426EB08-DE72-34FB-F5F1-D8D077A9C12D}</UniqueIdentifier>
     </Filter>
@@ -432,6 +429,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Channel.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Serial\PulsePal.cpp">
+      <Filter>open-ephys\Source\Processors\Serial</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Serial\ofArduino.cpp">
       <Filter>open-ephys\Source\Processors\Serial</Filter>
@@ -1919,6 +1919,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Channel.h">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Serial\PulsePal.h">
+      <Filter>open-ephys\Source\Processors\Serial</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Serial\ofArduino.h">
       <Filter>open-ephys\Source\Processors\Serial</Filter>

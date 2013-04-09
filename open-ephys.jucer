@@ -163,7 +163,6 @@
       </GROUP>
     </GROUP>
     <GROUP id="ZMfWAFj" name="Source">
-      <GROUP id="C4YiLUg" name="Plugins"/>
       <FILE id="AXFRUPT" name="AccessClass.cpp" compile="1" resource="0"
             file="Source/AccessClass.cpp"/>
       <FILE id="2ViPrE" name="AccessClass.h" compile="0" resource="0" file="Source/AccessClass.h"/>
@@ -245,6 +244,8 @@
         <FILE id="oYWM1J" name="Channel.cpp" compile="1" resource="0" file="Source/Processors/Channel.cpp"/>
         <FILE id="oBVEMRc" name="Channel.h" compile="0" resource="0" file="Source/Processors/Channel.h"/>
         <GROUP id="gFSbZKw" name="Serial">
+          <FILE id="PHwlqi" name="PulsePal.cpp" compile="1" resource="0" file="Source/Processors/Serial/PulsePal.cpp"/>
+          <FILE id="R4XRyB" name="PulsePal.h" compile="0" resource="0" file="Source/Processors/Serial/PulsePal.h"/>
           <FILE id="3t2ez3c" name="ofArduino.cpp" compile="1" resource="0" file="Source/Processors/Serial/ofArduino.cpp"/>
           <FILE id="bXASAoT" name="ofArduino.h" compile="0" resource="0" file="Source/Processors/Serial/ofArduino.h"/>
           <FILE id="hNTT1i1" name="ofConstants.h" compile="0" resource="0" file="Source/Processors/Serial/ofConstants.h"/>
