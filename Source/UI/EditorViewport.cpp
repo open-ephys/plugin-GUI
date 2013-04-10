@@ -132,8 +132,8 @@ void EditorViewport::paint(Graphics& g)
 
     int x = insertionX + 19;
     int y = borderSize + 2;
-    int w = 30;
-    int h = getHeight() - 2*(borderSize+2);
+    //int w = 30;
+    //int h = getHeight() - 2*(borderSize+2);
 
     g.drawImageAt(sourceDropImage, x, y);
 
@@ -166,7 +166,7 @@ void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
 {
 
     int x = dragSourceDetails.localPosition.getX();
-    int y = dragSourceDetails.localPosition.getY();
+   // int y = dragSourceDetails.localPosition.getY();
 
     if (canEdit)
     {

@@ -59,7 +59,7 @@ RHD2000Editor::~RHD2000Editor()
 HeadstageOptionsInterface::HeadstageOptionsInterface(RHD2000Thread* board_,
                                                      RHD2000Editor* editor_,
                                                      int hsNum) :
-    board(board_), editor(editor_), hsNumber(hsNum), isEnabled(false)
+    hsNumber(hsNum), isEnabled(false), board(board_), editor(editor_)
 {
 
     switch (hsNumber)

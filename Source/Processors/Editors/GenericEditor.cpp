@@ -35,9 +35,9 @@
 
 GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors=true)
     : AudioProcessorEditor(owner),
-      desiredWidth(150), isFading(false), accumulator(0.0),
-      drawerButton(0), channelSelector(0),
-      isSelected(false), isEnabled(true), tNum(-1), acquisitionIsActive(false)
+      desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
+      drawerButton(0), channelSelector(0), 
+      isSelected(false),  isEnabled(true), tNum(-1)
 {
     constructorInitialize(owner, useDefaultParameterEditors);
 }

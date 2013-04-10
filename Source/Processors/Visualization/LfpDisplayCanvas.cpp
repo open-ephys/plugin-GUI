@@ -26,8 +26,9 @@
 #include <math.h>
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
-    timebase(1.0f), displayGain(1.0f), timeOffset(0.0f), processor(processor_),
-    screenBufferIndex(0), displayBufferIndex(0)
+    screenBufferIndex(0), timebase(1.0f), displayGain(1.0f),   timeOffset(0.0f),
+    processor(processor_),
+     displayBufferIndex(0)
 {
 
     nChans = processor->getNumInputs();
@@ -504,8 +505,8 @@ void LfpDisplay::refresh()
 
 void LfpDisplay::mouseDown(const MouseEvent& event)
 {
-    int x = event.getMouseDownX();
-    int y = event.getMouseDownY();
+    //int x = event.getMouseDownX();
+    //int y = event.getMouseDownY();
 
     //std::cout << "Mouse down at " << x << ", " << y << std::endl;
 

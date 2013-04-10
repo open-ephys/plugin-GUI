@@ -24,7 +24,7 @@
 #include "SpikeDisplayCanvas.h"
 
 SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
-    newSpike(false), processor(n)
+    processor(n), newSpike(false)
 {
 
     spikeBuffer = processor->getSpikeBufferAddress();
@@ -130,7 +130,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
             const uint8_t* dataptr = message.getRawData();
             int bufferSize = message.getRawDataSize();
-            int nSamples = (bufferSize-4)/2;
+            //int nSamples = (bufferSize-4)/2;
 
             SpikeObject newSpike;
             //SpikeObject simSpike;
@@ -306,7 +306,7 @@ void SpikeDisplay::plotSpike(const SpikeObject& spike, int electrodeNum)
 // ----------------------------------------------------------------
 
 SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
-    canvas(sdc), electrodeNumber(elecNum), plotType(p), isSelected(false),
+     canvas(sdc), isSelected(false), electrodeNumber(elecNum),  plotType(p),
     limitsChanged(true)
 
 {

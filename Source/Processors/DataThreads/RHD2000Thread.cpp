@@ -182,9 +182,7 @@ void RHD2000Thread::scanPorts()
 {
     // Scan SPI ports
 
-    int delay, stream, id, i, channel, port;
-    int stream1, stream2;
-    int numChannelsOnPort[4] = {0, 0, 0, 0};
+    int delay, stream, id;
 
     // assume we only have 32-channel headstages, for the sake of
     // simplicity; this will have to be changed once 64-channel
