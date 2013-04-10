@@ -24,23 +24,23 @@
 #include "IntanThread.h"
 
 IntanThread::IntanThread(SourceNode* sn)
-	: DataThread(sn),
-	  vendorID(0x0403), productID(0x6010), baudrate(115200),
-	  isTransmitting(false), startCode(83), stopCode(115), ch(-1)
+    : DataThread(sn),
+      vendorID(0x0403), productID(0x6010), baudrate(115200),
+      isTransmitting(false), startCode(83), stopCode(115), ch(-1)
 {
 
-	 dataBuffer = new DataBuffer(17,4096);
+    dataBuffer = new DataBuffer(17,4096);
 
-     deviceFound = initializeUSB(true);
+    deviceFound = initializeUSB(true);
 
-     eventCode = 0;
+    eventCode = 0;
 
 }
 
-IntanThread::~IntanThread() 
+IntanThread::~IntanThread()
 {
-	//closeUSB();
-	//deleteAndZero(dataBuffer);
+    //closeUSB();
+    //deleteAndZero(dataBuffer);
 }
 
 int IntanThread::getNumChannels()
@@ -50,7 +50,7 @@ int IntanThread::getNumChannels()
 
 int IntanThread::getNumEventChannels()
 {
-    return 6;   
+    return 6;
 }
 
 float IntanThread::getSampleRate()
@@ -77,12 +77,16 @@ bool IntanThread::foundInputSource()
             deviceFound = false;
             return false;
         }
-    } else {
+    }
+    else
+    {
         // try to initialize USB
         if (!initializeUSB(false))
         {
             return false;
-        } else {
+        }
+        else
+        {
             deviceFound = true;
         }
     }
@@ -110,8 +114,9 @@ bool IntanThread::stopAcquisition()
     isTransmitting = false;
 
     std::cout << "Received signal to terminate thread." << std::endl;
-    
-    if (isThreadRunning()) {
+
+    if (isThreadRunning())
+    {
         signalThreadShouldExit();
     }
 
@@ -119,11 +124,14 @@ bool IntanThread::stopAcquisition()
 
     int return_value;
 
-    if ((return_value = ftdi_write_data(&ftdic, &stopCode, 1)) > 0) {
+    if ((return_value = ftdi_write_data(&ftdic, &stopCode, 1)) > 0)
+    {
         unsigned char buf[4097]; // has to be bigger than the on-chip buffer
         ftdi_read_data(&ftdic, buf, sizeof(buf));
         //closeUSB();
-    } else {
+    }
+    else
+    {
         std::cout << "No device found." << std::endl;
         deviceFound = false;
     }
@@ -134,46 +142,53 @@ bool IntanThread::stopAcquisition()
 
 bool IntanThread::initializeUSB(bool verbose)
 {
-	int return_value;
+    int return_value;
 
-	 // Step 1: initialise the ftdi_context:
-	if (ftdi_init(&ftdic) < 0) {// -1 = couldn't allocate read buffer
-                               // -2 = couldn't allocate struct buffer
+    // Step 1: initialise the ftdi_context:
+    if (ftdi_init(&ftdic) < 0)  // -1 = couldn't allocate read buffer
+    {
+        // -2 = couldn't allocate struct buffer
         if (verbose)
             fprintf(stderr, "ftdi_init failed\n");
         return false;
-    } else {
+    }
+    else
+    {
         if (verbose)
             std::cout << "FTDI context initialized." << std::endl;
     }
 
-	// Step 2: open USB device
+    // Step 2: open USB device
     // -3 = device not found
     // -8 = wrong permissions
-   	if ((return_value = ftdi_usb_open(&ftdic, vendorID, productID)) < 0)
+    if ((return_value = ftdi_usb_open(&ftdic, vendorID, productID)) < 0)
     {
         if (verbose)
             fprintf(stderr, "unable to open FTDI device: %d (%s)\n",
-                        return_value, 
-                        ftdi_get_error_string(&ftdic));
+                    return_value,
+                    ftdi_get_error_string(&ftdic));
         return false;
-    } else {
+    }
+    else
+    {
         std::cout << "USB connection opened." << std::endl;
     }
 
-	// Step 3: set the baud rate
-	if ((return_value = ftdi_set_baudrate(&ftdic, baudrate)) < 0)
+    // Step 3: set the baud rate
+    if ((return_value = ftdi_set_baudrate(&ftdic, baudrate)) < 0)
     {
         if (verbose)
             fprintf(stderr, "unable to set baud rate: %d (%s)\n",
-                        return_value, 
-                        ftdi_get_error_string(&ftdic));
+                    return_value,
+                    ftdi_get_error_string(&ftdic));
         return false;
-    } else {
+    }
+    else
+    {
         std::cout << "Baud rate set to 115200" << std::endl;
     }
 
-	return true;
+    return true;
 
 }
 
@@ -204,35 +219,36 @@ bool IntanThread::updateBuffer()
         return false;
     }
 
-	// Step 2: sort data
-	int TTLval, channelVal;
+    // Step 2: sort data
+    int TTLval, channelVal;
 
-    for (size_t index = 0; index < sizeof(buffer); index += 3) { 
-           
-          ++ch;
-           
-        // for (int n = 0; n < 1; n++) { // 
+    for (size_t index = 0; index < sizeof(buffer); index += 3)
+    {
+
+        ++ch;
+
+        // for (int n = 0; n < 1; n++) { //
 
         // after accounting for bit volts:
-         thisSample[ch%16] = float((buffer[index] & 127) + 
-                     ((buffer[index+1] & 127) << 7) + 
-                     ((buffer[index+2] & 3) << 14)) * 0.1907f - 6175.0f;
+        thisSample[ch%16] = float((buffer[index] & 127) +
+                                  ((buffer[index+1] & 127) << 7) +
+                                  ((buffer[index+2] & 3) << 14)) * 0.1907f - 6175.0f;
         // these samples should now be in microvolts!
 
-         // bit volt calculation:
-         // 2.5 V range / 2^16 = 38.14 uV
-         // 38.14 uV / 200x gain = 0.1907
-         // also need to account for 1.235 V offset (where does this come from?)
-         //    1.235 / 200 * 1e6 = 6175 uV 
+        // bit volt calculation:
+        // 2.5 V range / 2^16 = 38.14 uV
+        // 38.14 uV / 200x gain = 0.1907
+        // also need to account for 1.235 V offset (where does this come from?)
+        //    1.235 / 200 * 1e6 = 6175 uV
 
-         // before accounting for bit volts:
-         // thisSample[ch%16+n*16] = float((buffer[index] & 127) + 
-         //             ((buffer[index+1] & 127) << 7) + 
-         //             ((buffer[index+2] & 3) << 14) - 32768)/32768;
+        // before accounting for bit volts:
+        // thisSample[ch%16+n*16] = float((buffer[index] & 127) +
+        //             ((buffer[index+1] & 127) << 7) +
+        //             ((buffer[index+2] & 3) << 14) - 32768)/32768;
 
-         //}
+        //}
 
-         if (ch > 0 && ch < 7) // event channels
+        if (ch > 0 && ch < 7) // event channels
         {
             TTLval = (buffer[index+2] & 4) >> 2; // extract TTL value (bit 3)
 
@@ -240,20 +256,21 @@ bool IntanThread::updateBuffer()
 
         }
 
-         channelVal = buffer[index+2] & 60;   // extract channel value
+        channelVal = buffer[index+2] & 60;   // extract channel value
 
-         if (channelVal == 60) {
+        if (channelVal == 60)
+        {
 
             timestamp = timer.getHighResolutionTicks();
 
-           
 
-         	dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+
+            dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
 
             // reset values
-         	ch = -1;
+            ch = -1;
             eventCode = 0;
-         }
+        }
 
     }
 

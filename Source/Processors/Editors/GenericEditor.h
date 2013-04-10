@@ -24,9 +24,6 @@
 #ifndef __GENERICEDITOR_H_DD406E71__
 #define __GENERICEDITOR_H_DD406E71__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor.h"
 #include "../../AccessClass.h"
@@ -45,7 +42,7 @@ class Channel;
 
 
 /**
-  
+
   Base class for creating processor editors.
 
   If a processor doesn't havesign an editor defined, a GenericEditor will be used.
@@ -58,211 +55,227 @@ class Channel;
 */
 
 class GenericEditor : public AudioProcessorEditor,
-                      public Timer,
-                      public AccessClass,
-                      public Button::Listener,
-                      public Slider::Listener
+    public Timer,
+    public AccessClass,
+    public Button::Listener,
+    public Slider::Listener
 
 {
 public:
-    /** Constructor. Loads fonts and creates default buttons. 
+    /** Constructor. Loads fonts and creates default buttons.
      useDefaultParameter Editors false means custom parameter editors will be used.*/
-	GenericEditor (GenericProcessor* owner, bool useDefaultParameterEditors);
-    
+    GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors);
+
     /** Constructor. Loads fonts and creates default buttons.*/
     //GenericEditor (GenericProcessor* owner);
 
-	/** Destructor.*/
-	virtual ~GenericEditor();
+    /** Destructor.*/
+    virtual ~GenericEditor();
 
-	/** Draws the editor's background.*/
-	void paint (Graphics& g);
+    /** Draws the editor's background.*/
+    void paint(Graphics& g);
 
-	/** Called whenever a key is pressed and the editor has keyboard focus.*/
-	bool keyPressed (const KeyPress& key);
+    /** Called whenever a key is pressed and the editor has keyboard focus.*/
+    bool keyPressed(const KeyPress& key);
 
-	/** Toggles the editor's selection state.*/
-	void switchSelectedState();
+    /** Toggles the editor's selection state.*/
+    void switchSelectedState();
 
-	/** Highlights an editor and calls editorWasClicked().*/
-	void select();
+    /** Highlights an editor and calls editorWasClicked().*/
+    void select();
 
-	/** Highlights an editor.*/
-	void highlight();
+    /** Highlights an editor.*/
+    void highlight();
 
-	/** Deselects an editor.*/
-	void deselect();
+    /** Deselects an editor.*/
+    void deselect();
 
-	/** Returns an editor's selection state.*/
-	bool getSelectionState();
+    /** Returns an editor's selection state.*/
+    bool getSelectionState();
 
-	/** Used to enable an editor's processor.*/
-	void enable();
+    /** Used to enable an editor's processor.*/
+    void enable();
 
-	/** Used to disable an editor's processor.*/
-	void disable();
+    /** Used to disable an editor's processor.*/
+    void disable();
 
-	/** Returns whether or not the editor's processor is enabled (i.e., whether it's able to handle data.*/
-	bool getEnabledState();
+    /** Returns whether or not the editor's processor is enabled (i.e., whether it's able to handle data.*/
+    bool getEnabledState();
 
-	/** Used to enable or disable an editor's processor.*/
-	void setEnabledState(bool);
+    /** Used to enable or disable an editor's processor.*/
+    void setEnabledState(bool);
 
-	/** Called just prior to the start of acquisition, to allow the editor to prepare.*/
-	void startAcquisition();
+    /** Called just prior to the start of acquisition, to allow the editor to prepare.*/
+    void startAcquisition();
 
-	/** Called after the end of acquisition.*/
-	void stopAcquisition();
+    /** Called after the end of acquisition.*/
+    void stopAcquisition();
 
-	/** Returns the name of the editor.*/
-	String getName() {return name;}
+    /** Returns the name of the editor.*/
+    String getName()
+    {
+        return name;
+    }
 
-	/** Determines how wide the editor will be drawn. */
-	int desiredWidth;
+    /** Determines how wide the editor will be drawn. */
+    int desiredWidth;
 
-	/** The unique integer ID of the editor's processor. */
-	int nodeId;
+    /** The unique integer ID of the editor's processor. */
+    int nodeId;
 
-	/** Sets the number of the editor's associated tab in the DataViewport. */
-	virtual void tabNumber(int t) {tNum = t;}
+    /** Sets the number of the editor's associated tab in the DataViewport. */
+    virtual void tabNumber(int t)
+    {
+        tNum = t;
+    }
 
-	/** Returns the number of the editor's associated tab in the DataViewport. */
-	int tabNumber() {return tNum;}
+    /** Returns the number of the editor's associated tab in the DataViewport. */
+    int tabNumber()
+    {
+        return tNum;
+    }
 
-	/** Required for MergerEditor only.*/
-	virtual void switchSource(int) { }
+    /** Required for MergerEditor only.*/
+    virtual void switchSource(int) { }
 
-	/** Required for MergerEditor only.*/
-	virtual void switchSource() { }
+    /** Required for MergerEditor only.*/
+    virtual void switchSource() { }
 
-	/** Returns the processor associated with an editor.*/
-	GenericProcessor* getProcessor() const {return (GenericProcessor*) getAudioProcessor();}
+    /** Returns the processor associated with an editor.*/
+    GenericProcessor* getProcessor() const
+    {
+        return (GenericProcessor*) getAudioProcessor();
+    }
 
-	/** Causes the editor to fade in when it first appears in the EditorViewport. */
-	void fadeIn();
+    /** Causes the editor to fade in when it first appears in the EditorViewport. */
+    void fadeIn();
 
-	/** Indicates whether or not the editor is in the processof fading in. */
-	bool isFading;
+    /** Indicates whether or not the editor is in the processof fading in. */
+    bool isFading;
 
-	/** Used to control the speed at which the editor fades in. */
-	float accumulator;
+    /** Used to control the speed at which the editor fades in. */
+    float accumulator;
 
-	/** Required for SplitterEditor only.*/
-	virtual void switchDest() { }
+    /** Required for SplitterEditor only.*/
+    virtual void switchDest() { }
 
-	/** Required for SplitterEditor and MergerEditor only.*/
-	virtual void switchIO(int) { }
+    /** Required for SplitterEditor and MergerEditor only.*/
+    virtual void switchIO(int) { }
 
-	/** Handles button clicks for all editors. Deals with clicks on the editor's
+    /** Handles button clicks for all editors. Deals with clicks on the editor's
         title bar and channel selector drawer. */
-	virtual void buttonClicked(Button* button);
+    virtual void buttonClicked(Button* button);
 
-	/** Called by buttonClicked(). Deals with clicks on custom buttons. Subclasses of
-	    GenericEditor should modify this method only.*/
-	virtual void buttonEvent(Button* button) {}
+    /** Called by buttonClicked(). Deals with clicks on custom buttons. Subclasses of
+        GenericEditor should modify this method only.*/
+    virtual void buttonEvent(Button* button) {}
 
-	/** Handles slider events for all editors. */
-	virtual void sliderValueChanged(Slider* slider);
+    /** Handles slider events for all editors. */
+    virtual void sliderValueChanged(Slider* slider);
 
-	/** Called by sliderValueChanged(). Deals with clicks on custom sliders. Subclasses
-	    of GenericEditor should modify this method only.*/
-	virtual void sliderEvent(Slider* slider) {}
+    /** Called by sliderValueChanged(). Deals with clicks on custom sliders. Subclasses
+        of GenericEditor should modify this method only.*/
+    virtual void sliderEvent(Slider* slider) {}
 
-	/** Required for opening displays in a VisualizerEditor. Hopefully will be deprecated soon.*/
-	virtual void editorWasClicked() {}
+    /** Required for opening displays in a VisualizerEditor. Hopefully will be deprecated soon.*/
+    virtual void editorWasClicked() {}
 
-	/** Checks to see if a button click occurred on the ChannelSelector drawer button.*/
-	bool checkDrawerButton(Button* button);
+    /** Checks to see if a button click occurred on the ChannelSelector drawer button.*/
+    bool checkDrawerButton(Button* button);
 
-	/** Returns the record status of a given channel from the ChannelSelector.*/
-	bool getRecordStatus(int chan);
+    /** Returns the record status of a given channel from the ChannelSelector.*/
+    bool getRecordStatus(int chan);
 
-	/** Returns the audio monitoring status of a given channel from the ChannelSelector.*/
-	bool getAudioStatus(int chan);
+    /** Returns the audio monitoring status of a given channel from the ChannelSelector.*/
+    bool getAudioStatus(int chan);
 
-	/** Selects all the channels in the input array.*/
-	void selectChannels(Array<int>);
+    /** Selects all the channels in the input array.*/
+    void selectChannels(Array<int>);
 
-	/** Refreshes an editor's background colors when the user selects new ones with the ColourSelector.*/
-	void refreshColors();
+    /** Refreshes an editor's background colors when the user selects new ones with the ColourSelector.*/
+    void refreshColors();
 
-	/** Called when an editor's processor updates its settings (mainly to update channel count).*/
-	virtual void update();
+    /** Called when an editor's processor updates its settings (mainly to update channel count).*/
+    virtual void update();
 
-	/** Called by the update() method to allow the editor to update its custom settings.*/
-	virtual void updateSettings() {}
+    /** Called by the update() method to allow the editor to update its custom settings.*/
+    virtual void updateSettings() {}
 
-	/** Allows an editor to update the settings of its visualizer (such as channel count and sample rate).*/
-	virtual void updateVisualizer() {}
+    /** Allows an editor to update the settings of its visualizer (such as channel count and sample rate).*/
+    virtual void updateVisualizer() {}
 
-	/** Used by SpikeDetectorEditor. */
-	virtual void channelChanged(int chan) {}
+    /** Used by SpikeDetectorEditor. */
+    virtual void channelChanged(int chan) {}
 
-	/** Returns all selected channels from the ChannelSelector. */
-	Array<int> getActiveChannels();
+    /** Returns all selected channels from the ChannelSelector. */
+    Array<int> getActiveChannels();
 
-	/** An array of pointers to ParameterEditors created based on the Parameters of an editor's underlying processor. */
-	Array<ParameterEditor*> parameterEditors;
+    /** An array of pointers to ParameterEditors created based on the Parameters of an editor's underlying processor. */
+    Array<ParameterEditor*> parameterEditors;
 
-	/** Returns the Channel object for a given continuous channel number. */
-	Channel* getChannel(int chan);
+    /** Returns the Channel object for a given continuous channel number. */
+    Channel* getChannel(int chan);
 
-	/** Returns the Channel object for a given event channel number. */
-	Channel* getEventChannel(int chan);
+    /** Returns the Channel object for a given event channel number. */
+    Channel* getEventChannel(int chan);
 
-	/** Stores the font used to display the editor's name. */
-	Font titleFont;
+    /** Stores the font used to display the editor's name. */
+    Font titleFont;
+
+    /** True if data acquisition has begun. */
+    bool acquisitionIsActive;
 
 
 protected:
 
-	/** A pointer to the button that opens the drawer for the ChannelSelector. */
-	DrawerButton* drawerButton;
+    /** A pointer to the button that opens the drawer for the ChannelSelector. */
+    DrawerButton* drawerButton;
 
-	/** Determines the width of the ChannelSelector drawer when opened. */
-	int drawerWidth;
+    /** Determines the width of the ChannelSelector drawer when opened. */
+    int drawerWidth;
 
 
-	/** Can be overridden to customize the layout of ParameterEditors. */
+    /** Can be overridden to customize the layout of ParameterEditors. */
     //Ideally this would be virtual, but since it's run in the construct and because virtual functions don't get overriden in the constructor, it's not.
     void addParameterEditors(bool useStandard);
 
 
-	/** A pointer to the editor's ChannelSelector. */
-	ChannelSelector* channelSelector;
-    
-    
+    /** A pointer to the editor's ChannelSelector. */
+    ChannelSelector* channelSelector;
+
+
 
 private:
 
-	/** Used for fading in the editor. */
-	virtual void timerCallback();
+    /** Used for fading in the editor. */
+    virtual void timerCallback();
 
-	/** Called when the boundaries of the editor are updated. */
-	virtual void resized();
+    /** Called when the boundaries of the editor are updated. */
+    virtual void resized();
 
-	/** Stores the editor's background color. */
-	Colour backgroundColor;
+    /** Stores the editor's background color. */
+    Colour backgroundColor;
 
-	/** Stores the editor's background gradient. */
-	ColourGradient backgroundGradient;
+    /** Stores the editor's background gradient. */
+    ColourGradient backgroundGradient;
 
-	bool isSelected;
-	bool isEnabled;
+    bool isSelected;
+    bool isEnabled;
 
-	int tNum;
-   
+
+    int tNum;
+
     /**initializing function Used to share constructor functions*/
     void constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors);
 
-	String name;
+    String name;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GenericEditor);
 
 };
 
 /**
-  
+
   Used to show and hide the ChannelSelector.
 
   Appears on the right-hand size of all editors (except SplitterEditor and MergerEditor).
@@ -274,15 +287,15 @@ private:
 class DrawerButton : public Button
 {
 public:
-	DrawerButton(const String& name);
-	~DrawerButton() {}
+    DrawerButton(const String& name);
+    ~DrawerButton() {}
 private:
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-		
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+
 };
 
 /**
-  
+
   A button that displays a triangle facing up or down.
 
   Useful for incrementing or decrementing values (as in SpikeDetectorEditor).
@@ -294,17 +307,19 @@ private:
 class TriangleButton : public Button
 {
 public:
-    TriangleButton(int direction_) : Button("Arrow") 
-        {direction = direction_;}
+    TriangleButton(int direction_) : Button("Arrow")
+    {
+        direction = direction_;
+    }
     ~TriangleButton() {}
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-    
+
     int direction;
 };
 
 /**
-  
+
   A button that displays text.
 
   @see GenericEditor
@@ -321,7 +336,10 @@ public:
     void setRadius(float r);
 
     void setEnabledState(bool);
-    bool getEnabledState() {return isEnabled;}
+    bool getEnabledState()
+    {
+        return isEnabled;
+    }
 
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);

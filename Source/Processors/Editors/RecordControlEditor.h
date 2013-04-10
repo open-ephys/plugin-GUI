@@ -24,9 +24,6 @@
 #ifndef __RECORDCONTROLEDITOR_H_F9C69E2B__
 #define __RECORDCONTROLEDITOR_H_F9C69E2B__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
@@ -39,20 +36,20 @@
 */
 
 class RecordControlEditor : public GenericEditor,
-							public ComboBox::Listener
+    public ComboBox::Listener
 {
 public:
-	RecordControlEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	~RecordControlEditor();
-	void comboBoxChanged(ComboBox* comboBox);
-	void updateSettings();
+    RecordControlEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    ~RecordControlEditor();
+    void comboBoxChanged(ComboBox* comboBox);
+    void updateSettings();
 
 private:
-	ComboBox* availableChans;
-	Label *chanSel;
+    ComboBox* availableChans;
+    Label* chanSel;
 
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordControlEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordControlEditor);
 
 };
 

@@ -3,16 +3,17 @@
 #include "PlotUtils.h"
 
 SpikePlot::SpikePlot():
-	BaseUIElement(),  limitsChanged(true), nChannels(0), plotType(0), nWaveAx(1), nProjAx(0)
+    BaseUIElement(),  limitsChanged(true), nChannels(0), plotType(0), nWaveAx(1), nProjAx(0)
 {
 
 }
 
 SpikePlot::SpikePlot(int x, int y, int w, int h, int p):
-	BaseUIElement(x,y,w,h,0), limitsChanged(true), plotType(p)
+    BaseUIElement(x,y,w,h,0), limitsChanged(true), plotType(p)
 {
 
-    switch(p){
+    switch (p)
+    {
         case SINGLE_PLOT:
             std::cout<<"SpikePlot as SINGLE_PLOT"<<std::endl;
             nWaveAx = 1;
@@ -31,11 +32,11 @@ SpikePlot::SpikePlot(int x, int y, int w, int h, int p):
             nProjAx = 6;
             nChannels = 4;
             break;
-//        case HIST_PLOT: 
-//            nWaveAx = 1;
-//            nProjAx = 0;
-//            nHistAx = 1;
-//            break;
+            //        case HIST_PLOT:
+            //            nWaveAx = 1;
+            //            nProjAx = 0;
+            //            nHistAx = 1;
+            //            break;
         default: // unsupported number of axes provided
             std::cout<<"SpikePlot as UNKNOWN, defaulting to SINGLE_PLOT"<<std::endl;
             nWaveAx = 1;
@@ -43,59 +44,67 @@ SpikePlot::SpikePlot(int x, int y, int w, int h, int p):
             plotType = SINGLE_PLOT;
             nChannels = 1;
     }
-    
-    
-    
-	initAxes();
+
+
+
+    initAxes();
 }
 
-SpikePlot::~SpikePlot(){
+SpikePlot::~SpikePlot()
+{
 }
 
 // As a plot is a collection of axes simply have each axes can draw itself
-void SpikePlot::redraw(){
+void SpikePlot::redraw()
+{
     for (int i=0; i<nWaveAx; i++)
         wAxes[i].redraw();
-//    wAxes[1].redraw();
+    //    wAxes[1].redraw();
     for (int i=0; i<nProjAx; i++)
         pAxes[i].redraw();
 }
 
 // Have each axes process the spike event
-void SpikePlot::processSpikeObject(SpikeObject s){
-	//std::cout<<"ElectrdePlot::processSpikeObject()"<<std::endl;
+void SpikePlot::processSpikeObject(SpikeObject s)
+{
+    //std::cout<<"ElectrdePlot::processSpikeObject()"<<std::endl;
     for (int i=0; i<nWaveAx; i++)
         wAxes[i].updateSpikeData(s);
-//    wAxes[1].updateSpikeData(s);
+    //    wAxes[1].updateSpikeData(s);
     for (int i=0; i<nProjAx; i++)
         pAxes[i].updateSpikeData(s);
 }
 
 
-void SpikePlot::setEnabled(bool e){
-	BaseUIElement::enabled = e;
-    
+void SpikePlot::setEnabled(bool e)
+{
+    BaseUIElement::enabled = e;
+
     for (int i=0; i<nWaveAx; i++)
         wAxes[i].setEnabled(e);
-//    wAxes[1].setEnabled(e);
+    //    wAxes[1].setEnabled(e);
     for (int i=0; i<nProjAx; i++)
         pAxes[i].setEnabled(e);
 }
 
-bool SpikePlot::getEnabled(){
-	return BaseUIElement::enabled;
+bool SpikePlot::getEnabled()
+{
+    return BaseUIElement::enabled;
 }
 
 
-void SpikePlot::initAxes(){
-	initLimits();
-	
-    for (int i=0; i<nWaveAx; i++){
+void SpikePlot::initAxes()
+{
+    initLimits();
+
+    for (int i=0; i<nWaveAx; i++)
+    {
         wAxes[i] = WaveAxes(0, 0, 1, 1, WAVE1 + i); // add i to increment the wave channel
         wAxes[i].setWaveformColor(1.0, 1.0, 1.0);
     }
-    
-    for (int i=0; i<nProjAx; i++){
+
+    for (int i=0; i<nProjAx; i++)
+    {
         pAxes[i] = ProjectionAxes(0, 0, 1, 1, PROJ1x2 + i);
         pAxes[i].setPointColor(1.0, 1.0, 1.0);
     }
@@ -103,18 +112,20 @@ void SpikePlot::initAxes(){
     updateAxesPositions(); // Set the position of the individual axes within the plot
     setLimitsOnAxes(); // initialize thel limits on the axes
 }
-void SpikePlot::updateAxesPositions(){
+void SpikePlot::updateAxesPositions()
+{
     int minX = BaseUIElement::xpos;
-	int minY = BaseUIElement::ypos;
-	
-   	double axesWidth;// = BaseUIElement::width/2;
-	double axesHeight;// = BaseUIElement::height;
-	
-    
+    int minY = BaseUIElement::ypos;
+
+    double axesWidth;// = BaseUIElement::width/2;
+    double axesHeight;// = BaseUIElement::height;
+
+
     // to compute the axes positions we need to know how many columns of proj and wave axes should exist
     // using these two values we can calculate the positions of all of the sub axes
     int nProjCols, nWaveCols;
-    switch (plotType){
+    switch (plotType)
+    {
         case SINGLE_PLOT:
             nProjCols = 0;
             nWaveCols = 1;
@@ -135,7 +146,7 @@ void SpikePlot::updateAxesPositions(){
             axesHeight = height/2;
             break;
     }
-    
+
     for (int i=0; i<nWaveAx; i++)
         wAxes[i].setPosition(minX + (i % nWaveCols) * axesWidth/nWaveCols, minY + (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
 
@@ -143,9 +154,10 @@ void SpikePlot::updateAxesPositions(){
         pAxes[i].setPosition(minX + (1 + i%nProjCols) * axesWidth, minY + (i/nProjCols) * axesHeight, axesWidth, axesHeight);
 }
 
-void SpikePlot::setLimitsOnAxes(){
+void SpikePlot::setLimitsOnAxes()
+{
     std::cout<<"SpikePlot::setLimitsOnAxes()"<<std::endl;
-    
+
     for (int i=0; i<nWaveAx; i++)
         wAxes[i].setYLims(limits[i][0], limits[i][1]);
 
@@ -154,21 +166,23 @@ void SpikePlot::setLimitsOnAxes(){
     int j1, j2;
     for (int i=0; i<nProjAx; i++)
     {
-            n2ProjIdx(pAxes[i].getType(), &j1, &j2);
-            pAxes[i].setYLims(limits[j1][0], limits[j1][1]);
-            pAxes[i].setXLims(limits[j2][0], limits[j2][1]);
+        n2ProjIdx(pAxes[i].getType(), &j1, &j2);
+        pAxes[i].setYLims(limits[j1][0], limits[j1][1]);
+        pAxes[i].setXLims(limits[j2][0], limits[j2][1]);
     }
 }
-void SpikePlot::setPosition(int x, int y, double w, double h){
-    
-//    std::cout<<"SpikePlot::setPosition()"<<std::endl;
-	BaseUIElement::setPosition(x,y,w,h);
-	updateAxesPositions();
-    
+void SpikePlot::setPosition(int x, int y, double w, double h)
+{
+
+    //    std::cout<<"SpikePlot::setPosition()"<<std::endl;
+    BaseUIElement::setPosition(x,y,w,h);
+    updateAxesPositions();
+
 }
 
 
-void SpikePlot::initLimits(){
+void SpikePlot::initLimits()
+{
     for (int i=0; i<nChannels; i++)
     {
         limits[i][0] = 1209;//-1*pow(2,11);
@@ -177,8 +191,10 @@ void SpikePlot::initLimits(){
 
 }
 
-void SpikePlot::getBestDimensions(int* w, int* h){
-    switch(plotType){
+void SpikePlot::getBestDimensions(int* w, int* h)
+{
+    switch (plotType)
+    {
         case TETRODE_PLOT:
             *w = 4;
             *h = 2;
@@ -198,7 +214,8 @@ void SpikePlot::getBestDimensions(int* w, int* h){
     }
 }
 
-void SpikePlot::clear(){
+void SpikePlot::clear()
+{
     std::cout<<"SpikePlot::clear()"<<std::endl;
     for (int i=0; i<nWaveAx; i++)
         wAxes[i].clear();
@@ -207,18 +224,20 @@ void SpikePlot::clear(){
 }
 
 
-bool SpikePlot::processKeyEvent(SimpleKeyEvent k){
+bool SpikePlot::processKeyEvent(SimpleKeyEvent k)
+{
 
     return true;
 }
 
-void SpikePlot::pan(int dim, bool up){
+void SpikePlot::pan(int dim, bool up)
+{
 
     std::cout<<"SpikePlot::pan() dim:"<<dim<<std::endl;
-    
+
     int mean = (limits[dim][0] + limits[dim][1])/2;
     int dLim = limits[dim][1] - mean;
-    
+
     if (up)
         mean = mean + dLim/20;
     else
@@ -229,12 +248,13 @@ void SpikePlot::pan(int dim, bool up){
 
     setLimitsOnAxes();
 }
-void SpikePlot::zoom(int dim, bool in){
+void SpikePlot::zoom(int dim, bool in)
+{
     std::cout<<"SpikePlot::zoom()"<<std::endl;
-    
+
     int mean = (limits[dim][0] + limits[dim][1])/2;
     int dLim = limits[dim][1] - mean;
-    
+
     if (in)
         dLim = dLim * .90;
     else

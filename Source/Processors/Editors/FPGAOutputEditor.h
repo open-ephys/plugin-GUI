@@ -24,10 +24,6 @@
 #ifndef __FPGAOUTPUTEDITOR_H_5A646CD3__
 #define __FPGAOUTPUTEDITOR_H_5A646CD3__
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "ImageIcon.h"
@@ -35,7 +31,7 @@
 class ImageIcon;
 
 /**
-  
+
   User interface for the FPGAOutput sink.
 
   @see FPGAOutput
@@ -46,20 +42,20 @@ class FPGAOutputEditor : public GenericEditor
 
 {
 public:
-	FPGAOutputEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~FPGAOutputEditor();
+    FPGAOutputEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~FPGAOutputEditor();
 
-	void receivedEvent();
+    void receivedEvent();
 
-   // void buttonEvent(Button* button);
+    // void buttonEvent(Button* button);
 
-	ImageIcon* icon;
+    ImageIcon* icon;
 
-private:	
+private:
 
-	void timerCallback();
+    void timerCallback();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FPGAOutputEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FPGAOutputEditor);
 
 };
 

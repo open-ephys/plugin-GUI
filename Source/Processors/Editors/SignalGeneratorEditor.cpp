@@ -28,51 +28,51 @@
 #include <stdio.h>
 
 
-SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode, bool useDefaultParameters=false)
-	: GenericEditor(parentNode, useDefaultParameters), amplitudeSlider(0), frequencySlider(0), phaseSlider(0)
+SignalGeneratorEditor::SignalGeneratorEditor(GenericProcessor* parentNode, bool useDefaultParameters=false)
+    : GenericEditor(parentNode, useDefaultParameters), amplitudeSlider(0), frequencySlider(0), phaseSlider(0)
 
 {
-	desiredWidth = 250;
+    desiredWidth = 250;
 
-	int buttonWidth = 31;
-	int buttonHeight = 19;
+    int buttonWidth = 31;
+    int buttonHeight = 19;
 
-	for (int i = 0; i < 5; i++)
-	{
-		WaveformSelector* ws = new WaveformSelector(i);
-		ws->setBounds(8 + (buttonWidth)*i, 30, buttonWidth, buttonHeight);
-		ws->addListener(this);
-		waveformSelectors.add(ws);
-		addAndMakeVisible(ws);
-	}
+    for (int i = 0; i < 5; i++)
+    {
+        WaveformSelector* ws = new WaveformSelector(i);
+        ws->setBounds(8 + (buttonWidth)*i, 30, buttonWidth, buttonHeight);
+        ws->addListener(this);
+        waveformSelectors.add(ws);
+        addAndMakeVisible(ws);
+    }
 
-	amplitudeSlider = new Slider ("Amplitude Slider");
-	amplitudeSlider->setBounds(10,60,50,60);
-	amplitudeSlider->setRange(0,1,0.1);
-	amplitudeSlider->addListener(this);
-	amplitudeSlider->setSliderStyle(Slider::Rotary);
-	amplitudeSlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
-	amplitudeSlider->setValue(0.5);
-	addAndMakeVisible(amplitudeSlider);
+    amplitudeSlider = new Slider("Amplitude Slider");
+    amplitudeSlider->setBounds(10,60,50,60);
+    amplitudeSlider->setRange(0,1,0.1);
+    amplitudeSlider->addListener(this);
+    amplitudeSlider->setSliderStyle(Slider::Rotary);
+    amplitudeSlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
+    amplitudeSlider->setValue(0.5);
+    addAndMakeVisible(amplitudeSlider);
 
-	frequencySlider = new Slider ("Frequency Slider");
-	frequencySlider->setBounds(70,60,50,60);
-	frequencySlider->setRange(10,1000,10);
-	frequencySlider->addListener(this);
-	frequencySlider->setSliderStyle(Slider::Rotary);
-	frequencySlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
-	frequencySlider->setValue(1000);
-	addAndMakeVisible(frequencySlider);
+    frequencySlider = new Slider("Frequency Slider");
+    frequencySlider->setBounds(70,60,50,60);
+    frequencySlider->setRange(10,1000,10);
+    frequencySlider->addListener(this);
+    frequencySlider->setSliderStyle(Slider::Rotary);
+    frequencySlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
+    frequencySlider->setValue(1000);
+    addAndMakeVisible(frequencySlider);
 
-	phaseSlider = new Slider ("Phase Slider");
-	phaseSlider->setBounds(130,60,50,60);
-	phaseSlider->setRange(0, 360, 1);
-	phaseSlider->addListener(this);
-	phaseSlider->setSliderStyle(Slider::Rotary);
-	phaseSlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
-	addAndMakeVisible(phaseSlider);
+    phaseSlider = new Slider("Phase Slider");
+    phaseSlider->setBounds(130,60,50,60);
+    phaseSlider->setRange(0, 360, 1);
+    phaseSlider->addListener(this);
+    phaseSlider->setSliderStyle(Slider::Rotary);
+    phaseSlider->setTextBoxStyle(Slider::TextBoxBelow, false, 40, 20);
+    addAndMakeVisible(phaseSlider);
 
-	numChannelsLabel = new Label("Number of Channels","5");
+    numChannelsLabel = new Label("Number of Channels","5");
     numChannelsLabel->setEditable(true);
     numChannelsLabel->addListener(this);
     numChannelsLabel->setBounds(200,50,25,20);
@@ -92,20 +92,20 @@ SignalGeneratorEditor::SignalGeneratorEditor (GenericProcessor* parentNode, bool
 
 SignalGeneratorEditor::~SignalGeneratorEditor()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }
 
 // void SignalGeneratorEditor::sliderValueChanged (Slider* slider)
 // {
 
 // 	// Array<int> chans = getActiveChannels();
-	
+
 // 	// //std::cout << chans.size() << " channels selected." << std::endl;
 
 // 	// GenericProcessor* p = (GenericProcessor*) getAudioProcessor();
 
 // 	// for (int n = 0; n < chans.size(); n++) {
-		
+
 // 	// 	p->setCurrentChannel(chans[n]);
 
 // 	// 	if (slider == amplitudeSlider)
@@ -120,36 +120,38 @@ SignalGeneratorEditor::~SignalGeneratorEditor()
 
 // }
 
-void SignalGeneratorEditor::buttonEvent (Button* button)
+void SignalGeneratorEditor::buttonEvent(Button* button)
 {
 
-	for (int i = 0; i < waveformSelectors.size(); i++)
-	{
-		if (button == waveformSelectors[i])
-		{
+    for (int i = 0; i < waveformSelectors.size(); i++)
+    {
+        if (button == waveformSelectors[i])
+        {
 
-			Array<int> chans = getActiveChannels();
-	
-			GenericProcessor* p = getProcessor();
+            Array<int> chans = getActiveChannels();
 
-			for (int n = 0; n < chans.size(); n++) {
-		
-				p->setCurrentChannel(chans[n]);
-				p->setParameter(3,(float) i);
+            GenericProcessor* p = getProcessor();
 
-			}
+            for (int n = 0; n < chans.size(); n++)
+            {
+
+                p->setCurrentChannel(chans[n]);
+                p->setParameter(3,(float) i);
+
+            }
 
 
-		}
-	}
+        }
+    }
 
-	int num = numChannelsLabel->getText().getIntValue();
+    int num = numChannelsLabel->getText().getIntValue();
 
     if (button == upButton)
     {
         numChannelsLabel->setText(String(++num), true);
 
-    } else if (button == downButton)
+    }
+    else if (button == downButton)
     {
 
         if (num > 1)
@@ -161,126 +163,136 @@ void SignalGeneratorEditor::buttonEvent (Button* button)
 void SignalGeneratorEditor::sliderEvent(Slider* slider)
 {
 
-	int paramIndex;
+    int paramIndex;
 
-	if (slider == amplitudeSlider)
-	{
-		paramIndex = 0;
-	} else if (slider == frequencySlider)
-	{
-		paramIndex = 1;
-	} else if (slider == phaseSlider)
-	{
-		paramIndex = 2;
-	}
+    if (slider == amplitudeSlider)
+    {
+        paramIndex = 0;
+    }
+    else if (slider == frequencySlider)
+    {
+        paramIndex = 1;
+    }
+    else if (slider == phaseSlider)
+    {
+        paramIndex = 2;
+    }
 
 
-	GenericProcessor* p = getProcessor();
+    GenericProcessor* p = getProcessor();
 
-	Array<int> chans = getActiveChannels();
+    Array<int> chans = getActiveChannels();
 
-	for (int n = 0; n < chans.size(); n++) {
+    for (int n = 0; n < chans.size(); n++)
+    {
 
-		p->setCurrentChannel(chans[n]);
-		p->setParameter(paramIndex, slider->getValue());
+        p->setCurrentChannel(chans[n]);
+        p->setParameter(paramIndex, slider->getValue());
 
-	}
+    }
 
 }
 
-void SignalGeneratorEditor::labelTextChanged (Label* label)
+void SignalGeneratorEditor::labelTextChanged(Label* label)
 {
 
-	SignalGenerator* sg = (SignalGenerator*) getProcessor();
-	sg->nOut = numChannelsLabel->getText().getIntValue();
-	getEditorViewport()->makeEditorVisible(this);
+    SignalGenerator* sg = (SignalGenerator*) getProcessor();
+    sg->nOut = numChannelsLabel->getText().getIntValue();
+    getEditorViewport()->makeEditorVisible(this);
 }
 
 WaveformSelector::WaveformSelector(int type) : Button("Waveform")
 {
 
-	setRadioGroupId(299);
-	setClickingTogglesState(true);
+    setRadioGroupId(299);
+    setClickingTogglesState(true);
 
-	if (type == 0) {
-	 	selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected01_png, 
-	 								    BinaryData::RadioButtons_selected01_pngSize);
-	 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over01_png, 
-	 								    BinaryData::RadioButtons_selected_over01_pngSize);
-	 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral01_png, 
-	 								    BinaryData::RadioButtons_neutral01_pngSize);
-	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons01_png, 
-	 								    BinaryData::RadioButtons01_pngSize);
-	 } 
-	else if (type == 1) {
-		selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected02_png, 
-	 								    BinaryData::RadioButtons_selected02_pngSize);
-	 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over02_png, 
-	 								    BinaryData::RadioButtons_selected_over02_pngSize);
-	 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral02_png, 
-	 								    BinaryData::RadioButtons_neutral02_pngSize);
-	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons02_png, 
-	 								    BinaryData::RadioButtons02_pngSize);
-	 }
-	else if (type == 2) {
-		selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected03_png, 
-	 								    BinaryData::RadioButtons_selected03_pngSize);
-	 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over03_png, 
-	 								    BinaryData::RadioButtons_selected_over03_pngSize);
-	 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral03_png, 
-	 								    BinaryData::RadioButtons_neutral03_pngSize);
-	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons03_png, 
-	 								    BinaryData::RadioButtons03_pngSize);
-	 }
-	else if (type == 3) {
-		selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected04_png, 
-	 								    BinaryData::RadioButtons_selected04_pngSize);
-	 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over04_png, 
-	 								    BinaryData::RadioButtons_selected_over04_pngSize);
-	 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral04_png, 
-	 								    BinaryData::RadioButtons_neutral04_pngSize);
-	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons04_png, 
-	 								    BinaryData::RadioButtons04_pngSize);
-	 }
-	else if (type == 4) {
-		selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected05_png, 
-	 								    BinaryData::RadioButtons_selected05_pngSize);
-	 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over05_png, 
-	 								    BinaryData::RadioButtons_selected_over05_pngSize);
-	 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral05_png, 
-	 								    BinaryData::RadioButtons_neutral05_pngSize);
-	 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons05_png, 
-	 								    BinaryData::RadioButtons05_pngSize);
-	 }
-  //   else if (type == 5) {
-		// selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected05_png,
-  //                                             BinaryData::RadioButtons_selected05_pngSize);
-	 // 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over05_png,
-  //                                                BinaryData::RadioButtons_selected_over05_pngSize);
-	 // 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral05_png,
-  //                                            BinaryData::RadioButtons_neutral05_pngSize);
-	 // 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons05_png,
-  //                                                BinaryData::RadioButtons05_pngSize);
-  //   }
+    if (type == 0)
+    {
+        selected = ImageCache::getFromMemory(BinaryData::RadioButtons_selected01_png,
+                                             BinaryData::RadioButtons_selected01_pngSize);
+        selectedOver= ImageCache::getFromMemory(BinaryData::RadioButtons_selected_over01_png,
+                                                BinaryData::RadioButtons_selected_over01_pngSize);
+        neutral = ImageCache::getFromMemory(BinaryData::RadioButtons_neutral01_png,
+                                            BinaryData::RadioButtons_neutral01_pngSize);
+        neutralOver = ImageCache::getFromMemory(BinaryData::RadioButtons01_png,
+                                                BinaryData::RadioButtons01_pngSize);
+    }
+    else if (type == 1)
+    {
+        selected = ImageCache::getFromMemory(BinaryData::RadioButtons_selected02_png,
+                                             BinaryData::RadioButtons_selected02_pngSize);
+        selectedOver= ImageCache::getFromMemory(BinaryData::RadioButtons_selected_over02_png,
+                                                BinaryData::RadioButtons_selected_over02_pngSize);
+        neutral = ImageCache::getFromMemory(BinaryData::RadioButtons_neutral02_png,
+                                            BinaryData::RadioButtons_neutral02_pngSize);
+        neutralOver = ImageCache::getFromMemory(BinaryData::RadioButtons02_png,
+                                                BinaryData::RadioButtons02_pngSize);
+    }
+    else if (type == 2)
+    {
+        selected = ImageCache::getFromMemory(BinaryData::RadioButtons_selected03_png,
+                                             BinaryData::RadioButtons_selected03_pngSize);
+        selectedOver= ImageCache::getFromMemory(BinaryData::RadioButtons_selected_over03_png,
+                                                BinaryData::RadioButtons_selected_over03_pngSize);
+        neutral = ImageCache::getFromMemory(BinaryData::RadioButtons_neutral03_png,
+                                            BinaryData::RadioButtons_neutral03_pngSize);
+        neutralOver = ImageCache::getFromMemory(BinaryData::RadioButtons03_png,
+                                                BinaryData::RadioButtons03_pngSize);
+    }
+    else if (type == 3)
+    {
+        selected = ImageCache::getFromMemory(BinaryData::RadioButtons_selected04_png,
+                                             BinaryData::RadioButtons_selected04_pngSize);
+        selectedOver= ImageCache::getFromMemory(BinaryData::RadioButtons_selected_over04_png,
+                                                BinaryData::RadioButtons_selected_over04_pngSize);
+        neutral = ImageCache::getFromMemory(BinaryData::RadioButtons_neutral04_png,
+                                            BinaryData::RadioButtons_neutral04_pngSize);
+        neutralOver = ImageCache::getFromMemory(BinaryData::RadioButtons04_png,
+                                                BinaryData::RadioButtons04_pngSize);
+    }
+    else if (type == 4)
+    {
+        selected = ImageCache::getFromMemory(BinaryData::RadioButtons_selected05_png,
+                                             BinaryData::RadioButtons_selected05_pngSize);
+        selectedOver= ImageCache::getFromMemory(BinaryData::RadioButtons_selected_over05_png,
+                                                BinaryData::RadioButtons_selected_over05_pngSize);
+        neutral = ImageCache::getFromMemory(BinaryData::RadioButtons_neutral05_png,
+                                            BinaryData::RadioButtons_neutral05_pngSize);
+        neutralOver = ImageCache::getFromMemory(BinaryData::RadioButtons05_png,
+                                                BinaryData::RadioButtons05_pngSize);
+    }
+    //   else if (type == 5) {
+    // selected = ImageCache::getFromMemory (BinaryData::RadioButtons_selected05_png,
+    //                                             BinaryData::RadioButtons_selected05_pngSize);
+    // 	selectedOver= ImageCache::getFromMemory (BinaryData::RadioButtons_selected_over05_png,
+    //                                                BinaryData::RadioButtons_selected_over05_pngSize);
+    // 	neutral = ImageCache::getFromMemory (BinaryData::RadioButtons_neutral05_png,
+    //                                            BinaryData::RadioButtons_neutral05_pngSize);
+    // 	neutralOver = ImageCache::getFromMemory (BinaryData::RadioButtons05_png,
+    //                                                BinaryData::RadioButtons05_pngSize);
+    //   }
 
 }
 
 void WaveformSelector::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
- 
 
-     if (getToggleState())
-     {
-     	if (isMouseOver)
-        	g.drawImage(selectedOver, 0, 0, 31, 19, 0, 0, 31, 19);
+
+    if (getToggleState())
+    {
+        if (isMouseOver)
+            g.drawImage(selectedOver, 0, 0, 31, 19, 0, 0, 31, 19);
         else
-        	g.drawImage(selected, 0, 0, 31, 19, 0, 0, 31, 19);
-     } else {
-         if (isMouseOver)
-         	g.drawImage(neutralOver, 0, 0, 31, 19, 0, 0, 31, 19);
+            g.drawImage(selected, 0, 0, 31, 19, 0, 0, 31, 19);
+    }
+    else
+    {
+        if (isMouseOver)
+            g.drawImage(neutralOver, 0, 0, 31, 19, 0, 0, 31, 19);
         else
-        	g.drawImage(neutral, 0, 0, 31, 19, 0, 0, 31, 19);
-     }
+            g.drawImage(neutral, 0, 0, 31, 19, 0, 0, 31, 19);
+    }
 
     // g.fillAll();
 
@@ -288,5 +300,5 @@ void WaveformSelector::paintButton(Graphics& g, bool isMouseOver, bool isButtonD
     // g.drawRect(0, 0, getWidth(), getHeight());
 
     // g.setImageResamplingQuality(Graphics::highResamplingQuality);
-     
+
 }

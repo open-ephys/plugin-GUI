@@ -25,13 +25,10 @@
 #define __MESSAGECENTER_H_2695FC38__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 /**
-  
+
   Allows the application to display messages to the user.
 
   The MessageCenter is located along the bottom left of the application window.
@@ -41,7 +38,7 @@
 */
 
 class MessageCenter : public Component,
-					  public ActionListener
+    public ActionListener
 
 {
 public:
@@ -49,21 +46,21 @@ public:
     ~MessageCenter();
 
     /** Draws the message center.*/
-    void paint (Graphics& g);
+    void paint(Graphics& g);
 
 private:
 
-   /** A JUCE label used to display message text. */
-   ScopedPointer<Label> messageDisplayArea;
+    /** A JUCE label used to display message text. */
+    ScopedPointer<Label> messageDisplayArea;
 
-   /** Called when the boundaries of the MessageCenter are changed. */
-   void resized();
+    /** Called when the boundaries of the MessageCenter are changed. */
+    void resized();
 
-   /** Called when a new message is received. */
-   void actionListenerCallback(const String& message);
+    /** Called when a new message is received. */
+    void actionListenerCallback(const String& message);
 
-   /** The background color (changes to yellow when a new message arrives). */
-   Colour messageBackground;
+    /** The background color (changes to yellow when a new message arrives). */
+    Colour messageBackground;
 
 };
 

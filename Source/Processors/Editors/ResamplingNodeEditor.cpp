@@ -26,15 +26,15 @@
 #include <stdio.h>
 
 
-ResamplingNodeEditor::ResamplingNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-	: GenericEditor(parentNode, useDefaultParameterEditors)
+ResamplingNodeEditor::ResamplingNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-	desiredWidth = 180;
+    desiredWidth = 180;
 
 }
 
 ResamplingNodeEditor::~ResamplingNodeEditor()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }

@@ -25,17 +25,11 @@
 #define __WIFIOUTPUT_H_94D625CE__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GenericProcessor.h"
 #include "Editors/WiFiOutputEditor.h"
 
 #include "../Network/PracticalSocket.h"  // For UDPSocket and SocketException
-
-
-class FilterViewport;
 
 /**
 
@@ -49,30 +43,33 @@ class FilterViewport;
 
 
 class WiFiOutput : public GenericProcessor,
-		           public Timer
+    public Timer
 
 {
 public:
-	
-	WiFiOutput();
-	~WiFiOutput();
-	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void setParameter (int parameterIndex, float newValue);
+
+    WiFiOutput();
+    ~WiFiOutput();
+
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void setParameter(int parameterIndex, float newValue);
 
     void handleEvent(int eventType, MidiMessage& event, int sampleNum);
-    
-	AudioProcessorEditor* createEditor();
 
-	bool isSink() {return true;}
-	
+    AudioProcessorEditor* createEditor();
+
+    bool isSink()
+    {
+        return true;
+    }
+
 private:
 
-	UDPSocket socket;
+    UDPSocket socket;
 
-	void timerCallback();
+    void timerCallback();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WiFiOutput);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WiFiOutput);
 
 };
 

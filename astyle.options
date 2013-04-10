@@ -1,0 +1,70 @@
+#  Custom options file for astyle (astyle.sourceforge.net), a source code
+#  formatter for C/C++ (and some other languages).
+#
+#  Since it's clunky to use this program on windows and mac (it's a commandline
+#  program, but there's no installer), the real point is just to be able to
+#  enforce some general sanity on the codebase every once in a while.  That
+#  said, the general prescription below will actually work on all available
+#  platforms, with the caveat that on windows and mac you might have to figure
+#  in the actual path to the astyle binary.
+#
+#  usage:
+#  cd Source
+#  astyle --options="../astyle.options" "./*"
+#
+
+#  The above commands will format the entire source tree using a style which
+#  mostly conforms to that of the Juce library
+#  (www.juce.com/wiki/index.php/Coding_Standards).
+#
+#  The biggest difference is with parentheses after functions: Juce uses "foo
+#  (bar)" except when there's no arguments (e.g. "foo()"), whereas here we
+#  enforce "foo(bar)" and "foo()."
+#
+#  Some documentation of the options is provided here for convenience.  For full
+#  options documentation, go to astyle.sourceforge.net/astyle.html.
+
+
+# No backup file suffix, i.e. don't back up the files, since this would just
+# make a mess of the source tree.  If astyle screws up, we'll rely on git.
+suffix=none
+
+recursive
+
+# This is the _bracket_ style (not affecting indentation, for example.)
+style=allman
+
+# Just to be clear (even though it's the default): indentation uses 4 spaces.
+indent=spaces=4
+
+indent-switches
+indent-cases
+
+# Indent multiline #defines.
+indent-preprocessor
+
+# Comments starting in the first column of text are not special.
+indent-col1-comments
+
+# Conditionals inside if, while, for, etc., are not indented if they have to
+# break a line.
+min-conditional-indent=0
+
+# Don't limit the size of an in-statement indent.
+# Example:
+# reallyLongFunctionName(foo,
+# --don't limit this---->bar);
+max-instatement-indent=80
+
+# Remove spaces in and around parentheses (except in front of "headers;" see the
+# next rule for that exception).
+# Note, this differs from the Juce style!
+# Example: foo ( bar, baz ); -> foo(bar, baz);)
+unpad-paren
+
+# insert a space after if, while, for, etc.
+--pad-header
+
+# Pointer/reference operators go next to the type (on the left).
+align-pointer=type
+

@@ -24,13 +24,10 @@
 #ifndef __EDITORVIEWPORTBUTTONS_H_2657C51D__
 #define __EDITORVIEWPORTBUTTONS_H_2657C51D__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 /**
-  
+
   Allows the user to scroll through visible editors when
   there are more than can fit within the boundaries of the
   EditorViewport.
@@ -42,23 +39,23 @@
 class EditorScrollButton : public DrawableButton
 {
 public:
-	EditorScrollButton(int type);
-	~EditorScrollButton();
+    EditorScrollButton(int type);
+    ~EditorScrollButton();
 
-	void setActive(bool);
+    void setActive(bool);
 
-	bool isActive;
+    bool isActive;
 
-	enum type {LEFT, RIGHT};
+    enum type {LEFT, RIGHT};
 
-	int direction;
+    int direction;
 
-	DrawablePath inactive, activeNormal, activeOver, activeDown;
+    DrawablePath inactive, activeNormal, activeOver, activeDown;
 
 };
 
 /**
-  
+
   Allows the user to scroll through signal chains when
   there are more than can fit within the boundaries of the
   EditorViewport.
@@ -70,18 +67,18 @@ public:
 class SignalChainScrollButton : public DrawableButton
 {
 public:
-	SignalChainScrollButton(int type);
-	~SignalChainScrollButton();
+    SignalChainScrollButton(int type);
+    ~SignalChainScrollButton();
 
-	void setActive(bool);
+    void setActive(bool);
 
-	enum type {UP, DOWN};
+    enum type {UP, DOWN};
 
-	bool isActive;
+    bool isActive;
 
-	int direction;
+    int direction;
 
-	DrawablePath inactive, activeNormal, activeOver, activeDown;
+    DrawablePath inactive, activeNormal, activeOver, activeDown;
 };
 
 

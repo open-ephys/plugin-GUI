@@ -24,9 +24,6 @@
 #ifndef __PROCESSORLIST_H_C3A661E9__
 #define __PROCESSORLIST_H_C3A661E9__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/Visualization/OpenGLCanvas.h"
 #include "../AccessClass.h"
@@ -35,7 +32,7 @@ class ProcessorListItem;
 class UIComponent;
 
 /**
-  
+
   Holds a list of processors that can be used to build the signal
   chain.
 
@@ -52,84 +49,84 @@ class UIComponent;
 */
 
 class ProcessorList : public OpenGLCanvas,
-				   public DragAndDropContainer,
-				   public AccessClass,
-				   public ChangeListener
+    public DragAndDropContainer,
+    public AccessClass,
+    public ChangeListener
 
 {
 public:
 
-	ProcessorList();
-	~ProcessorList();
+    ProcessorList();
+    ~ProcessorList();
 
-	/** Switches the open/closed state of the ProcessorList.*/
-	void toggleState();
+    /** Switches the open/closed state of the ProcessorList.*/
+    void toggleState();
 
-	/** Called when the user requests a colour change using a ColourSelector.*/
-	void changeListenerCallback(ChangeBroadcaster* source);
+    /** Called when the user requests a colour change using a ColourSelector.*/
+    void changeListenerCallback(ChangeBroadcaster* source);
 
-	/** Returns the open/closed state of the ProcessorList.*/
-	bool isOpen();
+    /** Returns the open/closed state of the ProcessorList.*/
+    bool isOpen();
 
 private:
 
-	/** Renders the canvas. */
-	void paintCanvas(Graphics& g);
+    /** Renders the canvas. */
+    void paintCanvas(Graphics& g);
 
-	/** The main method for drawing the ProcessorList.*/
-	void drawItems(Graphics& g);
+    /** The main method for drawing the ProcessorList.*/
+    void drawItems(Graphics& g);
 
-	/** Draws a single item within the ProcessorList.*/
-	void drawItem(Graphics& g, ProcessorListItem*);
+    /** Draws a single item within the ProcessorList.*/
+    void drawItem(Graphics& g, ProcessorListItem*);
 
-	/** Draws the name of a single item within the ProcessorList.*/
-	void drawItemName(Graphics& g, ProcessorListItem*);
+    /** Draws the name of a single item within the ProcessorList.*/
+    void drawItemName(Graphics& g, ProcessorListItem*);
 
-	/** Draws the open/close button.*/
-	void drawButton(Graphics& g, bool isOpen);
+    /** Draws the open/close button.*/
+    void drawButton(Graphics& g, bool isOpen);
 
-	/** Returns the ProcessorListItem that sits at a given y coordinate.*/
-	ProcessorListItem* getListItemForYPos(int y);
+    /** Returns the ProcessorListItem that sits at a given y coordinate.*/
+    ProcessorListItem* getListItemForYPos(int y);
 
-	/** Sets the appropriate OpenGL viewport for drawing.*/
-	void setViewport(Graphics& g, bool);
+    /** Sets the appropriate OpenGL viewport for drawing.*/
+    void setViewport(Graphics& g, bool);
 
-	int currentColor;
+    int currentColor;
 
-	/** Returns the height requested by the ProcessorList. Determines whether or not
-	the OpenGLCanvas needs to draw scroll bars.*/
-	int getTotalHeight();
+    /** Returns the height requested by the ProcessorList. Determines whether or not
+    the OpenGLCanvas needs to draw scroll bars.*/
+    int getTotalHeight();
 
-	/** Deselects all items within the ProcessorList.*/
-	void clearSelectionState();
+    /** Deselects all items within the ProcessorList.*/
+    void clearSelectionState();
 
-	bool isDragging;
-	int totalHeight, itemHeight, subItemHeight;
-	int xBuffer, yBuffer;
+    bool isDragging;
+    int totalHeight, itemHeight, subItemHeight;
+    int xBuffer, yBuffer;
 
-	String category;
-	
-	/** Called when a mouse click begins within the boundaries of the ProcessorList.*/
-	void mouseDownInCanvas(const MouseEvent& e);
+    String category;
 
-	/** Called when a mouse drag occurs within the boundaries of the ProcessorList.*/
-	void mouseDragInCanvas(const MouseEvent& e);
+    /** Called when a mouse click begins within the boundaries of the ProcessorList.*/
+    void mouseDownInCanvas(const MouseEvent& e);
 
-	/** The base item in the list.*/
-	ScopedPointer<ProcessorListItem> baseItem;
+    /** Called when a mouse drag occurs within the boundaries of the ProcessorList.*/
+    void mouseDragInCanvas(const MouseEvent& e);
 
-	Font listFontLight;
-	Font listFontPlain;
+    /** The base item in the list.*/
+    ScopedPointer<ProcessorListItem> baseItem;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorList);	
+    Font listFontLight;
+    Font listFontPlain;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProcessorList);
 
 };
 
 /**
-  
+
   An item within the ProcessorList.
 
-  If a ProcessorListItem has sub-items, it acts as a button that can 
+  If a ProcessorListItem has sub-items, it acts as a button that can
   be used to show/hide segments of the ProcessorList. If it has no
   sub-items, then it holds the name of a processor which can be dragged
   onto the EditorViewport to construct the signal chain.
@@ -141,64 +138,73 @@ private:
 class ProcessorListItem : public Component
 {
 public:
-	ProcessorListItem(const String& name);
-	~ProcessorListItem();
+    ProcessorListItem(const String& name);
+    ~ProcessorListItem();
 
-	/** Returns the number of sub-items for a given ProcessorListItem. */
-	int getNumSubItems();
+    /** Returns the number of sub-items for a given ProcessorListItem. */
+    int getNumSubItems();
 
-	/** Returns the sub-item for a given index. */
-	ProcessorListItem* getSubItem (int index);
+    /** Returns the sub-item for a given index. */
+    ProcessorListItem* getSubItem(int index);
 
-	/** Clears all the sub-items owned by the ProcessorListItem. */
-	void clearSubItems();
+    /** Clears all the sub-items owned by the ProcessorListItem. */
+    void clearSubItems();
 
-	/** Adds a sub-item. */
-	void addSubItem (ProcessorListItem* newItem);
+    /** Adds a sub-item. */
+    void addSubItem(ProcessorListItem* newItem);
 
-	/** Removes a sub-item with a given index. */
-	void removeSubItem (int index);
+    /** Removes a sub-item with a given index. */
+    void removeSubItem(int index);
 
-	/** Returns true if a ProcessorListItem has sub-items, false otherwise. */
-	bool hasSubItems();
+    /** Returns true if a ProcessorListItem has sub-items, false otherwise. */
+    bool hasSubItems();
 
-	/** Removes true if a ProcessorListItem with sub-items is open, false otherwise. */
-	bool isOpen();
+    /** Removes true if a ProcessorListItem with sub-items is open, false otherwise. */
+    bool isOpen();
 
-	/** Sets the open/closed state of a ProcessorListItem with sub-items. */
-	void setOpen(bool);
+    /** Sets the open/closed state of a ProcessorListItem with sub-items. */
+    void setOpen(bool);
 
-	/** Toggles the open/closed state of a ProcessorListItem with sub-items. */
-	void reverseOpenState() {open = !open;}
+    /** Toggles the open/closed state of a ProcessorListItem with sub-items. */
+    void reverseOpenState()
+    {
+        open = !open;
+    }
 
-	/** Returns true if a ProcessorListItem has been selected by the user, false otherwise. */
-	bool isSelected() {return selected;}
+    /** Returns true if a ProcessorListItem has been selected by the user, false otherwise. */
+    bool isSelected()
+    {
+        return selected;
+    }
 
-	/** Sets selection state of a ProcessorListItem. */
-	void setSelected(bool b) {selected = b;}
+    /** Sets selection state of a ProcessorListItem. */
+    void setSelected(bool b)
+    {
+        selected = b;
+    }
 
-	/** Returns the name of a ProcessorListItem. */
-	const String& getName();
+    /** Returns the name of a ProcessorListItem. */
+    const String& getName();
 
-	/** Returns the name of the parent of a ProcessorListItem. */
-	const String& getParentName();
+    /** Returns the name of the parent of a ProcessorListItem. */
+    const String& getParentName();
 
-	/** Sets the name of the parent of a ProcessorListItem. */
-	void setParentName(const String& name);
+    /** Sets the name of the parent of a ProcessorListItem. */
+    void setParentName(const String& name);
 
-	/** Determines the color of the ProcessorListItem (based on enumerator defined in setParentName() method). */
-	int colorId;
+    /** Determines the color of the ProcessorListItem (based on enumerator defined in setParentName() method). */
+    int colorId;
 
 private:
 
-	bool selected;
-	bool open;
-	const String name;
-	String parentName;
+    bool selected;
+    bool open;
+    const String name;
+    String parentName;
 
-	/** An array of all the sub-items (if any) that belong to this ProcessorListItem. */
-	OwnedArray<ProcessorListItem> subItems;
-	
+    /** An array of all the sub-items (if any) that belong to this ProcessorListItem. */
+    OwnedArray<ProcessorListItem> subItems;
+
 };
 
 

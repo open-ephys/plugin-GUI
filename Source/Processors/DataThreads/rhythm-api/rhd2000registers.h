@@ -49,13 +49,15 @@ public:
     void enableZcheck(bool enabled);
     void setZcheckDacPower(bool enabled);
 
-    enum ZcheckCs {
+    enum ZcheckCs
+    {
         ZcheckCs100fF,
         ZcheckCs1pF,
         ZcheckCs10pF
     };
 
-    enum ZcheckPolarity {
+    enum ZcheckPolarity
+    {
         ZcheckPositiveInput,
         ZcheckNegativeInput
     };
@@ -77,7 +79,8 @@ public:
     int createCommandListTempSensor(vector<int> &commandList);
     int createCommandListZcheckDac(vector<int> &commandList, double frequency, double amplitude);
 
-    enum Rhd2000CommandType {
+    enum Rhd2000CommandType
+    {
         Rhd2000CommandConvert,
         Rhd2000CommandCalibrate,
         Rhd2000CommandCalClear,

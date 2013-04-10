@@ -24,13 +24,10 @@
 #ifndef __DATAWINDOW_H_FDDAB8D0__
 #define __DATAWINDOW_H_FDDAB8D0__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 /**
-  
+
   Allows OpenGL visualizers to be placed in their own window.
 
   @see DataViewport, OpenGLCanvas
@@ -40,15 +37,15 @@
 class DataWindow : public DocumentWindow
 {
 public:
-	DataWindow(Button* button, String name);
-	~DataWindow();
+    DataWindow(Button* button, String name);
+    ~DataWindow();
 
-	void closeButtonPressed();
+    void closeButtonPressed();
 
 private:
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataWindow);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataWindow);
 
-	Button* controlButton;
+    Button* controlButton;
 
 };
 

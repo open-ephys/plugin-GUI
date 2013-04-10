@@ -25,9 +25,6 @@
 #define __MERGEREDITOR_H_33F644A8__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
@@ -43,22 +40,22 @@ class MergerEditor : public GenericEditor
 
 {
 public:
-	MergerEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~MergerEditor();
+    MergerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~MergerEditor();
 
-	virtual void buttonEvent (Button* button);
+    virtual void buttonEvent(Button* button);
 
     void switchSource(int);
-    void switchSource ();
+    void switchSource();
 
     void switchIO(int);
 
-private:	
-	
-	ImageButton* pipelineSelectorA;
-	ImageButton* pipelineSelectorB;
+private:
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MergerEditor);
+    ImageButton* pipelineSelectorA;
+    ImageButton* pipelineSelectorB;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MergerEditor);
 
 };
 

@@ -27,22 +27,69 @@
 #include <stdio.h>
 
 
-ReferenceNodeEditor::ReferenceNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-	: GenericEditor(parentNode, useDefaultParameterEditors)
+ReferenceNodeEditor::ReferenceNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors), previousChannelCount(0)
 
 {
-	desiredWidth = 180;
+    desiredWidth = 180;
 
+    referenceSelector = new ComboBox();
+    referenceSelector->setBounds(15,50,150,25);
+    referenceSelector->addListener(this);
+    referenceSelector->addItem("None", 1);
+    referenceSelector->setSelectedId(1, false);
+    addAndMakeVisible(referenceSelector);
 
 }
 
 ReferenceNodeEditor::~ReferenceNodeEditor()
 {
-	deleteAllChildren();
+
 }
 
-void ReferenceNodeEditor::buttonEvent (Button* button)
+void ReferenceNodeEditor::updateSettings()
 {
-	
+
+    if (getProcessor()->getNumInputs() != previousChannelCount)
+    {
+        referenceSelector->clear();
+
+        referenceSelector->addItem("None", 1);
+
+        for (int i = 0; i < getProcessor()->getNumInputs(); i++)
+        {
+            referenceSelector->addItem("Channel " + String(i+1), i+2);
+
+        }
+
+        previousChannelCount = getProcessor()->getNumInputs();
+
+    }
+
+    referenceSelector->setSelectedId(1, false);
+
+    getProcessor()->setParameter(1,-1.0f);
+}
+
+void ReferenceNodeEditor::comboBoxChanged(ComboBox* c)
+{
+    float channel;
+
+    int id = c->getSelectedId();
+
+    if (id == 1)
+    {
+        channel = -1.0f; 
+    } else {
+        channel = float(id) - 2.0f;
+    }
+
+    getProcessor()->setParameter(1,channel);
+
+}
+
+void ReferenceNodeEditor::buttonEvent(Button* button)
+{
+
 
 }

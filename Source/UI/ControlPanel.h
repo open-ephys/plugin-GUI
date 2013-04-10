@@ -24,9 +24,6 @@
 #ifndef __CONTROLPANEL_H_AD81E528__
 #define __CONTROLPANEL_H_AD81E528__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Audio/AudioComponent.h"
 #include "../Processors/Editors/AudioEditor.h"
@@ -37,16 +34,16 @@
 #include "../Processors/Editors/GenericEditor.h" // for UtilityButton
 #include "../Processors/Visualization/OpenGLCanvas.h"
 
-#include "../OpenGL.h"
+//#include "../OpenGL.h"
 
 
 /**
-  
+
   Toggles data acquisition on and off.
 
   The PlayButton is located in the ControlPanel. Clicking it toggles the state
   of the ProcessorGraph to either begin the callbacks that drive data through
-  the graph (acquisition on) or end these callbacks (acquisition off). 
+  the graph (acquisition on) or end these callbacks (acquisition off).
 
   Acquisition can also be started by pressing the RecordButton
   (assuming callbacks are not already active).
@@ -58,20 +55,20 @@
 
 class PlayButton : public DrawableButton
 {
-	public:
-		PlayButton();
-		~PlayButton();
+public:
+    PlayButton();
+    ~PlayButton();
 };
 
 /**
-  
+
   Toggles recording on and off.
 
-  The RecordButton is located in the ControlPanel. Clicking it toggles the 
-  state of the RecordNode to either begin saving data (recording on) or 
+  The RecordButton is located in the ControlPanel. Clicking it toggles the
+  state of the RecordNode to either begin saving data (recording on) or
   stop saving data (recording off).
 
-  If the RecordButton is pressed while data acquisition is inactive, it 
+  If the RecordButton is pressed while data acquisition is inactive, it
   will automatically start data acquisition before recording.
 
   @see ControlPanel, RecordNode
@@ -80,13 +77,13 @@ class PlayButton : public DrawableButton
 
 class RecordButton : public DrawableButton
 {
-	public:
-		RecordButton();
-		~RecordButton();
+public:
+    RecordButton();
+    ~RecordButton();
 };
 
 /**
-  
+
   Displays the CPU load used up by the data processing callbacks.
 
   The CPUMeter is located in the ControlPanel. Whenever acquisition is active,
@@ -95,7 +92,7 @@ class RecordButton : public DrawableButton
   It's not clear how accurate the meter is, nor how it deals with CPUs using multiple cores.
 
   For a more accurate measurement of CPU load, it's recommended to use a graphical
-  interface or type 'top' inside a terminal. 
+  interface or type 'top' inside a terminal.
 
   @see ControlPanel
 
@@ -103,28 +100,28 @@ class RecordButton : public DrawableButton
 
 class CPUMeter : public Label
 {
-	public:
-		CPUMeter();
-		~CPUMeter();
+public:
+    CPUMeter();
+    ~CPUMeter();
 
-		/** Updates the load level displayed by the CPUMeter. Called by
-		     the ControlPanel. */
-		void updateCPU(float usage);
+    /** Updates the load level displayed by the CPUMeter. Called by
+         the ControlPanel. */
+    void updateCPU(float usage);
 
-		/** Draws the CPUMeter. */
-		void paint (Graphics& g);
-	
-	private:
+    /** Draws the CPUMeter. */
+    void paint(Graphics& g);
 
-		Font font;
+private:
 
-		float cpu;
-		float lastCpu;
+    Font font;
+
+    float cpu;
+    float lastCpu;
 
 };
 
 /**
-  
+
   Displays the amount of disk space left in the current data directory.
 
   The DiskSpaceMeter is located in the ControlPanel. When the GUI is launched (or the data directory
@@ -139,31 +136,31 @@ class CPUMeter : public Label
 class DiskSpaceMeter : public Component
 {
 public:
-	DiskSpaceMeter();
-	~DiskSpaceMeter();
+    DiskSpaceMeter();
+    ~DiskSpaceMeter();
 
-	/** Updates the free disk space displayed by the DiskSpaceMeter. Called by
-		the ControlPanel. */
-	void updateDiskSpace(float percent);
+    /** Updates the free disk space displayed by the DiskSpaceMeter. Called by
+    	the ControlPanel. */
+    void updateDiskSpace(float percent);
 
-	/** Draws the DiskSpaceMeter. */
-	void paint (Graphics& g);
+    /** Draws the DiskSpaceMeter. */
+    void paint(Graphics& g);
 
 private:
 
-	Font font;
+    Font font;
 
-	float diskFree;
-	
+    float diskFree;
+
 };
 
 /**
-  
+
   Displays the time.
 
-  The Clock is located in the ControlPanel. If acquisition (but not recording) is 
+  The Clock is located in the ControlPanel. If acquisition (but not recording) is
   active, it displays (in yellow) the cumulative amount of time that the GUI has been acquiring data since
-  the application was launched. If recording is active, the Clock displays (in red) the 
+  the application was launched. If recording is active, the Clock displays (in red) the
   cumulative amount of time that recording has been active.
 
   The Clock uses built-in JUCE functions for getting the system time. It does not
@@ -177,50 +174,50 @@ private:
 
 class Clock : public Component
 {
-	public:
-		Clock();
-		~Clock();
+public:
+    Clock();
+    ~Clock();
 
-		/** Starts the acquisition (yellow) clock.*/
-		void start();
+    /** Starts the acquisition (yellow) clock.*/
+    void start();
 
-		/** Stops the acquisition (yellow) clock.*/
-		void stop();
+    /** Stops the acquisition (yellow) clock.*/
+    void stop();
 
-		/** Starts the recording (red) clock.*/
-		void startRecording();
+    /** Starts the recording (red) clock.*/
+    void startRecording();
 
-		/** Stops the recording (red) clock.*/
-		void stopRecording();
+    /** Stops the recording (red) clock.*/
+    void stopRecording();
 
-		/** Sets the cumulative recording time to zero.*/
-		void resetRecordTime();
+    /** Sets the cumulative recording time to zero.*/
+    void resetRecordTime();
 
-		/** Renders the clock.*/
-		void paint(Graphics& g);
+    /** Renders the clock.*/
+    void paint(Graphics& g);
 
-	private:
+private:
 
-		/** Draws the current time.*/
-		void drawTime(Graphics& g);
+    /** Draws the current time.*/
+    void drawTime(Graphics& g);
 
-		int64 lastTime;
+    int64 lastTime;
 
-		int64 totalTime;
-		int64 totalRecordTime;
+    int64 totalTime;
+    int64 totalRecordTime;
 
-		bool isRunning;
-		bool isRecording;
+    bool isRunning;
+    bool isRecording;
 
-		Font clockFont;
+    Font clockFont;
 
 };
 
 /**
-  
+
   Used to show and hide the file browser within the ControlPanel.
 
-  The ControlPanel contains a JUCE FilenameComponent used to change the 
+  The ControlPanel contains a JUCE FilenameComponent used to change the
   data directory. When not in use, this component can be hidden using
   the ControlPanelButton.
 
@@ -231,33 +228,36 @@ class Clock : public Component
 class ControlPanelButton : public Component
 {
 public:
-	ControlPanelButton(ControlPanel* cp_);
-	~ControlPanelButton();
+    ControlPanelButton(ControlPanel* cp_);
+    ~ControlPanelButton();
 
-	/** Returns the open/closed state of the ControlPanelButton.*/
-	bool isOpen() {return open;}
+    /** Returns the open/closed state of the ControlPanelButton.*/
+    bool isOpen()
+    {
+        return open;
+    }
 
-	/** Toggles the open/closed state of the ControlPanelButton.*/
-	void toggleState();
+    /** Toggles the open/closed state of the ControlPanelButton.*/
+    void toggleState();
 
-	/** Draws the button. */
-	void paint(Graphics& g);
+    /** Draws the button. */
+    void paint(Graphics& g);
 
-	/** Responds to mouse clicks within the button. */
-	void mouseDown(const MouseEvent& e);
+    /** Responds to mouse clicks within the button. */
+    void mouseDown(const MouseEvent& e);
 
-private:	
+private:
 
-	ControlPanel* cp;
+    ControlPanel* cp;
 
-	bool open;
+    bool open;
 
 };
 
 class UtilityButton;
 
 /**
-  
+
   Provides general application controls along the top of the MainWindow.
 
   Displays useful information and provides buttons to control acquistion and recording.
@@ -270,77 +270,83 @@ class UtilityButton;
 
 */
 
-class ControlPanel : public Component, 
-					 public Button::Listener,
-					 public Timer,
-					 public AccessClass
+class ControlPanel : public Component,
+    public Button::Listener,
+    public Timer,
+    public AccessClass
 
 {
 public:
-	ControlPanel(ProcessorGraph* graph, AudioComponent* audio);
-	~ControlPanel();
+    ControlPanel(ProcessorGraph* graph, AudioComponent* audio);
+    ~ControlPanel();
 
-	/** Disables the callbacks of the ProcessorGraph (used to
-	    drive data acquisition).*/
-	void disableCallbacks();
+    /** Disables the callbacks of the ProcessorGraph (used to
+        drive data acquisition).*/
+    void disableCallbacks();
 
-	/** Returns a pointer to the AudioEditor.*/
-	AccessClass* getAudioEditor() {return (AccessClass*) audioEditor;}
+    /** Returns a pointer to the AudioEditor.*/
+    AccessClass* getAudioEditor()
+    {
+        return (AccessClass*) audioEditor;
+    }
 
-	/** Sets whether or not the FilenameComponent is visible.*/
-	void openState(bool isOpen);
-	
-	/** Toggles the visibility of the FilenameComponent.*/
-	void toggleState();
+    /** Sets whether or not the FilenameComponent is visible.*/
+    void openState(bool isOpen);
 
-	/** Used to manually turn recording on and off.*/
-	void setRecordState(bool isRecording);
+    /** Toggles the visibility of the FilenameComponent.*/
+    void toggleState();
 
-	/** Returns a boolean that indicates whether or not the FilenameComponet
-	    is visible. */
-	bool isOpen() {return open;}
- 
-private:	
-	ScopedPointer<PlayButton> playButton;
-	ScopedPointer<RecordButton> recordButton;
-	ScopedPointer<Clock> masterClock;
-	ScopedPointer<CPUMeter> cpuMeter;
-	ScopedPointer<DiskSpaceMeter> diskMeter;
-	ScopedPointer<FilenameComponent> filenameComponent;
-	ScopedPointer<UtilityButton> newDirectoryButton;
-	ScopedPointer<ControlPanelButton> cpb;
+    /** Used to manually turn recording on and off.*/
+    void setRecordState(bool isRecording);
 
-	ProcessorGraph* graph;
-	AudioComponent* audio;
-	AudioEditor* audioEditor;
+    /** Returns a boolean that indicates whether or not the FilenameComponet
+        is visible. */
+    bool isOpen()
+    {
+        return open;
+    }
 
-	void paint(Graphics& g);
+private:
+    ScopedPointer<PlayButton> playButton;
+    ScopedPointer<RecordButton> recordButton;
+    ScopedPointer<Clock> masterClock;
+    ScopedPointer<CPUMeter> cpuMeter;
+    ScopedPointer<DiskSpaceMeter> diskMeter;
+    ScopedPointer<FilenameComponent> filenameComponent;
+    ScopedPointer<UtilityButton> newDirectoryButton;
+    ScopedPointer<ControlPanelButton> cpb;
 
-	void resized();
+    ProcessorGraph* graph;
+    AudioComponent* audio;
+    AudioEditor* audioEditor;
 
-	void buttonClicked(Button* button);
+    void paint(Graphics& g);
 
-	bool initialize;
+    void resized();
 
-	/** Adds the RecordNode as a listener of the FilenameComponent
-	(so it knows when the data directory has changed).*/
-	void updateChildComponents();
+    void buttonClicked(Button* button);
 
-	void timerCallback();
+    bool initialize;
 
-	/** Updates the values displayed by the CPUMeter and DiskSpaceMeter.*/
-	void refreshMeters();
+    /** Adds the RecordNode as a listener of the FilenameComponent
+    (so it knows when the data directory has changed).*/
+    void updateChildComponents();
 
-	bool keyPressed(const KeyPress &key);
+    void timerCallback();
 
-	Font font;
+    /** Updates the values displayed by the CPUMeter and DiskSpaceMeter.*/
+    void refreshMeters();
 
-	bool open;
+    bool keyPressed(const KeyPress& key);
 
-	Path p1, p2;
+    Font font;
 
-	/** Draws the boundaries around the FilenameComponent.*/
-	void createPaths();
+    bool open;
+
+    Path p1, p2;
+
+    /** Draws the boundaries around the FilenameComponent.*/
+    void createPaths();
 
 };
 

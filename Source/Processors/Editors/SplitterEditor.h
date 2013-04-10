@@ -25,9 +25,6 @@
 #define __SPLITTEREDITOR_H_33F644A8__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
@@ -42,22 +39,22 @@
 class SplitterEditor : public GenericEditor
 {
 public:
-	SplitterEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~SplitterEditor();
+    SplitterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~SplitterEditor();
 
-	void buttonEvent (Button* button);
+    void buttonEvent(Button* button);
 
     void switchDest(int);
     void switchDest();
 
     void switchIO(int i);
 
-private:	
-	
-	ImageButton* pipelineSelectorA;
-	ImageButton* pipelineSelectorB;
+private:
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SplitterEditor);
+    ImageButton* pipelineSelectorA;
+    ImageButton* pipelineSelectorB;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SplitterEditor);
 
 };
 

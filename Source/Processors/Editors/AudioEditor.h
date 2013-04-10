@@ -24,9 +24,6 @@
 #define __AUDIOEDITOR_H_9D6F1FC3__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../AudioNode.h"
 #include <stdio.h>
@@ -43,9 +40,9 @@ class AudioComponent;
 
 class MuteButton : public ImageButton
 {
-	public:
-		MuteButton();
-		~MuteButton();	
+public:
+    MuteButton();
+    ~MuteButton();
 };
 
 /**
@@ -57,12 +54,12 @@ class MuteButton : public ImageButton
 
 class AudioWindowButton : public Button
 {
-	public:
-		AudioWindowButton();
-		~AudioWindowButton();	
-		void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
-	private:
-		Font font;
+public:
+    AudioWindowButton();
+    ~AudioWindowButton();
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+private:
+    Font font;
 };
 
 /**
@@ -73,20 +70,20 @@ class AudioWindowButton : public Button
 */
 
 class AudioConfigurationWindow : public DocumentWindow,
-								 public AccessClass
+    public AccessClass
 {
 public:
-	AudioConfigurationWindow(AudioDeviceManager& adm, Button* b);
-	~AudioConfigurationWindow();
-	
-	void paint (Graphics& g);
-	void resized();
+    AudioConfigurationWindow(AudioDeviceManager& adm, Button* b);
+    ~AudioConfigurationWindow();
 
-private:	
+    void paint(Graphics& g);
+    void resized();
 
-	void closeButtonPressed();
+private:
 
-	Button* controlButton;
+    void closeButtonPressed();
+
+    Button* controlButton;
 
 };
 
@@ -98,35 +95,35 @@ private:
 */
 
 class AudioEditor : public AudioProcessorEditor,
-					public Button::Listener,
-					public Slider::Listener,
-					public AccessClass
+    public Button::Listener,
+    public Slider::Listener,
+    public AccessClass
 
 {
 public:
-	AudioEditor (AudioNode* owner);
-	~AudioEditor();
+    AudioEditor(AudioNode* owner);
+    ~AudioEditor();
 
-	void paint (Graphics& g);
+    void paint(Graphics& g);
 
-	bool keyPressed (const KeyPress& key);
+    bool keyPressed(const KeyPress& key);
 
-	void resized();
+    void resized();
 
 private:
 
-	void buttonClicked (Button* button);
-	void sliderValueChanged(Slider* slider);
+    void buttonClicked(Button* button);
+    void sliderValueChanged(Slider* slider);
 
-	float lastValue;
+    float lastValue;
 
-	MuteButton* muteButton;
-	AudioWindowButton* audioWindowButton;
-	AudioConfigurationWindow* acw;
+    MuteButton* muteButton;
+    AudioWindowButton* audioWindowButton;
+    AudioConfigurationWindow* acw;
 
-	Slider* volumeSlider;
+    Slider* volumeSlider;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioEditor);
 
 };
 

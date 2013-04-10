@@ -24,9 +24,6 @@
 #ifndef __REFERENCENODEEDITOR_H_370C056D__
 #define __REFERENCENODEEDITOR_H_370C056D__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
@@ -38,16 +35,25 @@
 
 */
 
-class ReferenceNodeEditor : public GenericEditor
+class ReferenceNodeEditor : public GenericEditor,
+                            public ComboBox::Listener
 {
 public:
-	ReferenceNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~ReferenceNodeEditor();
-	void buttonEvent(Button* button);
+    ReferenceNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~ReferenceNodeEditor();
+    void buttonEvent(Button* button);
 
-private:	
+    void comboBoxChanged(ComboBox* c);
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ReferenceNodeEditor);
+    void updateSettings();
+
+private:
+
+    ScopedPointer<ComboBox> referenceSelector;
+
+    int previousChannelCount;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReferenceNodeEditor);
 
 };
 

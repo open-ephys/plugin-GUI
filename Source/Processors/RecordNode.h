@@ -25,9 +25,6 @@
 #define __RECORDNODE_H_FB9B1CA7__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 #include <map>
@@ -50,139 +47,139 @@
 */
 
 class RecordNode : public GenericProcessor,
-                   public FilenameComponentListener
+    public FilenameComponentListener
 {
 public:
-	
-	RecordNode();
-	~RecordNode();
 
-  /** Handle incoming data and decide which files and events to write to disk.
-  */	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &eventBuffer, int& nSamples);
+    RecordNode();
+    ~RecordNode();
 
-  /** Overrides implementation in GenericProcessor; used to change recording parameters
-      on the fly.
+    /** Handle incoming data and decide which files and events to write to disk.
+    */
+    void process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer, int& nSamples);
 
-      parameterIndex = 0: stop recording
-      parameterIndex = 1: start recording
-      parameterIndex = 2: 
-            newValue = 0: turn off recording for current channel
-            newValue = 1: turn on recording for current channel
-  */
-	void setParameter (int parameterIndex, float newValue);
+    /** Overrides implementation in GenericProcessor; used to change recording parameters
+        on the fly.
 
-  void addInputChannel(GenericProcessor* sourceNode, int chan);
+        parameterIndex = 0: stop recording
+        parameterIndex = 1: start recording
+        parameterIndex = 2:
+              newValue = 0: turn off recording for current channel
+              newValue = 1: turn on recording for current channel
+    */
+    void setParameter(int parameterIndex, float newValue);
 
-	bool enable();
-	bool disable();
+    void addInputChannel(GenericProcessor* sourceNode, int chan);
 
-  /** Called by the ControlPanel to determine the amount of space
-      left in the current dataDirectory.
-  */
-	float getFreeSpace();
+    bool enable();
+    bool disable();
 
-  /** Selects a channel relative to a particular processor with ID = id
-  */
-  void setChannel(Channel* ch);
+    /** Called by the ControlPanel to determine the amount of space
+        left in the current dataDirectory.
+    */
+    float getFreeSpace();
 
-  /** Turns recording on and off for a particular channel.
+    /** Selects a channel relative to a particular processor with ID = id
+    */
+    void setChannel(Channel* ch);
 
-      Channel numbers are absolute (based on RecordNode channel mapping).
-  */
-  void setChannelStatus(Channel* ch, bool status);
+    /** Turns recording on and off for a particular channel.
 
-  /** Used to clear all connections prior to the start of acquisition.
-  */
-  void resetConnections();
+        Channel numbers are absolute (based on RecordNode channel mapping).
+    */
+    void setChannelStatus(Channel* ch, bool status);
 
-  /** Callback to indicate when user has chosen a new data directory.
-  */
-  void filenameComponentChanged(FilenameComponent*);
+    /** Used to clear all connections prior to the start of acquisition.
+    */
+    void resetConnections();
 
-  /** Creates a new data directory in the location specified by the fileNameComponent.
-  */
-  void createNewDirectory();
-	
+    /** Callback to indicate when user has chosen a new data directory.
+    */
+    void filenameComponentChanged(FilenameComponent*);
+
+    /** Creates a new data directory in the location specified by the fileNameComponent.
+    */
+    void createNewDirectory();
+
 private:
 
-  /** Keep the RecordNode informed of acquisition and record states. 
-  */
-	bool isRecording, isProcessing, signalFilesShouldClose;
+    /** Keep the RecordNode informed of acquisition and record states.
+    */
+    bool isRecording, isProcessing, signalFilesShouldClose;
 
-  /** User-selectable directory for saving data files. Currently
-      defaults to the user's home directory. 
-  */
-  File dataDirectory;
+    /** User-selectable directory for saving data files. Currently
+        defaults to the user's home directory.
+    */
+    File dataDirectory;
 
-  /** Automatically generated folder for each recording session. 
-  */
-  File rootFolder;
+    /** Automatically generated folder for each recording session.
+    */
+    File rootFolder;
 
-  /** Holds data that has been converted from float to int16 before
-      saving. 
-  */
-  int16* continuousDataIntegerBuffer;
+    /** Holds data that has been converted from float to int16 before
+        saving.
+    */
+    int16* continuousDataIntegerBuffer;
 
-  /** Holds data that has been converted from float to int16 before
-      saving. 
-  */
-  float* continuousDataFloatBuffer;
+    /** Holds data that has been converted from float to int16 before
+        saving.
+    */
+    float* continuousDataFloatBuffer;
 
-  /** Integer timestamp saved for each buffer. 
-  */ 
-  int64 timestamp;
+    /** Integer timestamp saved for each buffer.
+    */
+    uint64 timestamp;
 
-  /** Used to generate timestamps if none are given. 
-  */ 
-  Time timer;
+    /** Used to generate timestamps if none are given.
+    */
+    Time timer;
 
-  /** Opens a single file */
-  void openFile(Channel* ch);
+    /** Opens a single file */
+    void openFile(Channel* ch);
 
-  /** Closes a single file */
-  void closeFile(Channel* ch);
+    /** Closes a single file */
+    void closeFile(Channel* ch);
 
-  /** Closes all open files after recording has finished.
-  */ 
-  void closeAllFiles();
+    /** Closes all open files after recording has finished.
+    */
+    void closeAllFiles();
 
-  /** Pointers to all continuous channels */
-  Array<Channel*> channelPointers;
+    /** Pointers to all continuous channels */
+    Array<Channel*> channelPointers;
 
-  /** Pointers to all event channels */
-  Array<Channel*> eventChannelPointers;
+    /** Pointers to all event channels */
+    Array<Channel*> eventChannelPointers;
 
-  /** Generates a header for a given channel */
-  String generateHeader(Channel* ch);
+    /** Generates a header for a given channel */
+    String generateHeader(Channel* ch);
 
-  /** Generates a default directory name, based on the current date and time */
-  String generateDirectoryName();
+    /** Generates a default directory name, based on the current date and time */
+    String generateDirectoryName();
 
-  /** Generate a Matlab-compatible datestring */
-  String generateDateString();
+    /** Generate a Matlab-compatible datestring */
+    String generateDateString();
 
-  /** Generate filename for a given channel */
-  void updateFileName(Channel* ch);
+    /** Generate filename for a given channel */
+    void updateFileName(Channel* ch);
 
-  /** Cycle through the event buffer, looking for data to save */
-  void handleEvent(int eventType, MidiMessage& event, int samplePos);
+    /** Cycle through the event buffer, looking for data to save */
+    void handleEvent(int eventType, MidiMessage& event, int samplePos);
 
-  /** Object for holding information about the events file */
-  Channel* eventChannel;
+    /** Object for holding information about the events file */
+    Channel* eventChannel;
 
-  /** Method for writing continuous buffers to disk. 
-  */ 
-  void writeContinuousBuffer(float* data, int nSamples, int channel);
-  
-  /** Method for writing event buffers to disk. 
-  */ 
-  void writeEventBuffer(MidiMessage& event, int samplePos);
+    /** Method for writing continuous buffers to disk.
+    */
+    void writeContinuousBuffer(float* data, int nSamples, int channel);
 
-  /** Used to indicate the end of each record */
-  char* recordMarker;
+    /** Method for writing event buffers to disk.
+    */
+    void writeEventBuffer(MidiMessage& event, int samplePos);
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNode);
+    /** Used to indicate the end of each record */
+    char* recordMarker;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 
 };
 

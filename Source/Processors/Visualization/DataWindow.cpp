@@ -25,16 +25,16 @@
 
 
 DataWindow::DataWindow(Button* cButton, String name)
-	: DocumentWindow (name, 
-					  Colours::black, 
-					  DocumentWindow::allButtons),
-	  controlButton(cButton)
+    : DocumentWindow(name,
+                     Colours::black,
+                     DocumentWindow::allButtons),
+    controlButton(cButton)
 
 {
-	centreWithSize(800,500);
-	setUsingNativeTitleBar(true);
-	setResizable(true,false);
-	//setTitleBarHeight(40);
+    centreWithSize(800,500);
+    setUsingNativeTitleBar(true);
+    setResizable(true,false);
+    //setTitleBarHeight(40);
 }
 
 DataWindow::~DataWindow()
@@ -44,6 +44,6 @@ DataWindow::~DataWindow()
 
 void DataWindow::closeButtonPressed()
 {
-	setVisible(false);
-	controlButton->setToggleState(false,false);
+    setVisible(false);
+    controlButton->setToggleState(false,false);
 }

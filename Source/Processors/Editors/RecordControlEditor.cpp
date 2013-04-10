@@ -26,53 +26,53 @@
 #include "ChannelSelector.h"
 #include <stdio.h>
 
-RecordControlEditor::RecordControlEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-	: GenericEditor(parentNode, useDefaultParameterEditors)
+RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors)
 {
-	desiredWidth = 170;
+    desiredWidth = 170;
 
-	channelSelector->eventsOnly = true;
+    channelSelector->eventsOnly = true;
 
-	chanSel = new Label("Chanel Text","Available Event Channels");
-	chanSel->setEditable(false);
-	chanSel->setJustificationType(Justification::centredLeft);
-	chanSel->setBounds(20,30,120,20);
+    chanSel = new Label("Chanel Text","Available Event Channels");
+    chanSel->setEditable(false);
+    chanSel->setJustificationType(Justification::centredLeft);
+    chanSel->setBounds(20,30,120,20);
 
-	addAndMakeVisible(chanSel);
+    addAndMakeVisible(chanSel);
 
-	
-	availableChans = new ComboBox("Event Channels");
 
-	availableChans->setEditableText(false);
-	availableChans->setJustificationType(Justification::centredLeft);
-	availableChans->addListener(this);
-	availableChans->setBounds(20,60,120,20);
-	availableChans->setSelectedId(0);
+    availableChans = new ComboBox("Event Channels");
 
-	addAndMakeVisible(availableChans);
+    availableChans->setEditableText(false);
+    availableChans->setJustificationType(Justification::centredLeft);
+    availableChans->addListener(this);
+    availableChans->setBounds(20,60,120,20);
+    availableChans->setSelectedId(0);
 
-	
+    addAndMakeVisible(availableChans);
+
+
 }
 
 RecordControlEditor::~RecordControlEditor()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }
 
 void RecordControlEditor::comboBoxChanged(ComboBox* comboBox)
 {
-	RecordControl *processor = (RecordControl*)getProcessor();
-	if (comboBox->getSelectedId() > 0)
-		processor->updateTriggerChannel(processor->eventChannels[comboBox->getSelectedId()-1]->num );
-	else
-		processor->updateTriggerChannel(-1);
+    RecordControl* processor = (RecordControl*)getProcessor();
+    if (comboBox->getSelectedId() > 0)
+        processor->updateTriggerChannel(processor->eventChannels[comboBox->getSelectedId()-1]->num);
+    else
+        processor->updateTriggerChannel(-1);
 }
 
 void RecordControlEditor::updateSettings()
 {
-	availableChans->clear();
-	GenericProcessor* processor = getProcessor();
-	for (int i = 0; i < processor->eventChannels.size() ; i++)
-		availableChans->addItem(processor->eventChannels[i]->name,i+1);
+    availableChans->clear();
+    GenericProcessor* processor = getProcessor();
+    for (int i = 0; i < processor->eventChannels.size() ; i++)
+        availableChans->addItem(processor->eventChannels[i]->name,i+1);
 
 }

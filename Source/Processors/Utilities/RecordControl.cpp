@@ -27,9 +27,9 @@
 #include "../../UI/ControlPanel.h"
 
 RecordControl::RecordControl()
-	: GenericProcessor("Record Controller"), triggerChannel(0)
+    : GenericProcessor("Record Controller"), triggerChannel(0)
 {
-	
+
 }
 
 RecordControl::~RecordControl()
@@ -39,49 +39,49 @@ RecordControl::~RecordControl()
 
 AudioProcessorEditor* RecordControl::createEditor()
 {
-	editor = new RecordControlEditor(this, true);
-	return editor;
+    editor = new RecordControlEditor(this, true);
+    return editor;
 }
 
 void RecordControl::updateTriggerChannel(int newChannel)
 {
-	triggerChannel = newChannel;
+    triggerChannel = newChannel;
 }
 
-void RecordControl::process(AudioSampleBuffer &buffer,
-							MidiBuffer &events,
-							int& nSamples)
+void RecordControl::process(AudioSampleBuffer& buffer,
+                            MidiBuffer& events,
+                            int& nSamples)
 {
-	checkForEvents(events);
+    checkForEvents(events);
 }
 
 
 void RecordControl::handleEvent(int eventType, MidiMessage& event, int)
 {
-	const uint8* dataptr = event.getRawData();
+    const uint8* dataptr = event.getRawData();
 
     int eventId = *(dataptr+2);
     int eventChannel = *(dataptr+3);
 
     //std::cout << "Received event with id=" << eventId << " and ch=" << eventChannel << std::endl;
 
-	if (eventType == TTL && eventChannel == triggerChannel)
-	{
+    if (eventType == TTL && eventChannel == triggerChannel)
+    {
 
-		//std::cout << "Trigger!" << std::endl;
+        //std::cout << "Trigger!" << std::endl;
 
-		const MessageManagerLock mmLock;
+        const MessageManagerLock mmLock;
 
-		 if (eventId == 1)
-		 {
-		 	getControlPanel()->setRecordState(true);
-		 }
-		 else
-		 {
-		 	getControlPanel()->setRecordState(false);
-		 }
-		 	
+        if (eventId == 1)
+        {
+            getControlPanel()->setRecordState(true);
+        }
+        else
+        {
+            getControlPanel()->setRecordState(false);
+        }
 
-	}
+
+    }
 
 }

@@ -28,10 +28,8 @@
 
 
 ReferenceNode::ReferenceNode()
-	: GenericProcessor("Digital Reference")
-
+    : GenericProcessor("Digital Reference"), referenceChannel(-1), referenceBuffer(1,10000)
 {
-
 
 }
 
@@ -42,34 +40,63 @@ ReferenceNode::~ReferenceNode()
 
 AudioProcessorEditor* ReferenceNode::createEditor()
 {
-	editor = new ReferenceNodeEditor(this, true);
-	
-	std::cout << "Creating editor." << std::endl;
+    editor = new ReferenceNodeEditor(this, true);
 
-	return editor;
+    std::cout << "Creating editor." << std::endl;
+
+    return editor;
 }
 
 
 
 void ReferenceNode::updateSettings()
-{		
-
-
-				
-}
-
-void ReferenceNode::setParameter (int parameterIndex, float newValue)
 {
 
 
 
 }
 
-void ReferenceNode::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &midiMessages,
+void ReferenceNode::setParameter(int parameterIndex, float newValue)
+{
+
+    referenceChannel = (int) newValue;
+
+    std::cout << "Reference set to " << referenceChannel << std::endl;
+
+}
+
+void ReferenceNode::process(AudioSampleBuffer& buffer,
+                            MidiBuffer& midiMessages,
                             int& nSamples)
 {
 
+    if (referenceChannel > -1)
+    {
+        referenceBuffer.clear(0, 0, nSamples);
+
+        referenceBuffer.addFrom(0, // destChannel
+                                0, // destStartSample
+                                buffer, // source
+                                referenceChannel, // sourceChannel
+                                0, // sourceStartSample
+                                nSamples, // numSamples
+                                -1.0f // gain to apply to source
+                                );
+
+        for (int i = 0; i < buffer.getNumChannels(); i++)
+        {
+
+            buffer.addFrom(i, // destChannel
+                           0, // destStartSample
+                           referenceBuffer, // source
+                           0, // sourceChannel
+                           0, // sourceStartSample
+                           nSamples, // numSamples
+                           1.0f // gain to apply to source
+                           );
+        }
+        
+    }
 
 }
 

@@ -1,14 +1,11 @@
 #ifndef GENERIC_AXES_H_
 #define GENERIC_AXES_H_
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 
 #if defined(__linux__)
-	#include <GL/glut.h>
+#include <GL/glut.h>
 #else
-	#include <GLUT/glut.h>
+#include <GLUT/glut.h>
 #endif
 #include <stdlib.h>
 #include <FTGL/ftgl.h>
@@ -27,42 +24,43 @@
 
 */
 
-class GenericAxes: public BaseUIElement{
+class GenericAxes: public BaseUIElement
+{
 
 protected:
-	double xlims[2];
-	double ylims[2];
-	SpikeObject s;
+    double xlims[2];
+    double ylims[2];
+    SpikeObject s;
 
-	bool gotFirstSpike;
-	
-	int type;
-	virtual void plot(){}
+    bool gotFirstSpike;
 
-	FTPixmapFont* font;
-	void loadFont();
+    int type;
+    virtual void plot() {}
 
-	
+    FTPixmapFont* font;
+    void loadFont();
+
+
 public:
-	GenericAxes();
-	GenericAxes(int x, int y, double w, double h, int t);
-	virtual ~GenericAxes();
+    GenericAxes();
+    GenericAxes(int x, int y, double w, double h, int t);
+    virtual ~GenericAxes();
 
-	void updateSpikeData(SpikeObject s);
+    void updateSpikeData(SpikeObject s);
 
-	virtual void redraw(){}
-	
-	void setXLims(double xmin, double xmax);
-	void getXLims(double *xmin, double *xmax);
-	void setYLims(double ymin, double ymax);
-	void getYLims(double *ymin, double *ymax);
+    virtual void redraw() {}
 
-	void setType(int type);
-	int getType();
-    
-	
-	void setPosition(int,int,double,double);
-   	
+    void setXLims(double xmin, double xmax);
+    void getXLims(double* xmin, double* xmax);
+    void setYLims(double ymin, double ymax);
+    void getYLims(double* ymin, double* ymax);
+
+    void setType(int type);
+    int getType();
+
+
+    void setPosition(int,int,double,double);
+
 };
 
 

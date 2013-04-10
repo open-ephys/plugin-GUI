@@ -23,14 +23,15 @@
 #ifndef __LFPDISPLAYCANVAS_H_B711873A__
 #define __LFPDISPLAYCANVAS_H_B711873A__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../LfpDisplayNode.h"
 #include "Visualizer.h"
 
 class LfpDisplayNode;
+
+class LfpTimescale;
+class LfpDisplay;
+class LfpChannelDisplay;
 
 /**
 
@@ -40,88 +41,160 @@ class LfpDisplayNode;
 
 */
 
-class LfpDisplayCanvas : public Visualizer
+class LfpDisplayCanvas : public Visualizer,
+    public ComboBox::Listener
 
 {
-public: 
-	LfpDisplayCanvas(LfpDisplayNode* n);
-	~LfpDisplayCanvas();
+public:
+    LfpDisplayCanvas(LfpDisplayNode* n);
+    ~LfpDisplayCanvas();
 
-	//void paintCanvas(Graphics& g);
+    void beginAnimation();
+    void endAnimation();
 
-	void beginAnimation();
-	void endAnimation();
+    void refreshState();
 
-	void refreshState();
+    void update();
 
-	void update();
+    void setParameter(int, float);
+    void setParameter(int, int, int, float) {}
 
-	void setParameter(int, float);
-	void setParameter(int, int, int, float){}
+    void paint(Graphics& g);
 
-	int getHeaderHeight() {return headerHeight;}
-	int getFooterHeight() {return footerHeight;}
+    void refresh();
 
-	//MouseCursor getMouseCursor();
+    void resized();
 
-	void paint(Graphics& g);
+    float getXCoord(int chan, int samp);
+    float getYCoord(int chan, int samp);
+
+    int screenBufferIndex;
+    int lastScreenBufferIndex;
+
+    void comboBoxChanged(ComboBox* cb);
 
 private:
 
-	int xBuffer, yBuffer;
+    float sampleRate;
+    float timebase;
+    float displayGain;
+    float timeOffset;
 
-	float sampleRate;
-	float timebase;
-	float displayGain;
-	float timeOffset;
+    static const int MAX_N_CHAN = 256;  // maximum number of channels
+    static const int MAX_N_SAMP = 5000; // maximum display size in pixels
+    //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
-	static const int MAX_N_CHAN = 128;
-	static const int MAX_N_SAMP = 3000;
-//	GLfloat waves[MAX_N_SAMP][MAX_N_SAMP*2]; // we need an x and y point for each sample
+    LfpDisplayNode* processor;
+    AudioSampleBuffer* displayBuffer;
+    AudioSampleBuffer* screenBuffer;
+    MidiBuffer* eventBuffer;
 
-	LfpDisplayNode* processor;
-	AudioSampleBuffer* displayBuffer;
-	MidiBuffer* eventBuffer;
+    ScopedPointer<LfpTimescale> timescale;
+    ScopedPointer<LfpDisplay> lfpDisplay;
+    ScopedPointer<Viewport> viewport;
 
-	void setViewport(Graphics& g, int chan);
-	void setInfoViewport(Graphics& g, int chan);
-	void drawBorder(Graphics& g, bool isSelected);
-	void drawChannelInfo(Graphics& g, int chan, bool isSelected);
-	void drawWaveform(Graphics& g, int chan, bool isSelected);
-	void drawEvents(Graphics& g);
-	void drawProgressBar(Graphics& g);
-	void drawTimeline(Graphics& g);
+    ScopedPointer<ComboBox> timebaseSelection;
+    ScopedPointer<ComboBox> rangeSelection;
 
-	bool checkBounds(int chan);
+    StringArray voltageRanges;
+    StringArray timebases;
 
-	void refreshScreenBuffer();
-	void updateScreenBuffer();
-	int screenBufferIndex;
-	int displayBufferIndex;
-	int displayBufferSize;
+    void refreshScreenBuffer();
+    void updateScreenBuffer();
 
-	int nChans, plotHeight, totalHeight;
-	int headerHeight, footerHeight;
-	int interplotDistance;
-	int plotOverlap;
-	int selectedChan;
+    int displayBufferIndex;
+    int displayBufferSize;
 
-	MouseCursor::StandardCursorType cursorType;
+    int scrollBarThickness;
 
-	int getTotalHeight();
+    int nChans;
 
-	 void canvasWasResized();
-	 void mouseDownInCanvas(const MouseEvent& e);
-	 void mouseDragInCanvas(const MouseEvent& e);
-	 void mouseMoveInCanvas(const MouseEvent& e);
-	// void mouseUp(const MouseEvent& e);
-	// void mouseWheelMove(const MouseEvent&, float, float);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayCanvas);
-	
+};
+
+class LfpTimescale : public Component
+{
+public:
+    LfpTimescale(LfpDisplayCanvas*);
+    ~LfpTimescale();
+
+    void paint(Graphics& g);
+
+    void setTimebase(float t);
+
+private:
+
+    LfpDisplayCanvas* canvas;
+
+    float timebase;
+
+    Font font;
+
+    StringArray labels;
+
+};
+
+class LfpDisplay : public Component
+{
+public:
+    LfpDisplay(LfpDisplayCanvas*, Viewport*);
+    ~LfpDisplay();
+
+    void setNumChannels(int numChannels);
+    int getTotalHeight()
+    {
+        return totalHeight;
+    }
+
+    void paint(Graphics& g);
+
+    void refresh();
+
+    void resized();
+
+    void mouseDown(const MouseEvent& event);
+
+private:
+    int numChans;
+    int channelHeight;
+    int totalHeight;
+
+    LfpDisplayCanvas* canvas;
+    Viewport* viewport;
+
+    Array<LfpChannelDisplay*> channels;
+    Array<Colour> channelColours;
+
+};
+
+class LfpChannelDisplay : public Component
+{
+public:
+    LfpChannelDisplay(LfpDisplayCanvas*, int channelNumber);
+    ~LfpChannelDisplay();
+
+    void paint(Graphics& g);
+
+    void select();
+    void deselect();
+
+    void setColour(Colour c);
+
+
+private:
+
+    LfpDisplayCanvas* canvas;
+
+    bool isSelected;
+
+    int chan;
+
+    Font channelFont;
+
+    Colour lineColour;
+
 };
 
 
-
 #endif  // __LFPDISPLAYCANVAS_H_B711873A__
- 

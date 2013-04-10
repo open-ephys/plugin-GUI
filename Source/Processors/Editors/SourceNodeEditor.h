@@ -24,14 +24,10 @@
 #ifndef __SOURCENODEEDITOR_H_A1B19E1E__
 #define __SOURCENODEEDITOR_H_A1B19E1E__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "ImageIcon.h"
 
-class FilterViewport;
 class ImageIcon;
 
 /**
@@ -47,14 +43,14 @@ class SourceNodeEditor : public GenericEditor
 
 {
 public:
-	SourceNodeEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-	virtual ~SourceNodeEditor();
+    SourceNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~SourceNodeEditor();
 
-private:	
+private:
 
-	ImageIcon* icon;
+    ImageIcon* icon;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceNodeEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SourceNodeEditor);
 
 };
 
