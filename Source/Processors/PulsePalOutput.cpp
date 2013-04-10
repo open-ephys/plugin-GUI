@@ -21,83 +21,32 @@
 
 */
 
-#include <vector>
-#include <stdio.h>
-#include <string.h>
-#include "PulsePalOutput.h"
 
+#include <stdio.h>
+
+#include "PulsePalOutput.h"
 
 
 PulsePalOutput::PulsePalOutput()
     : GenericProcessor("Pulse Pal")
 {
 
-	std::cout << "Searching for Pulse Pal..." << std::endl;
+    pulsePal.initialize();
 
-    //
-	// lsusb shows Device 104: ID 1eaf:0004
-    // updated udev rules file, but still need to run as root -- no idea why
-    //
+    pulsePal.updateDisplay("GUI Connected","Click for menu");
 
-	vector<ofSerialDeviceInfo> devices = serial.getDeviceList();
+    pulsePal.setPhase1Duration(1, 50000);
 
-	bool foundDevice = false;
-
-	for (int devNum; devNum < devices.size(); devNum++)
-	{
-		int id = devices[devNum].getDeviceID();
-		string path = devices[devNum].getDevicePath();
-        string name = devices[devNum].getDeviceName();
-
-       // std::cout << "Device name: " << name << std::endl;
-
-        #ifdef JUCE_LINUX
-            string acm0 = "ACM0";
-        #endif
-
-        #ifdef JUCE_MAC
-            string acm0 = "usbmodemfa131";
-        #endif
+    // check to make sure it's running
+    pulsePal.triggerChannel(1);
 
 
-        size_t index = path.find(acm0);
-
-        if (index != std::string::npos) // only open ttyACM0
-        {
-
-            serial.setup(id, 115200);
-
-            uint8_t bytesToWrite[2] = {59, 59};
-
-            serial.writeBytes(bytesToWrite, 2);
-
-            // while (serial.available() == 0)
-            // {
-            //     serial.writeByte(59);
-            // }
-
-            uint8_t resp = serial.readByte();
-
-            std::cout << "Got response: " << (int) resp << std::endl;
-
-            if (resp == 254)
-            {
-                std::cout << "FOUND A PULSE PAL." << std::endl;
-                foundDevice = true;
-            }
-
-            break;
-        }
-
-	}
-
-    triggerPulsePalChannel(1);
 
 }
 
 PulsePalOutput::~PulsePalOutput()
 {
-    serial.close();
+    pulsePal.updateDisplay("Pulse Pal v0.3","Click for menu");
 }
 
 AudioProcessorEditor* PulsePalOutput::createEditor()
@@ -113,13 +62,6 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
        // do something cool
     }
 
-}
-
-void PulsePalOutput::triggerPulsePalChannel(uint8_t chan)
-{
-    uint8_t bytesToWrite[2] = {84, chan};
-
-    serial.writeBytes(bytesToWrite, 2);
 }
 
 void PulsePalOutput::setParameter(int parameterIndex, float newValue)

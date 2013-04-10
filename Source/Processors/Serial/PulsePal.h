@@ -24,6 +24,10 @@
 #ifndef __PULSEPAL_H_F2B7B63E__
 #define __PULSEPAL_H_F2B7B63E__
 
+#include <string.h>
+
+#include "ofSerial.h"
+
 /**
 
   Interfaces with the PulsePal from Lucid Biosystems
@@ -40,8 +44,34 @@ public:
 	PulsePal();
 	~PulsePal();
 
+	void initialize();
+
+	void setPhase1Duration(uint8_t channel, uint32_t timeInMicroseconds);
+	void setInterPhaseInterval(uint8_t channel, uint32_t timeInMicroseconds);
+	void setPhase2Duration(uint8_t channel, uint32_t timeInMicroseconds);
+	void setInterPulseInterval(uint8_t channel, uint32_t timeInMicroseconds);
+	void setBurstDuration(uint8_t channel, uint32_t timeInMicroseconds);
+	void setBurstInterval(uint8_t channel, uint32_t timeInMicroseconds);
+	void setStimulusTrainDuration(uint8_t channel, uint32_t timeInMicroseconds);
+	void setStimulusTrainDelay(uint8_t channel, uint32_t timeInMicroseconds);
+	void setBiphasic(uint8_t channel, bool isBiphasic);
+	void setPhase1Voltage(uint8_t channel, float voltage);
+	void setPhase2Voltage(uint8_t channel, float voltage);
+
+	void triggerChannel(uint8_t channel);
+
+	void updateDisplay(string line1, string line2);
+
 private:
 
+	void constrain(uint32_t* value, uint32_t min, uint32_t max);
+
+	void program(uint8_t channel, uint8_t paramCode, uint32_t paramValue);
+	void program(uint8_t channel, uint8_t paramCode, uint8_t paramValue);
+
+	uint8_t voltageToByte(float voltage);
+
+	ofSerial serial;
 
 };
 

@@ -24,19 +24,17 @@
 #ifndef __PULSEPALOUTPUT_H_A8BF66D6__
 #define __PULSEPALOUTPUT_H_A8BF66D6__
 
-
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GenericProcessor.h"
 #include "Editors/PulsePalOutputEditor.h"
-#include "Serial/ofSerial.h"
-
+#include "Serial/PulsePal.h"
 
 /**
 
   Allows the signal chain to send outputs to the Pulse Pal 
   from Lucid Biosystems (www.lucidbiosystems.com)
 
-  @see GenericProcessor, PulsePalOutputEditor
+  @see GenericProcessor, PulsePalOutputEditor, PulsePal
 
 */
 
@@ -62,9 +60,7 @@ public:
 
 private:
 
-    void triggerPulsePalChannel(uint8_t chan);
-
-    ofSerial serial;
+    PulsePal pulsePal;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PulsePalOutput);
 
