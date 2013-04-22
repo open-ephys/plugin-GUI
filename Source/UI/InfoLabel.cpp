@@ -61,7 +61,7 @@ InfoLabel::InfoLabel()
                  "There's a lot we're still planning on adding, and we will "
                  "be glad to have some help down the road. If you'd like to be "
                  "added as a contributor, please get in touch with us at "
-                 "http://open-ephys.com/contact\n \n"
+                 "http://open-ephys.org/contact\n \n"
                  "DISCLAIMER: This software should be used for demonstration and testing purposes only. "
                  "It is not fit for conducting scientific experiments of any kind."
                  ;
