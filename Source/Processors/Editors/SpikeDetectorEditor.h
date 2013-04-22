@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,19 +25,24 @@
 #define __SPIKEDETECTOREDITOR_H_F0BD2DD9__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
 class TriangleButton;
 class UtilityButton;
 
+/**
+
+  Used to select individual electrodes within a multichannel electrode.
+
+  @see SpikeDetectorEditor.
+
+*/
+
 class ElectrodeButton : public Button
 {
 public:
-    ElectrodeButton(int chan_) : Button("Electrode"), chan(chan_) 
+    ElectrodeButton(int chan_) : Button("Electrode"), chan(chan_)
     {
         setClickingTogglesState(true);
         //setRadioGroupId(299);
@@ -45,13 +50,27 @@ public:
     }
     ~ElectrodeButton() {}
 
-    int getChannelNum() {return chan;}
-    void setChannelNum(int i) {chan = i;}
+    int getChannelNum()
+    {
+        return chan;
+    }
+    void setChannelNum(int i)
+    {
+        chan = i;
+    }
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
     int chan;
 };
+
+/**
+
+  Utility button for the SpikeDetectorEditor.
+
+  @see SpikeDetectorEditor
+
+*/
 
 class ElectrodeEditorButton : public Button
 {
@@ -72,9 +91,17 @@ private:
 
 };
 
+/**
+
+  Used to change the spike detection threshold.
+
+  @see SpikeDetectorEditor
+
+*/
+
 class ThresholdSlider : public Slider
 {
-public: 
+public:
     ThresholdSlider(Font f);
     ~ThresholdSlider() {}
 
@@ -95,14 +122,27 @@ private:
 
 };
 
+/**
+
+  User interface for the SpikeDetector processor.
+
+  Allows the user to add single electrodes, stereotrodes, or tetrodes.
+
+  Parameters of individual channels, such as channel mapping, threshold,
+  and enabled state, can be edited.
+
+  @see SpikeDetector
+
+*/
+
 class SpikeDetectorEditor : public GenericEditor,
-                            public Label::Listener,
-                            public ComboBox::Listener
+    public Label::Listener,
+    public ComboBox::Listener
 
 {
 public:
-	SpikeDetectorEditor (GenericProcessor* parentNode);
-	virtual ~SpikeDetectorEditor();
+    SpikeDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~SpikeDetectorEditor();
     void buttonEvent(Button* button);
     void labelTextChanged(Label* label);
     void comboBoxChanged(ComboBox* comboBox);
@@ -110,12 +150,12 @@ public:
 
     void channelChanged(int chan);
 
-private:	
+private:
 
     void drawElectrodeButtons(int);
 
     void refreshElectrodeList();
-	
+
     ComboBox* electrodeTypes;
     ComboBox* electrodeList;
     Label* numElectrodes;
@@ -138,7 +178,7 @@ private:
 
     Font font;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetectorEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDetectorEditor);
 
 };
 

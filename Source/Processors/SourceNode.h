@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,16 +24,10 @@
 #ifndef __SOURCENODE_H_DCE798F1__
 #define __SOURCENODE_H_DCE798F1__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include <ftdi.h>
 #include <stdio.h>
-#include "DataThreads/DataBuffer.h"
-#include "DataThreads/IntanThread.h"
-#include "DataThreads/FPGAThread.h"
-#include "DataThreads/FileReaderThread.h"
+#include "DataThreads/DataThread.h"
 #include "GenericProcessor.h"
 #include "../UI/UIComponent.h"
 
@@ -46,73 +40,77 @@
 */
 
 class SourceNode : public GenericProcessor,
-				   public Timer,
-                   public ActionListener
+    public Timer,
+    public ActionListener
 
 {
 public:
-	
-	// real member functions:
-	SourceNode(const String& name);
-	~SourceNode();
 
-	void enabledState(bool t);
-	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
+    // real member functions:
+    SourceNode(const String& name);
+    ~SourceNode();
 
-	void setParameter (int parameterIndex, float newValue);
+    void enabledState(bool t);
 
-	float getSampleRate();
-	float getDefaultSampleRate();
-	int getDefaultNumOutputs();
-	float getDefaultBitVolts();
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
 
-	AudioProcessorEditor* createEditor();
-	bool hasEditor() const {return true;}
+    void setParameter(int parameterIndex, float newValue);
 
-	bool enable();
-	bool disable();
+    float getSampleRate();
+    float getDefaultSampleRate();
+    int getDefaultNumOutputs();
+    float getDefaultBitVolts();
 
-	bool isReady();
+    AudioProcessorEditor* createEditor();
+    bool hasEditor() const
+    {
+        return true;
+    }
 
-	bool isSource() {return true;}
+    bool enable();
+    bool disable();
 
-	void acquisitionStopped();
-    
+    bool isReady();
+
+    bool isSource()
+    {
+        return true;
+    }
+
+    void acquisitionStopped();
+
     DataThread* getThread();
-    
+
     void actionListenerCallback(const String& message);
-    
+
     int getTTLState();
-	
+
 private:
 
-	int numEventChannels;
+    int numEventChannels;
 
-	int sourceCheckInterval;
+    int sourceCheckInterval;
 
-	bool wasDisabled;
+    bool wasDisabled;
 
-	void timerCallback();
+    void timerCallback();
 
-	ScopedPointer<DataThread> dataThread;
-	DataBuffer* inputBuffer;
+    ScopedPointer<DataThread> dataThread;
+    DataBuffer* inputBuffer;
 
-	uint64 timestamp;
-	int16* eventCodeBuffer;
-	int* eventChannelState;
-    
-    
+    uint64 timestamp;
+    int16* eventCodeBuffer;
+    int* eventChannelState;
+
+
     int ttlState;
 
-	void updateSettings();
+    void updateSettings();
+    bool tryEnablingEditor();
 
-	int* numSamplesInThisBuffer;
-
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceNode);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SourceNode);
 
 };
 
 
 #endif  // __SOURCENODE_H_DCE798F1__
-

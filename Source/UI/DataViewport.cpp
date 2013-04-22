@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -23,23 +23,24 @@
 
 #include "DataViewport.h"
 #include "EditorViewport.h"
-#include "../Processors/Visualization/OpenGLCanvas.h"
+#include "../Processors/Visualization/Visualizer.h"
 
 DataViewport::DataViewport() :
-	TabbedComponent(TabbedButtonBar::TabsAtRight),
-	tabDepth(32), shutdown(false)
+    TabbedComponent(TabbedButtonBar::TabsAtRight),
+    tabDepth(32), shutdown(false)
 {
 
     tabArray.clear();
     editorArray.clear();
 
-	setTabBarDepth(tabDepth);
-	setIndent(8); // gap to leave around the edge
-				   // of the content component
-	setColour(TabbedComponent::outlineColourId,
-							Colours::darkgrey);
-	setColour(TabbedComponent::backgroundColourId,
-							Colours::darkgrey);
+    setTabBarDepth(tabDepth);
+    setIndent(8); // gap to leave around the edge
+    // of the content component
+    setColour(TabbedComponent::outlineColourId,
+              Colours::darkgrey);
+    setColour(TabbedComponent::backgroundColourId,
+              Colours::darkgrey);
+
 
 }
 
@@ -48,94 +49,96 @@ DataViewport::~DataViewport()
 
 }
 
- int DataViewport::addTabToDataViewport(String name, Component* component, GenericEditor* editor) {
+int DataViewport::addTabToDataViewport(String name, Component* component, GenericEditor* editor)
+{
 
- 	if (tabArray.size() == 0)
- 		setVisible(true);
+    if (tabArray.size() == 0)
+        setVisible(true);
 
-     int tabIndex = getTabbedButtonBar().getNumTabs();
-     addTab(name, Colours::lightgrey, component, false, tabIndex);
-     getTabbedButtonBar().setCurrentTabIndex(tabIndex);
+    int tabIndex = getTabbedButtonBar().getNumTabs();
 
-     setOutline(0);
+    // Viewport* viewport = new Viewport();
+    // viewport->setViewedComponent(component, false);
+    //  viewport->setBounds(0,0,getWidth(), getHeight());
+    //  viewport->setVisible(true);
 
-     tabArray.add(tabIndex);
+    addTab(name, Colours::lightgrey, component, false, tabIndex);
 
-     editorArray.add(editor);
+    getTabbedButtonBar().setCurrentTabIndex(tabIndex);
 
-     return tabIndex;
+    getTabbedButtonBar().setTabBackgroundColour(tabIndex, Colours::darkgrey);
 
- }
+    setOutline(0);
 
+    tabArray.add(tabIndex);
 
- void DataViewport::selectTab(int index) {
-        
+    editorArray.add(editor);
+
+    return tabIndex;
+
+}
+
+void DataViewport::selectTab(int index)
+{
+
     int newIndex = tabArray.indexOf(index);
 
     getTabbedButtonBar().setCurrentTabIndex(newIndex);
 
- }
+}
 
- void DataViewport::destroyTab(int index) {
-        
+void DataViewport::destroyTab(int index)
+{
+
     int newIndex = tabArray.indexOf(index);
-
-    Component* canvas;
-    Component* parent = 0;
-
-    canvas = getTabContentComponent(newIndex);
-
-    if (canvas != 0)
-        parent = canvas->getParentComponent();
-
-    if (parent != 0 && canvas != 0)
-        parent->removeChildComponent(canvas);
 
     tabArray.remove(newIndex);
     editorArray.remove(newIndex);
 
-    //removeTab(newIndex);
-    getTabbedButtonBar().removeTab(newIndex);
+    removeTab(newIndex);
 
     if (tabArray.size() == 0)
-     	setVisible(false);
+        setVisible(false);
 
- }
+    setCurrentTabIndex(0);
 
- void DataViewport::disableConnectionToEditorViewport()
- {
+}
+
+void DataViewport::disableConnectionToEditorViewport()
+{
     std::cout << "DISABLING DATAVIEWPORT CONNECTION" << std::endl;
     shutdown = true;
-} 
+}
 
- void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
- {
-     OpenGLCanvas* canvas = (OpenGLCanvas*) getTabContentComponent(newIndex);
+void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
+{
+    // OpenGLCanvas* canvas = (OpenGLCanvas*) getTabContentComponent(newIndex);
 
-     if (canvas != 0) {
-         canvas->refreshState();
-     }
+    // if (canvas != 0) {
+    //     canvas->refreshState();
+    // }
 
-     std::cout << "CURRENT TAB CHANGED" << std::endl;
-     std::cout << "number of editors remaining: " << editorArray.size() << std::endl;
+    // std::cout << "CURRENT TAB CHANGED" << std::endl;
+    //std::cout << "number of editors remaining: " << editorArray.size() << std::endl;
 
-     if (!shutdown) {
+    if (!shutdown)
+    {
         getEditorViewport()->makeEditorVisible(editorArray[newIndex]);
-		getTopLevelComponent()->repaint();
-	 }
- }
+        getTopLevelComponent()->repaint();
+    }
+}
 
 void DataViewport::paint(Graphics& g)
 {
 
-	const TabbedButtonBar::Orientation o = getOrientation();
+    const TabbedButtonBar::Orientation o = getOrientation();
 
-	int x = 0;
-	int y = 0;
-	int r = getWidth();
-	int b = getHeight();
+    int x = 0;
+    int y = 0;
+    int r = getWidth();
+    int b = getHeight();
 
-	if (o == TabbedButtonBar::TabsAtTop)
+    if (o == TabbedButtonBar::TabsAtTop)
         y += tabDepth;
     else if (o == TabbedButtonBar::TabsAtBottom)
         b -= tabDepth;
@@ -144,9 +147,9 @@ void DataViewport::paint(Graphics& g)
     else if (o == TabbedButtonBar::TabsAtRight)
         r -= tabDepth;
 
-	g.setColour(Colour(58,58,58));
+    g.setColour(Colour(58,58,58));
     g.fillRoundedRectangle(x,y,r-x,b-y,5.0f);
-	g.fillRect(x,y,r-20,b-y);
+    g.fillRect(x,y,r-20,b-y);
     g.fillRect(x,20,r-x,b-20);
 
 }

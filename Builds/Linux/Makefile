@@ -1,5 +1,5 @@
-# Automatically generated makefile, created by the Jucer
-# Don't edit this file! Your changes will be overwritten when you re-save the Jucer project!
+# Automatically generated makefile, created by the Introjucer
+# Don't edit this file! Your changes will be overwritten when you re-save the Introjucer project!
 
 ifndef CONFIG
   CONFIG=Debug
@@ -17,12 +17,12 @@ ifeq ($(CONFIG),Debug)
   LIBDIR := build
   OBJDIR := build/intermediate/Debug
   OUTDIR := build
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I "/usr/include" -I "/usr/include/freetype2"
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3
   CXXFLAGS += $(CFLAGS) -export-dynamic -g -pg
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L"/usr/X11R6/lib/" -L"../../JuceLibraryCode/bin" -lfreetype -lpthread -lrt -lX11 -lGL -lGLU -lXinerama -lasound -lftdi -lftgl -pg -ldl -lXext
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -lftdi -pg -ldl -lXext
   LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I "/usr/include" -I "/usr/include/freetype2"
+  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
   TARGET := open-ephys
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
 endif
@@ -32,12 +32,12 @@ ifeq ($(CONFIG),Release)
   LIBDIR := build
   OBJDIR := build/intermediate/Release
   OUTDIR := build
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I "/usr/include" -I "/usr/include/freetype2"
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3
   CXXFLAGS += $(CFLAGS) -export-dynamic -g -pg
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L"/usr/X11R6/lib/" -L"../../JuceLibraryCode/bin" -lfreetype -lpthread -lrt -lX11 -lGL -lGLU -lXinerama -lasound -lftdi -lftgl -pg -ldl -lXext
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -lftdi -pg -ldl -lXext
   LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I "/usr/include" -I "/usr/include/freetype2"
+  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
   TARGET := open-ephys
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
 endif
@@ -63,9 +63,12 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/PulsePalOutput_9f4ef492.o \
+  $(OBJDIR)/ReferenceNode_519d3b68.o \
   $(OBJDIR)/PhaseDetector_7193f7dc.o \
   $(OBJDIR)/AudioResamplingNode_3dbffa2d.o \
   $(OBJDIR)/Channel_33a3e5fe.o \
+  $(OBJDIR)/PulsePal_14932a18.o \
   $(OBJDIR)/ofArduino_12f202a5.o \
   $(OBJDIR)/ofSerial_c3b0a9e1.o \
   $(OBJDIR)/EventDetector_4807aa7b.o \
@@ -75,14 +78,9 @@ OBJECTS := \
   $(OBJDIR)/SpikeDisplayNode_9c52e4ad.o \
   $(OBJDIR)/WiFiOutput_fa464ec5.o \
   $(OBJDIR)/LfpDisplayNode_30ef22fd.o \
+  $(OBJDIR)/RecordControl_3e1c6062.o \
   $(OBJDIR)/Merger_2f90542e.o \
   $(OBJDIR)/Splitter_6e27a57b.o \
-  $(OBJDIR)/SpikePlot_c1cf98bd.o \
-  $(OBJDIR)/BaseUIElement_ec903c4d.o \
-  $(OBJDIR)/GenericAxes_d802ed92.o \
-  $(OBJDIR)/PlotUtils_9ef52686.o \
-  $(OBJDIR)/ProjectionAxes_7c67c3e8.o \
-  $(OBJDIR)/WaveAxes_8adc45d2.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/SpikeDisplayCanvas_b208ff6e.o \
   $(OBJDIR)/DataWindow_83ce6754.o \
@@ -91,6 +89,10 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/PulsePalOutputEditor_ab5be148.o \
+  $(OBJDIR)/RHD2000Editor_d7ddd6b.o \
+  $(OBJDIR)/RecordControlEditor_244084cb.o \
+  $(OBJDIR)/ReferenceNodeEditor_19ee0fac.o \
   $(OBJDIR)/ResamplingNodeEditor_f2d6f061.o \
   $(OBJDIR)/FPGAOutputEditor_cfe00f8a.o \
   $(OBJDIR)/ArduinoOutputEditor_1118f008.o \
@@ -110,9 +112,12 @@ OBJECTS := \
   $(OBJDIR)/AudioEditor_fb2c6555.o \
   $(OBJDIR)/FilterEditor_dfe1f39d.o \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
+  $(OBJDIR)/okFrontPanelDLL_87687880.o \
+  $(OBJDIR)/rhd2000datablock_722d8dae.o \
+  $(OBJDIR)/rhd2000evalboard_e0b412d5.o \
+  $(OBJDIR)/rhd2000registers_cf6cd63b.o \
+  $(OBJDIR)/RHD2000Thread_23e0b041.o \
   $(OBJDIR)/FileReaderThread_933ea08.o \
-  $(OBJDIR)/okFrontPanelDLL_158af498.o \
-  $(OBJDIR)/NetworkThread_276b0d43.o \
   $(OBJDIR)/FPGAThread_a8dc34ed.o \
   $(OBJDIR)/DataBuffer_6ae4f549.o \
   $(OBJDIR)/IntanThread_32126b71.o \
@@ -137,10 +142,20 @@ OBJECTS := \
   $(OBJDIR)/MainWindow_499ac812.o \
   $(OBJDIR)/Main_90ebc5c2.o \
   $(OBJDIR)/BinaryData_ce4232d4.o \
-  $(OBJDIR)/JuceLibraryCode1_682c927f.o \
-  $(OBJDIR)/JuceLibraryCode2_683aaa00.o \
-  $(OBJDIR)/JuceLibraryCode3_6848c181.o \
-  $(OBJDIR)/JuceLibraryCode4_6856d902.o \
+  $(OBJDIR)/juce_audio_basics_2442e4ea.o \
+  $(OBJDIR)/juce_audio_devices_a4c8a728.o \
+  $(OBJDIR)/juce_audio_formats_d349f0c8.o \
+  $(OBJDIR)/juce_audio_processors_44a134a2.o \
+  $(OBJDIR)/juce_audio_utils_f63b12e8.o \
+  $(OBJDIR)/juce_core_aff681cc.o \
+  $(OBJDIR)/juce_cryptography_25c7e826.o \
+  $(OBJDIR)/juce_data_structures_bdd6d488.o \
+  $(OBJDIR)/juce_events_79b2840.o \
+  $(OBJDIR)/juce_graphics_c8f1e7a4.o \
+  $(OBJDIR)/juce_gui_basics_a630dd20.o \
+  $(OBJDIR)/juce_gui_extra_7767d6a8.o \
+  $(OBJDIR)/juce_opengl_c7e3506c.o \
+  $(OBJDIR)/juce_video_184321c8.o \
 
 .PHONY: clean
 
@@ -156,6 +171,10 @@ clean:
 	-@rm -f $(OUTDIR)/$(TARGET)
 	-@rm -rf $(OBJDIR)/*
 	-@rm -rf $(OBJDIR)
+
+strip:
+	@echo Stripping open-ephys
+	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
 
 $(OBJDIR)/AccessClass_de9602d5.o: ../../Source/AccessClass.cpp
 	-@mkdir -p $(OBJDIR)
@@ -257,6 +276,16 @@ $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	@echo "Compiling AudioComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/PulsePalOutput_9f4ef492.o: ../../Source/Processors/PulsePalOutput.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PulsePalOutput.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ReferenceNode_519d3b68.o: ../../Source/Processors/ReferenceNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ReferenceNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/PhaseDetector_7193f7dc.o: ../../Source/Processors/PhaseDetector.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling PhaseDetector.cpp"
@@ -270,6 +299,11 @@ $(OBJDIR)/AudioResamplingNode_3dbffa2d.o: ../../Source/Processors/AudioResamplin
 $(OBJDIR)/Channel_33a3e5fe.o: ../../Source/Processors/Channel.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Channel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PulsePal_14932a18.o: ../../Source/Processors/Serial/PulsePal.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PulsePal.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ofArduino_12f202a5.o: ../../Source/Processors/Serial/ofArduino.cpp
@@ -317,6 +351,11 @@ $(OBJDIR)/LfpDisplayNode_30ef22fd.o: ../../Source/Processors/LfpDisplayNode.cpp
 	@echo "Compiling LfpDisplayNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/RecordControl_3e1c6062.o: ../../Source/Processors/Utilities/RecordControl.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RecordControl.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/Merger_2f90542e.o: ../../Source/Processors/Utilities/Merger.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Merger.cpp"
@@ -325,36 +364,6 @@ $(OBJDIR)/Merger_2f90542e.o: ../../Source/Processors/Utilities/Merger.cpp
 $(OBJDIR)/Splitter_6e27a57b.o: ../../Source/Processors/Utilities/Splitter.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Splitter.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikePlot_c1cf98bd.o: ../../Source/Processors/Visualization/SpikePlotting/SpikePlot.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikePlot.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/BaseUIElement_ec903c4d.o: ../../Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling BaseUIElement.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/GenericAxes_d802ed92.o: ../../Source/Processors/Visualization/SpikePlotting/GenericAxes.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling GenericAxes.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/PlotUtils_9ef52686.o: ../../Source/Processors/Visualization/SpikePlotting/PlotUtils.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PlotUtils.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ProjectionAxes_7c67c3e8.o: ../../Source/Processors/Visualization/SpikePlotting/ProjectionAxes.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ProjectionAxes.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/WaveAxes_8adc45d2.o: ../../Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling WaveAxes.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/SpikeObject_24e8c655.o: ../../Source/Processors/Visualization/SpikeObject.cpp
@@ -395,6 +404,26 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PulsePalOutputEditor_ab5be148.o: ../../Source/Processors/Editors/PulsePalOutputEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PulsePalOutputEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RHD2000Editor_d7ddd6b.o: ../../Source/Processors/Editors/RHD2000Editor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RHD2000Editor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RecordControlEditor_244084cb.o: ../../Source/Processors/Editors/RecordControlEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RecordControlEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ReferenceNodeEditor_19ee0fac.o: ../../Source/Processors/Editors/ReferenceNodeEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ReferenceNodeEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ResamplingNodeEditor_f2d6f061.o: ../../Source/Processors/Editors/ResamplingNodeEditor.cpp
@@ -492,19 +521,34 @@ $(OBJDIR)/GenericEditor_becb2ad6.o: ../../Source/Processors/Editors/GenericEdito
 	@echo "Compiling GenericEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/FileReaderThread_933ea08.o: ../../Source/Processors/DataThreads/FileReaderThread.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FileReaderThread.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/okFrontPanelDLL_158af498.o: ../../Source/Processors/DataThreads/okFrontPanelDLL.cpp
+$(OBJDIR)/okFrontPanelDLL_87687880.o: ../../Source/Processors/DataThreads/rhythm-api/okFrontPanelDLL.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling okFrontPanelDLL.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/NetworkThread_276b0d43.o: ../../Source/Processors/DataThreads/NetworkThread.cpp
+$(OBJDIR)/rhd2000datablock_722d8dae.o: ../../Source/Processors/DataThreads/rhythm-api/rhd2000datablock.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling NetworkThread.cpp"
+	@echo "Compiling rhd2000datablock.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/rhd2000evalboard_e0b412d5.o: ../../Source/Processors/DataThreads/rhythm-api/rhd2000evalboard.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling rhd2000evalboard.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/rhd2000registers_cf6cd63b.o: ../../Source/Processors/DataThreads/rhythm-api/rhd2000registers.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling rhd2000registers.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RHD2000Thread_23e0b041.o: ../../Source/Processors/DataThreads/RHD2000Thread.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RHD2000Thread.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/FileReaderThread_933ea08.o: ../../Source/Processors/DataThreads/FileReaderThread.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling FileReaderThread.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/FPGAThread_a8dc34ed.o: ../../Source/Processors/DataThreads/FPGAThread.cpp
@@ -627,24 +671,74 @@ $(OBJDIR)/BinaryData_ce4232d4.o: ../../JuceLibraryCode/BinaryData.cpp
 	@echo "Compiling BinaryData.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/JuceLibraryCode1_682c927f.o: ../../JuceLibraryCode/JuceLibraryCode1.cpp
+$(OBJDIR)/juce_audio_basics_2442e4ea.o: ../../JuceLibraryCode/modules/juce_audio_basics/juce_audio_basics.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling JuceLibraryCode1.cpp"
+	@echo "Compiling juce_audio_basics.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/JuceLibraryCode2_683aaa00.o: ../../JuceLibraryCode/JuceLibraryCode2.cpp
+$(OBJDIR)/juce_audio_devices_a4c8a728.o: ../../JuceLibraryCode/modules/juce_audio_devices/juce_audio_devices.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling JuceLibraryCode2.cpp"
+	@echo "Compiling juce_audio_devices.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/JuceLibraryCode3_6848c181.o: ../../JuceLibraryCode/JuceLibraryCode3.cpp
+$(OBJDIR)/juce_audio_formats_d349f0c8.o: ../../JuceLibraryCode/modules/juce_audio_formats/juce_audio_formats.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling JuceLibraryCode3.cpp"
+	@echo "Compiling juce_audio_formats.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/JuceLibraryCode4_6856d902.o: ../../JuceLibraryCode/JuceLibraryCode4.cpp
+$(OBJDIR)/juce_audio_processors_44a134a2.o: ../../JuceLibraryCode/modules/juce_audio_processors/juce_audio_processors.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling JuceLibraryCode4.cpp"
+	@echo "Compiling juce_audio_processors.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/juce_audio_utils_f63b12e8.o: ../../JuceLibraryCode/modules/juce_audio_utils/juce_audio_utils.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling juce_audio_utils.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/juce_core_aff681cc.o: ../../JuceLibraryCode/modules/juce_core/juce_core.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling juce_core.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/juce_cryptography_25c7e826.o: ../../JuceLibraryCode/modules/juce_cryptography/juce_cryptography.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling juce_cryptography.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/juce_data_structures_bdd6d488.o: ../../JuceLibraryCode/modules/juce_data_structures/juce_data_structures.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling juce_data_structures.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/juce_events_79b2840.o: ../../JuceLibraryCode/modules/juce_events/juce_events.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling juce_events.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/juce_graphics_c8f1e7a4.o: ../../JuceLibraryCode/modules/juce_graphics/juce_graphics.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling juce_graphics.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/juce_gui_basics_a630dd20.o: ../../JuceLibraryCode/modules/juce_gui_basics/juce_gui_basics.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling juce_gui_basics.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/juce_gui_extra_7767d6a8.o: ../../JuceLibraryCode/modules/juce_gui_extra/juce_gui_extra.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling juce_gui_extra.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/juce_opengl_c7e3506c.o: ../../JuceLibraryCode/modules/juce_opengl/juce_opengl.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling juce_opengl.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/juce_video_184321c8.o: ../../JuceLibraryCode/modules/juce_video/juce_video.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling juce_video.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 -include $(OBJECTS:%.o=%.d)

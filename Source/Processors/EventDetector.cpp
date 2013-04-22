@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -28,7 +28,7 @@
 
 
 EventDetector::EventDetector()
-	: GenericProcessor("Event Detector"), state(false), threshold(200.0), bufferZone(5.0f)
+    : GenericProcessor("Event Detector"), threshold(200.0), bufferZone(5.0f), state(false)
 
 {
 
@@ -38,22 +38,12 @@ EventDetector::EventDetector()
 
 EventDetector::~EventDetector()
 {
-   
+
 }
 
-// AudioProcessorEditor* EventDetector::createEditor()
-// {
-//     editor = new EventDetectorEditor(this);
-//     //setEditor(filterEditor);
-    
-//     std::cout << "Creating editor." << std::endl;
-
-//     return editor;
-// }
 
 
-
-void EventDetector::setParameter (int parameterIndex, float newValue)
+void EventDetector::setParameter(int parameterIndex, float newValue)
 {
 
     Parameter& p =  parameters.getReference(parameterIndex);
@@ -65,8 +55,8 @@ void EventDetector::setParameter (int parameterIndex, float newValue)
 
 }
 
-void EventDetector::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &events,
+void EventDetector::process(AudioSampleBuffer& buffer,
+                            MidiBuffer& events,
                             int& nSamples)
 {
 
@@ -85,7 +75,8 @@ void EventDetector::process(AudioSampleBuffer &buffer,
 
             state = true;
 
-        } else if ((*buffer.getSampleData(0, i) > -threshold + bufferZone)  && state)
+        }
+        else if ((*buffer.getSampleData(0, i) > -threshold + bufferZone)  && state)
         {
             state = false;
         }

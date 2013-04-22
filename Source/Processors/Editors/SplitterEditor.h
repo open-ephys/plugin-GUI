@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,38 +25,36 @@
 #define __SPLITTEREDITOR_H_33F644A8__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
-// class PipelineSelectorButton : public DrawableButton
-// {
-// 	public:
-// 		PipelineSelectorButton();
-// 		~PipelineSelectorButton();	
-// };
+/**
+
+  User interface for the Splitter utility.
+
+  @see Splitter
+
+*/
 
 class SplitterEditor : public GenericEditor
 {
 public:
-	SplitterEditor (GenericProcessor* parentNode);
-	virtual ~SplitterEditor();
+    SplitterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~SplitterEditor();
 
-	void buttonEvent (Button* button);
+    void buttonEvent(Button* button);
 
     void switchDest(int);
     void switchDest();
 
     void switchIO(int i);
 
-private:	
-	
-	ImageButton* pipelineSelectorA;
-	ImageButton* pipelineSelectorB;
+private:
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SplitterEditor);
+    ImageButton* pipelineSelectorA;
+    ImageButton* pipelineSelectorB;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SplitterEditor);
 
 };
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,41 +26,40 @@
 #include "Editors/FilterEditor.h"
 
 FilterNode::FilterNode()
-	: GenericProcessor("Bandpass Filter")
+    : GenericProcessor("Bandpass Filter")
 
 {
 
-	Array<var> lowCutValues;
-	lowCutValues.add(1.0f);
-	lowCutValues.add(4.0f);
-	lowCutValues.add(100.0f);
-	lowCutValues.add(600.0f);
+    Array<var> lowCutValues;
+    lowCutValues.add(1.0f);
+    lowCutValues.add(4.0f);
+    lowCutValues.add(100.0f);
+    lowCutValues.add(600.0f);
 
-	parameters.add(Parameter("low cut",lowCutValues, 1, 0));
+    parameters.add(Parameter("low cut",lowCutValues, 3, 0));
 
-	Array<var> highCutValues;
-	highCutValues.add(12.0f);
-	highCutValues.add(3000.0f);
-	highCutValues.add(6000.0f);
-	highCutValues.add(9000.0f);
+    Array<var> highCutValues;
+    highCutValues.add(1000.0f);
+    highCutValues.add(3000.0f);
+    highCutValues.add(6000.0f);
+    highCutValues.add(9000.0f);
 
-	parameters.add(Parameter("high cut",highCutValues, 0, 1));
+    parameters.add(Parameter("high cut",highCutValues, 2, 1));
 
 }
 
 FilterNode::~FilterNode()
 {
-	filters.clear();
+
 }
 
 AudioProcessorEditor* FilterNode::createEditor()
 {
-	editor = new FilterEditor(this);
-	//setEditor(filterEditor);
-	
-	std::cout << "Creating editor." << std::endl;
+    editor = new FilterEditor(this, true);
 
-	return editor;
+    std::cout << "Creating editor." << std::endl;
+
+    return editor;
 }
 
 
@@ -119,103 +118,111 @@ AudioProcessorEditor* FilterNode::createEditor()
 // filter->process()
 
 void FilterNode::updateSettings()
-{		
+{
 
-	if (getNumInputs() < 100 && getNumInputs() != filters.size()) {
+    if (getNumInputs() < 1024 && getNumInputs() != filters.size())
+    {
 
-		filters.clear();
+        filters.clear();
 
-		for (int n = 0; n < getNumInputs(); n++)
-		{
-			std::cout << "Creating filter number " << n << std::endl;
+        for (int n = 0; n < getNumInputs(); n++)
+        {
+            std::cout << "Creating filter number " << n << std::endl;
 
-			filters.add(new Dsp::SmoothedFilterDesign 
-				<Dsp::Butterworth::Design::BandPass 	// design type
-				<3>,								 	// order
-				1,										// number of channels (must be const)
-				Dsp::DirectFormII>						// realization
-				(1));	 
+            filters.add(new Dsp::SmoothedFilterDesign
+                        <Dsp::Butterworth::Design::BandPass 	// design type
+                        <2>,								 	// order
+                        1,										// number of channels (must be const)
+                        Dsp::DirectFormII>						// realization
+                        (1));
 
-			Parameter& p1 =  parameters.getReference(0);
-			p1.setValue(4.0f, n);
+            // restore defaults
+            Parameter& p1 =  parameters.getReference(0);
+            p1.setValue(600.0f, n);
 
-			Parameter& p2 =  parameters.getReference(1);
-			p2.setValue(12.0f, n);
-			
-			setFilterParameters(4.0f, 12.0f, n);
-		}
+            Parameter& p2 =  parameters.getReference(1);
+            p2.setValue(6000.0f, n);
 
-	}
-				
+            setFilterParameters(600.0f,
+                        6000.0f,
+                        n);
+
+            setFilterParameters(600.0f, 6000.0f, n);
+        }
+
+    }
+
 }
 
 void FilterNode::setFilterParameters(double lowCut, double highCut, int chan)
 {
 
-	Dsp::Params params;
-	params[0] = getSampleRate(); // sample rate
-	params[1] = 3; // order
-	params[2] = (highCut + lowCut)/2; // center frequency
-	params[3] = highCut - lowCut; // bandwidth
+    Dsp::Params params;
+    params[0] = getSampleRate(); // sample rate
+    params[1] = 2; // order
+    params[2] = (highCut + lowCut)/2; // center frequency
+    params[3] = highCut - lowCut; // bandwidth
 
-	if (filters.size() > chan)
-		filters[chan]->setParams (params);
-
-}
-
-void FilterNode::setParameter (int parameterIndex, float newValue)
-{
-
-
-	if (newValue <= 0.01 || newValue >= 10000.0f)
-		return;
-
-	std::cout << "Setting channel " << currentChannel;// << std::endl;
-
-	if (parameterIndex == 0)
-	{
-		std::cout << " low cut to ";
-	} else {
-		std::cout << " high cut to ";
-	}
-
-	std::cout << newValue << std::endl;
-
-	//if (parameterIndex)
-//
-	Parameter& p =  parameters.getReference(parameterIndex);
-
-	p.setValue(newValue, currentChannel);
-
-
-	Parameter& p1 =  parameters.getReference(0);
-	Parameter& p2 =  parameters.getReference(1);
-
-	std::cout << float(p1[currentChannel]) << " ";
-	std::cout << float(p2[currentChannel]) << std::endl;
-
-	setFilterParameters(float(p1[currentChannel]),
-						float(p2[currentChannel]),
-						currentChannel);
-
-	// if (parameterIndex == 0) {
-	// 	parameters[0].setValue(newValue, currentChannel);
-	// 	setFilterParameters(newValue, parameters[0][currentChannel], currentChannel);
-	// } else {
-	// 	parameters[1].setValue(newValue, currentChannel);
-	// 	setFilterParameters(lowCuts[currentChannel], newValue, currentChannel);
-	// }
+    if (filters.size() > chan)
+        filters[chan]->setParams(params);
 
 }
 
-void FilterNode::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &midiMessages,
-                            int& nSamples)
+void FilterNode::setParameter(int parameterIndex, float newValue)
 {
 
-	for (int n = 0; n < getNumOutputs(); n++) {
-		float* ptr = buffer.getSampleData(n);
-    	filters[n]->process (nSamples, &ptr);
+
+    if (newValue <= 0.01 || newValue >= 10000.0f)
+        return;
+
+    std::cout << "Setting channel " << currentChannel;// << std::endl;
+
+    if (parameterIndex == 0)
+    {
+        std::cout << " low cut to ";
+    }
+    else
+    {
+        std::cout << " high cut to ";
+    }
+
+    std::cout << newValue << std::endl;
+
+    //if (parameterIndex)
+    //
+    Parameter& p =  parameters.getReference(parameterIndex);
+
+    p.setValue(newValue, currentChannel);
+
+    Parameter& p1 =  parameters.getReference(0);
+    Parameter& p2 =  parameters.getReference(1);
+
+    std::cout << float(p1[currentChannel]) << " ";
+    std::cout << float(p2[currentChannel]) << std::endl;
+
+    setFilterParameters(float(p1[currentChannel]),
+                        float(p2[currentChannel]),
+                        currentChannel);
+
+    // if (parameterIndex == 0) {
+    // 	parameters[0].setValue(newValue, currentChannel);
+    // 	setFilterParameters(newValue, parameters[0][currentChannel], currentChannel);
+    // } else {
+    // 	parameters[1].setValue(newValue, currentChannel);
+    // 	setFilterParameters(lowCuts[currentChannel], newValue, currentChannel);
+    // }
+
+}
+
+void FilterNode::process(AudioSampleBuffer& buffer,
+                         MidiBuffer& midiMessages,
+                         int& nSamples)
+{
+
+    for (int n = 0; n < getNumOutputs(); n++)
+    {
+        float* ptr = buffer.getSampleData(n);
+        filters[n]->process(nSamples, &ptr);
     }
 
 }

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,9 +24,6 @@
 #ifndef __FILTERNODE_H_CED428E__
 #define __FILTERNODE_H_CED428E__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Dsp/Dsp.h"
 #include "GenericProcessor.h"
@@ -45,27 +42,30 @@ class FilterNode : public GenericProcessor
 
 {
 public:
-	
-	FilterNode();
-	~FilterNode();
-	
-	void process (AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void setParameter (int parameterIndex, float newValue);
 
-	AudioProcessorEditor* createEditor();
+    FilterNode();
+    ~FilterNode();
 
-	bool hasEditor() const {return true;}
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void setParameter(int parameterIndex, float newValue);
+
+    AudioProcessorEditor* createEditor();
+
+    bool hasEditor() const
+    {
+        return true;
+    }
 
     void updateSettings();
-	
+
 private:
 
-	Array<double> lowCuts, highCuts;
-	OwnedArray<Dsp::Filter> filters;
+    Array<double> lowCuts, highCuts;
+    OwnedArray<Dsp::Filter> filters;
 
-	void setFilterParameters(double, double, int);
+    void setFilterParameters(double, double, int);
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterNode);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FilterNode);
 
 };
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,10 +25,6 @@
 #define __CHANNEL_H_DABDFE3F__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
-
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 #include "GenericProcessor.h"
@@ -38,8 +34,14 @@
 class GenericProcessor;
 
 /**
-  
+
   Holds metadata about a given channel within a processor.
+
+  The Channel class provides a convenient way to store settings
+  for individual channels, and to pass that information between
+  processors. It's especially handy for the interactions with the
+  AudioNode and RecordNode, which need to access/update Channel
+  information for multiple processors at once.
 
   @see GenericProcessor, RecordNode, AudioNode
 
@@ -50,51 +52,53 @@ class Channel
 {
 public:
 
-	// Default constructor:
-	Channel(GenericProcessor* p, int n);
+    /** Default constructor for creating Channels from scratch. */
+    Channel(GenericProcessor* p, int n);
 
-	// Copy constructor:
-	Channel(const Channel& ch);
+    /** Copy constructor. */
+    Channel(const Channel& ch);
 
-	String getName();
+    /** Returns the name of a given channel. */
+    String getName();
 
-	void reset();
+    /** Restores the default settings for a given channel. */
+    void reset();
 
-	void setProcessor(GenericProcessor*);
+    /** Sets the processor to which a channel belongs. */
+    void setProcessor(GenericProcessor*);
 
-	// channel number:
-	int num;
+    /** The channel number.*/
+    int num;
 
-	// node id
-	int nodeId;
+    /** The ID of the channel's processor.*/
+    int nodeId;
 
-	// event info:
-	int eventType;
+    /** Used for EventChannels only.*/
+    int eventType;
 
-	// boolean values:
-	bool isEventChannel;
-	bool isRecording;
-	bool isMonitored;
-	bool isEnabled;
+    // boolean values:
+    bool isEventChannel;
+    bool isRecording;
+    bool isMonitored;
+    bool isEnabled;
 
-	// pointer to parent processor:
-	GenericProcessor* processor;
+    /** Pointer to the channel's parent processor. */
+    GenericProcessor* processor;
 
-	// crucial information:
-	float sampleRate;
-	float bitVolts;
+    // crucial information:
+    float sampleRate;
+    float bitVolts;
 
-	// file info (for disk writing):
-	String filename;
-	FILE* file;
+    // file info (for disk writing):
+    String filename;
+    FILE* file;
 
-	String name;
+    String name;
 
 private:
 
-	
-
-	void createDefaultName();
+    /** Generates a default name, based on the channel number. */
+    void createDefaultName();
 
 };
 

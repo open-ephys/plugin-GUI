@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,184 +25,195 @@
 #include <stdio.h>
 
 AudioResamplingNode::AudioResamplingNode()
-	: GenericProcessor("Resampling Node"), 
-	  ratio (1.0), lastRatio (1.0),
-	  destBufferPos(0), destBufferIsTempBuffer(true),
-	  destBufferSampleRate(44100.0), sourceBufferSampleRate(40000.0),
-	  destBuffer(0), tempBuffer(0), isTransmitting(false)
-	
+    : GenericProcessor("Resampling Node"),
+      sourceBufferSampleRate(40000.0), destBufferSampleRate(44100.0),
+      ratio(1.0), lastRatio(1.0), destBuffer(0), tempBuffer(0),
+      destBufferIsTempBuffer(true), isTransmitting(false), destBufferPos(0)
 {
 
-	settings.numInputs = 2;
-	settings.numOutputs = 2;
+    settings.numInputs = 2;
+    settings.numOutputs = 2;
 
-	setPlayConfigDetails(getNumInputs(), // number of inputs
-				         getNumOutputs(), // number of outputs
-				         44100.0, // sampleRate
-				         128);    // blockSize
+    setPlayConfigDetails(getNumInputs(), // number of inputs
+                         getNumOutputs(), // number of outputs
+                         44100.0, // sampleRate
+                         128);    // blockSize
 
-	filter = new Dsp::SmoothedFilterDesign 
-		<Dsp::RBJ::Design::LowPass, 1> (1024);
+    filter = new Dsp::SmoothedFilterDesign
+    <Dsp::RBJ::Design::LowPass, 1> (1024);
 
-	if (destBufferIsTempBuffer) 
-		destBufferWidth = 1024;
-	else
-		destBufferWidth = 1000;
+    if (destBufferIsTempBuffer)
+        destBufferWidth = 1024;
+    else
+        destBufferWidth = 1000;
 
-	destBufferTimebaseSecs = 1.0;
+    destBufferTimebaseSecs = 1.0;
 
-	destBuffer = new AudioSampleBuffer(16, destBufferWidth);
-	tempBuffer = new AudioSampleBuffer(16, destBufferWidth);
+    destBuffer = new AudioSampleBuffer(16, destBufferWidth);
+    tempBuffer = new AudioSampleBuffer(16, destBufferWidth);
 
-	continuousDataBuffer = new int16[10000];
+    continuousDataBuffer = new int16[10000];
 
 }
 
 AudioResamplingNode::~AudioResamplingNode()
 {
-	filter = 0;
-	deleteAndZero(destBuffer);
-	deleteAndZero(tempBuffer);
+    filter = 0;
+    deleteAndZero(destBuffer);
+    deleteAndZero(tempBuffer);
 
 }
 
 
 
-void AudioResamplingNode::setParameter (int parameterIndex, float newValue)
+void AudioResamplingNode::setParameter(int parameterIndex, float newValue)
 {
 
-	switch (parameterIndex) {
-		
-		case 0: destBufferTimebaseSecs = newValue; break;
-		case 1: destBufferWidth = roundToInt(newValue);
+    switch (parameterIndex)
+    {
 
-	}
+        case 0:
+            destBufferTimebaseSecs = newValue;
+            break;
+        case 1:
+            destBufferWidth = roundToInt(newValue);
 
-	// reset to zero and clear if timebase or width has changed.
-	destBufferPos = 0; 
-	destBuffer->clear(); 
+    }
+
+    // reset to zero and clear if timebase or width has changed.
+    destBufferPos = 0;
+    destBuffer->clear();
 
 }
 
 
-void AudioResamplingNode::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
+void AudioResamplingNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 {
 
-	std::cout << "AudioResamplingNode preparing to play." << std::endl;
+    std::cout << "AudioResamplingNode preparing to play." << std::endl;
 
-	if (destBufferIsTempBuffer) {
-		destBufferSampleRate = sampleRate_;
-		tempBuffer->setSize(getNumInputs(), 4096);
-	}
-	else {
-		destBufferSampleRate = float(destBufferWidth) / destBufferTimebaseSecs;
-		destBuffer->setSize(getNumInputs(), destBufferWidth);
-	}
+    if (destBufferIsTempBuffer)
+    {
+        destBufferSampleRate = sampleRate_;
+        tempBuffer->setSize(getNumInputs(), 4096);
+    }
+    else
+    {
+        destBufferSampleRate = float(destBufferWidth) / destBufferTimebaseSecs;
+        destBuffer->setSize(getNumInputs(), destBufferWidth);
+    }
 
-	destBuffer->clear();
-	tempBuffer->clear();
+    destBuffer->clear();
+    tempBuffer->clear();
 
-	destBufferPos = 0;
+    destBufferPos = 0;
 
-	std::cout << "Temp buffer size: " << tempBuffer->getNumChannels() << " x " 
-	          << tempBuffer->getNumSamples() << std::endl;
+    std::cout << "Temp buffer size: " << tempBuffer->getNumChannels() << " x "
+              << tempBuffer->getNumSamples() << std::endl;
 
-	updateFilter();
+    updateFilter();
 
 }
 
-void AudioResamplingNode::updateFilter() {
-	
-	double cutoffFreq = (ratio > 1.0) ? 2 * destBufferSampleRate  // downsample
-									  : destBufferSampleRate / 2; // upsample
+void AudioResamplingNode::updateFilter()
+{
+
+    double cutoffFreq = (ratio > 1.0) ? 2 * destBufferSampleRate  // downsample
+                        : destBufferSampleRate / 2; // upsample
 
     double sampleFreq = (ratio > 1.0) ? sourceBufferSampleRate // downsample
-    								  : destBufferSampleRate;  // upsample
-								
-	Dsp::Params params;
-	params[0] = sampleFreq; // sample rate
-	params[1] = cutoffFreq; // cutoff frequency
-	params[2] = 1.25; //Q //
+                        : destBufferSampleRate;  // upsample
 
-	filter->setParams (params);
-	
-}
+    Dsp::Params params;
+    params[0] = sampleFreq; // sample rate
+    params[1] = cutoffFreq; // cutoff frequency
+    params[2] = 1.25; //Q //
 
-void AudioResamplingNode::releaseResources() 
-{	
+    filter->setParams(params);
 
 }
 
-void AudioResamplingNode::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &midiMessages,
-                            int& nSamples)
+void AudioResamplingNode::releaseResources()
 {
 
-	int nSamps = nSamples;
-	int valuesNeeded;
+}
 
-	if (destBufferIsTempBuffer) {
-		ratio = float(nSamps) / float(buffer.getNumSamples());
-		valuesNeeded = buffer.getNumSamples();
-	} else {
-		ratio = sourceBufferSampleRate / destBufferSampleRate;
-		valuesNeeded = (int) buffer.getNumSamples() / ratio;
-		//std::cout << std::endl;
-		//std::cout << "Ratio: " << ratio << std::endl;
-		//std::cout << "Values needed: " << valuesNeeded << std::endl;
-	}
+void AudioResamplingNode::process(AudioSampleBuffer& buffer,
+                                  MidiBuffer& midiMessages,
+                                  int& nSamples)
+{
 
+    int nSamps = nSamples;
+    int valuesNeeded;
 
-
-	if (lastRatio != ratio) {
-		updateFilter();
-		lastRatio = ratio;
-	}
-
-
-	if (ratio > 1.0001) {
-		// pre-apply filter before downsampling
-		filter->process (nSamps, buffer.getArrayOfChannels());
-	}
+    if (destBufferIsTempBuffer)
+    {
+        ratio = float(nSamps) / float(buffer.getNumSamples());
+        valuesNeeded = buffer.getNumSamples();
+    }
+    else
+    {
+        ratio = sourceBufferSampleRate / destBufferSampleRate;
+        valuesNeeded = (int) buffer.getNumSamples() / ratio;
+        //std::cout << std::endl;
+        //std::cout << "Ratio: " << ratio << std::endl;
+        //std::cout << "Values needed: " << valuesNeeded << std::endl;
+    }
 
 
-	// initialize variables
-	tempBuffer->clear();
-	int sourceBufferPos = 0;
-	int sourceBufferSize = buffer.getNumSamples();
-	float subSampleOffset = 0.0;
-	int nextPos = (sourceBufferPos + 1) % sourceBufferSize;
 
-	int tempBufferPos;
-	//int totalSamples = 0;
+    if (lastRatio != ratio)
+    {
+        updateFilter();
+        lastRatio = ratio;
+    }
 
-	// code modified from "juce_ResamplingAudioSource.cpp":
+
+    if (ratio > 1.0001)
+    {
+        // pre-apply filter before downsampling
+        filter->process(nSamps, buffer.getArrayOfChannels());
+    }
+
+
+    // initialize variables
+    tempBuffer->clear();
+    int sourceBufferPos = 0;
+    int sourceBufferSize = buffer.getNumSamples();
+    float subSampleOffset = 0.0;
+    int nextPos = (sourceBufferPos + 1) % sourceBufferSize;
+
+    int tempBufferPos;
+    //int totalSamples = 0;
+
+    // code modified from "juce_ResamplingAudioSource.cpp":
 
     for (tempBufferPos = 0; tempBufferPos < valuesNeeded; tempBufferPos++)
     {
-    	float gain = 1.0;
+        float gain = 1.0;
         float alpha = (float) subSampleOffset;
         float invAlpha = 1.0f - alpha;
 
-        for (int channel = 0; channel < buffer.getNumChannels(); ++channel) {
+        for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
+        {
 
-        	tempBuffer->addFrom(channel, 		// destChannel
-        						tempBufferPos,  // destSampleOffset
-        						buffer,			// source
-        						channel,		// sourceChannel
-        						sourceBufferPos,// sourceSampleOffset
-        						1,				// number of samples
-        						invAlpha*gain);      // gain to apply to source
-        	
-        	tempBuffer->addFrom(channel, 		// destChannel
-        					   tempBufferPos,   // destSampleOffset
-        					   buffer,			// source
-        					   channel,			// sourceChannel
-        					   nextPos,		 	// sourceSampleOffset
-        					   1,				// number of samples
-        					   alpha*gain);     	 // gain to apply to source
+            tempBuffer->addFrom(channel, 		// destChannel
+                                tempBufferPos,  // destSampleOffset
+                                buffer,			// source
+                                channel,		// sourceChannel
+                                sourceBufferPos,// sourceSampleOffset
+                                1,				// number of samples
+                                invAlpha*gain);      // gain to apply to source
 
-       	}
+            tempBuffer->addFrom(channel, 		// destChannel
+                                tempBufferPos,   // destSampleOffset
+                                buffer,			// source
+                                channel,			// sourceChannel
+                                nextPos,		 	// sourceSampleOffset
+                                1,				// number of samples
+                                alpha*gain);     	 // gain to apply to source
+
+        }
 
         subSampleOffset += ratio;
 
@@ -218,70 +229,77 @@ void AudioResamplingNode::process(AudioSampleBuffer &buffer,
         }
     }
 
-   // std::cout << sourceBufferPos << " " << tempBufferPos << std::endl;
+    // std::cout << sourceBufferPos << " " << tempBufferPos << std::endl;
 
 
-	if (ratio < 0.9999) {
+    if (ratio < 0.9999)
+    {
 
-		filter->process (tempBufferPos, tempBuffer->getArrayOfChannels());
-		// apply the filter after upsampling
-		///////filter->process (totalSamples, buffer.getArrayOfChannels());
-	} else if (ratio <= 1.0001) {
-		
-		// no resampling is being applied, no need to filter, BUT...
-		// keep the filter stoked with samples to avoid discontinuities
+        filter->process(tempBufferPos, tempBuffer->getArrayOfChannels());
+        // apply the filter after upsampling
+        ///////filter->process (totalSamples, buffer.getArrayOfChannels());
+    }
+    else if (ratio <= 1.0001)
+    {
 
-	}
+        // no resampling is being applied, no need to filter, BUT...
+        // keep the filter stoked with samples to avoid discontinuities
 
-	if (destBufferIsTempBuffer) {
-    	
-    	// copy the temp buffer into the original buffer
-    	buffer = AudioSampleBuffer(tempBuffer->getArrayOfChannels(), 2, tempBufferPos);//buffer.getNumSamples());
+    }
 
-    } else {
+    if (destBufferIsTempBuffer)
+    {
 
-    	//std::cout << "Copying into dest buffer..." << std::endl;
-    	
-    	// copy the temp buffer into the destination buffer
+        // copy the temp buffer into the original buffer
+        buffer = AudioSampleBuffer(tempBuffer->getArrayOfChannels(), 2, tempBufferPos);//buffer.getNumSamples());
 
-    	int pos = 0;
+    }
+    else
+    {
 
-    	while (*tempBuffer->getSampleData(0,pos) != 0)
-    		pos++;
+        //std::cout << "Copying into dest buffer..." << std::endl;
 
-    	int spaceAvailable = destBufferWidth - destBufferPos;
-    	int blockSize1 = (spaceAvailable > pos) ? pos : spaceAvailable;
-    	int blockSize2 = (spaceAvailable > pos) ? 0 : (pos - spaceAvailable);
+        // copy the temp buffer into the destination buffer
 
-    	for (int channel = 0; channel < destBuffer->getNumChannels(); channel++) {
+        int pos = 0;
 
-    		// copy first block
-    		destBuffer->copyFrom(channel, 		//destChannel
-    					         destBufferPos, //destStartSample
-    					         *tempBuffer, 	//source
-    					         channel, 		//sourceChannel
-    					         0, 			//sourceStartSample
-    					         blockSize1  //numSamples
-    					         );
+        while (*tempBuffer->getSampleData(0,pos) != 0)
+            pos++;
 
-			// copy second block    			
-    		destBuffer->copyFrom(channel, 		//destChannel
-    					         0, 			//destStartSample
-    					         *tempBuffer, 	//source
-    					         channel, 		//sourceChannel
-    					         blockSize1, 	//sourceStartSample
-    					         blockSize2  //numSamples
-    					         );
-    	
-		}
-    
-    	//destBufferPos = (spaceAvailable > tempBufferPos) ? destBufferPos
+        int spaceAvailable = destBufferWidth - destBufferPos;
+        int blockSize1 = (spaceAvailable > pos) ? pos : spaceAvailable;
+        int blockSize2 = (spaceAvailable > pos) ? 0 : (pos - spaceAvailable);
 
-    	destBufferPos += pos;
-    	destBufferPos %= destBufferWidth;
+        for (int channel = 0; channel < destBuffer->getNumChannels(); channel++)
+        {
 
-    	//std::cout << "Temp buffer position: " << tempBufferPos << std::endl;
-    	//std::cout << "Resampling node value:" << *destBuffer->getSampleData(0,0) << std::endl;
+            // copy first block
+            destBuffer->copyFrom(channel, 		//destChannel
+                                 destBufferPos, //destStartSample
+                                 *tempBuffer, 	//source
+                                 channel, 		//sourceChannel
+                                 0, 			//sourceStartSample
+                                 blockSize1  //numSamples
+                                );
+
+            // copy second block
+            destBuffer->copyFrom(channel, 		//destChannel
+                                 0, 			//destStartSample
+                                 *tempBuffer, 	//source
+                                 channel, 		//sourceChannel
+                                 blockSize1, 	//sourceStartSample
+                                 blockSize2  //numSamples
+                                );
+
+        }
+
+        //destBufferPos = (spaceAvailable > tempBufferPos) ? destBufferPos
+
+        destBufferPos += pos;
+        destBufferPos %= destBufferWidth;
+
+        //std::cout << "Temp buffer position: " << tempBufferPos << std::endl;
+        //std::cout << "Resampling node value:" << *destBuffer->getSampleData(0,0) << std::endl;
 
     }
 
@@ -291,26 +309,27 @@ void AudioResamplingNode::process(AudioSampleBuffer &buffer,
 void AudioResamplingNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 {
 
-	// find file and write samples to disk
-	timestamp = timer.getHighResolutionTicks();
+    // find file and write samples to disk
+    timestamp = timer.getHighResolutionTicks();
 
-	AudioDataConverters::convertFloatToInt16BE(data, continuousDataBuffer, nSamples);
+    AudioDataConverters::convertFloatToInt16BE(data, continuousDataBuffer, nSamples);
 
-	//int16 samps = nSamples;
+    //int16 samps = nSamples;
 
-	fwrite(&timestamp,							// ptr
-			   8,   							// size of each element
-			   1, 		  						// count 
-			   file);   // ptr to FILE object
+    fwrite(&timestamp,							// ptr
+           8,   							// size of each element
+           1, 		  						// count
+           file);   // ptr to FILE object
 
-	fwrite(&nSamples,								// ptr
-			   sizeof(nSamples),   				// size of each element
-			   1, 		  						// count 
-			   file);   // ptr to FILE object
+    fwrite(&nSamples,								// ptr
+           sizeof(nSamples),   				// size of each element
+           1, 		  						// count
+           file);   // ptr to FILE object
 
-	int n = fwrite(continuousDataBuffer,			// ptr
-			   2,			     					// size of each element
-			   nSamples, 		  					// count 
-			   file);   // ptr to FILE object
-	// n must equal "count", otherwise there was an error
+    fwrite(continuousDataBuffer,			// ptr
+           2,			     					// size of each element
+           nSamples, 		  					// count
+           file);   // ptr to FILE object
+    // FIXME: check that return value of each fwrite() equals "count";
+    // otherwise, there was an error.
 }

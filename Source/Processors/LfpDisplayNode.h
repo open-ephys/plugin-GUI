@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,9 +24,6 @@
 #ifndef __LFPDISPLAYNODE_H_D969A379__
 #define __LFPDISPLAYNODE_H_D969A379__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/LfpDisplayEditor.h"
 #include "Editors/VisualizerEditor.h"
@@ -35,7 +32,7 @@
 class DataViewport;
 
 /**
-  
+
   Holds data in a displayBuffer to be used by the LfpDisplayCanvas
   for rendering continuous data streams.
 
@@ -44,56 +41,65 @@ class DataViewport;
 */
 
 class LfpDisplayNode :  public GenericProcessor
-	  
+
 {
 public:
 
-	LfpDisplayNode();
-	~LfpDisplayNode();
+    LfpDisplayNode();
+    ~LfpDisplayNode();
 
-	AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor();
 
-	bool isSink() {return true;}
+    bool isSink()
+    {
+        return true;
+    }
 
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
 
-	void setParameter(int, float);
+    void setParameter(int, float);
 
-	void updateSettings();
+    void updateSettings();
 
-	bool enable();
-	bool disable();
+    bool enable();
+    bool disable();
 
-	void handleEvent(int, MidiMessage&, int);
+    void handleEvent(int, MidiMessage&, int);
 
-	AudioSampleBuffer* getDisplayBufferAddress() {return displayBuffer;}
-	int getDisplayBufferIndex() {return displayBufferIndex;}
+    AudioSampleBuffer* getDisplayBufferAddress()
+    {
+        return displayBuffer;
+    }
+    int getDisplayBufferIndex()
+    {
+        return displayBufferIndex;
+    }
 
 private:
 
-	void initializeEventChannel();
+    void initializeEventChannel();
 
-	ScopedPointer<AudioSampleBuffer> displayBuffer;
-	ScopedPointer<MidiBuffer> eventBuffer;
+    ScopedPointer<AudioSampleBuffer> displayBuffer;
+    ScopedPointer<MidiBuffer> eventBuffer;
 
-	int displayBufferIndex;
-	int displayBufferIndexEvents;
+    int displayBufferIndex;
+    int displayBufferIndexEvents;
 
-	float displayGain; // 
-	float bufferLength; // s
+    float displayGain; //
+    float bufferLength; // s
 
-	AbstractFifo abstractFifo;
+    AbstractFifo abstractFifo;
 
-	int64 bufferTimestamp;
-	int ttlState;
-	float* arrayOfOnes;
-	int totalSamples;
+    int64 bufferTimestamp;
+    int ttlState;
+    float* arrayOfOnes;
+    int totalSamples;
 
-	//Time timer;
+    //Time timer;
 
-	bool resizeBuffer();
+    bool resizeBuffer();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayNode);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayNode);
 
 };
 

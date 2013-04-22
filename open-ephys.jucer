@@ -1,32 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="ynSYIrr" name="open-ephys" projectType="guiapp" version="0.0.0"
+<JUCERPROJECT id="ynSYIrr" name="open-ephys" projectType="guiapp" version="0.2.0"
               juceLinkage="amalg_multi" buildVST="1" buildRTAS="0" buildAU="1"
               pluginName="Juce Project" pluginDesc="Juce Project" pluginManufacturer="yourcompany"
               pluginManufacturerCode="Manu" pluginCode="Plug" pluginChannelConfigs="{1, 1}, {2, 2}"
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="JuceProjectAU" pluginAUViewClass="JuceProjectAU_V1"
-              pluginRTASCategory="" bundleIdentifier="" jucerVersion="3.0.0">
+              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="3.0.0"
+              companyName="Open Ephys" userNotes="The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring, processing, and visualizing data from extracellular electrodes. See open-ephys.org for more information.">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
-               juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi -lftgl"
-               objCExtraSuffix="fea2mT"/>
+               juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi" objCExtraSuffix="fea2mT">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
+                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
+                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
+      </CONFIGURATIONS>
+    </XCODE_MAC>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-lftdi -lftgl -pg -ldl -lXext" extraCompilerFlags="-export-dynamic -g -pg"/>
+                extraLinkerFlags="-lftdi -pg -ldl -lXext" extraCompilerFlags="-export-dynamic -g -pg">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
+                       libraryPath="/usr/X11R6/lib/"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
+                       libraryPath="/usr/X11R6/lib/"/>
+      </CONFIGURATIONS>
+    </LINUX_MAKE>
     <VS2010 targetFolder="Builds/VisualStudio2010" vstFolder="c:\SDKs\vstsdk2.4"
             rtasFolder="c:\SDKs\PT_80_SDK" libraryType="1" juceFolder="JuceLibraryCode"
-            extraLinkerFlags="-lftdi -lftgl"/>
+            extraLinkerFlags="-lftdi">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
+                       winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
+                       winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"/>
+      </CONFIGURATIONS>
+    </VS2010>
+    <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" juceFolder="JuceLibraryCode/modules">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="3" targetName="open-ephys"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="2" targetName="open-ephys"/>
+      </CONFIGURATIONS>
+    </VS2012>
   </EXPORTFORMATS>
-  <CONFIGURATIONS>
-    <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="open-ephys"
-                   osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
-    <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
-                   osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
-  </CONFIGURATIONS>
   <MAINGROUP id="h3HbSTV" name="open-ephys">
     <GROUP id="0wpTCpt" name="Resources">
       <GROUP id="kVU7EYu" name="Fonts">
+        <FILE id="g9dipB" name="cpmono-black-serialized" compile="0" resource="1"
+              file="Resources/Fonts/cpmono-black-serialized"/>
+        <FILE id="GORUO5" name="cpmono-bold-serialized" compile="0" resource="1"
+              file="Resources/Fonts/cpmono-bold-serialized"/>
+        <FILE id="UmmEdQ" name="cpmono-extralight-serialized" compile="0" resource="1"
+              file="Resources/Fonts/cpmono-extralight-serialized"/>
+        <FILE id="KSV8xW" name="cpmono-light-serialized" compile="0" resource="1"
+              file="Resources/Fonts/cpmono-light-serialized"/>
+        <FILE id="TOP1Rx" name="cpmono-plain-serialized" compile="0" resource="1"
+              file="Resources/Fonts/cpmono-plain-serialized"/>
         <FILE id="ihWw2VV" name="BebasNeue.otf" compile="0" resource="1" file="Resources/Fonts/BebasNeue.otf"/>
         <FILE id="frMIT7f" name="cpmono_bold.otf" compile="0" resource="1"
               file="Resources/Fonts/cpmono_bold.otf"/>
@@ -130,7 +163,6 @@
       </GROUP>
     </GROUP>
     <GROUP id="ZMfWAFj" name="Source">
-      <GROUP id="C4YiLUg" name="Plugins"/>
       <FILE id="AXFRUPT" name="AccessClass.cpp" compile="1" resource="0"
             file="Source/AccessClass.cpp"/>
       <FILE id="2ViPrE" name="AccessClass.h" compile="0" resource="0" file="Source/AccessClass.h"/>
@@ -193,6 +225,14 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <FILE id="iCR52Z" name="PulsePalOutput.cpp" compile="1" resource="0"
+              file="Source/Processors/PulsePalOutput.cpp"/>
+        <FILE id="P6I3cq" name="PulsePalOutput.h" compile="0" resource="0"
+              file="Source/Processors/PulsePalOutput.h"/>
+        <FILE id="I3M3irE" name="ReferenceNode.cpp" compile="1" resource="0"
+              file="Source/Processors/ReferenceNode.cpp"/>
+        <FILE id="mkZIyij" name="ReferenceNode.h" compile="0" resource="0"
+              file="Source/Processors/ReferenceNode.h"/>
         <FILE id="TBFDWIC" name="PhaseDetector.cpp" compile="1" resource="0"
               file="Source/Processors/PhaseDetector.cpp"/>
         <FILE id="M8cJMPk" name="PhaseDetector.h" compile="0" resource="0"
@@ -204,6 +244,8 @@
         <FILE id="oYWM1J" name="Channel.cpp" compile="1" resource="0" file="Source/Processors/Channel.cpp"/>
         <FILE id="oBVEMRc" name="Channel.h" compile="0" resource="0" file="Source/Processors/Channel.h"/>
         <GROUP id="gFSbZKw" name="Serial">
+          <FILE id="PHwlqi" name="PulsePal.cpp" compile="1" resource="0" file="Source/Processors/Serial/PulsePal.cpp"/>
+          <FILE id="R4XRyB" name="PulsePal.h" compile="0" resource="0" file="Source/Processors/Serial/PulsePal.h"/>
           <FILE id="3t2ez3c" name="ofArduino.cpp" compile="1" resource="0" file="Source/Processors/Serial/ofArduino.cpp"/>
           <FILE id="bXASAoT" name="ofArduino.h" compile="0" resource="0" file="Source/Processors/Serial/ofArduino.h"/>
           <FILE id="hNTT1i1" name="ofConstants.h" compile="0" resource="0" file="Source/Processors/Serial/ofConstants.h"/>
@@ -233,31 +275,16 @@
         <FILE id="VynGpEg" name="LfpDisplayNode.h" compile="0" resource="0"
               file="Source/Processors/LfpDisplayNode.h"/>
         <GROUP id="Enz7QFy" name="Utilities">
+          <FILE id="llkb8mQ" name="RecordControl.cpp" compile="1" resource="0"
+                file="Source/Processors/Utilities/RecordControl.cpp"/>
+          <FILE id="jRqpt5T" name="RecordControl.h" compile="0" resource="0"
+                file="Source/Processors/Utilities/RecordControl.h"/>
           <FILE id="qt6uLka" name="Merger.cpp" compile="1" resource="0" file="Source/Processors/Utilities/Merger.cpp"/>
           <FILE id="XNRlWg8" name="Merger.h" compile="0" resource="0" file="Source/Processors/Utilities/Merger.h"/>
           <FILE id="YMFH4P2" name="Splitter.cpp" compile="1" resource="0" file="Source/Processors/Utilities/Splitter.cpp"/>
           <FILE id="DXYynnz" name="Splitter.h" compile="0" resource="0" file="Source/Processors/Utilities/Splitter.h"/>
         </GROUP>
         <GROUP id="W4eqkOy" name="Visualization">
-          <GROUP id="g8GOfh" name="SpikePlotting">
-            <FILE id="AD91jR" name="SpikePlot.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/SpikePlot.cpp"/>
-            <FILE id="iO3abH" name="SpikePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/SpikePlot.h"/>
-            <FILE id="Qq75l" name="BaseUIElement.cpp" compile="1" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp"/>
-            <FILE id="PZdkKU" name="BaseUIElement.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.h"/>
-            <FILE id="lFRVqc" name="GenericAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/GenericAxes.cpp"/>
-            <FILE id="BP8BOa" name="GenericAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/GenericAxes.h"/>
-            <FILE id="f7vOFh" name="PlotUtils.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/PlotUtils.cpp"/>
-            <FILE id="TQfHuh" name="PlotUtils.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/PlotUtils.h"/>
-            <FILE id="d3ducO" name="ProjectionAxes.cpp" compile="1" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.cpp"/>
-            <FILE id="BdHvyv" name="ProjectionAxes.h" compile="0" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.h"/>
-            <FILE id="RnnkTt" name="SimpleKeyEvent.h" compile="0" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/SimpleKeyEvent.h"/>
-            <FILE id="yg1Xuq" name="WaveAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp"/>
-            <FILE id="cZX4SM" name="WaveAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.h"/>
-          </GROUP>
           <FILE id="ajAJi" name="SpikeObject.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikeObject.cpp"/>
           <FILE id="xqF5zL" name="SpikeObject.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikeObject.h"/>
           <FILE id="jGEqDp" name="SpikeDisplayCanvas.cpp" compile="1" resource="0"
@@ -284,6 +311,21 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="NHDoDu" name="PulsePalOutputEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/PulsePalOutputEditor.cpp"/>
+          <FILE id="dVyt6h" name="PulsePalOutputEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/PulsePalOutputEditor.h"/>
+          <FILE id="Xy7AJu" name="RHD2000Editor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/RHD2000Editor.cpp"/>
+          <FILE id="TKVa9h" name="RHD2000Editor.h" compile="0" resource="0" file="Source/Processors/Editors/RHD2000Editor.h"/>
+          <FILE id="3P8oDf3" name="RecordControlEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/RecordControlEditor.cpp"/>
+          <FILE id="hFb27ev" name="RecordControlEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/RecordControlEditor.h"/>
+          <FILE id="tz64eOn" name="ReferenceNodeEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/ReferenceNodeEditor.cpp"/>
+          <FILE id="sxR3wcq" name="ReferenceNodeEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/ReferenceNodeEditor.h"/>
           <FILE id="vcZeT2R" name="ResamplingNodeEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/ResamplingNodeEditor.cpp"/>
           <FILE id="pMjiz6m" name="ResamplingNodeEditor.h" compile="0" resource="0"
@@ -357,18 +399,32 @@
                 file="Source/Processors/Editors/GenericEditor.h"/>
         </GROUP>
         <GROUP id="ZgsuWxi" name="DataThreads">
+          <GROUP id="LcWQtrg" name="rhythm-api">
+            <FILE id="hyM1EYD" name="okFrontPanelDLL.cpp" compile="1" resource="0"
+                  file="Source/Processors/DataThreads/rhythm-api/okFrontPanelDLL.cpp"/>
+            <FILE id="umVgAPM" name="okFrontPanelDLL.h" compile="0" resource="0"
+                  file="Source/Processors/DataThreads/rhythm-api/okFrontPanelDLL.h"/>
+            <FILE id="xNtaB1Q" name="rhd2000datablock.cpp" compile="1" resource="0"
+                  file="Source/Processors/DataThreads/rhythm-api/rhd2000datablock.cpp"/>
+            <FILE id="Wg7Wpit" name="rhd2000datablock.h" compile="0" resource="0"
+                  file="Source/Processors/DataThreads/rhythm-api/rhd2000datablock.h"/>
+            <FILE id="zVeQUvs" name="rhd2000evalboard.cpp" compile="1" resource="0"
+                  file="Source/Processors/DataThreads/rhythm-api/rhd2000evalboard.cpp"/>
+            <FILE id="0Kf2dKC" name="rhd2000evalboard.h" compile="0" resource="0"
+                  file="Source/Processors/DataThreads/rhythm-api/rhd2000evalboard.h"/>
+            <FILE id="QL3qRCG" name="rhd2000registers.cpp" compile="1" resource="0"
+                  file="Source/Processors/DataThreads/rhythm-api/rhd2000registers.cpp"/>
+            <FILE id="VSCEdYf" name="rhd2000registers.h" compile="0" resource="0"
+                  file="Source/Processors/DataThreads/rhythm-api/rhd2000registers.h"/>
+          </GROUP>
+          <FILE id="g24kpza" name="RHD2000Thread.cpp" compile="1" resource="0"
+                file="Source/Processors/DataThreads/RHD2000Thread.cpp"/>
+          <FILE id="BbYdtBN" name="RHD2000Thread.h" compile="0" resource="0"
+                file="Source/Processors/DataThreads/RHD2000Thread.h"/>
           <FILE id="xWMgZ8D" name="FileReaderThread.cpp" compile="1" resource="0"
                 file="Source/Processors/DataThreads/FileReaderThread.cpp"/>
           <FILE id="muolub6" name="FileReaderThread.h" compile="0" resource="0"
                 file="Source/Processors/DataThreads/FileReaderThread.h"/>
-          <FILE id="jMwtRI1" name="okFrontPanelDLL.cpp" compile="1" resource="0"
-                file="Source/Processors/DataThreads/okFrontPanelDLL.cpp"/>
-          <FILE id="LlZ0Bjn" name="okFrontPanelDLL.h" compile="0" resource="0"
-                file="Source/Processors/DataThreads/okFrontPanelDLL.h"/>
-          <FILE id="WBgyi43" name="NetworkThread.cpp" compile="1" resource="0"
-                file="Source/Processors/DataThreads/NetworkThread.cpp"/>
-          <FILE id="7gIytex" name="NetworkThread.h" compile="0" resource="0"
-                file="Source/Processors/DataThreads/NetworkThread.h"/>
           <FILE id="KEzbFux" name="FPGAThread.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/FPGAThread.cpp"/>
           <FILE id="6iEndcT" name="FPGAThread.h" compile="0" resource="0" file="Source/Processors/DataThreads/FPGAThread.h"/>
           <FILE id="Qfe0ygk" name="DataBuffer.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/DataBuffer.cpp"/>
@@ -444,14 +500,22 @@
       <FILE id="z41Hy7g" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
     </GROUP>
   </MAINGROUP>
-  <JUCEOPTIONS JUCE_FORCE_DEBUG="default" JUCE_LOG_ASSERTIONS="default" JUCE_ASIO="default"
-               JUCE_WASAPI="default" JUCE_DIRECTSOUND="default" JUCE_ALSA="default"
-               JUCE_QUICKTIME="default" JUCE_OPENGL="default" JUCE_DIRECT2D="default"
-               JUCE_USE_FLAC="default" JUCE_USE_OGGVORBIS="default" JUCE_USE_CDBURNER="default"
-               JUCE_USE_CDREADER="default" JUCE_USE_CAMERA="default" JUCE_ENABLE_REPAINT_DEBUGGING="default"
-               JUCE_USE_XINERAMA="default" JUCE_USE_XSHM="default" JUCE_USE_XRENDER="default"
-               JUCE_USE_XCURSOR="default" JUCE_PLUGINHOST_VST="default" JUCE_PLUGINHOST_AU="default"
-               JUCE_ONLY_BUILD_CORE_LIBRARY="default" JUCE_WEB_BROWSER="default"
-               JUCE_SUPPORT_CARBON="default" JUCE_CHECK_MEMORY_LEAKS="default"
-               JUCE_CATCH_UNHANDLED_EXCEPTIONS="default"/>
+  <JUCEOPTIONS/>
+  <MODULES>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_audio" showAllCode="1"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_video" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="1"/>
+  </MODULES>
 </JUCERPROJECT>

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -20,35 +20,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+    
 #ifndef __WIFIOUTPUTEDITOR_H_7161DB44__
 #define __WIFIOUTPUTEDITOR_H_7161DB44__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "ImageIcon.h"
 
 class ImageIcon;
 
+/**
+
+  User interface for the WiFiOutput.
+
+  @see WiFiOutput
+
+*/
+
 class WiFiOutputEditor : public GenericEditor
 
 {
 public:
-	WiFiOutputEditor (GenericProcessor* parentNode);
-	virtual ~WiFiOutputEditor();
+    WiFiOutputEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~WiFiOutputEditor();
 
-	void receivedEvent();
+    void receivedEvent();
 
 
-	ImageIcon* icon;
+    ImageIcon* icon;
 
-private:	
+private:
 
-	void timerCallback();
+    void timerCallback();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WiFiOutputEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WiFiOutputEditor);
 
 };
 

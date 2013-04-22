@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,65 +25,70 @@
 #include <stdio.h>
 
 
-WiFiOutputEditor::WiFiOutputEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+WiFiOutputEditor::WiFiOutputEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
 
-	accumulator = 0;
+    accumulator = 0;
 
-	desiredWidth = 150;
+    desiredWidth = 150;
 
-	Image im;
-	im = ImageCache::getFromMemory (BinaryData::wifi_png, 
-	 								BinaryData::wifi_pngSize);
+    Image im;
+    im = ImageCache::getFromMemory(BinaryData::wifi_png,
+                                   BinaryData::wifi_pngSize);
 
-	icon = new ImageIcon(im);
-	addAndMakeVisible(icon);
-	icon->setBounds(35,35,80,80);
+    icon = new ImageIcon(im);
+    addAndMakeVisible(icon);
+    icon->setBounds(35,35,80,80);
 
-	icon->setOpacity(0.3f);
+    icon->setOpacity(0.3f);
 
 }
 
 WiFiOutputEditor::~WiFiOutputEditor()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }
 
 void WiFiOutputEditor::receivedEvent()
 {
-	
-	icon->setOpacity(0.8f);
-	startTimer(50);
+
+    icon->setOpacity(0.8f);
+    startTimer(50);
 
 }
 
 void WiFiOutputEditor::timerCallback()
 {
 
-	repaint();
+    repaint();
 
-	accumulator++;
+    accumulator++;
 
-	if (isFading) {
+    if (isFading)
+    {
 
-		if (accumulator > 15.0)
-		{
-			stopTimer();
-			isFading = false;
-		}
+        if (accumulator > 15.0)
+        {
+            stopTimer();
+            isFading = false;
+        }
 
-	} else {
+    }
+    else
+    {
 
-		if (accumulator < 10.0)
-		{
-			icon->setOpacity(0.8f-(0.05*float(accumulator)));
-			accumulator++;
-		} else {
-			icon->setOpacity(0.3f);
-			stopTimer();
-			accumulator = 0;
-		}
-	}
+        if (accumulator < 10.0)
+        {
+            icon->setOpacity(0.8f-(0.05*float(accumulator)));
+            accumulator++;
+        }
+        else
+        {
+            icon->setOpacity(0.3f);
+            stopTimer();
+            accumulator = 0;
+        }
+    }
 }

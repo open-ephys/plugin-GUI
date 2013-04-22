@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,15 +26,15 @@
 #include <stdio.h>
 
 
-ResamplingNodeEditor::ResamplingNodeEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+ResamplingNodeEditor::ResamplingNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-	desiredWidth = 180;
+    desiredWidth = 180;
 
 }
 
 ResamplingNodeEditor::~ResamplingNodeEditor()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }

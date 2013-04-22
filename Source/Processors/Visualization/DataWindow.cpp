@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,26 +24,26 @@
 #include "DataWindow.h"
 
 
-DataWindow::DataWindow(Button* cButton)
-	: DocumentWindow ("Stream Window", 
-					  Colours::black, 
-					  DocumentWindow::allButtons),
-	  controlButton(cButton)
+DataWindow::DataWindow(Button* cButton, String name)
+    : DocumentWindow(name,
+                     Colours::black,
+                     DocumentWindow::allButtons),
+    controlButton(cButton)
 
 {
-	centreWithSize(500,500);
-	setUsingNativeTitleBar(true);
-	setResizable(true,false);
-	//setTitleBarHeight(40);
+    centreWithSize(800,500);
+    setUsingNativeTitleBar(true);
+    setResizable(true,false);
+    //setTitleBarHeight(40);
 }
 
 DataWindow::~DataWindow()
 {
-	//setContentComponent (0);
+
 }
 
 void DataWindow::closeButtonPressed()
 {
-	setVisible(false);
-	controlButton->setToggleState(false,false);
+    setVisible(false);
+    controlButton->setToggleState(false,false);
 }

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,33 +26,33 @@
 #include <stdio.h>
 
 
-FilterEditor::FilterEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-	desiredWidth = 180;
+    desiredWidth = 180;
 
 
 
-	//createRadioButtons(35, 50, 160, lowCutValues, "Low Cutoff");
-	//createRadioButtons(35, 90, 160, highCutValues, "High Cutoff");
+    //createRadioButtons(35, 50, 160, lowCutValues, "Low Cutoff");
+    //createRadioButtons(35, 90, 160, highCutValues, "High Cutoff");
 
-	// for (int n = 0; n < getNumChildComponents(); n++)
-	// {
-	// 	Button* c = (Button*) getChildComponent(n);
+    // for (int n = 0; n < getNumChildComponents(); n++)
+    // {
+    // 	Button* c = (Button*) getChildComponent(n);
 
-	// 	if (c->isVisible())
-	// 		c->addListener(this);
+    // 	if (c->isVisible())
+    // 		c->addListener(this);
 
-	// 	if (c->getRadioGroupId() != 999)
-	// 		c->setVisible(true);
-	// }
+    // 	if (c->getRadioGroupId() != 999)
+    // 		c->setVisible(true);
+    // }
 
 }
 
 FilterEditor::~FilterEditor()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }
 
 // void FilterEditor::sliderValueChanged (Slider* slider)
@@ -60,38 +60,39 @@ FilterEditor::~FilterEditor()
 
 // 	if (slider == lowSlider)
 // 		getAudioProcessor()->setParameter(0,slider->getValue());
-// 	else 
+// 	else
 // 		getAudioProcessor()->setParameter(1,slider->getValue());
 
 // }
 
-void FilterEditor::buttonEvent (Button* button)
+void FilterEditor::buttonEvent(Button* button)
 {
-	//std::cout << button->getRadioGroupId() << " " << button->getName() << std::endl;
-	
-	//if (!checkDrawerButton(button) && !checkChannelSelectors(button)) {
+    //std::cout << button->getRadioGroupId() << " " << button->getName() << std::endl;
 
-		String value = button->getName();
-		float val;
+    //if (!checkDrawerButton(button) && !checkChannelSelectors(button)) {
 
-		val = value.getFloatValue();
+    String value = button->getName();
+    float val;
 
-		Array<int> chans = getActiveChannels();
-		
-		GenericProcessor* p = (GenericProcessor*) getAudioProcessor();
+    val = value.getFloatValue();
 
-		for (int n = 0; n < chans.size(); n++) {
-			
-			p->setCurrentChannel(chans[n]);
+    Array<int> chans = getActiveChannels();
 
-			if (button->getRadioGroupId() == 1)
-	 			getAudioProcessor()->setParameter(0,val);
-	 		else 
-	 			getAudioProcessor()->setParameter(1,val*1000.0f);
+    GenericProcessor* p = (GenericProcessor*) getAudioProcessor();
 
-		}	
+    for (int n = 0; n < chans.size(); n++)
+    {
 
- 	//std::cout << button->getRadioGroupId() << " " << val << std::endl;
- //	}
+        p->setCurrentChannel(chans[n]);
+
+        if (button->getRadioGroupId() == 1)
+            getAudioProcessor()->setParameter(0,val);
+        else
+            getAudioProcessor()->setParameter(1,val*1000.0f);
+
+    }
+
+    //std::cout << button->getRadioGroupId() << " " << val << std::endl;
+    //	}
 
 }

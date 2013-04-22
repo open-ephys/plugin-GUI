@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,39 +24,36 @@
 #ifndef __FPGATHREAD_H_FBB22A45__
 #define __FPGATHREAD_H_FBB22A45__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include <stdio.h>
 #include <string.h>
 
-#include "okFrontPanelDLL.h"
+#include "rhythm-api/okFrontPanelDLL.h"
 #include "DataThread.h"
+
+class SourceNode;
 
 /**
 
-  Communicates with the custom acquisition board via an Opal Kelly FPGA.
+  Communicates with the Open Ephys acquisition board via an Opal Kelly FPGA.
 
   @see DataThread, SourceNode
 
 */
 
-class SourceNode;
-
 class FPGAThread : public DataThread
 
 {
 public:
-	FPGAThread(SourceNode* sn);
-	~FPGAThread();
+    FPGAThread(SourceNode* sn);
+    ~FPGAThread();
 
-	bool foundInputSource();
-	int getNumChannels();
-	float getSampleRate();
-	float getBitVolts();
-    
+    bool foundInputSource();
+    int getNumChannels();
+    float getSampleRate();
+    float getBitVolts();
+
     int getNumEventChannels();
 
     void setOutputHigh();
@@ -64,45 +61,50 @@ public:
 
 private:
 
-	okCFrontPanel* dev;
-	char bitfile[128];
-	char dll_date[32], dll_time[32];
-	bool isTransmitting;
-	bool deviceFound;
+    okCFrontPanel* dev;
+    char bitfile[128];
+    char dll_date[32], dll_time[32];
+    bool isTransmitting;
+    bool deviceFound;
 
-	bool initializeFPGA(bool);
-	bool closeFPGA();
+    double filter_A;
+    double filter_B;
+    double filter_states[256];
 
-	bool startAcquisition();
-	bool stopAcquisition();
+
+    bool initializeFPGA(bool);
+    bool closeFPGA();
+
+    bool startAcquisition();
+    bool stopAcquisition();
 
     int alignBuffer(int nBytes);
-    
+
     void checkTTLState();
 
-	unsigned char pBuffer[500000];  // size of the data requested in each buffer
+    unsigned char pBuffer[500000];  // size of the data requested in each buffer
     int bytesToRead;
     unsigned char overflowBuffer[20000];
-    
+
     int overflowSize;
-    
+
     int ttl_out;
-    
+
     int ttlState;
-    
+
     int ttlOutputVal;
     int accumulator;
 
     bool bufferWasAligned;
 
-	float thisSample[256];
+    float thisSample[256];
 
-	int numchannels;
-	int Ndatabytes;
+    int numchannels;
+    int Ndatabytes;
 
-	bool updateBuffer();
-	
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FPGAThread);
+    bool updateBuffer();
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FPGAThread);
 };
 
 

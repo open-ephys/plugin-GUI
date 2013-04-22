@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,9 +24,6 @@
 #ifndef __EDITORVIEWPORT_H_80260F3F__
 #define __EDITORVIEWPORT_H_80260F3F__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/ProcessorGraph.h"
 #include "../Processors/Editors/GenericEditor.h"
@@ -43,63 +40,106 @@ class EditorScrollButton;
 class SignalChainScrollButton;
 
 /**
-  
+
   Allows the user to view and edit the signal chain.
 
   The EditorViewport is one of the most important classes in the GUI application.
+  Dragging processors from the ProcessorList into the EditorViewport adds them to the signal chain. The
+  newly added processors appear an editors in the EditorViewport. Deleting the editor from the
+  EditorViewport removes its associated processor from the signal chain. Moving an editor (by dragging
+  and dropping within the EditorViewport) rearranges the order of processing.
 
-  @see UIComponent, ProcessorGraph
+  The EditorViewport can be used to browse through multiple parallel signal chains
+  (by clicking the buttons on the far left), or to navigate around branching
+  signal chains.
+
+  @see UIComponent, ProcessorGraph, SignalChainManager
 
 */
 
 class EditorViewport  : public Component,
-                        public DragAndDropTarget,
-                        public AccessClass,
-                        public Button::Listener
+    public DragAndDropTarget,
+    public AccessClass,
+    public Button::Listener
 
 {
 public:
 
-    /** Constructor. */
+    /** Constructor. Adds the buttons for browsing through the signal chains.*/
     EditorViewport();
 
     /** Destructor. */
     ~EditorViewport();
 
-    void paint (Graphics& g);
+    /** Draws the background of the EditorViewport. */
+    void paint(Graphics& g);
 
-    // Creating and deleting editors:
+    /** Removes the processor associated with a given editor. */
     void deleteNode(GenericEditor* editor);
-    void selectEditor(GenericEditor* e);
 
-    void makeEditorVisible(GenericEditor* e, bool highlight = true);
-    void makeEditorVisibleAndUpdateSettings(GenericEditor* e);
+    /** Removes the processor associated with a given editor. */
+    void selectEditor(GenericEditor* editor);
+
+    /** Ensures that the user can see the requested editor. */
+    void makeEditorVisible(GenericEditor* editor, bool highlight = true, bool updateSettings = false);
+
+    /** Updates the boundaries and visibility of all the editors in the signal chain. */
     void refreshEditors();
 
+    /** Removes all processors from the signal chain(s).*/
     void clearSignalChain();
 
-    void signalChainCanBeEdited(bool t);
+    /** Used to enable and disable drag-and-drop signal chain editing. Called by the
+    ProcessorGraph when data acquisition begins and ends. */
+    void signalChainCanBeEdited(bool canEdit);
 
-    // DragAndDropTarget methods:
-    bool isInterestedInDragSource (const String& /*sourceDescription*/, Component* /*sourceComponent*/);
-    void itemDragEnter (const String& /*sourceDescription*/, Component* /*sourceComponent*/, int /*x*/, int /*y*/);
-    void itemDragMove (const String& /*sourceDescription*/, Component* /*sourceComponent*/, int /*x*/, int /*y*/);
-    void itemDragExit (const String& /*sourceDescription*/, Component* /*sourceComponent*/);
-    void itemDropped (const String& sourceDescription, Component* /*sourceComponent*/, int /*x*/, int /*y*/);
+    /** Determines whether or not the EditorViewport should respond to
+    the component that is currently being dragged. */
+    bool isInterestedInDragSource(const SourceDetails& dragSourceDetails);
 
-    // mouse and keypress methods:
-    void mouseDown(const MouseEvent &e);
-    void mouseDrag(const MouseEvent &e);
-    void mouseUp(const MouseEvent &e);
-    void mouseExit(const MouseEvent &e);
-    //void mouseEnter(const MouseEvent &e);
-    //void mouseExit
-    //void modifierKeysChanged (const ModifierKeys & modifiers);
-    bool keyPressed (const KeyPress &key);
-    void moveSelection( const KeyPress &key);
+    /** Called when a dragged item (usually a name from the ProcessorList) enters the
+       boundaries of the EditorViewport. Causes the background of the EditorViewport to change color.*/
+    void itemDragEnter(const SourceDetails& dragSourceDetails);
+
+    /** Called when a dragged item (usually a name from the ProcessorList) moves within the
+       boundaries of the EditorViewport. Causes existing editors (if any) to shift their position
+       to make room for the new processor that could be dropped.*/
+    void itemDragMove(const SourceDetails& dragSourceDetails);
+
+    /** Called when a dragged item (usually a name from the ProcessorList) leaves the
+       boundaries of the EditorViewport. Causes the background of the EditorViewport to change color.*/
+    void itemDragExit(const SourceDetails& dragSourceDetails);
+
+    /** Called when a dragged item (usually a name from the ProcessorList) is released within the
+       boundaries of the EditorViewport. Adds the dropped processor to the signal chain.*/
+    void itemDropped(const SourceDetails& dragSourceDetails);
+
+    /** Called when a mouse click begins within the EditorViewport. Usually used to select editors.*/
+    void mouseDown(const MouseEvent& e);
+
+    /** Called when a mouse drag occurs within the EditorViewport. Usually used to move editors around in the signal chain.*/
+    void mouseDrag(const MouseEvent& e);
+
+    /** Called when a mouse click ends within the EditorViewport. Usually used to indicate that a moving editor has been dropped.*/
+    void mouseUp(const MouseEvent& e);
+
+    /** Called when the mouse leaves the boundaries of the EditorViewport.*/
+    void mouseExit(const MouseEvent& e);
+
+    /** Called when a key is pressed an the EditorViewport has keyboard focus.*/
+    bool keyPressed(const KeyPress& key);
+
+    /** Changes which editor is selected, depending on the keypress (and modifier keys).*/
+    void moveSelection(const KeyPress& key);
+
+    /** Called when one of the buttons the EditorViewport listens to has been clicked.*/
     void buttonClicked(Button* button);
 
-    Array<SignalChainTabButton*, CriticalSection> requestSignalChain() {return signalChainArray;}
+    /** Returns an array of pointers to SignalChainTabButtons (which themselves hold pointers to the sources of each signal chain). */
+    Array<SignalChainTabButton*, CriticalSection> requestSignalChain()
+    {
+        return signalChainArray;
+    }
 
     /** Save the current configuration as an XML file. */
     const String saveState();
@@ -107,17 +147,23 @@ public:
     /** Load a saved configuration from an XML file. */
     const String loadState();
 
+    /** Converts information about a given editor to XML. */
     XmlElement* createNodeXml(GenericEditor*, int);
+
+    /** Converts information about a splitter or merge to XML. */
     XmlElement* switchNodeXml(GenericProcessor*);
 
+    /** Checks whether or not the signal chain scroll buttons need to be activated. */
     void checkScrollButtons(int topTab);
 
+    /** Returns a boolean indicating whether or not the signal chain is empty. */
     bool isSignalChainEmpty();
 
+    /** The index of the left-most editor (used for scrolling purposes). */
     int leftmostEditor;
 
     File currentFile;
-    
+
 private:
 
     String message;
@@ -133,13 +179,10 @@ private:
     Array<GenericEditor*, CriticalSection> editorArray;
     Array<SignalChainTabButton*, CriticalSection> signalChainArray;
 
-    ScopedPointer<SignalChainManager> signalChainManager;
+    SignalChainManager* signalChainManager;
 
     Font font;
     Image sourceDropImage;
-
-    void createNewTab(GenericEditor* editor);
-    void removeTab(int tabIndex);
 
     int borderSize, tabSize, tabButtonSize;
 
@@ -160,9 +203,21 @@ private:
 
     void resized();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EditorViewport);  
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EditorViewport);
 
 };
+
+/**
+
+  Allows the user to navigate between multiple parallel signal chains.
+
+  Each SignalChainTabButton sits on the left-hand side of the EditorViewport
+  and is associated with a given signal chain. Clicking the tab button makes
+  the editors for its signal chain visible.
+
+  @see EditorViewport
+
+*/
 
 class SignalChainTabButton : public Button
 {
@@ -170,14 +225,41 @@ public:
     SignalChainTabButton();
     ~SignalChainTabButton() {}
 
-    void setEditor(GenericEditor* p) {firstEditor = p;}
-    void setManager(SignalChainManager* scm_) {scm = scm_;}
-    GenericEditor* getEditor() {return firstEditor;}
+    /** Determines the first editor in the signal chain associated with a SignalChainTabButton.*/
+    void setEditor(GenericEditor* p)
+    {
+        firstEditor = p;
+    }
 
-    void setNumber(int n) {num = n;}
+    /** Sets the SignalChainManager for this SignalChainTabButton.*/
+    void setManager(SignalChainManager* scm_)
+    {
+        scm = scm_;
+    }
 
-    bool hasNewConnections() {return configurationChanged;}
-    void hasNewConnections(bool t) {configurationChanged = t;}
+    /** Returns the editor associated with this SignalChainTabButton.*/
+    GenericEditor* getEditor()
+    {
+        return firstEditor;
+    }
+
+    /** Sets the number of this SignalChainTabButton.*/
+    void setNumber(int n)
+    {
+        num = n;
+    }
+
+    /** Returns the state of the configurationChanged variable.*/
+    bool hasNewConnections()
+    {
+        return configurationChanged;
+    }
+
+    /** Sets the state of the configurationChanged variable.*/
+    void hasNewConnections(bool t)
+    {
+        configurationChanged = t;
+    }
 
     int offset;
 
@@ -187,12 +269,14 @@ private:
 
     SignalChainManager* scm;
 
-    void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
+    /** Draws the SignalChainTabButton.*/
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
+    /** Called when a mouse click occurs inside a SignalChainTabButton.*/
     void clicked();
-    
+
     enum actions {ADD, MOVE, REMOVE, ACTIVATE};
-    
+
     int num;
     bool configurationChanged;
 

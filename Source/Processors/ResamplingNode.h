@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,9 +25,6 @@
 #define __RESAMPLINGNODE_H_79663B0__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Dsp/Dsp.h"
 #include "GenericProcessor.h"
@@ -48,45 +45,48 @@ class ResamplingNode : public GenericProcessor
 
 {
 public:
-	
-	// real member functions:
-	ResamplingNode();
-	~ResamplingNode();
 
-	void process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void setParameter (int parameterIndex, float newValue);
-	
-	void updateSettings();
+    // real member functions:
+    ResamplingNode();
+    ~ResamplingNode();
 
-	void updateFilter();
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void setParameter(int parameterIndex, float newValue);
 
-	bool enable();
-	
-	AudioProcessorEditor* createEditor();
-	bool hasEditor() const {return true;}
+    void updateSettings();
+
+    void updateFilter();
+
+    bool enable();
+
+    AudioProcessorEditor* createEditor();
+    bool hasEditor() const
+    {
+        return true;
+    }
 
 private:
 
-	// sample rate, timebase, and ratio info:
-	double targetSampleRate;
-	double sourceBufferSampleRate; //, destBufferSampleRate;
-	double ratio; //, lastRatio;
-	//double destBufferTimebaseSecs;
-	//int destBufferWidth;
-	
-	// major objects:
-	Dsp::Filter* filter;
-	//ScopedPointer<AudioSampleBuffer> destBuffer;
-	ScopedPointer<AudioSampleBuffer> tempBuffer;
+    // sample rate, timebase, and ratio info:
+    double targetSampleRate;
+    double sourceBufferSampleRate; //, destBufferSampleRate;
+    double ratio; //, lastRatio;
+    //double destBufferTimebaseSecs;
+    //int destBufferWidth;
 
-	// is the destBuffer a temp buffer or not?
-	//bool destBufferIsTempBuffer;
-	//bool isTransmitting;
+    // major objects:
+    Dsp::Filter* filter;
+    //ScopedPointer<AudioSampleBuffer> destBuffer;
+    ScopedPointer<AudioSampleBuffer> tempBuffer;
 
-	// indexing objects that persist between rounds:
-	//int destBufferPos;
+    // is the destBuffer a temp buffer or not?
+    //bool destBufferIsTempBuffer;
+    //bool isTransmitting;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResamplingNode);
+    // indexing objects that persist between rounds:
+    //int destBufferPos;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ResamplingNode);
 
 };
 

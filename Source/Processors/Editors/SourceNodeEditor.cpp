@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,48 +27,60 @@
 #include <stdio.h>
 
 
-SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode) 
-	: GenericEditor(parentNode)
+SourceNodeEditor::SourceNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-	desiredWidth = 170;
+    desiredWidth = 170;
 
-	Image im;
+    Image im;
 
-	std::cout << "I think my name is: " << getName() << std::endl;
+    std::cout << "I think my name is: " << getName() << std::endl;
 
-	if (getName().equalsIgnoreCase("Intan Demo Board"))
-	 {
-	 	im = ImageCache::getFromMemory (BinaryData::IntanIcon_png, 
-	 								    BinaryData::IntanIcon_pngSize);
-	 } else if (getName().equalsIgnoreCase("File Reader")) {
-	 	im = ImageCache::getFromMemory (BinaryData::FileReaderIcon_png, 
-	 								    BinaryData::FileReaderIcon_pngSize);	
-	} else if (getName().equalsIgnoreCase("Custom FPGA")) {
-		im = ImageCache::getFromMemory (BinaryData::OpenEphysBoardLogoGray_png, 
-	 								    BinaryData::OpenEphysBoardLogoGray_pngSize);	
+    if (getName().equalsIgnoreCase("Intan Demo Board"))
+    {
+        im = ImageCache::getFromMemory(BinaryData::IntanIcon_png,
+                                       BinaryData::IntanIcon_pngSize);
+    }
+    else if (getName().equalsIgnoreCase("File Reader"))
+    {
+        im = ImageCache::getFromMemory(BinaryData::FileReaderIcon_png,
+                                       BinaryData::FileReaderIcon_pngSize);
 
-	} else {
-	 	im = ImageCache::getFromMemory (BinaryData::DefaultDataSource_png, 
-	 								    BinaryData::DefaultDataSource_pngSize);
-	 }
 
-	 icon = new ImageIcon(im);
-	 addAndMakeVisible(icon);
-	 icon->setBounds(50,40,70,70);
+    }
+    else if (getName().equalsIgnoreCase("Custom FPGA"))
+    {
+        im = ImageCache::getFromMemory(BinaryData::OpenEphysBoardLogoGray_png,
+                                       BinaryData::OpenEphysBoardLogoGray_pngSize);
 
-	 if (getName().equalsIgnoreCase("Custom FPGA")) {
-		icon->setBounds(20,15,120,120);
-	}
+    }
+    else
+    {
+        im = ImageCache::getFromMemory(BinaryData::DefaultDataSource_png,
+                                       BinaryData::DefaultDataSource_pngSize);
+    }
 
-	//Array<int> values;
-	//values.add(1); values.add(2), values.add(3);
 
-	//createRadioButtons(10, 25, 100, values);
+
+
+    icon = new ImageIcon(im);
+    addAndMakeVisible(icon);
+    icon->setBounds(50,40,70,70);
+
+    if (getName().equalsIgnoreCase("Custom FPGA"))
+    {
+        icon->setBounds(20,15,120,120);
+    }
+
+    //Array<int> values;
+    //values.add(1); values.add(2), values.add(3);
+
+    //createRadioButtons(10, 25, 100, values);
 
 }
 
 SourceNodeEditor::~SourceNodeEditor()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }

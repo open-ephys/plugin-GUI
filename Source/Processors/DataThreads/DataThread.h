@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,9 +24,6 @@
 #ifndef __DATATHREAD_H_C454F4DB__
 #define __DATATHREAD_H_C454F4DB__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 #include "DataBuffer.h"
@@ -37,6 +34,11 @@ class SourceNode;
 
   Abstract base class for a data input thread owned by the SourceNode.
 
+  To communicate with input sources that may have a different clock as the
+  data acquisition callbacks, it's most efficient to use a separate thread.
+  The DataThread class makes it easy to create threads that interact with
+  new data sources, such as an FPGA, an Arduino, or a network stream.
+
   @see SourceNode
 
 */
@@ -46,42 +48,70 @@ class DataThread : public Thread
 
 public:
 
-	DataThread(SourceNode* sn);
-	~DataThread();
+    DataThread(SourceNode* sn);
+    ~DataThread();
 
-	void run();
+    /** Calls 'updateBuffer()' continuously while the thread is being run.*/
+    void run();
 
-	DataBuffer* getBufferAddress();
+    /** Returns the address of the DataBuffer that the input source will fill.*/
+    DataBuffer* getBufferAddress();
 
-	virtual bool updateBuffer() = 0;
-    
+    /** Fills the DataBuffer with incoming data. This is the most important
+    method for each DataThread.*/
+    virtual bool updateBuffer() = 0;
+
+    /** Experimental method used for testing data sources that can deliver outputs.*/
     virtual void setOutputHigh() {}
+
+    /** Experimental method used for testing data sources that can deliver outputs.*/
     virtual void setOutputLow() {}
 
-	ScopedPointer<DataBuffer> dataBuffer;
+    ScopedPointer<DataBuffer> dataBuffer;
 
-	virtual bool foundInputSource() = 0;
-	virtual bool startAcquisition() = 0;
-	virtual bool stopAcquisition() = 0;
-	virtual int getNumChannels() = 0;
-	virtual float getSampleRate() = 0;
+    /** Returns true if the data source is connected, false otherwise.*/
+    virtual bool foundInputSource() = 0;
+
+    /** Initializes data transfer.*/
+    virtual bool startAcquisition() = 0;
+
+    /** Stops data transfer.*/
+    virtual bool stopAcquisition() = 0;
+
+    /** Returns the number of continuous channels the data source can provide.*/
+    virtual int getNumChannels() = 0;
+
+    /** Returns the sample rate of the data source.*/
+    virtual float getSampleRate() = 0;
+
+    /** Returns the volts per bit of the data source.*/
     virtual float getBitVolts() = 0;
-    virtual int getNumEventChannels() {return 0;}
 
-	SourceNode* sn;
+    /** Returns the number of event channels of the data source.*/
+    virtual int getNumEventChannels()
+    {
+        return 0;
+    }
+
+    SourceNode* sn;
 
     int16 eventCode;
     uint64 timestamp;
 
     Time timer;
-    
-    virtual void* getDevice() {return 0;}
+
+    /** Returns a pointer to the data input device, in case other processors
+    need to communicate with it.*/
+    virtual void* getDevice()
+    {
+        return 0;
+    }
 
 private:
 
 
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataThread);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataThread);
 
 
 };

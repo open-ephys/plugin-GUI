@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,24 +25,29 @@
 #define __FILTEREDITOR_H_969BDB5__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
 class FilterViewport;
 
+/**
+
+  User interface for the FilterNode processor.
+
+  @see FilterNode
+
+*/
+
 class FilterEditor : public GenericEditor
 {
 public:
-	FilterEditor (GenericProcessor* parentNode);
-	virtual ~FilterEditor();
-	void buttonEvent(Button* button);
+    FilterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~FilterEditor();
+    void buttonEvent(Button* button);
 
-private:	
+private:
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FilterEditor);
 
 };
 

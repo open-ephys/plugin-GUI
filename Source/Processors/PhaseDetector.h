@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,10 +25,6 @@
 #define __PHASEDETECTOR_H_F411F29D__
 
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GenericProcessor.h"
 
@@ -46,46 +42,50 @@ class PhaseDetector : public GenericProcessor
 
 {
 public:
-	
-	PhaseDetector();
-	~PhaseDetector();
-	
-	void process (AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples);
-	void setParameter (int parameterIndex, float newValue);
 
-	//AudioProcessorEditor* createEditor();
+    PhaseDetector();
+    ~PhaseDetector();
 
-	bool hasEditor() const {return false;}
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void setParameter(int parameterIndex, float newValue);
 
-	bool enable();
+    //AudioProcessorEditor* createEditor();
 
-	void updateSettings();
+    bool hasEditor() const
+    {
+        return false;
+    }
+
+    bool enable();
+
+    void updateSettings();
 
 private:
 
-	float lastPeak;
-	float maxFrequency;
-	float lastSample;
+    float lastPeak;
+    float maxFrequency;
+    float lastSample;
 
-	bool isIncreasing;
+    bool isIncreasing;
 
 	bool triggerOnPeak;
 
 	bool canBeTriggered;
 
-	void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
-	float estimatedFrequency;
+    void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
-	int nSamplesSinceLastPeak;
-	int minSamplesToNextPeak;
+    float estimatedFrequency;
 
-	int* peakIntervals;
-	int numPeakIntervals;
+    int nSamplesSinceLastPeak;
+    int minSamplesToNextPeak;
 
-	void estimateFrequency();
+    int* peakIntervals;
+    int numPeakIntervals;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhaseDetector);
+    void estimateFrequency();
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhaseDetector);
 
 };
 

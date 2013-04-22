@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,24 +25,29 @@
 #define __EVENTNODEEDITOR_H_A681BEBC__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
 class FilterViewport;
 
+/**
+
+  User interface for the EventNode processor.
+
+  @see EventNode
+
+*/
+
 class EventNodeEditor : public GenericEditor
 {
 public:
-	EventNodeEditor (GenericProcessor* parentNode);
-	virtual ~EventNodeEditor();
-	void buttonEvent(Button* button);
+    EventNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~EventNodeEditor();
+    void buttonEvent(Button* button);
 
-private:	
+private:
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EventNodeEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventNodeEditor);
 
 };
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,74 +25,79 @@
 #include "../SourceNode.h"
 
 #include <string.h>
+#include <math.h>
 
-FPGAThread::FPGAThread(SourceNode* sn) : DataThread(sn),
-			isTransmitting(false),
-			numchannels(32),
-			deviceFound(false),
-            ttlOutputVal(0),
-            bytesToRead(20000),
-            bufferWasAligned(false),
-            ttlState(0)
-
+FPGAThread::FPGAThread(SourceNode* sn)
+    : DataThread(sn),
+      isTransmitting(false), deviceFound(false), bytesToRead(20000),
+      ttlState(0), ttlOutputVal(0), bufferWasAligned(false), numchannels(32)
 {
-
-	
-	//const char* bitfilename = "./pipetest.bit";
+    //const char* bitfilename = "./pipetest.bit";
 #if JUCE_LINUX
-	const char* bitfilename = "./pipetest.bit";
-    const char* libname = "./libokFrontPanel64.so";
+    const char* bitfilename = "./pipetest.bit";
+    const char* libname = "./libokFrontPanel.so";
 #endif
 #if JUCE_WIN32
-	const char* bitfilename = "pipetest.bit";
+    const char* bitfilename = "pipetest.bit";
     const char* libname = NULL;
 #endif
 #if JUCE_MAC
     const char* bitfilename = "/Users/Josh/Programming/open-ephys/GUI/Resources/DLLs/pipetest.bit";
     const char* libname = "/Users/Josh/Programming/open-ephys/GUI/Resources/DLLs/libokFrontPanel.dylib";
 #endif
-    
 
-	if (!okFrontPanelDLL_LoadLib(libname)) {
-		printf("FrontPanel DLL could not be loaded.\n");
-	}
-	
-	okFrontPanelDLL_GetVersion(dll_date, dll_time);
-	//printf("FrontPanel DLL loaded.  Built: %s  %s\n", dll_date, dll_time);
 
-	dev = new okCFrontPanel;
+    if (!okFrontPanelDLL_LoadLib(libname))
+    {
+        printf("FrontPanel DLL could not be loaded.\n");
+    }
 
-	strncpy(bitfile, bitfilename, 128);
+    okFrontPanelDLL_GetVersion(dll_date, dll_time);
+    //printf("FrontPanel DLL loaded.  Built: %s  %s\n", dll_date, dll_time);
 
-	// Initialize the FPGA with our configuration bitfile.
-	deviceFound = initializeFPGA(true);
+    dev = new okCFrontPanel;
 
-	if (!deviceFound) {
-		printf("FPGA could not be initialized.\n");
-	} else {
-		printf("FPGA interface initialized.\n");
-	}
+    strncpy(bitfile, bitfilename, 128);
 
-	Ndatabytes = numchannels*3;
-	
-	dataBuffer = new DataBuffer(numchannels, 10000);
+    // Initialize the FPGA with our configuration bitfile.
+    deviceFound = initializeFPGA(true);
 
-	eventCode = 0;
+    if (!deviceFound)
+    {
+        printf("FPGA could not be initialized.\n");
+    }
+    else
+    {
+        printf("FPGA interface initialized.\n");
+    }
+
+    Ndatabytes = numchannels*3;
+
+    dataBuffer = new DataBuffer(numchannels, 10000);
+
+    eventCode = 0;
+
+    //High-Pass filter
+    const double fL=0.5;
+
+    filter_A = exp(-2*M_PI*fL/getSampleRate());
+    filter_B = (double)1.0	- filter_A;
 
 }
 
 
-FPGAThread::~FPGAThread() {
-	
-	std::cout << "FPGA interface destroyed." << std::endl;
+FPGAThread::~FPGAThread()
+{
 
-	deleteAndZero(dev);
+    std::cout << "FPGA interface destroyed." << std::endl;
+
+    deleteAndZero(dev);
 
 }
 
 int FPGAThread::getNumChannels()
 {
-	return numchannels;
+    return numchannels;
 }
 
 int FPGAThread::getNumEventChannels()
@@ -102,69 +107,72 @@ int FPGAThread::getNumEventChannels()
 
 float FPGAThread::getSampleRate()
 {
-	return 28344.67;//12520.0;
+    return 28344.67;//12520.0;
 }
 
 float FPGAThread::getBitVolts()
 {
-	return 0.1907;
+    return 0.1907;
 }
 
 bool FPGAThread::foundInputSource()
 {
 
-	return true;
+    return true;
 
-	// if (deviceFound)
-	// {
-	// 	if (okCFrontPanel::NoError != dev->ConfigureFPGA(bitfile)) 
-	// 	{
-	// 		printf("FPGA configuration failed.\n");
-	// 		deviceFound = false;
-	// 		return false;
-	// 	}
+    // if (deviceFound)
+    // {
+    // 	if (okCFrontPanel::NoError != dev->ConfigureFPGA(bitfile))
+    // 	{
+    // 		printf("FPGA configuration failed.\n");
+    // 		deviceFound = false;
+    // 		return false;
+    // 	}
 
-	// } else {
+    // } else {
 
-	// 	// if (!initializeFPGA(false))
-	// 	// {
-	// 	// 	return false;
-	// 	// } else {
-	// 	// 	deviceFound = true;
-	// 	// }
+    // 	// if (!initializeFPGA(false))
+    // 	// {
+    // 	// 	return false;
+    // 	// } else {
+    // 	// 	deviceFound = true;
+    // 	// }
 
-	// }
+    // }
 
 }
 
 bool FPGAThread::startAcquisition()
 {
 
-   
-   //alignBuffer(200);
-   //alignBuffer(200);
-   //alignBuffer(200);
 
-  // alignBuffer();
+    //alignBuffer(200);
+    //alignBuffer(200);
+    //alignBuffer(200);
 
-  // alignBuffer();
+    // alignBuffer();
 
-	bufferWasAligned = false;
+    // alignBuffer();
 
-   startThread();
+    bufferWasAligned = false;
 
-   isTransmitting = true;
-   accumulator = 0;
+    memset(filter_states,0,256*sizeof(double));
 
-   return true;
+    startThread();
+
+    isTransmitting = true;
+    accumulator = 0;
+
+    return true;
 }
 
 bool FPGAThread::stopAcquisition()
 {
 
-	isTransmitting = false;
+    isTransmitting = false;
 
-	if (isThreadRunning()) {
+    if (isThreadRunning())
+    {
 
         signalThreadShouldExit();
     }
@@ -175,75 +183,76 @@ bool FPGAThread::stopAcquisition()
 
 int FPGAThread::alignBuffer(int nBytes)
 {
-	long return_code;
+    long return_code;
 
-	return_code = dev->ReadFromPipeOut(0xA0, nBytes, pBuffer);
+    return_code = dev->ReadFromPipeOut(0xA0, nBytes, pBuffer);
 
-	//std::cout << "Bytes read: " << return_code << std::endl;
+    //std::cout << "Bytes read: " << return_code << std::endl;
 
-	int j = 0;
+    int j = 0;
 
 
-	while (j < nBytes)
-	{
-        
-		// look for timecode block (6 bytes)
-		if (  (pBuffer[j] & 1) 
-				&& (pBuffer[j+1] & 1) 
-				&& (pBuffer[j+2] & 1) 
-				&& (pBuffer[j+3] & 1) 
-				&& (pBuffer[j+4] & 1) 
-				&& (pBuffer[j+5] & 1) )
-				//&& (j+5+Ndatabytes <= bytesToRead)   ) // indicated by last bit being 1
-		{ 
-			int numNeeded = j;
+    while (j < nBytes)
+    {
 
-			std::cout << j << " ";
+        // look for timecode block (6 bytes)
+        if ((pBuffer[j] & 1)
+            && (pBuffer[j+1] & 1)
+            && (pBuffer[j+2] & 1)
+            && (pBuffer[j+3] & 1)
+            && (pBuffer[j+4] & 1)
+            && (pBuffer[j+5] & 1))
+            //&& (j+5+Ndatabytes <= bytesToRead)   ) // indicated by last bit being 1
+        {
+            int numNeeded = j;
 
-			return_code = dev->ReadFromPipeOut(0xA0, numNeeded, pBuffer);
-			//std::cout << "First sample is " << j << std::endl;
-			//std::cout << "Samples needed:  " << numNeeded << std::endl;
-			break;
-		}
+            std::cout << j << " ";
 
-		j++;	
-	}
+            return_code = dev->ReadFromPipeOut(0xA0, numNeeded, pBuffer);
+            //std::cout << "First sample is " << j << std::endl;
+            //std::cout << "Samples needed:  " << numNeeded << std::endl;
+            break;
+        }
 
-	return j;
+        j++;
+    }
+
+    return j;
 
 }
 
-bool FPGAThread::updateBuffer() 
+bool FPGAThread::updateBuffer()
 {
 
-	long return_code;
-	
-	if (!bufferWasAligned)
-	{
-		alignBuffer(100000);
-		alignBuffer(2000);
-		//return_code = dev->ReadFromPipeOut(0xA0, 206, pBuffer);
-		//alignBuffer(2000);
-		//alignBuffer(200);
-		bufferWasAligned = true;
-	}
-	
-	return_code = dev->ReadFromPipeOut(0xA0, bytesToRead, pBuffer);
+    long return_code;
+    double currentSample;
+
+    if (!bufferWasAligned)
+    {
+        alignBuffer(100000);
+        alignBuffer(2000);
+        //return_code = dev->ReadFromPipeOut(0xA0, 206, pBuffer);
+        //alignBuffer(2000);
+        //alignBuffer(200);
+        bufferWasAligned = true;
+    }
+
+    return_code = dev->ReadFromPipeOut(0xA0, bytesToRead, pBuffer);
 
     //std::cout << return_code << std::endl; should return number of bytes read [sizeof(pBuffer)]
-    
-	if (return_code == 0)
-		return false;
+
+    if (return_code == 0)
+        return false;
 
     int j = 0;
 
     // coding scheme:
-	// the code works on a per-byte level where each byte ends in a 0 for data bytes
-	// or in 1 for timecode bytes. This is some overhead but makes data integrity checks 
-	// pretty trivial.
-	// 
-	// headstages are A,B,C,D and another one for the breakout box T for the 0-5v TTL input
-	// A1 is stage A channel 1 etc
+    // the code works on a per-byte level where each byte ends in a 0 for data bytes
+    // or in 1 for timecode bytes. This is some overhead but makes data integrity checks
+    // pretty trivial.
+    //
+    // headstages are A,B,C,D and another one for the breakout box T for the 0-5v TTL input
+    // A1 is stage A channel 1 etc
     // ...............
     // tc     ttttttt1
     // tc     ttttttt1    (6*7bit timecode gives 42 bit gives 4.3980e+12 samples max
@@ -265,183 +274,190 @@ bool FPGAThread::updateBuffer()
     //
     // ... next sample ...
     //
-    
+
 
     int i = 0;
-   // int samplesUsed = 0;
-   // int startSample = 0;
-    
+    // int samplesUsed = 0;
+    // int startSample = 0;
+
     // new strategy: read in 201 bytes & find the first sample
 
-    int firstSample;
-    
-	while (j < bytesToRead)
-	{
-        
-		// look for timecode block (6 bytes)
-		if (  (pBuffer[j] & 1) 
-				&& (pBuffer[j+1] & 1) 
-				&& (pBuffer[j+2] & 1) 
-				&& (pBuffer[j+3] & 1) 
-				&& (pBuffer[j+4] & 1) 
-				&& (pBuffer[j+5] & 1) 
-				&& (j+5+Ndatabytes <= bytesToRead)   ) // indicated by last bit being 1
-		{ //read 6 bytes, assemble to 6*7 = 42 bits,  arranged in 6 bytes
-			
-			//std::cout << j << std::endl;
-            
+    // int firstSample;
+
+    while (j < bytesToRead)
+    {
+
+        // look for timecode block (6 bytes)
+        if ((pBuffer[j] & 1)
+            && (pBuffer[j+1] & 1)
+            && (pBuffer[j+2] & 1)
+            && (pBuffer[j+3] & 1)
+            && (pBuffer[j+4] & 1)
+            && (pBuffer[j+5] & 1)
+            && (j+5+Ndatabytes <= bytesToRead))    // indicated by last bit being 1
+        {
+            //read 6 bytes, assemble to 6*7 = 42 bits,  arranged in 6 bytes
+
+            //std::cout << j << std::endl;
+
             i++;
-            
+
             if (j % 200 != 0)
             {
-            	std::cout << "Buffer not aligned " << j << " " << accumulator << std::endl;
-            	//return false;
+                std::cout << "Buffer not aligned " << j << " " << accumulator << std::endl;
+                //return false;
             }
 
             if (i == 1)
             {
-                firstSample = j;
-               
-               //             "     Bytes read: " << bytesToRead << std::endl;
+                // firstSample = j;
+
+                //             "     Bytes read: " << bytesToRead << std::endl;
             }
-            
-			unsigned char timecode[6]; // 1st byte throw out last bit of each byte and just concatenate the other bytes in ascending order
-			timecode[0] = (pBuffer[j] >> 1) | ((pBuffer[j+1] >> 1) << 7); // 2nd byte
-			timecode[1] = (pBuffer[j+1] >> 2) | ((pBuffer[j+2] >> 1) << 6); // 3rd byte
-			timecode[2] = (pBuffer[j+2] >> 3) | ((pBuffer[j+3] >> 1) << 5); // 4th byte
-			timecode[3] = (pBuffer[j+3] >> 4) | ((pBuffer[j+4] >> 1) << 4); // 5th byte
-			timecode[4] = (pBuffer[j+4] >> 5) | ((pBuffer[j+5] >> 1) << 3); // 6th byte
-			timecode[5] = (pBuffer[j+5] >> 6);
-            
+
+            unsigned char timecode[6]; // 1st byte throw out last bit of each byte and just concatenate the other bytes in ascending order
+            timecode[0] = (pBuffer[j] >> 1) | ((pBuffer[j+1] >> 1) << 7); // 2nd byte
+            timecode[1] = (pBuffer[j+1] >> 2) | ((pBuffer[j+2] >> 1) << 6); // 3rd byte
+            timecode[2] = (pBuffer[j+2] >> 3) | ((pBuffer[j+3] >> 1) << 5); // 4th byte
+            timecode[3] = (pBuffer[j+3] >> 4) | ((pBuffer[j+4] >> 1) << 4); // 5th byte
+            timecode[4] = (pBuffer[j+4] >> 5) | ((pBuffer[j+5] >> 1) << 3); // 6th byte
+            timecode[5] = (pBuffer[j+5] >> 6);
+
             timestamp = (uint64(timecode[5]) << 35) +
                         (uint64(timecode[4]) << 28) +
                         (uint64(timecode[3]) << 32) +
                         (uint64(timecode[2]) << 16) +
                         (uint64(timecode[1]) << 8) +
                         (uint64(timecode[0]));
-            
-            
-            
+
+
+
             eventCode = pBuffer[j+6]; // TTL input
             ttl_out = pBuffer[j+7];
 
             if (ttl_out > 0)
             {
-            	eventCode |= 0x100;   // TTL output
-            	//std::cout << "TLL out!" << std::endl;
+                eventCode |= 0x100;   // TTL output
+                //std::cout << "TLL out!" << std::endl;
             }
-            	
-		
-			j += 8; //move cursor to 1st data byte
 
-			// loop through sample data and condense from 3 bytes to 2 bytes
-			uint16 hi; uint16 lo;
+
+            j += 8; //move cursor to 1st data byte
+
+            // loop through sample data and condense from 3 bytes to 2 bytes
+            uint16 hi;
+            uint16 lo;
 
             // only take data from the first headstage (i.e., skip every other channel)
-			for (int n = 0;  n < numchannels*2 ; n++)
-			{
-                
+            for (int n = 0;  n < numchannels*2 ; n++)
+            {
+
                 if (n % 2 == 0)
                 {
-                
+
                     // last bit of first 2 is zero, replace with bits 1 and 2 from 3rd byte
-                    hi = (pBuffer[j])    | (((  pBuffer[j+2]  >> 2) & ~(1<<6)) & ~(1<<7)) ;
-                    lo = (pBuffer[j+1])  | (((  pBuffer[j+2]  >> 1) & ~(1<<1)) & ~(1<<7)) ;
+                    hi = (pBuffer[j])    | (((pBuffer[j+2]  >> 2) & ~(1<<6)) & ~(1<<7)) ;
+                    lo = (pBuffer[j+1])  | (((pBuffer[j+2]  >> 1) & ~(1<<1)) & ~(1<<7)) ;
 
                     uint16 samp = ((hi << 8) + lo);
 
-                    thisSample[n/2] = -float(samp) * 0.1907f + 3000.0f; //- 6175.0f;
+                    //high-pass filter
+                    currentSample = double(samp) * 0.1907f - 3000.0f; //- 6175.0f;
+                    thisSample[n/2] = float(currentSample - filter_states[n/2]);
+                    filter_states[n/2] = filter_B*currentSample + filter_A*filter_states[n/2];
                 }
-                
+
                 j += 3;
 
 
-			}
-            
+            }
+
             j -= 1; // step back in time
 
-			dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
-            
-           // samplesUsed += 200;
-            
-		}
-		
-		j++; // keep scanning for timecodes
-	}
-    
-   // if (startSample != 0 && bytesToRead > 10000)
+            dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+
+            // samplesUsed += 200;
+
+        }
+
+        j++; // keep scanning for timecodes
+    }
+
+    // if (startSample != 0 && bytesToRead > 10000)
     //    bytesToRead -= 2;
     //else
-     //   bytesToRead = 20000;
-    
-    
+    //   bytesToRead = 20000;
+
+
     // - startSample - 199;// + (200-startSample) - 1;// + startSample +1;
-    
+
     //overflowSize = sizeof(pBuffer) - samplesUsed;
-    
-//    if (overflowSize != 0)
-//    {
-//        memcpy(&overflowBuffer, &pBuffer[j-overflowSize], overflowSize);
-//        
-//    }
-    
-  //  std::cout << "Overflow size: " << overflowSize << std::endl;
 
-   // std::cout << "End time: " << timestamp << std::endl;
+    //    if (overflowSize != 0)
+    //    {
+    //        memcpy(&overflowBuffer, &pBuffer[j-overflowSize], overflowSize);
+    //
+    //    }
 
-    
-    
-   // std::cout << "TTL out:" << ttl_out << std::endl;
-    
-	//accumulator++;
-    
+    //  std::cout << "Overflow size: " << overflowSize << std::endl;
+
+    // std::cout << "End time: " << timestamp << std::endl;
+
+
+
+    // std::cout << "TTL out:" << ttl_out << std::endl;
+
+    //accumulator++;
+
     checkTTLState();
 
-//    if (accumulator == 50)
-//    {
-//        //dev->SetWireInValue(0x01, 0x00); //, 0x06);
-//        ttlOutputVal = 0;
-//        //accumulator = 0;
-//        //dev->UpdateWireIns();
-//     //   std::cout << return_code << " " << i << std::endl; // number of samples found
-//       // std::cout << "Start sample: " << firstSample << std::endl;
-//    } else if (accumulator > 100) {
-//        //dev->SetWireInValue(0x01, 0xFF);//, 0x06);
-//        //ttlOutputVal = 1;
-//        accumulator = 0;
-//        //dev->UpdateWireIns();
-//    }
-    
-    
-    
-	return true;
+    //    if (accumulator == 50)
+    //    {
+    //        //dev->SetWireInValue(0x01, 0x00); //, 0x06);
+    //        ttlOutputVal = 0;
+    //        //accumulator = 0;
+    //        //dev->UpdateWireIns();
+    //     //   std::cout << return_code << " " << i << std::endl; // number of samples found
+    //       // std::cout << "Start sample: " << firstSample << std::endl;
+    //    } else if (accumulator > 100) {
+    //        //dev->SetWireInValue(0x01, 0xFF);//, 0x06);
+    //        //ttlOutputVal = 1;
+    //        accumulator = 0;
+    //        //dev->UpdateWireIns();
+    //    }
+
+
+
+    return true;
 
 }
 
 void FPGAThread::checkTTLState()
-    {
+{
     if (sn->getTTLState() != ttlState)
     {
         ttlState = sn->getTTLState();
-        
+
         if (ttlState == 1)
         {
             dev->SetWireInValue(0x01, 0xFF);
-        } else {
+        }
+        else
+        {
             dev->SetWireInValue(0x01, 0x00);
         }
-        
+
         dev->UpdateWireIns();
     }
 }
-    
+
 void FPGAThread::setOutputHigh()
 {
     dev->SetWireInValue(0x01, 0x01); //, 0x06);
-    
+
     dev->UpdateWireIns();
 
-   
+
 }
 
 void FPGAThread::setOutputLow()
@@ -454,55 +470,61 @@ void FPGAThread::setOutputLow()
 bool FPGAThread::initializeFPGA(bool verbose)
 {
 
-	std::cout << "okCFrontPanel found " << dev->GetDeviceCount() << " devices." << std::endl;
+    std::cout << "okCFrontPanel found " << dev->GetDeviceCount() << " devices." << std::endl;
 
-	if (okCFrontPanel::NoError != dev->OpenBySerial()) {
-		if (verbose)
-			printf("Device could not be opened.  Is one connected?\n");
-		return false;
-	}
-	
-	if (verbose)
-		printf("Found a device: %s\n", dev->GetBoardModelString(dev->GetBoardModel()).c_str());
+    if (okCFrontPanel::NoError != dev->OpenBySerial())
+    {
+        if (verbose)
+            printf("Device could not be opened.  Is one connected?\n");
+        return false;
+    }
 
-	dev->LoadDefaultPLLConfiguration();	
+    if (verbose)
+        printf("Found a device: %s\n", dev->GetBoardModelString(dev->GetBoardModel()).c_str());
 
-	// Get some general information about the XEM.
-	if (verbose) {
-		std::string str;
-		printf("Device firmware version: %d.%d\n", dev->GetDeviceMajorVersion(), dev->GetDeviceMinorVersion());
-		str = dev->GetSerialNumber();
-		printf("Device serial number: %s\n", str.c_str());
-		str = dev->GetDeviceID();
-		printf("Device device ID: %s\n", str.c_str());
-	}
-	// Download the configuration file.
-	if (okCFrontPanel::NoError != dev->ConfigureFPGA(bitfile)) {
-		if (verbose)
-			printf("FPGA configuration failed.\n");
-		return false;
-	} else {
-		printf("Bitfile uploaded.\n");
-	}
+    dev->LoadDefaultPLLConfiguration();
 
-	// Check for FrontPanel support in the FPGA configuration.
-	if (verbose) {
-		if (dev->IsFrontPanelEnabled())
-			printf("FrontPanel support is enabled.\n");
-		else
-			printf("FrontPanel support is not enabled.\n");
-	}
+    // Get some general information about the XEM.
+    if (verbose)
+    {
+        std::string str;
+        printf("Device firmware version: %d.%d\n", dev->GetDeviceMajorVersion(), dev->GetDeviceMinorVersion());
+        str = dev->GetSerialNumber();
+        printf("Device serial number: %s\n", str.c_str());
+        str = dev->GetDeviceID();
+        printf("Device device ID: %s\n", str.c_str());
+    }
+    // Download the configuration file.
+    if (okCFrontPanel::NoError != dev->ConfigureFPGA(bitfile))
+    {
+        if (verbose)
+            printf("FPGA configuration failed.\n");
+        return false;
+    }
+    else
+    {
+        printf("Bitfile uploaded.\n");
+    }
 
-	dev->SetWireInValue(0x01, 0);
+    // Check for FrontPanel support in the FPGA configuration.
+    if (verbose)
+    {
+        if (dev->IsFrontPanelEnabled())
+            printf("FrontPanel support is enabled.\n");
+        else
+            printf("FrontPanel support is not enabled.\n");
+    }
+
+    dev->SetWireInValue(0x01, 0);
     dev->UpdateWireIns();
 
-	return true;
+    return true;
 
-	// this is not executed (after returning true)
-	dev->SetWireInValue(0x00, 1<<2);  // set reset bit in cmd wire to 1 and back to 0
-	dev->UpdateWireIns();
-	dev->SetWireInValue(0x00, 0<<2);  
-	dev->UpdateWireIns();
+    // this is not executed (after returning true)
+    dev->SetWireInValue(0x00, 1<<2);  // set reset bit in cmd wire to 1 and back to 0
+    dev->UpdateWireIns();
+    dev->SetWireInValue(0x00, 0<<2);
+    dev->UpdateWireIns();
 
 }
 

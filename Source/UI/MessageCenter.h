@@ -2,7 +2,7 @@
     -----------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,15 +25,10 @@
 #define __MESSAGECENTER_H_2695FC38__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
-//---------------------------------------------------------------
-
 /**
-  
+
   Allows the application to display messages to the user.
 
   The MessageCenter is located along the bottom left of the application window.
@@ -43,23 +38,29 @@
 */
 
 class MessageCenter : public Component,
-					  public ActionListener
+    public ActionListener
 
 {
 public:
     MessageCenter();
     ~MessageCenter();
 
-    void paint (Graphics& g);
+    /** Draws the message center.*/
+    void paint(Graphics& g);
 
 private:
-   Label* messageDisplayArea;
 
-   void resized();
+    /** A JUCE label used to display message text. */
+    ScopedPointer<Label> messageDisplayArea;
 
-   void actionListenerCallback(const String& message);
+    /** Called when the boundaries of the MessageCenter are changed. */
+    void resized();
 
-   Colour messageBackground;
+    /** Called when a new message is received. */
+    void actionListenerCallback(const String& message);
+
+    /** The background color (changes to yellow when a new message arrives). */
+    Colour messageBackground;
 
 };
 

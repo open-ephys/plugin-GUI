@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,9 +25,6 @@
 #define __GENERICPROCESSOR_H_1F469DAF__
 
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/GenericEditor.h"
 #include "Parameter.h"
@@ -44,7 +41,7 @@ class Parameter;
 class Channel;
 
 /**
-  
+
   Abstract base class for creating processors.
 
   All processors must be derived from this class, and must provide an
@@ -53,224 +50,520 @@ class Channel;
   Any processors that are not filters must override the isSource(),
   isSink(), isSplitter(), and isMerger() methods.
 
+  See https://github.com/open-ephys/GUI/wiki/Custom-processors for information
+  on how to design a processor that inherits from GenericProcessor.
+
   @see ProcessorGraph, GenericEditor, SourceNode, FilterNode, LfpDisplayNode
 
 */
 
 class GenericProcessor : public AudioProcessor,
-						 public AccessClass
+    public AccessClass
 
 {
 public:
 
-	//-----------------------------------------------------------------------
-	// Juce methods:
+    /*
+    ------------------------------------------------------------------------
+    ----------------------------- JUCE METHODS -----------------------------
+    ------------------------------------------------------------------------
+    */
 
-	GenericProcessor(const String& name_);
-	virtual ~GenericProcessor();
-	
-	const String getName() const {return name;}
-	
-	virtual void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock);
-	void releaseResources();
-	
-	virtual void setParameter (int parameterIndex, float newValue);
+    /** Constructor (sets the processor's name). */
+    GenericProcessor(const String& name_);
 
-	virtual AudioProcessorEditor* createEditor();
-	bool hasEditor() const {return true;}
-	
-	void reset() {}
-	void setCurrentProgramStateInformation(const void* data, int sizeInBytes) {}
-	void setStateInformation(const void* data, int sizeInBytes) {}
-	void getCurrentProgramStateInformation(MemoryBlock &destData) {}
-	void getStateInformation (MemoryBlock &destData) {}
-	void changeProgramName (int index, const String &newName) {}
-	void setCurrentProgram (int index) {}
+    /** Destructor. */
+    virtual ~GenericProcessor();
 
-	const String getInputChannelName (int channelIndex) const { }
-	const String getOutputChannelName (int channelIndex) const { }
-	const String getParameterName (int parameterIndex); //{return parameters[parameterIndex]->getName();}
-	const String getParameterText (int parameterIndex); //{return parameters[parameterIndex]->getDescription();}
-	const String getProgramName (int index) {return "";}
-	
-	bool isInputChannelStereoPair (int index) const {return true;}
-	bool isOutputChannelStereoPair (int index) const {return true;}
-	bool acceptsMidi () const {return true;}
-	bool producesMidi () const {return true;}
+    /** Returns the name of the processor. */
+    const String getName() const
+    {
+        return name;
+    }
 
-	bool isParameterAutomatable(int parameterIndex) {return false;}
-	bool isMetaParameter(int parameterIndex) {return false;}
-	
-	int getNumParameters() {return parameters.size();}
-	int getNumPrograms() {return 0;}
-	int getCurrentProgram() {return 0;}
-	
-	float getParameter (int parameterIndex) {return 1.0;}
-	Parameter& getParameterByName(String parameterName);
-	Parameter& getParameterReference(int parameterIndex);
+    /** Called by JUCE as soon as a processor is created, as well as before the start of audio callbacks. To avoid starting data acquisition prematurely, use the enable() function instead.
+    */
+    virtual void prepareToPlay(double sampleRate, int estimatedSamplesPerBlock);
 
-	//----------------------------------------------------------------------
-	// Custom methods:
+    /** Called by JUCE as soon as audio callbacks end. Use disable() instead. */
+    void releaseResources();
 
-	// pure virtual function (must be implemented by sub-classes)
-	virtual void process(AudioSampleBuffer& /*buffer*/,
-						 MidiBuffer& /*buffer*/,
-						 int& /*nSamples*/) = 0;
+    /** Allows parameters to change while acquisition is active. If the user wants
+    to change ANY variables that are used within the process() method, this must
+    be done through setParameter(). Otherwise the application will crash. */
+    virtual void setParameter(int parameterIndex, float newValue);
 
-	GenericProcessor* sourceNode;
-	GenericProcessor* destNode;
+    /** Creates a GenericEditor.*/
+    virtual AudioProcessorEditor* createEditor();
 
-	virtual float getSampleRate() {return settings.sampleRate;}
-	virtual float getDefaultSampleRate() {return 44100.0;}
+    /** The default is to have no editor.*/
+    bool hasEditor() const
+    {
+        return false;
+    }
 
-	virtual int getNumInputs() {return settings.numInputs;}
-	virtual int getNumOutputs() {return settings.numOutputs;}
-	virtual int getDefaultNumOutputs() {return 2;}
+    /** JUCE method. Not used.*/
+    void reset() {}
 
-	//virtual float getBitVolts() {return settings.bitVolts;}
-	virtual float getDefaultBitVolts() {return 1.0;}
+    /** JUCE method. Not used.*/
+    void setCurrentProgramStateInformation(const void* data, int sizeInBytes) {}
 
-	virtual int getNextChannel(bool);
-	virtual void resetConnections();
-	
-	virtual void setCurrentChannel(int chan) {currentChannel = chan;}
+    /** JUCE method. Not used.*/
+    void setStateInformation(const void* data, int sizeInBytes) {}
 
-	int getNodeId() {return nodeId;}
-	void setNodeId(int id) {nodeId = id;}
+    /** JUCE method. Not used.*/
+    void getCurrentProgramStateInformation(MemoryBlock& destData) {}
 
-	// get/set source node functions
-	GenericProcessor* getSourceNode() {return sourceNode;}
-	GenericProcessor* getDestNode() {return destNode;}
+    /** JUCE method. Not used.*/
+    void getStateInformation(MemoryBlock& destData) {}
 
-	virtual void switchIO(int) { }
-	virtual void switchIO() { }
-	virtual void setPathToProcessor(GenericProcessor* p) { }
+    /** JUCE method. Not used.*/
+    void changeProgramName(int index, const String& newName) {}
 
-	virtual void setSourceNode(GenericProcessor* sn);
-	virtual void setDestNode(GenericProcessor* dn);
-	virtual void setMergerSourceNode(GenericProcessor* sn) { }
-	virtual void setSplitterDestNode(GenericProcessor* dn) { }
+    /** JUCE method. Not used.*/
+    void setCurrentProgram(int index) {}
 
-	virtual bool isSource() {return false;}
-	virtual bool isSink() {return false;}
-	virtual bool isSplitter() {return false;}
-	virtual bool isMerger() {return false;}
+    /** Returns the name of the input channel with a given index.*/
+    virtual const String getInputChannelName(int channelIndex) const
+    {
+        return GenericProcessor::unusedNameString;
+    }
 
-	virtual bool canSendSignalTo(GenericProcessor*) {return true;}
+    /** Returns the name of the output channel with a given index.*/
+    virtual const String getOutputChannelName(int channelIndex) const
+    {
+        return GenericProcessor::unusedNameString;
+    }
 
-	virtual bool isReady() {return isEnabled;}
-	virtual bool enable() {return isEnabled;}
-	virtual bool disable() {return true;}
-	virtual void enableEditor();
-	virtual void disableEditor();
+    /** Returns the name of the parameter with a given index.*/
+    const String getParameterName(int parameterIndex);
 
-	virtual bool enabledState() {return isEnabled;}
-	virtual void enabledState(bool t) {isEnabled = t;}
+    /** Returns additional details about the parameter with a given index.*/
+    const String getParameterText(int parameterIndex);
 
-	virtual void enableCurrentChannel(bool) {}
+    /** Returns the current value of a parameter with a given index.
+     Currently set to always return 1. See getParameterVar below*/
+    float getParameter(int parameterIndex)
+    {
+        return 1.0;
+    };
 
-	virtual bool stillHasSource() {return true;}
+    /**Returns the current value of a parameter with a give index */
+    var getParameterVar(int parameterIndex, int parameterChannel);
 
-	bool isEnabled;
-	bool wasConnected;
+    /** JUCE method. Not used.*/
+    const String getProgramName(int index)
+    {
+        return "";
+    }
 
-	virtual AudioSampleBuffer* getContinuousBuffer() {return 0;}
-	virtual MidiBuffer* getEventBuffer() {return 0;}
+    /** JUCE method. Not used.*/
+    bool isInputChannelStereoPair(int index) const
+    {
+        return true;
+    }
 
-	int nextAvailableChannel;
+    /** JUCE method. Not used.*/
+    bool isOutputChannelStereoPair(int index) const
+    {
+        return true;
+    }
 
-	// event buffers
-	virtual int checkForEvents(MidiBuffer& mb);
-	virtual void addEvent(MidiBuffer& mb,
-	                      uint8 type,
-	                      int sampleNum,
-	                      uint8 eventID = 0,
-	                      uint8 eventChannel = 0,
-	                      uint8 numBytes = 0,
-	                      uint8* data = 0);
+    /** All processors can accept MIDI (event) data by default.*/
+    bool acceptsMidi() const
+    {
+        return true;
+    }
 
-	virtual void handleEvent(int eventType, MidiMessage& event, int samplePosition = 0) {}
+    /** All processors can produce MIDI (event) data by default.*/
+    bool producesMidi() const
+    {
+        return true;
+    }
 
-	enum eventTypes 
- 	{
- 		TIMESTAMP = 0,
- 		BUFFER_SIZE = 1,
- 		PARAMETER_CHANGE = 2,
- 		TTL = 3,
- 		SPIKE = 4,
- 		EEG = 5,
- 		CONTINUOUS = 6
- 	};
+    /** JUCE method. Not used.*/
+    bool isParameterAutomatable(int parameterIndex)
+    {
+        return false;
+    }
 
- 	enum eventChannelTypes
- 	{
- 		GENERIC_EVENT = 999,
- 		SINGLE_ELECTRODE = 1,
- 		STEREOTRODE = 2,
- 		TETRODE = 4
- 	};
+    /** JUCE method. Not used.*/
+    bool isMetaParameter(int parameterIndex)
+    {
+        return false;
+    }
 
-	int saveOrder;
-	int loadOrder;
+    /** Returns the number of user-editable parameters for this processor.*/
+    int getNumParameters()
+    {
+        return parameters.size();
+    }
 
-	int currentChannel;
+    /** JUCE method. Not used.*/
+    int getNumPrograms()
+    {
+        return 0;
+    }
 
-	virtual GenericEditor* getEditor() {return editor;}
-	ScopedPointer<GenericEditor> editor;
+    /** JUCE method. Not used.*/
+    int getCurrentProgram()
+    {
+        return 0;
+    }
 
-	OwnedArray<Channel> channels;
-	OwnedArray<Channel> eventChannels;
+    /** JUCE method. Not used.*/
+    bool silenceInProducesSilenceOut() const
+    {
+        return false;
+    }
 
-	struct ProcessorSettings {
+    /** JUCE method. Not used.*/
+    double getTailLengthSeconds() const
+    {
+        return 1.0f;
+    }
 
-	 	GenericProcessor* originalSource;
+    /*
+    ------------------------------------------------------------------------
+    ---------------------------- CUSTOM METHODS ----------------------------
+    ------------------------------------------------------------------------
+    */
 
-		int numInputs;
-	 	int numOutputs;
+    /** Defines a processor's functionality.
 
-	 	float sampleRate;
+    This is the most important function for each
+    processor, as it determines how it creates, modifies, or responds to incoming data
+    streams. Rather than use the default JUCE processBlock() method, processBlock()
+    automatically calls process() in order to add the 'nSamples' variable to indicate
+    the number of samples in the current buffer.
+    */
+    virtual void process(AudioSampleBuffer& continuousBuffer,
+                         MidiBuffer& eventBuffer,
+                         int& nSamples) = 0;
 
-	};
+    /** Pointer to a processor's immediate source node.*/
+    GenericProcessor* sourceNode;
 
-	ProcessorSettings settings;
+    /** Pointer to a processor's immediate destination.*/
+    GenericProcessor* destNode;
 
-	//virtual bool isAudioOrRecordNode() {return false;}
+    /** Returns the sample rate for a processor (assumes the same rate for all channels).*/
+    virtual float getSampleRate()
+    {
+        return settings.sampleRate;
+    }
 
-	//virtual bool recordStatus (int chan);
-	//virtual bool audioStatus (int chan);
+    /** Returns the default sample rate, in case a processor has no source (or is itself a source).*/
+    virtual float getDefaultSampleRate()
+    {
+        return 44100.0;
+    }
 
-	virtual void clearSettings();
+    /** Returns the number of inputs to a processor.*/
+    virtual int getNumInputs()
+    {
+        return settings.numInputs;
+    }
 
-	//virtual void generateDefaultChannelNames(StringArray&);
+    /** Returns the number of outputs from a processor.*/
+    virtual int getNumOutputs()
+    {
+        return settings.numOutputs;
+    }
 
-	virtual void update(); // default node updating
-	virtual void updateSettings() {} // custom node updating
+    /** Returns the default number of outputs, in case a processor has no source (or is itself a source).*/
+    virtual int getDefaultNumOutputs()
+    {
+        return 2;
+    }
 
-	int nodeId;
+    /** Returns the default number of volts per bit, in case a processor is a source, of the processor gain otherwise. (assumes data comes from a 16bit source)*/
+    virtual float getDefaultBitVolts()
+    {
+        return 1.0;
+    }
 
-	// parameters:
-	Array<Parameter> parameters;
-	StringArray parameterNames;
+    /** Returns the next available channel (and increments the channel if the input is set to 'true'. */
+    virtual int getNextChannel(bool t);
 
-	Parameter nullParam;
+    /** Resets all inter-processor connections prior to the start of data acquisition.*/
+    virtual void resetConnections();
 
-	void setStartChannel(int i) {audioAndRecordNodeStartChannel = i;}
-	int getStartChannel() {return audioAndRecordNodeStartChannel;}
+    /** Sets the current channel (for purposes of updating parameter).*/
+    virtual void setCurrentChannel(int chan)
+    {
+        currentChannel = chan;
+    }
+
+    /** Returns the unique integer ID for a processor. */
+    int getNodeId()
+    {
+        return nodeId;
+    }
+
+    /** Sets the unique integer ID for a processor. */
+    void setNodeId(int id)
+    {
+        nodeId = id;
+    }
+
+    /** Returns a pointer to the processor immediately preceding a given processor in the signal chain. */
+    GenericProcessor* getSourceNode()
+    {
+        return sourceNode;
+    }
+
+    /** Returns a pointer to the processor immediately following a given processor in the signal chain. */
+    GenericProcessor* getDestNode()
+    {
+        return destNode;
+    }
+
+    /** Sets the input or output of a splitter or merger.*/
+    virtual void switchIO(int) { }
+
+    /** Switches the input or output of a splitter or merger.*/
+    virtual void switchIO() { }
+
+    /** Sets the input to a merger a given processor.*/
+    virtual void setPathToProcessor(GenericProcessor* p) { }
+
+    /** Sets a processor's source node.*/
+    virtual void setSourceNode(GenericProcessor* sn);
+
+    /** Sets a processor's destination node.*/
+    virtual void setDestNode(GenericProcessor* dn);
+
+    /** Sets one of two possible source nodes for a merger.*/
+    virtual void setMergerSourceNode(GenericProcessor* sn) { }
+
+    /** Sets one of two possible source nodes for a splitter.*/
+    virtual void setSplitterDestNode(GenericProcessor* dn) { }
+
+    /** Returns true if a processor is a source, false otherwise.*/
+    virtual bool isSource()
+    {
+        return false;
+    }
+
+    /** Returns true if a processor is a sink, false otherwise.*/
+    virtual bool isSink()
+    {
+        return false;
+    }
+
+    /** Returns true if a processor is a splitter, false otherwise.*/
+    virtual bool isSplitter()
+    {
+        return false;
+    }
+
+    /** Returns true if a processor is a merger, false otherwise.*/
+    virtual bool isMerger()
+    {
+        return false;
+    }
+
+    /** Returns true if a processor is able to send its output to a given processor.
+
+        Ideally, this should always return true, but there may be special cases
+        when this is not possible.*/
+    virtual bool canSendSignalTo(GenericProcessor*)
+    {
+        return true;
+    }
+
+    /** Returns true if a processor is ready to process data (e.g., all of its parameters are initialized, and its data source is connected).*/
+    virtual bool isReady()
+    {
+        return isEnabled;
+    }
+
+    /** Called immediately prior to the start of data acquisition, once all processors in the signal chain have indicated they are ready to process data.*/
+    virtual bool enable()
+    {
+        return isEnabled;
+    }
+
+    /** Called immediately after the end of data acquisition.*/
+    virtual bool disable()
+    {
+        return true;
+    }
+
+    /** Informs a processor's editor that data acquisition is about to begin. */
+    virtual void enableEditor();
+
+    /** Informs a processor's editor that data acquisition has ended. */
+    virtual void disableEditor();
+
+    /** Indicates whether or not a processor is currently enabled (i.e., able to process data). */
+    virtual bool enabledState()
+    {
+        return isEnabled;
+    }
+
+    /** Sets whether or not a processor is enabled (i.e., able to process data). */
+    virtual void enabledState(bool t)
+    {
+        isEnabled = t;
+    }
+
+    /** Turns a given channel on or off. */
+    virtual void enableCurrentChannel(bool) {}
+
+    /** Indicates whether a source node is connected to a processor (used for mergers).*/
+    virtual bool stillHasSource()
+    {
+        return true;
+    }
+
+    bool isEnabled;
+    bool wasConnected;
+
+    /** Returns a pointer to the processor's internal continuous buffer, if it exists. */
+    virtual AudioSampleBuffer* getContinuousBuffer()
+    {
+        return 0;
+    }
+
+    /** Returns a pointer to the processor's internal event buffer, if it exists. */
+    virtual MidiBuffer* getEventBuffer()
+    {
+        return 0;
+    }
+
+    int nextAvailableChannel;
+
+    /** Can be called by processors that need to respond to incoming events. */
+    virtual int checkForEvents(MidiBuffer& mb);
+
+    /** Makes it easier for processors to add events to the MidiBuffer. */
+    virtual void addEvent(MidiBuffer& mb,
+                          uint8 type,
+                          int sampleNum,
+                          uint8 eventID = 0,
+                          uint8 eventChannel = 0,
+                          uint8 numBytes = 0,
+                          uint8* data = 0);
+
+    /** Makes it easier for processors to respond to incoming events, such as TTLs and spikes.
+
+    Called by checkForEvents(). */
+    virtual void handleEvent(int eventType, MidiMessage& event, int samplePosition = 0) {}
+
+    enum eventTypes
+    {
+        TIMESTAMP = 0,
+        BUFFER_SIZE = 1,
+        PARAMETER_CHANGE = 2,
+        TTL = 3,
+        SPIKE = 4,
+        EEG = 5,
+        CONTINUOUS = 6
+    };
+
+    enum eventChannelTypes
+    {
+        GENERIC_EVENT = 999,
+        SINGLE_ELECTRODE = 1,
+        STEREOTRODE = 2,
+        TETRODE = 4
+    };
+
+    /** Variable used to orchestrate saving the ProcessorGraph. */
+    int saveOrder;
+
+    /** Variable used to orchestrate loading the ProcessorGraph. */
+    int loadOrder;
+
+    /** The channel that will be updated the next time a parameter is changed. */
+    int currentChannel;
+
+    /** Returns a pointer to the processor's editor. */
+    virtual GenericEditor* getEditor()
+    {
+        return editor;
+    }
+
+    /** Pointer to the processor's editor. */
+    ScopedPointer<GenericEditor> editor;
+
+    /** Array of Channel objects for all continuous channels. */
+    OwnedArray<Channel> channels;
+
+    /** Array of Channel objects for all event channels. */
+    OwnedArray<Channel> eventChannels;
+
+    /** Settings used by most processors. */
+    struct ProcessorSettings
+    {
+
+        GenericProcessor* originalSource;
+
+        int numInputs;
+        int numOutputs;
+
+        float sampleRate;
+
+    };
+
+    ProcessorSettings settings;
+
+    /** Resets the 'settings' struct to its default state.*/
+    virtual void clearSettings();
+
+    /** Default method for updating settings, called by every processor.*/
+    virtual void update();
+
+    /** Custom method for updating settings, called automatically by update().*/
+    virtual void updateSettings() {}
+
+    /** Each processor has a unique integer ID that can be used to identify it.*/
+    int nodeId;
+
+    /** An array of parameters that the user can modify.*/
+    Array<Parameter> parameters;
+
+    /** Initialize Parameters */
+    //virtual void initializeParameters();
+
+    /** Returns the parameter for a given name.*/
+    Parameter& getParameterByName(String parameterName);
+
+    /** Returns the parameter for a given index.*/
+    Parameter& getParameterReference(int parameterIndex);
+
+    /** Saving all settings to XML*/
+    void saveToXML(XmlElement* parentElement);
+
+    /** Saving Parameters for each Channel */
+    void saveParametersToChannelsXML(XmlElement* channelParent, int channelNumber);
 
 private:
 
-	int audioAndRecordNodeStartChannel;
+    /** Automatically extracts the number of samples in the buffer, then
+    calls the process(), where custom actions take place.*/
+    void processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
 
-	void processBlock (AudioSampleBuffer &buffer, MidiBuffer &midiMessages);
+    /** The name of the processor.*/
+    const String name;
 
-	const String name;
-	
-	int getNumSamples(MidiBuffer&);
-	void setNumSamples(MidiBuffer&, int);
+    /** Returns the number of samples for the current continuous buffer (assumed to be
+    the same for all channels).*/
+    int getNumSamples(MidiBuffer&);
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericProcessor);
+    /** Updates the number of samples for the current continuous buffer (assumed to be
+    the same for all channels).*/
+    void setNumSamples(MidiBuffer&, int);
+
+    /** For getInputChannelName() and getOutputChannelName() */
+    static const String unusedNameString;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GenericProcessor);
 
 };
+
 
 
 

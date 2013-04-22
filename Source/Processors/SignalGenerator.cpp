@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -32,14 +32,14 @@
 #endif
 
 SignalGenerator::SignalGenerator()
-	: GenericProcessor("Signal Generator"),
-
-	  defaultFrequency(10.0),
-	  defaultAmplitude (100.0f),
-	  nOut(5), previousPhase(1000), spikeDelay(0)
+    : GenericProcessor("Signal Generator"),
+      nOut(5), defaultFrequency(10.0), defaultAmplitude(0.5f),
+      previousPhase(1000), spikeDelay(0)
 {
-
-
+    parameters.add(Parameter("Amplitude", 0.0005f, 500.0f, .5f, 0, true));
+    parameters.add(Parameter("Frequency", 0.01, 10000.0, 10, 1, true));
+    parameters.add(Parameter("Phase", -double_Pi, double_Pi, 0, 2, true));
+    parameters.add(Parameter("Waveform Type", waveformParameter, 0, 3, true));
 }
 
 
@@ -48,245 +48,270 @@ SignalGenerator::~SignalGenerator()
 
 }
 
+/*void SignalGenerator::initializeParameters(){
+    parameters.add(Parameter("Amplitude", 0.0005f, 500.0f, .5f, 1, true));
+    parameters.add(Parameter("Frequency", 0.01, 10000.0, 10, 2, true));
+    parameters.add(Parameter("Phase", -double_Pi, double_Pi, 0, 3, true));
+    parameters.add(Parameter("Waveform Type", waveformParameter, 0, 0, true));
+}
+*/
 
-AudioProcessorEditor* SignalGenerator::createEditor( )
+AudioProcessorEditor* SignalGenerator::createEditor()
 {
-	editor = new SignalGeneratorEditor(this);
-	return editor;
+    editor = new SignalGeneratorEditor(this, false);
+    return editor;
 }
 
 void SignalGenerator::updateSettings()
 {
 
-	//std::cout << "Signal generator updating parameters" << std::endl;
+    //std::cout << "Signal generator updating parameters" << std::endl;
 
-	while (waveformType.size() < getNumOutputs())
-	{
-		waveformType.add(SINE);
-		frequency.add(defaultFrequency);
-		amplitude.add(defaultAmplitude);
-		phase.add(0);
-		phasePerSample.add(double_Pi * 2.0 / (getSampleRate() / frequency.getLast()));
-		currentPhase.add(0);
-	}
+    while (waveformType.size() < getNumOutputs())
+    {
+        waveformType.add(SINE);
+        frequency.add(defaultFrequency);
+        amplitude.add(defaultAmplitude);
+        phase.add(0);
+        phasePerSample.add(double_Pi * 2.0 / (getSampleRate() / frequency.getLast()));
+        currentPhase.add(0);
+    }
 
-	sampleRateRatio = getSampleRate() / 44100.0;
+    sampleRateRatio = getSampleRate() / 44100.0;
 
-	std::cout << "Sample rate ratio: " << sampleRateRatio << std::endl;
+    std::cout << "Sample rate ratio: " << sampleRateRatio << std::endl;
 
 }
 
-void SignalGenerator::setParameter (int parameterIndex, float newValue)
+void SignalGenerator::setParameter(int parameterIndex, float newValue)
 {
-	//std::cout << "Message received." << std::endl;
+    std::cout << "Message received." << std::endl;
+    Parameter* parameterPointer=parameters.getRawDataPointer();
+    parameterPointer=parameterPointer+parameterIndex;
 
-	if (currentChannel > -1) {
-		if (parameterIndex == 0) {
-			amplitude.set(currentChannel,newValue*100.0f);
-		} else if (parameterIndex == 1) {
-			frequency.set(currentChannel,newValue);
-			phasePerSample.set(currentChannel, double_Pi * 2.0 / (getSampleRate() / frequency[currentChannel]));
-		} else if (parameterIndex == 2) {
-			phase.set(currentChannel, newValue/360.0f * (double_Pi * 2.0));
-		} else if (parameterIndex == 3) {
-			waveformType.set(currentChannel, (int) newValue);
-		}
-
-		//updateWaveform(currentChannel);
-	}
+    if (currentChannel > -1)
+    {
+        if (parameterIndex == 0)
+        {
+            amplitude.set(currentChannel,newValue*100.0f);
+            parameterPointer->setValue(newValue*100.0f, currentChannel);
+        }
+        else if (parameterIndex == 1)
+        {
+            frequency.set(currentChannel,newValue);
+            phasePerSample.set(currentChannel, double_Pi * 2.0 / (getSampleRate() / frequency[currentChannel]));
+            parameterPointer->setValue(newValue, currentChannel);
+        }
+        else if (parameterIndex == 2)
+        {
+            phase.set(currentChannel, newValue/360.0f * (double_Pi * 2.0));
+            parameterPointer->setValue(newValue/360.0f * (double_Pi * 2.0), currentChannel);
+        }
+        else if (parameterIndex == 3)
+        {
+            waveformType.set(currentChannel, (int) newValue);
+            parameterPointer->setValue(newValue, currentChannel);
+        }
+        //updateWaveform(currentChannel);
+    }
 
 }
 
 
-bool SignalGenerator::enable () {
+bool SignalGenerator::enable()
+{
 
-	std::cout << "Signal generator received enable signal." << std::endl;
-	
-	// for (int n = 0; n < waveformType.size(); n++)
-	// {
-	// 	updateWaveform(n);
-		
-	// }
+    std::cout << "Signal generator received enable signal." << std::endl;
 
-	return true;
+    // for (int n = 0; n < waveformType.size(); n++)
+    // {
+    // 	updateWaveform(n);
+
+    // }
+
+    return true;
 }
 
 // void SignalGenerator::updateWaveform(int n)
 // {
 
-	// Array<float> cycleData;
+// Array<float> cycleData;
 
-	// int cycleLength = int(getSampleRate() / frequency[n]);
-	// float phasePerSample = double_Pi * 2.0 / (getSampleRate() / frequency[n]);
+// int cycleLength = int(getSampleRate() / frequency[n]);
+// float phasePerSample = double_Pi * 2.0 / (getSampleRate() / frequency[n]);
 
-	// cycleData.ensureStorageAllocated(cycleLength);
+// cycleData.ensureStorageAllocated(cycleLength);
 
-	// for (int i = 0; i < cycleLength; i++)
-	// {
-	// 	switch (waveformType[n])
-	// 	{
-	// 		case SINE:
-	// 			cycleData.add(amplitude[n] * std::sin(i*phasePerSample + phase[n]));
-	// 			break;
-	// 		case SQUARE:
-	// 			cycleData.add(amplitude[n] * copysign(1,std::sin(i*phasePerSample + phase[n])));
-	// 			break;
-	// 		case TRIANGLE:
-	// 			cycleData.add(0);
-	// 			break;
-	// 		case SAW:
-	// 			cycleData.add(0);
-	// 			break;
-	// 		case NOISE:
-	// 			cycleData.add(0);
-	// 			break;
-	// 		default:
-	// 			cycleData.set(i, 0);
-	// 	}
-
-	// }
-
-	// waveforms.set(n, cycleData);
-
-	// currentSample.set(n,0);
+// for (int i = 0; i < cycleLength; i++)
+// {
+// 	switch (waveformType[n])
+// 	{
+// 		case SINE:
+// 			cycleData.add(amplitude[n] * std::sin(i*phasePerSample + phase[n]));
+// 			break;
+// 		case SQUARE:
+// 			cycleData.add(amplitude[n] * copysign(1,std::sin(i*phasePerSample + phase[n])));
+// 			break;
+// 		case TRIANGLE:
+// 			cycleData.add(0);
+// 			break;
+// 		case SAW:
+// 			cycleData.add(0);
+// 			break;
+// 		case NOISE:
+// 			cycleData.add(0);
+// 			break;
+// 		default:
+// 			cycleData.set(i, 0);
+// 	}
 
 // }
 
-bool SignalGenerator::disable() {
-	
-	std::cout << "Signal generator received disable signal." << std::endl;
-	return true;
+// waveforms.set(n, cycleData);
+
+// currentSample.set(n,0);
+
+// }
+
+bool SignalGenerator::disable()
+{
+
+    std::cout << "Signal generator received disable signal." << std::endl;
+    return true;
 }
 
 
-void SignalGenerator::process(AudioSampleBuffer &buffer,
-                            MidiBuffer &midiMessages,
-                            int& nSamps)
+void SignalGenerator::process(AudioSampleBuffer& buffer,
+                              MidiBuffer& midiMessages,
+                              int& nSamps)
 {
 
-	nSamps = int((float) buffer.getNumSamples() * sampleRateRatio);
+    nSamps = int((float) buffer.getNumSamples() * sampleRateRatio);
 
     for (int i = 0; i < nSamps; ++i)
     {
-        for (int j = buffer.getNumChannels(); --j >= 0;) {
+        for (int j = buffer.getNumChannels(); --j >= 0;)
+        {
 
-        	float sample;
+            float sample;
 
-        	switch (waveformType[j])
-        	{
-        		case SINE:
-        			sample = amplitude[j] * (float) std::sin (currentPhase[j] + phase[j]);
-   					break;
-				case SQUARE:
-					sample = amplitude[j] * copysign(1,std::sin(currentPhase[j] + phase[j]));
-					break;
-				case TRIANGLE:
-					sample = amplitude[j] * ((currentPhase[j] + phase[j]) / double_Pi - 1) *
-							copysign(2,std::sin(currentPhase[j] + phase[j]));
-					break;
-				case SAW:
-					sample = amplitude[j] * ((currentPhase[j] + phase[j]) / double_Pi - 1);
-					break;
-				case NOISE:
-					// sample = amplitude[j] * (float(rand()) / float(RAND_MAX)-0.5f);
-					// break;
+            switch (waveformType[j])
+            {
+                case SINE:
+                    sample = amplitude[j] * (float) std::sin(currentPhase[j] + phase[j]);
+                    break;
+                case SQUARE:
+                    sample = amplitude[j] * copysign(1,std::sin(currentPhase[j] + phase[j]));
+                    break;
+                case TRIANGLE:
+                    sample = amplitude[j] * ((currentPhase[j] + phase[j]) / double_Pi - 1) *
+                             copysign(2,std::sin(currentPhase[j] + phase[j]));
+                    break;
+                case SAW:
+                    sample = amplitude[j] * ((currentPhase[j] + phase[j]) / double_Pi - 1);
+                    break;
+                case NOISE:
+                    // sample = amplitude[j] * (float(rand()) / float(RAND_MAX)-0.5f);
+                    // break;
                 case SPIKE:
                     sample = generateSpikeSample(amplitude[j], currentPhase[j], phase[j]);
                     break;
-				default:
-					sample = 0;
-        	}
-        	
-       		currentPhase.set(j,currentPhase[j] + phasePerSample[j]);
+                default:
+                    sample = 0;
+            }
 
-       		if (currentPhase[j] > double_Pi*2)
-       			currentPhase.set(j,0);
+            currentPhase.set(j,currentPhase[j] + phasePerSample[j]);
 
-       		// dereference pointer to one of the buffer's samples
-            *buffer.getSampleData (j, i) = sample;
+            if (currentPhase[j] > double_Pi*2)
+                currentPhase.set(j,0);
+
+            // dereference pointer to one of the buffer's samples
+            *buffer.getSampleData(j, i) = sample;
         }
     }
 
 
-	// for (int chan = 0; chan < buffer.getNumChannels(); chan++)
-	// {
-		
-	// 	int dataSize = waveforms[chan].size();
-	// 	int destSample = -dataSize;
-	// 	int lastSample = dataSize;
+    // for (int chan = 0; chan < buffer.getNumChannels(); chan++)
+    // {
 
-	// 	while (lastSample < nSamps)
-	// 	{
+    // 	int dataSize = waveforms[chan].size();
+    // 	int destSample = -dataSize;
+    // 	int lastSample = dataSize;
 
-	// 		destSample += dataSize;
+    // 	while (lastSample < nSamps)
+    // 	{
 
-	// 		//std::cout << lastSample << " " << destSample << " " << currentSample[chan] << " " << dataSize << std::endl;
+    // 		destSample += dataSize;
 
-	// 		// buffer.copyFrom(chan, 
-	// 		//  				destSample, 
-	// 		//  				waveforms[chan].getRawDataPointer() + currentSample[chan], 
-	// 		//  				dataSize - currentSample[chan]);
+    // 		//std::cout << lastSample << " " << destSample << " " << currentSample[chan] << " " << dataSize << std::endl;
 
-	// 		lastSample += dataSize;
+    // 		// buffer.copyFrom(chan,
+    // 		//  				destSample,
+    // 		//  				waveforms[chan].getRawDataPointer() + currentSample[chan],
+    // 		//  				dataSize - currentSample[chan]);
 
-	// 		currentSample.set(chan,0);
+    // 		lastSample += dataSize;
 
-	// 		//std::cout << "DONE" << std::endl;
-	// 	}
+    // 		currentSample.set(chan,0);
 
-	// 	//std::cout << lastSample << " " << destSample << " " << currentSample[chan] << " " << dataSize << std::endl;
+    // 		//std::cout << "DONE" << std::endl;
+    // 	}
 
-	// 	if (destSample < 0)
-	// 		destSample = 0;
+    // 	//std::cout << lastSample << " " << destSample << " " << currentSample[chan] << " " << dataSize << std::endl;
 
-	// 	int samplesLeft = nSamps - destSample;
+    // 	if (destSample < 0)
+    // 		destSample = 0;
 
-	// 	if (samplesLeft < dataSize - currentSample[chan])
-	// 	{
-	// 	 	// buffer.copyFrom(chan,
-	// 	 	// 			destSample,
-	// 	 	// 			waveforms[chan].getRawDataPointer() + currentSample[chan],
-	// 	 	// 			samplesLeft);
+    // 	int samplesLeft = nSamps - destSample;
 
-	// 	 	currentSample.set(chan, currentSample[chan] + samplesLeft);
+    // 	if (samplesLeft < dataSize - currentSample[chan])
+    // 	{
+    // 	 	// buffer.copyFrom(chan,
+    // 	 	// 			destSample,
+    // 	 	// 			waveforms[chan].getRawDataPointer() + currentSample[chan],
+    // 	 	// 			samplesLeft);
 
-	// 	} else {
+    // 	 	currentSample.set(chan, currentSample[chan] + samplesLeft);
 
-	// 		int samps = dataSize - currentSample[chan];
+    // 	} else {
 
-	// 		// buffer.copyFrom(chan,
-	// 	 // 				destSample,
-	// 	 // 				waveforms[chan].getRawDataPointer() + currentSample[chan],
-	// 	 // 				samps);
+    // 		int samps = dataSize - currentSample[chan];
 
-	// 		destSample += samps;
-	// 		samplesLeft -= samps;
+    // 		// buffer.copyFrom(chan,
+    // 	 // 				destSample,
+    // 	 // 				waveforms[chan].getRawDataPointer() + currentSample[chan],
+    // 	 // 				samps);
 
-	// 		// buffer.copyFrom(chan,
-	// 	 // 				destSample,
-	// 	 // 				waveforms[chan].getRawDataPointer(),
-	// 	 // 				samplesLeft);
+    // 		destSample += samps;
+    // 		samplesLeft -= samps;
 
-	// 		currentSample.set(chan, samplesLeft);
-	// 	}
+    // 		// buffer.copyFrom(chan,
+    // 	 // 				destSample,
+    // 	 // 				waveforms[chan].getRawDataPointer(),
+    // 	 // 				samplesLeft);
 
-	// }
+    // 		currentSample.set(chan, samplesLeft);
+    // 	}
+
+    // }
 
 }
-float SignalGenerator::generateSpikeSample(double amp, double phase, double noise){
-    
-    
+float SignalGenerator::generateSpikeSample(double amp, double phase, double noise)
+{
+
+
     // if the current phase is less than the previous phase we've probably wrapped and its time to select a new spike
     // if we've delayed long enough then draw a new spike otherwise wait until spikeDelay==0
-    if (phase < previousPhase){ 
-    	spikeIdx = rand()%5;
-    	
-    	if( spikeDelay <= 0)
-    		spikeDelay = rand()%200 + 50;
-    	if (spikeDelay > 0)
-    		spikeDelay --;
+    if (phase < previousPhase)
+    {
+        spikeIdx = rand()%5;
+
+        if (spikeDelay <= 0)
+            spikeDelay = rand()%200 + 50;
+        if (spikeDelay > 0)
+            spikeDelay --;
     }
-  
+
 
     previousPhase = phase;
 
@@ -295,20 +320,20 @@ float SignalGenerator::generateSpikeSample(double amp, double phase, double nois
 
     double r = ((rand() % 201) - 100) / 1000.0; // Generate random number between -.1 and .1
     noise = r  * noise / (double_Pi * 2); // Shrink the range of r based upon the value of noise
-   
-    int sampIdx = (int) (phase / (2 * double_Pi) * (N_WAVEFORM_SAMPLES-1)); // bind between 0 and N_SAMP-1, too tired to figure out the proper math
+
+    int sampIdx = (int)(phase / (2 * double_Pi) * (N_WAVEFORM_SAMPLES-1));  // bind between 0 and N_SAMP-1, too tired to figure out the proper math
     //sampIdx = sampIdx + 8;
 
     // Right now only sample from the 3rd waveform. I need to figure out a way to only sample from a single spike until the phase wraps
     float baseline = shift + gain *  SPIKE_WAVEFORMS[spikeIdx][1] ;
 
-    float sample = shift + gain * ( SPIKE_WAVEFORMS[spikeIdx][sampIdx] + noise );// * pow( WAVEFORM_SCALE[sampIdx], amp / 200.0 ) ) ;
+    float sample = shift + gain * (SPIKE_WAVEFORMS[spikeIdx][sampIdx] + noise);  // * pow( WAVEFORM_SCALE[sampIdx], amp / 200.0 ) ) ;
     float dV = sample  - baseline;
     dV = dV * (1 + amp / 250);
     sample = baseline + dV;
 
     if (spikeDelay==0)
-    	return sample;
+        return sample;
     else
-    	return baseline;
+        return baseline;
 }

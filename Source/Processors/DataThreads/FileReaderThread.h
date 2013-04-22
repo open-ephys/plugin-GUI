@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,62 +24,50 @@
 #ifndef __FILEREADERTHREAD_H_82594504__
 #define __FILEREADERTHREAD_H_82594504__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include <stdio.h>
 #include <time.h>
 #include "DataThread.h"
 
+class SourceNode;
+
 /**
 
-  --UNDER CONSTRUCTION--
+  Fills a buffer with data from a file.
 
-  Similar to FileReader, but works within its own thread.
+  Has issues with setting the correct sampling rate.
 
-  @see DataThread, FileReader
+  @see DataThread
 
 */
-
-
-class SourceNode;
 
 class FileReaderThread : public DataThread
 
 {
 public:
-	FileReaderThread(SourceNode* sn);
-	~FileReaderThread();
+    FileReaderThread(SourceNode* sn, const char* path);
+    ~FileReaderThread();
 
-	bool foundInputSource();// {return true;}
-	bool startAcquisition();
-	bool stopAcquisition();
-	int getNumChannels();// {return 16;}
-	float getSampleRate();// {return 40000.0;}
+    bool foundInputSource();
+    bool startAcquisition();
+    bool stopAcquisition();
+    int getNumChannels();
+    float getSampleRate();
     float getBitVolts();
-	
+
 private:
-
-	int samplesPerBlock;
-
     int lengthOfInputFile;
-
-    int playHead;
-
     FILE* input;
 
-	//FileInputStream* input;
-
-	float thisSample[16];
+    float thisSample[16];
     int16 readBuffer[1600];
 
     int bufferSize;
 
-	bool updateBuffer();
+    bool updateBuffer();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileReaderThread);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReaderThread);
 };
 
 

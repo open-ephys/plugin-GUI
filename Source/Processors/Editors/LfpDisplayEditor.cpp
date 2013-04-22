@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,14 +24,14 @@
 #include "LfpDisplayEditor.h"
 
 
-LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode) 
-	: VisualizerEditor(parentNode)
+LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+    : VisualizerEditor(parentNode, useDefaultParameterEditors)
 
 {
 
-	tabText = "LFP";
+    tabText = "LFP";
 
-	desiredWidth = 180;
+    desiredWidth = 180;
 
 }
 
@@ -43,22 +43,23 @@ LfpDisplayEditor::~LfpDisplayEditor()
 Visualizer* LfpDisplayEditor::createNewCanvas()
 {
 
-	LfpDisplayNode* processor = (LfpDisplayNode*) getProcessor();
-	return new LfpDisplayCanvas(processor);
+    LfpDisplayNode* processor = (LfpDisplayNode*) getProcessor();
+    return new LfpDisplayCanvas(processor);
 
 }
 
 void LfpDisplayEditor::buttonCallback(Button* button)
 {
 
-	int gId = button->getRadioGroupId();
+    int gId = button->getRadioGroupId();
 
-	if (gId > 0) {
-		if (canvas != 0)
-		{
-			canvas->setParameter(gId-1, button->getName().getFloatValue());
-		}
+    if (gId > 0)
+    {
+        if (canvas != 0)
+        {
+            canvas->setParameter(gId-1, button->getName().getFloatValue());
+        }
 
-	} 
+    }
 
 }

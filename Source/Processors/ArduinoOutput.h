@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,9 +24,6 @@
 #ifndef __ARDUINOOUTPUT_H_F7BDA585__
 #define __ARDUINOOUTPUT_H_F7BDA585__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 #include "Editors/ArduinoOutputEditor.h"
@@ -34,13 +31,13 @@
 #include "GenericProcessor.h"
 
 
-/** 
+/**
 
 	*UNDER CONSTRUCTION*
 
 	Provides a serial interface to an Arduino board.
 
-	Based on Open Frameworks ofArduino class
+	Based on Open Frameworks ofArduino class.
 
 	@see GenericProcessor
 
@@ -49,30 +46,43 @@
 class ArduinoOutput : public GenericProcessor
 {
 public:
-	
-	ArduinoOutput();
-	~ArduinoOutput();
-	
-	void process(AudioSampleBuffer &buffer, MidiBuffer &events, int& nSamples);
-	
-	void setParameter (int parameterIndex, float newValue);
 
+    ArduinoOutput();
+    ~ArduinoOutput();
+
+    /** Searches for events and triggers the Arduino output when appropriate. */
+    void process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples);
+
+    /** Currently unused. Future uses may include changing the TTL trigger channel
+    or the output channel of the Arduino. */
+    void setParameter(int parameterIndex, float newValue);
+
+    /** Convenient interface for responding to incoming events. */
     void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
+    /** Called immediately prior to the start of data acquisition. */
     bool enable();
-    bool disable();
-    
-	AudioProcessorEditor* createEditor();
 
-	bool isSink() {return true;}
-	
+    /** Called immediately after the end of data acquisition. */
+    bool disable();
+
+    /** Creates the ArduinoOutputEditor. */
+    AudioProcessorEditor* createEditor();
+
+    /** Defines the ArduinoOutput processor as a sink. */
+    bool isSink()
+    {
+        return true;
+    }
+
 private:
 
-	ofArduino arduino;
+    /** An open-frameworks Arduino object. */
+    ofArduino arduino;
 
-	bool state;
+    bool state;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArduinoOutput);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ArduinoOutput);
 
 };
 

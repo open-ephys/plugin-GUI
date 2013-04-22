@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,14 +24,11 @@
 #ifndef __INFOLABEL_H_14DA9A62__
 #define __INFOLABEL_H_14DA9A62__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
+
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "../Processors/Visualization/OpenGLCanvas.h"
 
 /**
-  
+
   Displays general instructions about how to use the application.
 
   Inhabits a tab in the DataViewport.
@@ -40,29 +37,26 @@
 
 */
 
-class InfoLabel : public OpenGLCanvas
+class InfoLabel : public Component
 
 {
-public: 
-	InfoLabel();
-	~InfoLabel();
-	void newOpenGLContextCreated();
-	void renderOpenGL();
+public:
+    InfoLabel();
+    ~InfoLabel();
+
+    /** Draws the InfoLabel.*/
+    void paint(Graphics& g);
 
 private:
 
-	int xBuffer, yBuffer;
+    /** The text displayed to the user.*/
+    String infoString;
 
-	void drawLabel();
+    /** Font used to draw the label.*/
+    Font labelFont;
 
-	int getTotalHeight();
 
-	void canvasWasResized();
-
-	FTSimpleLayout layout;	
-	String infoString;
-
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InfoLabel);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(InfoLabel);
 
 
 };

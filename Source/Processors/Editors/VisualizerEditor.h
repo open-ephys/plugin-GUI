@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,9 +24,6 @@
 #ifndef __VISUALIZEREDITOR_H_17E6D78C__
 #define __VISUALIZEREDITOR_H_17E6D78C__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "../../UI/UIComponent.h"
@@ -34,63 +31,73 @@
 #include "../Visualization/DataWindow.h"
 #include "../Visualization/Visualizer.h"
 
+
+class DataWindow;
+class Visualizer;
+
 /**
-  
+
+  Button for selecting the location of a visualizer.
+
+  @see VisualizerEditor
+
+*/
+
+class SelectorButton : public Button
+{
+public:
+    SelectorButton(const String& name);
+    ~SelectorButton();
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+};
+
+
+/**
+
   Base class for creating editors with visualizers.
 
   @see GenericEditor, Visualizer
 
 */
 
-class DataWindow;
-class Visualizer;
-
-class SelectorButton : public Button
-{
-	public:
-		SelectorButton(const String& name);
-		~SelectorButton();	
-	private:
-		void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-};
-
 class VisualizerEditor : public GenericEditor
 {
 public:
-	VisualizerEditor (GenericProcessor*, int);
-	VisualizerEditor (GenericProcessor*);
-	~VisualizerEditor();
+    VisualizerEditor(GenericProcessor*, int, bool useDefaultParameterEditors);
+    VisualizerEditor(GenericProcessor*, bool useDefaultParameterEditors);
+    ~VisualizerEditor();
 
-	void buttonEvent (Button* button);
-	virtual void buttonCallback(Button* button) {}
+    void buttonEvent(Button* button);
+    virtual void buttonCallback(Button* button) {}
 
-	virtual Visualizer* createNewCanvas() = 0;
+    virtual Visualizer* createNewCanvas() = 0;
 
-	virtual void enable();
-	virtual void disable();
+    virtual void enable();
+    virtual void disable();
 
-	void editorWasClicked();
+    void editorWasClicked();
 
-	void updateVisualizer();
+    void updateVisualizer();
 
-	ScopedPointer<DataWindow> dataWindow;
-	ScopedPointer<Visualizer> canvas;
+    ScopedPointer<DataWindow> dataWindow;
+    ScopedPointer<Visualizer> canvas;
 
-	String tabText;
+    String tabText;
 
-private:	
+private:
 
-	void initializeSelectors();
-	bool isPlaying;
+    void initializeSelectors();
+    bool isPlaying;
 
-	SelectorButton* windowSelector;
-	SelectorButton* tabSelector;
+    SelectorButton* windowSelector;
+    SelectorButton* tabSelector;
 
-	int tabIndex;
+    int tabIndex;
 
 
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VisualizerEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VisualizerEditor);
 
 };
 

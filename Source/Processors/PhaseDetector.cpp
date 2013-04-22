@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -29,9 +29,10 @@ PhaseDetector::PhaseDetector()
 	: GenericProcessor("Phase Detector"),
 	   maxFrequency(20), isIncreasing(true), canBeTriggered(false), triggerOnPeak(false)
 
+
 {
 
-	peakIntervals = new int[NUM_INTERVALS];
+    peakIntervals = new int[NUM_INTERVALS];
 
     //parameters.add(Parameter("thresh", 0.0, 500.0, 200.0, 0));
 
@@ -39,10 +40,10 @@ PhaseDetector::PhaseDetector()
 
 PhaseDetector::~PhaseDetector()
 {
-   
+
 }
 
-void PhaseDetector::setParameter (int parameterIndex, float newValue)
+void PhaseDetector::setParameter(int parameterIndex, float newValue)
 {
 
     // Parameter& p =  parameters.getReference(parameterIndex);
@@ -57,36 +58,37 @@ void PhaseDetector::setParameter (int parameterIndex, float newValue)
 void PhaseDetector::updateSettings()
 {
 
-	minSamplesToNextPeak = int(getSampleRate()/maxFrequency);
+    minSamplesToNextPeak = int(getSampleRate()/maxFrequency);
 
 }
 
 bool PhaseDetector::enable()
 {
-	nSamplesSinceLastPeak = 0;
-	lastSample = 0.0f;
-	isIncreasing = false;
-	numPeakIntervals = 0;
+    nSamplesSinceLastPeak = 0;
+    lastSample = 0.0f;
+    isIncreasing = false;
+    numPeakIntervals = 0;
 
-	return true;
+    return true;
 }
 
 void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 {
 
-	//std::cout << "GOT EVENT." << std::endl;
+    //std::cout << "GOT EVENT." << std::endl;
 
-	if (eventType == TTL)
-	{
-		uint8* dataptr = event.getRawData();
+    if (eventType == TTL)
+    {
+        const uint8* dataptr = event.getRawData();
 
-    	int eventNodeId = *(dataptr+1);
-    	int eventId = *(dataptr+2);
-    	int eventChannel = *(dataptr+3);
-    	//int eventTime = event.getTimeStamp();
+        // int eventNodeId = *(dataptr+1);
+        int eventId = *(dataptr+2);
+        int eventChannel = *(dataptr+3);
+        //int eventTime = event.getTimeStamp();
 
-    //	std::cout << "Received event from " << eventNodeId << ", channel "
-    	//          << eventChannel << ", with ID " << eventId << std::endl;
+        //	std::cout << "Received event from " << eventNodeId << ", channel "
+        //          << eventChannel << ", with ID " << eventId << std::endl;
+
 
     	if (eventId == 1 && eventChannel == 5)
     	{
@@ -101,19 +103,20 @@ void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
     		canBeTriggered = false;
     	}
 
+
     }
 
 }
 
-void PhaseDetector::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &events,
+void PhaseDetector::process(AudioSampleBuffer& buffer,
+                            MidiBuffer& events,
                             int& nSamples)
 {
 
-	checkForEvents(events);
+    checkForEvents(events);
 
-	for (int i = 0; i < nSamples; i++)
-	{
+    for (int i = 0; i < nSamples; i++)
+    {
 
 		float sample;
 
@@ -122,44 +125,51 @@ void PhaseDetector::process(AudioSampleBuffer &buffer,
 		else
 			sample = *buffer.getSampleData(0, i);
 
-	    if (sample > lastSample && !isIncreasing) 
-	    {
 
-	    	// entering rising phase
-	    	isIncreasing = true;
-	    	nSamplesSinceLastPeak++;
+        if (sample > lastSample && !isIncreasing)
+        {
 
-	    } else if (sample < lastSample && isIncreasing && nSamplesSinceLastPeak >= minSamplesToNextPeak) {
+            // entering rising phase
+            isIncreasing = true;
+            nSamplesSinceLastPeak++;
 
-	    	numPeakIntervals++;
+        }
+        else if (sample < lastSample && isIncreasing && nSamplesSinceLastPeak >= minSamplesToNextPeak)
+        {
+
+            numPeakIntervals++;
+
 
 	    	if (canBeTriggered)
 	        	addEvent(events, TTL, i, 1, 3);
 
-	        peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
 
-	        isIncreasing = false;
+            peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
 
-	        nSamplesSinceLastPeak = 0;
+            isIncreasing = false;
 
-	        estimateFrequency();
+            nSamplesSinceLastPeak = 0;
+
+            estimateFrequency();
 
 
-	    } else {
+        }
+        else
+        {
 
-	    	// either rising or falling
-	    	nSamplesSinceLastPeak++;
+            // either rising or falling
+            nSamplesSinceLastPeak++;
 
-	    	if (nSamplesSinceLastPeak == 100)
-	    	{
-	    		addEvent(events, TTL, i, 0, 3);
-	    	}
+            if (nSamplesSinceLastPeak == 100)
+            {
+                addEvent(events, TTL, i, 0, 3);
+            }
 
-	    }
+        }
 
-	    lastSample = sample;
+        lastSample = sample;
 
-	}
+    }
 
 
 }
@@ -167,17 +177,17 @@ void PhaseDetector::process(AudioSampleBuffer &buffer,
 void PhaseDetector::estimateFrequency()
 {
 
-	int N = (numPeakIntervals < NUM_INTERVALS) ? numPeakIntervals 
-											   : NUM_INTERVALS;
+    int N = (numPeakIntervals < NUM_INTERVALS) ? numPeakIntervals
+            : NUM_INTERVALS;
 
-	int sum = 0;
+    int sum = 0;
 
-	for (int i = 0; i < N; i++)
-	{
-		sum += peakIntervals[i];
-	}
+    for (int i = 0; i < N; i++)
+    {
+        sum += peakIntervals[i];
+    }
 
-	estimatedFrequency = getSampleRate()/(float(sum)/float(N));
+    estimatedFrequency = getSampleRate()/(float(sum)/float(N));
 
 
 

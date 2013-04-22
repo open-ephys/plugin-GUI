@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,92 +27,100 @@
 #include "../../UI/EditorViewport.h"
 
 Splitter::Splitter()
-	: GenericProcessor("Splitter"), 
-		destNodeA(0), destNodeB(0), activePath(0)
+    : GenericProcessor("Splitter"),
+      destNodeA(0), destNodeB(0), activePath(0)
 {
 
 }
 
 Splitter::~Splitter()
 {
-	
+
 }
 
 AudioProcessorEditor* Splitter::createEditor()
 {
-	editor = new SplitterEditor(this);
-	//tEditor(editor);
-	
-	//std::cout << "Creating editor." << std::endl;
-	return editor;
+    editor = new SplitterEditor(this, true);
+    //tEditor(editor);
+
+    //std::cout << "Creating editor." << std::endl;
+    return editor;
 }
 
 void Splitter::setPathToProcessor(GenericProcessor* p)
 {
 
-	if (destNodeA == p)
-	{
-		switchIO(0);
-		
-	} else if (destNodeB == p)
-	{
-		switchIO(1);
-	}
+    if (destNodeA == p)
+    {
+        switchIO(0);
+
+    }
+    else if (destNodeB == p)
+    {
+        switchIO(1);
+    }
 
 
 }
 
 void Splitter::setSplitterDestNode(GenericProcessor* dn)
 {
-	destNode = dn;
+    destNode = dn;
 
-	if (activePath == 0) {
-		std::cout << "Setting destination node A." << std::endl;
-		destNodeA = dn;
-	} else {
-		destNodeB = dn;
-		std::cout << "Setting destination node B." << std::endl;
+    if (activePath == 0)
+    {
+        std::cout << "Setting destination node A." << std::endl;
+        destNodeA = dn;
+    }
+    else
+    {
+        destNodeB = dn;
+        std::cout << "Setting destination node B." << std::endl;
 
-	}
+    }
 }
 
-void Splitter::switchIO(int destNum) {
-	
-	std::cout << "Switching to dest number " << destNum << std::endl;
-	
-	activePath = destNum;
+void Splitter::switchIO(int destNum)
+{
 
-	if (destNum == 0) 
-	{
-		destNode = destNodeA;
-		std::cout << "Dest node: " << getDestNode() << std::endl;
-	} else 
-	{
-		destNode = destNodeB;
-		std::cout << "Dest node: " << getDestNode() << std::endl;
-	}
+    std::cout << "Switching to dest number " << destNum << std::endl;
 
-	getEditorViewport()->makeEditorVisible(getEditor(), false);
+    activePath = destNum;
+
+    if (destNum == 0)
+    {
+        destNode = destNodeA;
+        std::cout << "Dest node: " << getDestNode() << std::endl;
+    }
+    else
+    {
+        destNode = destNodeB;
+        std::cout << "Dest node: " << getDestNode() << std::endl;
+    }
+
+    getEditorViewport()->makeEditorVisible(getEditor(), false);
 
 }
 
 void Splitter::switchIO()
 {
 
-	std::cout << "Splitter switching source." << std::endl;
+    std::cout << "Splitter switching source." << std::endl;
 
-	if (activePath == 0) {
-		activePath = 1;
-		destNode = destNodeB;
-	}
-	else {
-	    activePath = 0;
-	    destNode = destNodeA;
-	}
+    if (activePath == 0)
+    {
+        activePath = 1;
+        destNode = destNodeB;
+    }
+    else
+    {
+        activePath = 0;
+        destNode = destNodeA;
+    }
 
 }
 
 int Splitter::getPath()
 {
-	return activePath;
+    return activePath;
 }

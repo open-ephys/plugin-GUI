@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,65 +24,65 @@
 #include "UIComponent.h"
 #include <stdio.h>
 
-UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_) 
-	: processorGraph(pgraph), audio(audio_), mainWindow(mainWindow_)
+UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_)
+    : mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_)
 
-{	
+{
 
-	processorGraph->setUIComponent(this);
+    processorGraph->setUIComponent(this);
 
-	infoLabel = new InfoLabel();
+    infoLabel = new InfoLabel();
 
-	dataViewport = new DataViewport ();
-	addChildComponent(dataViewport);
-	dataViewport->addTabToDataViewport("Info",infoLabel,0);
+    dataViewport = new DataViewport();
+    addChildComponent(dataViewport);
+    dataViewport->addTabToDataViewport("Info", infoLabel,0);
 
-	std::cout << "Created data viewport." << std::endl;
+    std::cout << "Created data viewport." << std::endl;
 
-	editorViewport = new EditorViewport();
+    editorViewport = new EditorViewport();
 
-	addAndMakeVisible(editorViewport);
+    addAndMakeVisible(editorViewport);
 
-	std::cout << "Created filter viewport." << std::endl;
+    std::cout << "Created filter viewport." << std::endl;
 
-	editorViewportButton = new EditorViewportButton(this);
-	addAndMakeVisible(editorViewportButton);
+    editorViewportButton = new EditorViewportButton(this);
+    addAndMakeVisible(editorViewportButton);
 
-	controlPanel = new ControlPanel(processorGraph, audio);
-	addAndMakeVisible(controlPanel);
+    controlPanel = new ControlPanel(processorGraph, audio);
+    addAndMakeVisible(controlPanel);
 
-	std::cout << "Created control panel." << std::endl;
+    std::cout << "Created control panel." << std::endl;
 
-	processorList = new ProcessorList();
-	addAndMakeVisible(processorList);
+    processorList = new ProcessorList();
+    addAndMakeVisible(processorList);
 
-	std::cout << "Created filter list." << std::endl;
+    std::cout << "Created filter list." << std::endl;
 
-	messageCenter = new MessageCenter();
-	addActionListener(messageCenter);
-	addAndMakeVisible(messageCenter);
+    messageCenter = new MessageCenter();
+    addActionListener(messageCenter);
+    addAndMakeVisible(messageCenter);
 
-	std::cout << "Created message center." << std::endl;
+    std::cout << "Created message center." << std::endl;
 
-	setBounds(0,0,500,400);
+    setBounds(0,0,500,400);
 
-	std::cout << "Component width = " << getWidth() << std::endl;
-	std::cout << "Component height = " << getHeight() << std::endl;
+    std::cout << "Component width = " << getWidth() << std::endl;
+    std::cout << "Component height = " << getHeight() << std::endl;
 
-	std::cout << "UI component data viewport: " << dataViewport << std::endl;
+    std::cout << "UI component data viewport: " << dataViewport << std::endl;
 
-	std::cout << "Finished UI stuff." << std::endl << std::endl << std::endl;
+    std::cout << "Finished UI stuff." << std::endl << std::endl << std::endl;
 
-	processorGraph->setUIComponent(this);
-	processorList->setUIComponent(this);
-	editorViewport->setUIComponent(this);
-	dataViewport->setUIComponent(this);
-	controlPanel->getAudioEditor()->setUIComponent(this);
-	controlPanel->setUIComponent(this);
-    
+    processorGraph->setUIComponent(this);
+    processorList->setUIComponent(this);
+    editorViewport->setUIComponent(this);
+    dataViewport->setUIComponent(this);
+    controlPanel->getAudioEditor()->setUIComponent(this);
+    controlPanel->setUIComponent(this);
+
     //processorGraph->sendActionMessage("Test.");
 
-	//processorGraph->loadState();
+    //processorGraph->loadState();
 
 #if JUCE_MAC
     MenuBarModel::setMacMainMenu(this);
@@ -90,114 +90,110 @@ UIComponent::UIComponent (MainWindow* mainWindow_, ProcessorGraph* pgraph, Audio
 #else
     mainWindow->setMenuBar(this);
 #endif
-	
+
 }
 
 UIComponent::~UIComponent()
 {
-	deleteAndZero(infoLabel);
-	deleteAllChildren();
-
-	processorGraph = 0;
-	audio = 0;
+    dataViewport->destroyTab(0); // get rid of tab for InfoLabel
 }
 
 void UIComponent::resized()
 {
-	
-	int w = getWidth();
-	int h = getHeight();
-	
-	if (dataViewport != 0) 
-	{
-		int left, top, width, height;
-		left = 6;
-		top = 40;
-		
-		if (processorList->isOpen())
-			left = 202;
-		else
-			left = 6;
 
-		if (controlPanel->isOpen())
-			top = 72;
-		else
-			top = 40;
+    int w = getWidth();
+    int h = getHeight();
 
-		if (editorViewportButton->isOpen())
-			height = h - top - 195;
-		else
-			height = h - top - 45;
+    if (dataViewport != 0)
+    {
+        int left, top, width, height;
+        left = 6;
+        top = 40;
 
-		width = w - left - 5;
+        if (processorList->isOpen())
+            left = 202;
+        else
+            left = 6;
 
-		dataViewport->setBounds(left, top, width, height);
-	}
+        if (controlPanel->isOpen())
+            top = 72;
+        else
+            top = 40;
 
-	if (editorViewportButton != 0)
-	{
-		editorViewportButton->setBounds(w-230, h-40, 225, 35);
-	}
-	
-	if (editorViewport != 0) 
-	{
-		if (editorViewportButton->isOpen() && !editorViewport->isVisible())
-			editorViewport->setVisible(true);
-		else if (!editorViewportButton->isOpen() && editorViewport->isVisible())
-			editorViewport->setVisible(false);
+        if (editorViewportButton->isOpen())
+            height = h - top - 195;
+        else
+            height = h - top - 45;
 
-		editorViewport->setBounds(6,h-190,w-11,150);
-	}
+        width = w - left - 5;
 
-	if (controlPanel != 0)
-	{
-		if (controlPanel->isOpen())
-			controlPanel->setBounds(201,6,w-210,64);
-		else
-			controlPanel->setBounds(201,6,w-210,32);
-	}
+        dataViewport->setBounds(left, top, width, height);
+    }
 
-	if (processorList != 0) 
-	{
-		if (processorList->isOpen())
-			if (editorViewportButton->isOpen())
-				processorList->setBounds(5,5,195,h-200);
-			else
-				processorList->setBounds(5,5,195,h-50);
-		else
-			processorList->setBounds(5,5,195,34);
-	}
+    if (editorViewportButton != 0)
+    {
+        editorViewportButton->setBounds(w-230, h-40, 225, 35);
+    }
 
-	if (messageCenter != 0)
-		messageCenter->setBounds(6,h-35,w-241,30);
+    if (editorViewport != 0)
+    {
+        if (editorViewportButton->isOpen() && !editorViewport->isVisible())
+            editorViewport->setVisible(true);
+        else if (!editorViewportButton->isOpen() && editorViewport->isVisible())
+            editorViewport->setVisible(false);
 
-	// for debugging qpurposes:
-	if (false)
-	{
-		dataViewport->setVisible(false);
-		editorViewport->setVisible(false);
-		processorList->setVisible(false);
-		messageCenter->setVisible(false);
-		controlPanel->setVisible(false);
-		editorViewportButton->setVisible(false);
-	}
+        editorViewport->setBounds(6,h-190,w-11,150);
+    }
+
+    if (controlPanel != 0)
+    {
+        if (controlPanel->isOpen())
+            controlPanel->setBounds(201,6,w-210,64);
+        else
+            controlPanel->setBounds(201,6,w-210,32);
+    }
+
+    if (processorList != 0)
+    {
+        if (processorList->isOpen())
+            if (editorViewportButton->isOpen())
+                processorList->setBounds(5,5,195,h-200);
+            else
+                processorList->setBounds(5,5,195,h-50);
+        else
+            processorList->setBounds(5,5,195,34);
+    }
+
+    if (messageCenter != 0)
+        messageCenter->setBounds(6,h-35,w-241,30);
+
+    // for debugging qpurposes:
+    if (false)
+    {
+        dataViewport->setVisible(false);
+        editorViewport->setVisible(false);
+        processorList->setVisible(false);
+        messageCenter->setVisible(false);
+        controlPanel->setVisible(false);
+        editorViewportButton->setVisible(false);
+    }
 
 }
 
 void UIComponent::disableCallbacks()
 {
-	//sendActionMessage("Data acquisition terminated.");
-	controlPanel->disableCallbacks();
+    //sendActionMessage("Data acquisition terminated.");
+    controlPanel->disableCallbacks();
 }
 
 void UIComponent::disableDataViewport()
 {
-	dataViewport->disableConnectionToEditorViewport();
+    dataViewport->disableConnectionToEditorViewport();
 }
 
 void UIComponent::childComponentChanged()
 {
-	resized();
+    resized();
 }
 
 
@@ -207,212 +203,218 @@ void UIComponent::childComponentChanged()
 
 // MENU BAR METHODS
 
-const StringArray UIComponent::getMenuBarNames() {
+StringArray UIComponent::getMenuBarNames()
+{
 
-	// StringArray names;
-	// names.add("File");
-	// names.add("Edit");
-	// names.add("Help");
+    // StringArray names;
+    // names.add("File");
+    // names.add("Edit");
+    // names.add("Help");
 
-	const char* const names[] = { "File", "Edit", "View", "Help", 0 };
+    const char* const names[] = { "File", "Edit", "View", "Help", 0 };
 
-    return StringArray (names);
+    return StringArray(names);
 
 }
 
-const PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
+PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 {
-	 ApplicationCommandManager* commandManager = &(mainWindow->commandManager);
+    ApplicationCommandManager* commandManager = &(mainWindow->commandManager);
 
-     PopupMenu menu;
+    PopupMenu menu;
 
-     if (menuIndex == 0)
-     {
-     	menu.addCommandItem (commandManager, openConfiguration);
-        menu.addCommandItem (commandManager, saveConfiguration);
-        
+    if (menuIndex == 0)
+    {
+        menu.addCommandItem(commandManager, openConfiguration);
+        menu.addCommandItem(commandManager, saveConfiguration);
+
 #if !JUCE_MAC
-       	menu.addSeparator();
-       	menu.addCommandItem (commandManager, StandardApplicationCommandIDs::quit);
+        menu.addSeparator();
+        menu.addCommandItem(commandManager, StandardApplicationCommandIDs::quit);
 #endif
 
-       } else if (menuIndex == 1)
-     {
-     	menu.addCommandItem (commandManager, undo);
-     	menu.addCommandItem (commandManager, redo);
-     	menu.addSeparator();
-     	menu.addCommandItem (commandManager, copySignalChain);
-     	menu.addCommandItem (commandManager, pasteSignalChain);
-     	menu.addSeparator();
-     	menu.addCommandItem (commandManager, clearSignalChain);
-     
-     } else if (menuIndex == 2) {
+    }
+    else if (menuIndex == 1)
+    {
+        menu.addCommandItem(commandManager, undo);
+        menu.addCommandItem(commandManager, redo);
+        menu.addSeparator();
+        menu.addCommandItem(commandManager, copySignalChain);
+        menu.addCommandItem(commandManager, pasteSignalChain);
+        menu.addSeparator();
+        menu.addCommandItem(commandManager, clearSignalChain);
 
-     	menu.addCommandItem (commandManager, toggleProcessorList);
-     	menu.addCommandItem (commandManager, toggleSignalChain);
-     	menu.addCommandItem (commandManager, toggleFileInfo);
-     
-     } else if (menuIndex == 3)
-     {
-     	menu.addCommandItem (commandManager, showHelp);
-     }
+    }
+    else if (menuIndex == 2)
+    {
 
-     return menu;
+        menu.addCommandItem(commandManager, toggleProcessorList);
+        menu.addCommandItem(commandManager, toggleSignalChain);
+        menu.addCommandItem(commandManager, toggleFileInfo);
+
+    }
+    else if (menuIndex == 3)
+    {
+        menu.addCommandItem(commandManager, showHelp);
+    }
+
+    return menu;
 
 }
 
 void UIComponent::menuItemSelected(int menuItemID, int topLevelMenuIndex)
 {
-	
- //
+
+    //
 }
 
 // ApplicationCommandTarget methods
 
 ApplicationCommandTarget* UIComponent::getNextCommandTarget()
 {
-	// this will return the next parent component that is an ApplicationCommandTarget (in this
-        // case, there probably isn't one, but it's best to use this method in your own apps).
-	return findFirstTargetParentComponent();
+    // this will return the next parent component that is an ApplicationCommandTarget (in this
+    // case, there probably isn't one, but it's best to use this method anyway).
+    return findFirstTargetParentComponent();
 }
 
-void UIComponent::getAllCommands (Array <CommandID>& commands)
+void UIComponent::getAllCommands(Array <CommandID>& commands)
 {
-	 const CommandID ids[] = {openConfiguration,
-	 					      saveConfiguration,
-	 					      undo,
-	 					      redo,
-	 					      copySignalChain,
-	 					      pasteSignalChain,
-	 					      clearSignalChain,
-	 					      toggleProcessorList,
-	 					      toggleSignalChain,
-	 					      toggleFileInfo,
-	 					      showHelp};
+    const CommandID ids[] = {openConfiguration,
+                             saveConfiguration,
+                             undo,
+                             redo,
+                             copySignalChain,
+                             pasteSignalChain,
+                             clearSignalChain,
+                             toggleProcessorList,
+                             toggleSignalChain,
+                             toggleFileInfo,
+                             showHelp
+                            };
 
-	 commands.addArray (ids, numElementsInArray (ids));
-
-}
-
-void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& result)
-{
-
-	bool acquisitionStarted = getAudioComponent()->callbacksAreActive();
-
-	switch (commandID)
-	{
-	case openConfiguration:
-		result.setInfo("Open configuration", "Load a saved processor graph.", "General", 0);
-		result.addDefaultKeypress (T('O'), ModifierKeys::commandModifier);
-		result.setActive(!acquisitionStarted);
-		break;
-
-	case saveConfiguration:
-		result.setInfo("Save configuration", "Save the current processor graph.", "General", 0);
-		result.addDefaultKeypress (T('S'), ModifierKeys::commandModifier);
-		result.setActive(!acquisitionStarted);
-		break;
-
-	case undo:
-		result.setInfo("Undo", "Undo the last action.", "General", 0);
-		result.addDefaultKeypress (T('Z'), ModifierKeys::commandModifier);
-		result.setActive(false);
-		break;
-
-	case redo:
-		result.setInfo("Redo", "Undo the last action.", "General", 0);
-		result.addDefaultKeypress (T('Y'), ModifierKeys::commandModifier);
-		result.setActive(false);
-		break;
-
-	case copySignalChain:
-		result.setInfo("Copy", "Copy a portion of the signal chain.", "General", 0);
-		result.addDefaultKeypress (T('C'), ModifierKeys::commandModifier);
-		result.setActive(false);
-		break;
-
-	case pasteSignalChain:
-		result.setInfo("Paste", "Paste a portion of the signal chain.", "General", 0);
-		result.addDefaultKeypress (T('V'), ModifierKeys::commandModifier);
-		result.setActive(false);
-		break;
-
-	case clearSignalChain:
-		result.setInfo("Clear signal chain", "Clear the current signal chain.", "General", 0);
-		result.addDefaultKeypress (KeyPress::backspaceKey, ModifierKeys::commandModifier);
-		result.setActive(!getEditorViewport()->isSignalChainEmpty() && !acquisitionStarted);
-		break;
-
-	case toggleProcessorList:
-		result.setInfo("Processor List", "Show/hide Processor List.", "General", 0);
-		result.addDefaultKeypress (T('P'), ModifierKeys::shiftModifier);
-		result.setTicked(processorList->isOpen());
-		break;
-
-	case toggleSignalChain:
-		result.setInfo("Signal Chain", "Show/hide Signal Chain.", "General", 0);
-		result.addDefaultKeypress (T('S'), ModifierKeys::shiftModifier);
-		result.setTicked(editorViewportButton->isOpen());
-		break;
-
-	case toggleFileInfo:
-		result.setInfo("File Info", "Show/hide File Info.", "General", 0);
-		result.addDefaultKeypress (T('F'), ModifierKeys::shiftModifier);
-		result.setTicked(controlPanel->isOpen());
-		break;
-
-	case showHelp:
-		result.setInfo("Show help...", "Show some freakin' help.", "General", 0);
-		result.setActive(false);
-		break;
-
-	default:
-		break;
-	};
+    commands.addArray(ids, numElementsInArray(ids));
 
 }
 
-bool UIComponent::perform (const InvocationInfo& info)
+void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& result)
 {
 
-	switch (info.commandID)
-	{
-	case openConfiguration:
-	{
-		sendActionMessage(getEditorViewport()->loadState());
-		break;
-	}
-	case saveConfiguration:
-	{
-		sendActionMessage(getEditorViewport()->saveState());
-		break;
-	}
-	case clearSignalChain:
-		getEditorViewport()->clearSignalChain();
-		break;
+    bool acquisitionStarted = getAudioComponent()->callbacksAreActive();
 
-	case showHelp:
-		std::cout << "SHOW ME SOME HELP!" << std::endl;
-		break;
+    switch (commandID)
+    {
+        case openConfiguration:
+            result.setInfo("Open configuration", "Load a saved processor graph.", "General", 0);
+            result.addDefaultKeypress('O', ModifierKeys::commandModifier);
+            result.setActive(!acquisitionStarted);
+            break;
 
-	case toggleProcessorList:
-		processorList->toggleState();
-		break;
+        case saveConfiguration:
+            result.setInfo("Save configuration", "Save the current processor graph.", "General", 0);
+            result.addDefaultKeypress('S', ModifierKeys::commandModifier);
+            result.setActive(!acquisitionStarted);
+            break;
 
-	case toggleFileInfo:
-		controlPanel->toggleState();
-		break;
+        case undo:
+            result.setInfo("Undo", "Undo the last action.", "General", 0);
+            result.addDefaultKeypress('Z', ModifierKeys::commandModifier);
+            result.setActive(false);
+            break;
 
-	case toggleSignalChain:
-		editorViewportButton->toggleState();
-		break;
-		
-	default:
-		break;
+        case redo:
+            result.setInfo("Redo", "Undo the last action.", "General", 0);
+            result.addDefaultKeypress('Y', ModifierKeys::commandModifier);
+            result.setActive(false);
+            break;
 
-	}
+        case copySignalChain:
+            result.setInfo("Copy", "Copy a portion of the signal chain.", "General", 0);
+            result.addDefaultKeypress('C', ModifierKeys::commandModifier);
+            result.setActive(false);
+            break;
 
-	return true;
+        case pasteSignalChain:
+            result.setInfo("Paste", "Paste a portion of the signal chain.", "General", 0);
+            result.addDefaultKeypress('V', ModifierKeys::commandModifier);
+            result.setActive(false);
+            break;
+
+        case clearSignalChain:
+            result.setInfo("Clear signal chain", "Clear the current signal chain.", "General", 0);
+            result.addDefaultKeypress(KeyPress::backspaceKey, ModifierKeys::commandModifier);
+            result.setActive(!getEditorViewport()->isSignalChainEmpty() && !acquisitionStarted);
+            break;
+
+        case toggleProcessorList:
+            result.setInfo("Processor List", "Show/hide Processor List.", "General", 0);
+            result.addDefaultKeypress('P', ModifierKeys::shiftModifier);
+            result.setTicked(processorList->isOpen());
+            break;
+
+        case toggleSignalChain:
+            result.setInfo("Signal Chain", "Show/hide Signal Chain.", "General", 0);
+            result.addDefaultKeypress('S', ModifierKeys::shiftModifier);
+            result.setTicked(editorViewportButton->isOpen());
+            break;
+
+        case toggleFileInfo:
+            result.setInfo("File Info", "Show/hide File Info.", "General", 0);
+            result.addDefaultKeypress('F', ModifierKeys::shiftModifier);
+            result.setTicked(controlPanel->isOpen());
+            break;
+
+        case showHelp:
+            result.setInfo("Show help...", "Show some freakin' help.", "General", 0);
+            result.setActive(false);
+            break;
+
+        default:
+            break;
+    };
+
+}
+
+bool UIComponent::perform(const InvocationInfo& info)
+{
+
+    switch (info.commandID)
+    {
+        case openConfiguration:
+            {
+                sendActionMessage(getEditorViewport()->loadState());
+                break;
+            }
+        case saveConfiguration:
+            {
+                sendActionMessage(getEditorViewport()->saveState());
+                break;
+            }
+        case clearSignalChain:
+            getEditorViewport()->clearSignalChain();
+            break;
+
+        case showHelp:
+            std::cout << "SHOW ME SOME HELP!" << std::endl;
+            break;
+
+        case toggleProcessorList:
+            processorList->toggleState();
+            break;
+
+        case toggleFileInfo:
+            controlPanel->toggleState();
+            break;
+
+        case toggleSignalChain:
+            editorViewportButton->toggleState();
+            break;
+
+        default:
+            break;
+
+    }
+
+    return true;
 
 }
 
@@ -420,74 +422,72 @@ bool UIComponent::perform (const InvocationInfo& info)
 
 EditorViewportButton::EditorViewportButton(UIComponent* ui) : UI(ui)
 {
-	open = true;
+    open = true;
+
+    buttonFont = Font("Default Light", 25, Font::plain);
+
+    // MemoryInputStream mis1(BinaryData::cpmonolightserialized,
+    //                        BinaryData::cpmonolightserializedSize,
+    //                        false);
+    // Typeface::Ptr tp1 = new CustomTypeface(mis1);
+    // buttonFont = Font(tp1);
+    // buttonFont.setHeight(25);
+
 }
 
 EditorViewportButton::~EditorViewportButton()
 {
-	
+
 }
 
-void EditorViewportButton::newOpenGLContextCreated()
+
+void EditorViewportButton::paint(Graphics& g)
 {
-	
-	setUp2DCanvas();
-	activateAntiAliasing();
 
-	setClearColor(darkgrey);
+    g.fillAll(Colour(58,58,58));
 
-	//glClearColor(0.23f, 0.23f, 0.23f, 1.0f); 
+    g.setColour(Colours::white);
+    g.setFont(buttonFont);
+    g.drawText("SIGNAL CHAIN", 10, 0, getWidth(), getHeight(), Justification::left, false);
 
-}
+    g.setColour(Colours::white);
 
+    Path p;
 
-void EditorViewportButton::renderOpenGL()
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-	drawName();
-	drawButton();
-}
+    float h = getHeight();
+    float w = getWidth()-5;
 
-void EditorViewportButton::drawName()
-{
-	glColor4f(1.0f,1.0f,1.0f,1.0f);
-	glRasterPos2f(8.0/getWidth(),0.75f);
-	getFont(cpmono_light)->FaceSize(23);
-	getFont(cpmono_light)->Render("SIGNAL CHAIN");
-	
-}
+    if (open)
+    {
+        p.addTriangle(w-h+0.3f*h, 0.7f*h,
+                      w-h+0.5f*h, 0.3f*h,
+                      w-h+0.7f*h, 0.7f*h);
+    }
+    else
+    {
+        p.addTriangle(w-h+0.3f*h, 0.5f*h,
+                      w-h+0.7f*h, 0.3f*h,
+                      w-h+0.7f*h, 0.7f*h);
+    }
 
-void EditorViewportButton::drawButton()
-{
-	glColor4f(1.0f,1.0f,1.0f,1.0f);
-	glLineWidth(1.0f);
+    PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
 
-	glBegin(GL_LINE_LOOP);
-
-	if (open)
-	{
-		glVertex2f(0.90,0.65);
-		glVertex2f(0.925,0.35);
-	} else {
-		glVertex2f(0.95,0.35);
-		glVertex2f(0.90,0.5);
-	}
-	glVertex2f(0.95,0.65);
-	glEnd();
+    g.strokePath(p, pst);
 
 }
+
 
 void EditorViewportButton::mouseDown(const MouseEvent& e)
 {
-	open = !open;
-	UI->childComponentChanged();
-	repaint();
+    open = !open;
+    UI->childComponentChanged();
+    repaint();
 
 }
 
 void EditorViewportButton::toggleState()
 {
-	open = !open;
-	UI->childComponentChanged();
-	repaint();
+    open = !open;
+    UI->childComponentChanged();
+    repaint();
 }

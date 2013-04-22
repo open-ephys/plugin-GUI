@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,7 +25,7 @@
 #include "WiFiOutput.h"
 
 WiFiOutput::WiFiOutput()
-	: GenericProcessor("WiFi Output")
+    : GenericProcessor("WiFi Output")
 {
 }
 
@@ -36,8 +36,8 @@ WiFiOutput::~WiFiOutput()
 
 AudioProcessorEditor* WiFiOutput::createEditor()
 {
-	editor = new WiFiOutputEditor(this);
-	return editor;
+    editor = new WiFiOutputEditor(this, true);
+    return editor;
 }
 
 void WiFiOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
@@ -46,37 +46,40 @@ void WiFiOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
     {
         startTimer((int) float(event.getTimeStamp())/getSampleRate()*1000.0);
     }
-    
+
 }
 
-void WiFiOutput::setParameter (int parameterIndex, float newValue)
+void WiFiOutput::setParameter(int parameterIndex, float newValue)
 {
 
 }
 
-void WiFiOutput::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &events,
-                            int& nSamples)
+void WiFiOutput::process(AudioSampleBuffer& buffer,
+                         MidiBuffer& events,
+                         int& nSamples)
 {
-	
 
-	checkForEvents(events);
-	
+
+    checkForEvents(events);
+
 
 }
 
 void WiFiOutput::timerCallback()
 {
-	std::cout << "FIRE!" << std::endl;
-    
-	try {
-		socket.sendTo("hi",2,"169.254.1.1",2000);
-	
-		WiFiOutputEditor* ed = (WiFiOutputEditor*) getEditor();
-		ed->receivedEvent();
-	} catch (SocketException &e) {
-		// don't do anything
-	}
+    std::cout << "FIRE!" << std::endl;
 
-	stopTimer();
+    try
+    {
+        socket.sendTo("hi",2,"169.254.1.1",2000);
+
+        WiFiOutputEditor* ed = (WiFiOutputEditor*) getEditor();
+        ed->receivedEvent();
+    }
+    catch (SocketException& e)
+    {
+        // don't do anything
+    }
+
+    stopTimer();
 }

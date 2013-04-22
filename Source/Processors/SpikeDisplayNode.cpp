@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,26 +27,26 @@
 #include "Channel.h"
 
 SpikeDisplayNode::SpikeDisplayNode()
-	: GenericProcessor("Spike Viewer"),
-	  bufferSize(0)
+    : GenericProcessor("Spike Viewer"),
+      bufferSize(0)
 
 {
-//	displayBuffer = new AudioSampleBuffer(8, 100);
-	eventBuffer = new MidiBuffer();
+    //	displayBuffer = new AudioSampleBuffer(8, 100);
+    eventBuffer = new MidiBuffer();
 }
 
 SpikeDisplayNode::~SpikeDisplayNode()
 {
-	//deleteAndZero(displayBuffer);
-	//deleteAndZero(eventBuffer);
+    //deleteAndZero(displayBuffer);
+    //deleteAndZero(eventBuffer);
 }
 
 AudioProcessorEditor* SpikeDisplayNode::createEditor()
 {
-	std::cout<<"Creating SpikeDisplayCanvas."<<std::endl;
+    std::cout<<"Creating SpikeDisplayCanvas."<<std::endl;
 
-	editor = new SpikeDisplayEditor(this);	
-	return editor;
+    editor = new SpikeDisplayEditor(this);
+    return editor;
 
 }
 
@@ -63,100 +63,101 @@ AudioProcessorEditor* SpikeDisplayNode::createEditor()
 
 bool SpikeDisplayNode::enable()
 {
-	std::cout<<"SpikeDisplayNode::enable()"<<std::endl;
-	SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
-	editor->enable();
-	return true;
-		
+    std::cout<<"SpikeDisplayNode::enable()"<<std::endl;
+    SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
+    editor->enable();
+    return true;
+
 }
 
 bool SpikeDisplayNode::disable()
 {
-	std::cout<<"SpikeDisplayNode disabled!"<<std::endl;
-	SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
-	editor->disable();
-	return true;
+    std::cout<<"SpikeDisplayNode disabled!"<<std::endl;
+    SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
+    editor->disable();
+    return true;
 }
 
 int SpikeDisplayNode::getNumberOfChannelsForElectrode(int elec)
 {
-	std::cout<<"SpikeDisplayNode::getNumberOfChannelsForInput(" << elec << ")"<<std::endl;
-	
-	int electrodeIndex = -1;
+    std::cout<<"SpikeDisplayNode::getNumberOfChannelsForInput(" << elec << ")"<<std::endl;
 
-	for (int i = 0; i < eventChannels.size(); i++)
-	{
-		if (eventChannels[i]->eventType < 999)
-		{
-			electrodeIndex++;
+    int electrodeIndex = -1;
 
-			if (electrodeIndex == elec)
-			{
-				std::cout << "Electrode " << elec << " has " << eventChannels[i]->eventType << " channels" << std::endl;
-				return eventChannels[i]->eventType;
-			}
-		}
-	}
+    for (int i = 0; i < eventChannels.size(); i++)
+    {
+        if (eventChannels[i]->eventType < 999)
+        {
+            electrodeIndex++;
 
-	return 0;
+            if (electrodeIndex == elec)
+            {
+                std::cout << "Electrode " << elec << " has " << eventChannels[i]->eventType << " channels" << std::endl;
+                return eventChannels[i]->eventType;
+            }
+        }
+    }
+
+    return 0;
 }
 
 int SpikeDisplayNode::getNumElectrodes()
 {
-	int nElectrodes = 0;
+    int nElectrodes = 0;
 
-	for (int i = 0; i < eventChannels.size(); i++)
-	{
-		if (eventChannels[i]->eventType < 999)
-		{
-			nElectrodes++;
-		}
-	}
+    for (int i = 0; i < eventChannels.size(); i++)
+    {
+        if (eventChannels[i]->eventType < 999)
+        {
+            nElectrodes++;
+        }
+    }
 
-	return nElectrodes;
+    return nElectrodes;
 
 }
 
 
-void SpikeDisplayNode::setParameter (int param, float val)
+void SpikeDisplayNode::setParameter(int param, float val)
 {
-	std::cout<<"Got Param:"<< param<< " with value:"<<val<<std::endl;
+    std::cout<<"Got Param:"<< param<< " with value:"<<val<<std::endl;
 }
 
 
 
-void SpikeDisplayNode::process(AudioSampleBuffer &buffer, MidiBuffer &midiMessages, int& nSamples)
-{
-	
-	checkForEvents(midiMessages); // automatically calls 'handleEvent'
-
-}
-
-void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event)
+void SpikeDisplayNode::process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples)
 {
 
-//	std::cout << "Received event of type " << eventType << std::endl;
-
-	if (eventType == SPIKE)
-	{
-		eventBuffer->addEvent(event, 0);
-	}
+    checkForEvents(midiMessages); // automatically calls 'handleEvent
 
 }
 
-bool SpikeDisplayNode::getNextSpike(SpikeObject *spike){
-	std::cout<<"SpikeDisplayNode::getNextSpike()"<<std::endl;
-	/*
-	if (bufferSize<1 || spikebuffer.empty())
-		return false;
-	else{
-		SpikeObject s = spikebuffer.front();
-		spikebuffer.pop();
-		bufferSize--;
-		*spike = s;
-		return true;
-	}
-	*/
-	return false;
+void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
+{
+
+    //std::cout << "Received event of type " << eventType << std::endl;
+
+    if (eventType == SPIKE)
+    {
+        eventBuffer->addEvent(event, 0);
+    }
+
+}
+
+bool SpikeDisplayNode::getNextSpike(SpikeObject* spike)
+{
+    std::cout<<"SpikeDisplayNode::getNextSpike()"<<std::endl;
+    /*
+    if (bufferSize<1 || spikebuffer.empty())
+    	return false;
+    else{
+    	SpikeObject s = spikebuffer.front();
+    	spikebuffer.pop();
+    	bufferSize--;
+    	*spike = s;
+    	return true;
+    }
+    */
+    return false;
 
 }

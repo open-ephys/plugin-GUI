@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,38 +24,48 @@
 #ifndef __DATABUFFER_H_11C6C591__
 #define __DATABUFFER_H_11C6C591__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 /**
 
 	Manages reading and writing data to a circular buffer.
 
+    See @DataThread
+
 */
 
 class DataBuffer
 {
-	
+
 public:
-	DataBuffer(int chans, int size);
-	~DataBuffer();
-	void clear();
-	void addToBuffer(float* data, uint64* ts, int16* eventCodes, int numItems);
-	int getNumSamples();
-	int readAllFromBuffer(AudioSampleBuffer& data, uint64* ts, int16* eventCodes, int maxSize);
+    DataBuffer(int chans, int size);
+    ~DataBuffer();
+
+    /** Clears the buffer.*/
+    void clear();
+
+    /** Add an array of floats to the buffer.*/
+    void addToBuffer(float* data, uint64* ts, int16* eventCodes, int numItems);
+
+    /** Returns the number of samples currently available in the buffer.*/
+    int getNumSamples();
+
+    /** Copies as many samples as possible from the DataBuffer to an AudioSampleBuffer.*/
+    int readAllFromBuffer(AudioSampleBuffer& data, uint64* ts, int16* eventCodes, int maxSize);
+
+    /** Resizes the data buffer */
+    void resize(int chans, int size);
 
 private:
-	AbstractFifo abstractFifo;
-	AudioSampleBuffer buffer;
+    AbstractFifo abstractFifo;
+    AudioSampleBuffer buffer;
 
     uint64* timestampBuffer;
     int16* eventCodeBuffer;
 
-	int numChans;
+    int numChans;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataBuffer);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataBuffer);
 
 };
 

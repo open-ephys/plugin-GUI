@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,35 +24,40 @@
 #ifndef __SIGNALGENERATOREDITOR_H_841A7078__
 #define __SIGNALGENERATOREDITOR_H_841A7078__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
 class FilterViewport;
 class WaveformSelector;
 
+/**
+
+  User interface for the SignalGenerator.
+
+  Allows the user to edit the waveform type, amplitude, frequency, and phase of individual channels.
+
+  @see SignalGenerator
+
+*/
+
 class SignalGeneratorEditor : public GenericEditor,
-                              public Label::Listener
+    public Label::Listener
 {
 public:
-	SignalGeneratorEditor (GenericProcessor* parentNode);
-	virtual ~SignalGeneratorEditor();
+    SignalGeneratorEditor(GenericProcessor* parentNode, bool useDefaultParameters);
+    virtual ~SignalGeneratorEditor();
     void sliderEvent(Slider* slider);
     void buttonEvent(Button* button);
     void labelTextChanged(Label* label);
 
-    void addParameterEditors() {}
-
-private:	
+private:
 
     Label* numChannelsLabel;
     TriangleButton* upButton;
     TriangleButton* downButton;
 
-	Slider* amplitudeSlider;
-	Slider* frequencySlider;
+    Slider* amplitudeSlider;
+    Slider* frequencySlider;
     Slider* phaseSlider;
 
     Array<WaveformSelector*> waveformSelectors;
@@ -61,10 +66,19 @@ private:
     {
         SINE, SQUARE, SAW, TRIANGLE, NOISE
     };
-
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalGeneratorEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SignalGeneratorEditor);
 
 };
+
+/**
+
+  Customized buttons for selecting different waveforms.
+
+  Currently supports triangle wave, sine wave, square wave, saw wave, and noise.
+
+  @see SignalGeneratorEditor
+
+*/
 
 class WaveformSelector : public Button
 {
@@ -73,7 +87,7 @@ public:
     ~WaveformSelector() {}
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-    
+
     int type;
 
     Image neutral;

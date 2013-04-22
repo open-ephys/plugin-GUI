@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,71 +27,73 @@
 #include "Channel.h"
 
 RecordNode::RecordNode()
-	: GenericProcessor("Record Node"), isRecording(false), isProcessing(false),
-		timestamp(0), signalFilesShouldClose(false)
+    : GenericProcessor("Record Node"),
+      isRecording(false), isProcessing(false), signalFilesShouldClose(false),
+      timestamp(0)
 {
 
-	
-	continuousDataIntegerBuffer = new int16[10000];
-	continuousDataFloatBuffer = new float[10000];
-	signalFilesShouldClose = false;
 
-	settings.numInputs = 128;
-	settings.numOutputs = 0;
+    continuousDataIntegerBuffer = new int16[10000];
+    continuousDataFloatBuffer = new float[10000];
+    signalFilesShouldClose = false;
 
-	eventChannel = new Channel(this, 0);
-	eventChannel->isEventChannel = true;
+    settings.numInputs = 2048;
+    settings.numOutputs = 0;
 
-	recordMarker = new char[10];
-	for (int i = 0; i < 9; i++)
-	{
-		recordMarker[i] = 0;
-	}
-	recordMarker[9] = 255;
+    eventChannel = new Channel(this, 0);
+    eventChannel->isEventChannel = true;
 
-	// 128 inputs, 0 outputs
-	setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
+    recordMarker = new char[10];
+    for (int i = 0; i < 9; i++)
+    {
+        recordMarker[i] = 0;
+    }
+    recordMarker[9] = 255;
+
+    // 128 inputs, 0 outputs
+    setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 
 }
 
 
-RecordNode::~RecordNode() {
+RecordNode::~RecordNode()
+{
 
 }
 
 void RecordNode::setChannel(Channel* ch)
 {
 
-	int channelNum = channelPointers.indexOf(ch);
+    int channelNum = channelPointers.indexOf(ch);
 
-	std::cout << "Record node setting channel to " << channelNum << std::endl;
+    std::cout << "Record node setting channel to " << channelNum << std::endl;
 
-	setCurrentChannel(channelNum);
+    setCurrentChannel(channelNum);
 
-	// for (int i = 0; i < con.size(); i++)
-	// {
+    // for (int i = 0; i < con.size(); i++)
+    // {
 
-	// 	if (continuousChannels[i].nodeId == id &&
-	// 		continuousChannels[i].chan == chan)
-	// 	{
-	// 		std::cout << "Found channel " << i << std::endl;
-	// 		setCurrentChannel(i);
-	// 		break;
-	// 	}
+    // 	if (continuousChannels[i].nodeId == id &&
+    // 		continuousChannels[i].chan == chan)
+    // 	{
+    // 		std::cout << "Found channel " << i << std::endl;
+    // 		setCurrentChannel(i);
+    // 		break;
+    // 	}
 
-	// }
+    // }
 }
 
 void RecordNode::setChannelStatus(Channel* ch, bool status)
 {
 
-	//std::cout << "Setting channel status!" << std::endl;
-	setChannel(ch);
+    //std::cout << "Setting channel status!" << std::endl;
+    setChannel(ch);
 
-	if (status)
-		setParameter(2, 1.0f);
-	else
-		setParameter(2, 0.0f);
+    if (status)
+        setParameter(2, 1.0f);
+    else
+        setParameter(2, 0.0f);
 
 }
 
@@ -102,31 +104,31 @@ void RecordNode::setChannelStatus(Channel* ch, bool status)
 
 void RecordNode::resetConnections()
 {
-	//std::cout << "Resetting connections" << std::endl;
-	nextAvailableChannel = 0;
-	wasConnected = false;
+    //std::cout << "Resetting connections" << std::endl;
+    nextAvailableChannel = 0;
+    wasConnected = false;
 
-	channelPointers.clear();
-	eventChannelPointers.clear();
+    channelPointers.clear();
+    eventChannelPointers.clear();
 
-	
+
 
 }
 
 void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 {
 
-	std::cout << "Got a new file" << std::endl;
-	dataDirectory = fnc->getCurrentFile();
-	std::cout << "File name: " << dataDirectory.getFullPathName();
-	if (dataDirectory.isDirectory())
-		std::cout << " is a directory." << std::endl;
-	else
-		std::cout << " is NOT a directory." << std::endl;
+    std::cout << "Got a new file" << std::endl;
+    dataDirectory = fnc->getCurrentFile();
+    std::cout << "File name: " << dataDirectory.getFullPathName();
+    if (dataDirectory.isDirectory())
+        std::cout << " is a directory." << std::endl;
+    else
+        std::cout << " is NOT a directory." << std::endl;
 
-	createNewDirectory();
+    createNewDirectory();
 
-	
+
 
 }
 
@@ -134,63 +136,67 @@ void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
 
-	if (chan != getProcessorGraph()->midiChannelIndex)
-	{
-        
-		int channelIndex = getNextChannel(false);
+    if (chan != getProcessorGraph()->midiChannelIndex)
+    {
+
+        int channelIndex = getNextChannel(false);
 
         setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
         channelPointers.add(sourceNode->channels[chan]);
 
-     //   std::cout << channelIndex << std::endl;
+        //   std::cout << channelIndex << std::endl;
 
         updateFileName(channelPointers[channelIndex]);
 
-        
 
-		//if (channelPointers[channelIndex]->isRecording)
-		//	std::cout << "  This channel will be recorded." << std::endl;
-		//else 
-		//	std::cout << "  This channel will NOT be recorded." << std::endl;
-	
-		//std::cout << "adding channel " << getNextChannel(false) << std::endl;
 
-		//std::pair<int, Channel> newPair (getNextChannel(false), newChannel);
+        //if (channelPointers[channelIndex]->isRecording)
+        //	std::cout << "  This channel will be recorded." << std::endl;
+        //else
+        //	std::cout << "  This channel will NOT be recorded." << std::endl;
 
-		//std::cout << "adding channel " << getNextChannel(false) << std::endl;
+        //std::cout << "adding channel " << getNextChannel(false) << std::endl;
 
-		//continuouschannelPointers.insert(newPair);
+        //std::pair<int, Channel> newPair (getNextChannel(false), newChannel);
 
-		
-	} else {
+        //std::cout << "adding channel " << getNextChannel(false) << std::endl;
 
-		for (int n = 0; n < sourceNode->eventChannels.size(); n++)
-		{
+        //continuouschannelPointers.insert(newPair);
 
-			eventChannelPointers.add(sourceNode->eventChannels[n]);
 
-		}
+    }
+    else
+    {
 
-	}
+        for (int n = 0; n < sourceNode->eventChannels.size(); n++)
+        {
+
+            eventChannelPointers.add(sourceNode->eventChannels[n]);
+
+        }
+
+    }
 
 }
 
 void RecordNode::updateFileName(Channel* ch)
 {
-	String filename = rootFolder.getFullPathName();
-	filename += rootFolder.separatorString;
+    String filename = rootFolder.getFullPathName();
+    filename += rootFolder.separatorString;
 
-	if (!ch->isEventChannel)
-	{
-		filename += ch->nodeId;
-		filename += "_";
-		filename += ch->name;
-		filename += ".continuous";
-	} else {
-		filename += "all_channels.events";
-	}
-	
+    if (!ch->isEventChannel)
+    {
+        filename += ch->nodeId;
+        filename += "_";
+        filename += ch->name;
+        filename += ".continuous";
+    }
+    else
+    {
+        filename += "all_channels.events";
+    }
+
     ch->filename = filename;
     ch->file = 0;
 
@@ -200,381 +206,433 @@ void RecordNode::updateFileName(Channel* ch)
 
 void RecordNode::createNewDirectory()
 {
-	std::cout << "Creating new directory." << std::endl;
+    std::cout << "Creating new directory." << std::endl;
 
-	rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName());
+    rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName());
 
-	updateFileName(eventChannel);
+    updateFileName(eventChannel);
 
-	for (int i = 0; i < channelPointers.size(); i++)
-	{
-		updateFileName(channelPointers[i]);
-	}
+    for (int i = 0; i < channelPointers.size(); i++)
+    {
+        updateFileName(channelPointers[i]);
+    }
 
 }
 
 String RecordNode::generateDirectoryName()
 {
-	Time calendar = Time::getCurrentTime();
+    Time calendar = Time::getCurrentTime();
 
-	Array<int> t;
-	t.add(calendar.getYear()-2000);
-	t.add(calendar.getMonth()+1); // January = 0
-	t.add(calendar.getDayOfMonth());
-	t.add(calendar.getHours());
-	t.add(calendar.getMinutes());
-	t.add(calendar.getSeconds());
+    Array<int> t;
+    t.add(calendar.getYear()-2000);
+    t.add(calendar.getMonth()+1); // January = 0
+    t.add(calendar.getDayOfMonth());
+    t.add(calendar.getHours());
+    t.add(calendar.getMinutes());
+    t.add(calendar.getSeconds());
 
-	String filename = "";
-	
-	for (int n = 0; n < t.size(); n++)
-	{
-		if (t[n] < 10)
-			filename += "0";
+    String filename = "";
 
-		filename += t[n];
+    for (int n = 0; n < t.size(); n++)
+    {
+        if (t[n] < 10)
+            filename += "0";
 
-		if (n == 2)
-			filename += "_";
-		else if (n < 5)
-			filename += "-";
-	}
+        filename += t[n];
 
-	return filename;
+        if (n == 2)
+            filename += "_";
+        else if (n < 5)
+            filename += "-";
+    }
+
+    return filename;
 
 }
 
 String RecordNode::generateDateString()
 {
-	Time calendar = Time::getCurrentTime();
+    Time calendar = Time::getCurrentTime();
 
-	String datestring;
+    String datestring;
 
-	datestring += String(calendar.getDayOfMonth());
-	datestring += "-";
-	datestring += calendar.getMonthName(true);
-	datestring += "-";
-	datestring += String(calendar.getYear());
-	datestring += " ";
-	datestring += calendar.getHours();
-	datestring += ":";
-	datestring += calendar.getMinutes();
-	datestring += ":";
-	datestring += calendar.getSeconds();
-	
-	return datestring;
+    datestring += String(calendar.getDayOfMonth());
+    datestring += "-";
+    datestring += calendar.getMonthName(true);
+    datestring += "-";
+    datestring += String(calendar.getYear());
+    datestring += " ";
+    datestring += calendar.getHours();
+    datestring += ":";
+    datestring += calendar.getMinutes();
+    datestring += ":";
+    datestring += calendar.getSeconds();
+
+    return datestring;
 
 }
 
 
-void RecordNode::setParameter (int parameterIndex, float newValue)
+void RecordNode::setParameter(int parameterIndex, float newValue)
 {
 
-	// 0 = stop recording
-	// 1 = start recording
-	// 2 = toggle individual channel (0.0f = OFF, anything else = ON)
+    // 0 = stop recording
+    // 1 = start recording
+    // 2 = toggle individual channel (0.0f = OFF, anything else = ON)
 
- 	if (parameterIndex == 1) {
+    if (parameterIndex == 1)
+    {
 
-		isRecording = true;
-		std::cout << "START RECORDING." << std::endl;
+        isRecording = true;
+        std::cout << "START RECORDING." << std::endl;
 
- 		if (!rootFolder.exists())
- 			rootFolder.createDirectory();
+        if (!rootFolder.exists())
+            rootFolder.createDirectory();
 
- 		openFile(eventChannel);
+        openFile(eventChannel);
 
-		// create / open necessary files
-		for (int i = 0; i < channelPointers.size(); i++)
-		{
-			if (channelPointers[i]->isRecording)
-			{
-				openFile(channelPointers[i]);
-			}
-		}
+        // create / open necessary files
+        for (int i = 0; i < channelPointers.size(); i++)
+        {
+            if (channelPointers[i]->isRecording)
+            {
+                openFile(channelPointers[i]);
+            }
+        }
 
-		
- 		
+    }
+    else if (parameterIndex == 0)
+    {
 
- 	} else if (parameterIndex == 0) {
 
-		
-		std::cout << "STOP RECORDING." << std::endl;
+        std::cout << "STOP RECORDING." << std::endl;
 
-		if (isRecording) {
+        if (isRecording)
+        {
 
-			// close necessary files
-			signalFilesShouldClose = true;
-			
-		}
+            // close necessary files
+            signalFilesShouldClose = true;
 
-		isRecording = false;
+        }
 
- 		
- 	} else if (parameterIndex == 2) {
+        isRecording = false;
 
-		if (isProcessing) {
 
-			std::cout << "Toggling channel " << currentChannel << std::endl;
+    }
+    else if (parameterIndex == 2)
+    {
 
-	 		if (newValue == 0.0f) {
-	 			channelPointers[currentChannel]->isRecording = false;
+        if (isProcessing)
+        {
 
-	 			if (isRecording) {
-	 				closeFile(channelPointers[currentChannel]);
-	 			}
+            std::cout << "Toggling channel " << currentChannel << std::endl;
 
-	 		}
-	 		else {
-	 			channelPointers[currentChannel]->isRecording = true;
+            if (newValue == 0.0f)
+            {
+                channelPointers[currentChannel]->isRecording = false;
 
-	 			if (isRecording) {
+                if (isRecording)
+                {
+                    closeFile(channelPointers[currentChannel]);
+                }
 
-	 				openFile(channelPointers[currentChannel]);
-	 			
-	 			}
-	 		}
-		}
- 	}
+            }
+            else
+            {
+                channelPointers[currentChannel]->isRecording = true;
+
+                if (isRecording)
+                {
+
+                    openFile(channelPointers[currentChannel]);
+
+                }
+            }
+        }
+    }
 }
 
 void RecordNode::openFile(Channel* ch)
 {
-	std::cout << "OPENING FILE: " << ch->filename << std::endl;
+    std::cout << "OPENING FILE: " << ch->filename << std::endl;
 
-	File f = File(ch->filename);
+    File f = File(ch->filename);
+    FILE* chFile;
 
-	bool fileExists = f.exists();
+    bool fileExists = f.exists();
 
-	ch->file = fopen(ch->filename.toUTF8(), "ab");
+    chFile = fopen(ch->filename.toUTF8(), "ab");
 
-	if (!fileExists)
-	{
-		// create and write header
-		std::cout << "Writing header." << std::endl;
-		String header = generateHeader(ch);
-		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), ch->file);
-	} else {
-		std::cout << "File already exists, just opening." << std::endl;
-	}
+    if (!fileExists)
+    {
+        // create and write header
+        std::cout << "Writing header." << std::endl;
+        String header = generateHeader(ch);
+        //std::cout << header << std::endl;
+        std::cout << "File ID: " << chFile << ", number of bytes: " << header.getNumBytesAsUTF8() << std::endl;
+
+        fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), chFile);
+
+        std::cout << "Wrote header." << std::endl;
+
+    }
+    else
+    {
+        std::cout << "File already exists, just opening." << std::endl;
+    }
+    //To avoid a race condition resulting on data written before the header,
+    //do not assign the channel pointer until the header has been written
+    ch->file = chFile;
 }
 
 void RecordNode::closeFile(Channel* ch)
 {
-	std::cout << "CLOSING FILE: " << ch->filename << std::endl;
-	fclose(ch->file);
+    std::cout << "CLOSING FILE: " << ch->filename << std::endl;
+    if (ch->file != NULL)
+        fclose(ch->file);
 }
 
 String RecordNode::generateHeader(Channel* ch)
 {
 
-	String header = "header.format = 'OPEN EPHYS DATA FORMAT v0.0'; \n";
-	header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample count (N), and N 16-bit samples'; \n";
+    String header = "header.format = 'OPEN EPHYS DATA FORMAT v0.0'; \n";
 
-	header += "header.date_created = '";
-	header += generateDateString();
-	header += "';\n";
+    header += "header.header_bytes = ";
+    header += String(HEADER_SIZE);
+    header += ";\n";
 
-	header += "header.channel = '";
-	header += ch->name;
-	header += "';\n";
+    if (ch->isEventChannel)
+    {
+        header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample position, one uint8 event type, one uint8 processor ID, one uint8 event ID, and one uint8 event channel'; \n";
 
-	if (ch->isEventChannel)
-	{
+    }
+    else
+    {
+        header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample count (N), N 16-bit samples, and one 10-byte record marker (0 0 0 0 0 0 0 0 0 255)'; \n";
+    }
 
-		header += "header.channelType = 'Event';\n";
 
-	} else {
+    header += "header.date_created = '";
+    header += generateDateString();
+    header += "';\n";
 
-		header += "header.channelType = 'Continuous';\n";
+    header += "header.channel = '";
+    header += ch->name;
+    header += "';\n";
 
-		header += "header.sampleRate = '";
-		header += String(ch->sampleRate);
-		header += "';\n";
-	}
+    if (ch->isEventChannel)
+    {
 
-	header += "header.bitVolts = ";
-	header += String(ch->bitVolts);
-	header += ";\n";
+        header += "header.channelType = 'Event';\n";
 
-	header = header.paddedRight(' ', HEADER_SIZE);
+    }
+    else
+    {
 
-	//std::cout << header << std::endl;
+        header += "header.channelType = 'Continuous';\n";
 
-	return header;
+        header += "header.sampleRate = ";
+        header += String(ch->sampleRate);
+        header += ";\n";
+    }
+
+    header += "header.bitVolts = ";
+    header += String(ch->bitVolts);
+    header += ";\n";
+
+    header = header.paddedRight(' ', HEADER_SIZE);
+
+    //std::cout << header << std::endl;
+
+    return header;
 
 }
 
 void RecordNode::closeAllFiles()
 {
 
-	for (int i = 0; i < channelPointers.size(); i++)
-	{
-		if (channelPointers[i]->isRecording)
-		{
-			closeFile(channelPointers[i]);
-		}
-	}
+    for (int i = 0; i < channelPointers.size(); i++)
+    {
+        if (channelPointers[i]->isRecording)
+        {
+            closeFile(channelPointers[i]);
+        }
+    }
 
-	closeFile(eventChannel);
+    closeFile(eventChannel);
 }
 
 bool RecordNode::enable()
 {
 
-	//updateFileName(eventChannel);
+    //updateFileName(eventChannel);
 
-	isProcessing = true;
-	return true;
+    isProcessing = true;
+    return true;
 }
 
 
-bool RecordNode::disable() 
-{	
-	// close files if necessary
-	setParameter(0, 10.0f);
+bool RecordNode::disable()
+{
+    // close files if necessary
+    setParameter(0, 10.0f);
 
-	isProcessing = false;
+    isProcessing = false;
 
-	return true;
+    return true;
 }
 
 float RecordNode::getFreeSpace()
 {
-	return 1.0f - float(dataDirectory.getBytesFreeOnVolume())/float(dataDirectory.getVolumeTotalSize());
+    return 1.0f - float(dataDirectory.getBytesFreeOnVolume())/float(dataDirectory.getVolumeTotalSize());
 }
 
 void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 {
+    if (channelPointers[channel]->file == NULL)
+        return;
 
-	// scale the data appropriately -- currently just getting it into the right
-	// range; actually need to take into account the gain of each channel
-	for (int n = 0; n < nSamples; n++)
-	{
-		*(continuousDataFloatBuffer+n) = *(data+n) / 10000.0f; 
-	}
+    float scaleFactor = float(0x7fff) * channelPointers[channel]->bitVolts;
+    // scale the data appropriately -- currently just getting it into the right
+    // range; actually need to take into account the gain of each channel
+    for (int n = 0; n < nSamples; n++)
+    {
+        *(continuousDataFloatBuffer+n) = *(data+n) / scaleFactor; // 10000.0f;
+    }
 
-	// find file and write samples to disk
+    // find file and write samples to disk
 
-	//if (nSamples < 1000) // this is temporary, but there seems to be an error reading in the data if too many samples are written
-					     // in the first few blocks
-	//{
+    //if (nSamples < 1000) // this is temporary, but there seems to be an error reading in the data if too many samples are written
+    // in the first few blocks
+    //{
 
-		AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
+    AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
 
-		int16 samps = (int16) nSamples;
+    int16 samps = (int16) nSamples;
 
-		//std::cout << samps << std::endl;
+    //std::cout << samps << std::endl;
 
-		fwrite(&timestamp,							// ptr
-				   8,   							// size of each element
-				   1, 		  						// count 
-				   channelPointers[channel]->file);   // ptr to FILE object
+    fwrite(&timestamp,							// ptr
+           8,   							// size of each element
+           1, 		  						// count
+           channelPointers[channel]->file);   // ptr to FILE object
 
-		fwrite(&samps,								// ptr
-				   2,   							// size of each element
-				   1, 		  						// count 
-				   channelPointers[channel]->file);   // ptr to FILE object
+    fwrite(&samps,								// ptr
+           2,   							// size of each element
+           1, 		  						// count
+           channelPointers[channel]->file);   // ptr to FILE object
 
-		int n = fwrite(continuousDataIntegerBuffer,		// ptr
-				   2,			     					// size of each element
-				   nSamples, 		  					// count 
-				   channelPointers[channel]->file);   // ptr to FILE object
-		// n must equal "count", otherwise there was an error
+    fwrite(continuousDataIntegerBuffer,		// ptr
+           2,			     					// size of each element
+           nSamples, 		  					// count
+           channelPointers[channel]->file);   // ptr to FILE object
+    // FIXME: ensure fwrite returns equal "count"; otherwise,
+    // there was an error.
 
-		// write a 10-byte marker indicating the end of a record
-		fwrite(recordMarker,		// ptr
-				1,			     					// size of each element
-				10, 		  					// count 
-				channelPointers[channel]->file);   // ptr to FILE object
+    // write a 10-byte marker indicating the end of a record
+    fwrite(recordMarker,		// ptr
+           1,			     					// size of each element
+           10, 		  					// count
+           channelPointers[channel]->file);   // ptr to FILE object
 
 
 
-	//}
+    //}
 }
- 
+
 void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, int node, int channel)
 {
-	// find file and write samples to disk
-	//std::cout << "Received event!" << std::endl;
+    // find file and write samples to disk
+    //std::cout << "Received event!" << std::endl;
 
-	uint8* dataptr = event.getRawData();
-	int16 samplePos = (int16) samplePosition;
+    const uint8* dataptr = event.getRawData();
+    int16 samplePos = (int16) samplePosition;
 
-	// write timestamp (for buffer only, not the actual event timestamp!!!!!)
-	fwrite(&timestamp,							// ptr
-			   8,   							// size of each element
-			   1, 		  						// count 
-			   eventChannel->file);   			// ptr to FILE object
+    // write timestamp (for buffer only, not the actual event timestamp!!!!!)
+    fwrite(&timestamp,							// ptr
+           8,   							// size of each element
+           1, 		  						// count
+           eventChannel->file);   			// ptr to FILE object
 
-	fwrite(&samplePos,							// ptr
-			   2,   							// size of each element
-			   1, 		  						// count 
-			   eventChannel->file);   			// ptr to FILE object
+    fwrite(&samplePos,							// ptr
+           2,   							// size of each element
+           1, 		  						// count
+           eventChannel->file);   			// ptr to FILE object
 
-	// write 1st four bytes of event (type, nodeId, eventId, eventChannel)
-	fwrite(dataptr, 1, 4, eventChannel->file);
+    // write 1st four bytes of event (type, nodeId, eventId, eventChannel)
+    fwrite(dataptr, 1, 4, eventChannel->file);
 
 }
 
 void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
 {
-	if (eventType == TTL)
-	{
-		writeEventBuffer(event, samplePosition);
-	}
+    if (eventType == TTL)
+    {
+        writeEventBuffer(event, samplePosition);
+    } 
+    else if (eventType == TIMESTAMP)
+    {
+    	const uint8* dataptr = event.getRawData();
+    	memcpy(&timestamp, dataptr, 8);
+    }
 
 }
 
-void RecordNode::process(AudioSampleBuffer &buffer, 
-                            MidiBuffer &events,
-                            int& nSamples)
+void RecordNode::process(AudioSampleBuffer& buffer,
+                         MidiBuffer& events,
+                         int& nSamples)
 {
 
-	//std::cout << "Record node processing block." << std::endl;
-	//std::cout << "Num channels: " << buffer.getNumChannels() << std::endl;
+    //std::cout << "Record node processing block." << std::endl;
+    //std::cout << "Num channels: " << buffer.getNumChannels() << std::endl;
 
 
-	if (isRecording) {
+    if (isRecording)
+    {
 
-		timestamp = timer.getHighResolutionTicks();
+        //timestamp = timer.getHighResolutionTicks();
 
-		// WHY IS THIS AFFECTING THE LFP DISPLAY?
-		//buffer.applyGain(0, nSamples, 5.2438f);
+        // WHY IS THIS AFFECTING THE LFP DISPLAY?
+        //buffer.applyGain(0, nSamples, 5.2438f);
 
-		// cycle through events -- extract the samples per channel
-		// NOT YET IMPLEMENTED
+        // cycle through events -- extract the TTLs and the timestamps
+        checkForEvents(events);
 
-		// cycle through buffer channels
-		for (int i = 0; i < buffer.getNumChannels(); i++)
-		{
+        // cycle through buffer channels
 
-			if (channelPointers[i]->isRecording)
-			{
-				// write buffer to disk!
-				writeContinuousBuffer(buffer.getSampleData(i),
-									  nSamples,
-									  i);
-				
-				//std::cout << "Record channel " << i << std::endl;
-			}
-				
+        if (channelPointers.size() > 0)
+        {
 
-		}
+            for (int i = 0; i < buffer.getNumChannels(); i++)
+            {
 
-		// cycle through events
-		checkForEvents(events);
 
-		return;
+                if (channelPointers[i]->isRecording)
+                {
+                    // write buffer to disk!
+                    writeContinuousBuffer(buffer.getSampleData(i),
+                                          nSamples,
+                                          i);
 
-	}
+                    //std::cout << "Record channel " << i << std::endl;
+                }
 
-	// this is intended to prevent parameter changes from closing files
-	// before recording stops
-	if (signalFilesShouldClose)
-	{
-		closeAllFiles();
-		signalFilesShouldClose = false;
-	}
+
+            }
+        }
+
+        
+
+        return;
+
+    }
+
+    // this is intended to prevent parameter changes from closing files
+    // before recording stops
+    if (signalFilesShouldClose)
+    {
+        closeAllFiles();
+        signalFilesShouldClose = false;
+    }
 
 }

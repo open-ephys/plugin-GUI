@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,13 +24,10 @@
 #ifndef __AUDIOCOMPONENT_H_D97C73CF__
 #define __AUDIOCOMPONENT_H_D97C73CF__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 /**
-  
+
   Interfaces with system audio hardware.
 
   Uses the audio card to generate the callbacks to run the ProcessorGraph
@@ -45,34 +42,49 @@
 
 */
 
-class AudioComponent {
+class AudioComponent
+{
 
 public:
-	AudioComponent();
-	~AudioComponent();
+    /** Constructor. Finds the audio component (if there is one), and sets the
+    default sample rate and buffer size.*/
+    AudioComponent();
+    ~AudioComponent();
 
-	void beginCallbacks();
-	void endCallbacks();
+    /** Begins the audio callbacks that drive data acquisition.*/
+    void beginCallbacks();
 
-	void connectToProcessorGraph(AudioProcessorGraph* processorGraph);
-	void disconnectProcessorGraph();
+    /** Stops the audio callbacks that drive data acquisition.*/
+    void endCallbacks();
 
-	bool callbacksAreActive();
+    /** Connects the AudioComponent to the ProcessorGraph (crucial for any sort of
+    data acquisition; done at startup).*/
+    void connectToProcessorGraph(AudioProcessorGraph* processorGraph);
 
-  void restartDevice();
-  void stopDevice();
+    /** Disconnects the AudioComponent to the ProcessorGraph (only done when the application
+    is about to close).*/
+    void disconnectProcessorGraph();
 
-  AudioDeviceManager deviceManager;
+    /** Returns true if the audio callbacks are active, false otherwise.*/
+    bool callbacksAreActive();
+
+    /** Restarts communication with the audio device in order to update settings
+    or just prior the start of data acquisition callbacks.*/
+    void restartDevice();
+
+    /** Stops communication with the selected audio device (to conserve CPU load
+    when callbacks are not active).*/
+    void stopDevice();
+
+    AudioDeviceManager deviceManager;
 
 private:
 
-	bool isPlaying;
+    bool isPlaying;
 
-	AudioProcessorPlayer* graphPlayer;
+    AudioProcessorPlayer* graphPlayer;
 
-  
-
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioComponent);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioComponent);
 
 };
 

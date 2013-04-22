@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,28 +24,33 @@
 #ifndef __SOURCENODEEDITOR_H_A1B19E1E__
 #define __SOURCENODEEDITOR_H_A1B19E1E__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "ImageIcon.h"
 
-class FilterViewport;
 class ImageIcon;
+
+/**
+
+  User interface for the SourceNode.
+
+  @see SourceNode
+
+*/
+
 
 class SourceNodeEditor : public GenericEditor
 
 {
 public:
-	SourceNodeEditor (GenericProcessor* parentNode);
-	virtual ~SourceNodeEditor();
+    SourceNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~SourceNodeEditor();
 
-private:	
+private:
 
-	ImageIcon* icon;
+    ImageIcon* icon;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceNodeEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SourceNodeEditor);
 
 };
 

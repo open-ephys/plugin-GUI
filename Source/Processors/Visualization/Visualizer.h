@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,32 +24,68 @@
 #ifndef __VISUALIZER_H_C5943EC1__
 #define __VISUALIZER_H_C5943EC1__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "OpenGLCanvas.h"
 
-class Visualizer : public OpenGLCanvas
+/**
+
+  Abstract base class for displaying data.
+
+  @see LfpDisplayCanvas, SpikeDisplayCanvas
+
+*/
+
+class Visualizer : public Component,
+    public Timer
 
 {
-public: 
-	Visualizer() {}
-	~Visualizer() {}
+public:
+    Visualizer()
+    {
+        refreshRate = 10;    // 10 Hz default refresh rate
+    }
+    ~Visualizer() {}
 
-	virtual void newOpenGLContextCreated() = 0;
-	virtual void renderOpenGL() = 0;
+    /** Called when the component's tab becomes visible again.*/
+    virtual void refreshState() = 0;
 
-	virtual void refreshState() = 0;
+    /** Called when parameters of underlying data processor are changed.*/
+    virtual void update() = 0;
 
-	virtual void update() = 0;
-	virtual int getTotalHeight() = 0;
+    /** Called instead of "repaint" to avoid redrawing underlying components if not necessary.*/
+    virtual void refresh() = 0;
 
-	virtual void beginAnimation() = 0;
-	virtual void endAnimation() = 0;
+    /** Called when data acquisition is active.*/
+    virtual void beginAnimation() = 0;
 
-	virtual void setParameter(int, float) = 0;
+    /** Called when data acquisition ends.*/
+    virtual void endAnimation() = 0;
+
+    /** Called by an editor to initiate a parameter change.*/
+    virtual void setParameter(int, float) = 0;
+
+    /** Called by an editor to initiate a parameter change.*/
     virtual void setParameter(int, int, int, float) = 0;
+
+    /** Starts the timer callbacks. */
+    void startCallbacks()
+    {
+        startTimer(100);
+    }
+
+    /** Stops the timer callbacks. */
+    void stopCallbacks()
+    {
+        stopTimer();
+    }
+
+    /** Called whenever the timer is triggered. */
+    void timerCallback()
+    {
+        refresh();
+    }
+
+    /** Refresh rate in Hz. */
+    float refreshRate;
 
 };
 

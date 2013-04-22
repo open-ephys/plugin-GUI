@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,9 +24,6 @@
 #ifndef __LFPDISPLAYEDITOR_H_3438800D__
 #define __LFPDISPLAYEDITOR_H_3438800D__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 #include "../../UI/UIComponent.h"
@@ -38,20 +35,28 @@
 
 class Visualizer;
 
+/**
+
+  User interface for the LfpDisplayNode sink.
+
+  @see LfpDisplayNode, LfpDisplayCanvas
+
+*/
+
 class LfpDisplayEditor : public VisualizerEditor
 {
 public:
-	LfpDisplayEditor (GenericProcessor*);
-	~LfpDisplayEditor();
+    LfpDisplayEditor(GenericProcessor*, bool useDefaultParameterEditors);
+    ~LfpDisplayEditor();
 
-	void buttonCallback (Button* button);
+    void buttonCallback(Button* button);
 
-	Visualizer* createNewCanvas();
+    Visualizer* createNewCanvas();
 
-private:	
+private:
 
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayEditor);
 
 };
 

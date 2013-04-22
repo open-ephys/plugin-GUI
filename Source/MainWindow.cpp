@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,80 +27,72 @@
 //-----------------------------------------------------------------------
 
 MainWindow::MainWindow()
-    : DocumentWindow (JUCEApplication::getInstance()->getApplicationName(),
-                      Colour(Colours::black),
-                      DocumentWindow::allButtons)
+    : DocumentWindow(JUCEApplication::getInstance()->getApplicationName(),
+                     Colour(Colours::black),
+                     DocumentWindow::allButtons)
 {
 
-    setResizable (true,     // isResizable
-                  false);   // useBottomCornerRisizer -- doesn't work very well
-   // centreWithSize(500,400);
+    setResizable(true,      // isResizable
+                 false);   // useBottomCornerRisizer -- doesn't work very well
 
-    // Constraining th window's size doesn't seem to work:
-    //
+    // Constraining the window's size doesn't seem to work:
+    // setResizeLimits(500, 400, 10000, 10000);
 
     // Create ProcessorGraph and AudioComponent, and connect them.
     // Callbacks will be set by the play button in the control panel
 
-     processorGraph = new ProcessorGraph();
-     audioComponent = new AudioComponent();
-     audioComponent->connectToProcessorGraph(processorGraph);
+    processorGraph = new ProcessorGraph();
+    audioComponent = new AudioComponent();
+    audioComponent->connectToProcessorGraph(processorGraph);
 
-     setContentComponent (new UIComponent(this, processorGraph, audioComponent), true, true);
+    setContentOwned(new UIComponent(this, processorGraph, audioComponent), true);
 
-     UIComponent* ui = (UIComponent*) getContentComponent();
+    UIComponent* ui = (UIComponent*) getContentComponent();
 
-     commandManager.registerAllCommandsForTarget (ui);
-     commandManager.registerAllCommandsForTarget (JUCEApplication::getInstance());
+    commandManager.registerAllCommandsForTarget(ui);
+    commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
 
-     //setMenuBar (ui);
-     ui->setApplicationCommandManagerToWatch(&commandManager);
+    ui->setApplicationCommandManagerToWatch(&commandManager);
 
-     addKeyListener(commandManager.getKeyMappings());
+    addKeyListener(commandManager.getKeyMappings());
 
-     loadWindowBounds();
-     setUsingNativeTitleBar (true);
-     Component::addToDesktop (getDesktopWindowStyleFlags()); 
-     setVisible (true);
-
-    // setResizeLimits(500, 400, 10000, 10000);
-    
+    loadWindowBounds();
+    setUsingNativeTitleBar(true);
+    Component::addToDesktop(getDesktopWindowStyleFlags());  // prevents the maximize
+    // button from randomly disappearing
+    setVisible(true);
 
 }
 
 MainWindow::~MainWindow()
 {
 
-  if (audioComponent->callbacksAreActive()) {
-      audioComponent->endCallbacks();
-      processorGraph->disableProcessors();
+    if (audioComponent->callbacksAreActive())
+    {
+        audioComponent->endCallbacks();
+        processorGraph->disableProcessors();
     }
 
-   saveWindowBounds();
-  // processorGraph->saveState();
+    saveWindowBounds();
 
-   audioComponent->disconnectProcessorGraph();
-   UIComponent* ui = (UIComponent*) getContentComponent();
-   ui->disableDataViewport();
+    audioComponent->disconnectProcessorGraph();
+    UIComponent* ui = (UIComponent*) getContentComponent();
+    ui->disableDataViewport();
 
-   deleteAndZero(processorGraph);
-   deleteAndZero(audioComponent);
+    setMenuBar(0);
 
-   setMenuBar(0);
-
-   #if JUCE_MAC 
-       MenuBarModel::setMacMainMenu (0);
-  #endif
-
-   setContentComponent (0);
+#if JUCE_MAC
+    MenuBarModel::setMacMainMenu(0);
+#endif
 
 }
 
 void MainWindow::closeButtonPressed()
-{ 
-    if (audioComponent->callbacksAreActive()) {
-      audioComponent->endCallbacks();
-      processorGraph->disableProcessors();
+{
+    if (audioComponent->callbacksAreActive())
+    {
+        audioComponent->endCallbacks();
+        processorGraph->disableProcessors();
     }
 
     JUCEApplication::getInstance()->systemRequestedQuit();
@@ -113,7 +105,7 @@ void MainWindow::saveWindowBounds()
     std::cout << "Saving window bounds." << std::endl;
 
 #ifdef WIN32
-	File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
+    File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
 #else
     File file = File("./windowState.xml");
 #endif
@@ -131,39 +123,41 @@ void MainWindow::saveWindowBounds()
     xml->addChildElement(bounds);
 
     String error;
-    
-    if (! xml->writeToFile (file, String::empty))
+
+    if (! xml->writeToFile(file, String::empty))
         error = "Couldn't write to file";
-    
+
     delete xml;
 }
 
 void MainWindow::loadWindowBounds()
 {
-  
+
     std::cout << "Loading window bounds." << std::endl;
-    
+
 #ifdef WIN32
-	File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
+    File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
 #else
     File file = File("./windowState.xml");
 #endif
 
-    XmlDocument doc (file);
+    XmlDocument doc(file);
     XmlElement* xml = doc.getDocumentElement();
 
-    if (xml == 0 || ! xml->hasTagName (T("MAINWINDOW")))
+    if (xml == 0 || ! xml->hasTagName("MAINWINDOW"))
     {
-        
+
         std::cout << "File not found." << std::endl;
         delete xml;
-        centreWithSize (800, 600);
+        centreWithSize(800, 600);
 
-    } else {
+    }
+    else
+    {
 
-        String description;// = T(" ");
+        String description;
 
-        forEachXmlChildElement (*xml, e)
+        forEachXmlChildElement(*xml, e)
         {
 
             int x = e->getIntAttribute("x");
@@ -171,10 +165,14 @@ void MainWindow::loadWindowBounds()
             int w = e->getIntAttribute("w");
             int h = e->getIntAttribute("h");
 
-            bool fs = e->getBoolAttribute("fullscreen");
+            // bool fs = e->getBoolAttribute("fullscreen");
 
             // without the correction, you get drift over time
+#ifdef WIN32
+            setTopLeftPosition(x,y); //Windows doesn't need correction
+#else
             setTopLeftPosition(x,y-27);
+#endif
             getContentComponent()->setBounds(0,0,w-10,h-33);
             //setFullScreen(fs);
 
@@ -182,5 +180,5 @@ void MainWindow::loadWindowBounds()
 
         delete xml;
     }
-   // return "Everything went ok.";
+    // return "Everything went ok.";
 }

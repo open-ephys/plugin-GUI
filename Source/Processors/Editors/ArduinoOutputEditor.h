@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,9 +24,6 @@
 #ifndef __ARDUINOOUTPUTEDITOR_H_28EB4CC9__
 #define __ARDUINOOUTPUTEDITOR_H_28EB4CC9__
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
@@ -34,22 +31,30 @@
 
 class ImageIcon;
 
+/**
+
+  User interface for the ArduinoOutput processor.
+
+  @see ArduinoOutput
+
+*/
+
 class ArduinoOutputEditor : public GenericEditor
 
 {
 public:
-	ArduinoOutputEditor (GenericProcessor* parentNode);
-	virtual ~ArduinoOutputEditor();
+    ArduinoOutputEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    virtual ~ArduinoOutputEditor();
 
-	void receivedEvent();
+    void receivedEvent();
 
-	ImageIcon* icon;
+    ImageIcon* icon;
 
-private:	
+private:
 
-	void timerCallback();
+    void timerCallback();
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArduinoOutputEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ArduinoOutputEditor);
 
 };
 

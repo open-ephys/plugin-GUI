@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,40 +24,43 @@
 
 #include "FileReaderThread.h"
 
-FileReaderThread::FileReaderThread(SourceNode* sn) : DataThread(sn)
-
+FileReaderThread::FileReaderThread(SourceNode* sn, const char* path) :
+    DataThread(sn), lengthOfInputFile(0), bufferSize(0)
 {
-	//File file = File("./data_stream_16ch");
-	//input = file.createInputStream();
-    bufferSize = 1600;
 
-#if JUCE_MAC
-    input = fopen("/Users/Josh/Programming/open-ephys/GUI/Builds/Linux/build/data_stream_16ch_2", "r");
-#else
-    input = fopen("./data_stream_16ch_theta","r");
-#endif
+    input = fopen(path, "r");
+
+    // Avoid a segfault if file isn't found
+    if (!input)
+    {
+        std::cout << "Can't find data file "
+                  << '"' << path << "\""
+                  << std::endl;
+        return;
+    }
 
     fseek(input, 0, SEEK_END);
     lengthOfInputFile = ftell(input);
     rewind(input);
 
-	dataBuffer = new DataBuffer(16, bufferSize*3);
+    bufferSize = 1600;
+    dataBuffer = new DataBuffer(16, bufferSize*3);
 
-   eventCode = 0;
+    eventCode = 0;
 
-	std::cout << "File Reader Thread initialized." << std::endl;
+    std::cout << "File Reader Thread initialized." << std::endl;
 
 }
 
-FileReaderThread::~FileReaderThread() {
-
-	//deleteAndZero(input);
-
+FileReaderThread::~FileReaderThread()
+{
+    if (input)
+        fclose(input);
 }
 
 bool FileReaderThread::foundInputSource()
 {
-    return true;
+    return input != 0;
 }
 
 int FileReaderThread::getNumChannels()
@@ -77,37 +80,38 @@ float FileReaderThread::getBitVolts()
 
 bool FileReaderThread::startAcquisition()
 {
-	startThread();
+    if (!input)
+        return false;
 
+    startThread();
     return true;
-
 }
 
 bool FileReaderThread::stopAcquisition()
 {
     std::cout << "File reader received disable signal." << std::endl;
-	if (isThreadRunning()) {
+    if (isThreadRunning())
+    {
         signalThreadShouldExit();
     }
-	
 
     return true;
-
 }
 
 bool FileReaderThread::updateBuffer()
 {
+    if (!input)
+        return false;
+    if (dataBuffer->getNumSamples() < bufferSize)
+    {
+        //       // std::cout << dataBuffer->getNumSamples() << std::endl;
 
-	if (dataBuffer->getNumSamples() < bufferSize)
-	 {
- //       // std::cout << dataBuffer->getNumSamples() << std::endl;
+        if (ftell(input) >= lengthOfInputFile - bufferSize)
+        {
+            rewind(input);
+        }
 
-       if (ftell(input) >= lengthOfInputFile - bufferSize)
-       {
-           rewind(input);
-       }
-
-         fread(readBuffer, 2, bufferSize, input);
+        fread(readBuffer, 2, bufferSize, input);
 
         int chan = 0;
 
@@ -120,17 +124,20 @@ bool FileReaderThread::updateBuffer()
                 timestamp = timer.getHighResolutionTicks();
                 dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
                 chan = 0;
-            } else {
+            }
+            else
+            {
                 chan++;
             }
 
 
-         }
-    	
+        }
 
-     } else {
+    }
+    else
+    {
         wait(50); // pause for 50 ms to decrease sample rate
-     }
+    }
 
     return true;
 }

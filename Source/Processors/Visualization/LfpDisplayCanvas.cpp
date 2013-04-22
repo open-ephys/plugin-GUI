@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,641 +25,582 @@
 
 #include <math.h>
 
-LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* n) : processor(n),
-	 	xBuffer(105), yBuffer(2),
-	    plotHeight(180), selectedChan(-1), screenBufferIndex(0),
-	    timebase(1.0f), displayGain(0.0001f), displayBufferIndex(0),
-	    headerHeight(40), plotOverlap(200), interplotDistance(70),
-	    timeOffset(0.0f), footerHeight(0)
+LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
+    screenBufferIndex(0), timebase(1.0f), displayGain(1.0f),   timeOffset(0.0f),
+    processor(processor_),
+     displayBufferIndex(0)
 {
 
-	nChans = processor->getNumInputs();
-	sampleRate = processor->getSampleRate();
-	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+    nChans = processor->getNumInputs();
+    sampleRate = processor->getSampleRate();
+    std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
-	displayBuffer = processor->getDisplayBufferAddress();
-	displayBufferSize = displayBuffer->getNumSamples();
-	std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
+    displayBuffer = processor->getDisplayBufferAddress();
+    displayBufferSize = displayBuffer->getNumSamples();
+    std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
-	totalHeight = nChans*(interplotDistance) + plotHeight/2 + headerHeight;
+    screenBuffer = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
 
-	refreshMs = 100; // override 5 s refresh rate
-	
+    viewport = new Viewport();
+    lfpDisplay = new LfpDisplay(this, viewport);
+    timescale = new LfpTimescale(this);
+
+    timescale->setTimebase(timebase);
+
+    viewport->setViewedComponent(lfpDisplay, false);
+    viewport->setScrollBarsShown(true, false);
+
+    scrollBarThickness = viewport->getScrollBarThickness();
+
+    addAndMakeVisible(viewport);
+    addAndMakeVisible(timescale);
+
+    voltageRanges.add("100");
+    voltageRanges.add("500");
+    voltageRanges.add("1000");
+    voltageRanges.add("2000");
+    voltageRanges.add("5000");
+
+    timebases.add("0.2");
+    timebases.add("0.5");
+    timebases.add("1.0");
+    timebases.add("2.0");
+    timebases.add("5.0");
+    timebases.add("10.0");
+
+    rangeSelection = new ComboBox("Voltage range");
+    rangeSelection->addItemList(voltageRanges, 1);
+    rangeSelection->setSelectedId(3,false);
+    rangeSelection->addListener(this);
+    addAndMakeVisible(rangeSelection);
+
+    timebaseSelection = new ComboBox("Timebase");
+    timebaseSelection->addItemList(timebases, 1);
+    timebaseSelection->setSelectedId(3,false);
+    timebaseSelection->addListener(this);
+    addAndMakeVisible(timebaseSelection);
+
+    lfpDisplay->setNumChannels(nChans);
+
 }
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
 {
+
+    deleteAndZero(screenBuffer);
 }
 
-
-void LfpDisplayCanvas::newOpenGLContextCreated()
+void LfpDisplayCanvas::resized()
 {
 
-	setUp2DCanvas();
-	activateAntiAliasing();
+    timescale->setBounds(0,0,getWidth()-scrollBarThickness,30);
+    viewport->setBounds(0,30,getWidth(),getHeight()-90);
 
-	glClearColor (0.667, 0.698, 0.718, 1.0);
-	resized();
+    lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getTotalHeight());
+
+    rangeSelection->setBounds(100,getHeight()-50,100,25);
+    timebaseSelection->setBounds(300,getHeight()-50,100,25);
 
 }
 
 void LfpDisplayCanvas::beginAnimation()
 {
-	std::cout << "Beginning animation." << std::endl;
+    std::cout << "Beginning animation." << std::endl;
 
-	displayBufferSize = displayBuffer->getNumSamples();
+    displayBufferSize = displayBuffer->getNumSamples();
 
-	screenBufferIndex = 0;
-	
-	startCallbacks();
+    screenBufferIndex = 0;
+
+    startCallbacks();
 }
 
 void LfpDisplayCanvas::endAnimation()
 {
-	std::cout << "Ending animation." << std::endl;
-	stopCallbacks();
+    std::cout << "Ending animation." << std::endl;
+
+    stopCallbacks();
 }
 
 void LfpDisplayCanvas::update()
 {
-	nChans = processor->getNumInputs();
-	sampleRate = processor->getSampleRate();
+    nChans = processor->getNumInputs();
+    sampleRate = processor->getSampleRate();
 
-	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+    std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
-	refreshScreenBuffer();
+    refreshScreenBuffer();
 
-	repaint();
+    lfpDisplay->setNumChannels(nChans);
+    lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
 
-	totalHeight = nChans*(interplotDistance) + plotHeight/2 + headerHeight;//(plotHeight+yBuffer)*nChans + yBuffer + headerHeight;
+
+    repaint();
+
+}
+
+void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
+{
+
+    if (cb == timebaseSelection)
+    {
+        timebase = timebases[cb->getSelectedId()-1].getFloatValue();
+    }
+    else if (cb == rangeSelection)
+    {
+        displayGain = 150.0f / voltageRanges[cb->getSelectedId()-1].getFloatValue(); // not sure this is right.
+    }
+
+    timescale->setTimebase(timebase);
 }
 
 
 void LfpDisplayCanvas::setParameter(int param, float val)
 {
-	if (param == 0) {
-		timebase = val;
-		refreshScreenBuffer();
-	} else {
-		displayGain = val * 0.0001f;
-	}
+    if (param == 0)
+    {
+        timebase = val;
+        refreshScreenBuffer();
+    }
+    else
+    {
+        displayGain = val; //* 0.0001f;
+    }
 
-	repaint();
-	
+    repaint();
 }
 
 void LfpDisplayCanvas::refreshState()
 {
-	// called when the component's tab becomes visible again
-	displayBufferIndex = processor->getDisplayBufferIndex();
-	screenBufferIndex = 0;
-
-	//resized();
+    // called when the component's tab becomes visible again
+    displayBufferIndex = processor->getDisplayBufferIndex();
+    screenBufferIndex = 0;
 
 }
 
 void LfpDisplayCanvas::refreshScreenBuffer()
 {
 
-	screenBufferIndex = 0;
+    screenBufferIndex = 0;
 
-	int w = getWidth(); 
-	//std::cout << "Refreshing buffer size to " << w << "pixels." << std::endl;
+    screenBuffer->clear();
 
-	for (int i = 0; i < w; i++)
-	{
-		float x = float(i) / float(w);
+    // int w = lfpDisplay->getWidth();
+    // //std::cout << "Refreshing buffer size to " << w << "pixels." << std::endl;
 
-		for (int n = 0; n < nChans; n++)
-		{
-			waves[n][i*2] = x;
-			waves[n][i*2+1] = 0.5f; // line in center of display
-		}
-	}
+    // for (int i = 0; i < w; i++)
+    // {
+    // 	float x = float(i);
+
+    // 	for (int n = 0; n < nChans; n++)
+    // 	{
+    // 		waves[n][i*2] = x;
+    // 		waves[n][i*2+1] = 0.5f; // line in center of display
+    // 	}
+    // }
 
 }
 
 void LfpDisplayCanvas::updateScreenBuffer()
 {
-	// copy new samples from the displayBuffer into the screenBuffer (waves)
-	int maxSamples = getWidth();
+    // copy new samples from the displayBuffer into the screenBuffer (waves)
 
-	int index = processor->getDisplayBufferIndex();
+    lastScreenBufferIndex = screenBufferIndex;
 
-	int nSamples = index - displayBufferIndex;
+    int maxSamples = lfpDisplay->getWidth();
 
-	if (nSamples < 0) // buffer has reset to 0
-	{
-		nSamples = (displayBufferSize - displayBufferIndex) + index;
-	}
+    int index = processor->getDisplayBufferIndex();
 
-	float ratio = sampleRate * timebase / float(getWidth());
+    int nSamples = index - displayBufferIndex;
 
-	// this number is crucial:
-	int valuesNeeded = (int) float(nSamples) / ratio;
+    if (nSamples < 0) // buffer has reset to 0
+    {
+        nSamples = (displayBufferSize - displayBufferIndex) + index;
+    }
 
-	float subSampleOffset = 0.0;
-	int nextPos = (displayBufferIndex + 1) % displayBufferSize;
+    float ratio = sampleRate * timebase / float(getWidth());
 
-	if (valuesNeeded > 0 && valuesNeeded < 1000) {
+    // this number is crucial:
+    int valuesNeeded = (int) float(nSamples) / ratio;
 
-	    for (int i = 0; i < valuesNeeded; i++)
-	    {
-	    	float gain = 1.0;
-	    	float alpha = (float) subSampleOffset;
-	    	float invAlpha = 1.0f - alpha;
+    float subSampleOffset = 0.0;
+    int nextPos = (displayBufferIndex + 1) % displayBufferSize;
 
-	    	for (int channel = 0; channel < nChans; channel++) {
+    if (valuesNeeded > 0 && valuesNeeded < 1000)
+    {
 
-	        	waves[channel][screenBufferIndex*2+1] = 
-	        		*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
+        for (int i = 0; i < valuesNeeded; i++)
+        {
+            float gain = 1.0;
+            float alpha = (float) subSampleOffset;
+            float invAlpha = 1.0f - alpha;
 
-	        	waves[channel][screenBufferIndex*2+1] += 
-	        		*(displayBuffer->getSampleData(channel, nextPos))*alpha*gain*displayGain;
+            screenBuffer->clear(screenBufferIndex, 1);
 
-	        	waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
+            for (int channel = 0; channel < nChans; channel++)
+            {
 
-	       	}
+                gain = 1.0f / (processor->channels[channel]->bitVolts * float(0x7fff));
 
-	       	//// now do the event channel
-	       	waves[nChans][screenBufferIndex*2+1] = 
-	       		*(displayBuffer->getSampleData(nChans, displayBufferIndex));
+                screenBuffer->addFrom(channel, // destChannel
+                                      screenBufferIndex, // destStartSample
+                                      displayBuffer->getSampleData(channel, displayBufferIndex), // source
+                                      1, // numSamples
+                                      invAlpha*gain*displayGain); // gain
+
+                screenBuffer->addFrom(channel, // destChannel
+                                      screenBufferIndex, // destStartSample
+                                      displayBuffer->getSampleData(channel, nextPos), // source
+                                      1, // numSamples
+                                      alpha*gain*displayGain); // gain
+
+                //waves[channel][screenBufferIndex*2+1] =
+                //	*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
+
+                //waves[channel][screenBufferIndex*2+1] +=
+                //	*(displayBuffer->getSampleData(channel, nextPos))*alpha*gain*displayGain;
+
+                //waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
+
+            }
+
+            //// now do the event channel
+            ////	waves[nChans][screenBufferIndex*2+1] =
+            //		*(displayBuffer->getSampleData(nChans, displayBufferIndex));
 
 
-	       	subSampleOffset += ratio;
+            subSampleOffset += ratio;
 
-	       	while (subSampleOffset >= 1.0)
-	       	{
-	       		if (++displayBufferIndex >= displayBufferSize)
-	       			displayBufferIndex = 0;
-	       		
-	       		nextPos = (displayBufferIndex + 1) % displayBufferSize;
-	       		subSampleOffset -= 1.0;
-	       	}
+            while (subSampleOffset >= 1.0)
+            {
+                if (++displayBufferIndex >= displayBufferSize)
+                    displayBufferIndex = 0;
 
-	       	screenBufferIndex++;
-	       	screenBufferIndex %= maxSamples;
+                nextPos = (displayBufferIndex + 1) % displayBufferSize;
+                subSampleOffset -= 1.0;
+            }
 
-	    }
+            screenBufferIndex++;
+            screenBufferIndex %= maxSamples;
 
-	} else {
-		//std::cout << "Skip." << std::endl;
-	}
+        }
+
+    }
+    else
+    {
+        //std::cout << "Skip." << std::endl;
+    }
 }
 
-void LfpDisplayCanvas::canvasWasResized()
+float LfpDisplayCanvas::getXCoord(int chan, int samp)
 {
-	//std::cout << "Resized!" << std::endl;	
-	refreshScreenBuffer();
+    return samp;
 }
 
-void LfpDisplayCanvas::renderOpenGL()
+float LfpDisplayCanvas::getYCoord(int chan, int samp)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffers to preset values
-
-	
-	//glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
-
-    if (animationIsActive)
-        updateScreenBuffer();
-
-	for (int i = 0; i < nChans; i++)
-	{
-		bool isSelected = false;
-
-		if (selectedChan == i)
-			isSelected = true;
-
-		if (checkBounds(i)) {
-			//setViewport(i);
-			//drawBorder(isSelected);
-			drawWaveform(i,isSelected);
-			drawChannelInfo(i,isSelected);
-			
-		}	
-	}
-
-	drawEvents();
-
-	drawScrollBars();
-
-	drawProgressBar();
-
-	drawTimeline();
-    
-   // glFlush();
-    //swapBuffers();
-	
+    return *screenBuffer->getSampleData(chan, samp);
 }
 
-void LfpDisplayCanvas::drawEvents()
+void LfpDisplayCanvas::paint(Graphics& g)
 {
 
-	//std::cout << waves[nChans][1] << std::endl;
+    //std::cout << "Painting" << std::endl;
+    g.setColour(Colour(25,25,25));
 
-	glViewport(xBuffer, 0, getWidth()-xBuffer, getHeight());
+    g.fillRect(0, 0, getWidth(), getHeight());
 
-	glLineWidth(2.0f);
-	
+    g.setColour(Colour(40,40,40));
 
-	// loop through events
-	for (int n = 1; n < getWidth()*2; n += 2)
-	{
+    int w = getWidth()-scrollBarThickness;
 
-		if (waves[nChans][n] > 0)
-		{
+    for (int i = 1; i < 10; i++)
+    {
+        if (i == 5)
+            g.drawLine(w/10*i,0,w/10*i,getHeight()-60,3.0f);
+        else
+            g.drawLine(w/10*i,0,w/10*i,getHeight()-60,1.0f);
+    }
 
-			float x = (float(n-1)/2)/float(getWidth());
+    g.drawLine(0,getHeight()-60,getWidth(),getHeight()-60,3.0f);
 
-			int ttlState = int(waves[nChans][n]);
-			//std::cout << x << std::endl;
+    // g.setColour(Colours::yellow);
 
-			if ((ttlState & 0x100) >> 8) // channel 8
-			{
-				glColor4f(0.9, 0.9, 0.9, 0.4);
-                
-				glBegin(GL_LINE_STRIP);
-                glVertex2f(x, 0);
-                glVertex2f(x, 1);
-				glEnd();
-			}
-            
-            if ((ttlState & 0x80) >> 7) // channel 7
-			{
-				glColor4f(0.5, 0.3, 0.2, 0.1);
-                
-				glBegin(GL_LINE_STRIP);
-                glVertex2f(x, 0);
-                glVertex2f(x, 1);
-				glEnd();
-			}
-
-            if ((ttlState & 0x40) >> 6) // channel 6
-			{
-				glColor4f(1.0, 0.3, 0.0, 0.1);
-                
-				glBegin(GL_LINE_STRIP);
-                glVertex2f(x, 0);
-                glVertex2f(x, 1);
-				glEnd();
-			}
-            
-			if ((ttlState & 0x20) >> 5) // channel 5
-			{
-				glColor4f(1.0, 0.0, 0.0, 0.1);
-
-				glBegin(GL_LINE_STRIP);
-					glVertex2f(x, 0);
-					glVertex2f(x, 1);
-				glEnd();
-			}
-
-			if ((ttlState & 0x10) >> 4) // channel 4
-			{
-				glColor4f(0.0, 1.0, 0.0, 0.1);
-
-				glBegin(GL_LINE_STRIP);
-					glVertex2f(x, 0);
-					glVertex2f(x, 1);
-				glEnd();
-
-			}
-
-			if ((ttlState & 0x8) >> 3) // channel 3
-			{
-				glColor4f(0.0, 0.0, 1.0, 0.1);
-
-				glBegin(GL_LINE_STRIP);
-					glVertex2f(x, 0);
-					glVertex2f(x, 1);
-				glEnd();
-
-			}
-
-			if ((ttlState & 0x4) >> 2) // channel 2
-			{
-				glColor4f(0.0, 1.0, 1.0, 0.1);
-
-				glBegin(GL_LINE_STRIP);
-					glVertex2f(x, 0);
-					glVertex2f(x, 1);
-				glEnd();
-
-			}
-
-			if ((ttlState & 0x2) >> 1) // channel 1
-			{
-				glColor4f(1.0, 1.0, 0.0, 0.1);
-
-				glBegin(GL_LINE_STRIP);
-					glVertex2f(x, 0);
-					glVertex2f(x, 1);
-				glEnd();
-
-			}
-
-			if ((ttlState & 0x1)) // channel 0
-			{
-				glColor4f(1.0, 1.0, 1.0, 0.1);
-
-				glBegin(GL_LINE_STRIP);
-					glVertex2f(x, 0);
-					glVertex2f(x, 1);
-				glEnd();
-
-			}
-
-		}
-
-	}
-}
-
-void LfpDisplayCanvas::drawWaveform(int chan, bool isSelected)
-{
-	setViewport(chan);
-
-	int w = getWidth();
-	
-	// draw zero line
-	glColor4f(1.0, 1.0, 1.0, 0.2);
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(0, 0.5);
-	glVertex2f(1, 0.5);
-	glEnd();
-
-
-	// setWaveformColor(chan, isSelected);
-	if (isSelected)
-		glColor4f(1.0, 1.0, 1.0, 1.0);
-	else
-		glColor4f(1.0, 1.0, 1.0, 0.4);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	
-	glVertexPointer( 2,         // number of coordinates per vertex (2, 3, or 4)
-	     			 GL_FLOAT,  // data type
-		   			 0, 	    // byte offset between consecutive vertices
-		   			 waves[chan]); // pointer to the first coordinate of the first vertex
-
-    glDrawArrays(GL_LINE_STRIP, // mode
-    			 0,				// starting index
-    			 w);  // number of indices to be rendered
-	
-	glDisableClientState(GL_VERTEX_ARRAY);
-
+    // g.drawLine(screenBufferIndex, 0, screenBufferIndex, getHeight());
 
 }
 
-void LfpDisplayCanvas::drawProgressBar()
+void LfpDisplayCanvas::refresh()
 {
+    updateScreenBuffer();
 
-	glViewport(xBuffer,0,getWidth()-xBuffer,getHeight());
-	int w = getWidth();
+    lfpDisplay->refresh();
 
-	// color of progress bar
-	glColor4f(1.0, 1.0, 0.1, 1.0);
+    //getPeer()->performAnyPendingRepaintsNow();
 
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(float(screenBufferIndex)/w,0);
-	glVertex2f(float(screenBufferIndex)/w,1);
-	glEnd();
 }
 
-void LfpDisplayCanvas::drawTimeline()
+// -------------------------------------------------------------
+
+LfpTimescale::LfpTimescale(LfpDisplayCanvas* c) : canvas(c)
 {
-	
-	glViewport(0,getHeight()-headerHeight,getWidth(),headerHeight);
-	glColor4f(0.2f, 0.2f, 0.2f, 1.0f);
-	glRectf(0,0,1,1);
 
-	glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+    font = Font("Default", 16, Font::plain);
+}
 
-	String s = "TIME (s)";
+LfpTimescale::~LfpTimescale()
+{
 
-	glRasterPos2f(5.0f/float(getWidth()), 0.7);
+}
 
-	getFont(cpmono_plain)->FaceSize(14);
-	getFont(cpmono_plain)->Render(s);
+void LfpTimescale::paint(Graphics& g)
+{
 
-	glViewport(xBuffer,getHeight()-headerHeight,getWidth()-xBuffer,headerHeight);
+    g.setGradientFill(ColourGradient(Colour(50,50,50),0,0,
+                                     Colour(25,25,25),0,getHeight(),
+                                     false));
 
-	float step;
+    g.fillAll();
 
-	if (timebase < 1)
-	{
-		step = 0.1;
-	} else if (timebase >= 1 && timebase < 2)
-	{
-		step = 0.2;
-	} else if (timebase >= 2 && timebase < 5)
-	{
-		step = 0.5;
-	} else {
-		step = 1.0;
-	}
+    g.setColour(Colours::black);
 
-	float currentPos = 0;
-	glLineWidth(2.0);
+    g.drawLine(0,getHeight(),getWidth(),getHeight());
 
-	while (currentPos < timebase)
-	{
+    g.setFont(font);
 
-		float xcoord = currentPos / timebase;
+    g.setColour(Colour(100,100,100));
 
-		glBegin(GL_LINE_STRIP);
-		glVertex2f(xcoord,0);
-		glVertex2f(xcoord,1);
-		glEnd();
+    for (int i = 1; i < 10; i++)
+    {
+        if (i == 5)
+            g.drawLine(getWidth()/10*i,0,getWidth()/10*i,getHeight(),3.0f);
+        else
+            g.drawLine(getWidth()/10*i,0,getWidth()/10*i,getHeight(),1.0f);
 
-		String s = String(currentPos, 1);
+        g.drawText(labels[i-1],getWidth()/10*i+1,0,100,getHeight(),Justification::left, false);
+    }
 
-		glRasterPos2f(xcoord + 5.0f/float(getWidth()), 0.4);
+}
 
-		getFont(cpmono_plain)->Render(s);
+void LfpTimescale::setTimebase(float t)
+{
+    timebase = t;
 
-		currentPos += step;
-	}
+    labels.clear();
 
-	glViewport(xBuffer, getHeight()-headerHeight, getWidth()-xBuffer, headerHeight/2);
-	glColor4f(0.2f, 0.2f, 0.4f, 1.0f);
-	glRectf(0,0,1,1);
+    for (float i = 1.0f; i < 10.0; i++)
+    {
+        String labelString = String(timebase/10.0f*i);
 
-	currentPos = 0;
+        labels.add(labelString.substring(1,4));
+    }
 
-
-	glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
-
-	while (currentPos < timebase)
-	{
-
-		float xcoord = currentPos/timebase + timeOffset / float(getWidth());
-
-		glBegin(GL_LINE_STRIP);
-		glVertex2f(xcoord,0);
-		glVertex2f(xcoord,1);
-		glEnd();
-
-		String s = String(currentPos, 1);
-
-		glRasterPos2f(xcoord+5.0f/float(getWidth()), 0.85);
-
-		getFont(cpmono_plain)->Render(s);
-
-		currentPos += step;
-	}
+    repaint();
 
 }
 
 
-bool LfpDisplayCanvas::checkBounds(int chan)
+// ---------------------------------------------------------------
+
+LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
+    canvas(c), viewport(v)
 {
-	bool isVisible;
+    channelHeight = 100;
+    totalHeight = 0;
 
-	int lowerBound = (chan+1)*(interplotDistance)+plotHeight/2;//(chan+1)*(plotHeight+yBuffer);
-	int upperBound = chan*(interplotDistance)-plotHeight/2;
+    addMouseListener(this, true);
 
-	if (getScrollAmount() < lowerBound && getScrollAmount() + getHeight() > upperBound)
-		isVisible = true;
-	else
-		isVisible = false;
-	
-	return isVisible;
+    for (int i = 0; i < 10; i++)
+    {
+        channelColours.add(Colour(200,200,255-i*25));
+    }
+
+    for (int i = 10; i > -1; i--)
+    {
+        channelColours.add(Colour(200,200,255-i*25));
+    }
 
 }
 
-void LfpDisplayCanvas::setViewport(int chan)
+LfpDisplay::~LfpDisplay()
 {
-	int y = (chan+1)*(interplotDistance); //interplotDistance - plotHeight/2);
-
-	glViewport(xBuffer,
-			   getHeight()-y+getScrollAmount()- headerHeight - plotHeight/2,
-	           getWidth()-xBuffer,
-	           plotHeight);
+    deleteAllChildren();
 }
 
-void LfpDisplayCanvas::setInfoViewport(int chan)
+void LfpDisplay::setNumChannels(int numChannels)
 {
-	int y = (chan+1)*(interplotDistance); //interplotDistance - plotHeight/2);
+    numChans = numChannels;
 
-	glViewport(yBuffer,
-			   getHeight()-y+getScrollAmount()- headerHeight - interplotDistance/2 - yBuffer,
-	           xBuffer-yBuffer,
-	           interplotDistance - yBuffer*2);
-}
+    deleteAllChildren();
 
-void LfpDisplayCanvas::drawBorder(bool isSelected)
-{
-	float alpha = 0.5f;
+    channels.clear();
 
-	if (isSelected)
-		alpha = 1.0f;
+    totalHeight = 0;
 
-	glColor4f(0.0f, 0.0f, 0.0f, alpha);
-	glBegin(GL_LINE_STRIP);
- 	glVertex2f(0.0f, 0.0f);
- 	glVertex2f(1.0f, 0.0f);
- 	glVertex2f(1.0f, 1.0f);
- 	glVertex2f(0.0f, 1.0f);
- 	glVertex2f(0.0f, 0.0f);
- 	glEnd();
+    for (int i = 0; i < numChans; i++)
+    {
+
+        //std::cout << "Adding new channel display." << std::endl;
+
+        LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvas, i);
+
+        lfpChan->setColour(channelColours[i % channelColours.size()]);
+
+        addAndMakeVisible(lfpChan);
+
+        channels.add(lfpChan);
+
+        totalHeight += channelHeight;
+
+    }
 
 }
 
-void LfpDisplayCanvas::drawChannelInfo(int chan, bool isSelected)
+void LfpDisplay::resized()
 {
 
-	setInfoViewport(chan);
-	drawBorder(isSelected);
+    int totalHeight = 0;
 
-	float alpha = 0.5f;
+    int overlap = 50;
 
-	if (isSelected)
-		alpha = 1.0f;
+    for (int i = 0; i < numChans; i++)
+    {
 
-	glColor4f(0.0f,0.0f,0.0f,alpha);
-	glRasterPos2f(5.0f/getWidth(),0.6);
-	String s = "";//String("Channel ");
-	s += (chan+1);
+        getChildComponent(i)->setBounds(0,totalHeight-overlap/2,getWidth(),channelHeight+overlap);
 
-	getFont(cpmono_bold)->FaceSize(35);
-	getFont(cpmono_bold)->Render(s);
-}
+        totalHeight += channelHeight;
 
-int LfpDisplayCanvas::getTotalHeight() 
-{
-	return totalHeight;
-}
-
-
-void LfpDisplayCanvas::mouseDownInCanvas(const MouseEvent& e) 
-{
-
-	Point<int> pos = e.getPosition();
-	int xcoord = pos.getX();
-	int ycoord = pos.getY();
-
-	if (xcoord < getWidth()-getScrollBarWidth() && ycoord > headerHeight)
-	{
-		int ycoord = e.getMouseDownY() - headerHeight - interplotDistance/2;// - interplotDistance/2;// - interplotDistance;
-		int chan = (ycoord + getScrollAmount())/(yBuffer+interplotDistance);
-
-			selectedChan = chan;
-
-		repaint();
-	}
+    }
 
 }
 
-void LfpDisplayCanvas::mouseDragInCanvas(const MouseEvent& e) 
+void LfpDisplay::paint(Graphics& g)
 {
 
-	int ypos = e.getMouseDownY();
+}
 
-	if (ypos <= headerHeight/2) {
+void LfpDisplay::refresh()
+{
 
-		float scaleFactor = (float) e.getDistanceFromDragStartY();
 
-		if (scaleFactor < 60.0 && scaleFactor > -200.0f)
-		{
-			timebase = pow(10.0f, -scaleFactor/200.0f);
-		}
+    int topBorder = viewport->getViewPositionY();
+    int bottomBorder = viewport->getViewHeight() + topBorder;
 
-		repaint();
+    // ensure that only visible channels are redrawn
+    for (int i = 0; i < numChans; i++)
+    {
 
-	} else if (ypos > headerHeight/2 && ypos < headerHeight) {
+        int componentTop = getChildComponent(i)->getY();
+        int componentBottom = getChildComponent(i)->getHeight() + componentTop;
 
-		float scaleFactor = (float) e.getDistanceFromDragStartX();
+        if ((topBorder <= componentBottom && bottomBorder >= componentTop))
+        {
+            getChildComponent(i)->repaint();
 
-		timeOffset = scaleFactor;
+            //std::cout << i << std::endl;
+        }
 
-		repaint();
+    }
 
-	}
+}
+
+void LfpDisplay::mouseDown(const MouseEvent& event)
+{
+    //int x = event.getMouseDownX();
+    //int y = event.getMouseDownY();
+
+    //std::cout << "Mouse down at " << x << ", " << y << std::endl;
+
+
+    for (int n = 0; n < numChans; n++)
+    {
+        channels[n]->deselect();
+    }
+
+    LfpChannelDisplay* lcd = (LfpChannelDisplay*) event.eventComponent;
+
+    lcd->select();
+
+    repaint();
+
+}
+
+// ------------------------------------------------------------------
+
+LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, int channelNumber) :
+    canvas(c), isSelected(false), chan(channelNumber)
+{
+
+    channelFont = Font("Default", 50, Font::plain);
+
+    lineColour = Colour(255,255,255);
+
+}
+
+LfpChannelDisplay::~LfpChannelDisplay()
+{
+
+}
+
+void LfpChannelDisplay::paint(Graphics& g)
+{
+
+    //g.fillAll(Colours::grey);
+
+    g.setColour(Colours::yellow);
+
+    g.drawLine(canvas->screenBufferIndex, 0, canvas->screenBufferIndex, getHeight());
+
+    int center = getHeight()/2;
+
+    if (isSelected)
+    {
+        g.setColour(Colours::lightgrey);
+        g.fillRect(0,center-50,10,100);
+        g.drawLine(0,center+50,getWidth(),center+50);
+        g.drawLine(0,center-50,getWidth(),center-50);
+
+        g.setColour(Colour(25,25,25));
+        g.drawLine(0,center+25,10,center+25);
+        g.drawLine(0,center-25,10,center-25);
+
+    }
+
+
+    g.setColour(Colour(40,40,40));
+    g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
+
+    int stepSize = 1;
+
+    g.setColour(lineColour);
+
+    for (int i = 0; i < getWidth()-stepSize; i += stepSize)
+    {
+
+        g.drawLine(i,
+                   (canvas->getYCoord(chan, i)+0.5f)*getHeight(),
+                   i+stepSize,
+                   (canvas->getYCoord(chan, i+stepSize)+0.5f)*getHeight());
+    }
+
+    g.setColour(lineColour.withAlpha(0.7f));
+    g.setFont(channelFont);
+
+    g.drawText(String(chan+1), 10, 50, 200, 50, Justification::left, false);
 
 
 }
 
-void LfpDisplayCanvas::mouseMoveInCanvas(const MouseEvent &e)
+void LfpChannelDisplay::select()
 {
-
-	int ypos = e.getMouseDownY();
-
-	if (ypos <= headerHeight/2)
-	{
-		cursorType = MouseCursor::UpDownResizeCursor;
-	} else if (ypos > headerHeight/2 && ypos < headerHeight) {
-		cursorType = MouseCursor::LeftRightResizeCursor;
-	} else {
-		cursorType = MouseCursor::NormalCursor;
-	}
-
+    isSelected = true;
 }
 
-const MouseCursor LfpDisplayCanvas::getMouseCursor()
+void LfpChannelDisplay::deselect()
 {
+    isSelected = false;
+}
 
-	const MouseCursor c = MouseCursor(cursorType);
-
-	return c;
-
+void LfpChannelDisplay::setColour(Colour c)
+{
+    lineColour = c;
 }

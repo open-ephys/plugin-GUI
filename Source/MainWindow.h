@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2012 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,15 +24,10 @@
 #ifndef __MAINWINDOW_H_BA75E17__
 #define __MAINWINDOW_H_BA75E17__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "UI/UIComponent.h"
 #include "Audio/AudioComponent.h"
 #include "Processors/ProcessorGraph.h"
-
-//-----------------------------------------------------------------------
 
 /**
   The main window for the GUI application.
@@ -48,24 +43,39 @@
 class MainWindow   : public DocumentWindow
 {
 public:
-    //=======================================================================
+
+    /** Initializes the MainWindow, creates the AudioComponent, ProcessorGraph,
+        and UIComponent, and sets the window boundaries. */
     MainWindow();
+
+    /** Destroys the AudioComponent, ProcessorGraph, and UIComponent, and saves the window boundaries. */
     ~MainWindow();
 
+    /** Called when the user hits the close button of the MainWindow. This destroys
+        the MainWindow and closes the application. */
     void closeButtonPressed();
 
+    /** A JUCE class that allows the MainWindow to respond to keyboard and menubar
+        commands. */
     ApplicationCommandManager commandManager;
 
 private:
-    //========================================================================
-  
+
+    /** Saves the MainWindow's boundaries into the file "windowState.xml", located in the directory
+        from which the GUI is run. */
     void saveWindowBounds();
+
+    /** Loads the MainWindow's boundaries into the file "windowState.xml", located in the directory
+        from which the GUI is run. */
     void loadWindowBounds();
 
-   AudioComponent* audioComponent;
-   ProcessorGraph* processorGraph;
+    /** A pointer to the application's AudioComponent (owned by the MainWindow). */
+    ScopedPointer<AudioComponent> audioComponent;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
+    /** A pointer to the application's ProcessorGraph (owned by the MainWindow). */
+    ScopedPointer<ProcessorGraph> processorGraph;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 
 };
 
