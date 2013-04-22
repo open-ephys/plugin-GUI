@@ -67,7 +67,7 @@ ProcessorList::ProcessorList()
     ProcessorListItem* sources = new ProcessorListItem("Sources");
     sources->addSubItem(new ProcessorListItem("RHA2000-EVAL"));
     //sources->addSubItem(new ProcessorListItem("Signal Generator"));
-    //sources->addSubItem(new ProcessorListItem("Custom FPGA"));
+    sources->addSubItem(new ProcessorListItem("Custom FPGA"));
     sources->addSubItem(new ProcessorListItem("Rhythm FPGA"));
     sources->addSubItem(new ProcessorListItem("File Reader"));
     //sources->addSubItem(new ProcessorListItem("Event Generator"));
