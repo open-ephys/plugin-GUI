@@ -27,7 +27,7 @@
 
 PhaseDetector::PhaseDetector()
 	: GenericProcessor("Phase Detector"),
-	   maxFrequency(20), isIncreasing(true), canBeTriggered(false)
+	   maxFrequency(20), isIncreasing(true), canBeTriggered(false), triggerOnPeak(false)
 
 {
 
@@ -91,6 +91,12 @@ void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
     	if (eventId == 1 && eventChannel == 5)
     	{
     		canBeTriggered = true;
+
+    		// randomize
+    		Random r = Random(Time::currentTimeMillis());
+
+    		triggerOnPeak = r.nextBool();
+
     	} else if (eventId == 0 && eventChannel == 5) {
     		canBeTriggered = false;
     	}
@@ -109,7 +115,12 @@ void PhaseDetector::process(AudioSampleBuffer &buffer,
 	for (int i = 0; i < nSamples; i++)
 	{
 
-		float sample = *buffer.getSampleData(0, i);
+		float sample;
+
+		if (triggerOnPeak)
+			sample = -(*buffer.getSampleData(0, i));
+		else
+			sample = *buffer.getSampleData(0, i);
 
 	    if (sample > lastSample && !isIncreasing) 
 	    {
@@ -122,7 +133,6 @@ void PhaseDetector::process(AudioSampleBuffer &buffer,
 
 	    	numPeakIntervals++;
 
-	    	// entering falling phase (just reached peak)
 	    	if (canBeTriggered)
 	        	addEvent(events, TTL, i, 1, 3);
 
