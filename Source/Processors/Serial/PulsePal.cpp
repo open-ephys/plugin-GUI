@@ -272,7 +272,8 @@ uint8_t PulsePal::voltageToByte(float voltage)
 
 void PulsePal::triggerChannel(uint8_t chan)
 {
-    uint8_t bytesToWrite[2] = {84, chan};
+	// trigger all channels for now
+    uint8_t bytesToWrite[2] = {84, 15}; //chan};
 
     serial.writeBytes(bytesToWrite, 2);
 }

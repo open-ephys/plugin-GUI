@@ -37,7 +37,7 @@ PulsePalOutput::PulsePalOutput()
     pulsePal.updateDisplay("GUI Connected"," Click for menu");
 
     // doesn't seem to do anything:
-    pulsePal.setPhase1Duration(2, 20000)
+    pulsePal.setPhase1Duration(2, 20000);
 
     // check to make sure it's running
     // doesn't seem to do anything yet
@@ -62,6 +62,7 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
 {
     if (eventType == TTL)
     {
+        std::cout << "Received an event!" << std::endl;
        // do something cool
     }
 
