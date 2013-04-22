@@ -31,6 +31,8 @@
 #define ZERO_uS (uint32_t) 0
 #define FIFTY_uS (uint32_t) 50
 #define MAX_uS (uint32_t) 3600000000
+#define NEWLINE 0xA
+#define RETURN 0xD
 
 PulsePal::PulsePal()
 {
@@ -86,9 +88,9 @@ void PulsePal::initialize()
 
             serial.setup(id, 115200);
 
-            uint8_t bytesToWrite[2] = {59, 59};
+            uint8_t bytesToWrite[2] = {59};
 
-            serial.writeBytes(bytesToWrite, 2);
+            serial.writeBytes(bytesToWrite, 1);
 
             // while (serial.available() == 0)
             // {
@@ -185,13 +187,17 @@ void PulsePal::setPhase2Voltage(uint8_t channel, float voltage)
 
 void PulsePal::updateDisplay(string line1, string line2)
 {
-	uint8_t message1[2] = {85, 85};
+	uint8_t message1[2] = {85};
 
-	serial.writeBytes(message1, 2);
+	serial.writeBytes(message1, 1);
 
 	serial.writeBytes((unsigned char*) line1.data(), line1.size());
+	//serial.writeByte(0);
+	//serial.writeByte(RETURN);
 	serial.writeByte(254);
 	serial.writeBytes((unsigned char*) line2.data(), line2.size());
+	//serial.writeByte(0);
+	//serial.writeByte(RETURN);
 
 }
 

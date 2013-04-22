@@ -33,11 +33,14 @@ PulsePalOutput::PulsePalOutput()
 
     pulsePal.initialize();
 
-    pulsePal.updateDisplay("GUI Connected","Click for menu");
+    // changes the display, but adds a trailing zero
+    pulsePal.updateDisplay("GUI Connected"," Click for menu");
 
-    pulsePal.setPhase1Duration(1, 50000);
+    // doesn't seem to do anything:
+    pulsePal.setPhase1Duration(2, 20000)
 
     // check to make sure it's running
+    // doesn't seem to do anything yet
     pulsePal.triggerChannel(1);
 
 
