@@ -60,6 +60,8 @@ public:
 
 private:
 
+    Array<int> channelTtlTrigger;
+
     PulsePal pulsePal;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PulsePalOutput);

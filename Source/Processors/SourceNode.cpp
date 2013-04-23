@@ -67,7 +67,7 @@ SourceNode::SourceNode(const String& name_)
         else
         {
             // If cancelled, assume it's in the resources directory (only works on Linux)
-            dataThread = new FileReaderThread(this, "../../../Resources/DataFiles/data_stream_16ch_cortex");
+            dataThread = new FileReaderThread(this, "../../../Resources/DataFiles/data_stream_16ch_hippocampus");
         }
 
         //sendActionMessage("File loaded.");

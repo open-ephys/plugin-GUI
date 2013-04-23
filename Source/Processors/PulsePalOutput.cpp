@@ -35,6 +35,11 @@ PulsePalOutput::PulsePalOutput()
 
     pulsePal.updateDisplay("GUI Connected","Click for menu");
 
+    for (int i = 0; i < 4; i++)
+    {
+        channelTtlTrigger.add(-1);
+    }
+
 }
 
 PulsePalOutput::~PulsePalOutput()
@@ -45,7 +50,7 @@ PulsePalOutput::~PulsePalOutput()
 
 AudioProcessorEditor* PulsePalOutput::createEditor()
 {
-    editor = new PulsePalOutputEditor(this, true);
+    editor = new PulsePalOutputEditor(this, &pulsePal, true);
     return editor;
 }
 
@@ -53,14 +58,31 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
 {
     if (eventType == TTL)
     {
-        std::cout << "Received an event!" << std::endl;
-       // do something cool
+      //  std::cout << "Received an event!" << std::endl;
+
+        const uint8* dataptr = event.getRawData();
+
+        // int eventNodeId = *(dataptr+1);
+        int eventId = *(dataptr+2);
+        int eventChannel = *(dataptr+3);
+
+        for (int i = 0; i < channelTtlTrigger.size(); i++)
+        {
+            if (eventChannel == channelTtlTrigger[i])
+            {
+                pulsePal.triggerChannel(i+1);
+            }
+        }
+
     }
 
 }
 
 void PulsePalOutput::setParameter(int parameterIndex, float newValue)
 {
+    std::cout << "Changing channel " << parameterIndex << " to " << newValue << std::endl;
+
+    channelTtlTrigger.set(parameterIndex-1, (int) newValue);
 
 }
 
@@ -69,8 +91,6 @@ void PulsePalOutput::process(AudioSampleBuffer& buffer,
                          int& nSamples)
 {
 
-
     checkForEvents(events);
-
 
 }
