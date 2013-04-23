@@ -311,6 +311,10 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="Vy98eh" name="PhaseDetectorEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/PhaseDetectorEditor.cpp"/>
+          <FILE id="vuvcfO" name="PhaseDetectorEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/PhaseDetectorEditor.h"/>
           <FILE id="NHDoDu" name="PulsePalOutputEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/PulsePalOutputEditor.cpp"/>
           <FILE id="dVyt6h" name="PulsePalOutputEditor.h" compile="0" resource="0"

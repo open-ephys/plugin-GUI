@@ -80,6 +80,8 @@ private:
     int* peakIntervals;
     int numPeakIntervals;
 
+    int selectedChannel;
+
     void estimateFrequency();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhaseDetector);

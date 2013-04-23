@@ -45,12 +45,10 @@ PhaseDetector::~PhaseDetector()
 void PhaseDetector::setParameter(int parameterIndex, float newValue)
 {
 
-    // Parameter& p =  parameters.getReference(parameterIndex);
-    // p.setValue(newValue, 0);
-
-    // threshold = newValue;
-
-    //std::cout << float(p[0]) << std::endl;
+    if (parameterIndex == 1)
+    {
+        selectedChannel = (int) newValue;
+    }
 
 }
 
@@ -108,53 +106,56 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
     checkForEvents(events);
 
-    for (int i = 0; i < nSamples; i++)
+    if (selectedChannel >= 0 && selectedChannel < buffer.getNumChannels())
     {
 
-        float sample = *buffer.getSampleData(0, i);
-
-        if (sample > lastSample && !isIncreasing)
+        for (int i = 0; i < nSamples; i++)
         {
 
-            // entering rising phase
-            isIncreasing = true;
-            nSamplesSinceLastPeak++;
+            float sample = *buffer.getSampleData(selectedChannel, i);
 
-        }
-        else if (sample < lastSample && isIncreasing && nSamplesSinceLastPeak >= minSamplesToNextPeak)
-        {
-
-            numPeakIntervals++;
-
-            // entering falling phase (just reached peak)
-            if (true)
-                addEvent(events, TTL, i, 1, 3);
-
-            peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
-
-            isIncreasing = false;
-
-            nSamplesSinceLastPeak = 0;
-
-            estimateFrequency();
-
-
-        }
-        else
-        {
-
-            // either rising or falling
-            nSamplesSinceLastPeak++;
-
-            if (nSamplesSinceLastPeak == 100)
+            if (sample > lastSample && !isIncreasing)
             {
-                addEvent(events, TTL, i, 0, 3);
+
+                // entering rising phase
+                isIncreasing = true;
+                nSamplesSinceLastPeak++;
+
+            }
+            else if (sample < lastSample && isIncreasing && nSamplesSinceLastPeak >= minSamplesToNextPeak)
+            {
+
+                numPeakIntervals++;
+
+                // entering falling phase (just reached peak)
+                if (true)
+                    addEvent(events, TTL, i, 1, 3);
+
+                peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
+
+                isIncreasing = false;
+
+                nSamplesSinceLastPeak = 0;
+
+                estimateFrequency();
+
+            }
+            else
+            {
+
+                // either rising or falling
+                nSamplesSinceLastPeak++;
+
+                if (nSamplesSinceLastPeak == 100)
+                {
+                    addEvent(events, TTL, i, 0, 3);
+                }
+
             }
 
+            lastSample = sample;
+
         }
-
-        lastSample = sample;
-
     }
 
 

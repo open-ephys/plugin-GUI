@@ -68,7 +68,7 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
 
         for (int i = 0; i < channelTtlTrigger.size(); i++)
         {
-            if (eventChannel == channelTtlTrigger[i])
+            if (eventId == 1 && eventChannel == channelTtlTrigger[i])
             {
                 pulsePal.triggerChannel(i+1);
             }
