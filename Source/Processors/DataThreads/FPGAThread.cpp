@@ -315,17 +315,17 @@ bool FPGAThread::updateBuffer()
                 //             "     Bytes read: " << bytesToRead << std::endl;
             }
 
-            unsigned char timecode[6]; // 1st byte throw out last bit of each byte and just concatenate the other bytes in ascending order
-            timecode[0] = (pBuffer[j] >> 1) | ((pBuffer[j+1] >> 1) << 7); // 2nd byte
-            timecode[1] = (pBuffer[j+1] >> 2) | ((pBuffer[j+2] >> 1) << 6); // 3rd byte
-            timecode[2] = (pBuffer[j+2] >> 3) | ((pBuffer[j+3] >> 1) << 5); // 4th byte
-            timecode[3] = (pBuffer[j+3] >> 4) | ((pBuffer[j+4] >> 1) << 4); // 5th byte
-            timecode[4] = (pBuffer[j+4] >> 5) | ((pBuffer[j+5] >> 1) << 3); // 6th byte
-            timecode[5] = (pBuffer[j+5] >> 6);
+            unsigned char timecode[6]; 
+            timecode[0] = (pBuffer[j] >> 1) | ((pBuffer[j+1] >> 1) << 7); // 1st byte throw out last bit of each byte and just concatenate the other bytes in ascending order
+            timecode[1] = (pBuffer[j+1] >> 2) | ((pBuffer[j+2] >> 1) << 6); // 2nd byte
+            timecode[2] = (pBuffer[j+2] >> 3) | ((pBuffer[j+3] >> 1) << 5); // 3rd byte
+            timecode[3] = (pBuffer[j+3] >> 4) | ((pBuffer[j+4] >> 1) << 4); // 4th byte
+            timecode[4] = (pBuffer[j+4] >> 5) | ((pBuffer[j+5] >> 1) << 3); // 5th byte
+            timecode[5] = (pBuffer[j+5] >> 6);                              // 6th byte
 
-            timestamp = (uint64(timecode[5]) << 35) +
-                        (uint64(timecode[4]) << 28) +
-                        (uint64(timecode[3]) << 32) +
+            timestamp = (uint64(timecode[5]) << 40) +
+                        (uint64(timecode[4]) << 32) +
+                        (uint64(timecode[3]) << 24) +
                         (uint64(timecode[2]) << 16) +
                         (uint64(timecode[1]) << 8) +
                         (uint64(timecode[0]));
