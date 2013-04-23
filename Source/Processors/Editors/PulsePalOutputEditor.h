@@ -83,7 +83,8 @@ private:
     PulsePalOutput* processor;
 
     ScopedPointer<UtilityButton> triggerButton;
-    ScopedPointer<ComboBox> comboBox;
+    ScopedPointer<ComboBox> triggerSelector;
+    ScopedPointer<ComboBox> gateSelector;
 
 };
 

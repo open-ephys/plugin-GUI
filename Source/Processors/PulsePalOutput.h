@@ -61,6 +61,10 @@ public:
 private:
 
     Array<int> channelTtlTrigger;
+    Array<int> channelTtlGate;
+    Array<bool> channelState;
+
+    int channelToChange;
 
     PulsePal pulsePal;
 

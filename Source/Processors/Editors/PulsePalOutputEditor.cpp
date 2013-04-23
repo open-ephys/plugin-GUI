@@ -67,16 +67,27 @@ ChannelTriggerInterface::ChannelTriggerInterface(PulsePal* pp, PulsePalOutput* p
     triggerButton->setBounds(5,5,55,20);
     addAndMakeVisible(triggerButton);
 
-    comboBox = new ComboBox();
-    comboBox->setBounds(5,30,55,20);
-    comboBox->addListener(this);
-    comboBox->addItem("N/A",1);
+    triggerSelector = new ComboBox();
+    triggerSelector->setBounds(5,30,55,20);
+    triggerSelector->addListener(this);
+    triggerSelector->addItem("Trig",1);
 
     for (int i = 0; i < 10; i++)
-        comboBox->addItem(String(i),i+2);
+        triggerSelector->addItem(String(i),i+2);
 
-    comboBox->setSelectedId(1, false);
-    addAndMakeVisible(comboBox);
+    triggerSelector->setSelectedId(1, false);
+    addAndMakeVisible(triggerSelector);
+
+    gateSelector = new ComboBox();
+    gateSelector->setBounds(5,55,55,20);
+    gateSelector->addListener(this);
+    gateSelector->addItem("Gate",1);
+
+    for (int i = 0; i < 10; i++)
+        gateSelector->addItem(String(i),i+2);
+
+    gateSelector->setSelectedId(1, false);
+    addAndMakeVisible(gateSelector);
 
 }
 
@@ -96,9 +107,9 @@ void ChannelTriggerInterface::paint(Graphics& g)
     else
         g.setColour(Colours::grey);
 
-    g.setFont(Font("Small Text", 25, Font::plain));
+    g.setFont(Font("Small Text", 10, Font::plain));
 
-    g.drawText(name, 25, 55, 200, 25, Justification::left, false);
+    g.drawText(name, 5, 80, 200, 10, Justification::left, false);
 }
 
 void ChannelTriggerInterface::buttonClicked(Button* button)
@@ -110,6 +121,15 @@ void ChannelTriggerInterface::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 {
     //std::cout << "Combo box changed to " << comboBoxThatHasChanged->getSelectedId() << std::endl;
    
-    processor->setParameter(channelNumber, (float) comboBoxThatHasChanged->getSelectedId() - 2);
+    if (comboBoxThatHasChanged == triggerSelector)
+    {
+        processor->setParameter(0, channelNumber);
+        processor->setParameter(1, (float) comboBoxThatHasChanged->getSelectedId() - 2);
+    } else if (comboBoxThatHasChanged == gateSelector)
+    {
+        processor->setParameter(0, channelNumber);
+        processor->setParameter(2, (float) comboBoxThatHasChanged->getSelectedId() - 2);
+    }
 
+    
 }

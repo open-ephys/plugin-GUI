@@ -28,7 +28,7 @@
 
 
 PulsePalOutput::PulsePalOutput()
-    : GenericProcessor("Pulse Pal")
+    : GenericProcessor("Pulse Pal"), channelToChange(0)
 {
 
     pulsePal.initialize();
@@ -38,6 +38,8 @@ PulsePalOutput::PulsePalOutput()
     for (int i = 0; i < 4; i++)
     {
         channelTtlTrigger.add(-1);
+        channelTtlGate.add(-1);
+        channelState.add(true);
     }
 
 }
@@ -68,9 +70,17 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
 
         for (int i = 0; i < channelTtlTrigger.size(); i++)
         {
-            if (eventId == 1 && eventChannel == channelTtlTrigger[i])
+            if (eventId == 1 && eventChannel == channelTtlTrigger[i] && channelState[i])
             {
                 pulsePal.triggerChannel(i+1);
+            }
+
+            if (eventChannel == channelTtlGate[i])
+            {
+                if (eventId == 1)
+                    channelState.set(i, true);
+                else
+                    channelState.set(i, false);
             }
         }
 
@@ -80,9 +90,30 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
 
 void PulsePalOutput::setParameter(int parameterIndex, float newValue)
 {
-    std::cout << "Changing channel " << parameterIndex << " to " << newValue << std::endl;
+    //std::cout << "Changing channel " << parameterIndex << " to " << newValue << std::endl;
 
-    channelTtlTrigger.set(parameterIndex-1, (int) newValue);
+    switch (parameterIndex)
+    {
+        case 0:
+            channelToChange = (int) newValue - 1;
+            break;
+        case 1:
+            channelTtlTrigger.set(channelToChange, (int) newValue);
+            break;
+        case 2:
+            channelTtlGate.set(channelToChange, (int) newValue);
+
+            if (newValue < 0)
+            {
+                channelState.set(channelToChange, true);
+            } else {
+                channelState.set(channelToChange, false);
+            }
+
+            break;
+        default:
+            std::cout << "Unrecognized parameter index." << std::endl;
+    }
 
 }
 
