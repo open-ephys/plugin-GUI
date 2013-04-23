@@ -50,7 +50,7 @@ public:
 
 private:
 
-    ScopedPointer<ComboBox> channelToUse;
+    ScopedPointer<ComboBox> channelSelectionBox;
 
     int previousChannelCount;
 

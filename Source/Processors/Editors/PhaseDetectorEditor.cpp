@@ -42,12 +42,12 @@ PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode, bool useD
 
 }
 
-ReferenceNodeEditor::~ReferenceNodeEditor()
+PhaseDetectorEditor::~PhaseDetectorEditor()
 {
 
 }
 
-void ReferenceNodeEditor::updateSettings()
+void PhaseDetectorEditor::updateSettings()
 {
 
     if (getProcessor()->getNumInputs() != previousChannelCount)
@@ -62,7 +62,7 @@ void ReferenceNodeEditor::updateSettings()
 
         }
 
-        channelSelectionBox = getProcessor()->getNumInputs();
+        previousChannelCount = getProcessor()->getNumInputs();
 
     }
 
@@ -71,7 +71,7 @@ void ReferenceNodeEditor::updateSettings()
     getProcessor()->setParameter(1,-1.0f);
 }
 
-void ReferenceNodeEditor::comboBoxChanged(ComboBox* c)
+void PhaseDetectorEditor::comboBoxChanged(ComboBox* c)
 {
     float channel;
 
@@ -88,7 +88,7 @@ void ReferenceNodeEditor::comboBoxChanged(ComboBox* c)
 
 }
 
-void ReferenceNodeEditor::buttonEvent(Button* button)
+void PhaseDetectorEditor::buttonEvent(Button* button)
 {
 
 

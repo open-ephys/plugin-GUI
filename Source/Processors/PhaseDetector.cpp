@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 #include "PhaseDetector.h"
-//#include "Editors/PhaseDetectorEditor.h"
+#include "Editors/PhaseDetectorEditor.h"
 
 PhaseDetector::PhaseDetector()
     : GenericProcessor("Phase Detector"),
@@ -41,6 +41,17 @@ PhaseDetector::~PhaseDetector()
 {
 
 }
+
+AudioProcessorEditor* PhaseDetector::createEditor()
+{
+    editor = new PhaseDetectorEditor(this, true);
+
+    std::cout << "Creating editor." << std::endl;
+
+    return editor;
+}
+
+
 
 void PhaseDetector::setParameter(int parameterIndex, float newValue)
 {
