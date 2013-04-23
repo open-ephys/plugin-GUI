@@ -33,23 +33,14 @@ PulsePalOutput::PulsePalOutput()
 
     pulsePal.initialize();
 
-    // changes the display, but adds a trailing zero
-    pulsePal.updateDisplay("GUI Connected"," Click for menu");
-
-    // doesn't seem to do anything:
-    pulsePal.setPhase1Duration(2, 20000);
-
-    // check to make sure it's running
-    // doesn't seem to do anything yet
-    pulsePal.triggerChannel(1);
-
-
+    pulsePal.updateDisplay("GUI Connected","Click for menu");
 
 }
 
 PulsePalOutput::~PulsePalOutput()
 {
-    pulsePal.updateDisplay("Pulse Pal v0.3","Click for menu");
+
+    pulsePal.updateDisplay("PULSE PAL v0.3","Click for menu");
 }
 
 AudioProcessorEditor* PulsePalOutput::createEditor()

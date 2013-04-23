@@ -73,7 +73,7 @@ void PulsePal::initialize()
        // std::cout << "Device name: " << name << std::endl;
 
         //#if (defined TARGET_LINUX)
-            string acm0 = "ACM0";
+            string acm0 = "ACM1";
         //#endif
 
         //#if (defined TARGET_OSX)
@@ -86,26 +86,33 @@ void PulsePal::initialize()
         if (index != string::npos) // only open ttyACM0
         {
 
-            serial.setup(id, 115200);
+            serial.setup(id, 115200); //115200);
 
-            uint8_t bytesToWrite[2] = {59};
+            unsigned char bytesToWrite = 59;
 
-            serial.writeBytes(bytesToWrite, 1);
+           bool a = serial.writeByte(bytesToWrite);
+
+          // std::cout << "error number: " << a << std::endl;
 
             // while (serial.available() == 0)
             // {
             //     serial.writeByte(59);
             // }
 
-            uint8_t resp = serial.readByte();
+            unsigned char resp = serial.readByte();
 
             std::cout << "Got response: " << (int) resp << std::endl;
 
             if (resp == 254)
-            {
+                      {
                 std::cout << "FOUND A PULSE PAL." << std::endl;
                 foundDevice = true;
             }
+
+            // for (int i = 0; i < 10; i++)
+            // {
+            // 	std::cout << "Response: " << (int) resp[i] << std::endl;
+            // }
 
             break;
         }
@@ -187,9 +194,9 @@ void PulsePal::setPhase2Voltage(uint8_t channel, float voltage)
 
 void PulsePal::updateDisplay(string line1, string line2)
 {
-	uint8_t message1[2] = {85};
+	uint8_t message1 = 85;
 
-	serial.writeBytes(message1, 1);
+	serial.writeByte(message1);
 
 	serial.writeBytes((unsigned char*) line1.data(), line1.size());
 	//serial.writeByte(0);
@@ -209,7 +216,7 @@ void PulsePal::program(uint8_t channel, uint8_t paramCode, uint32_t paramValue)
 
 	uint8_t message2[4];
 
-	// since we're not sure about byte order, copy manually:
+	// make sure byte order is little-endian:
 	message2[0] = (paramValue & 0xff);
 	message2[1] = (paramValue & 0xff00) >> 8;
 	message2[2] = (paramValue & 0xff0000) >> 16;
@@ -219,7 +226,7 @@ void PulsePal::program(uint8_t channel, uint8_t paramCode, uint32_t paramValue)
 	serial.writeBytes(message2, 4);
 
 	std::cout << "Message 1: " << (int) message1[0] << " " << (int) message1[1] << " " << (int) message1[2] << std::endl;
-	std::cout << "Message 2: " << (int) message2[3] << " " << (int) message2[2] << " " << (int) message2[1] <<  " " << (int) message2[0] << std::endl;
+	std::cout << "Message 2: " << (int) message2[0] << " " << (int) message2[1] << " " << (int) message2[2] <<  " " << (int) message2[3] << std::endl;
 }
 
 
