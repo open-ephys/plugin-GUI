@@ -27,53 +27,6 @@
 
 AudioComponent::AudioComponent() : isPlaying(false)
 {
-<<<<<<< HEAD
-	
-	deviceManager.initialise(0,  // numInputChannelsNeeded
-			   2,  // numOutputChannelsNeeded
-			   0,  // *savedState (XmlElement)
-			   true, // selectDefaultDeviceOnFailure
-			   String::empty, // preferred device
-			   0); // preferred device setup options
-	
-	AudioIODevice* aIOd = deviceManager.getCurrentAudioDevice();
-
-	std::cout << "Got audio device." << std::endl;
-
-	String devType = deviceManager.getCurrentAudioDeviceType();
-	String devName = aIOd->getName();
-	
-	std::cout << std::endl << "Audio device name: " << devName << std::endl;
-
-	AudioDeviceManager::AudioDeviceSetup setup;
-	deviceManager.getAudioDeviceSetup(setup);
-
-	setup.bufferSize = 512; /// larger buffer = fewer empty blocks, but longer latencies
-	setup.useDefaultInputChannels = false;
-	setup.inputChannels = 0;
-	setup.useDefaultOutputChannels = true;
-	setup.outputChannels = 2;
-	setup.sampleRate = 44100.0;
-
-	String msg = deviceManager.setAudioDeviceSetup(setup, false);
-
-	devType = deviceManager.getCurrentAudioDeviceType();
-	std::cout << "Audio device type: " << devType << std::endl;
-
-	float sr = setup.sampleRate;
-	int buffSize = setup.bufferSize;
-	String oDN = setup.outputDeviceName;
-	BigInteger oC = setup.outputChannels;
-
-	std::cout << "Audio output channels: " <<  oC.toInteger() << std::endl;
-	std::cout << "Audio device sample rate: " <<  sr << std::endl;
-	std::cout << "Audio device buffer size: " << buffSize << std::endl << std::endl;
-
-	graphPlayer = new AudioProcessorPlayer();
-
-	stopDevice(); // reduces the amount of background processing when
-				  // device is not in use
-=======
     // if this is nonempty, we got an error
     String error = deviceManager.initialise(0,  // numInputChannelsNeeded
                                             2,  // numOutputChannelsNeeded
@@ -154,7 +107,7 @@ AudioComponent::AudioComponent() : isPlaying(false)
 
     stopDevice(); // reduces the amount of background processing when
     // device is not in use
->>>>>>> b862580c8963cf46971d552384f29bd241af1440
+
 
 }
 
