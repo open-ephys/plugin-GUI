@@ -73,7 +73,7 @@ void PulsePal::initialize()
        // std::cout << "Device name: " << name << std::endl;
 
         //#if (defined TARGET_LINUX)
-            string acm0 = "ACM1";
+            string acm0 = "ACM0";
         //#endif
 
         //#if (defined TARGET_OSX)
