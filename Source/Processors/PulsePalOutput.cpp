@@ -28,33 +28,31 @@
 
 
 PulsePalOutput::PulsePalOutput()
-    : GenericProcessor("Pulse Pal")
+    : GenericProcessor("Pulse Pal"), channelToChange(0)
 {
 
     pulsePal.initialize();
 
-    // changes the display, but adds a trailing zero
-    pulsePal.updateDisplay("GUI Connected"," Click for menu");
+    pulsePal.updateDisplay("GUI Connected","Click for menu");
 
-    // doesn't seem to do anything:
-    pulsePal.setPhase1Duration(2, 20000);
-
-    // check to make sure it's running
-    // doesn't seem to do anything yet
-    pulsePal.triggerChannel(1);
-
-
+    for (int i = 0; i < 4; i++)
+    {
+        channelTtlTrigger.add(-1);
+        channelTtlGate.add(-1);
+        channelState.add(true);
+    }
 
 }
 
 PulsePalOutput::~PulsePalOutput()
 {
-    pulsePal.updateDisplay("Pulse Pal v0.3","Click for menu");
+
+    pulsePal.updateDisplay("PULSE PAL v0.3","Click for menu");
 }
 
 AudioProcessorEditor* PulsePalOutput::createEditor()
 {
-    editor = new PulsePalOutputEditor(this, true);
+    editor = new PulsePalOutputEditor(this, &pulsePal, true);
     return editor;
 }
 
@@ -62,14 +60,60 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
 {
     if (eventType == TTL)
     {
-        std::cout << "Received an event!" << std::endl;
-       // do something cool
+      //  std::cout << "Received an event!" << std::endl;
+
+        const uint8* dataptr = event.getRawData();
+
+        // int eventNodeId = *(dataptr+1);
+        int eventId = *(dataptr+2);
+        int eventChannel = *(dataptr+3);
+
+        for (int i = 0; i < channelTtlTrigger.size(); i++)
+        {
+            if (eventId == 1 && eventChannel == channelTtlTrigger[i] && channelState[i])
+            {
+                pulsePal.triggerChannel(i+1);
+            }
+
+            if (eventChannel == channelTtlGate[i])
+            {
+                if (eventId == 1)
+                    channelState.set(i, true);
+                else
+                    channelState.set(i, false);
+            }
+        }
+
     }
 
 }
 
 void PulsePalOutput::setParameter(int parameterIndex, float newValue)
 {
+    //std::cout << "Changing channel " << parameterIndex << " to " << newValue << std::endl;
+
+    switch (parameterIndex)
+    {
+        case 0:
+            channelToChange = (int) newValue - 1;
+            break;
+        case 1:
+            channelTtlTrigger.set(channelToChange, (int) newValue);
+            break;
+        case 2:
+            channelTtlGate.set(channelToChange, (int) newValue);
+
+            if (newValue < 0)
+            {
+                channelState.set(channelToChange, true);
+            } else {
+                channelState.set(channelToChange, false);
+            }
+
+            break;
+        default:
+            std::cout << "Unrecognized parameter index." << std::endl;
+    }
 
 }
 
@@ -78,8 +122,6 @@ void PulsePalOutput::process(AudioSampleBuffer& buffer,
                          int& nSamples)
 {
 
-
     checkForEvents(events);
-
 
 }

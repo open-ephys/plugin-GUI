@@ -23,12 +23,11 @@
 
 #include <stdio.h>
 #include "PhaseDetector.h"
-//#include "Editors/PhaseDetectorEditor.h"
+#include "Editors/PhaseDetectorEditor.h"
 
 PhaseDetector::PhaseDetector()
-	: GenericProcessor("Phase Detector"),
-	   maxFrequency(20), isIncreasing(true), canBeTriggered(false), triggerOnPeak(false)
-
+    : GenericProcessor("Phase Detector"),
+      maxFrequency(20), isIncreasing(true), canBeTriggered(false)
 
 {
 
@@ -43,15 +42,24 @@ PhaseDetector::~PhaseDetector()
 
 }
 
+AudioProcessorEditor* PhaseDetector::createEditor()
+{
+    editor = new PhaseDetectorEditor(this, true);
+
+    std::cout << "Creating editor." << std::endl;
+
+    return editor;
+}
+
+
+
 void PhaseDetector::setParameter(int parameterIndex, float newValue)
 {
 
-    // Parameter& p =  parameters.getReference(parameterIndex);
-    // p.setValue(newValue, 0);
-
-    // threshold = newValue;
-
-    //std::cout << float(p[0]) << std::endl;
+    if (parameterIndex == 1)
+    {
+        selectedChannel = (int) newValue;
+    }
 
 }
 
@@ -77,34 +85,28 @@ void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
 
     //std::cout << "GOT EVENT." << std::endl;
 
-    if (eventType == TTL)
-    {
-        const uint8* dataptr = event.getRawData();
+    // if (eventType == TTL)
+    // {
+    //     const uint8* dataptr = event.getRawData();
 
-        // int eventNodeId = *(dataptr+1);
-        int eventId = *(dataptr+2);
-        int eventChannel = *(dataptr+3);
-        //int eventTime = event.getTimeStamp();
+    //     // int eventNodeId = *(dataptr+1);
+    //     int eventId = *(dataptr+2);
+    //     int eventChannel = *(dataptr+3);
+    //     //int eventTime = event.getTimeStamp();
 
-        //	std::cout << "Received event from " << eventNodeId << ", channel "
-        //          << eventChannel << ", with ID " << eventId << std::endl;
+    //     //	std::cout << "Received event from " << eventNodeId << ", channel "
+    //     //          << eventChannel << ", with ID " << eventId << std::endl;
 
+    //     if (eventId == 1 && eventChannel == 5)
+    //     {
+    //         canBeTriggered = true;
+    //     }
+    //     else if (eventId == 0 && eventChannel == 5)
+    //     {
+    //         canBeTriggered = false;
+    //     }
 
-    	if (eventId == 1 && eventChannel == 5)
-    	{
-    		canBeTriggered = true;
-
-    		// randomize
-    		Random r = Random(Time::currentTimeMillis());
-
-    		triggerOnPeak = r.nextBool();
-
-    	} else if (eventId == 0 && eventChannel == 5) {
-    		canBeTriggered = false;
-    	}
-
-
-    }
+    // }
 
 }
 
@@ -115,60 +117,56 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
     checkForEvents(events);
 
-    for (int i = 0; i < nSamples; i++)
+    if (selectedChannel >= 0 && selectedChannel < buffer.getNumChannels())
     {
 
-		float sample;
-
-		if (triggerOnPeak)
-			sample = -(*buffer.getSampleData(0, i));
-		else
-			sample = *buffer.getSampleData(0, i);
-
-
-        if (sample > lastSample && !isIncreasing)
+        for (int i = 0; i < nSamples; i++)
         {
 
-            // entering rising phase
-            isIncreasing = true;
-            nSamplesSinceLastPeak++;
+            float sample = *buffer.getSampleData(selectedChannel, i);
 
-        }
-        else if (sample < lastSample && isIncreasing && nSamplesSinceLastPeak >= minSamplesToNextPeak)
-        {
-
-            numPeakIntervals++;
-
-
-	    	if (canBeTriggered)
-	        	addEvent(events, TTL, i, 1, 3);
-
-
-            peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
-
-            isIncreasing = false;
-
-            nSamplesSinceLastPeak = 0;
-
-            estimateFrequency();
-
-
-        }
-        else
-        {
-
-            // either rising or falling
-            nSamplesSinceLastPeak++;
-
-            if (nSamplesSinceLastPeak == 100)
+            if (sample > lastSample && !isIncreasing)
             {
-                addEvent(events, TTL, i, 0, 3);
+
+                // entering rising phase
+                isIncreasing = true;
+                nSamplesSinceLastPeak++;
+
+            }
+            else if (sample < lastSample && isIncreasing && nSamplesSinceLastPeak >= minSamplesToNextPeak)
+            {
+
+                numPeakIntervals++;
+
+                // entering falling phase (just reached peak)
+                if (true)
+                    addEvent(events, TTL, i, 1, 3);
+
+                peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
+
+                isIncreasing = false;
+
+                nSamplesSinceLastPeak = 0;
+
+                estimateFrequency();
+
+            }
+            else
+            {
+
+                // either rising or falling
+                nSamplesSinceLastPeak++;
+
+                if (nSamplesSinceLastPeak == 100)
+                {
+                    addEvent(events, TTL, i, 0, 3);
+                }
+
             }
 
+            lastSample = sample;
+
         }
-
-        lastSample = sample;
-
     }
 
 
@@ -192,3 +190,4 @@ void PhaseDetector::estimateFrequency()
 
 
 }
+

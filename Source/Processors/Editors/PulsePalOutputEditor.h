@@ -35,21 +35,58 @@
 
 */
 
+class ChannelTriggerInterface;
+class PulsePal;
+class PulsePalOutput;
+
+class UtilityButton;
+
 class PulsePalOutputEditor : public GenericEditor
 
 {
 public:
-    PulsePalOutputEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    PulsePalOutputEditor(GenericProcessor* parentNode, PulsePal* pp, bool useDefaultParameterEditors);
     virtual ~PulsePalOutputEditor();
 
 private:
 
+    OwnedArray<ChannelTriggerInterface> channelTriggerInterfaces;
+
+    PulsePal* pulsePal;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PulsePalOutputEditor);
 
 };
 
 
+class ChannelTriggerInterface : public Component,
+    public Button::Listener,
+    public ComboBox::Listener
+{
+public:
+    ChannelTriggerInterface(PulsePal*, PulsePalOutput*, int channelNum);
+    ~ChannelTriggerInterface();
+
+    void paint(Graphics& g);
+
+    void buttonClicked(Button* button);
+    void comboBoxChanged(ComboBox* comboBoxThatHasChanged);
+
+private:
+
+    int channelNumber;
+    String name;
+
+    bool isEnabled;
+
+    PulsePal* pulsePal;
+    PulsePalOutput* processor;
+
+    ScopedPointer<UtilityButton> triggerButton;
+    ScopedPointer<ComboBox> triggerSelector;
+    ScopedPointer<ComboBox> gateSelector;
+
+};
 
 
 

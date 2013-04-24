@@ -39,7 +39,7 @@ FilterNode::FilterNode()
     parameters.add(Parameter("low cut",lowCutValues, 3, 0));
 
     Array<var> highCutValues;
-    highCutValues.add(1000.0f);
+    highCutValues.add(12.0f);
     highCutValues.add(3000.0f);
     highCutValues.add(6000.0f);
     highCutValues.add(9000.0f);

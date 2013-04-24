@@ -48,8 +48,8 @@ public:
 
     void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
     void setParameter(int parameterIndex, float newValue);
-
-    //AudioProcessorEditor* createEditor();
+    
+    AudioProcessorEditor* createEditor();
 
     bool hasEditor() const
     {
@@ -82,6 +82,8 @@ private:
 
     int* peakIntervals;
     int numPeakIntervals;
+
+    int selectedChannel;
 
     void estimateFrequency();
 
