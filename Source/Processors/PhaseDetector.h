@@ -68,7 +68,10 @@ private:
 
     bool isIncreasing;
 
-    bool canBeTriggered;
+	bool triggerOnPeak;
+
+	bool canBeTriggered;
+
 
     void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 

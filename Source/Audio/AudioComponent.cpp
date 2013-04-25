@@ -108,6 +108,7 @@ AudioComponent::AudioComponent() : isPlaying(false)
     stopDevice(); // reduces the amount of background processing when
     // device is not in use
 
+
 }
 
 AudioComponent::~AudioComponent()

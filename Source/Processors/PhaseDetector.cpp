@@ -27,7 +27,7 @@
 
 PhaseDetector::PhaseDetector()
     : GenericProcessor("Phase Detector"),
-      maxFrequency(20), isIncreasing(true), canBeTriggered(false)
+      maxFrequency(20), isIncreasing(true), canBeTriggered(false), selectedChannel(-1)
 
 {
 
@@ -190,3 +190,4 @@ void PhaseDetector::estimateFrequency()
 
 
 }
+
