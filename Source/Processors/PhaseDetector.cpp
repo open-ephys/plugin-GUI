@@ -82,6 +82,7 @@ bool PhaseDetector::enable()
 
 void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 {
+    // MOVED GATING TO PULSE PAL OUTPUT!
 
     //std::cout << "GOT EVENT." << std::endl;
 
@@ -186,7 +187,6 @@ void PhaseDetector::estimateFrequency()
     }
 
     estimatedFrequency = getSampleRate()/(float(sum)/float(N));
-
 
 
 }
