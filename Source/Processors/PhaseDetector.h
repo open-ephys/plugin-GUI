@@ -72,7 +72,6 @@ private:
 
 	bool canBeTriggered;
 
-
     void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
     float estimatedFrequency;
@@ -84,6 +83,8 @@ private:
     int numPeakIntervals;
 
     int selectedChannel;
+
+    Random randomNumberGenerator;
 
     void estimateFrequency();
 
