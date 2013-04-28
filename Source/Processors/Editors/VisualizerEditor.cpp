@@ -251,3 +251,16 @@ void VisualizerEditor::buttonEvent(Button* button)
 
 }
 
+void VisualizerEditor::saveEditorParameters(XmlElement* xml)
+{
+
+    xml->setAttribute("Attribute", "VISUALIZER");
+
+}
+
+void VisualizerEditor::loadEditorParameters(XmlElement* xml)
+{
+
+    //xml->setAttribute("Attribute", "VISUALIZER");
+
+}

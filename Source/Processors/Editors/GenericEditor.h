@@ -231,6 +231,12 @@ public:
     /** Sets param/audio/record selection state for a given channel */
     void setChannelSelectionState(int chan, bool p, bool r, bool a);
 
+    /** Writes editor state to xml */
+    virtual void saveEditorParameters(XmlElement* xml);
+
+    /** Writes editor state to xml */
+    virtual void loadEditorParameters(XmlElement* xml);
+
 protected:
 
     /** A pointer to the button that opens the drawer for the ChannelSelector. */

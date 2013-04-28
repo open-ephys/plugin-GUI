@@ -80,6 +80,9 @@ public:
 
     void updateVisualizer();
 
+    void saveEditorParameters(XmlElement* xml);
+    void loadEditorParameters(XmlElement* xml);
+
     ScopedPointer<DataWindow> dataWindow;
     ScopedPointer<Visualizer> canvas;
 

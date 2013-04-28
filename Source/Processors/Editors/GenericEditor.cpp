@@ -489,6 +489,20 @@ void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
     channelSelector->setAudioStatus(chan, a);
 }
 
+void GenericEditor::saveEditorParameters(XmlElement* xml)
+{
+
+    xml->setAttribute("Attribute", "WHAT");
+
+}
+
+void GenericEditor::loadEditorParameters(XmlElement* xml)
+{
+
+    //xml->setAttribute("Attribute", "WHAT");
+
+}
+
 
 /////////////////////// BUTTONS ///////////////////////////////
 

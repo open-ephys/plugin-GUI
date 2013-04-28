@@ -534,9 +534,11 @@ void GenericProcessor::saveParametersToChannelsXml(juce::XmlElement* channelPare
 
 void GenericProcessor::saveToXml(juce::XmlElement* parentElement)
 {
-    std::cout <<"Creating Channels" << std::endl;
+    std::cout <<"Creating channel xml elements" << std::endl;
+
     String channelName;
     XmlElement* channelChildNode;
+    XmlElement* editorChildNode;
 
     int numChannels = channels.size();
     //I'm unsure whether or not the name or XML elements should include whether they're normal or event channels–it probably depends on loading implementation
@@ -548,17 +550,19 @@ void GenericProcessor::saveToXml(juce::XmlElement* parentElement)
         saveParametersToChannelsXml(channelChildNode, i);
     }
 
-    int numEventChannels = eventChannels.size();
+    // int numEventChannels = eventChannels.size();
 
-    for (int i = 1; i <= numEventChannels; i++)
-    {
+    // for (int i = 1; i <= numEventChannels; i++)
+    // {
 
-        channelName=/**String("EventCh:")+*/String(i);
-        channelChildNode = parentElement->createNewChildElement("EVENTCHANNEL");
-        channelChildNode->setAttribute("name", channelName);
-        saveParametersToChannelsXml(channelChildNode, i);
-    }
+    //     channelName=/**String("EventCh:")+*/String(i);
+    //     channelChildNode = parentElement->createNewChildElement("EVENTCHANNEL");
+    //     channelChildNode->setAttribute("name", channelName);
+    //     saveParametersToChannelsXml(channelChildNode, i);
+    // }
 
+    editorChildNode = parentElement->createNewChildElement("EDITOR");
+    getEditor()->saveEditorParameters(editorChildNode);
 
 }
 
@@ -593,6 +597,9 @@ void GenericProcessor::loadFromXml()
                                                         subNode->getBoolAttribute("audio"));
                     }
                 } 
+            } else if (xmlNode->hasTagName("EDITOR"))
+            {
+                getEditor()->loadEditorParameters(xmlNode);
             }
 
         }   
