@@ -76,7 +76,7 @@ VisualizerEditor::VisualizerEditor(GenericProcessor* parentNode, int width, bool
 
 VisualizerEditor::VisualizerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
     : GenericEditor(parentNode, useDefaultParameterEditors),
-      dataWindow(0), canvas(0), isPlaying(false), tabIndex(-1)
+      dataWindow(nullptr), canvas(nullptr), isPlaying(false), tabIndex(-1)
 {
 
     desiredWidth = 180;
@@ -157,7 +157,7 @@ void VisualizerEditor::buttonEvent(Button* button)
 
     if (gId > 0)
     {
-        if (canvas != 0)
+        if (canvas != nullptr)
         {
             canvas->setParameter(gId-1, button->getName().getFloatValue());
         }
@@ -166,7 +166,7 @@ void VisualizerEditor::buttonEvent(Button* button)
     else
     {
 
-        if (canvas == 0)
+        if (canvas == nullptr)
         {
 
             canvas = createNewCanvas();
@@ -185,7 +185,7 @@ void VisualizerEditor::buttonEvent(Button* button)
                 tabIndex = -1;
             }
 
-            if (dataWindow == 0)
+            if (dataWindow == nullptr)
             {
 
                 dataWindow = new DataWindow(windowSelector, tabText);
@@ -254,13 +254,52 @@ void VisualizerEditor::buttonEvent(Button* button)
 void VisualizerEditor::saveEditorParameters(XmlElement* xml)
 {
 
-    xml->setAttribute("Attribute", "VISUALIZER");
+    xml->setAttribute("Type", "Visualizer");
+
+    XmlElement* tabButtonState = xml->createNewChildElement("TAB");
+    tabButtonState->setAttribute("Active",tabSelector->getToggleState());
+
+    XmlElement* windowButtonState = xml->createNewChildElement("WINDOW");
+    windowButtonState->setAttribute("Active",windowSelector->getToggleState());
+
+    if (dataWindow != nullptr)
+    {
+        windowButtonState->setAttribute("x",dataWindow->getX());
+        windowButtonState->setAttribute("y",dataWindow->getY());
+        windowButtonState->setAttribute("width",dataWindow->getWidth());
+        windowButtonState->setAttribute("height",dataWindow->getHeight());
+    }
 
 }
 
 void VisualizerEditor::loadEditorParameters(XmlElement* xml)
 {
 
-    //xml->setAttribute("Attribute", "VISUALIZER");
+     forEachXmlChildElement(*xml, xmlNode)
+     {
+         if (xmlNode->hasTagName("TAB"))
+         {
 
+            bool tabState = xmlNode->getBoolAttribute("Active");
+
+            if (tabState)
+                tabSelector->setToggleState(true,true);
+
+
+         } else if (xmlNode->hasTagName("WINDOW")) {
+
+             bool windowState = xmlNode->getBoolAttribute("Active");
+
+             if (windowState)
+            {
+                windowSelector->setToggleState(true,true);
+                dataWindow->setBounds(xmlNode->getIntAttribute("x"),
+                                          xmlNode->getIntAttribute("y"),
+                                          xmlNode->getIntAttribute("width"),
+                                          xmlNode->getIntAttribute("height"));
+
+            }
+            
+         }
+    }
 }

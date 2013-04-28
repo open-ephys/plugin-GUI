@@ -584,7 +584,7 @@ void GenericProcessor::loadFromXml()
 
                 channelNum += 1;
 
-                std::cout << "Loading channel parameters." << std::endl;
+              //  std::cout << "Loading channel parameters." << std::endl;
 
                  forEachXmlChildElement(*xmlNode, subNode)
                 {

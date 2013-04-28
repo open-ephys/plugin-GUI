@@ -54,7 +54,7 @@ SourceNode::SourceNode(const String& name_)
         // sendActionMessage("Select a file...");
 
         FileChooser chooseFileReaderFile("Please select the file you want to load...",
-                                         File::getSpecialLocation(File::userHomeDirectory),
+                                         File::getCurrentWorkingDirectory(),
                                          "*");
 
         if (chooseFileReaderFile.browseForFileToOpen())
