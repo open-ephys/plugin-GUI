@@ -1060,8 +1060,8 @@ XmlElement* EditorViewport::createNodeXml(GenericEditor* editor,
     e->setAttribute("insertionPoint", insertionPt);
 
     /**Saves parameters to XML */
-    std::cout << "Create subnotes with parameters" << std::endl;
-    source->saveToXML(e);
+    std::cout << "Create subnodes with parameters" << std::endl;
+    source->saveToXml(e);
     // source->stateSaved = true;
 
     //GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
@@ -1298,6 +1298,7 @@ const String EditorViewport::loadState()
 
                 GenericProcessor* p = (GenericProcessor*) lastEditor->getProcessor();
                 p->loadOrder = loadOrder;
+                p->parametersAsXml = processor;
 
                 loadOrder++;
 
@@ -1350,6 +1351,8 @@ const String EditorViewport::loadState()
         // deselect everything initially
         editorArray[i]->deselect();
     }
+
+    getProcessorGraph()->restoreParameters();
 
     String error = "Opened ";
     error += currentFile.getFileName();

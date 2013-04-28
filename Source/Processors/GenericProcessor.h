@@ -535,10 +535,16 @@ public:
     Parameter& getParameterReference(int parameterIndex);
 
     /** Saving all settings to XML*/
-    void saveToXML(XmlElement* parentElement);
+    void saveToXml(XmlElement* parentElement);
+
+    /** Load settings from XML*/
+    void loadFromXml();
 
     /** Saving Parameters for each Channel */
-    void saveParametersToChannelsXML(XmlElement* channelParent, int channelNumber);
+    void saveParametersToChannelsXml(XmlElement* channelParent, int channelNumber);
+
+     /** Holds loaded parameters */
+    XmlElement* parametersAsXml;
 
 private:
 

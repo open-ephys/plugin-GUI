@@ -190,6 +190,30 @@ void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
 
 }
 
+void ProcessorGraph::restoreParameters()
+{
+
+    std::cout << "Restoring parameters for each processor..." << std::endl;
+
+    for (int i = 0; i < getNumNodes(); i++)
+    {
+        Node* node = getNode(i);
+
+        int nodeId = node->nodeId;
+
+        if (nodeId != OUTPUT_NODE_ID &&
+            nodeId != AUDIO_NODE_ID &&
+            nodeId != RECORD_NODE_ID &&
+            nodeId != RESAMPLING_NODE_ID)
+        {
+            GenericProcessor* p =(GenericProcessor*) node->getProcessor();
+            p->loadFromXml();
+        }
+    }
+
+}
+
+
 
 void ProcessorGraph::clearConnections()
 {

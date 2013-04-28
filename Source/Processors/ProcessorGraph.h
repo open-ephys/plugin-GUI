@@ -76,8 +76,8 @@ public:
 
     void changeListenerCallback(ChangeBroadcaster* source);
 
-    // void saveState();
-    // void loadState();
+    /** Loops through processors and restores parameters, if they're available. */
+    void restoreParameters();
 
 private:
 
