@@ -24,9 +24,34 @@
 
 #include "FileReaderThread.h"
 
-FileReaderThread::FileReaderThread(SourceNode* sn, const char* path) :
-    DataThread(sn), lengthOfInputFile(0), bufferSize(0)
+FileReaderThread::FileReaderThread(SourceNode* sn) :
+    DataThread(sn), lengthOfInputFile(0), bufferSize(0), input(0)
 {
+
+    bufferSize = 1600;
+    dataBuffer = new DataBuffer(16, bufferSize*3);
+
+    eventCode = 0;
+
+    std::cout << "File Reader Thread initialized." << std::endl;
+
+}
+
+FileReaderThread::~FileReaderThread()
+{
+    if (input)
+        fclose(input);
+}
+
+void FileReaderThread::setFile(String fullpath)
+{
+
+    filePath = fullpath;
+
+    const char* path = filePath.getCharPointer();
+
+    if (input)
+        fclose(input);
 
     input = fopen(path, "r");
 
@@ -42,20 +67,6 @@ FileReaderThread::FileReaderThread(SourceNode* sn, const char* path) :
     fseek(input, 0, SEEK_END);
     lengthOfInputFile = ftell(input);
     rewind(input);
-
-    bufferSize = 1600;
-    dataBuffer = new DataBuffer(16, bufferSize*3);
-
-    eventCode = 0;
-
-    std::cout << "File Reader Thread initialized." << std::endl;
-
-}
-
-FileReaderThread::~FileReaderThread()
-{
-    if (input)
-        fclose(input);
 }
 
 bool FileReaderThread::foundInputSource()
@@ -111,7 +122,7 @@ bool FileReaderThread::updateBuffer()
             rewind(input);
         }
 
-        fread(readBuffer, 2, bufferSize, input);
+        size_t a = fread(readBuffer, 2, bufferSize, input);
 
         int chan = 0;
 

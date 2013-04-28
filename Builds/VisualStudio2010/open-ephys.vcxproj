@@ -173,6 +173,7 @@
     <ClCompile Include="..\..\Source\Processors\SpikeDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\FileReaderEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\PhaseDetectorEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\PulsePalOutputEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\RHD2000Editor.cpp"/>
@@ -1353,6 +1354,7 @@
     <ClInclude Include="..\..\Source\Processors\SpikeDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\FileReaderEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\PhaseDetectorEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\PulsePalOutputEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\RHD2000Editor.h"/>

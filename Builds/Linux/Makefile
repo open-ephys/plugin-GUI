@@ -89,6 +89,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/FileReaderEditor_16fd7744.o \
   $(OBJDIR)/PhaseDetectorEditor_f53aa520.o \
   $(OBJDIR)/PulsePalOutputEditor_ab5be148.o \
   $(OBJDIR)/RHD2000Editor_d7ddd6b.o \
@@ -405,6 +406,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/FileReaderEditor_16fd7744.o: ../../Source/Processors/Editors/FileReaderEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling FileReaderEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/PhaseDetectorEditor_f53aa520.o: ../../Source/Processors/Editors/PhaseDetectorEditor.cpp

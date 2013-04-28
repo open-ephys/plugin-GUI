@@ -21,59 +21,46 @@
 
 */
 
-#ifndef __FILEREADERTHREAD_H_82594504__
-#define __FILEREADERTHREAD_H_82594504__
+
+#ifndef __FILEREADEREDITOR_H_D6EC8B48__
+#define __FILEREADEREDITOR_H_D6EC8B48__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "GenericEditor.h"
 
-#include <stdio.h>
-#include <time.h>
-#include "DataThread.h"
+class FileReaderThread;
 
-class SourceNode;
 
 /**
 
-  Fills a buffer with data from a file.
+  User interface for the "FileReader" source node.
 
-  Has issues with setting the correct sampling rate.
-
-  @see DataThread
+  @see SourceNode, FileReaderThread
 
 */
 
-class FileReaderThread : public DataThread
+  class FileReaderEditor : public GenericEditor
 
 {
 public:
-    FileReaderThread(SourceNode* sn);
-    ~FileReaderThread();
+    FileReaderEditor(GenericProcessor* parentNode, FileReaderThread*, bool useDefaultParameterEditors);
+    virtual ~FileReaderEditor();
 
-    bool foundInputSource();
-    bool startAcquisition();
-    bool stopAcquisition();
-    int getNumChannels();
-    float getSampleRate();
-    float getBitVolts();
-
-    void setFile(String fullpath);
+    void buttonEvent(Button* button);
 
 private:
-    int lengthOfInputFile;
-    FILE* input;
 
-    float thisSample[16];
-    int16 readBuffer[1600];
+	ScopedPointer<UtilityButton> fileButton;
+	ScopedPointer<Label> fileNameLabel;
 
-    int bufferSize;
+	FileReaderThread* thread;
 
-    String filePath;
+	File lastFilePath;
 
-    bool updateBuffer();
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReaderEditor);
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReaderThread);
 };
 
 
 
-#endif  // __FILEREADERTHREAD_H_82594504__
+#endif  // __FILEREADEREDITOR_H_D6EC8B48__

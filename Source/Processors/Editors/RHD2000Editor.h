@@ -27,6 +27,12 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
+
+class HeadstageOptionsInterface;
+class RHD2000Thread;
+
+class UtilityButton;
+
 /**
 
   User interface for the RHD2000 source module.
@@ -35,10 +41,6 @@
 
 */
 
-class HeadstageOptionsInterface;
-class RHD2000Thread;
-
-class UtilityButton;
 
 class RHD2000Editor : public GenericEditor
 
@@ -64,8 +66,6 @@ class HeadstageOptionsInterface : public Component,
 public:
     HeadstageOptionsInterface(RHD2000Thread*, RHD2000Editor*, int hsNum);
     ~HeadstageOptionsInterface();
-
-    //void mouseUp(const MouseEvent& event);
 
     void paint(Graphics& g);
 

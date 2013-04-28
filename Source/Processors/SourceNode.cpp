@@ -28,6 +28,7 @@
 #include "DataThreads/FileReaderThread.h"
 #include "DataThreads/RHD2000Thread.h"
 #include "Editors/SourceNodeEditor.h"
+#include "Editors/FileReaderEditor.h"
 #include "Editors/RHD2000Editor.h"
 #include "Channel.h"
 #include <stdio.h>
@@ -53,22 +54,22 @@ SourceNode::SourceNode(const String& name_)
 
         // sendActionMessage("Select a file...");
 
-        FileChooser chooseFileReaderFile("Please select the file you want to load...",
-                                         File::getCurrentWorkingDirectory(),
-                                         "*");
+        // FileChooser chooseFileReaderFile("Please select the file you want to load...",
+        //                                  File::getCurrentWorkingDirectory(),
+        //                                  "*");
 
-        if (chooseFileReaderFile.browseForFileToOpen())
-        {
-            // Use the selected file
-            File fileToRead(chooseFileReaderFile.getResult());
-            String fileName(fileToRead.getFullPathName());
-            dataThread = new FileReaderThread(this, fileName.getCharPointer());
-        }
-        else
-        {
+        // if (chooseFileReaderFile.browseForFileToOpen())
+        // {
+        //     // Use the selected file
+        //     File fileToRead(chooseFileReaderFile.getResult());
+        //     String fileName(fileToRead.getFullPathName());
+        //     dataThread = new FileReaderThread(this, fileName.getCharPointer());
+        // }
+        // else
+        // {
             // If cancelled, assume it's in the resources directory (only works on Linux)
-            dataThread = new FileReaderThread(this, "../../../Resources/DataFiles/data_stream_16ch_cortex");
-        }
+            dataThread = new FileReaderThread(this); //, "../../../Resources/DataFiles/data_stream_16ch_cortex");
+        // }
 
         //sendActionMessage("File loaded.");
 
@@ -230,8 +231,11 @@ AudioProcessorEditor* SourceNode::createEditor()
     {
         editor = new RHD2000Editor(this, (RHD2000Thread*) dataThread.get(), true);
     }
-    else
+    else if (getName().equalsIgnoreCase("File Reader"))
     {
+        editor = new FileReaderEditor(this, (FileReaderThread*) dataThread.get(), true);
+    }
+    else {
         editor = new SourceNodeEditor(this, true);
     }
     return editor;
@@ -241,7 +245,7 @@ bool SourceNode::tryEnablingEditor()
 {
     if (!isReady())
     {
-        std::cout << "No input source found." << std::endl;
+        //std::cout << "No input source found." << std::endl;
         return false;
     }
     else if (isEnabled)

@@ -311,6 +311,10 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="PobvRC" name="FileReaderEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/FileReaderEditor.cpp"/>
+          <FILE id="hIDHaX" name="FileReaderEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/FileReaderEditor.h"/>
           <FILE id="Vy98eh" name="PhaseDetectorEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/PhaseDetectorEditor.cpp"/>
           <FILE id="vuvcfO" name="PhaseDetectorEditor.h" compile="0" resource="0"
