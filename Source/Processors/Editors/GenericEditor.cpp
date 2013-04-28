@@ -473,6 +473,21 @@ bool GenericEditor::getAudioStatus(int chan)
     return channelSelector->getAudioStatus(chan);
 }
 
+void GenericEditor::getChannelSelectionState(int chan, bool* p, bool* r, bool* a)
+{
+
+    *p = channelSelector->getParamStatus(chan);
+    *r = channelSelector->getRecordStatus(chan);
+    *a = channelSelector->getAudioStatus(chan);
+}
+
+void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
+{
+
+    channelSelector->setParamStatus(chan, p);
+    channelSelector->setRecordStatus(chan, r);
+    channelSelector->setAudioStatus(chan, a);
+}
 
 
 /////////////////////// BUTTONS ///////////////////////////////

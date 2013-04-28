@@ -225,6 +225,11 @@ public:
     /** True if data acquisition has begun. */
     bool acquisitionIsActive;
 
+    /** Returns param/audio/record selection state for a given channel */
+    void getChannelSelectionState(int chan, bool* p, bool* r, bool* a);
+
+    /** Sets param/audio/record selection state for a given channel */
+    void setChannelSelectionState(int chan, bool p, bool r, bool a);
 
 protected:
 

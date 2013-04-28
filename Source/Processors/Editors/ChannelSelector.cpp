@@ -370,6 +370,16 @@ void ChannelSelector::setRadioStatus(bool radioOn)
 
 }
 
+bool ChannelSelector::getParamStatus(int chan)
+{
+
+    if (chan >= 0 && chan < parameterButtons.size())
+        return parameterButtons[chan]->getToggleState();
+    else
+        return false;
+
+}
+
 bool ChannelSelector::getRecordStatus(int chan)
 {
 
@@ -383,12 +393,37 @@ bool ChannelSelector::getRecordStatus(int chan)
 bool ChannelSelector::getAudioStatus(int chan)
 {
 
-    if (chan >= 0 && chan < recordButtons.size())
+    if (chan >= 0 && chan < audioButtons.size())
         return audioButtons[chan]->getToggleState();
     else
         return false;
 
 }
+
+void ChannelSelector::setParamStatus(int chan, bool b)
+{
+
+    if (chan >= 0 && chan < parameterButtons.size())
+        parameterButtons[chan]->setToggleState(b, true);
+
+}
+
+void ChannelSelector::setRecordStatus(int chan, bool b)
+{
+
+    if (chan >= 0 && chan < recordButtons.size())
+        recordButtons[chan]->setToggleState(b, true);
+
+}
+
+void ChannelSelector::setAudioStatus(int chan, bool b)
+{
+
+    if (chan >= 0 && chan < audioButtons.size())
+        audioButtons[chan]->setToggleState(b, true);
+
+}
+
 
 
 int ChannelSelector::getDesiredWidth()

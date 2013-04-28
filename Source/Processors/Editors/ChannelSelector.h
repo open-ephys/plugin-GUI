@@ -79,6 +79,18 @@ public:
     /** Return whether a particular channel should be monitored. */
     bool getAudioStatus(int chan);
 
+    /** Return whether a particular channel is selected for editing parameters. */
+    bool getParamStatus(int chan);
+
+    /** Return whether a particular channel should be recording. */
+    void setRecordStatus(int, bool);
+
+    /** Return whether a particular channel should be monitored. */
+    void setAudioStatus(int, bool);
+
+    /** Return whether a particular channel is selected for editing parameters. */
+    void setParamStatus(int, bool);
+
     /** Return component's desired width. */
     int getDesiredWidth();
 

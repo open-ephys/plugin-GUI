@@ -499,26 +499,37 @@ void GenericProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& event
 
 }
 
+
 void GenericProcessor::saveParametersToChannelsXml(juce::XmlElement* channelParent, int channelNumber)
 {
     //std::cout <<"Creating Parameters" << std::endl;
-    int maxsize=parameters.size();
+    int maxsize = parameters.size();
     String parameterName;
     String parameterValue;
     XmlElement* parameterChildNode;
 
-    for (int n=0; n<maxsize; n++)
+    // save any attributes that belong to "Parameter" objects
+    for (int n = 0; n < maxsize; n++)
     {
-        parameterName=getParameterName(n);
+        parameterName = getParameterName(n);
 
         parameterChildNode = channelParent->createNewChildElement("PARAMETER");
         parameterChildNode->setAttribute("name", parameterName);
 
-        var parameterVar=getParameterVar(n, channelNumber-1);
-        parameterValue=parameterVar.toString();
+        var parameterVar = getParameterVar(n, channelNumber-1);
+        parameterValue = parameterVar.toString();
         parameterChildNode->addTextElement(parameterValue);
     }
 
+    // save selection state
+    bool p, r, a;
+
+    getEditor()->getChannelSelectionState(channelNumber-1, &p, &r, &a);
+
+    XmlElement* selectionState = channelParent->createNewChildElement("SELECTIONSTATE");
+    selectionState->setAttribute("param",p);
+    selectionState->setAttribute("record",r);
+    selectionState->setAttribute("audio",a);
 }
 
 void GenericProcessor::saveToXml(juce::XmlElement* parentElement)
@@ -560,16 +571,32 @@ void GenericProcessor::loadFromXml()
     {
         // use parametersAsXml to restore state 
 
+        int channelNum = -1;
+
         forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
            if (xmlNode->hasTagName("CHANNEL"))
             {
+
+                channelNum += 1;
+
                 std::cout << "Loading channel parameters." << std::endl;
-            } 
-        }
 
+                 forEachXmlChildElement(*xmlNode, subNode)
+                {
+                    if (subNode->hasTagName("SELECTIONSTATE"))
+                    {
+
+                        getEditor()->setChannelSelectionState(channelNum,
+                                                        subNode->getBoolAttribute("param"),
+                                                        subNode->getBoolAttribute("record"),
+                                                        subNode->getBoolAttribute("audio"));
+                    }
+                } 
+            }
+
+        }   
     }
-
 }
 
 
