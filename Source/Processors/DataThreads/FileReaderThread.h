@@ -57,6 +57,7 @@ public:
     float getBitVolts();
 
     void setFile(String fullpath);
+    String getFile();
 
 private:
     int lengthOfInputFile;

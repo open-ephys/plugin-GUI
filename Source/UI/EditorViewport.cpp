@@ -1059,12 +1059,9 @@ XmlElement* EditorViewport::createNodeXml(GenericEditor* editor,
     e->setAttribute("name", name);
     e->setAttribute("insertionPoint", insertionPt);
 
-    /**Saves parameters to XML */
+    /**Saves individual processor parameters to XML */
     std::cout << "Create subnodes with parameters" << std::endl;
     source->saveToXml(e);
-    // source->stateSaved = true;
-
-    //GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
 
     return e;
 

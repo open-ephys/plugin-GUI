@@ -47,33 +47,11 @@ SourceNode::SourceNode(const String& name_)
     }
     else if (getName().equalsIgnoreCase("Custom FPGA"))
     {
-        dataThread = new FPGAThread(this);//FPGAThread(this);
+        dataThread = new FPGAThread(this);
     }
     else if (getName().equalsIgnoreCase("File Reader"))
     {
-
-        // sendActionMessage("Select a file...");
-
-        // FileChooser chooseFileReaderFile("Please select the file you want to load...",
-        //                                  File::getCurrentWorkingDirectory(),
-        //                                  "*");
-
-        // if (chooseFileReaderFile.browseForFileToOpen())
-        // {
-        //     // Use the selected file
-        //     File fileToRead(chooseFileReaderFile.getResult());
-        //     String fileName(fileToRead.getFullPathName());
-        //     dataThread = new FileReaderThread(this, fileName.getCharPointer());
-        // }
-        // else
-        // {
-            // If cancelled, assume it's in the resources directory (only works on Linux)
-            dataThread = new FileReaderThread(this); //, "../../../Resources/DataFiles/data_stream_16ch_cortex");
-        // }
-
-        //sendActionMessage("File loaded.");
-
-
+            dataThread = new FileReaderThread(this); 
     }
     else if (getName().equalsIgnoreCase("Rhythm FPGA"))
     {
@@ -405,6 +383,42 @@ void SourceNode::process(AudioSampleBuffer& buffer,
                 eventChannelState[c] = state;
             }
         }
+    }
+
+}
+
+
+
+void SourceNode::saveCustomParametersToXml(XmlElement* parentElement)
+{
+
+    if (getName().equalsIgnoreCase("File Reader"))
+    {
+        XmlElement* childNode = parentElement->createNewChildElement("FILENAME");
+        FileReaderThread* thread = (FileReaderThread*) dataThread.get();
+        childNode->setAttribute("path", thread->getFile());
+
+    }
+
+}
+
+void SourceNode::loadCustomParametersFromXml()
+{
+
+    if (parametersAsXml != nullptr)
+    {
+        // use parametersAsXml to restore state 
+
+        forEachXmlChildElement(*parametersAsXml, xmlNode)
+        {
+           if (xmlNode->hasTagName("FILENAME"))
+            {
+                String filepath = xmlNode->getStringAttribute("path");
+                FileReaderEditor* fre = (FileReaderEditor*) getEditor();
+                fre->setFile(filepath);
+
+            }
+        }   
     }
 
 }

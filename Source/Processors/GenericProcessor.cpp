@@ -532,7 +532,7 @@ void GenericProcessor::saveParametersToChannelsXml(juce::XmlElement* channelPare
     selectionState->setAttribute("audio",a);
 }
 
-void GenericProcessor::saveToXml(juce::XmlElement* parentElement)
+void GenericProcessor::saveToXml(XmlElement* parentElement)
 {
     std::cout <<"Creating channel xml elements" << std::endl;
 
@@ -564,6 +564,13 @@ void GenericProcessor::saveToXml(juce::XmlElement* parentElement)
     editorChildNode = parentElement->createNewChildElement("EDITOR");
     getEditor()->saveEditorParameters(editorChildNode);
 
+    saveCustomParametersToXml(parentElement);
+
+}
+
+void GenericProcessor::saveCustomParametersToXml(XmlElement* parentElement)
+{
+
 }
 
 void GenericProcessor::loadFromXml()
@@ -594,6 +601,7 @@ void GenericProcessor::loadFromXml()
                         getEditor()->setChannelSelectionState(channelNum,
                                                         subNode->getBoolAttribute("param"),
                                                         subNode->getBoolAttribute("record"),
+                                                    
                                                         subNode->getBoolAttribute("audio"));
                     }
                 } 
@@ -604,6 +612,13 @@ void GenericProcessor::loadFromXml()
 
         }   
     }
+
+    loadCustomParametersFromXml();
+}
+
+void GenericProcessor::loadCustomParametersFromXml()
+{
+    
 }
 
 

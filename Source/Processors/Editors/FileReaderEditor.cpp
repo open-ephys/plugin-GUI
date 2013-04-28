@@ -51,6 +51,15 @@ FileReaderEditor::~FileReaderEditor()
 
 }
 
+void FileReaderEditor::setFile(String file)
+{
+
+	File fileToRead(file);
+	lastFilePath = fileToRead.getParentDirectory();
+	thread->setFile(fileToRead.getFullPathName());
+	fileNameLabel->setText(fileToRead.getFileName(),false);
+}
+
 void FileReaderEditor::buttonEvent(Button* button)
 {
 
@@ -67,13 +76,13 @@ void FileReaderEditor::buttonEvent(Button* button)
 	         if (chooseFileReaderFile.browseForFileToOpen())
 	         {
 	             // Use the selected file
-	             File fileToRead(chooseFileReaderFile.getResult());
+	             setFile(chooseFileReaderFile.getResult().getFullPathName());
 
-	             lastFilePath = fileToRead.getParentDirectory();
+	             // lastFilePath = fileToRead.getParentDirectory();
 
-	             thread->setFile(fileToRead.getFullPathName());
+	             // thread->setFile(fileToRead.getFullPathName());
 
-	             fileNameLabel->setText(fileToRead.getFileName(),false);
+	             // fileNameLabel->setText(fileToRead.getFileName(),false);
 			}
 		}
 

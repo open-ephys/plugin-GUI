@@ -534,11 +534,17 @@ public:
     /** Returns the parameter for a given index.*/
     Parameter& getParameterReference(int parameterIndex);
 
-    /** Saving all settings to XML*/
+    /** Save generic settings to XML (called by all processors).*/
     void saveToXml(XmlElement* parentElement);
 
-    /** Load settings from XML*/
+    /** Saving custom settings to XML. */
+    virtual void saveCustomParametersToXml(XmlElement* parentElement);
+
+    /** Load generic settings from XML (called by all processors). */
     void loadFromXml();
+
+    /** Load custom settings from XML*/
+    virtual void loadCustomParametersFromXml();
 
     /** Saving Parameters for each Channel */
     void saveParametersToChannelsXml(XmlElement* channelParent, int channelNumber);

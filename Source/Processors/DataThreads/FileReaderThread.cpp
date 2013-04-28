@@ -21,7 +21,7 @@
 
 */
 
-
+#include "../SourceNode.h"
 #include "FileReaderThread.h"
 
 FileReaderThread::FileReaderThread(SourceNode* sn) :
@@ -67,6 +67,15 @@ void FileReaderThread::setFile(String fullpath)
     fseek(input, 0, SEEK_END);
     lengthOfInputFile = ftell(input);
     rewind(input);
+
+
+    sn->tryEnablingEditor();
+
+}
+
+String FileReaderThread::getFile()
+{
+    return filePath;
 }
 
 bool FileReaderThread::foundInputSource()

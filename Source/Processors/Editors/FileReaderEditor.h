@@ -48,6 +48,8 @@ public:
 
     void buttonEvent(Button* button);
 
+    void setFile(String file);
+
 private:
 
 	ScopedPointer<UtilityButton> fileButton;

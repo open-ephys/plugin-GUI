@@ -85,6 +85,11 @@ public:
 
     int getTTLState();
 
+    void saveCustomParametersToXml(XmlElement* parentElement);
+    void loadCustomParametersFromXml();
+
+     bool tryEnablingEditor();
+
 private:
 
     int numEventChannels;
@@ -106,7 +111,7 @@ private:
     int ttlState;
 
     void updateSettings();
-    bool tryEnablingEditor();
+   
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SourceNode);
 
