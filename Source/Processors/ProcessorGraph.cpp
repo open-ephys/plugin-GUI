@@ -77,10 +77,12 @@ void ProcessorGraph::createDefaultNodes()
     // add record node -- sends output to disk
     RecordNode* recn = new RecordNode();
     recn->setNodeId(RECORD_NODE_ID);
+   
 
     // add audio node -- takes all inputs and selects those to be used for audio monitoring
     AudioNode* an = new AudioNode();
     an->setNodeId(AUDIO_NODE_ID);
+    
 
     // add audio resampling node -- resamples continuous signals to 44.1kHz
     AudioResamplingNode* arn = new AudioResamplingNode();
@@ -108,6 +110,12 @@ void ProcessorGraph::createDefaultNodes()
 
     std::cout << "Default nodes created." << std::endl;
 
+}
+
+void ProcessorGraph::updatePointers()
+{
+    getAudioNode()->setUIComponent(getUIComponent());
+    getRecordNode()->setUIComponent(getUIComponent());
 }
 
 void* ProcessorGraph::createNewProcessor(String& description)//,

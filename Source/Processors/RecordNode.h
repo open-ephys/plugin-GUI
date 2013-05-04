@@ -101,6 +101,9 @@ public:
     */
     void createNewDirectory();
 
+    /** Signals when to create a new data directory when recording starts.*/
+    bool newDirectoryNeeded;
+
 private:
 
     /** Keep the RecordNode informed of acquisition and record states.

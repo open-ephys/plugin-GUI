@@ -23,13 +23,14 @@
 
 #include "RecordNode.h"
 #include "ProcessorGraph.h"
+#include "../UI/ControlPanel.h"
 
 #include "Channel.h"
 
 RecordNode::RecordNode()
     : GenericProcessor("Record Node"),
       isRecording(false), isProcessing(false), signalFilesShouldClose(false),
-      timestamp(0)
+      timestamp(0), newDirectoryNeeded(true)
 {
 
 
@@ -126,7 +127,7 @@ void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
     else
         std::cout << " is NOT a directory." << std::endl;
 
-    createNewDirectory();
+    //createNewDirectory();
 
 
 
@@ -217,6 +218,8 @@ void RecordNode::createNewDirectory()
         updateFileName(channelPointers[i]);
     }
 
+    newDirectoryNeeded = false;
+
 }
 
 String RecordNode::generateDirectoryName()
@@ -231,20 +234,27 @@ String RecordNode::generateDirectoryName()
     t.add(calendar.getMinutes());
     t.add(calendar.getSeconds());
 
-    String filename = "";
+    String filename = getControlPanel()->getTextToPrepend();
+
+    String datestring = "";
 
     for (int n = 0; n < t.size(); n++)
     {
         if (t[n] < 10)
-            filename += "0";
+            datestring += "0";
 
-        filename += t[n];
+        datestring += t[n];
 
         if (n == 2)
-            filename += "_";
+            datestring += "_";
         else if (n < 5)
-            filename += "-";
+            datestring += "-";
     }
+
+    getControlPanel()->setDateText(datestring);
+
+    filename += datestring;
+    filename += getControlPanel()->getTextToAppend();
 
     return filename;
 
@@ -285,6 +295,9 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 
         isRecording = true;
         std::cout << "START RECORDING." << std::endl;
+
+        if (newDirectoryNeeded)
+            createNewDirectory();
 
         if (!rootFolder.exists())
             rootFolder.createDirectory();

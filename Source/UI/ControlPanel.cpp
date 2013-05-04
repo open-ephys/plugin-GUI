@@ -379,7 +379,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     cpb = new ControlPanelButton(this);
     addAndMakeVisible(cpb);
 
-    newDirectoryButton = new UtilityButton("+", font);
+    newDirectoryButton = new UtilityButton("+", Font("Small Text", 15, Font::plain));
     newDirectoryButton->setEnabledState(false);
     newDirectoryButton->addListener(this);
     addChildComponent(newDirectoryButton);
@@ -395,6 +395,23 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
                                               "",
                                               "");
     addChildComponent(filenameComponent);
+
+    prependText = new Label("Prepend","");
+    prependText->setEditable(true);
+    prependText->addListener(this);
+    prependText->setColour(Label::backgroundColourId, Colours::lightgrey);
+
+    addChildComponent(prependText);
+
+    dateText = new Label("Date","YY-MM-DD_HH-MM-SS");
+    dateText->setColour(Label::backgroundColourId, Colours::lightgrey);
+    addChildComponent(dateText);
+
+    appendText = new Label("Append","");
+    appendText->setEditable(true);
+    appendText->addListener(this);
+    appendText->setColour(Label::backgroundColourId, Colours::lightgrey);
+    addChildComponent(appendText);
 
     //diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
     //diskMeter->repaint();
@@ -495,17 +512,29 @@ void ControlPanel::resized()
 
     if (open)
     {
-        filenameComponent->setBounds(200, h+5, w-250, h-10);
+        filenameComponent->setBounds(165, h+5, w-500, h-10);
         filenameComponent->setVisible(true);
 
-        newDirectoryButton->setBounds(165, h+5, h-10, h-10);
+        newDirectoryButton->setBounds(w-h+4, h+5, h-10, h-10);
         newDirectoryButton->setVisible(true);
+
+        prependText->setBounds(165+w-490, h+5, 50, h-10);
+        prependText->setVisible(true);
+
+        dateText->setBounds(165+w-435, h+5, 175, h-10);
+        dateText->setVisible(true);
+
+        appendText->setBounds(165+w-255, h+5, 50, h-10);
+        appendText->setVisible(true);
 
     }
     else
     {
         filenameComponent->setVisible(false);
         newDirectoryButton->setVisible(false);
+        prependText->setVisible(false);
+        dateText->setVisible(false);
+        appendText->setVisible(false);
     }
 
     repaint();
@@ -516,6 +545,11 @@ void ControlPanel::openState(bool os)
     open = os;
 
     getUIComponent()->childComponentChanged();
+}
+
+void ControlPanel::labelTextChanged(Label* label)
+{
+
 }
 
 void ControlPanel::buttonClicked(Button* button)
@@ -557,7 +591,7 @@ void ControlPanel::buttonClicked(Button* button)
     }
     else if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
     {
-        getProcessorGraph()->getRecordNode()->createNewDirectory();
+        getProcessorGraph()->getRecordNode()->newDirectoryNeeded = true;
         newDirectoryButton->setEnabledState(false);
         masterClock->resetRecordTime();
         return;
@@ -698,4 +732,33 @@ void ControlPanel::toggleState()
 
     cpb->toggleState();
     getUIComponent()->childComponentChanged();
+}
+
+String ControlPanel::getTextToAppend()
+{
+    String t = appendText->getText();
+
+    if (t.length() > 0)
+    {
+        return "_" + t;
+    } else {
+        return t;
+    }
+}
+
+String ControlPanel::getTextToPrepend()
+{
+    String t = prependText->getText();
+
+    if (t.length() > 0)
+    {
+        return t + "_";
+    } else {
+        return t;
+    }
+}
+
+void ControlPanel::setDateText(String t)
+{
+    dateText->setText(t, dontSendNotification);
 }

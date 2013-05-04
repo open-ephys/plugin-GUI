@@ -34,8 +34,6 @@
 #include "../Processors/Editors/GenericEditor.h" // for UtilityButton
 #include "../Processors/Visualization/OpenGLCanvas.h"
 
-//#include "../OpenGL.h"
-
 
 /**
 
@@ -273,7 +271,8 @@ class UtilityButton;
 class ControlPanel : public Component,
     public Button::Listener,
     public Timer,
-    public AccessClass
+    public AccessClass,
+    public Label::Listener
 
 {
 public:
@@ -306,6 +305,18 @@ public:
         return open;
     }
 
+    /** Notifies the control panel when the filename is updated */
+    void labelTextChanged(Label*);
+
+    /** Used by RecordNode to set the filename. */
+    String getTextToPrepend();
+
+    /** Used by RecordNode to set the filename. */
+    String getTextToAppend();
+
+    /** Set date text. */
+    void setDateText(String);
+
 private:
     ScopedPointer<PlayButton> playButton;
     ScopedPointer<RecordButton> recordButton;
@@ -315,6 +326,10 @@ private:
     ScopedPointer<FilenameComponent> filenameComponent;
     ScopedPointer<UtilityButton> newDirectoryButton;
     ScopedPointer<ControlPanelButton> cpb;
+
+    ScopedPointer<Label> prependText;
+    ScopedPointer<Label> dateText;
+    ScopedPointer<Label> appendText;
 
     ProcessorGraph* graph;
     AudioComponent* audio;

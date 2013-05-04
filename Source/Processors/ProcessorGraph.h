@@ -79,6 +79,8 @@ public:
     /** Loops through processors and restores parameters, if they're available. */
     void restoreParameters();
 
+    void updatePointers();
+
 private:
 
     int currentNodeId;
@@ -92,6 +94,7 @@ private:
     };
 
     void createDefaultNodes();
+    
     void clearConnections();
 
 };
