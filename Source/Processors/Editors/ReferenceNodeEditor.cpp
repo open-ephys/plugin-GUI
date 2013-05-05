@@ -93,3 +93,30 @@ void ReferenceNodeEditor::buttonEvent(Button* button)
 
 
 }
+
+void ReferenceNodeEditor::saveEditorParameters(XmlElement* xml)
+{
+
+    xml->setAttribute("Type", "ReferenceNodeEditor");
+
+    XmlElement* selectedChannel = xml->createNewChildElement("SELECTEDID");
+
+    selectedChannel->setAttribute("ID",referenceSelector->getSelectedId());
+
+}
+
+void ReferenceNodeEditor::loadEditorParameters(XmlElement* xml)
+{
+
+     forEachXmlChildElement(*xml, xmlNode)
+     {
+         if (xmlNode->hasTagName("SELECTEDID"))
+         {
+
+            int id = xmlNode->getIntAttribute("ID");
+
+            referenceSelector->setSelectedId(id);
+
+        }
+    }
+}

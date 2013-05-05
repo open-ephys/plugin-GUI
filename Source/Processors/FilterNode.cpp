@@ -236,3 +236,38 @@ void FilterNode::process(AudioSampleBuffer& buffer,
 
 }
 
+void FilterNode::saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNumber, bool isEventChannel)
+{
+
+    std::cout << "CHANNEL: " << channelNumber << std::endl;
+
+    if (!isEventChannel && channelNumber > -1 && channelNumber < highCuts.size())
+    {
+        std::cout << "Saving custom parameters for filter node." << std::endl;
+
+         XmlElement* channelParams = channelInfo->createNewChildElement("PARAMETERS");
+         channelParams->setAttribute("highcut",highCuts[channelNumber-1]);
+         channelParams->setAttribute("lowcut",lowCuts[channelNumber-1]);
+    }
+
+}
+    
+void FilterNode::loadCustomChannelParametersFromXml(XmlElement* channelInfo, bool isEventChannel)
+{
+
+     int channelNum = channelInfo->getIntAttribute("number");
+
+     if (!isEventChannel)
+    {
+        forEachXmlChildElement(*channelInfo, subNode)
+        {
+            if (subNode->hasTagName("PARAMETERS"))
+            {
+                highCuts.set(channelNum-1, subNode->getDoubleAttribute("highcut",6000.0f));
+                lowCuts.set(channelNum-1, subNode->getDoubleAttribute("lowcut",600.0f));
+            }
+        } 
+    }
+
+
+}

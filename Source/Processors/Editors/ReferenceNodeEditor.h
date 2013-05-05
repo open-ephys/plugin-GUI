@@ -47,6 +47,10 @@ public:
 
     void updateSettings();
 
+    void saveEditorParameters(XmlElement* xml);
+    void loadEditorParameters(XmlElement* xml);
+
+
 private:
 
     ScopedPointer<ComboBox> referenceSelector;

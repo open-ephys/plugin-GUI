@@ -28,7 +28,7 @@
 
 
 ReferenceNode::ReferenceNode()
-    : GenericProcessor("Digital Reference"), referenceChannel(-1), referenceBuffer(1,10000)
+    : GenericProcessor("Digital Ref"), referenceChannel(-1), referenceBuffer(1,10000)
 {
 
 }

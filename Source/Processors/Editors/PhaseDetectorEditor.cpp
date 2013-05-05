@@ -93,3 +93,30 @@ void PhaseDetectorEditor::buttonEvent(Button* button)
 
 
 }
+
+void PhaseDetectorEditor::saveEditorParameters(XmlElement* xml)
+{
+
+    xml->setAttribute("Type", "PhaseDetectorEditor");
+
+    XmlElement* selectedChannel = xml->createNewChildElement("SELECTEDID");
+
+    selectedChannel->setAttribute("ID",channelSelectionBox->getSelectedId());
+
+}
+
+void PhaseDetectorEditor::loadEditorParameters(XmlElement* xml)
+{
+
+     forEachXmlChildElement(*xml, xmlNode)
+     {
+         if (xmlNode->hasTagName("SELECTEDID"))
+         {
+
+            int id = xmlNode->getIntAttribute("ID");
+
+            channelSelectionBox->setSelectedId(id);
+
+        }
+    }
+}
