@@ -238,6 +238,9 @@ public:
     /** Toggles the open/closed state of the ControlPanelButton.*/
     void toggleState();
 
+    /** Sets the open/closed state of the ControlPanelButton.*/
+    void setState(bool);
+
     /** Draws the button. */
     void paint(Graphics& g);
 
@@ -316,6 +319,12 @@ public:
 
     /** Set date text. */
     void setDateText(String);
+
+    /** Save settings. */
+    void saveStateToXml(XmlElement*);
+
+    /** Load settings. */
+    void loadStateFromXml(XmlElement*);
 
 private:
     ScopedPointer<PlayButton> playButton;

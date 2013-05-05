@@ -50,6 +50,10 @@ public:
 
     void setFile(String file);
 
+    void saveEditorParameters(XmlElement*);
+    
+    void loadEditorParameters(XmlElement*);
+
 private:
 
 	ScopedPointer<UtilityButton> fileButton;

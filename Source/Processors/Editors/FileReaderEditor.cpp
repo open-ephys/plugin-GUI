@@ -88,3 +88,27 @@ void FileReaderEditor::buttonEvent(Button* button)
 
 	}
 }
+
+void FileReaderEditor::saveEditorParameters(XmlElement* xml)
+{
+
+	// XmlElement* fileName = xml->createNewChildElement("FILENAME");
+	// fileName->addTextElement(lastFilePath.getFullPathName());
+
+}
+
+void FileReaderEditor::loadEditorParameters(XmlElement* xml)
+{
+
+	 // forEachXmlChildElement(*xml, xmlNode)
+  //    {
+  //       if (xmlNode->hasTagName("FILENAME"))
+  //       {
+            
+  //           lastFilePath = File(xmlNode->getText());
+  //           thread->setFile(lastFilePath.getFullPathName());
+  //           fileNameLabel->setText(lastFilePath.getFullPathName(),false);
+  //       }
+  //   }
+
+}

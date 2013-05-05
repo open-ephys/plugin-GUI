@@ -30,21 +30,22 @@ FilterNode::FilterNode()
 
 {
 
-    Array<var> lowCutValues;
-    lowCutValues.add(1.0f);
-    lowCutValues.add(4.0f);
-    lowCutValues.add(100.0f);
-    lowCutValues.add(600.0f);
+    // // Deprecated "parameters" class // //
+    // Array<var> lowCutValues;
+    // lowCutValues.add(1.0f);
+    // lowCutValues.add(4.0f);
+    // lowCutValues.add(100.0f);
+    // lowCutValues.add(600.0f);
 
-    parameters.add(Parameter("low cut",lowCutValues, 3, 0));
+    // parameters.add(Parameter("low cut",lowCutValues, 3, 0));
 
-    Array<var> highCutValues;
-    highCutValues.add(12.0f);
-    highCutValues.add(3000.0f);
-    highCutValues.add(6000.0f);
-    highCutValues.add(9000.0f);
+    // Array<var> highCutValues;
+    // highCutValues.add(12.0f);
+    // highCutValues.add(3000.0f);
+    // highCutValues.add(6000.0f);
+    // highCutValues.add(9000.0f);
 
-    parameters.add(Parameter("high cut",highCutValues, 2, 1));
+    // parameters.add(Parameter("high cut",highCutValues, 2, 1));
 
 }
 
@@ -62,7 +63,10 @@ AudioProcessorEditor* FilterNode::createEditor()
     return editor;
 }
 
-
+// ----------------------------------------------------
+// From the filter library documentation:
+// ----------------------------------------------------
+//
 // each family of filters is given its own namespace
 // RBJ: filters from the RBJ cookbook
 // Butterworth
@@ -124,6 +128,8 @@ void FilterNode::updateSettings()
     {
 
         filters.clear();
+        lowCuts.clear();
+        highCuts.clear();
 
         for (int n = 0; n < getNumInputs(); n++)
         {
@@ -136,16 +142,15 @@ void FilterNode::updateSettings()
                         Dsp::DirectFormII>						// realization
                         (1));
 
+            
+            //Parameter& p1 =  parameters.getReference(0);
+            //p1.setValue(600.0f, n);
+            //Parameter& p2 =  parameters.getReference(1);
+            //p2.setValue(6000.0f, n);
+
             // restore defaults
-            Parameter& p1 =  parameters.getReference(0);
-            p1.setValue(600.0f, n);
-
-            Parameter& p2 =  parameters.getReference(1);
-            p2.setValue(6000.0f, n);
-
-            setFilterParameters(600.0f,
-                        6000.0f,
-                        n);
+            lowCuts.add(600.0f);
+            highCuts.add(6000.0f);
 
             setFilterParameters(600.0f, 6000.0f, n);
         }
@@ -179,31 +184,35 @@ void FilterNode::setParameter(int parameterIndex, float newValue)
 
     if (parameterIndex == 0)
     {
-        std::cout << " low cut to ";
+        std::cout << " low cut to " << newValue << std::endl;
+        lowCuts.set(currentChannel,newValue);
     }
     else
     {
-        std::cout << " high cut to ";
+        std::cout << " high cut to " << newValue << std::endl;
+        highCuts.set(currentChannel,newValue);
     }
 
     std::cout << newValue << std::endl;
 
-    //if (parameterIndex)
-    //
-    Parameter& p =  parameters.getReference(parameterIndex);
-
-    p.setValue(newValue, currentChannel);
-
-    Parameter& p1 =  parameters.getReference(0);
-    Parameter& p2 =  parameters.getReference(1);
-
-    std::cout << float(p1[currentChannel]) << " ";
-    std::cout << float(p2[currentChannel]) << std::endl;
-
-    setFilterParameters(float(p1[currentChannel]),
-                        float(p2[currentChannel]),
+    setFilterParameters(lowCuts[currentChannel],
+                        highCuts[currentChannel],
                         currentChannel);
 
+
+    // Deprecated code:
+    //if (parameterIndex)
+    //
+    // Parameter& p =  parameters.getReference(parameterIndex);
+
+    // p.setValue(newValue, currentChannel);
+
+    // Parameter& p1 =  parameters.getReference(0);
+    // Parameter& p2 =  parameters.getReference(1);
+
+    // std::cout << float(p1[currentChannel]) << " ";
+    // std::cout << float(p2[currentChannel]) << std::endl;
+    
     // if (parameterIndex == 0) {
     // 	parameters[0].setValue(newValue, currentChannel);
     // 	setFilterParameters(newValue, parameters[0][currentChannel], currentChannel);

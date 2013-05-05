@@ -23,6 +23,8 @@
 
 #include "EditorViewport.h"
 
+
+
 #include "SignalChainManager.h"
 #include "EditorViewportButtons.h"
 
@@ -1079,27 +1081,29 @@ XmlElement* EditorViewport::switchNodeXml(GenericProcessor* processor)
 
 }
 
-const String EditorViewport::saveState()
+const String EditorViewport::saveState(File fileToUse)
 {
 
     String error;
 
-    FileChooser fc("Choose the file to save...",
-                   File::getCurrentWorkingDirectory(),
-                   "*",
-                   true);
+    currentFile = fileToUse;
 
-    if (fc.browseForFileToSave(true))
-    {
-        currentFile = fc.getResult();
-        std::cout << currentFile.getFileName() << std::endl;
-    }
-    else
-    {
-        error = "No file chosen.";
-        std::cout << "no file chosen." << std::endl;
-        return error;
-    }
+    // FileChooser fc("Choose the file to save...",
+    //                File::getCurrentWorkingDirectory(),
+    //                "*",
+    //                true);
+
+    // if (fc.browseForFileToSave(true))
+    // {
+    //     currentFile = fc.getResult();
+    //     std::cout << currentFile.getFileName() << std::endl;
+    // }
+    // else
+    // {
+    //     error = "No file chosen.";
+    //     std::cout << "no file chosen." << std::endl;
+    //     return error;
+    // }
 
     Array<GenericProcessor*> splitPoints;
     /** Used to reset saveOrder at end, to allow saving the same processor multiple times*/
@@ -1108,7 +1112,20 @@ const String EditorViewport::saveState()
     bool moveForward;
     int saveOrder = 0;
 
-    XmlElement* xml = new XmlElement("PROCESSORGRAPH");
+    XmlElement* xml = new XmlElement("SETTINGS");
+
+    XmlElement* info = xml->createNewChildElement("INFO");
+
+    Time currentTime = Time::getCurrentTime();
+
+    XmlElement* date = info->createNewChildElement("DATE");
+    date->addTextElement(currentTime.toString(true, true, true, true));
+
+    XmlElement* operatingSystem = info->createNewChildElement("OS");
+    operatingSystem->addTextElement(SystemStats::getOperatingSystemName());
+
+    XmlElement* machineName = info->createNewChildElement("MACHINE");
+    machineName->addTextElement(SystemStats::getComputerName());
 
     for (int n = 0; n < signalChainArray.size(); n++)
     {
@@ -1213,11 +1230,14 @@ const String EditorViewport::saveState()
     std::cout << "Saving processor graph." << std::endl;
 
     //Resets Save Order for processors, allowing them to be saved again without omitting themselves from the order.
-    int allProcessorSize=allProcessors.size();
-    for (int i=0; i<allProcessorSize; i++)
+    int allProcessorSize = allProcessors.size();
+    for (int i = 0; i < allProcessorSize; i++)
     {
-        allProcessors.operator[](i)->saveOrder=-1;
+        allProcessors.operator[](i)->saveOrder = -1;
     }
+
+    getControlPanel()->saveStateToXml(xml); // save the control panel settings
+    getUIComponent()->saveStateToXml(xml);  // save the UI settings
 
     if (! xml->writeToFile(currentFile, String::empty))
         error = "Couldn't write to file ";
@@ -1231,22 +1251,24 @@ const String EditorViewport::saveState()
     return error;
 }
 
-const String EditorViewport::loadState()
+const String EditorViewport::loadState(File fileToLoad)
 {
 
-    FileChooser fc("Choose a file to load...",
-                   File::getCurrentWorkingDirectory(),
-                   "*.xml",
-                   true);
+    // FileChooser fc("Choose a file to load...",
+    //                File::getCurrentWorkingDirectory(),
+    //                "*.xml",
+    //                true);
 
-    if (fc.browseForFileToOpen())
-    {
-        currentFile = fc.getResult();
-    }
-    else
-    {
-        return "No configuration selected.";
-    }
+    // if (fc.browseForFileToOpen())
+    // {
+    //     currentFile = fc.getResult();
+    // }
+    // else
+    // {
+    //     return "No configuration selected.";
+    // }
+
+    currentFile = fileToLoad;
 
     std::cout << "Loading processor graph." << std::endl;
 
@@ -1255,7 +1277,7 @@ const String EditorViewport::loadState()
     XmlDocument doc(currentFile);
     XmlElement* xml = doc.getDocumentElement();
 
-    if (xml == 0 || ! xml->hasTagName("PROCESSORGRAPH"))
+    if (xml == 0 || ! xml->hasTagName("SETTINGS"))
     {
         std::cout << "File not found." << std::endl;
         delete xml;
@@ -1350,6 +1372,9 @@ const String EditorViewport::loadState()
     }
 
     getProcessorGraph()->restoreParameters();
+
+    getControlPanel()->loadStateFromXml(xml); // save the control panel settings
+    getUIComponent()->loadStateFromXml(xml);  // save the UI settings
 
     String error = "Opened ";
     error += currentFile.getFileName();

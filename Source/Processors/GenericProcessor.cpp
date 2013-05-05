@@ -500,71 +500,42 @@ void GenericProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& event
 }
 
 
-void GenericProcessor::saveParametersToChannelsXml(juce::XmlElement* channelParent, int channelNumber)
-{
-    //std::cout <<"Creating Parameters" << std::endl;
-    int maxsize = parameters.size();
-    String parameterName;
-    String parameterValue;
-    XmlElement* parameterChildNode;
+/////// ---- LOADING AND SAVING ---- //////////
 
-    // save any attributes that belong to "Parameter" objects
-    for (int n = 0; n < maxsize; n++)
-    {
-        parameterName = getParameterName(n);
-
-        parameterChildNode = channelParent->createNewChildElement("PARAMETER");
-        parameterChildNode->setAttribute("name", parameterName);
-
-        var parameterVar = getParameterVar(n, channelNumber-1);
-        parameterValue = parameterVar.toString();
-        parameterChildNode->addTextElement(parameterValue);
-    }
-
-    // save selection state
-    bool p, r, a;
-
-    getEditor()->getChannelSelectionState(channelNumber-1, &p, &r, &a);
-
-    XmlElement* selectionState = channelParent->createNewChildElement("SELECTIONSTATE");
-    selectionState->setAttribute("param",p);
-    selectionState->setAttribute("record",r);
-    selectionState->setAttribute("audio",a);
-}
 
 void GenericProcessor::saveToXml(XmlElement* parentElement)
 {
-    std::cout <<"Creating channel xml elements" << std::endl;
 
-    String channelName;
-    XmlElement* channelChildNode;
-    XmlElement* editorChildNode;
-
-    int numChannels = channels.size();
-    //I'm unsure whether or not the name or XML elements should include whether they're normal or event channels–it probably depends on loading implementation
-    for (int i = 1; i <= numChannels; i++)
-    {
-        channelName=/**String("Ch:")+*/String(i);
-        channelChildNode = parentElement->createNewChildElement("CHANNEL");
-        channelChildNode->setAttribute("name", channelName);
-        saveParametersToChannelsXml(channelChildNode, i);
-    }
-
-    // int numEventChannels = eventChannels.size();
-
-    // for (int i = 1; i <= numEventChannels; i++)
-    // {
-
-    //     channelName=/**String("EventCh:")+*/String(i);
-    //     channelChildNode = parentElement->createNewChildElement("EVENTCHANNEL");
-    //     channelChildNode->setAttribute("name", channelName);
-    //     saveParametersToChannelsXml(channelChildNode, i);
-    // }
-
-    editorChildNode = parentElement->createNewChildElement("EDITOR");
-    getEditor()->saveEditorParameters(editorChildNode);
+    parentElement->setAttribute("NodeId", nodeId);
 
     saveCustomParametersToXml(parentElement);
+
+    // loop through the channels
+
+    for (int i = 1; i <= channels.size(); i++)
+    {
+
+        saveChannelParametersToXml(parentElement, i);
+
+        // channelName = String(i);
+        // channelChildNode = parentElement->createNewChildElement("CHANNEL");
+        // channelChildNode->setAttribute("name", channelName);
+        // saveParametersToChannelsXml(channelChildNode, i);
+    }
+
+    for (int i = 1; i <= eventChannels.size(); i++)
+    {
+        saveChannelParametersToXml(parentElement, i, true);
+
+         // channelName=/**String("EventCh:")+*/String(i);
+         // channelChildNode = parentElement->createNewChildElement("EVENTCHANNEL");
+         // channelChildNode->setAttribute("name", channelName);
+         // saveParametersToChannelsXml(channelChildNode, i);
+    }
+
+    // Save editor parameters:
+    XmlElement* editorChildNode = parentElement->createNewChildElement("EDITOR");
+    getEditor()->saveEditorParameters(editorChildNode);
 
 }
 
@@ -573,38 +544,88 @@ void GenericProcessor::saveCustomParametersToXml(XmlElement* parentElement)
 
 }
 
+void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, int channelNumber, bool isEventChannel)
+{
+
+    if (!isEventChannel)
+    {
+        XmlElement* channelInfo = parentElement->createNewChildElement("CHANNEL");
+        channelInfo->setAttribute("name", String(channelNumber));
+        channelInfo->setAttribute("number", channelNumber);
+
+        bool p, r, a;
+
+        getEditor()->getChannelSelectionState(channelNumber-1, &p, &r, &a);
+
+        XmlElement* selectionState = channelInfo->createNewChildElement("SELECTIONSTATE");
+        selectionState->setAttribute("param",p);
+        selectionState->setAttribute("record",r);
+        selectionState->setAttribute("audio",a);
+
+        saveCustomChannelParametersToXml(channelInfo, channelNumber);
+
+    } else {
+
+        XmlElement* channelInfo = parentElement->createNewChildElement("EVENTCHANNEL");
+        channelInfo->setAttribute("name", String(channelNumber));
+        channelInfo->setAttribute("number", channelNumber);
+    
+        saveCustomChannelParametersToXml(channelInfo, channelNumber, true);
+
+    }
+
+    // deprecated parameter configuration:
+    //std::cout <<"Creating Parameters" << std::endl;
+    // int maxsize = parameters.size();
+    // String parameterName;
+    // String parameterValue;
+    // XmlElement* parameterChildNode;
+
+    // // save any attributes that belong to "Parameter" objects
+    // for (int n = 0; n < maxsize; n++)
+    // {
+    //     parameterName = getParameterName(n);
+
+    //     parameterChildNode = channelParent->createNewChildElement("PARAMETER");
+    //     parameterChildNode->setAttribute("name", parameterName);
+
+    //     var parameterVar = getParameterVar(n, channelNumber-1);
+    //     parameterValue = parameterVar.toString();
+    //     parameterChildNode->addTextElement(parameterValue);
+    // }
+    
+}
+
+void GenericProcessor::saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNum, bool isEventChannel)
+{
+
+
+}
+
+
 void GenericProcessor::loadFromXml()
 {
 
     std::cout << "Loading parameters for " << name << std::endl;
 
+
+
     if (parametersAsXml != nullptr)
     {
         // use parametersAsXml to restore state 
-
-        int channelNum = -1;
+        loadCustomParametersFromXml();
 
         forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
            if (xmlNode->hasTagName("CHANNEL"))
             {
 
-                channelNum += 1;
+                loadChannelParametersFromXml(xmlNode);
+            } else if (xmlNode->hasTagName("EVENTCHANNEL"))
+            {
 
-              //  std::cout << "Loading channel parameters." << std::endl;
-
-                 forEachXmlChildElement(*xmlNode, subNode)
-                {
-                    if (subNode->hasTagName("SELECTIONSTATE"))
-                    {
-
-                        getEditor()->setChannelSelectionState(channelNum,
-                                                        subNode->getBoolAttribute("param"),
-                                                        subNode->getBoolAttribute("record"),
-                                                    
-                                                        subNode->getBoolAttribute("audio"));
-                    }
-                } 
+                loadChannelParametersFromXml(xmlNode, true);
+                 
             } else if (xmlNode->hasTagName("EDITOR"))
             {
                 getEditor()->loadEditorParameters(xmlNode);
@@ -613,13 +634,44 @@ void GenericProcessor::loadFromXml()
         }   
     }
 
-    loadCustomParametersFromXml();
+    
 }
+
+void GenericProcessor::loadChannelParametersFromXml(XmlElement* channelInfo, bool isEventChannel)
+{
+
+    int channelNum = channelInfo->getIntAttribute("number");
+
+    if (!isEventChannel)
+    {
+
+        forEachXmlChildElement(*channelInfo, subNode)
+        {
+            if (subNode->hasTagName("SELECTIONSTATE"))
+            {
+
+                getEditor()->setChannelSelectionState(channelNum - 1,
+                                                      subNode->getBoolAttribute("param"),
+                                                      subNode->getBoolAttribute("record"),
+                                                      subNode->getBoolAttribute("audio"));
+            }
+        } 
+    }
+
+    loadCustomChannelParametersFromXml(channelInfo, isEventChannel);
+
+}
+
+
 
 void GenericProcessor::loadCustomParametersFromXml()
 {
     
 }
 
+void GenericProcessor::loadCustomChannelParametersFromXml(XmlElement* channelInfo, bool isEventChannel)
+{
+
+}
 
 const String GenericProcessor::unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");

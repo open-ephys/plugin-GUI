@@ -23,6 +23,7 @@
 
 #include "RecordNode.h"
 #include "ProcessorGraph.h"
+#include "../UI/EditorViewport.h"
 #include "../UI/ControlPanel.h"
 
 #include "Channel.h"
@@ -300,7 +301,11 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
             createNewDirectory();
 
         if (!rootFolder.exists())
+        {
             rootFolder.createDirectory();
+            String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings.xml";
+            getEditorViewport()->saveState(File(settingsFileName));
+        }
 
         openFile(eventChannel);
 

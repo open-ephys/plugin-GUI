@@ -339,6 +339,13 @@ void ControlPanelButton::toggleState()
     repaint();
 }
 
+void ControlPanelButton::setState(bool b)
+{
+    open = b;
+    repaint();
+}
+
+
 
 
 ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
@@ -543,6 +550,8 @@ void ControlPanel::resized()
 void ControlPanel::openState(bool os)
 {
     open = os;
+
+    cpb->setState(os);
 
     getUIComponent()->childComponentChanged();
 }
@@ -761,4 +770,34 @@ String ControlPanel::getTextToPrepend()
 void ControlPanel::setDateText(String t)
 {
     dateText->setText(t, dontSendNotification);
+}
+
+
+void ControlPanel::saveStateToXml(XmlElement* xml)
+{
+
+    XmlElement* controlPanelState = xml->createNewChildElement("CONTROLPANEL");
+    controlPanelState->setAttribute("isOpen",open);
+    controlPanelState->setAttribute("prependText",prependText->getText());
+    controlPanelState->setAttribute("appendText",appendText->getText());
+
+}
+
+void ControlPanel::loadStateFromXml(XmlElement* xml)
+{
+
+    forEachXmlChildElement(*xml, xmlNode)
+     {
+        if (xmlNode->hasTagName("CONTROLPANEL"))
+        {
+            
+            appendText->setText(xmlNode->getStringAttribute("appendText", ""), dontSendNotification);
+            prependText->setText(xmlNode->getStringAttribute("prependText", ""), dontSendNotification);
+
+            bool isOpen = xmlNode->getBoolAttribute("isOpen");
+            openState(isOpen);
+
+        }
+    }
+
 }

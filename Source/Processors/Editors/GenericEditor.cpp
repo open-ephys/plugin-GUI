@@ -492,7 +492,7 @@ void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
 void GenericEditor::saveEditorParameters(XmlElement* xml)
 {
 
-    xml->setAttribute("Attribute", "WHAT");
+    //xml->setAttribute("Attribute", "WHAT");
 
 }
 

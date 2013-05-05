@@ -382,12 +382,42 @@ bool UIComponent::perform(const InvocationInfo& info)
     {
         case openConfiguration:
             {
-                sendActionMessage(getEditorViewport()->loadState());
+                FileChooser fc("Choose a file to load...",
+                      File::getCurrentWorkingDirectory(),
+                      "*.xml",
+                      true);
+
+                if (fc.browseForFileToOpen())
+                {
+                    File currentFile = fc.getResult();
+                    sendActionMessage(getEditorViewport()->loadState(currentFile));
+                }
+                else
+                {
+                    sendActionMessage("No configuration selected.");
+                }
+
                 break;
             }
         case saveConfiguration:
             {
-                sendActionMessage(getEditorViewport()->saveState());
+
+                FileChooser fc("Choose the file to save...",
+                   File::getCurrentWorkingDirectory(),
+                   "*",
+                   true);
+
+                if (fc.browseForFileToSave(true))
+                {
+                    File currentFile = fc.getResult();
+                    std::cout << currentFile.getFileName() << std::endl;
+                    sendActionMessage(getEditorViewport()->saveState(currentFile));
+                }
+                else
+                {
+                    sendActionMessage("No file chosen.");
+                }
+
                 break;
             }
         case clearSignalChain:
@@ -417,6 +447,38 @@ bool UIComponent::perform(const InvocationInfo& info)
 
     return true;
 
+}
+
+
+void UIComponent::saveStateToXml(XmlElement* xml)
+{
+    XmlElement* uiComponentState = xml->createNewChildElement("UICOMPONENT");
+    uiComponentState->setAttribute("isProcessorListOpen",processorList->isOpen());
+    uiComponentState->setAttribute("isEditorViewportOpen",editorViewportButton->isOpen());
+}
+
+void UIComponent::loadStateFromXml(XmlElement* xml)
+{
+     forEachXmlChildElement(*xml, xmlNode)
+     {
+        if (xmlNode->hasTagName("UICOMPONENT"))
+        {
+            
+            bool isProcessorListOpen = xmlNode->getBoolAttribute("isProcessorListOpen");
+            bool isEditorViewportOpen = xmlNode->getBoolAttribute("isEditorViewportOpen");
+            
+            if (!isProcessorListOpen)
+            {
+                processorList->toggleState();
+            }
+
+            if (!isEditorViewportOpen)
+            {
+                editorViewportButton->toggleState();
+            }
+
+        }
+    }
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

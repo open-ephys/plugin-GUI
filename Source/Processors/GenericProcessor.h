@@ -540,14 +540,23 @@ public:
     /** Saving custom settings to XML. */
     virtual void saveCustomParametersToXml(XmlElement* parentElement);
 
+    /** Saving generic settings for each channel (called by all processors). */
+    void saveChannelParametersToXml(XmlElement* parentElement, int channelNumber, bool isEventChannel=false);
+
+    /** Saving custom settings for each channel. */
+    virtual void saveCustomChannelParametersToXml(XmlElement* channelElement, int channelNumber, bool isEventChannel=false);
+
     /** Load generic settings from XML (called by all processors). */
     void loadFromXml();
 
     /** Load custom settings from XML*/
     virtual void loadCustomParametersFromXml();
 
-    /** Saving Parameters for each Channel */
-    void saveParametersToChannelsXml(XmlElement* channelParent, int channelNumber);
+    /** Load generic parameters for each channel (called by all processors). */
+    void loadChannelParametersFromXml(XmlElement* channelElement, bool isEventChannel=false);
+
+    /** Load custom parameters for each channel. */
+    virtual void loadCustomChannelParametersFromXml(XmlElement* channelElement, bool isEventChannel=false);
 
      /** Holds loaded parameters */
     XmlElement* parametersAsXml;

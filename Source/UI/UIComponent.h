@@ -149,6 +149,12 @@ public:
     /** Determines what takes place when a given command is executed by the user. */
     bool perform(const InvocationInfo& info);
 
+    /** Save settings. */
+    void saveStateToXml(XmlElement*);
+
+    /** Load settings. */
+    void loadStateFromXml(XmlElement*);
+
 private:
 
     ScopedPointer<DataViewport> dataViewport;

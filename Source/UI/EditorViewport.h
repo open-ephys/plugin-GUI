@@ -31,6 +31,8 @@
 #include "../Processors/Editors/MergerEditor.h"
 
 #include "../AccessClass.h"
+#include "ControlPanel.h"
+#include "UIComponent.h"
 #include "DataViewport.h"
 
 class GenericEditor;
@@ -38,6 +40,8 @@ class SignalChainTabButton;
 class SignalChainManager;
 class EditorScrollButton;
 class SignalChainScrollButton;
+class ControlPanel;
+class UIComponent;
 
 /**
 
@@ -142,10 +146,10 @@ public:
     }
 
     /** Save the current configuration as an XML file. */
-    const String saveState();
+    const String saveState(File filename);
 
     /** Load a saved configuration from an XML file. */
-    const String loadState();
+    const String loadState(File filename);
 
     /** Converts information about a given editor to XML. */
     XmlElement* createNodeXml(GenericEditor*, int);
