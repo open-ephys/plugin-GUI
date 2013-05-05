@@ -90,7 +90,7 @@ void PulsePal::initialize()
 
             unsigned char bytesToWrite = 59;
 
-           bool a = serial.writeByte(bytesToWrite);
+           serial.writeByte(bytesToWrite);
 
           // std::cout << "error number: " << a << std::endl;
 
@@ -279,7 +279,9 @@ uint8_t PulsePal::voltageToByte(float voltage)
 
 void PulsePal::triggerChannel(uint8_t chan)
 {
-    uint8_t bytesToWrite[2] = {84, 1 << (chan-1)};
+    const uint8_t code = 1 << (chan-1);
+    
+    uint8_t bytesToWrite[2] = {84, code};
 
     serial.writeBytes(bytesToWrite, 2);
 }
