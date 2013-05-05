@@ -73,6 +73,12 @@ public:
 
     void comboBoxChanged(ComboBox* cb);
 
+    void saveVisualizerParameters(XmlElement* xml);
+
+    void loadVisualizerParameters(XmlElement* xml);
+
+
+
 private:
 
     float sampleRate;

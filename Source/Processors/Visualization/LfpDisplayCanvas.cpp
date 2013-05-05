@@ -98,8 +98,8 @@ void LfpDisplayCanvas::resized()
 
     lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getTotalHeight());
 
-    rangeSelection->setBounds(100,getHeight()-50,100,25);
-    timebaseSelection->setBounds(300,getHeight()-50,100,25);
+    rangeSelection->setBounds(5,getHeight()-30,100,25);
+    timebaseSelection->setBounds(175,getHeight()-30,100,25);
 
 }
 
@@ -323,9 +323,13 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
     g.drawLine(0,getHeight()-60,getWidth(),getHeight()-60,3.0f);
 
-    // g.setColour(Colours::yellow);
+    g.setFont(Font("Default", 16, Font::plain));
 
-    // g.drawLine(screenBufferIndex, 0, screenBufferIndex, getHeight());
+    g.setColour(Colour(100,100,100));
+
+    g.drawText("Voltage range (uV)",5,getHeight()-55,300,20,Justification::left, false);
+
+    g.drawText("Timebase (s)",175,getHeight()-55,300,20,Justification::left, false);
 
 }
 
@@ -338,6 +342,35 @@ void LfpDisplayCanvas::refresh()
     //getPeer()->performAnyPendingRepaintsNow();
 
 }
+
+void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
+{
+
+    XmlElement* xmlNode = xml->createNewChildElement("LFPDISPLAY");
+
+    xmlNode->setAttribute("Range",rangeSelection->getSelectedId());
+    xmlNode->setAttribute("Timebase",timebaseSelection->getSelectedId());
+
+    xmlNode->setAttribute("ScrollX",viewport->getViewPositionX());
+    xmlNode->setAttribute("ScrollY",viewport->getViewPositionY());
+}
+
+
+void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
+{
+    forEachXmlChildElement(*xml, xmlNode)
+    {
+        if (xmlNode->hasTagName("LFPDISPLAY"))
+        {
+            rangeSelection->setSelectedId(xmlNode->getIntAttribute("Range"));
+            timebaseSelection->setSelectedId(xmlNode->getIntAttribute("Timebase"));
+            viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
+                                      xmlNode->getIntAttribute("ScrollY"));
+        }
+    }
+
+}
+
 
 // -------------------------------------------------------------
 
@@ -604,3 +637,5 @@ void LfpChannelDisplay::setColour(Colour c)
 {
     lineColour = c;
 }
+
+

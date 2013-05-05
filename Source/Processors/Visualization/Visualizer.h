@@ -87,6 +87,15 @@ public:
     /** Refresh rate in Hz. */
     float refreshRate;
 
+
+    /** Saves parameters as XML */
+    virtual void saveVisualizerParameters(XmlElement* xml) { }
+
+    /** Loads parameters from XML */
+    virtual void loadVisualizerParameters(XmlElement* xml) { }
+
+
+
 };
 
 

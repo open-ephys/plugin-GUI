@@ -270,6 +270,11 @@ void VisualizerEditor::saveEditorParameters(XmlElement* xml)
         windowButtonState->setAttribute("height",dataWindow->getHeight());
     }
 
+    if (canvas != nullptr)
+    {
+        canvas->saveVisualizerParameters(xml);
+    }
+
 }
 
 void VisualizerEditor::loadEditorParameters(XmlElement* xml)
@@ -302,4 +307,20 @@ void VisualizerEditor::loadEditorParameters(XmlElement* xml)
             
          }
     }
+
+    if (canvas != nullptr)
+    {
+        canvas->loadVisualizerParameters(xml);
+    }
+}
+
+
+void VisualizerEditor::saveVisualizerParameters(XmlElement* xml)
+{
+
+}
+
+void VisualizerEditor::loadVisualizerParameters(XmlElement* xml)
+{
+    
 }

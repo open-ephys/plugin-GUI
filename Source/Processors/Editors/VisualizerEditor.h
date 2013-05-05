@@ -83,6 +83,10 @@ public:
     void saveEditorParameters(XmlElement* xml);
     void loadEditorParameters(XmlElement* xml);
 
+    virtual void saveVisualizerParameters(XmlElement* xml);
+    virtual void loadVisualizerParameters(XmlElement* xml);
+
+
     ScopedPointer<DataWindow> dataWindow;
     ScopedPointer<Visualizer> canvas;
 
