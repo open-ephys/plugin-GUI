@@ -402,6 +402,8 @@ void LfpTimescale::paint(Graphics& g)
 
     g.setColour(Colour(100,100,100));
 
+    g.drawText("ms:",5,0,100,getHeight(),Justification::left, false);
+
     for (int i = 1; i < 10; i++)
     {
         if (i == 5)
@@ -409,7 +411,7 @@ void LfpTimescale::paint(Graphics& g)
         else
             g.drawLine(getWidth()/10*i,0,getWidth()/10*i,getHeight(),1.0f);
 
-        g.drawText(labels[i-1],getWidth()/10*i+1,0,100,getHeight(),Justification::left, false);
+        g.drawText(labels[i-1],getWidth()/10*i+3,0,100,getHeight(),Justification::left, false);
     }
 
 }
@@ -422,9 +424,9 @@ void LfpTimescale::setTimebase(float t)
 
     for (float i = 1.0f; i < 10.0; i++)
     {
-        String labelString = String(timebase/10.0f*i);
+        String labelString = String(timebase/10.0f*1000.0f*i);
 
-        labels.add(labelString.substring(1,4));
+        labels.add(labelString.substring(0,4));
     }
 
     repaint();
