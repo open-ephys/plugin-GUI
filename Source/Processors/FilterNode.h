@@ -56,6 +56,9 @@ public:
         return true;
     }
 
+    double getLowCutValueForChannel(int chan);
+    double getHighCutValueForChannel(int chan);
+
     void updateSettings();
 
     void saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNumber, bool isEventChannel);

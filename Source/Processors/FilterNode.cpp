@@ -159,6 +159,16 @@ void FilterNode::updateSettings()
 
 }
 
+double FilterNode::getLowCutValueForChannel(int chan)
+{
+    return lowCuts[chan];
+}
+
+double FilterNode::getHighCutValueForChannel(int chan)
+{
+    return highCuts[chan];
+}
+
 void FilterNode::setFilterParameters(double lowCut, double highCut, int chan)
 {
 
@@ -265,6 +275,11 @@ void FilterNode::loadCustomChannelParametersFromXml(XmlElement* channelInfo, boo
             {
                 highCuts.set(channelNum-1, subNode->getDoubleAttribute("highcut",6000.0f));
                 lowCuts.set(channelNum-1, subNode->getDoubleAttribute("lowcut",600.0f));
+
+                setFilterParameters(lowCuts[channelNum-1],
+                        highCuts[channelNum-1],
+                        channelNum-1);
+
             }
         } 
     }
