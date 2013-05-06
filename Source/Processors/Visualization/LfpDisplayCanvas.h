@@ -161,9 +161,11 @@ public:
 
     void mouseDown(const MouseEvent& event);
 
+    void setRange(float range);
+
 private:
     int numChans;
-    int channelHeight;
+
     int totalHeight;
 
     LfpDisplayCanvas* canvas;
@@ -171,6 +173,8 @@ private:
 
     Array<LfpChannelDisplay*> channels;
     Array<Colour> channelColours;
+
+    float range;
 
 };
 
@@ -187,6 +191,13 @@ public:
 
     void setColour(Colour c);
 
+    void setChannelHeight(int);
+    int getChannelHeight();
+
+    void setChannelOverlap(int);
+    int getChannelOverlap();
+
+    void setRange(float range);
 
 private:
 
@@ -199,6 +210,12 @@ private:
     Font channelFont;
 
     Colour lineColour;
+
+    int channelOverlap;
+    int channelHeight;
+    float ch;
+
+    float range;
 
 };
 

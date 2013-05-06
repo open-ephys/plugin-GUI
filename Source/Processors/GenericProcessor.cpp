@@ -512,7 +512,7 @@ void GenericProcessor::saveToXml(XmlElement* parentElement)
 
     // loop through the channels
 
-    for (int i = 1; i <= channels.size(); i++)
+    for (int i = 0; i < channels.size(); i++)
     {
 
         saveChannelParametersToXml(parentElement, i);
@@ -523,7 +523,7 @@ void GenericProcessor::saveToXml(XmlElement* parentElement)
         // saveParametersToChannelsXml(channelChildNode, i);
     }
 
-    for (int i = 1; i <= eventChannels.size(); i++)
+    for (int i = 0; i < eventChannels.size(); i++)
     {
         saveChannelParametersToXml(parentElement, i, true);
 
@@ -555,7 +555,7 @@ void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, int
 
         bool p, r, a;
 
-        getEditor()->getChannelSelectionState(channelNumber-1, &p, &r, &a);
+        getEditor()->getChannelSelectionState(channelNumber, &p, &r, &a);
 
         XmlElement* selectionState = channelInfo->createNewChildElement("SELECTIONSTATE");
         selectionState->setAttribute("param",p);

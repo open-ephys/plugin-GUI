@@ -137,7 +137,7 @@ bool FileReaderThread::updateBuffer()
 
         for (int n = 0; n < bufferSize; n++)
         {
-            thisSample[chan] = float(-readBuffer[n])*0.0305f;
+            thisSample[chan] = float(-readBuffer[n]);
 
             if (chan == 15)
             {

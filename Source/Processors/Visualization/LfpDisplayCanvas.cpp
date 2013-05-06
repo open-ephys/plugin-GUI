@@ -81,6 +81,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     addAndMakeVisible(timebaseSelection);
 
     lfpDisplay->setNumChannels(nChans);
+    lfpDisplay->setRange(1000.0f);
 
 }
 
@@ -147,7 +148,8 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
     }
     else if (cb == rangeSelection)
     {
-        displayGain = 150.0f / voltageRanges[cb->getSelectedId()-1].getFloatValue(); // not sure this is right.
+        lfpDisplay->setRange(voltageRanges[cb->getSelectedId()-1].getFloatValue());
+        //std::cout << "Setting range to " << voltageRanges[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
 
     timescale->setTimebase(timebase);
@@ -156,17 +158,17 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 
 void LfpDisplayCanvas::setParameter(int param, float val)
 {
-    if (param == 0)
-    {
-        timebase = val;
-        refreshScreenBuffer();
-    }
-    else
-    {
-        displayGain = val; //* 0.0001f;
-    }
+    // if (param == 0)
+    // {
+    //     timebase = val;
+    //     refreshScreenBuffer();
+    // }
+    // else
+    // {
+    //     displayGain = val; //* 0.0001f;
+    // }
 
-    repaint();
+    // repaint();
 }
 
 void LfpDisplayCanvas::refreshState()
@@ -245,13 +247,13 @@ void LfpDisplayCanvas::updateScreenBuffer()
                                       screenBufferIndex, // destStartSample
                                       displayBuffer->getSampleData(channel, displayBufferIndex), // source
                                       1, // numSamples
-                                      invAlpha*gain*displayGain); // gain
+                                      invAlpha*gain); // gain
 
                 screenBuffer->addFrom(channel, // destChannel
                                       screenBufferIndex, // destStartSample
                                       displayBuffer->getSampleData(channel, nextPos), // source
                                       1, // numSamples
-                                      alpha*gain*displayGain); // gain
+                                      alpha*gain); // gain
 
                 //waves[channel][screenBufferIndex*2+1] =
                 //	*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
@@ -437,9 +439,9 @@ void LfpTimescale::setTimebase(float t)
 // ---------------------------------------------------------------
 
 LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
-    canvas(c), viewport(v)
+    canvas(c), viewport(v), range(1000.0f)
 {
-    channelHeight = 100;
+
     totalHeight = 0;
 
     addMouseListener(this, true);
@@ -479,12 +481,13 @@ void LfpDisplay::setNumChannels(int numChannels)
         LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvas, i);
 
         lfpChan->setColour(channelColours[i % channelColours.size()]);
+        lfpChan->setRange(range);
 
         addAndMakeVisible(lfpChan);
 
         channels.add(lfpChan);
 
-        totalHeight += channelHeight;
+        totalHeight += lfpChan->getChannelHeight();
 
     }
 
@@ -495,14 +498,17 @@ void LfpDisplay::resized()
 
     int totalHeight = 0;
 
-    int overlap = 50;
-
     for (int i = 0; i < numChans; i++)
     {
 
-        getChildComponent(i)->setBounds(0,totalHeight-overlap/2,getWidth(),channelHeight+overlap);
+        LfpChannelDisplay* disp = channels[i];
 
-        totalHeight += channelHeight;
+        disp->setBounds(0,
+                totalHeight-disp->getChannelOverlap()/2,
+                getWidth(),
+                disp->getChannelHeight()+disp->getChannelOverlap());
+
+        totalHeight += disp->getChannelHeight();
 
     }
 
@@ -538,6 +544,20 @@ void LfpDisplay::refresh()
 
 }
 
+void LfpDisplay::setRange(float r)
+{
+
+    range = r;
+
+    for (int i = 0; i < numChans; i++)
+    {
+
+        channels[i]->setRange(range);
+
+    }
+
+}
+
 void LfpDisplay::mouseDown(const MouseEvent& event)
 {
     //int x = event.getMouseDownX();
@@ -562,8 +582,10 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 // ------------------------------------------------------------------
 
 LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, int channelNumber) :
-    canvas(c), isSelected(false), chan(channelNumber)
+    canvas(c), isSelected(false), chan(channelNumber), channelHeight(100), channelOverlap(60), range(1000.0f)
 {
+
+    ch = (float) channelHeight;
 
     channelFont = Font("Default", 50, Font::plain);
 
@@ -583,7 +605,7 @@ void LfpChannelDisplay::paint(Graphics& g)
 
     g.setColour(Colours::yellow);
 
-    g.drawLine(canvas->screenBufferIndex, 0, canvas->screenBufferIndex, getHeight());
+    g.drawLine(canvas->screenBufferIndex, 0, canvas->screenBufferIndex, getHeight()-channelOverlap);
 
     int center = getHeight()/2;
 
@@ -612,9 +634,9 @@ void LfpChannelDisplay::paint(Graphics& g)
     {
 
         g.drawLine(i,
-                   (canvas->getYCoord(chan, i)+0.5f)*getHeight(),
+                   (canvas->getYCoord(chan, i)/range*ch)+getHeight()/2,
                    i+stepSize,
-                   (canvas->getYCoord(chan, i+stepSize)+0.5f)*getHeight());
+                   (canvas->getYCoord(chan, i+stepSize)/range*ch)+getHeight()/2);
     }
 
     g.setColour(lineColour.withAlpha(0.7f));
@@ -623,6 +645,11 @@ void LfpChannelDisplay::paint(Graphics& g)
     g.drawText(String(chan+1), 10, 50, 200, 50, Justification::left, false);
 
 
+}
+
+void LfpChannelDisplay::setRange(float r)
+{
+    range = r;
 }
 
 void LfpChannelDisplay::select()
@@ -641,3 +668,25 @@ void LfpChannelDisplay::setColour(Colour c)
 }
 
 
+void LfpChannelDisplay::setChannelHeight(int c)
+{
+    channelHeight = c;
+    ch = (float) channelHeight;
+}
+
+int LfpChannelDisplay::getChannelHeight()
+{
+
+    return channelHeight;
+}
+
+void LfpChannelDisplay::setChannelOverlap(int overlap)
+{
+    channelOverlap = overlap;
+}
+
+
+int LfpChannelDisplay::getChannelOverlap()
+{
+    return channelOverlap;
+}
