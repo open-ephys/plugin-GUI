@@ -58,7 +58,8 @@ AudioProcessorEditor* PhaseDetector::createEditor()
 
 void PhaseDetector::setParameter(int parameterIndex, float newValue)
 {
-
+    editor->updateParameterButtons(parameterIndex);
+    editor->updateParameterButtons(parameterIndex);
     if (parameterIndex == 1)
     {
         selectedChannel = (int) newValue;

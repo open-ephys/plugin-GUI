@@ -51,6 +51,7 @@ void WiFiOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 
 void WiFiOutput::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
 
 }
 

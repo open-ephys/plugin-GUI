@@ -237,6 +237,8 @@ public:
     /** Writes editor state to xml */
     virtual void loadEditorParameters(XmlElement* xml);
 
+    /** Syncs parametereditor colors with parameter values */
+    void updateParameterButtons(int parameterIndex);
 protected:
 
     /** A pointer to the button that opens the drawer for the ChannelSelector. */

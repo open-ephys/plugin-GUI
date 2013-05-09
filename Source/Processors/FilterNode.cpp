@@ -171,7 +171,6 @@ void FilterNode::setFilterParameters(double lowCut, double highCut, int chan)
 void FilterNode::setParameter(int parameterIndex, float newValue)
 {
 
-
     if (newValue <= 0.01 || newValue >= 10000.0f)
         return;
 
@@ -211,6 +210,7 @@ void FilterNode::setParameter(int parameterIndex, float newValue)
     // 	parameters[1].setValue(newValue, currentChannel);
     // 	setFilterParameters(lowCuts[currentChannel], newValue, currentChannel);
     // }
+    editor->updateParameterButtons(parameterIndex);
 
 }
 

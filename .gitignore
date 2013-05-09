@@ -58,3 +58,5 @@ cscope.out
 # 7. Open Ephys data files
 *.continuous
 *.events
+
+.DS_Store

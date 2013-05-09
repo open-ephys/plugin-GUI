@@ -58,6 +58,7 @@ void ReferenceNode::updateSettings()
 
 void ReferenceNode::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
 
     referenceChannel = (int) newValue;
 

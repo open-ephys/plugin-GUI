@@ -586,7 +586,7 @@ void ChannelSelector::buttonClicked(Button* button)
         }
 
     }
-
+    refreshParameterColors();
 }
 
 

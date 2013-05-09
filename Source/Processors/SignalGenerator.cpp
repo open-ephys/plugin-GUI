@@ -85,9 +85,11 @@ void SignalGenerator::updateSettings()
 
 void SignalGenerator::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
     std::cout << "Message received." << std::endl;
     Parameter* parameterPointer=parameters.getRawDataPointer();
     parameterPointer=parameterPointer+parameterIndex;
+    editor->updateParameterButtons(parameterIndex);
 
     if (currentChannel > -1)
     {

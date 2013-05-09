@@ -30,6 +30,8 @@ ParameterEditor::ParameterEditor(GenericProcessor* proc, Parameter& p, Font labe
 
     processor = proc;
 
+    parameter = &p;
+
     shouldDeactivateDuringAcquisition = p.shouldDeactivateDuringAcquisition;
 
     if (p.isBoolean())
@@ -265,6 +267,12 @@ ParameterButton::ParameterButton(var value, int buttonType, Font labelFont) :
     selectedOverGrad = ColourGradient(Colour(209,162,33),0.0, 5.0f,
                                       Colour(190,150,25),0.0, 0.0f,
                                       false);
+    usedByNonActiveGrad = ColourGradient(Colour(200,100,0),0.0,0.0,
+                                  Colour(158,95,32),0.0, 20.0f,
+                                  false);
+    usedByNonActiveOverGrad = ColourGradient(Colour(158,95,32),0.0, 5.0f,
+                                      Colour(128,70,13),0.0, 0.0f,
+                                      false);
     neutralGrad = ColourGradient(Colour(220,220,220),0.0,0.0,
                                  Colour(170,170,170),0.0, 20.0f,
                                  false);
@@ -282,12 +290,19 @@ void ParameterButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDo
     g.setColour(Colours::grey);
     g.fillPath(outlinePath);
 
-    if (getToggleState())
+    if (colorState==1)
     {
         if (isMouseOver)
             g.setGradientFill(selectedOverGrad);
         else
             g.setGradientFill(selectedGrad);
+    }
+    else if (colorState==2)
+    {
+        if (isMouseOver)
+            g.setGradientFill(usedByNonActiveOverGrad);
+        else
+            g.setGradientFill(usedByNonActiveGrad);
     }
     else
     {
@@ -489,4 +504,52 @@ Path ParameterSlider::makeRotaryPath(double min, double max, double val)
     // p.closeSubPath();
 
     return p;
+}
+
+void ParameterEditor::channelSelectionUI()
+{
+
+    int numChannels=channelSelector->getNumChannels();
+    Array<var> possibleValues=parameter->getPossibleValues();
+    if (parameter->isBoolean())
+    {
+
+    }
+    else if (parameter->isContinuous())
+    {
+
+    }
+    else if (parameter->isDiscrete())
+    {
+        std::cout << "Calculating colors for discrete buttons" << std::endl;
+
+        for (int i = 0; i < buttonArray.size(); i++)
+        {
+            buttonArray[i]->colorState=0;
+            
+            for (int j = 0; j < numChannels; j++)
+            {
+
+                if (possibleValues[i]==parameter->getValue(j))
+                {
+                    
+                    if (channelSelector->getParamStatus(j))
+                    {
+                        /* Set button as usedbyactive */
+                        buttonArray[i]->colorState=1;
+
+                    }
+                    else if (buttonArray[i]->colorState==0)
+                    {
+                        // Set button as used by non-selected
+                        buttonArray[i]->colorState=2;
+                    }   
+
+                } 
+            }
+            buttonArray[i]->repaint();
+
+
+        }
+    }
 }

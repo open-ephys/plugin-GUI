@@ -45,6 +45,7 @@ EventDetector::~EventDetector()
 
 void EventDetector::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
 
     Parameter& p =  parameters.getReference(parameterIndex);
     p.setValue(newValue, 0);

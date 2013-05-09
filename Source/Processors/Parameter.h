@@ -105,6 +105,12 @@ public:
         return values[chan];
     }
 
+    /** Returns the value of a parameter for a given channel.*/
+    var getValue(int chan)
+    {
+        return values[chan];
+    }
+
     /** Copies a parameter.*/
     Parameter& operator=(const Parameter& other);
 
