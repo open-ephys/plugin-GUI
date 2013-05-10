@@ -90,6 +90,7 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
 
 void PulsePalOutput::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
     //std::cout << "Changing channel " << parameterIndex << " to " << newValue << std::endl;
 
     switch (parameterIndex)

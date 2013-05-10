@@ -134,9 +134,10 @@ void FPGAOutput::updateSettings()
 
 void FPGAOutput::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
 
     //std::cout << "FPGAOutput received parameter change notification." << std::endl;
-
+    editor->updateParameterButtons(parameterIndex);
     if (parameterIndex == 0)
     {
         TTLchannel = int(newValue);

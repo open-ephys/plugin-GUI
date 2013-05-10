@@ -157,6 +157,9 @@ public:
     /** Converts information about a splitter or merge to XML. */
     XmlElement* switchNodeXml(GenericProcessor*);
 
+    /** Sets the parameters of a given processor via XML save files*/
+    void setParametersByXML(GenericProcessor*, XmlElement*);
+
     /** Checks whether or not the signal chain scroll buttons need to be activated. */
     void checkScrollButtons(int topTab);
 

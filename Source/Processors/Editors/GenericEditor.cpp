@@ -105,7 +105,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
 }
 
-void GenericEditor::addParameterEditors(bool useDefaultParameterEditors)
+void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
 {
     if (useDefaultParameterEditors)
     {
@@ -769,3 +769,15 @@ void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDow
 
 }
 
+void GenericEditor::updateParameterButtons(int parameterIndex=-1){
+    if (parameterIndex==-1){
+        for (int i = 0; i < parameterEditors.size(); ++i)
+        {
+            parameterEditors[i]->channelSelectionUI();
+        }
+    }
+    else{
+        parameterEditors[parameterIndex]->channelSelectionUI();
+    }
+    std::cout << "updateParameterButtons" << std::endl;
+}

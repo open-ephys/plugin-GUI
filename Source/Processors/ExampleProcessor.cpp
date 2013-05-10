@@ -44,6 +44,7 @@ ExampleProcessor::~ExampleProcessor()
 
 void ExampleProcessor::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
 
     //Parameter& p =  parameters.getReference(parameterIndex);
     //p.setValue(newValue, 0);
@@ -51,7 +52,7 @@ void ExampleProcessor::setParameter(int parameterIndex, float newValue)
     //threshold = newValue;
 
     //std::cout << float(p[0]) << std::endl;
-
+    editor->updateParameterButtons(parameterIndex);
 }
 
 void ExampleProcessor::process(AudioSampleBuffer& buffer,

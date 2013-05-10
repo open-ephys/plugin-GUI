@@ -56,6 +56,7 @@ AudioProcessorEditor* ResamplingNode::createEditor()
 
 void ResamplingNode::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
 
     if (parameterIndex == 0)
     {

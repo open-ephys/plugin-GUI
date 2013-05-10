@@ -495,6 +495,9 @@ public:
     /** Array of Channel objects for all event channels. */
     OwnedArray<Channel> eventChannels;
 
+    /** Returns total number of channels */
+    int totalNumberOfChannels(){return channels.size()+eventChannels.size();}
+
     /** Settings used by most processors. */
     struct ProcessorSettings
     {

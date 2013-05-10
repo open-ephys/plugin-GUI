@@ -70,7 +70,7 @@ public:
     void setEnabled(bool t);
     bool shouldDeactivateDuringAcquisition;
     bool activationState;
-
+    void channelSelectionUI();
 private:
 
     Array<ParameterSlider*> sliderArray;
@@ -80,6 +80,7 @@ private:
     Array<int> sliderIdArray;
     Array<int> checkboxIdArray;
 
+    Parameter* parameter;
     GenericProcessor* processor;
     ChannelSelector* channelSelector;
 
@@ -106,7 +107,8 @@ public:
     ~ParameterButton() {}
 
     bool isEnabled;
-
+    //Used to mark if unused, usedByActive, or usedby inactive
+    int colorState;
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
@@ -122,6 +124,8 @@ private:
 
     ColourGradient selectedGrad;
     ColourGradient selectedOverGrad;
+    ColourGradient usedByNonActiveGrad;
+    ColourGradient usedByNonActiveOverGrad;
     ColourGradient neutralGrad;
     ColourGradient neutralOverGrad;
     ColourGradient deactivatedGrad;

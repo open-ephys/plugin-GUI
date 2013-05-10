@@ -1318,7 +1318,8 @@ const String EditorViewport::loadState(File fileToLoad)
                 GenericProcessor* p = (GenericProcessor*) lastEditor->getProcessor();
                 p->loadOrder = loadOrder;
                 p->parametersAsXml = processor;
-
+                //Sets parameters based on XML files
+                setParametersByXML(p, processor);
                 loadOrder++;
 
                 if (p->isSplitter() || p->isMerger())
@@ -1382,4 +1383,47 @@ const String EditorViewport::loadState(File fileToLoad)
     delete xml;
     return error;
 }
+/* Set parameters based on XML.*/
+void EditorViewport::setParametersByXML(GenericProcessor* targetProcessor, XmlElement* processorXML){
+    // Should probably do some error checking to make sure XML is valid, depending on how it treats errors (will likely just not update parameters, but error message could be nice.)
+    int numberParameters=targetProcessor->getNumParameters();
+    // Ditto channels. Not sure how to handle different channel sizes when variable sources (file reader etc. change). Maybe I should check number of channels vs source, but that requires hardcoding when source matters.
+    //int numChannels=(targetProcessor->channels).size();
+    //int numEventChannels=(targetProcessor->eventChannels).size();
 
+    // Sets channel in for loop
+    int currentChannel;
+
+    // What the parameter name to change is.
+    String parameterNameForXML;
+    String parameterValue;
+    float parameterFloat;
+    //float testGrab;
+    
+
+    forEachXmlChildElementWithTagName(*processorXML, channelXML, "CHANNEL"){
+        currentChannel=channelXML->getIntAttribute("name");
+        
+        std::cout <<"currentChannel:"<< currentChannel  << std::endl;
+        // Sets channel to change parameter on
+        targetProcessor->setCurrentChannel(currentChannel-1);
+
+        forEachXmlChildElement(*channelXML, parameterXML){
+        
+            for (int j = 0; j < numberParameters; ++j){
+                parameterNameForXML=targetProcessor->getParameterName(j);
+
+                if (parameterXML->getStringAttribute("name")==parameterNameForXML){
+                    parameterValue=parameterXML->getAllSubText();
+                    parameterFloat=parameterValue.getFloatValue();
+                    targetProcessor->setParameter(j, parameterFloat);
+                    // testGrab=targetProcessor->getParameterVar(j, currentChannel);
+                    std::cout <<"Channel:" <<currentChannel<<"Parameter:" << parameterNameForXML << "Intended Value:" << parameterFloat << std::endl;
+                }
+
+            }
+            
+
+        }
+    }
+}
