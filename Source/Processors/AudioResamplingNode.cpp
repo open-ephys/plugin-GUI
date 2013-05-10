@@ -68,6 +68,7 @@ AudioResamplingNode::~AudioResamplingNode()
 
 void AudioResamplingNode::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
 
     switch (parameterIndex)
     {

@@ -74,8 +74,6 @@ Parameter::Parameter(const String& name_, Array<var> a, int defaultVal,
 void Parameter::setValue(float val, int chan)
 {
 
-    // std::cout << "Setting value of " << chan << " to " << val << std::endl;
-
     if (isBoolean())
     {
         if (val > 0.0f)

@@ -128,6 +128,7 @@ void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
 void AudioNode::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
     // change left channel, right channel, or volume
     if (parameterIndex == 1)
     {

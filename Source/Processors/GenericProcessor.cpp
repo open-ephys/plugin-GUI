@@ -69,6 +69,7 @@ Parameter& GenericProcessor::getParameterReference(int parameterIndex)
 
 void GenericProcessor::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
     std::cout << "Setting parameter" << std::endl;
 
     if (currentChannel >= 0)

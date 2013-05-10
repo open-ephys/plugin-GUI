@@ -123,6 +123,7 @@ bool LfpDisplayNode::disable()
 
 void LfpDisplayNode::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
     //Sets Parameter in parameters array for processor
     Parameter* parameterPointer=parameters.getRawDataPointer();
     parameterPointer=parameterPointer+parameterIndex;

@@ -75,6 +75,7 @@ void ArduinoOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum
 
 void ArduinoOutput::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
 
 }
 

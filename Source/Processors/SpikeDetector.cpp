@@ -228,6 +228,7 @@ double SpikeDetector::getChannelThreshold(int electrodeNum, int channelNum)
 
 void SpikeDetector::setParameter(int parameterIndex, float newValue)
 {
+    editor->updateParameterButtons(parameterIndex);
     if (parameterIndex == 99 && currentElectrode > -1)
     {
         *(electrodes[currentElectrode]->thresholds+currentChannelIndex) = newValue;

@@ -73,6 +73,9 @@ public:
     /** Set the total number of channels. */
     void setNumChannels(int);
 
+    /** get the total number of channels. */
+    int getNumChannels(){return parameterButtons.size();}
+
     /** Return whether a particular channel should be recording. */
     bool getRecordStatus(int chan);
 
@@ -82,13 +85,13 @@ public:
     /** Return whether a particular channel is selected for editing parameters. */
     bool getParamStatus(int chan);
 
-    /** Return whether a particular channel should be recording. */
+    /** Set whether a particular channel should be recording. */
     void setRecordStatus(int, bool);
 
-    /** Return whether a particular channel should be monitored. */
+    /** Set whether a particular channel should be monitored. */
     void setAudioStatus(int, bool);
 
-    /** Return whether a particular channel is selected for editing parameters. */
+    /** Set whether a particular channel is selected for editing parameters. */
     void setParamStatus(int, bool);
 
     /** Return component's desired width. */
@@ -105,6 +108,10 @@ public:
 
     /** Activates all the ChannelSelectorButtons under the "param" tab.*/
     void activateButtons();
+
+    /** Refreshes Parameter Colors on change*/
+    void refreshParameterColors(){GenericEditor* p=dynamic_cast<GenericEditor*>(getParentComponent());
+        p->updateParameterButtons(-1);}
 
     /** Controls the behavior of ChannelSelectorButtons; they can either behave
     like radio buttons (only one selected at a time) or like toggle buttons (an
