@@ -171,6 +171,7 @@ void SpikeDetectorEditor::sliderEvent(Slider* slider)
 
 }
 
+
 void SpikeDetectorEditor::buttonEvent(Button* button)
 {
 

@@ -58,6 +58,8 @@ public:
     {
         chan = i;
     }
+
+
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
@@ -150,6 +152,8 @@ public:
 
     void channelChanged(int chan);
 
+    bool addElectrode(int nChans);
+
 private:
 
     void drawElectrodeButtons(int);
@@ -169,7 +173,7 @@ private:
     OwnedArray<ElectrodeButton> electrodeButtons;
     Array<ElectrodeEditorButton*> electrodeEditorButtons;
 
-    bool addElectrode(int nChans);
+    
     void removeElectrode(int index);
     void editElectrode(int index, int chan, int newChan);
 

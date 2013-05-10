@@ -108,6 +108,11 @@ public:
     /** Sets the name of a given electrode. */
     void setElectrodeName(int index, String newName);
 
+    /** */
+    void setChannelActive(int electrodeIndex, int channelNum, bool active);
+
+    /** */
+    bool isChannelActive(int electrodeIndex, int channelNum);
 
     // RETURN STRING ARRAYS //
 
@@ -120,6 +125,9 @@ public:
     void setChannelThreshold(int electrodeNum, int channelNum, float threshold);
 
     double getChannelThreshold(int electrodeNum, int channelNum);
+
+    void saveCustomParametersToXml(XmlElement* parentElement);
+    void loadCustomParametersFromXml();
 
 private:
     /** Reference to a continuous buffer. */

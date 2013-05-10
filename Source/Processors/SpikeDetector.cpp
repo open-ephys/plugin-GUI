@@ -100,6 +100,9 @@ void SpikeDetector::updateSettings()
 
 bool SpikeDetector::addElectrode(int nChans)
 {
+
+    std::cout << "Adding electrode with " << nChans << " channels." << std::endl;
+
     int firstChan;
 
     if (electrodes.size() == 0)
@@ -213,6 +216,18 @@ int SpikeDetector::getChannel(int index, int i)
 {
     return *(electrodes[index]->channels+i);
 }
+
+
+void SpikeDetector::setChannelActive(int electrodeIndex, int i, bool active)
+{
+    *(electrodes[electrodeIndex]->isActive+i) = active;
+}
+
+bool SpikeDetector::isChannelActive(int electrodeIndex, int i)
+{
+    return *(electrodes[electrodeIndex]->isActive+i);
+}
+
 
 void SpikeDetector::setChannelThreshold(int electrodeNum, int channelNum, float thresh)
 {
@@ -557,3 +572,69 @@ bool SpikeDetector::samplesAvailable(int& nSamples)
 }
 
 
+void SpikeDetector::saveCustomParametersToXml(XmlElement* parentElement)
+{
+
+    for (int i = 0; i < electrodes.size(); i++)
+    {
+         XmlElement* electrodeNode = parentElement->createNewChildElement("ELECTRODE");
+         electrodeNode->setAttribute("name", electrodes[i]->name);
+         electrodeNode->setAttribute("numChannels", electrodes[i]->numChannels);
+         electrodeNode->setAttribute("prePeakSamples", electrodes[i]->prePeakSamples);
+         electrodeNode->setAttribute("postPeakSamples", electrodes[i]->postPeakSamples);
+
+         for (int j = 0; j < electrodes[i]->numChannels; j++)
+        {
+            XmlElement* channelNode = electrodeNode->createNewChildElement("CHANNEL");
+            channelNode->setAttribute("ch",*(electrodes[i]->channels+j));
+            channelNode->setAttribute("thresh",*(electrodes[i]->thresholds+j));
+            channelNode->setAttribute("isActive",*(electrodes[i]->isActive+j));
+
+        }
+    }
+
+
+}
+
+void SpikeDetector::loadCustomParametersFromXml()
+{
+
+    if (parametersAsXml != nullptr)
+    {
+        // use parametersAsXml to restore state 
+
+        int electrodeIndex = -1;
+
+        forEachXmlChildElement(*parametersAsXml, xmlNode)
+        {
+           if (xmlNode->hasTagName("ELECTRODE"))
+            {
+
+                electrodeIndex++;
+
+                int channelsPerElectrode = xmlNode->getIntAttribute("numChannels");
+
+                SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
+                sde->addElectrode(channelsPerElectrode);
+                
+                //setElectrodeName(electrodeIndex, xmlNode->getStringAttribute("name"));
+
+                int channelIndex = -1;
+
+                forEachXmlChildElement(*parametersAsXml, channelNode)
+                {
+                    if (channelNode->hasTagName("CHANNEL"))
+                    {
+                        channelIndex++;
+
+                    //    setChannel(electrodeIndex, channelIndex, channelNode->getIntAttribute("ch"));
+                        //setChannelThreshold(electrodeIndex, channelIndex, channelNode->getDoubleAttribute("thresh"));
+                    //    setChannelActive(electrodeIndex, channelIndex, channelNode->getBoolAttribute("isActive"));
+                    }
+                }
+
+            }
+        }   
+    }
+
+}
