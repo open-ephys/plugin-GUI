@@ -247,18 +247,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             }
         }
 
-        refreshElectrodeList();
-
-        if (electrodeList->getNumItems() > 0)
-        {
-            electrodeList->setSelectedId(electrodeList->getNumItems(), true);
-            electrodeList->setText(electrodeList->getItemText(electrodeList->getNumItems()-1));
-            lastId = electrodeList->getNumItems();
-            electrodeList->setEditableText(true);
-
-            drawElectrodeButtons(electrodeList->getNumItems()-1);
-        }
-
+        
         getEditorViewport()->makeEditorVisible(this, true, true);
         return;
 
@@ -359,12 +348,30 @@ void SpikeDetectorEditor::refreshElectrodeList()
     {
         electrodeList->addItem(electrodeNames[i], electrodeList->getNumItems()+1);
     }
+
+    if (electrodeList->getNumItems() > 0)
+    {
+        electrodeList->setSelectedId(electrodeList->getNumItems(), true);
+        electrodeList->setText(electrodeList->getItemText(electrodeList->getNumItems()-1));
+        lastId = electrodeList->getNumItems();
+        electrodeList->setEditableText(true);
+
+        drawElectrodeButtons(electrodeList->getNumItems()-1);
+    }
 }
 
 bool SpikeDetectorEditor::addElectrode(int nChans)
 {
     SpikeDetector* processor = (SpikeDetector*) getProcessor();
-    return processor->addElectrode(nChans);
+
+    if (processor->addElectrode(nChans))
+    {
+        refreshElectrodeList();
+        return true;
+    } else {
+        return false;
+    }
+
 }
 
 

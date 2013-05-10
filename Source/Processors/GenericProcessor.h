@@ -584,6 +584,8 @@ private:
     /** For getInputChannelName() and getOutputChannelName() */
     static const String unusedNameString;
 
+    bool paramsWereLoaded;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GenericProcessor);
 
 };

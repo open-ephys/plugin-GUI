@@ -1127,6 +1127,8 @@ const String EditorViewport::saveState(File fileToUse)
     XmlElement* machineName = info->createNewChildElement("MACHINE");
     machineName->addTextElement(SystemStats::getComputerName());
 
+    GenericEditor* editor;
+
     for (int n = 0; n < signalChainArray.size(); n++)
     {
 
@@ -1134,7 +1136,7 @@ const String EditorViewport::saveState(File fileToUse)
 
         XmlElement* signalChain = new XmlElement("SIGNALCHAIN");
 
-        GenericEditor* editor = signalChainArray[n]->getEditor();
+        editor = signalChainArray[n]->getEditor();
 
         int insertionPt = 1;
 
@@ -1289,6 +1291,8 @@ const String EditorViewport::loadState(File fileToLoad)
     String description;// = " ";
     int loadOrder = 0;
 
+    GenericProcessor* p;
+
     forEachXmlChildElement(*xml, signalChain)
     {
         forEachXmlChildElement(*signalChain, processor)
@@ -1315,7 +1319,7 @@ const String EditorViewport::loadState(File fileToLoad)
 
                 itemDropped(sd);
 
-                GenericProcessor* p = (GenericProcessor*) lastEditor->getProcessor();
+                p = (GenericProcessor*) lastEditor->getProcessor();
                 p->loadOrder = loadOrder;
                 p->parametersAsXml = processor;
                 //Sets parameters based on XML files
@@ -1376,6 +1380,11 @@ const String EditorViewport::loadState(File fileToLoad)
 
     getControlPanel()->loadStateFromXml(xml); // save the control panel settings
     getUIComponent()->loadStateFromXml(xml);  // save the UI settings
+
+    if (editorArray.size() > 0)
+        signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
+
+    refreshEditors();
 
     String error = "Opened ";
     error += currentFile.getFileName();
