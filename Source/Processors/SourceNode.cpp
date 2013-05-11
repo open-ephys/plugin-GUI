@@ -200,7 +200,6 @@ void SourceNode::enabledState(bool t)
 void SourceNode::setParameter(int parameterIndex, float newValue)
 {
     editor->updateParameterButtons(parameterIndex);
-    editor->updateParameterButtons(parameterIndex);
     //std::cout << "Got parameter change notification";
 }
 

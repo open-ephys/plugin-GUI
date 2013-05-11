@@ -510,7 +510,6 @@ void ParameterEditor::channelSelectionUI()
 {
 
     int numChannels=channelSelector->getNumChannels();
-    Array<var> possibleValues=parameter->getPossibleValues();
     if (parameter->isBoolean())
     {
 
@@ -522,6 +521,7 @@ void ParameterEditor::channelSelectionUI()
     else if (parameter->isDiscrete())
     {
         std::cout << "Calculating colors for discrete buttons" << std::endl;
+        Array<var> possibleValues=parameter->getPossibleValues();
 
         for (int i = 0; i < buttonArray.size(); i++)
         {
