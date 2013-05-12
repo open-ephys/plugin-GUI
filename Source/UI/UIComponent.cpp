@@ -92,6 +92,8 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     mainWindow->setMenuBar(this);
 #endif
 
+    getEditorViewport()->loadState(File("/home/jsiegle/Programming/GUI/Builds/Linux/build/spike_display.xml"));
+
 }
 
 UIComponent::~UIComponent()
