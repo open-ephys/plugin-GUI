@@ -206,7 +206,6 @@ private:
     void setLimitsOnAxes();
     void updateAxesPositions();
 
-    void n2ProjIdx(int i, int* p1, int* p2);
 
     Font font;
 
@@ -228,7 +227,7 @@ public:
 
     virtual ~GenericAxes();
 
-    void updateSpikeData(const SpikeObject& s);
+    virtual void updateSpikeData(const SpikeObject& s);
 
     void setXLims(double xmin, double xmax);
     void getXLims(double* xmin, double* xmax);
@@ -273,7 +272,11 @@ public:
     WaveAxes(int channel);
     ~WaveAxes() {}
 
+    void updateSpikeData(const SpikeObject& s);
+
     void paint(Graphics& g);
+
+    void plotSpike(const SpikeObject& s, Graphics& g);
 
     void clear();
 
@@ -288,6 +291,11 @@ private:
     void drawWaveformGrid(int threshold, int gain, Graphics& g);
 
     Font font;
+
+    Array<SpikeObject> spikeBuffer;
+
+    int spikeIndex;
+    int bufferSize;
 
 };
 
@@ -305,14 +313,29 @@ public:
     ProjectionAxes(int projectionNum);
     ~ProjectionAxes() {}
 
+    void updateSpikeData(const SpikeObject& s);
+
     void paint(Graphics& g);
 
     void clear();
 
 private:
 
+    void updateProjectionImage(uint16_t, uint16_t);
+
+    void calcWaveformPeakIdx(const SpikeObject&, int, int, int*, int*);
+
+
+    void n2ProjIdx(int i, int* p1, int* p2);
+
+    int ampDim1, ampDim2;
+
+    Image projectionImage;
+
     Colour pointColour;
     Colour gridColour;
+
+    int imageDim;
 
 };
 

@@ -463,18 +463,18 @@ void SpikePlot::setLimitsOnAxes()
 {
     //std::cout<<"SpikePlot::setLimitsOnAxes()"<<std::endl;
 
-    for (int i = 0; i < nWaveAx; i++)
-        wAxes[i]->setYLims(limits[i][0], limits[i][1]);
+    // for (int i = 0; i < nWaveAx; i++)
+    //     wAxes[i]->setYLims(limits[i][0], limits[i][1]);
 
-    // Each Projection sets its limits using the limits of the two waveform dims it represents.
-    // Convert projection number to indecies, and then set the limits using those indices
-    int j1, j2;
-    for (int i = 0; i < nProjAx; i++)
-    {
-        n2ProjIdx(pAxes[i]->getType(), &j1, &j2);
-        pAxes[i]->setYLims(limits[j1][0], limits[j1][1]);
-        pAxes[i]->setXLims(limits[j2][0], limits[j2][1]);
-    }
+    // // Each Projection sets its limits using the limits of the two waveform dims it represents.
+    // // Convert projection number to indecies, and then set the limits using those indices
+    // int j1, j2;
+    // for (int i = 0; i < nProjAx; i++)
+    // {
+    //     n2ProjIdx(pAxes[i]->getType(), &j1, &j2);
+    //     pAxes[i]->setYLims(limits[j1][0], limits[j1][1]);
+    //     pAxes[i]->setXLims(limits[j2][0], limits[j2][1]);
+    // }
 }
 
 void SpikePlot::initLimits()
@@ -558,7 +558,278 @@ void SpikePlot::zoom(int dim, bool in)
 }
 
 
-void SpikePlot::n2ProjIdx(int proj, int* p1, int* p2)
+
+
+// --------------------------------------------------
+
+
+WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true), 
+    bufferSize(10), spikeIndex(0)
+{
+    font = Font("Small Text",10,Font::plain);
+
+    for (int n = 0; n < bufferSize; n++)
+    {
+        SpikeObject so;
+        generateEmptySpike(&so, 4);
+        
+        spikeBuffer.add(so);
+    }
+}
+
+void WaveAxes::paint(Graphics& g)
+{
+    g.setColour(Colours::black);
+    g.fillRect(5,5,getWidth()-10, getHeight()-10);
+
+    int chan = 0;
+
+    // draw the grid lines for the waveforms
+
+    if (drawGrid)
+        drawWaveformGrid(s.threshold[chan], s.gain[chan], g);
+
+    // if no spikes have been received then don't plot anything
+    if (!gotFirstSpike)
+    {
+        return;
+    }
+   
+
+    for (int spikeNum = 0; spikeNum < bufferSize; spikeNum++)
+    {
+
+        if (spikeNum != spikeIndex)
+        {
+            g.setColour(Colours::grey);
+            plotSpike(spikeBuffer[spikeNum], g);
+         }
+
+    }
+
+    g.setColour(Colours::white);
+    plotSpike(spikeBuffer[spikeIndex], g);
+    
+
+    // draw the threshold line and labels
+    // TODO
+
+}
+
+void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
+{
+
+    float h = getHeight();
+
+    //compute the spatial width for each waveform sample
+    float dx = (getWidth()-10)/float(spikeBuffer[0].nSamples);
+    
+    // type corresponds to channel so we need to calculate the starting
+    // sample based upon which channel is getting plotted
+    int sampIdx = 40*type; //spikeBuffer[0].nSamples * type; //
+
+    int dSamples = 1;
+
+
+    float x = 5.0f;
+
+     for (int i = 0; i < s.nSamples-1; i++)
+    {
+        //std::cout << s.data[sampIdx] << std::endl;
+        g.drawLine(x, 
+            h/2 + (s.data[sampIdx]-32768)/100, 
+            x+dx, 
+            h/2 + (s.data[sampIdx+1]-32768)/100);
+        sampIdx += dSamples;
+        x += dx;
+    }
+
+}
+
+void WaveAxes::drawWaveformGrid(int threshold, int gain, Graphics& g)
+{
+
+    float h = getHeight();
+    float w = getWidth();
+
+    for (int i = 1; i < 10; i++)
+    {
+        g.setColour(Colours::darkgrey);
+
+        g.drawLine(5.0,h/10*i,w-5.0f,h/10*i);
+
+    }
+
+    // double voltRange = ylims[1] - ylims[0];
+    // double pixelRange = getHeight();
+    // //This is a totally arbitrary value that seemed to lok the best for me
+    // int minPixelsPerTick = 25;
+    // int MAX_N_TICKS = 10;
+
+    // int nTicks = pixelRange / minPixelsPerTick;
+    // while (nTicks > MAX_N_TICKS)
+    // {
+    //     minPixelsPerTick += 5;
+    //     nTicks = pixelRange / minPixelsPerTick;
+    // }
+
+    // int voltPerTick = (voltRange / nTicks);
+
+    // g.setColour(Colours::red);
+    // char cstr[200] = {0};
+    // String str;
+
+    // double tickVoltage = (double) threshold;
+
+    // // If the limits are bad we don't want to hang the program trying to draw too many ticks
+    // // so count the number of ticks drawn and kill the routine after 100 draws
+    // int tickCount=0;
+    // while (tickVoltage < ylims[1] - voltPerTick*1.5) // Draw the ticks above the thold line
+    // {
+    //     tickVoltage = (double) roundUp(tickVoltage + voltPerTick, 100);
+
+    //     g.drawLine(0, tickVoltage, s.nSamples, tickVoltage);
+
+    //     // glBegin(GL_LINE_STRIP);
+    //     // glVertex2i(0, tickVoltage);
+    //     // glVertex2i(s.nSamples, tickVoltage);
+    //     // glEnd();
+
+    //     makeLabel(tickVoltage, gain, true, cstr);
+    //     str = String(cstr);
+    //     g.setFont(font);
+    //     g.drawText(str, 1, tickVoltage+voltPerTick/10, 100, 15, Justification::left, false);
+
+    //     if (tickCount++>100)
+    //         return;
+    // }
+
+    // tickVoltage = threshold;
+    // tickCount = 0;
+
+    // while (tickVoltage > ylims[0] + voltPerTick) // draw the ticks below the thold line
+    // {
+    //     tickVoltage = (double) roundUp(tickVoltage - voltPerTick, 100);
+
+    //     g.drawLine(0, tickVoltage, s.nSamples, tickVoltage);
+
+    //     // glBegin(GL_LINE_STRIP);
+    //     // glVertex2i(0, tickVoltage);
+    //     // glVertex2i(s.nSamples, tickVoltage);
+    //     // glEnd();
+
+    //     makeLabel(tickVoltage, gain, true, cstr);
+    //     str = String(cstr);
+    //     g.drawText(str, 1, tickVoltage+voltPerTick/10, 100, 15, Justification::left, false);
+
+    //     if (tickCount++>100)
+    //         return;
+    // }
+}
+
+void WaveAxes::updateSpikeData(const SpikeObject& s)
+{
+    if (!gotFirstSpike)
+    {
+        gotFirstSpike = true;
+    }
+
+    SpikeObject newSpike = s;
+
+    spikeBuffer.set(spikeIndex, newSpike);
+
+    spikeIndex++;
+    spikeIndex %= bufferSize;
+
+}
+
+void WaveAxes::clear()
+{
+
+}
+
+
+// --------------------------------------------------
+
+ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum), imageDim(500)
+{
+    projectionImage = Image(Image::RGB, imageDim, imageDim, true);
+
+    //Graphics g(projectionImage);
+    //g.setColour(Colours::red);
+    //g.fillEllipse(20, 20, 300, 200);
+    
+    n2ProjIdx(projectionNum, &ampDim1, &ampDim2);
+
+
+}
+
+void ProjectionAxes::paint(Graphics& g)
+{
+    //g.setColour(Colours::orange);
+    //g.fillRect(5,5,getWidth()-5, getHeight()-5);
+    g.drawImage(projectionImage,
+                5, 5, getWidth()-10, getHeight()-10,
+                0, 0, projectionImage.getWidth(), projectionImage.getHeight());
+}
+
+void ProjectionAxes::updateSpikeData(const SpikeObject& s)
+{
+    if (!gotFirstSpike)
+    {
+        gotFirstSpike = true;
+    }
+
+    int idx1, idx2;
+    calcWaveformPeakIdx(s, ampDim1, ampDim2, &idx1, &idx2);
+
+    // add peaks to image
+    updateProjectionImage(s.data[idx1], s.data[idx2]);
+
+}
+
+void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y)
+{
+    Graphics g(projectionImage);
+
+    float xf = float(x-32768)*(float(imageDim)/32768.0);
+    float yf = float(imageDim) - float(y-32768)*(float(imageDim)/32768.0);
+
+    g.setColour(Colours::white);
+    g.fillEllipse(xf,yf,5.0f,5.0f);
+
+}
+
+void ProjectionAxes::calcWaveformPeakIdx(const SpikeObject& s, int d1, int d2, int* idx1, int* idx2)
+{
+
+    int max1 = -1*pow(2.0,15);
+    int max2 = max1;
+
+    for (int i = 0; i < s.nSamples; i++)
+    {
+        if (s.data[d1*s.nSamples + i] > max1)
+        {
+            *idx1 = d1*s.nSamples+i;
+            max1 = s.data[*idx1];
+        }
+        if (s.data[d2*s.nSamples+i] > max2)
+        {
+            *idx2 = d2*s.nSamples+i;
+            max2 = s.data[*idx2];
+        }
+    }
+}
+
+
+
+void ProjectionAxes::clear()
+{
+    projectionImage.clear(Rectangle<int>(0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
+                         Colours::black);
+}
+
+void ProjectionAxes::n2ProjIdx(int proj, int* p1, int* p2)
 {
     int d1, d2;
     if (proj==PROJ1x2)
@@ -600,150 +871,6 @@ void SpikePlot::n2ProjIdx(int proj, int* p1, int* p2)
     }
     *p1 = d1;
     *p2 = d2;
-}
-
-// --------------------------------------------------
-
-
-WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true)
-{
-    font = Font("Small Text",10,Font::plain);
-}
-
-void WaveAxes::paint(Graphics& g)
-{
-    g.setColour(Colours::black);
-    g.fillRect(5,5,getWidth()-10, getHeight()-10);
-
-    int chan = 0;
-
-    // if no spikes have been received then don't plot anything
-    if (!gotFirstSpike)
-    {
-        return;
-    }
-
-    float h = getHeight();
-    // draw the grid lines for the waveforms
-    if (drawGrid)
-        drawWaveformGrid(s.threshold[chan], s.gain[chan], g);
-
-    //compute the spatial width for each waveform sample
-    float dx = (getWidth()-10)/s.nSamples;
-    float x = 5.0f;
-
-    // type corresponds to channel so we need to calculate the starting
-    // sample based upon which channel is getting plotted
-    int	sampIdx = s.nSamples * type; //
-
-    // draw the individual waveform points
-    g.setColour(Colours::white);
-
-    int dSamples = 1;
-
-    for (int i = 0; i < s.nSamples-1; i++)
-    {
-        //std::cout << s.data[sampIdx] << std::endl;
-        g.drawLine(x, h/2 + (s.data[sampIdx]-32768)/100, x+dx, h/2 + (s.data[sampIdx+1]-32768)/100);
-        sampIdx += dSamples;
-        x += dx;
-    }
-
-    // draw the threshold line and labels
-
-}
-
-void WaveAxes::drawWaveformGrid(int threshold, int gain, Graphics& g)
-{
-    double voltRange = ylims[1] - ylims[0];
-    double pixelRange = getHeight();
-    //This is a totally arbitrary value that seemed to lok the best for me
-    int minPixelsPerTick = 25;
-    int MAX_N_TICKS = 10;
-
-    int nTicks = pixelRange / minPixelsPerTick;
-    while (nTicks > MAX_N_TICKS)
-    {
-        minPixelsPerTick += 5;
-        nTicks = pixelRange / minPixelsPerTick;
-    }
-
-    int voltPerTick = (voltRange / nTicks);
-
-    g.setColour(Colours::red);
-    char cstr[200] = {0};
-    String str;
-
-    double tickVoltage = (double) threshold;
-
-    // If the limits are bad we don't want to hang the program trying to draw too many ticks
-    // so count the number of ticks drawn and kill the routine after 100 draws
-    int tickCount=0;
-    while (tickVoltage < ylims[1] - voltPerTick*1.5) // Draw the ticks above the thold line
-    {
-        tickVoltage = (double) roundUp(tickVoltage + voltPerTick, 100);
-
-        g.drawLine(0, tickVoltage, s.nSamples, tickVoltage);
-
-        // glBegin(GL_LINE_STRIP);
-        // glVertex2i(0, tickVoltage);
-        // glVertex2i(s.nSamples, tickVoltage);
-        // glEnd();
-
-        makeLabel(tickVoltage, gain, true, cstr);
-        str = String(cstr);
-        g.setFont(font);
-        g.drawText(str, 1, tickVoltage+voltPerTick/10, 100, 15, Justification::left, false);
-
-        if (tickCount++>100)
-            return;
-    }
-
-    tickVoltage = threshold;
-    tickCount = 0;
-
-    while (tickVoltage > ylims[0] + voltPerTick) // draw the ticks below the thold line
-    {
-        tickVoltage = (double) roundUp(tickVoltage - voltPerTick, 100);
-
-        g.drawLine(0, tickVoltage, s.nSamples, tickVoltage);
-
-        // glBegin(GL_LINE_STRIP);
-        // glVertex2i(0, tickVoltage);
-        // glVertex2i(s.nSamples, tickVoltage);
-        // glEnd();
-
-        makeLabel(tickVoltage, gain, true, cstr);
-        str = String(cstr);
-        g.drawText(str, 1, tickVoltage+voltPerTick/10, 100, 15, Justification::left, false);
-
-        if (tickCount++>100)
-            return;
-    }
-}
-
-void WaveAxes::clear()
-{
-
-}
-
-
-// --------------------------------------------------
-
-ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum)
-{
-
-}
-
-void ProjectionAxes::paint(Graphics& g)
-{
-    g.setColour(Colours::orange);
-    g.fillRect(5,5,getWidth()-5, getHeight()-5);
-}
-
-void ProjectionAxes::clear()
-{
-
 }
 
 // --------------------------------------------------
@@ -848,7 +975,9 @@ void GenericAxes::makeLabel(int val, int gain, bool convert, char* s)
             sprintf(s, "%.2fuV", volt);
     }
     else
+    {
         sprintf(s,"%d", (int)val);
+    }
 }
 
 double GenericAxes::ad16ToUv(int x, int gain)
