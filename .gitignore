@@ -60,3 +60,5 @@ cscope.out
 *.events
 
 .DS_Store
+
+Builds/MacOSX/open-ephys.xcodeproj/project.xcworkspace/xcuserdata/ryan.xcuserdatad/UserInterfaceState.xcuserstate
