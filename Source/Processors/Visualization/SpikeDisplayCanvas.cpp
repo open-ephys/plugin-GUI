@@ -787,16 +787,16 @@ void WaveAxes::mouseMove(const MouseEvent& event)
 
         isOverThresholdSlider = true;
 
-        cursorType = MouseCursor::DraggingHandCursor;
+       // cursorType = MouseCursor::DraggingHandCursor;
 
-    } else if (y < h - 10.0f || y > h + 10.0f && isOverThresholdSlider){
+    } else if ((y < h - 10.0f || y > h + 10.0f) && isOverThresholdSlider){
 
         thresholdColour = Colours::red;
         repaint();
 
         isOverThresholdSlider = false;
 
-        cursorType = MouseCursor::NormalCursor;
+     //   cursorType = MouseCursor::NormalCursor;
         
     }
 
@@ -843,6 +843,7 @@ ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum), 
 {
     projectionImage = Image(Image::RGB, imageDim, imageDim, true);
 
+    clear();
     //Graphics g(projectionImage);
     //g.setColour(Colours::red);
     //g.fillEllipse(20, 20, 300, 200);
