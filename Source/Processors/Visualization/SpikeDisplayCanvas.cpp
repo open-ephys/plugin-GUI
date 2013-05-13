@@ -770,7 +770,7 @@ void ProjectionAxes::paint(Graphics& g)
     //g.fillRect(5,5,getWidth()-5, getHeight()-5);
     g.drawImage(projectionImage,
                 5, 5, getWidth()-10, getHeight()-10,
-                0, 0, projectionImage.getWidth(), projectionImage.getHeight());
+                0, 250, 250, 250);
 }
 
 void ProjectionAxes::updateSpikeData(const SpikeObject& s)
@@ -796,7 +796,7 @@ void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y)
     float yf = float(imageDim) - float(y-32768)*(float(imageDim)/32768.0);
 
     g.setColour(Colours::white);
-    g.fillEllipse(xf,yf,5.0f,5.0f);
+    g.fillEllipse(xf,yf,2.0f,2.0f);
 
 }
 
