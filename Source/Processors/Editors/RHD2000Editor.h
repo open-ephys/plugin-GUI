@@ -27,8 +27,9 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
-
 class HeadstageOptionsInterface;
+class SampleRateInterface;
+class BandwidthInterface;
 class RHD2000Thread;
 
 class UtilityButton;
@@ -52,6 +53,7 @@ public:
 private:
 
     OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
+    ScopedPointer<SampleRateInterface> RateInterface;
 
     RHD2000Thread* board;
 
@@ -84,6 +86,54 @@ private:
     ScopedPointer<UtilityButton> enabledButton;
 
 };
+
+
+class BandwidthInterface : public Component,
+    public Label::Listener
+{
+public:
+    BandwidthInterface(RHD2000Thread*, RHD2000Editor*);
+    ~BandwidthInterface();
+
+    void paint(Graphics& g);
+    void labelTextChanged(Label* te);
+
+private:
+
+    String name;
+
+    RHD2000Thread* board;
+    RHD2000Editor* editor;
+
+    ScopedPointer<Label> UpperBandwidthSelection;
+    ScopedPointer<Label> LowerBandwidthSelection;
+
+};
+
+
+class SampleRateInterface : public Component,
+    public ComboBox::Listener
+{
+public:
+    SampleRateInterface(RHD2000Thread*, RHD2000Editor*);
+    ~SampleRateInterface();
+
+    void paint(Graphics& g);
+    void comboBoxChanged(ComboBox* cb);
+
+private:
+
+    int sampleRate;
+    String name;
+
+    RHD2000Thread* board;
+    RHD2000Editor* editor;
+
+    ScopedPointer<ComboBox> rateSelection;
+    StringArray sampleRateOptions;
+
+};
+
 
 
 
