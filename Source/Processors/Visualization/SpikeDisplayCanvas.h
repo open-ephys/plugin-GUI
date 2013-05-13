@@ -259,7 +259,6 @@ protected:
 };
 
 
-
 /**
 
   Class for drawing spike waveforms.
@@ -280,6 +279,13 @@ public:
 
     void clear();
 
+    void mouseMove(const MouseEvent& event);
+    void mouseExit(const MouseEvent& event);
+    void mouseDown(const MouseEvent& event);
+    void mouseDrag(const MouseEvent& event);
+
+    MouseCursor getMouseCursor();
+
 private:
 
     Colour waveColour;
@@ -288,7 +294,11 @@ private:
 
     bool drawGrid;
 
+    float thresholdLevel;
+
     void drawWaveformGrid(int threshold, int gain, Graphics& g);
+
+    void drawThresholdSlider(Graphics& g);
 
     Font font;
 
@@ -297,7 +307,14 @@ private:
     int spikeIndex;
     int bufferSize;
 
+    bool isOverThresholdSlider;
+    bool isDraggingThresholdSlider;
+
+    MouseCursor::StandardCursorType cursorType;
+
 };
+
+
 
 
 

@@ -564,8 +564,14 @@ void SpikePlot::zoom(int dim, bool in)
 
 
 WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true), 
-    bufferSize(10), spikeIndex(0)
+    bufferSize(10), spikeIndex(0), thresholdLevel(0.5f),
+    isOverThresholdSlider(false), isDraggingThresholdSlider(false)
 {
+
+    addMouseListener(this, true);
+
+    thresholdColour = Colours::red;
+
     font = Font("Small Text",10,Font::plain);
 
     for (int n = 0; n < bufferSize; n++)
@@ -589,6 +595,9 @@ void WaveAxes::paint(Graphics& g)
     if (drawGrid)
         drawWaveformGrid(s.threshold[chan], s.gain[chan], g);
 
+    // draw the threshold line and labels
+    drawThresholdSlider(g);
+
     // if no spikes have been received then don't plot anything
     if (!gotFirstSpike)
     {
@@ -611,8 +620,7 @@ void WaveAxes::paint(Graphics& g)
     plotSpike(spikeBuffer[spikeIndex], g);
     
 
-    // draw the threshold line and labels
-    // TODO
+    
 
 }
 
@@ -643,6 +651,16 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
         sampIdx += dSamples;
         x += dx;
     }
+
+}
+
+void WaveAxes::drawThresholdSlider(Graphics& g)
+{
+
+    float h = getHeight()*thresholdLevel;
+
+    g.setColour(thresholdColour);
+    g.drawLine(5.0f, h, getWidth()-5.0f, h);
 
 }
 
@@ -748,6 +766,76 @@ void WaveAxes::clear()
 
 }
 
+void WaveAxes::mouseMove(const MouseEvent& event)
+{
+
+   // Point<int> pos = event.getPosition();
+
+    float y = event.y;
+
+    float h = getHeight()*thresholdLevel;
+
+   // std::cout << y << " " << h << std::endl;
+
+    if (y > h - 10.0f && y < h + 10.0f && !isOverThresholdSlider)
+    {
+        thresholdColour = Colours::yellow; 
+
+      //  std::cout << "Yes." << std::endl;
+        
+        repaint();
+
+        isOverThresholdSlider = true;
+
+        cursorType = MouseCursor::DraggingHandCursor;
+
+    } else if (y < h - 10.0f || y > h + 10.0f && isOverThresholdSlider){
+
+        thresholdColour = Colours::red;
+        repaint();
+
+        isOverThresholdSlider = false;
+
+        cursorType = MouseCursor::NormalCursor;
+        
+    }
+
+
+}
+
+void WaveAxes::mouseDown(const MouseEvent& event)
+{
+    // if (isOverThresholdSlider)
+    // {
+    //     cursorType = MouseCursor::DraggingHandCursor;
+    // }
+}
+
+void WaveAxes::mouseDrag(const MouseEvent& event)
+{
+    if (isOverThresholdSlider)
+    {
+        thresholdLevel = float(event.y) / float(getHeight());
+        repaint();
+    }
+}
+
+MouseCursor WaveAxes::getMouseCursor()
+{
+    MouseCursor c = MouseCursor(cursorType);
+
+    return c;
+}
+
+void WaveAxes::mouseExit(const MouseEvent& event)
+{
+    if (isOverThresholdSlider)
+     {
+        isOverThresholdSlider = false;
+        thresholdColour = Colours::red; 
+        repaint();
+    }
+}
 
 // --------------------------------------------------
 
