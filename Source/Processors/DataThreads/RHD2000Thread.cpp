@@ -375,12 +375,22 @@ int RHD2000Thread::getNumEventChannels()
 
 float RHD2000Thread::getSampleRate()
 {
-    return 30000.00;
+    return evalBoard->getSampleRate();
 }
 
 float RHD2000Thread::getBitVolts()
 {
     return 0.1907;
+}
+
+double RHD2000Thread::setUpperBandwidth(double desiredUpperBandwidth)
+{
+    return chipRegisters->setUpperBandwidth(desiredUpperBandwidth);
+}
+
+double RHD2000Thread::setLowerBandwidth(double desiredLowerBandwidth)
+{
+    return chipRegisters->setLowerBandwidth(desiredLowerBandwidth);
 }
 
 bool RHD2000Thread::foundInputSource()
@@ -425,6 +435,91 @@ bool RHD2000Thread::isHeadstageEnabled(int hsNum)
     }
 
     return false;
+
+}
+
+void RHD2000Thread::setSampleRate(int sampleRateIndex)
+{
+ 
+
+    int numUsbBlocksToRead=0; // placeholder - make this change the number of blocks that are read in  RHD2000Thread::updateBuffer()
+    Rhd2000EvalBoard::AmplifierSampleRate sampleRate; // just for local use
+
+
+    switch (sampleRateIndex) {
+    case 0:
+        sampleRate = Rhd2000EvalBoard::SampleRate1000Hz;
+        numUsbBlocksToRead = 1;
+        break;
+    case 1:
+        sampleRate = Rhd2000EvalBoard::SampleRate1250Hz;
+        numUsbBlocksToRead = 1;
+        break;
+    case 2:
+        sampleRate = Rhd2000EvalBoard::SampleRate1500Hz;
+        numUsbBlocksToRead = 1;
+        break;
+    case 3:
+        sampleRate = Rhd2000EvalBoard::SampleRate2000Hz;
+        numUsbBlocksToRead = 1;
+        break;
+    case 4:
+        sampleRate = Rhd2000EvalBoard::SampleRate2500Hz;
+        numUsbBlocksToRead = 1;
+        break;
+    case 5:
+        sampleRate = Rhd2000EvalBoard::SampleRate3000Hz;
+        numUsbBlocksToRead = 2;
+        break;
+    case 6:
+        sampleRate = Rhd2000EvalBoard::SampleRate3333Hz;
+        numUsbBlocksToRead = 2;
+        break;
+    case 7:
+        sampleRate = Rhd2000EvalBoard::SampleRate4000Hz;
+        numUsbBlocksToRead = 2;
+        break;
+    case 8:
+        sampleRate = Rhd2000EvalBoard::SampleRate5000Hz;
+        numUsbBlocksToRead = 3;
+        break;
+    case 9:
+        sampleRate = Rhd2000EvalBoard::SampleRate6250Hz;
+        numUsbBlocksToRead = 3;
+        break;
+    case 10:
+        sampleRate = Rhd2000EvalBoard::SampleRate8000Hz;
+        numUsbBlocksToRead = 4;
+        break;
+    case 11:
+        sampleRate = Rhd2000EvalBoard::SampleRate10000Hz;
+        numUsbBlocksToRead = 6;
+        break;
+    case 12:
+        sampleRate = Rhd2000EvalBoard::SampleRate12500Hz;
+        numUsbBlocksToRead = 7;
+        break;
+    case 13:
+        sampleRate = Rhd2000EvalBoard::SampleRate15000Hz;
+        numUsbBlocksToRead = 8;
+        break;
+    case 14:
+        sampleRate = Rhd2000EvalBoard::SampleRate20000Hz;
+        numUsbBlocksToRead = 12;
+        break;
+    case 15:
+        sampleRate = Rhd2000EvalBoard::SampleRate25000Hz;
+        numUsbBlocksToRead = 14;
+        break;
+    case 16:
+        sampleRate = Rhd2000EvalBoard::SampleRate30000Hz;
+        numUsbBlocksToRead = 16;
+        break;
+    }
+
+
+    // Select per-channel amplifier sampling rate.
+    evalBoard->setSampleRate(sampleRate);
 
 }
 

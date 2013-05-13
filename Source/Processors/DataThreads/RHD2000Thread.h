@@ -67,6 +67,12 @@ public:
     void setCableLength(int hsNum, float length);
     void setNumChannels(int hsNum, int nChannels);
 
+    void setSampleRate(int sampleRateIndex);
+
+    double setUpperBandwidth(double desiredUpperBandwidth); // set desired BW, returns actual BW
+    double setLowerBandwidth(double desiredLowerBandwidth);
+
+
     int getNumEventChannels();
 
     bool isAcquisitionActive();
