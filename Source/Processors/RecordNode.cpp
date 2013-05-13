@@ -286,7 +286,7 @@ String RecordNode::generateDateString()
 
 void RecordNode::setParameter(int parameterIndex, float newValue)
 {
-    editor->updateParameterButtons(parameterIndex);
+    //editor->updateParameterButtons(parameterIndex);
 
     // 0 = stop recording
     // 1 = start recording

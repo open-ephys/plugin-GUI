@@ -206,7 +206,6 @@ private:
     void setLimitsOnAxes();
     void updateAxesPositions();
 
-    void n2ProjIdx(int i, int* p1, int* p2);
 
     Font font;
 
@@ -228,7 +227,7 @@ public:
 
     virtual ~GenericAxes();
 
-    void updateSpikeData(const SpikeObject& s);
+    virtual void updateSpikeData(const SpikeObject& s);
 
     void setXLims(double xmin, double xmax);
     void getXLims(double* xmin, double* xmax);
@@ -260,7 +259,6 @@ protected:
 };
 
 
-
 /**
 
   Class for drawing spike waveforms.
@@ -273,9 +271,20 @@ public:
     WaveAxes(int channel);
     ~WaveAxes() {}
 
+    void updateSpikeData(const SpikeObject& s);
+
     void paint(Graphics& g);
 
+    void plotSpike(const SpikeObject& s, Graphics& g);
+
     void clear();
+
+    void mouseMove(const MouseEvent& event);
+    void mouseExit(const MouseEvent& event);
+    void mouseDown(const MouseEvent& event);
+    void mouseDrag(const MouseEvent& event);
+
+    MouseCursor getMouseCursor();
 
 private:
 
@@ -285,11 +294,27 @@ private:
 
     bool drawGrid;
 
+    float thresholdLevel;
+
     void drawWaveformGrid(int threshold, int gain, Graphics& g);
+
+    void drawThresholdSlider(Graphics& g);
 
     Font font;
 
+    Array<SpikeObject> spikeBuffer;
+
+    int spikeIndex;
+    int bufferSize;
+
+    bool isOverThresholdSlider;
+    bool isDraggingThresholdSlider;
+
+    MouseCursor::StandardCursorType cursorType;
+
 };
+
+
 
 
 
@@ -305,14 +330,29 @@ public:
     ProjectionAxes(int projectionNum);
     ~ProjectionAxes() {}
 
+    void updateSpikeData(const SpikeObject& s);
+
     void paint(Graphics& g);
 
     void clear();
 
 private:
 
+    void updateProjectionImage(uint16_t, uint16_t);
+
+    void calcWaveformPeakIdx(const SpikeObject&, int, int, int*, int*);
+
+
+    void n2ProjIdx(int i, int* p1, int* p2);
+
+    int ampDim1, ampDim2;
+
+    Image projectionImage;
+
     Colour pointColour;
     Colour gridColour;
+
+    int imageDim;
 
 };
 
