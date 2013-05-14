@@ -69,7 +69,7 @@ public:
     /** Starts the timer callbacks. */
     void startCallbacks()
     {
-        startTimer(100);
+        startTimer(50);
     }
 
     /** Stops the timer callbacks. */
