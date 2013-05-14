@@ -582,12 +582,12 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 // ------------------------------------------------------------------
 
 LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, int channelNumber) :
-    canvas(c), isSelected(false), chan(channelNumber), channelHeight(100), channelOverlap(60), range(1000.0f)
+    canvas(c), isSelected(false), chan(channelNumber), channelHeight(40), channelOverlap(60), range(1000.0f)
 {
 
     ch = (float) channelHeight;
 
-    channelFont = Font("Default", 50, Font::plain);
+    channelFont = Font("Default", channelHeight*0.6, Font::plain);
 
     lineColour = Colour(255,255,255);
 
@@ -627,25 +627,58 @@ void LfpChannelDisplay::paint(Graphics& g)
     g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
 
     int stepSize = 1;
-
+	int from=0;
+	int to=0;
     g.setColour(lineColour);
 
     for (int i = 0; i < getWidth()-stepSize; i += stepSize)
     {
 
-        g.drawLine(i,
-                   (canvas->getYCoord(chan, i)/range*ch)+getHeight()/2,
-                   i+stepSize,
-                   (canvas->getYCoord(chan, i+stepSize)/range*ch)+getHeight()/2);
+	   // drawLine makes for nice anti-aliased plots, but is pretty slow
+       //g.drawLine(i,
+       //          (canvas->getYCoord(chan, i)/range*ch)+getHeight()/2,
+       //           i+stepSize,
+       //            (canvas->getYCoord(chan, i+stepSize)/range*ch)+getHeight()/2);
+
+
+		// pixel wise line plot has no anti-aliasing, but runs much faster
+		double a = (canvas->getYCoord(chan, i)/range*ch)+getHeight()/2;
+		double b = (canvas->getYCoord(chan, i+stepSize)/range*ch)+getHeight()/2;
+		if (a<b){
+			 from = (a);
+			 to = (b);
+		} else {
+			 from = (b);
+			 to = (a);
+		}
+		
+		if ((to-from)<40){ // if there is too much vertical range in one pixel, dont draw the full line for speed reasons 
+			for (int j = from; j <= to; j += 1)
+			{
+				g.setPixel(i,j);
+			}
+		}else if ((to-from)<100){
+			for (int j = from; j <= to; j += 2)
+			{
+				g.setPixel(i,j);
+			}
+		}else{
+			g.setPixel(i,to);
+			g.setPixel(i,from);
+		}
+
+
+		
     }
 
-    g.setColour(lineColour.withAlpha(0.7f));
+  //  g.setColour(lineColour.withAlpha(0.7f)); // alpha on seems to decrease draw speed
     g.setFont(channelFont);
 
-    g.drawText(String(chan+1), 10, channelHeight/2, 200, 50, Justification::left, false);
+    g.drawText(String(chan+1), 20, channelHeight/2, 200, 50, Justification::left, false);
 
 
 }
+
 
 void LfpChannelDisplay::setRange(float r)
 {
