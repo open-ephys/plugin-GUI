@@ -642,7 +642,7 @@ void LfpChannelDisplay::paint(Graphics& g)
     g.setColour(lineColour.withAlpha(0.7f));
     g.setFont(channelFont);
 
-    g.drawText(String(chan+1), 10, 50, 200, 50, Justification::left, false);
+    g.drawText(String(chan+1), 10, channelHeight/2, 200, 50, Justification::left, false);
 
 
 }
