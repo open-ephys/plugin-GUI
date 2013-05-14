@@ -99,6 +99,8 @@ private:
     ScopedPointer<SpikeDisplay> spikeDisplay;
     ScopedPointer<Viewport> viewport;
 
+
+
     bool newSpike;
     SpikeObject spike;
 

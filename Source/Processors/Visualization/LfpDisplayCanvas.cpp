@@ -55,6 +55,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     addAndMakeVisible(viewport);
     addAndMakeVisible(timescale);
 
+	voltageRanges.add("50");
     voltageRanges.add("100");
     voltageRanges.add("500");
     voltageRanges.add("1000");
@@ -70,7 +71,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     rangeSelection = new ComboBox("Voltage range");
     rangeSelection->addItemList(voltageRanges, 1);
-    rangeSelection->setSelectedId(3,false);
+    rangeSelection->setSelectedId(4,false);
     rangeSelection->addListener(this);
     addAndMakeVisible(rangeSelection);
 
