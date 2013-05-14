@@ -38,12 +38,17 @@
                        winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"/>
       </CONFIGURATIONS>
     </VS2010>
-    <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" juceFolder="JuceLibraryCode/modules">
+    <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" juceFolder="JuceLibraryCode/modules"
+            extraDefs="NOMINMAX" externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;ftgl.lib&#10;libftdi.lib">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="3" targetName="open-ephys"/>
+                       isDebug="1" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug\bin"
+                       headerPath="..\..\windeps\include" libraryPath="..\..\windeps\lib"
+                       postbuildCommand="copy ..\..\windeps\dll\* .\Debug\bin"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="2" targetName="open-ephys"/>
+                       isDebug="0" optimisation="2" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release\bin"
+                       headerPath="..\..\windeps\include" libraryPath="..\..\windeps\lib"
+                       postbuildCommand="copy ..\..\windeps\dll\* .\Release\bin"/>
       </CONFIGURATIONS>
     </VS2012>
   </EXPORTFORMATS>
