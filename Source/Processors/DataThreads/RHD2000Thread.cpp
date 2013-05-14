@@ -380,7 +380,8 @@ float RHD2000Thread::getSampleRate()
 
 float RHD2000Thread::getBitVolts()
 {
-    return 0.1907;
+    //return 0.1907;
+	return 0.000064; // empirical value determined by calibrating against reid's code - fix this
 }
 
 double RHD2000Thread::setUpperBandwidth(double desiredUpperBandwidth)
