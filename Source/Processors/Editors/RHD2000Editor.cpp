@@ -96,7 +96,7 @@ BandwidthInterface::~BandwidthInterface()
 void BandwidthInterface::labelTextChanged(Label* te)
 {
     
-    if (!(editor->acquisitionIsActive))
+    if (!(editor->acquisitionIsActive) && board->foundInputSource())
     {
         if (te == UpperBandwidthSelection)
         {
@@ -183,7 +183,7 @@ SampleRateInterface::~SampleRateInterface()
 
 void SampleRateInterface::comboBoxChanged(ComboBox* cb)
 {
-    if (!(editor->acquisitionIsActive))
+	if (!(editor->acquisitionIsActive) && board->foundInputSource())
     {
         if (cb == rateSelection)
         {
@@ -260,7 +260,7 @@ HeadstageOptionsInterface::~HeadstageOptionsInterface()
 void HeadstageOptionsInterface::buttonClicked(Button* button)
 {
 
-    if (!(editor->acquisitionIsActive))
+    if (!(editor->acquisitionIsActive) && board->foundInputSource())
     {
 
         //std::cout << "Acquisition is not active" << std::endl;
