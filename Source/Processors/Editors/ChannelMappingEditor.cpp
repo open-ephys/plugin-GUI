@@ -21,12 +21,10 @@
 
 */
 
-#include "ChannelMappingEditor.h"
-
-
 
 #include "ChannelMappingEditor.h"
-#include "../ReferenceNode.h"
+#include "../ChannelMappingNode.h"
+#include "ChannelSelector.h"
 #include <stdio.h>
 
 
@@ -34,14 +32,22 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
     : GenericEditor(parentNode, useDefaultParameterEditors), previousChannelCount(0)
 
 {
-    desiredWidth = 180;
+    desiredWidth = 190;
 
-    referenceSelector = new ComboBox();
-    referenceSelector->setBounds(15,50,150,25);
-    referenceSelector->addListener(this);
-    referenceSelector->addItem("None", 1);
-    referenceSelector->setSelectedId(1, false);
-    addAndMakeVisible(referenceSelector);
+    ElectrodeEditorButton* e1 = new ElectrodeEditorButton("MAPPING",Font("Small Text",14,Font::plain));
+    e1->addListener(this);
+    addAndMakeVisible(e1);
+    e1->setBounds(15,110,80,10);
+    e1->setToggleState(true, false);
+    electrodeEditorButtons.add(e1);
+
+    ElectrodeEditorButton* e2 = new ElectrodeEditorButton("REF",Font("Small Text",14,Font::plain));
+    e2->addListener(this);
+    addAndMakeVisible(e2);
+    e2->setBounds(100,110,50,10);
+    electrodeEditorButtons.add(e2);
+
+    channelSelector->setRadioStatus(true);
 
 }
 
@@ -55,46 +61,126 @@ void ChannelMappingEditor::updateSettings()
 
     if (getProcessor()->getNumInputs() != previousChannelCount)
     {
-        referenceSelector->clear();
-
-        referenceSelector->addItem("None", 1);
-
-        for (int i = 0; i < getProcessor()->getNumInputs(); i++)
-        {
-            referenceSelector->addItem("Channel " + String(i+1), i+2);
-
-        }
+        
+        createElectrodeButtons(getProcessor()->getNumInputs());
 
         previousChannelCount = getProcessor()->getNumInputs();
 
     }
 
-    referenceSelector->setSelectedId(1, false);
-
-    getProcessor()->setParameter(1,-1.0f);
 }
 
-void ChannelMappingEditor::comboBoxChanged(ComboBox* c)
+void ChannelMappingEditor::createElectrodeButtons(int numNeeded)
 {
-    float channel;
 
-    int id = c->getSelectedId();
+	electrodeButtons.clear();
 
-    if (id == 1)
+	referenceArray.clear();
+	channelArray.clear();
+
+    int width = 20;
+    int height = 15;
+
+    int row = 0;
+    int column = 0;
+
+	for (int i = 0; i < numNeeded; i++)
     {
-        channel = -1.0f; 
-    } else {
-        channel = float(id) - 2.0f;
+        ElectrodeButton* button = new ElectrodeButton(i+1);
+        electrodeButtons.add(button);
+
+        button->setBounds(10+(column++)*width, 30+row*height, width, 15);
+        button->setToggleState(false,false);
+        button->setRadioGroupId(999);
+
+        addAndMakeVisible(button);
+        button->addListener(this);
+
+        referenceArray.add(-1);
+        channelArray.add(i+1);
+
+        if (column%8 == 0)
+        {
+            column = 0;
+            row++;
+        }
+
     }
 
-    getProcessor()->setParameter(1,channel);
-
+    channelSelector->setRadioStatus(true);
 }
+
 
 void ChannelMappingEditor::buttonEvent(Button* button)
 {
 
+	if (button == electrodeEditorButtons[0]) // mapping
+	{
 
+		electrodeEditorButtons[1]->setToggleState(false, false);
+
+		for (int i = 0; i < electrodeButtons.size(); i++)
+		{
+			electrodeButtons[i]->setRadioGroupId(999);
+			electrodeButtons[i]->setChannelNum(channelArray[i]);
+			 electrodeButtons[i]->repaint();
+		}
+
+	}
+	 else if (button == electrodeEditorButtons[1]) // reference
+	{
+		electrodeEditorButtons[0]->setToggleState(false, false);
+
+		for (int i = 0; i < electrodeButtons.size(); i++)
+		{
+			electrodeButtons[i]->setRadioGroupId(0);
+			electrodeButtons[i]->setChannelNum(referenceArray[i]);
+			 electrodeButtons[i]->repaint();
+		}
+
+
+	} 
+	else if (electrodeButtons.contains((ElectrodeButton*) button))
+	{
+
+		ElectrodeButton* eb = (ElectrodeButton*) button;
+        int electrodeNum = eb->getChannelNum()-1;
+
+        std::cout << "Channel number: " << electrodeNum << std::endl;
+        Array<int> a;
+
+        if (electrodeNum >= 0)
+        	a.add(electrodeNum);
+
+        channelSelector->setActiveChannels(a);
+
+	}
+
+}
+
+void ChannelMappingEditor::channelChanged(int chan)
+{
+	for (int i = 0; i < electrodeButtons.size(); i++)
+    {
+        if (electrodeButtons[i]->getToggleState())
+        {
+            electrodeButtons[i]->setChannelNum(chan);
+            electrodeButtons[i]->repaint();
+
+            if (electrodeEditorButtons[1]->getToggleState()) // reference
+            {
+            	referenceArray.set(i,chan);
+            } else {
+            	channelArray.set(i,chan);
+            }
+
+
+            // SpikeDetector* processor = (SpikeDetector*) getProcessor();
+            // processor->setChannel(electrodeList->getSelectedItemIndex(),
+            //                       i,
+            //                       chan-1);
+        }
+    }
 }
 
 void ChannelMappingEditor::saveEditorParameters(XmlElement* xml)
@@ -102,9 +188,9 @@ void ChannelMappingEditor::saveEditorParameters(XmlElement* xml)
 
     xml->setAttribute("Type", "ChannelMappingEditor");
 
-    XmlElement* selectedChannel = xml->createNewChildElement("SELECTEDID");
+  //  XmlElement* selectedChannel = xml->createNewChildElement("SELECTEDID");
 
-    selectedChannel->setAttribute("ID",referenceSelector->getSelectedId());
+   // selectedChannel->setAttribute("ID",referenceSelector->getSelectedId());
 
 }
 
@@ -113,13 +199,13 @@ void ChannelMappingEditor::loadEditorParameters(XmlElement* xml)
 
      forEachXmlChildElement(*xml, xmlNode)
      {
-         if (xmlNode->hasTagName("SELECTEDID"))
-         {
+        // if (xmlNode->hasTagName("SELECTEDID"))
+      //   {
+//
+           // int id = xmlNode->getIntAttribute("ID");
 
-            int id = xmlNode->getIntAttribute("ID");
+          //  referenceSelector->setSelectedId(id);
 
-            referenceSelector->setSelectedId(id);
-
-        }
+      //  }
     }
 }

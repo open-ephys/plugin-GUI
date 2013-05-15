@@ -28,6 +28,8 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
+#include "SpikeDetectorEditor.h"
+
 /**
 
   User interface for the Channel Mapping processor.
@@ -36,25 +38,32 @@
 
 */
 
-class ChannelMappingEditor : public GenericEditor,
-                            public ComboBox::Listener
+class ChannelMappingEditor : public GenericEditor
+
 {
 public:
     ChannelMappingEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
     virtual ~ChannelMappingEditor();
+
     void buttonEvent(Button* button);
 
-    void comboBoxChanged(ComboBox* c);
-
     void updateSettings();
+
+    void createElectrodeButtons(int numNeeded);
 
     void saveEditorParameters(XmlElement* xml);
     void loadEditorParameters(XmlElement* xml);
 
+    void channelChanged(int chan);
+
 
 private:
 
-    ScopedPointer<ComboBox> referenceSelector;
+ 	OwnedArray<ElectrodeButton> electrodeButtons;
+ 	OwnedArray<ElectrodeEditorButton> electrodeEditorButtons;
+
+ 	Array<int> channelArray;
+ 	Array<int> referenceArray;
 
     int previousChannelCount;
 

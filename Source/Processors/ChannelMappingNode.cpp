@@ -28,7 +28,7 @@
 
 
 ChannelMappingNode::ChannelMappingNode()
-    : GenericProcessor("Channel Mapping"), referenceChannel(-1), channelBuffer(1,10000)
+    : GenericProcessor("Channel Mapping"), channelBuffer(1,10000)
 {
 
 }
@@ -51,18 +51,18 @@ AudioProcessorEditor* ChannelMappingNode::createEditor()
 
 void ChannelMappingNode::updateSettings()
 {
-
+	
 
 
 }
 
 void ChannelMappingNode::setParameter(int parameterIndex, float newValue)
 {
-    editor->updateParameterButtons(parameterIndex);
+    // editor->updateParameterButtons(parameterIndex);
 
-    referenceChannel = (int) newValue;
+    // referenceChannel = (int) newValue;
 
-    std::cout << "Reference set to " << referenceChannel << std::endl;
+    // std::cout << "Reference set to " << referenceChannel << std::endl;
 
 }
 

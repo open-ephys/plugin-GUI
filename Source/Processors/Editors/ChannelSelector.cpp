@@ -525,6 +525,13 @@ void ChannelSelector::buttonClicked(Button* button)
                 audioButtons[i]->setToggleState(false, true);
             }
         }
+
+        if (radioStatus) // if radio buttons are active
+        {
+                // send a message to parent
+                GenericEditor* editor = (GenericEditor*) getParentComponent();
+                editor->channelChanged(-1);
+         }
     }
     else
     {

@@ -27,6 +27,7 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
+
 #include "GenericProcessor.h"
 
 
@@ -63,7 +64,8 @@ public:
 
 private:
 
-    int referenceChannel;
+    Array<int> referenceArray;
+    Array<int> channelArray;
 
     AudioSampleBuffer channelBuffer;
 
