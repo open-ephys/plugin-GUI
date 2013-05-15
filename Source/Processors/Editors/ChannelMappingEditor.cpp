@@ -97,6 +97,11 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded)
         button->addListener(this);
 
         referenceArray.add(-1);
+
+        getProcessor()->setCurrentChannel(i);
+        getProcessor()->setParameter(0,i); // set channel mapping to standard channel
+        getProcessor()->setParameter(1,-1); // set reference to none
+
         channelArray.add(i+1);
 
         if (column%8 == 0)
@@ -167,18 +172,20 @@ void ChannelMappingEditor::channelChanged(int chan)
             electrodeButtons[i]->setChannelNum(chan);
             electrodeButtons[i]->repaint();
 
+            getProcessor()->setCurrentChannel(i);
+
             if (electrodeEditorButtons[1]->getToggleState()) // reference
             {
             	referenceArray.set(i,chan);
+
+        		getProcessor()->setParameter(1,chan-1); // set reference
+
             } else {
             	channelArray.set(i,chan);
+
+            	getProcessor()->setParameter(0,chan-1); // set mapping
             }
 
-
-            // SpikeDetector* processor = (SpikeDetector*) getProcessor();
-            // processor->setChannel(electrodeList->getSelectedItemIndex(),
-            //                       i,
-            //                       chan-1);
         }
     }
 }
