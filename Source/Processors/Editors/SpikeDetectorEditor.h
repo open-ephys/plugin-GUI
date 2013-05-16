@@ -80,11 +80,7 @@ public:
     ElectrodeEditorButton(const String& name_, Font font_) : Button("Electrode Editor"),
         name(name_), font(font_)
     {
-        if (name.equalsIgnoreCase("edit") || 
-            name.equalsIgnoreCase("monitor") ||
-            name.equalsIgnoreCase("mapping") ||
-            name.equalsIgnoreCase("ref")
-            )
+        if (name.equalsIgnoreCase("edit") || name.equalsIgnoreCase("monitor"))
             setClickingTogglesState(true);
     }
     ~ElectrodeEditorButton() {}

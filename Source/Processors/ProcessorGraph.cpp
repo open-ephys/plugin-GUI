@@ -44,7 +44,6 @@
 #include "ArduinoOutput.h"
 #include "FPGAOutput.h"
 #include "PulsePalOutput.h"
-#include "ChannelMappingNode.h"
 #include "Utilities/RecordControl.h"
 #include "Utilities/Splitter.h"
 #include "Utilities/Merger.h"
@@ -497,11 +496,6 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             std::cout << "Creating a new digital reference." << std::endl;
             processor = new ReferenceNode();
-        }
-        else if (subProcessorType.equalsIgnoreCase("Channel Mapping"))
-        {
-            std::cout << "Creating a new channel mapping node." << std::endl;
-            processor = new ChannelMappingNode();
         }
 
         sendActionMessage("New filter node created.");
