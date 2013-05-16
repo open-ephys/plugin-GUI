@@ -52,10 +52,17 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
 
         initializeBoard();
 
+		// manually set cable delay for now
+		//2 for one cable 
+		//3 for 2 cables daisy-chained
+		evalBoard->setCableDelay(Rhd2000EvalBoard::PortA, 3);
+        evalBoard->setCableDelay(Rhd2000EvalBoard::PortB, 3);
+
         enableHeadstage(0,true); // start off with one headstage
+		enableHeadstage(1,true); // start off with one headstage
 
         // automatically find connected headstages -- needs debugging
-        //scanPorts();
+       // scanPorts();
 
     }
 
@@ -159,7 +166,11 @@ void RHD2000Thread::initializeBoard()
 
     // Set up an RHD2000 register object using this sample rate to optimize MUX-related
     // register settings.
-    chipRegisters = new Rhd2000Registers(evalBoard->getSampleRate());
+    
+    std::cout << "Rhd sample rate : " << evalBoard->getSampleRate() << std::endl;
+	chipRegisters = new Rhd2000Registers(evalBoard->getSampleRate());
+
+
 
     // Before generating register configuration command sequences, set amplifier
     // bandwidth paramters.
