@@ -516,7 +516,7 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
     // range; actually need to take into account the gain of each channel
     for (int n = 0; n < nSamples; n++)
     {
-        *(continuousDataFloatBuffer+n) = *(data+n) / scaleFactor; // 10000.0f;
+        *(continuousDataFloatBuffer+n) = *(data+n) / 10000.0f; // / scaleFactor;
     }
 
     // find file and write samples to disk
