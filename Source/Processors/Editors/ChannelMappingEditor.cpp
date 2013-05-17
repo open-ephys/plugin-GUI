@@ -32,7 +32,7 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
     : GenericEditor(parentNode, useDefaultParameterEditors), previousChannelCount(0)
 
 {
-    desiredWidth = 190;
+    desiredWidth = 340;
 
     ElectrodeEditorButton* e1 = new ElectrodeEditorButton("MAPPING",Font("Small Text",14,Font::plain));
     e1->addListener(this);
@@ -104,7 +104,7 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded)
 
         channelArray.add(i+1);
 
-        if (column%8 == 0)
+        if (column%16 == 0)
         {
             column = 0;
             row++;
