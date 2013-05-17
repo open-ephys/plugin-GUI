@@ -89,6 +89,7 @@ private:
     bool deviceFound;
 
     float thisSample[256];
+	float auxBuffer[256]; // aux inputs are only sampled every 4th sample, so use this to buffer the samples so they can be handles just like the regular neural channels later
 
     int blockSize;
 
