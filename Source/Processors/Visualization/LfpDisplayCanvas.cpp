@@ -69,6 +69,15 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     timebases.add("5.0");
     timebases.add("10.0");
 
+    
+    spreads.add("10");
+    spreads.add("20");
+    spreads.add("30");
+    spreads.add("40");
+    spreads.add("50");
+    spreads.add("60");
+
+
     rangeSelection = new ComboBox("Voltage range");
     rangeSelection->addItemList(voltageRanges, 1);
     rangeSelection->setSelectedId(4,false);
@@ -80,6 +89,14 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     timebaseSelection->setSelectedId(3,false);
     timebaseSelection->addListener(this);
     addAndMakeVisible(timebaseSelection);
+
+
+    spreadSelection = new ComboBox("Spread");
+    spreadSelection->addItemList(spreads, 1);
+    spreadSelection->setSelectedId(5,false);
+    spreadSelection->addListener(this);
+    addAndMakeVisible(spreadSelection);
+
 
     lfpDisplay->setNumChannels(nChans);
     lfpDisplay->setRange(1000.0f);
@@ -102,6 +119,7 @@ void LfpDisplayCanvas::resized()
 
     rangeSelection->setBounds(5,getHeight()-30,100,25);
     timebaseSelection->setBounds(175,getHeight()-30,100,25);
+    spreadSelection->setBounds(345,getHeight()-30,100,25);
 
 }
 
@@ -151,6 +169,13 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
     {
         lfpDisplay->setRange(voltageRanges[cb->getSelectedId()-1].getFloatValue());
         //std::cout << "Setting range to " << voltageRanges[cb->getSelectedId()-1].getFloatValue() << std::endl;
+    }
+    else if (cb == spreadSelection)
+    {
+         //spread = spreads[cb->getSelectedId()-1].getFloatValue();
+         lfpDisplay->setChannelHeight(spreads[cb->getSelectedId()-1].getFloatValue());
+         lfpDisplay->resized();
+         std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
 
     timescale->setTimebase(timebase);
@@ -333,6 +358,7 @@ void LfpDisplayCanvas::paint(Graphics& g)
     g.drawText("Voltage range (uV)",5,getHeight()-55,300,20,Justification::left, false);
 
     g.drawText("Timebase (s)",175,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Spread (px)",345,getHeight()-55,300,20,Justification::left, false);
 
 }
 
@@ -351,8 +377,10 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 
     XmlElement* xmlNode = xml->createNewChildElement("LFPDISPLAY");
 
+
     xmlNode->setAttribute("Range",rangeSelection->getSelectedId());
     xmlNode->setAttribute("Timebase",timebaseSelection->getSelectedId());
+    xmlNode->setAttribute("Spread",spreadSelection->getSelectedId());
 
     xmlNode->setAttribute("ScrollX",viewport->getViewPositionX());
     xmlNode->setAttribute("ScrollY",viewport->getViewPositionY());
@@ -367,6 +395,8 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
         {
             rangeSelection->setSelectedId(xmlNode->getIntAttribute("Range"));
             timebaseSelection->setSelectedId(xmlNode->getIntAttribute("Timebase"));
+            spreadSelection->setSelectedId(xmlNode->getIntAttribute("Spread"));
+
             viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
                                       xmlNode->getIntAttribute("ScrollY"));
         }
@@ -554,6 +584,18 @@ void LfpDisplay::setRange(float r)
     {
 
         channels[i]->setRange(range);
+
+    }
+
+}
+
+void LfpDisplay::setChannelHeight(float r)
+{
+
+    for (int i = 0; i < numChans; i++)
+    {
+
+        channels[i]->setChannelHeight(r);
 
     }
 
