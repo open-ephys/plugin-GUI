@@ -85,6 +85,7 @@ private:
     float timebase;
     float displayGain;
     float timeOffset;
+    float spread ; // vertical spacing between channels
 
     static const int MAX_N_CHAN = 256;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
@@ -101,9 +102,11 @@ private:
 
     ScopedPointer<ComboBox> timebaseSelection;
     ScopedPointer<ComboBox> rangeSelection;
+    ScopedPointer<ComboBox> spreadSelection;
 
     StringArray voltageRanges;
     StringArray timebases;
+    StringArray spreads; // option for vertical spacing between channels
 
     void refreshScreenBuffer();
     void updateScreenBuffer();
@@ -162,6 +165,7 @@ public:
     void mouseDown(const MouseEvent& event);
 
     void setRange(float range);
+    void setChannelHeight(float r);
 
 private:
     int numChans;

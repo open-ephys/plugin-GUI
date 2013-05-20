@@ -47,8 +47,8 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
 
         numChannelsPerDataStream.insertMultiple(0,0,4);
 
-        // initialize data buffer for 32 channels
-        dataBuffer = new DataBuffer(32, 10000);
+        // initialize data buffer for 32 channels + 3 aux.
+        dataBuffer = new DataBuffer(35, 10000);
 
         initializeBoard();
 
@@ -60,6 +60,8 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
 
         enableHeadstage(0,true); // start off with one headstage
 		enableHeadstage(1,true); // start off with one headstage
+
+
 
         // automatically find connected headstages -- needs debugging
        // scanPorts();
@@ -181,6 +183,11 @@ void RHD2000Thread::initializeBoard()
     chipRegisters->setLowerBandwidth(1.0);
     chipRegisters->setUpperBandwidth(7500.0);
 
+
+			// turn on aux inputs
+		chipRegisters->enableAux1(true);
+		chipRegisters->enableAux2(true);
+	   chipRegisters->enableAux3(true);
 
     // Let's turn one LED on to indicate that the program is running.
     int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
@@ -370,8 +377,22 @@ int RHD2000Thread::getNumChannels()
 
     for (int i = 0; i < numChannelsPerDataStream.size(); i++)
     {
-        numChannels += numChannelsPerDataStream[i];
-    }
+    
+		numChannels += numChannelsPerDataStream[i];
+		
+		/*
+		if (chipRegisters->adcAux1En){ // no public function to read these? fix this in some way
+			numChannels += 1;
+		}
+		if (chipRegisters->adcAux2En){
+			numChannels += 1;
+		}
+		if (chipRegisters->adcAux3En){
+			numChannels += 1;
+		}
+		*/
+	}
+	numChannels += 6;
 
     if (numChannels > 0)
         return numChannels;
@@ -638,38 +659,65 @@ bool RHD2000Thread::updateBuffer()
     //cout << "Block size: " << blockSize << endl;
 
     bool return_code;
+	
 
     for (int n = 0; n < 10; n++)
     {
         if (evalBoard->numWordsInFifo() >= blockSize)
         {
-
             return_code = evalBoard->readDataBlock(dataBlock);
 
             for (int samp = 0; samp < dataBlock->getSamplesPerDataBlock(); samp++)
             {
-
                 int streamNumber = -1;
                 int channel = -1;
 
                 for (int dataStream = 0; dataStream < numChannelsPerDataStream.size(); dataStream++)
                 {
-
                     if (numChannelsPerDataStream[dataStream] > 0)
                     {
-
                         streamNumber++;
 
                         for (int chan = 0; chan < numChannelsPerDataStream[dataStream]; chan++)
                         {
-
-                            channel++;
+                            //std::cout << "reading sample stream" << streamNumber << " chan " << chan << " sample "<< samp << std::endl;
+							channel++;
 
                             int value = dataBlock->amplifierData[streamNumber][chan][samp];
 
                             thisSample[channel] = float(value-32768)*0.195f;
                         }
-                    }
+                    
+					
+						
+						if (samp % 4 == 1) { // every 4th sample should have auxiliary input data
+						
+							channel++;
+							thisSample[channel] = 0.0374 *
+							float(dataBlock->auxiliaryData[dataStream][1][samp+0]);
+							auxBuffer[channel]=thisSample[channel];
+
+							channel++;
+							thisSample[channel] = 0.0374 *
+							float(dataBlock->auxiliaryData[dataStream][1][samp+1]);
+							auxBuffer[channel]=thisSample[channel];
+
+						
+							channel++;
+							thisSample[channel] = 0.0374 *
+							float(dataBlock->auxiliaryData[dataStream][1][samp+2]);
+							auxBuffer[channel]=thisSample[channel];
+
+						} else{
+							channel++;
+							thisSample[channel] = auxBuffer[channel];
+							channel++;
+							thisSample[channel] = auxBuffer[channel];
+							channel++;
+							thisSample[channel] = auxBuffer[channel];
+						}
+						
+					}
 
                 }
 
