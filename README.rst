@@ -10,7 +10,7 @@ This repository contains all of the files (save for a few dependencies) you'll n
 
 We recommend reading through the GitHub wiki_ before attempting to make any changes.
 
-If you want to add files, you'll have to do that through "The Jucer," using the "open-ephys.jucer" file. The Jucer makefiles are located in the JuceLibraryCode/jucer/Builds folder, or as part of the Juce library package on SourceForge_.
+If you want to add files, you'll have to do that through the "Introjucer," using the "open-ephys.jucer" file. The Introjucer makefiles are located in the JuceLibraryCode/Introjucer/Builds folder, or as part of the Juce library package on SourceForge_.
 
 .. _SourceForge: http://sourceforge.net/projects/juce/files/juce/
 .. _JUCE: http://www.rawmaterialsoftware.com/juce.php
