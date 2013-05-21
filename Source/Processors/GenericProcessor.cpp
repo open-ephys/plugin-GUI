@@ -472,6 +472,8 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
     memcpy(data + 4, eventData, numBytes);
 
 
+    //std::cout << 4 + numBytes << std::endl;
+
     eventBuffer.addEvent(data, 		// raw data
                          4 + numBytes, // total bytes
                          sampleNum);     // sample index
