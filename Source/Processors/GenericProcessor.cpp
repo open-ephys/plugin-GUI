@@ -471,8 +471,9 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
     data[3] = eventChannel; // event channel
     memcpy(data + 4, eventData, numBytes);
 
-    eventBuffer.addEvent(data, 		// spike data
-                         sizeof(data), // total bytes
+
+    eventBuffer.addEvent(data, 		// raw data
+                         4 + numBytes, // total bytes
                          sampleNum);     // sample index
 
     //if (type == TTL)
