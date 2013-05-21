@@ -90,7 +90,10 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
         addChildComponent(channelSelector);
         channelSelector->setVisible(false);
 
-
+        isSplitOrMerge=false;
+    }
+    else{
+        isSplitOrMerge=true;
     }
 
     backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f,
@@ -475,10 +478,17 @@ bool GenericEditor::getAudioStatus(int chan)
 
 void GenericEditor::getChannelSelectionState(int chan, bool* p, bool* r, bool* a)
 {
-
-    *p = channelSelector->getParamStatus(chan);
-    *r = channelSelector->getRecordStatus(chan);
-    *a = channelSelector->getAudioStatus(chan);
+    if (!isSplitOrMerge)
+    {
+        *p = channelSelector->getParamStatus(chan);
+        *r = channelSelector->getRecordStatus(chan);
+        *a = channelSelector->getAudioStatus(chan);
+    }
+    else{
+        *p = FALSE;
+        *r = FALSE;
+        *a = FALSE;
+    }
 }
 
 void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)

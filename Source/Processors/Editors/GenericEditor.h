@@ -275,6 +275,8 @@ private:
     bool isSelected;
     bool isEnabled;
 
+    /**Used to determine if an editor is a splitter or Merger to avoid calling on CHannelSelector*/
+    bool isSplitOrMerge;
 
     int tNum;
 
