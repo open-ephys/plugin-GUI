@@ -45,13 +45,13 @@ public:
     void clear();
 
     /** Add an array of floats to the buffer.*/
-    void addToBuffer(float* data, uint64* ts, int16* eventCodes, int numItems);
+    void addToBuffer(float* data, uint64_t* ts, int16* eventCodes, int numItems);
 
     /** Returns the number of samples currently available in the buffer.*/
     int getNumSamples();
 
     /** Copies as many samples as possible from the DataBuffer to an AudioSampleBuffer.*/
-    int readAllFromBuffer(AudioSampleBuffer& data, uint64* ts, int16* eventCodes, int maxSize);
+    int readAllFromBuffer(AudioSampleBuffer& data, uint64_t* ts, int16* eventCodes, int maxSize);
 
     /** Resizes the data buffer */
     void resize(int chans, int size);
@@ -60,7 +60,7 @@ private:
     AbstractFifo abstractFifo;
     AudioSampleBuffer buffer;
 
-    uint64* timestampBuffer;
+    uint64_t* timestampBuffer;
     int16* eventCodeBuffer;
 
     int numChans;

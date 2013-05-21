@@ -478,7 +478,6 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
     //if (type == TTL)
     //	std::cout << "Adding event for channel " << (int) eventChannel << " with ID " << (int) eventId << std::endl;
 
-    delete data;
 }
 
 // void GenericProcessor::unpackEvent(int type,

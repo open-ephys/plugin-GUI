@@ -531,6 +531,8 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 
     //std::cout << samps << std::endl;
 
+    std::cout << "Record node timestamp: " << timestamp << std::endl;
+
     fwrite(&timestamp,							// ptr
            8,   							// size of each element
            1, 		  						// count
@@ -592,7 +594,17 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
     else if (eventType == TIMESTAMP)
     {
     	const uint8* dataptr = event.getRawData();
-    	memcpy(&timestamp, dataptr, 8);
+
+       // timestamp = ((uint64) *(dataptr + 4)) +
+       //             ((uint64) *(dataptr + 5)) << 8;
+       //             ((uint64) *(dataptr + 6)) << 16;
+        //            ((uint64) *(dataptr + 7)) << 24;
+                   // ((uint64) *(dataptr + 8)) << 32 + 
+                   // ((uint64) *(dataptr + 9)) << 40 + 
+                   // ((uint64) *(dataptr + 10)) << 48 + 
+                   // ((uint64) *(dataptr + 11)) << 56;
+
+    	memcpy(&timestamp, dataptr+4, 4); // remember to skip first four bytes
     }
 
 }
