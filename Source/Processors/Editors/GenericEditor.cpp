@@ -90,7 +90,10 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
         addChildComponent(channelSelector);
         channelSelector->setVisible(false);
 
-
+        isSplitOrMerge=false;
+    }
+    else{
+        isSplitOrMerge=true;
     }
 
     backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f,
@@ -459,34 +462,62 @@ Channel* GenericEditor::getEventChannel(int chan)
 
 Array<int> GenericEditor::getActiveChannels()
 {
+    if (!isSplitOrMerge)
+    {
     Array<int> a = channelSelector->getActiveChannels();
     return a;
+    }
+    else{
+        Array<int> a;
+        return a;
+    }
 }
 
 bool GenericEditor::getRecordStatus(int chan)
 {
+    if (!isSplitOrMerge)
+    {
     return channelSelector->getRecordStatus(chan);
+    }
+    else{
+        return false;
+    }
 }
 
 bool GenericEditor::getAudioStatus(int chan)
 {
-    return channelSelector->getAudioStatus(chan);
+    if (!isSplitOrMerge)
+    {
+        return channelSelector->getAudioStatus(chan);
+    }
+    else{
+        return false;
+    }
 }
 
 void GenericEditor::getChannelSelectionState(int chan, bool* p, bool* r, bool* a)
 {
-
-    *p = channelSelector->getParamStatus(chan);
-    *r = channelSelector->getRecordStatus(chan);
-    *a = channelSelector->getAudioStatus(chan);
+    if (!isSplitOrMerge)
+    {
+        *p = channelSelector->getParamStatus(chan);
+        *r = channelSelector->getRecordStatus(chan);
+        *a = channelSelector->getAudioStatus(chan);
+    }
+    else{
+        *p = FALSE;
+        *r = FALSE;
+        *a = FALSE;
+    }
 }
 
 void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
 {
-
-    channelSelector->setParamStatus(chan, p);
-    channelSelector->setRecordStatus(chan, r);
-    channelSelector->setAudioStatus(chan, a);
+    if (!isSplitOrMerge)
+    {
+        channelSelector->setParamStatus(chan, p);
+        channelSelector->setRecordStatus(chan, r);
+        channelSelector->setAudioStatus(chan, a);
+    }
 }
 
 void GenericEditor::saveEditorParameters(XmlElement* xml)
