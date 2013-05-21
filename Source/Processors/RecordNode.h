@@ -131,7 +131,7 @@ private:
 
     /** Integer timestamp saved for each buffer.
     */
-    uint64 timestamp;
+    uint64_t timestamp;
 
     /** Used to generate timestamps if none are given.
     */

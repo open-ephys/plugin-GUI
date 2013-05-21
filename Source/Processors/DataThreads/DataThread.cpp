@@ -29,6 +29,11 @@ DataThread::DataThread(SourceNode* s) : Thread("Data Thread"), dataBuffer(0)
 {
     sn = s;
     setPriority(10);
+
+    timestamp = 0; // set default to zero, so that sources that
+                   // do not generate their own timestamps can simply increment
+                   // this value
+
 }
 
 DataThread::~DataThread()
