@@ -462,18 +462,37 @@ Channel* GenericEditor::getEventChannel(int chan)
 
 Array<int> GenericEditor::getActiveChannels()
 {
+    if (!isSplitOrMerge)
+    {
     Array<int> a = channelSelector->getActiveChannels();
     return a;
+    }
+    else{
+        Array<int> a;
+        return a;
+    }
 }
 
 bool GenericEditor::getRecordStatus(int chan)
 {
+    if (!isSplitOrMerge)
+    {
     return channelSelector->getRecordStatus(chan);
+    }
+    else{
+        return false;
+    }
 }
 
 bool GenericEditor::getAudioStatus(int chan)
 {
-    return channelSelector->getAudioStatus(chan);
+    if (!isSplitOrMerge)
+    {
+        return channelSelector->getAudioStatus(chan);
+    }
+    else{
+        return false;
+    }
 }
 
 void GenericEditor::getChannelSelectionState(int chan, bool* p, bool* r, bool* a)
@@ -493,10 +512,12 @@ void GenericEditor::getChannelSelectionState(int chan, bool* p, bool* r, bool* a
 
 void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
 {
-
-    channelSelector->setParamStatus(chan, p);
-    channelSelector->setRecordStatus(chan, r);
-    channelSelector->setAudioStatus(chan, a);
+    if (!isSplitOrMerge)
+    {
+        channelSelector->setParamStatus(chan, p);
+        channelSelector->setRecordStatus(chan, r);
+        channelSelector->setAudioStatus(chan, a);
+    }
 }
 
 void GenericEditor::saveEditorParameters(XmlElement* xml)
