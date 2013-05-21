@@ -277,8 +277,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
             for (int channel = 0; channel < nChans; channel++)
             {
 
-                gain = 1.0f / (processor->channels[channel]->bitVolts * float(0x7fff));
-
                 screenBuffer->addFrom(channel, // destChannel
                                       screenBufferIndex, // destStartSample
                                       displayBuffer->getSampleData(channel, displayBufferIndex), // source
@@ -696,38 +694,38 @@ void LfpChannelDisplay::paint(Graphics& g)
     {
 
 	   // drawLine makes for nice anti-aliased plots, but is pretty slow
-       g.drawLine(i,
-                 (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2,
-                  i+stepSize,
-                   (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2);
+       // g.drawLine(i,
+       //           (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2,
+       //            i+stepSize,
+       //             (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2);
 
 
 		// // pixel wise line plot has no anti-aliasing, but runs much faster
-		// double a = (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2;
-		// double b = (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2;
+		double a = (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2;
+		double b = (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2;
 
-		// if (a<b){
-		// 	 from = (a);
-		// 	 to = (b);
-		// } else {
-		// 	 from = (b);
-		// 	 to = (a);
-		// }
+		if (a<b){
+			 from = (a);
+			 to = (b);
+		} else {
+			 from = (b);
+			 to = (a);
+		}
 		
-		// if ((to-from) < 40){ // if there is too much vertical range in one pixel, don't draw the full line for speed reasons 
-		// 	for (int j = from; j <= to; j += 1)
-		// 	{
-		// 		g.setPixel(i,j);
-		// 	}
-		// } else if ((to-from) < 100){
-		// 	for (int j = from; j <= to; j += 2)
-		// 	{
-		// 		g.setPixel(i,j);
-		// 	}
-		// } else {
-		// 	g.setPixel(i,to);
-		// 	g.setPixel(i,from);
-		// }
+		if ((to-from) < 40){ // if there is too much vertical range in one pixel, don't draw the full line for speed reasons 
+			for (int j = from; j <= to; j += 1)
+			{
+				g.setPixel(i,j);
+			}
+		} else if ((to-from) < 100){
+			for (int j = from; j <= to; j += 2)
+			{
+				g.setPixel(i,j);
+			}
+		} else {
+			g.setPixel(i,to);
+			g.setPixel(i,from);
+		}
 
 
 		
@@ -746,6 +744,8 @@ void LfpChannelDisplay::paint(Graphics& g)
 void LfpChannelDisplay::setRange(float r)
 {
     range = r;
+
+    //std::cout << "Range: " << r << std::endl;
 }
 
 void LfpChannelDisplay::select()
