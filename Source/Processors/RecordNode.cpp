@@ -511,19 +511,13 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
     if (channelPointers[channel]->file == NULL)
         return;
 
-    float scaleFactor = float(0x7fff) * channelPointers[channel]->bitVolts;
-    // scale the data appropriately -- currently just getting it into the right
-    // range; actually need to take into account the gain of each channel
+    // scale the data back into the range of int16
+    float scaleFactor =  float(0x7fff) * channelPointers[channel]->bitVolts; //float(0x7fff) *
+
     for (int n = 0; n < nSamples; n++)
     {
-        *(continuousDataFloatBuffer+n) = *(data+n) / 10000.0f; // / scaleFactor;
+        *(continuousDataFloatBuffer+n) = *(data+n) / scaleFactor;
     }
-
-    // find file and write samples to disk
-
-    //if (nSamples < 1000) // this is temporary, but there seems to be an error reading in the data if too many samples are written
-    // in the first few blocks
-    //{
 
     AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
 
