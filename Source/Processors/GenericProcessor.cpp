@@ -469,7 +469,7 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
     data[1] = nodeId;  // processor ID automatically added
     data[2] = eventId; // event ID
     data[3] = eventChannel; // event channel
-    memcpy(&data[4], eventData, numBytes);
+    memcpy(data + 4, eventData, numBytes);
 
     eventBuffer.addEvent(data, 		// spike data
                          sizeof(data), // total bytes

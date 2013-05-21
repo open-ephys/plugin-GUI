@@ -325,7 +325,7 @@ void SourceNode::process(AudioSampleBuffer& buffer,
 
     nSamples = inputBuffer->readAllFromBuffer(buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
 
-    std::cout << "Source node timestamp: " << timestamp << std::endl;
+    //std::cout << "Source node timestamp: " << timestamp << std::endl;
 
     //std::cout << "Samples per buffer: " << nSamples << std::endl;
 
@@ -341,6 +341,16 @@ void SourceNode::process(AudioSampleBuffer& buffer,
              8,         // numBytes
              data   // data
             );
+
+    // std::cout << (int) *(data + 7) << " " <<
+    //                 (int) *(data + 6) << " " <<
+    //                 (int) *(data + 5) << " " <<
+    //                 (int) *(data + 4) << " " <<
+    //                 (int) *(data + 3) << " " <<
+    //                 (int) *(data + 2) << " " <<
+    //                 (int) *(data + 1) << " " <<
+    //                 (int) *(data + 0) << std::endl;
+
 
     // fill event buffer
     for (int i = 0; i < nSamples; i++)
