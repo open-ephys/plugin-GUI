@@ -230,6 +230,10 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <FILE id="e7QoyI" name="ChannelMappingNode.cpp" compile="1" resource="0"
+              file="Source/Processors/ChannelMappingNode.cpp"/>
+        <FILE id="RzEj1s" name="ChannelMappingNode.h" compile="0" resource="0"
+              file="Source/Processors/ChannelMappingNode.h"/>
         <FILE id="iCR52Z" name="PulsePalOutput.cpp" compile="1" resource="0"
               file="Source/Processors/PulsePalOutput.cpp"/>
         <FILE id="P6I3cq" name="PulsePalOutput.h" compile="0" resource="0"
@@ -316,6 +320,10 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="g1ki17" name="ChannelMappingEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/ChannelMappingEditor.cpp"/>
+          <FILE id="KLhI0Q" name="ChannelMappingEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/ChannelMappingEditor.h"/>
           <FILE id="PobvRC" name="FileReaderEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/FileReaderEditor.cpp"/>
           <FILE id="hIDHaX" name="FileReaderEditor.h" compile="0" resource="0"

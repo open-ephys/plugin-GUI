@@ -147,6 +147,7 @@
     <ClCompile Include="..\..\Source\Dsp\RootFinder.cpp"/>
     <ClCompile Include="..\..\Source\Dsp\State.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ChannelMappingNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PulsePalOutput.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ReferenceNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PhaseDetector.cpp"/>
@@ -173,6 +174,7 @@
     <ClCompile Include="..\..\Source\Processors\SpikeDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\ChannelMappingEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\FileReaderEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\PhaseDetectorEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\PulsePalOutputEditor.cpp"/>
@@ -1326,6 +1328,7 @@
     <ClInclude Include="..\..\Source\Dsp\Types.h"/>
     <ClInclude Include="..\..\Source\Dsp\Utilities.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
+    <ClInclude Include="..\..\Source\Processors\ChannelMappingNode.h"/>
     <ClInclude Include="..\..\Source\Processors\PulsePalOutput.h"/>
     <ClInclude Include="..\..\Source\Processors\ReferenceNode.h"/>
     <ClInclude Include="..\..\Source\Processors\PhaseDetector.h"/>
@@ -1354,6 +1357,7 @@
     <ClInclude Include="..\..\Source\Processors\SpikeDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\ChannelMappingEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\FileReaderEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\PhaseDetectorEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\PulsePalOutputEditor.h"/>

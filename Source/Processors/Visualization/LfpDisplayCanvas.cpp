@@ -696,43 +696,44 @@ void LfpChannelDisplay::paint(Graphics& g)
     {
 
 	   // drawLine makes for nice anti-aliased plots, but is pretty slow
-       //g.drawLine(i,
-       //          (canvas->getYCoord(chan, i)/range*ch)+getHeight()/2,
-       //           i+stepSize,
-       //            (canvas->getYCoord(chan, i+stepSize)/range*ch)+getHeight()/2);
+       g.drawLine(i,
+                 (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2,
+                  i+stepSize,
+                   (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2);
 
 
-		// pixel wise line plot has no anti-aliasing, but runs much faster
-		double a = (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2;
-		double b = (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2;
-		if (a<b){
-			 from = (a);
-			 to = (b);
-		} else {
-			 from = (b);
-			 to = (a);
-		}
+		// // pixel wise line plot has no anti-aliasing, but runs much faster
+		// double a = (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2;
+		// double b = (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2;
+
+		// if (a<b){
+		// 	 from = (a);
+		// 	 to = (b);
+		// } else {
+		// 	 from = (b);
+		// 	 to = (a);
+		// }
 		
-		if ((to-from)<40){ // if there is too much vertical range in one pixel, dont draw the full line for speed reasons 
-			for (int j = from; j <= to; j += 1)
-			{
-				g.setPixel(i,j);
-			}
-		}else if ((to-from)<100){
-			for (int j = from; j <= to; j += 2)
-			{
-				g.setPixel(i,j);
-			}
-		}else{
-			g.setPixel(i,to);
-			g.setPixel(i,from);
-		}
+		// if ((to-from) < 40){ // if there is too much vertical range in one pixel, don't draw the full line for speed reasons 
+		// 	for (int j = from; j <= to; j += 1)
+		// 	{
+		// 		g.setPixel(i,j);
+		// 	}
+		// } else if ((to-from) < 100){
+		// 	for (int j = from; j <= to; j += 2)
+		// 	{
+		// 		g.setPixel(i,j);
+		// 	}
+		// } else {
+		// 	g.setPixel(i,to);
+		// 	g.setPixel(i,from);
+		// }
 
 
 		
     }
 
-  //  g.setColour(lineColour.withAlpha(0.7f)); // alpha on seems to decrease draw speed
+ // g.setColour(lineColour.withAlpha(0.7f)); // alpha on seems to decrease draw speed
     g.setFont(channelFont);
     g.setFont(channelHeightFloat);
 

@@ -504,9 +504,9 @@ void GenericEditor::getChannelSelectionState(int chan, bool* p, bool* r, bool* a
         *a = channelSelector->getAudioStatus(chan);
     }
     else{
-        *p = FALSE;
-        *r = FALSE;
-        *a = FALSE;
+        *p = false;
+        *r = false;
+        *a = false;
     }
 }
 
