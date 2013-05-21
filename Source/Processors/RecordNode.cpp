@@ -567,10 +567,12 @@ void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, in
     //std::cout << "Received event!" << std::endl;
 
     const uint8* dataptr = event.getRawData();
-    int16 samplePos = (int16) samplePosition;
+    uint64_t samplePos = (uint64_t) samplePosition;
+
+    uint64_t eventTimestamp = timestamp + samplePos;
 
     // write timestamp (for buffer only, not the actual event timestamp!!!!!)
-    fwrite(&timestamp,							// ptr
+    fwrite(&eventTimestamp,							// ptr
            8,   							// size of each element
            1, 		  						// count
            eventChannel->file);   			// ptr to FILE object
