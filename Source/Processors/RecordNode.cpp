@@ -597,23 +597,15 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
     {
     	const uint8* dataptr = event.getRawData();
 
-        std::cout << (int) *(dataptr + 11) << " " <<
-                    (int) *(dataptr + 10) << " " <<
-                    (int) *(dataptr + 9) << " " <<
-                    (int) *(dataptr + 8) << " " <<
-                    (int) *(dataptr + 7) << " " <<
-                    (int) *(dataptr + 6) << " " <<
-                    (int) *(dataptr + 5) << " " <<
-                    (int) *(dataptr + 4) << std::endl;
+        // std::cout << (int) *(dataptr + 11) << " " <<
+        //             (int) *(dataptr + 10) << " " <<
+        //             (int) *(dataptr + 9) << " " <<
+        //             (int) *(dataptr + 8) << " " <<
+        //             (int) *(dataptr + 7) << " " <<
+        //             (int) *(dataptr + 6) << " " <<
+        //             (int) *(dataptr + 5) << " " <<
+        //             (int) *(dataptr + 4) << std::endl;
 
-       // timestamp = ((uint64) *(dataptr + 4)) +
-       //             ((uint64) *(dataptr + 5)) << 8;
-       //             ((uint64) *(dataptr + 6)) << 16;
-        //            ((uint64) *(dataptr + 7)) << 24;
-                   // ((uint64) *(dataptr + 8)) << 32 + 
-                   // ((uint64) *(dataptr + 9)) << 40 + 
-                   // ((uint64) *(dataptr + 10)) << 48 + 
-                   // ((uint64) *(dataptr + 11)) << 56;
 
     	memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
     }
