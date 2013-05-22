@@ -210,10 +210,10 @@ AudioProcessorEditor* SourceNode::createEditor()
     {
         editor = new RHD2000Editor(this, (RHD2000Thread*) dataThread.get(), true);
     }
-    else if (getName().equalsIgnoreCase("File Reader"))
-    {
-        editor = new FileReaderEditor(this, (FileReaderThread*) dataThread.get(), true);
-    }
+  //  else if (getName().equalsIgnoreCase("File Reader"))
+  //  {
+   //     editor = new FileReaderEditor(this, (FileReaderThread*) dataThread.get(), true);
+   // }
     else {
         editor = new SourceNodeEditor(this, true);
     }

@@ -230,6 +230,8 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <FILE id="M6nCIs" name="FileReader.cpp" compile="1" resource="0" file="Source/Processors/FileReader.cpp"/>
+        <FILE id="VU1bQ0" name="FileReader.h" compile="0" resource="0" file="Source/Processors/FileReader.h"/>
         <FILE id="e7QoyI" name="ChannelMappingNode.cpp" compile="1" resource="0"
               file="Source/Processors/ChannelMappingNode.cpp"/>
         <FILE id="RzEj1s" name="ChannelMappingNode.h" compile="0" resource="0"

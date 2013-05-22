@@ -23,14 +23,17 @@
 
 #include "FileReaderEditor.h"
 
-#include "../DataThreads/FileReaderThread.h"
+#include "../FileReader.h"
 
 #include <stdio.h>
 
-FileReaderEditor::FileReaderEditor(GenericProcessor* parentNode, FileReaderThread* thread_, bool useDefaultParameterEditors=true)
-   : GenericEditor(parentNode, useDefaultParameterEditors), thread(thread_)
+FileReaderEditor::FileReaderEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+   : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
+
+	fileReader = (FileReader*) parentNode;
+
 	lastFilePath = File::getCurrentWorkingDirectory();
 
 	fileButton = new UtilityButton("Select file",Font("Small Text", 13, Font::plain));
@@ -44,6 +47,8 @@ FileReaderEditor::FileReaderEditor(GenericProcessor* parentNode, FileReaderThrea
 
     desiredWidth = 180;
 
+    setEnabledState(false);
+
 }
 
 FileReaderEditor::~FileReaderEditor()
@@ -56,8 +61,12 @@ void FileReaderEditor::setFile(String file)
 
 	File fileToRead(file);
 	lastFilePath = fileToRead.getParentDirectory();
-	thread->setFile(fileToRead.getFullPathName());
+	fileReader->setFile(fileToRead.getFullPathName());
 	fileNameLabel->setText(fileToRead.getFileName(),false);
+
+	setEnabledState(true);
+
+	repaint();
 }
 
 void FileReaderEditor::buttonEvent(Button* button)
