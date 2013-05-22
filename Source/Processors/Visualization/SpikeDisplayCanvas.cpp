@@ -820,12 +820,12 @@ void WaveAxes::mouseDrag(const MouseEvent& event)
     }
 }
 
-MouseCursor WaveAxes::getMouseCursor()
-{
-    MouseCursor c = MouseCursor(cursorType);
+// MouseCursor WaveAxes::getMouseCursor()
+// {
+//     MouseCursor c = MouseCursor(cursorType);
 
-    return c;
-}
+//     return c;
+// }
 
 void WaveAxes::mouseExit(const MouseEvent& event)
 {

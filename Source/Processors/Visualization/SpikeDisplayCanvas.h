@@ -286,7 +286,7 @@ public:
     void mouseDown(const MouseEvent& event);
     void mouseDrag(const MouseEvent& event);
 
-    MouseCursor getMouseCursor();
+    //MouseCursor getMouseCursor();
 
 private:
 

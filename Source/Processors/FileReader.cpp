@@ -63,7 +63,7 @@ int FileReader::getDefaultNumOutputs()
 
 float FileReader::getDefaultBitVolts()
 {
-    return 0.0305f;
+    return 0.05f;
 }
 
 void FileReader::enabledState(bool t)
@@ -180,7 +180,6 @@ void FileReader::saveCustomParametersToXml(XmlElement* parentElement)
 
 void FileReader::loadCustomParametersFromXml()
 {
-
 
     if (parametersAsXml != nullptr)
     {
