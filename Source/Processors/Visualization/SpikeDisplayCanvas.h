@@ -91,6 +91,8 @@ public:
 
     void resized();
 
+    bool keyPressed(const KeyPress& key);
+
 private:
 
     SpikeDisplayNode* processor;
