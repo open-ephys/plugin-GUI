@@ -31,9 +31,9 @@ PulsePalOutput::PulsePalOutput()
     : GenericProcessor("Pulse Pal"), channelToChange(0)
 {
 
-    pulsePal.initialize();
+    //pulsePal.initialize();
 
-    pulsePal.updateDisplay("GUI Connected","Click for menu");
+    //pulsePal.updateDisplay("GUI Connected","Click for menu");
 
     for (int i = 0; i < 4; i++)
     {
