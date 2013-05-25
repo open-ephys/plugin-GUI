@@ -48,7 +48,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
         numChannelsPerDataStream.insertMultiple(0,0,4);
 
         // initialize data buffer for 32 channels + 3 aux.
-        dataBuffer = new DataBuffer(35*1, 10000);
+        dataBuffer = new DataBuffer(35*2, 10000);
 
         initializeBoard();
 
@@ -61,6 +61,12 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
         enableHeadstage(0,true); // start off with one headstage
 		enableHeadstage(1,true); // start off with one headstage
 
+    // assume we have onr 63 and two 32-channel headstages, for the sake of
+    // simplicity; this will have to be changed 
+    evalBoard->setDataSource(0, Rhd2000EvalBoard::PortA1); // assume two 32ch chips / one 64ch headstage on connector A 
+    evalBoard->setDataSource(1, Rhd2000EvalBoard::PortA2);
+    evalBoard->setDataSource(2, Rhd2000EvalBoard::PortC1); // regular 32ch headstages on C and D
+    evalBoard->setDataSource(3, Rhd2000EvalBoard::PortD1);
 
 
         // automatically find connected headstages -- needs debugging
