@@ -721,19 +721,19 @@ bool RHD2000Thread::updateBuffer()
 							channel++;
 							thisSample[channel] = auxBuffer[channel];
 						}
+
 						
 					}
 
-              
+				}
+				// std::cout << channel << std::endl;
 
-					// std::cout << channel << std::endl;
+				timestamp = dataBlock->timeStamp[samp];
+				timestamp = timestamp;
+				eventCode = dataBlock->ttlIn[samp];
 
-					timestamp = dataBlock->timeStamp[samp];
-					timestamp = timestamp;
-					eventCode = dataBlock->ttlIn[samp];
-
-					dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
-				  }
+				dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+				 
             }
 
         }
