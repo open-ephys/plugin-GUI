@@ -48,7 +48,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
         numChannelsPerDataStream.insertMultiple(0,0,4);
 
         // initialize data buffer for 32 channels + 3 aux.
-        dataBuffer = new DataBuffer(35, 10000);
+        dataBuffer = new DataBuffer(35*1, 10000);
 
         initializeBoard();
 
@@ -182,6 +182,7 @@ void RHD2000Thread::initializeBoard()
 
     chipRegisters->setLowerBandwidth(1.0);
     chipRegisters->setUpperBandwidth(7500.0);
+
 
 
 			// turn on aux inputs
@@ -679,14 +680,13 @@ bool RHD2000Thread::updateBuffer()
 
                         for (int chan = 0; chan < numChannelsPerDataStream[dataStream]; chan++)
                         {
-                            //std::cout << "reading sample stream" << streamNumber << " chan " << chan << " sample "<< samp << std::endl;
+                         //   std::cout << "reading sample stream" << streamNumber << " chan " << chan << " sample "<< samp << std::endl;
 							channel++;
 
                             int value = dataBlock->amplifierData[streamNumber][chan][samp];
 
                             thisSample[channel] = float(value-32768)*0.195f;
                         }
-                    
 					
 						
 						if (samp % 4 == 1) { // every 4th sample should have auxiliary input data
@@ -707,7 +707,7 @@ bool RHD2000Thread::updateBuffer()
 							float(dataBlock->auxiliaryData[dataStream][1][samp+2]);
 							auxBuffer[channel]=thisSample[channel];
 
-						} else{
+						} else{ // repeat last values from buffer
 							channel++;
 							thisSample[channel] = auxBuffer[channel];
 							channel++;
@@ -718,15 +718,16 @@ bool RHD2000Thread::updateBuffer()
 						
 					}
 
-                }
+              
 
-                // std::cout << channel << std::endl;
+					// std::cout << channel << std::endl;
 
-                timestamp = dataBlock->timeStamp[samp];
-                timestamp = timestamp;
-                eventCode = dataBlock->ttlIn[samp];
+					timestamp = dataBlock->timeStamp[samp];
+					timestamp = timestamp;
+					eventCode = dataBlock->ttlIn[samp];
 
-                dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+					dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+				  }
             }
 
         }
