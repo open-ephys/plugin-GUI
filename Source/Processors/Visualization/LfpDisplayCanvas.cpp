@@ -372,7 +372,7 @@ void LfpDisplayCanvas::paint(Graphics& g)
 {
 
     //std::cout << "Painting" << std::endl;
-    g.setColour(Colour(5,5,5));
+    g.setColour(Colour(0,18,43)); //background color
     g.fillRect(0, 0, getWidth(), getHeight());
 
     g.setColour(Colour(40,40,40));
@@ -514,10 +514,32 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
 
     addMouseListener(this, true);
 
-    for (int i = 0; i < 15; i++)
-    {
-        channelColours.add(Colour(float(sin((3.14/2)*(float(i)/15))),float(1.0),float(1),float(1.0)));
-    }
+    // hue cycle
+    //for (int i = 0; i < 15; i++)
+    //{
+    //    channelColours.add(Colour(float(sin((3.14/2)*(float(i)/15))),float(1.0),float(1),float(1.0)));
+    //}
+
+
+
+
+    //hand built palette
+    channelColours.add(Colour(224,185,36));
+    channelColours.add(Colour(214,210,182));
+    channelColours.add(Colour(243,119,33));
+    channelColours.add(Colour(186,157,168));
+    channelColours.add(Colour(237,37,36));
+    channelColours.add(Colour(179,122,79));
+    channelColours.add(Colour(217,46,171));
+    channelColours.add(Colour(217, 139,196));
+    channelColours.add(Colour(101,31,255));
+    channelColours.add(Colour(141,111,181));
+    channelColours.add(Colour(48,117,255));
+    channelColours.add(Colour(184,198,224));
+    channelColours.add(Colour(116,227,156));
+    channelColours.add(Colour(150,158,155));
+    channelColours.add(Colour(82,173,0));
+    channelColours.add(Colour(125,99,32));
 
 }
 
