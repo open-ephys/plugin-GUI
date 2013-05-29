@@ -268,7 +268,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
         nSamples = (displayBufferSize - displayBufferIndex) + index;
     }
 
-    float ratio = sampleRate * timebase / float(getWidth());
+    float ratio = sampleRate * timebase / float(getWidth()-leftmargin);
 
     // this number is crucial: converting from samples to values (in px) for the screen buffer
     int valuesNeeded = (int) float(nSamples) / ratio;
@@ -498,10 +498,7 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
     //    channelColours.add(Colour(float(sin((3.14/2)*(float(i)/15))),float(1.0),float(1),float(1.0)));
     //}
 
-
-
-
-    //hand built palette
+    //hand-built palette
     channelColours.add(Colour(224,185,36));
     channelColours.add(Colour(214,210,182));
     channelColours.add(Colour(243,119,33));
@@ -581,7 +578,7 @@ void LfpDisplay::resized()
 
     }
 
-    canvas->fullredraw=true;//issue full redraw 
+    canvas->fullredraw = true; //issue full redraw 
 
    // std::cout << "Total height: " << totalHeight << std::endl;
 
@@ -608,18 +605,21 @@ void LfpDisplay::refresh()
 
         if ((topBorder <= componentBottom && bottomBorder >= componentTop))
         {
-            if (canvas->fullredraw){
-                channels[i]->fullredraw=true;
+            if (canvas->fullredraw)
+            {    
+                channels[i]->fullredraw = true;
                 getChildComponent(i)->repaint();
-            } else{
-                getChildComponent(i)->repaint( canvas->lastScreenBufferIndex-2, 0, (canvas->screenBufferIndex-canvas->lastScreenBufferIndex)+3, getChildComponent(i)->getHeight() ); //repaint only the updated portion
-                // we redraw from -2 to +1 relative to the real redraw window, the -3 makes sure that the lines join nicely, and the +1 draws the vertical update line
+
+            } else {
+                getChildComponent(i)->repaint(canvas->lastScreenBufferIndex-2, 0, (canvas->screenBufferIndex-canvas->lastScreenBufferIndex)+3, getChildComponent(i)->getHeight() ); //repaint only the updated portion
+                // we redraw from -2 to +1 relative to the real redraw window, the -2 makes sure that the lines join nicely, and the +1 draws the vertical update line
             }
             //std::cout << i << std::endl;
         }
 
     }
-        canvas->fullredraw=false;
+        
+    canvas->fullredraw = false;
 }
 
 void LfpDisplay::setRange(float r)
@@ -651,7 +651,7 @@ void LfpDisplay::setChannelHeight(int r)
 
  void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&   wheel )   {
     
-    canvas->fullredraw=true;//issue full redraw 
+    canvas->fullredraw = true;//issue full redraw 
 
     //  passes the event up to the viewport so the screen scrolls
     if (viewport != nullptr && e.eventComponent == this) // passes only if it's not a listening event
@@ -676,7 +676,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 
     lcd->select();
 
-    canvas->fullredraw=true;//issue full redraw 
+    canvas->fullredraw = true;//issue full redraw 
 
     //repaint();
 
@@ -738,14 +738,18 @@ void LfpChannelDisplay::paint(Graphics& g)
     g.setColour(lineColour);
 
     //for (int i = 0; i < getWidth()-stepSize; i += stepSize) // redraw entire display
-    int ifrom=canvas->lastScreenBufferIndex-3; // need to start drawing a bit before the actual redraw windowfor the interpolated line to join correctly
-    if (ifrom<0) ifrom=0;
-    int ito = canvas->screenBufferIndex-1;
+    int ifrom = canvas->lastScreenBufferIndex - 3; // need to start drawing a bit before the actual redraw windowfor the interpolated line to join correctly
+    
+    if (ifrom < 0) 
+    	ifrom = 0;
 
-    if (fullredraw){
-        ifrom=canvas->leftmargin;
-        ito=getWidth()-stepSize;
-        fullredraw=false;
+    int ito = canvas->screenBufferIndex - 1;
+
+    if (fullredraw)
+    {
+        ifrom = canvas->leftmargin;
+        ito = getWidth()-stepSize;
+        fullredraw = false;
     }
 
     for (int i = ifrom; i < ito ; i += stepSize) // redraw only changed portion
