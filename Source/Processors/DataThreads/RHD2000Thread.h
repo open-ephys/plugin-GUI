@@ -68,7 +68,7 @@ public:
     void setCableLength(int hsNum, float length);
     void setNumChannels(int hsNum, int nChannels);
 
-    void setSampleRate(int sampleRateIndex);
+    void setSampleRate(int index, bool temporary = false);
 
     double setUpperBandwidth(double upper); // set desired BW, returns actual BW
     double setLowerBandwidth(double lower);
@@ -82,7 +82,7 @@ public:
 private:
 
     ScopedPointer<Rhd2000EvalBoard> evalBoard;
-    ScopedPointer<Rhd2000Registers> chipRegisters;
+    Rhd2000Registers chipRegisters;
     Rhd2000DataBlock* dataBlock;
 
     Array<int> numChannelsPerDataStream;
@@ -99,10 +99,19 @@ private:
 
     bool fastSettleEnabled;
 
+    bool dspEnabled;
+    double actualDspCutoffFreq, desiredDspCutoffFreq;
+    double actualUpperBandwidth, desiredUpperBandwidth;
+    double actualLowerBandwidth, desiredLowerBandwidth;
+    double boardSampleRate;
+    int savedSampleRateIndex;
+
     bool startAcquisition();
     bool stopAcquisition();
 
     void initializeBoard();
+
+    void updateRegisters();
     
     int deviceId(Rhd2000DataBlock* dataBlock, int stream);
 

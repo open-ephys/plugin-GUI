@@ -32,7 +32,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
                             )
     : GenericEditor(parentNode, useDefaultParameterEditors), board(board_)
 {
-    desiredWidth = 400;
+    desiredWidth = 200;
 
     // add headstage-specific controls (currently just an enable/disable button)
     for (int i = 0; i < 4; i++)
@@ -40,23 +40,23 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
         HeadstageOptionsInterface* hsOptions = new HeadstageOptionsInterface(board, this, i);
         headstageOptionsInterfaces.add(hsOptions);
         addAndMakeVisible(hsOptions);
-        hsOptions->setBounds(3,28+i*20, 70, 18);
+        hsOptions->setBounds(3, 28+i*20, 70, 18);
     }
 
     // add sample rate selection
     sampleRateInterface = new SampleRateInterface(board, this);
     addAndMakeVisible(sampleRateInterface);
-    sampleRateInterface->setBounds(150,25,160, 50);
+    sampleRateInterface->setBounds(80, 25, 100, 50);
 
     // add Bandwidth selection
     bandwidthInterface = new BandwidthInterface(board, this);
     addAndMakeVisible(bandwidthInterface);
-    bandwidthInterface->setBounds(150,65,160, 50);
+    bandwidthInterface->setBounds(80, 65, 100, 50);
 
     // add rescan button
     rescanButton = new UtilityButton("RESCAN", Font("Small Text", 13, Font::plain));
     rescanButton->setRadius(3.0f);
-    rescanButton->setBounds(6,108,65,18);
+    rescanButton->setBounds(6, 108,65,18);
     rescanButton->addListener(this);
     addAndMakeVisible(rescanButton);
 
@@ -92,18 +92,23 @@ BandwidthInterface::BandwidthInterface(RHD2000Thread* board_,
 
     name = "Bandwidth";
 
+    lastHighCutString = "7500";
+    lastLowCutString = "1";
 
-    UpperBandwidthSelection = new Label("UpperBandwidth","7500 Hz"); // this is currently set in RHD2000Thread, the cleaner would be to set it here again
+    UpperBandwidthSelection = new Label("UpperBandwidth",lastHighCutString); // this is currently set in RHD2000Thread, the cleaner would be to set it here again
     UpperBandwidthSelection->setEditable(true,false,false);
     UpperBandwidthSelection->addListener(this);
-    UpperBandwidthSelection->setBounds(0,10,300,30);
+    UpperBandwidthSelection->setBounds(30,30,60,20);
+    UpperBandwidthSelection->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(UpperBandwidthSelection);
 
 
-    LowerBandwidthSelection = new Label("LowerBandwidth","1 Hz");
+    LowerBandwidthSelection = new Label("LowerBandwidth",lastLowCutString);
     LowerBandwidthSelection->setEditable(true,false,false);
     LowerBandwidthSelection->addListener(this);
-    LowerBandwidthSelection->setBounds(0,30,300,30);
+    LowerBandwidthSelection->setBounds(25,10,60,20);
+    LowerBandwidthSelection->setColour(Label::textColourId, Colours::darkgrey);
+
     addAndMakeVisible(LowerBandwidthSelection);
 
 
@@ -116,29 +121,51 @@ BandwidthInterface::~BandwidthInterface()
 }
 
 
-void BandwidthInterface::labelTextChanged(Label* te)
+void BandwidthInterface::labelTextChanged(Label* label)
 {
     
     if (!(editor->acquisitionIsActive) && board->foundInputSource())
     {
-        if (te == UpperBandwidthSelection)
+        if (label == UpperBandwidthSelection)
         {
-            double actualUpperBandwidth = board->setUpperBandwidth(te->getText().getDoubleValue());
-           // cb->setText(cb->getItemText(te->getSelectedId()),true);
-            std::cout << "Setting Upper Bandwidth to " << te->getText().getDoubleValue() << std::endl;
+
+            Value val = label->getTextValue();
+            double requestedValue = double(val.getValue());
+
+            if (requestedValue < 100.0 || requestedValue > 20000.0 || requestedValue < lastLowCutString.getFloatValue())
+            {
+                editor->sendActionMessage("Value out of range.");
+
+                label->setText(lastHighCutString, dontSendNotification);
+
+                return;
+            }
+
+            double actualUpperBandwidth = board->setUpperBandwidth(requestedValue);
+
+            std::cout << "Setting Upper Bandwidth to " << requestedValue << std::endl;
             std::cout << "Actual Upper Bandwidth:  " <<  actualUpperBandwidth  << std::endl;
-            te->setText(String(actualUpperBandwidth)+" Hz",false);
+            label->setText(String((roundFloatToInt)(actualUpperBandwidth)), false);
 
-
-            repaint();
         } else {
-            double actualLowerBandwidth = board->setLowerBandwidth(te->getText().getDoubleValue());
-           // cb->setText(cb->getItemText(te->getSelectedId()),true);
-            std::cout << "Setting Lower Bandwidth to " << te->getText().getDoubleValue() << std::endl;
-            std::cout << "Actual Lower Bandwidth:  " <<  actualLowerBandwidth  << std::endl;
-            te->setText(String(actualLowerBandwidth)+" Hz",false);
 
-            repaint(); 
+            Value val = label->getTextValue();
+            double requestedValue = double(val.getValue());
+
+            if (requestedValue < 0.1 || requestedValue > 500.0 || requestedValue > lastHighCutString.getFloatValue())
+            {
+                editor->sendActionMessage("Value out of range.");
+
+                 label->setText(lastLowCutString, dontSendNotification);
+
+                return;
+            }
+
+            double actualLowerBandwidth = board->setLowerBandwidth(requestedValue);
+
+            std::cout << "Setting Upper Bandwidth to " << requestedValue << std::endl;
+            std::cout << "Actual Upper Bandwidth:  " <<  actualLowerBandwidth  << std::endl;
+            label->setText(String(roundFloatToInt(actualLowerBandwidth)), false);
         }
     }
 }
@@ -148,15 +175,16 @@ void BandwidthInterface::labelTextChanged(Label* te)
 
 void BandwidthInterface::paint(Graphics& g)
 {
-    //g.setColour(Colours::lightgrey);
 
-    //g.fillRoundedRectangle(5,0,getWidth()-10,getHeight(),4.0f);
-  
-   // g.setColour(Colours::grey);
+     g.setColour(Colours::darkgrey);
 
-    g.setFont(Font("Small Text",15,Font::plain));
+    g.setFont(Font("Small Text",10,Font::plain));
 
     g.drawText(name, 0, 0, 200, 15, Justification::left, false);
+
+    g.drawText("Low: ", 0, 10, 200, 20, Justification::left, false);
+
+    g.drawText("High: ", 0, 30, 200, 20, Justification::left, false);
 
 }
 
@@ -167,7 +195,7 @@ SampleRateInterface::SampleRateInterface(RHD2000Thread* board_,
     board(board_), editor(editor_)
 {
 
-    name="SampleRate";
+    name="Sample Rate";
 
     sampleRateOptions.add("1.00 kS/s");
     sampleRateOptions.add("1.25 kS/s");
@@ -210,12 +238,11 @@ void SampleRateInterface::comboBoxChanged(ComboBox* cb)
     {
         if (cb == rateSelection)
         {
-            board->setSampleRate(cb->getSelectedId());
-            //cb->setText(cb->getItemText(cb->getSelectedId()),true);
-            std::cout << "Setting sample rate to index " << cb->getSelectedId() << std::endl;
+            board->setSampleRate(cb->getSelectedId()-1);
+
+            std::cout << "Setting sample rate to index " << cb->getSelectedId()-1 << std::endl;
 
             editor->getEditorViewport()->makeEditorVisible(editor, false, true);
-            //repaint();
         }
     }
 }
@@ -225,13 +252,10 @@ void SampleRateInterface::comboBoxChanged(ComboBox* cb)
 
 void SampleRateInterface::paint(Graphics& g)
 {
-    //g.setColour(Colours::lightgrey);
 
-    //g.fillRoundedRectangle(5,0,getWidth()-10,getHeight(),4.0f);
-  
-   // g.setColour(Colours::grey);
+     g.setColour(Colours::darkgrey);
 
-    g.setFont(Font("Small Text",15,Font::plain));
+    g.setFont(Font("Small Text",10,Font::plain));
 
     g.drawText(name, 0, 0, 200, 15, Justification::left, false);
 

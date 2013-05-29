@@ -25,7 +25,9 @@
 #include "../SourceNode.h"
 
 RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(false),
-    fastSettleEnabled(false), 
+    fastSettleEnabled(false), chipRegisters(30000.0f), dspEnabled(true), boardSampleRate(30000.0f),
+    desiredDspCutoffFreq(0.5f), desiredUpperBandwidth(7500.0f), desiredLowerBandwidth(1.0f),
+    savedSampleRateIndex(16),
     cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f) // default is 3 feet (0.914 m)
 {
     evalBoard = new Rhd2000EvalBoard;
@@ -47,34 +49,11 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
     if (deviceFound)
     {
 
+        // upload bitfile and restore default settings
         initializeBoard();
 
-        // automatically find connected headstages -- needs debugging
+        // automatically find connected headstages
         scanPorts();
-
-        // --------------------------------------
-
-  //       numChannelsPerDataStream.insertMultiple(0,0,8);
-
-  //       // initialize data buffer for 32 channels + 3 aux.
-
-
-		// // manually set cable delay for now
-		// //2 for one cable 
-		// //3 for 2 cables daisy-chained
-		// evalBoard->setCableDelay(Rhd2000EvalBoard::PortA, 3);
-  //       evalBoard->setCableDelay(Rhd2000EvalBoard::PortB, 3);
-
-  //       enableHeadstage(0,true); // start off with one headstage
-		// enableHeadstage(1,true); // start off with two headstages
-
-  //       // assume we have onr 63 and two 32-channel headstages, for the sake of
-  //       // simplicity; this will have to be changed 
-  //       evalBoard->setDataSource(0, Rhd2000EvalBoard::PortA1); // assume two 32ch chips / one 64ch headstage on connector A 
-  //       evalBoard->setDataSource(1, Rhd2000EvalBoard::PortA2);
-  //       evalBoard->setDataSource(2, Rhd2000EvalBoard::PortC1); // regular 32ch headstages on C and D
-  //       evalBoard->setDataSource(3, Rhd2000EvalBoard::PortD1);
-
     }
 
 }
@@ -162,27 +141,6 @@ void RHD2000Thread::initializeBoard()
     int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
     evalBoard->setLedDisplay(ledArray);
 
-
-    // Set up an RHD2000 register object using this sample rate to optimize MUX-related
-    // register settings.
-    
- //    std::cout << "Rhd sample rate : " << evalBoard->getSampleRate() << std::endl;
-	// chipRegisters = new Rhd2000Registers(evalBoard->getSampleRate());
-
-
-
- //    // Before generating register configuration command sequences, set amplifier
- //    // bandwidth paramters.
- //    double dspCutoffFreq;
- //    dspCutoffFreq = chipRegisters->setDspCutoffFreq(10.0);
- //    cout << "Actual DSP cutoff frequency: " << dspCutoffFreq << " Hz" << endl;
-
- //    chipRegisters->setLowerBandwidth(1.0);
- //    chipRegisters->setUpperBandwidth(7500.0);
-
-
-
-
 }
 
 void RHD2000Thread::scanPorts()
@@ -195,7 +153,7 @@ void RHD2000Thread::scanPorts()
     Array<int> chipId;
     chipId.insertMultiple(0,-1,8);
 
-    setSampleRate(16); // set to 30 kHz to start
+    setSampleRate(16, true); // set to 30 kHz temporarily
 
     // Enable all data streams, and set sources to cover one or two chips
     // on Ports A-D.
@@ -358,9 +316,9 @@ void RHD2000Thread::scanPorts()
     cableLengthPortD =
         evalBoard->estimateCableLengthMeters(optimumDelay[3]);
 
-    //std::cout << cableLengthPortA << std::endl;
+    setSampleRate(savedSampleRateIndex); // restore saved sample rate
 
-
+    updateRegisters();
 }
 
 int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream)
@@ -455,14 +413,23 @@ float RHD2000Thread::getBitVolts()
 	return 0.195f;
 }
 
-double RHD2000Thread::setUpperBandwidth(double desiredUpperBandwidth)
+double RHD2000Thread::setUpperBandwidth(double upper)
 {
-    return chipRegisters->setUpperBandwidth(desiredUpperBandwidth);
+
+    desiredUpperBandwidth = upper;
+
+    updateRegisters();
+
+    return actualUpperBandwidth;
 }
 
-double RHD2000Thread::setLowerBandwidth(double desiredLowerBandwidth)
+double RHD2000Thread::setLowerBandwidth(double lower)
 {
-    return chipRegisters->setLowerBandwidth(desiredLowerBandwidth);
+    desiredLowerBandwidth = lower;
+
+    updateRegisters();
+
+    return actualLowerBandwidth;
 }
 
 bool RHD2000Thread::foundInputSource()
@@ -513,12 +480,15 @@ bool RHD2000Thread::isHeadstageEnabled(int hsNum)
 
 }
 
-void RHD2000Thread::setSampleRate(int sampleRateIndex)
+void RHD2000Thread::setSampleRate(int sampleRateIndex, bool isTemporary)
 {
- 
 
+    if (!isTemporary)
+    {
+        savedSampleRateIndex = sampleRateIndex;
+    }
+ 
     int numUsbBlocksToRead = 0; // placeholder - make this change the number of blocks that are read in RHD2000Thread::updateBuffer()
-    double boardSampleRate;
 
     Rhd2000EvalBoard::AmplifierSampleRate sampleRate; // just for local use
 
@@ -620,13 +590,6 @@ void RHD2000Thread::setSampleRate(int sampleRateIndex)
 
     std::cout << "Sample rate set to " << evalBoard->getSampleRate() << std::endl;
 
-      // Set up an RHD2000 register object using this sample rate to
-    // optimize MUX-related register settings.
-    Rhd2000Registers chipRegisters(boardSampleRate);
-
-    int commandSequenceLength;
-    vector<int> commandList;
-
      // Now that we have set our sampling rate, we can set the MISO sampling delay
     // which is dependent on the sample rate.
     evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortA, cableLengthPortA);
@@ -634,7 +597,19 @@ void RHD2000Thread::setSampleRate(int sampleRateIndex)
     evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortC, cableLengthPortC);
     evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortD, cableLengthPortD);
 
-     // Create a command list for the AuxCmd1 slot.  This command sequence will create a 250 Hz,
+}
+
+void RHD2000Thread::updateRegisters()
+{
+       // Set up an RHD2000 register object using this sample rate to
+    // optimize MUX-related register settings.
+    chipRegisters.defineSampleRate(boardSampleRate);
+
+
+    int commandSequenceLength;
+    vector<int> commandList;
+
+    // Create a command list for the AuxCmd1 slot.  This command sequence will create a 250 Hz,
     // zero-amplitude sine wave (i.e., a flatline).  We will change this when we want to perform
     // impedance testing.
     commandSequenceLength = chipRegisters.createCommandListZcheckDac(commandList, 250.0, 0.0);
@@ -645,8 +620,8 @@ void RHD2000Thread::setSampleRate(int sampleRateIndex)
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd1, 0);
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd1, 0);
 
-    // Next, we'll create a command list for the AuxCmd2 slot.  This command sequence
-    // will sample the temperature sensor and other auxiliary ADC inputs.
+    // // Next, we'll create a command list for the AuxCmd2 slot.  This command sequence
+    // // will sample the temperature sensor and other auxiliary ADC inputs.
     commandSequenceLength = chipRegisters.createCommandListTempSensor(commandList);
     evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd2, 0);
     evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd2, 0, commandSequenceLength - 1);
@@ -657,46 +632,46 @@ void RHD2000Thread::setSampleRate(int sampleRateIndex)
 
     // Before generating register configuration command sequences, set amplifier
     // bandwidth paramters.
-     // actualDspCutoffFreq = chipRegisters.setDspCutoffFreq(desiredDspCutoffFreq);
-     // actualLowerBandwidth = chipRegisters.setLowerBandwidth(desiredLowerBandwidth);
-     // actualUpperBandwidth = chipRegisters.setUpperBandwidth(desiredUpperBandwidth);
-     // chipRegisters.enableDsp(dspEnabled);
+     actualDspCutoffFreq = chipRegisters.setDspCutoffFreq(desiredDspCutoffFreq);
+     actualLowerBandwidth = chipRegisters.setLowerBandwidth(desiredLowerBandwidth);
+     actualUpperBandwidth = chipRegisters.setUpperBandwidth(desiredUpperBandwidth);
+     chipRegisters.enableDsp(dspEnabled);
+
+     // turn on aux inputs
+    chipRegisters.enableAux1(true);
+    chipRegisters.enableAux2(true);
+    chipRegisters.enableAux3(true);
 
      chipRegisters.createCommandListRegisterConfig(commandList, true);
         // Upload version with ADC calibration to AuxCmd3 RAM Bank 0.
-        evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 0);
-        evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0,
-                                          commandSequenceLength - 1);
+    evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 0);
+    evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0,
+                                      commandSequenceLength - 1);
 
-        commandSequenceLength = chipRegisters.createCommandListRegisterConfig(commandList, false);
-        // Upload version with no ADC calibration to AuxCmd3 RAM Bank 1.
-        evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 1);
-        evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0,
-                                          commandSequenceLength - 1);
+    commandSequenceLength = chipRegisters.createCommandListRegisterConfig(commandList, false);
+    // Upload version with no ADC calibration to AuxCmd3 RAM Bank 1.
+    evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 1);
+    evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0,
+                                      commandSequenceLength - 1);
 
-        chipRegisters.setFastSettle(true);
-        commandSequenceLength = chipRegisters.createCommandListRegisterConfig(commandList, false);
-        // Upload version with fast settle enabled to AuxCmd3 RAM Bank 2.
-        evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 2);
-        evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0,
-                                          commandSequenceLength - 1);
-        chipRegisters.setFastSettle(false);
+    chipRegisters.setFastSettle(true);
+    commandSequenceLength = chipRegisters.createCommandListRegisterConfig(commandList, false);
+    // Upload version with fast settle enabled to AuxCmd3 RAM Bank 2.
+    evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 2);
+    evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0,
+                                      commandSequenceLength - 1);
+    chipRegisters.setFastSettle(false);
 
-        // turn on aux inputs
-        chipRegisters.enableAux1(true);
-        chipRegisters.enableAux2(true);
-        chipRegisters.enableAux3(true);
+    
 
-        evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3,
-                                        fastSettleEnabled ? 2 : 1);
-        evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3,
-                                        fastSettleEnabled ? 2 : 1);
-        evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3,
-                                        fastSettleEnabled ? 2 : 1);
-        evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3,
-                                        fastSettleEnabled ? 2 : 1);
-
-
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3,
+                                    fastSettleEnabled ? 2 : 1);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3,
+                                    fastSettleEnabled ? 2 : 1);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3,
+                                    fastSettleEnabled ? 2 : 1);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3,
+                                    fastSettleEnabled ? 2 : 1);
 }
 
 void RHD2000Thread::setCableLength(int hsNum, float length)

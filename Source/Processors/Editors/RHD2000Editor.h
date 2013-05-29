@@ -115,6 +115,8 @@ private:
 
     String name;
 
+    String lastLowCutString, lastHighCutString;
+
     RHD2000Thread* board;
     RHD2000Editor* editor;
 
