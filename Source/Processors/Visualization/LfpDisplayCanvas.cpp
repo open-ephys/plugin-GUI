@@ -117,7 +117,7 @@ LfpDisplayCanvas::~LfpDisplayCanvas()
 void LfpDisplayCanvas::resized()
 {
 
-    timescale->setBounds(leftmargin,0,getWidth()-scrollBarThickness,30);
+    timescale->setBounds(leftmargin,0,getWidth()-scrollBarThickness-leftmargin,30);
     viewport->setBounds(0,30,getWidth(),getHeight()-90);
 
     lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, getChannelHeight()*nChans);
@@ -253,8 +253,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
     // copy new samples from the displayBuffer into the screenBuffer (waves)
     int maxSamples = lfpDisplay->getWidth();
 
-    if (screenBufferIndex>=maxSamples) // wrap around if we reached right edge before
-        screenBufferIndex=leftmargin;
+    if (screenBufferIndex >= maxSamples) // wrap around if we reached right edge before
+        screenBufferIndex = leftmargin;
 
     lastScreenBufferIndex = screenBufferIndex;
 
@@ -309,20 +309,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
                                       1, // numSamples
                                       alpha*gain); // gain
 
-                //waves[channel][screenBufferIndex*2+1] =
-                //	*(displayBuffer->getSampleData(channel, displayBufferIndex))*invAlpha*gain*displayGain;
 
-                //waves[channel][screenBufferIndex*2+1] +=
-                //	*(displayBuffer->getSampleData(channel, nextPos))*alpha*gain*displayGain;
-
-                //waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
-
-            };
-            //};
-            //// now do the event channel
-            ////	waves[nChans][screenBufferIndex*2+1] =
-            //		*(displayBuffer->getSampleData(nChans, displayBufferIndex));
-
+            }
 
             subSampleOffset += ratio;
 
@@ -336,7 +324,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
             }
 
             screenBufferIndex++;
-           // screenBufferIndex %= maxSamples;
+            //screenBufferIndex %= maxSamples;
 
         }
                 
@@ -367,14 +355,14 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
     g.setColour(Colour(40,40,40));
 
-    int w = getWidth()-scrollBarThickness;
+    int w = getWidth()-scrollBarThickness-leftmargin;
 
     for (int i = 1; i < 10; i++)
     {
         if (i == 5)
-            g.drawLine(w/10*i,0,w/10*i,getHeight()-60,3.0f);
+            g.drawLine(w/10*i+leftmargin,0,w/10*i+leftmargin,getHeight()-60,3.0f);
         else
-            g.drawLine(w/10*i,0,w/10*i,getHeight()-60,1.0f);
+            g.drawLine(w/10*i+leftmargin,0,w/10*i+leftmargin,getHeight()-60,1.0f);
     }
 
     g.drawLine(0,getHeight()-60,getWidth(),getHeight()-60,3.0f);
