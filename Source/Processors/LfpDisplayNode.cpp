@@ -27,7 +27,7 @@
 
 LfpDisplayNode::LfpDisplayNode()
     : GenericProcessor("LFP Viewer"),
-      displayBufferIndex(0), displayGain(1), bufferLength(5.0f),
+      displayBufferIndex(0), displayGain(1), bufferLength(10.0f),
       abstractFifo(100), ttlState(0)
 {
     std::cout << " LFPDisplayNodeConstructor" << std::endl;
