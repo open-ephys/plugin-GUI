@@ -1413,7 +1413,7 @@ void EditorViewport::setParametersByXML(GenericProcessor* targetProcessor, XmlEl
     forEachXmlChildElementWithTagName(*processorXML, channelXML, "CHANNEL"){
         currentChannel=channelXML->getIntAttribute("name");
         
-        std::cout <<"currentChannel:"<< currentChannel  << std::endl;
+       // std::cout <<"currentChannel:"<< currentChannel  << std::endl;
         // Sets channel to change parameter on
         targetProcessor->setCurrentChannel(currentChannel-1);
 

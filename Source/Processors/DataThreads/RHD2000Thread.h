@@ -38,6 +38,7 @@
 
 #include "DataThread.h"
 
+#define MAX_NUM_DATA_STREAMS 8
 
 class SourceNode;
 
@@ -69,9 +70,10 @@ public:
 
     void setSampleRate(int sampleRateIndex);
 
-    double setUpperBandwidth(double desiredUpperBandwidth); // set desired BW, returns actual BW
-    double setLowerBandwidth(double desiredLowerBandwidth);
+    double setUpperBandwidth(double upper); // set desired BW, returns actual BW
+    double setLowerBandwidth(double lower);
 
+    void scanPorts();
 
     int getNumEventChannels();
 
@@ -101,7 +103,7 @@ private:
     bool stopAcquisition();
 
     void initializeBoard();
-    void scanPorts();
+    
     int deviceId(Rhd2000DataBlock* dataBlock, int stream);
 
     bool updateBuffer();

@@ -28,12 +28,11 @@
 
 RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
                              RHD2000Thread* board_,
-                             bool useDefaultParameterEditors=true
+                             bool useDefaultParameterEditors
                             )
     : GenericEditor(parentNode, useDefaultParameterEditors), board(board_)
 {
     desiredWidth = 400;
-
 
     // add headstage-specific controls (currently just an enable/disable button)
     for (int i = 0; i < 4; i++)
@@ -41,23 +40,47 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
         HeadstageOptionsInterface* hsOptions = new HeadstageOptionsInterface(board, this, i);
         headstageOptionsInterfaces.add(hsOptions);
         addAndMakeVisible(hsOptions);
-        hsOptions->setBounds(80,25+i*23, 60, 22);
+        hsOptions->setBounds(3,28+i*20, 70, 18);
     }
 
     // add sample rate selection
-    SampleRateInterface* rateOptions = new SampleRateInterface(board, this);
-    addAndMakeVisible(rateOptions);
-    rateOptions->setBounds(150,25,160, 50);
+    sampleRateInterface = new SampleRateInterface(board, this);
+    addAndMakeVisible(sampleRateInterface);
+    sampleRateInterface->setBounds(150,25,160, 50);
 
     // add Bandwidth selection
-    BandwidthInterface* bandwidthOptions = new BandwidthInterface(board, this);
-    addAndMakeVisible(bandwidthOptions);
-    bandwidthOptions->setBounds(150,65,160, 50);
+    bandwidthInterface = new BandwidthInterface(board, this);
+    addAndMakeVisible(bandwidthInterface);
+    bandwidthInterface->setBounds(150,65,160, 50);
+
+    // add rescan button
+    rescanButton = new UtilityButton("RESCAN", Font("Small Text", 13, Font::plain));
+    rescanButton->setRadius(3.0f);
+    rescanButton->setBounds(6,108,65,18);
+    rescanButton->addListener(this);
+    addAndMakeVisible(rescanButton);
 
 }
 
 RHD2000Editor::~RHD2000Editor()
 {
+
+}
+
+void RHD2000Editor::buttonEvent(Button* button)
+{
+
+    if (button == rescanButton)
+    {
+        board->scanPorts();
+
+        for (int i = 0; i < 4; i++)
+        {
+            headstageOptionsInterfaces[i]->checkEnabledState();
+        }
+
+    }
+
 }
 
 // Bandwidth Options --------------------------------------------------------------------
@@ -67,7 +90,7 @@ BandwidthInterface::BandwidthInterface(RHD2000Thread* board_,
     board(board_), editor(editor_)
 {
 
-    name="Bandwidth";
+    name = "Bandwidth";
 
 
     UpperBandwidthSelection = new Label("UpperBandwidth","7500 Hz"); // this is currently set in RHD2000Thread, the cleaner would be to set it here again
@@ -220,10 +243,10 @@ void SampleRateInterface::paint(Graphics& g)
 HeadstageOptionsInterface::HeadstageOptionsInterface(RHD2000Thread* board_,
                                                      RHD2000Editor* editor_,
                                                      int hsNum) :
-    hsNumber(hsNum), isEnabled(false), board(board_), editor(editor_)
+    isEnabled(false), board(board_), editor(editor_)
 {
 
-    switch (hsNumber)
+    switch (hsNum)
     {
         case 0 :
             name = "A";
@@ -241,20 +264,66 @@ HeadstageOptionsInterface::HeadstageOptionsInterface(RHD2000Thread* board_,
             name = "X";
     }
 
-    isEnabled = board->isHeadstageEnabled(hsNumber);
+    hsNumber1 = hsNum*2; // data stream 1
+    hsNumber2 = hsNumber1+1; // data stream 2
 
-    enabledButton = new UtilityButton("on", Font("Small Text", 13, Font::plain));
-    enabledButton->addListener(this);
-    enabledButton->setRadius(3.0f);
-    enabledButton->setBounds(25,2,20,19);
-    addAndMakeVisible(enabledButton);
+    channelsOnHs1 = 0;
+    channelsOnHs2 = 0;
 
+    
 
+    hsButton1 = new UtilityButton(" ", Font("Small Text", 13, Font::plain));
+    hsButton1->setRadius(3.0f);
+    hsButton1->setBounds(23,1,20,17);
+    hsButton1->setEnabledState(false);
+    hsButton1->setCorners(true, false, true, false);
+    hsButton1->addListener(this);
+    addAndMakeVisible(hsButton1);
 
+    hsButton2 = new UtilityButton(" ", Font("Small Text", 13, Font::plain));
+    hsButton2->setRadius(3.0f);
+    hsButton2->setBounds(43,1,20,17);
+    hsButton2->setEnabledState(false);
+    hsButton2->setCorners(false, true, false, true);
+    hsButton2->addListener(this);
+    addAndMakeVisible(hsButton2);
+
+    checkEnabledState();
 }
 
 HeadstageOptionsInterface::~HeadstageOptionsInterface()
 {
+
+}
+
+void HeadstageOptionsInterface::checkEnabledState()
+{
+    isEnabled = (board->isHeadstageEnabled(hsNumber1) || 
+                 board->isHeadstageEnabled(hsNumber2));
+
+    if (board->isHeadstageEnabled(hsNumber1))
+    {
+        channelsOnHs1 = 32;
+        hsButton1->setLabel(String(channelsOnHs1));
+        hsButton1->setEnabledState(true);
+    } else {
+        channelsOnHs1 = 0;
+        hsButton1->setLabel(" ");
+        hsButton1->setEnabledState(false);
+    }
+
+    if (board->isHeadstageEnabled(hsNumber2))
+    {
+        channelsOnHs2 = 32;
+        hsButton2->setLabel(String(channelsOnHs2));
+        hsButton2->setEnabledState(true);
+    } else {
+        channelsOnHs2 = 0;
+        hsButton2->setLabel(" ");
+        hsButton2->setEnabledState(false);
+    }
+
+    repaint();
 
 }
 
@@ -265,35 +334,35 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
     {
 
         //std::cout << "Acquisition is not active" << std::endl;
-        if (isEnabled)
+        if (button == hsButton1)
         {
-            isEnabled = false;
-        }
-        else
+            if (channelsOnHs1 == 32)
+                channelsOnHs1 = 16;
+            else
+                channelsOnHs1 = 32;
+
+            //std::cout << "HS1 has " << channelsOnHs1 << " channels." << std::endl;
+
+            hsButton1->setLabel(String(channelsOnHs1));
+            board->setNumChannels(hsNumber1, channelsOnHs1);
+
+        } else if (button == hsButton2)
         {
-            isEnabled = true;
+            if (channelsOnHs2 == 32)
+                channelsOnHs2 = 16;
+            else
+                channelsOnHs2 = 32;
+
+            hsButton2->setLabel(String(channelsOnHs2));
+            board->setNumChannels(hsNumber2, channelsOnHs2);
         }
 
-        board->enableHeadstage(hsNumber, isEnabled);
-
-        repaint();
 
         editor->getEditorViewport()->makeEditorVisible(editor, false, true);
     }
 
 }
 
-// void HeadstageOptionsInterface::mouseUp(const MouseEvent& event)
-// {
-// 	///>>>> ???? WHY ISN"T THIS WORKING?
-
-// 	if (event.eventComponent == this)
-// 	{
-
-
-// 	}
-
-// }
 
 void HeadstageOptionsInterface::paint(Graphics& g)
 {
@@ -306,8 +375,8 @@ void HeadstageOptionsInterface::paint(Graphics& g)
     else
         g.setColour(Colours::grey);
 
-    g.setFont(Font("Small Text",20,Font::plain));
+    g.setFont(Font("Small Text",15,Font::plain));
 
-    g.drawText(name, 8, 5, 200, 15, Justification::left, false);
+    g.drawText(name, 8, 2, 200, 15, Justification::left, false);
 
 }

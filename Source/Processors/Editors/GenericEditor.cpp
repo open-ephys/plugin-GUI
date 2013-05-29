@@ -555,7 +555,7 @@ void DrawerButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 
 }
 
-UtilityButton::UtilityButton(const String& label_, Font font_) :
+UtilityButton::UtilityButton(String label_, Font font_) :
     Button(label_), label(label_), font(font_)
 {
 
@@ -659,7 +659,7 @@ void UtilityButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown
     g.setFont(font);
 
     g.setColour(fontColor);
-    g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
+    g.drawText(label,0,0,getWidth(),getHeight(),Justification::centred,true);
 
     //g.drawSingleLineText(getName(), getWidth()/2 - stringWidth/2, 12);
 
@@ -751,6 +751,12 @@ void UtilityButton::resized()
 
     outlinePath.closeSubPath();
 
+}
+
+void UtilityButton::setLabel(String label_)
+{
+    label = label_;
+    repaint();
 }
 
 void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
