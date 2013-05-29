@@ -253,7 +253,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
     // copy new samples from the displayBuffer into the screenBuffer (waves)
     int maxSamples = lfpDisplay->getWidth();
 
-    if (screenBufferIndex>=maxSamples-1) // wrap around if we reached right edge before
+    if (screenBufferIndex>=maxSamples) // wrap around if we reached right edge before
         screenBufferIndex=leftmargin;
 
     lastScreenBufferIndex = screenBufferIndex;
@@ -276,16 +276,16 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
     if ( screenBufferIndex + valuesNeeded > maxSamples) // crop number of samples to fit cavas width
     {
-            valuesNeeded = maxSamples - screenBufferIndex ;
+            valuesNeeded = maxSamples - screenBufferIndex;
     }
 
     float subSampleOffset = 0.0;
-    int nextPos = (displayBufferIndex + 0) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
+    int nextPos = (displayBufferIndex ) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
 
     if (valuesNeeded > 0 && valuesNeeded < 1000)
     {
 
-        for (int i = 0; i < valuesNeeded +0; i++) // also fill one extra sample for line drawing interpolation to match across draws
+        for (int i = 0; i < valuesNeeded; i++) // also fill one extra sample for line drawing interpolation to match across draws
         {
             float gain = 1.0;
             float alpha = (float) subSampleOffset;
@@ -293,7 +293,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
             screenBuffer->clear(screenBufferIndex, 1);
 
-            if (displayBufferIndex<=index && nextPos<=index){
+            //if (displayBufferIndex<=index && nextPos<=index){
             for (int channel = 0; channel < nChans; channel++)
             {
 
@@ -318,7 +318,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
                 //waves[channel][screenBufferIndex*2+1] += 0.5f; // to center in viewport
 
             };
-            };
+            //};
             //// now do the event channel
             ////	waves[nChans][screenBufferIndex*2+1] =
             //		*(displayBuffer->getSampleData(nChans, displayBufferIndex));
@@ -336,20 +336,10 @@ void LfpDisplayCanvas::updateScreenBuffer()
             }
 
             screenBufferIndex++;
-            screenBufferIndex %= maxSamples;
+           // screenBufferIndex %= maxSamples;
 
         }
                 
-
-        // to deal with screenbufferindex wrapping:
-        // if we just hit the right side of the lfp canvas, then  lastScreenBufferIndex is to the right and screenBufferIndex is 0 (wrapped around because of the modulo above)
-        // in this case, we need to set screenBufferIndex to the right edge
-        if (screenBufferIndex == 0 && lastScreenBufferIndex > screenBufferIndex)
-        {
-            screenBufferIndex=maxSamples; // draw last slice on the right side just up to the end of the canvas
-            //std::cout << " wrap "<< std::endl;
-        }
-        //std::cout << " "<< lastScreenBufferIndex<< "  - "<< screenBufferIndex<< std::endl;
 
     }
     else
