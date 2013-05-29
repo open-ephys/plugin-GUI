@@ -251,13 +251,12 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
 
     // copy new samples from the displayBuffer into the screenBuffer (waves)
-    int maxSamples = lfpDisplay->getWidth();
+    int maxSamples = lfpDisplay->getWidth() - leftmargin;
 
     if (screenBufferIndex >= maxSamples) // wrap around if we reached right edge before
-        screenBufferIndex = leftmargin;
+        screenBufferIndex = 0;
 
     lastScreenBufferIndex = screenBufferIndex;
-
 
     int index = processor->getDisplayBufferIndex();
 
@@ -268,7 +267,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
         nSamples = (displayBufferSize - displayBufferIndex) + index;
     }
 
-    float ratio = sampleRate * timebase / float(getWidth()-leftmargin);
+    float ratio = sampleRate * timebase / float(getWidth() - leftmargin - scrollBarThickness);
 
     // this number is crucial: converting from samples to values (in px) for the screen buffer
     int valuesNeeded = (int) float(nSamples) / ratio;
@@ -280,7 +279,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
     }
 
     float subSampleOffset = 0.0;
-    int nextPos = (displayBufferIndex ) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
+    int nextPos = (displayBufferIndex + 1) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
 
     if (valuesNeeded > 0 && valuesNeeded < 1000)
     {
@@ -324,7 +323,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
             }
 
             screenBufferIndex++;
-            //screenBufferIndex %= maxSamples;
 
         }
                 
@@ -353,13 +351,23 @@ void LfpDisplayCanvas::paint(Graphics& g)
     g.setColour(Colour(0,18,43)); //background color
     g.fillRect(0, 0, getWidth(), getHeight());
 
+    g.setGradientFill(ColourGradient(Colour(50,50,50),0,0,
+                                     Colour(25,25,25),0,30,
+                                     false));
+
+    g.fillRect(0, 0, getWidth()-scrollBarThickness, 30);
+
+    g.setColour(Colours::black);
+
+    g.drawLine(0,30,getWidth()-scrollBarThickness,30);
+
     g.setColour(Colour(40,40,40));
 
     int w = getWidth()-scrollBarThickness-leftmargin;
 
-    for (int i = 1; i < 10; i++)
+    for (int i = 0; i < 10; i++)
     {
-        if (i == 5)
+        if (i == 5 || i == 0)
             g.drawLine(w/10*i+leftmargin,0,w/10*i+leftmargin,getHeight()-60,3.0f);
         else
             g.drawLine(w/10*i+leftmargin,0,w/10*i+leftmargin,getHeight()-60,1.0f);
@@ -436,15 +444,7 @@ LfpTimescale::~LfpTimescale()
 void LfpTimescale::paint(Graphics& g)
 {
 
-    g.setGradientFill(ColourGradient(Colour(50,50,50),0,0,
-                                     Colour(25,25,25),0,getHeight(),
-                                     false));
-
-    g.fillAll();
-
-    g.setColour(Colours::black);
-
-    g.drawLine(0,getHeight(),getWidth(),getHeight());
+    
 
     g.setFont(font);
 
@@ -548,6 +548,16 @@ void LfpDisplay::setNumChannels(int numChannels)
 
         channels.add(lfpChan);
 
+        LfpChannelDisplayInfo* lfpInfo = new LfpChannelDisplayInfo(canvas, i);
+
+        lfpInfo->setColour(channelColours[i % channelColours.size()]);
+        lfpInfo->setRange(range);
+        lfpInfo->setChannelHeight(canvas->getChannelHeight());
+
+        addAndMakeVisible(lfpInfo);
+
+        channelInfo.add(lfpInfo);
+
         totalHeight += lfpChan->getChannelHeight();
 
     }
@@ -569,9 +579,16 @@ void LfpDisplay::resized()
 
         LfpChannelDisplay* disp = channels[i];
 
-        disp->setBounds(0,
+        disp->setBounds(canvas->leftmargin,
                 totalHeight-disp->getChannelOverlap()/2,
                 getWidth(),
+                disp->getChannelHeight()+disp->getChannelOverlap());
+
+        LfpChannelDisplayInfo* info = channelInfo[i];
+
+        info->setBounds(0,
+                totalHeight-disp->getChannelOverlap()/2,
+                canvas->leftmargin,
                 disp->getChannelHeight()+disp->getChannelOverlap());
 
         totalHeight += disp->getChannelHeight();
@@ -600,18 +617,19 @@ void LfpDisplay::refresh()
     for (int i = 0; i < numChans; i++)
     {
 
-        int componentTop = getChildComponent(i)->getY();
-        int componentBottom = getChildComponent(i)->getHeight() + componentTop;
+        int componentTop = channels[i]->getY();
+        int componentBottom = channels[i]->getHeight() + componentTop;
 
         if ((topBorder <= componentBottom && bottomBorder >= componentTop))
         {
             if (canvas->fullredraw)
             {    
                 channels[i]->fullredraw = true;
-                getChildComponent(i)->repaint();
+                channels[i]->repaint();
+                channelInfo[i]->repaint();
 
             } else {
-                getChildComponent(i)->repaint(canvas->lastScreenBufferIndex-2, 0, (canvas->screenBufferIndex-canvas->lastScreenBufferIndex)+3, getChildComponent(i)->getHeight() ); //repaint only the updated portion
+                channels[i]->repaint(canvas->lastScreenBufferIndex-2, 0, (canvas->screenBufferIndex-canvas->lastScreenBufferIndex)+3, getChildComponent(i)->getHeight() ); //repaint only the updated portion
                 // we redraw from -2 to +1 relative to the real redraw window, the -2 makes sure that the lines join nicely, and the +1 draws the vertical update line
             }
             //std::cout << i << std::endl;
@@ -642,6 +660,7 @@ void LfpDisplay::setChannelHeight(int r)
     for (int i = 0; i < numChans; i++)
     {
         channels[i]->setChannelHeight(r);
+        channelInfo[i]->setChannelHeight(r);
     }
 
     resized();
@@ -656,6 +675,8 @@ void LfpDisplay::setChannelHeight(int r)
     //  passes the event up to the viewport so the screen scrolls
     if (viewport != nullptr && e.eventComponent == this) // passes only if it's not a listening event
         viewport->mouseWheelMove(e.getEventRelativeTo(canvas), wheel);
+
+    refresh();
  }
 
 
@@ -678,7 +699,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 
     canvas->fullredraw = true;//issue full redraw 
 
-    //repaint();
+    refresh();
 
 }
 
@@ -747,7 +768,7 @@ void LfpChannelDisplay::paint(Graphics& g)
 
     if (fullredraw)
     {
-        ifrom = canvas->leftmargin;
+        ifrom = 0; //canvas->leftmargin;
         ito = getWidth()-stepSize;
         fullredraw = false;
     }
@@ -796,10 +817,10 @@ void LfpChannelDisplay::paint(Graphics& g)
     }
 
  // g.setColour(lineColour.withAlpha(0.7f)); // alpha on seems to decrease draw speed
-    g.setFont(channelFont);
-    g.setFont(channelHeightFloat*0.6);
+   // g.setFont(channelFont);
+  //  g.setFont(channelHeightFloat*0.6);
 
-    g.drawText(String(chan+1), 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
+   // g.drawText(String(chan+1), 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
 
 
 }
@@ -851,3 +872,27 @@ int LfpChannelDisplay::getChannelOverlap()
 {
     return channelOverlap;
 }
+
+// -------------------------------
+
+LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, int ch)
+	: LfpChannelDisplay(canvas_, ch)
+{
+
+}
+
+void LfpChannelDisplayInfo::paint(Graphics& g)
+{
+
+	int center = getHeight()/2;
+
+	g.setColour(lineColour);
+
+   g.setFont(channelFont);
+    g.setFont(channelHeightFloat*0.6);
+
+    g.drawText(String(chan+1), 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
+
+}
+
+ 

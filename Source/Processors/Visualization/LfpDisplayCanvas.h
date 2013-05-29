@@ -32,6 +32,7 @@ class LfpDisplayNode;
 class LfpTimescale;
 class LfpDisplay;
 class LfpChannelDisplay;
+class LfpChannelDisplayInfo;
 
 /**
 
@@ -184,6 +185,7 @@ private:
     Viewport* viewport;
 
     Array<LfpChannelDisplay*> channels;
+    Array<LfpChannelDisplayInfo*> channelInfo;
     Array<Colour> channelColours;
 
     float range;
@@ -213,7 +215,7 @@ public:
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
-private:
+protected:
 
     LfpDisplayCanvas* canvas;
 
@@ -233,5 +235,13 @@ private:
 
 };
 
+class LfpChannelDisplayInfo : public LfpChannelDisplay
+{
+public:
+    LfpChannelDisplayInfo(LfpDisplayCanvas*, int channelNumber);
+
+    void paint(Graphics& g);
+
+};
 
 #endif  // __LFPDISPLAYCANVAS_H_B711873A__
