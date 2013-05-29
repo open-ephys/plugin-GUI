@@ -43,7 +43,7 @@ class LfpChannelDisplay;
 
 class LfpDisplayCanvas : public Visualizer,
     public ComboBox::Listener
-
+    
 {
 public:
     LfpDisplayCanvas(LfpDisplayNode* n);
@@ -79,7 +79,10 @@ public:
 
     void loadVisualizerParameters(XmlElement* xml);
 
+    //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
+    bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw, there is a similar switch for ach ch display;
+    static const int leftmargin=50; // left margin for lfp plots (so the ch number text doesnt overlap)
 
 private:
 
@@ -92,6 +95,9 @@ private:
     static const int MAX_N_CHAN = 256;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
+
+    
+
 
     LfpDisplayNode* processor;
     AudioSampleBuffer* displayBuffer;
@@ -119,6 +125,7 @@ private:
     int scrollBarThickness;
 
     int nChans;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
 
@@ -163,6 +170,7 @@ public:
     void resized();
 
     void mouseDown(const MouseEvent& event);
+    void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel ) ;
 
     void setRange(float range);
     void setChannelHeight(int r);
@@ -202,6 +210,8 @@ public:
     int getChannelOverlap();
 
     void setRange(float range);
+
+    bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
 private:
 
