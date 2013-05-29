@@ -810,19 +810,19 @@ bool RHD2000Thread::updateBuffer()
 						if (samp % 4 == 1) { // every 4th sample should have auxiliary input data
 						
 							channel++;
-							thisSample[channel] = 0; //0.0374 *
-							    // float(dataBlock->auxiliaryData[dataStream][1][samp+0]);
+							thisSample[channel] = 0.0374 *
+							     float(dataBlock->auxiliaryData[dataStream][1][samp+0]);
 							auxBuffer[channel]=thisSample[channel];
 
 							channel++;
-							thisSample[channel] = 0; //0.0374 *
-							     //float(dataBlock->auxiliaryData[dataStream][1][samp+1]);
+							thisSample[channel] = 0.0374 *
+							     float(dataBlock->auxiliaryData[dataStream][1][samp+1]);
 							auxBuffer[channel]=thisSample[channel];
 
 						
 							channel++;
-							thisSample[channel] = 0; //0.0374 *
-							     //float(dataBlock->auxiliaryData[dataStream][1][samp+2]);
+							thisSample[channel] = 0.0374 *
+							     float(dataBlock->auxiliaryData[dataStream][1][samp+2]);
 							auxBuffer[channel]=thisSample[channel];
 
 						} else{ // repeat last values from buffer
