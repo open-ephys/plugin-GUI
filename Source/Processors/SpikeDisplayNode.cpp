@@ -125,10 +125,10 @@ void SpikeDisplayNode::setParameter(int param, float val)
 
 
 
-void SpikeDisplayNode::process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples)
+void SpikeDisplayNode::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples)
 {
 
-    checkForEvents(midiMessages); // automatically calls 'handleEvent
+    checkForEvents(events); // automatically calls 'handleEvent
 
 }
 
@@ -141,23 +141,5 @@ void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int sample
     {
         eventBuffer->addEvent(event, 0);
     }
-
-}
-
-bool SpikeDisplayNode::getNextSpike(SpikeObject* spike)
-{
-    std::cout<<"SpikeDisplayNode::getNextSpike()"<<std::endl;
-    /*
-    if (bufferSize<1 || spikebuffer.empty())
-    	return false;
-    else{
-    	SpikeObject s = spikebuffer.front();
-    	spikebuffer.pop();
-    	bufferSize--;
-    	*spike = s;
-    	return true;
-    }
-    */
-    return false;
 
 }

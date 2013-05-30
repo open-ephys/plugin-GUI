@@ -66,7 +66,7 @@ class SpikePlot;
 
 */
 
-class SpikeDisplayCanvas : public Visualizer
+class SpikeDisplayCanvas : public Visualizer, public Button::Listener
 
 {
 public:
@@ -93,6 +93,8 @@ public:
 
     bool keyPressed(const KeyPress& key);
 
+    void buttonClicked(Button* button);
+
 private:
 
     SpikeDisplayNode* processor;
@@ -101,7 +103,7 @@ private:
     ScopedPointer<SpikeDisplay> spikeDisplay;
     ScopedPointer<Viewport> viewport;
 
-
+    ScopedPointer<UtilityButton> clearButton;
 
     bool newSpike;
     SpikeObject spike;
@@ -118,6 +120,7 @@ public:
     SpikeDisplay(SpikeDisplayCanvas*, Viewport*);
     ~SpikeDisplay();
 
+    void removePlots();
     void clear();
     void addSpikePlot(int numChannels, int electrodeNum);
 

@@ -75,8 +75,6 @@ public:
     int getNumberOfChannelsForElectrode(int i);
     int getNumElectrodes();
 
-    bool getNextSpike(SpikeObject* spike);
-
 private:
 
     int numberOfSources;

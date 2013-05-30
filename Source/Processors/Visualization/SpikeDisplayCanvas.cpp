@@ -37,6 +37,11 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
 
     scrollBarThickness = viewport->getScrollBarThickness();
 
+    clearButton = new UtilityButton("Clear plots", Font("Small Text", 13, Font::plain));
+    clearButton->setRadius(3.0f);
+    clearButton->addListener(this);
+    addAndMakeVisible(clearButton);
+
     addAndMakeVisible(viewport);
 
     setWantsKeyboardFocus(true);
@@ -52,14 +57,14 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 
 void SpikeDisplayCanvas::beginAnimation()
 {
-    std::cout << "Beginning animation." << std::endl;
+    std::cout << "SpikeDisplayCanvas beginning animation." << std::endl;
 
     startCallbacks();
 }
 
 void SpikeDisplayCanvas::endAnimation()
 {
-    std::cout << "Ending animation." << std::endl;
+    std::cout << "SpikeDisplayCanvas ending animation." << std::endl;
 
     stopCallbacks();
 }
@@ -67,17 +72,16 @@ void SpikeDisplayCanvas::endAnimation()
 void SpikeDisplayCanvas::update()
 {
 
-    std::cout << "UPDATING SpikeDisplayCanvas" << std::endl;
+    std::cout << "Updating SpikeDisplayCanvas" << std::endl;
 
     int nPlots = processor->getNumElectrodes();
-    spikeDisplay->clear();
+    spikeDisplay->removePlots();
 
     for (int i = 0; i < nPlots; i++)
     {
         spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i);
     }
 
-    //initializeSpikePlots();
     spikeDisplay->resized();
     spikeDisplay->repaint();
 }
@@ -86,8 +90,6 @@ void SpikeDisplayCanvas::update()
 void SpikeDisplayCanvas::refreshState()
 {
     // called when the component's tab becomes visible again
-    // displayBufferIndex = processor->getDisplayBufferIndex();
-    // screenBufferIndex = 0;
     resized();
 }
 
@@ -96,6 +98,9 @@ void SpikeDisplayCanvas::resized()
     viewport->setBounds(0,0,getWidth(),getHeight()-90);
 
     spikeDisplay->setBounds(0,0,getWidth()-scrollBarThickness, spikeDisplay->getTotalHeight());
+
+    clearButton->setBounds(10, getHeight()-40, 80,20);
+
 }
 
 void SpikeDisplayCanvas::paint(Graphics& g)
@@ -172,6 +177,17 @@ bool SpikeDisplayCanvas::keyPressed(const KeyPress& key)
 
 }
 
+void SpikeDisplayCanvas::buttonClicked(Button* button)
+{
+
+    if (button == clearButton)
+    {
+        spikeDisplay->clear();
+    }
+}
+
+
+
 // ----------------------------------------------------------------
 
 SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
@@ -196,6 +212,12 @@ void SpikeDisplay::clear()
             spikePlots[i]->clear();
         }
    }
+        
+}
+
+void SpikeDisplay::removePlots()
+{
+   spikePlots.clear();
         
 }
 
@@ -238,6 +260,9 @@ void SpikeDisplay::resized()
 
         float width, height;
 
+
+        float maxHeight = 0;
+
         for (int i = 0; i < spikePlots.size(); i++)
         {
 
@@ -271,6 +296,8 @@ void SpikeDisplay::resized()
 
             spikePlots[i]->setBounds(width*column, row*height, width, height);
 
+            maxHeight = jmax(maxHeight, row*height + height);
+
             if (spikePlots[i]->nChannels == 1)
             {
                 stereotrodeStart = (int)(height*(float(row)+1));
@@ -281,6 +308,7 @@ void SpikeDisplay::resized()
             }
 
         }
+
 
         for (int i = 0; i < spikePlots.size(); i++)
         {
@@ -293,21 +321,23 @@ void SpikeDisplay::resized()
             if (spikePlots[i]->nChannels == 2)
             {
                 spikePlots[i]->setBounds(x, y+stereotrodeStart, w2, h2);
+                maxHeight = jmax(maxHeight, (float) y+stereotrodeStart+h2);
 
             }
             else if (spikePlots[i]->nChannels == 4)
             {
                 spikePlots[i]->setBounds(x, y+stereotrodeStart+tetrodeStart, w2, h2);
+                maxHeight = jmax(maxHeight, (float) y+stereotrodeStart+tetrodeStart+h2);
             }
 
+
         }
 
-        totalHeight = 5000; // don't even deal with making the display the correct height
+        totalHeight = (int) maxHeight + 50; 
 
-        if (totalHeight < getHeight())
-        {
-            canvas->resized();
-        }
+        std::cout << "New height = " << totalHeight << std::endl;
+
+        setBounds(0, 0, getWidth(), totalHeight);
     }
 
 }
@@ -356,7 +386,7 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
             nWaveAx = 4;
             nProjAx = 6;
             nChannels = 4;
-            minWidth = 500;
+            minWidth = 400;
             aspectRatio = 0.5f;
             break;
             //        case HIST_PLOT:
@@ -365,7 +395,7 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
             //            nHistAx = 1;
             //            break;
         default: // unsupported number of axes provided
-            std::cout<<"SpikePlot as UNKNOWN, defaulting to SINGLE_PLOT"<<std::endl;
+            std::cout << "SpikePlot as UNKNOWN, defaulting to SINGLE_PLOT" << std::endl;
             nWaveAx = 1;
             nProjAx = 0;
             plotType = SINGLE_PLOT;
@@ -783,6 +813,10 @@ void WaveAxes::updateSpikeData(const SpikeObject& s)
 
 void WaveAxes::clear()
 {
+
+    spikeBuffer.clear();
+    spikeIndex = 0;
+
     for (int n = 0; n < bufferSize; n++)
     {
         SpikeObject so;
