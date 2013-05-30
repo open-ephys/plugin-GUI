@@ -82,6 +82,12 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     audioLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(audioLabel);
 
+    adcButton = new UtilityButton("ADC 1-8", Font("Small Text", 13, Font::plain));
+    adcButton->setRadius(3.0f);
+    adcButton->setBounds(180, 70,65,18);
+    adcButton->addListener(this);
+    adcButton->setClickingTogglesState(true);
+    addAndMakeVisible(adcButton);
     
 
 }
@@ -114,6 +120,10 @@ void RHD2000Editor::buttonEvent(Button* button)
     } else if (button == electrodeButtons[1])
     {
         channelSelector->setRadioStatus(true);   
+    } else if (button == adcButton)
+    {
+        board->enableAdcs(button->getToggleState());
+        getEditorViewport()->makeEditorVisible(this, false, true);
     }
 
 }
@@ -130,6 +140,30 @@ void RHD2000Editor::channelChanged(int chan)
             board->assignAudioOut(i, chan);
         }
     }
+}
+
+void RHD2000Editor::startAcquisition()
+{
+
+    channelSelector->startAcquisition();
+
+    rescanButton->setEnabledState(false);
+    adcButton->setEnabledState(false);
+
+    acquisitionIsActive = true;
+
+}
+
+void RHD2000Editor::stopAcquisition()
+{
+
+    channelSelector->stopAcquisition();
+
+    rescanButton->setEnabledState(true);
+    adcButton->setEnabledState(true);
+
+    acquisitionIsActive = false;
+
 }
 
 // Bandwidth Options --------------------------------------------------------------------

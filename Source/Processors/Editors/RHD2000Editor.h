@@ -56,6 +56,9 @@ public:
 
     void scanPorts();
 
+    void startAcquisition();
+    void stopAcquisition();
+
     void channelChanged(int chan);
 
 private:
@@ -67,6 +70,7 @@ private:
     ScopedPointer<BandwidthInterface> bandwidthInterface;
 
     ScopedPointer<UtilityButton> rescanButton;
+    ScopedPointer<UtilityButton> adcButton;
 
     ScopedPointer<Label> audioLabel;
 

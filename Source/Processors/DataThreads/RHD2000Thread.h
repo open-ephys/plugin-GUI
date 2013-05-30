@@ -78,6 +78,7 @@ public:
     int getNumEventChannels();
 
     void assignAudioOut(int dacChannel, int dataChannel);
+    void enableAdcs(bool);
 
     bool isAcquisitionActive();
 
@@ -102,6 +103,7 @@ private:
     bool isTransmitting;
 
     bool dacOutputShouldChange;
+    bool acquireAdcChannels;
 
     bool fastSettleEnabled;
 

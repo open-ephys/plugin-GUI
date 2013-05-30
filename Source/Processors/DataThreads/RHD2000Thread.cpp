@@ -28,6 +28,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
     fastSettleEnabled(false), chipRegisters(30000.0f), dspEnabled(true), boardSampleRate(30000.0f),
     desiredDspCutoffFreq(0.5f), desiredUpperBandwidth(7500.0f), desiredLowerBandwidth(1.0f),
     savedSampleRateIndex(16), audioOutputL(-1), audioOutputR(-1), dacOutputShouldChange(false),
+    acquireAdcChannels(false),
     cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f) // default is 3 feet (0.914 m)
 {
     evalBoard = new Rhd2000EvalBoard;
@@ -381,7 +382,6 @@ int RHD2000Thread::getNumChannels()
         }
 
 		
-		
 		/*
 		if (chipRegisters->adcAux1En){ // no public function to read these? fix this in some way
 			numChannels += 1;
@@ -394,6 +394,12 @@ int RHD2000Thread::getNumChannels()
 		}
 		*/
 	}
+
+
+    if (acquireAdcChannels)
+    {
+        numChannels += 8; // add 8 channels for the ADCs
+    }        
 
     if (numChannels > 0)
         return numChannels;
@@ -500,6 +506,15 @@ void RHD2000Thread::assignAudioOut(int dacChannel, int dataChannel)
     dacOutputShouldChange = true; // set a flag and take care of setting wires
                                   // during the updateBuffer() method
                                   // to avoid problems
+
+}
+
+void RHD2000Thread::enableAdcs(bool t)
+{
+
+    acquireAdcChannels = t;
+
+    dataBuffer->resize(getNumChannels(), 10000);
 
 }
 
@@ -857,6 +872,16 @@ bool RHD2000Thread::updateBuffer()
 							thisSample[channel] = auxBuffer[channel];
 						}
 
+                        if (acquireAdcChannels)
+                        {
+                            for (int adcChan = 0; adcChan < 8; ++adcChan) {
+                            
+                            channel++;
+                            // ADC waveform units = volts
+                             thisSample[channel] = 
+                               0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
+                            }
+                        }
 						
 					}
 
