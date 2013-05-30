@@ -148,7 +148,7 @@ void Rhd2000DataBlock::fillFromUsbBuffer(unsigned char usbBuffer[], int blockInd
     {
         if (!checkUsbHeader(usbBuffer, index))
         {
-            cerr << "Error in Rhd2000EvalBoard::readDataBlock: Incorrect header." << endl;
+            //cerr << "Error in Rhd2000EvalBoard::readDataBlock: Incorrect header." << endl;
         }
         index += 8;
         timeStamp[t] = convertUsbTimeStamp(usbBuffer, index);
