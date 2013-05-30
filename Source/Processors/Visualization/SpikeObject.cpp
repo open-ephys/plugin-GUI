@@ -61,14 +61,14 @@ int packSpike(SpikeObject* s, uint8_t* buffer, int bufferSize)
     memcpy(buffer+idx, &(s->threshold), s->nChannels * 2);
     idx += s->nChannels * 2;
 
-
-
     if (idx >= MAX_SPIKE_BUFFER_LEN)
     {
-        std::cout<<"Spike is larger than it should be. Size was:"<<idx<<" Max Size is:"<<MAX_SPIKE_BUFFER_LEN<<std::endl;
+        std::cout << "Spike is larger than it should be. Size was: " << idx 
+                  << " Max Size is: " << MAX_SPIKE_BUFFER_LEN << std::endl;
 
     }
-    // makeBufferValid(buffer, bufferSize);
+    
+    makeBufferValid(buffer, bufferSize);
 
     return idx;
 
@@ -77,8 +77,8 @@ int packSpike(SpikeObject* s, uint8_t* buffer, int bufferSize)
 // Simple method for deserializing a string of bytes into a Spike object
 bool unpackSpike(SpikeObject* s, const uint8_t* buffer, int bufferSize)
 {
-    // if (!isBufferValid(buffer, bufferSize))
-   //  	return false;
+   // if (!isBufferValid(buffer, bufferSize))
+    // 	return false;
 
     int idx = 0;
 
@@ -115,7 +115,7 @@ bool unpackSpike(SpikeObject* s, const uint8_t* buffer, int bufferSize)
 }
 
 // Checks the validity of the buffer, this should be run before unpacking and after packing the buffer
-bool isBufferValid(uint8_t* buffer, int bufferSize)
+bool isBufferValid(const uint8_t* buffer, int bufferSize)
 {
 
     if (! CHECK_BUFFER_VALIDITY)
@@ -126,14 +126,14 @@ bool isBufferValid(uint8_t* buffer, int bufferSize)
 
     int idx;
 
-    for (idx = 0; idx < bufferSize-2; idx += 2)
+    for (idx = 0; idx < bufferSize - 2; idx += 2)
     {
-        memcpy(buffer + idx, &value, 2);
+        memcpy(&value, buffer + idx, 2);
         runningSum += value;
     }
 
     uint16_t integrityCheck = 0;
-    memcpy(buffer + idx, &integrityCheck, 2);
+    memcpy(&integrityCheck, buffer + idx + 2, 2);
 
     std::cout << integrityCheck<< " == " << runningSum <<std::endl;
 
@@ -150,13 +150,13 @@ void makeBufferValid(uint8_t* buffer, int bufferSize)
 
     int idx;
 
-    for (idx = 0; idx < bufferSize-2; idx += 2)
+    for (idx = 0; idx < bufferSize - 2; idx += 2)
     {
-        memcpy(buffer + idx, &value, 2);
+        memcpy(&value, buffer + idx, 2);
         runningSum += value;
     }
 
-    memcpy(&runningSum, buffer + idx, 2);
+    memcpy(buffer + idx + 2, &runningSum, 2);
 
 }
 

@@ -303,6 +303,8 @@ private:
 
     float thresholdLevel;
 
+    float borderSize;
+
     void drawWaveformGrid(int threshold, int gain, Graphics& g);
 
     void drawThresholdSlider(Graphics& g);

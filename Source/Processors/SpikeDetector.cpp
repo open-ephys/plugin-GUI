@@ -222,9 +222,20 @@ int SpikeDetector::getChannel(int index, int i)
 }
 
 
-void SpikeDetector::setChannelActive(int electrodeIndex, int i, bool active)
+void SpikeDetector::setChannelActive(int electrodeIndex, int subChannel, bool active)
 {
-    *(electrodes[electrodeIndex]->isActive+i) = active;
+
+
+    currentElectrode = electrodeIndex;
+    currentChannelIndex = subChannel;
+
+    std::cout << "Setting parameter 98 to " << active << std::endl;
+
+    if (active)
+        setParameter(98, 1);
+    else
+        setParameter(98, 0);
+    
 }
 
 bool SpikeDetector::isChannelActive(int electrodeIndex, int i)
@@ -252,6 +263,12 @@ void SpikeDetector::setParameter(int parameterIndex, float newValue)
     if (parameterIndex == 99 && currentElectrode > -1)
     {
         *(electrodes[currentElectrode]->thresholds+currentChannelIndex) = newValue;
+    } else if (parameterIndex == 98 && currentElectrode > -1)
+    {
+        if (newValue == 0.0f)
+            *(electrodes[currentElectrode]->isActive+currentChannelIndex) = false;
+        else
+            *(electrodes[currentElectrode]->isActive+currentChannelIndex) = true;
     }
 }
 
@@ -343,17 +360,37 @@ void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,
     s->threshold[currentChannel] = (int) *(electrodes[electrodeNumber]->thresholds+currentChannel) / channels[chan]->bitVolts * 1000;
 
     // cycle through buffer
-    for (int sample = 0; sample < spikeLength; sample++)
+
+    if (isChannelActive(electrodeNumber, currentChannel))
     {
 
-        // warning -- be careful of bitvolts conversion
-        s->data[currentIndex] = uint16(getNextSample(*(electrodes[electrodeNumber]->channels+currentChannel)) / channels[chan]->bitVolts + 32768);
+        for (int sample = 0; sample < spikeLength; sample++)
+        {
 
-        currentIndex++;
-        sampleIndex++;
+            // warning -- be careful of bitvolts conversion
 
-        //std::cout << currentIndex << std::endl;
 
+
+            s->data[currentIndex] = uint16(getNextSample(*(electrodes[electrodeNumber]->channels+currentChannel)) / channels[chan]->bitVolts + 32768);
+
+            currentIndex++;
+            sampleIndex++;
+
+            //std::cout << currentIndex << std::endl;
+
+        }
+    } else {
+        for (int sample = 0; sample < spikeLength; sample++)
+        {
+
+            // insert a blank spike if the 
+            s->data[currentIndex] = 0; 
+            currentIndex++;
+            sampleIndex++;
+
+            //std::cout << currentIndex << std::endl;
+
+        }
     }
 
 

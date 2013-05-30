@@ -99,7 +99,7 @@ void SpikeDisplayCanvas::resized()
 
     spikeDisplay->setBounds(0,0,getWidth()-scrollBarThickness, spikeDisplay->getTotalHeight());
 
-    clearButton->setBounds(10, getHeight()-40, 80,20);
+    clearButton->setBounds(10, getHeight()-40, 100,20);
 
 }
 
@@ -140,7 +140,7 @@ void SpikeDisplayCanvas::processSpikeEvents()
             SpikeObject newSpike;
             //SpikeObject simSpike;
 
-            unpackSpike(&newSpike, dataptr, bufferSize);
+            bool isValid = unpackSpike(&newSpike, dataptr, bufferSize);
 
             int electrodeNum = newSpike.source;
 
@@ -152,8 +152,8 @@ void SpikeDisplayCanvas::processSpikeEvents()
             // }
 
             // simSpike.nSamples = 40;
-
-            spikeDisplay->plotSpike(newSpike, electrodeNum);
+            if (isValid)
+                spikeDisplay->plotSpike(newSpike, electrodeNum);
 
         }
 
@@ -165,7 +165,10 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
 bool SpikeDisplayCanvas::keyPressed(const KeyPress& key)
 {
-    if (key.getKeyCode() == 67) // C
+
+    KeyPress c = KeyPress::createFromDescription("c");
+
+    if (key.isKeyCode(c.getKeyCode())) // C
     {
         spikeDisplay->clear();
         
@@ -335,7 +338,7 @@ void SpikeDisplay::resized()
 
         totalHeight = (int) maxHeight + 50; 
 
-        std::cout << "New height = " << totalHeight << std::endl;
+       // std::cout << "New height = " << totalHeight << std::endl;
 
         setBounds(0, 0, getWidth(), totalHeight);
     }
@@ -386,7 +389,7 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
             nWaveAx = 4;
             nProjAx = 6;
             nChannels = 4;
-            minWidth = 400;
+            minWidth = 500;
             aspectRatio = 0.5f;
             break;
             //        case HIST_PLOT:
@@ -470,7 +473,7 @@ void SpikePlot::resized()
 {
 
     float width = getWidth()-10;
-    float height = getHeight()-20;
+    float height = getHeight()-25;
 
     float axesWidth, axesHeight;
 
@@ -502,10 +505,10 @@ void SpikePlot::resized()
     }
 
     for (int i = 0; i < nWaveAx; i++)
-        wAxes[i]->setBounds(5 + (i % nWaveCols) * axesWidth/nWaveCols, 15 + (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
+        wAxes[i]->setBounds(5 + (i % nWaveCols) * axesWidth/nWaveCols, 20 + (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
 
     for (int i = 0; i < nProjAx; i++)
-        pAxes[i]->setBounds(5 + (1 + i%nProjCols) * axesWidth, 15 + (i/nProjCols) * axesHeight, axesWidth, axesHeight);
+        pAxes[i]->setBounds(5 + (1 + i%nProjCols) * axesWidth, 20 + (i/nProjCols) * axesHeight, axesWidth, axesHeight);
 
 }
 
@@ -636,7 +639,7 @@ WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true),
 void WaveAxes::paint(Graphics& g)
 {
     g.setColour(Colours::black);
-    g.fillRect(5,5,getWidth()-10, getHeight()-10);
+    g.fillRect(0,0,getWidth(), getHeight());
 
     int chan = 0;
 
@@ -680,7 +683,7 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
     float h = getHeight();
 
     //compute the spatial width for each waveform sample
-    float dx = (getWidth()-10)/float(spikeBuffer[0].nSamples);
+    float dx = getWidth()/float(spikeBuffer[0].nSamples);
     
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
@@ -689,7 +692,7 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
     int dSamples = 1;
 
 
-    float x = 5.0f;
+    float x = 0.0f;
 
      for (int i = 0; i < s.nSamples-1; i++)
     {
@@ -804,10 +807,12 @@ void WaveAxes::updateSpikeData(const SpikeObject& s)
 
     SpikeObject newSpike = s;
 
-    spikeBuffer.set(spikeIndex, newSpike);
-
     spikeIndex++;
     spikeIndex %= bufferSize;
+
+    spikeBuffer.set(spikeIndex, newSpike);
+
+    
 
 }
 
@@ -918,7 +923,7 @@ void ProjectionAxes::paint(Graphics& g)
     //g.setColour(Colours::orange);
     //g.fillRect(5,5,getWidth()-5, getHeight()-5);
     g.drawImage(projectionImage,
-                5, 5, getWidth()-10, getHeight()-10,
+                0, 0, getWidth(), getHeight(),
                 0, 250, 250, 250);
 }
 
