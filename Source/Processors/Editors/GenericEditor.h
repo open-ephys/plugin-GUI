@@ -106,10 +106,10 @@ public:
     void setEnabledState(bool);
 
     /** Called just prior to the start of acquisition, to allow the editor to prepare.*/
-    void startAcquisition();
+    virtual void startAcquisition();
 
     /** Called after the end of acquisition.*/
-    void stopAcquisition();
+    virtual void stopAcquisition();
 
     /** Returns the name of the editor.*/
     String getName()

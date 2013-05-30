@@ -42,8 +42,8 @@ public:
     ResamplingNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
     virtual ~ResamplingNodeEditor();
 
-    void startAcquisition();
-    void stopAcquisition();
+   // void startAcquisition();
+    //void stopAcquisition();
 
 private:
 
