@@ -24,6 +24,8 @@
 #include "RHD2000Editor.h"
 #include "../../UI/EditorViewport.h"
 
+#include "ChannelSelector.h"
+
 #include "../DataThreads/RHD2000Thread.h"
 
 RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
@@ -32,7 +34,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
                             )
     : GenericEditor(parentNode, useDefaultParameterEditors), board(board_)
 {
-    desiredWidth = 200;
+    desiredWidth = 260;
 
     // add headstage-specific controls (currently just an enable/disable button)
     for (int i = 0; i < 4; i++)
@@ -60,11 +62,38 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     rescanButton->addListener(this);
     addAndMakeVisible(rescanButton);
 
+    for (int i = 0; i < 2; i++)
+    {
+        ElectrodeButton* button = new ElectrodeButton(-1);
+        electrodeButtons.add(button);
+
+        button->setBounds(190+i*25, 40, 25, 15);
+        button->setChannelNum(-1);
+        button->setToggleState(false,false);
+        button->setRadioGroupId(999);
+
+        addAndMakeVisible(button);
+        button->addListener(this);
+    }
+
+    audioLabel = new Label("audio label", "Audio out");
+    audioLabel->setBounds(180,25,180,15);
+    audioLabel->setFont(Font("Small Text", 10, Font::plain));
+    audioLabel->setColour(Label::textColourId, Colours::darkgrey);
+    addAndMakeVisible(audioLabel);
+
+    
+
 }
 
 RHD2000Editor::~RHD2000Editor()
 {
 
+}
+
+void RHD2000Editor::scanPorts()
+{
+    rescanButton->triggerClick();
 }
 
 void RHD2000Editor::buttonEvent(Button* button)
@@ -79,8 +108,28 @@ void RHD2000Editor::buttonEvent(Button* button)
             headstageOptionsInterfaces[i]->checkEnabledState();
         }
 
+    } else if (button == electrodeButtons[0])
+    {
+        channelSelector->setRadioStatus(true);   
+    } else if (button == electrodeButtons[1])
+    {
+        channelSelector->setRadioStatus(true);   
     }
 
+}
+
+void RHD2000Editor::channelChanged(int chan)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (electrodeButtons[i]->getToggleState())
+        {
+            electrodeButtons[i]->setChannelNum(chan);
+            electrodeButtons[i]->repaint();
+
+            board->assignAudioOut(i, chan);
+        }
+    }
 }
 
 // Bandwidth Options --------------------------------------------------------------------

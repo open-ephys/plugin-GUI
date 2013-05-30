@@ -209,6 +209,9 @@ AudioProcessorEditor* SourceNode::createEditor()
     if (getName().equalsIgnoreCase("Rhythm FPGA"))
     {
         editor = new RHD2000Editor(this, (RHD2000Thread*) dataThread.get(), true);
+
+      //  RHD2000Editor* r2e = (RHD2000Editor*) editor.get();
+      //  r2e->scanPorts();
     }
   //  else if (getName().equalsIgnoreCase("File Reader"))
   //  {

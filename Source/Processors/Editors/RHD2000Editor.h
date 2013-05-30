@@ -54,6 +54,10 @@ public:
 
     void buttonEvent(Button* button);
 
+    void scanPorts();
+
+    void channelChanged(int chan);
+
 private:
 
     OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
@@ -63,6 +67,8 @@ private:
     ScopedPointer<BandwidthInterface> bandwidthInterface;
 
     ScopedPointer<UtilityButton> rescanButton;
+
+    ScopedPointer<Label> audioLabel;
 
     RHD2000Thread* board;
 

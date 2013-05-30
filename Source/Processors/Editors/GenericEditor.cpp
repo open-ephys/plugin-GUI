@@ -809,10 +809,10 @@ void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDow
 void GenericEditor::updateParameterButtons(int parameterIndex)
 {
 
-    if (parameterEditors.size()==0)
+    if (parameterEditors.size() == 0)
     {
         //Checks if there is a parameter editor, and stops a bug if there isn't.
-        std::cout << "No parameterEditors" << std::endl;
+        //std::cout << "No parameterEditors" << std::endl;
     }
     else
     {
@@ -827,6 +827,6 @@ void GenericEditor::updateParameterButtons(int parameterIndex)
         {
             parameterEditors[parameterIndex]->channelSelectionUI();
         }
-    std::cout << "updateParameterButtons" << std::endl;
+    //std::cout << "updateParameterButtons" << std::endl;
     }
 }

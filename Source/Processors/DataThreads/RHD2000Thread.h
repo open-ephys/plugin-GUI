@@ -77,6 +77,8 @@ public:
 
     int getNumEventChannels();
 
+    void assignAudioOut(int dacChannel, int dataChannel);
+
     bool isAcquisitionActive();
 
 private:
@@ -84,6 +86,8 @@ private:
     ScopedPointer<Rhd2000EvalBoard> evalBoard;
     Rhd2000Registers chipRegisters;
     Rhd2000DataBlock* dataBlock;
+
+    int audioOutputL, audioOutputR;
 
     Array<int> numChannelsPerDataStream;
 
@@ -96,6 +100,8 @@ private:
     int blockSize;
 
     bool isTransmitting;
+
+    bool dacOutputShouldChange;
 
     bool fastSettleEnabled;
 

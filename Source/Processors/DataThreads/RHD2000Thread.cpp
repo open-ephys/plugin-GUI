@@ -27,7 +27,7 @@
 RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(false),
     fastSettleEnabled(false), chipRegisters(30000.0f), dspEnabled(true), boardSampleRate(30000.0f),
     desiredDspCutoffFreq(0.5f), desiredUpperBandwidth(7500.0f), desiredLowerBandwidth(1.0f),
-    savedSampleRateIndex(16),
+    savedSampleRateIndex(16), audioOutputL(-1), audioOutputR(-1), dacOutputShouldChange(false),
     cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f) // default is 3 feet (0.914 m)
 {
     evalBoard = new Rhd2000EvalBoard;
@@ -53,7 +53,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
         initializeBoard();
 
         // automatically find connected headstages
-        scanPorts();
+        scanPorts(); // do this after the editor has been created?
     }
 
 }
@@ -142,8 +142,6 @@ void RHD2000Thread::initializeBoard()
     // Let's turn one LED on to indicate that the board is now connected
     int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
     evalBoard->setLedDisplay(ledArray);
-
-
 
 }
 
@@ -357,6 +355,7 @@ int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream)
 }
 
 
+
 bool RHD2000Thread::isAcquisitionActive()
 {
     return isTransmitting;
@@ -481,6 +480,26 @@ bool RHD2000Thread::isHeadstageEnabled(int hsNum)
     }
 
     return false;
+
+}
+
+void RHD2000Thread::assignAudioOut(int dacChannel, int dataChannel)
+{
+
+    if (dacChannel == 0)
+    {
+        audioOutputR = dataChannel;
+
+
+    } else if (dacChannel == 1)
+    {
+        audioOutputL = dataChannel;
+
+    }
+
+    dacOutputShouldChange = true; // set a flag and take care of setting wires
+                                  // during the updateBuffer() method
+                                  // to avoid problems
 
 }
 
@@ -855,7 +874,26 @@ bool RHD2000Thread::updateBuffer()
         }
     }
 
+    if (dacOutputShouldChange)
+    {
+        if (audioOutputR >= 0)
+        {
+            evalBoard->enableDac(0, true);
+            evalBoard->selectDacDataChannel(0, audioOutputR);
+        } else {
+            evalBoard->enableDac(0, false);
+        }
+            
+        if (audioOutputL >= 0)
+        {
+            evalBoard->enableDac(1, true);
+            evalBoard->selectDacDataChannel(1, audioOutputR);
+        } else {
+            evalBoard->enableDac(1, false);
+        }
 
+        dacOutputShouldChange = false;
+    }
 
 
     return true;
