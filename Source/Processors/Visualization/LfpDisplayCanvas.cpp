@@ -292,6 +292,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
             screenBuffer->clear(screenBufferIndex, 1);
 
+            displayBufferIndex = displayBufferIndex % displayBufferSize; // necessary to prevent crashes
+
             //if (displayBufferIndex<=index && nextPos<=index){
             for (int channel = 0; channel < nChans; channel++)
             {
@@ -597,7 +599,6 @@ void LfpDisplay::resized()
 
     canvas->fullredraw = true; //issue full redraw 
 
-   // std::cout << "Total height: " << totalHeight << std::endl;
 
 }
 
