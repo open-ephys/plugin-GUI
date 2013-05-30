@@ -135,23 +135,13 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
             const uint8_t* dataptr = message.getRawData();
             int bufferSize = message.getRawDataSize();
-            //int nSamples = (bufferSize-4)/2;
 
             SpikeObject newSpike;
-            //SpikeObject simSpike;
 
             bool isValid = unpackSpike(&newSpike, dataptr, bufferSize);
 
             int electrodeNum = newSpike.source;
 
-            // generateSimulatedSpike(&simSpike, 0, 0);
-
-            // for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
-            // {
-            //     simSpike.data[i] = newSpike.data[i%80] + 5000;// * 3 - 10000;
-            // }
-
-            // simSpike.nSamples = 40;
             if (isValid)
                 spikeDisplay->plotSpike(newSpike, electrodeNum);
 
@@ -691,16 +681,27 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
 
     int dSamples = 1;
 
+    float range = 250.0f;
 
     float x = 0.0f;
 
      for (int i = 0; i < s.nSamples-1; i++)
     {
         //std::cout << s.data[sampIdx] << std::endl;
-        g.drawLine(x, 
-            h/2 + (s.data[sampIdx]-32768)/100, 
-            x+dx, 
-            h/2 + (s.data[sampIdx+1]-32768)/100);
+
+        if (*s.gain != 0)
+        {
+            float s1 = h/2 + float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f / range * h;
+            float s2 =  h/2 + float(s.data[sampIdx+1]-32768)/float(*s.gain)*1000.0f / range * h; 
+
+             g.drawLine(x, 
+                 s1, 
+                 x+dx, 
+                 s2);
+        }
+
+        
+
         sampIdx += dSamples;
         x += dx;
     }
@@ -922,9 +923,12 @@ void ProjectionAxes::paint(Graphics& g)
 {
     //g.setColour(Colours::orange);
     //g.fillRect(5,5,getWidth()-5, getHeight()-5);
+
+    int range = 250;
+
     g.drawImage(projectionImage,
                 0, 0, getWidth(), getHeight(),
-                0, 250, 250, 250);
+                0, range, range, range);
 }
 
 void ProjectionAxes::updateSpikeData(const SpikeObject& s)
@@ -938,19 +942,25 @@ void ProjectionAxes::updateSpikeData(const SpikeObject& s)
     calcWaveformPeakIdx(s, ampDim1, ampDim2, &idx1, &idx2);
 
     // add peaks to image
-    updateProjectionImage(s.data[idx1], s.data[idx2]);
+
+    updateProjectionImage(s.data[idx1], s.data[idx2], *s.gain);
 
 }
 
-void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y)
+void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y, uint16_t gain)
 {
     Graphics g(projectionImage);
 
-    float xf = float(x-32768)*(float(imageDim)/32768.0);
-    float yf = float(imageDim) - float(y-32768)*(float(imageDim)/32768.0);
+   // h/2 + float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f / range * h;
 
-    g.setColour(Colours::white);
-    g.fillEllipse(xf,yf,2.0f,2.0f);
+    if (gain != 0)
+    {
+        float xf = float(x-32768)/float(gain)*1000.0f; // in microvolts
+        float yf = float(imageDim) - float(y-32768)/float(gain)*1000.0f; // in microvolts
+
+        g.setColour(Colours::white);
+        g.fillEllipse(xf,yf,2.0f,2.0f); 
+    }
 
 }
 

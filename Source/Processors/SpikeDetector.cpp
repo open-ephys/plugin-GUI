@@ -165,7 +165,7 @@ bool SpikeDetector::addElectrode(int nChans)
 
 float SpikeDetector::getDefaultThreshold()
 {
-    return 200.0f;
+    return 75.0f;
 }
 
 StringArray SpikeDetector::getElectrodeNames()
