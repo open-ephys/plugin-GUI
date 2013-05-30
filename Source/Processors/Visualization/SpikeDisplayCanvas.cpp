@@ -650,7 +650,7 @@ void WaveAxes::paint(Graphics& g)
     // draw the grid lines for the waveforms
 
     if (drawGrid)
-        drawWaveformGrid(s.threshold[chan], s.gain[chan], g);
+        drawWaveformGrid(g);
 
     // draw the threshold line and labels
     drawThresholdSlider(g);
@@ -726,89 +726,23 @@ void WaveAxes::drawThresholdSlider(Graphics& g)
     float h = getHeight()*thresholdLevel;
 
     g.setColour(thresholdColour);
-    g.drawLine(5.0f, h, getWidth()-5.0f, h);
+    g.drawLine(0, h, getWidth(), h);
 
 }
 
-void WaveAxes::drawWaveformGrid(int threshold, int gain, Graphics& g)
+void WaveAxes::drawWaveformGrid(Graphics& g)
 {
 
     float h = getHeight();
     float w = getWidth();
 
-    for (int i = 1; i < 10; i++)
+    g.setColour(Colours::darkgrey);
+
+    for (float y = -range/2; y < range/2; y += 25.0f)
     {
-        g.setColour(Colours::darkgrey);
-
-        g.drawLine(5.0,h/10*i,w-5.0f,h/10*i);
-
+        g.drawLine(0,h/2 + y/range*h, w, h/2+ y/range*h);
     }
-
-    // double voltRange = ylims[1] - ylims[0];
-    // double pixelRange = getHeight();
-    // //This is a totally arbitrary value that seemed to lok the best for me
-    // int minPixelsPerTick = 25;
-    // int MAX_N_TICKS = 10;
-
-    // int nTicks = pixelRange / minPixelsPerTick;
-    // while (nTicks > MAX_N_TICKS)
-    // {
-    //     minPixelsPerTick += 5;
-    //     nTicks = pixelRange / minPixelsPerTick;
-    // }
-
-    // int voltPerTick = (voltRange / nTicks);
-
-    // g.setColour(Colours::red);
-    // char cstr[200] = {0};
-    // String str;
-
-    // double tickVoltage = (double) threshold;
-
-    // // If the limits are bad we don't want to hang the program trying to draw too many ticks
-    // // so count the number of ticks drawn and kill the routine after 100 draws
-    // int tickCount=0;
-    // while (tickVoltage < ylims[1] - voltPerTick*1.5) // Draw the ticks above the thold line
-    // {
-    //     tickVoltage = (double) roundUp(tickVoltage + voltPerTick, 100);
-
-    //     g.drawLine(0, tickVoltage, s.nSamples, tickVoltage);
-
-    //     // glBegin(GL_LINE_STRIP);
-    //     // glVertex2i(0, tickVoltage);
-    //     // glVertex2i(s.nSamples, tickVoltage);
-    //     // glEnd();
-
-    //     makeLabel(tickVoltage, gain, true, cstr);
-    //     str = String(cstr);
-    //     g.setFont(font);
-    //     g.drawText(str, 1, tickVoltage+voltPerTick/10, 100, 15, Justification::left, false);
-
-    //     if (tickCount++>100)
-    //         return;
-    // }
-
-    // tickVoltage = threshold;
-    // tickCount = 0;
-
-    // while (tickVoltage > ylims[0] + voltPerTick) // draw the ticks below the thold line
-    // {
-    //     tickVoltage = (double) roundUp(tickVoltage - voltPerTick, 100);
-
-    //     g.drawLine(0, tickVoltage, s.nSamples, tickVoltage);
-
-    //     // glBegin(GL_LINE_STRIP);
-    //     // glVertex2i(0, tickVoltage);
-    //     // glVertex2i(s.nSamples, tickVoltage);
-    //     // glEnd();
-
-    //     makeLabel(tickVoltage, gain, true, cstr);
-    //     str = String(cstr);
-    //     g.drawText(str, 1, tickVoltage+voltPerTick/10, 100, 15, Justification::left, false);
-
-    //     if (tickCount++>100)
-    //         return;
-    // }
+   
 }
 
 void WaveAxes::updateSpikeData(const SpikeObject& s)
