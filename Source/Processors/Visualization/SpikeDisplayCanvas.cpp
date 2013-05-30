@@ -397,6 +397,15 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
 
     initAxes();
 
+    for (int i = 0; i < nChannels; i++)
+    {
+        UtilityButton* rangeButton = new UtilityButton("250", Font("Small Text", 10, Font::plain));
+        rangeButton->setRadius(3.0f);
+        rangeButton->addListener(this);
+        addAndMakeVisible(rangeButton);
+
+        rangeButtons.add(rangeButton);
+    }
 
 }
 
@@ -447,6 +456,7 @@ void SpikePlot::initAxes()
         WaveAxes* wAx = new WaveAxes(WAVE1 + i);
         wAxes.add(wAx);
         addAndMakeVisible(wAx);
+        ranges.add(250.0f); // default range is 250 microvolts
     }
 
     for (int i = 0; i < nProjAx; i++)
@@ -456,7 +466,7 @@ void SpikePlot::initAxes()
         addAndMakeVisible(pAx);
     }
 
-    setLimitsOnAxes(); // initialize thel limits on the axes
+    setLimitsOnAxes(); // initialize the ranges
 }
 
 void SpikePlot::resized()
@@ -495,10 +505,43 @@ void SpikePlot::resized()
     }
 
     for (int i = 0; i < nWaveAx; i++)
+    {
         wAxes[i]->setBounds(5 + (i % nWaveCols) * axesWidth/nWaveCols, 20 + (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
+        rangeButtons[i]->setBounds(8 + (i % nWaveCols) * axesWidth/nWaveCols, 
+                                   20 + (i/nWaveCols) * axesHeight + axesHeight - 18, 
+                                   25, 15);
+    }
 
     for (int i = 0; i < nProjAx; i++)
         pAxes[i]->setBounds(5 + (1 + i%nProjCols) * axesWidth, 20 + (i/nProjCols) * axesHeight, axesWidth, axesHeight);
+
+
+}
+
+void SpikePlot::buttonClicked(Button* button)
+{
+    UtilityButton* buttonThatWasClicked = (UtilityButton*) button;
+
+    int index = rangeButtons.indexOf(buttonThatWasClicked);
+    String label;
+
+    if (ranges[index] == 250.0f)
+    {
+        ranges.set(index, 500.0f);
+        label = "500";
+    } else if (ranges[index] == 500.0f)
+    {
+        ranges.set(index, 100.0f);
+        label = "100";
+    } else if  (ranges[index] == 100.0f)
+    {
+        ranges.set(index, 250.0f);
+        label = "250";
+    } 
+
+    buttonThatWasClicked->setLabel(label);
+
+    setLimitsOnAxes();
 
 }
 
@@ -506,18 +549,17 @@ void SpikePlot::setLimitsOnAxes()
 {
     //std::cout<<"SpikePlot::setLimitsOnAxes()"<<std::endl;
 
-    // for (int i = 0; i < nWaveAx; i++)
-    //     wAxes[i]->setYLims(limits[i][0], limits[i][1]);
+    for (int i = 0; i < nWaveAx; i++)
+         wAxes[i]->setRange(ranges[i]);
 
-    // // Each Projection sets its limits using the limits of the two waveform dims it represents.
-    // // Convert projection number to indecies, and then set the limits using those indices
-    // int j1, j2;
-    // for (int i = 0; i < nProjAx; i++)
-    // {
-    //     n2ProjIdx(pAxes[i]->getType(), &j1, &j2);
-    //     pAxes[i]->setYLims(limits[j1][0], limits[j1][1]);
-    //     pAxes[i]->setXLims(limits[j2][0], limits[j2][1]);
-    // }
+    // Each projection sets its limits using the limits of the two waveform dims it represents.
+    // Convert projection number to indices, and then set the limits using those indices
+    int j1, j2;
+    for (int i = 0; i < nProjAx; i++)
+    {
+        pAxes[i]->n2ProjIdx(pAxes[i]->getType(), &j1, &j2);
+        pAxes[i]->setRange(ranges[j1], ranges[j2]);
+    }
 }
 
 void SpikePlot::initLimits()
@@ -563,51 +605,13 @@ void SpikePlot::clear()
         pAxes[i]->clear();
 }
 
-void SpikePlot::pan(int dim, bool up)
-{
-
-    std::cout << "SpikePlot::pan() dim:" << dim << std::endl;
-
-    int mean = (limits[dim][0] + limits[dim][1])/2;
-    int dLim = limits[dim][1] - mean;
-
-    if (up)
-        mean = mean + dLim/20;
-    else
-        mean = mean - dLim/20;
-
-    limits[dim][0] = mean-dLim;
-    limits[dim][1] = mean+dLim;
-
-    setLimitsOnAxes();
-}
-
-void SpikePlot::zoom(int dim, bool in)
-{
-    std::cout << "SpikePlot::zoom()" << std::endl;
-
-    int mean = (limits[dim][0] + limits[dim][1])/2;
-    int dLim = limits[dim][1] - mean;
-
-    if (in)
-        dLim = dLim * .90;
-    else
-        dLim = dLim / .90;
-
-    limits[dim][0] = mean-dLim;
-    limits[dim][1] = mean+dLim;
-
-    setLimitsOnAxes();
-}
-
-
 
 
 // --------------------------------------------------
 
 
 WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true), 
-    bufferSize(10), spikeIndex(0), thresholdLevel(0.5f),
+    bufferSize(10), spikeIndex(0), thresholdLevel(0.5f), range(250.0f),
     isOverThresholdSlider(false), isDraggingThresholdSlider(false)
 {
 
@@ -624,6 +628,16 @@ WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true),
         
         spikeBuffer.add(so);
     }
+}
+
+void WaveAxes::setRange(float r)
+{
+
+    //std::cout << "Setting range to " << r << std::endl;
+
+    range = r;
+
+    repaint();
 }
 
 void WaveAxes::paint(Graphics& g)
@@ -680,8 +694,6 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
     int sampIdx = 40*type; //spikeBuffer[0].nSamples * type; //
 
     int dSamples = 1;
-
-    float range = 250.0f;
 
     float x = 0.0f;
 
@@ -905,7 +917,8 @@ void WaveAxes::mouseExit(const MouseEvent& event)
 
 // --------------------------------------------------
 
-ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum), imageDim(500)
+ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum), imageDim(500),
+                                                    rangeX(250), rangeY(250)
 {
     projectionImage = Image(Image::RGB, imageDim, imageDim, true);
 
@@ -919,16 +932,24 @@ ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum), 
 
 }
 
+void ProjectionAxes::setRange(float x, float y)
+{
+    rangeX = (int) x;
+    rangeY = (int) y;
+
+    //std::cout << "Setting range to " << x << " " << y << std::endl;
+
+    repaint();
+}
+
 void ProjectionAxes::paint(Graphics& g)
 {
     //g.setColour(Colours::orange);
     //g.fillRect(5,5,getWidth()-5, getHeight()-5);
 
-    int range = 250;
-
     g.drawImage(projectionImage,
                 0, 0, getWidth(), getHeight(),
-                0, range, range, range);
+                0, imageDim-rangeY, rangeX, rangeY);
 }
 
 void ProjectionAxes::updateSpikeData(const SpikeObject& s)
