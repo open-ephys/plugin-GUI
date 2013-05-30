@@ -817,8 +817,6 @@ bool RHD2000Thread::updateBuffer()
     bool return_code;
 	
 
-    for (int n = 0; n < 10; n++)
-    {
         if (evalBoard->numWordsInFifo() >= blockSize)
         {
             return_code = evalBoard->readDataBlock(dataBlock);
@@ -897,7 +895,7 @@ bool RHD2000Thread::updateBuffer()
             }
 
         }
-    }
+    
 
     if (dacOutputShouldChange)
     {
