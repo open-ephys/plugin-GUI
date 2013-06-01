@@ -40,6 +40,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     std::cout << "Setting displayBufferSize on LfpDisplayCanvas to " << displayBufferSize << std::endl;
 
     screenBuffer = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
+    screenBuffer->clear();
 
     viewport = new Viewport();
     lfpDisplay = new LfpDisplay(this, viewport);
@@ -596,6 +597,8 @@ void LfpDisplay::resized()
     }
 
     canvas->fullredraw = true; //issue full redraw 
+
+    refresh();
 
    // std::cout << "Total height: " << totalHeight << std::endl;
 

@@ -50,6 +50,17 @@ AudioProcessorEditor* FileReader::createEditor()
 
 }
 
+bool FileReader::isReady()
+{
+	if (input == 0)
+	{
+		sendActionMessage("No file selected in File Reader.");
+		return false;
+	} else {
+		return true;
+	}
+}
+
 
 float FileReader::getDefaultSampleRate()
 {

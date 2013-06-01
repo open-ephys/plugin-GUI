@@ -60,6 +60,8 @@ public:
 
     void updateSettings();
 
+    bool isReady();
+
     bool isSource()
     {
     	return true;
