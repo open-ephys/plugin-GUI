@@ -152,7 +152,7 @@ void LfpDisplayCanvas::endAnimation()
 
 void LfpDisplayCanvas::update()
 {
-    nChans = processor->getNumInputs();
+    nChans = jmax(processor->getNumInputs(),1);
     sampleRate = processor->getSampleRate();
 
     std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
@@ -160,10 +160,8 @@ void LfpDisplayCanvas::update()
     refreshScreenBuffer();
 
     lfpDisplay->setNumChannels(nChans);
+
     lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
-
-
-    //repaint();
 
 }
 
@@ -280,6 +278,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
     }
 
     float subSampleOffset = 0.0;
+
+    displayBufferIndex = displayBufferIndex % displayBufferSize; // make sure we're not overshooting
     int nextPos = (displayBufferIndex + 1) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
 
     if (valuesNeeded > 0 && valuesNeeded < 1000)
@@ -293,7 +293,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
             screenBuffer->clear(screenBufferIndex, 1);
 
-            //if (displayBufferIndex<=index && nextPos<=index){
             for (int channel = 0; channel < nChans; channel++)
             {
 
@@ -531,6 +530,7 @@ void LfpDisplay::setNumChannels(int numChannels)
     deleteAllChildren();
 
     channels.clear();
+    channelInfo.clear();
 
     totalHeight = 0;
 
@@ -575,7 +575,7 @@ void LfpDisplay::resized()
 
     int totalHeight = 0;
 
-    for (int i = 0; i < numChans; i++)
+    for (int i = 0; i < channels.size(); i++)
     {
 
         LfpChannelDisplay* disp = channels[i];
@@ -597,8 +597,6 @@ void LfpDisplay::resized()
     }
 
     canvas->fullredraw = true; //issue full redraw 
-
-    refresh();
 
    // std::cout << "Total height: " << totalHeight << std::endl;
 
