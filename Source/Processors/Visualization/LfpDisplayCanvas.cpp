@@ -682,12 +682,9 @@ void LfpDisplay::setChannelHeight(int r)
 
 void LfpDisplay::mouseDown(const MouseEvent& event)
 {
-    //int x = event.getMouseDownX();
     //int y = event.getMouseDownY(); //relative to each channel pos
     MouseEvent canvasevent = event.getEventRelativeTo(viewport);
-    int y = canvasevent.getMouseDownY() + viewport->getViewPositionY();
-
-    
+    int y = canvasevent.getMouseDownY() + viewport->getViewPositionY(); // need to account for scrolling
 
     int dist=0; int mindist=10000; int closest=5;
     for (int n = 0; n < numChans; n++) // select closest instead of relying ot eventComponent
@@ -697,7 +694,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
         int cpos=(channels[n]->getY() + (channels[n]->getHeight()/2));
         dist=int(abs( y - cpos )); 
     
-        std::cout << "Mouse down at " << y << " pos is "<< cpos << "n:" << n << "  dist " << dist << std::endl;
+        //std::cout << "Mouse down at " << y << " pos is "<< cpos << "n:" << n << "  dist " << dist << std::endl;
 
         if (dist<mindist) {
             mindist=dist-1;
