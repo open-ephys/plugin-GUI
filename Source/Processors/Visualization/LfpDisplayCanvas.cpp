@@ -643,17 +643,19 @@ void LfpDisplay::refresh()
 
 void LfpDisplay::setRange(float r)
 {
-
     range = r;
 
     for (int i = 0; i < numChans; i++)
     {
-
         channels[i]->setRange(range);
-
     }
-
 }
+
+int LfpDisplay::getRange()
+{
+    return channels[0]->getRange();
+}
+
 
 void LfpDisplay::setChannelHeight(int r)
 {
@@ -668,16 +670,49 @@ void LfpDisplay::setChannelHeight(int r)
 
 }
 
+int LfpDisplay::getChannelHeight()
+{
+    return channels[0]->getChannelHeight();
+}
+
+
 
  void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&   wheel )   {
     
+    //std::cout << "Mouse wheel " <<  e.mods.isCommandDown() << "  " << wheel.deltaY << std::endl;
+    
+    if (e.mods.isCommandDown()){ // CTRL + scroll wheel -> change channel spacing 
+        // 
+        // this should also scroll to keep the selected channel at a constant y!
+        //
+        int h= getChannelHeight();
+        if (wheel.deltaY>0){
+            setChannelHeight(h+1);            
+        } else{
+            if (h>5)
+                setChannelHeight(h-1);
+        }
+    } else {
+        if(e.mods.isShiftDown())  {// SHIFT + scroll wheel -> change channel range
+            int h= getRange();
+            if (wheel.deltaY>0){
+                setRange(h+10);            
+            } else{
+                if (h>11)
+                    setRange(h-10);
+            }
+
+        } else{ // just scroll
+            //  passes the event up to the viewport so the screen scrolls
+            if (viewport != nullptr && e.eventComponent == this) // passes only if it's not a listening event
+                viewport->mouseWheelMove(e.getEventRelativeTo(canvas), wheel);
+
+        }
+    }
+
     canvas->fullredraw = true;//issue full redraw 
-
-    //  passes the event up to the viewport so the screen scrolls
-    if (viewport != nullptr && e.eventComponent == this) // passes only if it's not a listening event
-        viewport->mouseWheelMove(e.getEventRelativeTo(canvas), wheel);
-
     refresh();
+
  }
 
 
@@ -843,6 +878,12 @@ void LfpChannelDisplay::setRange(float r)
 
     //std::cout << "Range: " << r << std::endl;
 }
+
+int LfpChannelDisplay::getRange()
+{
+    return range;
+}
+
 
 void LfpChannelDisplay::select()
 {

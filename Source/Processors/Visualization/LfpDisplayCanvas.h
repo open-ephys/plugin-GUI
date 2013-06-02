@@ -173,8 +173,12 @@ public:
     void mouseDown(const MouseEvent& event);
     void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel ) ;
 
+    
     void setRange(float range);
+    int getRange();
+
     void setChannelHeight(int r);
+    int getChannelHeight();
 
 private:
     int numChans;
@@ -212,6 +216,7 @@ public:
     int getChannelOverlap();
 
     void setRange(float range);
+    int getRange();
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
