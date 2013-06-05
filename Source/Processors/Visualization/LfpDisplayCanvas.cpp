@@ -685,7 +685,7 @@ int LfpDisplay::getChannelHeight()
         // 
         // this should also scroll to keep the selected channel at a constant y!
         //
-        int h= getChannelHeight();
+        int h = getChannelHeight();
         if (wheel.deltaY>0){
             setChannelHeight(h+1);            
         } else{
@@ -711,6 +711,7 @@ int LfpDisplay::getChannelHeight()
     }
 
     canvas->fullredraw = true;//issue full redraw 
+
     refresh();
 
  }
@@ -774,7 +775,7 @@ void LfpChannelDisplay::paint(Graphics& g)
     //g.fillAll(Colours::grey);
 
     g.setColour(Colours::yellow);   // draw most recent drawn sample position
-    g.drawLine(canvas->screenBufferIndex+1, 0, canvas->screenBufferIndex+1, getHeight()-channelOverlap);
+    g.drawLine(canvas->screenBufferIndex+1, 0, canvas->screenBufferIndex+1, getHeight());
 
     //g.setColour(Colours::red); // draw oldest drawn sample position 
     //g.drawLine(canvas->lastScreenBufferIndex, 0, canvas->lastScreenBufferIndex, getHeight()-channelOverlap);
