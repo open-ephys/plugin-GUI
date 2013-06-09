@@ -114,6 +114,7 @@ void SourceNode::updateSettings()
     {
 
         inputBuffer = dataThread->getBufferAddress();
+        dataThread->updateChannelNames();
         std::cout << "Input buffer address is " << inputBuffer << std::endl;
     }
 
@@ -124,6 +125,7 @@ void SourceNode::updateSettings()
         ch->isEventChannel = true;
         eventChannels.add(ch);
     }
+
 
 }
 

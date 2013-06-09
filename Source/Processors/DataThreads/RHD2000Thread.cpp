@@ -28,7 +28,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
     fastSettleEnabled(false), chipRegisters(30000.0f), dspEnabled(true), boardSampleRate(30000.0f),
     desiredDspCutoffFreq(0.5f), desiredUpperBandwidth(7500.0f), desiredLowerBandwidth(1.0f),
     savedSampleRateIndex(16), audioOutputL(-1), audioOutputR(-1), dacOutputShouldChange(false),
-    acquireAdcChannels(false),
+    acquireAdcChannels(false), acquireAuxChannels(true),
     cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f) // default is 3 feet (0.914 m)
 {
     evalBoard = new Rhd2000EvalBoard;
@@ -406,6 +406,57 @@ int RHD2000Thread::getNumChannels()
     else
         return 1; // to prevent crashing with 0 channels
 }
+
+void RHD2000Thread::updateChannelNames()
+{
+
+    int chNum = -1;
+
+    for (int i = 0; i < MAX_NUM_DATA_STREAMS; i++)
+    {
+    
+        for (int j = 0; j < numChannelsPerDataStream[i]; j++)
+        {
+            chNum++;
+
+            sn->channels[chNum]->setName(String(chNum));
+        }
+    }
+
+    if (acquireAuxChannels)
+    {
+        for (int i = 0; i < MAX_NUM_DATA_STREAMS; i++)
+        {
+        
+            for (int j = 0; j < 3; j++)
+            {
+                
+                chNum++;
+
+                String chName = "AUX";
+              //  chName += (j+1);
+
+              //  sn->channels[chNum]->setName(chName);
+            }
+        }
+    }
+
+
+    if (acquireAdcChannels)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            chNum++;
+
+            String chName = "ADC";
+           // chName += (j+1);
+
+          //  sn->channels[chNum]->setName(chName);
+        }
+    }        
+
+}
+
 
 int RHD2000Thread::getNumEventChannels()
 {
