@@ -180,6 +180,9 @@ public:
     void setChannelHeight(int r);
     int getChannelHeight();
 
+    Array<LfpChannelDisplay*> channels;
+    Array<LfpChannelDisplayInfo*> channelInfo;
+
 private:
     int numChans;
 
@@ -188,8 +191,6 @@ private:
     LfpDisplayCanvas* canvas;
     Viewport* viewport;
 
-    Array<LfpChannelDisplay*> channels;
-    Array<LfpChannelDisplayInfo*> channelInfo;
     Array<Colour> channelColours;
 
     float range;
@@ -206,6 +207,8 @@ public:
 
     void select();
     void deselect();
+
+    void setName(String);
 
     void setColour(Colour c);
 
@@ -227,6 +230,8 @@ protected:
     bool isSelected;
 
     int chan;
+
+    String name;
 
     Font channelFont;
 

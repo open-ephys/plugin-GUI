@@ -170,6 +170,7 @@ void VisualizerEditor::buttonEvent(Button* button)
         {
 
             canvas = createNewCanvas();
+            canvas->update();
 
             if (isPlaying)
                 canvas->beginAnimation();

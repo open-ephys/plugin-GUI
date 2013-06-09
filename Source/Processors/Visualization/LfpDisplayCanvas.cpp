@@ -161,6 +161,18 @@ void LfpDisplayCanvas::update()
 
     lfpDisplay->setNumChannels(nChans);
 
+    // update channel names
+	for (int i = 0; i < processor->getNumInputs(); i++)
+    {
+
+    	String chName = processor->channels[i]->getName();
+
+    	//std::cout << chName << std::endl;
+
+    	lfpDisplay->channelInfo[i]->setName(chName);
+
+    }
+
     lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
 
 }
@@ -756,6 +768,10 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, int channelNumber) :
     canvas(c), isSelected(false), chan(channelNumber), channelHeight(40), channelOverlap(300), range(1000.0f)
 {
 
+
+	name = String(channelNumber+1); // default is to make the channelNumber the name
+
+
     channelHeightFloat = (float) channelHeight;
 
     channelFont = Font("Default", channelHeight*0.6, Font::plain);
@@ -927,6 +943,11 @@ int LfpChannelDisplay::getChannelOverlap()
     return channelOverlap;
 }
 
+void LfpChannelDisplay::setName(String name_)
+{
+	name = name_;
+}
+
 // -------------------------------
 
 LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, int ch)
@@ -938,14 +959,16 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, int ch)
 void LfpChannelDisplayInfo::paint(Graphics& g)
 {
 
+
+
     int center = getHeight()/2;
 
     g.setColour(lineColour);
 
     g.setFont(channelFont);
-    g.setFont(channelHeightFloat*0.6);
+    g.setFont(channelHeightFloat*0.3);
 
-    g.drawText(String(chan+1), 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
+    g.drawText(name, 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
 
 }
 
