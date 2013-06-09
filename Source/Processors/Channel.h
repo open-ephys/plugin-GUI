@@ -61,6 +61,9 @@ public:
     /** Returns the name of a given channel. */
     String getName();
 
+    /** Sets the name of a given channel. */
+    void setName(String);
+
     /** Restores the default settings for a given channel. */
     void reset();
 

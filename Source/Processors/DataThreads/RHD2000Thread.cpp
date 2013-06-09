@@ -826,6 +826,7 @@ bool RHD2000Thread::updateBuffer()
                 int streamNumber = -1;
                 int channel = -1;
 
+                // do the neural data channels first
                 for (int dataStream = 0; dataStream < MAX_NUM_DATA_STREAMS; dataStream++)
                 {
                     if (numChannelsPerDataStream[dataStream] > 0)
@@ -842,48 +843,64 @@ bool RHD2000Thread::updateBuffer()
                             thisSample[channel] = float(value-32768)*0.195f;
                         }
 					
-						// TEMPORARILY DISABLED -- causing problems
-						if (samp % 4 == 1) { // every 4th sample should have auxiliary input data
-						
-							channel++;
-							thisSample[channel] = 0.0374 *
-							     float(dataBlock->auxiliaryData[dataStream][1][samp+0]);
-							auxBuffer[channel]=thisSample[channel];
-
-							channel++;
-							thisSample[channel] = 0.0374 *
-							     float(dataBlock->auxiliaryData[dataStream][1][samp+1]);
-							auxBuffer[channel]=thisSample[channel];
-
-						
-							channel++;
-							thisSample[channel] = 0.0374 *
-							     float(dataBlock->auxiliaryData[dataStream][1][samp+2]);
-							auxBuffer[channel]=thisSample[channel];
-
-						} else{ // repeat last values from buffer
-							channel++;
-							thisSample[channel] = auxBuffer[channel];
-							channel++;
-							thisSample[channel] = auxBuffer[channel];
-							channel++;
-							thisSample[channel] = auxBuffer[channel];
-						}
-
-                        if (acquireAdcChannels)
-                        {
-                            for (int adcChan = 0; adcChan < 8; ++adcChan) {
-                            
-                            channel++;
-                            // ADC waveform units = volts
-                             thisSample[channel] = 
-                               0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
-                            }
-                        }
-						
 					}
 
 				}
+
+                streamNumber = -1;
+
+                // then do the ADC channels
+                for (int dataStream = 0; dataStream < MAX_NUM_DATA_STREAMS; dataStream++)
+                {
+                    if (numChannelsPerDataStream[dataStream] > 0)
+                    {
+                        streamNumber++;
+
+                        if (samp % 4 == 1) { // every 4th sample should have auxiliary input data
+                        
+                            channel++;
+                            thisSample[channel] = 0.0374 *
+                                 float(dataBlock->auxiliaryData[dataStream][1][samp+0]);
+
+                            auxBuffer[channel]=thisSample[channel];
+
+                            channel++;
+                            thisSample[channel] = 0.0374 *
+                                 float(dataBlock->auxiliaryData[dataStream][1][samp+1]);
+
+                            auxBuffer[channel]=thisSample[channel];
+
+                        
+                            channel++;
+                            thisSample[channel] = 0.0374 *
+                                 float(dataBlock->auxiliaryData[dataStream][1][samp+2]);
+
+                            auxBuffer[channel]=thisSample[channel];
+
+                        } else{ // repeat last values from buffer
+
+                            channel++;
+                            thisSample[channel] = auxBuffer[channel];
+                            channel++;
+                            thisSample[channel] = auxBuffer[channel];
+                            channel++;
+                            thisSample[channel] = auxBuffer[channel];
+                        }
+                    }
+
+                }
+
+                // finally, loop through ADC channels if necessary
+                if (acquireAdcChannels)
+                {
+                    for (int adcChan = 0; adcChan < 8; ++adcChan) {
+                    
+                    channel++;
+                    // ADC waveform units = volts
+                     thisSample[channel] = 
+                       0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
+                    }
+                }
 				// std::cout << channel << std::endl;
 
 				timestamp = dataBlock->timeStamp[samp];
