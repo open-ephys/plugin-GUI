@@ -93,6 +93,9 @@ public:
         return 0;
     }
 
+    /** Changes the names of channels, if the thread needs custom names. */
+    virtual void updateChannelNames() { }
+
     SourceNode* sn;
 
     int16 eventCode;

@@ -114,6 +114,7 @@ void SourceNode::updateSettings()
     {
 
         inputBuffer = dataThread->getBufferAddress();
+        dataThread->updateChannelNames();
         std::cout << "Input buffer address is " << inputBuffer << std::endl;
     }
 
@@ -124,6 +125,7 @@ void SourceNode::updateSettings()
         ch->isEventChannel = true;
         eventChannels.add(ch);
     }
+
 
 }
 
@@ -209,6 +211,9 @@ AudioProcessorEditor* SourceNode::createEditor()
     if (getName().equalsIgnoreCase("Rhythm FPGA"))
     {
         editor = new RHD2000Editor(this, (RHD2000Thread*) dataThread.get(), true);
+
+      //  RHD2000Editor* r2e = (RHD2000Editor*) editor.get();
+      //  r2e->scanPorts();
     }
   //  else if (getName().equalsIgnoreCase("File Reader"))
   //  {

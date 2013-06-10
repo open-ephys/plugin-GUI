@@ -37,6 +37,11 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
 
     scrollBarThickness = viewport->getScrollBarThickness();
 
+    clearButton = new UtilityButton("Clear plots", Font("Small Text", 13, Font::plain));
+    clearButton->setRadius(3.0f);
+    clearButton->addListener(this);
+    addAndMakeVisible(clearButton);
+
     addAndMakeVisible(viewport);
 
     setWantsKeyboardFocus(true);
@@ -52,14 +57,14 @@ SpikeDisplayCanvas::~SpikeDisplayCanvas()
 
 void SpikeDisplayCanvas::beginAnimation()
 {
-    std::cout << "Beginning animation." << std::endl;
+    std::cout << "SpikeDisplayCanvas beginning animation." << std::endl;
 
     startCallbacks();
 }
 
 void SpikeDisplayCanvas::endAnimation()
 {
-    std::cout << "Ending animation." << std::endl;
+    std::cout << "SpikeDisplayCanvas ending animation." << std::endl;
 
     stopCallbacks();
 }
@@ -67,17 +72,16 @@ void SpikeDisplayCanvas::endAnimation()
 void SpikeDisplayCanvas::update()
 {
 
-    std::cout << "UPDATING SpikeDisplayCanvas" << std::endl;
+    std::cout << "Updating SpikeDisplayCanvas" << std::endl;
 
     int nPlots = processor->getNumElectrodes();
-    spikeDisplay->clear();
+    spikeDisplay->removePlots();
 
     for (int i = 0; i < nPlots; i++)
     {
         spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i);
     }
 
-    //initializeSpikePlots();
     spikeDisplay->resized();
     spikeDisplay->repaint();
 }
@@ -86,8 +90,6 @@ void SpikeDisplayCanvas::update()
 void SpikeDisplayCanvas::refreshState()
 {
     // called when the component's tab becomes visible again
-    // displayBufferIndex = processor->getDisplayBufferIndex();
-    // screenBufferIndex = 0;
     resized();
 }
 
@@ -96,6 +98,9 @@ void SpikeDisplayCanvas::resized()
     viewport->setBounds(0,0,getWidth(),getHeight()-90);
 
     spikeDisplay->setBounds(0,0,getWidth()-scrollBarThickness, spikeDisplay->getTotalHeight());
+
+    clearButton->setBounds(10, getHeight()-40, 100,20);
+
 }
 
 void SpikeDisplayCanvas::paint(Graphics& g)
@@ -130,25 +135,15 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
             const uint8_t* dataptr = message.getRawData();
             int bufferSize = message.getRawDataSize();
-            //int nSamples = (bufferSize-4)/2;
 
             SpikeObject newSpike;
-            //SpikeObject simSpike;
 
-            unpackSpike(&newSpike, dataptr, bufferSize);
+            bool isValid = unpackSpike(&newSpike, dataptr, bufferSize);
 
             int electrodeNum = newSpike.source;
 
-            // generateSimulatedSpike(&simSpike, 0, 0);
-
-            // for (int i = 0; i < newSpike.nChannels * newSpike.nSamples; i++)
-            // {
-            //     simSpike.data[i] = newSpike.data[i%80] + 5000;// * 3 - 10000;
-            // }
-
-            // simSpike.nSamples = 40;
-
-            spikeDisplay->plotSpike(newSpike, electrodeNum);
+            if (isValid)
+                spikeDisplay->plotSpike(newSpike, electrodeNum);
 
         }
 
@@ -160,7 +155,10 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
 bool SpikeDisplayCanvas::keyPressed(const KeyPress& key)
 {
-    if (key.getKeyCode() == 67) // C
+
+    KeyPress c = KeyPress::createFromDescription("c");
+
+    if (key.isKeyCode(c.getKeyCode())) // C
     {
         spikeDisplay->clear();
         
@@ -171,6 +169,17 @@ bool SpikeDisplayCanvas::keyPressed(const KeyPress& key)
     return false;
 
 }
+
+void SpikeDisplayCanvas::buttonClicked(Button* button)
+{
+
+    if (button == clearButton)
+    {
+        spikeDisplay->clear();
+    }
+}
+
+
 
 // ----------------------------------------------------------------
 
@@ -196,6 +205,12 @@ void SpikeDisplay::clear()
             spikePlots[i]->clear();
         }
    }
+        
+}
+
+void SpikeDisplay::removePlots()
+{
+   spikePlots.clear();
         
 }
 
@@ -238,6 +253,9 @@ void SpikeDisplay::resized()
 
         float width, height;
 
+
+        float maxHeight = 0;
+
         for (int i = 0; i < spikePlots.size(); i++)
         {
 
@@ -271,6 +289,8 @@ void SpikeDisplay::resized()
 
             spikePlots[i]->setBounds(width*column, row*height, width, height);
 
+            maxHeight = jmax(maxHeight, row*height + height);
+
             if (spikePlots[i]->nChannels == 1)
             {
                 stereotrodeStart = (int)(height*(float(row)+1));
@@ -281,6 +301,7 @@ void SpikeDisplay::resized()
             }
 
         }
+
 
         for (int i = 0; i < spikePlots.size(); i++)
         {
@@ -293,21 +314,23 @@ void SpikeDisplay::resized()
             if (spikePlots[i]->nChannels == 2)
             {
                 spikePlots[i]->setBounds(x, y+stereotrodeStart, w2, h2);
+                maxHeight = jmax(maxHeight, (float) y+stereotrodeStart+h2);
 
             }
             else if (spikePlots[i]->nChannels == 4)
             {
                 spikePlots[i]->setBounds(x, y+stereotrodeStart+tetrodeStart, w2, h2);
+                maxHeight = jmax(maxHeight, (float) y+stereotrodeStart+tetrodeStart+h2);
             }
 
+
         }
 
-        totalHeight = 5000; // don't even deal with making the display the correct height
+        totalHeight = (int) maxHeight + 50; 
 
-        if (totalHeight < getHeight())
-        {
-            canvas->resized();
-        }
+       // std::cout << "New height = " << totalHeight << std::endl;
+
+        setBounds(0, 0, getWidth(), totalHeight);
     }
 
 }
@@ -365,7 +388,7 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
             //            nHistAx = 1;
             //            break;
         default: // unsupported number of axes provided
-            std::cout<<"SpikePlot as UNKNOWN, defaulting to SINGLE_PLOT"<<std::endl;
+            std::cout << "SpikePlot as UNKNOWN, defaulting to SINGLE_PLOT" << std::endl;
             nWaveAx = 1;
             nProjAx = 0;
             plotType = SINGLE_PLOT;
@@ -374,6 +397,15 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
 
     initAxes();
 
+    for (int i = 0; i < nChannels; i++)
+    {
+        UtilityButton* rangeButton = new UtilityButton("250", Font("Small Text", 10, Font::plain));
+        rangeButton->setRadius(3.0f);
+        rangeButton->addListener(this);
+        addAndMakeVisible(rangeButton);
+
+        rangeButtons.add(rangeButton);
+    }
 
 }
 
@@ -424,6 +456,7 @@ void SpikePlot::initAxes()
         WaveAxes* wAx = new WaveAxes(WAVE1 + i);
         wAxes.add(wAx);
         addAndMakeVisible(wAx);
+        ranges.add(250.0f); // default range is 250 microvolts
     }
 
     for (int i = 0; i < nProjAx; i++)
@@ -433,14 +466,14 @@ void SpikePlot::initAxes()
         addAndMakeVisible(pAx);
     }
 
-    setLimitsOnAxes(); // initialize thel limits on the axes
+    setLimitsOnAxes(); // initialize the ranges
 }
 
 void SpikePlot::resized()
 {
 
     float width = getWidth()-10;
-    float height = getHeight()-20;
+    float height = getHeight()-25;
 
     float axesWidth, axesHeight;
 
@@ -472,10 +505,43 @@ void SpikePlot::resized()
     }
 
     for (int i = 0; i < nWaveAx; i++)
-        wAxes[i]->setBounds(5 + (i % nWaveCols) * axesWidth/nWaveCols, 15 + (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
+    {
+        wAxes[i]->setBounds(5 + (i % nWaveCols) * axesWidth/nWaveCols, 20 + (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
+        rangeButtons[i]->setBounds(8 + (i % nWaveCols) * axesWidth/nWaveCols, 
+                                   20 + (i/nWaveCols) * axesHeight + axesHeight - 18, 
+                                   25, 15);
+    }
 
     for (int i = 0; i < nProjAx; i++)
-        pAxes[i]->setBounds(5 + (1 + i%nProjCols) * axesWidth, 15 + (i/nProjCols) * axesHeight, axesWidth, axesHeight);
+        pAxes[i]->setBounds(5 + (1 + i%nProjCols) * axesWidth, 20 + (i/nProjCols) * axesHeight, axesWidth, axesHeight);
+
+
+}
+
+void SpikePlot::buttonClicked(Button* button)
+{
+    UtilityButton* buttonThatWasClicked = (UtilityButton*) button;
+
+    int index = rangeButtons.indexOf(buttonThatWasClicked);
+    String label;
+
+    if (ranges[index] == 250.0f)
+    {
+        ranges.set(index, 500.0f);
+        label = "500";
+    } else if (ranges[index] == 500.0f)
+    {
+        ranges.set(index, 100.0f);
+        label = "100";
+    } else if  (ranges[index] == 100.0f)
+    {
+        ranges.set(index, 250.0f);
+        label = "250";
+    } 
+
+    buttonThatWasClicked->setLabel(label);
+
+    setLimitsOnAxes();
 
 }
 
@@ -483,18 +549,17 @@ void SpikePlot::setLimitsOnAxes()
 {
     //std::cout<<"SpikePlot::setLimitsOnAxes()"<<std::endl;
 
-    // for (int i = 0; i < nWaveAx; i++)
-    //     wAxes[i]->setYLims(limits[i][0], limits[i][1]);
+    for (int i = 0; i < nWaveAx; i++)
+         wAxes[i]->setRange(ranges[i]);
 
-    // // Each Projection sets its limits using the limits of the two waveform dims it represents.
-    // // Convert projection number to indecies, and then set the limits using those indices
-    // int j1, j2;
-    // for (int i = 0; i < nProjAx; i++)
-    // {
-    //     n2ProjIdx(pAxes[i]->getType(), &j1, &j2);
-    //     pAxes[i]->setYLims(limits[j1][0], limits[j1][1]);
-    //     pAxes[i]->setXLims(limits[j2][0], limits[j2][1]);
-    // }
+    // Each projection sets its limits using the limits of the two waveform dims it represents.
+    // Convert projection number to indices, and then set the limits using those indices
+    int j1, j2;
+    for (int i = 0; i < nProjAx; i++)
+    {
+        pAxes[i]->n2ProjIdx(pAxes[i]->getType(), &j1, &j2);
+        pAxes[i]->setRange(ranges[j1], ranges[j2]);
+    }
 }
 
 void SpikePlot::initLimits()
@@ -540,51 +605,13 @@ void SpikePlot::clear()
         pAxes[i]->clear();
 }
 
-void SpikePlot::pan(int dim, bool up)
-{
-
-    std::cout << "SpikePlot::pan() dim:" << dim << std::endl;
-
-    int mean = (limits[dim][0] + limits[dim][1])/2;
-    int dLim = limits[dim][1] - mean;
-
-    if (up)
-        mean = mean + dLim/20;
-    else
-        mean = mean - dLim/20;
-
-    limits[dim][0] = mean-dLim;
-    limits[dim][1] = mean+dLim;
-
-    setLimitsOnAxes();
-}
-
-void SpikePlot::zoom(int dim, bool in)
-{
-    std::cout << "SpikePlot::zoom()" << std::endl;
-
-    int mean = (limits[dim][0] + limits[dim][1])/2;
-    int dLim = limits[dim][1] - mean;
-
-    if (in)
-        dLim = dLim * .90;
-    else
-        dLim = dLim / .90;
-
-    limits[dim][0] = mean-dLim;
-    limits[dim][1] = mean+dLim;
-
-    setLimitsOnAxes();
-}
-
-
 
 
 // --------------------------------------------------
 
 
 WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true), 
-    bufferSize(10), spikeIndex(0), thresholdLevel(0.5f),
+    bufferSize(10), spikeIndex(0), thresholdLevel(0.5f), range(250.0f),
     isOverThresholdSlider(false), isDraggingThresholdSlider(false)
 {
 
@@ -603,17 +630,27 @@ WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true),
     }
 }
 
+void WaveAxes::setRange(float r)
+{
+
+    //std::cout << "Setting range to " << r << std::endl;
+
+    range = r;
+
+    repaint();
+}
+
 void WaveAxes::paint(Graphics& g)
 {
     g.setColour(Colours::black);
-    g.fillRect(5,5,getWidth()-10, getHeight()-10);
+    g.fillRect(0,0,getWidth(), getHeight());
 
     int chan = 0;
 
     // draw the grid lines for the waveforms
 
     if (drawGrid)
-        drawWaveformGrid(s.threshold[chan], s.gain[chan], g);
+        drawWaveformGrid(g);
 
     // draw the threshold line and labels
     drawThresholdSlider(g);
@@ -650,7 +687,7 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
     float h = getHeight();
 
     //compute the spatial width for each waveform sample
-    float dx = (getWidth()-10)/float(spikeBuffer[0].nSamples);
+    float dx = getWidth()/float(spikeBuffer[0].nSamples);
     
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
@@ -658,16 +695,25 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
 
     int dSamples = 1;
 
-
-    float x = 5.0f;
+    float x = 0.0f;
 
      for (int i = 0; i < s.nSamples-1; i++)
     {
         //std::cout << s.data[sampIdx] << std::endl;
-        g.drawLine(x, 
-            h/2 + (s.data[sampIdx]-32768)/100, 
-            x+dx, 
-            h/2 + (s.data[sampIdx+1]-32768)/100);
+
+        if (*s.gain != 0)
+        {
+            float s1 = h/2 + float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f / range * h;
+            float s2 =  h/2 + float(s.data[sampIdx+1]-32768)/float(*s.gain)*1000.0f / range * h; 
+
+             g.drawLine(x, 
+                 s1, 
+                 x+dx, 
+                 s2);
+        }
+
+        
+
         sampIdx += dSamples;
         x += dx;
     }
@@ -680,89 +726,23 @@ void WaveAxes::drawThresholdSlider(Graphics& g)
     float h = getHeight()*thresholdLevel;
 
     g.setColour(thresholdColour);
-    g.drawLine(5.0f, h, getWidth()-5.0f, h);
+    g.drawLine(0, h, getWidth(), h);
 
 }
 
-void WaveAxes::drawWaveformGrid(int threshold, int gain, Graphics& g)
+void WaveAxes::drawWaveformGrid(Graphics& g)
 {
 
     float h = getHeight();
     float w = getWidth();
 
-    for (int i = 1; i < 10; i++)
+    g.setColour(Colours::darkgrey);
+
+    for (float y = -range/2; y < range/2; y += 25.0f)
     {
-        g.setColour(Colours::darkgrey);
-
-        g.drawLine(5.0,h/10*i,w-5.0f,h/10*i);
-
+        g.drawLine(0,h/2 + y/range*h, w, h/2+ y/range*h);
     }
-
-    // double voltRange = ylims[1] - ylims[0];
-    // double pixelRange = getHeight();
-    // //This is a totally arbitrary value that seemed to lok the best for me
-    // int minPixelsPerTick = 25;
-    // int MAX_N_TICKS = 10;
-
-    // int nTicks = pixelRange / minPixelsPerTick;
-    // while (nTicks > MAX_N_TICKS)
-    // {
-    //     minPixelsPerTick += 5;
-    //     nTicks = pixelRange / minPixelsPerTick;
-    // }
-
-    // int voltPerTick = (voltRange / nTicks);
-
-    // g.setColour(Colours::red);
-    // char cstr[200] = {0};
-    // String str;
-
-    // double tickVoltage = (double) threshold;
-
-    // // If the limits are bad we don't want to hang the program trying to draw too many ticks
-    // // so count the number of ticks drawn and kill the routine after 100 draws
-    // int tickCount=0;
-    // while (tickVoltage < ylims[1] - voltPerTick*1.5) // Draw the ticks above the thold line
-    // {
-    //     tickVoltage = (double) roundUp(tickVoltage + voltPerTick, 100);
-
-    //     g.drawLine(0, tickVoltage, s.nSamples, tickVoltage);
-
-    //     // glBegin(GL_LINE_STRIP);
-    //     // glVertex2i(0, tickVoltage);
-    //     // glVertex2i(s.nSamples, tickVoltage);
-    //     // glEnd();
-
-    //     makeLabel(tickVoltage, gain, true, cstr);
-    //     str = String(cstr);
-    //     g.setFont(font);
-    //     g.drawText(str, 1, tickVoltage+voltPerTick/10, 100, 15, Justification::left, false);
-
-    //     if (tickCount++>100)
-    //         return;
-    // }
-
-    // tickVoltage = threshold;
-    // tickCount = 0;
-
-    // while (tickVoltage > ylims[0] + voltPerTick) // draw the ticks below the thold line
-    // {
-    //     tickVoltage = (double) roundUp(tickVoltage - voltPerTick, 100);
-
-    //     g.drawLine(0, tickVoltage, s.nSamples, tickVoltage);
-
-    //     // glBegin(GL_LINE_STRIP);
-    //     // glVertex2i(0, tickVoltage);
-    //     // glVertex2i(s.nSamples, tickVoltage);
-    //     // glEnd();
-
-    //     makeLabel(tickVoltage, gain, true, cstr);
-    //     str = String(cstr);
-    //     g.drawText(str, 1, tickVoltage+voltPerTick/10, 100, 15, Justification::left, false);
-
-    //     if (tickCount++>100)
-    //         return;
-    // }
+   
 }
 
 void WaveAxes::updateSpikeData(const SpikeObject& s)
@@ -774,15 +754,21 @@ void WaveAxes::updateSpikeData(const SpikeObject& s)
 
     SpikeObject newSpike = s;
 
-    spikeBuffer.set(spikeIndex, newSpike);
-
     spikeIndex++;
     spikeIndex %= bufferSize;
+
+    spikeBuffer.set(spikeIndex, newSpike);
+
+    
 
 }
 
 void WaveAxes::clear()
 {
+
+    spikeBuffer.clear();
+    spikeIndex = 0;
+
     for (int n = 0; n < bufferSize; n++)
     {
         SpikeObject so;
@@ -865,7 +851,8 @@ void WaveAxes::mouseExit(const MouseEvent& event)
 
 // --------------------------------------------------
 
-ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum), imageDim(500)
+ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum), imageDim(500),
+                                                    rangeX(250), rangeY(250)
 {
     projectionImage = Image(Image::RGB, imageDim, imageDim, true);
 
@@ -879,13 +866,24 @@ ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum), 
 
 }
 
+void ProjectionAxes::setRange(float x, float y)
+{
+    rangeX = (int) x;
+    rangeY = (int) y;
+
+    //std::cout << "Setting range to " << x << " " << y << std::endl;
+
+    repaint();
+}
+
 void ProjectionAxes::paint(Graphics& g)
 {
     //g.setColour(Colours::orange);
     //g.fillRect(5,5,getWidth()-5, getHeight()-5);
+
     g.drawImage(projectionImage,
-                5, 5, getWidth()-10, getHeight()-10,
-                0, 250, 250, 250);
+                0, 0, getWidth(), getHeight(),
+                0, imageDim-rangeY, rangeX, rangeY);
 }
 
 void ProjectionAxes::updateSpikeData(const SpikeObject& s)
@@ -899,19 +897,25 @@ void ProjectionAxes::updateSpikeData(const SpikeObject& s)
     calcWaveformPeakIdx(s, ampDim1, ampDim2, &idx1, &idx2);
 
     // add peaks to image
-    updateProjectionImage(s.data[idx1], s.data[idx2]);
+
+    updateProjectionImage(s.data[idx1], s.data[idx2], *s.gain);
 
 }
 
-void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y)
+void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y, uint16_t gain)
 {
     Graphics g(projectionImage);
 
-    float xf = float(x-32768)*(float(imageDim)/32768.0);
-    float yf = float(imageDim) - float(y-32768)*(float(imageDim)/32768.0);
+   // h/2 + float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f / range * h;
 
-    g.setColour(Colours::white);
-    g.fillEllipse(xf,yf,2.0f,2.0f);
+    if (gain != 0)
+    {
+        float xf = float(x-32768)/float(gain)*1000.0f; // in microvolts
+        float yf = float(imageDim) - float(y-32768)/float(gain)*1000.0f; // in microvolts
+
+        g.setColour(Colours::white);
+        g.fillEllipse(xf,yf,2.0f,2.0f); 
+    }
 
 }
 

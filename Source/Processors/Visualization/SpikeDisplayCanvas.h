@@ -66,7 +66,7 @@ class SpikePlot;
 
 */
 
-class SpikeDisplayCanvas : public Visualizer
+class SpikeDisplayCanvas : public Visualizer, public Button::Listener
 
 {
 public:
@@ -93,6 +93,8 @@ public:
 
     bool keyPressed(const KeyPress& key);
 
+    void buttonClicked(Button* button);
+
 private:
 
     SpikeDisplayNode* processor;
@@ -101,7 +103,7 @@ private:
     ScopedPointer<SpikeDisplay> spikeDisplay;
     ScopedPointer<Viewport> viewport;
 
-
+    ScopedPointer<UtilityButton> clearButton;
 
     bool newSpike;
     SpikeObject spike;
@@ -118,6 +120,7 @@ public:
     SpikeDisplay(SpikeDisplayCanvas*, Viewport*);
     ~SpikeDisplay();
 
+    void removePlots();
     void clear();
     void addSpikePlot(int numChannels, int electrodeNum);
 
@@ -160,7 +163,7 @@ private:
 
 */
 
-class SpikePlot : public Component
+class SpikePlot : public Component, Button::Listener
 {
 public:
     SpikePlot(SpikeDisplayCanvas*, int elecNum, int plotType);
@@ -186,11 +189,11 @@ public:
     void getBestDimensions(int*, int*);
 
     void clear();
-    void zoom(int, bool);
-    void pan(int, bool);
 
     float minWidth;
     float aspectRatio;
+
+    void buttonClicked(Button* button);
 
 private:
 
@@ -205,6 +208,8 @@ private:
 
     OwnedArray<ProjectionAxes> pAxes;
     OwnedArray<WaveAxes> wAxes;
+    OwnedArray<UtilityButton> rangeButtons;
+    Array<float> ranges;
 
     void initLimits();
     void setLimitsOnAxes();
@@ -288,6 +293,9 @@ public:
     void mouseDown(const MouseEvent& event);
     void mouseDrag(const MouseEvent& event);
 
+    void setRange(float);
+    float getRange() {return range;}
+
     //MouseCursor getMouseCursor();
 
 private:
@@ -300,7 +308,7 @@ private:
 
     float thresholdLevel;
 
-    void drawWaveformGrid(int threshold, int gain, Graphics& g);
+    void drawWaveformGrid(Graphics& g);
 
     void drawThresholdSlider(Graphics& g);
 
@@ -310,6 +318,8 @@ private:
 
     int spikeIndex;
     int bufferSize;
+
+    float range;
 
     bool isOverThresholdSlider;
     bool isDraggingThresholdSlider;
@@ -340,14 +350,15 @@ public:
 
     void clear();
 
+    void setRange(float, float);
+
+    static void n2ProjIdx(int i, int* p1, int* p2);
+
 private:
 
-    void updateProjectionImage(uint16_t, uint16_t);
+    void updateProjectionImage(uint16_t, uint16_t, uint16_t);
 
     void calcWaveformPeakIdx(const SpikeObject&, int, int, int*, int*);
-
-
-    void n2ProjIdx(int i, int* p1, int* p2);
 
     int ampDim1, ampDim2;
 
@@ -357,6 +368,10 @@ private:
     Colour gridColour;
 
     int imageDim;
+
+    int rangeX;
+    int rangeY;
+
 
 };
 

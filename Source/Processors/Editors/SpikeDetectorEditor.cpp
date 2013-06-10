@@ -175,12 +175,11 @@ void SpikeDetectorEditor::sliderEvent(Slider* slider)
 void SpikeDetectorEditor::buttonEvent(Button* button)
 {
 
-    if (electrodeEditorButtons[0]->getToggleState()) // EDIT is active
+
+    if (electrodeButtons.contains((ElectrodeButton*) button))
     {
 
-        std::cout << "Editing active." << std::endl;
-
-        if (electrodeButtons.contains((ElectrodeButton*) button))
+        if (electrodeEditorButtons[0]->getToggleState()) // EDIT is active
         {
             ElectrodeButton* eb = (ElectrodeButton*) button;
             int electrodeNum = eb->getChannelNum()-1;
@@ -195,8 +194,26 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             thresholdSlider->setActive(true);
             thresholdSlider->setValue(processor->getChannelThreshold(electrodeList->getSelectedItemIndex(),
                                                                      electrodeButtons.indexOf((ElectrodeButton*) button)));
+        } else {
+
+            SpikeDetector* processor = (SpikeDetector*) getProcessor();
+
+            ElectrodeButton* eb = (ElectrodeButton*) button;
+            int electrodeNum = electrodeList->getSelectedItemIndex();
+            int channelNum = electrodeButtons.indexOf(eb);
+
+            processor->setChannelActive(electrodeNum,
+                                        channelNum,
+                                        button->getToggleState());
+
+            std::cout << "Disabling channel " << channelNum <<
+                         " of electrode " << electrodeNum << std::endl;
+
         }
+    
+
     }
+
 
     int num = numElectrodes->getText().getIntValue();
 
@@ -530,7 +547,8 @@ void ElectrodeButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDo
 
     g.drawRect(0,0,getWidth(),getHeight(),1.0);
 
-    g.drawText(String(chan),0,0,getWidth(),getHeight(),Justification::centred,true);
+    if (chan >= 0)
+        g.drawText(String(chan),0,0,getWidth(),getHeight(),Justification::centred,true);
 }
 
 

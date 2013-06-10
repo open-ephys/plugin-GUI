@@ -337,6 +337,8 @@ void GenericProcessor::update()
         {
             Channel* sourceChan = sourceNode->eventChannels[i];
             Channel* ch = new Channel(*sourceChan);
+            ch->sampleRate = getDefaultSampleRate();
+            ch->bitVolts = getDefaultBitVolts();
             eventChannels.add(ch);
         }
 

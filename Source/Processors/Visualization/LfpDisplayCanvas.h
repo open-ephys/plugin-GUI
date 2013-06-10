@@ -32,6 +32,7 @@ class LfpDisplayNode;
 class LfpTimescale;
 class LfpDisplay;
 class LfpChannelDisplay;
+class LfpChannelDisplayInfo;
 
 /**
 
@@ -43,7 +44,7 @@ class LfpChannelDisplay;
 
 class LfpDisplayCanvas : public Visualizer,
     public ComboBox::Listener
-
+    
 {
 public:
     LfpDisplayCanvas(LfpDisplayNode* n);
@@ -79,7 +80,10 @@ public:
 
     void loadVisualizerParameters(XmlElement* xml);
 
+    //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
+    bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw, there is a similar switch for ach ch display;
+    static const int leftmargin=50; // left margin for lfp plots (so the ch number text doesnt overlap)
 
 private:
 
@@ -92,6 +96,9 @@ private:
     static const int MAX_N_CHAN = 256;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
+
+    
+
 
     LfpDisplayNode* processor;
     AudioSampleBuffer* displayBuffer;
@@ -119,6 +126,7 @@ private:
     int scrollBarThickness;
 
     int nChans;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
 
@@ -163,9 +171,17 @@ public:
     void resized();
 
     void mouseDown(const MouseEvent& event);
+    void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel ) ;
 
+    
     void setRange(float range);
+    int getRange();
+
     void setChannelHeight(int r);
+    int getChannelHeight();
+
+    Array<LfpChannelDisplay*> channels;
+    Array<LfpChannelDisplayInfo*> channelInfo;
 
 private:
     int numChans;
@@ -175,7 +191,6 @@ private:
     LfpDisplayCanvas* canvas;
     Viewport* viewport;
 
-    Array<LfpChannelDisplay*> channels;
     Array<Colour> channelColours;
 
     float range;
@@ -193,6 +208,8 @@ public:
     void select();
     void deselect();
 
+    void setName(String);
+
     void setColour(Colour c);
 
     void setChannelHeight(int);
@@ -202,14 +219,19 @@ public:
     int getChannelOverlap();
 
     void setRange(float range);
+    int getRange();
 
-private:
+    bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
+
+protected:
 
     LfpDisplayCanvas* canvas;
 
     bool isSelected;
 
     int chan;
+
+    String name;
 
     Font channelFont;
 
@@ -223,5 +245,13 @@ private:
 
 };
 
+class LfpChannelDisplayInfo : public LfpChannelDisplay
+{
+public:
+    LfpChannelDisplayInfo(LfpDisplayCanvas*, int channelNumber);
+
+    void paint(Graphics& g);
+
+};
 
 #endif  // __LFPDISPLAYCANVAS_H_B711873A__

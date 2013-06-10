@@ -249,11 +249,11 @@ void FilterNode::process(AudioSampleBuffer& buffer,
 void FilterNode::saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNumber, bool isEventChannel)
 {
 
-    std::cout << "CHANNEL: " << channelNumber << std::endl;
+    //std::cout << "CHANNEL: " << channelNumber << std::endl;
 
     if (!isEventChannel && channelNumber > -1 && channelNumber < highCuts.size())
     {
-        std::cout << "Saving custom parameters for filter node." << std::endl;
+        //std::cout << "Saving custom parameters for filter node." << std::endl;
 
          XmlElement* channelParams = channelInfo->createNewChildElement("PARAMETERS");
          channelParams->setAttribute("highcut",highCuts[channelNumber]);

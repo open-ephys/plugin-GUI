@@ -143,7 +143,7 @@ void SpikeDisplayEditor::initializeButtons()
     allSubChansBtn->setToggleState(true, false);
     x += (w+xPad) * 2;
 
-    for (int i=0; i<nSubChannels; i++)
+    for (int i = 0; i < nSubChannels; i++)
     {
         String s = "";
         s += i;

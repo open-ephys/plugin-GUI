@@ -74,7 +74,7 @@ int packSpike(SpikeObject* s, uint8_t* buffer, int bufferLength);
 bool unpackSpike(SpikeObject* s, const uint8_t* buffer, int bufferLength);
 
 /** Checks the validity of the buffer, this should be run before unpacking the buffer */
-bool isBufferValid(uint8_t* buffer, int bufferLength);
+bool isBufferValid(const uint8_t* buffer, int bufferLength);
 
 /** Computes the validity value for the buffer, this should be called after packing the buffer */
 void makeBufferValid(uint8_t* buffer, int bufferLength);

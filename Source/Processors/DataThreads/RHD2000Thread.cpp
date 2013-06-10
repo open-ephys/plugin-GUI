@@ -25,10 +25,15 @@
 #include "../SourceNode.h"
 
 RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(false),
-    fastSettleEnabled(false)
+    fastSettleEnabled(false), chipRegisters(30000.0f), dspEnabled(true), boardSampleRate(30000.0f),
+    desiredDspCutoffFreq(0.5f), desiredUpperBandwidth(7500.0f), desiredLowerBandwidth(1.0f),
+    savedSampleRateIndex(16), audioOutputL(-1), audioOutputR(-1), dacOutputShouldChange(false),
+    acquireAdcChannels(false), acquireAuxChannels(true),
+    cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f) // default is 3 feet (0.914 m)
 {
     evalBoard = new Rhd2000EvalBoard;
     dataBlock = new Rhd2000DataBlock(1);
+    dataBuffer = new DataBuffer(2, 10000); // start with 2 channels and automatically resize
 
     // Open Opal Kelly XEM6010 board.
     int return_code = evalBoard->open();
@@ -45,27 +50,11 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
     if (deviceFound)
     {
 
-        numChannelsPerDataStream.insertMultiple(0,0,4);
-
-        // initialize data buffer for 32 channels + 3 aux.
-        dataBuffer = new DataBuffer(35, 10000);
-
+        // upload bitfile and restore default settings
         initializeBoard();
 
-		// manually set cable delay for now
-		//2 for one cable 
-		//3 for 2 cables daisy-chained
-		evalBoard->setCableDelay(Rhd2000EvalBoard::PortA, 3);
-        evalBoard->setCableDelay(Rhd2000EvalBoard::PortB, 3);
-
-        enableHeadstage(0,true); // start off with one headstage
-		enableHeadstage(1,true); // start off with one headstage
-
-
-
-        // automatically find connected headstages -- needs debugging
-       // scanPorts();
-
+        // automatically find connected headstages
+        scanPorts(); // do this after the editor has been created?
     }
 
 }
@@ -89,110 +78,71 @@ void RHD2000Thread::initializeBoard()
 {
     string bitfilename;
     bitfilename = "rhd2000.bit";
-    evalBoard->uploadFpgaBitfile(bitfilename);
+    if (!evalBoard->uploadFpgaBitfile(bitfilename))
+    {
+        // what to do if there's an error
+    }
 
-    // Initialize board.
+    // Initialize the board
+    std::cout << "Initializing acquisition board." << std::endl;
     evalBoard->initialize();
+    // This applies the following settings:
+    //  - sample rate to 30 kHz
+    //  - aux command banks to zero
+    //  - aux command lengths to zero
+    //  - continuous run mode to 'true'
+    //  - maxTimeStep to 2^32 - 1
+    //  - all cable lengths to 3 feet
+    //  - dspSettle to 'false'
+    //  - data source mapping as 0->PortA1, 1->PortB1, 2->PortC1, 3->PortD1, etc.
+    //  - enables all data streams
+    //  - clears the ttlOut
+    //  - disables all DACs and sets gain to 0
 
-    // Select per-channel amplifier sampling rate.
-    evalBoard->setSampleRate(Rhd2000EvalBoard::SampleRate30000Hz);
+    // Select RAM Bank 0 for AuxCmd3 initially, so the ADC is calibrated.
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3, 0);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3, 0);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3, 0);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3, 0);
 
-    // // Select RAM Bank 0 for AuxCmd3 initially, so the ADC is calibrated.
-    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3, 0);
-    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3, 0);
-    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3, 0);
-    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3, 0);
-    // evalBoard->flush(); // flush in case it crashed with data remaining
+    // Since our longest command sequence is 60 commands, run the SPI interface for
+    // 60 samples
+    evalBoard->setMaxTimeStep(60);
+    evalBoard->setContinuousRunMode(false);
 
-    // // Since our longest command sequence is 60 commands, run the SPI interface for
-    // // 60 samples
-    // evalBoard->setMaxTimeStep(60);
-    // evalBoard->setContinuousRunMode(false);
+    // Start SPI interface
+    evalBoard->run();
 
-    // // Start SPI interface
-    // evalBoard->run();
+    // Wait for the 60-sample run to complete
+    while (evalBoard->isRunning())
+    {
+        ;
+    }
 
-    // // Wait for the 60-sample run to complete
-    // while (evalBoard->isRunning())
-    // {
-    //     ;
-    // }
-
-    // // Read the resulting single data block from the USB interface. We don't
-    // // need to do anything with this, since it was only used for ADC calibration
-    // Rhd2000DataBlock* dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
-    // evalBoard->readDataBlock(dataBlock);
-
-    // // Now that ADC calibration has been performed, we switch to the command sequence
-    // // that does not execute ADC calibration.
-    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3,
-    //                                 fastSettleEnabled ? 2 : 1);
-    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3,
-    //                                 fastSettleEnabled ? 2 : 1);
-    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3,
-    //                                 fastSettleEnabled ? 2 : 1);
-    // evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3,
-    //                                 fastSettleEnabled ? 2 : 1);
+    // Read the resulting single data block from the USB interface. We don't
+    // need to do anything with this, since it was only used for ADC calibration
+    Rhd2000DataBlock* dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
 
 
-    // // Set default configuration for all eight DACs on interface board.
-    // evalBoard->enableDac(0, false);
-    // evalBoard->enableDac(1, false);
-    // evalBoard->enableDac(2, false);
-    // evalBoard->enableDac(3, false);
-    // evalBoard->enableDac(4, false);
-    // evalBoard->enableDac(5, false);
-    // evalBoard->enableDac(6, false);
-    // evalBoard->enableDac(7, false);
-    // evalBoard->selectDacDataStream(0, 0);
-    // evalBoard->selectDacDataStream(1, 0);
-    // evalBoard->selectDacDataStream(2, 0);
-    // evalBoard->selectDacDataStream(3, 0);
-    // evalBoard->selectDacDataStream(4, 0);
-    // evalBoard->selectDacDataStream(5, 0);
-    // evalBoard->selectDacDataStream(6, 0);
-    // evalBoard->selectDacDataStream(7, 0);
-    // evalBoard->selectDacDataChannel(0, 0);
-    // evalBoard->selectDacDataChannel(1, 1);
-    // evalBoard->selectDacDataChannel(2, 0);
-    // evalBoard->selectDacDataChannel(3, 0);
-    // evalBoard->selectDacDataChannel(4, 0);
-    // evalBoard->selectDacDataChannel(5, 0);
-    // evalBoard->selectDacDataChannel(6, 0);
-    // evalBoard->selectDacDataChannel(7, 0);
-    // evalBoard->setDacManual(Rhd2000EvalBoard::DacManual1, 32768);
-    // evalBoard->setDacManual(Rhd2000EvalBoard::DacManual2, 32768);
-    // evalBoard->setDacGain(0);
-    // evalBoard->setAudioNoiseSuppress(0);
+    evalBoard->readDataBlock(dataBlock);
+
+    // Now that ADC calibration has been performed, we switch to the command sequence
+    // that does not execute ADC calibration.
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3,
+                                    fastSettleEnabled ? 2 : 1);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3,
+                                    fastSettleEnabled ? 2 : 1);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3,
+                                    fastSettleEnabled ? 2 : 1);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3,
+                                    fastSettleEnabled ? 2 : 1);
 
 
-    // Set up an RHD2000 register object using this sample rate to optimize MUX-related
-    // register settings.
-    
-    std::cout << "Rhd sample rate : " << evalBoard->getSampleRate() << std::endl;
-	chipRegisters = new Rhd2000Registers(evalBoard->getSampleRate());
+    updateRegisters();
 
-
-
-    // Before generating register configuration command sequences, set amplifier
-    // bandwidth paramters.
-    double dspCutoffFreq;
-    dspCutoffFreq = chipRegisters->setDspCutoffFreq(10.0);
-    cout << "Actual DSP cutoff frequency: " << dspCutoffFreq << " Hz" << endl;
-
-    chipRegisters->setLowerBandwidth(1.0);
-    chipRegisters->setUpperBandwidth(7500.0);
-
-
-			// turn on aux inputs
-		chipRegisters->enableAux1(true);
-		chipRegisters->enableAux2(true);
-	   chipRegisters->enableAux3(true);
-
-    // Let's turn one LED on to indicate that the program is running.
+    // Let's turn one LED on to indicate that the board is now connected
     int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
     evalBoard->setLedDisplay(ledArray);
-
 
 }
 
@@ -200,20 +150,36 @@ void RHD2000Thread::scanPorts()
 {
     // Scan SPI ports
 
-    int delay, stream, id;
+    int delay, stream, id, i, channel, port;
+    int stream1, stream2;
+    int numChannelsOnPort[4] = {0, 0, 0, 0};
+    Array<int> chipId;
+    chipId.insertMultiple(0,-1,8);
 
-    // assume we only have 32-channel headstages, for the sake of
-    // simplicity; this will have to be changed once 64-channel
-    // headstages are an option
+    setSampleRate(16, true); // set to 30 kHz temporarily
+
+    // Enable all data streams, and set sources to cover one or two chips
+    // on Ports A-D.
     evalBoard->setDataSource(0, Rhd2000EvalBoard::PortA1);
-    evalBoard->setDataSource(1, Rhd2000EvalBoard::PortB1);
-    evalBoard->setDataSource(2, Rhd2000EvalBoard::PortC1);
-    evalBoard->setDataSource(3, Rhd2000EvalBoard::PortD1);
+    evalBoard->setDataSource(1, Rhd2000EvalBoard::PortA2);
+    evalBoard->setDataSource(2, Rhd2000EvalBoard::PortB1);
+    evalBoard->setDataSource(3, Rhd2000EvalBoard::PortB2);
+    evalBoard->setDataSource(4, Rhd2000EvalBoard::PortC1);
+    evalBoard->setDataSource(5, Rhd2000EvalBoard::PortC2);
+    evalBoard->setDataSource(6, Rhd2000EvalBoard::PortD1);
+    evalBoard->setDataSource(7, Rhd2000EvalBoard::PortD2);
 
     evalBoard->enableDataStream(0, true);
     evalBoard->enableDataStream(1, true);
     evalBoard->enableDataStream(2, true);
     evalBoard->enableDataStream(3, true);
+    evalBoard->enableDataStream(4, true);
+    evalBoard->enableDataStream(5, true);
+    evalBoard->enableDataStream(6, true);
+    evalBoard->enableDataStream(7, true);
+
+    std::cout << "Number of enabled data streams: " << evalBoard->getNumEnabledDataStreams() << std::endl;
+
 
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA,
                                     Rhd2000EvalBoard::AuxCmd3, 0);
@@ -233,23 +199,21 @@ void RHD2000Thread::scanPorts()
         new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
 
     Array<int> sumGoodDelays;
-    sumGoodDelays.insertMultiple(0,0,4);
+    sumGoodDelays.insertMultiple(0,0,8);
 
     Array<int> indexFirstGoodDelay;
-    indexFirstGoodDelay.insertMultiple(0,-1,4);
+    indexFirstGoodDelay.insertMultiple(0,-1,8);
 
     Array<int> indexSecondGoodDelay;
-    indexSecondGoodDelay.insertMultiple(0,-1,4);
+    indexSecondGoodDelay.insertMultiple(0,-1,8);
 
-    Array<int> chipId;
-    chipId.insertMultiple(0,0,4);
-
-    Array<int> optimumDelay;
-    optimumDelay.insertMultiple(0,0,4);
 
     // Run SPI command sequence at all 16 possible FPGA MISO delay settings
     // to find optimum delay for each SPI interface cable.
-    for (delay = 0; delay < 16; ++delay)
+
+    std::cout << "Checking for connected amplifier chips..." << std::endl;
+
+    for (delay = 0; delay < 16; delay++)//(delay = 0; delay < 16; ++delay)
     {
         evalBoard->setCableDelay(Rhd2000EvalBoard::PortA, delay);
         evalBoard->setCableDelay(Rhd2000EvalBoard::PortB, delay);
@@ -270,13 +234,18 @@ void RHD2000Thread::scanPorts()
 
         // Read the Intan chip ID number from each RHD2000 chip found.
         // Record delay settings that yield good communication with the chip.
-        for (stream = 0; stream < 4; ++stream)
+        for (stream = 0; stream < MAX_NUM_DATA_STREAMS; ++stream)//MAX_NUM_DATA_STREAMS; ++stream)
         {
+           // std::cout << "Stream number " << stream << ", delay = " << delay << std::endl;
+
             id = deviceId(dataBlock, stream);
-            std::cout << "Device ID found: " << id << std::endl;
-            if (id > 0)
+            
+            if (id > 0) // 1 = RHD2132, 2 = RHD2216
             {
+              //  std::cout << "Device ID found: " << id << std::endl;
+
                 sumGoodDelays.set(stream,sumGoodDelays[stream] + 1);
+
                 if (indexFirstGoodDelay[stream] == -1)
                 {
                     indexFirstGoodDelay.set(stream, delay);
@@ -291,11 +260,19 @@ void RHD2000Thread::scanPorts()
         }
     }
 
+    // std::cout << "Chip IDs found: ";
+    // for (int i = 0; i < MAX_NUM_DATA_STREAMS; ++i)
+    // {
+    //     std::cout << chipId[i] << " ";
+    // }
+    //std::cout << std::endl;
+
     // Now, disable data streams where we did not find chips present.
-    for (stream = 0; stream < 4; ++stream)
+    for (stream = 0; stream < MAX_NUM_DATA_STREAMS; ++stream)
     {
         if (chipId[stream] > 0)
         {
+            //std::cout << "Enabling headstage on stream " << stream << std::endl;
             enableHeadstage(stream, true);
         }
         else
@@ -304,9 +281,15 @@ void RHD2000Thread::scanPorts()
         }
     }
 
+    std::cout << "Number of enabled data streams: " << evalBoard->getNumEnabledDataStreams() << std::endl;
+
+
     // Set cable delay settings that yield good communication with each
     // RHD2000 chip.
-    for (stream = 0; stream < 4; ++stream)
+    Array<int> optimumDelay;
+    optimumDelay.insertMultiple(0,0,8);
+
+    for (stream = 0; stream < MAX_NUM_DATA_STREAMS; ++stream)
     {
         if (sumGoodDelays[stream] == 1 || sumGoodDelays[stream] == 2)
         {
@@ -336,7 +319,9 @@ void RHD2000Thread::scanPorts()
     cableLengthPortD =
         evalBoard->estimateCableLengthMeters(optimumDelay[3]);
 
+    setSampleRate(savedSampleRateIndex); // restore saved sample rate
 
+    updateRegisters();
 }
 
 int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream)
@@ -346,11 +331,17 @@ int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream)
     // First, check ROM registers 32-36 to verify that they hold 'INTAN'.
     // This is just used to verify that we are getting good data over the SPI
     // communication channel.
-    intanChipPresent = ((char) dataBlock->auxiliaryData[stream][2][32] == 'I' &&
-                        (char) dataBlock->auxiliaryData[stream][2][33] == 'N' &&
-                        (char) dataBlock->auxiliaryData[stream][2][34] == 'T' &&
-                        (char) dataBlock->auxiliaryData[stream][2][35] == 'A' &&
-                        (char) dataBlock->auxiliaryData[stream][2][36] == 'N');
+    // std::cout << dataBlock->auxiliaryData[stream][2][32] << " ";
+    // std::cout << dataBlock->auxiliaryData[stream][2][33] << " ";
+    // std::cout << dataBlock->auxiliaryData[stream][2][34] << " ";
+    // std::cout << dataBlock->auxiliaryData[stream][2][35] << " ";
+    // std::cout << dataBlock->auxiliaryData[stream][2][36] << std::endl;
+
+    intanChipPresent = (dataBlock->auxiliaryData[stream][2][32] == 73 && // I = 73
+                        dataBlock->auxiliaryData[stream][2][33] == 78 && // N = 78
+                        dataBlock->auxiliaryData[stream][2][34] == 84 && // T = 84
+                        dataBlock->auxiliaryData[stream][2][35] == 65 && // A = 65
+                        dataBlock->auxiliaryData[stream][2][36] == 78);  // N = 78
 
     // If the SPI communication is bad, return -1.  Otherwise, return the Intan
     // chip ID number stored in ROM regstier 63.
@@ -365,9 +356,15 @@ int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream)
 }
 
 
+
 bool RHD2000Thread::isAcquisitionActive()
 {
     return isTransmitting;
+}
+
+void RHD2000Thread::setNumChannels(int hsNum, int numChannels)
+{
+    numChannelsPerDataStream.set(hsNum, numChannels);
 }
 
 int RHD2000Thread::getNumChannels()
@@ -375,10 +372,15 @@ int RHD2000Thread::getNumChannels()
 
     numChannels = 0;
 
-    for (int i = 0; i < numChannelsPerDataStream.size(); i++)
+    for (int i = 0; i < MAX_NUM_DATA_STREAMS; i++)
     {
     
-		numChannels += numChannelsPerDataStream[i];
+        if (numChannelsPerDataStream[i] > 0)
+        {
+            numChannels += numChannelsPerDataStream[i];
+            numChannels += 3; // to account for aux inputs
+        }
+
 		
 		/*
 		if (chipRegisters->adcAux1En){ // no public function to read these? fix this in some way
@@ -392,13 +394,69 @@ int RHD2000Thread::getNumChannels()
 		}
 		*/
 	}
-	numChannels += 6;
+
+
+    if (acquireAdcChannels)
+    {
+        numChannels += 8; // add 8 channels for the ADCs
+    }        
 
     if (numChannels > 0)
         return numChannels;
     else
         return 1; // to prevent crashing with 0 channels
 }
+
+void RHD2000Thread::updateChannelNames()
+{
+
+    int chNum = -1;
+
+    for (int i = 0; i < MAX_NUM_DATA_STREAMS; i++)
+    {
+    
+        for (int j = 0; j < numChannelsPerDataStream[i]; j++)
+        {
+            chNum++;
+
+            sn->channels[chNum]->setName(String(chNum));
+        }
+    }
+
+    if (acquireAuxChannels)
+    {
+        for (int i = 0; i < MAX_NUM_DATA_STREAMS; i++)
+        {
+        
+            for (int j = 0; j < 3; j++)
+            {
+                
+                chNum++;
+
+                String chName = "AUX";
+              //  chName += (j+1);
+
+              //  sn->channels[chNum]->setName(chName);
+            }
+        }
+    }
+
+
+    if (acquireAdcChannels)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            chNum++;
+
+            String chName = "ADC";
+           // chName += (j+1);
+
+          //  sn->channels[chNum]->setName(chName);
+        }
+    }        
+
+}
+
 
 int RHD2000Thread::getNumEventChannels()
 {
@@ -415,14 +473,23 @@ float RHD2000Thread::getBitVolts()
 	return 0.195f;
 }
 
-double RHD2000Thread::setUpperBandwidth(double desiredUpperBandwidth)
+double RHD2000Thread::setUpperBandwidth(double upper)
 {
-    return chipRegisters->setUpperBandwidth(desiredUpperBandwidth);
+
+    desiredUpperBandwidth = upper;
+
+    updateRegisters();
+
+    return actualUpperBandwidth;
 }
 
-double RHD2000Thread::setLowerBandwidth(double desiredLowerBandwidth)
+double RHD2000Thread::setLowerBandwidth(double lower)
 {
-    return chipRegisters->setLowerBandwidth(desiredLowerBandwidth);
+    desiredLowerBandwidth = lower;
+
+    updateRegisters();
+
+    return actualLowerBandwidth;
 }
 
 bool RHD2000Thread::foundInputSource()
@@ -446,12 +513,15 @@ bool RHD2000Thread::enableHeadstage(int hsNum, bool enabled)
         numChannelsPerDataStream.set(hsNum, 0);
     }
 
-    std::cout << "Enabled channels: " << numChannelsPerDataStream[0] <<
-              " " << numChannelsPerDataStream[1] <<
-              " " << numChannelsPerDataStream[2] <<
-              " " << numChannelsPerDataStream[3] << std::endl;
+    std::cout << "Enabled channels: ";
 
-    std::cout << "Enabled data streams: " << evalBoard->getNumEnabledDataStreams() << std::endl;
+    for (int i = 0; i < MAX_NUM_DATA_STREAMS; i++)
+    {
+        std::cout << numChannelsPerDataStream[i] << " ";
+    } 
+
+    std:: cout << std::endl;
+
 
     dataBuffer->resize(getNumChannels(), 10000);
 
@@ -470,89 +540,227 @@ bool RHD2000Thread::isHeadstageEnabled(int hsNum)
 
 }
 
-void RHD2000Thread::setSampleRate(int sampleRateIndex)
+void RHD2000Thread::assignAudioOut(int dacChannel, int dataChannel)
 {
+
+    if (dacChannel == 0)
+    {
+        audioOutputR = dataChannel;
+
+
+    } else if (dacChannel == 1)
+    {
+        audioOutputL = dataChannel;
+
+    }
+
+    dacOutputShouldChange = true; // set a flag and take care of setting wires
+                                  // during the updateBuffer() method
+                                  // to avoid problems
+
+}
+
+void RHD2000Thread::enableAdcs(bool t)
+{
+
+    acquireAdcChannels = t;
+
+    dataBuffer->resize(getNumChannels(), 10000);
+
+}
+
+void RHD2000Thread::setSampleRate(int sampleRateIndex, bool isTemporary)
+{
+
+    if (!isTemporary)
+    {
+        savedSampleRateIndex = sampleRateIndex;
+    }
  
+    int numUsbBlocksToRead = 0; // placeholder - make this change the number of blocks that are read in RHD2000Thread::updateBuffer()
 
-    int numUsbBlocksToRead=0; // placeholder - make this change the number of blocks that are read in  RHD2000Thread::updateBuffer()
     Rhd2000EvalBoard::AmplifierSampleRate sampleRate; // just for local use
-
 
     switch (sampleRateIndex) {
     case 0:
         sampleRate = Rhd2000EvalBoard::SampleRate1000Hz;
         numUsbBlocksToRead = 1;
+        boardSampleRate = 1000.0f;
         break;
     case 1:
         sampleRate = Rhd2000EvalBoard::SampleRate1250Hz;
         numUsbBlocksToRead = 1;
+        boardSampleRate = 1250.0f;
         break;
     case 2:
         sampleRate = Rhd2000EvalBoard::SampleRate1500Hz;
         numUsbBlocksToRead = 1;
+        boardSampleRate = 1500.0f;
         break;
     case 3:
         sampleRate = Rhd2000EvalBoard::SampleRate2000Hz;
         numUsbBlocksToRead = 1;
+        boardSampleRate = 2000.0f;
         break;
     case 4:
         sampleRate = Rhd2000EvalBoard::SampleRate2500Hz;
         numUsbBlocksToRead = 1;
+        boardSampleRate = 2500.0f;
         break;
     case 5:
         sampleRate = Rhd2000EvalBoard::SampleRate3000Hz;
         numUsbBlocksToRead = 2;
+        boardSampleRate = 3000.0f;
         break;
     case 6:
         sampleRate = Rhd2000EvalBoard::SampleRate3333Hz;
         numUsbBlocksToRead = 2;
+        boardSampleRate = 3333.0f;
         break;
     case 7:
         sampleRate = Rhd2000EvalBoard::SampleRate4000Hz;
         numUsbBlocksToRead = 2;
+        boardSampleRate = 4000.0f;
         break;
     case 8:
         sampleRate = Rhd2000EvalBoard::SampleRate5000Hz;
         numUsbBlocksToRead = 3;
+        boardSampleRate = 5000.0f;
         break;
     case 9:
         sampleRate = Rhd2000EvalBoard::SampleRate6250Hz;
         numUsbBlocksToRead = 3;
+        boardSampleRate = 6250.0f;
         break;
     case 10:
         sampleRate = Rhd2000EvalBoard::SampleRate8000Hz;
         numUsbBlocksToRead = 4;
+        boardSampleRate = 8000.0f;
         break;
     case 11:
         sampleRate = Rhd2000EvalBoard::SampleRate10000Hz;
         numUsbBlocksToRead = 6;
+        boardSampleRate = 10000.0f;
         break;
     case 12:
         sampleRate = Rhd2000EvalBoard::SampleRate12500Hz;
         numUsbBlocksToRead = 7;
+        boardSampleRate = 12500.0f;
         break;
     case 13:
         sampleRate = Rhd2000EvalBoard::SampleRate15000Hz;
         numUsbBlocksToRead = 8;
+        boardSampleRate = 15000.0f;
         break;
     case 14:
         sampleRate = Rhd2000EvalBoard::SampleRate20000Hz;
         numUsbBlocksToRead = 12;
+        boardSampleRate = 20000.0f;
         break;
     case 15:
         sampleRate = Rhd2000EvalBoard::SampleRate25000Hz;
         numUsbBlocksToRead = 14;
+        boardSampleRate = 25000.0f;
         break;
     case 16:
         sampleRate = Rhd2000EvalBoard::SampleRate30000Hz;
         numUsbBlocksToRead = 16;
+        boardSampleRate = 30000.0f;
         break;
+    default:
+        sampleRate = Rhd2000EvalBoard::SampleRate10000Hz;
+        numUsbBlocksToRead = 6;
+        boardSampleRate = 10000.0f;
     }
 
 
     // Select per-channel amplifier sampling rate.
     evalBoard->setSampleRate(sampleRate);
 
+    std::cout << "Sample rate set to " << evalBoard->getSampleRate() << std::endl;
+
+     // Now that we have set our sampling rate, we can set the MISO sampling delay
+    // which is dependent on the sample rate.
+    evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortA, cableLengthPortA);
+    evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortB, cableLengthPortB);
+    evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortC, cableLengthPortC);
+    evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortD, cableLengthPortD);
+
+}
+
+void RHD2000Thread::updateRegisters()
+{
+       // Set up an RHD2000 register object using this sample rate to
+    // optimize MUX-related register settings.
+    chipRegisters.defineSampleRate(boardSampleRate);
+
+
+    int commandSequenceLength;
+    vector<int> commandList;
+
+    // Create a command list for the AuxCmd1 slot.  This command sequence will create a 250 Hz,
+    // zero-amplitude sine wave (i.e., a flatline).  We will change this when we want to perform
+    // impedance testing.
+    commandSequenceLength = chipRegisters.createCommandListZcheckDac(commandList, 250.0, 0.0);
+    evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd1, 0);
+    evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd1, 0, commandSequenceLength - 1);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd1, 0);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd1, 0);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd1, 0);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd1, 0);
+
+    // // Next, we'll create a command list for the AuxCmd2 slot.  This command sequence
+    // // will sample the temperature sensor and other auxiliary ADC inputs.
+    commandSequenceLength = chipRegisters.createCommandListTempSensor(commandList);
+    evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd2, 0);
+    evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd2, 0, commandSequenceLength - 1);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd2, 0);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd2, 0);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd2, 0);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd2, 0);
+
+    // Before generating register configuration command sequences, set amplifier
+    // bandwidth paramters.
+     actualDspCutoffFreq = chipRegisters.setDspCutoffFreq(desiredDspCutoffFreq);
+     actualLowerBandwidth = chipRegisters.setLowerBandwidth(desiredLowerBandwidth);
+     actualUpperBandwidth = chipRegisters.setUpperBandwidth(desiredUpperBandwidth);
+     chipRegisters.enableDsp(dspEnabled);
+
+     // turn on aux inputs
+    chipRegisters.enableAux1(true);
+    chipRegisters.enableAux2(true);
+    chipRegisters.enableAux3(true);
+
+     chipRegisters.createCommandListRegisterConfig(commandList, true);
+        // Upload version with ADC calibration to AuxCmd3 RAM Bank 0.
+    evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 0);
+    evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0,
+                                      commandSequenceLength - 1);
+
+    commandSequenceLength = chipRegisters.createCommandListRegisterConfig(commandList, false);
+    // Upload version with no ADC calibration to AuxCmd3 RAM Bank 1.
+    evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 1);
+    evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0,
+                                      commandSequenceLength - 1);
+
+    chipRegisters.setFastSettle(true);
+    commandSequenceLength = chipRegisters.createCommandListRegisterConfig(commandList, false);
+    // Upload version with fast settle enabled to AuxCmd3 RAM Bank 2.
+    evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 2);
+    evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0,
+                                      commandSequenceLength - 1);
+    chipRegisters.setFastSettle(false);
+
+    
+
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3,
+                                    fastSettleEnabled ? 2 : 1);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3,
+                                    fastSettleEnabled ? 2 : 1);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3,
+                                    fastSettleEnabled ? 2 : 1);
+    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3,
+                                    fastSettleEnabled ? 2 : 1);
 }
 
 void RHD2000Thread::setCableLength(int hsNum, float length)
@@ -660,8 +868,6 @@ bool RHD2000Thread::updateBuffer()
     bool return_code;
 	
 
-    for (int n = 0; n < 10; n++)
-    {
         if (evalBoard->numWordsInFifo() >= blockSize)
         {
             return_code = evalBoard->readDataBlock(dataBlock);
@@ -671,7 +877,8 @@ bool RHD2000Thread::updateBuffer()
                 int streamNumber = -1;
                 int channel = -1;
 
-                for (int dataStream = 0; dataStream < numChannelsPerDataStream.size(); dataStream++)
+                // do the neural data channels first
+                for (int dataStream = 0; dataStream < MAX_NUM_DATA_STREAMS; dataStream++)
                 {
                     if (numChannelsPerDataStream[dataStream] > 0)
                     {
@@ -679,60 +886,105 @@ bool RHD2000Thread::updateBuffer()
 
                         for (int chan = 0; chan < numChannelsPerDataStream[dataStream]; chan++)
                         {
-                            //std::cout << "reading sample stream" << streamNumber << " chan " << chan << " sample "<< samp << std::endl;
+                         //   std::cout << "reading sample stream" << streamNumber << " chan " << chan << " sample "<< samp << std::endl;
 							channel++;
 
                             int value = dataBlock->amplifierData[streamNumber][chan][samp];
 
                             thisSample[channel] = float(value-32768)*0.195f;
                         }
-                    
 					
-						
-						if (samp % 4 == 1) { // every 4th sample should have auxiliary input data
-						
-							channel++;
-							thisSample[channel] = 0.0374 *
-							float(dataBlock->auxiliaryData[dataStream][1][samp+0]);
-							auxBuffer[channel]=thisSample[channel];
-
-							channel++;
-							thisSample[channel] = 0.0374 *
-							float(dataBlock->auxiliaryData[dataStream][1][samp+1]);
-							auxBuffer[channel]=thisSample[channel];
-
-						
-							channel++;
-							thisSample[channel] = 0.0374 *
-							float(dataBlock->auxiliaryData[dataStream][1][samp+2]);
-							auxBuffer[channel]=thisSample[channel];
-
-						} else{
-							channel++;
-							thisSample[channel] = auxBuffer[channel];
-							channel++;
-							thisSample[channel] = auxBuffer[channel];
-							channel++;
-							thisSample[channel] = auxBuffer[channel];
-						}
-						
 					}
+
+				}
+
+                streamNumber = -1;
+
+                // then do the ADC channels
+                for (int dataStream = 0; dataStream < MAX_NUM_DATA_STREAMS; dataStream++)
+                {
+                    if (numChannelsPerDataStream[dataStream] > 0)
+                    {
+                        streamNumber++;
+
+                        if (samp % 4 == 1) { // every 4th sample should have auxiliary input data
+                        
+                            channel++;
+                            thisSample[channel] = 0.0374 *
+                                 float(dataBlock->auxiliaryData[dataStream][1][samp+0]);
+
+                            auxBuffer[channel]=thisSample[channel];
+
+                            channel++;
+                            thisSample[channel] = 0.0374 *
+                                 float(dataBlock->auxiliaryData[dataStream][1][samp+1]);
+
+                            auxBuffer[channel]=thisSample[channel];
+
+                        
+                            channel++;
+                            thisSample[channel] = 0.0374 *
+                                 float(dataBlock->auxiliaryData[dataStream][1][samp+2]);
+
+                            auxBuffer[channel]=thisSample[channel];
+
+                        } else{ // repeat last values from buffer
+
+                            channel++;
+                            thisSample[channel] = auxBuffer[channel];
+                            channel++;
+                            thisSample[channel] = auxBuffer[channel];
+                            channel++;
+                            thisSample[channel] = auxBuffer[channel];
+                        }
+                    }
 
                 }
 
-                // std::cout << channel << std::endl;
+                // finally, loop through ADC channels if necessary
+                if (acquireAdcChannels)
+                {
+                    for (int adcChan = 0; adcChan < 8; ++adcChan) {
+                    
+                    channel++;
+                    // ADC waveform units = volts
+                     thisSample[channel] = 
+                       0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
+                    }
+                }
+				// std::cout << channel << std::endl;
 
-                timestamp = dataBlock->timeStamp[samp];
-                timestamp = timestamp;
-                eventCode = dataBlock->ttlIn[samp];
+				timestamp = dataBlock->timeStamp[samp];
+				timestamp = timestamp;
+				eventCode = dataBlock->ttlIn[samp];
 
-                dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+				dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+				 
             }
 
         }
+    
+
+    if (dacOutputShouldChange)
+    {
+        if (audioOutputR >= 0)
+        {
+            evalBoard->enableDac(0, true);
+            evalBoard->selectDacDataChannel(0, audioOutputR);
+        } else {
+            evalBoard->enableDac(0, false);
+        }
+            
+        if (audioOutputL >= 0)
+        {
+            evalBoard->enableDac(1, true);
+            evalBoard->selectDacDataChannel(1, audioOutputR);
+        } else {
+            evalBoard->enableDac(1, false);
+        }
+
+        dacOutputShouldChange = false;
     }
-
-
 
 
     return true;

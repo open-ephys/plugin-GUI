@@ -472,14 +472,16 @@ String RecordNode::generateHeader(Channel* ch)
     {
 
         header += "header.channelType = 'Continuous';\n";
-
-        header += "header.sampleRate = ";
-        header += String(ch->sampleRate);
-        header += ";\n";
-        header += "header.blockLength = '";
-        header += BLOCK_LENGTH;
-        header += "';\n";
     }
+
+    header += "header.sampleRate = ";
+    header += String(channelPointers[0]->sampleRate); // all channels need to have the
+                                                      // same sample rate under the current
+                                                      // scheme
+    header += ";\n";
+    header += "header.blockLength = ";
+    header += BLOCK_LENGTH;
+    header += ";\n";
 
     header += "header.bitVolts = ";
     header += String(ch->bitVolts);

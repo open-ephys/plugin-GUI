@@ -38,6 +38,7 @@
 
 #include "DataThread.h"
 
+#define MAX_NUM_DATA_STREAMS 8
 
 class SourceNode;
 
@@ -67,21 +68,29 @@ public:
     void setCableLength(int hsNum, float length);
     void setNumChannels(int hsNum, int nChannels);
 
-    void setSampleRate(int sampleRateIndex);
+    void setSampleRate(int index, bool temporary = false);
 
-    double setUpperBandwidth(double desiredUpperBandwidth); // set desired BW, returns actual BW
-    double setLowerBandwidth(double desiredLowerBandwidth);
+    double setUpperBandwidth(double upper); // set desired BW, returns actual BW
+    double setLowerBandwidth(double lower);
 
+    void scanPorts();
 
     int getNumEventChannels();
 
+    void assignAudioOut(int dacChannel, int dataChannel);
+    void enableAdcs(bool);
+
     bool isAcquisitionActive();
+
+    void updateChannelNames();
 
 private:
 
     ScopedPointer<Rhd2000EvalBoard> evalBoard;
-    ScopedPointer<Rhd2000Registers> chipRegisters;
+    Rhd2000Registers chipRegisters;
     Rhd2000DataBlock* dataBlock;
+
+    int audioOutputL, audioOutputR;
 
     Array<int> numChannelsPerDataStream;
 
@@ -95,13 +104,26 @@ private:
 
     bool isTransmitting;
 
+    bool dacOutputShouldChange;
+    bool acquireAdcChannels;
+    bool acquireAuxChannels;
+
     bool fastSettleEnabled;
+
+    bool dspEnabled;
+    double actualDspCutoffFreq, desiredDspCutoffFreq;
+    double actualUpperBandwidth, desiredUpperBandwidth;
+    double actualLowerBandwidth, desiredLowerBandwidth;
+    double boardSampleRate;
+    int savedSampleRateIndex;
 
     bool startAcquisition();
     bool stopAcquisition();
 
     void initializeBoard();
-    void scanPorts();
+
+    void updateRegisters();
+    
     int deviceId(Rhd2000DataBlock* dataBlock, int stream);
 
     bool updateBuffer();

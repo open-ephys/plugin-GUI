@@ -61,6 +61,11 @@ String Channel::getName()
 
 }
 
+void Channel::setName(String name_)
+{
+    name = name_;
+}
+
 void Channel::reset()
 {
     createDefaultName();

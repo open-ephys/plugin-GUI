@@ -352,21 +352,28 @@ void ChannelSelector::stopAcquisition()
 void ChannelSelector::setRadioStatus(bool radioOn)
 {
 
-    radioStatus = radioOn;
-
-    for (int i = 0; i < parameterButtons.size(); i++)
+    if (radioStatus != radioOn)
     {
-        if (radioOn)
+
+        radioStatus = radioOn;
+
+        for (int i = 0; i < parameterButtons.size(); i++)
         {
-            parameterButtons[i]->setToggleState(false, false);
-            parameterButtons[i]->setRadioGroupId(999);
+            if (radioOn)
+            {
+                parameterButtons[i]->setToggleState(false, false);
+                parameterButtons[i]->setRadioGroupId(999);
+            }
+            else
+            {
+                parameterButtons[i]->setToggleState(false, false);
+                parameterButtons[i]->setRadioGroupId(0);
+            }
         }
-        else
-        {
-            parameterButtons[i]->setToggleState(false, false);
-            parameterButtons[i]->setRadioGroupId(0);
-        }
+
     }
+
+  
 
 }
 
@@ -525,6 +532,13 @@ void ChannelSelector::buttonClicked(Button* button)
                 audioButtons[i]->setToggleState(false, true);
             }
         }
+
+        if (radioStatus) // if radio buttons are active
+            {
+                // send a message to parent
+                GenericEditor* editor = (GenericEditor*) getParentComponent();
+                editor->channelChanged(-1);
+            }
     }
     else
     {

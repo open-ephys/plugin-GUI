@@ -106,10 +106,10 @@ public:
     void setEnabledState(bool);
 
     /** Called just prior to the start of acquisition, to allow the editor to prepare.*/
-    void startAcquisition();
+    virtual void startAcquisition();
 
     /** Called after the end of acquisition.*/
-    void stopAcquisition();
+    virtual void stopAcquisition();
 
     /** Returns the name of the editor.*/
     String getName()
@@ -344,7 +344,7 @@ private:
 class UtilityButton : public Button
 {
 public:
-    UtilityButton(const String& label_, Font font_);
+    UtilityButton(String label_, Font font_);
     ~UtilityButton() {}
 
     void setCorners(bool UL, bool UR, bool LL, bool LR);
@@ -356,10 +356,12 @@ public:
         return isEnabled;
     }
 
+    void setLabel(String label);
+
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
-    const String label;
+    String label;
     Font font;
     bool roundUL, roundUR, roundLL, roundLR;
     float radius;

@@ -27,6 +27,8 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
+#include "SpikeDetectorEditor.h" // for ElectrodeButton
+
 class HeadstageOptionsInterface;
 class SampleRateInterface;
 class BandwidthInterface;
@@ -50,10 +52,27 @@ public:
     RHD2000Editor(GenericProcessor* parentNode, RHD2000Thread*, bool useDefaultParameterEditors);
     ~RHD2000Editor();
 
+    void buttonEvent(Button* button);
+
+    void scanPorts();
+
+    void startAcquisition();
+    void stopAcquisition();
+
+    void channelChanged(int chan);
+
 private:
 
     OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
-    ScopedPointer<SampleRateInterface> RateInterface;
+    OwnedArray<ElectrodeButton> electrodeButtons;
+
+    ScopedPointer<SampleRateInterface> sampleRateInterface;
+    ScopedPointer<BandwidthInterface> bandwidthInterface;
+
+    ScopedPointer<UtilityButton> rescanButton;
+    ScopedPointer<UtilityButton> adcButton;
+
+    ScopedPointer<Label> audioLabel;
 
     RHD2000Thread* board;
 
@@ -73,9 +92,12 @@ public:
 
     void buttonClicked(Button* button);
 
+    void checkEnabledState();
+
 private:
 
-    int hsNumber;
+    int hsNumber1, hsNumber2;
+    int channelsOnHs1, channelsOnHs2;
     String name;
 
     bool isEnabled;
@@ -83,7 +105,8 @@ private:
     RHD2000Thread* board;
     RHD2000Editor* editor;
 
-    ScopedPointer<UtilityButton> enabledButton;
+    ScopedPointer<UtilityButton> hsButton1;
+    ScopedPointer<UtilityButton> hsButton2;
 
 };
 
@@ -101,6 +124,8 @@ public:
 private:
 
     String name;
+
+    String lastLowCutString, lastHighCutString;
 
     RHD2000Thread* board;
     RHD2000Editor* editor;
