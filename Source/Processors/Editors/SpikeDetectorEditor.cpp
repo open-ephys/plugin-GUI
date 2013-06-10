@@ -530,9 +530,7 @@ void ElectrodeButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDo
 
     g.drawRect(0,0,getWidth(),getHeight(),1.0);
 
-    if (chan >= 0)
-        g.drawText(String(chan),0,0,getWidth(),getHeight(),Justification::centred,true);
-
+    g.drawText(String(chan),0,0,getWidth(),getHeight(),Justification::centred,true);
 }
 
 

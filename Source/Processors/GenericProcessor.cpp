@@ -469,16 +469,18 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
     data[1] = nodeId;  // processor ID automatically added
     data[2] = eventId; // event ID
     data[3] = eventChannel; // event channel
-    memcpy(&data[4], eventData, numBytes);
+    memcpy(data + 4, eventData, numBytes);
 
-    eventBuffer.addEvent(data, 		// spike data
-                         sizeof(data), // total bytes
+
+    //std::cout << 4 + numBytes << std::endl;
+
+    eventBuffer.addEvent(data, 		// raw data
+                         4 + numBytes, // total bytes
                          sampleNum);     // sample index
 
     //if (type == TTL)
     //	std::cout << "Adding event for channel " << (int) eventChannel << " with ID " << (int) eventId << std::endl;
 
-    delete data;
 }
 
 // void GenericProcessor::unpackEvent(int type,

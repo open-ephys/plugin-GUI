@@ -34,6 +34,7 @@
 #include "Channel.h"
 
 #define HEADER_SIZE 1024
+#define BLOCK_LENGTH 1024
 
 /**
 
@@ -129,9 +130,14 @@ private:
     */
     float* continuousDataFloatBuffer;
 
+    AudioSampleBuffer zeroBuffer;
+
     /** Integer timestamp saved for each buffer.
     */
     uint64 timestamp;
+
+    /** Integer to keep track of the number samples written in each buffer */
+    int sampleCount;
 
     /** Used to generate timestamps if none are given.
     */
@@ -178,6 +184,9 @@ private:
     /** Method for writing event buffers to disk.
     */
     void writeEventBuffer(MidiMessage& event, int samplePos);
+
+    void writeRecordMarker(FILE*);
+    void writeTimestampAndSampleCount(FILE*);
 
     /** Used to indicate the end of each record */
     char* recordMarker;

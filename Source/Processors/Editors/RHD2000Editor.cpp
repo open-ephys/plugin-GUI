@@ -191,7 +191,8 @@ void SampleRateInterface::comboBoxChanged(ComboBox* cb)
             //cb->setText(cb->getItemText(cb->getSelectedId()),true);
             std::cout << "Setting sample rate to index " << cb->getSelectedId() << std::endl;
 
-            repaint();
+            editor->getEditorViewport()->makeEditorVisible(editor, false, true);
+            //repaint();
         }
     }
 }

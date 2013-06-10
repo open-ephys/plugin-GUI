@@ -39,6 +39,8 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
 
     addAndMakeVisible(viewport);
 
+    setWantsKeyboardFocus(true);
+
     update();
 
 }
@@ -69,7 +71,6 @@ void SpikeDisplayCanvas::update()
 
     int nPlots = processor->getNumElectrodes();
     spikeDisplay->clear();
-    //numChannelsPerPlot.clear();
 
     for (int i = 0; i < nPlots; i++)
     {
@@ -77,7 +78,6 @@ void SpikeDisplayCanvas::update()
     }
 
     //initializeSpikePlots();
-
     spikeDisplay->resized();
     spikeDisplay->repaint();
 }
@@ -158,6 +158,20 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
 }
 
+bool SpikeDisplayCanvas::keyPressed(const KeyPress& key)
+{
+    if (key.getKeyCode() == 67) // C
+    {
+        spikeDisplay->clear();
+        
+        std::cout << "Clearing display" << std::endl;
+        return true;
+    }
+
+    return false;
+
+}
+
 // ----------------------------------------------------------------
 
 SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
@@ -175,8 +189,14 @@ SpikeDisplay::~SpikeDisplay()
 
 void SpikeDisplay::clear()
 {
-    if (spikePlots.size() > 0)
-        spikePlots.clear();
+   if (spikePlots.size() > 0)
+   {
+        for (int i = 0; i < spikePlots.size(); i++)
+        {
+            spikePlots[i]->clear();
+        }
+   }
+        
 }
 
 void SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum)
@@ -763,7 +783,13 @@ void WaveAxes::updateSpikeData(const SpikeObject& s)
 
 void WaveAxes::clear()
 {
-
+    for (int n = 0; n < bufferSize; n++)
+    {
+        SpikeObject so;
+        generateEmptySpike(&so, 4);
+        
+        spikeBuffer.add(so);
+    }
 }
 
 void WaveAxes::mouseMove(const MouseEvent& event)
@@ -820,12 +846,12 @@ void WaveAxes::mouseDrag(const MouseEvent& event)
     }
 }
 
-MouseCursor WaveAxes::getMouseCursor()
-{
-    MouseCursor c = MouseCursor(cursorType);
+// MouseCursor WaveAxes::getMouseCursor()
+// {
+//     MouseCursor c = MouseCursor(cursorType);
 
-    return c;
-}
+//     return c;
+// }
 
 void WaveAxes::mouseExit(const MouseEvent& event)
 {

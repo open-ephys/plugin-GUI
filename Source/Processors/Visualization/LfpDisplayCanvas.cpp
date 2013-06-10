@@ -115,11 +115,14 @@ void LfpDisplayCanvas::resized()
     timescale->setBounds(0,0,getWidth()-scrollBarThickness,30);
     viewport->setBounds(0,30,getWidth(),getHeight()-90);
 
-    lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getTotalHeight());
+    lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, getChannelHeight()*nChans);
 
     rangeSelection->setBounds(5,getHeight()-30,100,25);
     timebaseSelection->setBounds(175,getHeight()-30,100,25);
     spreadSelection->setBounds(345,getHeight()-30,100,25);
+
+   // std::cout << "Canvas thinks LfpDisplay should be this high: " 
+    //	<< lfpDisplay->getTotalHeight() << std::endl;
 
 }
 
@@ -173,12 +176,19 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
     else if (cb == spreadSelection)
     {
          //spread = spreads[cb->getSelectedId()-1].getFloatValue();
-         lfpDisplay->setChannelHeight(spreads[cb->getSelectedId()-1].getFloatValue());
-         lfpDisplay->resized();
-         std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
+         lfpDisplay->setChannelHeight(spreads[cb->getSelectedId()-1].getIntValue());
+         //lfpDisplay->resized();
+         resized();
+         //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
 
     timescale->setTimebase(timebase);
+}
+
+int LfpDisplayCanvas::getChannelHeight()
+{
+	return spreads[spreadSelection->getSelectedId()-1].getIntValue();
+
 }
 
 
@@ -266,8 +276,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
             for (int channel = 0; channel < nChans; channel++)
             {
-
-                gain = 1.0f / (processor->channels[channel]->bitVolts * float(0x7fff));
 
                 screenBuffer->addFrom(channel, // destChannel
                                       screenBufferIndex, // destStartSample
@@ -513,6 +521,7 @@ void LfpDisplay::setNumChannels(int numChannels)
 
         lfpChan->setColour(channelColours[i % channelColours.size()]);
         lfpChan->setRange(range);
+        lfpChan->setChannelHeight(canvas->getChannelHeight());
 
         addAndMakeVisible(lfpChan);
 
@@ -522,6 +531,11 @@ void LfpDisplay::setNumChannels(int numChannels)
 
     }
 
+}
+
+int LfpDisplay::getTotalHeight()
+{
+	return totalHeight;
 }
 
 void LfpDisplay::resized()
@@ -542,6 +556,8 @@ void LfpDisplay::resized()
         totalHeight += disp->getChannelHeight();
 
     }
+
+   // std::cout << "Total height: " << totalHeight << std::endl;
 
 }
 
@@ -589,15 +605,15 @@ void LfpDisplay::setRange(float r)
 
 }
 
-void LfpDisplay::setChannelHeight(float r)
+void LfpDisplay::setChannelHeight(int r)
 {
 
     for (int i = 0; i < numChans; i++)
     {
-
         channels[i]->setChannelHeight(r);
-
     }
+
+    resized();
 
 }
 
@@ -628,7 +644,7 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, int channelNumber) :
     canvas(c), isSelected(false), chan(channelNumber), channelHeight(40), channelOverlap(60), range(1000.0f)
 {
 
-    ch = (float) channelHeight;
+    channelHeightFloat = (float) channelHeight;
 
     channelFont = Font("Default", channelHeight*0.6, Font::plain);
 
@@ -655,13 +671,13 @@ void LfpChannelDisplay::paint(Graphics& g)
     if (isSelected)
     {
         g.setColour(Colours::lightgrey);
-        g.fillRect(0,center-50,10,100);
-        g.drawLine(0,center+50,getWidth(),center+50);
-        g.drawLine(0,center-50,getWidth(),center-50);
+        g.fillRect(0,center-channelHeight/2,10,channelHeight);
+        g.drawLine(0,center+channelHeight/2,getWidth(),center+channelHeight/2);
+        g.drawLine(0,center-channelHeight/2,getWidth(),center-channelHeight/2);
 
         g.setColour(Colour(25,25,25));
-        g.drawLine(0,center+25,10,center+25);
-        g.drawLine(0,center-25,10,center-25);
+        g.drawLine(0,center+channelHeight/4,10,center+channelHeight/4);
+        g.drawLine(0,center-channelHeight/4,10,center-channelHeight/4);
 
     }
 
@@ -670,23 +686,24 @@ void LfpChannelDisplay::paint(Graphics& g)
     g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
 
     int stepSize = 1;
-	int from=0;
-	int to=0;
+	int from = 0;
+	int to = 0;
     g.setColour(lineColour);
 
     for (int i = 0; i < getWidth()-stepSize; i += stepSize)
     {
 
 	   // drawLine makes for nice anti-aliased plots, but is pretty slow
-       //g.drawLine(i,
-       //          (canvas->getYCoord(chan, i)/range*ch)+getHeight()/2,
-       //           i+stepSize,
-       //            (canvas->getYCoord(chan, i+stepSize)/range*ch)+getHeight()/2);
+       // g.drawLine(i,
+       //           (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2,
+       //            i+stepSize,
+       //             (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2);
 
 
-		// pixel wise line plot has no anti-aliasing, but runs much faster
-		double a = (canvas->getYCoord(chan, i)/range*ch)+getHeight()/2;
-		double b = (canvas->getYCoord(chan, i+stepSize)/range*ch)+getHeight()/2;
+		// // pixel wise line plot has no anti-aliasing, but runs much faster
+		double a = (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2;
+		double b = (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2;
+
 		if (a<b){
 			 from = (a);
 			 to = (b);
@@ -695,17 +712,17 @@ void LfpChannelDisplay::paint(Graphics& g)
 			 to = (a);
 		}
 		
-		if ((to-from)<40){ // if there is too much vertical range in one pixel, dont draw the full line for speed reasons 
+		if ((to-from) < 40){ // if there is too much vertical range in one pixel, don't draw the full line for speed reasons 
 			for (int j = from; j <= to; j += 1)
 			{
 				g.setPixel(i,j);
 			}
-		}else if ((to-from)<100){
+		} else if ((to-from) < 100){
 			for (int j = from; j <= to; j += 2)
 			{
 				g.setPixel(i,j);
 			}
-		}else{
+		} else {
 			g.setPixel(i,to);
 			g.setPixel(i,from);
 		}
@@ -714,10 +731,11 @@ void LfpChannelDisplay::paint(Graphics& g)
 		
     }
 
-  //  g.setColour(lineColour.withAlpha(0.7f)); // alpha on seems to decrease draw speed
+ // g.setColour(lineColour.withAlpha(0.7f)); // alpha on seems to decrease draw speed
     g.setFont(channelFont);
+    g.setFont(channelHeightFloat);
 
-    g.drawText(String(chan+1), 20, channelHeight/2, 200, 50, Justification::left, false);
+    g.drawText(String(chan+1), 15, center-channelHeight/2, 200, channelHeight, Justification::left, false);
 
 
 }
@@ -726,6 +744,8 @@ void LfpChannelDisplay::paint(Graphics& g)
 void LfpChannelDisplay::setRange(float r)
 {
     range = r;
+
+    //std::cout << "Range: " << r << std::endl;
 }
 
 void LfpChannelDisplay::select()
@@ -747,7 +767,8 @@ void LfpChannelDisplay::setColour(Colour c)
 void LfpChannelDisplay::setChannelHeight(int c)
 {
     channelHeight = c;
-    ch = (float) channelHeight;
+    channelHeightFloat = (float) channelHeight;
+    channelOverlap = channelHeight / 2;
 }
 
 int LfpChannelDisplay::getChannelHeight()

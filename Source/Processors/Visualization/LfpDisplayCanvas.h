@@ -65,6 +65,8 @@ public:
 
     void resized();
 
+    int getChannelHeight();
+
     float getXCoord(int chan, int samp);
     float getYCoord(int chan, int samp);
 
@@ -85,7 +87,7 @@ private:
     float timebase;
     float displayGain;
     float timeOffset;
-    float spread ; // vertical spacing between channels
+    //int spread ; // vertical spacing between channels
 
     static const int MAX_N_CHAN = 256;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
@@ -151,11 +153,9 @@ public:
     ~LfpDisplay();
 
     void setNumChannels(int numChannels);
-    int getTotalHeight()
-    {
-        return totalHeight;
-    }
-
+    
+    int getTotalHeight();
+    
     void paint(Graphics& g);
 
     void refresh();
@@ -165,7 +165,7 @@ public:
     void mouseDown(const MouseEvent& event);
 
     void setRange(float range);
-    void setChannelHeight(float r);
+    void setChannelHeight(int r);
 
 private:
     int numChans;
@@ -217,7 +217,7 @@ private:
 
     int channelOverlap;
     int channelHeight;
-    float ch;
+    float channelHeightFloat;
 
     float range;
 

@@ -63,6 +63,7 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/FileReader_18023b0e.o \
   $(OBJDIR)/ChannelMappingNode_d9219b9c.o \
   $(OBJDIR)/PulsePalOutput_9f4ef492.o \
   $(OBJDIR)/ReferenceNode_519d3b68.o \
@@ -278,6 +279,11 @@ $(OBJDIR)/State_22979684.o: ../../Source/Dsp/State.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/FileReader_18023b0e.o: ../../Source/Processors/FileReader.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling FileReader.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ChannelMappingNode_d9219b9c.o: ../../Source/Processors/ChannelMappingNode.cpp

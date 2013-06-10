@@ -28,7 +28,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
-class FileReaderThread;
+class FileReader;
 
 
 /**
@@ -43,7 +43,7 @@ class FileReaderThread;
 
 {
 public:
-    FileReaderEditor(GenericProcessor* parentNode, FileReaderThread*, bool useDefaultParameterEditors);
+    FileReaderEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
     virtual ~FileReaderEditor();
 
     void buttonEvent(Button* button);
@@ -59,7 +59,7 @@ private:
 	ScopedPointer<UtilityButton> fileButton;
 	ScopedPointer<Label> fileNameLabel;
 
-	FileReaderThread* thread;
+	FileReader* fileReader;
 
 	File lastFilePath;
 

@@ -91,6 +91,8 @@ public:
 
     void resized();
 
+    bool keyPressed(const KeyPress& key);
+
 private:
 
     SpikeDisplayNode* processor;
@@ -286,7 +288,7 @@ public:
     void mouseDown(const MouseEvent& event);
     void mouseDrag(const MouseEvent& event);
 
-    MouseCursor getMouseCursor();
+    //MouseCursor getMouseCursor();
 
 private:
 

@@ -137,11 +137,15 @@ bool FileReaderThread::updateBuffer()
 
         for (int n = 0; n < bufferSize; n++)
         {
-            thisSample[chan] = float(-readBuffer[n])*0.035;
+            thisSample[chan] = float(-readBuffer[n]) * 0.0305; // previously 0.035
 
             if (chan == 15)
             {
-                timestamp = timer.getHighResolutionTicks();
+
+                timestamp++; // = (0 << 0) + (0 << 8) + (0 << 16) + (0 << 24); // +
+                            //(4 << 32); // + (3 << 40) + (2 << 48) + (1 << 56);
+
+                //timestamp++; // = timer.getHighResolutionTicks();
                 dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
                 chan = 0;
             }

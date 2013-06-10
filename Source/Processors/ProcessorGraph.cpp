@@ -41,10 +41,10 @@
 #include "SpikeDetector.h"
 #include "PhaseDetector.h"
 #include "WiFiOutput.h"
+#include "FileReader.h"
 #include "ArduinoOutput.h"
 #include "FPGAOutput.h"
 #include "PulsePalOutput.h"
-#include "ChannelMappingNode.h"
 #include "Utilities/RecordControl.h"
 #include "Utilities/Splitter.h"
 #include "Utilities/Merger.h"
@@ -430,7 +430,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
     {
 
         if (subProcessorType.equalsIgnoreCase("RHA2000-EVAL") ||
-            subProcessorType.equalsIgnoreCase("File Reader") ||
+           // subProcessorType.equalsIgnoreCase("File Reader") ||
             subProcessorType.equalsIgnoreCase("Custom FPGA") ||
             subProcessorType.equalsIgnoreCase("Rhythm FPGA"))
         {
@@ -455,6 +455,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             processor = new EventNode();
             std::cout << "Creating a new event node." << std::endl;
+        }
+        else if (subProcessorType.equalsIgnoreCase("File Reader"))
+        {
+            processor = new FileReader();
+            std::cout << "Creating a new file reader." << std::endl;
         }
 
 
@@ -497,11 +502,6 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             std::cout << "Creating a new digital reference." << std::endl;
             processor = new ReferenceNode();
-        }
-        else if (subProcessorType.equalsIgnoreCase("Channel Mapping"))
-        {
-            std::cout << "Creating a new channel mapping node." << std::endl;
-            processor = new ChannelMappingNode();
         }
 
         sendActionMessage("New filter node created.");
