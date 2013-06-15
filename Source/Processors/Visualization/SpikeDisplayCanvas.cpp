@@ -79,7 +79,8 @@ void SpikeDisplayCanvas::update()
 
     for (int i = 0; i < nPlots; i++)
     {
-        spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i);
+        spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i,
+                                   processor->getNameForElectrode(i));
     }
 
     spikeDisplay->resized();
@@ -214,12 +215,12 @@ void SpikeDisplay::removePlots()
         
 }
 
-void SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum)
+void SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum, String name_)
 {
 
     std::cout << "Adding new spike plot." << std::endl;
 
-    SpikePlot* spikePlot = new SpikePlot(canvas, electrodeNum, 1000 + numChannels);
+    SpikePlot* spikePlot = new SpikePlot(canvas, electrodeNum, 1000 + numChannels, name_);
     spikePlots.add(spikePlot);
     addAndMakeVisible(spikePlot);
 }
@@ -348,9 +349,9 @@ void SpikeDisplay::plotSpike(const SpikeObject& spike, int electrodeNum)
 
 // ----------------------------------------------------------------
 
-SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
+SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) :
      canvas(sdc), isSelected(false), electrodeNumber(elecNum),  plotType(p),
-    limitsChanged(true)
+    limitsChanged(true), name(name_)
 
 {
 
@@ -422,13 +423,15 @@ void SpikePlot::paint(Graphics& g)
 
     g.setFont(font);
 
-    g.drawText(String(electrodeNumber+1),10,0,50,20,Justification::left,false);
+    g.drawText(name,10,0,200,20,Justification::left,false);
 
 }
 
 void SpikePlot::processSpikeObject(const SpikeObject& s)
 {
     //std::cout<<"ElectrodePlot::processSpikeObject()"<<std::endl;
+
+    // first, check if it's above threshold
 
     for (int i = 0; i < nWaveAx; i++)
         wAxes[i]->updateSpikeData(s);
@@ -764,7 +767,6 @@ void WaveAxes::updateSpikeData(const SpikeObject& s)
     spikeBuffer.set(spikeIndex, newSpike);
 
     
-
 }
 
 void WaveAxes::clear()
@@ -844,7 +846,7 @@ void WaveAxes::mouseDrag(const MouseEvent& event)
 
         thresholdLevel = (0.5f - thresholdSliderPosition) * range;
 
-        std::cout << "Threshold = " << thresholdLevel << std::endl;
+        //std::cout << "Threshold = " << thresholdLevel << std::endl;
 
         repaint();
     }

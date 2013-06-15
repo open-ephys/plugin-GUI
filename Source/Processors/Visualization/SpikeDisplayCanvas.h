@@ -122,7 +122,7 @@ public:
 
     void removePlots();
     void clear();
-    void addSpikePlot(int numChannels, int electrodeNum);
+    void addSpikePlot(int numChannels, int electrodeNum, String name);
 
     void paint(Graphics& g);
 
@@ -161,12 +161,14 @@ private:
 
   Class for drawing the waveforms and projections of incoming spikes.
 
+  Also responsible for saving spikes.
+
 */
 
 class SpikePlot : public Component, Button::Listener
 {
 public:
-    SpikePlot(SpikeDisplayCanvas*, int elecNum, int plotType);
+    SpikePlot(SpikeDisplayCanvas*, int elecNum, int plotType, String name_);
     virtual ~SpikePlot();
 
     void paint(Graphics& g);
@@ -215,6 +217,7 @@ private:
     void setLimitsOnAxes();
     void updateAxesPositions();
 
+    String name;
 
     Font font;
 

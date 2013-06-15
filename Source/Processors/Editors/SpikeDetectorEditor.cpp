@@ -443,6 +443,8 @@ void SpikeDetectorEditor::labelTextChanged(Label* label)
         electrodeTypes->setText(currentText += "s");
     }
 
+    getEditorViewport()->makeEditorVisible(this, false, true);
+
 }
 
 void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
