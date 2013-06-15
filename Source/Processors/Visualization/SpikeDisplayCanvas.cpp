@@ -611,7 +611,7 @@ void SpikePlot::clear()
 
 
 WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true), 
-    bufferSize(10), spikeIndex(0), thresholdLevel(0.5f), range(250.0f),
+    bufferSize(10), spikeIndex(0), thresholdLevel(0.0f), range(250.0f),
     isOverThresholdSlider(false), isDraggingThresholdSlider(false)
 {
 
@@ -723,10 +723,11 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
 void WaveAxes::drawThresholdSlider(Graphics& g)
 {
 
-    float h = getHeight()*thresholdLevel;
+    float h = getHeight()*(0.5f - thresholdLevel/range);
 
     g.setColour(thresholdColour);
     g.drawLine(0, h, getWidth(), h);
+    g.drawText(String(roundFloatToInt(thresholdLevel)),2,h,25,10,Justification::left, false);
 
 }
 
@@ -740,7 +741,10 @@ void WaveAxes::drawWaveformGrid(Graphics& g)
 
     for (float y = -range/2; y < range/2; y += 25.0f)
     {
-        g.drawLine(0,h/2 + y/range*h, w, h/2+ y/range*h);
+        if (y == 0)
+            g.drawLine(0,h/2 + y/range*h, w, h/2+ y/range*h,2.0f);
+        else
+            g.drawLine(0,h/2 + y/range*h, w, h/2+ y/range*h);
     }
    
 }
@@ -776,6 +780,8 @@ void WaveAxes::clear()
         
         spikeBuffer.add(so);
     }
+
+    repaint();
 }
 
 void WaveAxes::mouseMove(const MouseEvent& event)
@@ -785,7 +791,7 @@ void WaveAxes::mouseMove(const MouseEvent& event)
 
     float y = event.y;
 
-    float h = getHeight()*thresholdLevel;
+    float h = getHeight()*(0.5f - thresholdLevel/range);
 
    // std::cout << y << " " << h << std::endl;
 
@@ -827,7 +833,19 @@ void WaveAxes::mouseDrag(const MouseEvent& event)
 {
     if (isOverThresholdSlider)
     {
-        thresholdLevel = float(event.y) / float(getHeight());
+
+        float thresholdSliderPosition =  float(event.y) / float(getHeight());
+
+        if (thresholdSliderPosition > 0.5f)
+            thresholdSliderPosition = 0.5f;
+        else if (thresholdSliderPosition < 0.0f)
+            thresholdSliderPosition = 0.0f;
+
+
+        thresholdLevel = (0.5f - thresholdSliderPosition) * range;
+
+        std::cout << "Threshold = " << thresholdLevel << std::endl;
+
         repaint();
     }
 }
@@ -946,6 +964,8 @@ void ProjectionAxes::clear()
 {
     projectionImage.clear(Rectangle<int>(0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
                          Colours::black);
+
+    repaint();
 }
 
 void ProjectionAxes::n2ProjIdx(int proj, int* p1, int* p2)
