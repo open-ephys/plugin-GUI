@@ -68,7 +68,7 @@ struct SpikeObject
 };
 
 /** Simple method for serializing a SpikeObject into a string of bytes, returns true is the packaged spike buffer is valid */
-int packSpike(SpikeObject* s, uint8_t* buffer, int bufferLength);
+int packSpike(const SpikeObject* s, uint8_t* buffer, int bufferLength);
 
 /** Simple method for deserializing a string of bytes into a Spike object, returns true is the provided spike buffer is valid */
 bool unpackSpike(SpikeObject* s, const uint8_t* buffer, int bufferLength);

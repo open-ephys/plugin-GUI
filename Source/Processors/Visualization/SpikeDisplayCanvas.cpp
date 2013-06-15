@@ -416,6 +416,9 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) 
         rangeButtons.add(rangeButton);
     }
 
+    spikeBuffer = new uint8_t[MAX_SPIKE_BUFFER_LEN]; // MAX_SPIKE_BUFFER_LEN defined in SpikeObject.h
+
+
 }
 
 SpikePlot::~SpikePlot()
@@ -536,7 +539,12 @@ void SpikePlot::closeFile()
 void SpikePlot::writeSpike(const SpikeObject& s)
 {
 
-    // write spike to the file
+
+    packSpike(&s, spikeBuffer, 256);
+
+    fwrite(spikeBuffer, 1, 256, file);
+
+
 }
 
 String SpikePlot::generateHeader()

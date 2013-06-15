@@ -236,6 +236,7 @@ private:
     FILE* file;
     String filename;
     File dataDirectory;
+    uint8_t* spikeBuffer;
 
 };
 
