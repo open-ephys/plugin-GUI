@@ -78,7 +78,8 @@ ProcessorList::ProcessorList()
     filters->addSubItem(new ProcessorListItem("Spike Detector"));
     //filters->addSubItem(new ProcessorListItem("Resampler"));
     filters->addSubItem(new ProcessorListItem("Phase Detector"));
-    filters->addSubItem(new ProcessorListItem("Digital Ref"));
+    //filters->addSubItem(new ProcessorListItem("Digital Ref"));
+    filters->addSubItem(new ProcessorListItem("Channel Map"));
 
     ProcessorListItem* sinks = new ProcessorListItem("Sinks");
     sinks->addSubItem(new ProcessorListItem("LFP Viewer"));
