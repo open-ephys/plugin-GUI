@@ -57,6 +57,7 @@ class GenericAxes;
 class ProjectionAxes;
 class WaveAxes;
 class SpikePlot;
+class RecordNode;
 
 /**
 
@@ -94,6 +95,8 @@ public:
     bool keyPressed(const KeyPress& key);
 
     void buttonClicked(Button* button);
+
+    RecordNode* getRecordNode();
 
 private:
 
@@ -199,6 +202,8 @@ public:
 
 private:
 
+    bool isRecording;
+
 
     int plotType;
     int nWaveAx;
@@ -221,6 +226,8 @@ private:
 
     Font font;
 
+    RecordNode* recordNode;
+
 };
 
 /**
@@ -239,7 +246,7 @@ public:
 
     virtual ~GenericAxes();
 
-    virtual void updateSpikeData(const SpikeObject& s);
+    virtual bool updateSpikeData(const SpikeObject& s);
 
     void setXLims(double xmin, double xmax);
     void getXLims(double* xmin, double* xmax);
@@ -283,7 +290,8 @@ public:
     WaveAxes(int channel);
     ~WaveAxes() {}
 
-    void updateSpikeData(const SpikeObject& s);
+    bool updateSpikeData(const SpikeObject& s);
+    bool checkThreshold(const SpikeObject& spike);
 
     void paint(Graphics& g);
 
@@ -314,6 +322,8 @@ private:
     void drawWaveformGrid(Graphics& g);
 
     void drawThresholdSlider(Graphics& g);
+
+    
 
     Font font;
 
@@ -347,7 +357,7 @@ public:
     ProjectionAxes(int projectionNum);
     ~ProjectionAxes() {}
 
-    void updateSpikeData(const SpikeObject& s);
+    bool updateSpikeData(const SpikeObject& s);
 
     void paint(Graphics& g);
 

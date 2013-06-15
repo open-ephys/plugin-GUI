@@ -105,11 +105,13 @@ public:
     /** Signals when to create a new data directory when recording starts.*/
     bool newDirectoryNeeded;
 
+    bool isRecording;
+
 private:
 
     /** Keep the RecordNode informed of acquisition and record states.
     */
-    bool isRecording, isProcessing, signalFilesShouldClose;
+    bool isProcessing, signalFilesShouldClose;
 
     /** User-selectable directory for saving data files. Currently
         defaults to the user's home directory.
