@@ -52,7 +52,8 @@ AudioProcessorEditor* ChannelMappingNode::createEditor()
 
 void ChannelMappingNode::updateSettings()
 {
-	channelBuffer.setSize(getNumInputs(), 10000);
+	if (getNumInputs() > 0)
+		channelBuffer.setSize(getNumInputs(), 10000);
 }
 
 
@@ -90,7 +91,7 @@ void ChannelMappingNode::process(AudioSampleBuffer& buffer,
                        channelArray[i], // sourceChannel
                        0, // sourceStartSample
                        nSamples, // numSamples
-                       1.0f // gain to apply to source (positive)
+                       1.0f // gain to apply to source (positive for original signal)
                        );
 
 	}

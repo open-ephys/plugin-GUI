@@ -60,7 +60,8 @@ public:
 private:
 
  	OwnedArray<ElectrodeButton> electrodeButtons;
- 	OwnedArray<ElectrodeEditorButton> electrodeEditorButtons;
+ 	ScopedPointer<ElectrodeEditorButton> referenceButton;
+ 	ScopedPointer<ElectrodeEditorButton> mappingButton;
 
  	Array<int> channelArray;
  	Array<int> referenceArray;
