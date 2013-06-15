@@ -32,6 +32,13 @@ ChannelMappingNode::ChannelMappingNode()
 {
 	referenceArray.resize(1024); // make room for 1024 channels
 	channelArray.resize(1024);
+
+	for (int i = 0; i < referenceArray.size(); i++)
+	{
+		referenceArray.set(i, -1);
+		channelArray.set(i, i);
+	}
+
 }
 
 ChannelMappingNode::~ChannelMappingNode()
@@ -54,6 +61,7 @@ void ChannelMappingNode::updateSettings()
 {
 	if (getNumInputs() > 0)
 		channelBuffer.setSize(getNumInputs(), 10000);
+
 }
 
 
@@ -75,10 +83,10 @@ void ChannelMappingNode::process(AudioSampleBuffer& buffer,
                             int& nSamples)
 {
 
-	// copy everything into the channel buffer
-	channelBuffer.setDataToReferTo(buffer.getArrayOfChannels(), 
-								   buffer.getNumChannels(),
-								   buffer.getNumSamples());
+	// use copy constructor to set the data to refer to
+	channelBuffer = buffer; //.setDataToReferTo(buffer.getArrayOfChannels(), 
+							//	   buffer.getNumChannels(),
+						//		   buffer.getNumSamples());
 
 	// copy it back into the buffer according to the channel mapping
 	buffer.clear();
