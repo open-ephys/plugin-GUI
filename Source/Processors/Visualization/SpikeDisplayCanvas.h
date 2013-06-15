@@ -226,7 +226,16 @@ private:
 
     Font font;
 
+    // methods for recording:
+    void openFile();
+    void closeFile();
+    void writeSpike(const SpikeObject& s);
+    String generateHeader();
+
     RecordNode* recordNode;
+    FILE* file;
+    String filename;
+    File dataDirectory;
 
 };
 

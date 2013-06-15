@@ -20,7 +20,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+ 
 #include "SpikeDisplayCanvas.h"
 #include "../RecordNode.h"
 
@@ -462,28 +462,110 @@ void SpikePlot::processSpikeObject(const SpikeObject& s)
     {
         if (!isRecording)
         {
-            // open files
+            // open file
+            openFile();
+
             isRecording = true;
-            std::cout << "Start recording spikes." << std::endl;
+            //std::cout << "Start recording spikes." << std::endl;
        
         }
 
         if (aboveThreshold)
         {
              // write spike to disk
+            writeSpike(s);
         }
 
     } else {
         
         if (isRecording)
         {
-            // close files
+            // close file
+            closeFile();
+
             isRecording = false;
-            std::cout << "Stop recording spikes." << std::endl;
+            //std::cout << "Stop recording spikes." << std::endl;
         }
     }
 
 }
+
+void SpikePlot::openFile()
+{
+    dataDirectory = recordNode->getDataDirectory();
+
+    filename = dataDirectory.getFullPathName();
+    filename += File::separator;
+    filename += name.removeCharacters(" ");
+    filename += ".spikes"; 
+
+    std::cout << "OPENING FILE: " << filename << std::endl;
+
+    File fileToUse = File(filename);
+
+    if (!fileToUse.exists())
+    {
+        // open it and write header
+        file = fopen(filename.toUTF8(), "ab");
+
+        String header = generateHeader();
+
+        fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), file);
+
+    } else {
+
+        // append it
+        file = fopen(filename.toUTF8(), "ab");
+    }
+
+
+}
+
+void SpikePlot::closeFile()
+{
+
+    std::cout << "CLOSING FILE: " << filename << std::endl;
+
+    if (file != NULL)
+    {
+        fclose(file);
+    }
+
+}
+
+void SpikePlot::writeSpike(const SpikeObject& s)
+{
+
+    // write spike to the file
+}
+
+String SpikePlot::generateHeader()
+{
+    String header = "header.format = 'OPEN EPHYS DATA FORMAT v0.0'; \n";
+
+    header += "header.header_bytes = ";
+    header += String(HEADER_SIZE);
+    header += ";\n";
+
+    header += "header.description = 'Spike data...live it up!'; \n";
+
+    header += "header.date_created = '";
+    header += recordNode->generateDateString();
+    header += "';\n";
+
+    header += "header.electrode = '";
+    header += name;
+    header += "';\n";
+
+    header += "header.channelType = 'Electrode';\n";
+
+    header = header.paddedRight(' ', HEADER_SIZE);
+
+    //std::cout << header << std::endl;
+
+    return header;
+}
+
 
 void SpikePlot::select()
 {
