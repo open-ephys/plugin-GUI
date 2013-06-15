@@ -434,8 +434,9 @@ void RHD2000Thread::updateChannelNames()
                 chNum++;
 
                 String chName = "AUX";
-              //  chName += (j+1);
+                chName += (j+1);
 
+              // this is causing a seg fault for some reason:
               //  sn->channels[chNum]->setName(chName);
             }
         }
@@ -449,7 +450,7 @@ void RHD2000Thread::updateChannelNames()
             chNum++;
 
             String chName = "ADC";
-           // chName += (j+1);
+            chName += (j+1);
 
           //  sn->channels[chNum]->setName(chName);
         }
