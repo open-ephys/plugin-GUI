@@ -165,7 +165,7 @@ bool SpikeDetector::addElectrode(int nChans)
 
 float SpikeDetector::getDefaultThreshold()
 {
-    return 75.0f;
+    return 50.0f;
 }
 
 StringArray SpikeDetector::getElectrodeNames()
@@ -332,6 +332,8 @@ void SpikeDetector::addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int p
 {
 
     // std::cout << "Adding spike event for index " << peakIndex << std::endl;
+
+    s->eventType = SPIKE_EVENT_CODE;
 
     int numBytes = packSpike(s, spikeBuffer, 256);
 

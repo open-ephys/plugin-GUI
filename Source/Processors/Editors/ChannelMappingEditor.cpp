@@ -34,18 +34,17 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
 {
     desiredWidth = 340;
 
-    ElectrodeEditorButton* e1 = new ElectrodeEditorButton("MAPPING",Font("Small Text",14,Font::plain));
-    e1->addListener(this);
-    addAndMakeVisible(e1);
-    e1->setBounds(15,110,80,10);
-    e1->setToggleState(true, false);
-    electrodeEditorButtons.add(e1);
+    mappingButton = new ElectrodeEditorButton("MAPPING",Font("Small Text",14,Font::plain));
+    mappingButton->addListener(this);
+    addAndMakeVisible(mappingButton);
+    mappingButton->setBounds(15,110,80,10);
+    mappingButton->setToggleState(true, false);
 
-    ElectrodeEditorButton* e2 = new ElectrodeEditorButton("REF",Font("Small Text",14,Font::plain));
-    e2->addListener(this);
-    addAndMakeVisible(e2);
-    e2->setBounds(100,110,50,10);
-    electrodeEditorButtons.add(e2);
+    referenceButton = new ElectrodeEditorButton("REF",Font("Small Text",14,Font::plain));
+    referenceButton->addListener(this);
+    addAndMakeVisible(referenceButton);
+    referenceButton->setBounds(100,110,50,10);
+    referenceButton->setToggleState(false, false);
 
     channelSelector->setRadioStatus(true);
 
@@ -104,7 +103,7 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded)
 
         channelArray.add(i+1);
 
-        if (column%16 == 0)
+        if (column % 16 == 0)
         {
             column = 0;
             row++;
@@ -119,28 +118,34 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded)
 void ChannelMappingEditor::buttonEvent(Button* button)
 {
 
-	if (button == electrodeEditorButtons[0]) // mapping
+	if (button == mappingButton) // mapping
 	{
+        std::cout << "Mapping button clicked." << std::endl;
 
-		electrodeEditorButtons[1]->setToggleState(false, false);
+		referenceButton->setToggleState(false, false);
+        mappingButton->setToggleState(true, false);
 
 		for (int i = 0; i < electrodeButtons.size(); i++)
 		{
 			electrodeButtons[i]->setRadioGroupId(999);
 			electrodeButtons[i]->setChannelNum(channelArray[i]);
-			 electrodeButtons[i]->repaint();
+			electrodeButtons[i]->repaint();
 		}
 
 	}
-	 else if (button == electrodeEditorButtons[1]) // reference
+	 else if (button == referenceButton) // reference
 	{
-		electrodeEditorButtons[0]->setToggleState(false, false);
+
+        std::cout << "Reference button clicked." << std::endl;
+
+		mappingButton->setToggleState(false, false);
+        referenceButton->setToggleState(true, false);
 
 		for (int i = 0; i < electrodeButtons.size(); i++)
 		{
 			electrodeButtons[i]->setRadioGroupId(0);
 			electrodeButtons[i]->setChannelNum(referenceArray[i]);
-			 electrodeButtons[i]->repaint();
+			electrodeButtons[i]->repaint();
 		}
 
 
@@ -161,6 +166,9 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 
 	}
 
+    std::cout << "Reference button state: " << referenceButton->getToggleState() << std::endl;
+    std::cout << "Mapping button state: " << mappingButton->getToggleState() << std::endl;
+
 }
 
 void ChannelMappingEditor::channelChanged(int chan)
@@ -174,7 +182,7 @@ void ChannelMappingEditor::channelChanged(int chan)
 
             getProcessor()->setCurrentChannel(i);
 
-            if (electrodeEditorButtons[1]->getToggleState()) // reference
+            if (referenceButton->getToggleState()) // reference
             {
             	referenceArray.set(i,chan);
 

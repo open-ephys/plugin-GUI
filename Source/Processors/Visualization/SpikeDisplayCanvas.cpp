@@ -20,8 +20,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+ 
 #include "SpikeDisplayCanvas.h"
+#include "../RecordNode.h"
 
 SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
     processor(n), newSpike(false)
@@ -79,7 +80,8 @@ void SpikeDisplayCanvas::update()
 
     for (int i = 0; i < nPlots; i++)
     {
-        spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i);
+        spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i,
+                                   processor->getNameForElectrode(i));
     }
 
     spikeDisplay->resized();
@@ -115,6 +117,11 @@ void SpikeDisplayCanvas::refresh()
     processSpikeEvents();
 
     repaint();
+}
+
+RecordNode* SpikeDisplayCanvas::getRecordNode()
+{
+    return processor->getProcessorGraph()->getRecordNode();
 }
 
 void SpikeDisplayCanvas::processSpikeEvents()
@@ -214,12 +221,12 @@ void SpikeDisplay::removePlots()
         
 }
 
-void SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum)
+void SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum, String name_)
 {
 
     std::cout << "Adding new spike plot." << std::endl;
 
-    SpikePlot* spikePlot = new SpikePlot(canvas, electrodeNum, 1000 + numChannels);
+    SpikePlot* spikePlot = new SpikePlot(canvas, electrodeNum, 1000 + numChannels, name_);
     spikePlots.add(spikePlot);
     addAndMakeVisible(spikePlot);
 }
@@ -348,11 +355,13 @@ void SpikeDisplay::plotSpike(const SpikeObject& spike, int electrodeNum)
 
 // ----------------------------------------------------------------
 
-SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
+SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) :
      canvas(sdc), isSelected(false), electrodeNumber(elecNum),  plotType(p),
-    limitsChanged(true)
+    limitsChanged(true), name(name_), isRecording(false)
 
 {
+
+    recordNode = sdc->getRecordNode();
 
     font = Font("Default", 15, Font::plain);
 
@@ -407,6 +416,9 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p) :
         rangeButtons.add(rangeButton);
     }
 
+    spikeBuffer = new uint8_t[MAX_SPIKE_BUFFER_LEN]; // MAX_SPIKE_BUFFER_LEN defined in SpikeObject.h
+
+
 }
 
 SpikePlot::~SpikePlot()
@@ -422,7 +434,7 @@ void SpikePlot::paint(Graphics& g)
 
     g.setFont(font);
 
-    g.drawText(String(electrodeNumber+1),10,0,50,20,Justification::left,false);
+    g.drawText(name,10,0,200,20,Justification::left,false);
 
 }
 
@@ -430,12 +442,138 @@ void SpikePlot::processSpikeObject(const SpikeObject& s)
 {
     //std::cout<<"ElectrodePlot::processSpikeObject()"<<std::endl;
 
-    for (int i = 0; i < nWaveAx; i++)
-        wAxes[i]->updateSpikeData(s);
+    // first, check if it's above threshold
+    bool aboveThreshold = false;
 
-    for (int i = 0; i < nProjAx; i++)
-        pAxes[i]->updateSpikeData(s);
+    for (int i = 0; i < nWaveAx; i++)
+    {
+        aboveThreshold = aboveThreshold | wAxes[i]->checkThreshold(s);
+    }
+        
+    if (aboveThreshold)
+    {
+        for (int i = 0; i < nWaveAx; i++)
+            wAxes[i]->updateSpikeData(s);
+
+        for (int i = 0; i < nProjAx; i++)
+            pAxes[i]->updateSpikeData(s);
+    }
+    
+
+    // then record it!
+    if (recordNode->isRecording)
+    {
+        if (!isRecording)
+        {
+            // open file
+            openFile();
+
+            isRecording = true;
+            //std::cout << "Start recording spikes." << std::endl;
+       
+        }
+
+        if (aboveThreshold)
+        {
+             // write spike to disk
+            writeSpike(s);
+        }
+
+    } else {
+        
+        if (isRecording)
+        {
+            // close file
+            closeFile();
+
+            isRecording = false;
+            //std::cout << "Stop recording spikes." << std::endl;
+        }
+    }
+
 }
+
+void SpikePlot::openFile()
+{
+    dataDirectory = recordNode->getDataDirectory();
+
+    filename = dataDirectory.getFullPathName();
+    filename += File::separator;
+    filename += name.removeCharacters(" ");
+    filename += ".spikes"; 
+
+    std::cout << "OPENING FILE: " << filename << std::endl;
+
+    File fileToUse = File(filename);
+
+    if (!fileToUse.exists())
+    {
+        // open it and write header
+        file = fopen(filename.toUTF8(), "ab");
+
+        String header = generateHeader();
+
+        fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), file);
+
+    } else {
+
+        // append it
+        file = fopen(filename.toUTF8(), "ab");
+    }
+
+
+}
+
+void SpikePlot::closeFile()
+{
+
+    std::cout << "CLOSING FILE: " << filename << std::endl;
+
+    if (file != NULL)
+    {
+        fclose(file);
+    }
+
+}
+
+void SpikePlot::writeSpike(const SpikeObject& s)
+{
+
+
+    packSpike(&s, spikeBuffer, 256);
+
+    fwrite(spikeBuffer, 1, 256, file);
+
+
+}
+
+String SpikePlot::generateHeader()
+{
+    String header = "header.format = 'OPEN EPHYS DATA FORMAT v0.0'; \n";
+
+    header += "header.header_bytes = ";
+    header += String(HEADER_SIZE);
+    header += ";\n";
+
+    header += "header.description = 'Spike data...live it up!'; \n";
+
+    header += "header.date_created = '";
+    header += recordNode->generateDateString();
+    header += "';\n";
+
+    header += "header.electrode = '";
+    header += name;
+    header += "';\n";
+
+    header += "header.channelType = 'Electrode';\n";
+
+    header = header.paddedRight(' ', HEADER_SIZE);
+
+    //std::cout << header << std::endl;
+
+    return header;
+}
+
 
 void SpikePlot::select()
 {
@@ -611,7 +749,7 @@ void SpikePlot::clear()
 
 
 WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true), 
-    bufferSize(10), spikeIndex(0), thresholdLevel(0.5f), range(250.0f),
+    bufferSize(10), spikeIndex(0), thresholdLevel(0.0f), range(250.0f),
     isOverThresholdSlider(false), isDraggingThresholdSlider(false)
 {
 
@@ -723,10 +861,11 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
 void WaveAxes::drawThresholdSlider(Graphics& g)
 {
 
-    float h = getHeight()*thresholdLevel;
+    float h = getHeight()*(0.5f - thresholdLevel/range);
 
     g.setColour(thresholdColour);
     g.drawLine(0, h, getWidth(), h);
+    g.drawText(String(roundFloatToInt(thresholdLevel)),2,h,25,10,Justification::left, false);
 
 }
 
@@ -740,12 +879,15 @@ void WaveAxes::drawWaveformGrid(Graphics& g)
 
     for (float y = -range/2; y < range/2; y += 25.0f)
     {
-        g.drawLine(0,h/2 + y/range*h, w, h/2+ y/range*h);
+        if (y == 0)
+            g.drawLine(0,h/2 + y/range*h, w, h/2+ y/range*h,2.0f);
+        else
+            g.drawLine(0,h/2 + y/range*h, w, h/2+ y/range*h);
     }
    
 }
 
-void WaveAxes::updateSpikeData(const SpikeObject& s)
+bool WaveAxes::updateSpikeData(const SpikeObject& s)
 {
     if (!gotFirstSpike)
     {
@@ -754,12 +896,38 @@ void WaveAxes::updateSpikeData(const SpikeObject& s)
 
     SpikeObject newSpike = s;
 
-    spikeIndex++;
-    spikeIndex %= bufferSize;
+    //if (checkThreshold(newSpike))
+    //{
+        spikeIndex++;
+        spikeIndex %= bufferSize;
 
-    spikeBuffer.set(spikeIndex, newSpike);
+        spikeBuffer.set(spikeIndex, newSpike); 
+    //    return true;
+
+   // } else {
+   //     return false;
+   // }
+
 
     
+}
+
+bool WaveAxes::checkThreshold(const SpikeObject& s)
+{
+    int sampIdx = 40*type;
+
+     for (int i = 0; i < s.nSamples-1; i++)
+    {
+        
+        if (float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f > thresholdLevel)
+        {
+            return true;
+        }
+
+        sampIdx++;
+    }
+
+    return false;
 
 }
 
@@ -776,6 +944,8 @@ void WaveAxes::clear()
         
         spikeBuffer.add(so);
     }
+
+    repaint();
 }
 
 void WaveAxes::mouseMove(const MouseEvent& event)
@@ -785,7 +955,7 @@ void WaveAxes::mouseMove(const MouseEvent& event)
 
     float y = event.y;
 
-    float h = getHeight()*thresholdLevel;
+    float h = getHeight()*(0.5f - thresholdLevel/range);
 
    // std::cout << y << " " << h << std::endl;
 
@@ -827,7 +997,19 @@ void WaveAxes::mouseDrag(const MouseEvent& event)
 {
     if (isOverThresholdSlider)
     {
-        thresholdLevel = float(event.y) / float(getHeight());
+
+        float thresholdSliderPosition =  float(event.y) / float(getHeight());
+
+        if (thresholdSliderPosition > 0.5f)
+            thresholdSliderPosition = 0.5f;
+        else if (thresholdSliderPosition < 0.0f)
+            thresholdSliderPosition = 0.0f;
+
+
+        thresholdLevel = (0.5f - thresholdSliderPosition) * range;
+
+        //std::cout << "Threshold = " << thresholdLevel << std::endl;
+
         repaint();
     }
 }
@@ -886,7 +1068,7 @@ void ProjectionAxes::paint(Graphics& g)
                 0, imageDim-rangeY, rangeX, rangeY);
 }
 
-void ProjectionAxes::updateSpikeData(const SpikeObject& s)
+bool ProjectionAxes::updateSpikeData(const SpikeObject& s)
 {
     if (!gotFirstSpike)
     {
@@ -946,6 +1128,8 @@ void ProjectionAxes::clear()
 {
     projectionImage.clear(Rectangle<int>(0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
                          Colours::black);
+
+    repaint();
 }
 
 void ProjectionAxes::n2ProjIdx(int proj, int* p1, int* p2)
@@ -1012,7 +1196,7 @@ GenericAxes::~GenericAxes()
 
 }
 
-void GenericAxes::updateSpikeData(const SpikeObject& newSpike)
+bool GenericAxes::updateSpikeData(const SpikeObject& newSpike)
 {
     if (!gotFirstSpike)
     {

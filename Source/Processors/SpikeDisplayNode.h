@@ -71,7 +71,7 @@ public:
         return eventBuffer;
     }
 
-
+    String getNameForElectrode(int i);
     int getNumberOfChannelsForElectrode(int i);
     int getNumElectrodes();
 

@@ -94,8 +94,6 @@ public:
     /** Loads parameters from XML */
     virtual void loadVisualizerParameters(XmlElement* xml) { }
 
-
-
 };
 
 

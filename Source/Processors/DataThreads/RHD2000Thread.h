@@ -82,6 +82,8 @@ public:
 
     bool isAcquisitionActive();
 
+    void updateChannelNames();
+
 private:
 
     ScopedPointer<Rhd2000EvalBoard> evalBoard;
@@ -104,6 +106,7 @@ private:
 
     bool dacOutputShouldChange;
     bool acquireAdcChannels;
+    bool acquireAuxChannels;
 
     bool fastSettleEnabled;
 

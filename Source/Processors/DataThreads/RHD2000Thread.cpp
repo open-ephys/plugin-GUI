@@ -28,7 +28,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
     fastSettleEnabled(false), chipRegisters(30000.0f), dspEnabled(true), boardSampleRate(30000.0f),
     desiredDspCutoffFreq(0.5f), desiredUpperBandwidth(7500.0f), desiredLowerBandwidth(1.0f),
     savedSampleRateIndex(16), audioOutputL(-1), audioOutputR(-1), dacOutputShouldChange(false),
-    acquireAdcChannels(false),
+    acquireAdcChannels(false), acquireAuxChannels(true),
     cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f) // default is 3 feet (0.914 m)
 {
     evalBoard = new Rhd2000EvalBoard;
@@ -406,6 +406,58 @@ int RHD2000Thread::getNumChannels()
     else
         return 1; // to prevent crashing with 0 channels
 }
+
+void RHD2000Thread::updateChannelNames()
+{
+
+    int chNum = -1;
+
+    for (int i = 0; i < MAX_NUM_DATA_STREAMS; i++)
+    {
+    
+        for (int j = 0; j < numChannelsPerDataStream[i]; j++)
+        {
+            chNum++;
+
+            sn->channels[chNum]->setName(String(chNum));
+        }
+    }
+
+    if (acquireAuxChannels)
+    {
+        for (int i = 0; i < MAX_NUM_DATA_STREAMS; i++)
+        {
+        
+            for (int j = 0; j < 3; j++)
+            {
+                
+                chNum++;
+
+                String chName = "AUX";
+                chName += (j+1);
+
+              // this is causing a seg fault for some reason:
+              //  sn->channels[chNum]->setName(chName);
+            }
+        }
+    }
+
+
+    if (acquireAdcChannels)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            chNum++;
+
+            String chName = "ADC";
+            chName += (j+1);
+
+          //  sn->channels[chNum]->setName(chName);
+        }
+    }        
+
+}
+
 
 int RHD2000Thread::getNumEventChannels()
 {
@@ -826,6 +878,7 @@ bool RHD2000Thread::updateBuffer()
                 int streamNumber = -1;
                 int channel = -1;
 
+                // do the neural data channels first
                 for (int dataStream = 0; dataStream < MAX_NUM_DATA_STREAMS; dataStream++)
                 {
                     if (numChannelsPerDataStream[dataStream] > 0)
@@ -842,48 +895,64 @@ bool RHD2000Thread::updateBuffer()
                             thisSample[channel] = float(value-32768)*0.195f;
                         }
 					
-						// TEMPORARILY DISABLED -- causing problems
-						if (samp % 4 == 1) { // every 4th sample should have auxiliary input data
-						
-							channel++;
-							thisSample[channel] = 0.0374 *
-							     float(dataBlock->auxiliaryData[dataStream][1][samp+0]);
-							auxBuffer[channel]=thisSample[channel];
-
-							channel++;
-							thisSample[channel] = 0.0374 *
-							     float(dataBlock->auxiliaryData[dataStream][1][samp+1]);
-							auxBuffer[channel]=thisSample[channel];
-
-						
-							channel++;
-							thisSample[channel] = 0.0374 *
-							     float(dataBlock->auxiliaryData[dataStream][1][samp+2]);
-							auxBuffer[channel]=thisSample[channel];
-
-						} else{ // repeat last values from buffer
-							channel++;
-							thisSample[channel] = auxBuffer[channel];
-							channel++;
-							thisSample[channel] = auxBuffer[channel];
-							channel++;
-							thisSample[channel] = auxBuffer[channel];
-						}
-
-                        if (acquireAdcChannels)
-                        {
-                            for (int adcChan = 0; adcChan < 8; ++adcChan) {
-                            
-                            channel++;
-                            // ADC waveform units = volts
-                             thisSample[channel] = 
-                               0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
-                            }
-                        }
-						
 					}
 
 				}
+
+                streamNumber = -1;
+
+                // then do the ADC channels
+                for (int dataStream = 0; dataStream < MAX_NUM_DATA_STREAMS; dataStream++)
+                {
+                    if (numChannelsPerDataStream[dataStream] > 0)
+                    {
+                        streamNumber++;
+
+                        if (samp % 4 == 1) { // every 4th sample should have auxiliary input data
+                        
+                            channel++;
+                            thisSample[channel] = 0.0374 *
+                                 float(dataBlock->auxiliaryData[dataStream][1][samp+0]);
+
+                            auxBuffer[channel]=thisSample[channel];
+
+                            channel++;
+                            thisSample[channel] = 0.0374 *
+                                 float(dataBlock->auxiliaryData[dataStream][1][samp+1]);
+
+                            auxBuffer[channel]=thisSample[channel];
+
+                        
+                            channel++;
+                            thisSample[channel] = 0.0374 *
+                                 float(dataBlock->auxiliaryData[dataStream][1][samp+2]);
+
+                            auxBuffer[channel]=thisSample[channel];
+
+                        } else{ // repeat last values from buffer
+
+                            channel++;
+                            thisSample[channel] = auxBuffer[channel];
+                            channel++;
+                            thisSample[channel] = auxBuffer[channel];
+                            channel++;
+                            thisSample[channel] = auxBuffer[channel];
+                        }
+                    }
+
+                }
+
+                // finally, loop through ADC channels if necessary
+                if (acquireAdcChannels)
+                {
+                    for (int adcChan = 0; adcChan < 8; ++adcChan) {
+                    
+                    channel++;
+                    // ADC waveform units = volts
+                     thisSample[channel] = 
+                       0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
+                    }
+                }
 				// std::cout << channel << std::endl;
 
 				timestamp = dataBlock->timeStamp[samp];

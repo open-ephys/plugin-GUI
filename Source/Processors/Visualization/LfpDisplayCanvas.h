@@ -187,11 +187,16 @@ public:
     void setChannelHeight(int r);
     int getChannelHeight();
 
+
     bool setEventDisplayState(int ch, bool state);
     bool getEventDisplayState(int ch);
 
 
     Array<Colour> channelColours;
+
+    Array<LfpChannelDisplay*> channels;
+    Array<LfpChannelDisplayInfo*> channelInfo;
+
 
 private:
     int numChans;
@@ -205,6 +210,9 @@ private:
     Array<LfpChannelDisplayInfo*> channelInfo;
 
     bool eventDisplayEnabled[8];
+
+    Array<Colour> channelColours;
+
 
     float range;
 
@@ -220,6 +228,8 @@ public:
 
     void select();
     void deselect();
+
+    void setName(String);
 
     void setColour(Colour c);
 
@@ -242,6 +252,8 @@ protected:
     bool isSelected;
 
     int chan;
+
+    String name;
 
     Font channelFont;
 

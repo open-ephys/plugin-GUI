@@ -27,15 +27,12 @@
 #include "time.h"
 
 // Simple method for serializing a SpikeObject into a string of bytes
-int packSpike(SpikeObject* s, uint8_t* buffer, int bufferSize)
+int packSpike(const SpikeObject* s, uint8_t* buffer, int bufferSize)
 {
 
     //int reqBytes = 1 + 4 + 2 + 2 + 2 + 2 * s->nChannels * s->nSamples + 2 * s->nChannels * 2;
 
     int idx = 0;
-
-    s->eventType = SPIKE_EVENT_CODE;
-
 
     memcpy(buffer+idx, &(s->eventType), 1);
     idx += 1;
