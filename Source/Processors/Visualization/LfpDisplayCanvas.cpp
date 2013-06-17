@@ -144,7 +144,7 @@ void LfpDisplayCanvas::resized()
 
     for (int i = 0; i < 8; i++)
     {
-        eventDisplayInterfaces[i]->setBounds(500+(floor(i/2)*20), getHeight()-20-(i%2)*20, 40, 20); // arrange event channel buttons in two rows
+        eventDisplayInterfaces[i]->setBounds(500+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
         eventDisplayInterfaces[i]->repaint();
     }
 
@@ -1033,7 +1033,6 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
 
 void LfpChannelDisplayInfo::paint(Graphics& g)
 {
-
 
 
     int center = getHeight()/2;
