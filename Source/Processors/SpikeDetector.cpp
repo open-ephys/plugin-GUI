@@ -165,7 +165,7 @@ bool SpikeDetector::addElectrode(int nChans)
 
 float SpikeDetector::getDefaultThreshold()
 {
-    return 75.0f;
+    return 50.0f;
 }
 
 StringArray SpikeDetector::getElectrodeNames()
@@ -333,7 +333,9 @@ void SpikeDetector::addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int p
 
     // std::cout << "Adding spike event for index " << peakIndex << std::endl;
 
-    int numBytes = packSpike(s, spikeBuffer, 256);
+    s->eventType = SPIKE_EVENT_CODE;
+
+    int numBytes = packSpike(s, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
 
     eventBuffer.addEvent(spikeBuffer, numBytes, peakIndex);
 
@@ -347,10 +349,7 @@ void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,
     int spikeLength = electrodes[electrodeNumber]->prePeakSamples +
                       + electrodes[electrodeNumber]->postPeakSamples;
 
-    //uint8 dataSize = spikeLength*2;
-
-    // uint8 data[dataSize];
-    // uint8* dataptr = data;
+    s->timestamp = timestamp + peakIndex;
 
     s->nSamples = spikeLength;
 
@@ -399,6 +398,19 @@ void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,
 
 }
 
+void SpikeDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum)
+{
+
+    if (eventType == TIMESTAMP)
+    {
+        const uint8* dataptr = event.getRawData();
+
+        memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
+    }
+
+
+}
+
 void SpikeDetector::process(AudioSampleBuffer& buffer,
                             MidiBuffer& events,
                             int& nSamples)
@@ -407,6 +419,8 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
     // cycle through electrodes
     Electrode* electrode;
     dataBuffer = buffer;
+
+    checkForEvents(events);
 
     //std::cout << dataBuffer.getMagnitude(0,nSamples) << std::endl;
 

@@ -101,6 +101,28 @@ int SpikeDisplayNode::getNumberOfChannelsForElectrode(int elec)
     return 0;
 }
 
+String SpikeDisplayNode::getNameForElectrode(int elec)
+{
+
+    int electrodeIndex = -1;
+
+    for (int i = 0; i < eventChannels.size(); i++)
+    {
+        if (eventChannels[i]->eventType < 999)
+        {
+            electrodeIndex++;
+
+            if (electrodeIndex == elec)
+            {
+                std::cout << "Electrode " << elec << " has " << eventChannels[i]->eventType << " channels" << std::endl;
+                return eventChannels[i]->name;
+            }
+        }
+    }
+
+    return " ";
+}
+
 int SpikeDisplayNode::getNumElectrodes()
 {
     int nElectrodes = 0;

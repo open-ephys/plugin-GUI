@@ -57,6 +57,7 @@ class GenericAxes;
 class ProjectionAxes;
 class WaveAxes;
 class SpikePlot;
+class RecordNode;
 
 /**
 
@@ -95,9 +96,11 @@ public:
 
     void buttonClicked(Button* button);
 
-private:
-
+    RecordNode* getRecordNode();
     SpikeDisplayNode* processor;
+
+private:
+    
     MidiBuffer* spikeBuffer;
 
     ScopedPointer<SpikeDisplay> spikeDisplay;
@@ -122,7 +125,7 @@ public:
 
     void removePlots();
     void clear();
-    void addSpikePlot(int numChannels, int electrodeNum);
+    void addSpikePlot(int numChannels, int electrodeNum, String name);
 
     void paint(Graphics& g);
 
@@ -161,12 +164,14 @@ private:
 
   Class for drawing the waveforms and projections of incoming spikes.
 
+  Also responsible for saving spikes.
+
 */
 
 class SpikePlot : public Component, Button::Listener
 {
 public:
-    SpikePlot(SpikeDisplayCanvas*, int elecNum, int plotType);
+    SpikePlot(SpikeDisplayCanvas*, int elecNum, int plotType, String name_);
     virtual ~SpikePlot();
 
     void paint(Graphics& g);
@@ -197,6 +202,8 @@ public:
 
 private:
 
+    bool isRecording;
+
 
     int plotType;
     int nWaveAx;
@@ -215,8 +222,21 @@ private:
     void setLimitsOnAxes();
     void updateAxesPositions();
 
+    String name;
 
     Font font;
+
+    // methods for recording:
+    void openFile();
+    void closeFile();
+    void writeSpike(const SpikeObject& s);
+    String generateHeader();
+
+    RecordNode* recordNode;
+    FILE* file;
+    String filename;
+    File dataDirectory;
+    uint8_t* spikeBuffer;
 
 };
 
@@ -236,7 +256,7 @@ public:
 
     virtual ~GenericAxes();
 
-    virtual void updateSpikeData(const SpikeObject& s);
+    virtual bool updateSpikeData(const SpikeObject& s);
 
     void setXLims(double xmin, double xmax);
     void getXLims(double* xmin, double* xmax);
@@ -280,7 +300,8 @@ public:
     WaveAxes(int channel);
     ~WaveAxes() {}
 
-    void updateSpikeData(const SpikeObject& s);
+    bool updateSpikeData(const SpikeObject& s);
+    bool checkThreshold(const SpikeObject& spike);
 
     void paint(Graphics& g);
 
@@ -311,6 +332,8 @@ private:
     void drawWaveformGrid(Graphics& g);
 
     void drawThresholdSlider(Graphics& g);
+
+    
 
     Font font;
 
@@ -344,7 +367,7 @@ public:
     ProjectionAxes(int projectionNum);
     ~ProjectionAxes() {}
 
-    void updateSpikeData(const SpikeObject& s);
+    bool updateSpikeData(const SpikeObject& s);
 
     void paint(Graphics& g);
 

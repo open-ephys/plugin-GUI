@@ -102,14 +102,22 @@ public:
     */
     void createNewDirectory();
 
+    File getDataDirectory() {return rootFolder;}
+
     /** Signals when to create a new data directory when recording starts.*/
     bool newDirectoryNeeded;
+
+    bool isRecording;
+
+     /** Generate a Matlab-compatible datestring */
+    String generateDateString();
+
 
 private:
 
     /** Keep the RecordNode informed of acquisition and record states.
     */
-    bool isRecording, isProcessing, signalFilesShouldClose;
+    bool isProcessing, signalFilesShouldClose;
 
     /** User-selectable directory for saving data files. Currently
         defaults to the user's home directory.
@@ -165,9 +173,7 @@ private:
     /** Generates a default directory name, based on the current date and time */
     String generateDirectoryName();
 
-    /** Generate a Matlab-compatible datestring */
-    String generateDateString();
-
+   
     /** Generate filename for a given channel */
     void updateFileName(Channel* ch);
 

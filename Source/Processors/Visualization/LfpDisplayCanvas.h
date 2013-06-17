@@ -33,6 +33,7 @@ class LfpTimescale;
 class LfpDisplay;
 class LfpChannelDisplay;
 class LfpChannelDisplayInfo;
+class eventDisplayInterface;
 
 /**
 
@@ -67,6 +68,8 @@ public:
     void resized();
 
     int getChannelHeight();
+
+    int getNumChannels();
 
     float getXCoord(int chan, int samp);
     float getYCoord(int chan, int samp);
@@ -117,6 +120,9 @@ private:
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
 
+    OwnedArray<eventDisplayInterface> eventDisplayInterfaces;
+
+
     void refreshScreenBuffer();
     void updateScreenBuffer();
 
@@ -161,6 +167,7 @@ public:
     ~LfpDisplay();
 
     void setNumChannels(int numChannels);
+    int getNumChannels();
     
     int getTotalHeight();
     
@@ -180,8 +187,16 @@ public:
     void setChannelHeight(int r);
     int getChannelHeight();
 
+
+    bool setEventDisplayState(int ch, bool state);
+    bool getEventDisplayState(int ch);
+
+
+    Array<Colour> channelColours;
+
     Array<LfpChannelDisplay*> channels;
     Array<LfpChannelDisplayInfo*> channelInfo;
+
 
 private:
     int numChans;
@@ -191,7 +206,9 @@ private:
     LfpDisplayCanvas* canvas;
     Viewport* viewport;
 
-    Array<Colour> channelColours;
+    bool eventDisplayEnabled[8];
+
+
 
     float range;
 
@@ -200,7 +217,7 @@ private:
 class LfpChannelDisplay : public Component
 {
 public:
-    LfpChannelDisplay(LfpDisplayCanvas*, int channelNumber);
+    LfpChannelDisplay(LfpDisplayCanvas*, LfpDisplay*, int channelNumber);
     ~LfpChannelDisplay();
 
     void paint(Graphics& g);
@@ -226,6 +243,7 @@ public:
 protected:
 
     LfpDisplayCanvas* canvas;
+    LfpDisplay* display;
 
     bool isSelected;
 
@@ -248,10 +266,37 @@ protected:
 class LfpChannelDisplayInfo : public LfpChannelDisplay
 {
 public:
-    LfpChannelDisplayInfo(LfpDisplayCanvas*, int channelNumber);
+    LfpChannelDisplayInfo(LfpDisplayCanvas*, LfpDisplay*, int channelNumber);
 
     void paint(Graphics& g);
 
 };
+
+class eventDisplayInterface : public Component,
+    public Button::Listener
+{
+public:
+    eventDisplayInterface(LfpDisplay*, LfpDisplayCanvas*, int chNum);
+    ~eventDisplayInterface();
+
+    void paint(Graphics& g);
+
+    void buttonClicked(Button* button);
+
+    void checkEnabledState();
+
+private:
+
+    int channelNumber;
+    
+    bool isEnabled;
+
+    LfpDisplay* display;
+    LfpDisplayCanvas* canvas;
+
+    ScopedPointer<UtilityButton> chButton;
+
+};
+
 
 #endif  // __LFPDISPLAYCANVAS_H_B711873A__

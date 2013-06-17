@@ -32,6 +32,13 @@ ChannelMappingNode::ChannelMappingNode()
 {
 	referenceArray.resize(1024); // make room for 1024 channels
 	channelArray.resize(1024);
+
+	for (int i = 0; i < referenceArray.size(); i++)
+	{
+		referenceArray.set(i, -1);
+		channelArray.set(i, i);
+	}
+
 }
 
 ChannelMappingNode::~ChannelMappingNode()
@@ -52,7 +59,9 @@ AudioProcessorEditor* ChannelMappingNode::createEditor()
 
 void ChannelMappingNode::updateSettings()
 {
-	channelBuffer.setSize(getNumInputs(), 10000);
+	if (getNumInputs() > 0)
+		channelBuffer.setSize(getNumInputs(), 10000);
+
 }
 
 
@@ -74,10 +83,8 @@ void ChannelMappingNode::process(AudioSampleBuffer& buffer,
                             int& nSamples)
 {
 
-	// copy everything into the channel buffer
-	channelBuffer.setDataToReferTo(buffer.getArrayOfChannels(), 
-								   buffer.getNumChannels(),
-								   buffer.getNumSamples());
+	// use copy constructor to set the data to refer to
+	channelBuffer = buffer;
 
 	// copy it back into the buffer according to the channel mapping
 	buffer.clear();
@@ -90,7 +97,7 @@ void ChannelMappingNode::process(AudioSampleBuffer& buffer,
                        channelArray[i], // sourceChannel
                        0, // sourceStartSample
                        nSamples, // numSamples
-                       1.0f // gain to apply to source (positive)
+                       1.0f // gain to apply to source (positive for original signal)
                        );
 
 	}

@@ -34,6 +34,7 @@
 #include "RecordNode.h"
 #include "ResamplingNode.h"
 #include "ReferenceNode.h"
+#include "ChannelMappingNode.h"
 #include "AudioResamplingNode.h"
 #include "SignalGenerator.h"
 #include "SourceNode.h"
@@ -502,6 +503,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             std::cout << "Creating a new digital reference." << std::endl;
             processor = new ReferenceNode();
+        }
+        else if (subProcessorType.equalsIgnoreCase("Channel Map"))
+        {
+            std::cout << "Creating a new channel mapping node." << std::endl;
+            processor = new ChannelMappingNode();
         }
 
         sendActionMessage("New filter node created.");
