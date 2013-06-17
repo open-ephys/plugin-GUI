@@ -569,6 +569,10 @@ String SpikePlot::generateHeader()
     header += nChannels; 
     header += ";\n";
 
+    header += "header.sampleRate = ";
+    header += String(canvas->processor->settings.sampleRate);
+    header += ";\n";
+
     header = header.paddedRight(' ', HEADER_SIZE);
 
     //std::cout << header << std::endl;
