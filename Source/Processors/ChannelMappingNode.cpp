@@ -84,9 +84,7 @@ void ChannelMappingNode::process(AudioSampleBuffer& buffer,
 {
 
 	// use copy constructor to set the data to refer to
-	channelBuffer = buffer; //.setDataToReferTo(buffer.getArrayOfChannels(), 
-							//	   buffer.getNumChannels(),
-						//		   buffer.getNumSamples());
+	channelBuffer = buffer;
 
 	// copy it back into the buffer according to the channel mapping
 	buffer.clear();

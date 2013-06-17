@@ -167,6 +167,7 @@ private:
     };
 
     uint8_t* spikeBuffer;///[256];
+    uint64_t timestamp;
 
     Array<Electrode*> electrodes;
 
@@ -174,6 +175,8 @@ private:
     // 					  int& electrodeNumber,
     // 					  int& currentChannel,
     // 					  MidiBuffer& eventBuffer);
+
+    void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
     void addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int peakIndex);
     void addWaveformToSpikeObject(SpikeObject* s,
