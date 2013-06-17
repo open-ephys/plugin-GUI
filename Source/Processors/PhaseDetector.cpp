@@ -149,9 +149,13 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
                 numPeakIntervals++;
 
+
+                //std::cout << "GOT EVENT." << std::endl;
+                
                 // entering falling phase (just reached peak or trough)
-                if (true)
-                    addEvent(events, TTL, i, 1, 3);
+                //if (true)
+                addEvent(events, TTL, i, 1, 3);
+                
 
                 peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
 
@@ -168,10 +172,10 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
                 // either rising or falling
                 nSamplesSinceLastPeak++;
 
-                // if (nSamplesSinceLastPeak == 100)
-                // {
-                //     addEvent(events, TTL, i, 0, 3);
-                // }
+                 if (nSamplesSinceLastPeak == 500)
+                 {
+                     addEvent(events, TTL, i, 0, 3);
+                 }
 
             }
 
