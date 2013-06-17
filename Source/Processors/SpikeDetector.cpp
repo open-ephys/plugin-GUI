@@ -337,7 +337,8 @@ void SpikeDetector::addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int p
 
     int numBytes = packSpike(s, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
 
-    eventBuffer.addEvent(spikeBuffer, numBytes, peakIndex);
+    if (numBytes > 0)
+        eventBuffer.addEvent(spikeBuffer, numBytes, peakIndex);
 
 }
 
