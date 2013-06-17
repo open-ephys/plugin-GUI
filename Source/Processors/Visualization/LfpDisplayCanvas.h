@@ -206,12 +206,8 @@ private:
     LfpDisplayCanvas* canvas;
     Viewport* viewport;
 
-    Array<LfpChannelDisplay*> channels;
-    Array<LfpChannelDisplayInfo*> channelInfo;
-
     bool eventDisplayEnabled[8];
 
-    Array<Colour> channelColours;
 
 
     float range;
