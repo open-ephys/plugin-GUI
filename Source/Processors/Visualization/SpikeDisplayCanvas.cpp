@@ -542,7 +542,22 @@ void SpikePlot::writeSpike(const SpikeObject& s)
 
     packSpike(&s, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
 
-    fwrite(spikeBuffer, 1, MAX_SPIKE_BUFFER_LEN, file);
+    int totalBytes = s.nSamples * s.nChannels * 2 + // account for samples 
+                     s.nChannels * 4 +            // acount for threshold and gain
+                     15;                        // 15 bytes in every SpikeObject
+
+
+    // format:
+    // 1 byte of event type (always = 4 for spikes)
+    // 8 bytes for 64-bit timestamp
+    // 2 bytes for 16-bit electrode ID
+    // 2 bytes for 16-bit number of channels (n)
+    // 2 bytes for 16-bit number of samples (m)
+    // 2*n*m bytes for 16-bit samples
+    // 2*n bytes for 16-bit gains
+    // 2*n bytes for 16-bit thresholds
+
+    fwrite(spikeBuffer, 1, totalBytes, file);
 
 
 }
@@ -555,7 +570,7 @@ String SpikePlot::generateHeader()
     header += String(HEADER_SIZE);
     header += ";\n";
 
-    header += "header.description = 'Spike data...live it up!'; \n";
+    header += "header.description = 'Each record contains 1 uint8 eventType, 1 uint64 timestamp, 1 uint16 electrodeID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), n*m uint16 samples, n uint16 channelGains, and n uint16 thresholds'; \n";
 
     header += "header.date_created = '";
     header += recordNode->generateDateString();
