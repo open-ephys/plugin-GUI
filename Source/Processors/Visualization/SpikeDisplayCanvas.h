@@ -97,10 +97,10 @@ public:
     void buttonClicked(Button* button);
 
     RecordNode* getRecordNode();
+    SpikeDisplayNode* processor;
 
 private:
-
-    SpikeDisplayNode* processor;
+    
     MidiBuffer* spikeBuffer;
 
     ScopedPointer<SpikeDisplay> spikeDisplay;

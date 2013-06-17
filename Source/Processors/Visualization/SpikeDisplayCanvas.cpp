@@ -540,9 +540,9 @@ void SpikePlot::writeSpike(const SpikeObject& s)
 {
 
 
-    packSpike(&s, spikeBuffer, 256);
+    packSpike(&s, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
 
-    fwrite(spikeBuffer, 1, 256, file);
+    fwrite(spikeBuffer, 1, MAX_SPIKE_BUFFER_LEN, file);
 
 
 }
@@ -565,7 +565,13 @@ String SpikePlot::generateHeader()
     header += name;
     header += "';\n";
 
-    header += "header.channelType = 'Electrode';\n";
+    header += "header.num_channels = ";
+    header += nChannels; 
+    header += ";\n";
+
+    header += "header.sampleRate = ";
+    header += String(canvas->processor->settings.sampleRate);
+    header += ";\n";
 
     header = header.paddedRight(' ', HEADER_SIZE);
 
