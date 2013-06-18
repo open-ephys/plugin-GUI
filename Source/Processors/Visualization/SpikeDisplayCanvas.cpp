@@ -923,7 +923,7 @@ bool WaveAxes::updateSpikeData(const SpikeObject& s)
         spikeIndex %= bufferSize;
 
         spikeBuffer.set(spikeIndex, newSpike); 
-    //    return true;
+        return true;
 
    // } else {
    //     return false;
@@ -1103,6 +1103,7 @@ bool ProjectionAxes::updateSpikeData(const SpikeObject& s)
 
     updateProjectionImage(s.data[idx1], s.data[idx2], *s.gain);
 
+	return true;
 }
 
 void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y, uint16_t gain)
@@ -1225,6 +1226,7 @@ bool GenericAxes::updateSpikeData(const SpikeObject& newSpike)
     }
 
     s = newSpike;
+	return true;
 }
 
 void GenericAxes::setYLims(double ymin, double ymax)
