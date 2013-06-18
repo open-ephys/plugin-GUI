@@ -899,7 +899,7 @@ void LfpChannelDisplay::paint(Graphics& g)
             if (display->getEventDisplayState(ev_ch)){ // check if plotting for this channel is enabled
                 if ( rawEventState & (1 << ev_ch)){  // events are  representet by a bit code, so we have to extract the individual bits with a mask
                     g.setColour(display->channelColours[ev_ch*2]); // get color from lfp color scheme
-                    g.setOpacity(0.25f);
+                    g.setOpacity(0.35f);
                     g.drawLine(i, center-channelHeight/2 , i, center+channelHeight/2);
                 }
             }
