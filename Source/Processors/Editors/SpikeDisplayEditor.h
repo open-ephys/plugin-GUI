@@ -52,6 +52,9 @@ public:
     ~SpikeDisplayEditor();
 
     void buttonCallback(Button* button);
+    
+    void startRecording();
+    void stopRecording();
 
     // void updateSettings();
     // void updateVisualizer();

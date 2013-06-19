@@ -65,6 +65,9 @@ public:
 
     bool enable();
     bool disable();
+    
+    void startRecording();
+    void stopRecording();
 
     MidiBuffer* getSpikeBufferAddress()
     {

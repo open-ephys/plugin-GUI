@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -208,36 +207,39 @@ void MessageManager::runDispatchLoop()
     if (! quitMessagePosted) // check that the quit message wasn't already posted..
     {
         JUCE_AUTORELEASEPOOL
-
-        // must only be called by the message thread!
-        jassert (isThisTheMessageThread());
-
-      #if JUCE_PROJUCER_LIVE_BUILD
-        runDispatchLoopUntil (std::numeric_limits<int>::max());
-      #else
-       #if JUCE_CATCH_UNHANDLED_EXCEPTIONS
-        @try
         {
+            // must only be called by the message thread!
+            jassert (isThisTheMessageThread());
+
+          #if JUCE_PROJUCER_LIVE_BUILD
+            runDispatchLoopUntil (std::numeric_limits<int>::max());
+          #else
+           #if JUCE_CATCH_UNHANDLED_EXCEPTIONS
+            @try
+            {
+                [NSApp run];
+            }
+            @catch (NSException* e)
+            {
+                // An AppKit exception will kill the app, but at least this provides a chance to log it.,
+                std::runtime_error ex (std::string ("NSException: ") + [[e name] UTF8String] + ", Reason:" + [[e reason] UTF8String]);
+                JUCEApplication::sendUnhandledException (&ex, __FILE__, __LINE__);
+            }
+            @finally
+            {
+            }
+           #else
             [NSApp run];
+           #endif
+          #endif
         }
-        @catch (NSException* e)
-        {
-            // An AppKit exception will kill the app, but at least this provides a chance to log it.,
-            std::runtime_error ex (std::string ("NSException: ") + [[e name] UTF8String] + ", Reason:" + [[e reason] UTF8String]);
-            JUCEApplication::sendUnhandledException (&ex, __FILE__, __LINE__);
-        }
-        @finally
-        {
-        }
-       #else
-        [NSApp run];
-       #endif
-      #endif
     }
 }
 
 void MessageManager::stopDispatchLoop()
 {
+    jassert (isThisTheMessageThread()); // must only be called by the message thread
+
     quitMessagePosted = true;
    #if ! JUCE_PROJUCER_LIVE_BUILD
     [NSApp stop: nil];
@@ -257,19 +259,20 @@ bool MessageManager::runDispatchLoopUntil (int millisecondsToRunFor)
     while (! quitMessagePosted)
     {
         JUCE_AUTORELEASEPOOL
+        {
+            CFRunLoopRunInMode (kCFRunLoopDefaultMode, 0.001, true);
 
-        CFRunLoopRunInMode (kCFRunLoopDefaultMode, 0.001, true);
+            NSEvent* e = [NSApp nextEventMatchingMask: NSAnyEventMask
+                                            untilDate: [NSDate dateWithTimeIntervalSinceNow: 0.001]
+                                               inMode: NSDefaultRunLoopMode
+                                              dequeue: YES];
 
-        NSEvent* e = [NSApp nextEventMatchingMask: NSAnyEventMask
-                                        untilDate: [NSDate dateWithTimeIntervalSinceNow: 0.001]
-                                           inMode: NSDefaultRunLoopMode
-                                          dequeue: YES];
+            if (e != nil && (isEventBlockedByModalComps == nullptr || ! (*isEventBlockedByModalComps) (e)))
+                [NSApp sendEvent: e];
 
-        if (e != nil && (isEventBlockedByModalComps == nullptr || ! (*isEventBlockedByModalComps) (e)))
-            [NSApp sendEvent: e];
-
-        if (Time::getMillisecondCounter() >= endTime)
-            break;
+            if (Time::getMillisecondCounter() >= endTime)
+                break;
+        }
     }
 
     return ! quitMessagePosted;
@@ -281,7 +284,9 @@ void initialiseNSApplication();
 void initialiseNSApplication()
 {
     JUCE_AUTORELEASEPOOL
-    [NSApplication sharedApplication];
+    {
+        [NSApplication sharedApplication];
+    }
 }
 
 static AppDelegate* appDelegate = nullptr;

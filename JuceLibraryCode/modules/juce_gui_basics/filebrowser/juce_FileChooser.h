@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -144,6 +143,17 @@ public:
     bool browseForMultipleFilesOrDirectories (FilePreviewComponent* previewComponent = nullptr);
 
     //==============================================================================
+    /** Runs a dialog box for the given set of option flags.
+        The flag values used are those in FileBrowserComponent::FileChooserFlags.
+
+        @returns    true if the user chose a directory and pressed 'ok', in which case, use
+                    the getResult() method to find out what they chose. Returns false
+                    if they cancelled instead.
+        @see FileBrowserComponent::FileChooserFlags
+    */
+    bool showDialog (int flags, FilePreviewComponent* previewComponent);
+
+    //==============================================================================
     /** Returns the last file that was chosen by one of the browseFor methods.
 
         After calling the appropriate browseFor... method, this method lets you
@@ -167,18 +177,14 @@ public:
 
         @see getResult
     */
-    const Array<File>& getResults() const;
+    const Array<File>& getResults() const noexcept      { return results; }
 
 private:
     //==============================================================================
     String title, filters;
-    File startingFile;
+    const File startingFile;
     Array<File> results;
-    bool useNativeDialogBox;
-
-    bool showDialog (bool selectsDirectories, bool selectsFiles, bool isSave,
-                     bool warnAboutOverwritingExistingFiles, bool selectMultipleFiles,
-                     FilePreviewComponent* previewComponent);
+    const bool useNativeDialogBox;
 
     static void showPlatformDialog (Array<File>& results, const String& title, const File& file,
                                     const String& filters, bool selectsDirectories, bool selectsFiles,
@@ -186,7 +192,7 @@ private:
                                     FilePreviewComponent* previewComponent);
     static bool isPlatformDialogAvailable();
 
-    JUCE_LEAK_DETECTOR (FileChooser)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileChooser)
 };
 
 

@@ -95,6 +95,9 @@ public:
     bool keyPressed(const KeyPress& key);
 
     void buttonClicked(Button* button);
+    
+    void startRecording();
+    void stopRecording();
 
     RecordNode* getRecordNode();
     SpikeDisplayNode* processor;
@@ -139,6 +142,9 @@ public:
     {
         return totalHeight;
     }
+    
+    void startRecording();
+    void stopRecording();
 
 private:
 
@@ -200,10 +206,13 @@ public:
 
     void buttonClicked(Button* button);
 
+    void startRecording();
+    void stopRecording();
+
+
 private:
 
     bool isRecording;
-
 
     int plotType;
     int nWaveAx;
@@ -237,6 +246,8 @@ private:
     String filename;
     File dataDirectory;
     uint8_t* spikeBuffer;
+    
+    CriticalSection* diskWriteLock;
 
 };
 

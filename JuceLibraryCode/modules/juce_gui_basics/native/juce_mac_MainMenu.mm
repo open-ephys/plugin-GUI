@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -423,7 +422,7 @@ private:
         [menu release];
     }
 
-    static unsigned int juceModsToNSMods (const ModifierKeys& mods)
+    static unsigned int juceModsToNSMods (const ModifierKeys mods)
     {
         unsigned int m = 0;
         if (mods.isShiftDown())    m |= NSShiftKeyMask;
@@ -658,20 +657,21 @@ namespace MainMenuHelpers
         if (JUCEApplication* app = JUCEApplication::getInstance())
         {
             JUCE_AUTORELEASEPOOL
+            {
+                NSMenu* mainMenu = [[NSMenu alloc] initWithTitle: nsStringLiteral ("MainMenu")];
+                NSMenuItem* item = [mainMenu addItemWithTitle: nsStringLiteral ("Apple") action: nil keyEquivalent: nsEmptyString()];
 
-            NSMenu* mainMenu = [[NSMenu alloc] initWithTitle: nsStringLiteral ("MainMenu")];
-            NSMenuItem* item = [mainMenu addItemWithTitle: nsStringLiteral ("Apple") action: nil keyEquivalent: nsEmptyString()];
+                NSMenu* appMenu = [[NSMenu alloc] initWithTitle: nsStringLiteral ("Apple")];
 
-            NSMenu* appMenu = [[NSMenu alloc] initWithTitle: nsStringLiteral ("Apple")];
+                [NSApp performSelector: @selector (setAppleMenu:) withObject: appMenu];
+                [mainMenu setSubmenu: appMenu forItem: item];
 
-            [NSApp performSelector: @selector (setAppleMenu:) withObject: appMenu];
-            [mainMenu setSubmenu: appMenu forItem: item];
+                [NSApp setMainMenu: mainMenu];
+                MainMenuHelpers::createStandardAppMenu (appMenu, app->getApplicationName(), extraItems);
 
-            [NSApp setMainMenu: mainMenu];
-            MainMenuHelpers::createStandardAppMenu (appMenu, app->getApplicationName(), extraItems);
-
-            [appMenu release];
-            [mainMenu release];
+                [appMenu release];
+                [mainMenu release];
+            }
         }
     }
 }
@@ -683,21 +683,22 @@ void MenuBarModel::setMacMainMenu (MenuBarModel* newMenuBarModel,
     if (getMacMainMenu() != newMenuBarModel)
     {
         JUCE_AUTORELEASEPOOL
-
-        if (newMenuBarModel == nullptr)
         {
-            delete JuceMainMenuHandler::instance;
-            jassert (JuceMainMenuHandler::instance == nullptr); // should be zeroed in the destructor
-            jassert (extraAppleMenuItems == nullptr); // you can't specify some extra items without also supplying a model
+            if (newMenuBarModel == nullptr)
+            {
+                delete JuceMainMenuHandler::instance;
+                jassert (JuceMainMenuHandler::instance == nullptr); // should be zeroed in the destructor
+                jassert (extraAppleMenuItems == nullptr); // you can't specify some extra items without also supplying a model
 
-            extraAppleMenuItems = nullptr;
-        }
-        else
-        {
-            if (JuceMainMenuHandler::instance == nullptr)
-                JuceMainMenuHandler::instance = new JuceMainMenuHandler();
+                extraAppleMenuItems = nullptr;
+            }
+            else
+            {
+                if (JuceMainMenuHandler::instance == nullptr)
+                    JuceMainMenuHandler::instance = new JuceMainMenuHandler();
 
-            JuceMainMenuHandler::instance->setMenu (newMenuBarModel, extraAppleMenuItems, recentItemsMenuName);
+                JuceMainMenuHandler::instance->setMenu (newMenuBarModel, extraAppleMenuItems, recentItemsMenuName);
+            }
         }
     }
 

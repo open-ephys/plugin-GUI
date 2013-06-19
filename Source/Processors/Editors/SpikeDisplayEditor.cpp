@@ -182,6 +182,24 @@ Visualizer* SpikeDisplayEditor::createNewCanvas()
 
 }
 
+void SpikeDisplayEditor::startRecording()
+{
+    
+    SpikeDisplayCanvas* sdc = (SpikeDisplayCanvas*) canvas.get();
+    
+    sdc->startRecording();
+    
+}
+
+void SpikeDisplayEditor::stopRecording()
+{
+    
+    SpikeDisplayCanvas* sdc = (SpikeDisplayCanvas*) canvas.get();
+    
+    sdc->stopRecording();
+    
+}
+
 // void SpikeDisplayEditor::updateSettings()
 // {
 // 	// called by base class

@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -56,11 +55,11 @@ public:
     //==============================================================================
     /** Changes the label text.
 
-        If broadcastChangeMessage is true and the new text is different to the current
-        text, then the class will broadcast a change message to any Label::Listener objects
-        that are registered.
+        The NotificationType parameter indicates whether to send a change message to
+        any Label::Listener objects if the new text is different.
     */
-    void setText (const String& newText, bool broadcastChangeMessage);
+    void setText (const String& newText,
+                  NotificationType notification);
 
     /** Returns the label's current text.
 
@@ -185,8 +184,7 @@ public:
         /** Destructor. */
         virtual ~Listener() {}
 
-        /** Called when a Label's text has changed.
-        */
+        /** Called when a Label's text has changed. */
         virtual void labelTextChanged (Label* labelThatHasChanged) = 0;
     };
 
@@ -269,10 +267,10 @@ protected:
     virtual void textWasChanged();
 
     /** Called when the text editor has just appeared, due to a user click or other focus change. */
-    virtual void editorShown (TextEditor* editorComponent);
+    virtual void editorShown (TextEditor*);
 
     /** Called when the text editor is going to be deleted, after editing has finished. */
-    virtual void editorAboutToBeHidden (TextEditor* editorComponent);
+    virtual void editorAboutToBeHidden (TextEditor*);
 
     //==============================================================================
     /** @internal */
@@ -309,6 +307,8 @@ protected:
     void colourChanged();
     /** @internal */
     void valueChanged (Value&);
+    /** @internal */
+    void callChangeListeners();
 
 private:
     //==============================================================================
@@ -327,7 +327,6 @@ private:
     bool leftOfOwnerComp : 1;
 
     bool updateFromTextEditorContents (TextEditor&);
-    void callChangeListeners();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Label)
 };

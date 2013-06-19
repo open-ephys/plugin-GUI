@@ -1,24 +1,27 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the juce_core module of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission to use, copy, modify, and/or distribute this software for any purpose with
+   or without fee is hereby granted, provided that the above copyright notice and this
+   permission notice appear in all copies.
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
+   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
+   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   ------------------------------------------------------------------------------
 
-  ------------------------------------------------------------------------------
+   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
+   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
+   using any other modules, be sure to check that you also comply with their license.
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   For more details, visit www.juce.com
 
   ==============================================================================
 */
@@ -34,8 +37,10 @@
 
 #if JUCE_WINDOWS
  typedef int       juce_socklen_t;
+ typedef SOCKET    SocketHandle;
 #else
  typedef socklen_t juce_socklen_t;
+ typedef int       SocketHandle;
 #endif
 
 //==============================================================================
@@ -57,7 +62,7 @@ namespace SocketHelpers
        #endif
     }
 
-    static bool resetSocketOptions (const int handle, const bool isDatagram, const bool allowBroadcast) noexcept
+    static bool resetSocketOptions (const SocketHandle handle, const bool isDatagram, const bool allowBroadcast) noexcept
     {
         const int sndBufSize = 65536;
         const int rcvBufSize = 65536;
@@ -70,7 +75,7 @@ namespace SocketHelpers
                                : (setsockopt (handle, IPPROTO_TCP, TCP_NODELAY, (const char*) &one, sizeof (one)) == 0));
     }
 
-    static bool bindSocketToPort (const int handle, const int port) noexcept
+    static bool bindSocketToPort (const SocketHandle handle, const int port) noexcept
     {
         if (handle <= 0 || port <= 0)
             return false;
@@ -84,7 +89,7 @@ namespace SocketHelpers
         return bind (handle, (struct sockaddr*) &servTmpAddr, sizeof (struct sockaddr_in)) >= 0;
     }
 
-    static int readSocket (const int handle,
+    static int readSocket (const SocketHandle handle,
                            void* const destBuffer, const int maxBytesToRead,
                            bool volatile& connected,
                            const bool blockUntilSpecifiedAmountHasArrived) noexcept
@@ -122,7 +127,7 @@ namespace SocketHelpers
         return bytesRead;
     }
 
-    static int waitForReadiness (const int handle, const bool forReading, const int timeoutMsecs) noexcept
+    static int waitForReadiness (const SocketHandle handle, const bool forReading, const int timeoutMsecs) noexcept
     {
         struct timeval timeout;
         struct timeval* timeoutp;
@@ -148,7 +153,7 @@ namespace SocketHelpers
         fd_set* const pwset = forReading ? nullptr : &wset;
 
        #if JUCE_WINDOWS
-        if (select (handle + 1, prset, pwset, 0, timeoutp) < 0)
+        if (select ((int) handle + 1, prset, pwset, 0, timeoutp) < 0)
             return -1;
        #else
         {
@@ -175,7 +180,7 @@ namespace SocketHelpers
         return FD_ISSET (handle, forReading ? &rset : &wset) ? 1 : 0;
     }
 
-    static bool setSocketBlockingState (const int handle, const bool shouldBlock) noexcept
+    static bool setSocketBlockingState (const SocketHandle handle, const bool shouldBlock) noexcept
     {
        #if JUCE_WINDOWS
         u_long nonBlocking = shouldBlock ? 0 : (u_long) 1;

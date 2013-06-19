@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -44,44 +43,45 @@ public:
           averageTimeOffset (0)
     {
         JUCE_AUTORELEASEPOOL
-
-        session = [[QTCaptureSession alloc] init];
-
-        NSArray* devs = [QTCaptureDevice inputDevicesWithMediaType: QTMediaTypeVideo];
-        device = (QTCaptureDevice*) [devs objectAtIndex: index];
-
-        static DelegateClass cls;
-        callbackDelegate = [cls.createInstance() init];
-        DelegateClass::setOwner (callbackDelegate, this);
-
-        NSError* err = nil;
-        [device retain];
-        [device open: &err];
-
-        if (err == nil)
         {
-            input      = [[QTCaptureDeviceInput alloc] initWithDevice: device];
-            audioInput = [[QTCaptureDeviceInput alloc] initWithDevice: device];
+            session = [[QTCaptureSession alloc] init];
 
-            [session addInput: input error: &err];
+            NSArray* devs = [QTCaptureDevice inputDevicesWithMediaType: QTMediaTypeVideo];
+            device = (QTCaptureDevice*) [devs objectAtIndex: index];
+
+            static DelegateClass cls;
+            callbackDelegate = [cls.createInstance() init];
+            DelegateClass::setOwner (callbackDelegate, this);
+
+            NSError* err = nil;
+            [device retain];
+            [device open: &err];
 
             if (err == nil)
             {
-                resetFile();
+                input      = [[QTCaptureDeviceInput alloc] initWithDevice: device];
+                audioInput = [[QTCaptureDeviceInput alloc] initWithDevice: device];
 
-                imageOutput = [[QTCaptureDecompressedVideoOutput alloc] init];
-                [imageOutput setDelegate: callbackDelegate];
+                [session addInput: input error: &err];
 
                 if (err == nil)
                 {
-                    [session startRunning];
-                    return;
+                    resetFile();
+
+                    imageOutput = [[QTCaptureDecompressedVideoOutput alloc] init];
+                    [imageOutput setDelegate: callbackDelegate];
+
+                    if (err == nil)
+                    {
+                        [session startRunning];
+                        return;
+                    }
                 }
             }
-        }
 
-        openingError = nsStringToJuce ([err description]);
-        DBG (openingError);
+            openingError = nsStringToJuce ([err description]);
+            DBG (openingError);
+        }
     }
 
     ~QTCameraDeviceInternal()
@@ -237,10 +237,11 @@ private:
             if (internal->listeners.size() > 0)
             {
                 JUCE_AUTORELEASEPOOL
-
-                internal->callListeners ([CIImage imageWithCVImageBuffer: videoFrame],
-                                         CVPixelBufferGetWidth (videoFrame),
-                                         CVPixelBufferGetHeight (videoFrame));
+                {
+                    internal->callListeners ([CIImage imageWithCVImageBuffer: videoFrame],
+                                             CVPixelBufferGetWidth (videoFrame),
+                                             CVPixelBufferGetHeight (videoFrame));
+                }
             }
         }
 
@@ -258,11 +259,13 @@ public:
     QTCaptureViewerComp (CameraDevice* const cameraDevice, QTCameraDeviceInternal* const internal)
     {
         JUCE_AUTORELEASEPOOL
-        captureView = [[QTCaptureView alloc] init];
-        [captureView setCaptureSession: internal->session];
+        {
+            captureView = [[QTCaptureView alloc] init];
+            [captureView setCaptureSession: internal->session];
 
-        setSize (640, 480); //  xxx need to somehow get the movie size - how?
-        setView (captureView);
+            setSize (640, 480); //  xxx need to somehow get the movie size - how?
+            setView (captureView);
+        }
     }
 
     ~QTCaptureViewerComp()
@@ -373,17 +376,18 @@ void CameraDevice::removeListener (Listener* listenerToRemove)
 StringArray CameraDevice::getAvailableDevices()
 {
     JUCE_AUTORELEASEPOOL
-
-    StringArray results;
-    NSArray* devs = [QTCaptureDevice inputDevicesWithMediaType: QTMediaTypeVideo];
-
-    for (int i = 0; i < (int) [devs count]; ++i)
     {
-        QTCaptureDevice* dev = (QTCaptureDevice*) [devs objectAtIndex: i];
-        results.add (nsStringToJuce ([dev localizedDisplayName]));
-    }
+        StringArray results;
+        NSArray* devs = [QTCaptureDevice inputDevicesWithMediaType: QTMediaTypeVideo];
 
-    return results;
+        for (int i = 0; i < (int) [devs count]; ++i)
+        {
+            QTCaptureDevice* dev = (QTCaptureDevice*) [devs objectAtIndex: i];
+            results.add (nsStringToJuce ([dev localizedDisplayName]));
+        }
+
+        return results;
+    }
 }
 
 CameraDevice* CameraDevice::openDevice (int index,
