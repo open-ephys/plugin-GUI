@@ -102,14 +102,14 @@ namespace juce
 
 }
 
-#endif   // __JUCE_AUDIO_BASICS_JUCEHEADER__
-oneGeneratorAudioSource.h"
-#endif
-#ifndef __JUCE_SYNTHESISER_JUCEHEADER__
- #include "synthesisers/juce_Synthesiser.h"
-#endif
-// END_AUTOINCLUDE
-
-}
+//#ifndef __JUCE_AUDIO_BASICS_JUCEHEADER__
+// #include "sources/juce_ToneGeneratorAudioSource.h"
+//#endif
+//#ifndef __JUCE_SYNTHESISER_JUCEHEADER__
+// #include "synthesisers/juce_Synthesiser.h"
+//#endif
+//// END_AUTOINCLUDE
+//
+//}
 
 #endif   // __JUCE_AUDIO_BASICS_JUCEHEADER__

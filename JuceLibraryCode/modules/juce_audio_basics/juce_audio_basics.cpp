@@ -77,11 +77,11 @@ namespace juce
 #include "synthesisers/juce_Synthesiser.cpp"
 // END_AUTOINCLUDE
 
-}
-ce_ResamplingAudioSource.cpp"
-#include "sources/juce_ReverbAudioSource.cpp"
-#include "sources/juce_ToneGeneratorAudioSource.cpp"
-#include "synthesisers/juce_Synthesiser.cpp"
-// END_AUTOINCLUDE
+//}
+//ce_ResamplingAudioSource.cpp"
+//#include "sources/juce_ReverbAudioSource.cpp"
+//#include "sources/juce_ToneGeneratorAudioSource.cpp"
+//#include "synthesisers/juce_Synthesiser.cpp"
+//// END_AUTOINCLUDE
 
 }

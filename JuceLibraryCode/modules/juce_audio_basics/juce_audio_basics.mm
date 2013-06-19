@@ -23,10 +23,4 @@
 */
 
 #include "juce_audio_basics.cpp"
-e
-   available: visit www.rawmaterialsoftware.com/juce for more information.
 
-  ==============================================================================
-*/
-
-#include "juce_audio_basics.cpp"
