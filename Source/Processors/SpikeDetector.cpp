@@ -206,7 +206,7 @@ void SpikeDetector::setChannel(int electrodeIndex, int channelNum, int newChanne
 {
 
     std::cout << "Setting electrode " << electrodeIndex << " channel " << channelNum <<
-               " to " << newChannel << std::endl;
+              " to " << newChannel << std::endl;
 
     *(electrodes[electrodeIndex]->channels+channelNum) = newChannel;
 }
@@ -235,7 +235,7 @@ void SpikeDetector::setChannelActive(int electrodeIndex, int subChannel, bool ac
         setParameter(98, 1);
     else
         setParameter(98, 0);
-    
+
 }
 
 bool SpikeDetector::isChannelActive(int electrodeIndex, int i)
@@ -263,7 +263,8 @@ void SpikeDetector::setParameter(int parameterIndex, float newValue)
     if (parameterIndex == 99 && currentElectrode > -1)
     {
         *(electrodes[currentElectrode]->thresholds+currentChannelIndex) = newValue;
-    } else if (parameterIndex == 98 && currentElectrode > -1)
+    }
+    else if (parameterIndex == 98 && currentElectrode > -1)
     {
         if (newValue == 0.0f)
             *(electrodes[currentElectrode]->isActive+currentChannelIndex) = false;
@@ -337,7 +338,8 @@ void SpikeDetector::addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int p
 
     int numBytes = packSpike(s, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
 
-    eventBuffer.addEvent(spikeBuffer, numBytes, peakIndex);
+    if (numBytes > 0)
+        eventBuffer.addEvent(spikeBuffer, numBytes, peakIndex);
 
 }
 
@@ -378,12 +380,14 @@ void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,
             //std::cout << currentIndex << std::endl;
 
         }
-    } else {
+    }
+    else
+    {
         for (int sample = 0; sample < spikeLength; sample++)
         {
 
-            // insert a blank spike if the 
-            s->data[currentIndex] = 0; 
+            // insert a blank spike if the
+            s->data[currentIndex] = 0;
             currentIndex++;
             sampleIndex++;
 
@@ -634,13 +638,13 @@ void SpikeDetector::saveCustomParametersToXml(XmlElement* parentElement)
 
     for (int i = 0; i < electrodes.size(); i++)
     {
-         XmlElement* electrodeNode = parentElement->createNewChildElement("ELECTRODE");
-         electrodeNode->setAttribute("name", electrodes[i]->name);
-         electrodeNode->setAttribute("numChannels", electrodes[i]->numChannels);
-         electrodeNode->setAttribute("prePeakSamples", electrodes[i]->prePeakSamples);
-         electrodeNode->setAttribute("postPeakSamples", electrodes[i]->postPeakSamples);
+        XmlElement* electrodeNode = parentElement->createNewChildElement("ELECTRODE");
+        electrodeNode->setAttribute("name", electrodes[i]->name);
+        electrodeNode->setAttribute("numChannels", electrodes[i]->numChannels);
+        electrodeNode->setAttribute("prePeakSamples", electrodes[i]->prePeakSamples);
+        electrodeNode->setAttribute("postPeakSamples", electrodes[i]->postPeakSamples);
 
-         for (int j = 0; j < electrodes[i]->numChannels; j++)
+        for (int j = 0; j < electrodes[i]->numChannels; j++)
         {
             XmlElement* channelNode = electrodeNode->createNewChildElement("SUBCHANNEL");
             channelNode->setAttribute("ch",*(electrodes[i]->channels+j));
@@ -658,13 +662,13 @@ void SpikeDetector::loadCustomParametersFromXml()
 
     if (parametersAsXml != nullptr)
     {
-        // use parametersAsXml to restore state 
+        // use parametersAsXml to restore state
 
         int electrodeIndex = -1;
 
         forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
-           if (xmlNode->hasTagName("ELECTRODE"))
+            if (xmlNode->hasTagName("ELECTRODE"))
             {
 
                 electrodeIndex++;
@@ -673,7 +677,7 @@ void SpikeDetector::loadCustomParametersFromXml()
 
                 SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
                 sde->addElectrode(channelsPerElectrode);
-                
+
                 setElectrodeName(electrodeIndex+1, xmlNode->getStringAttribute("name"));
 
                 int channelIndex = -1;
@@ -691,7 +695,7 @@ void SpikeDetector::loadCustomParametersFromXml()
                 }
 
             }
-        }   
+        }
     }
 
 }

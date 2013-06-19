@@ -44,30 +44,16 @@ ProcessorList::ProcessorList()
     listFontLight = Font("Default Light", 25, Font::plain);
     listFontPlain = Font("Default", 20, Font::plain);
 
-    // MemoryInputStream mis1(BinaryData::cpmonolightserialized,
-    //                        BinaryData::cpmonolightserializedSize,
-    //                        false);
-    // Typeface::Ptr tp1 = new CustomTypeface(mis1);
-    // listFontLight = Font(tp1);
-    // listFontLight.setHeight(25);
-
-    // MemoryInputStream mis2(BinaryData::cpmonoplainserialized,
-    //                        BinaryData::cpmonoplainserializedSize,
-    //                        false);
-    // Typeface::Ptr tp2 = new CustomTypeface(mis2);
-    // listFontPlain = Font(tp2);
-    // listFontPlain.setHeight(20);
-
     setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
-    setColour(FILTER_COLOR, Colour(41, 76, 158));//Colour(255, 89, 0));
-    setColour(SINK_COLOR, Colour(93, 125, 199));//Colour(255, 149, 0));
-    setColour(SOURCE_COLOR, Colour(48, 67, 112)); //Colour(255, 0, 0));
-    setColour(UTILITY_COLOR, Colour(90, 80, 80));
+    setColour(FILTER_COLOR, Colour(0, 174, 239));
+    setColour(SINK_COLOR, Colour(0, 166, 81));
+    setColour(SOURCE_COLOR, Colour(241, 90, 41));
+    setColour(UTILITY_COLOR, Colour(147, 149, 152));
 
     ProcessorListItem* sources = new ProcessorListItem("Sources");
     sources->addSubItem(new ProcessorListItem("RHA2000-EVAL"));
     //sources->addSubItem(new ProcessorListItem("Signal Generator"));
-    sources->addSubItem(new ProcessorListItem("Custom FPGA"));
+    //sources->addSubItem(new ProcessorListItem("Custom FPGA"));
     sources->addSubItem(new ProcessorListItem("Rhythm FPGA"));
     sources->addSubItem(new ProcessorListItem("File Reader"));
     //sources->addSubItem(new ProcessorListItem("Event Generator"));
@@ -86,7 +72,7 @@ ProcessorList::ProcessorList()
     sinks->addSubItem(new ProcessorListItem("Spike Viewer"));
     //sinks->addSubItem(new ProcessorListItem("WiFi Output"));
     //sinks->addSubItem(new ProcessorListItem("Arduino Output"));
-   // sinks->addSubItem(new ProcessorListItem("FPGA Output"));
+    // sinks->addSubItem(new ProcessorListItem("FPGA Output"));
     sinks->addSubItem(new ProcessorListItem("Pulse Pal"));
 
     ProcessorListItem* utilities = new ProcessorListItem("Utilities");

@@ -496,7 +496,10 @@ public:
     OwnedArray<Channel> eventChannels;
 
     /** Returns total number of channels */
-    int totalNumberOfChannels(){return channels.size()+eventChannels.size();}
+    int totalNumberOfChannels()
+    {
+        return channels.size()+eventChannels.size();
+    }
 
     /** Settings used by most processors. */
     struct ProcessorSettings
@@ -561,7 +564,7 @@ public:
     /** Load custom parameters for each channel. */
     virtual void loadCustomChannelParametersFromXml(XmlElement* channelElement, bool isEventChannel=false);
 
-     /** Holds loaded parameters */
+    /** Holds loaded parameters */
     XmlElement* parametersAsXml;
 
 private:

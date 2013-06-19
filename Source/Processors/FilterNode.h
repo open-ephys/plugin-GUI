@@ -62,7 +62,7 @@ public:
     void updateSettings();
 
     void saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNumber, bool isEventChannel);
-    
+
     void loadCustomChannelParametersFromXml(XmlElement* channelInfo, bool isEventChannel);
 
 private:

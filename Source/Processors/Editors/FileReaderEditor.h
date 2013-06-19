@@ -39,7 +39,7 @@ class FileReader;
 
 */
 
-  class FileReaderEditor : public GenericEditor
+class FileReaderEditor : public GenericEditor
 
 {
 public:
@@ -51,17 +51,17 @@ public:
     void setFile(String file);
 
     void saveEditorParameters(XmlElement*);
-    
+
     void loadEditorParameters(XmlElement*);
 
 private:
 
-	ScopedPointer<UtilityButton> fileButton;
-	ScopedPointer<Label> fileNameLabel;
+    ScopedPointer<UtilityButton> fileButton;
+    ScopedPointer<Label> fileNameLabel;
 
-	FileReader* fileReader;
+    FileReader* fileReader;
 
-	File lastFilePath;
+    File lastFilePath;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReaderEditor);
 

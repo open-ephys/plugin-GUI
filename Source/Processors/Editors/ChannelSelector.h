@@ -74,7 +74,10 @@ public:
     void setNumChannels(int);
 
     /** get the total number of channels. */
-    int getNumChannels(){return parameterButtons.size();}
+    int getNumChannels()
+    {
+        return parameterButtons.size();
+    }
 
     /** Return whether a particular channel should be recording. */
     bool getRecordStatus(int chan);
@@ -110,8 +113,11 @@ public:
     void activateButtons();
 
     /** Refreshes Parameter Colors on change*/
-    void refreshParameterColors(){GenericEditor* p=dynamic_cast<GenericEditor*>(getParentComponent());
-        p->updateParameterButtons(-1);}
+    void refreshParameterColors()
+    {
+        GenericEditor* p=dynamic_cast<GenericEditor*>(getParentComponent());
+        p->updateParameterButtons(-1);
+    }
 
     /** Controls the behavior of ChannelSelectorButtons; they can either behave
     like radio buttons (only one selected at a time) or like toggle buttons (an
@@ -255,7 +261,7 @@ public:
     ~ChannelSelectorRegion();
 
     /** Allows the user to scroll the channels if they are not all visible.*/
-    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails &wheel);
+    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
     void paint(Graphics& g);
 
 private:

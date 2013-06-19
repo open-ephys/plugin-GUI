@@ -91,29 +91,29 @@ void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
 
     //std::cout << "GOT EVENT." << std::endl;
 
-     if (eventType == TTL)
-     {
-         const uint8* dataptr = event.getRawData();
+    if (eventType == TTL)
+    {
+        const uint8* dataptr = event.getRawData();
 
-         // int eventNodeId = *(dataptr+1);
-         int eventId = *(dataptr+2);
-         int eventChannel = *(dataptr+3);
-         //int eventTime = event.getTimeStamp();
+        // int eventNodeId = *(dataptr+1);
+        int eventId = *(dataptr+2);
+        int eventChannel = *(dataptr+3);
+        //int eventTime = event.getTimeStamp();
 
-    //     //	std::cout << "Received event from " << eventNodeId << ", channel "
-    //     //          << eventChannel << ", with ID " << eventId << std::endl;
+        //     //	std::cout << "Received event from " << eventNodeId << ", channel "
+        //     //          << eventChannel << ", with ID " << eventId << std::endl;
 
-    //     if (eventId == 1 && eventChannel == 5)
-    //     {
-    //         canBeTriggered = true;
-    //     }
-         if (eventId == 0 && eventChannel == 5)
-         {
-             triggerOnPeak = randomNumberGenerator.nextBool();
+        //     if (eventId == 1 && eventChannel == 5)
+        //     {
+        //         canBeTriggered = true;
+        //     }
+        if (eventId == 0 && eventChannel == 5)
+        {
+            triggerOnPeak = randomNumberGenerator.nextBool();
 
-         }
+        }
 
-     }
+    }
 
 }
 
@@ -134,7 +134,7 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
             if (!triggerOnPeak)
                 sample = -sample; // invert
-               
+
 
             if (sample > lastSample && !isIncreasing)
             {
@@ -151,11 +151,11 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
 
                 //std::cout << "GOT EVENT." << std::endl;
-                
+
                 // entering falling phase (just reached peak or trough)
                 //if (true)
                 addEvent(events, TTL, i, 1, 3);
-                
+
 
                 peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
 
@@ -172,10 +172,10 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
                 // either rising or falling
                 nSamplesSinceLastPeak++;
 
-                 if (nSamplesSinceLastPeak == 500)
-                 {
-                     addEvent(events, TTL, i, 0, 3);
-                 }
+                if (nSamplesSinceLastPeak == 500)
+                {
+                    addEvent(events, TTL, i, 0, 3);
+                }
 
             }
 

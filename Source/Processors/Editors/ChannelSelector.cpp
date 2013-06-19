@@ -373,7 +373,7 @@ void ChannelSelector::setRadioStatus(bool radioOn)
 
     }
 
-  
+
 
 }
 
@@ -534,11 +534,11 @@ void ChannelSelector::buttonClicked(Button* button)
         }
 
         if (radioStatus) // if radio buttons are active
-            {
-                // send a message to parent
-                GenericEditor* editor = (GenericEditor*) getParentComponent();
-                editor->channelChanged(-1);
-            }
+        {
+            // send a message to parent
+            GenericEditor* editor = (GenericEditor*) getParentComponent();
+            editor->channelChanged(-1);
+        }
     }
     else
     {
@@ -836,5 +836,5 @@ void ChannelSelectorRegion::mouseWheelMove(const MouseEvent& event,
 
 void ChannelSelectorRegion::paint(Graphics& g)
 {
-   // g.fillAll(Colours::white);
+    // g.fillAll(Colours::white);
 }

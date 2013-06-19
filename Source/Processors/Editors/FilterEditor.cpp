@@ -65,36 +65,13 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
     highCutValue->addListener(this);
     addAndMakeVisible(highCutValue);
 
-    //createRadioButtons(35, 50, 160, lowCutValues, "Low Cutoff");
-    //createRadioButtons(35, 90, 160, highCutValues, "High Cutoff");
-
-    // for (int n = 0; n < getNumChildComponents(); n++)
-    // {
-    // 	Button* c = (Button*) getChildComponent(n);
-
-    // 	if (c->isVisible())
-    // 		c->addListener(this);
-
-    // 	if (c->getRadioGroupId() != 999)
-    // 		c->setVisible(true);
-    // }
-
 }
 
 FilterEditor::~FilterEditor()
 {
-   // deleteAllChildren();
+ 
 }
 
-// void FilterEditor::sliderValueChanged (Slider* slider)
-// {
-
-// 	if (slider == lowSlider)
-// 		getAudioProcessor()->setParameter(0,slider->getValue());
-// 	else
-// 		getAudioProcessor()->setParameter(1,slider->getValue());
-
-// }
 
 void FilterEditor::labelTextChanged(Label* label)
 {
@@ -110,7 +87,9 @@ void FilterEditor::labelTextChanged(Label* label)
         if (label == highCutValue)
         {
             label->setText(lastHighCutString, dontSendNotification);
-        } else {
+        }
+        else
+        {
             label->setText(lastLowCutString, dontSendNotification);
         }
 
@@ -133,11 +112,13 @@ void FilterEditor::labelTextChanged(Label* label)
             {
                 fn->setCurrentChannel(n);
                 fn->setParameter(1, requestedValue);
-            } 
+            }
 
             lastHighCutString = label->getText();
 
-        } else {
+        }
+        else
+        {
             double maxVal = fn->getHighCutValueForChannel(n);
 
             if (requestedValue < maxVal)
@@ -198,12 +179,12 @@ void FilterEditor::saveEditorParameters(XmlElement* xml)
 void FilterEditor::loadEditorParameters(XmlElement* xml)
 {
 
-     forEachXmlChildElement(*xml, xmlNode)
-     {
-         if (xmlNode->hasTagName("VALUES"))
-         {
+    forEachXmlChildElement(*xml, xmlNode)
+    {
+        if (xmlNode->hasTagName("VALUES"))
+        {
             highCutValue->setText(xmlNode->getStringAttribute("HighCut"),dontSendNotification);
             lowCutValue->setText(xmlNode->getStringAttribute("LowCut"),dontSendNotification);
-         }   
-     }
+        }
+    }
 }

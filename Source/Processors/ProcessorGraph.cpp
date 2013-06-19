@@ -79,12 +79,12 @@ void ProcessorGraph::createDefaultNodes()
     // add record node -- sends output to disk
     RecordNode* recn = new RecordNode();
     recn->setNodeId(RECORD_NODE_ID);
-   
+
 
     // add audio node -- takes all inputs and selects those to be used for audio monitoring
     AudioNode* an = new AudioNode();
     an->setNodeId(AUDIO_NODE_ID);
-    
+
 
     // add audio resampling node -- resamples continuous signals to 44.1kHz
     AudioResamplingNode* arn = new AudioResamplingNode();
@@ -431,7 +431,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
     {
 
         if (subProcessorType.equalsIgnoreCase("RHA2000-EVAL") ||
-           // subProcessorType.equalsIgnoreCase("File Reader") ||
+            // subProcessorType.equalsIgnoreCase("File Reader") ||
             subProcessorType.equalsIgnoreCase("Custom FPGA") ||
             subProcessorType.equalsIgnoreCase("Rhythm FPGA"))
         {

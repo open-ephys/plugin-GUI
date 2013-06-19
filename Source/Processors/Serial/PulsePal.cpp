@@ -42,17 +42,17 @@ PulsePal::PulsePal()
 PulsePal::~PulsePal()
 {
 
-	serial.close();
+    serial.close();
 }
 
 void PulsePal::initialize()
 {
 
-	std::cout << "Searching for Pulse Pal..." << std::endl;
+    std::cout << "Searching for Pulse Pal..." << std::endl;
 
 
     //
-	// lsusb shows Device 104: ID 1eaf:0004
+    // lsusb shows Device 104: ID 1eaf:0004
     // updated udev rules file, but still need to run as root -- no idea why
     //
     // try this instead: sudo chmod o+rw /dev/ttyACM0
@@ -60,25 +60,25 @@ void PulsePal::initialize()
     // works fine, but you have to re-do it every time
     //
 
-	vector<ofSerialDeviceInfo> devices = serial.getDeviceList();
+    vector<ofSerialDeviceInfo> devices = serial.getDeviceList();
 
-	bool foundDevice = false;
+    bool foundDevice = false;
 
-	for (int devNum; devNum < devices.size(); devNum++)
-	{
-		int id = devices[devNum].getDeviceID();
-		string path = devices[devNum].getDevicePath();
+    for (int devNum; devNum < devices.size(); devNum++)
+    {
+        int id = devices[devNum].getDeviceID();
+        string path = devices[devNum].getDevicePath();
         string name = devices[devNum].getDeviceName();
 
-       // std::cout << "Device name: " << name << std::endl;
+        // std::cout << "Device name: " << name << std::endl;
 
         //#if (defined TARGET_LINUX)
-            string acm0 = "ACM0";
+        string acm0 = "ACM0";
         //#endif
 
         //#if (defined TARGET_OSX)
         //    string acm0 = "usbmodemfa131";
-       // #endif
+        // #endif
 
 
         size_t index = path.find(acm0);
@@ -90,9 +90,9 @@ void PulsePal::initialize()
 
             unsigned char bytesToWrite = 59;
 
-           serial.writeByte(bytesToWrite);
+            serial.writeByte(bytesToWrite);
 
-          // std::cout << "error number: " << a << std::endl;
+            // std::cout << "error number: " << a << std::endl;
 
             // while (serial.available() == 0)
             // {
@@ -104,7 +104,7 @@ void PulsePal::initialize()
             std::cout << "Got response: " << (int) resp << std::endl;
 
             if (resp == 254)
-                      {
+            {
                 std::cout << "FOUND A PULSE PAL." << std::endl;
                 foundDevice = true;
             }
@@ -117,162 +117,162 @@ void PulsePal::initialize()
             break;
         }
 
-	}
+    }
 
 
 }
 
 void PulsePal::setPhase1Duration(uint8_t channel, uint32_t timeInMicroseconds)
 {
-	constrain(&timeInMicroseconds, FIFTY_uS, MAX_uS);
-	program(channel, 0, timeInMicroseconds);
+    constrain(&timeInMicroseconds, FIFTY_uS, MAX_uS);
+    program(channel, 0, timeInMicroseconds);
 }
 
 void PulsePal::setInterPhaseInterval(uint8_t channel, uint32_t timeInMicroseconds)
 {
-	constrain(&timeInMicroseconds, FIFTY_uS, MAX_uS);
-	program(channel, 1, timeInMicroseconds);
+    constrain(&timeInMicroseconds, FIFTY_uS, MAX_uS);
+    program(channel, 1, timeInMicroseconds);
 }
 
 void PulsePal::setPhase2Duration(uint8_t channel, uint32_t timeInMicroseconds)
 {
-	constrain(&timeInMicroseconds, FIFTY_uS, MAX_uS);
-	program(channel, 2, timeInMicroseconds);
+    constrain(&timeInMicroseconds, FIFTY_uS, MAX_uS);
+    program(channel, 2, timeInMicroseconds);
 }
 
 void PulsePal::setInterPulseInterval(uint8_t channel, uint32_t timeInMicroseconds)
 {
-	constrain(&timeInMicroseconds, FIFTY_uS, MAX_uS);
-	program(channel, 3, timeInMicroseconds);
+    constrain(&timeInMicroseconds, FIFTY_uS, MAX_uS);
+    program(channel, 3, timeInMicroseconds);
 }
 
 void PulsePal::setBurstDuration(uint8_t channel, uint32_t timeInMicroseconds)
 {
-	constrain(&timeInMicroseconds, ZERO_uS, MAX_uS);
-	program(channel, 4, timeInMicroseconds);
+    constrain(&timeInMicroseconds, ZERO_uS, MAX_uS);
+    program(channel, 4, timeInMicroseconds);
 }
 
 void PulsePal::setBurstInterval(uint8_t channel, uint32_t timeInMicroseconds)
 {
-	constrain(&timeInMicroseconds, ZERO_uS, MAX_uS);
-	program(channel, 5, timeInMicroseconds);
+    constrain(&timeInMicroseconds, ZERO_uS, MAX_uS);
+    program(channel, 5, timeInMicroseconds);
 }
 
 void PulsePal::setStimulusTrainDuration(uint8_t channel, uint32_t timeInMicroseconds)
 {
-	constrain(&timeInMicroseconds, FIFTY_uS, MAX_uS);
-	program(channel, 6, timeInMicroseconds);
+    constrain(&timeInMicroseconds, FIFTY_uS, MAX_uS);
+    program(channel, 6, timeInMicroseconds);
 }
 
 void PulsePal::setStimulusTrainDelay(uint8_t channel, uint32_t timeInMicroseconds)
 {
-	constrain(&timeInMicroseconds, FIFTY_uS, MAX_uS);
-	program(channel, 7, timeInMicroseconds);
+    constrain(&timeInMicroseconds, FIFTY_uS, MAX_uS);
+    program(channel, 7, timeInMicroseconds);
 }
 
 void PulsePal::setBiphasic(uint8_t channel, bool isBiphasic)
 {
-	uint8_t command = 0;
+    uint8_t command = 0;
 
-	if (isBiphasic)
-	{
-		command = 1;
-	}
+    if (isBiphasic)
+    {
+        command = 1;
+    }
 
-	program(channel, 8, command);
+    program(channel, 8, command);
 }
 
 void PulsePal::setPhase1Voltage(uint8_t channel, float voltage)
 {
-	program(channel, 9, voltageToByte(voltage));
+    program(channel, 9, voltageToByte(voltage));
 }
 
 void PulsePal::setPhase2Voltage(uint8_t channel, float voltage)
 {
-	program(channel, 10, voltageToByte(voltage));
+    program(channel, 10, voltageToByte(voltage));
 }
 
 void PulsePal::updateDisplay(string line1, string line2)
 {
-	uint8_t message1 = 85;
+    uint8_t message1 = 85;
 
-	serial.writeByte(message1);
+    serial.writeByte(message1);
 
-	serial.writeBytes((unsigned char*) line1.data(), line1.size());
-	//serial.writeByte(0);
-	//serial.writeByte(RETURN);
-	serial.writeByte(254);
-	serial.writeBytes((unsigned char*) line2.data(), line2.size());
-	//serial.writeByte(0);
-	//serial.writeByte(RETURN);
+    serial.writeBytes((unsigned char*) line1.data(), line1.size());
+    //serial.writeByte(0);
+    //serial.writeByte(RETURN);
+    serial.writeByte(254);
+    serial.writeBytes((unsigned char*) line2.data(), line2.size());
+    //serial.writeByte(0);
+    //serial.writeByte(RETURN);
 
 }
 
 void PulsePal::program(uint8_t channel, uint8_t paramCode, uint32_t paramValue)
 {
-	std::cout << "sending 32-bit message" << std::endl;
+    std::cout << "sending 32-bit message" << std::endl;
 
-	uint8_t message1[3] = {79, paramCode, channel};
+    uint8_t message1[3] = {79, paramCode, channel};
 
-	uint8_t message2[4];
+    uint8_t message2[4];
 
-	// make sure byte order is little-endian:
-	message2[0] = (paramValue & 0xff);
-	message2[1] = (paramValue & 0xff00) >> 8;
-	message2[2] = (paramValue & 0xff0000) >> 16;
-	message2[3] = (paramValue & 0xff00000) >> 24;
+    // make sure byte order is little-endian:
+    message2[0] = (paramValue & 0xff);
+    message2[1] = (paramValue & 0xff00) >> 8;
+    message2[2] = (paramValue & 0xff0000) >> 16;
+    message2[3] = (paramValue & 0xff00000) >> 24;
 
-	serial.writeBytes(message1, 3);
-	serial.writeBytes(message2, 4);
+    serial.writeBytes(message1, 3);
+    serial.writeBytes(message2, 4);
 
-	std::cout << "Message 1: " << (int) message1[0] << " " << (int) message1[1] << " " << (int) message1[2] << std::endl;
-	std::cout << "Message 2: " << (int) message2[0] << " " << (int) message2[1] << " " << (int) message2[2] <<  " " << (int) message2[3] << std::endl;
+    std::cout << "Message 1: " << (int) message1[0] << " " << (int) message1[1] << " " << (int) message1[2] << std::endl;
+    std::cout << "Message 2: " << (int) message2[0] << " " << (int) message2[1] << " " << (int) message2[2] <<  " " << (int) message2[3] << std::endl;
 }
 
 
 void PulsePal::program(uint8_t channel, uint8_t paramCode, uint8_t paramValue)
 {
 
-	std::cout << "sending 8-bit message" << std::endl;
+    std::cout << "sending 8-bit message" << std::endl;
 
-	uint8_t message1[3] = {79, paramCode, channel};
+    uint8_t message1[3] = {79, paramCode, channel};
 
-	serial.writeBytes(message1, 3);
-	serial.writeBytes(&paramValue, 1);
+    serial.writeBytes(message1, 3);
+    serial.writeBytes(&paramValue, 1);
 
-	std::cout << "Message 1: " << (int) message1[0] << " " << (int) message1[1] << " " << (int) message1[2] << std::endl;
-	std::cout << "Message 2: " << paramValue << std::endl;
+    std::cout << "Message 1: " << (int) message1[0] << " " << (int) message1[1] << " " << (int) message1[2] << std::endl;
+    std::cout << "Message 2: " << paramValue << std::endl;
 }
 
 void PulsePal::constrain(uint32_t* value, uint32_t min, uint32_t max)
 {
 
-	// value must be a multiple of 50
-	if (*value % 50 > 0)
-	{
-		*value = *value - (*value % 50);
-	}
+    // value must be a multiple of 50
+    if (*value % 50 > 0)
+    {
+        *value = *value - (*value % 50);
+    }
 
-	if (*value < min)
-	{
-		*value = min;
-	}
+    if (*value < min)
+    {
+        *value = min;
+    }
 
-	if (*value > max)
-	{
-		*value = max;
-	}
+    if (*value > max)
+    {
+        *value = max;
+    }
 
 }
 
 uint8_t PulsePal::voltageToByte(float voltage)
 {
-	// input: -10 to 10 V
-	// output: 0-255
+    // input: -10 to 10 V
+    // output: 0-255
 
-	uint8_t output = (uint8_t) ((voltage+10)/20)*255;
+    uint8_t output = (uint8_t)((voltage+10)/20)*255;
 
-	return output;
+    return output;
 
 }
 
@@ -280,7 +280,7 @@ uint8_t PulsePal::voltageToByte(float voltage)
 void PulsePal::triggerChannel(uint8_t chan)
 {
     const uint8_t code = 1 << (chan-1);
-    
+
     uint8_t bytesToWrite[2] = {84, code};
 
     serial.writeBytes(bytesToWrite, 2);

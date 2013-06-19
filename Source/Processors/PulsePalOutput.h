@@ -31,7 +31,7 @@
 
 /**
 
-  Allows the signal chain to send outputs to the Pulse Pal 
+  Allows the signal chain to send outputs to the Pulse Pal
   from Lucid Biosystems (www.lucidbiosystems.com)
 
   @see GenericProcessor, PulsePalOutputEditor, PulsePal

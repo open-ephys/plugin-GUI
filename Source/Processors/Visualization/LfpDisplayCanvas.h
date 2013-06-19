@@ -33,7 +33,7 @@ class LfpTimescale;
 class LfpDisplay;
 class LfpChannelDisplay;
 class LfpChannelDisplayInfo;
-class eventDisplayInterface;
+class EventDisplayInterface;
 
 /**
 
@@ -45,7 +45,7 @@ class eventDisplayInterface;
 
 class LfpDisplayCanvas : public Visualizer,
     public ComboBox::Listener
-    
+
 {
 public:
     LfpDisplayCanvas(LfpDisplayNode* n);
@@ -100,9 +100,6 @@ private:
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
-    
-
-
     LfpDisplayNode* processor;
     AudioSampleBuffer* displayBuffer;
     AudioSampleBuffer* screenBuffer;
@@ -120,8 +117,7 @@ private:
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
 
-    OwnedArray<eventDisplayInterface> eventDisplayInterfaces;
-
+    OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
 
     void refreshScreenBuffer();
     void updateScreenBuffer();
@@ -132,7 +128,6 @@ private:
     int scrollBarThickness;
 
     int nChans;
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
 
@@ -168,9 +163,9 @@ public:
 
     void setNumChannels(int numChannels);
     int getNumChannels();
-    
+
     int getTotalHeight();
-    
+
     void paint(Graphics& g);
 
     void refresh();
@@ -178,9 +173,9 @@ public:
     void resized();
 
     void mouseDown(const MouseEvent& event);
-    void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel ) ;
+    void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel) ;
 
-    
+
     void setRange(float range);
     int getRange();
 
@@ -197,6 +192,7 @@ public:
     Array<LfpChannelDisplay*> channels;
     Array<LfpChannelDisplayInfo*> channelInfo;
 
+    bool eventDisplayEnabled[8];
 
 private:
     int numChans;
@@ -204,11 +200,7 @@ private:
     int totalHeight;
 
     LfpDisplayCanvas* canvas;
-    Viewport* viewport;
-
-    bool eventDisplayEnabled[8];
-
-
+    Viewport* viewport;    
 
     float range;
 
@@ -272,12 +264,12 @@ public:
 
 };
 
-class eventDisplayInterface : public Component,
+class EventDisplayInterface : public Component,
     public Button::Listener
 {
 public:
-    eventDisplayInterface(LfpDisplay*, LfpDisplayCanvas*, int chNum);
-    ~eventDisplayInterface();
+    EventDisplayInterface(LfpDisplay*, LfpDisplayCanvas*, int chNum);
+    ~EventDisplayInterface();
 
     void paint(Graphics& g);
 
@@ -285,11 +277,11 @@ public:
 
     void checkEnabledState();
 
+    bool isEnabled;
+
 private:
 
     int channelNumber;
-    
-    bool isEnabled;
 
     LfpDisplay* display;
     LfpDisplayCanvas* canvas;

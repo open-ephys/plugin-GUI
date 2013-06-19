@@ -94,7 +94,7 @@ private:
     };
 
     void createDefaultNodes();
-    
+
     void clearConnections();
 
 };

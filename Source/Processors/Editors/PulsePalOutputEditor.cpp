@@ -120,16 +120,17 @@ void ChannelTriggerInterface::buttonClicked(Button* button)
 void ChannelTriggerInterface::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 {
     //std::cout << "Combo box changed to " << comboBoxThatHasChanged->getSelectedId() << std::endl;
-   
+
     if (comboBoxThatHasChanged == triggerSelector)
     {
         processor->setParameter(0, channelNumber);
         processor->setParameter(1, (float) comboBoxThatHasChanged->getSelectedId() - 2);
-    } else if (comboBoxThatHasChanged == gateSelector)
+    }
+    else if (comboBoxThatHasChanged == gateSelector)
     {
         processor->setParameter(0, channelNumber);
         processor->setParameter(2, (float) comboBoxThatHasChanged->getSelectedId() - 2);
     }
 
-    
+
 }

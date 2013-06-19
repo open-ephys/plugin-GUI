@@ -312,7 +312,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 
         openFile(eventChannel);
 
-         sampleCount = 0; // reset sample count
+        sampleCount = 0; // reset sample count
 
         // create / open necessary files
         for (int i = 0; i < channelPointers.size(); i++)
@@ -418,7 +418,7 @@ void RecordNode::openFile(Channel* ch)
         std::cout << "File already exists, just opening." << std::endl;
     }
 
-    
+
 
     //To avoid a race condition resulting on data written before the header,
     //do not assign the channel pointer until the header has been written
@@ -476,8 +476,8 @@ String RecordNode::generateHeader(Channel* ch)
 
     header += "header.sampleRate = ";
     header += String(channelPointers[0]->sampleRate); // all channels need to have the
-                                                      // same sample rate under the current
-                                                      // scheme
+    // same sample rate under the current
+    // scheme
     header += ";\n";
     header += "header.blockLength = ";
     header += BLOCK_LENGTH;
@@ -543,7 +543,7 @@ float RecordNode::getFreeSpace()
 
 void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 {
-    
+
     // check to see if the file exists
     if (channelPointers[channel]->file == NULL)
         return;
@@ -556,7 +556,7 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
     }
     AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
 
-    // 
+    //
     //int16 samps = (int16) nSamples;
 
     if (sampleCount == 0)
@@ -584,14 +584,14 @@ void RecordNode::writeTimestampAndSampleCount(FILE* file)
     int16 samps = BLOCK_LENGTH;
 
     fwrite(&timestamp,                       // ptr
-            8,                               // size of each element
-            1,                               // count
-            file); // ptr to FILE object
+           8,                               // size of each element
+           1,                               // count
+           file); // ptr to FILE object
 
     fwrite(&samps,                           // ptr
-            2,                               // size of each element
-            1,                               // count
-            file); // ptr to FILE object
+           2,                               // size of each element
+           1,                               // count
+           file); // ptr to FILE object
 
 }
 
@@ -637,10 +637,10 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
     if (eventType == TTL)
     {
         writeEventBuffer(event, samplePosition);
-    } 
+    }
     else if (eventType == TIMESTAMP)
     {
-    	const uint8* dataptr = event.getRawData();
+        const uint8* dataptr = event.getRawData();
 
         // std::cout << (int) *(dataptr + 11) << " " <<
         //             (int) *(dataptr + 10) << " " <<
@@ -652,7 +652,7 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
         //             (int) *(dataptr + 4) << std::endl;
 
 
-    	memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
+        memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
     }
 
 }
@@ -685,7 +685,7 @@ void RecordNode::process(AudioSampleBuffer& buffer,
         {
 
             while (samplesWritten < nSamples)
-            { 
+            {
 
                 int numSamplesToWrite = nSamples - samplesWritten;
 
@@ -709,7 +709,9 @@ void RecordNode::process(AudioSampleBuffer& buffer,
                     samplesWritten += numSamplesToWrite;
                     sampleCount += numSamplesToWrite;
 
-                } else {
+                }
+                else
+                {
 
                     numSamplesToWrite = BLOCK_LENGTH - sampleCount;
 
@@ -735,7 +737,7 @@ void RecordNode::process(AudioSampleBuffer& buffer,
             }
         }
 
-      //  std::cout << nSamples << " " << samplesWritten << " " << sampleCount << std::endl;
+        //  std::cout << nSamples << " " << samplesWritten << " " << sampleCount << std::endl;
 
         return;
 

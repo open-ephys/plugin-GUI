@@ -29,36 +29,38 @@ FileReader::FileReader()
     : GenericProcessor("File Reader")
 {
 
-	input = 0;
-	timestamp = 0; 
+    input = 0;
+    timestamp = 0;
 
-	enabledState(false);
+    enabledState(false);
 
 }
 
 FileReader::~FileReader()
 {
-	if (input)
+    if (input)
         fclose(input);
 }
 
 AudioProcessorEditor* FileReader::createEditor()
 {
-	editor = new FileReaderEditor(this, true);
+    editor = new FileReaderEditor(this, true);
 
-	return editor;
+    return editor;
 
 }
 
 bool FileReader::isReady()
 {
-	if (input == 0)
-	{
-		sendActionMessage("No file selected in File Reader.");
-		return false;
-	} else {
-		return true;
-	}
+    if (input == 0)
+    {
+        sendActionMessage("No file selected in File Reader.");
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 
@@ -80,7 +82,7 @@ float FileReader::getDefaultBitVolts()
 void FileReader::enabledState(bool t)
 {
 
-	isEnabled = t;
+    isEnabled = t;
 
 }
 
@@ -128,7 +130,7 @@ void FileReader::updateSettings()
 void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples)
 {
 
-	uint8 data[8];
+    uint8 data[8];
     memcpy(data, &timestamp, 8);
 
     // generate timestamp
@@ -143,24 +145,24 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSa
 
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
-	int samplesNeeded = (int) float(buffer.getNumSamples()) * (getDefaultSampleRate()/44100.0f); 
+    int samplesNeeded = (int) float(buffer.getNumSamples()) * (getDefaultSampleRate()/44100.0f);
 
-	 if (ftell(input) >= lengthOfInputFile - samplesNeeded)
-     {
+    if (ftell(input) >= lengthOfInputFile - samplesNeeded)
+    {
         rewind(input);
-     }
+    }
 
-     size_t numRead = fread(readBuffer, 2, samplesNeeded*buffer.getNumChannels(), input);
+    size_t numRead = fread(readBuffer, 2, samplesNeeded*buffer.getNumChannels(), input);
 
     int chan = 0;
     int samp = 0;
 
     for (size_t n = 0; n < numRead; n++)
     {
-        
+
         if (chan == buffer.getNumChannels())
         {
-        	samp++;
+            samp++;
             timestamp++;
             chan = 0;
         }
@@ -194,18 +196,18 @@ void FileReader::loadCustomParametersFromXml()
 
     if (parametersAsXml != nullptr)
     {
-        // use parametersAsXml to restore state 
+        // use parametersAsXml to restore state
 
         forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
-           if (xmlNode->hasTagName("FILENAME"))
+            if (xmlNode->hasTagName("FILENAME"))
             {
                 String filepath = xmlNode->getStringAttribute("path");
-               FileReaderEditor* fre = (FileReaderEditor*) getEditor();
+                FileReaderEditor* fre = (FileReaderEditor*) getEditor();
                 fre->setFile(filepath);
 
             }
-        }   
+        }
     }
 
 }

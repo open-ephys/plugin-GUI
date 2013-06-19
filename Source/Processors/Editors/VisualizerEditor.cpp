@@ -281,10 +281,10 @@ void VisualizerEditor::saveEditorParameters(XmlElement* xml)
 void VisualizerEditor::loadEditorParameters(XmlElement* xml)
 {
 
-     forEachXmlChildElement(*xml, xmlNode)
-     {
-         if (xmlNode->hasTagName("TAB"))
-         {
+    forEachXmlChildElement(*xml, xmlNode)
+    {
+        if (xmlNode->hasTagName("TAB"))
+        {
 
             bool tabState = xmlNode->getBoolAttribute("Active");
 
@@ -292,21 +292,23 @@ void VisualizerEditor::loadEditorParameters(XmlElement* xml)
                 tabSelector->setToggleState(true,true);
 
 
-         } else if (xmlNode->hasTagName("WINDOW")) {
+        }
+        else if (xmlNode->hasTagName("WINDOW"))
+        {
 
-             bool windowState = xmlNode->getBoolAttribute("Active");
+            bool windowState = xmlNode->getBoolAttribute("Active");
 
-             if (windowState)
+            if (windowState)
             {
                 windowSelector->setToggleState(true,true);
                 dataWindow->setBounds(xmlNode->getIntAttribute("x"),
-                                          xmlNode->getIntAttribute("y"),
-                                          xmlNode->getIntAttribute("width"),
-                                          xmlNode->getIntAttribute("height"));
+                                      xmlNode->getIntAttribute("y"),
+                                      xmlNode->getIntAttribute("width"),
+                                      xmlNode->getIntAttribute("height"));
 
             }
-            
-         }
+
+        }
     }
 
     if (canvas != nullptr)
@@ -323,5 +325,5 @@ void VisualizerEditor::saveVisualizerParameters(XmlElement* xml)
 
 void VisualizerEditor::loadVisualizerParameters(XmlElement* xml)
 {
-    
+
 }

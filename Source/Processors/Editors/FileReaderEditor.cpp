@@ -28,22 +28,22 @@
 #include <stdio.h>
 
 FileReaderEditor::FileReaderEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-   : GenericEditor(parentNode, useDefaultParameterEditors)
+    : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
 
-	fileReader = (FileReader*) parentNode;
+    fileReader = (FileReader*) parentNode;
 
-	lastFilePath = File::getCurrentWorkingDirectory();
+    lastFilePath = File::getCurrentWorkingDirectory();
 
-	fileButton = new UtilityButton("Select file",Font("Small Text", 13, Font::plain));
-	fileButton->addListener(this);
-	fileButton->setBounds(30,50,120,25);
-	addAndMakeVisible(fileButton);
+    fileButton = new UtilityButton("Select file",Font("Small Text", 13, Font::plain));
+    fileButton->addListener(this);
+    fileButton->setBounds(30,50,120,25);
+    addAndMakeVisible(fileButton);
 
- 	fileNameLabel = new Label("FileNameLabel", "No file selected.");
-	fileNameLabel->setBounds(20,80,140,25);
-	addAndMakeVisible(fileNameLabel);
+    fileNameLabel = new Label("FileNameLabel", "No file selected.");
+    fileNameLabel->setBounds(20,80,140,25);
+    addAndMakeVisible(fileNameLabel);
 
     desiredWidth = 180;
 
@@ -59,65 +59,65 @@ FileReaderEditor::~FileReaderEditor()
 void FileReaderEditor::setFile(String file)
 {
 
-	File fileToRead(file);
-	lastFilePath = fileToRead.getParentDirectory();
-	fileReader->setFile(fileToRead.getFullPathName());
-	fileNameLabel->setText(fileToRead.getFileName(),false);
+    File fileToRead(file);
+    lastFilePath = fileToRead.getParentDirectory();
+    fileReader->setFile(fileToRead.getFullPathName());
+    fileNameLabel->setText(fileToRead.getFileName(),false);
 
-	setEnabledState(true);
+    setEnabledState(true);
 
-	repaint();
+    repaint();
 }
 
 void FileReaderEditor::buttonEvent(Button* button)
 {
 
-	if (!acquisitionIsActive)
-	{
+    if (!acquisitionIsActive)
+    {
 
-		if (button == fileButton)
-		{
-			//std::cout << "Button clicked." << std::endl;
-			FileChooser chooseFileReaderFile("Please select the file you want to load...",
-                                          lastFilePath,
-                                          "*");
+        if (button == fileButton)
+        {
+            //std::cout << "Button clicked." << std::endl;
+            FileChooser chooseFileReaderFile("Please select the file you want to load...",
+                                             lastFilePath,
+                                             "*");
 
-	         if (chooseFileReaderFile.browseForFileToOpen())
-	         {
-	             // Use the selected file
-	             setFile(chooseFileReaderFile.getResult().getFullPathName());
+            if (chooseFileReaderFile.browseForFileToOpen())
+            {
+                // Use the selected file
+                setFile(chooseFileReaderFile.getResult().getFullPathName());
 
-	             // lastFilePath = fileToRead.getParentDirectory();
+                // lastFilePath = fileToRead.getParentDirectory();
 
-	             // thread->setFile(fileToRead.getFullPathName());
+                // thread->setFile(fileToRead.getFullPathName());
 
-	             // fileNameLabel->setText(fileToRead.getFileName(),false);
-			}
-		}
+                // fileNameLabel->setText(fileToRead.getFileName(),false);
+            }
+        }
 
-	}
+    }
 }
 
 void FileReaderEditor::saveEditorParameters(XmlElement* xml)
 {
 
-	// XmlElement* fileName = xml->createNewChildElement("FILENAME");
-	// fileName->addTextElement(lastFilePath.getFullPathName());
+    // XmlElement* fileName = xml->createNewChildElement("FILENAME");
+    // fileName->addTextElement(lastFilePath.getFullPathName());
 
 }
 
 void FileReaderEditor::loadEditorParameters(XmlElement* xml)
 {
 
-	 // forEachXmlChildElement(*xml, xmlNode)
-  //    {
-  //       if (xmlNode->hasTagName("FILENAME"))
-  //       {
-            
-  //           lastFilePath = File(xmlNode->getText());
-  //           thread->setFile(lastFilePath.getFullPathName());
-  //           fileNameLabel->setText(lastFilePath.getFullPathName(),false);
-  //       }
-  //   }
+    // forEachXmlChildElement(*xml, xmlNode)
+    //    {
+    //       if (xmlNode->hasTagName("FILENAME"))
+    //       {
+
+    //           lastFilePath = File(xmlNode->getText());
+    //           thread->setFile(lastFilePath.getFullPathName());
+    //           fileNameLabel->setText(lastFilePath.getFullPathName(),false);
+    //       }
+    //   }
 
 }

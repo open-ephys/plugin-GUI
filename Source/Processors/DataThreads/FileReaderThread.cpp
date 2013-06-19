@@ -143,7 +143,7 @@ bool FileReaderThread::updateBuffer()
             {
 
                 timestamp++; // = (0 << 0) + (0 << 8) + (0 << 16) + (0 << 24); // +
-                            //(4 << 32); // + (3 << 40) + (2 << 48) + (1 << 56);
+                //(4 << 32); // + (3 << 40) + (2 << 48) + (1 << 56);
 
                 //timestamp++; // = timer.getHighResolutionTicks();
                 dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);

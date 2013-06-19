@@ -37,7 +37,7 @@
 */
 
 class PhaseDetectorEditor : public GenericEditor,
-                            public ComboBox::Listener
+    public ComboBox::Listener
 {
 public:
     PhaseDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);

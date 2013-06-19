@@ -316,7 +316,7 @@ bool FPGAThread::updateBuffer()
                 //             "     Bytes read: " << bytesToRead << std::endl;
             }
 
-            unsigned char timecode[6]; 
+            unsigned char timecode[6];
             timecode[0] = (pBuffer[j] >> 1) | ((pBuffer[j+1] >> 1) << 7); // 1st byte throw out last bit of each byte and just concatenate the other bytes in ascending order
             timecode[1] = (pBuffer[j+1] >> 2) | ((pBuffer[j+2] >> 1) << 6); // 2nd byte
             timecode[2] = (pBuffer[j+2] >> 3) | ((pBuffer[j+3] >> 1) << 5); // 3rd byte

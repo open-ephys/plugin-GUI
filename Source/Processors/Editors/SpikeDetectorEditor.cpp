@@ -194,7 +194,9 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             thresholdSlider->setActive(true);
             thresholdSlider->setValue(processor->getChannelThreshold(electrodeList->getSelectedItemIndex(),
                                                                      electrodeButtons.indexOf((ElectrodeButton*) button)));
-        } else {
+        }
+        else
+        {
 
             SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
@@ -207,10 +209,10 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
                                         button->getToggleState());
 
             std::cout << "Disabling channel " << channelNum <<
-                         " of electrode " << electrodeNum << std::endl;
+                      " of electrode " << electrodeNum << std::endl;
 
         }
-    
+
 
     }
 
@@ -264,7 +266,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             }
         }
 
-        
+
         getEditorViewport()->makeEditorVisible(this, true, true);
         return;
 
@@ -385,7 +387,9 @@ bool SpikeDetectorEditor::addElectrode(int nChans)
     {
         refreshElectrodeList();
         return true;
-    } else {
+    }
+    else
+    {
         return false;
     }
 
