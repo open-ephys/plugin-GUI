@@ -157,7 +157,7 @@ void AudioComponent::beginCallbacks()
 
     restartDevice();
     
-    const MessageManagerLock mmLock; // add a lock to prevent crashes
+    //const MessageManagerLock mmLock; // add a lock to prevent crashes
 
     std::cout << std::endl << "Adding audio callback." << std::endl;
     deviceManager.addAudioCallback(graphPlayer);
@@ -167,6 +167,8 @@ void AudioComponent::beginCallbacks()
 
 void AudioComponent::endCallbacks()
 {
+    
+   // const MessageManagerLock mmLock; // add a lock to prevent crashes
 
     std::cout << std::endl << "Removing audio callback." << std::endl;
     deviceManager.removeAudioCallback(graphPlayer);

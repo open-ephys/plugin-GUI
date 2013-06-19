@@ -63,7 +63,7 @@ AudioProcessorEditor* SpikeDisplayNode::createEditor()
 
 bool SpikeDisplayNode::enable()
 {
-    std::cout<<"SpikeDisplayNode::enable()"<<std::endl;
+    std::cout << "SpikeDisplayNode::enable()" << std::endl;
     SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
     editor->enable();
     return true;
@@ -72,7 +72,7 @@ bool SpikeDisplayNode::enable()
 
 bool SpikeDisplayNode::disable()
 {
-    std::cout<<"SpikeDisplayNode disabled!"<<std::endl;
+    std::cout << "SpikeDisplayNode disabled!" << std::endl;
     SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
     editor->disable();
     return true;
@@ -174,7 +174,7 @@ void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int sample
 
     if (eventType == SPIKE)
     {
-        const MessageManagerLock mmLock; // get the lock to prevent the midi buffer from being read
+      //  const MessageManagerLock mmLock; // get the lock to prevent the midi buffer from being read
         
         eventBuffer->addEvent(event, 0);
     }

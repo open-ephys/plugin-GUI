@@ -137,7 +137,7 @@ RecordNode* SpikeDisplayCanvas::getRecordNode()
 void SpikeDisplayCanvas::processSpikeEvents()
 {
 
-    const MessageManagerLock mmLock; // get the lock to prevent the midi buffer from being updated
+    //const MessageManagerLock mmLock; // get the lock to prevent the midi buffer from being updated
     
     if (spikeBuffer->getNumEvents() > 0)
     {
@@ -505,29 +505,33 @@ void SpikePlot::processSpikeObject(const SpikeObject& s)
         if (aboveThreshold && isRecording)
         {
             // write spike to disk
-           // writeSpike(s);
+          writeSpike(s);
         }
 
 }
 
 void SpikePlot::startRecording()
 {
-    //openFile();
+
+    openFile();
     isRecording = true;
-     
+    
+
 }
 
 void SpikePlot::stopRecording()
 {
-   // closeFile();
+    
+    closeFile();
     isRecording = false;
+
 }
 
 void SpikePlot::openFile()
 {
     //const MessageManagerLock mmLock;
     
-    dataDirectory = File("/Users/Josh/Programming/open-ephys/GUI/Builds/MacOSX/build/Debug");//recordNode->getDataDirectory();
+    dataDirectory = recordNode->getDataDirectory();//File("/Users/Josh/Programming/open-ephys/GUI/Builds/MacOSX/build/Debug"); //recordNode->getDataDirectory();
 
     filename = dataDirectory.getFullPathName();
     filename += File::separator;

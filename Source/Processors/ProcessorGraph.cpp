@@ -710,28 +710,28 @@ void ProcessorGraph::setRecordState(bool isRecording)
     
     // inform other processors that recording will begin
     
-//    for (int i = 0; i < getNumNodes(); i++)
-//    {
-//        Node* node = getNode(i);
-//        if (node->nodeId != OUTPUT_NODE_ID)
-//        {
-//            GenericProcessor* p = (GenericProcessor*) node->getProcessor();
-//            
-//            if (isRecording)
-//                p->startRecording();
-//            else
-//                p->stopRecording();
-//            
-//        }
-//    }
-//    
-//    // actually start recording
-//    if (isRecording)
-//    {
-//        getRecordNode()->setParameter(1,10.0f);
-//    } else {
-//        getRecordNode()->setParameter(0,10.0f);
-//    }
+    for (int i = 0; i < getNumNodes(); i++)
+    {
+        Node* node = getNode(i);
+        if (node->nodeId != OUTPUT_NODE_ID)
+        {
+            GenericProcessor* p = (GenericProcessor*) node->getProcessor();
+            
+            if (isRecording)
+                p->startRecording();
+            else
+                p->stopRecording();
+            
+        }
+    }
+    
+    // actually start recording
+    if (isRecording)
+    {
+        getRecordNode()->setParameter(1,10.0f);
+    } else {
+        getRecordNode()->setParameter(0,10.0f);
+    }
     
 }
 
