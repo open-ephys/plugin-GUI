@@ -112,7 +112,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     {
 
 
-        eventDisplayInterface* eventOptions = new eventDisplayInterface(lfpDisplay, this, i);
+        EventDisplayInterface* eventOptions = new EventDisplayInterface(lfpDisplay, this, i);
         eventDisplayInterfaces.add(eventOptions);
         addAndMakeVisible(eventOptions);
         eventOptions->setBounds(500+(floor(i/2)*20), getHeight()-20-(i%2)*20, 40, 20);
@@ -448,6 +448,18 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
     xmlNode->setAttribute("Timebase",timebaseSelection->getSelectedId());
     xmlNode->setAttribute("Spread",spreadSelection->getSelectedId());
 
+    int eventButtonState = 0;
+
+    for (int i = 0; i < 8; i++)
+    {
+    	if (lfpDisplay->eventDisplayEnabled[i])
+    	{
+    		eventButtonState += (1 << i);
+    	}
+    }
+
+    xmlNode->setAttribute("EventButtonState", eventButtonState);
+
     xmlNode->setAttribute("ScrollX",viewport->getViewPositionX());
     xmlNode->setAttribute("ScrollY",viewport->getViewPositionY());
 }
@@ -465,6 +477,15 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
             viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
                                       xmlNode->getIntAttribute("ScrollY"));
+
+            int eventButtonState = xmlNode->getIntAttribute("eventButtonState");
+
+            for (int i = 0; i < 8; i++)
+            {
+            	lfpDisplay->eventDisplayEnabled[i] = (eventButtonState >> i) & 1;
+
+            	eventDisplayInterfaces[i]->checkEnabledState();
+            }
         }
     }
 
@@ -1078,11 +1099,11 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
 
 // Event display Options --------------------------------------------------------------------
 
-eventDisplayInterface::eventDisplayInterface(LfpDisplay* display_, LfpDisplayCanvas* canvas_, int chNum):
+EventDisplayInterface::EventDisplayInterface(LfpDisplay* display_, LfpDisplayCanvas* canvas_, int chNum):
     isEnabled(true), display(display_), canvas(canvas_)
 {
 
-    channelNumber=chNum;
+    channelNumber = chNum;
 
     chButton = new UtilityButton(String(channelNumber+1), Font("Small Text", 13, Font::plain));
     chButton->setRadius(5.0f);
@@ -1098,19 +1119,19 @@ eventDisplayInterface::eventDisplayInterface(LfpDisplay* display_, LfpDisplayCan
 
 }
 
-eventDisplayInterface::~eventDisplayInterface()
+EventDisplayInterface::~EventDisplayInterface()
 {
 
 }
 
-void eventDisplayInterface::checkEnabledState()
+void EventDisplayInterface::checkEnabledState()
 {
     isEnabled = display->getEventDisplayState(channelNumber);
 
     //repaint();
 }
 
-void eventDisplayInterface::buttonClicked(Button* button)
+void EventDisplayInterface::buttonClicked(Button* button)
 {
     checkEnabledState();
     if (isEnabled)
@@ -1127,7 +1148,7 @@ void eventDisplayInterface::buttonClicked(Button* button)
 }
 
 
-void eventDisplayInterface::paint(Graphics& g)
+void EventDisplayInterface::paint(Graphics& g)
 {
 
     checkEnabledState();
