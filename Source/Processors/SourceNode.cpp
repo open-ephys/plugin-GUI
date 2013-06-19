@@ -417,7 +417,7 @@ void SourceNode::saveCustomParametersToXml(XmlElement* parentElement)
         FileReaderThread* thread = (FileReaderThread*) dataThread.get();
         childNode->setAttribute("path", thread->getFile());
 
-    }
+    } 
 
 }
 
@@ -436,7 +436,7 @@ void SourceNode::loadCustomParametersFromXml()
                 FileReaderEditor* fre = (FileReaderEditor*) getEditor();
                 fre->setFile(filepath);
 
-            }
+            } 
         }
     }
 

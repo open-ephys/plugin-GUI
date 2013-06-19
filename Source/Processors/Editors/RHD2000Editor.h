@@ -61,6 +61,9 @@ public:
 
     void channelChanged(int chan);
 
+    void saveEditorParameters(XmlElement* xml);
+    void loadEditorParameters(XmlElement* xml);
+
 private:
 
     OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
@@ -121,6 +124,11 @@ public:
     void paint(Graphics& g);
     void labelTextChanged(Label* te);
 
+    void setLowerBandwidth(double value);
+    void setUpperBandwidth(double value);
+    double getLowerBandwidth();
+    double getUpperBandwidth();
+
 private:
 
     String name;
@@ -130,8 +138,11 @@ private:
     RHD2000Thread* board;
     RHD2000Editor* editor;
 
-    ScopedPointer<Label> UpperBandwidthSelection;
-    ScopedPointer<Label> LowerBandwidthSelection;
+    ScopedPointer<Label> upperBandwidthSelection;
+    ScopedPointer<Label> lowerBandwidthSelection;
+
+    double actualUpperBandwidth;
+    double actualLowerBandwidth;
 
 };
 
@@ -142,6 +153,9 @@ class SampleRateInterface : public Component,
 public:
     SampleRateInterface(RHD2000Thread*, RHD2000Editor*);
     ~SampleRateInterface();
+
+    int getSelectedId();
+    void setSelectedId(int);
 
     void paint(Graphics& g);
     void comboBoxChanged(ComboBox* cb);
