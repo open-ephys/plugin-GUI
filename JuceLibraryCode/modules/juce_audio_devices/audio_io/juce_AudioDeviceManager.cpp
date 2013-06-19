@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -94,8 +93,8 @@ AudioDeviceManager::AudioDeviceManager()
       numOutputChansNeeded (2),
       listNeedsScanning (true),
       useInputNames (false),
-      inputLevelMeasurementEnabledCount (0),
       inputLevel (0),
+      testSoundPosition (0),
       tempBuffer (2, 2),
       cpuUsageMs (0),
       timeToCpuScale (0)
@@ -138,9 +137,9 @@ void AudioDeviceManager::audioDeviceListChanged()
 {
     if (currentAudioDevice != nullptr)
     {
-        currentSetup.sampleRate = currentAudioDevice->getCurrentSampleRate();
-        currentSetup.bufferSize = currentAudioDevice->getCurrentBufferSizeSamples();
-        currentSetup.inputChannels = currentAudioDevice->getActiveInputChannels();
+        currentSetup.sampleRate     = currentAudioDevice->getCurrentSampleRate();
+        currentSetup.bufferSize     = currentAudioDevice->getCurrentBufferSizeSamples();
+        currentSetup.inputChannels  = currentAudioDevice->getActiveInputChannels();
         currentSetup.outputChannels = currentAudioDevice->getActiveOutputChannels();
     }
 
@@ -374,6 +373,13 @@ void AudioDeviceManager::setCurrentAudioDeviceType (const String& type,
         if (availableDeviceTypes.getUnchecked(i)->getTypeName() == type
              && currentDeviceType != type)
         {
+            if (currentAudioDevice != nullptr)
+            {
+                closeAudioDevice();
+                Thread::sleep (1500); // allow a moment for OS devices to sort themselves out, to help
+                                      // avoid things like DirectSound/ASIO clashes
+            }
+
             currentDeviceType = type;
 
             AudioDeviceSetup s (*lastDeviceTypeConfigs.getUnchecked(i));
@@ -390,8 +396,8 @@ void AudioDeviceManager::setCurrentAudioDeviceType (const String& type,
 AudioIODeviceType* AudioDeviceManager::getCurrentDeviceTypeObject() const
 {
     for (int i = 0; i < availableDeviceTypes.size(); ++i)
-        if (availableDeviceTypes[i]->getTypeName() == currentDeviceType)
-            return availableDeviceTypes[i];
+        if (availableDeviceTypes.getUnchecked(i)->getTypeName() == currentDeviceType)
+            return availableDeviceTypes.getUnchecked(i);
 
     return availableDeviceTypes[0];
 }
@@ -447,7 +453,9 @@ String AudioDeviceManager::setAudioDeviceSetup (const AudioDeviceSetup& newSetup
         currentAudioDevice = type->createDevice (newOutputDeviceName, newInputDeviceName);
 
         if (currentAudioDevice == nullptr)
-            error = "Can't open the audio device!\n\nThis may be because another application is currently using the same device - if so, you should close any other applications and try again!";
+            error = "Can't open the audio device!\n\n"
+                    "This may be because another application is currently using the same device - "
+                    "if so, you should close any other applications and try again!";
         else
             error = currentAudioDevice->getLastError();
 
@@ -615,13 +623,9 @@ void AudioDeviceManager::updateXml()
         const StringArray availableMidiDevices (MidiInput::getDevices());
 
         for (int i = 0; i < midiInsFromXml.size(); ++i)
-        {
             if (! availableMidiDevices.contains (midiInsFromXml[i], true))
-            {
                 lastExplicitSettings->createNewChildElement ("MIDIINPUT")
                                     ->setAttribute ("name", midiInsFromXml[i]);
-            }
-        }
     }
 
     if (defaultMidiOutputName.isNotEmpty())
@@ -670,7 +674,7 @@ void AudioDeviceManager::audioDeviceIOCallbackInt (const float** inputChannelDat
 {
     const ScopedLock sl (audioCallbackLock);
 
-    if (inputLevelMeasurementEnabledCount > 0 && numInputChannels > 0)
+    if (inputLevelMeasurementEnabledCount.get() > 0 && numInputChannels > 0)
     {
         for (int j = 0; j < numSamples; ++j)
         {
@@ -950,8 +954,6 @@ void AudioDeviceManager::playTestSound()
 
 void AudioDeviceManager::enableInputLevelMeasurement (const bool enableMeasurement)
 {
-    const ScopedLock sl (audioCallbackLock);
-
     if (enableMeasurement)
         ++inputLevelMeasurementEnabledCount;
     else
@@ -962,6 +964,6 @@ void AudioDeviceManager::enableInputLevelMeasurement (const bool enableMeasureme
 
 double AudioDeviceManager::getCurrentInputLevel() const
 {
-    jassert (inputLevelMeasurementEnabledCount > 0); // you need to call enableInputLevelMeasurement() before using this!
+    jassert (inputLevelMeasurementEnabledCount.get() > 0); // you need to call enableInputLevelMeasurement() before using this!
     return inputLevel;
 }

@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -41,10 +40,6 @@ void AudioPluginFormatManager::addDefaultFormats()
         jassert (dynamic_cast <AudioUnitPluginFormat*> (formats[i]) == nullptr);
        #endif
 
-       #if JUCE_PLUGINHOST_DX && JUCE_WINDOWS
-        jassert (dynamic_cast <DirectXPluginFormat*> (formats[i]) == nullptr);
-       #endif
-
        #if JUCE_PLUGINHOST_LADSPA && JUCE_LINUX
         jassert (dynamic_cast <LADSPAPluginFormat*> (formats[i]) == nullptr);
        #endif
@@ -57,10 +52,6 @@ void AudioPluginFormatManager::addDefaultFormats()
 
    #if JUCE_PLUGINHOST_VST
     formats.add (new VSTPluginFormat());
-   #endif
-
-   #if JUCE_PLUGINHOST_DX && JUCE_WINDOWS
-    formats.add (new DirectXPluginFormat());
    #endif
 
    #if JUCE_PLUGINHOST_LADSPA && JUCE_LINUX

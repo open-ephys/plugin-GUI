@@ -564,6 +564,9 @@ void ControlPanel::labelTextChanged(Label* label)
 void ControlPanel::buttonClicked(Button* button)
 
 {
+    
+    //const MessageManagerLock mmLock;
+    
     if (button == recordButton)
     {
         std::cout << "Record button pressed." << std::endl;
@@ -571,14 +574,14 @@ void ControlPanel::buttonClicked(Button* button)
         {
 
             playButton->setToggleState(true,false);
-            //graph->getRecordNode()->setParameter(1,10.0f);
             masterClock->startRecording(); // turn on recording
 
 
         }
         else
         {
-            graph->getRecordNode()->setParameter(0,10.0f); // turn off recording
+            graph->setRecordState(false); // turn off recording in processor graph
+            //graph->getRecordNode()->setParameter(0,10.0f); // turn off recording
             masterClock->stopRecording();
             newDirectoryButton->setEnabledState(true);
         }
@@ -600,7 +603,7 @@ void ControlPanel::buttonClicked(Button* button)
     }
     else if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
     {
-        getProcessorGraph()->getRecordNode()->newDirectoryNeeded = true;
+        graph->getRecordNode()->newDirectoryNeeded = true;
         newDirectoryButton->setEnabledState(false);
         masterClock->resetRecordTime();
         return;
@@ -616,7 +619,10 @@ void ControlPanel::buttonClicked(Button* button)
             if (graph->enableProcessors())
             {
                 if (recordButton->getToggleState())
-                    graph->getRecordNode()->setParameter(1,10.0f);
+                    graph->setRecordState(true);
+                    
+                    
+                    //graph->getRecordNode()->setParameter(1,10.0f);
 
                 stopTimer();
                 startTimer(250); // refresh every 250 ms
@@ -629,7 +635,9 @@ void ControlPanel::buttonClicked(Button* button)
         {
 
             if (recordButton->getToggleState())
-                graph->getRecordNode()->setParameter(1,10.0f);
+            {
+                graph->setRecordState(true); //getRecordNode()->setParameter(1,10.0f);
+            }
 
         }
 

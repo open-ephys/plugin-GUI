@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -28,6 +27,108 @@
 #else
  #define JUCE_COREAUDIOLOG(a)
 #endif
+
+//==============================================================================
+struct SystemVol
+{
+    SystemVol (AudioObjectPropertySelector selector)
+        : outputDeviceID (kAudioObjectUnknown)
+    {
+        addr.mScope    = kAudioObjectPropertyScopeGlobal;
+        addr.mElement  = kAudioObjectPropertyElementMaster;
+        addr.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
+
+        if (AudioHardwareServiceHasProperty (kAudioObjectSystemObject, &addr))
+        {
+            UInt32 deviceIDSize = sizeof (outputDeviceID);
+            OSStatus status = AudioHardwareServiceGetPropertyData (kAudioObjectSystemObject, &addr, 0,
+                                                                   nullptr, &deviceIDSize, &outputDeviceID);
+
+            if (status == noErr)
+            {
+                addr.mElement  = kAudioObjectPropertyElementMaster;
+                addr.mSelector = selector;
+                addr.mScope    = kAudioDevicePropertyScopeOutput;
+
+                if (! AudioHardwareServiceHasProperty (outputDeviceID, &addr))
+                    outputDeviceID = kAudioObjectUnknown;
+            }
+        }
+    }
+
+    float getGain()
+    {
+        Float32 gain = 0;
+
+        if (outputDeviceID != kAudioObjectUnknown)
+        {
+            UInt32 size = sizeof (gain);
+            AudioHardwareServiceGetPropertyData (outputDeviceID, &addr,
+                                                 0, nullptr, &size, &gain);
+        }
+
+        return (float) gain;
+    }
+
+    bool setGain (float gain)
+    {
+        if (outputDeviceID != kAudioObjectUnknown && canSetVolume())
+        {
+            Float32 newVolume = gain;
+            UInt32 size = sizeof (newVolume);
+
+            return AudioHardwareServiceSetPropertyData (outputDeviceID, &addr, 0, nullptr,
+                                                        size, &newVolume) == noErr;
+        }
+
+        return false;
+    }
+
+    bool isMuted()
+    {
+        UInt32 muted = 0;
+
+        if (outputDeviceID != kAudioObjectUnknown)
+        {
+            UInt32 size = sizeof (muted);
+            AudioHardwareServiceGetPropertyData (outputDeviceID, &addr,
+                                                 0, nullptr, &size, &muted);
+        }
+
+        return muted != 0;
+    }
+
+    bool setMuted (bool mute)
+    {
+        if (outputDeviceID != kAudioObjectUnknown && canSetVolume())
+        {
+            UInt32 newMute = mute ? 1 : 0;
+            UInt32 size = sizeof (newMute);
+
+            return AudioHardwareServiceSetPropertyData (outputDeviceID, &addr, 0, nullptr,
+                                                        size, &newMute) == noErr;
+        }
+
+        return false;
+    }
+
+private:
+    AudioDeviceID outputDeviceID;
+    AudioObjectPropertyAddress addr;
+
+    bool canSetVolume()
+    {
+        Boolean isSettable = NO;
+        return AudioHardwareServiceIsPropertySettable (outputDeviceID, &addr, &isSettable) == noErr
+                 && isSettable;
+    }
+};
+
+#define JUCE_SYSTEMAUDIOVOL_IMPLEMENTED 1
+float JUCE_CALLTYPE SystemAudioVolume::getGain()              { return SystemVol (kAudioHardwareServiceDeviceProperty_VirtualMasterVolume).getGain(); }
+bool  JUCE_CALLTYPE SystemAudioVolume::setGain (float gain)   { return SystemVol (kAudioHardwareServiceDeviceProperty_VirtualMasterVolume).setGain (gain); }
+bool  JUCE_CALLTYPE SystemAudioVolume::isMuted()              { return SystemVol (kAudioDevicePropertyMute).isMuted(); }
+bool  JUCE_CALLTYPE SystemAudioVolume::setMuted (bool mute)   { return SystemVol (kAudioDevicePropertyMute).setMuted (mute); }
 
 //==============================================================================
 class CoreAudioInternal  : private Timer

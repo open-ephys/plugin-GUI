@@ -80,6 +80,8 @@ public:
     void restoreParameters();
 
     void updatePointers();
+    
+    void setRecordState(bool);
 
 private:
 

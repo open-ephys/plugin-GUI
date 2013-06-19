@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -33,7 +32,7 @@
 #if JUCE_MAC
  static bool makeFSRefFromPath (FSRef* destFSRef, const String& path)
  {
-     return FSPathMakeRef (reinterpret_cast <const UInt8*> (path.toUTF8().getAddress()), destFSRef, 0) == noErr;
+     return FSPathMakeRef (reinterpret_cast <const UInt8*> (path.toRawUTF8()), destFSRef, 0) == noErr;
  }
 #endif
 
@@ -65,6 +64,10 @@
 #include "juce_VSTMidiEventList.h"
 
 #if JUCE_MINGW
+ #ifndef WM_APPCOMMAND
+  #define WM_APPCOMMAND 0x0319
+ #endif
+
  extern "C" void _fpreset();
  extern "C" void _clearfp();
 #elif ! JUCE_WINDOWS
@@ -85,64 +88,64 @@ const int fxbVersionNum = 1;
 
 struct fxProgram
 {
-    long chunkMagic;        // 'CcnK'
-    long byteSize;          // of this chunk, excl. magic + byteSize
-    long fxMagic;           // 'FxCk'
-    long version;
-    long fxID;              // fx unique id
-    long fxVersion;
-    long numParams;
+    VstInt32 chunkMagic;    // 'CcnK'
+    VstInt32 byteSize;      // of this chunk, excl. magic + byteSize
+    VstInt32 fxMagic;       // 'FxCk'
+    VstInt32 version;
+    VstInt32 fxID;          // fx unique id
+    VstInt32 fxVersion;
+    VstInt32 numParams;
     char prgName[28];
     float params[1];        // variable no. of parameters
 };
 
 struct fxSet
 {
-    long chunkMagic;        // 'CcnK'
-    long byteSize;          // of this chunk, excl. magic + byteSize
-    long fxMagic;           // 'FxBk'
-    long version;
-    long fxID;              // fx unique id
-    long fxVersion;
-    long numPrograms;
+    VstInt32 chunkMagic;    // 'CcnK'
+    VstInt32 byteSize;      // of this chunk, excl. magic + byteSize
+    VstInt32 fxMagic;       // 'FxBk'
+    VstInt32 version;
+    VstInt32 fxID;          // fx unique id
+    VstInt32 fxVersion;
+    VstInt32 numPrograms;
     char future[128];
     fxProgram programs[1];  // variable no. of programs
 };
 
 struct fxChunkSet
 {
-    long chunkMagic;        // 'CcnK'
-    long byteSize;          // of this chunk, excl. magic + byteSize
-    long fxMagic;           // 'FxCh', 'FPCh', or 'FBCh'
-    long version;
-    long fxID;              // fx unique id
-    long fxVersion;
-    long numPrograms;
+    VstInt32 chunkMagic;    // 'CcnK'
+    VstInt32 byteSize;      // of this chunk, excl. magic + byteSize
+    VstInt32 fxMagic;       // 'FxCh', 'FPCh', or 'FBCh'
+    VstInt32 version;
+    VstInt32 fxID;          // fx unique id
+    VstInt32 fxVersion;
+    VstInt32 numPrograms;
     char future[128];
-    long chunkSize;
+    VstInt32 chunkSize;
     char chunk[8];          // variable
 };
 
 struct fxProgramSet
 {
-    long chunkMagic;        // 'CcnK'
-    long byteSize;          // of this chunk, excl. magic + byteSize
-    long fxMagic;           // 'FxCh', 'FPCh', or 'FBCh'
-    long version;
-    long fxID;              // fx unique id
-    long fxVersion;
-    long numPrograms;
+    VstInt32 chunkMagic;    // 'CcnK'
+    VstInt32 byteSize;      // of this chunk, excl. magic + byteSize
+    VstInt32 fxMagic;       // 'FxCh', 'FPCh', or 'FBCh'
+    VstInt32 version;
+    VstInt32 fxID;          // fx unique id
+    VstInt32 fxVersion;
+    VstInt32 numPrograms;
     char name[28];
-    long chunkSize;
+    VstInt32 chunkSize;
     char chunk[8];          // variable
 };
 
 namespace
 {
-    long vst_swap (const long x) noexcept
+    VstInt32 vst_swap (const VstInt32 x) noexcept
     {
        #ifdef JUCE_LITTLE_ENDIAN
-        return (long) ByteOrder::swap ((uint32) x);
+        return (VstInt32) ByteOrder::swap ((uint32) x);
        #else
         return x;
        #endif
@@ -493,7 +496,7 @@ public:
 
         if (file.hasFileExtension (".vst"))
         {
-            const char* const utf8 = file.getFullPathName().toUTF8().getAddress();
+            const char* const utf8 = file.getFullPathName().toRawUTF8();
 
             if (CFURLRef url = CFURLCreateFromFileSystemRepresentation (0, (const UInt8*) utf8,
                                                                         strlen (utf8), file.isDirectory()))
@@ -556,7 +559,7 @@ public:
         {
             FSRef fn;
 
-            if (FSPathMakeRef ((UInt8*) file.getFullPathName().toUTF8().getAddress(), &fn, 0) == noErr)
+            if (FSPathMakeRef ((UInt8*) file.getFullPathName().toRawUTF8(), &fn, 0) == noErr)
             {
                 resFileId = FSOpenResFile (&fn, fsRdPerm);
 
@@ -578,7 +581,7 @@ public:
                             DetachResource (resHandle);
                             HLock (resHandle);
 
-                            Ptr ptr;
+                            ::Ptr ptr;
                             Str255 errorText;
 
                             OSErr err = GetMemFragment (*resHandle, GetHandleSize (resHandle),
@@ -776,22 +779,17 @@ public:
 
         if (effect != nullptr && effect->magic == kEffectMagic)
         {
-            try
-            {
-               #if JUCE_MAC
-                if (module->resFileId != 0)
-                    UseResFile (module->resFileId);
-               #endif
+           #if JUCE_MAC
+            if (module->resFileId != 0)
+                UseResFile (module->resFileId);
+           #endif
 
-                // Must delete any editors before deleting the plugin instance!
-                jassert (getActiveEditor() == 0);
+            // Must delete any editors before deleting the plugin instance!
+            jassert (getActiveEditor() == 0);
 
-                _fpreset(); // some dodgy plugs fuck around with this
+            _fpreset(); // some dodgy plugs fuck around with this
 
-                module->closeEffect (effect);
-            }
-            catch (...)
-            {}
+            module->closeEffect (effect);
         }
 
         module = nullptr;
@@ -1048,36 +1046,21 @@ public:
                                                jlimit (0, numSamples - 1, samplePosition));
                 }
 
-                try
-                {
-                    effect->dispatcher (effect, effProcessEvents, 0, 0, midiEventsToSend.events, 0);
-                }
-                catch (...)
-                {}
+                effect->dispatcher (effect, effProcessEvents, 0, 0, midiEventsToSend.events, 0);
             }
 
             _clearfp();
 
             if ((effect->flags & effFlagsCanReplacing) != 0)
             {
-                try
-                {
-                    effect->processReplacing (effect, buffer.getArrayOfChannels(), buffer.getArrayOfChannels(), numSamples);
-                }
-                catch (...)
-                {}
+                effect->processReplacing (effect, buffer.getArrayOfChannels(), buffer.getArrayOfChannels(), numSamples);
             }
             else
             {
                 tempBuffer.setSize (effect->numOutputs, numSamples);
                 tempBuffer.clear();
 
-                try
-                {
-                    effect->process (effect, buffer.getArrayOfChannels(), tempBuffer.getArrayOfChannels(), numSamples);
-                }
-                catch (...)
-                {}
+                effect->process (effect, buffer.getArrayOfChannels(), tempBuffer.getArrayOfChannels(), numSamples);
 
                 for (int i = effect->numOutputs; --i >= 0;)
                     buffer.copyFrom (i, 0, tempBuffer.getSampleData (i), numSamples);
@@ -1165,14 +1148,8 @@ public:
     {
         if (effect != nullptr && isPositiveAndBelow (index, (int) effect->numParams))
         {
-            try
-            {
-                const ScopedLock sl (lock);
-                return effect->getParameter (effect, index);
-            }
-            catch (...)
-            {
-            }
+            const ScopedLock sl (lock);
+            return effect->getParameter (effect, index);
         }
 
         return 0.0f;
@@ -1182,16 +1159,10 @@ public:
     {
         if (effect != nullptr && isPositiveAndBelow (index, (int) effect->numParams))
         {
-            try
-            {
-                const ScopedLock sl (lock);
+            const ScopedLock sl (lock);
 
-                if (effect->getParameter (effect, index) != newValue)
-                    effect->setParameter (effect, index, newValue);
-            }
-            catch (...)
-            {
-            }
+            if (effect->getParameter (effect, index) != newValue)
+                effect->setParameter (effect, index, newValue);
         }
     }
 
@@ -1245,7 +1216,7 @@ public:
         if (index == getCurrentProgram())
         {
             if (getNumPrograms() > 0 && newName != getCurrentProgramName())
-                dispatch (effSetProgramName, 0, 0, (void*) newName.substring (0, 24).toUTF8().getAddress(), 0.0f);
+                dispatch (effSetProgramName, 0, 0, (void*) newName.substring (0, 24).toRawUTF8(), 0.0f);
         }
         else
         {
@@ -1573,7 +1544,7 @@ public:
                 set->fxID = vst_swap (getUID());
                 set->fxVersion = vst_swap (getVersionNumber());
                 set->numPrograms = vst_swap (numPrograms);
-                set->chunkSize = vst_swap ((long) chunk.getSize());
+                set->chunkSize = vst_swap ((VstInt32) chunk.getSize());
 
                 chunk.copyTo (set->chunk, 0, chunk.getSize());
             }
@@ -1590,7 +1561,7 @@ public:
                 set->fxID = vst_swap (getUID());
                 set->fxVersion = vst_swap (getVersionNumber());
                 set->numPrograms = vst_swap (numPrograms);
-                set->chunkSize = vst_swap ((long) chunk.getSize());
+                set->chunkSize = vst_swap ((VstInt32) chunk.getSize());
 
                 getCurrentProgramName().copyToUTF8 (set->name, sizeof (set->name) - 1);
                 chunk.copyTo (set->chunk, 0, chunk.getSize());
@@ -1834,7 +1805,7 @@ private:
        #if JUCE_MAC
         return (VstIntPtr) (void*) &module->parentDirFSSpec;
        #else
-        return (VstIntPtr) (pointer_sized_uint) module->fullParentDirectoryPathName.toUTF8().getAddress();
+        return (VstIntPtr) (pointer_sized_uint) module->fullParentDirectoryPathName.toRawUTF8();
        #endif
     }
 
@@ -1918,12 +1889,12 @@ class VSTPluginWindow   : public AudioProcessorEditor,
 {
 public:
     //==============================================================================
-    VSTPluginWindow (VSTPluginInstance& plugin_)
-        : AudioProcessorEditor (&plugin_),
+    VSTPluginWindow (VSTPluginInstance& plug)
+        : AudioProcessorEditor (&plug),
          #if ! JUCE_MAC
           ComponentMovementWatcher (this),
          #endif
-          plugin (plugin_),
+          plugin (plug),
           isOpen (false),
           recursiveResize (false),
           pluginWantsKeys (false),
@@ -1999,7 +1970,7 @@ public:
     {
         if (isShowing())
             openPluginWindow();
-        else
+        else if (! shouldAvoidDeletingWindow())
             closePluginWindow();
 
         componentMovedOrResized (true, true);
@@ -2046,7 +2017,7 @@ public:
         {
             if (ComponentPeer* const peer = getPeer())
             {
-                peer->addMaskedRegion (getScreenBounds() - peer->getScreenPosition());
+                peer->addMaskedRegion (peer->globalToLocal (getScreenBounds()));
 
                #if JUCE_LINUX
                 if (pluginWindow != 0)
@@ -2077,17 +2048,16 @@ public:
     //==============================================================================
     void timerCallback()
     {
-       #if JUCE_WINDOWS
-        if (--sizeCheckCount <= 0)
+        if (isShowing())
         {
-            sizeCheckCount = 10;
+           #if JUCE_WINDOWS
+            if (--sizeCheckCount <= 0)
+            {
+                sizeCheckCount = 10;
+                checkPluginWindowSize();
+            }
+           #endif
 
-            checkPluginWindowSize();
-        }
-       #endif
-
-        try
-        {
             static bool reentrant = false;
 
             if (! reentrant)
@@ -2097,13 +2067,13 @@ public:
                 reentrant = false;
             }
         }
-        catch (...)
-        {}
     }
 
     //==============================================================================
     void mouseDown (const MouseEvent& e)
     {
+        (void) e;
+
        #if JUCE_LINUX
         if (pluginWindow == 0)
             return;
@@ -2126,8 +2096,6 @@ public:
         sendEventToChild (&ev);
 
        #elif JUCE_WINDOWS
-        (void) e;
-
         toFront (true);
        #endif
     }
@@ -2156,6 +2124,16 @@ private:
     Window pluginWindow;
     EventProcPtr pluginProc;
    #endif
+
+    // This is a workaround for old Mackie plugins that crash if their
+    // window is deleted more than once.
+    bool shouldAvoidDeletingWindow() const
+    {
+        PluginDescription desc;
+        plugin.fillInPluginDescription (desc);
+
+        return desc.manufacturerName.containsIgnoreCase ("Loud Technologies");
+    }
 
     //==============================================================================
 #if JUCE_MAC
@@ -2394,11 +2372,9 @@ private:
                                  message, wParam, lParam);
                 }
 
-                return CallWindowProc ((WNDPROC) (w->originalWndProc),
+                return CallWindowProc ((WNDPROC) w->originalWndProc,
                                        (HWND) w->pluginHWND,
-                                       message,
-                                       wParam,
-                                       lParam);
+                                       message, wParam, lParam);
             }
         }
 
@@ -2565,9 +2541,10 @@ private:
     class InnerWrapperComponent   : public CarbonViewWrapperComponent
     {
     public:
-        InnerWrapperComponent (VSTPluginWindow& owner_)
-            : owner (owner_), alreadyInside (false)
+        InnerWrapperComponent (VSTPluginWindow& w)
+            : owner (w), alreadyInside (false)
         {
+            keepPluginWindowWhenHidden = w.shouldAvoidDeletingWindow();
         }
 
         ~InnerWrapperComponent()
@@ -2619,7 +2596,7 @@ private:
         {
             if (ComponentPeer* const peer = getPeer())
             {
-                const Point<int> pos (getScreenPosition() - peer->getScreenPosition());
+                const Point<int> pos (peer->globalToLocal (getScreenPosition()));
                 ERect r;
                 r.left   = (VstInt16) pos.getX();
                 r.top    = (VstInt16) pos.getY();
@@ -2665,23 +2642,33 @@ AudioProcessorEditor* VSTPluginInstance::createEditor()
 // entry point for all callbacks from the plugin
 static VstIntPtr VSTCALLBACK audioMaster (AEffect* effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void* ptr, float opt)
 {
-    try
-    {
-        if (effect != nullptr)
-            if (VSTPluginInstance* instance = (VSTPluginInstance*) (effect->resvd2))
-                return instance->handleCallback (opcode, index, value, ptr, opt);
+    if (effect != nullptr)
+        if (VSTPluginInstance* instance = (VSTPluginInstance*) (effect->resvd2))
+            return instance->handleCallback (opcode, index, value, ptr, opt);
 
-        return VSTPluginInstance::handleGeneralCallback (opcode, index, value, ptr, opt);
-    }
-    catch (...)
-    {
-        return 0;
-    }
+    return VSTPluginInstance::handleGeneralCallback (opcode, index, value, ptr, opt);
 }
 
 //==============================================================================
 VSTPluginFormat::VSTPluginFormat() {}
 VSTPluginFormat::~VSTPluginFormat() {}
+
+static VSTPluginInstance* createAndUpdateDesc (VSTPluginFormat& format, PluginDescription& desc)
+{
+    if (VSTPluginInstance* instance = dynamic_cast <VSTPluginInstance*> (format.createInstanceFromDescription (desc)))
+    {
+       #if JUCE_MAC
+        if (instance->module->resFileId != 0)
+            UseResFile (instance->module->resFileId);
+       #endif
+
+        instance->fillInPluginDescription (desc);
+
+        return instance;
+    }
+
+    return nullptr;
+}
 
 void VSTPluginFormat::findAllTypesForFile (OwnedArray <PluginDescription>& results,
                                            const String& fileOrIdentifier)
@@ -2693,65 +2680,44 @@ void VSTPluginFormat::findAllTypesForFile (OwnedArray <PluginDescription>& resul
     desc.fileOrIdentifier = fileOrIdentifier;
     desc.uid = 0;
 
-    ScopedPointer <VSTPluginInstance> instance (dynamic_cast <VSTPluginInstance*> (createInstanceFromDescription (desc)));
+    ScopedPointer<VSTPluginInstance> instance (createAndUpdateDesc (*this, desc));
 
     if (instance == nullptr)
         return;
 
-    try
+    VstPlugCategory category = (VstPlugCategory) instance->dispatch (effGetPlugCategory, 0, 0, 0, 0);
+
+    if (category != kPlugCategShell)
     {
-       #if JUCE_MAC
-        if (instance->module->resFileId != 0)
-            UseResFile (instance->module->resFileId);
-       #endif
+        // Normal plugin...
+        results.add (new PluginDescription (desc));
 
-        instance->fillInPluginDescription (desc);
-
-        VstPlugCategory category = (VstPlugCategory) instance->dispatch (effGetPlugCategory, 0, 0, 0, 0);
-
-        if (category != kPlugCategShell)
+        instance->dispatch (effOpen, 0, 0, 0, 0);
+    }
+    else
+    {
+        // It's a shell plugin, so iterate all the subtypes...
+        for (;;)
         {
-            // Normal plugin...
-            results.add (new PluginDescription (desc));
+            char shellEffectName [256] = { 0 };
+            const int uid = (int) instance->dispatch (effShellGetNextPlugin, 0, 0, shellEffectName, 0);
 
-            instance->dispatch (effOpen, 0, 0, 0, 0);
-        }
-        else
-        {
-            // It's a shell plugin, so iterate all the subtypes...
-            for (;;)
+            if (uid == 0)
+                break;
+
+            desc.uid = uid;
+
+            ScopedPointer<VSTPluginInstance> shellInstance (createAndUpdateDesc (*this, desc));
+
+            if (shellInstance != nullptr)
             {
-                char shellEffectName [64] = { 0 };
-                const int uid = (int) instance->dispatch (effShellGetNextPlugin, 0, 0, shellEffectName, 0);
-
-                if (uid == 0)
-                    break;
-
-                desc.uid = uid;
+                jassert (desc.uid == uid);
                 desc.name = shellEffectName;
-                desc.descriptiveName = shellEffectName;
 
-                bool alreadyThere = false;
-
-                for (int i = results.size(); --i >= 0;)
-                {
-                    PluginDescription* const d = results.getUnchecked(i);
-
-                    if (d->isDuplicateOf (desc))
-                    {
-                        alreadyThere = true;
-                        break;
-                    }
-                }
-
-                if (! alreadyThere)
+                if (! arrayContainsPlugin (results, desc))
                     results.add (new PluginDescription (desc));
             }
         }
-    }
-    catch (...)
-    {
-        // crashed while loading...
     }
 }
 
@@ -2829,6 +2795,11 @@ String VSTPluginFormat::getNameOfPluginFromIdentifier (const String& fileOrIdent
     return fileOrIdentifier;
 }
 
+bool VSTPluginFormat::pluginNeedsRescanning (const PluginDescription& desc)
+{
+    return File (desc.fileOrIdentifier).getLastModificationTime() != desc.lastFileModTime;
+}
+
 bool VSTPluginFormat::doesPluginStillExist (const PluginDescription& desc)
 {
     return File (desc.fileOrIdentifier).exists();
@@ -2871,7 +2842,9 @@ FileSearchPath VSTPluginFormat::getDefaultLocationsToSearch()
    #if JUCE_MAC
     return FileSearchPath ("~/Library/Audio/Plug-Ins/VST;/Library/Audio/Plug-Ins/VST");
    #elif JUCE_LINUX
-    return FileSearchPath ("/usr/lib/vst");
+    return FileSearchPath (SystemStats::getEnvironmentVariable ("VST_PATH",
+                                                                "/usr/lib/vst;/usr/local/lib/vst;~/.vst")
+                             .replace (":", ";"));
    #elif JUCE_WINDOWS
     const String programFiles (File::getSpecialLocation (File::globalApplicationsDirectory).getFullPathName());
 

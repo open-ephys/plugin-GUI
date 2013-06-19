@@ -1,24 +1,27 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the juce_core module of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission to use, copy, modify, and/or distribute this software for any purpose with
+   or without fee is hereby granted, provided that the above copyright notice and this
+   permission notice appear in all copies.
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
+   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
+   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   ------------------------------------------------------------------------------
 
-  ------------------------------------------------------------------------------
+   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
+   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
+   using any other modules, be sure to check that you also comply with their license.
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   For more details, visit www.juce.com
 
   ==============================================================================
 */
@@ -26,6 +29,28 @@
 #ifndef __JUCE_WIN32_COMSMARTPTR_JUCEHEADER__
 #define __JUCE_WIN32_COMSMARTPTR_JUCEHEADER__
 
+#ifndef _MSC_VER
+template<typename Type> struct UUIDGetter { static CLSID get() { jassertfalse; return CLSID(); } };
+#define __uuidof(x)  UUIDGetter<x>::get()
+#endif
+
+inline GUID uuidFromString (const char* const s) noexcept
+{
+    unsigned long p0;
+    unsigned int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
+
+  #ifndef _MSC_VER
+    sscanf
+  #else
+    sscanf_s
+  #endif
+        (s, "%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+              &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10);
+
+    GUID g = { p0, (uint16) p1, (uint16) p2, { (uint8) p3, (uint8) p4, (uint8) p5, (uint8) p6,
+                                               (uint8) p7, (uint8) p8, (uint8) p9, (uint8) p10 }};
+    return g;
+}
 
 //==============================================================================
 /** A simple COM smart pointer.

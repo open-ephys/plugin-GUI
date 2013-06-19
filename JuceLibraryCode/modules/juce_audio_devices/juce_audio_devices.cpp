@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -46,6 +45,7 @@
  #import <CoreAudio/AudioHardware.h>
  #import <CoreMIDI/MIDIServices.h>
  #import <DiscRecording/DiscRecording.h>
+ #import <AudioToolbox/AudioServices.h>
  #undef Point
  #undef Component
 
@@ -57,14 +57,7 @@
 //==============================================================================
 #elif JUCE_WINDOWS
  #if JUCE_WASAPI
-  #pragma warning (push)
-  #pragma warning (disable: 4201)
   #include <MMReg.h>
-  #include <Audioclient.h>
-  #include <Audiopolicy.h>
-  #include <Avrt.h>
-  #include <functiondiscoverykeys.h>
-  #pragma warning (pop)
  #endif
 
  #if JUCE_ASIO
@@ -233,4 +226,11 @@ namespace juce
 
 #endif
 
+#if ! JUCE_SYSTEMAUDIOVOL_IMPLEMENTED
+ // None of these methods are available. (On Windows you might need to enable WASAPI for this)
+ float JUCE_CALLTYPE SystemAudioVolume::getGain()         { jassertfalse; return 0.0f; }
+ bool  JUCE_CALLTYPE SystemAudioVolume::setGain (float)   { jassertfalse; return false; }
+ bool  JUCE_CALLTYPE SystemAudioVolume::isMuted()         { jassertfalse; return false; }
+ bool  JUCE_CALLTYPE SystemAudioVolume::setMuted (bool)   { jassertfalse; return false; }
+#endif
 }

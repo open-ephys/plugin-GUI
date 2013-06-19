@@ -390,6 +390,12 @@ public:
     {
         return true;
     }
+    
+    /** Called whenever recording has started. */
+    virtual void startRecording() { }
+    
+    /** Called whenever recording has stopped. */
+    virtual void stopRecording() { }
 
     /** Informs a processor's editor that data acquisition is about to begin. */
     virtual void enableEditor();

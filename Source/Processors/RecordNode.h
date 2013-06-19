@@ -114,6 +114,8 @@ public:
 
     /** Generate a Matlab-compatible datestring */
     String generateDateString();
+    
+    CriticalSection* getLock() {return &diskWriteLock;}
 
 
 private:
@@ -199,6 +201,8 @@ private:
 
     /** Used to indicate the end of each record */
     char* recordMarker;
+    
+    CriticalSection diskWriteLock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 

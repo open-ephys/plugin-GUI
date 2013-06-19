@@ -397,6 +397,8 @@ void RecordNode::openFile(Channel* ch)
     FILE* chFile;
 
     bool fileExists = f.exists();
+    
+    diskWriteLock.enter();
 
     chFile = fopen(ch->filename.toUTF8(), "ab");
 
@@ -418,7 +420,7 @@ void RecordNode::openFile(Channel* ch)
         std::cout << "File already exists, just opening." << std::endl;
     }
 
-
+    diskWriteLock.exit();
 
     //To avoid a race condition resulting on data written before the header,
     //do not assign the channel pointer until the header has been written
@@ -429,9 +431,14 @@ void RecordNode::openFile(Channel* ch)
 
 void RecordNode::closeFile(Channel* ch)
 {
+    
+    diskWriteLock.enter();
+    
     std::cout << "CLOSING FILE: " << ch->filename << std::endl;
     if (ch->file != NULL)
         fclose(ch->file);
+    
+    diskWriteLock.exit();
 }
 
 String RecordNode::generateHeader(Channel* ch)
@@ -564,6 +571,7 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
         writeTimestampAndSampleCount(channelPointers[channel]->file);
     }
 
+    diskWriteLock.enter();
     // FIXME: ensure fwrite returns equal "count"; otherwise,
     // there was an error.
     fwrite(continuousDataIntegerBuffer,     // ptr
@@ -571,6 +579,8 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
            nSamples,                        // count
            channelPointers[channel]->file); // ptr to FILE object
 
+    diskWriteLock.exit();
+    
     if (sampleCount + nSamples == BLOCK_LENGTH)
     {
         writeRecordMarker(channelPointers[channel]->file);
@@ -581,6 +591,8 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 void RecordNode::writeTimestampAndSampleCount(FILE* file)
 {
 
+    diskWriteLock.enter();
+    
     int16 samps = BLOCK_LENGTH;
 
     fwrite(&timestamp,                       // ptr
@@ -593,17 +605,20 @@ void RecordNode::writeTimestampAndSampleCount(FILE* file)
            1,                               // count
            file); // ptr to FILE object
 
+    diskWriteLock.exit();
 }
 
 void RecordNode::writeRecordMarker(FILE* file)
 {
     // write a 10-byte marker indicating the end of a record
 
+    diskWriteLock.enter();
     fwrite(recordMarker,        // ptr
            1,                   // size of each element
            10,                  // count
            file);               // ptr to FILE object
 
+    diskWriteLock.exit();
 }
 
 void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, int node, int channel)
@@ -616,6 +631,7 @@ void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, in
 
     uint64 eventTimestamp = timestamp + samplePos;
 
+    diskWriteLock.enter();
     // write timestamp (for buffer only, not the actual event timestamp!!!!!)
     fwrite(&eventTimestamp,							// ptr
            8,   							// size of each element
@@ -629,6 +645,7 @@ void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, in
 
     // write 1st four bytes of event (type, nodeId, eventId, eventChannel)
     fwrite(dataptr, 1, 4, eventChannel->file);
+    diskWriteLock.exit();
 
 }
 
