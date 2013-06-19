@@ -33,8 +33,7 @@ class DataViewport;
 
 /**
 
-  Holds data in a displayBuffer to be used by the LfpDisplayCanvas
-  for rendering continuous data streams.
+  Displays the average of a continuous signal, triggered on a certain event channel.
 
   @see GenericProcessor, LfpTrigAvgEditor, LfpDisplayCanvas
 

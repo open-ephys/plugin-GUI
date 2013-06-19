@@ -62,7 +62,7 @@ void FileReaderEditor::setFile(String file)
     File fileToRead(file);
     lastFilePath = fileToRead.getParentDirectory();
     fileReader->setFile(fileToRead.getFullPathName());
-    fileNameLabel->setText(fileToRead.getFileName(), NotificationType::dontSendNotification);
+    fileNameLabel->setText(fileToRead.getFileName(), dontSendNotification);
 
     setEnabledState(true);
 

@@ -230,9 +230,9 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
-        <FILE id="MPPLs5" name="LfpTriggeredAverageNode.cpp" compile="1" resource="0"
+        <FILE id="E7s1De" name="LfpTriggeredAverageNode.cpp" compile="1" resource="0"
               file="Source/Processors/LfpTriggeredAverageNode.cpp"/>
-        <FILE id="SKve8N" name="LfpTriggeredAverageNode.h" compile="0" resource="0"
+        <FILE id="MKL66o" name="LfpTriggeredAverageNode.h" compile="0" resource="0"
               file="Source/Processors/LfpTriggeredAverageNode.h"/>
         <FILE id="M6nCIs" name="FileReader.cpp" compile="1" resource="0" file="Source/Processors/FileReader.cpp"/>
         <FILE id="VU1bQ0" name="FileReader.h" compile="0" resource="0" file="Source/Processors/FileReader.h"/>
@@ -300,9 +300,9 @@
           <FILE id="DXYynnz" name="Splitter.h" compile="0" resource="0" file="Source/Processors/Utilities/Splitter.h"/>
         </GROUP>
         <GROUP id="W4eqkOy" name="Visualization">
-          <FILE id="hQVEUi" name="LfpTriggeredAverageCanvas.cpp" compile="1"
+          <FILE id="zrJGqi" name="LfpTriggeredAverageCanvas.cpp" compile="1"
                 resource="0" file="Source/Processors/Visualization/LfpTriggeredAverageCanvas.cpp"/>
-          <FILE id="zbsYsH" name="LfpTriggeredAverageCanvas.h" compile="0" resource="0"
+          <FILE id="OPRWvZ" name="LfpTriggeredAverageCanvas.h" compile="0" resource="0"
                 file="Source/Processors/Visualization/LfpTriggeredAverageCanvas.h"/>
           <FILE id="ajAJi" name="SpikeObject.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikeObject.cpp"/>
           <FILE id="xqF5zL" name="SpikeObject.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikeObject.h"/>
@@ -330,9 +330,9 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
-          <FILE id="CfwbqI" name="LfpTriggeredAverageEditor.cpp" compile="1"
+          <FILE id="wyH6Hs" name="LfpTriggeredAverageEditor.cpp" compile="1"
                 resource="0" file="Source/Processors/Editors/LfpTriggeredAverageEditor.cpp"/>
-          <FILE id="hQoogh" name="LfpTriggeredAverageEditor.h" compile="0" resource="0"
+          <FILE id="GE3VJI" name="LfpTriggeredAverageEditor.h" compile="0" resource="0"
                 file="Source/Processors/Editors/LfpTriggeredAverageEditor.h"/>
           <FILE id="g1ki17" name="ChannelMappingEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/ChannelMappingEditor.cpp"/>

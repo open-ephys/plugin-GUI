@@ -63,7 +63,7 @@ void MessageCenter::resized()
 void MessageCenter::actionListenerCallback(const String& message)
 {
 
-    messageDisplayArea->setText(message, NotificationType::dontSendNotification);
+    messageDisplayArea->setText(message, dontSendNotification);
 
     messageBackground = Colours::orange;
 

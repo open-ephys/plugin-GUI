@@ -253,7 +253,7 @@ void BandwidthInterface::labelTextChanged(Label* label)
 
             std::cout << "Setting Upper Bandwidth to " << requestedValue << std::endl;
             std::cout << "Actual Upper Bandwidth:  " <<  actualUpperBandwidth  << std::endl;
-            label->setText(String((roundFloatToInt)(actualUpperBandwidth)), NotificationType::dontSendNotification);
+            label->setText(String((roundFloatToInt)(actualUpperBandwidth)), dontSendNotification);
 
         }
         else
@@ -275,7 +275,7 @@ void BandwidthInterface::labelTextChanged(Label* label)
 
             std::cout << "Setting Upper Bandwidth to " << requestedValue << std::endl;
             std::cout << "Actual Upper Bandwidth:  " <<  actualLowerBandwidth  << std::endl;
-            label->setText(String(roundFloatToInt(actualLowerBandwidth)), NotificationType::dontSendNotification);
+            label->setText(String(roundFloatToInt(actualLowerBandwidth)), dontSendNotification);
         }
     }
 }
@@ -283,13 +283,13 @@ void BandwidthInterface::labelTextChanged(Label* label)
 void BandwidthInterface::setLowerBandwidth(double value)
 {
     actualLowerBandwidth = board->setLowerBandwidth(value);
-    lowerBandwidthSelection->setText(String(roundFloatToInt(actualLowerBandwidth)), NotificationType::dontSendNotification);
+    lowerBandwidthSelection->setText(String(roundFloatToInt(actualLowerBandwidth)), dontSendNotification);
 }
 
 void BandwidthInterface::setUpperBandwidth(double value)
 {
     actualUpperBandwidth = board->setUpperBandwidth(value);
-    upperBandwidthSelection->setText(String(roundFloatToInt(actualUpperBandwidth)), NotificationType::dontSendNotification);
+    upperBandwidthSelection->setText(String(roundFloatToInt(actualUpperBandwidth)), dontSendNotification);
 }
 
 double BandwidthInterface::getLowerBandwidth()
