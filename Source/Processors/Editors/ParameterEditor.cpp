@@ -268,11 +268,11 @@ ParameterButton::ParameterButton(var value, int buttonType, Font labelFont) :
                                       Colour(190,150,25),0.0, 0.0f,
                                       false);
     usedByNonActiveGrad = ColourGradient(Colour(200,100,0),0.0,0.0,
-                                  Colour(158,95,32),0.0, 20.0f,
-                                  false);
+                                         Colour(158,95,32),0.0, 20.0f,
+                                         false);
     usedByNonActiveOverGrad = ColourGradient(Colour(158,95,32),0.0, 5.0f,
-                                      Colour(128,70,13),0.0, 0.0f,
-                                      false);
+                                             Colour(128,70,13),0.0, 0.0f,
+                                             false);
     neutralGrad = ColourGradient(Colour(220,220,220),0.0,0.0,
                                  Colour(170,170,170),0.0, 20.0f,
                                  false);
@@ -526,13 +526,13 @@ void ParameterEditor::channelSelectionUI()
         for (int i = 0; i < buttonArray.size(); i++)
         {
             buttonArray[i]->colorState=0;
-            
+
             for (int j = 0; j < numChannels; j++)
             {
 
                 if (possibleValues[i]==parameter->getValue(j))
                 {
-                    
+
                     if (channelSelector->getParamStatus(j))
                     {
                         /* Set button as usedbyactive */
@@ -543,9 +543,9 @@ void ParameterEditor::channelSelectionUI()
                     {
                         // Set button as used by non-selected
                         buttonArray[i]->colorState=2;
-                    }   
+                    }
 
-                } 
+                }
             }
             buttonArray[i]->repaint();
 

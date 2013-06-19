@@ -83,7 +83,7 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
 
 FilterEditor::~FilterEditor()
 {
-   // deleteAllChildren();
+    // deleteAllChildren();
 }
 
 // void FilterEditor::sliderValueChanged (Slider* slider)
@@ -110,7 +110,9 @@ void FilterEditor::labelTextChanged(Label* label)
         if (label == highCutValue)
         {
             label->setText(lastHighCutString, dontSendNotification);
-        } else {
+        }
+        else
+        {
             label->setText(lastLowCutString, dontSendNotification);
         }
 
@@ -133,11 +135,13 @@ void FilterEditor::labelTextChanged(Label* label)
             {
                 fn->setCurrentChannel(n);
                 fn->setParameter(1, requestedValue);
-            } 
+            }
 
             lastHighCutString = label->getText();
 
-        } else {
+        }
+        else
+        {
             double maxVal = fn->getHighCutValueForChannel(n);
 
             if (requestedValue < maxVal)
@@ -198,12 +202,12 @@ void FilterEditor::saveEditorParameters(XmlElement* xml)
 void FilterEditor::loadEditorParameters(XmlElement* xml)
 {
 
-     forEachXmlChildElement(*xml, xmlNode)
-     {
-         if (xmlNode->hasTagName("VALUES"))
-         {
+    forEachXmlChildElement(*xml, xmlNode)
+    {
+        if (xmlNode->hasTagName("VALUES"))
+        {
             highCutValue->setText(xmlNode->getStringAttribute("HighCut"),dontSendNotification);
             lowCutValue->setText(xmlNode->getStringAttribute("LowCut"),dontSendNotification);
-         }   
-     }
+        }
+    }
 }

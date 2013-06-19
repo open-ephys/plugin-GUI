@@ -34,22 +34,6 @@ LfpDisplayNode::LfpDisplayNode()
     displayBuffer = new AudioSampleBuffer(8, 100);
     eventBuffer = new MidiBuffer();
 
-    // Array<var> timeBaseValues;
-    // timeBaseValues.add(1);
-    // timeBaseValues.add(2);
-    // timeBaseValues.add(5);
-    // timeBaseValues.add(10);
-
-    // parameters.add(Parameter("timebase",timeBaseValues, 1, 0));//true);//a,0);
-
-    // Array<var> displayGainValues;
-    // displayGainValues.add(1);
-    // displayGainValues.add(2);
-    // displayGainValues.add(4);
-    // displayGainValues.add(8);
-
-    // parameters.add(Parameter("display gain",displayGainValues, 1, 1));//true);//a,0);
-
     arrayOfOnes = new float[5000];
 
     for (int n = 0; n < 5000; n++)
@@ -61,8 +45,7 @@ LfpDisplayNode::LfpDisplayNode()
 
 LfpDisplayNode::~LfpDisplayNode()
 {
-    //deleteAndZero(displayBuffer);
-    //deleteAndZero(eventBuffer);
+
 }
 
 AudioProcessorEditor* LfpDisplayNode::createEditor()

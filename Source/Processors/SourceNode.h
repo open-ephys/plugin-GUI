@@ -88,7 +88,7 @@ public:
     void saveCustomParametersToXml(XmlElement* parentElement);
     void loadCustomParametersFromXml();
 
-     bool tryEnablingEditor();
+    bool tryEnablingEditor();
 
 private:
 
@@ -111,7 +111,7 @@ private:
     int ttlState;
 
     void updateSettings();
-   
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SourceNode);
 

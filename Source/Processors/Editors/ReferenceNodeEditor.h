@@ -36,7 +36,7 @@
 */
 
 class ReferenceNodeEditor : public GenericEditor,
-                            public ComboBox::Listener
+    public ComboBox::Listener
 {
 public:
     ReferenceNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);

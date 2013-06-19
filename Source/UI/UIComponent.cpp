@@ -92,7 +92,7 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     mainWindow->setMenuBar(this);
 #endif
 
-    //getEditorViewport()->loadState(File("/home/jsiegle/Programming/GUI/Builds/Linux/build/test.xml"));
+    getEditorViewport()->loadState(File("/home/jsiegle/Programming/GUI/Builds/Linux/build/test.xml"));
 
 }
 
@@ -385,9 +385,9 @@ bool UIComponent::perform(const InvocationInfo& info)
         case openConfiguration:
             {
                 FileChooser fc("Choose a file to load...",
-                      File::getCurrentWorkingDirectory(),
-                      "*.xml",
-                      true);
+                               File::getCurrentWorkingDirectory(),
+                               "*.xml",
+                               true);
 
                 if (fc.browseForFileToOpen())
                 {
@@ -405,9 +405,9 @@ bool UIComponent::perform(const InvocationInfo& info)
             {
 
                 FileChooser fc("Choose the file to save...",
-                   File::getCurrentWorkingDirectory(),
-                   "*",
-                   true);
+                               File::getCurrentWorkingDirectory(),
+                               "*",
+                               true);
 
                 if (fc.browseForFileToSave(true))
                 {
@@ -461,14 +461,14 @@ void UIComponent::saveStateToXml(XmlElement* xml)
 
 void UIComponent::loadStateFromXml(XmlElement* xml)
 {
-     forEachXmlChildElement(*xml, xmlNode)
-     {
+    forEachXmlChildElement(*xml, xmlNode)
+    {
         if (xmlNode->hasTagName("UICOMPONENT"))
         {
-            
+
             bool isProcessorListOpen = xmlNode->getBoolAttribute("isProcessorListOpen");
             bool isEditorViewportOpen = xmlNode->getBoolAttribute("isEditorViewportOpen");
-            
+
             if (!isProcessorListOpen)
             {
                 processorList->toggleState();

@@ -45,7 +45,7 @@ class eventDisplayInterface;
 
 class LfpDisplayCanvas : public Visualizer,
     public ComboBox::Listener
-    
+
 {
 public:
     LfpDisplayCanvas(LfpDisplayNode* n);
@@ -100,7 +100,7 @@ private:
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
-    
+
 
 
     LfpDisplayNode* processor;
@@ -168,9 +168,9 @@ public:
 
     void setNumChannels(int numChannels);
     int getNumChannels();
-    
+
     int getTotalHeight();
-    
+
     void paint(Graphics& g);
 
     void refresh();
@@ -178,9 +178,9 @@ public:
     void resized();
 
     void mouseDown(const MouseEvent& event);
-    void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel ) ;
+    void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel) ;
 
-    
+
     void setRange(float range);
     int getRange();
 
@@ -288,7 +288,7 @@ public:
 private:
 
     int channelNumber;
-    
+
     bool isEnabled;
 
     LfpDisplay* display;

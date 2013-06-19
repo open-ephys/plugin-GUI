@@ -59,12 +59,12 @@ public:
 
 private:
 
- 	OwnedArray<ElectrodeButton> electrodeButtons;
- 	ScopedPointer<ElectrodeEditorButton> referenceButton;
- 	ScopedPointer<ElectrodeEditorButton> mappingButton;
+    OwnedArray<ElectrodeButton> electrodeButtons;
+    ScopedPointer<ElectrodeEditorButton> referenceButton;
+    ScopedPointer<ElectrodeEditorButton> mappingButton;
 
- 	Array<int> channelArray;
- 	Array<int> referenceArray;
+    Array<int> channelArray;
+    Array<int> referenceArray;
 
     int previousChannelCount;
 

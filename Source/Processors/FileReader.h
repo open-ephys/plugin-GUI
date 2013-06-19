@@ -64,7 +64,7 @@ public:
 
     bool isSource()
     {
-    	return true;
+        return true;
     }
 
     void enabledState(bool t);
@@ -81,9 +81,9 @@ public:
 
 private:
 
-	uint64 timestamp;
+    uint64 timestamp;
 
-	int lengthOfInputFile;
+    int lengthOfInputFile;
     FILE* input;
 
     int16 readBuffer[BUFFER_SIZE];

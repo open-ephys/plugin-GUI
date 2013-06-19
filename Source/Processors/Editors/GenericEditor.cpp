@@ -36,7 +36,7 @@
 GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors=true)
     : AudioProcessorEditor(owner),
       desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
-      drawerButton(0), channelSelector(0), 
+      drawerButton(0), channelSelector(0),
       isSelected(false),  isEnabled(true), tNum(-1)
 {
     constructorInitialize(owner, useDefaultParameterEditors);
@@ -92,7 +92,8 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
         isSplitOrMerge=false;
     }
-    else{
+    else
+    {
         isSplitOrMerge=true;
     }
 
@@ -464,10 +465,11 @@ Array<int> GenericEditor::getActiveChannels()
 {
     if (!isSplitOrMerge)
     {
-    Array<int> a = channelSelector->getActiveChannels();
-    return a;
+        Array<int> a = channelSelector->getActiveChannels();
+        return a;
     }
-    else{
+    else
+    {
         Array<int> a;
         return a;
     }
@@ -477,9 +479,10 @@ bool GenericEditor::getRecordStatus(int chan)
 {
     if (!isSplitOrMerge)
     {
-    return channelSelector->getRecordStatus(chan);
+        return channelSelector->getRecordStatus(chan);
     }
-    else{
+    else
+    {
         return false;
     }
 }
@@ -490,7 +493,8 @@ bool GenericEditor::getAudioStatus(int chan)
     {
         return channelSelector->getAudioStatus(chan);
     }
-    else{
+    else
+    {
         return false;
     }
 }
@@ -503,7 +507,8 @@ void GenericEditor::getChannelSelectionState(int chan, bool* p, bool* r, bool* a
         *r = channelSelector->getRecordStatus(chan);
         *a = channelSelector->getAudioStatus(chan);
     }
-    else{
+    else
+    {
         *p = false;
         *r = false;
         *a = false;
@@ -827,6 +832,6 @@ void GenericEditor::updateParameterButtons(int parameterIndex)
         {
             parameterEditors[parameterIndex]->channelSelectionUI();
         }
-    //std::cout << "updateParameterButtons" << std::endl;
+        //std::cout << "updateParameterButtons" << std::endl;
     }
 }

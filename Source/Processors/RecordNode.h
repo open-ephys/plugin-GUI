@@ -102,14 +102,17 @@ public:
     */
     void createNewDirectory();
 
-    File getDataDirectory() {return rootFolder;}
+    File getDataDirectory()
+    {
+        return rootFolder;
+    }
 
     /** Signals when to create a new data directory when recording starts.*/
     bool newDirectoryNeeded;
 
     bool isRecording;
 
-     /** Generate a Matlab-compatible datestring */
+    /** Generate a Matlab-compatible datestring */
     String generateDateString();
 
 
@@ -173,7 +176,7 @@ private:
     /** Generates a default directory name, based on the current date and time */
     String generateDirectoryName();
 
-   
+
     /** Generate filename for a given channel */
     void updateFileName(Channel* ch);
 

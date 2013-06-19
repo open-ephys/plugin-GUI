@@ -532,10 +532,10 @@ void GenericProcessor::saveToXml(XmlElement* parentElement)
     {
         saveChannelParametersToXml(parentElement, i, true);
 
-         // channelName=/**String("EventCh:")+*/String(i);
-         // channelChildNode = parentElement->createNewChildElement("EVENTCHANNEL");
-         // channelChildNode->setAttribute("name", channelName);
-         // saveParametersToChannelsXml(channelChildNode, i);
+        // channelName=/**String("EventCh:")+*/String(i);
+        // channelChildNode = parentElement->createNewChildElement("EVENTCHANNEL");
+        // channelChildNode->setAttribute("name", channelName);
+        // saveParametersToChannelsXml(channelChildNode, i);
     }
 
     // Save editor parameters:
@@ -569,12 +569,14 @@ void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, int
 
         saveCustomChannelParametersToXml(channelInfo, channelNumber);
 
-    } else {
+    }
+    else
+    {
 
         XmlElement* channelInfo = parentElement->createNewChildElement("EVENTCHANNEL");
         channelInfo->setAttribute("name", String(channelNumber));
         channelInfo->setAttribute("number", channelNumber);
-    
+
         saveCustomChannelParametersToXml(channelInfo, channelNumber, true);
 
     }
@@ -598,7 +600,7 @@ void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, int
     //     parameterValue = parameterVar.toString();
     //     parameterChildNode->addTextElement(parameterValue);
     // }
-    
+
 }
 
 void GenericProcessor::saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNum, bool isEventChannel)
@@ -616,34 +618,36 @@ void GenericProcessor::loadFromXml()
     if (!paramsWereLoaded)
     {
 
-    if (parametersAsXml != nullptr)
-    {
-        // use parametersAsXml to restore state 
-        loadCustomParametersFromXml();
-
-        forEachXmlChildElement(*parametersAsXml, xmlNode)
+        if (parametersAsXml != nullptr)
         {
-           if (xmlNode->hasTagName("CHANNEL"))
-            {
+            // use parametersAsXml to restore state
+            loadCustomParametersFromXml();
 
-                loadChannelParametersFromXml(xmlNode);
-            } else if (xmlNode->hasTagName("EVENTCHANNEL"))
+            forEachXmlChildElement(*parametersAsXml, xmlNode)
             {
+                if (xmlNode->hasTagName("CHANNEL"))
+                {
 
-                loadChannelParametersFromXml(xmlNode, true);
-                 
-            } else if (xmlNode->hasTagName("EDITOR"))
-            {
-                getEditor()->loadEditorParameters(xmlNode);
+                    loadChannelParametersFromXml(xmlNode);
+                }
+                else if (xmlNode->hasTagName("EVENTCHANNEL"))
+                {
+
+                    loadChannelParametersFromXml(xmlNode, true);
+
+                }
+                else if (xmlNode->hasTagName("EDITOR"))
+                {
+                    getEditor()->loadEditorParameters(xmlNode);
+                }
+
             }
-
-        }   
-    }
+        }
 
     }
 
     paramsWereLoaded = true;
-    
+
 }
 
 void GenericProcessor::loadChannelParametersFromXml(XmlElement* channelInfo, bool isEventChannel)
@@ -664,7 +668,7 @@ void GenericProcessor::loadChannelParametersFromXml(XmlElement* channelInfo, boo
                                                       subNode->getBoolAttribute("record"),
                                                       subNode->getBoolAttribute("audio"));
             }
-        } 
+        }
     }
 
     loadCustomChannelParametersFromXml(channelInfo, isEventChannel);
@@ -675,7 +679,7 @@ void GenericProcessor::loadChannelParametersFromXml(XmlElement* channelInfo, boo
 
 void GenericProcessor::loadCustomParametersFromXml()
 {
-    
+
 }
 
 void GenericProcessor::loadCustomChannelParametersFromXml(XmlElement* channelInfo, bool isEventChannel)

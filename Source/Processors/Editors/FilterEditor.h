@@ -38,8 +38,8 @@ class FilterViewport;
 
 */
 
-class FilterEditor : public GenericEditor, 
-                     public Label::Listener
+class FilterEditor : public GenericEditor,
+    public Label::Listener
 {
 public:
     FilterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);

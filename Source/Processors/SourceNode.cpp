@@ -51,7 +51,7 @@ SourceNode::SourceNode(const String& name_)
     }
     else if (getName().equalsIgnoreCase("File Reader"))
     {
-            dataThread = new FileReaderThread(this); 
+        dataThread = new FileReaderThread(this);
     }
     else if (getName().equalsIgnoreCase("Rhythm FPGA"))
     {
@@ -212,14 +212,15 @@ AudioProcessorEditor* SourceNode::createEditor()
     {
         editor = new RHD2000Editor(this, (RHD2000Thread*) dataThread.get(), true);
 
-      //  RHD2000Editor* r2e = (RHD2000Editor*) editor.get();
-      //  r2e->scanPorts();
+        //  RHD2000Editor* r2e = (RHD2000Editor*) editor.get();
+        //  r2e->scanPorts();
     }
-  //  else if (getName().equalsIgnoreCase("File Reader"))
-  //  {
-   //     editor = new FileReaderEditor(this, (FileReaderThread*) dataThread.get(), true);
-   // }
-    else {
+    //  else if (getName().equalsIgnoreCase("File Reader"))
+    //  {
+    //     editor = new FileReaderEditor(this, (FileReaderThread*) dataThread.get(), true);
+    // }
+    else
+    {
         editor = new SourceNodeEditor(this, true);
     }
     return editor;
@@ -330,7 +331,7 @@ void SourceNode::process(AudioSampleBuffer& buffer,
 
     nSamples = inputBuffer->readAllFromBuffer(buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
 
-    //std::cout << *buffer.getSampleData(0) << std::endl; 
+    //std::cout << *buffer.getSampleData(0) << std::endl;
 
     //std::cout << "Source node timestamp: " << timestamp << std::endl;
 
@@ -425,18 +426,18 @@ void SourceNode::loadCustomParametersFromXml()
 
     if (parametersAsXml != nullptr)
     {
-        // use parametersAsXml to restore state 
+        // use parametersAsXml to restore state
 
         forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
-           if (xmlNode->hasTagName("FILENAME"))
+            if (xmlNode->hasTagName("FILENAME"))
             {
                 String filepath = xmlNode->getStringAttribute("path");
                 FileReaderEditor* fre = (FileReaderEditor*) getEditor();
                 fre->setFile(filepath);
 
             }
-        }   
+        }
     }
 
 }

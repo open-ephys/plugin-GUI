@@ -60,11 +60,11 @@ int packSpike(const SpikeObject* s, uint8_t* buffer, int bufferSize)
 
     if (idx >= MAX_SPIKE_BUFFER_LEN)
     {
-        std::cout << "Spike is larger than it should be. Size was: " << idx 
+        std::cout << "Spike is larger than it should be. Size was: " << idx
                   << " Max Size is: " << MAX_SPIKE_BUFFER_LEN << std::endl;
 
     }
-    
+
     makeBufferValid(buffer, bufferSize);
 
     return idx;
@@ -74,7 +74,7 @@ int packSpike(const SpikeObject* s, uint8_t* buffer, int bufferSize)
 // Simple method for deserializing a string of bytes into a Spike object
 bool unpackSpike(SpikeObject* s, const uint8_t* buffer, int bufferSize)
 {
-   // if (!isBufferValid(buffer, bufferSize))
+    // if (!isBufferValid(buffer, bufferSize))
     // 	return false;
 
     int idx = 0;
@@ -103,8 +103,8 @@ bool unpackSpike(SpikeObject* s, const uint8_t* buffer, int bufferSize)
     memcpy(&(s->threshold), buffer+idx, s->nChannels *2);
     idx += s->nChannels * 2;
 
-   // if (idx >= bufferSize)
-   // 		std::cout<<"Buffer Overrun! More data extracted than was given!"<<std::endl;
+    // if (idx >= bufferSize)
+    // 		std::cout<<"Buffer Overrun! More data extracted than was given!"<<std::endl;
 
     return true;
 

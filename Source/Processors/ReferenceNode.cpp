@@ -82,7 +82,7 @@ void ReferenceNode::process(AudioSampleBuffer& buffer,
                                 0, // sourceStartSample
                                 nSamples, // numSamples
                                 -1.0f // gain to apply to source
-                                );
+                               );
 
         for (int i = 0; i < buffer.getNumChannels(); i++)
         {
@@ -94,9 +94,9 @@ void ReferenceNode::process(AudioSampleBuffer& buffer,
                            0, // sourceStartSample
                            nSamples, // numSamples
                            1.0f // gain to apply to source
-                           );
+                          );
         }
-        
+
     }
 
 }

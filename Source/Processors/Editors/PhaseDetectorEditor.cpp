@@ -79,8 +79,10 @@ void PhaseDetectorEditor::comboBoxChanged(ComboBox* c)
 
     if (id == 1)
     {
-        channel = -1.0f; 
-    } else {
+        channel = -1.0f;
+    }
+    else
+    {
         channel = float(id) - 2.0f;
     }
 
@@ -108,10 +110,10 @@ void PhaseDetectorEditor::saveEditorParameters(XmlElement* xml)
 void PhaseDetectorEditor::loadEditorParameters(XmlElement* xml)
 {
 
-     forEachXmlChildElement(*xml, xmlNode)
-     {
-         if (xmlNode->hasTagName("SELECTEDID"))
-         {
+    forEachXmlChildElement(*xml, xmlNode)
+    {
+        if (xmlNode->hasTagName("SELECTEDID"))
+        {
 
             int id = xmlNode->getIntAttribute("ID");
 

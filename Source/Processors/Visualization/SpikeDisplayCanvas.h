@@ -100,7 +100,7 @@ public:
     SpikeDisplayNode* processor;
 
 private:
-    
+
     MidiBuffer* spikeBuffer;
 
     ScopedPointer<SpikeDisplay> spikeDisplay;
@@ -315,7 +315,10 @@ public:
     void mouseDrag(const MouseEvent& event);
 
     void setRange(float);
-    float getRange() {return range;}
+    float getRange()
+    {
+        return range;
+    }
 
     //MouseCursor getMouseCursor();
 
@@ -333,7 +336,7 @@ private:
 
     void drawThresholdSlider(Graphics& g);
 
-    
+
 
     Font font;
 

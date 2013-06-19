@@ -20,7 +20,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
- 
+
 #include "SpikeDisplayCanvas.h"
 #include "../RecordNode.h"
 
@@ -168,7 +168,7 @@ bool SpikeDisplayCanvas::keyPressed(const KeyPress& key)
     if (key.isKeyCode(c.getKeyCode())) // C
     {
         spikeDisplay->clear();
-        
+
         std::cout << "Clearing display" << std::endl;
         return true;
     }
@@ -205,20 +205,20 @@ SpikeDisplay::~SpikeDisplay()
 
 void SpikeDisplay::clear()
 {
-   if (spikePlots.size() > 0)
-   {
+    if (spikePlots.size() > 0)
+    {
         for (int i = 0; i < spikePlots.size(); i++)
         {
             spikePlots[i]->clear();
         }
-   }
-        
+    }
+
 }
 
 void SpikeDisplay::removePlots()
 {
-   spikePlots.clear();
-        
+    spikePlots.clear();
+
 }
 
 void SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum, String name_)
@@ -333,9 +333,9 @@ void SpikeDisplay::resized()
 
         }
 
-        totalHeight = (int) maxHeight + 50; 
+        totalHeight = (int) maxHeight + 50;
 
-       // std::cout << "New height = " << totalHeight << std::endl;
+        // std::cout << "New height = " << totalHeight << std::endl;
 
         setBounds(0, 0, getWidth(), totalHeight);
     }
@@ -356,7 +356,7 @@ void SpikeDisplay::plotSpike(const SpikeObject& spike, int electrodeNum)
 // ----------------------------------------------------------------
 
 SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) :
-     canvas(sdc), isSelected(false), electrodeNumber(elecNum),  plotType(p),
+    canvas(sdc), isSelected(false), electrodeNumber(elecNum),  plotType(p),
     limitsChanged(true), name(name_), isRecording(false)
 
 {
@@ -449,7 +449,7 @@ void SpikePlot::processSpikeObject(const SpikeObject& s)
     {
         aboveThreshold = aboveThreshold | wAxes[i]->checkThreshold(s);
     }
-        
+
     if (aboveThreshold)
     {
         for (int i = 0; i < nWaveAx; i++)
@@ -458,7 +458,7 @@ void SpikePlot::processSpikeObject(const SpikeObject& s)
         for (int i = 0; i < nProjAx; i++)
             pAxes[i]->updateSpikeData(s);
     }
-    
+
 
     // then record it!
     if (recordNode->isRecording)
@@ -470,17 +470,19 @@ void SpikePlot::processSpikeObject(const SpikeObject& s)
 
             isRecording = true;
             //std::cout << "Start recording spikes." << std::endl;
-       
+
         }
 
         if (aboveThreshold)
         {
-             // write spike to disk
+            // write spike to disk
             writeSpike(s);
         }
 
-    } else {
-        
+    }
+    else
+    {
+
         if (isRecording)
         {
             // close file
@@ -500,7 +502,7 @@ void SpikePlot::openFile()
     filename = dataDirectory.getFullPathName();
     filename += File::separator;
     filename += name.removeCharacters(" ");
-    filename += ".spikes"; 
+    filename += ".spikes";
 
     std::cout << "OPENING FILE: " << filename << std::endl;
 
@@ -515,7 +517,9 @@ void SpikePlot::openFile()
 
         fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), file);
 
-    } else {
+    }
+    else
+    {
 
         // append it
         file = fopen(filename.toUTF8(), "ab");
@@ -542,7 +546,7 @@ void SpikePlot::writeSpike(const SpikeObject& s)
 
     packSpike(&s, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
 
-    int totalBytes = s.nSamples * s.nChannels * 2 + // account for samples 
+    int totalBytes = s.nSamples * s.nChannels * 2 + // account for samples
                      s.nChannels * 4 +            // acount for threshold and gain
                      15;                        // 15 bytes in every SpikeObject
 
@@ -581,7 +585,7 @@ String SpikePlot::generateHeader()
     header += "';\n";
 
     header += "header.num_channels = ";
-    header += nChannels; 
+    header += nChannels;
     header += ";\n";
 
     header += "header.sampleRate = ";
@@ -666,8 +670,8 @@ void SpikePlot::resized()
     for (int i = 0; i < nWaveAx; i++)
     {
         wAxes[i]->setBounds(5 + (i % nWaveCols) * axesWidth/nWaveCols, 20 + (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
-        rangeButtons[i]->setBounds(8 + (i % nWaveCols) * axesWidth/nWaveCols, 
-                                   20 + (i/nWaveCols) * axesHeight + axesHeight - 18, 
+        rangeButtons[i]->setBounds(8 + (i % nWaveCols) * axesWidth/nWaveCols,
+                                   20 + (i/nWaveCols) * axesHeight + axesHeight - 18,
                                    25, 15);
     }
 
@@ -688,15 +692,17 @@ void SpikePlot::buttonClicked(Button* button)
     {
         ranges.set(index, 500.0f);
         label = "500";
-    } else if (ranges[index] == 500.0f)
+    }
+    else if (ranges[index] == 500.0f)
     {
         ranges.set(index, 100.0f);
         label = "100";
-    } else if  (ranges[index] == 100.0f)
+    }
+    else if (ranges[index] == 100.0f)
     {
         ranges.set(index, 250.0f);
         label = "250";
-    } 
+    }
 
     buttonThatWasClicked->setLabel(label);
 
@@ -709,7 +715,7 @@ void SpikePlot::setLimitsOnAxes()
     //std::cout<<"SpikePlot::setLimitsOnAxes()"<<std::endl;
 
     for (int i = 0; i < nWaveAx; i++)
-         wAxes[i]->setRange(ranges[i]);
+        wAxes[i]->setRange(ranges[i]);
 
     // Each projection sets its limits using the limits of the two waveform dims it represents.
     // Convert projection number to indices, and then set the limits using those indices
@@ -769,7 +775,7 @@ void SpikePlot::clear()
 // --------------------------------------------------
 
 
-WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true), 
+WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true),
     bufferSize(10), spikeIndex(0), thresholdLevel(0.0f), range(250.0f),
     isOverThresholdSlider(false), isDraggingThresholdSlider(false)
 {
@@ -784,7 +790,7 @@ WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true),
     {
         SpikeObject so;
         generateEmptySpike(&so, 4);
-        
+
         spikeBuffer.add(so);
     }
 }
@@ -819,7 +825,7 @@ void WaveAxes::paint(Graphics& g)
     {
         return;
     }
-   
+
 
     for (int spikeNum = 0; spikeNum < bufferSize; spikeNum++)
     {
@@ -828,15 +834,15 @@ void WaveAxes::paint(Graphics& g)
         {
             g.setColour(Colours::grey);
             plotSpike(spikeBuffer[spikeNum], g);
-         }
+        }
 
     }
 
     g.setColour(Colours::white);
     plotSpike(spikeBuffer[spikeIndex], g);
-    
 
-    
+
+
 
 }
 
@@ -847,7 +853,7 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
 
     //compute the spatial width for each waveform sample
     float dx = getWidth()/float(spikeBuffer[0].nSamples);
-    
+
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
     int sampIdx = 40*type; //spikeBuffer[0].nSamples * type; //
@@ -856,22 +862,22 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
 
     float x = 0.0f;
 
-     for (int i = 0; i < s.nSamples-1; i++)
+    for (int i = 0; i < s.nSamples-1; i++)
     {
         //std::cout << s.data[sampIdx] << std::endl;
 
         if (*s.gain != 0)
         {
             float s1 = h/2 + float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f / range * h;
-            float s2 =  h/2 + float(s.data[sampIdx+1]-32768)/float(*s.gain)*1000.0f / range * h; 
+            float s2 =  h/2 + float(s.data[sampIdx+1]-32768)/float(*s.gain)*1000.0f / range * h;
 
-             g.drawLine(x, 
-                 s1, 
-                 x+dx, 
-                 s2);
+            g.drawLine(x,
+                       s1,
+                       x+dx,
+                       s2);
         }
 
-        
+
 
         sampIdx += dSamples;
         x += dx;
@@ -905,7 +911,7 @@ void WaveAxes::drawWaveformGrid(Graphics& g)
         else
             g.drawLine(0,h/2 + y/range*h, w, h/2+ y/range*h);
     }
-   
+
 }
 
 bool WaveAxes::updateSpikeData(const SpikeObject& s)
@@ -919,27 +925,27 @@ bool WaveAxes::updateSpikeData(const SpikeObject& s)
 
     //if (checkThreshold(newSpike))
     //{
-        spikeIndex++;
-        spikeIndex %= bufferSize;
+    spikeIndex++;
+    spikeIndex %= bufferSize;
 
-        spikeBuffer.set(spikeIndex, newSpike); 
-        return true;
+    spikeBuffer.set(spikeIndex, newSpike);
+    return true;
 
-   // } else {
-   //     return false;
-   // }
+    // } else {
+    //     return false;
+    // }
 
 
-    
+
 }
 
 bool WaveAxes::checkThreshold(const SpikeObject& s)
 {
     int sampIdx = 40*type;
 
-     for (int i = 0; i < s.nSamples-1; i++)
+    for (int i = 0; i < s.nSamples-1; i++)
     {
-        
+
         if (float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f > thresholdLevel)
         {
             return true;
@@ -962,7 +968,7 @@ void WaveAxes::clear()
     {
         SpikeObject so;
         generateEmptySpike(&so, 4);
-        
+
         spikeBuffer.add(so);
     }
 
@@ -972,35 +978,37 @@ void WaveAxes::clear()
 void WaveAxes::mouseMove(const MouseEvent& event)
 {
 
-   // Point<int> pos = event.getPosition();
+    // Point<int> pos = event.getPosition();
 
     float y = event.y;
 
     float h = getHeight()*(0.5f - thresholdLevel/range);
 
-   // std::cout << y << " " << h << std::endl;
+    // std::cout << y << " " << h << std::endl;
 
     if (y > h - 10.0f && y < h + 10.0f && !isOverThresholdSlider)
     {
-        thresholdColour = Colours::yellow; 
+        thresholdColour = Colours::yellow;
 
-      //  std::cout << "Yes." << std::endl;
-        
+        //  std::cout << "Yes." << std::endl;
+
         repaint();
 
         isOverThresholdSlider = true;
 
-       // cursorType = MouseCursor::DraggingHandCursor;
+        // cursorType = MouseCursor::DraggingHandCursor;
 
-    } else if ((y < h - 10.0f || y > h + 10.0f) && isOverThresholdSlider){
+    }
+    else if ((y < h - 10.0f || y > h + 10.0f) && isOverThresholdSlider)
+    {
 
         thresholdColour = Colours::red;
         repaint();
 
         isOverThresholdSlider = false;
 
-     //   cursorType = MouseCursor::NormalCursor;
-        
+        //   cursorType = MouseCursor::NormalCursor;
+
     }
 
 
@@ -1045,9 +1053,9 @@ void WaveAxes::mouseDrag(const MouseEvent& event)
 void WaveAxes::mouseExit(const MouseEvent& event)
 {
     if (isOverThresholdSlider)
-     {
+    {
         isOverThresholdSlider = false;
-        thresholdColour = Colours::red; 
+        thresholdColour = Colours::red;
         repaint();
     }
 }
@@ -1055,7 +1063,7 @@ void WaveAxes::mouseExit(const MouseEvent& event)
 // --------------------------------------------------
 
 ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum), imageDim(500),
-                                                    rangeX(250), rangeY(250)
+    rangeX(250), rangeY(250)
 {
     projectionImage = Image(Image::RGB, imageDim, imageDim, true);
 
@@ -1063,7 +1071,7 @@ ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum), 
     //Graphics g(projectionImage);
     //g.setColour(Colours::red);
     //g.fillEllipse(20, 20, 300, 200);
-    
+
     n2ProjIdx(projectionNum, &ampDim1, &ampDim2);
 
 
@@ -1103,14 +1111,14 @@ bool ProjectionAxes::updateSpikeData(const SpikeObject& s)
 
     updateProjectionImage(s.data[idx1], s.data[idx2], *s.gain);
 
-	return true;
+    return true;
 }
 
 void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y, uint16_t gain)
 {
     Graphics g(projectionImage);
 
-   // h/2 + float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f / range * h;
+    // h/2 + float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f / range * h;
 
     if (gain != 0)
     {
@@ -1118,7 +1126,7 @@ void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y, uint16_t gain
         float yf = float(imageDim) - float(y-32768)/float(gain)*1000.0f; // in microvolts
 
         g.setColour(Colours::white);
-        g.fillEllipse(xf,yf,2.0f,2.0f); 
+        g.fillEllipse(xf,yf,2.0f,2.0f);
     }
 
 }
@@ -1149,7 +1157,7 @@ void ProjectionAxes::calcWaveformPeakIdx(const SpikeObject& s, int d1, int d2, i
 void ProjectionAxes::clear()
 {
     projectionImage.clear(Rectangle<int>(0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
-                         Colours::black);
+                          Colours::black);
 
     repaint();
 }
@@ -1226,7 +1234,7 @@ bool GenericAxes::updateSpikeData(const SpikeObject& newSpike)
     }
 
     s = newSpike;
-	return true;
+    return true;
 }
 
 void GenericAxes::setYLims(double ymin, double ymax)

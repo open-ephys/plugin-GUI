@@ -142,7 +142,7 @@ void FilterNode::updateSettings()
                         Dsp::DirectFormII>						// realization
                         (1));
 
-            
+
             //Parameter& p1 =  parameters.getReference(0);
             //p1.setValue(600.0f, n);
             //Parameter& p2 =  parameters.getReference(1);
@@ -221,7 +221,7 @@ void FilterNode::setParameter(int parameterIndex, float newValue)
 
     // std::cout << float(p1[currentChannel]) << " ";
     // std::cout << float(p2[currentChannel]) << std::endl;
-    
+
     // if (parameterIndex == 0) {
     // 	parameters[0].setValue(newValue, currentChannel);
     // 	setFilterParameters(newValue, parameters[0][currentChannel], currentChannel);
@@ -255,19 +255,19 @@ void FilterNode::saveCustomChannelParametersToXml(XmlElement* channelInfo, int c
     {
         //std::cout << "Saving custom parameters for filter node." << std::endl;
 
-         XmlElement* channelParams = channelInfo->createNewChildElement("PARAMETERS");
-         channelParams->setAttribute("highcut",highCuts[channelNumber]);
-         channelParams->setAttribute("lowcut",lowCuts[channelNumber]);
+        XmlElement* channelParams = channelInfo->createNewChildElement("PARAMETERS");
+        channelParams->setAttribute("highcut",highCuts[channelNumber]);
+        channelParams->setAttribute("lowcut",lowCuts[channelNumber]);
     }
 
 }
-    
+
 void FilterNode::loadCustomChannelParametersFromXml(XmlElement* channelInfo, bool isEventChannel)
 {
 
-     int channelNum = channelInfo->getIntAttribute("number");
+    int channelNum = channelInfo->getIntAttribute("number");
 
-     if (!isEventChannel)
+    if (!isEventChannel)
     {
         forEachXmlChildElement(*channelInfo, subNode)
         {
@@ -277,11 +277,11 @@ void FilterNode::loadCustomChannelParametersFromXml(XmlElement* channelInfo, boo
                 lowCuts.set(channelNum, subNode->getDoubleAttribute("lowcut",600.0f));
 
                 setFilterParameters(lowCuts[channelNum],
-                        highCuts[channelNum],
-                        channelNum);
+                                    highCuts[channelNum],
+                                    channelNum);
 
             }
-        } 
+        }
     }
 
 

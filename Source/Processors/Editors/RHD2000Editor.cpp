@@ -88,7 +88,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     adcButton->addListener(this);
     adcButton->setClickingTogglesState(true);
     addAndMakeVisible(adcButton);
-    
+
 
 }
 
@@ -114,13 +114,16 @@ void RHD2000Editor::buttonEvent(Button* button)
             headstageOptionsInterfaces[i]->checkEnabledState();
         }
 
-    } else if (button == electrodeButtons[0])
+    }
+    else if (button == electrodeButtons[0])
     {
-        channelSelector->setRadioStatus(true);   
-    } else if (button == electrodeButtons[1])
+        channelSelector->setRadioStatus(true);
+    }
+    else if (button == electrodeButtons[1])
     {
-        channelSelector->setRadioStatus(true);   
-    } else if (button == adcButton)
+        channelSelector->setRadioStatus(true);
+    }
+    else if (button == adcButton)
     {
         board->enableAdcs(button->getToggleState());
         getEditorViewport()->makeEditorVisible(this, false, true);
@@ -169,7 +172,7 @@ void RHD2000Editor::stopAcquisition()
 // Bandwidth Options --------------------------------------------------------------------
 
 BandwidthInterface::BandwidthInterface(RHD2000Thread* board_,
-                                                     RHD2000Editor* editor_) :
+                                       RHD2000Editor* editor_) :
     board(board_), editor(editor_)
 {
 
@@ -206,7 +209,7 @@ BandwidthInterface::~BandwidthInterface()
 
 void BandwidthInterface::labelTextChanged(Label* label)
 {
-    
+
     if (!(editor->acquisitionIsActive) && board->foundInputSource())
     {
         if (label == UpperBandwidthSelection)
@@ -230,7 +233,9 @@ void BandwidthInterface::labelTextChanged(Label* label)
             std::cout << "Actual Upper Bandwidth:  " <<  actualUpperBandwidth  << std::endl;
             label->setText(String((roundFloatToInt)(actualUpperBandwidth)), false);
 
-        } else {
+        }
+        else
+        {
 
             Value val = label->getTextValue();
             double requestedValue = double(val.getValue());
@@ -239,7 +244,7 @@ void BandwidthInterface::labelTextChanged(Label* label)
             {
                 editor->sendActionMessage("Value out of range.");
 
-                 label->setText(lastLowCutString, dontSendNotification);
+                label->setText(lastLowCutString, dontSendNotification);
 
                 return;
             }
@@ -259,7 +264,7 @@ void BandwidthInterface::labelTextChanged(Label* label)
 void BandwidthInterface::paint(Graphics& g)
 {
 
-     g.setColour(Colours::darkgrey);
+    g.setColour(Colours::darkgrey);
 
     g.setFont(Font("Small Text",10,Font::plain));
 
@@ -274,7 +279,7 @@ void BandwidthInterface::paint(Graphics& g)
 // Sample rate Options --------------------------------------------------------------------
 
 SampleRateInterface::SampleRateInterface(RHD2000Thread* board_,
-                                                     RHD2000Editor* editor_) :
+                                         RHD2000Editor* editor_) :
     board(board_), editor(editor_)
 {
 
@@ -317,7 +322,7 @@ SampleRateInterface::~SampleRateInterface()
 
 void SampleRateInterface::comboBoxChanged(ComboBox* cb)
 {
-	if (!(editor->acquisitionIsActive) && board->foundInputSource())
+    if (!(editor->acquisitionIsActive) && board->foundInputSource())
     {
         if (cb == rateSelection)
         {
@@ -336,7 +341,7 @@ void SampleRateInterface::comboBoxChanged(ComboBox* cb)
 void SampleRateInterface::paint(Graphics& g)
 {
 
-     g.setColour(Colours::darkgrey);
+    g.setColour(Colours::darkgrey);
 
     g.setFont(Font("Small Text",10,Font::plain));
 
@@ -377,7 +382,7 @@ HeadstageOptionsInterface::HeadstageOptionsInterface(RHD2000Thread* board_,
     channelsOnHs1 = 0;
     channelsOnHs2 = 0;
 
-    
+
 
     hsButton1 = new UtilityButton(" ", Font("Small Text", 13, Font::plain));
     hsButton1->setRadius(3.0f);
@@ -405,7 +410,7 @@ HeadstageOptionsInterface::~HeadstageOptionsInterface()
 
 void HeadstageOptionsInterface::checkEnabledState()
 {
-    isEnabled = (board->isHeadstageEnabled(hsNumber1) || 
+    isEnabled = (board->isHeadstageEnabled(hsNumber1) ||
                  board->isHeadstageEnabled(hsNumber2));
 
     if (board->isHeadstageEnabled(hsNumber1))
@@ -413,7 +418,9 @@ void HeadstageOptionsInterface::checkEnabledState()
         channelsOnHs1 = 32;
         hsButton1->setLabel(String(channelsOnHs1));
         hsButton1->setEnabledState(true);
-    } else {
+    }
+    else
+    {
         channelsOnHs1 = 0;
         hsButton1->setLabel(" ");
         hsButton1->setEnabledState(false);
@@ -424,7 +431,9 @@ void HeadstageOptionsInterface::checkEnabledState()
         channelsOnHs2 = 32;
         hsButton2->setLabel(String(channelsOnHs2));
         hsButton2->setEnabledState(true);
-    } else {
+    }
+    else
+    {
         channelsOnHs2 = 0;
         hsButton2->setLabel(" ");
         hsButton2->setEnabledState(false);
@@ -453,7 +462,8 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
             hsButton1->setLabel(String(channelsOnHs1));
             board->setNumChannels(hsNumber1, channelsOnHs1);
 
-        } else if (button == hsButton2)
+        }
+        else if (button == hsButton2)
         {
             if (channelsOnHs2 == 32)
                 channelsOnHs2 = 16;

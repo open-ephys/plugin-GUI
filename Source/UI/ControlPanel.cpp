@@ -750,7 +750,9 @@ String ControlPanel::getTextToAppend()
     if (t.length() > 0)
     {
         return "_" + t;
-    } else {
+    }
+    else
+    {
         return t;
     }
 }
@@ -762,7 +764,9 @@ String ControlPanel::getTextToPrepend()
     if (t.length() > 0)
     {
         return t + "_";
-    } else {
+    }
+    else
+    {
         return t;
     }
 }
@@ -787,10 +791,10 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 {
 
     forEachXmlChildElement(*xml, xmlNode)
-     {
+    {
         if (xmlNode->hasTagName("CONTROLPANEL"))
         {
-            
+
             appendText->setText(xmlNode->getStringAttribute("appendText", ""), dontSendNotification);
             prependText->setText(xmlNode->getStringAttribute("prependText", ""), dontSendNotification);
 

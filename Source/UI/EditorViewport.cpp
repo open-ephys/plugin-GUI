@@ -168,7 +168,7 @@ void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
 {
 
     int x = dragSourceDetails.localPosition.getX();
-   // int y = dragSourceDetails.localPosition.getY();
+    // int y = dragSourceDetails.localPosition.getY();
 
     if (canEdit)
     {
@@ -1393,7 +1393,8 @@ const String EditorViewport::loadState(File fileToLoad)
     return error;
 }
 /* Set parameters based on XML.*/
-void EditorViewport::setParametersByXML(GenericProcessor* targetProcessor, XmlElement* processorXML){
+void EditorViewport::setParametersByXML(GenericProcessor* targetProcessor, XmlElement* processorXML)
+{
     // Should probably do some error checking to make sure XML is valid, depending on how it treats errors (will likely just not update parameters, but error message could be nice.)
     int numberParameters=targetProcessor->getNumParameters();
     // Ditto channels. Not sure how to handle different channel sizes when variable sources (file reader etc. change). Maybe I should check number of channels vs source, but that requires hardcoding when source matters.
@@ -1408,21 +1409,25 @@ void EditorViewport::setParametersByXML(GenericProcessor* targetProcessor, XmlEl
     String parameterValue;
     float parameterFloat;
     //float testGrab;
-    
 
-    forEachXmlChildElementWithTagName(*processorXML, channelXML, "CHANNEL"){
+
+    forEachXmlChildElementWithTagName(*processorXML, channelXML, "CHANNEL")
+    {
         currentChannel=channelXML->getIntAttribute("name");
-        
-       // std::cout <<"currentChannel:"<< currentChannel  << std::endl;
+
+        // std::cout <<"currentChannel:"<< currentChannel  << std::endl;
         // Sets channel to change parameter on
         targetProcessor->setCurrentChannel(currentChannel-1);
 
-        forEachXmlChildElement(*channelXML, parameterXML){
-        
-            for (int j = 0; j < numberParameters; ++j){
+        forEachXmlChildElement(*channelXML, parameterXML)
+        {
+
+            for (int j = 0; j < numberParameters; ++j)
+            {
                 parameterNameForXML=targetProcessor->getParameterName(j);
 
-                if (parameterXML->getStringAttribute("name")==parameterNameForXML){
+                if (parameterXML->getStringAttribute("name")==parameterNameForXML)
+                {
                     parameterValue=parameterXML->getAllSubText();
                     parameterFloat=parameterValue.getFloatValue();
                     targetProcessor->setParameter(j, parameterFloat);
@@ -1431,7 +1436,7 @@ void EditorViewport::setParametersByXML(GenericProcessor* targetProcessor, XmlEl
                 }
 
             }
-            
+
 
         }
     }

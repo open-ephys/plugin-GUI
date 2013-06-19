@@ -60,7 +60,7 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
 {
     if (eventType == TTL)
     {
-      //  std::cout << "Received an event!" << std::endl;
+        //  std::cout << "Received an event!" << std::endl;
 
         const uint8* dataptr = event.getRawData();
 
@@ -107,7 +107,9 @@ void PulsePalOutput::setParameter(int parameterIndex, float newValue)
             if (newValue < 0)
             {
                 channelState.set(channelToChange, true);
-            } else {
+            }
+            else
+            {
                 channelState.set(channelToChange, false);
             }
 
@@ -119,8 +121,8 @@ void PulsePalOutput::setParameter(int parameterIndex, float newValue)
 }
 
 void PulsePalOutput::process(AudioSampleBuffer& buffer,
-                         MidiBuffer& events,
-                         int& nSamples)
+                             MidiBuffer& events,
+                             int& nSamples)
 {
 
     checkForEvents(events);

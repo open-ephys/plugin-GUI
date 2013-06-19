@@ -48,7 +48,7 @@ public:
 
     void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
     void setParameter(int parameterIndex, float newValue);
-    
+
     AudioProcessorEditor* createEditor();
 
     bool hasEditor() const
@@ -68,9 +68,9 @@ private:
 
     bool isIncreasing;
 
-	bool triggerOnPeak;
+    bool triggerOnPeak;
 
-	bool canBeTriggered;
+    bool canBeTriggered;
 
     void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
