@@ -65,36 +65,13 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
     highCutValue->addListener(this);
     addAndMakeVisible(highCutValue);
 
-    //createRadioButtons(35, 50, 160, lowCutValues, "Low Cutoff");
-    //createRadioButtons(35, 90, 160, highCutValues, "High Cutoff");
-
-    // for (int n = 0; n < getNumChildComponents(); n++)
-    // {
-    // 	Button* c = (Button*) getChildComponent(n);
-
-    // 	if (c->isVisible())
-    // 		c->addListener(this);
-
-    // 	if (c->getRadioGroupId() != 999)
-    // 		c->setVisible(true);
-    // }
-
 }
 
 FilterEditor::~FilterEditor()
 {
-    // deleteAllChildren();
+ 
 }
 
-// void FilterEditor::sliderValueChanged (Slider* slider)
-// {
-
-// 	if (slider == lowSlider)
-// 		getAudioProcessor()->setParameter(0,slider->getValue());
-// 	else
-// 		getAudioProcessor()->setParameter(1,slider->getValue());
-
-// }
 
 void FilterEditor::labelTextChanged(Label* label)
 {

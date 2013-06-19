@@ -133,7 +133,7 @@ void FilterNode::updateSettings()
 
         for (int n = 0; n < getNumInputs(); n++)
         {
-            std::cout << "Creating filter number " << n << std::endl;
+           // std::cout << "Creating filter number " << n << std::endl;
 
             filters.add(new Dsp::SmoothedFilterDesign
                         <Dsp::Butterworth::Design::BandPass 	// design type
@@ -189,20 +189,20 @@ void FilterNode::setParameter(int parameterIndex, float newValue)
     if (newValue <= 0.01 || newValue >= 10000.0f)
         return;
 
-    std::cout << "Setting channel " << currentChannel;// << std::endl;
+    //std::cout << "Setting channel " << currentChannel;// << std::endl;
 
     if (parameterIndex == 0)
     {
-        std::cout << " low cut to " << newValue << std::endl;
+       // std::cout << " low cut to " << newValue << std::endl;
         lowCuts.set(currentChannel,newValue);
     }
     else
     {
-        std::cout << " high cut to " << newValue << std::endl;
+        //std::cout << " high cut to " << newValue << std::endl;
         highCuts.set(currentChannel,newValue);
     }
 
-    std::cout << newValue << std::endl;
+    //std::cout << newValue << std::endl;
 
     setFilterParameters(lowCuts[currentChannel],
                         highCuts[currentChannel],
@@ -229,6 +229,7 @@ void FilterNode::setParameter(int parameterIndex, float newValue)
     // 	parameters[1].setValue(newValue, currentChannel);
     // 	setFilterParameters(lowCuts[currentChannel], newValue, currentChannel);
     // }
+
     editor->updateParameterButtons(parameterIndex);
 
 }
