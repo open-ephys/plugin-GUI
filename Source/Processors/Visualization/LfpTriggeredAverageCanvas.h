@@ -20,36 +20,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef __LFPTRIGAVGCAVCAS_H_B711873A__
-#define __LFPTRIGAVGCAVCAS_H_B711873A__
+#ifndef __LfpTriggeredAverageCAVCAS_H_B711873A__
+#define __LfpTriggeredAverageCAVCAS_H_B711873A__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../LfpTriggeredAverageNode.h"
 #include "Visualizer.h"
 
-class LfpTrigAvgNode;
+class LfpTriggeredAverageNode;
 
-class LfpTrigAvgTimescale;
-class LfpTrigAvgDisplay;
-class LfpTrigAvgChannelDisplay;
-class LfpTrigAvgChannelDisplayInfo;
-class LfpTrigAvgEventInterface;
+class LfpTriggeredAverageTimescale;
+class LfpTriggeredAverageDisplay;
+class LfpTriggeredAverageChannelDisplay;
+class LfpTriggeredAverageChannelDisplayInfo;
+class LfpTriggeredAverageEventInterface;
 
 /**
 
   Displays multiple channels of continuous data.
 
-  @see LfpTrigAvgNode, LfpTrigAvgDisplayEditor
+  @see LfpTriggeredAverageNode, LfpTriggeredAverageDisplayEditor
 
 */
 
-class LfpTrigAvgCanvas : public Visualizer,
+class LfpTriggeredAverageCanvas : public Visualizer,
     public ComboBox::Listener
 
 {
 public:
-    LfpTrigAvgCanvas(LfpTrigAvgNode* n);
-    ~LfpTrigAvgCanvas();
+    LfpTriggeredAverageCanvas(LfpTriggeredAverageNode* n);
+    ~LfpTriggeredAverageCanvas();
 
     void beginAnimation();
     void endAnimation();
@@ -100,13 +100,13 @@ private:
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
-    LfpTrigAvgNode* processor;
+    LfpTriggeredAverageNode* processor;
     AudioSampleBuffer* displayBuffer;
     AudioSampleBuffer* screenBuffer;
     MidiBuffer* eventBuffer;
 
-    ScopedPointer<LfpTrigAvgTimescale> timescale;
-    ScopedPointer<LfpTrigAvgDisplay> display;
+    ScopedPointer<LfpTriggeredAverageTimescale> timescale;
+    ScopedPointer<LfpTriggeredAverageDisplay> display;
     ScopedPointer<Viewport> viewport;
 
     ScopedPointer<ComboBox> timebaseSelection;
@@ -117,7 +117,7 @@ private:
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
 
-    OwnedArray<LfpTrigAvgEventInterface> LfpTrigAvgEventInterfaces;
+    OwnedArray<LfpTriggeredAverageEventInterface> LfpTriggeredAverageEventInterfaces;
 
     void refreshScreenBuffer();
     void updateScreenBuffer();
@@ -129,15 +129,15 @@ private:
 
     int nChans;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpTrigAvgCanvas);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpTriggeredAverageCanvas);
 
 };
 
-class LfpTrigAvgTimescale : public Component
+class LfpTriggeredAverageTimescale : public Component
 {
 public:
-    LfpTrigAvgTimescale(LfpTrigAvgCanvas*);
-    ~LfpTrigAvgTimescale();
+    LfpTriggeredAverageTimescale(LfpTriggeredAverageCanvas*);
+    ~LfpTriggeredAverageTimescale();
 
     void paint(Graphics& g);
 
@@ -145,7 +145,7 @@ public:
 
 private:
 
-    LfpTrigAvgCanvas* canvas;
+    LfpTriggeredAverageCanvas* canvas;
 
     float timebase;
 
@@ -155,11 +155,11 @@ private:
 
 };
 
-class LfpTrigAvgDisplay : public Component
+class LfpTriggeredAverageDisplay : public Component
 {
 public:
-    LfpTrigAvgDisplay(LfpTrigAvgCanvas*, Viewport*);
-    ~LfpTrigAvgDisplay();
+    LfpTriggeredAverageDisplay(LfpTriggeredAverageCanvas*, Viewport*);
+    ~LfpTriggeredAverageDisplay();
 
     void setNumChannels(int numChannels);
     int getNumChannels();
@@ -189,8 +189,8 @@ public:
 
     Array<Colour> channelColours;
 
-    Array<LfpTrigAvgChannelDisplay*> channels;
-    Array<LfpTrigAvgChannelDisplayInfo*> channelInfo;
+    Array<LfpTriggeredAverageChannelDisplay*> channels;
+    Array<LfpTriggeredAverageChannelDisplayInfo*> channelInfo;
 
     bool eventDisplayEnabled[8];
 
@@ -199,18 +199,18 @@ private:
 
     int totalHeight;
 
-    LfpTrigAvgCanvas* canvas;
+    LfpTriggeredAverageCanvas* canvas;
     Viewport* viewport;    
 
     float range;
 
 };
 
-class LfpTrigAvgChannelDisplay : public Component
+class LfpTriggeredAverageChannelDisplay : public Component
 {
 public:
-    LfpTrigAvgChannelDisplay(LfpTrigAvgCanvas*, LfpTrigAvgDisplay*, int channelNumber);
-    ~LfpTrigAvgChannelDisplay();
+    LfpTriggeredAverageChannelDisplay(LfpTriggeredAverageCanvas*, LfpTriggeredAverageDisplay*, int channelNumber);
+    ~LfpTriggeredAverageChannelDisplay();
 
     void paint(Graphics& g);
 
@@ -234,8 +234,8 @@ public:
 
 protected:
 
-    LfpTrigAvgCanvas* canvas;
-    LfpTrigAvgDisplay* display;
+    LfpTriggeredAverageCanvas* canvas;
+    LfpTriggeredAverageDisplay* display;
 
     bool isSelected;
 
@@ -255,21 +255,21 @@ protected:
 
 };
 
-class LfpTrigAvgChannelDisplayInfo : public LfpTrigAvgChannelDisplay
+class LfpTriggeredAverageChannelDisplayInfo : public LfpTriggeredAverageChannelDisplay
 {
 public:
-    LfpTrigAvgChannelDisplayInfo(LfpTrigAvgCanvas*, LfpTrigAvgDisplay*, int channelNumber);
+    LfpTriggeredAverageChannelDisplayInfo(LfpTriggeredAverageCanvas*, LfpTriggeredAverageDisplay*, int channelNumber);
 
     void paint(Graphics& g);
 
 };
 
-class LfpTrigAvgEventInterface : public Component,
+class LfpTriggeredAverageEventInterface : public Component,
     public Button::Listener
 {
 public:
-    LfpTrigAvgEventInterface(LfpTrigAvgDisplay*, LfpTrigAvgCanvas*, int chNum);
-    ~LfpTrigAvgEventInterface();
+    LfpTriggeredAverageEventInterface(LfpTriggeredAverageDisplay*, LfpTriggeredAverageCanvas*, int chNum);
+    ~LfpTriggeredAverageEventInterface();
 
     void paint(Graphics& g);
 
@@ -283,12 +283,12 @@ private:
 
     int channelNumber;
 
-    LfpTrigAvgDisplay* display;
-    LfpTrigAvgCanvas* canvas;
+    LfpTriggeredAverageDisplay* display;
+    LfpTriggeredAverageCanvas* canvas;
 
     ScopedPointer<UtilityButton> chButton;
 
 };
 
 
-#endif  // __LFPTRIGAVGCAVCAS_H_B711873A__
+#endif  // __LfpTriggeredAverageCAVCAS_H_B711873A__

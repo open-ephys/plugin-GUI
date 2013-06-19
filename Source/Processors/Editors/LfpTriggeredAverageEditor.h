@@ -21,8 +21,8 @@
 
 */
 
-#ifndef __LFPTRIGAVGEDITOR_H_3438800D__
-#define __LFPTRIGAVGEDITOR_H_3438800D__
+#ifndef __LfpTriggeredAverageEDITOR_H_3438800D__
+#define __LfpTriggeredAverageEDITOR_H_3438800D__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
@@ -43,11 +43,11 @@ class Visualizer;
 
 */
 
-class LfpTrigAvgEditor : public VisualizerEditor
+class LfpTriggeredAverageEditor : public VisualizerEditor
 {
 public:
-    LfpTrigAvgEditor(GenericProcessor*, bool useDefaultParameterEditors);
-    ~LfpTrigAvgEditor();
+    LfpTriggeredAverageEditor(GenericProcessor*, bool useDefaultParameterEditors);
+    ~LfpTriggeredAverageEditor();
 
     void buttonCallback(Button* button);
 
@@ -56,8 +56,8 @@ public:
 private:
 
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpTrigAvgEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpTriggeredAverageEditor);
 
 };
 
-#endif  // __LFPTRIGAVGEDITOR_H_3438800D__
+#endif  // __LfpTriggeredAverageEDITOR_H_3438800D__

@@ -24,7 +24,7 @@
 #include "LfpTriggeredAverageEditor.h"
 
 
-LfpTrigAvgEditor::LfpTrigAvgEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
+LfpTriggeredAverageEditor::LfpTriggeredAverageEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
     : VisualizerEditor(parentNode, useDefaultParameterEditors)
 
 {
@@ -34,20 +34,20 @@ LfpTrigAvgEditor::LfpTrigAvgEditor(GenericProcessor* parentNode, bool useDefault
 
 }
 
-LfpTrigAvgEditor::~LfpTrigAvgEditor()
+LfpTriggeredAverageEditor::~LfpTriggeredAverageEditor()
 {
 }
 
 
-Visualizer* LfpTrigAvgEditor::createNewCanvas()
+Visualizer* LfpTriggeredAverageEditor::createNewCanvas()
 {
 
-    LfpTrigAvgNode* processor = (LfpTrigAvgNode*) getProcessor();
-    return new LfpTrigAvgCanvas(processor);
+    LfpTriggeredAverageNode* processor = (LfpTriggeredAverageNode*) getProcessor();
+    return new LfpTriggeredAverageCanvas(processor);
 
 }
 
-void LfpTrigAvgEditor::buttonCallback(Button* button)
+void LfpTriggeredAverageEditor::buttonCallback(Button* button)
 {
 
     int gId = button->getRadioGroupId();

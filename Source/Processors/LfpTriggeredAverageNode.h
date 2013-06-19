@@ -35,17 +35,17 @@ class DataViewport;
 
   Displays the average of a continuous signal, triggered on a certain event channel.
 
-  @see GenericProcessor, LfpTrigAvgEditor, LfpDisplayCanvas
+  @see GenericProcessor, LfpTriggeredAverageEditor, LfpDisplayCanvas
 
 */
 
-class LfpTrigAvgNode :  public GenericProcessor
+class LfpTriggeredAverageNode :  public GenericProcessor
 
 {
 public:
 
-    LfpTrigAvgNode();
-    ~LfpTrigAvgNode();
+    LfpTriggeredAverageNode();
+    ~LfpTriggeredAverageNode();
 
     AudioProcessorEditor* createEditor();
 
@@ -98,7 +98,7 @@ private:
 
     bool resizeBuffer();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpTrigAvgNode);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpTriggeredAverageNode);
 
 };
 

@@ -561,7 +561,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         else if (subProcessorType.equalsIgnoreCase("LFP Trig. Avg."))
         {
             std::cout << "Creating an LfpTrigAvgNode." << std::endl;
-            processor = new LfpTrigAvgNode();
+            processor = new LfpTriggeredAverageNode();
         }                   
         
         else if (subProcessorType.equalsIgnoreCase("Spike Viewer"))

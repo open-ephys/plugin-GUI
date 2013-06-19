@@ -25,12 +25,12 @@
 #include "Visualization/LfpTriggeredAverageCanvas.h"
 #include <stdio.h>
 
-LfpTrigAvgNode::LfpTrigAvgNode()
+LfpTriggeredAverageNode::LfpTriggeredAverageNode()
     : GenericProcessor("LFP Trig. Avg."),
       displayBufferIndex(0), displayGain(1), bufferLength(5.0f),
       abstractFifo(100), ttlState(0)
 {
-    std::cout << " LfpTrigAvgNodeConstructor" << std::endl;
+    std::cout << " LfpTriggeredAverageNode Constructor" << std::endl;
     displayBuffer = new AudioSampleBuffer(8, 100);
     eventBuffer = new MidiBuffer();
 
@@ -43,25 +43,25 @@ LfpTrigAvgNode::LfpTrigAvgNode()
 
 }
 
-LfpTrigAvgNode::~LfpTrigAvgNode()
+LfpTriggeredAverageNode::~LfpTriggeredAverageNode()
 {
 
 }
 
-AudioProcessorEditor* LfpTrigAvgNode::createEditor()
+AudioProcessorEditor* LfpTriggeredAverageNode::createEditor()
 {
 
-    editor = new LfpTrigAvgEditor(this, true);
+    editor = new LfpTriggeredAverageEditor(this, true);
     return editor;
 
 }
 
-void LfpTrigAvgNode::updateSettings()
+void LfpTriggeredAverageNode::updateSettings()
 {
-    std::cout << "Setting num inputs on LfpTrigAvgNode to " << getNumInputs() << std::endl;
+    std::cout << "Setting num inputs on LfpTriggeredAverageNode to " << getNumInputs() << std::endl;
 }
 
-bool LfpTrigAvgNode::resizeBuffer()
+bool LfpTriggeredAverageNode::resizeBuffer()
 {
     int nSamples = (int) getSampleRate()*bufferLength;
     int nInputs = getNumInputs();
@@ -81,12 +81,12 @@ bool LfpTrigAvgNode::resizeBuffer()
 
 }
 
-bool LfpTrigAvgNode::enable()
+bool LfpTriggeredAverageNode::enable()
 {
 
     if (resizeBuffer())
     {
-        LfpTrigAvgEditor* editor = (LfpTrigAvgEditor*) getEditor();
+        LfpTriggeredAverageEditor* editor = (LfpTriggeredAverageEditor*) getEditor();
         editor->enable();
         return true;
     }
@@ -97,14 +97,14 @@ bool LfpTrigAvgNode::enable()
 
 }
 
-bool LfpTrigAvgNode::disable()
+bool LfpTriggeredAverageNode::disable()
 {
-    LfpTrigAvgEditor* editor = (LfpTrigAvgEditor*) getEditor();
+    LfpTriggeredAverageEditor* editor = (LfpTriggeredAverageEditor*) getEditor();
     editor->disable();
     return true;
 }
 
-void LfpTrigAvgNode::setParameter(int parameterIndex, float newValue)
+void LfpTriggeredAverageNode::setParameter(int parameterIndex, float newValue)
 {
     editor->updateParameterButtons(parameterIndex);
     //Sets Parameter in parameters array for processor
@@ -114,12 +114,12 @@ void LfpTrigAvgNode::setParameter(int parameterIndex, float newValue)
 
     //std::cout << "Saving Parameter from " << currentChannel << ", channel ";
 
-    LfpTrigAvgEditor* ed = (LfpTrigAvgEditor*) getEditor();
+    LfpTriggeredAverageEditor* ed = (LfpTriggeredAverageEditor*) getEditor();
     if (ed->canvas != 0)
         ed->canvas->setParameter(parameterIndex, newValue);
 }
 
-void LfpTrigAvgNode::handleEvent(int eventType, MidiMessage& event, int sampleNum)
+void LfpTriggeredAverageNode::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 {
     if (eventType == TTL)
     {
@@ -224,7 +224,7 @@ void LfpTrigAvgNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
     }
 }
 
-void LfpTrigAvgNode::initializeEventChannel()
+void LfpTriggeredAverageNode::initializeEventChannel()
 {
     if (displayBufferIndex + totalSamples < displayBuffer->getNumSamples())
     {
@@ -264,7 +264,7 @@ void LfpTrigAvgNode::initializeEventChannel()
     }
 }
 
-void LfpTrigAvgNode::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples)
+void LfpTriggeredAverageNode::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples)
 {
     // 1. place any new samples into the displayBuffer
     //std::cout << "Display node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;

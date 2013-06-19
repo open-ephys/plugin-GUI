@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-LfpTrigAvgCanvas::LfpTrigAvgCanvas(LfpTrigAvgNode* processor_) :
+LfpTriggeredAverageCanvas::LfpTriggeredAverageCanvas(LfpTriggeredAverageNode* processor_) :
     screenBufferIndex(0), timebase(1.0f), displayGain(1.0f),   timeOffset(0.0f),
     processor(processor_),
     displayBufferIndex(0)
@@ -33,18 +33,18 @@ LfpTrigAvgCanvas::LfpTrigAvgCanvas(LfpTrigAvgNode* processor_) :
 
     nChans = processor->getNumInputs();
     sampleRate = processor->getSampleRate();
-    std::cout << "Setting num inputs on LfpTrigAvgCanvas to " << nChans << std::endl;
+    std::cout << "Setting num inputs on LfpTriggeredAverageCanvas to " << nChans << std::endl;
 
     displayBuffer = processor->getDisplayBufferAddress();
     displayBufferSize = displayBuffer->getNumSamples();
-    std::cout << "Setting displayBufferSize on LfpTrigAvgCanvas to " << displayBufferSize << std::endl;
+    std::cout << "Setting displayBufferSize on LfpTriggeredAverageCanvas to " << displayBufferSize << std::endl;
 
     screenBuffer = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
     screenBuffer->clear();
 
     viewport = new Viewport();
-    display = new LfpTrigAvgDisplay(this, viewport);
-    timescale = new LfpTrigAvgTimescale(this);
+    display = new LfpTriggeredAverageDisplay(this, viewport);
+    timescale = new LfpTriggeredAverageTimescale(this);
 
     timescale->setTimebase(timebase);
 
@@ -112,8 +112,8 @@ LfpTrigAvgCanvas::LfpTrigAvgCanvas(LfpTrigAvgNode* processor_) :
     {
 
 
-        LfpTrigAvgEventInterface* eventOptions = new LfpTrigAvgEventInterface(display, this, i);
-        LfpTrigAvgEventInterfaces.add(eventOptions);
+        LfpTriggeredAverageEventInterface* eventOptions = new LfpTriggeredAverageEventInterface(display, this, i);
+        LfpTriggeredAverageEventInterfaces.add(eventOptions);
         addAndMakeVisible(eventOptions);
         eventOptions->setBounds(500+(floor(i/2)*20), getHeight()-20-(i%2)*20, 40, 20);
 
@@ -124,13 +124,13 @@ LfpTrigAvgCanvas::LfpTrigAvgCanvas(LfpTrigAvgNode* processor_) :
 
 }
 
-LfpTrigAvgCanvas::~LfpTrigAvgCanvas()
+LfpTriggeredAverageCanvas::~LfpTriggeredAverageCanvas()
 {
 
     deleteAndZero(screenBuffer);
 }
 
-void LfpTrigAvgCanvas::resized()
+void LfpTriggeredAverageCanvas::resized()
 {
 
     timescale->setBounds(leftmargin,0,getWidth()-scrollBarThickness-leftmargin,30);
@@ -144,17 +144,17 @@ void LfpTrigAvgCanvas::resized()
 
     for (int i = 0; i < 8; i++)
     {
-        LfpTrigAvgEventInterfaces[i]->setBounds(500+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
-        LfpTrigAvgEventInterfaces[i]->repaint();
+        LfpTriggeredAverageEventInterfaces[i]->setBounds(500+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
+        LfpTriggeredAverageEventInterfaces[i]->repaint();
     }
 
 
-    // std::cout << "Canvas thinks LfpTrigAvgDisplay should be this high: "
-    //  << LfpTrigAvgDisplay->getTotalHeight() << std::endl;
+    // std::cout << "Canvas thinks LfpTriggeredAverageDisplay should be this high: "
+    //  << LfpTriggeredAverageDisplay->getTotalHeight() << std::endl;
 
 }
 
-void LfpTrigAvgCanvas::beginAnimation()
+void LfpTriggeredAverageCanvas::beginAnimation()
 {
     std::cout << "Beginning animation." << std::endl;
 
@@ -165,19 +165,19 @@ void LfpTrigAvgCanvas::beginAnimation()
     startCallbacks();
 }
 
-void LfpTrigAvgCanvas::endAnimation()
+void LfpTriggeredAverageCanvas::endAnimation()
 {
     std::cout << "Ending animation." << std::endl;
 
     stopCallbacks();
 }
 
-void LfpTrigAvgCanvas::update()
+void LfpTriggeredAverageCanvas::update()
 {
     nChans = jmax(processor->getNumInputs(),1);
     sampleRate = processor->getSampleRate();
 
-    std::cout << "Setting num inputs on LfpTrigAvgCanvas to " << nChans << std::endl;
+    std::cout << "Setting num inputs on LfpTriggeredAverageCanvas to " << nChans << std::endl;
 
     refreshScreenBuffer();
 
@@ -199,7 +199,7 @@ void LfpTrigAvgCanvas::update()
 
 }
 
-void LfpTrigAvgCanvas::comboBoxChanged(ComboBox* cb)
+void LfpTriggeredAverageCanvas::comboBoxChanged(ComboBox* cb)
 {
 
     if (cb == timebaseSelection)
@@ -226,14 +226,14 @@ void LfpTrigAvgCanvas::comboBoxChanged(ComboBox* cb)
 
 
 
-int LfpTrigAvgCanvas::getChannelHeight()
+int LfpTriggeredAverageCanvas::getChannelHeight()
 {
     return spreads[spreadSelection->getSelectedId()-1].getIntValue();
 
 }
 
 
-void LfpTrigAvgCanvas::setParameter(int param, float val)
+void LfpTriggeredAverageCanvas::setParameter(int param, float val)
 {
     // if (param == 0)
     // {
@@ -248,7 +248,7 @@ void LfpTrigAvgCanvas::setParameter(int param, float val)
     // repaint();
 }
 
-void LfpTrigAvgCanvas::refreshState()
+void LfpTriggeredAverageCanvas::refreshState()
 {
     // called when the component's tab becomes visible again
     displayBufferIndex = processor->getDisplayBufferIndex();
@@ -256,7 +256,7 @@ void LfpTrigAvgCanvas::refreshState()
 
 }
 
-void LfpTrigAvgCanvas::refreshScreenBuffer()
+void LfpTriggeredAverageCanvas::refreshScreenBuffer()
 {
 
     screenBufferIndex = 0;
@@ -279,7 +279,7 @@ void LfpTrigAvgCanvas::refreshScreenBuffer()
 
 }
 
-void LfpTrigAvgCanvas::updateScreenBuffer()
+void LfpTriggeredAverageCanvas::updateScreenBuffer()
 {
 
 
@@ -368,22 +368,22 @@ void LfpTrigAvgCanvas::updateScreenBuffer()
     }
 }
 
-float LfpTrigAvgCanvas::getXCoord(int chan, int samp)
+float LfpTriggeredAverageCanvas::getXCoord(int chan, int samp)
 {
     return samp;
 }
 
-int LfpTrigAvgCanvas::getNumChannels()
+int LfpTriggeredAverageCanvas::getNumChannels()
 {
     return nChans;
 }
 
-float LfpTrigAvgCanvas::getYCoord(int chan, int samp)
+float LfpTriggeredAverageCanvas::getYCoord(int chan, int samp)
 {
     return *screenBuffer->getSampleData(chan, samp);
 }
 
-void LfpTrigAvgCanvas::paint(Graphics& g)
+void LfpTriggeredAverageCanvas::paint(Graphics& g)
 {
 
     //std::cout << "Painting" << std::endl;
@@ -428,7 +428,7 @@ void LfpTrigAvgCanvas::paint(Graphics& g)
 
 }
 
-void LfpTrigAvgCanvas::refresh()
+void LfpTriggeredAverageCanvas::refresh()
 {
     updateScreenBuffer();
 
@@ -438,10 +438,10 @@ void LfpTrigAvgCanvas::refresh()
 
 }
 
-void LfpTrigAvgCanvas::saveVisualizerParameters(XmlElement* xml)
+void LfpTriggeredAverageCanvas::saveVisualizerParameters(XmlElement* xml)
 {
 
-    XmlElement* xmlNode = xml->createNewChildElement("LfpTrigAvgDisplay");
+    XmlElement* xmlNode = xml->createNewChildElement("LfpTriggeredAverageDisplay");
 
 
     xmlNode->setAttribute("Range",rangeSelection->getSelectedId());
@@ -465,11 +465,11 @@ void LfpTrigAvgCanvas::saveVisualizerParameters(XmlElement* xml)
 }
 
 
-void LfpTrigAvgCanvas::loadVisualizerParameters(XmlElement* xml)
+void LfpTriggeredAverageCanvas::loadVisualizerParameters(XmlElement* xml)
 {
     forEachXmlChildElement(*xml, xmlNode)
     {
-        if (xmlNode->hasTagName("LfpTrigAvgDisplay"))
+        if (xmlNode->hasTagName("LfpTriggeredAverageDisplay"))
         {
             rangeSelection->setSelectedId(xmlNode->getIntAttribute("Range"));
             timebaseSelection->setSelectedId(xmlNode->getIntAttribute("Timebase"));
@@ -484,7 +484,7 @@ void LfpTrigAvgCanvas::loadVisualizerParameters(XmlElement* xml)
             {
             	display->eventDisplayEnabled[i] = (eventButtonState >> i) & 1;
 
-            	LfpTrigAvgEventInterfaces[i]->checkEnabledState();
+            	LfpTriggeredAverageEventInterfaces[i]->checkEnabledState();
             }
         }
     }
@@ -494,18 +494,18 @@ void LfpTrigAvgCanvas::loadVisualizerParameters(XmlElement* xml)
 
 // -------------------------------------------------------------
 
-LfpTrigAvgTimescale::LfpTrigAvgTimescale(LfpTrigAvgCanvas* c) : canvas(c)
+LfpTriggeredAverageTimescale::LfpTriggeredAverageTimescale(LfpTriggeredAverageCanvas* c) : canvas(c)
 {
 
     font = Font("Default", 16, Font::plain);
 }
 
-LfpTrigAvgTimescale::~LfpTrigAvgTimescale()
+LfpTriggeredAverageTimescale::~LfpTriggeredAverageTimescale()
 {
 
 }
 
-void LfpTrigAvgTimescale::paint(Graphics& g)
+void LfpTriggeredAverageTimescale::paint(Graphics& g)
 {
 
 
@@ -528,7 +528,7 @@ void LfpTrigAvgTimescale::paint(Graphics& g)
 
 }
 
-void LfpTrigAvgTimescale::setTimebase(float t)
+void LfpTriggeredAverageTimescale::setTimebase(float t)
 {
     timebase = t;
 
@@ -548,7 +548,7 @@ void LfpTrigAvgTimescale::setTimebase(float t)
 
 // ---------------------------------------------------------------
 
-LfpTrigAvgDisplay::LfpTrigAvgDisplay(LfpTrigAvgCanvas* c, Viewport* v) :
+LfpTriggeredAverageDisplay::LfpTriggeredAverageDisplay(LfpTriggeredAverageCanvas* c, Viewport* v) :
     canvas(c), viewport(v), range(1000.0f)
 {
 
@@ -582,18 +582,18 @@ LfpTrigAvgDisplay::LfpTrigAvgDisplay(LfpTrigAvgCanvas* c, Viewport* v) :
 
 }
 
-LfpTrigAvgDisplay::~LfpTrigAvgDisplay()
+LfpTriggeredAverageDisplay::~LfpTriggeredAverageDisplay()
 {
     deleteAllChildren();
 }
 
 
-int LfpTrigAvgDisplay::getNumChannels()
+int LfpTriggeredAverageDisplay::getNumChannels()
 {
     return numChans;
 }
 
-void LfpTrigAvgDisplay::setNumChannels(int numChannels)
+void LfpTriggeredAverageDisplay::setNumChannels(int numChannels)
 {
     numChans = numChannels;
 
@@ -609,7 +609,7 @@ void LfpTrigAvgDisplay::setNumChannels(int numChannels)
 
         //std::cout << "Adding new channel display." << std::endl;
 
-        LfpTrigAvgChannelDisplay* lfpChan = new LfpTrigAvgChannelDisplay(canvas, this, i);
+        LfpTriggeredAverageChannelDisplay* lfpChan = new LfpTriggeredAverageChannelDisplay(canvas, this, i);
 
         lfpChan->setColour(channelColours[i % channelColours.size()]);
         lfpChan->setRange(range);
@@ -619,7 +619,7 @@ void LfpTrigAvgDisplay::setNumChannels(int numChannels)
 
         channels.add(lfpChan);
 
-        LfpTrigAvgChannelDisplayInfo* lfpInfo = new LfpTrigAvgChannelDisplayInfo(canvas, this, i);
+        LfpTriggeredAverageChannelDisplayInfo* lfpInfo = new LfpTriggeredAverageChannelDisplayInfo(canvas, this, i);
 
         lfpInfo->setColour(channelColours[i % channelColours.size()]);
         lfpInfo->setRange(range);
@@ -635,12 +635,12 @@ void LfpTrigAvgDisplay::setNumChannels(int numChannels)
 
 }
 
-int LfpTrigAvgDisplay::getTotalHeight()
+int LfpTriggeredAverageDisplay::getTotalHeight()
 {
     return totalHeight;
 }
 
-void LfpTrigAvgDisplay::resized()
+void LfpTriggeredAverageDisplay::resized()
 {
 
     int totalHeight = 0;
@@ -648,14 +648,14 @@ void LfpTrigAvgDisplay::resized()
     for (int i = 0; i < channels.size(); i++)
     {
 
-        LfpTrigAvgChannelDisplay* disp = channels[i];
+        LfpTriggeredAverageChannelDisplay* disp = channels[i];
 
         disp->setBounds(canvas->leftmargin,
                         totalHeight-disp->getChannelOverlap()/2,
                         getWidth(),
                         disp->getChannelHeight()+disp->getChannelOverlap());
 
-        LfpTrigAvgChannelDisplayInfo* info = channelInfo[i];
+        LfpTriggeredAverageChannelDisplayInfo* info = channelInfo[i];
 
         info->setBounds(0,
                         totalHeight-disp->getChannelOverlap()/2,
@@ -672,12 +672,12 @@ void LfpTrigAvgDisplay::resized()
 
 }
 
-void LfpTrigAvgDisplay::paint(Graphics& g)
+void LfpTriggeredAverageDisplay::paint(Graphics& g)
 {
 
 }
 
-void LfpTrigAvgDisplay::refresh()
+void LfpTriggeredAverageDisplay::refresh()
 {
 
 
@@ -713,7 +713,7 @@ void LfpTrigAvgDisplay::refresh()
     canvas->fullredraw = false;
 }
 
-void LfpTrigAvgDisplay::setRange(float r)
+void LfpTriggeredAverageDisplay::setRange(float r)
 {
     range = r;
 
@@ -723,13 +723,13 @@ void LfpTrigAvgDisplay::setRange(float r)
     }
 }
 
-int LfpTrigAvgDisplay::getRange()
+int LfpTriggeredAverageDisplay::getRange()
 {
     return channels[0]->getRange();
 }
 
 
-void LfpTrigAvgDisplay::setChannelHeight(int r)
+void LfpTriggeredAverageDisplay::setChannelHeight(int r)
 {
 
     for (int i = 0; i < numChans; i++)
@@ -742,14 +742,14 @@ void LfpTrigAvgDisplay::setChannelHeight(int r)
 
 }
 
-int LfpTrigAvgDisplay::getChannelHeight()
+int LfpTriggeredAverageDisplay::getChannelHeight()
 {
     return channels[0]->getChannelHeight();
 }
 
 
 
-void LfpTrigAvgDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&   wheel)
+void LfpTriggeredAverageDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&   wheel)
 {
 
     //std::cout << "Mouse wheel " <<  e.mods.isCommandDown() << "  " << wheel.deltaY << std::endl;
@@ -802,7 +802,7 @@ void LfpTrigAvgDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDet
 }
 
 
-void LfpTrigAvgDisplay::mouseDown(const MouseEvent& event)
+void LfpTriggeredAverageDisplay::mouseDown(const MouseEvent& event)
 {
     //int y = event.getMouseDownY(); //relative to each channel pos
     MouseEvent canvasevent = event.getEventRelativeTo(viewport);
@@ -827,7 +827,7 @@ void LfpTrigAvgDisplay::mouseDown(const MouseEvent& event)
         }
     }
 
-    //LfpTrigAvgChannelDisplay* lcd = (LfpTrigAvgChannelDisplay*) event.eventComponent;
+    //LfpTriggeredAverageChannelDisplay* lcd = (LfpTriggeredAverageChannelDisplay*) event.eventComponent;
     //lcd->select();
 
     channels[closest]->select();
@@ -839,14 +839,14 @@ void LfpTrigAvgDisplay::mouseDown(const MouseEvent& event)
 }
 
 
-bool LfpTrigAvgDisplay::setEventDisplayState(int ch, bool state)
+bool LfpTriggeredAverageDisplay::setEventDisplayState(int ch, bool state)
 {
     eventDisplayEnabled[ch] = state;
     return eventDisplayEnabled[ch];
 }
 
 
-bool LfpTrigAvgDisplay::getEventDisplayState(int ch)
+bool LfpTriggeredAverageDisplay::getEventDisplayState(int ch)
 {
     return eventDisplayEnabled[ch];
 }
@@ -854,7 +854,7 @@ bool LfpTrigAvgDisplay::getEventDisplayState(int ch)
 
 // ------------------------------------------------------------------
 
-LfpTrigAvgChannelDisplay::LfpTrigAvgChannelDisplay(LfpTrigAvgCanvas* c, LfpTrigAvgDisplay* d, int channelNumber) :
+LfpTriggeredAverageChannelDisplay::LfpTriggeredAverageChannelDisplay(LfpTriggeredAverageCanvas* c, LfpTriggeredAverageDisplay* d, int channelNumber) :
     canvas(c), display(d), isSelected(false), chan(channelNumber), channelHeight(40), channelOverlap(300), range(1000.0f)
 {
 
@@ -870,12 +870,12 @@ LfpTrigAvgChannelDisplay::LfpTrigAvgChannelDisplay(LfpTrigAvgCanvas* c, LfpTrigA
 
 }
 
-LfpTrigAvgChannelDisplay::~LfpTrigAvgChannelDisplay()
+LfpTriggeredAverageChannelDisplay::~LfpTriggeredAverageChannelDisplay()
 {
 
 }
 
-void LfpTrigAvgChannelDisplay::paint(Graphics& g)
+void LfpTriggeredAverageChannelDisplay::paint(Graphics& g)
 {
 
     //g.fillAll(Colours::grey);
@@ -1013,36 +1013,36 @@ void LfpTrigAvgChannelDisplay::paint(Graphics& g)
 
 
 
-void LfpTrigAvgChannelDisplay::setRange(float r)
+void LfpTriggeredAverageChannelDisplay::setRange(float r)
 {
     range = r;
 
     //std::cout << "Range: " << r << std::endl;
 }
 
-int LfpTrigAvgChannelDisplay::getRange()
+int LfpTriggeredAverageChannelDisplay::getRange()
 {
     return range;
 }
 
 
-void LfpTrigAvgChannelDisplay::select()
+void LfpTriggeredAverageChannelDisplay::select()
 {
     isSelected = true;
 }
 
-void LfpTrigAvgChannelDisplay::deselect()
+void LfpTriggeredAverageChannelDisplay::deselect()
 {
     isSelected = false;
 }
 
-void LfpTrigAvgChannelDisplay::setColour(Colour c)
+void LfpTriggeredAverageChannelDisplay::setColour(Colour c)
 {
     lineColour = c;
 }
 
 
-void LfpTrigAvgChannelDisplay::setChannelHeight(int c)
+void LfpTriggeredAverageChannelDisplay::setChannelHeight(int c)
 {
     channelHeight = c;
     channelHeightFloat = (float) channelHeight;
@@ -1050,37 +1050,37 @@ void LfpTrigAvgChannelDisplay::setChannelHeight(int c)
     channelOverlap = channelHeight *5;
 }
 
-int LfpTrigAvgChannelDisplay::getChannelHeight()
+int LfpTriggeredAverageChannelDisplay::getChannelHeight()
 {
 
     return channelHeight;
 }
 
-void LfpTrigAvgChannelDisplay::setChannelOverlap(int overlap)
+void LfpTriggeredAverageChannelDisplay::setChannelOverlap(int overlap)
 {
     channelOverlap = overlap;
 }
 
 
-int LfpTrigAvgChannelDisplay::getChannelOverlap()
+int LfpTriggeredAverageChannelDisplay::getChannelOverlap()
 {
     return channelOverlap;
 }
 
-void LfpTrigAvgChannelDisplay::setName(String name_)
+void LfpTriggeredAverageChannelDisplay::setName(String name_)
 {
     name = name_;
 }
 
 // -------------------------------
 
-LfpTrigAvgChannelDisplayInfo::LfpTrigAvgChannelDisplayInfo(LfpTrigAvgCanvas* canvas_, LfpTrigAvgDisplay* display_, int ch)
-    : LfpTrigAvgChannelDisplay(canvas_, display_, ch)
+LfpTriggeredAverageChannelDisplayInfo::LfpTriggeredAverageChannelDisplayInfo(LfpTriggeredAverageCanvas* canvas_, LfpTriggeredAverageDisplay* display_, int ch)
+    : LfpTriggeredAverageChannelDisplay(canvas_, display_, ch)
 {
 
 }
 
-void LfpTrigAvgChannelDisplayInfo::paint(Graphics& g)
+void LfpTriggeredAverageChannelDisplayInfo::paint(Graphics& g)
 {
 
 
@@ -1099,7 +1099,7 @@ void LfpTrigAvgChannelDisplayInfo::paint(Graphics& g)
 
 // Event display Options --------------------------------------------------------------------
 
-LfpTrigAvgEventInterface::LfpTrigAvgEventInterface(LfpTrigAvgDisplay* display_, LfpTrigAvgCanvas* canvas_, int chNum):
+LfpTriggeredAverageEventInterface::LfpTriggeredAverageEventInterface(LfpTriggeredAverageDisplay* display_, LfpTriggeredAverageCanvas* canvas_, int chNum):
     isEnabled(true), display(display_), canvas(canvas_)
 {
 
@@ -1119,19 +1119,19 @@ LfpTrigAvgEventInterface::LfpTrigAvgEventInterface(LfpTrigAvgDisplay* display_, 
 
 }
 
-LfpTrigAvgEventInterface::~LfpTrigAvgEventInterface()
+LfpTriggeredAverageEventInterface::~LfpTriggeredAverageEventInterface()
 {
 
 }
 
-void LfpTrigAvgEventInterface::checkEnabledState()
+void LfpTriggeredAverageEventInterface::checkEnabledState()
 {
     isEnabled = display->getEventDisplayState(channelNumber);
 
     //repaint();
 }
 
-void LfpTrigAvgEventInterface::buttonClicked(Button* button)
+void LfpTriggeredAverageEventInterface::buttonClicked(Button* button)
 {
     checkEnabledState();
     if (isEnabled)
@@ -1148,7 +1148,7 @@ void LfpTrigAvgEventInterface::buttonClicked(Button* button)
 }
 
 
-void LfpTrigAvgEventInterface::paint(Graphics& g)
+void LfpTriggeredAverageEventInterface::paint(Graphics& g)
 {
 
     checkEnabledState();
