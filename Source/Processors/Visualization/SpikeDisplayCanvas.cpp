@@ -902,19 +902,12 @@ bool WaveAxes::updateSpikeData(const SpikeObject& s)
 
     SpikeObject newSpike = s;
 
-    //if (checkThreshold(newSpike))
-    //{
-        spikeIndex++;
-        spikeIndex %= bufferSize;
+    spikeIndex++;
+    spikeIndex %= bufferSize;
 
-        spikeBuffer.set(spikeIndex, newSpike); 
-    //    return true;
+    spikeBuffer.set(spikeIndex, newSpike);
 
-   // } else {
-   //     return false;
-   // }
-
-
+    return true;
     
 }
 
