@@ -69,6 +69,7 @@ ProcessorList::ProcessorList()
 
     ProcessorListItem* sinks = new ProcessorListItem("Sinks");
     sinks->addSubItem(new ProcessorListItem("LFP Viewer"));
+    //sinks->addSubItem(new ProcessorListItem("LFP Trig. Avg."));
     sinks->addSubItem(new ProcessorListItem("Spike Viewer"));
     //sinks->addSubItem(new ProcessorListItem("WiFi Output"));
     //sinks->addSubItem(new ProcessorListItem("Arduino Output"));

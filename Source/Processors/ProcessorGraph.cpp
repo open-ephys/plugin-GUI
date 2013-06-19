@@ -27,6 +27,7 @@
 
 #include "AudioNode.h"
 #include "LfpDisplayNode.h"
+#include "LfpTriggeredAverageNode.h"
 #include "SpikeDisplayNode.h"
 #include "EventNode.h"
 #include "FilterNode.h"
@@ -557,6 +558,12 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             // processor->setDataViewport(getDataViewport());
             //processor->setUIComponent(UI);
         }
+        else if (subProcessorType.equalsIgnoreCase("LFP Trig. Avg."))
+        {
+            std::cout << "Creating an LfpTrigAvgNode." << std::endl;
+            processor = new LfpTrigAvgNode();
+        }                   
+        
         else if (subProcessorType.equalsIgnoreCase("Spike Viewer"))
         {
             std::cout << "Creating an SpikeDisplayNode." << std::endl;
