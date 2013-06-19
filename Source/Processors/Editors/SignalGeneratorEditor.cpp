@@ -148,14 +148,14 @@ void SignalGeneratorEditor::buttonEvent(Button* button)
 
     if (button == upButton)
     {
-        numChannelsLabel->setText(String(++num), NotificationType::dontSendNotification);
+        numChannelsLabel->setText(String(++num), dontSendNotification);
 
     }
     else if (button == downButton)
     {
 
         if (num > 1)
-            numChannelsLabel->setText(String(--num), NotificationType::dontSendNotification);
+            numChannelsLabel->setText(String(--num), dontSendNotification);
 
     }
 }
