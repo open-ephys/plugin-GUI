@@ -63,6 +63,7 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/LfpTriggeredAverageNode_ff52d7b9.o \
   $(OBJDIR)/FileReader_18023b0e.o \
   $(OBJDIR)/ChannelMappingNode_d9219b9c.o \
   $(OBJDIR)/PulsePalOutput_9f4ef492.o \
@@ -83,6 +84,7 @@ OBJECTS := \
   $(OBJDIR)/RecordControl_3e1c6062.o \
   $(OBJDIR)/Merger_2f90542e.o \
   $(OBJDIR)/Splitter_6e27a57b.o \
+  $(OBJDIR)/LfpTriggeredAverageCanvas_50148944.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/SpikeDisplayCanvas_b208ff6e.o \
   $(OBJDIR)/DataWindow_83ce6754.o \
@@ -91,6 +93,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/LfpTriggeredAverageEditor_101d75b.o \
   $(OBJDIR)/ChannelMappingEditor_dd803b0.o \
   $(OBJDIR)/FileReaderEditor_16fd7744.o \
   $(OBJDIR)/PhaseDetectorEditor_f53aa520.o \
@@ -281,6 +284,11 @@ $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	@echo "Compiling AudioComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/LfpTriggeredAverageNode_ff52d7b9.o: ../../Source/Processors/LfpTriggeredAverageNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LfpTriggeredAverageNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/FileReader_18023b0e.o: ../../Source/Processors/FileReader.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling FileReader.cpp"
@@ -381,6 +389,11 @@ $(OBJDIR)/Splitter_6e27a57b.o: ../../Source/Processors/Utilities/Splitter.cpp
 	@echo "Compiling Splitter.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/LfpTriggeredAverageCanvas_50148944.o: ../../Source/Processors/Visualization/LfpTriggeredAverageCanvas.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LfpTriggeredAverageCanvas.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/SpikeObject_24e8c655.o: ../../Source/Processors/Visualization/SpikeObject.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SpikeObject.cpp"
@@ -419,6 +432,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/LfpTriggeredAverageEditor_101d75b.o: ../../Source/Processors/Editors/LfpTriggeredAverageEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LfpTriggeredAverageEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ChannelMappingEditor_dd803b0.o: ../../Source/Processors/Editors/ChannelMappingEditor.cpp

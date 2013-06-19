@@ -27,6 +27,7 @@
 
 #include "AudioNode.h"
 #include "LfpDisplayNode.h"
+#include "LfpTriggeredAverageNode.h"
 #include "SpikeDisplayNode.h"
 #include "EventNode.h"
 #include "FilterNode.h"
@@ -557,6 +558,12 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             // processor->setDataViewport(getDataViewport());
             //processor->setUIComponent(UI);
         }
+        else if (subProcessorType.equalsIgnoreCase("LFP Trig. Avg."))
+        {
+            std::cout << "Creating an LfpTrigAvgNode." << std::endl;
+            processor = new LfpTrigAvgNode();
+        }                   
+        
         else if (subProcessorType.equalsIgnoreCase("Spike Viewer"))
         {
             std::cout << "Creating an SpikeDisplayNode." << std::endl;
@@ -701,6 +708,38 @@ bool ProcessorGraph::disableProcessors()
     //	sendActionMessage("Acquisition ended.");
 
     return true;
+}
+
+void ProcessorGraph::setRecordState(bool isRecording)
+{
+
+   // const MessageManagerLock mmLock; // lock the message manager to prevent rendering crashes
+    
+    // inform other processors that recording will begin
+    
+    for (int i = 0; i < getNumNodes(); i++)
+    {
+        Node* node = getNode(i);
+        if (node->nodeId != OUTPUT_NODE_ID)
+        {
+            GenericProcessor* p = (GenericProcessor*) node->getProcessor();
+            
+            if (isRecording)
+                p->startRecording();
+            else
+                p->stopRecording();
+            
+        }
+    }
+    
+    // actually start recording
+    if (isRecording)
+    {
+        getRecordNode()->setParameter(1,10.0f);
+    } else {
+        getRecordNode()->setParameter(0,10.0f);
+    }
+    
 }
 
 

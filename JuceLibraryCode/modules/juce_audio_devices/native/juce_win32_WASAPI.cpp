@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -44,36 +43,38 @@ void logFailure (HRESULT hr)
 
         switch (hr)
         {
-            case E_POINTER:                                 m = "E_POINTER"; break;
-            case E_INVALIDARG:                              m = "E_INVALIDARG"; break;
-            case AUDCLNT_E_NOT_INITIALIZED:                 m = "AUDCLNT_E_NOT_INITIALIZED"; break;
-            case AUDCLNT_E_ALREADY_INITIALIZED:             m = "AUDCLNT_E_ALREADY_INITIALIZED"; break;
-            case AUDCLNT_E_WRONG_ENDPOINT_TYPE:             m = "AUDCLNT_E_WRONG_ENDPOINT_TYPE"; break;
-            case AUDCLNT_E_DEVICE_INVALIDATED:              m = "AUDCLNT_E_DEVICE_INVALIDATED"; break;
-            case AUDCLNT_E_NOT_STOPPED:                     m = "AUDCLNT_E_NOT_STOPPED"; break;
-            case AUDCLNT_E_BUFFER_TOO_LARGE:                m = "AUDCLNT_E_BUFFER_TOO_LARGE"; break;
-            case AUDCLNT_E_OUT_OF_ORDER:                    m = "AUDCLNT_E_OUT_OF_ORDER"; break;
-            case AUDCLNT_E_UNSUPPORTED_FORMAT:              m = "AUDCLNT_E_UNSUPPORTED_FORMAT"; break;
-            case AUDCLNT_E_INVALID_SIZE:                    m = "AUDCLNT_E_INVALID_SIZE"; break;
-            case AUDCLNT_E_DEVICE_IN_USE:                   m = "AUDCLNT_E_DEVICE_IN_USE"; break;
-            case AUDCLNT_E_BUFFER_OPERATION_PENDING:        m = "AUDCLNT_E_BUFFER_OPERATION_PENDING"; break;
-            case AUDCLNT_E_THREAD_NOT_REGISTERED:           m = "AUDCLNT_E_THREAD_NOT_REGISTERED"; break;
-            case AUDCLNT_E_EXCLUSIVE_MODE_NOT_ALLOWED:      m = "AUDCLNT_E_EXCLUSIVE_MODE_NOT_ALLOWED"; break;
-            case AUDCLNT_E_ENDPOINT_CREATE_FAILED:          m = "AUDCLNT_E_ENDPOINT_CREATE_FAILED"; break;
-            case AUDCLNT_E_SERVICE_NOT_RUNNING:             m = "AUDCLNT_E_SERVICE_NOT_RUNNING"; break;
-            case AUDCLNT_E_EVENTHANDLE_NOT_EXPECTED:        m = "AUDCLNT_E_EVENTHANDLE_NOT_EXPECTED"; break;
-            case AUDCLNT_E_EXCLUSIVE_MODE_ONLY:             m = "AUDCLNT_E_EXCLUSIVE_MODE_ONLY"; break;
-            case AUDCLNT_E_BUFDURATION_PERIOD_NOT_EQUAL:    m = "AUDCLNT_E_BUFDURATION_PERIOD_NOT_EQUAL"; break;
-            case AUDCLNT_E_EVENTHANDLE_NOT_SET:             m = "AUDCLNT_E_EVENTHANDLE_NOT_SET"; break;
-            case AUDCLNT_E_INCORRECT_BUFFER_SIZE:           m = "AUDCLNT_E_INCORRECT_BUFFER_SIZE"; break;
-            case AUDCLNT_E_BUFFER_SIZE_ERROR:               m = "AUDCLNT_E_BUFFER_SIZE_ERROR"; break;
-            case AUDCLNT_E_CPUUSAGE_EXCEEDED:               m = "AUDCLNT_E_CPUUSAGE_EXCEEDED"; break;
-            case AUDCLNT_E_BUFFER_ERROR:                    m = "AUDCLNT_E_BUFFER_ERROR"; break;
-            case AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED:         m = "AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED"; break;
-            case AUDCLNT_E_INVALID_DEVICE_PERIOD:           m = "AUDCLNT_E_INVALID_DEVICE_PERIOD"; break;
-            case AUDCLNT_S_BUFFER_EMPTY:                    m = "AUDCLNT_S_BUFFER_EMPTY"; break;
-            case AUDCLNT_S_THREAD_ALREADY_REGISTERED:       m = "AUDCLNT_S_THREAD_ALREADY_REGISTERED"; break;
-            default:                                        break;
+            case E_POINTER:     m = "E_POINTER"; break;
+            case E_INVALIDARG:  m = "E_INVALIDARG"; break;
+
+            #define JUCE_WASAPI_ERR(desc, n) \
+                case MAKE_HRESULT(1, 0x889, n): m = #desc; break;
+
+            JUCE_WASAPI_ERR (AUDCLNT_E_NOT_INITIALIZED, 0x001)
+            JUCE_WASAPI_ERR (AUDCLNT_E_ALREADY_INITIALIZED, 0x002)
+            JUCE_WASAPI_ERR (AUDCLNT_E_WRONG_ENDPOINT_TYPE, 0x003)
+            JUCE_WASAPI_ERR (AUDCLNT_E_DEVICE_INVALIDATED, 0x004)
+            JUCE_WASAPI_ERR (AUDCLNT_E_NOT_STOPPED, 0x005)
+            JUCE_WASAPI_ERR (AUDCLNT_E_BUFFER_TOO_LARGE, 0x006)
+            JUCE_WASAPI_ERR (AUDCLNT_E_OUT_OF_ORDER, 0x007)
+            JUCE_WASAPI_ERR (AUDCLNT_E_UNSUPPORTED_FORMAT, 0x008)
+            JUCE_WASAPI_ERR (AUDCLNT_E_INVALID_SIZE, 0x009)
+            JUCE_WASAPI_ERR (AUDCLNT_E_DEVICE_IN_USE, 0x00a)
+            JUCE_WASAPI_ERR (AUDCLNT_E_BUFFER_OPERATION_PENDING, 0x00b)
+            JUCE_WASAPI_ERR (AUDCLNT_E_THREAD_NOT_REGISTERED, 0x00c)
+            JUCE_WASAPI_ERR (AUDCLNT_E_EXCLUSIVE_MODE_NOT_ALLOWED, 0x00e)
+            JUCE_WASAPI_ERR (AUDCLNT_E_ENDPOINT_CREATE_FAILED, 0x00f)
+            JUCE_WASAPI_ERR (AUDCLNT_E_SERVICE_NOT_RUNNING, 0x010)
+            JUCE_WASAPI_ERR (AUDCLNT_E_EVENTHANDLE_NOT_EXPECTED, 0x011)
+            JUCE_WASAPI_ERR (AUDCLNT_E_EXCLUSIVE_MODE_ONLY, 0x012)
+            JUCE_WASAPI_ERR (AUDCLNT_E_BUFDURATION_PERIOD_NOT_EQUAL, 0x013)
+            JUCE_WASAPI_ERR (AUDCLNT_E_EVENTHANDLE_NOT_SET, 0x014)
+            JUCE_WASAPI_ERR (AUDCLNT_E_INCORRECT_BUFFER_SIZE, 0x015)
+            JUCE_WASAPI_ERR (AUDCLNT_E_BUFFER_SIZE_ERROR, 0x016)
+            JUCE_WASAPI_ERR (AUDCLNT_E_CPUUSAGE_EXCEEDED, 0x017)
+            JUCE_WASAPI_ERR (AUDCLNT_E_BUFFER_ERROR, 0x018)
+            JUCE_WASAPI_ERR (AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED, 0x019)
+            JUCE_WASAPI_ERR (AUDCLNT_E_INVALID_DEVICE_PERIOD, 0x020)
+            default: break;
         }
 
         Logger::writeToLog ("WASAPI error: " + (m != nullptr ? String (m)
@@ -91,63 +92,212 @@ bool check (HRESULT hr)
 }
 
 //==============================================================================
-namespace
-{
-    enum EDataFlow
-    {
-        eRender = 0,
-        eCapture = (eRender + 1),
-        eAll = (eCapture + 1)
-    };
-
-    enum { DEVICE_STATE_ACTIVE = 1 };
-
-    struct __declspec (uuid ("D666063F-1587-4E43-81F1-B948E807363F")) IMMDevice : public IUnknown
-    {
-        virtual HRESULT STDMETHODCALLTYPE Activate(REFIID, DWORD, PROPVARIANT*, void**) = 0;
-        virtual HRESULT STDMETHODCALLTYPE OpenPropertyStore(DWORD, IPropertyStore**) = 0;
-        virtual HRESULT STDMETHODCALLTYPE GetId(LPWSTR*) = 0;
-        virtual HRESULT STDMETHODCALLTYPE GetState(DWORD*) = 0;
-    };
-
-    struct __declspec (uuid ("1BE09788-6894-4089-8586-9A2A6C265AC5")) IMMEndpoint : public IUnknown
-    {
-        virtual HRESULT STDMETHODCALLTYPE GetDataFlow(EDataFlow*) = 0;
-    };
-
-    struct IMMDeviceCollection : public IUnknown
-    {
-        virtual HRESULT STDMETHODCALLTYPE GetCount(UINT*) = 0;
-        virtual HRESULT STDMETHODCALLTYPE Item(UINT, IMMDevice**) = 0;
-    };
-
-    enum ERole
-    {
-        eConsole = 0,
-        eMultimedia = (eConsole + 1),
-        eCommunications = (eMultimedia + 1)
-    };
-
-    struct __declspec (uuid ("7991EEC9-7E89-4D85-8390-6C703CEC60C0")) IMMNotificationClient : public IUnknown
-    {
-        virtual HRESULT STDMETHODCALLTYPE OnDeviceStateChanged(LPCWSTR, DWORD) = 0;
-        virtual HRESULT STDMETHODCALLTYPE OnDeviceAdded(LPCWSTR) = 0;
-        virtual HRESULT STDMETHODCALLTYPE OnDeviceRemoved(LPCWSTR) = 0;
-        virtual HRESULT STDMETHODCALLTYPE OnDefaultDeviceChanged(EDataFlow, ERole, LPCWSTR) = 0;
-        virtual HRESULT STDMETHODCALLTYPE OnPropertyValueChanged(LPCWSTR, const PROPERTYKEY) = 0;
-    };
-
-    struct __declspec (uuid ("A95664D2-9614-4F35-A746-DE8DB63617E6")) IMMDeviceEnumerator : public IUnknown
-    {
-        virtual HRESULT STDMETHODCALLTYPE EnumAudioEndpoints(EDataFlow, DWORD, IMMDeviceCollection**) = 0;
-        virtual HRESULT STDMETHODCALLTYPE GetDefaultAudioEndpoint(EDataFlow, ERole, IMMDevice**) = 0;
-        virtual HRESULT STDMETHODCALLTYPE GetDevice(LPCWSTR, IMMDevice**) = 0;
-        virtual HRESULT STDMETHODCALLTYPE RegisterEndpointNotificationCallback(IMMNotificationClient*) = 0;
-        virtual HRESULT STDMETHODCALLTYPE UnregisterEndpointNotificationCallback(IMMNotificationClient*) = 0;
-    };
-
-    struct __declspec (uuid ("BCDE0395-E52F-467C-8E3D-C4579291692E")) MMDeviceEnumerator;
 }
+
+#if JUCE_MINGW
+ #define JUCE_COMCLASS(name, guid) \
+    struct name; \
+    template<> struct UUIDGetter<name>   { static CLSID get() { return uuidFromString (guid); } }; \
+    struct name
+
+ struct PROPERTYKEY
+ {
+    GUID fmtid;
+    DWORD pid;
+ };
+
+ WINOLEAPI PropVariantClear (PROPVARIANT*);
+#else
+ #define JUCE_COMCLASS(name, guid)       struct __declspec (uuid (guid)) name
+#endif
+
+#ifndef KSDATAFORMAT_SUBTYPE_PCM
+ #define KSDATAFORMAT_SUBTYPE_PCM         uuidFromString ("00000001-0000-0010-8000-00aa00389b71")
+ #define KSDATAFORMAT_SUBTYPE_IEEE_FLOAT  uuidFromString ("00000003-0000-0010-8000-00aa00389b71")
+#endif
+
+#define JUCE_IUNKNOWNCLASS(name, guid)   JUCE_COMCLASS(name, guid) : public IUnknown
+#define JUCE_COMCALL                     virtual HRESULT STDMETHODCALLTYPE
+
+enum EDataFlow
+{
+    eRender = 0,
+    eCapture = (eRender + 1),
+    eAll = (eCapture + 1)
+};
+
+enum { DEVICE_STATE_ACTIVE = 1 };
+
+JUCE_IUNKNOWNCLASS (IPropertyStore, "886d8eeb-8cf2-4446-8d02-cdba1dbdcf99")
+{
+    JUCE_COMCALL GetCount (DWORD*) = 0;
+    JUCE_COMCALL GetAt (DWORD, PROPERTYKEY*) = 0;
+    JUCE_COMCALL GetValue (const PROPERTYKEY&, PROPVARIANT*) = 0;
+    JUCE_COMCALL SetValue (const PROPERTYKEY&, const PROPVARIANT&) = 0;
+    JUCE_COMCALL Commit() = 0;
+};
+
+JUCE_IUNKNOWNCLASS (IMMDevice, "D666063F-1587-4E43-81F1-B948E807363F")
+{
+    JUCE_COMCALL Activate (REFIID, DWORD, PROPVARIANT*, void**) = 0;
+    JUCE_COMCALL OpenPropertyStore (DWORD, IPropertyStore**) = 0;
+    JUCE_COMCALL GetId (LPWSTR*) = 0;
+    JUCE_COMCALL GetState (DWORD*) = 0;
+};
+
+JUCE_IUNKNOWNCLASS (IMMEndpoint, "1BE09788-6894-4089-8586-9A2A6C265AC5")
+{
+    JUCE_COMCALL GetDataFlow (EDataFlow*) = 0;
+};
+
+struct IMMDeviceCollection : public IUnknown
+{
+    JUCE_COMCALL GetCount (UINT*) = 0;
+    JUCE_COMCALL Item (UINT, IMMDevice**) = 0;
+};
+
+enum ERole
+{
+    eConsole = 0,
+    eMultimedia = (eConsole + 1),
+    eCommunications = (eMultimedia + 1)
+};
+
+JUCE_IUNKNOWNCLASS (IMMNotificationClient, "7991EEC9-7E89-4D85-8390-6C703CEC60C0")
+{
+    JUCE_COMCALL OnDeviceStateChanged (LPCWSTR, DWORD) = 0;
+    JUCE_COMCALL OnDeviceAdded (LPCWSTR) = 0;
+    JUCE_COMCALL OnDeviceRemoved (LPCWSTR) = 0;
+    JUCE_COMCALL OnDefaultDeviceChanged (EDataFlow, ERole, LPCWSTR) = 0;
+    JUCE_COMCALL OnPropertyValueChanged (LPCWSTR, const PROPERTYKEY) = 0;
+};
+
+JUCE_IUNKNOWNCLASS (IMMDeviceEnumerator, "A95664D2-9614-4F35-A746-DE8DB63617E6")
+{
+    JUCE_COMCALL EnumAudioEndpoints (EDataFlow, DWORD, IMMDeviceCollection**) = 0;
+    JUCE_COMCALL GetDefaultAudioEndpoint (EDataFlow, ERole, IMMDevice**) = 0;
+    JUCE_COMCALL GetDevice (LPCWSTR, IMMDevice**) = 0;
+    JUCE_COMCALL RegisterEndpointNotificationCallback (IMMNotificationClient*) = 0;
+    JUCE_COMCALL UnregisterEndpointNotificationCallback (IMMNotificationClient*) = 0;
+};
+
+JUCE_COMCLASS (MMDeviceEnumerator, "BCDE0395-E52F-467C-8E3D-C4579291692E");
+
+typedef LONGLONG REFERENCE_TIME;
+
+enum AVRT_PRIORITY
+{
+    AVRT_PRIORITY_LOW = -1,
+    AVRT_PRIORITY_NORMAL,
+    AVRT_PRIORITY_HIGH,
+    AVRT_PRIORITY_CRITICAL
+};
+
+enum AUDCLNT_SHAREMODE
+{
+    AUDCLNT_SHAREMODE_SHARED,
+    AUDCLNT_SHAREMODE_EXCLUSIVE
+};
+
+JUCE_IUNKNOWNCLASS (IAudioClient, "1CB9AD4C-DBFA-4c32-B178-C2F568A703B2")
+{
+    JUCE_COMCALL Initialize (AUDCLNT_SHAREMODE, DWORD, REFERENCE_TIME, REFERENCE_TIME, const WAVEFORMATEX*, LPCGUID) = 0;
+    JUCE_COMCALL GetBufferSize (UINT32*) = 0;
+    JUCE_COMCALL GetStreamLatency (REFERENCE_TIME*) = 0;
+    JUCE_COMCALL GetCurrentPadding (UINT32*) = 0;
+    JUCE_COMCALL IsFormatSupported (AUDCLNT_SHAREMODE, const WAVEFORMATEX*, WAVEFORMATEX**) = 0;
+    JUCE_COMCALL GetMixFormat (WAVEFORMATEX**) = 0;
+    JUCE_COMCALL GetDevicePeriod (REFERENCE_TIME*, REFERENCE_TIME*) = 0;
+    JUCE_COMCALL Start() = 0;
+    JUCE_COMCALL Stop() = 0;
+    JUCE_COMCALL Reset() = 0;
+    JUCE_COMCALL SetEventHandle (HANDLE) = 0;
+    JUCE_COMCALL GetService (REFIID, void**) = 0;
+};
+
+JUCE_IUNKNOWNCLASS (IAudioCaptureClient, "C8ADBD64-E71E-48a0-A4DE-185C395CD317")
+{
+    JUCE_COMCALL GetBuffer (BYTE**, UINT32*, DWORD*, UINT64*, UINT64*) = 0;
+    JUCE_COMCALL ReleaseBuffer (UINT32) = 0;
+    JUCE_COMCALL GetNextPacketSize (UINT32*) = 0;
+};
+
+JUCE_IUNKNOWNCLASS (IAudioRenderClient, "F294ACFC-3146-4483-A7BF-ADDCA7C260E2")
+{
+    JUCE_COMCALL GetBuffer (UINT32, BYTE**) = 0;
+    JUCE_COMCALL ReleaseBuffer (UINT32, DWORD) = 0;
+};
+
+JUCE_IUNKNOWNCLASS (IAudioEndpointVolume, "5CDF2C82-841E-4546-9722-0CF74078229A")
+{
+    JUCE_COMCALL RegisterControlChangeNotify (void*) = 0;
+    JUCE_COMCALL UnregisterControlChangeNotify (void*) = 0;
+    JUCE_COMCALL GetChannelCount (UINT*) = 0;
+    JUCE_COMCALL SetMasterVolumeLevel (float, LPCGUID) = 0;
+    JUCE_COMCALL SetMasterVolumeLevelScalar (float, LPCGUID) = 0;
+    JUCE_COMCALL GetMasterVolumeLevel (float*) = 0;
+    JUCE_COMCALL GetMasterVolumeLevelScalar (float*) = 0;
+    JUCE_COMCALL SetChannelVolumeLevel (UINT, float, LPCGUID) = 0;
+    JUCE_COMCALL SetChannelVolumeLevelScalar (UINT, float, LPCGUID) = 0;
+    JUCE_COMCALL GetChannelVolumeLevel (UINT, float*) = 0;
+    JUCE_COMCALL GetChannelVolumeLevelScalar (UINT, float*) = 0;
+    JUCE_COMCALL SetMute (BOOL, LPCGUID) = 0;
+    JUCE_COMCALL GetMute (BOOL*) = 0;
+    JUCE_COMCALL GetVolumeStepInfo (UINT*, UINT*) = 0;
+    JUCE_COMCALL VolumeStepUp (LPCGUID) = 0;
+    JUCE_COMCALL VolumeStepDown (LPCGUID) = 0;
+    JUCE_COMCALL QueryHardwareSupport (DWORD*) = 0;
+    JUCE_COMCALL GetVolumeRange (float*, float*, float*) = 0;
+};
+
+enum AudioSessionDisconnectReason
+{
+    DisconnectReasonDeviceRemoval         = 0,
+    DisconnectReasonServerShutdown        = 1,
+    DisconnectReasonFormatChanged         = 2,
+    DisconnectReasonSessionLogoff         = 3,
+    DisconnectReasonSessionDisconnected   = 4,
+    DisconnectReasonExclusiveModeOverride = 5
+};
+
+enum AudioSessionState
+{
+    AudioSessionStateInactive = 0,
+    AudioSessionStateActive   = 1,
+    AudioSessionStateExpired  = 2
+};
+
+JUCE_IUNKNOWNCLASS (IAudioSessionEvents, "24918ACC-64B3-37C1-8CA9-74A66E9957A8")
+{
+    JUCE_COMCALL OnDisplayNameChanged (LPCWSTR, LPCGUID) = 0;
+    JUCE_COMCALL OnIconPathChanged (LPCWSTR, LPCGUID) = 0;
+    JUCE_COMCALL OnSimpleVolumeChanged (float, BOOL, LPCGUID) = 0;
+    JUCE_COMCALL OnChannelVolumeChanged (DWORD, float*, DWORD, LPCGUID) = 0;
+    JUCE_COMCALL OnGroupingParamChanged (LPCGUID, LPCGUID) = 0;
+    JUCE_COMCALL OnStateChanged (AudioSessionState) = 0;
+    JUCE_COMCALL OnSessionDisconnected (AudioSessionDisconnectReason) = 0;
+};
+
+JUCE_IUNKNOWNCLASS (IAudioSessionControl, "F4B1A599-7266-4319-A8CA-E70ACB11E8CD")
+{
+    JUCE_COMCALL GetState (AudioSessionState*) = 0;
+    JUCE_COMCALL GetDisplayName (LPWSTR*) = 0;
+    JUCE_COMCALL SetDisplayName (LPCWSTR, LPCGUID) = 0;
+    JUCE_COMCALL GetIconPath (LPWSTR*) = 0;
+    JUCE_COMCALL SetIconPath (LPCWSTR, LPCGUID) = 0;
+    JUCE_COMCALL GetGroupingParam (GUID*) = 0;
+    JUCE_COMCALL SetGroupingParam (LPCGUID, LPCGUID) = 0;
+    JUCE_COMCALL RegisterAudioSessionNotification (IAudioSessionEvents*) = 0;
+    JUCE_COMCALL UnregisterAudioSessionNotification (IAudioSessionEvents*) = 0;
+};
+
+#undef JUCE_COMCALL
+#undef JUCE_COMCLASS
+#undef JUCE_IUNKNOWNCLASS
+
+//==============================================================================
+namespace WasapiClasses
+{
 
 String getDeviceID (IMMDevice* const device)
 {
@@ -175,7 +325,7 @@ EDataFlow getDataFlow (const ComSmartPtr<IMMDevice>& device)
 
 int refTimeToSamples (const REFERENCE_TIME& t, const double sampleRate) noexcept
 {
-    return roundDoubleToInt (sampleRate * ((double) t) * 0.0000001);
+    return roundToInt (sampleRate * ((double) t) * 0.0000001);
 }
 
 void copyWavFormat (WAVEFORMATEXTENSIBLE& dest, const WAVEFORMATEX* const src) noexcept
@@ -222,6 +372,7 @@ public:
         defaultSampleRate = format.Format.nSamplesPerSec;
         minBufferSize = refTimeToSamples (minPeriod, defaultSampleRate);
         defaultBufferSize = refTimeToSamples (defaultPeriod, defaultSampleRate);
+        mixFormatChannelMask = format.dwChannelMask;
 
         rates.addUsingDefaultSort (defaultSampleRate);
 
@@ -241,7 +392,7 @@ public:
         }
     }
 
-    ~WASAPIDeviceBase()
+    virtual ~WASAPIDeviceBase()
     {
         device = nullptr;
         CloseHandle (clientEvent);
@@ -307,6 +458,7 @@ public:
     double sampleRate, defaultSampleRate;
     int numChannels, actualNumChannels;
     int minBufferSize, defaultBufferSize, latencySamples;
+    DWORD mixFormatChannelMask;
     const bool useExclusiveMode;
     Array <double> rates;
     HANDLE clientEvent;
@@ -323,7 +475,7 @@ private:
     class SessionEventCallback  : public ComBaseClassHelper <IAudioSessionEvents>
     {
     public:
-        SessionEventCallback (WASAPIDeviceBase& owner_) : owner (owner_) {}
+        SessionEventCallback (WASAPIDeviceBase& d) : owner (d) {}
 
         JUCE_COMRESULT OnDisplayNameChanged (LPCWSTR, LPCGUID)                 { return S_OK; }
         JUCE_COMRESULT OnIconPathChanged (LPCWSTR, LPCGUID)                    { return S_OK; }
@@ -389,7 +541,8 @@ private:
 
     bool tryInitialisingWithFormat (const bool useFloat, const int bytesPerSampleToTry)
     {
-        WAVEFORMATEXTENSIBLE format = { 0 };
+        WAVEFORMATEXTENSIBLE format;
+        zerostruct (format);
 
         if (numChannels <= 2 && bytesPerSampleToTry <= 2)
         {
@@ -401,28 +554,21 @@ private:
             format.Format.cbSize = sizeof (WAVEFORMATEXTENSIBLE) - sizeof (WAVEFORMATEX);
         }
 
-        format.Format.nSamplesPerSec = (DWORD) roundDoubleToInt (sampleRate);
-        format.Format.nChannels = (WORD) numChannels;
-        format.Format.wBitsPerSample = (WORD) (8 * bytesPerSampleToTry);
-        format.Format.nAvgBytesPerSec = (DWORD) (format.Format.nSamplesPerSec * numChannels * bytesPerSampleToTry);
-        format.Format.nBlockAlign = (WORD) (numChannels * bytesPerSampleToTry);
-        format.SubFormat = useFloat ? KSDATAFORMAT_SUBTYPE_IEEE_FLOAT : KSDATAFORMAT_SUBTYPE_PCM;
+        format.Format.nSamplesPerSec       = (DWORD) sampleRate;
+        format.Format.nChannels            = (WORD) numChannels;
+        format.Format.wBitsPerSample       = (WORD) (8 * bytesPerSampleToTry);
+        format.Format.nAvgBytesPerSec      = (DWORD) (format.Format.nSamplesPerSec * numChannels * bytesPerSampleToTry);
+        format.Format.nBlockAlign          = (WORD) (numChannels * bytesPerSampleToTry);
+        format.SubFormat                   = useFloat ? KSDATAFORMAT_SUBTYPE_IEEE_FLOAT : KSDATAFORMAT_SUBTYPE_PCM;
         format.Samples.wValidBitsPerSample = format.Format.wBitsPerSample;
-
-        switch (numChannels)
-        {
-            case 1:     format.dwChannelMask = SPEAKER_FRONT_CENTER; break;
-            case 2:     format.dwChannelMask = SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT; break;
-            case 4:     format.dwChannelMask = SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT | SPEAKER_BACK_LEFT | SPEAKER_BACK_RIGHT; break;
-            case 6:     format.dwChannelMask = SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT | SPEAKER_FRONT_CENTER | SPEAKER_LOW_FREQUENCY | SPEAKER_BACK_LEFT | SPEAKER_BACK_RIGHT; break;
-            case 8:     format.dwChannelMask = SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT | SPEAKER_FRONT_CENTER | SPEAKER_LOW_FREQUENCY | SPEAKER_BACK_LEFT | SPEAKER_BACK_RIGHT | SPEAKER_FRONT_LEFT_OF_CENTER | SPEAKER_FRONT_RIGHT_OF_CENTER; break;
-            default:    break;
-        }
+        format.dwChannelMask               = mixFormatChannelMask;
 
         WAVEFORMATEXTENSIBLE* nearestFormat = nullptr;
 
-        HRESULT hr = client->IsFormatSupported (useExclusiveMode ? AUDCLNT_SHAREMODE_EXCLUSIVE : AUDCLNT_SHAREMODE_SHARED,
-                                                (WAVEFORMATEX*) &format, useExclusiveMode ? nullptr : (WAVEFORMATEX**) &nearestFormat);
+        HRESULT hr = client->IsFormatSupported (useExclusiveMode ? AUDCLNT_SHAREMODE_EXCLUSIVE
+                                                                 : AUDCLNT_SHAREMODE_SHARED,
+                                                (WAVEFORMATEX*) &format,
+                                                useExclusiveMode ? nullptr : (WAVEFORMATEX**) &nearestFormat);
         logFailure (hr);
 
         if (hr == S_FALSE && format.Format.nSamplesPerSec == nearestFormat->Format.nSamplesPerSec)
@@ -440,7 +586,7 @@ private:
         GUID session;
         if (hr == S_OK
              && check (client->Initialize (useExclusiveMode ? AUDCLNT_SHAREMODE_EXCLUSIVE : AUDCLNT_SHAREMODE_SHARED,
-                                           AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
+                                           0x40000 /*AUDCLNT_STREAMFLAGS_EVENTCALLBACK*/,
                                            defaultPeriod, defaultPeriod, (WAVEFORMATEX*) &format, &session)))
         {
             actualNumChannels = format.Format.nChannels;
@@ -1242,7 +1388,11 @@ private:
                     continue;
 
                 PROPVARIANT value;
-                PropVariantInit (&value);
+                zerostruct (value);
+
+                const PROPERTYKEY PKEY_Device_FriendlyName
+                    = { { 0xa45c254e, 0xdf1c, 0x4efd, { 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0 } }, 14 };
+
                 if (check (properties->GetValue (PKEY_Device_FriendlyName, &value)))
                     name = value.pwszVal;
 
@@ -1294,6 +1444,54 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WASAPIAudioIODeviceType)
 };
 
+//==============================================================================
+struct MMDeviceMasterVolume
+{
+    MMDeviceMasterVolume()
+    {
+        ComSmartPtr<IMMDeviceEnumerator> enumerator;
+        if (check (enumerator.CoCreateInstance (__uuidof (MMDeviceEnumerator))))
+        {
+            ComSmartPtr<IMMDevice> device;
+            if (check (enumerator->GetDefaultAudioEndpoint (eRender, eConsole, device.resetAndGetPointerAddress())))
+                check (device->Activate (__uuidof (IAudioEndpointVolume), CLSCTX_INPROC_SERVER, nullptr,
+                                         (void**) endpointVolume.resetAndGetPointerAddress()));
+        }
+    }
+
+    float getGain() const
+    {
+        float vol = 0.0f;
+        if (endpointVolume != nullptr)
+            check (endpointVolume->GetMasterVolumeLevelScalar (&vol));
+
+        return vol;
+    }
+
+    bool setGain (float newGain) const
+    {
+        return endpointVolume != nullptr
+                && check (endpointVolume->SetMasterVolumeLevelScalar (jlimit (0.0f, 1.0f, newGain), nullptr));
+    }
+
+    bool isMuted() const
+    {
+        BOOL mute = 0;
+        return endpointVolume != nullptr
+                 && check (endpointVolume->GetMute (&mute)) && mute != 0;
+    }
+
+    bool setMuted (bool shouldMute) const
+    {
+        return endpointVolume != nullptr
+                && check (endpointVolume->SetMute (shouldMute, nullptr));
+    }
+
+    ComSmartPtr<IAudioEndpointVolume> endpointVolume;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MMDeviceMasterVolume)
+};
+
 }
 
 //==============================================================================
@@ -1304,3 +1502,10 @@ AudioIODeviceType* AudioIODeviceType::createAudioIODeviceType_WASAPI()
 
     return nullptr;
 }
+
+//==============================================================================
+#define JUCE_SYSTEMAUDIOVOL_IMPLEMENTED 1
+float JUCE_CALLTYPE SystemAudioVolume::getGain()              { return WasapiClasses::MMDeviceMasterVolume().getGain(); }
+bool  JUCE_CALLTYPE SystemAudioVolume::setGain (float gain)   { return WasapiClasses::MMDeviceMasterVolume().setGain (gain); }
+bool  JUCE_CALLTYPE SystemAudioVolume::isMuted()              { return WasapiClasses::MMDeviceMasterVolume().isMuted(); }
+bool  JUCE_CALLTYPE SystemAudioVolume::setMuted (bool mute)   { return WasapiClasses::MMDeviceMasterVolume().setMuted (mute); }

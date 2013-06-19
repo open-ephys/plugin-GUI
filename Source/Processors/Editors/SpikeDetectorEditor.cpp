@@ -221,7 +221,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
     if (button == upButton)
     {
-        numElectrodes->setText(String(++num), true);
+        numElectrodes->setText(String(++num), NotificationType::sendNotification);
 
         return;
 
@@ -230,7 +230,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     {
 
         if (num > 1)
-            numElectrodes->setText(String(--num), true);
+            numElectrodes->setText(String(--num), NotificationType::sendNotification);
 
         return;
 

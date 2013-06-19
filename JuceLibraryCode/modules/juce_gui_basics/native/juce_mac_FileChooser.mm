@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -117,83 +116,84 @@ void FileChooser::showPlatformDialog (Array<File>& results,
                                       FilePreviewComponent* /*extraInfoComponent*/)
 {
     JUCE_AUTORELEASEPOOL
-
-    ScopedPointer<TemporaryMainMenuWithStandardCommands> tempMenu;
-    if (JUCEApplication::isStandaloneApp())
-        tempMenu = new TemporaryMainMenuWithStandardCommands();
-
-    StringArray* filters = new StringArray();
-    filters->addTokens (filter.replaceCharacters (",:", ";;"), ";", String::empty);
-    filters->trim();
-    filters->removeEmptyStrings();
-
-   #if defined (MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
-    typedef NSObject<NSOpenSavePanelDelegate> DelegateType;
-   #else
-    typedef NSObject DelegateType;
-   #endif
-
-    static FileChooserDelegateClass cls;
-    DelegateType* delegate = (DelegateType*) [[cls.createInstance() init] autorelease];
-    FileChooserDelegateClass::setFilters (delegate, filters);
-
-    NSSavePanel* panel = isSaveDialogue ? [NSSavePanel savePanel]
-                                        : [NSOpenPanel openPanel];
-
-    [panel setTitle: juceStringToNS (title)];
-    [panel setAllowedFileTypes: createAllowedTypesArray (*filters)];
-
-    if (! isSaveDialogue)
     {
-        NSOpenPanel* openPanel = (NSOpenPanel*) panel;
-        [openPanel setCanChooseDirectories: selectsDirectory];
-        [openPanel setCanChooseFiles: selectsFiles];
-        [openPanel setAllowsMultipleSelection: selectMultipleFiles];
-        [openPanel setResolvesAliases: YES];
-    }
+        ScopedPointer<TemporaryMainMenuWithStandardCommands> tempMenu;
+        if (JUCEApplication::isStandaloneApp())
+            tempMenu = new TemporaryMainMenuWithStandardCommands();
 
-    [panel setDelegate: delegate];
+        StringArray* filters = new StringArray();
+        filters->addTokens (filter.replaceCharacters (",:", ";;"), ";", String::empty);
+        filters->trim();
+        filters->removeEmptyStrings();
 
-    if (isSaveDialogue || selectsDirectory)
-        [panel setCanCreateDirectories: YES];
+       #if defined (MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+        typedef NSObject<NSOpenSavePanelDelegate> DelegateType;
+       #else
+        typedef NSObject DelegateType;
+       #endif
 
-    String directory, filename;
+        static FileChooserDelegateClass cls;
+        DelegateType* delegate = (DelegateType*) [[cls.createInstance() init] autorelease];
+        FileChooserDelegateClass::setFilters (delegate, filters);
 
-    if (currentFileOrDirectory.isDirectory())
-    {
-        directory = currentFileOrDirectory.getFullPathName();
-    }
-    else
-    {
-        directory = currentFileOrDirectory.getParentDirectory().getFullPathName();
-        filename = currentFileOrDirectory.getFileName();
-    }
+        NSSavePanel* panel = isSaveDialogue ? [NSSavePanel savePanel]
+                                            : [NSOpenPanel openPanel];
 
-   #if defined (MAC_OS_X_VERSION_10_6) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6)
-    [panel setDirectoryURL: [NSURL fileURLWithPath: juceStringToNS (directory)]];
-    [panel setNameFieldStringValue: juceStringToNS (filename)];
+        [panel setTitle: juceStringToNS (title)];
+        [panel setAllowedFileTypes: createAllowedTypesArray (*filters)];
 
-    if ([panel runModal] == NSOKButton)
-   #else
-    if ([panel runModalForDirectory: juceStringToNS (directory)
-                               file: juceStringToNS (filename)] == NSOKButton)
-   #endif
-    {
-        if (isSaveDialogue)
+        if (! isSaveDialogue)
         {
-            results.add (File (nsStringToJuce ([[panel URL] path])));
+            NSOpenPanel* openPanel = (NSOpenPanel*) panel;
+            [openPanel setCanChooseDirectories: selectsDirectory];
+            [openPanel setCanChooseFiles: selectsFiles];
+            [openPanel setAllowsMultipleSelection: selectMultipleFiles];
+            [openPanel setResolvesAliases: YES];
+        }
+
+        [panel setDelegate: delegate];
+
+        if (isSaveDialogue || selectsDirectory)
+            [panel setCanCreateDirectories: YES];
+
+        String directory, filename;
+
+        if (currentFileOrDirectory.isDirectory())
+        {
+            directory = currentFileOrDirectory.getFullPathName();
         }
         else
         {
-            NSOpenPanel* openPanel = (NSOpenPanel*) panel;
-            NSArray* urls = [openPanel URLs];
-
-            for (unsigned int i = 0; i < [urls count]; ++i)
-                results.add (File (nsStringToJuce ([[urls objectAtIndex: i] path])));
+            directory = currentFileOrDirectory.getParentDirectory().getFullPathName();
+            filename = currentFileOrDirectory.getFileName();
         }
-    }
 
-    [panel setDelegate: nil];
+       #if defined (MAC_OS_X_VERSION_10_6) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6)
+        [panel setDirectoryURL: [NSURL fileURLWithPath: juceStringToNS (directory)]];
+        [panel setNameFieldStringValue: juceStringToNS (filename)];
+
+        if ([panel runModal] == NSOKButton)
+       #else
+        if ([panel runModalForDirectory: juceStringToNS (directory)
+                                   file: juceStringToNS (filename)] == NSOKButton)
+       #endif
+        {
+            if (isSaveDialogue)
+            {
+                results.add (File (nsStringToJuce ([[panel URL] path])));
+            }
+            else
+            {
+                NSOpenPanel* openPanel = (NSOpenPanel*) panel;
+                NSArray* urls = [openPanel URLs];
+
+                for (unsigned int i = 0; i < [urls count]; ++i)
+                    results.add (File (nsStringToJuce ([[urls objectAtIndex: i] path])));
+            }
+        }
+
+        [panel setDelegate: nil];
+    }
 }
 
 bool FileChooser::isPlatformDialogAvailable()
@@ -220,8 +220,6 @@ void FileChooser::showPlatformDialog (Array<File>& results,
                                       bool selectMultipleFiles,
                                       FilePreviewComponent* extraInfoComponent)
 {
-    JUCE_AUTORELEASEPOOL
-
     jassertfalse; //there's no such thing in iOS
 }
 

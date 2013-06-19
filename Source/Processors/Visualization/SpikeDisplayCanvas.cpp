@@ -119,6 +119,16 @@ void SpikeDisplayCanvas::refresh()
     repaint();
 }
 
+void SpikeDisplayCanvas::startRecording()
+{
+    spikeDisplay->startRecording();
+}
+
+void SpikeDisplayCanvas::stopRecording()
+{
+    spikeDisplay->startRecording();
+}
+
 RecordNode* SpikeDisplayCanvas::getRecordNode()
 {
     return processor->getProcessorGraph()->getRecordNode();
@@ -127,6 +137,8 @@ RecordNode* SpikeDisplayCanvas::getRecordNode()
 void SpikeDisplayCanvas::processSpikeEvents()
 {
 
+    //const MessageManagerLock mmLock; // get the lock to prevent the midi buffer from being updated
+    
     if (spikeBuffer->getNumEvents() > 0)
     {
 
@@ -213,6 +225,34 @@ void SpikeDisplay::clear()
         }
     }
 
+}
+
+void SpikeDisplay::startRecording()
+{
+    
+   // const MessageManagerLock mmLock;
+    
+    if (spikePlots.size() > 0)
+    {
+        for (int i = 0; i < spikePlots.size(); i++)
+        {
+            spikePlots[i]->startRecording();
+        }
+    }
+}
+
+void SpikeDisplay::stopRecording()
+{
+    
+   // const MessageManagerLock mmLock;
+    
+    if (spikePlots.size() > 0)
+    {
+        for (int i = 0; i < spikePlots.size(); i++)
+        {
+            spikePlots[i]->stopRecording();
+        }
+    }
 }
 
 void SpikeDisplay::removePlots()
@@ -362,6 +402,7 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) 
 {
 
     recordNode = sdc->getRecordNode();
+    diskWriteLock = sdc->getRecordNode()->getLock();
 
     font = Font("Default", 15, Font::plain);
 
@@ -428,6 +469,8 @@ SpikePlot::~SpikePlot()
 
 void SpikePlot::paint(Graphics& g)
 {
+    
+    //const MessageManagerLock mmLock;
 
     g.setColour(Colours::white);
     g.drawRect(0,0,getWidth(),getHeight());
@@ -435,7 +478,7 @@ void SpikePlot::paint(Graphics& g)
     g.setFont(font);
 
     g.drawText(name,10,0,200,20,Justification::left,false);
-
+    
 }
 
 void SpikePlot::processSpikeObject(const SpikeObject& s)
@@ -459,45 +502,36 @@ void SpikePlot::processSpikeObject(const SpikeObject& s)
             pAxes[i]->updateSpikeData(s);
     }
 
-
-    // then record it!
-    if (recordNode->isRecording)
-    {
-        if (!isRecording)
-        {
-            // open file
-            openFile();
-
-            isRecording = true;
-            //std::cout << "Start recording spikes." << std::endl;
-
-        }
-
-        if (aboveThreshold)
+        if (aboveThreshold && isRecording)
         {
             // write spike to disk
-            writeSpike(s);
+          writeSpike(s);
         }
 
-    }
-    else
-    {
+}
 
-        if (isRecording)
-        {
-            // close file
-            closeFile();
+void SpikePlot::startRecording()
+{
 
-            isRecording = false;
-            //std::cout << "Stop recording spikes." << std::endl;
-        }
-    }
+    openFile();
+    isRecording = true;
+    
+
+}
+
+void SpikePlot::stopRecording()
+{
+    
+    closeFile();
+    isRecording = false;
 
 }
 
 void SpikePlot::openFile()
 {
-    dataDirectory = recordNode->getDataDirectory();
+    //const MessageManagerLock mmLock;
+    
+    dataDirectory = recordNode->getDataDirectory();//File("/Users/Josh/Programming/open-ephys/GUI/Builds/MacOSX/build/Debug"); //recordNode->getDataDirectory();
 
     filename = dataDirectory.getFullPathName();
     filename += File::separator;
@@ -508,6 +542,9 @@ void SpikePlot::openFile()
 
     File fileToUse = File(filename);
 
+    diskWriteLock->enter();
+    //const MessageManagerLock mmLock;
+    
     if (!fileToUse.exists())
     {
         // open it and write header
@@ -524,6 +561,8 @@ void SpikePlot::openFile()
         // append it
         file = fopen(filename.toUTF8(), "ab");
     }
+    
+    diskWriteLock->exit();
 
 
 }
@@ -532,11 +571,17 @@ void SpikePlot::closeFile()
 {
 
     std::cout << "CLOSING FILE: " << filename << std::endl;
+    
+   // const MessageManagerLock mmLock;
 
+    diskWriteLock->enter();
+    
     if (file != NULL)
     {
         fclose(file);
     }
+    
+    diskWriteLock->exit();
 
 }
 
@@ -560,8 +605,15 @@ void SpikePlot::writeSpike(const SpikeObject& s)
     // 2*n*m bytes for 16-bit samples
     // 2*n bytes for 16-bit gains
     // 2*n bytes for 16-bit thresholds
+    
+   // const MessageManagerLock mmLock;
+    
+    diskWriteLock->enter();
 
     fwrite(spikeBuffer, 1, totalBytes, file);
+    
+    
+    diskWriteLock->exit();
 
 
 }
@@ -923,19 +975,12 @@ bool WaveAxes::updateSpikeData(const SpikeObject& s)
 
     SpikeObject newSpike = s;
 
-    //if (checkThreshold(newSpike))
-    //{
     spikeIndex++;
     spikeIndex %= bufferSize;
 
     spikeBuffer.set(spikeIndex, newSpike);
+    
     return true;
-
-    // } else {
-    //     return false;
-    // }
-
-
 
 }
 
