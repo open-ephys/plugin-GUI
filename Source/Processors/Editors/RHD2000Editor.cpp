@@ -175,10 +175,6 @@ void RHD2000Editor::saveEditorParameters(XmlElement* xml)
      xml->setAttribute("LowCut", bandwidthInterface->getLowerBandwidth());
      xml->setAttribute("HighCut", bandwidthInterface->getUpperBandwidth());
      xml->setAttribute("ADCsOn", adcButton->getToggleState());
-
-    //  XmlElement* selectedChannel = xml->createNewChildElement("SELECTEDID");
-
-    // selectedChannel->setAttribute("ID",referenceSelector->getSelectedId());
 }
 
 void RHD2000Editor::loadEditorParameters(XmlElement* xml)
