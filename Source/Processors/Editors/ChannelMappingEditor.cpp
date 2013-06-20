@@ -205,6 +205,26 @@ void ChannelMappingEditor::saveEditorParameters(XmlElement* xml)
 
     xml->setAttribute("Type", "ChannelMappingEditor");
 
+    for (int i = 0; i < channelArray.size(); i++)
+    {
+        XmlElement* channelXml = xml->createNewChildElement("CHANNEL");
+        channelXml->setAttribute("Number", i);
+        channelXml->setAttribute("Mapping", channelArray[i]);
+        channelXml->setAttribute("Reference", referenceArray[i]);
+    }
+
+    // String channelString = "";
+    // String referenceString = "";
+
+    // for (int i = 0; i < channelArray.size(); i++)
+    // {
+    //     channelString += String(channelArray[i]);
+    //     referenceString += String(referenceArray[i]);
+    // }
+
+    // xml->setAttribute("Channels", channelString);
+    // xml->setAttribute("References", referenceString);
+
     //  XmlElement* selectedChannel = xml->createNewChildElement("SELECTEDID");
 
     // selectedChannel->setAttribute("ID",referenceSelector->getSelectedId());
@@ -214,15 +234,59 @@ void ChannelMappingEditor::saveEditorParameters(XmlElement* xml)
 void ChannelMappingEditor::loadEditorParameters(XmlElement* xml)
 {
 
-    forEachXmlChildElement(*xml, xmlNode)
+   // String channelString = xml->getStringAttribute("Channels");
+   // String referenceString = xml->getStringAttribute("References");
+
+    forEachXmlChildElementWithTagName(*xml, channelXml, "CHANNEL")
     {
-        // if (xmlNode->hasTagName("SELECTEDID"))
-        //   {
-        //
-        // int id = xmlNode->getIntAttribute("ID");
+        int i = channelXml->getIntAttribute("Number");
 
-        //  referenceSelector->setSelectedId(id);
+        if (i < channelArray.size())
+        {
 
-        //  }
+            int mapping = channelXml->getIntAttribute("Mapping");
+            int reference = channelXml->getIntAttribute("Reference");
+
+            channelArray.set(i, mapping);
+            referenceArray.set(i, reference);
+
+            electrodeButtons[i]->setChannelNum(mapping);
+            electrodeButtons[i]->repaint();
+
+            getProcessor()->setCurrentChannel(i);
+
+            getProcessor()->setParameter(1, reference-1); // set reference
+
+            getProcessor()->setParameter(0, mapping-1); // set mapping
+        }
+
     }
+
+    // for (int i = 0; i < channelString.length(); i++)
+    // {
+
+    //     String ch = channelString.substring(i,i);
+    //     String ref = referenceString.substring(i,i);
+
+    //     if (i < channelArray.size())
+    //     {
+    //         int chNum = ch.getIntValue();
+    //         int refNum = ref.getIntValue();
+
+    //         channelArray.set(i, chNum);
+    //         referenceArray.set(i, refNum);
+
+    //         electrodeButtons[i]->setChannelNum(chNum);
+    //         electrodeButtons[i]->repaint();
+
+    //         getProcessor()->setCurrentChannel(i);
+
+    //         getProcessor()->setParameter(1, refNum-1); // set reference
+
+    //         getProcessor()->setParameter(0, chNum-1); // set mapping
+            
+    //     }
+
+    // }
+
 }
