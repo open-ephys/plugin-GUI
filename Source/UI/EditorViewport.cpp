@@ -333,7 +333,7 @@ void EditorViewport::refreshEditors()
     int lastBound = borderSize+tabSize;
     int totalWidth = 0;
 
-    std::cout << insertionPoint << std::endl;
+    //std::cout << insertionPoint << std::endl;
 
     bool tooLong;
 

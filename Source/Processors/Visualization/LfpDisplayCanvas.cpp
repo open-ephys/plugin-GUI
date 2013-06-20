@@ -91,7 +91,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     timebaseSelection = new ComboBox("Timebase");
     timebaseSelection->addItemList(timebases, 1);
-    timebaseSelection->setSelectedId(3,false);
+    timebaseSelection->setSelectedId(2, false);
     timebaseSelection->addListener(this);
     addAndMakeVisible(timebaseSelection);
 
@@ -195,6 +195,8 @@ void LfpDisplayCanvas::update()
     }
 
     lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+
+    resized();
 
 }
 
@@ -606,7 +608,7 @@ void LfpDisplay::setNumChannels(int numChannels)
     for (int i = 0; i < numChans; i++)
     {
 
-        //std::cout << "Adding new channel display." << std::endl;
+		std::cout << "Adding new display for channel " << i << std::endl;
 
         LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvas, this, i);
 
@@ -631,6 +633,12 @@ void LfpDisplay::setNumChannels(int numChannels)
         totalHeight += lfpChan->getChannelHeight();
 
     }
+
+    //std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
+
+    // // this doesn't seem to do anything:
+    //canvas->fullredraw = true;
+    //refresh();
 
 }
 
@@ -666,6 +674,7 @@ void LfpDisplay::resized()
     }
 
     canvas->fullredraw = true; //issue full redraw
+    refresh();
 
     // std::cout << "Total height: " << totalHeight << std::endl;
 
