@@ -35,8 +35,8 @@ FileReader::FileReader()
     enabledState(false);
 
     // check endianness of the platform
-    uint32_t magic = 0x00000001;
-    uint8_t black_magic = *(uint8_t *)&magic;
+    uint32 magic = 0x00000001;
+    uint8 black_magic = *(uint8 *)&magic;
 
     if (black_magic > 0)
     {
