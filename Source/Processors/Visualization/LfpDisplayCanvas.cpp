@@ -328,6 +328,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
             screenBuffer->clear(screenBufferIndex, 1);
 
+            displayBufferIndex = displayBufferIndex % displayBufferSize; // just to be sure
+
             for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
             {
 
@@ -608,7 +610,7 @@ void LfpDisplay::setNumChannels(int numChannels)
     for (int i = 0; i < numChans; i++)
     {
 
-		std::cout << "Adding new display for channel " << i << std::endl;
+		//std::cout << "Adding new display for channel " << i << std::endl;
 
         LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvas, this, i);
 

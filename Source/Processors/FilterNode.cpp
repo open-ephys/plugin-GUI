@@ -133,7 +133,8 @@ void FilterNode::updateSettings()
 
         for (int n = 0; n < getNumInputs(); n++)
         {
-           // std::cout << "Creating filter number " << n << std::endl;
+
+             std::cout << "Creating filter number " << n << std::endl;
 
             filters.add(new Dsp::SmoothedFilterDesign
                         <Dsp::Butterworth::Design::BandPass 	// design type
