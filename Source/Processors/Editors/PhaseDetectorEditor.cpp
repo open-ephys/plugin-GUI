@@ -64,11 +64,12 @@ void PhaseDetectorEditor::updateSettings()
 
         previousChannelCount = getProcessor()->getNumInputs();
 
+        channelSelectionBox->setSelectedId(1, false);
+
+        getProcessor()->setParameter(1,-1.0f);
+
     }
 
-    channelSelectionBox->setSelectedId(1, false);
-
-    getProcessor()->setParameter(1,-1.0f);
 }
 
 void PhaseDetectorEditor::comboBoxChanged(ComboBox* c)
@@ -117,7 +118,9 @@ void PhaseDetectorEditor::loadEditorParameters(XmlElement* xml)
 
             int id = xmlNode->getIntAttribute("ID");
 
-            channelSelectionBox->setSelectedId(id);
+            std::cout << channelSelectionBox->getNumItems() << std::endl;
+
+            channelSelectionBox->setSelectedId(id, false);
 
         }
     }
