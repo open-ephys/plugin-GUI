@@ -55,6 +55,40 @@ PulsePalOutputEditor::~PulsePalOutputEditor()
 
 }
 
+void PulsePalOutputEditor::saveEditorParameters(XmlElement* xml)
+{
+
+    xml->setAttribute("Type", "PulsePalOutputEditor");
+
+    for (int i = 0; i < 4; i++)
+    {
+        XmlElement* outputXml = xml->createNewChildElement("OUTPUTCHANNEL");
+        outputXml->setAttribute("Number",i);
+        outputXml->setAttribute("Trigger",channelTriggerInterfaces[i]->getTriggerChannel());
+        outputXml->setAttribute("Gate",channelTriggerInterfaces[i]->getGateChannel());
+    }
+
+    
+}
+
+void PulsePalOutputEditor::loadEditorParameters(XmlElement* xml)
+{
+
+    forEachXmlChildElement(*xml, xmlNode)
+    {
+        if (xmlNode->hasTagName("OUTPUTCHANNEL"))
+        {
+
+            int chNum = xmlNode->getIntAttribute("Number");
+
+            channelTriggerInterfaces[chNum]->setTriggerChannel(xmlNode->getIntAttribute("Trigger"));
+            channelTriggerInterfaces[chNum]->setGateChannel(xmlNode->getIntAttribute("Gate"));
+
+        }
+    }
+}
+
+
 //-----------------------------------------------
 
 ChannelTriggerInterface::ChannelTriggerInterface(PulsePal* pp, PulsePalOutput* ppo, int chan)
@@ -133,4 +167,26 @@ void ChannelTriggerInterface::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
     }
 
 
+}
+
+int ChannelTriggerInterface::getTriggerChannel()
+{
+    return triggerSelector->getSelectedId();
+}
+
+
+int ChannelTriggerInterface::getGateChannel()
+{
+    return gateSelector->getSelectedId();
+}
+
+void ChannelTriggerInterface::setTriggerChannel(int chan)
+{
+    return triggerSelector->setSelectedId(chan);
+}
+
+
+void ChannelTriggerInterface::setGateChannel(int chan)
+{
+    return gateSelector->setSelectedId(chan);
 }

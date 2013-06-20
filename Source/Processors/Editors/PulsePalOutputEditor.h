@@ -54,6 +54,9 @@ private:
 
     PulsePal* pulsePal;
 
+    void saveEditorParameters(XmlElement* xml);
+    void loadEditorParameters(XmlElement* xml);
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PulsePalOutputEditor);
 
 };
@@ -68,6 +71,12 @@ public:
     ~ChannelTriggerInterface();
 
     void paint(Graphics& g);
+
+    void setTriggerChannel(int chan);
+    void setGateChannel(int chan);
+
+    int getTriggerChannel();
+    int getGateChannel();
 
     void buttonClicked(Button* button);
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged);
