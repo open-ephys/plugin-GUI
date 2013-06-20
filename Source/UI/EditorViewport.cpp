@@ -317,6 +317,12 @@ void EditorViewport::deleteNode(GenericEditor* editor)
         refreshEditors();
 
         getProcessorGraph()->removeProcessor((GenericProcessor*) editor->getProcessor());
+
+        insertionPoint = -1; // make sure all editors are left-justified
+        indexOfMovingComponent = -1;
+
+        somethingIsBeingDraggedOver = false;
+
     }
 }
 
@@ -326,6 +332,8 @@ void EditorViewport::refreshEditors()
 
     int lastBound = borderSize+tabSize;
     int totalWidth = 0;
+
+    std::cout << insertionPoint << std::endl;
 
     bool tooLong;
 
@@ -344,7 +352,7 @@ void EditorViewport::refreshEditors()
 
         int componentWidth = editorArray[n]->desiredWidth;
 
-        if (lastBound + componentWidth < getWidth()-tabSize && n >= leftmostEditor)
+        if (lastBound + componentWidth < getWidth() - tabSize && n >= leftmostEditor)
         {
 
             if (n == 0)
@@ -387,7 +395,7 @@ void EditorViewport::refreshEditors()
             editorArray[n]->setVisible(true);
             //   std::cout << "setting visible." << std::endl;
             editorArray[n]->setBounds(lastBound, borderSize, componentWidth, getHeight()-borderSize*2);
-            lastBound+=(componentWidth + borderSize);
+            lastBound += (componentWidth + borderSize);
 
             tooLong = false;
 
@@ -785,6 +793,8 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
         {
             insertionPoint = editorArray.size();
         }
+
+
 
         refreshEditors();
         repaint();
