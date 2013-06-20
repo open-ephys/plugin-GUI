@@ -34,6 +34,17 @@ FileReader::FileReader()
 
     enabledState(false);
 
+    // check endianness of the platform
+    uint32_t magic = 0x00000001;
+    uint8_t black_magic = *(uint8_t *)&magic;
+
+    if (black_magic > 0)
+    {
+        isLittleEndian = true;
+    } else {
+        isLittleEndian = false;
+    }
+
 }
 
 FileReader::~FileReader()
@@ -167,7 +178,16 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSa
             chan = 0;
         }
 
-        *buffer.getSampleData(chan++, samp) = float(-readBuffer[n]) * getDefaultBitVolts(); // previously 0.035
+        int16 sample = readBuffer[n];
+
+        if (!isLittleEndian) // most likely on Windows
+        {
+            // reverse the byte order
+            sample = (((sample >> 0) & 0xff) << 8) | 
+                     (((sample >> 8) & 0xff) << 0);
+        }
+
+        *buffer.getSampleData(chan++, samp) = float(-sample) * getDefaultBitVolts(); // previously 0.035
 
     }
 

@@ -92,6 +92,8 @@ private:
 
     String filePath;
 
+    bool isLittleEndian;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReader);
 
 };
