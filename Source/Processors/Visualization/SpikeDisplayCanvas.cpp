@@ -533,6 +533,12 @@ void SpikePlot::openFile()
     
     dataDirectory = recordNode->getDataDirectory();//File("/Users/Josh/Programming/open-ephys/GUI/Builds/MacOSX/build/Debug"); //recordNode->getDataDirectory();
 
+    if (dataDirectory.getFullPathName().length() == 0)
+    {
+        // temporary fix in case nothing is returned by the record node.
+        dataDirectory = File::getSpecialLocation(File::userHomeDirectory); 
+    }
+
     filename = dataDirectory.getFullPathName();
     filename += File::separator;
     filename += name.removeCharacters(" ");
