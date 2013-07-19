@@ -586,6 +586,8 @@ void ControlPanel::buttonClicked(Button* button)
             newDirectoryButton->setEnabledState(true);
         }
 
+        dateText->setColour(Label::textColourId, Colours::black);
+
     }
     else if (button == playButton)
     {
@@ -606,6 +608,9 @@ void ControlPanel::buttonClicked(Button* button)
         graph->getRecordNode()->newDirectoryNeeded = true;
         newDirectoryButton->setEnabledState(false);
         masterClock->resetRecordTime();
+
+        dateText->setColour(Label::textColourId, Colours::grey);
+
         return;
 
     }
