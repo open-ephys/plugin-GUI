@@ -174,9 +174,9 @@ void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int sample
 
     if (eventType == SPIKE)
     {
-      //  const MessageManagerLock mmLock; // get the lock to prevent the midi buffer from being read
+       // const MessageManagerLock mmLock; // get the lock to prevent the midi buffer from being read
         
-        eventBuffer->addEvent(event, 0);
+      eventBuffer->addEvent(event, 0);
     }
 
 }

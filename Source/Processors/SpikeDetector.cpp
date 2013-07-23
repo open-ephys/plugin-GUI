@@ -338,6 +338,8 @@ void SpikeDetector::addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int p
 
     int numBytes = packSpike(s, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
 
+    //const MessageManagerLock mmLock; // lock the message manager before adding the spike
+    
     if (numBytes > 0)
         eventBuffer.addEvent(spikeBuffer, numBytes, peakIndex);
 
@@ -671,28 +673,28 @@ void SpikeDetector::loadCustomParametersFromXml()
             if (xmlNode->hasTagName("ELECTRODE"))
             {
 
-                electrodeIndex++;
-
-                int channelsPerElectrode = xmlNode->getIntAttribute("numChannels");
-
-                SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
-                sde->addElectrode(channelsPerElectrode);
-
-                setElectrodeName(electrodeIndex+1, xmlNode->getStringAttribute("name"));
-
-                int channelIndex = -1;
-
-                forEachXmlChildElement(*parametersAsXml, channelNode)
-                {
-                    if (channelNode->hasTagName("SUBCHANNEL"))
-                    {
-                        channelIndex++;
-
-                        setChannel(electrodeIndex, channelIndex, channelNode->getIntAttribute("ch"));
-                        setChannelThreshold(electrodeIndex, channelIndex, channelNode->getDoubleAttribute("thresh"));
-                        setChannelActive(electrodeIndex, channelIndex, channelNode->getBoolAttribute("isActive"));
-                    }
-                }
+//                electrodeIndex++;
+//
+//                int channelsPerElectrode = xmlNode->getIntAttribute("numChannels");
+//
+//                SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
+//                sde->addElectrode(channelsPerElectrode);
+//
+//                setElectrodeName(electrodeIndex+1, xmlNode->getStringAttribute("name"));
+//
+//                int channelIndex = -1;
+//
+//                forEachXmlChildElement(*parametersAsXml, channelNode)
+//                {
+//                    if (channelNode->hasTagName("SUBCHANNEL"))
+//                    {
+//                        channelIndex++;
+//
+//                        setChannel(electrodeIndex, channelIndex, channelNode->getIntAttribute("ch"));
+//                        setChannelThreshold(electrodeIndex, channelIndex, channelNode->getDoubleAttribute("thresh"));
+//                        setChannelActive(electrodeIndex, channelIndex, channelNode->getBoolAttribute("isActive"));
+//                    }
+//                }
 
             }
         }

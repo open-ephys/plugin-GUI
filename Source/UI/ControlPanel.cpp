@@ -564,8 +564,9 @@ void ControlPanel::labelTextChanged(Label* label)
 void ControlPanel::buttonClicked(Button* button)
 
 {
-    
     //const MessageManagerLock mmLock;
+    
+    //std::cout << "MessageManagerLock gained." << std::endl;
     
     if (button == recordButton)
     {
@@ -618,6 +619,17 @@ void ControlPanel::buttonClicked(Button* button)
 
             if (graph->enableProcessors())
             {
+                //const MessageManagerLock mmLock;
+                
+                MessageManagerLock mml (Thread::getCurrentThread());
+                
+                if (mml.lockWasGained())
+                {
+                    std::cout << "GOT THAT LOCK!" << std::endl;
+                }
+                
+                //std::cout << "Enabling processors from " << getThreadName() << " thread." << std::endl;
+                
                 if (recordButton->getToggleState())
                     graph->setRecordState(true);
                     
@@ -647,12 +659,24 @@ void ControlPanel::buttonClicked(Button* button)
 
         if (audio->callbacksAreActive())
         {
+            
+            //const MessageManagerLock mmLock;
+            MessageManagerLock mml (Thread::getCurrentThread());
+            
+            if (mml.lockWasGained())
+            {
+                std::cout << "GOT THAT LOCK!" << std::endl;
+            }
+            
+            //std::cout << "Disabling processors from " << getThreadName() << " thread." << std::endl;
+            
+            
             audio->endCallbacks();
             graph->disableProcessors();
             refreshMeters();
             masterClock->stop();
             stopTimer();
-            startTimer(10000); // back to refresh every 10 seconds
+            startTimer(60000); // back to refresh every minute
 
         }
 
@@ -674,7 +698,7 @@ void ControlPanel::disableCallbacks()
         std::cout << "Updating control panel." << std::endl;
         refreshMeters();
         stopTimer();
-        startTimer(10000); // back to refresh every 10 seconds
+        startTimer(60000); // back to refresh every 10 seconds
 
     }
 
@@ -730,7 +754,7 @@ void ControlPanel::refreshMeters()
     if (initialize)
     {
         stopTimer();
-        startTimer(5000); // check for disk updates every 5 seconds
+        startTimer(60000); // check for disk updates every minute
         initialize = false;
     }
 }

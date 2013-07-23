@@ -422,7 +422,7 @@ void GenericProcessor::disableEditor()
 
     GenericEditor* ed = getEditor();
 
-    if (ed != 0)
+    if (ed != nullptr)
         ed->stopAcquisition();
 }
 

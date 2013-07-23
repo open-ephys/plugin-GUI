@@ -121,11 +121,26 @@ void SpikeDisplayCanvas::refresh()
 
 void SpikeDisplayCanvas::startRecording()
 {
+    
+    std::cout << "SpikeDisplay starting recording." << std::endl;
+    
+    
+    //const MessageManagerLock mmLock; // get the lock to prevent the midi buffer from being updated
+
     spikeDisplay->startRecording();
 }
 
 void SpikeDisplayCanvas::stopRecording()
 {
+    
+    std::cout << "SpikeDisplay stopping recording." << std::endl;
+    
+    
+   // const MessageManagerLock mmLock; // get the lock to prevent the midi buffer from being updated
+ 
+    
+    
+    
     spikeDisplay->startRecording();
 }
 
@@ -137,8 +152,7 @@ RecordNode* SpikeDisplayCanvas::getRecordNode()
 void SpikeDisplayCanvas::processSpikeEvents()
 {
 
-    //const MessageManagerLock mmLock; // get the lock to prevent the midi buffer from being updated
-    
+ 
     if (spikeBuffer->getNumEvents() > 0)
     {
 
@@ -244,7 +258,7 @@ void SpikeDisplay::startRecording()
 void SpikeDisplay::stopRecording()
 {
     
-   // const MessageManagerLock mmLock;
+    const MessageManagerLock mmLock;
     
     if (spikePlots.size() > 0)
     {
@@ -296,7 +310,7 @@ void SpikeDisplay::resized()
         int singlePlotIndex = -1;
         int stereotrodePlotIndex = -1;
         int tetrodePlotIndex = -1;
-        int index;
+        int index = -1;
 
         float width, height;
 
