@@ -155,13 +155,54 @@ void AudioComponent::stopDevice()
 void AudioComponent::beginCallbacks()
 {
 
+    if (!isPlaying)
+    {
+    
+    //const MessageManagerLock mmLock;
+    MessageManagerLock mml (Thread::getCurrentThread());
+    
+    if (mml.lockWasGained())
+    {
+        std::cout << "AUDIO COMPONENT GOT THAT LOCK!" << std::endl;
+    } else {
+        std::cout << "AUDIO COMPONENT COULDN'T GET THE LOCK...RETURNING." << std::endl;
+        return;
+    }
+        
+        MessageManager* mm = MessageManager::getInstance();
+        
+        if (mm->isThisTheMessageThread())
+            std::cout << "THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
+        else
+            std::cout << "NOT THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
+        
+    
+    
     restartDevice();
     
-    //const MessageManagerLock mmLock; // add a lock to prevent crashes
+        int64_t ms = Time::getCurrentTime().toMilliseconds();
+        
+        while(Time::getCurrentTime().toMilliseconds() - ms < 50)
+        {
+            // pause to let things finish up
+            
+        }
+
 
     std::cout << std::endl << "Adding audio callback." << std::endl;
     deviceManager.addAudioCallback(graphPlayer);
     isPlaying = true;
+    } else {
+        std::cout << "beginCallbacks was called while acquisition was active." << std::endl;
+    }
+    
+    int64_t ms = Time::getCurrentTime().toMilliseconds();
+    
+    while(Time::getCurrentTime().toMilliseconds() - ms < 50)
+    {
+        // pause to let things finish up
+        
+    }
 
 }
 
@@ -169,12 +210,36 @@ void AudioComponent::endCallbacks()
 {
     
    // const MessageManagerLock mmLock; // add a lock to prevent crashes
+    
+    MessageManagerLock mml (Thread::getCurrentThread());
+    
+    if (mml.lockWasGained())
+    {
+        std::cout << "AUDIO COMPONENT GOT THAT LOCK!" << std::endl;
+    }
 
+    MessageManager* mm = MessageManager::getInstance();
+    
+    if (mm->isThisTheMessageThread())
+        std::cout << "THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
+    else
+        std::cout << "NOT THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
+    
+    
     std::cout << std::endl << "Removing audio callback." << std::endl;
     deviceManager.removeAudioCallback(graphPlayer);
     isPlaying = false;
 
     stopDevice();
+    
+    int64_t ms = Time::getCurrentTime().toMilliseconds();
+    
+    while(Time::getCurrentTime().toMilliseconds() - ms < 50)
+    {
+        // pause to let things finish up
+        
+    }
+    
 
 }
 

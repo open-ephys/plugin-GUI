@@ -625,12 +625,39 @@ void ControlPanel::buttonClicked(Button* button)
             if (graph->enableProcessors())
             {
                 //const MessageManagerLock mmLock;
+              
+                MessageManager* mm = MessageManager::getInstance();
+                
+                if (mm->isThisTheMessageThread())
+                    std::cout << "THIS IS THE MESSAGE THREAD -- CONTROL PANEL" << std::endl;
+                else
+                    std::cout << "NOT THE MESSAGE THREAD -- CONTROL PANEL" << std::endl;
+                
+                 
+                //mm->stopDispatchLoop();
+                
+                //if (mm->currentThreadHasLockedMessageManager())
+                //    std::cout << "We have the lock." << std::endl;
+                //else
+                 //   std::cout << "We DO NOT have the lock." << std::endl;
+
+                //Thread* thread = Thread::getCurrentThread();
+                
+                //if (thread != nullptr)
+                  //  std::cout << "Starting callbacks from thread named " << thread->getThreadId() << std::endl;
+                //else
+                  //  std::cout << "Current thread is null" << std::endl;
+                
                 
                 MessageManagerLock mml (Thread::getCurrentThread());
                 
+                
                 if (mml.lockWasGained())
                 {
-                    std::cout << "GOT THAT LOCK!" << std::endl;
+                   std::cout << "CONTROL PANEL GOT THAT LOCK!" << std::endl;
+                } else {
+                    std::cout << "COULDN'T GET THE LOCK, RETURNING...!" << std::endl;
+                    return;
                 }
                 
                 //std::cout << "Enabling processors from " << getThreadName() << " thread." << std::endl;
@@ -642,9 +669,14 @@ void ControlPanel::buttonClicked(Button* button)
                     //graph->getRecordNode()->setParameter(1,10.0f);
 
                 stopTimer();
-                startTimer(250); // refresh every 250 ms
+                
                 audio->beginCallbacks();
+                
                 masterClock->start();
+                
+                startTimer(250); // refresh every 250 ms
+                
+               // mm->runDispatchLoop();
             }
 
         }
@@ -666,18 +698,32 @@ void ControlPanel::buttonClicked(Button* button)
         {
             
             //const MessageManagerLock mmLock;
+            Thread* thread = Thread::getCurrentThread();
+            
+            if (thread != nullptr)
+                std::cout << "Stopping callbacks from thread named " << thread->getThreadId() << std::endl;
+            else
+                std::cout << "Current thread is null" << std::endl;
+            
             MessageManagerLock mml (Thread::getCurrentThread());
             
             if (mml.lockWasGained())
             {
-                std::cout << "GOT THAT LOCK!" << std::endl;
+                std::cout << "CONTROL PANEL GOT THAT LOCK!" << std::endl;
+            } else {
+                std::cout << "COULDN'T GET THE LOCK...RETURNING!" << std::endl;
+                return;
             }
             
             //std::cout << "Disabling processors from " << getThreadName() << " thread." << std::endl;
             
+            std::cout << "Control panel requesting to end callbacks." << std::endl;
             
             audio->endCallbacks();
+            
+            std::cout << "Control panel requesting to disable processors." << std::endl;
             graph->disableProcessors();
+            
             refreshMeters();
             masterClock->stop();
             stopTimer();
