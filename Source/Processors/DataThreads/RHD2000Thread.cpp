@@ -870,7 +870,6 @@ bool RHD2000Thread::updateBuffer()
 
     bool return_code;
 
-
     if (evalBoard->numWordsInFifo() >= blockSize)
     {
         return_code = evalBoard->readDataBlock(dataBlock);
@@ -889,7 +888,9 @@ bool RHD2000Thread::updateBuffer()
 
                     for (int chan = 0; chan < numChannelsPerDataStream[dataStream]; chan++)
                     {
-                        //   std::cout << "reading sample stream" << streamNumber << " chan " << chan << " sample "<< samp << std::endl;
+                        
+                      //  std::cout << "reading sample stream " << streamNumber << " chan " << chan << " sample "<< samp << std::endl;
+                        
                         channel++;
 
                         int value = dataBlock->amplifierData[streamNumber][chan][samp];
@@ -903,7 +904,7 @@ bool RHD2000Thread::updateBuffer()
 
             streamNumber = -1;
 
-            // then do the ADC channels
+            // then do the Intan ADC channels
             for (int dataStream = 0; dataStream < MAX_NUM_DATA_STREAMS; dataStream++)
             {
                 if (numChannelsPerDataStream[dataStream] > 0)
@@ -913,28 +914,32 @@ bool RHD2000Thread::updateBuffer()
                     if (samp % 4 == 1)   // every 4th sample should have auxiliary input data
                     {
 
-                        channel++;
-                        thisSample[channel] = 0.0374 *
-                                              float(dataBlock->auxiliaryData[dataStream][1][samp+0]);
-
-                        auxBuffer[channel]=thisSample[channel];
+                       // std::cout << "reading sample stream " << streamNumber << " aux ADCs " << std::endl;
 
                         channel++;
                         thisSample[channel] = 0.0374 *
-                                              float(dataBlock->auxiliaryData[dataStream][1][samp+1]);
+                                              float(dataBlock->auxiliaryData[streamNumber][1][samp+0]);
 
-                        auxBuffer[channel]=thisSample[channel];
+                        auxBuffer[channel] = thisSample[channel];
+
+                        channel++;
+                        thisSample[channel] = 0.0374 *
+                                              float(dataBlock->auxiliaryData[streamNumber][1][samp+1]);
+
+                        auxBuffer[channel] = thisSample[channel];
 
 
                         channel++;
                         thisSample[channel] = 0.0374 *
-                                              float(dataBlock->auxiliaryData[dataStream][1][samp+2]);
+                                              float(dataBlock->auxiliaryData[streamNumber][1][samp+2]);
 
-                        auxBuffer[channel]=thisSample[channel];
+                        auxBuffer[channel] = thisSample[channel];
 
                     }
                     else    // repeat last values from buffer
                     {
+
+                        //std::cout << "reading sample stream " << streamNumber << " aux ADCs " << std::endl;
 
                         channel++;
                         thisSample[channel] = auxBuffer[channel];
@@ -947,7 +952,7 @@ bool RHD2000Thread::updateBuffer()
 
             }
 
-            // finally, loop through ADC channels if necessary
+            // finally, loop through acquisition board ADC channels if necessary
             if (acquireAdcChannels)
             {
                 for (int adcChan = 0; adcChan < 8; ++adcChan)
