@@ -180,7 +180,7 @@ void AudioComponent::beginCallbacks()
     
     restartDevice();
     
-        int64_t ms = Time::getCurrentTime().toMilliseconds();
+        int64 ms = Time::getCurrentTime().toMilliseconds();
         
         while(Time::getCurrentTime().toMilliseconds() - ms < 50)
         {
@@ -196,7 +196,7 @@ void AudioComponent::beginCallbacks()
         std::cout << "beginCallbacks was called while acquisition was active." << std::endl;
     }
     
-    int64_t ms = Time::getCurrentTime().toMilliseconds();
+    int64 ms = Time::getCurrentTime().toMilliseconds();
     
     while(Time::getCurrentTime().toMilliseconds() - ms < 50)
     {
@@ -232,7 +232,7 @@ void AudioComponent::endCallbacks()
 
     stopDevice();
     
-    int64_t ms = Time::getCurrentTime().toMilliseconds();
+    int64 ms = Time::getCurrentTime().toMilliseconds();
     
     while(Time::getCurrentTime().toMilliseconds() - ms < 50)
     {
