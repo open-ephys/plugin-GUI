@@ -34,6 +34,8 @@
 #define SPIKE_EVENT_CODE 4;
 #define MAX_SPIKE_BUFFER_LEN 512 // the true max calculated from the spike values below is actually 507
 
+#define SPIKE_BASE_CODE 100
+
 /**
 
   Allows spikes to be transmitted between processors.

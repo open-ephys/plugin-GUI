@@ -90,7 +90,7 @@ void SpikeDetector::updateSettings()
 
         Channel* ch = new Channel(this, i);
         ch->isEventChannel = true;
-        ch->eventType = electrodes[i]->numChannels;
+        ch->eventType = SPIKE_BASE_CODE + electrodes[i]->numChannels;
         ch->name = electrodes[i]->name;
 
         eventChannels.add(ch);
