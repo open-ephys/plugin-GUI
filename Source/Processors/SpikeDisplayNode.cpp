@@ -92,7 +92,7 @@ int SpikeDisplayNode::getNumberOfChannelsForElectrode(int elec)
 
             if (electrodeIndex == elec)
             {
-                std::cout << "Electrode " << elec << " has " << eventChannels[i]->eventType << " channels" << std::endl;
+                std::cout << "Electrode " << elec << " has " << eventChannels[i]->eventType - 100 << " channels" << std::endl;
                 return (eventChannels[i]->eventType - SPIKE_BASE_CODE);
             }
         }

@@ -30,6 +30,10 @@
 int packSpike(const SpikeObject* s, uint8_t* buffer, int bufferSize)
 {
 
+    // This method should receive a SpikeObject filled with data,
+    // a pointer to a uint8_t buffer (which will hold the serialized SpikeObject,
+    // and a integer indicating the bufferSize.
+
     //int reqBytes = 1 + 4 + 2 + 2 + 2 + 2 * s->nChannels * s->nSamples + 2 * s->nChannels * 2;
 
     int idx = 0;
@@ -61,11 +65,11 @@ int packSpike(const SpikeObject* s, uint8_t* buffer, int bufferSize)
     if (idx >= MAX_SPIKE_BUFFER_LEN)
     {
         std::cout << "Spike is larger than it should be. Size was: " << idx
-                  << " Max Size is: " << MAX_SPIKE_BUFFER_LEN << std::endl;
+                  << " Max size is: " << MAX_SPIKE_BUFFER_LEN << std::endl;
 
     }
 
-    makeBufferValid(buffer, bufferSize);
+    //makeBufferValid(buffer, idx);
 
     return idx;
 
@@ -82,17 +86,41 @@ bool unpackSpike(SpikeObject* s, const uint8_t* buffer, int bufferSize)
     memcpy(&(s->eventType), buffer+idx, 1);
     idx += 1;
 
+   // if (s->eventType != 4)
+   // {
+   //     std::cout << "received invalid spike -- incorrect event code" << std::endl;
+   //     return false;
+   // }
+
     memcpy(&(s->timestamp), buffer+idx, 8);
     idx += 8;
 
     memcpy(&(s->source), buffer+idx, 2);
     idx += 2;
 
+    if (s->source < 0 || s->source > 100)
+    {
+        std::cout << "received invalid spike -- incorrect source" << std::endl;
+        return false;
+    }
+
     memcpy(&(s->nChannels), buffer+idx, 2);
     idx +=2;
 
+    if (s->nChannels > 4)
+    {
+        std::cout << "received invalid spike -- incorrect number of channels" << std::endl;
+        return false;
+    }
+
     memcpy(&(s->nSamples), buffer+idx, 2);
     idx +=2;
+
+    if (s->nSamples > 100)
+    {
+        std::cout << "received invalid spike -- incorrect number of samples" << std::endl;
+        return false;
+    }
 
     memcpy(&(s->data), buffer+idx, s->nChannels * s->nSamples * 2);
     idx += s->nChannels * s->nSamples * 2;
@@ -139,7 +167,7 @@ bool isBufferValid(const uint8_t* buffer, int bufferSize)
 
 void makeBufferValid(uint8_t* buffer, int bufferSize)
 {
-    if (! CHECK_BUFFER_VALIDITY)
+    if (!CHECK_BUFFER_VALIDITY)
         return;
 
     uint16_t runningSum = 0;
@@ -147,13 +175,14 @@ void makeBufferValid(uint8_t* buffer, int bufferSize)
 
     int idx;
 
-    for (idx = 0; idx < bufferSize - 2; idx += 2)
+    for (idx = 0; idx < bufferSize; idx += 2)
     {
         memcpy(&value, buffer + idx, 2);
         runningSum += value;
     }
 
-    memcpy(buffer + idx + 2, &runningSum, 2);
+    // put the check at the end of the buffer
+    memcpy(buffer + MAX_SPIKE_BUFFER_LEN - 2, &runningSum, 2);
 
 }
 

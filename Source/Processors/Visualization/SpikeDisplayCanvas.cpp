@@ -173,10 +173,10 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
             bool isValid = unpackSpike(&newSpike, dataptr, bufferSize);
 
-            int electrodeNum = newSpike.source;
-
             if (isValid)
-                spikeDisplay->plotSpike(newSpike, electrodeNum);
+            {
+                spikeDisplay->plotSpike(newSpike, newSpike.source);
+            }
 
         }
 
