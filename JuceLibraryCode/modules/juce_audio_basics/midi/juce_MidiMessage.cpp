@@ -108,7 +108,7 @@ MidiMessage::MidiMessage (const void* const d, const int dataSize, const double 
    : timeStamp (t),
      size (dataSize)
 {
-    jassert (dataSize > 0);
+    //jassert (dataSize > 0); // comment out to ignore empty spikes -- but check for this later in the code
 
     if (dataSize <= 4)
         setToUseInternalData();

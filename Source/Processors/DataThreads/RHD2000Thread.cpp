@@ -961,7 +961,8 @@ bool RHD2000Thread::updateBuffer()
                     channel++;
                     // ADC waveform units = volts
                     thisSample[channel] =
-                        0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
+                        //0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
+                        0.050354 * float(dataBlock->boardAdcData[adcChan][samp]);
                 }
             }
             // std::cout << channel << std::endl;

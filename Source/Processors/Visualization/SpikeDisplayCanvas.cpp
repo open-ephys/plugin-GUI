@@ -168,15 +168,19 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
             const uint8_t* dataptr = message.getRawData();
             int bufferSize = message.getRawDataSize();
+            
+            if (bufferSize > 0)
+            {
 
-            SpikeObject newSpike;
+                SpikeObject newSpike;
+                
+                bool isValid = unpackSpike(&newSpike, dataptr, bufferSize);
 
-            bool isValid = unpackSpike(&newSpike, dataptr, bufferSize);
-
-            int electrodeNum = newSpike.source;
-
-            if (isValid)
-                spikeDisplay->plotSpike(newSpike, electrodeNum);
+                if (isValid)
+                {
+                    spikeDisplay->plotSpike(newSpike, newSpike.source);
+                }
+            }
 
         }
 
@@ -443,7 +447,7 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) 
             nWaveAx = 4;
             nProjAx = 6;
             nChannels = 4;
-            minWidth = 500;
+            minWidth = 400;
             aspectRatio = 0.5f;
             break;
             //        case HIST_PLOT:
@@ -848,8 +852,9 @@ void SpikePlot::clear()
 
 
 WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true),
-    bufferSize(10), spikeIndex(0), thresholdLevel(0.0f), range(250.0f),
-    isOverThresholdSlider(false), isDraggingThresholdSlider(false)
+    bufferSize(5), spikeIndex(0), thresholdLevel(0.0f), range(250.0f),
+    isOverThresholdSlider(false), isDraggingThresholdSlider(false),
+    spikesReceivedSinceLastRedraw(0)
 {
 
     addMouseListener(this, true);
@@ -900,22 +905,22 @@ void WaveAxes::paint(Graphics& g)
     }
 
 
-    for (int spikeNum = 0; spikeNum < bufferSize; spikeNum++)
-    {
+     for (int spikeNum = 0; spikeNum < bufferSize; spikeNum++)
+     {
 
-        if (spikeNum != spikeIndex)
-        {
-            g.setColour(Colours::grey);
-            plotSpike(spikeBuffer[spikeNum], g);
-        }
+         if (spikeNum != spikeIndex)
+         {
+             g.setColour(Colours::grey);
+             plotSpike(spikeBuffer[spikeNum], g);
+         }
 
-    }
+     }
 
     g.setColour(Colours::white);
     plotSpike(spikeBuffer[spikeIndex], g);
 
 
-
+    spikesReceivedSinceLastRedraw = 0;
 
 }
 
@@ -994,13 +999,20 @@ bool WaveAxes::updateSpikeData(const SpikeObject& s)
         gotFirstSpike = true;
     }
 
-    SpikeObject newSpike = s;
+    if (spikesReceivedSinceLastRedraw < bufferSize)
+    {
 
-    spikeIndex++;
-    spikeIndex %= bufferSize;
+        SpikeObject newSpike = s;
 
-    spikeBuffer.set(spikeIndex, newSpike);
-    
+        spikeIndex++;
+        spikeIndex %= bufferSize;
+
+        spikeBuffer.set(spikeIndex, newSpike);
+
+        spikesReceivedSinceLastRedraw++;
+        
+    }
+
     return true;
 
 }
@@ -1129,7 +1141,7 @@ void WaveAxes::mouseExit(const MouseEvent& event)
 // --------------------------------------------------
 
 ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum), imageDim(500),
-    rangeX(250), rangeY(250)
+    rangeX(250), rangeY(250), spikesReceivedSinceLastRedraw(0)
 {
     projectionImage = Image(Image::RGB, imageDim, imageDim, true);
 

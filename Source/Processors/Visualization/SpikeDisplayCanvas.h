@@ -331,6 +331,8 @@ public:
         return range;
     }
 
+    
+
     //MouseCursor getMouseCursor();
 
 private:
@@ -347,7 +349,7 @@ private:
 
     void drawThresholdSlider(Graphics& g);
 
-
+    int spikesReceivedSinceLastRedraw;
 
     Font font;
 
@@ -409,6 +411,7 @@ private:
     int rangeX;
     int rangeY;
 
+    int spikesReceivedSinceLastRedraw;
 
 };
 

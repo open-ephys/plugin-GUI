@@ -32,7 +32,10 @@
 #define MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES 60
 #define CHECK_BUFFER_VALIDITY true
 #define SPIKE_EVENT_CODE 4;
-#define MAX_SPIKE_BUFFER_LEN 512 // the true max calculated from the spike values below is actually 507
+#define MAX_SPIKE_BUFFER_LEN 512 // max length of spike buffer in bytes
+                                 // the true max calculated from the spike values below is actually 507
+
+#define SPIKE_BASE_CODE 100
 
 /**
 

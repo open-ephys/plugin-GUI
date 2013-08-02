@@ -82,7 +82,7 @@ float FileReader::getDefaultSampleRate()
 
 int FileReader::getDefaultNumOutputs()
 {
-    return 16;
+    return 64;
 }
 
 float FileReader::getDefaultBitVolts()

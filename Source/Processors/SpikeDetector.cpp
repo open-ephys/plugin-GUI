@@ -90,7 +90,7 @@ void SpikeDetector::updateSettings()
 
         Channel* ch = new Channel(this, i);
         ch->isEventChannel = true;
-        ch->eventType = electrodes[i]->numChannels;
+        ch->eventType = SPIKE_BASE_CODE + electrodes[i]->numChannels;
         ch->name = electrodes[i]->name;
 
         eventChannels.add(ch);
@@ -292,43 +292,6 @@ bool SpikeDetector::disable()
     return true;
 }
 
-// void SpikeDetector::createSpikeEvent(int& peakIndex,
-//                                      int& electrodeNumber, int& currentChannel,
-//                                      MidiBuffer& eventBuffer)
-// {
-
-//     int spikeLength = electrodes[electrodeNumber]->prePeakSamples +
-//                         + electrodes[electrodeNumber]->postPeakSamples;
-
-//     uint8 dataSize = spikeLength*2;
-
-//     uint8 data[dataSize];
-//     uint8* dataptr = data;
-
-//     // cycle through buffer
-//     for (int sample = 0; sample < spikeLength; sample++)
-//     {
-//          uint16 sampleValue = uint16(getNextSample(currentChannel) / settings.bitVolts[0]);
-
-//          *dataptr++ = uint8(sampleValue >> 8);
-//          *dataptr++ = uint8(sampleValue & 255);
-
-//          sampleIndex++;
-
-//     }
-
-//     addEvent(eventBuffer,
-//              SPIKE,
-//              peakIndex,
-//              uint8(electrodeNumber),
-//              uint8(currentChannel),
-//              dataSize,
-//              data);
-
-//     sampleIndex -= spikeLength; // reset sample index
-
-// }
-
 void SpikeDetector::addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int peakIndex)
 {
 
@@ -336,10 +299,10 @@ void SpikeDetector::addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int p
 
     s->eventType = SPIKE_EVENT_CODE;
 
-    int numBytes = packSpike(s, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
+    int numBytes = packSpike(s,                        // SpikeObject
+                             spikeBuffer,              // uint8_t*
+                             MAX_SPIKE_BUFFER_LEN);    // int
 
-    //const MessageManagerLock mmLock; // lock the message manager before adding the spike
-    
     if (numBytes > 0)
         eventBuffer.addEvent(spikeBuffer, numBytes, peakIndex);
     
@@ -372,9 +335,6 @@ void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,
         {
 
             // warning -- be careful of bitvolts conversion
-
-
-
             s->data[currentIndex] = uint16(getNextSample(*(electrodes[electrodeNumber]->channels+currentChannel)) / channels[chan]->bitVolts + 32768);
 
             currentIndex++;
@@ -427,7 +387,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
     Electrode* electrode;
     dataBuffer = buffer;
 
-    checkForEvents(events);
+    checkForEvents(events); // need to find any timestamp events before extracting spikes
 
     //std::cout << dataBuffer.getMagnitude(0,nSamples) << std::endl;
 
