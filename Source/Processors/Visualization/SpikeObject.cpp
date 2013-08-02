@@ -74,8 +74,8 @@ int packSpike(const SpikeObject* s, uint8_t* buffer, int bufferSize)
 // Simple method for deserializing a string of bytes into a Spike object
 bool unpackSpike(SpikeObject* s, const uint8_t* buffer, int bufferSize)
 {
-    // if (!isBufferValid(buffer, bufferSize))
-    // 	return false;
+    if (!isBufferValid(buffer, bufferSize))
+     	return false;
 
     int idx = 0;
 
@@ -103,8 +103,8 @@ bool unpackSpike(SpikeObject* s, const uint8_t* buffer, int bufferSize)
     memcpy(&(s->threshold), buffer+idx, s->nChannels *2);
     idx += s->nChannels * 2;
 
-    // if (idx >= bufferSize)
-    // 		std::cout<<"Buffer Overrun! More data extracted than was given!"<<std::endl;
+    if (idx >= bufferSize)
+        std::cout << "Buffer Overrun! More data extracted than was given!" << std::endl;
 
     return true;
 
@@ -115,7 +115,7 @@ bool unpackSpike(SpikeObject* s, const uint8_t* buffer, int bufferSize)
 bool isBufferValid(const uint8_t* buffer, int bufferSize)
 {
 
-    if (! CHECK_BUFFER_VALIDITY)
+    if (!CHECK_BUFFER_VALIDITY)
         return true;
 
     uint16_t runningSum = 0;
@@ -132,7 +132,7 @@ bool isBufferValid(const uint8_t* buffer, int bufferSize)
     uint16_t integrityCheck = 0;
     memcpy(&integrityCheck, buffer + idx + 2, 2);
 
-    std::cout << integrityCheck<< " == " << runningSum <<std::endl;
+    std::cout << integrityCheck << " == " << runningSum << std::endl;
 
     return (integrityCheck == runningSum);
 }

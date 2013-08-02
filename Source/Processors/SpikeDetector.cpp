@@ -342,7 +342,8 @@ void SpikeDetector::addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int p
     
     if (numBytes > 0)
         eventBuffer.addEvent(spikeBuffer, numBytes, peakIndex);
-
+    
+    //std::cout << "Adding spike" << std::endl;
 }
 
 void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,

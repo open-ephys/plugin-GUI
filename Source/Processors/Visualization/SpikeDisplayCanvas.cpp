@@ -891,6 +891,7 @@ void WaveAxes::paint(Graphics& g)
 
     // draw the threshold line and labels
     drawThresholdSlider(g);
+    //drawBoundingBox(g);
 
     // if no spikes have been received then don't plot anything
     if (!gotFirstSpike)
