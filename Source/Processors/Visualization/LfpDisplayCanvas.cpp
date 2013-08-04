@@ -511,9 +511,9 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
             	if (channelDisplayState.substring(i,i+1).equalsIgnoreCase("1"))
             	{
-            		lfpDisplay->setEnabledState(true, i);
+            		lfpDisplay->enableChannel(true, i);
             	} else {
-            		lfpDisplay->setEnabledState(false, i);
+            		lfpDisplay->enableChannel(false, i);
             	}
 
             	
@@ -891,6 +891,15 @@ bool LfpDisplay::getEventDisplayState(int ch)
     return eventDisplayEnabled[ch];
 }
 
+void LfpDisplay::enableChannel(bool state, int chan)
+{
+
+	if (chan < numChans)
+	{
+		channelInfo[chan]->setEnabledState(state);
+	}
+}
+
 void LfpDisplay::setEnabledState(bool state, int chan)
 {
 
@@ -898,7 +907,6 @@ void LfpDisplay::setEnabledState(bool state, int chan)
 	{
 
 		channels[chan]->setEnabledState(state);
-		channelInfo[chan]->setEnabledState(state);
 	}
 }
 
@@ -941,10 +949,13 @@ LfpChannelDisplay::~LfpChannelDisplay()
 void LfpChannelDisplay::setEnabledState(bool state)
 {
 
-
-	std::cout << "Setting channel " << name << " to " << state << std::endl;
+	if (state)
+		std::cout << "Setting channel " << name << " to true." << std::endl;
+	else
+		std::cout << "Setting channel " << name << " to false." << std::endl;
 
 	isEnabled = state;
+
 }
 
 void LfpChannelDisplay::paint(Graphics& g)
@@ -1191,7 +1202,7 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
 
 void LfpChannelDisplayInfo::setEnabledState(bool state)
 {
-	enableButton->setToggleState(state, false);
+	enableButton->setToggleState(state, true);
 }
 
 void LfpChannelDisplayInfo::paint(Graphics& g)

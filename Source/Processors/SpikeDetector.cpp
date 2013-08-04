@@ -634,31 +634,37 @@ void SpikeDetector::loadCustomParametersFromXml()
             if (xmlNode->hasTagName("ELECTRODE"))
             {
 
-//                electrodeIndex++;
-//
-//                int channelsPerElectrode = xmlNode->getIntAttribute("numChannels");
-//
-//                SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
-//                sde->addElectrode(channelsPerElectrode);
-//
-//                setElectrodeName(electrodeIndex+1, xmlNode->getStringAttribute("name"));
-//
-//                int channelIndex = -1;
-//
-//                forEachXmlChildElement(*parametersAsXml, channelNode)
-//                {
-//                    if (channelNode->hasTagName("SUBCHANNEL"))
-//                    {
-//                        channelIndex++;
-//
-//                        setChannel(electrodeIndex, channelIndex, channelNode->getIntAttribute("ch"));
-//                        setChannelThreshold(electrodeIndex, channelIndex, channelNode->getDoubleAttribute("thresh"));
-//                        setChannelActive(electrodeIndex, channelIndex, channelNode->getBoolAttribute("isActive"));
-//                    }
-//                }
+                electrodeIndex++;
+
+                int channelsPerElectrode = xmlNode->getIntAttribute("numChannels");
+
+                SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
+                sde->addElectrode(channelsPerElectrode);
+
+                setElectrodeName(electrodeIndex+1, xmlNode->getStringAttribute("name"));
+
+                int channelIndex = -1;
+
+                forEachXmlChildElement(*xmlNode, channelNode)
+                {
+                    if (channelNode->hasTagName("SUBCHANNEL"))
+                    {
+                        channelIndex++;
+
+                        std::cout << "Subchannel " << channelIndex << std::endl;
+
+                        setChannel(electrodeIndex, channelIndex, channelNode->getIntAttribute("ch"));
+                        setChannelThreshold(electrodeIndex, channelIndex, channelNode->getDoubleAttribute("thresh"));
+                        setChannelActive(electrodeIndex, channelIndex, channelNode->getBoolAttribute("isActive"));
+                    }
+               }
+
 
             }
         }
     }
+
+    SpikeDetectorEditor* ed = (SpikeDetectorEditor*) getEditor();
+    ed->checkSettings();
 
 }

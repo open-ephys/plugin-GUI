@@ -154,6 +154,8 @@ public:
 
     bool addElectrode(int nChans);
 
+    void checkSettings();
+
 private:
 
     void drawElectrodeButtons(int);

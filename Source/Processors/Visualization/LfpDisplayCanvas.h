@@ -188,6 +188,7 @@ public:
 
     void setEnabledState(bool, int);
     bool getEnabledState(int);
+    void enableChannel(bool, int);
 
     Array<Colour> channelColours;
 
