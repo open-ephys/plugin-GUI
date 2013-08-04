@@ -187,7 +187,7 @@ public:
     bool getEventDisplayState(int ch);
 
     void setEnabledState(bool, int);
-
+    bool getEnabledState(int);
 
     Array<Colour> channelColours;
 
@@ -233,6 +233,7 @@ public:
     int getRange();
 
     void setEnabledState(bool);
+    bool getEnabledState() {return isEnabled;}
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
@@ -272,6 +273,8 @@ public:
     void buttonClicked(Button* button);
 
     void resized();
+
+    void setEnabledState(bool);
 
 private:
     

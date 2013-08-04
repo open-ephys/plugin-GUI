@@ -463,6 +463,20 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 
     xmlNode->setAttribute("EventButtonState", eventButtonState);
 
+    String channelDisplayState = "";
+
+    for (int i = 0; i < nChans; i++)
+    {
+    	if (lfpDisplay->getEnabledState(i))
+    	{
+    		channelDisplayState += "1";
+    	} else {
+    		channelDisplayState += "0";
+    	}
+    }
+
+    xmlNode->setAttribute("ChannelDisplayState", channelDisplayState);
+
     xmlNode->setAttribute("ScrollX",viewport->getViewPositionX());
     xmlNode->setAttribute("ScrollY",viewport->getViewPositionY());
 }
@@ -481,13 +495,28 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
             viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
                                       xmlNode->getIntAttribute("ScrollY"));
 
-            int eventButtonState = xmlNode->getIntAttribute("eventButtonState");
+            int eventButtonState = xmlNode->getIntAttribute("EventButtonState");
 
             for (int i = 0; i < 8; i++)
             {
             	lfpDisplay->eventDisplayEnabled[i] = (eventButtonState >> i) & 1;
 
             	eventDisplayInterfaces[i]->checkEnabledState();
+            }
+
+            String channelDisplayState = xmlNode->getStringAttribute("ChannelDisplayState");
+
+            for (int i = 0; i < channelDisplayState.length(); i++)
+            {
+
+            	if (channelDisplayState.substring(i,i+1).equalsIgnoreCase("1"))
+            	{
+            		lfpDisplay->setEnabledState(true, i);
+            	} else {
+            		lfpDisplay->setEnabledState(false, i);
+            	}
+
+            	
             }
         }
     }
@@ -595,6 +624,7 @@ int LfpDisplay::getNumChannels()
 {
     return numChans;
 }
+
 
 void LfpDisplay::setNumChannels(int numChannels)
 {
@@ -861,10 +891,26 @@ bool LfpDisplay::getEventDisplayState(int ch)
     return eventDisplayEnabled[ch];
 }
 
-void LfpDisplay::setEnabledState(bool state, int ch)
+void LfpDisplay::setEnabledState(bool state, int chan)
 {
-	channels[ch]->setEnabledState(state);
+
+	if (chan < numChans)
+	{
+
+		channels[chan]->setEnabledState(state);
+		channelInfo[chan]->setEnabledState(state);
+	}
 }
+
+ bool LfpDisplay::getEnabledState(int chan)
+ {
+ 	if (chan < numChans)
+ 	{
+ 		return channels[chan]->getEnabledState();
+ 	}
+
+ 	return false;
+ }
 
 
 // ------------------------------------------------------------------
@@ -894,6 +940,10 @@ LfpChannelDisplay::~LfpChannelDisplay()
 
 void LfpChannelDisplay::setEnabledState(bool state)
 {
+
+
+	std::cout << "Setting channel " << name << " to " << state << std::endl;
+
 	isEnabled = state;
 }
 
@@ -1137,6 +1187,11 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
 
 	std::cout << "Turn channel " << chan << " to " << button->getToggleState() << std::endl;
 
+}
+
+void LfpChannelDisplayInfo::setEnabledState(bool state)
+{
+	enableButton->setToggleState(state, false);
 }
 
 void LfpChannelDisplayInfo::paint(Graphics& g)

@@ -87,7 +87,7 @@ void RHD2000Thread::initializeBoard()
 
     if (!evalBoard->uploadFpgaBitfile(bitfilename))
     {
-		std::cout << "Couldn't upload bitfile." << std::endl;
+		std::cout << "Couldn't upload bitfile from " << bitfilename << std::endl;
         // what to do if there's an error
     }
 
