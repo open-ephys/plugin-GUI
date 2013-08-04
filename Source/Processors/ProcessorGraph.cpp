@@ -716,6 +716,14 @@ void ProcessorGraph::setRecordState(bool isRecording)
    // const MessageManagerLock mmLock; // lock the message manager to prevent rendering crashes
     
     // inform other processors that recording will begin
+
+    // actually start recording
+    if (isRecording)
+    {
+        getRecordNode()->setParameter(1,10.0f);
+    } else {
+        getRecordNode()->setParameter(0,10.0f);
+    }
     
     for (int i = 0; i < getNumNodes(); i++)
     {
@@ -732,13 +740,7 @@ void ProcessorGraph::setRecordState(bool isRecording)
         }
     }
     
-    // actually start recording
-    if (isRecording)
-    {
-        getRecordNode()->setParameter(1,10.0f);
-    } else {
-        getRecordNode()->setParameter(0,10.0f);
-    }
+    
     
 }
 
