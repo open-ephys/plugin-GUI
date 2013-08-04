@@ -64,63 +64,16 @@ void PulsePal::initialize()
 
     bool foundDevice = false;
 
-    for (int devNum; devNum < devices.size(); devNum++)
-    {
-        int id = devices[devNum].getDeviceID();
-        string path = devices[devNum].getDevicePath();
-        string name = devices[devNum].getDeviceName();
+	int id = devices[0].getDeviceID();
+        string path = devices[0].getDevicePath();
+        string name = devices[0].getDeviceName();
 
-        // std::cout << "Device name: " << name << std::endl;
-
-        //#if (defined TARGET_LINUX)
-        string acm0 = "ACM0";
-        //#endif
-
-        //#if (defined TARGET_OSX)
-        //    string acm0 = "usbmodemfa131";
-        // #endif
-
-
-        size_t index = path.find(acm0);
-
-        if (index != string::npos) // only open ttyACM0
-        {
-
-            serial.setup(id, 115200); //115200);
-
-            unsigned char bytesToWrite = 59;
-
-            serial.writeByte(bytesToWrite);
-
-            // std::cout << "error number: " << a << std::endl;
-
-            // while (serial.available() == 0)
-            // {
-            //     serial.writeByte(59);
-            // }
-
-            unsigned char resp = serial.readByte();
-
-            std::cout << "Got response: " << (int) resp << std::endl;
-
-            if (resp == 254)
-            {
-                std::cout << "FOUND A PULSE PAL." << std::endl;
-                foundDevice = true;
-            }
-
-            // for (int i = 0; i < 10; i++)
-            // {
-            // 	std::cout << "Response: " << (int) resp[i] << std::endl;
-            // }
-
-            break;
-        }
-
-    }
-
+	serial.setup(id, 115200); //115200);
+	
 
 }
+
+
 
 void PulsePal::setPhase1Duration(uint8_t channel, uint32_t timeInMicroseconds)
 {
