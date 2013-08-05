@@ -275,12 +275,24 @@ String RecordNode::generateDateString()
     datestring += "-";
     datestring += String(calendar.getYear());
     datestring += " ";
-    datestring += calendar.getHours();
-    datestring += ":";
-    datestring += calendar.getMinutes();
-    datestring += ":";
-    datestring += calendar.getSeconds();
 
+    int hrs, mins, secs;
+    hrs = calender.getHours();
+    mins = calendar.getMinutes();
+    secs = calendar.getSeconds();
+
+    datestring += hrs;
+
+    if (mins < 10)
+        datestring += 0;
+
+    datestring += mins;
+
+    if (secs < 0)
+        datestring += 0;
+
+    datestring += secs;
+    
     return datestring;
 
 }
