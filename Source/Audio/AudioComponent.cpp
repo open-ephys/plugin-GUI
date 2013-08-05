@@ -198,11 +198,11 @@ void AudioComponent::beginCallbacks()
     
     int64 ms = Time::getCurrentTime().toMilliseconds();
     
-    while(Time::getCurrentTime().toMilliseconds() - ms < 100)
-    {
+    //while(Time::getCurrentTime().toMilliseconds() - ms < 100)
+    //{
         // pause to let things finish up
         
-    }
+   // }
 
 }
 

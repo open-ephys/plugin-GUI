@@ -186,6 +186,9 @@ public:
     bool setEventDisplayState(int ch, bool state);
     bool getEventDisplayState(int ch);
 
+    void setEnabledState(bool, int);
+    bool getEnabledState(int);
+    void enableChannel(bool, int);
 
     Array<Colour> channelColours;
 
@@ -230,6 +233,9 @@ public:
     void setRange(float range);
     int getRange();
 
+    void setEnabledState(bool);
+    bool getEnabledState() {return isEnabled;}
+
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
 protected:
@@ -253,15 +259,28 @@ protected:
 
     float range;
 
+    bool isEnabled;
+
 };
 
-class LfpChannelDisplayInfo : public LfpChannelDisplay
+class LfpChannelDisplayInfo : public LfpChannelDisplay,
+                              public Button::Listener
 {
 public:
     LfpChannelDisplayInfo(LfpDisplayCanvas*, LfpDisplay*, int channelNumber);
 
     void paint(Graphics& g);
 
+    void buttonClicked(Button* button);
+
+    void resized();
+
+    void setEnabledState(bool);
+
+private:
+    
+    ScopedPointer<UtilityButton> enableButton;        
+                
 };
 
 class EventDisplayInterface : public Component,

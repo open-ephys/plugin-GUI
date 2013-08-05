@@ -479,6 +479,11 @@ void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
     thresholdSlider->setActive(false);
 }
 
+void SpikeDetectorEditor::checkSettings()
+{
+    electrodeList->setSelectedItemIndex(0);
+}
+
 void SpikeDetectorEditor::drawElectrodeButtons(int ID)
 {
 
@@ -511,6 +516,8 @@ void SpikeDetectorEditor::drawElectrodeButtons(int ID)
         else
         {
             activeChannels.add(processor->getChannel(ID,i));
+
+            button->setToggleState(processor->isChannelActive(ID,i), false);
         }
 
         if (numChannels < 3)

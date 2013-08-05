@@ -463,6 +463,20 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 
     xmlNode->setAttribute("EventButtonState", eventButtonState);
 
+    String channelDisplayState = "";
+
+    for (int i = 0; i < nChans; i++)
+    {
+    	if (lfpDisplay->getEnabledState(i))
+    	{
+    		channelDisplayState += "1";
+    	} else {
+    		channelDisplayState += "0";
+    	}
+    }
+
+    xmlNode->setAttribute("ChannelDisplayState", channelDisplayState);
+
     xmlNode->setAttribute("ScrollX",viewport->getViewPositionX());
     xmlNode->setAttribute("ScrollY",viewport->getViewPositionY());
 }
@@ -481,13 +495,28 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
             viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
                                       xmlNode->getIntAttribute("ScrollY"));
 
-            int eventButtonState = xmlNode->getIntAttribute("eventButtonState");
+            int eventButtonState = xmlNode->getIntAttribute("EventButtonState");
 
             for (int i = 0; i < 8; i++)
             {
             	lfpDisplay->eventDisplayEnabled[i] = (eventButtonState >> i) & 1;
 
             	eventDisplayInterfaces[i]->checkEnabledState();
+            }
+
+            String channelDisplayState = xmlNode->getStringAttribute("ChannelDisplayState");
+
+            for (int i = 0; i < channelDisplayState.length(); i++)
+            {
+
+            	if (channelDisplayState.substring(i,i+1).equalsIgnoreCase("1"))
+            	{
+            		lfpDisplay->enableChannel(true, i);
+            	} else {
+            		lfpDisplay->enableChannel(false, i);
+            	}
+
+            	
             }
         }
     }
@@ -596,6 +625,7 @@ int LfpDisplay::getNumChannels()
     return numChans;
 }
 
+
 void LfpDisplay::setNumChannels(int numChannels)
 {
     numChans = numChannels;
@@ -667,9 +697,9 @@ void LfpDisplay::resized()
         LfpChannelDisplayInfo* info = channelInfo[i];
 
         info->setBounds(0,
-                        totalHeight-disp->getChannelOverlap()/2,
+                        totalHeight-disp->getChannelHeight()/4,
                         canvas->leftmargin,
-                        disp->getChannelHeight()+disp->getChannelOverlap());
+                        disp->getChannelHeight());
 
         totalHeight += disp->getChannelHeight();
 
@@ -861,11 +891,42 @@ bool LfpDisplay::getEventDisplayState(int ch)
     return eventDisplayEnabled[ch];
 }
 
+void LfpDisplay::enableChannel(bool state, int chan)
+{
+
+	if (chan < numChans)
+	{
+		channelInfo[chan]->setEnabledState(state);
+	}
+}
+
+void LfpDisplay::setEnabledState(bool state, int chan)
+{
+
+	if (chan < numChans)
+	{
+
+		channels[chan]->setEnabledState(state);
+	}
+}
+
+ bool LfpDisplay::getEnabledState(int chan)
+ {
+ 	if (chan < numChans)
+ 	{
+ 		return channels[chan]->getEnabledState();
+ 	}
+
+ 	return false;
+ }
+
 
 // ------------------------------------------------------------------
 
 LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, int channelNumber) :
-    canvas(c), display(d), isSelected(false), chan(channelNumber), channelHeight(40), channelOverlap(300), range(1000.0f)
+    canvas(c), display(d), isSelected(false), chan(channelNumber), 
+    channelHeight(40), channelOverlap(300), range(1000.0f),
+    isEnabled(true)
 {
 
 
@@ -885,6 +946,18 @@ LfpChannelDisplay::~LfpChannelDisplay()
 
 }
 
+void LfpChannelDisplay::setEnabledState(bool state)
+{
+
+	if (state)
+		std::cout << "Setting channel " << name << " to true." << std::endl;
+	else
+		std::cout << "Setting channel " << name << " to false." << std::endl;
+
+	isEnabled = state;
+
+}
+
 void LfpChannelDisplay::paint(Graphics& g)
 {
 
@@ -898,6 +971,9 @@ void LfpChannelDisplay::paint(Graphics& g)
 
     //g.setColour(Colours::red); // draw oldest drawn sample position
     //g.drawLine(canvas->lastScreenBufferIndex, 0, canvas->lastScreenBufferIndex, getHeight()-channelOverlap);
+
+    if (isEnabled)
+    {
 
     int center = getHeight()/2;
 
@@ -1008,6 +1084,7 @@ void LfpChannelDisplay::paint(Graphics& g)
         }
 
     }
+}	
 
     // g.setColour(lineColour.withAlpha(0.7f)); // alpha on seems to decrease draw speed
     // g.setFont(channelFont);
@@ -1088,6 +1165,44 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
     : LfpChannelDisplay(canvas_, display_, ch)
 {
 
+	chan = ch;
+
+	enableButton = new UtilityButton("ON", Font("Small Text", 13, Font::plain));
+    enableButton->setRadius(5.0f);
+    
+    enableButton->setEnabledState(true);
+    enableButton->setCorners(true, true, true, true);
+    enableButton->addListener(this);
+    enableButton->setClickingTogglesState(true);
+    enableButton->setToggleState(true, false);
+
+    addAndMakeVisible(enableButton);
+
+}
+
+void LfpChannelDisplayInfo::buttonClicked(Button* button)
+{
+
+	bool state = button->getToggleState();
+
+	display->setEnabledState(state, chan);
+
+	UtilityButton* b = (UtilityButton*) button;
+
+	if (state)
+	{
+		b->setLabel("ON");
+	} else {
+		b->setLabel("OFF");
+	}
+
+	std::cout << "Turn channel " << chan << " to " << button->getToggleState() << std::endl;
+
+}
+
+void LfpChannelDisplayInfo::setEnabledState(bool state)
+{
+	enableButton->setToggleState(state, true);
 }
 
 void LfpChannelDisplayInfo::paint(Graphics& g)
@@ -1105,6 +1220,13 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
 
 }
 
+void LfpChannelDisplayInfo::resized()
+{
+
+	int center = getHeight()/2;
+
+	enableButton->setBounds(10,center+10,25,14);
+}
 
 
 // Event display Options --------------------------------------------------------------------

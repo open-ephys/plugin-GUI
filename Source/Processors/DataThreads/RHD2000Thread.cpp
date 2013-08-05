@@ -77,9 +77,17 @@ RHD2000Thread::~RHD2000Thread()
 void RHD2000Thread::initializeBoard()
 {
     string bitfilename;
-    bitfilename = "rhd2000.bit";
+
+	File executable = File::getSpecialLocation(File::currentExecutableFile);
+	const String executableDirectory = executable.getParentDirectory().getFullPathName();
+	string dirName = executableDirectory.toStdString();
+	bitfilename = dirName;
+	bitfilename += File::separatorString.toStdString();
+	bitfilename += "rhd2000.bit";
+
     if (!evalBoard->uploadFpgaBitfile(bitfilename))
     {
+		std::cout << "Couldn't upload bitfile from " << bitfilename << std::endl;
         // what to do if there's an error
     }
 
