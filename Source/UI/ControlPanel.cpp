@@ -495,13 +495,13 @@ void ControlPanel::resized()
     int h = 32; //getHeight();
 
     if (playButton != 0)
-        playButton->setBounds(w-h*9,5,h-5,h-10);
+        playButton->setBounds(w-h*10,5,h-5,h-10);
 
     if (recordButton != 0)
-        recordButton->setBounds(w-h*8,5,h-5,h-10);
+        recordButton->setBounds(w-h*9,5,h-5,h-10);
 
     if (masterClock != 0)
-        masterClock->setBounds(w-h*6-15,0,h*6-15,h);
+        masterClock->setBounds(w-h*7-15,0,h*7-15,h);
 
     if (cpuMeter != 0)
         cpuMeter->setBounds(8,h/4,h*3,h/2);

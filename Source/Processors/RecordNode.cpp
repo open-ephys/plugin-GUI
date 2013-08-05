@@ -277,7 +277,7 @@ String RecordNode::generateDateString()
     datestring += " ";
 
     int hrs, mins, secs;
-    hrs = calender.getHours();
+    hrs = calendar.getHours();
     mins = calendar.getMinutes();
     secs = calendar.getSeconds();
 
@@ -292,7 +292,7 @@ String RecordNode::generateDateString()
         datestring += 0;
 
     datestring += secs;
-    
+
     return datestring;
 
 }
