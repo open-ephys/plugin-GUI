@@ -41,7 +41,7 @@ Rhd2000EvalBoard::Rhd2000EvalBoard()
     int i;
     sampleRate = SampleRate30000Hz; // Rhythm FPGA boots up with 30.0 kS/s/channel sampling rate
     numDataStreams = 0;
-	dev=nullptr;
+	dev = 0; //nullptr;
 
     for (i = 0; i < MAX_NUM_DATA_STREAMS; ++i)
     {
@@ -73,7 +73,7 @@ int Rhd2000EvalBoard::open()
     okFrontPanelDLL_GetVersion(dll_date, dll_time);
     cout << endl << "FrontPanel DLL loaded.  Built: " << dll_date << "  " << dll_time << endl;
 
-	if (dev != nullptr) delete dev; //Avoid memory leaks if open is called twice.
+	if (dev != 0) delete dev; //Avoid memory leaks if open is called twice.
 
     dev = new okCFrontPanel;
 
@@ -103,7 +103,7 @@ int Rhd2000EvalBoard::open()
     if (dev->OpenBySerial(serialNumber) != okCFrontPanel::NoError)
     {
         delete dev;
-		dev=nullptr;
+		dev = 0; //nullptr;
         cerr << "Device could not be opened.  Is one connected?" << endl;
         return -2;
     }
@@ -161,7 +161,7 @@ bool Rhd2000EvalBoard::uploadFpgaBitfile(string filename)
     {
         cerr << "Opal Kelly FrontPanel support is not enabled in this FPGA configuration." << endl;
         delete dev;
-		dev=nullptr;
+		dev = 0; //nullptr;
         return(false);
     }
 
