@@ -38,6 +38,7 @@ class Rhd2000EvalBoard
 
 public:
     Rhd2000EvalBoard();
+	~Rhd2000EvalBoard();
 
     int open();
     bool uploadFpgaBitfile(string filename);
