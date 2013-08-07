@@ -107,7 +107,7 @@ void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
         //     {
         //         canBeTriggered = true;
         //     }
-        if (eventId == 0 && eventChannel == 5)
+        if (eventId == 0 && eventChannel == 1)
         {
             triggerOnPeak = randomNumberGenerator.nextBool();
 
