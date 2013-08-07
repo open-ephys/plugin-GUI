@@ -173,6 +173,12 @@ bool Rhd2000EvalBoard::uploadFpgaBitfile(string filename)
     return(true);
 }
 
+// Uses the Opal Kelly library to reset the FPGA
+void Rhd2000EvalBoard::resetFpga() 
+{
+	dev->ResetFPGA();
+}
+
 // Reads system clock frequency from Opal Kelly board (in MHz).  Should be 100 MHz for normal
 // Rhythm operation.
 double Rhd2000EvalBoard::getSystemClockFreq() const

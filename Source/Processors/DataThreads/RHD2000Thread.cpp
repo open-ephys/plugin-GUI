@@ -36,6 +36,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
     dataBuffer = new DataBuffer(2, 10000); // start with 2 channels and automatically resize
 
     // Open Opal Kelly XEM6010 board.
+	// Returns 1 if successful, -1 if FrontPanel cannot be loaded, and -2 if XEM6010 can't be found.
     int return_code = evalBoard->open();
 
     if (return_code == 1)
@@ -54,7 +55,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
         initializeBoard();
 
         // automatically find connected headstages
-        scanPorts(); // do this after the editor has been created?
+        scanPorts(); // things would run more smoothly if this were done after the editor has been created
     }
 
 }
@@ -69,6 +70,9 @@ RHD2000Thread::~RHD2000Thread()
         int ledArray[8] = {0, 0, 0, 0, 0, 0, 0, 0};
         evalBoard->setLedDisplay(ledArray);
     }
+
+	if (deviceFound)
+		evalBoard->resetFpga();
 
     deleteAndZero(dataBlock);
 

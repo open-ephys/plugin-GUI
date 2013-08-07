@@ -153,6 +153,8 @@ public:
     bool readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue);
     int queueToFile(queue<Rhd2000DataBlock> &dataQueue, std::ofstream& saveOut);
 
+	void resetFpga();
+
 private:
     okCFrontPanel* dev;
     AmplifierSampleRate sampleRate;
