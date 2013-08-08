@@ -107,7 +107,8 @@ ChannelTriggerInterface::ChannelTriggerInterface(PulsePal* pp, PulsePalOutput* p
     triggerSelector->addItem("Trig",1);
 
     for (int i = 0; i < 10; i++)
-        triggerSelector->addItem(String(i),i+2);
+        triggerSelector->addItem(String(i+1),i+2); // start numbering at one for
+                                                   // user-visible channels
 
     triggerSelector->setSelectedId(1, false);
     addAndMakeVisible(triggerSelector);
@@ -118,7 +119,8 @@ ChannelTriggerInterface::ChannelTriggerInterface(PulsePal* pp, PulsePalOutput* p
     gateSelector->addItem("Gate",1);
 
     for (int i = 0; i < 10; i++)
-        gateSelector->addItem(String(i),i+2);
+        gateSelector->addItem(String(i+1),i+2); // start numbering at one for
+                                                // user-visible channels
 
     gateSelector->setSelectedId(1, false);
     addAndMakeVisible(gateSelector);

@@ -28,7 +28,7 @@
 PhaseDetector::PhaseDetector()
     : GenericProcessor("Phase Detector"),
       maxFrequency(20), isIncreasing(true), canBeTriggered(false), selectedChannel(-1),
-      triggerOnPeak(true)
+      triggerOnPeak(true), outputEventChannel(3)
 
 {
 
@@ -60,9 +60,13 @@ void PhaseDetector::setParameter(int parameterIndex, float newValue)
 {
     editor->updateParameterButtons(parameterIndex);
     editor->updateParameterButtons(parameterIndex);
+    
     if (parameterIndex == 1)
     {
         selectedChannel = (int) newValue;
+    } else if (parameterIndex == 1)
+    {
+        outputEventChannel = (int) newValue;
     }
 
 }
@@ -154,7 +158,7 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
                 // entering falling phase (just reached peak or trough)
                 //if (true)
-                addEvent(events, TTL, i, 1, 3);
+                addEvent(events, TTL, i, 1, outputEventChannel);
 
 
                 peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
@@ -174,7 +178,7 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
                 if (nSamplesSinceLastPeak == 500)
                 {
-                    addEvent(events, TTL, i, 0, 3);
+                    addEvent(events, TTL, i, 0, outputEventChannel);
                 }
 
             }
