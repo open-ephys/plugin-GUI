@@ -121,6 +121,29 @@ AudioComponent::~AudioComponent()
 
 }
 
+void AudioComponent::setBufferSize(int s)
+{
+    AudioDeviceManager::AudioDeviceSetup setup;
+    deviceManager.getAudioDeviceSetup(setup);
+
+    if (s > 16 && s < 6000)
+    {
+        setup.bufferSize = s;
+        deviceManager.setAudioDeviceSetup(setup, false);
+    } else {
+        std::cout << "Buffer size out of range." << std::endl;
+    }
+
+}
+
+int AudioComponent::getBufferSize()
+{
+    AudioDeviceManager::AudioDeviceSetup setup;
+    deviceManager.getAudioDeviceSetup(setup);
+
+    return setup.bufferSize;
+}
+
 void AudioComponent::connectToProcessorGraph(AudioProcessorGraph* processorGraph)
 {
 
@@ -159,22 +182,22 @@ void AudioComponent::beginCallbacks()
     {
     
     //const MessageManagerLock mmLock;
-    MessageManagerLock mml (Thread::getCurrentThread());
+    // MessageManagerLock mml (Thread::getCurrentThread());
     
-    if (mml.lockWasGained())
-    {
-        std::cout << "AUDIO COMPONENT GOT THAT LOCK!" << std::endl;
-    } else {
-        std::cout << "AUDIO COMPONENT COULDN'T GET THE LOCK...RETURNING." << std::endl;
-        return;
-    }
+    // if (mml.lockWasGained())
+    // {
+    //     std::cout << "AUDIO COMPONENT GOT THAT LOCK!" << std::endl;
+    // } else {
+    //     std::cout << "AUDIO COMPONENT COULDN'T GET THE LOCK...RETURNING." << std::endl;
+    //     return;
+    // }
         
-        MessageManager* mm = MessageManager::getInstance();
+    //     MessageManager* mm = MessageManager::getInstance();
         
-        if (mm->isThisTheMessageThread())
-            std::cout << "THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
-        else
-            std::cout << "NOT THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
+    //     if (mm->isThisTheMessageThread())
+    //         std::cout << "THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
+    //     else
+    //         std::cout << "NOT THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
         
     
     
@@ -211,19 +234,19 @@ void AudioComponent::endCallbacks()
     
    // const MessageManagerLock mmLock; // add a lock to prevent crashes
     
-    MessageManagerLock mml (Thread::getCurrentThread());
+    // MessageManagerLock mml (Thread::getCurrentThread());
     
-    if (mml.lockWasGained())
-    {
-        std::cout << "AUDIO COMPONENT GOT THAT LOCK!" << std::endl;
-    }
+    // if (mml.lockWasGained())
+    // {
+    //     std::cout << "AUDIO COMPONENT GOT THAT LOCK!" << std::endl;
+    // }
 
-    MessageManager* mm = MessageManager::getInstance();
+    // MessageManager* mm = MessageManager::getInstance();
     
-    if (mm->isThisTheMessageThread())
-        std::cout << "THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
-    else
-        std::cout << "NOT THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
+    // if (mm->isThisTheMessageThread())
+    //     std::cout << "THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
+    // else
+    //     std::cout << "NOT THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
     
     
     std::cout << std::endl << "Removing audio callback." << std::endl;

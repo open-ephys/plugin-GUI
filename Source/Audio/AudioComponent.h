@@ -76,6 +76,12 @@ public:
     when callbacks are not active).*/
     void stopDevice();
 
+    /** Returns the buffer size (in samples) currently being used.*/
+    int getBufferSize();
+
+    /** Sets the buffer size in samples.*/
+    void setBufferSize(int);
+
     AudioDeviceManager deviceManager;
 
 private:
