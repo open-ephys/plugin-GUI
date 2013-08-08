@@ -33,12 +33,37 @@ PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode, bool useD
 {
     desiredWidth = 180;
 
-    channelSelectionBox = new ComboBox();
-    channelSelectionBox->setBounds(15,50,150,25);
-    channelSelectionBox->addListener(this);
-    channelSelectionBox->addItem("None", 1);
-    channelSelectionBox->setSelectedId(1, false);
-    addAndMakeVisible(channelSelectionBox);
+    intputChannelLabel = new Label("input", "Input channel:");
+    intputChannelLabel->setBounds(15,25,180,20);
+    intputChannelLabel->setFont(Font("Small Text", 12, Font::plain));
+    intputChannelLabel->setColour(Label::textColourId, Colours::darkgrey);
+    addAndMakeVisible(intputChannelLabel);
+
+    outputChannelLabel = new Label("output", "Output channel:");
+    outputChannelLabel->setBounds(15,75,180,20);
+    outputChannelLabel->setFont(Font("Small Text", 12, Font::plain));
+    outputChannelLabel->setColour(Label::textColourId, Colours::darkgrey);
+    addAndMakeVisible(outputChannelLabel);
+
+    inputChannelSelectionBox = new ComboBox();
+    inputChannelSelectionBox->setBounds(15,45,150,25);
+    inputChannelSelectionBox->addListener(this);
+    inputChannelSelectionBox->addItem("None", 1);
+    inputChannelSelectionBox->setSelectedId(1, false);
+    addAndMakeVisible(inputChannelSelectionBox);
+
+    outputChannelSelectionBox = new ComboBox();
+    outputChannelSelectionBox->setBounds(15,95,150,25);
+    outputChannelSelectionBox->addListener(this);
+    outputChannelSelectionBox->addItem("None", 1);
+
+    for (int chan = 0; chan < 10; chan++)
+    {
+        outputChannelSelectionBox->addItem(String(chan+1), chan+2);
+    }
+
+    outputChannelSelectionBox->setSelectedId(5, false); // default output channel is 4
+    addAndMakeVisible(outputChannelSelectionBox);
 
 }
 
@@ -52,19 +77,19 @@ void PhaseDetectorEditor::updateSettings()
 
     if (getProcessor()->getNumInputs() != previousChannelCount)
     {
-        channelSelectionBox->clear();
+        inputChannelSelectionBox->clear();
 
-        channelSelectionBox->addItem("None", 1);
+        inputChannelSelectionBox->addItem("None", 1);
 
         for (int i = 0; i < getProcessor()->getNumInputs(); i++)
         {
-            channelSelectionBox->addItem("Channel " + String(i+1), i+2);
+            inputChannelSelectionBox->addItem("Channel " + String(i+1), i+2);
 
         }
 
         previousChannelCount = getProcessor()->getNumInputs();
 
-        channelSelectionBox->setSelectedId(1, false);
+        inputChannelSelectionBox->setSelectedId(1, false);
 
         getProcessor()->setParameter(1,-1.0f);
 
@@ -74,20 +99,28 @@ void PhaseDetectorEditor::updateSettings()
 
 void PhaseDetectorEditor::comboBoxChanged(ComboBox* c)
 {
+
     float channel;
 
-    int id = c->getSelectedId();
+     int id = c->getSelectedId();
 
-    if (id == 1)
-    {
+     if (id == 1)
+     {
         channel = -1.0f;
-    }
-    else
-    {
+     }
+        else
+     {
         channel = float(id) - 2.0f;
-    }
+     }
 
-    getProcessor()->setParameter(1,channel);
+    if (c == inputChannelSelectionBox)
+    {
+        getProcessor()->setParameter(1,channel);
+    } else if (c == outputChannelSelectionBox) {
+
+        getProcessor()->setParameter(2,channel);
+
+    }
 
 }
 
@@ -104,7 +137,8 @@ void PhaseDetectorEditor::saveEditorParameters(XmlElement* xml)
 
     XmlElement* selectedChannel = xml->createNewChildElement("SELECTEDID");
 
-    selectedChannel->setAttribute("ID",channelSelectionBox->getSelectedId());
+    selectedChannel->setAttribute("INPUTCHANNEL",inputChannelSelectionBox->getSelectedId());
+    selectedChannel->setAttribute("OUTPUTCHANNEL",outputChannelSelectionBox->getSelectedId());
 
 }
 
@@ -116,11 +150,8 @@ void PhaseDetectorEditor::loadEditorParameters(XmlElement* xml)
         if (xmlNode->hasTagName("SELECTEDID"))
         {
 
-            int id = xmlNode->getIntAttribute("ID");
-
-            std::cout << channelSelectionBox->getNumItems() << std::endl;
-
-            channelSelectionBox->setSelectedId(id, false);
+            inputChannelSelectionBox->setSelectedId(xmlNode->getIntAttribute("INPUTCHANNEL"));
+            outputChannelSelectionBox->setSelectedId(xmlNode->getIntAttribute("OUTPUTCHANNEL"));
 
         }
     }

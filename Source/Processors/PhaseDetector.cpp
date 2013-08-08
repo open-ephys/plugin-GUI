@@ -66,7 +66,7 @@ void PhaseDetector::setParameter(int parameterIndex, float newValue)
         selectedChannel = (int) newValue;
     } else if (parameterIndex == 1)
     {
-        outputEventChannel = (int) newValue;
+        outputEventChannel = (int) newValue; // -1 means don't send any events
     }
 
 }
@@ -158,7 +158,8 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
                 // entering falling phase (just reached peak or trough)
                 //if (true)
-                addEvent(events, TTL, i, 1, outputEventChannel);
+                if (outputEventChannel > -1)
+                    addEvent(events, TTL, i, 1, outputEventChannel);
 
 
                 peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
@@ -176,7 +177,7 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
                 // either rising or falling
                 nSamplesSinceLastPeak++;
 
-                if (nSamplesSinceLastPeak == 500)
+                if (nSamplesSinceLastPeak == 500 && outputEventChannel > -1)
                 {
                     addEvent(events, TTL, i, 0, outputEventChannel);
                 }
