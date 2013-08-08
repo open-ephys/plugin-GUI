@@ -930,20 +930,23 @@ bool RHD2000Thread::updateBuffer()
 
                         channel++;
                         thisSample[channel] = 0.0374 *
-                                              float(dataBlock->auxiliaryData[streamNumber][1][samp+0] - 10000.0f) ;
+                                              float(dataBlock->auxiliaryData[streamNumber][1][samp+0] - 45000.0f) ;
+                                              // constant offset keeps the values visible in the LFP Viewer
 
                         auxBuffer[channel] = thisSample[channel];
 
                         channel++;
                         thisSample[channel] = 0.0374 *
-                                              float(dataBlock->auxiliaryData[streamNumber][1][samp+1] - 10000.0f) ;
+                                              float(dataBlock->auxiliaryData[streamNumber][1][samp+1] - 45000.0f) ;
+                                              // constant offset keeps the values visible in the LFP Viewer
 
                         auxBuffer[channel] = thisSample[channel];
 
 
                         channel++;
                         thisSample[channel] = 0.0374 *
-                                              float(dataBlock->auxiliaryData[streamNumber][1][samp+2] - 10000.0f) ;
+                                              float(dataBlock->auxiliaryData[streamNumber][1][samp+2] - 45000.0f) ;
+                                              // constant offset keeps the values visible in the LFP Viewer
 
                         auxBuffer[channel] = thisSample[channel];
 
