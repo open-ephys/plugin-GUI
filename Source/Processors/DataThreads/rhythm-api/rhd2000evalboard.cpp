@@ -52,7 +52,7 @@ Rhd2000EvalBoard::Rhd2000EvalBoard()
 //Destructor: Deletes the device to avoid memory leak
 Rhd2000EvalBoard::~Rhd2000EvalBoard()
 {
-	delete dev;
+	if (dev != 0) delete dev;
 }
 
 // Find an Opal Kelly XEM6010-LX45 board attached to a USB port and open it.
