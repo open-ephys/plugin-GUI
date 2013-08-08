@@ -329,7 +329,9 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
         // create / open necessary files
         for (int i = 0; i < channelPointers.size(); i++)
         {
-            if (channelPointers[i]->isRecording)
+            std::cout << "Checking channel " << i << std::endl;
+
+            if (channelPointers[i]->getRecordState())
             {
                 openFile(channelPointers[i]);
             }
@@ -364,7 +366,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 
             if (newValue == 0.0f)
             {
-                channelPointers[currentChannel]->isRecording = false;
+                channelPointers[currentChannel]->setRecordState(false);
 
                 if (isRecording)
                 {
@@ -381,7 +383,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
             }
             else
             {
-                channelPointers[currentChannel]->isRecording = true;
+                channelPointers[currentChannel]->setRecordState(true);
 
                 if (isRecording)
                 {
@@ -519,7 +521,7 @@ void RecordNode::closeAllFiles()
 
     for (int i = 0; i < channelPointers.size(); i++)
     {
-        if (channelPointers[i]->isRecording)
+        if (channelPointers[i]->getRecordState())
         {
 
             if (sampleCount < BLOCK_LENGTH)
@@ -724,7 +726,7 @@ void RecordNode::process(AudioSampleBuffer& buffer,
                     for (int i = 0; i < buffer.getNumChannels(); i++)
                     {
 
-                        if (channelPointers[i]->isRecording)
+                        if (channelPointers[i]->getRecordState())
                         {
                             // write buffer to disk!
                             writeContinuousBuffer(buffer.getSampleData(i,samplesWritten),
@@ -747,7 +749,7 @@ void RecordNode::process(AudioSampleBuffer& buffer,
                     for (int i = 0; i < buffer.getNumChannels(); i++)
                     {
 
-                        if (channelPointers[i]->isRecording)
+                        if (channelPointers[i]->getRecordState())
                         {
                             // write buffer to disk!
                             writeContinuousBuffer(buffer.getSampleData(i,samplesWritten),

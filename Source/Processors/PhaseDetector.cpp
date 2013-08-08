@@ -64,7 +64,7 @@ void PhaseDetector::setParameter(int parameterIndex, float newValue)
     if (parameterIndex == 1)
     {
         selectedChannel = (int) newValue;
-    } else if (parameterIndex == 1)
+    } else if (parameterIndex == 2)
     {
         outputEventChannel = (int) newValue; // -1 means don't send any events
     }

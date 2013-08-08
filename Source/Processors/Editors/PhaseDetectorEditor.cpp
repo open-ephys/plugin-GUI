@@ -115,10 +115,10 @@ void PhaseDetectorEditor::comboBoxChanged(ComboBox* c)
 
     if (c == inputChannelSelectionBox)
     {
-        getProcessor()->setParameter(1,channel);
+        getProcessor()->setParameter(1, channel);
     } else if (c == outputChannelSelectionBox) {
 
-        getProcessor()->setParameter(2,channel);
+        getProcessor()->setParameter(2, channel);
 
     }
 

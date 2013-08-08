@@ -39,7 +39,6 @@ Channel::Channel(const Channel& ch)
     processor = ch.processor;
     isEventChannel = ch.isEventChannel;
     isEnabled = ch.isEnabled;
-    isRecording = false;
     isMonitored = false;
     sampleRate = ch.sampleRate;
     bitVolts = ch.bitVolts;
@@ -47,6 +46,8 @@ Channel::Channel(const Channel& ch)
     eventType = ch.eventType;
     nodeId = ch.nodeId;
     num = ch.num;
+
+    setRecordState(false);
 }
 
 void Channel::setProcessor(GenericProcessor* p)
@@ -58,6 +59,15 @@ void Channel::setProcessor(GenericProcessor* p)
 String Channel::getName()
 {
     return name;
+
+}
+
+void Channel::setRecordState(bool t)
+{
+
+   isRecording = t;
+   //std::cout << "Setting record status for channel " <<
+     //            nodeId << " - " << num << " to " << t << std::endl;
 
 }
 
