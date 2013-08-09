@@ -70,6 +70,12 @@ public:
     /** Sets the processor to which a channel belongs. */
     void setProcessor(GenericProcessor*);
 
+    /** Sets whether or not the channel will record. */
+    void setRecordState(bool t); // {isRecording = t;}
+
+    /** Sets whether or not the channel will record. */
+    bool getRecordState() {return isRecording;}
+
     /** The channel number.*/
     int num;
 
@@ -81,7 +87,7 @@ public:
 
     // boolean values:
     bool isEventChannel;
-    bool isRecording;
+    
     bool isMonitored;
     bool isEnabled;
 
@@ -99,6 +105,8 @@ public:
     String name;
 
 private:
+
+    bool isRecording; 
 
     /** Generates a default name, based on the channel number. */
     void createDefaultName();

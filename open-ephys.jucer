@@ -28,16 +28,6 @@
                        libraryPath="/usr/X11R6/lib/"/>
       </CONFIGURATIONS>
     </LINUX_MAKE>
-    <VS2010 targetFolder="Builds/VisualStudio2010" vstFolder="c:\SDKs\vstsdk2.4"
-            rtasFolder="c:\SDKs\PT_80_SDK" libraryType="1" juceFolder="JuceLibraryCode"
-            extraLinkerFlags="-lftdi">
-      <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
-                       winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
-                       winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"/>
-      </CONFIGURATIONS>
-    </VS2010>
     <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" juceFolder="JuceLibraryCode/modules"
             extraDefs="NOMINMAX" externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;ftgl.lib&#10;libftdi.lib">
       <CONFIGURATIONS>

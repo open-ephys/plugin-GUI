@@ -519,9 +519,9 @@ void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
 {
     if (!isSplitOrMerge)
     {
-        channelSelector->setParamStatus(chan, p);
-        channelSelector->setRecordStatus(chan, r);
-        channelSelector->setAudioStatus(chan, a);
+        channelSelector->setParamStatus(chan+1, p);
+        channelSelector->setRecordStatus(chan+1, r);
+        channelSelector->setAudioStatus(chan+1, a);
     }
 }
 

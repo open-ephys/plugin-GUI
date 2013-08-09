@@ -51,6 +51,8 @@ public:
     void saveEditorParameters(XmlElement* xml);
     void loadEditorParameters(XmlElement* xml);
 
+    void setDefaults(double lowCut, double highCut);
+
 private:
 
     String lastHighCutString;

@@ -1239,7 +1239,11 @@ const String EditorViewport::saveState(File fileToUse)
         xml->addChildElement(signalChain);
     }
 
-    std::cout << "Saving processor graph." << std::endl;
+    XmlElement* audioSettings = new XmlElement("AUDIO");
+
+    audioSettings->setAttribute("bufferSize", getAudioComponent()->getBufferSize());
+    xml->addChildElement(audioSettings);
+
 
     //Resets Save Order for processors, allowing them to be saved again without omitting themselves from the order.
     int allProcessorSize = allProcessors.size();
@@ -1303,9 +1307,13 @@ const String EditorViewport::loadState(File fileToLoad)
 
     GenericProcessor* p;
 
-    forEachXmlChildElement(*xml, signalChain)
+    forEachXmlChildElement(*xml, element)
     {
-        forEachXmlChildElement(*signalChain, processor)
+
+        if (element->hasTagName("SIGNALCHAIN"))
+        {
+
+        forEachXmlChildElement(*element, processor)
         {
 
             if (processor->hasTagName("PROCESSOR"))
@@ -1376,6 +1384,12 @@ const String EditorViewport::loadState(File fileToLoad)
 
             }
 
+        }
+
+        } else if (element->hasTagName("AUDIO"))
+        {
+            int bufferSize = element->getIntAttribute("bufferSize");
+            getAudioComponent()->setBufferSize(bufferSize);
         }
 
     }

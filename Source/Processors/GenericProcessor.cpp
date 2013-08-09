@@ -305,6 +305,13 @@ void GenericProcessor::clearSettings()
     settings.numOutputs = 0;
     settings.sampleRate = getDefaultSampleRate();
 
+    recordStatus.clear();
+
+    for (int i = 0; i < channels.size(); i++)
+    {
+        recordStatus.add(channels[i]->getRecordState());
+    }
+
     channels.clear();
     eventChannels.clear();
 
@@ -330,6 +337,12 @@ void GenericProcessor::update()
             Channel* ch = new Channel(*sourceChan);
             ch->setProcessor(this);
             ch->bitVolts = ch->bitVolts*getDefaultBitVolts();
+
+            if (i < recordStatus.size())
+            {
+                ch->setRecordState(recordStatus[i]);
+            }
+
             channels.add(ch);
         }
 
@@ -354,6 +367,11 @@ void GenericProcessor::update()
             Channel* ch = new Channel(this, i);
             ch->sampleRate = getDefaultSampleRate();
             ch->bitVolts = getDefaultBitVolts();
+
+             if (i < recordStatus.size())
+            {
+                ch->setRecordState(recordStatus[i]);
+            }
 
             channels.add(ch);
         }

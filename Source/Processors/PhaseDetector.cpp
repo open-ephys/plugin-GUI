@@ -28,7 +28,7 @@
 PhaseDetector::PhaseDetector()
     : GenericProcessor("Phase Detector"),
       maxFrequency(20), isIncreasing(true), canBeTriggered(false), selectedChannel(-1),
-      triggerOnPeak(true)
+      triggerOnPeak(true), outputEventChannel(3)
 
 {
 
@@ -60,9 +60,13 @@ void PhaseDetector::setParameter(int parameterIndex, float newValue)
 {
     editor->updateParameterButtons(parameterIndex);
     editor->updateParameterButtons(parameterIndex);
+    
     if (parameterIndex == 1)
     {
         selectedChannel = (int) newValue;
+    } else if (parameterIndex == 2)
+    {
+        outputEventChannel = (int) newValue; // -1 means don't send any events
     }
 
 }
@@ -107,7 +111,7 @@ void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
         //     {
         //         canBeTriggered = true;
         //     }
-        if (eventId == 0 && eventChannel == 5)
+        if (eventId == 0 && eventChannel == 1)
         {
             triggerOnPeak = randomNumberGenerator.nextBool();
 
@@ -154,7 +158,8 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
                 // entering falling phase (just reached peak or trough)
                 //if (true)
-                addEvent(events, TTL, i, 1, 3);
+                if (outputEventChannel > -1)
+                    addEvent(events, TTL, i, 1, outputEventChannel);
 
 
                 peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
@@ -172,9 +177,9 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
                 // either rising or falling
                 nSamplesSinceLastPeak++;
 
-                if (nSamplesSinceLastPeak == 500)
+                if (nSamplesSinceLastPeak == 500 && outputEventChannel > -1)
                 {
-                    addEvent(events, TTL, i, 0, 3);
+                    addEvent(events, TTL, i, 0, outputEventChannel);
                 }
 
             }

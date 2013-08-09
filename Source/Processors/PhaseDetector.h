@@ -83,6 +83,7 @@ private:
     int numPeakIntervals;
 
     int selectedChannel;
+    int outputEventChannel;
 
     Random randomNumberGenerator;
 

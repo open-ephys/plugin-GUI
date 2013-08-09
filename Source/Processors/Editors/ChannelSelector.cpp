@@ -584,7 +584,8 @@ void ChannelSelector::buttonClicked(Button* button)
             }
             else     // change parameter directly
             {
-                ch->isRecording = status;
+                //std::cout << "Setting record status for channel " << b->getChannel() << std::endl;
+                ch->setRecordState(status);
             }
 
         }

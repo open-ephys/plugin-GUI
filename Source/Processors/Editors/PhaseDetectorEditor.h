@@ -53,7 +53,11 @@ public:
 
 private:
 
-    ScopedPointer<ComboBox> channelSelectionBox;
+    ScopedPointer<ComboBox> inputChannelSelectionBox;
+    ScopedPointer<ComboBox> outputChannelSelectionBox;
+
+    ScopedPointer<Label> intputChannelLabel;
+    ScopedPointer<Label> outputChannelLabel;
 
     int previousChannelCount;
 

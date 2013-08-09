@@ -38,6 +38,7 @@ class Rhd2000EvalBoard
 
 public:
     Rhd2000EvalBoard();
+	~Rhd2000EvalBoard();
 
     int open();
     bool uploadFpgaBitfile(string filename);
@@ -152,6 +153,8 @@ public:
     bool readDataBlock(Rhd2000DataBlock* dataBlock);
     bool readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue);
     int queueToFile(queue<Rhd2000DataBlock> &dataQueue, std::ofstream& saveOut);
+
+	void resetFpga();
 
 private:
     okCFrontPanel* dev;
