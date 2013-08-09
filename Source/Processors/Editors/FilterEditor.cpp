@@ -32,8 +32,8 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
 {
     desiredWidth = 150;
 
-    lastHighCutString = "6000";
-    lastLowCutString = "600";
+    lastLowCutString = " ";
+    lastHighCutString = " ";
 
     highCutLabel = new Label("high cut label", "High cut:");
     highCutLabel->setBounds(35,80,180,20);
@@ -69,7 +69,16 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
 
 FilterEditor::~FilterEditor()
 {
- 
+    
+}   
+
+void FilterEditor::setDefaults(double lowCut, double highCut)
+{
+    lastHighCutString = String(roundFloatToInt(highCut));
+    lastLowCutString = String(roundFloatToInt(lowCut));
+
+    highCutValue->setText(lastHighCutString, dontSendNotification);
+    lowCutValue->setText(lastLowCutString, dontSendNotification);
 }
 
 

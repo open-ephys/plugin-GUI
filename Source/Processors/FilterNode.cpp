@@ -26,7 +26,7 @@
 #include "Editors/FilterEditor.h"
 
 FilterNode::FilterNode()
-    : GenericProcessor("Bandpass Filter")
+    : GenericProcessor("Bandpass Filter"), defaultLowCut(300.0f), defaultHighCut(6000.0f)
 
 {
 
@@ -57,6 +57,9 @@ FilterNode::~FilterNode()
 AudioProcessorEditor* FilterNode::createEditor()
 {
     editor = new FilterEditor(this, true);
+
+    FilterEditor* ed = (FilterEditor*) getEditor();
+    ed->setDefaults(defaultLowCut, defaultHighCut);
 
     std::cout << "Creating editor." << std::endl;
 
@@ -134,7 +137,7 @@ void FilterNode::updateSettings()
         for (int n = 0; n < getNumInputs(); n++)
         {
 
-             std::cout << "Creating filter number " << n << std::endl;
+            // std::cout << "Creating filter number " << n << std::endl;
 
             filters.add(new Dsp::SmoothedFilterDesign
                         <Dsp::Butterworth::Design::BandPass 	// design type
@@ -150,10 +153,10 @@ void FilterNode::updateSettings()
             //p2.setValue(6000.0f, n);
 
             // restore defaults
-            lowCuts.add(600.0f);
-            highCuts.add(6000.0f);
+            lowCuts.add(defaultLowCut);
+            highCuts.add(defaultHighCut);
 
-            setFilterParameters(600.0f, 6000.0f, n);
+            setFilterParameters(defaultLowCut, defaultHighCut, n);
         }
 
     }
@@ -275,8 +278,8 @@ void FilterNode::loadCustomChannelParametersFromXml(XmlElement* channelInfo, boo
         {
             if (subNode->hasTagName("PARAMETERS"))
             {
-                highCuts.set(channelNum, subNode->getDoubleAttribute("highcut",6000.0f));
-                lowCuts.set(channelNum, subNode->getDoubleAttribute("lowcut",600.0f));
+                highCuts.set(channelNum, subNode->getDoubleAttribute("highcut",defaultHighCut));
+                lowCuts.set(channelNum, subNode->getDoubleAttribute("lowcut",defaultLowCut));
 
                 setFilterParameters(lowCuts[channelNum],
                                     highCuts[channelNum],

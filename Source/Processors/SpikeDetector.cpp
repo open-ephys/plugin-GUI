@@ -466,7 +466,8 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
                         }
 
-                        addSpikeEvent(&newSpike, events, peakIndex);
+                        for (int xxx = 0; xxx < 100; xxx++) // overload with spikes
+                            addSpikeEvent(&newSpike, events, peakIndex);
 
                         // advance the sample index
                         sampleIndex = peakIndex + electrode->postPeakSamples;
