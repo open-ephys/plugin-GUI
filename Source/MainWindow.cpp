@@ -104,12 +104,7 @@ void MainWindow::saveWindowBounds()
 
     std::cout << "Saving window bounds." << std::endl;
 
-#ifdef WIN32
     File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
-#else
-    File file = File("./windowState.xml");
-#endif
-
 
     XmlElement* xml = new XmlElement("MAINWINDOW");
 

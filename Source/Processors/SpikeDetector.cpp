@@ -466,7 +466,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
                         }
 
-                       // for (int xxx = 0; xxx < 100; xxx++) // overload with spikes for testing purposes
+                       for (int xxx = 0; xxx < 100; xxx++) // overload with spikes for testing purposes
                             addSpikeEvent(&newSpike, events, peakIndex);
 
                         // advance the sample index
