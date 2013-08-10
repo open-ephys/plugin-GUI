@@ -332,7 +332,7 @@ void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,
     {
 
         for (int sample = 0; sample < spikeLength; sample++)
-        {
+        { 
 
             // warning -- be careful of bitvolts conversion
             s->data[currentIndex] = uint16(getNextSample(*(electrodes[electrodeNumber]->channels+currentChannel)) / channels[chan]->bitVolts + 32768);
@@ -466,7 +466,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
                         }
 
-                       //for (int xxx = 0; xxx < 100; xxx++) // overload with spikes for testing purposes
+                       //for (int xxx = 0; xxx < 1000; xxx++) // overload with spikes for testing purposes
                             addSpikeEvent(&newSpike, events, peakIndex);
 
                         // advance the sample index

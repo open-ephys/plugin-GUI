@@ -152,6 +152,7 @@ RecordNode* SpikeDisplayCanvas::getRecordNode()
 void SpikeDisplayCanvas::processSpikeEvents()
 {
 
+   // std::cout << spikeBuffer->getNumEvents() << std::endl;
  
     if (spikeBuffer->getNumEvents() > 0)
     {

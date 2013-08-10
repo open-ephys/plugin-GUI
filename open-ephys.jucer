@@ -24,7 +24,7 @@
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        libraryPath="/usr/X11R6/lib/"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys-release"
                        libraryPath="/usr/X11R6/lib/"/>
       </CONFIGURATIONS>
     </LINUX_MAKE>
