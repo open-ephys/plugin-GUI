@@ -6,6 +6,7 @@
 
 # 2. binaries
 Builds/Linux/build/open-ephys
+Builds/Linux/build/open-ephys-release
 Resources/Fonts/font_serializer/Builds/Linux/build/
 Introjucer/Builds/Linux/build
 Introjucer/Builds/VisualStudio2010/Debug
