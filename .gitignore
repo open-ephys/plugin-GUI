@@ -60,6 +60,9 @@ cscope.out
 *.continuous
 *.events
 
+# 8. OS X related
 .DS_Store
-
-Builds/MacOSX/open-ephys.xcodeproj/project.xcworkspace/xcuserdata/ryan.xcuserdatad/UserInterfaceState.xcuserstate
+Builds/MacOSX/open-ephys.xcodeproj/*.mode1v3
+Builds/MacOSX/open-ephys.xcodeproj/*.pbxuser
+Builds/MacOSX/open-ephys.xcodeproj/xcuserdata
+Builds/MacOSX/open-ephys.xcodeproj/project.xcworkspace
