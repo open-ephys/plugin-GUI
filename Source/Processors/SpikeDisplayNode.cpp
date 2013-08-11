@@ -339,48 +339,48 @@ void SpikeDisplayNode::openFile(int i)
     diskWriteLock->enter();
     //const MessageManagerLock mmLock;
 
+    Electrode& e = electrodes.getReference(i);
+
     FILE* file;
     
     if (!fileToUse.exists())
     {
         // open it and write header
         file = fopen(filename.toUTF8(), "ab");
-
         String header = generateHeader(i);
-
         fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), file);
 
     }
     else
     {
-
         // append it
         file = fopen(filename.toUTF8(), "ab");
     }
     
     diskWriteLock->exit();
 
-    //files.add(file);
+    e.file = file;
 }
 
 void SpikeDisplayNode::closeFile(int i)
 {
-     //std::cout << "CLOSING FILE: " << filename << std::endl;
-    
-   // const MessageManagerLock mmLock;
 
+    Electrode& e = electrodes.getReference(i);
+
+    std::cout << "CLOSING FILE for " << e.name << std::endl;
+    
     diskWriteLock->enter();
     
-    // if (files[i] != NULL)
-    // {
-    //     fclose(file);
-    // }
+    if (e.file != NULL)
+    {
+        fclose(e.file);
+    }
     
     diskWriteLock->exit();
 
 }
 
-void SpikeDisplayNode::writeSpike(const SpikeObject& s, int electrodeIndex)
+void SpikeDisplayNode::writeSpike(const SpikeObject& s, int i)
 {
 
     packSpike(&s, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
@@ -404,8 +404,7 @@ void SpikeDisplayNode::writeSpike(const SpikeObject& s, int electrodeIndex)
     
     diskWriteLock->enter();
 
-   // fwrite(spikeBuffer, 1, totalBytes, files[fileIndex]);
-    
+    fwrite(spikeBuffer, 1, totalBytes, electrodes[i].file);
     
     diskWriteLock->exit();
 

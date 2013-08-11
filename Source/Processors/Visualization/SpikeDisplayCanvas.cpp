@@ -611,7 +611,7 @@ float SpikePlot::getDisplayThresholdForChannel(int i)
 
 void SpikePlot::setDetectorThresholdForChannel(int i, float t)
 {
-    std::cout << "Setting threshold to " << t << std::endl;
+   // std::cout << "Setting threshold to " << t << std::endl;
     wAxes[i]->setDetectorThreshold(t);
 }
 
