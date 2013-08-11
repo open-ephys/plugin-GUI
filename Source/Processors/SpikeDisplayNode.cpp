@@ -30,7 +30,8 @@
 
 
 SpikeDisplayNode::SpikeDisplayNode()
-    : GenericProcessor("Spike Viewer"), displayBufferSize(5)
+    : GenericProcessor("Spike Viewer"), displayBufferSize(5), isRecording(false), redrawRequested(false),
+	  signalFilesShouldClose(false)
 {
  
 
