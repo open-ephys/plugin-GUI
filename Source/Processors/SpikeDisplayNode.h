@@ -31,6 +31,7 @@
 #include "Visualization/SpikeObject.h"
 
 class DataViewport;
+class SpikePlot;
 
 /**
 
@@ -61,7 +62,7 @@ public:
 
     void handleEvent(int, MidiMessage&, int);
 
-    //void updateSettings();
+    void updateSettings();
 
     bool enable();
     bool disable();
@@ -69,22 +70,54 @@ public:
     void startRecording();
     void stopRecording();
 
-    MidiBuffer* getSpikeBufferAddress()
-    {
-        return eventBuffer;
-    }
-
     String getNameForElectrode(int i);
     int getNumberOfChannelsForElectrode(int i);
     int getNumElectrodes();
 
+    void addSpikePlotForElectrode(SpikePlot* sp, int i);
+    void removeSpikePlots();
+
 private:
 
-    int numberOfSources;
+    struct Electrode
+    {
+        String name;
 
-    ScopedPointer<MidiBuffer> eventBuffer;
+        int numChannels;
 
-    int bufferSize;
+        Array<float> displayThresholds;
+        Array<float> detectorThresholds;
+
+        Array<SpikeObject> mostRecentSpikes;
+        int currentSpikeIndex;
+
+        SpikePlot* spikePlot;
+
+        FILE* file;
+
+    };
+
+    Array<Electrode> electrodes;
+
+    int displayBufferSize;
+    bool redrawRequested;
+
+    // methods for recording:
+    void openFile(int index);
+    void closeFile(int index);
+    void writeSpike(const SpikeObject& s, int index);
+    String generateHeader(int index);
+
+    // members for recording
+    bool isRecording;
+    bool signalFilesShouldClose;
+    RecordNode* recordNode;
+    String baseDirectory;
+    File dataDirectory;
+    uint8_t* spikeBuffer;
+    SpikeObject currentSpike;
+    
+    CriticalSection* diskWriteLock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayNode);
 

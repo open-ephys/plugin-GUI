@@ -95,16 +95,13 @@ public:
     bool keyPressed(const KeyPress& key);
 
     void buttonClicked(Button* button);
-    
-    void startRecording();
-    void stopRecording();
 
-    RecordNode* getRecordNode();
+    void startRecording() { } // unused
+    void stopRecording() { } // unused
+    
     SpikeDisplayNode* processor;
 
 private:
-
-    MidiBuffer* spikeBuffer;
 
     ScopedPointer<SpikeDisplay> spikeDisplay;
     ScopedPointer<Viewport> viewport;
@@ -128,7 +125,7 @@ public:
 
     void removePlots();
     void clear();
-    void addSpikePlot(int numChannels, int electrodeNum, String name);
+    SpikePlot* addSpikePlot(int numChannels, int electrodeNum, String name);
 
     void paint(Graphics& g);
 
@@ -142,9 +139,6 @@ public:
     {
         return totalHeight;
     }
-    
-    void startRecording();
-    void stopRecording();
 
 private:
 
@@ -206,13 +200,10 @@ public:
 
     void buttonClicked(Button* button);
 
-    void startRecording();
-    void stopRecording();
-
+    float getDisplayThresholdForChannel(int);
+    void setDetectorThresholdForChannel(int, float);
 
 private:
-
-    bool isRecording;
 
     int plotType;
     int nWaveAx;
@@ -235,19 +226,7 @@ private:
 
     Font font;
 
-    // methods for recording:
-    void openFile();
-    void closeFile();
-    void writeSpike(const SpikeObject& s);
-    String generateHeader();
-
-    RecordNode* recordNode;
-    FILE* file;
-    String filename;
-    File dataDirectory;
-    uint8_t* spikeBuffer;
     
-    CriticalSection* diskWriteLock;
 
 };
 
@@ -331,7 +310,8 @@ public:
         return range;
     }
 
-    
+    float getDisplayThreshold();
+    void setDetectorThreshold(float);
 
     //MouseCursor getMouseCursor();
 
@@ -343,7 +323,8 @@ private:
 
     bool drawGrid;
 
-    float thresholdLevel;
+    float displayThresholdLevel;
+    float detectorThresholdLevel;
 
     void drawWaveformGrid(Graphics& g);
 

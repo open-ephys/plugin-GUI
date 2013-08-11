@@ -566,7 +566,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         
         else if (subProcessorType.equalsIgnoreCase("Spike Viewer"))
         {
-            std::cout << "Creating an SpikeDisplayNode." << std::endl;
+            std::cout << "Creating a SpikeDisplayNode." << std::endl;
             processor = new SpikeDisplayNode();
         }
         else if (subProcessorType.equalsIgnoreCase("WiFi Output"))

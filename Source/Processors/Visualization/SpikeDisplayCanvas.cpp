@@ -22,13 +22,11 @@
 */
 
 #include "SpikeDisplayCanvas.h"
-#include "../RecordNode.h"
+
 
 SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
     processor(n), newSpike(false)
 {
-
-    spikeBuffer = processor->getSpikeBufferAddress();
 
     viewport = new Viewport();
     spikeDisplay = new SpikeDisplay(this, viewport);
@@ -53,7 +51,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
 
 SpikeDisplayCanvas::~SpikeDisplayCanvas()
 {
-
+    processor->removeSpikePlots();
 }
 
 void SpikeDisplayCanvas::beginAnimation()
@@ -77,11 +75,13 @@ void SpikeDisplayCanvas::update()
 
     int nPlots = processor->getNumElectrodes();
     spikeDisplay->removePlots();
+    processor->removeSpikePlots();
 
     for (int i = 0; i < nPlots; i++)
     {
-        spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i,
+        SpikePlot* sp = spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i,
                                    processor->getNameForElectrode(i));
+        processor->addSpikePlotForElectrode(sp, i);
     }
 
     spikeDisplay->resized();
@@ -119,75 +119,11 @@ void SpikeDisplayCanvas::refresh()
     repaint();
 }
 
-void SpikeDisplayCanvas::startRecording()
-{
-    
-    std::cout << "SpikeDisplay starting recording." << std::endl;
-    
-    
-    //const MessageManagerLock mmLock; // get the lock to prevent the midi buffer from being updated
-
-    spikeDisplay->startRecording();
-}
-
-void SpikeDisplayCanvas::stopRecording()
-{
-    
-    std::cout << "SpikeDisplay stopping recording." << std::endl;
-    
-    
-   // const MessageManagerLock mmLock; // get the lock to prevent the midi buffer from being updated
- 
-    
-    
-    
-    spikeDisplay->startRecording();
-}
-
-RecordNode* SpikeDisplayCanvas::getRecordNode()
-{
-    return processor->getProcessorGraph()->getRecordNode();
-}
 
 void SpikeDisplayCanvas::processSpikeEvents()
 {
 
-   // std::cout << spikeBuffer->getNumEvents() << std::endl;
- 
-    if (spikeBuffer->getNumEvents() > 0)
-    {
-
-        MidiBuffer::Iterator i(*spikeBuffer);
-        MidiMessage message(0xf4);
-
-        int samplePosition = 0;
-
-        i.setNextSamplePosition(samplePosition);
-
-        while (i.getNextEvent(message, samplePosition))
-        {
-
-            const uint8_t* dataptr = message.getRawData();
-            int bufferSize = message.getRawDataSize();
-            
-            if (bufferSize > 0)
-            {
-
-                SpikeObject newSpike;
-                
-                bool isValid = unpackSpike(&newSpike, dataptr, bufferSize);
-
-                if (isValid)
-                {
-                    spikeDisplay->plotSpike(newSpike, newSpike.source);
-                }
-            }
-
-        }
-
-    }
-
-    spikeBuffer->clear();
+    processor->setParameter(2, 0.0f); // request redraw
 
 }
 
@@ -246,33 +182,6 @@ void SpikeDisplay::clear()
 
 }
 
-void SpikeDisplay::startRecording()
-{
-    
-   // const MessageManagerLock mmLock;
-    
-    if (spikePlots.size() > 0)
-    {
-        for (int i = 0; i < spikePlots.size(); i++)
-        {
-            spikePlots[i]->startRecording();
-        }
-    }
-}
-
-void SpikeDisplay::stopRecording()
-{
-    
-    const MessageManagerLock mmLock;
-    
-    if (spikePlots.size() > 0)
-    {
-        for (int i = 0; i < spikePlots.size(); i++)
-        {
-            spikePlots[i]->stopRecording();
-        }
-    }
-}
 
 void SpikeDisplay::removePlots()
 {
@@ -280,7 +189,7 @@ void SpikeDisplay::removePlots()
 
 }
 
-void SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum, String name_)
+SpikePlot* SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum, String name_)
 {
 
     std::cout << "Adding new spike plot." << std::endl;
@@ -288,6 +197,8 @@ void SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum, String name_)
     SpikePlot* spikePlot = new SpikePlot(canvas, electrodeNum, 1000 + numChannels, name_);
     spikePlots.add(spikePlot);
     addAndMakeVisible(spikePlot);
+
+    return spikePlot;
 }
 
 void SpikeDisplay::paint(Graphics& g)
@@ -416,12 +327,9 @@ void SpikeDisplay::plotSpike(const SpikeObject& spike, int electrodeNum)
 
 SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) :
     canvas(sdc), isSelected(false), electrodeNumber(elecNum),  plotType(p),
-    limitsChanged(true), name(name_), isRecording(false)
+    limitsChanged(true), name(name_)
 
 {
-
-    recordNode = sdc->getRecordNode();
-    diskWriteLock = sdc->getRecordNode()->getLock();
 
     font = Font("Default", 15, Font::plain);
 
@@ -476,9 +384,6 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) 
         rangeButtons.add(rangeButton);
     }
 
-    spikeBuffer = new uint8_t[MAX_SPIKE_BUFFER_LEN]; // MAX_SPIKE_BUFFER_LEN defined in SpikeObject.h
-
-
 }
 
 SpikePlot::~SpikePlot()
@@ -502,180 +407,32 @@ void SpikePlot::paint(Graphics& g)
 
 void SpikePlot::processSpikeObject(const SpikeObject& s)
 {
-    //std::cout<<"ElectrodePlot::processSpikeObject()"<<std::endl;
+   // std::cout << "ElectrodePlot::processSpikeObject()" << std::endl;
 
     // first, check if it's above threshold
-    bool aboveThreshold = false;
+    // bool aboveThreshold = false;
 
-    for (int i = 0; i < nWaveAx; i++)
-    {
-        aboveThreshold = aboveThreshold | wAxes[i]->checkThreshold(s);
-    }
+    // for (int i = 0; i < nWaveAx; i++)
+    // {
+    //     aboveThreshold = aboveThreshold | wAxes[i]->checkThreshold(s);
+    // }
 
-    if (aboveThreshold)
-    {
+    // if (aboveThreshold)
+    // {
         for (int i = 0; i < nWaveAx; i++)
             wAxes[i]->updateSpikeData(s);
 
         for (int i = 0; i < nProjAx; i++)
             pAxes[i]->updateSpikeData(s);
-    }
+    // }
 
-        if (aboveThreshold && isRecording)
-        {
-            // write spike to disk
-          writeSpike(s);
-        }
-
-}
-
-void SpikePlot::startRecording()
-{
-
-    openFile();
-    isRecording = true;
-    
+    //     if (aboveThreshold && isRecording)
+    //     {
+    //         // write spike to disk
+    //       writeSpike(s);
+    //     }
 
 }
-
-void SpikePlot::stopRecording()
-{
-    
-    closeFile();
-    isRecording = false;
-
-}
-
-void SpikePlot::openFile()
-{
-    //const MessageManagerLock mmLock;
-    
-    dataDirectory = recordNode->getDataDirectory();//File("/Users/Josh/Programming/open-ephys/GUI/Builds/MacOSX/build/Debug"); //recordNode->getDataDirectory();
-
-    if (dataDirectory.getFullPathName().length() == 0)
-    {
-        // temporary fix in case nothing is returned by the record node.
-        dataDirectory = File::getSpecialLocation(File::userHomeDirectory); 
-    }
-
-    filename = dataDirectory.getFullPathName();
-    filename += File::separator;
-    filename += name.removeCharacters(" ");
-    filename += ".spikes";
-
-    std::cout << "OPENING FILE: " << filename << std::endl;
-
-    File fileToUse = File(filename);
-
-    diskWriteLock->enter();
-    //const MessageManagerLock mmLock;
-    
-    if (!fileToUse.exists())
-    {
-        // open it and write header
-        file = fopen(filename.toUTF8(), "ab");
-
-        String header = generateHeader();
-
-        fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), file);
-
-    }
-    else
-    {
-
-        // append it
-        file = fopen(filename.toUTF8(), "ab");
-    }
-    
-    diskWriteLock->exit();
-
-
-}
-
-void SpikePlot::closeFile()
-{
-
-    std::cout << "CLOSING FILE: " << filename << std::endl;
-    
-   // const MessageManagerLock mmLock;
-
-    diskWriteLock->enter();
-    
-    if (file != NULL)
-    {
-        fclose(file);
-    }
-    
-    diskWriteLock->exit();
-
-}
-
-void SpikePlot::writeSpike(const SpikeObject& s)
-{
-
-
-    packSpike(&s, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
-
-    int totalBytes = s.nSamples * s.nChannels * 2 + // account for samples
-                     s.nChannels * 4 +            // acount for threshold and gain
-                     15;                        // 15 bytes in every SpikeObject
-
-
-    // format:
-    // 1 byte of event type (always = 4 for spikes)
-    // 8 bytes for 64-bit timestamp
-    // 2 bytes for 16-bit electrode ID
-    // 2 bytes for 16-bit number of channels (n)
-    // 2 bytes for 16-bit number of samples (m)
-    // 2*n*m bytes for 16-bit samples
-    // 2*n bytes for 16-bit gains
-    // 2*n bytes for 16-bit thresholds
-    
-   // const MessageManagerLock mmLock;
-    
-    diskWriteLock->enter();
-
-    fwrite(spikeBuffer, 1, totalBytes, file);
-    
-    
-    diskWriteLock->exit();
-
-
-}
-
-String SpikePlot::generateHeader()
-{
-    String header = "header.format = 'OPEN EPHYS DATA FORMAT v0.0'; \n";
-
-    header += "header.header_bytes = ";
-    header += String(HEADER_SIZE);
-    header += ";\n";
-
-    header += "header.description = 'Each record contains 1 uint8 eventType, 1 uint64 timestamp, 1 uint16 electrodeID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), n*m uint16 samples, n uint16 channelGains, and n uint16 thresholds'; \n";
-
-    header += "header.date_created = '";
-    header += recordNode->generateDateString();
-    header += "';\n";
-
-    header += "header.electrode = '";
-    header += name;
-    header += "';\n";
-
-    header += "header.num_channels = ";
-    header += nChannels;
-    header += ";\n";
-
-    header += "header.sampleRate = ";
-    header += String(canvas->processor->settings.sampleRate);
-    header += ";\n";
-
-    header = header.paddedRight(' ', HEADER_SIZE);
-
-    //std::cout << header << std::endl;
-
-    return header;
-}
-
 
 void SpikePlot::select()
 {
@@ -847,13 +604,23 @@ void SpikePlot::clear()
         pAxes[i]->clear();
 }
 
+float SpikePlot::getDisplayThresholdForChannel(int i)
+{
+    return wAxes[i]->getDisplayThreshold();
+}
+
+void SpikePlot::setDetectorThresholdForChannel(int i, float t)
+{
+    wAxes[i]->setDetectorThreshold(t);
+}
 
 
 // --------------------------------------------------
 
 
 WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true),
-    bufferSize(5), spikeIndex(0), thresholdLevel(0.0f), range(250.0f),
+    bufferSize(5), spikeIndex(0), displayThresholdLevel(0.0f), 
+    detectorThresholdLevel(0.0f), range(250.0f),
     isOverThresholdSlider(false), isDraggingThresholdSlider(false),
     spikesReceivedSinceLastRedraw(0)
 {
@@ -967,12 +734,18 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
 void WaveAxes::drawThresholdSlider(Graphics& g)
 {
 
-    float h = getHeight()*(0.5f - thresholdLevel/range);
+    // draw display threshold (editable)
+    float h = getHeight()*(0.5f - displayThresholdLevel/range);
 
     g.setColour(thresholdColour);
     g.drawLine(0, h, getWidth(), h);
-    g.drawText(String(roundFloatToInt(thresholdLevel)),2,h,25,10,Justification::left, false);
+    g.drawText(String(roundFloatToInt(displayThresholdLevel)),2,h,25,10,Justification::left, false);
 
+    // draw detector threshold (not editable)
+    h = getHeight()*(0.5f - detectorThresholdLevel/range);
+    
+    g.setColour(Colours::grey);
+    g.drawLine(0, h, getWidth(), h);
 }
 
 void WaveAxes::drawWaveformGrid(Graphics& g)
@@ -1025,7 +798,7 @@ bool WaveAxes::checkThreshold(const SpikeObject& s)
     for (int i = 0; i < s.nSamples-1; i++)
     {
 
-        if (float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f > thresholdLevel)
+        if (float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f > displayThresholdLevel)
         {
             return true;
         }
@@ -1061,7 +834,7 @@ void WaveAxes::mouseMove(const MouseEvent& event)
 
     float y = event.y;
 
-    float h = getHeight()*(0.5f - thresholdLevel/range);
+    float h = getHeight()*(0.5f - displayThresholdLevel/range);
 
     // std::cout << y << " " << h << std::endl;
 
@@ -1114,7 +887,7 @@ void WaveAxes::mouseDrag(const MouseEvent& event)
             thresholdSliderPosition = 0.0f;
 
 
-        thresholdLevel = (0.5f - thresholdSliderPosition) * range;
+        displayThresholdLevel = (0.5f - thresholdSliderPosition) * range;
 
         //std::cout << "Threshold = " << thresholdLevel << std::endl;
 
@@ -1137,6 +910,16 @@ void WaveAxes::mouseExit(const MouseEvent& event)
         thresholdColour = Colours::red;
         repaint();
     }
+}
+
+float WaveAxes::getDisplayThreshold()
+{
+    return displayThresholdLevel;
+}
+
+void WaveAxes::setDetectorThreshold(float t)
+{
+    detectorThresholdLevel = t;
 }
 
 // --------------------------------------------------
