@@ -77,6 +77,8 @@ public:
     void addSpikePlotForElectrode(SpikePlot* sp, int i);
     void removeSpikePlots();
 
+    bool checkThreshold(int, float, SpikeObject&);
+
 private:
 
     struct Electrode

@@ -611,6 +611,7 @@ float SpikePlot::getDisplayThresholdForChannel(int i)
 
 void SpikePlot::setDetectorThresholdForChannel(int i, float t)
 {
+    std::cout << "Setting threshold to " << t << std::endl;
     wAxes[i]->setDetectorThreshold(t);
 }
 
@@ -744,7 +745,7 @@ void WaveAxes::drawThresholdSlider(Graphics& g)
     // draw detector threshold (not editable)
     h = getHeight()*(0.5f - detectorThresholdLevel/range);
     
-    g.setColour(Colours::grey);
+    g.setColour(Colours::orange);
     g.drawLine(0, h, getWidth(), h);
 }
 

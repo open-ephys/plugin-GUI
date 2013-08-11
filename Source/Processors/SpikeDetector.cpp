@@ -324,7 +324,7 @@ void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,
     int chan = *(electrodes[electrodeNumber]->channels+currentChannel);
 
     s->gain[currentChannel] = (int)(1.0f / channels[chan]->bitVolts)*1000;
-    s->threshold[currentChannel] = (int) *(electrodes[electrodeNumber]->thresholds+currentChannel) / channels[chan]->bitVolts * 1000;
+    s->threshold[currentChannel] = (int) *(electrodes[electrodeNumber]->thresholds+currentChannel); // / channels[chan]->bitVolts * 1000;
 
     // cycle through buffer
 

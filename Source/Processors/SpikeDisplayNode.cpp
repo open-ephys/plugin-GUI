@@ -270,9 +270,15 @@ void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int sample
                 Electrode& e = electrodes.getReference(electrodeNum);
                // std::cout << electrodeNum << std::endl;
 
-                // update threshold / check threshold
+                 bool aboveThreshold = false;
 
-                bool aboveThreshold = true;
+                // update threshold / check threshold
+                for (int i = 0; i < e.numChannels; i++)
+                {
+                    e.detectorThresholds.set(i, float(newSpike.threshold[i])); // / float(newSpike.gain[i]));
+
+                    aboveThreshold = aboveThreshold | checkThreshold(i, e.displayThresholds[i], newSpike);   
+                }
 
                 if (aboveThreshold)
                 {
@@ -298,6 +304,24 @@ void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int sample
 
     }
 
+}
+
+bool SpikeDisplayNode::checkThreshold(int chan, float thresh, SpikeObject& s)
+{
+    int sampIdx = s.nSamples*chan;
+
+    for (int i = 0; i < s.nSamples-1; i++)
+    {
+
+        if (float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f > thresh)
+        {
+            return true;
+        }
+
+        sampIdx++;
+    }
+
+    return false;
 }
 
 void SpikeDisplayNode::openFile(int i)
