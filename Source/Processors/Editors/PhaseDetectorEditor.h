@@ -26,7 +26,13 @@
 #define __PHASEDETECTOREDITOR_H_136829C6__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+
 #include "GenericEditor.h"
+#include "SpikeDetectorEditor.h"
+
+class DetectorInterface;
+class PhaseDetector;
+class ElectrodeButton;
 
 /**
 
@@ -41,7 +47,9 @@ class PhaseDetectorEditor : public GenericEditor,
 {
 public:
     PhaseDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    
     virtual ~PhaseDetectorEditor();
+    
     void buttonEvent(Button* button);
 
     void comboBoxChanged(ComboBox* c);
@@ -53,18 +61,58 @@ public:
 
 private:
 
-    ScopedPointer<ComboBox> inputChannelSelectionBox;
-    ScopedPointer<ComboBox> outputChannelSelectionBox;
+	ScopedPointer<ComboBox> detectorSelector;
 
-    ScopedPointer<Label> intputChannelLabel;
-    ScopedPointer<Label> outputChannelLabel;
+	ScopedPointer<UtilityButton> plusButton;
+
+    // ScopedPointer<ComboBox> inputChannelSelectionBox;
+    // ScopedPointer<ComboBox> outputChannelSelectionBox;
+
+    // ScopedPointer<Label> intputChannelLabel;
+    // ScopedPointer<Label> outputChannelLabel;
+
+    OwnedArray<DetectorInterface> interfaces;
 
     int previousChannelCount;
+
+    Array<Colour> backgroundColours;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhaseDetectorEditor);
 
 };
 
+class DetectorInterface : public Component,
+						  public ComboBox::Listener,
+						  public Button::Listener
+{
+public:
+	DetectorInterface(PhaseDetector*, Colour, int);
+	~DetectorInterface();
 
+	void paint(Graphics& g);
+
+	void comboBoxChanged(ComboBox*);
+	void buttonClicked(Button*);
+
+	void updateChannels(int);
+
+private:
+
+	Colour backgroundColour;
+
+	Path sineWave;
+	Font font;
+
+	int idNum;
+
+	PhaseDetector* processor;
+
+	OwnedArray<ElectrodeButton> phaseButtons;
+
+	ScopedPointer<ComboBox> inputSelector;
+	ScopedPointer<ComboBox> gateSelector;
+	ScopedPointer<ComboBox> outputSelector;
+
+};
 
 #endif  // __PHASEDETECTOREDITOR_H_136829C6__

@@ -60,32 +60,39 @@ public:
 
     void updateSettings();
 
+    void addModule();
+    void setActiveModule(int);
+
 private:
 
-    float lastPeak;
-    float maxFrequency;
-    float lastSample;
+    enum ModuleType {
+        NONE, PEAK, FALLING_ZERO, TROUGH, RISING_ZERO 
+    };
 
-    bool isIncreasing;
+    enum PhaseType {
+        NO_PHASE, RISING_POS, FALLING_POS, FALLING_NEG, RISING_NEG
+    };
 
-    bool triggerOnPeak;
+    struct DetectorModule {
 
-    bool canBeTriggered;
+        int inputChan;
+        int gateChan;
+        int outputChan;
+        bool isActive;
+        float lastSample;
+        int samplesSinceTrigger;
+        bool wasTriggered;
+        ModuleType type;
+        PhaseType phase;
+    };
+
+    Array<DetectorModule> modules;
+
+    int activeModule;
 
     void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
-    float estimatedFrequency;
-
-    int nSamplesSinceLastPeak;
-    int minSamplesToNextPeak;
-
-    int* peakIntervals;
-    int numPeakIntervals;
-
-    int selectedChannel;
-    int outputEventChannel;
-
-    Random randomNumberGenerator;
+    bool risingPos, risingNeg, fallingPos, fallingNeg;
 
     void estimateFrequency();
 

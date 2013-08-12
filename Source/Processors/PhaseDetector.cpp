@@ -27,16 +27,10 @@
 
 PhaseDetector::PhaseDetector()
     : GenericProcessor("Phase Detector"),
-      maxFrequency(20), isIncreasing(true), canBeTriggered(false), selectedChannel(-1),
-      triggerOnPeak(true), outputEventChannel(3)
+      risingPos(false), risingNeg(false), fallingPos(false), fallingNeg(false),
+      activeModule(-1)
 
 {
-
-    peakIntervals = new int[NUM_INTERVALS];
-
-    randomNumberGenerator.setSeed(Time::currentTimeMillis());
-
-    //parameters.add(Parameter("thresh", 0.0, 500.0, 200.0, 0));
 
 }
 
@@ -54,19 +48,74 @@ AudioProcessorEditor* PhaseDetector::createEditor()
     return editor;
 }
 
+void PhaseDetector::addModule()
+{
+    DetectorModule m = DetectorModule();
+    m.inputChan = -1;
+    m.outputChan = -1;
+    m.gateChan = -1;
+    m.isActive = true;
+    m.lastSample = 0.0f;
+    m.type = NONE;
+    m.samplesSinceTrigger = 5000;
+    m.wasTriggered = false;
+    m.phase = NO_PHASE;
+
+    modules.add(m);
+}
+
+void PhaseDetector::setActiveModule(int i)
+{
+    activeModule = i;
+
+}
 
 
 void PhaseDetector::setParameter(int parameterIndex, float newValue)
 {
-    editor->updateParameterButtons(parameterIndex);
-    editor->updateParameterButtons(parameterIndex);
     
-    if (parameterIndex == 1)
+    DetectorModule& module = modules.getReference(activeModule);
+
+    if (parameterIndex == 1) // module type
     {
-        selectedChannel = (int) newValue;
-    } else if (parameterIndex == 2)
+
+        int val = (int) newValue;
+
+        switch (val)
+        {
+            case 0:
+                module.type = NONE;
+                break;
+            case 1:
+                module.type = PEAK;
+                break;
+            case 2:
+                module.type = FALLING_ZERO;
+                break;
+            case 3:
+                module.type = TROUGH;
+                break;
+            case 4:
+                module.type = RISING_ZERO;
+                break;
+            default:
+                module.type = NONE;
+        }
+    } else if (parameterIndex == 2) // inputChan
     {
-        outputEventChannel = (int) newValue; // -1 means don't send any events
+        module.inputChan = (int) newValue;
+    } else if (parameterIndex == 3) // outputChan
+    {
+        module.outputChan = (int) newValue;
+    } else if (parameterIndex == 4) // gateChan
+    {
+        module.gateChan = (int) newValue;
+        if (module.gateChan < 0)
+        {
+            module.isActive = true;
+        } else {
+            module.isActive = false;
+        }
     }
 
 }
@@ -74,17 +123,10 @@ void PhaseDetector::setParameter(int parameterIndex, float newValue)
 void PhaseDetector::updateSettings()
 {
 
-    minSamplesToNextPeak = int(getSampleRate()/maxFrequency);
-
 }
 
 bool PhaseDetector::enable()
 {
-    nSamplesSinceLastPeak = 0;
-    lastSample = 0.0f;
-    isIncreasing = false;
-    numPeakIntervals = 0;
-
     return true;
 }
 
@@ -102,19 +144,18 @@ void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
         // int eventNodeId = *(dataptr+1);
         int eventId = *(dataptr+2);
         int eventChannel = *(dataptr+3);
-        //int eventTime = event.getTimeStamp();
 
-        //     //	std::cout << "Received event from " << eventNodeId << ", channel "
-        //     //          << eventChannel << ", with ID " << eventId << std::endl;
-
-        //     if (eventId == 1 && eventChannel == 5)
-        //     {
-        //         canBeTriggered = true;
-        //     }
-        if (eventId == 0 && eventChannel == 1)
+        for (int i = 0; i < modules.size(); i++)
         {
-            triggerOnPeak = randomNumberGenerator.nextBool();
+            DetectorModule& module = modules.getReference(i);
 
+            if (module.gateChan == eventChannel)
+            {
+                if (eventId)
+                    module.isActive = true;
+                else
+                    module.isActive = false;
+            } 
         }
 
     }
@@ -128,84 +169,109 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
     checkForEvents(events);
 
-    if (selectedChannel >= 0 && selectedChannel < buffer.getNumChannels())
+    // loop through the modules
+    for (int i = 0; i < modules.size(); i++)
     {
+        DetectorModule& module = modules.getReference(i);
 
-        for (int i = 0; i < nSamples; i++)
+        // check to see if it's active and has a channel
+        if (module.isActive && module.outputChan >= 0 &&
+            module.inputChan >= 0 && 
+            module.inputChan < buffer.getNumChannels())
         {
 
-            float  sample = *buffer.getSampleData(selectedChannel, i);
-
-            if (!triggerOnPeak)
-                sample = -sample; // invert
-
-
-            if (sample > lastSample && !isIncreasing)
+            for (int i = 0; i < nSamples; i++)
             {
+                float sample = *buffer.getSampleData(module.inputChan, i);
 
-                // entering rising phase
-                isIncreasing = true;
-                nSamplesSinceLastPeak++;
-
-            }
-            else if (sample < lastSample && isIncreasing && nSamplesSinceLastPeak >= minSamplesToNextPeak)
-            {
-
-                numPeakIntervals++;
-
-
-                //std::cout << "GOT EVENT." << std::endl;
-
-                // entering falling phase (just reached peak or trough)
-                //if (true)
-                if (outputEventChannel > -1)
-                    addEvent(events, TTL, i, 1, outputEventChannel);
-
-
-                peakIntervals[numPeakIntervals % NUM_INTERVALS] = nSamplesSinceLastPeak;
-
-                isIncreasing = false;
-
-                nSamplesSinceLastPeak = 0;
-
-                estimateFrequency();
-
-            }
-            else
-            {
-
-                // either rising or falling
-                nSamplesSinceLastPeak++;
-
-                if (nSamplesSinceLastPeak == 500 && outputEventChannel > -1)
+                if (sample < module.lastSample && sample > 0 && module.phase != FALLING_POS)
                 {
-                    addEvent(events, TTL, i, 0, outputEventChannel);
+
+                    if (module.type == PEAK)
+                    {
+                        addEvent(events, TTL, i, 1, module.outputChan);
+                        module.samplesSinceTrigger = 0;
+                        module.wasTriggered = true;
+                    }
+
+                    module.phase = FALLING_POS;
+
+                } else if (sample < 0 && module.lastSample >= 0 && module.phase != FALLING_NEG)
+                {
+
+                    if (module.type == FALLING_ZERO)
+                    {
+                        addEvent(events, TTL, i, 1, module.outputChan);
+                        module.samplesSinceTrigger = 0;
+                        module.wasTriggered = true;
+                    }
+
+                     module.phase = FALLING_NEG;
+
+                } else if (sample > module.lastSample && sample < 0 && module.phase != RISING_NEG)
+                {
+
+                    if (module.type == TROUGH)
+                    {
+                        addEvent(events, TTL, i, 1, module.outputChan);
+                        module.samplesSinceTrigger = 0;
+                        module.wasTriggered = true;
+                    }
+
+                    module.phase = RISING_NEG;
+
+                } else if (sample > 0 && module.lastSample <= 0 && module.phase != RISING_POS)
+                {
+
+                    if (module.type == RISING_ZERO)
+                    {
+                        addEvent(events, TTL, i, 1, module.outputChan);
+                        module.samplesSinceTrigger = 0;
+                        module.wasTriggered = true;
+                    }
+
+                    module.phase = RISING_POS;
+
+                }
+
+                module.lastSample = sample;
+
+                if (module.wasTriggered)
+                {
+                    if (module.samplesSinceTrigger > 1000)
+                    {
+                        addEvent(events, TTL, i, 0, module.outputChan);
+                        module.wasTriggered = false;
+                    }
+                    else
+                    {
+                        module.samplesSinceTrigger++;
+                    }
                 }
 
             }
 
-            lastSample = sample;
-
+            
         }
-    }
 
+    }
 
 }
 
 void PhaseDetector::estimateFrequency()
 {
 
-    int N = (numPeakIntervals < NUM_INTERVALS) ? numPeakIntervals
-            : NUM_INTERVALS;
+    // int N = (numPeakIntervals < NUM_INTERVALS) ? numPeakIntervals
+    //         : NUM_INTERVALS;
 
-    int sum = 0;
+    // int sum = 0;
 
-    for (int i = 0; i < N; i++)
-    {
-        sum += peakIntervals[i];
-    }
+    // for (int i = 0; i < N; i++)
+    // {
+    //     sum += peakIntervals[i];
+    // }
 
-    estimatedFrequency = getSampleRate()/(float(sum)/float(N));
+    // estimatedFrequency = getSampleRate()/(float(sum)/float(N));
 
 
 }
