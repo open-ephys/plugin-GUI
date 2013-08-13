@@ -817,7 +817,7 @@ void Rhd2000EvalBoard::setCableLengthMeters(BoardPort port, double lengthInMeter
 // Same function as above, but accepts lengths in feet instead of meters
 void Rhd2000EvalBoard::setCableLengthFeet(BoardPort port, double lengthInFeet)
 {
-    setCableLengthMeters(port, 0.03048 * lengthInFeet);   // convert feet to meters
+    setCableLengthMeters(port, 0.3048 * lengthInFeet);   // convert feet to meters
 }
 
 // Estimate cable length based on a particular delay used in setCableDelay.
