@@ -104,7 +104,11 @@ void MainWindow::saveWindowBounds()
 
     std::cout << "Saving window bounds." << std::endl;
 
-    File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
+    //File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
+
+    File executable = File::getSpecialLocation(File::currentExecutableFile);
+    File executableDirectory = executable.getParentDirectory();
+    File file = executableDirectory.getChildFile("windowState.xml");
 
     XmlElement* xml = new XmlElement("MAINWINDOW");
 
@@ -130,7 +134,11 @@ void MainWindow::loadWindowBounds()
 
     std::cout << "Loading window bounds." << std::endl;
 
-    File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
+    //File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
+
+    File executable = File::getSpecialLocation(File::currentExecutableFile);
+    File executableDirectory = executable.getParentDirectory();
+    File file = executableDirectory.getChildFile("windowState.xml");
 
     XmlDocument doc(file);
     XmlElement* xml = doc.getDocumentElement();
