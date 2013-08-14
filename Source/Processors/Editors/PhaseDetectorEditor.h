@@ -65,6 +65,8 @@ private:
 
 	ScopedPointer<UtilityButton> plusButton;
 
+	void addDetector();
+
     // ScopedPointer<ComboBox> inputChannelSelectionBox;
     // ScopedPointer<ComboBox> outputChannelSelectionBox;
 
@@ -95,6 +97,16 @@ public:
 	void buttonClicked(Button*);
 
 	void updateChannels(int);
+
+	void setPhase(int);
+	void setInputChan(int);
+	void setOutputChan(int);
+	void setGateChan(int);
+
+	int getPhase();
+	int getInputChan();
+	int getOutputChan();
+	int getGateChan();
 
 private:
 

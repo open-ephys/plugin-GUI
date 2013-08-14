@@ -95,6 +95,8 @@ void PhaseDetectorEditor::updateSettings()
         }
     }
 
+    previousChannelCount = getProcessor()->getNumInputs();
+
 }
 
 void PhaseDetectorEditor::comboBoxChanged(ComboBox* c)
@@ -112,28 +114,6 @@ void PhaseDetectorEditor::comboBoxChanged(ComboBox* c)
         
     }
 
-    // float channel;
-
-    //  int id = c->getSelectedId();
-
-    //  if (id == 1)
-    //  {
-    //     channel = -1.0f;
-    //  }
-    //     else
-    //  {
-    //     channel = float(id) - 2.0f;
-    //  }
-
-    // if (c == inputChannelSelectionBox)
-    // {
-    //     getProcessor()->setParameter(1, channel);
-    // } else if (c == outputChannelSelectionBox) {
-
-    //     getProcessor()->setParameter(2, channel);
-
-    // }
-
 }
 
 void PhaseDetectorEditor::buttonEvent(Button* button)
@@ -141,32 +121,38 @@ void PhaseDetectorEditor::buttonEvent(Button* button)
     if (button == plusButton && interfaces.size() < 5)
     {
 
-        PhaseDetector* pd = (PhaseDetector*) getProcessor();
-
-        int detectorNumber = interfaces.size()+1;
-
-        DetectorInterface* di = new DetectorInterface(pd, backgroundColours[detectorNumber%5], detectorNumber-1);
-        di->setBounds(10,50,190,80);
-
-        addAndMakeVisible(di);
-
-        interfaces.add(di);
-
-        String itemName = "Detector ";
-        itemName += detectorNumber;
-
-        std::cout << itemName << std::endl;
-
-        detectorSelector->addItem(itemName, detectorNumber);
-        detectorSelector->setSelectedId(detectorNumber, false);
-
-        for (int i = 0; i < detectorNumber-1; i++)
-        {
-            interfaces[i]->setVisible(false);
-        }
+        addDetector();
 
     }
 
+}
+
+void PhaseDetectorEditor::addDetector()
+{
+
+    PhaseDetector* pd = (PhaseDetector*) getProcessor();
+
+    int detectorNumber = interfaces.size()+1;
+
+    DetectorInterface* di = new DetectorInterface(pd, backgroundColours[detectorNumber%5], detectorNumber-1);
+    di->setBounds(10,50,190,80);
+
+    addAndMakeVisible(di);
+
+    interfaces.add(di);
+
+    String itemName = "Detector ";
+    itemName += detectorNumber;
+
+    //std::cout << itemName << std::endl;
+
+    detectorSelector->addItem(itemName, detectorNumber);
+    detectorSelector->setSelectedId(detectorNumber, false);
+
+    for (int i = 0; i < detectorNumber-1; i++)
+    {
+        interfaces[i]->setVisible(false);
+    }
 }
 
 void PhaseDetectorEditor::saveEditorParameters(XmlElement* xml)
@@ -174,24 +160,37 @@ void PhaseDetectorEditor::saveEditorParameters(XmlElement* xml)
 
     xml->setAttribute("Type", "PhaseDetectorEditor");
 
-   // XmlElement* selectedChannel = xml->createNewChildElement("SELECTEDID");
-
-   // selectedChannel->setAttribute("INPUTCHANNEL",inputChannelSelectionBox->getSelectedId());
-   // selectedChannel->setAttribute("OUTPUTCHANNEL",outputChannelSelectionBox->getSelectedId());
-
+    for (int i = 0; i < interfaces.size(); i++)
+    {
+        XmlElement* d = xml->createNewChildElement("DETECTOR");
+        d->setAttribute("PHASE",interfaces[i]->getPhase());
+        d->setAttribute("INPUT",interfaces[i]->getInputChan());
+        d->setAttribute("GATE",interfaces[i]->getGateChan());
+        d->setAttribute("OUTPUT",interfaces[i]->getOutputChan());
+    }
 }
 
 void PhaseDetectorEditor::loadEditorParameters(XmlElement* xml)
 {
 
+    int i = 0;
+
     forEachXmlChildElement(*xml, xmlNode)
     {
-        if (xmlNode->hasTagName("SELECTEDID"))
+        if (xmlNode->hasTagName("DETECTOR"))
         {
 
-         //   inputChannelSelectionBox->setSelectedId(xmlNode->getIntAttribute("INPUTCHANNEL"));
-         //   outputChannelSelectionBox->setSelectedId(xmlNode->getIntAttribute("OUTPUTCHANNEL"));
+            if (i > 0)
+            {
+                addDetector();
+            }
 
+            interfaces[i]->setPhase(xmlNode->getIntAttribute("PHASE"));
+            interfaces[i]->setInputChan(xmlNode->getIntAttribute("INPUT"));
+            interfaces[i]->setGateChan(xmlNode->getIntAttribute("GATE"));
+            interfaces[i]->setOutputChan(xmlNode->getIntAttribute("OUTPUT"));
+
+            i++;
         }
     }
 }
@@ -271,7 +270,7 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
 
 DetectorInterface::~DetectorInterface()
 {
-    
+
 }
 
 void DetectorInterface::comboBoxChanged(ComboBox* c)
@@ -324,9 +323,6 @@ void DetectorInterface::updateChannels(int numChannels)
     }
 
     inputSelector->setSelectedId(1, false);
-
-    //getProcessor()->setParameter(1,-1.0f);
-
 }
 
 void DetectorInterface::paint(Graphics& g)
@@ -340,4 +336,67 @@ void DetectorInterface::paint(Graphics& g)
     g.drawText("GATE",50,35,85,10,Justification::right, true);
     g.drawText("OUTPUT",50,60,85,10,Justification::right, true);
 
+}
+
+int DetectorInterface::getPhase()
+{
+
+    for (int i = 0; i < phaseButtons.size(); i++)
+    {
+        if (phaseButtons[i]->getToggleState())
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+void DetectorInterface::setPhase(int p)
+{
+
+    if (p >= 0)
+        phaseButtons[p]->setToggleState(true, false);
+    
+
+    processor->setActiveModule(idNum);
+
+    processor->setParameter(1, (float) p+1);
+
+}
+
+void DetectorInterface::setInputChan(int chan)
+{
+    inputSelector->setSelectedId(chan+2);
+
+    processor->setParameter(2, (float) chan);
+}
+
+void DetectorInterface::setOutputChan(int chan)
+{
+    outputSelector->setSelectedId(chan+2);
+
+    processor->setParameter(3, (float) chan);
+}
+
+void DetectorInterface::setGateChan(int chan)
+{
+    gateSelector->setSelectedId(chan+2);
+
+    processor->setParameter(4, (float) chan);
+}
+
+int DetectorInterface::getInputChan()
+{
+    return inputSelector->getSelectedId()-2;
+}
+
+int DetectorInterface::getOutputChan()
+{
+    return outputSelector->getSelectedId()-2;
+}
+
+int DetectorInterface::getGateChan()
+{
+    return gateSelector->getSelectedId()-2;
 }
