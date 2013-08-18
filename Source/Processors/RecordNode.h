@@ -147,7 +147,7 @@ private:
 
     /** Integer timestamp saved for each buffer.
     */
-    uint64 timestamp;
+    int64 timestamp;
 
     /** Integer to keep track of the number samples written in each buffer */
     int sampleCount;

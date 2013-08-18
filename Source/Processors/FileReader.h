@@ -81,7 +81,7 @@ public:
 
 private:
 
-    uint64 timestamp;
+    int64 timestamp;
 
     int lengthOfInputFile;
     FILE* input;

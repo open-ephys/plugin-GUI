@@ -458,8 +458,9 @@ void RecordNode::closeFile(Channel* ch)
 String RecordNode::generateHeader(Channel* ch)
 {
 
-    String header = "header.format = 'OPEN EPHYS DATA FORMAT v0.0'; \n";
+    String header = "header.format = 'Open Ephys Data Format'; \n";
 
+    header += "header.version = 0.1;";
     header += "header.header_bytes = ";
     header += String(HEADER_SIZE);
     header += ";\n";
@@ -471,7 +472,7 @@ String RecordNode::generateHeader(Channel* ch)
     }
     else
     {
-        header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample count (N), N 16-bit samples, and one 10-byte record marker (0 0 0 0 0 0 0 0 0 255)'; \n";
+        header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample count (N), N 16-bit samples, and one 10-byte record marker (0 1 2 3 4 5 6 7 8 255)'; \n";
     }
 
 
@@ -607,7 +608,7 @@ void RecordNode::writeTimestampAndSampleCount(FILE* file)
 
     diskWriteLock.enter();
     
-    int16 samps = BLOCK_LENGTH;
+    uint16 samps = BLOCK_LENGTH;
 
     fwrite(&timestamp,                       // ptr
            8,                               // size of each element
@@ -643,7 +644,7 @@ void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, in
     const uint8* dataptr = event.getRawData();
     uint64 samplePos = (uint64) samplePosition;
 
-    uint64 eventTimestamp = timestamp + samplePos;
+    int64 eventTimestamp = timestamp + samplePos;
 
     diskWriteLock.enter();
     // write timestamp (for buffer only, not the actual event timestamp!!!!!)

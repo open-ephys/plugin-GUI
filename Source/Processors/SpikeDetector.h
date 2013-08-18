@@ -167,7 +167,7 @@ private:
     };
 
     uint8_t* spikeBuffer;///[256];
-    uint64_t timestamp;
+    int64 timestamp;
 
     Array<Electrode*> electrodes;
 

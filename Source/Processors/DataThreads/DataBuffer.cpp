@@ -26,7 +26,7 @@
 DataBuffer::DataBuffer(int chans, int size)
     : abstractFifo(size), buffer(chans, size), numChans(chans)
 {
-    timestampBuffer = new uint64[size];
+    timestampBuffer = new int64[size];
     eventCodeBuffer = new int16[size];
 
 }
@@ -42,13 +42,13 @@ void DataBuffer::clear()
 void DataBuffer::resize(int chans, int size)
 {
     buffer.setSize(chans, size);
-    timestampBuffer = new uint64[size];
+    timestampBuffer = new int64[size];
     eventCodeBuffer = new int16[size];
 
     numChans = chans;
 }
 
-void DataBuffer::addToBuffer(float* data, uint64* timestamps, int16* eventCodes, int numItems)
+void DataBuffer::addToBuffer(float* data, int64* timestamps, int16* eventCodes, int numItems)
 {
     // writes one sample for all channels
     int startIndex1, blockSize1, startIndex2, blockSize2;

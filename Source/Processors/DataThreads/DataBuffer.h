@@ -45,7 +45,7 @@ public:
     void clear();
 
     /** Add an array of floats to the buffer.*/
-    void addToBuffer(float* data, uint64* ts, int16* eventCodes, int numItems);
+    void addToBuffer(float* data, int64* ts, int16* eventCodes, int numItems);
 
     /** Returns the number of samples currently available in the buffer.*/
     int getNumSamples();
@@ -60,7 +60,7 @@ private:
     AbstractFifo abstractFifo;
     AudioSampleBuffer buffer;
 
-    uint64* timestampBuffer;
+    int64* timestampBuffer;
     int16* eventCodeBuffer;
 
     int numChans;
