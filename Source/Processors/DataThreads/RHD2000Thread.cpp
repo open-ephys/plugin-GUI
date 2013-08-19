@@ -24,6 +24,14 @@
 #include "RHD2000Thread.h"
 #include "../SourceNode.h"
 
+#if defined(_WIN32)
+#define okLIB_NAME "okFrontPanel.dll"
+#elif defined(__APPLE__)
+#define okLIB_NAME "libokFrontPanel.dylib"
+#elif defined(__linux__)
+#define okLIB_NAME "./libokFrontPanel.so"
+#endif
+
 RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(false),
     fastSettleEnabled(false), chipRegisters(30000.0f), dspEnabled(true), boardSampleRate(30000.0f),
     desiredDspCutoffFreq(0.5f), desiredUpperBandwidth(7500.0f), desiredLowerBandwidth(1.0f),
@@ -42,7 +50,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
 	String dirName = executableDirectory.toStdString();
     String libName = dirName;
 	libName += File::separatorString.toStdString();
-	libName += "libokFrontPanel.dylib";
+	libName += okLIB_NAME;
     
     int return_code = evalBoard->open(libName.getCharPointer());
 
