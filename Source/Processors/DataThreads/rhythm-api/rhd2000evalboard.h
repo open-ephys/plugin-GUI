@@ -40,7 +40,7 @@ public:
     Rhd2000EvalBoard();
 	~Rhd2000EvalBoard();
 
-    int open();
+    int open(const char* libname);
     bool uploadFpgaBitfile(string filename);
     void initialize();
 

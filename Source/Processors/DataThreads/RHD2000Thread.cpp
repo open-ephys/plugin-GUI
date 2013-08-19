@@ -37,7 +37,14 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
 
     // Open Opal Kelly XEM6010 board.
 	// Returns 1 if successful, -1 if FrontPanel cannot be loaded, and -2 if XEM6010 can't be found.
-    int return_code = evalBoard->open();
+    File executable = File::getSpecialLocation(File::currentExecutableFile);
+	const String executableDirectory = executable.getParentDirectory().getFullPathName();
+	String dirName = executableDirectory.toStdString();
+    String libName = dirName;
+	libName += File::separatorString.toStdString();
+	libName += "libokFrontPanel.dylib";
+    
+    int return_code = evalBoard->open(libName.getCharPointer());
 
     if (return_code == 1)
     {

@@ -57,14 +57,14 @@ Rhd2000EvalBoard::~Rhd2000EvalBoard()
 
 // Find an Opal Kelly XEM6010-LX45 board attached to a USB port and open it.
 // Returns 1 if successful, -1 if FrontPanel cannot be loaded, and -2 if XEM6010 can't be found.
-int Rhd2000EvalBoard::open()
+int Rhd2000EvalBoard::open(const char* libname)
 {
     char dll_date[32], dll_time[32];
     string serialNumber = "";
     int i, nDevices;
 
     cout << "---- Intan Technologies ---- Rhythm RHD2000 Controller v1.0 ----" << endl << endl;
-    if (okFrontPanelDLL_LoadLib(NULL) == false)
+    if (okFrontPanelDLL_LoadLib(libname) == false)
     {
         cerr << "FrontPanel DLL could not be loaded.  " <<
              "Make sure this DLL is in the application start directory." << endl;
