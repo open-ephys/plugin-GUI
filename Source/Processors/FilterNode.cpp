@@ -153,10 +153,22 @@ void FilterNode::updateSettings()
             //p2.setValue(6000.0f, n);
 
             // restore defaults
-            lowCuts.add(defaultLowCut);
-            highCuts.add(defaultHighCut);
 
-            setFilterParameters(defaultLowCut, defaultHighCut, n);
+            float lc, hc;
+
+            if (lowCuts.size() > n)
+            {
+                lc = lowCuts[n];
+                hc = highCuts[n];
+            } else {
+                lc = defaultLowCut;
+                hc = defaultHighCut;
+            }
+
+            lowCuts.add(lc);
+            highCuts.add(hc);
+
+            setFilterParameters(lc, hc, n);
         }
 
     }
