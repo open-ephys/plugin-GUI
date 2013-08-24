@@ -26,10 +26,13 @@
 
 #if defined(_WIN32)
 #define okLIB_NAME "okFrontPanel.dll"
+#define okLIB_EXTENSION "*.dll"
 #elif defined(__APPLE__)
 #define okLIB_NAME "libokFrontPanel.dylib"
+#define okLIB_EXTENSION "*.dylib"
 #elif defined(__linux__)
 #define okLIB_NAME "./libokFrontPanel.so"
+#define okLIB_EXTENSION "*.so"
 #endif
 
 RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(false),
@@ -46,31 +49,27 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
     // Open Opal Kelly XEM6010 board.
 	// Returns 1 if successful, -1 if FrontPanel cannot be loaded, and -2 if XEM6010 can't be found.
     File executable = File::getSpecialLocation(File::currentExecutableFile);
-	const String executableDirectory = executable.getParentDirectory().getFullPathName();
+
+    #if defined(__APPLE__)
+        const String executableDirectory = 
+            executable.getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
+    #else
+	   const String executableDirectory = executable.getParentDirectory().getFullPathName();
+    #endif
+
 	String dirName = executableDirectory.toStdString();
-    String libName = dirName;
-	libName += File::separatorString.toStdString();
-	libName += okLIB_NAME;
+    libraryFilePath = dirName;
+	libraryFilePath += File::separatorString.toStdString();
+	libraryFilePath += okLIB_NAME;
     
-    int return_code = evalBoard->open(libName.getCharPointer());
-
-    if (return_code == 1)
-    {
-        deviceFound = true;
-    }
-    else
-    {
-        deviceFound = false;
-    }
-
-    if (deviceFound)
+    if (openBoard(libraryFilePath.getCharPointer()))
     {
 
         // upload bitfile and restore default settings
         initializeBoard();
 
         // automatically find connected headstages
-        scanPorts(); // things would run more smoothly if this were done after the editor has been created
+        scanPorts(); // things would appear to run more smoothly if this were done after the editor has been created
     }
 
 }
@@ -93,6 +92,63 @@ RHD2000Thread::~RHD2000Thread()
 
 }
 
+bool RHD2000Thread::openBoard(const char* pathToLibrary)
+{
+    int return_code = evalBoard->open(pathToLibrary);
+
+    if (return_code == 1)
+    {
+        deviceFound = true;
+    }
+    else if (return_code == -1) // dynamic library not found
+    {
+        bool response = AlertWindow::showOkCancelBox (AlertWindow::NoIcon,
+                                   "Opal Kelly library not found.",
+                                    "The Opal Kelly library file was not found in the directory of the executable. Would you like to browse for it?",
+                                     "Yes", "No", 0, 0);
+        if (response)
+        {
+            // browse for file
+            FileChooser fc("Select the library file...",
+                               File::getCurrentWorkingDirectory(),
+                               okLIB_EXTENSION,
+                               true);
+
+            if (fc.browseForFileToOpen())
+            {
+                File currentFile = fc.getResult();
+                libraryFilePath = currentFile.getFullPathName();
+                openBoard(libraryFilePath.getCharPointer()); // call recursively
+            }
+            else
+            {
+                //sendActionMessage("No configuration selected.");
+                deviceFound = false;
+            }
+
+        } else {
+            deviceFound = false;
+        }
+    } else if (return_code == -2) // board could not be opened
+    {
+        bool response = AlertWindow::showOkCancelBox (AlertWindow::NoIcon,
+                                   "Acquisition board not found.",
+                                    "An acquisition board could not be found. Please connect one now.",
+                                     "OK", "Cancel", 0, 0);
+    
+        if (response)
+        {
+            openBoard(libraryFilePath.getCharPointer()); // call recursively
+        } else {
+            deviceFound = false;
+        }
+
+    }
+
+    return deviceFound;
+
+}
+
 void RHD2000Thread::initializeBoard()
 {
     string bitfilename;
@@ -109,7 +165,6 @@ void RHD2000Thread::initializeBoard()
 		std::cout << "Couldn't upload bitfile from " << bitfilename << std::endl;
         // what to do if there's an error
     }
-
     // Initialize the board
     std::cout << "Initializing acquisition board." << std::endl;
     evalBoard->initialize();

@@ -117,9 +117,12 @@ private:
     double boardSampleRate;
     int savedSampleRateIndex;
 
+    String libraryFilePath;
+
     bool startAcquisition();
     bool stopAcquisition();
 
+    bool openBoard(const char* pathToLibraryFile);
     void initializeBoard();
 
     void updateRegisters();
