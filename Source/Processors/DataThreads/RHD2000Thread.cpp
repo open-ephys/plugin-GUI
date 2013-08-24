@@ -57,12 +57,12 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
 	   const String executableDirectory = executable.getParentDirectory().getFullPathName();
     #endif
 
-	String dirName = executableDirectory.toStdString();
+	String dirName = executableDirectory;
     libraryFilePath = dirName;
-	libraryFilePath += File::separatorString.toStdString();
+	libraryFilePath += File::separatorString;
 	libraryFilePath += okLIB_NAME;
     
-    if (openBoard(libraryFilePath.getCharPointer()))
+    if (openBoard(libraryFilePath))
     {
 
         // upload bitfile and restore default settings
@@ -92,9 +92,9 @@ RHD2000Thread::~RHD2000Thread()
 
 }
 
-bool RHD2000Thread::openBoard(const char* pathToLibrary)
+bool RHD2000Thread::openBoard(String pathToLibrary)
 {
-    int return_code = evalBoard->open(pathToLibrary);
+    int return_code = evalBoard->open(pathToLibrary.getCharPointer());
 
     if (return_code == 1)
     {
@@ -118,7 +118,7 @@ bool RHD2000Thread::openBoard(const char* pathToLibrary)
             {
                 File currentFile = fc.getResult();
                 libraryFilePath = currentFile.getFullPathName();
-                openBoard(libraryFilePath.getCharPointer()); // call recursively
+                openBoard(libraryFilePath); // call recursively
             }
             else
             {
@@ -149,21 +149,63 @@ bool RHD2000Thread::openBoard(const char* pathToLibrary)
 
 }
 
+bool RHD2000Thread::uploadBitfile(String bitfilename)
+{
+    if (!evalBoard->uploadFpgaBitfile(bitfilename.toStdString()))
+    {
+        std::cout << "Couldn't upload bitfile from " << bitfilename << std::endl;
+        
+        bool response = AlertWindow::showOkCancelBox (AlertWindow::NoIcon,
+                                   "FPGA bitfile not found.",
+                                    "The rhd2000.bit file was not found in the directory of the executable. Would you like to browse for it?",
+                                     "Yes", "No", 0, 0);
+        if (response)
+        {
+            // browse for file
+            FileChooser fc("Select the FPGA bitfile...",
+                               File::getCurrentWorkingDirectory(),
+                               "*.bit",
+                               true);
+
+            if (fc.browseForFileToOpen())
+            {
+                File currentFile = fc.getResult();
+                uploadBitfile(currentFile.getFullPathName()); // call recursively
+            }
+            else
+            {
+                //sendActionMessage("No configuration selected.");
+                deviceFound = false;
+            }
+
+        } else {
+            deviceFound = false;
+        }
+
+    }
+
+}
+
 void RHD2000Thread::initializeBoard()
 {
-    string bitfilename;
+    String bitfilename;
 
 	File executable = File::getSpecialLocation(File::currentExecutableFile);
-	const String executableDirectory = executable.getParentDirectory().getFullPathName();
-	string dirName = executableDirectory.toStdString();
-	bitfilename = dirName;
-	bitfilename += File::separatorString.toStdString();
+
+    #if defined(__APPLE__)
+    const String executableDirectory = 
+            executable.getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
+    #else
+       const String executableDirectory = executable.getParentDirectory().getFullPathName();
+    #endif
+
+	bitfilename = executableDirectory;
+	bitfilename += File::separatorString;
 	bitfilename += "rhd2000.bit";
 
-    if (!evalBoard->uploadFpgaBitfile(bitfilename))
+    if (!uploadBitfile(bitfilename))
     {
-		std::cout << "Couldn't upload bitfile from " << bitfilename << std::endl;
-        // what to do if there's an error
+        return;
     }
     // Initialize the board
     std::cout << "Initializing acquisition board." << std::endl;

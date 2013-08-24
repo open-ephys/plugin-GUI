@@ -122,7 +122,8 @@ private:
     bool startAcquisition();
     bool stopAcquisition();
 
-    bool openBoard(const char* pathToLibraryFile);
+    bool openBoard(String pathToLibrary);
+    bool uploadBitfile(String pathToBitfile);
     void initializeBoard();
 
     void updateRegisters();
