@@ -62,11 +62,16 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     File executable = File::getSpecialLocation(File::currentExecutableFile);
 
     #if defined(__APPLE__)
-        const String executableDirectory = 
-            executable.getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
+        const String executableDirectory =
+            executable.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
     #else
 	   const String executableDirectory = executable.getParentDirectory().getFullPathName();
+    
+
     #endif
+    
+    std::cout << executableDirectory << std::endl;
+    
 
 	String dirName = executableDirectory;
     libraryFilePath = dirName;
@@ -163,7 +168,7 @@ bool RHD2000Thread::openBoard(String pathToLibrary)
 bool RHD2000Thread::uploadBitfile(String bitfilename)
 {
     
-    deviceFound = false;
+    deviceFound = true;
     
     if (!evalBoard->uploadFpgaBitfile(bitfilename.toStdString()))
     {
@@ -210,7 +215,7 @@ void RHD2000Thread::initializeBoard()
 
     #if defined(__APPLE__)
     const String executableDirectory = 
-            executable.getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
+            executable.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
     #else
        const String executableDirectory = executable.getParentDirectory().getFullPathName();
     #endif
