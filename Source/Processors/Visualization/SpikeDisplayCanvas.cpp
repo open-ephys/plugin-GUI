@@ -619,11 +619,17 @@ void SpikePlot::setDetectorThresholdForChannel(int i, float t)
 // --------------------------------------------------
 
 
-WaveAxes::WaveAxes(int channel) : GenericAxes(channel), drawGrid(true),
-    bufferSize(5), spikeIndex(0), displayThresholdLevel(0.0f), 
-    detectorThresholdLevel(0.0f), range(250.0f),
-    isOverThresholdSlider(false), isDraggingThresholdSlider(false),
-    spikesReceivedSinceLastRedraw(0)
+WaveAxes::WaveAxes(int channel) : GenericAxes(channel),
+    drawGrid(true), 
+    displayThresholdLevel(0.0f),  
+    detectorThresholdLevel(0.0f),
+    spikesReceivedSinceLastRedraw(0),
+    spikeIndex(0),
+    bufferSize(5),
+    range(250.0f),
+    isOverThresholdSlider(false),
+    isDraggingThresholdSlider(false)
+    
 {
 
     addMouseListener(this, true);
@@ -656,7 +662,7 @@ void WaveAxes::paint(Graphics& g)
     g.setColour(Colours::black);
     g.fillRect(0,0,getWidth(), getHeight());
 
-    int chan = 0;
+   // int chan = 0;
 
     // draw the grid lines for the waveforms
 

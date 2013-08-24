@@ -92,7 +92,7 @@ void PulsePalOutputEditor::loadEditorParameters(XmlElement* xml)
 //-----------------------------------------------
 
 ChannelTriggerInterface::ChannelTriggerInterface(PulsePal* pp, PulsePalOutput* ppo, int chan)
-    : pulsePal(pp), processor(ppo), channelNumber(chan), isEnabled(true), name(String(chan))
+    : pulsePal(pp), processor(ppo), isEnabled(true), channelNumber(chan), name(String(chan))
 {
 
     triggerButton = new UtilityButton("trigger", Font("Small Text", 10, Font::plain));

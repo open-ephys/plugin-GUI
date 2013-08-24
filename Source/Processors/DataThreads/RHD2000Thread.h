@@ -90,7 +90,6 @@ private:
     Rhd2000Registers chipRegisters;
     Rhd2000DataBlock* dataBlock;
 
-    int audioOutputL, audioOutputR;
 
     Array<int> numChannelsPerDataStream;
 
@@ -119,6 +118,8 @@ private:
 
     String libraryFilePath;
 
+
+
     bool startAcquisition();
     bool stopAcquisition();
 
@@ -133,6 +134,9 @@ private:
     bool updateBuffer();
 
     double cableLengthPortA, cableLengthPortB, cableLengthPortC, cableLengthPortD;
+
+    int audioOutputL, audioOutputR;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);
 };

@@ -27,7 +27,7 @@
 GenericProcessor::GenericProcessor(const String& name_) : AccessClass(),
     sourceNode(0), destNode(0), isEnabled(true), wasConnected(false),
     nextAvailableChannel(0), saveOrder(-1), loadOrder(-1), currentChannel(-1),
-    name(name_), parametersAsXml(nullptr), paramsWereLoaded(false)
+     parametersAsXml(nullptr),  name(name_), paramsWereLoaded(false)
 {
 }
 

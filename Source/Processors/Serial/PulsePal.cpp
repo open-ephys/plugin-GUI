@@ -62,7 +62,7 @@ void PulsePal::initialize()
 
     vector<ofSerialDeviceInfo> devices = serial.getDeviceList();
 
-    bool foundDevice = false;
+   // bool foundDevice = false;
 
 	int id = devices[0].getDeviceID();
         string path = devices[0].getDevicePath();

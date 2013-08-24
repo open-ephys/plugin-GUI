@@ -85,18 +85,18 @@ public:
     /** Used for EventChannels only.*/
     int eventType;
 
-    // boolean values:
-    bool isEventChannel;
-    
-    bool isMonitored;
-    bool isEnabled;
-
     /** Pointer to the channel's parent processor. */
     GenericProcessor* processor;
 
     // crucial information:
     float sampleRate;
     float bitVolts;
+    
+    // boolean values:
+    bool isEventChannel;
+    
+    bool isMonitored;
+    bool isEnabled;
 
     // file info (for disk writing):
     String filename;

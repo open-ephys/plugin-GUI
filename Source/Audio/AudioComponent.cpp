@@ -219,7 +219,7 @@ void AudioComponent::beginCallbacks()
         std::cout << "beginCallbacks was called while acquisition was active." << std::endl;
     }
     
-    int64 ms = Time::getCurrentTime().toMilliseconds();
+    //int64 ms = Time::getCurrentTime().toMilliseconds();
     
     //while(Time::getCurrentTime().toMilliseconds() - ms < 100)
     //{
