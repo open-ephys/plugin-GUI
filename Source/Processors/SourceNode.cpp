@@ -23,7 +23,7 @@
 
 #include "SourceNode.h"
 #include "DataThreads/DataBuffer.h"
-#include "DataThreads/IntanThread.h"
+//#include "DataThreads/IntanThread.h"
 #include "DataThreads/FPGAThread.h"
 #include "DataThreads/FileReaderThread.h"
 #include "DataThreads/RHD2000Thread.h"
@@ -43,7 +43,7 @@ SourceNode::SourceNode(const String& name_)
 
     if (getName().equalsIgnoreCase("RHA2000-EVAL"))
     {
-        dataThread = new IntanThread(this);
+       // dataThread = new IntanThread(this);
     }
     else if (getName().equalsIgnoreCase("Custom FPGA"))
     {

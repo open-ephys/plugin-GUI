@@ -11,7 +11,7 @@
               companyName="Open Ephys" userNotes="The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring, processing, and visualizing data from extracellular electrodes. See open-ephys.org for more information.">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
-               juceFolder="JuceLibraryCode" extraLinkerFlags="-lftdi" objCExtraSuffix="fea2mT">
+               juceFolder="JuceLibraryCode" extraLinkerFlags="" objCExtraSuffix="fea2mT">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
@@ -20,7 +20,7 @@
       </CONFIGURATIONS>
     </XCODE_MAC>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-lftdi -pg -ldl -lXext" extraCompilerFlags="-export-dynamic -g -pg">
+                extraLinkerFlags="-pg -ldl -lXext" extraCompilerFlags="-export-dynamic -g -pg">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        libraryPath="/usr/X11R6/lib/"/>
@@ -454,9 +454,6 @@
           <FILE id="6iEndcT" name="FPGAThread.h" compile="0" resource="0" file="Source/Processors/DataThreads/FPGAThread.h"/>
           <FILE id="Qfe0ygk" name="DataBuffer.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/DataBuffer.cpp"/>
           <FILE id="VCRMcQP" name="DataBuffer.h" compile="0" resource="0" file="Source/Processors/DataThreads/DataBuffer.h"/>
-          <FILE id="yb9wXXE" name="IntanThread.cpp" compile="1" resource="0"
-                file="Source/Processors/DataThreads/IntanThread.cpp"/>
-          <FILE id="PGp9SLi" name="IntanThread.h" compile="0" resource="0" file="Source/Processors/DataThreads/IntanThread.h"/>
           <FILE id="9JbVKlA" name="DataThread.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/DataThread.cpp"/>
           <FILE id="McgNvuR" name="DataThread.h" compile="0" resource="0" file="Source/Processors/DataThreads/DataThread.h"/>
         </GROUP>

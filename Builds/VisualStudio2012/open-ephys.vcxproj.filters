@@ -610,9 +610,6 @@
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataBuffer.cpp">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\IntanThread.cpp">
-      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataThread.cpp">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClCompile>
@@ -2140,9 +2137,6 @@
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataBuffer.h">
-      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\IntanThread.h">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataThread.h">

@@ -94,9 +94,10 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
 
     //getEditorViewport()->loadState(File("/home/jsiegle/Programming/GUI/Builds/Linux/build/test.xml"));
     
-    File executable = File::getSpecialLocation(File::currentExecutableFile);
-    const String executableDirectory = executable.getParentDirectory().getFullPathName();
-    sendActionMessage(executableDirectory);
+    //Check and see where file is being executed
+    //File executable = File::getSpecialLocation(File::currentExecutableFile);
+    //const String executableDirectory = executable.getParentDirectory().getFullPathName();
+    //sendActionMessage(executableDirectory);
 
 }
 

@@ -51,7 +51,7 @@ ProcessorList::ProcessorList()
     setColour(UTILITY_COLOR, Colour(147, 149, 152));
 
     ProcessorListItem* sources = new ProcessorListItem("Sources");
-    sources->addSubItem(new ProcessorListItem("RHA2000-EVAL"));
+    //sources->addSubItem(new ProcessorListItem("RHA2000-EVAL"));
     //sources->addSubItem(new ProcessorListItem("Signal Generator"));
     //sources->addSubItem(new ProcessorListItem("Custom FPGA"));
     sources->addSubItem(new ProcessorListItem("Rhythm FPGA"));
