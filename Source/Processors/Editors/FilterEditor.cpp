@@ -96,10 +96,12 @@ void FilterEditor::labelTextChanged(Label* label)
         if (label == highCutValue)
         {
             label->setText(lastHighCutString, dontSendNotification);
+			lastHighCutString = label->getText();
         }
         else
         {
             label->setText(lastLowCutString, dontSendNotification);
+			lastLowCutString = label->getText();
         }
 
         return;
