@@ -25,7 +25,6 @@
 #define __SOURCENODE_H_DCE798F1__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include <ftdi.h>
 #include <stdio.h>
 #include "DataThreads/DataThread.h"
 #include "GenericProcessor.h"
