@@ -27,6 +27,9 @@ Builds/MacOSX/build
 # 4. Windows related
 Builds/VisualStudio2012/Debug
 Builds/VisualStudio2012/Release
+Builds/VisualStudio2012/Debug64
+Builds/VisualStudio2012/Release64
+Builds/VisualStudio2012/x64
 Builds/VisualStudio2012/ipch
 Builds/VisualStudio2012/open-ephys.sdf
 Builds/VisualStudio2012/open-ephys.opensdf
