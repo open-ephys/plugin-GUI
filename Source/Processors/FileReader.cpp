@@ -97,7 +97,7 @@ void FileReader::setFile(String fullpath)
     if (input)
         fclose(input);
 
-    input = fopen(path, "r");
+    input = fopen(path, "rb");
 
     // Avoid a segfault if file isn't found
     if (!input)
