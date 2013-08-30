@@ -26,7 +26,9 @@
 
 #include <string.h>
 #include <math.h>
-//#define M_PI       3.14159265358979323846
+#if JUCE_WIN32
+#define M_PI       3.14159265358979323846
+#endif
 
 FPGAThread::FPGAThread(SourceNode* sn)
     : DataThread(sn),
