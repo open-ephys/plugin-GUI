@@ -83,13 +83,13 @@ public:
 
 private:
 
-    int channelNumber;
-    String name;
+    PulsePal* pulsePal;
+    PulsePalOutput* processor;
 
     bool isEnabled;
 
-    PulsePal* pulsePal;
-    PulsePalOutput* processor;
+    int channelNumber;
+    String name;
 
     ScopedPointer<UtilityButton> triggerButton;
     ScopedPointer<ComboBox> triggerSelector;

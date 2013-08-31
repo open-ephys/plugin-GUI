@@ -855,7 +855,7 @@ bool LfpTriggeredAverageDisplay::getEventDisplayState(int ch)
 // ------------------------------------------------------------------
 
 LfpTriggeredAverageChannelDisplay::LfpTriggeredAverageChannelDisplay(LfpTriggeredAverageCanvas* c, LfpTriggeredAverageDisplay* d, int channelNumber) :
-    canvas(c), display(d), isSelected(false), chan(channelNumber), channelHeight(40), channelOverlap(300), range(1000.0f)
+    canvas(c), display(d), isSelected(false), chan(channelNumber), channelOverlap(300), channelHeight(40), range(1000.0f)
 {
 
 

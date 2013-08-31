@@ -25,7 +25,7 @@
 #include "FileReaderThread.h"
 
 FileReaderThread::FileReaderThread(SourceNode* sn) :
-    DataThread(sn), lengthOfInputFile(0), bufferSize(0), input(0)
+    DataThread(sn), lengthOfInputFile(0), input(0), bufferSize(0)
 {
 
     bufferSize = 1600;
@@ -131,7 +131,7 @@ bool FileReaderThread::updateBuffer()
             rewind(input);
         }
 
-        size_t a = fread(readBuffer, 2, bufferSize, input);
+        fread(readBuffer, 2, bufferSize, input);
 
         int chan = 0;
 

@@ -35,12 +35,23 @@
 #define okLIB_EXTENSION "*.so"
 #endif
 
-RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(false),
-    fastSettleEnabled(false), chipRegisters(30000.0f), dspEnabled(true), boardSampleRate(30000.0f),
-    desiredDspCutoffFreq(0.5f), desiredUpperBandwidth(7500.0f), desiredLowerBandwidth(1.0f),
-    savedSampleRateIndex(16), audioOutputL(-1), audioOutputR(-1), dacOutputShouldChange(false),
-    acquireAdcChannels(false), acquireAuxChannels(true),
-    cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f) // default is 3 feet (0.914 m)
+RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
+    chipRegisters(30000.0f),
+    numChannels(0),
+    deviceFound(false),
+    isTransmitting(false),
+    dacOutputShouldChange(false),
+    acquireAdcChannels(false),
+    acquireAuxChannels(true),
+    fastSettleEnabled(false),
+    dspEnabled(true),
+    desiredDspCutoffFreq(0.5f),
+    desiredUpperBandwidth(7500.0f),
+    desiredLowerBandwidth(1.0f),
+    boardSampleRate(30000.0f),
+    savedSampleRateIndex(16),
+    cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f), // default is 3 feet (0.914 m),
+    audioOutputL(-1), audioOutputR(-1) 
 {
     evalBoard = new Rhd2000EvalBoard;
     dataBlock = new Rhd2000DataBlock(1);
@@ -51,11 +62,16 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn), isTransmitting(fa
     File executable = File::getSpecialLocation(File::currentExecutableFile);
 
     #if defined(__APPLE__)
-        const String executableDirectory = 
-            executable.getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
+        const String executableDirectory =
+            executable.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
     #else
 	   const String executableDirectory = executable.getParentDirectory().getFullPathName();
+    
+
     #endif
+    
+    std::cout << executableDirectory << std::endl;
+    
 
 	String dirName = executableDirectory;
     libraryFilePath = dirName;
@@ -151,6 +167,9 @@ bool RHD2000Thread::openBoard(String pathToLibrary)
 
 bool RHD2000Thread::uploadBitfile(String bitfilename)
 {
+    
+    deviceFound = true;
+    
     if (!evalBoard->uploadFpgaBitfile(bitfilename.toStdString()))
     {
         std::cout << "Couldn't upload bitfile from " << bitfilename << std::endl;
@@ -183,6 +202,8 @@ bool RHD2000Thread::uploadBitfile(String bitfilename)
         }
 
     }
+    
+    return deviceFound;
 
 }
 
@@ -194,7 +215,7 @@ void RHD2000Thread::initializeBoard()
 
     #if defined(__APPLE__)
     const String executableDirectory = 
-            executable.getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
+            executable.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
     #else
        const String executableDirectory = executable.getParentDirectory().getFullPathName();
     #endif
@@ -274,9 +295,8 @@ void RHD2000Thread::scanPorts()
 {
     // Scan SPI ports
 
-    int delay, stream, id, i, channel, port;
-    int stream1, stream2;
-    int numChannelsOnPort[4] = {0, 0, 0, 0};
+    int delay, stream, id;
+    //int numChannelsOnPort[4] = {0, 0, 0, 0};
     Array<int> chipId;
     chipId.insertMultiple(0,-1,8);
 

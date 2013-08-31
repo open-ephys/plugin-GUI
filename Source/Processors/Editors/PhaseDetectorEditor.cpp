@@ -199,7 +199,7 @@ void PhaseDetectorEditor::loadEditorParameters(XmlElement* xml)
 // ===================================================================
 
 DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
-    processor(pd), backgroundColour(c), idNum(id)
+    backgroundColour(c), idNum(id), processor(pd)
 {
 
     font = Font("Small Text", 10, Font::plain);

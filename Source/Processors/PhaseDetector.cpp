@@ -26,10 +26,9 @@
 #include "Editors/PhaseDetectorEditor.h"
 
 PhaseDetector::PhaseDetector()
-    : GenericProcessor("Phase Detector"),
-      risingPos(false), risingNeg(false), fallingPos(false), fallingNeg(false),
-      activeModule(-1)
-
+    : GenericProcessor("Phase Detector"), activeModule(-1),
+      risingPos(false), risingNeg(false), fallingPos(false), fallingNeg(false)
+      
 {
 
 }

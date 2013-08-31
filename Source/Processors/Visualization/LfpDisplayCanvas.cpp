@@ -925,7 +925,7 @@ void LfpDisplay::setEnabledState(bool state, int chan)
 
 LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, int channelNumber) :
     canvas(c), display(d), isSelected(false), chan(channelNumber), 
-    channelHeight(40), channelOverlap(300), range(1000.0f),
+    channelOverlap(300), channelHeight(40), range(1000.0f),
     isEnabled(true)
 {
 

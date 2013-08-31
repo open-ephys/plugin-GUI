@@ -30,10 +30,13 @@
 
 RecordNode::RecordNode()
     : GenericProcessor("Record Node"),
-      isRecording(false), isProcessing(false), signalFilesShouldClose(false),
-      timestamp(0), newDirectoryNeeded(true), sampleCount(0), zeroBuffer(1, 50000)
+      newDirectoryNeeded(true),  zeroBuffer(1, 50000),  timestamp(0)
 {
 
+    isProcessing = false;
+    isRecording = false;
+    sampleCount = 0;
+    signalFilesShouldClose = false;
 
     continuousDataIntegerBuffer = new int16[10000];
     continuousDataFloatBuffer = new float[10000];
