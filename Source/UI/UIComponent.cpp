@@ -391,7 +391,7 @@ bool UIComponent::perform(const InvocationInfo& info)
             {
                 FileChooser fc("Choose a file to load...",
                                File::getCurrentWorkingDirectory(),
-                               "*.xml",
+                               "*",
                                true);
 
                 if (fc.browseForFileToOpen())

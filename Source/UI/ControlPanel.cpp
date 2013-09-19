@@ -392,9 +392,17 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     addChildComponent(newDirectoryButton);
 
 
+    File executable = File::getSpecialLocation(File::currentExecutableFile);
+    
+#if defined(__APPLE__)
+    const String executableDirectory =
+    executable.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
+#else
+    const String executableDirectory = executable.getParentDirectory().getFullPathName();
+#endif
 
     filenameComponent = new FilenameComponent("folder selector",
-                                              File::getCurrentWorkingDirectory().getFullPathName(),
+                                              executableDirectory,
                                               true,
                                               true,
                                               true,
