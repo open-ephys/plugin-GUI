@@ -79,7 +79,7 @@ ProcessorList::ProcessorList()
     ProcessorListItem* utilities = new ProcessorListItem("Utilities");
     utilities->addSubItem(new ProcessorListItem("Splitter"));
     utilities->addSubItem(new ProcessorListItem("Merger"));
-    utilities->addSubItem(new ProcessorListItem("Record Controller"));
+    utilities->addSubItem(new ProcessorListItem("Record Control"));
 
     baseItem = new ProcessorListItem("Processors");
     baseItem->addSubItem(sources);

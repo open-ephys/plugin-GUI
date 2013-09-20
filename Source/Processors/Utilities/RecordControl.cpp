@@ -27,7 +27,7 @@
 #include "../../UI/ControlPanel.h"
 
 RecordControl::RecordControl()
-    : GenericProcessor("Record Controller"), 
+    : GenericProcessor("Record Control"), 
       createNewFilesOnTrigger(false), triggerChannel(0), recordNode(0)
 {
 

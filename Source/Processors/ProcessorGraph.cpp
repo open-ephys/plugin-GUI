@@ -535,7 +535,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             sendActionMessage("New merger created.");
 
         }
-        else if (subProcessorType.equalsIgnoreCase("Record Controller"))
+        else if (subProcessorType.equalsIgnoreCase("Record Control"))
         {
 
             std::cout << "Creating a new record controller." << std::endl;
