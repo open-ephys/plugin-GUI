@@ -31,12 +31,12 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useD
 {
     desiredWidth = 170;
 
-    channelSelector->eventsOnly = true;
+    //channelSelector->eventsOnly = true;
 
-    chanSel = new Label("Chanel Text","Available Event Channels");
+    chanSel = new Label("Chanel Text","Trigger Channel:");
     chanSel->setEditable(false);
     chanSel->setJustificationType(Justification::centredLeft);
-    chanSel->setBounds(20,30,120,20);
+    chanSel->setBounds(15,35,120,20);
 
     addAndMakeVisible(chanSel);
 
@@ -53,7 +53,7 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useD
     
     newFileToggleButton = new UtilityButton("SPLIT FILES", Font("Small Text", 13, Font::plain));
     newFileToggleButton->setRadius(3.0f);
-    newFileToggleButton->setBounds(45, 95, 90, 18);
+    newFileToggleButton->setBounds(35, 95, 90, 18);
     newFileToggleButton->addListener(this);
     newFileToggleButton->setClickingTogglesState(true);
     addAndMakeVisible(newFileToggleButton);
