@@ -185,7 +185,13 @@ Clock::~Clock()
 
 void Clock::paint(Graphics& g)
 {
-    g.fillAll(Colour(58,58,58));
+    if (isRecording)
+    {
+        g.fillAll(Colour(255,0,0));
+    } else {
+        g.fillAll(Colour(58,58,58));
+    }
+    
     drawTime(g);
 }
 
@@ -211,7 +217,7 @@ void Clock::drawTime(Graphics& g)
 
     if (isRecording)
     {
-        g.setColour(Colours::red);
+        g.setColour(Colours::black);
         m = floor(totalRecordTime/60000.0);
         s = floor((totalRecordTime - m*60000.0)/1000.0);
 
@@ -434,6 +440,8 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     startTimer(10);
 
     setWantsKeyboardFocus(true);
+    
+    backgroundColour = Colour(58,58,58);
 
 }
 
@@ -485,7 +493,7 @@ void ControlPanel::createPaths()
 
 void ControlPanel::paint(Graphics& g)
 {
-    g.setColour(Colour(58,58,58));
+    g.setColour(backgroundColour);
     g.fillRect(0,0,getWidth(),getHeight());
 
     if (open)
@@ -569,12 +577,26 @@ void ControlPanel::labelTextChanged(Label* label)
 
 }
 
+void ControlPanel::startRecording()
+{
+    playButton->setToggleState(true,false);
+    masterClock->startRecording(); // turn on recording
+    backgroundColour = Colour(255,0,0);
+    repaint();
+}
+
+void ControlPanel::stopRecording()
+{
+    graph->setRecordState(false); // turn off recording in processor graph
+    masterClock->stopRecording();
+    newDirectoryButton->setEnabledState(true);
+    backgroundColour = Colour(58,58,58);
+    repaint();
+}
+
 void ControlPanel::buttonClicked(Button* button)
 
 {
-    //const MessageManagerLock mmLock;
-    
-    //std::cout << "MessageManagerLock gained." << std::endl;
     
     if (button == recordButton)
     {
@@ -582,17 +604,12 @@ void ControlPanel::buttonClicked(Button* button)
         if (recordButton->getToggleState())
         {
 
-            playButton->setToggleState(true,false);
-            masterClock->startRecording(); // turn on recording
-
+            startRecording();
 
         }
         else
         {
-            graph->setRecordState(false); // turn off recording in processor graph
-            //graph->getRecordNode()->setParameter(0,10.0f); // turn off recording
-            masterClock->stopRecording();
-            newDirectoryButton->setEnabledState(true);
+            stopRecording();
         }
 
         dateText->setColour(Label::textColourId, Colours::black);
@@ -632,59 +649,19 @@ void ControlPanel::buttonClicked(Button* button)
 
             if (graph->enableProcessors())
             {
-                //const MessageManagerLock mmLock;
-              
-                MessageManager* mm = MessageManager::getInstance();
-                
-                if (mm->isThisTheMessageThread())
-                    std::cout << "THIS IS THE MESSAGE THREAD -- CONTROL PANEL" << std::endl;
-                else
-                    std::cout << "NOT THE MESSAGE THREAD -- CONTROL PANEL" << std::endl;
-                
-                 
-                //mm->stopDispatchLoop();
-                
-                //if (mm->currentThreadHasLockedMessageManager())
-                //    std::cout << "We have the lock." << std::endl;
-                //else
-                 //   std::cout << "We DO NOT have the lock." << std::endl;
-
-                //Thread* thread = Thread::getCurrentThread();
-                
-                //if (thread != nullptr)
-                  //  std::cout << "Starting callbacks from thread named " << thread->getThreadId() << std::endl;
-                //else
-                  //  std::cout << "Current thread is null" << std::endl;
-                
-                
-                MessageManagerLock mml (Thread::getCurrentThread());
-                
-                
-                if (mml.lockWasGained())
-                {
-                   std::cout << "CONTROL PANEL GOT THAT LOCK!" << std::endl;
-                } else {
-                    std::cout << "COULDN'T GET THE LOCK, RETURNING...!" << std::endl;
-                    return;
-                }
                 
                 //std::cout << "Enabling processors from " << getThreadName() << " thread." << std::endl;
                 
                 if (recordButton->getToggleState())
                     graph->setRecordState(true);
-                    
-                    
-                    //graph->getRecordNode()->setParameter(1,10.0f);
 
                 stopTimer();
                 
                 audio->beginCallbacks();
-                
                 masterClock->start();
                 
                 startTimer(250); // refresh every 250 ms
-                
-               // mm->runDispatchLoop();
+
             }
 
         }
@@ -704,26 +681,6 @@ void ControlPanel::buttonClicked(Button* button)
 
         if (audio->callbacksAreActive())
         {
-            
-            //const MessageManagerLock mmLock;
-            Thread* thread = Thread::getCurrentThread();
-            
-            if (thread != nullptr)
-                std::cout << "Stopping callbacks from thread named " << thread->getThreadId() << std::endl;
-            else
-                std::cout << "Current thread is null" << std::endl;
-            
-            MessageManagerLock mml (Thread::getCurrentThread());
-            
-            if (mml.lockWasGained())
-            {
-                std::cout << "CONTROL PANEL GOT THAT LOCK!" << std::endl;
-            } else {
-                std::cout << "COULDN'T GET THE LOCK...RETURNING!" << std::endl;
-                return;
-            }
-            
-            //std::cout << "Disabling processors from " << getThreadName() << " thread." << std::endl;
             
             std::cout << "Control panel requesting to end callbacks." << std::endl;
             

@@ -240,6 +240,8 @@ public:
 
     /** Sets the open/closed state of the ControlPanelButton.*/
     void setState(bool);
+    
+   
 
     /** Draws the button. */
     void paint(Graphics& g);
@@ -252,6 +254,7 @@ private:
     ControlPanel* cp;
 
     bool open;
+    
 
 };
 
@@ -349,6 +352,12 @@ private:
     void resized();
 
     void buttonClicked(Button* button);
+    
+    /** Informs the Control Panel that recording has begun.*/
+    void startRecording();
+    
+    /** Informs the Control Panel that recording has stopped.*/
+    void stopRecording();
 
     bool initialize;
 
@@ -371,6 +380,8 @@ private:
 
     /** Draws the boundaries around the FilenameComponent.*/
     void createPaths();
+    
+    Colour backgroundColour;
 
 };
 
