@@ -303,7 +303,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
                 // add the connections to audio and record nodes if necessary
                 if (!(source->isSink() ||
-                      source->isSplitter() || source->isMerger()) && !(source->wasConnected))
+                      source->isSplitter() || source->isMerger() || source->isUtility()) && !(source->wasConnected))
                 {
                     std::cout << "   Connecting to audio and record nodes." << std::endl;
 

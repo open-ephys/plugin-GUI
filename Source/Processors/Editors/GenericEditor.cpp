@@ -70,7 +70,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
     //Typeface::Ptr typeface = new CustomTypeface(mis);
     titleFont = Font("Small Text", 10, Font::plain);
 
-    if (!owner->isMerger() && !owner->isSplitter())
+    if (!owner->isMerger() && !owner->isSplitter() && !owner->isUtility())
     {
         std::cout << "Adding drawer button." << std::endl;
 
