@@ -31,7 +31,7 @@
 
 
 PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : GenericEditor(parentNode, useDefaultParameterEditors), previousChannelCount(0)
+    : GenericEditor(parentNode, useDefaultParameterEditors), previousChannelCount(-1)
 
 {
     desiredWidth = 220;
