@@ -1059,7 +1059,7 @@ XmlElement* EditorViewport::createNodeXml(GenericEditor* editor,
         name += "Sources/";
     else if (source->isSink())
         name += "Sinks/";
-    else if (source->isSplitter() || source->isMerger())
+    else if (source->isSplitter() || source->isMerger() || source->isUtility())
         name += "Utilities/";
     else
         name += "Filters/";

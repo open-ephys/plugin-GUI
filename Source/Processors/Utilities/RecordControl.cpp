@@ -27,7 +27,8 @@
 #include "../../UI/ControlPanel.h"
 
 RecordControl::RecordControl()
-    : GenericProcessor("Record Controller"), triggerChannel(0)
+    : GenericProcessor("Record Controller"), 
+      createNewFilesOnTrigger(false), triggerChannel(0), recordNode(0)
 {
 
 }
@@ -43,9 +44,38 @@ AudioProcessorEditor* RecordControl::createEditor()
     return editor;
 }
 
+void RecordControl::setParameter(int parameterIndex, float newValue)
+{
+    if (parameterIndex == 0)
+    {
+        updateTriggerChannel((int) newValue);
+    } else {
+        
+        if (newValue == 0.0)
+        {
+            createNewFilesOnTrigger = false;
+            
+            
+        } else {
+            createNewFilesOnTrigger = true;
+        }
+        //recordNode->appendTrialNumber(createNewFilesOnTrigger);
+    }
+}
+
 void RecordControl::updateTriggerChannel(int newChannel)
 {
     triggerChannel = newChannel;
+}
+
+bool RecordControl::enable()
+{
+    if (recordNode == 0)
+        recordNode = getProcessorGraph()->getRecordNode();
+    
+    recordNode->appendTrialNumber(createNewFilesOnTrigger);
+    
+    return true;
 }
 
 void RecordControl::process(AudioSampleBuffer& buffer,
@@ -74,6 +104,10 @@ void RecordControl::handleEvent(int eventType, MidiMessage& event, int)
 
         if (eventId == 1)
         {
+            if (createNewFilesOnTrigger)
+            {
+                recordNode->updateTrialNumber();
+            }
             getControlPanel()->setRecordState(true);
         }
         else

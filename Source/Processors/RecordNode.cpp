@@ -30,7 +30,8 @@
 
 RecordNode::RecordNode()
     : GenericProcessor("Record Node"),
-      newDirectoryNeeded(true),  zeroBuffer(1, 50000),  timestamp(0)
+      newDirectoryNeeded(true),  zeroBuffer(1, 50000),  timestamp(0),
+      appendTrialNum(false), trialNum(0)
 {
 
     isProcessing = false;
@@ -197,18 +198,37 @@ void RecordNode::updateFileName(Channel* ch)
         filename += ch->nodeId;
         filename += "_";
         filename += ch->name;
+        
+        if (appendTrialNum)
+        {
+            filename += "_";
+            filename += trialNum;
+        }
+        
         filename += ".continuous";
     }
     else
     {
         filename += "all_channels.events";
     }
-
+    
+    
     ch->filename = filename;
     ch->file = 0;
+    
 
     //std::cout << "Updating " << filename << std::endl;
 
+}
+
+void RecordNode::updateTrialNumber()
+{
+    trialNum++;
+}
+
+void RecordNode::appendTrialNumber(bool t)
+{
+    appendTrialNum = t;
 }
 
 void RecordNode::createNewDirectory()
@@ -225,7 +245,18 @@ void RecordNode::createNewDirectory()
     }
 
     newDirectoryNeeded = false;
+    
+    trialNum = 0;
 
+}
+
+void RecordNode::createNewFiles()
+{
+    for (int i = 0; i < channelPointers.size(); i++)
+    {
+        updateFileName(channelPointers[i]);
+    }
+    
 }
 
 String RecordNode::generateDirectoryName()
@@ -325,6 +356,8 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
             getEditorViewport()->saveState(File(settingsFileName));
         }
 
+        createNewFiles();
+        
         openFile(eventChannel);
 
         sampleCount = 0; // reset sample count

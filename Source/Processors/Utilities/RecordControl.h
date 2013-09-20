@@ -27,6 +27,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor.h"
 #include "../Editors/RecordControlEditor.h"
+#include "../RecordNode.h"
 
 /**
 
@@ -43,13 +44,22 @@ public:
     ~RecordControl();
 
     void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void setParameter(int, float);
     void updateTriggerChannel(int newChannel);
     void handleEvent(int eventType, MidiMessage& event, int);
+    bool enable();
+    
+    bool createNewFilesOnTrigger;
+    
+    bool isUtility() {return true;}
 
     AudioProcessorEditor* createEditor();
 
 private:
     int triggerChannel;
+    
+    
+    RecordNode* recordNode;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordControl);
 

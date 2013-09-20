@@ -43,11 +43,12 @@ public:
     ~RecordControlEditor();
     void comboBoxChanged(ComboBox* comboBox);
     void updateSettings();
+    void buttonEvent(Button* button);
 
 private:
-    ComboBox* availableChans;
-    Label* chanSel;
-
+    ScopedPointer<ComboBox> availableChans;
+    ScopedPointer<Label> chanSel;
+    ScopedPointer<UtilityButton> newFileToggleButton;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordControlEditor);
 

@@ -363,6 +363,12 @@ public:
     {
         return false;
     }
+    
+    /** Returns true if a processor is a utility (non-merger or splitter), false otherwise.*/
+    virtual bool isUtility()
+    {
+        return false;
+    }
 
     /** Returns true if a processor is able to send its output to a given processor.
 

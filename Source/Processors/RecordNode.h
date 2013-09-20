@@ -101,6 +101,16 @@ public:
     /** Creates a new data directory in the location specified by the fileNameComponent.
     */
     void createNewDirectory();
+    
+    /** Creates a new data file for each channel.
+     */
+    void createNewFiles();
+    
+    /** Creates a new data file for each channel.
+     */
+    void appendTrialNumber(bool);
+    
+    void updateTrialNumber();
 
     File getDataDirectory()
     {
@@ -203,6 +213,9 @@ private:
     char* recordMarker;
     
     CriticalSection diskWriteLock;
+    
+    bool appendTrialNum;
+    int trialNum;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 

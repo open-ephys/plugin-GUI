@@ -50,29 +50,50 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useD
     availableChans->setSelectedId(0);
 
     addAndMakeVisible(availableChans);
-
+    
+    newFileToggleButton = new UtilityButton("SPLIT FILES", Font("Small Text", 13, Font::plain));
+    newFileToggleButton->setRadius(3.0f);
+    newFileToggleButton->setBounds(45, 95, 90, 18);
+    newFileToggleButton->addListener(this);
+    newFileToggleButton->setClickingTogglesState(true);
+    addAndMakeVisible(newFileToggleButton);
 
 }
 
 RecordControlEditor::~RecordControlEditor()
 {
-    deleteAllChildren();
+    //deleteAllChildren();
 }
 
 void RecordControlEditor::comboBoxChanged(ComboBox* comboBox)
 {
-    RecordControl* processor = (RecordControl*)getProcessor();
+
     if (comboBox->getSelectedId() > 0)
-        processor->updateTriggerChannel(processor->eventChannels[comboBox->getSelectedId()-1]->num);
+        getProcessor()->setParameter(0, (float) comboBox->getSelectedId()-1);
     else
-        processor->updateTriggerChannel(-1);
+        getProcessor()->setParameter(0, -1);
+}
+
+void RecordControlEditor::buttonEvent(Button* button)
+{
+
+    if (button->getToggleState())
+    {
+        getProcessor()->setParameter(1, 1.0f);
+    } else {
+        getProcessor()->setParameter(1, 0.0f);
+    }
 }
 
 void RecordControlEditor::updateSettings()
 {
     availableChans->clear();
-    GenericProcessor* processor = getProcessor();
-    for (int i = 0; i < processor->eventChannels.size() ; i++)
-        availableChans->addItem(processor->eventChannels[i]->name,i+1);
+    //GenericProcessor* processor = getProcessor();
+    for (int i = 0; i < 10 ; i++)
+    {
+        String channelName = "Channel ";
+        channelName += i + 1;
+        availableChans->addItem(channelName,i+1);
+    }
 
 }
