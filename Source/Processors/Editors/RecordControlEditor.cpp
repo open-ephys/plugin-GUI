@@ -62,7 +62,7 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useD
 
 RecordControlEditor::~RecordControlEditor()
 {
-    //deleteAllChildren();
+    
 }
 
 void RecordControlEditor::comboBoxChanged(ComboBox* comboBox)
@@ -96,4 +96,32 @@ void RecordControlEditor::updateSettings()
         availableChans->addItem(channelName,i+1);
     }
 
+}
+
+void RecordControlEditor::saveEditorParameters(XmlElement* xml)
+{
+    
+    XmlElement* info = xml->createNewChildElement("PARAMETERS");
+    
+    info->setAttribute("Type", "RecordControlEditor");
+    info->setAttribute("Channel",availableChans->getSelectedId());
+    info->setAttribute("FileSaveOption",newFileToggleButton->getToggleState());
+    
+}
+
+void RecordControlEditor::loadEditorParameters(XmlElement* xml)
+{
+     
+    forEachXmlChildElement(*xml, xmlNode)
+    {
+        
+        if (xmlNode->hasTagName("PARAMETERS"))
+        {
+        
+            newFileToggleButton->setToggleState(xmlNode->getBoolAttribute("FileSaveOption"), true);
+            availableChans->setSelectedId(xmlNode->getIntAttribute("Channel"));
+            
+        }
+
+    }
 }
