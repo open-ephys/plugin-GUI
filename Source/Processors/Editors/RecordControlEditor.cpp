@@ -33,7 +33,7 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useD
 
     //channelSelector->eventsOnly = true;
 
-    chanSel = new Label("Chanel Text","Trigger Channel:");
+    chanSel = new Label("Channel Text","Trigger Channel:");
     chanSel->setEditable(false);
     chanSel->setJustificationType(Justification::centredLeft);
     chanSel->setBounds(15,35,120,20);
@@ -50,6 +50,14 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useD
     availableChans->setSelectedId(0);
 
     addAndMakeVisible(availableChans);
+    
+    availableChans->addItem("None",1);
+    for (int i = 0; i < 10 ; i++)
+    {
+        String channelName = "Channel ";
+        channelName += i + 1;
+        availableChans->addItem(channelName,i+2);
+    }
     
     newFileToggleButton = new UtilityButton("SPLIT FILES", Font("Small Text", 13, Font::plain));
     newFileToggleButton->setRadius(3.0f);
@@ -68,8 +76,8 @@ RecordControlEditor::~RecordControlEditor()
 void RecordControlEditor::comboBoxChanged(ComboBox* comboBox)
 {
 
-    if (comboBox->getSelectedId() > 0)
-        getProcessor()->setParameter(0, (float) comboBox->getSelectedId()-1);
+    if (comboBox->getSelectedId() > 1)
+        getProcessor()->setParameter(0, (float) comboBox->getSelectedId()-2);
     else
         getProcessor()->setParameter(0, -1);
 }
@@ -87,14 +95,9 @@ void RecordControlEditor::buttonEvent(Button* button)
 
 void RecordControlEditor::updateSettings()
 {
-    availableChans->clear();
+    //availableChans->clear();
     //GenericProcessor* processor = getProcessor();
-    for (int i = 0; i < 10 ; i++)
-    {
-        String channelName = "Channel ";
-        channelName += i + 1;
-        availableChans->addItem(channelName,i+1);
-    }
+    
 
 }
 
@@ -119,7 +122,7 @@ void RecordControlEditor::loadEditorParameters(XmlElement* xml)
         {
         
             newFileToggleButton->setToggleState(xmlNode->getBoolAttribute("FileSaveOption"), true);
-            availableChans->setSelectedId(xmlNode->getIntAttribute("Channel"));
+            availableChans->setSelectedId(xmlNode->getIntAttribute("Channel"), NotificationType::sendNotification);
             
         }
 
