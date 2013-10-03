@@ -259,6 +259,8 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
         menu.addCommandItem(commandManager, toggleProcessorList);
         menu.addCommandItem(commandManager, toggleSignalChain);
         menu.addCommandItem(commandManager, toggleFileInfo);
+        menu.addSeparator();
+        menu.addCommandItem(commandManager, resizeWindow);
 
     }
     else if (menuIndex == 3)
@@ -297,7 +299,8 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
                              toggleProcessorList,
                              toggleSignalChain,
                              toggleFileInfo,
-                             showHelp
+                             showHelp,
+                             resizeWindow
                             };
 
     commands.addArray(ids, numElementsInArray(ids));
@@ -375,6 +378,10 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
             result.setInfo("Show help...", "Show some freakin' help.", "General", 0);
             result.setActive(false);
             break;
+            
+        case resizeWindow:
+            result.setInfo("Reset window bounds", "Reset window bounds", "General", 0);
+            break;
 
         default:
             break;
@@ -445,6 +452,10 @@ bool UIComponent::perform(const InvocationInfo& info)
 
         case toggleSignalChain:
             editorViewportButton->toggleState();
+            break;
+            
+        case resizeWindow:
+            mainWindow->centreWithSize(800, 600);
             break;
 
         default:
