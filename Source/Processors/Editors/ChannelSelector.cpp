@@ -75,6 +75,7 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     channelSelectorRegion = new ChannelSelectorRegion(this);
     //channelSelectorRegion->setBounds(0,20,0,getHeight()-35);
     addAndMakeVisible(channelSelectorRegion);
+    channelSelectorRegion->toBack();
 
 }
 

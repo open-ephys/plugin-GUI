@@ -86,7 +86,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     
 
     audioLabel = new Label("audio label", "Audio out");
-    audioLabel->setBounds(180,25,180,15);
+    audioLabel->setBounds(180,25,75,15);
     audioLabel->setFont(Font("Small Text", 10, Font::plain));
     audioLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(audioLabel);
