@@ -264,7 +264,7 @@ String RecordNode::generateDirectoryName()
     Time calendar = Time::getCurrentTime();
 
     Array<int> t;
-    t.add(calendar.getYear()-2000);
+    t.add(calendar.getYear());
     t.add(calendar.getMonth()+1); // January = 0
     t.add(calendar.getDayOfMonth());
     t.add(calendar.getHours());

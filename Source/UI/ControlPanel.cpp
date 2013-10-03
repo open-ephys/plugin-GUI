@@ -97,6 +97,8 @@ CPUMeter::CPUMeter() : Label("CPU Meter","0.0"), cpu(0.0f), lastCpu(0.0f)
     // Typeface::Ptr typeface = new CustomTypeface(mis);
     // font = Font(typeface);
     // font.setHeight(12);
+    
+    setTooltip("CPU usage");
 }
 
 CPUMeter::~CPUMeter()
@@ -135,6 +137,8 @@ DiskSpaceMeter::DiskSpaceMeter()
     // Typeface::Ptr typeface = new CustomTypeface(mis);
     // font = Font(typeface);
     // font.setHeight(12);
+    
+    setTooltip("Disk space available");
 }
 
 
@@ -176,6 +180,7 @@ Clock::Clock() : isRunning(false), isRecording(false)
 
     totalTime = 0;
     totalRecordTime = 0;
+
 }
 
 Clock::~Clock()
@@ -293,6 +298,7 @@ ControlPanelButton::ControlPanelButton(ControlPanel* cp_) : cp(cp_)
 {
     open = false;
 
+    setTooltip("Show/hide recording options");
 }
 
 ControlPanelButton::~ControlPanelButton()
@@ -395,6 +401,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     newDirectoryButton = new UtilityButton("+", Font("Small Text", 15, Font::plain));
     newDirectoryButton->setEnabledState(false);
     newDirectoryButton->addListener(this);
+    newDirectoryButton->setTooltip("Start a new data directory");
     addChildComponent(newDirectoryButton);
 
 
@@ -421,10 +428,11 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     prependText->setEditable(true);
     prependText->addListener(this);
     prependText->setColour(Label::backgroundColourId, Colours::lightgrey);
+    prependText->setTooltip("Prepend to name of data directory");
 
     addChildComponent(prependText);
 
-    dateText = new Label("Date","YY-MM-DD_HH-MM-SS");
+    dateText = new Label("Date","YYYY-MM-DD_HH-MM-SS");
     dateText->setColour(Label::backgroundColourId, Colours::lightgrey);
     addChildComponent(dateText);
 
@@ -433,6 +441,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     appendText->addListener(this);
     appendText->setColour(Label::backgroundColourId, Colours::lightgrey);
     addChildComponent(appendText);
+    appendText->setTooltip("Append to name of data directory");
 
     //diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
     //diskMeter->repaint();

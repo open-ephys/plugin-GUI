@@ -60,6 +60,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     rescanButton->setRadius(3.0f);
     rescanButton->setBounds(6, 108,65,18);
     rescanButton->addListener(this);
+    rescanButton->setTooltip("Check for connected headstages");
     addAndMakeVisible(rescanButton);
 
     for (int i = 0; i < 2; i++)
@@ -74,7 +75,15 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 
         addAndMakeVisible(button);
         button->addListener(this);
+        
+        if (i == 0)
+        {
+            button->setTooltip("Audio monitor left channel");
+        } else {
+            button->setTooltip("Audio monitor right channel");
+        }
     }
+    
 
     audioLabel = new Label("audio label", "Audio out");
     audioLabel->setBounds(180,25,180,15);
@@ -87,6 +96,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     adcButton->setBounds(180, 70,65,18);
     adcButton->addListener(this);
     adcButton->setClickingTogglesState(true);
+    adcButton->setTooltip("Enable/disable ADC channels");
     addAndMakeVisible(adcButton);
 
 

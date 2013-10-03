@@ -131,7 +131,7 @@ private:
 
 */
 
-class DiskSpaceMeter : public Component
+class DiskSpaceMeter : public Component, public SettableTooltipClient
 {
 public:
     DiskSpaceMeter();
@@ -223,7 +223,7 @@ private:
 
 */
 
-class ControlPanelButton : public Component
+class ControlPanelButton : public Component, public SettableTooltipClient
 {
 public:
     ControlPanelButton(ControlPanel* cp_);
