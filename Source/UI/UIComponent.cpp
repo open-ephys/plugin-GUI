@@ -74,12 +74,14 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     std::cout << "Finished UI stuff." << std::endl << std::endl << std::endl;
 
     processorGraph->setUIComponent(this);
-    processorGraph->updatePointers(); // needs to happen after processorGraph gets the right pointers
+    
     processorList->setUIComponent(this);
     editorViewport->setUIComponent(this);
     dataViewport->setUIComponent(this);
     controlPanel->getAudioEditor()->setUIComponent(this);
     controlPanel->setUIComponent(this);
+    
+    processorGraph->updatePointers(); // needs to happen after processorGraph gets the right pointers
 
     //processorGraph->sendActionMessage("Test.");
 

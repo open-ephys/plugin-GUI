@@ -55,6 +55,8 @@ AudioProcessorEditor* AudioNode::createEditor()
 {
 
     audioEditor = new AudioEditor(this);
+    //audioEditor->setUIComponent(getUIComponent());
+    //audioEditor->updateBufferSizeText();
 
     //setEditor(editor);
 
@@ -70,6 +72,13 @@ void AudioNode::resetConnections()
 
     channelPointers.clear();
 
+}
+
+void AudioNode::updateBufferSize()
+{
+    AudioEditor* editor = (AudioEditor*) getEditor();
+    editor->updateBufferSizeText();
+    
 }
 
 void AudioNode::setChannel(Channel* ch)

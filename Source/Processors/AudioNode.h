@@ -93,6 +93,8 @@ public:
 
     /** A pointer to the AudioNode's editor. */
     ScopedPointer<AudioEditor> audioEditor;
+    
+    void updateBufferSize();
 
 private:
 

@@ -58,8 +58,10 @@ public:
     AudioWindowButton();
     ~AudioWindowButton();
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    void setText(String);
 private:
     Font font;
+    String textString;
 };
 
 /**
@@ -73,7 +75,7 @@ class AudioConfigurationWindow : public DocumentWindow,
     public AccessClass
 {
 public:
-    AudioConfigurationWindow(AudioDeviceManager& adm, Button* b);
+    AudioConfigurationWindow(AudioDeviceManager& adm, AudioWindowButton* b);
     ~AudioConfigurationWindow();
 
     void paint(Graphics& g);
@@ -83,7 +85,7 @@ private:
 
     void closeButtonPressed();
 
-    Button* controlButton;
+    AudioWindowButton* controlButton;
 
 };
 
@@ -109,6 +111,8 @@ public:
     bool keyPressed(const KeyPress& key);
 
     void resized();
+    
+    void updateBufferSizeText();
 
 private:
 

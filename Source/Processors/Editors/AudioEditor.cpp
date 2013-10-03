@@ -50,10 +50,12 @@ AudioWindowButton::AudioWindowButton()
 {
     setClickingTogglesState(true);
 
-    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    font = Font(typeface);
-    font.setHeight(12);
+    //MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+    //Typeface::Ptr typeface = new CustomTypeface(mis);
+    font = Font("Small Text", 12, Font::plain); //Font(typeface);
+    //font.setHeight(12);
+    textString = "AUDIO";
+    setTooltip("Change the buffer size");
 }
 
 AudioWindowButton::~AudioWindowButton()
@@ -69,7 +71,12 @@ void AudioWindowButton::paintButton(Graphics& g, bool isMouseOver, bool isButton
 
     g.setFont(font);
     //g.drawSingleLineText(" AUDIO",0,0);
-    g.drawSingleLineText("AUDIO",0,15);
+    g.drawSingleLineText(textString,0,15);
+}
+
+void AudioWindowButton::setText(String text)
+{
+    textString = text;
 }
 
 AudioEditor::AudioEditor(AudioNode* owner)
@@ -85,6 +92,9 @@ AudioEditor::AudioEditor(AudioNode* owner)
     audioWindowButton = new AudioWindowButton();
     audioWindowButton->addListener(this);
     audioWindowButton->setToggleState(false,false);
+    
+    //AccessClass* audioNode = (AccessClass*) getAudioProcessor();
+    //
     addAndMakeVisible(audioWindowButton);
 
     volumeSlider = new Slider("High-Cut Slider");
@@ -107,8 +117,8 @@ AudioEditor::~AudioEditor()
 void AudioEditor::resized()
 {
     muteButton->setBounds(0,0,30,25);
-    volumeSlider->setBounds(35,0,100,getHeight());
-    audioWindowButton->setBounds(140,0,200,getHeight());
+    volumeSlider->setBounds(35,0,50,getHeight());
+    audioWindowButton->setBounds(90,0,200,getHeight());
 }
 
 bool AudioEditor::keyPressed(const KeyPress& key)
@@ -117,6 +127,12 @@ bool AudioEditor::keyPressed(const KeyPress& key)
     return false;
 }
 
+
+void AudioEditor::updateBufferSizeText()
+{
+    // currently crashing
+   // audioWindowButton->setText(String(getAudioComponent()->getBufferSize()));
+}
 
 void AudioEditor::buttonClicked(Button* button)
 {
@@ -146,7 +162,7 @@ void AudioEditor::buttonClicked(Button* button)
                 // audioComponent->restartDevice();
 
                 // if (audioComponent != 0) {
-                acw = new AudioConfigurationWindow(getAudioComponent()->deviceManager, (Button*) audioWindowButton);
+                acw = new AudioConfigurationWindow(getAudioComponent()->deviceManager, audioWindowButton);
                 acw->setUIComponent(getUIComponent());
                 //}
             }
@@ -157,7 +173,7 @@ void AudioEditor::buttonClicked(Button* button)
         }
         else
         {
-
+            audioWindowButton->setText(String(getAudioComponent()->getBufferSize()));
             acw->setVisible(false);
             //deleteAndZero(acw);
             getAudioComponent()->stopDevice();
@@ -179,7 +195,7 @@ void AudioEditor::paint(Graphics& g)
 
 
 
-AudioConfigurationWindow::AudioConfigurationWindow(AudioDeviceManager& adm, Button* cButton)
+AudioConfigurationWindow::AudioConfigurationWindow(AudioDeviceManager& adm, AudioWindowButton* cButton)
     : DocumentWindow("Audio Settings",
                      Colours::red,
                      DocumentWindow::closeButton),
@@ -220,6 +236,7 @@ AudioConfigurationWindow::~AudioConfigurationWindow()
 void AudioConfigurationWindow::closeButtonPressed()
 {
     controlButton->setToggleState(false,false);
+    controlButton->setText(String(getAudioComponent()->getBufferSize()));
     getAudioComponent()->stopDevice();
     setVisible(false);
 }

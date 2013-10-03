@@ -118,6 +118,7 @@ void ProcessorGraph::createDefaultNodes()
 void ProcessorGraph::updatePointers()
 {
     getAudioNode()->setUIComponent(getUIComponent());
+    getAudioNode()->updateBufferSize();
     getRecordNode()->setUIComponent(getUIComponent());
 }
 
