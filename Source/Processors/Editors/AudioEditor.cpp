@@ -67,7 +67,7 @@ void AudioWindowButton::paintButton(Graphics& g, bool isMouseOver, bool isButton
     if (getToggleState())
         g.setColour(Colours::yellow);
     else
-        g.setColour(Colours::black);
+        g.setColour(Colours::lightgrey);
 
     g.setFont(font);
     //g.drawSingleLineText(" AUDIO",0,0);
@@ -77,6 +77,7 @@ void AudioWindowButton::paintButton(Graphics& g, bool isMouseOver, bool isButton
 void AudioWindowButton::setText(String text)
 {
     textString = text;
+    repaint();
 }
 
 AudioEditor::AudioEditor(AudioNode* owner)
@@ -130,8 +131,7 @@ bool AudioEditor::keyPressed(const KeyPress& key)
 
 void AudioEditor::updateBufferSizeText()
 {
-    // currently crashing
-   // audioWindowButton->setText(String(getAudioComponent()->getBufferSize()));
+    audioWindowButton->setText(String(getAudioComponent()->getBufferSize()));
 }
 
 void AudioEditor::buttonClicked(Button* button)

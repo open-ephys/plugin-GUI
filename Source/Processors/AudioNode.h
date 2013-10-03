@@ -104,7 +104,7 @@ private:
 
     /** An array of pointers to the channels that feed into the AudioNode. */
     Array<Channel*> channelPointers;
-
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioNode);
 
 };

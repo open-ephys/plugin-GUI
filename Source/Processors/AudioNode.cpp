@@ -58,7 +58,7 @@ AudioProcessorEditor* AudioNode::createEditor()
     //audioEditor->setUIComponent(getUIComponent());
     //audioEditor->updateBufferSizeText();
 
-    //setEditor(editor);
+   // setEditor(editor);
 
     return audioEditor;
 
@@ -76,8 +76,8 @@ void AudioNode::resetConnections()
 
 void AudioNode::updateBufferSize()
 {
-    AudioEditor* editor = (AudioEditor*) getEditor();
-    editor->updateBufferSizeText();
+    //AudioEditor* editor = (AudioEditor*) getEditor();
+    audioEditor->updateBufferSizeText();
     
 }
 

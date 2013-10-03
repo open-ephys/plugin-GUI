@@ -860,5 +860,7 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 
         }
     }
+    
+    getProcessorGraph()->getAudioNode()->updateBufferSize();
 
 }
