@@ -115,7 +115,7 @@ void RHD2000Editor::scanPorts()
 void RHD2000Editor::buttonEvent(Button* button)
 {
 
-    if (button == rescanButton)
+    if (button == rescanButton && !acquisitionIsActive)
     {
         board->scanPorts();
 
@@ -133,7 +133,7 @@ void RHD2000Editor::buttonEvent(Button* button)
     {
         channelSelector->setRadioStatus(true);
     }
-    else if (button == adcButton)
+    else if (button == adcButton && !acquisitionIsActive)
     {
         board->enableAdcs(button->getToggleState());
         getEditorViewport()->makeEditorVisible(this, false, true);
