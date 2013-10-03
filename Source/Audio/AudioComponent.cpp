@@ -144,6 +144,14 @@ int AudioComponent::getBufferSize()
     return setup.bufferSize;
 }
 
+int AudioComponent::getBufferSizeMs()
+{
+    AudioDeviceManager::AudioDeviceSetup setup;
+    deviceManager.getAudioDeviceSetup(setup);
+    
+    return int(float(setup.bufferSize)/setup.sampleRate*1000);
+}
+
 void AudioComponent::connectToProcessorGraph(AudioProcessorGraph* processorGraph)
 {
 

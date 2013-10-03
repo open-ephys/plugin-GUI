@@ -131,7 +131,11 @@ bool AudioEditor::keyPressed(const KeyPress& key)
 
 void AudioEditor::updateBufferSizeText()
 {
-    audioWindowButton->setText(String(getAudioComponent()->getBufferSize()));
+    
+    String t = String(getAudioComponent()->getBufferSizeMs());
+    t += " ms";
+    
+    audioWindowButton->setText(t);
 }
 
 void AudioEditor::buttonClicked(Button* button)
@@ -172,8 +176,11 @@ void AudioEditor::buttonClicked(Button* button)
 
         }
         else
+            
+            
         {
-            audioWindowButton->setText(String(getAudioComponent()->getBufferSize()));
+            updateBufferSizeText();
+            //audioWindowButton->setText(String(getAudioComponent()->getBufferSize()));
             acw->setVisible(false);
             //deleteAndZero(acw);
             getAudioComponent()->stopDevice();
@@ -236,7 +243,11 @@ AudioConfigurationWindow::~AudioConfigurationWindow()
 void AudioConfigurationWindow::closeButtonPressed()
 {
     controlButton->setToggleState(false,false);
-    controlButton->setText(String(getAudioComponent()->getBufferSize()));
+    
+    //updateBufferSizeText();
+    String t = String(getAudioComponent()->getBufferSizeMs());
+    t += " ms";
+    controlButton->setText(t);
     getAudioComponent()->stopDevice();
     setVisible(false);
 }
