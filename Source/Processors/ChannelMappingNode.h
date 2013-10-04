@@ -65,6 +65,7 @@ public:
 private:
 
     Array<int> referenceArray;
+	Array<int> referenceChannels;
     Array<int> channelArray;
 
     AudioSampleBuffer channelBuffer;
