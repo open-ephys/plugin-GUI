@@ -519,7 +519,7 @@
         <CHANNEL Number="52" Mapping="10" Reference="-1"/>
         <CHANNEL Number="53" Mapping="11" Reference="-1"/>
         <CHANNEL Number="54" Mapping="32" Reference="-1"/>
-        <CHANNEL Number="55" Mapping="8" Reference="-1"/>
+        <CHANNEL Number="55" Mapping="1" Reference="-1"/>
         <CHANNEL Number="56" Mapping="2" Reference="-1"/>
         <CHANNEL Number="57" Mapping="3" Reference="-1"/>
         <CHANNEL Number="58" Mapping="9" Reference="-1"/>
@@ -527,7 +527,7 @@
         <CHANNEL Number="60" Mapping="4" Reference="-1"/>
         <CHANNEL Number="61" Mapping="6" Reference="-1"/>
         <CHANNEL Number="62" Mapping="7" Reference="-1"/>
-        <CHANNEL Number="63" Mapping="1" Reference="-1"/>
+        <CHANNEL Number="63" Mapping="8" Reference="-1"/>
         <CHANNEL Number="64" Mapping="65" Reference="-1"/>
         <CHANNEL Number="65" Mapping="66" Reference="-1"/>
         <CHANNEL Number="66" Mapping="67" Reference="-1"/>
