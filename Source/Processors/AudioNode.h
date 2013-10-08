@@ -96,6 +96,8 @@ public:
     
     void updateBufferSize();
 
+    void prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock);
+
 private:
 
     Array<int> leftChan;
@@ -104,7 +106,12 @@ private:
 
     /** An array of pointers to the channels that feed into the AudioNode. */
     Array<Channel*> channelPointers;
-    
+
+    AudioSampleBuffer overflowBuffer;
+
+    int numSamplesExpected;
+    int overflowBufferIndex;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioNode);
 
 };

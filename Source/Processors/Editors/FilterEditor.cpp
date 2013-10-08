@@ -36,13 +36,13 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
     lastHighCutString = " ";
 
     highCutLabel = new Label("high cut label", "High cut:");
-    highCutLabel->setBounds(35,80,180,20);
+    highCutLabel->setBounds(35,80,80,20);
     highCutLabel->setFont(Font("Small Text", 12, Font::plain));
     highCutLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(highCutLabel);
 
     lowCutLabel = new Label("low cut label", "Low cut:");
-    lowCutLabel->setBounds(35,30,180,20);
+    lowCutLabel->setBounds(35,30,80,20);
     lowCutLabel->setFont(Font("Small Text", 12, Font::plain));
     lowCutLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(lowCutLabel);

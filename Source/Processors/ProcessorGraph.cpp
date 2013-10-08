@@ -315,6 +315,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                     {
 
                         getAudioNode()->addInputChannel(source, chan);
+                        getAudioNode()->settings.sampleRate = source->getSampleRate(); // THIS IS A HACK TO MAKE SURE AUDIO NODE KNOWS WHAT THE SAMPLE RATE SHOULD BE
 
                         // std::cout << "Connecting to audio channel: " <<
                         // 	      getAudioNode()->getNextChannel(false) << std::endl;

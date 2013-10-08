@@ -131,7 +131,7 @@ bool FileReaderThread::updateBuffer()
             rewind(input);
         }
 
-        fread(readBuffer, 2, bufferSize, input);
+        size_t numRead = fread(readBuffer, 2, bufferSize, input);
 
         int chan = 0;
 

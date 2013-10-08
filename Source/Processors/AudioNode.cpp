@@ -26,20 +26,24 @@
 #include "Channel.h"
 
 AudioNode::AudioNode()
-    : GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f)
+    : GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f), overflowBuffer(2,10000)
 {
 
     settings.numInputs = 2048;
     settings.numOutputs = 2;
 
     // 128 inputs, 2 outputs (left and right channel)
-    setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
+    setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
 
     //leftChan.clear();
     //rightChan.clear();
 
     nextAvailableChannel = 2; // keep first two channels empty
 
+    //overflowBuffer.setSize(2, 10000); // 2 channels x 10000 samples
+
+    numSamplesExpected = 1024;
+    overflowBufferIndex = 0;
 
 }
 
@@ -170,6 +174,18 @@ void AudioNode::setParameter(int parameterIndex, float newValue)
 
 }
 
+void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
+{
+
+
+    std::cout << "Processor sample rate: " << getSampleRate() << std::endl;
+    std::cout << "Audio card sample rate: " << sampleRate_ << std::endl;
+    std::cout << "Samples per block: " << estimatedSamplesPerBlock << std::endl;
+
+    numSamplesExpected = (int) (getSampleRate()/sampleRate_*float(estimatedSamplesPerBlock)); 
+    // processor sample rate divided by sound card sample rate
+}
+
 void AudioNode::process(AudioSampleBuffer& buffer,
                         MidiBuffer& midiMessages,
                         int& nSamples)
@@ -181,35 +197,132 @@ void AudioNode::process(AudioSampleBuffer& buffer,
     buffer.clear(0,0,buffer.getNumSamples());
     buffer.clear(1,0,buffer.getNumSamples());
 
+    int totalSamples = nSamples + overflowBufferIndex;
+    
     if (channelPointers.size() > 0)
     {
+
+        // fill the beginning of the buffer from the overflowBuffer
+        
+        buffer.addFrom(0,       // destination channel
+               0,           // destination start sample
+               overflowBuffer,      // source
+               0,           // source channel
+               0,           // source start sample
+               overflowBufferIndex, //  number of samples
+               1.0f       // gain to apply
+              );
+
+        buffer.addFrom(1,       // destination channel
+               0,           // destination start sample
+               overflowBuffer,      // source
+               1,           // source channel
+               0,           // source start sample
+               overflowBufferIndex, //  number of samples
+               1.0f       // gain to apply
+              );
+
         for (int i = 2; i < buffer.getNumChannels(); i++)
         {
 
             if (channelPointers[i-2]->isMonitored)
             {
-                gain=volume/(float(0x7fff) * channelPointers[i-2]->bitVolts);
-                buffer.addFrom(0,  		// destination channel
-                               0,  			// destination start sample
+                gain = volume/(float(0x7fff) * channelPointers[i-2]->bitVolts);
+
+                if (totalSamples <= numSamplesExpected)
+                {
+                    
+                    // we don't have any overflow
+
+                    buffer.addFrom(0,       // destination channel
+                               overflowBufferIndex,           // destination start sample
                                buffer,      // source
-                               i, 			// source channel
+                               i,           // source channel
                                0,           // source start sample
-                               buffer.getNumSamples(), //  number of samples
+                               nSamples, //  number of samples
                                gain       // gain to apply
                               );
 
-                buffer.addFrom(1,  		// destination channel
-                               0,  			// destination start sample
+                    buffer.addFrom(1,       // destination channel
+                               overflowBufferIndex,           // destination start sample
                                buffer,      // source
-                               i, 			// source channel
+                               i,           // source channel
                                0,           // source start sample
-                               buffer.getNumSamples(), //  number of samples
+                               nSamples, //  number of samples
                                gain       // gain to apply
                               );
+
+                    overflowBufferIndex = 0;
+                    overflowBuffer.clear();
+
+                    int overflowSamples = 0;
+
+                    // std::cout << "Total samples: " << totalSamples << std::endl;
+                    // std::cout << "Samples expected: " << numSamplesExpected << std::endl;
+                    // std::cout << "Overflow samples: " << overflowSamples << std::endl;
+
+                } else {
+                {
+
+                    // first copy to the actual buffer
+
+                    int overflowSamples = totalSamples - numSamplesExpected;
+
+                    // std::cout << "Total samples: " << totalSamples << std::endl;
+                    // std::cout << "Samples expected: " << numSamplesExpected << std::endl;
+                    // std::cout << "Overflow samples: " << overflowSamples << std::endl;
+
+                     buffer.addFrom(0,       // destination channel
+                               overflowBufferIndex,           // destination start sample
+                               buffer,      // source
+                               i,           // source channel
+                               0,           // source start sample
+                               nSamples - overflowSamples, //  number of samples
+                               gain       // gain to apply
+                              );
+
+                    buffer.addFrom(1,       // destination channel
+                               overflowBufferIndex,           // destination start sample
+                               buffer,      // source
+                               i,           // source channel
+                               0,           // source start sample
+                               nSamples - overflowSamples, //  number of samples
+                               gain       // gain to apply
+                              );
+
+                    // now copy the rest to the overflowBuffer
+
+                    
+                    overflowBuffer.clear();
+
+                     overflowBuffer.addFrom(0,       // destination channel
+                               0,           // destination start sample
+                               buffer,      // source
+                               i,           // source channel
+                               nSamples - overflowSamples,           // source start sample
+                               overflowSamples, //  number of samples
+                               gain       // gain to apply
+                              );
+
+                    overflowBuffer.addFrom(1,       // destination channel
+                               0,           // destination start sample
+                               buffer,      // source
+                               i,           // source channel
+                               nSamples - overflowSamples,           // source start sample
+                               overflowSamples, //  number of samples
+                               gain       // gain to apply
+                              );
+
+                    overflowBufferIndex = overflowSamples;
+
+                }                
 
             }
 
         }
     }
+}
+
+    nSamples = numSamplesExpected;
 
 }
