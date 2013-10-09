@@ -30,6 +30,8 @@
 
 #include "SpikeDetectorEditor.h" // for ElectrodeButton and ElectrodeEditorButton
 
+#define NUM_REFERENCES 4
+
 /**
 
   User interface for the Channel Mapping processor.
@@ -38,7 +40,8 @@
 
 */
 
-class ChannelMappingEditor : public GenericEditor
+class ChannelMappingEditor : public GenericEditor,
+	public DragAndDropContainer
 
 {
 public:
@@ -56,17 +59,37 @@ public:
 
     void channelChanged(int chan);
 
+	void mouseDrag(const MouseEvent &e);
+
+	void mouseUp(const MouseEvent &e);
+
 
 private:
 
-    OwnedArray<ElectrodeButton> electrodeButtons;
-    ScopedPointer<ElectrodeEditorButton> referenceButton;
-    ScopedPointer<ElectrodeEditorButton> mappingButton;
+	void setChannelReference(ElectrodeButton *button);
+	void setChannelPosition(int position, int channel);
+
+	OwnedArray<ElectrodeButton> electrodeButtons;
+	OwnedArray<ElectrodeButton> referenceButtons;
+    ScopedPointer<ElectrodeEditorButton> selectAllButton;
+    ScopedPointer<ElectrodeEditorButton> modifyButton;
 
     Array<int> channelArray;
     Array<int> referenceArray;
+	Array<int> referenceChannels;
 
     int previousChannelCount;
+	int selectedReference;
+	bool reorderActive;
+	int previousClickedChan;
+	int previousShiftClickedChan;
+	bool previousClickedState;
+
+	bool isDragging;
+	int initialDraggedButton;
+	int draggingChannel;
+	int lastHoverButton;
+	
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChannelMappingEditor);
 

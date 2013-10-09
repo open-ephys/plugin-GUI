@@ -35,9 +35,13 @@ ChannelMappingNode::ChannelMappingNode()
 
     for (int i = 0; i < referenceArray.size(); i++)
     {
-        referenceArray.set(i, -1);
         channelArray.set(i, i);
+		referenceArray.set(i,-1);
     }
+	for (int i = 0; i < NUM_REFERENCES; i++)
+	{
+		referenceChannels.set(i, -1);
+	}
 
 }
 
@@ -70,8 +74,12 @@ void ChannelMappingNode::setParameter(int parameterIndex, float newValue)
 
     if (parameterIndex == 1)
     {
-        referenceArray.set(currentChannel, (int) newValue);
+		referenceArray.set(currentChannel, (int) newValue);
     }
+	else if (parameterIndex == 2)
+	{
+		referenceChannels.set((int) newValue, currentChannel);
+	}
     else
     {
         channelArray.set(currentChannel, (int) newValue);
@@ -106,14 +114,14 @@ void ChannelMappingNode::process(AudioSampleBuffer& buffer,
     // now do the referencing
     for (int i = 0; i < buffer.getNumChannels(); i++)
     {
-
-        if (referenceArray[i] > -1)
+		int realChan = channelArray[i];
+		if ((referenceArray[realChan] > -1) && referenceChannels[referenceArray[realChan]] > -1)
         {
 
             buffer.addFrom(i, // destChannel
                            0, // destStartSample
                            channelBuffer, // source
-                           referenceArray[i], // sourceChannel
+                           referenceChannels[referenceArray[realChan]], // sourceChannel
                            0, // sourceStartSample
                            nSamples, // numSamples
                            -1.0f // gain to apply to source (negative for reference)
