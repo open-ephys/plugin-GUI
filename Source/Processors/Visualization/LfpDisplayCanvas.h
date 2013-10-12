@@ -55,7 +55,6 @@ public:
     void endAnimation();
 
     void refreshState();
-
     void update();
 
     void setParameter(int, float);
@@ -95,6 +94,7 @@ private:
     float displayGain;
     float timeOffset;
     //int spread ; // vertical spacing between channels
+    
 
     static const int MAX_N_CHAN = 256;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
@@ -112,10 +112,12 @@ private:
     ScopedPointer<ComboBox> timebaseSelection;
     ScopedPointer<ComboBox> rangeSelection;
     ScopedPointer<ComboBox> spreadSelection;
+    ScopedPointer<ComboBox> colorGroupingSelection;
 
     StringArray voltageRanges;
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
+    StringArray colorGroupings; // option for coloring every N channels the same
 
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
 
@@ -182,9 +184,13 @@ public:
     void setChannelHeight(int r);
     int getChannelHeight();
 
+    void setColors();
 
     bool setEventDisplayState(int ch, bool state);
     bool getEventDisplayState(int ch);
+
+    int getColorGrouping();
+    void setColorGrouping(int i);
 
     void setEnabledState(bool, int);
     bool getEnabledState(int);
@@ -201,6 +207,8 @@ private:
     int numChans;
 
     int totalHeight;
+
+    int colorGrouping;
 
     LfpDisplayCanvas* canvas;
     Viewport* viewport;    
