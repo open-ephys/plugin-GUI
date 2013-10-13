@@ -637,6 +637,15 @@ double RHD2000Thread::setLowerBandwidth(double lower)
     return actualLowerBandwidth;
 }
 
+int RHD2000Thread::setNoiseSlicerLevel(int level)
+{
+    desiredNoiseSlicerLevel = level;
+    evalBoard->setAudioNoiseSuppress(desiredNoiseSlicerLevel);
+    
+    return actualNoiseSlicerLevel;
+}
+
+
 bool RHD2000Thread::foundInputSource()
 {
 

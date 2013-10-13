@@ -91,6 +91,12 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     audioLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(audioLabel);
 
+    // add HW audio parameter selection
+    audioInterface = new AudioInterface(board, this);
+    addAndMakeVisible(audioInterface);
+    audioInterface->setBounds(180, 65, 100, 50);
+    
+    
     adcButton = new UtilityButton("ADC 1-8", Font("Small Text", 13, Font::plain));
     adcButton->setRadius(3.0f);
     adcButton->setBounds(180, 70,65,18);
@@ -557,3 +563,98 @@ void HeadstageOptionsInterface::paint(Graphics& g)
     g.drawText(name, 8, 2, 200, 15, Justification::left, false);
 
 }
+
+
+// (Direct OpalKelly) Audio Options --------------------------------------------------------------------
+
+AudioInterface::AudioInterface(RHD2000Thread* board_,
+                                       RHD2000Editor* editor_) :
+board(board_), editor(editor_)
+{
+    
+    name = "Noise Slicer";
+    
+    lastNoiseSlicerString = "0";
+    
+    actualNoiseSlicerLevel = 0.0f;
+    
+    noiseSlicerLevelSelection = new Label("Noise Slicer",lastNoiseSlicerString); // this is currently set in RHD2000Thread, the cleaner would be to set it here again
+    noiseSlicerLevelSelection->setEditable(true,false,false);
+    noiseSlicerLevelSelection->addListener(this);
+    noiseSlicerLevelSelection->setBounds(25,10,40,20);
+    noiseSlicerLevelSelection->setColour(Label::textColourId, Colours::darkgrey);
+    addAndMakeVisible(noiseSlicerLevelSelection);
+    
+    
+}
+
+AudioInterface::~AudioInterface()
+{
+    
+}
+
+
+void AudioInterface::labelTextChanged(Label* label)
+{
+    if (!(editor->acquisitionIsActive) && board->foundInputSource())
+    {
+        if (label == noiseSlicerLevelSelection)
+        {
+            
+            Value val = label->getTextValue();
+            int requestedValue = int(val.getValue()); // Note that it might be nice to translate to actual uV levels (16*value)
+            
+            if (requestedValue < 0 || requestedValue > 127)
+            {
+                editor->sendActionMessage("Value out of range.");
+                
+                label->setText(lastNoiseSlicerString, dontSendNotification);
+                
+                return;
+            }
+            
+            actualNoiseSlicerLevel = board->setNoiseSlicerLevel(requestedValue);
+            
+            std::cout << "Setting Noise Slicer Level to " << requestedValue << std::endl;
+            label->setText(String((roundFloatToInt)(actualNoiseSlicerLevel)), dontSendNotification);
+
+        }
+    }
+    else {
+        Value val = label->getTextValue();
+        int requestedValue = int(val.getValue()); // Note that it might be nice to translate to actual uV levels (16*value)
+        if (requestedValue < 0 || requestedValue > 127)
+        {
+            editor->sendActionMessage("Value out of range.");
+            label->setText(lastNoiseSlicerString, dontSendNotification);
+            return;
+        }
+    }
+}
+
+void AudioInterface::setNoiseSlicerLevel(int value)
+{
+    actualNoiseSlicerLevel = board->setNoiseSlicerLevel(value);
+    noiseSlicerLevelSelection->setText(String(roundFloatToInt(actualNoiseSlicerLevel)), dontSendNotification);
+}
+
+int AudioInterface::getNoiseSlicerLevel()
+{
+    return actualNoiseSlicerLevel;
+}
+
+
+void AudioInterface::paint(Graphics& g)
+{
+    
+    g.setColour(Colours::darkgrey);
+    
+    g.setFont(Font("Small Text",9,Font::plain));
+    
+    g.drawText(name, 0, 0, 200, 15, Justification::left, false);
+    
+    g.drawText("Level: ", 0, 10, 200, 20, Justification::left, false);
+    
+}
+
+
