@@ -108,7 +108,7 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded)
 		ElectrodeButton* button = new ElectrodeButton(i+1);
 		electrodeButtons.add(button);
 
-		button->setBounds(10+(column++)*(width+10), 30+row*(height+10), width, 15);
+		button->setBounds(10+(column++)*(width), 30+row*(height), width, 15);
 		button->setToggleState(false,false);
 		button->setRadioGroupId(0);
 
@@ -123,7 +123,7 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded)
 
 		channelArray.add(i+1);
 
-		if (column % 11 == 0)
+		if (column % 16 == 0)
 		{
 			column = 0;
 			row++;
@@ -507,14 +507,14 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent &e)
 		{
 			MouseEvent ev = e.getEventRelativeTo(this);
 
-			int col = ((ev.x-5) / 30);
+			int col = ((ev.x-5) / 20);
 			if (col < 0) col = 0;
-			else if (col > 11) col = 11;
+			else if (col > 16) col = 16;
 
-			int row = ((ev.y-20) / 25);
+			int row = ((ev.y-30) / 15);
 			if (row < 0) row = 0;
 
-			int hoverButton = row*11+col;
+			int hoverButton = row*16+col;
 
 			if (hoverButton >= electrodeButtons.size())
 			{
