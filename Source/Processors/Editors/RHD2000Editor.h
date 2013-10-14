@@ -27,7 +27,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
-#include "SpikeDetectorEditor.h" // for ElectrodeButton
+#include "ElectrodeButtons.h" // for ElectrodeButton
 
 class HeadstageOptionsInterface;
 class SampleRateInterface;

@@ -28,7 +28,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
-#include "SpikeDetectorEditor.h" // for ElectrodeButton and ElectrodeEditorButton
+#include "ElectrodeButtons.h" // for ElectrodeButton and ElectrodeEditorButton
 
 #define NUM_REFERENCES 4
 

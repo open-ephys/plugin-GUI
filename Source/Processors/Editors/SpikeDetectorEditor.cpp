@@ -540,44 +540,6 @@ void SpikeDetectorEditor::drawElectrodeButtons(int ID)
     thresholdSlider->setValues(thresholds);
 }
 
-
-
-
-void ElectrodeButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
-{
-    if (getToggleState() == true)
-        g.setColour(Colours::orange);
-    else
-        g.setColour(Colours::darkgrey);
-
-    if (isMouseOver)
-        g.setColour(Colours::white);
-
-    g.fillRect(0,0,getWidth(),getHeight());
-
-    // g.setFont(buttonFont);
-    g.setColour(Colours::black);
-
-    g.drawRect(0,0,getWidth(),getHeight(),1.0);
-
-    if (chan >= 0)
-        g.drawText(String(chan),0,0,getWidth(),getHeight(),Justification::centred,true);
-}
-
-
-void ElectrodeEditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
-{
-    if (getToggleState() == true)
-        g.setColour(Colours::darkgrey);
-    else
-        g.setColour(Colours::lightgrey);
-
-    g.setFont(font);
-
-    g.drawText(name,0,0,getWidth(),getHeight(),Justification::left,true);
-}
-
-
 ThresholdSlider::ThresholdSlider(Font f) : Slider("name"), font(f)
 {
 
