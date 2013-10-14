@@ -89,7 +89,7 @@ void FilterEditor::labelTextChanged(Label* label)
     Value val = label->getTextValue();
     double requestedValue = double(val.getValue());
 
-    if (requestedValue < 0.01 || requestedValue > 10000)
+    if (requestedValue < 0.01 || requestedValue > 10000) 
     {
         sendActionMessage("Value out of range.");
 

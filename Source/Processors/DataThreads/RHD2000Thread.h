@@ -72,6 +72,8 @@ public:
 
     double setUpperBandwidth(double upper); // set desired BW, returns actual BW
     double setLowerBandwidth(double lower);
+    
+    int setNoiseSlicerLevel(int level);
 
     void scanPorts();
 
@@ -113,6 +115,7 @@ private:
     double actualDspCutoffFreq, desiredDspCutoffFreq;
     double actualUpperBandwidth, desiredUpperBandwidth;
     double actualLowerBandwidth, desiredLowerBandwidth;
+    int actualNoiseSlicerLevel, desiredNoiseSlicerLevel;
     double boardSampleRate;
     int savedSampleRateIndex;
 
