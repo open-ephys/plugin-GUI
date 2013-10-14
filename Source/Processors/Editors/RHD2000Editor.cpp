@@ -596,7 +596,7 @@ AudioInterface::~AudioInterface()
 
 void AudioInterface::labelTextChanged(Label* label)
 {
-    if (!(editor->acquisitionIsActive) && board->foundInputSource())
+    if (board->foundInputSource())
     {
         if (label == noiseSlicerLevelSelection)
         {

@@ -641,6 +641,10 @@ int RHD2000Thread::setNoiseSlicerLevel(int level)
 {
     desiredNoiseSlicerLevel = level;
     evalBoard->setAudioNoiseSuppress(desiredNoiseSlicerLevel);
+
+    // Level has been checked once before this and then is checked again in setAudioNoiseSuppress.
+    // This may be overkill - maybe API should change so that the final function returns the value?
+    actualNoiseSlicerLevel = level;
     
     return actualNoiseSlicerLevel;
 }
