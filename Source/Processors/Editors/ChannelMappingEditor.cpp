@@ -60,6 +60,7 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
 
 		addAndMakeVisible(button);
 		button->addListener(this);
+		button->setButtonText(String::charToString('A'+i));
 
 	}
 
