@@ -99,7 +99,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     
     adcButton = new UtilityButton("ADC 1-8", Font("Small Text", 13, Font::plain));
     adcButton->setRadius(3.0f);
-    adcButton->setBounds(180, 70,65,18);
+    adcButton->setBounds(180, 100,65,18);
     adcButton->addListener(this);
     adcButton->setClickingTogglesState(true);
     adcButton->setTooltip("Enable/disable ADC channels");
