@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChannelMappingEditor.h"
 #include "../ChannelMappingNode.h"
+#include "../../UI/EditorViewport.h"
 #include "ChannelSelector.h"
 #include <stdio.h>
 
@@ -60,6 +61,7 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
 
 		addAndMakeVisible(button);
 		button->addListener(this);
+		button->setButtonText(String::charToString('A'+i));
 
 	}
 
@@ -95,6 +97,7 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded)
 	referenceArray.clear();
 	channelArray.clear();
 	referenceChannels.clear();
+	enabledChannelArray.clear();
 
 	int width = 20;
 	int height = 15;
@@ -107,7 +110,7 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded)
 		ElectrodeButton* button = new ElectrodeButton(i+1);
 		electrodeButtons.add(button);
 
-		button->setBounds(10+(column++)*(width+10), 30+row*(height+10), width, 15);
+		button->setBounds(10+(column++)*(width), 30+row*(height), width, 15);
 		button->setToggleState(false,false);
 		button->setRadioGroupId(0);
 
@@ -119,10 +122,12 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded)
 		getProcessor()->setCurrentChannel(i);
 		getProcessor()->setParameter(0,i); // set channel mapping to standard channel
 		getProcessor()->setParameter(1,-1); // set reference to none
+		getProcessor()->setParameter(3,1); //enable channel
 
 		channelArray.add(i+1);
+		enabledChannelArray.add(true);
 
-		if (column % 11 == 0)
+		if (column % 16 == 0)
 		{
 			column = 0;
 			row++;
@@ -166,6 +171,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 	{
 		if (reorderActive)
 		{
+			channelSelector->activateButtons();
 			reorderActive = false;
 			selectedReference = 0;
 			for (int i=0; i < referenceButtons.size(); i++)
@@ -173,6 +179,13 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 				referenceButtons[i]->setEnabled(true);
 			}
 			referenceButtons[0]->setToggleState(true,false);
+			Array<int> a;
+
+			if (referenceChannels[selectedReference] >= 0 )
+			{
+				a.add(referenceChannels[selectedReference]);
+			}
+			channelSelector->setActiveChannels(a);
 
 			for (int i = 0; i < electrodeButtons.size(); i++)
 			{
@@ -186,12 +199,21 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 				{
 					electrodeButtons[i]->setToggleState(false,false);
 				}
+				if (enabledChannelArray[electrodeButtons[i]->getChannelNum()-1])
+				{
+					electrodeButtons[i]->setEnabled(true);
+				}
+				else
+				{
+					electrodeButtons[i]->setEnabled(false);
+				}
 			}
 			selectAllButton->setEnabled(true);
 		}
 		else
 		{
 			reorderActive = true;
+			channelSelector->inactivateButtons();
 
 			for (int i=0; i < referenceButtons.size(); i++)
 			{
@@ -202,8 +224,17 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 			for (int i = 0; i < electrodeButtons.size(); i++)
 			{
 				electrodeButtons[i]->setClickingTogglesState(false);
-				electrodeButtons[i]->setToggleState(true,false);
+				electrodeButtons[i]->setEnabled(true);
+				if (enabledChannelArray[electrodeButtons[i]->getChannelNum()-1])
+				{
+					electrodeButtons[i]->setToggleState(true,false);
+				}
+				else
+				{
+					electrodeButtons[i]->setToggleState(false,false);
+				}
 				electrodeButtons[i]->addMouseListener(this,false);
+				
 			}
 			selectAllButton->setEnabled(false);
 		}
@@ -403,7 +434,8 @@ void ChannelMappingEditor::saveEditorParameters(XmlElement* xml)
 		XmlElement* channelXml = xml->createNewChildElement("CHANNEL");
 		channelXml->setAttribute("Number", i);
 		channelXml->setAttribute("Mapping", channelArray[i]);
-		channelXml->setAttribute("Reference", referenceArray[i]);
+		channelXml->setAttribute("Reference", referenceArray[channelArray[i]-1]);
+		channelXml->setAttribute("Enabled",enabledChannelArray[channelArray[i]-1]);
 	}
 	for (int i = 0; i< referenceChannels.size(); i++)
 	{
@@ -426,18 +458,26 @@ void ChannelMappingEditor::loadEditorParameters(XmlElement* xml)
 
 			int mapping = channelXml->getIntAttribute("Mapping");
 			int reference = channelXml->getIntAttribute("Reference");
+			bool enabled = channelXml->getBoolAttribute("Enabled");
 
 			channelArray.set(i, mapping);
-			referenceArray.set(i, reference);
+			referenceArray.set(mapping-1, reference);
+			enabledChannelArray.set(mapping-1,enabled);
 
 			electrodeButtons[i]->setChannelNum(mapping);
+			electrodeButtons[i]->setEnabled(enabled);
 			electrodeButtons[i]->repaint();
+			
 
 			getProcessor()->setCurrentChannel(i);
 
-			getProcessor()->setParameter(1, reference); // set reference
-
 			getProcessor()->setParameter(0, mapping-1); // set mapping
+
+			getProcessor()->setCurrentChannel(mapping-1);
+
+			getProcessor()->setParameter(1, reference); // set reference			
+
+			getProcessor()->setParameter(3,enabled ? 1 : 0); //set enabled
 		}
 
 	}
@@ -489,7 +529,14 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent &e)
 			Image dragImage(Image::ARGB,20,15,true);
 
 			Graphics g(dragImage);
-			g.setColour(Colours::orange);
+			if (button->getToggleState())
+			{
+				g.setColour(Colours::orange);
+			}
+			else
+			{
+				g.setColour(Colours::darkgrey);
+			}
 			g.fillAll();
 			g.setColour(Colours::black);
 			g.drawText(String(button->getChannelNum()),0,0,20,15,Justification::centred,true);
@@ -506,14 +553,14 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent &e)
 		{
 			MouseEvent ev = e.getEventRelativeTo(this);
 
-			int col = ((ev.x-5) / 30);
+			int col = ((ev.x-5) / 20);
 			if (col < 0) col = 0;
-			else if (col > 11) col = 11;
+			else if (col > 16) col = 16;
 
-			int row = ((ev.y-20) / 25);
+			int row = ((ev.y-30) / 15);
 			if (row < 0) row = 0;
 
-			int hoverButton = row*11+col;
+			int hoverButton = row*16+col;
 
 			if (hoverButton >= electrodeButtons.size())
 			{
@@ -531,6 +578,14 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent &e)
 					for (int i = lastHoverButton; i > hoverButton; i--)
 					{
 						electrodeButtons[i]->setChannelNum(electrodeButtons[i-1]->getChannelNum());
+						if (enabledChannelArray[electrodeButtons[i]->getChannelNum()-1]) //Could be more compact, but definitely less legible
+						{
+							electrodeButtons[i]->setToggleState(true,false);
+						}
+						else
+						{
+							electrodeButtons[i]->setToggleState(false,false);
+						}
 					}
 				}
 				else
@@ -538,9 +593,18 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent &e)
 					for (int i = lastHoverButton; i < hoverButton; i++)
 					{
 						electrodeButtons[i]->setChannelNum(electrodeButtons[i+1]->getChannelNum());
+						if (enabledChannelArray[electrodeButtons[i]->getChannelNum()-1])
+						{
+							electrodeButtons[i]->setToggleState(true,false);
+						}
+						else
+						{
+							electrodeButtons[i]->setToggleState(false,false);
+						}
 					}
 				}
 				electrodeButtons[hoverButton]->setChannelNum(draggingChannel);
+				electrodeButtons[hoverButton]->setToggleState(enabledChannelArray[draggingChannel-1],false);
 				
 				lastHoverButton = hoverButton;
 				repaint();
@@ -581,4 +645,28 @@ void ChannelMappingEditor::setChannelPosition(int position, int channel)
 	getProcessor()->setCurrentChannel(position);
 	getProcessor()->setParameter(0,channel-1);
 	channelArray.set(position,channel);
+}
+
+void ChannelMappingEditor::mouseDoubleClick(const MouseEvent &e)
+{
+	if ((reorderActive) && electrodeButtons.contains((ElectrodeButton*)e.originalComponent))
+	{
+		ElectrodeButton *button = (ElectrodeButton*)e.originalComponent;
+
+		if (button->getToggleState())
+		{
+			button->setToggleState(false,false);
+			enabledChannelArray.set(button->getChannelNum()-1,false);
+			getProcessor()->setCurrentChannel(button->getChannelNum()-1);
+			getProcessor()->setParameter(3,0);
+		}
+		else
+		{
+			button->setToggleState(true,false);
+			enabledChannelArray.set(button->getChannelNum()-1,true);
+			getProcessor()->setCurrentChannel(button->getChannelNum()-1);
+			getProcessor()->setParameter(3,1);
+		}
+		getEditorViewport()->makeEditorVisible(this, false, true);
+	}
 }
