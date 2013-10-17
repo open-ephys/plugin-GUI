@@ -63,6 +63,8 @@ public:
 
 	void mouseUp(const MouseEvent &e);
 
+	void mouseDoubleClick(const MouseEvent &e);
+
 
 private:
 
@@ -77,6 +79,7 @@ private:
     Array<int> channelArray;
     Array<int> referenceArray;
 	Array<int> referenceChannels;
+	Array<bool> enabledChannelArray;
 
     int previousChannelCount;
 	int selectedReference;
