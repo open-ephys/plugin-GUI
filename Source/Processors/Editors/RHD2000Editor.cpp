@@ -294,6 +294,16 @@ void BandwidthInterface::labelTextChanged(Label* label)
             label->setText(String(roundFloatToInt(actualLowerBandwidth)), dontSendNotification);
         }
     }
+    else if (editor->acquisitionIsActive)
+    {
+        editor->sendActionMessage("Can't change bandwidth while acquisition is active!");
+        if (label == upperBandwidthSelection)
+            label->setText(lastHighCutString, dontSendNotification);
+        else
+            label->setText(lastLowCutString, dontSendNotification);
+        return;
+    }
+
 }
 
 void BandwidthInterface::setLowerBandwidth(double value)
