@@ -14,6 +14,12 @@ Introjucer/Builds/VisualStudio2010/Release
 Introjucer/Builds/VisualStudio2010/*.user
 Introjucer/Builds/VisualStudio2010/*.sdf
 Introjucer/Builds/VisualStudio2010/*.suo
+Introjucer/Builds/VisualStudio2012/Debug
+Introjucer/Builds/VisualStudio2012/Release
+Introjucer/Builds/VisualStudio2012/*.user
+Introjucer/Builds/VisualStudio2012/*.sdf
+Introjucer/Builds/VisualStudio2012/*.opensdf
+Introjucer/Builds/VisualStudio2012/*.suo
 
 # 3. extra files
 Builds/Linux/build/data
