@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 ChannelMappingNode::ChannelMappingNode()
-	: GenericProcessor("Channel Map"), previousChannelCount(0), channelBuffer(1,10000),
+	: GenericProcessor("Channel Map"), previousChannelCount(0), channelBuffer(1,10000)
 {
 	referenceArray.resize(1024); // make room for 1024 channels
 	channelArray.resize(1024);
