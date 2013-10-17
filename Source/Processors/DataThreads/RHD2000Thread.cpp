@@ -1153,7 +1153,7 @@ bool RHD2000Thread::updateBuffer()
         if (audioOutputL >= 0)
         {
             evalBoard->enableDac(1, true);
-            evalBoard->selectDacDataChannel(1, audioOutputR);
+            evalBoard->selectDacDataChannel(1, audioOutputL);
         }
         else
         {
