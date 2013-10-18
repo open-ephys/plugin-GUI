@@ -353,7 +353,7 @@ void SpikeDisplay::registerThresholdCoordinator(SpikeThresholdCoordinator *stc)
 
 SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) :
     canvas(sdc), isSelected(false), electrodeNumber(elecNum),  plotType(p),
-	limitsChanged(true), name(name_), thresholdCoordinator(nullptr)
+	limitsChanged(true), name(name_)
 
 {
 
@@ -1276,6 +1276,11 @@ double GenericAxes::ad16ToUv(int x, int gain)
 }
 
 SpikeThresholdCoordinator::SpikeThresholdCoordinator() : lockThresholds(false) {}
+
+SpikeThresholdCoordinator::~SpikeThresholdCoordinator()
+{
+	masterReference.clear();
+}
 
 void SpikeThresholdCoordinator::registerSpikePlot(SpikePlot *sp)
 {

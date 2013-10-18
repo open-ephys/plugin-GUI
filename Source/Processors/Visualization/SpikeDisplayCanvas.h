@@ -238,7 +238,7 @@ private:
 
     Font font;
 
-	SpikeThresholdCoordinator *thresholdCoordinator;
+	WeakReference<SpikeThresholdCoordinator> thresholdCoordinator;
 
 };
 
@@ -417,7 +417,7 @@ class SpikeThresholdCoordinator
 {
 public:
 	SpikeThresholdCoordinator();
-	~SpikeThresholdCoordinator() {};
+	~SpikeThresholdCoordinator();
 
 	void registerSpikePlot(SpikePlot *sp);
 	void unregisterSpikePlot(SpikePlot *sp);
@@ -429,6 +429,9 @@ public:
 private:
 	bool lockThresholds;
 	Array<SpikePlot*> registeredPlots;
+
+	WeakReference<SpikeThresholdCoordinator>::Master masterReference;
+	friend class WeakReference<SpikeThresholdCoordinator>;
 	
 };
 
