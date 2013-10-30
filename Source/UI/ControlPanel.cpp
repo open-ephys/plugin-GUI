@@ -308,7 +308,7 @@ ControlPanelButton::~ControlPanelButton()
 
 void ControlPanelButton::paint(Graphics& g)
 {
-    g.fillAll(Colour(58,58,58));
+    //g.fillAll(Colour(58,58,58));
 
     g.setColour(Colours::white);
 
