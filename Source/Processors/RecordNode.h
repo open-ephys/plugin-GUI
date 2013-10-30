@@ -59,6 +59,7 @@ public:
     */
     void process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer, int& nSamples);
 
+
     /** Overrides implementation in GenericProcessor; used to change recording parameters
         on the fly.
 

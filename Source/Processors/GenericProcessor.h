@@ -583,7 +583,7 @@ private:
 
     /** Automatically extracts the number of samples in the buffer, then
     calls the process(), where custom actions take place.*/
-    void processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    virtual void processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
 
     /** The name of the processor.*/
     const String name;

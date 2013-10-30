@@ -403,7 +403,7 @@ int MidiMessage::getNoteNumber() const noexcept
 
 void MidiMessage::setNoteNumber (const int newNoteNumber) noexcept
 {
-    if (isNoteOnOrOff())
+   // if (isNoteOnOrOff())
         data[1] = (uint8) (newNoteNumber & 127);
 }
 

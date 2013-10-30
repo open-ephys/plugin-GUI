@@ -678,25 +678,30 @@ void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, in
     //std::cout << "Received event!" << std::endl;
 
     const uint8* dataptr = event.getRawData();
-    uint64 samplePos = (uint64) samplePosition;
 
-    int64 eventTimestamp = timestamp + samplePos;
+    if (event.getNoteNumber() > 0) // processor ID > 0
+    {
+        uint64 samplePos = (uint64) samplePosition;
 
-    diskWriteLock.enter();
-    // write timestamp (for buffer only, not the actual event timestamp!!!!!)
-    fwrite(&eventTimestamp,							// ptr
-           8,   							// size of each element
-           1, 		  						// count
-           eventChannel->file);   			// ptr to FILE object
+        int64 eventTimestamp = timestamp + samplePos; // add the sample position to the buffer timestamp
 
-    fwrite(&samplePos,							// ptr
-           2,   							// size of each element
-           1, 		  						// count
-           eventChannel->file);   			// ptr to FILE object
+        diskWriteLock.enter();
 
-    // write 1st four bytes of event (type, nodeId, eventId, eventChannel)
-    fwrite(dataptr, 1, 4, eventChannel->file);
-    diskWriteLock.exit();
+        fwrite(&eventTimestamp,					// ptr
+               8,   							// size of each element
+               1, 		  						// count
+               eventChannel->file);   			// ptr to FILE object
+
+        fwrite(&samplePos,							// ptr
+               2,   							// size of each element
+               1, 		  						// count
+               eventChannel->file);   			// ptr to FILE object
+
+        // write 1st four bytes of event (type, nodeId, eventId, eventChannel)
+        fwrite(dataptr, 1, 4, eventChannel->file);
+
+        diskWriteLock.exit();
+    }
 
 }
 
@@ -719,8 +724,7 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
         //             (int) *(dataptr + 5) << " " <<
         //             (int) *(dataptr + 4) << std::endl;
 
-
-        memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
+        memcpy(&timestamp, dataptr + 4, 8); // remember to skip first five bytes
     }
 
 }

@@ -148,6 +148,22 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSa
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
 
+    // code for testing events:
+    // if (counter > 100)
+    // {
+    //     addEvent(events,    // MidiBuffer
+    //          TTL, // eventType
+    //          0,         // sampleNum
+    //          1,    // eventID
+    //          0      // eventChannel
+    //         );
+    //     counter = 0;
+    // } else {
+    //     counter++;
+
+    // }
+    
+
 
     int samplesNeeded = (int) float(buffer.getNumSamples()) * (getDefaultSampleRate()/44100.0f);
 
