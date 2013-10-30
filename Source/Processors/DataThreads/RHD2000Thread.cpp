@@ -637,6 +637,19 @@ double RHD2000Thread::setLowerBandwidth(double lower)
     return actualLowerBandwidth;
 }
 
+int RHD2000Thread::setNoiseSlicerLevel(int level)
+{
+    desiredNoiseSlicerLevel = level;
+    evalBoard->setAudioNoiseSuppress(desiredNoiseSlicerLevel);
+
+    // Level has been checked once before this and then is checked again in setAudioNoiseSuppress.
+    // This may be overkill - maybe API should change so that the final function returns the value?
+    actualNoiseSlicerLevel = level;
+    
+    return actualNoiseSlicerLevel;
+}
+
+
 bool RHD2000Thread::foundInputSource()
 {
 
@@ -1140,7 +1153,7 @@ bool RHD2000Thread::updateBuffer()
         if (audioOutputL >= 0)
         {
             evalBoard->enableDac(1, true);
-            evalBoard->selectDacDataChannel(1, audioOutputR);
+            evalBoard->selectDacDataChannel(1, audioOutputL);
         }
         else
         {

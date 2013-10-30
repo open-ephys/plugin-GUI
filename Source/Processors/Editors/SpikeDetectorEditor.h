@@ -27,71 +27,12 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
+#include "ElectrodeButtons.h"
 
 class TriangleButton;
 class UtilityButton;
 
-/**
 
-  Used to select individual electrodes within a multichannel electrode.
-
-  @see SpikeDetectorEditor.
-
-*/
-
-class ElectrodeButton : public Button
-{
-public:
-    ElectrodeButton(int chan_) : Button("Electrode"), chan(chan_)
-    {
-        setClickingTogglesState(true);
-        //setRadioGroupId(299);
-        setToggleState(true, false);
-    }
-    ~ElectrodeButton() {}
-
-    int getChannelNum()
-    {
-        return chan;
-    }
-    void setChannelNum(int i)
-    {
-        chan = i;
-    }
-
-
-private:
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-
-    int chan;
-};
-
-/**
-
-  Utility button for the SpikeDetectorEditor.
-
-  @see SpikeDetectorEditor
-
-*/
-
-class ElectrodeEditorButton : public Button
-{
-public:
-    ElectrodeEditorButton(const String& name_, Font font_) : Button("Electrode Editor"),
-        name(name_), font(font_)
-    {
-        if (name.equalsIgnoreCase("edit") || name.equalsIgnoreCase("monitor"))
-            setClickingTogglesState(true);
-    }
-    ~ElectrodeEditorButton() {}
-private:
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-
-    const String name;
-
-    Font font;
-
-};
 
 /**
 

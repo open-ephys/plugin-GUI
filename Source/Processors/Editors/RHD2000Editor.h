@@ -27,11 +27,12 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
 
-#include "SpikeDetectorEditor.h" // for ElectrodeButton
+#include "ElectrodeButtons.h" // for ElectrodeButton
 
 class HeadstageOptionsInterface;
 class SampleRateInterface;
 class BandwidthInterface;
+class AudioInterface;
 class RHD2000Thread;
 
 class UtilityButton;
@@ -71,6 +72,8 @@ private:
 
     ScopedPointer<SampleRateInterface> sampleRateInterface;
     ScopedPointer<BandwidthInterface> bandwidthInterface;
+
+    ScopedPointer<AudioInterface> audioInterface;
 
     ScopedPointer<UtilityButton> rescanButton;
     ScopedPointer<UtilityButton> adcButton;
@@ -173,7 +176,38 @@ private:
 
 };
 
-
+class AudioInterface : public Component,
+public Label::Listener
+{
+public:
+    AudioInterface(RHD2000Thread*, RHD2000Editor*);
+    ~AudioInterface();
+    
+    void paint(Graphics& g);
+    void labelTextChanged(Label* te);
+    
+    void setNoiseSlicerLevel(int value);
+    int getNoiseSlicerLevel();
+    //void setGain(double value);
+    //double getGain();
+    
+private:
+    
+    String name;
+    
+    String lastNoiseSlicerString;
+    String lastGainString;
+    
+    RHD2000Thread* board;
+    RHD2000Editor* editor;
+    
+    ScopedPointer<Label> noiseSlicerLevelSelection;
+    //ScopedPointer<Label> gainSelection;
+    
+    int actualNoiseSlicerLevel;
+    //double actualGain;
+    
+};
 
 
 #endif  // __RHD2000EDITOR_H_2AD3C591__

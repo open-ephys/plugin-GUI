@@ -28,7 +28,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "GenericEditor.h"
-#include "SpikeDetectorEditor.h"
+#include "ElectrodeButtons.h"
 
 class DetectorInterface;
 class PhaseDetector;

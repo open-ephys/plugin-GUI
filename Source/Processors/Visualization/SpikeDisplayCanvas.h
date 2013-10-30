@@ -58,6 +58,7 @@ class ProjectionAxes;
 class WaveAxes;
 class SpikePlot;
 class RecordNode;
+class SpikeThresholdCoordinator;
 
 /**
 
@@ -113,6 +114,9 @@ private:
 
     int scrollBarThickness;
 
+	ScopedPointer<SpikeThresholdCoordinator> thresholdCoordinator;
+	ScopedPointer<UtilityButton> lockThresholdsButton;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayCanvas);
 
 };
@@ -140,6 +144,8 @@ public:
         return totalHeight;
     }
 
+	void registerThresholdCoordinator(SpikeThresholdCoordinator *stc);
+
 private:
 
     //void computeColumnLayout();
@@ -157,6 +163,8 @@ private:
 
     // float tetrodePlotMinWidth, stereotrodePlotMinWidth, singleElectrodePlotMinWidth;
     // float tetrodePlotRatio, stereotrodePlotRatio, singleElectrodePlotRatio;
+
+	SpikeThresholdCoordinator *thresholdCoordinator;
 
 };
 
@@ -203,6 +211,10 @@ public:
     float getDisplayThresholdForChannel(int);
     void setDetectorThresholdForChannel(int, float);
 
+	//For locking the tresholds
+	void registerThresholdCoordinator(SpikeThresholdCoordinator *stc);
+	void setAllThresholds(float displayThreshold, float range);
+
 private:
 
     int plotType;
@@ -226,7 +238,7 @@ private:
 
     Font font;
 
-    
+	WeakReference<SpikeThresholdCoordinator> thresholdCoordinator;
 
 };
 
@@ -315,6 +327,10 @@ public:
 
     //MouseCursor getMouseCursor();
 
+	//For locking the thresholds
+	void registerThresholdCoordinator(SpikeThresholdCoordinator *stc);
+	void setDisplaythreshold(float threshold);
+
 private:
 
     Colour waveColour;
@@ -345,6 +361,7 @@ private:
     bool isDraggingThresholdSlider;
 
     MouseCursor::StandardCursorType cursorType;
+	SpikeThresholdCoordinator *thresholdCoordinator;
 
 };
 
@@ -396,6 +413,27 @@ private:
 
 };
 
+class SpikeThresholdCoordinator
+{
+public:
+	SpikeThresholdCoordinator();
+	~SpikeThresholdCoordinator();
+
+	void registerSpikePlot(SpikePlot *sp);
+	void unregisterSpikePlot(SpikePlot *sp);
+	void setLockThresholds(bool en);
+	bool getLockThresholds();
+
+	void thresholdChanged(float displayThreshold, float range);
+
+private:
+	bool lockThresholds;
+	Array<SpikePlot*> registeredPlots;
+
+	WeakReference<SpikeThresholdCoordinator>::Master masterReference;
+	friend class WeakReference<SpikeThresholdCoordinator>;
+	
+};
 
 
 #endif  // SPIKEDISPLAYCANVAS_H_

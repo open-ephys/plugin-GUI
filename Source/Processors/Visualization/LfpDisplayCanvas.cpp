@@ -82,6 +82,12 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     spreads.add("50");
     spreads.add("60");
 
+    colorGroupings.add("1");
+    colorGroupings.add("2");
+    colorGroupings.add("4");
+    colorGroupings.add("8");
+    colorGroupings.add("16");
+
 
     rangeSelection = new ComboBox("Voltage range");
     rangeSelection->addItemList(voltageRanges, 1);
@@ -101,6 +107,12 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     spreadSelection->setSelectedId(5,false);
     spreadSelection->addListener(this);
     addAndMakeVisible(spreadSelection);
+
+    colorGroupingSelection = new ComboBox("Color Grouping");
+    colorGroupingSelection->addItemList(colorGroupings, 1);
+    colorGroupingSelection->setSelectedId(1,false);
+    colorGroupingSelection->addListener(this);
+    addAndMakeVisible(colorGroupingSelection);
 
 
     lfpDisplay->setNumChannels(nChans);
@@ -140,6 +152,8 @@ void LfpDisplayCanvas::resized()
     rangeSelection->setBounds(5,getHeight()-30,100,25);
     timebaseSelection->setBounds(175,getHeight()-30,100,25);
     spreadSelection->setBounds(345,getHeight()-30,100,25);
+    colorGroupingSelection->setBounds(620,getHeight()-30,100,25);
+
 
     for (int i = 0; i < 8; i++)
     {
@@ -220,11 +234,16 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
         resized();
         //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
+    else if (cb == colorGroupingSelection)
+    {
+        // set color grouping hre
+
+        lfpDisplay->setColorGrouping(colorGroupings[cb->getSelectedId()-1].getIntValue());// so that channel colors get re-assigned 
+
+    }
 
     timescale->setTimebase(timebase);
 }
-
-
 
 
 int LfpDisplayCanvas::getChannelHeight()
@@ -424,8 +443,10 @@ void LfpDisplayCanvas::paint(Graphics& g)
     g.drawText("Voltage range (uV)",5,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Timebase (s)",175,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Spread (px)",345,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Color grouping",620,getHeight()-55,300,20,Justification::left, false);
+    
 
-    g.drawText("Event display",500,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Event disp.",500,getHeight()-55,300,20,Justification::left, false);
 
 
 
@@ -450,6 +471,8 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
     xmlNode->setAttribute("Range",rangeSelection->getSelectedId());
     xmlNode->setAttribute("Timebase",timebaseSelection->getSelectedId());
     xmlNode->setAttribute("Spread",spreadSelection->getSelectedId());
+    xmlNode->setAttribute("colorGrouping",colorGroupingSelection->getSelectedId());
+    
 
     int eventButtonState = 0;
 
@@ -491,6 +514,11 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
             rangeSelection->setSelectedId(xmlNode->getIntAttribute("Range"));
             timebaseSelection->setSelectedId(xmlNode->getIntAttribute("Timebase"));
             spreadSelection->setSelectedId(xmlNode->getIntAttribute("Spread"));
+            if (xmlNode->hasAttribute("colorGrouping")) {
+                colorGroupingSelection->setSelectedId(xmlNode->getIntAttribute("colorGrouping"));
+            } else {
+                colorGroupingSelection->setSelectedId(1);
+            }
 
             viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
                                       xmlNode->getIntAttribute("ScrollY"));
@@ -585,6 +613,7 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
 {
 
     totalHeight = 0;
+    colorGrouping=1;
 
     addMouseListener(this, true);
 
@@ -620,9 +649,24 @@ LfpDisplay::~LfpDisplay()
 }
 
 
+
 int LfpDisplay::getNumChannels()
 {
     return numChans;
+}
+
+
+
+int LfpDisplay::getColorGrouping()
+{
+    return colorGrouping;
+}
+
+void LfpDisplay::setColorGrouping(int i)
+{
+    colorGrouping=i;
+    setColors(); // so that channel colors get re-assigned 
+    
 }
 
 
@@ -644,7 +688,7 @@ void LfpDisplay::setNumChannels(int numChannels)
 
         LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvas, this, i);
 
-        lfpChan->setColour(channelColours[i % channelColours.size()]);
+        //lfpChan->setColour(channelColours[i % channelColours.size()]);
         lfpChan->setRange(range);
         lfpChan->setChannelHeight(canvas->getChannelHeight());
 
@@ -654,7 +698,7 @@ void LfpDisplay::setNumChannels(int numChannels)
 
         LfpChannelDisplayInfo* lfpInfo = new LfpChannelDisplayInfo(canvas, this, i);
 
-        lfpInfo->setColour(channelColours[i % channelColours.size()]);
+        //lfpInfo->setColour(channelColours[i % channelColours.size()]);
         lfpInfo->setRange(range);
         lfpInfo->setChannelHeight(canvas->getChannelHeight());
 
@@ -666,6 +710,8 @@ void LfpDisplay::setNumChannels(int numChannels)
 
     }
 
+    setColors();
+
     //std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
 
     // // this doesn't seem to do anything:
@@ -673,6 +719,18 @@ void LfpDisplay::setNumChannels(int numChannels)
     //refresh();
 
 }
+
+void LfpDisplay::setColors()
+{
+   for (int i = 0; i < numChans; i++)
+    {
+
+        channels[i]->setColour(channelColours[(int(i/colorGrouping)+1) % channelColours.size()]);        
+        channelInfo[i]->setColour(channelColours[(int(i/colorGrouping)+1)  % channelColours.size()]);
+    }
+
+}
+
 
 int LfpDisplay::getTotalHeight()
 {

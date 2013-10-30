@@ -30,6 +30,8 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
 
     viewport = new Viewport();
     spikeDisplay = new SpikeDisplay(this, viewport);
+	thresholdCoordinator = new SpikeThresholdCoordinator();
+	spikeDisplay->registerThresholdCoordinator(thresholdCoordinator);
 
     viewport->setViewedComponent(spikeDisplay, false);
     viewport->setScrollBarsShown(true, false);
@@ -40,6 +42,12 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
     clearButton->setRadius(3.0f);
     clearButton->addListener(this);
     addAndMakeVisible(clearButton);
+
+	lockThresholdsButton = new UtilityButton("Lock Thresholds", Font("Small Text", 13, Font::plain));
+	lockThresholdsButton->setRadius(3.0f);
+	lockThresholdsButton->addListener(this);
+	lockThresholdsButton->setClickingTogglesState(true);
+	addAndMakeVisible(lockThresholdsButton);
 
     addAndMakeVisible(viewport);
 
@@ -103,6 +111,8 @@ void SpikeDisplayCanvas::resized()
 
     clearButton->setBounds(10, getHeight()-40, 100,20);
 
+	lockThresholdsButton->setBounds(130, getHeight()-40, 130,20);
+
 }
 
 void SpikeDisplayCanvas::paint(Graphics& g)
@@ -151,6 +161,10 @@ void SpikeDisplayCanvas::buttonClicked(Button* button)
     {
         spikeDisplay->clear();
     }
+	else if (button == lockThresholdsButton)
+	{
+		thresholdCoordinator->setLockThresholds(button->getToggleState());
+	}
 }
 
 
@@ -158,7 +172,7 @@ void SpikeDisplayCanvas::buttonClicked(Button* button)
 // ----------------------------------------------------------------
 
 SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
-    canvas(sdc), viewport(v)
+	canvas(sdc), viewport(v), thresholdCoordinator(nullptr)
 {
 
     totalHeight = 1000;
@@ -197,6 +211,10 @@ SpikePlot* SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum, String 
     SpikePlot* spikePlot = new SpikePlot(canvas, electrodeNum, 1000 + numChannels, name_);
     spikePlots.add(spikePlot);
     addAndMakeVisible(spikePlot);
+	if (thresholdCoordinator)
+	{
+		spikePlot->registerThresholdCoordinator(thresholdCoordinator);
+	}
 
     return spikePlot;
 }
@@ -322,12 +340,20 @@ void SpikeDisplay::plotSpike(const SpikeObject& spike, int electrodeNum)
     spikePlots[electrodeNum]->processSpikeObject(spike);
 }
 
+void SpikeDisplay::registerThresholdCoordinator(SpikeThresholdCoordinator *stc)
+{
+	thresholdCoordinator = stc;
+	for (int i=0; i < spikePlots.size(); i++)
+	{
+		spikePlots[i]->registerThresholdCoordinator(stc);
+	}
+}
 
 // ----------------------------------------------------------------
 
 SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) :
     canvas(sdc), isSelected(false), electrodeNumber(elecNum),  plotType(p),
-    limitsChanged(true), name(name_)
+	limitsChanged(true), name(name_)
 
 {
 
@@ -388,7 +414,10 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) 
 
 SpikePlot::~SpikePlot()
 {
-
+	if (thresholdCoordinator)
+	{
+		thresholdCoordinator->unregisterSpikePlot(this);
+	}
 }
 
 void SpikePlot::paint(Graphics& g)
@@ -615,6 +644,45 @@ void SpikePlot::setDetectorThresholdForChannel(int i, float t)
     wAxes[i]->setDetectorThreshold(t);
 }
 
+void SpikePlot::registerThresholdCoordinator(SpikeThresholdCoordinator *stc)
+{
+	thresholdCoordinator = stc;
+	stc->registerSpikePlot(this);
+	for (int i=0; i < wAxes.size(); i++)
+	{
+		wAxes[i]->registerThresholdCoordinator(stc);
+	}
+}
+
+void SpikePlot::setAllThresholds(float displayThreshold, float range)
+{
+	String label;
+	for (int i=0; i< nWaveAx; i++)
+	{
+		ranges.set(i,range);
+		wAxes[i]->setDisplaythreshold(displayThreshold);
+	}
+	
+	if (range == 100)
+	{
+		label = "100";
+	}
+	else if (range == 250)
+	{
+		label = "250";
+	}
+	else
+	{
+		label = "500";
+	}
+	
+	for(int i=0; i < rangeButtons.size(); i++)
+	{
+		rangeButtons[i]->setLabel(label);
+	}
+
+	setLimitsOnAxes();
+}
 
 // --------------------------------------------------
 
@@ -628,7 +696,8 @@ WaveAxes::WaveAxes(int channel) : GenericAxes(channel),
     bufferSize(5),
     range(250.0f),
     isOverThresholdSlider(false),
-    isDraggingThresholdSlider(false)
+    isDraggingThresholdSlider(false),
+	thresholdCoordinator(nullptr)
     
 {
 
@@ -898,7 +967,12 @@ void WaveAxes::mouseDrag(const MouseEvent& event)
 
         //std::cout << "Threshold = " << thresholdLevel << std::endl;
 
-        repaint();
+		if (thresholdCoordinator)
+		{
+			thresholdCoordinator->thresholdChanged(displayThresholdLevel,range);
+		}
+
+		repaint();
     }
 }
 
@@ -927,6 +1001,18 @@ float WaveAxes::getDisplayThreshold()
 void WaveAxes::setDetectorThreshold(float t)
 {
     detectorThresholdLevel = t;
+}
+
+void WaveAxes::registerThresholdCoordinator(SpikeThresholdCoordinator *stc)
+{
+	thresholdCoordinator = stc;
+}
+
+void WaveAxes::setDisplaythreshold(float threshold)
+{
+	displayThresholdLevel = threshold;
+	
+	repaint();
 }
 
 // --------------------------------------------------
@@ -1187,4 +1273,42 @@ double GenericAxes::ad16ToUv(int x, int gain)
 {
     int result = (double)(x * 20e6) / (double)(gain * pow(2.0,16));
     return result;
+}
+
+SpikeThresholdCoordinator::SpikeThresholdCoordinator() : lockThresholds(false) {}
+
+SpikeThresholdCoordinator::~SpikeThresholdCoordinator()
+{
+	masterReference.clear();
+}
+
+void SpikeThresholdCoordinator::registerSpikePlot(SpikePlot *sp)
+{
+	registeredPlots.addIfNotAlreadyThere(sp);
+}
+
+void SpikeThresholdCoordinator::unregisterSpikePlot(SpikePlot *sp)
+{
+	registeredPlots.removeAllInstancesOf(sp);
+}
+
+void SpikeThresholdCoordinator::setLockThresholds(bool en)
+{
+	lockThresholds = en;
+}
+
+bool SpikeThresholdCoordinator::getLockThresholds()
+{
+	return lockThresholds;
+}
+
+void SpikeThresholdCoordinator::thresholdChanged(float displayThreshold, float range)
+{
+	if (lockThresholds)
+	{
+		for (int i = 0; i < registeredPlots.size(); i++)
+		{
+			registeredPlots[i]->setAllThresholds(displayThreshold,range);
+		}
+	}
 }

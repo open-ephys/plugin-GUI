@@ -143,11 +143,14 @@ void EditorViewport::paint(Graphics& g)
 
 bool EditorViewport::isInterestedInDragSource(const SourceDetails& dragSourceDetails)
 {
-
     if (canEdit && dragSourceDetails.description.toString().startsWith("Processors"))
     {
         return false;
     }
+	else if (dragSourceDetails.description.toString().startsWith("EditorDrag"))
+	{
+		return false;
+	}
     else
     {
         return true;
