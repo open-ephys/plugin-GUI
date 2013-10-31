@@ -381,32 +381,31 @@ int GenericProcessor::getNumSamples(MidiBuffer& events)
     {
 
         // int m = events.getNumEvents();
-
         //std::cout << getName() << " received " << m << " events." << std::endl;
 
         MidiBuffer::Iterator i(events);
-        //MidiMessage message(0xf4);
+
         const uint8* dataptr;
         int dataSize;
 
         int samplePosition = -5;
 
-        while (i.getNextEvent(dataptr, dataSize, samplePosition))//(i.getNextEvent(message, samplePosition))
+        while (i.getNextEvent(dataptr, dataSize, samplePosition))
         {
-            //const uint8* dataptr = message.getRawData();
 
             if (*dataptr == BUFFER_SIZE)
             {
+                
                 numRead = samplePosition;
-                //numRead = message.getTimeStamp();
-            } else if (*dataptr == TTL && getNodeId() < 900) // not a specialized processor
-            {
-                // this is dangerous, but probably necessary:
-                uint8* ptr = const_cast<uint8*>(dataptr);
-                *(ptr + 1) = 0; // set second byte of raw data to 0
 
-                //message.setNoteNumber(0); // changes second byte to 0
-                //std::cout << "Processor " << getNodeId() << " setting processor id to " << message.getNoteNumber() << std::endl;
+            } else if (*dataptr == TTL &&    // a TTL event
+                        getNodeId() < 900 && // not handled by a specialized processor (e.g. AudioNode))
+                        *(dataptr+1) > 0)    // that's flagged for saving
+            {
+                // changing the const cast is dangerous, but probably necessary:
+                uint8* ptr = const_cast<uint8*>(dataptr);
+                *(ptr + 1) = 0; // set second byte of raw data to 0, so the event
+                                // won't be saved twice
             }
         }
     }
