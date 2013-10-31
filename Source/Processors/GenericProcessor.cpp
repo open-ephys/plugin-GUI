@@ -374,6 +374,14 @@ void GenericProcessor::disableEditor()
 
 int GenericProcessor::getNumSamples(MidiBuffer& events)
 {
+    //
+    // This loops through all events in the buffer, and uses the BUFFER_SIZE
+    // events to determine the number of samples in the current buffer. If
+    // there are multiple such events, the one with the highest number of 
+    // samples will be used.
+    // This approach is not ideal, as it will become a problem if we allow
+    // the sample rate to change at different points in the signal chain.
+    //
 
     int numRead = 0;
 
@@ -415,6 +423,17 @@ int GenericProcessor::getNumSamples(MidiBuffer& events)
 
 void GenericProcessor::setNumSamples(MidiBuffer& events, int sampleIndex)
 {
+    //
+    // This amounts to adding a "buffer size" flag at a particular sample number,
+    // and a new flag is added each time "setNumSamples" is called.
+    // Thus, if the number of samples changes somewhere in the processing pipeline,
+    // the old sample number will remain. This is a problem if the number of 
+    // samples gets smaller.
+    // If we allow the sample rate to change (e.g., with a resampling node),
+    // this code will have to be updated. The easiest approach will be for each
+    // processor to ignore any buffer size events that don't come from its 
+    // immediate source.
+    //
 
     uint8 data[2];
 
