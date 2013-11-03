@@ -27,7 +27,11 @@ SelectorButton::SelectorButton(const String& name_)
     : Button(name_)
 {
     setClickingTogglesState(true);
-    setTooltip("Toggle a state.");
+
+    if (getName().equalsIgnoreCase("window"))
+        setTooltip("Open this visualizer in its own window");
+    else
+        setTooltip("Open this visualizer in a tab");
 
 }
 
