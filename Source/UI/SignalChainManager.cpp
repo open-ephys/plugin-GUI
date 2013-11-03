@@ -188,12 +188,26 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
 
         GenericProcessor* p = (GenericProcessor*) editorArray[index]->getProcessor();
 
-        // need to inform the other source that its merger has disappeared
+        // if the processor to be removed is a merger,
+        // we need to inform the other source that its merger has disappeared
         if (p->isMerger())
         {
             p->switchIO();
             if (p->getSourceNode() != 0)
                 p->getSourceNode()->setDestNode(0);
+        }
+
+        // if the processor to be removed is a splitter, we need to make sure 
+        // there aren't any orphaned processors
+        if (p->isSplitter())
+        {
+            p->switchIO();
+            if (p->getDestNode() != 0)
+            {
+                std::cout << "Found an orphaned signal chain" << std::endl;
+                p->getDestNode()->setSourceNode(0);
+                createNewTab(p->getDestNode()->getEditor());
+            }
         }
 
         editorArray.remove(index);
