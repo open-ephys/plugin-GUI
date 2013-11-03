@@ -361,7 +361,7 @@ void GenericEditor::timerCallback()
 void GenericEditor::buttonClicked(Button* button)
 {
 
-    std::cout << "Button clicked." << std::endl;
+   // std::cout << "Button clicked." << std::endl;
 
     checkDrawerButton(button);
 
