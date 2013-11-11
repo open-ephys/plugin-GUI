@@ -850,6 +850,11 @@ void RHD2000Thread::setSampleRate(int sampleRateIndex, bool isTemporary)
 
 void RHD2000Thread::updateRegisters()
 {
+
+	if (!deviceFound) //Safety to avoid crashes loading a chain with Rythm node withouth a board
+	{
+		return;
+	}
     // Set up an RHD2000 register object using this sample rate to
     // optimize MUX-related register settings.
     chipRegisters.defineSampleRate(boardSampleRate);
