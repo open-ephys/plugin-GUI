@@ -293,6 +293,10 @@ void RHD2000Thread::initializeBoard()
 
 void RHD2000Thread::scanPorts()
 {
+	if (!deviceFound) //Safety to avoid crashes if board not present
+	{
+		return;
+	}
     // Scan SPI ports
 
     int delay, stream, id;
