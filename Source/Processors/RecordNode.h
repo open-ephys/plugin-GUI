@@ -160,8 +160,11 @@ private:
     */
     int64 timestamp;
 
-    /** Integer to keep track of the number samples written in each buffer */
-    int sampleCount;
+    /** Integer to keep track of the number samples written in each block */
+    int blockIndex;
+
+    /** Integer to keep track of number of blocks written */
+    uint64 blockCount;
 
     /** Used to generate timestamps if none are given.
     */

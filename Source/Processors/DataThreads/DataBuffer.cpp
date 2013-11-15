@@ -37,6 +37,7 @@ DataBuffer::~DataBuffer() {}
 void DataBuffer::clear()
 {
     buffer.clear();
+    abstractFifo.reset();
 }
 
 void DataBuffer::resize(int chans, int size)

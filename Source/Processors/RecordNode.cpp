@@ -36,7 +36,7 @@ RecordNode::RecordNode()
 
     isProcessing = false;
     isRecording = false;
-    sampleCount = 0;
+    blockIndex = 0;
     signalFilesShouldClose = false;
 
     continuousDataIntegerBuffer = new int16[10000];
@@ -55,6 +55,8 @@ RecordNode::RecordNode()
         recordMarker[i] = i;
     }
     recordMarker[9] = 255;
+
+    blockCount = 0;
 
     // 128 inputs, 0 outputs
     setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
@@ -360,12 +362,13 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
         
         openFile(eventChannel);
 
-        sampleCount = 0; // reset sample count
+        blockIndex = 0; // reset index
+        blockCount = 0; // reset block count
 
         // create / open necessary files
         for (int i = 0; i < channelPointers.size(); i++)
         {
-            std::cout << "Checking channel " << i << std::endl;
+           // std::cout << "Checking channel " << i << std::endl;
 
             if (channelPointers[i]->getRecordState())
             {
@@ -407,10 +410,10 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
                 if (isRecording)
                 {
 
-                    if (sampleCount < BLOCK_LENGTH)
+                    if (blockIndex < BLOCK_LENGTH)
                     {
                         // fill out the rest of the current buffer
-                        writeContinuousBuffer(zeroBuffer.getSampleData(0), BLOCK_LENGTH - sampleCount, currentChannel);
+                        writeContinuousBuffer(zeroBuffer.getSampleData(0), BLOCK_LENGTH - blockIndex, currentChannel);
                     }
 
                     closeFile(channelPointers[currentChannel]);
@@ -426,11 +429,11 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 
                     openFile(channelPointers[currentChannel]);
 
-                    if (sampleCount > 0)
+                    if (blockIndex > 0)
                     {
                         writeTimestampAndSampleCount(channelPointers[currentChannel]->file);
                         // fill up the first data block up to sample count
-                        writeContinuousBuffer(zeroBuffer.getSampleData(0), sampleCount, currentChannel);
+                        writeContinuousBuffer(zeroBuffer.getSampleData(0), blockIndex, currentChannel);
                     }
 
                 }
@@ -524,23 +527,22 @@ String RecordNode::generateHeader(Channel* ch)
     {
 
         header += "header.channelType = 'Event';\n";
-
     }
     else
     {
-
         header += "header.channelType = 'Continuous';\n";
     }
 
     header += "header.sampleRate = ";
-    header += String(channelPointers[0]->sampleRate); // all channels need to have the
-    // same sample rate under the current
-    // scheme
+    // all channels need to have the same sample rate under the current scheme
+    header += String(channelPointers[0]->sampleRate); 
     header += ";\n";
     header += "header.blockLength = ";
     header += BLOCK_LENGTH;
     header += ";\n";
-
+    header += "header.bufferSize = ";
+    header += getAudioComponent()->getBufferSize();
+    header += ";\n";
     header += "header.bitVolts = ";
     header += String(ch->bitVolts);
     header += ";\n";
@@ -561,10 +563,10 @@ void RecordNode::closeAllFiles()
         if (channelPointers[i]->getRecordState())
         {
 
-            if (sampleCount < BLOCK_LENGTH)
+            if (blockIndex < BLOCK_LENGTH)
             {
                 // fill out the rest of the current buffer
-                writeContinuousBuffer(zeroBuffer.getSampleData(0), BLOCK_LENGTH - sampleCount, i);
+                writeContinuousBuffer(zeroBuffer.getSampleData(0), BLOCK_LENGTH - blockIndex, i);
             }
 
             closeFile(channelPointers[i]);
@@ -572,12 +574,12 @@ void RecordNode::closeAllFiles()
     }
 
     closeFile(eventChannel);
+
+    blockIndex = 0; // back to the beginning of the block
 }
 
 bool RecordNode::enable()
 {
-
-    //updateFileName(eventChannel);
 
     isProcessing = true;
     return true;
@@ -614,25 +616,23 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
     }
     AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
 
-    //
-    //int16 samps = (int16) nSamples;
-
-    if (sampleCount == 0)
+    if (blockIndex == 0)
     {
         writeTimestampAndSampleCount(channelPointers[channel]->file);
     }
 
     diskWriteLock.enter();
-    // FIXME: ensure fwrite returns equal "count"; otherwise,
-    // there was an error.
-    fwrite(continuousDataIntegerBuffer,     // ptr
-           2,                               // size of each element
-           nSamples,                        // count
-           channelPointers[channel]->file); // ptr to FILE object
+
+    size_t count = fwrite(continuousDataIntegerBuffer, // ptr
+                   2,                               // size of each element
+                   nSamples,                        // count
+                   channelPointers[channel]->file); // ptr to FILE object
+
+    jassert(count == nSamples); // make sure all the data was written
 
     diskWriteLock.exit();
     
-    if (sampleCount + nSamples == BLOCK_LENGTH)
+    if (blockIndex + nSamples == BLOCK_LENGTH)
     {
         writeRecordMarker(channelPointers[channel]->file);
     }
@@ -641,6 +641,7 @@ void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
 
 void RecordNode::writeTimestampAndSampleCount(FILE* file)
 {
+
 
     diskWriteLock.enter();
     
@@ -657,6 +658,7 @@ void RecordNode::writeTimestampAndSampleCount(FILE* file)
            file); // ptr to FILE object
 
     diskWriteLock.exit();
+
 }
 
 void RecordNode::writeRecordMarker(FILE* file)
@@ -670,12 +672,13 @@ void RecordNode::writeRecordMarker(FILE* file)
            file);               // ptr to FILE object
 
     diskWriteLock.exit();
+
 }
 
 void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, int node, int channel)
 {
     // find file and write samples to disk
-    //std::cout << "Received event!" << std::endl;
+    // std::cout << "Received event!" << std::endl;
 
     const uint8* dataptr = event.getRawData();
 
@@ -715,6 +718,7 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
     {
         const uint8* dataptr = event.getRawData();
 
+        // // double-check buffer contents:s
         // std::cout << (int) *(dataptr + 11) << " " <<
         //             (int) *(dataptr + 10) << " " <<
         //             (int) *(dataptr + 9) << " " <<
@@ -724,7 +728,7 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
         //             (int) *(dataptr + 5) << " " <<
         //             (int) *(dataptr + 4) << std::endl;
 
-        memcpy(&timestamp, dataptr + 4, 8); // remember to skip first five bytes
+        memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
     }
 
 }
@@ -734,34 +738,34 @@ void RecordNode::process(AudioSampleBuffer& buffer,
                          int& nSamples)
 {
 
-    //std::cout << "Record node processing block." << std::endl;
-    //std::cout << "Num channels: " << buffer.getNumChannels() << std::endl;
+    // TERMINOLOGY:
+    // buffer -- incoming data stored in AudioSampleBuffer (nSamples long)
+    // block -- 1024-sample sequence for disk writing (BLOCK_LENGTH long)
+    // samplesWritten -- number of samples written from the current buffer
+    // blockIndex -- index within the current block (used outside this function)
+    // numSamplesToWrite -- number of unwritten samples from the buffer
 
+    // CONSTRAINTS:
+    // samplesWritten must equal nSamples by the end of the process() method
 
     if (isRecording)
     {
 
-        //timestamp = timer.getHighResolutionTicks();
-
-        // WHY IS THIS AFFECTING THE LFP DISPLAY?
-        //buffer.applyGain(0, nSamples, 5.2438f);
-
-        // cycle through events -- extract the TTLs and the timestamps
+        // FIRST: cycle through events -- extract the TTLs and the timestamps
         checkForEvents(events);
 
-        // cycle through buffer channels
-
+        // SECOND: cycle through buffer channels
         int samplesWritten = 0;
 
         if (channelPointers.size() > 0)
         {
 
-            while (samplesWritten < nSamples)
+            while (samplesWritten < nSamples) // there are still unwritten samples in the buffer
             {
 
-                int numSamplesToWrite = nSamples - samplesWritten;
+                int numSamplesToWrite = nSamples - samplesWritten; // samples remaining in the buffer
 
-                if (sampleCount + numSamplesToWrite < BLOCK_LENGTH)
+                if (blockIndex + numSamplesToWrite < BLOCK_LENGTH) // we still have space in this block
                 {
 
                     for (int i = 0; i < buffer.getNumChannels(); i++)
@@ -774,18 +778,19 @@ void RecordNode::process(AudioSampleBuffer& buffer,
                                                   numSamplesToWrite,
                                                   i);
 
-                            //std::cout << "Record channel " << i << std::endl;
                         }
                     }
 
+                    // update our variables
                     samplesWritten += numSamplesToWrite;
-                    sampleCount += numSamplesToWrite;
+                    timestamp += numSamplesToWrite;
+                    blockIndex += numSamplesToWrite;
 
                 }
-                else
+                else // there's not enough space left in this block for all remaining samples
                 {
 
-                    numSamplesToWrite = BLOCK_LENGTH - sampleCount;
+                    numSamplesToWrite = BLOCK_LENGTH - blockIndex;
 
                     for (int i = 0; i < buffer.getNumChannels(); i++)
                     {
@@ -801,15 +806,16 @@ void RecordNode::process(AudioSampleBuffer& buffer,
                         }
                     }
 
-                    timestamp += numSamplesToWrite;
+                    // update our variables
                     samplesWritten += numSamplesToWrite;
-                    sampleCount = 0;
-
+                    timestamp += numSamplesToWrite;
+                    blockIndex = 0; // back to the beginning of the block
+                    
                 }
             }
         }
 
-        //  std::cout << nSamples << " " << samplesWritten << " " << sampleCount << std::endl;
+        //  std::cout << nSamples << " " << samplesWritten << " " << blockIndex << std::endl;
 
         return;
 

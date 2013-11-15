@@ -86,6 +86,13 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
 
         // automatically find connected headstages
         scanPorts(); // things would appear to run more smoothly if this were done after the editor has been created
+    
+        if (0)
+        {
+            evalBoard->setContinuousRunMode(true);
+            evalBoard->run();
+        }
+
     }
 
 }
@@ -974,10 +981,18 @@ bool RHD2000Thread::startAcquisition()
 
     //std::cout << "Setting max timestep." << std::endl;
     //evalBoard->setMaxTimeStep(100);
-    evalBoard->setContinuousRunMode(true);
+    
 
     std::cout << "Starting acquisition." << std::endl;
-    evalBoard->run();
+    if (1)
+    {
+       // evalBoard->setContinuousRunMode(false);
+      //  evalBoard->setMaxTimeStep(0);
+        std::cout << "Flushing FIFO." << std::endl;
+        evalBoard->flush();
+        evalBoard->setContinuousRunMode(true);
+        evalBoard->run();
+    }
 
     blockSize = dataBlock->calculateDataBlockSizeInWords(evalBoard->getNumEnabledDataStreams());
 
@@ -1010,14 +1025,22 @@ bool RHD2000Thread::stopAcquisition()
         std::cout << "Thread failed to exit, continuing anyway..." << std::endl;
     }
 
-    evalBoard->setContinuousRunMode(false);
-    evalBoard->setMaxTimeStep(0);
-    std::cout << "Flushing FIFO." << std::endl;
-    evalBoard->flush();
+    if (1)
+    {
+        evalBoard->setContinuousRunMode(false);
+        evalBoard->setMaxTimeStep(0);
+        std::cout << "Flushing FIFO." << std::endl;
+        evalBoard->flush();
+     //   evalBoard->setContinuousRunMode(true);
+     //   evalBoard->run();
+
+    }
+
+    dataBuffer->clear();
 
     cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
 
-    std::cout << "Stopped eval board." << std::endl;
+   // std::cout << "Stopped eval board." << std::endl;
 
 
     int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
@@ -1137,7 +1160,7 @@ bool RHD2000Thread::updateBuffer()
             // std::cout << channel << std::endl;
 
             timestamp = dataBlock->timeStamp[samp];
-            timestamp = timestamp;
+            //timestamp = timestamp;
             eventCode = dataBlock->ttlIn[samp];
 
             dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);

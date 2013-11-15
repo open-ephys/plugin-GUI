@@ -632,7 +632,8 @@ void ControlPanel::buttonClicked(Button* button)
             if (recordButton->getToggleState())
             {
                 recordButton->setToggleState(false,false);
-                newDirectoryButton->setEnabledState(true);
+                stopRecording();
+                //newDirectoryButton->setEnabledState(true);
             }
 
         }
