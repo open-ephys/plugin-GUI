@@ -118,6 +118,8 @@ private:
     File dataDirectory;
     uint8_t* spikeBuffer;
     SpikeObject currentSpike;
+
+    uint16 recordingNumber;
     
     CriticalSection* diskWriteLock;
 

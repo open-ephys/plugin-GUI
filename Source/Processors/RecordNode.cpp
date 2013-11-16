@@ -56,7 +56,7 @@ RecordNode::RecordNode()
     }
     recordMarker[9] = 255;
 
-    blockCount = 0;
+    recordingNumber = 0;
 
     // 128 inputs, 0 outputs
     setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
@@ -349,7 +349,14 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
         std::cout << "START RECORDING." << std::endl;
 
         if (newDirectoryNeeded)
+        {
             createNewDirectory();
+            recordingNumber = 0;
+        }
+        else
+        {
+            recordingNumber++; // increment recording number within this directory
+        }
 
         if (!rootFolder.exists())
         {
@@ -363,7 +370,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
         openFile(eventChannel);
 
         blockIndex = 0; // reset index
-        blockCount = 0; // reset block count
+
 
         // create / open necessary files
         for (int i = 0; i < channelPointers.size(); i++)
@@ -499,19 +506,19 @@ String RecordNode::generateHeader(Channel* ch)
 
     String header = "header.format = 'Open Ephys Data Format'; \n";
 
-    header += "header.version = 0.1;";
+    header += "header.version = 0.2;";
     header += "header.header_bytes = ";
     header += String(HEADER_SIZE);
     header += ";\n";
 
     if (ch->isEventChannel)
     {
-        header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample position, one uint8 event type, one uint8 processor ID, one uint8 event ID, and one uint8 event channel'; \n";
+        header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample position, one uint8 event type, one uint8 processor ID, one uint8 event ID, one uint8 event channel, and one uint16 recordingNumber'; \n";
 
     }
     else
     {
-        header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample count (N), N 16-bit samples, and one 10-byte record marker (0 1 2 3 4 5 6 7 8 255)'; \n";
+        header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample count (N), 1 uint16 recordingNumber, N 16-bit samples, and one 10-byte record marker (0 1 2 3 4 5 6 7 8 255)'; \n";
     }
 
 
@@ -657,6 +664,11 @@ void RecordNode::writeTimestampAndSampleCount(FILE* file)
            1,                               // count
            file); // ptr to FILE object
 
+    fwrite(&recordingNumber,                         // ptr
+           2,                               // size of each element
+           1,                               // count
+           file); // ptr to FILE object
+
     diskWriteLock.exit();
 
 }
@@ -702,6 +714,12 @@ void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, in
 
         // write 1st four bytes of event (type, nodeId, eventId, eventChannel)
         fwrite(dataptr, 1, 4, eventChannel->file);
+
+        // write recording number
+        fwrite(&recordingNumber,                     // ptr
+           2,                               // size of each element
+           1,                               // count
+           eventChannel->file);             // ptr to FILE object
 
         diskWriteLock.exit();
     }

@@ -37,6 +37,8 @@ SpikeDisplayNode::SpikeDisplayNode()
 
     spikeBuffer = new uint8_t[MAX_SPIKE_BUFFER_LEN]; // MAX_SPIKE_BUFFER_LEN defined in SpikeObject.h
 
+    recordingNumber = -1;
+
 }
 
 SpikeDisplayNode::~SpikeDisplayNode()
@@ -189,6 +191,7 @@ void SpikeDisplayNode::setParameter(int param, float val)
         {
             openFile(i);
         }
+
     } else if (param == 2) // redraw
     {
         redrawRequested = true;
@@ -347,6 +350,12 @@ void SpikeDisplayNode::openFile(int i)
     if (!fileToUse.exists())
     {
         // open it and write header
+
+        if (i == 0)
+        {
+            recordingNumber = 0;
+        }
+
         file = fopen(filename.toUTF8(), "ab");
         String header = generateHeader(i);
         fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), file);
@@ -355,6 +364,11 @@ void SpikeDisplayNode::openFile(int i)
     else
     {
         // append it
+         if (i == 0)
+        {
+            recordingNumber++;
+        }
+
         file = fopen(filename.toUTF8(), "ab");
     }
     
@@ -407,6 +421,11 @@ void SpikeDisplayNode::writeSpike(const SpikeObject& s, int i)
 
     fwrite(spikeBuffer, 1, totalBytes, electrodes[i].file);
     
+    fwrite(&recordingNumber,                         // ptr
+       2,                               // size of each element
+       1,                               // count
+       electrodes[i].file); // ptr to FILE object
+
     diskWriteLock->exit();
 
 
@@ -414,13 +433,13 @@ void SpikeDisplayNode::writeSpike(const SpikeObject& s, int i)
 
 String SpikeDisplayNode::generateHeader(int electrodeNum)
 {
-    String header = "header.format = 'OPEN EPHYS DATA FORMAT v0.0'; \n";
-
+    String header = "header.format = 'Open Ephys Data Format'; \n";
+    header += "header.version = 0.2;";
     header += "header.header_bytes = ";
     header += String(HEADER_SIZE);
     header += ";\n";
 
-    header += "header.description = 'Each record contains 1 uint8 eventType, 1 uint64 timestamp, 1 uint16 electrodeID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), n*m uint16 samples, n uint16 channelGains, and n uint16 thresholds'; \n";
+    header += "header.description = 'Each record contains 1 uint8 eventType, 1 uint64 timestamp, 1 uint16 electrodeID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), n*m uint16 samples, n uint16 channelGains, n uint16 thresholds, and 1 uint16 recordingNumber'; \n";
 
     header += "header.date_created = '";
     header += recordNode->generateDateString();
