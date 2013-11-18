@@ -114,12 +114,17 @@ public:
     
     void updateBufferSizeText();
 
+    void enable();
+    void disable();
+
 private:
 
     void buttonClicked(Button* button);
     void sliderValueChanged(Slider* slider);
 
     float lastValue;
+
+    bool isEnabled;
 
     MuteButton* muteButton;
     AudioWindowButton* audioWindowButton;

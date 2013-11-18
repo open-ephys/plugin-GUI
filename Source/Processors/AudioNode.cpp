@@ -26,7 +26,9 @@
 #include "Channel.h"
 
 AudioNode::AudioNode()
-    : GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f), overflowBuffer(2,10000)
+    : GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f), 
+    overflowBuffer(2,10000),
+    overflowOverflowBuffer(2,10000)
 {
 
     settings.numInputs = 2048;
@@ -43,7 +45,9 @@ AudioNode::AudioNode()
     //overflowBuffer.setSize(2, 10000); // 2 channels x 10000 samples
 
     numSamplesExpected = 1024;
-    overflowBufferIndex = 0;
+    overflowBufferEndIndex = 0;
+    overflowBufferStartIndex = 0;
+    overflowSamples = 0;
 
 }
 
@@ -184,6 +188,10 @@ void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 
     numSamplesExpected = (int) (getSampleRate()/sampleRate_*float(estimatedSamplesPerBlock)); 
     // processor sample rate divided by sound card sample rate
+
+    overflowBufferStartIndex = 0;
+    overflowBufferEndIndex = 0;
+    overflowSamples = 0;
 }
 
 void AudioNode::process(AudioSampleBuffer& buffer,
@@ -197,131 +205,193 @@ void AudioNode::process(AudioSampleBuffer& buffer,
     buffer.clear(0,0,buffer.getNumSamples());
     buffer.clear(1,0,buffer.getNumSamples());
 
-    int totalSamples = nSamples + overflowBufferIndex;
-    
+    if (overflowSamples > 1024)
+    {
+        std::cout << "Clearing overflow buffer!" << std::endl;
+        // just forget about it
+        overflowBuffer.clear();
+        overflowSamples = 0;
+    }
+
+    int totalAvailableSamples = nSamples + overflowSamples;
+    int leftoverSamples = 0;
+    int samplesFromOverflowBuffer = 0;
+    int remainingSamples = 0;
+
+   // jassert (sourceStartSample >= 0 && sourceStartSample + numSamples <= source.size);
+
     if (channelPointers.size() > 0)
     {
 
-        // fill the beginning of the buffer from the overflowBuffer
-        
-        buffer.addFrom(0,       // destination channel
-               0,           // destination start sample
-               overflowBuffer,      // source
-               0,           // source channel
-               0,           // source start sample
-               overflowBufferIndex, //  number of samples
-               1.0f       // gain to apply
-              );
+        // 2. now copy from the incoming buffer
 
-        buffer.addFrom(1,       // destination channel
-               0,           // destination start sample
-               overflowBuffer,      // source
-               1,           // source channel
-               0,           // source start sample
-               overflowBufferIndex, //  number of samples
-               1.0f       // gain to apply
-              );
+        bool copiedBuffer = false;
 
         for (int i = 2; i < buffer.getNumChannels(); i++)
         {
 
             if (channelPointers[i-2]->isMonitored)
             {
+
+                if (!copiedBuffer)
+                {
+                    // 1. copy overflow buffer
+
+                    samplesFromOverflowBuffer = ((overflowSamples <= numSamplesExpected) ? 
+                                              overflowSamples :
+                                              numSamplesExpected);
+
+                    std::cout << " " << std::endl;
+                    std::cout << "Copying " << samplesFromOverflowBuffer << " samples from overflow buffer." << std::endl;
+
+                    if (samplesFromOverflowBuffer > 0)
+                    {
+
+                        buffer.addFrom(0,   // destination channel
+                           0,               // destination start sample
+                           overflowBuffer,  // source
+                           0,               // source channel
+                           0,               // source start sample
+                           samplesFromOverflowBuffer, //  number of samples
+                           1.0f             // gain to apply
+                          );
+
+                        buffer.addFrom(1,       // destination channel
+                           0,           // destination start sample
+                           overflowBuffer,      // source
+                           1,           // source channel
+                           0,           // source start sample
+                           samplesFromOverflowBuffer, //  number of samples
+                           1.0f       // gain to apply
+                          );
+
+                        overflowBuffer.clear(0, samplesFromOverflowBuffer);
+
+                        std::cout << "Samples remaining in overflow buffer: " << overflowSamples - samplesFromOverflowBuffer << std::endl;
+
+
+                        if (samplesFromOverflowBuffer < overflowSamples)
+                        {
+
+                            // move remaining samples to the front of the buffer
+                            // have to double-copy because copying from a buffer into itself is not allowed
+
+                             overflowOverflowBuffer.addFrom(0,   // destination channel
+                               0,               // destination start sample
+                               overflowBuffer,  // source
+                               0,               // source channel
+                               samplesFromOverflowBuffer,               // source start sample
+                               overflowSamples - samplesFromOverflowBuffer,   //  number of samples
+                               1.0f             // gain to apply
+                              );
+
+                            overflowOverflowBuffer.addFrom(1,   // destination channel
+                               0,               // destination start sample
+                               overflowBuffer,  // source
+                               1,               // source channel
+                               samplesFromOverflowBuffer,               // source start sample
+                               overflowSamples - samplesFromOverflowBuffer,   //  number of samples
+                               1.0f             // gain to apply
+                              );
+
+                            overflowBuffer.addFrom(0,   // destination channel
+                               0,               // destination start sample
+                               overflowOverflowBuffer,  // source
+                               0,               // source channel
+                               0,               // source start sample
+                               overflowSamples - samplesFromOverflowBuffer,   //  number of samples
+                               1.0f             // gain to apply
+                              );
+
+                            overflowBuffer.addFrom(1,   // destination channel
+                               0,               // destination start sample
+                               overflowOverflowBuffer,  // source
+                               1,               // source channel
+                               0,               // source start sample
+                               overflowSamples - samplesFromOverflowBuffer,   //  number of samples
+                               1.0f             // gain to apply
+                              );
+
+                            overflowOverflowBuffer.clear();
+
+                        }
+
+                        overflowSamples = overflowSamples - samplesFromOverflowBuffer;
+
+                    }
+
+                    int remainingSamples = numSamplesExpected - samplesFromOverflowBuffer;
+
+                    std::cout << "Copying " << remainingSamples << " samples from incoming buffer of " << nSamples << " samples" << std::endl;
+
+                    leftoverSamples = nSamples - remainingSamples;
+
+                    if (leftoverSamples < 0)
+                    {
+                        leftoverSamples = nSamples;
+                    }
+
+                    jassert (leftoverSamples >= 0);
+
+                    std::cout << "Samples remaining in incoming buffer: " << leftoverSamples << std::endl;
+
+                    copiedBuffer = true;
+                }
+
                 gain = volume/(float(0x7fff) * channelPointers[i-2]->bitVolts);
 
-                if (totalSamples <= numSamplesExpected)
+                if (remainingSamples > 0)
                 {
-                    
-                    // we don't have any overflow
 
                     buffer.addFrom(0,       // destination channel
-                               overflowBufferIndex,           // destination start sample
+                               samplesFromOverflowBuffer,           // destination start sample
                                buffer,      // source
                                i,           // source channel
                                0,           // source start sample
-                               nSamples, //  number of samples
+                               remainingSamples, //  number of samples
                                gain       // gain to apply
                               );
 
                     buffer.addFrom(1,       // destination channel
-                               overflowBufferIndex,           // destination start sample
+                               samplesFromOverflowBuffer,           // destination start sample
                                buffer,      // source
                                i,           // source channel
                                0,           // source start sample
-                               nSamples, //  number of samples
+                               remainingSamples, //  number of samples
                                gain       // gain to apply
                               );
+                }
 
-                    overflowBufferIndex = 0;
-                    overflowBuffer.clear();
-
-                    int overflowSamples = 0;
-
-                    // std::cout << "Total samples: " << totalSamples << std::endl;
-                    // std::cout << "Samples expected: " << numSamplesExpected << std::endl;
-                    // std::cout << "Overflow samples: " << overflowSamples << std::endl;
-
-                } else {
+                if (leftoverSamples > 0)
                 {
-
-                    // first copy to the actual buffer
-
-                    int overflowSamples = totalSamples - numSamplesExpected;
-
-                    // std::cout << "Total samples: " << totalSamples << std::endl;
-                    // std::cout << "Samples expected: " << numSamplesExpected << std::endl;
-                    // std::cout << "Overflow samples: " << overflowSamples << std::endl;
-
-                     buffer.addFrom(0,       // destination channel
-                               overflowBufferIndex,           // destination start sample
+                      overflowBuffer.addFrom(0,       // destination channel
+                               overflowSamples,           // destination start sample
                                buffer,      // source
                                i,           // source channel
-                               0,           // source start sample
-                               nSamples - overflowSamples, //  number of samples
+                               remainingSamples,           // source start sample
+                               leftoverSamples, //  number of samples
                                gain       // gain to apply
                               );
 
-                    buffer.addFrom(1,       // destination channel
-                               overflowBufferIndex,           // destination start sample
+                    overflowBuffer.addFrom(0,       // destination channel
+                               overflowSamples,           // destination start sample
                                buffer,      // source
                                i,           // source channel
-                               0,           // source start sample
-                               nSamples - overflowSamples, //  number of samples
+                               remainingSamples,           // source start sample
+                               leftoverSamples, //  number of samples
                                gain       // gain to apply
                               );
 
-                    // now copy the rest to the overflowBuffer
-
-                    
-                    overflowBuffer.clear();
-
-                     overflowBuffer.addFrom(0,       // destination channel
-                               0,           // destination start sample
-                               buffer,      // source
-                               i,           // source channel
-                               nSamples - overflowSamples,           // source start sample
-                               overflowSamples, //  number of samples
-                               gain       // gain to apply
-                              );
-
-                    overflowBuffer.addFrom(1,       // destination channel
-                               0,           // destination start sample
-                               buffer,      // source
-                               i,           // source channel
-                               nSamples - overflowSamples,           // source start sample
-                               overflowSamples, //  number of samples
-                               gain       // gain to apply
-                              );
-
-                    overflowBufferIndex = overflowSamples;
-
-                }                
+                }
 
             }
-
         }
+
+
+
+        overflowSamples += leftoverSamples;
+
     }
-}
 
     nSamples = numSamplesExpected;
 

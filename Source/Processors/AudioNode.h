@@ -108,9 +108,12 @@ private:
     Array<Channel*> channelPointers;
 
     AudioSampleBuffer overflowBuffer;
+    AudioSampleBuffer overflowOverflowBuffer;
 
     int numSamplesExpected;
-    int overflowBufferIndex;
+    int overflowBufferEndIndex;
+    int overflowSamples;
+    int overflowBufferStartIndex;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioNode);
 

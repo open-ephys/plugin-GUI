@@ -81,7 +81,7 @@ void AudioWindowButton::setText(String text)
 }
 
 AudioEditor::AudioEditor(AudioNode* owner)
-    : AudioProcessorEditor(owner), lastValue(1.0f), acw(0)
+    : AudioProcessorEditor(owner), lastValue(1.0f), acw(0), isEnabled(true)
 
 {
 
@@ -138,6 +138,25 @@ void AudioEditor::updateBufferSizeText()
     audioWindowButton->setText(t);
 }
 
+void AudioEditor::enable()
+{
+    isEnabled = true;
+    audioWindowButton->setClickingTogglesState(true);
+}
+
+void AudioEditor::disable()
+{
+    isEnabled = false;
+
+    if (acw != 0)
+    {
+        acw->setVisible(false);
+        audioWindowButton->setToggleState(false, false);
+    }
+
+    audioWindowButton->setClickingTogglesState(false);
+}
+
 void AudioEditor::buttonClicked(Button* button)
 {
     if (button == muteButton)
@@ -155,7 +174,7 @@ void AudioEditor::buttonClicked(Button* button)
             std::cout << "Mute off." << std::endl;
         }
     }
-    else if (button == audioWindowButton)
+    else if (button == audioWindowButton && isEnabled)
     {
         if (audioWindowButton->getToggleState())
         {
@@ -176,8 +195,6 @@ void AudioEditor::buttonClicked(Button* button)
 
         }
         else
-            
-            
         {
             updateBufferSizeText();
             //audioWindowButton->setText(String(getAudioComponent()->getBufferSize()));

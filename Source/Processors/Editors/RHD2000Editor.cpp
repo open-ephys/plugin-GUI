@@ -53,7 +53,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     // add Bandwidth selection
     bandwidthInterface = new BandwidthInterface(board, this);
     addAndMakeVisible(bandwidthInterface);
-    bandwidthInterface->setBounds(80, 65, 100, 50);
+    bandwidthInterface->setBounds(80, 65, 80, 50);
 
     // add rescan button
     rescanButton = new UtilityButton("RESCAN", Font("Small Text", 13, Font::plain));
@@ -94,12 +94,12 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     // add HW audio parameter selection
     audioInterface = new AudioInterface(board, this);
     addAndMakeVisible(audioInterface);
-    audioInterface->setBounds(180, 65, 100, 50);
+    audioInterface->setBounds(165, 65, 65, 50);
     
     
     adcButton = new UtilityButton("ADC 1-8", Font("Small Text", 13, Font::plain));
     adcButton->setRadius(3.0f);
-    adcButton->setBounds(180, 100,65,18);
+    adcButton->setBounds(165,100,65,18);
     adcButton->addListener(this);
     adcButton->setClickingTogglesState(true);
     adcButton->setTooltip("Enable/disable ADC channels");
@@ -591,7 +591,7 @@ board(board_), editor(editor_)
     noiseSlicerLevelSelection = new Label("Noise Slicer",lastNoiseSlicerString); // this is currently set in RHD2000Thread, the cleaner would be to set it here again
     noiseSlicerLevelSelection->setEditable(true,false,false);
     noiseSlicerLevelSelection->addListener(this);
-    noiseSlicerLevelSelection->setBounds(25,10,40,20);
+    noiseSlicerLevelSelection->setBounds(30,10,30,20);
     noiseSlicerLevelSelection->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(noiseSlicerLevelSelection);
     

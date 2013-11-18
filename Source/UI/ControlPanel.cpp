@@ -708,6 +708,11 @@ void ControlPanel::buttonClicked(Button* button)
 
     }
 
+    if (playButton->getToggleState())
+        audioEditor->disable();
+    else
+        audioEditor->enable();
+
 }
 
 void ControlPanel::disableCallbacks()
