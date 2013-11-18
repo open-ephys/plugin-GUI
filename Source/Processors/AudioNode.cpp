@@ -205,6 +205,9 @@ void AudioNode::process(AudioSampleBuffer& buffer,
     buffer.clear(0,0,buffer.getNumSamples());
     buffer.clear(1,0,buffer.getNumSamples());
 
+    if (0)
+    {
+
     if (overflowSamples > 1024)
     {
         std::cout << "Clearing overflow buffer!" << std::endl;
@@ -395,4 +398,5 @@ void AudioNode::process(AudioSampleBuffer& buffer,
 
     nSamples = numSamplesExpected;
 
+    }
 }
