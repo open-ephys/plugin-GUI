@@ -107,13 +107,15 @@ private:
     /** An array of pointers to the channels that feed into the AudioNode. */
     Array<Channel*> channelPointers;
 
-    AudioSampleBuffer overflowBuffer;
-    AudioSampleBuffer overflowOverflowBuffer;
+    AudioSampleBuffer bufferA;
+    AudioSampleBuffer bufferB;
 
     int numSamplesExpected;
-    int overflowBufferEndIndex;
-    int overflowSamples;
-    int overflowBufferStartIndex;
+
+    int samplesInBackupBuffer;
+    int samplesInOverflowBuffer;
+
+    bool bufferSwap;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioNode);
 
