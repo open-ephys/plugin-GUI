@@ -225,7 +225,30 @@ void ProcessorGraph::restoreParameters()
 
 }
 
+Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
+{
 
+    Array<GenericProcessor*> a;
+
+     for (int i = 0; i < getNumNodes(); i++)
+    {
+        Node* node = getNode(i);
+
+        int nodeId = node->nodeId;
+
+        if (nodeId != OUTPUT_NODE_ID &&
+            nodeId != AUDIO_NODE_ID &&
+            nodeId != RECORD_NODE_ID &&
+            nodeId != RESAMPLING_NODE_ID)
+        {
+            GenericProcessor* p =(GenericProcessor*) node->getProcessor();
+            a.add(p);
+        }
+    }
+
+    return a;
+
+}
 
 void ProcessorGraph::clearConnections()
 {

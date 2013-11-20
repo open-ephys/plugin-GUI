@@ -83,6 +83,8 @@ public:
     
     void setRecordState(bool);
 
+    Array<GenericProcessor*> getListOfProcessors();
+
 private:
 
     int currentNodeId;

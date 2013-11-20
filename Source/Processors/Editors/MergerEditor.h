@@ -50,6 +50,8 @@ public:
 
     void switchIO(int);
 
+    void mouseDown(const MouseEvent& event);
+
 private:
 
     ImageButton* pipelineSelectorA;

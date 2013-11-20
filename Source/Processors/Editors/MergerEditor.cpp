@@ -23,6 +23,8 @@
 
 #include "MergerEditor.h"
 #include "../Utilities/Merger.h"
+#include "../ProcessorGraph.h"
+#include "../../UI/EditorViewport.h"
 
 // PipelineSelectorButton::PipelineSelectorButton()
 // 	: DrawableButton ("Selector", DrawableButton::ImageFitted)
@@ -112,6 +114,55 @@ void MergerEditor::buttonEvent(Button* button)
         processor->switchIO(1);
 
     }
+}
+
+void MergerEditor::mouseDown(const MouseEvent& e)
+{
+
+
+
+    if (e.mods.isRightButtonDown())
+    {
+
+        PopupMenu m;
+        m.addItem(1, "Choose input 2:",false);
+
+        Array<GenericProcessor*> availableProcessors = getProcessorGraph()->getListOfProcessors();
+
+        for (int i = 0; i < availableProcessors.size(); i++)
+        {
+            if (!availableProcessors[i]->isSink() && 
+                !availableProcessors[i]->isMerger() &&
+                !availableProcessors[i]->isSplitter() &&
+                availableProcessors[i]->getDestNode() != getProcessor())
+            {
+
+                String name = String(availableProcessors[i]->getNodeId());
+                name += " - ";
+                name += availableProcessors[i]->getName();
+
+                m.addItem(i+2, name);
+                //processorsInList.add(availableProcessors[i]);
+            }
+        }
+
+        const int result = m.show();
+
+        if (result > 1)
+        {
+            std::cout << "Selected " << availableProcessors[result-2]->getName() << std::endl;
+        
+            switchSource(1);
+
+            Merger* processor = (Merger*) getProcessor();
+            processor->setMergerSourceNode(availableProcessors[result-2]);
+
+            getEditorViewport()->makeEditorVisible(this, false, true);
+        }
+    }
+
+    
+
 }
 
 void MergerEditor::switchSource(int source)
