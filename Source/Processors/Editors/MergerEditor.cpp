@@ -156,6 +156,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
 
             Merger* processor = (Merger*) getProcessor();
             processor->setMergerSourceNode(availableProcessors[result-2]);
+            availableProcessors[result-2]->setDestNode(getProcessor());
 
             getEditorViewport()->makeEditorVisible(this, false, true);
         }
