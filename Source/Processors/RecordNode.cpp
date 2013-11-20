@@ -26,6 +26,8 @@
 #include "../UI/EditorViewport.h"
 #include "../UI/ControlPanel.h"
 
+#include <hdf5.h>
+
 #include "Channel.h"
 
 RecordNode::RecordNode()
@@ -33,7 +35,7 @@ RecordNode::RecordNode()
       newDirectoryNeeded(true),  zeroBuffer(1, 50000),  timestamp(0),
       appendTrialNum(false), trialNum(0)
 {
-
+    
     isProcessing = false;
     isRecording = false;
     blockIndex = 0;
@@ -368,6 +370,14 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
         createNewFiles();
         
         openFile(eventChannel);
+        
+        hid_t file_id;
+        herr_t status;
+        
+        String filenameHDF5 = rootFolder.getFullPathName() + File::separator + "file.h5";
+        
+        file_id = H5Fcreate(filenameHDF5.getCharPointer(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+        status = H5Fclose(file_id);
 
         blockIndex = 0; // reset index
 

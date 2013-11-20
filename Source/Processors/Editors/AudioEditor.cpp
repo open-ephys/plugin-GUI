@@ -81,7 +81,7 @@ void AudioWindowButton::setText(String text)
 }
 
 AudioEditor::AudioEditor(AudioNode* owner)
-    : AudioProcessorEditor(owner), lastValue(1.0f), acw(0), isEnabled(true)
+    : AudioProcessorEditor(owner), lastValue(1.0f), isEnabled(true), acw(0)
 
 {
 

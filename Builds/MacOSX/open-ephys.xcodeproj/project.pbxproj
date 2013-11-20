@@ -3645,10 +3645,13 @@
 				HEADER_SEARCH_PATHS = (
 					../../JuceLibraryCode,
 					"$(inherited)",
+					/opt/local/include,
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
+				OTHER_LDFLAGS = "-lhdf5";
 				SDKROOT_ppc = macosx10.5;
 			};
 			name = Release;
@@ -3673,11 +3676,14 @@
 				HEADER_SEARCH_PATHS = (
 					../../JuceLibraryCode,
 					"$(inherited)",
+					/opt/local/include,
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-lhdf5";
 				SDKROOT_ppc = macosx10.5;
 			};
 			name = Debug;
