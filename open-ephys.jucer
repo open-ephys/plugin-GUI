@@ -29,20 +29,28 @@
       </CONFIGURATIONS>
     </LINUX_MAKE>
     <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" juceFolder="JuceLibraryCode/modules"
-            extraDefs="NOMINMAX" externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;">
+            extraDefs="NOMINMAX" externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;hdf5.lib">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug\bin"
-                       headerPath="" libraryPath="" postbuildCommand="copy ..\..\Resources\DLLs\okFrontPanel.dll .\Debug\bin"/>
+                       headerPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\include"
+                       libraryPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\lib"
+                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="0" optimisation="2" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release\bin"
-                       headerPath="" libraryPath="" postbuildCommand="copy ..\..\Resources\DLLs\okFrontPanel.dll .\Release\bin"/>
+                       headerPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\include"
+                       libraryPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\lib"
+                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;"/>
         <CONFIGURATION name="Debug64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="1" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug64\bin"
-                       headerPath="" libraryPath="" postbuildCommand="copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Debug64\bin"/>
+                       headerPath="$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\include"
+                       libraryPath="$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\lib"
+                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs\Win64&quot; &quot;$(OutDir)&quot;  "/>
         <CONFIGURATION name="Release64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="0" optimisation="2" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release64\bin"
-                       headerPath="" libraryPath="" postbuildCommand="copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Release64\bin"/>
+                       headerPath="$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\include"
+                       libraryPath="$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\lib"
+                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs\Win64&quot; &quot;$(OutDir)&quot;  "/>
       </CONFIGURATIONS>
     </VS2012>
   </EXPORTFORMATS>
