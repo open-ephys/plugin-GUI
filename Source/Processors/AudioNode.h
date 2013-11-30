@@ -103,6 +103,7 @@ private:
     Array<int> leftChan;
     Array<int> rightChan;
     float volume;
+    float noiseGateLevel;
 
     /** An array of pointers to the channels that feed into the AudioNode. */
     Array<Channel*> channelPointers;

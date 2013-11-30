@@ -26,7 +26,7 @@
 #include "Channel.h"
 
 AudioNode::AudioNode()
-    : GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f), 
+    : GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f), noiseGateLevel(0.0f),
     bufferA(2,10000),
     bufferB(2,10000)
 {
@@ -136,6 +136,13 @@ void AudioNode::setParameter(int parameterIndex, float newValue)
         // volume level
         volume = newValue*0.1f;
 
+    }
+    else if (parameterIndex == 2)
+    {
+        // noiseGateLevel level
+        noiseGateLevel = newValue*0.01f; // not sure about this scaling???
+        std::cout << "Changed noiseGateLevel: " << noiseGateLevel << std::endl;
+        
     }
     else if (parameterIndex == 100)
     {
@@ -316,6 +323,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                                    remainingSamples, //  number of samples
                                    gain       // gain to apply
                                   );
+
                     }
 
                     orphanedSamples = nSamples - samplesToCopy2;
@@ -334,7 +342,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                                    gain       // gain to apply
                                   );
 
-                        backupBuffer->addFrom(0,       // destination channel
+                          backupBuffer->addFrom(0,       // destination channel
                                    samplesInBackupBuffer,           // destination start sample
                                    buffer,      // source
                                    i,           // source channel
@@ -344,7 +352,17 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                                   );
 
                     }
-
+                    
+                    // HERE IS WHERE WE NEED TO NOISE GATE
+                    float *leftChannelData = buffer.getSampleData(0);
+                    float *rightChannelData = buffer.getSampleData(1);
+                    float gateLevel = noiseGateLevel/(float(0x7fff));
+                    for (int i=0; i < buffer.getNumSamples(); i++) {
+                        if (abs(leftChannelData[i])  < gateLevel)
+                            leftChannelData[i] = 0;
+                        if (abs(rightChannelData[i]) < gateLevel)
+                            rightChannelData[i] = 0;
+                    }
                 }
             }
 
