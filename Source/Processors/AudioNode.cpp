@@ -140,8 +140,7 @@ void AudioNode::setParameter(int parameterIndex, float newValue)
     else if (parameterIndex == 2)
     {
         // noiseGateLevel level
-        noiseGateLevel = newValue*0.01f; // not sure about this scaling???
-        std::cout << "Changed noiseGateLevel: " << noiseGateLevel << std::endl;
+        noiseGateLevel = newValue; // in microVolts
         
     }
     else if (parameterIndex == 100)
@@ -294,6 +293,10 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                     } // copying buffer
 
                     gain = volume/(float(0x7fff) * channelPointers[i-2]->bitVolts);
+                    //  - Maximum of "volume" is 10 (100 * 0.1)
+                    //  - float(0x7fff) is the maximum value that comes out of the preamp (15 bits of 1's)
+                    //  - bitVolts is the number of microvolts per bit - why are we dividing by this???
+                    // So, maximum gain applied to maximum data would be 10/bitVolts
 
                     int remainingSamples = numSamplesExpected - samplesToCopy;
 
@@ -353,15 +356,17 @@ void AudioNode::process(AudioSampleBuffer& buffer,
 
                     }
                     
-                    // HERE IS WHERE WE NEED TO NOISE GATE
+                    // Simple implementation of a "noise gate" on audio output
                     float *leftChannelData = buffer.getSampleData(0);
                     float *rightChannelData = buffer.getSampleData(1);
-                    float gateLevel = noiseGateLevel/(float(0x7fff));
-                    for (int i=0; i < buffer.getNumSamples(); i++) {
-                        if (abs(leftChannelData[i])  < gateLevel)
-                            leftChannelData[i] = 0;
-                        if (abs(rightChannelData[i]) < gateLevel)
-                            rightChannelData[i] = 0;
+                    // float gateLevel = (noiseGateLevel / channelPointers[i-2]->bitVolts) * gain; // uVolts scaled by gain
+                    float gateLevel = noiseGateLevel * gain; // bits scaled by gain
+                    
+                    for (int m=0; m < buffer.getNumSamples(); m++) {
+                        if (fabs(leftChannelData[m])  < gateLevel)
+                            leftChannelData[m] = 0;
+                        if (fabs(rightChannelData[m]) < gateLevel)
+                            rightChannelData[m] = 0;
                     }
                 }
             }
