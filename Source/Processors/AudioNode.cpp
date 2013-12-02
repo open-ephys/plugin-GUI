@@ -293,10 +293,8 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                     } // copying buffer
 
                     gain = volume/(float(0x7fff) * channelPointers[i-2]->bitVolts);
-                    //  - Maximum of "volume" is 10 (100 * 0.1)
-                    //  - float(0x7fff) is the maximum value that comes out of the preamp (15 bits of 1's)
-                    //  - bitVolts is the number of microvolts per bit - why are we dividing by this???
-                    // So, maximum gain applied to maximum data would be 10/bitVolts
+                    // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
+                    // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
 
                     int remainingSamples = numSamplesExpected - samplesToCopy;
 
@@ -359,8 +357,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                     // Simple implementation of a "noise gate" on audio output
                     float *leftChannelData = buffer.getSampleData(0);
                     float *rightChannelData = buffer.getSampleData(1);
-                    // float gateLevel = (noiseGateLevel / channelPointers[i-2]->bitVolts) * gain; // uVolts scaled by gain
-                    float gateLevel = noiseGateLevel * gain; // bits scaled by gain
+                    float gateLevel = noiseGateLevel * gain; // uVolts scaled by gain
                     
                     for (int m=0; m < buffer.getNumSamples(); m++) {
                         if (fabs(leftChannelData[m])  < gateLevel)
