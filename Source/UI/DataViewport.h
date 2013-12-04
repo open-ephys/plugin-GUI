@@ -77,6 +77,7 @@ private:
     Array<GenericEditor*> editorArray;
     void paint(Graphics& g);
     int tabDepth;
+    int tabIndex;
 
     bool shutdown;
 
