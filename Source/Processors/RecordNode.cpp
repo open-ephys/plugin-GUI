@@ -691,6 +691,10 @@ void RecordNode::writeEventBuffer(MidiMessage& event, int samplePosition) //, in
 {
     // find file and write samples to disk
     // std::cout << "Received event!" << std::endl;
+    
+    // check to see if the file exists
+    if (eventChannel->file == NULL)
+        return;
 
     const uint8* dataptr = event.getRawData();
 
