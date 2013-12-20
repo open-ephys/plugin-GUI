@@ -159,6 +159,9 @@ void MainWindow::loadWindowBounds()
         forEachXmlChildElement(*xml, e)
         {
 
+            if (e->hasTagName("BOUNDS"))
+            {
+
             int x = e->getIntAttribute("x");
             int y = e->getIntAttribute("y");
             int w = e->getIntAttribute("w");
@@ -174,6 +177,7 @@ void MainWindow::loadWindowBounds()
 #endif
             getContentComponent()->setBounds(0,0,w-10,h-33);
             //setFullScreen(fs);
+            }
 
         }
 

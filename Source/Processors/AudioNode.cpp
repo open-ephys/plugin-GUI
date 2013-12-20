@@ -359,7 +359,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                     float *rightChannelData = buffer.getSampleData(1);
                     float gateLevel = noiseGateLevel * gain; // uVolts scaled by gain
                     
-                    for (int m=0; m < buffer.getNumSamples(); m++) {
+                    for (int m = 0; m < buffer.getNumSamples(); m++) {
                         if (fabs(leftChannelData[m])  < gateLevel)
                             leftChannelData[m] = 0;
                         if (fabs(rightChannelData[m]) < gateLevel)
