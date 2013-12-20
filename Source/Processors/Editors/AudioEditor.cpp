@@ -98,13 +98,21 @@ AudioEditor::AudioEditor(AudioNode* owner)
     //
     addAndMakeVisible(audioWindowButton);
 
-    volumeSlider = new Slider("High-Cut Slider");
+    volumeSlider = new Slider("Volume Slider");
     volumeSlider->setRange(0,100,1);
     volumeSlider->addListener(this);
     volumeSlider->setTextBoxStyle(Slider::NoTextBox,
                                   false, 0, 0);
     addAndMakeVisible(volumeSlider);
 
+    noiseGateSlider = new Slider("Noise Gate Slider");
+    noiseGateSlider->setRange(0,100,1);
+    noiseGateSlider->addListener(this);
+    noiseGateSlider->setTextBoxStyle(Slider::NoTextBox,
+                                  false, 0, 0);
+    addAndMakeVisible(noiseGateSlider);
+
+    
     //acw = new AudioConfigurationWindow(getAudioComponent()->deviceManager, (Button*) audioWindowButton);
 
 }
@@ -119,7 +127,8 @@ void AudioEditor::resized()
 {
     muteButton->setBounds(0,0,30,25);
     volumeSlider->setBounds(35,0,50,getHeight());
-    audioWindowButton->setBounds(90,0,200,getHeight());
+    noiseGateSlider->setBounds(85,0,50,getHeight());
+    audioWindowButton->setBounds(140,0,200,getHeight());
 }
 
 bool AudioEditor::keyPressed(const KeyPress& key)
@@ -208,7 +217,10 @@ void AudioEditor::buttonClicked(Button* button)
 
 void AudioEditor::sliderValueChanged(Slider* slider)
 {
-    getAudioProcessor()->setParameter(1,slider->getValue());
+    if (slider == volumeSlider)
+        getAudioProcessor()->setParameter(1,slider->getValue());
+    else if (slider == noiseGateSlider)
+        getAudioProcessor()->setParameter(2,slider->getValue());
 }
 
 void AudioEditor::paint(Graphics& g)
