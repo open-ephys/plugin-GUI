@@ -415,6 +415,9 @@
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\SerialInput.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\LfpTriggeredAverageNode.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
@@ -504,6 +507,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\SerialInputEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\ElectrodeButtons.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
@@ -1941,6 +1947,9 @@
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\SerialInput.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\LfpTriggeredAverageNode.h">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClInclude>
@@ -2036,6 +2045,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\EventNode.h">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\SerialInputEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\ElectrodeButtons.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>

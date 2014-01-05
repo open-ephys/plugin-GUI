@@ -47,6 +47,7 @@
 #include "ArduinoOutput.h"
 #include "FPGAOutput.h"
 #include "PulsePalOutput.h"
+#include "SerialInput.h"
 #include "Utilities/RecordControl.h"
 #include "Utilities/Splitter.h"
 #include "Utilities/Merger.h"
@@ -487,6 +488,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             processor = new FileReader();
             std::cout << "Creating a new file reader." << std::endl;
+        }
+        else if (subProcessorType.equalsIgnoreCase("Serial Port"))
+        {
+            processor = new SerialInput();
+            std::cout << "Creating a new serial port input." << std::endl;
         }
 
 
