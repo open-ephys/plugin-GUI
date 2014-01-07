@@ -55,7 +55,7 @@ StringArray SerialInput::getDevices() {
 
 Array<int> SerialInput::getBaudrates()
 {
-    Array<int> allBaudrates(BAUDRATES);
+    Array<int> allBaudrates(BAUDRATES, 12);
     return allBaudrates;
 }
 
