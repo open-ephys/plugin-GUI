@@ -30,6 +30,7 @@ const int SerialInput::BAUDRATES[12] = {300, 1200, 2400, 4800, 9600, 14400, 1920
 SerialInput::SerialInput()
 : GenericProcessor("Serial Port")
 {
+    baudrate = 0;
     // ToDo: One day, this should use the Parameter class, and it will look roughly like this:
     //parameters.add(Parameter("device", varArray(getDevices()), 0, 0, true));
     //parameters.add(Parameter("baudrate", varArray(getBaudrates()), 6, 1, true));

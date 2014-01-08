@@ -53,7 +53,7 @@ SerialInputEditor::SerialInputEditor(SerialInput* parentNode)
     
     for (int i = 0; i < baudrates.size(); i++)
     {
-        baudrateList->addItem(std::to_string(baudrates[i]), baudrates[i]);
+        baudrateList->addItem(String(baudrates[i]), baudrates[i]);
     }
     
     addAndMakeVisible(baudrateList);

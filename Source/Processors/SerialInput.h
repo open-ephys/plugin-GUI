@@ -119,7 +119,7 @@ private:
     string device;
     
     // The baudrate to be used
-    int baudrate = 0;
+    int baudrate;
 
     // List of baudrates that are available by default.
     static const int BAUDRATES[12];
