@@ -123,9 +123,7 @@ void ProcessorGraph::updatePointers()
     getRecordNode()->setUIComponent(getUIComponent());
 }
 
-void* ProcessorGraph::createNewProcessor(String& description)//,
-// GenericProcessor* source,
-// GenericProcessor* dest)
+void* ProcessorGraph::createNewProcessor(String& description)
 {
 
     GenericProcessor* processor = createProcessorFromDescription(description);
@@ -744,10 +742,6 @@ bool ProcessorGraph::disableProcessors()
 void ProcessorGraph::setRecordState(bool isRecording)
 {
 
-   // const MessageManagerLock mmLock; // lock the message manager to prevent rendering crashes
-    
-    // inform other processors that recording will begin
-
     // actually start recording
     if (isRecording)
     {
@@ -791,15 +785,3 @@ RecordNode* ProcessorGraph::getRecordNode()
     return (RecordNode*) node->getProcessor();
 
 }
-
-// void ProcessorGraph::saveState()
-// {
-// 	File file = File("./savedState.xml");
-// 	getEditorViewport()->saveState(file);
-// }
-
-// void ProcessorGraph::loadState()
-// {
-// 	File file = File("./savedState.xml");
-// 	getEditorViewport()->loadState(file);
-// }
