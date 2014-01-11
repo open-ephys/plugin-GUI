@@ -51,6 +51,8 @@ public:
     void switchIO(int);
 
     void mouseDown(const MouseEvent& event);
+    
+    int getPathForEditor(GenericEditor* editor);
 
 private:
 

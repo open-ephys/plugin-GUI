@@ -141,6 +141,25 @@ void SplitterEditor::switchIO(int dest)
     select();
 }
 
+int SplitterEditor::getPathForEditor(GenericEditor* editor)
+{
+    Splitter* processor = (Splitter*) getProcessor();
+    
+    for (int pathNum = 0; pathNum < 2; pathNum++)
+    {
+        processor->switchIO();
+        
+        if (processor->getDestNode() != nullptr)
+        {
+            if (processor->getDestNode()->getEditor() == editor)
+                return processor->getPath();
+        }
+    }
+    
+    return -1;
+    
+}
+
 
 void SplitterEditor::switchDest()
 {

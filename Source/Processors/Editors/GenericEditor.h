@@ -161,9 +161,21 @@ public:
 
     /** Required for SplitterEditor only.*/
     virtual void switchDest() { }
+    
 
     /** Required for SplitterEditor and MergerEditor only.*/
     virtual void switchIO(int) { }
+    
+    /** Required for SplitterEditor and MergerEditor only.*/
+    virtual int getPathForEditor(GenericEditor* editor) { return -1;}
+    
+    /** Used by GraphViewer */
+    bool isSplitter();
+    
+    /** Used by GraphViewer */
+    bool isMerger();
+    
+    
 
     /** Handles button clicks for all editors. Deals with clicks on the editor's
         title bar and channel selector drawer. */
@@ -242,6 +254,13 @@ public:
 
     /** Syncs parametereditor colors with parameter values */
     void updateParameterButtons(int parameterIndex = -1);
+    
+    /** Returns the editor of this processor's source */
+    GenericEditor* getSourceEditor();
+    
+    /** Returns the editor of this processor's destination */
+    GenericEditor* getDestEditor();
+    
 protected:
 
     /** A pointer to the button that opens the drawer for the ChannelSelector. */

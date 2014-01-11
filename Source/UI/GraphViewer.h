@@ -54,6 +54,8 @@ public:
     
     void paint(Graphics& g);
     
+    void updateBoundaries();
+    
     const String getName();
     
 private:
@@ -83,6 +85,7 @@ public:
 private:
     
     void updateNodeLocations();
+    int indexOfEditor(GenericEditor* editor);
     
     Font labelFont;
     

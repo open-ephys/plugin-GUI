@@ -50,13 +50,7 @@ void GraphViewer::addNode(GenericEditor* editor)
 void GraphViewer::removeNode(GenericEditor* editor)
 {
     
-    for (int i = 0; i < availableNodes.size(); i++)
-    {
-        if (availableNodes[i]->hasEditor(editor))
-        {
-            availableNodes.remove(i);
-        }
-    }
+    availableNodes.remove(indexOfEditor(editor));
     
     updateNodeLocations();
 
@@ -66,14 +60,31 @@ void GraphViewer::updateNodeLocations()
 {
     for (int i = 0; i < availableNodes.size(); i++)
     {
-        availableNodes[i]->setBounds(25,10+40*i,200,20);
+        availableNodes[i]->updateBoundaries();
     }
+    
+    repaint();
 }
 
 void GraphViewer::removeAllNodes()
 {
     availableNodes.clear();
     
+}
+
+int GraphViewer::indexOfEditor(GenericEditor* editor)
+{
+    int index = -1;
+    
+    for (int i = 0; i < availableNodes.size(); i++)
+    {
+        if (availableNodes[i]->hasEditor(editor))
+        {
+            return i;
+        }
+    }
+    
+    return index;
 }
 
 
@@ -135,18 +146,73 @@ const String GraphNode::getName()
     return editor->getName();
 }
 
-void GraphNode::paint(Graphics& g)
+void GraphNode::updateBoundaries()
 {
-    if (mouseOver)
+    int level = -1;
+    int chain = 0;
+    
+    GenericEditor* ed = editor;
+    
+    while (ed != nullptr)
     {
-        g.setColour(Colours::yellow);
-        g.fillEllipse(0,0,getHeight(),getHeight());
-    } else {
-        g.setColour(Colours::lightgrey);
-        g.fillEllipse(1,1,getHeight()-2,getHeight()-2);
+        level++;
+
+        GenericEditor* sourceEditor = ed->getSourceEditor();
+        
+        if (sourceEditor != nullptr)
+        {
+            if (sourceEditor->isSplitter())
+            {
+                if (sourceEditor->getPathForEditor(ed) == 1)
+                    chain++;
+            }
+        }
+        ed = sourceEditor;
     
     }
     
-    g.drawText(getName(), getHeight()+5, 0, getWidth()-getHeight(), getHeight(), Justification::left, true);
+    setBounds(20+chain*140, 20+level*40, 150, 50);
+}
+
+void GraphNode::paint(Graphics& g)
+{
+    if (editor->getDestEditor() != nullptr)
+    {
+        Line<float> line = Line<float>(10,10,10,50);
+        
+        g.setColour(Colours::grey);
+        g.drawLine(line, 2.0f);
+        
+        if (editor->isSplitter())
+        {
+            Path linePath;
+            float x1 = 10;
+            float y1 = 19;
+            float x2 = 150;
+            float y2 = 45;
+            linePath.startNewSubPath (x1, y1);
+            linePath.cubicTo (x1, y1 + (y2 - y1) * 0.33f,
+                              x2, y1 + (y2 - y1) * 0.66f,
+                              x2, y2);
+            
+            PathStrokeType stroke (2.0f);
+            g.strokePath(linePath, stroke);
+
+        }
+    }
+
+    if (mouseOver)
+    {
+        g.setColour(Colours::yellow);
+        g.fillEllipse(0,0,20,20);
+    } else {
+        g.setColour(Colours::lightgrey);
+        g.fillEllipse(1,1,18,18);
+    
+    }
+    
+    g.drawText(getName(), 25, 0, getWidth()-25, 20, Justification::left, true);
+    
+  
     
 }

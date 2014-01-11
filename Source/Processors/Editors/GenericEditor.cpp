@@ -546,6 +546,37 @@ void GenericEditor::loadEditorParameters(XmlElement* xml)
 
 }
 
+GenericEditor* GenericEditor::getSourceEditor()
+{
+    
+    GenericProcessor* sourceNode = getProcessor()->getSourceNode();
+    
+    if (sourceNode != nullptr)
+        return sourceNode->getEditor();
+    else
+        return nullptr;
+}
+
+GenericEditor* GenericEditor::getDestEditor()
+{
+    GenericProcessor* destNode = getProcessor()->getDestNode();
+    
+    if (destNode != nullptr)
+        return destNode->getEditor();
+    else
+        return nullptr;
+}
+
+bool GenericEditor::isSplitter()
+{
+    return getProcessor()->isSplitter();
+}
+
+bool GenericEditor::isMerger()
+{
+    return getProcessor()->isMerger();
+}
+
 
 /////////////////////// BUTTONS ///////////////////////////////
 
