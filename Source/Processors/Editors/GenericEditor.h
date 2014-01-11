@@ -86,6 +86,9 @@ public:
 
     /** Highlights an editor.*/
     void highlight();
+    
+    /** Makes an editor visible if it's not already.*/
+    void makeVisible();
 
     /** Deselects an editor.*/
     void deselect();

@@ -206,6 +206,13 @@ void GenericEditor::highlight()
     repaint();
 }
 
+void GenericEditor::makeVisible()
+{
+    isSelected = true;
+    repaint();
+    getEditorViewport()->makeEditorVisible(this);
+}
+
 bool GenericEditor::getSelectionState()
 {
     return isSelected;

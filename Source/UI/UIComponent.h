@@ -31,6 +31,7 @@
 #include "EditorViewport.h"
 #include "DataViewport.h"
 #include "MessageCenter.h"
+#include "GraphViewer.h"
 #include "../Processors/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
@@ -92,6 +93,13 @@ public:
     {
         return processorGraph;
     }
+    
+    /** Returns a pointer to the GraphViewer. */
+    GraphViewer* getGraphViewer()
+    {
+        return graphViewer;
+    }
+
 
     /** Returns a pointer to the ControlPanel. */
     ControlPanel* getControlPanel()
@@ -164,6 +172,7 @@ private:
     ScopedPointer<ControlPanel> controlPanel;
     ScopedPointer<MessageCenter> messageCenter;
     ScopedPointer<InfoLabel> infoLabel;
+    ScopedPointer<GraphViewer> graphViewer;
 
     /** Pointer to the GUI's MainWindow, which owns the UIComponent. */
     MainWindow* mainWindow;

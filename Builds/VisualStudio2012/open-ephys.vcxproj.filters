@@ -643,6 +643,9 @@
     <ClCompile Include="..\..\Source\Processors\ProcessorGraph.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\UI\GraphViewer.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\UI\EditorViewportButtons.cpp">
       <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
@@ -2180,6 +2183,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\ProcessorGraph.h">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\GraphViewer.h">
+      <Filter>open-ephys\Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\EditorViewportButtons.h">
       <Filter>open-ephys\Source\UI</Filter>

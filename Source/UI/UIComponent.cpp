@@ -36,6 +36,9 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     dataViewport = new DataViewport();
     addChildComponent(dataViewport);
     dataViewport->addTabToDataViewport("Info", infoLabel,0);
+    
+    graphViewer = new GraphViewer();
+    dataViewport->addTabToDataViewport("Graph", graphViewer,0);
 
     std::cout << "Created data viewport." << std::endl;
 
@@ -80,6 +83,7 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     dataViewport->setUIComponent(this);
     controlPanel->getAudioEditor()->setUIComponent(this);
     controlPanel->setUIComponent(this);
+    graphViewer->setUIComponent(this);
     
     processorGraph->updatePointers(); // needs to happen after processorGraph gets the right pointers
 

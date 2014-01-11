@@ -34,6 +34,7 @@ class ProcessorGraph;
 class MessageCenter;
 class ControlPanel;
 class AudioComponent;
+class GraphViewer;
 
 /**
 
@@ -117,6 +118,12 @@ public:
     {
         return ac;
     }
+    
+    /** Returns a pointer to the application's GraphViewer. */
+    GraphViewer* getGraphViewer()
+    {
+        return gv;
+    }
 
 private:
 
@@ -128,6 +135,7 @@ private:
     ControlPanel* cp;
     MessageCenter* mc;
     AudioComponent* ac;
+    GraphViewer* gv;
 
 };
 
