@@ -43,7 +43,7 @@
 class GraphNode : public Component
 {
 public:
-    GraphNode(GenericEditor* editor);
+    GraphNode(GenericEditor* editor, GraphViewer* g);
     ~GraphNode();
     
     void mouseEnter(const MouseEvent& m);
@@ -55,19 +55,32 @@ public:
     void paint(Graphics& g);
     
     void updateBoundaries();
-    
+
+    Point<float> getCenterPoint();
+    GenericEditor* getDest();
+    Array<GenericEditor*> getConnectedEditors();
+    void switchIO(int path);
+
+    bool isSplitter();
+    bool isMerger();
+
     const String getName();
+
+    int getLevel();
     
 private:
+
     GenericEditor* editor;
     
     Font labelFont;
     
     bool mouseOver;
+
+    GraphViewer* gv;
 };
 
 
-class GraphViewer : public Component, public AccessClass
+class GraphViewer : public Component
 
 {
 public:
@@ -81,8 +94,12 @@ public:
     void removeNode(GenericEditor* editor);
     void removeAllNodes();
 
-    
+    int nodesAtLevel(int lvl);
+    int getHorizontalShift(GraphNode*);
+
 private:
+
+    void connectNodes(int, int, Graphics&);
     
     void updateNodeLocations();
     int indexOfEditor(GenericEditor* editor);

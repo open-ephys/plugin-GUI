@@ -104,7 +104,7 @@ bool Merger::stillHasSource()
 void Merger::switchIO()
 {
 
-    std::cout << "Merger switching source." << std::endl;
+    //std::cout << "Merger switching source." << std::endl;
 
     if (activePath == 0)
     {

@@ -83,7 +83,6 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     dataViewport->setUIComponent(this);
     controlPanel->getAudioEditor()->setUIComponent(this);
     controlPanel->setUIComponent(this);
-    graphViewer->setUIComponent(this);
     
     processorGraph->updatePointers(); // needs to happen after processorGraph gets the right pointers
 

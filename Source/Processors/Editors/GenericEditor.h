@@ -260,6 +260,9 @@ public:
     
     /** Returns the editor of this processor's destination */
     GenericEditor* getDestEditor();
+
+    /** Returns the editors a splitter or merger is connected to */
+    virtual Array<GenericEditor*> getConnectedEditors() { }
     
 protected:
 
