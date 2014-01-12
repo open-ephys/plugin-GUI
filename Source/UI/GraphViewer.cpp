@@ -66,12 +66,43 @@ void GraphViewer::removeAllNodes()
 
 void GraphViewer::updateNodeLocations()
 {
+    // set the initial locations
     for (int i = 0; i < availableNodes.size(); i++)
     {
         availableNodes[i]->updateBoundaries();
     }
     
+    // perform checks
+    //checkLayout(); // not helpful...yet
+    
     repaint();
+}
+
+void GraphViewer::checkLayout()
+{
+    
+    for (int i = 0; i < availableNodes.size(); i++)
+    {
+        int sourceIndex = indexOfEditor(availableNodes[i]->getSource());
+        
+        if (sourceIndex > -1)
+        {
+            if (availableNodes[i]->getHorzShift() < availableNodes[sourceIndex]->getHorzShift())
+            {
+                availableNodes[i]->setHorzShift(availableNodes[sourceIndex]->getHorzShift());
+            }
+        }
+        
+        int destIndex = indexOfEditor(availableNodes[i]->getDest());
+        
+        if (destIndex > -1)
+        {
+            if (availableNodes[i]->getLevel() > availableNodes[destIndex]->getLevel())
+            {
+                availableNodes[destIndex]->setLevel(availableNodes[i]->getLevel()+1);
+            }
+        }
+    }
 }
 
 int GraphViewer::indexOfEditor(GenericEditor* editor)
@@ -221,6 +252,22 @@ int GraphNode::getLevel()
 
     return level;
 }
+
+void GraphNode::setLevel(int level)
+{
+    setBounds(getX(), 20+getLevel()*40, getWidth(), getHeight());
+    
+}
+
+int GraphNode::getHorzShift()
+{
+    return gv->getHorizontalShift(this);
+}
+
+void GraphNode::setHorzShift(int shift)
+{
+    setBounds(20+shift*140, getY(), getWidth(), getHeight());
+}
     
 void GraphNode::mouseEnter(const MouseEvent& m)
 {
@@ -259,6 +306,11 @@ bool GraphNode::isMerger()
 GenericEditor* GraphNode::getDest()
 {
     return editor->getDestEditor();
+}
+
+GenericEditor* GraphNode::getSource()
+{
+    return editor->getSourceEditor();
 }
 
 Array<GenericEditor*> GraphNode::getConnectedEditors()

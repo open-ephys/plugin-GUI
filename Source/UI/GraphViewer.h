@@ -58,6 +58,7 @@ public:
 
     Point<float> getCenterPoint();
     GenericEditor* getDest();
+    GenericEditor* getSource();
     Array<GenericEditor*> getConnectedEditors();
     void switchIO(int path);
 
@@ -67,6 +68,9 @@ public:
     const String getName();
 
     int getLevel();
+    void setLevel(int);
+    int getHorzShift();
+    void setHorzShift(int);
     
 private:
 
@@ -100,6 +104,7 @@ public:
 private:
 
     void connectNodes(int, int, Graphics&);
+    void checkLayout();
     
     void updateNodeLocations();
     int indexOfEditor(GenericEditor* editor);
