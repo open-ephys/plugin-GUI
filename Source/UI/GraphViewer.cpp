@@ -285,6 +285,13 @@ void GraphNode::switchIO(int path)
 
 void GraphNode::updateBoundaries()
 {
+
+    int level = getLevel();
+
+    int horzShift = gv->getHorizontalShift(this);
+    
+    setBounds(20+horzShift*140, 20+getLevel()*40, 150, 50);
+
     // float vertShift = -1;
     // float horzShift = 0;
     
@@ -337,11 +344,7 @@ void GraphNode::updateBoundaries()
     
     // }
 
-    int level = getLevel();
 
-    int horzShift = gv->getHorizontalShift(this);
-    
-    setBounds(20+horzShift*140, 20+getLevel()*40, 150, 50);
 }
 
 void GraphNode::paint(Graphics& g)
