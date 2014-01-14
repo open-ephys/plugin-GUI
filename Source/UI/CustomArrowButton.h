@@ -2,7 +2,7 @@
  ------------------------------------------------------------------
  
  This file is part of the Open Ephys GUI
- Copyright (C) 2013 Open Ephys
+ Copyright (C) 2014 Florian Franzen
  
  ------------------------------------------------------------------
  
@@ -26,12 +26,19 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
-
-
+/**
+ Customized version of the ArrowButton with an added OpenEphys LookAndFeel.
+ 
+ @see ArrowButton
+ */
 class CustomArrowButton  : public Button
 {
 public:
-    /** Constructor. */
+    /** Creates an CustomArrowButton.
+     
+     @param name        the name to give the button
+     @param direction   the direction the arrow should points to (0.0 = right, 0.25 = down, 0.5 = left and 0.75 = up)
+     */
     CustomArrowButton (const String& name, float direction);
 
     /** Destructor. */
@@ -41,7 +48,6 @@ public:
     void paintButton (Graphics&, bool isMouseOverButton, bool isButtonDown);
 
 private:
-    Colour colour;
     Path path;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomArrowButton)
