@@ -22,6 +22,7 @@
 */
 
 #include "CustomLookAndFeel.h"
+#include "CustomArrowButton.h"
 
 CustomLookAndFeel::CustomLookAndFeel() :
     // third argument to MIS means don't copy the binary data to make a new stream
@@ -440,6 +441,12 @@ void CustomLookAndFeel::drawGlassPointer(Graphics& g,
     g.setColour(Colours::black.withAlpha(0.5f * colour.getFloatAlpha()));
     g.strokePath(p, PathStrokeType(outlineThickness));
 }
+
+Button* CustomLookAndFeel::createSliderButton(bool isIncrement)
+{
+    return new CustomArrowButton(String::empty, isIncrement ? 0 : 0.5);
+}
+
 
 /// ------ combo box ---------------///
 

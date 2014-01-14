@@ -495,6 +495,10 @@
               file="Source/Processors/ProcessorGraph.h"/>
       </GROUP>
       <GROUP id="RNGb1yR" name="UI">
+        <FILE id="eFLOvq" name="CustomArrowButton.cpp" compile="1" resource="0"
+              file="Source/UI/CustomArrowButton.cpp"/>
+        <FILE id="WC4eCg" name="CustomArrowButton.h" compile="0" resource="0"
+              file="Source/UI/CustomArrowButton.h"/>
         <FILE id="sWZ22HN" name="EditorViewportButtons.cpp" compile="1" resource="0"
               file="Source/UI/EditorViewportButtons.cpp"/>
         <FILE id="WwXnCHj" name="EditorViewportButtons.h" compile="0" resource="0"

@@ -101,6 +101,8 @@ public:
                           const float diameter,
                           const Colour& colour, const float outlineThickness,
                           const int direction) throw();
+    
+    Button* createSliderButton(bool	isIncrement);
 
     // ======== custom combo box methods: =============================
 
