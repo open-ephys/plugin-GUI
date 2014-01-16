@@ -121,7 +121,7 @@ void UIComponent::resized()
         top = 40;
 
         if (processorList->isOpen())
-            left = 202;
+            left = 207;
         else
             left = 6;
 
@@ -167,9 +167,9 @@ void UIComponent::resized()
     {
         if (processorList->isOpen())
             if (editorViewportButton->isOpen())
-                processorList->setBounds(5,5,195,h-200);
+                processorList->setBounds(5,5,200,h-200);
             else
-                processorList->setBounds(5,5,195,h-50);
+                processorList->setBounds(5,5,200,h-50);
         else
             processorList->setBounds(5,5,195,34);
     }
