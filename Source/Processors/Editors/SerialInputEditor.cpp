@@ -106,3 +106,23 @@ void SerialInputEditor::comboBoxChanged(ComboBox* comboBox)
     }
 }
 
+void SerialInputEditor::saveEditorParameters(XmlElement* xmlNode)
+{
+    XmlElement* parameters = xmlNode->createNewChildElement("PARAMETERS");
+
+    parameters->setAttribute("device", deviceList->getText().toStdString());
+    parameters->setAttribute("baudrate", baudrateList->getSelectedId());
+}
+
+void SerialInputEditor::loadEditorParameters(XmlElement* xmlNode)
+{
+    forEachXmlChildElement(*xmlNode, subNode)
+    {
+        if (subNode->hasTagName("PARAMETERS"))
+        {
+            deviceList->setText(subNode->getStringAttribute("device", ""));
+            baudrateList->setSelectedId(subNode->getIntAttribute("baudrate"));
+        }
+    }
+}
+
