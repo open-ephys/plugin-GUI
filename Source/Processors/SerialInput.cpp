@@ -28,12 +28,8 @@
 const int SerialInput::BAUDRATES[12] = {300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200, 230400};
 
 SerialInput::SerialInput()
-: GenericProcessor("Serial Port")
+    : GenericProcessor("Serial Port"), baudrate(0)
 {
-    baudrate = 0;
-    // ToDo: One day, this should use the Parameter class, and it will look roughly like this:
-    //parameters.add(Parameter("device", varArray(getDevices()), 0, 0, true));
-    //parameters.add(Parameter("baudrate", varArray(getBaudrates()), 6, 1, true));
 }
 
 SerialInput::~SerialInput()
@@ -75,12 +71,11 @@ bool SerialInput::isReady()
 {
     if(device == "" || baudrate == 0)
     {
-        // ToDo: Properly warn about problem here!
         AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "SerialInput connection error!", "Please set device and baudrate to use first!");
         return false;
     }
-    if(!serial.setup(device, baudrate)) {
-        // ToDo: Properly warn about problem here!
+    if(!serial.setup(device, baudrate))
+    {
         AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "SerialInput connection error!", "Could not connect to specified serial device. Check log files for details.");
         return false;
     }
@@ -94,9 +89,7 @@ bool SerialInput::disable()
 }
 
 
-void SerialInput::process(AudioSampleBuffer& buffer,
-                          MidiBuffer& events,
-                          int& nSamples)
+void SerialInput::process(AudioSampleBuffer&, MidiBuffer& events, int&)
 {
     int bytesAvailable = serial.available();
     

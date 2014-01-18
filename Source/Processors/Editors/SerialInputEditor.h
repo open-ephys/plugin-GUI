@@ -51,10 +51,12 @@ public:
     
     /** Called by processor graph at the end of the acqusition, reenables editor completly. */
     void stopAcquisition();
+
+    /** Called when configuration is saved. Adds editors config to xml. */
+    void saveEditorParameters(XmlElement* xml);
     
-    //void saveEditorParameters(XmlElement*);
-    
-    //void loadEditorParameters(XmlElement*);
+    /** Called when configuration is loaded. Reads editors config from xml. */
+    void loadEditorParameters(XmlElement* xml);
     
 private:
     
