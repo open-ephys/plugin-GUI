@@ -101,7 +101,8 @@ void SerialInput::process(AudioSampleBuffer&, MidiBuffer& events, int&)
     }
     
     if (bytesAvailable > 0){
-        unsigned char buffer[bytesAvailable];
+
+        unsigned char buffer[10000];
         int bytesRead = serial.readBytes(buffer, bytesAvailable);
         
         if (bytesRead > 0)
