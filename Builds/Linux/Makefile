@@ -140,6 +140,7 @@ OBJECTS := \
   $(OBJDIR)/GenericProcessor_733760aa.o \
   $(OBJDIR)/ProcessorGraph_68b34a0b.o \
   $(OBJDIR)/GraphViewer_e43fd2ce.o \
+  $(OBJDIR)/CustomArrowButton_206e4278.o \
   $(OBJDIR)/EditorViewportButtons_29af2a5c.o \
   $(OBJDIR)/SignalChainManager_d2b643f0.o \
   $(OBJDIR)/EditorViewport_1d991caf.o \
@@ -670,6 +671,11 @@ $(OBJDIR)/ProcessorGraph_68b34a0b.o: ../../Source/Processors/ProcessorGraph.cpp
 $(OBJDIR)/GraphViewer_e43fd2ce.o: ../../Source/UI/GraphViewer.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GraphViewer.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/CustomArrowButton_206e4278.o: ../../Source/UI/CustomArrowButton.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling CustomArrowButton.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/EditorViewportButtons_29af2a5c.o: ../../Source/UI/EditorViewportButtons.cpp

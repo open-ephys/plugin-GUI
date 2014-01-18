@@ -646,6 +646,9 @@
     <ClCompile Include="..\..\Source\UI\GraphViewer.cpp">
       <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\UI\CustomArrowButton.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\UI\EditorViewportButtons.cpp">
       <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
@@ -2185,6 +2188,9 @@
       <Filter>open-ephys\Source\Processors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\GraphViewer.h">
+      <Filter>open-ephys\Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\CustomArrowButton.h">
       <Filter>open-ephys\Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\EditorViewportButtons.h">

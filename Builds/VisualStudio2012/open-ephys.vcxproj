@@ -353,6 +353,7 @@
     <ClCompile Include="..\..\Source\Processors\GenericProcessor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ProcessorGraph.cpp"/>
     <ClCompile Include="..\..\Source\UI\GraphViewer.cpp"/>
+    <ClCompile Include="..\..\Source\UI\CustomArrowButton.cpp"/>
     <ClCompile Include="..\..\Source\UI\EditorViewportButtons.cpp"/>
     <ClCompile Include="..\..\Source\UI\SignalChainManager.cpp"/>
     <ClCompile Include="..\..\Source\UI\EditorViewport.cpp"/>
@@ -1555,6 +1556,7 @@
     <ClInclude Include="..\..\Source\Processors\GenericProcessor.h"/>
     <ClInclude Include="..\..\Source\Processors\ProcessorGraph.h"/>
     <ClInclude Include="..\..\Source\UI\GraphViewer.h"/>
+    <ClInclude Include="..\..\Source\UI\CustomArrowButton.h"/>
     <ClInclude Include="..\..\Source\UI\EditorViewportButtons.h"/>
     <ClInclude Include="..\..\Source\UI\SignalChainManager.h"/>
     <ClInclude Include="..\..\Source\UI\EditorViewport.h"/>
