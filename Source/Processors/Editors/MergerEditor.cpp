@@ -57,7 +57,7 @@ MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParamete
     : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-    desiredWidth = 90;
+    desiredWidth = 85;
 
     pipelineSelectorA = new ImageButton("Pipeline A");
 
@@ -114,6 +114,8 @@ void MergerEditor::buttonEvent(Button* button)
         processor->switchIO(1);
 
     }
+
+    getEditorViewport()->makeEditorVisible(this, false);
 }
 
 void MergerEditor::mouseDown(const MouseEvent& e)
@@ -158,6 +160,8 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             processor->setMergerSourceNode(availableProcessors[result-2]);
             availableProcessors[result-2]->setDestNode(getProcessor());
 
+            getGraphViewer()->updateNodeLocations();
+
             getEditorViewport()->makeEditorVisible(this, false, true);
         }
     }
@@ -184,6 +188,27 @@ void MergerEditor::switchSource(int source)
         processor->switchIO(1);
 
     }
+}
+
+Array<GenericEditor*> MergerEditor::getConnectedEditors()
+{
+
+    Array<GenericEditor*> editors;
+
+    Merger* processor = (Merger*) getProcessor();
+    
+    for (int pathNum = 0; pathNum < 2; pathNum++)
+    {
+        processor->switchIO();
+
+        if (processor->getSourceNode() != nullptr)
+            editors.add(processor->getSourceNode()->getEditor());
+        else
+            editors.add(nullptr);
+    }
+    
+    return editors;
+
 }
 
 int MergerEditor::getPathForEditor(GenericEditor* editor)

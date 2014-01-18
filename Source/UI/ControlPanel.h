@@ -32,8 +32,7 @@
 #include "CustomLookAndFeel.h"
 #include "../AccessClass.h"
 #include "../Processors/Editors/GenericEditor.h" // for UtilityButton
-#include "../Processors/Visualization/OpenGLCanvas.h"
-
+#include <queue>
 
 /**
 
@@ -303,7 +302,6 @@ public:
 
     /** Used to manually turn recording on and off.*/
     void setRecordState(bool isRecording);
-
     /** Returns a boolean that indicates whether or not the FilenameComponet
         is visible. */
     bool isOpen()
@@ -328,10 +326,25 @@ public:
 
     /** Load settings. */
     void loadStateFromXml(XmlElement*);
+    
+	void handleIncomdingMessages();
 
+		/** Informs the Control Panel that recording has begun.*/
+    void startRecording();
+    
+    /** Informs the Control Panel that recording has stopped.*/
+    void stopRecording();
+
+    /** Returns a list of recently used directories for saving data. */
+    StringArray getRecentlyUsedFilenames();
+
+    /** Sets the list of recently used directories for saving data. */
+    void setRecentlyUsedFilenames(const StringArray& filenames);
+
+	ScopedPointer<RecordButton> recordButton;
 private:
     ScopedPointer<PlayButton> playButton;
-    ScopedPointer<RecordButton> recordButton;
+    
     ScopedPointer<Clock> masterClock;
     ScopedPointer<CPUMeter> cpuMeter;
     ScopedPointer<DiskSpaceMeter> diskMeter;
@@ -352,12 +365,6 @@ private:
     void resized();
 
     void buttonClicked(Button* button);
-    
-    /** Informs the Control Panel that recording has begun.*/
-    void startRecording();
-    
-    /** Informs the Control Panel that recording has stopped.*/
-    void stopRecording();
 
     bool initialize;
 
@@ -371,6 +378,7 @@ private:
     void refreshMeters();
 
     bool keyPressed(const KeyPress& key);
+
 
     Font font;
 

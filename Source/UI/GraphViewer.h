@@ -71,12 +71,16 @@ public:
     void setLevel(int);
     int getHorzShift();
     void setHorzShift(int);
+
+    int horzShift;
+    int vertShift;
     
 private:
 
     GenericEditor* editor;
     
     Font labelFont;
+
     
     bool mouseOver;
 
@@ -97,19 +101,23 @@ public:
     void addNode(GenericEditor* editor);
     void removeNode(GenericEditor* editor);
     void removeAllNodes();
+    void updateNodeLocations();;
 
     int nodesAtLevel(int lvl);
     int getHorizontalShift(GraphNode*);
+    GraphNode* getNodeForEditor(GenericEditor* editor);
 
 private:
 
     void connectNodes(int, int, Graphics&);
-    void checkLayout();
+    void checkLayout(GraphNode*);
     
-    void updateNodeLocations();
+    
     int indexOfEditor(GenericEditor* editor);
     
     Font labelFont;
+
+    int rootNum;
     
     OwnedArray<GraphNode> availableNodes;
     

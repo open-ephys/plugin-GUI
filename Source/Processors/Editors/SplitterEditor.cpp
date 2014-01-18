@@ -23,6 +23,7 @@
 
 #include "SplitterEditor.h"
 #include "../Utilities/Splitter.h"
+#include "../../UI/EditorViewport.h"
 
 // PipelineSelectorButton::PipelineSelectorButton()
 // 	: DrawableButton ("Selector", DrawableButton::ImageFitted)
@@ -55,7 +56,7 @@ SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultPara
     : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-    desiredWidth = 90;
+    desiredWidth = 85;
 
     pipelineSelectorA = new ImageButton("Pipeline A");
 
@@ -103,6 +104,8 @@ void SplitterEditor::buttonEvent(Button* button)
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(0);
 
+        getEditorViewport()->makeEditorVisible(this, false);
+
     }
     else if (button == pipelineSelectorB)
     {
@@ -110,6 +113,8 @@ void SplitterEditor::buttonEvent(Button* button)
         pipelineSelectorA->setToggleState(false,false);
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(1);
+
+        getEditorViewport()->makeEditorVisible(this, false);
 
     }
 }
@@ -132,6 +137,8 @@ void SplitterEditor::switchDest(int dest)
         processor->switchIO(1);
 
     }
+
+    getEditorViewport()->makeEditorVisible(this, false);
 }
 
 void SplitterEditor::switchIO(int dest)

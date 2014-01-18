@@ -27,8 +27,9 @@
 GenericProcessor::GenericProcessor(const String& name_) : AccessClass(),
     sourceNode(0), destNode(0), isEnabled(true), wasConnected(false),
     nextAvailableChannel(0), saveOrder(-1), loadOrder(-1), currentChannel(-1),
-     parametersAsXml(nullptr),  name(name_), paramsWereLoaded(false)
+     parametersAsXml(nullptr),  name(name_), paramsWereLoaded(false), editor(0), sendSampleCount(true)
 {
+	  settings.numInputs = settings.numOutputs = settings.sampleRate = 0;
 }
 
 GenericProcessor::~GenericProcessor()
@@ -39,6 +40,17 @@ AudioProcessorEditor* GenericProcessor::createEditor()
 {
     editor = new GenericEditor(this, true);
     return editor;
+}
+
+void GenericProcessor::setNodeId(int id)
+{
+    nodeId = id;
+
+    if (editor != 0)
+    {
+        editor->updateName();
+    }
+
 }
 
 Parameter& GenericProcessor::getParameterByName(String name_)
@@ -277,6 +289,14 @@ void GenericProcessor::update()
 {
 
     std::cout << getName() << " updating settings." << std::endl;
+	// SO patched here to keep original channel names
+
+	int oldNumChannels = channels.size();
+	StringArray oldNames;
+	for (int k = 0; k < oldNumChannels; k++)
+	{
+		oldNames.add(channels[k]->getName());
+	}
 
     clearSettings();
 
@@ -314,15 +334,33 @@ void GenericProcessor::update()
     }
     else
     {
-
         settings.numOutputs = getDefaultNumOutputs();
         settings.sampleRate = getDefaultSampleRate();
-
-        for (int i = 0; i < getNumOutputs(); i++)
+		
+		int numChan = getNumOutputs();
+		int numADC_Chan = getDefaultADCoutputs();
+        for (int i = 0; i < numChan; i++)
         {
-            Channel* ch = new Channel(this, i);
+            Channel* ch = new Channel(this, i );
+
+			// if (i < oldNumChannels)
+			// 	ch->setName(oldNames[i]);
+			//else if (i >= numChan-numADC_Chan) 
+			//	ch->setName("ADC"+String(1+i-(numChan-numADC_Chan)));
+
+            if (i >= numChan-numADC_Chan) 
+              ch->setName("ADC"+String(1+i-(numChan-numADC_Chan)));
+
+            if (i >= numChan-numADC_Chan)
+              ch->isADCchannel = true;
+            
+
             ch->sampleRate = getDefaultSampleRate();
-            ch->bitVolts = getDefaultBitVolts();
+
+          //  if (ch->isADCchannel)
+                ch->bitVolts = getDefaultBitVolts();
+          //  else
+          //      ch->bitVolts = getDefaultAdcBitVolts(); // should implement this
 
              if (i < recordStatus.size())
             {
@@ -383,7 +421,9 @@ int GenericProcessor::getNumSamples(MidiBuffer& events)
     // the sample rate to change at different points in the signal chain.
     //
 
-    int numRead = 0;
+    int numRead = 0; 
+
+    //int numRead = 0;
 
     if (events.getNumEvents() > 0)
     {
@@ -396,17 +436,22 @@ int GenericProcessor::getNumSamples(MidiBuffer& events)
         const uint8* dataptr;
         int dataSize;
 
-        int samplePosition = -5;
+        int samplePosition = -1;
 
         while (i.getNextEvent(dataptr, dataSize, samplePosition))
         {
 
-            if (*dataptr == BUFFER_SIZE)
-            {
+             if (*dataptr == BUFFER_SIZE)
+             {
                 
-                numRead = samplePosition;
+                int16 nr;
+                memcpy(&nr, dataptr+2, 2);
 
-            } else if (*dataptr == TTL &&    // a TTL event
+                 numRead = nr;
+
+             } else 
+
+            if (*dataptr == TTL &&    // a TTL event
                         getNodeId() < 900 && // not handled by a specialized processor (e.g. AudioNode))
                         *(dataptr+1) > 0)    // that's flagged for saving
             {
@@ -435,14 +480,19 @@ void GenericProcessor::setNumSamples(MidiBuffer& events, int sampleIndex)
     // immediate source.
     //
 
-    uint8 data[2];
+    uint8 data[4];
+
+    int16 si = (int16) sampleIndex;
 
     data[0] = BUFFER_SIZE;  // most-significant byte
     data[1] = nodeId;       // least-significant byte
+    memcpy(data+2, &si, 2);
 
     events.addEvent(data,       // spike data
-                    2,          // total bytes
-                    sampleIndex); // sample index
+                    4,          // total bytes
+                    0); // sample index
+
+   // std::cout << "Processor " << getNodeId() << " adding a new sample count of " << sampleIndex << std::endl;
 
 }
 
@@ -517,7 +567,8 @@ void GenericProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& event
 
     process(buffer, eventBuffer, nSamples);
 
-    setNumSamples(eventBuffer, nSamples); // adds it back,
+    if (sendSampleCount)
+        setNumSamples(eventBuffer, nSamples); // adds it back,
     // even if it's unchanged
 
 }
@@ -631,6 +682,8 @@ void GenericProcessor::saveCustomChannelParametersToXml(XmlElement* channelInfo,
 void GenericProcessor::loadFromXml()
 {
 
+    update(); // make sure settings are updated
+
     std::cout << "Loading parameters for " << name << std::endl;
 
     if (!paramsWereLoaded)
@@ -640,6 +693,17 @@ void GenericProcessor::loadFromXml()
         {
             // use parametersAsXml to restore state
             loadCustomParametersFromXml();
+
+            // load editor parameters
+            forEachXmlChildElement(*parametersAsXml, xmlNode)
+            {
+
+                if (xmlNode->hasTagName("EDITOR"))
+                {
+                    getEditor()->loadEditorParameters(xmlNode);
+                }
+
+            }
 
             forEachXmlChildElement(*parametersAsXml, xmlNode)
             {
@@ -653,10 +717,6 @@ void GenericProcessor::loadFromXml()
 
                     loadChannelParametersFromXml(xmlNode, true);
 
-                }
-                else if (xmlNode->hasTagName("EDITOR"))
-                {
-                    getEditor()->loadEditorParameters(xmlNode);
                 }
 
             }

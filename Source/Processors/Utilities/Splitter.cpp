@@ -30,7 +30,7 @@ Splitter::Splitter()
     : GenericProcessor("Splitter"),
       destNodeA(0), destNodeB(0), activePath(0)
 {
-
+    sendSampleCount = false;
 }
 
 Splitter::~Splitter()
@@ -83,22 +83,22 @@ void Splitter::setSplitterDestNode(GenericProcessor* dn)
 void Splitter::switchIO(int destNum)
 {
 
-    std::cout << "Switching to dest number " << destNum << std::endl;
+    //std::cout << "Switching to dest number " << destNum << std::endl;
 
     activePath = destNum;
 
     if (destNum == 0)
     {
         destNode = destNodeA;
-        std::cout << "Dest node: " << getDestNode() << std::endl;
+       // std::cout << "Dest node: " << getDestNode() << std::endl;
     }
     else
     {
         destNode = destNodeB;
-        std::cout << "Dest node: " << getDestNode() << std::endl;
+       // std::cout << "Dest node: " << getDestNode() << std::endl;
     }
 
-    getEditorViewport()->makeEditorVisible(getEditor(), false);
+   // getEditorViewport()->makeEditorVisible(getEditor(), false);
 
 }
 

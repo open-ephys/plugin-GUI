@@ -120,6 +120,9 @@ public:
         return name;
     }
 
+    /** Updates name if processor ID changes. */
+    void updateName();
+
     /** Determines how wide the editor will be drawn. */
     int desiredWidth;
 
@@ -247,14 +250,29 @@ public:
     void setChannelSelectionState(int chan, bool p, bool r, bool a);
 
     /** Writes editor state to xml */
-    virtual void saveEditorParameters(XmlElement* xml);
+    void saveEditorParameters(XmlElement* xml);
 
     /** Writes editor state to xml */
-    virtual void loadEditorParameters(XmlElement* xml);
+    void loadEditorParameters(XmlElement* xml);
+
+    /** Writes editor state to xml */
+    virtual void saveCustomParameters(XmlElement* xml) { }
+
+    /** Writes editor state to xml */
+    virtual void loadCustomParameters(XmlElement* xml) { }
 
     /** Syncs parametereditor colors with parameter values */
     void updateParameterButtons(int parameterIndex = -1);
-    
+
+    /** Checks to see whether or not an editor is collapsed */
+    bool getCollapsedState();
+
+    /**  Collapses an editor if it's open, and opens it if it's collpased*/
+    void switchCollapsedState();
+
+     /**  Notifies the editor that the collapsed state changed, for non-standard function. */
+    virtual void collapsedStateChanged() {}
+
     /** Returns the editor of this processor's source */
     GenericEditor* getSourceEditor();
     
@@ -262,7 +280,7 @@ public:
     GenericEditor* getDestEditor();
 
     /** Returns the editors a splitter or merger is connected to */
-    virtual Array<GenericEditor*> getConnectedEditors() { }
+	virtual Array<GenericEditor*> getConnectedEditors(){ Array<GenericEditor*> a; return a;}
     
 protected:
 
@@ -271,6 +289,9 @@ protected:
 
     /** Determines the width of the ChannelSelector drawer when opened. */
     int drawerWidth;
+
+    /** Saves the open/closed state of the ChannelSelector drawer. */
+    bool drawerOpen;
 
 
     /** Can be overridden to customize the layout of ParameterEditors. */
@@ -299,11 +320,13 @@ private:
 
     bool isSelected;
     bool isEnabled;
+    bool isCollapsed;
 
     /**Used to determine if an editor is a splitter or Merger to avoid calling on CHannelSelector*/
     bool isSplitOrMerge;
 
     int tNum;
+    int originalWidth;
 
     /**initializing function Used to share constructor functions*/
     void constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors);
@@ -382,6 +405,7 @@ public:
     }
 
     void setLabel(String label);
+	String getLabel();
 
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);

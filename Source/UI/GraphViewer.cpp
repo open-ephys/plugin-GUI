@@ -27,7 +27,7 @@ GraphViewer::GraphViewer()
 {
     
     labelFont = Font("Paragraph", 50, Font::plain);
-    
+    rootNum = 0;
 }
 
 GraphViewer::~GraphViewer()
@@ -41,7 +41,7 @@ void GraphViewer::addNode(GenericEditor* editor)
     GraphNode* gn = new GraphNode(editor, this);
     addAndMakeVisible(gn);
     availableNodes.add(gn);
-    
+    gn->setBounds(20, 20, 150, 50);
     updateNodeLocations();
     
 }
@@ -69,40 +69,98 @@ void GraphViewer::updateNodeLocations()
     // set the initial locations
     for (int i = 0; i < availableNodes.size(); i++)
     {
-        availableNodes[i]->updateBoundaries();
+
     }
-    
-    // perform checks
-    //checkLayout(); // not helpful...yet
-    
+
+    rootNum = 0;
+
+    // do initial layout
+    for (int i = 0; i < availableNodes.size(); i++)
+    {
+        checkLayout(availableNodes[i]);
+    }
+
+    // check for overlap
+    for (int i = 0; i < availableNodes.size(); i++)
+    {
+        for (int j = 0; j < availableNodes.size(); j++)
+        {
+            if (j != i)
+            {
+                if (availableNodes[j]->getLevel() == availableNodes[i]->getLevel() &&
+                    availableNodes[j]->getHorzShift() == availableNodes[i]->getHorzShift())
+                {
+                    availableNodes[j]->setHorzShift(availableNodes[j]->getHorzShift()+1);
+                }
+            }
+        }
+    }
+
     repaint();
 }
 
-void GraphViewer::checkLayout()
+void GraphViewer::checkLayout(GraphNode* gn)
 {
-    
-    for (int i = 0; i < availableNodes.size(); i++)
+ 
+    if (gn != nullptr)
     {
-        int sourceIndex = indexOfEditor(availableNodes[i]->getSource());
-        
-        if (sourceIndex > -1)
+
+        GraphNode* sourceNode;
+
+        if (gn->isMerger())
         {
-            if (availableNodes[i]->getHorzShift() < availableNodes[sourceIndex]->getHorzShift())
+            Array<GenericEditor*> editors = gn->getConnectedEditors();
+
+            int level1 = 0;
+            int level2 = 0;
+
+            if (editors[0] != nullptr)
             {
-                availableNodes[i]->setHorzShift(availableNodes[sourceIndex]->getHorzShift());
+                level1 = getNodeForEditor(editors[0])->getLevel();
             }
+
+            if (editors[1] != nullptr)
+            {
+                level2 = getNodeForEditor(editors[1])->getLevel();
+            }
+
+           // std::cout << "LEVEL1 = " << level1 << " LEVEL2 = " << level2 << std::endl;
+
+            sourceNode = level1 > level2 ? getNodeForEditor(editors[0]) : 
+                                           getNodeForEditor(editors[1]); // choose the higher source
+
+        } else {
+            sourceNode = getNodeForEditor(gn->getSource());
         }
-        
-        int destIndex = indexOfEditor(availableNodes[i]->getDest());
-        
-        if (destIndex > -1)
+
+        if (sourceNode == nullptr)
         {
-            if (availableNodes[i]->getLevel() > availableNodes[destIndex]->getLevel())
+            gn->setLevel(0);
+            gn->setHorzShift(rootNum);
+            rootNum++;
+        } else if (sourceNode->isSplitter()) 
+        {
+            Array<GenericEditor*> editors = sourceNode->getConnectedEditors();
+
+            if (gn->hasEditor(editors[1]))
             {
-                availableNodes[destIndex]->setLevel(availableNodes[i]->getLevel()+1);
+                gn->setLevel(sourceNode->getLevel()+1); // increase level
+                gn->setHorzShift(sourceNode->getHorzShift()+1); // increase horz shift
+            } else {
+                 gn->setLevel(sourceNode->getLevel()+1); // increase level
+                gn->setHorzShift(sourceNode->getHorzShift()); // same horz shift
             }
+
+        } else {
+
+            gn->setLevel(sourceNode->getLevel()+1); // increase level
+            gn->setHorzShift(sourceNode->getHorzShift()); // same horz shift
         }
+
+        checkLayout(getNodeForEditor(gn->getDest()));
+
     }
+
 }
 
 int GraphViewer::indexOfEditor(GenericEditor* editor)
@@ -118,6 +176,16 @@ int GraphViewer::indexOfEditor(GenericEditor* editor)
     }
     
     return index;
+}
+
+GraphNode* GraphViewer::getNodeForEditor(GenericEditor* editor)
+{
+    int index = indexOfEditor(editor);
+
+    if (index > -1)
+        return availableNodes[index];
+    else
+        return nullptr;
 }
 
 int GraphViewer::nodesAtLevel(int level)
@@ -240,33 +308,35 @@ GraphNode::~GraphNode()
 
 int GraphNode::getLevel()
 {
-    int level = -1;
+    // int level = -1;
 
-    GenericEditor* ed = editor;
+    // GenericEditor* ed = editor;
 
-    while (ed != nullptr)
-    {
-        level += 1;
-        ed = ed->getSourceEditor();
-    }
+    // while (ed != nullptr)
+    // {
+    //     level += 1;
+    //     ed = ed->getSourceEditor();
+    // }
 
-    return level;
+    return vertShift;
 }
 
 void GraphNode::setLevel(int level)
 {
-    setBounds(getX(), 20+getLevel()*40, getWidth(), getHeight());
+    setBounds(getX(), 20+level*40, getWidth(), getHeight());
     
+    vertShift = level;
 }
 
 int GraphNode::getHorzShift()
 {
-    return gv->getHorizontalShift(this);
+    return horzShift; //gv->getHorizontalShift(this);
 }
 
 void GraphNode::setHorzShift(int shift)
 {
     setBounds(20+shift*140, getY(), getWidth(), getHeight());
+    horzShift = shift;
 }
     
 void GraphNode::mouseEnter(const MouseEvent& m)

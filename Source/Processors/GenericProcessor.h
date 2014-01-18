@@ -277,6 +277,11 @@ public:
         return 2;
     }
 
+	  virtual int getDefaultADCoutputs()
+    {
+        return 0;
+    }
+
     /** Returns the default number of volts per bit, in case a processor is a source, of the processor gain otherwise. (assumes data comes from a 16bit source)*/
     virtual float getDefaultBitVolts()
     {
@@ -302,10 +307,7 @@ public:
     }
 
     /** Sets the unique integer ID for a processor. */
-    void setNodeId(int id)
-    {
-        nodeId = id;
-    }
+    void setNodeId(int id);
 
     /** Returns a pointer to the processor immediately preceding a given processor in the signal chain. */
     GenericProcessor* getSourceNode()
@@ -473,12 +475,14 @@ public:
         SPIKE = 4,
         EEG = 5,
         CONTINUOUS = 6,
-        SERIAL = 7
+		NETWORK = 7,
+		EYE_POSITION = 8,
+        SERIAL = 9
     };
 
     enum eventChannelTypes
     {
-        GENERIC_EVENT = 999,
+        GENERIC_EVENT = 100,
         SINGLE_ELECTRODE = 1,
         STEREOTRODE = 2,
         TETRODE = 4
@@ -577,8 +581,14 @@ public:
     /** Load custom parameters for each channel. */
     virtual void loadCustomChannelParametersFromXml(XmlElement* channelElement, bool isEventChannel=false);
 
+	/** handle messages from other processors */
+	virtual String interProcessorCommunication(String command) { return String("OK"); };
+
     /** Holds loaded parameters */
     XmlElement* parametersAsXml;
+
+    /** When set to false, this disables the sending of sample counts through the event buffer. */
+    bool sendSampleCount;
 
 private:
 
@@ -604,6 +614,7 @@ private:
     static const String unusedNameString;
 
     bool paramsWereLoaded;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GenericProcessor);
 

@@ -35,9 +35,6 @@
 #include "../Processors/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
-#include "../Processors/Visualization/OpenGLCanvas.h"
-
-//#include "../OpenGL.h"
 
 class MainWindow;
 class ProcessorList;
@@ -163,6 +160,10 @@ public:
     /** Load settings. */
     void loadStateFromXml(XmlElement*);
 
+    StringArray getRecentlyUsedFilenames();
+
+    void setRecentlyUsedFilenames(const StringArray& filenames);
+
 private:
 
     ScopedPointer<DataViewport> dataViewport;
@@ -173,7 +174,7 @@ private:
     ScopedPointer<MessageCenter> messageCenter;
     ScopedPointer<InfoLabel> infoLabel;
     ScopedPointer<GraphViewer> graphViewer;
-
+	
     /** Pointer to the GUI's MainWindow, which owns the UIComponent. */
     MainWindow* mainWindow;
 

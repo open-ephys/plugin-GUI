@@ -32,12 +32,11 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     processorGraph->setUIComponent(this);
 
     infoLabel = new InfoLabel();
+    graphViewer = new GraphViewer();
 
     dataViewport = new DataViewport();
     addChildComponent(dataViewport);
     dataViewport->addTabToDataViewport("Info", infoLabel,0);
-    
-    graphViewer = new GraphViewer();
     dataViewport->addTabToDataViewport("Graph", graphViewer,0);
 
     std::cout << "Created data viewport." << std::endl;
@@ -124,7 +123,7 @@ void UIComponent::resized()
         top = 40;
 
         if (processorList->isOpen())
-            left = 207;
+            left = 202;
         else
             left = 6;
 
@@ -170,9 +169,9 @@ void UIComponent::resized()
     {
         if (processorList->isOpen())
             if (editorViewportButton->isOpen())
-                processorList->setBounds(5,5,200,h-200);
+                processorList->setBounds(5,5,195,h-200);
             else
-                processorList->setBounds(5,5,200,h-50);
+                processorList->setBounds(5,5,195,h-50);
         else
             processorList->setBounds(5,5,195,34);
     }
@@ -502,6 +501,16 @@ void UIComponent::loadStateFromXml(XmlElement* xml)
 
         }
     }
+}
+
+StringArray UIComponent::getRecentlyUsedFilenames()
+{
+    return controlPanel->getRecentlyUsedFilenames();
+}
+
+void UIComponent::setRecentlyUsedFilenames(const StringArray& filenames)
+{
+    controlPanel->setRecentlyUsedFilenames(filenames);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

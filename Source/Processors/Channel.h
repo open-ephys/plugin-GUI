@@ -94,7 +94,7 @@ public:
     
     // boolean values:
     bool isEventChannel;
-    
+    bool isADCchannel;
     bool isMonitored;
     bool isEnabled;
 

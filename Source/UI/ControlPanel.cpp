@@ -759,8 +759,7 @@ void ControlPanel::disableCallbacks()
 void ControlPanel::timerCallback()
 {
     //std::cout << "Message Received." << std::endl;
-
-    refreshMeters();
+   refreshMeters();
 
 }
 
@@ -869,4 +868,16 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
     
     getProcessorGraph()->getAudioNode()->updateBufferSize();
 
+}
+
+
+StringArray ControlPanel::getRecentlyUsedFilenames()
+{
+    return filenameComponent->getRecentlyUsedFilenames();
+}
+
+
+void ControlPanel::setRecentlyUsedFilenames(const StringArray& filenames)
+{
+    filenameComponent->setRecentlyUsedFilenames(filenames);
 }
