@@ -123,12 +123,12 @@ void ProcessorGraph::updatePointers()
     getRecordNode()->setUIComponent(getUIComponent());
 }
 
-void* ProcessorGraph::createNewProcessor(String& description)
+void* ProcessorGraph::createNewProcessor(String& description, int id)
 {
 
     GenericProcessor* processor = createProcessorFromDescription(description);
 
-    int id = currentNodeId++;
+    //int id = currentNodeId++;
 
     if (processor != 0)
     {
@@ -182,6 +182,12 @@ void ProcessorGraph::clearSignalChain()
 void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
 {
 
+   refreshColors();
+
+}
+
+void ProcessorGraph::refreshColors()
+{
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
@@ -198,7 +204,6 @@ void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
             e->refreshColors();
         }
     }
-
 }
 
 void ProcessorGraph::restoreParameters()

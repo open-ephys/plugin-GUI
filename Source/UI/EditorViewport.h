@@ -210,6 +210,9 @@ private:
 
     void resized();
 
+    int currentId;
+    int maxId;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EditorViewport);
 
 };
@@ -247,7 +250,7 @@ public:
     /** Returns the editor associated with this SignalChainTabButton.*/
     GenericEditor* getEditor()
     {
-        return firstEditor;
+         return firstEditor;
     }
 
     /** Sets the number of this SignalChainTabButton.*/

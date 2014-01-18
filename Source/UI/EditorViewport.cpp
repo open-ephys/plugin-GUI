@@ -67,6 +67,9 @@ EditorViewport::EditorViewport()
     addAndMakeVisible(rightButton);
     addAndMakeVisible(leftButton);
 
+    currentId = 100;
+    maxId = 100;
+
 }
 
 EditorViewport::~EditorViewport()
@@ -113,14 +116,14 @@ void EditorViewport::paint(Graphics& g)
         float insertionX = (float)(borderSize) * 2.5 + (float) tabSize;
 
         int n;
-        for (n = 0; n < insertionPoint; n++)
+        for (n = leftmostEditor; n < insertionPoint; n++)
         {
             insertionX += editorArray[n]->getWidth();
 
         }
 
-        if (n > 1)
-            insertionX += borderSize*(n-1);
+        if (n - leftmostEditor > 1)
+            insertionX += borderSize*(n-leftmostEditor-1);
 
         g.setColour(Colours::yellow);
         g.drawLine(insertionX, (float) borderSize,
@@ -131,13 +134,18 @@ void EditorViewport::paint(Graphics& g)
     int insertionX = tabSize + borderSize;
     g.setColour(Colours::darkgrey);
 
-    int x = insertionX + 19;
+    int x = insertionX + 15;
     int y = borderSize + 2;
     //int w = 30;
     //int h = getHeight() - 2*(borderSize+2);
 
-    g.drawImageAt(sourceDropImage, x, y);
-
+    if (editorArray.size() > 0)
+    {
+        if (!editorArray[0]->getProcessor()->isSource())
+            g.drawImageAt(sourceDropImage, x, y);
+    } else {
+        g.drawImageAt(sourceDropImage, x, y);
+    }
 }
 
 bool EditorViewport::isInterestedInDragSource(const SourceDetails& dragSourceDetails)
@@ -180,7 +188,7 @@ void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
         int leftEdge;
         int centerPoint;
 
-        for (int n = 0; n < editorArray.size(); n++)
+        for (int n = leftmostEditor; n < editorArray.size(); n++)
         {
             leftEdge = editorArray[n]->getX();
             centerPoint = leftEdge + (editorArray[n]->getWidth())/2;
@@ -230,7 +238,7 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
         /// needed to remove const cast --> should be a better way to do this
         //String description = sourceDescription.substring(0);
 
-        GenericEditor* activeEditor = (GenericEditor*) getProcessorGraph()->createNewProcessor(description);//, source, dest);
+        GenericEditor* activeEditor = (GenericEditor*) getProcessorGraph()->createNewProcessor(description, currentId);//, source, dest);
 
         std::cout << "Active editor: " << activeEditor << std::endl;
 
@@ -263,6 +271,9 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
         getGraphViewer()->addNode(activeEditor);
 
         repaint();
+
+        currentId++;
+
     }
 }
 
@@ -307,6 +318,18 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bo
     if (highlight)
         editor->highlight();
 
+    while (!editor->isVisible())
+    {
+        if (leftmostEditor < editorArray.indexOf(editor))
+            leftmostEditor++;
+        else
+            leftmostEditor--;
+
+        refreshEditors();
+    }
+
+    repaint();
+
 }
 
 void EditorViewport::deleteNode(GenericEditor* editor)
@@ -330,6 +353,8 @@ void EditorViewport::deleteNode(GenericEditor* editor)
         somethingIsBeingDraggedOver = false;
         
         
+
+        repaint();
 
     }
 }
@@ -654,12 +679,30 @@ void EditorViewport::mouseDown(const MouseEvent& e)
     for (int i = 0; i < editorArray.size(); i++)
     {
 
-        if (e.eventComponent == editorArray[i] && e.y < 22)
-            // event must take place along title bar
+        if (e.eventComponent == editorArray[i])
+           
             // || e.eventComponent->getParentComponent() == editorArray[i] ||
             //    e.eventComponent->getParentComponent()->getParentComponent() ==
             //            editorArray[i])
         {
+
+            if (e.getNumberOfClicks() == 2) // double-clicks toggle collapse state
+            {
+                if (editorArray[i]->getCollapsedState())
+                {
+                    editorArray[i]->switchCollapsedState();
+                } else {
+                    if (e.y < 22)
+                    {
+                        editorArray[i]->switchCollapsedState();
+                    }
+                }
+                return;
+            }
+
+            // make sure uncollapsed editors don't accept clicks outside their title bar
+            if (!editorArray[i]->getCollapsedState() && e.y > 22)
+                return;
 
             clickInEditor = true;
             editorArray[i]->select();
@@ -1131,8 +1174,11 @@ const String EditorViewport::saveState(File fileToUse)
     int saveOrder = 0;
 
     XmlElement* xml = new XmlElement("SETTINGS");
-
+	
     XmlElement* info = xml->createNewChildElement("INFO");
+
+    XmlElement* version = info->createNewChildElement("VERSION");
+    version->addTextElement("0.1");
 
     Time currentTime = Time::getCurrentTime();
 
@@ -1195,7 +1241,7 @@ const String EditorViewport::saveState(File fileToUse)
 
                 editor = (GenericEditor*) nextProcessor->getEditor();
 
-                if ((nextProcessor->isSplitter() || nextProcessor->isMerger())
+                if ((nextProcessor->isSplitter())// || nextProcessor->isMerger())
                     && nextProcessor->saveOrder < 0)
                 {
                     splitPoints.add(nextProcessor);
@@ -1261,6 +1307,7 @@ const String EditorViewport::saveState(File fileToUse)
     }
 
     getControlPanel()->saveStateToXml(xml); // save the control panel settings
+    getProcessorList()->saveStateToXml(xml);
     getUIComponent()->saveStateToXml(xml);  // save the UI settings
 
     if (! xml->writeToFile(currentFile, String::empty))
@@ -1291,7 +1338,7 @@ const String EditorViewport::loadState(File fileToLoad)
     // {
     //     return "No configuration selected.";
     // }
-
+	int maxID=100;
     currentFile = fileToLoad;
 
     std::cout << "Loading processor graph." << std::endl;
@@ -1308,6 +1355,34 @@ const String EditorViewport::loadState(File fileToLoad)
         return "Not a valid file.";
     }
 
+	bool olderVersionFound = true;
+	forEachXmlChildElement(*xml, element)
+    {
+		  if (element->hasTagName("INFO"))
+		  {
+			  forEachXmlChildElement(*element, element2)
+			  {
+			   if (element2->hasTagName("VERSION")) 
+			   {
+				   String S= element2->getAllSubText();
+				   double version =S.getDoubleValue();
+				   if (version >= 0.1)
+					   olderVersionFound = false;
+			   }
+			  }
+			  break;
+		  }
+	}
+	if (olderVersionFound)
+	{
+		    bool response = AlertWindow::showOkCancelBox (AlertWindow::NoIcon,
+                                   "Old configuration file.",
+                                    "File may not load properly since it could lack some fields. Continute?",
+                                     "Yes", "No", 0, 0);
+        if (!response)
+			return "Failed To Open " + fileToLoad.getFileName();
+  
+	}
     clearSignalChain();
 
     String description;// = " ";
@@ -1328,6 +1403,9 @@ const String EditorViewport::loadState(File fileToLoad)
             {
 
                 int insertionPt = processor->getIntAttribute("insertionPoint");
+                currentId = processor->getIntAttribute("NodeId");
+
+				maxID= (maxID > currentId) ? maxID  : currentId ;
 
                 if (insertionPt == 1)
                 {
@@ -1348,6 +1426,7 @@ const String EditorViewport::loadState(File fileToLoad)
                 p = (GenericProcessor*) lastEditor->getProcessor();
                 p->loadOrder = loadOrder;
                 p->parametersAsXml = processor;
+
                 //Sets parameters based on XML files
                 setParametersByXML(p, processor);
                 loadOrder++;
@@ -1356,6 +1435,8 @@ const String EditorViewport::loadState(File fileToLoad)
                 {
                     splitPoints.add(p);
                 }
+
+                signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
 
             }
             else if (processor->hasTagName("SWITCH"))
@@ -1390,6 +1471,8 @@ const String EditorViewport::loadState(File fileToLoad)
                     }
                 }
 
+                signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
+
             }
 
         }
@@ -1411,6 +1494,7 @@ const String EditorViewport::loadState(File fileToLoad)
     getProcessorGraph()->restoreParameters();
 
     getControlPanel()->loadStateFromXml(xml); // save the control panel settings
+    getProcessorList()->loadStateFromXml(xml);
     getUIComponent()->loadStateFromXml(xml);  // save the UI settings
 
     if (editorArray.size() > 0)
@@ -1418,10 +1502,16 @@ const String EditorViewport::loadState(File fileToLoad)
 
     refreshEditors();
 
+    getProcessorGraph()->restoreParameters();
+
+
     String error = "Opened ";
     error += currentFile.getFileName();
 
     delete xml;
+
+	currentId=maxID+1; // make sure future processors don't have overlapping id numbers
+
     return error;
 }
 /* Set parameters based on XML.*/
