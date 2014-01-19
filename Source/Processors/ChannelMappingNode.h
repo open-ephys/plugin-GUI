@@ -70,6 +70,7 @@ private:
 	Array<bool> enabledChannelArray;
 
 	int previousChannelCount;
+	bool editorIsConfigured;
 
     AudioSampleBuffer channelBuffer;
 

@@ -143,7 +143,7 @@ void ChannelSelector::shiftChannelsVertical(float amount)
         offsetUD = jmax(offsetUD, float(parameterButtons.size())/8*-10.68f);
     }
 
-    std::cout << "offsetUD = " << offsetUD << std::endl;
+    //std::cout << "offsetUD = " << offsetUD << std::endl;
 
     refreshButtonBoundaries();
 
@@ -432,7 +432,11 @@ void ChannelSelector::setAudioStatus(int chan, bool b)
 
 }
 
-
+void ChannelSelector::clearAudio()
+{
+    for (int chan = 0; chan < audioButtons.size(); chan++)
+        audioButtons[chan]->setToggleState(false, true);
+}
 
 int ChannelSelector::getDesiredWidth()
 {
@@ -555,11 +559,12 @@ void ChannelSelector::buttonClicked(Button* button)
             //int channelNum = editor->getStartChannel() + b->getChannel() - 1;
             bool status = b->getToggleState();
 
+            std::cout << "Requesting audio monitor for channel " << ch->num << std::endl;
+
             if (acquisitionIsActive) // use setParameter to change parameter safely
             {
                 editor->getProcessorGraph()->
-                getAudioNode()->
-                setChannelStatus(ch, status);
+                    getAudioNode()->setChannelStatus(ch, status);
             }
             else     // change parameter directly
             {
@@ -590,8 +595,12 @@ void ChannelSelector::buttonClicked(Button* button)
             }
 
         }
-        else
+        else // parameter type
         {
+
+            GenericEditor* editor = (GenericEditor*) getParentComponent();
+            editor->channelChanged(b->getChannel()-1);
+
             // do nothing
             if (radioStatus) // if radio buttons are active
             {
@@ -832,8 +841,8 @@ void ChannelSelectorRegion::mouseWheelMove(const MouseEvent& event,
                                            const MouseWheelDetails& wheel)
 {
 
-    std::cout << "Got wheel move: " << wheel.deltaY << std::endl;
-    channelSelector->shiftChannelsVertical(wheel.deltaY);
+   // std::cout << "Got wheel move: " << wheel.deltaY << std::endl;
+    channelSelector->shiftChannelsVertical(-wheel.deltaY);
 }
 
 void ChannelSelectorRegion::paint(Graphics& g)

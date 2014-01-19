@@ -94,6 +94,9 @@ public:
     /** Set whether a particular channel should be monitored. */
     void setAudioStatus(int, bool);
 
+    /** Sets all audio monitors to 'false' */
+    void clearAudio();
+
     /** Set whether a particular channel is selected for editing parameters. */
     void setParamStatus(int, bool);
 
