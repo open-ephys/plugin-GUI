@@ -105,7 +105,7 @@ bool SpikeDetector::addElectrode(int nChans)
 
     int firstChan;
 
-    if (electrodes.size() == 0)
+    if (electrodes.size() == 0 || !paramsWereLoaded)
     {
         firstChan = 0;
     }

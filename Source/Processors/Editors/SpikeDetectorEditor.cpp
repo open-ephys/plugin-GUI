@@ -361,6 +361,7 @@ void SpikeDetectorEditor::channelChanged(int chan)
 
 void SpikeDetectorEditor::refreshElectrodeList()
 {
+
     electrodeList->clear();
 
     SpikeDetector* processor = (SpikeDetector*) getProcessor();
@@ -467,7 +468,9 @@ void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
             SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
             processor->setElectrodeName(lastId, comboBox->getText());
-            refreshElectrodeList();
+            comboBox->changeItemText(lastId, comboBox->getText());
+           //electrodeList->setText(comboBox->getText());
+            //refreshElectrodeList();
 
         }
         else

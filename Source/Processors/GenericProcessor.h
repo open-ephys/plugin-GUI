@@ -590,6 +590,8 @@ public:
     /** When set to false, this disables the sending of sample counts through the event buffer. */
     bool sendSampleCount;
 
+    bool paramsWereLoaded;
+
 private:
 
     /** Automatically extracts the number of samples in the buffer, then
@@ -613,7 +615,6 @@ private:
     /** For getInputChannelName() and getOutputChannelName() */
     static const String unusedNameString;
 
-    bool paramsWereLoaded;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GenericProcessor);
