@@ -337,19 +337,23 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
 void SpikeDetectorEditor::channelChanged(int chan)
 {
-    //std::cout << "New channel: " << chan << std::endl;
 
-    for (int i = 0; i < electrodeButtons.size(); i++)
+    if (electrodeEditorButtons[0]->getToggleState()) // editing is active
     {
-        if (electrodeButtons[i]->getToggleState())
-        {
-            electrodeButtons[i]->setChannelNum(chan);
-            electrodeButtons[i]->repaint();
+        std::cout << "New channel: " << chan << std::endl;
 
-            SpikeDetector* processor = (SpikeDetector*) getProcessor();
-            processor->setChannel(electrodeList->getSelectedItemIndex(),
-                                  i,
-                                  chan-1);
+        for (int i = 0; i < electrodeButtons.size(); i++)
+        {
+            if (electrodeButtons[i]->getToggleState())
+            {
+                electrodeButtons[i]->setChannelNum(chan);
+                electrodeButtons[i]->repaint();
+
+                SpikeDetector* processor = (SpikeDetector*) getProcessor();
+                processor->setChannel(electrodeList->getSelectedItemIndex(),
+                                      i,
+                                      chan-1);
+            }
         }
     }
 
@@ -548,7 +552,7 @@ ThresholdSlider::ThresholdSlider(Font f) : Slider("name"), font(f)
 
     setSliderStyle(Slider::Rotary);
     setRange(25.0f,400.0f,25.0f);
-    setValue(75.0f);
+   // setValue(75.0f);
     setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
 
 }

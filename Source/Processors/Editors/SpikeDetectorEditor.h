@@ -94,14 +94,14 @@ public:
     void channelChanged(int chan);
 
     bool addElectrode(int nChans);
+    void removeElectrode(int index);
 
     void checkSettings();
+    void refreshElectrodeList();
 
 private:
 
     void drawElectrodeButtons(int);
-
-    void refreshElectrodeList();
 
     ComboBox* electrodeTypes;
     ComboBox* electrodeList;
@@ -115,9 +115,7 @@ private:
 
     OwnedArray<ElectrodeButton> electrodeButtons;
     Array<ElectrodeEditorButton*> electrodeEditorButtons;
-
-
-    void removeElectrode(int index);
+    
     void editElectrode(int index, int chan, int newChan);
 
     int lastId;

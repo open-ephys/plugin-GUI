@@ -302,7 +302,7 @@ Array<int> ChannelSelector::getActiveChannels()
 void ChannelSelector::setActiveChannels(Array<int> a)
 {
 
-    std::cout << "Setting active channels!" << std::endl;
+    //std::cout << "Setting active channels!" << std::endl;
 
     for (int i = 0; i < parameterButtons.size(); i++)
     {

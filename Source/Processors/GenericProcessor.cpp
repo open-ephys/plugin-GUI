@@ -684,10 +684,11 @@ void GenericProcessor::loadFromXml()
 
     update(); // make sure settings are updated
 
-    std::cout << "Loading parameters for " << name << std::endl;
-
+  
     if (!paramsWereLoaded)
     {
+
+        std::cout << "Loading parameters for " << name << std::endl;
 
         if (parametersAsXml != nullptr)
         {

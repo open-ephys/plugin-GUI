@@ -229,7 +229,7 @@ void SpikeDetector::setChannelActive(int electrodeIndex, int subChannel, bool ac
     currentElectrode = electrodeIndex;
     currentChannelIndex = subChannel;
 
-    std::cout << "Setting parameter 98 to " << active << std::endl;
+    std::cout << "Setting channel active to " << active << std::endl;
 
     if (active)
         setParameter(98, 1);
@@ -248,6 +248,7 @@ void SpikeDetector::setChannelThreshold(int electrodeNum, int channelNum, float 
 {
     currentElectrode = electrodeNum;
     currentChannelIndex = channelNum;
+    std::cout << "Setting electrode " << electrodeNum << " channel threshold " << channelNum << " to " << thresh << std::endl;
     setParameter(99, thresh);
 }
 
@@ -624,9 +625,12 @@ void SpikeDetector::saveCustomParametersToXml(XmlElement* parentElement)
 void SpikeDetector::loadCustomParametersFromXml()
 {
 
-    if (parametersAsXml != nullptr)
+   
+    if (parametersAsXml != nullptr) // prevent double-loading
     {
         // use parametersAsXml to restore state
+
+        SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
 
         int electrodeIndex = -1;
 
@@ -637,12 +641,14 @@ void SpikeDetector::loadCustomParametersFromXml()
 
                 electrodeIndex++;
 
+                std::cout << "ELECTRODE>>>" << std::endl;
+
                 int channelsPerElectrode = xmlNode->getIntAttribute("numChannels");
 
-                SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
                 sde->addElectrode(channelsPerElectrode);
 
                 setElectrodeName(electrodeIndex+1, xmlNode->getStringAttribute("name"));
+                sde->refreshElectrodeList();
 
                 int channelIndex = -1;
 
@@ -663,9 +669,8 @@ void SpikeDetector::loadCustomParametersFromXml()
 
             }
         }
-    }
 
-    SpikeDetectorEditor* ed = (SpikeDetectorEditor*) getEditor();
-    ed->checkSettings();
+        sde->checkSettings();
+    }
 
 }
