@@ -1338,7 +1338,7 @@ const String EditorViewport::loadState(File fileToLoad)
     // {
     //     return "No configuration selected.";
     // }
-	int maxID=100;
+	int maxID = 100;
     currentFile = fileToLoad;
 
     std::cout << "Loading processor graph." << std::endl;
@@ -1518,7 +1518,7 @@ const String EditorViewport::loadState(File fileToLoad)
 void EditorViewport::setParametersByXML(GenericProcessor* targetProcessor, XmlElement* processorXML)
 {
     // Should probably do some error checking to make sure XML is valid, depending on how it treats errors (will likely just not update parameters, but error message could be nice.)
-    int numberParameters=targetProcessor->getNumParameters();
+    int numberParameters = targetProcessor->getNumParameters();
     // Ditto channels. Not sure how to handle different channel sizes when variable sources (file reader etc. change). Maybe I should check number of channels vs source, but that requires hardcoding when source matters.
     //int numChannels=(targetProcessor->channels).size();
     //int numEventChannels=(targetProcessor->eventChannels).size();
@@ -1546,7 +1546,7 @@ void EditorViewport::setParametersByXML(GenericProcessor* targetProcessor, XmlEl
 
             for (int j = 0; j < numberParameters; ++j)
             {
-                parameterNameForXML=targetProcessor->getParameterName(j);
+                parameterNameForXML = targetProcessor->getParameterName(j);
 
                 if (parameterXML->getStringAttribute("name")==parameterNameForXML)
                 {

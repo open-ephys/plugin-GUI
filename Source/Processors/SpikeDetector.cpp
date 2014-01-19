@@ -105,7 +105,7 @@ bool SpikeDetector::addElectrode(int nChans)
 
     int firstChan;
 
-    if (electrodes.size() == 0 || !paramsWereLoaded)
+    if (electrodes.size() == 0)
     {
         firstChan = 0;
     }
@@ -117,7 +117,7 @@ bool SpikeDetector::addElectrode(int nChans)
 
     if (firstChan + nChans > getNumInputs())
     {
-        return false;
+        firstChan = 0; // make sure we don't overflow available channels
     }
 
     int currentVal = electrodeCounter[nChans];
