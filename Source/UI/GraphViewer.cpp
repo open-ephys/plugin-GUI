@@ -235,8 +235,12 @@ void GraphViewer::paint(Graphics& g)
     g.setFont(labelFont);
     
     g.setColour(Colours::grey);
+
+    JUCEApplication* app = JUCEApplication::getInstance();
+    String text = "open ephys ";
+    text += app->getApplicationVersion();
     
-    g.drawFittedText("open ephys", 40, 40, getWidth()-50, getHeight()-50, Justification::bottomRight, 100);
+    g.drawFittedText(text, 40, 40, getWidth()-50, getHeight()-50, Justification::bottomRight, 100);
     
     // draw connections
 
