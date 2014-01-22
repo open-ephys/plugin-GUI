@@ -489,8 +489,11 @@ void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
 void SpikeDetectorEditor::checkSettings()
 {
     electrodeList->setSelectedItemIndex(0);
+    drawElectrodeButtons(0);
 
     getEditorViewport()->makeEditorVisible(this, true, true);
+
+
 
 }
 

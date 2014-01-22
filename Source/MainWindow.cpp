@@ -92,8 +92,9 @@ void MainWindow::closeButtonPressed()
     if (audioComponent->callbacksAreActive())
     {
         audioComponent->endCallbacks();
-        processorGraph->disableProcessors();
     }
+
+	processorGraph->disableProcessors();
 
     JUCEApplication::getInstance()->systemRequestedQuit();
 
@@ -112,6 +113,10 @@ void MainWindow::saveWindowBounds()
 
     XmlElement* xml = new XmlElement("MAINWINDOW");
 
+    xml->setAttribute("version", JUCEApplication::getInstance()->getApplicationVersion());
+
+    JUCEApplication::getInstance()->systemRequestedQuit();
+
     XmlElement* bounds = new XmlElement("BOUNDS");
     bounds->setAttribute("x",getScreenX());
     bounds->setAttribute("y",getScreenY());
@@ -120,6 +125,21 @@ void MainWindow::saveWindowBounds()
     bounds->setAttribute("fullscreen", isFullScreen());
 
     xml->addChildElement(bounds);
+
+    XmlElement* recentDirectories = new XmlElement("RECENTDIRECTORYNAMES");
+
+    UIComponent* ui = (UIComponent*) getContentComponent();
+
+    StringArray dirs = ui->getRecentlyUsedFilenames();
+
+    for (int i = 0; i < dirs.size(); i++)
+    {
+        XmlElement* directory = new XmlElement("DIRECTORY");
+        directory->setAttribute("name", dirs[i]);
+        recentDirectories->addChildElement(directory);
+    }
+
+    xml->addChildElement(recentDirectories);
 
     String error;
 
@@ -177,6 +197,23 @@ void MainWindow::loadWindowBounds()
 #endif
             getContentComponent()->setBounds(0,0,w-10,h-33);
             //setFullScreen(fs);
+            } else if (e->hasTagName("RECENTDIRECTORYNAMES"))
+            {
+
+                StringArray filenames;
+
+                forEachXmlChildElement(*e, directory)
+                {
+                
+                    if (directory->hasTagName("DIRECTORY"))
+                    {
+                        filenames.add(directory->getStringAttribute("name"));
+                    }
+                }
+
+                UIComponent* ui = (UIComponent*) getContentComponent();
+                ui->setRecentlyUsedFilenames(filenames);
+
             }
 
         }

@@ -589,7 +589,8 @@ void GenericProcessor::saveToXml(XmlElement* parentElement)
     for (int i = 0; i < channels.size(); i++)
     {
 
-        saveChannelParametersToXml(parentElement, i);
+        if (!isSplitter() && !isMerger())
+            saveChannelParametersToXml(parentElement, i);
 
         // channelName = String(i);
         // channelChildNode = parentElement->createNewChildElement("CHANNEL");
@@ -599,7 +600,8 @@ void GenericProcessor::saveToXml(XmlElement* parentElement)
 
     for (int i = 0; i < eventChannels.size(); i++)
     {
-        saveChannelParametersToXml(parentElement, i, true);
+        if (!isSplitter() && !isMerger())
+            saveChannelParametersToXml(parentElement, i, true);
 
         // channelName=/**String("EventCh:")+*/String(i);
         // channelChildNode = parentElement->createNewChildElement("EVENTCHANNEL");

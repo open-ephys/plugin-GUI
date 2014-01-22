@@ -190,7 +190,7 @@ void VisualizerEditor::buttonEvent(Button* button)
                 tabIndex = -1;
             }
 
-            if (dataWindow == nullptr)
+            if (dataWindow == nullptr) // have we created a window already?
             {
 
                 dataWindow = new DataWindow(windowSelector, tabText);
@@ -256,7 +256,7 @@ void VisualizerEditor::buttonEvent(Button* button)
 
 }
 
-void VisualizerEditor::saveEditorParameters(XmlElement* xml)
+void VisualizerEditor::saveCustomParameters(XmlElement* xml)
 {
 
     xml->setAttribute("Type", "Visualizer");
@@ -282,7 +282,7 @@ void VisualizerEditor::saveEditorParameters(XmlElement* xml)
 
 }
 
-void VisualizerEditor::loadEditorParameters(XmlElement* xml)
+void VisualizerEditor::loadCustomParameters(XmlElement* xml)
 {
 
     forEachXmlChildElement(*xml, xmlNode)
@@ -305,10 +305,13 @@ void VisualizerEditor::loadEditorParameters(XmlElement* xml)
             if (windowState)
             {
                 windowSelector->setToggleState(true,true);
-                dataWindow->setBounds(xmlNode->getIntAttribute("x"),
-                                      xmlNode->getIntAttribute("y"),
-                                      xmlNode->getIntAttribute("width"),
-                                      xmlNode->getIntAttribute("height"));
+				if (dataWindow != nullptr)
+				{
+					dataWindow->setBounds(xmlNode->getIntAttribute("x"),
+						                  xmlNode->getIntAttribute("y"),
+							              xmlNode->getIntAttribute("width"),
+								          xmlNode->getIntAttribute("height"));
+				}
 
             }
 
