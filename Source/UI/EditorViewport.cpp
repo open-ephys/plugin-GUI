@@ -1178,7 +1178,7 @@ const String EditorViewport::saveState(File fileToUse)
     XmlElement* info = xml->createNewChildElement("INFO");
 
     XmlElement* version = info->createNewChildElement("VERSION");
-    version->addTextElement("0.1");
+    version->addTextElement(JUCEApplication::getInstance()->getApplicationVersion());
 
     Time currentTime = Time::getCurrentTime();
 

@@ -113,6 +113,10 @@ void MainWindow::saveWindowBounds()
 
     XmlElement* xml = new XmlElement("MAINWINDOW");
 
+    xml->setAttribute("version", JUCEApplication::getInstance()->getApplicationVersion());
+
+    JUCEApplication::getInstance()->systemRequestedQuit();
+
     XmlElement* bounds = new XmlElement("BOUNDS");
     bounds->setAttribute("x",getScreenX());
     bounds->setAttribute("y",getScreenY());
