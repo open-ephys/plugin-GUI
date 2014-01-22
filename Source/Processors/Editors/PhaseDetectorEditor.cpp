@@ -161,7 +161,7 @@ void PhaseDetectorEditor::addDetector()
 
 }
 
-void PhaseDetectorEditor::saveEditorParameters(XmlElement* xml)
+void PhaseDetectorEditor::saveCustomParameters(XmlElement* xml)
 {
 
     xml->setAttribute("Type", "PhaseDetectorEditor");
@@ -176,7 +176,7 @@ void PhaseDetectorEditor::saveEditorParameters(XmlElement* xml)
     }
 }
 
-void PhaseDetectorEditor::loadEditorParameters(XmlElement* xml)
+void PhaseDetectorEditor::loadCustomParameters(XmlElement* xml)
 {
 
     int i = 0;

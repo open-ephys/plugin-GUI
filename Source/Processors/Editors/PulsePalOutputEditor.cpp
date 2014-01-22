@@ -55,7 +55,7 @@ PulsePalOutputEditor::~PulsePalOutputEditor()
 
 }
 
-void PulsePalOutputEditor::saveEditorParameters(XmlElement* xml)
+void PulsePalOutputEditor::saveCustomParameters(XmlElement* xml)
 {
 
     xml->setAttribute("Type", "PulsePalOutputEditor");
@@ -71,7 +71,7 @@ void PulsePalOutputEditor::saveEditorParameters(XmlElement* xml)
     
 }
 
-void PulsePalOutputEditor::loadEditorParameters(XmlElement* xml)
+void PulsePalOutputEditor::loadCustomParameters(XmlElement* xml)
 {
 
     forEachXmlChildElement(*xml, xmlNode)
