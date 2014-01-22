@@ -1355,7 +1355,9 @@ const String EditorViewport::loadState(File fileToLoad)
         return "Not a valid file.";
     }
 
-	bool olderVersionFound = true;
+	bool sameVersion = false;
+    String versionString;
+
 	forEachXmlChildElement(*xml, element)
     {
 		  if (element->hasTagName("INFO"))
@@ -1364,20 +1366,35 @@ const String EditorViewport::loadState(File fileToLoad)
 			  {
 			   if (element2->hasTagName("VERSION")) 
 			   {
-				   String S= element2->getAllSubText();
-				   double version =S.getDoubleValue();
-				   if (version >= 0.1)
-					   olderVersionFound = false;
+				   versionString = element2->getAllSubText();
+				   // float majorVersion = versionString.upToFirstOccurrenceOf(".", false, true).getIntValue();
+       //             float minorVersion = versionString.fromFirstOccurrenceOf(".", false, true).getFloatValue();
+
+				   if (versionString.equalsIgnoreCase(JUCEApplication::getInstance()->getApplicationVersion()))
+					   sameVersion = true;
 			   }
 			  }
 			  break;
 		  }
 	}
-	if (olderVersionFound)
+	if (!sameVersion)
 	{
-		    bool response = AlertWindow::showOkCancelBox (AlertWindow::NoIcon,
-                                   "Old configuration file.",
-                                    "File may not load properly since it could lack some fields. Continute?",
+        String responseString = "Your configuration file was saved from a different version of the GUI than the one you're using. \n";
+        responseString += "The current software is version ";
+        responseString += JUCEApplication::getInstance()->getApplicationVersion();
+        responseString += ", but the file you selected ";
+        if (versionString.length() > 0)
+        {
+            responseString += " is version ";
+            responseString += versionString;
+        } else {
+            responseString += "does not have a version number";
+        }
+        
+        responseString += ".\n This file may not load properly. Continue?";
+
+		bool response = AlertWindow::showOkCancelBox (AlertWindow::NoIcon, 
+                                     "Version mismatch", responseString,
                                      "Yes", "No", 0, 0);
         if (!response)
 			return "Failed To Open " + fileToLoad.getFileName();
