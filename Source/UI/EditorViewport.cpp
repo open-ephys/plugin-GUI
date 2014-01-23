@@ -139,13 +139,13 @@ void EditorViewport::paint(Graphics& g)
     //int w = 30;
     //int h = getHeight() - 2*(borderSize+2);
 
-    if (editorArray.size() > 0)
-    {
-        if (!editorArray[0]->getProcessor()->isSource())
-            g.drawImageAt(sourceDropImage, x, y);
-    } else {
+    //if (editorArray.size() > 0)
+    //{
+        //if (!editorArray[0]->getProcessor()->isSource())
+    //    g.drawImageAt(sourceDropImage, x, y);
+    //} else {
         g.drawImageAt(sourceDropImage, x, y);
-    }
+    //}
 }
 
 bool EditorViewport::isInterestedInDragSource(const SourceDetails& dragSourceDetails)
@@ -279,8 +279,11 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
 
 void EditorViewport::clearSignalChain()
 {
+
     if (canEdit)
     {
+        editorArray.clear();
+        //const MessageManagerLock mmLock; // prevent redraw while deleting
         std::cout << "Clearing signal chain." << std::endl;
         signalChainManager->clearSignalChain();
         getProcessorGraph()->clearSignalChain();
@@ -294,7 +297,7 @@ void EditorViewport::clearSignalChain()
 
     }
 
-    //repaint();
+    repaint();
 }
 
 void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bool updateSettings)

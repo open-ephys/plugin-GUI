@@ -439,8 +439,10 @@ bool UIComponent::perform(const InvocationInfo& info)
                 break;
             }
         case clearSignalChain:
+        {
             getEditorViewport()->clearSignalChain();
             break;
+        }
 
         case showHelp:
             std::cout << "SHOW ME SOME HELP!" << std::endl;
