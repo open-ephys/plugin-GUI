@@ -213,7 +213,11 @@ void SpikeDetector::setChannel(int electrodeIndex, int channelNum, int newChanne
 
 int SpikeDetector::getNumChannels(int index)
 {
-    return electrodes[index]->numChannels;
+
+    if (index < electrodes.size())
+        return electrodes[index]->numChannels;
+    else
+        return 0;
 }
 
 int SpikeDetector::getChannel(int index, int i)

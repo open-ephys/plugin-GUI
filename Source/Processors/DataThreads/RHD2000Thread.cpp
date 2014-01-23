@@ -109,7 +109,10 @@ RHD2000Thread::~RHD2000Thread()
     }
 
 	if (deviceFound)
+    {
 		evalBoard->resetFpga();
+    }
+
 
     deleteAndZero(dataBlock);
 
@@ -276,7 +279,7 @@ void RHD2000Thread::initializeBoard()
     Rhd2000DataBlock* dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
 
 
-    evalBoard->readDataBlock(dataBlock);
+   // evalBoard->readDataBlock(dataBlock);
 
     // Now that ADC calibration has been performed, we switch to the command sequence
     // that does not execute ADC calibration.
