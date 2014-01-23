@@ -156,7 +156,7 @@ void RHD2000Editor::channelChanged(int chan)
             electrodeButtons[i]->setChannelNum(chan);
             electrodeButtons[i]->repaint();
 
-            board->assignAudioOut(i, chan);
+            board->assignAudioOut(i, chan-1); 
         }
     }
 }
