@@ -518,11 +518,6 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             processor = new FileReader();
             std::cout << "Creating a new file reader." << std::endl;
         }   
-		else if (subProcessorType.equalsIgnoreCase("Network Events"))
-        {
-            std::cout << "Creating a new network events source." << std::endl;
-			processor = new NetworkEvents(zmqcontext);
-        } 
         else if (subProcessorType.equalsIgnoreCase("Serial Port"))
         {
             processor = new SerialInput();
@@ -545,12 +540,6 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             processor = new FilterNode();
 
         }
-        else if (subProcessorType.equalsIgnoreCase("Resampler"))
-        {
-            std::cout << "Creating a new resampler." << std::endl;
-            processor = new ResamplingNode();
-
-        }
         else if (subProcessorType.equalsIgnoreCase("Spike Detector"))
         {
             std::cout << "Creating a new spike detector." << std::endl;
@@ -566,21 +555,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             std::cout << "Creating a new phase detector." << std::endl;
             processor = new PhaseDetector();
         }
-        else if (subProcessorType.equalsIgnoreCase("Digital Ref"))
-        {
-            std::cout << "Creating a new digital reference." << std::endl;
-            processor = new ReferenceNode();
-        }
         else if (subProcessorType.equalsIgnoreCase("Channel Map"))
         {
             std::cout << "Creating a new channel mapping node." << std::endl;
             processor = new ChannelMappingNode();
-        } else if (subProcessorType.equalsIgnoreCase("Eye Tracking"))
-        {
-            std::cout << "Creating a ISCAN source." << std::endl;
-            processor = new ISCANnode();
-        }
-
+        } 
 
         sendActionMessage("New filter node created.");
 
@@ -614,10 +593,6 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 
             sendActionMessage("New record controller created.");
 
-        }else if (subProcessorType.equalsIgnoreCase("Advancers"))
-        {
-            std::cout << "Creating a new advancers node." << std::endl;
-			processor = new AdvancerNode();
         }
 
     }
@@ -628,31 +603,14 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             std::cout << "Creating an LfpDisplayNode." << std::endl;
             processor = new LfpDisplayNode();
-
-            // std::cout << "Graph data viewport: " << UI->getDataViewport() << std::endl;
-            // processor->setDataViewport(getDataViewport());
-            //processor->setUIComponent(UI);
         }
-        // else if (subProcessorType.equalsIgnoreCase("LFP Trig. Avg."))
-        // {
-        //     std::cout << "Creating an LfpTrigAvgNode." << std::endl;
-        //     processor = new LfpTriggeredAverageNode();
-        // }                   
-        
+
         else if (subProcessorType.equalsIgnoreCase("Spike Viewer"))
         {
             std::cout << "Creating a SpikeDisplayNode." << std::endl;
             processor = new SpikeDisplayNode();
         } 
-        else if (subProcessorType.equalsIgnoreCase("PSTH"))
-        {
-            std::cout << "Creating a PSTH sink." << std::endl;
-            processor = new PeriStimulusTimeHistogramNode();
-        } else if (subProcessorType.equalsIgnoreCase("Network Sink"))
-        {
-            std::cout << "Creating a Network sink." << std::endl;
-            processor = new NetworkSinkNode(zmqcontext);
-        }
+    
         else if (subProcessorType.equalsIgnoreCase("WiFi Output"))
         {
             std::cout << "Creating a WiFi node." << std::endl;
