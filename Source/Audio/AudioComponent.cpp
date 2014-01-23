@@ -117,8 +117,6 @@ AudioComponent::~AudioComponent()
     if (callbacksAreActive())
         endCallbacks();
 
-    deleteAndZero(graphPlayer);
-
 }
 
 void AudioComponent::setBufferSize(int s)
