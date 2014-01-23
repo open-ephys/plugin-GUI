@@ -395,8 +395,9 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
         else
         {
 
-            if (editorToAdd->tabNumber() >= 0)
+            if (editorToAdd->tabNumber() >= 0 && editorToAdd->tabNumber() < signalChainArray.size())
                 signalChainArray[editorToAdd->tabNumber()]->setToggleState(true, false);
+
             std::cout << "No source found." << std::endl;
             editorToAdd = 0;
 

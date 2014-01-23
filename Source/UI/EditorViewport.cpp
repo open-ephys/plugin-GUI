@@ -294,7 +294,7 @@ void EditorViewport::clearSignalChain()
 
     }
 
-    repaint();
+    //repaint();
 }
 
 void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bool updateSettings)

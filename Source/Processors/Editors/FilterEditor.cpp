@@ -202,6 +202,9 @@ void FilterEditor::saveCustomParameters(XmlElement* xml)
 
     xml->setAttribute("Type", "FilterEditor");
 
+    lastHighCutString = highCutValue->getText();
+    lastLowCutString = lowCutValue->getText();
+
     XmlElement* textLabelValues = xml->createNewChildElement("VALUES");
     textLabelValues->setAttribute("HighCut",lastHighCutString);
     textLabelValues->setAttribute("LowCut",lastLowCutString);
@@ -220,4 +223,6 @@ void FilterEditor::loadCustomParameters(XmlElement* xml)
 			applyFilterOnADC->setToggleState(xmlNode->getBoolAttribute("ApplyToADC",false),true);
         }
     }
+
+
 }
