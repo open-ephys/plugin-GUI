@@ -61,7 +61,7 @@ public:
     GenericProcessor* createProcessorFromDescription(String& description);
 
     void removeProcessor(GenericProcessor* processor);
-
+	Array<GenericProcessor*> getListOfProcessors();
     void clearSignalChain();
 
     bool enableProcessors();
@@ -83,8 +83,6 @@ public:
     
     void setRecordState(bool);
 
-    Array<GenericProcessor*> getListOfProcessors();
-
     void refreshColors();
 
 private:
@@ -102,6 +100,9 @@ private:
     void createDefaultNodes();
 
     void clearConnections();
+
+    void connectProcessors(GenericProcessor* source, GenericProcessor* dest);
+    void connectProcessorToAudioAndRecordNodes(GenericProcessor* source);
 
 };
 
