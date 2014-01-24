@@ -35,8 +35,7 @@ MainWindow::MainWindow()
     setResizable(true,      // isResizable
                  false);   // useBottomCornerRisizer -- doesn't work very well
 
-    // Constraining the window's size doesn't seem to work:
-    // setResizeLimits(500, 400, 10000, 10000);
+   
 
     // Create ProcessorGraph and AudioComponent, and connect them.
     // Callbacks will be set by the play button in the control panel
@@ -61,6 +60,9 @@ MainWindow::MainWindow()
     Component::addToDesktop(getDesktopWindowStyleFlags());  // prevents the maximize
     // button from randomly disappearing
     setVisible(true);
+
+     // Constraining the window's size doesn't seem to work:
+    setResizeLimits(300, 200, 10000, 10000);
 
 }
 

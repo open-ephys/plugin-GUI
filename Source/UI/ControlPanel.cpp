@@ -478,9 +478,12 @@ void ControlPanel::updateChildComponents()
 
 void ControlPanel::createPaths()
 {
-    int w = 150;
-    int h1 = 32;
-    int h2 = 64;
+    int w = getWidth() - 325;
+    if (w > 150)
+        w = 150;
+
+    int h1 = getHeight()-32;
+    int h2 = getHeight();
     int indent = 5;
 
     p1.clear();
@@ -507,6 +510,7 @@ void ControlPanel::paint(Graphics& g)
 
     if (open)
     {
+        createPaths();
         g.setColour(Colours::black);
         g.fillPath(p1);
         g.fillPath(p2);
@@ -520,43 +524,88 @@ void ControlPanel::resized()
     int h = 32; //getHeight();
 
     if (playButton != 0)
-        playButton->setBounds(w-h*10,5,h-5,h-10);
+    {
+        if (w > 350)
+            playButton->setBounds(w-h*10,5,h-5,h-10);\
+        else
+            playButton->setBounds(5,5,h-5,h-10);\
+    }
 
     if (recordButton != 0)
-        recordButton->setBounds(w-h*9,5,h-5,h-10);
+    {
+        if (w > 350)
+            recordButton->setBounds(w-h*9,5,h-5,h-10);
+        else
+            recordButton->setBounds(5+h,5,h-5,h-10);
+    }
 
     if (masterClock != 0)
-        masterClock->setBounds(w-h*7-15,0,h*7-15,h);
+    {
+        if (w > 350)
+            masterClock->setBounds(w-h*7-15,0,h*7-15,h);
+        else
+            masterClock->setBounds(5+h*2+15,0,h*7-15,h);
+    }
 
     if (cpuMeter != 0)
-        cpuMeter->setBounds(8,h/4,h*3,h/2);
+    {
+        if (getWidth() < 750 && getWidth() >= 570)
+            cpuMeter->setBounds(8,h/4+h,h*3,h/2);
+        else if (getWidth() < 570)
+            cpuMeter->setBounds(8,h/4+h*2,h*3,h/2);
+        else
+            cpuMeter->setBounds(8,h/4,h*3,h/2);
+    }
 
     if (diskMeter != 0)
-        diskMeter->setBounds(16+h*3,h/4,h*3,h/2);
+    {
+        if (getWidth() < 750 && getWidth() >= 570)
+            diskMeter->setBounds(16+h*3,h/4+h,h*3,h/2);
+        else if (getWidth() < 570)
+            diskMeter->setBounds(16+h*3,h/4+h*2,h*3,h/2);
+        else
+            diskMeter->setBounds(16+h*3,h/4,h*3,h/2);
+
+    }
 
     if (audioEditor != 0)
-        audioEditor->setBounds(h*7,5,h*8,h-10);
+    {
+        if (getWidth() < 750 && getWidth() >= 570)
+            audioEditor->setBounds(w-526,5,h*8,h-10);
+       else if (getWidth() < 570)
+            audioEditor->setBounds(8,5+h,h*8,h-10);
+        else
+            audioEditor->setBounds(h*7,5,h*8,h-10);
+    }
+        
 
     if (cpb != 0)
-        cpb->setBounds(w-28,5,h-10,h-10);
+    {
+        if (open)
+            cpb->setBounds(w-28,getHeight()-5-h*2+10,h-10,h-10);
+        else
+            cpb->setBounds(w-28,getHeight()-5-h+10,h-10,h-10);
+    }
 
     createPaths();
 
     if (open)
     {
-        filenameComponent->setBounds(165, h+5, w-500, h-10);
+        int topBound = getHeight()-h+10-5;
+
+        filenameComponent->setBounds(165, topBound, w-500, h-10);
         filenameComponent->setVisible(true);
 
-        newDirectoryButton->setBounds(w-h+4, h+5, h-10, h-10);
+        newDirectoryButton->setBounds(w-h+4, topBound, h-10, h-10);
         newDirectoryButton->setVisible(true);
 
-        prependText->setBounds(165+w-490, h+5, 50, h-10);
+        prependText->setBounds(165+w-490, topBound, 50, h-10);
         prependText->setVisible(true);
 
-        dateText->setBounds(165+w-435, h+5, 175, h-10);
+        dateText->setBounds(165+w-435, topBound, 175, h-10);
         dateText->setVisible(true);
 
-        appendText->setBounds(165+w-255, h+5, 50, h-10);
+        appendText->setBounds(165+w-255, topBound, 50, h-10);
         appendText->setVisible(true);
 
     }
@@ -570,6 +619,8 @@ void ControlPanel::resized()
     }
 
     repaint();
+
+
 }
 
 void ControlPanel::openState(bool os)
