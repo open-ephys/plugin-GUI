@@ -346,7 +346,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
     {
 
         isRecording = true;
-        std::cout << "START RECORDING." << std::endl;
+       // std::cout << "START RECORDING." << std::endl;
 
         if (newDirectoryNeeded)
         {
@@ -388,7 +388,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
     {
 
 
-        std::cout << "STOP RECORDING." << std::endl;
+       // std::cout << "STOP RECORDING." << std::endl;
 
         if (isRecording)
         {

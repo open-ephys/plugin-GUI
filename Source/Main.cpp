@@ -86,7 +86,7 @@ public:
     //==============================================================================
     void systemRequestedQuit()
     {
-        std::cout << "Quit requested" << std::endl;
+        //std::cout << "Quit requested" << std::endl;
         quit();
     }
 

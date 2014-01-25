@@ -48,7 +48,7 @@ SpikeDisplayNode::~SpikeDisplayNode()
 
 AudioProcessorEditor* SpikeDisplayNode::createEditor()
 {
-    std::cout<<"Creating SpikeDisplayCanvas."<<std::endl;
+    //std::cout<<"Creating SpikeDisplayCanvas."<<std::endl;
 
     editor = new SpikeDisplayEditor(this);
     return editor;

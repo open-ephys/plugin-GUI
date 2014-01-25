@@ -46,7 +46,7 @@ SignalChainManager::~SignalChainManager()
 void SignalChainManager::scrollUp()
 {
 
-    std::cout << "Scrolling up." << std::endl;
+    //std::cout << "Scrolling up." << std::endl;
 
     if (topTab > 0)
     {
@@ -60,7 +60,7 @@ void SignalChainManager::scrollUp()
 void SignalChainManager::scrollDown()
 {
 
-    std::cout << "Scrolling down." << std::endl;
+    //std::cout << "Scrolling down." << std::endl;
 
     if (topTab < signalChainArray.size()-4)
     {

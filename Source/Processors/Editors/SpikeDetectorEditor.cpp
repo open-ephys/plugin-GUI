@@ -184,7 +184,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             ElectrodeButton* eb = (ElectrodeButton*) button;
             int electrodeNum = eb->getChannelNum()-1;
 
-            std::cout << "Channel number: " << electrodeNum << std::endl;
+           // std::cout << "Channel number: " << electrodeNum << std::endl;
             Array<int> a;
             a.add(electrodeNum);
             channelSelector->setActiveChannels(a);
@@ -240,7 +240,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
         // std::cout << "Plus button pressed!" << std::endl;
 
         int type = electrodeTypes->getSelectedId();
-        std::cout << type << std::endl;
+       // std::cout << type << std::endl;
         int nChans;
 
         switch (type)
@@ -340,7 +340,7 @@ void SpikeDetectorEditor::channelChanged(int chan)
 
     if (electrodeEditorButtons[0]->getToggleState()) // editing is active
     {
-        std::cout << "New channel: " << chan << std::endl;
+        //std::cout << "New channel: " << chan << std::endl;
 
         for (int i = 0; i < electrodeButtons.size(); i++)
         {
