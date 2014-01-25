@@ -120,14 +120,22 @@ void UIComponent::resized()
     {
         editorViewportButton->setBounds(w-230, h-40, 225, 35);
 
-        if (h < 400)
-            editorViewportButton->setVisible(false);
-        else
-            editorViewportButton->setVisible(true);
+        if (h < 300 && editorViewportButton->isOpen())
+            editorViewportButton->toggleState();
+
+        if (h < 200)
+            editorViewportButton->setBounds(w-230,h-40+200-h,225,35);
+        //else
+        //    editorViewportButton->setVisible(true);
     }
 
     if (editorViewport != 0)
     {
+        //if (h < 400)
+        //    editorViewport->setVisible(false);
+        //else
+        //    editorViewport->setVisible(true);
+
         if (editorViewportButton->isOpen() && !editorViewport->isVisible())
             editorViewport->setVisible(true);
         else if (!editorViewportButton->isOpen() && editorViewport->isVisible())
@@ -135,10 +143,7 @@ void UIComponent::resized()
 
         editorViewport->setBounds(6,h-190,w-11,150);
 
-        if (h < 400)
-            editorViewport->setVisible(false);
-        else
-            editorViewport->setVisible(true);
+        
     }
 
     if (controlPanel != 0)
@@ -149,23 +154,47 @@ void UIComponent::resized()
         int leftBound;
 
         if (w >= 460){
-            leftBound = 210;
+            leftBound = 202;
         }
         else {
-            leftBound = w-250;
+            leftBound = w-258;
             controlPanelWidth = w-leftBound;
         }
 
         if (controlPanelWidth < 750)
-            addHeight += 32;
+        {
+            addHeight = 750-controlPanelWidth;
+
+            if (addHeight > 32)
+                addHeight = 32;
+        }
 
         if (controlPanelWidth < 570)
-            addHeight += 32;
+        {
+            addHeight = 32 + 570-controlPanelWidth;
+
+            if (addHeight > 64)
+                addHeight = 64;
+        }
 
         if (controlPanel->isOpen())
             controlPanel->setBounds(leftBound,6,controlPanelWidth,64+addHeight);
         else
             controlPanel->setBounds(leftBound,6,controlPanelWidth,32+addHeight);
+    }
+
+    if (processorList != 0)
+    {
+        if (processorList->isOpen())
+            if (editorViewportButton->isOpen())
+                processorList->setBounds(5,5,195,h-200);
+            else
+                processorList->setBounds(5,5,195,h-50);
+        else
+            processorList->setBounds(5,5,195,34);
+
+        if (w < 460)
+            processorList->setBounds(5-460+getWidth(),5,195,processorList->getHeight());
     }
 
     if (dataViewport != 0)
@@ -175,7 +204,7 @@ void UIComponent::resized()
         top = 40;
 
         if (processorList->isOpen())
-            left = 202;
+            left = processorList->getX()+processorList->getWidth()+2;
         else
             left = 6;
 
@@ -197,29 +226,15 @@ void UIComponent::resized()
 
     }
 
-    if (processorList != 0)
-    {
-        if (processorList->isOpen())
-            if (editorViewportButton->isOpen())
-                processorList->setBounds(5,5,195,h-200);
-            else
-                processorList->setBounds(5,5,195,h-50);
-        else
-            processorList->setBounds(5,5,195,34);
-
-        if (w < 460)
-            processorList->setVisible(false);
-        else
-            processorList->setVisible(true);
-    }
+    
 
     if (messageCenter != 0)
     {
         messageCenter->setBounds(6,h-35,w-241,30);
-        if (h < 400)
-            messageCenter->setVisible(false);
-        else
-            messageCenter->setVisible(true);
+        if (h < 200)
+            messageCenter->setBounds(6,h-35+200-h,w-241,30);
+      //  else
+      //      messageCenter->setVisible(true);
     }
 
     // for debugging qpurposes:

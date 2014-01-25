@@ -525,7 +525,7 @@ void ControlPanel::resized()
 
     if (playButton != 0)
     {
-        if (w > 350)
+        if (w > 330)
             playButton->setBounds(w-h*10,5,h-5,h-10);\
         else
             playButton->setBounds(5,5,h-5,h-10);\
@@ -533,7 +533,7 @@ void ControlPanel::resized()
 
     if (recordButton != 0)
     {
-        if (w > 350)
+        if (w > 330)
             recordButton->setBounds(w-h*9,5,h-5,h-10);
         else
             recordButton->setBounds(5+h,5,h-5,h-10);
@@ -541,18 +541,27 @@ void ControlPanel::resized()
 
     if (masterClock != 0)
     {
-        if (w > 350)
+        if (w > 330)
             masterClock->setBounds(w-h*7-15,0,h*7-15,h);
         else
             masterClock->setBounds(5+h*2+15,0,h*7-15,h);
     }
 
+    int offset1 = 750 - getWidth();
+    if (offset1 > h)
+        offset1 = h;
+
+    int offset2 = 570 - getWidth();
+    if (offset2 > h)
+        offset2 = h;
+
     if (cpuMeter != 0)
     {
+
         if (getWidth() < 750 && getWidth() >= 570)
-            cpuMeter->setBounds(8,h/4+h,h*3,h/2);
+            cpuMeter->setBounds(8,h/4+offset1,h*3,h/2);
         else if (getWidth() < 570)
-            cpuMeter->setBounds(8,h/4+h*2,h*3,h/2);
+            cpuMeter->setBounds(8,h/4+offset1+offset2,h*3,h/2);
         else
             cpuMeter->setBounds(8,h/4,h*3,h/2);
     }
@@ -560,9 +569,9 @@ void ControlPanel::resized()
     if (diskMeter != 0)
     {
         if (getWidth() < 750 && getWidth() >= 570)
-            diskMeter->setBounds(16+h*3,h/4+h,h*3,h/2);
+            diskMeter->setBounds(16+h*3,h/4+offset1,h*3,h/2);
         else if (getWidth() < 570)
-            diskMeter->setBounds(16+h*3,h/4+h*2,h*3,h/2);
+            diskMeter->setBounds(16+h*3,h/4+offset1+offset2,h*3,h/2);
         else
             diskMeter->setBounds(16+h*3,h/4,h*3,h/2);
 
@@ -573,7 +582,7 @@ void ControlPanel::resized()
         if (getWidth() < 750 && getWidth() >= 570)
             audioEditor->setBounds(w-526,5,h*8,h-10);
        else if (getWidth() < 570)
-            audioEditor->setBounds(8,5+h,h*8,h-10);
+            audioEditor->setBounds(8,5+offset2,h*8,h-10);
         else
             audioEditor->setBounds(h*7,5,h*8,h-10);
     }
