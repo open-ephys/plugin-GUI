@@ -61,7 +61,7 @@ AudioProcessorEditor* FilterNode::createEditor()
     FilterEditor* ed = (FilterEditor*) getEditor();
     ed->setDefaults(defaultLowCut, defaultHighCut);
 
-    std::cout << "Creating editor." << std::endl;
+    //std::cout << "Creating editor." << std::endl;
 
     return editor;
 }

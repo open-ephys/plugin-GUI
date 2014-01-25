@@ -113,7 +113,7 @@ void ProcessorGraph::createDefaultNodes()
     addConnection(AUDIO_NODE_ID, midiChannelIndex,
                   RESAMPLING_NODE_ID, midiChannelIndex);
 
-    std::cout << "Default nodes created." << std::endl;
+    //std::cout << "Default nodes created." << std::endl;
 
 }
 
@@ -137,6 +137,8 @@ void* ProcessorGraph::createNewProcessor(String& description, int id)//,
 
         processor->setNodeId(id); // identifier within processor graph
         std::cout << "  Adding node to graph with ID number " << id << std::endl;
+        std::cout << std::endl;
+        std::cout << std::endl;
 
         processor->setUIComponent(getUIComponent()); // give access to important pointers
 

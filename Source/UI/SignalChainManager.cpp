@@ -168,13 +168,13 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     // Step 1: update the editor array
     if (action == ADD)
     {
-        std::cout << "    Adding editor." << std::endl;
+        //std::cout << "    Adding editor." << std::endl;
         editorArray.insert(insertionPoint, activeEditor);
 
     }
     else if (action == MOVE)
     {
-        std::cout << "    Moving editors." << std::endl;
+       // std::cout << "    Moving editors." << std::endl;
         if (insertionPoint < index)
             editorArray.move(index, insertionPoint);
         else if (insertionPoint > index)
@@ -184,7 +184,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     else if (action == REMOVE)
     {
 
-        std::cout << "    Removing editor." << std::endl;
+       // std::cout << "    Removing editor." << std::endl;
 
         GenericProcessor* p = (GenericProcessor*) editorArray[index]->getProcessor();
         
@@ -209,7 +209,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
             p->switchIO(0);
             if (p->getDestNode() != nullptr)
             {
-                std::cout << "Found an orphaned signal chain" << std::endl;
+             //   std::cout << "Found an orphaned signal chain" << std::endl;
                 p->getDestNode()->setSourceNode(nullptr);
                 createNewTab(p->getDestNode()->getEditor());
             }
@@ -217,7 +217,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
             p->switchIO(1);
             if (p->getDestNode() != nullptr)
             {
-                std::cout << "Found an orphaned signal chain" << std::endl;
+             //   std::cout << "Found an orphaned signal chain" << std::endl;
                 p->getDestNode()->setSourceNode(nullptr);
                 createNewTab(p->getDestNode()->getEditor());
             }
@@ -238,7 +238,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
             merger = (p2->isMerger() && p2->stillHasSource());
             if (merger)
             {
-                std::cout << "We've got a merger!" << std::endl;
+              //  std::cout << "We've got a merger!" << std::endl;
                 //p2->switchIO(0);
                 p2->setMergerSourceNode(p->getSourceNode());
                 MergerEditor* me = (MergerEditor*) editorArray[0];
@@ -266,7 +266,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
         else
         {
 
-            std::cout << "Tab number " << t << std::endl;
+           // std::cout << "Tab number " << t << std::endl;
 
             removeTab(t);
 
@@ -288,14 +288,14 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     else     //no change
     {
 
-        std::cout << "Activating editor" << std::endl;
+       // std::cout << "Activating editor" << std::endl;
     }
 
     // Step 2: update connections
     if (action != ACTIVATE && action != UPDATE && editorArray.size() > 0)
     {
 
-        std::cout << "Updating connections." << std::endl;
+       // std::cout << "Updating connections." << std::endl;
 
         GenericProcessor* source = 0;
         GenericProcessor* dest = (GenericProcessor*) editorArray[0]->getProcessor();
@@ -319,7 +319,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     if (action != ACTIVATE && action != UPDATE)
     {
 
-        std::cout << "Checking for new tabs." << std::endl;
+      //  std::cout << "Checking for new tabs." << std::endl;
 
         for (int n = 0; n < editorArray.size(); n++)
         {
@@ -333,7 +333,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
                 {
                     if (!p->isMerger())
                     {
-                        std::cout << p->getName() << " has no source node. Creating a new tab." << std::endl;
+                     //   std::cout << p->getName() << " has no source node. Creating a new tab." << std::endl;
                         createNewTab(editorArray[n]);
                     }
                 }
@@ -351,7 +351,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
 
             if (p->isMerger())
             {
-                std::cout << "It's a merger!" << std::endl;
+               // std::cout << "It's a merger!" << std::endl;
                 //createNewTab(editorArray[n]);
             }
         }
@@ -364,13 +364,13 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     }
 
     editorArray.clear();
-    std::cout << "Cleared editor array." << std::endl;
+   // std::cout << "Cleared editor array." << std::endl;
 
     GenericEditor* editorToAdd = activeEditor;
 
     while (editorToAdd != 0)
     {
-        std::cout << "Inserting " << editorToAdd->getName() << " at point 0." << std::endl;
+       // std::cout << "Inserting " << editorToAdd->getName() << " at point 0." << std::endl;
 
         editorArray.insert(0,editorToAdd);
         GenericProcessor* currentProcessor = (GenericProcessor*) editorToAdd->getProcessor();
@@ -378,7 +378,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
 
         if (source != nullptr)
         {
-            std::cout << "Source: " << source->getName() << std::endl;
+         //   std::cout << "Source: " << source->getName() << std::endl;
 
             // need to switch the splitter somehow
             if (action == ACTIVATE || action == UPDATE)
@@ -398,7 +398,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
             if (editorToAdd->tabNumber() >= 0 && editorToAdd->tabNumber() < signalChainArray.size())
                 signalChainArray[editorToAdd->tabNumber()]->setToggleState(true, false);
 
-            std::cout << "No source found." << std::endl;
+           // std::cout << "No source found." << std::endl;
             editorToAdd = 0;
 
         }
@@ -415,14 +415,14 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
         if (dest != 0)
         {
 
-            std::cout << "Destination: " << dest->getName() << std::endl;
+         //   std::cout << "Destination: " << dest->getName() << std::endl;
             editorToAdd = (GenericEditor*) dest->getEditor();
             editorArray.add(editorToAdd);
-            std::cout << "Inserting " << editorToAdd->getName() << " at the end." << std::endl;
+         //   std::cout << "Inserting " << editorToAdd->getName() << " at the end." << std::endl;
 
             if (dest->isMerger())
             {
-                std::cout << "It's a merger!" << std::endl;
+            //    std::cout << "It's a merger!" << std::endl;
 
                 editorToAdd->switchIO(0);
 
@@ -434,7 +434,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
         }
         else
         {
-            std::cout << "No dest found." << std::endl;
+         //   std::cout << "No dest found." << std::endl;
             editorToAdd = 0;
         }
 
@@ -484,10 +484,10 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
                     }
                 }
 
-                if (enable)
-                    std::cout << "Enabling node." << std::endl;
-                else
-                    std::cout << "Not enabling node." << std::endl;
+             //   if (enable)
+              //      std::cout << "Enabling node." << std::endl;
+             //   else
+               //     std::cout << "Not enabling node." << std::endl;
 
                 editorArray[n+1]->setEnabledState(enable);
 
@@ -508,7 +508,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     if (action != ACTIVATE)
     {
 
-        std::cout << "Updating settings." << std::endl;
+       // std::cout << "Updating settings." << std::endl;
 
         Array<GenericProcessor*> splitters;
 
@@ -547,6 +547,6 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     }
 
 
-    std::cout << "Finished adding new editor." << std::endl << std::endl << std::endl;
+   // std::cout << "Finished adding new editor." << std::endl << std::endl << std::endl;
 
 }

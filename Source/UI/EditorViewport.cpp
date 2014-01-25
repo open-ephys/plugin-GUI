@@ -245,7 +245,7 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
 
         GenericEditor* activeEditor = (GenericEditor*) getProcessorGraph()->createNewProcessor(description, currentId);//, source, dest);
 
-        std::cout << "Active editor: " << activeEditor << std::endl;
+        //std::cout << "Active editor: " << activeEditor << std::endl;
 
         if (activeEditor != 0)
         {

@@ -55,7 +55,7 @@ AudioProcessorEditor* ChannelMappingNode::createEditor()
 {
 	editor = new ChannelMappingEditor(this, true);
 
-	std::cout << "Creating editor." << std::endl;
+	//std::cout << "Creating editor." << std::endl;
 
 	return editor;
 }

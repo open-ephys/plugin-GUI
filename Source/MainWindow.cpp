@@ -41,7 +41,13 @@ MainWindow::MainWindow()
     // Callbacks will be set by the play button in the control panel
 
     processorGraph = new ProcessorGraph();
+    std::cout << std::endl;
+    std::cout << "Created processor graph." << std::endl;
+    std::cout << std::endl;
+
     audioComponent = new AudioComponent();
+    std::cout << "Created audio component." << std::endl;
+
     audioComponent->connectToProcessorGraph(processorGraph);
 
     setContentOwned(new UIComponent(this, processorGraph, audioComponent), true);
@@ -58,7 +64,7 @@ MainWindow::MainWindow()
     loadWindowBounds();
     setUsingNativeTitleBar(true);
     Component::addToDesktop(getDesktopWindowStyleFlags());  // prevents the maximize
-    // button from randomly disappearing
+                                                            // button from randomly disappearing
     setVisible(true);
 
      // Constraining the window's size doesn't seem to work:
@@ -104,9 +110,9 @@ void MainWindow::closeButtonPressed()
 
 void MainWindow::saveWindowBounds()
 {
-
+    std::cout << std::endl;
     std::cout << "Saving window bounds." << std::endl;
-
+    std::cout << std::endl;
 
     File executable = File::getSpecialLocation(File::currentExecutableFile);
     File executableDirectory = executable.getParentDirectory();
@@ -151,7 +157,9 @@ void MainWindow::saveWindowBounds()
 void MainWindow::loadWindowBounds()
 {
 
+    std::cout << std::endl;
     std::cout << "Loading window bounds." << std::endl;
+    std::cout << std::endl;
 
     //File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
 

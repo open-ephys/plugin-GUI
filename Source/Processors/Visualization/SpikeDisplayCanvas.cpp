@@ -79,7 +79,7 @@ void SpikeDisplayCanvas::endAnimation()
 void SpikeDisplayCanvas::update()
 {
 
-    std::cout << "Updating SpikeDisplayCanvas" << std::endl;
+    //std::cout << "Updating SpikeDisplayCanvas" << std::endl;
 
     int nPlots = processor->getNumElectrodes();
     spikeDisplay->removePlots();

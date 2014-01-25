@@ -76,7 +76,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
     if (!owner->isMerger() && !owner->isSplitter() && !owner->isUtility())
     {
-        std::cout << "Adding drawer button." << std::endl;
+       // std::cout << "Adding drawer button." << std::endl;
 
         drawerButton = new DrawerButton("name");
         drawerButton->addListener(this);
@@ -141,7 +141,7 @@ void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
         int maxX = 15;
         int maxY = 30;
 
-        std::cout << "Adding parameter editors." << std::endl;
+       // std::cout << "Adding parameter editors." << std::endl;
 
         for (int i = 0; i < getProcessor()->getNumParameters(); i++)
         {
@@ -466,11 +466,11 @@ void GenericEditor::sliderValueChanged(Slider* slider)
 void GenericEditor::update()
 {
 
-    std::cout << "Editor for ";
+    //std::cout << "Editor for ";
 
     GenericProcessor* p = (GenericProcessor*) getProcessor();
 
-    std::cout << p->getName() << " updating settings." << std::endl;
+    //std::cout << p->getName() << " updating settings." << std::endl;
 
     int numChannels;
 

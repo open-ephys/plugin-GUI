@@ -74,7 +74,7 @@ int DataViewport::addTabToDataViewport(String name, Component* component, Generi
 
     editorArray.add(editor);
 
-    std::cout << "Adding tab with index " << tabIndex << std::endl;
+  //  std::cout << "Adding tab with index " << tabIndex << std::endl;
 
     setCurrentTabIndex(tabArray.size()-1);
 

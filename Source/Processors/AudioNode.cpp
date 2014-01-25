@@ -161,9 +161,9 @@ void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 {
 
 
-    std::cout << "Processor sample rate: " << getSampleRate() << std::endl;
-    std::cout << "Audio card sample rate: " << sampleRate_ << std::endl;
-    std::cout << "Samples per block: " << estimatedSamplesPerBlock << std::endl;
+   // std::cout << "Processor sample rate: " << getSampleRate() << std::endl;
+   // std::cout << "Audio card sample rate: " << sampleRate_ << std::endl;
+   // std::cout << "Samples per block: " << estimatedSamplesPerBlock << std::endl;
 
     numSamplesExpected = (int) (getSampleRate()/sampleRate_*float(estimatedSamplesPerBlock)) + 1; 
     // processor sample rate divided by sound card sample rate

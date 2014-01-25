@@ -112,7 +112,7 @@ void ChannelSelector::setNumChannels(int numChans)
 
     int difference = numChans - parameterButtons.size();
 
-    std::cout << difference << " buttons needed." << std::endl;
+   // std::cout << difference << " buttons needed." << std::endl;
 
     if (difference > 0)
     {

@@ -32,7 +32,10 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     processorGraph->setUIComponent(this);
 
     infoLabel = new InfoLabel();
+    std::cout << "Created info label." << std::endl;
+
     graphViewer = new GraphViewer();
+    std::cout << "Created graph viewer." << std::endl;
 
     dataViewport = new DataViewport();
     addChildComponent(dataViewport);
@@ -68,12 +71,12 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
 
     setBounds(0,0,500,400);
 
-    std::cout << "Component width = " << getWidth() << std::endl;
-    std::cout << "Component height = " << getHeight() << std::endl;
+   // std::cout << "Component width = " << getWidth() << std::endl;
+  //  std::cout << "Component height = " << getHeight() << std::endl;
 
-    std::cout << "UI component data viewport: " << dataViewport << std::endl;
+   // std::cout << "UI component data viewport: " << dataViewport << std::endl;
 
-    std::cout << "Finished UI stuff." << std::endl << std::endl << std::endl;
+   // std::cout << "Finished UI stuff." << std::endl << std::endl << std::endl;
 
     processorGraph->setUIComponent(this);
     
