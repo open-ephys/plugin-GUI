@@ -80,7 +80,6 @@ private:
     GenericEditor* editor;
     
     Font labelFont;
-
     
     bool mouseOver;
 
@@ -89,7 +88,6 @@ private:
 
 
 class GraphViewer : public Component
-
 {
 public:
     GraphViewer();
@@ -101,7 +99,7 @@ public:
     void addNode(GenericEditor* editor);
     void removeNode(GenericEditor* editor);
     void removeAllNodes();
-    void updateNodeLocations();;
+    void updateNodeLocations();
 
     int nodesAtLevel(int lvl);
     int getHorizontalShift(GraphNode*);
@@ -111,8 +109,7 @@ private:
 
     void connectNodes(int, int, Graphics&);
     void checkLayout(GraphNode*);
-    
-    
+
     int indexOfEditor(GenericEditor* editor);
     
     Font labelFont;

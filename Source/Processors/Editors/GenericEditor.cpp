@@ -66,6 +66,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 {
 
     name = getAudioProcessor()->getName();
+    displayName = name;
 
     nodeId = owner->getNodeId();
 
@@ -117,6 +118,20 @@ void GenericEditor::updateName()
     nodeId = getProcessor()->getNodeId();
     repaint();
 }
+
+void GenericEditor::setDisplayName(const String& string)
+{
+    displayName = string;
+    getGraphViewer()->updateNodeLocations();
+    repaint();
+}
+
+
+String GenericEditor::getDisplayName()
+{
+    return displayName;
+}
+
 
 void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
 {
@@ -345,14 +360,14 @@ void GenericEditor::paint(Graphics& g)
     // draw title
     if (!isCollapsed)
     {
-        if (!getProcessor()->isMerger() && !getProcessor()->isSplitter())
-            g.drawText(name+" ("+String(nodeId)+")", 6, 5, 500, 15, Justification::left, false);
-        else
-            g.drawText(name, 6, 5, 500, 15, Justification::left, false);
+       // if (!getProcessor()->isMerger() && !getProcessor()->isSplitter())
+      //      g.drawText(name+" ("+String(nodeId)+")", 6, 5, 500, 15, Justification::left, false);
+       // else
+            g.drawText(displayName, 6, 5, 500, 15, Justification::left, false);
 
     } else {
         g.addTransform(AffineTransform::rotation(-M_PI/2.0));
-        g.drawText(name, -getHeight()+6, 5, 500, 15, Justification::left, false);
+        g.drawText(displayName, -getHeight()+6, 5, 500, 15, Justification::left, false);
         g.addTransform(AffineTransform::rotation(M_PI/2.0));
     }
 
@@ -607,6 +622,7 @@ void GenericEditor::saveEditorParameters(XmlElement* xml)
 {
 
     xml->setAttribute("isCollapsed", isCollapsed);
+    xml->setAttribute("displayName", displayName);
 
     saveCustomParameters(xml);
 
@@ -621,6 +637,8 @@ void GenericEditor::loadEditorParameters(XmlElement* xml)
     {
         switchCollapsedState();
     }
+
+    displayName = xml->getStringAttribute("displayName", name);
 
     loadCustomParameters(xml);
 

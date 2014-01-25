@@ -64,6 +64,12 @@ void GraphViewer::removeAllNodes()
     
 }
 
+// void GenericEditor::updateNodeName(GenericEditor* editor)
+// {
+//     GraphNode* n = getNodeForEditor(editor);
+//     n->repaint();
+// }
+
 void GraphViewer::updateNodeLocations()
 {
     // set the initial locations
@@ -398,7 +404,7 @@ Array<GenericEditor*> GraphNode::getConnectedEditors()
 
 const String GraphNode::getName()
 {
-    return editor->getName();
+    return editor->getDisplayName();
 }
 
 Point<float> GraphNode::getCenterPoint()
@@ -421,59 +427,6 @@ void GraphNode::updateBoundaries()
     int horzShift = gv->getHorizontalShift(this);
     
     setBounds(20+horzShift*140, 20+getLevel()*40, 150, 50);
-
-    // float vertShift = -1;
-    // float horzShift = 0;
-    
-    // GenericEditor* ed = editor;
-    
-    // while (ed != nullptr)
-    // {
-    //     vertShift += 1;
-
-    //     GenericEditor* sourceEditor = ed->getSourceEditor();
-        
-    //     if (sourceEditor != nullptr)
-    //     {
-    //         if (sourceEditor->isSplitter())
-    //         {
-    //             if (sourceEditor->getPathForEditor(ed) == 1)
-    //                 horzShift += 1;
-    //             //else
-    //             //    horzShift -= 0.5;
-    //         }
-    //     }
-    //     ed = sourceEditor;
-    
-    // }
-
-    // ed = editor;
-
-    // if (ed->isSplitter())
-    // {
-    //     horzShift += 0.5;
-    // }
-    
-    // while (ed != nullptr)
-    // {
-
-    //     GenericEditor* destEditor = ed->getDestEditor();
-        
-    //     if (destEditor != nullptr)
-    //     {
-    //         if (destEditor->isSplitter())
-    //         {
-    //             horzShift += 0.5;
-    //         } else if (destEditor->isMerger())
-    //         {
-    //             if (destEditor->getPathForEditor(ed) == 1)
-    //                 horzShift += 1;
-    //         }
-    //     }
-    //     ed = destEditor;
-    
-    // }
-
 
 }
 

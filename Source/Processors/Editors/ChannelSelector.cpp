@@ -586,7 +586,7 @@ void ChannelSelector::buttonClicked(Button* button)
             {
                 editor->getProcessorGraph()->
                 getRecordNode()->
-                setChannelStatus(ch, status);
+                    setChannelStatus(ch, status);
             }
             else     // change parameter directly
             {

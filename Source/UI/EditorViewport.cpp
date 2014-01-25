@@ -70,6 +70,11 @@ EditorViewport::EditorViewport()
     currentId = 100;
     maxId = 100;
 
+    editorNamingLabel.setEditable(true);
+    editorNamingLabel.setBounds(0,0,100,20);
+    editorNamingLabel.setColour(Label::textColourId, Colours::white);
+    editorNamingLabel.addListener(this);
+
 }
 
 EditorViewport::~EditorViewport()
@@ -137,7 +142,7 @@ void EditorViewport::paint(Graphics& g)
     int x = insertionX + 15;
     int y = borderSize + 2;
     //int w = 30;
-    //int h = getHeight() - 2*(borderSize+2);
+    //int h = getHeight() - 2*(borderSize+2);get
 
     //if (editorArray.size() > 0)
     //{
@@ -671,6 +676,12 @@ void EditorViewport::selectEditor(GenericEditor* editor)
     }
 }
 
+void EditorViewport::labelTextChanged(Label* label)
+{
+
+    editorToUpdate->setDisplayName(label->getText());
+}
+
 void EditorViewport::mouseDown(const MouseEvent& e)
 {
 
@@ -701,6 +712,57 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     }
                 }
                 return;
+            }
+
+            if (e.mods.isRightButtonDown())
+            {
+
+                if (!editorArray[i]->getCollapsedState() && e.y > 22)
+                     return;
+
+                if (editorArray[i]->isMerger() || editorArray[i]->isSplitter())
+                    return;
+
+                PopupMenu m;
+
+                if (editorArray[i]->getCollapsedState())
+                     m.addItem(3, "Uncollapse", true);
+                 else
+                    m.addItem(3, "Collapse", true);
+
+                if (canEdit)
+                    m.addItem(2, "Delete", true);
+                else
+                    m.addItem(2, "Delete", false);
+
+                m.addItem(1, "Rename", true);
+
+                const int result = m.show();
+
+                if (result == 1)
+                {
+                    editorNamingLabel.setText("", dontSendNotification);
+                    
+                    juce::Rectangle<int> rect1 = juce::Rectangle<int>(editorArray[i]->getScreenX()+20,editorArray[i]->getScreenY()+11,1,1);
+
+                    CallOutBox callOut(editorNamingLabel, rect1, nullptr);
+                    editorToUpdate = editorArray[i];
+                    callOut.runModalLoop();
+                   // editorNamingLabel.showEditor();
+                    //CallOutBox& myBox = CallOutBox::launchAsynchronously(&editorNamingLabel, rect1, nullptr);
+                    
+                    return;
+
+                } else if (result == 2)
+                {
+                    deleteNode(editorArray[i]);
+                    return;
+                } else if (result == 3)
+                {
+                    editorArray[i]->switchCollapsedState();
+                    refreshEditors();
+                    return;
+                }
             }
 
             // make sure uncollapsed editors don't accept clicks outside their title bar
