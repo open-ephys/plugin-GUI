@@ -434,6 +434,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
 
     dateText = new Label("Date","YYYY-MM-DD_HH-MM-SS");
     dateText->setColour(Label::backgroundColourId, Colours::lightgrey);
+    dateText->setColour(Label::textColourId, Colours::grey);
     addChildComponent(dateText);
 
     appendText = new Label("Append","");
@@ -643,7 +644,11 @@ void ControlPanel::openState(bool os)
 
 void ControlPanel::labelTextChanged(Label* label)
 {
+    graph->getRecordNode()->newDirectoryNeeded = true;
+    newDirectoryButton->setEnabledState(false);
+    masterClock->resetRecordTime();
 
+    dateText->setColour(Label::textColourId, Colours::grey);
 }
 
 void ControlPanel::startRecording()
