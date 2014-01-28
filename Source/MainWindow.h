@@ -59,6 +59,9 @@ public:
         commands. */
     ApplicationCommandManager commandManager;
 
+    /** Determines whether the last used configuration reloads upon startup. */
+    bool shouldReloadOnStartup;
+
 private:
 
     /** Saves the MainWindow's boundaries into the file "windowState.xml", located in the directory
@@ -74,6 +77,8 @@ private:
 
     /** A pointer to the application's ProcessorGraph (owned by the MainWindow). */
     ScopedPointer<ProcessorGraph> processorGraph;
+
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 

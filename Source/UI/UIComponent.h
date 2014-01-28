@@ -206,7 +206,8 @@ private:
         toggleSignalChain	    = 0x2009,
         toggleFileInfo			= 0x2010,
         showHelp				= 0x2011,
-        resizeWindow            = 0x2012
+        resizeWindow            = 0x2012,
+        reloadOnStartup         = 0x2013
     };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponent);

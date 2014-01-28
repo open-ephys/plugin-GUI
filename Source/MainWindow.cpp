@@ -35,7 +35,7 @@ MainWindow::MainWindow()
     setResizable(true,      // isResizable
                  false);   // useBottomCornerRisizer -- doesn't work very well
 
-   
+    shouldReloadOnStartup = false;
 
     // Create ProcessorGraph and AudioComponent, and connect them.
     // Callbacks will be set by the play button in the control panel
@@ -70,6 +70,17 @@ MainWindow::MainWindow()
      // Constraining the window's size doesn't seem to work:
     setResizeLimits(300, 200, 10000, 10000);
 
+    if (shouldReloadOnStartup)
+    {
+        File executable = File::getSpecialLocation(File::currentExecutableFile);
+        File executableDirectory = executable.getParentDirectory();
+        File file = executableDirectory.getChildFile("lastConfig.xml");
+
+        ui->getEditorViewport()->loadState(file);
+    }
+        
+    
+
 }
 
 MainWindow::~MainWindow()
@@ -86,6 +97,12 @@ MainWindow::~MainWindow()
     audioComponent->disconnectProcessorGraph();
     UIComponent* ui = (UIComponent*) getContentComponent();
     ui->disableDataViewport();
+
+    File executable = File::getSpecialLocation(File::currentExecutableFile);
+    File executableDirectory = executable.getParentDirectory();
+    File file = executableDirectory.getChildFile("lastConfig.xml");
+
+    ui->getEditorViewport()->saveState(file);
 
     setMenuBar(0);
 
@@ -121,6 +138,7 @@ void MainWindow::saveWindowBounds()
     XmlElement* xml = new XmlElement("MAINWINDOW");
 
     xml->setAttribute("version", JUCEApplication::getInstance()->getApplicationVersion());
+    xml->setAttribute("shouldReloadOnStartup", shouldReloadOnStartup);
 
     XmlElement* bounds = new XmlElement("BOUNDS");
     bounds->setAttribute("x",getScreenX());
@@ -182,6 +200,8 @@ void MainWindow::loadWindowBounds()
     {
 
         String description;
+
+        shouldReloadOnStartup = xml->getBoolAttribute("shouldReloadOnStartup", false);
 
         forEachXmlChildElement(*xml, e)
         {

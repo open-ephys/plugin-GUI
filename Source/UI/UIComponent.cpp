@@ -300,6 +300,8 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
     {
         menu.addCommandItem(commandManager, openConfiguration);
         menu.addCommandItem(commandManager, saveConfiguration);
+        menu.addSeparator();
+        menu.addCommandItem(commandManager, reloadOnStartup);
 
 #if !JUCE_MAC
         menu.addSeparator();
@@ -356,6 +358,7 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 {
     const CommandID ids[] = {openConfiguration,
                              saveConfiguration,
+                             reloadOnStartup,
                              undo,
                              redo,
                              copySignalChain,
@@ -388,7 +391,12 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
         case saveConfiguration:
             result.setInfo("Save configuration", "Save the current processor graph.", "General", 0);
             result.addDefaultKeypress('S', ModifierKeys::commandModifier);
+            break;
+
+        case reloadOnStartup:
+            result.setInfo("Reload on startup", "Load the last used configuration on startup.", "General", 0);
             result.setActive(!acquisitionStarted);
+            result.setTicked(mainWindow->shouldReloadOnStartup);
             break;
 
         case undo:
@@ -499,6 +507,14 @@ bool UIComponent::perform(const InvocationInfo& info)
 
                 break;
             }
+
+        case reloadOnStartup:
+            {
+                mainWindow->shouldReloadOnStartup = !mainWindow->shouldReloadOnStartup;
+
+            }
+            break;
+
         case clearSignalChain:
         {
             getEditorViewport()->clearSignalChain();
