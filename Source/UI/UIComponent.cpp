@@ -71,13 +71,6 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
 
     setBounds(0,0,500,400);
 
-   // std::cout << "Component width = " << getWidth() << std::endl;
-  //  std::cout << "Component height = " << getHeight() << std::endl;
-
-   // std::cout << "UI component data viewport: " << dataViewport << std::endl;
-
-   // std::cout << "Finished UI stuff." << std::endl << std::endl << std::endl;
-
     processorGraph->setUIComponent(this);
     
     processorList->setUIComponent(this);
@@ -88,23 +81,12 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     
     processorGraph->updatePointers(); // needs to happen after processorGraph gets the right pointers
 
-    //processorGraph->sendActionMessage("Test.");
-
-    //processorGraph->loadState();
-
 #if JUCE_MAC
     MenuBarModel::setMacMainMenu(this);
     mainWindow->setMenuBar(0);
 #else
     mainWindow->setMenuBar(this);
 #endif
-
-    //getEditorViewport()->loadState(File("/home/jsiegle/Programming/GUI/Builds/Linux/build/test.xml"));
-    
-    //Check and see where file is being executed
-    //File executable = File::getSpecialLocation(File::currentExecutableFile);
-    //const String executableDirectory = executable.getParentDirectory().getFullPathName();
-    //sendActionMessage(executableDirectory);
 
 }
 
@@ -240,7 +222,7 @@ void UIComponent::resized()
       //      messageCenter->setVisible(true);
     }
 
-    // for debugging qpurposes:
+    // for debugging purposes:
     if (false)
     {
         dataViewport->setVisible(false);
@@ -278,11 +260,6 @@ void UIComponent::childComponentChanged()
 
 StringArray UIComponent::getMenuBarNames()
 {
-
-    // StringArray names;
-    // names.add("File");
-    // names.add("Edit");
-    // names.add("Help");
 
     const char* const names[] = { "File", "Edit", "View", "Help", 0 };
 
@@ -522,7 +499,8 @@ bool UIComponent::perform(const InvocationInfo& info)
         }
 
         case showHelp:
-            std::cout << "SHOW ME SOME HELP!" << std::endl;
+            URL url = URL("https://open-ephys.atlassian.net/wiki/display/OEW/Open+Ephys+GUI");
+            url.launchInDefaultBrowser();
             break;
 
         case toggleProcessorList:
