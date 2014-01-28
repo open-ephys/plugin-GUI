@@ -425,8 +425,8 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
             break;
 
         case showHelp:
-            result.setInfo("Show help...", "Show some freakin' help.", "General", 0);
-            result.setActive(false);
+            result.setInfo("Show help...", "Take me to the GUI wiki.", "General", 0);
+            result.setActive(true);
             break;
             
         case resizeWindow:
@@ -499,9 +499,11 @@ bool UIComponent::perform(const InvocationInfo& info)
         }
 
         case showHelp:
+        {
             URL url = URL("https://open-ephys.atlassian.net/wiki/display/OEW/Open+Ephys+GUI");
             url.launchInDefaultBrowser();
             break;
+        }
 
         case toggleProcessorList:
             processorList->toggleState();
