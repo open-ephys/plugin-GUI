@@ -55,8 +55,12 @@ public:
     //==============================================================================
     void initialise(const String& commandLine)
     {
+
+        std::cout << commandLine << std::endl;
+
         StringArray parameters;
         parameters.addTokens(commandLine," ","\"");
+
 #ifdef WIN32
         //glWinInit();
 
