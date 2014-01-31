@@ -59,8 +59,11 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     std::cout << "Created control panel." << std::endl;
 
     processorList = new ProcessorList();
-    addAndMakeVisible(processorList);
-
+    processorListViewport.setViewedComponent(processorList,false);
+    processorListViewport.setScrollBarsShown(true,false);
+    addAndMakeVisible(&processorListViewport);
+    processorList->setVisible(true);
+    processorList->setBounds(0,0,195,processorList->getTotalHeight());
     std::cout << "Created filter list." << std::endl;
 
     messageCenter = new MessageCenter();
@@ -171,15 +174,23 @@ void UIComponent::resized()
     if (processorList != 0)
     {
         if (processorList->isOpen())
+        {
             if (editorViewportButton->isOpen())
-                processorList->setBounds(5,5,195,h-200);
+                processorListViewport.setBounds(5,5,195,h-200);
             else
-                processorList->setBounds(5,5,195,h-50);
-        else
-            processorList->setBounds(5,5,195,34);
+                processorListViewport.setBounds(5,5,195,h-50);
+
+            processorListViewport.setScrollBarsShown(true,false);
+
+        }
+        else{
+            processorListViewport.setBounds(5,5,195,34);
+            processorListViewport.setScrollBarsShown(false,false);
+            processorListViewport.setViewPosition (0, 0);
+        }
 
         if (w < 460)
-            processorList->setBounds(5-460+getWidth(),5,195,processorList->getHeight());
+            processorListViewport.setBounds(5-460+getWidth(),5,195,processorList->getHeight());
     }
 
     if (dataViewport != 0)
@@ -189,7 +200,7 @@ void UIComponent::resized()
         top = 40;
 
         if (processorList->isOpen())
-            left = processorList->getX()+processorList->getWidth()+2;
+            left = processorListViewport.getX()+processorListViewport.getWidth()+2;
         else
             left = 6;
 

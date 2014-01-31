@@ -174,6 +174,8 @@ private:
     ScopedPointer<MessageCenter> messageCenter;
     ScopedPointer<InfoLabel> infoLabel;
     ScopedPointer<GraphViewer> graphViewer;
+
+    Viewport processorListViewport;
 	
     /** Pointer to the GUI's MainWindow, which owns the UIComponent. */
     MainWindow* mainWindow;

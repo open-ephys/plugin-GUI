@@ -82,6 +82,12 @@ public:
     /** Loads the ProcessorList state. */
     void loadStateFromXml(XmlElement*);
 
+    void resized();
+
+    /** Returns the height requested by the ProcessorList. Determines whether or not
+    to draw scroll bars.*/
+    int getTotalHeight();
+
 private:
 
     /** The main method for drawing the ProcessorList.*/
@@ -104,9 +110,7 @@ private:
 
     int currentColor;
 
-    /** Returns the height requested by the ProcessorList. Determines whether or not
-    to draw scroll bars.*/
-    int getTotalHeight();
+    
 
     /** Deselects all items within the ProcessorList.*/
     void clearSelectionState();
