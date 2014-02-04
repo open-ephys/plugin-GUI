@@ -36,6 +36,7 @@ RecordNode::RecordNode()
 
     isProcessing = false;
     isRecording = false;
+    allFilesOpened = false;
     blockIndex = 0;
     signalFilesShouldClose = false;
 
@@ -383,6 +384,8 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
             }
         }
 
+        allFilesOpened = true;
+
     }
     else if (parameterIndex == 0)
     {
@@ -470,9 +473,12 @@ void RecordNode::openFile(Channel* ch)
         //std::cout << header << std::endl;
         std::cout << "File ID: " << chFile << ", number of bytes: " << header.getNumBytesAsUTF8() << std::endl;
 
+
         fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), chFile);
 
         std::cout << "Wrote header." << std::endl;
+
+        std::cout << "Block index: " << blockIndex << std::endl;
 
     }
     else
@@ -583,6 +589,8 @@ void RecordNode::closeAllFiles()
     closeFile(eventChannel);
 
     blockIndex = 0; // back to the beginning of the block
+
+    allFilesOpened = false;
 }
 
 bool RecordNode::enable()
@@ -769,7 +777,7 @@ void RecordNode::process(AudioSampleBuffer& buffer,
     // CONSTRAINTS:
     // samplesWritten must equal nSamples by the end of the process() method
 
-    if (isRecording)
+    if (isRecording && allFilesOpened)
     {
 
         // FIRST: cycle through events -- extract the TTLs and the timestamps
