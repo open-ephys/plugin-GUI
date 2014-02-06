@@ -88,6 +88,11 @@ void PulsePal::initialize()
     vector<ofSerialDeviceInfo> devices = serial.getDeviceList();
 
    // bool foundDevice = false;
+	if (devices.size() == 0)
+	{
+		std::cout << "No serial devices found!" << std::endl;
+		return;
+	}
 
     int id = devices[0].getDeviceID();
         string path = devices[0].getDevicePath();
