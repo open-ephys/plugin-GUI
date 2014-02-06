@@ -11,7 +11,7 @@
               companyName="Open Ephys" userNotes="The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring, processing, and visualizing data from extracellular electrodes. See open-ephys.org for more information.">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
-               juceFolder="JuceLibraryCode" extraLinkerFlags="-lzmq" objCExtraSuffix="fea2mT"
+               juceFolder="JuceLibraryCode" extraLinkerFlags="" objCExtraSuffix="fea2mT"
                externalLibraries="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
@@ -21,7 +21,7 @@
       </CONFIGURATIONS>
     </XCODE_MAC>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-pg -ldl -lXext -lzmq -lprotobuf -lGLU" extraCompilerFlags="-export-dynamic -g -pg -std=c++0x">
+                extraLinkerFlags="-pg -ldl -lXext -lGLU" extraCompilerFlags="-export-dynamic -g -pg -std=c++0x">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        libraryPath="/usr/X11R6/lib/&#10;/usr/local/include&#10;" headerPath=""/>
@@ -30,7 +30,7 @@
       </CONFIGURATIONS>
     </LINUX_MAKE>
     <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" juceFolder="JuceLibraryCode/modules"
-            extraDefs="NOMINMAX" externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;libzmq-v110-mt-3_2_2.lib&#10;libprotobuf.lib">
+            extraDefs="NOMINMAX" externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug\bin"
