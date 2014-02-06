@@ -44,8 +44,10 @@ public:
     PulsePal();
     ~PulsePal();
     void initialize();
-    uint32_t PulsePal::getFirmwareVersion();
+    uint32_t getFirmwareVersion();
     void disconnectClient();
+
+    void setDefaultParameters();
 
     // Program single parameter
     void setBiphasic(uint8_t channel, bool isBiphasic);
@@ -82,22 +84,22 @@ public:
     
     // Fields
     struct OutputParams {
-        int isBiphasic = 0;
-        float phase1Voltage = 5;
-        float phase2Voltage = -5;
-        float phase1Duration = 0.001;
-        float interPhaseInterval = 0.001;
-        float phase2Duration = 0.001;
-        float interPulseInterval = 0.01;
-        float burstDuration = 0;
-        float interBurstInterval = 0;
-        float pulseTrainDuration = 1;
-        float pulseTrainDelay = 0;
-        int linkTriggerChannel1 = 1;
-        int linkTriggerChannel2 = 0;
-        int customTrainID = 0;
-        int customTrainTarget = 0;
-        int customTrainLoop = 0;
+        int isBiphasic;
+        float phase1Voltage;
+        float phase2Voltage;
+        float phase1Duration;
+        float interPhaseInterval;
+        float phase2Duration;
+        float interPulseInterval;
+        float burstDuration;
+        float interBurstInterval;
+        float pulseTrainDuration;
+        float pulseTrainDelay;
+        int linkTriggerChannel1;
+        int linkTriggerChannel2;
+        int customTrainID;
+        int customTrainTarget;
+        int customTrainLoop;
     } currentOutputParams[5]; // Use 1-indexing for the channels (output channels 1-4 = currentOutputParams[1]-currentOutputParams[4])
     struct InputParams {
         int triggerMode;

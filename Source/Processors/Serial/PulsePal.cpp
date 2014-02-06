@@ -36,13 +36,38 @@
 
 PulsePal::PulsePal()
 {
-
+    setDefaultParameters();
+        
 }
 
 PulsePal::~PulsePal()
 {
     disconnectClient();
     serial.close();
+}
+
+void PulsePal::setDefaultParameters()
+{
+
+    for (int i = 1; i < 5; i++)
+    {
+        currentOutputParams[i].isBiphasic = 0;
+        currentOutputParams[i].phase1Voltage = 5;
+        currentOutputParams[i].phase2Voltage = -5;
+        currentOutputParams[i].phase1Duration = 0.001;
+        currentOutputParams[i].interPhaseInterval = 0.001;
+        currentOutputParams[i].phase2Duration = 0.001;
+        currentOutputParams[i].interPulseInterval = 0.01;
+        currentOutputParams[i].burstDuration = 0;
+        currentOutputParams[i].interBurstInterval = 0;
+        currentOutputParams[i].pulseTrainDuration = 1;
+        currentOutputParams[i].pulseTrainDelay = 0;
+        currentOutputParams[i].linkTriggerChannel1 = 1;
+        currentOutputParams[i].linkTriggerChannel2 = 0;
+        currentOutputParams[i].customTrainID = 0;
+        currentOutputParams[i].customTrainTarget = 0;
+        currentOutputParams[i].customTrainLoop = 0;
+    }
 }
 
 void PulsePal::initialize()
@@ -78,7 +103,7 @@ uint32_t PulsePal::getFirmwareVersion() // JS 1/30/2014
     uint8_t handshakeByte = 72;
     uint8_t responseBytes[5] = { 0 };
     serial.writeByte(handshakeByte);
-    Sleep(100);
+    usleep(100000);
     serial.readBytes(responseBytes,5);
     firmwareVersion = makeLong(responseBytes[4], responseBytes[3], responseBytes[2], responseBytes[1]);
     return firmwareVersion;
