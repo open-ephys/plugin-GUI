@@ -189,6 +189,9 @@ namespace BinaryData
     extern const char*   PipelineB02_png;
     const int            PipelineB02_pngSize = 5390;
 
+    extern const char*   FPGAOutputEditor_cpp;
+    const int            FPGAOutputEditor_cppSize = 2213;
+
     // If you provide the name of one of the binary resource variables above, this function will
     // return the corresponding data and its size (or a null pointer if the name isn't found).
     const char* getNamedResource (const char* resourceNameUTF8, int& dataSizeInBytes) throw();

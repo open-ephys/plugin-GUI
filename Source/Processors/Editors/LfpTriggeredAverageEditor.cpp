@@ -42,8 +42,8 @@ LfpTriggeredAverageEditor::~LfpTriggeredAverageEditor()
 Visualizer* LfpTriggeredAverageEditor::createNewCanvas()
 {
 
-    LfpTriggeredAverageNode* processor = (LfpTriggeredAverageNode*) getProcessor();
-    return new LfpTriggeredAverageCanvas(processor);
+    //LfpTriggeredAverageNode* processor = (LfpTriggeredAverageNode*) getProcessor();
+    //return new LfpTriggeredAverageCanvas(processor);
 
 }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="ynSYIrr" name="open-ephys" projectType="guiapp" version="0.2.4"
+<JUCERPROJECT id="ynSYIrr" name="open-ephys" projectType="guiapp" version="0.2.5"
               juceLinkage="amalg_multi" buildVST="1" buildRTAS="0" buildAU="1"
               pluginName="Juce Project" pluginDesc="Juce Project" pluginManufacturer="yourcompany"
               pluginManufacturerCode="Manu" pluginCode="Plug" pluginChannelConfigs="{1, 1}, {2, 2}"
@@ -11,7 +11,8 @@
               companyName="Open Ephys" userNotes="The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring, processing, and visualizing data from extracellular electrodes. See open-ephys.org for more information.">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
-               juceFolder="JuceLibraryCode" extraLinkerFlags="" objCExtraSuffix="fea2mT">
+               juceFolder="JuceLibraryCode" extraLinkerFlags="-lzmq" objCExtraSuffix="fea2mT"
+               externalLibraries="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
@@ -20,29 +21,33 @@
       </CONFIGURATIONS>
     </XCODE_MAC>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-pg -ldl -lXext" extraCompilerFlags="-export-dynamic -g -pg">
+                extraLinkerFlags="-pg -ldl -lXext -lzmq -lprotobuf -lGLU" extraCompilerFlags="-export-dynamic -g -pg -std=c++0x">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
-                       libraryPath="/usr/X11R6/lib/"/>
+                       libraryPath="/usr/X11R6/lib/&#10;/usr/local/include&#10;" headerPath=""/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys-release"
                        libraryPath="/usr/X11R6/lib/"/>
       </CONFIGURATIONS>
     </LINUX_MAKE>
     <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" juceFolder="JuceLibraryCode/modules"
-            extraDefs="NOMINMAX" externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;">
+            extraDefs="NOMINMAX" externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;libzmq-v110-mt-3_2_2.lib&#10;libprotobuf.lib">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug\bin"
-                       headerPath="" libraryPath="" postbuildCommand="copy ..\..\Resources\DLLs\okFrontPanel.dll .\Debug\bin"/>
+                       isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug\bin"
+                       headerPath="../../Resources/Google Protocols/src" libraryPath="../../Resources/ZeroMQ/lib_x86&#10;../../Resources/Google Protocols/vsprojects/Debug"
+                       postbuildCommand="copy ..\..\Resources\DLLs\okFrontPanel.dll .\Debug\bin"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="2" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release\bin"
-                       headerPath="" libraryPath="" postbuildCommand="copy ..\..\Resources\DLLs\okFrontPanel.dll .\Release\bin"/>
-        <CONFIGURATION name="Debug64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug64\bin"
-                       headerPath="" libraryPath="" postbuildCommand="copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Debug64\bin"/>
-        <CONFIGURATION name="Release64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="0" optimisation="2" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release64\bin"
-                       headerPath="" libraryPath="" postbuildCommand="copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Release64\bin"/>
+                       isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release\bin"
+                       headerPath="../../Resources/Google Protocols/src" libraryPath="../../Resources/ZeroMQ/lib_x86&#10;../../Resources/Google Protocols/vsprojects/Release"
+                       postbuildCommand="copy ..\..\Resources\DLLs\okFrontPanel.dll .\Release\bin"/>
+        <CONFIGURATION name="Debug64" winWarningLevel="2" generateManifest="1" winArchitecture="x64"
+                       isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug64\bin"
+                       headerPath="../../Resources/Google Protocols/src" libraryPath="../../Resources/ZeroMQ/lib_x64&#10;../../Resources/Google Protocols/vsprojects/x64/Debug"
+                       postbuildCommand="post_build_commands_x64debug.bat"/>
+        <CONFIGURATION name="Release64" winWarningLevel="2" generateManifest="1" winArchitecture="x64"
+                       isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release64\bin"
+                       headerPath="../../Resources/Google Protocols/src" libraryPath="../../Resources/ZeroMQ/lib_x64&#10;../../Resources/Google Protocols/vsprojects/x64/Release"
+                       postbuildCommand="post_build_commands_x64release.bat"/>
       </CONFIGURATIONS>
     </VS2012>
   </EXPORTFORMATS>
@@ -224,12 +229,8 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
-        <FILE id="QdCHbA" name="SerialInput.cpp" compile="1" resource="0" file="Source/Processors/SerialInput.cpp"/>
-        <FILE id="cMRCTu" name="SerialInput.h" compile="0" resource="0" file="Source/Processors/SerialInput.h"/>
-        <FILE id="E7s1De" name="LfpTriggeredAverageNode.cpp" compile="1" resource="0"
-              file="Source/Processors/LfpTriggeredAverageNode.cpp"/>
-        <FILE id="MKL66o" name="LfpTriggeredAverageNode.h" compile="0" resource="0"
-              file="Source/Processors/LfpTriggeredAverageNode.h"/>
+        <FILE id="Yj1umv" name="SerialInput.cpp" compile="1" resource="0" file="Source/Processors/SerialInput.cpp"/>
+        <FILE id="TSsuVv" name="SerialInput.h" compile="0" resource="0" file="Source/Processors/SerialInput.h"/>
         <FILE id="M6nCIs" name="FileReader.cpp" compile="1" resource="0" file="Source/Processors/FileReader.cpp"/>
         <FILE id="VU1bQ0" name="FileReader.h" compile="0" resource="0" file="Source/Processors/FileReader.h"/>
         <FILE id="e7QoyI" name="ChannelMappingNode.cpp" compile="1" resource="0"
@@ -296,10 +297,6 @@
           <FILE id="DXYynnz" name="Splitter.h" compile="0" resource="0" file="Source/Processors/Utilities/Splitter.h"/>
         </GROUP>
         <GROUP id="W4eqkOy" name="Visualization">
-          <FILE id="zrJGqi" name="LfpTriggeredAverageCanvas.cpp" compile="1"
-                resource="0" file="Source/Processors/Visualization/LfpTriggeredAverageCanvas.cpp"/>
-          <FILE id="OPRWvZ" name="LfpTriggeredAverageCanvas.h" compile="0" resource="0"
-                file="Source/Processors/Visualization/LfpTriggeredAverageCanvas.h"/>
           <FILE id="ajAJi" name="SpikeObject.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikeObject.cpp"/>
           <FILE id="xqF5zL" name="SpikeObject.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikeObject.h"/>
           <FILE id="jGEqDp" name="SpikeDisplayCanvas.cpp" compile="1" resource="0"
@@ -313,9 +310,6 @@
                 file="Source/Processors/Visualization/LfpDisplayCanvas.cpp"/>
           <FILE id="18BC8qM" name="LfpDisplayCanvas.h" compile="0" resource="0"
                 file="Source/Processors/Visualization/LfpDisplayCanvas.h"/>
-          <FILE id="AXVHGiz" name="OpenGLCanvas.cpp" compile="1" resource="0"
-                file="Source/Processors/Visualization/OpenGLCanvas.cpp"/>
-          <FILE id="51k3it9" name="OpenGLCanvas.h" compile="0" resource="0" file="Source/Processors/Visualization/OpenGLCanvas.h"/>
         </GROUP>
         <FILE id="533rUXO" name="SpikeDetector.cpp" compile="1" resource="0"
               file="Source/Processors/SpikeDetector.cpp"/>
@@ -326,18 +320,18 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
-          <FILE id="wPpw1N" name="SerialInputEditor.cpp" compile="1" resource="0"
+          <FILE id="jQo6Ff" name="LfpTriggeredAverageEditor.cpp" compile="1"
+                resource="0" file="Source/Processors/Editors/LfpTriggeredAverageEditor.cpp"/>
+          <FILE id="RaQC38" name="LfpTriggeredAverageEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/LfpTriggeredAverageEditor.h"/>
+          <FILE id="D3eN0G" name="SerialInputEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/SerialInputEditor.cpp"/>
-          <FILE id="UC2F4Z" name="SerialInputEditor.h" compile="0" resource="0"
+          <FILE id="iG39Gh" name="SerialInputEditor.h" compile="0" resource="0"
                 file="Source/Processors/Editors/SerialInputEditor.h"/>
           <FILE id="E2PXvz" name="ElectrodeButtons.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/ElectrodeButtons.cpp"/>
           <FILE id="yriJOG" name="ElectrodeButtons.h" compile="0" resource="0"
                 file="Source/Processors/Editors/ElectrodeButtons.h"/>
-          <FILE id="wyH6Hs" name="LfpTriggeredAverageEditor.cpp" compile="1"
-                resource="0" file="Source/Processors/Editors/LfpTriggeredAverageEditor.cpp"/>
-          <FILE id="GE3VJI" name="LfpTriggeredAverageEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/LfpTriggeredAverageEditor.h"/>
           <FILE id="g1ki17" name="ChannelMappingEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/ChannelMappingEditor.cpp"/>
           <FILE id="KLhI0Q" name="ChannelMappingEditor.h" compile="0" resource="0"
@@ -369,7 +363,7 @@
                 file="Source/Processors/Editors/ResamplingNodeEditor.cpp"/>
           <FILE id="pMjiz6m" name="ResamplingNodeEditor.h" compile="0" resource="0"
                 file="Source/Processors/Editors/ResamplingNodeEditor.h"/>
-          <FILE id="mvixd58" name="FPGAOutputEditor.cpp" compile="1" resource="0"
+          <FILE id="mvixd58" name="FPGAOutputEditor.cpp" compile="1" resource="1"
                 file="Source/Processors/Editors/FPGAOutputEditor.cpp"/>
           <FILE id="phTDDOR" name="FPGAOutputEditor.h" compile="0" resource="0"
                 file="Source/Processors/Editors/FPGAOutputEditor.h"/>
@@ -495,12 +489,12 @@
               file="Source/Processors/ProcessorGraph.h"/>
       </GROUP>
       <GROUP id="RNGb1yR" name="UI">
-        <FILE id="WGP2TN" name="GraphViewer.cpp" compile="1" resource="0" file="Source/UI/GraphViewer.cpp"/>
-        <FILE id="t96NjG" name="GraphViewer.h" compile="0" resource="0" file="Source/UI/GraphViewer.h"/>
-        <FILE id="eFLOvq" name="CustomArrowButton.cpp" compile="1" resource="0"
+        <FILE id="gXswXJ" name="CustomArrowButton.cpp" compile="1" resource="0"
               file="Source/UI/CustomArrowButton.cpp"/>
-        <FILE id="WC4eCg" name="CustomArrowButton.h" compile="0" resource="0"
+        <FILE id="ECOEoc" name="CustomArrowButton.h" compile="0" resource="0"
               file="Source/UI/CustomArrowButton.h"/>
+        <FILE id="aHMWGl" name="GraphViewer.cpp" compile="1" resource="0" file="Source/UI/GraphViewer.cpp"/>
+        <FILE id="EOJ8RU" name="GraphViewer.h" compile="0" resource="0" file="Source/UI/GraphViewer.h"/>
         <FILE id="sWZ22HN" name="EditorViewportButtons.cpp" compile="1" resource="0"
               file="Source/UI/EditorViewportButtons.cpp"/>
         <FILE id="WwXnCHj" name="EditorViewportButtons.h" compile="0" resource="0"

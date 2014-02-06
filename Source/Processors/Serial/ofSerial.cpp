@@ -13,13 +13,12 @@
 #endif
 
 
-
+#pragma comment(lib, "setupapi.lib")
 #include <fcntl.h>
 #include <errno.h>
 #include <ctype.h>
 #include <algorithm>
 #include <stdio.h>
-
 
 //---------------------------------------------
 #ifdef TARGET_WIN32
@@ -114,8 +113,8 @@ ofSerial::ofSerial()
     //---------------------------------------------
 #ifdef TARGET_WIN32
     //---------------------------------------------
-    nPorts 				= 0;
-    bPortsEnumerated 	= false;
+    nPorts              = 0;
+    bPortsEnumerated    = false;
 
     portNamesShort = new char * [MAX_SERIAL_PORTS];
     portNamesFriendly = new char * [MAX_SERIAL_PORTS];
@@ -141,8 +140,8 @@ ofSerial::~ofSerial()
     //---------------------------------------------
 #ifdef TARGET_WIN32
     //---------------------------------------------
-    nPorts 				= 0;
-    bPortsEnumerated 	= false;
+    nPorts              = 0;
+    bPortsEnumerated    = false;
 
     for (int i = 0; i < MAX_SERIAL_PORTS; i++)
     {
@@ -193,8 +192,8 @@ void ofSerial::buildDeviceList()
     struct dirent* entry;
     dir = opendir("/dev");
 
-    string deviceName	= "";
-    int deviceCount		= 0;
+    string deviceName   = "";
+    int deviceCount     = 0;
 
     if (dir == NULL)
     {
@@ -288,8 +287,8 @@ void ofSerial::close()
     {
         SetCommTimeouts(hComm,&oldTimeout);
         CloseHandle(hComm);
-        hComm 		= INVALID_HANDLE_VALUE;
-        bInited 	= false;
+        hComm       = INVALID_HANDLE_VALUE;
+        bInited     = false;
     }
     //---------------------------------------------
 #else
@@ -309,7 +308,7 @@ void ofSerial::close()
 //----------------------------------------------------------------
 bool ofSerial::setup()
 {
-    return setup(0,9600);		// the first one, at 9600 is a good choice...
+    return setup(0,9600);       // the first one, at 9600 is a good choice...
 }
 
 //----------------------------------------------------------------
@@ -765,4 +764,3 @@ int ofSerial::available()
 
     return numBytes;
 }
-

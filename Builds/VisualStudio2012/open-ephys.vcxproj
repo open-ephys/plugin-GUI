@@ -66,15 +66,19 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath);../../Resources/ZeroMQ/lib_x86;../../Resources/Google Protocols/vsprojects/Debug</LibraryPath>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath);../../Resources/ZeroMQ/lib_x86;../../Resources/Google Protocols/vsprojects/Release</LibraryPath>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">.\Debug64\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">true</GenerateManifest>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">$(LibraryPath);../../Resources/ZeroMQ/lib_x64;../../Resources/Google Protocols/vsprojects/x64/Debug</LibraryPath>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">.\Release64\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">true</GenerateManifest>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">$(LibraryPath);../../Resources/ZeroMQ/lib_x64;../../Resources/Google Protocols/vsprojects/x64/Release</LibraryPath>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -86,8 +90,9 @@
       <HeaderFileName/>
     </Midl>
     <ClCompile>
-      <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -110,8 +115,10 @@
       <ProgramDatabaseFile>$(IntDir)\open-ephys.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalLibraryDirectories>../../Resources/ZeroMQ/lib_x86;../../Resources/Google Protocols/vsprojects/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;libzmq-v110-mt-3_2_2.lib;libprotobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -130,8 +137,8 @@
       <HeaderFileName/>
     </Midl>
     <ClCompile>
-      <Optimization>MinSpace</Optimization>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -156,8 +163,9 @@
       <TargetMachine>MachineX86</TargetMachine>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <AdditionalLibraryDirectories>../../Resources/ZeroMQ/lib_x86;../../Resources/Google Protocols/vsprojects/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;libzmq-v110-mt-3_2_2.lib;libprotobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -176,8 +184,9 @@
       <HeaderFileName/>
     </Midl>
     <ClCompile>
-      <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -185,7 +194,7 @@
       <AssemblerListingLocation>$(IntDir)\</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)\</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)\</ProgramDataBaseFileName>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level2</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -199,15 +208,16 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(IntDir)\open-ephys.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>../../Resources/ZeroMQ/lib_x64;../../Resources/Google Protocols/vsprojects/x64/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;libzmq-v110-mt-3_2_2.lib;libprotobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Debug64\bin</Command>
+      <Command>post_build_commands_x64debug.bat</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">
@@ -219,8 +229,8 @@
       <HeaderFileName/>
     </Midl>
     <ClCompile>
-      <Optimization>MinSpace</Optimization>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -228,7 +238,7 @@
       <AssemblerListingLocation>$(IntDir)\</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)\</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)\</ProgramDataBaseFileName>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level2</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -244,15 +254,16 @@
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <AdditionalLibraryDirectories>../../Resources/ZeroMQ/lib_x64;../../Resources/Google Protocols/vsprojects/x64/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;libzmq-v110-mt-3_2_2.lib;libprotobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Release64\bin</Command>
+      <Command>post_build_commands_x64release.bat</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -277,7 +288,6 @@
     <ClCompile Include="..\..\Source\Dsp\State.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SerialInput.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\LfpTriggeredAverageNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\FileReader.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ChannelMappingNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PulsePalOutput.cpp"/>
@@ -298,18 +308,16 @@
     <ClCompile Include="..\..\Source\Processors\Utilities\RecordControl.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Utilities\Merger.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Utilities\Splitter.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\LfpTriggeredAverageCanvas.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikeDisplayCanvas.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\LfpDisplayCanvas.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\OpenGLCanvas.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SpikeDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\LfpTriggeredAverageEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\SerialInputEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ElectrodeButtons.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\LfpTriggeredAverageEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ChannelMappingEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\FileReaderEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\PhaseDetectorEditor.cpp"/>
@@ -352,8 +360,8 @@
     <ClCompile Include="..\..\Source\Processors\SourceNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\GenericProcessor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ProcessorGraph.cpp"/>
-    <ClCompile Include="..\..\Source\UI\GraphViewer.cpp"/>
     <ClCompile Include="..\..\Source\UI\CustomArrowButton.cpp"/>
+    <ClCompile Include="..\..\Source\UI\GraphViewer.cpp"/>
     <ClCompile Include="..\..\Source\UI\EditorViewportButtons.cpp"/>
     <ClCompile Include="..\..\Source\UI\SignalChainManager.cpp"/>
     <ClCompile Include="..\..\Source\UI\EditorViewport.cpp"/>
@@ -1478,7 +1486,6 @@
     <ClInclude Include="..\..\Source\Dsp\Utilities.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
     <ClInclude Include="..\..\Source\Processors\SerialInput.h"/>
-    <ClInclude Include="..\..\Source\Processors\LfpTriggeredAverageNode.h"/>
     <ClInclude Include="..\..\Source\Processors\FileReader.h"/>
     <ClInclude Include="..\..\Source\Processors\ChannelMappingNode.h"/>
     <ClInclude Include="..\..\Source\Processors\PulsePalOutput.h"/>
@@ -1500,19 +1507,17 @@
     <ClInclude Include="..\..\Source\Processors\Utilities\RecordControl.h"/>
     <ClInclude Include="..\..\Source\Processors\Utilities\Merger.h"/>
     <ClInclude Include="..\..\Source\Processors\Utilities\Splitter.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\LfpTriggeredAverageCanvas.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikeDisplayCanvas.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\DataWindow.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\LfpDisplayCanvas.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\OpenGLCanvas.h"/>
     <ClInclude Include="..\..\Source\Processors\SpikeDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\LfpTriggeredAverageEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\SerialInputEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ElectrodeButtons.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\LfpTriggeredAverageEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ChannelMappingEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\FileReaderEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\PhaseDetectorEditor.h"/>
@@ -1555,8 +1560,8 @@
     <ClInclude Include="..\..\Source\Processors\SourceNode.h"/>
     <ClInclude Include="..\..\Source\Processors\GenericProcessor.h"/>
     <ClInclude Include="..\..\Source\Processors\ProcessorGraph.h"/>
-    <ClInclude Include="..\..\Source\UI\GraphViewer.h"/>
     <ClInclude Include="..\..\Source\UI\CustomArrowButton.h"/>
+    <ClInclude Include="..\..\Source\UI\GraphViewer.h"/>
     <ClInclude Include="..\..\Source\UI\EditorViewportButtons.h"/>
     <ClInclude Include="..\..\Source\UI\SignalChainManager.h"/>
     <ClInclude Include="..\..\Source\UI\EditorViewport.h"/>
