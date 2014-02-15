@@ -1028,7 +1028,7 @@ bool RHD2000Thread::stopAcquisition()
         std::cout << "Thread failed to exit, continuing anyway..." << std::endl;
     }
 
-    if (1)
+	if (deviceFound)
     {
         evalBoard->setContinuousRunMode(false);
         evalBoard->setMaxTimeStep(0);
@@ -1041,14 +1041,16 @@ bool RHD2000Thread::stopAcquisition()
 
     dataBuffer->clear();
 
-    cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
+	if (deviceFound)
+	{
+		cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
 
-   // std::cout << "Stopped eval board." << std::endl;
+		// std::cout << "Stopped eval board." << std::endl;
 
 
-    int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
-    evalBoard->setLedDisplay(ledArray);
-
+		int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
+		evalBoard->setLedDisplay(ledArray);
+	}
     isTransmitting = false;
 
     return true;
