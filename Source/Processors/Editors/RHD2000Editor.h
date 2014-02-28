@@ -62,8 +62,8 @@ public:
 
     void channelChanged(int chan);
 
-    void saveEditorParameters(XmlElement* xml);
-    void loadEditorParameters(XmlElement* xml);
+    void saveCustomParameters(XmlElement* xml);
+    void loadCustomParameters(XmlElement* xml);
 
 private:
 

@@ -88,6 +88,11 @@ void PulsePal::initialize()
     vector<ofSerialDeviceInfo> devices = serial.getDeviceList();
 
    // bool foundDevice = false;
+	if (devices.size() == 0)
+	{
+		std::cout << "No serial devices found!" << std::endl;
+		return;
+	}
 
     int id = devices[0].getDeviceID();
         string path = devices[0].getDevicePath();
@@ -103,7 +108,12 @@ uint32_t PulsePal::getFirmwareVersion() // JS 1/30/2014
     uint8_t handshakeByte = 72;
     uint8_t responseBytes[5] = { 0 };
     serial.writeByte(handshakeByte);
-    usleep(100000);
+	#if defined( TARGET_OSX ) || defined( TARGET_LINUX )
+  usleep(100000);
+#else
+	Sleep(100);
+#endif
+  
     serial.readBytes(responseBytes,5);
     firmwareVersion = makeLong(responseBytes[4], responseBytes[3], responseBytes[2], responseBytes[1]);
     return firmwareVersion;
