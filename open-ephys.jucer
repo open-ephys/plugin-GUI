@@ -43,11 +43,11 @@
         <CONFIGURATION name="Debug64" winWarningLevel="2" generateManifest="1" winArchitecture="x64"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug64\bin"
                        headerPath="../../Resources/Google Protocols/src" libraryPath="../../Resources/ZeroMQ/lib_x64&#10;../../Resources/Google Protocols/vsprojects/x64/Debug"
-                       postbuildCommand="post_build_commands_x64debug.bat"/>
+                       postbuildCommand="copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Debug64\bin"/>
         <CONFIGURATION name="Release64" winWarningLevel="2" generateManifest="1" winArchitecture="x64"
                        isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release64\bin"
                        headerPath="../../Resources/Google Protocols/src" libraryPath="../../Resources/ZeroMQ/lib_x64&#10;../../Resources/Google Protocols/vsprojects/x64/Release"
-                       postbuildCommand="post_build_commands_x64release.bat"/>
+                       postbuildCommand="copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Release64\bin"/>
       </CONFIGURATIONS>
     </VS2012>
   </EXPORTFORMATS>
