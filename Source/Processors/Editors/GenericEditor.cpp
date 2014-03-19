@@ -545,6 +545,21 @@ bool GenericEditor::getRecordStatus(int chan)
     }
 }
 
+Array<bool> GenericEditor::getRecordStatusArray()
+{
+
+    Array<bool> recordStatuses;
+    recordStatuses.resize(getProcessor()->getNumOutputs());
+
+    for (int i = 0; i < getProcessor()->getNumOutputs(); i++)
+    {
+        recordStatuses.set(i,channelSelector->getRecordStatus(i));
+    }
+
+    return recordStatuses;
+
+}
+
 bool GenericEditor::getAudioStatus(int chan)
 {
     if (!isSplitOrMerge)

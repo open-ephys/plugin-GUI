@@ -287,6 +287,9 @@ public:
 
     /** Returns the editors a splitter or merger is connected to */
 	virtual Array<GenericEditor*> getConnectedEditors(){ Array<GenericEditor*> a; return a;}
+
+    /** Returns an array of record statuses for all channels. Used by GraphNode */
+    Array<bool> getRecordStatusArray();
     
 protected:
 

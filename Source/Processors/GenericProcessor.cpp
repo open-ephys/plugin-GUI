@@ -284,7 +284,7 @@ void GenericProcessor::clearSettings()
 
     for (int i = 0; i < channels.size(); i++)
     {
-        std::cout << channels[i]->getRecordState() << std::endl;
+       // std::cout << channels[i]->getRecordState() << std::endl;
         recordStatus.set(i,channels[i]->getRecordState());
     }
 
