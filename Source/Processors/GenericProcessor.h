@@ -542,6 +542,9 @@ public:
     /** Custom method for updating settings, called automatically by update().*/
     virtual void updateSettings() {}
 
+    /** Toggles record ON for all channels */
+    void setAllChannelsToRecord();
+
     /** Each processor has a unique integer ID that can be used to identify it.*/
     int nodeId;
 

@@ -653,12 +653,16 @@ void ControlPanel::labelTextChanged(Label* label)
 
 void ControlPanel::startRecording()
 {
-    playButton->setToggleState(true,false);
-    masterClock->startRecording(); // turn on recording
-    backgroundColour = Colour(255,0,0);
-
-    prependText->setEditable(false);
-    appendText->setEditable(false);
+    playButton->setToggleState(true,true);
+    
+    if (audio->callbacksAreActive())
+    {
+        masterClock->startRecording(); // turn on recording
+        backgroundColour = Colour(255,0,0);
+        prependText->setEditable(false);
+        appendText->setEditable(false);
+    }
+    
 
     repaint();
 }

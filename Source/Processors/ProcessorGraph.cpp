@@ -144,6 +144,12 @@ void* ProcessorGraph::createNewProcessor(String& description, int id)//,
 
         addNode(processor,id); // have to add it so it can be deleted by the graph
 
+        if (processor->isSource())
+        {
+            // by default, all source nodes record automatically
+            processor->setAllChannelsToRecord();
+        }
+
         return processor->createEditor();
 
     }

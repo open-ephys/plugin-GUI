@@ -30,6 +30,7 @@ GenericProcessor::GenericProcessor(const String& name_) : AccessClass(),
      parametersAsXml(nullptr),  name(name_), paramsWereLoaded(false), editor(0), sendSampleCount(true)
 {
 	  settings.numInputs = settings.numOutputs = settings.sampleRate = 0;
+
 }
 
 GenericProcessor::~GenericProcessor()
@@ -268,16 +269,23 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 
 void GenericProcessor::clearSettings()
 {
+
+    //std::cout << "Generic processor clearing settings." << std::endl;
+
     settings.originalSource = 0;
     settings.numInputs = 0;
     settings.numOutputs = 0;
     settings.sampleRate = getDefaultSampleRate();
 
-    recordStatus.clear();
+   // std::cout << "Record status size = " << recordStatus.size() << std::endl;
+
+    if (recordStatus.size() < channels.size())
+        recordStatus.resize(channels.size());
 
     for (int i = 0; i < channels.size(); i++)
     {
-        recordStatus.add(channels[i]->getRecordState());
+        std::cout << channels[i]->getRecordState() << std::endl;
+        recordStatus.set(i,channels[i]->getRecordState());
     }
 
     channels.clear();
@@ -390,6 +398,19 @@ void GenericProcessor::update()
 
 }
 
+void GenericProcessor::setAllChannelsToRecord()
+{
+
+    recordStatus.resize(getDefaultNumOutputs());
+
+    for (int i = 0; i < getDefaultNumOutputs(); i++)
+    {
+        recordStatus.set(i,true);
+    }
+
+   // std::cout << "Setting all channels to record for source." << std::endl;
+
+}
 
 void GenericProcessor::enableEditor()
 {
