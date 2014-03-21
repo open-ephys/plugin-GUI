@@ -148,7 +148,7 @@ void FilterNode::updateSettings()
 
             filters.add(new Dsp::SmoothedFilterDesign
                         <Dsp::Butterworth::Design::BandPass 	// design type
-                        <3>,								 	// order
+                        <2>,								 	// order
                         1,										// number of channels (must be const)
                         Dsp::DirectFormII>						// realization
                         (1));
