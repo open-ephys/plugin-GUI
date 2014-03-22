@@ -252,31 +252,33 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
 void ProcessorGraph::clearConnections()
 {
 
-    for (int i = 0; i < getNumConnections(); i++)
-    {
-        const Connection* connection = getConnection(i);
-
-        if (connection->destNodeId == RESAMPLING_NODE_ID ||
-            connection->destNodeId == OUTPUT_NODE_ID)
-        {
-            ; // leave it
-        }
-        else
-        {
-            removeConnection(i);
-        }
-    }
-
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
 
         if (node->nodeId != OUTPUT_NODE_ID)
         {
+            disconnectNode(node->nodeId);
             GenericProcessor* p =(GenericProcessor*) node->getProcessor();
             p->resetConnections();
+
         }
     }
+
+    // connect audio subnetwork
+    for (int n = 0; n < 2; n++)
+    {
+
+        addConnection(AUDIO_NODE_ID, n,
+                      RESAMPLING_NODE_ID, n);
+
+        addConnection(RESAMPLING_NODE_ID, n,
+                      OUTPUT_NODE_ID, n);
+
+    }
+
+    addConnection(AUDIO_NODE_ID, midiChannelIndex,
+                  RESAMPLING_NODE_ID, midiChannelIndex);
 }
 
 
