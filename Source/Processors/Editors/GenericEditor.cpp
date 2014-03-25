@@ -553,7 +553,10 @@ Array<bool> GenericEditor::getRecordStatusArray()
 
     for (int i = 0; i < getProcessor()->getNumOutputs(); i++)
     {
-        recordStatuses.set(i,channelSelector->getRecordStatus(i));
+        if (channelSelector != nullptr)
+            recordStatuses.set(i,channelSelector->getRecordStatus(i));
+        else
+            recordStatuses.set(i,false);
     }
 
     return recordStatuses;
