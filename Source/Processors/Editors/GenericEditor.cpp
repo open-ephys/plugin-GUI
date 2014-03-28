@@ -470,7 +470,7 @@ void GenericEditor::update()
 
     GenericProcessor* p = (GenericProcessor*) getProcessor();
 
-    //std::cout << p->getName() << " updating settings." << std::endl;
+   // std::cout << p->getName() << " updating settings." << std::endl;
 
     int numChannels;
 
@@ -482,6 +482,12 @@ void GenericEditor::update()
             numChannels = p->getNumInputs();
 
         channelSelector->setNumChannels(numChannels);
+
+        for (int i = 0; i < numChannels; i++)
+        {
+           // std::cout << p->channels[i]->getRecordState() << std::endl;
+            channelSelector->setRecordStatus(i, p->channels[i]->getRecordState());
+        }
     }
 
     if (numChannels == 0)
@@ -537,6 +543,24 @@ bool GenericEditor::getRecordStatus(int chan)
     {
         return false;
     }
+}
+
+Array<bool> GenericEditor::getRecordStatusArray()
+{
+
+    Array<bool> recordStatuses;
+    recordStatuses.resize(getProcessor()->getNumOutputs());
+
+    for (int i = 0; i < getProcessor()->getNumOutputs(); i++)
+    {
+        if (channelSelector != nullptr)
+            recordStatuses.set(i,channelSelector->getRecordStatus(i));
+        else
+            recordStatuses.set(i,false);
+    }
+
+    return recordStatuses;
+
 }
 
 bool GenericEditor::getAudioStatus(int chan)

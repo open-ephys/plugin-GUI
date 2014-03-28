@@ -39,6 +39,8 @@ MuteButton::MuteButton()
               onimage, 1.0f, Colours::white.withAlpha(0.0f));
 
     setClickingTogglesState(true);
+
+    setTooltip("Mute audio");
 }
 
 MuteButton::~MuteButton()
@@ -103,6 +105,7 @@ AudioEditor::AudioEditor(AudioNode* owner)
     volumeSlider->addListener(this);
     volumeSlider->setTextBoxStyle(Slider::NoTextBox,
                                   false, 0, 0);
+    volumeSlider->setColour(Slider::trackColourId,Colours::yellow);
     addAndMakeVisible(volumeSlider);
 
     noiseGateSlider = new Slider("Noise Gate Slider");
@@ -125,10 +128,10 @@ AudioEditor::~AudioEditor()
 
 void AudioEditor::resized()
 {
-    muteButton->setBounds(0,0,30,25);
-    volumeSlider->setBounds(35,0,50,getHeight());
-    noiseGateSlider->setBounds(85,0,50,getHeight());
-    audioWindowButton->setBounds(140,0,200,getHeight());
+    muteButton->setBounds(0,5,30,25);
+    volumeSlider->setBounds(35,8,50,getHeight()-5);
+    noiseGateSlider->setBounds(85,8,50,getHeight()-5);
+    audioWindowButton->setBounds(140,5,200,getHeight());
 }
 
 bool AudioEditor::keyPressed(const KeyPress& key)
@@ -227,6 +230,10 @@ void AudioEditor::paint(Graphics& g)
 {
     //g.setColour(Colours::grey);
     // g.fillRect(1,1,getWidth()-2,getHeight()-2);
+    g.setColour(Colours::grey);
+    g.setFont(10);
+    g.drawText("VOLUME:",40,1,50,10,Justification::left,false);
+    g.drawText("GATE:",90,1,50,10,Justification::left,false);
 }
 
 

@@ -98,23 +98,6 @@ void ProcessorGraph::createDefaultNodes()
     addNode(an, AUDIO_NODE_ID);
     addNode(arn, RESAMPLING_NODE_ID);
 
-    // connect audio subnetwork
-    for (int n = 0; n < 2; n++)
-    {
-
-        addConnection(AUDIO_NODE_ID, n,
-                      RESAMPLING_NODE_ID, n);
-
-        addConnection(RESAMPLING_NODE_ID, n,
-                      OUTPUT_NODE_ID, n);
-
-    }
-
-    addConnection(AUDIO_NODE_ID, midiChannelIndex,
-                  RESAMPLING_NODE_ID, midiChannelIndex);
-
-    //std::cout << "Default nodes created." << std::endl;
-
 }
 
 void ProcessorGraph::updatePointers()
@@ -143,6 +126,12 @@ void* ProcessorGraph::createNewProcessor(String& description, int id)//,
         processor->setUIComponent(getUIComponent()); // give access to important pointers
 
         addNode(processor,id); // have to add it so it can be deleted by the graph
+
+        if (processor->isSource())
+        {
+            // by default, all source nodes record automatically
+            processor->setAllChannelsToRecord();
+        }
 
         return processor->createEditor();
 
@@ -246,31 +235,40 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
 void ProcessorGraph::clearConnections()
 {
 
-    for (int i = 0; i < getNumConnections(); i++)
-    {
-        const Connection* connection = getConnection(i);
-
-        if (connection->destNodeId == RESAMPLING_NODE_ID ||
-            connection->destNodeId == OUTPUT_NODE_ID)
-        {
-            ; // leave it
-        }
-        else
-        {
-            removeConnection(i);
-        }
-    }
-
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
+        int nodeId = node->nodeId;
 
-        if (node->nodeId != OUTPUT_NODE_ID)
+        if (nodeId != OUTPUT_NODE_ID &&
+            nodeId != RESAMPLING_NODE_ID)
         {
-            GenericProcessor* p =(GenericProcessor*) node->getProcessor();
+
+            if (nodeId != RECORD_NODE_ID && nodeId != AUDIO_NODE_ID)
+            {
+                disconnectNode(node->nodeId);
+            }
+            
+            GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             p->resetConnections();
+
         }
     }
+
+    // connect audio subnetwork
+    for (int n = 0; n < 2; n++)
+    {
+
+        addConnection(AUDIO_NODE_ID, n,
+                      RESAMPLING_NODE_ID, n);
+
+        addConnection(RESAMPLING_NODE_ID, n,
+                      OUTPUT_NODE_ID, n);
+
+    }
+
+    addConnection(AUDIO_NODE_ID, midiChannelIndex,
+                  RESAMPLING_NODE_ID, midiChannelIndex);
 }
 
 
@@ -383,13 +381,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                     newSource->setPathToProcessor(source);
                     source = newSource;
                 }
-                   
-
-                // source = splitters.getFirst()->getSourceNode(); // dest is now the splitter
-                 //splitters.remove(0); // take it out of the array
-                 //dest->switchIO(1); // switch to the other destination
-                 //dest->wasConnected = true; // don't want to re-add splitter
-                // source = dest->getSourceNode(); // splitter is now source
+                
             }
 
         } // end while source != 0

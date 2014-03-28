@@ -581,11 +581,11 @@ void ControlPanel::resized()
     if (audioEditor != 0)
     {
         if (getWidth() < 750 && getWidth() >= 570)
-            audioEditor->setBounds(w-526,5,h*8,h-10);
+            audioEditor->setBounds(w-526,0,h*8,h);
        else if (getWidth() < 570)
-            audioEditor->setBounds(8,5+offset2,h*8,h-10);
+            audioEditor->setBounds(8,0+offset2,h*8,h);
         else
-            audioEditor->setBounds(h*7,5,h*8,h-10);
+            audioEditor->setBounds(h*7,0,h*8,h);
     }
         
 
@@ -653,12 +653,16 @@ void ControlPanel::labelTextChanged(Label* label)
 
 void ControlPanel::startRecording()
 {
-    playButton->setToggleState(true,false);
-    masterClock->startRecording(); // turn on recording
-    backgroundColour = Colour(255,0,0);
-
-    prependText->setEditable(false);
-    appendText->setEditable(false);
+    playButton->setToggleState(true,true);
+    
+    if (audio->callbacksAreActive())
+    {
+        masterClock->startRecording(); // turn on recording
+        backgroundColour = Colour(255,0,0);
+        prependText->setEditable(false);
+        appendText->setEditable(false);
+    }
+    
 
     repaint();
 }

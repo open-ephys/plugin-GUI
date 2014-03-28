@@ -121,12 +121,12 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
     addAndMakeVisible(thresholdLabel);
 
     // create a custom channel selector
-    deleteAndZero(channelSelector);
+    //deleteAndZero(channelSelector);
 
-    channelSelector = new ChannelSelector(false, font);
-    addChildComponent(channelSelector);
-    channelSelector->setVisible(false);
-
+   // channelSelector = new ChannelSelector(false, font);
+  //  addChildComponent(channelSelector);
+   // channelSelector->setVisible(false);
+//
     //  Array<int> a;
 
     channelSelector->inactivateButtons();
@@ -238,6 +238,11 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     else if (button == plusButton)
     {
         // std::cout << "Plus button pressed!" << std::endl;
+        if (acquisitionIsActive)
+        {
+            sendActionMessage("Stop acquisition before adding electrodes.");
+            return;
+        }
 
         int type = electrodeTypes->getSelectedId();
        // std::cout << type << std::endl;
@@ -266,6 +271,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             }
         }
 
+        electrodeEditorButtons[1]->setToggleState(false, false);
 
         getEditorViewport()->makeEditorVisible(this, true, true);
         return;
@@ -319,11 +325,49 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     }
     else if (button == electrodeEditorButtons[1])   // MONITOR
     {
+
+        Button* audioMonitorButton = electrodeEditorButtons[1];
+
+        channelSelector->clearAudio();
+
+        SpikeDetector* processor = (SpikeDetector*) getProcessor();
+
+        Array<Electrode*> electrodes = processor->getElectrodes();
+
+        for (int i = 0; i < electrodes.size(); i++)
+        {
+            Electrode* e = electrodes[i];
+            e->isMonitored = false;
+        }
+
+        Electrode* e = processor->getActiveElectrode();
+
+        if (e != nullptr)
+        {
+
+            e->isMonitored = audioMonitorButton->getToggleState();
+
+            for (int i = 0; i < e->numChannels; i++)
+            {
+                std::cout << "Channel " << e->channels[i] << std::endl;
+                int channelNum = e->channels[i];
+                channelSelector->setAudioStatus(channelNum, audioMonitorButton->getToggleState());
+
+            }
+        } else {
+            audioMonitorButton->setToggleState(false, false);
+        }
+
         return;
     }
     else if (button == electrodeEditorButtons[2])   // DELETE
     {
-
+        if (acquisitionIsActive)
+        {
+            sendActionMessage("Stop acquisition before deleting electrodes.");
+            return;
+        }
+    
         removeElectrode(electrodeList->getSelectedItemIndex());
 
         getEditorViewport()->makeEditorVisible(this, true, true);
@@ -477,6 +521,11 @@ void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
         {
 
             lastId = ID;
+
+            SpikeDetector* processor = (SpikeDetector*) getProcessor();
+            Electrode* e = processor->setCurrentElectrodeIndex(ID-1);
+
+            electrodeEditorButtons[1]->setToggleState(e->isMonitored, false);
 
             drawElectrodeButtons(ID-1);
 

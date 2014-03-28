@@ -27,6 +27,7 @@
 #include "../RecordNode.h"
 #include "../AudioNode.h"
 #include "../ProcessorGraph.h"
+#include "../../UI/GraphViewer.h"
 
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     eventsOnly(false), paramsToggled(true), paramsActive(true),
@@ -593,6 +594,8 @@ void ChannelSelector::buttonClicked(Button* button)
                 //std::cout << "Setting record status for channel " << b->getChannel() << std::endl;
                 ch->setRecordState(status);
             }
+
+            editor->getGraphViewer()->repaint();
 
         }
         else // parameter type

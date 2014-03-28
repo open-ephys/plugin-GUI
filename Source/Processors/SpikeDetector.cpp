@@ -147,6 +147,7 @@ bool SpikeDetector::addElectrode(int nChans)
     newElectrode->thresholds = new double[nChans];
     newElectrode->isActive = new bool[nChans];
     newElectrode->channels = new int[nChans];
+    newElectrode->isMonitored = false;
 
     for (int i = 0; i < nChans; i++)
     {
@@ -158,6 +159,8 @@ bool SpikeDetector::addElectrode(int nChans)
     resetElectrode(newElectrode);
 
     electrodes.add(newElectrode);
+
+    currentElectrode = electrodes.size()-1;
 
     return true;
 
@@ -225,6 +228,25 @@ int SpikeDetector::getChannel(int index, int i)
     return *(electrodes[index]->channels+i);
 }
 
+Array<Electrode*> SpikeDetector::getElectrodes()
+{
+    return electrodes;
+}
+
+Electrode* SpikeDetector::setCurrentElectrodeIndex(int i)
+{
+    jassert(i >= 0 & i < electrodes.size());
+    currentElectrode = i;
+    return electrodes[i];
+}
+
+Electrode* SpikeDetector::getActiveElectrode()
+{
+    if (electrodes.size() == 0)
+      return nullptr;
+
+    return electrodes[currentElectrode];
+}
 
 void SpikeDetector::setChannelActive(int electrodeIndex, int subChannel, bool active)
 {

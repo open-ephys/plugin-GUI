@@ -217,7 +217,7 @@
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>post_build_commands_x64debug.bat</Command>
+      <Command>copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Debug64\bin</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">
@@ -263,7 +263,7 @@
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>post_build_commands_x64release.bat</Command>
+      <Command>copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Release64\bin</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
