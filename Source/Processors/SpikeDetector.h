@@ -155,8 +155,8 @@ public:
     void loadCustomParametersFromXml();
 
 private:
-    /** Reference to a continuous buffer. */
-    AudioSampleBuffer& dataBuffer;
+    /** Pointer to a continuous buffer. */
+    AudioSampleBuffer* dataBuffer;
 
     float getDefaultThreshold();
 

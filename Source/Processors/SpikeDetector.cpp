@@ -28,7 +28,7 @@
 
 SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"),
-      overflowBuffer(2,100), dataBuffer(overflowBuffer),
+      overflowBuffer(2,100), dataBuffer(nullptr),
       overflowBufferSize(100), currentElectrode(-1)
 {
     //// the standard form:
@@ -412,7 +412,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
     // cycle through electrodes
     Electrode* electrode;
-    dataBuffer = buffer;
+    dataBuffer = &buffer;
 
     checkForEvents(events); // need to find any timestamp events before extracting spikes
 
@@ -571,8 +571,8 @@ float SpikeDetector::getNextSample(int& chan)
         //  useOverflowBuffer = false;
         // std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
 
-        if (sampleIndex < dataBuffer.getNumSamples())
-            return *dataBuffer.getSampleData(chan, sampleIndex);
+        if (sampleIndex < dataBuffer->getNumSamples())
+            return *dataBuffer->getSampleData(chan, sampleIndex);
         else
             return 0;
     }
@@ -602,7 +602,7 @@ float SpikeDetector::getCurrentSample(int& chan)
     {
         //  useOverflowBuffer = false;
         // std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
-        return *dataBuffer.getSampleData(chan, sampleIndex - 1);
+        return *dataBuffer->getSampleData(chan, sampleIndex - 1);
     }
     //} else {
 
