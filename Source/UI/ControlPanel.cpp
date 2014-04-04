@@ -653,7 +653,7 @@ void ControlPanel::labelTextChanged(Label* label)
 
 void ControlPanel::startRecording()
 {
-    playButton->setToggleState(true,true);
+    //playButton->setToggleState(true,true);
     
     if (audio->callbacksAreActive())
     {
@@ -691,6 +691,7 @@ void ControlPanel::buttonClicked(Button* button)
         {
 
             startRecording();
+            playButton->setToggleState(true, false);
 
         }
         else
