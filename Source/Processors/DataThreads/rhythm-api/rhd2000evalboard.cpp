@@ -1222,7 +1222,11 @@ bool Rhd2000EvalBoard::readDataBlock(Rhd2000DataBlock* dataBlock)
         return false;
     }
 
+    //std::cout << "Reading from PipeOut" << std::endl;
+
     dev->ReadFromPipeOut(PipeOutData, numBytesToRead, usbBuffer);
+
+   // std::cout << "Filling data block from USB buffer" << std::endl;
 
     dataBlock->fillFromUsbBuffer(usbBuffer, 0, numDataStreams);
 

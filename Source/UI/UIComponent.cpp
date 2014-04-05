@@ -497,7 +497,7 @@ bool UIComponent::perform(const InvocationInfo& info)
                     {
                         currentConfigFile = fc.getResult();
                         std::cout << currentConfigFile.getFileName() << std::endl;
-                        
+                        sendActionMessage(getEditorViewport()->saveState(currentConfigFile));
                     }
                     else
                     {
