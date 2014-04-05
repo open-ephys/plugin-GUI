@@ -288,6 +288,7 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
     {
         menu.addCommandItem(commandManager, openConfiguration);
         menu.addCommandItem(commandManager, saveConfiguration);
+        menu.addCommandItem(commandManager, saveConfigurationAs);
         menu.addSeparator();
         menu.addCommandItem(commandManager, reloadOnStartup);
 
@@ -346,6 +347,7 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 {
     const CommandID ids[] = {openConfiguration,
                              saveConfiguration,
+                             saveConfigurationAs,
                              reloadOnStartup,
                              undo,
                              redo,
@@ -371,14 +373,19 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
     switch (commandID)
     {
         case openConfiguration:
-            result.setInfo("Open configuration", "Load a saved processor graph.", "General", 0);
+            result.setInfo("Open...", "Load a saved processor graph.", "General", 0);
             result.addDefaultKeypress('O', ModifierKeys::commandModifier);
             result.setActive(!acquisitionStarted);
             break;
 
         case saveConfiguration:
-            result.setInfo("Save configuration", "Save the current processor graph.", "General", 0);
+            result.setInfo("Save", "Save the current processor graph.", "General", 0);
             result.addDefaultKeypress('S', ModifierKeys::commandModifier);
+            break;
+
+        case saveConfigurationAs:
+            result.setInfo("Save as...", "Save the current processor graph with a new name.", "General", 0);
+            result.addDefaultKeypress('S', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
             break;
 
         case reloadOnStartup:
@@ -464,8 +471,8 @@ bool UIComponent::perform(const InvocationInfo& info)
 
                 if (fc.browseForFileToOpen())
                 {
-                    File currentFile = fc.getResult();
-                    sendActionMessage(getEditorViewport()->loadState(currentFile));
+                    currentConfigFile = fc.getResult();
+                    sendActionMessage(getEditorViewport()->loadState(currentConfigFile));
                 }
                 else
                 {
@@ -477,16 +484,43 @@ bool UIComponent::perform(const InvocationInfo& info)
         case saveConfiguration:
             {
 
-                FileChooser fc("Choose the file to save...",
+                if (currentConfigFile.exists())
+                {
+                    sendActionMessage(getEditorViewport()->saveState(currentConfigFile));
+                } else {
+                    FileChooser fc("Choose the file name...",
+                                   File::getCurrentWorkingDirectory(),
+                                   "*",
+                                   true);
+
+                    if (fc.browseForFileToSave(true))
+                    {
+                        currentConfigFile = fc.getResult();
+                        std::cout << currentConfigFile.getFileName() << std::endl;
+                        
+                    }
+                    else
+                    {
+                        sendActionMessage("No file chosen.");
+                    }
+                }
+
+                break;
+            }
+
+        case saveConfigurationAs:
+            {
+
+                FileChooser fc("Choose the file name...",
                                File::getCurrentWorkingDirectory(),
                                "*",
                                true);
 
                 if (fc.browseForFileToSave(true))
                 {
-                    File currentFile = fc.getResult();
-                    std::cout << currentFile.getFileName() << std::endl;
-                    sendActionMessage(getEditorViewport()->saveState(currentFile));
+                    currentConfigFile = fc.getResult();
+                    std::cout << currentConfigFile.getFileName() << std::endl;
+                    sendActionMessage(getEditorViewport()->saveState(currentConfigFile));
                 }
                 else
                 {

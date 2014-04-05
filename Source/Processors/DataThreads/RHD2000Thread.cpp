@@ -234,6 +234,8 @@ void RHD2000Thread::initializeBoard()
 	bitfilename += File::separatorString;
 	bitfilename += "rhd2000.bit";
 
+    evalBoard->resetFpga();
+
     if (!uploadBitfile(bitfilename))
     {
         return;
