@@ -190,27 +190,32 @@ void LfpDisplayCanvas::update()
     nChans = jmax(processor->getNumInputs(),1);
     sampleRate = processor->getSampleRate();
 
-    std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
-
-    refreshScreenBuffer();
-
-    lfpDisplay->setNumChannels(nChans);
-
-    // update channel names
-    for (int i = 0; i < processor->getNumInputs(); i++)
+    if (nChans != lfpDisplay->getNumChannels())
     {
+    	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
-        String chName = processor->channels[i]->getName();
+    	refreshScreenBuffer();
 
-        //std::cout << chName << std::endl;
+    	lfpDisplay->setNumChannels(nChans);
 
-        lfpDisplay->channelInfo[i]->setName(chName);
+   	 	// update channel names
+   	 	for (int i = 0; i < processor->getNumInputs(); i++)
+    	{
 
+	        String chName = processor->channels[i]->getName();
+
+	        //std::cout << chName << std::endl;
+
+	        lfpDisplay->channelInfo[i]->setName(chName);
+
+    	}
+
+    	lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+
+    	resized();
     }
 
-    lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
-
-    resized();
+    
 
 }
 
@@ -539,8 +544,10 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
             	if (channelDisplayState.substring(i,i+1).equalsIgnoreCase("1"))
             	{
+            		std::cout << "Enabling channel " << i << std::endl;
             		lfpDisplay->enableChannel(true, i);
             	} else {
+            		std::cout << "Disabling channel " << i << std::endl;
             		lfpDisplay->enableChannel(false, i);
             	}
 
