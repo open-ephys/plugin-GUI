@@ -570,27 +570,27 @@ String RecordNode::generateHeader(Channel* ch)
 
 void RecordNode::closeAllFiles()
 {
-
-    for (int i = 0; i < channelPointers.size(); i++)
+    if (allFilesOpened)
     {
-        if (channelPointers[i]->getRecordState())
+        for (int i = 0; i < channelPointers.size(); i++)
         {
-
-            if (blockIndex < BLOCK_LENGTH)
+            if (channelPointers[i]->getRecordState())
             {
-                // fill out the rest of the current buffer
-                writeContinuousBuffer(zeroBuffer.getSampleData(0), BLOCK_LENGTH - blockIndex, i);
+
+                if (blockIndex < BLOCK_LENGTH)
+                {
+                    // fill out the rest of the current buffer
+                    writeContinuousBuffer(zeroBuffer.getSampleData(0), BLOCK_LENGTH - blockIndex, i);
+                }
+
+                closeFile(channelPointers[i]);
             }
-
-            closeFile(channelPointers[i]);
         }
+
+        closeFile(eventChannel);
+        blockIndex = 0; // back to the beginning of the block
+        allFilesOpened = false;
     }
-
-    closeFile(eventChannel);
-
-    blockIndex = 0; // back to the beginning of the block
-
-    allFilesOpened = false;
 }
 
 bool RecordNode::enable()
@@ -605,6 +605,9 @@ bool RecordNode::disable()
 {
     // close files if necessary
     setParameter(0, 10.0f);
+
+    if (isProcessing)
+        closeAllFiles();
 
     isProcessing = false;
 

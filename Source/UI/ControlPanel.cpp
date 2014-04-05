@@ -653,16 +653,14 @@ void ControlPanel::labelTextChanged(Label* label)
 
 void ControlPanel::startRecording()
 {
-    //playButton->setToggleState(true,true);
-    
-    if (audio->callbacksAreActive())
-    {
-        masterClock->startRecording(); // turn on recording
-        backgroundColour = Colour(255,0,0);
-        prependText->setEditable(false);
-        appendText->setEditable(false);
-    }
-    
+
+    masterClock->startRecording(); // turn on recording
+    backgroundColour = Colour(255,0,0);
+    prependText->setEditable(false);
+    appendText->setEditable(false);
+    dateText->setColour(Label::textColourId, Colours::black);
+
+    graph->setRecordState(true); 
 
     repaint();
 }
@@ -670,12 +668,15 @@ void ControlPanel::startRecording()
 void ControlPanel::stopRecording()
 {
     graph->setRecordState(false); // turn off recording in processor graph
+
     masterClock->stopRecording();
     newDirectoryButton->setEnabledState(true);
     backgroundColour = Colour(58,58,58);
 
     prependText->setEditable(true);
     appendText->setEditable(true);
+
+    recordButton->setToggleState(false,false);
 
     repaint();
 }
@@ -684,40 +685,7 @@ void ControlPanel::buttonClicked(Button* button)
 
 {
     
-    if (button == recordButton)
-    {
-        std::cout << "Record button pressed." << std::endl;
-        if (recordButton->getToggleState())
-        {
-
-            startRecording();
-            playButton->setToggleState(true, false);
-
-        }
-        else
-        {
-            stopRecording();
-        }
-
-        dateText->setColour(Label::textColourId, Colours::black);
-
-    }
-    else if (button == playButton)
-    {
-        std::cout << "Play button pressed." << std::endl;
-        if (!playButton->getToggleState())
-        {
-            if (recordButton->getToggleState())
-            {
-                recordButton->setToggleState(false,false);
-                stopRecording();
-                //newDirectoryButton->setEnabledState(true);
-            }
-
-        }
-
-    }
-    else if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
+    if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
     {
         graph->getRecordNode()->newDirectoryNeeded = true;
         newDirectoryButton->setEnabledState(false);
@@ -729,67 +697,68 @@ void ControlPanel::buttonClicked(Button* button)
 
     }
 
-    if (playButton->getToggleState())
+    if (button == playButton)
     {
-
-        if (!audio->callbacksAreActive())
+        if (playButton->getToggleState())
         {
 
-            if (graph->enableProcessors())
+            if (graph->enableProcessors()) // start the processor graph
             {
-                
-                //std::cout << "Enabling processors from " << getThreadName() << " thread." << std::endl;
-                
-                if (recordButton->getToggleState())
-                    graph->setRecordState(true);
-
-                stopTimer();
-                
                 audio->beginCallbacks();
                 masterClock->start();
+                audioEditor->disable();
                 
+                stopTimer();
                 startTimer(250); // refresh every 250 ms
 
             }
-
-        }
-        else
-        {
+        } else {
 
             if (recordButton->getToggleState())
             {
-                graph->setRecordState(true); //getRecordNode()->setParameter(1,10.0f);
+                stopRecording();
             }
 
-        }
-
-    }
-    else
-    {
-
-        if (audio->callbacksAreActive())
-        {
-            
-            std::cout << "Control panel requesting to end callbacks." << std::endl;
-            
             audio->endCallbacks();
-            
-            std::cout << "Control panel requesting to disable processors." << std::endl;
             graph->disableProcessors();
-            
             refreshMeters();
             masterClock->stop();
             stopTimer();
             startTimer(60000); // back to refresh every minute
-
+            audioEditor->enable();
+            
         }
 
+        return;
     }
 
-    if (playButton->getToggleState())
-        audioEditor->disable();
-    else
-        audioEditor->enable();
+    if (button == recordButton)
+    {
+        if (recordButton->getToggleState())
+        {
+            if (playButton->getToggleState())
+            {
+                startRecording();
+            } else {
+                if (graph->enableProcessors()) // start the processor graph
+                {
+                    audio->beginCallbacks();
+                    masterClock->start();
+                    audioEditor->disable();
+                    
+                    stopTimer();
+                    startTimer(250); // refresh every 250 ms
+
+                    startRecording();
+
+                    playButton->setToggleState(true,false);
+
+                }
+            }
+        } else {
+            stopRecording();
+        }
+    }     
 
 }
 
