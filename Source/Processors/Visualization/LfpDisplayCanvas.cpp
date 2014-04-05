@@ -1225,7 +1225,7 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
 
 	chan = ch;
 
-	enableButton = new UtilityButton("ON", Font("Small Text", 13, Font::plain));
+	enableButton = new UtilityButton("CH"+String(ch+1), Font("Small Text", 13, Font::plain));
     enableButton->setRadius(5.0f);
     
     enableButton->setEnabledState(true);
@@ -1247,12 +1247,12 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
 
 	UtilityButton* b = (UtilityButton*) button;
 
-	if (state)
-	{
-		b->setLabel("ON");
-	} else {
-		b->setLabel("OFF");
-	}
+	// if (state)
+	// {
+	// 	b->setLabel("ON");
+	// } else {
+	// 	b->setLabel("OFF");
+	// }
 
 	std::cout << "Turn channel " << chan << " to " << button->getToggleState() << std::endl;
 
@@ -1266,15 +1266,16 @@ void LfpChannelDisplayInfo::setEnabledState(bool state)
 void LfpChannelDisplayInfo::paint(Graphics& g)
 {
 
-
     int center = getHeight()/2;
 
     g.setColour(lineColour);
 
-    g.setFont(channelFont);
-    g.setFont(channelHeightFloat*0.3);
+    g.fillRoundedRectangle(5,center-8,41,22,8.0f);
 
-    g.drawText(name, 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
+  //  g.setFont(channelFont);
+   // g.setFont(channelHeightFloat*0.3);
+
+  //  g.drawText(name, 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
 
 }
 
@@ -1283,7 +1284,7 @@ void LfpChannelDisplayInfo::resized()
 
 	int center = getHeight()/2;
 
-	enableButton->setBounds(10,center+10,25,14);
+	enableButton->setBounds(8,center-5,35,16);
 }
 
 
