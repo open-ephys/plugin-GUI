@@ -894,6 +894,8 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
     controlPanelState->setAttribute("prependText",prependText->getText());
     controlPanelState->setAttribute("appendText",appendText->getText());
 
+    audioEditor->saveStateToXml(xml);
+
 }
 
 void ControlPanel::loadStateFromXml(XmlElement* xml)
@@ -912,8 +914,8 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 
         }
     }
-    
-    getProcessorGraph()->getAudioNode()->updateBufferSize();
+
+    audioEditor->loadStateFromXml(xml);
 
 }
 

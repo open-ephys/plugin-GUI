@@ -117,6 +117,9 @@ public:
     void enable();
     void disable();
 
+    void saveStateToXml(XmlElement* xml);
+    void loadStateFromXml(XmlElement* xml);
+
 private:
 
     void buttonClicked(Button* button);

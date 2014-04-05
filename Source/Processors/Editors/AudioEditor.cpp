@@ -236,7 +236,40 @@ void AudioEditor::paint(Graphics& g)
     g.drawText("GATE:",90,1,50,10,Justification::left,false);
 }
 
+void AudioEditor::saveStateToXml(XmlElement* xml)
+{
 
+    XmlElement* audioEditorState = xml->createNewChildElement("AUDIOEDITOR");
+    audioEditorState->setAttribute("isMuted",muteButton->getToggleState());
+    audioEditorState->setAttribute("volume",volumeSlider->getValue());
+    audioEditorState->setAttribute("noiseGate",noiseGateSlider->getValue());
+
+   // String audioDeviceName = getAudioComponent()->deviceManager.getCurrentAudioDeviceType();
+
+   // audioEditorState->setAttribute("deviceType",audioDeviceName);
+
+}
+
+void AudioEditor::loadStateFromXml(XmlElement* xml)
+{
+
+    forEachXmlChildElement(*xml, xmlNode)
+    {
+        if (xmlNode->hasTagName("AUDIOEDITOR"))
+        {
+
+            muteButton->setToggleState(xmlNode->getBoolAttribute("isMuted",false),false);
+            volumeSlider->setValue(xmlNode->getDoubleAttribute("volume",0.0f),NotificationType::sendNotification);
+            noiseGateSlider->setValue(xmlNode->getDoubleAttribute("noiseGate",0.0f),NotificationType::sendNotification);
+
+        //    String audioDeviceName = xmlNode->getStringAttribute("deviceType","");
+        //    getAudioComponent()->deviceManager.setCurrentAudioDeviceType(audioDeviceName, true);
+        }
+    }
+
+    updateBufferSizeText();
+
+}
 
 AudioConfigurationWindow::AudioConfigurationWindow(AudioDeviceManager& adm, AudioWindowButton* cButton)
     : DocumentWindow("Audio Settings",
