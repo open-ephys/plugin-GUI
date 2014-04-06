@@ -53,6 +53,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     scrollBarThickness = viewport->getScrollBarThickness();
 
+    isChannelEnabled.insertMultiple(0,true,10000); // max 10k channels
 
     //viewport->getVerticalScrollBar()->addListener(this->scrollBarMoved(viewport->getVerticalScrollBar(), 1.0));
 
@@ -207,6 +208,7 @@ void LfpDisplayCanvas::update()
 	        //std::cout << chName << std::endl;
 
 	        lfpDisplay->channelInfo[i]->setName(chName);
+	        lfpDisplay->enableChannel(isChannelEnabled[i], i);
 
     	}
 
@@ -544,11 +546,13 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
             	if (channelDisplayState.substring(i,i+1).equalsIgnoreCase("1"))
             	{
-            		std::cout << "Enabling channel " << i << std::endl;
+            		//std::cout << "LfpDisplayCanvas enabling channel " << i << std::endl;
             		lfpDisplay->enableChannel(true, i);
+            		isChannelEnabled.set(i,true); //lfpDisplay->enableChannel(true, i);
             	} else {
-            		std::cout << "Disabling channel " << i << std::endl;
+            		//std::cout << "LfpDisplayCanvas disabling channel " << i << std::endl;
             		lfpDisplay->enableChannel(false, i);
+            		isChannelEnabled.set(i,false); 
             	}
 
             	
@@ -962,6 +966,7 @@ void LfpDisplay::enableChannel(bool state, int chan)
 	if (chan < numChans)
 	{
 		channelInfo[chan]->setEnabledState(state);
+		canvas->isChannelEnabled.set(chan, state);
 	}
 }
 
@@ -970,8 +975,8 @@ void LfpDisplay::setEnabledState(bool state, int chan)
 
 	if (chan < numChans)
 	{
-
 		channels[chan]->setEnabledState(state);
+		canvas->isChannelEnabled.set(chan, state);
 	}
 }
 
