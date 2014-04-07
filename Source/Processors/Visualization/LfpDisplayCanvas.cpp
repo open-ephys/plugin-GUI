@@ -64,17 +64,16 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     voltageRanges.add("50");
     voltageRanges.add("100");
+    voltageRanges.add("250");
     voltageRanges.add("500");
     voltageRanges.add("1000");
     voltageRanges.add("2000");
     voltageRanges.add("5000");
 
-    timebases.add("0.5");
     timebases.add("1.0");
     timebases.add("2.0");
     timebases.add("5.0");
     timebases.add("10.0");
-
 
     spreads.add("10");
     spreads.add("20");
