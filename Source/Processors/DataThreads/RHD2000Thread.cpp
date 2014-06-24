@@ -257,6 +257,7 @@ void RHD2000Thread::initializeBoard()
     //  - enables all data streams
     //  - clears the ttlOut
     //  - disables all DACs and sets gain to 0
+    updateRegisters();
 
     // Select RAM Bank 0 for AuxCmd3 initially, so the ADC is calibrated.
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3, 0);
@@ -920,7 +921,7 @@ void RHD2000Thread::updateRegisters()
     chipRegisters.enableAux2(true);
     chipRegisters.enableAux3(true);
 
-    chipRegisters.createCommandListRegisterConfig(commandList, true);
+    commandSequenceLength = chipRegisters.createCommandListRegisterConfig(commandList, true);
     // Upload version with ADC calibration to AuxCmd3 RAM Bank 0.
     evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 0);
     evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0,

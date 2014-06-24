@@ -412,7 +412,7 @@ int Rhd2000Registers::getRegisterValue(int reg) const
             break;
         case 15:
             regout = (aPwr[15] << 7) + (aPwr[14] << 6) + (aPwr[13] << 5) + (aPwr[12] << 4) +
-                     (aPwr[11] << 3) + (aPwr[10] << 2) + (aPwr[9] << 1) + aPwr[0];
+                     (aPwr[11] << 3) + (aPwr[10] << 2) + (aPwr[9] << 1) + aPwr[8];
             break;
         case 16:
             regout = (aPwr[23] << 7) + (aPwr[22] << 6) + (aPwr[21] << 5) + (aPwr[20] << 4) +
