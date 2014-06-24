@@ -3,9 +3,9 @@
 //
 // Intan Technoloies RHD2000 Rhythm Interface API
 // Rhd2000DataBlock Class
-// Version 1.0 (14 January 2013)
+// Version 1.4 (26 February 2014)
 //
-// Copyright (c) 2013 Intan Technologies LLC
+// Copyright (c) 2013-2014 Intan Technologies LLC
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the
@@ -69,12 +69,10 @@ void Rhd2000DataBlock::allocateIntArray3D(vector<vector<vector<int> > > &array3D
     int i, j;
 
     array3D.resize(xSize);
-    for (i = 0; i < xSize; ++i)
-    {
+    for (i = 0; i < xSize; ++i) {
         array3D[i].resize(ySize);
 
-        for (j = 0; j < ySize; ++j)
-        {
+        for (j = 0; j < ySize; ++j) {
             array3D[i][j].resize(zSize);
         }
     }
@@ -144,31 +142,25 @@ void Rhd2000DataBlock::fillFromUsbBuffer(unsigned char usbBuffer[], int blockInd
     int index, t, channel, stream, i;
 
     index = blockIndex * 2 * calculateDataBlockSizeInWords(numDataStreams);
-    for (t = 0; t < SAMPLES_PER_DATA_BLOCK; ++t)
-    {
-        if (!checkUsbHeader(usbBuffer, index))
-        {
-            //cerr << "Error in Rhd2000EvalBoard::readDataBlock: Incorrect header." << endl;
+    for (t = 0; t < SAMPLES_PER_DATA_BLOCK; ++t) {
+        if (!checkUsbHeader(usbBuffer, index)) {
+            cerr << "Error in Rhd2000EvalBoard::readDataBlock: Incorrect header." << endl;
         }
         index += 8;
         timeStamp[t] = convertUsbTimeStamp(usbBuffer, index);
         index += 4;
 
         // Read auxiliary results
-        for (channel = 0; channel < 3; ++channel)
-        {
-            for (stream = 0; stream < numDataStreams; ++stream)
-            {
+        for (channel = 0; channel < 3; ++channel) {
+            for (stream = 0; stream < numDataStreams; ++stream) {
                 auxiliaryData[stream][channel][t] = convertUsbWord(usbBuffer, index);
                 index += 2;
             }
         }
 
         // Read amplifier channels
-        for (channel = 0; channel < 32; ++channel)
-        {
-            for (stream = 0; stream < numDataStreams; ++stream)
-            {
+        for (channel = 0; channel < 32; ++channel) {
+            for (stream = 0; stream < numDataStreams; ++stream) {
                 amplifierData[stream][channel][t] = convertUsbWord(usbBuffer, index);
                 index += 2;
             }
@@ -178,8 +170,7 @@ void Rhd2000DataBlock::fillFromUsbBuffer(unsigned char usbBuffer[], int blockInd
         index += 2 * numDataStreams;
 
         // Read from AD5662 ADCs
-        for (i = 0; i < 8; ++i)
-        {
+        for (i = 0; i < 8; ++i) {
             boardAdcData[i][t] = convertUsbWord(usbBuffer, index);
             index += 2;
         }
@@ -203,25 +194,24 @@ void Rhd2000DataBlock::print(int stream) const
     cout << "RHD 2000 Data Block contents:" << endl;
     cout << "  ROM contents:" << endl;
     cout << "    Chip Name: " <<
-         (char) auxiliaryData[stream][2][24] <<
-         (char) auxiliaryData[stream][2][25] <<
-         (char) auxiliaryData[stream][2][26] <<
-         (char) auxiliaryData[stream][2][27] <<
-         (char) auxiliaryData[stream][2][28] <<
-         (char) auxiliaryData[stream][2][29] <<
-         (char) auxiliaryData[stream][2][30] <<
-         (char) auxiliaryData[stream][2][31] << endl;
+           (char) auxiliaryData[stream][2][24] <<
+           (char) auxiliaryData[stream][2][25] <<
+           (char) auxiliaryData[stream][2][26] <<
+           (char) auxiliaryData[stream][2][27] <<
+           (char) auxiliaryData[stream][2][28] <<
+           (char) auxiliaryData[stream][2][29] <<
+           (char) auxiliaryData[stream][2][30] <<
+           (char) auxiliaryData[stream][2][31] << endl;
     cout << "    Company Name:" <<
-         (char) auxiliaryData[stream][2][32] <<
-         (char) auxiliaryData[stream][2][33] <<
-         (char) auxiliaryData[stream][2][34] <<
-         (char) auxiliaryData[stream][2][35] <<
-         (char) auxiliaryData[stream][2][36] << endl;
+           (char) auxiliaryData[stream][2][32] <<
+           (char) auxiliaryData[stream][2][33] <<
+           (char) auxiliaryData[stream][2][34] <<
+           (char) auxiliaryData[stream][2][35] <<
+           (char) auxiliaryData[stream][2][36] << endl;
     cout << "    Intan Chip ID: " << auxiliaryData[stream][2][19] << endl;
     cout << "    Number of Amps: " << auxiliaryData[stream][2][20] << endl;
     cout << "    Unipolar/Bipolar Amps: ";
-    switch (auxiliaryData[stream][2][21])
-    {
+    switch (auxiliaryData[stream][2][21]) {
         case 0:
             cout << "bipolar";
             break;
@@ -246,7 +236,7 @@ void Rhd2000DataBlock::print(int stream) const
     cout << "    MUX bias:              " << ((auxiliaryData[stream][2][RamOffset + 2] & 0x3f) >> 0) << endl;
     cout << "    MUX load:              " << ((auxiliaryData[stream][2][RamOffset + 3] & 0xe0) >> 5) << endl;
     cout << "    tempS2, tempS1:        " << ((auxiliaryData[stream][2][RamOffset + 3] & 0x10) >> 4) << "," <<
-         ((auxiliaryData[stream][2][RamOffset + 3] & 0x08) >> 3) << endl;
+           ((auxiliaryData[stream][2][RamOffset + 3] & 0x08) >> 3) << endl;
     cout << "    tempen:                " << ((auxiliaryData[stream][2][RamOffset + 3] & 0x04) >> 2) << endl;
     cout << "    digout HiZ:            " << ((auxiliaryData[stream][2][RamOffset + 3] & 0x02) >> 1) << endl;
     cout << "    digout:                " << ((auxiliaryData[stream][2][RamOffset + 3] & 0x01) >> 0) << endl;
@@ -285,45 +275,45 @@ void Rhd2000DataBlock::print(int stream) const
     cout << fixed << setprecision(2);
 
     cout << "    RH1 DAC1, DAC2:        " << rH1Dac1 << " " << rH1Dac2 << " = " << (rH1 / 1000) <<
-         " kOhm" << endl;
+            " kOhm" << endl;
     cout << "    RH2 DAC1, DAC2:        " << rH2Dac1 << " " << rH2Dac2 << " = " << (rH2 / 1000) <<
-         " kOhm" << endl;
+            " kOhm" << endl;
     cout << "    RL DAC1, DAC2, DAC3:   " << rLDac1 << " " << rLDac2 << " " << rLDac3 << " = " <<
-         (rL / 1000) << " kOhm" << endl;
+            (rL / 1000) << " kOhm" << endl;
 
     cout << "    amp power[31:0]:       " <<
-         ((auxiliaryData[stream][2][RamOffset + 17] & 0x80) >> 7) <<
-         ((auxiliaryData[stream][2][RamOffset + 17] & 0x40) >> 6) <<
-         ((auxiliaryData[stream][2][RamOffset + 17] & 0x20) >> 5) <<
-         ((auxiliaryData[stream][2][RamOffset + 17] & 0x10) >> 4) <<
-         ((auxiliaryData[stream][2][RamOffset + 17] & 0x08) >> 3) <<
-         ((auxiliaryData[stream][2][RamOffset + 17] & 0x04) >> 2) <<
-         ((auxiliaryData[stream][2][RamOffset + 17] & 0x02) >> 1) <<
-         ((auxiliaryData[stream][2][RamOffset + 17] & 0x01) >> 0) << " " <<
-         ((auxiliaryData[stream][2][RamOffset + 16] & 0x80) >> 7) <<
-         ((auxiliaryData[stream][2][RamOffset + 16] & 0x40) >> 6) <<
-         ((auxiliaryData[stream][2][RamOffset + 16] & 0x20) >> 5) <<
-         ((auxiliaryData[stream][2][RamOffset + 16] & 0x10) >> 4) <<
-         ((auxiliaryData[stream][2][RamOffset + 16] & 0x08) >> 3) <<
-         ((auxiliaryData[stream][2][RamOffset + 16] & 0x04) >> 2) <<
-         ((auxiliaryData[stream][2][RamOffset + 16] & 0x02) >> 1) <<
-         ((auxiliaryData[stream][2][RamOffset + 16] & 0x01) >> 0) << " " <<
-         ((auxiliaryData[stream][2][RamOffset + 15] & 0x80) >> 7) <<
-         ((auxiliaryData[stream][2][RamOffset + 15] & 0x40) >> 6) <<
-         ((auxiliaryData[stream][2][RamOffset + 15] & 0x20) >> 5) <<
-         ((auxiliaryData[stream][2][RamOffset + 15] & 0x10) >> 4) <<
-         ((auxiliaryData[stream][2][RamOffset + 15] & 0x08) >> 3) <<
-         ((auxiliaryData[stream][2][RamOffset + 15] & 0x04) >> 2) <<
-         ((auxiliaryData[stream][2][RamOffset + 15] & 0x02) >> 1) <<
-         ((auxiliaryData[stream][2][RamOffset + 15] & 0x01) >> 0) << " " <<
-         ((auxiliaryData[stream][2][RamOffset + 14] & 0x80) >> 7) <<
-         ((auxiliaryData[stream][2][RamOffset + 14] & 0x40) >> 6) <<
-         ((auxiliaryData[stream][2][RamOffset + 14] & 0x20) >> 5) <<
-         ((auxiliaryData[stream][2][RamOffset + 14] & 0x10) >> 4) <<
-         ((auxiliaryData[stream][2][RamOffset + 14] & 0x08) >> 3) <<
-         ((auxiliaryData[stream][2][RamOffset + 14] & 0x04) >> 2) <<
-         ((auxiliaryData[stream][2][RamOffset + 14] & 0x02) >> 1) <<
-         ((auxiliaryData[stream][2][RamOffset + 14] & 0x01) >> 0) << endl;
+           ((auxiliaryData[stream][2][RamOffset + 17] & 0x80) >> 7) <<
+           ((auxiliaryData[stream][2][RamOffset + 17] & 0x40) >> 6) <<
+           ((auxiliaryData[stream][2][RamOffset + 17] & 0x20) >> 5) <<
+           ((auxiliaryData[stream][2][RamOffset + 17] & 0x10) >> 4) <<
+           ((auxiliaryData[stream][2][RamOffset + 17] & 0x08) >> 3) <<
+           ((auxiliaryData[stream][2][RamOffset + 17] & 0x04) >> 2) <<
+           ((auxiliaryData[stream][2][RamOffset + 17] & 0x02) >> 1) <<
+           ((auxiliaryData[stream][2][RamOffset + 17] & 0x01) >> 0) << " " <<
+           ((auxiliaryData[stream][2][RamOffset + 16] & 0x80) >> 7) <<
+           ((auxiliaryData[stream][2][RamOffset + 16] & 0x40) >> 6) <<
+           ((auxiliaryData[stream][2][RamOffset + 16] & 0x20) >> 5) <<
+           ((auxiliaryData[stream][2][RamOffset + 16] & 0x10) >> 4) <<
+           ((auxiliaryData[stream][2][RamOffset + 16] & 0x08) >> 3) <<
+           ((auxiliaryData[stream][2][RamOffset + 16] & 0x04) >> 2) <<
+           ((auxiliaryData[stream][2][RamOffset + 16] & 0x02) >> 1) <<
+           ((auxiliaryData[stream][2][RamOffset + 16] & 0x01) >> 0) << " " <<
+           ((auxiliaryData[stream][2][RamOffset + 15] & 0x80) >> 7) <<
+           ((auxiliaryData[stream][2][RamOffset + 15] & 0x40) >> 6) <<
+           ((auxiliaryData[stream][2][RamOffset + 15] & 0x20) >> 5) <<
+           ((auxiliaryData[stream][2][RamOffset + 15] & 0x10) >> 4) <<
+           ((auxiliaryData[stream][2][RamOffset + 15] & 0x08) >> 3) <<
+           ((auxiliaryData[stream][2][RamOffset + 15] & 0x04) >> 2) <<
+           ((auxiliaryData[stream][2][RamOffset + 15] & 0x02) >> 1) <<
+           ((auxiliaryData[stream][2][RamOffset + 15] & 0x01) >> 0) << " " <<
+           ((auxiliaryData[stream][2][RamOffset + 14] & 0x80) >> 7) <<
+           ((auxiliaryData[stream][2][RamOffset + 14] & 0x40) >> 6) <<
+           ((auxiliaryData[stream][2][RamOffset + 14] & 0x20) >> 5) <<
+           ((auxiliaryData[stream][2][RamOffset + 14] & 0x10) >> 4) <<
+           ((auxiliaryData[stream][2][RamOffset + 14] & 0x08) >> 3) <<
+           ((auxiliaryData[stream][2][RamOffset + 14] & 0x04) >> 2) <<
+           ((auxiliaryData[stream][2][RamOffset + 14] & 0x02) >> 1) <<
+           ((auxiliaryData[stream][2][RamOffset + 14] & 0x01) >> 0) << endl;
 
     cout << endl;
 
@@ -338,7 +328,7 @@ void Rhd2000DataBlock::print(int stream) const
 
     cout << setprecision(1);
     cout << "  Temperature sensor (only one reading): " << tempUnitsC << " C (" <<
-         tempUnitsF << " F)" << endl;
+            tempUnitsF << " F)" << endl;
 
     cout << setprecision(2);
     cout << "  Supply voltage sensor                : " << vddSense << " V" << endl;
@@ -354,7 +344,7 @@ void Rhd2000DataBlock::print(int stream) const
 // the processor running the operating system.
 //
 // (See "Endianness" article in Wikipedia for more information.)
-void Rhd2000DataBlock::writeWordLittleEndian(ofstream& outputStream, int dataWord) const
+void Rhd2000DataBlock::writeWordLittleEndian(ofstream &outputStream, int dataWord) const
 {
     unsigned short msb, lsb;
 
@@ -366,29 +356,23 @@ void Rhd2000DataBlock::writeWordLittleEndian(ofstream& outputStream, int dataWor
 }
 
 // Write contents of data block to a binary output stream (saveOut) in little endian format.
-void Rhd2000DataBlock::write(ofstream& saveOut, int numDataStreams) const
+void Rhd2000DataBlock::write(ofstream &saveOut, int numDataStreams) const
 {
     int t, channel, stream, i;
 
-    for (t = 0; t < SAMPLES_PER_DATA_BLOCK; ++t)
-    {
+    for (t = 0; t < SAMPLES_PER_DATA_BLOCK; ++t) {
         writeWordLittleEndian(saveOut, timeStamp[t]);
-        for (channel = 0; channel < 32; ++channel)
-        {
-            for (stream = 0; stream < numDataStreams; ++stream)
-            {
+        for (channel = 0; channel < 32; ++channel) {
+            for (stream = 0; stream < numDataStreams; ++stream) {
                 writeWordLittleEndian(saveOut, amplifierData[stream][channel][t]);
             }
         }
-        for (channel = 0; channel < 3; ++channel)
-        {
-            for (stream = 0; stream < numDataStreams; ++stream)
-            {
+        for (channel = 0; channel < 3; ++channel) {
+            for (stream = 0; stream < numDataStreams; ++stream) {
                 writeWordLittleEndian(saveOut, auxiliaryData[stream][channel][t]);
             }
         }
-        for (i = 0; i < 8; ++i)
-        {
+        for (i = 0; i < 8; ++i) {
             writeWordLittleEndian(saveOut, boardAdcData[i][t]);
         }
         writeWordLittleEndian(saveOut, ttlIn[t]);
