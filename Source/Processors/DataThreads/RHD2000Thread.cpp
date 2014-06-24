@@ -304,8 +304,6 @@ void RHD2000Thread::initializeBoard()
                                     fastSettleEnabled ? 2 : 1);
 
 
-    updateRegisters();
-
     // Let's turn one LED on to indicate that the board is now connected
     int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
     evalBoard->setLedDisplay(ledArray);
