@@ -24,6 +24,8 @@
 #include "RHD2000Thread.h"
 #include "../SourceNode.h"
 
+#include <string>
+
 #if defined(_WIN32)
 #define okLIB_NAME "okFrontPanel.dll"
 #define okLIB_EXTENSION "*.dll"
@@ -111,7 +113,7 @@ RHD2000Thread::~RHD2000Thread()
 	if (deviceFound)
     {
         evalBoard->resetBoard();
-		evalBoard->resetFpga();
+//		evalBoard->resetFpga();
     }
 
 
@@ -121,7 +123,8 @@ RHD2000Thread::~RHD2000Thread()
 
 bool RHD2000Thread::openBoard(String pathToLibrary)
 {
-    int return_code = evalBoard->open(pathToLibrary.getCharPointer());
+    int return_code = evalBoard->open();
+    bool return_val = evalBoard->uploadFpgaBitfile(string(pathToLibrary.getCharPointer()));
 
     if (return_code == 1)
     {
@@ -235,7 +238,7 @@ void RHD2000Thread::initializeBoard()
 	bitfilename += File::separatorString;
 	bitfilename += "rhd2000.bit";
 
-    evalBoard->resetFpga();
+   // evalBoard->resetFpga();
     evalBoard->resetBoard();
 
     if (!uploadBitfile(bitfilename))
