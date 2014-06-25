@@ -358,6 +358,7 @@ public:
     void invertSpikes(bool shouldInvert)
     {
         spikesInverted = shouldInvert;
+        repaint();
     }
 
 private:
