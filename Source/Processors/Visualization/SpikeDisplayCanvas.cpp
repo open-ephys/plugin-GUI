@@ -373,14 +373,15 @@ void SpikeDisplay::mouseDown(const MouseEvent& event)
 
 void SpikeDisplay::invertSpikes(bool shouldInvert_)
 {
+
+    shouldInvert = shouldInvert_;
+
     for (int i = 0; i < spikePlots.size(); i++)
     {
-        spikePlots[i]->invertSpikes(shouldInvert);
+        spikePlots[i]->invertSpikes(shouldInvert_);
     }
 
     //std::cout << "Invert spikes? " << shouldInvert_ << std::endl;
-
-    shouldInvert = shouldInvert_;
 }
 
 void SpikeDisplay::plotSpike(const SpikeObject& spike, int electrodeNum)
@@ -850,7 +851,7 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
             
             float s1, s2;
 
-            if (!spikesInverted)
+            if (spikesInverted)
             {
                 s1 = h/2 + float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f / range * h;
                 s2 = h/2 + float(s.data[sampIdx+1]-32768)/float(*s.gain)*1000.0f / range * h;
@@ -879,7 +880,7 @@ void WaveAxes::drawThresholdSlider(Graphics& g)
     // draw display threshold (editable)
     float h;
 
-    if (!spikesInverted)
+    if (spikesInverted)
         h = getHeight()*(0.5f - displayThresholdLevel/range);
     else
         h = getHeight()*(0.5f + displayThresholdLevel/range);
@@ -890,7 +891,7 @@ void WaveAxes::drawThresholdSlider(Graphics& g)
     g.drawText(String(roundFloatToInt(displayThresholdLevel)),2,h,25,10,Justification::left, false);
 
     // draw detector threshold (not editable)
-     if (!spikesInverted)
+     if (spikesInverted)
         h = getHeight()*(0.5f - detectorThresholdLevel/range);
     else
         h = getHeight()*(0.5f + detectorThresholdLevel/range);
@@ -987,7 +988,7 @@ void WaveAxes::mouseMove(const MouseEvent& event)
 
     float h = getHeight()*(0.5f - displayThresholdLevel/range);
 
-    if (!spikesInverted)
+    if (spikesInverted)
         h = getHeight()*(0.5f - displayThresholdLevel/range);
     else
         h = getHeight()*(0.5f + displayThresholdLevel/range);
@@ -1037,7 +1038,7 @@ void WaveAxes::mouseDrag(const MouseEvent& event)
 
         float thresholdSliderPosition =  float(event.y) / float(getHeight());
 
-         if (!spikesInverted)
+         if (spikesInverted)
         {
             if (thresholdSliderPosition > 0.5f)
                 thresholdSliderPosition = 0.5f;
