@@ -44,7 +44,8 @@ class EventDisplayInterface;
 */
 
 class LfpDisplayCanvas : public Visualizer,
-    public ComboBox::Listener
+    public ComboBox::Listener,
+    public Button::Listener
 
 {
 public:
@@ -69,6 +70,7 @@ public:
     int getChannelHeight();
 
     int getNumChannels();
+    bool getInputInvertedState();
 
     float getXCoord(int chan, int samp);
     float getYCoord(int chan, int samp);
@@ -77,6 +79,7 @@ public:
     int lastScreenBufferIndex;
 
     void comboBoxChanged(ComboBox* cb);
+    void buttonClicked(Button* button);
 
     void saveVisualizerParameters(XmlElement* xml);
 
@@ -116,6 +119,7 @@ private:
     ScopedPointer<ComboBox> rangeSelection;
     ScopedPointer<ComboBox> spreadSelection;
     ScopedPointer<ComboBox> colorGroupingSelection;
+    ScopedPointer<UtilityButton> invertInputButton;
 
     StringArray voltageRanges;
     StringArray timebases;
@@ -186,6 +190,7 @@ public:
 
     void setChannelHeight(int r);
     int getChannelHeight();
+    void setInputInverted(bool);
 
     void setColors();
 
@@ -244,6 +249,9 @@ public:
     void setRange(float range);
     int getRange();
 
+    void setInputInverted(bool);
+    void setCanBeInverted(bool);
+
     void setEnabledState(bool);
     bool getEnabledState() {return isEnabled;}
 
@@ -271,6 +279,8 @@ protected:
     float range;
 
     bool isEnabled;
+    bool inputInverted;
+    bool canBeInverted;
 
 };
 

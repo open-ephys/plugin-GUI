@@ -114,6 +114,15 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     colorGroupingSelection->addListener(this);
     addAndMakeVisible(colorGroupingSelection);
 
+    invertInputButton = new UtilityButton("Invert", Font("Small Text", 13, Font::plain));
+    invertInputButton->setRadius(5.0f);
+    invertInputButton->setEnabledState(true);
+    invertInputButton->setCorners(true, true, true, true);
+    invertInputButton->addListener(this);
+    invertInputButton->setClickingTogglesState(true);
+    invertInputButton->setToggleState(false, false);
+    addAndMakeVisible(invertInputButton);
+
 
     lfpDisplay->setNumChannels(nChans);
     lfpDisplay->setRange(1000.0f);
@@ -153,7 +162,7 @@ void LfpDisplayCanvas::resized()
     timebaseSelection->setBounds(175,getHeight()-30,100,25);
     spreadSelection->setBounds(345,getHeight()-30,100,25);
     colorGroupingSelection->setBounds(620,getHeight()-30,100,25);
-
+    invertInputButton->setBounds(750,getHeight()-30,100,25);
 
     for (int i = 0; i < 8; i++)
     {
@@ -216,8 +225,14 @@ void LfpDisplayCanvas::update()
     	resized();
     }
 
-    
+}
 
+void LfpDisplayCanvas::buttonClicked(Button* b)
+{
+    if (b == invertInputButton)
+    {
+        lfpDisplay->setInputInverted(b->getToggleState());
+    }
 }
 
 void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
@@ -411,6 +426,11 @@ float LfpDisplayCanvas::getYCoord(int chan, int samp)
     return *screenBuffer->getSampleData(chan, samp);
 }
 
+bool LfpDisplayCanvas::getInputInvertedState()
+{
+    return invertInputButton->getToggleState();
+}
+
 void LfpDisplayCanvas::paint(Graphics& g)
 {
 
@@ -478,7 +498,7 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
     xmlNode->setAttribute("Timebase",timebaseSelection->getSelectedId());
     xmlNode->setAttribute("Spread",spreadSelection->getSelectedId());
     xmlNode->setAttribute("colorGrouping",colorGroupingSelection->getSelectedId());
-    
+    xmlNode->setAttribute("isInverted",invertInputButton->getToggleState());
 
     int eventButtonState = 0;
 
@@ -525,6 +545,8 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
             } else {
                 colorGroupingSelection->setSelectedId(1);
             }
+
+            invertInputButton->setToggleState(xmlNode->getBoolAttribute("isInverted", true), true);
 
             viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
                                       xmlNode->getIntAttribute("ScrollY"));
@@ -850,6 +872,18 @@ void LfpDisplay::setChannelHeight(int r)
 
 }
 
+void LfpDisplay::setInputInverted(bool isInverted)
+{
+
+    for (int i = 0; i < numChans; i++)
+    {
+        channels[i]->setInputInverted(isInverted);
+    }
+
+    resized();
+
+}
+
 int LfpDisplay::getChannelHeight()
 {
     return channels[0]->getChannelHeight();
@@ -995,7 +1029,7 @@ void LfpDisplay::setEnabledState(bool state, int chan)
 LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, int channelNumber) :
     canvas(c), display(d), isSelected(false), chan(channelNumber), 
     channelOverlap(300), channelHeight(40), range(1000.0f),
-    isEnabled(true)
+    isEnabled(true), inputInverted(false), canBeInverted(true)
 {
 
 
@@ -1201,9 +1235,13 @@ void LfpChannelDisplay::setColour(Colour c)
 void LfpChannelDisplay::setChannelHeight(int c)
 {
     channelHeight = c;
+
     channelHeightFloat = (float) channelHeight;
-    //channelOverlap = channelHeight / 2; //clips data too early,
-    channelOverlap = channelHeight *5;
+
+    if (!inputInverted)
+        channelHeightFloat = -channelHeightFloat;
+
+    channelOverlap = channelHeight*5;
 }
 
 int LfpChannelDisplay::getChannelHeight()
@@ -1221,6 +1259,21 @@ void LfpChannelDisplay::setChannelOverlap(int overlap)
 int LfpChannelDisplay::getChannelOverlap()
 {
     return channelOverlap;
+}
+
+void LfpChannelDisplay::setCanBeInverted(bool _canBeInverted)
+{
+	canBeInverted = _canBeInverted;
+}
+
+void LfpChannelDisplay::setInputInverted(bool isInverted)
+{
+    if (canBeInverted)
+    {
+        inputInverted = isInverted;
+
+        setChannelHeight(channelHeight);
+    }
 }
 
 void LfpChannelDisplay::setName(String name_)
