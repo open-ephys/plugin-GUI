@@ -135,6 +135,7 @@ public:
     void removePlots();
     void clear();
     SpikePlot* addSpikePlot(int numChannels, int electrodeNum, String name);
+    SpikePlot* getSpikePlot(int index);
 
     void paint(Graphics& g);
 
@@ -150,6 +151,14 @@ public:
     {
         return totalHeight;
     }
+
+    int getNumPlots();
+    int getNumChannelsForPlot(int plotNum);
+    float getThresholdForWaveAxis(int plotNum, int axisNum);
+    float getRangeForWaveAxis(int plotNum, int axisNum);
+
+    void setThresholdForWaveAxis(int plotNum, int axisNum, float threshold);
+    void setRangeForWaveAxis(int plotNum, int axisNum, float range);
 
 	void registerThresholdCoordinator(SpikeThresholdCoordinator *stc);
 
@@ -220,7 +229,11 @@ public:
     void buttonClicked(Button* button);
 
     float getDisplayThresholdForChannel(int);
+    void setDisplayThresholdForChannel(int axisNum, float threshold);
     void setDetectorThresholdForChannel(int, float);
+
+    float getRangeForChannel(int);
+    void setRangeForChannel(int axisNum, float range);
 
 	//For locking the tresholds
 	void registerThresholdCoordinator(SpikeThresholdCoordinator *stc);
@@ -340,7 +353,7 @@ public:
 
 	//For locking the thresholds
 	void registerThresholdCoordinator(SpikeThresholdCoordinator *stc);
-	void setDisplaythreshold(float threshold);
+	void setDisplayThreshold(float threshold);
 
     void invertSpikes(bool shouldInvert)
     {

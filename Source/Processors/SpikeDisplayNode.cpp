@@ -229,7 +229,7 @@ void SpikeDisplayNode::process(AudioSampleBuffer& buffer, MidiBuffer& events, in
             for (int j = 0; j < e.numChannels; j++)
             {
                 e.displayThresholds.set(j, 
-                    e.spikePlot->getDisplayThresholdForChannel(j));
+                e.spikePlot->getDisplayThresholdForChannel(j));
 
                 e.spikePlot->setDetectorThresholdForChannel(j, e.detectorThresholds[j]);
             }
