@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -37,15 +36,14 @@ public:
     JucerTreeViewBase();
     ~JucerTreeViewBase();
 
-    int getItemWidth() const                                { return -1; }
-    int getItemHeight() const                               { return 20; }
+    int getItemWidth() const override                   { return -1; }
+    int getItemHeight() const override                  { return 20; }
 
-    void paintItem (Graphics& g, int width, int height);
-    void paintOpenCloseButton (Graphics& g, int width, int height, bool isMouseOver);
-    Component* createItemComponent();
-    void itemClicked (const MouseEvent& e);
-    void itemSelectionChanged (bool isNowSelected);
-    void itemDoubleClicked (const MouseEvent&);
+    void paintOpenCloseButton (Graphics&, const Rectangle<float>& area, Colour backgroundColour, bool isMouseOver) override;
+    Component* createItemComponent() override;
+    void itemClicked (const MouseEvent& e) override;
+    void itemSelectionChanged (bool isNowSelected) override;
+    void itemDoubleClicked (const MouseEvent&) override;
 
     void cancelDelayedSelectionTimer();
 
@@ -100,7 +98,7 @@ protected:
 
     Colour getBackgroundColour() const;
     Colour getContrastingColour (float contrast) const;
-    Colour getContrastingColour (const Colour& targetColour, float minContrast) const;
+    Colour getContrastingColour (Colour targetColour, float minContrast) const;
 
 private:
     class ItemSelectionTimer;
@@ -120,7 +118,7 @@ public:
     TreePanelBase (const Project* p, const String& treeviewID)
         : project (p), opennessStateKey (treeviewID)
     {
-        addAndMakeVisible (&tree);
+        addAndMakeVisible (tree);
         tree.setRootItemVisible (true);
         tree.setDefaultOpenness (true);
         tree.setColour (TreeView::backgroundColourId, Colours::transparentBlack);
@@ -160,13 +158,13 @@ public:
         g.drawFittedText (message, area.reduced (4, 2), Justification::centred, area.getHeight() / fontHeight);
     }
 
-    void paint (Graphics& g)
+    void paint (Graphics& g) override
     {
         if (emptyTreeMessage.isNotEmpty() && (rootItem == nullptr || rootItem->getNumSubItems() == 0))
             drawEmptyPanelMessage (*this, g, emptyTreeMessage);
     }
 
-    void resized()
+    void resized() override
     {
         tree.setBounds (getAvailableBounds());
     }
@@ -193,7 +191,7 @@ public:
         setInterceptsMouseClicks (false, true);
     }
 
-    void paint (Graphics& g)
+    void paint (Graphics& g) override
     {
         g.setColour (Colours::black);
         paintIcon (g);
@@ -206,7 +204,7 @@ public:
                              item.isIconCrossedOut());
     }
 
-    void resized()
+    void resized() override
     {
         item.textX = (int) item.getIconSize() + 8;
     }
@@ -215,4 +213,4 @@ public:
 };
 
 
-#endif
+#endif   // __JUCER_JUCERTREEVIEWBASE_JUCEHEADER__

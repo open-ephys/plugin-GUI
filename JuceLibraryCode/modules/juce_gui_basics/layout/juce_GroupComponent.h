@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_GROUPCOMPONENT_JUCEHEADER__
-#define __JUCE_GROUPCOMPONENT_JUCEHEADER__
-
-#include "../components/juce_Component.h"
+#ifndef JUCE_GROUPCOMPONENT_H_INCLUDED
+#define JUCE_GROUPCOMPONENT_H_INCLUDED
 
 
 //==============================================================================
@@ -62,13 +60,13 @@ public:
 
         @see getTextLabelPosition
     */
-    void setTextLabelPosition (const Justification& justification);
+    void setTextLabelPosition (Justification justification);
 
     /** Returns the current text label position.
 
         @see setTextLabelPosition
     */
-    const Justification getTextLabelPosition() const noexcept           { return justification; }
+    Justification getTextLabelPosition() const noexcept           { return justification; }
 
     //==============================================================================
     /** A set of colour IDs to use to change the colour of various aspects of the component.
@@ -85,12 +83,22 @@ public:
     };
 
     //==============================================================================
+    /** This abstract base class is implemented by LookAndFeel classes. */
+    struct JUCE_API  LookAndFeelMethods
+    {
+        virtual ~LookAndFeelMethods() {}
+
+        virtual void drawGroupComponentOutline (Graphics&, int w, int h, const String& text,
+                                                const Justification&, GroupComponent&) = 0;
+    };
+
+    //==============================================================================
     /** @internal */
-    void paint (Graphics& g);
+    void paint (Graphics&) override;
     /** @internal */
-    void enablementChanged();
+    void enablementChanged() override;
     /** @internal */
-    void colourChanged();
+    void colourChanged() override;
 
 private:
     String text;
@@ -100,4 +108,4 @@ private:
 };
 
 
-#endif   // __JUCE_GROUPCOMPONENT_JUCEHEADER__
+#endif   // JUCE_GROUPCOMPONENT_H_INCLUDED

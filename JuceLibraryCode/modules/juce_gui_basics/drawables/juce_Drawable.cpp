@@ -73,7 +73,8 @@ void Drawable::drawAt (Graphics& g, float x, float y, float opacity) const
     draw (g, opacity, AffineTransform::translation (x, y));
 }
 
-void Drawable::drawWithin (Graphics& g, const Rectangle<float>& destArea, const RectanglePlacement& placement, float opacity) const
+void Drawable::drawWithin (Graphics& g, const Rectangle<float>& destArea,
+                           RectanglePlacement placement, float opacity) const
 {
     draw (g, opacity, placement.getTransformToFit (getDrawableBounds(), destArea));
 }
@@ -86,8 +87,7 @@ DrawableComposite* Drawable::getParent() const
 
 void Drawable::transformContextToCorrectOrigin (Graphics& g)
 {
-    g.setOrigin (originRelativeToComponent.x,
-                 originRelativeToComponent.y);
+    g.setOrigin (originRelativeToComponent);
 }
 
 void Drawable::parentHierarchyChanged()
@@ -108,12 +108,24 @@ void Drawable::setBoundsToEnclose (const Rectangle<float>& area)
 }
 
 //==============================================================================
+bool Drawable::replaceColour (Colour original, Colour replacement)
+{
+    bool changed = false;
+
+    for (int i = getNumChildComponents(); --i >= 0;)
+        if (Drawable* d = dynamic_cast<Drawable*> (getChildComponent(i)))
+            changed = d->replaceColour (original, replacement) || changed;
+
+    return changed;
+}
+
+//==============================================================================
 void Drawable::setOriginWithOriginalSize (Point<float> originWithinParent)
 {
     setTransform (AffineTransform::translation (originWithinParent.x, originWithinParent.y));
 }
 
-void Drawable::setTransformToFit (const Rectangle<float>& area, const RectanglePlacement& placement)
+void Drawable::setTransformToFit (const Rectangle<float>& area, RectanglePlacement placement)
 {
     if (! area.isEmpty())
         setTransform (placement.getTransformToFit (getDrawableBounds(), area));

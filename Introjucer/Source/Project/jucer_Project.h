@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -29,8 +28,8 @@
 #include "../jucer_Headers.h"
 class ProjectExporter;
 class ProjectType;
-class ModuleList;
 class LibraryModule;
+class EnabledModuleList;
 
 //==============================================================================
 class Project  : public FileBasedDocument,
@@ -43,17 +42,18 @@ public:
 
     //==============================================================================
     // FileBasedDocument stuff..
-    String getDocumentTitle();
-    Result loadDocument (const File& file);
-    Result saveDocument (const File& file);
+    String getDocumentTitle() override;
+    Result loadDocument (const File& file) override;
+    Result saveDocument (const File& file) override;
     Result saveProject (const File& file, bool isCommandLineApp);
     Result saveResourcesOnly (const File& file);
-    File getLastDocumentOpened();
-    void setLastDocumentOpened (const File& file);
+    File getLastDocumentOpened() override;
+    void setLastDocumentOpened (const File& file) override;
 
     void setTitle (const String& newTitle);
 
     //==============================================================================
+    File getProjectFolder() const                       { return getFile().getParentDirectory(); }
     ValueTree getProjectRoot() const                    { return projectRoot; }
     String getTitle() const;
     Value getProjectNameValue()                         { return getMainGroup().getNameValue(); }
@@ -92,6 +92,8 @@ public:
     String getDefaultAAXIdentifier()                    { return getDefaultBundleIdentifier(); }
 
     Value getCompanyName()                              { return getProjectValue (Ids::companyName); }
+    Value getCompanyWebsite()                           { return getProjectValue (Ids::companyWebsite); }
+    Value getCompanyEmail()                             { return getProjectValue (Ids::companyEmail); }
 
     //==============================================================================
     Value getProjectValue (const Identifier& name)      { return projectRoot.getPropertyAsValue (name, getUndoManagerFor (projectRoot)); }
@@ -104,8 +106,11 @@ public:
     //==============================================================================
     File getGeneratedCodeFolder() const                 { return getFile().getSiblingFile ("JuceLibraryCode"); }
     File getAppIncludeFile() const                      { return getGeneratedCodeFolder().getChildFile (getJuceSourceHFilename()); }
+
     File getBinaryDataCppFile (int index) const;
     File getBinaryDataHeaderFile() const                { return getBinaryDataCppFile (0).withFileExtension (".h"); }
+    Value getMaxBinaryFileSize()                        { return getProjectValue (Ids::maxBinaryFileSize); }
+    Value shouldIncludeBinaryInAppConfig()              { return getProjectValue (Ids::includeBinaryInAppConfig); }
 
     //==============================================================================
     String getAmalgamatedHeaderFileName() const         { return "juce_amalgamated.h"; }
@@ -144,7 +149,7 @@ public:
         Item findItemWithID (const String& targetId) const; // (recursive search)
 
         String getImageFileID() const;
-        Image loadAsImageFile() const;
+        Drawable* loadAsImageFile() const;
 
         //==============================================================================
         Value getNameValue();
@@ -240,19 +245,7 @@ public:
     bool isConfigFlagEnabled (const String& name) const;
 
     //==============================================================================
-    bool isModuleEnabled (const String& moduleID) const;
-    Value shouldShowAllModuleFilesInProject (const String& moduleID);
-    Value shouldCopyModuleFilesLocally (const String& moduleID);
-
-    void addModule (const String& moduleID, bool shouldCopyFilesLocally);
-    void removeModule (const String& moduleID);
-    int getNumModules() const;
-    String getModuleID (int index) const;
-
-    void addDefaultModules (bool shouldCopyFilesLocally);
-    bool isAudioPluginModuleMissing() const;
-
-    void createRequiredModules (const ModuleList& availableModules, OwnedArray<LibraryModule>& modules) const;
+    EnabledModuleList& getModules();
 
     //==============================================================================
     String getFileTemplate (const String& templateName);
@@ -261,11 +254,11 @@ public:
     PropertiesFile& getStoredProperties() const;
 
     //==============================================================================
-    void valueTreePropertyChanged (ValueTree& tree, const Identifier& property);
-    void valueTreeChildAdded (ValueTree& parentTree, ValueTree& childWhichHasBeenAdded);
-    void valueTreeChildRemoved (ValueTree& parentTree, ValueTree& childWhichHasBeenRemoved);
-    void valueTreeChildOrderChanged (ValueTree& parentTree);
-    void valueTreeParentChanged (ValueTree& tree);
+    void valueTreePropertyChanged (ValueTree&, const Identifier&) override;
+    void valueTreeChildAdded (ValueTree&, ValueTree&) override;
+    void valueTreeChildRemoved (ValueTree&, ValueTree&) override;
+    void valueTreeChildOrderChanged (ValueTree&) override;
+    void valueTreeParentChanged (ValueTree&) override;
 
     //==============================================================================
     UndoManager* getUndoManagerFor (const ValueTree&) const             { return nullptr; }
@@ -276,17 +269,19 @@ public:
 private:
     friend class Item;
     ValueTree projectRoot;
+    ScopedPointer<EnabledModuleList> enabledModulesList;
 
     void updateProjectSettings();
     void sanitiseConfigFlags();
     void setMissingDefaultValues();
     ValueTree getConfigurations() const;
     ValueTree getConfigNode();
-    ValueTree getModulesNode();
 
     void updateOldStyleConfigList();
     void moveOldPropertyFromProjectToAllExporters (Identifier name);
     void removeDefunctExporters();
+    void updateOldModulePaths();
+    void warnAboutOldIntrojucerVersion();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Project)
 };

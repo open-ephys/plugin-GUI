@@ -37,10 +37,9 @@ public:
         D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties();
         D2D1_HWND_RENDER_TARGET_PROPERTIES propsHwnd = D2D1::HwndRenderTargetProperties (hwnd, size);
 
-        const Direct2DFactories& factories = Direct2DFactories::getInstance();
-        if (factories.d2dFactory != nullptr)
+        if (factories->d2dFactory != nullptr)
         {
-            HRESULT hr = factories.d2dFactory->CreateHwndRenderTarget (props, propsHwnd, renderingTarget.resetAndGetPointerAddress());
+            HRESULT hr = factories->d2dFactory->CreateHwndRenderTarget (props, propsHwnd, renderingTarget.resetAndGetPointerAddress());
             jassert (SUCCEEDED (hr)); (void) hr;
             hr = renderingTarget->CreateSolidColorBrush (D2D1::ColorF::ColorF (0.0f, 0.0f, 0.0f, 1.0f), colourBrush.resetAndGetPointerAddress());
         }
@@ -82,9 +81,9 @@ public:
 
     bool isVectorDevice() const { return false; }
 
-    void setOrigin (int x, int y)
+    void setOrigin (Point<int> o)
     {
-        addTransform (AffineTransform::translation ((float) x, (float) y));
+        addTransform (AffineTransform::translation ((float) o.x, (float) o.y));
     }
 
     void addTransform (const AffineTransform& transform)
@@ -92,7 +91,7 @@ public:
         currentState->transform = transform.followedBy (currentState->transform);
     }
 
-    float getScaleFactor()
+    float getPhysicalPixelScaleFactor()
     {
         return currentState->transform.getScaleFactor();
     }
@@ -103,7 +102,7 @@ public:
         return ! isClipEmpty();
     }
 
-    bool clipToRectangleList (const RectangleList& clipRegion)
+    bool clipToRectangleList (const RectangleList<int>& clipRegion)
     {
         currentState->clipToRectList (rectListToPathGeometry (clipRegion));
         return ! isClipEmpty();
@@ -179,10 +178,21 @@ public:
 
     void fillRect (const Rectangle<int>& r, bool /*replaceExistingContents*/)
     {
+        fillRect (r.toFloat());
+    }
+
+    void fillRect (const Rectangle<float>& r)
+    {
         renderingTarget->SetTransform (transformToMatrix (currentState->transform));
         currentState->createBrush();
         renderingTarget->FillRectangle (rectangleToRectF (r), currentState->currentBrush);
         renderingTarget->SetTransform (D2D1::IdentityMatrix());
+    }
+
+    void fillRectList (const RectangleList<float>& list)
+    {
+        for (const Rectangle<float>* r = list.begin(), * const e = list.end(); r != e; ++r)
+            fillRect (*r);
     }
 
     void fillPath (const Path& p, const AffineTransform& transform)
@@ -227,30 +237,6 @@ public:
 
         renderingTarget->DrawLine (D2D1::Point2F (line.getStartX(), line.getStartY()),
                                    D2D1::Point2F (line.getEndX(), line.getEndY()),
-                                   currentState->currentBrush);
-        renderingTarget->SetTransform (D2D1::IdentityMatrix());
-    }
-
-    void drawVerticalLine (int x, float top, float bottom)
-    {
-        // xxx doesn't seem to be correctly aligned, may need nudging by 0.5 to match the software renderer's behaviour
-        renderingTarget->SetTransform (transformToMatrix (currentState->transform));
-        currentState->createBrush();
-
-        renderingTarget->DrawLine (D2D1::Point2F ((FLOAT) x, top),
-                                   D2D1::Point2F ((FLOAT) x, bottom),
-                                   currentState->currentBrush);
-        renderingTarget->SetTransform (D2D1::IdentityMatrix());
-    }
-
-    void drawHorizontalLine (int y, float left, float right)
-    {
-        // xxx doesn't seem to be correctly aligned, may need nudging by 0.5 to match the software renderer's behaviour
-        renderingTarget->SetTransform (transformToMatrix (currentState->transform));
-        currentState->createBrush();
-
-        renderingTarget->DrawLine (D2D1::Point2F (left, (FLOAT) y),
-                                   D2D1::Point2F (right, (FLOAT) y),
                                    currentState->currentBrush);
         renderingTarget->SetTransform (D2D1::IdentityMatrix());
     }
@@ -300,9 +286,8 @@ public:
     {
         renderingTarget->SetTransform (transformToMatrix (currentState->transform));
 
-        const Direct2DFactories& factories = Direct2DFactories::getInstance();
-        DirectWriteTypeLayout::drawToD2DContext (text, area, renderingTarget, factories.directWriteFactory,
-                                                 factories.d2dFactory, factories.systemFonts);
+        DirectWriteTypeLayout::drawToD2DContext (text, area, renderingTarget, factories->directWriteFactory,
+                                                 factories->d2dFactory, factories->systemFonts);
 
         renderingTarget->SetTransform (D2D1::IdentityMatrix());
         return true;
@@ -708,6 +693,7 @@ public:
 
     //==============================================================================
 private:
+    SharedResourcePointer<Direct2DFactories> factories;
     HWND hwnd;
     ComSmartPtr <ID2D1HwndRenderTarget> renderingTarget;
     ComSmartPtr <ID2D1SolidColorBrush> colourBrush;
@@ -717,12 +703,13 @@ private:
     OwnedArray<SavedState> states;
 
     //==============================================================================
-    static D2D1_RECT_F rectangleToRectF (const Rectangle<int>& r)
+    template <typename Type>
+    static D2D1_RECT_F rectangleToRectF (const Rectangle<Type>& r)
     {
         return D2D1::RectF ((float) r.getX(), (float) r.getY(), (float) r.getRight(), (float) r.getBottom());
     }
 
-    static D2D1_COLOR_F colourToD2D (const Colour& c)
+    static D2D1_COLOR_F colourToD2D (Colour c)
     {
         return D2D1::ColorF::ColorF (c.getFloatRed(), c.getFloatGreen(), c.getFloatBlue(), c.getFloatAlpha());
     }
@@ -742,10 +729,10 @@ private:
         sink->EndFigure (D2D1_FIGURE_END_CLOSED);
     }
 
-    static ID2D1PathGeometry* rectListToPathGeometry (const RectangleList& clipRegion)
+    static ID2D1PathGeometry* rectListToPathGeometry (const RectangleList<int>& clipRegion)
     {
         ID2D1PathGeometry* p = nullptr;
-        Direct2DFactories::getInstance().d2dFactory->CreatePathGeometry (&p);
+        factories->d2dFactory->CreatePathGeometry (&p);
 
         ComSmartPtr <ID2D1GeometrySink> sink;
         HRESULT hr = p->Open (sink.resetAndGetPointerAddress()); // xxx handle error
@@ -823,7 +810,7 @@ private:
     static ID2D1PathGeometry* pathToPathGeometry (const Path& path, const AffineTransform& transform)
     {
         ID2D1PathGeometry* p = nullptr;
-        Direct2DFactories::getInstance().d2dFactory->CreatePathGeometry (&p);
+        factories->d2dFactory->CreatePathGeometry (&p);
 
         ComSmartPtr <ID2D1GeometrySink> sink;
         HRESULT hr = p->Open (sink.resetAndGetPointerAddress());

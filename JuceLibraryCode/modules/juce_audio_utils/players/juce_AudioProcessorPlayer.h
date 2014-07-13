@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOPROCESSORPLAYER_JUCEHEADER__
-#define __JUCE_AUDIOPROCESSORPLAYER_JUCEHEADER__
-
-#include "../../juce_audio_processors/processors/juce_AudioProcessor.h"
+#ifndef JUCE_AUDIOPROCESSORPLAYER_H_INCLUDED
+#define JUCE_AUDIOPROCESSORPLAYER_H_INCLUDED
 
 
 //==============================================================================
@@ -54,33 +52,28 @@ public:
     /** Sets the processor that should be played.
 
         The processor that is passed in will not be deleted or owned by this object.
-        To stop anything playing, pass in 0 to this method.
+        To stop anything playing, pass a nullptr to this method.
     */
     void setProcessor (AudioProcessor* processorToPlay);
 
-    /** Returns the current audio processor that is being played.
-    */
-    AudioProcessor* getCurrentProcessor() const                     { return processor; }
+    /** Returns the current audio processor that is being played. */
+    AudioProcessor* getCurrentProcessor() const noexcept            { return processor; }
 
     /** Returns a midi message collector that you can pass midi messages to if you
         want them to be injected into the midi stream that is being sent to the
         processor.
     */
-    MidiMessageCollector& getMidiMessageCollector()                 { return messageCollector; }
+    MidiMessageCollector& getMidiMessageCollector() noexcept        { return messageCollector; }
 
     //==============================================================================
     /** @internal */
-    void audioDeviceIOCallback (const float** inputChannelData,
-                                int totalNumInputChannels,
-                                float** outputChannelData,
-                                int totalNumOutputChannels,
-                                int numSamples);
+    void audioDeviceIOCallback (const float**, int, float**, int, int) override;
     /** @internal */
-    void audioDeviceAboutToStart (AudioIODevice*);
+    void audioDeviceAboutToStart (AudioIODevice*) override;
     /** @internal */
-    void audioDeviceStopped();
+    void audioDeviceStopped() override;
     /** @internal */
-    void handleIncomingMidiMessage (MidiInput*, const MidiMessage&);
+    void handleIncomingMidiMessage (MidiInput*, const MidiMessage&) override;
 
 private:
     //==============================================================================
@@ -101,4 +94,4 @@ private:
 };
 
 
-#endif   // __JUCE_AUDIOPROCESSORPLAYER_JUCEHEADER__
+#endif   // JUCE_AUDIOPROCESSORPLAYER_H_INCLUDED

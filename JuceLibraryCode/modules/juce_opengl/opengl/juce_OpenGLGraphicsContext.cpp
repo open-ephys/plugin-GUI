@@ -25,10 +25,175 @@
 namespace OpenGLRendering
 {
 
+struct TextureInfo
+{
+    GLuint textureID;
+    int imageWidth, imageHeight;
+    float fullWidthProportion, fullHeightProportion;
+};
+
+//==============================================================================
+// This list persists in the OpenGLContext, and will re-use cached textures which
+// are created from Images.
+struct CachedImageList  : public ReferenceCountedObject,
+                          private ImagePixelData::Listener
+{
+    CachedImageList (size_t totalCacheSizeInPixels = 8 * 1024 * 1024) noexcept
+        : totalSize (0), maxCacheSize (totalCacheSizeInPixels) {}
+
+    static CachedImageList* get (OpenGLContext& context)
+    {
+        const char cacheValueID[] = "CachedImages";
+        CachedImageList* list = static_cast<CachedImageList*> (context.getAssociatedObject (cacheValueID));
+
+        if (list == nullptr)
+        {
+            list = new CachedImageList();
+            context.setAssociatedObject (cacheValueID, list);
+        }
+
+        return list;
+    }
+
+    TextureInfo getTextureFor (const Image& image)
+    {
+        ImagePixelData* const pixelData = image.getPixelData();
+
+        CachedImage* c = findCachedImage (pixelData);
+
+        if (c == nullptr)
+        {
+            if (OpenGLFrameBuffer* const fb = OpenGLImageType::getFrameBufferFrom (image))
+            {
+                TextureInfo t;
+                t.textureID = fb->getTextureID();
+                t.imageWidth = image.getWidth();
+                t.imageHeight = image.getHeight();
+                t.fullWidthProportion  = 1.0f;
+                t.fullHeightProportion = 1.0f;
+
+                return t;
+            }
+
+            c = images.add (new CachedImage (*this, pixelData));
+            totalSize += c->imageSize;
+
+            while (totalSize > maxCacheSize && images.size() > 1 && totalSize > 0)
+                removeOldestItem();
+        }
+
+        return c->getTextureInfo();
+    }
+
+    struct CachedImage
+    {
+        CachedImage (CachedImageList& list, ImagePixelData* im)
+            : owner (list), pixelData (im),
+              lastUsed (Time::getCurrentTime()),
+              imageSize (im->width * im->height)
+        {
+            pixelData->listeners.add (&owner);
+        }
+
+        ~CachedImage()
+        {
+            if (pixelData != nullptr)
+                pixelData->listeners.remove (&owner);
+        }
+
+        TextureInfo getTextureInfo()
+        {
+            TextureInfo t;
+
+            if (texture.getTextureID() == 0)
+                texture.loadImage (Image (pixelData));
+
+            t.textureID = texture.getTextureID();
+            t.imageWidth = pixelData->width;
+            t.imageHeight = pixelData->height;
+            t.fullWidthProportion  = t.imageWidth  / (float) texture.getWidth();
+            t.fullHeightProportion = t.imageHeight / (float) texture.getHeight();
+
+            lastUsed = Time::getCurrentTime();
+
+            return t;
+        }
+
+        CachedImageList& owner;
+        ImagePixelData* pixelData;
+        OpenGLTexture texture;
+        Time lastUsed;
+        const size_t imageSize;
+
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CachedImage)
+    };
+
+    typedef ReferenceCountedObjectPtr<CachedImageList> Ptr;
+
+private:
+    void imageDataChanged (ImagePixelData* im) override
+    {
+        if (CachedImage* c = findCachedImage (im))
+            c->texture.release();
+    }
+
+    void imageDataBeingDeleted (ImagePixelData* im) override
+    {
+        for (int i = images.size(); --i >= 0;)
+        {
+            if (images.getUnchecked(i)->pixelData == im)
+            {
+                totalSize -= images.getUnchecked(i)->imageSize;
+                images.remove (i);
+                break;
+            }
+        }
+    }
+
+    OwnedArray<CachedImage> images;
+    size_t totalSize, maxCacheSize;
+
+    CachedImage* findCachedImage (ImagePixelData* const pixelData) const
+    {
+        for (int i = 0; i < images.size(); ++i)
+        {
+            CachedImage* c = images.getUnchecked(i);
+
+            if (c->pixelData == pixelData)
+                return c;
+        }
+
+        return nullptr;
+    }
+
+    void removeOldestItem()
+    {
+        CachedImage* oldest = nullptr;
+
+        for (int i = 0; i < images.size(); ++i)
+        {
+            CachedImage* c = images.getUnchecked(i);
+
+            if (oldest == nullptr || c->lastUsed < oldest->lastUsed)
+                oldest = c;
+        }
+
+        if (oldest != nullptr)
+        {
+            totalSize -= oldest->imageSize;
+            images.removeObject (oldest);
+        }
+    }
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CachedImageList)
+};
+
+
+//==============================================================================
 struct Target
 {
-    Target (OpenGLContext& c, GLuint frameBufferID_, int width, int height) noexcept
-        : context (c), frameBufferID (frameBufferID_), bounds (width, height)
+    Target (OpenGLContext& c, GLuint fbID, int width, int height) noexcept
+        : context (c), frameBufferID (fbID), bounds (width, height)
     {}
 
     Target (OpenGLContext& c, OpenGLFrameBuffer& fb, Point<int> origin) noexcept
@@ -64,8 +229,6 @@ struct Target
     GLuint frameBufferID;
     Rectangle<int> bounds;
 };
-
-#if JUCE_USE_OPENGL_SHADERS
 
 //==============================================================================
 class PositionedTexture
@@ -108,7 +271,7 @@ private:
             : area (et.getMaximumBounds().withSize (nextPowerOfTwo (et.getMaximumBounds().getWidth()),
                                                     nextPowerOfTwo (et.getMaximumBounds().getHeight())))
         {
-            data.calloc (area.getWidth() * area.getHeight());
+            data.calloc ((size_t) (area.getWidth() * area.getHeight()));
             et.iterate (*this);
         }
 
@@ -129,12 +292,12 @@ private:
 
         inline void handleEdgeTableLine (int x, int width, const int alphaLevel) const noexcept
         {
-            memset (currentLine + x, (uint8) alphaLevel, width);
+            memset (currentLine + x, (uint8) alphaLevel, (size_t) width);
         }
 
         inline void handleEdgeTableLineFull (int x, int width) const noexcept
         {
-            memset (currentLine + x, 255, width);
+            memset (currentLine + x, 255, (size_t) width);
         }
 
         HeapBlock<uint8> data;
@@ -173,36 +336,46 @@ public:
     //==============================================================================
     struct ShaderProgramHolder
     {
-        ShaderProgramHolder (OpenGLContext& context, const char* fragmentShader)
+        ShaderProgramHolder (OpenGLContext& context, const char* fragmentShader, const char* vertexShader)
             : program (context)
         {
             JUCE_CHECK_OPENGL_ERROR
-            program.addShader ("attribute vec2 position;"
+
+            if (vertexShader == nullptr)
+                vertexShader = "attribute vec2 position;"
                                "attribute vec4 colour;"
                                "uniform vec4 screenBounds;"
                                "varying " JUCE_MEDIUMP " vec4 frontColour;"
                                "varying " JUCE_HIGHP " vec2 pixelPos;"
                                "void main()"
                                "{"
-                               " frontColour = colour;"
-                               " vec2 adjustedPos = position - screenBounds.xy;"
-                               " pixelPos = adjustedPos;"
-                               " vec2 scaledPos = adjustedPos / screenBounds.zw;"
-                               " gl_Position = vec4 (scaledPos.x - 1.0, 1.0 - scaledPos.y, 0, 1.0);"
-                               "}", GL_VERTEX_SHADER);
+                                 "frontColour = colour;"
+                                 "vec2 adjustedPos = position - screenBounds.xy;"
+                                 "pixelPos = adjustedPos;"
+                                 "vec2 scaledPos = adjustedPos / screenBounds.zw;"
+                                 "gl_Position = vec4 (scaledPos.x - 1.0, 1.0 - scaledPos.y, 0, 1.0);"
+                               "}";
 
-            program.addShader (fragmentShader, GL_FRAGMENT_SHADER);
-            program.link();
-            JUCE_CHECK_OPENGL_ERROR
+            if (program.addVertexShader (OpenGLHelpers::translateVertexShaderToV3 (vertexShader))
+                 && program.addFragmentShader (OpenGLHelpers::translateFragmentShaderToV3 (fragmentShader))
+                 && program.link())
+            {
+                JUCE_CHECK_OPENGL_ERROR
+            }
+            else
+            {
+                lastError = program.getLastError();
+            }
         }
 
         OpenGLShaderProgram program;
+        String lastError;
     };
 
     struct ShaderBase   : public ShaderProgramHolder
     {
-        ShaderBase (OpenGLContext& context, const char* fragmentShader)
-            : ShaderProgramHolder (context, fragmentShader),
+        ShaderBase (OpenGLContext& context, const char* fragmentShader, const char* vertexShader = nullptr)
+            : ShaderProgramHolder (context, fragmentShader, vertexShader),
               positionAttribute (program, "position"),
               colourAttribute (program, "colour"),
               screenBounds (program, "screenBounds")
@@ -215,16 +388,16 @@ public:
 
         void bindAttributes (OpenGLContext& context)
         {
-            context.extensions.glVertexAttribPointer (positionAttribute.attributeID, 2, GL_SHORT, GL_FALSE, 8, (void*) 0);
-            context.extensions.glVertexAttribPointer (colourAttribute.attributeID, 4, GL_UNSIGNED_BYTE, GL_TRUE, 8, (void*) 4);
-            context.extensions.glEnableVertexAttribArray (positionAttribute.attributeID);
-            context.extensions.glEnableVertexAttribArray (colourAttribute.attributeID);
+            context.extensions.glVertexAttribPointer ((GLuint) positionAttribute.attributeID, 2, GL_SHORT, GL_FALSE, 8, (void*) 0);
+            context.extensions.glVertexAttribPointer ((GLuint) colourAttribute.attributeID, 4, GL_UNSIGNED_BYTE, GL_TRUE, 8, (void*) 4);
+            context.extensions.glEnableVertexAttribArray ((GLuint) positionAttribute.attributeID);
+            context.extensions.glEnableVertexAttribArray ((GLuint) colourAttribute.attributeID);
         }
 
         void unbindAttributes (OpenGLContext& context)
         {
-            context.extensions.glDisableVertexAttribArray (positionAttribute.attributeID);
-            context.extensions.glDisableVertexAttribArray (colourAttribute.attributeID);
+            context.extensions.glDisableVertexAttribArray ((GLuint) positionAttribute.attributeID);
+            context.extensions.glDisableVertexAttribArray ((GLuint) colourAttribute.attributeID);
         }
 
         OpenGLShaderProgram::Attribute positionAttribute, colourAttribute;
@@ -446,8 +619,9 @@ public:
 
         void setMatrix (const AffineTransform& trans,
                         const int imageWidth, const int imageHeight,
-                        const float fullWidthProportion, const float fullHeightProportion,
-                        const float targetX, const float targetY) const
+                        float fullWidthProportion, float fullHeightProportion,
+                        const float targetX, const float targetY,
+                        const bool isForTiling) const
         {
             const AffineTransform t (trans.translated (-targetX, -targetY)
                                         .inverted().scaled (fullWidthProportion / imageWidth,
@@ -456,16 +630,23 @@ public:
             const GLfloat m[] = { t.mat00, t.mat01, t.mat02, t.mat10, t.mat11, t.mat12 };
             matrix.set (m, 6);
 
+            if (isForTiling)
+            {
+                fullWidthProportion -= 0.5f / imageWidth;
+                fullHeightProportion -= 0.5f / imageHeight;
+            }
+
             imageLimits.set (fullWidthProportion, fullHeightProportion);
         }
 
-        void setMatrix (const AffineTransform& trans, const OpenGLTextureFromImage& im,
-                        const float targetX, const float targetY) const
+        void setMatrix (const AffineTransform& trans, const TextureInfo& textureInfo,
+                        const float targetX, const float targetY,
+                        bool isForTiling) const
         {
             setMatrix (trans,
-                       im.imageWidth, im.imageHeight,
-                       im.fullWidthProportion, im.fullHeightProportion,
-                       targetX, targetY);
+                       textureInfo.imageWidth, textureInfo.imageHeight,
+                       textureInfo.fullWidthProportion, textureInfo.fullHeightProportion,
+                       targetX, targetY, isForTiling);
         }
 
         OpenGLShaderProgram::Uniform imageTexture, matrix, imageLimits;
@@ -481,11 +662,28 @@ public:
     struct ImageProgram  : public ShaderBase
     {
         ImageProgram (OpenGLContext& context)
-            : ShaderBase (context, JUCE_DECLARE_IMAGE_UNIFORMS JUCE_DECLARE_SWIZZLE_FUNCTION
+            : ShaderBase (context, JUCE_DECLARE_VARYING_COLOUR JUCE_DECLARE_SWIZZLE_FUNCTION
+                          "uniform sampler2D imageTexture;"
+                          "varying " JUCE_HIGHP " vec2 texturePos;"
                           "void main()"
                           "{"
-                            JUCE_CLAMP_TEXTURE_COORD
                             "gl_FragColor = frontColour.a * " JUCE_GET_IMAGE_PIXEL ";"
+                          "}",
+                          "uniform " JUCE_MEDIUMP " vec2 imageLimits;"
+                          JUCE_DECLARE_MATRIX_UNIFORM
+                          "attribute vec2 position;"
+                          "attribute vec4 colour;"
+                          "uniform vec4 screenBounds;"
+                          "varying " JUCE_MEDIUMP " vec4 frontColour;"
+                          "varying " JUCE_HIGHP " vec2 texturePos;"
+                          "void main()"
+                          "{"
+                            "frontColour = colour;"
+                            "vec2 adjustedPos = position - screenBounds.xy;"
+                            "vec2 pixelPos = adjustedPos;"
+                            "texturePos = clamp (" JUCE_MATRIX_TIMES_FRAGCOORD ", vec2 (0, 0), imageLimits);"
+                            "vec2 scaledPos = adjustedPos / screenBounds.zw;"
+                            "gl_Position = vec4 (scaledPos.x - 1.0, 1.0 - scaledPos.y, 0, 1.0);"
                           "}"),
               imageParams (program)
         {}
@@ -813,7 +1011,7 @@ struct StateHelpers
             if (currentActiveTexture != index)
             {
                 currentActiveTexture = index;
-                context.extensions.glActiveTexture (GL_TEXTURE0 + index);
+                context.extensions.glActiveTexture ((GLenum) (GL_TEXTURE0 + index));
                 JUCE_CHECK_OPENGL_ERROR
             }
         }
@@ -978,13 +1176,13 @@ struct StateHelpers
             RenderingHelpers::FloatRectangleRasterisingInfo (r).iterate (frr);
         }
 
-        void add (const RectangleList& list, const PixelARGB colour) noexcept
+        void add (const RectangleList<int>& list, const PixelARGB colour) noexcept
         {
             for (const Rectangle<int>* i = list.begin(), * const e = list.end(); i != e; ++i)
                 add (*i, colour);
         }
 
-        void add (const RectangleList& list, const Rectangle<int>& clip, const PixelARGB colour) noexcept
+        void add (const RectangleList<int>& list, const Rectangle<int>& clip, const PixelARGB colour) noexcept
         {
             for (const Rectangle<int>* i = list.begin(), * const e = list.end(); i != e; ++i)
             {
@@ -995,7 +1193,8 @@ struct StateHelpers
             }
         }
 
-        void add (const EdgeTable& et, const PixelARGB colour)
+        template <class IteratorType>
+        void add (const IteratorType& et, const PixelARGB colour)
         {
             EdgeTableRenderer<ShaderQuadQueue> etr (*this, colour);
             et.iterate (etr);
@@ -1014,11 +1213,7 @@ struct StateHelpers
             GLuint colour;
         };
 
-       #if JUCE_MAC || JUCE_ANDROID || JUCE_IOS
         enum { numQuads = 256 };
-       #else
-        enum { numQuads = 64 }; // (had problems with my drivers segfaulting when these buffers are any larger)
-       #endif
 
         GLuint buffers[2];
         VertexInfo vertexData [numQuads * 4];
@@ -1028,7 +1223,7 @@ struct StateHelpers
 
         void draw() noexcept
         {
-            context.extensions.glBufferSubData (GL_ARRAY_BUFFER, 0, numVertices * sizeof (VertexInfo), vertexData);
+            context.extensions.glBufferSubData (GL_ARRAY_BUFFER, 0, (GLsizeiptr) ((size_t) numVertices * sizeof (VertexInfo)), vertexData);
             // NB: If you get a random crash in here and are running in a Parallels VM, it seems to be a bug in
             // their driver.. Can't find a workaround unfortunately.
             glDrawElements (GL_TRIANGLES, (numVertices * 3) / 2, GL_UNSIGNED_SHORT, 0);
@@ -1046,7 +1241,7 @@ struct StateHelpers
             : context (c), activeShader (nullptr)
         {
             const char programValueID[] = "GraphicsContextPrograms";
-            programs = static_cast <ShaderPrograms*> (context.getAssociatedObject (programValueID));
+            programs = static_cast<ShaderPrograms*> (context.getAssociatedObject (programValueID));
 
             if (programs == nullptr)
             {
@@ -1055,11 +1250,17 @@ struct StateHelpers
             }
         }
 
+        ~CurrentShader()
+        {
+            jassert (activeShader == nullptr);
+        }
+
         void setShader (const Rectangle<int>& bounds, ShaderQuadQueue& quadQueue, ShaderPrograms::ShaderBase& shader)
         {
             if (activeShader != &shader)
             {
-                quadQueue.flush();
+                clearShader (quadQueue);
+
                 activeShader = &shader;
                 shader.program.use();
                 shader.bindAttributes (context);
@@ -1123,6 +1324,7 @@ public:
         JUCE_CHECK_OPENGL_ERROR
         activeTextures.clear();
         shaderQuadQueue.initialise();
+        cachedImageList = CachedImageList::get (t.context);
         JUCE_CHECK_OPENGL_ERROR
     }
 
@@ -1134,8 +1336,8 @@ public:
 
     void flush()
     {
-        currentShader.clearShader (shaderQuadQueue);
         shaderQuadQueue.flush();
+        currentShader.clearShader (shaderQuadQueue);
         JUCE_CHECK_OPENGL_ERROR
     }
 
@@ -1157,7 +1359,7 @@ public:
         {
             activeTextures.setTexturesEnabled (shaderQuadQueue, 3);
             activeTextures.setActiveTexture (1);
-            activeTextures.bindTexture (maskTextureID);
+            activeTextures.bindTexture ((GLuint) maskTextureID);
             activeTextures.setActiveTexture (0);
             textureCache.bindTextureForGradient (activeTextures, g);
         }
@@ -1167,7 +1369,8 @@ public:
             textureCache.bindTextureForGradient (activeTextures, g);
         }
 
-        const AffineTransform t (transform.translated ((float) -target.bounds.getX(), (float) -target.bounds.getY()));
+        const AffineTransform t (transform.translated (0.5f - target.bounds.getX(),
+                                                       0.5f - target.bounds.getY()));
         Point<float> p1 (g.point1.transformedBy (t));
         const Point<float> p2 (g.point2.transformedBy (t));
         const Point<float> p3 (Point<float> (g.point1.x + (g.point2.y - g.point1.y),
@@ -1245,8 +1448,8 @@ public:
         JUCE_CHECK_OPENGL_ERROR
     }
 
-    void setShaderForTiledImageFill (const OpenGLTextureFromImage& image, const AffineTransform& transform,
-                                     const int maskTextureID, const Rectangle<int>* const maskArea, const bool clampTiledImages)
+    void setShaderForTiledImageFill (const TextureInfo& textureInfo, const AffineTransform& transform,
+                                     const int maskTextureID, const Rectangle<int>* const maskArea, bool isTiledFill)
     {
         blendMode.setPremultipliedBlendingMode (shaderQuadQueue);
 
@@ -1257,39 +1460,39 @@ public:
 
         if (maskArea != nullptr)
         {
-            activeTextures.setTwoTextureMode (shaderQuadQueue, image.textureID, maskTextureID);
+            activeTextures.setTwoTextureMode (shaderQuadQueue, textureInfo.textureID, (GLuint) maskTextureID);
 
-            if (clampTiledImages)
-            {
-                setShader (programs->imageMasked);
-                imageParams = &programs->imageMasked.imageParams;
-                maskParams  = &programs->imageMasked.maskParams;
-            }
-            else
+            if (isTiledFill)
             {
                 setShader (programs->tiledImageMasked);
                 imageParams = &programs->tiledImageMasked.imageParams;
                 maskParams  = &programs->tiledImageMasked.maskParams;
             }
+            else
+            {
+                setShader (programs->imageMasked);
+                imageParams = &programs->imageMasked.imageParams;
+                maskParams  = &programs->imageMasked.maskParams;
+            }
         }
         else
         {
             activeTextures.setSingleTextureMode (shaderQuadQueue);
-            activeTextures.bindTexture (image.textureID);
+            activeTextures.bindTexture (textureInfo.textureID);
 
-            if (clampTiledImages)
-            {
-                setShader (programs->image);
-                imageParams = &programs->image.imageParams;
-            }
-            else
+            if (isTiledFill)
             {
                 setShader (programs->tiledImage);
                 imageParams = &programs->tiledImage.imageParams;
             }
+            else
+            {
+                setShader (programs->image);
+                imageParams = &programs->image.imageParams;
+            }
         }
 
-        imageParams->setMatrix (transform, image, (float) target.bounds.getX(), (float) target.bounds.getY());
+        imageParams->setMatrix (transform, textureInfo, (float) target.bounds.getX(), (float) target.bounds.getY(), isTiledFill);
 
         if (maskParams != nullptr)
             maskParams->setBounds (*maskArea, target, 1);
@@ -1303,594 +1506,28 @@ public:
     StateHelpers::CurrentShader currentShader;
     StateHelpers::ShaderQuadQueue shaderQuadQueue;
 
+    CachedImageList::Ptr cachedImageList;
+
 private:
     GLuint previousFrameBufferTarget;
 };
 
 //==============================================================================
-class ClipRegionBase  : public SingleThreadedReferenceCountedObject
+class SavedState  : public RenderingHelpers::SavedStateBase<SavedState>
 {
+    typedef RenderingHelpers::SavedStateBase<SavedState> BaseClass;
+
 public:
-    ClipRegionBase (GLState& state_) noexcept : state (state_) {}
-    virtual ~ClipRegionBase() {}
-
-    typedef ReferenceCountedObjectPtr<ClipRegionBase> Ptr;
-
-    virtual Ptr clone() const = 0;
-    virtual Ptr clipToRectangle (const Rectangle<int>&) = 0;
-    virtual Ptr clipToRectangleList (const RectangleList&) = 0;
-    virtual Ptr excludeClipRectangle (const Rectangle<int>&) = 0;
-    virtual Ptr clipToPath (const Path& p, const AffineTransform&) = 0;
-    virtual Ptr clipToImageAlpha (const OpenGLTextureFromImage&, const AffineTransform&) = 0;
-    virtual Ptr clipToTexture (const PositionedTexture&) = 0;
-    virtual Rectangle<int> getClipBounds() const = 0;
-    virtual void fillRect (const Rectangle<int>& area, const FillType&, bool replaceContents) = 0;
-    virtual void fillRect (const Rectangle<float>& area, const FillType&) = 0;
-    virtual void fillEdgeTable (EdgeTable& et, const FillType& fill) = 0;
-    virtual void drawImage (const Image&, const AffineTransform&, float alpha,
-                            const Rectangle<int>& clip, EdgeTable* mask) = 0;
-
-    GLState& state;
-
-    JUCE_DECLARE_NON_COPYABLE (ClipRegionBase)
-};
-
-
-//==============================================================================
-class ClipRegion_Mask  : public ClipRegionBase
-{
-public:
-    ClipRegion_Mask (const ClipRegion_Mask& other)
-        : ClipRegionBase (other.state),
-          clip (other.clip),
-          maskArea (other.clip)
-    {
-        OpenGLTargetSaver ts (state.target.context);
-        state.currentShader.clearShader (state.shaderQuadQueue);
-        state.shaderQuadQueue.flush();
-        state.activeTextures.setSingleTextureMode (state.shaderQuadQueue);
-        state.activeTextures.clear();
-        mask.initialise (state.target.context, maskArea.getWidth(), maskArea.getHeight());
-        maskArea.setSize (mask.getWidth(), mask.getHeight());
-        makeActive();
-
-        state.blendMode.disableBlend (state.shaderQuadQueue);
-        state.activeTextures.setSingleTextureMode (state.shaderQuadQueue);
-        state.activeTextures.bindTexture (other.mask.getTextureID());
-
-        state.currentShader.setShader (maskArea, state.shaderQuadQueue, state.currentShader.programs->copyTexture);
-        state.currentShader.programs->copyTexture.imageParams.imageTexture.set (0);
-        state.currentShader.programs->copyTexture.imageParams
-            .setMatrix (AffineTransform::translation ((float) other.maskArea.getX(), (float) other.maskArea.getY()),
-                        other.maskArea.getWidth(), other.maskArea.getHeight(), 1.0f, 1.0f,
-                        (float) maskArea.getX(), (float) maskArea.getY());
-
-        state.shaderQuadQueue.add (clip, PixelARGB (0xffffffff));
-        state.shaderQuadQueue.flush();
-    }
-
-    ClipRegion_Mask (GLState& state_, const RectangleList& r)
-        : ClipRegionBase (state_),
-          clip (r.getBounds()),
-          maskArea (clip)
-    {
-        OpenGLTargetSaver ts (state.target.context);
-        state.currentShader.clearShader (state.shaderQuadQueue);
-        state.shaderQuadQueue.flush();
-        state.activeTextures.clear();
-        mask.initialise (state.target.context, maskArea.getWidth(), maskArea.getHeight());
-        maskArea.setSize (mask.getWidth(), mask.getHeight());
-        mask.makeCurrentAndClear();
-        makeActive();
-        state.blendMode.setBlendMode (state.shaderQuadQueue, true);
-        state.currentShader.setShader (maskArea, state.shaderQuadQueue, state.currentShader.programs->solidColourProgram);
-        state.shaderQuadQueue.add (r, PixelARGB (0xffffffff));
-        state.shaderQuadQueue.flush();
-    }
-
-    Ptr clone() const                       { return new ClipRegion_Mask (*this); }
-    Rectangle<int> getClipBounds() const    { return clip; }
-
-    Ptr clipToRectangle (const Rectangle<int>& r)
-    {
-        clip = clip.getIntersection (r);
-        return clip.isEmpty() ? nullptr : this;
-    }
-
-    Ptr clipToRectangleList (const RectangleList& r)
-    {
-        clip = clip.getIntersection (r.getBounds());
-        if (clip.isEmpty())
-            return Ptr();
-
-        RectangleList excluded (clip);
-
-        if (excluded.subtract (r))
-        {
-            if (excluded.getNumRectangles() == 1)
-                return excludeClipRectangle (excluded.getRectangle (0));
-
-            OpenGLTargetSaver ts (state.target.context);
-            makeActive();
-            state.blendMode.setBlendMode (state.shaderQuadQueue, true);
-            state.currentShader.setShader (maskArea, state.shaderQuadQueue, state.currentShader.programs->solidColourProgram);
-            state.shaderQuadQueue.add (excluded, PixelARGB (0));
-            state.shaderQuadQueue.flush();
-        }
-
-        return this;
-    }
-
-    Ptr excludeClipRectangle (const Rectangle<int>& r)
-    {
-        if (r.contains (clip))
-            return Ptr();
-
-        OpenGLTargetSaver ts (state.target.context);
-        makeActive();
-        state.blendMode.setBlendMode (state.shaderQuadQueue, true);
-        state.currentShader.setShader (maskArea, state.shaderQuadQueue, state.currentShader.programs->solidColourProgram);
-        state.shaderQuadQueue.add (r, PixelARGB (0));
-        state.shaderQuadQueue.flush();
-        return this;
-    }
-
-    Ptr clipToPath (const Path& p, const AffineTransform& t)
-    {
-        EdgeTable et (clip, p, t);
-
-        if (! et.isEmpty())
-        {
-            OpenGLTargetSaver ts (state.target.context);
-            state.currentShader.clearShader (state.shaderQuadQueue);
-            state.shaderQuadQueue.flush();
-            state.activeTextures.clear();
-
-            OpenGLTexture texture;
-            PositionedTexture pt (texture, et, clip);
-            return clipToTexture (pt);
-        }
-
-        return Ptr();
-    }
-
-    Ptr clipToTexture (const PositionedTexture& pt)
-    {
-        clip = clip.getIntersection (pt.clip);
-
-        if (clip.isEmpty())
-            return Ptr();
-
-        OpenGLTargetSaver ts (state.target.context);
-        makeActive();
-
-        state.activeTextures.setSingleTextureMode (state.shaderQuadQueue);
-        state.activeTextures.bindTexture (pt.textureID);
-
-        state.currentShader.setShader (maskArea, state.shaderQuadQueue, state.currentShader.programs->maskTexture);
-        state.currentShader.programs->maskTexture.imageParams.imageTexture.set (0);
-        state.currentShader.programs->maskTexture.imageParams
-            .setMatrix (AffineTransform::translation ((float) pt.area.getX(), (float) pt.area.getY()),
-                        pt.area.getWidth(), pt.area.getHeight(), 1.0f, 1.0f,
-                        (float) maskArea.getX(), (float) maskArea.getY());
-
-        state.blendMode.setBlendFunc (state.shaderQuadQueue, GL_ZERO, GL_SRC_ALPHA);
-        state.shaderQuadQueue.add (clip, PixelARGB (0xffffffff));
-        state.shaderQuadQueue.flush();
-        return this;
-    }
-
-    Ptr clipToImageAlpha (const OpenGLTextureFromImage& image, const AffineTransform& transform)
-    {
-        OpenGLTargetSaver ts (state.target.context);
-        makeActive();
-        state.activeTextures.setSingleTextureMode (state.shaderQuadQueue);
-        state.activeTextures.bindTexture (image.textureID);
-
-        state.currentShader.setShader (maskArea, state.shaderQuadQueue, state.currentShader.programs->maskTexture);
-        state.currentShader.programs->maskTexture.imageParams.imageTexture.set (0);
-        state.currentShader.programs->maskTexture.imageParams
-            .setMatrix (transform, image, (float) maskArea.getX(), (float) maskArea.getY());
-
-        state.shaderQuadQueue.add (clip, PixelARGB (0xffffffff));
-        state.shaderQuadQueue.flush();
-        return this;
-    }
-
-    void fillRect (const Rectangle<int>& area, const FillType& fill, bool replaceContents)
-    {
-        (void) replaceContents; jassert (! replaceContents);
-        const Rectangle<int> r (clip.getIntersection (area));
-
-        if (! r.isEmpty())
-        {
-            ShaderFillOperation fillOp (*this, fill, false);
-            state.shaderQuadQueue.add (r, fill.colour.getPixelARGB());
-        }
-    }
-
-    void fillRect (const Rectangle<float>& area, const FillType& fill)
-    {
-        ShaderFillOperation fillOp (*this, fill, false);
-
-        FloatRectangleRenderer frr (*this, fill);
-        RenderingHelpers::FloatRectangleRasterisingInfo (area).iterate (frr);
-    }
-
-    void fillEdgeTable (EdgeTable& et, const FillType& fill)
-    {
-        if (et.getMaximumBounds().intersects (clip))
-        {
-            if (! clip.contains (et.getMaximumBounds()))
-                et.clipToRectangle (clip);
-
-            ShaderFillOperation fillOp (*this, fill, false);
-            state.shaderQuadQueue.add (et, fill.colour.getPixelARGB());
-        }
-    }
-
-    void drawImage (const Image& image, const AffineTransform& transform,
-                    float alpha, const Rectangle<int>& clipArea, EdgeTable* et)
-    {
-        const Rectangle<int> r (clip.getIntersection (clipArea));
-
-        if (! r.isEmpty())
-        {
-            const PixelARGB colour (Colours::white.withAlpha (alpha).getPixelARGB());
-            ShaderFillOperation fillOp (*this, FillType (image, transform), true);
-
-            if (et != nullptr)
-            {
-                et->clipToRectangle (r);
-
-                if (! et->isEmpty())
-                    state.shaderQuadQueue.add (*et, colour);
-            }
-            else
-            {
-                state.shaderQuadQueue.add (r, colour);
-            }
-        }
-
-        state.currentShader.clearShader (state.shaderQuadQueue);
-    }
-
-private:
-    OpenGLFrameBuffer mask;
-    Rectangle<int> clip, maskArea;
-
-    struct ShaderFillOperation
-    {
-        ShaderFillOperation (const ClipRegion_Mask& clipMask, const FillType& fill, const bool clampTiledImages)
-            : state (clipMask.state)
-        {
-            const GLuint maskTextureID = clipMask.mask.getTextureID();
-
-            if (fill.isColour())
-            {
-                state.blendMode.setPremultipliedBlendingMode (state.shaderQuadQueue);
-                state.activeTextures.setSingleTextureMode (state.shaderQuadQueue);
-                state.activeTextures.bindTexture (maskTextureID);
-
-                state.setShader (state.currentShader.programs->solidColourMasked);
-                state.currentShader.programs->solidColourMasked.maskParams.setBounds (clipMask.maskArea, state.target, 0);
-            }
-            else if (fill.isGradient())
-            {
-                state.setShaderForGradientFill (*fill.gradient, fill.transform, maskTextureID, &clipMask.maskArea);
-            }
-            else
-            {
-                jassert (fill.isTiledImage());
-                image = new OpenGLTextureFromImage (fill.image);
-                state.setShaderForTiledImageFill (*image, fill.transform, maskTextureID, &clipMask.maskArea, clampTiledImages);
-            }
-        }
-
-        ~ShaderFillOperation()
-        {
-            state.shaderQuadQueue.flush();
-        }
-
-        GLState& state;
-        ScopedPointer<OpenGLTextureFromImage> image;
-
-        JUCE_DECLARE_NON_COPYABLE (ShaderFillOperation)
-    };
-
-    void makeActive()
-    {
-        state.shaderQuadQueue.flush();
-        state.activeTextures.clear();
-        mask.makeCurrentRenderingTarget();
-        glViewport (0, 0, maskArea.getWidth(), maskArea.getHeight());
-    }
-
-    struct FloatRectangleRenderer
-    {
-        FloatRectangleRenderer (ClipRegion_Mask& owner_, const FillType& fill_) noexcept
-            : owner (owner_), originalColour (fill_.colour.getPixelARGB())
-        {}
-
-        void operator() (int x, int y, int w, int h, const int alpha) noexcept
-        {
-            if (owner.clip.intersectRectangle (x, y, w, h))
-            {
-                PixelARGB col (originalColour);
-                col.multiplyAlpha (alpha);
-                owner.state.shaderQuadQueue.add (x, y, w, h, col);
-            }
-        }
-
-    private:
-        ClipRegion_Mask& owner;
-        const PixelARGB originalColour;
-
-        JUCE_DECLARE_NON_COPYABLE (FloatRectangleRenderer)
-    };
-
-    ClipRegion_Mask& operator= (const ClipRegion_Mask&);
-};
-
-//==============================================================================
-class ClipRegion_RectangleList  : public ClipRegionBase
-{
-public:
-    ClipRegion_RectangleList (GLState& state_, const Rectangle<int>& r) noexcept
-        : ClipRegionBase (state_), clip (r)
-    {}
-
-    ClipRegion_RectangleList (GLState& state_, const RectangleList& r) noexcept
-        : ClipRegionBase (state_), clip (r)
-    {}
-
-    Ptr clone() const       { return new ClipRegion_RectangleList (state, clip); }
-
-    Ptr clipToTexture (const PositionedTexture& t)                                                  { return toMask()->clipToTexture (t); }
-    Ptr clipToPath (const Path& p, const AffineTransform& transform)                                { return toMask()->clipToPath (p, transform); }
-    Ptr clipToImageAlpha (const OpenGLTextureFromImage& image, const AffineTransform& transform)    { return toMask()->clipToImageAlpha (image, transform); }
-
-    void fillRect (const Rectangle<int>& area, const FillType& fill, bool replaceContents)
-    {
-        ShaderFillOperation fillOp (*this, fill, replaceContents || fill.colour.isOpaque(), false);
-        state.shaderQuadQueue.add (clip, area, fill.colour.getPixelARGB());
-    }
-
-    void fillRect (const Rectangle<float>& area, const FillType& fill)
-    {
-        const PixelARGB colour (fill.colour.getPixelARGB());
-        ShaderFillOperation fillOp (*this, fill, false, false);
-
-        for (const Rectangle<int>* i = clip.begin(), * const e = clip.end(); i != e; ++i)
-        {
-            const Rectangle<float> r (i->toFloat().getIntersection (area));
-            if (! r.isEmpty())
-                state.shaderQuadQueue.add (r, colour);
-        }
-    }
-
-    void drawImage (const Image& image, const AffineTransform& transform,
-                    float alpha, const Rectangle<int>& clipArea, EdgeTable* et)
-    {
-        FillType fill (image, transform);
-        const PixelARGB colour (Colours::white.withAlpha (alpha).getPixelARGB());
-
-        ShaderFillOperation fillOp (*this, fill, false, true);
-
-        if (et != nullptr)
-        {
-            if (! clip.containsRectangle (et->getMaximumBounds()))
-                et->clipToEdgeTable (EdgeTable (clip));
-
-            state.shaderQuadQueue.add (*et, colour);
-        }
-        else
-        {
-            state.shaderQuadQueue.add (clip, clipArea, colour);
-        }
-
-        state.currentShader.clearShader (state.shaderQuadQueue);
-    }
-
-    void fillEdgeTable (EdgeTable& et, const FillType& fill)
-    {
-        if (clip.intersects (et.getMaximumBounds()))
-        {
-            if (! clip.containsRectangle (et.getMaximumBounds()))
-                et.clipToEdgeTable (EdgeTable (clip));
-
-            ShaderFillOperation fillOp (*this, fill, false, true);
-            state.shaderQuadQueue.add (et, fill.colour.getPixelARGB());
-        }
-    }
-
-    Rectangle<int> getClipBounds() const                { return clip.getBounds(); }
-    Ptr clipToRectangle (const Rectangle<int>& r)       { return clip.clipTo (r) ? this : nullptr; }
-    Ptr clipToRectangleList (const RectangleList& r)    { return clip.clipTo (r) ? this : nullptr; }
-    Ptr excludeClipRectangle (const Rectangle<int>& r)  { clip.subtract (r); return clip.isEmpty() ? nullptr : this; }
-
-private:
-    RectangleList clip;
-
-    Ptr toMask() const    { return new ClipRegion_Mask (state, clip); }
-
-    struct ShaderFillOperation
-    {
-        ShaderFillOperation (const ClipRegion_RectangleList& clipList, const FillType& fill,
-                             const bool replaceContents, const bool clampTiledImages)
-            : state (clipList.state)
-        {
-            if (fill.isColour())
-            {
-                state.activeTextures.disableTextures (state.shaderQuadQueue);
-                state.blendMode.setBlendMode (state.shaderQuadQueue, replaceContents);
-                state.setShader (state.currentShader.programs->solidColourProgram);
-            }
-            else if (fill.isGradient())
-            {
-                state.setShaderForGradientFill (*fill.gradient, fill.transform, 0, nullptr);
-            }
-            else
-            {
-                jassert (fill.isTiledImage());
-                state.shaderQuadQueue.flush();
-                image = new OpenGLTextureFromImage (fill.image);
-                state.setShaderForTiledImageFill (*image, fill.transform, 0, nullptr, clampTiledImages);
-            }
-        }
-
-        ~ShaderFillOperation()
-        {
-            if (image != nullptr)
-                state.shaderQuadQueue.flush();
-        }
-
-        GLState& state;
-        ScopedPointer<OpenGLTextureFromImage> image;
-
-        JUCE_DECLARE_NON_COPYABLE (ShaderFillOperation)
-    };
-
-    JUCE_DECLARE_NON_COPYABLE (ClipRegion_RectangleList)
-};
-
-//==============================================================================
-class SavedState
-{
-public:
-    SavedState (GLState* const state_)
-        : clip (new ClipRegion_RectangleList (*state_, state_->target.bounds)),
-          transform (0, 0), interpolationQuality (Graphics::mediumResamplingQuality),
-          state (state_), transparencyLayerAlpha (1.0f)
+    SavedState (GLState* const s)
+        : BaseClass (s->target.bounds), state (s), isUsingCustomShader (false)
     {}
 
     SavedState (const SavedState& other)
-        : clip (other.clip), transform (other.transform), font (other.font),
-          fillType (other.fillType), interpolationQuality (other.interpolationQuality),
-          state (other.state), transparencyLayerAlpha (other.transparencyLayerAlpha),
-          transparencyLayer (other.transparencyLayer), previousTarget (other.previousTarget.createCopy())
+        : BaseClass (other), font (other.font),
+          state (other.state), isUsingCustomShader (false),
+          transparencyLayer (other.transparencyLayer),
+          previousTarget (other.previousTarget.createCopy())
     {}
-
-    bool clipToRectangle (const Rectangle<int>& r)
-    {
-        if (clip != nullptr)
-        {
-            if (transform.isOnlyTranslated)
-            {
-                cloneClipIfMultiplyReferenced();
-                clip = clip->clipToRectangle (transform.translated (r));
-            }
-            else if (transform.isIntegerScaling)
-            {
-                cloneClipIfMultiplyReferenced();
-                clip = clip->clipToRectangle (transform.transformed (r).getSmallestIntegerContainer());
-            }
-            else
-            {
-                Path p;
-                p.addRectangle (r);
-                clipToPath (p, AffineTransform::identity);
-            }
-        }
-
-        return clip != nullptr;
-    }
-
-    bool clipToRectangleList (const RectangleList& r)
-    {
-        if (clip != nullptr)
-        {
-            if (transform.isOnlyTranslated)
-            {
-                cloneClipIfMultiplyReferenced();
-                RectangleList offsetList (r);
-                offsetList.offsetAll (transform.xOffset, transform.yOffset);
-                clip = clip->clipToRectangleList (offsetList);
-            }
-            else if (transform.isIntegerScaling)
-            {
-                cloneClipIfMultiplyReferenced();
-                RectangleList scaledList;
-
-                for (const Rectangle<int>* i = r.begin(), * const e = r.end(); i != e; ++i)
-                    scaledList.add (transform.transformed (*i).getSmallestIntegerContainer());
-
-                clip = clip->clipToRectangleList (scaledList);
-            }
-            else
-            {
-                clipToPath (r.toPath(), AffineTransform::identity);
-            }
-        }
-
-        return clip != nullptr;
-    }
-
-    bool excludeClipRectangle (const Rectangle<int>& r)
-    {
-        if (clip != nullptr)
-        {
-            cloneClipIfMultiplyReferenced();
-
-            if (transform.isOnlyTranslated)
-            {
-                clip = clip->excludeClipRectangle (transform.translated (r));
-            }
-            else if (transform.isIntegerScaling)
-            {
-                clip = clip->excludeClipRectangle (transform.transformed (r).getSmallestIntegerContainer());
-            }
-            else
-            {
-                Path p;
-                p.addRectangle (r.toFloat());
-                p.applyTransform (transform.complexTransform);
-                p.addRectangle (clip->getClipBounds().toFloat());
-                p.setUsingNonZeroWinding (false);
-                clip = clip->clipToPath (p, AffineTransform::identity);
-            }
-        }
-
-        return clip != nullptr;
-    }
-
-    void clipToPath (const Path& p, const AffineTransform& t)
-    {
-        if (clip != nullptr)
-        {
-            cloneClipIfMultiplyReferenced();
-            clip = clip->clipToPath (p, transform.getTransformWith (t));
-        }
-    }
-
-    void clipToImageAlpha (const Image& sourceImage, const AffineTransform& t)
-    {
-        if (clip != nullptr)
-        {
-            Path p;
-            p.addRectangle (sourceImage.getBounds());
-            clipToPath (p, t);
-
-            if (sourceImage.hasAlphaChannel() && clip != nullptr)
-            {
-                cloneClipIfMultiplyReferenced();
-                clip = clip->clipToImageAlpha (sourceImage, transform.getTransformWith (t));
-            }
-        }
-    }
-
-    bool clipRegionIntersects (const Rectangle<int>& r) const
-    {
-        return clip != nullptr
-                && (transform.isOnlyTranslated ? clip->getClipBounds().intersects (transform.translated (r))
-                                               : getClipBounds().intersects (r));
-    }
-
-    Rectangle<int> getClipBounds() const
-    {
-        return clip != nullptr ? transform.deviceSpaceToUserSpace (clip->getClipBounds())
-                               : Rectangle<int>();
-    }
 
     SavedState* beginTransparencyLayer (float opacity)
     {
@@ -1926,239 +1563,154 @@ public:
             state->target.makeActive();
             const Rectangle<int> clipBounds (clip->getClipBounds());
 
-            clip->drawImage (finishedLayerState.transparencyLayer,
-                             AffineTransform::translation ((float) clipBounds.getX(), (float) clipBounds.getY()),
-                             finishedLayerState.transparencyLayerAlpha, clipBounds, nullptr);
+            clip->renderImageUntransformed (*this, finishedLayerState.transparencyLayer,
+                                            (int) (finishedLayerState.transparencyLayerAlpha * 255.0f),
+                                            clipBounds.getX(), clipBounds.getY(), false);
         }
     }
 
-    //==============================================================================
-    void fillRect (const Rectangle<int>& r, const bool replaceContents)
+    typedef RenderingHelpers::GlyphCache <RenderingHelpers::CachedGlyphEdgeTable <SavedState>, SavedState> GlyphCacheType;
+
+    void drawGlyph (int glyphNumber, const AffineTransform& trans)
     {
         if (clip != nullptr)
         {
-            if (transform.isOnlyTranslated)
+            if (trans.isOnlyTranslation() && ! transform.isRotated)
             {
-                clip->fillRect (r.translated (transform.xOffset, transform.yOffset),
-                                getFillType(), replaceContents);
-            }
-            else
-            {
-                Path p;
-                p.addRectangle (r);
-                fillPath (p, AffineTransform::identity);
-            }
-        }
-    }
+                GlyphCacheType& cache = GlyphCacheType::getInstance();
 
-    void fillRect (const Rectangle<float>& r)
-    {
-        if (clip != nullptr)
-        {
-            if (transform.isOnlyTranslated)
-            {
-                const Rectangle<float> c (r.translated ((float) transform.xOffset, (float) transform.yOffset)
-                                           .getIntersection (clip->getClipBounds().toFloat()));
+                Point<float> pos (trans.getTranslationX(), trans.getTranslationY());
 
-                if (! c.isEmpty())
-                    clip->fillRect (c, getFillType());
-            }
-            else
-            {
-                Path p;
-                p.addRectangle (r);
-                fillPath (p, AffineTransform::identity);
-            }
-        }
-    }
+                if (transform.isOnlyTranslated)
+                {
+                    cache.drawGlyph (*this, font, glyphNumber, pos + transform.offset.toFloat());
+                }
+                else
+                {
+                    pos = transform.transformed (pos);
 
-    void fillPath (const Path& path, const AffineTransform& t)
-    {
-        if (clip != nullptr)
-        {
-            EdgeTable et (clip->getClipBounds(), path, transform.getTransformWith (t));
-            fillEdgeTable (et);
-        }
-    }
+                    Font f (font);
+                    f.setHeight (font.getHeight() * transform.complexTransform.mat11);
 
-    void drawGlyph (int glyphNumber, const AffineTransform& t)
-    {
-        if (clip != nullptr)
-        {
-            if (transform.isOnlyTranslated && t.isOnlyTranslation())
-            {
-                RenderingHelpers::GlyphCache <RenderingHelpers::CachedGlyphEdgeTable <SavedState>, SavedState>::getInstance()
-                    .drawGlyph (*this, font, glyphNumber,
-                                transform.xOffset + t.getTranslationX(),
-                                transform.yOffset + t.getTranslationY());
+                    const float xScale = transform.complexTransform.mat00 / transform.complexTransform.mat11;
+                    if (std::abs (xScale - 1.0f) > 0.01f)
+                        f.setHorizontalScale (xScale);
+
+                    cache.drawGlyph (*this, f, glyphNumber, pos);
+                }
             }
             else
             {
                 const float fontHeight = font.getHeight();
 
-                const ScopedPointer<EdgeTable> et (font.getTypeface()->getEdgeTableForGlyph
-                        (glyphNumber, transform.getTransformWith (AffineTransform::scale (fontHeight * font.getHorizontalScale(), fontHeight)
-                                                                                  .followedBy (t))));
+                AffineTransform t (transform.getTransformWith (AffineTransform::scale (fontHeight * font.getHorizontalScale(), fontHeight)
+                                                                               .followedBy (trans)));
+
+                const ScopedPointer<EdgeTable> et (font.getTypeface()->getEdgeTableForGlyph (glyphNumber, t, fontHeight));
 
                 if (et != nullptr)
-                    fillEdgeTable (*et);
+                    fillShape (new EdgeTableRegionType (*et), false);
             }
         }
     }
 
-    void fillEdgeTable (const EdgeTable& et, const float x, const int y)
-    {
-        if (clip != nullptr)
-        {
-            EdgeTable et2 (et);
-            et2.translate (x, y);
-
-            fillEdgeTable (et2);
-        }
-    }
-
-    void drawLine (const Line <float>& line)
-    {
-        Path p;
-        p.addLineSegment (line, 1.0f);
-        fillPath (p, AffineTransform::identity);
-    }
-
-    //==============================================================================
-    void drawImage (const Image& image, const AffineTransform& trans)
-    {
-        if (clip == nullptr || fillType.colour.isTransparent())
-            return;
-
-        const AffineTransform t (transform.getTransformWith (trans));
-        if (t.isSingularity())
-            return;
-
-        const float alpha = fillType.colour.getFloatAlpha();
-
-        float px0 = 0, py0 = 0;
-        float px1 = (float) image.getWidth(), py1 = 0;
-        float px2 = 0, py2 = (float) image.getHeight();
-        t.transformPoints (px0, py0, px1, py1, px2, py2);
-
-        const int ix0 = (int) (px0 * 256.0f);
-        const int iy0 = (int) (py0 * 256.0f);
-        const int ix1 = (int) (px1 * 256.0f);
-        const int iy1 = (int) (py1 * 256.0f);
-        const int ix2 = (int) (px2 * 256.0f);
-        const int iy2 = (int) (py2 * 256.0f);
-
-        if (((ix0 | iy0 | ix1 | iy1 | ix2 | iy2) & 0xf8) == 0
-              && ix0 == ix2 && iy0 == iy1)
-        {
-            // Non-warping transform can be done as a single rectangle.
-            clip->drawImage (image, t, alpha,
-                             Rectangle<int> (Point<int> (((ix0 + 128) >> 8),
-                                                         ((iy0 + 128) >> 8)),
-                                             Point<int> (((ix1 + 128) >> 8),
-                                                         ((iy2 + 128) >> 8))), nullptr);
-        }
-        else
-        {
-            Path p;
-            p.addRectangle (image.getBounds());
-
-            const Rectangle<int> clipBounds (clip->getClipBounds());
-            EdgeTable et (clipBounds, p, t);
-
-            clip->drawImage (image, t, alpha, clipBounds, &et);
-        }
-    }
+    Rectangle<int> getMaximumBounds() const     { return state->target.bounds; }
 
     void setFillType (const FillType& newFill)
     {
-        fillType = newFill;
+        BaseClass::setFillType (newFill);
         state->textureCache.resetGradient();
     }
 
     //==============================================================================
-    ClipRegionBase::Ptr clip;
-    RenderingHelpers::TranslationOrTransform transform;
+    template <typename IteratorType>
+    void renderImageTransformed (IteratorType& iter, const Image& src, const int alpha,
+                                 const AffineTransform& trans, Graphics::ResamplingQuality, bool tiledFill) const
+    {
+        state->shaderQuadQueue.flush();
+        state->setShaderForTiledImageFill (state->cachedImageList->getTextureFor (src), trans, 0, nullptr, tiledFill);
+
+        state->shaderQuadQueue.add (iter, PixelARGB ((uint8) alpha, (uint8) alpha, (uint8) alpha, (uint8) alpha));
+        state->shaderQuadQueue.flush();
+
+        state->currentShader.clearShader (state->shaderQuadQueue);
+    }
+
+    template <typename IteratorType>
+    void renderImageUntransformed (IteratorType& iter, const Image& src, const int alpha, int x, int y, bool tiledFill) const
+    {
+        renderImageTransformed (iter, src, alpha, AffineTransform::translation ((float) x, (float) y),
+                                Graphics::lowResamplingQuality, tiledFill);
+    }
+
+    template <typename IteratorType>
+    void fillWithSolidColour (IteratorType& iter, const PixelARGB colour, bool replaceContents) const
+    {
+        if (! isUsingCustomShader)
+        {
+            state->activeTextures.disableTextures (state->shaderQuadQueue);
+            state->blendMode.setBlendMode (state->shaderQuadQueue, replaceContents);
+            state->setShader (state->currentShader.programs->solidColourProgram);
+        }
+
+        state->shaderQuadQueue.add (iter, colour);
+    }
+
+    template <typename IteratorType>
+    void fillWithGradient (IteratorType& iter, ColourGradient& gradient, const AffineTransform& trans, bool /*isIdentity*/) const
+    {
+        state->setShaderForGradientFill (gradient, trans, 0, nullptr);
+        state->shaderQuadQueue.add (iter, fillType.colour.getPixelARGB());
+    }
+
+    void fillRectWithCustomShader (OpenGLRendering::ShaderPrograms::ShaderBase& shader, const Rectangle<int>& area)
+    {
+        state->setShader (shader);
+        isUsingCustomShader = true;
+
+        fillRect (area, true);
+
+        isUsingCustomShader = false;
+        state->currentShader.clearShader (state->shaderQuadQueue);
+    }
+
+    //==============================================================================
     Font font;
-    FillType fillType;
-    Graphics::ResamplingQuality interpolationQuality;
     GLState* state;
+    bool isUsingCustomShader;
 
 private:
-    float transparencyLayerAlpha;
     Image transparencyLayer;
     ScopedPointer<Target> previousTarget;
-
-    void cloneClipIfMultiplyReferenced()
-    {
-        if (clip->getReferenceCount() > 1)
-            clip = clip->clone();
-    }
-
-    FillType getFillType() const
-    {
-        return fillType.transformed (transform.getTransform());
-    }
-
-    void fillEdgeTable (EdgeTable& et) const
-    {
-        clip->fillEdgeTable (et, getFillType());
-    }
 
     SavedState& operator= (const SavedState&);
 };
 
+
 //==============================================================================
-class ShaderContext   : public LowLevelGraphicsContext
+class ShaderContext   : public RenderingHelpers::StackBasedLowLevelGraphicsContext<SavedState>
 {
 public:
-    ShaderContext (const Target& target)
-       : glState (target), stack (new SavedState (&glState))
-    {}
+    ShaderContext (const Target& target)  : glState (target)
+    {
+        stack.initialise (new SavedState (&glState));
+    }
 
-    bool isVectorDevice() const                                         { return false; }
-    void setOrigin (int x, int y)                                       { stack->transform.setOrigin (x, y); }
-    void addTransform (const AffineTransform& t)                        { stack->transform.addTransform (t); }
-    float getScaleFactor()                                              { return stack->transform.getScaleFactor(); }
-    Rectangle<int> getClipBounds() const                                { return stack->getClipBounds(); }
-    bool isClipEmpty() const                                            { return stack->clip == nullptr; }
-    bool clipRegionIntersects (const Rectangle<int>& r)                 { return stack->clipRegionIntersects (r); }
-    bool clipToRectangle (const Rectangle<int>& r)                      { return stack->clipToRectangle (r); }
-    bool clipToRectangleList (const RectangleList& r)                   { return stack->clipToRectangleList (r); }
-    void excludeClipRectangle (const Rectangle<int>& r)                 { stack->excludeClipRectangle (r); }
-    void clipToPath (const Path& path, const AffineTransform& t)        { stack->clipToPath (path, t); }
-    void clipToImageAlpha (const Image& im, const AffineTransform& t)   { stack->clipToImageAlpha (im, t); }
-    void saveState()                                                    { stack.save(); }
-    void restoreState()                                                 { stack.restore(); }
-    void beginTransparencyLayer (float opacity)                         { stack.beginTransparencyLayer (opacity); }
-    void endTransparencyLayer()                                         { stack.endTransparencyLayer(); }
-    void setFill (const FillType& fillType)                             { stack->setFillType (fillType); }
-    void setOpacity (float newOpacity)                                  { stack->fillType.setOpacity (newOpacity); }
-    void setInterpolationQuality (Graphics::ResamplingQuality quality)  { stack->interpolationQuality = quality; }
-    void fillRect (const Rectangle<int>& r, bool replace)               { stack->fillRect (r, replace); }
-    void fillPath (const Path& path, const AffineTransform& t)          { stack->fillPath (path, t); }
-    void drawImage (const Image& im, const AffineTransform& t)          { stack->drawImage (im, t); }
-    void drawVerticalLine (int x, float top, float bottom)              { if (top < bottom) stack->fillRect (Rectangle<float> ((float) x, top, 1.0f, bottom - top)); }
-    void drawHorizontalLine (int y, float left, float right)            { if (left < right) stack->fillRect (Rectangle<float> (left, (float) y, right - left, 1.0f)); }
-    void drawGlyph (int glyphNumber, const AffineTransform& t)          { stack->drawGlyph (glyphNumber, t); }
-    void drawLine (const Line <float>& line)                            { stack->drawLine (line); }
-    void setFont (const Font& newFont)                                  { stack->font = newFont; }
-    const Font& getFont()                                               { return stack->font; }
+    void fillRectWithCustomShader (ShaderPrograms::ShaderBase& shader, const Rectangle<int>& area)
+    {
+        static_cast<SavedState&> (*stack).fillRectWithCustomShader (shader, area);
+    }
 
-private:
     GLState glState;
-    RenderingHelpers::SavedStateStack<SavedState> stack;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ShaderContext)
 };
 
-#endif
-
 class NonShaderContext   : public LowLevelGraphicsSoftwareRenderer
 {
 public:
-    NonShaderContext (const Target& target_, const Image& image_)
-        : LowLevelGraphicsSoftwareRenderer (image_), target (target_), image (image_)
+    NonShaderContext (const Target& t, const Image& im)
+        : LowLevelGraphicsSoftwareRenderer (im), target (t), image (im)
     {}
 
     ~NonShaderContext()
@@ -2201,10 +1753,8 @@ private:
 LowLevelGraphicsContext* createOpenGLContext (const Target&);
 LowLevelGraphicsContext* createOpenGLContext (const Target& target)
 {
-   #if JUCE_USE_OPENGL_SHADERS
     if (target.context.areShadersAvailable())
         return new ShaderContext (target);
-   #endif
 
     Image tempImage (Image::ARGB, target.bounds.getWidth(), target.bounds.getHeight(), true, SoftwareImageType());
     return new NonShaderContext (target, tempImage);
@@ -2227,4 +1777,98 @@ LowLevelGraphicsContext* createOpenGLGraphicsContext (OpenGLContext& context, un
 {
     using namespace OpenGLRendering;
     return OpenGLRendering::createOpenGLContext (OpenGLRendering::Target (context, frameBufferID, width, height));
+}
+
+void clearOpenGLGlyphCache();
+void clearOpenGLGlyphCache()
+{
+    OpenGLRendering::SavedState::GlyphCacheType::getInstance().reset();
+}
+
+
+//==============================================================================
+struct CustomProgram  : public ReferenceCountedObject,
+                        public OpenGLRendering::ShaderPrograms::ShaderBase
+{
+    CustomProgram (OpenGLRendering::ShaderContext& c, const String& fragmentShader)
+        : ShaderBase (c.glState.target.context, fragmentShader.toRawUTF8())
+    {
+    }
+
+    static CustomProgram* get (const String& hashName)
+    {
+        if (OpenGLContext* c = OpenGLContext::getCurrentContext())
+            return static_cast<CustomProgram*> (c->getAssociatedObject (hashName.toRawUTF8()));
+
+        return nullptr;
+    }
+
+    static CustomProgram* getOrCreate (LowLevelGraphicsContext& gc, const String& hashName, const String& code, String& errorMessage)
+    {
+        if (CustomProgram* c = get (hashName))
+            return c;
+
+        if (OpenGLRendering::ShaderContext* sc = dynamic_cast<OpenGLRendering::ShaderContext*> (&gc))
+        {
+            ReferenceCountedObjectPtr<CustomProgram> c (new CustomProgram (*sc, code));
+
+            errorMessage = c->lastError;
+
+            if (errorMessage.isEmpty())
+            {
+                if (OpenGLContext* context = OpenGLContext::getCurrentContext())
+                {
+                    context->setAssociatedObject (hashName.toRawUTF8(), c);
+                    return c;
+                }
+            }
+        }
+
+        return nullptr;
+    }
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomProgram)
+};
+
+OpenGLGraphicsContextCustomShader::OpenGLGraphicsContextCustomShader (const String& fragmentShaderCode)
+    : code (String (JUCE_DECLARE_VARYING_COLOUR
+                    JUCE_DECLARE_VARYING_PIXELPOS
+                    "\n" JUCE_MEDIUMP " float pixelAlpha = frontColour.a;\n") + fragmentShaderCode),
+      hashName (String::toHexString (fragmentShaderCode.hashCode64()) + "_shader")
+{
+}
+
+OpenGLGraphicsContextCustomShader::~OpenGLGraphicsContextCustomShader()
+{
+    if (OpenGLContext* context = OpenGLContext::getCurrentContext())
+        context->setAssociatedObject (hashName.toRawUTF8(), nullptr);
+}
+
+OpenGLShaderProgram* OpenGLGraphicsContextCustomShader::getProgram (LowLevelGraphicsContext& gc) const
+{
+    String errorMessage;
+
+    if (CustomProgram* c = CustomProgram::getOrCreate (gc, hashName, code, errorMessage))
+        return &(c->program);
+
+    return nullptr;
+}
+
+void OpenGLGraphicsContextCustomShader::fillRect (LowLevelGraphicsContext& gc, const Rectangle<int>& area) const
+{
+    String errorMessage;
+
+    if (OpenGLRendering::ShaderContext* sc = dynamic_cast<OpenGLRendering::ShaderContext*> (&gc))
+        if (CustomProgram* c = CustomProgram::getOrCreate (gc, hashName, code, errorMessage))
+            sc->fillRectWithCustomShader (*c, area);
+}
+
+Result OpenGLGraphicsContextCustomShader::checkCompilation (LowLevelGraphicsContext& gc)
+{
+    String errorMessage;
+
+    if (CustomProgram::getOrCreate (gc, hashName, code, errorMessage) != nullptr)
+        return Result::ok();
+
+    return Result::fail (errorMessage);
 }

@@ -148,7 +148,7 @@ public:
         reader = nullptr;
     }
 
-    int useTimeSlice()
+    int useTimeSlice() override
     {
         if (isFullyLoaded())
         {
@@ -342,7 +342,7 @@ public:
     }
 
 private:
-    Array <MinMaxValue> data;
+    Array<MinMaxValue> data;
     int peakLevel;
 
     void ensureSize (const int thumbSamples)
@@ -390,22 +390,31 @@ public:
 
                 const MinMaxValue* cacheData = getData (channelNum, clip.getX() - area.getX());
 
-                int x = clip.getX();
+                RectangleList<float> waveform;
+
+                float x = (float) clip.getX();
+
                 for (int w = clip.getWidth(); --w >= 0;)
                 {
                     if (cacheData->isNonZero())
-                        g.drawVerticalLine (x, jmax (midY - cacheData->getMaxValue() * vscale - 0.3f, topY),
-                                               jmin (midY - cacheData->getMinValue() * vscale + 0.3f, bottomY));
+                    {
+                        const float top    = jmax (midY - cacheData->getMaxValue() * vscale - 0.3f, topY);
+                        const float bottom = jmin (midY - cacheData->getMinValue() * vscale + 0.3f, bottomY);
 
-                    ++x;
+                        waveform.addWithoutMerging (Rectangle<float> (x, top, 1.0f, bottom - top));
+                    }
+
+                    x += 1.0f;
                     ++cacheData;
                 }
+
+                g.fillRectList (waveform);
             }
         }
     }
 
 private:
-    Array <MinMaxValue> data;
+    Array<MinMaxValue> data;
     double cachedStart, cachedTimePerPixel;
     int numChannelsCached, numSamplesCached;
     bool cacheNeedsRefilling;
@@ -452,15 +461,20 @@ private:
                 if (sample >= 0)
                 {
                     if (sample >= levelData->lengthInSamples)
-                        break;
+                    {
+                        for (int chan = 0; chan < numChannelsCached; ++chan)
+                            *getData (chan, i) = MinMaxValue();
+                    }
+                    else
+                    {
+                        levelData->getLevels (sample, jmax (1, nextSample - sample), levels);
 
-                    levelData->getLevels (sample, jmax (1, nextSample - sample), levels);
+                        const int totalChans = jmin (levels.size() / 2, numChannelsCached);
 
-                    const int totalChans = jmin (levels.size() / 2, numChannelsCached);
-
-                    for (int chan = 0; chan < totalChans; ++chan)
-                        getData (chan, i)->setFloat (levels.getUnchecked (chan * 2),
-                                                     levels.getUnchecked (chan * 2 + 1));
+                        for (int chan = 0; chan < totalChans; ++chan)
+                            getData (chan, i)->setFloat (levels.getUnchecked (chan * 2),
+                                                         levels.getUnchecked (chan * 2 + 1));
+                    }
                 }
 
                 startTime += timePerPixel;
@@ -692,16 +706,15 @@ void AudioThumbnail::addBlock (const int64 startSample, const AudioSampleBuffer&
 
         for (int chan = 0; chan < numChans; ++chan)
         {
-            const float* const sourceData = incoming.getSampleData (chan, startOffsetInBuffer);
+            const float* const sourceData = incoming.getReadPointer (chan, startOffsetInBuffer);
             MinMaxValue* const dest = thumbData + numToDo * chan;
             thumbChannels [chan] = dest;
 
             for (int i = 0; i < numToDo; ++i)
             {
-                float low, high;
                 const int start = i * samplesPerThumbSample;
-                FloatVectorOperations::findMinAndMax (sourceData + start, jmin (samplesPerThumbSample, numSamples - start), low, high);
-                dest[i].setFloat (low, high);
+                Range<float> range (FloatVectorOperations::findMinAndMax (sourceData + start, jmin (samplesPerThumbSample, numSamples - start)));
+                dest[i].setFloat (range.getStart(), range.getEnd());
             }
         }
 

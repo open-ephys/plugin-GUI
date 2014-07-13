@@ -50,23 +50,25 @@ public:
     static const char* const tempo;
     /** Metadata property name used when reading a caf file time signature information. */
     static const char* const timeSig;
+    /** Metadata property name used when reading a caf file time signature information. */
+    static const char* const keySig;
 
     //==============================================================================
-    Array<int> getPossibleSampleRates();
-    Array<int> getPossibleBitDepths();
-    bool canDoStereo();
-    bool canDoMono();
+    Array<int> getPossibleSampleRates() override;
+    Array<int> getPossibleBitDepths() override;
+    bool canDoStereo() override;
+    bool canDoMono() override;
 
     //==============================================================================
     AudioFormatReader* createReaderFor (InputStream*,
-                                        bool deleteStreamIfOpeningFails);
+                                        bool deleteStreamIfOpeningFails) override;
 
     AudioFormatWriter* createWriterFor (OutputStream*,
                                         double sampleRateToUse,
                                         unsigned int numberOfChannels,
                                         int bitsPerSample,
                                         const StringPairArray& metadataValues,
-                                        int qualityOptionIndex);
+                                        int qualityOptionIndex) override;
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CoreAudioFormat)

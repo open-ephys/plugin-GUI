@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOIODEVICETYPE_JUCEHEADER__
-#define __JUCE_AUDIOIODEVICETYPE_JUCEHEADER__
-
-#include "juce_AudioIODevice.h"
-class AudioDeviceManager;
+#ifndef JUCE_AUDIOIODEVICETYPE_H_INCLUDED
+#define JUCE_AUDIOIODEVICETYPE_H_INCLUDED
 
 
 //==============================================================================
@@ -37,7 +34,7 @@ class AudioDeviceManager;
     method. Each of the objects returned can then be used to list the available
     devices of that type. E.g.
     @code
-    OwnedArray <AudioIODeviceType> types;
+    OwnedArray<AudioIODeviceType> types;
     myAudioDeviceManager.createAudioDeviceTypes (types);
 
     for (int i = 0; i < types.size(); ++i)
@@ -121,7 +118,7 @@ public:
     /**
         A class for receiving events when audio devices are inserted or removed.
 
-        You can register a AudioIODeviceType::Listener with an~AudioIODeviceType object
+        You can register an AudioIODeviceType::Listener with an~AudioIODeviceType object
         using the AudioIODeviceType::addListener() method, and it will be called when
         devices of that type are added or removed.
 
@@ -182,4 +179,4 @@ private:
 };
 
 
-#endif   // __JUCE_AUDIOIODEVICETYPE_JUCEHEADER__
+#endif   // JUCE_AUDIOIODEVICETYPE_H_INCLUDED

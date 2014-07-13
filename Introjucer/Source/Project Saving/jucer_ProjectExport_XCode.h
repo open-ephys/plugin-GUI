@@ -1,40 +1,32 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
-#ifndef __JUCER_PROJECTEXPORT_XCODE_JUCEHEADER__
-#define __JUCER_PROJECTEXPORT_XCODE_JUCEHEADER__
-
-#include "jucer_ProjectExporter.h"
-
 namespace
 {
     const char* const osxVersionDefault         = "default";
-    const char* const osxVersion10_4            = "10.4 SDK";
-    const char* const osxVersion10_5            = "10.5 SDK";
-    const char* const osxVersion10_6            = "10.6 SDK";
-    const char* const osxVersion10_7            = "10.7 SDK";
+    const int oldestSDKVersion = 4;
+    const int currentSDKVersion = 9;
 
     const char* const osxArch_Default           = "default";
     const char* const osxArch_Native            = "Native";
@@ -84,21 +76,12 @@ public:
     Value  getPreBuildScriptValue()         { return getSetting (Ids::prebuildCommand); }
     String getPreBuildScript() const        { return settings   [Ids::prebuildCommand]; }
 
-    bool isAvailableOnCurrentOS()
-    {
-       #if JUCE_MAC
-        return true;
-       #else
-        return false;
-       #endif
-    }
+    bool usesMMFiles() const override                { return true; }
+    bool isXcode() const override                    { return true; }
+    bool isOSX() const override                      { return ! iOS; }
+    bool canCopeWithDuplicateFiles() override        { return true; }
 
-    bool usesMMFiles() const                { return true; }
-    bool isXcode() const                    { return true; }
-    bool isOSX() const                      { return ! iOS; }
-    bool canCopeWithDuplicateFiles()        { return true; }
-
-    void createExporterProperties (PropertyListBuilder& props)
+    void createExporterProperties (PropertyListBuilder& props) override
     {
         if (projectType.isGUIApplication() && ! iOS)
         {
@@ -124,14 +107,6 @@ public:
                    "A comma-separated list of extra frameworks that should be added to the build. "
                    "(Don't include the .framework extension in the name)");
 
-        if (projectType.isLibrary())
-        {
-            const char* const libTypes[] = { "Static Library (.a)", "Dynamic Library (.dylib)", 0 };
-            const int libTypeValues[] = { 1, 2, 0 };
-            props.add (new ChoicePropertyComponent (getLibraryType(), "Library Type",
-                                                    StringArray (libTypes), Array<var> (libTypeValues)));
-        }
-
         props.add (new TextPropertyComponent (getPreBuildScriptValue(), "Pre-build shell script", 32768, true),
                    "Some shell-script that will be run before a build starts.");
 
@@ -139,7 +114,7 @@ public:
                    "Some shell-script that will be run after a build completes.");
     }
 
-    bool launchProject()
+    bool launchProject() override
     {
        #if JUCE_MAC
         return getProjectBundle().startAsProcess();
@@ -148,8 +123,17 @@ public:
        #endif
     }
 
+    bool canLaunchProject() override
+    {
+       #if JUCE_MAC
+        return true;
+       #else
+        return false;
+       #endif
+    }
+
     //==============================================================================
-    void create (const OwnedArray<LibraryModule>&) const
+    void create (const OwnedArray<LibraryModule>&) const override
     {
         infoPlistFile = getTargetFolder().getChildFile ("Info.plist");
         menuNibFile = getTargetFolder().getChildFile ("RecentFilesMenuTemplate.nib");
@@ -173,10 +157,6 @@ public:
     }
 
 protected:
-    Value getLibraryType()          { return getSetting (Ids::libraryType); }
-    bool isStaticLibrary() const    { return projectType.isLibrary() && (int) settings [Ids::libraryType] == 1; }
-
-
     //==============================================================================
     class XcodeBuildConfiguration  : public BuildConfiguration
     {
@@ -214,13 +194,19 @@ protected:
         String getCustomXcodeFlags() const             { return config   [Ids::customXcodeFlags]; }
         Value  getCppLibTypeValue()                    { return getValue (Ids::cppLibType); }
         String getCppLibType() const                   { return config   [Ids::cppLibType]; }
+        Value  getCodeSignIdentityValue()              { return getValue (Ids::codeSigningIdentity); }
+        String getCodeSignIdentity() const             { return config   [Ids::codeSigningIdentity]; }
+        Value  getFastMathValue()                      { return getValue (Ids::fastMath); }
+        bool   isFastMathEnabled() const               { return config   [Ids::fastMath]; }
+        Value  getLinkTimeOptimisationValue()          { return getValue (Ids::linkTimeOptimisation); }
+        bool   isLinkTimeOptimisationEnabled() const   { return config   [Ids::linkTimeOptimisation]; }
 
         void createConfigProperties (PropertyListBuilder& props)
         {
             if (iOS)
             {
-                const char* iosVersions[]      = { "Use Default",     "3.2", "4.0", "4.1", "4.2", "4.3", "5.0", "5.1", 0 };
-                const char* iosVersionValues[] = { osxVersionDefault, "3.2", "4.0", "4.1", "4.2", "4.3", "5.0", "5.1", 0 };
+                const char* iosVersions[]      = { "Use Default",     "3.2", "4.0", "4.1", "4.2", "4.3", "5.0", "5.1", "6.0", "6.1", "7.0", "7.1", 0 };
+                const char* iosVersionValues[] = { osxVersionDefault, "3.2", "4.0", "4.1", "4.2", "4.3", "5.0", "5.1", "6.0", "6.1", "7.0", "7.1", 0 };
 
                 props.add (new ChoicePropertyComponent (getiOSCompatibilityVersionValue(), "iOS Deployment Target",
                                                         StringArray (iosVersions), Array<var> (iosVersionValues)),
@@ -228,19 +214,26 @@ protected:
             }
             else
             {
-                const char* osxVersions[]      = { "Use Default",     osxVersion10_5, osxVersion10_6, osxVersion10_7, 0 };
-                const char* osxVersionValues[] = { osxVersionDefault, osxVersion10_5, osxVersion10_6, osxVersion10_7, 0 };
+                StringArray versionNames;
+                Array<var> versionValues;
 
-                props.add (new ChoicePropertyComponent (getMacSDKVersionValue(), "OSX Base SDK Version",
-                                                        StringArray (osxVersions), Array<var> (osxVersionValues)),
+                versionNames.add ("Use Default");
+                versionValues.add (osxVersionDefault);
+
+                for (int ver = oldestSDKVersion; ver <= currentSDKVersion; ++ver)
+                {
+                    versionNames.add (getSDKName (ver));
+                    versionValues.add (getSDKName (ver));
+                }
+
+                props.add (new ChoicePropertyComponent (getMacSDKVersionValue(), "OSX Base SDK Version", versionNames, versionValues),
                            "The version of OSX to link against in the XCode build.");
 
-                props.add (new ChoicePropertyComponent (getMacCompatibilityVersionValue(), "OSX Compatibility Version",
-                                                        StringArray (osxVersions), Array<var> (osxVersionValues)),
+                props.add (new ChoicePropertyComponent (getMacCompatibilityVersionValue(), "OSX Compatibility Version", versionNames, versionValues),
                            "The minimum version of OSX that the target binary will be compatible with.");
 
                 const char* osxArch[] = { "Use Default", "Native architecture of build machine",
-                                          "Universal Binary (32-bit)", "Universal Binary (64-bit)", "64-bit Intel", 0 };
+                                          "Universal Binary (32-bit)", "Universal Binary (32/64-bit)", "64-bit Intel", 0 };
                 const char* osxArchValues[] = { osxArch_Default, osxArch_Native, osxArch_32BitUniversal,
                                                 osxArch_64BitUniversal, osxArch_64Bit, 0 };
 
@@ -253,19 +246,28 @@ protected:
                        "A comma-separated list of custom Xcode setting flags which will be appended to the list of generated flags, "
                        "e.g. MACOSX_DEPLOYMENT_TARGET_i386 = 10.5, VALID_ARCHS = \"ppc i386 x86_64\"");
 
-            const char* cppLibNames[] = { "Use Default", "Use LLVM libc++", 0 };
+            const char* cppLibNames[] = { "Use Default", "Use LLVM libc++", nullptr };
             Array<var> cppLibValues;
             cppLibValues.add (var::null);
             cppLibValues.add ("libc++");
 
             props.add (new ChoicePropertyComponent (getCppLibTypeValue(), "C++ Library", StringArray (cppLibNames), cppLibValues),
                        "The type of C++ std lib that will be linked.");
+
+            props.add (new TextPropertyComponent (getCodeSignIdentityValue(), "Code-signing Identity", 8192, false),
+                       "The name of a code-signing identity for Xcode to apply.");
+
+            props.add (new BooleanPropertyComponent (getFastMathValue(), "Relax IEEE compliance", "Enabled"),
+                       "Enable this to use FAST_MATH non-IEEE mode. (Warning: this can have unexpected results!)");
+
+            props.add (new BooleanPropertyComponent (getLinkTimeOptimisationValue(), "Link-Time Optimisation", "Enabled"),
+                       "Enable this to perform link-time code generation. This is recommended for release builds.");
         }
 
         bool iOS;
     };
 
-    BuildConfiguration::Ptr createBuildConfig (const ValueTree& v) const
+    BuildConfiguration::Ptr createBuildConfig (const ValueTree& v) const override
     {
         return new XcodeBuildConfiguration (project, v, iOS);
     }
@@ -366,7 +368,7 @@ private:
 
         addShellScriptBuildPhase ("Pre-build script", getPreBuildScript());
 
-        if (! isStaticLibrary())
+        if (! projectType.isStaticLibrary())
             addBuildPhase ("PBXResourcesBuildPhase", resourceIDs);
 
         if (rezFileIDs.size() > 0)
@@ -374,7 +376,7 @@ private:
 
         addBuildPhase ("PBXSourcesBuildPhase", sourceIDs);
 
-        if (! isStaticLibrary())
+        if (! projectType.isStaticLibrary())
             addBuildPhase ("PBXFrameworksBuildPhase", frameworkIDs);
 
         addShellScriptBuildPhase ("Post-build script", getPostBuildScript());
@@ -383,7 +385,7 @@ private:
         addProjectObject();
     }
 
-    static Image fixMacIconImageSize (Image& image)
+    static Image fixMacIconImageSize (Drawable& image)
     {
         const int validSizes[] = { 16, 32, 48, 128, 256, 512, 1024 };
 
@@ -395,7 +397,10 @@ private:
         for (int i = 0; i < numElementsInArray (validSizes); ++i)
         {
             if (w == h && w == validSizes[i])
-                return image;
+            {
+                bestSize = w;
+                break;
+            }
 
             if (jmax (w, h) > validSizes[i])
                 bestSize = validSizes[i];
@@ -446,18 +451,26 @@ private:
         pngFormat.writeImageToStream (image, pngData);
 
         out.write (type, 4);
-        out.writeIntBigEndian (8 + pngData.getDataSize());
+        out.writeIntBigEndian (8 + (int) pngData.getDataSize());
         out << pngData;
     }
 
-    void writeIcnsFile (const Array<Image>& images, OutputStream& out) const
+    void writeIcnsFile (const OwnedArray<Drawable>& images, OutputStream& out) const
     {
         MemoryOutputStream data;
+        int smallest = 0x7fffffff;
+        Drawable* smallestImage = nullptr;
 
         for (int i = 0; i < images.size(); ++i)
         {
-            const Image image (fixMacIconImageSize (images.getReference (i)));
+            const Image image (fixMacIconImageSize (*images.getUnchecked(i)));
             jassert (image.getWidth() == image.getHeight());
+
+            if (image.getWidth() < smallest)
+            {
+                smallest = image.getWidth();
+                smallestImage = images.getUnchecked(i);
+            }
 
             switch (image.getWidth())
             {
@@ -474,22 +487,27 @@ private:
 
         jassert (data.getDataSize() > 0); // no suitable sized images?
 
+        // If you only supply a 1024 image, the file doesn't work on 10.8, so we need
+        // to force a smaller one in there too..
+        if (smallest > 512 && smallestImage != nullptr)
+            writeNewIconFormat (data, rescaleImageForIcon (*smallestImage, 512), "ic09");
+
         out.write ("icns", 4);
-        out.writeIntBigEndian (data.getDataSize() + 8);
+        out.writeIntBigEndian ((int) data.getDataSize() + 8);
         out << data;
     }
 
     void createIconFile() const
     {
-        Array<Image> images;
+        OwnedArray<Drawable> images;
 
-        Image bigIcon (getBigIcon());
-        if (bigIcon.isValid())
-            images.add (bigIcon);
+        ScopedPointer<Drawable> bigIcon (getBigIcon());
+        if (bigIcon != nullptr)
+            images.add (bigIcon.release());
 
-        Image smallIcon (getSmallIcon());
-        if (smallIcon.isValid())
-            images.add (smallIcon);
+        ScopedPointer<Drawable> smallIcon (getSmallIcon());
+        if (smallIcon != nullptr)
+            images.add (smallIcon.release());
 
         if (images.size() > 0)
         {
@@ -577,12 +595,27 @@ private:
         overwriteFileIfDifferentOrThrow (infoPlistFile, mo);
     }
 
-    StringArray getHeaderSearchPaths (const BuildConfiguration& config) const
+    String getHeaderSearchPaths (const BuildConfiguration& config) const
     {
-        StringArray searchPaths (extraSearchPaths);
-        searchPaths.addArray (config.getHeaderSearchPaths());
-        searchPaths.removeDuplicates (false);
-        return searchPaths;
+        StringArray paths (extraSearchPaths);
+        paths.addArray (config.getHeaderSearchPaths());
+        paths.add ("$(inherited)");
+        paths.removeDuplicates (false);
+        paths.removeEmptyStrings();
+
+        for (int i = 0; i < paths.size(); ++i)
+        {
+            String& s = paths.getReference(i);
+
+            s = replacePreprocessorTokens (config, s);
+
+            if (s.containsChar (' '))
+                s = "\"\\\"" + s + "\\\"\""; // crazy double quotes required when there are spaces..
+            else
+                s = "\"" + s + "\"";
+        }
+
+        return "(" + paths.joinIntoString (", ") + ")";
     }
 
     void getLinkerFlagsForStaticLibrary (const RelativePath& library, StringArray& flags, StringArray& librarySearchPaths) const
@@ -637,7 +670,7 @@ private:
         s.add ("WARNING_CFLAGS = -Wreorder");
         s.add ("GCC_MODEL_TUNING = G5");
 
-        if (projectType.isLibrary())
+        if (projectType.isStaticLibrary())
         {
             s.add ("GCC_INLINES_ARE_PRIVATE_EXTERN = NO");
             s.add ("GCC_SYMBOLS_PRIVATE_EXTERN = NO");
@@ -646,6 +679,10 @@ private:
         {
             s.add ("GCC_INLINES_ARE_PRIVATE_EXTERN = YES");
         }
+
+        if (config.isDebug())
+             if (config.getMacArchitecture() == osxArch_Default || config.getMacArchitecture().isEmpty())
+                 s.add ("ONLY_ACTIVE_ARCH = YES");
 
         if (iOS)
         {
@@ -663,7 +700,7 @@ private:
         if (xcodeCanUseDwarf)
             s.add ("DEBUG_INFORMATION_FORMAT = \"dwarf\"");
 
-        s.add ("PRODUCT_NAME = \"" + config.getTargetBinaryNameString() + "\"");
+        s.add ("PRODUCT_NAME = \"" + replacePreprocessorTokens (config, config.getTargetBinaryNameString()) + "\"");
         return s;
     }
 
@@ -672,14 +709,20 @@ private:
         StringArray s;
 
         const String arch (config.getMacArchitecture());
-        if (arch == osxArch_Native)                s.add ("ARCHS = \"$(ARCHS_NATIVE)\"");
+        if (arch == osxArch_Native)                s.add ("ARCHS = \"$(NATIVE_ARCH_ACTUAL)\"");
         else if (arch == osxArch_32BitUniversal)   s.add ("ARCHS = \"$(ARCHS_STANDARD_32_BIT)\"");
         else if (arch == osxArch_64BitUniversal)   s.add ("ARCHS = \"$(ARCHS_STANDARD_32_64_BIT)\"");
         else if (arch == osxArch_64Bit)            s.add ("ARCHS = \"$(ARCHS_STANDARD_64_BIT)\"");
 
-        s.add ("HEADER_SEARCH_PATHS = \"" + replacePreprocessorTokens (config, getHeaderSearchPaths (config).joinIntoString (" ")) + " $(inherited)\"");
+        s.add ("HEADER_SEARCH_PATHS = " + getHeaderSearchPaths (config));
         s.add ("GCC_OPTIMIZATION_LEVEL = " + config.getGCCOptimisationFlag());
         s.add ("INFOPLIST_FILE = " + infoPlistFile.getFileName());
+
+        if (config.isLinkTimeOptimisationEnabled())
+            s.add ("LLVM_LTO = YES");
+
+        if (config.isFastMathEnabled())
+            s.add ("GCC_FAST_MATH = YES");
 
         const String extraFlags (replacePreprocessorTokens (config, getExtraCompilerFlagsString()).trim());
         if (extraFlags.isNotEmpty())
@@ -711,12 +754,6 @@ private:
             s.add ("CONFIGURATION_BUILD_DIR = \"$(PROJECT_DIR)/build/$(CONFIGURATION)\"");
         }
 
-        if (projectType.isLibrary())
-        {
-            s.add ("CONFIGURATION_BUILD_DIR = \"$(BUILD_DIR)\"");
-            s.add ("DEPLOYMENT_LOCATION = YES");
-        }
-
         String gccVersion ("com.apple.compilers.llvm.clang.1_0");
 
         if (! iOS)
@@ -724,14 +761,11 @@ private:
             const String sdk (config.getMacSDKVersion());
             const String sdkCompat (config.getMacCompatibilityVersion());
 
-            if (sdk == osxVersion10_5)          s.add ("SDKROOT = macosx10.5");
-            else if (sdk == osxVersion10_6)     s.add ("SDKROOT = macosx10.6");
-            else if (sdk == osxVersion10_7)     s.add ("SDKROOT = macosx10.7");
-
-            if (sdkCompat == osxVersion10_4)       s.add ("MACOSX_DEPLOYMENT_TARGET = 10.4");
-            else if (sdkCompat == osxVersion10_5)  s.add ("MACOSX_DEPLOYMENT_TARGET = 10.5");
-            else if (sdkCompat == osxVersion10_6)  s.add ("MACOSX_DEPLOYMENT_TARGET = 10.6");
-            else if (sdkCompat == osxVersion10_7)  s.add ("MACOSX_DEPLOYMENT_TARGET = 10.7");
+            for (int ver = oldestSDKVersion; ver <= currentSDKVersion; ++ver)
+            {
+                if (sdk == getSDKName (ver))         s.add ("SDKROOT = macosx10." + String (ver));
+                if (sdkCompat == getSDKName (ver))   s.add ("MACOSX_DEPLOYMENT_TARGET = 10." + String (ver));
+            }
 
             s.add ("MACOSX_DEPLOYMENT_TARGET_ppc = 10.4");
             s.add ("SDKROOT_ppc = macosx10.5");
@@ -746,6 +780,9 @@ private:
         s.add ("GCC_VERSION = " + gccVersion);
         s.add ("CLANG_CXX_LANGUAGE_STANDARD = \"c++0x\"");
         s.add ("CLANG_LINK_OBJC_RUNTIME = NO");
+
+        if (config.getCodeSignIdentity().isNotEmpty())
+            s.add ("CODE_SIGN_IDENTITY = " + config.getCodeSignIdentity().quoted());
 
         if (config.getCppLibType().isNotEmpty())
             s.add ("CLANG_CXX_LIBRARY = " + config.getCppLibType().quoted());
@@ -779,11 +816,6 @@ private:
         {
             defines.set ("_DEBUG", "1");
             defines.set ("DEBUG", "1");
-
-            if (config.getMacArchitecture() == osxArch_Default
-                 || config.getMacArchitecture().isEmpty())
-                s.add ("ONLY_ACTIVE_ARCH = YES");
-
             s.add ("COPY_PHASE_STRIP = NO");
             s.add ("GCC_DYNAMIC_NO_PIC = NO");
         }
@@ -793,6 +825,7 @@ private:
             defines.set ("NDEBUG", "1");
             s.add ("GCC_GENERATE_DEBUGGING_SYMBOLS = NO");
             s.add ("GCC_SYMBOLS_PRIVATE_EXTERN = YES");
+            s.add ("DEAD_CODE_STRIPPING = YES");
         }
 
         {
@@ -810,7 +843,7 @@ private:
                 defsList.add ("\"" + def + "\"");
             }
 
-            s.add ("GCC_PREPROCESSOR_DEFINITIONS = (" + indentList (defsList, ",") + ")");
+            s.add ("GCC_PREPROCESSOR_DEFINITIONS = " + indentParenthesisedList (defsList));
         }
 
         s.addTokens (config.getCustomXcodeFlags(), ",", "\"'");
@@ -823,10 +856,13 @@ private:
 
     void addFrameworks() const
     {
-        if (! isStaticLibrary())
+        if (! projectType.isStaticLibrary())
         {
             StringArray s (xcodeFrameworks);
             s.addTokens (getExtraFrameworksString(), ",;", "\"'");
+
+            if (project.getConfigFlag ("JUCE_QUICKTIME") == Project::configFlagDisabled)
+                s.removeString ("QuickTime");
 
             s.trim();
             s.removeDuplicates (true);
@@ -857,7 +893,7 @@ private:
         for (int i = 0; i < objects.size(); ++i)
         {
             ValueTree& o = *objects.getUnchecked(i);
-            output << "\t\t" << o.getType().toString() << " = { ";
+            output << "\t\t" << o.getType().toString() << " = {";
 
             for (int j = 0; j < o.getNumProperties(); ++j)
             {
@@ -876,35 +912,6 @@ private:
         }
 
         output << "\t};\n\trootObject = " << createID ("__root") << ";\n}\n";
-    }
-
-    static void addPlistDictionaryKey (XmlElement* xml, const String& key, const String& value)
-    {
-        forEachXmlChildElementWithTagName (*xml, e, "key")
-        {
-            if (e->getAllSubText().trim().equalsIgnoreCase (key))
-            {
-                if (e->getNextElement() != nullptr && e->getNextElement()->hasTagName ("key"))
-                {
-                    // try to fix broken plist format..
-                    xml->removeChildElement (e, true);
-                    break;
-                }
-                else
-                {
-                    return; // (value already exists)
-                }
-            }
-        }
-
-        xml->createNewChildElement ("key")   ->addTextElement (key);
-        xml->createNewChildElement ("string")->addTextElement (value);
-    }
-
-    static void addPlistDictionaryKeyBool (XmlElement* xml, const String& key, const bool value)
-    {
-        xml->createNewChildElement ("key")->addTextElement (key);
-        xml->createNewChildElement (value ? "true" : "false");
     }
 
     String addBuildFile (const String& path, const String& fileRefID, bool addToSourceBuildPhase, bool inhibitWarnings) const
@@ -981,6 +988,7 @@ private:
         if (file.hasFileExtension ("cpp;cc;cxx"))           return "sourcecode.cpp.cpp";
         if (file.hasFileExtension (".mm"))                  return "sourcecode.cpp.objcpp";
         if (file.hasFileExtension (".m"))                   return "sourcecode.c.objc";
+        if (file.hasFileExtension (".c"))                   return "sourcecode.c.c";
         if (file.hasFileExtension (headerFileExtensions))   return "sourcecode.c.h";
         if (file.hasFileExtension (".framework"))           return "wrapper.framework";
         if (file.hasFileExtension (".jpeg;.jpg"))           return "image.jpeg";
@@ -1038,22 +1046,20 @@ private:
 
             return addGroup (projectItem, childIDs);
         }
-        else
+
+        if (projectItem.shouldBeAddedToTargetProject())
         {
-            if (projectItem.shouldBeAddedToTargetProject())
-            {
-                const String itemPath (projectItem.getFilePath());
-                RelativePath path;
+            const String itemPath (projectItem.getFilePath());
+            RelativePath path;
 
-                if (itemPath.startsWith ("${"))
-                    path = RelativePath (itemPath, RelativePath::unknown);
-                else
-                    path = RelativePath (projectItem.getFile(), getTargetFolder(), RelativePath::buildTargetFolder);
+            if (itemPath.startsWith ("${"))
+                path = RelativePath (itemPath, RelativePath::unknown);
+            else
+                path = RelativePath (projectItem.getFile(), getTargetFolder(), RelativePath::buildTargetFolder);
 
-                return addFile (path, projectItem.shouldBeCompiled(),
-                                projectItem.shouldBeAddedToBinaryResources(),
-                                projectItem.shouldInhibitWarnings());
-            }
+            return addFile (path, projectItem.shouldBeCompiled(),
+                            projectItem.shouldBeAddedToBinaryResources(),
+                            projectItem.shouldInhibitWarnings());
         }
 
         return String::empty;
@@ -1061,9 +1067,16 @@ private:
 
     void addFramework (const String& frameworkName) const
     {
-        const String path ("System/Library/Frameworks/" + frameworkName + ".framework");
+        String path (frameworkName);
+        if (! File::isAbsolutePath (path))
+            path = "System/Library/Frameworks/" + path;
+
+        if (! path.endsWithIgnoreCase (".framework"))
+            path << ".framework";
+
         const String fileRefID (createFileRefID (path));
-        addFileReference ("${SDKROOT}/" + path);
+
+        addFileReference ((File::isAbsolutePath (frameworkName) ? "" : "${SDKROOT}/") + path);
         frameworkIDs.add (addBuildFile (path, fileRefID, false, false));
         frameworkFileIDs.add (fileRefID);
     }
@@ -1072,7 +1085,7 @@ private:
     {
         ValueTree* v = new ValueTree (groupID);
         v->setProperty ("isa", "PBXGroup", nullptr);
-        v->setProperty ("children", "(" + indentList (childIDs, ",") + " )", nullptr);
+        v->setProperty ("children", indentParenthesisedList (childIDs), nullptr);
         v->setProperty (Ids::name, groupName, nullptr);
         v->setProperty ("sourceTree", "<group>", nullptr);
         pbxGroups.add (v);
@@ -1090,7 +1103,9 @@ private:
     {
         jassert (xcodeFileType.isNotEmpty());
         jassert (xcodeBundleExtension.isEmpty() || xcodeBundleExtension.startsWithChar('.'));
-        String productName (getConfiguration(0)->getTargetBinaryName().toString());
+        ProjectExporter::BuildConfiguration::Ptr config = getConfiguration(0);
+        jassert (config != nullptr);
+        String productName (replacePreprocessorTokens (*config, config->getTargetBinaryNameString()));
 
         if (xcodeFileType == "archive.ar")
             productName = getLibbedFilename (productName);
@@ -1115,7 +1130,7 @@ private:
     {
         ValueTree* v = new ValueTree (createID ("targetconfigid_" + configName));
         v->setProperty ("isa", "XCBuildConfiguration", nullptr);
-        v->setProperty ("buildSettings", "{" + indentList (buildSettings, ";") + " }", nullptr);
+        v->setProperty ("buildSettings", indentBracedList (buildSettings), nullptr);
         v->setProperty (Ids::name, configName, nullptr);
         targetConfigs.add (v);
     }
@@ -1124,7 +1139,7 @@ private:
     {
         ValueTree* v = new ValueTree (createID ("projectconfigid_" + configName));
         v->setProperty ("isa", "XCBuildConfiguration", nullptr);
-        v->setProperty ("buildSettings", "{" + indentList (buildSettings, ";") + " }", nullptr);
+        v->setProperty ("buildSettings", indentBracedList (buildSettings), nullptr);
         v->setProperty (Ids::name, configName, nullptr);
         projectConfigs.add (v);
     }
@@ -1138,7 +1153,7 @@ private:
 
         ValueTree* v = new ValueTree (listID);
         v->setProperty ("isa", "XCConfigurationList", nullptr);
-        v->setProperty ("buildConfigurations", "(" + indentList (configIDs, ",") + " )", nullptr);
+        v->setProperty ("buildConfigurations", indentParenthesisedList (configIDs), nullptr);
         v->setProperty ("defaultConfigurationIsVisible", (int) 0, nullptr);
 
         if (configsToUse[0] != nullptr)
@@ -1160,7 +1175,7 @@ private:
         ValueTree* v = new ValueTree (phaseId);
         v->setProperty ("isa", phaseType, nullptr);
         v->setProperty ("buildActionMask", "2147483647", nullptr);
-        v->setProperty ("files", "(" + indentList (fileIds, ",") + " )", nullptr);
+        v->setProperty ("files", indentParenthesisedList (fileIds), nullptr);
         v->setProperty ("runOnlyForDeploymentPostprocessing", (int) 0, nullptr);
         misc.add (v);
         return *v;
@@ -1171,7 +1186,7 @@ private:
         ValueTree* const v = new ValueTree (createID ("__target"));
         v->setProperty ("isa", "PBXNativeTarget", nullptr);
         v->setProperty ("buildConfigurationList", createID ("__configList"), nullptr);
-        v->setProperty ("buildPhases", "(" + indentList (buildPhaseIDs, ",") + " )", nullptr);
+        v->setProperty ("buildPhases", indentParenthesisedList (buildPhaseIDs), nullptr);
         v->setProperty ("buildRules", "( )", nullptr);
         v->setProperty ("dependencies", "( )", nullptr);
         v->setProperty (Ids::name, projectName, nullptr);
@@ -1217,13 +1232,25 @@ private:
     }
 
     //==============================================================================
-    static String indentList (const StringArray& list, const String& separator)
+    static String indentBracedList (const StringArray& list)        { return "{" + indentList (list, ";", 0, true) + " }"; }
+    static String indentParenthesisedList (const StringArray& list) { return "(" + indentList (list, ",", 1, false) + " )"; }
+
+    static String indentList (const StringArray& list, const String& separator, int extraTabs, bool shouldSort)
     {
         if (list.size() == 0)
             return " ";
 
-        return "\n\t\t\t\t" + list.joinIntoString (separator + "\n\t\t\t\t")
-                  + (separator == ";" ? separator : String::empty);
+        const String tabs ("\n" + String::repeatedString ("\t", extraTabs + 4));
+
+        if (shouldSort)
+        {
+            StringArray sorted (list);
+            sorted.sort (true);
+
+            return tabs + sorted.joinIntoString (separator + tabs) + separator;
+        }
+
+        return tabs + list.joinIntoString (separator + tabs) + separator;
     }
 
     String createID (String rootString) const
@@ -1236,26 +1263,18 @@ private:
         return MD5 (rootString.toUTF8()).toHexString().substring (0, 24).toUpperCase();
     }
 
-    String createFileRefID (const RelativePath& path) const
-    {
-        return createFileRefID (path.toUnixStyle());
-    }
-
-    String createFileRefID (const String& path) const
-    {
-        return createID ("__fileref_" + path);
-    }
-
-    String getIDForGroup (const Project::Item& item) const
-    {
-        return createID (item.getID());
-    }
+    String createFileRefID (const RelativePath& path) const     { return createFileRefID (path.toUnixStyle()); }
+    String createFileRefID (const String& path) const           { return createID ("__fileref_" + path); }
+    String getIDForGroup (const Project::Item& item) const      { return createID (item.getID()); }
 
     bool shouldFileBeCompiledByDefault (const RelativePath& file) const
     {
         return file.hasFileExtension (sourceFileExtensions);
     }
+
+    static String getSDKName (int version)
+    {
+        jassert (version >= 4);
+        return "10." + String (version) + " SDK";
+    }
 };
-
-
-#endif   // __JUCER_PROJECTEXPORT_XCODE_JUCEHEADER__

@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -29,7 +28,7 @@
 #include "../jucer_Headers.h"
 #include "../Project/jucer_Project.h"
 #include "../Project/jucer_ProjectType.h"
-
+class ProjectSaver;
 
 //==============================================================================
 class ProjectExporter
@@ -50,6 +49,7 @@ public:
     //=============================================================================
     virtual bool usesMMFiles() const = 0;
     virtual void createExporterProperties (PropertyListBuilder&) = 0;
+    virtual bool canLaunchProject() = 0;
     virtual bool launchProject() = 0;
     virtual void create (const OwnedArray<LibraryModule>&) const = 0; // may throw a SaveError
     virtual bool shouldFileBeCompiledByDefault (const RelativePath& path) const;
@@ -58,9 +58,25 @@ public:
     virtual bool isXcode() const                { return false; }
     virtual bool isVisualStudio() const         { return false; }
     virtual int getVisualStudioVersion() const  { return 0; }
+    virtual bool isCodeBlocks() const           { return false; }
+
+    virtual bool isAndroid() const              { return false; }
+    virtual bool isWindows() const              { return false; }
     virtual bool isLinux() const                { return false; }
     virtual bool isOSX() const                  { return false; }
-    virtual bool isAndroid() const              { return false; }
+
+    bool mayCompileOnCurrentOS() const
+    {
+       #if JUCE_MAC
+        return isOSX() || isAndroid();
+       #elif JUCE_WINDOWS
+        return isWindows() || isAndroid();
+       #elif JUCE_LINUX
+        return isLinux() || isAndroid();
+       #else
+        #error
+       #endif
+    }
 
     //==============================================================================
     String getName() const                      { return name; }
@@ -72,14 +88,11 @@ public:
     Value getSetting (const Identifier& nm)     { return settings.getPropertyAsValue (nm, project.getUndoManagerFor (settings)); }
     String getSettingString (const Identifier& nm) const  { return settings [nm]; }
 
-    Value getJuceFolderValue()                  { return getSetting (Ids::juceFolder); }
-    String getJuceFolderString() const          { return getSettingString (Ids::juceFolder); }
-
     Value getTargetLocationValue()              { return getSetting (Ids::targetFolder); }
     String getTargetLocationString() const      { return getSettingString (Ids::targetFolder); }
 
     Value getExtraCompilerFlags()               { return getSetting (Ids::extraCompilerFlags); }
-    String getExtraCompilerFlagsString() const  { return getSettingString (Ids::extraCompilerFlags); }
+    String getExtraCompilerFlagsString() const  { return getSettingString (Ids::extraCompilerFlags).replaceCharacters ("\r\n", "  "); }
 
     Value getExtraLinkerFlags()                 { return getSetting (Ids::extraLinkerFlags); }
     String getExtraLinkerFlagsString() const    { return getSettingString (Ids::extraLinkerFlags).replaceCharacters ("\r\n", "  "); }
@@ -89,16 +102,26 @@ public:
 
     Value getUserNotes()                        { return getSetting (Ids::userNotes); }
 
-    // This adds the quotes, and may return angle-brackets, eg: <foo/bar.h> or normal quotes.
-    String getIncludePathForFileInJuceFolder (const String& pathFromJuceFolder, const File& targetIncludeFile) const;
+    // NB: this is the path to the parent "modules" folder that contains the named module, not the
+    // module folder itself.
+    Value getPathForModuleValue (const String& moduleID);
+    String getPathForModuleString (const String& moduleID) const;
+    void removePathForModule (const String& moduleID);
+
+    RelativePath getLegacyModulePath (const String& moduleID) const;
+    String getLegacyModulePath() const;
+
+    // Returns a path to the actual module folder itself
+    RelativePath getModuleFolderRelativeToProject (const String& moduleID, ProjectSaver& projectSaver) const;
+    void updateOldModulePaths();
 
     RelativePath rebaseFromProjectFolderToBuildTarget (const RelativePath& path) const;
     void addToExtraSearchPaths (const RelativePath& pathFromProjectFolder);
 
     Value getBigIconImageItemID()               { return getSetting (Ids::bigIcon); }
     Value getSmallIconImageItemID()             { return getSetting (Ids::smallIcon); }
-    Image getBigIcon() const;
-    Image getSmallIcon() const;
+    Drawable* getBigIcon() const;
+    Drawable* getSmallIcon() const;
     Image getBestIconForSize (int size, bool returnNullIfNothingBigEnough) const;
 
     String getExporterIdentifierMacro() const
@@ -120,9 +143,6 @@ public:
 
         String message;
     };
-
-    RelativePath getJucePathFromTargetFolder() const;
-    RelativePath getJucePathFromProjectFolder() const;
 
     void createPropertyEditors (PropertyListBuilder& props);
 
@@ -151,6 +171,7 @@ public:
     StringPairArray msvcExtraPreprocessorDefs;
     bool msvcIsDLL, msvcIsWindowsSubsystem;
     String msvcDelayLoadedDLLs;
+    StringArray mingwLibs;
 
     //==============================================================================
     StringArray extraSearchPaths;
@@ -262,8 +283,7 @@ public:
 
     ValueTree getConfigurations() const;
     void createDefaultConfigs();
-
-    static const Identifier configurations, configuration;
+    void createDefaultModulePaths();
 
     //==============================================================================
     Value getExporterPreprocessorDefs()                 { return getSetting (Ids::extraDefs); }
@@ -300,14 +320,14 @@ protected:
 
     virtual BuildConfiguration::Ptr createBuildConfig (const ValueTree&) const = 0;
 
+    void addDefaultPreprocessorDefs (StringPairArray&) const;
+
     static String getDefaultBuildsRootFolder()            { return "Builds/"; }
 
     static String getLibbedFilename (String name)
     {
-        if (! name.startsWith ("lib"))
-            name = "lib" + name;
-        if (! name.endsWithIgnoreCase (".a"))
-            name = name + ".a";
+        if (! name.startsWith ("lib"))         name = "lib" + name;
+        if (! name.endsWithIgnoreCase (".a"))  name += ".a";
         return name;
     }
 
@@ -341,7 +361,7 @@ protected:
         }
     }
 
-    static Image rescaleImageForIcon (Image image, int iconSize);
+    static Image rescaleImageForIcon (Drawable&, int iconSize);
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProjectExporter)

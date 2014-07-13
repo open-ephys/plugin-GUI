@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_COLOURSELECTOR_JUCEHEADER__
-#define __JUCE_COLOURSELECTOR_JUCEHEADER__
+#ifndef JUCE_COLOURSELECTOR_H_INCLUDED
+#define JUCE_COLOURSELECTOR_H_INCLUDED
 
 
 //==============================================================================
@@ -62,7 +62,7 @@ public:
         gapAroundColourSpaceComponent indicates how much of a gap to put around the
         colourspace and hue selector components.
     */
-    ColourSelector (int sectionsToShow = (showAlphaChannel | showColourAtTop | showSliders | showColourspace),
+    ColourSelector (int flags = (showAlphaChannel | showColourAtTop | showSliders | showColourspace),
                     int edgeGap = 4,
                     int gapAroundColourSpaceComponent = 7);
 
@@ -79,8 +79,7 @@ public:
     */
     Colour getCurrentColour() const;
 
-    /** Changes the colour that is currently being shown.
-    */
+    /** Changes the colour that is currently being shown. */
     void setCurrentColour (Colour newColour);
 
     //==============================================================================
@@ -137,9 +136,9 @@ private:
     class ColourSpaceMarker;
     class HueSelectorMarker;
     friend class ColourSpaceView;
-    friend class ScopedPointer<ColourSpaceView>;
+    friend struct ContainerDeletePolicy<ColourSpaceView>;
     friend class HueSelectorComp;
-    friend class ScopedPointer<HueSelectorComp>;
+    friend struct ContainerDeletePolicy<HueSelectorComp>;
 
     Colour colour;
     float h, s, v;
@@ -156,8 +155,8 @@ private:
     void updateHSV();
     void update();
     void sliderValueChanged (Slider*);
-    void paint (Graphics& g);
-    void resized();
+    void paint (Graphics&) override;
+    void resized() override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ColourSelector)
 
@@ -169,4 +168,4 @@ private:
 };
 
 
-#endif   // __JUCE_COLOURSELECTOR_JUCEHEADER__
+#endif   // JUCE_COLOURSELECTOR_H_INCLUDED

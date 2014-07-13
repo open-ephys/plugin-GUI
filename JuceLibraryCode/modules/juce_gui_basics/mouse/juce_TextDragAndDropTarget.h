@@ -22,9 +22,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_TEXTDRAGANDDROPTARGET_JUCEHEADER__
-#define __JUCE_TEXTDRAGANDDROPTARGET_JUCEHEADER__
+#ifndef JUCE_TEXTDRAGANDDROPTARGET_H_INCLUDED
+#define JUCE_TEXTDRAGANDDROPTARGET_H_INCLUDED
 
+
+//==============================================================================
 /**
     Components derived from this class can have text dropped onto them by an external application.
 
@@ -100,4 +102,4 @@ public:
 };
 
 
-#endif   // __JUCE_TEXTDRAGANDDROPTARGET_JUCEHEADER__
+#endif   // JUCE_TEXTDRAGANDDROPTARGET_H_INCLUDED

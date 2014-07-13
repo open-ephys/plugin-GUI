@@ -38,7 +38,7 @@ void CustomArrowButton::paintButton (Graphics& g, bool /*isMouseOverButton*/, bo
     
     const float borderWidth = isEnabled() ? (isButtonDown ? 1.2f : 0.5f) : 0.3f;
     
-    LookAndFeel::drawGlassLozenge(g,
+    juce::LookAndFeel_V1::drawGlassLozenge(g,
                      borderWidth, borderWidth,
                      getWidth() - borderWidth * 2.0f, getHeight() - borderWidth * 2.0f,
                      Colours::orange, borderWidth, -1.0f,

@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_MODIFIERKEYS_JUCEHEADER__
-#define __JUCE_MODIFIERKEYS_JUCEHEADER__
+#ifndef JUCE_MODIFIERKEYS_H_INCLUDED
+#define JUCE_MODIFIERKEYS_H_INCLUDED
 
 
 //==============================================================================
@@ -177,7 +177,7 @@ public:
     ModifierKeys withFlags (int rawFlagsToSet) const noexcept           { return ModifierKeys (flags | rawFlagsToSet); }
 
     /** Tests a combination of flags and returns true if any of them are set. */
-    bool testFlags (const int flagsToTest) const noexcept               { return (flags & flagsToTest) != 0; }
+    bool testFlags (int flagsToTest) const noexcept                     { return (flags & flagsToTest) != 0; }
 
     /** Returns the total number of mouse buttons that are down. */
     int getNumMouseButtonsDown() const noexcept;
@@ -220,4 +220,4 @@ private:
 };
 
 
-#endif   // __JUCE_MODIFIERKEYS_JUCEHEADER__
+#endif   // JUCE_MODIFIERKEYS_H_INCLUDED

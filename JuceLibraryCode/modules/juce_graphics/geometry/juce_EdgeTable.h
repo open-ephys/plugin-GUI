@@ -22,14 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_EDGETABLE_JUCEHEADER__
-#define __JUCE_EDGETABLE_JUCEHEADER__
-
-#include "../geometry/juce_AffineTransform.h"
-#include "../geometry/juce_Rectangle.h"
-#include "../geometry/juce_RectangleList.h"
-class Path;
-class Image;
+#ifndef JUCE_EDGETABLE_H_INCLUDED
+#define JUCE_EDGETABLE_H_INCLUDED
 
 
 //==============================================================================
@@ -59,16 +53,19 @@ public:
     explicit EdgeTable (const Rectangle<int>& rectangleToAdd);
 
     /** Creates an edge table containing a rectangle list. */
-    explicit EdgeTable (const RectangleList& rectanglesToAdd);
+    explicit EdgeTable (const RectangleList<int>& rectanglesToAdd);
+
+    /** Creates an edge table containing a rectangle list. */
+    explicit EdgeTable (const RectangleList<float>& rectanglesToAdd);
 
     /** Creates an edge table containing a rectangle. */
     explicit EdgeTable (const Rectangle<float>& rectangleToAdd);
 
     /** Creates a copy of another edge table. */
-    EdgeTable (const EdgeTable& other);
+    EdgeTable (const EdgeTable&);
 
     /** Copies from another edge table. */
-    EdgeTable& operator= (const EdgeTable& other);
+    EdgeTable& operator= (const EdgeTable&);
 
     /** Destructor. */
     ~EdgeTable();
@@ -76,11 +73,14 @@ public:
     //==============================================================================
     void clipToRectangle (const Rectangle<int>& r);
     void excludeRectangle (const Rectangle<int>& r);
-    void clipToEdgeTable (const EdgeTable& other);
+    void clipToEdgeTable (const EdgeTable&);
     void clipLineToMask (int x, int y, const uint8* mask, int maskStride, int numPixels);
     bool isEmpty() noexcept;
     const Rectangle<int>& getMaximumBounds() const noexcept      { return bounds; }
     void translate (float dx, int dy) noexcept;
+
+    /** Scales all the alpha-levels in the table by the given multiplier. */
+    void multiplyLevels (float factor);
 
     /** Reduces the amount of space the table has allocated.
 
@@ -191,12 +191,22 @@ public:
 private:
     //==============================================================================
     // table line format: number of points; point0 x, point0 levelDelta, point1 x, point1 levelDelta, etc
+    struct LineItem
+    {
+        int x, level;
+
+        bool operator< (const LineItem& other) const noexcept   { return x < other.x; }
+    };
+
     HeapBlock<int> table;
     Rectangle<int> bounds;
     int maxEdgesPerLine, lineStrideElements;
-    bool needToCheckEmptinesss;
+    bool needToCheckEmptiness;
 
+    void allocate();
+    void clearLineSizes() noexcept;
     void addEdgePoint (int x, int y, int winding);
+    void addEdgePointPair (int x1, int x2, int y, int winding);
     void remapTableForNumEdges (int newNumEdgesPerLine);
     void intersectWithEdgeTableLine (int y, const int* otherLine);
     void clipEdgeTableLineToRange (int* line, int x1, int x2) noexcept;
@@ -207,4 +217,4 @@ private:
 };
 
 
-#endif   // __JUCE_EDGETABLE_JUCEHEADER__
+#endif   // JUCE_EDGETABLE_H_INCLUDED

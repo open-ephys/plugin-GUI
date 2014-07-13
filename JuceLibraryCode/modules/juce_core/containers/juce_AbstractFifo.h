@@ -26,10 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_ABSTRACTFIFO_JUCEHEADER__
-#define __JUCE_ABSTRACTFIFO_JUCEHEADER__
-
-#include "../memory/juce_Atomic.h"
+#ifndef JUCE_ABSTRACTFIFO_H_INCLUDED
+#define JUCE_ABSTRACTFIFO_H_INCLUDED
 
 
 //==============================================================================
@@ -219,4 +217,4 @@ private:
 };
 
 
-#endif   // __JUCE_ABSTRACTFIFO_JUCEHEADER__
+#endif   // JUCE_ABSTRACTFIFO_H_INCLUDED

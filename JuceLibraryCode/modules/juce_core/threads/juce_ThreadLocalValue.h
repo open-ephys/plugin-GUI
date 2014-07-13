@@ -26,8 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_THREADLOCALVALUE_JUCEHEADER__
-#define __JUCE_THREADLOCALVALUE_JUCEHEADER__
+#ifndef JUCE_THREADLOCALVALUE_H_INCLUDED
+#define JUCE_THREADLOCALVALUE_H_INCLUDED
 
 // (NB: on win32, native thread-locals aren't possible in a dynamically loaded DLL in XP).
 #if ! ((JUCE_MSVC && (JUCE_64BIT || ! defined (JucePlugin_PluginCode))) \
@@ -47,8 +47,7 @@
     Typically, you'll probably want to create a static instance of a ThreadLocalValue
     object, or hold one within a singleton.
 
-    The templated class for your value could be a primitive type, or any class that
-    has a default constructor and copy operator.
+    The templated class for your value must be a primitive type, or a simple POD struct.
 
     When a thread no longer needs to use its value, it can call releaseCurrentThreadStorage()
     to allow the storage to be re-used by another thread. If a thread exits without calling
@@ -196,4 +195,4 @@ private:
 };
 
 
-#endif   // __JUCE_THREADLOCALVALUE_JUCEHEADER__
+#endif   // JUCE_THREADLOCALVALUE_H_INCLUDED

@@ -28,7 +28,7 @@ FilenameComponent::FilenameComponent (const String& name,
                                       const bool isDirectory,
                                       const bool isForSaving,
                                       const String& fileBrowserWildcard,
-                                      const String& enforcedSuffix_,
+                                      const String& suffix,
                                       const String& textWhenNothingSelected)
     : Component (name),
       maxRecentFiles (30),
@@ -36,9 +36,9 @@ FilenameComponent::FilenameComponent (const String& name,
       isSaving (isForSaving),
       isFileDragOver (false),
       wildcard (fileBrowserWildcard),
-      enforcedSuffix (enforcedSuffix_)
+      enforcedSuffix (suffix)
 {
-    addAndMakeVisible (&filenameBox);
+    addAndMakeVisible (filenameBox);
     filenameBox.setEditableText (canEditFilename);
     filenameBox.addListener (this);
     filenameBox.setTextWhenNothingSelected (textWhenNothingSelected);
@@ -66,6 +66,13 @@ void FilenameComponent::paintOverChildren (Graphics& g)
 void FilenameComponent::resized()
 {
     getLookAndFeel().layoutFilenameComponent (*this, &filenameBox, browseButton);
+}
+
+KeyboardFocusTraverser* FilenameComponent::createFocusTraverser()
+{
+    // This prevents the sub-components from grabbing focus if the
+    // FilenameComponent has been set to refuse focus.
+    return getWantsKeyboardFocus() ? Component::createFocusTraverser() : nullptr;
 }
 
 void FilenameComponent::setBrowseButtonText (const String& newBrowseButtonText)
@@ -96,13 +103,18 @@ void FilenameComponent::setDefaultBrowseTarget (const File& newDefaultDirectory)
     defaultBrowseFile = newDefaultDirectory;
 }
 
+File FilenameComponent::getLocationToBrowse()
+{
+    return getCurrentFile() == File::nonexistent ? defaultBrowseFile
+                                                 : getCurrentFile();
+}
+
 void FilenameComponent::buttonClicked (Button*)
 {
    #if JUCE_MODAL_LOOPS_PERMITTED
     FileChooser fc (isDir ? TRANS ("Choose a new directory")
                           : TRANS ("Choose a new file"),
-                    getCurrentFile() == File::nonexistent ? defaultBrowseFile
-                                                          : getCurrentFile(),
+                    getLocationToBrowse(),
                     wildcard);
 
     if (isDir ? fc.browseForDirectory()
@@ -152,7 +164,7 @@ void FilenameComponent::fileDragExit (const StringArray&)
 //==============================================================================
 File FilenameComponent::getCurrentFile() const
 {
-    File f (filenameBox.getText());
+    File f (File::getCurrentWorkingDirectory().getChildFile (filenameBox.getText()));
 
     if (enforcedSuffix.isNotEmpty())
         f = f.withFileExtension (enforcedSuffix);
@@ -174,7 +186,7 @@ void FilenameComponent::setCurrentFile (File newFile,
         if (addToRecentlyUsedList)
             addRecentlyUsedFile (newFile);
 
-        filenameBox.setText (lastFilename, true);
+        filenameBox.setText (lastFilename, dontSendNotification);
 
         if (notification != dontSendNotification)
         {

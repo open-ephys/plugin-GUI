@@ -22,15 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_ALERTWINDOW_JUCEHEADER__
-#define __JUCE_ALERTWINDOW_JUCEHEADER__
-
-#include "juce_TopLevelWindow.h"
-#include "../buttons/juce_TextButton.h"
-#include "../widgets/juce_ComboBox.h"
-#include "../widgets/juce_TextEditor.h"
-#include "../widgets/juce_ProgressBar.h"
-#include "../mouse/juce_ComponentDragger.h"
+#ifndef JUCE_ALERTWINDOW_H_INCLUDED
+#define JUCE_ALERTWINDOW_H_INCLUDED
 
 
 //==============================================================================
@@ -424,24 +417,50 @@ public:
         outlineColourId             = 0x1001820   /**< An optional colour to use to draw a border around the window. */
     };
 
+    //==============================================================================
+    /** This abstract base class is implemented by LookAndFeel classes to provide
+        alert-window drawing functionality.
+    */
+    struct JUCE_API  LookAndFeelMethods
+    {
+        virtual ~LookAndFeelMethods() {}
+
+        virtual AlertWindow* createAlertWindow (const String& title, const String& message,
+                                                const String& button1,
+                                                const String& button2,
+                                                const String& button3,
+                                                AlertWindow::AlertIconType iconType,
+                                                int numButtons,
+                                                Component* associatedComponent) = 0;
+
+        virtual void drawAlertBox (Graphics&, AlertWindow&, const Rectangle<int>& textArea, TextLayout&) = 0;
+
+        virtual int getAlertBoxWindowFlags() = 0;
+
+        virtual int getAlertWindowButtonHeight() = 0;
+
+        virtual Font getAlertWindowMessageFont() = 0;
+        virtual Font getAlertWindowFont() = 0;
+    };
+
 protected:
     //==============================================================================
     /** @internal */
-    void paint (Graphics& g);
+    void paint (Graphics&) override;
     /** @internal */
-    void mouseDown (const MouseEvent& e);
+    void mouseDown (const MouseEvent&) override;
     /** @internal */
-    void mouseDrag (const MouseEvent& e);
+    void mouseDrag (const MouseEvent&) override;
     /** @internal */
-    bool keyPressed (const KeyPress& key);
+    bool keyPressed (const KeyPress&) override;
     /** @internal */
-    void buttonClicked (Button* button);
+    void buttonClicked (Button*) override;
     /** @internal */
-    void lookAndFeelChanged();
+    void lookAndFeelChanged() override;
     /** @internal */
-    void userTriedToCloseWindow();
+    void userTriedToCloseWindow() override;
     /** @internal */
-    int getDesktopWindowStyleFlags() const;
+    int getDesktopWindowStyleFlags() const override;
 
 private:
     //==============================================================================
@@ -467,4 +486,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AlertWindow)
 };
 
-#endif   // __JUCE_ALERTWINDOW_JUCEHEADER__
+#endif   // JUCE_ALERTWINDOW_H_INCLUDED

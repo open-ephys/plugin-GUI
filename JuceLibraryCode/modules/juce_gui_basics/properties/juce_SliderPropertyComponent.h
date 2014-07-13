@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_SLIDERPROPERTYCOMPONENT_JUCEHEADER__
-#define __JUCE_SLIDERPROPERTYCOMPONENT_JUCEHEADER__
-
-#include "juce_PropertyComponent.h"
-#include "../widgets/juce_Slider.h"
+#ifndef JUCE_SLIDERPROPERTYCOMPONENT_H_INCLUDED
+#define JUCE_SLIDERPROPERTYCOMPONENT_H_INCLUDED
 
 
 //==============================================================================
@@ -103,4 +100,4 @@ private:
 };
 
 
-#endif   // __JUCE_SLIDERPROPERTYCOMPONENT_JUCEHEADER__
+#endif   // JUCE_SLIDERPROPERTYCOMPONENT_H_INCLUDED

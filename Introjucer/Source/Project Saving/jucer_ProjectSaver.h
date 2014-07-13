@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -45,8 +44,6 @@ public:
         generatedFilesGroup.setID (getGeneratedGroupID());
     }
 
-    Project& getProject() noexcept      { return project; }
-
     struct SaveThread  : public ThreadWithProgressWindow
     {
     public:
@@ -55,7 +52,7 @@ public:
               saver (ps), result (Result::ok())
         {}
 
-        void run()
+        void run() override
         {
             setProgress (-1);
             result = saver.save (false);
@@ -84,16 +81,7 @@ public:
         writeMainProjectFile();
 
         OwnedArray<LibraryModule> modules;
-
-        {
-            ModuleList moduleList;
-            Result scanResult (moduleList.rescan (ModuleList::getDefaultModulesFolder (&project)));
-
-            if (scanResult.failed())
-                return scanResult;
-
-            project.createRequiredModules (moduleList, modules);
-        }
+        project.getModules().createRequiredModules (modules);
 
         if (errors.size() == 0)  writeAppConfigFile (modules, appConfigUserContent);
         if (errors.size() == 0)  writeBinaryDataFiles();
@@ -166,13 +154,14 @@ public:
             << newLine;
     }
 
-    static const char* getGeneratedGroupID() noexcept       { return "__jucelibfiles"; }
-    Project::Item& getGeneratedCodeGroup()                  { return generatedFilesGroup; }
+    static const char* getGeneratedGroupID() noexcept               { return "__jucelibfiles"; }
+    Project::Item& getGeneratedCodeGroup()                          { return generatedFilesGroup; }
 
-    static String getJuceCodeGroupName()                    { return "Juce Library Code"; }
+    static String getJuceCodeGroupName()                            { return "Juce Library Code"; }
 
-    File getGeneratedCodeFolder() const                         { return generatedCodeFolder; }
-    File getLocalModuleFolder (const LibraryModule& m) const    { return generatedCodeFolder.getChildFile ("modules").getChildFile (m.getID()); }
+    File getGeneratedCodeFolder() const                             { return generatedCodeFolder; }
+    File getLocalModulesFolder() const                              { return generatedCodeFolder.getChildFile ("modules"); }
+    File getLocalModuleFolder (const String& moduleID) const        { return getLocalModulesFolder().getChildFile (moduleID); }
 
     bool replaceFileIfDifferent (const File& f, const MemoryOutputStream& newData)
     {
@@ -215,8 +204,9 @@ public:
         return false;
     }
 
-private:
     Project& project;
+
+private:
     const File projectFile, generatedCodeFolder;
     Project::Item generatedFilesGroup;
     String extraAppConfigContent;
@@ -265,7 +255,7 @@ private:
 
     static bool shouldFileBeKept (const String& filename)
     {
-        const char* filesToKeep[] = { ".svn", ".cvs", "CMakeLists.txt" };
+        static const char* filesToKeep[] = { ".svn", ".cvs", "CMakeLists.txt" };
 
         for (int i = 0; i < numElementsInArray (filesToKeep); ++i)
             if (filename == filesToKeep[i])
@@ -364,7 +354,7 @@ private:
         for (int j = 0; j < modules.size(); ++j)
         {
             LibraryModule* const m = modules.getUnchecked(j);
-            OwnedArray <Project::ConfigFlag> flags;
+            OwnedArray<Project::ConfigFlag> flags;
             m->getConfigFlags (project, flags);
 
             if (flags.size() > 0)
@@ -433,7 +423,7 @@ private:
         for (int i = 0; i < modules.size(); ++i)
             modules.getUnchecked(i)->writeIncludes (*this, out);
 
-        if (hasBinaryData)
+        if (hasBinaryData && project.shouldIncludeBinaryInAppConfig().getValue())
             out << CodeHelpers::createIncludeStatement (project.getBinaryDataHeaderFile(), appConfigFile) << newLine;
 
         out << newLine
@@ -472,7 +462,11 @@ private:
 
             Array<File> binaryDataFiles;
 
-            if (resourceFile.write (binaryDataFiles))
+            int maxSize = project.getMaxBinaryFileSize().getValue();
+            if (maxSize <= 0)
+                maxSize = 10 * 1024 * 1024;
+
+            if (resourceFile.write (binaryDataFiles, maxSize))
             {
                 hasBinaryData = true;
 

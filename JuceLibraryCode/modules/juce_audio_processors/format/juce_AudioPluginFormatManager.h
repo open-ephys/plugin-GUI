@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOPLUGINFORMATMANAGER_JUCEHEADER__
-#define __JUCE_AUDIOPLUGINFORMATMANAGER_JUCEHEADER__
-
-#include "juce_AudioPluginFormat.h"
+#ifndef JUCE_AUDIOPLUGINFORMATMANAGER_H_INCLUDED
+#define JUCE_AUDIOPLUGINFORMATMANAGER_H_INCLUDED
 
 
 //==============================================================================
@@ -79,6 +77,8 @@ public:
         errorMessage string.
     */
     AudioPluginInstance* createPluginInstance (const PluginDescription& description,
+                                               double initialSampleRate,
+                                               int initialBufferSize,
                                                String& errorMessage) const;
 
     /** Checks that the file or component for this plugin actually still exists.
@@ -89,11 +89,11 @@ public:
 
 private:
     //==============================================================================
-    OwnedArray <AudioPluginFormat> formats;
+    OwnedArray<AudioPluginFormat> formats;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginFormatManager)
 };
 
 
 
-#endif   // __JUCE_AUDIOPLUGINFORMATMANAGER_JUCEHEADER__
+#endif   // JUCE_AUDIOPLUGINFORMATMANAGER_H_INCLUDED

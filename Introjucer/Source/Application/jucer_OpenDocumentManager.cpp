@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -42,34 +41,35 @@ public:
     //==============================================================================
     struct Type  : public OpenDocumentManager::DocumentType
     {
-        bool canOpenFile (const File&)                     { return true; }
-        Document* openFile (Project* p, const File& f)     { return new UnknownDocument (p, f); }
+        bool canOpenFile (const File&) override                     { return true; }
+        Document* openFile (Project* p, const File& f) override     { return new UnknownDocument (p, f); }
     };
 
     //==============================================================================
-    bool loadedOk() const                           { return true; }
-    bool isForFile (const File& f) const            { return file == f; }
-    bool isForNode (const ValueTree&) const         { return false; }
-    bool refersToProject (Project& p) const         { return project == &p; }
-    Project* getProject() const                     { return project; }
-    bool needsSaving() const                        { return false; }
-    bool save()                                     { return true; }
-    bool hasFileBeenModifiedExternally()            { return fileModificationTime != file.getLastModificationTime(); }
-    void reloadFromFile()                           { fileModificationTime = file.getLastModificationTime(); }
-    String getName() const                          { return file.getFileName(); }
-    File getFile() const                            { return file; }
-    Component* createEditor()                       { return new ItemPreviewComponent (file); }
-    Component* createViewer()                       { return createEditor(); }
-    void fileHasBeenRenamed (const File& newFile)   { file = newFile; }
-    String getState() const                         { return String::empty; }
-    void restoreState (const String&)               {}
+    bool loadedOk() const override                           { return true; }
+    bool isForFile (const File& f) const override            { return file == f; }
+    bool isForNode (const ValueTree&) const override         { return false; }
+    bool refersToProject (Project& p) const override         { return project == &p; }
+    Project* getProject() const override                     { return project; }
+    bool needsSaving() const override                        { return false; }
+    bool save() override                                     { return true; }
+    bool saveAs() override                                   { return false; }
+    bool hasFileBeenModifiedExternally() override            { return fileModificationTime != file.getLastModificationTime(); }
+    void reloadFromFile() override                           { fileModificationTime = file.getLastModificationTime(); }
+    String getName() const override                          { return file.getFileName(); }
+    File getFile() const override                            { return file; }
+    Component* createEditor() override                       { return new ItemPreviewComponent (file); }
+    Component* createViewer() override                       { return createEditor(); }
+    void fileHasBeenRenamed (const File& newFile) override   { file = newFile; }
+    String getState() const override                         { return String::empty; }
+    void restoreState (const String&) override               {}
 
-    String getType() const
+    String getType() const override
     {
         if (file.getFileExtension().isNotEmpty())
             return file.getFileExtension() + " file";
 
-        jassertfalse
+        jassertfalse;
         return "Unknown";
     }
 
@@ -83,10 +83,13 @@ private:
 
 
 //==============================================================================
+OpenDocumentManager::DocumentType* createGUIDocumentType();
+
 OpenDocumentManager::OpenDocumentManager()
 {
     registerType (new UnknownDocument::Type());
     registerType (new SourceCodeDocument::Type());
+    registerType (createGUIDocumentType());
 }
 
 OpenDocumentManager::~OpenDocumentManager()
@@ -146,7 +149,7 @@ OpenDocumentManager::Document* OpenDocumentManager::openFile (Project* project, 
     jassert (d != nullptr);  // should always at least have been picked up by UnknownDocument
 
     documents.add (d);
-    commandManager->commandStatusChanged();
+    IntrojucerApp::getCommandManager().commandStatusChanged();
     return d;
 }
 
@@ -169,21 +172,16 @@ FileBasedDocument::SaveResult OpenDocumentManager::saveIfNeededAndUserAgrees (Op
                                                    TRANS("Closing document..."),
                                                    TRANS("Do you want to save the changes to \"")
                                                        + doc->getName() + "\"?",
-                                                   TRANS("save"),
-                                                   TRANS("discard changes"),
-                                                   TRANS("cancel"));
+                                                   TRANS("Save"),
+                                                   TRANS("Discard changes"),
+                                                   TRANS("Cancel"));
 
-    if (r == 1)
-    {
-        // save changes
+    if (r == 1)  // save changes
         return doc->save() ? FileBasedDocument::savedOk
                            : FileBasedDocument::failedToWriteToFile;
-    }
-    else if (r == 2)
-    {
-        // discard changes
+
+    if (r == 2)  // discard changes
         return FileBasedDocument::savedOk;
-    }
 
     return FileBasedDocument::userCancelledSave;
 }
@@ -194,16 +192,21 @@ bool OpenDocumentManager::closeDocument (int index, bool saveIfNeeded)
     if (Document* doc = documents [index])
     {
         if (saveIfNeeded)
-        {
             if (saveIfNeededAndUserAgrees (doc) != FileBasedDocument::savedOk)
                 return false;
-        }
+
+        bool canClose = true;
 
         for (int i = listeners.size(); --i >= 0;)
-            listeners.getUnchecked(i)->documentAboutToClose (doc);
+            if (DocumentCloseListener* l = listeners[i])
+                if (! l->documentAboutToClose (doc))
+                    canClose = false;
+
+        if (! canClose)
+            return false;
 
         documents.remove (index);
-        commandManager->commandStatusChanged();
+        IntrojucerApp::getCommandManager().commandStatusChanged();
     }
 
     return true;
@@ -217,12 +220,9 @@ bool OpenDocumentManager::closeDocument (Document* document, bool saveIfNeeded)
 void OpenDocumentManager::closeFile (const File& f, bool saveIfNeeded)
 {
     for (int i = documents.size(); --i >= 0;)
-    {
-        Document* d = documents.getUnchecked (i);
-
-        if (d->isForFile (f))
-            closeDocument (i, saveIfNeeded);
-    }
+        if (Document* d = documents[i])
+            if (d->isForFile (f))
+                closeDocument (i, saveIfNeeded);
 }
 
 bool OpenDocumentManager::closeAll (bool askUserToSave)
@@ -237,15 +237,10 @@ bool OpenDocumentManager::closeAll (bool askUserToSave)
 bool OpenDocumentManager::closeAllDocumentsUsingProject (Project& project, bool saveIfNeeded)
 {
     for (int i = documents.size(); --i >= 0;)
-    {
-        Document* d = documents.getUnchecked (i);
-
-        if (d->refersToProject (project))
-        {
-            if (! closeDocument (i, saveIfNeeded))
-                return false;
-        }
-    }
+        if (Document* d = documents[i])
+            if (d->refersToProject (project))
+                if (! closeDocument (i, saveIfNeeded))
+                    return false;
 
     return true;
 }
@@ -253,12 +248,8 @@ bool OpenDocumentManager::closeAllDocumentsUsingProject (Project& project, bool 
 bool OpenDocumentManager::anyFilesNeedSaving() const
 {
     for (int i = documents.size(); --i >= 0;)
-    {
-        Document* d = documents.getUnchecked (i);
-
-        if (d->needsSaving())
+        if (documents.getUnchecked (i)->needsSaving())
             return true;
-    }
 
     return false;
 }
@@ -267,10 +258,11 @@ bool OpenDocumentManager::saveAll()
 {
     for (int i = documents.size(); --i >= 0;)
     {
-        Document* d = documents.getUnchecked (i);
-
-        if (! d->save())
+        if (! documents.getUnchecked (i)->save())
             return false;
+
+        IntrojucerApp::getApp().mainWindowList.updateAllWindowTitles();
+        IntrojucerApp::getCommandManager().commandStatusChanged();
     }
 
     return true;
@@ -363,13 +355,15 @@ OpenDocumentManager::Document* RecentDocumentList::getClosestPreviousDocOtherTha
     return nullptr;
 }
 
-void RecentDocumentList::documentAboutToClose (OpenDocumentManager::Document* document)
+bool RecentDocumentList::documentAboutToClose (OpenDocumentManager::Document* document)
 {
     previousDocs.removeAllInstancesOf (document);
     nextDocs.removeAllInstancesOf (document);
 
     jassert (! previousDocs.contains (document));
     jassert (! nextDocs.contains (document));
+
+    return true;
 }
 
 static void restoreDocList (Project& project, Array <OpenDocumentManager::Document*>& list, const XmlElement* xml)

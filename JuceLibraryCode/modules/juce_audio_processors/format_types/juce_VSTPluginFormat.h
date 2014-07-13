@@ -22,11 +22,6 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_VSTPLUGINFORMAT_JUCEHEADER__
-#define __JUCE_VSTPLUGINFORMAT_JUCEHEADER__
-
-#include "../format/juce_AudioPluginFormat.h"
-
 #if JUCE_PLUGINHOST_VST || DOXYGEN
 
 //==============================================================================
@@ -80,16 +75,33 @@ public:
     static void setExtraFunctions (AudioPluginInstance* plugin, ExtraFunctions* functions);
 
     //==============================================================================
-    String getName() const                { return "VST"; }
-    void findAllTypesForFile (OwnedArray <PluginDescription>&, const String& fileOrIdentifier);
-    AudioPluginInstance* createInstanceFromDescription (const PluginDescription&);
-    bool fileMightContainThisPluginType (const String& fileOrIdentifier);
-    String getNameOfPluginFromIdentifier (const String& fileOrIdentifier);
-    bool pluginNeedsRescanning (const PluginDescription&);
-    StringArray searchPathsForPlugins (const FileSearchPath&, bool recursive);
-    bool doesPluginStillExist (const PluginDescription&);
-    FileSearchPath getDefaultLocationsToSearch();
-    bool canScanForPlugins() const        { return true; }
+   #if JUCE_64BIT
+    typedef int64 VstIntPtr;
+   #else
+    typedef int32 VstIntPtr;
+   #endif
+
+    /** This simply calls directly to the VST's AEffect::dispatcher() function. */
+    static VstIntPtr JUCE_CALLTYPE dispatcher (AudioPluginInstance*, int32, int32, VstIntPtr, void*, float);
+
+    //==============================================================================
+    String getName() const override                { return "VST"; }
+    void findAllTypesForFile (OwnedArray<PluginDescription>&, const String& fileOrIdentifier) override;
+    AudioPluginInstance* createInstanceFromDescription (const PluginDescription&, double, int) override;
+    bool fileMightContainThisPluginType (const String& fileOrIdentifier) override;
+    String getNameOfPluginFromIdentifier (const String& fileOrIdentifier) override;
+    bool pluginNeedsRescanning (const PluginDescription&) override;
+    StringArray searchPathsForPlugins (const FileSearchPath&, bool recursive) override;
+    bool doesPluginStillExist (const PluginDescription&) override;
+    FileSearchPath getDefaultLocationsToSearch() override;
+    bool canScanForPlugins() const override        { return true; }
+
+    /** Can be overridden to receive a callback when each member of a shell plugin is about to be
+        tested during a call to findAllTypesForFile().
+        Only the name and uid members of the PluginDescription are guaranteed to be valid when
+        this is called.
+    */
+    virtual void aboutToScanVSTShellPlugin (const PluginDescription&);
 
 private:
     void recursiveFileSearch (StringArray&, const File&, bool recursive);
@@ -99,4 +111,3 @@ private:
 
 
 #endif
-#endif   // __JUCE_VSTPLUGINFORMAT_JUCEHEADER__

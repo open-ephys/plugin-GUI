@@ -166,11 +166,11 @@ void AttributedString::append (const AttributedString& other)
 
 void AttributedString::clear()
 {
-    text = String::empty;
+    text.clear();
     attributes.clear();
 }
 
-void AttributedString::setJustification (const Justification& newJustification) noexcept
+void AttributedString::setJustification (Justification newJustification) noexcept
 {
     justification = newJustification;
 }

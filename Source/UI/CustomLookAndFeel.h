@@ -37,14 +37,14 @@
 
 */
 
-class CustomLookAndFeel : public LookAndFeel
+class CustomLookAndFeel : public LookAndFeel_V2
 {
 public:
     CustomLookAndFeel();
     ~CustomLookAndFeel();
 
     // ======== custom typeface getter: =============================
-    const Typeface::Ptr getTypefaceForFont(const Font& font);
+    Typeface::Ptr getTypefaceForFont(const Font& font);
 
     // ======== custom scroll bar methods: =============================
 
@@ -102,7 +102,7 @@ public:
                           const Colour& colour, const float outlineThickness,
                           const int direction) throw();
     
-    Button* createSliderButton(bool	isIncrement);
+    Button* createSliderButton(Slider &s, bool	isIncrement);
 
     // ======== custom combo box methods: =============================
 

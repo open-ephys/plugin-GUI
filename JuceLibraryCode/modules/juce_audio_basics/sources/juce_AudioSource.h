@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOSOURCE_JUCEHEADER__
-#define __JUCE_AUDIOSOURCE_JUCEHEADER__
-
-#include "../buffers/juce_AudioSampleBuffer.h"
+#ifndef JUCE_AUDIOSOURCE_H_INCLUDED
+#define JUCE_AUDIOSOURCE_H_INCLUDED
 
 
 //==============================================================================
@@ -67,7 +65,7 @@ struct JUCE_API  AudioSourceChannelInfo
         Only the samples specified by the startSample and numSamples members of this structure
         should be affected by the call.
 
-        The contents of the buffer when it is passed to the the AudioSource::getNextAudioBlock()
+        The contents of the buffer when it is passed to the AudioSource::getNextAudioBlock()
         method can be treated as the input if the source is performing some kind of filter operation,
         but should be cleared if this is not the case - the clearActiveBufferRegion() is
         a handy way of doing this.
@@ -180,4 +178,4 @@ public:
 };
 
 
-#endif   // __JUCE_AUDIOSOURCE_JUCEHEADER__
+#endif   // JUCE_AUDIOSOURCE_H_INCLUDED

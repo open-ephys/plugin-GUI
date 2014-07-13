@@ -22,21 +22,6 @@
   ==============================================================================
 */
 
-class MessageManager::QuitMessage   : public MessageManager::MessageBase
-{
-public:
-    QuitMessage() {}
-
-    void messageCallback()
-    {
-        if (MessageManager* const mm = MessageManager::instance)
-            mm->quitMessageReceived = true;
-    }
-
-    JUCE_DECLARE_NON_COPYABLE (QuitMessage)
-};
-
-//==============================================================================
 MessageManager::MessageManager() noexcept
   : quitMessagePosted (false),
     quitMessageReceived (false),
@@ -70,7 +55,7 @@ MessageManager* MessageManager::getInstance()
     return instance;
 }
 
-inline MessageManager* MessageManager::getInstanceWithoutCreating() noexcept
+MessageManager* MessageManager::getInstanceWithoutCreating() noexcept
 {
     return instance;
 }
@@ -96,12 +81,6 @@ void MessageManager::runDispatchLoop()
     runDispatchLoopUntil (-1);
 }
 
-void MessageManager::stopDispatchLoop()
-{
-    (new QuitMessage())->post();
-    quitMessagePosted = true;
-}
-
 bool MessageManager::runDispatchLoopUntil (int millisecondsToRunFor)
 {
     jassert (isThisTheMessageThread()); // must only be called by the message thread
@@ -124,6 +103,26 @@ bool MessageManager::runDispatchLoopUntil (int millisecondsToRunFor)
     return ! quitMessageReceived;
 }
 
+class MessageManager::QuitMessage   : public MessageManager::MessageBase
+{
+public:
+    QuitMessage() {}
+
+    void messageCallback() override
+    {
+        if (MessageManager* const mm = MessageManager::instance)
+            mm->quitMessageReceived = true;
+    }
+
+    JUCE_DECLARE_NON_COPYABLE (QuitMessage)
+};
+
+void MessageManager::stopDispatchLoop()
+{
+    (new QuitMessage())->post();
+    quitMessagePosted = true;
+}
+
 #endif
 
 //==============================================================================
@@ -134,7 +133,7 @@ public:
         : result (nullptr), func (f), parameter (param)
     {}
 
-    void messageCallback()
+    void messageCallback() override
     {
         result = (*func) (parameter);
         finished.signal();
@@ -227,7 +226,7 @@ class MessageManagerLock::BlockingMessage   : public MessageManager::MessageBase
 public:
     BlockingMessage() noexcept {}
 
-    void messageCallback()
+    void messageCallback() override
     {
         lockedEvent.signal();
         releaseEvent.wait();
@@ -334,3 +333,8 @@ JUCE_API void JUCE_CALLTYPE shutdownJuce_GUI()
         MessageManager::deleteInstance();
     }
 }
+
+static int numScopedInitInstances = 0;
+
+ScopedJuceInitialiser_GUI::ScopedJuceInitialiser_GUI()  { if (numScopedInitInstances++ == 0) initialiseJuce_GUI(); }
+ScopedJuceInitialiser_GUI::~ScopedJuceInitialiser_GUI() { if (--numScopedInitInstances == 0) shutdownJuce_GUI(); }

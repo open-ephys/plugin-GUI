@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_STRETCHABLELAYOUTRESIZERBAR_JUCEHEADER__
-#define __JUCE_STRETCHABLELAYOUTRESIZERBAR_JUCEHEADER__
-
-#include "../components/juce_Component.h"
-#include "juce_StretchableLayoutManager.h"
+#ifndef JUCE_STRETCHABLELAYOUTRESIZERBAR_H_INCLUDED
+#define JUCE_STRETCHABLELAYOUTRESIZERBAR_H_INCLUDED
 
 
 //==============================================================================
@@ -76,12 +73,22 @@ public:
     virtual void hasBeenMoved();
 
     //==============================================================================
+    /** This abstract base class is implemented by LookAndFeel classes. */
+    struct JUCE_API  LookAndFeelMethods
+    {
+        virtual ~LookAndFeelMethods() {}
+
+        virtual void drawStretchableLayoutResizerBar (Graphics&, int w, int h,
+                                                      bool isVerticalBar, bool isMouseOver, bool isMouseDragging) = 0;
+    };
+
+    //==============================================================================
     /** @internal */
-    void paint (Graphics& g);
+    void paint (Graphics&) override;
     /** @internal */
-    void mouseDown (const MouseEvent& e);
+    void mouseDown (const MouseEvent&) override;
     /** @internal */
-    void mouseDrag (const MouseEvent& e);
+    void mouseDrag (const MouseEvent&) override;
 
 
 private:
@@ -94,4 +101,4 @@ private:
 };
 
 
-#endif   // __JUCE_STRETCHABLELAYOUTRESIZERBAR_JUCEHEADER__
+#endif   // JUCE_STRETCHABLELAYOUTRESIZERBAR_H_INCLUDED

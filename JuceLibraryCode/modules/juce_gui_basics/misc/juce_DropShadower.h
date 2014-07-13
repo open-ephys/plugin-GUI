@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_DROPSHADOWER_JUCEHEADER__
-#define __JUCE_DROPSHADOWER_JUCEHEADER__
-
-#include "../components/juce_Component.h"
+#ifndef JUCE_DROPSHADOWER_H_INCLUDED
+#define JUCE_DROPSHADOWER_H_INCLUDED
 
 
 //==============================================================================
@@ -66,11 +64,11 @@ private:
     bool reentrant;
     WeakReference<Component> lastParentComp;
 
-    void componentMovedOrResized (Component&, bool, bool);
-    void componentBroughtToFront (Component&);
-    void componentChildrenChanged (Component&);
-    void componentParentHierarchyChanged (Component&);
-    void componentVisibilityChanged (Component&);
+    void componentMovedOrResized (Component&, bool, bool) override;
+    void componentBroughtToFront (Component&) override;
+    void componentChildrenChanged (Component&) override;
+    void componentParentHierarchyChanged (Component&) override;
+    void componentVisibilityChanged (Component&) override;
 
     void updateParent();
     void updateShadows();
@@ -79,4 +77,4 @@ private:
 };
 
 
-#endif   // __JUCE_DROPSHADOWER_JUCEHEADER__
+#endif   // JUCE_DROPSHADOWER_H_INCLUDED

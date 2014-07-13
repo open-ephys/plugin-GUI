@@ -35,14 +35,14 @@ struct TextDiffHelpers
         StringRegion (const String& s) noexcept
             : text (s.getCharPointer()), start (0), length (s.length()) {}
 
-        StringRegion (const String::CharPointerType& t, int s, int len)  noexcept
+        StringRegion (const String::CharPointerType t, int s, int len)  noexcept
             : text (t), start (s), length (len) {}
 
         String::CharPointerType text;
         int start, length;
     };
 
-    static void addInsertion (TextDiff& td, const String::CharPointerType& text, int index, int length)
+    static void addInsertion (TextDiff& td, const String::CharPointerType text, int index, int length)
     {
         TextDiff::Change c;
         c.insertedText = String (text, (size_t) length);
@@ -104,7 +104,7 @@ struct TextDiffHelpers
     }
 
     static int findLongestCommonSubstring (String::CharPointerType a, const int lenA,
-                                           const String::CharPointerType& b, const int lenB,
+                                           const String::CharPointerType b, const int lenB,
                                            int& indexInA, int& indexInB)
     {
         if (lenA == 0 || lenB == 0)
@@ -116,6 +116,7 @@ struct TextDiffHelpers
         int* l0 = lines;
         int* l1 = l0 + lenB + 1;
 
+        int loopsWithoutImprovement = 0;
         int bestLength = 0;
         indexInA = indexInB = 0;
 
@@ -137,12 +138,16 @@ struct TextDiffHelpers
 
                     if (len > bestLength)
                     {
+                        loopsWithoutImprovement = 0;
                         bestLength = len;
                         indexInA = i;
                         indexInB = j;
                     }
                 }
             }
+
+            if (++loopsWithoutImprovement > 100)
+                break;
 
             std::swap (l0, l1);
         }
@@ -186,10 +191,9 @@ class DiffTests  : public UnitTest
 public:
     DiffTests() : UnitTest ("TextDiff class") {}
 
-    static String createString()
+    static String createString (Random& r)
     {
         juce_wchar buffer[50] = { 0 };
-        Random r;
 
         for (int i = r.nextInt (49); --i >= 0;)
         {
@@ -219,6 +223,8 @@ public:
     {
         beginTest ("TextDiff");
 
+        Random r = getRandom();
+
         testDiff (String::empty, String::empty);
         testDiff ("x", String::empty);
         testDiff (String::empty, "x");
@@ -229,9 +235,9 @@ public:
 
         for (int i = 5000; --i >= 0;)
         {
-            String s (createString());
-            testDiff (s, createString());
-            testDiff (s + createString(), s + createString());
+            String s (createString (r));
+            testDiff (s, createString (r));
+            testDiff (s + createString (r), s + createString (r));
         }
     }
 };

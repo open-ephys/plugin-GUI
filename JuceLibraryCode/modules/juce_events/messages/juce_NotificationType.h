@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_NOTIFICATIONTYPE_JUCEHEADER__
-#define __JUCE_NOTIFICATIONTYPE_JUCEHEADER__
+#ifndef JUCE_NOTIFICATIONTYPE_H_INCLUDED
+#define JUCE_NOTIFICATIONTYPE_H_INCLUDED
 
 //==============================================================================
 /**
@@ -35,8 +35,8 @@ enum NotificationType
     dontSendNotification = 0,   /**< No notification message should be sent. */
     sendNotification = 1,       /**< Requests a notification message, either synchronous or not. */
     sendNotificationSync,       /**< Requests a synchronous notification. */
-    sendNotificationAsync,      /**< Requests a asynchronous notification. */
+    sendNotificationAsync,      /**< Requests an asynchronous notification. */
 };
 
 
-#endif   // __JUCE_NOTIFICATIONTYPE_JUCEHEADER__
+#endif   // JUCE_NOTIFICATIONTYPE_H_INCLUDED

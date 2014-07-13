@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_MIXERAUDIOSOURCE_JUCEHEADER__
-#define __JUCE_MIXERAUDIOSOURCE_JUCEHEADER__
-
-#include "juce_AudioSource.h"
+#ifndef JUCE_MIXERAUDIOSOURCE_H_INCLUDED
+#define JUCE_MIXERAUDIOSOURCE_H_INCLUDED
 
 
 //==============================================================================
@@ -76,20 +74,20 @@ public:
     /** Implementation of the AudioSource method.
         This will call prepareToPlay() on all its input sources.
     */
-    void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
+    void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
 
     /** Implementation of the AudioSource method.
         This will call releaseResources() on all its input sources.
     */
-    void releaseResources();
+    void releaseResources() override;
 
     /** Implementation of the AudioSource method. */
-    void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill);
+    void getNextAudioBlock (const AudioSourceChannelInfo&) override;
 
 
 private:
     //==============================================================================
-    Array <AudioSource*> inputs;
+    Array<AudioSource*> inputs;
     BigInteger inputsToDelete;
     CriticalSection lock;
     AudioSampleBuffer tempBuffer;
@@ -100,4 +98,4 @@ private:
 };
 
 
-#endif   // __JUCE_MIXERAUDIOSOURCE_JUCEHEADER__
+#endif   // JUCE_MIXERAUDIOSOURCE_H_INCLUDED

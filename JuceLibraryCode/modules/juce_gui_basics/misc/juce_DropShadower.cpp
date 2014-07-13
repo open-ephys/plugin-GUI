@@ -44,15 +44,23 @@ public:
         }
     }
 
-    void paint (Graphics& g)
+    void paint (Graphics& g) override
     {
         if (Component* c = target)
             shadow.drawForRectangle (g, getLocalArea (c, c->getLocalBounds()));
     }
 
-    void resized()
+    void resized() override
     {
         repaint();  // (needed for correct repainting)
+    }
+
+    float getDesktopScaleFactor() const override
+    {
+        if (target != nullptr)
+            return target->getDesktopScaleFactor();
+
+        return Component::getDesktopScaleFactor();
     }
 
 private:

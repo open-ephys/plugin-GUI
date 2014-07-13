@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_CODETOKENISER_JUCEHEADER__
-#define __JUCE_CODETOKENISER_JUCEHEADER__
-
-#include "juce_CodeDocument.h"
-#include "juce_CodeEditorComponent.h"
+#ifndef JUCE_CODETOKENISER_H_INCLUDED
+#define JUCE_CODETOKENISER_H_INCLUDED
 
 
 //==============================================================================
@@ -58,4 +55,4 @@ private:
 };
 
 
-#endif   // __JUCE_CODETOKENISER_JUCEHEADER__
+#endif   // JUCE_CODETOKENISER_H_INCLUDED

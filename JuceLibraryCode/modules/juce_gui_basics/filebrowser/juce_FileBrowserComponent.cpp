@@ -84,19 +84,19 @@ FileBrowserComponent::FileBrowserComponent (int flags_,
 
     fileListComponent->addListener (this);
 
-    addAndMakeVisible (&currentPathBox);
+    addAndMakeVisible (currentPathBox);
     currentPathBox.setEditableText (true);
     resetRecentPaths();
     currentPathBox.addListener (this);
 
-    addAndMakeVisible (&filenameBox);
+    addAndMakeVisible (filenameBox);
     filenameBox.setMultiLine (false);
     filenameBox.setSelectAllWhenFocused (true);
     filenameBox.setText (filename, false);
     filenameBox.addListener (this);
     filenameBox.setReadOnly ((flags & (filenameBoxIsReadOnly | canSelectMultipleItems)) != 0);
 
-    addAndMakeVisible (&fileLabel);
+    addAndMakeVisible (fileLabel);
     fileLabel.attachToComponent (&filenameBox, true);
 
     addAndMakeVisible (goUpButton = getLookAndFeel().createFileBrowserGoUpButton());
@@ -244,7 +244,7 @@ void FileBrowserComponent::setRoot (const File& newRootDirectory)
     if (currentRootName.isEmpty())
         currentRootName = File::separatorString;
 
-    currentPathBox.setText (currentRootName, true);
+    currentPathBox.setText (currentRootName, dontSendNotification);
 
     goUpButton->setEnabled (currentRoot.getParentDirectory().isDirectory()
                              && currentRoot.getParentDirectory() != currentRoot);
@@ -497,7 +497,7 @@ void FileBrowserComponent::comboBoxChanged (ComboBox*)
     }
 }
 
-void FileBrowserComponent::getRoots (StringArray& rootNames, StringArray& rootPaths)
+void FileBrowserComponent::getDefaultRoots (StringArray& rootNames, StringArray& rootPaths)
 {
    #if JUCE_WINDOWS
     Array<File> roots;
@@ -532,17 +532,25 @@ void FileBrowserComponent::getRoots (StringArray& rootNames, StringArray& rootPa
     rootNames.add (String::empty);
 
     rootPaths.add (File::getSpecialLocation (File::userDocumentsDirectory).getFullPathName());
-    rootNames.add ("Documents");
+    rootNames.add (TRANS("Documents"));
+    rootPaths.add (File::getSpecialLocation (File::userMusicDirectory).getFullPathName());
+    rootNames.add (TRANS("Music"));
+    rootPaths.add (File::getSpecialLocation (File::userPicturesDirectory).getFullPathName());
+    rootNames.add (TRANS("Pictures"));
     rootPaths.add (File::getSpecialLocation (File::userDesktopDirectory).getFullPathName());
-    rootNames.add ("Desktop");
+    rootNames.add (TRANS("Desktop"));
 
    #elif JUCE_MAC
     rootPaths.add (File::getSpecialLocation (File::userHomeDirectory).getFullPathName());
-    rootNames.add ("Home folder");
+    rootNames.add (TRANS("Home folder"));
     rootPaths.add (File::getSpecialLocation (File::userDocumentsDirectory).getFullPathName());
-    rootNames.add ("Documents");
+    rootNames.add (TRANS("Documents"));
+    rootPaths.add (File::getSpecialLocation (File::userMusicDirectory).getFullPathName());
+    rootNames.add (TRANS("Music"));
+    rootPaths.add (File::getSpecialLocation (File::userPicturesDirectory).getFullPathName());
+    rootNames.add (TRANS("Pictures"));
     rootPaths.add (File::getSpecialLocation (File::userDesktopDirectory).getFullPathName());
-    rootNames.add ("Desktop");
+    rootNames.add (TRANS("Desktop"));
 
     rootPaths.add (String::empty);
     rootNames.add (String::empty);
@@ -566,8 +574,13 @@ void FileBrowserComponent::getRoots (StringArray& rootNames, StringArray& rootPa
     rootPaths.add ("/");
     rootNames.add ("/");
     rootPaths.add (File::getSpecialLocation (File::userHomeDirectory).getFullPathName());
-    rootNames.add ("Home folder");
+    rootNames.add (TRANS("Home folder"));
     rootPaths.add (File::getSpecialLocation (File::userDesktopDirectory).getFullPathName());
-    rootNames.add ("Desktop");
+    rootNames.add (TRANS("Desktop"));
    #endif
+}
+
+void FileBrowserComponent::getRoots (StringArray& rootNames, StringArray& rootPaths)
+{
+    getDefaultRoots (rootNames, rootPaths);
 }

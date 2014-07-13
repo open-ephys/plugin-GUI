@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_MODALCOMPONENTMANAGER_JUCEHEADER__
-#define __JUCE_MODALCOMPONENTMANAGER_JUCEHEADER__
+#ifndef JUCE_MODALCOMPONENTMANAGER_H_INCLUDED
+#define JUCE_MODALCOMPONENTMANAGER_H_INCLUDED
 
 
 //==============================================================================
@@ -107,6 +107,11 @@ public:
     /** Brings any modal components to the front. */
     void bringModalComponentsToFront (bool topOneShouldGrabFocus = true);
 
+    /** Calls exitModalState (0) on any components that are currently modal.
+        @returns true if any components were modal; false if nothing needed cancelling
+    */
+    bool cancelAllModalComponents();
+
    #if JUCE_MODAL_LOOPS_PERMITTED
     /** Runs the event loop until the currently topmost modal component is dismissed, and
         returns the exit code for that component.
@@ -127,7 +132,7 @@ protected:
     ~ModalComponentManager();
 
     /** @internal */
-    void handleAsyncUpdate();
+    void handleAsyncUpdate() override;
 
 private:
     //==============================================================================
@@ -135,8 +140,8 @@ private:
     class ReturnValueRetriever;
 
     friend class Component;
-    friend class OwnedArray <ModalItem>;
-    OwnedArray <ModalItem> stack;
+    friend struct ContainerDeletePolicy<ModalItem>;
+    OwnedArray<ModalItem> stack;
 
     void startModal (Component*, bool autoDelete);
     void endModal (Component*, int returnValue);
@@ -361,4 +366,4 @@ private:
 };
 
 
-#endif   // __JUCE_MODALCOMPONENTMANAGER_JUCEHEADER__
+#endif   // JUCE_MODALCOMPONENTMANAGER_H_INCLUDED

@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_KEYLISTENER_JUCEHEADER__
-#define __JUCE_KEYLISTENER_JUCEHEADER__
-
-#include "juce_KeyPress.h"
-class Component;
+#ifndef JUCE_KEYLISTENER_H_INCLUDED
+#define JUCE_KEYLISTENER_H_INCLUDED
 
 
 //==============================================================================
@@ -76,4 +73,4 @@ public:
 };
 
 
-#endif   // __JUCE_KEYLISTENER_JUCEHEADER__
+#endif   // JUCE_KEYLISTENER_H_INCLUDED

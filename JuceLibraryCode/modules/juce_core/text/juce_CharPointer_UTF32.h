@@ -26,8 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_CHARPOINTER_UTF32_JUCEHEADER__
-#define __JUCE_CHARPOINTER_UTF32_JUCEHEADER__
+#ifndef JUCE_CHARPOINTER_UTF32_H_INCLUDED
+#define JUCE_CHARPOINTER_UTF32_H_INCLUDED
 
 
 //==============================================================================
@@ -355,7 +355,7 @@ public:
     /** Returns true if this data contains a valid string in this encoding. */
     static bool isValidString (const CharType* dataToTest, int maxBytesToRead)
     {
-        maxBytesToRead /= sizeof (CharType);
+        maxBytesToRead /= (int) sizeof (CharType);
 
         while (--maxBytesToRead >= 0 && *dataToTest != 0)
             if (! canRepresent (*dataToTest++))
@@ -375,4 +375,4 @@ private:
 };
 
 
-#endif   // __JUCE_CHARPOINTER_UTF32_JUCEHEADER__
+#endif   // JUCE_CHARPOINTER_UTF32_H_INCLUDED

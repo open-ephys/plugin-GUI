@@ -29,14 +29,14 @@
 int64 juce_fileSetPosition (void* handle, int64 pos);
 
 //==============================================================================
-FileOutputStream::FileOutputStream (const File& f, const int bufferSize_)
+FileOutputStream::FileOutputStream (const File& f, const size_t bufferSizeToUse)
     : file (f),
       fileHandle (nullptr),
       status (Result::ok()),
       currentPosition (0),
-      bufferSize (bufferSize_),
+      bufferSize (bufferSizeToUse),
       bytesInBuffer (0),
-      buffer ((size_t) jmax (bufferSize_, 16))
+      buffer (jmax (bufferSizeToUse, (size_t) 16))
 {
     openHandle();
 }
@@ -44,7 +44,6 @@ FileOutputStream::FileOutputStream (const File& f, const int bufferSize_)
 FileOutputStream::~FileOutputStream()
 {
     flushBuffer();
-    flushInternal();
     closeHandle();
 }
 
@@ -119,7 +118,7 @@ bool FileOutputStream::write (const void* const src, const size_t numBytes)
     return true;
 }
 
-void FileOutputStream::writeRepeatedByte (uint8 byte, size_t numBytes)
+bool FileOutputStream::writeRepeatedByte (uint8 byte, size_t numBytes)
 {
     jassert (((ssize_t) numBytes) >= 0);
 
@@ -128,9 +127,8 @@ void FileOutputStream::writeRepeatedByte (uint8 byte, size_t numBytes)
         memset (buffer + bytesInBuffer, byte, numBytes);
         bytesInBuffer += numBytes;
         currentPosition += numBytes;
+        return true;
     }
-    else
-    {
-        OutputStream::writeRepeatedByte (byte, numBytes);
-    }
+
+    return OutputStream::writeRepeatedByte (byte, numBytes);
 }

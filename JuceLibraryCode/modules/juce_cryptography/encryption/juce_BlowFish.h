@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_BLOWFISH_JUCEHEADER__
-#define __JUCE_BLOWFISH_JUCEHEADER__
+#ifndef JUCE_BLOWFISH_H_INCLUDED
+#define JUCE_BLOWFISH_H_INCLUDED
 
 
 //==============================================================================
@@ -42,10 +42,10 @@ public:
     BlowFish (const void* keyData, int keyBytes);
 
     /** Creates a copy of another blowfish object. */
-    BlowFish (const BlowFish& other);
+    BlowFish (const BlowFish&);
 
     /** Copies another blowfish object. */
-    BlowFish& operator= (const BlowFish& other) noexcept;
+    BlowFish& operator= (const BlowFish&) noexcept;
 
     /** Destructor. */
     ~BlowFish() noexcept;
@@ -69,4 +69,4 @@ private:
 };
 
 
-#endif   // __JUCE_BLOWFISH_JUCEHEADER__
+#endif   // JUCE_BLOWFISH_H_INCLUDED

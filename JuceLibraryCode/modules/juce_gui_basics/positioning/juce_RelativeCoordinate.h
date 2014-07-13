@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_RELATIVECOORDINATE_JUCEHEADER__
-#define __JUCE_RELATIVECOORDINATE_JUCEHEADER__
+#ifndef JUCE_RELATIVECOORDINATE_H_INCLUDED
+#define JUCE_RELATIVECOORDINATE_H_INCLUDED
 
 
 //==============================================================================
@@ -39,12 +39,12 @@ public:
     /** Creates a zero coordinate. */
     RelativeCoordinate();
     RelativeCoordinate (const Expression& expression);
-    RelativeCoordinate (const RelativeCoordinate& other);
-    RelativeCoordinate& operator= (const RelativeCoordinate& other);
+    RelativeCoordinate (const RelativeCoordinate&);
+    RelativeCoordinate& operator= (const RelativeCoordinate&);
 
    #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
-    RelativeCoordinate (RelativeCoordinate&& other) noexcept;
-    RelativeCoordinate& operator= (RelativeCoordinate&& other) noexcept;
+    RelativeCoordinate (RelativeCoordinate&&) noexcept;
+    RelativeCoordinate& operator= (RelativeCoordinate&&) noexcept;
    #endif
 
     /** Creates an absolute position from the parent origin on either the X or Y axis.
@@ -63,8 +63,8 @@ public:
     /** Destructor. */
     ~RelativeCoordinate();
 
-    bool operator== (const RelativeCoordinate& other) const noexcept;
-    bool operator!= (const RelativeCoordinate& other) const noexcept;
+    bool operator== (const RelativeCoordinate&) const noexcept;
+    bool operator!= (const RelativeCoordinate&) const noexcept;
 
     //==============================================================================
     /** Calculates the absolute position of this coordinate.
@@ -144,4 +144,4 @@ private:
 };
 
 
-#endif   // __JUCE_RELATIVECOORDINATE_JUCEHEADER__
+#endif   // JUCE_RELATIVECOORDINATE_H_INCLUDED

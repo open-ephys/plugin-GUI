@@ -33,13 +33,13 @@ namespace TimeHelpers
         struct tm result;
         const int64 seconds = millis / 1000;
 
-        if (seconds < literal64bit (86400) || seconds >= literal64bit (2145916800))
+        if (seconds < 86400LL || seconds >= 2145916800LL)
         {
             // use extended maths for dates beyond 1970 to 2037..
             const int timeZoneAdjustment = 31536000 - (int) (Time (1971, 0, 1, 0, 0).toMilliseconds() / 1000);
-            const int64 jdm = seconds + timeZoneAdjustment + literal64bit (210866803200);
+            const int64 jdm = seconds + timeZoneAdjustment + 210866803200LL;
 
-            const int days = (int) (jdm / literal64bit (86400));
+            const int days = (int) (jdm / 86400LL);
             const int a = 32044 + days;
             const int b = (4 * a + 3) / 146097;
             const int c = a - (b * 146097) / 4;
@@ -53,7 +53,7 @@ namespace TimeHelpers
             result.tm_wday  = (days + 1) % 7;
             result.tm_yday  = -1;
 
-            int t = (int) (jdm % literal64bit (86400));
+            int t = (int) (jdm % 86400LL);
             result.tm_hour  = t / 3600;
             t %= 3600;
             result.tm_min   = t / 60;
@@ -110,7 +110,7 @@ namespace TimeHelpers
             const size_t numChars = wcsftime (buffer, bufferSize - 1, format.toUTF32(), tm);
            #endif
 
-            if (numChars > 0)
+            if (numChars > 0 || format.isEmpty())
                 return String (StringType (buffer),
                                StringType (buffer) + (int) numChars);
         }
@@ -157,7 +157,7 @@ Time::Time (const int year,
                            + (y * 365) + (y /  4) - (y / 100) + (y / 400)
                            - 32045;
 
-        const int64 s = ((int64) jd) * literal64bit (86400) - literal64bit (210866803200);
+        const int64 s = ((int64) jd) * 86400LL - 210866803200LL;
 
         millisSinceEpoch = 1000 * (s + (hours * 3600 + minutes * 60 + seconds - timeZoneAdjustment))
                              + milliseconds;
@@ -409,8 +409,8 @@ String Time::getWeekdayName (const bool threeLetterVersion) const
 
 String Time::getMonthName (int monthNumber, const bool threeLetterVersion)
 {
-    const char* const shortMonthNames[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-    const char* const longMonthNames[]  = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+    static const char* const shortMonthNames[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+    static const char* const longMonthNames[]  = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
 
     monthNumber %= 12;
 
@@ -420,8 +420,8 @@ String Time::getMonthName (int monthNumber, const bool threeLetterVersion)
 
 String Time::getWeekdayName (int day, const bool threeLetterVersion)
 {
-    const char* const shortDayNames[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-    const char* const longDayNames[]  = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+    static const char* const shortDayNames[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+    static const char* const longDayNames[]  = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 
     day %= 7;
 

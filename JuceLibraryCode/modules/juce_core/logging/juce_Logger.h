@@ -26,10 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_LOGGER_JUCEHEADER__
-#define __JUCE_LOGGER_JUCEHEADER__
-
-#include "../text/juce_String.h"
+#ifndef JUCE_LOGGER_H_INCLUDED
+#define JUCE_LOGGER_H_INCLUDED
 
 
 //==============================================================================
@@ -96,4 +94,4 @@ private:
 };
 
 
-#endif   // __JUCE_LOGGER_JUCEHEADER__
+#endif   // JUCE_LOGGER_H_INCLUDED

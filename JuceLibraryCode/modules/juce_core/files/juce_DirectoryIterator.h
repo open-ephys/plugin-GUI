@@ -26,25 +26,22 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_DIRECTORYITERATOR_JUCEHEADER__
-#define __JUCE_DIRECTORYITERATOR_JUCEHEADER__
-
-#include "juce_File.h"
-#include "../memory/juce_ScopedPointer.h"
+#ifndef JUCE_DIRECTORYITERATOR_H_INCLUDED
+#define JUCE_DIRECTORYITERATOR_H_INCLUDED
 
 
 //==============================================================================
 /**
-    Searches through a the files in a directory, returning each file that is found.
+    Searches through the files in a directory, returning each file that is found.
 
     A DirectoryIterator will search through a directory and its subdirectories using
     a wildcard filepattern match.
 
-    If you may be finding a large number of files, this is better than
-    using File::findChildFiles() because it doesn't block while it finds them
-    all, and this is more memory-efficient.
+    If you may be scanning a large number of files, it's usually smarter to use this
+    class than File::findChildFiles() because it allows you to stop at any time, rather
+    than having to wait for the entire scan to finish before getting the results.
 
-    It can also guess how far it's got using a wildly inaccurate algorithm.
+    It also provides an estimate of its progress, using a (highly inaccurate!) algorithm.
 */
 class JUCE_API  DirectoryIterator
 {
@@ -135,13 +132,13 @@ private:
 
     private:
         friend class DirectoryIterator;
-        friend class ScopedPointer<Pimpl>;
+        friend struct ContainerDeletePolicy<Pimpl>;
         ScopedPointer<Pimpl> pimpl;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NativeIterator)
     };
 
-    friend class ScopedPointer<NativeIterator::Pimpl>;
+    friend struct ContainerDeletePolicy<NativeIterator::Pimpl>;
     StringArray wildCards;
     NativeIterator fileFinder;
     String wildCard, path;
@@ -150,7 +147,7 @@ private:
     const int whatToLookFor;
     const bool isRecursive;
     bool hasBeenAdvanced;
-    ScopedPointer <DirectoryIterator> subIterator;
+    ScopedPointer<DirectoryIterator> subIterator;
     File currentFile;
 
     static StringArray parseWildcards (const String& pattern);
@@ -159,4 +156,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DirectoryIterator)
 };
 
-#endif   // __JUCE_DIRECTORYITERATOR_JUCEHEADER__
+#endif   // JUCE_DIRECTORYITERATOR_H_INCLUDED
