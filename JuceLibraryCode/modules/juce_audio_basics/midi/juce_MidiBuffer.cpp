@@ -119,37 +119,17 @@ void MidiBuffer::addEvent (const void* const newData, const int maxBytes, const 
 
     if (numBytes > 0)
     {
-        int spaceNeeded = bytesUsed + numBytes + sizeof (int) + sizeof (uint16); // factor in timestamp and size indicator
-        data.ensureSize ((spaceNeeded + spaceNeeded / 2 + 8) & ~7); // make sure there's enough size in the MemoryBlock
 
-        uint8* d = getData() + bytesUsed;
+        const size_t newItemSize = (size_t) numBytes + sizeof (int32) + sizeof (uint16); // factor in timestamp and size indicator
+        const int offset = (int) (MidiBufferHelpers::findEventAfter (data.begin(), data.end(), sampleNumber) - data.begin());
 
-        *reinterpret_cast <int*> (d) = sampleNumber;
-        d += sizeof (int);
-        *reinterpret_cast <uint16*> (d) = (uint16) numBytes;
-        d += sizeof (uint16);
+        data.insertMultiple (offset, 0, (int) newItemSize);
 
-        memcpy (d, newData, numBytes);
-
-        bytesUsed += numBytes + sizeof (int) + sizeof (uint16);
+        uint8* const d = data.begin() + offset;
+        *reinterpret_cast<int32*> (d) = sampleNumber;
+        *reinterpret_cast<uint16*> (d + 4) = (uint16) numBytes;
+        memcpy (d + 6, newData, (size_t) numBytes);
     }
-
-    // Original JUCE library code:
-    //
-    // const int numBytes = MidiBufferHelpers::findActualEventLength (static_cast<const uint8*> (newData), maxBytes);
-
-    // if (numBytes > 0)
-    // {
-    //     const size_t newItemSize = (size_t) numBytes + sizeof (int32) + sizeof (uint16);
-    //     const int offset = (int) (MidiBufferHelpers::findEventAfter (data.begin(), data.end(), sampleNumber) - data.begin());
-
-    //     data.insertMultiple (offset, 0, (int) newItemSize);
-
-    //     uint8* const d = data.begin() + offset;
-    //     *reinterpret_cast<int32*> (d) = sampleNumber;
-    //     *reinterpret_cast<uint16*> (d + 4) = (uint16) numBytes;
-    //     memcpy (d + 6, newData, (size_t) numBytes);
-    // }
 }
 
 void MidiBuffer::addEvents (const MidiBuffer& otherBuffer,
