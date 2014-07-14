@@ -70,7 +70,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 
         button->setBounds(190+i*25, 40, 25, 15);
         button->setChannelNum(-1);
-        button->setToggleState(false,false);
+        button->setToggleState(false, dontSendNotification);
         button->setRadioGroupId(999);
 
         addAndMakeVisible(button);
@@ -199,7 +199,7 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     sampleRateInterface->setSelectedId(xml->getIntAttribute("SampleRate"));
     bandwidthInterface->setLowerBandwidth(xml->getDoubleAttribute("LowCut"));
     bandwidthInterface->setUpperBandwidth(xml->getDoubleAttribute("HighCut"));
-    adcButton->setToggleState(xml->getBoolAttribute("ADCsOn"), true);
+    adcButton->setToggleState(xml->getBoolAttribute("ADCsOn"), sendNotification);
 
 }
 
@@ -374,7 +374,7 @@ SampleRateInterface::SampleRateInterface(RHD2000Thread* board_,
 
     rateSelection = new ComboBox("Sample Rate");
     rateSelection->addItemList(sampleRateOptions, 1);
-    rateSelection->setSelectedId(17,false);
+    rateSelection->setSelectedId(17, dontSendNotification);
     rateSelection->addListener(this);
 
     rateSelection->setBounds(0,15,300,20);

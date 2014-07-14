@@ -96,7 +96,7 @@ void SignalChainManager::createNewTab(GenericEditor* editor)
     signalChainArray.add(t);
 
     editor->tabNumber(signalChainArray.size()-1);
-    t->setToggleState(true,false);
+    t->setToggleState(true, dontSendNotification);
     t->setNumber(index);
 
     index -= topTab;
@@ -275,7 +275,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
                 int nextTab = jmin(t,signalChainArray.size()-1);
                 activeEditor = signalChainArray[nextTab]->getEditor();
                 activeEditor->select();
-                signalChainArray[nextTab]->setToggleState(true,false); // send it back to update connections
+                signalChainArray[nextTab]->setToggleState(true, dontSendNotification); // send it back to update connections
             }
             else
             {
@@ -396,7 +396,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
         {
 
             if (editorToAdd->tabNumber() >= 0 && editorToAdd->tabNumber() < signalChainArray.size())
-                signalChainArray[editorToAdd->tabNumber()]->setToggleState(true, false);
+                signalChainArray[editorToAdd->tabNumber()]->setToggleState(true, dontSendNotification);
 
            // std::cout << "No source found." << std::endl;
             editorToAdd = 0;

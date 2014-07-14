@@ -91,26 +91,26 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     rangeSelection = new ComboBox("Voltage range");
     rangeSelection->addItemList(voltageRanges, 1);
-    rangeSelection->setSelectedId(4,false);
+    rangeSelection->setSelectedId(4, dontSendNotification);
     rangeSelection->addListener(this);
     addAndMakeVisible(rangeSelection);
 
     timebaseSelection = new ComboBox("Timebase");
     timebaseSelection->addItemList(timebases, 1);
-    timebaseSelection->setSelectedId(2, false);
+    timebaseSelection->setSelectedId(2, dontSendNotification);
     timebaseSelection->addListener(this);
     addAndMakeVisible(timebaseSelection);
 
 
     spreadSelection = new ComboBox("Spread");
     spreadSelection->addItemList(spreads, 1);
-    spreadSelection->setSelectedId(5,false);
+    spreadSelection->setSelectedId(5,dontSendNotification);
     spreadSelection->addListener(this);
     addAndMakeVisible(spreadSelection);
 
     colorGroupingSelection = new ComboBox("Color Grouping");
     colorGroupingSelection->addItemList(colorGroupings, 1);
-    colorGroupingSelection->setSelectedId(1,false);
+    colorGroupingSelection->setSelectedId(1,dontSendNotification);
     colorGroupingSelection->addListener(this);
     addAndMakeVisible(colorGroupingSelection);
 
@@ -120,7 +120,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     invertInputButton->setCorners(true, true, true, true);
     invertInputButton->addListener(this);
     invertInputButton->setClickingTogglesState(true);
-    invertInputButton->setToggleState(false, false);
+    invertInputButton->setToggleState(false, dontSendNotification);
     addAndMakeVisible(invertInputButton);
 
 
@@ -375,13 +375,13 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
                 screenBuffer->addFrom(channel, // destChannel
                                       screenBufferIndex, // destStartSample
-                                      displayBuffer->getSampleData(channel, displayBufferIndex), // source
+                                      displayBuffer->getReadPointer(channel, displayBufferIndex), // source
                                       1, // numSamples
                                       invAlpha*gain); // gain
 
                 screenBuffer->addFrom(channel, // destChannel
                                       screenBufferIndex, // destStartSample
-                                      displayBuffer->getSampleData(channel, nextPos), // source
+                                      displayBuffer->getReadPointer(channel, nextPos), // source
                                       1, // numSamples
                                       alpha*gain); // gain
 
@@ -411,7 +411,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
     }
 }
 
-float LfpDisplayCanvas::getXCoord(int chan, int samp)
+const float LfpDisplayCanvas::getXCoord(int chan, int samp)
 {
     return samp;
 }
@@ -421,9 +421,9 @@ int LfpDisplayCanvas::getNumChannels()
     return nChans;
 }
 
-float LfpDisplayCanvas::getYCoord(int chan, int samp)
+const float LfpDisplayCanvas::getYCoord(int chan, int samp)
 {
-    return *screenBuffer->getSampleData(chan, samp);
+    return *screenBuffer->getReadPointer(chan, samp);
 }
 
 bool LfpDisplayCanvas::getInputInvertedState()
@@ -546,7 +546,7 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
                 colorGroupingSelection->setSelectedId(1);
             }
 
-            invertInputButton->setToggleState(xmlNode->getBoolAttribute("isInverted", true), true);
+            invertInputButton->setToggleState(xmlNode->getBoolAttribute("isInverted", true), sendNotification);
 
             viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
                                       xmlNode->getIntAttribute("ScrollY"));
@@ -1296,7 +1296,7 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
     enableButton->setCorners(true, true, true, true);
     enableButton->addListener(this);
     enableButton->setClickingTogglesState(true);
-    enableButton->setToggleState(true, false);
+    enableButton->setToggleState(true, dontSendNotification);
 
     addAndMakeVisible(enableButton);
 
@@ -1324,7 +1324,7 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
 
 void LfpChannelDisplayInfo::setEnabledState(bool state)
 {
-	enableButton->setToggleState(state, true);
+	enableButton->setToggleState(state, sendNotification);
 }
 
 void LfpChannelDisplayInfo::paint(Graphics& g)

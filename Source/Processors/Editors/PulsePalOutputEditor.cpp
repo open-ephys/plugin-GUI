@@ -110,7 +110,7 @@ ChannelTriggerInterface::ChannelTriggerInterface(PulsePal* pp, PulsePalOutput* p
         triggerSelector->addItem(String(i+1),i+2); // start numbering at one for
                                                    // user-visible channels
 
-    triggerSelector->setSelectedId(1, false);
+    triggerSelector->setSelectedId(1, dontSendNotification);
     addAndMakeVisible(triggerSelector);
 
     gateSelector = new ComboBox();
@@ -122,7 +122,7 @@ ChannelTriggerInterface::ChannelTriggerInterface(PulsePal* pp, PulsePalOutput* p
         gateSelector->addItem(String(i+1),i+2); // start numbering at one for
                                                 // user-visible channels
 
-    gateSelector->setSelectedId(1, false);
+    gateSelector->setSelectedId(1, dontSendNotification);
     addAndMakeVisible(gateSelector);
 
 }

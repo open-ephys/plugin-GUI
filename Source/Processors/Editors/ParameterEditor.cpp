@@ -125,7 +125,7 @@ ParameterEditor::ParameterEditor(GenericProcessor* proc, Parameter& p, Font labe
             pb->addListener(this);
 
             if (i == (int) p.getDefaultValue())
-                pb->setToggleState(true, false);
+                pb->setToggleState(true, dontSendNotification);
 
             addAndMakeVisible(pb);
 
@@ -380,7 +380,7 @@ void ParameterButton::resized()
 
 ParameterCheckbox::ParameterCheckbox(bool defaultState) : Button("name"), isEnabled(true)
 {
-    setToggleState(defaultState, false);
+    setToggleState(defaultState, dontSendNotification);
     setClickingTogglesState(true);
 
     selectedGrad = ColourGradient(Colour(240,179,12),0.0,0.0,

@@ -561,7 +561,7 @@ float SpikeDetector::getNextSample(int& chan)
         int ind = overflowBufferSize + sampleIndex;
 
         if (ind < overflowBuffer.getNumSamples())
-            return *overflowBuffer.getSampleData(chan, ind);
+            return *overflowBuffer.getWritePointer(chan, ind);
         else
             return 0;
 
@@ -572,13 +572,13 @@ float SpikeDetector::getNextSample(int& chan)
         // std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
 
         if (sampleIndex < dataBuffer->getNumSamples())
-            return *dataBuffer->getSampleData(chan, sampleIndex);
+            return *dataBuffer->getWritePointer(chan, sampleIndex);
         else
             return 0;
     }
     //} else {
     //    std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
-    //     return *dataBuffer.getSampleData(chan, sampleIndex);
+    //     return *dataBuffer.getWritePointer(chan, sampleIndex);
     //}
 
 }
@@ -588,21 +588,21 @@ float SpikeDetector::getCurrentSample(int& chan)
 
     // if (useOverflowBuffer)
     // {
-    //     return *overflowBuffer.getSampleData(chan, overflowBufferSize + sampleIndex - 1);
+    //     return *overflowBuffer.getWritePointer(chan, overflowBufferSize + sampleIndex - 1);
     // } else {
-    //     return *dataBuffer.getSampleData(chan, sampleIndex - 1);
+    //     return *dataBuffer.getWritePointer(chan, sampleIndex - 1);
     // }
 
     if (sampleIndex < 1)
     {
         //std::cout << "  sample index " << sampleIndex << "from overflowBuffer" << std::endl;
-        return *overflowBuffer.getSampleData(chan, overflowBufferSize + sampleIndex - 1);
+        return *overflowBuffer.getWritePointer(chan, overflowBufferSize + sampleIndex - 1);
     }
     else
     {
         //  useOverflowBuffer = false;
         // std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
-        return *dataBuffer->getSampleData(chan, sampleIndex - 1);
+        return *dataBuffer->getWritePointer(chan, sampleIndex - 1);
     }
     //} else {
 

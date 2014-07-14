@@ -271,7 +271,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             }
         }
 
-        electrodeEditorButtons[1]->setToggleState(false, false);
+        electrodeEditorButtons[1]->setToggleState(false, dontSendNotification);
 
         getEditorViewport()->makeEditorVisible(this, true, true);
         return;
@@ -286,14 +286,14 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
         {
             if (button->getToggleState())
             {
-                electrodeButtons[i]->setToggleState(false, false);
+                electrodeButtons[i]->setToggleState(false, dontSendNotification);
                 electrodeButtons[i]->setRadioGroupId(299);
                 channelSelector->activateButtons();
                 channelSelector->setRadioStatus(true);
             }
             else
             {
-                electrodeButtons[i]->setToggleState(true, false);
+                electrodeButtons[i]->setToggleState(true, dontSendNotification);
                 electrodeButtons[i]->setRadioGroupId(0);
                 channelSelector->inactivateButtons();
                 channelSelector->setRadioStatus(false);
@@ -355,7 +355,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
             }
         } else {
-            audioMonitorButton->setToggleState(false, false);
+            audioMonitorButton->setToggleState(false, dontSendNotification);
         }
 
         return;
@@ -419,7 +419,7 @@ void SpikeDetectorEditor::refreshElectrodeList()
 
     if (electrodeList->getNumItems() > 0)
     {
-        electrodeList->setSelectedId(electrodeList->getNumItems(), true);
+        electrodeList->setSelectedId(electrodeList->getNumItems(), sendNotification);
         electrodeList->setText(electrodeList->getItemText(electrodeList->getNumItems()-1));
         lastId = electrodeList->getNumItems();
         electrodeList->setEditableText(true);
@@ -455,7 +455,7 @@ void SpikeDetectorEditor::removeElectrode(int index)
     int newIndex = jmin(index, electrodeList->getNumItems()-1);
     newIndex = jmax(newIndex, 0);
 
-    electrodeList->setSelectedId(newIndex, true);
+    electrodeList->setSelectedId(newIndex, sendNotification);
     electrodeList->setText(electrodeList->getItemText(newIndex));
 
     if (electrodeList->getNumItems() == 0)
@@ -525,7 +525,7 @@ void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
             SpikeDetector* processor = (SpikeDetector*) getProcessor();
             Electrode* e = processor->setCurrentElectrodeIndex(ID-1);
 
-            electrodeEditorButtons[1]->setToggleState(e->isMonitored, false);
+            electrodeEditorButtons[1]->setToggleState(e->isMonitored, dontSendNotification);
 
             drawElectrodeButtons(ID-1);
 
@@ -572,14 +572,14 @@ void SpikeDetectorEditor::drawElectrodeButtons(int ID)
 
         if (electrodeEditorButtons[0]->getToggleState())
         {
-            button->setToggleState(false, false);
+            button->setToggleState(false, dontSendNotification);
             button->setRadioGroupId(299);
         }
         else
         {
             activeChannels.add(processor->getChannel(ID,i));
 
-            button->setToggleState(processor->isChannelActive(ID,i), false);
+            button->setToggleState(processor->isChannelActive(ID,i), dontSendNotification);
         }
 
         if (numChannels < 3)

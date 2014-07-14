@@ -72,8 +72,8 @@ public:
     int getNumChannels();
     bool getInputInvertedState();
 
-    float getXCoord(int chan, int samp);
-    float getYCoord(int chan, int samp);
+    const float getXCoord(int chan, int samp);
+    const float getYCoord(int chan, int samp);
 
     int screenBufferIndex;
     int lastScreenBufferIndex;

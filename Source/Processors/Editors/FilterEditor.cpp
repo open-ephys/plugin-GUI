@@ -78,7 +78,7 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
     applyFilterOnChan->addListener(this);
     applyFilterOnChan->setBounds(95,95,30,18);
     applyFilterOnChan->setClickingTogglesState(true);
-    applyFilterOnChan->setToggleState(true, false);
+    applyFilterOnChan->setToggleState(true, dontSendNotification);
     applyFilterOnChan->setTooltip("When this button is off, selected channels will not be filtered");
     addAndMakeVisible(applyFilterOnChan);
  
@@ -168,7 +168,7 @@ void FilterEditor::channelChanged(int chan)
 
     highCutValue->setText(String(fn->getHighCutValueForChannel(chan)), dontSendNotification);
     lowCutValue->setText(String(fn->getLowCutValueForChannel(chan)), dontSendNotification);
-    applyFilterOnChan->setToggleState(fn->getBypassStatusForChannel(chan), false);
+    applyFilterOnChan->setToggleState(fn->getBypassStatusForChannel(chan), dontSendNotification);
 
 }
 
@@ -220,7 +220,7 @@ void FilterEditor::loadCustomParameters(XmlElement* xml)
         {
             highCutValue->setText(xmlNode->getStringAttribute("HighCut"),dontSendNotification);
             lowCutValue->setText(xmlNode->getStringAttribute("LowCut"),dontSendNotification);
-			applyFilterOnADC->setToggleState(xmlNode->getBoolAttribute("ApplyToADC",false),true);
+			applyFilterOnADC->setToggleState(xmlNode->getBoolAttribute("ApplyToADC",false), sendNotification);
         }
     }
 

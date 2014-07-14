@@ -181,7 +181,7 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
             for (int i = 0; i < nSamples; i++)
             {
-                float sample = *buffer.getSampleData(module.inputChan, i);
+                const float sample = *buffer.getReadPointer(module.inputChan, i);
 
                 if (sample < module.lastSample && sample > 0 && module.phase != FALLING_POS)
                 {

@@ -173,7 +173,7 @@ void AudioResamplingNode::process(AudioSampleBuffer& buffer,
     if (ratio > 1.0001)
     {
         // pre-apply filter before downsampling
-        filter->process(nSamps, buffer.getArrayOfChannels());
+        filter->process(nSamps, buffer.getArrayOfWritePointers());
     }
 
 
@@ -236,7 +236,7 @@ void AudioResamplingNode::process(AudioSampleBuffer& buffer,
     if (ratio < 0.9999)
     {
 
-        filter->process(tempBufferPos, tempBuffer->getArrayOfChannels());
+        filter->process(tempBufferPos, tempBuffer->getArrayOfWritePointers());
         // apply the filter after upsampling
         ///////filter->process (totalSamples, buffer.getArrayOfChannels());
     }
@@ -252,7 +252,7 @@ void AudioResamplingNode::process(AudioSampleBuffer& buffer,
     {
 
         // copy the temp buffer into the original buffer
-        buffer = AudioSampleBuffer(tempBuffer->getArrayOfChannels(), 2, tempBufferPos);//buffer.getNumSamples());
+        buffer = AudioSampleBuffer(tempBuffer->getArrayOfWritePointers(), 2, tempBufferPos);//buffer.getNumSamples());
 
     }
     else
@@ -264,7 +264,7 @@ void AudioResamplingNode::process(AudioSampleBuffer& buffer,
 
         int pos = 0;
 
-        while (*tempBuffer->getSampleData(0,pos) != 0)
+        while (*tempBuffer->getWritePointer(0,pos) != 0)
             pos++;
 
         int spaceAvailable = destBufferWidth - destBufferPos;
@@ -300,7 +300,7 @@ void AudioResamplingNode::process(AudioSampleBuffer& buffer,
         destBufferPos %= destBufferWidth;
 
         //std::cout << "Temp buffer position: " << tempBufferPos << std::endl;
-        //std::cout << "Resampling node value:" << *destBuffer->getSampleData(0,0) << std::endl;
+        //std::cout << "Resampling node value:" << *destBuffer->getReadPointer(0,0) << std::endl;
 
     }
 

@@ -89,7 +89,7 @@ void SerialInputEditor::stopAcquisition()
 void SerialInputEditor::buttonEvent(Button* button)
 {
     // Refresh list of devices
-    deviceList->clear(true);
+    deviceList->clear();
     deviceList->addItemList(node->getDevices(), 1);
 }
 

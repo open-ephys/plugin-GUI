@@ -89,12 +89,12 @@ AudioEditor::AudioEditor(AudioNode* owner)
 
     muteButton = new MuteButton();
     muteButton->addListener(this);
-    muteButton->setToggleState(false,false);
+    muteButton->setToggleState(false, dontSendNotification);
     addAndMakeVisible(muteButton);
 
     audioWindowButton = new AudioWindowButton();
     audioWindowButton->addListener(this);
-    audioWindowButton->setToggleState(false,false);
+    audioWindowButton->setToggleState(false, dontSendNotification);
     
     //AccessClass* audioNode = (AccessClass*) getAudioProcessor();
     //
@@ -163,7 +163,7 @@ void AudioEditor::disable()
     if (acw != 0)
     {
         acw->setVisible(false);
-        audioWindowButton->setToggleState(false, false);
+        audioWindowButton->setToggleState(false, dontSendNotification);
     }
 
     audioWindowButton->setClickingTogglesState(false);
@@ -258,7 +258,7 @@ void AudioEditor::loadStateFromXml(XmlElement* xml)
         if (xmlNode->hasTagName("AUDIOEDITOR"))
         {
 
-            muteButton->setToggleState(xmlNode->getBoolAttribute("isMuted",false),false);
+            muteButton->setToggleState(xmlNode->getBoolAttribute("isMuted",false),dontSendNotification);
             volumeSlider->setValue(xmlNode->getDoubleAttribute("volume",0.0f),NotificationType::sendNotification);
             noiseGateSlider->setValue(xmlNode->getDoubleAttribute("noiseGate",0.0f),NotificationType::sendNotification);
 
@@ -311,7 +311,7 @@ AudioConfigurationWindow::~AudioConfigurationWindow()
 
 void AudioConfigurationWindow::closeButtonPressed()
 {
-    controlButton->setToggleState(false,false);
+    controlButton->setToggleState(false, dontSendNotification);
     
     //updateBufferSizeText();
     String t = String(getAudioComponent()->getBufferSizeMs());

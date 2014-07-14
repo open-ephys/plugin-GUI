@@ -156,7 +156,7 @@ void ResamplingNode::process(AudioSampleBuffer& buffer,
     if (ratio > 1.0001)
     {
         // pre-apply filter before downsampling
-        filter->process(nSamples, buffer.getArrayOfChannels());
+        filter->process(nSamples, buffer.getArrayOfWritePointers());
     }
 
     // initialize variables
@@ -215,7 +215,7 @@ void ResamplingNode::process(AudioSampleBuffer& buffer,
     if (ratio < 0.9999)
     {
 
-        filter->process(tempBufferPos, tempBuffer->getArrayOfChannels());
+        filter->process(tempBufferPos, tempBuffer->getArrayOfWritePointers());
         // apply the filter after upsampling
         ///////filter->process (totalSamples, buffer.getArrayOfChannels());
     }
@@ -228,7 +228,7 @@ void ResamplingNode::process(AudioSampleBuffer& buffer,
     }
 
     // copy the tempBuffer back into the original buffer
-    buffer = AudioSampleBuffer(tempBuffer->getArrayOfChannels(), 2, tempBufferPos);//buffer.getNumSamples());
+    buffer = AudioSampleBuffer(tempBuffer->getArrayOfWritePointers(), 2, tempBufferPos);//buffer.getNumSamples());
 
     nSamples = valuesNeeded;
 

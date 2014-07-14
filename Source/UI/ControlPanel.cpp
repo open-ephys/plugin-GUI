@@ -465,7 +465,7 @@ void ControlPanel::setRecordState(bool t)
 
     //MessageManager* mm = MessageManager::getInstance();
 
-    recordButton->setToggleState(t, true);
+    recordButton->setToggleState(t, sendNotification);
 
 }
 
@@ -676,7 +676,7 @@ void ControlPanel::stopRecording()
     prependText->setEditable(true);
     appendText->setEditable(true);
 
-    recordButton->setToggleState(false,false);
+    recordButton->setToggleState(false, dontSendNotification);
 
     repaint();
 }
@@ -751,7 +751,7 @@ void ControlPanel::buttonClicked(Button* button)
 
                     startRecording();
 
-                    playButton->setToggleState(true,false);
+                    playButton->setToggleState(true, dontSendNotification);
 
                 }
             }
@@ -780,8 +780,8 @@ void ControlPanel::disableCallbacks()
 
     }
 
-    playButton->setToggleState(false,false);
-    recordButton->setToggleState(false,false);
+    playButton->setToggleState(false, dontSendNotification);
+    recordButton->setToggleState(false, dontSendNotification);
     masterClock->stopRecording();
     masterClock->stop();
 

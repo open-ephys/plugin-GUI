@@ -53,7 +53,7 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     paramsButton->addListener(this);
     addAndMakeVisible(paramsButton);
 
-    paramsButton->setToggleState(true, false);
+    paramsButton->setToggleState(true, dontSendNotification);
 
     audioButtons.clear();
     recordButtons.clear();
@@ -237,9 +237,9 @@ void ChannelSelector::addButton()
     channelSelectorRegion->addAndMakeVisible(b);
 
     if (paramsToggled)
-        b->setToggleState(true, false);
+        b->setToggleState(true, dontSendNotification);
     else
-        b->setToggleState(false, false);
+        b->setToggleState(false, dontSendNotification);
 
     if (!paramsActive)
         b->setActive(false);
@@ -307,12 +307,12 @@ void ChannelSelector::setActiveChannels(Array<int> a)
 
     for (int i = 0; i < parameterButtons.size(); i++)
     {
-        parameterButtons[i]->setToggleState(false,false);
+        parameterButtons[i]->setToggleState(false, dontSendNotification);
     }
 
     for (int i = 0; i < a.size(); i++)
     {
-        parameterButtons[a[i]]->setToggleState(true,false);
+        parameterButtons[a[i]]->setToggleState(true, dontSendNotification);
     }
 }
 
@@ -363,12 +363,12 @@ void ChannelSelector::setRadioStatus(bool radioOn)
         {
             if (radioOn)
             {
-                parameterButtons[i]->setToggleState(false, false);
+                parameterButtons[i]->setToggleState(false, dontSendNotification);
                 parameterButtons[i]->setRadioGroupId(999);
             }
             else
             {
-                parameterButtons[i]->setToggleState(false, false);
+                parameterButtons[i]->setToggleState(false, dontSendNotification);
                 parameterButtons[i]->setRadioGroupId(0);
             }
         }
@@ -413,7 +413,7 @@ void ChannelSelector::setParamStatus(int chan, bool b)
 {
 
     if (chan >= 0 && chan < parameterButtons.size())
-        parameterButtons[chan]->setToggleState(b, true);
+        parameterButtons[chan]->setToggleState(b, sendNotification);
 
 }
 
@@ -421,7 +421,7 @@ void ChannelSelector::setRecordStatus(int chan, bool b)
 {
 
     if (chan >= 0 && chan < recordButtons.size())
-        recordButtons[chan]->setToggleState(b, true);
+        recordButtons[chan]->setToggleState(b, sendNotification);
 
 }
 
@@ -429,14 +429,14 @@ void ChannelSelector::setAudioStatus(int chan, bool b)
 {
 
     if (chan >= 0 && chan < audioButtons.size())
-        audioButtons[chan]->setToggleState(b, true);
+        audioButtons[chan]->setToggleState(b, sendNotification);
 
 }
 
 void ChannelSelector::clearAudio()
 {
     for (int chan = 0; chan < audioButtons.size(); chan++)
-        audioButtons[chan]->setToggleState(false, true);
+        audioButtons[chan]->setToggleState(false, sendNotification);
 }
 
 int ChannelSelector::getDesiredWidth()
@@ -468,7 +468,7 @@ void ChannelSelector::buttonClicked(Button* button)
         }
         else
         {
-            paramsButton->setToggleState(true, false);
+            paramsButton->setToggleState(true, dontSendNotification);
         }
         return;
     }
@@ -483,7 +483,7 @@ void ChannelSelector::buttonClicked(Button* button)
         }
         else
         {
-            paramsButton->setToggleState(true, false);
+            paramsButton->setToggleState(true, dontSendNotification);
         }
         return;
     }
@@ -496,7 +496,7 @@ void ChannelSelector::buttonClicked(Button* button)
 
             for (int i = 0; i < recordButtons.size(); i++)
             {
-                recordButtons[i]->setToggleState(true, true);
+                recordButtons[i]->setToggleState(true, sendNotification);
             }
 
         }
@@ -506,7 +506,7 @@ void ChannelSelector::buttonClicked(Button* button)
 
             for (int i = 0; i < parameterButtons.size(); i++)
             {
-                parameterButtons[i]->setToggleState(true, true);
+                parameterButtons[i]->setToggleState(true, sendNotification);
             }
         }
         else if (offsetLR == audioOffset)
@@ -521,21 +521,21 @@ void ChannelSelector::buttonClicked(Button* button)
         {
             for (int i = 0; i < recordButtons.size(); i++)
             {
-                recordButtons[i]->setToggleState(false, true);
+                recordButtons[i]->setToggleState(false, sendNotification);
             }
         }
         else if (offsetLR == parameterOffset)
         {
             for (int i = 0; i < parameterButtons.size(); i++)
             {
-                parameterButtons[i]->setToggleState(false, true);
+                parameterButtons[i]->setToggleState(false, sendNotification);
             }
         }
         else if (offsetLR == audioOffset)
         {
             for (int i = 0; i < audioButtons.size(); i++)
             {
-                audioButtons[i]->setToggleState(false, true);
+                audioButtons[i]->setToggleState(false, sendNotification);
             }
         }
 

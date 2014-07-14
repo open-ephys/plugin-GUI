@@ -423,7 +423,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
                     if (blockIndex < BLOCK_LENGTH)
                     {
                         // fill out the rest of the current buffer
-                        writeContinuousBuffer(zeroBuffer.getSampleData(0), BLOCK_LENGTH - blockIndex, currentChannel);
+                        writeContinuousBuffer(zeroBuffer.getReadPointer(0), BLOCK_LENGTH - blockIndex, currentChannel);
                     }
 
                     closeFile(channelPointers[currentChannel]);
@@ -443,7 +443,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
                     {
                         writeTimestampAndSampleCount(channelPointers[currentChannel]->file);
                         // fill up the first data block up to sample count
-                        writeContinuousBuffer(zeroBuffer.getSampleData(0), blockIndex, currentChannel);
+                        writeContinuousBuffer(zeroBuffer.getReadPointer(0), blockIndex, currentChannel);
                     }
 
                 }
@@ -580,7 +580,7 @@ void RecordNode::closeAllFiles()
                 if (blockIndex < BLOCK_LENGTH)
                 {
                     // fill out the rest of the current buffer
-                    writeContinuousBuffer(zeroBuffer.getSampleData(0), BLOCK_LENGTH - blockIndex, i);
+                    writeContinuousBuffer(zeroBuffer.getReadPointer(0), BLOCK_LENGTH - blockIndex, i);
                 }
 
                 closeFile(channelPointers[i]);
@@ -619,7 +619,7 @@ float RecordNode::getFreeSpace()
     return 1.0f - float(dataDirectory.getBytesFreeOnVolume())/float(dataDirectory.getVolumeTotalSize());
 }
 
-void RecordNode::writeContinuousBuffer(float* data, int nSamples, int channel)
+void RecordNode::writeContinuousBuffer(const float* data, int nSamples, int channel)
 {
 
     // check to see if the file exists
@@ -806,7 +806,7 @@ void RecordNode::process(AudioSampleBuffer& buffer,
                         if (channelPointers[i]->getRecordState())
                         {
                             // write buffer to disk!
-                            writeContinuousBuffer(buffer.getSampleData(i,samplesWritten),
+                            writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
                                                   numSamplesToWrite,
                                                   i);
 
@@ -830,7 +830,7 @@ void RecordNode::process(AudioSampleBuffer& buffer,
                         if (channelPointers[i]->getRecordState())
                         {
                             // write buffer to disk!
-                            writeContinuousBuffer(buffer.getSampleData(i,samplesWritten),
+                            writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
                                                   numSamplesToWrite,
                                                   i);
 

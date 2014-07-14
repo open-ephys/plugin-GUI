@@ -264,7 +264,7 @@ void FilterNode::process(AudioSampleBuffer& buffer,
     {
 		if (shouldFilterChannel[n])
 		{
-			float* ptr = buffer.getSampleData(n);
+			float* ptr = buffer.getWritePointer(n);
 			filters[n]->process(nSamples, &ptr);
 		}
     }

@@ -355,8 +355,8 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                     }
                     
                     // Simple implementation of a "noise gate" on audio output
-                    float *leftChannelData = buffer.getSampleData(0);
-                    float *rightChannelData = buffer.getSampleData(1);
+                    float *leftChannelData = buffer.getWritePointer(0);
+                    float *rightChannelData = buffer.getWritePointer(1);
                     float gateLevel = noiseGateLevel * gain; // uVolts scaled by gain
                     
                     for (int m = 0; m < buffer.getNumSamples(); m++) {

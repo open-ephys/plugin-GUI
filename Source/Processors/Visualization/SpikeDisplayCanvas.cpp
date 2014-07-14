@@ -53,7 +53,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
     invertSpikesButton->setRadius(3.0f);
     invertSpikesButton->addListener(this);
     invertSpikesButton->setClickingTogglesState(true);
-    invertSpikesButton->setToggleState(false, true);
+    invertSpikesButton->setToggleState(false, sendNotification);
     addAndMakeVisible(invertSpikesButton);
 
     addAndMakeVisible(viewport);
@@ -218,8 +218,8 @@ void SpikeDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
         if (xmlNode->hasTagName("SPIKEDISPLAY"))
         {
             spikeDisplay->invertSpikes(xmlNode->getBoolAttribute("InvertSpikes"));
-            invertSpikesButton->setToggleState(xmlNode->getBoolAttribute("InvertSpikes"), false);
-            lockThresholdsButton->setToggleState(xmlNode->getBoolAttribute("LockThresholds"),true);
+            invertSpikesButton->setToggleState(xmlNode->getBoolAttribute("InvertSpikes"), dontSendNotification);
+            lockThresholdsButton->setToggleState(xmlNode->getBoolAttribute("LockThresholds"), sendNotification);
         
             int plotIndex = -1;
 

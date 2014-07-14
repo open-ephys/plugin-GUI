@@ -120,7 +120,7 @@ void RecordControlEditor::loadEditorParameters(XmlElement* xml)
         
         if (xmlNode->hasTagName("PARAMETERS"))
         {
-            newFileToggleButton->setToggleState(xmlNode->getBoolAttribute("FileSaveOption"), true);
+            newFileToggleButton->setToggleState(xmlNode->getBoolAttribute("FileSaveOption"), sendNotification);
             availableChans->setSelectedId(xmlNode->getIntAttribute("Channel"), sendNotification);
         }
 

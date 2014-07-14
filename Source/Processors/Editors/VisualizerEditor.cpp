@@ -95,7 +95,7 @@ void VisualizerEditor::initializeSelectors()
     windowSelector->addListener(this);
     windowSelector->setBounds(desiredWidth - 40,7,14,10);
 
-    windowSelector->setToggleState(false,false);
+    windowSelector->setToggleState(false, dontSendNotification);
     addAndMakeVisible(windowSelector);
 
     tabSelector = new SelectorButton("tab");
@@ -103,7 +103,7 @@ void VisualizerEditor::initializeSelectors()
     tabSelector->setBounds(desiredWidth - 20,7,15,10);
 
     addAndMakeVisible(tabSelector);
-    tabSelector->setToggleState(false,false);
+    tabSelector->setToggleState(false, dontSendNotification);
 }
 
 VisualizerEditor::~VisualizerEditor()
@@ -185,7 +185,7 @@ void VisualizerEditor::buttonEvent(Button* button)
 
             if (tabSelector->getToggleState() && windowSelector->getToggleState())
             {
-                tabSelector->setToggleState(false, false);
+                tabSelector->setToggleState(false, dontSendNotification);
                 getDataViewport()->destroyTab(tabIndex);
                 tabIndex = -1;
             }
@@ -226,7 +226,7 @@ void VisualizerEditor::buttonEvent(Button* button)
                 if (windowSelector->getToggleState())
                 {
                     dataWindow->setContentNonOwned(0, false);
-                    windowSelector->setToggleState(false, false);
+                    windowSelector->setToggleState(false, dontSendNotification);
                     dataWindow->setVisible(false);
                 }
 
@@ -293,7 +293,7 @@ void VisualizerEditor::loadCustomParameters(XmlElement* xml)
             bool tabState = xmlNode->getBoolAttribute("Active");
 
             if (tabState)
-                tabSelector->setToggleState(true,true);
+                tabSelector->setToggleState(true, sendNotification);
 
 
         }
@@ -304,7 +304,7 @@ void VisualizerEditor::loadCustomParameters(XmlElement* xml)
 
             if (windowState)
             {
-                windowSelector->setToggleState(true,true);
+                windowSelector->setToggleState(true, sendNotification);
 				if (dataWindow != nullptr)
 				{
 					dataWindow->setBounds(xmlNode->getIntAttribute("x"),
