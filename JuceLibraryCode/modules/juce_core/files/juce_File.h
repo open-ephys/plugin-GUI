@@ -26,17 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_FILE_JUCEHEADER__
-#define __JUCE_FILE_JUCEHEADER__
-
-#include "../containers/juce_Array.h"
-#include "../time/juce_Time.h"
-#include "../text/juce_StringArray.h"
-#include "../memory/juce_MemoryBlock.h"
-#include "../memory/juce_ScopedPointer.h"
-#include "../misc/juce_Result.h"
-class FileInputStream;
-class FileOutputStream;
+#ifndef JUCE_FILE_H_INCLUDED
+#define JUCE_FILE_H_INCLUDED
 
 
 //==============================================================================
@@ -75,10 +66,10 @@ public:
         On the Mac/Linux, the path can include "~" notation for referring to
         user home directories.
     */
-    File (const String& path);
+    File (const String& absolutePath);
 
     /** Creates a copy of another file object. */
-    File (const File& other);
+    File (const File&);
 
     /** Destructor. */
     ~File() noexcept  {}
@@ -93,14 +84,14 @@ public:
         On the Mac/Linux, the path can include "~" notation for referring to
         user home directories.
     */
-    File& operator= (const String& newFilePath);
+    File& operator= (const String& newAbsolutePath);
 
     /** Copies from another file object. */
     File& operator= (const File& otherFile);
 
    #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
-    File (File&& otherFile) noexcept;
-    File& operator= (File&& otherFile) noexcept;
+    File (File&&) noexcept;
+    File& operator= (File&&) noexcept;
    #endif
 
     //==============================================================================
@@ -205,15 +196,14 @@ public:
 
         @param extensionToTest  the extension to look for - it doesn't matter whether or
                                 not this string has a dot at the start, so ".wav" and "wav"
-                                will have the same effect. The comparison used is
-                                case-insensitve. To compare with multiple extensions, this
+                                will have the same effect. To compare with multiple extensions, this
                                 parameter can contain multiple strings, separated by semi-colons -
                                 so, for example: hasFileExtension (".jpeg;png;gif") would return
                                 true if the file has any of those three extensions.
 
         @see getFileExtension, withFileExtension, getFileNameWithoutExtension
     */
-    bool hasFileExtension (const String& extensionToTest) const;
+    bool hasFileExtension (StringRef extensionToTest) const;
 
     /** Returns a version of this file with a different file extension.
 
@@ -225,7 +215,7 @@ public:
 
         @see getFileName, getFileExtension, hasFileExtension, getFileNameWithoutExtension
     */
-    File withFileExtension (const String& newExtension) const;
+    File withFileExtension (StringRef newExtension) const;
 
     /** Returns the last part of the filename, without its file extension.
 
@@ -251,12 +241,13 @@ public:
     int64 hashCode64() const;
 
     //==============================================================================
-    /** Returns a file based on a relative path.
+    /** Returns a file that represents a relative (or absolute) sub-path of the current one.
 
         This will find a child file or directory of the current object.
 
         e.g.
             File ("/moose/fish").getChildFile ("foo.txt") will produce "/moose/fish/foo.txt".
+            File ("/moose/fish").getChildFile ("haddock/foo.txt") will produce "/moose/fish/haddock/foo.txt".
             File ("/moose/fish").getChildFile ("../foo.txt") will produce "/moose/foo.txt".
 
         If the string is actually an absolute path, it will be treated as such, e.g.
@@ -264,7 +255,7 @@ public:
 
         @see getSiblingFile, getParentDirectory, getRelativePathFrom, isAChildOf
     */
-    File getChildFile (String relativePath) const;
+    File getChildFile (StringRef relativeOrAbsolutePath) const;
 
     /** Returns a file which is in the same directory as this one.
 
@@ -272,7 +263,7 @@ public:
 
         @see getChildFile, getParentDirectory
     */
-    File getSiblingFile (const String& siblingFileName) const;
+    File getSiblingFile (StringRef siblingFileName) const;
 
     //==============================================================================
     /** Returns the directory that contains this file or directory.
@@ -327,13 +318,13 @@ public:
 
     //==============================================================================
     /** Compares the pathnames for two files. */
-    bool operator== (const File& otherFile) const;
+    bool operator== (const File&) const;
     /** Compares the pathnames for two files. */
-    bool operator!= (const File& otherFile) const;
+    bool operator!= (const File&) const;
     /** Compares the pathnames for two files. */
-    bool operator< (const File& otherFile) const;
+    bool operator< (const File&) const;
     /** Compares the pathnames for two files. */
-    bool operator> (const File& otherFile) const;
+    bool operator> (const File&) const;
 
     //==============================================================================
     /** Checks whether a file can be created or written to.
@@ -362,10 +353,21 @@ public:
     */
     bool isHidden() const;
 
-    /** If this file is a link, this returns the file that it points to.
-        If this file isn't actually link, it'll just return itself.
+    /** Returns true if this file is a link or alias that can be followed using getLinkedTarget(). */
+    bool isLink() const;
+
+    /** If this file is a link or alias, this returns the file that it points to.
+        If the file isn't actually link, it'll just return itself.
     */
     File getLinkedTarget() const;
+
+    /** Returns a unique identifier for the file, if one is available.
+
+        Depending on the OS and file-system, this may be a unix inode number or
+        a win32 file identifier, or 0 if it fails to find one. The number will
+        be unique on the filesystem, but not globally.
+    */
+    uint64 getFileIdentifier() const;
 
     //==============================================================================
     /** Returns the last modification time of this file.
@@ -589,7 +591,7 @@ public:
                     end of the file), or nullptr if the file can't be opened for some reason
         @see createInputStream, appendData, appendText
     */
-    FileOutputStream* createOutputStream (int bufferSize = 0x8000) const;
+    FileOutputStream* createOutputStream (size_t bufferSize = 0x8000) const;
 
     //==============================================================================
     /** Loads a file's contents into memory as a block of binary data.
@@ -747,7 +749,7 @@ public:
 
         @see revealToUser
     */
-    bool startAsProcess (const String& parameters = String::empty) const;
+    bool startAsProcess (const String& parameters = String()) const;
 
     /** Opens Finder, Explorer, or whatever the OS uses, to show the user this file's location.
         @see startAsProcess
@@ -771,6 +773,15 @@ public:
         /** The folder that contains the user's desktop objects. */
         userDesktopDirectory,
 
+        /** The most likely place where a user might store their music files. */
+        userMusicDirectory,
+
+        /** The most likely place where a user might store their movie files. */
+        userMoviesDirectory,
+
+        /** The most likely place where a user might store their picture files. */
+        userPicturesDirectory,
+
         /** The folder in which applications store their persistent user-specific settings.
             On Windows, this might be "\Documents and Settings\username\Application Data".
             On the Mac, it might be "~/Library". If you're going to store your settings in here,
@@ -787,6 +798,13 @@ public:
             Depending on the setup, this folder may be read-only.
         */
         commonApplicationDataDirectory,
+
+        /** A place to put documents which are shared by all users of the machine.
+            On Windows this may be somewhere like "C:\Users\Public\Documents", on OSX it
+            will be something like "/Users/Shared". Other OSes may have no such concept
+            though, so be careful.
+        */
+        commonDocumentsDirectory,
 
         /** The folder that should be used for temporary files.
             Always delete them when you're finished, to keep the user's computer tidy!
@@ -830,16 +848,7 @@ public:
             So on windows, this would be something like "c:\program files", on the
             Mac "/Applications", or "/usr" on linux.
         */
-        globalApplicationsDirectory,
-
-        /** The most likely place where a user might store their music files. */
-        userMusicDirectory,
-
-        /** The most likely place where a user might store their movie files. */
-        userMoviesDirectory,
-
-        /** The most likely place where a user might store their picture files. */
-        userPicturesDirectory
+        globalApplicationsDirectory
     };
 
     /** Finds the location of a special type of file or directory, such as a home folder or
@@ -854,7 +863,7 @@ public:
         This will try to return the name of a non-existent temp file.
         To get the temp folder, you can use getSpecialLocation (File::tempDirectory).
     */
-    static File createTempFile (const String& fileNameEnding);
+    static File createTempFile (StringRef fileNameEnding);
 
 
     //==============================================================================
@@ -884,19 +893,20 @@ public:
     static const String separatorString;
 
     //==============================================================================
-    /** Removes illegal characters from a filename.
+    /** Returns a version of a filename with any illegal characters removed.
 
         This will return a copy of the given string after removing characters
         that are not allowed in a legal filename, and possibly shortening the
         string if it's too long.
 
-        Because this will remove slashes, don't use it on an absolute pathname.
+        Because this will remove slashes, don't use it on an absolute pathname - use
+        createLegalPathName() for that.
 
         @see createLegalPathName
     */
     static String createLegalFileName (const String& fileNameToFix);
 
-    /** Removes illegal characters from a pathname.
+    /** Returns a version of a path with any illegal characters removed.
 
         Similar to createLegalFileName(), but this won't remove slashes, so can
         be used on a complete pathname.
@@ -909,14 +919,14 @@ public:
     static bool areFileNamesCaseSensitive();
 
     /** Returns true if the string seems to be a fully-specified absolute path. */
-    static bool isAbsolutePath (const String& path);
+    static bool isAbsolutePath (StringRef path);
 
     /** Creates a file that simply contains this string, without doing the sanity-checking
         that the normal constructors do.
 
         Best to avoid this unless you really know what you're doing.
     */
-    static File createFileWithoutCheckingPath (const String& path) noexcept;
+    static File createFileWithoutCheckingPath (const String& absolutePath) noexcept;
 
     /** Adds a separator character to the end of a path if it doesn't already have one. */
     static String addTrailingSeparator (const String& path);
@@ -953,8 +963,6 @@ private:
     bool setFileTimesInternal (int64 m, int64 a, int64 c) const;
     void getFileTimesInternal (int64& m, int64& a, int64& c) const;
     bool setFileReadOnlyInternal (bool) const;
-
-    JUCE_LEAK_DETECTOR (File)
 };
 
-#endif   // __JUCE_FILE_JUCEHEADER__
+#endif   // JUCE_FILE_H_INCLUDED

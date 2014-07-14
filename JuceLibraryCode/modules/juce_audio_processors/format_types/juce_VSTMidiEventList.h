@@ -22,11 +22,10 @@
   ==============================================================================
 */
 
-#ifdef __aeffect__
+#ifdef __aeffect__ // NB: this must come first, *before* the header-guard.
 
-#ifndef __JUCE_VSTMIDIEVENTLIST_JUCEHEADER__
-#define __JUCE_VSTMIDIEVENTLIST_JUCEHEADER__
-
+#ifndef JUCE_VSTMIDIEVENTLIST_H_INCLUDED
+#define JUCE_VSTMIDIEVENTLIST_H_INCLUDED
 
 //==============================================================================
 /** Holds a set of VSTMidiEvent objects and makes it easy to add
@@ -184,6 +183,5 @@ private:
     }
 };
 
-
-#endif   // __JUCE_VSTMIDIEVENTLIST_JUCEHEADER__
-#endif   // __JUCE_VSTMIDIEVENTLIST_JUCEHEADER__
+#endif   // JUCE_VSTMIDIEVENTLIST_H_INCLUDED
+#endif

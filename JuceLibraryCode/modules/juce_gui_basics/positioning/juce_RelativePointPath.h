@@ -22,11 +22,9 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_RELATIVEPOINTPATH_JUCEHEADER__
-#define __JUCE_RELATIVEPOINTPATH_JUCEHEADER__
+#ifndef JUCE_RELATIVEPOINTPATH_H_INCLUDED
+#define JUCE_RELATIVEPOINTPATH_H_INCLUDED
 
-#include "juce_RelativePoint.h"
-class DrawablePath;
 
 //==============================================================================
 /**
@@ -42,12 +40,12 @@ class JUCE_API  RelativePointPath
 public:
     //==============================================================================
     RelativePointPath();
-    RelativePointPath (const RelativePointPath& other);
+    RelativePointPath (const RelativePointPath&);
     explicit RelativePointPath (const Path& path);
     ~RelativePointPath();
 
-    bool operator== (const RelativePointPath& other) const noexcept;
-    bool operator!= (const RelativePointPath& other) const noexcept;
+    bool operator== (const RelativePointPath&) const noexcept;
+    bool operator!= (const RelativePointPath&) const noexcept;
 
     //==============================================================================
     /** Resolves this points in this path and adds them to a normal Path object. */
@@ -57,7 +55,7 @@ public:
     bool containsAnyDynamicPoints() const;
 
     /** Quickly swaps the contents of this path with another. */
-    void swapWith (RelativePointPath& other) noexcept;
+    void swapWith (RelativePointPath&) noexcept;
 
     //==============================================================================
     /** The types of element that may be contained in this path.
@@ -190,4 +188,4 @@ private:
 };
 
 
-#endif   // __JUCE_RELATIVEPOINTPATH_JUCEHEADER__
+#endif   // JUCE_RELATIVEPOINTPATH_H_INCLUDED

@@ -22,8 +22,9 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_CONCERTINAPANEL_JUCEHEADER__
-#define __JUCE_CONCERTINAPANEL_JUCEHEADER__
+#ifndef JUCE_CONCERTINAPANEL_H_INCLUDED
+#define JUCE_CONCERTINAPANEL_H_INCLUDED
+
 
 //==============================================================================
 /**
@@ -92,15 +93,25 @@ public:
     /** Sets the height of the header section for one of the panels. */
     void setPanelHeaderSize (Component* panelComponent, int headerSize);
 
+    //==============================================================================
+    /** This abstract base class is implemented by LookAndFeel classes. */
+    struct JUCE_API  LookAndFeelMethods
+    {
+        virtual ~LookAndFeelMethods() {}
+
+        virtual void drawConcertinaPanelHeader (Graphics&, const Rectangle<int>& area,
+                                                bool isMouseOver, bool isMouseDown, ConcertinaPanel&, Component&) = 0;
+    };
+
 private:
-    void resized();
+    void resized() override;
 
     class PanelHolder;
     struct PanelSizes;
     friend class PanelHolder;
     friend struct PanelSizes;
-    friend class ScopedPointer<PanelSizes>;
-    friend class OwnedArray<PanelHolder>;
+    friend struct ContainerDeletePolicy<PanelSizes>;
+    friend struct ContainerDeletePolicy<PanelHolder>;
 
     ScopedPointer<PanelSizes> currentSizes;
     OwnedArray<PanelHolder> holders;
@@ -117,4 +128,4 @@ private:
 };
 
 
-#endif   // __JUCE_CONCERTINAPANEL_JUCEHEADER__
+#endif   // JUCE_CONCERTINAPANEL_H_INCLUDED

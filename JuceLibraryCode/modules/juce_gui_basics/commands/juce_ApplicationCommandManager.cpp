@@ -77,7 +77,7 @@ void ApplicationCommandManager::registerAllCommandsForTarget (ApplicationCommand
 {
     if (target != nullptr)
     {
-        Array <CommandID> commandIDs;
+        Array<CommandID> commandIDs;
         target->getAllCommands (commandIDs);
 
         for (int i = 0; i < commandIDs.size(); ++i)
@@ -99,7 +99,7 @@ void ApplicationCommandManager::removeCommand (const CommandID commandID)
             commands.remove (i);
             triggerAsyncUpdate();
 
-            const Array <KeyPress> keys (keyMappings->getKeyPressesAssignedToCommand (commandID));
+            const Array<KeyPress> keys (keyMappings->getKeyPressesAssignedToCommand (commandID));
 
             for (int j = keys.size(); --j >= 0;)
                 keyMappings->removeKeyPress (keys.getReference (j));
@@ -127,7 +127,7 @@ String ApplicationCommandManager::getNameOfCommand (const CommandID commandID) c
     if (const ApplicationCommandInfo* const ci = getCommandForID (commandID))
         return ci->shortName;
 
-    return String::empty;
+    return String();
 }
 
 String ApplicationCommandManager::getDescriptionOfCommand (const CommandID commandID) const noexcept
@@ -136,7 +136,7 @@ String ApplicationCommandManager::getDescriptionOfCommand (const CommandID comma
         return ci->description.isNotEmpty() ? ci->description
                                             : ci->shortName;
 
-    return String::empty;
+    return String();
 }
 
 StringArray ApplicationCommandManager::getCommandCategories() const
@@ -151,7 +151,7 @@ StringArray ApplicationCommandManager::getCommandCategories() const
 
 Array<CommandID> ApplicationCommandManager::getCommandsInCategory (const String& categoryName) const
 {
-    Array <CommandID> results;
+    Array<CommandID> results;
 
     for (int i = 0; i < commands.size(); ++i)
         if (commands.getUnchecked(i)->categoryName == categoryName)

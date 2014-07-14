@@ -22,7 +22,7 @@
   ==============================================================================
 */
 
-#if defined (__JUCE_EVENTS_JUCEHEADER__) && ! JUCE_AMALGAMATED_INCLUDE
+#if defined (JUCE_EVENTS_H_INCLUDED) && ! JUCE_AMALGAMATED_INCLUDE
  /* When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
     flags preceding it, but don't include anything else. That also includes avoiding any automatic prefix
@@ -62,8 +62,6 @@
 namespace juce
 {
 
-// START_AUTOINCLUDE messages/*.cpp, broadcasters/*.cpp,
-// timers/*.cpp, interprocess/*.cpp
 #include "messages/juce_ApplicationBase.cpp"
 #include "messages/juce_DeletedAtShutdown.cpp"
 #include "messages/juce_MessageListener.cpp"
@@ -75,7 +73,7 @@ namespace juce
 #include "timers/juce_Timer.cpp"
 #include "interprocess/juce_InterprocessConnection.cpp"
 #include "interprocess/juce_InterprocessConnectionServer.cpp"
-// END_AUTOINCLUDE
+#include "interprocess/juce_ConnectedChildProcess.cpp"
 
 //==============================================================================
 #if JUCE_MAC

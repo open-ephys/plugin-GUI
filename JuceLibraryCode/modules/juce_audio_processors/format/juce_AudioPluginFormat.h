@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOPLUGINFORMAT_JUCEHEADER__
-#define __JUCE_AUDIOPLUGINFORMAT_JUCEHEADER__
-
-#include "../processors/juce_AudioPluginInstance.h"
-class PluginDescription;
+#ifndef JUCE_AUDIOPLUGINFORMAT_H_INCLUDED
+#define JUCE_AUDIOPLUGINFORMAT_H_INCLUDED
 
 
 //==============================================================================
@@ -57,13 +54,15 @@ public:
         (e.g. VST shells) can use a single DLL to create a set of different plugin
         subtypes, so in that case, each subtype is returned as a separate object.
     */
-    virtual void findAllTypesForFile (OwnedArray <PluginDescription>& results,
+    virtual void findAllTypesForFile (OwnedArray<PluginDescription>& results,
                                       const String& fileOrIdentifier) = 0;
 
     /** Tries to recreate a type from a previously generated PluginDescription.
         @see PluginDescription::createInstance
     */
-    virtual AudioPluginInstance* createInstanceFromDescription (const PluginDescription& desc) = 0;
+    virtual AudioPluginInstance* createInstanceFromDescription (const PluginDescription& desc,
+                                                                double initialSampleRate,
+                                                                int initialBufferSize) = 0;
 
     /** Should do a quick check to see if this file or directory might be a plugin of
         this format.
@@ -110,4 +109,4 @@ protected:
 };
 
 
-#endif   // __JUCE_AUDIOPLUGINFORMAT_JUCEHEADER__
+#endif   // JUCE_AUDIOPLUGINFORMAT_H_INCLUDED

@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_RESAMPLINGAUDIOSOURCE_JUCEHEADER__
-#define __JUCE_RESAMPLINGAUDIOSOURCE_JUCEHEADER__
-
-#include "juce_AudioSource.h"
+#ifndef JUCE_RESAMPLINGAUDIOSOURCE_H_INCLUDED
+#define JUCE_RESAMPLINGAUDIOSOURCE_H_INCLUDED
 
 
 //==============================================================================
@@ -69,9 +67,9 @@ public:
     double getResamplingRatio() const noexcept                  { return ratio; }
 
     //==============================================================================
-    void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
-    void releaseResources();
-    void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill);
+    void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
+    void releaseResources() override;
+    void getNextAudioBlock (const AudioSourceChannelInfo&) override;
 
 private:
     //==============================================================================
@@ -83,7 +81,8 @@ private:
     double coefficients[6];
     SpinLock ratioLock;
     const int numChannels;
-    HeapBlock<float*> destBuffers, srcBuffers;
+    HeapBlock<float*> destBuffers;
+    HeapBlock<const float*> srcBuffers;
 
     void setFilterCoefficients (double c1, double c2, double c3, double c4, double c5, double c6);
     void createLowPass (double proportionalRate);
@@ -102,4 +101,4 @@ private:
 };
 
 
-#endif   // __JUCE_RESAMPLINGAUDIOSOURCE_JUCEHEADER__
+#endif   // JUCE_RESAMPLINGAUDIOSOURCE_H_INCLUDED

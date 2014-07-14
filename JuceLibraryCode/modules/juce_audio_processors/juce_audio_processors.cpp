@@ -22,7 +22,7 @@
   ==============================================================================
 */
 
-#if defined (__JUCE_AUDIO_PROCESSORS_JUCEHEADER__) && ! JUCE_AMALGAMATED_INCLUDE
+#if defined (JUCE_AUDIO_PROCESSORS_H_INCLUDED) && ! JUCE_AMALGAMATED_INCLUDE
  /* When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
     flags preceding it, but don't include anything else. That also includes avoiding any automatic prefix
@@ -57,6 +57,11 @@
  #undef KeyPress
 #endif
 
+#if ! JUCE_WINDOWS && ! JUCE_MAC
+ #undef JUCE_PLUGINHOST_VST3
+ #define JUCE_PLUGINHOST_VST3 0
+#endif
+
 //==============================================================================
 namespace juce
 {
@@ -71,8 +76,72 @@ static inline bool arrayContainsPlugin (const OwnedArray<PluginDescription>& lis
     return false;
 }
 
-// START_AUTOINCLUDE format/*.cpp, processors/*.cpp, format_types/*.cpp,
-// format_types/*.mm, scanning/*.cpp
+#if JUCE_MAC
+//==============================================================================
+struct AutoResizingNSViewComponent  : public NSViewComponent,
+                                      private AsyncUpdater
+{
+    AutoResizingNSViewComponent() : recursive (false) {}
+
+    void childBoundsChanged (Component*) override
+    {
+        if (recursive)
+        {
+            triggerAsyncUpdate();
+        }
+        else
+        {
+            recursive = true;
+            resizeToFitView();
+            recursive = true;
+        }
+    }
+
+    void handleAsyncUpdate() override               { resizeToFitView(); }
+
+    bool recursive;
+};
+
+//==============================================================================
+struct AutoResizingNSViewComponentWithParent  : public AutoResizingNSViewComponent,
+                                                private Timer
+{
+    AutoResizingNSViewComponentWithParent()
+    {
+        NSView* v = [[NSView alloc] init];
+        setView (v);
+        [v release];
+
+        startTimer (100);
+    }
+
+    void timerCallback() override
+    {
+        if (NSView* parent = (NSView*) getView())
+        {
+            if ([[parent subviews] count] > 0)
+            {
+                if (NSView* child = [[parent subviews] objectAtIndex: 0])
+                {
+                    NSRect f = [parent frame];
+                    NSSize newSize = [child frame].size;
+
+                    if (f.size.width != newSize.width || f.size.height != newSize.height)
+                    {
+                        f.size = newSize;
+                        [parent setFrame: f];
+                    }
+                }
+            }
+        }
+    }
+};
+#endif
+
+#if JUCE_CLANG
+ #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #include "format/juce_AudioPluginFormat.cpp"
 #include "format/juce_AudioPluginFormatManager.cpp"
 #include "processors/juce_AudioProcessor.cpp"
@@ -82,10 +151,10 @@ static inline bool arrayContainsPlugin (const OwnedArray<PluginDescription>& lis
 #include "processors/juce_PluginDescription.cpp"
 #include "format_types/juce_LADSPAPluginFormat.cpp"
 #include "format_types/juce_VSTPluginFormat.cpp"
+#include "format_types/juce_VST3PluginFormat.cpp"
 #include "format_types/juce_AudioUnitPluginFormat.mm"
 #include "scanning/juce_KnownPluginList.cpp"
 #include "scanning/juce_PluginDirectoryScanner.cpp"
 #include "scanning/juce_PluginListComponent.cpp"
-// END_AUTOINCLUDE
 
 }

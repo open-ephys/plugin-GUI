@@ -22,13 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_TYPEFACE_JUCEHEADER__
-#define __JUCE_TYPEFACE_JUCEHEADER__
-
-class Path;
-class Font;
-class EdgeTable;
-class AffineTransform;
+#ifndef JUCE_TYPEFACE_H_INCLUDED
+#define JUCE_TYPEFACE_H_INCLUDED
 
 
 //==============================================================================
@@ -68,6 +63,12 @@ public:
     //==============================================================================
     /** Creates a new system typeface. */
     static Ptr createSystemTypefaceFor (const Font& font);
+
+    /** Attempts to create a font from some raw font file data (e.g. a TTF or OTF file image).
+        The system will take its own internal copy of the data, so you can free the block once
+        this method has returned.
+    */
+    static Ptr createSystemTypefaceFor (const void* fontFileData, size_t fontFileDataSize);
 
     //==============================================================================
     /** Destructor. */
@@ -116,7 +117,7 @@ public:
     virtual bool getOutlineForGlyph (int glyphNumber, Path& path) = 0;
 
     /** Returns a new EdgeTable that contains the path for the givem glyph, with the specified transform applied. */
-    virtual EdgeTable* getEdgeTableForGlyph (int glyphNumber, const AffineTransform& transform);
+    virtual EdgeTable* getEdgeTableForGlyph (int glyphNumber, const AffineTransform& transform, float fontHeight);
 
     /** Returns true if the typeface uses hinting. */
     virtual bool isHinted() const                           { return false; }
@@ -133,6 +134,12 @@ public:
     */
     static void scanFolderForFonts (const File& folder);
 
+    /** Makes an attempt at performing a good overall distortion that will scale a font of
+        the given size to align vertically with the pixel grid. The path should be an unscaled
+        (i.e. normalised to height of 1.0) path for a glyph.
+    */
+    void applyVerticalHintingTransform (float fontHeight, Path& path);
+
 protected:
     //==============================================================================
     String name, style;
@@ -142,8 +149,13 @@ protected:
     static Ptr getFallbackTypeface();
 
 private:
+    struct HintingParams;
+    friend struct ContainerDeletePolicy<HintingParams>;
+    ScopedPointer<HintingParams> hintingParams;
+    CriticalSection hintingLock;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Typeface)
 };
 
 
-#endif   // __JUCE_TYPEFACE_JUCEHEADER__
+#endif   // JUCE_TYPEFACE_H_INCLUDED

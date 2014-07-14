@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_MESSAGEMANAGER_JUCEHEADER__
-#define __JUCE_MESSAGEMANAGER_JUCEHEADER__
+#ifndef JUCE_MESSAGEMANAGER_H_INCLUDED
+#define JUCE_MESSAGEMANAGER_H_INCLUDED
 
 class MessageManagerLock;
 class ThreadPoolJob;
@@ -41,7 +41,7 @@ typedef void* (MessageCallbackFunction) (void* userData);
 /**
     This class is in charge of the application's event-dispatch loop.
 
-    @see Message, CallbackMessage, MessageManagerLock, JUCEApplication
+    @see Message, CallbackMessage, MessageManagerLock, JUCEApplication, JUCEApplicationBase
 */
 class JUCE_API  MessageManager
 {
@@ -128,7 +128,7 @@ public:
     */
     Thread::ThreadID getCurrentMessageThread() const noexcept            { return messageThreadId; }
 
-    /** Returns true if the caller thread has currenltly got the message manager locked.
+    /** Returns true if the caller thread has currently got the message manager locked.
 
         see the MessageManagerLock class for more info about this.
 
@@ -325,4 +325,4 @@ private:
 };
 
 
-#endif   // __JUCE_MESSAGEMANAGER_JUCEHEADER__
+#endif   // JUCE_MESSAGEMANAGER_H_INCLUDED

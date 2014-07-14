@@ -26,8 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_ANDROID_JNIHELPERS_JUCEHEADER__
-#define __JUCE_ANDROID_JNIHELPERS_JUCEHEADER__
+#ifndef JUCE_ANDROID_JNIHELPERS_H_INCLUDED
+#define JUCE_ANDROID_JNIHELPERS_H_INCLUDED
 
 #if ! (defined (JUCE_ANDROID_ACTIVITY_CLASSNAME) && defined (JUCE_ANDROID_ACTIVITY_CLASSPATH))
  #error "The JUCE_ANDROID_ACTIVITY_CLASSNAME and JUCE_ANDROID_ACTIVITY_CLASSPATH macros must be set!"
@@ -242,7 +242,7 @@ public:
     //==============================================================================
     GlobalRef activity;
     String appFile, appDataDir;
-    int screenWidth, screenHeight;
+    int screenWidth, screenHeight, dpi;
 };
 
 extern AndroidSystem android;
@@ -251,7 +251,7 @@ extern AndroidSystem android;
 class ThreadLocalJNIEnvHolder
 {
 public:
-    ThreadLocalJNIEnvHolder()
+    ThreadLocalJNIEnvHolder() noexcept
         : jvm (nullptr)
     {
         zeromem (threads, sizeof (threads));
@@ -269,18 +269,19 @@ public:
         addEnv (env);
     }
 
-    JNIEnv* attach()
+    JNIEnv* attach() noexcept
     {
-        JNIEnv* env = nullptr;
-        jvm->AttachCurrentThread (&env, nullptr);
+        if (JNIEnv* env = attachToCurrentThread())
+        {
+            SpinLock::ScopedLockType sl (addRemoveLock);
+            return addEnv (env);
+        }
 
-        if (env != nullptr)
-            addEnv (env);
-
-        return env;
+        jassertfalse;
+        return nullptr;
     }
 
-    void detach()
+    void detach() noexcept
     {
         jvm->DetachCurrentThread();
 
@@ -294,13 +295,43 @@ public:
 
     JNIEnv* getOrAttach() noexcept
     {
-        JNIEnv* env = get();
+        if (JNIEnv* env = get())
+            return env;
 
-        if (env == nullptr)
-            env = attach();
+        SpinLock::ScopedLockType sl (addRemoveLock);
 
-        jassert (env != nullptr);
-        return env;
+        if (JNIEnv* env = get())
+            return env;
+
+        if (JNIEnv* env = attachToCurrentThread())
+            return addEnv (env);
+
+        return nullptr;
+    }
+
+private:
+    JavaVM* jvm;
+    enum { maxThreads = 32 };
+    pthread_t threads [maxThreads];
+    JNIEnv* envs [maxThreads];
+    SpinLock addRemoveLock;
+
+    JNIEnv* addEnv (JNIEnv* env) noexcept
+    {
+        const pthread_t thisThread = pthread_self();
+
+        for (int i = 0; i < maxThreads; ++i)
+        {
+            if (threads[i] == 0)
+            {
+                envs[i] = env;
+                threads[i] = thisThread;
+                return env;
+            }
+        }
+
+        jassertfalse; // too many threads!
+        return nullptr;
     }
 
     JNIEnv* get() const noexcept
@@ -314,34 +345,11 @@ public:
         return nullptr;
     }
 
-    enum { maxThreads = 32 };
-
-private:
-    JavaVM* jvm;
-    pthread_t threads [maxThreads];
-    JNIEnv* envs [maxThreads];
-    SpinLock addRemoveLock;
-
-    void addEnv (JNIEnv* env)
+    JNIEnv* attachToCurrentThread()
     {
-        SpinLock::ScopedLockType sl (addRemoveLock);
-
-        if (get() == nullptr)
-        {
-            const pthread_t thisThread = pthread_self();
-
-            for (int i = 0; i < maxThreads; ++i)
-            {
-                if (threads[i] == 0)
-                {
-                    envs[i] = env;
-                    threads[i] = thisThread;
-                    return;
-                }
-            }
-        }
-
-        jassertfalse; // too many threads!
+        JNIEnv* env = nullptr;
+        jvm->AttachCurrentThread (&env, nullptr);
+        return env;
     }
 };
 
@@ -349,7 +357,7 @@ extern ThreadLocalJNIEnvHolder threadLocalJNIEnvHolder;
 
 //==============================================================================
 #define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD) \
- METHOD (createNewView,          "createNewView",        "(Z)L" JUCE_ANDROID_ACTIVITY_CLASSPATH "$ComponentPeerView;") \
+ METHOD (createNewView,          "createNewView",        "(ZJ)L" JUCE_ANDROID_ACTIVITY_CLASSPATH "$ComponentPeerView;") \
  METHOD (deleteView,             "deleteView",           "(L" JUCE_ANDROID_ACTIVITY_CLASSPATH "$ComponentPeerView;)V") \
  METHOD (postMessage,            "postMessage",          "(J)V") \
  METHOD (finish,                 "finish",               "()V") \
@@ -357,7 +365,7 @@ extern ThreadLocalJNIEnvHolder threadLocalJNIEnvHolder;
  METHOD (setClipboardContent,    "setClipboardContent",  "(Ljava/lang/String;)V") \
  METHOD (excludeClipRegion,      "excludeClipRegion",    "(Landroid/graphics/Canvas;FFFF)V") \
  METHOD (renderGlyph,            "renderGlyph",          "(CLandroid/graphics/Paint;Landroid/graphics/Matrix;Landroid/graphics/Rect;)[I") \
- STATICMETHOD (createHTTPStream, "createHTTPStream",     "(Ljava/lang/String;Z[BLjava/lang/String;ILjava/lang/StringBuffer;)L" JUCE_ANDROID_ACTIVITY_CLASSPATH "$HTTPStream;") \
+ STATICMETHOD (createHTTPStream, "createHTTPStream",     "(Ljava/lang/String;Z[BLjava/lang/String;I[ILjava/lang/StringBuffer;)L" JUCE_ANDROID_ACTIVITY_CLASSPATH "$HTTPStream;") \
  METHOD (launchURL,              "launchURL",            "(Ljava/lang/String;)V") \
  METHOD (showMessageBox,         "showMessageBox",       "(Ljava/lang/String;Ljava/lang/String;J)V") \
  METHOD (showOkCancelBox,        "showOkCancelBox",      "(Ljava/lang/String;Ljava/lang/String;J)V") \
@@ -404,4 +412,4 @@ DECLARE_JNI_CLASS (Matrix, "android/graphics/Matrix");
 DECLARE_JNI_CLASS (RectClass, "android/graphics/Rect");
 #undef JNI_CLASS_MEMBERS
 
-#endif   // __JUCE_ANDROID_JNIHELPERS_JUCEHEADER__
+#endif   // JUCE_ANDROID_JNIHELPERS_H_INCLUDED

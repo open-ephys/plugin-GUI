@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -85,28 +84,14 @@ Font JucerTreeViewBase::getFont() const
     return Font (getItemHeight() * 0.6f);
 }
 
-void JucerTreeViewBase::paintItem (Graphics& g, int /*width*/, int /*height*/)
-{
-    if (isSelected())
-        g.fillAll (getOwnerView()->findColour (treeviewHighlightColourId));
-}
-
 float JucerTreeViewBase::getIconSize() const
 {
     return jmin (getItemHeight() - 4.0f, 18.0f);
 }
 
-void JucerTreeViewBase::paintOpenCloseButton (Graphics& g, int width, int height, bool /*isMouseOver*/)
+void JucerTreeViewBase::paintOpenCloseButton (Graphics& g, const Rectangle<float>& area, Colour /*backgroundColour*/, bool isMouseOver)
 {
-    Path p;
-
-    if (isOpen())
-        p.addTriangle (width * 0.2f,  height * 0.25f, width * 0.8f, height * 0.25f, width * 0.5f, height * 0.75f);
-    else
-        p.addTriangle (width * 0.25f, height * 0.25f, width * 0.8f, height * 0.5f,  width * 0.25f, height * 0.75f);
-
-    g.setColour (getOwnerView()->findColour (mainBackgroundColourId).contrasting (0.3f));
-    g.fillPath (p);
+    TreeViewItem::paintOpenCloseButton (g, area, getOwnerView()->findColour (mainBackgroundColourId), isMouseOver);
 }
 
 Colour JucerTreeViewBase::getBackgroundColour() const
@@ -114,7 +99,7 @@ Colour JucerTreeViewBase::getBackgroundColour() const
     Colour background (getOwnerView()->findColour (mainBackgroundColourId));
 
     if (isSelected())
-        background = background.overlaidWith (getOwnerView()->findColour (treeviewHighlightColourId));
+        background = background.overlaidWith (getOwnerView()->findColour (TreeView::selectedItemBackgroundColourId));
 
     return background;
 }
@@ -124,7 +109,7 @@ Colour JucerTreeViewBase::getContrastingColour (float contrast) const
     return getBackgroundColour().contrasting (contrast);
 }
 
-Colour JucerTreeViewBase::getContrastingColour (const Colour& target, float minContrast) const
+Colour JucerTreeViewBase::getContrastingColour (Colour target, float minContrast) const
 {
     return getBackgroundColour().contrasting (target, minContrast);
 }
@@ -148,8 +133,8 @@ class RenameTreeItemCallback  : public ModalComponentManager::Callback,
                                 public TextEditorListener
 {
 public:
-    RenameTreeItemCallback (JucerTreeViewBase& item_, Component& parent, const Rectangle<int>& bounds)
-        : item (item_)
+    RenameTreeItemCallback (JucerTreeViewBase& ti, Component& parent, const Rectangle<int>& bounds)
+        : item (ti)
     {
         ed.setMultiLine (false, false);
         ed.setPopupMenuEnabled (false);
@@ -159,23 +144,28 @@ public:
         ed.setText (item.getRenamingName());
         ed.setBounds (bounds);
 
-        parent.addAndMakeVisible (&ed);
+        parent.addAndMakeVisible (ed);
         ed.enterModalState (true, this);
     }
 
-    void modalStateFinished (int resultCode)
+    void modalStateFinished (int resultCode) override
     {
         if (resultCode != 0)
             item.setName (ed.getText());
     }
 
-    void textEditorTextChanged (TextEditor&)                {}
-    void textEditorReturnKeyPressed (TextEditor& editor)    { editor.exitModalState (1); }
-    void textEditorEscapeKeyPressed (TextEditor& editor)    { editor.exitModalState (0); }
-    void textEditorFocusLost (TextEditor& editor)           { editor.exitModalState (0); }
+    void textEditorTextChanged (TextEditor&) override               {}
+    void textEditorReturnKeyPressed (TextEditor& editor) override    { editor.exitModalState (1); }
+    void textEditorEscapeKeyPressed (TextEditor& editor) override    { editor.exitModalState (0); }
+    void textEditorFocusLost (TextEditor& editor) override           { editor.exitModalState (0); }
 
 private:
-    TextEditor ed;
+    struct RenameEditor   : public TextEditor
+    {
+        void inputAttemptWhenModal() override   { exitModalState (0); }
+    };
+
+    RenameEditor ed;
     JucerTreeViewBase& item;
 
     JUCE_DECLARE_NON_COPYABLE (RenameTreeItemCallback)
@@ -236,9 +226,9 @@ ProjectContentComponent* JucerTreeViewBase::getProjectContentComponent() const
 class JucerTreeViewBase::ItemSelectionTimer  : public Timer
 {
 public:
-    ItemSelectionTimer (JucerTreeViewBase& owner_)  : owner (owner_) {}
+    ItemSelectionTimer (JucerTreeViewBase& tvb)  : owner (tvb) {}
 
-    void timerCallback()    { owner.invokeShowDocument(); }
+    void timerCallback() override    { owner.invokeShowDocument(); }
 
 private:
     JucerTreeViewBase& owner;

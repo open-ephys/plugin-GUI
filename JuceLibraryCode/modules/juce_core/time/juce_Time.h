@@ -26,10 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_TIME_JUCEHEADER__
-#define __JUCE_TIME_JUCEHEADER__
-
-#include "juce_RelativeTime.h"
+#ifndef JUCE_TIME_H_INCLUDED
+#define JUCE_TIME_H_INCLUDED
 
 
 //==============================================================================
@@ -403,4 +401,4 @@ JUCE_API bool operator>  (Time time1, Time time2);
 JUCE_API bool operator>= (Time time1, Time time2);
 
 
-#endif   // __JUCE_TIME_JUCEHEADER__
+#endif   // JUCE_TIME_H_INCLUDED

@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_KEYBOARDFOCUSTRAVERSER_JUCEHEADER__
-#define __JUCE_KEYBOARDFOCUSTRAVERSER_JUCEHEADER__
-
-class Component;
+#ifndef JUCE_KEYBOARDFOCUSTRAVERSER_H_INCLUDED
+#define JUCE_KEYBOARDFOCUSTRAVERSER_H_INCLUDED
 
 
 //==============================================================================
@@ -62,7 +60,7 @@ public:
         The default implementation will return the next component which is to the
         right of or below this one.
 
-        This may return 0 if there's no suitable candidate.
+        This may return nullptr if there's no suitable candidate.
     */
     virtual Component* getNextComponent (Component* current);
 
@@ -72,7 +70,7 @@ public:
         The default implementation will return the next component which is to the
         left of or above this one.
 
-        This may return 0 if there's no suitable candidate.
+        This may return nullptr if there's no suitable candidate.
     */
     virtual Component* getPreviousComponent (Component* current);
 
@@ -82,10 +80,10 @@ public:
         The default implementation will just return the foremost child component that
         wants focus.
 
-        This may return 0 if there's no suitable candidate.
+        This may return nullptr if there's no suitable candidate.
     */
     virtual Component* getDefaultComponent (Component* parentComponent);
 };
 
 
-#endif   // __JUCE_KEYBOARDFOCUSTRAVERSER_JUCEHEADER__
+#endif   // JUCE_KEYBOARDFOCUSTRAVERSER_H_INCLUDED

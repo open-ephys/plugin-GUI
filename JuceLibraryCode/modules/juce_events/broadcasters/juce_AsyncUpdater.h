@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_ASYNCUPDATER_JUCEHEADER__
-#define __JUCE_ASYNCUPDATER_JUCEHEADER__
+#ifndef JUCE_ASYNCUPDATER_H_INCLUDED
+#define JUCE_ASYNCUPDATER_H_INCLUDED
 
 
 //==============================================================================
@@ -68,8 +68,8 @@ public:
         callback happens, this will cancel the handleAsyncUpdate() callback.
 
         Note that this method simply cancels the next callback - if a callback is already
-        in progress on a different thread, this won't block until it finishes, so there's
-        no guarantee that the callback isn't still running when you return from
+        in progress on a different thread, this won't block until the callback finishes, so
+        there's no guarantee that the callback isn't still running when the method returns.
     */
     void cancelPendingUpdate() noexcept;
 
@@ -100,10 +100,10 @@ private:
     //==============================================================================
     class AsyncUpdaterMessage;
     friend class ReferenceCountedObjectPtr<AsyncUpdaterMessage>;
-    ReferenceCountedObjectPtr<AsyncUpdaterMessage> message;
+    ReferenceCountedObjectPtr<AsyncUpdaterMessage> activeMessage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AsyncUpdater)
 };
 
 
-#endif   // __JUCE_ASYNCUPDATER_JUCEHEADER__
+#endif   // JUCE_ASYNCUPDATER_H_INCLUDED

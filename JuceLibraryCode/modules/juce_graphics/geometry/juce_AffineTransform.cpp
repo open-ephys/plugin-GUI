@@ -152,6 +152,12 @@ AffineTransform AffineTransform::scaled (const float factorX, const float factor
                             factorY * mat10, factorY * mat11, factorY * mat12);
 }
 
+AffineTransform AffineTransform::scaled (const float factor) const noexcept
+{
+    return AffineTransform (factor * mat00, factor * mat01, factor * mat02,
+                            factor * mat10, factor * mat11, factor * mat12);
+}
+
 AffineTransform AffineTransform::scale (const float factorX, const float factorY) noexcept
 {
     return AffineTransform (factorX, 0, 0, 0, factorY, 0);
@@ -252,5 +258,5 @@ bool AffineTransform::isOnlyTranslation() const noexcept
 
 float AffineTransform::getScaleFactor() const noexcept
 {
-    return juce_hypot (mat00 + mat01, mat10 + mat11);
+    return (mat00 + mat11) / 2.0f;
 }

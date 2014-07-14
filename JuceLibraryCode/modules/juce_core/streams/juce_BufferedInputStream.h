@@ -26,12 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_BUFFEREDINPUTSTREAM_JUCEHEADER__
-#define __JUCE_BUFFEREDINPUTSTREAM_JUCEHEADER__
-
-#include "juce_InputStream.h"
-#include "../memory/juce_OptionalScopedPointer.h"
-#include "../memory/juce_HeapBlock.h"
+#ifndef JUCE_BUFFEREDINPUTSTREAM_H_INCLUDED
+#define JUCE_BUFFEREDINPUTSTREAM_H_INCLUDED
 
 
 //==============================================================================
@@ -74,12 +70,12 @@ public:
 
 
     //==============================================================================
-    int64 getTotalLength();
-    int64 getPosition();
-    bool setPosition (int64 newPosition);
-    int read (void* destBuffer, int maxBytesToRead);
-    String readString();
-    bool isExhausted();
+    int64 getTotalLength() override;
+    int64 getPosition() override;
+    bool setPosition (int64 newPosition) override;
+    int read (void* destBuffer, int maxBytesToRead) override;
+    String readString() override;
+    bool isExhausted() override;
 
 
 private:
@@ -93,4 +89,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BufferedInputStream)
 };
 
-#endif   // __JUCE_BUFFEREDINPUTSTREAM_JUCEHEADER__
+#endif   // JUCE_BUFFEREDINPUTSTREAM_H_INCLUDED

@@ -22,7 +22,7 @@
   ==============================================================================
 */
 
-#if defined (__JUCE_AUDIO_UTILS_JUCEHEADER__) && ! JUCE_AMALGAMATED_INCLUDE
+#if defined (JUCE_AUDIO_UTILS_H_INCLUDED) && ! JUCE_AMALGAMATED_INCLUDE
  /* When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
     flags preceding it, but don't include anything else. That also includes avoiding any automatic prefix
@@ -41,12 +41,10 @@
 namespace juce
 {
 
-// START_AUTOINCLUDE gui/*.cpp, players/*.cpp
 #include "gui/juce_AudioDeviceSelectorComponent.cpp"
 #include "gui/juce_AudioThumbnail.cpp"
 #include "gui/juce_AudioThumbnailCache.cpp"
 #include "gui/juce_MidiKeyboardComponent.cpp"
 #include "players/juce_AudioProcessorPlayer.cpp"
-// END_AUTOINCLUDE
 
 }

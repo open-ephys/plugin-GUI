@@ -63,6 +63,7 @@ PluginDirectoryScanner::PluginDirectoryScanner (KnownPluginList& listToAddTo,
 
 PluginDirectoryScanner::~PluginDirectoryScanner()
 {
+    list.scanFinished();
 }
 
 //==============================================================================
@@ -76,16 +77,19 @@ void PluginDirectoryScanner::updateProgress()
     progress = (1.0f - nextIndex.get() / (float) filesOrIdentifiersToScan.size());
 }
 
-bool PluginDirectoryScanner::scanNextFile (const bool dontRescanIfAlreadyInList)
+bool PluginDirectoryScanner::scanNextFile (const bool dontRescanIfAlreadyInList,
+                                           String& nameOfPluginBeingScanned)
 {
     const int index = --nextIndex;
 
     if (index >= 0)
     {
-        String file (filesOrIdentifiersToScan [index]);
+        const String file (filesOrIdentifiersToScan [index]);
 
         if (file.isNotEmpty() && ! list.isListingUpToDate (file, format))
         {
+            nameOfPluginBeingScanned = format.getNameOfPluginFromIdentifier (file);
+
             OwnedArray <PluginDescription> typesFound;
 
             // Add this plugin to the end of the dead-man's pedal list in case it crashes...
@@ -117,7 +121,7 @@ bool PluginDirectoryScanner::skipNextFile()
 
 void PluginDirectoryScanner::setDeadMansPedalFile (const StringArray& newContents)
 {
-    if (deadMansPedalFile != File::nonexistent)
+    if (deadMansPedalFile.getFullPathName().isNotEmpty())
         deadMansPedalFile.replaceWithText (newContents.joinIntoString ("\n"), true, true);
 }
 

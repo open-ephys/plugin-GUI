@@ -26,10 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_STRINGPAIRARRAY_JUCEHEADER__
-#define __JUCE_STRINGPAIRARRAY_JUCEHEADER__
-
-#include "juce_StringArray.h"
+#ifndef JUCE_STRINGPAIRARRAY_H_INCLUDED
+#define JUCE_STRINGPAIRARRAY_H_INCLUDED
 
 
 //==============================================================================
@@ -79,16 +77,16 @@ public:
 
         @see getValue
     */
-    const String& operator[] (const String& key) const;
+    const String& operator[] (StringRef key) const;
 
     /** Finds the value corresponding to a key string.
-
         If no such key is found, this will just return the value provided as a default.
-
         @see operator[]
     */
-    String getValue (const String& key, const String& defaultReturnValue) const;
+    String getValue (StringRef, const String& defaultReturnValue) const;
 
+    /** Returns true if the given key exists. */
+    bool containsKey (StringRef key) const noexcept;
 
     /** Returns a list of all keys in the array. */
     const StringArray& getAllKeys() const noexcept          { return keys; }
@@ -102,14 +100,12 @@ public:
 
     //==============================================================================
     /** Adds or amends a key/value pair.
-
         If a value already exists with this key, its value will be overwritten,
         otherwise the key/value pair will be added to the array.
     */
     void set (const String& key, const String& value);
 
     /** Adds the items from another array to this one.
-
         This is equivalent to using set() to add each of the pairs from the other array.
     */
     void addArray (const StringPairArray& other);
@@ -119,13 +115,11 @@ public:
     void clear();
 
     /** Removes a string from the array based on its key.
-
         If the key isn't found, nothing will happen.
     */
-    void remove (const String& key);
+    void remove (StringRef key);
 
     /** Removes a string from the array based on its index.
-
         If the index is out-of-range, no action will be taken.
     */
     void remove (int index);
@@ -160,4 +154,4 @@ private:
 };
 
 
-#endif   // __JUCE_STRINGPAIRARRAY_JUCEHEADER__
+#endif   // JUCE_STRINGPAIRARRAY_H_INCLUDED

@@ -132,23 +132,27 @@ public:
     static const char* const acidTempo;
 
     //==============================================================================
-    Array<int> getPossibleSampleRates();
-    Array<int> getPossibleBitDepths();
-    bool canDoStereo();
-    bool canDoMono();
+    /** Metadata property name used when reading an ISRC code from an AXML chunk. */
+    static const char* const ISRC;
+
+    //==============================================================================
+    Array<int> getPossibleSampleRates() override;
+    Array<int> getPossibleBitDepths() override;
+    bool canDoStereo() override;
+    bool canDoMono() override;
 
     //==============================================================================
     AudioFormatReader* createReaderFor (InputStream* sourceStream,
-                                        bool deleteStreamIfOpeningFails);
+                                        bool deleteStreamIfOpeningFails) override;
 
-    MemoryMappedAudioFormatReader* createMemoryMappedReader (const File& file);
+    MemoryMappedAudioFormatReader* createMemoryMappedReader (const File& file) override;
 
     AudioFormatWriter* createWriterFor (OutputStream* streamToWriteTo,
                                         double sampleRateToUse,
                                         unsigned int numberOfChannels,
                                         int bitsPerSample,
                                         const StringPairArray& metadataValues,
-                                        int qualityOptionIndex);
+                                        int qualityOptionIndex) override;
 
     //==============================================================================
     /** Utility function to replace the metadata in a wav file with a new set of values.

@@ -26,17 +26,13 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_SORTEDSET_JUCEHEADER__
-#define __JUCE_SORTEDSET_JUCEHEADER__
-
-#include "juce_ArrayAllocationBase.h"
-#include "../threads/juce_CriticalSection.h"
+#ifndef JUCE_SORTEDSET_H_INCLUDED
+#define JUCE_SORTEDSET_H_INCLUDED
 
 #if JUCE_MSVC
-  #pragma warning (push)
-  #pragma warning (disable: 4512)
+ #pragma warning (push)
+ #pragma warning (disable: 4512)
 #endif
-
 
 //==============================================================================
 /**
@@ -126,7 +122,6 @@ public:
     }
 
     /** Removes all elements from the set without freeing the array's allocated storage.
-
         @see clear
     */
     void clearQuick() noexcept
@@ -135,8 +130,7 @@ public:
     }
 
     //==============================================================================
-    /** Returns the current number of elements in the set.
-    */
+    /** Returns the current number of elements in the set. */
     inline int size() const noexcept
     {
         return data.size();
@@ -185,7 +179,6 @@ public:
     }
 
     /** Returns the first element in the set, or 0 if the set is empty.
-
         @see operator[], getUnchecked, getLast
     */
     inline ElementType getFirst() const noexcept
@@ -194,7 +187,6 @@ public:
     }
 
     /** Returns the last element in the set, or 0 if the set is empty.
-
         @see operator[], getUnchecked, getFirst
     */
     inline ElementType getLast() const noexcept
@@ -247,7 +239,8 @@ public:
 
             if (halfway == s)
                 return -1;
-            else if (elementToLookFor < data.getReference (halfway))
+
+            if (elementToLookFor < data.getReference (halfway))
                 e = halfway;
             else
                 s = halfway;
@@ -302,7 +295,8 @@ public:
 
                 break;
             }
-            else if (isBeforeHalfway)
+
+            if (isBeforeHalfway)
                 e = halfway;
             else
                 s = halfway;
@@ -448,9 +442,10 @@ public:
         If you need to exchange two arrays, this is vastly quicker than using copy-by-value
         because it just swaps their internal pointers.
     */
-    void swapWith (SortedSet& otherSet) noexcept
+    template <class OtherSetType>
+    void swapWith (OtherSetType& otherSet) noexcept
     {
-        data.swapWithArray (otherSet.data);
+        data.swapWith (otherSet.data);
     }
 
     //==============================================================================
@@ -489,11 +484,11 @@ public:
 
 private:
     //==============================================================================
-    Array <ElementType, TypeOfCriticalSectionToUse> data;
+    Array<ElementType, TypeOfCriticalSectionToUse> data;
 };
 
 #if JUCE_MSVC
-  #pragma warning (pop)
+ #pragma warning (pop)
 #endif
 
-#endif   // __JUCE_SORTEDSET_JUCEHEADER__
+#endif   // JUCE_SORTEDSET_H_INCLUDED

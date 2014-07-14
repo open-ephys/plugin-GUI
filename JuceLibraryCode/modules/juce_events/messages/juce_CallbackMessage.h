@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_CALLBACKMESSAGE_JUCEHEADER__
-#define __JUCE_CALLBACKMESSAGE_JUCEHEADER__
-
-#include "juce_MessageManager.h"
+#ifndef JUCE_CALLBACKMESSAGE_H_INCLUDED
+#define JUCE_CALLBACKMESSAGE_H_INCLUDED
 
 
 //==============================================================================
@@ -72,4 +70,4 @@ private:
 };
 
 
-#endif   // __JUCE_CALLBACKMESSAGE_JUCEHEADER__
+#endif   // JUCE_CALLBACKMESSAGE_H_INCLUDED

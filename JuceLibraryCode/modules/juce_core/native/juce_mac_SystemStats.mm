@@ -69,21 +69,17 @@ namespace SystemStatsHelpers
 }
 
 //==============================================================================
-SystemStats::CPUFlags::CPUFlags()
+void CPUInformation::initialise() noexcept
 {
    #if JUCE_INTEL && ! JUCE_NO_INLINE_ASM
-    uint32 familyModel = 0, extFeatures = 0, features = 0, dummy = 0;
-    SystemStatsHelpers::doCPUID (familyModel, extFeatures, dummy, features, 1);
+    uint32 a = 0, b = 0, d = 0, c = 0;
+    SystemStatsHelpers::doCPUID (a, b, c, d, 1);
 
-    hasMMX   = (features    & (1u << 23)) != 0;
-    hasSSE   = (features    & (1u << 25)) != 0;
-    hasSSE2  = (features    & (1u << 26)) != 0;
-    has3DNow = (extFeatures & (1u << 31)) != 0;
-   #else
-    hasMMX = false;
-    hasSSE = false;
-    hasSSE2 = false;
-    has3DNow = false;
+    hasMMX   = (d & (1u << 23)) != 0;
+    hasSSE   = (d & (1u << 25)) != 0;
+    hasSSE2  = (d & (1u << 26)) != 0;
+    has3DNow = (b & (1u << 31)) != 0;
+    hasSSE3  = (c & (1u <<  0)) != 0;
    #endif
 
    #if JUCE_IOS || (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_5)
@@ -128,7 +124,7 @@ SystemStats::OperatingSystemType SystemStats::getOperatingSystemType()
     return iOS;
    #else
     StringArray parts;
-    parts.addTokens (getOSXVersion(), ".", String::empty);
+    parts.addTokens (getOSXVersion(), ".", StringRef());
 
     jassert (parts[0].getIntValue() == 10);
     const int major = parts[1].getIntValue();
@@ -144,6 +140,15 @@ String SystemStats::getOperatingSystemName()
     return "iOS " + nsStringToJuce ([[UIDevice currentDevice] systemVersion]);
    #else
     return "Mac OSX " + getOSXVersion();
+   #endif
+}
+
+String SystemStats::getDeviceDescription()
+{
+   #if JUCE_IOS
+    return nsStringToJuce ([[UIDevice currentDevice] model]);
+   #else
+    return String();
    #endif
 }
 
@@ -177,7 +182,7 @@ String SystemStats::getCpuVendor()
 
     return String (reinterpret_cast <const char*> (vendor), 12);
    #else
-    return String::empty;
+    return String();
    #endif
 }
 
@@ -213,7 +218,7 @@ String SystemStats::getComputerName()
     if (gethostname (name, sizeof (name) - 1) == 0)
         return String (name).upToLastOccurrenceOf (".local", false, true);
 
-    return String::empty;
+    return String();
 }
 
 static String getLocaleValue (CFStringRef key)
@@ -236,35 +241,41 @@ String SystemStats::getDisplayLanguage()
 }
 
 //==============================================================================
-class HiResCounterHandler
+/*  NB: these are kept outside the HiResCounterInfo struct and initialised to 1 to avoid
+    division-by-zero errors if some other static constructor calls us before this file's
+    static constructors have had a chance to fill them in correctly..
+*/
+static uint64 hiResCounterNumerator = 0, hiResCounterDenominator = 1;
+
+class HiResCounterInfo
 {
 public:
-    HiResCounterHandler()
+    HiResCounterInfo()
     {
         mach_timebase_info_data_t timebase;
         (void) mach_timebase_info (&timebase);
 
         if (timebase.numer % 1000000 == 0)
         {
-            numerator   = timebase.numer / 1000000;
-            denominator = timebase.denom;
+            hiResCounterNumerator   = timebase.numer / 1000000;
+            hiResCounterDenominator = timebase.denom;
         }
         else
         {
-            numerator   = timebase.numer;
-            denominator = timebase.denom * (uint64) 1000000;
+            hiResCounterNumerator   = timebase.numer;
+            hiResCounterDenominator = timebase.denom * (uint64) 1000000;
         }
 
         highResTimerFrequency = (timebase.denom * (uint64) 1000000000) / timebase.numer;
-        highResTimerToMillisecRatio = numerator / (double) denominator;
+        highResTimerToMillisecRatio = hiResCounterNumerator / (double) hiResCounterDenominator;
     }
 
-    inline uint32 millisecondsSinceStartup() const noexcept
+    uint32 millisecondsSinceStartup() const noexcept
     {
-        return (uint32) ((mach_absolute_time() * numerator) / denominator);
+        return (uint32) ((mach_absolute_time() * hiResCounterNumerator) / hiResCounterDenominator);
     }
 
-    inline double getMillisecondCounterHiRes() const noexcept
+    double getMillisecondCounterHiRes() const noexcept
     {
         return mach_absolute_time() * highResTimerToMillisecRatio;
     }
@@ -272,15 +283,14 @@ public:
     int64 highResTimerFrequency;
 
 private:
-    uint64 numerator, denominator;
     double highResTimerToMillisecRatio;
 };
 
-static HiResCounterHandler hiResCounterHandler;
+static HiResCounterInfo hiResCounterInfo;
 
-uint32 juce_millisecondsSinceStartup() noexcept         { return hiResCounterHandler.millisecondsSinceStartup(); }
-double Time::getMillisecondCounterHiRes() noexcept      { return hiResCounterHandler.getMillisecondCounterHiRes(); }
-int64  Time::getHighResolutionTicksPerSecond() noexcept { return hiResCounterHandler.highResTimerFrequency; }
+uint32 juce_millisecondsSinceStartup() noexcept         { return hiResCounterInfo.millisecondsSinceStartup(); }
+double Time::getMillisecondCounterHiRes() noexcept      { return hiResCounterInfo.getMillisecondCounterHiRes(); }
+int64  Time::getHighResolutionTicksPerSecond() noexcept { return hiResCounterInfo.highResTimerFrequency; }
 int64  Time::getHighResolutionTicks() noexcept          { return (int64) mach_absolute_time(); }
 
 bool Time::setSystemTimeToThisTime() const

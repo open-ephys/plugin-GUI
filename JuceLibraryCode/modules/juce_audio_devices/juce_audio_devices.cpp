@@ -22,7 +22,7 @@
   ==============================================================================
 */
 
-#if defined (__JUCE_AUDIO_DEVICES_JUCEHEADER__) && ! JUCE_AMALGAMATED_INCLUDE
+#if defined (JUCE_AUDIO_DEVICES_H_INCLUDED) && ! JUCE_AMALGAMATED_INCLUDE
  /* When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
     flags preceding it, but don't include anything else. That also includes avoiding any automatic prefix
@@ -125,6 +125,7 @@
  #if JUCE_USE_ANDROID_OPENSLES
   #include <SLES/OpenSLES.h>
   #include <SLES/OpenSLES_Android.h>
+  #include <SLES/OpenSLES_AndroidConfiguration.h>
  #endif
 
 #endif
@@ -132,7 +133,6 @@
 namespace juce
 {
 
-// START_AUTOINCLUDE audio_io/*.cpp, midi_io/*.cpp, audio_cd/*.cpp, sources/*.cpp
 #include "audio_io/juce_AudioDeviceManager.cpp"
 #include "audio_io/juce_AudioIODevice.cpp"
 #include "audio_io/juce_AudioIODeviceType.cpp"
@@ -141,16 +141,7 @@ namespace juce
 #include "audio_cd/juce_AudioCDReader.cpp"
 #include "sources/juce_AudioSourcePlayer.cpp"
 #include "sources/juce_AudioTransportSource.cpp"
-// END_AUTOINCLUDE
-
-}
-
-//==============================================================================
-using namespace juce;
-
-namespace juce
-{
- #include "native/juce_MidiDataConcatenator.h"
+#include "native/juce_MidiDataConcatenator.h"
 
 //==============================================================================
 #if JUCE_MAC

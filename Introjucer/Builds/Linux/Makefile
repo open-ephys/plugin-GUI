@@ -1,30 +1,32 @@
 # Automatically generated makefile, created by the Introjucer
 # Don't edit this file! Your changes will be overwritten when you re-save the Introjucer project!
 
+# (this disables dependency generation if multiple architectures are set)
+DEPFLAGS := $(if $(word 2, $(TARGET_ARCH)), , -MMD)
+
 ifndef CONFIG
   CONFIG=Debug
 endif
-
-ifeq ($(TARGET_ARCH),)
-  TARGET_ARCH := -march=native
-endif
-
-# (this disables dependency generation if multiple architectures are set)
-DEPFLAGS := $(if $(word 2, $(TARGET_ARCH)), , -MMD)
 
 ifeq ($(CONFIG),Debug)
   BINDIR := build
   LIBDIR := build
   OBJDIR := build/intermediate/Debug
   OUTDIR := build
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0
-  CXXFLAGS += $(CFLAGS) 
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -ldl -lfreetype -lpthread -lrt 
+
+  ifeq ($(TARGET_ARCH),)
+    TARGET_ARCH := -march=native
+  endif
+
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=3.1.0" -D "JUCE_APP_VERSION_HEX=0x30100" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../../JuceLibraryCode/modules
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 -std=gnu++0x
+  CXXFLAGS += $(CFLAGS)
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -ldl -lfreetype -lpthread -lrt 
   LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
+  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=3.1.0" -D "JUCE_APP_VERSION_HEX=0x30100" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../../JuceLibraryCode/modules
   TARGET := Introjucer
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
+  CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
 endif
 
 ifeq ($(CONFIG),Release)
@@ -32,33 +34,35 @@ ifeq ($(CONFIG),Release)
   LIBDIR := build
   OBJDIR := build/intermediate/Release
   OUTDIR := build
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3
-  CXXFLAGS += $(CFLAGS) 
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -ldl -lfreetype -lpthread -lrt 
+
+  ifeq ($(TARGET_ARCH),)
+    TARGET_ARCH := -march=native
+  endif
+
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=3.1.0" -D "JUCE_APP_VERSION_HEX=0x30100" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../../JuceLibraryCode/modules
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -std=gnu++0x
+  CXXFLAGS += $(CFLAGS)
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -ldl -lfreetype -lpthread -lrt 
   LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
+  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=3.1.0" -D "JUCE_APP_VERSION_HEX=0x30100" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../../JuceLibraryCode/modules
   TARGET := Introjucer
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
+  CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
 endif
 
 OBJECTS := \
   $(OBJDIR)/jucer_AppearanceSettings_788d9889.o \
   $(OBJDIR)/jucer_CommandLine_f35de107.o \
   $(OBJDIR)/jucer_DocumentEditorComponent_695dff1d.o \
-  $(OBJDIR)/jucer_JuceUpdater_cf7865c4.o \
   $(OBJDIR)/jucer_Main_f8488f5b.o \
   $(OBJDIR)/jucer_MainWindow_1e163aeb.o \
   $(OBJDIR)/jucer_OpenDocumentManager_4c72d210.o \
-  $(OBJDIR)/jucer_ConfigPage_99b07caa.o \
   $(OBJDIR)/jucer_Module_3f7666a5.o \
   $(OBJDIR)/jucer_NewFileWizard_b8a19ef8.o \
   $(OBJDIR)/jucer_NewProjectWizard_7a15bf5d.o \
   $(OBJDIR)/jucer_Project_c131864a.o \
   $(OBJDIR)/jucer_ProjectContentComponent_60de0eee.o \
-  $(OBJDIR)/jucer_ProjectTreeViewBase_63c2bdbe.o \
   $(OBJDIR)/jucer_ProjectType_1bc27a24.o \
-  $(OBJDIR)/jucer_TreeViewTypes_4a765287.o \
   $(OBJDIR)/jucer_ProjectExporter_eefe2e5b.o \
   $(OBJDIR)/jucer_ResourceFile_6af120d3.o \
   $(OBJDIR)/jucer_CodeHelpers_c317179c.o \
@@ -68,14 +72,34 @@ OBJECTS := \
   $(OBJDIR)/jucer_MiscUtilities_25b68c82.o \
   $(OBJDIR)/jucer_StoredSettings_26078d2c.o \
   $(OBJDIR)/jucer_SourceCodeEditor_461f5487.o \
+  $(OBJDIR)/jucer_ComponentTypeHandler_6bec6262.o \
+  $(OBJDIR)/jucer_ButtonDocument_56c341cc.o \
+  $(OBJDIR)/jucer_ComponentDocument_92868083.o \
+  $(OBJDIR)/jucer_ColouredElement_70cbc839.o \
+  $(OBJDIR)/jucer_PaintElement_653460.o \
+  $(OBJDIR)/jucer_PaintElementPath_908894a5.o \
+  $(OBJDIR)/jucer_ComponentLayoutEditor_aeb44f8d.o \
+  $(OBJDIR)/jucer_ComponentOverlayComponent_fd508d63.o \
+  $(OBJDIR)/jucer_EditingPanelBase_6c2ed9ee.o \
+  $(OBJDIR)/jucer_JucerDocumentEditor_2c581e26.o \
+  $(OBJDIR)/jucer_PaintRoutineEditor_f6ac0344.o \
+  $(OBJDIR)/jucer_PaintRoutinePanel_c309a0d7.o \
+  $(OBJDIR)/jucer_ResourceEditorPanel_a558f2e2.o \
+  $(OBJDIR)/jucer_TestComponent_db757dc4.o \
+  $(OBJDIR)/jucer_BinaryResources_e0f99b46.o \
+  $(OBJDIR)/jucer_ComponentLayout_6ea00129.o \
+  $(OBJDIR)/jucer_GeneratedCode_9ca4ef7e.o \
+  $(OBJDIR)/jucer_JucerDocument_ff8afcc2.o \
+  $(OBJDIR)/jucer_ObjectTypes_4406f01c.o \
+  $(OBJDIR)/jucer_PaintRoutine_e1e891ee.o \
   $(OBJDIR)/BinaryData_ce4232d4.o \
-  $(OBJDIR)/juce_core_aff681cc.o \
-  $(OBJDIR)/juce_cryptography_25c7e826.o \
-  $(OBJDIR)/juce_data_structures_bdd6d488.o \
-  $(OBJDIR)/juce_events_79b2840.o \
-  $(OBJDIR)/juce_graphics_c8f1e7a4.o \
-  $(OBJDIR)/juce_gui_basics_a630dd20.o \
-  $(OBJDIR)/juce_gui_extra_7767d6a8.o \
+  $(OBJDIR)/juce_core_1fecf6bd.o \
+  $(OBJDIR)/juce_cryptography_d2405b17.o \
+  $(OBJDIR)/juce_data_structures_836f8eb9.o \
+  $(OBJDIR)/juce_events_fc7bbcb1.o \
+  $(OBJDIR)/juce_graphics_79a0db95.o \
+  $(OBJDIR)/juce_gui_basics_bd727091.o \
+  $(OBJDIR)/juce_gui_extra_b8299259.o \
 
 .PHONY: clean
 
@@ -88,9 +112,7 @@ $(OUTDIR)/$(TARGET): $(OBJECTS) $(LDDEPS) $(RESOURCES)
 
 clean:
 	@echo Cleaning The Introjucer
-	-@rm -f $(OUTDIR)/$(TARGET)
-	-@rm -rf $(OBJDIR)/*
-	-@rm -rf $(OBJDIR)
+	@$(CLEANCMD)
 
 strip:
 	@echo Stripping The Introjucer
@@ -111,11 +133,6 @@ $(OBJDIR)/jucer_DocumentEditorComponent_695dff1d.o: ../../Source/Application/juc
 	@echo "Compiling jucer_DocumentEditorComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/jucer_JuceUpdater_cf7865c4.o: ../../Source/Application/jucer_JuceUpdater.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling jucer_JuceUpdater.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/jucer_Main_f8488f5b.o: ../../Source/Application/jucer_Main.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling jucer_Main.cpp"
@@ -129,11 +146,6 @@ $(OBJDIR)/jucer_MainWindow_1e163aeb.o: ../../Source/Application/jucer_MainWindow
 $(OBJDIR)/jucer_OpenDocumentManager_4c72d210.o: ../../Source/Application/jucer_OpenDocumentManager.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling jucer_OpenDocumentManager.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/jucer_ConfigPage_99b07caa.o: ../../Source/Project/jucer_ConfigPage.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling jucer_ConfigPage.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/jucer_Module_3f7666a5.o: ../../Source/Project/jucer_Module.cpp
@@ -161,19 +173,9 @@ $(OBJDIR)/jucer_ProjectContentComponent_60de0eee.o: ../../Source/Project/jucer_P
 	@echo "Compiling jucer_ProjectContentComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/jucer_ProjectTreeViewBase_63c2bdbe.o: ../../Source/Project/jucer_ProjectTreeViewBase.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling jucer_ProjectTreeViewBase.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/jucer_ProjectType_1bc27a24.o: ../../Source/Project/jucer_ProjectType.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling jucer_ProjectType.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/jucer_TreeViewTypes_4a765287.o: ../../Source/Project/jucer_TreeViewTypes.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling jucer_TreeViewTypes.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/jucer_ProjectExporter_eefe2e5b.o: ../../Source/Project\ Saving/jucer_ProjectExporter.cpp
@@ -221,42 +223,142 @@ $(OBJDIR)/jucer_SourceCodeEditor_461f5487.o: ../../Source/Code\ Editor/jucer_Sou
 	@echo "Compiling jucer_SourceCodeEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/jucer_ComponentTypeHandler_6bec6262.o: ../../Source/ComponentEditor/components/jucer_ComponentTypeHandler.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_ComponentTypeHandler.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_ButtonDocument_56c341cc.o: ../../Source/ComponentEditor/documents/jucer_ButtonDocument.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_ButtonDocument.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_ComponentDocument_92868083.o: ../../Source/ComponentEditor/documents/jucer_ComponentDocument.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_ComponentDocument.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_ColouredElement_70cbc839.o: ../../Source/ComponentEditor/paintelements/jucer_ColouredElement.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_ColouredElement.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_PaintElement_653460.o: ../../Source/ComponentEditor/paintelements/jucer_PaintElement.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_PaintElement.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_PaintElementPath_908894a5.o: ../../Source/ComponentEditor/paintelements/jucer_PaintElementPath.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_PaintElementPath.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_ComponentLayoutEditor_aeb44f8d.o: ../../Source/ComponentEditor/ui/jucer_ComponentLayoutEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_ComponentLayoutEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_ComponentOverlayComponent_fd508d63.o: ../../Source/ComponentEditor/ui/jucer_ComponentOverlayComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_ComponentOverlayComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_EditingPanelBase_6c2ed9ee.o: ../../Source/ComponentEditor/ui/jucer_EditingPanelBase.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_EditingPanelBase.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_JucerDocumentEditor_2c581e26.o: ../../Source/ComponentEditor/ui/jucer_JucerDocumentEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_JucerDocumentEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_PaintRoutineEditor_f6ac0344.o: ../../Source/ComponentEditor/ui/jucer_PaintRoutineEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_PaintRoutineEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_PaintRoutinePanel_c309a0d7.o: ../../Source/ComponentEditor/ui/jucer_PaintRoutinePanel.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_PaintRoutinePanel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_ResourceEditorPanel_a558f2e2.o: ../../Source/ComponentEditor/ui/jucer_ResourceEditorPanel.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_ResourceEditorPanel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_TestComponent_db757dc4.o: ../../Source/ComponentEditor/ui/jucer_TestComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_TestComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_BinaryResources_e0f99b46.o: ../../Source/ComponentEditor/jucer_BinaryResources.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_BinaryResources.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_ComponentLayout_6ea00129.o: ../../Source/ComponentEditor/jucer_ComponentLayout.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_ComponentLayout.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_GeneratedCode_9ca4ef7e.o: ../../Source/ComponentEditor/jucer_GeneratedCode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_GeneratedCode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_JucerDocument_ff8afcc2.o: ../../Source/ComponentEditor/jucer_JucerDocument.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_JucerDocument.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_ObjectTypes_4406f01c.o: ../../Source/ComponentEditor/jucer_ObjectTypes.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_ObjectTypes.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/jucer_PaintRoutine_e1e891ee.o: ../../Source/ComponentEditor/jucer_PaintRoutine.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling jucer_PaintRoutine.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/BinaryData_ce4232d4.o: ../../JuceLibraryCode/BinaryData.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling BinaryData.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/juce_core_aff681cc.o: ../../JuceLibraryCode/modules/juce_core/juce_core.cpp
+$(OBJDIR)/juce_core_1fecf6bd.o: ../../../JuceLibraryCode/modules/juce_core/juce_core.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling juce_core.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/juce_cryptography_25c7e826.o: ../../JuceLibraryCode/modules/juce_cryptography/juce_cryptography.cpp
+$(OBJDIR)/juce_cryptography_d2405b17.o: ../../../JuceLibraryCode/modules/juce_cryptography/juce_cryptography.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling juce_cryptography.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/juce_data_structures_bdd6d488.o: ../../JuceLibraryCode/modules/juce_data_structures/juce_data_structures.cpp
+$(OBJDIR)/juce_data_structures_836f8eb9.o: ../../../JuceLibraryCode/modules/juce_data_structures/juce_data_structures.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling juce_data_structures.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/juce_events_79b2840.o: ../../JuceLibraryCode/modules/juce_events/juce_events.cpp
+$(OBJDIR)/juce_events_fc7bbcb1.o: ../../../JuceLibraryCode/modules/juce_events/juce_events.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling juce_events.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/juce_graphics_c8f1e7a4.o: ../../JuceLibraryCode/modules/juce_graphics/juce_graphics.cpp
+$(OBJDIR)/juce_graphics_79a0db95.o: ../../../JuceLibraryCode/modules/juce_graphics/juce_graphics.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling juce_graphics.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/juce_gui_basics_a630dd20.o: ../../JuceLibraryCode/modules/juce_gui_basics/juce_gui_basics.cpp
+$(OBJDIR)/juce_gui_basics_bd727091.o: ../../../JuceLibraryCode/modules/juce_gui_basics/juce_gui_basics.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling juce_gui_basics.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/juce_gui_extra_7767d6a8.o: ../../JuceLibraryCode/modules/juce_gui_extra/juce_gui_extra.cpp
+$(OBJDIR)/juce_gui_extra_b8299259.o: ../../../JuceLibraryCode/modules/juce_gui_extra/juce_gui_extra.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling juce_gui_extra.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"

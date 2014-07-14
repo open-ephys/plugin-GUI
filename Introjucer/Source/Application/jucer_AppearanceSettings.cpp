@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -31,7 +30,7 @@ namespace AppearanceColours
     struct ColourInfo
     {
         const char* name;
-        uint32 colourID;
+        int colourID;
         bool mustBeOpaque;
         bool applyToEditorOnly;
     };
@@ -39,7 +38,7 @@ namespace AppearanceColours
     static const ColourInfo colours[] =
     {
         { "Main Window Bkgd",   mainBackgroundColourId, true, false },
-        { "Treeview Highlight", treeviewHighlightColourId, false, false },
+        { "Treeview Highlight", TreeView::selectedItemBackgroundColourId, false, false },
 
         { "Code Background",    CodeEditorComponent::backgroundColourId, true, false },
         { "Line Number Bkgd",   CodeEditorComponent::lineNumberBackgroundId, false, false },
@@ -112,8 +111,8 @@ void AppearanceSettings::refreshPresetSchemeList()
 
     if (newSchemes != presetSchemeFiles)
     {
-        presetSchemeFiles.swapWithArray (newSchemes);
-        commandManager->commandStatusChanged();
+        presetSchemeFiles.swapWith (newSchemes);
+        IntrojucerApp::getCommandManager().commandStatusChanged();
     }
 }
 
@@ -210,8 +209,7 @@ void AppearanceSettings::applyToLookAndFeel (LookAndFeel& lf) const
         }
     }
 
-    lf.setColour (ScrollBar::thumbColourId,
-                  IntrojucerLookAndFeel::getScrollbarColourForBackground (lf.findColour (mainBackgroundColourId)));
+    lf.setColour (ScrollBar::thumbColourId, lf.findColour (mainBackgroundColourId).contrasting().withAlpha (0.13f));
 }
 
 void AppearanceSettings::applyToCodeEditor (CodeEditorComponent& editor) const
@@ -237,8 +235,9 @@ void AppearanceSettings::applyToCodeEditor (CodeEditorComponent& editor) const
         }
     }
 
-    editor.setColour (ScrollBar::thumbColourId,
-                      IntrojucerLookAndFeel::getScrollbarColourForBackground (editor.findColour (CodeEditorComponent::backgroundColourId)));
+    editor.setColour (ScrollBar::thumbColourId, editor.findColour (CodeEditorComponent::backgroundColourId)
+                                                      .contrasting()
+                                                      .withAlpha (0.13f));
 }
 
 Font AppearanceSettings::getCodeFont() const
@@ -296,7 +295,7 @@ struct AppearanceEditor
             startTimer (1);
         }
 
-        void paint (Graphics& g)
+        void paint (Graphics& g) override
         {
             g.fillAll (Colours::darkgrey);
 
@@ -308,7 +307,7 @@ struct AppearanceEditor
             getLookAndFeel().drawSpinningWaitAnimation (g, Colours::white, (getWidth() - size) / 2, getHeight() / 2 - 50, size, size);
         }
 
-        void timerCallback()
+        void timerCallback() override
         {
             repaint();
 
@@ -355,15 +354,15 @@ struct AppearanceEditor
               saveButton ("Save Scheme...")
         {
             rebuildProperties();
-            addAndMakeVisible (&panel);
+            addAndMakeVisible (panel);
 
             loadButton.setColour (TextButton::buttonColourId, Colours::lightgrey.withAlpha (0.5f));
             saveButton.setColour (TextButton::buttonColourId, Colours::lightgrey.withAlpha (0.5f));
             loadButton.setColour (TextButton::textColourOffId, Colours::white);
             saveButton.setColour (TextButton::textColourOffId, Colours::white);
 
-            addAndMakeVisible (&loadButton);
-            addAndMakeVisible (&saveButton);
+            addAndMakeVisible (loadButton);
+            addAndMakeVisible (saveButton);
 
             loadButton.addListener (this);
             saveButton.addListener (this);
@@ -389,7 +388,7 @@ struct AppearanceEditor
             panel.addProperties (props);
         }
 
-        void resized()
+        void resized() override
         {
             Rectangle<int> r (getLocalBounds());
             panel.setBounds (r.removeFromTop (getHeight() - 28).reduced (4, 2));
@@ -401,7 +400,7 @@ struct AppearanceEditor
         PropertyPanel panel;
         TextButton loadButton, saveButton;
 
-        void buttonClicked (Button* b)
+        void buttonClicked (Button* b) override
         {
             if (b == &loadButton)
                 loadScheme();
@@ -446,12 +445,12 @@ struct AppearanceEditor
     public:
         FontNameValueSource (const Value& source)  : ValueSourceFilter (source) {}
 
-        var getValue() const
+        var getValue() const override
         {
             return Font::fromString (sourceValue.toString()).getTypefaceName();
         }
 
-        void setValue (const var& newValue)
+        void setValue (const var& newValue) override
         {
             Font font (Font::fromString (sourceValue.toString()));
             font.setTypefaceName (newValue.toString().isEmpty() ? Font::getDefaultMonospacedFontName()
@@ -486,12 +485,12 @@ struct AppearanceEditor
     public:
         FontSizeValueSource (const Value& source)  : ValueSourceFilter (source) {}
 
-        var getValue() const
+        var getValue() const override
         {
             return Font::fromString (sourceValue.toString()).getHeight();
         }
 
-        void setValue (const var& newValue)
+        void setValue (const var& newValue) override
         {
             sourceValue = Font::fromString (sourceValue.toString()).withHeight (newValue).toString();
         }
@@ -531,46 +530,16 @@ void AppearanceSettings::showEditorWindow (ScopedPointer<Component>& ownerPointe
 IntrojucerLookAndFeel::IntrojucerLookAndFeel()
 {
     setColour (mainBackgroundColourId, Colour::greyLevel (0.8f));
-    setColour (treeviewHighlightColourId, Colour (0x401111ee));
-    setColour (TextButton::buttonColourId, Colour (0xffeeeeff));
-
-    setColour (ScrollBar::thumbColourId,
-               getScrollbarColourForBackground (findColour (mainBackgroundColourId)));
 }
 
-Colour IntrojucerLookAndFeel::getScrollbarColourForBackground (const Colour& background)
+int IntrojucerLookAndFeel::getTabButtonBestWidth (TabBarButton&, int)   { return 120; }
+
+static Colour getTabBackgroundColour (TabBarButton& button)
 {
-    return background.contrasting().withAlpha (0.13f);
-}
+    const Colour bkg (button.findColour (mainBackgroundColourId).contrasting (0.15f));
 
-Rectangle<int> IntrojucerLookAndFeel::getPropertyComponentContentPosition (PropertyComponent& component)
-{
-    if (component.findParentComponentOfClass<AppearanceEditor::EditorPanel>() != nullptr)
-        return component.getLocalBounds().reduced (1).removeFromRight (component.getWidth() / 2);
-
-    return LookAndFeel::getPropertyComponentContentPosition (component);
-}
-
-int IntrojucerLookAndFeel::getTabButtonOverlap (int /*tabDepth*/)                      { return -1; }
-int IntrojucerLookAndFeel::getTabButtonSpaceAroundImage()                              { return 1; }
-int IntrojucerLookAndFeel::getTabButtonBestWidth (TabBarButton&, int /*tabDepth*/)     { return 120; }
-
-void IntrojucerLookAndFeel::createTabTextLayout (const TabBarButton& button, const Rectangle<int>& textArea, GlyphArrangement& textLayout)
-{
-    Font font (textArea.getHeight() * 0.5f);
-    font.setUnderline (button.hasKeyboardFocus (false));
-
-    textLayout.addFittedText (font, button.getButtonText().trim(),
-                              (float) textArea.getX(), (float) textArea.getY(), (float) textArea.getWidth(), (float) textArea.getHeight(),
-                              Justification::centred, 1);
-}
-
-Colour IntrojucerLookAndFeel::getTabBackgroundColour (TabBarButton& button)
-{
-    const Colour normalBkg (button.findColour (mainBackgroundColourId));
-    Colour bkg (normalBkg.contrasting (0.15f));
     if (button.isFrontTab())
-        bkg = bkg.overlaidWith (Colours::yellow.withAlpha (0.5f));
+        return bkg.overlaidWith (Colours::yellow.withAlpha (0.5f));
 
     return bkg;
 }
@@ -588,61 +557,13 @@ void IntrojucerLookAndFeel::drawTabButton (TabBarButton& button, Graphics& g, bo
     g.setColour (button.findColour (mainBackgroundColourId).darker (0.3f));
     g.drawRect (activeArea);
 
-    GlyphArrangement textLayout;
-    createTabTextLayout (button, button.getTextArea(), textLayout);
-
     const float alpha = button.isEnabled() ? ((isMouseOver || isMouseDown) ? 1.0f : 0.8f) : 0.3f;
-    g.setColour (bkg.contrasting().withMultipliedAlpha (alpha));
-    textLayout.draw (g);
-}
+    const Colour col (bkg.contrasting().withMultipliedAlpha (alpha));
 
-Rectangle<int> IntrojucerLookAndFeel::getTabButtonExtraComponentBounds (const TabBarButton& button, Rectangle<int>& textArea, Component& comp)
-{
-    GlyphArrangement textLayout;
-    createTabTextLayout (button, textArea, textLayout);
-    const int textWidth = (int) textLayout.getBoundingBox (0, -1, false).getWidth();
-    const int extraSpace = jmax (0, textArea.getWidth() - (textWidth + comp.getWidth())) / 2;
+    TextLayout textLayout;
+    LookAndFeel_V3::createTabTextLayout (button, (float) activeArea.getWidth(), (float) activeArea.getHeight(), col, textLayout);
 
-    textArea.removeFromRight (extraSpace);
-    textArea.removeFromLeft (extraSpace);
-    return textArea.removeFromRight (comp.getWidth());
-}
-
-void IntrojucerLookAndFeel::drawStretchableLayoutResizerBar (Graphics& g, int /*w*/, int /*h*/, bool /*isVerticalBar*/, bool isMouseOver, bool isMouseDragging)
-{
-    if (isMouseOver || isMouseDragging)
-        g.fillAll (Colours::yellow.withAlpha (0.4f));
-}
-
-void IntrojucerLookAndFeel::drawScrollbar (Graphics& g, ScrollBar& scrollbar, int x, int y, int width, int height,
-                                           bool isScrollbarVertical, int thumbStartPosition, int thumbSize,
-                                           bool isMouseOver, bool isMouseDown)
-{
-    Path thumbPath;
-
-    if (thumbSize > 0)
-    {
-        const float thumbIndent = (isScrollbarVertical ? width : height) * 0.25f;
-        const float thumbIndentx2 = thumbIndent * 2.0f;
-
-        if (isScrollbarVertical)
-            thumbPath.addRoundedRectangle (x + thumbIndent, thumbStartPosition + thumbIndent,
-                                           width - thumbIndentx2, thumbSize - thumbIndentx2, (width - thumbIndentx2) * 0.5f);
-        else
-            thumbPath.addRoundedRectangle (thumbStartPosition + thumbIndent, y + thumbIndent,
-                                           thumbSize - thumbIndentx2, height - thumbIndentx2, (height - thumbIndentx2) * 0.5f);
-    }
-
-    Colour thumbCol (scrollbar.findColour (ScrollBar::thumbColourId, true));
-
-    if (isMouseOver || isMouseDown)
-        thumbCol = thumbCol.withMultipliedAlpha (2.0f);
-
-    g.setColour (thumbCol);
-    g.fillPath (thumbPath);
-
-    g.setColour (thumbCol.contrasting ((isMouseOver  || isMouseDown) ? 0.2f : 0.1f));
-    g.strokePath (thumbPath, PathStrokeType (1.0f));
+    textLayout.draw (g, button.getTextArea().toFloat());
 }
 
 static Range<float> getBrightnessRange (const Image& im)
@@ -701,72 +622,4 @@ void IntrojucerLookAndFeel::fillWithBackgroundTexture (Graphics& g)
 void IntrojucerLookAndFeel::fillWithBackgroundTexture (Component& c, Graphics& g)
 {
     dynamic_cast<IntrojucerLookAndFeel&> (c.getLookAndFeel()).fillWithBackgroundTexture (g);
-}
-
-void IntrojucerLookAndFeel::drawConcertinaPanelHeader (Graphics& g, const Rectangle<int>& area,
-                                                       bool isMouseOver, bool /*isMouseDown*/,
-                                                       ConcertinaPanel&, Component& panel)
-{
-    const Colour bkg (findColour (mainBackgroundColourId));
-
-    g.setGradientFill (ColourGradient (Colours::white.withAlpha (isMouseOver ? 0.4f : 0.2f), 0, (float) area.getY(),
-                                       Colours::darkgrey.withAlpha (0.2f), 0, (float) area.getBottom(), false));
-
-    g.fillAll();
-    g.setColour (bkg.contrasting().withAlpha (0.04f));
-    g.fillRect (area.withHeight (1));
-    g.fillRect (area.withTop (area.getBottom() - 1));
-
-    g.setColour (bkg.contrasting());
-    g.setFont (Font (area.getHeight() * 0.6f).boldened());
-    g.drawFittedText (panel.getName(), 4, 0, area.getWidth() - 6, area.getHeight(), Justification::centredLeft, 1);
-}
-
-void IntrojucerLookAndFeel::drawButtonBackground (Graphics& g,
-                                                  Button& button,
-                                                  const Colour& backgroundColour,
-                                                  bool isMouseOverButton,
-                                                  bool isButtonDown)
-{
-    const bool flatOnLeft   = button.isConnectedOnLeft();
-    const bool flatOnRight  = button.isConnectedOnRight();
-    const bool flatOnTop    = button.isConnectedOnTop();
-    const bool flatOnBottom = button.isConnectedOnBottom();
-
-    const float width  = (float) button.getWidth();
-    const float height = (float) button.getHeight();
-
-    const float x = 0.5f;
-    const float y = 0.5f;
-    const float w = width  - 1.0f;
-    const float h = height - 1.0f;
-    const float cornerSize = 4.0f;
-
-    Colour baseColour (backgroundColour.withMultipliedSaturation (button.hasKeyboardFocus (true)
-                                                                      ? 1.3f : 0.9f)
-                                       .withMultipliedAlpha (button.isEnabled() ? 0.9f : 0.5f));
-
-    if (isButtonDown)           baseColour = baseColour.contrasting (0.2f);
-    else if (isMouseOverButton) baseColour = baseColour.contrasting (0.1f);
-
-    const float mainBrightness = baseColour.getBrightness();
-    const float mainAlpha = baseColour.getFloatAlpha();
-
-    Path outline;
-    outline.addRoundedRectangle (x, y, w, h, cornerSize, cornerSize,
-                                 ! (flatOnLeft  || flatOnTop),
-                                 ! (flatOnRight || flatOnTop),
-                                 ! (flatOnLeft  || flatOnBottom),
-                                 ! (flatOnRight || flatOnBottom));
-
-    g.setGradientFill (ColourGradient (baseColour.brighter (0.2f), 0.0f, 0.0f,
-                                       baseColour.darker (0.25f), 0.0f, height, false));
-    g.fillPath (outline);
-
-    g.setColour (Colours::white.withAlpha (0.4f * mainAlpha * mainBrightness * mainBrightness));
-    g.strokePath (outline, PathStrokeType (1.0f), AffineTransform::translation (0.0f, 1.0f)
-                                                        .scaled (1.0f, (h - 1.6f) / h));
-
-    g.setColour (Colours::black.withAlpha (0.4f * mainAlpha));
-    g.strokePath (outline, PathStrokeType (1.0f));
 }

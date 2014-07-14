@@ -1,38 +1,36 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
 #include "jucer_ResourceFile.h"
-#include "../Project/jucer_ProjectTreeViewBase.h"
 #include "../Application/jucer_OpenDocumentManager.h"
 
 static const char* resourceFileIdentifierString = "JUCER_BINARY_RESOURCE";
 
 
 //==============================================================================
-ResourceFile::ResourceFile (Project& project_)
-    : project (project_),
+ResourceFile::ResourceFile (Project& p)
+    : project (p),
       className ("BinaryData")
 {
     addResourcesFromProjectItem (project.getMainGroup());
@@ -130,8 +128,13 @@ static String getComment()
 
 bool ResourceFile::writeHeader (MemoryOutputStream& header)
 {
+    const String headerGuard ("BINARYDATA_H_" + String (project.getProjectUID().hashCode() & 0x7ffffff) + "_INCLUDED");
+
     header << "/* ========================================================================================="
            << getComment()
+           << "#ifndef " << headerGuard << newLine
+           << "#define " << headerGuard << newLine
+           << newLine
            << "namespace " << className << newLine
            << "{" << newLine;
 
@@ -151,24 +154,29 @@ bool ResourceFile::writeHeader (MemoryOutputStream& header)
             containsAnyImages = containsAnyImages
                                  || (ImageFileFormat::findImageFormatForStream (fileStream) != nullptr);
 
-            const String tempVariable ("temp_" + String::toHexString (file.hashCode()));
-
             header << "    extern const char*   " << variableName << ";" << newLine;
             header << "    const int            " << variableName << "Size = " << (int) dataSize << ";" << newLine << newLine;
         }
     }
 
-    header << "    // If you provide the name of one of the binary resource variables above, this function will" << newLine
+    header << "    // Points to the start of a list of resource names." << newLine
+           << "    extern const char* namedResourceList[];" << newLine
+           << newLine
+           << "    // Number of elements in the namedResourceList array." << newLine
+           << "    const int namedResourceListSize = " << files.size() <<  ";" << newLine
+           << newLine
+           << "    // If you provide the name of one of the binary resource variables above, this function will" << newLine
            << "    // return the corresponding data and its size (or a null pointer if the name isn't found)." << newLine
            << "    const char* getNamedResource (const char* resourceNameUTF8, int& dataSizeInBytes) throw();" << newLine
-           << "}" << newLine;
+           << "}" << newLine
+           << newLine
+           << "#endif" << newLine;
 
     return true;
 }
 
-bool ResourceFile::writeCpp (MemoryOutputStream& cpp, const File& headerFile, int& i)
+bool ResourceFile::writeCpp (MemoryOutputStream& cpp, const File& headerFile, int& i, const int maxFileSize)
 {
-    const int maxFileSize = 10 * 1024 * 1024;
     const bool isFirstFile = (i == 0);
 
     cpp << "/* ==================================== " << resourceFileIdentifierString << " ===================================="
@@ -190,7 +198,7 @@ bool ResourceFile::writeCpp (MemoryOutputStream& cpp, const File& headerFile, in
             containsAnyImages = containsAnyImages
                                  || (ImageFileFormat::findImageFormatForStream (fileStream) != nullptr);
 
-            const String tempVariable ("temp_" + String::toHexString (file.hashCode()));
+            const String tempVariable ("temp_binary_data_" + String (i));
 
             cpp  << newLine << "//================== " << file.getFileName() << " ==================" << newLine
                 << "static const unsigned char " << tempVariable << "[] =" << newLine;
@@ -242,7 +250,15 @@ bool ResourceFile::writeCpp (MemoryOutputStream& cpp, const File& headerFile, in
 
         cpp << "    numBytes = 0;" << newLine
             << "    return 0;" << newLine
-            << "}" << newLine;
+            << "}" << newLine
+            << newLine
+            << "const char* namedResourceList[] =" << newLine
+            << "{" << newLine;
+
+        for (int j = 0; j < files.size(); ++j)
+            cpp << "    " << variableNames[j].quoted() << (j < files.size() - 1 ? "," : "") << newLine;
+
+        cpp << "};" << newLine;
     }
 
     cpp << newLine
@@ -251,7 +267,7 @@ bool ResourceFile::writeCpp (MemoryOutputStream& cpp, const File& headerFile, in
     return true;
 }
 
-bool ResourceFile::write (Array<File>& filesCreated)
+bool ResourceFile::write (Array<File>& filesCreated, const int maxFileSize)
 {
     const File headerFile (project.getBinaryDataHeaderFile());
 
@@ -271,7 +287,7 @@ bool ResourceFile::write (Array<File>& filesCreated)
         File cpp (project.getBinaryDataCppFile (fileIndex));
 
         MemoryOutputStream mo;
-        if (! (writeCpp (mo, headerFile, i) && FileHelpers::overwriteFileWithNewDataIfDifferent (cpp, mo)))
+        if (! (writeCpp (mo, headerFile, i, maxFileSize) && FileHelpers::overwriteFileWithNewDataIfDifferent (cpp, mo)))
             return false;
 
         filesCreated.add (cpp);

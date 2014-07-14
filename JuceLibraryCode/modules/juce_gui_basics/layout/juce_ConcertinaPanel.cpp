@@ -217,7 +217,7 @@ public:
         addAndMakeVisible (comp);
     }
 
-    void paint (Graphics& g)
+    void paint (Graphics& g) override
     {
         const Rectangle<int> area (getWidth(), getHeaderSize());
         g.reduceClipRegion (area);
@@ -226,18 +226,18 @@ public:
                                                     getPanel(), *component);
     }
 
-    void resized()
+    void resized() override
     {
         component->setBounds (getLocalBounds().withTop (getHeaderSize()));
     }
 
-    void mouseDown (const MouseEvent&)
+    void mouseDown (const MouseEvent&) override
     {
         mouseDownY = getY();
         dragStartSizes = getPanel().getFittedSizes();
     }
 
-    void mouseDrag (const MouseEvent& e)
+    void mouseDrag (const MouseEvent& e) override
     {
         ConcertinaPanel& panel = getPanel();
         panel.setLayout (dragStartSizes.withMovedPanel (panel.holders.indexOf (this),
@@ -245,7 +245,7 @@ public:
                                                         panel.getHeight()), false);
     }
 
-    void mouseDoubleClick (const MouseEvent&)
+    void mouseDoubleClick (const MouseEvent&) override
     {
         getPanel().panelHeaderDoubleClicked (component);
     }
@@ -281,6 +281,14 @@ ConcertinaPanel::ConcertinaPanel()
 }
 
 ConcertinaPanel::~ConcertinaPanel() {}
+
+Component* ConcertinaPanel::getPanel (int index) const noexcept
+{
+    if (PanelHolder* h = holders[index])
+        return h->component;
+
+    return nullptr;
+}
 
 void ConcertinaPanel::addPanel (int insertIndex, Component* component, bool takeOwnership)
 {

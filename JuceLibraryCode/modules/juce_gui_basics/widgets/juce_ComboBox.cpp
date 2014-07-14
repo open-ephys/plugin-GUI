@@ -44,10 +44,12 @@ ComboBox::ComboBox (const String& name)
       isButtonDown (false),
       separatorPending (false),
       menuActive (false),
+      scrollWheelEnabled (false),
+      mouseWheelAccumulator (0),
       noChoicesMessage (TRANS("(no choices)"))
 {
     setRepaintsOnMouseActivity (true);
-    ComboBox::lookAndFeelChanged();
+    lookAndFeelChanged();
     currentId.addListener (this);
 }
 
@@ -77,7 +79,7 @@ bool ComboBox::isTextEditable() const noexcept
     return label->isEditable();
 }
 
-void ComboBox::setJustificationType (const Justification& justification)
+void ComboBox::setJustificationType (Justification justification)
 {
     label->setJustificationType (justification);
 }
@@ -165,13 +167,13 @@ void ComboBox::changeItemText (const int itemId, const String& newText)
         jassertfalse;
 }
 
-void ComboBox::clear (const bool dontSendChangeMessage)
+void ComboBox::clear (const NotificationType notification)
 {
     items.clear();
     separatorPending = false;
 
     if (! label->isEditable())
-        setSelectedItemIndex (-1, dontSendChangeMessage);
+        setSelectedItemIndex (-1, notification);
 }
 
 //==============================================================================
@@ -257,9 +259,9 @@ int ComboBox::getSelectedItemIndex() const
     return index;
 }
 
-void ComboBox::setSelectedItemIndex (const int index, const bool dontSendChangeMessage)
+void ComboBox::setSelectedItemIndex (const int index, const NotificationType notification)
 {
-    setSelectedId (getItemId (index), dontSendChangeMessage);
+    setSelectedId (getItemId (index), notification);
 }
 
 int ComboBox::getSelectedId() const noexcept
@@ -269,21 +271,20 @@ int ComboBox::getSelectedId() const noexcept
     return (item != nullptr && getText() == item->name) ? item->itemId : 0;
 }
 
-void ComboBox::setSelectedId (const int newItemId, const bool dontSendChangeMessage)
+void ComboBox::setSelectedId (const int newItemId, const NotificationType notification)
 {
     const ItemInfo* const item = getItemForId (newItemId);
     const String newItemText (item != nullptr ? item->name : String::empty);
 
     if (lastCurrentId != newItemId || label->getText() != newItemText)
     {
-        if (! dontSendChangeMessage)
-            triggerAsyncUpdate();
-
         label->setText (newItemText, dontSendNotification);
         lastCurrentId = newItemId;
         currentId = newItemId;
 
         repaint();  // for the benefit of the 'none selected' text
+
+        sendChange (notification);
     }
 }
 
@@ -301,10 +302,19 @@ bool ComboBox::selectIfEnabled (const int index)
     return false;
 }
 
+bool ComboBox::nudgeSelectedItem (int delta)
+{
+    for (int i = getSelectedItemIndex() + delta; isPositiveAndBelow (i, getNumItems()); i += delta)
+        if (selectIfEnabled (i))
+            return true;
+
+    return false;
+}
+
 void ComboBox::valueChanged (Value&)
 {
     if (lastCurrentId != (int) currentId.getValue())
-        setSelectedId (currentId.getValue(), false);
+        setSelectedId (currentId.getValue());
 }
 
 //==============================================================================
@@ -313,7 +323,7 @@ String ComboBox::getText() const
     return label->getText();
 }
 
-void ComboBox::setText (const String& newText, const bool dontSendChangeMessage)
+void ComboBox::setText (const String& newText, const NotificationType notification)
 {
     for (int i = items.size(); --i >= 0;)
     {
@@ -322,23 +332,20 @@ void ComboBox::setText (const String& newText, const bool dontSendChangeMessage)
         if (item->isRealItem()
              && item->name == newText)
         {
-            setSelectedId (item->itemId, dontSendChangeMessage);
+            setSelectedId (item->itemId, notification);
             return;
         }
     }
 
     lastCurrentId = 0;
     currentId = 0;
+    repaint();
 
     if (label->getText() != newText)
     {
         label->setText (newText, dontSendNotification);
-
-        if (! dontSendChangeMessage)
-            triggerAsyncUpdate();
+        sendChange (notification);
     }
-
-    repaint();
 }
 
 void ComboBox::showEditor()
@@ -403,12 +410,22 @@ void ComboBox::enablementChanged()
     repaint();
 }
 
+void ComboBox::colourChanged()
+{
+    lookAndFeelChanged();
+}
+
+void ComboBox::parentHierarchyChanged()
+{
+    lookAndFeelChanged();
+}
+
 void ComboBox::lookAndFeelChanged()
 {
     repaint();
 
     {
-        ScopedPointer <Label> newLabel (getLookAndFeel().createComboBoxTextBox (*this));
+        ScopedPointer<Label> newLabel (getLookAndFeel().createComboBoxTextBox (*this));
         jassert (newLabel != nullptr);
 
         if (label != nullptr)
@@ -439,33 +456,22 @@ void ComboBox::lookAndFeelChanged()
     resized();
 }
 
-void ComboBox::colourChanged()
-{
-    lookAndFeelChanged();
-}
-
 //==============================================================================
 bool ComboBox::keyPressed (const KeyPress& key)
 {
     if (key == KeyPress::upKey || key == KeyPress::leftKey)
     {
-        int index = getSelectedItemIndex() - 1;
-
-        while (index >= 0 && ! selectIfEnabled (index))
-            --index;
-
+        nudgeSelectedItem (-1);
         return true;
     }
-    else if (key == KeyPress::downKey || key == KeyPress::rightKey)
+
+    if (key == KeyPress::downKey || key == KeyPress::rightKey)
     {
-        int index = getSelectedItemIndex() + 1;
-
-        while (index < getNumItems() && ! selectIfEnabled (index))
-            ++index;
-
+        nudgeSelectedItem (1);
         return true;
     }
-    else if (key == KeyPress::returnKey)
+
+    if (key == KeyPress::returnKey)
     {
         showPopup();
         return true;
@@ -578,19 +584,49 @@ void ComboBox::mouseUp (const MouseEvent& e2)
     }
 }
 
-//==============================================================================
-void ComboBox::addListener (ComboBoxListener* const listener)
+void ComboBox::mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel)
 {
-    listeners.add (listener);
+    if (! menuActive && scrollWheelEnabled && e.eventComponent == this && wheel.deltaY != 0)
+    {
+        const int oldPos = (int) mouseWheelAccumulator;
+        mouseWheelAccumulator += wheel.deltaY * 5.0f;
+        const int delta = oldPos - (int) mouseWheelAccumulator;
+
+        if (delta != 0)
+            nudgeSelectedItem (delta);
+    }
+    else
+    {
+        Component::mouseWheelMove (e, wheel);
+    }
 }
 
-void ComboBox::removeListener (ComboBoxListener* const listener)
+void ComboBox::setScrollWheelEnabled (bool enabled) noexcept
 {
-    listeners.remove (listener);
+    scrollWheelEnabled = enabled;
 }
+
+//==============================================================================
+void ComboBox::addListener (ComboBoxListener* listener)       { listeners.add (listener); }
+void ComboBox::removeListener (ComboBoxListener* listener)    { listeners.remove (listener); }
 
 void ComboBox::handleAsyncUpdate()
 {
     Component::BailOutChecker checker (this);
     listeners.callChecked (checker, &ComboBoxListener::comboBoxChanged, this);  // (can't use ComboBox::Listener due to idiotic VC2005 bug)
 }
+
+void ComboBox::sendChange (const NotificationType notification)
+{
+    if (notification != dontSendNotification)
+        triggerAsyncUpdate();
+
+    if (notification == sendNotificationSync)
+        handleUpdateNowIfNeeded();
+}
+
+// Old deprecated methods - remove eventually...
+void ComboBox::clear (const bool dontSendChange)                                 { clear (dontSendChange ? dontSendNotification : sendNotification); }
+void ComboBox::setSelectedItemIndex (const int index, const bool dontSendChange) { setSelectedItemIndex (index, dontSendChange ? dontSendNotification : sendNotification); }
+void ComboBox::setSelectedId (const int newItemId, const bool dontSendChange)    { setSelectedId (newItemId, dontSendChange ? dontSendNotification : sendNotification); }
+void ComboBox::setText (const String& newText, const bool dontSendChange)        { setText (newText, dontSendChange ? dontSendNotification : sendNotification); }

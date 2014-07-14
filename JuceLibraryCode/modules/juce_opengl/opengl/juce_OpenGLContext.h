@@ -22,12 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_OPENGLCONTEXT_JUCEHEADER__
-#define __JUCE_OPENGLCONTEXT_JUCEHEADER__
-
-#include "juce_OpenGLPixelFormat.h"
-#include "../native/juce_OpenGLExtensions.h"
-#include "juce_OpenGLRenderer.h"
+#ifndef JUCE_OPENGLCONTEXT_H_INCLUDED
+#define JUCE_OPENGLCONTEXT_H_INCLUDED
 
 
 //==============================================================================
@@ -62,37 +58,8 @@ public:
         this method with a null pointer.
         Note: This must be called BEFORE attaching your context to a target component!
     */
-    void setRenderer (OpenGLRenderer* rendererToUse) noexcept;
+    void setRenderer (OpenGLRenderer*) noexcept;
 
-    /** Enables or disables the use of the GL context to perform 2D rendering
-        of the component to which it is attached.
-        If this is false, then only your OpenGLRenderer will be used to perform
-        any rendering. If true, then each time your target's paint() method needs
-        to be called, an OpenGLGraphicsContext will be used to render it, (after
-        calling your OpenGLRenderer if there is one).
-
-        By default this is set to true. If you're not using any paint() method functionality
-        and are doing all your rendering in an OpenGLRenderer, you should disable it
-        to improve performance.
-
-        Note: This must be called BEFORE attaching your context to a target component!
-    */
-    void setComponentPaintingEnabled (bool shouldPaintComponent) noexcept;
-
-    /** Sets the pixel format which you'd like to use for the target GL surface.
-        Note: This must be called BEFORE attaching your context to a target component!
-    */
-    void setPixelFormat (const OpenGLPixelFormat& preferredPixelFormat) noexcept;
-
-    /** Provides a context with which you'd like this context's resources to be shared.
-        The object passed-in here is a platform-dependent native context object, and
-        must not be deleted while this context may still be using it! To turn off sharing,
-        you can call this method with a null pointer.
-        Note: This must be called BEFORE attaching your context to a target component!
-    */
-    void setNativeSharedContext (void* nativeContextToShareWith) noexcept;
-
-    //==============================================================================
     /** Attaches the context to a target component.
 
         If the component is not fully visible, this call will wait until the component
@@ -103,7 +70,7 @@ public:
         and when the target moves, it will track it. If the component is hidden/shown, the
         context may be deleted and re-created.
     */
-    void attachTo (Component& component);
+    void attachTo (Component&);
 
     /** Detaches the context from its target component and deletes any native resources.
         If the context has not been attached, this will do nothing. Otherwise, it will block
@@ -120,25 +87,67 @@ public:
     /** Returns the component to which this context is currently attached, or nullptr. */
     Component* getTargetComponent() const noexcept;
 
-    /** Returns the context that's currently in active use by the calling thread, or
-        nullptr if no context is active.
-    */
-    static OpenGLContext* getCurrentContext();
-
-    /** Asynchronously causes a repaint to be made. */
-    void triggerRepaint();
-
     //==============================================================================
-    /** If this context is backed by a frame buffer, this returns its ID number,
-        or 0 if the context does not use a framebuffer.
+    /** Sets the pixel format which you'd like to use for the target GL surface.
+        Note: This must be called BEFORE attaching your context to a target component!
     */
-    unsigned int getFrameBufferID() const noexcept;
+    void setPixelFormat (const OpenGLPixelFormat& preferredPixelFormat) noexcept;
+
+    /** Provides a context with which you'd like this context's resources to be shared.
+        The object passed-in here is a platform-dependent native context object, and
+        must not be deleted while this context may still be using it! To turn off sharing,
+        you can call this method with a null pointer.
+        Note: This must be called BEFORE attaching your context to a target component!
+    */
+    void setNativeSharedContext (void* nativeContextToShareWith) noexcept;
+
+    /** Enables multisampling on platforms where this is implemented.
+        If enabling this, you must call this method before attachTo().
+    */
+    void setMultisamplingEnabled (bool) noexcept;
 
     /** Returns true if shaders can be used in this context. */
     bool areShadersAvailable() const;
 
-    /** This structure holds a set of dynamically loaded GL functions for use on this context. */
-    OpenGLExtensionFunctions extensions;
+    /** OpenGL versions, used by setOpenGLVersionRequired(). */
+    enum OpenGLVersion
+    {
+        defaultGLVersion = 0,
+        openGL3_2
+    };
+
+    /** Sets a preference for the version of GL that this context should use, if possible.
+        Some platforms may ignore this value.
+    */
+    void setOpenGLVersionRequired (OpenGLVersion) noexcept;
+
+    /** Enables or disables the use of the GL context to perform 2D rendering
+        of the component to which it is attached.
+        If this is false, then only your OpenGLRenderer will be used to perform
+        any rendering. If true, then each time your target's paint() method needs
+        to be called, an OpenGLGraphicsContext will be used to render it, (after
+        calling your OpenGLRenderer if there is one).
+
+        By default this is set to true. If you're not using any paint() method functionality
+        and are doing all your rendering in an OpenGLRenderer, you should disable it
+        to improve performance.
+
+        Note: This must be called BEFORE attaching your context to a target component!
+    */
+    void setComponentPaintingEnabled (bool shouldPaintComponent) noexcept;
+
+    /** Enables or disables continuous repainting.
+        If set to true, the context will run a loop, re-rendering itself without waiting
+        for triggerRepaint() to be called, at a frequency determined by the swap interval
+        (see setSwapInterval). If false, then after each render callback, it will wait for
+        another call to triggerRepaint() before rendering again.
+        This is disabled by default.
+        @see setSwapInterval
+    */
+    void setContinuousRepainting (bool shouldContinuouslyRepaint) noexcept;
+
+    /** Asynchronously causes a repaint to be made. */
+    void triggerRepaint();
 
     //==============================================================================
     /** This retrieves an object that was previously stored with setAssociatedObject().
@@ -174,6 +183,11 @@ public:
     */
     static void deactivateCurrentContext();
 
+    /** Returns the context that's currently in active use by the calling thread, or
+        nullptr if no context is active.
+    */
+    static OpenGLContext* getCurrentContext();
+
     //==============================================================================
     /** Swaps the buffers (if the context can do this).
         There's normally no need to call this directly - the buffers will be swapped
@@ -191,6 +205,8 @@ public:
 
         Returns true if it sets the value successfully - some platforms won't support
         this setting.
+
+        @see setContinuousRepainting
     */
     bool setSwapInterval (int numFramesPerSwap);
 
@@ -200,6 +216,21 @@ public:
     int getSwapInterval() const;
 
     //==============================================================================
+    /** Returns the scale factor used by the display that is being rendered.
+
+        The scale is that of the display - see Desktop::Displays::Display::scale
+
+        Note that this should only be called during an OpenGLRenderer::renderOpenGL()
+        callback - at other times the value it returns is undefined.
+    */
+    double getRenderingScale() const noexcept   { return currentRenderScale; }
+
+    //==============================================================================
+    /** If this context is backed by a frame buffer, this returns its ID number,
+        or 0 if the context does not use a framebuffer.
+    */
+    unsigned int getFrameBufferID() const noexcept;
+
     /** Returns an OS-dependent handle to some kind of underlting OS-provided GL context.
 
         The exact type of the value returned will depend on the OS and may change
@@ -208,6 +239,8 @@ public:
     */
     void* getRawContext() const noexcept;
 
+    /** This structure holds a set of dynamically loaded GL functions for use on this context. */
+    OpenGLExtensionFunctions extensions;
 
     //==============================================================================
     /** Draws the currently selected texture into this context at its original size.
@@ -239,10 +272,12 @@ private:
     class Attachment;
     NativeContext* nativeContext;
     OpenGLRenderer* renderer;
+    double currentRenderScale;
     ScopedPointer<Attachment> attachment;
     OpenGLPixelFormat pixelFormat;
     void* contextToShareWith;
-    bool renderComponents;
+    OpenGLVersion versionRequired;
+    bool renderComponents, useMultisampling, continuousRepaint;
 
     CachedImage* getCachedImage() const noexcept;
 
@@ -250,4 +285,4 @@ private:
 };
 
 
-#endif   // __JUCE_OPENGLCONTEXT_JUCEHEADER__
+#endif   // JUCE_OPENGLCONTEXT_H_INCLUDED

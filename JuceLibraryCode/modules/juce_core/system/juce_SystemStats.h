@@ -26,10 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_SYSTEMSTATS_JUCEHEADER__
-#define __JUCE_SYSTEMSTATS_JUCEHEADER__
-
-#include "../text/juce_StringArray.h"
+#ifndef JUCE_SYSTEMSTATS_H_INCLUDED
+#define JUCE_SYSTEMSTATS_H_INCLUDED
 
 
 //==============================================================================
@@ -60,6 +58,7 @@ public:
         MacOSX_10_6 = 0x1006,
         MacOSX_10_7 = 0x1007,
         MacOSX_10_8 = 0x1008,
+        MacOSX_10_9 = 0x1009,
 
         Win2000     = 0x4105,
         WinXP       = 0x4106,
@@ -85,8 +84,7 @@ public:
     */
     static String getOperatingSystemName();
 
-    /** Returns true if the OS is 64-bit, or false for a 32-bit OS.
-    */
+    /** Returns true if the OS is 64-bit, or false for a 32-bit OS. */
     static bool isOperatingSystem64Bit();
 
     /** Returns an environment variable.
@@ -120,15 +118,23 @@ public:
     static String getUserRegion();
 
     /** Returns the user's display language.
-        The return value is a 2 or 3 letter language code (ISO 639-1 or ISO 639-2)
+        The return value is a 2 or 3 letter language code (ISO 639-1 or ISO 639-2).
+        Note that depending on the OS and region, this may also be followed by a dash
+        and a sub-region code, e.g "en-GB"
     */
     static String getDisplayLanguage();
+
+    /** This will attempt to return some kind of string describing the device.
+        If no description is available, it'll just return an empty string. You may
+        want to use this for things like determining the type of phone/iPad, etc.
+    */
+    static String getDeviceDescription();
 
     //==============================================================================
     // CPU and memory information..
 
-    /** Returns the number of CPUs. */
-    static int getNumCpus() noexcept            { return getCPUFlags().numCpus; }
+    /** Returns the number of CPU cores. */
+    static int getNumCpus() noexcept;
 
     /** Returns the approximate CPU speed.
         @returns    the speed in megahertz, e.g. 1500, 2500, 32000 (depending on
@@ -141,17 +147,11 @@ public:
     */
     static String getCpuVendor();
 
-    /** Checks whether Intel MMX instructions are available. */
-    static bool hasMMX() noexcept               { return getCPUFlags().hasMMX; }
-
-    /** Checks whether Intel SSE instructions are available. */
-    static bool hasSSE() noexcept               { return getCPUFlags().hasSSE; }
-
-    /** Checks whether Intel SSE2 instructions are available. */
-    static bool hasSSE2() noexcept              { return getCPUFlags().hasSSE2; }
-
-    /** Checks whether AMD 3DNOW instructions are available. */
-    static bool has3DNow() noexcept             { return getCPUFlags().has3DNow; }
+    static bool hasMMX() noexcept;   /**< Returns true if Intel MMX instructions are available. */
+    static bool hasSSE() noexcept;   /**< Returns true if Intel SSE instructions are available. */
+    static bool hasSSE2() noexcept;  /**< Returns true if Intel SSE2 instructions are available. */
+    static bool hasSSE3() noexcept;  /**< Returns true if Intel SSE2 instructions are available. */
+    static bool has3DNow() noexcept; /**< Returns true if AMD 3DNOW instructions are available. */
 
     //==============================================================================
     /** Finds out how much RAM is in the machine.
@@ -185,22 +185,10 @@ public:
 
 private:
     //==============================================================================
-    struct CPUFlags
-    {
-        CPUFlags();
-
-        int numCpus;
-        bool hasMMX : 1;
-        bool hasSSE : 1;
-        bool hasSSE2 : 1;
-        bool has3DNow : 1;
-    };
-
     SystemStats();
-    static const CPUFlags& getCPUFlags();
 
     JUCE_DECLARE_NON_COPYABLE (SystemStats)
 };
 
 
-#endif   // __JUCE_SYSTEMSTATS_JUCEHEADER__
+#endif   // JUCE_SYSTEMSTATS_H_INCLUDED

@@ -26,12 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_FILELOGGER_JUCEHEADER__
-#define __JUCE_FILELOGGER_JUCEHEADER__
-
-#include "juce_Logger.h"
-#include "../files/juce_File.h"
-#include "../memory/juce_ScopedPointer.h"
+#ifndef JUCE_FILELOGGER_H_INCLUDED
+#define JUCE_FILELOGGER_H_INCLUDED
 
 
 //==============================================================================
@@ -136,4 +132,4 @@ private:
 };
 
 
-#endif   // __JUCE_FILELOGGER_JUCEHEADER__
+#endif   // JUCE_FILELOGGER_H_INCLUDED

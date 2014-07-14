@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -33,8 +32,7 @@
 class ItemPreviewComponent  : public Component
 {
 public:
-    ItemPreviewComponent (const File& f)
-        : file (f)
+    ItemPreviewComponent (const File& f)  : file (f)
     {
         setOpaque (true);
         tryToLoadImage();
@@ -46,17 +44,28 @@ public:
 
         if (drawable != nullptr)
         {
-            Rectangle<int> area = RectanglePlacement (RectanglePlacement::centred | RectanglePlacement::onlyReduceInSize)
-                                    .appliedTo (drawable->getBounds(), Rectangle<int> (4, 22, getWidth() - 8, getHeight() - 26));
+            Rectangle<float> contentBounds (drawable->getDrawableBounds());
+
+            if (DrawableComposite* dc = dynamic_cast<DrawableComposite*> (drawable.get()))
+            {
+                Rectangle<float> r (dc->getContentArea().resolve (nullptr));
+
+                if (! r.isEmpty())
+                    contentBounds = r;
+            }
+
+            Rectangle<float> area = RectanglePlacement (RectanglePlacement::centred | RectanglePlacement::onlyReduceInSize)
+                                        .appliedTo (contentBounds, Rectangle<float> (4.0f, 22.0f, getWidth() - 8.0f, getHeight() - 26.0f));
 
             Path p;
             p.addRectangle (area);
             DropShadow (Colours::black.withAlpha (0.5f), 6, Point<int> (0, 1)).drawForPath (g, p);
 
-            g.fillCheckerBoard (area, 24, 24, Colour (0xffffffff), Colour (0xffeeeeee));
+            g.fillCheckerBoard (area.getSmallestIntegerContainer(), 24, 24,
+                                Colour (0xffffffff), Colour (0xffeeeeee));
 
-            g.setOpacity (1.0f);
-            drawable->drawWithin (g, area.toFloat(), RectanglePlacement::stretchToFit, 1.0f);
+            drawable->draw (g, 1.0f, RectanglePlacement (RectanglePlacement::stretchToFit)
+                                        .getTransformToFit (contentBounds, area.toFloat()));
         }
 
         g.setFont (Font (14.0f, Font::bold));
@@ -76,7 +85,7 @@ private:
         drawable = nullptr;
 
         {
-            ScopedPointer <InputStream> input (file.createInputStream());
+            ScopedPointer<InputStream> input (file.createInputStream());
 
             if (input != nullptr)
             {

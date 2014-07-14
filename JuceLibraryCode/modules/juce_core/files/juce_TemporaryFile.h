@@ -26,10 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_TEMPORARYFILE_JUCEHEADER__
-#define __JUCE_TEMPORARYFILE_JUCEHEADER__
-
-#include "juce_File.h"
+#ifndef JUCE_TEMPORARYFILE_H_INCLUDED
+#define JUCE_TEMPORARYFILE_H_INCLUDED
 
 
 //==============================================================================
@@ -91,7 +89,7 @@ public:
         The file will not be created until you write to it. And remember that when
         this object is deleted, the file will also be deleted!
     */
-    TemporaryFile (const String& suffix = String::empty,
+    TemporaryFile (const String& suffix = String(),
                    int optionFlags = 0);
 
     /** Creates a temporary file in the same directory as a specified file.
@@ -168,4 +166,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TemporaryFile)
 };
 
-#endif   // __JUCE_TEMPORARYFILE_JUCEHEADER__
+#endif   // JUCE_TEMPORARYFILE_H_INCLUDED

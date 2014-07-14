@@ -26,14 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_READWRITELOCK_JUCEHEADER__
-#define __JUCE_READWRITELOCK_JUCEHEADER__
-
-#include "juce_CriticalSection.h"
-#include "juce_SpinLock.h"
-#include "juce_WaitableEvent.h"
-#include "juce_Thread.h"
-#include "../containers/juce_Array.h"
+#ifndef JUCE_READWRITELOCK_H_INCLUDED
+#define JUCE_READWRITELOCK_H_INCLUDED
 
 
 //==============================================================================
@@ -65,18 +59,15 @@ public:
     ReadWriteLock() noexcept;
 
     /** Destructor.
-
-        If the object is deleted whilst locked, any subsequent behaviour
-        is unpredictable.
+        If the object is deleted whilst locked, any subsequent behaviour is undefined.
     */
     ~ReadWriteLock() noexcept;
 
     //==============================================================================
     /** Locks this object for reading.
 
-        Multiple threads can simulaneously lock the object for reading, but if another
-        thread has it locked for writing, then this will block until it releases the
-        lock.
+        Multiple threads can simultaneously lock the object for reading, but if another
+        thread has it locked for writing, then this will block until it releases the lock.
 
         @see exitRead, ScopedReadLock
     */
@@ -84,7 +75,7 @@ public:
 
     /** Tries to lock this object for reading.
 
-        Multiple threads can simulaneously lock the object for reading, but if another
+        Multiple threads can simultaneously lock the object for reading, but if another
         thread has it locked for writing, then this will fail and return false.
 
         @returns true if the lock is successfully gained.
@@ -152,8 +143,10 @@ private:
 
     mutable Array <ThreadRecursionCount> readerThreads;
 
+    bool tryEnterWriteInternal (Thread::ThreadID) const noexcept;
+
     JUCE_DECLARE_NON_COPYABLE (ReadWriteLock)
 };
 
 
-#endif   // __JUCE_READWRITELOCK_JUCEHEADER__
+#endif   // JUCE_READWRITELOCK_H_INCLUDED

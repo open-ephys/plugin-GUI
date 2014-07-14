@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -34,19 +33,26 @@ namespace Ids
 
     DECLARE_ID (name);
     DECLARE_ID (file);
+    DECLARE_ID (path);
     DECLARE_ID (text);
     DECLARE_ID (version);
+    DECLARE_ID (license);
+    DECLARE_ID (include);
+    DECLARE_ID (info);
+    DECLARE_ID (description);
     DECLARE_ID (companyName);
+    DECLARE_ID (companyWebsite);
+    DECLARE_ID (companyEmail);
     DECLARE_ID (position);
     DECLARE_ID (source);
     DECLARE_ID (width);
     DECLARE_ID (height);
     DECLARE_ID (background);
     DECLARE_ID (initialState);
-    DECLARE_ID (juceFolder);
     DECLARE_ID (targetFolder);
     DECLARE_ID (intermediatesPath);
     DECLARE_ID (vstFolder);
+    DECLARE_ID (vst3Folder);
     DECLARE_ID (rtasFolder);
     DECLARE_ID (auFolder);
     DECLARE_ID (flags);
@@ -59,7 +65,6 @@ namespace Ids
     DECLARE_ID (externalLibraries);
     DECLARE_ID (extraDefs);
     DECLARE_ID (projectType);
-    DECLARE_ID (libraryType);
     DECLARE_ID (isDebug);
     DECLARE_ID (alwaysGenerateDebugSymbols);
     DECLARE_ID (targetName);
@@ -67,14 +72,19 @@ namespace Ids
     DECLARE_ID (optimisation);
     DECLARE_ID (defines);
     DECLARE_ID (headerPath);
+    DECLARE_ID (systemHeaderPath);
     DECLARE_ID (libraryPath);
     DECLARE_ID (customXcodeFlags);
     DECLARE_ID (cppLibType);
+    DECLARE_ID (codeSigningIdentity);
+    DECLARE_ID (fastMath);
+    DECLARE_ID (linkTimeOptimisation);
     DECLARE_ID (osxSDK);
     DECLARE_ID (osxCompatibility);
     DECLARE_ID (osxArchitecture);
     DECLARE_ID (iosCompatibility);
     DECLARE_ID (extraFrameworks);
+    DECLARE_ID (extraDLLs);
     DECLARE_ID (winArchitecture);
     DECLARE_ID (winWarningLevel);
     DECLARE_ID (linuxArchitecture);
@@ -133,6 +143,22 @@ namespace Ids
     DECLARE_ID (font);
     DECLARE_ID (colour);
     DECLARE_ID (userNotes);
+    DECLARE_ID (maxBinaryFileSize);
+    DECLARE_ID (includeBinaryInAppConfig);
+    DECLARE_ID (characterSet);
+    DECLARE_ID (JUCERPROJECT);
+    DECLARE_ID (MAINGROUP);
+    DECLARE_ID (EXPORTFORMATS);
+    DECLARE_ID (GROUP);
+    DECLARE_ID (FILE);
+    DECLARE_ID (MODULES);
+    DECLARE_ID (MODULE);
+    DECLARE_ID (JUCEOPTIONS);
+    DECLARE_ID (CONFIGURATIONS);
+    DECLARE_ID (CONFIGURATION);
+    DECLARE_ID (MODULEPATHS);
+    DECLARE_ID (MODULEPATH);
+
     const Identifier ID ("id");
     const Identifier class_ ("class");
 

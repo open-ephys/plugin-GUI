@@ -22,8 +22,9 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_OPENGLRENDERER_JUCEHEADER__
-#define __JUCE_OPENGLRENDERER_JUCEHEADER__
+#ifndef JUCE_OPENGLRENDERER_H_INCLUDED
+#define JUCE_OPENGLRENDERER_H_INCLUDED
+
 
 //==============================================================================
 /**
@@ -47,8 +48,10 @@ public:
     virtual void newOpenGLContextCreated() = 0;
 
     /** Called when you should render the next openGL frame.
-        Note that this callback will be made on a background thread, so make sure
-        that your implementation is thread-safe.
+        Note that this callback will be made on a background thread, not the message
+        thread, so make sure that your implementation is thread-safe.
+        For information about how to trigger a render callback, see
+        OpenGLContext::triggerRepaint() and OpenGLContext::setContinuousRepainting().
     */
     virtual void renderOpenGL() = 0;
 
@@ -66,4 +69,4 @@ public:
 };
 
 
-#endif   // __JUCE_OPENGLRENDERER_JUCEHEADER__
+#endif   // JUCE_OPENGLRENDERER_H_INCLUDED
