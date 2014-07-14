@@ -22,11 +22,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_CODEEDITORCOMPONENT_JUCEHEADER__
-#define __JUCE_CODEEDITORCOMPONENT_JUCEHEADER__
+#ifndef JUCE_CODEEDITORCOMPONENT_H_INCLUDED
+#define JUCE_CODEEDITORCOMPONENT_H_INCLUDED
 
-#include "juce_CodeDocument.h"
 class CodeTokeniser;
+
 
 //==============================================================================
 /**
@@ -90,7 +90,7 @@ public:
     CodeDocument::Position getCaretPos() const                  { return caretPos; }
 
     /** Returns the position of the caret, relative to the editor's origin. */
-    Rectangle<int> getCaretRectangle();
+    Rectangle<int> getCaretRectangle() override;
 
     /** Moves the caret.
         If selecting is true, the section of the document between the current
@@ -105,9 +105,15 @@ public:
     Rectangle<int> getCharacterBounds (const CodeDocument::Position& pos) const;
 
     /** Finds the character at a given on-screen position.
-        The co-ordinates are relative to this component's top-left origin.
+        The coordinates are relative to this component's top-left origin.
     */
     CodeDocument::Position getPositionAt (int x, int y);
+
+    /** Returns the start of the selection as a position. */
+    CodeDocument::Position getSelectionStart() const            { return selectionStart; }
+
+    /** Returns the end of the selection as a position. */
+    CodeDocument::Position getSelectionEnd() const              { return selectionEnd; }
 
     /** Enables or disables the line-number display in the gutter. */
     void setLineNumbersShown (bool shouldBeShown);
@@ -128,9 +134,9 @@ public:
     bool deleteBackwards (bool moveInWholeWordSteps);
     bool deleteForwards (bool moveInWholeWordSteps);
     bool deleteWhitespaceBackwardsToTabStop();
-    bool copyToClipboard();
-    bool cutToClipboard();
-    bool pasteFromClipboard();
+    virtual bool copyToClipboard();
+    virtual bool cutToClipboard();
+    virtual bool pasteFromClipboard();
     bool undo();
     bool redo();
 
@@ -144,7 +150,7 @@ public:
     void scrollToKeepCaretOnScreen();
     void scrollToKeepLinesOnScreen (Range<int> linesToShow);
 
-    void insertTextAtCaret (const String& textToInsert);
+    void insertTextAtCaret (const String& textToInsert) override;
     void insertTabAtCaret();
 
     void indentSelection();
@@ -161,13 +167,13 @@ public:
     struct State
     {
         /** Creates an object containing the state of the given editor. */
-        State (const CodeEditorComponent& editor);
+        State (const CodeEditorComponent&);
         /** Creates a state object from a string that was previously created with toString(). */
         State (const String& stringifiedVersion);
-        State (const State& other) noexcept;
+        State (const State&) noexcept;
 
         /** Updates the given editor with this saved state. */
-        void restoreState (CodeEditorComponent& editor) const;
+        void restoreState (CodeEditorComponent&) const;
 
         /** Returns a stringified version of this state that can be used to recreate it later. */
         String toString() const;
@@ -204,6 +210,12 @@ public:
     /** Returns the font that the editor is using. */
     const Font& getFont() const noexcept                { return font; }
 
+    /** Makes the editor read-only. */
+    void setReadOnly (bool shouldBeReadOnly) noexcept;
+
+    /** Returns true if the editor is set to be read-only. */
+    bool isReadOnly() const noexcept                    { return readOnly; }
+
     //==============================================================================
     struct JUCE_API  ColourScheme
     {
@@ -232,7 +244,7 @@ public:
         The token type values are dependent on the tokeniser being used.
         @see setColourScheme
     */
-    Colour getColourForTokenType (const int tokenType) const;
+    Colour getColourForTokenType (int tokenType) const;
 
     //==============================================================================
     /** A set of colour IDs to use to change the colour of various aspects of the editor.
@@ -311,37 +323,37 @@ public:
 
     //==============================================================================
     /** @internal */
-    void paint (Graphics&);
+    void paint (Graphics&) override;
     /** @internal */
-    void resized();
+    void resized() override;
     /** @internal */
-    bool keyPressed (const KeyPress&);
+    bool keyPressed (const KeyPress&) override;
     /** @internal */
-    void mouseDown (const MouseEvent&);
+    void mouseDown (const MouseEvent&) override;
     /** @internal */
-    void mouseDrag (const MouseEvent&);
+    void mouseDrag (const MouseEvent&) override;
     /** @internal */
-    void mouseUp (const MouseEvent&);
+    void mouseUp (const MouseEvent&) override;
     /** @internal */
-    void mouseDoubleClick (const MouseEvent&);
+    void mouseDoubleClick (const MouseEvent&) override;
     /** @internal */
-    void mouseWheelMove (const MouseEvent&, const MouseWheelDetails&);
+    void mouseWheelMove (const MouseEvent&, const MouseWheelDetails&) override;
     /** @internal */
-    void focusGained (FocusChangeType);
+    void focusGained (FocusChangeType) override;
     /** @internal */
-    void focusLost (FocusChangeType);
+    void focusLost (FocusChangeType) override;
     /** @internal */
-    bool isTextInputActive() const;
+    bool isTextInputActive() const override;
     /** @internal */
-    void setTemporaryUnderlining (const Array <Range<int> >&);
+    void setTemporaryUnderlining (const Array<Range<int> >&) override;
     /** @internal */
-    ApplicationCommandTarget* getNextCommandTarget();
+    ApplicationCommandTarget* getNextCommandTarget() override;
     /** @internal */
-    void getAllCommands (Array<CommandID>&);
+    void getAllCommands (Array<CommandID>&) override;
     /** @internal */
-    void getCommandInfo (CommandID, ApplicationCommandInfo&);
+    void getCommandInfo (CommandID, ApplicationCommandInfo&) override;
     /** @internal */
-    bool perform (const InvocationInfo&);
+    bool perform (const InvocationInfo&) override;
 
 private:
     //==============================================================================
@@ -352,7 +364,7 @@ private:
     float charWidth;
     int lineHeight, linesOnScreen, columnsOnScreen;
     int scrollbarThickness, columnToTryToMaintain;
-    bool useSpacesForTabs, showLineNumbers;
+    bool readOnly, useSpacesForTabs, showLineNumbers, shouldFollowDocumentChanges;
     double xOffset;
 
     CodeDocument::Position caretPos, selectionStart, selectionEnd;
@@ -363,12 +375,12 @@ private:
 
     class Pimpl;
     friend class Pimpl;
-    friend class ScopedPointer<Pimpl>;
+    friend struct ContainerDeletePolicy<Pimpl>;
     ScopedPointer<Pimpl> pimpl;
 
     class GutterComponent;
     friend class GutterComponent;
-    friend class ScopedPointer<GutterComponent>;
+    friend struct ContainerDeletePolicy<GutterComponent>;
     ScopedPointer<GutterComponent> gutter;
 
     enum DragType
@@ -385,12 +397,12 @@ private:
     ColourScheme colourScheme;
 
     class CodeEditorLine;
-    OwnedArray <CodeEditorLine> lines;
+    OwnedArray<CodeEditorLine> lines;
     void rebuildLineTokens();
     void rebuildLineTokensAsync();
     void codeDocumentChanged (int start, int end);
 
-    OwnedArray <CodeDocument::Iterator> cachedIterators;
+    OwnedArray<CodeDocument::Iterator> cachedIterators;
     void clearCachedIterators (int firstLineToBeInvalid);
     void updateCachedIterators (int maxLineNum);
     void getIteratorForPosition (int position, CodeDocument::Iterator&);
@@ -400,7 +412,7 @@ private:
 
     //==============================================================================
     void insertText (const String&);
-    void updateCaretPosition();
+    virtual void updateCaretPosition();
     void updateScrollBars();
     void scrollToLineInternal (int line);
     void scrollToColumnInternal (double column);
@@ -408,7 +420,7 @@ private:
     void cut();
     void indentSelectedLines (int spacesToAdd);
     bool skipBackwardsToPreviousTab();
-    bool performCommand (int);
+    bool performCommand (CommandID);
 
     int indexToColumn (int line, int index) const noexcept;
     int columnToIndex (int line, int column) const noexcept;
@@ -417,4 +429,4 @@ private:
 };
 
 
-#endif   // __JUCE_CODEEDITORCOMPONENT_JUCEHEADER__
+#endif   // JUCE_CODEEDITORCOMPONENT_H_INCLUDED

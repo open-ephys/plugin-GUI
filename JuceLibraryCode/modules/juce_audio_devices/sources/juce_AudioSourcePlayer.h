@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOSOURCEPLAYER_JUCEHEADER__
-#define __JUCE_AUDIOSOURCEPLAYER_JUCEHEADER__
+#ifndef JUCE_AUDIOSOURCEPLAYER_H_INCLUDED
+#define JUCE_AUDIOSOURCEPLAYER_H_INCLUDED
 
 
 //==============================================================================
@@ -65,8 +65,7 @@ public:
     void setSource (AudioSource* newSource);
 
     /** Returns the source that's playing.
-
-        May return 0 if there's no source.
+        May return nullptr if there's no source.
     */
     AudioSource* getCurrentSource() const noexcept      { return source; }
 
@@ -86,13 +85,13 @@ public:
                                 int totalNumInputChannels,
                                 float** outputChannelData,
                                 int totalNumOutputChannels,
-                                int numSamples);
+                                int numSamples) override;
 
     /** Implementation of the AudioIODeviceCallback method. */
-    void audioDeviceAboutToStart (AudioIODevice* device);
+    void audioDeviceAboutToStart (AudioIODevice* device) override;
 
     /** Implementation of the AudioIODeviceCallback method. */
-    void audioDeviceStopped();
+    void audioDeviceStopped() override;
 
     /** An alternative method for initialising the source without an AudioIODevice. */
     void prepareToPlay (double sampleRate, int blockSize);
@@ -113,4 +112,4 @@ private:
 };
 
 
-#endif   // __JUCE_AUDIOSOURCEPLAYER_JUCEHEADER__
+#endif   // JUCE_AUDIOSOURCEPLAYER_H_INCLUDED

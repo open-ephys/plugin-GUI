@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_KEYMAPPINGEDITORCOMPONENT_JUCEHEADER__
-#define __JUCE_KEYMAPPINGEDITORCOMPONENT_JUCEHEADER__
+#ifndef JUCE_KEYMAPPINGEDITORCOMPONENT_H_INCLUDED
+#define JUCE_KEYMAPPINGEDITORCOMPONENT_H_INCLUDED
 
 
 //==============================================================================
@@ -48,7 +48,7 @@ public:
                                bool showResetToDefaultButton);
 
     /** Destructor. */
-    virtual ~KeyMappingEditorComponent();
+    ~KeyMappingEditorComponent();
 
     //==============================================================================
     /** Sets up the colours to use for parts of the component.
@@ -109,9 +109,9 @@ public:
 
     //==============================================================================
     /** @internal */
-    void parentHierarchyChanged();
+    void parentHierarchyChanged() override;
     /** @internal */
-    void resized();
+    void resized() override;
 
 private:
     //==============================================================================
@@ -125,12 +125,12 @@ private:
     class CategoryItem;
     class ItemComponent;
     friend class TopLevelItem;
-    friend class OwnedArray <ChangeKeyButton>;
-    friend class ScopedPointer<TopLevelItem>;
+    friend struct ContainerDeletePolicy<ChangeKeyButton>;
+    friend struct ContainerDeletePolicy<TopLevelItem>;
     ScopedPointer<TopLevelItem> treeItem;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (KeyMappingEditorComponent)
 };
 
 
-#endif   // __JUCE_KEYMAPPINGEDITORCOMPONENT_JUCEHEADER__
+#endif   // JUCE_KEYMAPPINGEDITORCOMPONENT_H_INCLUDED

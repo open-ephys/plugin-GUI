@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOCDBURNER_JUCEHEADER__
-#define __JUCE_AUDIOCDBURNER_JUCEHEADER__
+#ifndef JUCE_AUDIOCDBURNER_H_INCLUDED
+#define JUCE_AUDIOCDBURNER_H_INCLUDED
 
 #if JUCE_USE_CDBURNER || DOXYGEN
 
@@ -158,7 +158,7 @@ private:
     AudioCDBurner (const int deviceIndex);
 
     class Pimpl;
-    friend class ScopedPointer<Pimpl>;
+    friend struct ContainerDeletePolicy<Pimpl>;
     ScopedPointer<Pimpl> pimpl;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioCDBurner)
@@ -166,4 +166,4 @@ private:
 
 
 #endif
-#endif   // __JUCE_AUDIOCDBURNER_JUCEHEADER__
+#endif   // JUCE_AUDIOCDBURNER_H_INCLUDED

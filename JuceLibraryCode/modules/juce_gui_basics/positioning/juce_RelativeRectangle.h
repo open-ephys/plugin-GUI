@@ -22,11 +22,9 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_RELATIVERECTANGLE_JUCEHEADER__
-#define __JUCE_RELATIVERECTANGLE_JUCEHEADER__
+#ifndef JUCE_RELATIVERECTANGLE_H_INCLUDED
+#define JUCE_RELATIVERECTANGLE_H_INCLUDED
 
-#include "juce_RelativeCoordinate.h"
-class Component;
 
 //==============================================================================
 /**
@@ -58,8 +56,8 @@ public:
     */
     explicit RelativeRectangle (const String& stringVersion);
 
-    bool operator== (const RelativeRectangle& other) const noexcept;
-    bool operator!= (const RelativeRectangle& other) const noexcept;
+    bool operator== (const RelativeRectangle&) const noexcept;
+    bool operator!= (const RelativeRectangle&) const noexcept;
 
     //==============================================================================
     /** Calculates the absolute position of this rectangle.
@@ -105,4 +103,4 @@ public:
 };
 
 
-#endif   // __JUCE_RELATIVERECTANGLE_JUCEHEADER__
+#endif   // JUCE_RELATIVERECTANGLE_H_INCLUDED

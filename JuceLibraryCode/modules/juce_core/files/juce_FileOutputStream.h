@@ -26,11 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_FILEOUTPUTSTREAM_JUCEHEADER__
-#define __JUCE_FILEOUTPUTSTREAM_JUCEHEADER__
-
-#include "juce_File.h"
-#include "../streams/juce_OutputStream.h"
+#ifndef JUCE_FILEOUTPUTSTREAM_H_INCLUDED
+#define JUCE_FILEOUTPUTSTREAM_H_INCLUDED
 
 
 //==============================================================================
@@ -57,7 +54,7 @@ public:
         @see TemporaryFile
     */
     FileOutputStream (const File& fileToWriteTo,
-                      int bufferSizeToUse = 16384);
+                      size_t bufferSizeToUse = 16384);
 
     /** Destructor. */
     ~FileOutputStream();
@@ -90,11 +87,11 @@ public:
     Result truncate();
 
     //==============================================================================
-    void flush();
-    int64 getPosition();
-    bool setPosition (int64 pos);
-    bool write (const void* data, size_t numBytes);
-    void writeRepeatedByte (uint8 byte, size_t numTimesToRepeat);
+    void flush() override;
+    int64 getPosition() override;
+    bool setPosition (int64) override;
+    bool write (const void*, size_t) override;
+    bool writeRepeatedByte (uint8 byte, size_t numTimesToRepeat) override;
 
 
 private:
@@ -116,4 +113,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileOutputStream)
 };
 
-#endif   // __JUCE_FILEOUTPUTSTREAM_JUCEHEADER__
+#endif   // JUCE_FILEOUTPUTSTREAM_H_INCLUDED

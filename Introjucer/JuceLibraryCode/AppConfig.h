@@ -49,6 +49,10 @@
  //#define JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
 #endif
 
+#ifndef    JUCE_INCLUDE_ZLIB_CODE
+ //#define JUCE_INCLUDE_ZLIB_CODE
+#endif
+
 //==============================================================================
 // juce_graphics flags:
 
@@ -84,6 +88,10 @@
 
 #ifndef    JUCE_WEB_BROWSER
  //#define JUCE_WEB_BROWSER
+#endif
+
+#ifndef    JUCE_ENABLE_LIVE_CONSTANT_EDITOR
+ //#define JUCE_ENABLE_LIVE_CONSTANT_EDITOR
 #endif
 
 

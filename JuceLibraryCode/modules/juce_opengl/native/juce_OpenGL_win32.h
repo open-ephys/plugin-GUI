@@ -30,7 +30,9 @@ class OpenGLContext::NativeContext
 public:
     NativeContext (Component& component,
                    const OpenGLPixelFormat& pixelFormat,
-                   void* contextToShareWith)
+                   void* contextToShareWith,
+                   bool /*useMultisampling*/,
+                   OpenGLVersion)
     {
         createNativeWindow (component);
 
@@ -84,7 +86,7 @@ public:
     void shutdownOnRenderThread()           { deactivateCurrentContext(); }
 
     static void deactivateCurrentContext()  { wglMakeCurrent (0, 0); }
-    bool makeActive() const noexcept        { return wglMakeCurrent (dc, renderContext) != FALSE; }
+    bool makeActive() const noexcept        { return isActive() || wglMakeCurrent (dc, renderContext) != FALSE; }
     bool isActive() const noexcept          { return wglGetCurrentContext() == renderContext; }
     void swapBuffers() const noexcept       { SwapBuffers (dc); }
 
@@ -141,7 +143,10 @@ private:
     {
         Component* topComp = component.getTopLevelComponent();
         nativeWindow = createNonRepaintingEmbeddedWindowsPeer (&dummyComponent, topComp->getWindowHandle());
-        updateWindowPosition (topComp->getLocalArea (&component, component.getLocalBounds()));
+
+        if (ComponentPeer* peer = topComp->getPeer())
+            updateWindowPosition (peer->getAreaCoveredBy (component));
+
         nativeWindow->setVisible (true);
         dc = GetDC ((HWND) nativeWindow->getNativeHandle());
     }

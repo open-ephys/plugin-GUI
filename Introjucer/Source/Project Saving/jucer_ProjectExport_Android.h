@@ -1,35 +1,27 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
-#ifndef __JUCER_PROJECTEXPORT_ANDROID_JUCEHEADER__
-#define __JUCER_PROJECTEXPORT_ANDROID_JUCEHEADER__
-
-#include "jucer_ProjectExporter.h"
-
-
-//==============================================================================
 class AndroidProjectExporter  : public ProjectExporter
 {
 public:
@@ -72,12 +64,13 @@ public:
     }
 
     //==============================================================================
-    bool launchProject()                        { return false; }
-    bool isAndroid() const                      { return true; }
-    bool usesMMFiles() const                    { return false; }
-    bool canCopeWithDuplicateFiles()            { return false; }
+    bool canLaunchProject() override                     { return false; }
+    bool launchProject() override                        { return false; }
+    bool isAndroid() const override                      { return true; }
+    bool usesMMFiles() const override                    { return false; }
+    bool canCopeWithDuplicateFiles() override            { return false; }
 
-    void createExporterProperties (PropertyListBuilder& props)
+    void createExporterProperties (PropertyListBuilder& props) override
     {
         props.add (new TextPropertyComponent (getActivityClassPathValue(), "Android Activity class name", 256, false),
                    "The full java class name to use for the app's Activity class.");
@@ -162,7 +155,7 @@ public:
     }
 
     //==============================================================================
-    void create (const OwnedArray<LibraryModule>& modules) const
+    void create (const OwnedArray<LibraryModule>& modules) const override
     {
         const File target (getTargetFolder());
         const File jniFolder (target.getChildFile ("jni"));
@@ -190,20 +183,20 @@ public:
         writeLocalPropertiesFile (target.getChildFile ("local.properties"));
         writeStringsFile (target.getChildFile ("res/values/strings.xml"));
 
-        const Image bigIcon (getBigIcon());
-        const Image smallIcon (getSmallIcon());
+        ScopedPointer<Drawable> bigIcon (getBigIcon());
+        ScopedPointer<Drawable> smallIcon (getSmallIcon());
 
-        if (bigIcon.isValid() && smallIcon.isValid())
+        if (bigIcon != nullptr && smallIcon != nullptr)
         {
-            const int step = jmax (bigIcon.getWidth(), bigIcon.getHeight()) / 8;
+            const int step = jmax (bigIcon->getWidth(), bigIcon->getHeight()) / 8;
             writeIcon (target.getChildFile ("res/drawable-xhdpi/icon.png"), getBestIconForSize (step * 8, false));
             writeIcon (target.getChildFile ("res/drawable-hdpi/icon.png"),  getBestIconForSize (step * 6, false));
             writeIcon (target.getChildFile ("res/drawable-mdpi/icon.png"),  getBestIconForSize (step * 4, false));
             writeIcon (target.getChildFile ("res/drawable-ldpi/icon.png"),  getBestIconForSize (step * 3, false));
         }
-        else
+        else if (Drawable* icon = bigIcon != nullptr ? bigIcon : smallIcon)
         {
-            writeIcon (target.getChildFile ("res/drawable-mdpi/icon.png"), bigIcon.isValid() ? bigIcon : smallIcon);
+            writeIcon (target.getChildFile ("res/drawable-mdpi/icon.png"), rescaleImageForIcon (*icon, icon->getWidth()));
         }
     }
 
@@ -263,7 +256,7 @@ private:
                 manifest->createNewChildElement ("uses-permission")->setAttribute ("android:name", permissions[i]);
         }
 
-        if (project.isModuleEnabled ("juce_opengl"))
+        if (project.getModules().isModuleEnabled ("juce_opengl"))
         {
             XmlElement* feature = manifest->createNewChildElement ("uses-feature");
             feature->setAttribute ("android:glEsVersion", "0x00020000");
@@ -357,21 +350,21 @@ private:
 
         LibraryModule* const coreModule = getCoreModule (modules);
 
-        if (coreModule == nullptr)
-            throw SaveError ("To build an Android app, the juce_core module must be included in your project!");
+        if (coreModule != nullptr)
+        {
+            File javaDestFile (classFolder.getChildFile (className + ".java"));
 
-        File javaDestFile (classFolder.getChildFile (className + ".java"));
+            File javaSourceFile (coreModule->getFolder().getChildFile ("native")
+                                                        .getChildFile ("java")
+                                                        .getChildFile ("JuceAppActivity.java"));
 
-        File javaSourceFile (coreModule->getFolder().getChildFile ("native")
-                                                    .getChildFile ("java")
-                                                    .getChildFile ("JuceAppActivity.java"));
+            MemoryOutputStream newFile;
+            newFile << javaSourceFile.loadFileAsString()
+                                     .replace ("JuceAppActivity", className)
+                                     .replace ("package com.juce;", "package " + package + ";");
 
-        MemoryOutputStream newFile;
-        newFile << javaSourceFile.loadFileAsString()
-                                 .replace ("JuceAppActivity", className)
-                                 .replace ("package com.juce;", "package " + package + ";");
-
-        overwriteFileIfDifferentOrThrow (javaDestFile, newFile);
+            overwriteFileIfDifferentOrThrow (javaDestFile, newFile);
+        }
     }
 
     void writeApplicationMk (const File& file) const
@@ -410,11 +403,13 @@ private:
             << newLine
             << "include $(CLEAR_VARS)" << newLine
             << newLine
+            << "LOCAL_ARM_MODE := arm" << newLine
             << "LOCAL_MODULE := juce_jni" << newLine
             << "LOCAL_SRC_FILES := \\" << newLine;
 
         for (int i = 0; i < files.size(); ++i)
-            out << "  ../" << escapeSpaces (files.getReference(i).toUnixStyle()) << "\\" << newLine;
+            out << "  " << (files.getReference(i).isAbsolute() ? "" : "../")
+                << escapeSpaces (files.getReference(i).toUnixStyle()) << "\\" << newLine;
 
         String debugSettings, releaseSettings;
 
@@ -436,12 +431,15 @@ private:
             {
                 const AndroidBuildConfiguration& androidConfig = dynamic_cast <const AndroidBuildConfiguration&> (*config);
 
-                out << "  LOCAL_CPPFLAGS += " << createCPPFlags (androidConfig)
-                    << (" " + replacePreprocessorTokens (androidConfig, getExtraCompilerFlagsString()).trim()).trimEnd()
-                    << newLine
-                    << getLDLIBS (androidConfig).trimEnd()
-                    << newLine;
+                String cppFlags;
+                cppFlags << createCPPFlags (androidConfig)
+                         << (" " + replacePreprocessorTokens (androidConfig, getExtraCompilerFlagsString()).trim()).trimEnd()
+                         << newLine
+                         << getLDLIBS (androidConfig).trimEnd()
+                         << newLine;
 
+                out << "  LOCAL_CPPFLAGS += " << cppFlags;
+                out << "  LOCAL_CFLAGS += " << cppFlags;
                 break;
             }
         }
@@ -450,7 +448,8 @@ private:
     String getLDLIBS (const AndroidBuildConfiguration& config) const
     {
         return "  LOCAL_LDLIBS :=" + config.getGCCLibraryPathFlags()
-                + " -llog -lGLESv2 " + getExternalLibraryFlags (config);
+                + " -llog -lGLESv2 " + getExternalLibraryFlags (config)
+                + " " + replacePreprocessorTokens (config, getExtraLinkerFlagsString());
     }
 
     String createIncludePathFlags (const BuildConfiguration& config) const
@@ -491,7 +490,7 @@ private:
               << " -O" << config.getGCCOptimisationFlag();
 
         if (isCPP11Enabled())
-            flags << " -std=c++0x";
+            flags << " -std=c++0x -std=gnu++0x"; // these flags seem to enable slightly different things on gcc, and both seem to be needed
 
         defines = mergePreprocessorDefs (defines, getAllPreprocessorDefs (config));
         return flags + createGCCPreprocessorFlags (defines);
@@ -510,6 +509,10 @@ private:
         {
             XmlElement* target = proj->createNewChildElement ("target");
             target->setAttribute ("name", "clean");
+            target->setAttribute ("depends", "android_rules.clean");
+
+            target->createNewChildElement ("delete")->setAttribute ("dir", "libs");
+            target->createNewChildElement ("delete")->setAttribute ("dir", "obj");
 
             XmlElement* executable = target->createNewChildElement ("exec");
             executable->setAttribute ("executable", "${ndk.dir}/ndk-build");
@@ -639,6 +642,3 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE (AndroidProjectExporter)
 };
-
-
-#endif   // __JUCER_PROJECTEXPORT_ANDROID_JUCEHEADER__

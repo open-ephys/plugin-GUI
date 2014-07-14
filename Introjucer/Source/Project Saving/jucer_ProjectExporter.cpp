@@ -1,34 +1,35 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
 #include "jucer_ProjectExporter.h"
+#include "jucer_ProjectSaver.h"
+
 #include "jucer_ProjectExport_Make.h"
 #include "jucer_ProjectExport_MSVC.h"
 #include "jucer_ProjectExport_XCode.h"
 #include "jucer_ProjectExport_Android.h"
-
+#include "jucer_ProjectExport_CodeBlocks.h"
 
 //==============================================================================
 StringArray ProjectExporter::getExporterNames()
@@ -40,8 +41,10 @@ StringArray ProjectExporter::getExporterNames()
     s.add (MSVCProjectExporterVC2008::getName());
     s.add (MSVCProjectExporterVC2010::getName());
     s.add (MSVCProjectExporterVC2012::getName());
+    s.add (MSVCProjectExporterVC2013::getName());
     s.add (MakefileProjectExporter::getNameLinux());
     s.add (AndroidProjectExporter::getNameAndroid());
+    s.add (CodeBlocksProjectExporter::getNameCodeBlocks());
     return s;
 }
 
@@ -70,20 +73,16 @@ ProjectExporter* ProjectExporter::createNewExporter (Project& project, const int
         case 3:     exp = new MSVCProjectExporterVC2008 (project, ValueTree (MSVCProjectExporterVC2008::getValueTreeTypeName())); break;
         case 4:     exp = new MSVCProjectExporterVC2010 (project, ValueTree (MSVCProjectExporterVC2010::getValueTreeTypeName())); break;
         case 5:     exp = new MSVCProjectExporterVC2012 (project, ValueTree (MSVCProjectExporterVC2012::getValueTreeTypeName())); break;
-        case 6:     exp = new MakefileProjectExporter   (project, ValueTree (MakefileProjectExporter  ::getValueTreeTypeName())); break;
-        case 7:     exp = new AndroidProjectExporter    (project, ValueTree (AndroidProjectExporter   ::getValueTreeTypeName())); break;
+        case 6:     exp = new MSVCProjectExporterVC2013 (project, ValueTree (MSVCProjectExporterVC2013::getValueTreeTypeName())); break;
+        case 7:     exp = new MakefileProjectExporter   (project, ValueTree (MakefileProjectExporter  ::getValueTreeTypeName())); break;
+        case 8:     exp = new AndroidProjectExporter    (project, ValueTree (AndroidProjectExporter   ::getValueTreeTypeName())); break;
+        case 9:     exp = new CodeBlocksProjectExporter (project, ValueTree (CodeBlocksProjectExporter::getValueTreeTypeName())); break;
+
         default:    jassertfalse; return 0;
     }
 
-    File juceFolder (ModuleList::getLocalModulesFolder (&project));
-    File target (exp->getTargetFolder());
-
-    if (FileHelpers::shouldPathsBeRelative (juceFolder.getFullPathName(), project.getFile().getFullPathName()))
-        exp->getJuceFolderValue() = FileHelpers::getRelativePathFrom (juceFolder, project.getFile().getParentDirectory());
-    else
-        exp->getJuceFolderValue() = juceFolder.getFullPathName();
-
     exp->createDefaultConfigs();
+    exp->createDefaultModulePaths();
 
     return exp;
 }
@@ -99,9 +98,11 @@ ProjectExporter* ProjectExporter::createExporter (Project& project, const ValueT
     if (exp == nullptr)    exp = MSVCProjectExporterVC2008::createForSettings (project, settings);
     if (exp == nullptr)    exp = MSVCProjectExporterVC2010::createForSettings (project, settings);
     if (exp == nullptr)    exp = MSVCProjectExporterVC2012::createForSettings (project, settings);
+    if (exp == nullptr)    exp = MSVCProjectExporterVC2013::createForSettings (project, settings);
     if (exp == nullptr)    exp = XCodeProjectExporter     ::createForSettings (project, settings);
     if (exp == nullptr)    exp = MakefileProjectExporter  ::createForSettings (project, settings);
     if (exp == nullptr)    exp = AndroidProjectExporter   ::createForSettings (project, settings);
+    if (exp == nullptr)    exp = CodeBlocksProjectExporter::createForSettings (project, settings);
 
     jassert (exp != nullptr);
     return exp;
@@ -121,6 +122,7 @@ bool ProjectExporter::canProjectBeLaunched (Project* project)
             MSVCProjectExporterVC2008::getValueTreeTypeName(),
             MSVCProjectExporterVC2010::getValueTreeTypeName(),
             MSVCProjectExporterVC2012::getValueTreeTypeName(),
+            MSVCProjectExporterVC2013::getValueTreeTypeName(),
            #elif JUCE_LINUX
             // (this doesn't currently launch.. not really sure what it would do on linux)
             //MakefileProjectExporter::getValueTreeTypeName(),
@@ -138,18 +140,18 @@ bool ProjectExporter::canProjectBeLaunched (Project* project)
 }
 
 //==============================================================================
-ProjectExporter::ProjectExporter (Project& project_, const ValueTree& settings_)
+ProjectExporter::ProjectExporter (Project& p, const ValueTree& state)
     : xcodeIsBundle (false),
       xcodeCreatePList (false),
       xcodeCanUseDwarf (true),
       makefileIsDLL (false),
       msvcIsDLL (false),
       msvcIsWindowsSubsystem (true),
-      settings (settings_),
-      project (project_),
-      projectType (project_.getProjectType()),
-      projectName (project_.getTitle()),
-      projectFolder (project_.getFile().getParentDirectory()),
+      settings (state),
+      project (p),
+      projectType (p.getProjectType()),
+      projectName (p.getTitle()),
+      projectFolder (p.getProjectFolder()),
       modulesGroup (nullptr)
 {
 }
@@ -163,63 +165,25 @@ File ProjectExporter::getTargetFolder() const
     return project.resolveFilename (getTargetLocationString());
 }
 
-String ProjectExporter::getIncludePathForFileInJuceFolder (const String& pathFromJuceFolder, const File& targetIncludeFile) const
-{
-    String juceFolderPath (getJuceFolderString());
-
-    if (juceFolderPath.startsWithChar ('<'))
-    {
-        juceFolderPath = FileHelpers::unixStylePath (File::addTrailingSeparator (juceFolderPath.substring (1).dropLastCharacters(1)));
-        if (juceFolderPath == "/")
-            juceFolderPath = String::empty;
-
-        return "<" + juceFolderPath + pathFromJuceFolder + ">";
-    }
-    else
-    {
-        const RelativePath juceFromProject (juceFolderPath, RelativePath::projectFolder);
-        const RelativePath fileFromProject (juceFromProject.getChildFile (pathFromJuceFolder));
-        const RelativePath fileFromHere (fileFromProject.rebased (project.getFile().getParentDirectory(),
-                                                                  targetIncludeFile.getParentDirectory(), RelativePath::unknown));
-        return fileFromHere.toUnixStyle().quoted();
-    }
-}
-
-RelativePath ProjectExporter::getJucePathFromProjectFolder() const
-{
-    return RelativePath (getJuceFolderString(), RelativePath::projectFolder);
-}
-
-RelativePath ProjectExporter::getJucePathFromTargetFolder() const
-{
-    return rebaseFromProjectFolderToBuildTarget (getJucePathFromProjectFolder());
-}
-
 RelativePath ProjectExporter::rebaseFromProjectFolderToBuildTarget (const RelativePath& path) const
 {
-    return path.rebased (project.getFile().getParentDirectory(), getTargetFolder(), RelativePath::buildTargetFolder);
+    return path.rebased (project.getProjectFolder(), getTargetFolder(), RelativePath::buildTargetFolder);
 }
 
 bool ProjectExporter::shouldFileBeCompiledByDefault (const RelativePath& file) const
 {
-    return file.hasFileExtension ("cpp;cc;c;cxx");
+    return file.hasFileExtension ("cpp;cc;c;cxx;s");
 }
 
 void ProjectExporter::createPropertyEditors (PropertyListBuilder& props)
 {
-    props.add (new TextPropertyComponent (getTargetLocationValue(), "Target Project Folder", 1024, false),
+    props.add (new TextPropertyComponent (getTargetLocationValue(), "Target Project Folder", 2048, false),
                "The location of the folder in which the " + name + " project will be created. "
                "This path can be absolute, but it's much more sensible to make it relative to the jucer project directory.");
 
-    props.add (new TextPropertyComponent (getJuceFolderValue(), "Local JUCE folder", 1024, false),
-               "The location of the Juce library folder that the " + name + " project will use to when compiling. "
-               "This can be an absolute path, or relative to the jucer project folder, but it must be valid on the "
-               "filesystem of the machine you use to actually do the compiling.");
-
     OwnedArray<LibraryModule> modules;
-    ModuleList moduleList;
-    moduleList.rescan (ModuleList::getDefaultModulesFolder (&project));
-    project.createRequiredModules (moduleList, modules);
+    project.getModules().createRequiredModules (modules);
+
     for (int i = 0; i < modules.size(); ++i)
         modules.getUnchecked(i)->createPropertyEditors (*this, props);
 
@@ -227,15 +191,15 @@ void ProjectExporter::createPropertyEditors (PropertyListBuilder& props)
                "Extra preprocessor definitions. Use the form \"NAME1=value NAME2=value\", using whitespace, commas, "
                "or new-lines to separate the items - to include a space or comma in a definition, precede it with a backslash.");
 
-    props.add (new TextPropertyComponent (getExtraCompilerFlags(), "Extra compiler flags", 2048, true),
+    props.add (new TextPropertyComponent (getExtraCompilerFlags(), "Extra compiler flags", 8192, true),
                "Extra command-line flags to be passed to the compiler. This string can contain references to preprocessor definitions in the "
                "form ${NAME_OF_DEFINITION}, which will be replaced with their values.");
 
-    props.add (new TextPropertyComponent (getExtraLinkerFlags(), "Extra linker flags", 2048, true),
+    props.add (new TextPropertyComponent (getExtraLinkerFlags(), "Extra linker flags", 8192, true),
                "Extra command-line flags to be passed to the linker. You might want to use this for adding additional libraries. "
                "This string can contain references to preprocessor definitions in the form ${NAME_OF_VALUE}, which will be replaced with their values.");
 
-    props.add (new TextPropertyComponent (getExternalLibraries(), "External libraries to link", 2048, true),
+    props.add (new TextPropertyComponent (getExternalLibraries(), "External libraries to link", 8192, true),
                "Additional libraries to link (one per line). You should not add any platform specific decoration to these names. "
                "This string can contain references to preprocessor definitions in the form ${NAME_OF_VALUE}, which will be replaced with their values.");
 
@@ -274,7 +238,7 @@ StringPairArray ProjectExporter::getAllPreprocessorDefs (const ProjectExporter::
 {
     StringPairArray defs (mergePreprocessorDefs (config.getAllPreprocessorDefs(),
                                                  parsePreprocessorDefs (getExporterPreprocessorDefsString())));
-    defs.set (getExporterIdentifierMacro(), "1");
+    addDefaultPreprocessorDefs (defs);
     return defs;
 }
 
@@ -282,8 +246,15 @@ StringPairArray ProjectExporter::getAllPreprocessorDefs() const
 {
     StringPairArray defs (mergePreprocessorDefs (project.getPreprocessorDefs(),
                                                  parsePreprocessorDefs (getExporterPreprocessorDefsString())));
-    defs.set (getExporterIdentifierMacro(), "1");
+    addDefaultPreprocessorDefs (defs);
     return defs;
+}
+
+void ProjectExporter::addDefaultPreprocessorDefs (StringPairArray& defs) const
+{
+    defs.set (getExporterIdentifierMacro(), "1");
+    defs.set ("JUCE_APP_VERSION", project.getVersionString());
+    defs.set ("JUCE_APP_VERSION_HEX", project.getVersionAsHex());
 }
 
 String ProjectExporter::replacePreprocessorTokens (const ProjectExporter::BuildConfiguration& config, const String& sourceString) const
@@ -317,14 +288,140 @@ void ProjectExporter::addToExtraSearchPaths (const RelativePath& pathFromProject
     extraSearchPaths.addIfNotAlreadyThere (path, false);
 }
 
+Value ProjectExporter::getPathForModuleValue (const String& moduleID)
+{
+    UndoManager* um = project.getUndoManagerFor (settings);
+
+    ValueTree paths (settings.getOrCreateChildWithName (Ids::MODULEPATHS, um));
+    ValueTree m (paths.getChildWithProperty (Ids::ID, moduleID));
+
+    if (! m.isValid())
+    {
+        m = ValueTree (Ids::MODULEPATH);
+        m.setProperty (Ids::ID, moduleID, um);
+        paths.addChild (m, -1, um);
+    }
+
+    return m.getPropertyAsValue (Ids::path, um);
+}
+
+String ProjectExporter::getPathForModuleString (const String& moduleID) const
+{
+    return settings.getChildWithName (Ids::MODULEPATHS)
+                .getChildWithProperty (Ids::ID, moduleID) [Ids::path].toString();
+}
+
+void ProjectExporter::removePathForModule (const String& moduleID)
+{
+    ValueTree paths (settings.getChildWithName (Ids::MODULEPATHS));
+    ValueTree m (paths.getChildWithProperty (Ids::ID, moduleID));
+    paths.removeChild (m, project.getUndoManagerFor (settings));
+}
+
+RelativePath ProjectExporter::getModuleFolderRelativeToProject (const String& moduleID, ProjectSaver& projectSaver) const
+{
+    if (project.getModules().shouldCopyModuleFilesLocally (moduleID).getValue())
+        return RelativePath (project.getRelativePathForFile (projectSaver.getLocalModuleFolder (moduleID)),
+                             RelativePath::projectFolder);
+
+    String path (getPathForModuleString (moduleID));
+
+    if (path.isEmpty())
+        return getLegacyModulePath (moduleID).getChildFile (moduleID);
+
+    return RelativePath (path, RelativePath::projectFolder).getChildFile (moduleID);
+}
+
+String ProjectExporter::getLegacyModulePath() const
+{
+    return getSettingString ("juceFolder");
+}
+
+RelativePath ProjectExporter::getLegacyModulePath (const String& moduleID) const
+{
+    if (project.getModules().state.getChildWithProperty (Ids::ID, moduleID) ["useLocalCopy"])
+        return RelativePath (project.getRelativePathForFile (project.getGeneratedCodeFolder()
+                                                                .getChildFile ("modules")
+                                                                .getChildFile (moduleID)), RelativePath::projectFolder);
+
+    String oldJucePath (getLegacyModulePath());
+
+    if (oldJucePath.isEmpty())
+        return RelativePath();
+
+    RelativePath p (oldJucePath, RelativePath::projectFolder);
+    if (p.getFileName() != "modules")
+        p = p.getChildFile ("modules");
+
+    return p.getChildFile (moduleID);
+}
+
+void ProjectExporter::updateOldModulePaths()
+{
+    String oldPath (getLegacyModulePath());
+
+    if (oldPath.isNotEmpty())
+    {
+        for (int i = project.getModules().getNumModules(); --i >= 0;)
+        {
+            String modID (project.getModules().getModuleID(i));
+            getPathForModuleValue (modID) = getLegacyModulePath (modID).getParentDirectory().toUnixStyle();
+        }
+
+        settings.removeProperty ("juceFolder", nullptr);
+    }
+}
+
+static bool areCompatibleExporters (const ProjectExporter& p1, const ProjectExporter& p2)
+{
+    return (p1.isVisualStudio() && p2.isVisualStudio())
+        || (p1.isXcode() && p2.isXcode())
+        || (p1.isLinux() && p2.isLinux())
+        || (p1.isAndroid() && p2.isAndroid())
+        || (p1.isCodeBlocks() && p2.isCodeBlocks());
+}
+
+void ProjectExporter::createDefaultModulePaths()
+{
+    for (Project::ExporterIterator exporter (project); exporter.next();)
+    {
+        if (areCompatibleExporters (*this, *exporter))
+        {
+            for (int i = project.getModules().getNumModules(); --i >= 0;)
+            {
+                String modID (project.getModules().getModuleID(i));
+                getPathForModuleValue (modID) = exporter->getPathForModuleValue (modID).getValue();
+            }
+
+            return;
+        }
+    }
+
+    for (Project::ExporterIterator exporter (project); exporter.next();)
+    {
+        if (exporter->canLaunchProject())
+        {
+            for (int i = project.getModules().getNumModules(); --i >= 0;)
+            {
+                String modID (project.getModules().getModuleID(i));
+                getPathForModuleValue (modID) = exporter->getPathForModuleValue (modID).getValue();
+            }
+
+            return;
+        }
+    }
+
+    for (int i = project.getModules().getNumModules(); --i >= 0;)
+    {
+        String modID (project.getModules().getModuleID(i));
+        getPathForModuleValue (modID) = "../../juce";
+    }
+}
 
 //==============================================================================
-const Identifier ProjectExporter::configurations ("CONFIGURATIONS");
-const Identifier ProjectExporter::configuration  ("CONFIGURATION");
-
 ValueTree ProjectExporter::getConfigurations() const
 {
-    return settings.getChildWithName (configurations);
+    return settings.getChildWithName (Ids::CONFIGURATIONS);
 }
 
 int ProjectExporter::getNumConfigurations() const
@@ -371,11 +468,11 @@ void ProjectExporter::addNewConfiguration (const BuildConfiguration* configToCop
 
     if (! configs.isValid())
     {
-        settings.addChild (ValueTree (configurations), 0, project.getUndoManagerFor (settings));
+        settings.addChild (ValueTree (Ids::CONFIGURATIONS), 0, project.getUndoManagerFor (settings));
         configs = getConfigurations();
     }
 
-    ValueTree newConfig (configuration);
+    ValueTree newConfig (Ids::CONFIGURATION);
     if (configToCopy != nullptr)
         newConfig = configToCopy->config.createCopy();
 
@@ -392,7 +489,7 @@ void ProjectExporter::BuildConfiguration::removeFromExporter()
 
 void ProjectExporter::createDefaultConfigs()
 {
-    settings.getOrCreateChildWithName (configurations, nullptr);
+    settings.getOrCreateChildWithName (Ids::CONFIGURATIONS, nullptr);
 
     for (int i = 0; i < 2; ++i)
     {
@@ -408,68 +505,77 @@ void ProjectExporter::createDefaultConfigs()
     }
 }
 
-Image ProjectExporter::getBigIcon() const
+Drawable* ProjectExporter::getBigIcon() const
 {
     return project.getMainGroup().findItemWithID (settings [Ids::bigIcon]).loadAsImageFile();
 }
 
-Image ProjectExporter::getSmallIcon() const
+Drawable* ProjectExporter::getSmallIcon() const
 {
     return project.getMainGroup().findItemWithID (settings [Ids::smallIcon]).loadAsImageFile();
 }
 
 Image ProjectExporter::getBestIconForSize (int size, bool returnNullIfNothingBigEnough) const
 {
-    Image im;
+    Drawable* im = nullptr;
 
-    const Image im1 (getSmallIcon());
-    const Image im2 (getBigIcon());
+    ScopedPointer<Drawable> im1 (getSmallIcon());
+    ScopedPointer<Drawable> im2 (getBigIcon());
 
-    if (im1.isValid() && im2.isValid())
+    if (im1 != nullptr && im2 != nullptr)
     {
-        if (im1.getWidth() >= size && im2.getWidth() >= size)
-            im = im1.getWidth() < im2.getWidth() ? im1 : im2;
-        else if (im1.getWidth() >= size)
+        if (im1->getWidth() >= size && im2->getWidth() >= size)
+            im = im1->getWidth() < im2->getWidth() ? im1 : im2;
+        else if (im1->getWidth() >= size)
             im = im1;
-        else if (im2.getWidth() >= size)
+        else if (im2->getWidth() >= size)
             im = im2;
-        else
-            return Image::null;
     }
     else
     {
-        im = im1.isValid() ? im1 : im2;
+        im = im1 != nullptr ? im1 : im2;
     }
 
-    if (returnNullIfNothingBigEnough && im.getWidth() < size && im.getHeight() < size)
-        return Image::null;
+    if (im == nullptr)
+        return Image();
 
-    return rescaleImageForIcon (im, size);
+    if (returnNullIfNothingBigEnough && im->getWidth() < size && im->getHeight() < size)
+        return Image();
+
+    return rescaleImageForIcon (*im, size);
 }
 
-Image ProjectExporter::rescaleImageForIcon (Image im, const int size)
+Image ProjectExporter::rescaleImageForIcon (Drawable& d, const int size)
 {
-    im = SoftwareImageType().convert (im);
+    if (DrawableImage* drawableImage = dynamic_cast<DrawableImage*> (&d))
+    {
+        Image im = SoftwareImageType().convert (drawableImage->getImage());
 
-    if (size == im.getWidth() && size == im.getHeight())
-        return im;
+        if (size == im.getWidth() && size == im.getHeight())
+            return im;
 
-    // (scale it down in stages for better resampling)
-    while (im.getWidth() > 2 * size && im.getHeight() > 2 * size)
-        im = im.rescaled (im.getWidth() / 2,
-                          im.getHeight() / 2);
+        // (scale it down in stages for better resampling)
+        while (im.getWidth() > 2 * size && im.getHeight() > 2 * size)
+            im = im.rescaled (im.getWidth() / 2,
+                              im.getHeight() / 2);
 
-    Image newIm (Image::ARGB, size, size, true, SoftwareImageType());
-    Graphics g (newIm);
-    g.drawImageWithin (im, 0, 0, size, size,
-                       RectanglePlacement::centred | RectanglePlacement::onlyReduceInSize, false);
-    return newIm;
+        Image newIm (Image::ARGB, size, size, true, SoftwareImageType());
+        Graphics g (newIm);
+        g.drawImageWithin (im, 0, 0, size, size,
+                           RectanglePlacement::centred | RectanglePlacement::onlyReduceInSize, false);
+        return newIm;
+    }
+
+    Image im (Image::ARGB, size, size, true, SoftwareImageType());
+    Graphics g (im);
+    d.drawWithin (g, im.getBounds().toFloat(), RectanglePlacement::centred, 1.0f);
+    return im;
 }
 
 
 //==============================================================================
-ProjectExporter::ConfigIterator::ConfigIterator (ProjectExporter& exporter_)
-    : index (-1), exporter (exporter_)
+ProjectExporter::ConfigIterator::ConfigIterator (ProjectExporter& e)
+    : index (-1), exporter (e)
 {
 }
 
@@ -497,8 +603,8 @@ bool ProjectExporter::ConstConfigIterator::next()
 }
 
 //==============================================================================
-ProjectExporter::BuildConfiguration::BuildConfiguration (Project& project_, const ValueTree& configNode)
-   : config (configNode), project (project_)
+ProjectExporter::BuildConfiguration::BuildConfiguration (Project& p, const ValueTree& configNode)
+   : config (configNode), project (p)
 {
 }
 
@@ -524,8 +630,8 @@ void ProjectExporter::BuildConfiguration::createPropertyEditors (PropertyListBui
     props.add (new BooleanPropertyComponent (isDebugValue(), "Debug mode", "Debugging enabled"),
                "If enabled, this means that the configuration should be built with debug synbols.");
 
-    const char* optimisationLevels[] = { "No optimisation", "Minimise size", "Maximise speed", 0 };
-    const int optimisationLevelValues[] = { optimisationOff, optimiseMinSize, optimiseMaxSpeed, 0 };
+    static const char* optimisationLevels[] = { "No optimisation", "Minimise size", "Maximise speed", 0 };
+    const int optimisationLevelValues[]     = { optimisationOff, optimiseMinSize, optimiseMaxSpeed, 0 };
     props.add (new ChoicePropertyComponent (getOptimisationLevel(), "Optimisation",
                                             StringArray (optimisationLevels), Array<var> (optimisationLevelValues)),
                "The optimisation level for this configuration");
@@ -581,7 +687,7 @@ String ProjectExporter::BuildConfiguration::getGCCLibraryPathFlags() const
 String ProjectExporter::getExternalLibraryFlags (const BuildConfiguration& config) const
 {
     StringArray libraries;
-    libraries.addTokens (getExternalLibrariesString(), ";", "\"'");
+    libraries.addTokens (getExternalLibrariesString(), ";\n", "\"'");
     libraries.removeEmptyStrings (true);
 
     if (libraries.size() != 0)

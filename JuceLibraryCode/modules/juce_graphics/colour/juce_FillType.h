@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_FILLTYPE_JUCEHEADER__
-#define __JUCE_FILLTYPE_JUCEHEADER__
-
-#include "../colour/juce_ColourGradient.h"
-#include "../images/juce_Image.h"
+#ifndef JUCE_FILLTYPE_H_INCLUDED
+#define JUCE_FILLTYPE_H_INCLUDED
 
 
 //==============================================================================
@@ -62,14 +59,14 @@ public:
     FillType (const Image& image, const AffineTransform& transform) noexcept;
 
     /** Creates a copy of another FillType. */
-    FillType (const FillType& other);
+    FillType (const FillType&);
 
     /** Makes a copy of another FillType. */
-    FillType& operator= (const FillType& other);
+    FillType& operator= (const FillType&);
 
    #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
-    FillType (FillType&& other) noexcept;
-    FillType& operator= (FillType&& other) noexcept;
+    FillType (FillType&&) noexcept;
+    FillType& operator= (FillType&&) noexcept;
    #endif
 
     /** Destructor. */
@@ -141,12 +138,12 @@ public:
     AffineTransform transform;
 
     //==============================================================================
-    bool operator== (const FillType& other) const;
-    bool operator!= (const FillType& other) const;
+    bool operator== (const FillType&) const;
+    bool operator!= (const FillType&) const;
 
 private:
     JUCE_LEAK_DETECTOR (FillType)
 };
 
 
-#endif   // __JUCE_FILLTYPE_JUCEHEADER__
+#endif   // JUCE_FILLTYPE_H_INCLUDED

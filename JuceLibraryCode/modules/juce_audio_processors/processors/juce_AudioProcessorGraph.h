@@ -22,12 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOPROCESSORGRAPH_JUCEHEADER__
-#define __JUCE_AUDIOPROCESSORGRAPH_JUCEHEADER__
-
-#include "juce_AudioProcessor.h"
-#include "../format/juce_AudioPluginFormatManager.h"
-#include "../scanning/juce_KnownPluginList.h"
+#ifndef JUCE_AUDIOPROCESSORGRAPH_H_INCLUDED
+#define JUCE_AUDIOPROCESSORGRAPH_H_INCLUDED
 
 
 //==============================================================================
@@ -376,15 +372,15 @@ public:
     AudioProcessorEditor* createEditor()            { return nullptr; }
 
     int getNumParameters()                          { return 0; }
-    const String getParameterName (int)             { return String::empty; }
+    const String getParameterName (int)             { return String(); }
     float getParameter (int)                        { return 0; }
-    const String getParameterText (int)             { return String::empty; }
+    const String getParameterText (int)             { return String(); }
     void setParameter (int, float)                  { }
 
     int getNumPrograms()                            { return 0; }
     int getCurrentProgram()                         { return 0; }
     void setCurrentProgram (int)                    { }
-    const String getProgramName (int)               { return String::empty; }
+    const String getProgramName (int)               { return String(); }
     void changeProgramName (int, const String&)     { }
 
     void getStateInformation (juce::MemoryBlock&);
@@ -392,11 +388,11 @@ public:
 
 private:
     //==============================================================================
-    ReferenceCountedArray <Node> nodes;
-    OwnedArray <Connection> connections;
+    ReferenceCountedArray<Node> nodes;
+    OwnedArray<Connection> connections;
     uint32 lastNodeId;
     AudioSampleBuffer renderingBuffers;
-    OwnedArray <MidiBuffer> midiBuffers;
+    OwnedArray<MidiBuffer> midiBuffers;
     Array<void*> renderingOps;
 
     friend class AudioGraphIOProcessor;
@@ -405,7 +401,7 @@ private:
     MidiBuffer* currentMidiInputBuffer;
     MidiBuffer currentMidiOutputBuffer;
 
-    void handleAsyncUpdate();
+    void handleAsyncUpdate() override;
     void clearRenderingSequence();
     void buildRenderingSequence();
     bool isAnInputTo (uint32 possibleInputId, uint32 possibleDestinationId, int recursionCheck) const;
@@ -414,4 +410,4 @@ private:
 };
 
 
-#endif   // __JUCE_AUDIOPROCESSORGRAPH_JUCEHEADER__
+#endif   // JUCE_AUDIOPROCESSORGRAPH_H_INCLUDED

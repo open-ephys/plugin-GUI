@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -30,8 +29,8 @@
 
 
 //==============================================================================
-ProjectType::ProjectType (const String& type_, const String& desc_)
-    : type (type_), desc (desc_)
+ProjectType::ProjectType (const String& t, const String& d)
+    : type (t), desc (d)
 {
     getAllTypes().add (this);
 }
@@ -123,13 +122,13 @@ public:
 };
 
 //==============================================================================
-class ProjectType_Library  : public ProjectType
+class ProjectType_StaticLibrary  : public ProjectType
 {
 public:
-    ProjectType_Library()  : ProjectType (getTypeName(), "Static Library") {}
+    ProjectType_StaticLibrary()  : ProjectType (getTypeName(), "Static Library") {}
 
     static const char* getTypeName() noexcept   { return "library"; }
-    bool isLibrary() const                      { return true; }
+    bool isStaticLibrary() const                { return true; }
 
     void setMissingProjectProperties (Project&) const
     {
@@ -142,22 +141,41 @@ public:
     void prepareExporter (ProjectExporter& exporter) const
     {
         exporter.xcodeCreatePList = false;
+        exporter.xcodeFileType = "archive.ar";
+        exporter.xcodeProductType = "com.apple.product-type.library.static";
+        exporter.xcodeProductInstallPath = String::empty;
+        exporter.makefileTargetSuffix = ".a";
+        exporter.msvcTargetSuffix = ".lib";
+        exporter.msvcExtraPreprocessorDefs.set ("_LIB", "");
+    }
+};
 
-        if (exporter.getSetting (Ids::libraryType) == 2)
-        {
-            exporter.xcodeFileType = "compiled.mach-o.dylib";
-            exporter.xcodeProductType = "com.apple.product-type.library.dynamic";
-            exporter.xcodeBundleExtension = ".dylib";
-        }
-        else
-        {
-            exporter.xcodeFileType = "archive.ar";
-            exporter.xcodeProductType = "com.apple.product-type.library.static";
-        }
+//==============================================================================
+class ProjectType_DLL  : public ProjectType
+{
+public:
+    ProjectType_DLL()  : ProjectType (getTypeName(), "Dynamic Library") {}
 
+    static const char* getTypeName() noexcept   { return "dll"; }
+    bool isDynamicLibrary() const               { return true; }
+
+    void setMissingProjectProperties (Project&) const
+    {
+    }
+
+    void createPropertyEditors (Project&, PropertyListBuilder&) const
+    {
+    }
+
+    void prepareExporter (ProjectExporter& exporter) const
+    {
+        exporter.xcodeCreatePList = false;
+        exporter.xcodeFileType = "compiled.mach-o.dylib";
+        exporter.xcodeProductType = "com.apple.product-type.library.dynamic";
+        exporter.xcodeBundleExtension = ".dylib";
         exporter.xcodeProductInstallPath = String::empty;
         exporter.makefileTargetSuffix = ".so";
-        exporter.msvcTargetSuffix = exporter.getSetting (Ids::libraryType) == 2 ? ".dll" : ".lib";
+        exporter.msvcTargetSuffix = ".dll";
         exporter.msvcExtraPreprocessorDefs.set ("_LIB", "");
     }
 };
@@ -176,7 +194,10 @@ public:
         const String sanitisedProjectName (CodeHelpers::makeValidIdentifier (project.getTitle(), false, true, false));
 
         setValueIfVoid (shouldBuildVST (project), true);
+        setValueIfVoid (shouldBuildVST3 (project), false);
         setValueIfVoid (shouldBuildAU (project),  true);
+        setValueIfVoid (shouldBuildRTAS (project), false);
+        setValueIfVoid (shouldBuildAAX (project), false);
 
         setValueIfVoid (getPluginName (project),                   project.getTitle());
         setValueIfVoid (getPluginDesc (project),                   project.getTitle());
@@ -200,6 +221,8 @@ public:
     {
         props.add (new BooleanPropertyComponent (shouldBuildVST (project), "Build VST", "Enabled"),
                    "Whether the project should produce a VST plugin.");
+        props.add (new BooleanPropertyComponent (shouldBuildVST3 (project), "Build VST3", "Enabled"),
+                   "Whether the project should produce a VST3 plugin.");
         props.add (new BooleanPropertyComponent (shouldBuildAU (project), "Build AudioUnit", "Enabled"),
                    "Whether the project should produce an AudioUnit plugin.");
         props.add (new BooleanPropertyComponent (shouldBuildRTAS (project), "Build RTAS", "Enabled"),
@@ -245,6 +268,9 @@ public:
         props.add (new TextPropertyComponent (getPluginAUMainType (project), "Plugin AU Main Type", 128, false),
                    "In an AU, this is the value that is set as JucePlugin_AUMainType. Leave it blank unless you want to use a custom value.");
 
+        props.add (new TextPropertyComponent (getPluginVSTCategory (project), "VST Category", 64, false),
+                   "In a VST, this is the value that is set as JucePlugin_VSTCategory. Leave it blank unless you want to use a custom value.");
+
         props.add (new TextPropertyComponent (getPluginRTASCategory (project), "Plugin RTAS Category", 64, false),
                    "(Leave this blank if your plugin is a synth). This is one of the RTAS categories from FicPluginEnums.h, such as: ePlugInCategory_None, ePlugInCategory_EQ, ePlugInCategory_Dynamics, "
                    "ePlugInCategory_PitchShift, ePlugInCategory_Reverb, ePlugInCategory_Delay, "
@@ -252,7 +278,10 @@ public:
                    "ePlugInCategory_Dither, ePlugInCategory_SoundField");
 
         props.add (new TextPropertyComponent (getPluginAAXCategory (project), "Plugin AAX Category", 64, false),
-                   "This is one of the RTAS categories from the AAX_EPlugInCategory enum");
+                   "This is one of the categories from the AAX_EPlugInCategory enum");
+
+        props.add (new TextPropertyComponent (project.getAAXIdentifier(), "Plugin AAX Identifier", 256, false),
+                   "The value to use for the JucePlugin_AAXIdentifier setting");
     }
 
     void prepareExporter (ProjectExporter& exporter) const
@@ -321,12 +350,15 @@ public:
 };
 
 //==============================================================================
-static ProjectType_GUIApp       guiType;
-static ProjectType_ConsoleApp   consoleType;
-static ProjectType_Library      libraryType;
-static ProjectType_AudioPlugin  audioPluginType;
+static ProjectType_GUIApp        guiType;
+static ProjectType_ConsoleApp    consoleType;
+static ProjectType_StaticLibrary libraryType;
+static ProjectType_DLL           dllType;
+static ProjectType_AudioPlugin   audioPluginType;
 
 //==============================================================================
 const char* ProjectType::getGUIAppTypeName()        { return ProjectType_GUIApp::getTypeName(); }
 const char* ProjectType::getConsoleAppTypeName()    { return ProjectType_ConsoleApp::getTypeName(); }
+const char* ProjectType::getStaticLibTypeName()     { return ProjectType_StaticLibrary::getTypeName(); }
+const char* ProjectType::getDynamicLibTypeName()    { return ProjectType_DLL::getTypeName(); }
 const char* ProjectType::getAudioPluginTypeName()   { return ProjectType_AudioPlugin::getTypeName(); }

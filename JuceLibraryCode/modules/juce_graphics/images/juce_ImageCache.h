@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_IMAGECACHE_JUCEHEADER__
-#define __JUCE_IMAGECACHE_JUCEHEADER__
-
-#include "juce_Image.h"
+#ifndef JUCE_IMAGECACHE_H_INCLUDED
+#define JUCE_IMAGECACHE_H_INCLUDED
 
 
 //==============================================================================
@@ -124,4 +122,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE (ImageCache)
 };
 
-#endif   // __JUCE_IMAGECACHE_JUCEHEADER__
+#endif   // JUCE_IMAGECACHE_H_INCLUDED

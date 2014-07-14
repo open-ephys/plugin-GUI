@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_TABLEHEADERCOMPONENT_JUCEHEADER__
-#define __JUCE_TABLEHEADERCOMPONENT_JUCEHEADER__
-
-#include "../menus/juce_PopupMenu.h"
+#ifndef JUCE_TABLEHEADERCOMPONENT_H_INCLUDED
+#define JUCE_TABLEHEADERCOMPONENT_H_INCLUDED
 
 
 //==============================================================================
@@ -317,12 +315,10 @@ public:
         */
         virtual void tableColumnsChanged (TableHeaderComponent* tableHeader) = 0;
 
-        /** This is called when one or more of the table's columns are resized.
-        */
+        /** This is called when one or more of the table's columns are resized. */
         virtual void tableColumnsResized (TableHeaderComponent* tableHeader) = 0;
 
-        /** This is called when the column by which the table should be sorted is changed.
-        */
+        /** This is called when the column by which the table should be sorted is changed. */
         virtual void tableSortOrderChanged (TableHeaderComponent* tableHeader) = 0;
 
         /** This is called when the user begins or ends dragging one of the columns around.
@@ -371,24 +367,37 @@ public:
     virtual void reactToMenuItem (int menuReturnId, int columnIdClicked);
 
     //==============================================================================
+    /** This abstract base class is implemented by LookAndFeel classes. */
+    struct JUCE_API  LookAndFeelMethods
+    {
+        virtual ~LookAndFeelMethods() {}
+
+        virtual void drawTableHeaderBackground (Graphics&, TableHeaderComponent&) = 0;
+
+        virtual void drawTableHeaderColumn (Graphics&, const String& columnName, int columnId,
+                                            int width, int height,
+                                            bool isMouseOver, bool isMouseDown, int columnFlags) = 0;
+    };
+
+    //==============================================================================
     /** @internal */
-    void paint (Graphics& g);
+    void paint (Graphics&) override;
     /** @internal */
-    void resized();
+    void resized() override;
     /** @internal */
-    void mouseMove (const MouseEvent&);
+    void mouseMove (const MouseEvent&) override;
     /** @internal */
-    void mouseEnter (const MouseEvent&);
+    void mouseEnter (const MouseEvent&) override;
     /** @internal */
-    void mouseExit (const MouseEvent&);
+    void mouseExit (const MouseEvent&) override;
     /** @internal */
-    void mouseDown (const MouseEvent&);
+    void mouseDown (const MouseEvent&) override;
     /** @internal */
-    void mouseDrag (const MouseEvent&);
+    void mouseDrag (const MouseEvent&) override;
     /** @internal */
-    void mouseUp (const MouseEvent&);
+    void mouseUp (const MouseEvent&) override;
     /** @internal */
-    MouseCursor getMouseCursor();
+    MouseCursor getMouseCursor() override;
 
     /** Can be overridden for more control over the pop-up menu behaviour. */
     virtual void showColumnChooserMenu (int columnIdClicked);
@@ -415,7 +424,7 @@ private:
     ColumnInfo* getInfoForId (int columnId) const;
     int visibleIndexToTotalIndex (int visibleIndex) const;
     void sendColumnsChanged();
-    void handleAsyncUpdate();
+    void handleAsyncUpdate() override;
     void beginDrag (const MouseEvent&);
     void endDrag (int finalIndex);
     int getResizeDraggerAt (int mouseX) const;
@@ -430,4 +439,4 @@ private:
 typedef TableHeaderComponent::Listener TableHeaderListener;
 
 
-#endif   // __JUCE_TABLEHEADERCOMPONENT_JUCEHEADER__
+#endif   // JUCE_TABLEHEADERCOMPONENT_H_INCLUDED

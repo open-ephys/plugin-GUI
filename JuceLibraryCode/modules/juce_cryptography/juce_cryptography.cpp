@@ -22,7 +22,7 @@
   ==============================================================================
 */
 
-#if defined (__JUCE_CRYPTOGRAPHY_JUCEHEADER__) && ! JUCE_AMALGAMATED_INCLUDE
+#if defined (JUCE_CRYPTOGRAPHY_H_INCLUDED) && ! JUCE_AMALGAMATED_INCLUDE
  /* When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
     flags preceding it, but don't include anything else. That also includes avoiding any automatic prefix
@@ -40,12 +40,10 @@
 namespace juce
 {
 
-// START_AUTOINCLUDE encryption/*.cpp, hashing/*.cpp
 #include "encryption/juce_BlowFish.cpp"
 #include "encryption/juce_Primes.cpp"
 #include "encryption/juce_RSAKey.cpp"
 #include "hashing/juce_MD5.cpp"
 #include "hashing/juce_SHA256.cpp"
-// END_AUTOINCLUDE
 
 }

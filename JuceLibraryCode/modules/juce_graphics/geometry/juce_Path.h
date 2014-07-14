@@ -22,16 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_PATH_JUCEHEADER__
-#define __JUCE_PATH_JUCEHEADER__
-
-#include "juce_AffineTransform.h"
-#include "juce_Line.h"
-#include "juce_Rectangle.h"
-#include "../placement/juce_Justification.h"
-class Image;
-class InputStream;
-class OutputStream;
+#ifndef JUCE_PATH_H_INCLUDED
+#define JUCE_PATH_H_INCLUDED
 
 
 //==============================================================================
@@ -75,21 +67,21 @@ public:
     Path();
 
     /** Creates a copy of another path. */
-    Path (const Path& other);
+    Path (const Path&);
 
     /** Destructor. */
     ~Path();
 
     /** Copies this path from another one. */
-    Path& operator= (const Path& other);
+    Path& operator= (const Path&);
 
    #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
-    Path (Path&& other) noexcept;
-    Path& operator= (Path&& other) noexcept;
+    Path (Path&&) noexcept;
+    Path& operator= (Path&&) noexcept;
    #endif
 
-    bool operator== (const Path& other) const noexcept;
-    bool operator!= (const Path& other) const noexcept;
+    bool operator== (const Path&) const noexcept;
+    bool operator!= (const Path&) const noexcept;
 
     //==============================================================================
     /** Returns true if the path doesn't contain any lines or curves. */
@@ -190,7 +182,7 @@ public:
 
     /** Begins a new subpath with a given starting position.
 
-        This will move the path's current position to the co-ordinates passed in and
+        This will move the path's current position to the coordinates passed in and
         make it ready to draw lines or curves starting from this position.
 
         After adding whatever lines and curves are needed, you can either
@@ -203,7 +195,7 @@ public:
 
     /** Begins a new subpath with a given starting position.
 
-        This will move the path's current position to the co-ordinates passed in and
+        This will move the path's current position to the coordinates passed in and
         make it ready to draw lines or curves starting from this position.
 
         After adding whatever lines and curves are needed, you can either
@@ -399,12 +391,16 @@ public:
                            float x4, float y4);
 
     /** Adds an ellipse to the path.
-
         The shape is added as a new sub-path. (Any currently open paths will be left open).
-
         @see addArc
     */
     void addEllipse (float x, float y, float width, float height);
+
+    /** Adds an ellipse to the path.
+        The shape is added as a new sub-path. (Any currently open paths will be left open).
+        @see addArc
+    */
+    void addEllipse (Rectangle<float> area);
 
     /** Adds an elliptical arc to the current path.
 
@@ -566,7 +562,19 @@ public:
         The internal data of the two paths is swapped over, so this is much faster than
         copying it to a temp variable and back.
     */
-    void swapWithPath (Path& other) noexcept;
+    void swapWithPath (Path&) noexcept;
+
+    //==============================================================================
+    /** Preallocates enough space for adding the given number of coordinates to the path.
+        If you're about to add a large number of lines or curves to the path, it can make
+        the task much more efficient to call this first and avoid costly reallocations
+        as the structure grows.
+        The actual value to pass is a bit tricky to calculate because the space required
+        depends on what you're adding - e.g. each lineTo() or startNewSubPath() will
+        require 3 coords (x, y and a type marker). Each quadraticTo() will need 5, and
+        a cubicTo() will require 7. Closing a sub-path will require 1.
+    */
+    void preallocateSpace (int numExtraCoordsToMakeSpaceFor);
 
     //==============================================================================
     /** Applies a 2D transform to all the vertices in the path.
@@ -612,7 +620,25 @@ public:
     */
     AffineTransform getTransformToScaleToFit (float x, float y, float width, float height,
                                               bool preserveProportions,
-                                              const Justification& justificationType = Justification::centred) const;
+                                              Justification justificationType = Justification::centred) const;
+
+    /** Returns a transform that can be used to rescale the path to fit into a given space.
+
+        @param area                 the rectangle to fit the path inside
+        @param preserveProportions  if true, it will fit the path into the space without altering its
+                                    horizontal/vertical scale ratio; if false, it will distort the
+                                    path to fill the specified ratio both horizontally and vertically
+        @param justificationType    if the proportions are preseved, the resultant path may be smaller
+                                    than the available rectangle, so this describes how it should be
+                                    positioned within the space.
+        @returns                    an appropriate transformation
+
+        @see applyTransform, scaleToFit
+
+    */
+    AffineTransform getTransformToScaleToFit (const Rectangle<float>& area,
+                                              bool preserveProportions,
+                                              Justification justificationType = Justification::centred) const;
 
     /** Creates a version of this path where all sharp corners have been replaced by curves.
 
@@ -730,14 +756,13 @@ public:
     /** Restores this path from a string that was created with the toString() method.
         @see toString()
     */
-    void restoreFromString (const String& stringVersion);
-
+    void restoreFromString (StringRef stringVersion);
 
 private:
     //==============================================================================
     friend class PathFlatteningIterator;
     friend class Path::Iterator;
-    ArrayAllocationBase <float, DummyCriticalSection> data;
+    ArrayAllocationBase<float, DummyCriticalSection> data;
     size_t numElements;
 
     struct PathBounds
@@ -764,4 +789,4 @@ private:
     JUCE_LEAK_DETECTOR (Path)
 };
 
-#endif   // __JUCE_PATH_JUCEHEADER__
+#endif   // JUCE_PATH_H_INCLUDED

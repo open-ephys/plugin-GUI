@@ -101,12 +101,12 @@ namespace FileChooserHelpers
             setSize (jlimit (20, 800, customComp->getWidth()), customComp->getHeight());
         }
 
-        void paint (Graphics& g)
+        void paint (Graphics& g) override
         {
             g.fillAll (Colours::lightgrey);
         }
 
-        void resized()
+        void resized() override
         {
             if (Component* const c = getChildComponent(0))
                 c->setBounds (getLocalBounds());
@@ -120,7 +120,11 @@ namespace FileChooserHelpers
 //==============================================================================
 bool FileChooser::isPlatformDialogAvailable()
 {
+   #if JUCE_DISABLE_NATIVE_FILECHOOSERS
+    return false;
+   #else
     return true;
+   #endif
 }
 
 void FileChooser::showPlatformDialog (Array<File>& results, const String& title_, const File& currentFileOrDirectory,
@@ -183,7 +187,7 @@ void FileChooser::showPlatformDialog (Array<File>& results, const String& title_
         if (! SHGetPathFromIDListW (list, files))
         {
             files[0] = 0;
-            info.returnedString = String::empty;
+            info.returnedString.clear();
         }
 
         LPMALLOC al;
@@ -198,7 +202,7 @@ void FileChooser::showPlatformDialog (Array<File>& results, const String& title_
     }
     else
     {
-        DWORD flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR | OFN_HIDEREADONLY;
+        DWORD flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR | OFN_HIDEREADONLY | OFN_ENABLESIZING;
 
         if (warnAboutOverwritingExistingFiles)
             flags |= OFN_OVERWRITEPROMPT;

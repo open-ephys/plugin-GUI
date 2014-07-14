@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_ARROWBUTTON_JUCEHEADER__
-#define __JUCE_ARROWBUTTON_JUCEHEADER__
-
-#include "juce_Button.h"
+#ifndef JUCE_ARROWBUTTON_H_INCLUDED
+#define JUCE_ARROWBUTTON_H_INCLUDED
 
 
 //==============================================================================
@@ -53,7 +51,7 @@ public:
     ~ArrowButton();
 
     /** @internal */
-    void paintButton (Graphics&, bool isMouseOverButton, bool isButtonDown);
+    void paintButton (Graphics&, bool isMouseOverButton, bool isButtonDown) override;
 
 private:
     Colour colour;
@@ -63,4 +61,4 @@ private:
 };
 
 
-#endif   // __JUCE_ARROWBUTTON_JUCEHEADER__
+#endif   // JUCE_ARROWBUTTON_H_INCLUDED

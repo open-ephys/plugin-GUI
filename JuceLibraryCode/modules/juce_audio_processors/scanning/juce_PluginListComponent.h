@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_PLUGINLISTCOMPONENT_JUCEHEADER__
-#define __JUCE_PLUGINLISTCOMPONENT_JUCEHEADER__
-
-#include "juce_KnownPluginList.h"
-#include "../format/juce_AudioPluginFormat.h"
+#ifndef JUCE_PLUGINLISTCOMPONENT_H_INCLUDED
+#define JUCE_PLUGINLISTCOMPONENT_H_INCLUDED
 
 
 //==============================================================================
@@ -36,7 +33,6 @@
 */
 class JUCE_API  PluginListComponent   : public Component,
                                         public FileDragAndDropTarget,
-                                        private ListBoxModel,
                                         private ChangeListener,
                                         private ButtonListener  // (can't use Button::Listener due to idiotic VC2005 bug)
 {
@@ -46,7 +42,6 @@ public:
         Creates the list component.
 
         For info about the deadMansPedalFile, see the PluginDirectoryScanner constructor.
-
         The properties file, if supplied, is used to store the user's last search paths.
     */
     PluginListComponent (AudioPluginFormatManager& formatManager,
@@ -57,7 +52,7 @@ public:
     /** Destructor. */
     ~PluginListComponent();
 
-    /** Changes the text in the panel's button. */
+    /** Changes the text in the panel's options button. */
     void setOptionsButtonText (const String& newText);
 
     /** Sets how many threads to simultaneously scan for plugins.
@@ -66,59 +61,54 @@ public:
     void setNumberOfThreadsForScanning (int numThreads);
 
     /** Returns the last search path stored in a given properties file for the specified format. */
-    static FileSearchPath getLastSearchPath (PropertiesFile& properties, AudioPluginFormat& format);
+    static FileSearchPath getLastSearchPath (PropertiesFile&, AudioPluginFormat&);
 
     /** Stores a search path in a properties file for the given format. */
-    static void setLastSearchPath (PropertiesFile& properties, AudioPluginFormat& format,
-                                   const FileSearchPath& newPath);
+    static void setLastSearchPath (PropertiesFile&, AudioPluginFormat&, const FileSearchPath&);
 
-    /** Triggers a scan for the given format. */
-    void scanFor (AudioPluginFormat& format);
+    /** Triggers an asynchronous scan for the given format. */
+    void scanFor (AudioPluginFormat&);
 
-    //==============================================================================
-    /** @internal */
-    void resized();
-    /** @internal */
-    bool isInterestedInFileDrag (const StringArray&);
-    /** @internal */
-    void filesDropped (const StringArray&, int, int);
-    /** @internal */
-    int getNumRows();
-    /** @internal */
-    void paintListBoxItem (int row, Graphics&, int width, int height, bool rowIsSelected);
-    /** @internal */
-    void deleteKeyPressed (int lastRowSelected);
+    /** Returns true if there's currently a scan in progress. */
+    bool isScanning() const noexcept;
 
 private:
     //==============================================================================
     AudioPluginFormatManager& formatManager;
     KnownPluginList& list;
     File deadMansPedalFile;
-    ListBox listBox;
+    TableListBox table;
     TextButton optionsButton;
     PropertiesFile* propertiesToUse;
     int numThreads;
 
+    class TableModel;
+    friend class TableModel;
+    friend struct ContainerDeletePolicy<TableModel>;
+    ScopedPointer<TableModel> tableModel;
+
     class Scanner;
     friend class Scanner;
-    friend class ScopedPointer<Scanner>;
+    friend struct ContainerDeletePolicy<Scanner>;
     ScopedPointer<Scanner> currentScanner;
 
     void scanFinished (const StringArray&);
-
     static void optionsMenuStaticCallback (int, PluginListComponent*);
     void optionsMenuCallback (int);
     void updateList();
-    void removeSelected();
     void showSelectedFolder();
     bool canShowSelectedFolder() const;
+    void removeSelected();
     void removeMissingPlugins();
 
-    void buttonClicked (Button*);
-    void changeListenerCallback (ChangeBroadcaster*);
+    void resized() override;
+    bool isInterestedInFileDrag (const StringArray&) override;
+    void filesDropped (const StringArray&, int, int) override;
+    void buttonClicked (Button*) override;
+    void changeListenerCallback (ChangeBroadcaster*) override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginListComponent)
 };
 
 
-#endif   // __JUCE_PLUGINLISTCOMPONENT_JUCEHEADER__
+#endif   // JUCE_PLUGINLISTCOMPONENT_H_INCLUDED

@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_TEXTINPUTTARGET_JUCEHEADER__
-#define __JUCE_TEXTINPUTTARGET_JUCEHEADER__
+#ifndef JUCE_TEXTINPUTTARGET_H_INCLUDED
+#define JUCE_TEXTINPUTTARGET_H_INCLUDED
 
 
 //==============================================================================
@@ -71,7 +71,24 @@ public:
 
     /** Returns the position of the caret, relative to the component's origin. */
     virtual Rectangle<int> getCaretRectangle() = 0;
+
+    /** A set of possible on-screen keyboard types, for use in the
+        getKeyboardType() method.
+    */
+    enum VirtualKeyboardType
+    {
+        textKeyboard = 0,
+        numericKeyboard,
+        urlKeyboard,
+        emailAddressKeyboard,
+        phoneNumberKeyboard
+    };
+
+    /** Returns the target's preference for the type of keyboard that would be most appropriate.
+        This may be ignored, depending on the capabilities of the OS.
+    */
+    virtual VirtualKeyboardType getKeyboardType()       { return textKeyboard; }
 };
 
 
-#endif   // __JUCE_TEXTINPUTTARGET_JUCEHEADER__
+#endif   // JUCE_TEXTINPUTTARGET_H_INCLUDED

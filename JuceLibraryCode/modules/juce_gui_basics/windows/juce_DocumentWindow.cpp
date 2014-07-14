@@ -25,9 +25,9 @@
 class DocumentWindow::ButtonListenerProxy  : public ButtonListener // (can't use Button::Listener due to idiotic VC2005 bug)
 {
 public:
-    ButtonListenerProxy (DocumentWindow& owner_) : owner (owner_) {}
+    ButtonListenerProxy (DocumentWindow& w) : owner (w) {}
 
-    void buttonClicked (Button* button)
+    void buttonClicked (Button* button) override
     {
         if      (button == owner.getMinimiseButton())  owner.minimiseButtonPressed();
         else if (button == owner.getMaximiseButton())  owner.maximiseButtonPressed();
@@ -42,9 +42,9 @@ private:
 
 //==============================================================================
 DocumentWindow::DocumentWindow (const String& title,
-                                const Colour& backgroundColour,
-                                const int requiredButtons_,
-                                const bool addToDesktop_)
+                                Colour backgroundColour,
+                                int requiredButtons_,
+                                bool addToDesktop_)
     : ResizableWindow (title, backgroundColour, addToDesktop_),
       titleBarHeight (26),
       menuBarHeight (24),
@@ -165,8 +165,8 @@ void DocumentWindow::closeButtonPressed()
 
         If your app is centred around this window such that the whole app should quit when
         the window is closed, then you will probably want to use this method as an opportunity
-        to call JUCEApplication::quit(), and leave the window to be deleted later by your
-        JUCEApplication::shutdown() method. (Doing it this way means that your window will
+        to call JUCEApplicationBase::quit(), and leave the window to be deleted later by your
+        JUCEApplicationBase::shutdown() method. (Doing it this way means that your window will
         still get cleaned-up if the app is quit by some other means (e.g. a cmd-Q on the mac
         or closing it via the taskbar icon on Windows).
     */
@@ -190,19 +190,16 @@ void DocumentWindow::paint (Graphics& g)
 
     if (resizableBorder == nullptr)
     {
+        RectangleList<int> border (getLocalBounds());
+        border.subtract (getBorderThickness().subtractedFrom (getLocalBounds()));
+
         g.setColour (getBackgroundColour().overlaidWith (Colour (0x80000000)));
-
-        const BorderSize<int> border (getBorderThickness());
-
-        g.fillRect (0, 0, getWidth(), border.getTop());
-        g.fillRect (0, border.getTop(), border.getLeft(), getHeight() - border.getTopAndBottom());
-        g.fillRect (getWidth() - border.getRight(), border.getTop(), border.getRight(), getHeight() - border.getTopAndBottom());
-        g.fillRect (0, getHeight() - border.getBottom(), getWidth(), border.getBottom());
+        g.fillRectList (border);
     }
 
     const Rectangle<int> titleBarArea (getTitleBarArea());
     g.reduceClipRegion (titleBarArea);
-    g.setOrigin (titleBarArea.getX(), titleBarArea.getY());
+    g.setOrigin (titleBarArea.getPosition());
 
     int titleSpaceX1 = 6;
     int titleSpaceX2 = titleBarArea.getWidth() - 6;
@@ -232,7 +229,7 @@ void DocumentWindow::resized()
     ResizableWindow::resized();
 
     if (Button* const b = getMaximiseButton())
-        b->setToggleState (isFullScreen(), false);
+        b->setToggleState (isFullScreen(), dontSendNotification);
 
     const Rectangle<int> titleBarArea (getTitleBarArea());
 
@@ -252,17 +249,17 @@ void DocumentWindow::resized()
 
 BorderSize<int> DocumentWindow::getBorderThickness()
 {
-    return BorderSize<int> ((isFullScreen() || isUsingNativeTitleBar())
-                                ? 0 : (resizableBorder != nullptr ? 4 : 1));
+    return ResizableWindow::getBorderThickness();
 }
 
 BorderSize<int> DocumentWindow::getContentComponentBorder()
 {
     BorderSize<int> border (getBorderThickness());
 
-    border.setTop (border.getTop()
-                    + (isUsingNativeTitleBar() ? 0 : titleBarHeight)
-                    + (menuBar != nullptr ? menuBarHeight : 0));
+    if (! isKioskMode())
+        border.setTop (border.getTop()
+                        + (isUsingNativeTitleBar() ? 0 : titleBarHeight)
+                        + (menuBar != nullptr ? menuBarHeight : 0));
 
     return border;
 }
@@ -275,6 +272,9 @@ int DocumentWindow::getTitleBarHeight() const
 Rectangle<int> DocumentWindow::getTitleBarArea()
 {
     const BorderSize<int> border (getBorderThickness());
+
+    if (isKioskMode())
+        return Rectangle<int>();
 
     return Rectangle<int> (border.getLeft(), border.getTop(),
                            getWidth() - border.getLeftAndRight(), getTitleBarHeight());

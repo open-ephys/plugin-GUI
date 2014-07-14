@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_FONT_JUCEHEADER__
-#define __JUCE_FONT_JUCEHEADER__
-
-#include "juce_Typeface.h"
-class LowLevelGraphicsContext;
+#ifndef JUCE_FONT_H_INCLUDED
+#define JUCE_FONT_H_INCLUDED
 
 
 //==============================================================================
@@ -172,7 +169,7 @@ public:
     */
     static const String& getDefaultSansSerifFontName();
 
-    /** Returns a typeface font family that represents the default sans-serif font.
+    /** Returns a typeface font family that represents the default serif font.
 
         Note that this method just returns a generic placeholder string that means "the default
         serif font" - it's not the actual font family of this font.
@@ -181,7 +178,7 @@ public:
     */
     static const String& getDefaultSerifFontName();
 
-    /** Returns a typeface font family that represents the default sans-serif font.
+    /** Returns a typeface font family that represents the default monospaced font.
 
         Note that this method just returns a generic placeholder string that means "the default
         monospaced font" - it's not the actual font family of this font.
@@ -190,10 +187,10 @@ public:
     */
     static const String& getDefaultMonospacedFontName();
 
-    /** Returns a typeface font style that represents the default sans-serif font.
+    /** Returns a font style name that represents the default style.
 
         Note that this method just returns a generic placeholder string that means "the default
-        font style" - it's not the actual font style of this font.
+        font style" - it's not the actual name of the font style of any particular font.
 
         @see setTypefaceStyle
     */
@@ -203,14 +200,6 @@ public:
     static Typeface::Ptr getDefaultTypefaceForFont (const Font& font);
 
     //==============================================================================
-    /** Returns the total height of this font.
-        This is the maximum height, from the top of the ascent to the bottom of the
-        descenders.
-
-        @see withHeight, setHeightWithoutChangingWidth, getAscent
-    */
-    float getHeight() const noexcept;
-
     /** Returns a copy of this font with a new height. */
     Font withHeight (float height) const;
 
@@ -227,17 +216,45 @@ public:
     */
     void setHeightWithoutChangingWidth (float newHeight);
 
-    /** Returns the height of the font above its baseline.
+    /** Returns the total height of this font, in pixels.
+        This is the maximum height, from the top of the ascent to the bottom of the
+        descenders.
+
+        @see withHeight, setHeightWithoutChangingWidth, getAscent
+    */
+    float getHeight() const noexcept;
+
+    /** Returns the total height of this font, in points.
+        This is the maximum height, from the top of the ascent to the bottom of the
+        descenders.
+
+        @see withPointHeight, getHeight
+    */
+    float getHeightInPoints() const;
+
+    /** Returns the height of the font above its baseline, in pixels.
         This is the maximum height from the baseline to the top.
         @see getHeight, getDescent
     */
     float getAscent() const;
 
-    /** Returns the amount that the font descends below its baseline.
+    /** Returns the height of the font above its baseline, in points.
+        This is the maximum height from the baseline to the top.
+        @see getHeight, getDescent
+    */
+    float getAscentInPoints() const;
+
+    /** Returns the amount that the font descends below its baseline, in pixels.
         This is calculated as (getHeight() - getAscent()).
         @see getAscent, getHeight
     */
     float getDescent() const;
+
+    /** Returns the amount that the font descends below its baseline, in points.
+        This is calculated as (getHeight() - getAscent()).
+        @see getAscent, getHeight
+    */
+    float getDescentInPoints() const;
 
     //==============================================================================
     /** Returns the font's style flags.
@@ -435,8 +452,9 @@ private:
     ReferenceCountedObjectPtr <SharedFontInternal> font;
     void dupeInternalIfShared();
     void checkTypefaceSuitability();
+    float getHeightToPointsFactor() const;
 
     JUCE_LEAK_DETECTOR (Font)
 };
 
-#endif   // __JUCE_FONT_JUCEHEADER__
+#endif   // JUCE_FONT_H_INCLUDED

@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_ACTIONBROADCASTER_JUCEHEADER__
-#define __JUCE_ACTIONBROADCASTER_JUCEHEADER__
-
-#include "juce_ActionListener.h"
+#ifndef JUCE_ACTIONBROADCASTER_H_INCLUDED
+#define JUCE_ACTIONBROADCASTER_H_INCLUDED
 
 
 //==============================================================================
@@ -75,11 +73,11 @@ private:
     class ActionMessage;
     friend class ActionMessage;
 
-    SortedSet <ActionListener*> actionListeners;
+    SortedSet<ActionListener*> actionListeners;
     CriticalSection actionListenerLock;
 
     JUCE_DECLARE_NON_COPYABLE (ActionBroadcaster)
 };
 
 
-#endif   // __JUCE_ACTIONBROADCASTER_JUCEHEADER__
+#endif   // JUCE_ACTIONBROADCASTER_H_INCLUDED

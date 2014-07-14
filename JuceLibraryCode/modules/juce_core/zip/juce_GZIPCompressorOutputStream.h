@@ -26,12 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_GZIPCOMPRESSOROUTPUTSTREAM_JUCEHEADER__
-#define __JUCE_GZIPCOMPRESSOROUTPUTSTREAM_JUCEHEADER__
-
-#include "../streams/juce_OutputStream.h"
-#include "../memory/juce_OptionalScopedPointer.h"
-#include "../memory/juce_HeapBlock.h"
+#ifndef JUCE_GZIPCOMPRESSOROUTPUTSTREAM_H_INCLUDED
+#define JUCE_GZIPCOMPRESSOROUTPUTSTREAM_H_INCLUDED
 
 
 //==============================================================================
@@ -78,11 +74,11 @@ public:
     */
     void flush();
 
-    int64 getPosition();
-    bool setPosition (int64 newPosition);
-    bool write (const void* destBuffer, size_t howMany);
+    int64 getPosition() override;
+    bool setPosition (int64) override;
+    bool write (const void*, size_t) override;
 
-    /** These are preset values that can be used for the constructor's windowBits paramter.
+    /** These are preset values that can be used for the constructor's windowBits parameter.
         For more info about this, see the zlib documentation for its windowBits parameter.
     */
     enum WindowBitsValues
@@ -96,10 +92,10 @@ private:
     OptionalScopedPointer<OutputStream> destStream;
 
     class GZIPCompressorHelper;
-    friend class ScopedPointer <GZIPCompressorHelper>;
-    ScopedPointer <GZIPCompressorHelper> helper;
+    friend struct ContainerDeletePolicy<GZIPCompressorHelper>;
+    ScopedPointer<GZIPCompressorHelper> helper;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GZIPCompressorOutputStream)
 };
 
-#endif   // __JUCE_GZIPCOMPRESSOROUTPUTSTREAM_JUCEHEADER__
+#endif   // JUCE_GZIPCOMPRESSOROUTPUTSTREAM_H_INCLUDED

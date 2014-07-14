@@ -22,17 +22,15 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_CPLUSPLUSCODETOKENISER_JUCEHEADER__
-#define __JUCE_CPLUSPLUSCODETOKENISER_JUCEHEADER__
-
-#include "juce_CodeTokeniser.h"
+#ifndef JUCE_CPLUSPLUSCODETOKENISER_H_INCLUDED
+#define JUCE_CPLUSPLUSCODETOKENISER_H_INCLUDED
 
 
 //==============================================================================
 /**
     A simple lexical analyser for syntax colouring of C++ code.
 
-    @see SyntaxAnalyser, CodeEditorComponent, CodeDocument
+    @see CodeEditorComponent, CodeDocument
 */
 class JUCE_API  CPlusPlusCodeTokeniser    : public CodeTokeniser
 {
@@ -42,9 +40,8 @@ public:
     ~CPlusPlusCodeTokeniser();
 
     //==============================================================================
-    int readNextToken (CodeDocument::Iterator& source);
-
-    CodeEditorComponent::ColourScheme getDefaultColourScheme();
+    int readNextToken (CodeDocument::Iterator&) override;
+    CodeEditorComponent::ColourScheme getDefaultColourScheme() override;
 
     /** This is a handy method for checking whether a string is a c++ reserved keyword. */
     static bool isReservedKeyword (const String& token) noexcept;
@@ -71,4 +68,4 @@ private:
 };
 
 
-#endif   // __JUCE_CPLUSPLUSCODETOKENISER_JUCEHEADER__
+#endif   // JUCE_CPLUSPLUSCODETOKENISER_H_INCLUDED

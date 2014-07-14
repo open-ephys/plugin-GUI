@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -41,7 +40,7 @@ public:
     {
         list.setModel (this);
         list.setColour (ListBox::backgroundColourId, Colours::transparentBlack);
-        addAndMakeVisible (&list);
+        addAndMakeVisible (list);
         list.updateContent();
         list.setRowHeight (20);
         item.state.addListener (this);
@@ -54,54 +53,52 @@ public:
     }
 
     //==============================================================================
-    void paint (Graphics& g)
+    void paint (Graphics& g) override
     {
         IntrojucerLookAndFeel::fillWithBackgroundTexture (*this, g);
     }
 
-    void resized()
+    void resized() override
     {
         list.setBounds (getLocalBounds().reduced (5, 4));
     }
 
-    int getNumRows()
+    int getNumRows() override
     {
         return item.getNumChildren();
     }
 
-    void paintListBoxItem (int /*rowNumber*/, Graphics& g, int width, int height, bool /*rowIsSelected*/)
+    void paintListBoxItem (int /*rowNumber*/, Graphics& g, int width, int height, bool /*rowIsSelected*/) override
     {
         g.setColour (Colours::white.withAlpha (0.4f));
         g.fillRect (0, 0, width, height - 1);
     }
 
-    Component* refreshComponentForRow (int rowNumber, bool /*isRowSelected*/, Component* existingComponentToUpdate)
+    Component* refreshComponentForRow (int rowNumber, bool /*isRowSelected*/, Component* existingComponentToUpdate) override
     {
+        ScopedPointer<Component> existing (existingComponentToUpdate);
+
         if (rowNumber < getNumRows())
         {
             Project::Item child (item.getChild (rowNumber));
 
             if (existingComponentToUpdate == nullptr
-                 || dynamic_cast <FileOptionComponent*> (existingComponentToUpdate)->item != child)
+                 || dynamic_cast <FileOptionComponent*> (existing.get())->item != child)
             {
-                delete existingComponentToUpdate;
-                existingComponentToUpdate = new FileOptionComponent (child);
+                existing = nullptr;
+                existing = new FileOptionComponent (child);
             }
         }
-        else
-        {
-            deleteAndZero (existingComponentToUpdate);
-        }
 
-        return existingComponentToUpdate;
+        return existing.release();
     }
 
     //==============================================================================
-    void valueTreePropertyChanged (ValueTree&, const Identifier&)    { itemChanged(); }
-    void valueTreeChildAdded (ValueTree&, ValueTree&)                { itemChanged(); }
-    void valueTreeChildRemoved (ValueTree&, ValueTree&)              { itemChanged(); }
-    void valueTreeChildOrderChanged (ValueTree&)                     { itemChanged(); }
-    void valueTreeParentChanged (ValueTree&)                         { itemChanged(); }
+    void valueTreePropertyChanged (ValueTree&, const Identifier&) override    { itemChanged(); }
+    void valueTreeChildAdded (ValueTree&, ValueTree&) override                { itemChanged(); }
+    void valueTreeChildRemoved (ValueTree&, ValueTree&) override              { itemChanged(); }
+    void valueTreeChildOrderChanged (ValueTree&) override                     { itemChanged(); }
+    void valueTreeParentChanged (ValueTree&) override                         { itemChanged(); }
 
 private:
     Project::Item item;
@@ -124,15 +121,15 @@ private:
         {
             if (item.isFile())
             {
-                addAndMakeVisible (&compileButton);
+                addAndMakeVisible (compileButton);
                 compileButton.getToggleStateValue().referTo (item.getShouldCompileValue());
 
-                addAndMakeVisible (&resourceButton);
+                addAndMakeVisible (resourceButton);
                 resourceButton.getToggleStateValue().referTo (item.getShouldAddToResourceValue());
             }
         }
 
-        void paint (Graphics& g)
+        void paint (Graphics& g) override
         {
             int x = getHeight() + 6;
 
@@ -149,7 +146,7 @@ private:
             g.drawText (item.getName(), x, 0, x2 - x, getHeight(), Justification::centredLeft, true);
         }
 
-        void resized()
+        void resized() override
         {
             int w = 180;
             resourceButton.setBounds (getWidth() - w, 1, w, getHeight() - 2);

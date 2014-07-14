@@ -22,8 +22,9 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_DECIBELS_JUCEHEADER__
-#define __JUCE_DECIBELS_JUCEHEADER__
+#ifndef JUCE_DECIBELS_H_INCLUDED
+#define JUCE_DECIBELS_H_INCLUDED
+
 
 //==============================================================================
 /**
@@ -42,7 +43,7 @@ public:
     static Type decibelsToGain (const Type decibels,
                                 const Type minusInfinityDb = (Type) defaultMinusInfinitydB)
     {
-        return decibels > minusInfinityDb ? powf ((Type) 10.0, decibels * (Type) 0.05)
+        return decibels > minusInfinityDb ? std::pow ((Type) 10.0, decibels * (Type) 0.05)
                                           : Type();
     }
 
@@ -100,4 +101,4 @@ private:
 };
 
 
-#endif   // __JUCE_DECIBELS_JUCEHEADER__
+#endif   // JUCE_DECIBELS_H_INCLUDED

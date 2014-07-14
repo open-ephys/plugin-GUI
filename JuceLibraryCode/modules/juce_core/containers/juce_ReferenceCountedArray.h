@@ -26,18 +26,21 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_REFERENCECOUNTEDARRAY_JUCEHEADER__
-#define __JUCE_REFERENCECOUNTEDARRAY_JUCEHEADER__
-
-#include "../memory/juce_ReferenceCountedObject.h"
-#include "juce_ArrayAllocationBase.h"
-#include "juce_ElementComparator.h"
-#include "../threads/juce_CriticalSection.h"
+#ifndef JUCE_REFERENCECOUNTEDARRAY_H_INCLUDED
+#define JUCE_REFERENCECOUNTEDARRAY_H_INCLUDED
 
 
 //==============================================================================
 /**
-    Holds a list of objects derived from ReferenceCountedObject.
+    Holds a list of objects derived from ReferenceCountedObject, or which implement basic
+    reference-count handling methods.
+
+    The template parameter specifies the class of the object you want to point to - the easiest
+    way to make a class reference-countable is to simply make it inherit from ReferenceCountedObject
+    or SingleThreadedReferenceCountedObject, but if you need to, you can roll your own reference-countable
+    class by implementing a set of mathods called incReferenceCount(), decReferenceCount(), and
+    decReferenceCountWithoutDeleting(). See ReferenceCountedObject for examples of how these methods
+    should behave.
 
     A ReferenceCountedArray holds objects derived from ReferenceCountedObject,
     and takes care of incrementing and decrementing their ref counts when they
@@ -96,7 +99,7 @@ public:
     ReferenceCountedArray& operator= (const ReferenceCountedArray& other) noexcept
     {
         ReferenceCountedArray otherCopy (other);
-        swapWithArray (otherCopy);
+        swapWith (otherCopy);
         return *this;
     }
 
@@ -107,7 +110,7 @@ public:
     ReferenceCountedArray<ObjectClass, TypeOfCriticalSectionToUse>& operator= (const ReferenceCountedArray<OtherObjectClass, TypeOfCriticalSectionToUse>& other) noexcept
     {
         ReferenceCountedArray<ObjectClass, TypeOfCriticalSectionToUse> otherCopy (other);
-        swapWithArray (otherCopy);
+        swapWith (otherCopy);
         return *this;
     }
 
@@ -130,7 +133,7 @@ public:
 
         while (numUsed > 0)
             if (ObjectClass* o = data.elements [--numUsed])
-                o->decReferenceCount();
+                releaseObject (o);
 
         jassert (numUsed == 0);
         data.setAllocatedSize (0);
@@ -177,8 +180,14 @@ public:
     inline ObjectClass* getObjectPointer (const int index) const noexcept
     {
         const ScopedLockType lock (getLock());
-        return isPositiveAndBelow (index, numUsed) ? data.elements [index]
-                                                   : nullptr;
+
+        if (isPositiveAndBelow (index, numUsed))
+        {
+            jassert (data.elements != nullptr);
+            return data.elements [index];
+        }
+
+        return ObjectClassPtr();
     }
 
     /** Returns a raw pointer to the object at this index in the array, without checking
@@ -187,7 +196,7 @@ public:
     inline ObjectClass* getObjectPointerUnchecked (const int index) const noexcept
     {
         const ScopedLockType lock (getLock());
-        jassert (isPositiveAndBelow (index, numUsed));
+        jassert (isPositiveAndBelow (index, numUsed) && data.elements != nullptr);
         return data.elements [index];
     }
 
@@ -199,8 +208,14 @@ public:
     inline ObjectClassPtr getFirst() const noexcept
     {
         const ScopedLockType lock (getLock());
-        return numUsed > 0 ? data.elements [0]
-                           : static_cast <ObjectClass*> (nullptr);
+
+        if (numUsed > 0)
+        {
+            jassert (data.elements != nullptr);
+            return data.elements [0];
+        }
+
+        return ObjectClassPtr();
     }
 
     /** Returns a pointer to the last object in the array.
@@ -211,8 +226,14 @@ public:
     inline ObjectClassPtr getLast() const noexcept
     {
         const ScopedLockType lock (getLock());
-        return numUsed > 0 ? data.elements [numUsed - 1]
-                           : static_cast <ObjectClass*> (nullptr);
+
+        if (numUsed > 0)
+        {
+            jassert (data.elements != nullptr);
+            return data.elements [numUsed - 1];
+        }
+
+        return ObjectClassPtr();
     }
 
     /** Returns a pointer to the actual array data.
@@ -293,14 +314,17 @@ public:
         @param newObject       the new object to add to the array
         @see set, insert, addIfNotAlreadyThere, addSorted, addArray
     */
-    void add (ObjectClass* const newObject) noexcept
+    ObjectClass* add (ObjectClass* const newObject) noexcept
     {
         const ScopedLockType lock (getLock());
         data.ensureAllocatedSize (numUsed + 1);
+        jassert (data.elements != nullptr);
         data.elements [numUsed++] = newObject;
 
         if (newObject != nullptr)
             newObject->incReferenceCount();
+
+        return newObject;
     }
 
     /** Inserts a new object into the array at the given index.
@@ -316,35 +340,34 @@ public:
         @param newObject            the new object to add to the array
         @see add, addSorted, addIfNotAlreadyThere, set
     */
-    void insert (int indexToInsertAt,
-                 ObjectClass* const newObject) noexcept
+    ObjectClass* insert (int indexToInsertAt,
+                         ObjectClass* const newObject) noexcept
     {
-        if (indexToInsertAt >= 0)
-        {
-            const ScopedLockType lock (getLock());
+        if (indexToInsertAt < 0)
+            return add (newObject);
 
-            if (indexToInsertAt > numUsed)
-                indexToInsertAt = numUsed;
+        const ScopedLockType lock (getLock());
 
-            data.ensureAllocatedSize (numUsed + 1);
+        if (indexToInsertAt > numUsed)
+            indexToInsertAt = numUsed;
 
-            ObjectClass** const e = data.elements + indexToInsertAt;
-            const int numToMove = numUsed - indexToInsertAt;
+        data.ensureAllocatedSize (numUsed + 1);
+        jassert (data.elements != nullptr);
 
-            if (numToMove > 0)
-                memmove (e + 1, e, sizeof (ObjectClass*) * (size_t) numToMove);
+        ObjectClass** const e = data.elements + indexToInsertAt;
+        const int numToMove = numUsed - indexToInsertAt;
 
-            *e = newObject;
+        if (numToMove > 0)
+            memmove (e + 1, e, sizeof (ObjectClass*) * (size_t) numToMove);
 
-            if (newObject != nullptr)
-                newObject->incReferenceCount();
+        *e = newObject;
 
-            ++numUsed;
-        }
-        else
-        {
-            add (newObject);
-        }
+        if (newObject != nullptr)
+            newObject->incReferenceCount();
+
+        ++numUsed;
+
+        return newObject;
     }
 
     /** Appends a new object at the end of the array as long as the array doesn't
@@ -386,13 +409,14 @@ public:
             if (indexToChange < numUsed)
             {
                 if (ObjectClass* o = data.elements [indexToChange])
-                    o->decReferenceCount();
+                    releaseObject (o);
 
                 data.elements [indexToChange] = newObject;
             }
             else
             {
                 data.ensureAllocatedSize (numUsed + 1);
+                jassert (data.elements != nullptr);
                 data.elements [numUsed++] = newObject;
             }
         }
@@ -535,7 +559,7 @@ public:
             ObjectClass** const e = data.elements + indexToRemove;
 
             if (ObjectClass* o = *e)
-                o->decReferenceCount();
+                releaseObject (o);
 
             --numUsed;
             const int numberToShift = numUsed - indexToRemove;
@@ -569,7 +593,7 @@ public:
             if (ObjectClass* o = *e)
             {
                 removedItem = o;
-                o->decReferenceCount();
+                releaseObject (o);
             }
 
             --numUsed;
@@ -629,7 +653,7 @@ public:
             {
                 if (ObjectClass* o = data.elements[i])
                 {
-                    o->decReferenceCount();
+                    releaseObject (o);
                     data.elements[i] = nullptr; // (in case one of the destructors accesses this array and hits a dangling pointer)
                 }
             }
@@ -738,11 +762,11 @@ public:
         If you need to exchange two arrays, this is vastly quicker than using copy-by-value
         because it just swaps their internal pointers.
     */
-    void swapWithArray (ReferenceCountedArray& otherArray) noexcept
+    template <class OtherArrayType>
+    void swapWith (OtherArrayType& otherArray) noexcept
     {
         const ScopedLockType lock1 (getLock());
-        const ScopedLockType lock2 (otherArray.getLock());
-
+        const typename OtherArrayType::ScopedLockType lock2 (otherArray.getLock());
         data.swapWith (otherArray.data);
         std::swap (numUsed, otherArray.numUsed);
     }
@@ -850,11 +874,24 @@ public:
     typedef typename TypeOfCriticalSectionToUse::ScopedLockType ScopedLockType;
 
 
+    //==============================================================================
+   #ifndef DOXYGEN
+    // Note that the swapWithArray method has been replaced by a more flexible templated version,
+    // and renamed "swapWith" to be more consistent with the names used in other classes.
+    JUCE_DEPRECATED_WITH_BODY (void swapWithArray (ReferenceCountedArray& other) noexcept, { swapWith (other); })
+   #endif
+
 private:
     //==============================================================================
     ArrayAllocationBase <ObjectClass*, TypeOfCriticalSectionToUse> data;
     int numUsed;
+
+    static void releaseObject (ObjectClass* o)
+    {
+        if (o->decReferenceCountWithoutDeleting())
+            ContainerDeletePolicy<ObjectClass>::destroy (o);
+    }
 };
 
 
-#endif   // __JUCE_REFERENCECOUNTEDARRAY_JUCEHEADER__
+#endif   // JUCE_REFERENCECOUNTEDARRAY_H_INCLUDED

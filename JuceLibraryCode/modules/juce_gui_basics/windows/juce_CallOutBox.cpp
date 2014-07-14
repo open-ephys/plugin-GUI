@@ -23,9 +23,9 @@
 */
 
 CallOutBox::CallOutBox (Component& c, const Rectangle<int>& area, Component* const parent)
-    : borderSpace (20), arrowSize (16.0f), content (c)
+    : arrowSize (16.0f), content (c)
 {
-    addAndMakeVisible (&content);
+    addAndMakeVisible (content);
 
     if (parent != nullptr)
     {
@@ -49,7 +49,8 @@ CallOutBox::~CallOutBox()
 }
 
 //==============================================================================
-class CallOutBoxCallback  : public ModalComponentManager::Callback
+class CallOutBoxCallback  : public ModalComponentManager::Callback,
+                            private Timer
 {
 public:
     CallOutBoxCallback (Component* c, const Rectangle<int>& area, Component* parent)
@@ -57,9 +58,16 @@ public:
     {
         callout.setVisible (true);
         callout.enterModalState (true, this);
+        startTimer (200);
     }
 
-    void modalStateFinished (int) {}
+    void modalStateFinished (int) override {}
+
+    void timerCallback() override
+    {
+        if (! Process::isForegroundProcess())
+            callout.dismiss();
+    }
 
     ScopedPointer<Component> content;
     CallOutBox callout;
@@ -67,9 +75,7 @@ public:
     JUCE_DECLARE_NON_COPYABLE (CallOutBoxCallback)
 };
 
-CallOutBox& CallOutBox::launchAsynchronously (Component* content,
-                                              const Rectangle<int>& area,
-                                              Component* parent)
+CallOutBox& CallOutBox::launchAsynchronously (Component* content, const Rectangle<int>& area, Component* parent)
 {
     jassert (content != nullptr); // must be a valid content component!
 
@@ -80,8 +86,12 @@ CallOutBox& CallOutBox::launchAsynchronously (Component* content,
 void CallOutBox::setArrowSize (const float newSize)
 {
     arrowSize = newSize;
-    borderSpace = jmax (20, (int) arrowSize);
     refreshPath();
+}
+
+int CallOutBox::getBorderSize() const noexcept
+{
+    return jmax (20, (int) arrowSize);
 }
 
 void CallOutBox::paint (Graphics& g)
@@ -91,6 +101,7 @@ void CallOutBox::paint (Graphics& g)
 
 void CallOutBox::resized()
 {
+    const int borderSpace = getBorderSize();
     content.setTopLeftPosition (borderSpace, borderSpace);
     refreshPath();
 }
@@ -110,8 +121,6 @@ bool CallOutBox::hitTest (int x, int y)
     return outline.contains ((float) x, (float) y);
 }
 
-enum { callOutBoxDismissCommandId = 0x4f83a04b };
-
 void CallOutBox::inputAttemptWhenModal()
 {
     const Point<int> mousePos (getMouseXYRelative() + getBounds().getPosition());
@@ -121,7 +130,7 @@ void CallOutBox::inputAttemptWhenModal()
         // if you click on the area that originally popped-up the callout, you expect it
         // to get rid of the box, but deleting the box here allows the click to pass through and
         // probably re-trigger it, so we need to dismiss the box asynchronously to consume the click..
-        postCommandMessage (callOutBoxDismissCommandId);
+        dismiss();
     }
     else
     {
@@ -129,6 +138,8 @@ void CallOutBox::inputAttemptWhenModal()
         setVisible (false);
     }
 }
+
+enum { callOutBoxDismissCommandId = 0x4f83a04b };
 
 void CallOutBox::handleCommandMessage (int commandId)
 {
@@ -139,6 +150,11 @@ void CallOutBox::handleCommandMessage (int commandId)
         exitModalState (0);
         setVisible (false);
     }
+}
+
+void CallOutBox::dismiss()
+{
+    postCommandMessage (callOutBoxDismissCommandId);
 }
 
 bool CallOutBox::keyPressed (const KeyPress& key)
@@ -157,13 +173,15 @@ void CallOutBox::updatePosition (const Rectangle<int>& newAreaToPointTo, const R
     targetArea = newAreaToPointTo;
     availableArea = newAreaToFitIn;
 
+    const int borderSpace = getBorderSize();
+
     Rectangle<int> newBounds (content.getWidth()  + borderSpace * 2,
                               content.getHeight() + borderSpace * 2);
 
     const int hw = newBounds.getWidth() / 2;
     const int hh = newBounds.getHeight() / 2;
-    const float hwReduced = (float) (hw - borderSpace * 3);
-    const float hhReduced = (float) (hh - borderSpace * 3);
+    const float hwReduced = (float) (hw - borderSpace * 2);
+    const float hhReduced = (float) (hh - borderSpace * 2);
     const float arrowIndent = borderSpace - arrowSize;
 
     Point<float> targets[4] = { Point<float> ((float) targetArea.getCentreX(), (float) targetArea.getBottom()),
@@ -189,7 +207,7 @@ void CallOutBox::updatePosition (const Rectangle<int>& newAreaToPointTo, const R
         const Point<float> centre (constrainedLine.findNearestPointTo (targetCentre));
         float distanceFromCentre = centre.getDistanceFrom (targets[i]);
 
-        if (! (centrePointArea.contains (lines[i].getStart()) || centrePointArea.contains (lines[i].getEnd())))
+        if (! centrePointArea.intersects (lines[i]))
             distanceFromCentre += 1000.0f;
 
         if (distanceFromCentre < nearest)

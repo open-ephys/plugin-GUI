@@ -26,8 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HIGHRESOLUTIONTIMER_JUCEHEADER__
-#define __JUCE_HIGHRESOLUTIONTIMER_JUCEHEADER__
+#ifndef JUCE_HIGHRESOLUTIONTIMER_H_INCLUDED
+#define JUCE_HIGHRESOLUTIONTIMER_H_INCLUDED
 
 /**
     A high-resolution periodic timer.
@@ -99,11 +99,11 @@ public:
 private:
     struct Pimpl;
     friend struct Pimpl;
-    friend class ScopedPointer<Pimpl>;
+    friend struct ContainerDeletePolicy<Pimpl>;
     ScopedPointer<Pimpl> pimpl;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HighResolutionTimer)
 };
 
 
-#endif   // __JUCE_HIGHRESOLUTIONTIMER_JUCEHEADER__
+#endif   // JUCE_HIGHRESOLUTIONTIMER_H_INCLUDED

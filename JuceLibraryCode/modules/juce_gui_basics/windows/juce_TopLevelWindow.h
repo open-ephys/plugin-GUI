@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_TOPLEVELWINDOW_JUCEHEADER__
-#define __JUCE_TOPLEVELWINDOW_JUCEHEADER__
-
-#include "../components/juce_Component.h"
-#include "../misc/juce_DropShadower.h"
+#ifndef JUCE_TOPLEVELWINDOW_H_INCLUDED
+#define JUCE_TOPLEVELWINDOW_H_INCLUDED
 
 
 //==============================================================================
@@ -125,10 +122,12 @@ public:
     */
     static TopLevelWindow* getActiveTopLevelWindow() noexcept;
 
+    /** Adds the window to the desktop using the default flags. */
+    void addToDesktop();
 
     //==============================================================================
     /** @internal */
-    virtual void addToDesktop (int windowStyleFlags, void* nativeWindowToAttachTo = nullptr);
+    virtual void addToDesktop (int windowStyleFlags, void* nativeWindowToAttachTo = nullptr) override;
 
 protected:
     //==============================================================================
@@ -140,25 +139,26 @@ protected:
 
     //==============================================================================
     /** @internal */
-    void focusOfChildComponentChanged (FocusChangeType cause);
+    void focusOfChildComponentChanged (FocusChangeType) override;
     /** @internal */
-    void parentHierarchyChanged();
+    void parentHierarchyChanged() override;
     /** @internal */
     virtual int getDesktopWindowStyleFlags() const;
     /** @internal */
     void recreateDesktopWindow();
     /** @internal */
-    void visibilityChanged();
+    void visibilityChanged() override;
 
 private:
     friend class TopLevelWindowManager;
+    friend class ResizableWindow;
     bool useDropShadow, useNativeTitleBar, isCurrentlyActive;
-    ScopedPointer <DropShadower> shadower;
+    ScopedPointer<DropShadower> shadower;
 
-    void setWindowActive (bool isNowActive);
+    void setWindowActive (bool);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TopLevelWindow)
 };
 
 
-#endif   // __JUCE_TOPLEVELWINDOW_JUCEHEADER__
+#endif   // JUCE_TOPLEVELWINDOW_H_INCLUDED

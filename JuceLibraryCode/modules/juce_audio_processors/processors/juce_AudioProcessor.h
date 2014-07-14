@@ -22,12 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOPROCESSOR_JUCEHEADER__
-#define __JUCE_AUDIOPROCESSOR_JUCEHEADER__
-
-#include "juce_AudioProcessorEditor.h"
-#include "juce_AudioProcessorListener.h"
-#include "juce_AudioPlayHead.h"
+#ifndef JUCE_AUDIOPROCESSOR_H_INCLUDED
+#define JUCE_AUDIOPROCESSOR_H_INCLUDED
 
 
 //==============================================================================
@@ -48,11 +44,7 @@ class JUCE_API  AudioProcessor
 {
 protected:
     //==============================================================================
-    /** Constructor.
-
-        You can also do your initialisation tasks in the initialiseFilterInfo()
-        call, which will be made after this object has been created.
-    */
+    /** Constructor. */
     AudioProcessor();
 
 public:
@@ -403,10 +395,46 @@ public:
     /** Returns the value of a parameter as a text string. */
     virtual const String getParameterText (int parameterIndex) = 0;
 
+    /** Returns the name of a parameter as a text string with a preferred maximum length.
+        If you want to provide customised short versions of your parameter names that
+        will look better in constrained spaces (e.g. the displays on hardware controller
+        devices or mixing desks) then you should implement this method.
+        If you don't override it, the default implementation will call getParameterText(int),
+        and truncate the result.
+    */
+    virtual String getParameterName (int parameterIndex, int maximumStringLength);
+
+    /** Returns the value of a parameter as a text string with a preferred maximum length.
+        If you want to provide customised short versions of your parameter values that
+        will look better in constrained spaces (e.g. the displays on hardware controller
+        devices or mixing desks) then you should implement this method.
+        If you don't override it, the default implementation will call getParameterText(int),
+        and truncate the result.
+    */
+    virtual String getParameterText (int parameterIndex, int maximumStringLength);
+
+    /** Returns the number of discrete steps that this parameter can represent.
+        The default return value if you don't implement this method is 0x7fffffff.
+        If your parameter is boolean, then you may want to make this return 2.
+        The value that is returned may or may not be used, depending on the host.
+    */
+    virtual int getParameterNumSteps (int parameterIndex);
+
+    /** Returns the default value for the parameter.
+        By default, this just returns 0.
+        The value that is returned may or may not be used, depending on the host.
+    */
+    virtual float getParameterDefaultValue (int parameterIndex);
+
     /** Some plugin types may be able to return a label string for a
         parameter's units.
     */
     virtual String getParameterLabel (int index) const;
+
+    /** This can be overridden to tell the host that particular parameters operate in the
+        reverse direction. (Not all plugin formats or hosts will actually use this information).
+    */
+    virtual bool isParameterOrientationInverted (int index) const;
 
     /** The host will call this method to change the value of one of the filter's parameters.
 
@@ -436,16 +464,13 @@ public:
     void setParameterNotifyingHost (int parameterIndex, float newValue);
 
     /** Returns true if the host can automate this parameter.
-
         By default, this returns true for all parameters.
     */
     virtual bool isParameterAutomatable (int parameterIndex) const;
 
     /** Should return true if this parameter is a "meta" parameter.
-
         A meta-parameter is a parameter that changes other params. It is used
         by some hosts (e.g. AudioUnit hosts).
-
         By default this returns false.
     */
     virtual bool isMetaParameter (int parameterIndex) const;
@@ -564,14 +589,15 @@ public:
         The processor will not take ownership of the object, so the caller must delete it when
         it is no longer being used.
     */
-    void setPlayHead (AudioPlayHead* newPlayHead) noexcept;
+    virtual void setPlayHead (AudioPlayHead* newPlayHead);
+
+    //==============================================================================
+    /** This is called by the processor to specify its details before being played. */
+    void setPlayConfigDetails (int numIns, int numOuts, double sampleRate, int blockSize) noexcept;
 
     //==============================================================================
     /** Not for public use - this is called before deleting an editor component. */
     void editorBeingDeleted (AudioProcessorEditor*) noexcept;
-
-    /** Not for public use - this is called to initialise the processor before playing. */
-    void setPlayConfigDetails (int numIns, int numOuts, double sampleRate, int blockSize) noexcept;
 
     /** Not for public use - this is called to initialise the processor before playing. */
     void setSpeakerArrangement (const String& inputs, const String& outputs);
@@ -581,6 +607,7 @@ public:
     {
         wrapperType_Undefined = 0,
         wrapperType_VST,
+        wrapperType_VST3,
         wrapperType_AudioUnit,
         wrapperType_RTAS,
         wrapperType_AAX,
@@ -592,10 +619,6 @@ public:
     */
     WrapperType wrapperType;
 
-    /** @internal */
-    static void JUCE_CALLTYPE setTypeOfNextNewPlugin (WrapperType);
-
-protected:
     //==============================================================================
     /** Helper function that just converts an xml element into a binary blob.
 
@@ -616,13 +639,17 @@ protected:
     static XmlElement* getXmlFromBinary (const void* data, int sizeInBytes);
 
     /** @internal */
+    static void JUCE_CALLTYPE setTypeOfNextNewPlugin (WrapperType);
+
+protected:
+    /** @internal */
     AudioPlayHead* playHead;
 
     /** @internal */
     void sendParamChangeMessageToListeners (int parameterIndex, float newValue);
 
 private:
-    Array <AudioProcessorListener*> listeners;
+    Array<AudioProcessorListener*> listeners;
     Component::SafePointer<AudioProcessorEditor> activeEditor;
     double sampleRate;
     int blockSize, numInputChannels, numOutputChannels, latencySamples;
@@ -640,4 +667,4 @@ private:
 };
 
 
-#endif   // __JUCE_AUDIOPROCESSOR_JUCEHEADER__
+#endif   // JUCE_AUDIOPROCESSOR_H_INCLUDED

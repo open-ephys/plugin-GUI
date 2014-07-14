@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -51,44 +50,10 @@ int indexOfLineStartingWith (const StringArray& lines, const String& text, int s
 void autoScrollForMouseEvent (const MouseEvent& e, bool scrollX = true, bool scrollY = true);
 
 void showUTF8ToolWindow (ScopedPointer<Component>& ownerPointer);
+void showSVGPathDataToolWindow (ScopedPointer<Component>& ownerPointer);
 
 bool cancelAnyModalComponents();
 bool reinvokeCommandAfterCancellingModalComps (const ApplicationCommandTarget::InvocationInfo&);
-
-//==============================================================================
-struct Icon
-{
-    Icon() : path (nullptr) {}
-    Icon (const Path& p, const Colour& c)  : path (&p), colour (c) {}
-    Icon (const Path* p, const Colour& c)  : path (p),  colour (c) {}
-
-    void draw (Graphics& g, const Rectangle<float>& area, bool isCrossedOut) const
-    {
-        if (path != nullptr)
-        {
-            g.setColour (colour);
-
-            const RectanglePlacement placement (RectanglePlacement::centred | RectanglePlacement::onlyReduceInSize);
-            g.fillPath (*path, placement.getTransformToFit (path->getBounds(), area));
-
-            if (isCrossedOut)
-            {
-                g.setColour (Colours::red.withAlpha (0.8f));
-                g.drawLine ((float) area.getX(), area.getY() + area.getHeight() * 0.2f,
-                            (float) area.getRight(), area.getY() + area.getHeight() * 0.8f, 3.0f);
-            }
-        }
-    }
-
-    Icon withContrastingColourTo (const Colour& background) const
-    {
-        return Icon (path, background.contrasting (colour, 0.6f));
-    }
-
-    const Path* path;
-    Colour colour;
-};
-
 
 //==============================================================================
 class RolloverHelpComp   : public Component,
@@ -97,8 +62,8 @@ class RolloverHelpComp   : public Component,
 public:
     RolloverHelpComp();
 
-    void paint (Graphics& g);
-    void timerCallback();
+    void paint (Graphics&) override;
+    void timerCallback() override;
 
 private:
     Component* lastComp;
@@ -143,24 +108,6 @@ private:
 };
 
 //==============================================================================
-class FloatingLabelComponent    : public Component
-{
-public:
-    FloatingLabelComponent();
-
-    void remove();
-    void update (Component* parent, const String& text, const Colour& textColour,
-                 int x, int y, bool toRight, bool below);
-
-    void paint (Graphics& g);
-
-private:
-    Font font;
-    Colour colour;
-    GlyphArrangement glyphs;
-};
-
-//==============================================================================
 // A ValueSource which takes an input source, and forwards any changes in it.
 // This class is a handy way to create sources which re-map a value.
 class ValueSourceFilter   : public Value::ValueSource,
@@ -172,7 +119,7 @@ public:
         sourceValue.addListener (this);
     }
 
-    void valueChanged (Value&)      { sendChangeMessage (true); }
+    void valueChanged (Value&) override      { sendChangeMessage (true); }
 
 protected:
     Value sourceValue;
@@ -216,7 +163,7 @@ public:
         getGlobalProperties().setValue (windowPosProperty, getWindowStateAsString());
     }
 
-    void closeButtonPressed()
+    void closeButtonPressed() override
     {
         owner = nullptr;
     }
@@ -236,20 +183,20 @@ class PopupColourSelector   : public Component,
 {
 public:
     PopupColourSelector (const Value& colour,
-                         const Colour& defaultCol,
+                         Colour defaultCol,
                          const bool canResetToDefault)
         : defaultButton ("Reset to Default"),
           colourValue (colour),
           defaultColour (defaultCol)
     {
-        addAndMakeVisible (&selector);
+        addAndMakeVisible (selector);
         selector.setName ("Colour");
         selector.setCurrentColour (getColour());
         selector.addChangeListener (this);
 
         if (canResetToDefault)
         {
-            addAndMakeVisible (&defaultButton);
+            addAndMakeVisible (defaultButton);
             defaultButton.addListener (this);
         }
 
@@ -267,7 +214,7 @@ public:
         }
         else
         {
-            selector.setBounds (0, 0, getWidth(), getHeight());
+            selector.setBounds (getLocalBounds());
         }
     }
 
@@ -279,30 +226,30 @@ public:
         return Colour::fromString (colourValue.toString());
     }
 
-    void setColour (const Colour& newColour)
+    void setColour (Colour newColour)
     {
         if (getColour() != newColour)
         {
             if (newColour == defaultColour && defaultButton.isVisible())
-                colourValue = var::null;
+                colourValue = var();
             else
                 colourValue = newColour.toDisplayString (true);
         }
     }
 
-    void buttonClicked (Button*)
+    void buttonClicked (Button*) override
     {
         setColour (defaultColour);
         selector.setCurrentColour (defaultColour);
     }
 
-    void changeListenerCallback (ChangeBroadcaster*)
+    void changeListenerCallback (ChangeBroadcaster*) override
     {
         if (selector.getCurrentColour() != getColour())
             setColour (selector.getCurrentColour());
     }
 
-    void valueChanged (Value&)
+    void valueChanged (Value&) override
     {
         selector.setCurrentColour (getColour());
     }
@@ -324,7 +271,7 @@ class ColourEditorComponent    : public Component,
 {
 public:
     ColourEditorComponent (UndoManager* um, const Value& colour,
-                           const Colour& defaultCol, const bool canReset)
+                           Colour defaultCol, const bool canReset)
         : undoManager (um), colourValue (colour), defaultColour (defaultCol),
           canResetToDefault (canReset)
     {
@@ -355,7 +302,7 @@ public:
         return Colour::fromString (colourValue.toString());
     }
 
-    void setColour (const Colour& newColour)
+    void setColour (Colour newColour)
     {
         if (getColour() != newColour)
         {
@@ -382,7 +329,7 @@ public:
         }
     }
 
-    void mouseDown (const MouseEvent&)
+    void mouseDown (const MouseEvent&) override
     {
         if (undoManager != nullptr)
             undoManager->beginNewTransaction();
@@ -393,7 +340,7 @@ public:
                                           getScreenBounds(), nullptr);
     }
 
-    void valueChanged (Value&)
+    void valueChanged (Value&) override
     {
         refresh();
     }
@@ -413,19 +360,19 @@ class ColourPropertyComponent  : public PropertyComponent
 {
 public:
     ColourPropertyComponent (UndoManager* undoManager, const String& name, const Value& colour,
-                             const Colour& defaultColour, bool canResetToDefault)
+                             Colour defaultColour, bool canResetToDefault)
         : PropertyComponent (name),
           colourEditor (undoManager, colour, defaultColour, canResetToDefault)
     {
-        addAndMakeVisible (&colourEditor);
+        addAndMakeVisible (colourEditor);
     }
 
-    void resized()
+    void resized() override
     {
         colourEditor.setBounds (getLookAndFeel().getPropertyComponentContentPosition (*this));
     }
 
-    void refresh() {}
+    void refresh() override {}
 
 protected:
     ColourEditorComponent colourEditor;

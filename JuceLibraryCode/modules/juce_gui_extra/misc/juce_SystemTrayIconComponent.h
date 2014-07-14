@@ -22,15 +22,18 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_SYSTEMTRAYICONCOMPONENT_JUCEHEADER__
-#define __JUCE_SYSTEMTRAYICONCOMPONENT_JUCEHEADER__
+#ifndef JUCE_SYSTEMTRAYICONCOMPONENT_H_INCLUDED
+#define JUCE_SYSTEMTRAYICONCOMPONENT_H_INCLUDED
 
 #if JUCE_WINDOWS || JUCE_LINUX || JUCE_MAC || DOXYGEN
 
 
 //==============================================================================
 /**
-    On Windows and Linux only, this component sits in the taskbar tray as a small icon.
+    This component sits in the taskbar tray as a small icon.
+
+    (NB: The exact behaviour of this class will differ between OSes, and it
+    isn't fully implemented for all OSes)
 
     To use it, just create one of these components, but don't attempt to make it
     visible, add it to a parent, or put it on the desktop.
@@ -55,16 +58,30 @@ public:
     ~SystemTrayIconComponent();
 
     //==============================================================================
-    /** Changes the image shown in the taskbar.
-    */
+    /** Changes the image shown in the taskbar. */
     void setIconImage (const Image& newImage);
 
-    /** Changes the tooltip that Windows shows above the icon. */
+    /** Changes the icon's tooltip (if the current OS supports this). */
     void setIconTooltip (const String& tooltip);
+
+    /** Highlights the icon (if the current OS supports this). */
+    void setHighlighted (bool);
+
+    /** Shows a floating text bubble pointing to the icon (if the current OS supports this). */
+    void showInfoBubble (const String& title, const String& content);
+
+    /** Hides the icon's floating text bubble (if the current OS supports this). */
+    void hideInfoBubble();
+
+    /** Returns the raw handle to whatever kind of internal OS structure is
+        involved in showing this icon.
+        @see ComponentPeer::getNativeHandle()
+    */
+    void* getNativeHandle() const;
 
    #if JUCE_LINUX
     /** @internal */
-    void paint (Graphics& g);
+    void paint (Graphics&) override;
    #endif
 
 private:
@@ -77,4 +94,4 @@ private:
 
 
 #endif
-#endif   // __JUCE_SYSTEMTRAYICONCOMPONENT_JUCEHEADER__
+#endif   // JUCE_SYSTEMTRAYICONCOMPONENT_H_INCLUDED

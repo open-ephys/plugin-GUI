@@ -97,7 +97,7 @@ CustomLookAndFeel::~CustomLookAndFeel() {}
 // FONT/TYPEFACE METHODS :
 //==============================================================================
 
-const Typeface::Ptr CustomLookAndFeel::getTypefaceForFont(const Font& font)
+Typeface::Ptr CustomLookAndFeel::getTypefaceForFont(const Font& font)
 {
     String typefaceName = font.getTypefaceName();
 
@@ -442,7 +442,7 @@ void CustomLookAndFeel::drawGlassPointer(Graphics& g,
     g.strokePath(p, PathStrokeType(outlineThickness));
 }
 
-Button* CustomLookAndFeel::createSliderButton(bool isIncrement)
+Button* CustomLookAndFeel::createSliderButton(Slider &s, bool isIncrement)
 {
     return new CustomArrowButton(String::empty, isIncrement ? 0 : 0.5);
 }
@@ -478,7 +478,7 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
                                                                    false, isButtonDown)
                                 .withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.5f));*/
 
-    drawGlassLozenge(g,
+    juce::LookAndFeel_V1::drawGlassLozenge(g,
                      buttonX + outlineThickness, buttonY + outlineThickness,
                      buttonW - outlineThickness * 2.0f, buttonH - outlineThickness * 2.0f,
                      baseColour, outlineThickness, -1.0f,

@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOTHUMBNAIL_JUCEHEADER__
-#define __JUCE_AUDIOTHUMBNAIL_JUCEHEADER__
-
-class AudioThumbnailCache;
+#ifndef JUCE_AUDIOTHUMBNAIL_H_INCLUDED
+#define JUCE_AUDIOTHUMBNAIL_H_INCLUDED
 
 
 //==============================================================================
@@ -201,11 +199,11 @@ private:
     class CachedWindow;
 
     friend class LevelDataSource;
-    friend class ScopedPointer<LevelDataSource>;
     friend class ThumbData;
-    friend class OwnedArray<ThumbData>;
     friend class CachedWindow;
-    friend class ScopedPointer<CachedWindow>;
+    friend struct ContainerDeletePolicy<LevelDataSource>;
+    friend struct ContainerDeletePolicy<ThumbData>;
+    friend struct ContainerDeletePolicy<CachedWindow>;
 
     ScopedPointer<LevelDataSource> source;
     ScopedPointer<CachedWindow> window;
@@ -226,4 +224,4 @@ private:
 };
 
 
-#endif   // __JUCE_AUDIOTHUMBNAIL_JUCEHEADER__
+#endif   // JUCE_AUDIOTHUMBNAIL_H_INCLUDED

@@ -22,13 +22,9 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_PROPERTYCOMPONENT_JUCEHEADER__
-#define __JUCE_PROPERTYCOMPONENT_JUCEHEADER__
+#ifndef JUCE_PROPERTYCOMPONENT_H_INCLUDED
+#define JUCE_PROPERTYCOMPONENT_H_INCLUDED
 
-class EditableProperty;
-
-#include "../components/juce_Component.h"
-#include "../mouse/juce_TooltipClient.h"
 
 //==============================================================================
 /**
@@ -96,15 +92,43 @@ public:
 
         @see LookAndFeel::drawPropertyComponentBackground(), LookAndFeel::drawPropertyComponentLabel()
     */
-    void paint (Graphics& g);
+    void paint (Graphics&) override;
 
     /** The default resize method positions any child component to the right of this
         one, based on the look and feel's default label size.
     */
-    void resized();
+    void resized() override;
 
     /** By default, this just repaints the component. */
-    void enablementChanged();
+    void enablementChanged() override;
+
+    //==============================================================================
+    /** A set of colour IDs to use to change the colour of various aspects of the combo box.
+
+        These constants can be used either via the Component::setColour(), or LookAndFeel::setColour()
+        methods.
+
+        To change the colours of the menu that pops up
+
+        @see Component::setColour, Component::findColour, LookAndFeel::setColour, LookAndFeel::findColour
+    */
+    enum ColourIds
+    {
+        backgroundColourId     = 0x1008300,    /**< The background colour to fill the component with. */
+        labelTextColourId      = 0x1008301,    /**< The colour for the property's label text. */
+    };
+
+    //==============================================================================
+    /** This abstract base class is implemented by LookAndFeel classes. */
+    struct JUCE_API  LookAndFeelMethods
+    {
+        virtual ~LookAndFeelMethods() {}
+
+        virtual void drawPropertyPanelSectionHeader (Graphics&, const String& name, bool isOpen, int width, int height) = 0;
+        virtual void drawPropertyComponentBackground (Graphics&, int width, int height, PropertyComponent&) = 0;
+        virtual void drawPropertyComponentLabel (Graphics&, int width, int height, PropertyComponent&) = 0;
+        virtual Rectangle<int> getPropertyComponentContentPosition (PropertyComponent&) = 0;
+    };
 
 protected:
     /** Used by the PropertyPanel to determine how high this component needs to be.
@@ -118,4 +142,4 @@ private:
 };
 
 
-#endif   // __JUCE_PROPERTYCOMPONENT_JUCEHEADER__
+#endif   // JUCE_PROPERTYCOMPONENT_H_INCLUDED

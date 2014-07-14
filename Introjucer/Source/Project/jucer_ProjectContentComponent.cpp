@@ -1,71 +1,84 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
 #include "jucer_ProjectContentComponent.h"
+#include "jucer_Module.h"
 #include "../Application/jucer_MainWindow.h"
 #include "../Application/jucer_Application.h"
 #include "../Code Editor/jucer_SourceCodeEditor.h"
-#include "jucer_ConfigPage.h"
-#include "jucer_TreeViewTypes.h"
 #include "../Project Saving/jucer_ProjectExporter.h"
-
+#include "../Utility/jucer_TranslationTool.h"
+#include "../Utility/jucer_JucerTreeViewBase.h"
+#include "jucer_NewFileWizard.h"
+#include "jucer_GroupInformationComponent.h"
 
 //==============================================================================
-class FileTreeTab   : public TreePanelBase
+class FileTreePanel   : public TreePanelBase
 {
 public:
-    FileTreeTab (Project& p)
+    FileTreePanel (Project& p)
         : TreePanelBase (&p, "fileTreeState")
     {
         tree.setMultiSelectEnabled (true);
-        setRoot (new GroupTreeViewItem (p.getMainGroup()));
+        setRoot (new GroupItem (p.getMainGroup()));
     }
+
+    void updateMissingFileStatuses()
+    {
+        if (ProjectTreeItemBase* p = dynamic_cast<ProjectTreeItemBase*> (rootItem.get()))
+            p->checkFileStatus();
+    }
+
+    #include "jucer_ProjectTree_Base.h"
+    #include "jucer_ProjectTree_Group.h"
+    #include "jucer_ProjectTree_File.h"
 };
 
 //==============================================================================
-class ConfigTreeTab   : public TreePanelBase
+class ConfigTreePanel   : public TreePanelBase
 {
 public:
-    ConfigTreeTab (Project& p)
+    ConfigTreePanel (Project& p)
         : TreePanelBase (&p, "settingsTreeState")
     {
         tree.setMultiSelectEnabled (false);
-        setRoot (createProjectConfigTreeViewRoot (p));
+        setRoot (new RootItem (p));
 
         if (tree.getNumSelectedItems() == 0)
             tree.getRootItem()->setSelected (true, true);
 
        #if JUCE_MAC || JUCE_WINDOWS
-        addAndMakeVisible (&openProjectButton);
-        openProjectButton.setCommandToTrigger (commandManager, CommandIDs::openInIDE, true);
-        openProjectButton.setButtonText (commandManager->getNameOfCommand (CommandIDs::openInIDE));
+        ApplicationCommandManager& commandManager = IntrojucerApp::getCommandManager();
+
+        addAndMakeVisible (openProjectButton);
+        openProjectButton.setCommandToTrigger (&commandManager, CommandIDs::openInIDE, true);
+        openProjectButton.setButtonText (commandManager.getNameOfCommand (CommandIDs::openInIDE));
         openProjectButton.setColour (TextButton::buttonColourId, Colours::white.withAlpha (0.5f));
 
-        addAndMakeVisible (&saveAndOpenButton);
-        saveAndOpenButton.setCommandToTrigger (commandManager, CommandIDs::saveAndOpenInIDE, true);
-        saveAndOpenButton.setButtonText (commandManager->getNameOfCommand (CommandIDs::saveAndOpenInIDE));
+        addAndMakeVisible (saveAndOpenButton);
+        saveAndOpenButton.setCommandToTrigger (&commandManager, CommandIDs::saveAndOpenInIDE, true);
+        saveAndOpenButton.setButtonText (commandManager.getNameOfCommand (CommandIDs::saveAndOpenInIDE));
         saveAndOpenButton.setColour (TextButton::buttonColourId, Colours::white.withAlpha (0.5f));
        #endif
     }
@@ -84,7 +97,50 @@ public:
         tree.setBounds (r);
     }
 
+    void showProjectSettings()
+    {
+        if (ConfigTreeItemBase* root = dynamic_cast<ConfigTreeItemBase*> (rootItem.get()))
+            if (root->isProjectSettings())
+                root->setSelected (true, true);
+    }
+
+    void showModules()
+    {
+        if (ConfigTreeItemBase* mods = getModulesItem())
+            mods->setSelected (true, true);
+    }
+
+    void showModule (const String& moduleID)
+    {
+        if (ConfigTreeItemBase* mods = getModulesItem())
+        {
+            mods->setOpen (true);
+
+            for (int i = mods->getNumSubItems(); --i >= 0;)
+                if (ModuleItem* m = dynamic_cast<ModuleItem*> (mods->getSubItem (i)))
+                    if (m->moduleID == moduleID)
+                        m->setSelected (true, true);
+        }
+    }
+
     TextButton openProjectButton, saveAndOpenButton;
+
+private:
+    #include "jucer_ConfigTree_Base.h"
+    #include "jucer_ConfigTree_Modules.h"
+    #include "jucer_ConfigTree_Exporter.h"
+    #include "jucer_ModulesPanel.h"
+
+    ConfigTreeItemBase* getModulesItem()
+    {
+        if (ConfigTreeItemBase* root = dynamic_cast<ConfigTreeItemBase*> (rootItem.get()))
+            if (root->isProjectSettings())
+                if (ConfigTreeItemBase* mods = dynamic_cast<ConfigTreeItemBase*> (root->getSubItem (0)))
+                    if (mods->isModulesList())
+                        return mods;
+
+        return nullptr;
+    }
 };
 
 //==============================================================================
@@ -207,7 +263,7 @@ void ProjectContentComponent::rebuildProjectTabs()
 
     if (project != nullptr)
     {
-        addAndMakeVisible (&treeViewTabs);
+        addAndMakeVisible (treeViewTabs);
 
         createProjectTabs();
 
@@ -248,8 +304,8 @@ void ProjectContentComponent::createProjectTabs()
     jassert (project != nullptr);
     const Colour tabColour (Colours::transparentBlack);
 
-    treeViewTabs.addTab ("Files",  tabColour, new FileTreeTab (*project), true);
-    treeViewTabs.addTab ("Config", tabColour, new ConfigTreeTab (*project), true);
+    treeViewTabs.addTab ("Files",  tabColour, new FileTreePanel (*project), true);
+    treeViewTabs.addTab ("Config", tabColour, new ConfigTreePanel (*project), true);
 }
 
 void ProjectContentComponent::deleteProjectTabs()
@@ -266,22 +322,6 @@ void ProjectContentComponent::deleteProjectTabs()
     }
 
     treeViewTabs.clearTabs();
-}
-
-TreeView* ProjectContentComponent::getFilesTreeView() const
-{
-    if (FileTreeTab* ft = dynamic_cast<FileTreeTab*> (treeViewTabs.getTabContentComponent (0)))
-        return &(ft->tree);
-
-    return nullptr;
-}
-
-ProjectTreeViewBase* ProjectContentComponent::getFilesTreeRoot() const
-{
-    if (TreeView* tv = getFilesTreeView())
-        return dynamic_cast <ProjectTreeViewBase*> (tv->getRootItem());
-
-    return nullptr;
 }
 
 void ProjectContentComponent::saveTreeViewState()
@@ -316,9 +356,10 @@ void ProjectContentComponent::reloadLastOpenDocuments()
     }
 }
 
-void ProjectContentComponent::documentAboutToClose (OpenDocumentManager::Document* document)
+bool ProjectContentComponent::documentAboutToClose (OpenDocumentManager::Document* document)
 {
     hideDocument (document);
+    return true;
 }
 
 void ProjectContentComponent::changeListenerCallback (ChangeBroadcaster*)
@@ -328,8 +369,8 @@ void ProjectContentComponent::changeListenerCallback (ChangeBroadcaster*)
 
 void ProjectContentComponent::updateMissingFileStatuses()
 {
-    if (ProjectTreeViewBase* p = getFilesTreeRoot())
-        p->checkFileStatus();
+    if (FileTreePanel* tree = dynamic_cast<FileTreePanel*> (treeViewTabs.getTabContentComponent (0)))
+        tree->updateMissingFileStatuses();
 }
 
 bool ProjectContentComponent::showEditorForFile (const File& f, bool grabFocus)
@@ -375,7 +416,7 @@ void ProjectContentComponent::hideEditor()
     currentDocument = nullptr;
     contentView = nullptr;
     updateMainWindowTitle();
-    commandManager->commandStatusChanged();
+    IntrojucerApp::getCommandManager().commandStatusChanged();
     resized();
 }
 
@@ -402,7 +443,7 @@ bool ProjectContentComponent::setEditorComponent (Component* editor,
         resized();
 
         updateMainWindowTitle();
-        commandManager->commandStatusChanged();
+        IntrojucerApp::getCommandManager().commandStatusChanged();
         return true;
     }
 
@@ -419,14 +460,31 @@ void ProjectContentComponent::closeDocument()
             hideEditor();
 }
 
+static void showSaveWarning (OpenDocumentManager::Document* currentDocument)
+{
+    AlertWindow::showMessageBox (AlertWindow::WarningIcon,
+                                 TRANS("Save failed!"),
+                                 TRANS("Couldn't save the file:")
+                                   + "\n" + currentDocument->getFile().getFullPathName());
+}
+
 void ProjectContentComponent::saveDocument()
 {
     if (currentDocument != nullptr)
-        currentDocument->save();
+    {
+        if (! currentDocument->save())
+            showSaveWarning (currentDocument);
+    }
     else
         saveProject();
 
     updateMainWindowTitle();
+}
+
+void ProjectContentComponent::saveAs()
+{
+    if (currentDocument != nullptr && ! currentDocument->saveAs())
+        showSaveWarning (currentDocument);
 }
 
 bool ProjectContentComponent::goToPreviousFile()
@@ -475,13 +533,85 @@ void ProjectContentComponent::closeProject()
         mw->closeCurrentProject();
 }
 
+void ProjectContentComponent::showFilesTab()
+{
+    treeViewTabs.setCurrentTabIndex (0);
+}
+
+void ProjectContentComponent::showConfigTab()
+{
+    treeViewTabs.setCurrentTabIndex (1);
+}
+
+void ProjectContentComponent::showProjectSettings()
+{
+    showConfigTab();
+
+    if (ConfigTreePanel* const tree = dynamic_cast<ConfigTreePanel*> (treeViewTabs.getCurrentContentComponent()))
+        tree->showProjectSettings();
+}
+
+void ProjectContentComponent::showModules()
+{
+    showConfigTab();
+
+    if (ConfigTreePanel* const tree = dynamic_cast<ConfigTreePanel*> (treeViewTabs.getCurrentContentComponent()))
+        tree->showModules();
+}
+
+void ProjectContentComponent::showModule (const String& moduleID)
+{
+    showConfigTab();
+
+    if (ConfigTreePanel* const tree = dynamic_cast<ConfigTreePanel*> (treeViewTabs.getCurrentContentComponent()))
+        tree->showModule (moduleID);
+}
+
+StringArray ProjectContentComponent::getExportersWhichCanLaunch() const
+{
+    StringArray s;
+
+    for (Project::ExporterIterator exporter (*project); exporter.next();)
+        if (exporter->canLaunchProject())
+            s.add (exporter->getName());
+
+    return s;
+}
+
+void ProjectContentComponent::openInIDE (const String& exporterName)
+{
+    if (project != nullptr)
+        for (Project::ExporterIterator exporter (*project); exporter.next();)
+            if (exporter->getName() == exporterName && exporter->launchProject())
+                break;
+}
+
+static void openIDEMenuCallback (int result, ProjectContentComponent* comp)
+{
+    if (comp != nullptr && result > 0)
+        comp->openInIDE (comp->getExportersWhichCanLaunch() [result - 1]);
+}
+
 void ProjectContentComponent::openInIDE()
 {
     if (project != nullptr)
     {
-        for (Project::ExporterIterator exporter (*project); exporter.next();)
-            if (exporter->launchProject())
-                break;
+        StringArray possibleExporters = getExportersWhichCanLaunch();
+
+        if (possibleExporters.size() > 1)
+        {
+            PopupMenu menu;
+
+            for (int i = 0; i < possibleExporters.size(); ++i)
+                menu.addItem (i + 1, possibleExporters[i]);
+
+            menu.showMenuAsync (PopupMenu::Options(),
+                                ModalCallbackFunction::forComponent (openIDEMenuCallback, this));
+        }
+        else
+        {
+            openInIDE (possibleExporters[0]);
+        }
     }
 }
 
@@ -521,12 +651,30 @@ void ProjectContentComponent::updateMainWindowTitle()
 
 void ProjectContentComponent::showBubbleMessage (const Rectangle<int>& pos, const String& text)
 {
-    addChildComponent (&bubbleMessage);
+    addChildComponent (bubbleMessage);
     bubbleMessage.setColour (BubbleComponent::backgroundColourId, Colours::white.withAlpha (0.7f));
     bubbleMessage.setColour (BubbleComponent::outlineColourId, Colours::black.withAlpha (0.8f));
     bubbleMessage.setAlwaysOnTop (true);
 
     bubbleMessage.showAt (pos, AttributedString (text), 3000, true, false);
+}
+
+//==============================================================================
+void ProjectContentComponent::showTranslationTool()
+{
+    if (translationTool != nullptr)
+    {
+        translationTool->toFront (true);
+    }
+    else if (project != nullptr)
+    {
+        new FloatingToolWindow ("Translation File Builder",
+                                "transToolWindowPos",
+                                new TranslationToolComponent(),
+                                translationTool,
+                                600, 700,
+                                600, 400, 10000, 10000);
+    }
 }
 
 //==============================================================================
@@ -538,6 +686,7 @@ ApplicationCommandTarget* ProjectContentComponent::getNextCommandTarget()
 void ProjectContentComponent::getAllCommands (Array <CommandID>& commands)
 {
     const CommandID ids[] = { CommandIDs::saveDocument,
+                              CommandIDs::saveDocumentAs,
                               CommandIDs::closeDocument,
                               CommandIDs::saveProject,
                               CommandIDs::closeProject,
@@ -545,10 +694,13 @@ void ProjectContentComponent::getAllCommands (Array <CommandID>& commands)
                               CommandIDs::saveAndOpenInIDE,
                               CommandIDs::showFilePanel,
                               CommandIDs::showConfigPanel,
+                              CommandIDs::showProjectSettings,
+                              CommandIDs::showProjectModules,
                               CommandIDs::goToPreviousDoc,
                               CommandIDs::goToNextDoc,
                               CommandIDs::goToCounterpart,
-                              CommandIDs::deleteSelectedItem };
+                              CommandIDs::deleteSelectedItem,
+                              CommandIDs::showTranslationTool };
 
     commands.addArray (ids, numElementsInArray (ids));
 }
@@ -587,6 +739,14 @@ void ProjectContentComponent::getCommandInfo (const CommandID commandID, Applica
                         CommandCategories::general, 0);
         result.setActive (currentDocument != nullptr || project != nullptr);
         result.defaultKeypresses.add (KeyPress ('s', ModifierKeys::commandModifier, 0));
+        break;
+
+    case CommandIDs::saveDocumentAs:
+        result.setInfo ("Save As...",
+                        "Saves the current document to a new location",
+                        CommandCategories::general, 0);
+        result.setActive (currentDocument != nullptr || project != nullptr);
+        result.defaultKeypresses.add (KeyPress ('s', ModifierKeys::commandModifier | ModifierKeys::shiftModifier, 0));
         break;
 
     case CommandIDs::closeDocument:
@@ -658,6 +818,22 @@ void ProjectContentComponent::getCommandInfo (const CommandID commandID, Applica
         result.defaultKeypresses.add (KeyPress ('i', ModifierKeys::commandModifier, 0));
         break;
 
+    case CommandIDs::showProjectSettings:
+        result.setInfo ("Show Project Settings",
+                        "Shows the main project options page",
+                        CommandCategories::general, 0);
+        result.setActive (project != nullptr);
+        result.defaultKeypresses.add (KeyPress ('i', ModifierKeys::commandModifier | ModifierKeys::shiftModifier, 0));
+        break;
+
+    case CommandIDs::showProjectModules:
+        result.setInfo ("Show Project Modules",
+                        "Shows the project's list of modules",
+                        CommandCategories::general, 0);
+        result.setActive (project != nullptr);
+        result.defaultKeypresses.add (KeyPress ('m', ModifierKeys::commandModifier | ModifierKeys::shiftModifier, 0));
+        break;
+
     case CommandIDs::deleteSelectedItem:
         result.setInfo ("Delete Selected File", String::empty, CommandCategories::general, 0);
         result.defaultKeypresses.add (KeyPress (KeyPress::deleteKey, 0, 0));
@@ -665,14 +841,13 @@ void ProjectContentComponent::getCommandInfo (const CommandID commandID, Applica
         result.setActive (dynamic_cast<TreePanelBase*> (treeViewTabs.getCurrentContentComponent()) != nullptr);
         break;
 
+    case CommandIDs::showTranslationTool:
+        result.setInfo ("Translation File Builder", "Shows the translation file helper tool", CommandCategories::general, 0);
+        break;
+
     default:
         break;
     }
-}
-
-bool ProjectContentComponent::isCommandActive (const CommandID)
-{
-    return project != nullptr;
 }
 
 bool ProjectContentComponent::perform (const InvocationInfo& info)
@@ -682,6 +857,7 @@ bool ProjectContentComponent::perform (const InvocationInfo& info)
         case CommandIDs::saveProject:
         case CommandIDs::closeProject:
         case CommandIDs::saveDocument:
+        case CommandIDs::saveDocumentAs:
         case CommandIDs::closeDocument:
         case CommandIDs::goToPreviousDoc:
         case CommandIDs::goToNextDoc:
@@ -704,14 +880,17 @@ bool ProjectContentComponent::perform (const InvocationInfo& info)
         case CommandIDs::saveProject:               saveProject(); break;
         case CommandIDs::closeProject:              closeProject(); break;
         case CommandIDs::saveDocument:              saveDocument(); break;
+        case CommandIDs::saveDocumentAs:            saveAs(); break;
 
         case CommandIDs::closeDocument:             closeDocument(); break;
         case CommandIDs::goToPreviousDoc:           goToPreviousFile(); break;
         case CommandIDs::goToNextDoc:               goToNextFile(); break;
         case CommandIDs::goToCounterpart:           goToCounterpart(); break;
 
-        case CommandIDs::showFilePanel:             treeViewTabs.setCurrentTabIndex (0); break;
-        case CommandIDs::showConfigPanel:           treeViewTabs.setCurrentTabIndex (1); break;
+        case CommandIDs::showFilePanel:             showFilesTab(); break;
+        case CommandIDs::showConfigPanel:           showConfigTab(); break;
+        case CommandIDs::showProjectSettings:       showProjectSettings(); break;
+        case CommandIDs::showProjectModules:        showModules(); break;
 
         case CommandIDs::openInIDE:                 openInIDE(); break;
 
@@ -723,9 +902,17 @@ bool ProjectContentComponent::perform (const InvocationInfo& info)
 
             break;
 
+        case CommandIDs::showTranslationTool:       showTranslationTool(); break;
+
         default:
             return false;
     }
 
     return true;
+}
+
+void ProjectContentComponent::getSelectedProjectItemsBeingDragged (const DragAndDropTarget::SourceDetails& dragSourceDetails,
+                                                                   OwnedArray<Project::Item>& selectedNodes)
+{
+    FileTreePanel::ProjectTreeItemBase::getSelectedProjectItemsBeingDragged (dragSourceDetails, selectedNodes);
 }

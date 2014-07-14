@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_BOOLEANPROPERTYCOMPONENT_JUCEHEADER__
-#define __JUCE_BOOLEANPROPERTYCOMPONENT_JUCEHEADER__
-
-#include "juce_PropertyComponent.h"
-#include "../buttons/juce_ToggleButton.h"
+#ifndef JUCE_BOOLEANPROPERTYCOMPONENT_H_INCLUDED
+#define JUCE_BOOLEANPROPERTYCOMPONENT_H_INCLUDED
 
 
 //==============================================================================
@@ -79,11 +76,11 @@ public:
 
     //==============================================================================
     /** @internal */
-    void paint (Graphics& g);
+    void paint (Graphics&) override;
     /** @internal */
-    void refresh();
+    void refresh() override;
     /** @internal */
-    void buttonClicked (Button*);
+    void buttonClicked (Button*) override;
 
 private:
     ToggleButton button;
@@ -93,4 +90,4 @@ private:
 };
 
 
-#endif   // __JUCE_BOOLEANPROPERTYCOMPONENT_JUCEHEADER__
+#endif   // JUCE_BOOLEANPROPERTYCOMPONENT_H_INCLUDED

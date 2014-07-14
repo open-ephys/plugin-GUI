@@ -26,10 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_CRITICALSECTION_JUCEHEADER__
-#define __JUCE_CRITICALSECTION_JUCEHEADER__
-
-#include "juce_ScopedLock.h"
+#ifndef JUCE_CRITICALSECTION_H_INCLUDED
+#define JUCE_CRITICALSECTION_H_INCLUDED
 
 
 //==============================================================================
@@ -39,6 +37,10 @@
     A CriticalSection acts as a re-entrant mutex object. The best way to lock and unlock
     one of these is by using RAII in the form of a local ScopedLock object - have a look
     through the codebase for many examples of how to do this.
+
+    In almost all cases you'll want to declare your CriticalSection as a member variable.
+    Occasionally you may want to declare one as a static variable, but in that case the usual
+    C++ static object order-of-construction warnings should be heeded.
 
     @see ScopedLock, ScopedTryLock, ScopedUnlock, SpinLock, ReadWriteLock, Thread, InterProcessLock
 */
@@ -105,16 +107,16 @@ public:
 private:
     //==============================================================================
    #if JUCE_WINDOWS
-    // To avoid including windows.h in the public JUCE headers, we'll just allocate a
-    // block of memory here that's big enough to be used internally as a windows critical
-    // section structure.
+    // To avoid including windows.h in the public JUCE headers, we'll just allocate
+    // a block of memory here that's big enough to be used internally as a windows
+    // CRITICAL_SECTION structure.
     #if JUCE_64BIT
-     uint8 internal [44];
+     uint8 lock[44];
     #else
-     uint8 internal [24];
+     uint8 lock[24];
     #endif
    #else
-    mutable pthread_mutex_t internal;
+    mutable pthread_mutex_t lock;
    #endif
 
     JUCE_DECLARE_NON_COPYABLE (CriticalSection)
@@ -159,21 +161,27 @@ private:
 /**
     Automatically locks and unlocks a CriticalSection object.
 
-    Use one of these as a local variable to provide RAII-based locking of a CriticalSection.
+    You can use a ScopedLock as a local variable to provide RAII-based locking of a CriticalSection.
 
     e.g. @code
 
-    CriticalSection myCriticalSection;
-
-    for (;;)
+    struct MyObject
     {
-        const ScopedLock myScopedLock (myCriticalSection);
-        // myCriticalSection is now locked
+        CriticalSection objectLock;
 
-        ...do some stuff...
+        // assuming that this example function will be called by multiple threads
+        void foo()
+        {
+            const ScopedLock myScopedLock (objectLock);
 
-        // myCriticalSection gets unlocked here.
-    }
+            // objectLock is now locked..
+
+            ...do some thread-safe work here...
+
+            // ..and objectLock gets unlocked here, as myScopedLock goes out of
+            // scope at the end of the block
+        }
+    };
     @endcode
 
     @see CriticalSection, ScopedUnlock
@@ -191,29 +199,29 @@ typedef CriticalSection::ScopedLockType  ScopedLock;
 
     e.g. @code
 
-    CriticalSection myCriticalSection;
-
-    for (;;)
+    struct MyObject
     {
-        const ScopedLock myScopedLock (myCriticalSection);
-        // myCriticalSection is now locked
+        CriticalSection objectLock;
 
-        ... do some stuff with it locked ..
-
-        while (xyz)
+        void foo()
         {
-            ... do some stuff with it locked ..
+            {
+                const ScopedLock myScopedLock (objectLock);
 
-            const ScopedUnlock unlocker (myCriticalSection);
+                // objectLock is now locked..
 
-            // myCriticalSection is now unlocked for the remainder of this block,
-            // and re-locked at the end.
+                {
+                    ScopedUnlock myUnlocker (objectLock);
 
-            ...do some stuff with it unlocked ...
+                    // ..and now unlocked..
+                }
+
+                // ..and now locked again..
+            }
+
+            // ..and finally unlocked.
         }
-
-        // myCriticalSection gets unlocked here.
-    }
+    };
     @endcode
 
     @see CriticalSection, ScopedLock
@@ -227,26 +235,27 @@ typedef CriticalSection::ScopedUnlockType  ScopedUnlock;
     Use one of these as a local variable to control access to a CriticalSection.
 
     e.g. @code
-    CriticalSection myCriticalSection;
 
-    for (;;)
+    struct MyObject
     {
-        const ScopedTryLock myScopedTryLock (myCriticalSection);
+        CriticalSection objectLock;
 
-        // Unlike using a ScopedLock, this may fail to actually get the lock, so you
-        // should test this with the isLocked() method before doing your thread-unsafe
-        // action..
-        if (myScopedTryLock.isLocked())
+        void foo()
         {
-           ...do some stuff...
-        }
-        else
-        {
-            ..our attempt at locking failed because another thread had already locked it..
-        }
+            const ScopedTryLock myScopedTryLock (objectLock);
 
-        // myCriticalSection gets unlocked here (if it was locked)
-    }
+            // Unlike using a ScopedLock, this may fail to actually get the lock, so you
+            // must call the isLocked() method before making any assumptions..
+            if (myScopedTryLock.isLocked())
+            {
+               ...safely do some work...
+            }
+            else
+            {
+                // If we get here, then our attempt at locking failed because another thread had already locked it..
+            }
+        }
+    };
     @endcode
 
     @see CriticalSection::tryEnter, ScopedLock, ScopedUnlock, ScopedReadLock
@@ -254,4 +263,4 @@ typedef CriticalSection::ScopedUnlockType  ScopedUnlock;
 typedef CriticalSection::ScopedTryLockType  ScopedTryLock;
 
 
-#endif   // __JUCE_CRITICALSECTION_JUCEHEADER__
+#endif   // JUCE_CRITICALSECTION_H_INCLUDED

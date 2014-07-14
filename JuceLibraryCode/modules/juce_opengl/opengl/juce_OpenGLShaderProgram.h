@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_OPENGLSHADERPROGRAM_JUCEHEADER__
-#define __JUCE_OPENGLSHADERPROGRAM_JUCEHEADER__
+#ifndef JUCE_OPENGLSHADERPROGRAM_H_INCLUDED
+#define JUCE_OPENGLSHADERPROGRAM_H_INCLUDED
 
 //==============================================================================
 /**
@@ -32,7 +32,7 @@
 class JUCE_API  OpenGLShaderProgram
 {
 public:
-    OpenGLShaderProgram (const OpenGLContext& context) noexcept;
+    OpenGLShaderProgram (const OpenGLContext&) noexcept;
     ~OpenGLShaderProgram() noexcept;
 
     /** Returns the version of GLSL that the current context supports.
@@ -59,7 +59,17 @@ public:
         @returns  true if the shader compiled successfully. If not, you can call
                   getLastError() to find out what happened.
     */
-    bool addShader (const char* const shaderSourceCode, GLenum shaderType);
+    bool addShader (const String& shaderSourceCode, GLenum shaderType);
+
+    /** Compiles and adds a fragment shader to this program.
+        This is equivalent to calling addShader() with a type of GL_VERTEX_SHADER.
+    */
+    bool addVertexShader (const String& shaderSourceCode);
+
+    /** Compiles and adds a fragment shader to this program.
+        This is equivalent to calling addShader() with a type of GL_FRAGMENT_SHADER.
+    */
+    bool addFragmentShader (const String& shaderSourceCode);
 
     /** Links all the compiled shaders into a usable program.
         If your app is built in debug mode, this method will assert if the program
@@ -70,10 +80,13 @@ public:
     bool link() noexcept;
 
     /** Get the output for the last shader compilation or link that failed. */
-    const String& getLastError() const noexcept            { return errorLog; }
+    const String& getLastError() const noexcept             { return errorLog; }
 
     /** Selects this program into the current context. */
     void use() const noexcept;
+
+    /** Deletes the program. */
+    void release() noexcept;
 
     /** Represents an openGL uniform value.
         After a program has been linked, you can create Uniform objects to let you
@@ -141,13 +154,14 @@ public:
     };
 
     /** The ID number of the compiled program. */
-    GLuint programID;
+    GLuint getProgramID() const noexcept;
 
 private:
     const OpenGLContext& context;
+    mutable GLuint programID;
     String errorLog;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OpenGLShaderProgram)
 };
 
-#endif   // __JUCE_OPENGLSHADERPROGRAM_JUCEHEADER__
+#endif   // JUCE_OPENGLSHADERPROGRAM_H_INCLUDED

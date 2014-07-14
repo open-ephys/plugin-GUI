@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_VIDEO_JUCEHEADER__
-#define __JUCE_VIDEO_JUCEHEADER__
+#ifndef JUCE_VIDEO_H_INCLUDED
+#define JUCE_VIDEO_H_INCLUDED
 
 //=============================================================================
 #include "../juce_gui_extra/juce_gui_extra.h"
@@ -73,18 +73,10 @@
 namespace juce
 {
 
-// START_AUTOINCLUDE playback, capture
-#ifndef __JUCE_DIRECTSHOWCOMPONENT_JUCEHEADER__
- #include "playback/juce_DirectShowComponent.h"
-#endif
-#ifndef __JUCE_QUICKTIMEMOVIECOMPONENT_JUCEHEADER__
- #include "playback/juce_QuickTimeMovieComponent.h"
-#endif
-#ifndef __JUCE_CAMERADEVICE_JUCEHEADER__
- #include "capture/juce_CameraDevice.h"
-#endif
-// END_AUTOINCLUDE
+#include "playback/juce_DirectShowComponent.h"
+#include "playback/juce_QuickTimeMovieComponent.h"
+#include "capture/juce_CameraDevice.h"
 
 }
 
-#endif   // __JUCE_VIDEO_JUCEHEADER__
+#endif   // JUCE_VIDEO_H_INCLUDED
