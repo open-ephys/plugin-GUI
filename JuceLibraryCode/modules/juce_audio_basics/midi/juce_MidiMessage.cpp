@@ -91,7 +91,7 @@ MidiMessage::MidiMessage (const void* const d, const int dataSize, const double 
     memcpy (allocateSpace (dataSize), d, (size_t) dataSize);
 
     // check that the length matches the data..
-    jassert (size > 3 || *(uint8*)d >= 0xf0 || getMessageLengthFromFirstByte (*(uint8*)d) == size);
+    //jassert (size > 3 || *(uint8*)d >= 0xf0 || getMessageLengthFromFirstByte (*(uint8*)d) == size);
 }
 
 MidiMessage::MidiMessage (const int byte1, const double t) noexcept
@@ -366,7 +366,7 @@ int MidiMessage::getNoteNumber() const noexcept
 
 void MidiMessage::setNoteNumber (const int newNoteNumber) noexcept
 {
-    if (isNoteOnOrOff())
+   // if (isNoteOnOrOff())
         getData()[1] = (uint8) (newNoteNumber & 127);
 }
 
