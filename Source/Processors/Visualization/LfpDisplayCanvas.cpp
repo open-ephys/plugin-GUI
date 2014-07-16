@@ -199,6 +199,8 @@ void LfpDisplayCanvas::update()
     nChans = jmax(processor->getNumInputs(),1);
     sampleRate = processor->getSampleRate();
 
+    std::cout << "Setting sample rate of LfpDisplayCanvas to " << sampleRate << std::endl;
+
     if (nChans != lfpDisplay->getNumChannels())
     {
     	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;

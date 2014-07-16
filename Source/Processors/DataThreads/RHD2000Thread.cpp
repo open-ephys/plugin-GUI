@@ -112,8 +112,9 @@ RHD2000Thread::~RHD2000Thread()
 
 	if (deviceFound)
     {
+        evalBoard->flush();
         evalBoard->resetBoard();
-//		evalBoard->resetFpga();
+		evalBoard->resetFpga();
     }
 
 
@@ -282,18 +283,11 @@ void RHD2000Thread::initializeBoard()
         ;
     }
 
-    // THIS DOESN'T SEEM TO HELP WITH OCCASIONAL CRASHES:
-    ///std::cout << "Flushing the buffer" << std::endl;
-    // flush out everything from the buffer
-    //evalBoard->setMaxTimeStep(0);
-    //evalBoard->run();
-    //evalBoard->flush();
+    evalBoard->flush();
 
     // Read the resulting single data block from the USB interface. We don't
     // need to do anything with this, since it was only used for ADC calibration
     //Rhd2000DataBlock* dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
-
-    
 
     // Now that ADC calibration has been performed, we switch to the command sequence
     // that does not execute ADC calibration.

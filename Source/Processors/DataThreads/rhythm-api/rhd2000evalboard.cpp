@@ -650,6 +650,12 @@ void Rhd2000EvalBoard::resetBoard()
     dev->UpdateWireIns();
 }
 
+// Use the Opal Kelly library to reset the FPGA
+void Rhd2000EvalBoard::resetFpga()
+{
+    dev->ResetFPGA();
+}
+
 // Set the FPGA to run continuously once started (if continuousMode == true) or to run until
 // maxTimeStep is reached (if continuousMode == false).
 void Rhd2000EvalBoard::setContinuousRunMode(bool continuousMode)

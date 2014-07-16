@@ -86,6 +86,7 @@ public:
     void selectAuxCommandLength(AuxCmdSlot auxCommandSlot, int loopIndex, int endIndex);
 
     void resetBoard();
+    void resetFpga();
     void setContinuousRunMode(bool continuousMode);
     void setMaxTimeStep(unsigned int maxTimeStep);
     void run();
