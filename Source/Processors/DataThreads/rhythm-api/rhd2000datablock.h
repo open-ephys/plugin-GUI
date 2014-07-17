@@ -3,9 +3,8 @@
 //
 // Intan Technoloies RHD2000 Rhythm Interface API
 // Rhd2000DataBlock Class Header File
-// Version 1.4 (26 February 2014)
 //
-// Copyright (c) 2013-2014 Intan Technologies LLC
+// Copyright (c) 2013 Intan Technologies LLC
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the
@@ -21,7 +20,7 @@
 #ifndef RHD2000DATABLOCK_H
 #define RHD2000DATABLOCK_H
 
-#define SAMPLES_PER_DATA_BLOCK 60
+#define SAMPLES_PER_DATA_BLOCK 300
 #define RHD2000_HEADER_MAGIC_NUMBER 0xc691199927021942
 
 using namespace std;
@@ -44,7 +43,7 @@ public:
     static unsigned int getSamplesPerDataBlock();
     void fillFromUsbBuffer(unsigned char usbBuffer[], int blockIndex, int numDataStreams);
     void print(int stream) const;
-    void write(ofstream &saveOut, int numDataStreams) const;
+    void write(ofstream& saveOut, int numDataStreams) const;
 
 private:
     void allocateIntArray3D(vector<vector<vector<int> > > &array3D, int xSize, int ySize, int zSize);
@@ -52,7 +51,7 @@ private:
     void allocateIntArray1D(vector<int> &array1D, int xSize);
     void allocateUIntArray1D(vector<unsigned int> &array1D, int xSize);
 
-    void writeWordLittleEndian(ofstream &outputStream, int dataWord) const;
+    void writeWordLittleEndian(ofstream& outputStream, int dataWord) const;
 
     bool checkUsbHeader(unsigned char usbBuffer[], int index);
     unsigned int convertUsbTimeStamp(unsigned char usbBuffer[], int index);

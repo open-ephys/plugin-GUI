@@ -24,8 +24,6 @@
 #include "RHD2000Thread.h"
 #include "../SourceNode.h"
 
-#include <string>
-
 #if defined(_WIN32)
 #define okLIB_NAME "okFrontPanel.dll"
 #define okLIB_EXTENSION "*.dll"
@@ -112,8 +110,7 @@ RHD2000Thread::~RHD2000Thread()
 
 	if (deviceFound)
     {
-        evalBoard->resetBoard();
-//		evalBoard->resetFpga();
+		evalBoard->resetFpga();
     }
 
 
@@ -123,8 +120,7 @@ RHD2000Thread::~RHD2000Thread()
 
 bool RHD2000Thread::openBoard(String pathToLibrary)
 {
-    int return_code = evalBoard->open();
-    bool return_val = evalBoard->uploadFpgaBitfile(string(pathToLibrary.getCharPointer()));
+    int return_code = evalBoard->open(pathToLibrary.getCharPointer());
 
     if (return_code == 1)
     {
@@ -238,9 +234,6 @@ void RHD2000Thread::initializeBoard()
 	bitfilename += File::separatorString;
 	bitfilename += "rhd2000.bit";
 
-   // evalBoard->resetFpga();
-    evalBoard->resetBoard();
-
     if (!uploadBitfile(bitfilename))
     {
         return;
@@ -260,7 +253,6 @@ void RHD2000Thread::initializeBoard()
     //  - enables all data streams
     //  - clears the ttlOut
     //  - disables all DACs and sets gain to 0
-    updateRegisters();
 
     // Select RAM Bank 0 for AuxCmd3 initially, so the ADC is calibrated.
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3, 0);
@@ -282,18 +274,12 @@ void RHD2000Thread::initializeBoard()
         ;
     }
 
-    // THIS DOESN'T SEEM TO HELP WITH OCCASIONAL CRASHES:
-    ///std::cout << "Flushing the buffer" << std::endl;
-    // flush out everything from the buffer
-    //evalBoard->setMaxTimeStep(0);
-    //evalBoard->run();
-    //evalBoard->flush();
-
     // Read the resulting single data block from the USB interface. We don't
     // need to do anything with this, since it was only used for ADC calibration
-    //Rhd2000DataBlock* dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
+    Rhd2000DataBlock* dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
 
-    
+
+   // evalBoard->readDataBlock(dataBlock);
 
     // Now that ADC calibration has been performed, we switch to the command sequence
     // that does not execute ADC calibration.
@@ -306,6 +292,8 @@ void RHD2000Thread::initializeBoard()
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3,
                                     fastSettleEnabled ? 2 : 1);
 
+
+    updateRegisters();
 
     // Let's turn one LED on to indicate that the board is now connected
     int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
@@ -922,7 +910,7 @@ void RHD2000Thread::updateRegisters()
     chipRegisters.enableAux2(true);
     chipRegisters.enableAux3(true);
 
-    commandSequenceLength = chipRegisters.createCommandListRegisterConfig(commandList, true);
+    chipRegisters.createCommandListRegisterConfig(commandList, true);
     // Upload version with ADC calibration to AuxCmd3 RAM Bank 0.
     evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 0);
     evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0,
