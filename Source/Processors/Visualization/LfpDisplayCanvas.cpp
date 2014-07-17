@@ -91,26 +91,26 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     rangeSelection = new ComboBox("Voltage range");
     rangeSelection->addItemList(voltageRanges, 1);
-    rangeSelection->setSelectedId(4, dontSendNotification);
+    rangeSelection->setSelectedId(4, sendNotification);
     rangeSelection->addListener(this);
     addAndMakeVisible(rangeSelection);
 
     timebaseSelection = new ComboBox("Timebase");
     timebaseSelection->addItemList(timebases, 1);
-    timebaseSelection->setSelectedId(2, dontSendNotification);
+    timebaseSelection->setSelectedId(2, sendNotification);
     timebaseSelection->addListener(this);
     addAndMakeVisible(timebaseSelection);
 
 
     spreadSelection = new ComboBox("Spread");
     spreadSelection->addItemList(spreads, 1);
-    spreadSelection->setSelectedId(5,dontSendNotification);
+    spreadSelection->setSelectedId(5,sendNotification);
     spreadSelection->addListener(this);
     addAndMakeVisible(spreadSelection);
 
     colorGroupingSelection = new ComboBox("Color Grouping");
     colorGroupingSelection->addItemList(colorGroupings, 1);
-    colorGroupingSelection->setSelectedId(1,dontSendNotification);
+    colorGroupingSelection->setSelectedId(1,sendNotification);
     colorGroupingSelection->addListener(this);
     addAndMakeVisible(colorGroupingSelection);
 
@@ -120,7 +120,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     invertInputButton->setCorners(true, true, true, true);
     invertInputButton->addListener(this);
     invertInputButton->setClickingTogglesState(true);
-    invertInputButton->setToggleState(false, dontSendNotification);
+    invertInputButton->setToggleState(false, sendNotification);
     addAndMakeVisible(invertInputButton);
 
 
