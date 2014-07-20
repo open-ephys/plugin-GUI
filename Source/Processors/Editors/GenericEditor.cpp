@@ -33,11 +33,14 @@
 
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265359
+#endif 
 GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors=true)
     : AudioProcessorEditor(owner),
       desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
-      drawerButton(0), channelSelector(0),
-      isSelected(false),  isEnabled(true), tNum(-1)
+      drawerButton(0), channelSelector(0),drawerWidth(170),
+      isSelected(false),  isEnabled(true), isCollapsed(false), tNum(-1), drawerOpen(false)
 {
     constructorInitialize(owner, useDefaultParameterEditors);
 }
@@ -63,6 +66,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 {
 
     name = getAudioProcessor()->getName();
+    displayName = name;
 
     nodeId = owner->getNodeId();
 
@@ -72,7 +76,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
     if (!owner->isMerger() && !owner->isSplitter() && !owner->isUtility())
     {
-        std::cout << "Adding drawer button." << std::endl;
+       // std::cout << "Adding drawer button." << std::endl;
 
         drawerButton = new DrawerButton("name");
         drawerButton->addListener(this);
@@ -109,6 +113,26 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
 }
 
+void GenericEditor::updateName()
+{
+    nodeId = getProcessor()->getNodeId();
+    repaint();
+}
+
+void GenericEditor::setDisplayName(const String& string)
+{
+    displayName = string;
+    getGraphViewer()->updateNodeLocations();
+    repaint();
+}
+
+
+String GenericEditor::getDisplayName()
+{
+    return displayName;
+}
+
+
 void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
 {
     if (useDefaultParameterEditors)
@@ -117,7 +141,7 @@ void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
         int maxX = 15;
         int maxY = 30;
 
-        std::cout << "Adding parameter editors." << std::endl;
+       // std::cout << "Adding parameter editors." << std::endl;
 
         for (int i = 0; i < getProcessor()->getNumParameters(); i++)
         {
@@ -170,11 +194,14 @@ void GenericEditor::refreshColors()
 
 void GenericEditor::resized()
 {
-    if (drawerButton != 0)
-        drawerButton->setBounds(getWidth()-14, 40, 10, getHeight()-60);
+    if (!isCollapsed)
+    {
+        if (drawerButton != 0)
+            drawerButton->setBounds(getWidth()-14, 40, 10, getHeight()-60);
 
-    if (channelSelector != 0)
-        channelSelector->setBounds(desiredWidth - drawerWidth, 30, channelSelector->getDesiredWidth(), getHeight()-45);
+        if (channelSelector != 0)
+            channelSelector->setBounds(desiredWidth - drawerWidth, 30, channelSelector->getDesiredWidth(), getHeight()-45);
+    }
 }
 
 
@@ -204,6 +231,13 @@ void GenericEditor::highlight()
 {
     isSelected = true;
     repaint();
+}
+
+void GenericEditor::makeVisible()
+{
+    isSelected = true;
+    repaint();
+    getEditorViewport()->makeEditorVisible(this);
 }
 
 bool GenericEditor::getSelectionState()
@@ -249,7 +283,7 @@ void GenericEditor::setEnabledState(bool t)
 void GenericEditor::startAcquisition()
 {
 
-    std::cout << "GenericEditor received message to start acquisition." << std::endl;
+    //std::cout << "GenericEditor received message to start acquisition." << std::endl;
 
     if (channelSelector != 0)
         channelSelector->startAcquisition();
@@ -299,11 +333,17 @@ void GenericEditor::paint(Graphics& g)
         g.setColour(Colours::lightgrey);
 
     // draw colored background
-    g.fillRect(1,1,getWidth()-(2+offset),getHeight()-2);
-
-    // draw gray workspace
-    g.setGradientFill(backgroundGradient);
-    g.fillRect(1,22,getWidth()-2, getHeight()-29);
+    if (!isCollapsed)
+    {
+        g.fillRect(1,1,getWidth()-(2+offset),getHeight()-2);
+        // draw gray workspace
+        g.setGradientFill(backgroundGradient);
+        g.fillRect(1,22,getWidth()-2, getHeight()-29);
+    }
+    else
+    {
+        g.fillAll();
+    }
 
     g.setFont(titleFont);
     g.setFont(14);
@@ -318,8 +358,18 @@ void GenericEditor::paint(Graphics& g)
     }
 
     // draw title
-    g.drawText(name, 6, 5, 500, 15, Justification::left, false);
+    if (!isCollapsed)
+    {
+       // if (!getProcessor()->isMerger() && !getProcessor()->isSplitter())
+      //      g.drawText(name+" ("+String(nodeId)+")", 6, 5, 500, 15, Justification::left, false);
+       // else
+            g.drawText(displayName, 6, 5, 500, 15, Justification::left, false);
 
+    } else {
+        g.addTransform(AffineTransform::rotation(-M_PI/2.0));
+        g.drawText(displayName, -getHeight()+6, 5, 500, 15, Justification::left, false);
+        g.addTransform(AffineTransform::rotation(M_PI/2.0));
+    }
 
     if (isSelected)
     {
@@ -382,6 +432,7 @@ bool GenericEditor::checkDrawerButton(Button* button)
             drawerWidth = channelSelector->getDesiredWidth() + 20;
 
             desiredWidth += drawerWidth;
+            drawerOpen = true;
 
         }
         else
@@ -390,6 +441,7 @@ bool GenericEditor::checkDrawerButton(Button* button)
             channelSelector->setVisible(false);
 
             desiredWidth -= drawerWidth;
+            drawerOpen = false;
         }
 
         getEditorViewport()->makeEditorVisible(this);
@@ -414,11 +466,11 @@ void GenericEditor::sliderValueChanged(Slider* slider)
 void GenericEditor::update()
 {
 
-    std::cout << "Editor for ";
+    //std::cout << "Editor for ";
 
     GenericProcessor* p = (GenericProcessor*) getProcessor();
 
-    std::cout << p->getName() << " updating settings." << std::endl;
+   // std::cout << p->getName() << " updating settings." << std::endl;
 
     int numChannels;
 
@@ -430,6 +482,12 @@ void GenericEditor::update()
             numChannels = p->getNumInputs();
 
         channelSelector->setNumChannels(numChannels);
+
+        for (int i = 0; i < numChannels; i++)
+        {
+           // std::cout << p->channels[i]->getRecordState() << std::endl;
+            channelSelector->setRecordStatus(i, p->channels[i]->getRecordState());
+        }
     }
 
     if (numChannels == 0)
@@ -487,6 +545,24 @@ bool GenericEditor::getRecordStatus(int chan)
     }
 }
 
+Array<bool> GenericEditor::getRecordStatusArray()
+{
+
+    Array<bool> recordStatuses;
+    recordStatuses.resize(getProcessor()->getNumOutputs());
+
+    for (int i = 0; i < getProcessor()->getNumOutputs(); i++)
+    {
+        if (channelSelector != nullptr)
+            recordStatuses.set(i,channelSelector->getRecordStatus(i));
+        else
+            recordStatuses.set(i,false);
+    }
+
+    return recordStatuses;
+
+}
+
 bool GenericEditor::getAudioStatus(int chan)
 {
     if (!isSplitOrMerge)
@@ -525,18 +601,102 @@ void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
     }
 }
 
+bool GenericEditor::getCollapsedState()
+{
+    return isCollapsed;
+}
+
+void GenericEditor::switchCollapsedState()
+{
+
+    if (!getProcessor()->isMerger() && !getProcessor()->isSplitter())
+    {
+
+        if (isCollapsed)
+        {
+            // open it up
+            desiredWidth = originalWidth;
+            isCollapsed = false;
+
+        } else {
+            originalWidth = desiredWidth;
+            desiredWidth = 25;
+            isCollapsed = true;
+        }
+
+        for (int i = 0; i < getNumChildComponents(); i++)
+        {
+            Component* c = getChildComponent(i);
+            c->setVisible(!isCollapsed);
+        }
+
+        if (channelSelector != nullptr)
+        {
+            if (!drawerOpen)
+                channelSelector->setVisible(false);
+        }
+
+        collapsedStateChanged();
+
+        getEditorViewport()->refreshEditors();
+    }
+}
+
 void GenericEditor::saveEditorParameters(XmlElement* xml)
 {
 
-    //xml->setAttribute("Attribute", "WHAT");
+    xml->setAttribute("isCollapsed", isCollapsed);
+    xml->setAttribute("displayName", displayName);
+
+    saveCustomParameters(xml);
 
 }
 
 void GenericEditor::loadEditorParameters(XmlElement* xml)
 {
 
-    //xml->setAttribute("Attribute", "WHAT");
+    bool isCollapsed = xml->getBoolAttribute("isCollapsed", false);
 
+    if (isCollapsed)
+    {
+        switchCollapsedState();
+    }
+
+    displayName = xml->getStringAttribute("displayName", name);
+
+    loadCustomParameters(xml);
+
+}
+
+GenericEditor* GenericEditor::getSourceEditor()
+{
+    
+    GenericProcessor* sourceNode = getProcessor()->getSourceNode();
+    
+    if (sourceNode != nullptr)
+        return sourceNode->getEditor();
+    else
+        return nullptr;
+}
+
+GenericEditor* GenericEditor::getDestEditor()
+{
+    GenericProcessor* destNode = getProcessor()->getDestNode();
+    
+    if (destNode != nullptr)
+        return destNode->getEditor();
+    else
+        return nullptr;
+}
+
+bool GenericEditor::isSplitter()
+{
+    return getProcessor()->isSplitter();
+}
+
+bool GenericEditor::isMerger()
+{
+    return getProcessor()->isMerger();
 }
 
 
@@ -756,6 +916,11 @@ void UtilityButton::resized()
 
     outlinePath.closeSubPath();
 
+}
+
+String UtilityButton::getLabel()
+{
+	return label;
 }
 
 void UtilityButton::setLabel(String label_)

@@ -117,6 +117,9 @@ public:
     void enable();
     void disable();
 
+    void saveStateToXml(XmlElement* xml);
+    void loadStateFromXml(XmlElement* xml);
+
 private:
 
     void buttonClicked(Button* button);
@@ -131,7 +134,8 @@ private:
     AudioConfigurationWindow* acw;
 
     Slider* volumeSlider;
-
+    Slider* noiseGateSlider;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioEditor);
 
 };

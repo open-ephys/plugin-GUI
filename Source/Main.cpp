@@ -55,8 +55,12 @@ public:
     //==============================================================================
     void initialise(const String& commandLine)
     {
+
+        std::cout << commandLine << std::endl;
+
         StringArray parameters;
         parameters.addTokens(commandLine," ","\"");
+
 #ifdef WIN32
         //glWinInit();
 
@@ -86,7 +90,7 @@ public:
     //==============================================================================
     void systemRequestedQuit()
     {
-        std::cout << "Quit requested" << std::endl;
+        //std::cout << "Quit requested" << std::endl;
         quit();
     }
 

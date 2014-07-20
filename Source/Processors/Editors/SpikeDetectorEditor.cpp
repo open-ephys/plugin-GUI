@@ -121,12 +121,12 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
     addAndMakeVisible(thresholdLabel);
 
     // create a custom channel selector
-    deleteAndZero(channelSelector);
+    //deleteAndZero(channelSelector);
 
-    channelSelector = new ChannelSelector(false, font);
-    addChildComponent(channelSelector);
-    channelSelector->setVisible(false);
-
+   // channelSelector = new ChannelSelector(false, font);
+  //  addChildComponent(channelSelector);
+   // channelSelector->setVisible(false);
+//
     //  Array<int> a;
 
     channelSelector->inactivateButtons();
@@ -184,7 +184,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             ElectrodeButton* eb = (ElectrodeButton*) button;
             int electrodeNum = eb->getChannelNum()-1;
 
-            std::cout << "Channel number: " << electrodeNum << std::endl;
+           // std::cout << "Channel number: " << electrodeNum << std::endl;
             Array<int> a;
             a.add(electrodeNum);
             channelSelector->setActiveChannels(a);
@@ -238,9 +238,14 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     else if (button == plusButton)
     {
         // std::cout << "Plus button pressed!" << std::endl;
+        if (acquisitionIsActive)
+        {
+            sendActionMessage("Stop acquisition before adding electrodes.");
+            return;
+        }
 
         int type = electrodeTypes->getSelectedId();
-        std::cout << type << std::endl;
+       // std::cout << type << std::endl;
         int nChans;
 
         switch (type)
@@ -266,6 +271,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             }
         }
 
+        electrodeEditorButtons[1]->setToggleState(false, dontSendNotification);
 
         getEditorViewport()->makeEditorVisible(this, true, true);
         return;
@@ -280,14 +286,14 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
         {
             if (button->getToggleState())
             {
-                electrodeButtons[i]->setToggleState(false, false);
+                electrodeButtons[i]->setToggleState(false, dontSendNotification);
                 electrodeButtons[i]->setRadioGroupId(299);
                 channelSelector->activateButtons();
                 channelSelector->setRadioStatus(true);
             }
             else
             {
-                electrodeButtons[i]->setToggleState(true, false);
+                electrodeButtons[i]->setToggleState(true, dontSendNotification);
                 electrodeButtons[i]->setRadioGroupId(0);
                 channelSelector->inactivateButtons();
                 channelSelector->setRadioStatus(false);
@@ -319,11 +325,49 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     }
     else if (button == electrodeEditorButtons[1])   // MONITOR
     {
+
+        Button* audioMonitorButton = electrodeEditorButtons[1];
+
+        channelSelector->clearAudio();
+
+        SpikeDetector* processor = (SpikeDetector*) getProcessor();
+
+        Array<Electrode*> electrodes = processor->getElectrodes();
+
+        for (int i = 0; i < electrodes.size(); i++)
+        {
+            Electrode* e = electrodes[i];
+            e->isMonitored = false;
+        }
+
+        Electrode* e = processor->getActiveElectrode();
+
+        if (e != nullptr)
+        {
+
+            e->isMonitored = audioMonitorButton->getToggleState();
+
+            for (int i = 0; i < e->numChannels; i++)
+            {
+                std::cout << "Channel " << e->channels[i] << std::endl;
+                int channelNum = e->channels[i];
+                channelSelector->setAudioStatus(channelNum, audioMonitorButton->getToggleState());
+
+            }
+        } else {
+            audioMonitorButton->setToggleState(false, dontSendNotification);
+        }
+
         return;
     }
     else if (button == electrodeEditorButtons[2])   // DELETE
     {
-
+        if (acquisitionIsActive)
+        {
+            sendActionMessage("Stop acquisition before deleting electrodes.");
+            return;
+        }
+    
         removeElectrode(electrodeList->getSelectedItemIndex());
 
         getEditorViewport()->makeEditorVisible(this, true, true);
@@ -337,19 +381,23 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
 void SpikeDetectorEditor::channelChanged(int chan)
 {
-    //std::cout << "New channel: " << chan << std::endl;
 
-    for (int i = 0; i < electrodeButtons.size(); i++)
+    if (electrodeEditorButtons[0]->getToggleState()) // editing is active
     {
-        if (electrodeButtons[i]->getToggleState())
-        {
-            electrodeButtons[i]->setChannelNum(chan);
-            electrodeButtons[i]->repaint();
+        //std::cout << "New channel: " << chan << std::endl;
 
-            SpikeDetector* processor = (SpikeDetector*) getProcessor();
-            processor->setChannel(electrodeList->getSelectedItemIndex(),
-                                  i,
-                                  chan-1);
+        for (int i = 0; i < electrodeButtons.size(); i++)
+        {
+            if (electrodeButtons[i]->getToggleState())
+            {
+                electrodeButtons[i]->setChannelNum(chan);
+                electrodeButtons[i]->repaint();
+
+                SpikeDetector* processor = (SpikeDetector*) getProcessor();
+                processor->setChannel(electrodeList->getSelectedItemIndex(),
+                                      i,
+                                      chan-1);
+            }
         }
     }
 
@@ -357,6 +405,7 @@ void SpikeDetectorEditor::channelChanged(int chan)
 
 void SpikeDetectorEditor::refreshElectrodeList()
 {
+
     electrodeList->clear();
 
     SpikeDetector* processor = (SpikeDetector*) getProcessor();
@@ -370,7 +419,7 @@ void SpikeDetectorEditor::refreshElectrodeList()
 
     if (electrodeList->getNumItems() > 0)
     {
-        electrodeList->setSelectedId(electrodeList->getNumItems(), true);
+        electrodeList->setSelectedId(electrodeList->getNumItems(), sendNotification);
         electrodeList->setText(electrodeList->getItemText(electrodeList->getNumItems()-1));
         lastId = electrodeList->getNumItems();
         electrodeList->setEditableText(true);
@@ -406,7 +455,7 @@ void SpikeDetectorEditor::removeElectrode(int index)
     int newIndex = jmin(index, electrodeList->getNumItems()-1);
     newIndex = jmax(newIndex, 0);
 
-    electrodeList->setSelectedId(newIndex, true);
+    electrodeList->setSelectedId(newIndex, sendNotification);
     electrodeList->setText(electrodeList->getItemText(newIndex));
 
     if (electrodeList->getNumItems() == 0)
@@ -463,13 +512,20 @@ void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
             SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
             processor->setElectrodeName(lastId, comboBox->getText());
-            refreshElectrodeList();
+            comboBox->changeItemText(lastId, comboBox->getText());
+           //electrodeList->setText(comboBox->getText());
+            //refreshElectrodeList();
 
         }
         else
         {
 
             lastId = ID;
+
+            SpikeDetector* processor = (SpikeDetector*) getProcessor();
+            Electrode* e = processor->setCurrentElectrodeIndex(ID-1);
+
+            electrodeEditorButtons[1]->setToggleState(e->isMonitored, dontSendNotification);
 
             drawElectrodeButtons(ID-1);
 
@@ -482,8 +538,11 @@ void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
 void SpikeDetectorEditor::checkSettings()
 {
     electrodeList->setSelectedItemIndex(0);
+    drawElectrodeButtons(0);
 
     getEditorViewport()->makeEditorVisible(this, true, true);
+
+
 
 }
 
@@ -513,14 +572,14 @@ void SpikeDetectorEditor::drawElectrodeButtons(int ID)
 
         if (electrodeEditorButtons[0]->getToggleState())
         {
-            button->setToggleState(false, false);
+            button->setToggleState(false, dontSendNotification);
             button->setRadioGroupId(299);
         }
         else
         {
             activeChannels.add(processor->getChannel(ID,i));
 
-            button->setToggleState(processor->isChannelActive(ID,i), false);
+            button->setToggleState(processor->isChannelActive(ID,i), dontSendNotification);
         }
 
         if (numChannels < 3)
@@ -547,8 +606,8 @@ ThresholdSlider::ThresholdSlider(Font f) : Slider("name"), font(f)
 {
 
     setSliderStyle(Slider::Rotary);
-    setRange(25.0f,400.0f,25.0f);
-    setValue(75.0f);
+    setRange(25.0f,400.0f,5.0f);
+   // setValue(75.0f);
     setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
 
 }

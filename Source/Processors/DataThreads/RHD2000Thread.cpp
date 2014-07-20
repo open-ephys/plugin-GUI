@@ -109,7 +109,12 @@ RHD2000Thread::~RHD2000Thread()
     }
 
 	if (deviceFound)
+    {
+        evalBoard->flush();
+        evalBoard->resetBoard();
 		evalBoard->resetFpga();
+    }
+
 
     deleteAndZero(dataBlock);
 
@@ -271,12 +276,14 @@ void RHD2000Thread::initializeBoard()
         ;
     }
 
+
     // Read the resulting single data block from the USB interface. We don't
     // need to do anything with this, since it was only used for ADC calibration
     Rhd2000DataBlock* dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
 
 
-    evalBoard->readDataBlock(dataBlock);
+
+   // evalBoard->readDataBlock(dataBlock);
 
     // Now that ADC calibration has been performed, we switch to the command sequence
     // that does not execute ADC calibration.
@@ -1025,7 +1032,7 @@ bool RHD2000Thread::stopAcquisition()
         std::cout << "Thread failed to exit, continuing anyway..." << std::endl;
     }
 
-    if (1)
+	if (deviceFound)
     {
         evalBoard->setContinuousRunMode(false);
         evalBoard->setMaxTimeStep(0);
@@ -1038,14 +1045,16 @@ bool RHD2000Thread::stopAcquisition()
 
     dataBuffer->clear();
 
-    cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
+	if (deviceFound)
+	{
+		cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
 
-   // std::cout << "Stopped eval board." << std::endl;
+		// std::cout << "Stopped eval board." << std::endl;
 
 
-    int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
-    evalBoard->setLedDisplay(ledArray);
-
+		int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
+		evalBoard->setLedDisplay(ledArray);
+	}
     isTransmitting = false;
 
     return true;

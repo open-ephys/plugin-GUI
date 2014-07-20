@@ -22,11 +22,9 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_PROGRESSBAR_JUCEHEADER__
-#define __JUCE_PROGRESSBAR_JUCEHEADER__
+#ifndef JUCE_PROGRESSBAR_H_INCLUDED
+#define JUCE_PROGRESSBAR_H_INCLUDED
 
-#include "../components/juce_Component.h"
-#include "../mouse/juce_TooltipClient.h"
 
 //==============================================================================
 /**
@@ -92,16 +90,34 @@ public:
                                                              classes will probably use variations on this colour. */
     };
 
+    //==============================================================================
+    /** This abstract base class is implemented by LookAndFeel classes. */
+    struct JUCE_API  LookAndFeelMethods
+    {
+        virtual ~LookAndFeelMethods() {}
+
+        /** Draws a progress bar.
+
+            If the progress value is less than 0 or greater than 1.0, this should draw a spinning
+            bar that fills the whole space (i.e. to say that the app is still busy but the progress
+            isn't known). It can use the current time as a basis for playing an animation.
+
+            (Used by progress bars in AlertWindow).
+        */
+        virtual void drawProgressBar (Graphics&, ProgressBar&, int width, int height,
+                                      double progress, const String& textToShow) = 0;
+    };
+
 protected:
     //==============================================================================
     /** @internal */
-    void paint (Graphics& g);
+    void paint (Graphics&) override;
     /** @internal */
-    void lookAndFeelChanged();
+    void lookAndFeelChanged() override;
     /** @internal */
-    void visibilityChanged();
+    void visibilityChanged() override;
     /** @internal */
-    void colourChanged();
+    void colourChanged() override;
 
 private:
     double& progress;
@@ -110,10 +126,10 @@ private:
     String displayedMessage, currentMessage;
     uint32 lastCallbackTime;
 
-    void timerCallback();
+    void timerCallback() override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProgressBar)
 };
 
 
-#endif   // __JUCE_PROGRESSBAR_JUCEHEADER__
+#endif   // JUCE_PROGRESSBAR_H_INCLUDED

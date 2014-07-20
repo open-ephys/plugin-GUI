@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOPLUGININSTANCE_JUCEHEADER__
-#define __JUCE_AUDIOPLUGININSTANCE_JUCEHEADER__
-
-#include "../processors/juce_AudioProcessor.h"
-#include "juce_PluginDescription.h"
+#ifndef JUCE_AUDIOPLUGININSTANCE_H_INCLUDED
+#define JUCE_AUDIOPLUGININSTANCE_H_INCLUDED
 
 
 //==============================================================================
@@ -35,6 +32,10 @@
 
     This derives from the AudioProcessor class, and adds some extra functionality
     that helps when wrapping dynamically loaded plugins.
+
+    This class is not needed when writing plugins, and you should never need to derive
+    your own sub-classes from it. The plugin hosting classes use it internally and will
+    return AudioPluginInstance objects which wrap external plugins.
 
     @see AudioProcessor, AudioPluginFormat
 */
@@ -52,6 +53,16 @@ public:
     //==============================================================================
     /** Fills-in the appropriate parts of this plugin description object. */
     virtual void fillInPluginDescription (PluginDescription& description) const = 0;
+
+    /** Returns a PluginDescription for this plugin.
+        This is just a convenience method to avoid calling fillInPluginDescription.
+    */
+    PluginDescription getPluginDescription() const
+    {
+        PluginDescription desc;
+        fillInPluginDescription (desc);
+        return desc;
+    }
 
     /** Returns a pointer to some kind of platform-specific data about the plugin.
         E.g. For a VST, this value can be cast to an AEffect*. For an AudioUnit, it can be
@@ -72,4 +83,4 @@ protected:
 };
 
 
-#endif   // __JUCE_AUDIOPLUGININSTANCE_JUCEHEADER__
+#endif   // JUCE_AUDIOPLUGININSTANCE_H_INCLUDED

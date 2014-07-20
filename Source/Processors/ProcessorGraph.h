@@ -57,11 +57,11 @@ public:
     ProcessorGraph();
     ~ProcessorGraph();
 
-    void* createNewProcessor(String& description);
+    void* createNewProcessor(String& description, int id);
     GenericProcessor* createProcessorFromDescription(String& description);
 
     void removeProcessor(GenericProcessor* processor);
-
+	Array<GenericProcessor*> getListOfProcessors();
     void clearSignalChain();
 
     bool enableProcessors();
@@ -83,6 +83,8 @@ public:
     
     void setRecordState(bool);
 
+    void refreshColors();
+
 private:
 
     int currentNodeId;
@@ -98,6 +100,9 @@ private:
     void createDefaultNodes();
 
     void clearConnections();
+
+    void connectProcessors(GenericProcessor* source, GenericProcessor* dest);
+    void connectProcessorToAudioAndRecordNodes(GenericProcessor* source);
 
 };
 

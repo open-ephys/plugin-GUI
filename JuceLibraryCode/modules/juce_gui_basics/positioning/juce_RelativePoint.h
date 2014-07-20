@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_RELATIVEPOINT_JUCEHEADER__
-#define __JUCE_RELATIVEPOINT_JUCEHEADER__
-
-#include "juce_RelativeCoordinate.h"
+#ifndef JUCE_RELATIVEPOINT_H_INCLUDED
+#define JUCE_RELATIVEPOINT_H_INCLUDED
 
 
 //==============================================================================
@@ -56,8 +54,8 @@ public:
     */
     RelativePoint (const String& stringVersion);
 
-    bool operator== (const RelativePoint& other) const noexcept;
-    bool operator!= (const RelativePoint& other) const noexcept;
+    bool operator== (const RelativePoint&) const noexcept;
+    bool operator!= (const RelativePoint&) const noexcept;
 
     /** Calculates the absolute position of this point.
 
@@ -89,4 +87,4 @@ public:
 };
 
 
-#endif   // __JUCE_RELATIVEPOINT_JUCEHEADER__
+#endif   // JUCE_RELATIVEPOINT_H_INCLUDED

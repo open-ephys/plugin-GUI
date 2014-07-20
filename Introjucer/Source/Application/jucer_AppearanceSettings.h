@@ -1,30 +1,29 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
-#ifndef __JUCER_APPEARANCESETTINGS_H_34D762C7__
-#define __JUCER_APPEARANCESETTINGS_H_34D762C7__
+#ifndef __JUCER_APPEARANCESETTINGS_JUCEHEADER__
+#define __JUCER_APPEARANCESETTINGS_JUCEHEADER__
 
 
 class AppearanceSettings    : private ValueTree::Listener
@@ -68,18 +67,18 @@ private:
 
     void applyToLookAndFeel (LookAndFeel&) const;
 
-    void valueTreePropertyChanged (ValueTree&, const Identifier&)   { updateColourScheme(); }
-    void valueTreeChildAdded (ValueTree&, ValueTree&)               { updateColourScheme(); }
-    void valueTreeChildRemoved (ValueTree&, ValueTree&)             { updateColourScheme(); }
-    void valueTreeChildOrderChanged (ValueTree&)                    { updateColourScheme(); }
-    void valueTreeParentChanged (ValueTree&)                        { updateColourScheme(); }
-    void valueTreeRedirected (ValueTree&)                           { updateColourScheme(); }
+    void valueTreePropertyChanged (ValueTree&, const Identifier&) override   { updateColourScheme(); }
+    void valueTreeChildAdded (ValueTree&, ValueTree&) override               { updateColourScheme(); }
+    void valueTreeChildRemoved (ValueTree&, ValueTree&) override             { updateColourScheme(); }
+    void valueTreeChildOrderChanged (ValueTree&) override                    { updateColourScheme(); }
+    void valueTreeParentChanged (ValueTree&) override                        { updateColourScheme(); }
+    void valueTreeRedirected (ValueTree&) override                           { updateColourScheme(); }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AppearanceSettings)
 };
 
 //==============================================================================
-class IntrojucerLookAndFeel   : public LookAndFeel
+class IntrojucerLookAndFeel   : public LookAndFeel_V3
 {
 public:
     IntrojucerLookAndFeel();
@@ -87,32 +86,10 @@ public:
     void fillWithBackgroundTexture (Graphics&);
     static void fillWithBackgroundTexture (Component&, Graphics&);
 
-    int getTabButtonOverlap (int tabDepth);
-    int getTabButtonSpaceAroundImage();
-    int getTabButtonBestWidth (TabBarButton& button, int tabDepth);
-    static Colour getTabBackgroundColour (TabBarButton& button);
-    void createTabTextLayout (const TabBarButton& button, const Rectangle<int>& textArea, GlyphArrangement& textLayout);
-    void drawTabButton (TabBarButton& button, Graphics& g, bool isMouseOver, bool isMouseDown);
+    void drawTabButton (TabBarButton& button, Graphics&, bool isMouseOver, bool isMouseDown) override;
+    void drawTabAreaBehindFrontButton (TabbedButtonBar&, Graphics&, int, int) override {}
 
-    Rectangle<int> getTabButtonExtraComponentBounds (const TabBarButton& button, Rectangle<int>& textArea, Component& comp);
-    void drawTabAreaBehindFrontButton (TabbedButtonBar&, Graphics&, int, int) {}
-
-    void drawStretchableLayoutResizerBar (Graphics& g, int /*w*/, int /*h*/, bool /*isVerticalBar*/, bool isMouseOver, bool isMouseDragging);
-    Rectangle<int> getPropertyComponentContentPosition (PropertyComponent&);
-
-    bool areScrollbarButtonsVisible()   { return false; }
-
-    void drawScrollbar (Graphics& g, ScrollBar& scrollbar, int x, int y, int width, int height, bool isScrollbarVertical,
-                        int thumbStartPosition, int thumbSize, bool /*isMouseOver*/, bool /*isMouseDown*/);
-
-    void drawConcertinaPanelHeader (Graphics& g, const Rectangle<int>& area,
-                                    bool isMouseOver, bool isMouseDown,
-                                    ConcertinaPanel& concertina, Component& panel);
-
-    void drawButtonBackground (Graphics& g, Button& button, const Colour& backgroundColour,
-                               bool isMouseOverButton, bool isButtonDown);
-
-    static Colour getScrollbarColourForBackground (const Colour& background);
+    int getTabButtonBestWidth (TabBarButton&, int tabDepth) override;
 
 private:
     Image backgroundTexture;
@@ -120,4 +97,4 @@ private:
 };
 
 
-#endif
+#endif   // __JUCER_APPEARANCESETTINGS_JUCEHEADER__

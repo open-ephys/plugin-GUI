@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_PROPERTYPANEL_JUCEHEADER__
-#define __JUCE_PROPERTYPANEL_JUCEHEADER__
-
-#include "juce_PropertyComponent.h"
-#include "../layout/juce_Viewport.h"
+#ifndef JUCE_PROPERTYPANEL_H_INCLUDED
+#define JUCE_PROPERTYPANEL_H_INCLUDED
 
 
 //==============================================================================
@@ -48,6 +45,9 @@ public:
     /** Creates an empty property panel. */
     PropertyPanel();
 
+    /** Creates an empty property panel. */
+    PropertyPanel (const String& name);
+
     /** Destructor. */
     ~PropertyPanel();
 
@@ -63,7 +63,7 @@ public:
         These properties are added without them being inside a named section. If you
         want them to be kept together in a collapsible section, use addSection() instead.
     */
-    void addProperties (const Array <PropertyComponent*>& newPropertyComponents);
+    void addProperties (const Array<PropertyComponent*>& newPropertyComponents);
 
     /** Adds a set of properties to the panel.
 
@@ -76,13 +76,13 @@ public:
         To add properies without them being in a section, use addProperties().
     */
     void addSection (const String& sectionTitle,
-                     const Array <PropertyComponent*>& newPropertyComponents,
+                     const Array<PropertyComponent*>& newPropertyComponents,
                      bool shouldSectionInitiallyBeOpen = true);
 
     /** Calls the refresh() method of all PropertyComponents in the panel */
     void refreshAll() const;
 
-    /** Returns true if there no properties have been added. */
+    /** Returns true if the panel contains no properties. */
     bool isEmpty() const;
 
     /** Returns the height that the panel needs in order to display all of its content
@@ -144,9 +144,9 @@ public:
 
     //==============================================================================
     /** @internal */
-    void paint (Graphics&);
+    void paint (Graphics&) override;
     /** @internal */
-    void resized();
+    void resized() override;
 
 private:
     class SectionComponent;
@@ -156,6 +156,7 @@ private:
     PropertyHolderComponent* propertyHolderComponent;
     String messageWhenEmpty;
 
+    void init();
     void updatePropHolderLayout() const;
     void updatePropHolderLayout (int width) const;
 
@@ -163,4 +164,4 @@ private:
 };
 
 
-#endif   // __JUCE_PROPERTYPANEL_JUCEHEADER__
+#endif   // JUCE_PROPERTYPANEL_H_INCLUDED

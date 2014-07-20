@@ -86,6 +86,9 @@ public:
 
     /** Highlights an editor.*/
     void highlight();
+    
+    /** Makes an editor visible if it's not already.*/
+    void makeVisible();
 
     /** Deselects an editor.*/
     void deselect();
@@ -116,6 +119,15 @@ public:
     {
         return name;
     }
+
+    /** Updates name if processor ID changes. */
+    void updateName();
+
+    /** Updates name on title bar. */
+    void setDisplayName(const String& string);
+
+    /** Get name on title bar. */
+    String getDisplayName();
 
     /** Determines how wide the editor will be drawn. */
     int desiredWidth;
@@ -158,9 +170,21 @@ public:
 
     /** Required for SplitterEditor only.*/
     virtual void switchDest() { }
+    
 
     /** Required for SplitterEditor and MergerEditor only.*/
     virtual void switchIO(int) { }
+    
+    /** Required for SplitterEditor and MergerEditor only.*/
+    virtual int getPathForEditor(GenericEditor* editor) { return -1;}
+    
+    /** Used by GraphViewer */
+    bool isSplitter();
+    
+    /** Used by GraphViewer */
+    bool isMerger();
+    
+    
 
     /** Handles button clicks for all editors. Deals with clicks on the editor's
         title bar and channel selector drawer. */
@@ -232,13 +256,41 @@ public:
     void setChannelSelectionState(int chan, bool p, bool r, bool a);
 
     /** Writes editor state to xml */
-    virtual void saveEditorParameters(XmlElement* xml);
+    void saveEditorParameters(XmlElement* xml);
 
     /** Writes editor state to xml */
-    virtual void loadEditorParameters(XmlElement* xml);
+    void loadEditorParameters(XmlElement* xml);
+
+    /** Writes editor state to xml */
+    virtual void saveCustomParameters(XmlElement* xml) { }
+
+    /** Writes editor state to xml */
+    virtual void loadCustomParameters(XmlElement* xml) { }
 
     /** Syncs parametereditor colors with parameter values */
     void updateParameterButtons(int parameterIndex = -1);
+
+    /** Checks to see whether or not an editor is collapsed */
+    bool getCollapsedState();
+
+    /**  Collapses an editor if it's open, and opens it if it's collpased*/
+    void switchCollapsedState();
+
+     /**  Notifies the editor that the collapsed state changed, for non-standard function. */
+    virtual void collapsedStateChanged() {}
+
+    /** Returns the editor of this processor's source */
+    GenericEditor* getSourceEditor();
+    
+    /** Returns the editor of this processor's destination */
+    GenericEditor* getDestEditor();
+
+    /** Returns the editors a splitter or merger is connected to */
+	virtual Array<GenericEditor*> getConnectedEditors(){ Array<GenericEditor*> a; return a;}
+
+    /** Returns an array of record statuses for all channels. Used by GraphNode */
+    Array<bool> getRecordStatusArray();
+    
 protected:
 
     /** A pointer to the button that opens the drawer for the ChannelSelector. */
@@ -246,6 +298,9 @@ protected:
 
     /** Determines the width of the ChannelSelector drawer when opened. */
     int drawerWidth;
+
+    /** Saves the open/closed state of the ChannelSelector drawer. */
+    bool drawerOpen;
 
 
     /** Can be overridden to customize the layout of ParameterEditors. */
@@ -274,16 +329,19 @@ private:
 
     bool isSelected;
     bool isEnabled;
+    bool isCollapsed;
 
     /**Used to determine if an editor is a splitter or Merger to avoid calling on CHannelSelector*/
     bool isSplitOrMerge;
 
     int tNum;
+    int originalWidth;
 
     /**initializing function Used to share constructor functions*/
     void constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors);
 
     String name;
+    String displayName;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GenericEditor);
 
@@ -357,6 +415,7 @@ public:
     }
 
     void setLabel(String label);
+	String getLabel();
 
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);

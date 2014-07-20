@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_MESSAGELISTENER_JUCEHEADER__
-#define __JUCE_MESSAGELISTENER_JUCEHEADER__
-
-#include "juce_MessageManager.h"
+#ifndef JUCE_MESSAGELISTENER_H_INCLUDED
+#define JUCE_MESSAGELISTENER_H_INCLUDED
 
 
 //==============================================================================
@@ -71,4 +69,4 @@ private:
 };
 
 
-#endif   // __JUCE_MESSAGELISTENER_JUCEHEADER__
+#endif   // JUCE_MESSAGELISTENER_H_INCLUDED

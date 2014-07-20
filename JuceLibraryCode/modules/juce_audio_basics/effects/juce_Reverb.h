@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_REVERB_JUCEHEADER__
-#define __JUCE_REVERB_JUCEHEADER__
+#ifndef JUCE_REVERB_H_INCLUDED
+#define JUCE_REVERB_H_INCLUDED
 
 
 //==============================================================================
@@ -181,7 +181,7 @@ public:
             for (int j = 0; j < numAllPasses; ++j)  // run the allpass filters in series
                 output = allPass[0][j].process (output);
 
-            samples[i] = output * wet1 + input * dry;
+            samples[i] = output * wet1 + samples[i] * dry;
         }
     }
 
@@ -320,4 +320,4 @@ private:
 };
 
 
-#endif   // __JUCE_REVERB_JUCEHEADER__
+#endif   // JUCE_REVERB_H_INCLUDED

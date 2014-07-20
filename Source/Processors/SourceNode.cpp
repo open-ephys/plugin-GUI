@@ -331,7 +331,7 @@ void SourceNode::process(AudioSampleBuffer& buffer,
 
     nSamples = inputBuffer->readAllFromBuffer(buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
 
-    //std::cout << *buffer.getSampleData(0) << std::endl;
+    //std::cout << *buffer.getReadPointer(0) << std::endl;
 
     //std::cout << "Source node timestamp: " << timestamp << std::endl;
 

@@ -31,12 +31,10 @@
 #include "EditorViewport.h"
 #include "DataViewport.h"
 #include "MessageCenter.h"
+#include "GraphViewer.h"
 #include "../Processors/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
-#include "../Processors/Visualization/OpenGLCanvas.h"
-
-//#include "../OpenGL.h"
 
 class MainWindow;
 class ProcessorList;
@@ -92,6 +90,13 @@ public:
     {
         return processorGraph;
     }
+    
+    /** Returns a pointer to the GraphViewer. */
+    GraphViewer* getGraphViewer()
+    {
+        return graphViewer;
+    }
+
 
     /** Returns a pointer to the ControlPanel. */
     ControlPanel* getControlPanel()
@@ -155,6 +160,10 @@ public:
     /** Load settings. */
     void loadStateFromXml(XmlElement*);
 
+    StringArray getRecentlyUsedFilenames();
+
+    void setRecentlyUsedFilenames(const StringArray& filenames);
+
 private:
 
     ScopedPointer<DataViewport> dataViewport;
@@ -164,7 +173,10 @@ private:
     ScopedPointer<ControlPanel> controlPanel;
     ScopedPointer<MessageCenter> messageCenter;
     ScopedPointer<InfoLabel> infoLabel;
+    ScopedPointer<GraphViewer> graphViewer;
 
+    Viewport processorListViewport;
+	
     /** Pointer to the GUI's MainWindow, which owns the UIComponent. */
     MainWindow* mainWindow;
 
@@ -196,8 +208,12 @@ private:
         toggleSignalChain	    = 0x2009,
         toggleFileInfo			= 0x2010,
         showHelp				= 0x2011,
-        resizeWindow            = 0x2012
+        resizeWindow            = 0x2012,
+        reloadOnStartup         = 0x2013,
+        saveConfigurationAs     = 0x2014
     };
+
+    File currentConfigFile;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponent);
 

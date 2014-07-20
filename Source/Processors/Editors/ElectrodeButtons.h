@@ -41,7 +41,7 @@ public:
     {
         setClickingTogglesState(true);
         //setRadioGroupId(299);
-        setToggleState(true, false);
+        setToggleState(true, dontSendNotification);
 		setButtonText(String(chan_));
     }
     ~ElectrodeButton() {}

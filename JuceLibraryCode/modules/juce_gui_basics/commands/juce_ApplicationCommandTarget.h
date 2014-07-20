@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_APPLICATIONCOMMANDTARGET_JUCEHEADER__
-#define __JUCE_APPLICATIONCOMMANDTARGET_JUCEHEADER__
-
-#include "juce_ApplicationCommandInfo.h"
-class Component;
+#ifndef JUCE_APPLICATIONCOMMANDTARGET_H_INCLUDED
+#define JUCE_APPLICATIONCOMMANDTARGET_H_INCLUDED
 
 
 //==============================================================================
@@ -137,7 +134,7 @@ public:
         Your target should add all the command IDs that it handles to the array that is
         passed-in.
     */
-    virtual void getAllCommands (Array <CommandID>& commands) = 0;
+    virtual void getAllCommands (Array<CommandID>& commands) = 0;
 
     /** This must provide details about one of the commands that this target can perform.
 
@@ -245,4 +242,4 @@ private:
 };
 
 
-#endif   // __JUCE_APPLICATIONCOMMANDTARGET_JUCEHEADER__
+#endif   // JUCE_APPLICATIONCOMMANDTARGET_H_INCLUDED

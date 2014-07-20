@@ -228,7 +228,7 @@ void SignalGenerator::process(AudioSampleBuffer& buffer,
                 currentPhase.set(j,0);
 
             // dereference pointer to one of the buffer's samples
-            *buffer.getSampleData(j, i) = sample;
+            *buffer.getWritePointer(j, i) = sample;
         }
     }
 

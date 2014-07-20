@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_GLOWEFFECT_JUCEHEADER__
-#define __JUCE_GLOWEFFECT_JUCEHEADER__
-
-#include "juce_ImageEffectFilter.h"
+#ifndef JUCE_GLOWEFFECT_H_INCLUDED
+#define JUCE_GLOWEFFECT_H_INCLUDED
 
 
 //==============================================================================
@@ -73,4 +71,4 @@ private:
 };
 
 
-#endif   // __JUCE_GLOWEFFECT_JUCEHEADER__
+#endif   // JUCE_GLOWEFFECT_H_INCLUDED

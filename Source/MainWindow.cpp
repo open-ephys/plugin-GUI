@@ -35,14 +35,19 @@ MainWindow::MainWindow()
     setResizable(true,      // isResizable
                  false);   // useBottomCornerRisizer -- doesn't work very well
 
-    // Constraining the window's size doesn't seem to work:
-    // setResizeLimits(500, 400, 10000, 10000);
+    shouldReloadOnStartup = false;
 
     // Create ProcessorGraph and AudioComponent, and connect them.
     // Callbacks will be set by the play button in the control panel
 
     processorGraph = new ProcessorGraph();
+    std::cout << std::endl;
+    std::cout << "Created processor graph." << std::endl;
+    std::cout << std::endl;
+
     audioComponent = new AudioComponent();
+    std::cout << "Created audio component." << std::endl;
+
     audioComponent->connectToProcessorGraph(processorGraph);
 
     setContentOwned(new UIComponent(this, processorGraph, audioComponent), true);
@@ -59,8 +64,22 @@ MainWindow::MainWindow()
     loadWindowBounds();
     setUsingNativeTitleBar(true);
     Component::addToDesktop(getDesktopWindowStyleFlags());  // prevents the maximize
-    // button from randomly disappearing
+                                                            // button from randomly disappearing
     setVisible(true);
+
+     // Constraining the window's size doesn't seem to work:
+    setResizeLimits(300, 200, 10000, 10000);
+
+    if (shouldReloadOnStartup)
+    {
+        File executable = File::getSpecialLocation(File::currentExecutableFile);
+        File executableDirectory = executable.getParentDirectory();
+        File file = executableDirectory.getChildFile("lastConfig.xml");
+
+        ui->getEditorViewport()->loadState(file);
+    }
+        
+    
 
 }
 
@@ -79,6 +98,12 @@ MainWindow::~MainWindow()
     UIComponent* ui = (UIComponent*) getContentComponent();
     ui->disableDataViewport();
 
+    File executable = File::getSpecialLocation(File::currentExecutableFile);
+    File executableDirectory = executable.getParentDirectory();
+    File file = executableDirectory.getChildFile("lastConfig.xml");
+
+    ui->getEditorViewport()->saveState(file);
+
     setMenuBar(0);
 
 #if JUCE_MAC
@@ -92,8 +117,9 @@ void MainWindow::closeButtonPressed()
     if (audioComponent->callbacksAreActive())
     {
         audioComponent->endCallbacks();
-        processorGraph->disableProcessors();
     }
+
+	processorGraph->disableProcessors();
 
     JUCEApplication::getInstance()->systemRequestedQuit();
 
@@ -101,16 +127,18 @@ void MainWindow::closeButtonPressed()
 
 void MainWindow::saveWindowBounds()
 {
-
+    std::cout << std::endl;
     std::cout << "Saving window bounds." << std::endl;
-
-    //File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
+    std::cout << std::endl;
 
     File executable = File::getSpecialLocation(File::currentExecutableFile);
     File executableDirectory = executable.getParentDirectory();
     File file = executableDirectory.getChildFile("windowState.xml");
 
     XmlElement* xml = new XmlElement("MAINWINDOW");
+
+    xml->setAttribute("version", JUCEApplication::getInstance()->getApplicationVersion());
+    xml->setAttribute("shouldReloadOnStartup", shouldReloadOnStartup);
 
     XmlElement* bounds = new XmlElement("BOUNDS");
     bounds->setAttribute("x",getScreenX());
@@ -120,6 +148,21 @@ void MainWindow::saveWindowBounds()
     bounds->setAttribute("fullscreen", isFullScreen());
 
     xml->addChildElement(bounds);
+
+    XmlElement* recentDirectories = new XmlElement("RECENTDIRECTORYNAMES");
+
+    UIComponent* ui = (UIComponent*) getContentComponent();
+
+    StringArray dirs = ui->getRecentlyUsedFilenames();
+
+    for (int i = 0; i < dirs.size(); i++)
+    {
+        XmlElement* directory = new XmlElement("DIRECTORY");
+        directory->setAttribute("name", dirs[i]);
+        recentDirectories->addChildElement(directory);
+    }
+
+    xml->addChildElement(recentDirectories);
 
     String error;
 
@@ -132,7 +175,9 @@ void MainWindow::saveWindowBounds()
 void MainWindow::loadWindowBounds()
 {
 
+    std::cout << std::endl;
     std::cout << "Loading window bounds." << std::endl;
+    std::cout << std::endl;
 
     //File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
 
@@ -156,8 +201,13 @@ void MainWindow::loadWindowBounds()
 
         String description;
 
+        shouldReloadOnStartup = xml->getBoolAttribute("shouldReloadOnStartup", false);
+
         forEachXmlChildElement(*xml, e)
         {
+
+            if (e->hasTagName("BOUNDS"))
+            {
 
             int x = e->getIntAttribute("x");
             int y = e->getIntAttribute("y");
@@ -174,6 +224,24 @@ void MainWindow::loadWindowBounds()
 #endif
             getContentComponent()->setBounds(0,0,w-10,h-33);
             //setFullScreen(fs);
+            } else if (e->hasTagName("RECENTDIRECTORYNAMES"))
+            {
+
+                StringArray filenames;
+
+                forEachXmlChildElement(*e, directory)
+                {
+                
+                    if (directory->hasTagName("DIRECTORY"))
+                    {
+                        filenames.add(directory->getStringAttribute("name"));
+                    }
+                }
+
+                UIComponent* ui = (UIComponent*) getContentComponent();
+                ui->setRecentlyUsedFilenames(filenames);
+
+            }
 
         }
 

@@ -140,7 +140,7 @@ void SpikeDisplayEditor::initializeButtons()
     allSubChansBtn = new UtilityButton("All", titleFont);
     allSubChansBtn->setBounds(x,y,w*2+xPad,h);
     allSubChansBtn->addListener(this);
-    allSubChansBtn->setToggleState(true, false);
+    allSubChansBtn->setToggleState(true, dontSendNotification);
     x += (w+xPad) * 2;
 
     for (int i = 0; i < nSubChannels; i++)
@@ -151,7 +151,7 @@ void SpikeDisplayEditor::initializeButtons()
         subChanBtn[i] = new UtilityButton(s, titleFont);
         subChanBtn[i]->setBounds(x,y,w,h);
         subChanBtn[i]->addListener(this);
-        subChanBtn[i]->setToggleState(true, false);
+        subChanBtn[i]->setToggleState(true, dontSendNotification);
         x += w + xPad;
     }
 
@@ -254,14 +254,14 @@ void SpikeDisplayEditor::buttonCallback(Button* button)
     // {
     //     bool b = allSubChansBtn->getToggleState();
     //     for (int i=0; i<nSubChannels; i++)
-    //         subChanBtn[i]->setToggleState(b, true);
+    //         subChanBtn[i]->setToggleState(b, sendNotification);
 
     // }
     // // Check the sub Channel selection buttons one by one
     // else
     // {
     //     // If the user has clicked a sub channel button then the all channels button should be untoggled if toggled
-    //     allSubChansBtn->setToggleState(false, false);
+    //     allSubChansBtn->setToggleState(false, dontSendNotification);
     //     for (int i=0; i<nSubChannels; i++)
     //         if (button == subChanBtn[i])
     //         {
@@ -280,7 +280,7 @@ void SpikeDisplayEditor::buttonCallback(Button* button)
     //             break;
     //         }
     //     }
-    //     allSubChansBtn->setToggleState(allChansToggled, false);
+    //     allSubChansBtn->setToggleState(allChansToggled, dontSendNotification);
 
     // }
 }

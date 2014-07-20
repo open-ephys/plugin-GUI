@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_DRAWABLERECTANGLE_JUCEHEADER__
-#define __JUCE_DRAWABLERECTANGLE_JUCEHEADER__
-
-#include "juce_DrawableShape.h"
-#include "../positioning/juce_RelativeParallelogram.h"
+#ifndef JUCE_DRAWABLERECTANGLE_H_INCLUDED
+#define JUCE_DRAWABLERECTANGLE_H_INCLUDED
 
 
 //==============================================================================
@@ -42,7 +39,7 @@ class JUCE_API  DrawableRectangle  : public DrawableShape
 public:
     //==============================================================================
     DrawableRectangle();
-    DrawableRectangle (const DrawableRectangle& other);
+    DrawableRectangle (const DrawableRectangle&);
 
     /** Destructor. */
     ~DrawableRectangle();
@@ -103,4 +100,4 @@ private:
 };
 
 
-#endif   // __JUCE_DRAWABLERECTANGLE_JUCEHEADER__
+#endif   // JUCE_DRAWABLERECTANGLE_H_INCLUDED

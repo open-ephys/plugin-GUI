@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOPROCESSOREDITOR_JUCEHEADER__
-#define __JUCE_AUDIOPROCESSOREDITOR_JUCEHEADER__
-
-class AudioProcessor;
+#ifndef JUCE_AUDIOPROCESSOREDITOR_H_INCLUDED
+#define JUCE_AUDIOPROCESSOREDITOR_H_INCLUDED
 
 
 //==============================================================================
@@ -63,4 +61,4 @@ private:
 };
 
 
-#endif   // __JUCE_AUDIOPROCESSOREDITOR_JUCEHEADER__
+#endif   // JUCE_AUDIOPROCESSOREDITOR_H_INCLUDED

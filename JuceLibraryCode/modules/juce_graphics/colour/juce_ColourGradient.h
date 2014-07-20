@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_COLOURGRADIENT_JUCEHEADER__
-#define __JUCE_COLOURGRADIENT_JUCEHEADER__
-
-#include "juce_Colour.h"
-#include "../geometry/juce_Point.h"
+#ifndef JUCE_COLOURGRADIENT_H_INCLUDED
+#define JUCE_COLOURGRADIENT_H_INCLUDED
 
 
 //==============================================================================
@@ -154,8 +151,8 @@ public:
     */
     bool isRadial;
 
-    bool operator== (const ColourGradient& other) const noexcept;
-    bool operator!= (const ColourGradient& other) const noexcept;
+    bool operator== (const ColourGradient&) const noexcept;
+    bool operator!= (const ColourGradient&) const noexcept;
 
 
 private:
@@ -168,17 +165,17 @@ private:
             : position (pos), colour (col)
         {}
 
-        bool operator== (const ColourPoint& other) const noexcept;
-        bool operator!= (const ColourPoint& other) const noexcept;
+        bool operator== (const ColourPoint&) const noexcept;
+        bool operator!= (const ColourPoint&) const noexcept;
 
         double position;
         Colour colour;
     };
 
-    Array <ColourPoint> colours;
+    Array<ColourPoint> colours;
 
     JUCE_LEAK_DETECTOR (ColourGradient)
 };
 
 
-#endif   // __JUCE_COLOURGRADIENT_JUCEHEADER__
+#endif   // JUCE_COLOURGRADIENT_H_INCLUDED

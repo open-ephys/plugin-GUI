@@ -64,7 +64,8 @@ class UIComponent;
 class EditorViewport  : public Component,
     public DragAndDropTarget,
     public AccessClass,
-    public Button::Listener
+    public Button::Listener,
+    public Label::Listener
 
 {
 public:
@@ -139,6 +140,9 @@ public:
     /** Called when one of the buttons the EditorViewport listens to has been clicked.*/
     void buttonClicked(Button* button);
 
+    /** Called when a label is changed.*/
+    void labelTextChanged(Label* label);
+
     /** Returns an array of pointers to SignalChainTabButtons (which themselves hold pointers to the sources of each signal chain). */
     Array<SignalChainTabButton*, CriticalSection> requestSignalChain()
     {
@@ -180,6 +184,7 @@ private:
     bool canEdit;
     GenericEditor* lastEditor;
     GenericEditor* lastEditorClicked;
+    GenericEditor* editorToUpdate;
 
     int selectionIndex;
 
@@ -209,6 +214,11 @@ private:
     SignalChainScrollButton* downButton;
 
     void resized();
+
+    int currentId;
+    int maxId;
+
+    Label editorNamingLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EditorViewport);
 
@@ -247,7 +257,7 @@ public:
     /** Returns the editor associated with this SignalChainTabButton.*/
     GenericEditor* getEditor()
     {
-        return firstEditor;
+         return firstEditor;
     }
 
     /** Sets the number of this SignalChainTabButton.*/

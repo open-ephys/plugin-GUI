@@ -23,6 +23,7 @@
 
 #include "SplitterEditor.h"
 #include "../Utilities/Splitter.h"
+#include "../../UI/EditorViewport.h"
 
 // PipelineSelectorButton::PipelineSelectorButton()
 // 	: DrawableButton ("Selector", DrawableButton::ImageFitted)
@@ -55,7 +56,7 @@ SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultPara
     : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-    desiredWidth = 90;
+    desiredWidth = 85;
 
     pipelineSelectorA = new ImageButton("Pipeline A");
 
@@ -72,7 +73,7 @@ SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultPara
 
     pipelineSelectorA->addListener(this);
     pipelineSelectorA->setBounds(-10,25,95,50);
-    pipelineSelectorA->setToggleState(true,false);
+    pipelineSelectorA->setToggleState(true, dontSendNotification);
     addAndMakeVisible(pipelineSelectorA);
 
     pipelineSelectorB = new ImageButton("Pipeline B");
@@ -84,7 +85,7 @@ SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultPara
 
     pipelineSelectorB->addListener(this);
     pipelineSelectorB->setBounds(-10,75,95,50);
-    pipelineSelectorB->setToggleState(false,false);
+    pipelineSelectorB->setToggleState(false, dontSendNotification);
     addAndMakeVisible(pipelineSelectorB);
 
 }
@@ -98,18 +99,22 @@ void SplitterEditor::buttonEvent(Button* button)
 {
     if (button == pipelineSelectorA)
     {
-        pipelineSelectorA->setToggleState(true,false);
-        pipelineSelectorB->setToggleState(false,false);
+        pipelineSelectorA->setToggleState(true, dontSendNotification);
+        pipelineSelectorB->setToggleState(false, dontSendNotification);
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(0);
+
+        getEditorViewport()->makeEditorVisible(this, false);
 
     }
     else if (button == pipelineSelectorB)
     {
-        pipelineSelectorB->setToggleState(true,false);
-        pipelineSelectorA->setToggleState(false,false);
+        pipelineSelectorB->setToggleState(true, dontSendNotification);
+        pipelineSelectorA->setToggleState(false, dontSendNotification);
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(1);
+
+        getEditorViewport()->makeEditorVisible(this, false);
 
     }
 }
@@ -118,20 +123,22 @@ void SplitterEditor::switchDest(int dest)
 {
     if (dest == 0)
     {
-        pipelineSelectorA->setToggleState(true,false);
-        pipelineSelectorB->setToggleState(false,false);
+        pipelineSelectorA->setToggleState(true, dontSendNotification);
+        pipelineSelectorB->setToggleState(false, dontSendNotification);
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(0);
 
     }
     else if (dest == 1)
     {
-        pipelineSelectorB->setToggleState(true,false);
-        pipelineSelectorA->setToggleState(false,false);
+        pipelineSelectorB->setToggleState(true, dontSendNotification);
+        pipelineSelectorA->setToggleState(false, dontSendNotification);
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(1);
 
     }
+
+    getEditorViewport()->makeEditorVisible(this, false);
 }
 
 void SplitterEditor::switchIO(int dest)
@@ -141,6 +148,46 @@ void SplitterEditor::switchIO(int dest)
     select();
 }
 
+int SplitterEditor::getPathForEditor(GenericEditor* editor)
+{
+    Splitter* processor = (Splitter*) getProcessor();
+    
+    for (int pathNum = 0; pathNum < 2; pathNum++)
+    {
+        processor->switchIO();
+        
+        if (processor->getDestNode() != nullptr)
+        {
+            if (processor->getDestNode()->getEditor() == editor)
+                return processor->getPath();
+        }
+    }
+    
+    return -1;
+    
+}
+
+
+Array<GenericEditor*> SplitterEditor::getConnectedEditors()
+{
+
+    Array<GenericEditor*> editors;
+
+    Splitter* processor = (Splitter*) getProcessor();
+    
+    for (int pathNum = 0; pathNum < 2; pathNum++)
+    {
+        processor->switchIO();
+
+        if (processor->getDestNode() != nullptr)
+            editors.add(processor->getDestNode()->getEditor());
+        else
+            editors.add(nullptr);
+    }
+    
+    return editors;
+    
+}
 
 void SplitterEditor::switchDest()
 {
@@ -151,14 +198,14 @@ void SplitterEditor::switchDest()
 
     if (path == 0)
     {
-        pipelineSelectorA->setToggleState(true,false);
-        pipelineSelectorB->setToggleState(false,false);
+        pipelineSelectorA->setToggleState(true, dontSendNotification);
+        pipelineSelectorB->setToggleState(false, dontSendNotification);
 
     }
     else if (path == 1)
     {
-        pipelineSelectorB->setToggleState(true,false);
-        pipelineSelectorA->setToggleState(false,false);
+        pipelineSelectorB->setToggleState(true,dontSendNotification);
+        pipelineSelectorA->setToggleState(false, dontSendNotification);
 
     }
 }

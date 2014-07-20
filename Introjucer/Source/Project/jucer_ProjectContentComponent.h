@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -28,7 +27,7 @@
 
 #include "jucer_Project.h"
 #include "../Application/jucer_OpenDocumentManager.h"
-class ProjectTreeViewBase;
+
 
 //==============================================================================
 /**
@@ -58,6 +57,7 @@ public:
     OpenDocumentManager::Document* getCurrentDocument() const   { return currentDocument; }
     void closeDocument();
     void saveDocument();
+    void saveAs();
 
     void hideEditor();
     bool setEditorComponent (Component* editor, OpenDocumentManager::Document* doc);
@@ -71,6 +71,13 @@ public:
     bool saveProject();
     void closeProject();
     void openInIDE();
+    void openInIDE (const String& exporterName);
+
+    void showFilesTab();
+    void showConfigTab();
+    void showProjectSettings();
+    void showModules();
+    void showModule (const String& moduleID);
 
     void deleteSelectedTreeItems();
 
@@ -81,26 +88,31 @@ public:
     virtual void deleteProjectTabs();
     void rebuildProjectTabs();
 
-    void showBubbleMessage (const Rectangle<int>& pos, const String& text);
+    void showBubbleMessage (const Rectangle<int>&, const String&);
+
+    StringArray getExportersWhichCanLaunch() const;
+
+    static void getSelectedProjectItemsBeingDragged (const DragAndDropTarget::SourceDetails& dragSourceDetails,
+                                                     OwnedArray<Project::Item>& selectedNodes);
 
     //==============================================================================
-    ApplicationCommandTarget* getNextCommandTarget();
-    void getAllCommands (Array <CommandID>& commands);
-    void getCommandInfo (CommandID commandID, ApplicationCommandInfo& result);
-    bool isCommandActive (const CommandID commandID);
-    bool perform (const InvocationInfo& info);
+    ApplicationCommandTarget* getNextCommandTarget() override;
+    void getAllCommands (Array <CommandID>& commands) override;
+    void getCommandInfo (CommandID commandID, ApplicationCommandInfo& result) override;
+    bool perform (const InvocationInfo& info) override;
 
-    void paint (Graphics&);
-    void paintOverChildren (Graphics&);
-    void resized();
-    void childBoundsChanged (Component* child);
-    void lookAndFeelChanged();
+    void paint (Graphics&) override;
+    void paintOverChildren (Graphics&) override;
+    void resized() override;
+    void childBoundsChanged (Component*) override;
+    void lookAndFeelChanged() override;
 
 protected:
     Project* project;
     OpenDocumentManager::Document* currentDocument;
     RecentDocumentList recentDocumentList;
     ScopedPointer<Component> logo;
+    ScopedPointer<Component> translationTool;
 
     TabbedComponent treeViewTabs;
     ScopedPointer<ResizableEdgeComponent> resizerBar;
@@ -109,10 +121,9 @@ protected:
     ComponentBoundsConstrainer treeSizeConstrainer;
     BubbleMessageComponent bubbleMessage;
 
-    void documentAboutToClose (OpenDocumentManager::Document*);
-    void changeListenerCallback (ChangeBroadcaster*);
-    TreeView* getFilesTreeView() const;
-    ProjectTreeViewBase* getFilesTreeRoot() const;
+    bool documentAboutToClose (OpenDocumentManager::Document*) override;
+    void changeListenerCallback (ChangeBroadcaster*) override;
+    void showTranslationTool();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProjectContentComponent)
 };

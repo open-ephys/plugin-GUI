@@ -24,7 +24,7 @@
 #include "Channel.h"
 
 
-Channel::Channel(GenericProcessor* p, int n) : num(n), eventType(0), processor(p), sampleRate(44100.0), bitVolts(1.0f), isEventChannel(false), isMonitored(false), isEnabled(true), isRecording(false)
+Channel::Channel(GenericProcessor* p, int n) : num(n), eventType(0), processor(p), sampleRate(44100.0), bitVolts(1.0f), isADCchannel(false),isEventChannel(false), isMonitored(false), isEnabled(true), isRecording(false)
     
 {
     nodeId = p->getNodeId();
@@ -38,6 +38,7 @@ Channel::Channel(const Channel& ch)
     isEventChannel = ch.isEventChannel;
     isEnabled = ch.isEnabled;
     isMonitored = false;
+	isADCchannel = ch.isADCchannel;
     sampleRate = ch.sampleRate;
     bitVolts = ch.bitVolts;
     name = ch.name;

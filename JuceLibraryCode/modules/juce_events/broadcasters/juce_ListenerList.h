@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_LISTENERLIST_JUCEHEADER__
-#define __JUCE_LISTENERLIST_JUCEHEADER__
+#ifndef JUCE_LISTENERLIST_H_INCLUDED
+#define JUCE_LISTENERLIST_H_INCLUDED
 
 
 //==============================================================================
@@ -65,7 +65,7 @@
     ListenerList::DummyBailOutChecker, which is a dummy checker that always returns false.
 */
 template <class ListenerClass,
-          class ArrayType = Array <ListenerClass*> >
+          class ArrayType = Array<ListenerClass*> >
 class ListenerList
 {
     // Horrible macros required to support VC7..
@@ -356,4 +356,4 @@ private:
 };
 
 
-#endif   // __JUCE_LISTENERLIST_JUCEHEADER__
+#endif   // JUCE_LISTENERLIST_H_INCLUDED

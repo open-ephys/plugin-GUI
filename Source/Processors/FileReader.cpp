@@ -206,7 +206,7 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSa
 
 #endif
 
-        *buffer.getSampleData(chan++, samp) = -sample * getDefaultBitVolts();
+        *buffer.getWritePointer(chan++, samp) = -sample * getDefaultBitVolts();
 
     }
 

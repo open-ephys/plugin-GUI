@@ -29,7 +29,7 @@ BooleanPropertyComponent::BooleanPropertyComponent (const String& name,
       onText (buttonTextWhenTrue),
       offText (buttonTextWhenFalse)
 {
-    addAndMakeVisible (&button);
+    addAndMakeVisible (button);
     button.setClickingTogglesState (false);
     button.addListener (this);
 }
@@ -41,7 +41,7 @@ BooleanPropertyComponent::BooleanPropertyComponent (const Value& valueToControl,
       onText (buttonText),
       offText (buttonText)
 {
-    addAndMakeVisible (&button);
+    addAndMakeVisible (button);
     button.setClickingTogglesState (false);
     button.setButtonText (buttonText);
     button.getToggleStateValue().referTo (valueToControl);
@@ -54,7 +54,7 @@ BooleanPropertyComponent::~BooleanPropertyComponent()
 
 void BooleanPropertyComponent::setState (const bool newState)
 {
-    button.setToggleState (newState, true);
+    button.setToggleState (newState, sendNotification);
 }
 
 bool BooleanPropertyComponent::getState() const
@@ -75,7 +75,7 @@ void BooleanPropertyComponent::paint (Graphics& g)
 
 void BooleanPropertyComponent::refresh()
 {
-    button.setToggleState (getState(), false);
+    button.setToggleState (getState(), dontSendNotification);
     button.setButtonText (button.getToggleState() ? onText : offText);
 }
 

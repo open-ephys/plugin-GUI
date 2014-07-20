@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_SHAPEBUTTON_JUCEHEADER__
-#define __JUCE_SHAPEBUTTON_JUCEHEADER__
-
-#include "juce_Button.h"
+#ifndef JUCE_SHAPEBUTTON_H_INCLUDED
+#define JUCE_SHAPEBUTTON_H_INCLUDED
 
 
 //==============================================================================
@@ -46,9 +44,9 @@ public:
         @param downColour       the colour to use when the button is in the pressed-down state
     */
     ShapeButton (const String& name,
-                 const Colour& normalColour,
-                 const Colour& overColour,
-                 const Colour& downColour);
+                 Colour normalColour,
+                 Colour overColour,
+                 Colour downColour);
 
     /** Destructor. */
     ~ShapeButton();
@@ -73,27 +71,31 @@ public:
         @param overColour       the colour to use when the mouse is over the shape
         @param downColour       the colour to use when the button is in the pressed-down state
     */
-    void setColours (const Colour& normalColour,
-                     const Colour& overColour,
-                     const Colour& downColour);
+    void setColours (Colour normalColour,
+                     Colour overColour,
+                     Colour downColour);
 
     /** Sets up an outline to draw around the shape.
 
         @param outlineColour        the colour to use
         @param outlineStrokeWidth   the thickness of line to draw
     */
-    void setOutline (const Colour& outlineColour,
-                     float outlineStrokeWidth);
+    void setOutline (Colour outlineColour, float outlineStrokeWidth);
 
+    /** This lets you specify a border to be left around the edge of the button when
+        drawing the shape.
+    */
+    void setBorderSize (BorderSize<int> border);
 
     /** @internal */
-    void paintButton (Graphics&, bool isMouseOverButton, bool isButtonDown);
+    void paintButton (Graphics&, bool isMouseOverButton, bool isButtonDown) override;
 
 private:
     //==============================================================================
     Colour normalColour, overColour, downColour, outlineColour;
     DropShadowEffect shadow;
     Path shape;
+    BorderSize<int> border;
     bool maintainShapeProportions;
     float outlineWidth;
 
@@ -101,4 +103,4 @@ private:
 };
 
 
-#endif   // __JUCE_SHAPEBUTTON_JUCEHEADER__
+#endif   // JUCE_SHAPEBUTTON_H_INCLUDED

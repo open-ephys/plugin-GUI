@@ -22,13 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_TOOLBARITEMCOMPONENT_JUCEHEADER__
-#define __JUCE_TOOLBARITEMCOMPONENT_JUCEHEADER__
-
-#include "../buttons/juce_Button.h"
-#include "../drawables/juce_Drawable.h"
-#include "juce_Toolbar.h"
-class ItemDragAndDropOverlayComponent;
+#ifndef JUCE_TOOLBARITEMCOMPONENT_H_INCLUDED
+#define JUCE_TOOLBARITEMCOMPONENT_H_INCLUDED
 
 
 //==============================================================================
@@ -187,9 +182,9 @@ public:
 
     //==============================================================================
     /** @internal */
-    void paintButton (Graphics& g, bool isMouseOver, bool isMouseDown);
+    void paintButton (Graphics&, bool isMouseOver, bool isMouseDown) override;
     /** @internal */
-    void resized();
+    void resized() override;
 
 private:
     friend class Toolbar;
@@ -207,4 +202,4 @@ private:
 };
 
 
-#endif   // __JUCE_TOOLBARITEMCOMPONENT_JUCEHEADER__
+#endif   // JUCE_TOOLBARITEMCOMPONENT_H_INCLUDED

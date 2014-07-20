@@ -28,7 +28,7 @@
 
 SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"),
-      overflowBuffer(2,100), dataBuffer(overflowBuffer),
+      overflowBuffer(2,100), dataBuffer(nullptr),
       overflowBufferSize(100), currentElectrode(-1)
 {
     //// the standard form:
@@ -117,7 +117,7 @@ bool SpikeDetector::addElectrode(int nChans)
 
     if (firstChan + nChans > getNumInputs())
     {
-        return false;
+        firstChan = 0; // make sure we don't overflow available channels
     }
 
     int currentVal = electrodeCounter[nChans];
@@ -147,6 +147,7 @@ bool SpikeDetector::addElectrode(int nChans)
     newElectrode->thresholds = new double[nChans];
     newElectrode->isActive = new bool[nChans];
     newElectrode->channels = new int[nChans];
+    newElectrode->isMonitored = false;
 
     for (int i = 0; i < nChans; i++)
     {
@@ -158,6 +159,8 @@ bool SpikeDetector::addElectrode(int nChans)
     resetElectrode(newElectrode);
 
     electrodes.add(newElectrode);
+
+    currentElectrode = electrodes.size()-1;
 
     return true;
 
@@ -213,7 +216,11 @@ void SpikeDetector::setChannel(int electrodeIndex, int channelNum, int newChanne
 
 int SpikeDetector::getNumChannels(int index)
 {
-    return electrodes[index]->numChannels;
+
+    if (index < electrodes.size())
+        return electrodes[index]->numChannels;
+    else
+        return 0;
 }
 
 int SpikeDetector::getChannel(int index, int i)
@@ -221,6 +228,25 @@ int SpikeDetector::getChannel(int index, int i)
     return *(electrodes[index]->channels+i);
 }
 
+Array<Electrode*> SpikeDetector::getElectrodes()
+{
+    return electrodes;
+}
+
+Electrode* SpikeDetector::setCurrentElectrodeIndex(int i)
+{
+    jassert(i >= 0 & i < electrodes.size());
+    currentElectrode = i;
+    return electrodes[i];
+}
+
+Electrode* SpikeDetector::getActiveElectrode()
+{
+    if (electrodes.size() == 0)
+      return nullptr;
+
+    return electrodes[currentElectrode];
+}
 
 void SpikeDetector::setChannelActive(int electrodeIndex, int subChannel, bool active)
 {
@@ -229,7 +255,7 @@ void SpikeDetector::setChannelActive(int electrodeIndex, int subChannel, bool ac
     currentElectrode = electrodeIndex;
     currentChannelIndex = subChannel;
 
-    std::cout << "Setting parameter 98 to " << active << std::endl;
+    std::cout << "Setting channel active to " << active << std::endl;
 
     if (active)
         setParameter(98, 1);
@@ -248,6 +274,7 @@ void SpikeDetector::setChannelThreshold(int electrodeNum, int channelNum, float 
 {
     currentElectrode = electrodeNum;
     currentChannelIndex = channelNum;
+    std::cout << "Setting electrode " << electrodeNum << " channel threshold " << channelNum << " to " << thresh << std::endl;
     setParameter(99, thresh);
 }
 
@@ -385,7 +412,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
     // cycle through electrodes
     Electrode* electrode;
-    dataBuffer = buffer;
+    dataBuffer = &buffer;
 
     checkForEvents(events); // need to find any timestamp events before extracting spikes
 
@@ -534,7 +561,7 @@ float SpikeDetector::getNextSample(int& chan)
         int ind = overflowBufferSize + sampleIndex;
 
         if (ind < overflowBuffer.getNumSamples())
-            return *overflowBuffer.getSampleData(chan, ind);
+            return *overflowBuffer.getWritePointer(chan, ind);
         else
             return 0;
 
@@ -544,14 +571,14 @@ float SpikeDetector::getNextSample(int& chan)
         //  useOverflowBuffer = false;
         // std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
 
-        if (sampleIndex < dataBuffer.getNumSamples())
-            return *dataBuffer.getSampleData(chan, sampleIndex);
+        if (sampleIndex < dataBuffer->getNumSamples())
+            return *dataBuffer->getWritePointer(chan, sampleIndex);
         else
             return 0;
     }
     //} else {
     //    std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
-    //     return *dataBuffer.getSampleData(chan, sampleIndex);
+    //     return *dataBuffer.getWritePointer(chan, sampleIndex);
     //}
 
 }
@@ -561,21 +588,21 @@ float SpikeDetector::getCurrentSample(int& chan)
 
     // if (useOverflowBuffer)
     // {
-    //     return *overflowBuffer.getSampleData(chan, overflowBufferSize + sampleIndex - 1);
+    //     return *overflowBuffer.getWritePointer(chan, overflowBufferSize + sampleIndex - 1);
     // } else {
-    //     return *dataBuffer.getSampleData(chan, sampleIndex - 1);
+    //     return *dataBuffer.getWritePointer(chan, sampleIndex - 1);
     // }
 
     if (sampleIndex < 1)
     {
         //std::cout << "  sample index " << sampleIndex << "from overflowBuffer" << std::endl;
-        return *overflowBuffer.getSampleData(chan, overflowBufferSize + sampleIndex - 1);
+        return *overflowBuffer.getWritePointer(chan, overflowBufferSize + sampleIndex - 1);
     }
     else
     {
         //  useOverflowBuffer = false;
         // std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
-        return *dataBuffer.getSampleData(chan, sampleIndex - 1);
+        return *dataBuffer->getWritePointer(chan, sampleIndex - 1);
     }
     //} else {
 
@@ -624,9 +651,12 @@ void SpikeDetector::saveCustomParametersToXml(XmlElement* parentElement)
 void SpikeDetector::loadCustomParametersFromXml()
 {
 
-    if (parametersAsXml != nullptr)
+   
+    if (parametersAsXml != nullptr) // prevent double-loading
     {
         // use parametersAsXml to restore state
+
+        SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
 
         int electrodeIndex = -1;
 
@@ -637,12 +667,14 @@ void SpikeDetector::loadCustomParametersFromXml()
 
                 electrodeIndex++;
 
+                std::cout << "ELECTRODE>>>" << std::endl;
+
                 int channelsPerElectrode = xmlNode->getIntAttribute("numChannels");
 
-                SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
                 sde->addElectrode(channelsPerElectrode);
 
                 setElectrodeName(electrodeIndex+1, xmlNode->getStringAttribute("name"));
+                sde->refreshElectrodeList();
 
                 int channelIndex = -1;
 
@@ -663,9 +695,8 @@ void SpikeDetector::loadCustomParametersFromXml()
 
             }
         }
-    }
 
-    SpikeDetectorEditor* ed = (SpikeDetectorEditor*) getEditor();
-    ed->checkSettings();
+        sde->checkSettings();
+    }
 
 }

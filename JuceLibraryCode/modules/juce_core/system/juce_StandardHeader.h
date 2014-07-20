@@ -26,17 +26,17 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_STANDARDHEADER_JUCEHEADER__
-#define __JUCE_STANDARDHEADER_JUCEHEADER__
+#ifndef JUCE_STANDARDHEADER_H_INCLUDED
+#define JUCE_STANDARDHEADER_H_INCLUDED
 
 //==============================================================================
 /** Current JUCE version number.
 
     See also SystemStats::getJUCEVersion() for a string version.
 */
-#define JUCE_MAJOR_VERSION      2
-#define JUCE_MINOR_VERSION      1
-#define JUCE_BUILDNUMBER        1
+#define JUCE_MAJOR_VERSION      3
+#define JUCE_MINOR_VERSION      0
+#define JUCE_BUILDNUMBER        6
 
 /** Current Juce version number.
 
@@ -50,7 +50,6 @@
 
 
 //==============================================================================
-#include "juce_TargetPlatform.h"  // (sets up the various JUCE_WINDOWS, JUCE_MAC, etc flags)
 #include "juce_PlatformDefs.h"
 
 //==============================================================================
@@ -72,6 +71,7 @@
 #include <cstdio>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 #if JUCE_USE_INTRINSICS
  #include <intrin.h>
@@ -154,18 +154,4 @@
  #define JUCE_NAMESPACE juce  // This old macro is deprecated: you should just use the juce namespace directly.
 #endif
 
-//==============================================================================
-// Now include some common headers...
-namespace juce
-{
-    extern JUCE_API bool JUCE_CALLTYPE juce_isRunningUnderDebugger();
-    extern JUCE_API void JUCE_CALLTYPE logAssertion (const char* file, int line) noexcept;
-
-    #include "../memory/juce_Memory.h"
-    #include "../maths/juce_MathsFunctions.h"
-    #include "../memory/juce_ByteOrder.h"
-    #include "../logging/juce_Logger.h"
-    #include "../memory/juce_LeakedObjectDetector.h"
-}
-
-#endif   // __JUCE_STANDARDHEADER_JUCEHEADER__
+#endif   // JUCE_STANDARDHEADER_H_INCLUDED

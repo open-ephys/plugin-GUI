@@ -22,14 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_FILEBROWSERCOMPONENT_JUCEHEADER__
-#define __JUCE_FILEBROWSERCOMPONENT_JUCEHEADER__
-
-#include "juce_DirectoryContentsDisplayComponent.h"
-#include "juce_FilePreviewComponent.h"
-#include "../widgets/juce_TextEditor.h"
-#include "../widgets/juce_ComboBox.h"
-#include "../buttons/juce_DrawableButton.h"
+#ifndef JUCE_FILEBROWSERCOMPONENT_H_INCLUDED
+#define JUCE_FILEBROWSERCOMPONENT_H_INCLUDED
 
 
 //==============================================================================
@@ -176,36 +170,78 @@ public:
     */
     void removeListener (FileBrowserListener* listener);
 
+    /** Returns a platform-specific list of names and paths for some suggested places the user
+        might want to use as root folders.
+        The list returned contains empty strings to indicate section breaks.
+        @see getRoots()
+    */
+    static void getDefaultRoots (StringArray& rootNames, StringArray& rootPaths);
+
+    //==============================================================================
+    /** This abstract base class is implemented by LookAndFeel classes to provide
+        various file-browser layout and drawing methods.
+    */
+    struct JUCE_API  LookAndFeelMethods
+    {
+        virtual ~LookAndFeelMethods() {}
+
+        // These return a pointer to an internally cached drawable - make sure you don't keep
+        // a copy of this pointer anywhere, as it may become invalid in the future.
+        virtual const Drawable* getDefaultFolderImage() = 0;
+        virtual const Drawable* getDefaultDocumentFileImage() = 0;
+
+        virtual AttributedString createFileChooserHeaderText (const String& title,
+                                                              const String& instructions) = 0;
+
+        virtual void drawFileBrowserRow (Graphics&, int width, int height,
+                                         const String& filename,
+                                         Image* optionalIcon,
+                                         const String& fileSizeDescription,
+                                         const String& fileTimeDescription,
+                                         bool isDirectory,
+                                         bool isItemSelected,
+                                         int itemIndex,
+                                         DirectoryContentsDisplayComponent&) = 0;
+
+        virtual Button* createFileBrowserGoUpButton() = 0;
+
+        virtual void layoutFileBrowserComponent (FileBrowserComponent& browserComp,
+                                                 DirectoryContentsDisplayComponent* fileListComponent,
+                                                 FilePreviewComponent* previewComp,
+                                                 ComboBox* currentPathBox,
+                                                 TextEditor* filenameBox,
+                                                 Button* goUpButton) = 0;
+    };
 
     //==============================================================================
     /** @internal */
-    void resized();
+    void resized() override;
     /** @internal */
-    void buttonClicked (Button*);
+    void buttonClicked (Button*) override;
     /** @internal */
-    void comboBoxChanged (ComboBox*);
+    void comboBoxChanged (ComboBox*) override;
     /** @internal */
-    void textEditorTextChanged (TextEditor&);
+    void textEditorTextChanged (TextEditor&) override;
     /** @internal */
-    void textEditorReturnKeyPressed (TextEditor&);
+    void textEditorReturnKeyPressed (TextEditor&) override;
     /** @internal */
-    void textEditorEscapeKeyPressed (TextEditor&);
+    void textEditorEscapeKeyPressed (TextEditor&) override;
     /** @internal */
-    void textEditorFocusLost (TextEditor&);
+    void textEditorFocusLost (TextEditor&) override;
     /** @internal */
-    bool keyPressed (const KeyPress&);
+    bool keyPressed (const KeyPress&) override;
     /** @internal */
-    void selectionChanged();
+    void selectionChanged() override;
     /** @internal */
-    void fileClicked (const File&, const MouseEvent&);
+    void fileClicked (const File&, const MouseEvent&) override;
     /** @internal */
-    void fileDoubleClicked (const File&);
+    void fileDoubleClicked (const File&) override;
     /** @internal */
-    void browserRootChanged (const File&);
+    void browserRootChanged (const File&) override;
     /** @internal */
-    bool isFileSuitable (const File&) const;
+    bool isFileSuitable (const File&) const override;
     /** @internal */
-    bool isDirectorySuitable (const File&) const;
+    bool isDirectorySuitable (const File&) const override;
 
     /** @internal */
     FilePreviewComponent* getPreviewComponent() const noexcept;
@@ -215,7 +251,9 @@ public:
 
 protected:
     /** Returns a list of names and paths for the default places the user might want to look.
-        Use an empty string to indicate a section break.
+
+        By default this just calls getDefaultRoots(), but you may want to override it to
+        return a custom list.
     */
     virtual void getRoots (StringArray& rootNames, StringArray& rootPaths);
 
@@ -249,4 +287,4 @@ private:
 
 
 
-#endif   // __JUCE_FILEBROWSERCOMPONENT_JUCEHEADER__
+#endif   // JUCE_FILEBROWSERCOMPONENT_H_INCLUDED

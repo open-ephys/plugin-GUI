@@ -22,6 +22,8 @@
   ==============================================================================
 */
 
+extern bool isIOSAppActive;
+
 } // (juce namespace)
 
 @interface JuceAppStartupDelegate : NSObject <UIApplicationDelegate>
@@ -32,6 +34,8 @@
 - (void) applicationWillTerminate: (UIApplication*) application;
 - (void) applicationDidEnterBackground: (UIApplication*) application;
 - (void) applicationWillEnterForeground: (UIApplication*) application;
+- (void) applicationDidBecomeActive: (UIApplication*) application;
+- (void) applicationWillResignActive: (UIApplication*) application;
 
 @end
 
@@ -39,30 +43,45 @@
 
 - (void) applicationDidFinishLaunching: (UIApplication*) application
 {
+    (void) application;
     initialiseJuce_GUI();
 
-    JUCEApplication* app = dynamic_cast <JUCEApplication*> (JUCEApplicationBase::createInstance());
+    JUCEApplicationBase* app = JUCEApplicationBase::createInstance();
+
     if (! app->initialiseApp())
         exit (0);
 }
 
 - (void) applicationWillTerminate: (UIApplication*) application
 {
+    (void) application;
     JUCEApplicationBase::appWillTerminateByForce();
 }
 
 - (void) applicationDidEnterBackground: (UIApplication*) application
 {
-    JUCEApplicationBase* const app = JUCEApplicationBase::getInstance();
-    if (app != nullptr)
+    (void) application;
+    if (JUCEApplicationBase* const app = JUCEApplicationBase::getInstance())
         app->suspended();
 }
 
 - (void) applicationWillEnterForeground: (UIApplication*) application
 {
-    JUCEApplicationBase* const app = JUCEApplicationBase::getInstance();
-    if (app != nullptr)
+    (void) application;
+    if (JUCEApplicationBase* const app = JUCEApplicationBase::getInstance())
         app->resumed();
+}
+
+- (void) applicationDidBecomeActive: (UIApplication*) application
+{
+    (void) application;
+    isIOSAppActive = true;
+}
+
+- (void) applicationWillResignActive: (UIApplication*) application
+{
+    (void) application;
+    isIOSAppActive = false;
 }
 
 @end
@@ -70,6 +89,7 @@
 namespace juce
 {
 
+int juce_iOSMain (int argc, const char* argv[]);
 int juce_iOSMain (int argc, const char* argv[])
 {
     return UIApplicationMain (argc, const_cast<char**> (argv), nil, @"JuceAppStartupDelegate");
@@ -87,7 +107,7 @@ class iOSMessageBox;
 
 } // (juce namespace)
 
-@interface JuceAlertBoxDelegate  : NSObject
+@interface JuceAlertBoxDelegate  : NSObject <UIAlertViewDelegate>
 {
 @public
     iOSMessageBox* owner;
@@ -106,7 +126,7 @@ public:
     iOSMessageBox (const String& title, const String& message,
                    NSString* button1, NSString* button2, NSString* button3,
                    ModalComponentManager::Callback* cb, const bool async)
-        : result (0), delegate (nil), alert (nil),
+        : result (0), resultReceived (false), delegate (nil), alert (nil),
           callback (cb), isYesNo (button3 != nil), isAsync (async)
     {
         delegate = [[JuceAlertBoxDelegate alloc] init];
@@ -133,7 +153,7 @@ public:
 
         JUCE_AUTORELEASEPOOL
         {
-            while (! alert.hidden && alert.superview != nil)
+            while (! (alert.hidden || resultReceived))
                 [[NSRunLoop mainRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 0.01]];
         }
 
@@ -143,6 +163,7 @@ public:
     void buttonClicked (const int buttonIndex) noexcept
     {
         result = buttonIndex;
+        resultReceived = true;
 
         if (callback != nullptr)
             callback->modalStateFinished (result);
@@ -153,9 +174,10 @@ public:
 
 private:
     int result;
+    bool resultReceived;
     JuceAlertBoxDelegate* delegate;
     UIAlertView* alert;
-    ModalComponentManager::Callback* callback;
+    ScopedPointer<ModalComponentManager::Callback> callback;
     const bool isYesNo, isAsync;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (iOSMessageBox)
@@ -167,7 +189,7 @@ private:
 
 - (void) alertView: (UIAlertView*) alertView clickedButtonAtIndex: (NSInteger) buttonIndex
 {
-    owner->buttonClicked (buttonIndex);
+    owner->buttonClicked ((int) buttonIndex);
     alertView.hidden = true;
 }
 
@@ -177,9 +199,10 @@ namespace juce
 {
 
 //==============================================================================
-void JUCE_CALLTYPE NativeMessageBox::showMessageBox (AlertWindow::AlertIconType iconType,
+#if JUCE_MODAL_LOOPS_PERMITTED
+void JUCE_CALLTYPE NativeMessageBox::showMessageBox (AlertWindow::AlertIconType /*iconType*/,
                                                      const String& title, const String& message,
-                                                     Component* associatedComponent)
+                                                     Component* /*associatedComponent*/)
 {
     JUCE_AUTORELEASEPOOL
     {
@@ -187,18 +210,19 @@ void JUCE_CALLTYPE NativeMessageBox::showMessageBox (AlertWindow::AlertIconType 
         (void) mb.getResult();
     }
 }
+#endif
 
-void JUCE_CALLTYPE NativeMessageBox::showMessageBoxAsync (AlertWindow::AlertIconType iconType,
+void JUCE_CALLTYPE NativeMessageBox::showMessageBoxAsync (AlertWindow::AlertIconType /*iconType*/,
                                                           const String& title, const String& message,
-                                                          Component* associatedComponent,
+                                                          Component* /*associatedComponent*/,
                                                           ModalComponentManager::Callback* callback)
 {
     new iOSMessageBox (title, message, @"OK", nil, nil, callback, true);
 }
 
-bool JUCE_CALLTYPE NativeMessageBox::showOkCancelBox (AlertWindow::AlertIconType iconType,
+bool JUCE_CALLTYPE NativeMessageBox::showOkCancelBox (AlertWindow::AlertIconType /*iconType*/,
                                                       const String& title, const String& message,
-                                                      Component* associatedComponent,
+                                                      Component* /*associatedComponent*/,
                                                       ModalComponentManager::Callback* callback)
 {
     ScopedPointer<iOSMessageBox> mb (new iOSMessageBox (title, message, @"Cancel", @"OK",
@@ -211,9 +235,9 @@ bool JUCE_CALLTYPE NativeMessageBox::showOkCancelBox (AlertWindow::AlertIconType
     return false;
 }
 
-int JUCE_CALLTYPE NativeMessageBox::showYesNoCancelBox (AlertWindow::AlertIconType iconType,
+int JUCE_CALLTYPE NativeMessageBox::showYesNoCancelBox (AlertWindow::AlertIconType /*iconType*/,
                                                         const String& title, const String& message,
-                                                        Component* associatedComponent,
+                                                        Component* /*associatedComponent*/,
                                                         ModalComponentManager::Callback* callback)
 {
     ScopedPointer<iOSMessageBox> mb (new iOSMessageBox (title, message, @"Cancel", @"Yes", @"No", callback, callback != nullptr));
@@ -226,13 +250,13 @@ int JUCE_CALLTYPE NativeMessageBox::showYesNoCancelBox (AlertWindow::AlertIconTy
 }
 
 //==============================================================================
-bool DragAndDropContainer::performExternalDragDropOfFiles (const StringArray& files, const bool canMoveFiles)
+bool DragAndDropContainer::performExternalDragDropOfFiles (const StringArray&, bool)
 {
     jassertfalse;    // no such thing on iOS!
     return false;
 }
 
-bool DragAndDropContainer::performExternalDragDropOfText (const String& text)
+bool DragAndDropContainer::performExternalDragDropOfText (const String&)
 {
     jassertfalse;    // no such thing on iOS!
     return false;
@@ -256,7 +280,7 @@ bool juce_areThereAnyAlwaysOnTopWindows()
 }
 
 //==============================================================================
-Image juce_createIconForFile (const File& file)
+Image juce_createIconForFile (const File&)
 {
     return Image::null;
 }
@@ -277,9 +301,9 @@ String SystemClipboard::getTextFromClipboard()
 }
 
 //==============================================================================
-bool Desktop::addMouseInputSource()
+bool MouseInputSource::SourceList::addSource()
 {
-    mouseSources.add (new MouseInputSource (mouseSources.size(), false));
+    addSource (sources.size(), false);
     return true;
 }
 
@@ -288,13 +312,18 @@ bool Desktop::canUseSemiTransparentWindows() noexcept
     return true;
 }
 
-Point<int> MouseInputSource::getCurrentMousePosition()
+Point<int> MouseInputSource::getCurrentRawMousePosition()
 {
     return juce_lastMousePos;
 }
 
-void Desktop::setMousePosition (Point<int>)
+void MouseInputSource::setRawMousePosition (Point<int>)
 {
+}
+
+double Desktop::getDefaultMasterScale()
+{
+    return 1.0;
 }
 
 Desktop::DisplayOrientation Desktop::getCurrentOrientation() const
@@ -302,21 +331,22 @@ Desktop::DisplayOrientation Desktop::getCurrentOrientation() const
     return Orientations::convertToJuce ([[UIApplication sharedApplication] statusBarOrientation]);
 }
 
-void Desktop::Displays::findDisplays()
+void Desktop::Displays::findDisplays (float masterScale)
 {
     JUCE_AUTORELEASEPOOL
     {
         UIScreen* s = [UIScreen mainScreen];
 
         Display d;
-        d.userArea  = UIViewComponentPeer::realScreenPosToRotated (convertToRectInt ([s applicationFrame]));
-        d.totalArea = UIViewComponentPeer::realScreenPosToRotated (convertToRectInt ([s bounds]));
+        d.userArea  = UIViewComponentPeer::realScreenPosToRotated (convertToRectInt ([s applicationFrame])) / masterScale;
+        d.totalArea = UIViewComponentPeer::realScreenPosToRotated (convertToRectInt ([s bounds])) / masterScale;
         d.isMain = true;
+        d.scale = masterScale;
 
         if ([s respondsToSelector: @selector (scale)])
-            d.scale = s.scale;
-        else
-            d.scale = 1.0;
+            d.scale *= s.scale;
+
+        d.dpi = 160 * d.scale;
 
         displays.add (d);
     }

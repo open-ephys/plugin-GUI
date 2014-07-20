@@ -434,6 +434,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
 
     dateText = new Label("Date","YYYY-MM-DD_HH-MM-SS");
     dateText->setColour(Label::backgroundColourId, Colours::lightgrey);
+    dateText->setColour(Label::textColourId, Colours::grey);
     addChildComponent(dateText);
 
     appendText = new Label("Append","");
@@ -464,7 +465,7 @@ void ControlPanel::setRecordState(bool t)
 
     //MessageManager* mm = MessageManager::getInstance();
 
-    recordButton->setToggleState(t, true);
+    recordButton->setToggleState(t, sendNotification);
 
 }
 
@@ -478,9 +479,12 @@ void ControlPanel::updateChildComponents()
 
 void ControlPanel::createPaths()
 {
-    int w = 150;
-    int h1 = 32;
-    int h2 = 64;
+    int w = getWidth() - 325;
+    if (w > 150)
+        w = 150;
+
+    int h1 = getHeight()-32;
+    int h2 = getHeight();
     int indent = 5;
 
     p1.clear();
@@ -507,6 +511,7 @@ void ControlPanel::paint(Graphics& g)
 
     if (open)
     {
+        createPaths();
         g.setColour(Colours::black);
         g.fillPath(p1);
         g.fillPath(p2);
@@ -520,43 +525,97 @@ void ControlPanel::resized()
     int h = 32; //getHeight();
 
     if (playButton != 0)
-        playButton->setBounds(w-h*10,5,h-5,h-10);
+    {
+        if (w > 330)
+            playButton->setBounds(w-h*10,5,h-5,h-10);\
+        else
+            playButton->setBounds(5,5,h-5,h-10);\
+    }
 
     if (recordButton != 0)
-        recordButton->setBounds(w-h*9,5,h-5,h-10);
+    {
+        if (w > 330)
+            recordButton->setBounds(w-h*9,5,h-5,h-10);
+        else
+            recordButton->setBounds(5+h,5,h-5,h-10);
+    }
 
     if (masterClock != 0)
-        masterClock->setBounds(w-h*7-15,0,h*7-15,h);
+    {
+        if (w > 330)
+            masterClock->setBounds(w-h*7-15,0,h*7-15,h);
+        else
+            masterClock->setBounds(5+h*2+15,0,h*7-15,h);
+    }
+
+    int offset1 = 750 - getWidth();
+    if (offset1 > h)
+        offset1 = h;
+
+    int offset2 = 570 - getWidth();
+    if (offset2 > h)
+        offset2 = h;
 
     if (cpuMeter != 0)
-        cpuMeter->setBounds(8,h/4,h*3,h/2);
+    {
+
+        if (getWidth() < 750 && getWidth() >= 570)
+            cpuMeter->setBounds(8,h/4+offset1,h*3,h/2);
+        else if (getWidth() < 570)
+            cpuMeter->setBounds(8,h/4+offset1+offset2,h*3,h/2);
+        else
+            cpuMeter->setBounds(8,h/4,h*3,h/2);
+    }
 
     if (diskMeter != 0)
-        diskMeter->setBounds(16+h*3,h/4,h*3,h/2);
+    {
+        if (getWidth() < 750 && getWidth() >= 570)
+            diskMeter->setBounds(16+h*3,h/4+offset1,h*3,h/2);
+        else if (getWidth() < 570)
+            diskMeter->setBounds(16+h*3,h/4+offset1+offset2,h*3,h/2);
+        else
+            diskMeter->setBounds(16+h*3,h/4,h*3,h/2);
+
+    }
 
     if (audioEditor != 0)
-        audioEditor->setBounds(h*7,5,h*8,h-10);
+    {
+        if (getWidth() < 750 && getWidth() >= 570)
+            audioEditor->setBounds(w-526,0,h*8,h);
+       else if (getWidth() < 570)
+            audioEditor->setBounds(8,0+offset2,h*8,h);
+        else
+            audioEditor->setBounds(h*7,0,h*8,h);
+    }
+        
 
     if (cpb != 0)
-        cpb->setBounds(w-28,5,h-10,h-10);
+    {
+        if (open)
+            cpb->setBounds(w-28,getHeight()-5-h*2+10,h-10,h-10);
+        else
+            cpb->setBounds(w-28,getHeight()-5-h+10,h-10,h-10);
+    }
 
     createPaths();
 
     if (open)
     {
-        filenameComponent->setBounds(165, h+5, w-500, h-10);
+        int topBound = getHeight()-h+10-5;
+
+        filenameComponent->setBounds(165, topBound, w-500, h-10);
         filenameComponent->setVisible(true);
 
-        newDirectoryButton->setBounds(w-h+4, h+5, h-10, h-10);
+        newDirectoryButton->setBounds(w-h+4, topBound, h-10, h-10);
         newDirectoryButton->setVisible(true);
 
-        prependText->setBounds(165+w-490, h+5, 50, h-10);
+        prependText->setBounds(165+w-490, topBound, 50, h-10);
         prependText->setVisible(true);
 
-        dateText->setBounds(165+w-435, h+5, 175, h-10);
+        dateText->setBounds(165+w-435, topBound, 175, h-10);
         dateText->setVisible(true);
 
-        appendText->setBounds(165+w-255, h+5, 50, h-10);
+        appendText->setBounds(165+w-255, topBound, 50, h-10);
         appendText->setVisible(true);
 
     }
@@ -570,6 +629,8 @@ void ControlPanel::resized()
     }
 
     repaint();
+
+
 }
 
 void ControlPanel::openState(bool os)
@@ -583,23 +644,40 @@ void ControlPanel::openState(bool os)
 
 void ControlPanel::labelTextChanged(Label* label)
 {
+    graph->getRecordNode()->newDirectoryNeeded = true;
+    newDirectoryButton->setEnabledState(false);
+    masterClock->resetRecordTime();
 
+    dateText->setColour(Label::textColourId, Colours::grey);
 }
 
 void ControlPanel::startRecording()
 {
-    playButton->setToggleState(true,false);
+
     masterClock->startRecording(); // turn on recording
     backgroundColour = Colour(255,0,0);
+    prependText->setEditable(false);
+    appendText->setEditable(false);
+    dateText->setColour(Label::textColourId, Colours::black);
+
+    graph->setRecordState(true); 
+
     repaint();
 }
 
 void ControlPanel::stopRecording()
 {
     graph->setRecordState(false); // turn off recording in processor graph
+
     masterClock->stopRecording();
     newDirectoryButton->setEnabledState(true);
     backgroundColour = Colour(58,58,58);
+
+    prependText->setEditable(true);
+    appendText->setEditable(true);
+
+    recordButton->setToggleState(false, dontSendNotification);
+
     repaint();
 }
 
@@ -607,39 +685,7 @@ void ControlPanel::buttonClicked(Button* button)
 
 {
     
-    if (button == recordButton)
-    {
-        std::cout << "Record button pressed." << std::endl;
-        if (recordButton->getToggleState())
-        {
-
-            startRecording();
-
-        }
-        else
-        {
-            stopRecording();
-        }
-
-        dateText->setColour(Label::textColourId, Colours::black);
-
-    }
-    else if (button == playButton)
-    {
-        std::cout << "Play button pressed." << std::endl;
-        if (!playButton->getToggleState())
-        {
-            if (recordButton->getToggleState())
-            {
-                recordButton->setToggleState(false,false);
-                stopRecording();
-                //newDirectoryButton->setEnabledState(true);
-            }
-
-        }
-
-    }
-    else if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
+    if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
     {
         graph->getRecordNode()->newDirectoryNeeded = true;
         newDirectoryButton->setEnabledState(false);
@@ -651,67 +697,68 @@ void ControlPanel::buttonClicked(Button* button)
 
     }
 
-    if (playButton->getToggleState())
+    if (button == playButton)
     {
-
-        if (!audio->callbacksAreActive())
+        if (playButton->getToggleState())
         {
 
-            if (graph->enableProcessors())
+            if (graph->enableProcessors()) // start the processor graph
             {
-                
-                //std::cout << "Enabling processors from " << getThreadName() << " thread." << std::endl;
-                
-                if (recordButton->getToggleState())
-                    graph->setRecordState(true);
-
-                stopTimer();
-                
                 audio->beginCallbacks();
                 masterClock->start();
+                audioEditor->disable();
                 
+                stopTimer();
                 startTimer(250); // refresh every 250 ms
 
             }
-
-        }
-        else
-        {
+        } else {
 
             if (recordButton->getToggleState())
             {
-                graph->setRecordState(true); //getRecordNode()->setParameter(1,10.0f);
+                stopRecording();
             }
 
-        }
-
-    }
-    else
-    {
-
-        if (audio->callbacksAreActive())
-        {
-            
-            std::cout << "Control panel requesting to end callbacks." << std::endl;
-            
             audio->endCallbacks();
-            
-            std::cout << "Control panel requesting to disable processors." << std::endl;
             graph->disableProcessors();
-            
             refreshMeters();
             masterClock->stop();
             stopTimer();
             startTimer(60000); // back to refresh every minute
-
+            audioEditor->enable();
+            
         }
 
+        return;
     }
 
-    if (playButton->getToggleState())
-        audioEditor->disable();
-    else
-        audioEditor->enable();
+    if (button == recordButton)
+    {
+        if (recordButton->getToggleState())
+        {
+            if (playButton->getToggleState())
+            {
+                startRecording();
+            } else {
+                if (graph->enableProcessors()) // start the processor graph
+                {
+                    audio->beginCallbacks();
+                    masterClock->start();
+                    audioEditor->disable();
+                    
+                    stopTimer();
+                    startTimer(250); // refresh every 250 ms
+
+                    startRecording();
+
+                    playButton->setToggleState(true, dontSendNotification);
+
+                }
+            }
+        } else {
+            stopRecording();
+        }
+    }     
 
 }
 
@@ -733,8 +780,8 @@ void ControlPanel::disableCallbacks()
 
     }
 
-    playButton->setToggleState(false,false);
-    recordButton->setToggleState(false,false);
+    playButton->setToggleState(false, dontSendNotification);
+    recordButton->setToggleState(false, dontSendNotification);
     masterClock->stopRecording();
     masterClock->stop();
 
@@ -759,8 +806,7 @@ void ControlPanel::disableCallbacks()
 void ControlPanel::timerCallback()
 {
     //std::cout << "Message Received." << std::endl;
-
-    refreshMeters();
+   refreshMeters();
 
 }
 
@@ -848,6 +894,8 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
     controlPanelState->setAttribute("prependText",prependText->getText());
     controlPanelState->setAttribute("appendText",appendText->getText());
 
+    audioEditor->saveStateToXml(xml);
+
 }
 
 void ControlPanel::loadStateFromXml(XmlElement* xml)
@@ -866,7 +914,19 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 
         }
     }
-    
-    getProcessorGraph()->getAudioNode()->updateBufferSize();
 
+    audioEditor->loadStateFromXml(xml);
+
+}
+
+
+StringArray ControlPanel::getRecentlyUsedFilenames()
+{
+    return filenameComponent->getRecentlyUsedFilenames();
+}
+
+
+void ControlPanel::setRecentlyUsedFilenames(const StringArray& filenames)
+{
+    filenameComponent->setRecentlyUsedFilenames(filenames);
 }

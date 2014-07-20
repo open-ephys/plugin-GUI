@@ -30,7 +30,7 @@ LfpDisplayNode::LfpDisplayNode()
       displayBufferIndex(0), displayGain(1), bufferLength(5.0f),
       abstractFifo(100), ttlState(0)
 {
-    std::cout << " LFPDisplayNodeConstructor" << std::endl;
+    //std::cout << " LFPDisplayNodeConstructor" << std::endl;
     displayBuffer = new AudioSampleBuffer(8, 100);
     eventBuffer = new MidiBuffer();
 
@@ -58,7 +58,7 @@ AudioProcessorEditor* LfpDisplayNode::createEditor()
 
 void LfpDisplayNode::updateSettings()
 {
-    std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
+   // std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
 }
 
 bool LfpDisplayNode::resizeBuffer()

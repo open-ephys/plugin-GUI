@@ -22,11 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_IMAGECOMPONENT_JUCEHEADER__
-#define __JUCE_IMAGECOMPONENT_JUCEHEADER__
-
-#include "../components/juce_Component.h"
-#include "../mouse/juce_TooltipClient.h"
+#ifndef JUCE_IMAGECOMPONENT_H_INCLUDED
+#define JUCE_IMAGECOMPONENT_H_INCLUDED
 
 
 //==============================================================================
@@ -52,7 +49,7 @@ public:
 
     /** Sets the image that should be displayed, and its placement within the component. */
     void setImage (const Image& newImage,
-                   const RectanglePlacement& placementToUse);
+                   RectanglePlacement placementToUse);
 
     /** Returns the current image. */
     const Image& getImage() const;
@@ -61,14 +58,14 @@ public:
         By default the positioning is centred, and will fit the image inside the component's bounds
         whilst keeping its aspect ratio correct, but you can change it to whatever layout you need.
     */
-    void setImagePlacement (const RectanglePlacement& newPlacement);
+    void setImagePlacement (RectanglePlacement newPlacement);
 
     /** Returns the current image placement. */
-    const RectanglePlacement getImagePlacement() const;
+    RectanglePlacement getImagePlacement() const;
 
     //==============================================================================
     /** @internal */
-    void paint (Graphics& g);
+    void paint (Graphics&) override;
 
 private:
     Image image;
@@ -78,4 +75,4 @@ private:
 };
 
 
-#endif   // __JUCE_IMAGECOMPONENT_JUCEHEADER__
+#endif   // JUCE_IMAGECOMPONENT_H_INCLUDED

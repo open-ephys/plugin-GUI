@@ -22,7 +22,7 @@
   ==============================================================================
 */
 
-#if defined (__JUCE_OPENGL_JUCEHEADER__) && ! JUCE_AMALGAMATED_INCLUDE
+#if defined (JUCE_OPENGL_H_INCLUDED) && ! JUCE_AMALGAMATED_INCLUDE
  /* When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
     flags preceding it, but don't include anything else. That also includes avoiding any automatic prefix
@@ -76,7 +76,6 @@ namespace juce
 {
 
 //==============================================================================
-#include "native/juce_MissingGLDefinitions.h"
 #include "native/juce_OpenGLExtensions.h"
 
 void OpenGLExtensionFunctions::initialise()
@@ -97,7 +96,7 @@ void OpenGLExtensionFunctions::initialise()
 
 #if JUCE_OPENGL_ES
  #define JUCE_DECLARE_GL_FUNCTION(name, returnType, params, callparams) \
-    inline returnType OpenGLExtensionFunctions::name params { return ::name callparams; }
+    returnType OpenGLExtensionFunctions::name params { return ::name callparams; }
 
  JUCE_GL_EXTENSION_FUNCTIONS (JUCE_DECLARE_GL_FUNCTION, JUCE_DECLARE_GL_FUNCTION)
  #undef JUCE_DECLARE_GL_FUNCTION
@@ -105,30 +104,25 @@ void OpenGLExtensionFunctions::initialise()
 
 #undef JUCE_GL_EXTENSION_FUNCTIONS
 
-#if JUCE_OPENGL_ES
- #define JUCE_MEDIUMP "mediump"
- #define JUCE_HIGHP   "highp"
-#else
- #define JUCE_MEDIUMP
- #define JUCE_HIGHP
-#endif
-
 #if JUCE_DEBUG && ! defined (JUCE_CHECK_OPENGL_ERROR)
 static const char* getGLErrorMessage (const GLenum e)
 {
     switch (e)
     {
-        case GL_INVALID_ENUM:       return "GL_INVALID_ENUM";
-        case GL_INVALID_VALUE:      return "GL_INVALID_VALUE";
-        case GL_INVALID_OPERATION:  return "GL_INVALID_OPERATION";
+        case GL_INVALID_ENUM:                   return "GL_INVALID_ENUM";
+        case GL_INVALID_VALUE:                  return "GL_INVALID_VALUE";
+        case GL_INVALID_OPERATION:              return "GL_INVALID_OPERATION";
+        case GL_OUT_OF_MEMORY:                  return "GL_OUT_OF_MEMORY";
        #ifdef GL_STACK_OVERFLOW
-        case GL_STACK_OVERFLOW:     return "GL_STACK_OVERFLOW";
+        case GL_STACK_OVERFLOW:                 return "GL_STACK_OVERFLOW";
        #endif
        #ifdef GL_STACK_UNDERFLOW
-        case GL_STACK_UNDERFLOW:    return "GL_STACK_UNDERFLOW";
+        case GL_STACK_UNDERFLOW:                return "GL_STACK_UNDERFLOW";
        #endif
-        case GL_OUT_OF_MEMORY:      return "GL_OUT_OF_MEMORY";
-        default:                    break;
+       #ifdef GL_INVALID_FRAMEBUFFER_OPERATION
+        case GL_INVALID_FRAMEBUFFER_OPERATION:  return "GL_INVALID_FRAMEBUFFER_OPERATION";
+       #endif
+        default: break;
     }
 
     return "Unknown error";

@@ -31,6 +31,22 @@
 
 #include "Visualization/SpikeObject.h"
 
+struct Electrode
+{
+
+    String name;
+
+    int numChannels;
+    int prePeakSamples, postPeakSamples;
+    int lastBufferIndex;
+    bool isMonitored;
+
+    int* channels;
+    double* thresholds;
+    bool* isActive;
+
+};
+
 class SpikeDetectorEditor;
 
 /**
@@ -119,6 +135,15 @@ public:
     /** Returns a StringArray containing the names of all electrodes */
     StringArray getElectrodeNames();
 
+    /** Returns array of electrodes. */
+    Array<Electrode*> getElectrodes();
+
+    /** Returns array of electrodes. */
+    Electrode* getActiveElectrode();
+
+    /** Sets the current electrode index */
+    Electrode* setCurrentElectrodeIndex(int);
+
     /** Returns a list of possible electrode types (e.g., stereotrode, tetrode). */
     StringArray electrodeTypes;
 
@@ -130,8 +155,8 @@ public:
     void loadCustomParametersFromXml();
 
 private:
-    /** Reference to a continuous buffer. */
-    AudioSampleBuffer& dataBuffer;
+    /** Pointer to a continuous buffer. */
+    AudioSampleBuffer* dataBuffer;
 
     float getDefaultThreshold();
 
@@ -150,21 +175,6 @@ private:
     int currentElectrode;
     int currentChannelIndex;
     int currentIndex;
-
-    struct Electrode
-    {
-
-        String name;
-
-        int numChannels;
-        int prePeakSamples, postPeakSamples;
-        int lastBufferIndex;
-
-        int* channels;
-        double* thresholds;
-        bool* isActive;
-
-    };
 
     uint8_t* spikeBuffer;///[256];
     int64 timestamp;

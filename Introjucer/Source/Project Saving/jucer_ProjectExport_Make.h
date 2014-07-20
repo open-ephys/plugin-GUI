@@ -1,35 +1,27 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
-#ifndef __JUCER_PROJECTEXPORT_MAKE_JUCEHEADER__
-#define __JUCER_PROJECTEXPORT_MAKE_JUCEHEADER__
-
-#include "jucer_ProjectExporter.h"
-
-
-//==============================================================================
 class MakefileProjectExporter  : public ProjectExporter
 {
 public:
@@ -56,17 +48,18 @@ public:
     }
 
     //==============================================================================
-    bool launchProject()                        { return false; }
-    bool usesMMFiles() const                    { return false; }
-    bool isLinux() const                        { return true; }
-    bool canCopeWithDuplicateFiles()            { return false; }
+    bool canLaunchProject() override                    { return false; }
+    bool launchProject() override                       { return false; }
+    bool usesMMFiles() const override                   { return false; }
+    bool isLinux() const override                       { return true; }
+    bool canCopeWithDuplicateFiles() override           { return false; }
 
-    void createExporterProperties (PropertyListBuilder&)
+    void createExporterProperties (PropertyListBuilder&) override
     {
     }
 
     //==============================================================================
-    void create (const OwnedArray<LibraryModule>&) const
+    void create (const OwnedArray<LibraryModule>&) const override
     {
         Array<RelativePath> files;
         for (int i = 0; i < getAllGroups().size(); ++i)
@@ -92,10 +85,10 @@ protected:
         Value getArchitectureType()                 { return getValue (Ids::linuxArchitecture); }
         String getArchitectureTypeString() const    { return config [Ids::linuxArchitecture]; }
 
-        void createConfigProperties (PropertyListBuilder& props)
+        void createConfigProperties (PropertyListBuilder& props) override
         {
-            const char* const archNames[] = { "(Default)", "32-bit (-m32)", "64-bit (-m64)" };
-            const var archFlags[] = { var(), "-m32", "-m64" };
+            static const char* const archNames[] = { "(Default)", "32-bit (-m32)", "64-bit (-m64)", "ARM v6", "ARM v7" };
+            const var archFlags[] = { var(), "-m32", "-m64", "-march=armv6", "-march=armv7" };
 
             props.add (new ChoicePropertyComponent (getArchitectureType(), "Architecture",
                                                     StringArray (archNames, numElementsInArray (archNames)),
@@ -103,7 +96,7 @@ protected:
         }
     };
 
-    BuildConfiguration::Ptr createBuildConfig (const ValueTree& tree) const
+    BuildConfiguration::Ptr createBuildConfig (const ValueTree& tree) const override
     {
         return new MakeBuildConfiguration (project, tree);
     }
@@ -166,10 +159,13 @@ private:
 
     void writeLinkerFlags (OutputStream& out, const BuildConfiguration& config) const
     {
-        out << "  LDFLAGS += " << getArchFlags (config) << "-L$(BINDIR) -L$(LIBDIR)";
+        out << "  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR)";
 
         if (makefileIsDLL)
             out << " -shared";
+
+        if (! config.isDebug())
+            out << " -fvisibility=hidden";
 
         out << config.getGCCLibraryPathFlags();
 
@@ -203,7 +199,12 @@ private:
         out << "  BINDIR := " << escapeSpaces (buildDirName) << newLine
             << "  LIBDIR := " << escapeSpaces (buildDirName) << newLine
             << "  OBJDIR := " << escapeSpaces (intermediatesDirName) << newLine
-            << "  OUTDIR := " << escapeSpaces (outputDir) << newLine;
+            << "  OUTDIR := " << escapeSpaces (outputDir) << newLine
+            << newLine
+            << "  ifeq ($(TARGET_ARCH),)" << newLine
+            << "    TARGET_ARCH := " << getArchFlags (config) << newLine
+            << "  endif"  << newLine
+            << newLine;
 
         writeCppFlags (out, config);
 
@@ -215,10 +216,11 @@ private:
         if (makefileIsDLL)
             out << " -fPIC";
 
-        out << " -O" << config.getGCCOptimisationFlag() << newLine;
+        out << " -O" << config.getGCCOptimisationFlag()
+            << (" "  + replacePreprocessorTokens (config, getExtraCompilerFlagsString())).trimEnd()
+            << newLine;
 
-        out << "  CXXFLAGS += $(CFLAGS) " << getArchFlags (config)
-            << replacePreprocessorTokens (config, getExtraCompilerFlagsString()).trim() << newLine;
+        out << "  CXXFLAGS += $(CFLAGS)" << newLine;
 
         writeLinkerFlags (out, config);
 
@@ -228,21 +230,23 @@ private:
         writeHeaderPathFlags (out, config);
         out << newLine;
 
-        String targetName (config.getTargetBinaryNameString());
+        String targetName (replacePreprocessorTokens (config, config.getTargetBinaryNameString()));
 
-        if (projectType.isLibrary())
+        if (projectType.isStaticLibrary() || projectType.isDynamicLibrary())
             targetName = getLibbedFilename (targetName);
         else
             targetName = targetName.upToLastOccurrenceOf (".", false, false) + makefileTargetSuffix;
 
         out << "  TARGET := " << escapeSpaces (targetName) << newLine;
 
-        if (projectType.isLibrary())
-            out << "  BLDCMD = ar -rcs $(OUTDIR)/$(TARGET) $(OBJECTS) $(TARGET_ARCH)" << newLine;
+        if (projectType.isStaticLibrary())
+            out << "  BLDCMD = ar -rcs $(OUTDIR)/$(TARGET) $(OBJECTS)" << newLine;
         else
             out << "  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)" << newLine;
 
-        out << "endif" << newLine << newLine;
+        out << "  CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)" << newLine
+            << "endif" << newLine
+            << newLine;
     }
 
     void writeObjects (OutputStream& out, const Array<RelativePath>& files) const
@@ -262,18 +266,13 @@ private:
             << "# Don't edit this file! Your changes will be overwritten when you re-save the Introjucer project!" << newLine
             << newLine;
 
+        out << "# (this disables dependency generation if multiple architectures are set)" << newLine
+            << "DEPFLAGS := $(if $(word 2, $(TARGET_ARCH)), , -MMD)" << newLine
+            << newLine;
+
         out << "ifndef CONFIG" << newLine
             << "  CONFIG=" << escapeSpaces (getConfiguration(0)->getName()) << newLine
             << "endif" << newLine
-            << newLine;
-
-        if (! projectType.isLibrary())
-            out << "ifeq ($(TARGET_ARCH),)" << newLine
-                << "  TARGET_ARCH := -march=native" << newLine
-                << "endif"  << newLine << newLine;
-
-        out << "# (this disables dependency generation if multiple architectures are set)" << newLine
-            << "DEPFLAGS := $(if $(word 2, $(TARGET_ARCH)), , -MMD)" << newLine
             << newLine;
 
         for (ConstConfigIterator config (*this); config.next();)
@@ -294,9 +293,7 @@ private:
 
         out << "clean:" << newLine
             << "\t@echo Cleaning " << projectName << newLine
-            << "\t-@rm -f $(OUTDIR)/$(TARGET)" << newLine
-            << "\t-@rm -rf $(OBJDIR)/*" << newLine
-            << "\t-@rm -rf $(OBJDIR)" << newLine
+            << "\t@$(CLEANCMD)" << newLine
             << newLine;
 
         out << "strip:" << newLine
@@ -327,9 +324,9 @@ private:
     {
         if (const MakeBuildConfiguration* makeConfig = dynamic_cast<const MakeBuildConfiguration*> (&config))
             if (makeConfig->getArchitectureTypeString().isNotEmpty())
-                return makeConfig->getArchitectureTypeString() + " ";
+                return makeConfig->getArchitectureTypeString();
 
-        return String::empty;
+        return "-march=native";
     }
 
     String getObjectFileFor (const RelativePath& file) const
@@ -340,6 +337,3 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE (MakefileProjectExporter)
 };
-
-
-#endif   // __JUCER_PROJECTEXPORT_MAKE_JUCEHEADER__

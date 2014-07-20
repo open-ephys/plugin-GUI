@@ -26,7 +26,7 @@
   ==============================================================================
 */
 
-#if defined (__JUCE_CORE_JUCEHEADER__) && ! JUCE_AMALGAMATED_INCLUDE
+#if defined (JUCE_CORE_H_INCLUDED) && ! JUCE_AMALGAMATED_INCLUDE
  /* When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
     flags preceding it, but don't include anything else. That also includes avoiding any automatic prefix
@@ -110,7 +110,6 @@ namespace juce
 {
 
 #include "containers/juce_AbstractFifo.cpp"
-#include "containers/juce_DynamicObject.cpp"
 #include "containers/juce_NamedValueSet.cpp"
 #include "containers/juce_PropertySet.cpp"
 #include "containers/juce_Variant.cpp"
@@ -120,7 +119,9 @@ namespace juce
 #include "files/juce_FileOutputStream.cpp"
 #include "files/juce_FileSearchPath.cpp"
 #include "files/juce_TemporaryFile.cpp"
-#include "json/juce_JSON.cpp"
+#include "javascript/juce_JSON.cpp"
+#include "javascript/juce_Javascript.cpp"
+#include "containers/juce_DynamicObject.cpp"
 #include "logging/juce_FileLogger.cpp"
 #include "logging/juce_Logger.cpp"
 #include "maths/juce_BigInteger.cpp"
@@ -132,25 +133,23 @@ namespace juce
 #include "network/juce_MACAddress.cpp"
 #include "network/juce_NamedPipe.cpp"
 #include "network/juce_Socket.cpp"
-#include "network/juce_URL.cpp"
 #include "network/juce_IPAddress.cpp"
 #include "streams/juce_BufferedInputStream.cpp"
 #include "streams/juce_FileInputSource.cpp"
 #include "streams/juce_InputStream.cpp"
 #include "streams/juce_MemoryInputStream.cpp"
 #include "streams/juce_MemoryOutputStream.cpp"
-#include "streams/juce_OutputStream.cpp"
 #include "streams/juce_SubregionStream.cpp"
 #include "system/juce_SystemStats.cpp"
 #include "text/juce_CharacterFunctions.cpp"
 #include "text/juce_Identifier.cpp"
 #include "text/juce_LocalisedStrings.cpp"
 #include "text/juce_String.cpp"
+#include "streams/juce_OutputStream.cpp"
 #include "text/juce_StringArray.cpp"
 #include "text/juce_StringPairArray.cpp"
 #include "text/juce_StringPool.cpp"
 #include "text/juce_TextDiff.cpp"
-#include "threads/juce_ChildProcess.cpp"
 #include "threads/juce_ReadWriteLock.cpp"
 #include "threads/juce_Thread.cpp"
 #include "threads/juce_ThreadPool.cpp"
@@ -164,6 +163,8 @@ namespace juce
 #include "zip/juce_GZIPDecompressorInputStream.cpp"
 #include "zip/juce_GZIPCompressorOutputStream.cpp"
 #include "zip/juce_ZipFile.cpp"
+#include "files/juce_FileFilter.cpp"
+#include "files/juce_WildcardFileFilter.cpp"
 
 //==============================================================================
 #if JUCE_MAC || JUCE_IOS
@@ -198,6 +199,7 @@ namespace juce
 
 //==============================================================================
 #elif JUCE_LINUX
+#include "native/juce_linux_CommonFile.cpp"
 #include "native/juce_linux_Files.cpp"
 #include "native/juce_linux_Network.cpp"
 #include "native/juce_linux_SystemStats.cpp"
@@ -205,6 +207,7 @@ namespace juce
 
 //==============================================================================
 #elif JUCE_ANDROID
+#include "native/juce_linux_CommonFile.cpp"
 #include "native/juce_android_Files.cpp"
 #include "native/juce_android_Misc.cpp"
 #include "native/juce_android_Network.cpp"
@@ -213,6 +216,8 @@ namespace juce
 
 #endif
 
+#include "threads/juce_ChildProcess.cpp"
 #include "threads/juce_HighResolutionTimer.cpp"
+#include "network/juce_URL.cpp"
 
 }

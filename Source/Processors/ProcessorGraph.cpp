@@ -27,7 +27,6 @@
 
 #include "AudioNode.h"
 #include "LfpDisplayNode.h"
-#include "LfpTriggeredAverageNode.h"
 #include "SpikeDisplayNode.h"
 #include "EventNode.h"
 #include "FilterNode.h"
@@ -47,6 +46,7 @@
 #include "ArduinoOutput.h"
 #include "FPGAOutput.h"
 #include "PulsePalOutput.h"
+#include "SerialInput.h"
 #include "Utilities/RecordControl.h"
 #include "Utilities/Splitter.h"
 #include "Utilities/Merger.h"
@@ -67,8 +67,10 @@ ProcessorGraph::ProcessorGraph() : currentNodeId(100)
 
 }
 
-ProcessorGraph::~ProcessorGraph() { }
-
+ProcessorGraph::~ProcessorGraph() 
+{
+	
+}
 
 void ProcessorGraph::createDefaultNodes()
 {
@@ -96,23 +98,6 @@ void ProcessorGraph::createDefaultNodes()
     addNode(an, AUDIO_NODE_ID);
     addNode(arn, RESAMPLING_NODE_ID);
 
-    // connect audio subnetwork
-    for (int n = 0; n < 2; n++)
-    {
-
-        addConnection(AUDIO_NODE_ID, n,
-                      RESAMPLING_NODE_ID, n);
-
-        addConnection(RESAMPLING_NODE_ID, n,
-                      OUTPUT_NODE_ID, n);
-
-    }
-
-    addConnection(AUDIO_NODE_ID, midiChannelIndex,
-                  RESAMPLING_NODE_ID, midiChannelIndex);
-
-    std::cout << "Default nodes created." << std::endl;
-
 }
 
 void ProcessorGraph::updatePointers()
@@ -122,24 +107,31 @@ void ProcessorGraph::updatePointers()
     getRecordNode()->setUIComponent(getUIComponent());
 }
 
-void* ProcessorGraph::createNewProcessor(String& description)//,
-// GenericProcessor* source,
-// GenericProcessor* dest)
+void* ProcessorGraph::createNewProcessor(String& description, int id)//,
+
 {
 
     GenericProcessor* processor = createProcessorFromDescription(description);
 
-    int id = currentNodeId++;
+   // int id = currentNodeId++;
 
     if (processor != 0)
     {
 
         processor->setNodeId(id); // identifier within processor graph
         std::cout << "  Adding node to graph with ID number " << id << std::endl;
+        std::cout << std::endl;
+        std::cout << std::endl;
 
         processor->setUIComponent(getUIComponent()); // give access to important pointers
 
         addNode(processor,id); // have to add it so it can be deleted by the graph
+
+        if (processor->isSource())
+        {
+            // by default, all source nodes record automatically
+            processor->setAllChannelsToRecord();
+        }
 
         return processor->createEditor();
 
@@ -157,32 +149,23 @@ void* ProcessorGraph::createNewProcessor(String& description)//,
 void ProcessorGraph::clearSignalChain()
 {
 
-    int n = 0;
+    Array<GenericProcessor*> processors = getListOfProcessors();
 
-    while (getNumNodes() > 4)
+    for (int i = 0; i < processors.size(); i++)
     {
-        Node* node = getNode(n);
-        int nodeId = node->nodeId;
-
-        if (nodeId != OUTPUT_NODE_ID &&
-            nodeId != AUDIO_NODE_ID &&
-            nodeId != RECORD_NODE_ID &&
-            nodeId != RESAMPLING_NODE_ID)
-        {
-            GenericProcessor* p =(GenericProcessor*) node->getProcessor();
-            removeProcessor(p);
-        }
-        else
-        {
-            n++;
-        }
+         removeProcessor(processors[i]);
     }
 
 }
 
 void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
 {
+    refreshColors();
 
+}
+
+void ProcessorGraph::refreshColors()
+{
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
@@ -199,7 +182,6 @@ void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
             e->refreshColors();
         }
     }
-
 }
 
 void ProcessorGraph::restoreParameters()
@@ -225,36 +207,68 @@ void ProcessorGraph::restoreParameters()
 
 }
 
+Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
+{
 
+    Array<GenericProcessor*> a;
+
+     for (int i = 0; i < getNumNodes(); i++)
+    {
+        Node* node = getNode(i);
+
+        int nodeId = node->nodeId;
+
+        if (nodeId != OUTPUT_NODE_ID &&
+            nodeId != AUDIO_NODE_ID &&
+            nodeId != RECORD_NODE_ID &&
+            nodeId != RESAMPLING_NODE_ID)
+        {
+            GenericProcessor* p =(GenericProcessor*) node->getProcessor();
+            a.add(p);
+        }
+    }
+
+    return a;
+
+}
 
 void ProcessorGraph::clearConnections()
 {
 
-    for (int i = 0; i < getNumConnections(); i++)
-    {
-        const Connection* connection = getConnection(i);
-
-        if (connection->destNodeId == RESAMPLING_NODE_ID ||
-            connection->destNodeId == OUTPUT_NODE_ID)
-        {
-            ; // leave it
-        }
-        else
-        {
-            removeConnection(i);
-        }
-    }
-
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
+        int nodeId = node->nodeId;
 
-        if (node->nodeId != OUTPUT_NODE_ID)
+        if (nodeId != OUTPUT_NODE_ID &&
+            nodeId != RESAMPLING_NODE_ID)
         {
-            GenericProcessor* p =(GenericProcessor*) node->getProcessor();
+
+            if (nodeId != RECORD_NODE_ID && nodeId != AUDIO_NODE_ID)
+            {
+                disconnectNode(node->nodeId);
+            }
+            
+            GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             p->resetConnections();
+
         }
     }
+
+    // connect audio subnetwork
+    for (int n = 0; n < 2; n++)
+    {
+
+        addConnection(AUDIO_NODE_ID, n,
+                      RESAMPLING_NODE_ID, n);
+
+        addConnection(RESAMPLING_NODE_ID, n,
+                      OUTPUT_NODE_ID, n);
+
+    }
+
+    addConnection(AUDIO_NODE_ID, midiChannelIndex,
+                  RESAMPLING_NODE_ID, midiChannelIndex);
 }
 
 
@@ -263,162 +277,195 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
     clearConnections(); // clear processor graph
 
     std::cout << "Updating connections:" << std::endl;
+    std::cout << std::endl;
+     std::cout << std::endl;
 
     Array<GenericProcessor*> splitters;
+    // GenericProcessor* activeSplitter = nullptr;
 
-    for (int n = 0; n < tabs.size(); n++)
+    for (int n = 0; n < tabs.size(); n++) // cycle through the tabs
     {
-        std::cout << "Signal chain " << n << std::endl;
+        std::cout << "Signal chain: " << n << std::endl;
+        std::cout << std::endl;
 
         GenericEditor* sourceEditor = (GenericEditor*) tabs[n]->getEditor();
         GenericProcessor* source = (GenericProcessor*) sourceEditor->getProcessor();
 
-        while (source != 0)// && destEditor->isEnabled())
+        while (source != nullptr)// && destEditor->isEnabled())
         {
-            std::cout << "Source node: " << source->getName() << ", ";
+            std::cout << "Source node: " << source->getName() << "." << std::endl;
             GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
-
-            if (dest != 0)
-            {
-                std::cout << "Dest node: " << dest->getName() << std::endl;
-                if (dest->isMerger()) // move it forward by one
-                {
-                    dest = dest->getDestNode();
-                }
-                else if (dest->isSplitter())
-                {
-                    if (!dest->wasConnected)
-                        splitters.add(dest);
-
-                    dest = dest->getDestNode();
-                }
-
-            }
-            else
-            {
-                std::cout << "no dest node." << std::endl;
-            }
 
             if (source->enabledState())
             {
-
                 // add the connections to audio and record nodes if necessary
-                if (!(source->isSink() ||
-                      source->isSplitter() || source->isMerger() || source->isUtility()) && !(source->wasConnected))
+                if (!(source->isSink()     || 
+                      source->isSplitter() || 
+                      source->isMerger()   || 
+                      source->isUtility()) 
+                    && !(source->wasConnected))
                 {
-                    std::cout << "   Connecting to audio and record nodes." << std::endl;
-
-                    //source->setStartChannel(getAudioNode()->getNextChannel(false));
-
-
-                    for (int chan = 0; chan < source->getNumOutputs(); chan++)
-                    {
-
-                        getAudioNode()->addInputChannel(source, chan);
-                        getAudioNode()->settings.sampleRate = source->getSampleRate(); // THIS IS A HACK TO MAKE SURE AUDIO NODE KNOWS WHAT THE SAMPLE RATE SHOULD BE
-
-                        // std::cout << "Connecting to audio channel: " <<
-                        // 	      getAudioNode()->getNextChannel(false) << std::endl;
-
-                        //getAudioNode()->enableCurrentChannel(source->audioStatus(chan));
-
-                        addConnection(source->getNodeId(), 		   // sourceNodeID
-                                      chan, 						           // sourceNodeChannelIndex
-                                      AUDIO_NODE_ID, 					       // destNodeID
-                                      getAudioNode()->getNextChannel(true)); // destNodeChannelIndex
-                        // add 2 to account for 2 output channels
-
-
-                        //std::cout << getAudioNode()->getNextChannel(false) << " ";
-
-                        getRecordNode()->addInputChannel(source, chan);
-
-                        // std::cout << "Connecting to record channel: " <<
-                        // 	      getRecordNode()->getNextChannel(false) << std::endl;
-
-
-                        addConnection(source->getNodeId(),          // sourceNodeID
-                                      chan,                                   // sourceNodeChannelIndex
-                                      RECORD_NODE_ID, 					    // destNodeID
-                                      getRecordNode()->getNextChannel(true)); // destNodeChannelIndex
-
-                    }
-
-                    // connect event channel
-                    addConnection(source->getNodeId(), 				// sourceNodeID
-                                  midiChannelIndex, 							// sourceNodeChannelIndex
-                                  RECORD_NODE_ID, 							// destNodeID
-                                  midiChannelIndex);							// destNodeChannelIndex
-
-                    // connect event channel
-                    addConnection(source->getNodeId(), 				// sourceNodeID
-                                  midiChannelIndex, 							// sourceNodeChannelIndex
-                                  AUDIO_NODE_ID, 							// destNodeID
-                                  midiChannelIndex);							// destNodeChannelIndex
-
-
-                    getRecordNode()->addInputChannel(source, midiChannelIndex);
-
+                    std::cout << "     Connecting to audio and record nodes." << std::endl;
+                    connectProcessorToAudioAndRecordNodes(source);
+                } else {
+                    std::cout << "     NOT connecting to audio and record nodes." << std::endl;
                 }
 
-                std::cout << std::endl;
-
-                if (dest != 0)
+                if (dest != nullptr)
                 {
 
-                    if (dest->enabledState())
-                        std::cout << "     OK." << std::endl;
-                    else
-                        std::cout << "     Not OK." << std::endl;
-
-                    if (dest->enabledState())
+                    while (dest->isMerger()) // find the next dest that's not a merger
                     {
+                        dest = dest->getDestNode();
 
-                        std::cout << "     Connecting " << source->getName() << " channel ";
+                        if (dest == nullptr)
+                            break;
+                    }
 
-                        for (int chan = 0; chan < source->getNumOutputs(); chan++)
+                    if (dest != nullptr)
+                    {
+                        while (dest->isSplitter())
                         {
-                            std::cout << chan << " ";
+                            if (!dest->wasConnected)
+                            {
+                                if (!splitters.contains(dest))
+                                {
+                                    splitters.add(dest);
+                                    dest->switchIO(0); // go down first path
+                                } else {
+                                    int splitterIndex = splitters.indexOf(dest);
+                                    splitters.remove(splitterIndex);
+                                    dest->switchIO(1); // go down second path
+                                    dest->wasConnected = true; // make sure we don't re-use this splitter
+                                }
+                            }
 
-                            addConnection(source->getNodeId(), // sourceNodeID
-                                          chan, // sourceNodeChannelIndex
-                                          dest->getNodeId(), // destNodeID
-                                          dest->getNextChannel(true)); // destNodeChannelIndex
+                            dest = dest->getDestNode();
+
+                            if (dest == nullptr)
+                                break;
                         }
 
-                        std::cout << " to " << dest->getName() << std::endl;
+                        if (dest != nullptr)
+                        {
 
-                        std::cout << "     Connecting " << source->getName() <<
-                                  " event channel to " <<
-                                  dest->getName() << std::endl;
+                            if (dest->enabledState())
+                            {
+                               connectProcessors(source, dest);
+                            }
+                        }
 
-                        // connect event channel
-                        addConnection(source->getNodeId(), // sourceNodeID
-                                      midiChannelIndex, // sourceNodeChannelIndex
-                                      dest->getNodeId(), // destNodeID
-                                      midiChannelIndex); // destNodeChannelIndex
-
+                    } else {
+                        std::cout << "     No dest node." << std::endl;
                     }
 
+                } else {
+                    std::cout << "     No dest node." << std::endl;
                 }
             }
+
+            std::cout << std::endl;
 
             source->wasConnected = true;
             source = dest; // switch source and dest
 
-            if (source == 0 && splitters.size() > 0)
+            if (source == nullptr && splitters.size() > 0)
             {
-                dest = splitters.getFirst(); // dest is now the splitter
-                splitters.remove(0); // take it out of the
-                dest->switchIO(); // switch to the other destination
-                dest->wasConnected = true; // don't want to re-add splitter
-                source = dest->getSourceNode(); // splitter is now source
+
+                source = splitters.getLast();
+                GenericProcessor* newSource;// = source->getSourceNode();
+
+                while (source->isSplitter() || source->isMerger())
+                {
+                    newSource = source->getSourceNode();
+                    newSource->setPathToProcessor(source);
+                    source = newSource;
+                }
+                
             }
 
         } // end while source != 0
     } // end "tabs" for loop
+
 } // end method
 
+void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcessor* dest)
+{
+
+    if (source == nullptr || dest == nullptr)
+        return;
+
+    std::cout << "     Connecting " << source->getName() << " " << source->getNodeId(); //" channel ";
+    std::cout << " to " << dest->getName() << " " << dest->getNodeId() << std::endl;
+
+    // 1. connect continuous channels
+    for (int chan = 0; chan < source->getNumOutputs(); chan++)
+    {
+        //std::cout << chan << " ";
+
+        addConnection(source->getNodeId(),         // sourceNodeID
+                      chan,                        // sourceNodeChannelIndex
+                      dest->getNodeId(),           // destNodeID
+                      dest->getNextChannel(true)); // destNodeChannelIndex
+    }
+
+    // std::cout << "     Connecting " << source->getName() <<
+    //           " event channel to " <<
+    //           dest->getName() << std::endl;
+
+    // 2. connect event channel
+    addConnection(source->getNodeId(),    // sourceNodeID
+                  midiChannelIndex,       // sourceNodeChannelIndex
+                  dest->getNodeId(),      // destNodeID
+                  midiChannelIndex);      // destNodeChannelIndex
+
+}
+
+void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* source)
+{
+
+    if (source == nullptr)
+        return;
+
+    for (int chan = 0; chan < source->getNumOutputs(); chan++)
+    {
+
+        getAudioNode()->addInputChannel(source, chan);
+
+        // THIS IS A HACK TO MAKE SURE AUDIO NODE KNOWS WHAT THE SAMPLE RATE SHOULD BE
+        // IT CAN CAUSE PROBLEMS IF THE SAMPLE RATE VARIES ACROSS PROCESSORS
+        getAudioNode()->settings.sampleRate = source->getSampleRate(); 
+
+        addConnection(source->getNodeId(),                   // sourceNodeID
+                      chan,                                  // sourceNodeChannelIndex
+                      AUDIO_NODE_ID,                         // destNodeID
+                      getAudioNode()->getNextChannel(true)); // destNodeChannelIndex
+
+        getRecordNode()->addInputChannel(source, chan);
+
+        addConnection(source->getNodeId(),                    // sourceNodeID
+                      chan,                                   // sourceNodeChannelIndex
+                      RECORD_NODE_ID,                         // destNodeID
+                      getRecordNode()->getNextChannel(true)); // destNodeChannelIndex
+
+    }
+
+    // connect event channel
+    addConnection(source->getNodeId(),    // sourceNodeID
+                  midiChannelIndex,       // sourceNodeChannelIndex
+                  RECORD_NODE_ID,         // destNodeID
+                  midiChannelIndex);      // destNodeChannelIndex
+
+    // connect event channel
+    addConnection(source->getNodeId(),    // sourceNodeID
+                  midiChannelIndex,       // sourceNodeChannelIndex
+                  AUDIO_NODE_ID,          // destNodeID
+                  midiChannelIndex);      // destNodeChannelIndex
+
+
+    getRecordNode()->addInputChannel(source, midiChannelIndex);
+
+}
 
 GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& description)
 {
@@ -464,7 +511,13 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             processor = new FileReader();
             std::cout << "Creating a new file reader." << std::endl;
+        }   
+        else if (subProcessorType.equalsIgnoreCase("Serial Port"))
+        {
+            processor = new SerialInput();
+            std::cout << "Creating a new serial port input." << std::endl;
         }
+
 
 
         sendActionMessage("New source node created.");
@@ -479,12 +532,6 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 
             std::cout << "Creating a new filter." << std::endl;
             processor = new FilterNode();
-
-        }
-        else if (subProcessorType.equalsIgnoreCase("Resampler"))
-        {
-            std::cout << "Creating a new resampler." << std::endl;
-            processor = new ResamplingNode();
 
         }
         else if (subProcessorType.equalsIgnoreCase("Spike Detector"))
@@ -502,16 +549,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             std::cout << "Creating a new phase detector." << std::endl;
             processor = new PhaseDetector();
         }
-        else if (subProcessorType.equalsIgnoreCase("Digital Ref"))
-        {
-            std::cout << "Creating a new digital reference." << std::endl;
-            processor = new ReferenceNode();
-        }
         else if (subProcessorType.equalsIgnoreCase("Channel Map"))
         {
             std::cout << "Creating a new channel mapping node." << std::endl;
             processor = new ChannelMappingNode();
-        }
+        } 
 
         sendActionMessage("New filter node created.");
 
@@ -555,22 +597,14 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             std::cout << "Creating an LfpDisplayNode." << std::endl;
             processor = new LfpDisplayNode();
-
-            // std::cout << "Graph data viewport: " << UI->getDataViewport() << std::endl;
-            // processor->setDataViewport(getDataViewport());
-            //processor->setUIComponent(UI);
         }
-        else if (subProcessorType.equalsIgnoreCase("LFP Trig. Avg."))
-        {
-            std::cout << "Creating an LfpTrigAvgNode." << std::endl;
-            processor = new LfpTriggeredAverageNode();
-        }                   
-        
+
         else if (subProcessorType.equalsIgnoreCase("Spike Viewer"))
         {
             std::cout << "Creating a SpikeDisplayNode." << std::endl;
             processor = new SpikeDisplayNode();
-        }
+        } 
+    
         else if (subProcessorType.equalsIgnoreCase("WiFi Output"))
         {
             std::cout << "Creating a WiFi node." << std::endl;
@@ -715,10 +749,6 @@ bool ProcessorGraph::disableProcessors()
 void ProcessorGraph::setRecordState(bool isRecording)
 {
 
-   // const MessageManagerLock mmLock; // lock the message manager to prevent rendering crashes
-    
-    // inform other processors that recording will begin
-
     // actually start recording
     if (isRecording)
     {
@@ -762,15 +792,3 @@ RecordNode* ProcessorGraph::getRecordNode()
     return (RecordNode*) node->getProcessor();
 
 }
-
-// void ProcessorGraph::saveState()
-// {
-// 	File file = File("./savedState.xml");
-// 	getEditorViewport()->saveState(file);
-// }
-
-// void ProcessorGraph::loadState()
-// {
-// 	File file = File("./savedState.xml");
-// 	getEditorViewport()->loadState(file);
-// }

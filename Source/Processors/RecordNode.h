@@ -122,6 +122,7 @@ public:
     bool newDirectoryNeeded;
 
     bool isRecording;
+    bool allFilesOpened;
 
     /** Generate a Matlab-compatible datestring */
     String generateDateString();
@@ -204,7 +205,7 @@ private:
 
     /** Method for writing continuous buffers to disk.
     */
-    void writeContinuousBuffer(float* data, int nSamples, int channel);
+    void writeContinuousBuffer(const float* data, int nSamples, int channel);
 
     /** Method for writing event buffers to disk.
     */

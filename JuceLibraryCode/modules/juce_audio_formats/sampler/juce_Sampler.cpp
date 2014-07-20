@@ -22,15 +22,15 @@
   ==============================================================================
 */
 
-SamplerSound::SamplerSound (const String& name_,
+SamplerSound::SamplerSound (const String& soundName,
                             AudioFormatReader& source,
-                            const BigInteger& midiNotes_,
+                            const BigInteger& notes,
                             const int midiNoteForNormalPitch,
                             const double attackTimeSecs,
                             const double releaseTimeSecs,
                             const double maxSampleLengthSeconds)
-    : name (name_),
-      midiNotes (midiNotes_),
+    : name (soundName),
+      midiNotes (notes),
       midiRootNote (midiNoteForNormalPitch)
 {
     sourceSampleRate = source.sampleRate;
@@ -85,7 +85,7 @@ SamplerVoice::~SamplerVoice()
 
 bool SamplerVoice::canPlaySound (SynthesiserSound* sound)
 {
-    return dynamic_cast <const SamplerSound*> (sound) != nullptr;
+    return dynamic_cast<const SamplerSound*> (sound) != nullptr;
 }
 
 void SamplerVoice::startNote (const int midiNoteNumber,
@@ -154,12 +154,12 @@ void SamplerVoice::renderNextBlock (AudioSampleBuffer& outputBuffer, int startSa
 {
     if (const SamplerSound* const playingSound = static_cast <SamplerSound*> (getCurrentlyPlayingSound().get()))
     {
-        const float* const inL = playingSound->data->getSampleData (0, 0);
+        const float* const inL = playingSound->data->getReadPointer (0);
         const float* const inR = playingSound->data->getNumChannels() > 1
-                                    ? playingSound->data->getSampleData (1, 0) : nullptr;
+                                    ? playingSound->data->getReadPointer (1) : nullptr;
 
-        float* outL = outputBuffer.getSampleData (0, startSample);
-        float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getSampleData (1, startSample) : nullptr;
+        float* outL = outputBuffer.getWritePointer (0, startSample);
+        float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer (1, startSample) : nullptr;
 
         while (--numSamples >= 0)
         {

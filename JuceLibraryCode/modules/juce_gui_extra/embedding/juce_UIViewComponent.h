@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_UIVIEWCOMPONENT_JUCEHEADER__
-#define __JUCE_UIVIEWCOMPONENT_JUCEHEADER__
+#ifndef JUCE_UIVIEWCOMPONENT_H_INCLUDED
+#define JUCE_UIVIEWCOMPONENT_H_INCLUDED
 
 #if JUCE_IOS || DOXYGEN
 
@@ -32,7 +32,7 @@
     An iOS-specific class that can create and embed an UIView inside itself.
 
     To use it, create one of these, put it in place and make sure it's visible in a
-    window, then use setView() to assign an NSView to it. The view will then be
+    window, then use setView() to assign a UIView to it. The view will then be
     moved and resized to follow the movements of this component.
 
     Of course, since the view is a native object, it'll obliterate any
@@ -71,7 +71,7 @@ public:
 
     //==============================================================================
     /** @internal */
-    void paint (Graphics& g);
+    void paint (Graphics&) override;
 
 
 private:
@@ -83,4 +83,4 @@ private:
 };
 
 #endif
-#endif   // __JUCE_UIVIEWCOMPONENT_JUCEHEADER__
+#endif   // JUCE_UIVIEWCOMPONENT_H_INCLUDED

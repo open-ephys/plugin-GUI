@@ -22,11 +22,6 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOUNITPLUGINFORMAT_JUCEHEADER__
-#define __JUCE_AUDIOUNITPLUGINFORMAT_JUCEHEADER__
-
-#include "../format/juce_AudioPluginFormat.h"
-
 #if (JUCE_PLUGINHOST_AU && JUCE_MAC) || DOXYGEN
 
 //==============================================================================
@@ -41,16 +36,16 @@ public:
     ~AudioUnitPluginFormat();
 
     //==============================================================================
-    String getName() const                { return "AudioUnit"; }
-    void findAllTypesForFile (OwnedArray <PluginDescription>&, const String& fileOrIdentifier);
-    AudioPluginInstance* createInstanceFromDescription (const PluginDescription& desc);
-    bool fileMightContainThisPluginType (const String& fileOrIdentifier);
-    String getNameOfPluginFromIdentifier (const String& fileOrIdentifier);
-    bool pluginNeedsRescanning (const PluginDescription&);
+    String getName() const override                { return "AudioUnit"; }
+    void findAllTypesForFile (OwnedArray<PluginDescription>&, const String& fileOrIdentifier) override;
+    AudioPluginInstance* createInstanceFromDescription (const PluginDescription& desc, double, int) override;
+    bool fileMightContainThisPluginType (const String& fileOrIdentifier) override;
+    String getNameOfPluginFromIdentifier (const String& fileOrIdentifier) override;
+    bool pluginNeedsRescanning (const PluginDescription&) override;
     StringArray searchPathsForPlugins (const FileSearchPath&, bool recursive);
-    bool doesPluginStillExist (const PluginDescription&);
-    FileSearchPath getDefaultLocationsToSearch();
-    bool canScanForPlugins() const        { return true; }
+    bool doesPluginStillExist (const PluginDescription&) override;
+    FileSearchPath getDefaultLocationsToSearch() override;
+    bool canScanForPlugins() const override        { return true; }
 
 private:
     //==============================================================================
@@ -58,5 +53,3 @@ private:
 };
 
 #endif
-
-#endif   // __JUCE_AUDIOUNITPLUGINFORMAT_JUCEHEADER__

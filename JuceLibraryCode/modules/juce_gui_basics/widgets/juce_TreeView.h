@@ -22,12 +22,9 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_TREEVIEW_JUCEHEADER__
-#define __JUCE_TREEVIEW_JUCEHEADER__
+#ifndef JUCE_TREEVIEW_H_INCLUDED
+#define JUCE_TREEVIEW_H_INCLUDED
 
-#include "../layout/juce_Viewport.h"
-#include "../mouse/juce_FileDragAndDropTarget.h"
-#include "../mouse/juce_DragAndDropTarget.h"
 class TreeView;
 
 
@@ -85,6 +82,20 @@ public:
                                 value is less than 0, the item will be added to the end of the list.
     */
     void addSubItem (TreeViewItem* newItem, int insertPosition = -1);
+
+    /** Adds a sub-item with a sort-comparator, assuming that the existing items are already sorted.
+
+        @param comparator  the comparator object for sorting - see sortSubItems() for details about
+                        the methods this class must provide.
+        @param newItem  the object to add to the item's sub-item list. Once added, these can be
+                        found using getSubItem(). When the items are later removed with
+                        removeSubItem() (or when this item is deleted), they will be deleted.
+    */
+    template <class ElementComparator>
+    void addSubItemSorted (ElementComparator& comparator, TreeViewItem* newItem)
+    {
+        addSubItem (newItem, findInsertIndexInSortedArray (comparator, subItems.begin(), newItem, 0, subItems.size()));
+    }
 
     /** Removes one of the sub-items.
 
@@ -150,7 +161,7 @@ public:
 
     /** Returns the rectangle that this item occupies.
 
-        If relativeToTreeViewTopLeft is true, the co-ordinates are relative to the
+        If relativeToTreeViewTopLeft is true, the coordinates are relative to the
         top-left of the TreeView comp, so this will depend on the scroll-position of
         the tree. If false, it is relative to the top-left of the topmost item in the
         tree (so this would be unaffected by scrolling the view).
@@ -181,7 +192,7 @@ public:
     bool areAllParentsOpen() const noexcept;
 
     /** Changes whether lines are drawn to connect any sub-items to this item.
-        By default, line-drawing is turned on.
+        By default, line-drawing is turned on according to LookAndFeel::areLinesDrawnForTreeView().
     */
     void setLinesDrawnForSubItems (bool shouldDrawLines) noexcept;
 
@@ -302,11 +313,14 @@ public:
 
     /** Draws the item's open/close button.
 
-        If you don't implement this method, the default behaviour is to
-        call LookAndFeel::drawTreeviewPlusMinusBox(), but you can override
-        it for custom effects.
+        If you don't implement this method, the default behaviour is to call
+        LookAndFeel::drawTreeviewPlusMinusBox(), but you can override it for custom
+        effects. You may want to override it and call the base-class implementation
+        with a different backgroundColour parameter, if your implementation has a
+        background colour other than the default (white).
     */
-    virtual void paintOpenCloseButton (Graphics&, int width, int height, bool isMouseOver);
+    virtual void paintOpenCloseButton (Graphics&, const Rectangle<float>& area,
+                                       Colour backgroundColour, bool isMouseOver);
 
     /** Draws the line that connects this item to the vertical line extending below its parent. */
     virtual void paintHorizontalConnectingLine (Graphics&, const Line<float>& line);
@@ -522,12 +536,13 @@ private:
     //==============================================================================
     TreeView* ownerView;
     TreeViewItem* parentItem;
-    OwnedArray <TreeViewItem> subItems;
+    OwnedArray<TreeViewItem> subItems;
     int y, itemHeight, totalHeight, itemWidth, totalWidth;
     int uid;
     bool selected           : 1;
     bool redrawNeeded       : 1;
     bool drawLinesInside    : 1;
+    bool drawLinesSet       : 1;
     bool drawsInLeftMargin  : 1;
     unsigned int openness   : 2;
 
@@ -542,7 +557,7 @@ private:
     TreeViewItem* getDeepestOpenParentItem() noexcept;
     int getNumRows() const noexcept;
     TreeViewItem* getItemOnRow (int index) noexcept;
-    void deselectAllRecursively();
+    void deselectAllRecursively (TreeViewItem* itemToIgnore);
     int countSelectedItemsRecursively (int depth) const noexcept;
     TreeViewItem* getSelectedItemWithIndex (int index) noexcept;
     TreeViewItem* getNextVisibleItem (bool recurse) const noexcept;
@@ -552,6 +567,7 @@ private:
     XmlElement* getOpennessState (bool canReturnNull) const;
     bool removeSubItemFromList (int index, bool deleteItem);
     void removeAllSubItemsFromList();
+    bool areLinesDrawn() const;
 
    #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
     // The parameters for these methods have changed - please update your code!
@@ -594,7 +610,7 @@ public:
         you want the tree to contain a number of root items, you should still use a single
         root item above these, but hide it using setRootItemVisible().
 
-        You can pass in 0 to this method to clear the tree and remove its current root item.
+        You can pass nullptr to this method to clear the tree and remove its current root item.
 
         The object passed in will not be deleted by the treeview, it's up to the caller
         to delete it when no longer needed. BUT make absolutely sure that you don't delete
@@ -695,17 +711,13 @@ public:
 
     //==============================================================================
     /** Returns the number of rows the tree is using.
-
         This will depend on which items are open.
-
         @see TreeViewItem::getRowNumberInTree()
     */
     int getNumRowsInTree() const;
 
     /** Returns the item on a particular row of the tree.
-
         If the index is out of range, this will return 0.
-
         @see getNumRowsInTree, TreeViewItem::getRowNumberInTree()
     */
     TreeViewItem* getItemOnRow (int index) const;
@@ -724,7 +736,7 @@ public:
     /** Returns the number of pixels by which each nested level of the tree is indented.
         @see setIndentSize
     */
-    int getIndentSize() const noexcept                              { return indentSize; }
+    int getIndentSize() noexcept;
 
     /** Changes the distance by which each nested level of the tree is indented.
         @see getIndentSize
@@ -732,7 +744,7 @@ public:
     void setIndentSize (int newIndentSize);
 
     /** Searches the tree for an item with the specified identifier.
-        The identifer string must have been created by calling TreeViewItem::getItemIdentifierString().
+        The identifier string must have been created by calling TreeViewItem::getItemIdentifierString().
         If no such item exists, this will return false. If the item is found, all of its items
         will be automatically opened.
     */
@@ -782,42 +794,58 @@ public:
     */
     enum ColourIds
     {
-        backgroundColourId            = 0x1000500, /**< A background colour to fill the component with. */
-        linesColourId                 = 0x1000501, /**< The colour to draw the lines with.*/
-        dragAndDropIndicatorColourId  = 0x1000502  /**< The colour to use for the drag-and-drop target position indicator. */
+        backgroundColourId             = 0x1000500, /**< A background colour to fill the component with. */
+        linesColourId                  = 0x1000501, /**< The colour to draw the lines with.*/
+        dragAndDropIndicatorColourId   = 0x1000502, /**< The colour to use for the drag-and-drop target position indicator. */
+        selectedItemBackgroundColourId = 0x1000503  /**< The colour to use to fill the background of any selected items. */
+    };
+
+    //==============================================================================
+    /** This abstract base class is implemented by LookAndFeel classes to provide
+        treeview drawing functionality.
+    */
+    struct JUCE_API  LookAndFeelMethods
+    {
+        virtual ~LookAndFeelMethods() {}
+
+        virtual void drawTreeviewPlusMinusBox (Graphics&, const Rectangle<float>& area,
+                                               Colour backgroundColour, bool isItemOpen, bool isMouseOver) = 0;
+
+        virtual bool areLinesDrawnForTreeView (TreeView&) = 0;
+        virtual int getTreeViewIndentSize (TreeView&) = 0;
     };
 
     //==============================================================================
     /** @internal */
-    void paint (Graphics& g);
+    void paint (Graphics&) override;
     /** @internal */
-    void resized();
+    void resized() override;
     /** @internal */
-    bool keyPressed (const KeyPress& key);
+    bool keyPressed (const KeyPress&) override;
     /** @internal */
-    void colourChanged();
+    void colourChanged() override;
     /** @internal */
-    void enablementChanged();
+    void enablementChanged() override;
     /** @internal */
-    bool isInterestedInFileDrag (const StringArray& files);
+    bool isInterestedInFileDrag (const StringArray& files) override;
     /** @internal */
-    void fileDragEnter (const StringArray& files, int x, int y);
+    void fileDragEnter (const StringArray& files, int x, int y) override;
     /** @internal */
-    void fileDragMove (const StringArray& files, int x, int y);
+    void fileDragMove (const StringArray& files, int x, int y) override;
     /** @internal */
-    void fileDragExit (const StringArray& files);
+    void fileDragExit (const StringArray& files) override;
     /** @internal */
-    void filesDropped (const StringArray& files, int x, int y);
+    void filesDropped (const StringArray& files, int x, int y) override;
     /** @internal */
-    bool isInterestedInDragSource (const SourceDetails&);
+    bool isInterestedInDragSource (const SourceDetails&) override;
     /** @internal */
-    void itemDragEnter (const SourceDetails&);
+    void itemDragEnter (const SourceDetails&) override;
     /** @internal */
-    void itemDragMove (const SourceDetails&);
+    void itemDragMove (const SourceDetails&) override;
     /** @internal */
-    void itemDragExit (const SourceDetails&);
+    void itemDragExit (const SourceDetails&) override;
     /** @internal */
-    void itemDropped (const SourceDetails&);
+    void itemDropped (const SourceDetails&) override;
 
 private:
     class ContentComponent;
@@ -826,9 +854,9 @@ private:
     class TargetGroupHighlight;
     friend class TreeViewItem;
     friend class ContentComponent;
-    friend class ScopedPointer<TreeViewport>;
-    friend class ScopedPointer<InsertPointHighlight>;
-    friend class ScopedPointer<TargetGroupHighlight>;
+    friend struct ContainerDeletePolicy<TreeViewport>;
+    friend struct ContainerDeletePolicy<InsertPointHighlight>;
+    friend struct ContainerDeletePolicy<TargetGroupHighlight>;
 
     ScopedPointer<TreeViewport> viewport;
     CriticalSection nodeAlterationLock;
@@ -836,11 +864,8 @@ private:
     ScopedPointer<InsertPointHighlight> dragInsertPointHighlight;
     ScopedPointer<TargetGroupHighlight> dragTargetGroupHighlight;
     int indentSize;
-    bool defaultOpenness : 1;
-    bool needsRecalculating : 1;
-    bool rootItemVisible : 1;
-    bool multiSelectEnabled : 1;
-    bool openCloseButtonsVisible : 1;
+    bool defaultOpenness, needsRecalculating, rootItemVisible;
+    bool multiSelectEnabled, openCloseButtonsVisible;
 
     void itemsChanged() noexcept;
     void recalculateIfNeeded();
@@ -850,12 +875,17 @@ private:
     void hideDragHighlight() noexcept;
     void handleDrag (const StringArray&, const SourceDetails&);
     void handleDrop (const StringArray&, const SourceDetails&);
-    void toggleOpenSelectedItem();
+    bool toggleOpenSelectedItem();
     void moveOutOfSelectedItem();
     void moveIntoSelectedItem();
     void moveByPages (int numPages);
 
+   #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
+    // this method has been deprecated - see the new version..
+    virtual int paintOpenCloseButton (Graphics&, int, int, bool) { return 0; }
+   #endif
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TreeView)
 };
 
-#endif   // __JUCE_TREEVIEW_JUCEHEADER__
+#endif   // JUCE_TREEVIEW_H_INCLUDED

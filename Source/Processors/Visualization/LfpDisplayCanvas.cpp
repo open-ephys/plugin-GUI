@@ -53,6 +53,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     scrollBarThickness = viewport->getScrollBarThickness();
 
+    isChannelEnabled.insertMultiple(0,true,10000); // max 10k channels
 
     //viewport->getVerticalScrollBar()->addListener(this->scrollBarMoved(viewport->getVerticalScrollBar(), 1.0));
 
@@ -63,17 +64,16 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     voltageRanges.add("50");
     voltageRanges.add("100");
+    voltageRanges.add("250");
     voltageRanges.add("500");
     voltageRanges.add("1000");
     voltageRanges.add("2000");
     voltageRanges.add("5000");
 
-    timebases.add("0.5");
     timebases.add("1.0");
     timebases.add("2.0");
     timebases.add("5.0");
     timebases.add("10.0");
-
 
     spreads.add("10");
     spreads.add("20");
@@ -91,28 +91,37 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     rangeSelection = new ComboBox("Voltage range");
     rangeSelection->addItemList(voltageRanges, 1);
-    rangeSelection->setSelectedId(4,false);
+    rangeSelection->setSelectedId(4, sendNotification);
     rangeSelection->addListener(this);
     addAndMakeVisible(rangeSelection);
 
     timebaseSelection = new ComboBox("Timebase");
     timebaseSelection->addItemList(timebases, 1);
-    timebaseSelection->setSelectedId(2, false);
+    timebaseSelection->setSelectedId(2, sendNotification);
     timebaseSelection->addListener(this);
     addAndMakeVisible(timebaseSelection);
 
 
     spreadSelection = new ComboBox("Spread");
     spreadSelection->addItemList(spreads, 1);
-    spreadSelection->setSelectedId(5,false);
+    spreadSelection->setSelectedId(5,sendNotification);
     spreadSelection->addListener(this);
     addAndMakeVisible(spreadSelection);
 
     colorGroupingSelection = new ComboBox("Color Grouping");
     colorGroupingSelection->addItemList(colorGroupings, 1);
-    colorGroupingSelection->setSelectedId(1,false);
+    colorGroupingSelection->setSelectedId(1,sendNotification);
     colorGroupingSelection->addListener(this);
     addAndMakeVisible(colorGroupingSelection);
+
+    invertInputButton = new UtilityButton("Invert", Font("Small Text", 13, Font::plain));
+    invertInputButton->setRadius(5.0f);
+    invertInputButton->setEnabledState(true);
+    invertInputButton->setCorners(true, true, true, true);
+    invertInputButton->addListener(this);
+    invertInputButton->setClickingTogglesState(true);
+    invertInputButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(invertInputButton);
 
 
     lfpDisplay->setNumChannels(nChans);
@@ -153,7 +162,7 @@ void LfpDisplayCanvas::resized()
     timebaseSelection->setBounds(175,getHeight()-30,100,25);
     spreadSelection->setBounds(345,getHeight()-30,100,25);
     colorGroupingSelection->setBounds(620,getHeight()-30,100,25);
-
+    invertInputButton->setBounds(750,getHeight()-30,100,25);
 
     for (int i = 0; i < 8; i++)
     {
@@ -190,28 +199,42 @@ void LfpDisplayCanvas::update()
     nChans = jmax(processor->getNumInputs(),1);
     sampleRate = processor->getSampleRate();
 
-    std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+    std::cout << "Setting sample rate of LfpDisplayCanvas to " << sampleRate << std::endl;
 
-    refreshScreenBuffer();
-
-    lfpDisplay->setNumChannels(nChans);
-
-    // update channel names
-    for (int i = 0; i < processor->getNumInputs(); i++)
+    if (nChans != lfpDisplay->getNumChannels())
     {
+    	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
-        String chName = processor->channels[i]->getName();
+    	refreshScreenBuffer();
 
-        //std::cout << chName << std::endl;
+    	lfpDisplay->setNumChannels(nChans);
 
-        lfpDisplay->channelInfo[i]->setName(chName);
+   	 	// update channel names
+   	 	for (int i = 0; i < processor->getNumInputs(); i++)
+    	{
 
+	        String chName = processor->channels[i]->getName();
+
+	        //std::cout << chName << std::endl;
+
+	        lfpDisplay->channelInfo[i]->setName(chName);
+	        lfpDisplay->enableChannel(isChannelEnabled[i], i);
+
+    	}
+
+    	lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+
+    	resized();
     }
 
-    lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+}
 
-    resized();
-
+void LfpDisplayCanvas::buttonClicked(Button* b)
+{
+    if (b == invertInputButton)
+    {
+        lfpDisplay->setInputInverted(b->getToggleState());
+    }
 }
 
 void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
@@ -354,13 +377,13 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
                 screenBuffer->addFrom(channel, // destChannel
                                       screenBufferIndex, // destStartSample
-                                      displayBuffer->getSampleData(channel, displayBufferIndex), // source
+                                      displayBuffer->getReadPointer(channel, displayBufferIndex), // source
                                       1, // numSamples
                                       invAlpha*gain); // gain
 
                 screenBuffer->addFrom(channel, // destChannel
                                       screenBufferIndex, // destStartSample
-                                      displayBuffer->getSampleData(channel, nextPos), // source
+                                      displayBuffer->getReadPointer(channel, nextPos), // source
                                       1, // numSamples
                                       alpha*gain); // gain
 
@@ -390,7 +413,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
     }
 }
 
-float LfpDisplayCanvas::getXCoord(int chan, int samp)
+const float LfpDisplayCanvas::getXCoord(int chan, int samp)
 {
     return samp;
 }
@@ -400,9 +423,14 @@ int LfpDisplayCanvas::getNumChannels()
     return nChans;
 }
 
-float LfpDisplayCanvas::getYCoord(int chan, int samp)
+const float LfpDisplayCanvas::getYCoord(int chan, int samp)
 {
-    return *screenBuffer->getSampleData(chan, samp);
+    return *screenBuffer->getReadPointer(chan, samp);
+}
+
+bool LfpDisplayCanvas::getInputInvertedState()
+{
+    return invertInputButton->getToggleState();
 }
 
 void LfpDisplayCanvas::paint(Graphics& g)
@@ -472,7 +500,7 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
     xmlNode->setAttribute("Timebase",timebaseSelection->getSelectedId());
     xmlNode->setAttribute("Spread",spreadSelection->getSelectedId());
     xmlNode->setAttribute("colorGrouping",colorGroupingSelection->getSelectedId());
-    
+    xmlNode->setAttribute("isInverted",invertInputButton->getToggleState());
 
     int eventButtonState = 0;
 
@@ -520,6 +548,8 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
                 colorGroupingSelection->setSelectedId(1);
             }
 
+            invertInputButton->setToggleState(xmlNode->getBoolAttribute("isInverted", true), sendNotification);
+
             viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
                                       xmlNode->getIntAttribute("ScrollY"));
 
@@ -539,9 +569,13 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
             	if (channelDisplayState.substring(i,i+1).equalsIgnoreCase("1"))
             	{
+            		//std::cout << "LfpDisplayCanvas enabling channel " << i << std::endl;
             		lfpDisplay->enableChannel(true, i);
+            		isChannelEnabled.set(i,true); //lfpDisplay->enableChannel(true, i);
             	} else {
+            		//std::cout << "LfpDisplayCanvas disabling channel " << i << std::endl;
             		lfpDisplay->enableChannel(false, i);
+            		isChannelEnabled.set(i,false); 
             	}
 
             	
@@ -840,6 +874,18 @@ void LfpDisplay::setChannelHeight(int r)
 
 }
 
+void LfpDisplay::setInputInverted(bool isInverted)
+{
+
+    for (int i = 0; i < numChans; i++)
+    {
+        channels[i]->setInputInverted(isInverted);
+    }
+
+    resized();
+
+}
+
 int LfpDisplay::getChannelHeight()
 {
     return channels[0]->getChannelHeight();
@@ -955,6 +1001,7 @@ void LfpDisplay::enableChannel(bool state, int chan)
 	if (chan < numChans)
 	{
 		channelInfo[chan]->setEnabledState(state);
+		canvas->isChannelEnabled.set(chan, state);
 	}
 }
 
@@ -963,8 +1010,8 @@ void LfpDisplay::setEnabledState(bool state, int chan)
 
 	if (chan < numChans)
 	{
-
 		channels[chan]->setEnabledState(state);
+		canvas->isChannelEnabled.set(chan, state);
 	}
 }
 
@@ -984,7 +1031,7 @@ void LfpDisplay::setEnabledState(bool state, int chan)
 LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, int channelNumber) :
     canvas(c), display(d), isSelected(false), chan(channelNumber), 
     channelOverlap(300), channelHeight(40), range(1000.0f),
-    isEnabled(true)
+    isEnabled(true), inputInverted(false), canBeInverted(true)
 {
 
 
@@ -1190,9 +1237,13 @@ void LfpChannelDisplay::setColour(Colour c)
 void LfpChannelDisplay::setChannelHeight(int c)
 {
     channelHeight = c;
+
     channelHeightFloat = (float) channelHeight;
-    //channelOverlap = channelHeight / 2; //clips data too early,
-    channelOverlap = channelHeight *5;
+
+    if (!inputInverted)
+        channelHeightFloat = -channelHeightFloat;
+
+    channelOverlap = channelHeight*5;
 }
 
 int LfpChannelDisplay::getChannelHeight()
@@ -1212,6 +1263,21 @@ int LfpChannelDisplay::getChannelOverlap()
     return channelOverlap;
 }
 
+void LfpChannelDisplay::setCanBeInverted(bool _canBeInverted)
+{
+	canBeInverted = _canBeInverted;
+}
+
+void LfpChannelDisplay::setInputInverted(bool isInverted)
+{
+    if (canBeInverted)
+    {
+        inputInverted = isInverted;
+
+        setChannelHeight(channelHeight);
+    }
+}
+
 void LfpChannelDisplay::setName(String name_)
 {
     name = name_;
@@ -1225,14 +1291,14 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
 
 	chan = ch;
 
-	enableButton = new UtilityButton("ON", Font("Small Text", 13, Font::plain));
+	enableButton = new UtilityButton("CH"+String(ch+1), Font("Small Text", 13, Font::plain));
     enableButton->setRadius(5.0f);
     
     enableButton->setEnabledState(true);
     enableButton->setCorners(true, true, true, true);
     enableButton->addListener(this);
     enableButton->setClickingTogglesState(true);
-    enableButton->setToggleState(true, false);
+    enableButton->setToggleState(true, dontSendNotification);
 
     addAndMakeVisible(enableButton);
 
@@ -1247,12 +1313,12 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
 
 	UtilityButton* b = (UtilityButton*) button;
 
-	if (state)
-	{
-		b->setLabel("ON");
-	} else {
-		b->setLabel("OFF");
-	}
+	// if (state)
+	// {
+	// 	b->setLabel("ON");
+	// } else {
+	// 	b->setLabel("OFF");
+	// }
 
 	std::cout << "Turn channel " << chan << " to " << button->getToggleState() << std::endl;
 
@@ -1260,21 +1326,22 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
 
 void LfpChannelDisplayInfo::setEnabledState(bool state)
 {
-	enableButton->setToggleState(state, true);
+	enableButton->setToggleState(state, sendNotification);
 }
 
 void LfpChannelDisplayInfo::paint(Graphics& g)
 {
 
-
     int center = getHeight()/2;
 
     g.setColour(lineColour);
 
-    g.setFont(channelFont);
-    g.setFont(channelHeightFloat*0.3);
+    g.fillRoundedRectangle(5,center-8,41,22,8.0f);
 
-    g.drawText(name, 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
+  //  g.setFont(channelFont);
+   // g.setFont(channelHeightFloat*0.3);
+
+  //  g.drawText(name, 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
 
 }
 
@@ -1283,7 +1350,7 @@ void LfpChannelDisplayInfo::resized()
 
 	int center = getHeight()/2;
 
-	enableButton->setBounds(10,center+10,25,14);
+	enableButton->setBounds(8,center-5,35,16);
 }
 
 

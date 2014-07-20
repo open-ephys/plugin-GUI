@@ -23,6 +23,8 @@
 
 #include "MergerEditor.h"
 #include "../Utilities/Merger.h"
+#include "../ProcessorGraph.h"
+#include "../../UI/EditorViewport.h"
 
 // PipelineSelectorButton::PipelineSelectorButton()
 // 	: DrawableButton ("Selector", DrawableButton::ImageFitted)
@@ -55,7 +57,7 @@ MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParamete
     : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-    desiredWidth = 90;
+    desiredWidth = 85;
 
     pipelineSelectorA = new ImageButton("Pipeline A");
 
@@ -72,7 +74,7 @@ MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParamete
 
     pipelineSelectorA->addListener(this);
     pipelineSelectorA->setBounds(-10,25,95,50);
-    pipelineSelectorA->setToggleState(true,false);
+    pipelineSelectorA->setToggleState(true, dontSendNotification);
     addAndMakeVisible(pipelineSelectorA);
 
     pipelineSelectorB = new ImageButton("Pipeline B");
@@ -84,7 +86,7 @@ MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParamete
 
     pipelineSelectorB->addListener(this);
     pipelineSelectorB->setBounds(-10,75,95,50);
-    pipelineSelectorB->setToggleState(false,false);
+    pipelineSelectorB->setToggleState(false, dontSendNotification);
     addAndMakeVisible(pipelineSelectorB);
 
 }
@@ -98,42 +100,135 @@ void MergerEditor::buttonEvent(Button* button)
 {
     if (button == pipelineSelectorA)
     {
-        pipelineSelectorA->setToggleState(true,false);
-        pipelineSelectorB->setToggleState(false,false);
+        pipelineSelectorA->setToggleState(true, dontSendNotification);
+        pipelineSelectorB->setToggleState(false, dontSendNotification);
         Merger* processor = (Merger*) getProcessor();
         processor->switchIO(0);
 
     }
     else if (button == pipelineSelectorB)
     {
-        pipelineSelectorB->setToggleState(true,false);
-        pipelineSelectorA->setToggleState(false,false);
+        pipelineSelectorB->setToggleState(true, dontSendNotification);
+        pipelineSelectorA->setToggleState(false, dontSendNotification);
         Merger* processor = (Merger*) getProcessor();
         processor->switchIO(1);
 
     }
+
+    getEditorViewport()->makeEditorVisible(this, false);
+}
+
+void MergerEditor::mouseDown(const MouseEvent& e)
+{
+
+
+
+    if (e.mods.isRightButtonDown())
+    {
+
+        PopupMenu m;
+        m.addItem(1, "Choose input 2:",false);
+
+        Array<GenericProcessor*> availableProcessors = getProcessorGraph()->getListOfProcessors();
+
+        for (int i = 0; i < availableProcessors.size(); i++)
+        {
+            if (!availableProcessors[i]->isSink() && 
+                !availableProcessors[i]->isMerger() &&
+                !availableProcessors[i]->isSplitter() &&
+                availableProcessors[i]->getDestNode() != getProcessor())
+            {
+
+                String name = String(availableProcessors[i]->getNodeId());
+                name += " - ";
+                name += availableProcessors[i]->getName();
+
+                m.addItem(i+2, name);
+                //processorsInList.add(availableProcessors[i]);
+            }
+        }
+
+        const int result = m.show();
+
+        if (result > 1)
+        {
+            std::cout << "Selected " << availableProcessors[result-2]->getName() << std::endl;
+        
+            switchSource(1);
+
+            Merger* processor = (Merger*) getProcessor();
+            processor->setMergerSourceNode(availableProcessors[result-2]);
+            availableProcessors[result-2]->setDestNode(getProcessor());
+
+            getGraphViewer()->updateNodeLocations();
+
+            getEditorViewport()->makeEditorVisible(this, false, true);
+        }
+    }
+
+    
+
 }
 
 void MergerEditor::switchSource(int source)
 {
     if (source == 0)
     {
-        pipelineSelectorA->setToggleState(true,false);
-        pipelineSelectorB->setToggleState(false,false);
+        pipelineSelectorA->setToggleState(true, dontSendNotification);
+        pipelineSelectorB->setToggleState(false, dontSendNotification);
         Merger* processor = (Merger*) getProcessor();
         processor->switchIO(0);
 
     }
     else if (source == 1)
     {
-        pipelineSelectorB->setToggleState(true,false);
-        pipelineSelectorA->setToggleState(false,false);
+        pipelineSelectorB->setToggleState(true, dontSendNotification);
+        pipelineSelectorA->setToggleState(false, dontSendNotification);
         Merger* processor = (Merger*) getProcessor();
         processor->switchIO(1);
 
     }
 }
 
+Array<GenericEditor*> MergerEditor::getConnectedEditors()
+{
+
+    Array<GenericEditor*> editors;
+
+    Merger* processor = (Merger*) getProcessor();
+    
+    for (int pathNum = 0; pathNum < 2; pathNum++)
+    {
+        processor->switchIO();
+
+        if (processor->getSourceNode() != nullptr)
+            editors.add(processor->getSourceNode()->getEditor());
+        else
+            editors.add(nullptr);
+    }
+    
+    return editors;
+
+}
+
+int MergerEditor::getPathForEditor(GenericEditor* editor)
+{
+    Merger* processor = (Merger*) getProcessor();
+    
+    for (int pathNum = 0; pathNum < 2; pathNum++)
+    {
+    switchSource(pathNum);
+    
+    if (processor->getSourceNode() != nullptr)
+    {
+        if (processor->getEditor() == editor)
+            return pathNum;
+    }
+    }
+    
+    return -1;
+
+}
 
 void MergerEditor::switchIO(int source)
 {
@@ -142,14 +237,15 @@ void MergerEditor::switchIO(int source)
     select();
 }
 
+
 void MergerEditor::switchSource()
 {
 
     bool isBOn = pipelineSelectorB->getToggleState();
     bool isAOn = pipelineSelectorA->getToggleState();
 
-    pipelineSelectorB->setToggleState(!isBOn,false);
-    pipelineSelectorA->setToggleState(!isAOn,false);
+    pipelineSelectorB->setToggleState(!isBOn, dontSendNotification);
+    pipelineSelectorA->setToggleState(!isAOn, dontSendNotification);
 
     Merger* processor = (Merger*) getProcessor();
     processor->switchIO();

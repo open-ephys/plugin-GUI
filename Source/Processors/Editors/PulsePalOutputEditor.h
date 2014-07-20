@@ -54,8 +54,8 @@ private:
 
     PulsePal* pulsePal;
 
-    void saveEditorParameters(XmlElement* xml);
-    void loadEditorParameters(XmlElement* xml);
+    void saveCustomParameters(XmlElement* xml);
+    void loadCustomParameters(XmlElement* xml);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PulsePalOutputEditor);
 

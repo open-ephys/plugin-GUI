@@ -91,7 +91,7 @@ private:
 
     bool isPlaying;
 
-    AudioProcessorPlayer* graphPlayer;
+    ScopedPointer<AudioProcessorPlayer> graphPlayer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioComponent);
 

@@ -74,7 +74,7 @@ PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode, bool useD
     backgroundColours.add(Colours::magenta);
     backgroundColours.add(Colours::blue);
 
-    plusButton->setToggleState(true, true);
+    plusButton->setToggleState(true, sendNotification);
     
     //interfaces.clear();
 
@@ -152,7 +152,7 @@ void PhaseDetectorEditor::addDetector()
     //std::cout << itemName << std::endl;
 
     detectorSelector->addItem(itemName, detectorNumber);
-    detectorSelector->setSelectedId(detectorNumber, false);
+    detectorSelector->setSelectedId(detectorNumber, dontSendNotification);
 
     for (int i = 0; i < interfaces.size()-1; i++)
     {
@@ -161,7 +161,7 @@ void PhaseDetectorEditor::addDetector()
 
 }
 
-void PhaseDetectorEditor::saveEditorParameters(XmlElement* xml)
+void PhaseDetectorEditor::saveCustomParameters(XmlElement* xml)
 {
 
     xml->setAttribute("Type", "PhaseDetectorEditor");
@@ -176,7 +176,7 @@ void PhaseDetectorEditor::saveEditorParameters(XmlElement* xml)
     }
 }
 
-void PhaseDetectorEditor::loadEditorParameters(XmlElement* xml)
+void PhaseDetectorEditor::loadCustomParameters(XmlElement* xml)
 {
 
     int i = 0;
@@ -232,7 +232,7 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
         double theta = PI/2+phase*PI/2;
 
         phaseButton->setBounds(theta*12+1.0f, -sin(theta)*20 + 31, 8, 8);
-        phaseButton->setToggleState(false, false);
+        phaseButton->setToggleState(false, dontSendNotification);
         phaseButton->setRadioGroupId(12);
         phaseButton->addListener(this);
         phaseButtons.add(phaseButton);
@@ -348,7 +348,7 @@ void DetectorInterface::updateChannels(int numChannels)
 
     }
 
-    inputSelector->setSelectedId(1, false);
+    inputSelector->setSelectedId(1, dontSendNotification);
 }
 
 void DetectorInterface::paint(Graphics& g)
@@ -382,7 +382,7 @@ void DetectorInterface::setPhase(int p)
 {
 
     if (p >= 0)
-        phaseButtons[p]->setToggleState(true, false);
+        phaseButtons[p]->setToggleState(true, dontSendNotification);
     
 
     processor->setActiveModule(idNum);

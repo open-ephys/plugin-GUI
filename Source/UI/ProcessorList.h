@@ -25,7 +25,6 @@
 #define __PROCESSORLIST_H_C3A661E9__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "../Processors/Visualization/OpenGLCanvas.h"
 #include "../AccessClass.h"
 
 class ProcessorListItem;
@@ -48,7 +47,7 @@ class UIComponent;
 
 */
 
-class ProcessorList : public OpenGLCanvas,
+class ProcessorList : public Component,
     public DragAndDropContainer,
     public AccessClass,
     public ChangeListener
@@ -68,10 +67,28 @@ public:
     /** Returns the open/closed state of the ProcessorList.*/
     bool isOpen();
 
-private:
+    /** Draws the ProcessorList. */
+    void paint(Graphics& g);
 
-    /** Renders the canvas. */
-    void paintCanvas(Graphics& g);
+    /** Gets the colors of the different types of processors.*/
+    Array<Colour> getColours();
+
+    /** Sets the colors of the different types of processors.*/
+    void setColours(Array<Colour>);
+
+    /** Saves the ProcessorList state. */
+    void saveStateToXml(XmlElement*);
+
+    /** Loads the ProcessorList state. */
+    void loadStateFromXml(XmlElement*);
+
+    void resized();
+
+    /** Returns the height requested by the ProcessorList. Determines whether or not
+    to draw scroll bars.*/
+    int getTotalHeight();
+
+private:
 
     /** The main method for drawing the ProcessorList.*/
     void drawItems(Graphics& g);
@@ -88,14 +105,12 @@ private:
     /** Returns the ProcessorListItem that sits at a given y coordinate.*/
     ProcessorListItem* getListItemForYPos(int y);
 
-    /** Sets the appropriate OpenGL viewport for drawing.*/
+    /** Sets the appropriate viewport for drawing.*/
     void setViewport(Graphics& g, bool);
 
     int currentColor;
 
-    /** Returns the height requested by the ProcessorList. Determines whether or not
-    the OpenGLCanvas needs to draw scroll bars.*/
-    int getTotalHeight();
+    
 
     /** Deselects all items within the ProcessorList.*/
     void clearSelectionState();
@@ -107,10 +122,10 @@ private:
     String category;
 
     /** Called when a mouse click begins within the boundaries of the ProcessorList.*/
-    void mouseDownInCanvas(const MouseEvent& e);
+    void mouseDown(const MouseEvent& e);
 
     /** Called when a mouse drag occurs within the boundaries of the ProcessorList.*/
-    void mouseDragInCanvas(const MouseEvent& e);
+    void mouseDrag(const MouseEvent& e);
 
     /** The base item in the list.*/
     ScopedPointer<ProcessorListItem> baseItem;

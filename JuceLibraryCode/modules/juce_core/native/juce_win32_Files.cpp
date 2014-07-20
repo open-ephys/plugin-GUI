@@ -42,7 +42,7 @@ namespace WindowsFileHelpers
     {
         static_jassert (sizeof (ULARGE_INTEGER) == sizeof (FILETIME)); // tell me if this fails!
 
-        return (int64) ((reinterpret_cast<const ULARGE_INTEGER*> (ft)->QuadPart - literal64bit (116444736000000000)) / 10000);
+        return (int64) ((reinterpret_cast<const ULARGE_INTEGER*> (ft)->QuadPart - 116444736000000000LL) / 10000);
     }
 
     FILETIME* timeToFileTime (const int64 time, FILETIME* const ft) noexcept
@@ -50,7 +50,7 @@ namespace WindowsFileHelpers
         if (time <= 0)
             return nullptr;
 
-        reinterpret_cast<ULARGE_INTEGER*> (ft)->QuadPart = (ULONGLONG) (time * 10000 + literal64bit (116444736000000000));
+        reinterpret_cast<ULARGE_INTEGER*> (ft)->QuadPart = (ULONGLONG) (time * 10000 + 116444736000000000LL);
         return ft;
     }
 
@@ -93,7 +93,7 @@ namespace WindowsFileHelpers
         if (SHGetSpecialFolderPath (0, path, type, FALSE))
             return File (String (path));
 
-        return File::nonexistent;
+        return File();
     }
 
     File getModuleFileName (HINSTANCE moduleHandle)
@@ -234,7 +234,7 @@ void FileInputStream::openHandle()
         status = WindowsFileHelpers::getResultForLastError();
 }
 
-void FileInputStream::closeHandle()
+FileInputStream::~FileInputStream()
 {
     CloseHandle ((HANDLE) fileHandle);
 }
@@ -474,6 +474,28 @@ int64 File::getVolumeTotalSize() const
     return WindowsFileHelpers::getDiskSpaceInfo (getFullPathName(), true);
 }
 
+uint64 File::getFileIdentifier() const
+{
+    uint64 result = 0;
+
+    HANDLE h = CreateFile (getFullPathName().toWideCharPointer(),
+                           GENERIC_READ, FILE_SHARE_READ, nullptr,
+                           OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, 0);
+
+    if (h != INVALID_HANDLE_VALUE)
+    {
+        BY_HANDLE_FILE_INFORMATION info;
+        zerostruct (info);
+
+        if (GetFileInformationByHandle (h, &info))
+            result = (((uint64) info.nFileIndexHigh) << 32) | info.nFileIndexLow;
+
+        CloseHandle (h);
+    }
+
+    return result;
+}
+
 //==============================================================================
 bool File::isOnCDRomDrive() const
 {
@@ -518,6 +540,7 @@ File JUCE_CALLTYPE File::getSpecialLocation (const SpecialLocationType type)
         case userDesktopDirectory:              csidlType = CSIDL_DESKTOP; break;
         case userApplicationDataDirectory:      csidlType = CSIDL_APPDATA; break;
         case commonApplicationDataDirectory:    csidlType = CSIDL_COMMON_APPDATA; break;
+        case commonDocumentsDirectory:          csidlType = CSIDL_COMMON_DOCUMENTS; break;
         case globalApplicationsDirectory:       csidlType = CSIDL_PROGRAM_FILES; break;
         case userMusicDirectory:                csidlType = 0x0d; /*CSIDL_MYMUSIC*/ break;
         case userMoviesDirectory:               csidlType = 0x0e; /*CSIDL_MYVIDEO*/ break;
@@ -541,7 +564,7 @@ File JUCE_CALLTYPE File::getSpecialLocation (const SpecialLocationType type)
 
         default:
             jassertfalse; // unknown type?
-            return File::nonexistent;
+            return File();
     }
 
     return WindowsFileHelpers::getSpecialFolderPath (csidlType);
@@ -589,6 +612,11 @@ String File::getVersion() const
 }
 
 //==============================================================================
+bool File::isLink() const
+{
+    return hasFileExtension (".lnk");
+}
+
 File File::getLinkedTarget() const
 {
     File result (*this);
@@ -599,8 +627,8 @@ File File::getLinkedTarget() const
     else if (! hasFileExtension (".lnk"))
         return result;
 
-    ComSmartPtr <IShellLink> shellLink;
-    ComSmartPtr <IPersistFile> persistFile;
+    ComSmartPtr<IShellLink> shellLink;
+    ComSmartPtr<IPersistFile> persistFile;
 
     if (SUCCEEDED (shellLink.CoCreateInstance (CLSID_ShellLink))
          && SUCCEEDED (shellLink.QueryInterface (persistFile))
@@ -621,8 +649,10 @@ bool File::createLink (const String& description, const File& linkFileToCreate) 
 {
     linkFileToCreate.deleteFile();
 
-    ComSmartPtr <IShellLink> shellLink;
-    ComSmartPtr <IPersistFile> persistFile;
+    ComSmartPtr<IShellLink> shellLink;
+    ComSmartPtr<IPersistFile> persistFile;
+
+    CoInitialize (0);
 
     return SUCCEEDED (shellLink.CoCreateInstance (CLSID_ShellLink))
         && SUCCEEDED (shellLink->SetPath (getFullPathName().toWideCharPointer()))
@@ -704,7 +734,7 @@ bool DirectoryIterator::NativeIterator::next (String& filenameFound,
 
 
 //==============================================================================
-bool Process::openDocument (const String& fileName, const String& parameters)
+bool JUCE_CALLTYPE Process::openDocument (const String& fileName, const String& parameters)
 {
     HINSTANCE hInstance = 0;
 

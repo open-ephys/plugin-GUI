@@ -30,23 +30,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-	: GenericEditor(parentNode, useDefaultParameterEditors), previousChannelCount(0)
+	: GenericEditor(parentNode, useDefaultParameterEditors), previousChannelCount(0), isConfigured(false)
 
 {
 	desiredWidth = 340;
 
+    scrollDistance = 0;
+
 	selectAllButton = new ElectrodeEditorButton("Select All",Font("Small Text",14,Font::plain));
 	selectAllButton->addListener(this);
 	addAndMakeVisible(selectAllButton);
-	selectAllButton->setBounds(140,110,110,10);
-	selectAllButton->setToggleState(false, false);
+	selectAllButton->setBounds(125,110,110,10);
+	selectAllButton->setToggleState(false, dontSendNotification);
 
 	modifyButton = new ElectrodeEditorButton("Remap",Font("Small Text",14,Font::plain));
 	modifyButton->addListener(this);
 	addAndMakeVisible(modifyButton);
-	modifyButton->setBounds(250,110,60,10);
-	modifyButton->setToggleState(false, false);
+	modifyButton->setBounds(220,110,60,10);
+	modifyButton->setToggleState(false, dontSendNotification);
 	modifyButton->setClickingTogglesState(true);
+
+	resetButton = new ElectrodeEditorButton("Reset", Font("Small Text",14,Font::plain));
+	resetButton->addListener(this);
+	addAndMakeVisible(resetButton);
+	resetButton->setBounds(285,110,60,10);
+	resetButton->setToggleState(true, dontSendNotification);
+	resetButton->setClickingTogglesState(false);
+	resetButton->setEnabled(false);
 
 	//    channelSelector->setRadioStatus(true);
 
@@ -56,7 +66,7 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
 		referenceButtons.add(button);
 
 		button->setBounds(10+i*30,110,20,15);
-		button->setToggleState(false,false);
+		button->setToggleState(false, dontSendNotification);
 		button->setRadioGroupId(900);
 
 		addAndMakeVisible(button);
@@ -77,46 +87,80 @@ ChannelMappingEditor::~ChannelMappingEditor()
 
 void ChannelMappingEditor::updateSettings()
 {
+	if (isConfigured)
+	{	
+		if (getProcessor()->getNumInputs() > previousChannelCount)
+		{
+			createElectrodeButtons(getProcessor()->getNumInputs(),false);
+			previousChannelCount = getProcessor()->getNumInputs();
+		}
+		else if (!reorderActive)
+		{
+			checkUnusedChannels();
+		}
 
-	if (getProcessor()->getNumInputs() != previousChannelCount)
+	} else if (getProcessor()->getNumInputs() != previousChannelCount)
 	{
-
 		createElectrodeButtons(getProcessor()->getNumInputs());
-
 		previousChannelCount = getProcessor()->getNumInputs();
-
 	}
-
 }
 
-void ChannelMappingEditor::createElectrodeButtons(int numNeeded)
+void ChannelMappingEditor::createElectrodeButtons(int numNeeded, bool clearPrevious)
 {
+	int startButton;
 
-	electrodeButtons.clear();
+	if (clearPrevious)
+	{
+		electrodeButtons.clear();
 
-	referenceArray.clear();
-	channelArray.clear();
-	referenceChannels.clear();
-	enabledChannelArray.clear();
+		referenceArray.clear();
+		channelArray.clear();
+		referenceChannels.clear();
+		enabledChannelArray.clear();
+		startButton=0;
+		previousClickedChan = -1;
+		previousShiftClickedChan = -1;
+		referenceButtons[0]->setToggleState(true, dontSendNotification);
+		selectedReference = 0;
+		modifyButton->setToggleState(false, dontSendNotification);
+		reorderActive = false;
+		channelSelector->activateButtons();
 
-	int width = 20;
-	int height = 15;
+	}
+	else
+	{
+		startButton = previousChannelCount;
+		if (startButton > numNeeded) return;
+		//row = startButton/16;
+		//column = startButton % 16;
+	}
 
-	int row = 0;
-	int column = 0;
-
-	for (int i = 0; i < numNeeded; i++)
+	for (int i = startButton; i < numNeeded; i++)
 	{
 		ElectrodeButton* button = new ElectrodeButton(i+1);
 		electrodeButtons.add(button);
 
-		button->setBounds(10+(column++)*(width), 30+row*(height), width, 15);
-		button->setToggleState(false,false);
 		button->setRadioGroupId(0);
+		
+        // if (!getCollapsedState())
+        //     addAndMakeVisible(button);
+        // else
+        addChildComponent(button); // determine visibility in refreshButtonLocations()
 
-		addAndMakeVisible(button);
 		button->addListener(this);
-
+		if (reorderActive)
+		{
+			button->setToggleState(true,dontSendNotification);
+			electrodeButtons[i]->setClickingTogglesState(false);
+			electrodeButtons[i]->addMouseListener(this,false);
+		}
+		else
+		{
+			button->setToggleState(false,dontSendNotification);
+			electrodeButtons[i]->setClickingTogglesState(true);
+		}
+		
 		referenceArray.add(-1);
 
 		getProcessor()->setCurrentChannel(i);
@@ -127,33 +171,55 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded)
 		channelArray.add(i+1);
 		enabledChannelArray.add(true);
 
-		if (column % 16 == 0)
-		{
-			column = 0;
-			row++;
-		}
-
 	}
-	getProcessor()->setCurrentChannel(-1);
-	for (int i = 0; i < NUM_REFERENCES; i++)
+
+	if (clearPrevious)
 	{
+		getProcessor()->setCurrentChannel(-1);
+		for (int i = 0; i < NUM_REFERENCES; i++)
+		{
 
-		getProcessor()->setParameter(2,i); //Clear reference
-		referenceChannels.add(-1);
+			getProcessor()->setParameter(2,i); //Clear reference
+			referenceChannels.add(-1);
+			referenceButtons[i]->setEnabled(true);
+		}
 	}
-
-	referenceButtons[0]->setToggleState(true,false);
-	selectedReference = 0;
-
-	modifyButton->setToggleState(false,false);
-	reorderActive = false;
-	previousClickedChan = -1;
-	previousShiftClickedChan = -1;
-
-
 	channelSelector->setRadioStatus(true);
+
+    refreshButtonLocations();
 }
 
+void ChannelMappingEditor::refreshButtonLocations()
+{
+    int width = 19;
+    int height = 15;
+    int row = (int) -scrollDistance;
+    int column = 0;
+
+    for (int i = 0; i < electrodeButtons.size(); i++)
+    {
+
+        ElectrodeButton* button = electrodeButtons[i];
+
+        button->setBounds(10+(column++)*(width), 30+row*(height), width, 15);
+
+        if (row <= 4 && row >= 0 && !getCollapsedState())
+            button->setVisible(true);
+        else
+            button->setVisible(false);
+
+        if (column % 16 == 0)
+        {
+            column = 0;
+            row++;
+        }
+    }
+}
+
+void ChannelMappingEditor::collapsedStateChanged()
+{
+    refreshButtonLocations();
+}
 
 void ChannelMappingEditor::buttonEvent(Button* button)
 {
@@ -162,10 +228,18 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 	{
 		for (int i = 0; i < electrodeButtons.size(); i++)
 		{
-			electrodeButtons[i]->setToggleState(true,false);
+			electrodeButtons[i]->setToggleState(true,dontSendNotification);
 			setChannelReference(electrodeButtons[i]);
 		}
 		previousClickedChan = -1;
+		setConfigured(true);		
+	}
+	else if (button == resetButton)
+	{
+		createElectrodeButtons(getProcessor()->getNumInputs());
+		previousChannelCount = getProcessor()->getNumInputs();
+		setConfigured(false);
+		getEditorViewport()->makeEditorVisible(this, false, true);
 	}
 	else if (button == modifyButton)
 	{
@@ -174,11 +248,11 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 			channelSelector->activateButtons();
 			reorderActive = false;
 			selectedReference = 0;
-			for (int i=0; i < referenceButtons.size(); i++)
+			for (int i = 0; i < referenceButtons.size(); i++)
 			{
 				referenceButtons[i]->setEnabled(true);
 			}
-			referenceButtons[0]->setToggleState(true,false);
+			referenceButtons[0]->setToggleState(true, dontSendNotification);
 			Array<int> a;
 
 			if (referenceChannels[selectedReference] >= 0 )
@@ -193,13 +267,13 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 				electrodeButtons[i]->removeMouseListener(this);
 				if (referenceArray[electrodeButtons[i]->getChannelNum()-1] == selectedReference)
 				{
-					electrodeButtons[i]->setToggleState(true,false);
+					electrodeButtons[i]->setToggleState(true, dontSendNotification);
 				}
 				else
 				{
-					electrodeButtons[i]->setToggleState(false,false);
+					electrodeButtons[i]->setToggleState(false, dontSendNotification);
 				}
-				if (enabledChannelArray[electrodeButtons[i]->getChannelNum()-1])
+				if ((enabledChannelArray[electrodeButtons[i]->getChannelNum()-1]) && (electrodeButtons[i]->getChannelNum() <= getProcessor()->getNumInputs()))
 				{
 					electrodeButtons[i]->setEnabled(true);
 				}
@@ -218,7 +292,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 			for (int i=0; i < referenceButtons.size(); i++)
 			{
 				referenceButtons[i]->setEnabled(false);
-				referenceButtons[i]->setToggleState(false,false);
+				referenceButtons[i]->setToggleState(false, dontSendNotification);
 			}
 
 			for (int i = 0; i < electrodeButtons.size(); i++)
@@ -227,14 +301,14 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 				electrodeButtons[i]->setEnabled(true);
 				if (enabledChannelArray[electrodeButtons[i]->getChannelNum()-1])
 				{
-					electrodeButtons[i]->setToggleState(true,false);
+					electrodeButtons[i]->setToggleState(true, dontSendNotification);
 				}
 				else
 				{
-					electrodeButtons[i]->setToggleState(false,false);
+					electrodeButtons[i]->setToggleState(false, dontSendNotification);
 				}
 				electrodeButtons[i]->addMouseListener(this,false);
-				
+
 			}
 			selectAllButton->setEnabled(false);
 		}
@@ -245,7 +319,8 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 
 		Array<int> a;
 
-		if (referenceChannels[selectedReference] >= 0 )
+		if ((referenceChannels[selectedReference] >= 0 ) 
+			&& (referenceChannels[selectedReference] < channelSelector->getNumChannels() ))
 		{
 			a.add(referenceChannels[selectedReference]);
 		}
@@ -255,11 +330,11 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 		{
 			if (referenceArray[electrodeButtons[i]->getChannelNum()-1] == selectedReference)
 			{
-				electrodeButtons[i]->setToggleState(true,false);
+				electrodeButtons[i]->setToggleState(true, dontSendNotification);
 			}
 			else
 			{
-				electrodeButtons[i]->setToggleState(false,false);
+				electrodeButtons[i]->setToggleState(false, dontSendNotification);
 			}
 		}
 		previousClickedChan = -1;
@@ -269,6 +344,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 	{
 		if (!reorderActive)
 		{
+			setConfigured(true);
 			int clickedChan = electrodeButtons.indexOf((ElectrodeButton*)button);
 
 			if (ModifierKeys::getCurrentModifiers().isShiftDown() && (previousClickedChan >= 0))
@@ -290,7 +366,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 					}
 					for (int i = fromChanA; i <= toChanA; i++)
 					{
-						electrodeButtons[i]->setToggleState(previousClickedState,false);
+						electrodeButtons[i]->setToggleState(previousClickedState, dontSendNotification);
 						setChannelReference(electrodeButtons[i]);
 					}
 				}
@@ -315,7 +391,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 						fromChanA = -1;
 						fromChanD = clickedChan+1;
 						toChanD = previousShiftClickedChan;
-						button->setToggleState(previousClickedState,false); // Do not toggle this button;
+						button->setToggleState(previousClickedState, dontSendNotification); // Do not toggle this button;
 					}
 					else if ((clickedChan < previousClickedChan) && (clickedChan < previousShiftClickedChan))
 					{
@@ -336,18 +412,18 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 						fromChanA = -1;
 						fromChanD = previousShiftClickedChan;
 						toChanD = clickedChan - 1;
-						button->setToggleState(previousClickedState,false); // Do not toggle this button;
+						button->setToggleState(previousClickedState, dontSendNotification); // Do not toggle this button;
 					}
 					else if (clickedChan == previousShiftClickedChan)
 					{
 						fromChanA = -1;
 						fromChanD = -1;
-						button->setToggleState(previousClickedState,false); // Do not toggle this button;
+						button->setToggleState(previousClickedState, dontSendNotification); // Do not toggle this button;
 					}
 					else
 					{
 						fromChanA = -1;
-						button->setToggleState(previousClickedState,false); // Do not toggle this button;
+						button->setToggleState(previousClickedState, dontSendNotification); // Do not toggle this button;
 						if (previousShiftClickedChan < previousClickedChan)
 						{
 							fromChanD = previousShiftClickedChan;
@@ -368,7 +444,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 					{
 						for (int i = fromChanA; i <= toChanA; i++)
 						{
-							electrodeButtons[i]->setToggleState(previousClickedState,false);
+							electrodeButtons[i]->setToggleState(previousClickedState, dontSendNotification);
 							setChannelReference(electrodeButtons[i]);
 						}
 					}
@@ -376,7 +452,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 					{
 						for (int i = fromChanD; i <= toChanD; i++)
 						{
-							electrodeButtons[i]->setToggleState(!previousClickedState,false);
+							electrodeButtons[i]->setToggleState(!previousClickedState, dontSendNotification);
 							setChannelReference(electrodeButtons[i]);
 						}
 					}
@@ -419,16 +495,21 @@ void ChannelMappingEditor::channelChanged(int chan)
 {
 	if (!reorderActive)
 	{
+		setConfigured(true);
 		getProcessor()->setCurrentChannel(chan-1);
 		getProcessor()->setParameter(2,selectedReference);
 		referenceChannels.set(selectedReference,chan-1);
 	}
 }
 
-void ChannelMappingEditor::saveEditorParameters(XmlElement* xml)
+void ChannelMappingEditor::saveCustomParameters(XmlElement* xml)
 {
 	xml->setAttribute("Type", "ChannelMappingEditor");
 
+	//Made a bit generic in case future expansions need more settings
+	XmlElement* settingsXml = xml->createNewChildElement("SETTING");
+	settingsXml->setAttribute("Type","visibleChannels");
+	settingsXml->setAttribute("Value",previousChannelCount);
 	for (int i = 0; i < channelArray.size(); i++)
 	{
 		XmlElement* channelXml = xml->createNewChildElement("CHANNEL");
@@ -446,9 +527,20 @@ void ChannelMappingEditor::saveEditorParameters(XmlElement* xml)
 
 }
 
-void ChannelMappingEditor::loadEditorParameters(XmlElement* xml)
+void ChannelMappingEditor::loadCustomParameters(XmlElement* xml)
 {
-
+	setConfigured(true);
+	forEachXmlChildElementWithTagName(*xml,	settingXml, "SETTING")
+	{
+		if (settingXml->getStringAttribute("Type").equalsIgnoreCase("visibleChannels"))
+		{
+			int nChans = settingXml->getIntAttribute("Value");
+			if (nChans > getProcessor()->getNumInputs())
+			{
+				createElectrodeButtons(nChans,false);
+			}
+		}
+	}
 	forEachXmlChildElementWithTagName(*xml, channelXml, "CHANNEL")
 	{
 		int i = channelXml->getIntAttribute("Number");
@@ -467,7 +559,7 @@ void ChannelMappingEditor::loadEditorParameters(XmlElement* xml)
 			electrodeButtons[i]->setChannelNum(mapping);
 			electrodeButtons[i]->setEnabled(enabled);
 			electrodeButtons[i]->repaint();
-			
+
 
 			getProcessor()->setCurrentChannel(i);
 
@@ -499,16 +591,18 @@ void ChannelMappingEditor::loadEditorParameters(XmlElement* xml)
 	}
 
 	for (int i = 0; i < electrodeButtons.size(); i++)
+	{
+		if (referenceArray[electrodeButtons[i]->getChannelNum()-1] == selectedReference)
 		{
-			if (referenceArray[electrodeButtons[i]->getChannelNum()-1] == selectedReference)
-			{
-				electrodeButtons[i]->setToggleState(true,false);
-			}
-			else
-			{
-				electrodeButtons[i]->setToggleState(false,false);
-			}
+			electrodeButtons[i]->setToggleState(true, dontSendNotification);
 		}
+		else
+		{
+			electrodeButtons[i]->setToggleState(false, dontSendNotification);
+		}
+	}
+
+    refreshButtonLocations();
 
 }
 
@@ -569,7 +663,7 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent &e)
 
 			if (hoverButton != lastHoverButton)
 			{
-				
+
 				electrodeButtons[lastHoverButton]->setVisible(true);
 				electrodeButtons[hoverButton]->setVisible(false);
 
@@ -580,11 +674,11 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent &e)
 						electrodeButtons[i]->setChannelNum(electrodeButtons[i-1]->getChannelNum());
 						if (enabledChannelArray[electrodeButtons[i]->getChannelNum()-1]) //Could be more compact, but definitely less legible
 						{
-							electrodeButtons[i]->setToggleState(true,false);
+							electrodeButtons[i]->setToggleState(true, dontSendNotification);
 						}
 						else
 						{
-							electrodeButtons[i]->setToggleState(false,false);
+							electrodeButtons[i]->setToggleState(false, dontSendNotification);
 						}
 					}
 				}
@@ -595,17 +689,17 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent &e)
 						electrodeButtons[i]->setChannelNum(electrodeButtons[i+1]->getChannelNum());
 						if (enabledChannelArray[electrodeButtons[i]->getChannelNum()-1])
 						{
-							electrodeButtons[i]->setToggleState(true,false);
+							electrodeButtons[i]->setToggleState(true, dontSendNotification);
 						}
 						else
 						{
-							electrodeButtons[i]->setToggleState(false,false);
+							electrodeButtons[i]->setToggleState(false, dontSendNotification);
 						}
 					}
 				}
 				electrodeButtons[hoverButton]->setChannelNum(draggingChannel);
-				electrodeButtons[hoverButton]->setToggleState(enabledChannelArray[draggingChannel-1],false);
-				
+				electrodeButtons[hoverButton]->setToggleState(enabledChannelArray[draggingChannel-1], dontSendNotification);
+
 				lastHoverButton = hoverButton;
 				repaint();
 			}
@@ -622,7 +716,11 @@ void ChannelMappingEditor::mouseUp(const MouseEvent &e)
 		isDragging = false;
 		electrodeButtons[lastHoverButton]->setVisible(true);
 		int from, to;
-		if (lastHoverButton < initialDraggedButton)
+		if (lastHoverButton == initialDraggedButton) 
+		{
+			return;
+		}
+		else if (lastHoverButton < initialDraggedButton)
 		{
 			from = lastHoverButton;
 			to = initialDraggedButton;
@@ -637,6 +735,7 @@ void ChannelMappingEditor::mouseUp(const MouseEvent &e)
 		{
 			setChannelPosition(i,electrodeButtons[i]->getChannelNum());
 		}
+		setConfigured(true);
 	}
 }
 
@@ -651,18 +750,19 @@ void ChannelMappingEditor::mouseDoubleClick(const MouseEvent &e)
 {
 	if ((reorderActive) && electrodeButtons.contains((ElectrodeButton*)e.originalComponent))
 	{
+		setConfigured(true);
 		ElectrodeButton *button = (ElectrodeButton*)e.originalComponent;
 
 		if (button->getToggleState())
 		{
-			button->setToggleState(false,false);
+			button->setToggleState(false, dontSendNotification);
 			enabledChannelArray.set(button->getChannelNum()-1,false);
 			getProcessor()->setCurrentChannel(button->getChannelNum()-1);
 			getProcessor()->setParameter(3,0);
 		}
 		else
 		{
-			button->setToggleState(true,false);
+			button->setToggleState(true, dontSendNotification);
 			enabledChannelArray.set(button->getChannelNum()-1,true);
 			getProcessor()->setCurrentChannel(button->getChannelNum()-1);
 			getProcessor()->setParameter(3,1);
@@ -670,3 +770,52 @@ void ChannelMappingEditor::mouseDoubleClick(const MouseEvent &e)
 		getEditorViewport()->makeEditorVisible(this, false, true);
 	}
 }
+
+void ChannelMappingEditor::mouseWheelMove(const MouseEvent& event,
+                                           const MouseWheelDetails& wheel)
+{
+
+    float maxScrollDistance = ceil(float(electrodeButtons.size() - 80) / 16.0f);
+
+   // std::cout << "Got wheel move: " << wheel.deltaY << std::endl;
+   // channelSelector->shiftChannelsVertical(-wheel.deltaY);
+    scrollDistance -= wheel.deltaY*2;
+
+    if (scrollDistance > maxScrollDistance)
+        scrollDistance = maxScrollDistance;
+
+    if (scrollDistance < 0)
+        scrollDistance = 0;
+
+    refreshButtonLocations();
+}
+
+void ChannelMappingEditor::checkUnusedChannels()
+{
+	for (int i = 0; i < electrodeButtons.size(); i++)
+	{
+		if (electrodeButtons[i]->getChannelNum() > getProcessor()->getNumInputs())
+		{
+			electrodeButtons[i]->setEnabled(false);
+		}
+		else
+		{
+			if (enabledChannelArray[electrodeButtons[i]->getChannelNum()-1])
+			{
+				electrodeButtons[i]->setEnabled(true);
+			}
+			else
+			{
+				electrodeButtons[i]->setEnabled(false);
+			}
+		}
+	}
+}
+void ChannelMappingEditor::setConfigured(bool state)
+{
+	isConfigured = state;
+	resetButton->setEnabled(state);
+	resetButton->setToggleState(!state, dontSendNotification);
+	getProcessor()->setParameter(4,state?1:0);
+}
+

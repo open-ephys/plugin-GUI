@@ -32,10 +32,15 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     processorGraph->setUIComponent(this);
 
     infoLabel = new InfoLabel();
+    std::cout << "Created info label." << std::endl;
+
+    graphViewer = new GraphViewer();
+    std::cout << "Created graph viewer." << std::endl;
 
     dataViewport = new DataViewport();
     addChildComponent(dataViewport);
     dataViewport->addTabToDataViewport("Info", infoLabel,0);
+    dataViewport->addTabToDataViewport("Graph", graphViewer,0);
 
     std::cout << "Created data viewport." << std::endl;
 
@@ -54,8 +59,11 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     std::cout << "Created control panel." << std::endl;
 
     processorList = new ProcessorList();
-    addAndMakeVisible(processorList);
-
+    processorListViewport.setViewedComponent(processorList,false);
+    processorListViewport.setScrollBarsShown(true,false);
+    addAndMakeVisible(&processorListViewport);
+    processorList->setVisible(true);
+    processorList->setBounds(0,0,195,processorList->getTotalHeight());
     std::cout << "Created filter list." << std::endl;
 
     messageCenter = new MessageCenter();
@@ -65,13 +73,6 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     std::cout << "Created message center." << std::endl;
 
     setBounds(0,0,500,400);
-
-    std::cout << "Component width = " << getWidth() << std::endl;
-    std::cout << "Component height = " << getHeight() << std::endl;
-
-    std::cout << "UI component data viewport: " << dataViewport << std::endl;
-
-    std::cout << "Finished UI stuff." << std::endl << std::endl << std::endl;
 
     processorGraph->setUIComponent(this);
     
@@ -83,23 +84,12 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     
     processorGraph->updatePointers(); // needs to happen after processorGraph gets the right pointers
 
-    //processorGraph->sendActionMessage("Test.");
-
-    //processorGraph->loadState();
-
 #if JUCE_MAC
     MenuBarModel::setMacMainMenu(this);
     mainWindow->setMenuBar(0);
 #else
     mainWindow->setMenuBar(this);
 #endif
-
-    //getEditorViewport()->loadState(File("/home/jsiegle/Programming/GUI/Builds/Linux/build/test.xml"));
-    
-    //Check and see where file is being executed
-    //File executable = File::getSpecialLocation(File::currentExecutableFile);
-    //const String executableDirectory = executable.getParentDirectory().getFullPathName();
-    //sendActionMessage(executableDirectory);
 
 }
 
@@ -114,6 +104,95 @@ void UIComponent::resized()
     int w = getWidth();
     int h = getHeight();
 
+    if (editorViewportButton != 0)
+    {
+        editorViewportButton->setBounds(w-230, h-40, 225, 35);
+
+        if (h < 300 && editorViewportButton->isOpen())
+            editorViewportButton->toggleState();
+
+        if (h < 200)
+            editorViewportButton->setBounds(w-230,h-40+200-h,225,35);
+        //else
+        //    editorViewportButton->setVisible(true);
+    }
+
+    if (editorViewport != 0)
+    {
+        //if (h < 400)
+        //    editorViewport->setVisible(false);
+        //else
+        //    editorViewport->setVisible(true);
+
+        if (editorViewportButton->isOpen() && !editorViewport->isVisible())
+            editorViewport->setVisible(true);
+        else if (!editorViewportButton->isOpen() && editorViewport->isVisible())
+            editorViewport->setVisible(false);
+
+        editorViewport->setBounds(6,h-190,w-11,150);
+
+        
+    }
+
+    if (controlPanel != 0)
+    {
+
+        int controlPanelWidth = w-210;
+        int addHeight = 0;
+        int leftBound;
+
+        if (w >= 460){
+            leftBound = 202;
+        }
+        else {
+            leftBound = w-258;
+            controlPanelWidth = w-leftBound;
+        }
+
+        if (controlPanelWidth < 750)
+        {
+            addHeight = 750-controlPanelWidth;
+
+            if (addHeight > 32)
+                addHeight = 32;
+        }
+
+        if (controlPanelWidth < 570)
+        {
+            addHeight = 32 + 570-controlPanelWidth;
+
+            if (addHeight > 64)
+                addHeight = 64;
+        }
+
+        if (controlPanel->isOpen())
+            controlPanel->setBounds(leftBound,6,controlPanelWidth,64+addHeight);
+        else
+            controlPanel->setBounds(leftBound,6,controlPanelWidth,32+addHeight);
+    }
+
+    if (processorList != 0)
+    {
+        if (processorList->isOpen())
+        {
+            if (editorViewportButton->isOpen())
+                processorListViewport.setBounds(5,5,195,h-200);
+            else
+                processorListViewport.setBounds(5,5,195,h-50);
+
+            processorListViewport.setScrollBarsShown(true,false);
+
+        }
+        else{
+            processorListViewport.setBounds(5,5,195,34);
+            processorListViewport.setScrollBarsShown(false,false);
+            processorListViewport.setViewPosition (0, 0);
+        }
+
+        if (w < 460)
+            processorListViewport.setBounds(5-460+getWidth(),5,195,processorList->getHeight());
+    }
+
     if (dataViewport != 0)
     {
         int left, top, width, height;
@@ -121,14 +200,11 @@ void UIComponent::resized()
         top = 40;
 
         if (processorList->isOpen())
-            left = 202;
+            left = processorListViewport.getX()+processorListViewport.getWidth()+2;
         else
             left = 6;
 
-        if (controlPanel->isOpen())
-            top = 72;
-        else
-            top = 40;
+        top = controlPanel->getHeight()+8;
 
         if (editorViewportButton->isOpen())
             height = h - top - 195;
@@ -138,46 +214,26 @@ void UIComponent::resized()
         width = w - left - 5;
 
         dataViewport->setBounds(left, top, width, height);
-    }
 
-    if (editorViewportButton != 0)
-    {
-        editorViewportButton->setBounds(w-230, h-40, 225, 35);
-    }
-
-    if (editorViewport != 0)
-    {
-        if (editorViewportButton->isOpen() && !editorViewport->isVisible())
-            editorViewport->setVisible(true);
-        else if (!editorViewportButton->isOpen() && editorViewport->isVisible())
-            editorViewport->setVisible(false);
-
-        editorViewport->setBounds(6,h-190,w-11,150);
-    }
-
-    if (controlPanel != 0)
-    {
-        if (controlPanel->isOpen())
-            controlPanel->setBounds(201,6,w-210,64);
+         if (h < 200)
+            dataViewport->setVisible(false);
         else
-            controlPanel->setBounds(201,6,w-210,32);
+            dataViewport->setVisible(true);
+
     }
 
-    if (processorList != 0)
-    {
-        if (processorList->isOpen())
-            if (editorViewportButton->isOpen())
-                processorList->setBounds(5,5,195,h-200);
-            else
-                processorList->setBounds(5,5,195,h-50);
-        else
-            processorList->setBounds(5,5,195,34);
-    }
+    
 
     if (messageCenter != 0)
+    {
         messageCenter->setBounds(6,h-35,w-241,30);
+        if (h < 200)
+            messageCenter->setBounds(6,h-35+200-h,w-241,30);
+      //  else
+      //      messageCenter->setVisible(true);
+    }
 
-    // for debugging qpurposes:
+    // for debugging purposes:
     if (false)
     {
         dataViewport->setVisible(false);
@@ -216,11 +272,6 @@ void UIComponent::childComponentChanged()
 StringArray UIComponent::getMenuBarNames()
 {
 
-    // StringArray names;
-    // names.add("File");
-    // names.add("Edit");
-    // names.add("Help");
-
     const char* const names[] = { "File", "Edit", "View", "Help", 0 };
 
     return StringArray(names);
@@ -237,6 +288,9 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
     {
         menu.addCommandItem(commandManager, openConfiguration);
         menu.addCommandItem(commandManager, saveConfiguration);
+        menu.addCommandItem(commandManager, saveConfigurationAs);
+        menu.addSeparator();
+        menu.addCommandItem(commandManager, reloadOnStartup);
 
 #if !JUCE_MAC
         menu.addSeparator();
@@ -293,6 +347,8 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 {
     const CommandID ids[] = {openConfiguration,
                              saveConfiguration,
+                             saveConfigurationAs,
+                             reloadOnStartup,
                              undo,
                              redo,
                              copySignalChain,
@@ -317,15 +373,25 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
     switch (commandID)
     {
         case openConfiguration:
-            result.setInfo("Open configuration", "Load a saved processor graph.", "General", 0);
+            result.setInfo("Open...", "Load a saved processor graph.", "General", 0);
             result.addDefaultKeypress('O', ModifierKeys::commandModifier);
             result.setActive(!acquisitionStarted);
             break;
 
         case saveConfiguration:
-            result.setInfo("Save configuration", "Save the current processor graph.", "General", 0);
+            result.setInfo("Save", "Save the current processor graph.", "General", 0);
             result.addDefaultKeypress('S', ModifierKeys::commandModifier);
+            break;
+
+        case saveConfigurationAs:
+            result.setInfo("Save as...", "Save the current processor graph with a new name.", "General", 0);
+            result.addDefaultKeypress('S', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
+            break;
+
+        case reloadOnStartup:
+            result.setInfo("Reload on startup", "Load the last used configuration on startup.", "General", 0);
             result.setActive(!acquisitionStarted);
+            result.setTicked(mainWindow->shouldReloadOnStartup);
             break;
 
         case undo:
@@ -377,8 +443,8 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
             break;
 
         case showHelp:
-            result.setInfo("Show help...", "Show some freakin' help.", "General", 0);
-            result.setActive(false);
+            result.setInfo("Show help...", "Take me to the GUI wiki.", "General", 0);
+            result.setActive(true);
             break;
             
         case resizeWindow:
@@ -405,8 +471,8 @@ bool UIComponent::perform(const InvocationInfo& info)
 
                 if (fc.browseForFileToOpen())
                 {
-                    File currentFile = fc.getResult();
-                    sendActionMessage(getEditorViewport()->loadState(currentFile));
+                    currentConfigFile = fc.getResult();
+                    sendActionMessage(getEditorViewport()->loadState(currentConfigFile));
                 }
                 else
                 {
@@ -418,16 +484,43 @@ bool UIComponent::perform(const InvocationInfo& info)
         case saveConfiguration:
             {
 
-                FileChooser fc("Choose the file to save...",
+                if (currentConfigFile.exists())
+                {
+                    sendActionMessage(getEditorViewport()->saveState(currentConfigFile));
+                } else {
+                    FileChooser fc("Choose the file name...",
+                                   File::getCurrentWorkingDirectory(),
+                                   "*",
+                                   true);
+
+                    if (fc.browseForFileToSave(true))
+                    {
+                        currentConfigFile = fc.getResult();
+                        std::cout << currentConfigFile.getFileName() << std::endl;
+                        sendActionMessage(getEditorViewport()->saveState(currentConfigFile));
+                    }
+                    else
+                    {
+                        sendActionMessage("No file chosen.");
+                    }
+                }
+
+                break;
+            }
+
+        case saveConfigurationAs:
+            {
+
+                FileChooser fc("Choose the file name...",
                                File::getCurrentWorkingDirectory(),
                                "*",
                                true);
 
                 if (fc.browseForFileToSave(true))
                 {
-                    File currentFile = fc.getResult();
-                    std::cout << currentFile.getFileName() << std::endl;
-                    sendActionMessage(getEditorViewport()->saveState(currentFile));
+                    currentConfigFile = fc.getResult();
+                    std::cout << currentConfigFile.getFileName() << std::endl;
+                    sendActionMessage(getEditorViewport()->saveState(currentConfigFile));
                 }
                 else
                 {
@@ -436,13 +529,26 @@ bool UIComponent::perform(const InvocationInfo& info)
 
                 break;
             }
-        case clearSignalChain:
-            getEditorViewport()->clearSignalChain();
+
+        case reloadOnStartup:
+            {
+                mainWindow->shouldReloadOnStartup = !mainWindow->shouldReloadOnStartup;
+
+            }
             break;
 
-        case showHelp:
-            std::cout << "SHOW ME SOME HELP!" << std::endl;
+        case clearSignalChain:
+        {
+            getEditorViewport()->clearSignalChain();
             break;
+        }
+
+        case showHelp:
+        {
+            URL url = URL("https://open-ephys.atlassian.net/wiki/display/OEW/Open+Ephys+GUI");
+            url.launchInDefaultBrowser();
+            break;
+        }
 
         case toggleProcessorList:
             processorList->toggleState();
@@ -499,6 +605,16 @@ void UIComponent::loadStateFromXml(XmlElement* xml)
 
         }
     }
+}
+
+StringArray UIComponent::getRecentlyUsedFilenames()
+{
+    return controlPanel->getRecentlyUsedFilenames();
+}
+
+void UIComponent::setRecentlyUsedFilenames(const StringArray& filenames)
+{
+    controlPanel->setRecentlyUsedFilenames(filenames);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

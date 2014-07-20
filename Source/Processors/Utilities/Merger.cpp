@@ -32,7 +32,7 @@ Merger::Merger()
     : GenericProcessor("Merger"),
       sourceNodeA(0), sourceNodeB(0), activePath(0)//, tabA(-1), tabB(-1)
 {
-
+    sendSampleCount = false;
 }
 
 Merger::~Merger()
@@ -64,6 +64,11 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
         sourceNodeB = sn;
         std::cout << "Setting source node B." << std::endl;
     }
+
+    if (sn != nullptr)
+    {
+        sn->setDestNode(this);
+    }
 }
 
 void Merger::switchIO(int sourceNum)
@@ -84,7 +89,7 @@ void Merger::switchIO(int sourceNum)
         //std::cout << "Source node: " << getSourceNode() << std::endl;
     }
 
-    getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor(), false);
+   // getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor(), false);
 
 }
 
@@ -104,7 +109,7 @@ bool Merger::stillHasSource()
 void Merger::switchIO()
 {
 
-    std::cout << "Merger switching source." << std::endl;
+    //std::cout << "Merger switching source." << std::endl;
 
     if (activePath == 0)
     {
@@ -189,6 +194,60 @@ void Merger::updateSettings()
 
     std::cout << "Number of merger outputs: " << getNumInputs() << std::endl;
 
+}
+
+void Merger::saveCustomParametersToXml(XmlElement* parentElement)
+{
+    XmlElement* mainNode = parentElement->createNewChildElement("MERGER");
+	if (sourceNodeA!= nullptr)
+		mainNode->setAttribute("NodeA",	sourceNodeA->getNodeId());
+	else
+		mainNode->setAttribute("NodeA",	-1);
+
+	if (sourceNodeB != nullptr)
+		mainNode->setAttribute("NodeB",	sourceNodeB->getNodeId());
+	else
+		mainNode->setAttribute("NodeB",	-1);
+}
+
+
+void Merger::loadCustomParametersFromXml()
+{
+	if (1)
+	{
+	if (parametersAsXml != nullptr)
+	{
+		forEachXmlChildElement(*parametersAsXml, mainNode)
+		{
+			if (mainNode->hasTagName("MERGER"))
+			{
+				int NodeAid = mainNode->getIntAttribute("NodeA");
+				int NodeBid = mainNode->getIntAttribute("NodeB");
+
+				ProcessorGraph *gr = getProcessorGraph();
+				Array<GenericProcessor*> p = gr->getListOfProcessors();
+				
+                for (int k = 0; k < p.size(); k++)
+				{
+					if (p[k]->getNodeId() == NodeAid)
+                    {
+                        std::cout << "Setting Merger source A to " << NodeAid << std::endl;
+                        switchIO(0);
+						setMergerSourceNode(p[k]);
+					}
+                    if (p[k]->getNodeId() == NodeBid)
+                    {
+                        std::cout << "Setting Merger source B to " << NodeBid << std::endl;
+						switchIO(1);
+                        setMergerSourceNode(p[k]);
+				    }
+                }
+				
+                updateSettings();
+			}
+		}
+	}
+}
 }
 
 // void Merger::setNumOutputs(int /*outputs*/)

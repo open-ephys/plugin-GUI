@@ -22,12 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_DOCUMENTWINDOW_JUCEHEADER__
-#define __JUCE_DOCUMENTWINDOW_JUCEHEADER__
-
-#include "juce_ResizableWindow.h"
-#include "../buttons/juce_Button.h"
-#include "../menus/juce_MenuBarModel.h"
+#ifndef JUCE_DOCUMENTWINDOW_H_INCLUDED
+#define JUCE_DOCUMENTWINDOW_H_INCLUDED
 
 
 //==============================================================================
@@ -89,7 +85,7 @@ public:
         @see TitleBarButtons
     */
     DocumentWindow (const String& name,
-                    const Colour& backgroundColour,
+                    Colour backgroundColour,
                     int requiredButtons,
                     bool addToDesktop = true);
 
@@ -177,8 +173,8 @@ public:
 
         If your app is centred around this window such that the whole app should quit when
         the window is closed, then you will probably want to use this method as an opportunity
-        to call JUCEApplication::quit(), and leave the window to be deleted later by your
-        JUCEApplication::shutdown() method. (Doing it this way means that your window will
+        to call JUCEApplicationBase::quit(), and leave the window to be deleted later by your
+        JUCEApplicationBase::shutdown() method. (Doing it this way means that your window will
         still get cleaned-up if the app is quit by some other means (e.g. a cmd-Q on the mac
         or closing it via the taskbar icon on Windows).
 
@@ -228,27 +224,51 @@ public:
     };
 
     //==============================================================================
+    /** This abstract base class is implemented by LookAndFeel classes to provide
+        window drawing functionality.
+    */
+    struct JUCE_API  LookAndFeelMethods
+    {
+        virtual ~LookAndFeelMethods() {}
+
+        virtual void drawDocumentWindowTitleBar (DocumentWindow&,
+                                                 Graphics&, int w, int h,
+                                                 int titleSpaceX, int titleSpaceW,
+                                                 const Image* icon,
+                                                 bool drawTitleTextOnLeft) = 0;
+
+        virtual Button* createDocumentWindowButton (int buttonType) = 0;
+
+        virtual void positionDocumentWindowButtons (DocumentWindow&,
+                                                    int titleBarX, int titleBarY, int titleBarW, int titleBarH,
+                                                    Button* minimiseButton,
+                                                    Button* maximiseButton,
+                                                    Button* closeButton,
+                                                    bool positionTitleBarButtonsOnLeft) = 0;
+    };
+
+    //==============================================================================
    #ifndef DOXYGEN
     /** @internal */
-    void paint (Graphics&);
+    void paint (Graphics&) override;
     /** @internal */
-    void resized();
+    void resized() override;
     /** @internal */
-    void lookAndFeelChanged();
+    void lookAndFeelChanged() override;
     /** @internal */
-    BorderSize<int> getBorderThickness();
+    BorderSize<int> getBorderThickness() override;
     /** @internal */
-    BorderSize<int> getContentComponentBorder();
+    BorderSize<int> getContentComponentBorder() override;
     /** @internal */
-    void mouseDoubleClick (const MouseEvent&);
+    void mouseDoubleClick (const MouseEvent&) override;
     /** @internal */
-    void userTriedToCloseWindow();
+    void userTriedToCloseWindow() override;
     /** @internal */
-    void activeWindowStatusChanged();
+    void activeWindowStatusChanged() override;
     /** @internal */
-    int getDesktopWindowStyleFlags() const;
+    int getDesktopWindowStyleFlags() const override;
     /** @internal */
-    void parentHierarchyChanged();
+    void parentHierarchyChanged() override;
     /** @internal */
     Rectangle<int> getTitleBarArea();
    #endif
@@ -263,8 +283,8 @@ private:
     MenuBarModel* menuBarModel;
 
     class ButtonListenerProxy;
-    friend class ScopedPointer <ButtonListenerProxy>;
-    ScopedPointer <ButtonListenerProxy> buttonListener;
+    friend struct ContainerDeletePolicy<ButtonListenerProxy>;
+    ScopedPointer<ButtonListenerProxy> buttonListener;
 
     void repaintTitleBar();
 
@@ -272,4 +292,4 @@ private:
 };
 
 
-#endif   // __JUCE_DOCUMENTWINDOW_JUCEHEADER__
+#endif   // JUCE_DOCUMENTWINDOW_H_INCLUDED

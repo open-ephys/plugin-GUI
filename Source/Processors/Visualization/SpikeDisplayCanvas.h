@@ -102,6 +102,10 @@ public:
     
     SpikeDisplayNode* processor;
 
+    void saveVisualizerParameters(XmlElement* xml);
+
+    void loadVisualizerParameters(XmlElement* xml);
+
 private:
 
     ScopedPointer<SpikeDisplay> spikeDisplay;
@@ -116,6 +120,7 @@ private:
 
 	ScopedPointer<SpikeThresholdCoordinator> thresholdCoordinator;
 	ScopedPointer<UtilityButton> lockThresholdsButton;
+    ScopedPointer<UtilityButton> invertSpikesButton;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayCanvas);
 
@@ -130,6 +135,7 @@ public:
     void removePlots();
     void clear();
     SpikePlot* addSpikePlot(int numChannels, int electrodeNum, String name);
+    SpikePlot* getSpikePlot(int index);
 
     void paint(Graphics& g);
 
@@ -139,10 +145,20 @@ public:
 
     void plotSpike(const SpikeObject& spike, int electrodeNum);
 
+    void invertSpikes(bool);
+
     int getTotalHeight()
     {
         return totalHeight;
     }
+
+    int getNumPlots();
+    int getNumChannelsForPlot(int plotNum);
+    float getThresholdForWaveAxis(int plotNum, int axisNum);
+    float getRangeForWaveAxis(int plotNum, int axisNum);
+
+    void setThresholdForWaveAxis(int plotNum, int axisNum, float threshold);
+    void setRangeForWaveAxis(int plotNum, int axisNum, float range);
 
 	void registerThresholdCoordinator(SpikeThresholdCoordinator *stc);
 
@@ -160,6 +176,8 @@ private:
     Viewport* viewport;
 
     OwnedArray<SpikePlot> spikePlots;
+
+    bool shouldInvert;
 
     // float tetrodePlotMinWidth, stereotrodePlotMinWidth, singleElectrodePlotMinWidth;
     // float tetrodePlotRatio, stereotrodePlotRatio, singleElectrodePlotRatio;
@@ -203,13 +221,19 @@ public:
 
     void clear();
 
+     void invertSpikes(bool);
+
     float minWidth;
     float aspectRatio;
 
     void buttonClicked(Button* button);
 
     float getDisplayThresholdForChannel(int);
+    void setDisplayThresholdForChannel(int axisNum, float threshold);
     void setDetectorThresholdForChannel(int, float);
+
+    float getRangeForChannel(int);
+    void setRangeForChannel(int axisNum, float range);
 
 	//For locking the tresholds
 	void registerThresholdCoordinator(SpikeThresholdCoordinator *stc);
@@ -329,7 +353,13 @@ public:
 
 	//For locking the thresholds
 	void registerThresholdCoordinator(SpikeThresholdCoordinator *stc);
-	void setDisplaythreshold(float threshold);
+	void setDisplayThreshold(float threshold);
+
+    void invertSpikes(bool shouldInvert)
+    {
+        spikesInverted = shouldInvert;
+        repaint();
+    }
 
 private:
 
@@ -362,6 +392,8 @@ private:
 
     MouseCursor::StandardCursorType cursorType;
 	SpikeThresholdCoordinator *thresholdCoordinator;
+
+    bool spikesInverted;
 
 };
 

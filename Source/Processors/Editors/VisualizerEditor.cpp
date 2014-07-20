@@ -95,7 +95,7 @@ void VisualizerEditor::initializeSelectors()
     windowSelector->addListener(this);
     windowSelector->setBounds(desiredWidth - 40,7,14,10);
 
-    windowSelector->setToggleState(false,false);
+    windowSelector->setToggleState(false, dontSendNotification);
     addAndMakeVisible(windowSelector);
 
     tabSelector = new SelectorButton("tab");
@@ -103,7 +103,7 @@ void VisualizerEditor::initializeSelectors()
     tabSelector->setBounds(desiredWidth - 20,7,15,10);
 
     addAndMakeVisible(tabSelector);
-    tabSelector->setToggleState(false,false);
+    tabSelector->setToggleState(false, dontSendNotification);
 }
 
 VisualizerEditor::~VisualizerEditor()
@@ -185,12 +185,12 @@ void VisualizerEditor::buttonEvent(Button* button)
 
             if (tabSelector->getToggleState() && windowSelector->getToggleState())
             {
-                tabSelector->setToggleState(false, false);
+                tabSelector->setToggleState(false, dontSendNotification);
                 getDataViewport()->destroyTab(tabIndex);
                 tabIndex = -1;
             }
 
-            if (dataWindow == nullptr)
+            if (dataWindow == nullptr) // have we created a window already?
             {
 
                 dataWindow = new DataWindow(windowSelector, tabText);
@@ -226,7 +226,7 @@ void VisualizerEditor::buttonEvent(Button* button)
                 if (windowSelector->getToggleState())
                 {
                     dataWindow->setContentNonOwned(0, false);
-                    windowSelector->setToggleState(false, false);
+                    windowSelector->setToggleState(false, dontSendNotification);
                     dataWindow->setVisible(false);
                 }
 
@@ -256,7 +256,7 @@ void VisualizerEditor::buttonEvent(Button* button)
 
 }
 
-void VisualizerEditor::saveEditorParameters(XmlElement* xml)
+void VisualizerEditor::saveCustomParameters(XmlElement* xml)
 {
 
     xml->setAttribute("Type", "Visualizer");
@@ -282,7 +282,7 @@ void VisualizerEditor::saveEditorParameters(XmlElement* xml)
 
 }
 
-void VisualizerEditor::loadEditorParameters(XmlElement* xml)
+void VisualizerEditor::loadCustomParameters(XmlElement* xml)
 {
 
     forEachXmlChildElement(*xml, xmlNode)
@@ -293,7 +293,7 @@ void VisualizerEditor::loadEditorParameters(XmlElement* xml)
             bool tabState = xmlNode->getBoolAttribute("Active");
 
             if (tabState)
-                tabSelector->setToggleState(true,true);
+                tabSelector->setToggleState(true, sendNotification);
 
 
         }
@@ -304,11 +304,14 @@ void VisualizerEditor::loadEditorParameters(XmlElement* xml)
 
             if (windowState)
             {
-                windowSelector->setToggleState(true,true);
-                dataWindow->setBounds(xmlNode->getIntAttribute("x"),
-                                      xmlNode->getIntAttribute("y"),
-                                      xmlNode->getIntAttribute("width"),
-                                      xmlNode->getIntAttribute("height"));
+                windowSelector->setToggleState(true, sendNotification);
+				if (dataWindow != nullptr)
+				{
+					dataWindow->setBounds(xmlNode->getIntAttribute("x"),
+						                  xmlNode->getIntAttribute("y"),
+							              xmlNode->getIntAttribute("width"),
+								          xmlNode->getIntAttribute("height"));
+				}
 
             }
 

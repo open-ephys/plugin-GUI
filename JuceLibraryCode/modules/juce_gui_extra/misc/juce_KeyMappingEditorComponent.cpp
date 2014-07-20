@@ -35,11 +35,11 @@ public:
         setWantsKeyboardFocus (false);
         setTriggeredOnMouseDown (keyNum >= 0);
 
-        setTooltip (keyIndex < 0 ? TRANS("adds a new key-mapping")
-                                 : TRANS("click to change this key-mapping"));
+        setTooltip (keyIndex < 0 ? TRANS("Adds a new key-mapping")
+                                 : TRANS("Click to change this key-mapping"));
     }
 
-    void paintButton (Graphics& g, bool /*isOver*/, bool /*isDown*/)
+    void paintButton (Graphics& g, bool /*isOver*/, bool /*isDown*/) override
     {
         getLookAndFeel().drawKeymapChangeButton (g, getWidth(), getHeight(), *this,
                                                  keyNum >= 0 ? getName() : String::empty);
@@ -58,15 +58,15 @@ public:
         }
     }
 
-    void clicked()
+    void clicked() override
     {
         if (keyNum >= 0)
         {
             // existing key clicked..
             PopupMenu m;
-            m.addItem (1, TRANS("change this key-mapping"));
+            m.addItem (1, TRANS("Change this key-mapping"));
             m.addSeparator();
-            m.addItem (2, TRANS("remove this key-mapping"));
+            m.addItem (2, TRANS("Remove this key-mapping"));
 
             m.showMenuAsync (PopupMenu::Options(),
                              ModalCallbackFunction::forComponent (menuCallback, this));
@@ -106,7 +106,7 @@ public:
             grabKeyboardFocus();
         }
 
-        bool keyPressed (const KeyPress& key)
+        bool keyPressed (const KeyPress& key) override
         {
             lastPress = key;
             String message (TRANS("Key") + ": " + owner.getDescriptionForKeyPress (key));
@@ -116,14 +116,14 @@ public:
             if (previousCommand != 0)
                 message << "\n\n("
                         << TRANS("Currently assigned to \"CMDN\"")
-                            .replace ("CMDN", owner.getCommandManager().getNameOfCommand (previousCommand))
+                            .replace ("CMDN", TRANS (owner.getCommandManager().getNameOfCommand (previousCommand)))
                         << ')';
 
             setMessage (message);
             return true;
         }
 
-        bool keyStateChanged (bool)
+        bool keyStateChanged (bool) override
         {
             return true;
         }
@@ -211,7 +211,7 @@ public:
 
         const bool isReadOnly = owner.isCommandReadOnly (commandID);
 
-        const Array <KeyPress> keyPresses (owner.getMappings().getKeyPressesAssignedToCommand (commandID));
+        const Array<KeyPress> keyPresses (owner.getMappings().getKeyPressesAssignedToCommand (commandID));
 
         for (int i = 0; i < jmin ((int) maxNumAssignments, keyPresses.size()); ++i)
             addKeyPressButton (owner.getDescriptionForKeyPress (keyPresses.getReference (i)), i, isReadOnly);
@@ -229,17 +229,17 @@ public:
         addChildComponent (b);
     }
 
-    void paint (Graphics& g)
+    void paint (Graphics& g) override
     {
         g.setFont (getHeight() * 0.7f);
-        g.setColour (findColour (KeyMappingEditorComponent::textColourId));
+        g.setColour (owner.findColour (KeyMappingEditorComponent::textColourId));
 
-        g.drawFittedText (owner.getCommandManager().getNameOfCommand (commandID),
+        g.drawFittedText (TRANS (owner.getCommandManager().getNameOfCommand (commandID)),
                           4, 0, jmax (40, getChildComponent (0)->getX() - 5), getHeight(),
                           Justification::centredLeft, true);
     }
 
-    void resized()
+    void resized() override
     {
         int x = getWidth() - 4;
 
@@ -271,10 +271,10 @@ public:
         : owner (kec), commandID (command)
     {}
 
-    String getUniqueName() const         { return String ((int) commandID) + "_id"; }
-    bool mightContainSubItems()          { return false; }
-    int getItemHeight() const            { return 20; }
-    Component* createItemComponent()     { return new ItemComponent (owner, commandID); }
+    String getUniqueName() const override         { return String ((int) commandID) + "_id"; }
+    bool mightContainSubItems() override          { return false; }
+    int getItemHeight() const override            { return 20; }
+    Component* createItemComponent() override     { return new ItemComponent (owner, commandID); }
 
 private:
     KeyMappingEditorComponent& owner;
@@ -292,31 +292,29 @@ public:
         : owner (kec), categoryName (name)
     {}
 
-    String getUniqueName() const                { return categoryName + "_cat"; }
-    bool mightContainSubItems()                 { return true; }
-    int getItemHeight() const                   { return 28; }
+    String getUniqueName() const override       { return categoryName + "_cat"; }
+    bool mightContainSubItems() override        { return true; }
+    int getItemHeight() const override          { return 22; }
 
-    void paintItem (Graphics& g, int width, int height)
+    void paintItem (Graphics& g, int width, int height) override
     {
-        g.setFont (Font (height * 0.6f, Font::bold));
+        g.setFont (Font (height * 0.7f, Font::bold));
         g.setColour (owner.findColour (KeyMappingEditorComponent::textColourId));
 
-        g.drawText (categoryName,
-                    2, 0, width - 2, height,
-                    Justification::centredLeft, true);
+        g.drawText (TRANS (categoryName), 2, 0, width - 2, height, Justification::centredLeft, true);
     }
 
-    void itemOpennessChanged (bool isNowOpen)
+    void itemOpennessChanged (bool isNowOpen) override
     {
         if (isNowOpen)
         {
             if (getNumSubItems() == 0)
             {
-                const Array <CommandID> commands (owner.getCommandManager().getCommandsInCategory (categoryName));
+                const Array<CommandID> commands (owner.getCommandManager().getCommandsInCategory (categoryName));
 
                 for (int i = 0; i < commands.size(); ++i)
-                    if (owner.shouldCommandBeIncluded (commands[i]))
-                        addSubItem (new MappingItem (owner, commands[i]));
+                    if (owner.shouldCommandBeIncluded (commands.getUnchecked(i)))
+                        addSubItem (new MappingItem (owner, commands.getUnchecked(i)));
             }
         }
         else
@@ -338,8 +336,7 @@ class KeyMappingEditorComponent::TopLevelItem   : public TreeViewItem,
                                                   private ChangeListener
 {
 public:
-    TopLevelItem (KeyMappingEditorComponent& kec)
-        : owner (kec)
+    TopLevelItem (KeyMappingEditorComponent& kec)   : owner (kec)
     {
         setLinesDrawnForSubItems (false);
         owner.getMappings().addChangeListener (this);
@@ -353,7 +350,7 @@ public:
     bool mightContainSubItems()             { return true; }
     String getUniqueName() const            { return "keys"; }
 
-    void changeListenerCallback (ChangeBroadcaster*)
+    void changeListenerCallback (ChangeBroadcaster*) override
     {
         const OpennessRestorer opennessRestorer (*this);
         clearSubItems();
@@ -362,11 +359,11 @@ public:
 
         for (int i = 0; i < categories.size(); ++i)
         {
-            const Array <CommandID> commands (owner.getCommandManager().getCommandsInCategory (categories[i]));
+            const Array<CommandID> commands (owner.getCommandManager().getCommandsInCategory (categories[i]));
             int count = 0;
 
             for (int j = 0; j < commands.size(); ++j)
-                if (owner.shouldCommandBeIncluded (commands[j]))
+                if (owner.shouldCommandBeIncluded (commands.getUnchecked(j)))
                     ++count;
 
             if (count > 0)
@@ -380,7 +377,7 @@ public:
             owner->getMappings().resetToDefaultMappings();
     }
 
-    void buttonClicked (Button*)
+    void buttonClicked (Button*) override
     {
         AlertWindow::showOkCancelBox (AlertWindow::QuestionIcon,
                                       TRANS("Reset to defaults"),
@@ -406,15 +403,16 @@ KeyMappingEditorComponent::KeyMappingEditorComponent (KeyPressMappingSet& mappin
 
     if (showResetToDefaultButton)
     {
-        addAndMakeVisible (&resetButton);
+        addAndMakeVisible (resetButton);
         resetButton.addListener (treeItem);
     }
 
-    addAndMakeVisible (&tree);
+    addAndMakeVisible (tree);
     tree.setColour (TreeView::backgroundColourId, findColour (backgroundColourId));
     tree.setRootItemVisible (false);
     tree.setDefaultOpenness (true);
     tree.setRootItem (treeItem);
+    tree.setIndentSize (12);
 }
 
 KeyMappingEditorComponent::~KeyMappingEditorComponent()

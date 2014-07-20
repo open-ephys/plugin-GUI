@@ -37,7 +37,7 @@ ReferenceNodeEditor::ReferenceNodeEditor(GenericProcessor* parentNode, bool useD
     referenceSelector->setBounds(15,50,150,25);
     referenceSelector->addListener(this);
     referenceSelector->addItem("None", 1);
-    referenceSelector->setSelectedId(1, false);
+    referenceSelector->setSelectedId(1, dontSendNotification);
     addAndMakeVisible(referenceSelector);
 
 }
@@ -66,7 +66,7 @@ void ReferenceNodeEditor::updateSettings()
 
     }
 
-    referenceSelector->setSelectedId(1, false);
+    referenceSelector->setSelectedId(1, dontSendNotification);
 
     getProcessor()->setParameter(1,-1.0f);
 }

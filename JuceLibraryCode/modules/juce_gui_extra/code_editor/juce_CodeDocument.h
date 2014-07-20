@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_CODEDOCUMENT_JUCEHEADER__
-#define __JUCE_CODEDOCUMENT_JUCEHEADER__
+#ifndef JUCE_CODEDOCUMENT_H_INCLUDED
+#define JUCE_CODEDOCUMENT_H_INCLUDED
 
 class CodeDocumentLine;
 
@@ -93,15 +93,15 @@ public:
             This will copy the position, but the new object will not be set to maintain its position,
             even if the source object was set to do so.
         */
-        Position (const Position& other) noexcept;
+        Position (const Position&) noexcept;
 
         /** Destructor. */
         ~Position();
 
-        Position& operator= (const Position& other);
+        Position& operator= (const Position&);
 
-        bool operator== (const Position& other) const noexcept;
-        bool operator!= (const Position& other) const noexcept;
+        bool operator== (const Position&) const noexcept;
+        bool operator!= (const Position&) const noexcept;
 
         /** Points this object at a new position within the document.
 
@@ -347,16 +347,16 @@ public:
     /** Iterates the text in a CodeDocument.
 
         This class lets you read characters from a CodeDocument. It's designed to be used
-        by a SyntaxAnalyser object.
+        by a CodeTokeniser object.
 
-        @see CodeDocument, SyntaxAnalyser
+        @see CodeDocument
     */
     class JUCE_API  Iterator
     {
     public:
         Iterator (const CodeDocument& document) noexcept;
-        Iterator (const Iterator& other) noexcept;
-        Iterator& operator= (const Iterator& other) noexcept;
+        Iterator (const Iterator&) noexcept;
+        Iterator& operator= (const Iterator&) noexcept;
         ~Iterator() noexcept;
 
         /** Reads the next character and returns it.
@@ -414,4 +414,4 @@ private:
 };
 
 
-#endif   // __JUCE_CODEDOCUMENT_JUCEHEADER__
+#endif   // JUCE_CODEDOCUMENT_H_INCLUDED

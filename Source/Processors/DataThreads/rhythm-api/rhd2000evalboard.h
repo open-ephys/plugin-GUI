@@ -90,6 +90,7 @@ public:
     void selectAuxCommandLength(AuxCmdSlot auxCommandSlot, int loopIndex, int endIndex);
 
     void resetBoard();
+    void resetFpga();
     void setContinuousRunMode(bool continuousMode);
     void setMaxTimeStep(unsigned int maxTimeStep);
     void run();
@@ -153,8 +154,6 @@ public:
     bool readDataBlock(Rhd2000DataBlock* dataBlock);
     bool readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue);
     int queueToFile(queue<Rhd2000DataBlock> &dataQueue, std::ofstream& saveOut);
-
-	void resetFpga();
 
 private:
     okCFrontPanel* dev;

@@ -48,7 +48,7 @@ SpikeDisplayNode::~SpikeDisplayNode()
 
 AudioProcessorEditor* SpikeDisplayNode::createEditor()
 {
-    std::cout<<"Creating SpikeDisplayCanvas."<<std::endl;
+    //std::cout<<"Creating SpikeDisplayCanvas."<<std::endl;
 
     editor = new SpikeDisplayEditor(this);
     return editor;
@@ -229,7 +229,7 @@ void SpikeDisplayNode::process(AudioSampleBuffer& buffer, MidiBuffer& events, in
             for (int j = 0; j < e.numChannels; j++)
             {
                 e.displayThresholds.set(j, 
-                    e.spikePlot->getDisplayThresholdForChannel(j));
+                e.spikePlot->getDisplayThresholdForChannel(j));
 
                 e.spikePlot->setDetectorThresholdForChannel(j, e.detectorThresholds[j]);
             }

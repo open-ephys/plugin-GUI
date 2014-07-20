@@ -44,7 +44,8 @@ class EventDisplayInterface;
 */
 
 class LfpDisplayCanvas : public Visualizer,
-    public ComboBox::Listener
+    public ComboBox::Listener,
+    public Button::Listener
 
 {
 public:
@@ -69,14 +70,16 @@ public:
     int getChannelHeight();
 
     int getNumChannels();
+    bool getInputInvertedState();
 
-    float getXCoord(int chan, int samp);
-    float getYCoord(int chan, int samp);
+    const float getXCoord(int chan, int samp);
+    const float getYCoord(int chan, int samp);
 
     int screenBufferIndex;
     int lastScreenBufferIndex;
 
     void comboBoxChanged(ComboBox* cb);
+    void buttonClicked(Button* button);
 
     void saveVisualizerParameters(XmlElement* xml);
 
@@ -86,6 +89,9 @@ public:
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw, there is a similar switch for ach ch display;
     static const int leftmargin=50; // left margin for lfp plots (so the ch number text doesnt overlap)
+
+
+    Array<bool> isChannelEnabled;
 
 private:
 
@@ -113,6 +119,7 @@ private:
     ScopedPointer<ComboBox> rangeSelection;
     ScopedPointer<ComboBox> spreadSelection;
     ScopedPointer<ComboBox> colorGroupingSelection;
+    ScopedPointer<UtilityButton> invertInputButton;
 
     StringArray voltageRanges;
     StringArray timebases;
@@ -183,6 +190,7 @@ public:
 
     void setChannelHeight(int r);
     int getChannelHeight();
+    void setInputInverted(bool);
 
     void setColors();
 
@@ -241,6 +249,9 @@ public:
     void setRange(float range);
     int getRange();
 
+    void setInputInverted(bool);
+    void setCanBeInverted(bool);
+
     void setEnabledState(bool);
     bool getEnabledState() {return isEnabled;}
 
@@ -268,6 +279,8 @@ protected:
     float range;
 
     bool isEnabled;
+    bool inputInverted;
+    bool canBeInverted;
 
 };
 

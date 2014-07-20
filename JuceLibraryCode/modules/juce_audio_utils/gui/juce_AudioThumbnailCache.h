@@ -22,10 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_AUDIOTHUMBNAILCACHE_JUCEHEADER__
-#define __JUCE_AUDIOTHUMBNAILCACHE_JUCEHEADER__
-
-#include "juce_AudioThumbnailBase.h"
+#ifndef JUCE_AUDIOTHUMBNAILCACHE_H_INCLUDED
+#define JUCE_AUDIOTHUMBNAILCACHE_H_INCLUDED
 
 
 //==============================================================================
@@ -105,7 +103,7 @@ private:
     TimeSliceThread thread;
 
     class ThumbnailCacheEntry;
-    friend class OwnedArray<ThumbnailCacheEntry>;
+    friend struct ContainerDeletePolicy<ThumbnailCacheEntry>;
     OwnedArray<ThumbnailCacheEntry> thumbs;
     CriticalSection lock;
     int maxNumThumbsToStore;
@@ -117,4 +115,4 @@ private:
 };
 
 
-#endif   // __JUCE_AUDIOTHUMBNAILCACHE_JUCEHEADER__
+#endif   // JUCE_AUDIOTHUMBNAILCACHE_H_INCLUDED

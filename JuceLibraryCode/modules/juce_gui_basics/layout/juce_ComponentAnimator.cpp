@@ -136,8 +136,8 @@ public:
     {
     public:
         ProxyComponent (Component& c)
-            : image (c.createComponentSnapshot (c.getLocalBounds()))
         {
+            setWantsKeyboardFocus (false);
             setBounds (c.getBounds());
             setTransform (c.getTransform());
             setAlpha (c.getAlpha());
@@ -150,15 +150,17 @@ public:
             else
                 jassertfalse; // seem to be trying to animate a component that's not visible..
 
+            image = c.createComponentSnapshot (c.getLocalBounds(), false, getDesktopScaleFactor());
+
             setVisible (true);
             toBehind (&c);
         }
 
-        void paint (Graphics& g)
+        void paint (Graphics& g) override
         {
             g.setOpacity (1.0f);
-            g.drawImage (image, 0, 0, getWidth(), getHeight(),
-                         0, 0, image.getWidth(), image.getHeight());
+            g.drawImageTransformed (image, AffineTransform::scale (getWidth()  / (float) image.getWidth(),
+                                                                   getHeight() / (float) image.getHeight()), false);
         }
 
     private:

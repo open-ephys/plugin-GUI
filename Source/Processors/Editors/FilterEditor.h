@@ -39,19 +39,21 @@ class FilterViewport;
 */
 
 class FilterEditor : public GenericEditor,
-    public Label::Listener
+	public Label::Listener
 {
 public:
     FilterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
     virtual ~FilterEditor();
-    void buttonEvent(Button* button);
 
+    void buttonEvent(Button* button);
     void labelTextChanged(Label* label);
 
-    void saveEditorParameters(XmlElement* xml);
-    void loadEditorParameters(XmlElement* xml);
+    void saveCustomParameters(XmlElement* xml);
+    void loadCustomParameters(XmlElement* xml);
 
     void setDefaults(double lowCut, double highCut);
+
+    void channelChanged(int chan);
 
 private:
 
@@ -63,6 +65,8 @@ private:
 
     ScopedPointer<Label> highCutValue;
     ScopedPointer<Label> lowCutValue;
+	ScopedPointer<UtilityButton> applyFilterOnADC;
+    ScopedPointer<UtilityButton> applyFilterOnChan;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FilterEditor);
 

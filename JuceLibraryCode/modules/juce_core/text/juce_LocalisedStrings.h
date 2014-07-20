@@ -26,11 +26,9 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_LOCALISEDSTRINGS_JUCEHEADER__
-#define __JUCE_LOCALISEDSTRINGS_JUCEHEADER__
+#ifndef JUCE_LOCALISEDSTRINGS_H_INCLUDED
+#define JUCE_LOCALISEDSTRINGS_H_INCLUDED
 
-#include "juce_StringPairArray.h"
-#include "../files/juce_File.h"
 
 //==============================================================================
 /**
@@ -84,16 +82,17 @@ public:
         When you create one of these, you can call setCurrentMappings() to make it
         the set of mappings that the system's using.
     */
-    LocalisedStrings (const String& fileContents,
-                      bool ignoreCaseOfKeys);
+    LocalisedStrings (const String& fileContents, bool ignoreCaseOfKeys);
 
     /** Creates a set of translations from a file.
 
         When you create one of these, you can call setCurrentMappings() to make it
         the set of mappings that the system's using.
     */
-    LocalisedStrings (const File& fileToLoad,
-                      bool ignoreCaseOfKeys);
+    LocalisedStrings (const File& fileToLoad, bool ignoreCaseOfKeys);
+
+    LocalisedStrings (const LocalisedStrings&);
+    LocalisedStrings& operator= (const LocalisedStrings&);
 
     /** Destructor. */
     ~LocalisedStrings();
@@ -102,7 +101,7 @@ public:
     /** Selects the current set of mappings to be used by the system.
 
         The object you pass in will be automatically deleted when no longer needed, so
-        don't keep a pointer to it. You can also pass in zero to remove the current
+        don't keep a pointer to it. You can also pass in nullptr to remove the current
         mappings.
 
         See also the TRANS() macro, which uses the current set to do its translation.
@@ -174,11 +173,30 @@ public:
     /** Provides access to the actual list of mappings. */
     const StringPairArray& getMappings() const            { return translations; }
 
+    //==============================================================================
+    /** Adds and merges another set of translations into this set.
+
+        Note that the language name and country codes of the new LocalisedStrings
+        object must match that of this object - an assertion will be thrown if they
+        don't match.
+
+        Any existing values will have their mappings overwritten by the new ones.
+    */
+    void addStrings (const LocalisedStrings&);
+
+    /** Gives this object a set of strings to use as a fallback if a string isn't found.
+        The object that is passed-in will be owned and deleted by this object
+        when no longer needed. It can be nullptr to clear the existing fallback object.
+    */
+    void setFallback (LocalisedStrings* fallbackStrings);
+
 private:
     //==============================================================================
     String languageName;
     StringArray countryCodes;
     StringPairArray translations;
+    ScopedPointer<LocalisedStrings> fallback;
+    friend struct ContainerDeletePolicy<LocalisedStrings>;
 
     void loadFromText (const String&, bool ignoreCase);
 
@@ -208,17 +226,22 @@ private:
 /** Uses the LocalisedStrings class to translate the given string literal.
     @see LocalisedStrings
 */
-String translate (const String& stringLiteral);
+JUCE_API String translate (const String& stringLiteral);
 
 /** Uses the LocalisedStrings class to translate the given string literal.
     @see LocalisedStrings
 */
-String translate (const char* stringLiteral);
+JUCE_API String translate (const char* stringLiteral);
 
 /** Uses the LocalisedStrings class to translate the given string literal.
     @see LocalisedStrings
 */
-String translate (const String& stringLiteral, const String& resultIfNotFound);
+JUCE_API String translate (CharPointer_UTF8 stringLiteral);
+
+/** Uses the LocalisedStrings class to translate the given string literal.
+    @see LocalisedStrings
+*/
+JUCE_API String translate (const String& stringLiteral, const String& resultIfNotFound);
 
 
-#endif   // __JUCE_LOCALISEDSTRINGS_JUCEHEADER__
+#endif   // JUCE_LOCALISEDSTRINGS_H_INCLUDED

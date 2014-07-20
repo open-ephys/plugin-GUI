@@ -26,12 +26,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_BIGINTEGER_JUCEHEADER__
-#define __JUCE_BIGINTEGER_JUCEHEADER__
-
-#include "../text/juce_String.h"
-#include "../memory/juce_HeapBlock.h"
-class MemoryBlock;
+#ifndef JUCE_BIGINTEGER_H_INCLUDED
+#define JUCE_BIGINTEGER_H_INCLUDED
 
 
 //==============================================================================
@@ -69,11 +65,11 @@ public:
     BigInteger (int64 value);
 
     /** Creates a copy of another BigInteger. */
-    BigInteger (const BigInteger& other);
+    BigInteger (const BigInteger&);
 
    #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
-    BigInteger (BigInteger&& other) noexcept;
-    BigInteger& operator= (BigInteger&& other) noexcept;
+    BigInteger (BigInteger&&) noexcept;
+    BigInteger& operator= (BigInteger&&) noexcept;
    #endif
 
     /** Destructor. */
@@ -81,10 +77,10 @@ public:
 
     //==============================================================================
     /** Copies another BigInteger onto this one. */
-    BigInteger& operator= (const BigInteger& other);
+    BigInteger& operator= (const BigInteger&);
 
     /** Swaps the internal contents of this with another object. */
-    void swapWith (BigInteger& other) noexcept;
+    void swapWith (BigInteger&) noexcept;
 
     //==============================================================================
     /** Returns the value of a specified bit in the number.
@@ -98,10 +94,15 @@ public:
     /** Returns true if the value is 1. */
     bool isOne() const noexcept;
 
-    /** Attempts to get the lowest bits of the value as an integer.
+    /** Attempts to get the lowest 32 bits of the value as an integer.
         If the value is bigger than the integer limits, this will return only the lower bits.
     */
     int toInteger() const noexcept;
+
+    /** Attempts to get the lowest 64 bits of the value as an integer.
+        If the value is bigger than the integer limits, this will return only the lower bits.
+    */
+    int64 toInt64() const noexcept;
 
     //==============================================================================
     /** Resets the value to 0. */
@@ -182,14 +183,14 @@ public:
     //==============================================================================
     // All the standard arithmetic ops...
 
-    BigInteger& operator+= (const BigInteger& other);
-    BigInteger& operator-= (const BigInteger& other);
-    BigInteger& operator*= (const BigInteger& other);
-    BigInteger& operator/= (const BigInteger& other);
-    BigInteger& operator|= (const BigInteger& other);
-    BigInteger& operator&= (const BigInteger& other);
-    BigInteger& operator^= (const BigInteger& other);
-    BigInteger& operator%= (const BigInteger& other);
+    BigInteger& operator+= (const BigInteger&);
+    BigInteger& operator-= (const BigInteger&);
+    BigInteger& operator*= (const BigInteger&);
+    BigInteger& operator/= (const BigInteger&);
+    BigInteger& operator|= (const BigInteger&);
+    BigInteger& operator&= (const BigInteger&);
+    BigInteger& operator^= (const BigInteger&);
+    BigInteger& operator%= (const BigInteger&);
     BigInteger& operator<<= (int numBitsToShift);
     BigInteger& operator>>= (int numBitsToShift);
     BigInteger& operator++();
@@ -198,23 +199,23 @@ public:
     BigInteger operator-- (int);
 
     BigInteger operator-() const;
-    BigInteger operator+ (const BigInteger& other) const;
-    BigInteger operator- (const BigInteger& other) const;
-    BigInteger operator* (const BigInteger& other) const;
-    BigInteger operator/ (const BigInteger& other) const;
-    BigInteger operator| (const BigInteger& other) const;
-    BigInteger operator& (const BigInteger& other) const;
-    BigInteger operator^ (const BigInteger& other) const;
-    BigInteger operator% (const BigInteger& other) const;
+    BigInteger operator+ (const BigInteger&) const;
+    BigInteger operator- (const BigInteger&) const;
+    BigInteger operator* (const BigInteger&) const;
+    BigInteger operator/ (const BigInteger&) const;
+    BigInteger operator| (const BigInteger&) const;
+    BigInteger operator& (const BigInteger&) const;
+    BigInteger operator^ (const BigInteger&) const;
+    BigInteger operator% (const BigInteger&) const;
     BigInteger operator<< (int numBitsToShift) const;
     BigInteger operator>> (int numBitsToShift) const;
 
-    bool operator== (const BigInteger& other) const noexcept;
-    bool operator!= (const BigInteger& other) const noexcept;
-    bool operator<  (const BigInteger& other) const noexcept;
-    bool operator<= (const BigInteger& other) const noexcept;
-    bool operator>  (const BigInteger& other) const noexcept;
-    bool operator>= (const BigInteger& other) const noexcept;
+    bool operator== (const BigInteger&) const noexcept;
+    bool operator!= (const BigInteger&) const noexcept;
+    bool operator<  (const BigInteger&) const noexcept;
+    bool operator<= (const BigInteger&) const noexcept;
+    bool operator>  (const BigInteger&) const noexcept;
+    bool operator>= (const BigInteger&) const noexcept;
 
     //==============================================================================
     /** Does a signed comparison of two BigIntegers.
@@ -242,8 +243,7 @@ public:
     */
     void divideBy (const BigInteger& divisor, BigInteger& remainder);
 
-    /** Returns the largest value that will divide both this value and the one passed-in.
-    */
+    /** Returns the largest value that will divide both this value and the one passed-in. */
     BigInteger findGreatestCommonDivisor (BigInteger other) const;
 
     /** Performs a combined exponent and modulo operation.
@@ -286,7 +286,7 @@ public:
         Specify a base such as 2 (binary), 8 (octal), 10 (decimal), 16 (hex).
         Any invalid characters will be ignored.
     */
-    void parseString (const String& text, int base);
+    void parseString (StringRef text, int base);
 
     //==============================================================================
     /** Turns the number into a block of binary data.
@@ -309,12 +309,12 @@ public:
 
 private:
     //==============================================================================
-    HeapBlock <uint32> values;
+    HeapBlock<uint32> values;
     size_t numValues;
     int highestBit;
     bool negative;
 
-    void ensureSize (size_t numVals);
+    void ensureSize (size_t);
     void shiftLeft (int bits, int startBit);
     void shiftRight (int bits, int startBit);
 
@@ -331,4 +331,4 @@ OutputStream& JUCE_CALLTYPE operator<< (OutputStream& stream, const BigInteger& 
 #endif
 
 
-#endif   // __JUCE_BIGINTEGER_JUCEHEADER__
+#endif   // JUCE_BIGINTEGER_H_INCLUDED

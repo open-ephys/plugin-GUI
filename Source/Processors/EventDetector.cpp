@@ -61,13 +61,13 @@ void EventDetector::process(AudioSampleBuffer& buffer,
                             int& nSamples)
 {
 
-    //std::cout << *buffer.getSampleData(0, 0) << std::endl;
+    //std::cout << *buffer.getReadPointer(0, 0) << std::endl;
 
 
     for (int i = 0; i < nSamples; i++)
     {
 
-        if ((*buffer.getSampleData(0, i) < -threshold) && !state)
+        if ((*buffer.getReadPointer(0, i) < -threshold) && !state)
         {
 
             // generate midi event
@@ -77,7 +77,7 @@ void EventDetector::process(AudioSampleBuffer& buffer,
             state = true;
 
         }
-        else if ((*buffer.getSampleData(0, i) > -threshold + bufferZone)  && state)
+        else if ((*buffer.getReadPointer(0, i) > -threshold + bufferZone)  && state)
         {
             state = false;
         }
