@@ -71,6 +71,7 @@ public:
 
     int getNumChannels();
     bool getInputInvertedState();
+    bool getDrawMethodState();
 
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
@@ -120,6 +121,7 @@ private:
     ScopedPointer<ComboBox> spreadSelection;
     ScopedPointer<ComboBox> colorGroupingSelection;
     ScopedPointer<UtilityButton> invertInputButton;
+    ScopedPointer<UtilityButton> drawMethodButton;
 
     StringArray voltageRanges;
     StringArray timebases;
@@ -191,6 +193,7 @@ public:
     void setChannelHeight(int r);
     int getChannelHeight();
     void setInputInverted(bool);
+    void setDrawMethod(bool);
 
     void setColors();
 
@@ -211,6 +214,7 @@ public:
 
     bool eventDisplayEnabled[8];
 
+
 private:
     int numChans;
 
@@ -218,10 +222,12 @@ private:
 
     int colorGrouping;
 
+
     LfpDisplayCanvas* canvas;
     Viewport* viewport;    
 
     float range;
+
 
 };
 
@@ -252,12 +258,15 @@ public:
     void setInputInverted(bool);
     void setCanBeInverted(bool);
 
+    void setDrawMethod(bool);
+
     void setEnabledState(bool);
     bool getEnabledState() {return isEnabled;}
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
 protected:
+
 
     LfpDisplayCanvas* canvas;
     LfpDisplay* display;
@@ -281,6 +290,7 @@ protected:
     bool isEnabled;
     bool inputInverted;
     bool canBeInverted;
+    bool drawMethod;
 
 };
 

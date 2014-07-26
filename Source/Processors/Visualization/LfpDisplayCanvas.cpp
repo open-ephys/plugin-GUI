@@ -123,6 +123,16 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     invertInputButton->setToggleState(false, sendNotification);
     addAndMakeVisible(invertInputButton);
 
+    //button for controlling drawing algorithm - old line-style or new per-pixel style
+    drawMethodButton = new UtilityButton("DrawMethod", Font("Small Text", 13, Font::plain));
+    drawMethodButton->setRadius(5.0f);
+    drawMethodButton->setEnabledState(true);
+    drawMethodButton->setCorners(true, true, true, true);
+    drawMethodButton->addListener(this);
+    drawMethodButton->setClickingTogglesState(true);
+    drawMethodButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(drawMethodButton);
+
 
     lfpDisplay->setNumChannels(nChans);
     lfpDisplay->setRange(1000.0f);
@@ -162,7 +172,9 @@ void LfpDisplayCanvas::resized()
     timebaseSelection->setBounds(175,getHeight()-30,100,25);
     spreadSelection->setBounds(345,getHeight()-30,100,25);
     colorGroupingSelection->setBounds(620,getHeight()-30,100,25);
-    invertInputButton->setBounds(750,getHeight()-30,100,25);
+
+    invertInputButton->setBounds(750,getHeight()-40,100,22);
+    drawMethodButton->setBounds(750,getHeight()-20,100,22);
 
     for (int i = 0; i < 8; i++)
     {
@@ -234,6 +246,10 @@ void LfpDisplayCanvas::buttonClicked(Button* b)
     if (b == invertInputButton)
     {
         lfpDisplay->setInputInverted(b->getToggleState());
+    }
+    if (b == drawMethodButton)
+    {
+        lfpDisplay->setDrawMethod(b->getToggleState());
     }
 }
 
@@ -433,6 +449,11 @@ bool LfpDisplayCanvas::getInputInvertedState()
     return invertInputButton->getToggleState();
 }
 
+bool LfpDisplayCanvas::getDrawMethodState()
+{
+    return drawMethodButton->getToggleState();
+}
+
 void LfpDisplayCanvas::paint(Graphics& g)
 {
 
@@ -501,6 +522,7 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
     xmlNode->setAttribute("Spread",spreadSelection->getSelectedId());
     xmlNode->setAttribute("colorGrouping",colorGroupingSelection->getSelectedId());
     xmlNode->setAttribute("isInverted",invertInputButton->getToggleState());
+    xmlNode->setAttribute("drawMethod",drawMethodButton->getToggleState());
 
     int eventButtonState = 0;
 
@@ -549,6 +571,8 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
             }
 
             invertInputButton->setToggleState(xmlNode->getBoolAttribute("isInverted", true), sendNotification);
+
+            drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);
 
             viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
                                       xmlNode->getIntAttribute("ScrollY"));
@@ -886,6 +910,17 @@ void LfpDisplay::setInputInverted(bool isInverted)
 
 }
 
+void LfpDisplay::setDrawMethod(bool isDrawMethod)
+{
+    for (int i = 0; i < numChans; i++)
+    {
+        channels[i]->setDrawMethod(isDrawMethod);
+    }
+    resized();
+
+}
+
+
 int LfpDisplay::getChannelHeight()
 {
     return channels[0]->getChannelHeight();
@@ -1031,7 +1066,7 @@ void LfpDisplay::setEnabledState(bool state, int chan)
 LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, int channelNumber) :
     canvas(c), display(d), isSelected(false), chan(channelNumber), 
     channelOverlap(300), channelHeight(40), range(1000.0f),
-    isEnabled(true), inputInverted(false), canBeInverted(true)
+    isEnabled(true), inputInverted(false), canBeInverted(true), drawMethod(false)
 {
 
 
@@ -1148,7 +1183,7 @@ void LfpChannelDisplay::paint(Graphics& g)
                    i+stepSize,
                    (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2);
 
-        if (false) // switched back to line drawing now that we only draw partial updates
+        if (drawMethod) // switched between to line drawing and pixel wise drawing
         {
 
             // // pixel wise line plot has no anti-aliasing, but runs much faster
@@ -1273,10 +1308,17 @@ void LfpChannelDisplay::setInputInverted(bool isInverted)
     if (canBeInverted)
     {
         inputInverted = isInverted;
-
         setChannelHeight(channelHeight);
     }
 }
+
+void LfpChannelDisplay::setDrawMethod(bool isDrawMethod)
+{
+
+    drawMethod = isDrawMethod;
+
+}
+
 
 void LfpChannelDisplay::setName(String name_)
 {
