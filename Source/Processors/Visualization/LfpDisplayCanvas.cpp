@@ -173,8 +173,8 @@ void LfpDisplayCanvas::resized()
     spreadSelection->setBounds(345,getHeight()-30,100,25);
     colorGroupingSelection->setBounds(620,getHeight()-30,100,25);
 
-    invertInputButton->setBounds(750,getHeight()-40,100,22);
-    drawMethodButton->setBounds(750,getHeight()-20,100,22);
+    invertInputButton->setBounds(750,getHeight()-50,100,22);
+    drawMethodButton->setBounds(750,getHeight()-25,100,22);
 
     for (int i = 0; i < 8; i++)
     {
