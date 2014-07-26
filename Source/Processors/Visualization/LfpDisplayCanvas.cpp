@@ -42,6 +42,13 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     screenBuffer = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
     screenBuffer->clear();
 
+    screenBufferMin = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
+    screenBufferMin->clear();
+    screenBufferMean = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
+    screenBufferMean->clear();
+    screenBufferMax = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
+    screenBufferMax->clear();
+
     viewport = new Viewport();
     lfpDisplay = new LfpDisplay(this, viewport);
     timescale = new LfpTimescale(this);
@@ -158,6 +165,9 @@ LfpDisplayCanvas::~LfpDisplayCanvas()
 {
 
     deleteAndZero(screenBuffer);
+    deleteAndZero(screenBufferMin);
+    deleteAndZero(screenBufferMean);
+    deleteAndZero(screenBufferMax);
 }
 
 void LfpDisplayCanvas::resized()
@@ -321,6 +331,10 @@ void LfpDisplayCanvas::refreshScreenBuffer()
     screenBufferIndex = 0;
 
     screenBuffer->clear();
+    screenBufferMin->clear();
+    screenBufferMean->clear();
+    screenBufferMax->clear();
+
 
     // int w = lfpDisplay->getWidth();
     // //std::cout << "Refreshing buffer size to " << w << "pixels." << std::endl;
@@ -385,6 +399,10 @@ void LfpDisplayCanvas::updateScreenBuffer()
             float invAlpha = 1.0f - alpha;
 
             screenBuffer->clear(screenBufferIndex, 1);
+            screenBufferMin->clear(screenBufferIndex, 1);
+            screenBufferMean->clear(screenBufferIndex, 1);
+            screenBufferMax->clear(screenBufferIndex, 1);
+
 
             displayBufferIndex = displayBufferIndex % displayBufferSize; // just to be sure
 
@@ -404,6 +422,23 @@ void LfpDisplayCanvas::updateScreenBuffer()
                                       alpha*gain); // gain
 
 
+                // same thing again, but this time add the min,mean, and max of all samples in current pixel
+                float sample_min   =  1000;
+                float sample_max   = -1000;
+                float sample_mean  =  0;
+                for (int j = displayBufferIndex; j <= nextPos; j++)
+                {
+                    float sample_current = *displayBuffer->getReadPointer(channel, j);
+                    sample_mean=sample_mean+sample_current;
+                }
+                sample_mean=sample_mean/(nextPos-displayBufferIndex);
+                sample_max=sample_mean+2;
+                sample_min=sample_mean-2;
+                
+                screenBufferMean->addSample(channel, screenBufferIndex, sample_mean*invAlpha*gain);
+                screenBufferMin->addSample(channel, screenBufferIndex, sample_min*invAlpha*gain);
+                screenBufferMax->addSample(channel, screenBufferIndex, sample_max*invAlpha*gain);
+                
             }
 
             subSampleOffset += ratio;
@@ -1173,18 +1208,20 @@ void LfpChannelDisplay::paint(Graphics& g)
         }
 
         //std::cout << "e " << canvas->getYCoord(canvas->getNumChannels()-1, i) << std::endl;
-
-        g.setColour(lineColour);
+         g.setColour(lineColour);
         g.setOpacity(1);
-
-        // drawLine makes for ok anti-aliased plots, but is pretty slow
-        g.drawLine(i,
-                   (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2,
-                   i+stepSize,
-                   (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2);
 
         if (drawMethod) // switched between to line drawing and pixel wise drawing
         {
+
+            // drawLine makes for ok anti-aliased plots, but is pretty slow
+            g.drawLine(i,
+                       (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2,
+                       i+stepSize,
+                       (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2);
+
+
+        }else{
 
             // // pixel wise line plot has no anti-aliasing, but runs much faster
             double a = (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2;

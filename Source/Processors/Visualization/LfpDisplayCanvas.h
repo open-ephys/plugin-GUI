@@ -108,8 +108,15 @@ private:
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
     LfpDisplayNode* processor;
-    AudioSampleBuffer* displayBuffer;
-    AudioSampleBuffer* screenBuffer;
+    AudioSampleBuffer* displayBuffer; // sample wise data buffer for display
+    AudioSampleBuffer* screenBuffer; // subsampled buffer- one int per pixel
+    
+    //'define 3 buffers for min mean and max for better plotting of spikes
+    // not pretty, but 'AudioSampleBuffer works only for channels X samples 
+    AudioSampleBuffer* screenBufferMin; // like screenBuffer but holds min/mean/max values per pixel
+    AudioSampleBuffer* screenBufferMean; // like screenBuffer but holds min/mean/max values per pixel
+    AudioSampleBuffer* screenBufferMax; // like screenBuffer but holds min/mean/max values per pixel
+
     MidiBuffer* eventBuffer;
 
     ScopedPointer<LfpTimescale> timescale;
