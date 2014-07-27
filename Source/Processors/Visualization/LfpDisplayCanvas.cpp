@@ -225,28 +225,28 @@ void LfpDisplayCanvas::update()
 
     if (nChans != lfpDisplay->getNumChannels())
     {
-    	std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+        std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
-    	refreshScreenBuffer();
+        refreshScreenBuffer();
 
-    	lfpDisplay->setNumChannels(nChans);
+        lfpDisplay->setNumChannels(nChans);
 
-   	 	// update channel names
-   	 	for (int i = 0; i < processor->getNumInputs(); i++)
-    	{
+        // update channel names
+        for (int i = 0; i < processor->getNumInputs(); i++)
+        {
 
-	        String chName = processor->channels[i]->getName();
+            String chName = processor->channels[i]->getName();
 
-	        //std::cout << chName << std::endl;
+            //std::cout << chName << std::endl;
 
-	        lfpDisplay->channelInfo[i]->setName(chName);
-	        lfpDisplay->enableChannel(isChannelEnabled[i], i);
+            lfpDisplay->channelInfo[i]->setName(chName);
+            lfpDisplay->enableChannel(isChannelEnabled[i], i);
 
-    	}
+        }
 
-    	lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+        lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
 
-    	resized();
+        resized();
     }
 
 }
@@ -355,7 +355,6 @@ void LfpDisplayCanvas::refreshScreenBuffer()
 void LfpDisplayCanvas::updateScreenBuffer()
 {
 
-
     // copy new samples from the displayBuffer into the screenBuffer (waves)
     int maxSamples = lfpDisplay->getWidth() - leftmargin;
 
@@ -366,18 +365,16 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
     int index = processor->getDisplayBufferIndex();
 
-    int nSamples =  index - displayBufferIndex; // N new samples to be addeddisplayBufferIndex
+    int nSamples =  index - displayBufferIndex; // N new samples (not pixels) to be added to displayBufferIndex
 
     if (nSamples < 0) // buffer has reset to 0
     {
         nSamples = (displayBufferSize - displayBufferIndex) + index;
     }
 
-    float ratio = sampleRate * timebase / float(getWidth() - leftmargin - scrollBarThickness);
-
+    float ratio = sampleRate * timebase / float(getWidth() - leftmargin - scrollBarThickness); // samples / pixel
     // this number is crucial: converting from samples to values (in px) for the screen buffer
-    int valuesNeeded = (int) float(nSamples) / ratio;
-
+    int valuesNeeded = (int) float(nSamples) / ratio; // N pixels needed for this update
 
     if (screenBufferIndex + valuesNeeded > maxSamples)  // crop number of samples to fit cavas width
     {
@@ -387,11 +384,10 @@ void LfpDisplayCanvas::updateScreenBuffer()
     float subSampleOffset = 0.0;
 
     displayBufferIndex = displayBufferIndex % displayBufferSize; // make sure we're not overshooting
-    int nextPos = (displayBufferIndex + 1) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
+    int nextPos = (displayBufferIndex +1) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
 
     if (valuesNeeded > 0 && valuesNeeded < 1000)
     {
-
         for (int i = 0; i < valuesNeeded; i++) // also fill one extra sample for line drawing interpolation to match across draws
         {
             float gain = 1.0;
@@ -399,7 +395,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
             float invAlpha = 1.0f - alpha;
 
             screenBuffer->clear(screenBufferIndex, 1);
-            screenBufferMin->clear(screenBufferIndex, 1);
+           screenBufferMin->clear(screenBufferIndex, 1);
             screenBufferMean->clear(screenBufferIndex, 1);
             screenBufferMax->clear(screenBufferIndex, 1);
 
@@ -409,36 +405,47 @@ void LfpDisplayCanvas::updateScreenBuffer()
             for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
             {
 
+                // interpolate between two samples with invAlpha and alpha
                 screenBuffer->addFrom(channel, // destChannel
                                       screenBufferIndex, // destStartSample
                                       displayBuffer->getReadPointer(channel, displayBufferIndex), // source
                                       1, // numSamples
                                       invAlpha*gain); // gain
 
+                
                 screenBuffer->addFrom(channel, // destChannel
                                       screenBufferIndex, // destStartSample
                                       displayBuffer->getReadPointer(channel, nextPos), // source
                                       1, // numSamples
                                       alpha*gain); // gain
 
-
                 // same thing again, but this time add the min,mean, and max of all samples in current pixel
-                float sample_min   =  1000;
-                float sample_max   = -1000;
+                float sample_min   =  1000000;
+                float sample_max   = -1000000;
                 float sample_mean  =  0;
-                for (int j = displayBufferIndex; j <= nextPos; j++)
+                int c=0;
+                int nextpix = (displayBufferIndex +(int)ratio) % displayBufferSize; //  position to next pixels index
+                for (int j = displayBufferIndex; j < nextpix; j++)
                 {
-                    float sample_current = *displayBuffer->getReadPointer(channel, j);
-                    sample_mean=sample_mean+sample_current;
+                    float sample_current = displayBuffer->getSample(channel, j);
+                    sample_mean = sample_mean + sample_current;
+
+                    if (sample_min>sample_current){
+                        sample_min=sample_current;
+                    }
+
+                   if (sample_max<sample_current){
+                        sample_max=sample_current;
+                    }
+                    c++;
+
+
                 }
-                sample_mean=sample_mean/(nextPos-displayBufferIndex);
-                sample_max=sample_mean+2;
-                sample_min=sample_mean-2;
-                
-                screenBufferMean->addSample(channel, screenBufferIndex, sample_mean*invAlpha*gain);
-                screenBufferMin->addSample(channel, screenBufferIndex, sample_min*invAlpha*gain);
-                screenBufferMax->addSample(channel, screenBufferIndex, sample_max*invAlpha*gain);
-                
+                sample_mean=sample_mean/c;
+                screenBufferMean->addSample(channel, screenBufferIndex, sample_mean*gain);
+                screenBufferMin->addSample(channel, screenBufferIndex, sample_min*gain);
+                screenBufferMax->addSample(channel, screenBufferIndex, sample_max*gain);
+                        
             }
 
             subSampleOffset += ratio;
@@ -478,6 +485,20 @@ const float LfpDisplayCanvas::getYCoord(int chan, int samp)
 {
     return *screenBuffer->getReadPointer(chan, samp);
 }
+
+const float LfpDisplayCanvas::getYCoordMean(int chan, int samp)
+{
+    return *screenBufferMean->getReadPointer(chan, samp);
+}
+const float LfpDisplayCanvas::getYCoordMin(int chan, int samp)
+{
+    return *screenBufferMin->getReadPointer(chan, samp);
+}
+const float LfpDisplayCanvas::getYCoordMax(int chan, int samp)
+{
+    return *screenBufferMax->getReadPointer(chan, samp);
+}
+
 
 bool LfpDisplayCanvas::getInputInvertedState()
 {
@@ -563,10 +584,10 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 
     for (int i = 0; i < 8; i++)
     {
-    	if (lfpDisplay->eventDisplayEnabled[i])
-    	{
-    		eventButtonState += (1 << i);
-    	}
+        if (lfpDisplay->eventDisplayEnabled[i])
+        {
+            eventButtonState += (1 << i);
+        }
     }
 
     xmlNode->setAttribute("EventButtonState", eventButtonState);
@@ -575,12 +596,12 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 
     for (int i = 0; i < nChans; i++)
     {
-    	if (lfpDisplay->getEnabledState(i))
-    	{
-    		channelDisplayState += "1";
-    	} else {
-    		channelDisplayState += "0";
-    	}
+        if (lfpDisplay->getEnabledState(i))
+        {
+            channelDisplayState += "1";
+        } else {
+            channelDisplayState += "0";
+        }
     }
 
     xmlNode->setAttribute("ChannelDisplayState", channelDisplayState);
@@ -616,9 +637,9 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
             for (int i = 0; i < 8; i++)
             {
-            	lfpDisplay->eventDisplayEnabled[i] = (eventButtonState >> i) & 1;
+                lfpDisplay->eventDisplayEnabled[i] = (eventButtonState >> i) & 1;
 
-            	eventDisplayInterfaces[i]->checkEnabledState();
+                eventDisplayInterfaces[i]->checkEnabledState();
             }
 
             String channelDisplayState = xmlNode->getStringAttribute("ChannelDisplayState");
@@ -626,18 +647,18 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
             for (int i = 0; i < channelDisplayState.length(); i++)
             {
 
-            	if (channelDisplayState.substring(i,i+1).equalsIgnoreCase("1"))
-            	{
-            		//std::cout << "LfpDisplayCanvas enabling channel " << i << std::endl;
-            		lfpDisplay->enableChannel(true, i);
-            		isChannelEnabled.set(i,true); //lfpDisplay->enableChannel(true, i);
-            	} else {
-            		//std::cout << "LfpDisplayCanvas disabling channel " << i << std::endl;
-            		lfpDisplay->enableChannel(false, i);
-            		isChannelEnabled.set(i,false); 
-            	}
+                if (channelDisplayState.substring(i,i+1).equalsIgnoreCase("1"))
+                {
+                    //std::cout << "LfpDisplayCanvas enabling channel " << i << std::endl;
+                    lfpDisplay->enableChannel(true, i);
+                    isChannelEnabled.set(i,true); //lfpDisplay->enableChannel(true, i);
+                } else {
+                    //std::cout << "LfpDisplayCanvas disabling channel " << i << std::endl;
+                    lfpDisplay->enableChannel(false, i);
+                    isChannelEnabled.set(i,false); 
+                }
 
-            	
+                
             }
         }
     }
@@ -777,7 +798,7 @@ void LfpDisplay::setNumChannels(int numChannels)
     for (int i = 0; i < numChans; i++)
     {
 
-		//std::cout << "Adding new display for channel " << i << std::endl;
+        //std::cout << "Adding new display for channel " << i << std::endl;
 
         LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvas, this, i);
 
@@ -1068,31 +1089,31 @@ bool LfpDisplay::getEventDisplayState(int ch)
 void LfpDisplay::enableChannel(bool state, int chan)
 {
 
-	if (chan < numChans)
-	{
-		channelInfo[chan]->setEnabledState(state);
-		canvas->isChannelEnabled.set(chan, state);
-	}
+    if (chan < numChans)
+    {
+        channelInfo[chan]->setEnabledState(state);
+        canvas->isChannelEnabled.set(chan, state);
+    }
 }
 
 void LfpDisplay::setEnabledState(bool state, int chan)
 {
 
-	if (chan < numChans)
-	{
-		channels[chan]->setEnabledState(state);
-		canvas->isChannelEnabled.set(chan, state);
-	}
+    if (chan < numChans)
+    {
+        channels[chan]->setEnabledState(state);
+        canvas->isChannelEnabled.set(chan, state);
+    }
 }
 
  bool LfpDisplay::getEnabledState(int chan)
  {
- 	if (chan < numChans)
- 	{
- 		return channels[chan]->getEnabledState();
- 	}
+    if (chan < numChans)
+    {
+        return channels[chan]->getEnabledState();
+    }
 
- 	return false;
+    return false;
  }
 
 
@@ -1124,12 +1145,12 @@ LfpChannelDisplay::~LfpChannelDisplay()
 void LfpChannelDisplay::setEnabledState(bool state)
 {
 
-	if (state)
-		std::cout << "Setting channel " << name << " to true." << std::endl;
-	else
-		std::cout << "Setting channel " << name << " to false." << std::endl;
+    if (state)
+        std::cout << "Setting channel " << name << " to true." << std::endl;
+    else
+        std::cout << "Setting channel " << name << " to false." << std::endl;
 
-	isEnabled = state;
+    isEnabled = state;
 
 }
 
@@ -1209,7 +1230,6 @@ void LfpChannelDisplay::paint(Graphics& g)
 
         //std::cout << "e " << canvas->getYCoord(canvas->getNumChannels()-1, i) << std::endl;
          g.setColour(lineColour);
-        g.setOpacity(1);
 
         if (drawMethod) // switched between to line drawing and pixel wise drawing
         {
@@ -1224,8 +1244,9 @@ void LfpChannelDisplay::paint(Graphics& g)
         }else{
 
             // // pixel wise line plot has no anti-aliasing, but runs much faster
-            double a = (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2;
-            double b = (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2;
+            double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat)+getHeight()/2;
+            double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat)+getHeight()/2;
+            double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
 
             if (a<b)
             {
@@ -1238,14 +1259,14 @@ void LfpChannelDisplay::paint(Graphics& g)
                 to = (a);
             }
 
-            if ((to-from) < 40)  // if there is too much vertical range in one pixel, don't draw the full line for speed reasons
+            if ((to-from) < 100)  // if there is too much vertical range in one pixel, don't draw the full line for speed reasons
             {
                 for (int j = from; j <= to; j += 1)
                 {
                     g.setPixel(i,j);
                 }
             }
-            else if ((to-from) < 100)
+            else if ((to-from) < 200)
             {
                 for (int j = from; j <= to; j += 2)
                 {
@@ -1258,10 +1279,14 @@ void LfpChannelDisplay::paint(Graphics& g)
                 g.setPixel(i,from);
             }
 
+            //draw mean
+            //g.setColour(Colours::white);
+            //g.setPixel(i,m);
+
         }
 
     }
-}	
+}   
 
     // g.setColour(lineColour.withAlpha(0.7f)); // alpha on seems to decrease draw speed
     // g.setFont(channelFont);
@@ -1337,7 +1362,7 @@ int LfpChannelDisplay::getChannelOverlap()
 
 void LfpChannelDisplay::setCanBeInverted(bool _canBeInverted)
 {
-	canBeInverted = _canBeInverted;
+    canBeInverted = _canBeInverted;
 }
 
 void LfpChannelDisplay::setInputInverted(bool isInverted)
@@ -1368,9 +1393,9 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
     : LfpChannelDisplay(canvas_, display_, ch)
 {
 
-	chan = ch;
+    chan = ch;
 
-	enableButton = new UtilityButton("CH"+String(ch+1), Font("Small Text", 13, Font::plain));
+    enableButton = new UtilityButton("CH"+String(ch+1), Font("Small Text", 13, Font::plain));
     enableButton->setRadius(5.0f);
     
     enableButton->setEnabledState(true);
@@ -1386,26 +1411,26 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
 void LfpChannelDisplayInfo::buttonClicked(Button* button)
 {
 
-	bool state = button->getToggleState();
+    bool state = button->getToggleState();
 
-	display->setEnabledState(state, chan);
+    display->setEnabledState(state, chan);
 
-	UtilityButton* b = (UtilityButton*) button;
+    UtilityButton* b = (UtilityButton*) button;
 
-	// if (state)
-	// {
-	// 	b->setLabel("ON");
-	// } else {
-	// 	b->setLabel("OFF");
-	// }
+    // if (state)
+    // {
+    //  b->setLabel("ON");
+    // } else {
+    //  b->setLabel("OFF");
+    // }
 
-	std::cout << "Turn channel " << chan << " to " << button->getToggleState() << std::endl;
+    std::cout << "Turn channel " << chan << " to " << button->getToggleState() << std::endl;
 
 }
 
 void LfpChannelDisplayInfo::setEnabledState(bool state)
 {
-	enableButton->setToggleState(state, sendNotification);
+    enableButton->setToggleState(state, sendNotification);
 }
 
 void LfpChannelDisplayInfo::paint(Graphics& g)
@@ -1427,9 +1452,9 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
 void LfpChannelDisplayInfo::resized()
 {
 
-	int center = getHeight()/2;
+    int center = getHeight()/2;
 
-	enableButton->setBounds(8,center-5,35,16);
+    enableButton->setBounds(8,center-5,35,16);
 }
 
 

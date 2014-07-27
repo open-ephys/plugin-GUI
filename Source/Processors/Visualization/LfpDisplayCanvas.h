@@ -76,6 +76,10 @@ public:
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
 
+    const float getYCoordMin(int chan, int samp);
+    const float getYCoordMean(int chan, int samp);
+    const float getYCoordMax(int chan, int samp);
+
     int screenBufferIndex;
     int lastScreenBufferIndex;
 
