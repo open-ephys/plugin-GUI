@@ -1247,7 +1247,6 @@ void LfpChannelDisplay::paint(Graphics& g)
             double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat)+getHeight()/2;
             double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat)+getHeight()/2;
             double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
-
             if (a<b)
             {
                 from = (a);
@@ -1259,14 +1258,17 @@ void LfpChannelDisplay::paint(Graphics& g)
                 to = (a);
             }
 
-            if ((to-from) < 100)  // if there is too much vertical range in one pixel, don't draw the full line for speed reasons
+			//g.setColour(lineColour.withMultipliedBrightness( 1+(((((float)(to-from)*range)/getHeight())-0.01)*2)  )); // make spikes etc slightly brighter
+
+
+            if ((to-from) < 200)  // if there is too much vertical range in one pixel, don't draw the full line for speed reasons
             {
                 for (int j = from; j <= to; j += 1)
                 {
                     g.setPixel(i,j);
                 }
             }
-            else if ((to-from) < 200)
+            else if ((to-from) < 400)
             {
                 for (int j = from; j <= to; j += 2)
                 {
@@ -1280,7 +1282,7 @@ void LfpChannelDisplay::paint(Graphics& g)
             }
 
             //draw mean
-            //g.setColour(Colours::white);
+            //g.setColour(Colours::black);
             //g.setPixel(i,m);
 
         }
