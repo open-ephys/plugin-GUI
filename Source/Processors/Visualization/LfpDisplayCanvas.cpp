@@ -140,6 +140,16 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     drawMethodButton->setToggleState(false, sendNotification);
     addAndMakeVisible(drawMethodButton);
 
+	//button for pausing the diaplsy - works by skipping buffer updates. This way scrolling etc still works
+	pauseButton = new UtilityButton("Pause", Font("Small Text", 13, Font::plain));
+    pauseButton->setRadius(5.0f);
+    pauseButton->setEnabledState(true);
+    pauseButton->setCorners(true, true, true, true);
+    pauseButton->addListener(this);
+    pauseButton->setClickingTogglesState(true);
+    pauseButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(pauseButton);
+
 
     lfpDisplay->setNumChannels(nChans);
     lfpDisplay->setRange(1000.0f);
@@ -185,6 +195,7 @@ void LfpDisplayCanvas::resized()
 
     invertInputButton->setBounds(750,getHeight()-50,100,22);
     drawMethodButton->setBounds(750,getHeight()-25,100,22);
+	pauseButton->setBounds(880,getHeight()-50,50,44);
 
     for (int i = 0; i < 8; i++)
     {
@@ -261,6 +272,11 @@ void LfpDisplayCanvas::buttonClicked(Button* b)
     {
         lfpDisplay->setDrawMethod(b->getToggleState());
     }
+	if (b == pauseButton)
+    {
+        lfpDisplay->isPaused = b->getToggleState();
+    }
+
 }
 
 void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
@@ -559,7 +575,11 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
 void LfpDisplayCanvas::refresh()
 {
-    updateScreenBuffer();
+	if (lfpDisplay->isPaused) {
+		//fullredraw = true; //issue full redraw
+	}else{
+		updateScreenBuffer(); // if paused, skip this update and draw old screen buffere again
+	}
 
     lfpDisplay->refresh(); // redraws only the new part of the screen buffer
 
@@ -754,6 +774,8 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
     channelColours.add(Colour(150,158,155));
     channelColours.add(Colour(82,173,0));
     channelColours.add(Colour(125,99,32));
+
+	isPaused=false;
 
 }
 

@@ -87,14 +87,12 @@ public:
     void buttonClicked(Button* button);
 
     void saveVisualizerParameters(XmlElement* xml);
-
     void loadVisualizerParameters(XmlElement* xml);
 
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw, there is a similar switch for ach ch display;
     static const int leftmargin=50; // left margin for lfp plots (so the ch number text doesnt overlap)
-
 
     Array<bool> isChannelEnabled;
 
@@ -133,6 +131,7 @@ private:
     ScopedPointer<ComboBox> colorGroupingSelection;
     ScopedPointer<UtilityButton> invertInputButton;
     ScopedPointer<UtilityButton> drawMethodButton;
+	ScopedPointer<UtilityButton> pauseButton;
 
     StringArray voltageRanges;
     StringArray timebases;
@@ -224,7 +223,7 @@ public:
     Array<LfpChannelDisplayInfo*> channelInfo;
 
     bool eventDisplayEnabled[8];
-
+	bool isPaused; // simple pause function, skips screen bufer updates
 
 private:
     int numChans;
@@ -232,7 +231,6 @@ private:
     int totalHeight;
 
     int colorGrouping;
-
 
     LfpDisplayCanvas* canvas;
     Viewport* viewport;    
