@@ -69,7 +69,9 @@ public:
             if (AllocConsole())
             {
                 freopen("CONOUT$","w",stdout);
+				freopen("CONOUT$","w",stderr);
                 SetConsoleTitle("Debug Console");
+				std::cout << "Debug console..." << std::endl;
             }
         }
 

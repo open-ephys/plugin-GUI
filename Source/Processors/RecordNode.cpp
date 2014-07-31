@@ -21,11 +21,12 @@
 
 */
 
-#include <hdf5.h>
 #include "RecordNode.h"
 #include "ProcessorGraph.h"
 #include "../UI/EditorViewport.h"
 #include "../UI/ControlPanel.h"
+
+
 
 
 
@@ -126,7 +127,6 @@ void RecordNode::resetConnections()
     eventChannelPointers.clear();
 
 
-
 }
 
 void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
@@ -162,7 +162,6 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
         //   std::cout << channelIndex << std::endl;
 
         updateFileName(channelPointers[channelIndex]);
-
 
 
         //if (channelPointers[channelIndex]->isRecording)
@@ -373,13 +372,9 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
         
         openFile(eventChannel);
         
-        hid_t file_id;
-        herr_t status;
-        
-        String filenameHDF5 = rootFolder.getFullPathName() + File::separator + "file.h5";
-        
-        file_id = H5Fcreate(filenameHDF5.getCharPointer(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-        status = H5Fclose(file_id);
+		//HDF5
+		HDFOpenFiles();
+   
 
         blockIndex = 0; // reset index
 
@@ -413,7 +408,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
         }
 
         isRecording = false;
-
+		
 
     }
     else if (parameterIndex == 2)
@@ -602,6 +597,8 @@ void RecordNode::closeAllFiles()
         blockIndex = 0; // back to the beginning of the block
         allFilesOpened = false;
     }
+	//HDF5
+	HDFCloseFiles();
 }
 
 bool RecordNode::enable()
@@ -644,6 +641,9 @@ void RecordNode::writeContinuousBuffer(const float* data, int nSamples, int chan
         *(continuousDataFloatBuffer+n) = *(data+n) / scaleFactor;
     }
     AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
+
+	//HDF5
+	fileArray[channelPointers[channel]->recordFileId]->writeRowData(continuousDataIntegerBuffer,nSamples);
 
     if (blockIndex == 0)
     {
@@ -821,6 +821,7 @@ void RecordNode::process(AudioSampleBuffer& buffer,
                                                   numSamplesToWrite,
                                                   i);
 
+
                         }
                     }
 
@@ -872,4 +873,41 @@ void RecordNode::process(AudioSampleBuffer& buffer,
         signalFilesShouldClose = false;
     }
 
+}
+
+//HDF5
+void RecordNode::HDFOpenFiles()
+{
+	int lastProc = -1;
+	int index=-1;
+	int count = 0;
+	KWDFile *file;
+	for (int i=0; i < channelPointers.size(); i++)
+	{
+		if (channelPointers[i]->getRecordState())
+		{
+			if (lastProc != channelPointers[i]->nodeId)
+			{
+				if (index > -1) 
+				{
+					fileArray[index]->open();
+					fileArray[index]->startNewRecording(recordingNumber,count);
+				}
+				lastProc = channelPointers[i]->nodeId;
+				index++;
+				file = new KWDFile(channelPointers[i]->nodeId,rootFolder.getFullPathName() + rootFolder.separatorString);
+				fileArray.add(file);
+				count = 0;
+			}
+			channelPointers[i]->recordFileId=index;
+			count++;
+		}
+	}
+	fileArray[index]->open();
+	fileArray[index]->startNewRecording(recordingNumber,count);
+}
+
+void RecordNode::HDFCloseFiles()
+{
+	fileArray.clear(true);
 }

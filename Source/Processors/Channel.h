@@ -101,6 +101,7 @@ public:
     // file info (for disk writing):
     String filename;
     FILE* file;
+	int recordFileId;
 
     String name;
 

@@ -23,8 +23,6 @@
 
 #ifndef __RECORDNODE_H_FB9B1CA7__
 #define __RECORDNODE_H_FB9B1CA7__
-
-
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 #include <map>
@@ -32,6 +30,10 @@
 
 #include "GenericProcessor.h"
 #include "Channel.h"
+
+//HDF5
+#include "HDF5Recording.h"
+
 
 #define HEADER_SIZE 1024
 #define BLOCK_LENGTH 1024
@@ -216,11 +218,18 @@ private:
 
     /** Used to indicate the end of each record */
     char* recordMarker;
+
+	//HDF5
+	void HDFOpenFiles();
+	void HDFCloseFiles();
     
     CriticalSection diskWriteLock;
     
     bool appendTrialNum;
     int trialNum;
+
+	//HDF5
+	OwnedArray<KWDFile> fileArray;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 

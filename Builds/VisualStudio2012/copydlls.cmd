@@ -1,6 +1,7 @@
 @echo off
 copy %2\okFrontPanel.dll %3
 copy %1\hdf5.dll %3
+copy %1\hdf5_cpp.dll %3
 copy %1\szip.dll %3
 copy %1\zlib.dll %3
 
