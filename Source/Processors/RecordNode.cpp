@@ -903,8 +903,10 @@ void RecordNode::HDFOpenFiles()
 			count++;
 		}
 	}
-	fileArray[index]->open();
-	fileArray[index]->startNewRecording(recordingNumber,count);
+	if (index > -1) {
+		fileArray[index]->open();
+		fileArray[index]->startNewRecording(recordingNumber,count);
+	}
 }
 
 void RecordNode::HDFCloseFiles()

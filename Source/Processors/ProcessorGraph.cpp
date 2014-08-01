@@ -764,11 +764,7 @@ void ProcessorGraph::setRecordState(bool isRecording)
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             
-            if (isRecording)
-                p->startRecording();
-            else
-                p->stopRecording();
-            
+			p->setRecording(isRecording);
         }
     }
     

@@ -398,11 +398,14 @@ public:
     {
         return true;
     }
+
+	/** Called when recording starts/stops **/
+	void setRecording(bool state);
     
-    /** Called whenever recording has started. */
+    /** Called from setRecording whenever recording has started. */
     virtual void startRecording() { }
     
-    /** Called whenever recording has stopped. */
+    /** Called from setrecording whenever recording has stopped. */
     virtual void stopRecording() { }
 
     /** Informs a processor's editor that data acquisition is about to begin. */

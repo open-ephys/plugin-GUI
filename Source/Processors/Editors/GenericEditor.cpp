@@ -280,6 +280,18 @@ void GenericEditor::setEnabledState(bool t)
     isEnabled = p->enabledState();
 }
 
+void GenericEditor::startRecording()
+{
+	if (channelSelector != 0)
+		channelSelector->inactivateRecButtons();
+}
+
+void GenericEditor::stopRecording()
+{
+	if (channelSelector != 0)
+		channelSelector->activateRecButtons();
+}
+
 void GenericEditor::startAcquisition()
 {
 
