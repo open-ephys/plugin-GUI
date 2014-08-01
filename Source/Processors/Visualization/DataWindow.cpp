@@ -46,5 +46,5 @@ void DataWindow::closeButtonPressed()
 {
 	setContentNonOwned(0,false);
     setVisible(false);
-    controlButton->setToggleState(false,false);
+    controlButton->setToggleState(false,dontSendNotification);
 }
