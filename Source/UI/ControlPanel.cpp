@@ -97,7 +97,7 @@ CPUMeter::CPUMeter() : Label("CPU Meter","0.0"), cpu(0.0f), lastCpu(0.0f)
     // Typeface::Ptr typeface = new CustomTypeface(mis);
     // font = Font(typeface);
     // font.setHeight(12);
-    
+
     setTooltip("CPU usage");
 }
 
@@ -137,7 +137,7 @@ DiskSpaceMeter::DiskSpaceMeter()
     // Typeface::Ptr typeface = new CustomTypeface(mis);
     // font = Font(typeface);
     // font.setHeight(12);
-    
+
     setTooltip("Disk space available");
 }
 
@@ -193,10 +193,12 @@ void Clock::paint(Graphics& g)
     if (isRecording)
     {
         g.fillAll(Colour(255,0,0));
-    } else {
+    }
+    else
+    {
         g.fillAll(Colour(58,58,58));
     }
-    
+
     drawTime(g);
 }
 
@@ -406,10 +408,10 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
 
 
     File executable = File::getSpecialLocation(File::currentExecutableFile);
-    
+
 #if defined(__APPLE__)
     const String executableDirectory =
-    executable.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
+        executable.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
 #else
     const String executableDirectory = executable.getParentDirectory().getFullPathName();
 #endif
@@ -450,7 +452,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     startTimer(10);
 
     setWantsKeyboardFocus(true);
-    
+
     backgroundColour = Colour(58,58,58);
 
 }
@@ -527,9 +529,11 @@ void ControlPanel::resized()
     if (playButton != 0)
     {
         if (w > 330)
-            playButton->setBounds(w-h*10,5,h-5,h-10);\
+            playButton->setBounds(w-h*10,5,h-5,h-10);
+        \
         else
-            playButton->setBounds(5,5,h-5,h-10);\
+            playButton->setBounds(5,5,h-5,h-10);
+        \
     }
 
     if (recordButton != 0)
@@ -582,12 +586,12 @@ void ControlPanel::resized()
     {
         if (getWidth() < 750 && getWidth() >= 570)
             audioEditor->setBounds(w-526,0,h*8,h);
-       else if (getWidth() < 570)
+        else if (getWidth() < 570)
             audioEditor->setBounds(8,0+offset2,h*8,h);
         else
             audioEditor->setBounds(h*7,0,h*8,h);
     }
-        
+
 
     if (cpb != 0)
     {
@@ -660,7 +664,7 @@ void ControlPanel::startRecording()
     appendText->setEditable(false);
     dateText->setColour(Label::textColourId, Colours::black);
 
-    graph->setRecordState(true); 
+    graph->setRecordState(true);
 
     repaint();
 }
@@ -684,7 +688,7 @@ void ControlPanel::stopRecording()
 void ControlPanel::buttonClicked(Button* button)
 
 {
-    
+
     if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
     {
         graph->getRecordNode()->newDirectoryNeeded = true;
@@ -707,12 +711,14 @@ void ControlPanel::buttonClicked(Button* button)
                 audio->beginCallbacks();
                 masterClock->start();
                 audioEditor->disable();
-                
+
                 stopTimer();
                 startTimer(250); // refresh every 250 ms
 
             }
-        } else {
+        }
+        else
+        {
 
             if (recordButton->getToggleState())
             {
@@ -726,7 +732,7 @@ void ControlPanel::buttonClicked(Button* button)
             stopTimer();
             startTimer(60000); // back to refresh every minute
             audioEditor->enable();
-            
+
         }
 
         return;
@@ -739,13 +745,15 @@ void ControlPanel::buttonClicked(Button* button)
             if (playButton->getToggleState())
             {
                 startRecording();
-            } else {
+            }
+            else
+            {
                 if (graph->enableProcessors()) // start the processor graph
                 {
                     audio->beginCallbacks();
                     masterClock->start();
                     audioEditor->disable();
-                    
+
                     stopTimer();
                     startTimer(250); // refresh every 250 ms
 
@@ -755,10 +763,12 @@ void ControlPanel::buttonClicked(Button* button)
 
                 }
             }
-        } else {
+        }
+        else
+        {
             stopRecording();
         }
-    }     
+    }
 
 }
 
@@ -806,7 +816,7 @@ void ControlPanel::disableCallbacks()
 void ControlPanel::timerCallback()
 {
     //std::cout << "Message Received." << std::endl;
-   refreshMeters();
+    refreshMeters();
 
 }
 

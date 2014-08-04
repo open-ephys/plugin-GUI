@@ -123,10 +123,10 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
     // create a custom channel selector
     //deleteAndZero(channelSelector);
 
-   // channelSelector = new ChannelSelector(false, font);
-  //  addChildComponent(channelSelector);
-   // channelSelector->setVisible(false);
-//
+    // channelSelector = new ChannelSelector(false, font);
+    //  addChildComponent(channelSelector);
+    // channelSelector->setVisible(false);
+    //
     //  Array<int> a;
 
     channelSelector->inactivateButtons();
@@ -184,7 +184,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             ElectrodeButton* eb = (ElectrodeButton*) button;
             int electrodeNum = eb->getChannelNum()-1;
 
-           // std::cout << "Channel number: " << electrodeNum << std::endl;
+            // std::cout << "Channel number: " << electrodeNum << std::endl;
             Array<int> a;
             a.add(electrodeNum);
             channelSelector->setActiveChannels(a);
@@ -245,7 +245,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
         }
 
         int type = electrodeTypes->getSelectedId();
-       // std::cout << type << std::endl;
+        // std::cout << type << std::endl;
         int nChans;
 
         switch (type)
@@ -354,7 +354,9 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
                 channelSelector->setAudioStatus(channelNum, audioMonitorButton->getToggleState());
 
             }
-        } else {
+        }
+        else
+        {
             audioMonitorButton->setToggleState(false, dontSendNotification);
         }
 
@@ -367,7 +369,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             sendActionMessage("Stop acquisition before deleting electrodes.");
             return;
         }
-    
+
         removeElectrode(electrodeList->getSelectedItemIndex());
 
         getEditorViewport()->makeEditorVisible(this, true, true);
@@ -513,7 +515,7 @@ void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
 
             processor->setElectrodeName(lastId, comboBox->getText());
             comboBox->changeItemText(lastId, comboBox->getText());
-           //electrodeList->setText(comboBox->getText());
+            //electrodeList->setText(comboBox->getText());
             //refreshElectrodeList();
 
         }
@@ -607,7 +609,7 @@ ThresholdSlider::ThresholdSlider(Font f) : Slider("name"), font(f)
 
     setSliderStyle(Slider::Rotary);
     setRange(25.0f,400.0f,5.0f);
-   // setValue(75.0f);
+    // setValue(75.0f);
     setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
 
 }

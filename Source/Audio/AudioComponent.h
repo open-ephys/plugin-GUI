@@ -78,7 +78,7 @@ public:
 
     /** Returns the buffer size (in samples) currently being used.*/
     int getBufferSize();
-    
+
     /** Returns the buffer size (in ms) currently being used.*/
     int getBufferSizeMs();
 

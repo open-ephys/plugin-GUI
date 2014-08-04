@@ -426,7 +426,7 @@ void ParameterCheckbox::paintButton(Graphics& g, bool isMouseOver, bool isButton
         g.setGradientFill(deactivatedGrad);
     }
 
-   // AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth())/2.0f,
+    // AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth())/2.0f,
     //                                           float(getHeight())/2.0f);
 
     g.fillRoundedRectangle(1, 1, getWidth()-2, getHeight()-2, 2.0f);

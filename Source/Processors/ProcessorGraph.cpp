@@ -67,9 +67,9 @@ ProcessorGraph::ProcessorGraph() : currentNodeId(100)
 
 }
 
-ProcessorGraph::~ProcessorGraph() 
+ProcessorGraph::~ProcessorGraph()
 {
-	
+
 }
 
 void ProcessorGraph::createDefaultNodes()
@@ -113,7 +113,7 @@ void* ProcessorGraph::createNewProcessor(String& description, int id)//,
 
     GenericProcessor* processor = createProcessorFromDescription(description);
 
-   // int id = currentNodeId++;
+    // int id = currentNodeId++;
 
     if (processor != 0)
     {
@@ -153,7 +153,7 @@ void ProcessorGraph::clearSignalChain()
 
     for (int i = 0; i < processors.size(); i++)
     {
-         removeProcessor(processors[i]);
+        removeProcessor(processors[i]);
     }
 
 }
@@ -212,7 +212,7 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
 
     Array<GenericProcessor*> a;
 
-     for (int i = 0; i < getNumNodes(); i++)
+    for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
 
@@ -248,7 +248,7 @@ void ProcessorGraph::clearConnections()
             {
                 disconnectNode(node->nodeId);
             }
-            
+
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             p->resetConnections();
 
@@ -278,7 +278,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
     std::cout << "Updating connections:" << std::endl;
     std::cout << std::endl;
-     std::cout << std::endl;
+    std::cout << std::endl;
 
     Array<GenericProcessor*> splitters;
     // GenericProcessor* activeSplitter = nullptr;
@@ -299,15 +299,17 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
             if (source->enabledState())
             {
                 // add the connections to audio and record nodes if necessary
-                if (!(source->isSink()     || 
-                      source->isSplitter() || 
-                      source->isMerger()   || 
-                      source->isUtility()) 
+                if (!(source->isSink()     ||
+                      source->isSplitter() ||
+                      source->isMerger()   ||
+                      source->isUtility())
                     && !(source->wasConnected))
                 {
                     std::cout << "     Connecting to audio and record nodes." << std::endl;
                     connectProcessorToAudioAndRecordNodes(source);
-                } else {
+                }
+                else
+                {
                     std::cout << "     NOT connecting to audio and record nodes." << std::endl;
                 }
 
@@ -332,7 +334,9 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                                 {
                                     splitters.add(dest);
                                     dest->switchIO(0); // go down first path
-                                } else {
+                                }
+                                else
+                                {
                                     int splitterIndex = splitters.indexOf(dest);
                                     splitters.remove(splitterIndex);
                                     dest->switchIO(1); // go down second path
@@ -351,15 +355,19 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
                             if (dest->enabledState())
                             {
-                               connectProcessors(source, dest);
+                                connectProcessors(source, dest);
                             }
                         }
 
-                    } else {
+                    }
+                    else
+                    {
                         std::cout << "     No dest node." << std::endl;
                     }
 
-                } else {
+                }
+                else
+                {
                     std::cout << "     No dest node." << std::endl;
                 }
             }
@@ -381,7 +389,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                     newSource->setPathToProcessor(source);
                     source = newSource;
                 }
-                
+
             }
 
         } // end while source != 0
@@ -434,7 +442,7 @@ void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* sou
 
         // THIS IS A HACK TO MAKE SURE AUDIO NODE KNOWS WHAT THE SAMPLE RATE SHOULD BE
         // IT CAN CAUSE PROBLEMS IF THE SAMPLE RATE VARIES ACROSS PROCESSORS
-        getAudioNode()->settings.sampleRate = source->getSampleRate(); 
+        getAudioNode()->settings.sampleRate = source->getSampleRate();
 
         addConnection(source->getNodeId(),                   // sourceNodeID
                       chan,                                  // sourceNodeChannelIndex
@@ -511,7 +519,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             processor = new FileReader();
             std::cout << "Creating a new file reader." << std::endl;
-        }   
+        }
         else if (subProcessorType.equalsIgnoreCase("Serial Port"))
         {
             processor = new SerialInput();
@@ -553,7 +561,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             std::cout << "Creating a new channel mapping node." << std::endl;
             processor = new ChannelMappingNode();
-        } 
+        }
 
         sendActionMessage("New filter node created.");
 
@@ -603,8 +611,8 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             std::cout << "Creating a SpikeDisplayNode." << std::endl;
             processor = new SpikeDisplayNode();
-        } 
-    
+        }
+
         else if (subProcessorType.equalsIgnoreCase("WiFi Output"))
         {
             std::cout << "Creating a WiFi node." << std::endl;
@@ -753,27 +761,29 @@ void ProcessorGraph::setRecordState(bool isRecording)
     if (isRecording)
     {
         getRecordNode()->setParameter(1,10.0f);
-    } else {
+    }
+    else
+    {
         getRecordNode()->setParameter(0,10.0f);
     }
-    
+
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
         if (node->nodeId != OUTPUT_NODE_ID)
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
-            
+
             if (isRecording)
                 p->startRecording();
             else
                 p->stopRecording();
-            
+
         }
     }
-    
-    
-    
+
+
+
 }
 
 

@@ -33,8 +33,8 @@ void ElectrodeButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDo
     if (isMouseOver)
         g.setColour(Colours::white);
 
-	if (!isEnabled())
-		g.setColour(Colours::black);
+    if (!isEnabled())
+        g.setColour(Colours::black);
 
     g.fillRect(0,0,getWidth(),getHeight());
 
@@ -43,28 +43,28 @@ void ElectrodeButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDo
 
     g.drawRect(0,0,getWidth(),getHeight(),1.0);
 
-	if (!isEnabled())
-	{
-		g.setColour(Colours::grey);
-	}
+    if (!isEnabled())
+    {
+        g.setColour(Colours::grey);
+    }
 
     if (chan >= 0)
-		g.drawText(getButtonText(),0,0,getWidth(),getHeight(),Justification::centred,true);
+        g.drawText(getButtonText(),0,0,getWidth(),getHeight(),Justification::centred,true);
 }
 
 void ElectrodeButton::setChannelNum(int i)
 {
-		setChannelNum(i,true);
+    setChannelNum(i,true);
 }
 
 void ElectrodeButton::setChannelNum(int i, bool changeButtonText)
 {
-	chan = i;
+    chan = i;
 
-	if (changeButtonText)
-	{
-		setButtonText(String(chan));
-	}
+    if (changeButtonText)
+    {
+        setButtonText(String(chan));
+    }
 }
 
 

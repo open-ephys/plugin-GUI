@@ -74,7 +74,10 @@ public:
     void setRecordState(bool t); // {isRecording = t;}
 
     /** Sets whether or not the channel will record. */
-    bool getRecordState() {return isRecording;}
+    bool getRecordState()
+    {
+        return isRecording;
+    }
 
     /** The channel number.*/
     int num;
@@ -91,7 +94,7 @@ public:
     // crucial information:
     float sampleRate;
     float bitVolts;
-    
+
     // boolean values:
     bool isEventChannel;
     bool isADCchannel;
@@ -106,7 +109,7 @@ public:
 
 private:
 
-    bool isRecording; 
+    bool isRecording;
 
     /** Generates a default name, based on the channel number. */
     void createDefaultName();

@@ -35,7 +35,7 @@
 
 #ifndef M_PI
 #define M_PI 3.14159265359
-#endif 
+#endif
 GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors=true)
     : AudioProcessorEditor(owner),
       desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
@@ -76,7 +76,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
     if (!owner->isMerger() && !owner->isSplitter() && !owner->isUtility())
     {
-       // std::cout << "Adding drawer button." << std::endl;
+        // std::cout << "Adding drawer button." << std::endl;
 
         drawerButton = new DrawerButton("name");
         drawerButton->addListener(this);
@@ -141,7 +141,7 @@ void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
         int maxX = 15;
         int maxY = 30;
 
-       // std::cout << "Adding parameter editors." << std::endl;
+        // std::cout << "Adding parameter editors." << std::endl;
 
         for (int i = 0; i < getProcessor()->getNumParameters(); i++)
         {
@@ -360,12 +360,14 @@ void GenericEditor::paint(Graphics& g)
     // draw title
     if (!isCollapsed)
     {
-       // if (!getProcessor()->isMerger() && !getProcessor()->isSplitter())
-      //      g.drawText(name+" ("+String(nodeId)+")", 6, 5, 500, 15, Justification::left, false);
-       // else
-            g.drawText(displayName, 6, 5, 500, 15, Justification::left, false);
+        // if (!getProcessor()->isMerger() && !getProcessor()->isSplitter())
+        //      g.drawText(name+" ("+String(nodeId)+")", 6, 5, 500, 15, Justification::left, false);
+        // else
+        g.drawText(displayName, 6, 5, 500, 15, Justification::left, false);
 
-    } else {
+    }
+    else
+    {
         g.addTransform(AffineTransform::rotation(-M_PI/2.0));
         g.drawText(displayName, -getHeight()+6, 5, 500, 15, Justification::left, false);
         g.addTransform(AffineTransform::rotation(M_PI/2.0));
@@ -411,7 +413,7 @@ void GenericEditor::timerCallback()
 void GenericEditor::buttonClicked(Button* button)
 {
 
-   // std::cout << "Button clicked." << std::endl;
+    // std::cout << "Button clicked." << std::endl;
 
     checkDrawerButton(button);
 
@@ -470,7 +472,7 @@ void GenericEditor::update()
 
     GenericProcessor* p = (GenericProcessor*) getProcessor();
 
-   // std::cout << p->getName() << " updating settings." << std::endl;
+    // std::cout << p->getName() << " updating settings." << std::endl;
 
     int numChannels;
 
@@ -485,7 +487,7 @@ void GenericEditor::update()
 
         for (int i = 0; i < numChannels; i++)
         {
-           // std::cout << p->channels[i]->getRecordState() << std::endl;
+            // std::cout << p->channels[i]->getRecordState() << std::endl;
             channelSelector->setRecordStatus(i, p->channels[i]->getRecordState());
         }
     }
@@ -618,7 +620,9 @@ void GenericEditor::switchCollapsedState()
             desiredWidth = originalWidth;
             isCollapsed = false;
 
-        } else {
+        }
+        else
+        {
             originalWidth = desiredWidth;
             desiredWidth = 25;
             isCollapsed = true;
@@ -670,9 +674,9 @@ void GenericEditor::loadEditorParameters(XmlElement* xml)
 
 GenericEditor* GenericEditor::getSourceEditor()
 {
-    
+
     GenericProcessor* sourceNode = getProcessor()->getSourceNode();
-    
+
     if (sourceNode != nullptr)
         return sourceNode->getEditor();
     else
@@ -682,7 +686,7 @@ GenericEditor* GenericEditor::getSourceEditor()
 GenericEditor* GenericEditor::getDestEditor()
 {
     GenericProcessor* destNode = getProcessor()->getDestNode();
-    
+
     if (destNode != nullptr)
         return destNode->getEditor();
     else
@@ -920,7 +924,7 @@ void UtilityButton::resized()
 
 String UtilityButton::getLabel()
 {
-	return label;
+    return label;
 }
 
 void UtilityButton::setLabel(String label_)

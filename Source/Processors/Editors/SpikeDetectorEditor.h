@@ -115,7 +115,7 @@ private:
 
     OwnedArray<ElectrodeButton> electrodeButtons;
     Array<ElectrodeEditorButton*> electrodeEditorButtons;
-    
+
     void editElectrode(int index, int chan, int newChan);
 
     int lastId;

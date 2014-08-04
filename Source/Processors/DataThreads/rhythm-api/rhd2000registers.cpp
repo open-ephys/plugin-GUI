@@ -783,7 +783,7 @@ int Rhd2000Registers::createRhd2000Command(Rhd2000CommandType commandType, int a
 // Create a list of 60 commands to program most RAM registers on a RHD2000 chip, read those values
 // back to confirm programming, read ROM registers, and (if calibrate == true) run ADC calibration.
 // Returns the length of the command list.
-int Rhd2000Registers::createCommandListRegisterConfig(vector<int> &commandList, bool calibrate)
+int Rhd2000Registers::createCommandListRegisterConfig(vector<int>& commandList, bool calibrate)
 {
     commandList.clear();    // if command list already exists, erase it and start a new one
 
@@ -888,7 +888,7 @@ int Rhd2000Registers::createCommandListRegisterConfig(vector<int> &commandList, 
 // different RAM banks, and the appropriate command list selected at the right time.
 //
 // Returns the length of the command list.
-int Rhd2000Registers::createCommandListTempSensor(vector<int> &commandList)
+int Rhd2000Registers::createCommandListTempSensor(vector<int>& commandList)
 {
     int i;
 
@@ -954,7 +954,7 @@ int Rhd2000Registers::createCommandListTempSensor(vector<int> &commandList)
 // amplitude (in DAC steps, 0-128) using the on-chip impedance testing voltage DAC.  If frequency is set to zero,
 // a DC baseline waveform is created.
 // Returns the length of the command list.
-int Rhd2000Registers::createCommandListZcheckDac(vector<int> &commandList, double frequency, double amplitude)
+int Rhd2000Registers::createCommandListZcheckDac(vector<int>& commandList, double frequency, double amplitude)
 {
     int i, period, value;
     double t;

@@ -67,7 +67,7 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
     highCutValue->setTooltip("Set the high cut for the selected channels");
     addAndMakeVisible(highCutValue);
 
-	applyFilterOnADC = new UtilityButton("+ADCs",Font("Default", 10, Font::plain));
+    applyFilterOnADC = new UtilityButton("+ADCs",Font("Default", 10, Font::plain));
     applyFilterOnADC->addListener(this);
     applyFilterOnADC->setBounds(90,70,40,18);
     applyFilterOnADC->setClickingTogglesState(true);
@@ -81,13 +81,13 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
     applyFilterOnChan->setToggleState(true, dontSendNotification);
     applyFilterOnChan->setTooltip("When this button is off, selected channels will not be filtered");
     addAndMakeVisible(applyFilterOnChan);
- 
+
 }
 
 FilterEditor::~FilterEditor()
 {
-    
-}   
+
+}
 
 void FilterEditor::setDefaults(double lowCut, double highCut)
 {
@@ -106,19 +106,19 @@ void FilterEditor::labelTextChanged(Label* label)
     Value val = label->getTextValue();
     double requestedValue = double(val.getValue());
 
-    if (requestedValue < 0.01 || requestedValue > 10000) 
+    if (requestedValue < 0.01 || requestedValue > 10000)
     {
         sendActionMessage("Value out of range.");
 
         if (label == highCutValue)
         {
             label->setText(lastHighCutString, dontSendNotification);
-			lastHighCutString = label->getText();
+            lastHighCutString = label->getText();
         }
         else
         {
             label->setText(lastLowCutString, dontSendNotification);
-			lastLowCutString = label->getText();
+            lastLowCutString = label->getText();
         }
 
         return;
@@ -180,7 +180,8 @@ void FilterEditor::buttonEvent(Button* button)
         FilterNode* fn = (FilterNode*) getProcessor();
         fn->setApplyOnADC(applyFilterOnADC->getToggleState());
 
-    } else if (button == applyFilterOnChan)
+    }
+    else if (button == applyFilterOnChan)
     {
         FilterNode* fn = (FilterNode*) getProcessor();
 
@@ -208,7 +209,7 @@ void FilterEditor::saveCustomParameters(XmlElement* xml)
     XmlElement* textLabelValues = xml->createNewChildElement("VALUES");
     textLabelValues->setAttribute("HighCut",lastHighCutString);
     textLabelValues->setAttribute("LowCut",lastLowCutString);
-	textLabelValues->setAttribute("ApplyToADC",	applyFilterOnADC->getToggleState());
+    textLabelValues->setAttribute("ApplyToADC",	applyFilterOnADC->getToggleState());
 }
 
 void FilterEditor::loadCustomParameters(XmlElement* xml)
@@ -220,7 +221,7 @@ void FilterEditor::loadCustomParameters(XmlElement* xml)
         {
             highCutValue->setText(xmlNode->getStringAttribute("HighCut"),dontSendNotification);
             lowCutValue->setText(xmlNode->getStringAttribute("LowCut"),dontSendNotification);
-			applyFilterOnADC->setToggleState(xmlNode->getBoolAttribute("ApplyToADC",false), sendNotification);
+            applyFilterOnADC->setToggleState(xmlNode->getBoolAttribute("ApplyToADC",false), sendNotification);
         }
     }
 

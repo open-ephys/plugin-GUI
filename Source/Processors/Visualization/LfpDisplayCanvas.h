@@ -103,7 +103,7 @@ private:
     float displayGain;
     float timeOffset;
     //int spread ; // vertical spacing between channels
-    
+
 
     static const int MAX_N_CHAN = 256;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
@@ -112,9 +112,9 @@ private:
     LfpDisplayNode* processor;
     AudioSampleBuffer* displayBuffer; // sample wise data buffer for display
     AudioSampleBuffer* screenBuffer; // subsampled buffer- one int per pixel
-    
+
     //'define 3 buffers for min mean and max for better plotting of spikes
-    // not pretty, but 'AudioSampleBuffer works only for channels X samples 
+    // not pretty, but 'AudioSampleBuffer works only for channels X samples
     AudioSampleBuffer* screenBufferMin; // like screenBuffer but holds min/mean/max values per pixel
     AudioSampleBuffer* screenBufferMean; // like screenBuffer but holds min/mean/max values per pixel
     AudioSampleBuffer* screenBufferMax; // like screenBuffer but holds min/mean/max values per pixel
@@ -131,7 +131,7 @@ private:
     ScopedPointer<ComboBox> colorGroupingSelection;
     ScopedPointer<UtilityButton> invertInputButton;
     ScopedPointer<UtilityButton> drawMethodButton;
-	ScopedPointer<UtilityButton> pauseButton;
+    ScopedPointer<UtilityButton> pauseButton;
 
     StringArray voltageRanges;
     StringArray timebases;
@@ -223,7 +223,7 @@ public:
     Array<LfpChannelDisplayInfo*> channelInfo;
 
     bool eventDisplayEnabled[8];
-	bool isPaused; // simple pause function, skips screen bufer updates
+    bool isPaused; // simple pause function, skips screen bufer updates
 
 private:
     int numChans;
@@ -233,7 +233,7 @@ private:
     int colorGrouping;
 
     LfpDisplayCanvas* canvas;
-    Viewport* viewport;    
+    Viewport* viewport;
 
     float range;
 
@@ -270,7 +270,10 @@ public:
     void setDrawMethod(bool);
 
     void setEnabledState(bool);
-    bool getEnabledState() {return isEnabled;}
+    bool getEnabledState()
+    {
+        return isEnabled;
+    }
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
@@ -304,7 +307,7 @@ protected:
 };
 
 class LfpChannelDisplayInfo : public LfpChannelDisplay,
-                              public Button::Listener
+    public Button::Listener
 {
 public:
     LfpChannelDisplayInfo(LfpDisplayCanvas*, LfpDisplay*, int channelNumber);
@@ -318,9 +321,9 @@ public:
     void setEnabledState(bool);
 
 private:
-    
-    ScopedPointer<UtilityButton> enableButton;        
-                
+
+    ScopedPointer<UtilityButton> enableButton;
+
 };
 
 class EventDisplayInterface : public Component,

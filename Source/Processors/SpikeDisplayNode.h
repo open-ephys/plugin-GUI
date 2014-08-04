@@ -66,7 +66,7 @@ public:
 
     bool enable();
     bool disable();
-    
+
     void startRecording();
     void stopRecording();
 
@@ -120,7 +120,7 @@ private:
     SpikeObject currentSpike;
 
     uint16 recordingNumber;
-    
+
     CriticalSection* diskWriteLock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayNode);

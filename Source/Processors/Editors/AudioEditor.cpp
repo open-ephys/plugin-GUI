@@ -95,7 +95,7 @@ AudioEditor::AudioEditor(AudioNode* owner)
     audioWindowButton = new AudioWindowButton();
     audioWindowButton->addListener(this);
     audioWindowButton->setToggleState(false, dontSendNotification);
-    
+
     //AccessClass* audioNode = (AccessClass*) getAudioProcessor();
     //
     addAndMakeVisible(audioWindowButton);
@@ -112,10 +112,10 @@ AudioEditor::AudioEditor(AudioNode* owner)
     noiseGateSlider->setRange(0,100,1);
     noiseGateSlider->addListener(this);
     noiseGateSlider->setTextBoxStyle(Slider::NoTextBox,
-                                  false, 0, 0);
+                                     false, 0, 0);
     addAndMakeVisible(noiseGateSlider);
 
-    
+
     //acw = new AudioConfigurationWindow(getAudioComponent()->deviceManager, (Button*) audioWindowButton);
 
 }
@@ -143,10 +143,10 @@ bool AudioEditor::keyPressed(const KeyPress& key)
 
 void AudioEditor::updateBufferSizeText()
 {
-    
+
     String t = String(getAudioComponent()->getBufferSizeMs());
     t += " ms";
-    
+
     audioWindowButton->setText(t);
 }
 
@@ -244,9 +244,9 @@ void AudioEditor::saveStateToXml(XmlElement* xml)
     audioEditorState->setAttribute("volume",volumeSlider->getValue());
     audioEditorState->setAttribute("noiseGate",noiseGateSlider->getValue());
 
-   // String audioDeviceName = getAudioComponent()->deviceManager.getCurrentAudioDeviceType();
+    // String audioDeviceName = getAudioComponent()->deviceManager.getCurrentAudioDeviceType();
 
-   // audioEditorState->setAttribute("deviceType",audioDeviceName);
+    // audioEditorState->setAttribute("deviceType",audioDeviceName);
 
 }
 
@@ -262,8 +262,8 @@ void AudioEditor::loadStateFromXml(XmlElement* xml)
             volumeSlider->setValue(xmlNode->getDoubleAttribute("volume",0.0f),NotificationType::sendNotification);
             noiseGateSlider->setValue(xmlNode->getDoubleAttribute("noiseGate",0.0f),NotificationType::sendNotification);
 
-        //    String audioDeviceName = xmlNode->getStringAttribute("deviceType","");
-        //    getAudioComponent()->deviceManager.setCurrentAudioDeviceType(audioDeviceName, true);
+            //    String audioDeviceName = xmlNode->getStringAttribute("deviceType","");
+            //    getAudioComponent()->deviceManager.setCurrentAudioDeviceType(audioDeviceName, true);
         }
     }
 
@@ -312,7 +312,7 @@ AudioConfigurationWindow::~AudioConfigurationWindow()
 void AudioConfigurationWindow::closeButtonPressed()
 {
     controlButton->setToggleState(false, dontSendNotification);
-    
+
     //updateBufferSizeText();
     String t = String(getAudioComponent()->getBufferSizeMs());
     t += " ms";
