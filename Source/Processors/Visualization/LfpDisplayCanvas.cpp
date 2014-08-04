@@ -168,7 +168,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     }
 
-
+    TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
 }
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
@@ -178,6 +178,8 @@ LfpDisplayCanvas::~LfpDisplayCanvas()
     deleteAndZero(screenBufferMin);
     deleteAndZero(screenBufferMean);
     deleteAndZero(screenBufferMax);
+
+    TopLevelWindow::getTopLevelWindow(0)->removeKeyListener(this);
 }
 
 void LfpDisplayCanvas::resized()
@@ -590,6 +592,26 @@ void LfpDisplayCanvas::refresh()
 
     //getPeer()->performAnyPendingRepaintsNow();
 
+}
+
+bool LfpDisplayCanvas::keyPressed(const KeyPress& key)
+{
+    if (key.getKeyCode() == key.spaceKey)
+    {
+        pauseButton->setToggleState(!pauseButton->getToggleState(),true);
+        return true;
+    }
+
+    return false;
+}
+
+bool LfpDisplayCanvas::keyPressed(const KeyPress& key, Component* orig)
+{
+    if (getTopLevelComponent() == orig && isVisible())
+    {
+        return keyPressed(key);
+    }
+    return false;
 }
 
 void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)

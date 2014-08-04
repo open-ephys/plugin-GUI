@@ -45,7 +45,8 @@ class EventDisplayInterface;
 
 class LfpDisplayCanvas : public Visualizer,
     public ComboBox::Listener,
-    public Button::Listener
+    public Button::Listener,
+    public KeyListener
 
 {
 public:
@@ -88,6 +89,10 @@ public:
 
     void saveVisualizerParameters(XmlElement* xml);
     void loadVisualizerParameters(XmlElement* xml);
+
+    bool keyPressed(const KeyPress& key);
+    bool keyPressed(const KeyPress& key, Component* orig);
+
 
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
