@@ -27,7 +27,7 @@
 #include "../../UI/ControlPanel.h"
 
 RecordControl::RecordControl()
-    : GenericProcessor("Record Control"), 
+    : GenericProcessor("Record Control"),
       createNewFilesOnTrigger(false), triggerChannel(0), recordNode(0)
 {
 
@@ -49,14 +49,18 @@ void RecordControl::setParameter(int parameterIndex, float newValue)
     if (parameterIndex == 0)
     {
         updateTriggerChannel((int) newValue);
-    } else {
-        
+    }
+    else
+    {
+
         if (newValue == 0.0)
         {
             createNewFilesOnTrigger = false;
-            
-            
-        } else {
+
+
+        }
+        else
+        {
             createNewFilesOnTrigger = true;
         }
         //recordNode->appendTrialNumber(createNewFilesOnTrigger);
@@ -72,9 +76,9 @@ bool RecordControl::enable()
 {
     if (recordNode == 0)
         recordNode = getProcessorGraph()->getRecordNode();
-    
+
     recordNode->appendTrialNumber(createNewFilesOnTrigger);
-    
+
     return true;
 }
 

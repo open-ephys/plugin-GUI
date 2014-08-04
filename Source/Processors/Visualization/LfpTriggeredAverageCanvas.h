@@ -200,7 +200,7 @@ private:
     int totalHeight;
 
     LfpTriggeredAverageCanvas* canvas;
-    Viewport* viewport;    
+    Viewport* viewport;
 
     float range;
 

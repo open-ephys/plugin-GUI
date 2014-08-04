@@ -1,24 +1,24 @@
 /*
  ------------------------------------------------------------------
- 
+
  This file is part of the Open Ephys GUI
  Copyright (C) 2014 Open Ephys
- 
+
  ------------------------------------------------------------------
- 
+
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
+
  */
 
 #include "GraphViewer.h"
@@ -27,33 +27,33 @@
 
 GraphViewer::GraphViewer()
 {
-    
+
     labelFont = Font("Paragraph", 50, Font::plain);
     rootNum = 0;
 }
 
 GraphViewer::~GraphViewer()
 {
-    
+
 }
 
 void GraphViewer::addNode(GenericEditor* editor)
 {
-    
+
     GraphNode* gn = new GraphNode(editor, this);
     addAndMakeVisible(gn);
     availableNodes.add(gn);
     gn->setBounds(20, 20, 150, 50);
     updateNodeLocations();
-    
+
 }
 
 
 void GraphViewer::removeNode(GenericEditor* editor)
 {
-    
+
     availableNodes.remove(indexOfEditor(editor));
-    
+
     updateNodeLocations();
 
 }
@@ -63,7 +63,7 @@ void GraphViewer::removeAllNodes()
     availableNodes.clear();
 
     updateNodeLocations();
-    
+
 }
 
 // void GenericEditor::updateNodeName(GenericEditor* editor)
@@ -109,7 +109,7 @@ void GraphViewer::updateNodeLocations()
 
 void GraphViewer::checkLayout(GraphNode* gn)
 {
- 
+
     if (gn != nullptr)
     {
 
@@ -132,12 +132,14 @@ void GraphViewer::checkLayout(GraphNode* gn)
                 level2 = getNodeForEditor(editors[1])->getLevel();
             }
 
-           // std::cout << "LEVEL1 = " << level1 << " LEVEL2 = " << level2 << std::endl;
+            // std::cout << "LEVEL1 = " << level1 << " LEVEL2 = " << level2 << std::endl;
 
-            sourceNode = level1 > level2 ? getNodeForEditor(editors[0]) : 
-                                           getNodeForEditor(editors[1]); // choose the higher source
+            sourceNode = level1 > level2 ? getNodeForEditor(editors[0]) :
+                         getNodeForEditor(editors[1]); // choose the higher source
 
-        } else {
+        }
+        else
+        {
             sourceNode = getNodeForEditor(gn->getSource());
         }
 
@@ -146,7 +148,8 @@ void GraphViewer::checkLayout(GraphNode* gn)
             gn->setLevel(0);
             gn->setHorzShift(rootNum);
             rootNum++;
-        } else if (sourceNode->isSplitter()) 
+        }
+        else if (sourceNode->isSplitter())
         {
             Array<GenericEditor*> editors = sourceNode->getConnectedEditors();
 
@@ -154,12 +157,16 @@ void GraphViewer::checkLayout(GraphNode* gn)
             {
                 gn->setLevel(sourceNode->getLevel()+1); // increase level
                 gn->setHorzShift(sourceNode->getHorzShift()+1); // increase horz shift
-            } else {
-                 gn->setLevel(sourceNode->getLevel()+1); // increase level
+            }
+            else
+            {
+                gn->setLevel(sourceNode->getLevel()+1); // increase level
                 gn->setHorzShift(sourceNode->getHorzShift()); // same horz shift
             }
 
-        } else {
+        }
+        else
+        {
 
             gn->setLevel(sourceNode->getLevel()+1); // increase level
             gn->setHorzShift(sourceNode->getHorzShift()); // same horz shift
@@ -174,7 +181,7 @@ void GraphViewer::checkLayout(GraphNode* gn)
 int GraphViewer::indexOfEditor(GenericEditor* editor)
 {
     int index = -1;
-    
+
     for (int i = 0; i < availableNodes.size(); i++)
     {
         if (availableNodes[i]->hasEditor(editor))
@@ -182,7 +189,7 @@ int GraphViewer::indexOfEditor(GenericEditor* editor)
             return i;
         }
     }
-    
+
     return index;
 }
 
@@ -222,7 +229,8 @@ int GraphViewer::getHorizontalShift(GraphNode* gn)
         if (availableNodes[i] == gn)
         {
             break;
-        } else
+        }
+        else
         {
             if (availableNodes[i]->getLevel() == gn->getLevel())
             {
@@ -239,21 +247,21 @@ int GraphViewer::getHorizontalShift(GraphNode* gn)
 void GraphViewer::paint(Graphics& g)
 {
     g.fillAll(Colours::darkgrey);
-    
+
     g.setFont(labelFont);
     g.setFont(50);
-    
+
     g.setColour(Colours::grey);
 
     JUCEApplication* app = JUCEApplication::getInstance();
     String text = "GUI version ";
     text += app->getApplicationVersion();
-    
+
     g.drawFittedText("open ephys", 40, 40, getWidth()-50, getHeight()-60, Justification::bottomRight, 100);
-    
+
     g.setFont(Font("Small Text", 14, Font::plain));
     g.drawFittedText(text, 40, 40, getWidth()-50, getHeight()-45, Justification::bottomRight, 100);
-    
+
     // draw connections
 
     for (int i = 0; i < availableNodes.size(); i++)
@@ -264,22 +272,24 @@ void GraphViewer::paint(Graphics& g)
             if (availableNodes[i]->getDest() != nullptr)
             {
                 int indexOfDest = indexOfEditor(availableNodes[i]->getDest());
-                
+
                 if (indexOfDest > -1)
                     connectNodes(i, indexOfDest, g);
             }
-        } else {
+        }
+        else
+        {
 
             Array<GenericEditor*> editors = availableNodes[i]->getConnectedEditors();
 
             for (int path = 0; path < 2; path++)
             {
                 int indexOfDest = indexOfEditor(editors[path]);
-                    
-                if (indexOfDest > -1)    
+
+                if (indexOfDest > -1)
                     connectNodes(i, indexOfDest, g);
             }
-            
+
 
         }
 
@@ -297,12 +307,12 @@ void GraphViewer::connectNodes(int node1, int node2, Graphics& g)
     float y1 = start.getY();
     float x2 = end.getX();
     float y2 = end.getY();
-    linePath.startNewSubPath (x1, y1);
-    linePath.cubicTo (x1, y1 + (y2 - y1) * 0.9f,
-                      x2, y1 + (y2 - y1) * 0.1f,
-                      x2, y2);
-    
-    PathStrokeType stroke (2.0f);
+    linePath.startNewSubPath(x1, y1);
+    linePath.cubicTo(x1, y1 + (y2 - y1) * 0.9f,
+                     x2, y1 + (y2 - y1) * 0.1f,
+                     x2, y2);
+
+    PathStrokeType stroke(2.0f);
     g.strokePath(linePath, stroke);
 }
 
@@ -319,7 +329,7 @@ GraphNode::GraphNode(GenericEditor* ed, GraphViewer* g)
 
 GraphNode::~GraphNode()
 {
-    
+
 }
 
 int GraphNode::getLevel()
@@ -340,7 +350,7 @@ int GraphNode::getLevel()
 void GraphNode::setLevel(int level)
 {
     setBounds(getX(), 20+level*40, getWidth(), getHeight());
-    
+
     vertShift = level;
 }
 
@@ -354,7 +364,7 @@ void GraphNode::setHorzShift(int shift)
     setBounds(20+shift*140, getY(), getWidth(), getHeight());
     horzShift = shift;
 }
-    
+
 void GraphNode::mouseEnter(const MouseEvent& m)
 {
     mouseOver = true;
@@ -369,7 +379,7 @@ void GraphNode::mouseDown(const MouseEvent& m)
 {
     editor->makeVisible();
 }
-    
+
 bool GraphNode::hasEditor(GenericEditor* ed)
 {
     if (ed == editor)
@@ -427,7 +437,7 @@ void GraphNode::updateBoundaries()
     int level = getLevel();
 
     int horzShift = gv->getHorizontalShift(this);
-    
+
     setBounds(20+horzShift*140, 20+getLevel()*40, 150, 50);
 
 }
@@ -447,7 +457,7 @@ void GraphNode::paint(Graphics& g)
         if (recordStatuses[i])
             recordPath.addPieSegment(0,0,20,20,startRadians,endRadians,0.5);
     }
-    
+
     g.setColour(Colours::red);
     g.fillPath(recordPath);
 
@@ -455,12 +465,14 @@ void GraphNode::paint(Graphics& g)
     {
         g.setColour(Colours::yellow);
         g.fillEllipse(2,2,16,16);
-    } else {
+    }
+    else
+    {
         g.setColour(Colours::lightgrey);
         g.fillEllipse(2,2,16,16);
-    
+
     }
 
     g.drawText(getName(), 25, 0, getWidth()-25, 20, Justification::left, true);
-    
+
 }

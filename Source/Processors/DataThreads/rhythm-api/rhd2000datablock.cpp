@@ -42,19 +42,19 @@ Rhd2000DataBlock::Rhd2000DataBlock(int numDataStreams)
 }
 
 // Allocates memory for a 1-D array of integers.
-void Rhd2000DataBlock::allocateIntArray1D(vector<int> &array1D, int xSize)
+void Rhd2000DataBlock::allocateIntArray1D(vector<int>& array1D, int xSize)
 {
     array1D.resize(xSize);
 }
 
 // Allocates memory for a 1-D array of unsigned integers.
-void Rhd2000DataBlock::allocateUIntArray1D(vector<unsigned int> &array1D, int xSize)
+void Rhd2000DataBlock::allocateUIntArray1D(vector<unsigned int>& array1D, int xSize)
 {
     array1D.resize(xSize);
 }
 
 // Allocates memory for a 2-D array of integers.
-void Rhd2000DataBlock::allocateIntArray2D(vector<vector<int> > & array2D, int xSize, int ySize)
+void Rhd2000DataBlock::allocateIntArray2D(vector<vector<int> >& array2D, int xSize, int ySize)
 {
     int i;
 
@@ -64,7 +64,7 @@ void Rhd2000DataBlock::allocateIntArray2D(vector<vector<int> > & array2D, int xS
 }
 
 // Allocates memory for a 3-D array of integers.
-void Rhd2000DataBlock::allocateIntArray3D(vector<vector<vector<int> > > &array3D, int xSize, int ySize, int zSize)
+void Rhd2000DataBlock::allocateIntArray3D(vector<vector<vector<int> > >& array3D, int xSize, int ySize, int zSize)
 {
     int i, j;
 

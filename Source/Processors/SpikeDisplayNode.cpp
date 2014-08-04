@@ -31,9 +31,9 @@
 
 SpikeDisplayNode::SpikeDisplayNode()
     : GenericProcessor("Spike Viewer"), displayBufferSize(5),  redrawRequested(false), isRecording(false),
-	  signalFilesShouldClose(false)
+      signalFilesShouldClose(false)
 {
- 
+
 
     spikeBuffer = new uint8_t[MAX_SPIKE_BUFFER_LEN]; // MAX_SPIKE_BUFFER_LEN defined in SpikeObject.h
 
@@ -43,7 +43,7 @@ SpikeDisplayNode::SpikeDisplayNode()
 
 SpikeDisplayNode::~SpikeDisplayNode()
 {
-    
+
 }
 
 AudioProcessorEditor* SpikeDisplayNode::createEditor()
@@ -77,7 +77,7 @@ void SpikeDisplayNode::updateSettings()
                 elec.displayThresholds.add(0);
                 elec.detectorThresholds.add(0);
             }
-            
+
             electrodes.add(elec);
         }
     }
@@ -114,7 +114,9 @@ int SpikeDisplayNode::getNumberOfChannelsForElectrode(int i)
     if (i > -1 && i < electrodes.size())
     {
         return electrodes[i].numChannels;
-    } else {
+    }
+    else
+    {
         return 0;
     }
 }
@@ -125,7 +127,9 @@ String SpikeDisplayNode::getNameForElectrode(int i)
     if (i > -1 && i < electrodes.size())
     {
         return electrodes[i].name;
-    } else {
+    }
+    else
+    {
         return " ";
     }
 }
@@ -154,7 +158,7 @@ int SpikeDisplayNode::getNumElectrodes()
 
 void SpikeDisplayNode::startRecording()
 {
-    
+
     setParameter(1, 0.0f); // need to use the 'setParameter' method to interact with 'process'
 }
 
@@ -173,7 +177,8 @@ void SpikeDisplayNode::setParameter(int param, float val)
         isRecording = false;
         signalFilesShouldClose = true;
 
-    } else if (param == 1) // start recording
+    }
+    else if (param == 1)   // start recording
     {
         isRecording = true;
 
@@ -182,7 +187,7 @@ void SpikeDisplayNode::setParameter(int param, float val)
         if (dataDirectory.getFullPathName().length() == 0)
         {
             // temporary fix in case nothing is returned by the record node.
-            dataDirectory = File::getSpecialLocation(File::userHomeDirectory); 
+            dataDirectory = File::getSpecialLocation(File::userHomeDirectory);
         }
 
         baseDirectory = dataDirectory.getFullPathName();
@@ -192,7 +197,8 @@ void SpikeDisplayNode::setParameter(int param, float val)
             openFile(i);
         }
 
-    } else if (param == 2) // redraw
+    }
+    else if (param == 2)   // redraw
     {
         redrawRequested = true;
 
@@ -228,8 +234,8 @@ void SpikeDisplayNode::process(AudioSampleBuffer& buffer, MidiBuffer& events, in
             // update thresholds
             for (int j = 0; j < e.numChannels; j++)
             {
-                e.displayThresholds.set(j, 
-                e.spikePlot->getDisplayThresholdForChannel(j));
+                e.displayThresholds.set(j,
+                                        e.spikePlot->getDisplayThresholdForChannel(j));
 
                 e.spikePlot->setDetectorThresholdForChannel(j, e.detectorThresholds[j]);
             }
@@ -259,7 +265,7 @@ void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int sample
 
         const uint8_t* dataptr = event.getRawData();
         int bufferSize = event.getRawDataSize();
-            
+
         if (bufferSize > 0)
         {
 
@@ -272,16 +278,16 @@ void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int sample
                 int electrodeNum = newSpike.source;
 
                 Electrode& e = electrodes.getReference(electrodeNum);
-               // std::cout << electrodeNum << std::endl;
+                // std::cout << electrodeNum << std::endl;
 
-                 bool aboveThreshold = false;
+                bool aboveThreshold = false;
 
                 // update threshold / check threshold
                 for (int i = 0; i < e.numChannels; i++)
                 {
                     e.detectorThresholds.set(i, float(newSpike.threshold[i])); // / float(newSpike.gain[i]));
 
-                    aboveThreshold = aboveThreshold | checkThreshold(i, e.displayThresholds[i], newSpike);   
+                    aboveThreshold = aboveThreshold | checkThreshold(i, e.displayThresholds[i], newSpike);
                 }
 
                 if (aboveThreshold)
@@ -290,11 +296,11 @@ void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int sample
                     // add to buffer
                     if (e.currentSpikeIndex < displayBufferSize)
                     {
-                      //  std::cout << "Adding spike " << e.currentSpikeIndex + 1 << std::endl;
+                        //  std::cout << "Adding spike " << e.currentSpikeIndex + 1 << std::endl;
                         e.mostRecentSpikes.set(e.currentSpikeIndex, newSpike);
                         e.currentSpikeIndex++;
                     }
-                    
+
                     // save spike
                     if (isRecording)
                     {
@@ -303,7 +309,7 @@ void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int sample
                 }
 
             }
-        
+
         }
 
     }
@@ -346,7 +352,7 @@ void SpikeDisplayNode::openFile(int i)
     Electrode& e = electrodes.getReference(i);
 
     FILE* file;
-    
+
     if (!fileToUse.exists())
     {
         // open it and write header
@@ -364,14 +370,14 @@ void SpikeDisplayNode::openFile(int i)
     else
     {
         // append it
-         if (i == 0)
+        if (i == 0)
         {
             recordingNumber++;
         }
 
         file = fopen(filename.toUTF8(), "ab");
     }
-    
+
     diskWriteLock->exit();
 
     e.file = file;
@@ -383,14 +389,14 @@ void SpikeDisplayNode::closeFile(int i)
     Electrode& e = electrodes.getReference(i);
 
     std::cout << "CLOSING FILE for " << e.name << std::endl;
-    
+
     diskWriteLock->enter();
-    
+
     if (e.file != NULL)
     {
         fclose(e.file);
     }
-    
+
     diskWriteLock->exit();
 
 }
@@ -414,17 +420,17 @@ void SpikeDisplayNode::writeSpike(const SpikeObject& s, int i)
     // 2*n*m bytes for 16-bit samples
     // 2*n bytes for 16-bit gains
     // 2*n bytes for 16-bit thresholds
-    
-   // const MessageManagerLock mmLock;
-    
+
+    // const MessageManagerLock mmLock;
+
     diskWriteLock->enter();
 
     fwrite(spikeBuffer, 1, totalBytes, electrodes[i].file);
-    
+
     fwrite(&recordingNumber,                         // ptr
-       2,                               // size of each element
-       1,                               // count
-       electrodes[i].file); // ptr to FILE object
+           2,                               // size of each element
+           1,                               // count
+           electrodes[i].file); // ptr to FILE object
 
     diskWriteLock->exit();
 

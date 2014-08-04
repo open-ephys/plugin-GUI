@@ -239,8 +239,8 @@ public:
 
     /** Sets the open/closed state of the ControlPanelButton.*/
     void setState(bool);
-    
-   
+
+
 
     /** Draws the button. */
     void paint(Graphics& g);
@@ -253,7 +253,7 @@ private:
     ControlPanel* cp;
 
     bool open;
-    
+
 
 };
 
@@ -326,12 +326,12 @@ public:
 
     /** Load settings. */
     void loadStateFromXml(XmlElement*);
-    
-	void handleIncomdingMessages();
 
-		/** Informs the Control Panel that recording has begun.*/
+    void handleIncomdingMessages();
+
+    /** Informs the Control Panel that recording has begun.*/
     void startRecording();
-    
+
     /** Informs the Control Panel that recording has stopped.*/
     void stopRecording();
 
@@ -341,10 +341,10 @@ public:
     /** Sets the list of recently used directories for saving data. */
     void setRecentlyUsedFilenames(const StringArray& filenames);
 
-	ScopedPointer<RecordButton> recordButton;
+    ScopedPointer<RecordButton> recordButton;
 private:
     ScopedPointer<PlayButton> playButton;
-    
+
     ScopedPointer<Clock> masterClock;
     ScopedPointer<CPUMeter> cpuMeter;
     ScopedPointer<DiskSpaceMeter> diskMeter;
@@ -388,7 +388,7 @@ private:
 
     /** Draws the boundaries around the FilenameComponent.*/
     void createPaths();
-    
+
     Colour backgroundColour;
 
 };

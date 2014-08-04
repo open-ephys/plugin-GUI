@@ -38,7 +38,7 @@ class Rhd2000EvalBoard
 
 public:
     Rhd2000EvalBoard();
-	~Rhd2000EvalBoard();
+    ~Rhd2000EvalBoard();
 
     int open(const char* libname);
     bool uploadFpgaBitfile(string filename);
@@ -84,8 +84,8 @@ public:
         PortD
     };
 
-    void uploadCommandList(const vector<int> &commandList, AuxCmdSlot auxCommandSlot, int bank);
-    void printCommandList(const vector<int> &commandList) const;
+    void uploadCommandList(const vector<int>& commandList, AuxCmdSlot auxCommandSlot, int bank);
+    void printCommandList(const vector<int>& commandList) const;
     void selectAuxCommandBank(BoardPort port, AuxCmdSlot auxCommandSlot, int bank);
     void selectAuxCommandLength(AuxCmdSlot auxCommandSlot, int loopIndex, int endIndex);
 
@@ -152,8 +152,8 @@ public:
 
     void flush();
     bool readDataBlock(Rhd2000DataBlock* dataBlock);
-    bool readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue);
-    int queueToFile(queue<Rhd2000DataBlock> &dataQueue, std::ofstream& saveOut);
+    bool readDataBlocks(int numBlocks, queue<Rhd2000DataBlock>& dataQueue);
+    int queueToFile(queue<Rhd2000DataBlock>& dataQueue, std::ofstream& saveOut);
 
 private:
     okCFrontPanel* dev;

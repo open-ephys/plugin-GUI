@@ -257,7 +257,7 @@ public:
     /** Returns the editor associated with this SignalChainTabButton.*/
     GenericEditor* getEditor()
     {
-         return firstEditor;
+        return firstEditor;
     }
 
     /** Sets the number of this SignalChainTabButton.*/

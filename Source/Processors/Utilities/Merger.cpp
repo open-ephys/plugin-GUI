@@ -89,7 +89,7 @@ void Merger::switchIO(int sourceNum)
         //std::cout << "Source node: " << getSourceNode() << std::endl;
     }
 
-   // getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor(), false);
+    // getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor(), false);
 
 }
 
@@ -199,55 +199,55 @@ void Merger::updateSettings()
 void Merger::saveCustomParametersToXml(XmlElement* parentElement)
 {
     XmlElement* mainNode = parentElement->createNewChildElement("MERGER");
-	if (sourceNodeA!= nullptr)
-		mainNode->setAttribute("NodeA",	sourceNodeA->getNodeId());
-	else
-		mainNode->setAttribute("NodeA",	-1);
+    if (sourceNodeA!= nullptr)
+        mainNode->setAttribute("NodeA",	sourceNodeA->getNodeId());
+    else
+        mainNode->setAttribute("NodeA",	-1);
 
-	if (sourceNodeB != nullptr)
-		mainNode->setAttribute("NodeB",	sourceNodeB->getNodeId());
-	else
-		mainNode->setAttribute("NodeB",	-1);
+    if (sourceNodeB != nullptr)
+        mainNode->setAttribute("NodeB",	sourceNodeB->getNodeId());
+    else
+        mainNode->setAttribute("NodeB",	-1);
 }
 
 
 void Merger::loadCustomParametersFromXml()
 {
-	if (1)
-	{
-	if (parametersAsXml != nullptr)
-	{
-		forEachXmlChildElement(*parametersAsXml, mainNode)
-		{
-			if (mainNode->hasTagName("MERGER"))
-			{
-				int NodeAid = mainNode->getIntAttribute("NodeA");
-				int NodeBid = mainNode->getIntAttribute("NodeB");
+    if (1)
+    {
+        if (parametersAsXml != nullptr)
+        {
+            forEachXmlChildElement(*parametersAsXml, mainNode)
+            {
+                if (mainNode->hasTagName("MERGER"))
+                {
+                    int NodeAid = mainNode->getIntAttribute("NodeA");
+                    int NodeBid = mainNode->getIntAttribute("NodeB");
 
-				ProcessorGraph *gr = getProcessorGraph();
-				Array<GenericProcessor*> p = gr->getListOfProcessors();
-				
-                for (int k = 0; k < p.size(); k++)
-				{
-					if (p[k]->getNodeId() == NodeAid)
+                    ProcessorGraph* gr = getProcessorGraph();
+                    Array<GenericProcessor*> p = gr->getListOfProcessors();
+
+                    for (int k = 0; k < p.size(); k++)
                     {
-                        std::cout << "Setting Merger source A to " << NodeAid << std::endl;
-                        switchIO(0);
-						setMergerSourceNode(p[k]);
-					}
-                    if (p[k]->getNodeId() == NodeBid)
-                    {
-                        std::cout << "Setting Merger source B to " << NodeBid << std::endl;
-						switchIO(1);
-                        setMergerSourceNode(p[k]);
-				    }
+                        if (p[k]->getNodeId() == NodeAid)
+                        {
+                            std::cout << "Setting Merger source A to " << NodeAid << std::endl;
+                            switchIO(0);
+                            setMergerSourceNode(p[k]);
+                        }
+                        if (p[k]->getNodeId() == NodeBid)
+                        {
+                            std::cout << "Setting Merger source B to " << NodeBid << std::endl;
+                            switchIO(1);
+                            setMergerSourceNode(p[k]);
+                        }
+                    }
+
+                    updateSettings();
                 }
-				
-                updateSettings();
-			}
-		}
-	}
-}
+            }
+        }
+    }
 }
 
 // void Merger::setNumOutputs(int /*outputs*/)

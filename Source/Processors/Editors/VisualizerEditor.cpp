@@ -305,13 +305,13 @@ void VisualizerEditor::loadCustomParameters(XmlElement* xml)
             if (windowState)
             {
                 windowSelector->setToggleState(true, sendNotification);
-				if (dataWindow != nullptr)
-				{
-					dataWindow->setBounds(xmlNode->getIntAttribute("x"),
-						                  xmlNode->getIntAttribute("y"),
-							              xmlNode->getIntAttribute("width"),
-								          xmlNode->getIntAttribute("height"));
-				}
+                if (dataWindow != nullptr)
+                {
+                    dataWindow->setBounds(xmlNode->getIntAttribute("x"),
+                                          xmlNode->getIntAttribute("y"),
+                                          xmlNode->getIntAttribute("width"),
+                                          xmlNode->getIntAttribute("height"));
+                }
 
             }
 

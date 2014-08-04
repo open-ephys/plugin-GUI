@@ -75,7 +75,7 @@ PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode, bool useD
     backgroundColours.add(Colours::blue);
 
     plusButton->setToggleState(true, sendNotification);
-    
+
     //interfaces.clear();
 
 }
@@ -110,10 +110,12 @@ void PhaseDetectorEditor::comboBoxChanged(ComboBox* c)
         if (i == c->getSelectedId()-1)
         {
             interfaces[i]->setVisible(true);
-        } else {
+        }
+        else
+        {
             interfaces[i]->setVisible(false);
         }
-        
+
     }
 
 }
@@ -146,7 +148,7 @@ void PhaseDetectorEditor::addDetector()
 
     String itemName = "Detector ";
     itemName += detectorNumber;
-    
+
     //jassert detectorNumber == 1;
 
     //std::cout << itemName << std::endl;
@@ -215,7 +217,7 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
     sineWave.startNewSubPath(5,35);
 
     std::cout << "Creating sine wave" << std::endl;
-    
+
     for (double i = 0; i < 2*PI; i += PI/10)
     {
         sineWave.lineTo(i*12 + 5.0f, -sin(i)*20 + 35);
@@ -224,7 +226,7 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
     sineWave.addEllipse(2,35,4,4);
 
     std::cout << "Creating phase buttons" << std::endl;
-    
+
     for (int phase = 0; phase < 4; phase++)
     {
         ElectrodeButton* phaseButton = new ElectrodeButton(-1);
@@ -236,12 +238,12 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
         phaseButton->setRadioGroupId(12);
         phaseButton->addListener(this);
         phaseButtons.add(phaseButton);
-        addAndMakeVisible(phaseButton); 
+        addAndMakeVisible(phaseButton);
     }
 
     std::cout << "Creating combo boxes" << std::endl;
 
-    
+
     inputSelector = new ComboBox();
     inputSelector->setBounds(140,5,50,20);
     inputSelector->addItem("-",1);
@@ -253,7 +255,7 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
     gateSelector->setBounds(140,30,50,20);
     gateSelector->addItem("-",1);
     gateSelector->addListener(this);
-    
+
     std::cout << "Populating combo boxes" << std::endl;
 
 
@@ -277,14 +279,14 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
     outputSelector->setSelectedId(1);
     addAndMakeVisible(outputSelector);
 
-    
+
     std::cout << "Updating channels" << std::endl;
-    
+
     updateChannels(processor->getNumInputs());
 
     std::cout << "Updating processor" << std::endl;
 
-    
+
     processor->addModule();
 
 }
@@ -304,10 +306,12 @@ void DetectorInterface::comboBoxChanged(ComboBox* c)
     if (c == inputSelector)
     {
         parameterIndex = 2;
-    } else if (c == outputSelector)
+    }
+    else if (c == outputSelector)
     {
         parameterIndex = 3;
-    } else if (c == gateSelector)
+    }
+    else if (c == gateSelector)
     {
         parameterIndex = 4;
     }
@@ -336,7 +340,7 @@ void DetectorInterface::updateChannels(int numChannels)
     inputSelector->clear();
 
     inputSelector->addItem("-", 1);
-    
+
     if (numChannels > 2048) // channel count hasn't been updated yet
     {
         return;
@@ -383,7 +387,7 @@ void DetectorInterface::setPhase(int p)
 
     if (p >= 0)
         phaseButtons[p]->setToggleState(true, dontSendNotification);
-    
+
 
     processor->setActiveModule(idNum);
 

@@ -47,9 +47,9 @@ class PhaseDetectorEditor : public GenericEditor,
 {
 public:
     PhaseDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
-    
+
     virtual ~PhaseDetectorEditor();
-    
+
     void buttonEvent(Button* button);
 
     void comboBoxChanged(ComboBox* c);
@@ -61,11 +61,11 @@ public:
 
 private:
 
-	ScopedPointer<ComboBox> detectorSelector;
+    ScopedPointer<ComboBox> detectorSelector;
 
-	ScopedPointer<UtilityButton> plusButton;
+    ScopedPointer<UtilityButton> plusButton;
 
-	void addDetector();
+    void addDetector();
 
     // ScopedPointer<ComboBox> inputChannelSelectionBox;
     // ScopedPointer<ComboBox> outputChannelSelectionBox;
@@ -84,46 +84,46 @@ private:
 };
 
 class DetectorInterface : public Component,
-						  public ComboBox::Listener,
-						  public Button::Listener
+    public ComboBox::Listener,
+    public Button::Listener
 {
 public:
-	DetectorInterface(PhaseDetector*, Colour, int);
-	~DetectorInterface();
+    DetectorInterface(PhaseDetector*, Colour, int);
+    ~DetectorInterface();
 
-	void paint(Graphics& g);
+    void paint(Graphics& g);
 
-	void comboBoxChanged(ComboBox*);
-	void buttonClicked(Button*);
+    void comboBoxChanged(ComboBox*);
+    void buttonClicked(Button*);
 
-	void updateChannels(int);
+    void updateChannels(int);
 
-	void setPhase(int);
-	void setInputChan(int);
-	void setOutputChan(int);
-	void setGateChan(int);
+    void setPhase(int);
+    void setInputChan(int);
+    void setOutputChan(int);
+    void setGateChan(int);
 
-	int getPhase();
-	int getInputChan();
-	int getOutputChan();
-	int getGateChan();
+    int getPhase();
+    int getInputChan();
+    int getOutputChan();
+    int getGateChan();
 
 private:
 
-	Colour backgroundColour;
+    Colour backgroundColour;
 
-	Path sineWave;
-	Font font;
+    Path sineWave;
+    Font font;
 
-	int idNum;
+    int idNum;
 
-	PhaseDetector* processor;
+    PhaseDetector* processor;
 
-	OwnedArray<ElectrodeButton> phaseButtons;
+    OwnedArray<ElectrodeButton> phaseButtons;
 
-	ScopedPointer<ComboBox> inputSelector;
-	ScopedPointer<ComboBox> gateSelector;
-	ScopedPointer<ComboBox> outputSelector;
+    ScopedPointer<ComboBox> inputSelector;
+    ScopedPointer<ComboBox> gateSelector;
+    ScopedPointer<ComboBox> outputSelector;
 
 };
 

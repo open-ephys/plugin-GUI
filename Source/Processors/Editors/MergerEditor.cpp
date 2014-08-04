@@ -133,7 +133,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
 
         for (int i = 0; i < availableProcessors.size(); i++)
         {
-            if (!availableProcessors[i]->isSink() && 
+            if (!availableProcessors[i]->isSink() &&
                 !availableProcessors[i]->isMerger() &&
                 !availableProcessors[i]->isSplitter() &&
                 availableProcessors[i]->getDestNode() != getProcessor())
@@ -153,7 +153,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
         if (result > 1)
         {
             std::cout << "Selected " << availableProcessors[result-2]->getName() << std::endl;
-        
+
             switchSource(1);
 
             Merger* processor = (Merger*) getProcessor();
@@ -166,7 +166,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
         }
     }
 
-    
+
 
 }
 
@@ -196,7 +196,7 @@ Array<GenericEditor*> MergerEditor::getConnectedEditors()
     Array<GenericEditor*> editors;
 
     Merger* processor = (Merger*) getProcessor();
-    
+
     for (int pathNum = 0; pathNum < 2; pathNum++)
     {
         processor->switchIO();
@@ -206,7 +206,7 @@ Array<GenericEditor*> MergerEditor::getConnectedEditors()
         else
             editors.add(nullptr);
     }
-    
+
     return editors;
 
 }
@@ -214,18 +214,18 @@ Array<GenericEditor*> MergerEditor::getConnectedEditors()
 int MergerEditor::getPathForEditor(GenericEditor* editor)
 {
     Merger* processor = (Merger*) getProcessor();
-    
+
     for (int pathNum = 0; pathNum < 2; pathNum++)
     {
-    switchSource(pathNum);
-    
-    if (processor->getSourceNode() != nullptr)
-    {
-        if (processor->getEditor() == editor)
-            return pathNum;
+        switchSource(pathNum);
+
+        if (processor->getSourceNode() != nullptr)
+        {
+            if (processor->getEditor() == editor)
+                return pathNum;
+        }
     }
-    }
-    
+
     return -1;
 
 }

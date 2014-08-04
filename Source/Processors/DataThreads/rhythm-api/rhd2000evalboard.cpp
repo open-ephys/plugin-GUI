@@ -41,7 +41,7 @@ Rhd2000EvalBoard::Rhd2000EvalBoard()
     int i;
     sampleRate = SampleRate30000Hz; // Rhythm FPGA boots up with 30.0 kS/s/channel sampling rate
     numDataStreams = 0;
-	dev = 0; //nullptr;
+    dev = 0; //nullptr;
 
     for (i = 0; i < MAX_NUM_DATA_STREAMS; ++i)
     {
@@ -52,7 +52,7 @@ Rhd2000EvalBoard::Rhd2000EvalBoard()
 //Destructor: Deletes the device to avoid memory leak
 Rhd2000EvalBoard::~Rhd2000EvalBoard()
 {
-	if (dev != 0) delete dev;
+    if (dev != 0) delete dev;
 }
 
 // Find an Opal Kelly XEM6010-LX45 board attached to a USB port and open it.
@@ -73,7 +73,7 @@ int Rhd2000EvalBoard::open(const char* libname)
     okFrontPanelDLL_GetVersion(dll_date, dll_time);
     cout << endl << "FrontPanel DLL loaded.  Built: " << dll_date << "  " << dll_time << endl;
 
-	if (dev != 0) delete dev; //Avoid memory leaks if open is called twice.
+    if (dev != 0) delete dev; //Avoid memory leaks if open is called twice.
 
     dev = new okCFrontPanel;
 
@@ -103,7 +103,7 @@ int Rhd2000EvalBoard::open(const char* libname)
     if (dev->OpenBySerial(serialNumber) != okCFrontPanel::NoError)
     {
         delete dev;
-		dev = 0; //nullptr;
+        dev = 0; //nullptr;
         cerr << "Device could not be opened.  Is one connected?" << endl;
         return -2;
     }
@@ -132,28 +132,28 @@ bool Rhd2000EvalBoard::uploadFpgaBitfile(string filename)
             break;
         case okCFrontPanel::DeviceNotOpen:
             cerr << "FPGA configuration failed: Device not open." << endl;
-            return(false);
+            return (false);
         case okCFrontPanel::FileError:
             cerr << "FPGA configuration failed: Cannot find configuration file." << endl;
-            return(false);
+            return (false);
         case okCFrontPanel::InvalidBitstream:
             cerr << "FPGA configuration failed: Bitstream is not properly formatted." << endl;
-            return(false);
+            return (false);
         case okCFrontPanel::DoneNotHigh:
             cerr << "FPGA configuration failed: FPGA DONE signal did not assert after configuration." << endl;
-            return(false);
+            return (false);
         case okCFrontPanel::TransferError:
             cerr << "FPGA configuration failed: USB error occurred during download." << endl;
-            return(false);
+            return (false);
         case okCFrontPanel::CommunicationError:
             cerr << "FPGA configuration failed: Communication error with firmware." << endl;
-            return(false);
+            return (false);
         case okCFrontPanel::UnsupportedFeature:
             cerr << "FPGA configuration failed: Unsupported feature." << endl;
-            return(false);
+            return (false);
         default:
             cerr << "FPGA configuration failed: Unknown error." << endl;
-            return(false);
+            return (false);
     }
 
     // Check for Opal Kelly FrontPanel support in the FPGA configuration.
@@ -161,8 +161,8 @@ bool Rhd2000EvalBoard::uploadFpgaBitfile(string filename)
     {
         cerr << "Opal Kelly FrontPanel support is not enabled in this FPGA configuration." << endl;
         delete dev;
-		dev = 0; //nullptr;
-        return(false);
+        dev = 0; //nullptr;
+        return (false);
     }
 
     int boardId, boardVersion;
@@ -173,7 +173,7 @@ bool Rhd2000EvalBoard::uploadFpgaBitfile(string filename)
     if (boardId != RHYTHM_BOARD_ID)
     {
         cerr << "FPGA configuration does not support Rhythm.  Incorrect board ID: " << boardId << endl;
-        return(false);
+        return (false);
     }
     else
     {
@@ -181,7 +181,7 @@ bool Rhd2000EvalBoard::uploadFpgaBitfile(string filename)
              boardVersion << endl << endl;
     }
 
-    return(true);
+    return (true);
 }
 
 
@@ -406,7 +406,7 @@ bool Rhd2000EvalBoard::setSampleRate(AmplifierSampleRate newSampleRate)
             D = 25;
             break;
         default:
-            return(false);
+            return (false);
     }
 
     sampleRate = newSampleRate;
@@ -422,7 +422,7 @@ bool Rhd2000EvalBoard::setSampleRate(AmplifierSampleRate newSampleRate)
     // Wait for DataClkLocked = 1 before allowing data acquisition to continue
     while (isDataClockLocked() == false) {}
 
-    return(true);
+    return (true);
 }
 
 // Returns the current per-channel sampling rate (in Hz) as a floating-point number.
@@ -492,7 +492,7 @@ Rhd2000EvalBoard::AmplifierSampleRate Rhd2000EvalBoard::getSampleRateEnum() cons
 }
 
 // Print a command list to the console in readable form.
-void Rhd2000EvalBoard::printCommandList(const vector<int> &commandList) const
+void Rhd2000EvalBoard::printCommandList(const vector<int>& commandList) const
 {
     unsigned int i;
     int cmd, channel, reg, data;
@@ -543,7 +543,7 @@ void Rhd2000EvalBoard::printCommandList(const vector<int> &commandList) const
 
 // Upload an auxiliary command list to a particular command slot (AuxCmd1, AuxCmd2, or AuxCmd3) and RAM bank (0-15)
 // on the FPGA.
-void Rhd2000EvalBoard::uploadCommandList(const vector<int> &commandList, AuxCmdSlot auxCommandSlot, int bank)
+void Rhd2000EvalBoard::uploadCommandList(const vector<int>& commandList, AuxCmdSlot auxCommandSlot, int bank)
 {
     unsigned int i;
 
@@ -1232,7 +1232,7 @@ bool Rhd2000EvalBoard::readDataBlock(Rhd2000DataBlock* dataBlock)
 
 // Reads a certain number of USB data blocks, if the specified number is available, and appends them
 // to queue.  Returns true if data blocks were available.
-bool Rhd2000EvalBoard::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue)
+bool Rhd2000EvalBoard::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock>& dataQueue)
 {
     unsigned int numWordsToRead, numBytesToRead;
     int i;
@@ -1269,7 +1269,7 @@ bool Rhd2000EvalBoard::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &da
 
 // Writes the contents of a data block queue (dataQueue) to a binary output stream (saveOut).
 // Returns the number of data blocks written.
-int Rhd2000EvalBoard::queueToFile(queue<Rhd2000DataBlock> &dataQueue, ofstream& saveOut)
+int Rhd2000EvalBoard::queueToFile(queue<Rhd2000DataBlock>& dataQueue, ofstream& saveOut)
 {
     int count = 0;
 
@@ -1289,61 +1289,61 @@ string Rhd2000EvalBoard::opalKellyModelName(int model) const
     switch (model)
     {
         case OK_PRODUCT_XEM3001V1:
-            return("XEM3001V1");
+            return ("XEM3001V1");
         case OK_PRODUCT_XEM3001V2:
-            return("XEM3001V2");
+            return ("XEM3001V2");
         case OK_PRODUCT_XEM3010:
-            return("XEM3010");
+            return ("XEM3010");
         case OK_PRODUCT_XEM3005:
-            return("XEM3005");
+            return ("XEM3005");
         case OK_PRODUCT_XEM3001CL:
-            return("XEM3001CL");
+            return ("XEM3001CL");
         case OK_PRODUCT_XEM3020:
-            return("XEM3020");
+            return ("XEM3020");
         case OK_PRODUCT_XEM3050:
-            return("XEM3050");
+            return ("XEM3050");
         case OK_PRODUCT_XEM9002:
-            return("XEM9002");
+            return ("XEM9002");
         case OK_PRODUCT_XEM3001RB:
-            return("XEM3001RB");
+            return ("XEM3001RB");
         case OK_PRODUCT_XEM5010:
-            return("XEM5010");
+            return ("XEM5010");
         case OK_PRODUCT_XEM6110LX45:
-            return("XEM6110LX45");
+            return ("XEM6110LX45");
         case OK_PRODUCT_XEM6001:
-            return("XEM6001");
+            return ("XEM6001");
         case OK_PRODUCT_XEM6010LX45:
-            return("XEM6010LX45");
+            return ("XEM6010LX45");
         case OK_PRODUCT_XEM6010LX150:
-            return("XEM6010LX150");
+            return ("XEM6010LX150");
         case OK_PRODUCT_XEM6110LX150:
-            return("XEM6110LX150");
+            return ("XEM6110LX150");
         case OK_PRODUCT_XEM6006LX9:
-            return("XEM6006LX9");
+            return ("XEM6006LX9");
         case OK_PRODUCT_XEM6006LX16:
-            return("XEM6006LX16");
+            return ("XEM6006LX16");
         case OK_PRODUCT_XEM6006LX25:
-            return("XEM6006LX25");
+            return ("XEM6006LX25");
         case OK_PRODUCT_XEM5010LX110:
-            return("XEM5010LX110");
+            return ("XEM5010LX110");
         case OK_PRODUCT_ZEM4310:
-            return("ZEM4310");
+            return ("ZEM4310");
         case OK_PRODUCT_XEM6310LX45:
-            return("XEM6310LX45");
+            return ("XEM6310LX45");
         case OK_PRODUCT_XEM6310LX150:
-            return("XEM6310LX150");
+            return ("XEM6310LX150");
         case OK_PRODUCT_XEM6110V2LX45:
-            return("XEM6110V2LX45");
+            return ("XEM6110V2LX45");
         case OK_PRODUCT_XEM6110V2LX150:
-            return("XEM6110V2LX150");
+            return ("XEM6110V2LX150");
         case OK_PRODUCT_XEM6002LX9:
-            return("XEM6002LX9");
+            return ("XEM6002LX9");
         case OK_PRODUCT_XEM6310MTLX45:
-            return("XEM6310MTLX45");
+            return ("XEM6310MTLX45");
         case OK_PRODUCT_XEM6320LX130T:
-            return("XEM6320LX130T");
+            return ("XEM6320LX130T");
         default:
-            return("UNKNOWN");
+            return ("UNKNOWN");
     }
 }
 

@@ -64,10 +64,10 @@ MainWindow::MainWindow()
     loadWindowBounds();
     setUsingNativeTitleBar(true);
     Component::addToDesktop(getDesktopWindowStyleFlags());  // prevents the maximize
-                                                            // button from randomly disappearing
+    // button from randomly disappearing
     setVisible(true);
 
-     // Constraining the window's size doesn't seem to work:
+    // Constraining the window's size doesn't seem to work:
     setResizeLimits(300, 200, 10000, 10000);
 
     if (shouldReloadOnStartup)
@@ -78,8 +78,8 @@ MainWindow::MainWindow()
 
         ui->getEditorViewport()->loadState(file);
     }
-        
-    
+
+
 
 }
 
@@ -119,7 +119,7 @@ void MainWindow::closeButtonPressed()
         audioComponent->endCallbacks();
     }
 
-	processorGraph->disableProcessors();
+    processorGraph->disableProcessors();
 
     JUCEApplication::getInstance()->systemRequestedQuit();
 
@@ -209,29 +209,30 @@ void MainWindow::loadWindowBounds()
             if (e->hasTagName("BOUNDS"))
             {
 
-            int x = e->getIntAttribute("x");
-            int y = e->getIntAttribute("y");
-            int w = e->getIntAttribute("w");
-            int h = e->getIntAttribute("h");
+                int x = e->getIntAttribute("x");
+                int y = e->getIntAttribute("y");
+                int w = e->getIntAttribute("w");
+                int h = e->getIntAttribute("h");
 
-            // bool fs = e->getBoolAttribute("fullscreen");
+                // bool fs = e->getBoolAttribute("fullscreen");
 
-            // without the correction, you get drift over time
+                // without the correction, you get drift over time
 #ifdef WIN32
-            setTopLeftPosition(x,y); //Windows doesn't need correction
+                setTopLeftPosition(x,y); //Windows doesn't need correction
 #else
-            setTopLeftPosition(x,y-27);
+                setTopLeftPosition(x,y-27);
 #endif
-            getContentComponent()->setBounds(0,0,w-10,h-33);
-            //setFullScreen(fs);
-            } else if (e->hasTagName("RECENTDIRECTORYNAMES"))
+                getContentComponent()->setBounds(0,0,w-10,h-33);
+                //setFullScreen(fs);
+            }
+            else if (e->hasTagName("RECENTDIRECTORYNAMES"))
             {
 
                 StringArray filenames;
 
                 forEachXmlChildElement(*e, directory)
                 {
-                
+
                     if (directory->hasTagName("DIRECTORY"))
                     {
                         filenames.add(directory->getStringAttribute("name"));
