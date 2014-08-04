@@ -110,7 +110,7 @@ private:
 
     int currentColor;
 
-    
+
 
     /** Deselects all items within the ProcessorList.*/
     void clearSelectionState();

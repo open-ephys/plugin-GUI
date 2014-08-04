@@ -67,9 +67,9 @@ public:
     void addSettingsFromSourceNode(GenericProcessor* sn);
 
     bool stillHasSource();
-	
-	void saveCustomParametersToXml(XmlElement* parentElement);
-	void loadCustomParametersFromXml();
+
+    void saveCustomParametersToXml(XmlElement* parentElement);
+    void loadCustomParametersFromXml();
 
 private:
 

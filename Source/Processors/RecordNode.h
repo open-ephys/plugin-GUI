@@ -102,15 +102,15 @@ public:
     /** Creates a new data directory in the location specified by the fileNameComponent.
     */
     void createNewDirectory();
-    
+
     /** Creates a new data file for each channel.
      */
     void createNewFiles();
-    
+
     /** Creates a new data file for each channel.
      */
     void appendTrialNumber(bool);
-    
+
     void updateTrialNumber();
 
     File getDataDirectory()
@@ -126,8 +126,11 @@ public:
 
     /** Generate a Matlab-compatible datestring */
     String generateDateString();
-    
-    CriticalSection* getLock() {return &diskWriteLock;}
+
+    CriticalSection* getLock()
+    {
+        return &diskWriteLock;
+    }
 
 
 private:
@@ -216,9 +219,9 @@ private:
 
     /** Used to indicate the end of each record */
     char* recordMarker;
-    
+
     CriticalSection diskWriteLock;
-    
+
     bool appendTrialNum;
     int trialNum;
 

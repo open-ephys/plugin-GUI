@@ -28,7 +28,7 @@
 PhaseDetector::PhaseDetector()
     : GenericProcessor("Phase Detector"), activeModule(-1),
       risingPos(false), risingNeg(false), fallingPos(false), fallingNeg(false)
-      
+
 {
 
 }
@@ -72,7 +72,7 @@ void PhaseDetector::setActiveModule(int i)
 
 void PhaseDetector::setParameter(int parameterIndex, float newValue)
 {
-    
+
     DetectorModule& module = modules.getReference(activeModule);
 
     if (parameterIndex == 1) // module type
@@ -100,19 +100,24 @@ void PhaseDetector::setParameter(int parameterIndex, float newValue)
             default:
                 module.type = NONE;
         }
-    } else if (parameterIndex == 2) // inputChan
+    }
+    else if (parameterIndex == 2)   // inputChan
     {
         module.inputChan = (int) newValue;
-    } else if (parameterIndex == 3) // outputChan
+    }
+    else if (parameterIndex == 3)   // outputChan
     {
         module.outputChan = (int) newValue;
-    } else if (parameterIndex == 4) // gateChan
+    }
+    else if (parameterIndex == 4)   // gateChan
     {
         module.gateChan = (int) newValue;
         if (module.gateChan < 0)
         {
             module.isActive = true;
-        } else {
+        }
+        else
+        {
             module.isActive = false;
         }
     }
@@ -154,7 +159,7 @@ void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
                     module.isActive = true;
                 else
                     module.isActive = false;
-            } 
+            }
         }
 
     }
@@ -175,7 +180,7 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
         // check to see if it's active and has a channel
         if (module.isActive && module.outputChan >= 0 &&
-            module.inputChan >= 0 && 
+            module.inputChan >= 0 &&
             module.inputChan < buffer.getNumChannels())
         {
 
@@ -195,7 +200,8 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
                     module.phase = FALLING_POS;
 
-                } else if (sample < 0 && module.lastSample >= 0 && module.phase != FALLING_NEG)
+                }
+                else if (sample < 0 && module.lastSample >= 0 && module.phase != FALLING_NEG)
                 {
 
                     if (module.type == FALLING_ZERO)
@@ -205,9 +211,10 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
                         module.wasTriggered = true;
                     }
 
-                     module.phase = FALLING_NEG;
+                    module.phase = FALLING_NEG;
 
-                } else if (sample > module.lastSample && sample < 0 && module.phase != RISING_NEG)
+                }
+                else if (sample > module.lastSample && sample < 0 && module.phase != RISING_NEG)
                 {
 
                     if (module.type == TROUGH)
@@ -219,7 +226,8 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
                     module.phase = RISING_NEG;
 
-                } else if (sample > 0 && module.lastSample <= 0 && module.phase != RISING_POS)
+                }
+                else if (sample > 0 && module.lastSample <= 0 && module.phase != RISING_POS)
                 {
 
                     if (module.type == RISING_ZERO)
@@ -250,7 +258,7 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
 
             }
 
-            
+
         }
 
     }

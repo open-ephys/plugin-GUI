@@ -243,7 +243,7 @@ Electrode* SpikeDetector::setCurrentElectrodeIndex(int i)
 Electrode* SpikeDetector::getActiveElectrode()
 {
     if (electrodes.size() == 0)
-      return nullptr;
+        return nullptr;
 
     return electrodes[currentElectrode];
 }
@@ -332,7 +332,7 @@ void SpikeDetector::addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int p
 
     if (numBytes > 0)
         eventBuffer.addEvent(spikeBuffer, numBytes, peakIndex);
-    
+
     //std::cout << "Adding spike" << std::endl;
 }
 
@@ -359,7 +359,7 @@ void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,
     {
 
         for (int sample = 0; sample < spikeLength; sample++)
-        { 
+        {
 
             // warning -- be careful of bitvolts conversion
             s->data[currentIndex] = uint16(getNextSample(*(electrodes[electrodeNumber]->channels+currentChannel)) / channels[chan]->bitVolts + 32768);
@@ -493,8 +493,8 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
                         }
 
-                       //for (int xxx = 0; xxx < 1000; xxx++) // overload with spikes for testing purposes
-                            addSpikeEvent(&newSpike, events, peakIndex);
+                        //for (int xxx = 0; xxx < 1000; xxx++) // overload with spikes for testing purposes
+                        addSpikeEvent(&newSpike, events, peakIndex);
 
                         // advance the sample index
                         sampleIndex = peakIndex + electrode->postPeakSamples;
@@ -651,7 +651,7 @@ void SpikeDetector::saveCustomParametersToXml(XmlElement* parentElement)
 void SpikeDetector::loadCustomParametersFromXml()
 {
 
-   
+
     if (parametersAsXml != nullptr) // prevent double-loading
     {
         // use parametersAsXml to restore state
@@ -690,7 +690,7 @@ void SpikeDetector::loadCustomParametersFromXml()
                         setChannelThreshold(electrodeIndex, channelIndex, channelNode->getDoubleAttribute("thresh"));
                         setChannelActive(electrodeIndex, channelIndex, channelNode->getBoolAttribute("isActive"));
                     }
-               }
+                }
 
 
             }

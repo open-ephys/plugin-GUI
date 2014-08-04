@@ -146,10 +146,10 @@ void EditorViewport::paint(Graphics& g)
 
     //if (editorArray.size() > 0)
     //{
-        //if (!editorArray[0]->getProcessor()->isSource())
+    //if (!editorArray[0]->getProcessor()->isSource())
     //    g.drawImageAt(sourceDropImage, x, y);
     //} else {
-        g.drawImageAt(sourceDropImage, x, y);
+    g.drawImageAt(sourceDropImage, x, y);
     //}
 }
 
@@ -159,10 +159,10 @@ bool EditorViewport::isInterestedInDragSource(const SourceDetails& dragSourceDet
     {
         return false;
     }
-	else if (dragSourceDetails.description.toString().startsWith("EditorDrag"))
-	{
-		return false;
-	}
+    else if (dragSourceDetails.description.toString().startsWith("EditorDrag"))
+    {
+        return false;
+    }
     else
     {
         return true;
@@ -272,7 +272,7 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
         refreshEditors();
 
         somethingIsBeingDraggedOver = false;
-        
+
         getGraphViewer()->addNode(activeEditor);
 
         repaint();
@@ -350,7 +350,7 @@ void EditorViewport::deleteNode(GenericEditor* editor)
 
         signalChainManager->updateVisibleEditors(editor, indexOfMovingComponent, insertionPoint, REMOVE);
         getGraphViewer()->removeNode(editor);
-        
+
         refreshEditors();
 
         getProcessorGraph()->removeProcessor((GenericProcessor*) editor->getProcessor());
@@ -359,8 +359,8 @@ void EditorViewport::deleteNode(GenericEditor* editor)
         indexOfMovingComponent = -1;
 
         somethingIsBeingDraggedOver = false;
-        
-        
+
+
 
         repaint();
 
@@ -694,7 +694,7 @@ void EditorViewport::mouseDown(const MouseEvent& e)
     {
 
         if (e.eventComponent == editorArray[i])
-           
+
             // || e.eventComponent->getParentComponent() == editorArray[i] ||
             //    e.eventComponent->getParentComponent()->getParentComponent() ==
             //            editorArray[i])
@@ -705,7 +705,9 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 if (editorArray[i]->getCollapsedState())
                 {
                     editorArray[i]->switchCollapsedState();
-                } else {
+                }
+                else
+                {
                     if (e.y < 22)
                     {
                         editorArray[i]->switchCollapsedState();
@@ -718,7 +720,7 @@ void EditorViewport::mouseDown(const MouseEvent& e)
             {
 
                 if (!editorArray[i]->getCollapsedState() && e.y > 22)
-                     return;
+                    return;
 
                 if (editorArray[i]->isMerger() || editorArray[i]->isSplitter())
                     return;
@@ -726,8 +728,8 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 PopupMenu m;
 
                 if (editorArray[i]->getCollapsedState())
-                     m.addItem(3, "Uncollapse", true);
-                 else
+                    m.addItem(3, "Uncollapse", true);
+                else
                     m.addItem(3, "Collapse", true);
 
                 if (canEdit)
@@ -742,22 +744,24 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 if (result == 1)
                 {
                     editorNamingLabel.setText("", dontSendNotification);
-                    
+
                     juce::Rectangle<int> rect1 = juce::Rectangle<int>(editorArray[i]->getScreenX()+20,editorArray[i]->getScreenY()+11,1,1);
 
                     CallOutBox callOut(editorNamingLabel, rect1, nullptr);
                     editorToUpdate = editorArray[i];
                     callOut.runModalLoop();
-                   // editorNamingLabel.showEditor();
+                    // editorNamingLabel.showEditor();
                     //CallOutBox& myBox = CallOutBox::launchAsynchronously(&editorNamingLabel, rect1, nullptr);
-                    
+
                     return;
 
-                } else if (result == 2)
+                }
+                else if (result == 2)
                 {
                     deleteNode(editorArray[i]);
                     return;
-                } else if (result == 3)
+                }
+                else if (result == 3)
                 {
                     editorArray[i]->switchCollapsedState();
                     refreshEditors();
@@ -1239,7 +1243,7 @@ const String EditorViewport::saveState(File fileToUse)
     int saveOrder = 0;
 
     XmlElement* xml = new XmlElement("SETTINGS");
-	
+
     XmlElement* info = xml->createNewChildElement("INFO");
 
     XmlElement* version = info->createNewChildElement("VERSION");
@@ -1403,7 +1407,7 @@ const String EditorViewport::loadState(File fileToLoad)
     // {
     //     return "No configuration selected.";
     // }
-	int maxID = 100;
+    int maxID = 100;
     currentFile = fileToLoad;
 
     std::cout << "Loading processor graph." << std::endl;
@@ -1420,30 +1424,30 @@ const String EditorViewport::loadState(File fileToLoad)
         return "Not a valid file.";
     }
 
-	bool sameVersion = false;
+    bool sameVersion = false;
     String versionString;
 
-	forEachXmlChildElement(*xml, element)
+    forEachXmlChildElement(*xml, element)
     {
-		  if (element->hasTagName("INFO"))
-		  {
-			  forEachXmlChildElement(*element, element2)
-			  {
-			   if (element2->hasTagName("VERSION")) 
-			   {
-				   versionString = element2->getAllSubText();
-				   // float majorVersion = versionString.upToFirstOccurrenceOf(".", false, true).getIntValue();
-       //             float minorVersion = versionString.fromFirstOccurrenceOf(".", false, true).getFloatValue();
+        if (element->hasTagName("INFO"))
+        {
+            forEachXmlChildElement(*element, element2)
+            {
+                if (element2->hasTagName("VERSION"))
+                {
+                    versionString = element2->getAllSubText();
+                    // float majorVersion = versionString.upToFirstOccurrenceOf(".", false, true).getIntValue();
+                    //             float minorVersion = versionString.fromFirstOccurrenceOf(".", false, true).getFloatValue();
 
-				   if (versionString.equalsIgnoreCase(JUCEApplication::getInstance()->getApplicationVersion()))
-					   sameVersion = true;
-			   }
-			  }
-			  break;
-		  }
-	}
-	if (!sameVersion)
-	{
+                    if (versionString.equalsIgnoreCase(JUCEApplication::getInstance()->getApplicationVersion()))
+                        sameVersion = true;
+                }
+            }
+            break;
+        }
+    }
+    if (!sameVersion)
+    {
         String responseString = "Your configuration file was saved from a different version of the GUI than the one you're using. \n";
         responseString += "The current software is version ";
         responseString += JUCEApplication::getInstance()->getApplicationVersion();
@@ -1452,19 +1456,21 @@ const String EditorViewport::loadState(File fileToLoad)
         {
             responseString += " is version ";
             responseString += versionString;
-        } else {
+        }
+        else
+        {
             responseString += "does not have a version number";
         }
-        
+
         responseString += ".\n This file may not load properly. Continue?";
 
-		bool response = AlertWindow::showOkCancelBox (AlertWindow::NoIcon, 
-                                     "Version mismatch", responseString,
-                                     "Yes", "No", 0, 0);
+        bool response = AlertWindow::showOkCancelBox(AlertWindow::NoIcon,
+                                                     "Version mismatch", responseString,
+                                                     "Yes", "No", 0, 0);
         if (!response)
-			return "Failed To Open " + fileToLoad.getFileName();
-  
-	}
+            return "Failed To Open " + fileToLoad.getFileName();
+
+    }
     clearSignalChain();
 
     String description;// = " ";
@@ -1478,88 +1484,89 @@ const String EditorViewport::loadState(File fileToLoad)
         if (element->hasTagName("SIGNALCHAIN"))
         {
 
-        forEachXmlChildElement(*element, processor)
-        {
-
-            if (processor->hasTagName("PROCESSOR"))
+            forEachXmlChildElement(*element, processor)
             {
 
-                int insertionPt = processor->getIntAttribute("insertionPoint");
-                currentId = processor->getIntAttribute("NodeId");
-
-				maxID= (maxID > currentId) ? maxID  : currentId ;
-
-                if (insertionPt == 1)
+                if (processor->hasTagName("PROCESSOR"))
                 {
-                    insertionPoint = editorArray.size();
+
+                    int insertionPt = processor->getIntAttribute("insertionPoint");
+                    currentId = processor->getIntAttribute("NodeId");
+
+                    maxID= (maxID > currentId) ? maxID  : currentId ;
+
+                    if (insertionPt == 1)
+                    {
+                        insertionPoint = editorArray.size();
+                    }
+                    else
+                    {
+                        insertionPoint = 0;
+                    }
+
+                    //Point<int> pt =
+                    SourceDetails sd = SourceDetails(processor->getStringAttribute("name"),
+                                                     0,
+                                                     Point<int>(0,0));
+
+                    itemDropped(sd);
+
+                    p = (GenericProcessor*) lastEditor->getProcessor();
+                    p->loadOrder = loadOrder;
+                    p->parametersAsXml = processor;
+
+                    //Sets parameters based on XML files
+                    setParametersByXML(p, processor);
+                    loadOrder++;
+
+                    if (p->isSplitter() || p->isMerger())
+                    {
+                        splitPoints.add(p);
+                    }
+
+                    signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
+
                 }
-                else
+                else if (processor->hasTagName("SWITCH"))
                 {
-                    insertionPoint = 0;
-                }
+                    int processorNum = processor->getIntAttribute("number");
 
-                //Point<int> pt =
-                SourceDetails sd = SourceDetails(processor->getStringAttribute("name"),
-                                                 0,
-                                                 Point<int>(0,0));
+                    std::cout << "SWITCHING number " << processorNum << std::endl;
 
-                itemDropped(sd);
-
-                p = (GenericProcessor*) lastEditor->getProcessor();
-                p->loadOrder = loadOrder;
-                p->parametersAsXml = processor;
-
-                //Sets parameters based on XML files
-                setParametersByXML(p, processor);
-                loadOrder++;
-
-                if (p->isSplitter() || p->isMerger())
-                {
-                    splitPoints.add(p);
-                }
-
-                signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
-
-            }
-            else if (processor->hasTagName("SWITCH"))
-            {
-                int processorNum = processor->getIntAttribute("number");
-
-                std::cout << "SWITCHING number " << processorNum << std::endl;
-
-                for (int n = 0; n < splitPoints.size(); n++)
-                {
-
-                    std::cout << "Trying split point " << n
-                              << ", load order: " << splitPoints[n]->loadOrder << std::endl;
-
-                    if (splitPoints[n]->loadOrder == processorNum)
+                    for (int n = 0; n < splitPoints.size(); n++)
                     {
 
-                        if (splitPoints[n]->isMerger())
-                        {
-                            std::cout << "Switching merger source." << std::endl;
-                            MergerEditor* editor = (MergerEditor*) splitPoints[n]->getEditor();
-                            editor->switchSource(1);
-                        }
-                        else
-                        {
-                            std::cout << "Switching splitter destination." << std::endl;
-                            SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
-                            editor->switchDest(1);
-                        }
+                        std::cout << "Trying split point " << n
+                                  << ", load order: " << splitPoints[n]->loadOrder << std::endl;
 
-                        splitPoints.remove(n);
+                        if (splitPoints[n]->loadOrder == processorNum)
+                        {
+
+                            if (splitPoints[n]->isMerger())
+                            {
+                                std::cout << "Switching merger source." << std::endl;
+                                MergerEditor* editor = (MergerEditor*) splitPoints[n]->getEditor();
+                                editor->switchSource(1);
+                            }
+                            else
+                            {
+                                std::cout << "Switching splitter destination." << std::endl;
+                                SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
+                                editor->switchDest(1);
+                            }
+
+                            splitPoints.remove(n);
+                        }
                     }
-                }
 
-                signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
+                    signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
+
+                }
 
             }
 
         }
-
-        } else if (element->hasTagName("AUDIO"))
+        else if (element->hasTagName("AUDIO"))
         {
             int bufferSize = element->getIntAttribute("bufferSize");
             getAudioComponent()->setBufferSize(bufferSize);
@@ -1592,7 +1599,7 @@ const String EditorViewport::loadState(File fileToLoad)
 
     delete xml;
 
-	currentId=maxID+1; // make sure future processors don't have overlapping id numbers
+    currentId=maxID+1; // make sure future processors don't have overlapping id numbers
 
     return error;
 }

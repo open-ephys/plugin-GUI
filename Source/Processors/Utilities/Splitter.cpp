@@ -90,15 +90,15 @@ void Splitter::switchIO(int destNum)
     if (destNum == 0)
     {
         destNode = destNodeA;
-       // std::cout << "Dest node: " << getDestNode() << std::endl;
+        // std::cout << "Dest node: " << getDestNode() << std::endl;
     }
     else
     {
         destNode = destNodeB;
-       // std::cout << "Dest node: " << getDestNode() << std::endl;
+        // std::cout << "Dest node: " << getDestNode() << std::endl;
     }
 
-   // getEditorViewport()->makeEditorVisible(getEditor(), false);
+    // getEditorViewport()->makeEditorVisible(getEditor(), false);
 
 }
 

@@ -75,15 +75,17 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 
         addAndMakeVisible(button);
         button->addListener(this);
-        
+
         if (i == 0)
         {
             button->setTooltip("Audio monitor left channel");
-        } else {
+        }
+        else
+        {
             button->setTooltip("Audio monitor right channel");
         }
     }
-    
+
 
     audioLabel = new Label("audio label", "Audio out");
     audioLabel->setBounds(180,25,75,15);
@@ -95,8 +97,8 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     audioInterface = new AudioInterface(board, this);
     addAndMakeVisible(audioInterface);
     audioInterface->setBounds(165, 65, 65, 50);
-    
-    
+
+
     adcButton = new UtilityButton("ADC 1-8", Font("Small Text", 13, Font::plain));
     adcButton->setRadius(3.0f);
     adcButton->setBounds(165,100,65,18);
@@ -156,7 +158,7 @@ void RHD2000Editor::channelChanged(int chan)
             electrodeButtons[i]->setChannelNum(chan);
             electrodeButtons[i]->repaint();
 
-            board->assignAudioOut(i, chan-1); 
+            board->assignAudioOut(i, chan-1);
         }
     }
 }
@@ -187,15 +189,15 @@ void RHD2000Editor::stopAcquisition()
 
 void RHD2000Editor::saveCustomParameters(XmlElement* xml)
 {
-     xml->setAttribute("SampleRate", sampleRateInterface->getSelectedId());
-     xml->setAttribute("LowCut", bandwidthInterface->getLowerBandwidth());
-     xml->setAttribute("HighCut", bandwidthInterface->getUpperBandwidth());
-     xml->setAttribute("ADCsOn", adcButton->getToggleState());
+    xml->setAttribute("SampleRate", sampleRateInterface->getSelectedId());
+    xml->setAttribute("LowCut", bandwidthInterface->getLowerBandwidth());
+    xml->setAttribute("HighCut", bandwidthInterface->getUpperBandwidth());
+    xml->setAttribute("ADCsOn", adcButton->getToggleState());
 }
 
 void RHD2000Editor::loadCustomParameters(XmlElement* xml)
 {
-    
+
     sampleRateInterface->setSelectedId(xml->getIntAttribute("SampleRate"));
     bandwidthInterface->setLowerBandwidth(xml->getDoubleAttribute("LowCut"));
     bandwidthInterface->setUpperBandwidth(xml->getDoubleAttribute("HighCut"));
@@ -578,29 +580,29 @@ void HeadstageOptionsInterface::paint(Graphics& g)
 // (Direct OpalKelly) Audio Options --------------------------------------------------------------------
 
 AudioInterface::AudioInterface(RHD2000Thread* board_,
-                                       RHD2000Editor* editor_) :
-board(board_), editor(editor_)
+                               RHD2000Editor* editor_) :
+    board(board_), editor(editor_)
 {
-    
+
     name = "Noise Slicer";
-    
+
     lastNoiseSlicerString = "0";
-    
+
     actualNoiseSlicerLevel = 0.0f;
-    
+
     noiseSlicerLevelSelection = new Label("Noise Slicer",lastNoiseSlicerString); // this is currently set in RHD2000Thread, the cleaner would be to set it here again
     noiseSlicerLevelSelection->setEditable(true,false,false);
     noiseSlicerLevelSelection->addListener(this);
     noiseSlicerLevelSelection->setBounds(30,10,30,20);
     noiseSlicerLevelSelection->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(noiseSlicerLevelSelection);
-    
-    
+
+
 }
 
 AudioInterface::~AudioInterface()
 {
-    
+
 }
 
 
@@ -610,27 +612,28 @@ void AudioInterface::labelTextChanged(Label* label)
     {
         if (label == noiseSlicerLevelSelection)
         {
-            
+
             Value val = label->getTextValue();
             int requestedValue = int(val.getValue()); // Note that it might be nice to translate to actual uV levels (16*value)
-            
+
             if (requestedValue < 0 || requestedValue > 127)
             {
                 editor->sendActionMessage("Value out of range.");
-                
+
                 label->setText(lastNoiseSlicerString, dontSendNotification);
-                
+
                 return;
             }
-            
+
             actualNoiseSlicerLevel = board->setNoiseSlicerLevel(requestedValue);
-            
+
             std::cout << "Setting Noise Slicer Level to " << requestedValue << std::endl;
             label->setText(String((roundFloatToInt)(actualNoiseSlicerLevel)), dontSendNotification);
 
         }
     }
-    else {
+    else
+    {
         Value val = label->getTextValue();
         int requestedValue = int(val.getValue()); // Note that it might be nice to translate to actual uV levels (16*value)
         if (requestedValue < 0 || requestedValue > 127)
@@ -656,15 +659,15 @@ int AudioInterface::getNoiseSlicerLevel()
 
 void AudioInterface::paint(Graphics& g)
 {
-    
+
     g.setColour(Colours::darkgrey);
-    
+
     g.setFont(Font("Small Text",9,Font::plain));
-    
+
     g.drawText(name, 0, 0, 200, 15, Justification::left, false);
-    
+
     g.drawText("Level: ", 0, 10, 200, 20, Justification::left, false);
-    
+
 }
 
 

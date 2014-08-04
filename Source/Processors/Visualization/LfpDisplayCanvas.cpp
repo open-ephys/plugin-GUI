@@ -140,8 +140,8 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     drawMethodButton->setToggleState(false, sendNotification);
     addAndMakeVisible(drawMethodButton);
 
-	//button for pausing the diaplsy - works by skipping buffer updates. This way scrolling etc still works
-	pauseButton = new UtilityButton("Pause", Font("Small Text", 13, Font::plain));
+    //button for pausing the diaplsy - works by skipping buffer updates. This way scrolling etc still works
+    pauseButton = new UtilityButton("Pause", Font("Small Text", 13, Font::plain));
     pauseButton->setRadius(5.0f);
     pauseButton->setEnabledState(true);
     pauseButton->setCorners(true, true, true, true);
@@ -195,7 +195,7 @@ void LfpDisplayCanvas::resized()
 
     invertInputButton->setBounds(750,getHeight()-50,100,22);
     drawMethodButton->setBounds(750,getHeight()-25,100,22);
-	pauseButton->setBounds(880,getHeight()-50,50,44);
+    pauseButton->setBounds(880,getHeight()-50,50,44);
 
     for (int i = 0; i < 8; i++)
     {
@@ -272,7 +272,7 @@ void LfpDisplayCanvas::buttonClicked(Button* b)
     {
         lfpDisplay->setDrawMethod(b->getToggleState());
     }
-	if (b == pauseButton)
+    if (b == pauseButton)
     {
         lfpDisplay->isPaused = b->getToggleState();
     }
@@ -303,7 +303,7 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
     {
         // set color grouping hre
 
-        lfpDisplay->setColorGrouping(colorGroupings[cb->getSelectedId()-1].getIntValue());// so that channel colors get re-assigned 
+        lfpDisplay->setColorGrouping(colorGroupings[cb->getSelectedId()-1].getIntValue());// so that channel colors get re-assigned
 
     }
 
@@ -411,7 +411,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
             float invAlpha = 1.0f - alpha;
 
             screenBuffer->clear(screenBufferIndex, 1);
-           screenBufferMin->clear(screenBufferIndex, 1);
+            screenBufferMin->clear(screenBufferIndex, 1);
             screenBufferMean->clear(screenBufferIndex, 1);
             screenBufferMax->clear(screenBufferIndex, 1);
 
@@ -428,7 +428,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
                                       1, // numSamples
                                       invAlpha*gain); // gain
 
-                
+
                 screenBuffer->addFrom(channel, // destChannel
                                       screenBufferIndex, // destStartSample
                                       displayBuffer->getReadPointer(channel, nextPos), // source
@@ -446,11 +446,13 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     float sample_current = displayBuffer->getSample(channel, j);
                     sample_mean = sample_mean + sample_current;
 
-                    if (sample_min>sample_current){
+                    if (sample_min>sample_current)
+                    {
                         sample_min=sample_current;
                     }
 
-                   if (sample_max<sample_current){
+                    if (sample_max<sample_current)
+                    {
                         sample_max=sample_current;
                     }
                     c++;
@@ -461,7 +463,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
                 screenBufferMean->addSample(channel, screenBufferIndex, sample_mean*gain);
                 screenBufferMin->addSample(channel, screenBufferIndex, sample_min*gain);
                 screenBufferMax->addSample(channel, screenBufferIndex, sample_max*gain);
-                        
+
             }
 
             subSampleOffset += ratio;
@@ -565,7 +567,7 @@ void LfpDisplayCanvas::paint(Graphics& g)
     g.drawText("Timebase (s)",175,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Spread (px)",345,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Color grouping",620,getHeight()-55,300,20,Justification::left, false);
-    
+
 
     g.drawText("Event disp.",500,getHeight()-55,300,20,Justification::left, false);
 
@@ -575,11 +577,14 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
 void LfpDisplayCanvas::refresh()
 {
-	if (lfpDisplay->isPaused) {
-		//fullredraw = true; //issue full redraw
-	}else{
-		updateScreenBuffer(); // if paused, skip this update and draw old screen buffere again
-	}
+    if (lfpDisplay->isPaused)
+    {
+        //fullredraw = true; //issue full redraw
+    }
+    else
+    {
+        updateScreenBuffer(); // if paused, skip this update and draw old screen buffere again
+    }
 
     lfpDisplay->refresh(); // redraws only the new part of the screen buffer
 
@@ -619,7 +624,9 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
         if (lfpDisplay->getEnabledState(i))
         {
             channelDisplayState += "1";
-        } else {
+        }
+        else
+        {
             channelDisplayState += "0";
         }
     }
@@ -640,9 +647,12 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
             rangeSelection->setSelectedId(xmlNode->getIntAttribute("Range"));
             timebaseSelection->setSelectedId(xmlNode->getIntAttribute("Timebase"));
             spreadSelection->setSelectedId(xmlNode->getIntAttribute("Spread"));
-            if (xmlNode->hasAttribute("colorGrouping")) {
+            if (xmlNode->hasAttribute("colorGrouping"))
+            {
                 colorGroupingSelection->setSelectedId(xmlNode->getIntAttribute("colorGrouping"));
-            } else {
+            }
+            else
+            {
                 colorGroupingSelection->setSelectedId(1);
             }
 
@@ -672,13 +682,15 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
                     //std::cout << "LfpDisplayCanvas enabling channel " << i << std::endl;
                     lfpDisplay->enableChannel(true, i);
                     isChannelEnabled.set(i,true); //lfpDisplay->enableChannel(true, i);
-                } else {
+                }
+                else
+                {
                     //std::cout << "LfpDisplayCanvas disabling channel " << i << std::endl;
                     lfpDisplay->enableChannel(false, i);
-                    isChannelEnabled.set(i,false); 
+                    isChannelEnabled.set(i,false);
                 }
 
-                
+
             }
         }
     }
@@ -775,7 +787,7 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
     channelColours.add(Colour(82,173,0));
     channelColours.add(Colour(125,99,32));
 
-	isPaused=false;
+    isPaused=false;
 
 }
 
@@ -801,8 +813,8 @@ int LfpDisplay::getColorGrouping()
 void LfpDisplay::setColorGrouping(int i)
 {
     colorGrouping=i;
-    setColors(); // so that channel colors get re-assigned 
-    
+    setColors(); // so that channel colors get re-assigned
+
 }
 
 
@@ -858,10 +870,10 @@ void LfpDisplay::setNumChannels(int numChannels)
 
 void LfpDisplay::setColors()
 {
-   for (int i = 0; i < numChans; i++)
+    for (int i = 0; i < numChans; i++)
     {
 
-        channels[i]->setColour(channelColours[(int(i/colorGrouping)+1) % channelColours.size()]);        
+        channels[i]->setColour(channelColours[(int(i/colorGrouping)+1) % channelColours.size()]);
         channelInfo[i]->setColour(channelColours[(int(i/colorGrouping)+1)  % channelColours.size()]);
     }
 
@@ -1128,21 +1140,21 @@ void LfpDisplay::setEnabledState(bool state, int chan)
     }
 }
 
- bool LfpDisplay::getEnabledState(int chan)
- {
+bool LfpDisplay::getEnabledState(int chan)
+{
     if (chan < numChans)
     {
         return channels[chan]->getEnabledState();
     }
 
     return false;
- }
+}
 
 
 // ------------------------------------------------------------------
 
 LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, int channelNumber) :
-    canvas(c), display(d), isSelected(false), chan(channelNumber), 
+    canvas(c), display(d), isSelected(false), chan(channelNumber),
     channelOverlap(300), channelHeight(40), range(1000.0f),
     isEnabled(true), inputInverted(false), canBeInverted(true), drawMethod(false)
 {
@@ -1193,124 +1205,126 @@ void LfpChannelDisplay::paint(Graphics& g)
     if (isEnabled)
     {
 
-    int center = getHeight()/2;
+        int center = getHeight()/2;
 
-    if (isSelected)
-    {
-
-        g.setColour(Colours::lightgrey);
-        g.fillRect(0,center-channelHeight/2,10,channelHeight);
-        g.drawLine(0,center+channelHeight/2,getWidth(),center+channelHeight/2);
-        g.drawLine(0,center-channelHeight/2,getWidth(),center-channelHeight/2);
-
-        g.setColour(Colour(25,25,25));
-        g.drawLine(0,center+channelHeight/4,10,center+channelHeight/4);
-        g.drawLine(0,center-channelHeight/4,10,center-channelHeight/4);
-
-    }
-
-
-    g.setColour(Colour(40,40,40));
-    g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
-
-    int stepSize = 1;
-    int from = 0; // for vertical line drawing in the LFP data
-    int to = 0;
-
-    //for (int i = 0; i < getWidth()-stepSize; i += stepSize) // redraw entire display
-    int ifrom = canvas->lastScreenBufferIndex - 3; // need to start drawing a bit before the actual redraw windowfor the interpolated line to join correctly
-
-    if (ifrom < 0)
-        ifrom = 0;
-
-    int ito = canvas->screenBufferIndex - 1;
-
-    if (fullredraw)
-    {
-        ifrom = 0; //canvas->leftmargin;
-        ito = getWidth()-stepSize;
-        fullredraw = false;
-    }
-
-    for (int i = ifrom; i < ito ; i += stepSize) // redraw only changed portion
-    {
-
-        // draw event markers
-        int rawEventState = canvas->getYCoord(canvas->getNumChannels(), i);// get last channel+1 in buffer (represents events)
-        for (int ev_ch = 0; ev_ch < 8 ; ev_ch++) // for all event channels
-        {
-            if (display->getEventDisplayState(ev_ch))  // check if plotting for this channel is enabled
-            {
-                if (rawEventState & (1 << ev_ch))    // events are  representet by a bit code, so we have to extract the individual bits with a mask
-                {
-                    g.setColour(display->channelColours[ev_ch*2]); // get color from lfp color scheme
-                    g.setOpacity(0.35f);
-                    g.drawLine(i, center-channelHeight/2 , i, center+channelHeight/2);
-                }
-            }
-        }
-
-        //std::cout << "e " << canvas->getYCoord(canvas->getNumChannels()-1, i) << std::endl;
-         g.setColour(lineColour);
-
-        if (drawMethod) // switched between to line drawing and pixel wise drawing
+        if (isSelected)
         {
 
-            // drawLine makes for ok anti-aliased plots, but is pretty slow
-            g.drawLine(i,
-                       (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2,
-                       i+stepSize,
-                       (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2);
+            g.setColour(Colours::lightgrey);
+            g.fillRect(0,center-channelHeight/2,10,channelHeight);
+            g.drawLine(0,center+channelHeight/2,getWidth(),center+channelHeight/2);
+            g.drawLine(0,center-channelHeight/2,getWidth(),center-channelHeight/2);
 
-
-        }else{
-
-            // // pixel wise line plot has no anti-aliasing, but runs much faster
-            double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat)+getHeight()/2;
-            double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat)+getHeight()/2;
-            double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
-            if (a<b)
-            {
-                from = (a);
-                to = (b);
-            }
-            else
-            {
-                from = (b);
-                to = (a);
-            }
-
-			//g.setColour(lineColour.withMultipliedBrightness( 1+(((((float)(to-from)*range)/getHeight())-0.01)*2)  )); // make spikes etc slightly brighter
-
-
-            if ((to-from) < 200)  // if there is too much vertical range in one pixel, don't draw the full line for speed reasons
-            {
-                for (int j = from; j <= to; j += 1)
-                {
-                    g.setPixel(i,j);
-                }
-            }
-            else if ((to-from) < 400)
-            {
-                for (int j = from; j <= to; j += 2)
-                {
-                    g.setPixel(i,j);
-                }
-            }
-            else
-            {
-                g.setPixel(i,to);
-                g.setPixel(i,from);
-            }
-
-            //draw mean
-            //g.setColour(Colours::black);
-            //g.setPixel(i,m);
+            g.setColour(Colour(25,25,25));
+            g.drawLine(0,center+channelHeight/4,10,center+channelHeight/4);
+            g.drawLine(0,center-channelHeight/4,10,center-channelHeight/4);
 
         }
 
+
+        g.setColour(Colour(40,40,40));
+        g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
+
+        int stepSize = 1;
+        int from = 0; // for vertical line drawing in the LFP data
+        int to = 0;
+
+        //for (int i = 0; i < getWidth()-stepSize; i += stepSize) // redraw entire display
+        int ifrom = canvas->lastScreenBufferIndex - 3; // need to start drawing a bit before the actual redraw windowfor the interpolated line to join correctly
+
+        if (ifrom < 0)
+            ifrom = 0;
+
+        int ito = canvas->screenBufferIndex - 1;
+
+        if (fullredraw)
+        {
+            ifrom = 0; //canvas->leftmargin;
+            ito = getWidth()-stepSize;
+            fullredraw = false;
+        }
+
+        for (int i = ifrom; i < ito ; i += stepSize) // redraw only changed portion
+        {
+
+            // draw event markers
+            int rawEventState = canvas->getYCoord(canvas->getNumChannels(), i);// get last channel+1 in buffer (represents events)
+            for (int ev_ch = 0; ev_ch < 8 ; ev_ch++) // for all event channels
+            {
+                if (display->getEventDisplayState(ev_ch))  // check if plotting for this channel is enabled
+                {
+                    if (rawEventState & (1 << ev_ch))    // events are  representet by a bit code, so we have to extract the individual bits with a mask
+                    {
+                        g.setColour(display->channelColours[ev_ch*2]); // get color from lfp color scheme
+                        g.setOpacity(0.35f);
+                        g.drawLine(i, center-channelHeight/2 , i, center+channelHeight/2);
+                    }
+                }
+            }
+
+            //std::cout << "e " << canvas->getYCoord(canvas->getNumChannels()-1, i) << std::endl;
+            g.setColour(lineColour);
+
+            if (drawMethod) // switched between to line drawing and pixel wise drawing
+            {
+
+                // drawLine makes for ok anti-aliased plots, but is pretty slow
+                g.drawLine(i,
+                           (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2,
+                           i+stepSize,
+                           (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2);
+
+
+            }
+            else
+            {
+
+                // // pixel wise line plot has no anti-aliasing, but runs much faster
+                double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat)+getHeight()/2;
+                double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat)+getHeight()/2;
+                double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
+                if (a<b)
+                {
+                    from = (a);
+                    to = (b);
+                }
+                else
+                {
+                    from = (b);
+                    to = (a);
+                }
+
+                //g.setColour(lineColour.withMultipliedBrightness( 1+(((((float)(to-from)*range)/getHeight())-0.01)*2)  )); // make spikes etc slightly brighter
+
+
+                if ((to-from) < 200)  // if there is too much vertical range in one pixel, don't draw the full line for speed reasons
+                {
+                    for (int j = from; j <= to; j += 1)
+                    {
+                        g.setPixel(i,j);
+                    }
+                }
+                else if ((to-from) < 400)
+                {
+                    for (int j = from; j <= to; j += 2)
+                    {
+                        g.setPixel(i,j);
+                    }
+                }
+                else
+                {
+                    g.setPixel(i,to);
+                    g.setPixel(i,from);
+                }
+
+                //draw mean
+                //g.setColour(Colours::black);
+                //g.setPixel(i,m);
+
+            }
+
+        }
     }
-}   
 
     // g.setColour(lineColour.withAlpha(0.7f)); // alpha on seems to decrease draw speed
     // g.setFont(channelFont);
@@ -1421,7 +1435,7 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
 
     enableButton = new UtilityButton("CH"+String(ch+1), Font("Small Text", 13, Font::plain));
     enableButton->setRadius(5.0f);
-    
+
     enableButton->setEnabledState(true);
     enableButton->setCorners(true, true, true, true);
     enableButton->addListener(this);
@@ -1466,10 +1480,10 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
 
     g.fillRoundedRectangle(5,center-8,41,22,8.0f);
 
-  //  g.setFont(channelFont);
-   // g.setFont(channelHeightFloat*0.3);
+    //  g.setFont(channelFont);
+    // g.setFont(channelHeightFloat*0.3);
 
-  //  g.drawText(name, 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
+    //  g.drawText(name, 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
 
 }
 

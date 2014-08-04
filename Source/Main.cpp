@@ -70,11 +70,10 @@ public:
             if (AllocConsole())
             {
                 freopen("CONOUT$","w",stdout);
-				freopen("CONOUT$","w",stderr);
-				console_out = std::ofstream("CONOUT$");
-				std::cout.rdbuf(console_out.rdbuf());
-				std::cerr.rdbuf(console_out.rdbuf());
+                console_out = std::ofstream("CONOUT$");
+                std::cout.rdbuf(console_out.rdbuf());
                 SetConsoleTitle("Debug Console");
+                std::cout << "Debugging..." << std::endl;
             }
         }
 
@@ -118,7 +117,7 @@ public:
 private:
     ScopedPointer <MainWindow> mainWindow;
     ScopedPointer <CustomLookAndFeel> customLookAndFeel;
-	std::ofstream console_out;
+    std::ofstream console_out;
 };
 
 //==============================================================================

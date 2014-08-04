@@ -91,7 +91,7 @@ void AudioResamplingNode::setParameter(int parameterIndex, float newValue)
 void AudioResamplingNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 {
 
-   // std::cout << "AudioResamplingNode preparing to play." << std::endl;
+    // std::cout << "AudioResamplingNode preparing to play." << std::endl;
 
     if (destBufferIsTempBuffer)
     {
@@ -109,8 +109,8 @@ void AudioResamplingNode::prepareToPlay(double sampleRate_, int estimatedSamples
 
     destBufferPos = 0;
 
-   // std::cout << "Temp buffer size: " << tempBuffer->getNumChannels() << " x "
-   //           << tempBuffer->getNumSamples() << std::endl;
+    // std::cout << "Temp buffer size: " << tempBuffer->getNumChannels() << " x "
+    //           << tempBuffer->getNumSamples() << std::endl;
 
     updateFilter();
 

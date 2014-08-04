@@ -90,7 +90,7 @@ public:
     {
         return processorGraph;
     }
-    
+
     /** Returns a pointer to the GraphViewer. */
     GraphViewer* getGraphViewer()
     {
@@ -176,7 +176,7 @@ private:
     ScopedPointer<GraphViewer> graphViewer;
 
     Viewport processorListViewport;
-	
+
     /** Pointer to the GUI's MainWindow, which owns the UIComponent. */
     MainWindow* mainWindow;
 

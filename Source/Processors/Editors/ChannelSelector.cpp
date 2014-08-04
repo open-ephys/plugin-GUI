@@ -113,7 +113,7 @@ void ChannelSelector::setNumChannels(int numChans)
 
     int difference = numChans - parameterButtons.size();
 
-   // std::cout << difference << " buttons needed." << std::endl;
+    // std::cout << difference << " buttons needed." << std::endl;
 
     if (difference > 0)
     {
@@ -565,7 +565,7 @@ void ChannelSelector::buttonClicked(Button* button)
             if (acquisitionIsActive) // use setParameter to change parameter safely
             {
                 editor->getProcessorGraph()->
-                    getAudioNode()->setChannelStatus(ch, status);
+                getAudioNode()->setChannelStatus(ch, status);
             }
             else     // change parameter directly
             {
@@ -587,7 +587,7 @@ void ChannelSelector::buttonClicked(Button* button)
             {
                 editor->getProcessorGraph()->
                 getRecordNode()->
-                    setChannelStatus(ch, status);
+                setChannelStatus(ch, status);
             }
             else     // change parameter directly
             {
@@ -844,7 +844,7 @@ void ChannelSelectorRegion::mouseWheelMove(const MouseEvent& event,
                                            const MouseWheelDetails& wheel)
 {
 
-   // std::cout << "Got wheel move: " << wheel.deltaY << std::endl;
+    // std::cout << "Got wheel move: " << wheel.deltaY << std::endl;
     channelSelector->shiftChannelsVertical(-wheel.deltaY);
 }
 

@@ -99,7 +99,7 @@ public:
 
     void startRecording() { } // unused
     void stopRecording() { } // unused
-    
+
     SpikeDisplayNode* processor;
 
     void saveVisualizerParameters(XmlElement* xml);
@@ -118,8 +118,8 @@ private:
 
     int scrollBarThickness;
 
-	ScopedPointer<SpikeThresholdCoordinator> thresholdCoordinator;
-	ScopedPointer<UtilityButton> lockThresholdsButton;
+    ScopedPointer<SpikeThresholdCoordinator> thresholdCoordinator;
+    ScopedPointer<UtilityButton> lockThresholdsButton;
     ScopedPointer<UtilityButton> invertSpikesButton;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayCanvas);
@@ -160,7 +160,7 @@ public:
     void setThresholdForWaveAxis(int plotNum, int axisNum, float threshold);
     void setRangeForWaveAxis(int plotNum, int axisNum, float range);
 
-	void registerThresholdCoordinator(SpikeThresholdCoordinator *stc);
+    void registerThresholdCoordinator(SpikeThresholdCoordinator* stc);
 
 private:
 
@@ -182,7 +182,7 @@ private:
     // float tetrodePlotMinWidth, stereotrodePlotMinWidth, singleElectrodePlotMinWidth;
     // float tetrodePlotRatio, stereotrodePlotRatio, singleElectrodePlotRatio;
 
-	SpikeThresholdCoordinator *thresholdCoordinator;
+    SpikeThresholdCoordinator* thresholdCoordinator;
 
 };
 
@@ -221,7 +221,7 @@ public:
 
     void clear();
 
-     void invertSpikes(bool);
+    void invertSpikes(bool);
 
     float minWidth;
     float aspectRatio;
@@ -235,9 +235,9 @@ public:
     float getRangeForChannel(int);
     void setRangeForChannel(int axisNum, float range);
 
-	//For locking the tresholds
-	void registerThresholdCoordinator(SpikeThresholdCoordinator *stc);
-	void setAllThresholds(float displayThreshold, float range);
+    //For locking the tresholds
+    void registerThresholdCoordinator(SpikeThresholdCoordinator* stc);
+    void setAllThresholds(float displayThreshold, float range);
 
 private:
 
@@ -262,7 +262,7 @@ private:
 
     Font font;
 
-	WeakReference<SpikeThresholdCoordinator> thresholdCoordinator;
+    WeakReference<SpikeThresholdCoordinator> thresholdCoordinator;
 
 };
 
@@ -351,9 +351,9 @@ public:
 
     //MouseCursor getMouseCursor();
 
-	//For locking the thresholds
-	void registerThresholdCoordinator(SpikeThresholdCoordinator *stc);
-	void setDisplayThreshold(float threshold);
+    //For locking the thresholds
+    void registerThresholdCoordinator(SpikeThresholdCoordinator* stc);
+    void setDisplayThreshold(float threshold);
 
     void invertSpikes(bool shouldInvert)
     {
@@ -391,7 +391,7 @@ private:
     bool isDraggingThresholdSlider;
 
     MouseCursor::StandardCursorType cursorType;
-	SpikeThresholdCoordinator *thresholdCoordinator;
+    SpikeThresholdCoordinator* thresholdCoordinator;
 
     bool spikesInverted;
 
@@ -448,23 +448,23 @@ private:
 class SpikeThresholdCoordinator
 {
 public:
-	SpikeThresholdCoordinator();
-	~SpikeThresholdCoordinator();
+    SpikeThresholdCoordinator();
+    ~SpikeThresholdCoordinator();
 
-	void registerSpikePlot(SpikePlot *sp);
-	void unregisterSpikePlot(SpikePlot *sp);
-	void setLockThresholds(bool en);
-	bool getLockThresholds();
+    void registerSpikePlot(SpikePlot* sp);
+    void unregisterSpikePlot(SpikePlot* sp);
+    void setLockThresholds(bool en);
+    bool getLockThresholds();
 
-	void thresholdChanged(float displayThreshold, float range);
+    void thresholdChanged(float displayThreshold, float range);
 
 private:
-	bool lockThresholds;
-	Array<SpikePlot*> registeredPlots;
+    bool lockThresholds;
+    Array<SpikePlot*> registeredPlots;
 
-	WeakReference<SpikeThresholdCoordinator>::Master masterReference;
-	friend class WeakReference<SpikeThresholdCoordinator>;
-	
+    WeakReference<SpikeThresholdCoordinator>::Master masterReference;
+    friend class WeakReference<SpikeThresholdCoordinator>;
+
 };
 
 

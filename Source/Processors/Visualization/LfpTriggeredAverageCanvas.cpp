@@ -452,10 +452,10 @@ void LfpTriggeredAverageCanvas::saveVisualizerParameters(XmlElement* xml)
 
     for (int i = 0; i < 8; i++)
     {
-    	if (display->eventDisplayEnabled[i])
-    	{
-    		eventButtonState += (1 << i);
-    	}
+        if (display->eventDisplayEnabled[i])
+        {
+            eventButtonState += (1 << i);
+        }
     }
 
     xmlNode->setAttribute("EventButtonState", eventButtonState);
@@ -482,9 +482,9 @@ void LfpTriggeredAverageCanvas::loadVisualizerParameters(XmlElement* xml)
 
             for (int i = 0; i < 8; i++)
             {
-            	display->eventDisplayEnabled[i] = (eventButtonState >> i) & 1;
+                display->eventDisplayEnabled[i] = (eventButtonState >> i) & 1;
 
-            	LfpTriggeredAverageEventInterfaces[i]->checkEnabledState();
+                LfpTriggeredAverageEventInterfaces[i]->checkEnabledState();
             }
         }
     }

@@ -48,17 +48,20 @@ public:
     void updateTriggerChannel(int newChannel);
     void handleEvent(int eventType, MidiMessage& event, int);
     bool enable();
-    
+
     bool createNewFilesOnTrigger;
-    
-    bool isUtility() {return true;}
+
+    bool isUtility()
+    {
+        return true;
+    }
 
     AudioProcessorEditor* createEditor();
 
 private:
     int triggerChannel;
-    
-    
+
+
     RecordNode* recordNode;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordControl);

@@ -118,7 +118,7 @@ public:
     {
         return ac;
     }
-    
+
     /** Returns a pointer to the application's GraphViewer. */
     GraphViewer* getGraphViewer()
     {

@@ -75,9 +75,9 @@ public:
     double setUpperBandwidth(double upperBandwidth);
     double setLowerBandwidth(double lowerBandwidth);
 
-    int createCommandListRegisterConfig(vector<int> &commandList, bool calibrate);
-    int createCommandListTempSensor(vector<int> &commandList);
-    int createCommandListZcheckDac(vector<int> &commandList, double frequency, double amplitude);
+    int createCommandListRegisterConfig(vector<int>& commandList, bool calibrate);
+    int createCommandListTempSensor(vector<int>& commandList);
+    int createCommandListZcheckDac(vector<int>& commandList, double frequency, double amplitude);
 
     enum Rhd2000CommandType
     {
