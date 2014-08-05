@@ -188,8 +188,11 @@ void LfpDisplayCanvas::resized()
 	timescale->setBounds(leftmargin,0,getWidth()-scrollBarThickness-leftmargin,30);
 	viewport->setBounds(0,30,getWidth(),getHeight()-90);
 
-	lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, getChannelHeight()*nChans);
+	if (lfpDisplay->getSingleChannelState())
+		lfpDisplay->setChannelHeight(viewport->getHeight(),false);
 
+	lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*nChans);
+	
 	rangeSelection->setBounds(5,getHeight()-30,100,25);
 	timebaseSelection->setBounds(175,getHeight()-30,100,25);
 	spreadSelection->setBounds(345,getHeight()-30,100,25);
@@ -316,7 +319,6 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 int LfpDisplayCanvas::getChannelHeight()
 {
 	return spreads[spreadSelection->getSelectedId()-1].getIntValue();
-
 }
 
 
@@ -774,7 +776,7 @@ void LfpTimescale::setTimebase(float t)
 // ---------------------------------------------------------------
 
 LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
-	canvas(c), viewport(v), range(1000.0f)
+	canvas(c), viewport(v), range(1000.0f), singleChan(-1)
 {
 
 	totalHeight = 0;
@@ -927,10 +929,12 @@ void LfpDisplay::resized()
 			disp->getChannelHeight());
 
 		totalHeight += disp->getChannelHeight();
-
+		
 	}
 
 	canvas->fullredraw = true; //issue full redraw
+	if (singleChan != -1)
+		viewport->setViewPosition(Point<int>(0,singleChan*getChannelHeight()));
 	refresh();
 
 	// std::cout << "Total height: " << totalHeight << std::endl;
@@ -994,13 +998,24 @@ int LfpDisplay::getRange()
 }
 
 
-void LfpDisplay::setChannelHeight(int r)
+void LfpDisplay::setChannelHeight(int r, bool resetSingle)
 {
 
 	for (int i = 0; i < numChans; i++)
 	{
 		channels[i]->setChannelHeight(r);
 		channelInfo[i]->setChannelHeight(r);
+	}
+	if (resetSingle && singleChan != -1)
+	{
+		setSize(getWidth(),numChans*getChannelHeight());
+		viewport->setScrollBarsShown(true,false);
+		viewport->setViewPosition(Point<int>(0,singleChan*r));
+		singleChan = -1;
+		for (int n = 0; n < numChans; n++)
+		{
+			channelInfo[n]->setEnabledState(true);
+		}
 	}
 
 	resized();
@@ -1089,6 +1104,35 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 
 }
 
+void LfpDisplay::toggleSingleChannel(int chan)
+{
+	std::cout << "Toggle channel " << chan << std::endl;
+	if (chan != singleChan)
+	{
+		singleChan = chan;
+		int newHeight = viewport->getHeight();
+		setChannelHeight(newHeight,false);
+		setSize(getWidth(),numChans*getChannelHeight());
+		viewport->setScrollBarsShown(false,false);
+		//viewport->setViewPosition(Point<int>(0,chan*newHeight));
+		for (int n = 0; n < numChans; n++)
+		{
+			if ( n != chan) channelInfo[n]->setEnabledState(false);
+		}
+
+	}
+	else
+	{
+		setChannelHeight(canvas->getChannelHeight());
+	}
+}
+
+bool LfpDisplay::getSingleChannelState()
+{
+	if (singleChan < 0) return false;
+	else return true;
+}
+
 
 void LfpDisplay::mouseDown(const MouseEvent& event)
 {
@@ -1119,6 +1163,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 	//lcd->select();
 
 	channels[closest]->select();
+	if (event.getNumberOfClicks() == 2) toggleSingleChannel(closest);
 
 	canvas->fullredraw = true;//issue full redraw
 

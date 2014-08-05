@@ -205,7 +205,7 @@ public:
     void setRange(float range);
     int getRange();
 
-    void setChannelHeight(int r);
+    void setChannelHeight(int r, bool resetSingle = true);
     int getChannelHeight();
     void setInputInverted(bool);
     void setDrawMethod(bool);
@@ -222,6 +222,8 @@ public:
     bool getEnabledState(int);
     void enableChannel(bool, int);
 
+	bool getSingleChannelState();
+
     Array<Colour> channelColours;
 
     Array<LfpChannelDisplay*> channels;
@@ -231,6 +233,9 @@ public:
     bool isPaused; // simple pause function, skips screen bufer updates
 
 private:
+	void toggleSingleChannel(int chan);
+	int singleChan;
+
     int numChans;
 
     int totalHeight;
@@ -283,7 +288,6 @@ public:
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
 protected:
-
 
     LfpDisplayCanvas* canvas;
     LfpDisplay* display;
