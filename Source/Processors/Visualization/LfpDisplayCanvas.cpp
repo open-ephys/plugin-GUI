@@ -69,6 +69,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	addAndMakeVisible(viewport);
 	addAndMakeVisible(timescale);
 
+	voltageRanges.add("-"); // placeholder for custom ranges (set by scroll wheel etc.)
 	voltageRanges.add("50");
 	voltageRanges.add("100");
 	voltageRanges.add("250");
@@ -98,9 +99,11 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
 	rangeSelection = new ComboBox("Voltage range");
 	rangeSelection->addItemList(voltageRanges, 1);
-	rangeSelection->setSelectedId(4, sendNotification);
+	rangeSelection->setSelectedId(5, sendNotification);
 	rangeSelection->addListener(this);
+	rangeSelection->setItemEnabled(1,false); //  '-' option not enabled- use this for manually selected ranges later
 	addAndMakeVisible(rangeSelection);
+
 
 	timebaseSelection = new ComboBox("Timebase");
 	timebaseSelection->addItemList(timebases, 1);
@@ -284,6 +287,7 @@ void LfpDisplayCanvas::buttonClicked(Button* b)
 
 }
 
+
 void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 {
 
@@ -300,8 +304,8 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 	{
 		//spread = spreads[cb->getSelectedId()-1].getFloatValue();
 		lfpDisplay->setChannelHeight(spreads[cb->getSelectedId()-1].getIntValue());
-		//lfpDisplay->resized();
 		resized();
+		
 		//std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
 	}
 	else if (cb == colorGroupingSelection)
@@ -335,6 +339,17 @@ void LfpDisplayCanvas::setParameter(int param, float val)
 	// }
 
 	// repaint();
+}
+
+void LfpDisplayCanvas:: setRangeSelection(float range)
+{
+			//rangeSelection->setItemEnabled(0,true); //keep custom range unavailable for direct selection
+			rangeSelection->setSelectedId(1,true);  // but show it for display
+			rangeSelection->changeItemText(1,String(int(range))); // and set to correct number
+
+			repaint();
+			refresh();
+			
 }
 
 void LfpDisplayCanvas::refreshState()
@@ -935,6 +950,7 @@ void LfpDisplay::resized()
 	canvas->fullredraw = true; //issue full redraw
 	if (singleChan != -1)
 		viewport->setViewPosition(Point<int>(0,singleChan*getChannelHeight()));
+
 	refresh();
 
 	// std::cout << "Total height: " << totalHeight << std::endl;
@@ -990,6 +1006,7 @@ void LfpDisplay::setRange(float r)
 	{
 		channels[i]->setRange(range);
 	}
+	canvas->fullredraw = true; //issue full redraw
 }
 
 int LfpDisplay::getRange()
@@ -1087,6 +1104,8 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 				if (h>11)
 					setRange(h-10);
 			}
+			
+			canvas->setRangeSelection(h); // update combobox
 
 		}
 		else    // just scroll
@@ -1099,7 +1118,6 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 	}
 
 	canvas->fullredraw = true;//issue full redraw
-
 	refresh();
 
 }
