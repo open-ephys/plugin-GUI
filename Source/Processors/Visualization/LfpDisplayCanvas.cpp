@@ -1073,22 +1073,34 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 {
 
 	//std::cout << "Mouse wheel " <<  e.mods.isCommandDown() << "  " << wheel.deltaY << std::endl;
-
+	
 	if (e.mods.isCommandDown())  // CTRL + scroll wheel -> change channel spacing
 	{
-		//
-		// this should also scroll to keep the selected channel at a constant y!
-		//
 		int h = getChannelHeight();
+		int hdiff=0;
 		if (wheel.deltaY>0)
 		{
-			setChannelHeight(h+1);
+			hdiff=2;
 		}
 		else
 		{
 			if (h>5)
-				setChannelHeight(h-1);
+				hdiff=-2;
 		}
+
+		if (abs(h)>100) // accelerate scrolling for large ranges
+			hdiff=hdiff*3;
+
+		setChannelHeight(h+hdiff);
+		int oldX=viewport->getViewPositionX();
+		int oldY=viewport->getViewPositionY();
+
+		setBounds(0,0,getWidth()-0, getChannelHeight()*canvas->nChans); // update height so that the scrollbar is correct
+
+		int mouseY=e.getMouseDownY(); // should be y pos relative to inner viewport (0,0)
+		int scrollBy = (mouseY/h)*hdiff*2;// compensate for motion of point under current mouse position
+		viewport->setViewPosition(oldX,oldY+scrollBy); // set back to previous position plus offset
+
 	}
 	else
 	{

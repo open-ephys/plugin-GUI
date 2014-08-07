@@ -103,6 +103,8 @@ public:
 
     Array<bool> isChannelEnabled;
 
+	int nChans;
+
 private:
 
     float sampleRate;
@@ -153,9 +155,7 @@ private:
     int displayBufferIndex;
     int displayBufferSize;
 
-    int scrollBarThickness;
-
-    int nChans;
+	int scrollBarThickness;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
 
