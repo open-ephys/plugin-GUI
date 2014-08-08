@@ -63,6 +63,7 @@ public:
     void setParameter(int, int, int, float) {}
 
 	void setRangeSelection(float range); // set range selection combo box to correct value if it has been changed by scolling etc.
+	void setSpreadSelection(int spread); // set spread selection combo box to correct value if it has been changed by scolling etc.
 
     void paint(Graphics& g);
 

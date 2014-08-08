@@ -83,6 +83,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	timebases.add("5.0");
 	timebases.add("10.0");
 
+	spreads.add("-"); // placeholder for custom ranges (set by scroll wheel etc.)
 	spreads.add("10");
 	spreads.add("20");
 	spreads.add("30");
@@ -114,8 +115,9 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
 	spreadSelection = new ComboBox("Spread");
 	spreadSelection->addItemList(spreads, 1);
-	spreadSelection->setSelectedId(5,sendNotification);
+	spreadSelection->setSelectedId(6,sendNotification);
 	spreadSelection->addListener(this);
+	spreadSelection->setItemEnabled(1,false); //  '-' option not enabled- use this for manually selected ranges later
 	addAndMakeVisible(spreadSelection);
 
 	colorGroupingSelection = new ComboBox("Color Grouping");
@@ -346,6 +348,16 @@ void LfpDisplayCanvas:: setRangeSelection(float range)
 			//rangeSelection->setItemEnabled(0,true); //keep custom range unavailable for direct selection
 			rangeSelection->setSelectedId(1,true);  // but show it for display
 			rangeSelection->changeItemText(1,String(int(range))); // and set to correct number
+
+			repaint();
+			refresh();
+			
+}
+
+void LfpDisplayCanvas:: setSpreadSelection(int spread)
+{
+			spreadSelection->setSelectedId(1,true);
+			spreadSelection->changeItemText(1,String(int(spread))); // and set to correct number
 
 			repaint();
 			refresh();
@@ -1100,6 +1112,8 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 		int mouseY=e.getMouseDownY(); // should be y pos relative to inner viewport (0,0)
 		int scrollBy = (mouseY/h)*hdiff*2;// compensate for motion of point under current mouse position
 		viewport->setViewPosition(oldX,oldY+scrollBy); // set back to previous position plus offset
+
+		canvas->setSpreadSelection(h+hdiff); // update combobox
 
 	}
 	else
