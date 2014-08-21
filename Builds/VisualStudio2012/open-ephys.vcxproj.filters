@@ -415,6 +415,12 @@
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\OriginalRecording.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\RecordEngine.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\HDF5Recording.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
@@ -1985,6 +1991,12 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\OriginalRecording.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordEngine.h">
+      <Filter>open-ephys\Source\Processors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\HDF5Recording.h">
       <Filter>open-ephys\Source\Processors</Filter>
