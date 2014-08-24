@@ -22,3 +22,18 @@
  */
 
 #include "RecordEngine.h"
+#include "RecordNode.h"
+
+RecordEngine::RecordEngine(RecordNode* rn)
+{
+	recordNode = rn;
+}
+
+void RecordEngine::clearConnections() {}
+
+void RecordEngine::registerProcessor(GenericProcessor* processor) {}
+
+Channel* RecordEngine::getChannel(int index)
+{
+	return recordNode->getDataChannel(index);
+}

@@ -24,7 +24,34 @@
 #ifndef RECORDENGINE_H_INCLUDED
 #define RECORDENGINE_H_INCLUDED
 
+#include "../../JuceLibraryCode/JuceHeader.h"
+#include "Channel.h"
+#include "GenericProcessor.h"
 
+class RecordNode;
+
+class RecordEngine
+{
+public:
+	RecordEngine(RecordNode* rn);
+	~RecordEngine();
+
+	virtual void openFiles(File rootfolder) =0;
+	virtual void closeFiles() =0;
+	virtual void writeData(AudioSampleBuffer& buffer, int nSamples, int64 timestamp) =0;
+	virtual void writeEvent(MidiMessage& event, int samplePosition) =0;
+	virtual void addChannel(int index, Channel* chan) =0;
+	virtual void registerProcessor(GenericProcessor* processor);
+	virtual void clearConnections();
+
+protected:
+	Channel* getChannel(int index);
+
+private:
+	RecordNode* recordNode;
+	
+
+};
 
 
 

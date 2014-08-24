@@ -98,10 +98,8 @@ public:
     bool isMonitored;
     bool isEnabled;
 
-    // file info (for disk writing):
-    String filename;
-    FILE* file;
-	int recordFileId;
+    // file info (for disk writing). Meaning depends on RecordEngine
+	int recordIndex;
 
     String name;
 
