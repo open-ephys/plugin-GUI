@@ -83,7 +83,7 @@ void SpikeDisplayNode::updateSettings()
     }
 
     recordNode = getProcessorGraph()->getRecordNode();
-    diskWriteLock = recordNode->getLock();
+//    diskWriteLock = recordNode->getLock(); TODO: move spike writing to record engine
 
 }
 

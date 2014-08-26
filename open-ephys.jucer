@@ -12,7 +12,7 @@
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
-               extraLinkerFlags="" objCExtraSuffix="fea2mT" externalLibraries="">
+               extraLinkerFlags="-lhdf5" objCExtraSuffix="fea2mT">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
@@ -37,7 +37,7 @@
         <MODULEPATH id="juce_audio_basics" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" extraLinkerFlags="-pg -ldl -lXext -lGLU -lhdf5 -lhdf5_cpp"
+    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" extraLinkerFlags="-pg -ldl -lXext -lGLU -lhdf5"
                 extraCompilerFlags="-export-dynamic -g -pg -std=c++0x">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
@@ -64,24 +64,28 @@
       </MODULEPATHS>
     </LINUX_MAKE>
     <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" extraDefs="NOMINMAX"
-            externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib">
+            externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;szip.lib&#10;zlib.lib&#10;hdf5.lib&#10;hdf5_cpp.lib">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug\bin"
-                       headerPath="../../Resources/Google Protocols/src" libraryPath="../../Resources/ZeroMQ/lib_x86&#10;../../Resources/Google Protocols/vsprojects/Debug"
-                       postbuildCommand="copy ..\..\Resources\DLLs\okFrontPanel.dll .\Debug\bin"/>
+                       headerPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\include&#10;../../Resources/Google Protocols/src&#10;"
+                       libraryPath="../../Resources/ZeroMQ/lib_x86&#10;../../Resources/Google Protocols/vsprojects/Debug&#10;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\lib"
+                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release\bin"
-                       headerPath="../../Resources/Google Protocols/src" libraryPath="../../Resources/ZeroMQ/lib_x86&#10;../../Resources/Google Protocols/vsprojects/Release"
-                       postbuildCommand="copy ..\..\Resources\DLLs\okFrontPanel.dll .\Release\bin"/>
+                       headerPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\include&#10;../../Resources/Google Protocols/src"
+                       libraryPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\lib&#10;../../Resources/ZeroMQ/lib_x86&#10;../../Resources/Google Protocols/vsprojects/Release"
+                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;"/>
         <CONFIGURATION name="Debug64" winWarningLevel="2" generateManifest="1" winArchitecture="x64"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug64\bin"
-                       headerPath="../../Resources/Google Protocols/src" libraryPath="../../Resources/ZeroMQ/lib_x64&#10;../../Resources/Google Protocols/vsprojects/x64/Debug"
-                       postbuildCommand="copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Debug64\bin"/>
+                       headerPath="$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\include&#10;../../Resources/Google Protocols/src"
+                       libraryPath="$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\lib&#10;../../Resources/ZeroMQ/lib_x64&#10;../../Resources/Google Protocols/vsprojects/x64/Debug"
+                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;"/>
         <CONFIGURATION name="Release64" winWarningLevel="2" generateManifest="1" winArchitecture="x64"
                        isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release64\bin"
-                       headerPath="../../Resources/Google Protocols/src" libraryPath="../../Resources/ZeroMQ/lib_x64&#10;../../Resources/Google Protocols/vsprojects/x64/Release"
-                       postbuildCommand="copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Release64\bin"/>
+                       headerPath="$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\include&#10;../../Resources/Google Protocols/src"
+                       libraryPath="$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\lib&#10;../../Resources/ZeroMQ/lib_x64&#10;../../Resources/Google Protocols/vsprojects/x64/Release"
+                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>
@@ -280,16 +284,16 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
-        <FILE id="V5EF9h" name="OriginalRecording.cpp" compile="1" resource="0"
+        <FILE id="TJ0Hmt" name="OriginalRecording.cpp" compile="1" resource="0"
               file="Source/Processors/OriginalRecording.cpp"/>
-        <FILE id="xvIbZi" name="OriginalRecording.h" compile="0" resource="0"
+        <FILE id="z11idO" name="OriginalRecording.h" compile="0" resource="0"
               file="Source/Processors/OriginalRecording.h"/>
-        <FILE id="jKfuGE" name="RecordEngine.cpp" compile="1" resource="0"
+        <FILE id="ikbpX1" name="RecordEngine.cpp" compile="1" resource="0"
               file="Source/Processors/RecordEngine.cpp"/>
-        <FILE id="XWpnlE" name="RecordEngine.h" compile="0" resource="0" file="Source/Processors/RecordEngine.h"/>
-        <FILE id="pZlJ9r" name="HDF5Recording.cpp" compile="1" resource="0"
+        <FILE id="uqGmrZ" name="RecordEngine.h" compile="0" resource="0" file="Source/Processors/RecordEngine.h"/>
+        <FILE id="eUtNHW" name="HDF5Recording.cpp" compile="1" resource="0"
               file="Source/Processors/HDF5Recording.cpp"/>
-        <FILE id="FAcPlZ" name="HDF5Recording.h" compile="0" resource="0" file="Source/Processors/HDF5Recording.h"/>
+        <FILE id="dXX5ds" name="HDF5Recording.h" compile="0" resource="0" file="Source/Processors/HDF5Recording.h"/>
         <FILE id="Yj1umv" name="SerialInput.cpp" compile="1" resource="0" file="Source/Processors/SerialInput.cpp"/>
         <FILE id="TSsuVv" name="SerialInput.h" compile="0" resource="0" file="Source/Processors/SerialInput.h"/>
         <FILE id="M6nCIs" name="FileReader.cpp" compile="1" resource="0" file="Source/Processors/FileReader.cpp"/>

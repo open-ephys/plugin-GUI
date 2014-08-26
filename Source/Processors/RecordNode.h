@@ -112,6 +112,8 @@ public:
         return rootFolder;
     }
 
+	void registerRecordEngine(RecordEngine* engine);
+
     /** Signals when to create a new data directory when recording starts.*/
     bool newDirectoryNeeded;
 
@@ -120,7 +122,7 @@ public:
 
     /** Generate a Matlab-compatible datestring */
     String generateDateString();
-    
+   
 private:
 
     /** Keep the RecordNode informed of acquisition and record states.

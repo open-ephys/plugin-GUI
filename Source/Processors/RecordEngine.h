@@ -30,27 +30,28 @@
 
 class RecordNode;
 
-class RecordEngine
+class RecordEngine : public AccessClass
 {
 public:
-	RecordEngine(RecordNode* rn);
+	RecordEngine();
 	~RecordEngine();
 
-	virtual void openFiles(File rootfolder) =0;
+	virtual void openFiles(File rootFolder, int recordingNumber) =0;
 	virtual void closeFiles() =0;
-	virtual void writeData(AudioSampleBuffer& buffer, int nSamples, int64 timestamp) =0;
+	virtual void writeData(AudioSampleBuffer& buffer, int nSamples) =0;
 	virtual void writeEvent(MidiMessage& event, int samplePosition) =0;
 	virtual void addChannel(int index, Channel* chan) =0;
 	virtual void registerProcessor(GenericProcessor* processor);
-	virtual void clearConnections();
+	virtual void resetChannels();
+	virtual void updateTimeStamp(int64 timestamp);
 
 protected:
 	Channel* getChannel(int index);
+	String generateDateString();
 
 private:
-	RecordNode* recordNode;
-	
 
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordEngine);
 };
 
 

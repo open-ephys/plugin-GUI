@@ -109,7 +109,7 @@ void RecordNode::resetConnections()
 
     channelPointers.clear();
     eventChannelPointers.clear();
-	EVERY_ENGINE->clearConnections();
+	EVERY_ENGINE->resetChannels();
 
 }
 
@@ -140,6 +140,7 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
         int channelIndex = getNextChannel(false);
 
         channelPointers.add(sourceNode->channels[chan]);
+		setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
         //   std::cout << channelIndex << std::endl;
 
@@ -275,7 +276,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
             getEditorViewport()->saveState(File(settingsFileName));
         }
 
-		EVERY_ENGINE->openFiles(rootFolder);
+		EVERY_ENGINE->openFiles(rootFolder, recordingNumber);
    
         allFilesOpened = true;
 
@@ -367,7 +368,7 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
 {
     if (eventType == TTL)
     {
-        EVERY_ENGINE->writeEvent(event, samplePosition);
+		EVERY_ENGINE->writeEvent(event, samplePosition);
     }
     else if (eventType == TIMESTAMP)
     {
@@ -384,6 +385,7 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
         //             (int) *(dataptr + 4) << std::endl;
 
         memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
+		EVERY_ENGINE->updateTimeStamp(timestamp);
     }
 
 }
@@ -399,12 +401,10 @@ void RecordNode::process(AudioSampleBuffer& buffer,
         // FIRST: cycle through events -- extract the TTLs and the timestamps
         checkForEvents(events);
 
-        // SECOND: cycle through buffer channels
-        int samplesWritten = 0;
-
+        // SECOND: write channel data
         if (channelPointers.size() > 0)
         {
-			EVERY_ENGINE->writeData(buffer,nSamples,timestamp);
+			EVERY_ENGINE->writeData(buffer,nSamples);
         }
 
         //  std::cout << nSamples << " " << samplesWritten << " " << blockIndex << std::endl;
@@ -431,4 +431,9 @@ void RecordNode::registerProcessor(GenericProcessor* sourceNode)
 Channel* RecordNode::getDataChannel(int index)
 {
 	return channelPointers[index];
+}
+
+void RecordNode::registerRecordEngine(RecordEngine* engine)
+{
+	engineArray.add(engine);
 }

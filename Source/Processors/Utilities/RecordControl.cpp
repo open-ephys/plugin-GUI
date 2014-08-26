@@ -73,7 +73,7 @@ bool RecordControl::enable()
     if (recordNode == 0)
         recordNode = getProcessorGraph()->getRecordNode();
     
-    recordNode->appendTrialNumber(createNewFilesOnTrigger);
+    //recordNode->appendTrialNumber(createNewFilesOnTrigger);
     
     return true;
 }
@@ -104,10 +104,10 @@ void RecordControl::handleEvent(int eventType, MidiMessage& event, int)
 
         if (eventId == 1)
         {
-            if (createNewFilesOnTrigger)
-            {
-                recordNode->updateTrialNumber();
-            }
+          //  if (createNewFilesOnTrigger)
+           // {
+            //    recordNode->updateTrialNumber();
+           // }
             getControlPanel()->setRecordState(true);
         }
         else

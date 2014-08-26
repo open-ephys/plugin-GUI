@@ -23,17 +23,24 @@
 
 #include "RecordEngine.h"
 #include "RecordNode.h"
+#include "ProcessorGraph.h"
 
-RecordEngine::RecordEngine(RecordNode* rn)
-{
-	recordNode = rn;
-}
+RecordEngine::RecordEngine() {}
 
-void RecordEngine::clearConnections() {}
+RecordEngine::~RecordEngine() {}
+
+void RecordEngine::resetChannels() {}
 
 void RecordEngine::registerProcessor(GenericProcessor* processor) {}
 
 Channel* RecordEngine::getChannel(int index)
 {
-	return recordNode->getDataChannel(index);
+	return getProcessorGraph()->getRecordNode()->getDataChannel(index);
 }
+
+String RecordEngine::generateDateString()
+{
+	return getProcessorGraph()->getRecordNode()->generateDateString();
+}
+
+void RecordEngine::updateTimeStamp(int64 timestamp) {}

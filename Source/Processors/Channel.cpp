@@ -25,7 +25,7 @@
 
 
 Channel::Channel(GenericProcessor* p, int n) : num(n), eventType(0), processor(p), sampleRate(44100.0), bitVolts(1.0f),
-	isADCchannel(false),isEventChannel(false), isMonitored(false), isEnabled(true), isRecording(false), recordFileId(-1);
+	isADCchannel(false),isEventChannel(false), isMonitored(false), isEnabled(true), isRecording(false), recordIndex(-1)
     
 {
     nodeId = p->getNodeId();

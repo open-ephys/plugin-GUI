@@ -24,8 +24,61 @@
 #ifndef ORIGINALRECORDING_H_INCLUDED
 #define ORIGINALRECORDING_H_INCLUDED
 
+#include "../../JuceLibraryCode/JuceHeader.h"
 
+#include "RecordEngine.h"
+#include <stdio.h>
 
+#define HEADER_SIZE 1024
+#define BLOCK_LENGTH 1024
 
+class OriginalRecording : public RecordEngine
+{
+public:
+	OriginalRecording();
+	~OriginalRecording();
+
+	void openFiles(File rootFolder, int recordingNumber);
+	void closeFiles();
+	void writeData(AudioSampleBuffer& buffer, int nSamples);
+	void writeEvent(MidiMessage& event, int samplePosition);
+	void addChannel(int index, Channel* chan);
+	void resetChannels();
+	void updateTimeStamp(int64 timestamp);
+
+private:
+	String getFileName(Channel* ch);
+	void openFile(File rootFolder, Channel* ch);
+	String generateHeader(Channel* ch);
+	void writeContinuousBuffer(const float* data, int nSamples, int channel);
+	void writeTimestampAndSampleCount(FILE* file);
+	void writeRecordMarker(FILE* file);
+
+	bool separateFiles;
+	int blockIndex;
+	int recordingNumber;
+
+	/** Holds data that has been converted from float to int16 before
+        saving.
+    */
+    int16* continuousDataIntegerBuffer;
+
+    /** Holds data that has been converted from float to int16 before
+        saving.
+    */
+    float* continuousDataFloatBuffer;
+
+	/** Used to indicate the end of each record */
+    char* recordMarker;
+
+	AudioSampleBuffer zeroBuffer;
+	int64 timestamp;
+
+	FILE* eventFile;
+	Array<FILE*> fileArray;
+	CriticalSection diskWriteLock;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OriginalRecording);
+};
 
 #endif  // ORIGINALRECORDING_H_INCLUDED
