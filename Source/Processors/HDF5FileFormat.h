@@ -61,6 +61,8 @@ protected:
 	//create dataset extendable on X dimension.
 	HDF5RecordingData* createDataSet(DataTypes type, int sizeX, int sizeY, int chunkX, String path);
 
+	bool readyToOpen;
+
 private:
 	int open(bool newfile);
 	ScopedPointer<H5::H5File> file;
@@ -94,7 +96,9 @@ class KWDFile : public HDF5FileBase
 {
 public:
 	KWDFile(int processorNumber, String basename);
+	KWDFile();
 	~KWDFile();
+	void initFile(int processorNumber, String basename);
 	void startNewRecording(int recordingNumber, int nChannels);
 	void stopRecording();
 	void writeBlockData(int16* data, int nSamples);

@@ -31,7 +31,7 @@ using namespace H5;
 
 //HDF5FileBase
 
-HDF5FileBase::HDF5FileBase() : opened(false) 
+HDF5FileBase::HDF5FileBase() : opened(false), readyToOpen(false) 
 {
 	Exception::dontPrint();
 };
@@ -48,6 +48,7 @@ bool HDF5FileBase::isOpen() const
 
 int HDF5FileBase::open()
 {
+	if (!readyToOpen) return -1;
 	if (File(getFileName()).existsAsFile())
 		return open(false);
 	else
@@ -364,10 +365,7 @@ int HDF5RecordingData::writeDataBlock(int xDataSize, HDF5FileBase::DataTypes typ
 		offset[1]=0;
 		fSpace.selectHyperslab(H5S_SELECT_SET, dim, offset);
 
-		//This should use native types but as RecordNode currently converts to Big Endian it's easier to just
-		//use the BE format in which we're encoding the dataset.
-		//nativeType = HDF5FileBase::getNativeType(type);
-		nativeType = HDF5FileBase::getH5Type(type);
+		nativeType = HDF5FileBase::getNativeType(type);
 
 		dSet->write(data,nativeType,mSpace,fSpace);
 		xPos += xDataSize;
@@ -447,9 +445,13 @@ int HDF5RecordingData::writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataT
 	return 0;
 }
 
-KWDFile::KWDFile(int processorNumber, String basename)
+KWDFile::KWDFile(int processorNumber, String basename) : HDF5FileBase()
 {
-	filename = basename + String(processorNumber) + "_raw.kwd";
+	initFile(processorNumber, basename);
+}
+
+KWDFile::KWDFile() : HDF5FileBase()
+{
 }
 
 KWDFile::~KWDFile() {}
@@ -457,6 +459,13 @@ KWDFile::~KWDFile() {}
 String KWDFile::getFileName()
 {
 	return filename;
+}
+
+void KWDFile::initFile(int processorNumber, String basename)
+{
+	if (isOpen) return;
+	filename = basename + String(processorNumber) + "_raw.kwd";
+	readyToOpen=true;
 }
 
 void KWDFile::startNewRecording(int recordingNumber, int nChannels)
