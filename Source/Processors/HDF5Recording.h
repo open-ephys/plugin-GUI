@@ -24,7 +24,35 @@
 #ifndef HDF5RECORDING_H_INCLUDED
 #define HDF5RECORDING_H_INCLUDED
 
+#include "RecordEngine.h"
+#include "HDF5FileFormat.h"
 
+class HDF5Recording : public RecordEngine
+{
+public:
+	HDF5Recording();
+	~HDF5Recording();
+	void openFiles(File rootFolder, int recordingNumber);
+	void closeFiles();
+	void writeData(AudioSampleBuffer& buffer, int nSamples);
+	void writeEvent(MidiMessage& event, int samplePosition);
+	void addChannel(int index, Channel* chan);
+	void addSpikeElectrode(int index, SpikeRecordInfo* elec);
+	void writeSpike(const SpikeObject& spike, int electrodeIndex);
+	void registerProcessor(GenericProcessor* processor);
+	void resetChannels();
+
+private:
+
+	int processorIndex;
+	
+	Array<int> processorMap;
+	Array<int> activeChannelCount;
+	OwnedArray<KWDFile> fileArray;
+	float* scaledBuffer;
+	int16* intBuffer;
+
+};
 
 
 #endif  // HDF5RECORDING_H_INCLUDED

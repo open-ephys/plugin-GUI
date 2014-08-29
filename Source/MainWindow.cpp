@@ -24,6 +24,7 @@
 #include "MainWindow.h"
 #include <stdio.h>
 #include "Processors\OriginalRecording.h"
+#include "Processors\HDF5Recording.h"
 //-----------------------------------------------------------------------
 
 MainWindow::MainWindow()
@@ -63,6 +64,9 @@ MainWindow::MainWindow()
 
 	//TODO: Move this to a proper location
 	RecordEngine* re = static_cast<RecordEngine*>(new OriginalRecording());
+	re->setUIComponent(ui);
+	processorGraph->getRecordNode()->registerRecordEngine(re);
+	re = static_cast<RecordEngine*>(new HDF5Recording());
 	re->setUIComponent(ui);
 	processorGraph->getRecordNode()->registerRecordEngine(re);
 

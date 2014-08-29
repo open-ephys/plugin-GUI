@@ -24,6 +24,14 @@
 #include <H5Cpp.h>
 #include "HDF5FileFormat.h"
 
+#ifndef BLOCK_XSIZE
+#define BLOCK_XSIZE 256
+#endif
+
+#ifndef CHUNK_XSIZE
+#define CHUNK_XSIZE 256
+#endif
+
 #define PROCESS_ERROR std::cerr << error.getCDetailMsg() << std::endl; return -1
 #define CHECK_ERROR(x) if (x) std::cerr << "Error at HDFRecording " << __LINE__ << std::endl;
 
@@ -423,10 +431,8 @@ int HDF5RecordingData::writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataT
 		offset[1] = yPos;
 		fSpace.selectHyperslab(H5S_SELECT_SET, dim, offset);
 
-		//This should use native types but as RecordNode currently converts to Big Endian it's easier to just
-		//use the BE format in which we're encoding the dataset.
-		//nativeType = HDF5FileBase::getNativeType(type);
-		nativeType = HDF5FileBase::getH5Type(type);
+		nativeType = HDF5FileBase::getNativeType(type);
+
 
 		dSet->write(data,nativeType,mSpace,fSpace);
 	}
@@ -463,7 +469,7 @@ String KWDFile::getFileName()
 
 void KWDFile::initFile(int processorNumber, String basename)
 {
-	if (isOpen) return;
+	if (isOpen()) return;
 	filename = basename + String(processorNumber) + "_raw.kwd";
 	readyToOpen=true;
 }
@@ -475,7 +481,7 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels)
 	
 	String recordPath = String("/recordings/")+String(recordingNumber);
 	CHECK_ERROR(createGroup(recordPath));
-	recdata = createDataSet(I16,256,nChannels,256,recordPath+"/data");
+	recdata = createDataSet(I16,BLOCK_XSIZE,nChannels,CHUNK_XSIZE,recordPath+"/data");
 	if (!recdata.get())
 		std::cerr << "Error creating data set" << std::endl;
 	curChan = nChannels;
