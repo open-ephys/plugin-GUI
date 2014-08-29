@@ -284,6 +284,10 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <FILE id="GP1WNZ" name="HDF5FileFormat.cpp" compile="1" resource="0"
+              file="Source/Processors/HDF5FileFormat.cpp"/>
+        <FILE id="ggxZWd" name="HDF5FileFormat.h" compile="0" resource="0"
+              file="Source/Processors/HDF5FileFormat.h"/>
         <FILE id="TJ0Hmt" name="OriginalRecording.cpp" compile="1" resource="0"
               file="Source/Processors/OriginalRecording.cpp"/>
         <FILE id="z11idO" name="OriginalRecording.h" compile="0" resource="0"

@@ -283,6 +283,7 @@
     <ClCompile Include="..\..\Source\Dsp\RootFinder.cpp"/>
     <ClCompile Include="..\..\Source\Dsp\State.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\HDF5FileFormat.cpp"/>
     <ClCompile Include="..\..\Source\Processors\OriginalRecording.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordEngine.cpp"/>
     <ClCompile Include="..\..\Source\Processors\HDF5Recording.cpp"/>
@@ -1523,6 +1524,7 @@
     <ClInclude Include="..\..\Source\Dsp\Types.h"/>
     <ClInclude Include="..\..\Source\Dsp\Utilities.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
+    <ClInclude Include="..\..\Source\Processors\HDF5FileFormat.h"/>
     <ClInclude Include="..\..\Source\Processors\OriginalRecording.h"/>
     <ClInclude Include="..\..\Source\Processors\RecordEngine.h"/>
     <ClInclude Include="..\..\Source\Processors\HDF5Recording.h"/>

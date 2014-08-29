@@ -71,6 +71,7 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/HDF5FileFormat_5dfd9ead.o \
   $(OBJDIR)/OriginalRecording_b4d9221b.o \
   $(OBJDIR)/RecordEngine_80ecff22.o \
   $(OBJDIR)/HDF5Recording_8016ea1.o \
@@ -292,6 +293,11 @@ $(OBJDIR)/State_22979684.o: ../../Source/Dsp/State.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/HDF5FileFormat_5dfd9ead.o: ../../Source/Processors/HDF5FileFormat.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling HDF5FileFormat.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/OriginalRecording_b4d9221b.o: ../../Source/Processors/OriginalRecording.cpp
