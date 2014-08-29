@@ -47,6 +47,10 @@ OriginalRecording::~OriginalRecording()
     {
         if (fileArray[i] != nullptr) fclose(fileArray[i]);
     }
+	for (int i=0; i < spikeFileArray.size(); i++)
+    {
+        if (spikeFileArray[i] != nullptr) fclose(spikeFileArray[i]);
+    }
 	delete continuousDataFloatBuffer;
 	delete continuousDataIntegerBuffer;
 	delete recordMarker;
@@ -58,9 +62,15 @@ void OriginalRecording::addChannel(int index, Channel* chan)
     fileArray.add(nullptr);
 }
 
+void OriginalRecording::addSpikeElectrode(int index, SpikeRecordInfo* elec)
+{
+	spikeFileArray.add(nullptr);
+}
+
 void OriginalRecording::resetChannels()
 {
     fileArray.clear();
+	spikeFileArray.clear();
 }
 
 void OriginalRecording::openFiles(File rootFolder, int recordingNumber)
@@ -74,6 +84,10 @@ void OriginalRecording::openFiles(File rootFolder, int recordingNumber)
             openFile(rootFolder,getChannel(i));
         }
     }
+	for (int i = 0; i < spikeFileArray.size(); i++)
+	{
+		openSpikeFile(rootFolder,getSpikeElectrode(i));
+	}
 	blockIndex = 0;
 }
 
@@ -126,6 +140,34 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
         eventFile = chFile;
     else
         fileArray.set(ch->recordIndex,chFile);
+
+}
+
+void OriginalRecording::openSpikeFile(File rootFolder, SpikeRecordInfo* elec)
+{
+
+	FILE* spFile;
+	String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
+	fullPath += elec->name.removeCharacters(" ");
+	fullPath += ".spikes";
+
+	std::cout << "OPENING FILE: " << fullPath << std::endl;
+
+	File f = File(fullPath);
+
+    bool fileExists = f.exists();
+
+    diskWriteLock.enter();
+
+	spFile = fopen(fullPath.toUTF8(),"ab");
+
+	if (!fileExists)
+	{
+		String header = generateSpikeHeader(elec);
+		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), spFile);
+	}
+	diskWriteLock.exit();
+	spikeFileArray.set(elec->recordIndex,spFile);
 
 }
 
@@ -206,6 +248,39 @@ String OriginalRecording::generateHeader(Channel* ch)
 
     return header;
 
+}
+
+String OriginalRecording::generateSpikeHeader(SpikeRecordInfo* elec)
+{
+	String header = "header.format = 'Open Ephys Data Format'; \n";
+    header += "header.version = 0.2;";
+    header += "header.header_bytes = ";
+    header += String(HEADER_SIZE);
+    header += ";\n";
+
+    header += "header.description = 'Each record contains 1 uint8 eventType, 1 uint64 timestamp, 1 uint16 electrodeID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), n*m uint16 samples, n uint16 channelGains, n uint16 thresholds, and 1 uint16 recordingNumber'; \n";
+
+    header += "header.date_created = '";
+    header += generateDateString();
+    header += "';\n";
+
+    header += "header.electrode = '";
+    header += elec->name;
+    header += "';\n";
+
+    header += "header.num_channels = ";
+    header += elec->numChannels;
+    header += ";\n";
+
+    header += "header.sampleRate = ";
+    header += String(elec->sampleRate);
+    header += ";\n";
+
+    header = header.paddedRight(' ', HEADER_SIZE);
+
+    //std::cout << header << std::endl;
+
+    return header;
 }
 
 void OriginalRecording::writeEvent(MidiMessage& event, int samplePosition)
@@ -399,6 +474,16 @@ void OriginalRecording::closeFiles()
                 }
 		}
 	}
+	for (int i = 0; i < spikeFileArray.size(); i++)
+	{
+		if (spikeFileArray[i] != nullptr)
+		{
+			diskWriteLock.enter();
+			fclose(spikeFileArray[i]);
+			spikeFileArray.set(i,nullptr);
+			diskWriteLock.exit();
+		}
+	}
 	if (eventFile != nullptr)
 	{
 		diskWriteLock.enter();
@@ -412,4 +497,42 @@ void OriginalRecording::closeFiles()
 void OriginalRecording::updateTimeStamp(int64 timestamp)
 {
 	this->timestamp = timestamp;
+}
+
+void OriginalRecording::writeSpike(const SpikeObject& spike, int electrodeIndex)
+{
+	uint8_t spikeBuffer[MAX_SPIKE_BUFFER_LEN];
+
+	if (spikeFileArray[electrodeIndex] == nullptr)
+		return;
+
+	packSpike(&spike, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
+
+    int totalBytes = spike.nSamples * spike.nChannels * 2 + // account for samples
+                     spike.nChannels * 4 +            // acount for threshold and gain
+                     15;                        // 15 bytes in every SpikeObject
+
+
+    // format:
+    // 1 byte of event type (always = 4 for spikes)
+    // 8 bytes for 64-bit timestamp
+    // 2 bytes for 16-bit electrode ID
+    // 2 bytes for 16-bit number of channels (n)
+    // 2 bytes for 16-bit number of samples (m)
+    // 2*n*m bytes for 16-bit samples
+    // 2*n bytes for 16-bit gains
+    // 2*n bytes for 16-bit thresholds
+    
+   // const MessageManagerLock mmLock;
+    
+    diskWriteLock.enter();
+
+	fwrite(spikeBuffer, 1, totalBytes, spikeFileArray[electrodeIndex]);
+    
+    fwrite(&recordingNumber,                         // ptr
+       2,                               // size of each element
+       1,                               // count
+       spikeFileArray[electrodeIndex]); // ptr to FILE object
+
+    diskWriteLock.exit();
 }

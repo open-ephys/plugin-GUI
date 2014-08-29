@@ -49,6 +49,8 @@ RecordNode::RecordNode()
 
     recordingNumber = 0;
 
+	spikeElectrodeIndex = 0;
+
     // 128 inputs, 0 outputs
     setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 
@@ -106,9 +108,12 @@ void RecordNode::resetConnections()
     //std::cout << "Resetting connections" << std::endl;
     nextAvailableChannel = 0;
     wasConnected = false;
+	spikeElectrodeIndex = 0;
 
     channelPointers.clear();
     eventChannelPointers.clear();
+	spikeElectrodePointers.clear();
+
 	EVERY_ENGINE->resetChannels();
 
 }
@@ -436,4 +441,27 @@ Channel* RecordNode::getDataChannel(int index)
 void RecordNode::registerRecordEngine(RecordEngine* engine)
 {
 	engineArray.add(engine);
+}
+
+void RecordNode::registerSpikeSource(GenericProcessor* processor)
+{
+	EVERY_ENGINE->registerSpikeSource(processor);
+}
+
+int RecordNode::addSpikeElectrode(SpikeRecordInfo* elec)
+{
+	elec->recordIndex=spikeElectrodeIndex;
+	spikeElectrodePointers.add(elec);
+	EVERY_ENGINE->addSpikeElectrode(spikeElectrodeIndex,elec);
+	return spikeElectrodeIndex++;
+}
+
+void RecordNode::writeSpike(SpikeObject& spike, int electrodeIndex)
+{
+	EVERY_ENGINE->writeSpike(spike,electrodeIndex);
+}
+
+SpikeRecordInfo* RecordNode::getSpikeElectrode(int index)
+{
+	return spikeElectrodePointers[index];
 }

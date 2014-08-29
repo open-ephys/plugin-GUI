@@ -114,6 +114,14 @@ public:
 
 	void registerRecordEngine(RecordEngine* engine);
 
+	void registerSpikeSource(GenericProcessor* processor);
+
+	int addSpikeElectrode(SpikeRecordInfo* elec);
+
+	void writeSpike(SpikeObject& spike, int electrodeIndex);
+
+	SpikeRecordInfo* getSpikeElectrode(int index);
+
     /** Signals when to create a new data directory when recording starts.*/
     bool newDirectoryNeeded;
 
@@ -159,6 +167,10 @@ private:
 
     /** Pointers to all event channels */
     Array<Channel*> eventChannelPointers;
+
+	OwnedArray<SpikeRecordInfo> spikeElectrodePointers;
+
+	int spikeElectrodeIndex;;
 
     /** Generates a default directory name, based on the current date and time */
     String generateDirectoryName();

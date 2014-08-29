@@ -27,6 +27,16 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Channel.h"
 #include "GenericProcessor.h"
+#include "Visualization\SpikeObject.h"
+
+struct SpikeRecordInfo
+{
+	String name;
+	int numChannels;
+	int sampleRate;
+
+	int recordIndex;
+};
 
 class RecordNode;
 
@@ -41,12 +51,16 @@ public:
 	virtual void writeData(AudioSampleBuffer& buffer, int nSamples) =0;
 	virtual void writeEvent(MidiMessage& event, int samplePosition) =0;
 	virtual void addChannel(int index, Channel* chan) =0;
+	virtual void addSpikeElectrode(int index, SpikeRecordInfo* elec) =0;
+	virtual void writeSpike(const SpikeObject& spike, int electrodeIndex) =0;
 	virtual void registerProcessor(GenericProcessor* processor);
+	virtual void registerSpikeSource(GenericProcessor* processor);
 	virtual void resetChannels();
 	virtual void updateTimeStamp(int64 timestamp);
 
 protected:
 	Channel* getChannel(int index);
+	SpikeRecordInfo* getSpikeElectrode(int index);
 	String generateDateString();
 
 private:

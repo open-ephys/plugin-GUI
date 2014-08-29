@@ -43,4 +43,11 @@ String RecordEngine::generateDateString()
 	return getProcessorGraph()->getRecordNode()->generateDateString();
 }
 
+SpikeRecordInfo* RecordEngine::getSpikeElectrode(int index)
+{
+	return getProcessorGraph()->getRecordNode()->getSpikeElectrode(index);
+}
+
 void RecordEngine::updateTimeStamp(int64 timestamp) {}
+
+void RecordEngine::registerSpikeSource(GenericProcessor* processor) {}

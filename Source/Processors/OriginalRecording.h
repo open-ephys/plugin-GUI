@@ -45,6 +45,8 @@ public:
 	void addChannel(int index, Channel* chan);
 	void resetChannels();
 	void updateTimeStamp(int64 timestamp);
+	void addSpikeElectrode(int index, SpikeRecordInfo* elec);
+	void writeSpike(const SpikeObject& spike, int electrodeIndex);
 
 private:
 	String getFileName(Channel* ch);
@@ -53,6 +55,9 @@ private:
 	void writeContinuousBuffer(const float* data, int nSamples, int channel);
 	void writeTimestampAndSampleCount(FILE* file);
 	void writeRecordMarker(FILE* file);
+
+	void openSpikeFile(File rootFolder, SpikeRecordInfo* elec);
+	String generateSpikeHeader(SpikeRecordInfo* elec);
 
 	bool separateFiles;
 	int blockIndex;
@@ -76,6 +81,7 @@ private:
 
 	FILE* eventFile;
 	Array<FILE*> fileArray;
+	Array<FILE*> spikeFileArray;
 	CriticalSection diskWriteLock;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OriginalRecording);
