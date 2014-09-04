@@ -405,13 +405,13 @@ void RHD2000Thread::scanPorts()
         // Record delay settings that yield good communication with the chip.
         for (stream = 0; stream < MAX_NUM_DATA_STREAMS; ++stream)//MAX_NUM_DATA_STREAMS; ++stream)
         {
-            // std::cout << "Stream number " << stream << ", delay = " << delay << std::endl;
+             std::cout << "Stream number " << stream << ", delay = " << delay << std::endl;
 
             id = deviceId(dataBlock, stream);
 
             if (id > 0) // 1 = RHD2132, 2 = RHD2216
             {
-                //  std::cout << "Device ID found: " << id << std::endl;
+                 std::cout << "Device ID found: " << id << std::endl;
 
                 sumGoodDelays.set(stream,sumGoodDelays[stream] + 1);
 
