@@ -33,6 +33,14 @@ class H5File;
 class DataType;
 }
 
+struct HDF5RecordingInfo {
+	String name;
+	int64 start_time;
+	uint32 start_sample;
+	float sample_rate;
+	float bit_depth;
+};
+
 class HDF5FileBase
 {
 public:
@@ -99,7 +107,7 @@ public:
 	KWDFile();
 	~KWDFile();
 	void initFile(int processorNumber, String basename);
-	void startNewRecording(int recordingNumber, int nChannels);
+	void startNewRecording(int recordingNumber, int nChannels, HDF5RecordingInfo* info);
 	void stopRecording();
 	void writeBlockData(int16* data, int nSamples);
 	void writeRowData(int16* data, int nSamples);

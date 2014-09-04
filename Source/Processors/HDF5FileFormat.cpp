@@ -146,21 +146,21 @@ int HDF5FileBase::setAttributeStr(String value, String path, String name)
 	Attribute attr;
 
 	if (!opened) return -1;
-
-	StrType type(PredType::C_S1, H5T_VARIABLE);
+	
+	StrType type(PredType::C_S1, value.length());
 	try {
 		loc = file->openGroup(path.toUTF8());
 
 		if (loc.attrExists(name.toUTF8()))
 		{
-			attr = loc.openAttribute(name.toUTF8());
+			//attr = loc.openAttribute(name.toUTF8());
+			return -1; //string attributes cannot change size easily, better not allow overwritting.
 		}
 		else
 		{
 			DataSpace attr_dataspace(H5S_SCALAR);
 			attr = loc.createAttribute(name.toUTF8(), type, attr_dataspace);
 		}
-
 		attr.write(type,value.toUTF8());
 
 	} catch (GroupIException error) {
@@ -474,13 +474,18 @@ void KWDFile::initFile(int processorNumber, String basename)
 	readyToOpen=true;
 }
 
-void KWDFile::startNewRecording(int recordingNumber, int nChannels)
+void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5RecordingInfo* info)
 {
 	this->recordingNumber = recordingNumber;
 	this->nChannels = nChannels;
 	
 	String recordPath = String("/recordings/")+String(recordingNumber);
 	CHECK_ERROR(createGroup(recordPath));
+	CHECK_ERROR(setAttributeStr(info->name,recordPath,String("name")));
+	CHECK_ERROR(setAttribute(I64,&(info->start_time),recordPath,String("start_time")));
+	CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
+	CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
+	CHECK_ERROR(setAttribute(F32,&(info->bit_depth),recordPath,String("bit_depth")));
 	recdata = createDataSet(I16,BLOCK_XSIZE,nChannels,CHUNK_XSIZE,recordPath+"/data");
 	if (!recdata.get())
 		std::cerr << "Error creating data set" << std::endl;

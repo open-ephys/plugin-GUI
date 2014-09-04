@@ -41,6 +41,7 @@ public:
 	void writeSpike(const SpikeObject& spike, int electrodeIndex);
 	void registerProcessor(GenericProcessor* processor);
 	void resetChannels();
+	void updateTimeStamp(int64 timestamp);
 
 private:
 
@@ -49,8 +50,10 @@ private:
 	Array<int> processorMap;
 	Array<int> activeChannelCount;
 	OwnedArray<KWDFile> fileArray;
+	OwnedArray<HDF5RecordingInfo> infoArray;
 	float* scaledBuffer;
 	int16* intBuffer;
+	int64 timestamp;
 
 };
 
