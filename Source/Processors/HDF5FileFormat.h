@@ -38,7 +38,7 @@ struct HDF5RecordingInfo {
 	int64 start_time;
 	uint32 start_sample;
 	float sample_rate;
-	float bit_depth;
+	uint32 bit_depth;
 };
 
 class HDF5FileBase
@@ -122,6 +122,31 @@ private:
 	int curChan;
 	String filename;
 	ScopedPointer<HDF5RecordingData> recdata;
+
+};
+
+class KWIKFile : public HDF5FileBase
+{
+public:
+	KWIKFile(String basename);
+	KWIKFile();
+	~KWIKFile();
+	void initFile(String basename);
+	void startNewRecording(int recordingNumber, HDF5RecordingInfo* info);
+	void stopRecording();
+	void writeEvent(int id, uint64 timestamp);
+	void addKwdFile(String filename);
+	String getFileName();
+
+protected:
+	int createFileStructure();
+
+private:
+	int recordingNumber;
+	String filename;
+	OwnedArray<HDF5RecordingData> timeStamps;
+	OwnedArray<HDF5RecordingData> recordings;
+	int kwdIndex;
 
 };
 

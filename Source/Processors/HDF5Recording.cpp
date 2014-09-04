@@ -29,6 +29,7 @@ HDF5Recording::HDF5Recording() : processorIndex(-1)
 	timestamp = 0;
 	scaledBuffer = new float[MAX_BUFFER_SIZE];
 	intBuffer = new int16[MAX_BUFFER_SIZE];
+	mainFile = new KWIKFile();
 }
 
 HDF5Recording::~HDF5Recording()
@@ -46,7 +47,7 @@ void HDF5Recording::registerProcessor(GenericProcessor *proc)
 {
 	HDF5RecordingInfo* info = new HDF5RecordingInfo();
 	info->sample_rate = proc->getSampleRate();
-	info->bit_depth = proc->channels[0]->bitVolts;
+	info->bit_depth = 16;
 	infoArray.add(info);
 	fileArray.add(new KWDFile());
 	activeChannelCount.add(0);
@@ -69,6 +70,18 @@ void HDF5Recording::addChannel(int index, Channel* chan)
 
 void HDF5Recording::openFiles(File rootFolder, int recordingNumber)
 {
+	String basepath = rootFolder.getFullPathName() + rootFolder.separatorString;
+	//KWIK file
+	mainFile->initFile(basepath);
+	mainFile->open();
+	
+	//Let's just put the first processor (usually the source node) on the KWIK for now
+	infoArray[0]->name = String("Open-Ephys Recording #") + String(recordingNumber);
+	infoArray[0]->start_time = timestamp;
+	infoArray[0]->start_sample = 0;
+	mainFile->startNewRecording(recordingNumber,infoArray[0]);
+
+	//KWD files
 	for (int i = 0; i < processorMap.size(); i++)
 	{
 		int index = processorMap[i];
@@ -76,7 +89,7 @@ void HDF5Recording::openFiles(File rootFolder, int recordingNumber)
 		{
 			if (!fileArray[index]->isOpen())
 			{
-				fileArray[index]->initFile(getChannel(i)->nodeId,rootFolder.getFullPathName() + rootFolder.separatorString);
+				fileArray[index]->initFile(getChannel(i)->nodeId,basepath);
 				fileArray[index]->open();
 			}
 			activeChannelCount.set(index,activeChannelCount[index]+1);
@@ -86,6 +99,9 @@ void HDF5Recording::openFiles(File rootFolder, int recordingNumber)
 	{
 		if (fileArray[i]->isOpen())
 		{
+			File f(fileArray[i]->getFileName());
+			mainFile->addKwdFile(f.getFileName());
+
 			infoArray[i]->name = String("Open-Ephys Recording #") + String(recordingNumber);
 			infoArray[i]->start_time = timestamp;
 			infoArray[i]->start_sample = 0;
@@ -96,8 +112,11 @@ void HDF5Recording::openFiles(File rootFolder, int recordingNumber)
 
 void HDF5Recording::closeFiles()
 {
+	mainFile->stopRecording();
+	mainFile->close();
 	for (int i = 0; i < fileArray.size(); i++)
 	{
+		fileArray[i]->stopRecording();
 		fileArray[i]->close();
 		activeChannelCount.set(i,0);
 	}
@@ -121,7 +140,8 @@ void HDF5Recording::writeData(AudioSampleBuffer& buffer, int nSamples)
 
 void HDF5Recording::writeEvent(MidiMessage& event, int samplePosition)
 {
-	//TODO
+	const uint8* dataptr = event.getRawData();
+	mainFile->writeEvent(*(dataptr+2),timestamp+samplePosition);
 }
 
 void HDF5Recording::addSpikeElectrode(int index, SpikeRecordInfo* elec)

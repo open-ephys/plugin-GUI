@@ -51,6 +51,7 @@ private:
 	Array<int> activeChannelCount;
 	OwnedArray<KWDFile> fileArray;
 	OwnedArray<HDF5RecordingInfo> infoArray;
+	ScopedPointer<KWIKFile> mainFile;
 	float* scaledBuffer;
 	int16* intBuffer;
 	int64 timestamp;

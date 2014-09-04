@@ -32,6 +32,14 @@
 #define CHUNK_XSIZE 256
 #endif
 
+#ifndef EVENT_BLOCK_XSIZE
+#define EVENT_BLOCK_XSIZE 8
+#endif
+
+#ifndef EVENT_CHUNK_SIZE
+#define EVENT_CHUNK_SIZE 8
+#endif
+
 #define PROCESS_ERROR std::cerr << error.getCDetailMsg() << std::endl; return -1
 #define CHECK_ERROR(x) if (x) std::cerr << "Error at HDFRecording " << __LINE__ << std::endl;
 
@@ -451,6 +459,8 @@ int HDF5RecordingData::writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataT
 	return 0;
 }
 
+//KWD File
+
 KWDFile::KWDFile(int processorNumber, String basename) : HDF5FileBase()
 {
 	initFile(processorNumber, basename);
@@ -483,9 +493,9 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
 	CHECK_ERROR(createGroup(recordPath));
 	CHECK_ERROR(setAttributeStr(info->name,recordPath,String("name")));
 	CHECK_ERROR(setAttribute(I64,&(info->start_time),recordPath,String("start_time")));
-	CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
+//	CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
 	CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
-	CHECK_ERROR(setAttribute(F32,&(info->bit_depth),recordPath,String("bit_depth")));
+	CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
 	recdata = createDataSet(I16,BLOCK_XSIZE,nChannels,CHUNK_XSIZE,recordPath+"/data");
 	if (!recdata.get())
 		std::cerr << "Error creating data set" << std::endl;
@@ -520,4 +530,103 @@ void KWDFile::writeRowData(int16* data, int nSamples)
 	}
 	CHECK_ERROR(recdata->writeDataRow(curChan,nSamples,I16,data));
 	curChan++;
+}
+
+//KWIK File
+
+KWIKFile::KWIKFile(String basename) : HDF5FileBase()
+{
+	initFile(basename);
+}
+
+KWIKFile::KWIKFile() : HDF5FileBase()
+{
+
+}
+
+KWIKFile::~KWIKFile() {}
+
+String KWIKFile::getFileName()
+{
+	return filename;
+}
+
+void KWIKFile::initFile(String basename)
+{
+	if (isOpen()) return;
+	filename = basename + "OpenEphysRecording.kwik";
+	readyToOpen=true;
+}
+
+int KWIKFile::createFileStructure()
+{
+	const uint16 ver = 2;
+	if(createGroup("/recordings")) return -1;
+	if(createGroup("/event_types")) return -1;
+	for (int i=0; i < 2; i++)
+	{
+		ScopedPointer<HDF5RecordingData> dSet;
+		String path = "/event_types/" + String(i);
+		if(createGroup(path)) return -1;
+		path += "/events";
+		if(createGroup(path)) return -1;
+		dSet = createDataSet(U64,EVENT_BLOCK_XSIZE,1,EVENT_BLOCK_XSIZE,path + "/time_samples");
+		if (!dSet) return -1;
+		dSet = createDataSet(U16,EVENT_BLOCK_XSIZE,1,EVENT_BLOCK_XSIZE,path + "/recording");
+		if (!dSet) return -1;
+	}
+	if(setAttribute(U16,(void*)&ver,"/","kwik_version")) return -1;
+	return 0;
+}
+
+void KWIKFile::startNewRecording(int recordingNumber, HDF5RecordingInfo* info)
+{
+	this->recordingNumber = recordingNumber;
+	kwdIndex=0;
+	String recordPath = String("/recordings/")+String(recordingNumber);
+	CHECK_ERROR(createGroup(recordPath));
+	CHECK_ERROR(setAttributeStr(info->name,recordPath,String("name")));
+	CHECK_ERROR(setAttribute(I64,&(info->start_time),recordPath,String("start_time")));
+//	CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
+	CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
+	CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
+	CHECK_ERROR(createGroup(recordPath + "/raw"));
+	CHECK_ERROR(createGroup(recordPath + "/raw/hdf5_paths"));
+
+	for (int i = 0; i < 2; i++)
+	{
+		HDF5RecordingData* dSet;
+		dSet = getDataSet("/event_types/" + String(i) + "/events/time_samples");
+		if (!dSet)
+			std::cerr << "Error loading event timestamps dataset for type " << i << std::endl;
+		timeStamps.add(dSet);
+		dSet = getDataSet("/event_types/" + String(i) + "/events/recording");
+		if (!dSet)
+			std::cerr << "Error loading event recordings dataset for type " << i << std::endl;
+		recordings.add(dSet);
+	}
+}
+
+void KWIKFile::stopRecording()
+{
+	timeStamps.clear();
+	recordings.clear();
+}
+
+void KWIKFile::writeEvent(int id, uint64 timestamp)
+{
+	if (id > 1 || id < 0)
+	{
+		std::cerr << "HDF5::writeEvent Invalid event type " << id << std::endl;
+		return;
+	}
+	CHECK_ERROR(timeStamps[id]->writeDataBlock(1,U64,&timestamp));
+	CHECK_ERROR(recordings[id]->writeDataBlock(1,I32,&recordingNumber));
+}
+
+void KWIKFile::addKwdFile(String filename)
+{
+	CHECK_ERROR(setAttributeStr(filename + "/recordings/" + String(recordingNumber),"/recordings/" + String(recordingNumber) + 
+		"/raw/hdf5_paths",String(kwdIndex)));
+	kwdIndex++;
 }
