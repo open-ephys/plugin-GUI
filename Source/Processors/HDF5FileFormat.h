@@ -66,16 +66,17 @@ protected:
 
 	HDF5RecordingData* getDataSet(String path);
 
-	//create dataset extendable on X dimension.
-	HDF5RecordingData* createDataSet(DataTypes type, int dimension, int* size, int chunkX, String path);
-	//Easier aliases
+	//aliases for createDataSet
 	HDF5RecordingData* createDataSet(DataTypes type, int sizeX, int chunkX, String path);
 	HDF5RecordingData* createDataSet(DataTypes type, int sizeX, int sizeY, int chunkX, String path);
 	HDF5RecordingData* createDataSet(DataTypes type, int sizeX, int sizeY, int sizeZ, int chunkX, String path);
+	HDF5RecordingData* createDataSet(DataTypes type, int sizeX, int sizeY, int sizeZ, int chunkX, int chunkY, String path);
 
 	bool readyToOpen;
 
 private:
+	//create an extendable dataset
+	HDF5RecordingData* createDataSet(DataTypes type, int dimension, int* size, int* chunking, String path);
 	int open(bool newfile);
 	ScopedPointer<H5::H5File> file;
 	bool opened;
@@ -90,6 +91,7 @@ public:
 	~HDF5RecordingData();
 
 	int writeDataBlock(int xDataSize, HDF5FileBase::DataTypes type, void* data);
+	int writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase::DataTypes type, void* data);
 
 	int prepareDataBlock(int xDataSize);
 	int writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataTypes type, void* data);

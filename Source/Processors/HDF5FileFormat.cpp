@@ -224,50 +224,67 @@ HDF5RecordingData* HDF5FileBase::getDataSet(String path)
 
 HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int chunkX, String path)
 {
-	return createDataSet(type,1,&sizeX,chunkX,path);
+	int chunks[3] = {chunkX, 0, 0};
+	return createDataSet(type,1,&sizeX,chunks,path);
 }
 
 HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int sizeY, int chunkX, String path)
 {
 	int size[2];
+	int chunks[3] = {chunkX, 0, 0};
 	size[0] = sizeX;
 	size[1] = sizeY;
-	return createDataSet(type,2,size,chunkX,path);
+	return createDataSet(type,2,size,chunks,path);
 }
 
 HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int sizeY, int sizeZ, int chunkX, String path)
 {
 	int size[3];
+	int chunks[3] = {chunkX, 0, 0};
 	size[0] = sizeX;
 	size[1] = sizeY;
 	size[2] = sizeZ;
-	return createDataSet(type,2,size,chunkX,path);
+	return createDataSet(type,2,size,chunks,path);
 }
 
-HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int dimension, int* size, int chunkX, String path)
+HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int sizeY, int sizeZ, int chunkX, int chunkY, String path)
+{
+	int size[3];
+	int chunks[3] = {chunkX, chunkY, 0};
+	size[0] = sizeX;
+	size[1] = sizeY;
+	size[2] = sizeZ;
+	return createDataSet(type,2,size,chunks,path);
+}
+
+HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int dimension, int* size, int* chunking, String path)
 {
 	ScopedPointer<DataSet> data;
 	DSetCreatPropList prop;
 	if (!opened) return nullptr;
+	
+	//Right now this classes don't support datasets with rank > 3. 
+	//If it's needed in the future we can extend them to be of generic rank
+	if ((dimension > 3) || (dimension < 1)) return nullptr;
+
 	DataType H5type = getH5Type(type); 
 
 	hsize_t dims[3], chunk_dims[3], max_dims[3];
-	dims[0] = size[0];
-	chunk_dims[0] = chunkX;
-	max_dims[0] = H5S_UNLIMITED;
-	if (dimension > 1)
-	{
-	dims[1] = size[1];
-	chunk_dims[1] = size[1];
-	max_dims[1] = size[1];
-	}
-	if (dimension > 2)
-	{
-	dims[2] = size[2];
-	chunk_dims[2] = size[2];
-	max_dims[2] = size[2];
-	}
 
+	for (int i=0; i < dimension; i++)
+	{
+		dims[i] = size[i];
+		if (chunking[i] > 0)
+		{
+			chunk_dims[i] = chunking[i];
+			max_dims[i] = H5S_UNLIMITED;
+		}
+		else
+		{
+			chunk_dims[i] = size[i];
+			max_dims[i] = size[i];
+		}
+	}
 
 	try {
 		DataSpace dSpace(dimension,dims,max_dims);
@@ -386,15 +403,23 @@ HDF5RecordingData::HDF5RecordingData(DataSet *data)
 HDF5RecordingData::~HDF5RecordingData()
 {
 }
-
 int HDF5RecordingData::writeDataBlock(int xDataSize, HDF5FileBase::DataTypes type, void* data)
+{
+	return writeDataBlock(xDataSize,size[1],type,data);
+}
+
+int HDF5RecordingData::writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase::DataTypes type, void* data)
 {
 	hsize_t dim[3],offset[3];
 	DataSpace fSpace;
 	DataType nativeType;
 
 	dim[2] = size[2];
-	dim[1] = size[1];
+	//only modify y size if new required size is larger than what we had.
+	if (yDataSize > size[1])
+		dim[1] = yDataSize;
+	else
+		dim[1] = size[1];
 	dim[0] = xPos + xDataSize;
 	try {
 		//First be sure that we have enough space
@@ -403,10 +428,12 @@ int HDF5RecordingData::writeDataBlock(int xDataSize, HDF5FileBase::DataTypes typ
 		fSpace = dSet->getSpace();
 		fSpace.getSimpleExtentDims(dim);
 		size[0]=dim[0];
+		if (dimension > 1)
+			size[1]=dim[1];
 
 		//Create memory space
 		dim[0]=xDataSize;
-		dim[1]=size[1];
+		dim[1]=yDataSize;
 		dim[2] = size[2];
 		DataSpace mSpace(dimension,dim);
 
@@ -436,6 +463,7 @@ int HDF5RecordingData::prepareDataBlock(int xDataSize)
 {
 	hsize_t dim[3];
 	DataSpace fSpace;
+	if (dimension > 2) return -4; //We're not going to write rows in datasets bigger than 2d.
 
 	dim[2] = size[2];
 	dim[1] = size[1];
