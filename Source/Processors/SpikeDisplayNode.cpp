@@ -55,7 +55,6 @@ void SpikeDisplayNode::updateSettings()
     //std::cout << "Setting num inputs on SpikeDisplayNode to " << getNumInputs() << std::endl;
 
     electrodes.clear();
-	getProcessorGraph()->getRecordNode()->registerSpikeSource(this);
     for (int i = 0; i < eventChannels.size(); i++)
     {
         if ((eventChannels[i]->eventType < 999) && (eventChannels[i]->eventType > SPIKE_BASE_CODE))
@@ -89,6 +88,8 @@ bool SpikeDisplayNode::enable()
 {
     std::cout << "SpikeDisplayNode::enable()" << std::endl;
     SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
+
+	getProcessorGraph()->getRecordNode()->registerSpikeSource(this);
 	for (int i = 0; i < electrodes.size(); i ++)
 	{
 		Electrode& elec = electrodes.getReference(i);
