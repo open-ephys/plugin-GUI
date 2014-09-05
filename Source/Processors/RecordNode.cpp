@@ -1,23 +1,23 @@
 /*
-    ------------------------------------------------------------------
+------------------------------------------------------------------
 
-    This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+This file is part of the Open Ephys GUI
+Copyright (C) 2013 Open Ephys
 
-    ------------------------------------------------------------------
+------------------------------------------------------------------
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -33,26 +33,26 @@
 #include "Channel.h"
 
 RecordNode::RecordNode()
-    : GenericProcessor("Record Node"),
+	: GenericProcessor("Record Node"),
 	newDirectoryNeeded(true),  timestamp(0)
 {
-    
-    isProcessing = false;
-    isRecording = false;
-    allFilesOpened = false;
-    signalFilesShouldClose = false;
 
-    signalFilesShouldClose = false;
+	isProcessing = false;
+	isRecording = false;
+	allFilesOpened = false;
+	signalFilesShouldClose = false;
 
-    settings.numInputs = 2048;
-    settings.numOutputs = 0;
+	signalFilesShouldClose = false;
 
-    recordingNumber = 0;
+	settings.numInputs = 2048;
+	settings.numOutputs = 0;
+
+	recordingNumber = 0;
 
 	spikeElectrodeIndex = 0;
 
-    // 128 inputs, 0 outputs
-    setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
+	// 128 inputs, 0 outputs
+	setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 
 }
 
@@ -65,36 +65,36 @@ RecordNode::~RecordNode()
 void RecordNode::setChannel(Channel* ch)
 {
 
-    int channelNum = channelPointers.indexOf(ch);
+	int channelNum = channelPointers.indexOf(ch);
 
-    std::cout << "Record node setting channel to " << channelNum << std::endl;
+	std::cout << "Record node setting channel to " << channelNum << std::endl;
 
-    setCurrentChannel(channelNum);
+	setCurrentChannel(channelNum);
 
-    // for (int i = 0; i < con.size(); i++)
-    // {
+	// for (int i = 0; i < con.size(); i++)
+	// {
 
-    // 	if (continuousChannels[i].nodeId == id &&
-    // 		continuousChannels[i].chan == chan)
-    // 	{
-    // 		std::cout << "Found channel " << i << std::endl;
-    // 		setCurrentChannel(i);
-    // 		break;
-    // 	}
+	// 	if (continuousChannels[i].nodeId == id &&
+	// 		continuousChannels[i].chan == chan)
+	// 	{
+	// 		std::cout << "Found channel " << i << std::endl;
+	// 		setCurrentChannel(i);
+	// 		break;
+	// 	}
 
-    // }
+	// }
 }
 
 void RecordNode::setChannelStatus(Channel* ch, bool status)
 {
 
-    //std::cout << "Setting channel status!" << std::endl;
-    setChannel(ch);
+	//std::cout << "Setting channel status!" << std::endl;
+	setChannel(ch);
 
-    if (status)
-        setParameter(2, 1.0f);
-    else
-        setParameter(2, 0.0f);
+	if (status)
+		setParameter(2, 1.0f);
+	else
+		setParameter(2, 0.0f);
 
 }
 
@@ -105,13 +105,13 @@ void RecordNode::setChannelStatus(Channel* ch, bool status)
 
 void RecordNode::resetConnections()
 {
-    //std::cout << "Resetting connections" << std::endl;
-    nextAvailableChannel = 0;
-    wasConnected = false;
+	//std::cout << "Resetting connections" << std::endl;
+	nextAvailableChannel = 0;
+	wasConnected = false;
 	spikeElectrodeIndex = 0;
 
-    channelPointers.clear();
-    eventChannelPointers.clear();
+	channelPointers.clear();
+	eventChannelPointers.clear();
 	spikeElectrodePointers.clear();
 
 	EVERY_ENGINE->resetChannels();
@@ -121,15 +121,15 @@ void RecordNode::resetConnections()
 void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 {
 
-    //std::cout << "Got a new file" << std::endl;
-    dataDirectory = fnc->getCurrentFile();
-   // std::cout << "File name: " << dataDirectory.getFullPathName();
-   // if (dataDirectory.isDirectory())
-   //     std::cout << " is a directory." << std::endl;
-   // else
-   //     std::cout << " is NOT a directory." << std::endl;
+	//std::cout << "Got a new file" << std::endl;
+	dataDirectory = fnc->getCurrentFile();
+	// std::cout << "File name: " << dataDirectory.getFullPathName();
+	// if (dataDirectory.isDirectory())
+	//     std::cout << " is a directory." << std::endl;
+	// else
+	//     std::cout << " is NOT a directory." << std::endl;
 
-    //createNewDirectory();
+	//createNewDirectory();
 
 
 
@@ -138,179 +138,179 @@ void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 
 void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
-	
-    if (chan != getProcessorGraph()->midiChannelIndex)
-    {
 
-        int channelIndex = getNextChannel(false);
+	if (chan != getProcessorGraph()->midiChannelIndex)
+	{
 
-        channelPointers.add(sourceNode->channels[chan]);
+		int channelIndex = getNextChannel(false);
+
+		channelPointers.add(sourceNode->channels[chan]);
 		setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
-        //   std::cout << channelIndex << std::endl;
+		//   std::cout << channelIndex << std::endl;
 
 		channelPointers[channelIndex]->recordIndex = channelIndex;
 
 		EVERY_ENGINE->addChannel(channelIndex,channelPointers[channelIndex]);
 
-    }
-    else
-    {
+	}
+	else
+	{
 
-        for (int n = 0; n < sourceNode->eventChannels.size(); n++)
-        {
+		for (int n = 0; n < sourceNode->eventChannels.size(); n++)
+		{
 
-            eventChannelPointers.add(sourceNode->eventChannels[n]);
+			eventChannelPointers.add(sourceNode->eventChannels[n]);
 
-        }
+		}
 
-    }
+	}
 
 }
 
 void RecordNode::createNewDirectory()
 {
-    std::cout << "Creating new directory." << std::endl;
+	std::cout << "Creating new directory." << std::endl;
 
-    rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName());
-    newDirectoryNeeded = false;
+	rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName());
+	newDirectoryNeeded = false;
 
 }
 
 String RecordNode::generateDirectoryName()
 {
-    Time calendar = Time::getCurrentTime();
+	Time calendar = Time::getCurrentTime();
 
-    Array<int> t;
-    t.add(calendar.getYear());
-    t.add(calendar.getMonth()+1); // January = 0
-    t.add(calendar.getDayOfMonth());
-    t.add(calendar.getHours());
-    t.add(calendar.getMinutes());
-    t.add(calendar.getSeconds());
+	Array<int> t;
+	t.add(calendar.getYear());
+	t.add(calendar.getMonth()+1); // January = 0
+	t.add(calendar.getDayOfMonth());
+	t.add(calendar.getHours());
+	t.add(calendar.getMinutes());
+	t.add(calendar.getSeconds());
 
-    String filename = getControlPanel()->getTextToPrepend();
+	String filename = getControlPanel()->getTextToPrepend();
 
-    String datestring = "";
+	String datestring = "";
 
-    for (int n = 0; n < t.size(); n++)
-    {
-        if (t[n] < 10)
-            datestring += "0";
+	for (int n = 0; n < t.size(); n++)
+	{
+		if (t[n] < 10)
+			datestring += "0";
 
-        datestring += t[n];
+		datestring += t[n];
 
-        if (n == 2)
-            datestring += "_";
-        else if (n < 5)
-            datestring += "-";
-    }
+		if (n == 2)
+			datestring += "_";
+		else if (n < 5)
+			datestring += "-";
+	}
 
-    getControlPanel()->setDateText(datestring);
+	getControlPanel()->setDateText(datestring);
 
-    filename += datestring;
-    filename += getControlPanel()->getTextToAppend();
+	filename += datestring;
+	filename += getControlPanel()->getTextToAppend();
 
-    return filename;
+	return filename;
 
 }
 
 String RecordNode::generateDateString()
 {
-    Time calendar = Time::getCurrentTime();
+	Time calendar = Time::getCurrentTime();
 
-    String datestring;
+	String datestring;
 
-    datestring += String(calendar.getDayOfMonth());
-    datestring += "-";
-    datestring += calendar.getMonthName(true);
-    datestring += "-";
-    datestring += String(calendar.getYear());
-    datestring += " ";
+	datestring += String(calendar.getDayOfMonth());
+	datestring += "-";
+	datestring += calendar.getMonthName(true);
+	datestring += "-";
+	datestring += String(calendar.getYear());
+	datestring += " ";
 
-    int hrs, mins, secs;
-    hrs = calendar.getHours();
-    mins = calendar.getMinutes();
-    secs = calendar.getSeconds();
+	int hrs, mins, secs;
+	hrs = calendar.getHours();
+	mins = calendar.getMinutes();
+	secs = calendar.getSeconds();
 
-    datestring += hrs;
+	datestring += hrs;
 
-    if (mins < 10)
-        datestring += 0;
+	if (mins < 10)
+		datestring += 0;
 
-    datestring += mins;
+	datestring += mins;
 
-    if (secs < 0)
-        datestring += 0;
+	if (secs < 0)
+		datestring += 0;
 
-    datestring += secs;
+	datestring += secs;
 
-    return datestring;
+	return datestring;
 
 }
 
 
 void RecordNode::setParameter(int parameterIndex, float newValue)
 {
-    //editor->updateParameterButtons(parameterIndex);
+	//editor->updateParameterButtons(parameterIndex);
 
-    // 0 = stop recording
-    // 1 = start recording
-    // 2 = toggle individual channel (0.0f = OFF, anything else = ON)
+	// 0 = stop recording
+	// 1 = start recording
+	// 2 = toggle individual channel (0.0f = OFF, anything else = ON)
 
-    if (parameterIndex == 1)
-    {
+	if (parameterIndex == 1)
+	{
 
-        isRecording = true;
-       // std::cout << "START RECORDING." << std::endl;
+		isRecording = true;
+		// std::cout << "START RECORDING." << std::endl;
 
-        if (newDirectoryNeeded)
-        {
-            createNewDirectory();
-            recordingNumber = 0;
-        }
-        else
-        {
-            recordingNumber++; // increment recording number within this directory
-        }
+		if (newDirectoryNeeded)
+		{
+			createNewDirectory();
+			recordingNumber = 0;
+		}
+		else
+		{
+			recordingNumber++; // increment recording number within this directory
+		}
 
-        if (!rootFolder.exists())
-        {
-            rootFolder.createDirectory();
-            String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings.xml";
-            getEditorViewport()->saveState(File(settingsFileName));
-        }
+		if (!rootFolder.exists())
+		{
+			rootFolder.createDirectory();
+			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings.xml";
+			getEditorViewport()->saveState(File(settingsFileName));
+		}
 
 		EVERY_ENGINE->openFiles(rootFolder, recordingNumber);
-   
-        allFilesOpened = true;
 
-    }
-    else if (parameterIndex == 0)
-    {
+		allFilesOpened = true;
+
+	}
+	else if (parameterIndex == 0)
+	{
 
 
-       // std::cout << "STOP RECORDING." << std::endl;
+		// std::cout << "STOP RECORDING." << std::endl;
 
-        if (isRecording)
-        {
+		if (isRecording)
+		{
 
-            // close necessary files
-            signalFilesShouldClose = true;
+			// close necessary files
+			signalFilesShouldClose = true;
 
-        }
+		}
 
-        isRecording = false;
-		
+		isRecording = false;
 
-    }
-    else if (parameterIndex == 2)
-    {
 
-        if (isProcessing)
-        {
+	}
+	else if (parameterIndex == 2)
+	{
 
-            std::cout << "Toggling channel " << currentChannel << std::endl;
+		if (isProcessing)
+		{
+
+			std::cout << "Toggling channel " << currentChannel << std::endl;
 
 			if (isRecording)
 			{
@@ -321,110 +321,113 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 				return;
 			}
 
-            if (newValue == 0.0f)
-            {
-                channelPointers[currentChannel]->setRecordState(false);
-            }
-            else
-            {
-                channelPointers[currentChannel]->setRecordState(true);
-            }
-        }
-    }
+			if (newValue == 0.0f)
+			{
+				channelPointers[currentChannel]->setRecordState(false);
+			}
+			else
+			{
+				channelPointers[currentChannel]->setRecordState(true);
+			}
+		}
+	}
 }
 
 void RecordNode::closeAllFiles()
 {
-    if (allFilesOpened)
-    {
+	if (allFilesOpened)
+	{
 		EVERY_ENGINE->closeFiles();
-        allFilesOpened = false;
-    }
+		allFilesOpened = false;
+	}
 }
 
 bool RecordNode::enable()
 {
 
-    isProcessing = true;
-    return true;
+	isProcessing = true;
+	return true;
 }
 
 
 bool RecordNode::disable()
 {
-    // close files if necessary
-    setParameter(0, 10.0f);
+	// close files if necessary
+	setParameter(0, 10.0f);
 
-    if (isProcessing)
-        closeAllFiles();
+	if (isProcessing)
+		closeAllFiles();
 
-    isProcessing = false;
+	isProcessing = false;
 
-    return true;
+	return true;
 }
 
 float RecordNode::getFreeSpace()
 {
-    return 1.0f - float(dataDirectory.getBytesFreeOnVolume())/float(dataDirectory.getVolumeTotalSize());
+	return 1.0f - float(dataDirectory.getBytesFreeOnVolume())/float(dataDirectory.getVolumeTotalSize());
 }
 
 
 void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
 {
-    if (eventType == TTL)
-    {
-		EVERY_ENGINE->writeEvent(event, samplePosition);
-    }
-    else if (eventType == TIMESTAMP)
-    {
-        const uint8* dataptr = event.getRawData();
+	if (eventType == TTL)
+	{
+		if (event.getNoteNumber() > 0) // processor ID > 0
+		{
+			EVERY_ENGINE->writeEvent(event, samplePosition);
+		}
+	}
+	else if (eventType == TIMESTAMP)
+	{
+		const uint8* dataptr = event.getRawData();
 
-        // // double-check buffer contents:s
-        // std::cout << (int) *(dataptr + 11) << " " <<
-        //             (int) *(dataptr + 10) << " " <<
-        //             (int) *(dataptr + 9) << " " <<
-        //             (int) *(dataptr + 8) << " " <<
-        //             (int) *(dataptr + 7) << " " <<
-        //             (int) *(dataptr + 6) << " " <<
-        //             (int) *(dataptr + 5) << " " <<
-        //             (int) *(dataptr + 4) << std::endl;
+		// // double-check buffer contents:s
+		// std::cout << (int) *(dataptr + 11) << " " <<
+		//             (int) *(dataptr + 10) << " " <<
+		//             (int) *(dataptr + 9) << " " <<
+		//             (int) *(dataptr + 8) << " " <<
+		//             (int) *(dataptr + 7) << " " <<
+		//             (int) *(dataptr + 6) << " " <<
+		//             (int) *(dataptr + 5) << " " <<
+		//             (int) *(dataptr + 4) << std::endl;
 
-        memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
+		memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
 		EVERY_ENGINE->updateTimeStamp(timestamp);
-    }
+	}
 
 }
 
 void RecordNode::process(AudioSampleBuffer& buffer,
-                         MidiBuffer& events,
-                         int& nSamples)
+						 MidiBuffer& events,
+						 int& nSamples)
 {
 
-    if (isRecording && allFilesOpened)
-    {
+	if (isRecording && allFilesOpened)
+	{
 
-        // FIRST: cycle through events -- extract the TTLs and the timestamps
-        checkForEvents(events);
+		// FIRST: cycle through events -- extract the TTLs and the timestamps
+		checkForEvents(events);
 
-        // SECOND: write channel data
-        if (channelPointers.size() > 0)
-        {
+		// SECOND: write channel data
+		if (channelPointers.size() > 0)
+		{
 			EVERY_ENGINE->writeData(buffer,nSamples);
-        }
+		}
 
-        //  std::cout << nSamples << " " << samplesWritten << " " << blockIndex << std::endl;
+		//  std::cout << nSamples << " " << samplesWritten << " " << blockIndex << std::endl;
 
-        return;
+		return;
 
-    }
+	}
 
-    // this is intended to prevent parameter changes from closing files
-    // before recording stops
-    if (signalFilesShouldClose)
-    {
-        closeAllFiles();
-        signalFilesShouldClose = false;
-    }
+	// this is intended to prevent parameter changes from closing files
+	// before recording stops
+	if (signalFilesShouldClose)
+	{
+		closeAllFiles();
+		signalFilesShouldClose = false;
+	}
 
 }
 

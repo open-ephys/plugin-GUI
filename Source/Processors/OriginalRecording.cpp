@@ -1,25 +1,25 @@
 /*
- ------------------------------------------------------------------
+------------------------------------------------------------------
 
- This file is part of the Open Ephys GUI
- Copyright (C) 2013 Florian Franzen
+This file is part of the Open Ephys GUI
+Copyright (C) 2013 Florian Franzen
 
- ------------------------------------------------------------------
+------------------------------------------------------------------
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- */
+*/
 
 #include "OriginalRecording.h"
 #include "../Audio/AudioComponent.h"
@@ -28,29 +28,29 @@ OriginalRecording::OriginalRecording() : separateFiles(true), eventFile(nullptr)
 	recordingNumber(0), zeroBuffer(1, 50000), blockIndex(0)
 {
 	continuousDataIntegerBuffer = new int16[10000];
-    continuousDataFloatBuffer = new float[10000];
+	continuousDataFloatBuffer = new float[10000];
 
 	recordMarker = new char[10];
-    for (int i = 0; i < 9; i++)
-    {
-        recordMarker[i] = i;
-    }
-    recordMarker[9] = 255;
+	for (int i = 0; i < 9; i++)
+	{
+		recordMarker[i] = i;
+	}
+	recordMarker[9] = 255;
 
 	zeroBuffer.clear();
 }
 
 OriginalRecording::~OriginalRecording()
 {
-    //Cleanup just in case
-    for (int i=0; i < fileArray.size(); i++)
-    {
-        if (fileArray[i] != nullptr) fclose(fileArray[i]);
-    }
+	//Cleanup just in case
+	for (int i=0; i < fileArray.size(); i++)
+	{
+		if (fileArray[i] != nullptr) fclose(fileArray[i]);
+	}
 	for (int i=0; i < spikeFileArray.size(); i++)
-    {
-        if (spikeFileArray[i] != nullptr) fclose(spikeFileArray[i]);
-    }
+	{
+		if (spikeFileArray[i] != nullptr) fclose(spikeFileArray[i]);
+	}
 	delete continuousDataFloatBuffer;
 	delete continuousDataIntegerBuffer;
 	delete recordMarker;
@@ -58,8 +58,8 @@ OriginalRecording::~OriginalRecording()
 
 void OriginalRecording::addChannel(int index, Channel* chan)
 {
-    //Just populate the file array with null so we can address it by index afterwards
-    fileArray.add(nullptr);
+	//Just populate the file array with null so we can address it by index afterwards
+	fileArray.add(nullptr);
 }
 
 void OriginalRecording::addSpikeElectrode(int index, SpikeRecordInfo* elec)
@@ -69,21 +69,21 @@ void OriginalRecording::addSpikeElectrode(int index, SpikeRecordInfo* elec)
 
 void OriginalRecording::resetChannels()
 {
-    fileArray.clear();
+	fileArray.clear();
 	spikeFileArray.clear();
 }
 
 void OriginalRecording::openFiles(File rootFolder, int recordingNumber)
 {
-    this->recordingNumber = recordingNumber;
-    openFile(rootFolder,nullptr);
-    for (int i = 0; i < fileArray.size(); i++)
-    {
-        if (getChannel(i)->getRecordState())
-        {
-            openFile(rootFolder,getChannel(i));
-        }
-    }
+	this->recordingNumber = recordingNumber;
+	openFile(rootFolder,nullptr);
+	for (int i = 0; i < fileArray.size(); i++)
+	{
+		if (getChannel(i)->getRecordState())
+		{
+			openFile(rootFolder,getChannel(i));
+		}
+	}
 	for (int i = 0; i < spikeFileArray.size(); i++)
 	{
 		openSpikeFile(rootFolder,getSpikeElectrode(i));
@@ -93,53 +93,53 @@ void OriginalRecording::openFiles(File rootFolder, int recordingNumber)
 
 void OriginalRecording::openFile(File rootFolder, Channel* ch)
 {
-    FILE* chFile;
-    bool isEvent;
-    String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
+	FILE* chFile;
+	bool isEvent;
+	String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
 
-    std::cout << "OPENING FILE: " << fullPath << std::endl;
+	std::cout << "OPENING FILE: " << fullPath << std::endl;
 
-    isEvent = (ch == nullptr) ? true : false;
-    if (isEvent)
-        fullPath += "all_channels.events";
-    else
-        fullPath += getFileName(ch);
+	isEvent = (ch == nullptr) ? true : false;
+	if (isEvent)
+		fullPath += "all_channels.events";
+	else
+		fullPath += getFileName(ch);
 
-    File f = File(fullPath);
+	File f = File(fullPath);
 
-    bool fileExists = f.exists();
+	bool fileExists = f.exists();
 
-    diskWriteLock.enter();
+	diskWriteLock.enter();
 
-    chFile = fopen(fullPath.toUTF8(), "ab");
+	chFile = fopen(fullPath.toUTF8(), "ab");
 
-    if (!fileExists)
-    {
-        // create and write header
-        std::cout << "Writing header." << std::endl;
-        String header = generateHeader(ch);
-        //std::cout << header << std::endl;
-        std::cout << "File ID: " << chFile << ", number of bytes: " << header.getNumBytesAsUTF8() << std::endl;
+	if (!fileExists)
+	{
+		// create and write header
+		std::cout << "Writing header." << std::endl;
+		String header = generateHeader(ch);
+		//std::cout << header << std::endl;
+		std::cout << "File ID: " << chFile << ", number of bytes: " << header.getNumBytesAsUTF8() << std::endl;
 
 
-        fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), chFile);
+		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), chFile);
 
-        std::cout << "Wrote header." << std::endl;
+		std::cout << "Wrote header." << std::endl;
 
-        std::cout << "Block index: " << blockIndex << std::endl;
+		std::cout << "Block index: " << blockIndex << std::endl;
 
-    }
-    else
-    {
-        std::cout << "File already exists, just opening." << std::endl;
-    }
+	}
+	else
+	{
+		std::cout << "File already exists, just opening." << std::endl;
+	}
 
-    diskWriteLock.exit();
+	diskWriteLock.exit();
 
-    if (isEvent)
-        eventFile = chFile;
-    else
-        fileArray.set(ch->recordIndex,chFile);
+	if (isEvent)
+		eventFile = chFile;
+	else
+		fileArray.set(ch->recordIndex,chFile);
 
 }
 
@@ -155,9 +155,9 @@ void OriginalRecording::openSpikeFile(File rootFolder, SpikeRecordInfo* elec)
 
 	File f = File(fullPath);
 
-    bool fileExists = f.exists();
+	bool fileExists = f.exists();
 
-    diskWriteLock.enter();
+	diskWriteLock.enter();
 
 	spFile = fopen(fullPath.toUTF8(),"ab");
 
@@ -173,18 +173,18 @@ void OriginalRecording::openSpikeFile(File rootFolder, SpikeRecordInfo* elec)
 
 String OriginalRecording::getFileName(Channel* ch)
 {
-    String filename;
+	String filename;
 
-    filename += ch->nodeId;
-    filename += "_";
-    filename += ch->name;
+	filename += ch->nodeId;
+	filename += "_";
+	filename += ch->name;
 
-    if (separateFiles)
-    {
-        filename += "_";
-        filename += recordingNumber;
-    }
-    filename += ".continuous";
+	if (separateFiles)
+	{
+		filename += "_";
+		filename += recordingNumber;
+	}
+	filename += ".continuous";
 
 	return filename;
 }
@@ -192,269 +192,266 @@ String OriginalRecording::getFileName(Channel* ch)
 String OriginalRecording::generateHeader(Channel* ch)
 {
 
-    String header = "header.format = 'Open Ephys Data Format'; \n";
+	String header = "header.format = 'Open Ephys Data Format'; \n";
 
-    header += "header.version = 0.2;";
-    header += "header.header_bytes = ";
-    header += String(HEADER_SIZE);
-    header += ";\n";
+	header += "header.version = 0.2;";
+	header += "header.header_bytes = ";
+	header += String(HEADER_SIZE);
+	header += ";\n";
 
-    if (ch == nullptr)
-    {
-        header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample position, one uint8 event type, one uint8 processor ID, one uint8 event ID, one uint8 event channel, and one uint16 recordingNumber'; \n";
+	if (ch == nullptr)
+	{
+		header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample position, one uint8 event type, one uint8 processor ID, one uint8 event ID, one uint8 event channel, and one uint16 recordingNumber'; \n";
 
-    }
-    else
-    {
-        header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample count (N), 1 uint16 recordingNumber, N 16-bit samples, and one 10-byte record marker (0 1 2 3 4 5 6 7 8 255)'; \n";
-    }
+	}
+	else
+	{
+		header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample count (N), 1 uint16 recordingNumber, N 16-bit samples, and one 10-byte record marker (0 1 2 3 4 5 6 7 8 255)'; \n";
+	}
 
 
-    header += "header.date_created = '";
-    header += generateDateString();
-    header += "';\n";
+	header += "header.date_created = '";
+	header += generateDateString();
+	header += "';\n";
 
-    header += "header.channel = '";
-    header += (ch != nullptr) ? ch->name : "Events";
-    header += "';\n";
+	header += "header.channel = '";
+	header += (ch != nullptr) ? ch->name : "Events";
+	header += "';\n";
 
-    if (ch == nullptr)
-    {
+	if (ch == nullptr)
+	{
 
-        header += "header.channelType = 'Event';\n";
-    }
-    else
-    {
-        header += "header.channelType = 'Continuous';\n";
-    }
+		header += "header.channelType = 'Event';\n";
+	}
+	else
+	{
+		header += "header.channelType = 'Continuous';\n";
+	}
 
-    header += "header.sampleRate = ";
-    // all channels need to have the same sample rate under the current scheme
-    header += String(getChannel(0)->sampleRate);
-    header += ";\n";
-    header += "header.blockLength = ";
-    header += BLOCK_LENGTH;
-    header += ";\n";
-    header += "header.bufferSize = ";
-    header += getAudioComponent()->getBufferSize();
-    header += ";\n";
-    header += "header.bitVolts = ";
-    header += (ch != nullptr) ? String(ch->bitVolts) : "1";
-    header += ";\n";
+	header += "header.sampleRate = ";
+	// all channels need to have the same sample rate under the current scheme
+	header += String(getChannel(0)->sampleRate);
+	header += ";\n";
+	header += "header.blockLength = ";
+	header += BLOCK_LENGTH;
+	header += ";\n";
+	header += "header.bufferSize = ";
+	header += getAudioComponent()->getBufferSize();
+	header += ";\n";
+	header += "header.bitVolts = ";
+	header += (ch != nullptr) ? String(ch->bitVolts) : "1";
+	header += ";\n";
 
-    header = header.paddedRight(' ', HEADER_SIZE);
+	header = header.paddedRight(' ', HEADER_SIZE);
 
-    //std::cout << header << std::endl;
+	//std::cout << header << std::endl;
 
-    return header;
+	return header;
 
 }
 
 String OriginalRecording::generateSpikeHeader(SpikeRecordInfo* elec)
 {
 	String header = "header.format = 'Open Ephys Data Format'; \n";
-    header += "header.version = 0.2;";
-    header += "header.header_bytes = ";
-    header += String(HEADER_SIZE);
-    header += ";\n";
+	header += "header.version = 0.2;";
+	header += "header.header_bytes = ";
+	header += String(HEADER_SIZE);
+	header += ";\n";
 
-    header += "header.description = 'Each record contains 1 uint8 eventType, 1 uint64 timestamp, 1 uint16 electrodeID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), n*m uint16 samples, n uint16 channelGains, n uint16 thresholds, and 1 uint16 recordingNumber'; \n";
+	header += "header.description = 'Each record contains 1 uint8 eventType, 1 uint64 timestamp, 1 uint16 electrodeID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), n*m uint16 samples, n uint16 channelGains, n uint16 thresholds, and 1 uint16 recordingNumber'; \n";
 
-    header += "header.date_created = '";
-    header += generateDateString();
-    header += "';\n";
+	header += "header.date_created = '";
+	header += generateDateString();
+	header += "';\n";
 
-    header += "header.electrode = '";
-    header += elec->name;
-    header += "';\n";
+	header += "header.electrode = '";
+	header += elec->name;
+	header += "';\n";
 
-    header += "header.num_channels = ";
-    header += elec->numChannels;
-    header += ";\n";
+	header += "header.num_channels = ";
+	header += elec->numChannels;
+	header += ";\n";
 
-    header += "header.sampleRate = ";
-    header += String(elec->sampleRate);
-    header += ";\n";
+	header += "header.sampleRate = ";
+	header += String(elec->sampleRate);
+	header += ";\n";
 
-    header = header.paddedRight(' ', HEADER_SIZE);
+	header = header.paddedRight(' ', HEADER_SIZE);
 
-    //std::cout << header << std::endl;
+	//std::cout << header << std::endl;
 
-    return header;
+	return header;
 }
 
 void OriginalRecording::writeEvent(MidiMessage& event, int samplePosition)
 {
-    // find file and write samples to disk
-    // std::cout << "Received event!" << std::endl;
+	// find file and write samples to disk
+	// std::cout << "Received event!" << std::endl;
 
-    if (eventFile == nullptr)
-        return;
+	if (eventFile == nullptr)
+		return;
 
-    const uint8* dataptr = event.getRawData();
+	const uint8* dataptr = event.getRawData();
 
-    if (event.getNoteNumber() > 0) // processor ID > 0
-    {
-        uint64 samplePos = (uint64) samplePosition;
 
-        int64 eventTimestamp = timestamp + samplePos; // add the sample position to the buffer timestamp
+	uint64 samplePos = (uint64) samplePosition;
 
-        diskWriteLock.enter();
+	int64 eventTimestamp = timestamp + samplePos; // add the sample position to the buffer timestamp
 
-        fwrite(&eventTimestamp,					// ptr
-               8,   							// size of each element
-               1, 		  						// count
-               eventFile);   			// ptr to FILE object
+	diskWriteLock.enter();
 
-        fwrite(&samplePos,							// ptr
-               2,   							// size of each element
-               1, 		  						// count
-               eventFile);   			// ptr to FILE object
+	fwrite(&eventTimestamp,					// ptr
+		8,   							// size of each element
+		1, 		  						// count
+		eventFile);   			// ptr to FILE object
 
-        // write 1st four bytes of event (type, nodeId, eventId, eventChannel)
-        fwrite(dataptr, 1, 4, eventFile);
+	fwrite(&samplePos,							// ptr
+		2,   							// size of each element
+		1, 		  						// count
+		eventFile);   			// ptr to FILE object
 
-        // write recording number
-        fwrite(&recordingNumber,                     // ptr
-               2,                               // size of each element
-               1,                               // count
-               eventFile);             // ptr to FILE object
+	// write 1st four bytes of event (type, nodeId, eventId, eventChannel)
+	fwrite(dataptr, 1, 4, eventFile);
 
-        diskWriteLock.exit();
-    }
+	// write recording number
+	fwrite(&recordingNumber,                     // ptr
+		2,                               // size of each element
+		1,                               // count
+		eventFile);             // ptr to FILE object
 
+	diskWriteLock.exit();
 }
 
 void OriginalRecording::writeData(AudioSampleBuffer& buffer, int nSamples)
 {
-    int samplesWritten = 0;
+	int samplesWritten = 0;
 
-    while (samplesWritten < nSamples) // there are still unwritten samples in the buffer
-    {
+	while (samplesWritten < nSamples) // there are still unwritten samples in the buffer
+	{
 
-        int numSamplesToWrite = nSamples - samplesWritten; // samples remaining in the buffer
+		int numSamplesToWrite = nSamples - samplesWritten; // samples remaining in the buffer
 
-        if (blockIndex + numSamplesToWrite < BLOCK_LENGTH) // we still have space in this block
-        {
-            for (int i = 0; i < buffer.getNumChannels(); i++)
-            {
+		if (blockIndex + numSamplesToWrite < BLOCK_LENGTH) // we still have space in this block
+		{
+			for (int i = 0; i < buffer.getNumChannels(); i++)
+			{
 
-                if (getChannel(i)->getRecordState())
-                {
-                    // write buffer to disk!
-                    writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
-                                          numSamplesToWrite,
-                                          i);
+				if (getChannel(i)->getRecordState())
+				{
+					// write buffer to disk!
+					writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
+						numSamplesToWrite,
+						i);
 
 
-                }
-            }
+				}
+			}
 
-            // update our variables
-            samplesWritten += numSamplesToWrite;
-            timestamp += numSamplesToWrite;
-            blockIndex += numSamplesToWrite;
+			// update our variables
+			samplesWritten += numSamplesToWrite;
+			timestamp += numSamplesToWrite;
+			blockIndex += numSamplesToWrite;
 
-        }
-        else // there's not enough space left in this block for all remaining samples
-        {
+		}
+		else // there's not enough space left in this block for all remaining samples
+		{
 
-            numSamplesToWrite = BLOCK_LENGTH - blockIndex;
+			numSamplesToWrite = BLOCK_LENGTH - blockIndex;
 
-            for (int i = 0; i < buffer.getNumChannels(); i++)
-            {
+			for (int i = 0; i < buffer.getNumChannels(); i++)
+			{
 
-                if (getChannel(i)->getRecordState())
-                {
-                    // write buffer to disk!
-                    writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
-                                          numSamplesToWrite,
-                                          i);
+				if (getChannel(i)->getRecordState())
+				{
+					// write buffer to disk!
+					writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
+						numSamplesToWrite,
+						i);
 
-                    //std::cout << "Record channel " << i << std::endl;
-                }
-            }
+					//std::cout << "Record channel " << i << std::endl;
+				}
+			}
 
-            // update our variables
-            samplesWritten += numSamplesToWrite;
-            timestamp += numSamplesToWrite;
-            blockIndex = 0; // back to the beginning of the block
+			// update our variables
+			samplesWritten += numSamplesToWrite;
+			timestamp += numSamplesToWrite;
+			blockIndex = 0; // back to the beginning of the block
 
-        }
-    }
+		}
+	}
 }
 
 void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, int channel)
 {
 	// check to see if the file exists
 	if (fileArray[channel] == nullptr)
-        return;
+		return;
 
-    // scale the data back into the range of int16
+	// scale the data back into the range of int16
 	float scaleFactor =  float(0x7fff) * getChannel(channel)->bitVolts;
-    for (int n = 0; n < nSamples; n++)
-    {
-        *(continuousDataFloatBuffer+n) = *(data+n) / scaleFactor;
-    }
-    AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
+	for (int n = 0; n < nSamples; n++)
+	{
+		*(continuousDataFloatBuffer+n) = *(data+n) / scaleFactor;
+	}
+	AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
 
-    if (blockIndex == 0)
-    {
+	if (blockIndex == 0)
+	{
 		writeTimestampAndSampleCount(fileArray[channel]);
-    }
+	}
 
-    diskWriteLock.enter();
+	diskWriteLock.enter();
 
-    size_t count = fwrite(continuousDataIntegerBuffer, // ptr
-                   2,                               // size of each element
-                   nSamples,                        // count
-				   fileArray[channel]); // ptr to FILE object
+	size_t count = fwrite(continuousDataIntegerBuffer, // ptr
+		2,                               // size of each element
+		nSamples,                        // count
+		fileArray[channel]); // ptr to FILE object
 
-    jassert(count == nSamples); // make sure all the data was written
+	jassert(count == nSamples); // make sure all the data was written
 
-    diskWriteLock.exit();
-    
-    if (blockIndex + nSamples == BLOCK_LENGTH)
-    {
-        writeRecordMarker(fileArray[channel]);
-    }
+	diskWriteLock.exit();
+
+	if (blockIndex + nSamples == BLOCK_LENGTH)
+	{
+		writeRecordMarker(fileArray[channel]);
+	}
 }
 
 void OriginalRecording::writeTimestampAndSampleCount(FILE* file)
 {
 	diskWriteLock.enter();
-    
-    uint16 samps = BLOCK_LENGTH;
 
-    fwrite(&timestamp,                       // ptr
-           8,                               // size of each element
-           1,                               // count
-           file); // ptr to FILE object
+	uint16 samps = BLOCK_LENGTH;
 
-    fwrite(&samps,                           // ptr
-           2,                               // size of each element
-           1,                               // count
-           file); // ptr to FILE object
+	fwrite(&timestamp,                       // ptr
+		8,                               // size of each element
+		1,                               // count
+		file); // ptr to FILE object
 
-    fwrite(&recordingNumber,                         // ptr
-           2,                               // size of each element
-           1,                               // count
-           file); // ptr to FILE object
+	fwrite(&samps,                           // ptr
+		2,                               // size of each element
+		1,                               // count
+		file); // ptr to FILE object
 
-    diskWriteLock.exit();
+	fwrite(&recordingNumber,                         // ptr
+		2,                               // size of each element
+		1,                               // count
+		file); // ptr to FILE object
+
+	diskWriteLock.exit();
 }
 
 void OriginalRecording::writeRecordMarker(FILE* file)
 {
-	    // write a 10-byte marker indicating the end of a record
+	// write a 10-byte marker indicating the end of a record
 
-    diskWriteLock.enter();
-    fwrite(recordMarker,        // ptr
-           1,                   // size of each element
-           10,                  // count
-           file);               // ptr to FILE object
+	diskWriteLock.enter();
+	fwrite(recordMarker,        // ptr
+		1,                   // size of each element
+		10,                  // count
+		file);               // ptr to FILE object
 
-    diskWriteLock.exit();
+	diskWriteLock.exit();
 }
 
 void OriginalRecording::closeFiles()
@@ -464,14 +461,14 @@ void OriginalRecording::closeFiles()
 		if (fileArray[i] != nullptr)
 		{
 			if (blockIndex < BLOCK_LENGTH)
-                {
-                    // fill out the rest of the current buffer
-                    writeContinuousBuffer(zeroBuffer.getReadPointer(0), BLOCK_LENGTH - blockIndex, i);
-					diskWriteLock.enter();
-					fclose(fileArray[i]);
-					fileArray.set(i,nullptr);
-					diskWriteLock.exit();
-                }
+			{
+				// fill out the rest of the current buffer
+				writeContinuousBuffer(zeroBuffer.getReadPointer(0), BLOCK_LENGTH - blockIndex, i);
+				diskWriteLock.enter();
+				fclose(fileArray[i]);
+				fileArray.set(i,nullptr);
+				diskWriteLock.exit();
+			}
 		}
 	}
 	for (int i = 0; i < spikeFileArray.size(); i++)
@@ -508,31 +505,31 @@ void OriginalRecording::writeSpike(const SpikeObject& spike, int electrodeIndex)
 
 	packSpike(&spike, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
 
-    int totalBytes = spike.nSamples * spike.nChannels * 2 + // account for samples
-                     spike.nChannels * 4 +            // acount for threshold and gain
-                     15;                        // 15 bytes in every SpikeObject
+	int totalBytes = spike.nSamples * spike.nChannels * 2 + // account for samples
+		spike.nChannels * 4 +            // acount for threshold and gain
+		15;                        // 15 bytes in every SpikeObject
 
 
-    // format:
-    // 1 byte of event type (always = 4 for spikes)
-    // 8 bytes for 64-bit timestamp
-    // 2 bytes for 16-bit electrode ID
-    // 2 bytes for 16-bit number of channels (n)
-    // 2 bytes for 16-bit number of samples (m)
-    // 2*n*m bytes for 16-bit samples
-    // 2*n bytes for 16-bit gains
-    // 2*n bytes for 16-bit thresholds
-    
-   // const MessageManagerLock mmLock;
-    
-    diskWriteLock.enter();
+	// format:
+	// 1 byte of event type (always = 4 for spikes)
+	// 8 bytes for 64-bit timestamp
+	// 2 bytes for 16-bit electrode ID
+	// 2 bytes for 16-bit number of channels (n)
+	// 2 bytes for 16-bit number of samples (m)
+	// 2*n*m bytes for 16-bit samples
+	// 2*n bytes for 16-bit gains
+	// 2*n bytes for 16-bit thresholds
+
+	// const MessageManagerLock mmLock;
+
+	diskWriteLock.enter();
 
 	fwrite(spikeBuffer, 1, totalBytes, spikeFileArray[electrodeIndex]);
-    
-    fwrite(&recordingNumber,                         // ptr
-       2,                               // size of each element
-       1,                               // count
-       spikeFileArray[electrodeIndex]); // ptr to FILE object
 
-    diskWriteLock.exit();
+	fwrite(&recordingNumber,                         // ptr
+		2,                               // size of each element
+		1,                               // count
+		spikeFileArray[electrodeIndex]); // ptr to FILE object
+
+	diskWriteLock.exit();
 }
