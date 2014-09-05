@@ -24,16 +24,8 @@
 #include <H5Cpp.h>
 #include "HDF5FileFormat.h"
 
-#ifndef BLOCK_XSIZE
-#define BLOCK_XSIZE 256
-#endif
-
 #ifndef CHUNK_XSIZE
 #define CHUNK_XSIZE 256
-#endif
-
-#ifndef EVENT_BLOCK_XSIZE
-#define EVENT_BLOCK_XSIZE 8
 #endif
 
 #ifndef EVENT_CHUNK_SIZE
@@ -230,24 +222,56 @@ HDF5RecordingData* HDF5FileBase::getDataSet(String path)
 	}
 }
 
+HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int chunkX, String path)
+{
+	return createDataSet(type,1,&sizeX,chunkX,path);
+}
+
 HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int sizeY, int chunkX, String path)
+{
+	int size[2];
+	size[0] = sizeX;
+	size[1] = sizeY;
+	return createDataSet(type,2,size,chunkX,path);
+}
+
+HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int sizeY, int sizeZ, int chunkX, String path)
+{
+	int size[3];
+	size[0] = sizeX;
+	size[1] = sizeY;
+	size[2] = sizeZ;
+	return createDataSet(type,2,size,chunkX,path);
+}
+
+HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int dimension, int* size, int chunkX, String path)
 {
 	ScopedPointer<DataSet> data;
 	DSetCreatPropList prop;
 	if (!opened) return nullptr;
 	DataType H5type = getH5Type(type); 
 
-	hsize_t dims[2], chunk_dims[2], max_dims[2];
-	dims[0] = sizeX;
-	dims[1] = sizeY;
+	hsize_t dims[3], chunk_dims[3], max_dims[3];
+	dims[0] = size[0];
 	chunk_dims[0] = chunkX;
-	chunk_dims[1] = sizeY;
 	max_dims[0] = H5S_UNLIMITED;
-	max_dims[1] = sizeY;
+	if (dimension > 1)
+	{
+	dims[1] = size[1];
+	chunk_dims[1] = size[1];
+	max_dims[1] = size[1];
+	}
+	if (dimension > 2)
+	{
+	dims[2] = size[2];
+	chunk_dims[2] = size[2];
+	max_dims[2] = size[2];
+	}
+
 
 	try {
-		DataSpace dSpace(2,dims,max_dims);
-		prop.setChunk(2,chunk_dims);
+		DataSpace dSpace(dimension,dims,max_dims);
+		prop.setChunk(dimension,chunk_dims);
 	 
 		data = new DataSet(file->createDataSet(path.toUTF8(),H5type,dSpace,prop));
 		return new HDF5RecordingData(data.release());
@@ -334,18 +358,26 @@ HDF5RecordingData::HDF5RecordingData(DataSet *data)
 	DataSpace dSpace;
 	DSetCreatPropList prop;
 	ScopedPointer<DataSet> dSet = data;
-	hsize_t dims[2], chunk[2];
+	hsize_t dims[3], chunk[3];
 
 	dSpace = dSet->getSpace();
 	prop = dSet->getCreatePlist();
 
-	dSpace.getSimpleExtentDims(dims);
-	prop.getChunk(2,chunk);
+	dimension = dSpace.getSimpleExtentDims(dims);
+	prop.getChunk(dimension,chunk);
 
-	this->xSize = dims[0];
-	this->ySize = dims[1];
+	this->size[0] = dims[0];
+	if (dimension > 1)
+		this->size[1] = dims[1];
+	else
+		this->size[1] = 1;
+	if (dimension > 1)
+		this->size[2] = dims[2];
+	else
+		this->size[2] = 1;
+
 	this->xChunkSize = chunk[0];
-	this->xPos = 0;
+	this->xPos = dims[0];
 	this->dSet = dSet;	
 	this->rowXPos = 0;
 	this->rowDataSize = 0;
@@ -357,11 +389,12 @@ HDF5RecordingData::~HDF5RecordingData()
 
 int HDF5RecordingData::writeDataBlock(int xDataSize, HDF5FileBase::DataTypes type, void* data)
 {
-	hsize_t dim[2],offset[2];
+	hsize_t dim[3],offset[3];
 	DataSpace fSpace;
 	DataType nativeType;
 
-	dim[1] = ySize;
+	dim[2] = size[2];
+	dim[1] = size[1];
 	dim[0] = xPos + xDataSize;
 	try {
 		//First be sure that we have enough space
@@ -369,16 +402,18 @@ int HDF5RecordingData::writeDataBlock(int xDataSize, HDF5FileBase::DataTypes typ
 
 		fSpace = dSet->getSpace();
 		fSpace.getSimpleExtentDims(dim);
-		xSize=dim[0];
+		size[0]=dim[0];
 
 		//Create memory space
 		dim[0]=xDataSize;
-		dim[1]=ySize;
-		DataSpace mSpace(2,dim);
+		dim[1]=size[1];
+		dim[2] = size[2];
+		DataSpace mSpace(dimension,dim);
 
 		//select where to write
 		offset[0]=xPos;
 		offset[1]=0;
+		offset[2]=0;
 		fSpace.selectHyperslab(H5S_SELECT_SET, dim, offset);
 
 		nativeType = HDF5FileBase::getNativeType(type);
@@ -399,17 +434,18 @@ int HDF5RecordingData::writeDataBlock(int xDataSize, HDF5FileBase::DataTypes typ
 
 int HDF5RecordingData::prepareDataBlock(int xDataSize)
 {
-	hsize_t dim[2];
+	hsize_t dim[3];
 	DataSpace fSpace;
 
-	dim[1] = ySize;
+	dim[2] = size[2];
+	dim[1] = size[1];
 	dim[0] = xPos + xDataSize;
 	try{
 		dSet->extend(dim);
 
 		fSpace = dSet->getSpace();
 		fSpace.getSimpleExtentDims(dim);
-		xSize=dim[0];
+		size[0]=dim[0];
 	}
 	catch(DataSetIException error)
 	{
@@ -426,13 +462,14 @@ int HDF5RecordingData::writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataT
 	hsize_t dim[2],offset[2];
 	DataSpace fSpace;
 	DataType nativeType;
+	if (dimension > 2) return -4; //We're not going to write rows in datasets bigger than 2d.
 	if (xDataSize != rowDataSize) return -2;
-	if ((yPos < 0 ) || (yPos >= ySize)) return -3;
+	if ((yPos < 0 ) || (yPos >= size[1])) return -3;
 
 	try {
 		dim[0] = xDataSize;
 		dim[1] = 1;
-		DataSpace mSpace(2,dim);
+		DataSpace mSpace(dimension,dim);
 
 		fSpace = dSet->getSpace();
 		offset[0] = rowXPos;
@@ -492,11 +529,11 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
 	String recordPath = String("/recordings/")+String(recordingNumber);
 	CHECK_ERROR(createGroup(recordPath));
 	CHECK_ERROR(setAttributeStr(info->name,recordPath,String("name")));
-	CHECK_ERROR(setAttribute(I64,&(info->start_time),recordPath,String("start_time")));
+	CHECK_ERROR(setAttribute(U64,&(info->start_time),recordPath,String("start_time")));
 //	CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
 	CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
 	CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
-	recdata = createDataSet(I16,BLOCK_XSIZE,nChannels,CHUNK_XSIZE,recordPath+"/data");
+	recdata = createDataSet(I16,0,nChannels,CHUNK_XSIZE,recordPath+"/data");
 	if (!recdata.get())
 		std::cerr << "Error creating data set" << std::endl;
 	curChan = nChannels;
@@ -570,9 +607,9 @@ int KWIKFile::createFileStructure()
 		if(createGroup(path)) return -1;
 		path += "/events";
 		if(createGroup(path)) return -1;
-		dSet = createDataSet(U64,EVENT_BLOCK_XSIZE,1,EVENT_BLOCK_XSIZE,path + "/time_samples");
+		dSet = createDataSet(U64,0,EVENT_CHUNK_SIZE,path + "/time_samples");
 		if (!dSet) return -1;
-		dSet = createDataSet(U16,EVENT_BLOCK_XSIZE,1,EVENT_BLOCK_XSIZE,path + "/recording");
+		dSet = createDataSet(U16,0,EVENT_CHUNK_SIZE,path + "/recording");
 		if (!dSet) return -1;
 	}
 	if(setAttribute(U16,(void*)&ver,"/","kwik_version")) return -1;
@@ -586,7 +623,7 @@ void KWIKFile::startNewRecording(int recordingNumber, HDF5RecordingInfo* info)
 	String recordPath = String("/recordings/")+String(recordingNumber);
 	CHECK_ERROR(createGroup(recordPath));
 	CHECK_ERROR(setAttributeStr(info->name,recordPath,String("name")));
-	CHECK_ERROR(setAttribute(I64,&(info->start_time),recordPath,String("start_time")));
+	CHECK_ERROR(setAttribute(U64,&(info->start_time),recordPath,String("start_time")));
 //	CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
 	CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
 	CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
