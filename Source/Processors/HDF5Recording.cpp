@@ -60,6 +60,8 @@ void HDF5Recording::resetChannels()
 	activeChannelCount.clear();
 	processorMap.clear();
 	infoArray.clear();
+	if (spikesFile)
+		spikesFile->resetChannels();
 }
 
 void HDF5Recording::addChannel(int index, Channel* chan)
@@ -73,6 +75,11 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
 	//KWIK file
 	mainFile->initFile(basepath);
 	mainFile->open();
+
+	//KWX file
+	spikesFile->initFile(basepath);
+	spikesFile->open();
+	spikesFile->startNewRecording(recordingNumber);
 	
 	//Let's just put the first processor (usually the source node) on the KWIK for now
 	infoArray[0]->name = String("Open-Ephys Recording #") + String(recordingNumber);
@@ -113,6 +120,8 @@ void HDF5Recording::closeFiles()
 {
 	mainFile->stopRecording();
 	mainFile->close();
+	spikesFile->stopRecording();
+	spikesFile->close();
 	for (int i = 0; i < fileArray.size(); i++)
 	{
 		fileArray[i]->stopRecording();
@@ -145,15 +154,16 @@ void HDF5Recording::writeEvent(MidiMessage& event, int samplePosition)
 
 void HDF5Recording::addSpikeElectrode(int index, SpikeRecordInfo* elec)
 {
-	//TODO
+	spikesFile->addChannelGroup(elec->numChannels);
 }
 void HDF5Recording::writeSpike(const SpikeObject& spike, int electrodeIndex)
 {
-	//TODO
+	spikesFile->writeSpike(electrodeIndex,spike.nSamples,spike.data,spike.timestamp);
 }
 
 void HDF5Recording::startAcquisition()
 {
 	mainFile = new KWIKFile();
+	spikesFile = new KWXFile();
 }
 

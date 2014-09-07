@@ -32,6 +32,16 @@
 #define EVENT_CHUNK_SIZE 8
 #endif
 
+#ifndef SPIKE_CHUNK_XSIZE
+#define SPIKE_CHUNK_XSIZE 8
+#endif
+
+#ifndef SPIKE_CHUNK_YSIZE
+#define SPIKE_CHUNK_YSIZE 40
+#endif
+
+#define MAX_TRANSFORM_SIZE 512
+
 #define PROCESS_ERROR std::cerr << error.getCDetailMsg() << std::endl; return -1
 #define CHECK_ERROR(x) if (x) std::cerr << "Error at HDFRecording " << __LINE__ << std::endl;
 
@@ -254,7 +264,7 @@ HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int si
 	size[0] = sizeX;
 	size[1] = sizeY;
 	size[2] = sizeZ;
-	return createDataSet(type,2,size,chunks,path);
+	return createDataSet(type,3,size,chunks,path);
 }
 
 HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int dimension, int* size, int* chunking, String path)
@@ -435,8 +445,8 @@ int HDF5RecordingData::writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase
 		dim[0]=xDataSize;
 		dim[1]=yDataSize;
 		dim[2] = size[2];
-		DataSpace mSpace(dimension,dim);
 
+		DataSpace mSpace(dimension,dim);
 		//select where to write
 		offset[0]=xPos;
 		offset[1]=0;
@@ -545,7 +555,7 @@ String KWDFile::getFileName()
 void KWDFile::initFile(int processorNumber, String basename)
 {
 	if (isOpen()) return;
-	filename = basename + String(processorNumber) + "_raw.kwd";
+	filename = basename + "_" + String(processorNumber) + "_raw.kwd";
 	readyToOpen=true;
 }
 
@@ -619,7 +629,7 @@ String KWIKFile::getFileName()
 void KWIKFile::initFile(String basename)
 {
 	if (isOpen()) return;
-	filename = basename + "OpenEphysRecording.kwik";
+	filename = basename + ".kwik";
 	readyToOpen=true;
 }
 
@@ -694,4 +704,132 @@ void KWIKFile::addKwdFile(String filename)
 	CHECK_ERROR(setAttributeStr(filename + "/recordings/" + String(recordingNumber),"/recordings/" + String(recordingNumber) + 
 		"/raw/hdf5_paths",String(kwdIndex)));
 	kwdIndex++;
+}
+
+//KWX File
+
+KWXFile::KWXFile(String basename) : HDF5FileBase() 
+{
+	initFile(basename);
+	numElectrodes=0;
+	transformVector = new int16[MAX_TRANSFORM_SIZE];
+}
+
+KWXFile::KWXFile() : HDF5FileBase()
+{
+	numElectrodes=0;
+	transformVector = new int16[MAX_TRANSFORM_SIZE];
+}
+
+KWXFile::~KWXFile() 
+{
+	delete transformVector;
+}
+
+String KWXFile::getFileName()
+{
+	return filename;
+}
+
+void KWXFile::initFile(String basename)
+{
+	if (isOpen()) return;
+	filename = basename + ".kwx";
+	readyToOpen=true;
+}
+
+int KWXFile::createFileStructure()
+{
+	const uint16 ver = 2;
+	if(createGroup("/channel_groups")) return -1;
+	if(setAttribute(U16,(void*)&ver,"/","kwik_version")) return -1;
+	for (int i=0; i < channelArray.size(); i++)
+	{
+		int res = createChannelGroup(i);
+		if (res) return -1;
+	}
+	return 0;
+}
+
+void KWXFile::addChannelGroup(int nChannels)
+{
+	channelArray.add(nChannels);
+	numElectrodes++;
+}
+
+int KWXFile::createChannelGroup(int index)
+{
+	ScopedPointer<HDF5RecordingData> dSet;
+	int nChannels = channelArray[index];
+	String path("/channel_groups/"+String(index));
+	CHECK_ERROR(createGroup(path));
+	dSet = createDataSet(I16,0,0,nChannels,SPIKE_CHUNK_XSIZE,SPIKE_CHUNK_YSIZE,path+"/waveforms_filtered");
+	if(!dSet) return -1;
+	dSet = createDataSet(U64,0,SPIKE_CHUNK_XSIZE,path+"/time_samples");
+	if(!dSet) return -1;
+	dSet = createDataSet(U16,0,SPIKE_CHUNK_XSIZE,path+"/recordings");
+	if(!dSet) return -1;
+	return 0;
+}
+
+void KWXFile::startNewRecording(int recordingNumber)
+{
+	HDF5RecordingData* dSet;
+	String path;
+	this->recordingNumber = recordingNumber;
+
+	for (int i=0; i < channelArray.size(); i++)
+	{
+		path = "/channel_groups/"+String(i);
+		dSet=getDataSet(path+"/waveforms_filtered");
+		if (!dSet)
+			std::cerr << "Error loading spikes dataset for group " << i << std::endl;
+		spikeArray.add(dSet);
+		dSet=getDataSet(path+"/time_samples");
+		if (!dSet)
+			std::cerr << "Error loading spike timestamp dataset for group " << i << std::endl;
+		timeStamps.add(dSet);
+		dSet=getDataSet(path+"/recordings");
+		if (!dSet)
+			std::cerr << "Error loading spike recordings dataset for group " << i << std::endl;
+		recordingArray.add(dSet);
+	}
+}
+
+void KWXFile::stopRecording()
+{
+	spikeArray.clear();
+	timeStamps.clear();
+	recordingArray.clear();
+}
+
+void KWXFile::resetChannels()
+{
+	stopRecording(); //Just in case
+	channelArray.clear();
+}
+
+void KWXFile::writeSpike(int groupIndex, int nSamples, const uint16* data, uint64 timestamp)
+{
+	if ((groupIndex < 0) || (groupIndex >= numElectrodes))
+	{
+		std::cerr << "HDF5::writeSpike Electrode index out of bounds " << groupIndex << std::endl;
+		return;
+	}
+	int nChans= channelArray[groupIndex];
+	int16* dst=transformVector;
+
+	//Given the way we store spike data, we need to transpose it to store in
+	//N x NSAMPLES x NCHANNELS as well as convert from u16 to i16
+	for (int i = 0; i < nSamples; i++)
+	{
+		for (int j = 0; j < nChans; j++)
+		{
+			*(dst++) = *(data+j*nSamples+i)-32768;
+		}
+	}
+
+	CHECK_ERROR(spikeArray[groupIndex]->writeDataBlock(1,nSamples,I16,transformVector));
+	CHECK_ERROR(recordingArray[groupIndex]->writeDataBlock(1,I32,&recordingNumber));
+	CHECK_ERROR(timeStamps[groupIndex]->writeDataBlock(1,U64,&timestamp));
 }

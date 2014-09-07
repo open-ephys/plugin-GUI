@@ -156,4 +156,33 @@ private:
 
 };
 
+class KWXFile : public HDF5FileBase
+{
+public:
+	KWXFile(String basename);
+	KWXFile();
+	~KWXFile();
+	void initFile(String basename);
+	void startNewRecording(int recordingNumber);
+	void stopRecording();
+	void addChannelGroup(int nChannels);
+	void resetChannels();
+	void writeSpike(int groupIndex, int nSamples, const uint16* data, uint64 timestamp);
+	String getFileName();
+
+protected:
+	int createFileStructure();
+
+private:
+	int createChannelGroup(int index);
+	int recordingNumber;
+	String filename;
+	OwnedArray<HDF5RecordingData> spikeArray;
+	OwnedArray<HDF5RecordingData> recordingArray;
+	OwnedArray<HDF5RecordingData> timeStamps;
+	Array<int> channelArray;
+	int numElectrodes;
+	int16* transformVector;
+};
+
 #endif  // HDF5FILEFORMAT_H_INCLUDED

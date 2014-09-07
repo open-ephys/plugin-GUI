@@ -53,6 +53,7 @@ private:
 	OwnedArray<KWDFile> fileArray;
 	OwnedArray<HDF5RecordingInfo> infoArray;
 	ScopedPointer<KWIKFile> mainFile;
+	ScopedPointer<KWXFile> spikesFile;
 	float* scaledBuffer;
 	int16* intBuffer;
 	int64 timestamp;
