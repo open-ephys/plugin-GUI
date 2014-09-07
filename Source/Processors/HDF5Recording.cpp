@@ -29,7 +29,6 @@ HDF5Recording::HDF5Recording() : processorIndex(-1)
 	timestamp = 0;
 	scaledBuffer = new float[MAX_BUFFER_SIZE];
 	intBuffer = new int16[MAX_BUFFER_SIZE];
-	mainFile = new KWIKFile();
 }
 
 HDF5Recording::~HDF5Recording()
@@ -68,9 +67,9 @@ void HDF5Recording::addChannel(int index, Channel* chan)
 	processorMap.add(processorIndex);
 }
 
-void HDF5Recording::openFiles(File rootFolder, int recordingNumber)
+void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int recordingNumber)
 {
-	String basepath = rootFolder.getFullPathName() + rootFolder.separatorString;
+	String basepath = rootFolder.getFullPathName() + rootFolder.separatorString + "experiment" + String(experimentNumber);
 	//KWIK file
 	mainFile->initFile(basepath);
 	mainFile->open();
@@ -152,3 +151,9 @@ void HDF5Recording::writeSpike(const SpikeObject& spike, int electrodeIndex)
 {
 	//TODO
 }
+
+void HDF5Recording::startAcquisition()
+{
+	mainFile = new KWIKFile();
+}
+

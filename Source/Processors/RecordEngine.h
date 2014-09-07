@@ -46,7 +46,7 @@ public:
 	RecordEngine();
 	~RecordEngine();
 
-	virtual void openFiles(File rootFolder, int recordingNumber) =0;
+	virtual void openFiles(File rootFolder, int experimentNumber, int recordingNumber) =0;
 	virtual void closeFiles() =0;
 	virtual void writeData(AudioSampleBuffer& buffer, int nSamples) =0;
 	virtual void writeEvent(MidiMessage& event, int samplePosition) =0;
@@ -57,6 +57,8 @@ public:
 	virtual void registerSpikeSource(GenericProcessor* processor);
 	virtual void resetChannels();
 	virtual void updateTimeStamp(int64 timestamp);
+	virtual void startAcquisition();
+	virtual void directoryChanged();
 
 protected:
 	Channel* getChannel(int index);

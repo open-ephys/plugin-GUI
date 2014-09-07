@@ -32,7 +32,7 @@ class HDF5Recording : public RecordEngine
 public:
 	HDF5Recording();
 	~HDF5Recording();
-	void openFiles(File rootFolder, int recordingNumber);
+	void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
 	void closeFiles();
 	void writeData(AudioSampleBuffer& buffer, int nSamples);
 	void writeEvent(MidiMessage& event, int samplePosition);
@@ -42,6 +42,7 @@ public:
 	void registerProcessor(GenericProcessor* processor);
 	void resetChannels();
 	void updateTimeStamp(int64 timestamp);
+	void startAcquisition();
 
 private:
 

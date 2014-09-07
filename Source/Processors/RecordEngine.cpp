@@ -51,3 +51,7 @@ SpikeRecordInfo* RecordEngine::getSpikeElectrode(int index)
 void RecordEngine::updateTimeStamp(int64 timestamp) {}
 
 void RecordEngine::registerSpikeSource(GenericProcessor* processor) {}
+
+void RecordEngine::startAcquisition() {}
+
+void RecordEngine::directoryChanged() {}

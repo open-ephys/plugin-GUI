@@ -170,7 +170,10 @@ private:
 
 	OwnedArray<SpikeRecordInfo> spikeElectrodePointers;
 
-	int spikeElectrodeIndex;;
+	int spikeElectrodeIndex;
+
+	int experimentNumber;
+	bool hasRecorded;
 
     /** Generates a default directory name, based on the current date and time */
     String generateDirectoryName();

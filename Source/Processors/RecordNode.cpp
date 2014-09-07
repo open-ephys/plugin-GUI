@@ -51,6 +51,9 @@ RecordNode::RecordNode()
 
 	spikeElectrodeIndex = 0;
 
+	experimentNumber = 0;
+	hasRecorded = false;
+
 	// 128 inputs, 0 outputs
 	setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 
@@ -262,12 +265,15 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 	{
 
 		isRecording = true;
+		hasRecorded = true;
 		// std::cout << "START RECORDING." << std::endl;
 
 		if (newDirectoryNeeded)
 		{
 			createNewDirectory();
 			recordingNumber = 0;
+			experimentNumber = 1;
+			EVERY_ENGINE->directoryChanged();
 		}
 		else
 		{
@@ -281,7 +287,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 			getEditorViewport()->saveState(File(settingsFileName));
 		}
 
-		EVERY_ENGINE->openFiles(rootFolder, recordingNumber);
+		EVERY_ENGINE->openFiles(rootFolder, experimentNumber, recordingNumber);
 
 		allFilesOpened = true;
 
@@ -344,7 +350,15 @@ void RecordNode::closeAllFiles()
 
 bool RecordNode::enable()
 {
+	if (hasRecorded)
+	{
+		hasRecorded = false;
+		experimentNumber++;
+	}
 
+	//When starting a recording, if a new directory is needed it gets rewritten. Else is incremented by one.
+	recordingNumber = -1;
+	EVERY_ENGINE->startAcquisition();
 	isProcessing = true;
 	return true;
 }

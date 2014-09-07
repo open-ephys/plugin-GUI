@@ -38,7 +38,7 @@ public:
 	OriginalRecording();
 	~OriginalRecording();
 
-	void openFiles(File rootFolder, int recordingNumber);
+	void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
 	void closeFiles();
 	void writeData(AudioSampleBuffer& buffer, int nSamples);
 	void writeEvent(MidiMessage& event, int samplePosition);
@@ -62,6 +62,7 @@ private:
 	bool separateFiles;
 	int blockIndex;
 	int recordingNumber;
+	int experimentNumber;
 
 	/** Holds data that has been converted from float to int16 before
         saving.

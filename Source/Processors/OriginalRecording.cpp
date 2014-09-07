@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../Audio/AudioComponent.h"
 
 OriginalRecording::OriginalRecording() : separateFiles(true), eventFile(nullptr), 
-	recordingNumber(0), zeroBuffer(1, 50000), blockIndex(0)
+	recordingNumber(0), experimentNumber(0), zeroBuffer(1, 50000), blockIndex(0)
 {
 	continuousDataIntegerBuffer = new int16[10000];
 	continuousDataFloatBuffer = new float[10000];
@@ -73,9 +73,10 @@ void OriginalRecording::resetChannels()
 	spikeFileArray.clear();
 }
 
-void OriginalRecording::openFiles(File rootFolder, int recordingNumber)
+void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int recordingNumber)
 {
 	this->recordingNumber = recordingNumber;
+	this->experimentNumber = experimentNumber;
 	openFile(rootFolder,nullptr);
 	for (int i = 0; i < fileArray.size(); i++)
 	{
@@ -101,7 +102,7 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
 
 	isEvent = (ch == nullptr) ? true : false;
 	if (isEvent)
-		fullPath += "all_channels.events";
+		fullPath += "experiment" + String(experimentNumber) + "_all_channels.events";
 	else
 		fullPath += getFileName(ch);
 
@@ -148,6 +149,7 @@ void OriginalRecording::openSpikeFile(File rootFolder, SpikeRecordInfo* elec)
 
 	FILE* spFile;
 	String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
+	fullPath += "experiment" + String(experimentNumber) + "_";
 	fullPath += elec->name.removeCharacters(" ");
 	fullPath += ".spikes";
 
@@ -175,6 +177,7 @@ String OriginalRecording::getFileName(Channel* ch)
 {
 	String filename;
 
+	filename += "experiment" + String(experimentNumber) + "_";
 	filename += ch->nodeId;
 	filename += "_";
 	filename += ch->name;
