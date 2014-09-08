@@ -389,7 +389,7 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
 	{
 		if (event.getNoteNumber() > 0) // processor ID > 0
 		{
-			EVERY_ENGINE->writeEvent(event, samplePosition);
+			EVERY_ENGINE->writeEvent(eventType, event, samplePosition);
 		}
 	}
 	else if (eventType == TIMESTAMP)

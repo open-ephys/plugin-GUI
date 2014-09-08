@@ -286,7 +286,7 @@ String OriginalRecording::generateSpikeHeader(SpikeRecordInfo* elec)
 	return header;
 }
 
-void OriginalRecording::writeEvent(MidiMessage& event, int samplePosition)
+void OriginalRecording::writeEvent(int eventType, MidiMessage& event, int samplePosition)
 {
 	// find file and write samples to disk
 	// std::cout << "Received event!" << std::endl;

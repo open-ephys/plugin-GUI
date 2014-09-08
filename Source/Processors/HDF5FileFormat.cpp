@@ -326,6 +326,9 @@ H5::DataType HDF5FileBase::getNativeType(DataTypes type)
 {
 	switch (type)
 	{
+	case I8:
+		return PredType::NATIVE_INT8;
+		break;
 	case I16:
 		return PredType::NATIVE_INT16;
 		break;
@@ -334,6 +337,9 @@ H5::DataType HDF5FileBase::getNativeType(DataTypes type)
 		break;
 	case I64:
 		return PredType::NATIVE_INT64;
+		break;
+	case U8:
+		return PredType::NATIVE_UINT8;
 		break;
 	case U16:
 		return PredType::NATIVE_UINT16;
@@ -355,29 +361,35 @@ H5::DataType HDF5FileBase::getH5Type(DataTypes type)
 {
 	switch (type)
 	{
+	case I8:
+		return PredType::STD_I8LE;
+		break;
 	case I16:
-		return PredType::STD_I16BE;
+		return PredType::STD_I16LE;
 		break;
 	case I32:
-		return PredType::STD_I32BE;
+		return PredType::STD_I32LE;
 		break;
 	case I64:
-		return PredType::STD_I64BE;
+		return PredType::STD_I64LE;
+		break;
+	case U8:
+		return PredType::STD_U8LE;
 		break;
 	case U16:
-		return PredType::STD_U16BE;
+		return PredType::STD_U16LE;
 		break;
 	case U32:
-		return PredType::STD_U32BE;
+		return PredType::STD_U32LE;
 		break;
 	case U64:
-		return PredType::STD_U64BE;
+		return PredType::STD_U64LE;
 		break;
 	case F32:
-		return PredType::IEEE_F32BE;
+		return PredType::IEEE_F32LE;
 		break;
 	}
-	return PredType::STD_I32BE;
+	return PredType::STD_I32LE;
 }
 
 HDF5RecordingData::HDF5RecordingData(DataSet *data)
@@ -638,16 +650,24 @@ int KWIKFile::createFileStructure()
 	const uint16 ver = 2;
 	if(createGroup("/recordings")) return -1;
 	if(createGroup("/event_types")) return -1;
-	for (int i=0; i < 2; i++)
+	for (int i=0; i < eventNames.size(); i++)
 	{
 		ScopedPointer<HDF5RecordingData> dSet;
-		String path = "/event_types/" + String(i);
+		String path = "/event_types/" + eventNames[i];
 		if(createGroup(path)) return -1;
 		path += "/events";
 		if(createGroup(path)) return -1;
 		dSet = createDataSet(U64,0,EVENT_CHUNK_SIZE,path + "/time_samples");
 		if (!dSet) return -1;
 		dSet = createDataSet(U16,0,EVENT_CHUNK_SIZE,path + "/recording");
+		if (!dSet) return -1;
+		path += "/user_data";
+		if(createGroup(path)) return -1;
+		dSet = createDataSet(U8,0,EVENT_CHUNK_SIZE,path + "/eventID");
+		if (!dSet) return -1;
+		dSet = createDataSet(U8,0,EVENT_CHUNK_SIZE,path + "/nodeID");
+		if (!dSet) return -1;
+		dSet = createDataSet(U8,0,EVENT_CHUNK_SIZE,path + "/event_channel");
 		if (!dSet) return -1;
 	}
 	if(setAttribute(U16,(void*)&ver,"/","kwik_version")) return -1;
@@ -668,17 +688,30 @@ void KWIKFile::startNewRecording(int recordingNumber, HDF5RecordingInfo* info)
 	CHECK_ERROR(createGroup(recordPath + "/raw"));
 	CHECK_ERROR(createGroup(recordPath + "/raw/hdf5_paths"));
 
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < eventNames.size(); i++)
 	{
 		HDF5RecordingData* dSet;
-		dSet = getDataSet("/event_types/" + String(i) + "/events/time_samples");
+		String path = "/event_types/" + eventNames[i] + "/events";
+		dSet = getDataSet(path + "/time_samples");
 		if (!dSet)
 			std::cerr << "Error loading event timestamps dataset for type " << i << std::endl;
 		timeStamps.add(dSet);
-		dSet = getDataSet("/event_types/" + String(i) + "/events/recording");
+		dSet = getDataSet(path + "/recording");
 		if (!dSet)
 			std::cerr << "Error loading event recordings dataset for type " << i << std::endl;
 		recordings.add(dSet);
+		dSet = getDataSet(path + "/user_data/eventID");
+		if (!dSet)
+			std::cerr << "Error loading event ID dataset for type " << i << std::endl;
+		eventID.add(dSet);
+		dSet = getDataSet(path + "/user_data/nodeID");
+		if (!dSet)
+			std::cerr << "Error loading event node ID dataset for type " << i << std::endl;
+		nodeID.add(dSet);
+		dSet = getDataSet(path + "/user_data/event_channel");
+		if (!dSet)
+			std::cerr << "Error loading event channel dataset for type " << i << std::endl;
+		channelID.add(dSet);
 	}
 }
 
@@ -686,17 +719,21 @@ void KWIKFile::stopRecording()
 {
 	timeStamps.clear();
 	recordings.clear();
+	eventID.clear();
 }
 
-void KWIKFile::writeEvent(int id, uint64 timestamp)
+void KWIKFile::writeEvent(int type, uint8 id, uint8 processor, uint8 channel, uint64 timestamp)
 {
-	if (id > 1 || id < 0)
+	if (type > eventNames.size() || type < 0)
 	{
-		std::cerr << "HDF5::writeEvent Invalid event type " << id << std::endl;
+		std::cerr << "HDF5::writeEvent Invalid event type " << type << std::endl;
 		return;
 	}
-	CHECK_ERROR(timeStamps[id]->writeDataBlock(1,U64,&timestamp));
-	CHECK_ERROR(recordings[id]->writeDataBlock(1,I32,&recordingNumber));
+	CHECK_ERROR(timeStamps[type]->writeDataBlock(1,U64,&timestamp));
+	CHECK_ERROR(recordings[type]->writeDataBlock(1,I32,&recordingNumber));
+	CHECK_ERROR(eventID[type]->writeDataBlock(1,U8,&id));
+	CHECK_ERROR(nodeID[type]->writeDataBlock(1,U8,&processor));
+	CHECK_ERROR(channelID[type]->writeDataBlock(1,U8,&channel));
 }
 
 void KWIKFile::addKwdFile(String filename)
@@ -704,6 +741,11 @@ void KWIKFile::addKwdFile(String filename)
 	CHECK_ERROR(setAttributeStr(filename + "/recordings/" + String(recordingNumber),"/recordings/" + String(recordingNumber) + 
 		"/raw/hdf5_paths",String(kwdIndex)));
 	kwdIndex++;
+}
+
+void KWIKFile::addEventType(String name)
+{
+	eventNames.add(name);
 }
 
 //KWX File

@@ -51,7 +51,7 @@ public:
 	void close();
 	virtual String getFileName() = 0;
 	bool isOpen() const;
-	typedef enum DataTypes { U16, U32, U64, I16, I32, I64, F32} DataTypes;
+	typedef enum DataTypes { U8, U16, U32, U64, I8, I16, I32, I64, F32} DataTypes;
 
 	static H5::DataType getNativeType(DataTypes type);
 	static H5::DataType getH5Type(DataTypes type);
@@ -140,8 +140,9 @@ public:
 	void initFile(String basename);
 	void startNewRecording(int recordingNumber, HDF5RecordingInfo* info);
 	void stopRecording();
-	void writeEvent(int id, uint64 timestamp);
+	void writeEvent(int type, uint8 id, uint8 processor, uint8 channel, uint64 timestamp);
 	void addKwdFile(String filename);
+	void addEventType(String name);
 	String getFileName();
 
 protected:
@@ -152,6 +153,10 @@ private:
 	String filename;
 	OwnedArray<HDF5RecordingData> timeStamps;
 	OwnedArray<HDF5RecordingData> recordings;
+	OwnedArray<HDF5RecordingData> eventID;
+	OwnedArray<HDF5RecordingData> nodeID;
+	OwnedArray<HDF5RecordingData> channelID;
+	Array<String> eventNames;
 	int kwdIndex;
 
 };

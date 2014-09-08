@@ -49,7 +49,7 @@ public:
 	virtual void openFiles(File rootFolder, int experimentNumber, int recordingNumber) =0;
 	virtual void closeFiles() =0;
 	virtual void writeData(AudioSampleBuffer& buffer, int nSamples) =0;
-	virtual void writeEvent(MidiMessage& event, int samplePosition) =0;
+	virtual void writeEvent(int eventType, MidiMessage& event, int samplePosition) =0;
 	virtual void addChannel(int index, Channel* chan) =0;
 	virtual void addSpikeElectrode(int index, SpikeRecordInfo* elec) =0;
 	virtual void writeSpike(const SpikeObject& spike, int electrodeIndex) =0;

@@ -41,7 +41,7 @@ public:
 	void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
 	void closeFiles();
 	void writeData(AudioSampleBuffer& buffer, int nSamples);
-	void writeEvent(MidiMessage& event, int samplePosition);
+	void writeEvent(int eventType, MidiMessage& event, int samplePosition);
 	void addChannel(int index, Channel* chan);
 	void resetChannels();
 	void updateTimeStamp(int64 timestamp);

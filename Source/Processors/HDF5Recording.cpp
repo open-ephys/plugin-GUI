@@ -146,10 +146,11 @@ void HDF5Recording::writeData(AudioSampleBuffer& buffer, int nSamples)
 	}
 }
 
-void HDF5Recording::writeEvent(MidiMessage& event, int samplePosition)
+void HDF5Recording::writeEvent(int eventType, MidiMessage& event, int samplePosition)
 {
 	const uint8* dataptr = event.getRawData();
-	mainFile->writeEvent(*(dataptr+2),timestamp+samplePosition);
+	//right now only written events are TTL, so type = 0
+	mainFile->writeEvent(0,*(dataptr+2),*(dataptr+1),*(dataptr+3),timestamp+samplePosition);
 }
 
 void HDF5Recording::addSpikeElectrode(int index, SpikeRecordInfo* elec)
@@ -164,6 +165,7 @@ void HDF5Recording::writeSpike(const SpikeObject& spike, int electrodeIndex)
 void HDF5Recording::startAcquisition()
 {
 	mainFile = new KWIKFile();
+	mainFile->addEventType("TTL");
 	spikesFile = new KWXFile();
 }
 
