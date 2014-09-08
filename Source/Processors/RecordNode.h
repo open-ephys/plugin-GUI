@@ -72,13 +72,13 @@ public:
     */
     void setParameter(int parameterIndex, float newValue);
 
-	void registerProcessor(GenericProcessor* sourceNode);
+    void registerProcessor(GenericProcessor* sourceNode);
     void addInputChannel(GenericProcessor* sourceNode, int chan);
 
     bool enable();
     bool disable();
 
-	Channel* getDataChannel(int index);
+    Channel* getDataChannel(int index);
 
     /** Called by the ControlPanel to determine the amount of space
         left in the current dataDirectory.
@@ -106,21 +106,21 @@ public:
     /** Creates a new data directory in the location specified by the fileNameComponent.
     */
     void createNewDirectory();
-    
+
     File getDataDirectory()
     {
         return rootFolder;
     }
 
-	void registerRecordEngine(RecordEngine* engine);
+    void registerRecordEngine(RecordEngine* engine);
 
-	void registerSpikeSource(GenericProcessor* processor);
+    void registerSpikeSource(GenericProcessor* processor);
 
-	int addSpikeElectrode(SpikeRecordInfo* elec);
+    int addSpikeElectrode(SpikeRecordInfo* elec);
 
-	void writeSpike(SpikeObject& spike, int electrodeIndex);
+    void writeSpike(SpikeObject& spike, int electrodeIndex);
 
-	SpikeRecordInfo* getSpikeElectrode(int index);
+    SpikeRecordInfo* getSpikeElectrode(int index);
 
     /** Signals when to create a new data directory when recording starts.*/
     bool newDirectoryNeeded;
@@ -130,7 +130,7 @@ public:
 
     /** Generate a Matlab-compatible datestring */
     String generateDateString();
-   
+
 private:
 
     /** Keep the RecordNode informed of acquisition and record states.
@@ -168,12 +168,12 @@ private:
     /** Pointers to all event channels */
     Array<Channel*> eventChannelPointers;
 
-	OwnedArray<SpikeRecordInfo> spikeElectrodePointers;
+    OwnedArray<SpikeRecordInfo> spikeElectrodePointers;
 
-	int spikeElectrodeIndex;
+    int spikeElectrodeIndex;
 
-	int experimentNumber;
-	bool hasRecorded;
+    int experimentNumber;
+    bool hasRecorded;
 
     /** Generates a default directory name, based on the current date and time */
     String generateDirectoryName();
@@ -182,8 +182,8 @@ private:
     /** Cycle through the event buffer, looking for data to save */
     void handleEvent(int eventType, MidiMessage& event, int samplePos);
 
-	/**RecordEngines loaded**/
-	OwnedArray<RecordEngine> engineArray;
+    /**RecordEngines loaded**/
+    OwnedArray<RecordEngine> engineArray;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 
