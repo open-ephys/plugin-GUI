@@ -27,7 +27,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Channel.h"
 #include "GenericProcessor.h"
-#include "Visualization\SpikeObject.h"
+#include "Visualization/SpikeObject.h"
 
 struct SpikeRecordInfo
 {
