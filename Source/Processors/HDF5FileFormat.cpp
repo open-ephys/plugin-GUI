@@ -406,7 +406,7 @@ HDF5RecordingData::HDF5RecordingData(DataSet* data)
 {
     DataSpace dSpace;
     DSetCreatPropList prop;
-    ScopedPointer<DataSet> dSet = data;
+    DataSet* dSet = data;
     hsize_t dims[3], chunk[3];
 
     dSpace = dSet->getSpace();
