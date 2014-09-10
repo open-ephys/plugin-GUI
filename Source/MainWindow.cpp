@@ -23,8 +23,8 @@
 
 #include "MainWindow.h"
 #include <stdio.h>
-#include "Processors\OriginalRecording.h"
-#include "Processors\HDF5Recording.h"
+#include "Processors/OriginalRecording.h"
+#include "Processors/HDF5Recording.h"
 //-----------------------------------------------------------------------
 
 MainWindow::MainWindow()
