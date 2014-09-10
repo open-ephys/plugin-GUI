@@ -7,7 +7,7 @@
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="JuceProjectAU" pluginAUViewClass="JuceProjectAU_V1"
-              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="3.0.0"
+              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="3.1.0"
               companyName="Open Ephys" userNotes="The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring, processing, and visualizing data from extracellular electrodes. See open-ephys.org for more information."
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
@@ -37,8 +37,8 @@
         <MODULEPATH id="juce_audio_basics" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" juceFolder="JuceLibraryCode"
-                extraLinkerFlags="-pg -ldl -lXext -lGLU -lhdf5" extraCompilerFlags="-export-dynamic -g -pg -std=c++0x">
+    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" extraLinkerFlags="-pg -ldl -lXext -lGLU -lhdf5"
+                extraCompilerFlags="-export-dynamic -g -pg -std=c++0x">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        libraryPath="/usr/X11R6/lib/&#10;/usr/local/include&#10;" headerPath=""/>
@@ -280,6 +280,8 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <FILE id="LfiaEP" name="SpikeSorter.cpp" compile="1" resource="0" file="Source/Processors/SpikeSorter.cpp"/>
+        <FILE id="OeZ3tb" name="SpikeSorter.h" compile="0" resource="0" file="Source/Processors/SpikeSorter.h"/>
         <FILE id="Yj1umv" name="SerialInput.cpp" compile="1" resource="0" file="Source/Processors/SerialInput.cpp"/>
         <FILE id="TSsuVv" name="SerialInput.h" compile="0" resource="0" file="Source/Processors/SerialInput.h"/>
         <FILE id="M6nCIs" name="FileReader.cpp" compile="1" resource="0" file="Source/Processors/FileReader.cpp"/>
@@ -348,6 +350,10 @@
           <FILE id="DXYynnz" name="Splitter.h" compile="0" resource="0" file="Source/Processors/Utilities/Splitter.h"/>
         </GROUP>
         <GROUP id="W4eqkOy" name="Visualization">
+          <FILE id="VEG9QN" name="SpikeSorterCanvas.cpp" compile="1" resource="0"
+                file="Source/Processors/Visualization/SpikeSorterCanvas.cpp"/>
+          <FILE id="jKKmg2" name="SpikeSorterCanvas.h" compile="0" resource="0"
+                file="Source/Processors/Visualization/SpikeSorterCanvas.h"/>
           <FILE id="ajAJi" name="SpikeObject.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikeObject.cpp"/>
           <FILE id="xqF5zL" name="SpikeObject.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikeObject.h"/>
           <FILE id="jGEqDp" name="SpikeDisplayCanvas.cpp" compile="1" resource="0"
@@ -371,6 +377,10 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="Fs9xVR" name="SpikeSorterEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/SpikeSorterEditor.cpp"/>
+          <FILE id="YnUVDV" name="SpikeSorterEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/SpikeSorterEditor.h"/>
           <FILE id="jQo6Ff" name="LfpTriggeredAverageEditor.cpp" compile="1"
                 resource="0" file="Source/Processors/Editors/LfpTriggeredAverageEditor.cpp"/>
           <FILE id="RaQC38" name="LfpTriggeredAverageEditor.h" compile="0" resource="0"

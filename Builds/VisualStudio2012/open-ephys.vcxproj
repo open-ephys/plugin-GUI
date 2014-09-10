@@ -27,27 +27,23 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v110</PlatformToolset>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release64|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v110</PlatformToolset>
     <PlatformToolset>v110</PlatformToolset>
@@ -92,8 +88,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.3.1;JUCE_APP_VERSION_HEX=0x301;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -138,8 +134,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.3.1;JUCE_APP_VERSION_HEX=0x301;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -186,8 +182,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.3.1;JUCE_APP_VERSION_HEX=0x301;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -230,8 +226,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.3.1;JUCE_APP_VERSION_HEX=0x301;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -287,6 +283,7 @@
     <ClCompile Include="..\..\Source\Dsp\RootFinder.cpp"/>
     <ClCompile Include="..\..\Source\Dsp\State.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeSorter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SerialInput.cpp"/>
     <ClCompile Include="..\..\Source\Processors\FileReader.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ChannelMappingNode.cpp"/>
@@ -308,6 +305,7 @@
     <ClCompile Include="..\..\Source\Processors\Utilities\RecordControl.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Utilities\Merger.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Utilities\Splitter.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikeSorterCanvas.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikeDisplayCanvas.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp"/>
@@ -315,6 +313,7 @@
     <ClCompile Include="..\..\Source\Processors\SpikeDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\SpikeSorterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\LfpTriggeredAverageEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\SerialInputEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ElectrodeButtons.cpp"/>
@@ -1524,6 +1523,7 @@
     <ClInclude Include="..\..\Source\Dsp\Types.h"/>
     <ClInclude Include="..\..\Source\Dsp\Utilities.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
+    <ClInclude Include="..\..\Source\Processors\SpikeSorter.h"/>
     <ClInclude Include="..\..\Source\Processors\SerialInput.h"/>
     <ClInclude Include="..\..\Source\Processors\FileReader.h"/>
     <ClInclude Include="..\..\Source\Processors\ChannelMappingNode.h"/>
@@ -1546,6 +1546,7 @@
     <ClInclude Include="..\..\Source\Processors\Utilities\RecordControl.h"/>
     <ClInclude Include="..\..\Source\Processors\Utilities\Merger.h"/>
     <ClInclude Include="..\..\Source\Processors\Utilities\Splitter.h"/>
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikeSorterCanvas.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikeDisplayCanvas.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h"/>
@@ -1554,6 +1555,7 @@
     <ClInclude Include="..\..\Source\Processors\SpikeDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\SpikeSorterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\LfpTriggeredAverageEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\SerialInputEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ElectrodeButtons.h"/>

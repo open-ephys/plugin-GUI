@@ -1,30 +1,32 @@
 # Automatically generated makefile, created by the Introjucer
 # Don't edit this file! Your changes will be overwritten when you re-save the Introjucer project!
 
+# (this disables dependency generation if multiple architectures are set)
+DEPFLAGS := $(if $(word 2, $(TARGET_ARCH)), , -MMD)
+
 ifndef CONFIG
   CONFIG=Debug
 endif
-
-ifeq ($(TARGET_ARCH),)
-  TARGET_ARCH := -march=native
-endif
-
-# (this disables dependency generation if multiple architectures are set)
-DEPFLAGS := $(if $(word 2, $(TARGET_ARCH)), , -MMD)
 
 ifeq ($(CONFIG),Debug)
   BINDIR := build
   LIBDIR := build
   OBJDIR := build/intermediate/Debug
   OUTDIR := build
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3
-  CXXFLAGS += $(CFLAGS) -export-dynamic -g -pg -std=c++0x
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU 
+
+  ifeq ($(TARGET_ARCH),)
+    TARGET_ARCH := -march=native
+  endif
+
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.1" -D "JUCE_APP_VERSION_HEX=0x301" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3 -export-dynamic -g -pg -std=c++0x
+  CXXFLAGS += $(CFLAGS)
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5
   LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
+  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.1" -D "JUCE_APP_VERSION_HEX=0x301" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   TARGET := open-ephys
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
+  CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
 endif
 
 ifeq ($(CONFIG),Release)
@@ -32,14 +34,20 @@ ifeq ($(CONFIG),Release)
   LIBDIR := build
   OBJDIR := build/intermediate/Release
   OUTDIR := build
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3
-  CXXFLAGS += $(CFLAGS) -export-dynamic -g -pg -std=c++0x
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU 
+
+  ifeq ($(TARGET_ARCH),)
+    TARGET_ARCH := -march=native
+  endif
+
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.1" -D "JUCE_APP_VERSION_HEX=0x301" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -export-dynamic -g -pg -std=c++0x
+  CXXFLAGS += $(CFLAGS)
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5
   LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
+  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.1" -D "JUCE_APP_VERSION_HEX=0x301" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   TARGET := open-ephys-release
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
+  CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
 endif
 
 OBJECTS := \
@@ -63,6 +71,7 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/SpikeSorter_b8ed216c.o \
   $(OBJDIR)/SerialInput_855a46b1.o \
   $(OBJDIR)/FileReader_18023b0e.o \
   $(OBJDIR)/ChannelMappingNode_d9219b9c.o \
@@ -84,6 +93,7 @@ OBJECTS := \
   $(OBJDIR)/RecordControl_3e1c6062.o \
   $(OBJDIR)/Merger_2f90542e.o \
   $(OBJDIR)/Splitter_6e27a57b.o \
+  $(OBJDIR)/SpikeSorterCanvas_78e0e459.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/SpikeDisplayCanvas_b208ff6e.o \
   $(OBJDIR)/DataWindow_83ce6754.o \
@@ -91,6 +101,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/SpikeSorterEditor_30c3d470.o \
   $(OBJDIR)/LfpTriggeredAverageEditor_101d75b.o \
   $(OBJDIR)/SerialInputEditor_c00f31f5.o \
   $(OBJDIR)/ElectrodeButtons_a6064cc.o \
@@ -177,9 +188,7 @@ $(OUTDIR)/$(TARGET): $(OBJECTS) $(LDDEPS) $(RESOURCES)
 
 clean:
 	@echo Cleaning open-ephys
-	-@rm -f $(OUTDIR)/$(TARGET)
-	-@rm -rf $(OBJDIR)/*
-	-@rm -rf $(OBJDIR)
+	@$(CLEANCMD)
 
 strip:
 	@echo Stripping open-ephys
@@ -283,6 +292,11 @@ $(OBJDIR)/State_22979684.o: ../../Source/Dsp/State.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SpikeSorter_b8ed216c.o: ../../Source/Processors/SpikeSorter.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SpikeSorter.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/SerialInput_855a46b1.o: ../../Source/Processors/SerialInput.cpp
@@ -390,6 +404,11 @@ $(OBJDIR)/Splitter_6e27a57b.o: ../../Source/Processors/Utilities/Splitter.cpp
 	@echo "Compiling Splitter.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/SpikeSorterCanvas_78e0e459.o: ../../Source/Processors/Visualization/SpikeSorterCanvas.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SpikeSorterCanvas.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/SpikeObject_24e8c655.o: ../../Source/Processors/Visualization/SpikeObject.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SpikeObject.cpp"
@@ -423,6 +442,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SpikeSorterEditor_30c3d470.o: ../../Source/Processors/Editors/SpikeSorterEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SpikeSorterEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/LfpTriggeredAverageEditor_101d75b.o: ../../Source/Processors/Editors/LfpTriggeredAverageEditor.cpp

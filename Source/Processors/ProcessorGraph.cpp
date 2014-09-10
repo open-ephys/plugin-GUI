@@ -40,6 +40,7 @@
 #include "SourceNode.h"
 #include "EventDetector.h"
 #include "SpikeDetector.h"
+#include "SpikeSorter.h"
 #include "PhaseDetector.h"
 #include "WiFiOutput.h"
 #include "FileReader.h"
@@ -546,6 +547,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             std::cout << "Creating a new spike detector." << std::endl;
             processor = new SpikeDetector();
+        }
+        else if (subProcessorType.equalsIgnoreCase("Spike Sorter"))
+        {
+            std::cout << "Creating a new spike sorter." << std::endl;
+            processor = new SpikeSorter();
         }
         else if (subProcessorType.equalsIgnoreCase("Event Detector"))
         {
