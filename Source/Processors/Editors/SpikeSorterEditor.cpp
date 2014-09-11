@@ -23,17 +23,17 @@
 
 #include "SpikeSorterEditor.h"
 #include "SpikeDisplayEditor.h"
-#include "../Visualization/SpikeDetectCanvas.h"
+#include "../Visualization/SpikeSorterCanvas.h"
 #include "../SpikeSorter.h"
 #include "ChannelSelector.h"
 #include "../../UI/EditorViewport.h"
-#include "../AdvancerNode.h"
+//#include "../AdvancerNode.h"
 #include <stdio.h>
 
 
 
 SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : VisualizerEditor(parentNode, 300, useDefaultParameterEditors), isPlural(true),SpikeSorterCanvas(nullptr)
+    : VisualizerEditor(parentNode, 300, useDefaultParameterEditors), isPlural(true), spikeSorterCanvas(nullptr)
 
 {
 	tabText = "Spike Detector";
@@ -148,7 +148,7 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
 	channelSelector->activateButtons();
 	channelSelector->setRadioStatus(true);
     channelSelector->paramButtonsToggledByDefault(false);
-	updateAdvancerList();
+//	updateAdvancerList();
 
     dacAssignmentLabel= new Label("DAC output","DAC output");
 	dacAssignmentLabel->setFont(Font("Default", 10, Font::plain));
@@ -174,10 +174,10 @@ Visualizer* SpikeSorterEditor::createNewCanvas()
 {
 
     SpikeSorter* processor = (SpikeSorter*) getProcessor();
-    SpikeSorterCanvas = new SpikeDetectCanvas(processor);
-    ActionListener* listener = (ActionListener*) SpikeSorterCanvas;
-    getUIComponent()->registerAnimatedComponent(listener);
-	return SpikeSorterCanvas;
+    spikeSorterCanvas = new SpikeSorterCanvas(processor);
+    //ActionListener* listener = (ActionListener*) SpikeSorterCanvas;
+    //getUIComponent()->registerAnimatedComponent(listener);
+	return spikeSorterCanvas;
 }
 
 
@@ -234,7 +234,7 @@ void SpikeSorterEditor::buttonEvent(Button* button)
 	VisualizerEditor::buttonEvent(button);
 	   SpikeSorter* processor = (SpikeSorter*) getProcessor();
 	
-    if (electrodeButtons.contains((cElectrodeButton*) button))
+    if (electrodeButtons.contains((ElectrodeButton*) button))
     {
 	
         {
@@ -246,7 +246,7 @@ void SpikeSorterEditor::buttonEvent(Button* button)
 			if (electrodeButtons.size() == 1)
 				electrodeButtons[0]->setToggleState(true,dontSendNotification);
 
-            cElectrodeButton* eb = (cElectrodeButton*) button;
+            ElectrodeButton* eb = (ElectrodeButton*) button;
             int channelNum = eb->getChannelNum()-1;
 
             std::cout << "Channel number: " << channelNum << std::endl;
@@ -258,7 +258,7 @@ void SpikeSorterEditor::buttonEvent(Button* button)
 
             thresholdSlider->setActive(true);
             thresholdSlider->setValue(processor->getChannelThreshold(electrodeList->getSelectedItemIndex(),
-                                                                     electrodeButtons.indexOf((cElectrodeButton*) button)));
+                                                                     electrodeButtons.indexOf((ElectrodeButton*) button)));
 
 
 			if (processor->getAutoDacAssignmentStatus())
@@ -268,12 +268,12 @@ void SpikeSorterEditor::buttonEvent(Button* button)
 			}
 			Array<int> dacAssignmentToChannels = processor->getDACassignments();
 			// search for channel[0]. If found, set the combo box accordingly...
-			dacCombo->setSelectedId(1,true);
+			dacCombo->setSelectedId(1, sendNotification);
 			for (int i=0;i<dacAssignmentToChannels.size();i++)
 			{
 				if (dacAssignmentToChannels[i] == channelNum)
 				{
-					dacCombo->setSelectedId(i+2,true);
+					dacCombo->setSelectedId(i+2, sendNotification);
 					break;
 				}
 			}
@@ -575,12 +575,12 @@ void SpikeSorterEditor::refreshElectrodeList(int selected)
 		}
 		Array<int> dacAssignmentToChannels = processor->getDACassignments();
 		// search for channel[0]. If found, set the combo box accordingly...
-		dacCombo->setSelectedId(1,true);
+		dacCombo->setSelectedId(1, sendNotification);
 		for (int i=0;i<dacAssignmentToChannels.size();i++)
 		{
 			if (dacAssignmentToChannels[i] == e->channels[0])
 			{
-				dacCombo->setSelectedId(i+2,true);
+				dacCombo->setSelectedId(i+2, sendNotification);
 				processor->updateDACthreshold(i+2, e->thresholds[0]);
 				break;
 			}
@@ -590,8 +590,8 @@ void SpikeSorterEditor::refreshElectrodeList(int selected)
 
 
 	}
-	if (SpikeSorterCanvas != nullptr)
-		SpikeSorterCanvas->update();
+	if (spikeSorterCanvas != nullptr)
+		spikeSorterCanvas->update();
 }
 
 
@@ -605,7 +605,7 @@ void SpikeSorterEditor::removeElectrode(int index)
     int newIndex = jmin(index, electrodeList->getNumItems()-1);
     newIndex = jmax(newIndex, 0);
 
-    electrodeList->setSelectedId(newIndex, true);
+    electrodeList->setSelectedId(newIndex, sendNotification);
     electrodeList->setText(electrodeList->getItemText(newIndex));
 
     if (electrodeList->getNumItems() == 0)
@@ -625,11 +625,11 @@ void SpikeSorterEditor::labelTextChanged(Label* label)
 
 		int electrodeIndex = electrodeList->getSelectedId()-1;
 		SpikeSorter* processor = (SpikeSorter*) getProcessor();
-		if (electrodeIndex >= 0)
-			processor->setElectrodeAdvancerOffset(electrodeIndex, offset);
+		//if (electrodeIndex >= 0)
+		//	processor->setElectrodeAdvancerOffset(electrodeIndex, offset);
 
-	if (SpikeSorterCanvas != nullptr)
-		SpikeSorterCanvas->update();
+	if (spikeSorterCanvas != nullptr)
+		spikeSorterCanvas->update();
 
 	}
 }
@@ -643,7 +643,7 @@ void SpikeSorterEditor::setElectrodeComboBox(int direction)
 		C = N;
 	if (C > N)
 		C = 1;
-	electrodeList->setSelectedId(C,false);
+	electrodeList->setSelectedId(C, dontSendNotification);
 }
 
 void SpikeSorterEditor::comboBoxChanged(ComboBox* comboBox)
@@ -693,7 +693,7 @@ void SpikeSorterEditor::comboBoxChanged(ComboBox* comboBox)
             drawElectrodeButtons(ID-1);
 			int advancerIndex = 0;
 
-            audioMonitorButton->setToggleState(e->isMonitored, false);
+            audioMonitorButton->setToggleState(e->isMonitored, dontSendNotification);
 
 			for (int k=0;k<advancerIDs.size();k++)
 			{
@@ -703,7 +703,7 @@ void SpikeSorterEditor::comboBoxChanged(ComboBox* comboBox)
 					break;
 				}
 			}
-			advancerList->setSelectedId(advancerIndex,false);
+			advancerList->setSelectedId(advancerIndex, dontSendNotification);
 			depthOffsetEdit->setText(String(e->depthOffsetMM,4),dontSendNotification);
 
 			if (processor->getAutoDacAssignmentStatus())
@@ -713,12 +713,12 @@ void SpikeSorterEditor::comboBoxChanged(ComboBox* comboBox)
 			}
 			Array<int> dacAssignmentToChannels = processor->getDACassignments();
 			// search for channel[0]. If found, set the combo box accordingly...
-			dacCombo->setSelectedId(1,true);
+			dacCombo->setSelectedId(1, sendNotification);
 			for (int i=0;i<dacAssignmentToChannels.size();i++)
 			{
 				if (dacAssignmentToChannels[i] == e->channels[0])
 				{
-					dacCombo->setSelectedId(i+2,true);
+					dacCombo->setSelectedId(i+2, sendNotification);
 					break;
 				}
 			}
@@ -730,13 +730,13 @@ void SpikeSorterEditor::comboBoxChanged(ComboBox* comboBox)
 	} else if ( comboBox == advancerList)
 	{
 		// attach advancer to electrode.
-		int electrodeIndex = electrodeList->getSelectedId()-1;
-		SpikeSorter* processor = (SpikeSorter*) getProcessor();
-		int selectedAdvancer = advancerList->getSelectedId() ;
-		if (electrodeIndex >= 0 && selectedAdvancer > 0)
-			processor->setElectrodeAdvancer(electrodeIndex,advancerIDs[advancerList->getSelectedId()-1]);
-		else
-			advancerList->setSelectedId(0,dontSendNotification);
+		// int electrodeIndex = electrodeList->getSelectedId()-1;
+		// SpikeSorter* processor = (SpikeSorter*) getProcessor();
+		// int selectedAdvancer = advancerList->getSelectedId() ;
+		// if (electrodeIndex >= 0 && selectedAdvancer > 0)
+		// 	processor->setElectrodeAdvancer(electrodeIndex,advancerIDs[advancerList->getSelectedId()-1]);
+		// else
+		// 	advancerList->setSelectedId(0,dontSendNotification);
 	}
 	
 }
@@ -765,7 +765,7 @@ void SpikeSorterEditor::drawElectrodeButtons(int ID)
 
     for (int i = 0; i < numChannels; i++)
     {
-        cElectrodeButton* button = new cElectrodeButton(processor->getChannel(ID,i)+1);
+        ElectrodeButton* button = new ElectrodeButton(processor->getChannel(ID,i)+1);
         electrodeButtons.add(button);
 
 		if (i == 0) {
@@ -773,7 +773,7 @@ void SpikeSorterEditor::drawElectrodeButtons(int ID)
 			thresholds.add(processor->getChannelThreshold(ID,i));
 		}
 
-		button->setToggleState(i == 0, false);
+		button->setToggleState(i == 0, dontSendNotification);
 		button->setBounds(155+(column++)*width, 60+row*height, width, 15);
 		addAndMakeVisible(button);
         button->addListener(this);
@@ -793,180 +793,50 @@ void SpikeSorterEditor::drawElectrodeButtons(int ID)
 	thresholdSlider->setEnabled(true);
 	thresholdSlider->setValue(processor->getChannelThreshold(ID,0),dontSendNotification);
 	repaint();
-	if (SpikeSorterCanvas != nullptr)
-		SpikeSorterCanvas->update();
+	if (spikeSorterCanvas != nullptr)
+		spikeSorterCanvas->update();
 }
 
 
-
-
-void cElectrodeButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
-{
-    if (getToggleState() == true)
-        g.setColour(Colours::orange);
-    else
-        g.setColour(Colours::darkgrey);
-
-    if (isMouseOver)
-        g.setColour(Colours::white);
-
-    g.fillRect(0,0,getWidth(),getHeight());
-
-    // g.setFont(buttonFont);
-    g.setColour(Colours::black);
-
-    g.drawRect(0,0,getWidth(),getHeight(),1.0);
-
-    if (chan >= 0)
-        g.drawText(String(chan),0,0,getWidth(),getHeight(),Justification::centred,true);
-}
-
-
-void ElectrodeEditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
-{
-    if (getToggleState() == true)
-        g.setColour(Colours::darkgrey);
-    else
-        g.setColour(Colours::lightgrey);
-
-    g.setFont(font);
-
-    g.drawText(name,0,0,getWidth(),getHeight(),Justification::left,true);
-}
-
-
-ThresholdSlider::ThresholdSlider(Font f) : Slider("name"), font(f)
-{
-
-    setSliderStyle(Slider::Rotary);
-    setRange(-400,400.0f,10.0f);
-    setValue(-20.0f);
-    setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
-
-}
-
-void ThresholdSlider::paint(Graphics& g)
-{
-
-    ColourGradient grad = ColourGradient(Colour(40, 40, 40), 0.0f, 0.0f,
-                                         Colour(80, 80, 80), 0.0, 40.0f, false);
-
-    Path p;
-    p.addPieSegment(3, 3, getWidth()-6, getHeight()-6, 5*double_Pi/4-0.2, 5*double_Pi/4+3*double_Pi/2+0.2, 0.5);
-
-    g.setGradientFill(grad);
-    g.fillPath(p);
-
-    String valueString;
-
-    if (isActive)
-    {
-        p = makeRotaryPath(getMinimum(), getMaximum(), getValue());
-        g.setColour(Colour(240,179,12));
-        g.fillPath(p);
-
-        valueString = String((int) getValue());
-    }
-    else
-    {
-
-        valueString = "";
-
-        for (int i = 0; i < valueArray.size(); i++)
-        {
-            p = makeRotaryPath(getMinimum(), getMaximum(), valueArray[i]);
-            g.setColour(Colours::lightgrey.withAlpha(0.4f));
-            g.fillPath(p);
-            valueString = String((int) valueArray.getLast());
-        }
-
-    }
-
-    font.setHeight(9.0);
-    g.setFont(font);
-    int stringWidth = font.getStringWidth(valueString);
-
-    g.setFont(font);
-
-    g.setColour(Colours::darkgrey);
-    g.drawSingleLineText(valueString, getWidth()/2 - stringWidth/2, getHeight()/2+3);
-
-}
-
-Path ThresholdSlider::makeRotaryPath(double min, double max, double val)
-{
-
-    Path p;
-
-    double start;
-    double range;
-	if (val > 0)
-	{
-		start = 0;
-		range = (val)/(1.3*max )*double_Pi ;
-	}
-	if (val < 0) {
-		start = -(val)/(1.3*min)*double_Pi ;
-		range = 0;
-	}
-    p.addPieSegment(6,6, getWidth()-12, getHeight()-12, start, range, 0.65);
-
-    return p;
-
-}
-
-void ThresholdSlider::setActive(bool t)
-{
-    isActive = t;
-    repaint();
-}
-
-void ThresholdSlider::setValues(Array<double> v)
-{
-    valueArray = v;
-}
-
-
-
-void SpikeSorterEditor::updateAdvancerList()
-{
+// void SpikeSorterEditor::updateAdvancerList()
+// {
 	
-	ProcessorGraph *g = getProcessor()->getProcessorGraph();
-	Array<GenericProcessor*> p = g->getListOfProcessors();
-	for (int k=0;k<p.size();k++)
-	{
-		if (p[k]->getName() == "Advancers")
-		{
-			AdvancerNode *node = (AdvancerNode *)p[k];
-			if (node != nullptr)
-			{
-				advancerNames = node->getAdvancerNames();
-				advancerIDs =  node->getAdvancerIDs();
+// 	ProcessorGraph *g = getProcessor()->getProcessorGraph();
+// 	Array<GenericProcessor*> p = g->getListOfProcessors();
+// 	for (int k=0;k<p.size();k++)
+// 	{
+// 		if (p[k]->getName() == "Advancers")
+// 		{
+// 			AdvancerNode *node = (AdvancerNode *)p[k];
+// 			if (node != nullptr)
+// 			{
+// 				advancerNames = node->getAdvancerNames();
+// 				advancerIDs =  node->getAdvancerIDs();
 
-				advancerList->clear(dontSendNotification);
-				for (int i=0;i<advancerNames.size();i++)
-				{
-					advancerList->addItem(advancerNames[i],1+i);
-				}
-			}
-		}
-	}
+// 				advancerList->clear(dontSendNotification);
+// 				for (int i=0;i<advancerNames.size();i++)
+// 				{
+// 					advancerList->addItem(advancerNames[i],1+i);
+// 				}
+// 			}
+// 		}
+// 	}
 
 
-        int selectedElectrode = electrodeList->getSelectedId();
-		if (selectedElectrode > 0) {
-			SpikeSorter* processor = (SpikeSorter*) getProcessor();
-			Electrode *e = processor->getElectrode( selectedElectrode-1);
-			int advancerIndex = 0;
-			for (int k=0;k<advancerIDs.size();k++)
-			{
-				if (advancerIDs[k] == e->advancerID)
-				{
-						advancerIndex = 1+k;
-					break;
-				}
-			}
-			advancerList->setSelectedId(advancerIndex);
-			}
-	repaint();
-}
+//         int selectedElectrode = electrodeList->getSelectedId();
+// 		if (selectedElectrode > 0) {
+// 			SpikeSorter* processor = (SpikeSorter*) getProcessor();
+// 			Electrode *e = processor->getElectrode( selectedElectrode-1);
+// 			int advancerIndex = 0;
+// 			for (int k=0;k<advancerIDs.size();k++)
+// 			{
+// 				if (advancerIDs[k] == e->advancerID)
+// 				{
+// 						advancerIndex = 1+k;
+// 					break;
+// 				}
+// 			}
+// 			advancerList->setSelectedId(advancerIndex);
+// 			}
+// 	repaint();
+// }

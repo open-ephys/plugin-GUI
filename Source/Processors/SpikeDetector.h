@@ -31,7 +31,7 @@
 
 #include "Visualization/SpikeObject.h"
 
-struct Electrode
+struct SimpleElectrode
 {
 
     String name;
@@ -136,13 +136,13 @@ public:
     StringArray getElectrodeNames();
 
     /** Returns array of electrodes. */
-    Array<Electrode*> getElectrodes();
+    Array<SimpleElectrode*> getElectrodes();
 
     /** Returns array of electrodes. */
-    Electrode* getActiveElectrode();
+    SimpleElectrode* getActiveElectrode();
 
     /** Sets the current electrode index */
-    Electrode* setCurrentElectrodeIndex(int);
+    SimpleElectrode* setCurrentElectrodeIndex(int);
 
     /** Returns a list of possible electrode types (e.g., stereotrode, tetrode). */
     StringArray electrodeTypes;
@@ -179,7 +179,7 @@ private:
     uint8_t* spikeBuffer;///[256];
     int64 timestamp;
 
-    Array<Electrode*> electrodes;
+    Array<SimpleElectrode*> electrodes;
 
     // void createSpikeEvent(int& peakIndex,
     // 					  int& electrodeNumber,
@@ -194,7 +194,7 @@ private:
                                   int& electrodeNumber,
                                   int& currentChannel);
 
-    void resetElectrode(Electrode*);
+    void resetElectrode(SimpleElectrode*);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDetector);
 

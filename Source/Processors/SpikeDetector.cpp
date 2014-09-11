@@ -89,7 +89,7 @@ void SpikeDetector::updateSettings()
     {
 
         Channel* ch = new Channel(this, i);
-        ch->isEventChannel = true;
+        //ch->isEventChannel = true;
         ch->eventType = SPIKE_BASE_CODE + electrodes[i]->numChannels;
         ch->name = electrodes[i]->name;
 
@@ -111,7 +111,7 @@ bool SpikeDetector::addElectrode(int nChans)
     }
     else
     {
-        Electrode* e = electrodes.getLast();
+        SimpleElectrode* e = electrodes.getLast();
         firstChan = *(e->channels+(e->numChannels-1))+1;
     }
 
@@ -138,7 +138,7 @@ bool SpikeDetector::addElectrode(int nChans)
     newName += " ";
     newName += electrodeCounter[nChans];
 
-    Electrode* newElectrode = new Electrode();
+    SimpleElectrode* newElectrode = new SimpleElectrode();
 
     newElectrode->name = newName;
     newElectrode->numChannels = nChans;
@@ -183,7 +183,7 @@ StringArray SpikeDetector::getElectrodeNames()
     return names;
 }
 
-void SpikeDetector::resetElectrode(Electrode* e)
+void SpikeDetector::resetElectrode(SimpleElectrode* e)
 {
     e->lastBufferIndex = 0;
 }
@@ -228,19 +228,19 @@ int SpikeDetector::getChannel(int index, int i)
     return *(electrodes[index]->channels+i);
 }
 
-Array<Electrode*> SpikeDetector::getElectrodes()
+Array<SimpleElectrode*> SpikeDetector::getElectrodes()
 {
     return electrodes;
 }
 
-Electrode* SpikeDetector::setCurrentElectrodeIndex(int i)
+SimpleElectrode* SpikeDetector::setCurrentElectrodeIndex(int i)
 {
     jassert(i >= 0 & i < electrodes.size());
     currentElectrode = i;
     return electrodes[i];
 }
 
-Electrode* SpikeDetector::getActiveElectrode()
+SimpleElectrode* SpikeDetector::getActiveElectrode()
 {
     if (electrodes.size() == 0)
         return nullptr;
@@ -411,7 +411,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 {
 
     // cycle through electrodes
-    Electrode* electrode;
+    SimpleElectrode* electrode;
     dataBuffer = &buffer;
 
     checkForEvents(events); // need to find any timestamp events before extracting spikes

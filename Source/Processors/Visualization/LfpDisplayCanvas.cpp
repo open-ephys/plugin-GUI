@@ -624,7 +624,7 @@ bool LfpDisplayCanvas::keyPressed(const KeyPress& key)
 {
 	if (key.getKeyCode() == key.spaceKey)
 	{
-		pauseButton->setToggleState(!pauseButton->getToggleState(),true);
+		pauseButton->setToggleState(!pauseButton->getToggleState(), sendNotification);
 		return true;
 	}
 

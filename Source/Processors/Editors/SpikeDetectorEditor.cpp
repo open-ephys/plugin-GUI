@@ -332,15 +332,15 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
         SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
-        Array<Electrode*> electrodes = processor->getElectrodes();
+        Array<SimpleElectrode*> electrodes = processor->getElectrodes();
 
         for (int i = 0; i < electrodes.size(); i++)
         {
-            Electrode* e = electrodes[i];
+            SimpleElectrode* e = electrodes[i];
             e->isMonitored = false;
         }
 
-        Electrode* e = processor->getActiveElectrode();
+        SimpleElectrode* e = processor->getActiveElectrode();
 
         if (e != nullptr)
         {
@@ -525,7 +525,7 @@ void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
             lastId = ID;
 
             SpikeDetector* processor = (SpikeDetector*) getProcessor();
-            Electrode* e = processor->setCurrentElectrodeIndex(ID-1);
+            SimpleElectrode* e = processor->setCurrentElectrodeIndex(ID-1);
 
             electrodeEditorButtons[1]->setToggleState(e->isMonitored, dontSendNotification);
 

@@ -31,103 +31,10 @@
 #include "../../UI/DataViewport.h"
 #include "../Visualization/DataWindow.h"
 #include "VisualizerEditor.h"
+#include "ElectrodeButtons.h"
+#include "SpikeDetectorEditor.h"
 
-class TriangleButton;
-class UtilityButton;
-class SpikeDetectCanvas;
-
-/**
-
-  Used to select individual electrodes within a multichannel electrode.
-
-  @see SpikeSorterEditor.
-
-*/
-
-class cElectrodeButton : public Button
-{
-public:
-    cElectrodeButton(int chan_) : Button("Electrode"), chan(chan_)
-    {
-        setClickingTogglesState(true);
-        //setRadioGroupId(299);
-        setToggleState(true, false);
-    }
-    ~cElectrodeButton() {}
-
-    int getChannelNum()
-    {
-        return chan;
-    }
-    void setChannelNum(int i)
-    {
-        chan = i;
-    }
-
-
-private:
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-
-    int chan;
-};
-
-/**
-
-  Utility button for the SpikeSorterEditor.
-
-  @see SpikeSorterEditor
-
-*/
-
-class ElectrodeEditorButton : public Button
-{
-public:
-    ElectrodeEditorButton(const String& name_, Font font_) : Button("Electrode Editor"),
-        name(name_), font(font_)
-    {
-        if (name.equalsIgnoreCase("edit") || name.equalsIgnoreCase("monitor"))
-            setClickingTogglesState(true);
-    }
-    ~ElectrodeEditorButton() {}
-private:
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-
-    const String name;
-
-    Font font;
-
-};
-
-/**
-
-  Used to change the spike detection threshold.
-
-  @see SpikeSorterEditor
-
-*/
-
-class ThresholdSlider : public Slider
-{
-public:
-    ThresholdSlider(Font f);
-    ~ThresholdSlider() {}
-
-    void setActive(bool);
-
-    void setValues(Array<double>);
-
-private:
-    void paint(Graphics& g);
-
-    Path makeRotaryPath(double, double, double);
-
-    Font font;
-
-    bool isActive;
-
-    Array<double> valueArray;
-
-};
+class SpikeSorterCanvas;
 
 /**
 
@@ -160,9 +67,9 @@ public:
 	Visualizer* createNewCanvas();
     void checkSettings();
 	void setThresholdValue(int chan, double threshold);
-    OwnedArray<cElectrodeButton> electrodeButtons;
-	SpikeDetectCanvas *SpikeSorterCanvas;
-	void updateAdvancerList();
+    OwnedArray<ElectrodeButton> electrodeButtons;
+	SpikeSorterCanvas* spikeSorterCanvas;
+	//void updateAdvancerList();
 	void refreshElectrodeList(int selected = 0);
 	void setSelectedElectrode(int i);
 	int getSelectedElectrode();

@@ -79,3 +79,4 @@ void ElectrodeEditorButton::paintButton(Graphics& g, bool isMouseOver, bool isBu
 
     g.drawText(name,0,0,getWidth(),getHeight(),Justification::left,true);
 }
+

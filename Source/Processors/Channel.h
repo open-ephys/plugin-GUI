@@ -47,6 +47,7 @@ class GenericProcessor;
 
 */
 
+
 class Channel
 
 {
@@ -64,6 +65,12 @@ public:
     /** Sets the name of a given channel. */
     void setName(String);
 
+   /** Sets the type of a given channel. */
+    void setType(channelType t);
+
+   /** Sets the type of a given channel. */
+    channelType getType();
+
     /** Restores the default settings for a given channel. */
     void reset();
 
@@ -74,10 +81,16 @@ public:
     void setRecordState(bool t); // {isRecording = t;}
 
     /** Sets whether or not the channel will record. */
-    bool getRecordState()
-    {
-        return isRecording;
-    }
+    bool getRecordState() {return isRecording;}
+
+    /** Sets a new channel gain by modifying bitVolts */
+    void setGain(float gain);
+
+    /** returns channel's name */
+    String getChannelName();
+
+    /** returns current gain */
+    float getChannelGain();
 
     /** The channel number.*/
     int num;
@@ -91,25 +104,29 @@ public:
     /** Pointer to the channel's parent processor. */
     GenericProcessor* processor;
 
+
+
     // crucial information:
     float sampleRate;
-    float bitVolts;
-
+    channelType type;
+    
     // boolean values:
-    bool isEventChannel;
-    bool isADCchannel;
     bool isMonitored;
     bool isEnabled;
 
+    int originalStream;
+    int originalChannel;
     // file info (for disk writing):
     String filename;
     FILE* file;
 
     String name;
 
+    float bitVolts;
+
 private:
 
-    bool isRecording;
+    bool isRecording; 
 
     /** Generates a default name, based on the channel number. */
     void createDefaultName();

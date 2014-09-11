@@ -882,7 +882,7 @@ WaveAxes::WaveAxes(int channel) : GenericAxes(channel),
     for (int n = 0; n < bufferSize; n++)
     {
         SpikeObject so;
-        generateEmptySpike(&so, 4);
+        generateEmptySpike(&so, 4, 40);
 
         spikeBuffer.add(so);
     }
@@ -1087,7 +1087,7 @@ void WaveAxes::clear()
     for (int n = 0; n < bufferSize; n++)
     {
         SpikeObject so;
-        generateEmptySpike(&so, 4);
+        generateEmptySpike(&so, 4, 40);
 
         spikeBuffer.add(so);
     }

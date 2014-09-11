@@ -24,11 +24,14 @@
 #ifndef __GENERICPROCESSOR_H_1F469DAF__
 #define __GENERICPROCESSOR_H_1F469DAF__
 
+enum channelType {DATA_CHANNEL = 0, AUX_CHANNEL = 1, ADC_CHANNEL = 2, EVENT_CHANNEL = 3};
+
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "Editors/GenericEditor.h"
 #include "Parameter.h"
 #include "../AccessClass.h"
+#include "Channel.h"
 
 #include <time.h>
 #include <stdio.h>
@@ -56,6 +59,7 @@ class Channel;
   @see ProcessorGraph, GenericEditor, SourceNode, FilterNode, LfpDisplayNode
 
 */
+
 
 class GenericProcessor : public AudioProcessor,
     public AccessClass
@@ -128,11 +132,29 @@ public:
     {
         return GenericProcessor::unusedNameString;
     }
-
     /** Returns the name of the output channel with a given index.*/
     virtual const String getOutputChannelName(int channelIndex) const
     {
         return GenericProcessor::unusedNameString;
+    }
+    
+    /** returns the names and types of all data, aux and adc channels */
+    virtual void getChannelsInfo(StringArray &Names, Array<channelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
+    {
+
+    }
+
+    virtual int modifyChannelName(channelType t, int stream, int ch, String newName, bool updateSignalChain)
+    {
+        return -1;
+    }
+
+    virtual int modifyChannelGain(channelType t, int stream, int ch, float newGain, bool updateSignalChain)
+    {
+        return -1;
+    }
+    virtual void getEventChannelNames(StringArray &Names)
+    {
     }
 
     /** Returns the name of the parameter with a given index.*/
@@ -277,7 +299,7 @@ public:
         return 2;
     }
 
-    virtual int getDefaultADCoutputs()
+      virtual int getDefaultADCoutputs()
     {
         return 0;
     }
@@ -365,7 +387,7 @@ public:
     {
         return false;
     }
-
+    
     /** Returns true if a processor is a utility (non-merger or splitter), false otherwise.*/
     virtual bool isUtility()
     {
@@ -398,10 +420,10 @@ public:
     {
         return true;
     }
-
+    
     /** Called whenever recording has started. */
     virtual void startRecording() { }
-
+    
     /** Called whenever recording has stopped. */
     virtual void stopRecording() { }
 
@@ -544,7 +566,6 @@ public:
 
     /** Toggles record ON for all channels */
     void setAllChannelsToRecord();
-
     /** Each processor has a unique integer ID that can be used to identify it.*/
     int nodeId;
 
@@ -585,18 +606,13 @@ public:
     virtual void loadCustomChannelParametersFromXml(XmlElement* channelElement, bool isEventChannel=false);
 
     /** handle messages from other processors */
-    virtual String interProcessorCommunication(String command)
-    {
-        return String("OK");
-    };
+    virtual String interProcessorCommunication(String command) { return String("OK"); };
 
     /** Holds loaded parameters */
     XmlElement* parametersAsXml;
 
     /** When set to false, this disables the sending of sample counts through the event buffer. */
     bool sendSampleCount;
-
-    bool paramsWereLoaded;
 
 private:
 
@@ -621,6 +637,7 @@ private:
     /** For getInputChannelName() and getOutputChannelName() */
     static const String unusedNameString;
 
+    bool paramsWereLoaded;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GenericProcessor);

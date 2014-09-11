@@ -76,6 +76,12 @@ public:
     bool enable();
     bool disable();
 
+    /** returns channel names and whether we record them */
+    void getChannelNamesAndRecordingStatus(StringArray &names, Array<bool> &recording);
+
+    /** update channel name */
+    void updateChannelName(int channelIndex, String newname);
+
     /** Called by the ControlPanel to determine the amount of space
         left in the current dataDirectory.
     */
@@ -221,6 +227,9 @@ private:
     char* recordMarker;
 
     CriticalSection diskWriteLock;
+
+    Array<String> modifiedChannelNames;
+    Array<int> modifiedChannelInd;
 
     bool appendTrialNum;
     int trialNum;

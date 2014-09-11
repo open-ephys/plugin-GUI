@@ -360,7 +360,7 @@ void GenericProcessor::update()
                 ch->setName("ADC"+String(1+i-(numChan-numADC_Chan)));
 
             if (i >= numChan-numADC_Chan)
-                ch->isADCchannel = true;
+                ch->getType() == ADC_CHANNEL;
 
 
             ch->sampleRate = getDefaultSampleRate();

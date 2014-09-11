@@ -24,7 +24,7 @@
 #include "SpikeSorterCanvas.h"
 #include "SpikeDisplayCanvas.h"
 
-SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorteror* n) :
+SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorter* n) :
     processor(n), newSpike(false)
 {
 	electrode = nullptr;
@@ -192,7 +192,7 @@ void SpikeSorterCanvas::processSpikeEvents()
 {
 
 
-	Electrode *e = ((SpikeSorteror*)processor)->getActiveElectrode();
+	Electrode *e = ((SpikeSorter*) processor)->getActiveElectrode();
 
 //	e->spikeSort->lstLastSpikes
 //    processor->setParameter(2, 0.0f); // request redraw
@@ -334,7 +334,7 @@ void SpikeSorterCanvas::buttonClicked(Button* button)
     if (button == addPolygonUnitButton)
     {
         inDrawingPolygonMode = true;
-		addPolygonUnitButton->setToggleState(true,false);
+		addPolygonUnitButton->setToggleState(true, dontSendNotification);
 		electrode->spikePlot->setPolygonDrawingMode(true);
 	} else if (button == addUnitButton)
 	{
@@ -368,11 +368,11 @@ void SpikeSorterCanvas::buttonClicked(Button* button)
 		processor->getActiveElectrode()->spikeSort->RePCA();
 	} else if (button == nextElectrode)
 	{
-		SpikeSorterorEditor *ed = (SpikeSorterorEditor *)processor->getEditor();
+		SpikeSorterEditor *ed = (SpikeSorterEditor *)processor->getEditor();
 		ed->setElectrodeComboBox(1);
 	} else  if (button == prevElectrode)
 	{
-		SpikeSorterorEditor *ed = (SpikeSorterorEditor *)processor->getEditor();
+		SpikeSorterEditor *ed = (SpikeSorterEditor *)processor->getEditor();
 
 		ed->setElectrodeComboBox(-1);
 	} else if (button == newIDbuttons)
@@ -400,7 +400,7 @@ void SpikeSorterCanvas::buttonClicked(Button* button)
 
 // ----------------------------------------------------------------
 
-SpikeThresholdDisplay::SpikeThresholdDisplay(SpikeSorteror *p, SpikeSorterCanvas* sdc, Viewport* v) :
+SpikeThresholdDisplay::SpikeThresholdDisplay(SpikeSorter *p, SpikeSorterCanvas* sdc, Viewport* v) :
     processor(p),canvas(sdc), viewport(v)
 {
 
@@ -493,7 +493,7 @@ void SpikeThresholdDisplay::plotSpike(const SpikeObject& spike, int electrodeNum
 
 // ----------------------------------------------------------------
 
-SpikeHistogramPlot::SpikeHistogramPlot(SpikeSorteror *prc,SpikeSorterCanvas* sdc, int electrodeID_, int p, String name_) :
+SpikeHistogramPlot::SpikeHistogramPlot(SpikeSorter *prc,SpikeSorterCanvas* sdc, int electrodeID_, int p, String name_) :
     processor(prc), canvas(sdc), isSelected(false), electrodeID(electrodeID_),  plotType(p),
     limitsChanged(true), name(name_)
 
@@ -995,7 +995,7 @@ double GenericDrawAxes::ad16ToUv(int x, int gain)
 // --------------------------------------------------
 
 
-WaveformAxes::WaveformAxes(SpikeHistogramPlot *plt, SpikeSorteror *p,int electrodeID_, int _channel) : GenericDrawAxes(channel),spikeHistogramPlot(plt),electrodeID(electrodeID_),
+WaveformAxes::WaveformAxes(SpikeHistogramPlot *plt, SpikeSorter *p,int electrodeID_, int _channel) : GenericDrawAxes(channel),spikeHistogramPlot(plt),electrodeID(electrodeID_),
     processor(p),
 	channel(_channel),
 	drawGrid(true), 
@@ -1024,7 +1024,7 @@ WaveformAxes::WaveformAxes(SpikeHistogramPlot *plt, SpikeSorteror *p,int electro
     for (int n = 0; n < bufferSize; n++)
     {
         SpikeObject so;
-        generateEmptySpike(&so, 4,numSamples);
+        generateEmptySpike(&so, 4, numSamples);
 
         spikeBuffer.add(so);
     }
@@ -1409,11 +1409,11 @@ void WaveformAxes::mouseDrag(const MouseEvent& event)
         displayThresholdLevel = (0.5f - thresholdSliderPosition) * range;
 		// update processor
 		processor->getActiveElectrode()->thresholds[channel] = displayThresholdLevel;
-		SpikeSorterorEditor* edt = (SpikeSorterorEditor*) processor->getEditor();
+		SpikeSorterEditor* edt = (SpikeSorterEditor*) processor->getEditor();
 		for (int k=0;k<processor->getActiveElectrode()->numChannels;k++)
-			edt->electrodeButtons[k]->setToggleState(false,false);
+			edt->electrodeButtons[k]->setToggleState(false, dontSendNotification);
 
-			edt->electrodeButtons[channel]->setToggleState(true,false);
+			edt->electrodeButtons[channel]->setToggleState(true, dontSendNotification);
 
 		edt->setThresholdValue(channel,displayThresholdLevel);
     } 
@@ -1614,12 +1614,12 @@ void WaveformAxes::paint(Graphics& g)
 
 	if (channel == 0)
 	{
-		double depth = processor->getSelectedElectrodeDepth();
-		String d = "Depth: "+String(depth,4) +" mm";
-		g.setFont(Font("Small Text", 13, Font::plain));
-	   g.setColour(Colours::white);
+		//double depth = processor->getSelectedElectrodeDepth();
+		//String d = "Depth: "+String(depth,4) +" mm";
+		//g.setFont(Font("Small Text", 13, Font::plain));
+	  // g.setColour(Colours::white);
  
-		g.drawText(d,10,10,150,20,Justification::left,false);
+		//g.drawText(d,10,10,150,20,Justification::left,false);
 	}
     // draw the grid lines for the waveforms
 
@@ -1668,7 +1668,7 @@ void WaveformAxes::paint(Graphics& g)
 
 
 
-PCAProjectionAxes::PCAProjectionAxes(SpikeSorteror *p) : processor(p),GenericDrawAxes(0), imageDim(500),
+PCAProjectionAxes::PCAProjectionAxes(SpikeSorter *p) : processor(p),GenericDrawAxes(0), imageDim(500),
     rangeX(250), rangeY(250), spikesReceivedSinceLastRedraw(0)
 {
     projectionImage = Image(Image::RGB, imageDim, imageDim, true);
@@ -2014,8 +2014,8 @@ void PCAProjectionAxes::mouseUp(const juce::MouseEvent& event)
 	if (inPolygonDrawingMode)
 	{
 		inPolygonDrawingMode = false;
-		SpikeSorterorEditor* edt = (SpikeSorterorEditor*)processor->getEditor();
-		edt->SpikeSorterorCanvas->addPolygonUnitButton->setToggleState(false,false);
+		SpikeSorterEditor* edt = (SpikeSorterEditor*)processor->getEditor();
+		edt->spikeSorterCanvas->addPolygonUnitButton->setToggleState(false, dontSendNotification);
 
 		// convert pixel coordinates to pca space coordinates and update unit
 		cPolygon poly;

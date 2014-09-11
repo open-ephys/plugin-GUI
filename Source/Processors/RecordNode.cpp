@@ -48,7 +48,7 @@ RecordNode::RecordNode()
     settings.numOutputs = 0;
 
     eventChannel = new Channel(this, 0);
-    eventChannel->isEventChannel = true;
+    eventChannel->setType(EVENT_CHANNEL);
 
     recordMarker = new char[10];
     for (int i = 0; i < 9; i++)
@@ -143,6 +143,42 @@ void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 
 }
 
+void RecordNode::updateChannelName(int channelIndex, String newname)
+{
+/*  if (channelPointers[channelIndex] != nullptr && channelIndex < channelPointers.size())
+    {
+        channelPointers[channelIndex]->name = newname;
+        updateFileName(channelPointers[channelIndex]);
+    } else*/
+    {
+        // keep name and do the change when the pointer actually points to something... ?
+        modifiedChannelNames.add(newname);
+        modifiedChannelInd.add(channelIndex);
+    }
+}
+
+void RecordNode::getChannelNamesAndRecordingStatus(StringArray &names, Array<bool> &recording)
+{
+    names.clear();
+    recording.clear();
+
+    for (int k = 0; k < channelPointers.size(); k++)
+    {
+        if (channelPointers[k] == nullptr)
+        {
+            names.add("not allocated");
+            recording.add(false);
+
+        }
+        else
+        {
+            Channel *ch = channelPointers[k];
+            String n = ch->name;
+            names.add(n);
+            recording.add(channelPointers[k]->getRecordState());
+        }
+    }
+}
 
 void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
@@ -196,7 +232,7 @@ void RecordNode::updateFileName(Channel* ch)
     String filename = rootFolder.getFullPathName();
     filename += rootFolder.separatorString;
 
-    if (!ch->isEventChannel)
+    if (!ch->getType() == EVENT_CHANNEL)
     {
         filename += ch->nodeId;
         filename += "_";
@@ -517,7 +553,7 @@ String RecordNode::generateHeader(Channel* ch)
     header += String(HEADER_SIZE);
     header += ";\n";
 
-    if (ch->isEventChannel)
+    if (ch->getType() == EVENT_CHANNEL)
     {
         header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample position, one uint8 event type, one uint8 processor ID, one uint8 event ID, one uint8 event channel, and one uint16 recordingNumber'; \n";
 
@@ -536,7 +572,7 @@ String RecordNode::generateHeader(Channel* ch)
     header += ch->name;
     header += "';\n";
 
-    if (ch->isEventChannel)
+    if (ch->getType() == EVENT_CHANNEL)
     {
 
         header += "header.channelType = 'Event';\n";

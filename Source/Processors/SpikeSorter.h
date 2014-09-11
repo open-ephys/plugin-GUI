@@ -29,9 +29,9 @@
 #include "GenericProcessor.h"
 #include "Editors/SpikeSorterEditor.h"
 #include "SpikeSortBoxes.h"
-#include "NetworkEvents.h"
+//#include "NetworkEvents.h"
 #include "Visualization/SpikeObject.h"
-#include "AdvancerNode.h"
+//#include "AdvancerNode.h"
 #include "SourceNode.h"
 #include "DataThreads/RHD2000Thread.h"
 #include <algorithm>    // std::sort
@@ -142,7 +142,7 @@ public:
 };
 
 
-class StringTS;
+//class StringTS;
 
 
 
@@ -184,7 +184,7 @@ public:
 
 
 	
-	void addNetworkEventToQueue(StringTS S);
+	//void addNetworkEventToQueue(StringTS S);
 
 	void postEventsInQueue(MidiBuffer& events);
 
@@ -264,7 +264,7 @@ public:
 	known depth of the advancer that is used to control that electrode, plus
 	the defined depth offset. Depth offset is mainly useful for depth probes,
 	in which the contact position is not always the at the tip */
-	double getElectrodeDepth(int electrodeID);
+	//double getElectrodeDepth(int electrodeID);
 
 	/** returns the number of electrodes */
 	int getNumElectrodes();
@@ -278,13 +278,13 @@ public:
 	int getCurrentElectrodeIndex();
 	Electrode* setCurrentElectrodeIndex(int i);
 	Electrode* getElectrode(int i);
-	StringTS createStringTS(String S);
-	int64 getExtrapolatedHardwareTimestamp(int64 softwareTS);
-	void postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events);
-	void setElectrodeAdvancer(int i,int ID);
-	void setElectrodeAdvancerOffset(int i, double v);
-	double getAdvancerPosition(int advancerID);
-	double getSelectedElectrodeDepth();
+	//StringTS createStringTS(String S);
+	//int64 getExtrapolatedHardwareTimestamp(int64 softwareTS);
+	//void postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events);
+	//void setElectrodeAdvancer(int i,int ID);
+	//void setElectrodeAdvancerOffset(int i, double v);
+	//double getAdvancerPosition(int advancerID);
+	//double getSelectedElectrodeDepth();
 	bool getAutoDacAssignmentStatus();
 	void seteAutoDacAssignment(bool status);
 	int getNumPreSamples();
@@ -325,7 +325,7 @@ private:
 
 	float ticksPerSec;
 	int uniqueID;
-	std::queue<StringTS> eventQueue;
+	//std::queue<StringTS> eventQueue;
     /** pointer to a continuous buffer. */
     AudioSampleBuffer* dataBuffer;
 

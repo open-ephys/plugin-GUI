@@ -73,7 +73,7 @@ class SpikeSorterCanvas : public Visualizer, public Button::Listener
 
 {
 public:
-    SpikeSorterCanvas(SpikeSorteror* n);
+    SpikeSorterCanvas(SpikeSorter* n);
     ~SpikeSorterCanvas();
 
     void paint(Graphics& g);
@@ -125,7 +125,7 @@ private:
 class SpikeThresholdDisplay : public Component
 {
 public:
-    SpikeThresholdDisplay(SpikeSorteror *, SpikeSorterCanvas*, Viewport*);
+    SpikeThresholdDisplay(SpikeSorter*, SpikeSorterCanvas*, Viewport*);
 
     ~SpikeThresholdDisplay();
 
@@ -210,7 +210,7 @@ protected:
 class WaveformAxes : public GenericDrawAxes
 {
 public:
-    WaveformAxes(SpikeHistogramPlot *plt, SpikeSorteror *p, int electrodeID_, int channel);
+    WaveformAxes(SpikeHistogramPlot *plt, SpikeSorter *p, int electrodeID_, int channel);
     ~WaveformAxes() {}
 
 	
@@ -282,7 +282,7 @@ private:
 	String strOverWhere;
 
 	std::vector<BoxUnit> units;
-	SpikeSorteror* processor;
+	SpikeSorter* processor;
 	SpikeHistogramPlot* spikeHistogramPlot;
     MouseCursor::StandardCursorType cursorType;
 
@@ -293,7 +293,7 @@ private:
 class PCAProjectionAxes : public GenericDrawAxes,  Button::Listener
 {
 public:
-    PCAProjectionAxes(SpikeSorteror *p);
+    PCAProjectionAxes(SpikeSorter *p);
     ~PCAProjectionAxes() {}
 
 	void setPCARange(float p1min, float p2min, float p1max, float p2max);
@@ -324,7 +324,7 @@ private:
 	void drawProjectedSpike(SpikeObject s);
 
 	bool rangeSet;
-	SpikeSorteror* processor;
+	SpikeSorter* processor;
     void updateProjectionImage(uint16_t, uint16_t, uint16_t, const uint8_t *col);
 	void updateRange(const SpikeObject& s);
 	ScopedPointer<UtilityButton> rangeDownButton, rangeUpButton;
@@ -361,7 +361,7 @@ private:
 class SpikeHistogramPlot : public Component, Button::Listener
 {
 public:
-    SpikeHistogramPlot(SpikeSorteror *, SpikeSorterCanvas*, int electrodeID, int plotType, String name_);
+    SpikeHistogramPlot(SpikeSorter *, SpikeSorterCanvas*, int electrodeID, int plotType, String name_);
     virtual ~SpikeHistogramPlot();
 
     void paint(Graphics& g);
@@ -414,7 +414,7 @@ private:
 
 	std::vector<BoxUnit> boxUnits;
 	std::vector<PCAUnit> pcaUnits;
-	SpikeSorteror* processor;
+	SpikeSorter* processor;
     OwnedArray<PCAProjectionAxes> pAxes;
     OwnedArray<WaveformAxes> wAxes;
     OwnedArray<UtilityButton> rangeButtons;

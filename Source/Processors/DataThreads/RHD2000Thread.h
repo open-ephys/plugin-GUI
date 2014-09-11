@@ -37,6 +37,7 @@
 #include "rhythm-api/okFrontPanelDLL.h"
 
 #include "DataThread.h"
+#include "../GenericProcessor.h"
 
 #define MAX_NUM_DATA_STREAMS 8
 
@@ -50,7 +51,7 @@ class SourceNode;
 
 */
 
-class RHD2000Thread : public DataThread
+class RHD2000Thread : public DataThread, public Timer
 
 {
 public:
@@ -72,29 +73,56 @@ public:
 
     double setUpperBandwidth(double upper); // set desired BW, returns actual BW
     double setLowerBandwidth(double lower);
-
+    
     int setNoiseSlicerLevel(int level);
+    void runImpedanceTest(Array<int> &stream, Array<int> &channel, Array<float> &magnitude, Array<float> &phase);
+    void setFastTTLSettle(bool state, int channel);
+    void setTTLoutputMode(bool state);
+    void setDAChpf(float cutoff, bool enabled);
 
     void scanPorts();
-
+    float updateImpedanceFrequency(float desiredImpedanceFreq, bool &impedanceFreqValid);
+    int loadAmplifierData(queue<Rhd2000DataBlock> &dataQueue,
+                                       int numBlocks, int numDataStreams);
+    void measureComplexAmplitude(std::vector<std::vector<std::vector<double>>> &measuredMagnitude,
+                                            std::vector<std::vector<std::vector<double>>> &measuredPhase,
+                                              int capIndex, int stream, int chipChannel, int numBlocks,
+                                              double sampleRate, double frequency, int numPeriods);
+    void amplitudeOfFreqComponent(double &realComponent, double &imagComponent,
+                                               const std::vector<double> &data, int startIndex,
+                                               int endIndex, double sampleRate, double frequency);
     int getNumEventChannels();
+    int getNumADCchannels();
 
     void assignAudioOut(int dacChannel, int dataChannel);
     void enableAdcs(bool);
 
     bool isAcquisitionActive();
-
+    
+    virtual int modifyChannelGain(channelType t, int str, int ch, float gain);
+    virtual int modifyChannelName(channelType t, int str, int k, String newName);
+    virtual void getChannelsInfo(StringArray &Names, Array<channelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
+    virtual void getEventChannelNames(StringArray &Names);
     void updateChannelNames();
+    Array<int> getDACchannels();
+    void setDACchannel(int dacOutput, int stream, int channel);
+    void setDACthreshold(int dacOutput, float threshold);
+    void setDefaultNamingScheme(int scheme);
 
 private:
+    void setDefaultChannelNamesAndType();
+    bool channelModified(channelType t, int str, int k, String &oldName, float &oldGain, int &index);
 
     ScopedPointer<Rhd2000EvalBoard> evalBoard;
     Rhd2000Registers chipRegisters;
     Rhd2000DataBlock* dataBlock;
 
-
+    std::vector<std::vector<std::vector<double>>> amplifierPreFilter;
     Array<int> numChannelsPerDataStream;
-
+    void factorOutParallelCapacitance(double &impedanceMagnitude, double &impedancePhase,
+                                              double frequency, double parasiticCapacitance);
+    void empiricalResistanceCorrection(double &impedanceMagnitude, double &impedancePhase,
+                                               double boardSampleRate);
     int numChannels;
     bool deviceFound;
 
@@ -110,6 +138,11 @@ private:
     bool acquireAuxChannels;
 
     bool fastSettleEnabled;
+    bool fastTTLSettleEnabled;
+    bool fastSettleTTLChannel;
+    bool ttlMode;
+    bool desiredDAChpfState;
+    double desiredDAChpf;
 
     bool dspEnabled;
     double actualDspCutoffFreq, desiredDspCutoffFreq;
@@ -121,7 +154,7 @@ private:
 
     String libraryFilePath;
 
-
+    void timerCallback();
 
     bool startAcquisition();
     bool stopAcquisition();
@@ -139,6 +172,19 @@ private:
     double cableLengthPortA, cableLengthPortB, cableLengthPortC, cableLengthPortD;
 
     int audioOutputL, audioOutputR;
+    int *dacChannels, *dacStream;
+    float *dacThresholds;
+    bool *dacChannelsToUpdate;
+    Array<int> chipId;
+
+    // used for data stream names...
+    int numberingScheme ;
+    StringArray Names, oldNames;
+    Array<channelType> type, oldType;
+    Array<float> gains, oldGains;
+    Array<int> stream, oldStream;
+    Array<bool> modifiedName, oldModifiedName;
+    Array<int> originalChannelNumber, oldChannelNumber;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);

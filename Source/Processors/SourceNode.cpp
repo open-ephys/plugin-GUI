@@ -122,7 +122,7 @@ void SourceNode::updateSettings()
     {
         Channel* ch = new Channel(this, i);
         ch->eventType = TTL;
-        ch->isEventChannel = true;
+        ch->getType() == EVENT_CHANNEL;
         eventChannels.add(ch);
     }
 

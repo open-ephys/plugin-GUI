@@ -415,6 +415,9 @@
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\SpikeSortBoxes.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\SpikeSorter.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
@@ -1991,6 +1994,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\SpikeSortBoxes.h">
+      <Filter>open-ephys\Source\Processors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\SpikeSorter.h">
       <Filter>open-ephys\Source\Processors</Filter>
