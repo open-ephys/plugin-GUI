@@ -733,6 +733,8 @@ void KWIKFile::stopRecording()
     timeStamps.clear();
     recordings.clear();
     eventID.clear();
+	nodeID.clear();
+	channelID.clear();
 }
 
 void KWIKFile::writeEvent(int type, uint8 id, uint8 processor, uint8 channel, uint64 timestamp)
