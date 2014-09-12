@@ -108,14 +108,14 @@ void SpikeSorterCanvas::beginAnimation()
 {
     std::cout << "SpikeSorterCanvas beginning animation." << std::endl;
 
-    //startCallbacks();
+    startCallbacks();
 }
 
 void SpikeSorterCanvas::endAnimation()
 {
     std::cout << "SpikeSorterCanvas ending animation." << std::endl;
 
-   // stopCallbacks();
+    stopCallbacks();
 }
 
 void SpikeSorterCanvas::update()
@@ -380,7 +380,7 @@ void SpikeSorterCanvas::buttonClicked(Button* button)
 		// generate new IDs
 		processor->getActiveElectrode()->spikeSort->generateNewIDs();
 		electrode->spikePlot->updateUnitsFromProcessor();
-		processor->updateSinks(electrode->electrodeID,false);
+		//processor->updateSinks(electrode->electrodeID,false);
 	} else if (button == deleteAllUnits)
 	{
 		// delete unit
@@ -1853,20 +1853,20 @@ void PCAProjectionAxes::drawProjectedSpike(SpikeObject s)
 
 void PCAProjectionAxes::redraw(bool subsample)
 {
-//	Graphics g(projectionImage);
-//
-//	// recompute image
-//	int w = getWidth();
-//	int h = getHeight();
-//	projectionImage.clear(juce::Rectangle<int>(0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
-//                          Colours::black);
-//
-//	int dk = (subsample) ? 5 : 1;
-//
-//	for (int k=0;k<bufferSize;k+=dk)
-//	{
-//		drawProjectedSpike(spikeBuffer[k]);
-//	}
+	Graphics g(projectionImage);
+
+	// recompute image
+	int w = getWidth();
+	int h = getHeight();
+	projectionImage.clear(juce::Rectangle<int>(0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
+                         Colours::black);
+
+	int dk = (subsample) ? 5 : 1;
+
+	for (int k=0;k<bufferSize;k+=dk)
+	{
+		drawProjectedSpike(spikeBuffer[k]);
+	}
 	
 }
 

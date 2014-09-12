@@ -486,12 +486,14 @@ float SpikeDisplay::getRangeForWaveAxis(int plotNum, int axisNum)
 
 void SpikeDisplay::setThresholdForWaveAxis(int plotNum, int axisNum, float range)
 {
-    return spikePlots[plotNum]->setDisplayThresholdForChannel(axisNum, range);
+    if (spikePlots.size() > plotNum)
+        return spikePlots[plotNum]->setDisplayThresholdForChannel(axisNum, range);
 }
 
 void SpikeDisplay::setRangeForWaveAxis(int plotNum, int axisNum, float range)
 {
-    return spikePlots[plotNum]->setRangeForChannel(axisNum, range);
+    if (spikePlots.size() > plotNum)
+        return spikePlots[plotNum]->setRangeForChannel(axisNum, range);
 }
 
 // ----------------------------------------------------------------

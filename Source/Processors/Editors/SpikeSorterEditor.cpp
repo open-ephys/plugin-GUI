@@ -431,6 +431,8 @@ void SpikeSorterEditor::buttonEvent(Button* button)
 
 	 	processor->addProbes(ProbeType,numProbes, nElectrodes,nChansPerElectrode, firstElectrodeOffset,interelectrodeDistance);
 		refreshElectrodeList();
+
+        getEditorViewport()->makeEditorVisible(this, true, true);
 		
         return;
 

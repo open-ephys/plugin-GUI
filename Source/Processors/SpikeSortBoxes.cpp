@@ -1743,8 +1743,9 @@ float PCAjob::pythag(float a, float b) {
   V (not V transpose) is output as the matrix V[nCols][nCols].
 */
 int PCAjob::svdcmp(float **a, int nRows, int nCols, float *w, float **v) {
-  int flag,i,its,j,jj,k,l,nm;
-  float anorm,c,f,g,h,s,scale,x,y,z,*rv1;
+ 
+  int flag, i, its, j, jj, k, l, nm;
+  float anorm, c, f, g, h, s, scale, x, y, z, *rv1;
 
   rv1 = new float[nCols];
   if(rv1 == NULL) {
@@ -1753,14 +1754,14 @@ int PCAjob::svdcmp(float **a, int nRows, int nCols, float *w, float **v) {
   }
 
   g = scale = anorm = 0.0;
-  for(i=0;i<nCols;i++) {
+  for(i = 0; i < nCols; i++) {
     l = i+1;
     rv1[i] = scale*g;
     g = s = scale = 0.0;
     if(i < nRows) {
-      for(k=i;k<nRows;k++) scale += fabs(a[k][i]);
+      for(k = i; k < nRows; k++) scale += fabs(a[k][i]);
       if(scale) {
-	for(k=i;k<nRows;k++) {
+	for(k = i; k < nRows; k++) {
 	  a[k][i] /= scale;
 	  s += a[k][i] * a[k][i];
 	}
@@ -1768,20 +1769,21 @@ int PCAjob::svdcmp(float **a, int nRows, int nCols, float *w, float **v) {
 	g = -SIGN(sqrt(s),f);
 	h = f * g - s;
 	a[i][i] = f - g;
-	for(j=l;j<nCols;j++) {
-	  for(s=0.0,k=i;k<nRows;k++) s += a[k][i] * a[k][j];
+	for(j = l; j < nCols; j++) {
+	  for(s = 0.0, k = i; k < nRows; k++) s += a[k][i] * a[k][j];
 	  f = s / h;
-	  for(k=i;k<nRows;k++) a[k][j] += f * a[k][i];
+	  for(k = i; k < nRows; k++) a[k][j] += f * a[k][i];
 	}
-	for(k=i;k<nRows;k++) a[k][i] *= scale;
+	for(k = i; k < nRows; k++) a[k][i] *= scale;
       }
     }
     w[i] = scale * g;
     g = s = scale = 0.0;
     if(i < nRows && i != nCols-1) {
-      for(k=l;k<nCols;k++) scale += fabs(a[i][k]);
+      for(k = l; k < nCols; k++) scale += fabs(a[i][k]);
       if(scale)  {
-	for(k=l;k<nCols;k++) {
+	for(k = l; k < nCols; k++)
+	{
 	  a[i][k] /= scale;
 	  s += a[i][k] * a[i][k];
 	}
@@ -1939,8 +1941,8 @@ void PCAjob::computeCov()
 {
 	// allocate and zero
 	cov = new float*[dim];
-	float *mean  = new float[dim];
-	for (int k=0;k<dim;k++) {
+	float* mean  = new float[dim];
+	for (int k = 0;k < dim; k++) {
 		cov[k] = new float[dim];
 		for (int j=0;j<dim;j++)
 		{
@@ -1981,6 +1983,13 @@ void PCAjob::computeCov()
 	}
 	delete mean;
 
+	// delete covariances
+	for (int k = 0; k < dim; k++)
+	 	delete cov[k];
+
+	delete(cov);
+	cov = nullptr;
+
 }
 
 std::vector<int> sort_indexes( std::vector<float> v) 
@@ -1993,16 +2002,15 @@ std::vector<int> sort_indexes( std::vector<float> v)
 		idx[i] = i;
 	}
 
-	//// NEED TO FIX THIS:::: -- Linux compiler doesn't understand syntax!
-	// sort indexes based on comparing values in v
-	// sort(
-	// 	idx.begin(), 
-	// 	idx.end(), 
-	// 	[&v](size_t i1, size_t i2) 
-	// 	{
-	// 		return v[i1] > v[i2];
-	// 	}
-	// );
+	//sort indexes based on comparing values in v
+	sort(
+		idx.begin(), 
+		idx.end()//, 
+		//[&v](size_t i1, size_t i2) 
+		//{
+		//	return v[i1] > v[i2];
+		//}
+	);
 
 	return idx;
 }
@@ -2015,30 +2023,23 @@ void PCAjob::computeSVD()
 	sigvalues = new float[dim];
 
 	eigvec = new float*[dim];
-	for (int k=0;k<dim;k++) {
+	for (int k = 0; k < dim; k++) {
 		eigvec[k] = new float[dim];
 		for (int j=0;j<dim;j++)
 		{
 			eigvec[k][j] = 0;
 		}
 	}
+
+	svdcmp(cov, dim, dim, sigvalues, eigvec);
 	
-	svdcmp(cov, dim, dim, sigvalues,eigvec );
-	// find the two largest eigen values
-	for (int k=0;k<dim;k++)
-		delete cov[k];
 
-	delete(cov);
-	cov=nullptr;
 
-	  std::vector<float> sig;
-	  sig.resize(dim);
-	  for (int k=0;k<dim;k++)
-		  sig[k] = sigvalues[k];
+	std::vector<float> sig;
+	sig.resize(dim);
+	for (int k = 0; k < dim; k++)
+	    sig[k] = sigvalues[k];
 
-		
-
-	
 	std::vector<int> sortind = sort_indexes(sig);
 
 	//
@@ -2076,7 +2077,7 @@ void PCAjob::computeSVD()
 	 *pc2max = max2 + 1.5 * (max2-min2);
 
 	// clear memory
-	for (int k=0;k<dim;k++)
+	for (int k = 0; k < dim; k++)
 	{
 		delete eigvec[k];
 	}
