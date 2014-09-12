@@ -471,22 +471,22 @@ void RHD2000Thread::scanPorts()
     }
 
     evalBoard->setCableDelay(Rhd2000EvalBoard::PortA,
-                             optimumDelay[0]);
+                             max(optimumDelay[0],optimumDelay[1]));
     evalBoard->setCableDelay(Rhd2000EvalBoard::PortB,
-                             optimumDelay[1]);
+                             max(optimumDelay[2],optimumDelay[3]));
     evalBoard->setCableDelay(Rhd2000EvalBoard::PortC,
-                             optimumDelay[2]);
+                             max(optimumDelay[4],optimumDelay[5]));
     evalBoard->setCableDelay(Rhd2000EvalBoard::PortD,
-                             optimumDelay[3]);
+                             max(optimumDelay[6],optimumDelay[7]));
 
     cableLengthPortA =
-        evalBoard->estimateCableLengthMeters(optimumDelay[0]);
+        evalBoard->estimateCableLengthMeters(max(optimumDelay[0],optimumDelay[1]));
     cableLengthPortB =
-        evalBoard->estimateCableLengthMeters(optimumDelay[1]);
+        evalBoard->estimateCableLengthMeters(max(optimumDelay[2],optimumDelay[3]));
     cableLengthPortC =
-        evalBoard->estimateCableLengthMeters(optimumDelay[2]);
+        evalBoard->estimateCableLengthMeters(max(optimumDelay[4],optimumDelay[5]));
     cableLengthPortD =
-        evalBoard->estimateCableLengthMeters(optimumDelay[3]);
+        evalBoard->estimateCableLengthMeters(max(optimumDelay[6],optimumDelay[7]));
 
     setSampleRate(savedSampleRateIndex); // restore saved sample rate
 
