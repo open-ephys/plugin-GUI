@@ -57,6 +57,27 @@ class AudioEditor;
 
 */
 
+class Compressor
+{
+public:
+  Compressor();
+  void setThreshold(float);
+  void setRatio(float);
+  void setAttack(float);
+  void setRelease(float);
+  void reset();
+
+  void process(float* leftChan, float* rightChan, int numSamples);
+
+private:
+    float   threshold;
+    float   attack, release, envelope_decay;
+    float   output;
+    float   transfer_A, transfer_B;
+    float   env, gain;
+
+};
+
 class AudioNode : public GenericProcessor
 {
 public:
@@ -117,6 +138,8 @@ private:
     int samplesInOverflowBuffer;
 
     bool bufferSwap;
+
+    Compressor compressor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioNode);
 

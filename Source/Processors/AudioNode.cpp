@@ -21,6 +21,7 @@
 
 */
 
+#include <cmath>
 
 #include "AudioNode.h"
 #include "Channel.h"
@@ -140,7 +141,8 @@ void AudioNode::setParameter(int parameterIndex, float newValue)
     else if (parameterIndex == 2)
     {
         // noiseGateLevel level
-        noiseGateLevel = newValue; // in microVolts
+
+        compressor.setThreshold(newValue); // in microVolts
 
     }
     else if (parameterIndex == 100)
@@ -357,17 +359,12 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                     }
 
                     // Simple implementation of a "noise gate" on audio output
-                    float* leftChannelData = buffer.getWritePointer(0);
-                    float* rightChannelData = buffer.getWritePointer(1);
-                    float gateLevel = noiseGateLevel * gain; // uVolts scaled by gain
+                    // Modified from http://musicdsp.org/archive.php?classid=1#272:
 
-                    for (int m = 0; m < buffer.getNumSamples(); m++)
-                    {
-                        if (fabs(leftChannelData[m])  < gateLevel)
-                            leftChannelData[m] = 0;
-                        if (fabs(rightChannelData[m]) < gateLevel)
-                            rightChannelData[m] = 0;
-                    }
+                    compressor.process(buffer.getWritePointer(0), // left channel
+                                       buffer.getWritePointer(1), // right channel
+                                       buffer.getNumSamples());
+
                 }
             }
 
@@ -377,4 +374,71 @@ void AudioNode::process(AudioSampleBuffer& buffer,
         nSamples = numSamplesExpected;
 
     }
+}
+
+// ==========================================================
+
+Compressor::Compressor()
+{
+  threshold = 1.f;
+  attack = release = envelope_decay = 0.f;
+  output = 1.f;
+    
+  transfer_A = 0.f;
+  transfer_B = 1.f;
+    
+  env = 0.f;
+  gain = 1.f;
+}
+
+void Compressor::setThreshold(float value)
+{
+    threshold = value;
+    transfer_B = output * pow(threshold, -transfer_A);
+
+    std::cout << "Threshold set to " << threshold << std::endl;
+    std::cout << "transfer_B set to " << transfer_B << std::endl;
+}
+
+
+void Compressor::setRatio(float value)
+{
+    transfer_A = value - 1.f;
+    transfer_B = output * pow(threshold, -transfer_A);
+}
+
+
+void Compressor::setAttack(float value)
+{
+    attack = exp(-1.f/value);
+}
+
+
+void Compressor::setRelease(float value)
+{
+    release = exp(-1.f/value);
+    envelope_decay = exp(-4.f/value); /* = exp(-1/(0.25*value)) */
+}
+
+
+void Compressor::process(float* leftChan, float* rightChan, int numSamples)
+{
+  float det, transfer_gain;
+
+  for(int i = 0; i < numSamples; i++)
+  {
+      det = jmax(fabs(leftChan[i]),fabs(rightChan[i]));
+      det += 10e-30f; /* add tiny DC offset (-600dB) to prevent denormals */
+
+      env = det >= env ? det : det + envelope_decay*(env-det);
+
+      transfer_gain = env > threshold ? pow(env, transfer_A) * transfer_B : output;
+
+      gain = transfer_gain < gain ?
+                      transfer_gain + attack * (gain - transfer_gain) :
+                      transfer_gain + release * (gain - transfer_gain);
+
+      leftChan[i] = leftChan[i] * gain;
+      rightChan[i] = rightChan[i] * gain;
+  }
 }
