@@ -1758,25 +1758,37 @@ int PCAjob::svdcmp(float **a, int nRows, int nCols, float *w, float **v) {
     l = i+1;
     rv1[i] = scale*g;
     g = s = scale = 0.0;
-    if(i < nRows) {
-      for(k = i; k < nRows; k++) scale += fabs(a[k][i]);
-      if(scale) {
-	for(k = i; k < nRows; k++) {
-	  a[k][i] /= scale;
-	  s += a[k][i] * a[k][i];
-	}
-	f = a[i][i];
-	g = -SIGN(sqrt(s),f);
-	h = f * g - s;
-	a[i][i] = f - g;
-	for(j = l; j < nCols; j++) {
-	  for(s = 0.0, k = i; k < nRows; k++) s += a[k][i] * a[k][j];
-	  f = s / h;
-	  for(k = i; k < nRows; k++) a[k][j] += f * a[k][i];
-	}
-	for(k = i; k < nRows; k++) a[k][i] *= scale;
+    if (i < nRows) 
+    {
+      for(k = i; k < nRows; k++)
+      {
+      	//std::cout << k << " " << i << std::endl;
+      	scale += fabs(a[k][i]);
       }
-    }
+      
+      if(scale) 
+      {
+		for(k = i; k < nRows; k++) 
+		{
+	  		a[k][i] /= scale;
+	  		s += a[k][i] * a[k][i];
+		}
+		f = a[i][i];
+		g = -SIGN(sqrt(s),f);
+		h = f * g - s;
+		a[i][i] = f - g;
+		
+		for(j = l; j < nCols; j++) 
+		{
+		  for(s = 0.0, k = i; k < nRows; k++) s += a[k][i] * a[k][j];
+		  f = s / h;
+		  for(k = i; k < nRows; k++) a[k][j] += f * a[k][i];
+		}
+		
+		for(k = i; k < nRows; k++)
+			a[k][i] *= scale;
+	   } // end if (scale)
+    } // end if (i < nRows)
     w[i] = scale * g;
     g = s = scale = 0.0;
     if(i < nRows && i != nCols-1) {
@@ -2033,8 +2045,6 @@ void PCAjob::computeSVD()
 
 	svdcmp(cov, dim, dim, sigvalues, eigvec);
 	
-
-
 	std::vector<float> sig;
 	sig.resize(dim);
 	for (int k = 0; k < dim; k++)
@@ -2042,19 +2052,18 @@ void PCAjob::computeSVD()
 
 	std::vector<int> sortind = sort_indexes(sig);
 
-	//
-
-	for (int k=0;k<dim;k++)
+	for (int k = 0; k < dim; k++)
 	{
 		pc1[k] = eigvec[k][sortind[0]];
 		pc2[k] = eigvec[k][sortind[1]];
 	}
 	// project samples to find the display range
-	float min1=1e10,min2=1e10,max1=-1e10,max2=-1e10;
-	for (int j=0;j<spikes.size();j++)
+	float min1 = 1e10, min2 = 1e10, max1 = -1e10, max2 = -1e10;
+	
+	for (int j = 0; j < spikes.size(); j++)
 	{
 		float sum1 = 0, sum2=0;
-		for (int k=0;k<dim;k++)
+		for (int k = 0; k < dim; k++)
 		{
             SpikeObject spike = spikes[j];
 			sum1 += spikeDataIndexToMicrovolts(&spike,k) * pc1[k];
@@ -2109,8 +2118,11 @@ void PCAcomputingThread::run()
 		// 1. Compute Covariance matrix
 		// 2. Apply SVD on covariance matrix
 		// 3. Extract the two principal components corresponding to the largest singular values
-		J.computeCov();
-		J.computeSVD();
+		
+		// Take these out for now:
+		//J.computeCov();
+		//J.computeSVD();
+		
 		// 4. Report to the spike sorting electrode that PCA is finished 
 		*(J.reportDone) = true;
 	}
