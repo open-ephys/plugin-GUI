@@ -1151,13 +1151,13 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 
 void LfpDisplay::toggleSingleChannel(int chan)
 {
-	std::cout << "Toggle channel " << chan << std::endl;
+	//std::cout << "Toggle channel " << chan << std::endl;
 
 	if (chan != singleChan)
 	{
 		singleChan = chan;
 		int newHeight = viewport->getHeight();
-		setChannelHeight(newHeight-100, false);
+		setChannelHeight(newHeight, false);
 		setSize(getWidth(), numChans*getChannelHeight());
 		viewport->setScrollBarsShown(false,false);
 		//viewport->setViewPosition(Point<int>(0,chan*newHeight));
@@ -1200,8 +1200,8 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 
 		if (dist<mindist)
 		{
-			mindist=dist-1;
-			closest=n;
+			mindist = dist-1;
+			closest = n;
 		}
 	}
 
@@ -1209,7 +1209,9 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 	//lcd->select();
 
 	channels[closest]->select();
-	if (event.getNumberOfClicks() == 2) toggleSingleChannel(closest);
+
+	if (event.getNumberOfClicks() == 2)
+		toggleSingleChannel(closest);
 
 	canvas->fullredraw = true;//issue full redraw
 
@@ -1289,10 +1291,10 @@ LfpChannelDisplay::~LfpChannelDisplay()
 void LfpChannelDisplay::setEnabledState(bool state)
 {
 
-	if (state)
-		std::cout << "Setting channel " << name << " to true." << std::endl;
-	else
-		std::cout << "Setting channel " << name << " to false." << std::endl;
+	//if (state)
+		//std::cout << "Setting channel " << name << " to true." << std::endl;
+	//else
+		//std::cout << "Setting channel " << name << " to false." << std::endl;
 
 	isEnabled = state;
 
@@ -1305,8 +1307,6 @@ void LfpChannelDisplay::paint(Graphics& g)
 
 	g.setColour(Colours::yellow);   // draw most recent drawn sample position
 	g.drawLine(canvas->screenBufferIndex+1, 0, canvas->screenBufferIndex+1, getHeight());
-
-
 
 
 	//g.setColour(Colours::red); // draw oldest drawn sample position
@@ -1325,9 +1325,33 @@ void LfpChannelDisplay::paint(Graphics& g)
 			g.drawLine(0,center+channelHeight/2,getWidth(),center+channelHeight/2);
 			g.drawLine(0,center-channelHeight/2,getWidth(),center-channelHeight/2);
 
-			g.setColour(Colour(25,25,25));
-			g.drawLine(0,center+channelHeight/4,10,center+channelHeight/4);
-			g.drawLine(0,center-channelHeight/4,10,center-channelHeight/4);
+			if (!display->getSingleChannelState())
+			{
+				g.setColour(Colour(25,25,25));
+				g.drawLine(0,center+channelHeight/4,10,center+channelHeight/4);
+				g.drawLine(0,center-channelHeight/4,10,center-channelHeight/4);
+			} else {
+				g.setColour(Colour(70,70,70));
+				g.drawLine(0,center+channelHeight/4,getWidth(),center+channelHeight/4);
+				g.drawLine(0,center-channelHeight/4,getWidth(),center-channelHeight/4);
+			}
+			
+
+		}
+
+		if (display->getSingleChannelState())
+		{
+
+			int leftEdge = 150;
+
+			g.setColour(Colours::lightgrey);
+			g.setFont(channelFont);
+			g.setFont(20);
+			g.drawText(String(0) + " uV", 20, center, leftEdge, 25, Justification::left, false);
+			g.drawText(String(range/2) + " uV", 20, center-channelHeight/2, leftEdge, 25, Justification::left, false);
+			g.drawText(String(-range/2) + " uV", 20, center+channelHeight/2-25, leftEdge, 25, Justification::left, false);
+			g.drawText(String(range/4) + " uV", 20, center-channelHeight/4, leftEdge, 25, Justification::left, false);
+			g.drawText(String(-range/4) + " uV", 20, center+channelHeight/4, leftEdge, 25, Justification::left, false);
 
 		}
 
@@ -1572,7 +1596,7 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
 	//  b->setLabel("OFF");
 	// }
 
-	std::cout << "Turn channel " << chan << " to " << button->getToggleState() << std::endl;
+	//std::cout << "Turn channel " << chan << " to " << button->getToggleState() << std::endl;
 
 }
 
