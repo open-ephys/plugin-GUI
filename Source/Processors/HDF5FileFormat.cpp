@@ -406,11 +406,11 @@ HDF5RecordingData::HDF5RecordingData(DataSet* data)
 {
     DataSpace dSpace;
     DSetCreatPropList prop;
-    DataSet* dSet = data;
+    ScopedPointer<DataSet> dataSet = data;
     hsize_t dims[3], chunk[3];
 
-    dSpace = dSet->getSpace();
-    prop = dSet->getCreatePlist();
+    dSpace = dataSet->getSpace();
+    prop = dataSet->getCreatePlist();
 
     dimension = dSpace.getSimpleExtentDims(dims);
     prop.getChunk(dimension,chunk);
@@ -427,7 +427,7 @@ HDF5RecordingData::HDF5RecordingData(DataSet* data)
 
     this->xChunkSize = chunk[0];
     this->xPos = dims[0];
-    this->dSet = dSet;
+    this->dSet = dataSet;
     this->rowXPos = 0;
     this->rowDataSize = 0;
 }
