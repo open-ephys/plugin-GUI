@@ -668,6 +668,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 
     std::cout << "Removing processor with ID " << processor->getNodeId() << std::endl;
 
+    disconnectNode(processor->getNodeId());
     removeNode(processor->getNodeId());
 
 }

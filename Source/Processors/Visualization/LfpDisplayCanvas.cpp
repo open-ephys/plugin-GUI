@@ -90,6 +90,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	spreads.add("40");
 	spreads.add("50");
 	spreads.add("60");
+	spreads.add("100");
 
 	colorGroupings.add("1");
 	colorGroupings.add("2");
@@ -345,22 +346,22 @@ void LfpDisplayCanvas::setParameter(int param, float val)
 
 void LfpDisplayCanvas:: setRangeSelection(float range)
 {
-			//rangeSelection->setItemEnabled(0,true); //keep custom range unavailable for direct selection
-			rangeSelection->setSelectedId(1,true);  // but show it for display
-			rangeSelection->changeItemText(1,String(int(range))); // and set to correct number
+	//rangeSelection->setItemEnabled(0,true); //keep custom range unavailable for direct selection
+	rangeSelection->setSelectedItemIndex(0, sendNotificationAsync);  // but show it for display
+	rangeSelection->changeItemText(1, String(int(range))); // and set to correct number
 
-			repaint();
-			refresh();
+	repaint();
+	refresh();
 			
 }
 
 void LfpDisplayCanvas:: setSpreadSelection(int spread)
 {
-			spreadSelection->setSelectedId(1,true);
-			spreadSelection->changeItemText(1,String(int(spread))); // and set to correct number
+	spreadSelection->setSelectedItemIndex(0, sendNotificationAsync);
+	spreadSelection->changeItemText(1, String(int(spread))); // and set to correct number
 
-			repaint();
-			refresh();
+	repaint();
+	refresh();
 			
 }
 
@@ -1151,12 +1152,13 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 void LfpDisplay::toggleSingleChannel(int chan)
 {
 	std::cout << "Toggle channel " << chan << std::endl;
+
 	if (chan != singleChan)
 	{
 		singleChan = chan;
 		int newHeight = viewport->getHeight();
-		setChannelHeight(newHeight,false);
-		setSize(getWidth(),numChans*getChannelHeight());
+		setChannelHeight(newHeight-100, false);
+		setSize(getWidth(), numChans*getChannelHeight());
 		viewport->setScrollBarsShown(false,false);
 		//viewport->setViewPosition(Point<int>(0,chan*newHeight));
 		for (int n = 0; n < numChans; n++)

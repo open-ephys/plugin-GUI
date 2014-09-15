@@ -74,7 +74,7 @@ int DataViewport::addTabToDataViewport(String name, Component* component, Generi
 
     editorArray.add(editor);
 
-    //  std::cout << "Adding tab with index " << tabIndex << std::endl;
+    std::cout << "Adding tab with index " << tabIndex << std::endl;
 
     setCurrentTabIndex(tabArray.size()-1);
 
@@ -97,8 +97,8 @@ void DataViewport::destroyTab(int index)
     int newIndex = tabArray.indexOf(index);
 
     tabArray.remove(newIndex);
-    editorArray.remove(newIndex);
-
+    editorArray.remove(newIndex); // do this after the editor has been refreshed
+    
     removeTab(newIndex);
 
     if (tabArray.size() == 0)
@@ -127,7 +127,7 @@ void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
 
     if (!shutdown)
     {
-        getEditorViewport()->makeEditorVisible(editorArray[newIndex]);
+        //getEditorViewport()->makeEditorVisible(editorArray[newIndex]);
         getTopLevelComponent()->repaint();
     }
 }

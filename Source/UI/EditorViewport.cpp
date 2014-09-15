@@ -349,6 +349,7 @@ void EditorViewport::deleteNode(GenericEditor* editor)
         editor->setVisible(false);
 
         signalChainManager->updateVisibleEditors(editor, indexOfMovingComponent, insertionPoint, REMOVE);
+        
         getGraphViewer()->removeNode(editor);
 
         refreshEditors();
@@ -359,8 +360,6 @@ void EditorViewport::deleteNode(GenericEditor* editor)
         indexOfMovingComponent = -1;
 
         somethingIsBeingDraggedOver = false;
-
-
 
         repaint();
 
