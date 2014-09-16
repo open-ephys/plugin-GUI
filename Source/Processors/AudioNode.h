@@ -57,10 +57,10 @@ class AudioEditor;
 
 */
 
-class Compressor
+class Expander
 {
 public:
-  Compressor();
+  Expander();
   void setThreshold(float);
   void setRatio(float);
   void setAttack(float);

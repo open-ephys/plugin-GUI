@@ -142,7 +142,7 @@ void AudioNode::setParameter(int parameterIndex, float newValue)
     {
         // noiseGateLevel level
 
-        compressor.setThreshold(newValue); // in microVolts
+        Expander.setThreshold(newValue); // in microVolts
 
     }
     else if (parameterIndex == 100)
@@ -361,7 +361,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                     // Simple implementation of a "noise gate" on audio output
                     // Modified from http://musicdsp.org/archive.php?classid=1#272:
 
-                    compressor.process(buffer.getWritePointer(0), // left channel
+                    Expander.process(buffer.getWritePointer(0), // left channel
                                        buffer.getWritePointer(1), // right channel
                                        buffer.getNumSamples());
 
@@ -378,7 +378,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
 
 // ==========================================================
 
-Compressor::Compressor()
+Expander::Expander()
 {
   threshold = 1.f;
   attack = release = envelope_decay = 0.f;
@@ -391,7 +391,7 @@ Compressor::Compressor()
   gain = 1.f;
 }
 
-void Compressor::setThreshold(float value)
+void Expander::setThreshold(float value)
 {
     threshold = value;
     transfer_B = output * pow(threshold, -transfer_A);
@@ -401,27 +401,27 @@ void Compressor::setThreshold(float value)
 }
 
 
-void Compressor::setRatio(float value)
+void Expander::setRatio(float value)
 {
     transfer_A = value - 1.f;
     transfer_B = output * pow(threshold, -transfer_A);
 }
 
 
-void Compressor::setAttack(float value)
+void Expander::setAttack(float value)
 {
     attack = exp(-1.f/value);
 }
 
 
-void Compressor::setRelease(float value)
+void Expander::setRelease(float value)
 {
     release = exp(-1.f/value);
     envelope_decay = exp(-4.f/value); /* = exp(-1/(0.25*value)) */
 }
 
 
-void Compressor::process(float* leftChan, float* rightChan, int numSamples)
+void Expander::process(float* leftChan, float* rightChan, int numSamples)
 {
   float det, transfer_gain;
 
