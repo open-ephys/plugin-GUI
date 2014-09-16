@@ -102,6 +102,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/EcubeEditor_50eace99.o \
   $(OBJDIR)/SpikeSorterEditor_30c3d470.o \
   $(OBJDIR)/LfpTriggeredAverageEditor_101d75b.o \
   $(OBJDIR)/SerialInputEditor_c00f31f5.o \
@@ -132,6 +133,7 @@ OBJECTS := \
   $(OBJDIR)/AudioEditor_fb2c6555.o \
   $(OBJDIR)/FilterEditor_dfe1f39d.o \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
+  $(OBJDIR)/EcubeThread_d0477baf.o \
   $(OBJDIR)/okFrontPanelDLL_87687880.o \
   $(OBJDIR)/rhd2000datablock_722d8dae.o \
   $(OBJDIR)/rhd2000evalboard_e0b412d5.o \
@@ -148,6 +150,7 @@ OBJECTS := \
   $(OBJDIR)/SourceNode_c2d6336c.o \
   $(OBJDIR)/GenericProcessor_733760aa.o \
   $(OBJDIR)/ProcessorGraph_68b34a0b.o \
+  $(OBJDIR)/EcubeDialogComponent_2ec3bd57.o \
   $(OBJDIR)/CustomArrowButton_206e4278.o \
   $(OBJDIR)/GraphViewer_e43fd2ce.o \
   $(OBJDIR)/EditorViewportButtons_29af2a5c.o \
@@ -450,6 +453,11 @@ $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	@echo "Compiling EventNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/EcubeEditor_50eace99.o: ../../Source/Processors/Editors/EcubeEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling EcubeEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/SpikeSorterEditor_30c3d470.o: ../../Source/Processors/Editors/SpikeSorterEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SpikeSorterEditor.cpp"
@@ -600,6 +608,11 @@ $(OBJDIR)/GenericEditor_becb2ad6.o: ../../Source/Processors/Editors/GenericEdito
 	@echo "Compiling GenericEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/EcubeThread_d0477baf.o: ../../Source/Processors/DataThreads/EcubeThread.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling EcubeThread.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/okFrontPanelDLL_87687880.o: ../../Source/Processors/DataThreads/rhythm-api/okFrontPanelDLL.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling okFrontPanelDLL.cpp"
@@ -678,6 +691,11 @@ $(OBJDIR)/GenericProcessor_733760aa.o: ../../Source/Processors/GenericProcessor.
 $(OBJDIR)/ProcessorGraph_68b34a0b.o: ../../Source/Processors/ProcessorGraph.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ProcessorGraph.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/EcubeDialogComponent_2ec3bd57.o: ../../Source/UI/EcubeDialogComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling EcubeDialogComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/CustomArrowButton_206e4278.o: ../../Source/UI/CustomArrowButton.cpp

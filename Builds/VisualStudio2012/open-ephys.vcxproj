@@ -314,6 +314,7 @@
     <ClCompile Include="..\..\Source\Processors\SpikeDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\EcubeEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\SpikeSorterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\LfpTriggeredAverageEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\SerialInputEditor.cpp"/>
@@ -344,6 +345,7 @@
     <ClCompile Include="..\..\Source\Processors\Editors\AudioEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\FilterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\GenericEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\DataThreads\EcubeThread.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\rhythm-api\okFrontPanelDLL.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\rhythm-api\rhd2000datablock.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\rhythm-api\rhd2000evalboard.cpp"/>
@@ -360,6 +362,7 @@
     <ClCompile Include="..\..\Source\Processors\SourceNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\GenericProcessor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ProcessorGraph.cpp"/>
+    <ClCompile Include="..\..\Source\UI\EcubeDialogComponent.cpp"/>
     <ClCompile Include="..\..\Source\UI\CustomArrowButton.cpp"/>
     <ClCompile Include="..\..\Source\UI\GraphViewer.cpp"/>
     <ClCompile Include="..\..\Source\UI\EditorViewportButtons.cpp"/>
@@ -1557,6 +1560,7 @@
     <ClInclude Include="..\..\Source\Processors\SpikeDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\EcubeEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\SpikeSorterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\LfpTriggeredAverageEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\SerialInputEditor.h"/>
@@ -1587,6 +1591,7 @@
     <ClInclude Include="..\..\Source\Processors\Editors\AudioEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\FilterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\GenericEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\DataThreads\EcubeThread.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\rhythm-api\okFrontPanelDLL.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\rhythm-api\rhd2000datablock.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\rhythm-api\rhd2000evalboard.h"/>
@@ -1603,6 +1608,7 @@
     <ClInclude Include="..\..\Source\Processors\SourceNode.h"/>
     <ClInclude Include="..\..\Source\Processors\GenericProcessor.h"/>
     <ClInclude Include="..\..\Source\Processors\ProcessorGraph.h"/>
+    <ClInclude Include="..\..\Source\UI\EcubeDialogComponent.h"/>
     <ClInclude Include="..\..\Source\UI\CustomArrowButton.h"/>
     <ClInclude Include="..\..\Source\UI\GraphViewer.h"/>
     <ClInclude Include="..\..\Source\UI\EditorViewportButtons.h"/>

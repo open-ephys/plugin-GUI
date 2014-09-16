@@ -27,9 +27,11 @@
 #include "DataThreads/FPGAThread.h"
 #include "DataThreads/FileReaderThread.h"
 #include "DataThreads/RHD2000Thread.h"
+#include "DataThreads/EcubeThread.h" // Added by Michael Borisov
 #include "Editors/SourceNodeEditor.h"
 #include "Editors/FileReaderEditor.h"
 #include "Editors/RHD2000Editor.h"
+#include "Editors/EcubeEditor.h" // Added by Michael Borisov
 #include "Channel.h"
 #include <stdio.h>
 
@@ -57,6 +59,12 @@ SourceNode::SourceNode(const String& name_)
     {
         dataThread = new RHD2000Thread(this);
     }
+#if JUCE_WINDOWS
+    else if (getName().equalsIgnoreCase("eCube"))
+    {
+        dataThread = new EcubeThread(this);
+    }
+#endif
 
     if (dataThread != 0)
     {

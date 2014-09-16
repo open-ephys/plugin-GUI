@@ -381,6 +381,8 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="K24HnQ" name="EcubeEditor.cpp" compile="1" resource="0" file="Source/Processors/Editors/EcubeEditor.cpp"/>
+          <FILE id="lLjRJj" name="EcubeEditor.h" compile="0" resource="0" file="Source/Processors/Editors/EcubeEditor.h"/>
           <FILE id="Fs9xVR" name="SpikeSorterEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/SpikeSorterEditor.cpp"/>
           <FILE id="YnUVDV" name="SpikeSorterEditor.h" compile="0" resource="0"
@@ -497,6 +499,8 @@
                 file="Source/Processors/Editors/GenericEditor.h"/>
         </GROUP>
         <GROUP id="ZgsuWxi" name="DataThreads">
+          <FILE id="mbMbly" name="EcubeThread.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/EcubeThread.cpp"/>
+          <FILE id="lKsc0T" name="EcubeThread.h" compile="0" resource="0" file="Source/Processors/DataThreads/EcubeThread.h"/>
           <GROUP id="LcWQtrg" name="rhythm-api">
             <FILE id="hyM1EYD" name="okFrontPanelDLL.cpp" compile="1" resource="0"
                   file="Source/Processors/DataThreads/rhythm-api/okFrontPanelDLL.cpp"/>
@@ -554,6 +558,10 @@
               file="Source/Processors/ProcessorGraph.h"/>
       </GROUP>
       <GROUP id="RNGb1yR" name="UI">
+        <FILE id="PBkkUW" name="EcubeDialogComponent.cpp" compile="1" resource="0"
+              file="Source/UI/EcubeDialogComponent.cpp"/>
+        <FILE id="MFmxar" name="EcubeDialogComponent.h" compile="0" resource="0"
+              file="Source/UI/EcubeDialogComponent.h"/>
         <FILE id="gXswXJ" name="CustomArrowButton.cpp" compile="1" resource="0"
               file="Source/UI/CustomArrowButton.cpp"/>
         <FILE id="ECOEoc" name="CustomArrowButton.h" compile="0" resource="0"

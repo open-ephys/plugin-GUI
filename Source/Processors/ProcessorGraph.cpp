@@ -492,6 +492,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         if (subProcessorType.equalsIgnoreCase("RHA2000-EVAL") ||
             // subProcessorType.equalsIgnoreCase("File Reader") ||
             subProcessorType.equalsIgnoreCase("Custom FPGA") ||
+            subProcessorType.equalsIgnoreCase("eCube") || // Added by Michael Borisov
             subProcessorType.equalsIgnoreCase("Rhythm FPGA"))
         {
 

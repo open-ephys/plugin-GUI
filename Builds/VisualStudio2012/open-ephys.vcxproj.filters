@@ -508,6 +508,9 @@
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\EcubeEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\SpikeSorterEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
@@ -598,6 +601,9 @@
     <ClCompile Include="..\..\Source\Processors\Editors\GenericEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\DataThreads\EcubeThread.cpp">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\DataThreads\rhythm-api\okFrontPanelDLL.cpp">
       <Filter>open-ephys\Source\Processors\DataThreads\rhythm-api</Filter>
     </ClCompile>
@@ -645,6 +651,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\ProcessorGraph.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\EcubeDialogComponent.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UI\CustomArrowButton.cpp">
       <Filter>open-ephys\Source\UI</Filter>
@@ -2094,6 +2103,9 @@
     <ClInclude Include="..\..\Source\Processors\EventNode.h">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\EcubeEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\SpikeSorterEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
@@ -2184,6 +2196,9 @@
     <ClInclude Include="..\..\Source\Processors\Editors\GenericEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\DataThreads\EcubeThread.h">
+      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\DataThreads\rhythm-api\okFrontPanelDLL.h">
       <Filter>open-ephys\Source\Processors\DataThreads\rhythm-api</Filter>
     </ClInclude>
@@ -2231,6 +2246,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\ProcessorGraph.h">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\EcubeDialogComponent.h">
+      <Filter>open-ephys\Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\CustomArrowButton.h">
       <Filter>open-ephys\Source\UI</Filter>
