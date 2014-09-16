@@ -132,11 +132,6 @@ public:
     /** Generate a Matlab-compatible datestring */
     String generateDateString();
 
-    CriticalSection* getLock()
-    {
-        return &diskWriteLock;
-    }
-
 private:
 
     /** Keep the RecordNode informed of acquisition and record states.
