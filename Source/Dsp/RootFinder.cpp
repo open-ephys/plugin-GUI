@@ -33,6 +33,8 @@ THE SOFTWARE.
 
 *******************************************************************************/
 
+#include <algorithm>
+
 #include "Common.h"
 #include "RootFinder.h"
 #include <stdexcept>
