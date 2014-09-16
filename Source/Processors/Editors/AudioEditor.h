@@ -111,7 +111,7 @@ public:
     bool keyPressed(const KeyPress& key);
 
     void resized();
-    
+
     void updateBufferSizeText();
 
     void enable();
@@ -135,7 +135,7 @@ private:
 
     Slider* volumeSlider;
     Slider* noiseGateSlider;
-    
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioEditor);
 
 };

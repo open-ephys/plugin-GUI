@@ -42,7 +42,7 @@ public:
         setClickingTogglesState(true);
         //setRadioGroupId(299);
         setToggleState(true, dontSendNotification);
-		setButtonText(String(chan_));
+        setButtonText(String(chan_));
     }
     ~ElectrodeButton() {}
 
@@ -51,7 +51,7 @@ public:
         return chan;
     }
     void setChannelNum(int i);
-	void setChannelNum(int i, bool changeButtonText);
+    void setChannelNum(int i, bool changeButtonText);
 
 
 private:

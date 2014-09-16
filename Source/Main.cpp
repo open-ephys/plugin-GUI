@@ -29,6 +29,7 @@
 #include "UI/CustomLookAndFeel.h"
 
 #include <stdio.h>
+#include <fstream>
 
 //------------------------------------------------------------------
 
@@ -70,6 +71,9 @@ public:
             {
                 freopen("CONOUT$","w",stdout);
 				freopen("CONOUT$","w",stderr);
+                console_out = std::ofstream("CONOUT$");
+                std::cout.rdbuf(console_out.rdbuf());
+				std::cerr.rdbuf(console_out.rdbuf());
                 SetConsoleTitle("Debug Console");
 				std::cout << "Debug console..." << std::endl;
             }
@@ -115,6 +119,7 @@ public:
 private:
     ScopedPointer <MainWindow> mainWindow;
     ScopedPointer <CustomLookAndFeel> customLookAndFeel;
+    std::ofstream console_out;
 };
 
 //==============================================================================

@@ -46,10 +46,10 @@ public:
     void write(ofstream& saveOut, int numDataStreams) const;
 
 private:
-    void allocateIntArray3D(vector<vector<vector<int> > > &array3D, int xSize, int ySize, int zSize);
-    void allocateIntArray2D(vector<vector<int> > &array2D, int xSize, int ySize);
-    void allocateIntArray1D(vector<int> &array1D, int xSize);
-    void allocateUIntArray1D(vector<unsigned int> &array1D, int xSize);
+    void allocateIntArray3D(vector<vector<vector<int> > >& array3D, int xSize, int ySize, int zSize);
+    void allocateIntArray2D(vector<vector<int> >& array2D, int xSize, int ySize);
+    void allocateIntArray1D(vector<int>& array1D, int xSize);
+    void allocateUIntArray1D(vector<unsigned int>& array1D, int xSize);
 
     void writeWordLittleEndian(ofstream& outputStream, int dataWord) const;
 

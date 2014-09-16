@@ -37,7 +37,7 @@
 PulsePal::PulsePal()
 {
     setDefaultParameters();
-        
+
 }
 
 PulsePal::~PulsePal()
@@ -87,16 +87,16 @@ void PulsePal::initialize()
 
     vector<ofSerialDeviceInfo> devices = serial.getDeviceList();
 
-   // bool foundDevice = false;
-	if (devices.size() == 0)
-	{
-		std::cout << "No serial devices found!" << std::endl;
-		return;
-	}
+    // bool foundDevice = false;
+    if (devices.size() == 0)
+    {
+        std::cout << "No serial devices found!" << std::endl;
+        return;
+    }
 
     int id = devices[0].getDeviceID();
-        string path = devices[0].getDevicePath();
-        string name = devices[0].getDeviceName();
+    string path = devices[0].getDevicePath();
+    string name = devices[0].getDeviceName();
 
     serial.setup(id, 115200);
     std::cout << "Found!" << std::endl;
@@ -108,12 +108,12 @@ uint32_t PulsePal::getFirmwareVersion() // JS 1/30/2014
     uint8_t handshakeByte = 72;
     uint8_t responseBytes[5] = { 0 };
     serial.writeByte(handshakeByte);
-	#if defined( TARGET_OSX ) || defined( TARGET_LINUX )
-  usleep(100000);
+#if defined( TARGET_OSX ) || defined( TARGET_LINUX )
+    usleep(100000);
 #else
-	Sleep(100);
+    Sleep(100);
 #endif
-  
+
     serial.readBytes(responseBytes,5);
     firmwareVersion = makeLong(responseBytes[4], responseBytes[3], responseBytes[2], responseBytes[1]);
     return firmwareVersion;
@@ -373,12 +373,14 @@ uint8_t PulsePal::voltageToByte(float voltage)
 
 }
 
-void PulsePal::programCustomTrain(uint8_t ID, uint8_t nPulses, float customPulseTimes[], float customVoltages[]){
+void PulsePal::programCustomTrain(uint8_t ID, uint8_t nPulses, float customPulseTimes[], float customVoltages[])
+{
     int nMessageBytes = (nPulses * 5) + 6;
     // Convert voltages to bytes
     uint8_t voltageBytes[1000] = { 0 };
     float thisVoltage = 0;
-    for (int i = 0; i < nPulses; i++) {
+    for (int i = 0; i < nPulses; i++)
+    {
         thisVoltage = customVoltages[i];
         voltageBytes[i] = voltageToByte(thisVoltage);
     }
@@ -386,18 +388,25 @@ void PulsePal::programCustomTrain(uint8_t ID, uint8_t nPulses, float customPulse
     uint8_t pulseTimeBytes[4000] = { 0 };
     int pos = 0;
     unsigned long pulseTimeMicroseconds;
-    for (int i = 0; i < nPulses; i++){
+    for (int i = 0; i < nPulses; i++)
+    {
         pulseTimeMicroseconds = (unsigned long)(customPulseTimes[i] * 1000000);
-        pulseTimeBytes[pos] = (uint8_t)(pulseTimeMicroseconds); pos++;
-        pulseTimeBytes[pos] = (uint8_t)(pulseTimeMicroseconds >> 8); pos++;
-        pulseTimeBytes[pos] = (uint8_t)(pulseTimeMicroseconds >> 16); pos++;
-        pulseTimeBytes[pos] = (uint8_t)(pulseTimeMicroseconds >> 24); pos++;
+        pulseTimeBytes[pos] = (uint8_t)(pulseTimeMicroseconds);
+        pos++;
+        pulseTimeBytes[pos] = (uint8_t)(pulseTimeMicroseconds >> 8);
+        pos++;
+        pulseTimeBytes[pos] = (uint8_t)(pulseTimeMicroseconds >> 16);
+        pos++;
+        pulseTimeBytes[pos] = (uint8_t)(pulseTimeMicroseconds >> 24);
+        pos++;
     }
-    uint8_t *messageBytes = new uint8_t[nMessageBytes];
-    if (ID == 2) {
+    uint8_t* messageBytes = new uint8_t[nMessageBytes];
+    if (ID == 2)
+    {
         messageBytes[0] = 76; // Op code to program custom train 2
     }
-    else {
+    else
+    {
         messageBytes[0] = 75; // Op code to program custom train 1
     }
     messageBytes[1] = 0; // USB packet correction byte
@@ -406,16 +415,19 @@ void PulsePal::programCustomTrain(uint8_t ID, uint8_t nPulses, float customPulse
     messageBytes[4] = (uint8_t)(nPulses >> 16);
     messageBytes[5] = (uint8_t)(nPulses >> 24);
     int timeDataEnd = 6 + (nPulses * 4);
-    for (int i = 6; i < timeDataEnd; i++){
+    for (int i = 6; i < timeDataEnd; i++)
+    {
         messageBytes[i] = pulseTimeBytes[i - 6];
     }
-    for (int i = timeDataEnd; i < nMessageBytes; i++){
+    for (int i = timeDataEnd; i < nMessageBytes; i++)
+    {
         messageBytes[i] = voltageBytes[i - timeDataEnd];
     }
     serial.writeBytes(messageBytes, nMessageBytes);
 }
 
-void PulsePal::programAllParams() {
+void PulsePal::programAllParams()
+{
     uint8_t messageBytes[163] = { 0 };
     messageBytes[0] = 73;
     int pos = 1;
@@ -424,75 +436,121 @@ void PulsePal::programAllParams() {
     uint8_t thisVoltageByte = 0;
 
     // add time params
-    for (int i = 1; i < 5; i++){
+    for (int i = 1; i < 5; i++)
+    {
         thisTime = (uint32_t)(currentOutputParams[i].phase1Duration * 1000000);
-        messageBytes[pos] = (uint8_t)(thisTime); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 8); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 16); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 24); pos++;
+        messageBytes[pos] = (uint8_t)(thisTime);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 8);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 16);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 24);
+        pos++;
         thisTime = (uint32_t)(currentOutputParams[i].interPhaseInterval * 1000000);
-        messageBytes[pos] = (uint8_t)(thisTime); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 8); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 16); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 24); pos++;
+        messageBytes[pos] = (uint8_t)(thisTime);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 8);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 16);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 24);
+        pos++;
         thisTime = (uint32_t)(currentOutputParams[i].phase2Duration * 1000000);
-        messageBytes[pos] = (uint8_t)(thisTime); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 8); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 16); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 24); pos++;
+        messageBytes[pos] = (uint8_t)(thisTime);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 8);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 16);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 24);
+        pos++;
         thisTime = (uint32_t)(currentOutputParams[i].interPulseInterval * 1000000);
-        messageBytes[pos] = (uint8_t)(thisTime); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 8); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 16); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 24); pos++;
+        messageBytes[pos] = (uint8_t)(thisTime);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 8);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 16);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 24);
+        pos++;
         thisTime = (uint32_t)(currentOutputParams[i].burstDuration * 1000000);
-        messageBytes[pos] = (uint8_t)(thisTime); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 8); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 16); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 24); pos++;
+        messageBytes[pos] = (uint8_t)(thisTime);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 8);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 16);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 24);
+        pos++;
         thisTime = (uint32_t)(currentOutputParams[i].interBurstInterval * 1000000);
-        messageBytes[pos] = (uint8_t)(thisTime); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 8); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 16); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 24); pos++;
+        messageBytes[pos] = (uint8_t)(thisTime);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 8);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 16);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 24);
+        pos++;
         thisTime = (uint32_t)(currentOutputParams[i].pulseTrainDuration * 1000000);
-        messageBytes[pos] = (uint8_t)(thisTime); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 8); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 16); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 24); pos++;
+        messageBytes[pos] = (uint8_t)(thisTime);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 8);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 16);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 24);
+        pos++;
         thisTime = (uint32_t)(currentOutputParams[i].pulseTrainDelay * 1000000);
-        messageBytes[pos] = (uint8_t)(thisTime); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 8); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 16); pos++;
-        messageBytes[pos] = (uint8_t)(thisTime >> 24); pos++;
+        messageBytes[pos] = (uint8_t)(thisTime);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 8);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 16);
+        pos++;
+        messageBytes[pos] = (uint8_t)(thisTime >> 24);
+        pos++;
     }
 
     // add single-byte params
-    for (int i = 1; i < 5; i++){
-        messageBytes[pos] = (uint8_t)currentOutputParams[i].isBiphasic; pos++;
+    for (int i = 1; i < 5; i++)
+    {
+        messageBytes[pos] = (uint8_t)currentOutputParams[i].isBiphasic;
+        pos++;
         thisVoltage = PulsePal::currentOutputParams[i].phase1Voltage;
         thisVoltageByte = voltageToByte(thisVoltage);
-        messageBytes[pos] = thisVoltageByte; pos++;
+        messageBytes[pos] = thisVoltageByte;
+        pos++;
         thisVoltage = PulsePal::currentOutputParams[i].phase2Voltage;
         thisVoltageByte = voltageToByte(thisVoltage);
-        messageBytes[pos] = thisVoltageByte; pos++;
-        messageBytes[pos] = (uint8_t)currentOutputParams[i].customTrainID; pos++;
-        messageBytes[pos] = (uint8_t)currentOutputParams[i].customTrainTarget; pos++;
-        messageBytes[pos] = (uint8_t)currentOutputParams[i].customTrainLoop; pos++;
+        messageBytes[pos] = thisVoltageByte;
+        pos++;
+        messageBytes[pos] = (uint8_t)currentOutputParams[i].customTrainID;
+        pos++;
+        messageBytes[pos] = (uint8_t)currentOutputParams[i].customTrainTarget;
+        pos++;
+        messageBytes[pos] = (uint8_t)currentOutputParams[i].customTrainLoop;
+        pos++;
     }
 
     // add trigger channel 1 links
-    for (int i = 1; i < 5; i++){
-        messageBytes[pos] = (uint8_t)currentOutputParams[i].linkTriggerChannel1; pos++; 
+    for (int i = 1; i < 5; i++)
+    {
+        messageBytes[pos] = (uint8_t)currentOutputParams[i].linkTriggerChannel1;
+        pos++;
     }
     // add trigger channel 2 links
-    for (int i = 1; i < 5; i++){
-        messageBytes[pos] = (uint8_t)currentOutputParams[i].linkTriggerChannel2; pos++;
+    for (int i = 1; i < 5; i++)
+    {
+        messageBytes[pos] = (uint8_t)currentOutputParams[i].linkTriggerChannel2;
+        pos++;
     }
 
     // add trigger channel modes
-        messageBytes[pos] = (uint8_t)currentInputParams[1].triggerMode; pos++;
-        messageBytes[pos] = (uint8_t)currentInputParams[2].triggerMode; pos++;
+    messageBytes[pos] = (uint8_t)currentInputParams[1].triggerMode;
+    pos++;
+    messageBytes[pos] = (uint8_t)currentInputParams[2].triggerMode;
+    pos++;
 
 
     serial.writeBytes(messageBytes, 163);

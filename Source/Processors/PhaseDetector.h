@@ -65,15 +65,18 @@ public:
 
 private:
 
-    enum ModuleType {
-        NONE, PEAK, FALLING_ZERO, TROUGH, RISING_ZERO 
+    enum ModuleType
+    {
+        NONE, PEAK, FALLING_ZERO, TROUGH, RISING_ZERO
     };
 
-    enum PhaseType {
+    enum PhaseType
+    {
         NO_PHASE, RISING_POS, FALLING_POS, FALLING_NEG, RISING_NEG
     };
 
-    struct DetectorModule {
+    struct DetectorModule
+    {
 
         int inputChan;
         int gateChan;

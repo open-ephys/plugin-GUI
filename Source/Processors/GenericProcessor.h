@@ -277,7 +277,7 @@ public:
         return 2;
     }
 
-	  virtual int getDefaultADCoutputs()
+    virtual int getDefaultADCoutputs()
     {
         return 0;
     }
@@ -365,7 +365,7 @@ public:
     {
         return false;
     }
-    
+
     /** Returns true if a processor is a utility (non-merger or splitter), false otherwise.*/
     virtual bool isUtility()
     {
@@ -404,7 +404,7 @@ public:
     
     /** Called from setRecording whenever recording has started. */
     virtual void startRecording() { }
-    
+
     /** Called from setrecording whenever recording has stopped. */
     virtual void stopRecording() { }
 
@@ -478,8 +478,8 @@ public:
         SPIKE = 4,
         EEG = 5,
         CONTINUOUS = 6,
-		NETWORK = 7,
-		EYE_POSITION = 8,
+        NETWORK = 7,
+        EYE_POSITION = 8,
         SERIAL = 9
     };
 
@@ -587,8 +587,11 @@ public:
     /** Load custom parameters for each channel. */
     virtual void loadCustomChannelParametersFromXml(XmlElement* channelElement, bool isEventChannel=false);
 
-	/** handle messages from other processors */
-	virtual String interProcessorCommunication(String command) { return String("OK"); };
+    /** handle messages from other processors */
+    virtual String interProcessorCommunication(String command)
+    {
+        return String("OK");
+    };
 
     /** Holds loaded parameters */
     XmlElement* parametersAsXml;

@@ -31,7 +31,7 @@
 #include "ofSerial.h"
 
 /**
-  Interface to PulsePal 
+  Interface to PulsePal
   @see PulsePalOutput
 
 */
@@ -81,9 +81,10 @@ public:
     void abortPulseTrains();
     void setContinuousLoop(uint8_t channel, uint8_t state);
     void setTriggerMode(uint8_t channel, uint8_t mode);
-    
+
     // Fields
-    struct OutputParams {
+    struct OutputParams
+    {
         int isBiphasic;
         float phase1Voltage;
         float phase2Voltage;
@@ -101,7 +102,8 @@ public:
         int customTrainTarget;
         int customTrainLoop;
     } currentOutputParams[5]; // Use 1-indexing for the channels (output channels 1-4 = currentOutputParams[1]-currentOutputParams[4])
-    struct InputParams {
+    struct InputParams
+    {
         int triggerMode;
     } currentInputParams[3]; // Use 1-indexing for the trigger channels
 

@@ -72,7 +72,7 @@ public:
 
     double setUpperBandwidth(double upper); // set desired BW, returns actual BW
     double setLowerBandwidth(double lower);
-    
+
     int setNoiseSlicerLevel(int level);
 
     void scanPorts();

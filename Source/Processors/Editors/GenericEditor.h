@@ -86,7 +86,7 @@ public:
 
     /** Highlights an editor.*/
     void highlight();
-    
+
     /** Makes an editor visible if it's not already.*/
     void makeVisible();
 
@@ -176,21 +176,24 @@ public:
 
     /** Required for SplitterEditor only.*/
     virtual void switchDest() { }
-    
+
 
     /** Required for SplitterEditor and MergerEditor only.*/
     virtual void switchIO(int) { }
-    
+
     /** Required for SplitterEditor and MergerEditor only.*/
-    virtual int getPathForEditor(GenericEditor* editor) { return -1;}
-    
+    virtual int getPathForEditor(GenericEditor* editor)
+    {
+        return -1;
+    }
+
     /** Used by GraphViewer */
     bool isSplitter();
-    
+
     /** Used by GraphViewer */
     bool isMerger();
-    
-    
+
+
 
     /** Handles button clicks for all editors. Deals with clicks on the editor's
         title bar and channel selector drawer. */
@@ -282,21 +285,25 @@ public:
     /**  Collapses an editor if it's open, and opens it if it's collpased*/
     void switchCollapsedState();
 
-     /**  Notifies the editor that the collapsed state changed, for non-standard function. */
+    /**  Notifies the editor that the collapsed state changed, for non-standard function. */
     virtual void collapsedStateChanged() {}
 
     /** Returns the editor of this processor's source */
     GenericEditor* getSourceEditor();
-    
+
     /** Returns the editor of this processor's destination */
     GenericEditor* getDestEditor();
 
     /** Returns the editors a splitter or merger is connected to */
-	virtual Array<GenericEditor*> getConnectedEditors(){ Array<GenericEditor*> a; return a;}
+    virtual Array<GenericEditor*> getConnectedEditors()
+    {
+        Array<GenericEditor*> a;
+        return a;
+    }
 
     /** Returns an array of record statuses for all channels. Used by GraphNode */
     Array<bool> getRecordStatusArray();
-    
+
 protected:
 
     /** A pointer to the button that opens the drawer for the ChannelSelector. */
@@ -421,7 +428,7 @@ public:
     }
 
     void setLabel(String label);
-	String getLabel();
+    String getLabel();
 
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);

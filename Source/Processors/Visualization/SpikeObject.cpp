@@ -86,11 +86,11 @@ bool unpackSpike(SpikeObject* s, const uint8_t* buffer, int bufferSize)
     memcpy(&(s->eventType), buffer+idx, 1);
     idx += 1;
 
-   // if (s->eventType != 4)
-   // {
-   //     std::cout << "received invalid spike -- incorrect event code" << std::endl;
-   //     return false;
-   // }
+    // if (s->eventType != 4)
+    // {
+    //     std::cout << "received invalid spike -- incorrect event code" << std::endl;
+    //     return false;
+    // }
 
     memcpy(&(s->timestamp), buffer+idx, 8);
     idx += 8;

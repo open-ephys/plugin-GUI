@@ -46,7 +46,7 @@ FilterNode::FilterNode()
     // highCutValues.add(9000.0f);
 
     // parameters.add(Parameter("high cut",highCutValues, 2, 1));
-	applyOnADC = false;
+    applyOnADC = false;
 }
 
 FilterNode::~FilterNode()
@@ -126,15 +126,15 @@ AudioProcessorEditor* FilterNode::createEditor()
 
 void FilterNode::updateSettings()
 {
-	int id = nodeId;
-	int numInputs = getNumInputs();
-	int numfilt = filters.size();
+    int id = nodeId;
+    int numInputs = getNumInputs();
+    int numfilt = filters.size();
     if (numInputs < 1024 && numInputs != numfilt)
     {
-		// SO fixed this. I think values were never restored correctly because you cleared lowCuts.
-	    Array<double> oldlowCuts, oldhighCuts;
-		oldlowCuts = lowCuts;
-		oldhighCuts = highCuts;
+        // SO fixed this. I think values were never restored correctly because you cleared lowCuts.
+        Array<double> oldlowCuts, oldhighCuts;
+        oldlowCuts = lowCuts;
+        oldhighCuts = highCuts;
 
         filters.clear();
         lowCuts.clear();
@@ -169,7 +169,9 @@ void FilterNode::updateSettings()
             {
                 lc = oldlowCuts[n];
                 hc = oldhighCuts[n];
-            } else {
+            }
+            else
+            {
                 lc = defaultLowCut;
                 hc = defaultHighCut;
             }
@@ -228,7 +230,7 @@ void FilterNode::setParameter(int parameterIndex, float newValue)
 
         if (parameterIndex == 0)
         {
-           // std::cout << " low cut to " << newValue << std::endl;
+            // std::cout << " low cut to " << newValue << std::endl;
             lowCuts.set(currentChannel,newValue);
         }
         else if (parameterIndex == 1)
@@ -237,21 +239,24 @@ void FilterNode::setParameter(int parameterIndex, float newValue)
             highCuts.set(currentChannel,newValue);
         }
 
-          setFilterParameters(lowCuts[currentChannel],
-                        highCuts[currentChannel],
-                        currentChannel);
+        setFilterParameters(lowCuts[currentChannel],
+                            highCuts[currentChannel],
+                            currentChannel);
 
         editor->updateParameterButtons(parameterIndex);
 
-    } else // change channel bypass state
+    }
+    else   // change channel bypass state
     {
         if (newValue == 0)
         {
             shouldFilterChannel.set(currentChannel, false);
-        } else {
+        }
+        else
+        {
             shouldFilterChannel.set(currentChannel, true);
         }
-        
+
     }
 }
 
@@ -262,11 +267,11 @@ void FilterNode::process(AudioSampleBuffer& buffer,
 
     for (int n = 0; n < getNumOutputs(); n++)
     {
-		if (shouldFilterChannel[n])
-		{
-			float* ptr = buffer.getWritePointer(n);
-			filters[n]->process(nSamples, &ptr);
-		}
+        if (shouldFilterChannel[n])
+        {
+            float* ptr = buffer.getWritePointer(n);
+            filters[n]->process(nSamples, &ptr);
+        }
     }
 
 }

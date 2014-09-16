@@ -68,7 +68,7 @@ void PulsePalOutputEditor::saveCustomParameters(XmlElement* xml)
         outputXml->setAttribute("Gate",channelTriggerInterfaces[i]->getGateChannel());
     }
 
-    
+
 }
 
 void PulsePalOutputEditor::loadCustomParameters(XmlElement* xml)
@@ -108,7 +108,7 @@ ChannelTriggerInterface::ChannelTriggerInterface(PulsePal* pp, PulsePalOutput* p
 
     for (int i = 0; i < 10; i++)
         triggerSelector->addItem(String(i+1),i+2); // start numbering at one for
-                                                   // user-visible channels
+    // user-visible channels
 
     triggerSelector->setSelectedId(1, dontSendNotification);
     addAndMakeVisible(triggerSelector);
@@ -120,7 +120,7 @@ ChannelTriggerInterface::ChannelTriggerInterface(PulsePal* pp, PulsePalOutput* p
 
     for (int i = 0; i < 10; i++)
         gateSelector->addItem(String(i+1),i+2); // start numbering at one for
-                                                // user-visible channels
+    // user-visible channels
 
     gateSelector->setSelectedId(1, dontSendNotification);
     addAndMakeVisible(gateSelector);

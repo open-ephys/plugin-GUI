@@ -107,6 +107,7 @@ public:
     */
     void createNewDirectory();
 
+
     File getDataDirectory()
     {
         return rootFolder;
@@ -130,6 +131,11 @@ public:
 
     /** Generate a Matlab-compatible datestring */
     String generateDateString();
+
+    CriticalSection* getLock()
+    {
+        return &diskWriteLock;
+    }
 
 private:
 

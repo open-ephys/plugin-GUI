@@ -1,24 +1,24 @@
 /*
  ------------------------------------------------------------------
- 
+
  This file is part of the Open Ephys GUI
  Copyright (C) 2013 Florian Franzen
- 
+
  ------------------------------------------------------------------
- 
+
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
+
  */
 
 
@@ -37,16 +37,17 @@ SerialInput::~SerialInput()
     serial.close();
 }
 
-StringArray SerialInput::getDevices() {
+StringArray SerialInput::getDevices()
+{
     vector<ofSerialDeviceInfo> allDeviceInfos = serial.getDeviceList();
-    
+
     StringArray allDevices;
-    
-    for(int i = 0; i < allDeviceInfos.size(); i++)
+
+    for (int i = 0; i < allDeviceInfos.size(); i++)
     {
         allDevices.add(allDeviceInfos[i].getDeviceName());
     }
-    
+
     return allDevices;
 }
 
@@ -69,12 +70,12 @@ void SerialInput::setBaudrate(int baudrate)
 
 bool SerialInput::isReady()
 {
-    if(device == "" || baudrate == 0)
+    if (device == "" || baudrate == 0)
     {
         AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "SerialInput connection error!", "Please set device and baudrate to use first!");
         return false;
     }
-    if(!serial.setup(device, baudrate))
+    if (!serial.setup(device, baudrate))
     {
         AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "SerialInput connection error!", "Could not connect to specified serial device. Check log files for details.");
         return false;
@@ -92,19 +93,20 @@ bool SerialInput::disable()
 void SerialInput::process(AudioSampleBuffer&, MidiBuffer& events, int&)
 {
     int bytesAvailable = serial.available();
-    
+
     if (bytesAvailable == OF_SERIAL_ERROR)
     {
         // ToDo: Properly warn about problem here!
         AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "SerialInput device access error!", "Could not access serial device.");
         return;
     }
-    
-    if (bytesAvailable > 0){
+
+    if (bytesAvailable > 0)
+    {
 
         unsigned char buffer[10000];
         int bytesRead = serial.readBytes(buffer, bytesAvailable);
-        
+
         if (bytesRead > 0)
         {
             addEvent(events,    // MidiBuffer
@@ -124,7 +126,8 @@ void SerialInput::process(AudioSampleBuffer&, MidiBuffer& events, int&)
     }
 }
 
-AudioProcessorEditor* SerialInput::createEditor() {
+AudioProcessorEditor* SerialInput::createEditor()
+{
     editor = new SerialInputEditor(this);
     return editor;
 }

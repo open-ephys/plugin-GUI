@@ -178,6 +178,7 @@ void RecordNode::createNewDirectory()
     rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName());
     newDirectoryNeeded = false;
 
+
 }
 
 String RecordNode::generateDirectoryName()
