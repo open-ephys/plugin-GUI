@@ -72,12 +72,18 @@ public:
     */
     void setParameter(int parameterIndex, float newValue);
 
+	/** Called by the processor graph for each processor that could record data
+	*/
     void registerProcessor(GenericProcessor* sourceNode);
+	/** Called by the processor graph for each recordable channel
+	*/
     void addInputChannel(GenericProcessor* sourceNode, int chan);
 
     bool enable();
     bool disable();
 
+	/** Get channel stored in channelPointers array
+	*/
     Channel* getDataChannel(int index);
 
     /** Called by the ControlPanel to determine the amount of space
@@ -113,14 +119,26 @@ public:
         return rootFolder;
     }
 
+	/** Adds a Record Engine to use
+	*/
     void registerRecordEngine(RecordEngine* engine);
 
+	/** Clears the list of active Record Engines
+	*/
 	void clearRecordEngines();
 
+	/** Must be called by a spike recording source on the "enable" method
+	*/
     void registerSpikeSource(GenericProcessor* processor);
 
+	/** Registers an electrode group for spike recording
+	Must be called by a spike recording source on the "enable" method
+	after the call to registerSpikeSource 
+	*/
     int addSpikeElectrode(SpikeRecordInfo* elec);
 
+	/** Called by a spike recording source to write a spike to file
+	*/
     void writeSpike(SpikeObject& spike, int electrodeIndex);
 
     SpikeRecordInfo* getSpikeElectrode(int index);
