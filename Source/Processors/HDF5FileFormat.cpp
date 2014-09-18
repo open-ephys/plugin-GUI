@@ -580,7 +580,7 @@ String KWDFile::getFileName()
 void KWDFile::initFile(int processorNumber, String basename)
 {
     if (isOpen()) return;
-    filename = basename + "_" + String(processorNumber) + "_raw.kwd";
+    filename = basename + "_" + String(processorNumber) + ".raw.kwd";
     readyToOpen=true;
 }
 
