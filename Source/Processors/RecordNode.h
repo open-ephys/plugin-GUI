@@ -115,6 +115,8 @@ public:
 
     void registerRecordEngine(RecordEngine* engine);
 
+	void clearRecordEngines();
+
     void registerSpikeSource(GenericProcessor* processor);
 
     int addSpikeElectrode(SpikeRecordInfo* elec);

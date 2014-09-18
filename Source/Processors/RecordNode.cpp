@@ -483,3 +483,8 @@ SpikeRecordInfo* RecordNode::getSpikeElectrode(int index)
 {
     return spikeElectrodePointers[index];
 }
+
+void RecordNode::clearRecordEngines()
+{
+	engineArray.clear();
+}
