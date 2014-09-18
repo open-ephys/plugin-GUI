@@ -139,7 +139,7 @@ private:
 
     bool bufferSwap;
 
-    Compressor compressor;
+    Expander expander;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioNode);
 

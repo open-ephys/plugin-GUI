@@ -142,7 +142,7 @@ void AudioNode::setParameter(int parameterIndex, float newValue)
     {
         // noiseGateLevel level
 
-        Expander.setThreshold(newValue); // in microVolts
+        expander.setThreshold(newValue); // in microVolts
 
     }
     else if (parameterIndex == 100)
@@ -359,9 +359,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                     }
 
                     // Simple implementation of a "noise gate" on audio output
-                    // Modified from http://musicdsp.org/archive.php?classid=1#272:
-
-                    Expander.process(buffer.getWritePointer(0), // left channel
+                    expander.process(buffer.getWritePointer(0), // left channel
                                        buffer.getWritePointer(1), // right channel
                                        buffer.getNumSamples());
 
@@ -381,14 +379,14 @@ void AudioNode::process(AudioSampleBuffer& buffer,
 Expander::Expander()
 {
   threshold = 1.f;
-  attack = release = envelope_decay = 0.f;
   output = 1.f;
-    
-  transfer_A = 0.f;
-  transfer_B = 1.f;
     
   env = 0.f;
   gain = 1.f;
+
+  setAttack(1.0f);
+  setRelease(1.0f);
+  setRatio(1.2); // ratio > 1.0 will decrease gain below threshold
 }
 
 void Expander::setThreshold(float value)
@@ -432,13 +430,13 @@ void Expander::process(float* leftChan, float* rightChan, int numSamples)
 
       env = det >= env ? det : det + envelope_decay*(env-det);
 
-      transfer_gain = env > threshold ? pow(env, transfer_A) * transfer_B : output;
+      transfer_gain = env < threshold ? pow(env, transfer_A) * transfer_B : output;
 
       gain = transfer_gain < gain ?
                       transfer_gain + attack * (gain - transfer_gain) :
                       transfer_gain + release * (gain - transfer_gain);
 
-      leftChan[i] = leftChan[i] * gain;
+      leftChan[i] = leftChan[i] * gain; 
       rightChan[i] = rightChan[i] * gain;
   }
 }
