@@ -1567,7 +1567,7 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
 
 	chan = ch;
 
-	enableButton = new UtilityButton("CH"+String(ch+1), Font("Small Text", 13, Font::plain));
+	enableButton = new UtilityButton(String(ch+1), Font("Small Text", 13, Font::plain));
 	enableButton->setRadius(5.0f);
 
 	enableButton->setEnabledState(true);
@@ -1612,7 +1612,10 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
 
 	g.setColour(lineColour);
 
-	g.fillRoundedRectangle(5,center-8,41,22,8.0f);
+	//if (chan > 98)
+	//	g.fillRoundedRectangle(5,center-8,51,22,8.0f);
+	//else
+		g.fillRoundedRectangle(5,center-8,41,22,8.0f);
 
 	//  g.setFont(channelFont);
 	// g.setFont(channelHeightFloat*0.3);
@@ -1626,7 +1629,10 @@ void LfpChannelDisplayInfo::resized()
 
 	int center = getHeight()/2;
 
-	enableButton->setBounds(8,center-5,35,16);
+	//if (chan > 98)
+	//	enableButton->setBounds(8,center-5,45,16);
+	//else
+		enableButton->setBounds(8,center-5,35,16);
 }
 
 

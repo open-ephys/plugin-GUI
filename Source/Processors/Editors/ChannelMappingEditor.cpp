@@ -33,7 +33,7 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
     : GenericEditor(parentNode, useDefaultParameterEditors), previousChannelCount(0), isConfigured(false)
 
 {
-    desiredWidth = 340;
+    desiredWidth = 350;
 
     scrollDistance = 0;
 
@@ -57,6 +57,19 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
     resetButton->setToggleState(true, dontSendNotification);
     resetButton->setClickingTogglesState(false);
     resetButton->setEnabled(false);
+
+    // upButton = new TriangleButton(1);
+    // upButton->addListener(this);
+    // upButton->setBounds(285,10,10,8);
+    // addAndMakeVisible(upButton);
+    // upButton->setVisible(false);
+
+    // downButton = new TriangleButton(2);
+    // downButton->addListener(this);
+    // downButton->setBounds(285,25,10,8);
+    // addAndMakeVisible(downButton);
+    // downButton->setVisible(false);
+
 
     //    channelSelector->setRadioStatus(true);
 

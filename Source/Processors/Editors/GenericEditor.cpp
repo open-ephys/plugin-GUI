@@ -961,13 +961,13 @@ void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDow
     x2 = getWidth()/2;
     x3 = getWidth()-inset;
 
-    if (direction == 1)
+    if (direction == 1) // up
     {
         y1 = getHeight()-inset;
         y2 = inset;
 
     }
-    else
+    else if (direction == 2) // down
     {
         y1 = inset;
         y2 = getHeight()-inset;
