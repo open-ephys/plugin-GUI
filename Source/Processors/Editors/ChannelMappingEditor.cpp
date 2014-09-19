@@ -58,17 +58,17 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
     resetButton->setClickingTogglesState(false);
     resetButton->setEnabled(false);
 
-    // upButton = new TriangleButton(1);
-    // upButton->addListener(this);
-    // upButton->setBounds(285,10,10,8);
-    // addAndMakeVisible(upButton);
-    // upButton->setVisible(false);
+    upButton = new TriangleButton(1);
+    upButton->addListener(this);
+    upButton->setBounds(320,30,10,8);
+    addAndMakeVisible(upButton);
+    upButton->setVisible(false);
 
-    // downButton = new TriangleButton(2);
-    // downButton->addListener(this);
-    // downButton->setBounds(285,25,10,8);
-    // addAndMakeVisible(downButton);
-    // downButton->setVisible(false);
+    downButton = new TriangleButton(2);
+    downButton->addListener(this);
+    downButton->setBounds(320,45,10,8);
+    addAndMakeVisible(downButton);
+    downButton->setVisible(false);
 
 
     //    channelSelector->setRadioStatus(true);
@@ -201,6 +201,15 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded, bool clearPrevi
     channelSelector->setRadioStatus(true);
 
     refreshButtonLocations();
+
+    if (numNeeded > 100)
+    {
+        upButton->setVisible(true);
+        downButton->setVisible(true);
+    } else {
+        upButton->setVisible(false);
+        downButton->setVisible(false);
+    }
 }
 
 void ChannelMappingEditor::refreshButtonLocations()
@@ -484,6 +493,28 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 
 
         }
+    } else if (button == upButton)
+    {
+
+        scrollDistance -= 1;
+
+        if (scrollDistance < 0)
+            scrollDistance = 0;
+
+        refreshButtonLocations();
+
+    } else if (button == downButton)
+    {
+
+        float maxScrollDistance = ceil(float(electrodeButtons.size() - 80) / 16.0f);
+        
+        scrollDistance += 1;
+
+        if (scrollDistance > maxScrollDistance)
+            scrollDistance = maxScrollDistance;
+
+        refreshButtonLocations();
+    
     }
 }
 
