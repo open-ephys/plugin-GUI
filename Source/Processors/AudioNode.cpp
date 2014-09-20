@@ -336,7 +336,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                     // std::cout << "Samples remaining in incoming buffer: " << orphanedSamples << std::endl;
 
 
-                    if (orphanedSamples > 0)
+                    if (orphanedSamples > 0 && (samplesInBackupBuffer + orphanedSamples < backupBuffer->getNumSamples()))
                     {
                         backupBuffer->addFrom(0,       // destination channel
                                               samplesInBackupBuffer,           // destination start sample
@@ -356,7 +356,11 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                                               gain       // gain to apply
                                              );
 
-                    }
+					}
+					else {
+						samplesInBackupBuffer = 0; // just throw out the buffer in the case of an overrun
+											       // not ideal, but the output still sounds fine
+					}
 
                     // Simple implementation of a "noise gate" on audio output
                     expander.process(buffer.getWritePointer(0), // left channel
