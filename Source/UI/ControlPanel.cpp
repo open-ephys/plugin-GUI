@@ -951,6 +951,7 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
 	controlPanelState->setAttribute("isOpen",open);
 	controlPanelState->setAttribute("prependText",prependText->getText());
 	controlPanelState->setAttribute("appendText",appendText->getText());
+	controlPanelState->setAttribute("recordEngine",recordSelector->getSelectedId());
 
 	audioEditor->saveStateToXml(xml);
 
@@ -966,6 +967,7 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 
 			appendText->setText(xmlNode->getStringAttribute("appendText", ""), dontSendNotification);
 			prependText->setText(xmlNode->getStringAttribute("prependText", ""), dontSendNotification);
+			recordSelector->setSelectedId(xmlNode->getIntAttribute("recordEngine",1), sendNotificationSync);
 
 			bool isOpen = xmlNode->getBoolAttribute("isOpen");
 			openState(isOpen);
