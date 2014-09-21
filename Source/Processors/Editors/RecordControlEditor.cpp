@@ -58,14 +58,6 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useD
         channelName += i + 1;
         availableChans->addItem(channelName,i+2);
     }
-
-    newFileToggleButton = new UtilityButton("SPLIT FILES", Font("Small Text", 13, Font::plain));
-    newFileToggleButton->setRadius(3.0f);
-    newFileToggleButton->setBounds(35, 95, 90, 18);
-    newFileToggleButton->addListener(this);
-    newFileToggleButton->setClickingTogglesState(true);
-    addAndMakeVisible(newFileToggleButton);
-
 }
 
 RecordControlEditor::~RecordControlEditor()
@@ -82,18 +74,6 @@ void RecordControlEditor::comboBoxChanged(ComboBox* comboBox)
         getProcessor()->setParameter(0, -1);
 }
 
-void RecordControlEditor::buttonEvent(Button* button)
-{
-
-    if (button->getToggleState())
-    {
-        getProcessor()->setParameter(1, 1.0f);
-    }
-    else
-    {
-        getProcessor()->setParameter(1, 0.0f);
-    }
-}
 
 void RecordControlEditor::updateSettings()
 {
@@ -110,7 +90,6 @@ void RecordControlEditor::saveCustomParameters(XmlElement* xml)
 
     info->setAttribute("Type", "RecordControlEditor");
     info->setAttribute("Channel",availableChans->getSelectedId());
-    info->setAttribute("FileSaveOption",newFileToggleButton->getToggleState());
 
 }
 
@@ -122,7 +101,6 @@ void RecordControlEditor::loadCustomParameters(XmlElement* xml)
 
         if (xmlNode->hasTagName("PARAMETERS"))
         {
-            newFileToggleButton->setToggleState(xmlNode->getBoolAttribute("FileSaveOption"), sendNotification);
             availableChans->setSelectedId(xmlNode->getIntAttribute("Channel"), sendNotification);
         }
 

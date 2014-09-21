@@ -28,7 +28,7 @@
 
 RecordControl::RecordControl()
     : GenericProcessor("Record Control"),
-      createNewFilesOnTrigger(false), triggerChannel(0), recordNode(0)
+     triggerChannel(0), recordNode(0)
 {
 
 }
@@ -49,21 +49,6 @@ void RecordControl::setParameter(int parameterIndex, float newValue)
     if (parameterIndex == 0)
     {
         updateTriggerChannel((int) newValue);
-    }
-    else
-    {
-
-        if (newValue == 0.0)
-        {
-            createNewFilesOnTrigger = false;
-
-
-        }
-        else
-        {
-            createNewFilesOnTrigger = true;
-        }
-        //recordNode->appendTrialNumber(createNewFilesOnTrigger);
     }
 }
 
@@ -108,10 +93,6 @@ void RecordControl::handleEvent(int eventType, MidiMessage& event, int)
 
         if (eventId == 1)
         {
-          //  if (createNewFilesOnTrigger)
-           // {
-            //    recordNode->updateTrialNumber();
-           // }
             getControlPanel()->setRecordState(true);
         }
         else

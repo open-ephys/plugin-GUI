@@ -49,8 +49,6 @@ public:
     void handleEvent(int eventType, MidiMessage& event, int);
     bool enable();
 
-    bool createNewFilesOnTrigger;
-
     bool isUtility()
     {
         return true;
