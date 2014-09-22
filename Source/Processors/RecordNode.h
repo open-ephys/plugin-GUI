@@ -23,8 +23,6 @@
 
 #ifndef __RECORDNODE_H_FB9B1CA7__
 #define __RECORDNODE_H_FB9B1CA7__
-
-
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 #include <map>
@@ -32,6 +30,9 @@
 
 #include "GenericProcessor.h"
 #include "Channel.h"
+#include "RecordEngine.h"
+
+
 
 #define HEADER_SIZE 1024
 #define BLOCK_LENGTH 1024
@@ -71,6 +72,11 @@ public:
     */
     void setParameter(int parameterIndex, float newValue);
 
+	/** Called by the processor graph for each processor that could record data
+	*/
+    void registerProcessor(GenericProcessor* sourceNode);
+	/** Called by the processor graph for each recordable channel
+	*/
     void addInputChannel(GenericProcessor* sourceNode, int chan);
 
     bool enable();
@@ -81,6 +87,10 @@ public:
 
     /** update channel name */
     void updateChannelName(int channelIndex, String newname);
+
+	/** Get channel stored in channelPointers array
+	*/
+    Channel* getDataChannel(int index);
 
     /** Called by the ControlPanel to determine the amount of space
         left in the current dataDirectory.
@@ -109,20 +119,35 @@ public:
     */
     void createNewDirectory();
 
-    /** Creates a new data file for each channel.
-     */
-    void createNewFiles();
-
-    /** Creates a new data file for each channel.
-     */
-    void appendTrialNumber(bool);
-
-    void updateTrialNumber();
 
     File getDataDirectory()
     {
         return rootFolder;
     }
+
+	/** Adds a Record Engine to use
+	*/
+    void registerRecordEngine(RecordEngine* engine);
+
+	/** Clears the list of active Record Engines
+	*/
+	void clearRecordEngines();
+
+	/** Must be called by a spike recording source on the "enable" method
+	*/
+    void registerSpikeSource(GenericProcessor* processor);
+
+	/** Registers an electrode group for spike recording
+	Must be called by a spike recording source on the "enable" method
+	after the call to registerSpikeSource 
+	*/
+    int addSpikeElectrode(SpikeRecordInfo* elec);
+
+	/** Called by a spike recording source to write a spike to file
+	*/
+    void writeSpike(SpikeObject& spike, int electrodeIndex);
+
+    SpikeRecordInfo* getSpikeElectrode(int index);
 
     /** Signals when to create a new data directory when recording starts.*/
     bool newDirectoryNeeded;
@@ -132,12 +157,6 @@ public:
 
     /** Generate a Matlab-compatible datestring */
     String generateDateString();
-
-    CriticalSection* getLock()
-    {
-        return &diskWriteLock;
-    }
-
 
 private:
 
@@ -154,24 +173,10 @@ private:
     */
     File rootFolder;
 
-    /** Holds data that has been converted from float to int16 before
-        saving.
-    */
-    int16* continuousDataIntegerBuffer;
-
-    /** Holds data that has been converted from float to int16 before
-        saving.
-    */
-    float* continuousDataFloatBuffer;
-
-    AudioSampleBuffer zeroBuffer;
 
     /** Integer timestamp saved for each buffer.
     */
     int64 timestamp;
-
-    /** Integer to keep track of the number samples written in each block */
-    int blockIndex;
 
     /** Integer to keep track of number of recording sessions in the same file */
     uint16 recordingNumber;
@@ -179,12 +184,6 @@ private:
     /** Used to generate timestamps if none are given.
     */
     Time timer;
-
-    /** Opens a single file */
-    void openFile(Channel* ch);
-
-    /** Closes a single file */
-    void closeFile(Channel* ch);
 
     /** Closes all open files after recording has finished.
     */
@@ -196,15 +195,16 @@ private:
     /** Pointers to all event channels */
     Array<Channel*> eventChannelPointers;
 
-    /** Generates a header for a given channel */
-    String generateHeader(Channel* ch);
+    OwnedArray<SpikeRecordInfo> spikeElectrodePointers;
+
+    int spikeElectrodeIndex;
+
+    int experimentNumber;
+    bool hasRecorded;
 
     /** Generates a default directory name, based on the current date and time */
     String generateDirectoryName();
 
-
-    /** Generate filename for a given channel */
-    void updateFileName(Channel* ch);
 
     /** Cycle through the event buffer, looking for data to save */
     void handleEvent(int eventType, MidiMessage& event, int samplePos);
@@ -233,6 +233,10 @@ private:
 
     bool appendTrialNum;
     int trialNum;
+
+    /**RecordEngines loaded**/
+    OwnedArray<RecordEngine> engineArray;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 

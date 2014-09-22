@@ -30,14 +30,10 @@
 
 
 SpikeDisplayNode::SpikeDisplayNode()
-    : GenericProcessor("Spike Viewer"), displayBufferSize(5),  redrawRequested(false), isRecording(false),
-      signalFilesShouldClose(false)
+    : GenericProcessor("Spike Viewer"), displayBufferSize(5),  redrawRequested(false),
+	isRecording(false)
 {
 
-
-    spikeBuffer = new uint8_t[MAX_SPIKE_BUFFER_LEN]; // MAX_SPIKE_BUFFER_LEN defined in SpikeObject.h
-
-    recordingNumber = -1;
 
 }
 
@@ -60,7 +56,6 @@ void SpikeDisplayNode::updateSettings()
     //std::cout << "Setting num inputs on SpikeDisplayNode to " << getNumInputs() << std::endl;
 
     electrodes.clear();
-
     for (int i = 0; i < eventChannels.size(); i++)
     {
         if ((eventChannels[i]->eventType < 999) && (eventChannels[i]->eventType > SPIKE_BASE_CODE))
@@ -79,11 +74,9 @@ void SpikeDisplayNode::updateSettings()
             }
 
             electrodes.add(elec);
+
         }
     }
-
-    recordNode = getProcessorGraph()->getRecordNode();
-    diskWriteLock = recordNode->getLock();
 
 }
 
@@ -96,6 +89,18 @@ bool SpikeDisplayNode::enable()
 {
     std::cout << "SpikeDisplayNode::enable()" << std::endl;
     SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
+
+	getProcessorGraph()->getRecordNode()->registerSpikeSource(this);
+	for (int i = 0; i < electrodes.size(); i ++)
+	{
+		Electrode& elec = electrodes.getReference(i);
+		SpikeRecordInfo *recElec = new SpikeRecordInfo();
+		recElec->name = elec.name;
+		recElec->numChannels = elec.numChannels;
+		recElec->sampleRate = settings.sampleRate;
+		elec.recordIndex = getProcessorGraph()->getRecordNode()->addSpikeElectrode(recElec);
+	}
+
     editor->enable();
     return true;
 
@@ -175,27 +180,11 @@ void SpikeDisplayNode::setParameter(int param, float val)
     if (param == 0) // stop recording
     {
         isRecording = false;
-        signalFilesShouldClose = true;
 
     }
     else if (param == 1)   // start recording
     {
         isRecording = true;
-
-        dataDirectory = recordNode->getDataDirectory();
-
-        if (dataDirectory.getFullPathName().length() == 0)
-        {
-            // temporary fix in case nothing is returned by the record node.
-            dataDirectory = File::getSpecialLocation(File::userHomeDirectory);
-        }
-
-        baseDirectory = dataDirectory.getFullPathName();
-
-        for (int i = 0; i < getNumElectrodes(); i++)
-        {
-            openFile(i);
-        }
 
     }
     else if (param == 2)   // redraw
@@ -212,16 +201,6 @@ void SpikeDisplayNode::process(AudioSampleBuffer& buffer, MidiBuffer& events, in
 {
 
     checkForEvents(events); // automatically calls 'handleEvent
-
-    if (signalFilesShouldClose)
-    {
-        for (int i = 0; i < getNumElectrodes(); i++)
-        {
-            closeFile(i);
-        }
-
-        signalFilesShouldClose = false;
-    }
 
     if (redrawRequested)
     {
@@ -304,7 +283,7 @@ void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int sample
                     // save spike
                     if (isRecording)
                     {
-                        writeSpike(newSpike, electrodeNum);
+						getProcessorGraph()->getRecordNode()->writeSpike(newSpike,e.recordIndex);
                     }
                 }
 
@@ -332,140 +311,4 @@ bool SpikeDisplayNode::checkThreshold(int chan, float thresh, SpikeObject& s)
     }
 
     return false;
-}
-
-void SpikeDisplayNode::openFile(int i)
-{
-
-    String filename = baseDirectory;
-    filename += File::separator;
-    filename += getNameForElectrode(i).removeCharacters(" ");
-    filename += ".spikes";
-
-    std::cout << "OPENING FILE: " << filename << std::endl;
-
-    File fileToUse = File(filename);
-
-    diskWriteLock->enter();
-    //const MessageManagerLock mmLock;
-
-    Electrode& e = electrodes.getReference(i);
-
-    FILE* file;
-
-    if (!fileToUse.exists())
-    {
-        // open it and write header
-
-        if (i == 0)
-        {
-            recordingNumber = 0;
-        }
-
-        file = fopen(filename.toUTF8(), "ab");
-        String header = generateHeader(i);
-        fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), file);
-
-    }
-    else
-    {
-        // append it
-        if (i == 0)
-        {
-            recordingNumber++;
-        }
-
-        file = fopen(filename.toUTF8(), "ab");
-    }
-
-    diskWriteLock->exit();
-
-    e.file = file;
-}
-
-void SpikeDisplayNode::closeFile(int i)
-{
-
-    Electrode& e = electrodes.getReference(i);
-
-    std::cout << "CLOSING FILE for " << e.name << std::endl;
-
-    diskWriteLock->enter();
-
-    if (e.file != NULL)
-    {
-        fclose(e.file);
-    }
-
-    diskWriteLock->exit();
-
-}
-
-void SpikeDisplayNode::writeSpike(const SpikeObject& s, int i)
-{
-
-    packSpike(&s, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
-
-    int totalBytes = s.nSamples * s.nChannels * 2 + // account for samples
-                     s.nChannels * 4 +            // acount for threshold and gain
-                     15;                        // 15 bytes in every SpikeObject
-
-
-    // format:
-    // 1 byte of event type (always = 4 for spikes)
-    // 8 bytes for 64-bit timestamp
-    // 2 bytes for 16-bit electrode ID
-    // 2 bytes for 16-bit number of channels (n)
-    // 2 bytes for 16-bit number of samples (m)
-    // 2*n*m bytes for 16-bit samples
-    // 2*n bytes for 16-bit gains
-    // 2*n bytes for 16-bit thresholds
-
-    // const MessageManagerLock mmLock;
-
-    diskWriteLock->enter();
-
-    fwrite(spikeBuffer, 1, totalBytes, electrodes[i].file);
-
-    fwrite(&recordingNumber,                         // ptr
-           2,                               // size of each element
-           1,                               // count
-           electrodes[i].file); // ptr to FILE object
-
-    diskWriteLock->exit();
-
-
-}
-
-String SpikeDisplayNode::generateHeader(int electrodeNum)
-{
-    String header = "header.format = 'Open Ephys Data Format'; \n";
-    header += "header.version = 0.2;";
-    header += "header.header_bytes = ";
-    header += String(HEADER_SIZE);
-    header += ";\n";
-
-    header += "header.description = 'Each record contains 1 uint8 eventType, 1 uint64 timestamp, 1 uint16 electrodeID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), n*m uint16 samples, n uint16 channelGains, n uint16 thresholds, and 1 uint16 recordingNumber'; \n";
-
-    header += "header.date_created = '";
-    header += recordNode->generateDateString();
-    header += "';\n";
-
-    header += "header.electrode = '";
-    header += electrodes[electrodeNum].name;
-    header += "';\n";
-
-    header += "header.num_channels = ";
-    header += electrodes[electrodeNum].numChannels;
-    header += ";\n";
-
-    header += "header.sampleRate = ";
-    header += String(settings.sampleRate);
-    header += ";\n";
-
-    header = header.paddedRight(' ', HEADER_SIZE);
-
-    //std::cout << header << std::endl;
-
-    return header;
 }

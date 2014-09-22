@@ -95,7 +95,7 @@ private:
 
         SpikePlot* spikePlot;
 
-        FILE* file;
+        int recordIndex;
 
     };
 
@@ -104,24 +104,18 @@ private:
     int displayBufferSize;
     bool redrawRequested;
 
-    // methods for recording:
-    void openFile(int index);
-    void closeFile(int index);
-    void writeSpike(const SpikeObject& s, int index);
-    String generateHeader(int index);
-
     // members for recording
     bool isRecording;
-    bool signalFilesShouldClose;
-    RecordNode* recordNode;
-    String baseDirectory;
-    File dataDirectory;
-    uint8_t* spikeBuffer;
-    SpikeObject currentSpike;
+ //   bool signalFilesShouldClose;
+ //   RecordNode* recordNode;
+ //   String baseDirectory;
+ //   File dataDirectory;
+ //   uint8_t* spikeBuffer;
+ //   SpikeObject currentSpike;
 
-    uint16 recordingNumber;
+ //   uint16 recordingNumber;
 
-    CriticalSection* diskWriteLock;
+//    CriticalSection* diskWriteLock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayNode);
 

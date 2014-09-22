@@ -23,7 +23,6 @@
 
 #include "MainWindow.h"
 #include <stdio.h>
-
 //-----------------------------------------------------------------------
 
 MainWindow::MainWindow()

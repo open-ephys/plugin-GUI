@@ -115,6 +115,12 @@ public:
     /** Activates all the ChannelSelectorButtons under the "param" tab.*/
     void activateButtons();
 
+	/** Inactivates all the ChannelSelectorButtons under the "rec" tab.*/
+    void inactivateRecButtons();
+
+    /** Activates all the ChannelSelectorButtons under the "rec" tab.*/
+    void activateRecButtons();
+
     /** Refreshes Parameter Colors on change*/
     void refreshParameterColors()
     {
@@ -160,6 +166,7 @@ private:
 
     bool paramsToggled;
     bool paramsActive;
+	bool recActive;
     bool radioStatus;
 
     bool isNotSink;

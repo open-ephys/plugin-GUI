@@ -133,6 +133,11 @@ bool FileReaderThread::updateBuffer()
 
         size_t numRead = fread(readBuffer, 2, bufferSize, input);
 
+        if (numRead != bufferSize)
+        {
+            std::cout << "Fewer samples read than were requested." << std::endl;
+        }
+        
         int chan = 0;
 
         for (int n = 0; n < bufferSize; n++)

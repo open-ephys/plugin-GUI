@@ -98,7 +98,6 @@ void ProcessorGraph::createDefaultNodes()
     addNode(recn, RECORD_NODE_ID);
     addNode(an, AUDIO_NODE_ID);
     addNode(arn, RESAMPLING_NODE_ID);
-
 }
 
 void ProcessorGraph::updatePointers()
@@ -436,6 +435,7 @@ void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* sou
     if (source == nullptr)
         return;
 
+	getRecordNode()->registerProcessor(source);
     for (int chan = 0; chan < source->getNumOutputs(); chan++)
     {
 
@@ -782,11 +782,7 @@ void ProcessorGraph::setRecordState(bool isRecording)
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
 
-            if (isRecording)
-                p->startRecording();
-            else
-                p->stopRecording();
-
+			p->setRecording(isRecording);
         }
     }
 

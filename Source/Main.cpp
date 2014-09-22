@@ -75,6 +75,7 @@ public:
                 std::cout.rdbuf(console_out.rdbuf());
 				std::cerr.rdbuf(console_out.rdbuf());
                 SetConsoleTitle("Debug Console");
+				std::cout << "Debug console..." << std::endl;
             }
         }
 

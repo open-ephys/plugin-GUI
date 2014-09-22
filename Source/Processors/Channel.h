@@ -114,11 +114,8 @@ public:
     bool isMonitored;
     bool isEnabled;
 
-    int originalStream;
-    int originalChannel;
-    // file info (for disk writing):
-    String filename;
-    FILE* file;
+    // file info (for disk writing). Meaning depends on RecordEngine
+	int recordIndex;
 
     String name;
 

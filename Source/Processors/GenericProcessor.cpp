@@ -412,6 +412,23 @@ void GenericProcessor::setAllChannelsToRecord()
 
 }
 
+void GenericProcessor::setRecording(bool state)
+{
+	GenericEditor* ed = getEditor();
+	if (state)
+	{
+		if (ed != 0)
+			ed->startRecording();
+		startRecording();
+	}
+	else
+	{
+		if (ed != 0)
+			ed->stopRecording();
+		stopRecording();
+	}
+}
+
 void GenericProcessor::enableEditor()
 {
 

@@ -21,7 +21,7 @@ ifeq ($(CONFIG),Debug)
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.1" -D "JUCE_APP_VERSION_HEX=0x301" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3 -export-dynamic -g -pg -std=c++0x
   CXXFLAGS += $(CFLAGS)
-  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5 -lhdf5_cpp
   LDDEPS :=
   RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.1" -D "JUCE_APP_VERSION_HEX=0x301" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   TARGET := open-ephys
@@ -42,7 +42,7 @@ ifeq ($(CONFIG),Release)
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.1" -D "JUCE_APP_VERSION_HEX=0x301" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -export-dynamic -g -pg -std=c++0x
   CXXFLAGS += $(CFLAGS)
-  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5 -lhdf5_cpp
   LDDEPS :=
   RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.1" -D "JUCE_APP_VERSION_HEX=0x301" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   TARGET := open-ephys-release
@@ -73,6 +73,10 @@ OBJECTS := \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
   $(OBJDIR)/SpikeSortBoxes_e42a3d04.o \
   $(OBJDIR)/SpikeSorter_b8ed216c.o \
+  $(OBJDIR)/HDF5FileFormat_5dfd9ead.o \
+  $(OBJDIR)/OriginalRecording_b4d9221b.o \
+  $(OBJDIR)/RecordEngine_80ecff22.o \
+  $(OBJDIR)/HDF5Recording_8016ea1.o \
   $(OBJDIR)/SerialInput_855a46b1.o \
   $(OBJDIR)/FileReader_18023b0e.o \
   $(OBJDIR)/ChannelMappingNode_d9219b9c.o \
@@ -306,6 +310,26 @@ $(OBJDIR)/SpikeSortBoxes_e42a3d04.o: ../../Source/Processors/SpikeSortBoxes.cpp
 $(OBJDIR)/SpikeSorter_b8ed216c.o: ../../Source/Processors/SpikeSorter.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SpikeSorter.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/HDF5FileFormat_5dfd9ead.o: ../../Source/Processors/HDF5FileFormat.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling HDF5FileFormat.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/OriginalRecording_b4d9221b.o: ../../Source/Processors/OriginalRecording.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling OriginalRecording.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RecordEngine_80ecff22.o: ../../Source/Processors/RecordEngine.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RecordEngine.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/HDF5Recording_8016ea1.o: ../../Source/Processors/HDF5Recording.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling HDF5Recording.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/SerialInput_855a46b1.o: ../../Source/Processors/SerialInput.cpp

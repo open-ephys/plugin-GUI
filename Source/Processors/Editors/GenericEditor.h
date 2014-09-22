@@ -108,6 +108,12 @@ public:
     /** Used to enable or disable an editor's processor.*/
     void setEnabledState(bool);
 
+	/** Called at the start of a recording **/
+	void startRecording();
+
+	/** Called at the end of a recording **/
+	void stopRecording();
+
     /** Called just prior to the start of acquisition, to allow the editor to prepare.*/
     virtual void startAcquisition();
 
