@@ -404,7 +404,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
 
 	recordSelector = new ComboBox();
 	recordSelector->addListener(this);
-	recordSelector->addItem("OpenEphys",1);
+	recordSelector->addItem("Open Ephys",1);
 	recordSelector->addItem("HDF5",2);
 	addChildComponent(recordSelector);
 
