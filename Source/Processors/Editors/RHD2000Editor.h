@@ -26,6 +26,7 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
+#include "VisualizerEditor.h"
 
 #include "ElectrodeButtons.h" // for ElectrodeButton
 
@@ -44,9 +45,116 @@ class UtilityButton;
   @see SourceNode
 
 */
+class SourceNode;
+
+class FPGAchannelComponent;
+class RHD2000Editor;
+class FPGAcanvas;
+
+class FPGAchannelList : public Component,
+    public AccessClass, Button::Listener, ComboBox::Listener
+{
+public:
+    
+    FPGAchannelList(GenericProcessor* proc, Viewport *p, FPGAcanvas*c);
+    ~FPGAchannelList();
+    void setNewName(int stream, int channelIndex, channelType t, String newName);
+    void setNewGain(int stream, int channel,channelType t, float gain);
+    void disableAll();
+    void enableAll();
+    void paint(Graphics& g);
+    void buttonClicked(Button *btn);
+    void update();
+    void updateButtons();
+    int getNumChannels();
+    void comboBoxChanged(ComboBox *b);
+    void updateImpedance(Array<int> streams, Array<int> channels, Array<float> magnitude, Array<float> phase);
+    GenericProcessor* proc;
+    
+private:
+    Array<float> gains;
+    Array<channelType> types;
+    Array<int> stream;
+    Array<int> orig_number;
+
+    Viewport *viewport;
+    FPGAcanvas *canvas;
+    ScopedPointer<UtilityButton> impedanceButton;
+    ScopedPointer<ComboBox> numberingScheme;
+    ScopedPointer<Label> numberingSchemeLabel;
+    OwnedArray<Label> staticLabels;
+    OwnedArray<FPGAchannelComponent> channelComponents;
+   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FPGAchannelList);
+};
 
 
-class RHD2000Editor : public GenericEditor
+class FPGAchannelComponent : public Component, public AccessClass, Button::Listener, public ComboBox::Listener, public Label::Listener
+{
+public:
+    FPGAchannelComponent(FPGAchannelList* cl,int stream, int ch, channelType t,  int gainIndex_, String name_, Array<float> gains_);
+    ~FPGAchannelComponent();
+    Colour getDefaultColor(int ID);
+    void setImpedanceValues(float mag, float phase);
+    void disableEdit();
+    void enableEdit();
+
+
+    void setEnabledState(bool);
+    bool getEnabledState()
+    {
+        return isEnabled;
+    }
+    void buttonClicked(Button *btn);
+    void setUserDefinedData(int d);
+    int getUserDefinedData();
+    void comboBoxChanged(ComboBox* comboBox);
+    void labelTextChanged(Label* lbl);
+
+    void resized();
+private:
+    Array<float> gains;
+    FPGAchannelList* channelList;
+    ScopedPointer<Label> staticLabel, editName, impedance;
+    ScopedPointer<ComboBox> gainComboBox;
+    int channel;
+    String name;
+    int stream;
+    channelType type;
+    int gainIndex;
+    int userDefinedData;
+    Font font;
+    bool isEnabled;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FPGAchannelComponent);
+};
+
+
+class FPGAcanvas : public Visualizer, public Button::Listener
+{
+public:
+     FPGAcanvas(GenericProcessor* n);
+    ~FPGAcanvas();
+
+    void paint(Graphics& g);
+
+    void refresh();
+
+    void beginAnimation();
+    void endAnimation();
+
+    void refreshState();
+    void update();
+    void setParameter(int, float) ;
+    void setParameter(int, int, int, float) ;
+    void updateImpedance(Array<int> streams, Array<int> channels, Array<float> magnitude, Array<float> phase);
+
+    void resized();
+    void buttonClicked(Button* button);
+    Viewport* channelsViewport;
+    GenericProcessor* processor;
+    ScopedPointer<FPGAchannelList> channelList;
+};
+
+class RHD2000Editor : public VisualizerEditor, public ComboBox::Listener
 
 {
 public:
@@ -56,7 +164,8 @@ public:
     void buttonEvent(Button* button);
 
     void scanPorts();
-
+    void comboBoxChanged(ComboBox* comboBox);
+ 
     void startAcquisition();
     void stopAcquisition();
 
@@ -64,7 +173,8 @@ public:
 
     void saveCustomParameters(XmlElement* xml);
     void loadCustomParameters(XmlElement* xml);
-
+    Visualizer* createNewCanvas(void);
+    void measureImpedance();
 private:
 
     OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
@@ -75,13 +185,15 @@ private:
 
     ScopedPointer<AudioInterface> audioInterface;
 
-    ScopedPointer<UtilityButton> rescanButton;
+    ScopedPointer<UtilityButton> rescanButton,dacTTLButton;
     ScopedPointer<UtilityButton> adcButton;
+    ScopedPointer<ComboBox> ttlSettleCombo,dacHPFcombo;
 
-    ScopedPointer<Label> audioLabel;
+
+    ScopedPointer<Label> audioLabel,ttlSettleLabel,dacHPFlabel ;
 
     RHD2000Thread* board;
-
+    FPGAcanvas *canvas;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Editor);
 
 };
@@ -177,36 +289,36 @@ private:
 };
 
 class AudioInterface : public Component,
-    public Label::Listener
+public Label::Listener
 {
 public:
     AudioInterface(RHD2000Thread*, RHD2000Editor*);
     ~AudioInterface();
-
+    
     void paint(Graphics& g);
     void labelTextChanged(Label* te);
-
+    
     void setNoiseSlicerLevel(int value);
     int getNoiseSlicerLevel();
     //void setGain(double value);
     //double getGain();
-
+    
 private:
-
+    
     String name;
-
+    
     String lastNoiseSlicerString;
     String lastGainString;
-
+    
     RHD2000Thread* board;
     RHD2000Editor* editor;
-
+    
     ScopedPointer<Label> noiseSlicerLevelSelection;
     //ScopedPointer<Label> gainSelection;
-
+    
     int actualNoiseSlicerLevel;
     //double actualGain;
-
+    
 };
 
 

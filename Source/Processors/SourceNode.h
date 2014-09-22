@@ -60,6 +60,13 @@ public:
     int getDefaultNumOutputs();
     float getDefaultBitVolts();
 
+    int modifyChannelGain(int stream, int channel,channelType type, float gain, bool updateSignalChain);
+    int modifyChannelName(channelType t, int str, int ch, String newName, bool updateSignalChain);
+
+    void getChannelsInfo(StringArray &Names, Array<channelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
+    void setDefaultNamingScheme(int scheme);
+    void getEventChannelNames(StringArray &names);
+
     AudioProcessorEditor* createEditor();
     bool hasEditor() const
     {

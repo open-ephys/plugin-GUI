@@ -45,7 +45,7 @@ SourceNode::SourceNode(const String& name_)
 
     if (getName().equalsIgnoreCase("RHA2000-EVAL"))
     {
-        // dataThread = new IntanThread(this);
+        // dataThread = new IntanThread(this);o
     }
     else if (getName().equalsIgnoreCase("Custom FPGA"))
     {
@@ -114,6 +114,85 @@ SourceNode::~SourceNode()
 DataThread* SourceNode::getThread()
 {
     return dataThread;
+}
+
+int SourceNode::modifyChannelName(channelType t, int str, int ch, String newName, bool updateSignalChain)
+{
+    if (dataThread != 0) {
+        int channel_index = dataThread->modifyChannelName(t, str, ch, newName);
+        if (channel_index >= 0 && channel_index < channels.size())
+        {
+            if (channels[channel_index]->getChannelName() != newName)
+            {
+                channels[channel_index]->setName(newName);
+                // propagate this information...
+                
+                if (updateSignalChain)
+                    getEditorViewport()->makeEditorVisible(getEditor(), false, true);
+                    
+            }
+        }
+        return channel_index;
+    }
+    return -1;
+}
+
+int SourceNode::modifyChannelGain(int stream, int channel,channelType type, float gain, bool updateSignalChain)
+{
+    if (dataThread != 0) 
+    {
+        
+        int channel_index = dataThread->modifyChannelGain(type, stream, channel, gain);
+        
+        if (channel_index >= 0 && channel_index < channels.size())
+        {
+            // we now need to update the signal chain to propagate this change.....
+            if (channels[channel_index]->getChannelGain() != gain) 
+            {
+                channels[channel_index]->setGain(gain);
+                
+                if (updateSignalChain)
+                    getEditorViewport()->makeEditorVisible(getEditor(), false, true);
+                
+                return channel_index;
+            }
+        }
+    }
+
+    return -1;
+}
+
+void SourceNode::getChannelsInfo(StringArray &names, Array<channelType> &types, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
+{
+    if (dataThread != 0)
+        dataThread->getChannelsInfo(names, types,stream,originalChannelNumber,gains);
+}
+
+void SourceNode::setDefaultNamingScheme(int scheme)
+{
+    if (dataThread != 0) 
+    {
+        dataThread->setDefaultNamingScheme(scheme);
+
+        StringArray names;
+        Array<channelType> types;
+        Array<int> stream;
+        Array<int> originalChannelNumber;
+        Array<float> gains;
+        getChannelsInfo(names, types, stream, originalChannelNumber, gains);
+        for (int k=0;k<names.size();k++)
+        {
+            modifyChannelName(types[k],stream[k],originalChannelNumber[k], names[k],false);
+        }
+    }
+
+}
+
+void SourceNode::getEventChannelNames(StringArray &names)
+{
+    if (dataThread != 0)
+        dataThread->getEventChannelNames(names);
+
 }
 
 void SourceNode::updateSettings()
