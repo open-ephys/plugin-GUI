@@ -35,15 +35,17 @@ Channel::Channel(GenericProcessor* p, int n) : num(n), eventType(0), processor(p
 Channel::Channel(const Channel& ch)
 {
     processor = ch.processor;
+    isEventChannel = ch.isEventChannel;
     isEnabled = ch.isEnabled;
     isMonitored = false;
-    type = ch.type;
+    isADCchannel = ch.isADCchannel;
     sampleRate = ch.sampleRate;
     bitVolts = ch.bitVolts;
     name = ch.name;
     eventType = ch.eventType;
     nodeId = ch.nodeId;
     num = ch.num;
+
     originalStream = ch.originalStream;
     originalChannel = ch.originalChannel;
 

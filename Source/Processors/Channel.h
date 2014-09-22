@@ -104,13 +104,17 @@ public:
     /** Pointer to the channel's parent processor. */
     GenericProcessor* processor;
 
+    int originalStream;
+    int originalChannel;
 
 
     // crucial information:
     float sampleRate;
     channelType type;
     
-    // boolean values:
+     // boolean values:
+    bool isEventChannel;
+    bool isADCchannel;
     bool isMonitored;
     bool isEnabled;
 

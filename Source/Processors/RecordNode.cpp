@@ -212,31 +212,31 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
 void RecordNode::updateFileName(Channel* ch)
 {
-    String filename = rootFolder.getFullPathName();
-    filename += rootFolder.separatorString;
+    // String filename = rootFolder.getFullPathName();
+    // filename += rootFolder.separatorString;
 
-    if (!ch->getType() == EVENT_CHANNEL)
-    {
-        filename += ch->nodeId;
-        filename += "_";
-        filename += ch->name;
+    // if (!ch->getType() == EVENT_CHANNEL)
+    // {
+    //     filename += ch->nodeId;
+    //     filename += "_";
+    //     filename += ch->name;
 
-        if (appendTrialNum)
-        {
-            filename += "_";
-            filename += trialNum;
-        }
+    //     if (appendTrialNum)
+    //     {
+    //         filename += "_";
+    //         filename += trialNum;
+    //     }
 
-        filename += ".continuous";
-    }
-    else
-    {
-        filename += "all_channels.events";
-    }
+    //     filename += ".continuous";
+    // }
+    // else
+    // {
+    //     filename += "all_channels.events";
+    // }
 
 
-    ch->filename = filename;
-    ch->file = 0;
+    // ch->filename = filename;
+    // ch->file = 0;
 
 
     //std::cout << "Updating " << filename << std::endl;
