@@ -492,6 +492,9 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
 
         memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
         EVERY_ENGINE->updateTimeStamp(timestamp);
+    } else if (eventType == MESSAGE)
+    {
+        std::cout << "Received event!" << std::endl;
     }
 
 }

@@ -26,8 +26,8 @@
 MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
 	AudioProcessorEditor(owner),
 	messageCenter(owner),
-    incomingBackground(Colours::grey.withAlpha(0.5f)),
-    outgoingBackground(Colours::grey.withAlpha(0.5f))
+    incomingBackground(100, 100, 100),
+    outgoingBackground(100, 100, 100)
 {
 
     incomingMessageDisplayArea = new Label("Message Display Area","No new messages.");
@@ -53,15 +53,95 @@ MessageCenterEditor::~MessageCenterEditor()
 void MessageCenterEditor::buttonClicked(Button* button)
 {
 	messageCenter->setParameter(1,1);
+
 }
 
 void MessageCenterEditor::labelTextChanged(Label* label)
 {
 
+	if (label == incomingMessageDisplayArea)
+	{
+		incomingBackground = Colours::orange;
+		startTimer(20);
+	}
 }
 
 void MessageCenterEditor::timerCallback()
 {
+
+	uint8 defaultValue = 100;
+
+	uint8 inRed = incomingBackground.getRed();
+	uint8 inGreen = incomingBackground.getGreen();
+	uint8 inBlue = incomingBackground.getBlue();
+
+	uint8 outRed = outgoingBackground.getRed();
+	uint8 outGreen = outgoingBackground.getGreen();
+	uint8 outBlue = outgoingBackground.getBlue();
+
+	bool shouldRepaint = false;
+
+	if (inGreen > defaultValue)
+	{
+		inGreen -= 1; shouldRepaint = true;
+	}
+	else if (inGreen < defaultValue)
+	{
+		inGreen += 1; shouldRepaint = true;
+	}
+
+	if (inRed > defaultValue)
+	{
+		inRed -= 1; shouldRepaint = true;
+	}
+	else if (inRed < defaultValue)
+	{
+		inRed += 1; shouldRepaint = true;
+	}
+
+	if (inBlue > defaultValue)
+	{
+		inBlue -= 1; shouldRepaint = true;
+	}
+	else if (inBlue < defaultValue)
+	{
+		inBlue += 1; shouldRepaint = true;
+	}
+
+	if (outGreen > defaultValue)
+	{
+		outGreen -= 1; shouldRepaint = true;
+	}
+	else if (outGreen < defaultValue)
+	{
+		outGreen += 1; shouldRepaint = true;
+	}
+
+	if (outRed > defaultValue)
+	{
+		outRed -= 1; shouldRepaint = true;
+	}
+	else if (outRed < defaultValue)
+	{
+		outRed += 1; shouldRepaint = true;
+	}
+
+	if (outBlue > defaultValue)
+	{
+		outBlue -= 1; shouldRepaint = true;
+	}
+	else if (outBlue < defaultValue)
+	{
+		outBlue += 1; shouldRepaint = true;
+	}
+
+	incomingBackground = Colour(inRed, inGreen, inBlue);
+	outgoingBackground = Colour(outRed, outGreen, outBlue);
+
+	if (shouldRepaint)
+		repaint();
+	else
+		stopTimer();
 
 }
 
@@ -90,10 +170,14 @@ void MessageCenterEditor::messageReceived(bool state)
 {
 	if (!state)
 	{
-		incomingMessageDisplayArea->setText("FAIL.", dontSendNotification);
+		incomingMessageDisplayArea->setText("Cannot save messages when recording is not active.", sendNotification);
+		incomingBackground = Colours::red;
 	} else {
-		incomingMessageDisplayArea->setText("SUCCESS!", dontSendNotification);
+		incomingMessageDisplayArea->setText("Message sent.", sendNotification);
+		incomingBackground = Colours::green;
 	}
+
+	startTimer(20);
 }
 
 void MessageCenterEditor::paint(Graphics& g)
@@ -128,11 +212,10 @@ void MessageCenterEditor::resized()
 void MessageCenterEditor::actionListenerCallback(const String& message)
 {
 
-    incomingMessageDisplayArea->setText(message, dontSendNotification);
+    incomingMessageDisplayArea->setText(message, sendNotification);
 
     incomingBackground = Colours::orange;
-
-    repaint();
+    startTimer(20);
 
 }
 
