@@ -48,6 +48,7 @@
 #include "FPGAOutput.h"
 #include "PulsePalOutput.h"
 #include "SerialInput.h"
+#include "MessageCenter.h"
 #include "Utilities/RecordControl.h"
 #include "Utilities/Splitter.h"
 #include "Utilities/Merger.h"
@@ -63,8 +64,6 @@ ProcessorGraph::ProcessorGraph() : currentNodeId(100)
                          2, // number of outputs
                          44100.0, // sampleRate
                          1024);    // blockSize
-
-    createDefaultNodes();
 
 }
 
@@ -89,15 +88,20 @@ void ProcessorGraph::createDefaultNodes()
     AudioNode* an = new AudioNode();
     an->setNodeId(AUDIO_NODE_ID);
 
-
     // add audio resampling node -- resamples continuous signals to 44.1kHz
     AudioResamplingNode* arn = new AudioResamplingNode();
     arn->setNodeId(RESAMPLING_NODE_ID);
+
+    // add message center
+    MessageCenter* msgCenter = new MessageCenter();
+    msgCenter->setNodeId(MESSAGE_CENTER_ID);
 
     addNode(on, OUTPUT_NODE_ID);
     addNode(recn, RECORD_NODE_ID);
     addNode(an, AUDIO_NODE_ID);
     addNode(arn, RESAMPLING_NODE_ID);
+    addNode(msgCenter, MESSAGE_CENTER_ID);
+
 }
 
 void ProcessorGraph::updatePointers()
@@ -105,6 +109,7 @@ void ProcessorGraph::updatePointers()
     getAudioNode()->setUIComponent(getUIComponent());
     getAudioNode()->updateBufferSize();
     getRecordNode()->setUIComponent(getUIComponent());
+    getMessageCenter()->setUIComponent(getUIComponent());
 }
 
 void* ProcessorGraph::createNewProcessor(String& description, int id)//,
@@ -175,7 +180,8 @@ void ProcessorGraph::refreshColors()
         if (nodeId != OUTPUT_NODE_ID &&
             nodeId != AUDIO_NODE_ID &&
             nodeId != RECORD_NODE_ID &&
-            nodeId != RESAMPLING_NODE_ID)
+            nodeId != RESAMPLING_NODE_ID &&
+            nodeId != MESSAGE_CENTER_ID)
         {
             GenericProcessor* p =(GenericProcessor*) node->getProcessor();
             GenericEditor* e = (GenericEditor*) p->getEditor();
@@ -198,7 +204,8 @@ void ProcessorGraph::restoreParameters()
         if (nodeId != OUTPUT_NODE_ID &&
             nodeId != AUDIO_NODE_ID &&
             nodeId != RECORD_NODE_ID &&
-            nodeId != RESAMPLING_NODE_ID)
+            nodeId != RESAMPLING_NODE_ID &&
+            nodeId != MESSAGE_CENTER_ID)
         {
             GenericProcessor* p =(GenericProcessor*) node->getProcessor();
             p->loadFromXml();
@@ -221,7 +228,8 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
         if (nodeId != OUTPUT_NODE_ID &&
             nodeId != AUDIO_NODE_ID &&
             nodeId != RECORD_NODE_ID &&
-            nodeId != RESAMPLING_NODE_ID)
+            nodeId != RESAMPLING_NODE_ID &&
+            nodeId != MESSAGE_CENTER_ID)
         {
             GenericProcessor* p =(GenericProcessor*) node->getProcessor();
             a.add(p);
@@ -269,6 +277,9 @@ void ProcessorGraph::clearConnections()
 
     addConnection(AUDIO_NODE_ID, midiChannelIndex,
                   RESAMPLING_NODE_ID, midiChannelIndex);
+
+    addConnection(MESSAGE_CENTER_ID, midiChannelIndex,
+                  RECORD_NODE_ID, midiChannelIndex);
 }
 
 
@@ -740,7 +751,7 @@ bool ProcessorGraph::disableProcessors()
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
-        if (node->nodeId != OUTPUT_NODE_ID)
+        if (node->nodeId != OUTPUT_NODE_ID && node->nodeId != MESSAGE_CENTER_ID)
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             std::cout << "Disabling " << p->getName() << std::endl;
@@ -804,5 +815,14 @@ RecordNode* ProcessorGraph::getRecordNode()
 
     Node* node = getNodeForId(RECORD_NODE_ID);
     return (RecordNode*) node->getProcessor();
+
+}
+
+
+MessageCenter* ProcessorGraph::getMessageCenter()
+{
+
+    Node* node = getNodeForId(MESSAGE_CENTER_ID);
+    return (MessageCenter*) node->getProcessor();
 
 }

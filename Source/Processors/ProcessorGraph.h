@@ -31,6 +31,7 @@
 class GenericProcessor;
 class RecordNode;
 class AudioNode;
+class MessageCenter;
 class SignalChainTabButton;
 
 /**
@@ -69,6 +70,7 @@ public:
 
     RecordNode* getRecordNode();
     AudioNode* getAudioNode();
+    MessageCenter* getMessageCenter();
 
     void updateConnections(Array<SignalChainTabButton*, CriticalSection>);
 
@@ -85,6 +87,8 @@ public:
 
     void refreshColors();
 
+    void createDefaultNodes();
+
 private:
 
     int currentNodeId;
@@ -94,10 +98,9 @@ private:
         RECORD_NODE_ID = 900,
         AUDIO_NODE_ID = 901,
         OUTPUT_NODE_ID = 902,
-        RESAMPLING_NODE_ID = 903
+        RESAMPLING_NODE_ID = 903,
+        MESSAGE_CENTER_ID = 904
     };
-
-    void createDefaultNodes();
 
     void clearConnections();
 

@@ -98,7 +98,7 @@
       <ProgramDataBaseFileName>$(IntDir)\</ProgramDataBaseFileName>
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -283,6 +283,7 @@
     <ClCompile Include="..\..\Source\Dsp\RootFinder.cpp"/>
     <ClCompile Include="..\..\Source\Dsp\State.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\MessageCenter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SpikeSortBoxes.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SpikeSorter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\HDF5FileFormat.cpp"/>
@@ -318,6 +319,7 @@
     <ClCompile Include="..\..\Source\Processors\SpikeDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\MessageCenterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\EcubeEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\SpikeSorterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\LfpTriggeredAverageEditor.cpp"/>
@@ -376,7 +378,6 @@
     <ClCompile Include="..\..\Source\UI\CustomLookAndFeel.cpp"/>
     <ClCompile Include="..\..\Source\UI\InfoLabel.cpp"/>
     <ClCompile Include="..\..\Source\UI\DataViewport.cpp"/>
-    <ClCompile Include="..\..\Source\UI\MessageCenter.cpp"/>
     <ClCompile Include="..\..\Source\UI\ControlPanel.cpp"/>
     <ClCompile Include="..\..\Source\UI\UIComponent.cpp"/>
     <ClCompile Include="..\..\Source\MainWindow.cpp"/>
@@ -1531,6 +1532,7 @@
     <ClInclude Include="..\..\Source\Dsp\Types.h"/>
     <ClInclude Include="..\..\Source\Dsp\Utilities.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
+    <ClInclude Include="..\..\Source\Processors\MessageCenter.h"/>
     <ClInclude Include="..\..\Source\Processors\SpikeSortBoxes.h"/>
     <ClInclude Include="..\..\Source\Processors\SpikeSorter.h"/>
     <ClInclude Include="..\..\Source\Processors\HDF5FileFormat.h"/>
@@ -1568,6 +1570,7 @@
     <ClInclude Include="..\..\Source\Processors\SpikeDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\MessageCenterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\EcubeEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\SpikeSorterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\LfpTriggeredAverageEditor.h"/>
@@ -1626,7 +1629,6 @@
     <ClInclude Include="..\..\Source\UI\CustomLookAndFeel.h"/>
     <ClInclude Include="..\..\Source\UI\InfoLabel.h"/>
     <ClInclude Include="..\..\Source\UI\DataViewport.h"/>
-    <ClInclude Include="..\..\Source\UI\MessageCenter.h"/>
     <ClInclude Include="..\..\Source\UI\ControlPanel.h"/>
     <ClInclude Include="..\..\Source\UI\UIComponent.h"/>
     <ClInclude Include="..\..\Source\MainWindow.h"/>

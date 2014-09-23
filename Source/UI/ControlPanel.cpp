@@ -404,8 +404,8 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
 
 	recordSelector = new ComboBox();
 	recordSelector->addListener(this);
-	recordSelector->addItem("Open Ephys", 1);
-	recordSelector->addItem("Kwik", 2);
+	recordSelector->addItem("Open Ephys",1);
+	recordSelector->addItem("Kwik",2);
 	addChildComponent(recordSelector);
 
 	newDirectoryButton = new UtilityButton("+", Font("Small Text", 15, Font::plain));
@@ -524,7 +524,7 @@ void ControlPanel::paint(Graphics& g)
 	g.setColour(backgroundColour);
 	g.fillRect(0,0,getWidth(),getHeight());
 
-	if (:)
+	if (open)
 	{
 		createPaths();
 		g.setColour(Colours::black);

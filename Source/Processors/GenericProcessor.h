@@ -502,7 +502,8 @@ public:
         CONTINUOUS = 6,
         NETWORK = 7,
         EYE_POSITION = 8,
-        SERIAL = 9
+        SERIAL = 9,
+        MESSAGE = 10
     };
 
     enum eventChannelTypes

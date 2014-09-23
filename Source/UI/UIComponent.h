@@ -30,7 +30,7 @@
 #include "ProcessorList.h"
 #include "EditorViewport.h"
 #include "DataViewport.h"
-#include "MessageCenter.h"
+#include "../Processors/Editors/MessageCenterEditor.h"
 #include "GraphViewer.h"
 #include "../Processors/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
@@ -104,10 +104,10 @@ public:
         return controlPanel;
     }
 
-    /** Returns a pointer to the MessageCenter. */
-    MessageCenter* getMessageCenter()
+    /** Returns a pointer to the MessageCenterEditor. */
+    MessageCenterEditor* getMessageCenter()
     {
-        return messageCenter;
+        return messageCenterEditor;
     }
 
     /** Returns a pointer to the UIComponent. */
@@ -171,7 +171,7 @@ private:
     ScopedPointer<EditorViewportButton> editorViewportButton;
     ScopedPointer<ProcessorList> processorList;
     ScopedPointer<ControlPanel> controlPanel;
-    ScopedPointer<MessageCenter> messageCenter;
+    MessageCenterEditor* messageCenterEditor; // owned by ProcessorGraph
     ScopedPointer<InfoLabel> infoLabel;
     ScopedPointer<GraphViewer> graphViewer;
 

@@ -71,6 +71,7 @@ OBJECTS := \
   $(OBJDIR)/RootFinder_239a995f.o \
   $(OBJDIR)/State_22979684.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/MessageCenter_23198f37.o \
   $(OBJDIR)/SpikeSortBoxes_e42a3d04.o \
   $(OBJDIR)/SpikeSorter_b8ed216c.o \
   $(OBJDIR)/HDF5FileFormat_5dfd9ead.o \
@@ -106,6 +107,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeDetector_300d85e7.o \
   $(OBJDIR)/AudioNode_94606ff3.o \
   $(OBJDIR)/EventNode_95c842b7.o \
+  $(OBJDIR)/MessageCenterEditor_49ca0c3b.o \
   $(OBJDIR)/EcubeEditor_50eace99.o \
   $(OBJDIR)/SpikeSorterEditor_30c3d470.o \
   $(OBJDIR)/LfpTriggeredAverageEditor_101d75b.o \
@@ -164,7 +166,6 @@ OBJECTS := \
   $(OBJDIR)/CustomLookAndFeel_53a8fcdb.o \
   $(OBJDIR)/InfoLabel_a2051bf4.o \
   $(OBJDIR)/DataViewport_2cf95d2c.o \
-  $(OBJDIR)/MessageCenter_748a1cca.o \
   $(OBJDIR)/ControlPanel_a895ede3.o \
   $(OBJDIR)/UIComponent_d667ba37.o \
   $(OBJDIR)/MainWindow_499ac812.o \
@@ -300,6 +301,11 @@ $(OBJDIR)/State_22979684.o: ../../Source/Dsp/State.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MessageCenter_23198f37.o: ../../Source/Processors/MessageCenter.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MessageCenter.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/SpikeSortBoxes_e42a3d04.o: ../../Source/Processors/SpikeSortBoxes.cpp
@@ -475,6 +481,11 @@ $(OBJDIR)/AudioNode_94606ff3.o: ../../Source/Processors/AudioNode.cpp
 $(OBJDIR)/EventNode_95c842b7.o: ../../Source/Processors/EventNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MessageCenterEditor_49ca0c3b.o: ../../Source/Processors/Editors/MessageCenterEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MessageCenterEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/EcubeEditor_50eace99.o: ../../Source/Processors/Editors/EcubeEditor.cpp
@@ -765,11 +776,6 @@ $(OBJDIR)/InfoLabel_a2051bf4.o: ../../Source/UI/InfoLabel.cpp
 $(OBJDIR)/DataViewport_2cf95d2c.o: ../../Source/UI/DataViewport.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling DataViewport.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/MessageCenter_748a1cca.o: ../../Source/UI/MessageCenter.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling MessageCenter.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ControlPanel_a895ede3.o: ../../Source/UI/ControlPanel.cpp

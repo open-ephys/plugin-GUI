@@ -31,7 +31,7 @@ class EditorViewport;
 class ProcessorList;
 class DataViewport;
 class ProcessorGraph;
-class MessageCenter;
+class MessageCenterEditor;
 class ControlPanel;
 class AudioComponent;
 class GraphViewer;
@@ -102,7 +102,7 @@ public:
     }
 
     /** Returns a pointer to the application's MessageCenter. */
-    MessageCenter* getMessageCenter()
+    MessageCenterEditor* getMessageCenter()
     {
         return mc;
     }
@@ -133,7 +133,7 @@ private:
     DataViewport* dv;
     ProcessorGraph* pg;
     ControlPanel* cp;
-    MessageCenter* mc;
+    MessageCenterEditor* mc;
     AudioComponent* ac;
     GraphViewer* gv;
 

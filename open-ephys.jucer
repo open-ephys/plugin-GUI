@@ -284,6 +284,9 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <FILE id="nmfwUk" name="MessageCenter.cpp" compile="1" resource="0"
+              file="Source/Processors/MessageCenter.cpp"/>
+        <FILE id="VwMPDq" name="MessageCenter.h" compile="0" resource="0" file="Source/Processors/MessageCenter.h"/>
         <FILE id="jee5nL" name="SpikeSortBoxes.cpp" compile="1" resource="0"
               file="Source/Processors/SpikeSortBoxes.cpp"/>
         <FILE id="PEC3sP" name="SpikeSortBoxes.h" compile="0" resource="0"
@@ -399,6 +402,10 @@
         <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
         <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="nqzTN6" name="MessageCenterEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/MessageCenterEditor.cpp"/>
+          <FILE id="VwMdbB" name="MessageCenterEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/MessageCenterEditor.h"/>
           <FILE id="K24HnQ" name="EcubeEditor.cpp" compile="1" resource="0" file="Source/Processors/Editors/EcubeEditor.cpp"/>
           <FILE id="lLjRJj" name="EcubeEditor.h" compile="0" resource="0" file="Source/Processors/Editors/EcubeEditor.h"/>
           <FILE id="Fs9xVR" name="SpikeSorterEditor.cpp" compile="1" resource="0"
@@ -611,10 +618,6 @@
         <FILE id="bWElQSS" name="DataViewport.cpp" compile="1" resource="0"
               file="Source/UI/DataViewport.cpp"/>
         <FILE id="mMoQ3ls" name="DataViewport.h" compile="0" resource="0" file="Source/UI/DataViewport.h"/>
-        <FILE id="rRa3X6v" name="MessageCenter.cpp" compile="1" resource="0"
-              file="Source/UI/MessageCenter.cpp"/>
-        <FILE id="Gwnvgdy" name="MessageCenter.h" compile="0" resource="0"
-              file="Source/UI/MessageCenter.h"/>
         <FILE id="we1JIPz" name="ControlPanel.cpp" compile="1" resource="0"
               file="Source/UI/ControlPanel.cpp"/>
         <FILE id="rCft9Ec" name="ControlPanel.h" compile="0" resource="0" file="Source/UI/ControlPanel.h"/>

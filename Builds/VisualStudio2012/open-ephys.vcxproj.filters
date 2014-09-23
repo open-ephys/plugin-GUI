@@ -415,6 +415,9 @@
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\MessageCenter.cpp">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\SpikeSortBoxes.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClCompile>
@@ -519,6 +522,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\EventNode.cpp">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\MessageCenterEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\EcubeEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
@@ -692,9 +698,6 @@
       <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UI\DataViewport.cpp">
-      <Filter>open-ephys\Source\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\UI\MessageCenter.cpp">
       <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UI\ControlPanel.cpp">
@@ -2016,6 +2019,9 @@
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\MessageCenter.h">
+      <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\SpikeSortBoxes.h">
       <Filter>open-ephys\Source\Processors</Filter>
     </ClInclude>
@@ -2126,6 +2132,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\EventNode.h">
       <Filter>open-ephys\Source\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\MessageCenterEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\EcubeEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
@@ -2299,9 +2308,6 @@
       <Filter>open-ephys\Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\DataViewport.h">
-      <Filter>open-ephys\Source\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\UI\MessageCenter.h">
       <Filter>open-ephys\Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\ControlPanel.h">

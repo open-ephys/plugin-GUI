@@ -26,6 +26,11 @@
 
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include <stdio.h>
+
+#include "GenericProcessor.h"
+
+class MessageCenterEditor;
 
 /**
 
@@ -37,30 +42,35 @@
 
 */
 
-class MessageCenter : public Component,
-    public ActionListener
+class MessageCenter : public GenericProcessor
 
 {
 public:
     MessageCenter();
     ~MessageCenter();
 
-    /** Draws the message center.*/
-    void paint(Graphics& g);
+    /** Handle incoming data and decide which files and events to write to disk. */
+    void process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer, int& nSamples);
+
+    /** Called when new events arrive. */
+    void setParameter(int parameterIndex, float newValue);
+
+    /** Creates the MessageCenterEditor (located in the UI component). */
+    AudioProcessorEditor* createEditor();
+
+    /** A pointer to the Message Center editor. */
+    ScopedPointer<MessageCenterEditor> messageCenterEditor;
+
+    void startRecording() {isRecording = true;}
+    void stopRecording() {isRecording = false;}
 
 private:
 
-    /** A JUCE label used to display message text. */
-    ScopedPointer<Label> messageDisplayArea;
+    bool newEventAvailable;
 
-    /** Called when the boundaries of the MessageCenter are changed. */
-    void resized();
+    bool isRecording;
 
-    /** Called when a new message is received. */
-    void actionListenerCallback(const String& message);
-
-    /** The background color (changes to yellow when a new message arrives). */
-    Colour messageBackground;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MessageCenter);
 
 };
 
