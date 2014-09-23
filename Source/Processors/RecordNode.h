@@ -129,9 +129,6 @@ public:
     
     void updateTrialNumber();
 
-       /** Generate filename for a given channel */
-    void updateFileName(Channel* ch);
-
 	/** Adds a Record Engine to use
 	*/
     void registerRecordEngine(RecordEngine* engine);

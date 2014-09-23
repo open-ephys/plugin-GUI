@@ -77,18 +77,6 @@ void RecordNode::setChannel(Channel* ch)
 
     setCurrentChannel(channelNum);
 
-    // for (int i = 0; i < con.size(); i++)
-    // {
-
-    // 	if (continuousChannels[i].nodeId == id &&
-    // 		continuousChannels[i].chan == chan)
-    // 	{
-    // 		std::cout << "Found channel " << i << std::endl;
-    // 		setCurrentChannel(i);
-    // 		break;
-    // 	}
-
-    // }
 }
 
 void RecordNode::setChannelStatus(Channel* ch, bool status)
@@ -104,10 +92,6 @@ void RecordNode::setChannelStatus(Channel* ch, bool status)
 
 }
 
-// void RecordNode::enableCurrentChannel(bool state)
-// {
-// 	continuousChannels[nextAvailableChannel].isRecording = state;
-// }
 
 void RecordNode::resetConnections()
 {
@@ -127,16 +111,7 @@ void RecordNode::resetConnections()
 void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 {
 
-    //std::cout << "Got a new file" << std::endl;
     dataDirectory = fnc->getCurrentFile();
-    // std::cout << "File name: " << dataDirectory.getFullPathName();
-    // if (dataDirectory.isDirectory())
-    //     std::cout << " is a directory." << std::endl;
-    // else
-    //     std::cout << " is NOT a directory." << std::endl;
-
-    //createNewDirectory();
-
 
 
 }
@@ -210,39 +185,6 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
 }
 
-void RecordNode::updateFileName(Channel* ch)
-{
-    // String filename = rootFolder.getFullPathName();
-    // filename += rootFolder.separatorString;
-
-    // if (!ch->getType() == EVENT_CHANNEL)
-    // {
-    //     filename += ch->nodeId;
-    //     filename += "_";
-    //     filename += ch->name;
-
-    //     if (appendTrialNum)
-    //     {
-    //         filename += "_";
-    //         filename += trialNum;
-    //     }
-
-    //     filename += ".continuous";
-    // }
-    // else
-    // {
-    //     filename += "all_channels.events";
-    // }
-
-
-    // ch->filename = filename;
-    // ch->file = 0;
-
-
-    //std::cout << "Updating " << filename << std::endl;
-
-}
-
 void RecordNode::updateTrialNumber()
 {
     trialNum++;
@@ -260,7 +202,6 @@ void RecordNode::createNewDirectory()
 
     rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName());
     newDirectoryNeeded = false;
-
 
 }
 
