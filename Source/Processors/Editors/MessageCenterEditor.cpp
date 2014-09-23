@@ -59,84 +59,26 @@ void MessageCenterEditor::buttonClicked(Button* button)
 void MessageCenterEditor::labelTextChanged(Label* label)
 {
 
-	if (label == incomingMessageDisplayArea)
-	{
-		incomingBackground = Colours::orange;
-		startTimer(20);
-	}
 }
 
 void MessageCenterEditor::timerCallback()
 {
 
-	uint8 defaultValue = 100;
-
-	uint8 inRed = incomingBackground.getRed();
-	uint8 inGreen = incomingBackground.getGreen();
-	uint8 inBlue = incomingBackground.getBlue();
-
-	uint8 outRed = outgoingBackground.getRed();
-	uint8 outGreen = outgoingBackground.getGreen();
-	uint8 outBlue = outgoingBackground.getBlue();
-
 	bool shouldRepaint = false;
 
-	if (inGreen > defaultValue)
-	{
-		inGreen -= 1; shouldRepaint = true;
-	}
-	else if (inGreen < defaultValue)
-	{
-		inGreen += 1; shouldRepaint = true;
-	}
+	float incomingAlpha = incomingBackground.getFloatAlpha();
 
-	if (inRed > defaultValue)
+	if (incomingAlpha > 0)
 	{
-		inRed -= 1; shouldRepaint = true;
-	}
-	else if (inRed < defaultValue)
-	{
-		inRed += 1; shouldRepaint = true;
-	}
+		incomingAlpha -= 0.05;
 
-	if (inBlue > defaultValue)
-	{
-		inBlue -= 1; shouldRepaint = true;
-	}
-	else if (inBlue < defaultValue)
-	{
-		inBlue += 1; shouldRepaint = true;
-	}
+		if (incomingAlpha < 0)
+			incomingAlpha = 0;
 
-	if (outGreen > defaultValue)
-	{
-		outGreen -= 1; shouldRepaint = true;
-	}
-	else if (outGreen < defaultValue)
-	{
-		outGreen += 1; shouldRepaint = true;
-	}
+		incomingBackground = incomingBackground.withAlpha(incomingAlpha);
 
-	if (outRed > defaultValue)
-	{
-		outRed -= 1; shouldRepaint = true;
+		shouldRepaint = true;
 	}
-	else if (outRed < defaultValue)
-	{
-		outRed += 1; shouldRepaint = true;
-	}
-
-	if (outBlue > defaultValue)
-	{
-		outBlue -= 1; shouldRepaint = true;
-	}
-	else if (outBlue < defaultValue)
-	{
-		outBlue += 1; shouldRepaint = true;
-	}
-
-	incomingBackground = Colour(inRed, inGreen, inBlue);
-	outgoingBackground = Colour(outRed, outGreen, outBlue);
 
 	if (shouldRepaint)
 		repaint();
@@ -177,7 +119,7 @@ void MessageCenterEditor::messageReceived(bool state)
 		incomingBackground = Colours::green;
 	}
 
-	startTimer(20);
+	startTimer(75);
 }
 
 void MessageCenterEditor::paint(Graphics& g)
@@ -186,6 +128,11 @@ void MessageCenterEditor::paint(Graphics& g)
     g.setColour(Colour(58,58,58));
 
     g.fillRect(0, 0, getWidth(), getHeight());
+
+    g.setColour(Colour(100,100,100));
+
+    g.fillRect(5, 5, getWidth()/2-5, getHeight()-10);
+    g.fillRect(getWidth()/2+5, 5, getWidth()/2-60, getHeight()-10);
 
     g.setColour(incomingBackground);
 
@@ -215,7 +162,7 @@ void MessageCenterEditor::actionListenerCallback(const String& message)
     incomingMessageDisplayArea->setText(message, sendNotification);
 
     incomingBackground = Colours::orange;
-    startTimer(20);
+    startTimer(75);
 
 }
 
