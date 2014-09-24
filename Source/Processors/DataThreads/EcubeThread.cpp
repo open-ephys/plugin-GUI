@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../UI/EcubeDialogComponent.h"
 #include <stdint.h>
 
-#if JUCE_WINDOWS
+#ifdef ECUBE_COMPILE
 #import "libid:60C0AAC2-1E0B-4FE5-A921-AF9CEEAAA582"
 
 using namespace ecubeapiLib;
