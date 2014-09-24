@@ -25,6 +25,12 @@
 #include "../../UI/EditorViewport.h"
 #include <cmath>
 
+#ifdef WIN32
+#if (_MSC_VER < 1800) //round doesn't exist on MSVC prior to 2013 version
+inline double round(double x) { return floor(x+0.5);}
+#endif
+#endif
+
 #include "ChannelSelector.h"
 
 #include "../DataThreads/RHD2000Thread.h"
