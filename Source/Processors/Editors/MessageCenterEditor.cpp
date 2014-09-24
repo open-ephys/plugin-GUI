@@ -89,7 +89,7 @@ void MessageCenterEditor::timerCallback()
 
 bool MessageCenterEditor::keyPressed(const KeyPress& key)
 {
-
+	return false;
 }
 
 String MessageCenterEditor::getLabelString()
