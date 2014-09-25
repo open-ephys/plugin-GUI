@@ -326,7 +326,7 @@ void OriginalRecording::writeMessage(MidiMessage& event, int samplePosition)
 
     int64 eventTimestamp = timestamp + samplePos;
 	
-	int msgLength = event.getRawDataSize() - 4;
+	int msgLength = event.getRawDataSize() - 5;
 	const char* dataptr = (const char*)event.getRawData() + 4;
 
 	String timestampText(eventTimestamp);

@@ -150,7 +150,9 @@ void HDF5Recording::writeEvent(int eventType, MidiMessage& event, int samplePosi
 {
     const uint8* dataptr = event.getRawData();
 	if (eventType == GenericProcessor::TTL)
-		mainFile->writeEvent(0,*(dataptr+2),*(dataptr+1),*(dataptr+3),timestamp+samplePosition);
+		mainFile->writeEvent(0,*(dataptr+2),*(dataptr+1),(void*)(dataptr+3),timestamp+samplePosition);
+	else if (eventType == GenericProcessor::MESSAGE)
+		mainFile->writeEvent(1,*(dataptr+2),*(dataptr+1),(void*)(dataptr+4),timestamp+samplePosition);
 }
 
 void HDF5Recording::addSpikeElectrode(int index, SpikeRecordInfo* elec)
@@ -165,7 +167,8 @@ void HDF5Recording::writeSpike(const SpikeObject& spike, int electrodeIndex)
 void HDF5Recording::startAcquisition()
 {
     mainFile = new KWIKFile();
-    mainFile->addEventType("TTL");
+	mainFile->addEventType("TTL",HDF5FileBase::U8,"event_channels");
+	mainFile->addEventType("Messages",HDF5FileBase::STR,"Text");
     spikesFile = new KWXFile();
 }
 
