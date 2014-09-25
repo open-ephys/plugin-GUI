@@ -53,7 +53,7 @@ public:
     void close();
     virtual String getFileName() = 0;
     bool isOpen() const;
-    typedef enum DataTypes { U8, U16, U32, U64, I8, I16, I32, I64, F32} DataTypes;
+    typedef enum DataTypes { U8, U16, U32, U64, I8, I16, I32, I64, F32, STR} DataTypes;
 
     static H5::DataType getNativeType(DataTypes type);
     static H5::DataType getH5Type(DataTypes type);
@@ -145,9 +145,9 @@ public:
     void initFile(String basename);
     void startNewRecording(int recordingNumber, HDF5RecordingInfo* info);
     void stopRecording();
-    void writeEvent(int type, uint8 id, uint8 processor, uint8 channel, uint64 timestamp);
+    void writeEvent(int type, uint8 id, uint8 processor, void* data, uint64 timestamp);
     void addKwdFile(String filename);
-    void addEventType(String name);
+    void addEventType(String name, DataTypes type, String dataName);
     String getFileName();
 
 protected:
@@ -160,8 +160,10 @@ private:
     OwnedArray<HDF5RecordingData> recordings;
     OwnedArray<HDF5RecordingData> eventID;
     OwnedArray<HDF5RecordingData> nodeID;
-    OwnedArray<HDF5RecordingData> channelID;
+    OwnedArray<HDF5RecordingData> eventData;
     Array<String> eventNames;
+	Array<DataTypes> eventTypes;
+	Array<String> eventDataNames;
     int kwdIndex;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWIKFile);

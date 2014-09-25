@@ -42,6 +42,8 @@
 
 #define MAX_TRANSFORM_SIZE 512
 
+#define MAX_STR_SIZE 256
+
 #define PROCESS_ERROR std::cerr << error.getCDetailMsg() << std::endl; return -1
 #define CHECK_ERROR(x) if (x) std::cerr << "Error at HDFRecording " << __LINE__ << std::endl;
 
@@ -363,6 +365,9 @@ H5::DataType HDF5FileBase::getNativeType(DataTypes type)
         case F32:
             return PredType::NATIVE_FLOAT;
             break;
+		case STR:
+			return StrType(PredType::C_S1,MAX_STR_SIZE);
+			break;
     }
     return PredType::NATIVE_INT32;
 }
@@ -398,6 +403,9 @@ H5::DataType HDF5FileBase::getH5Type(DataTypes type)
         case F32:
             return PredType::IEEE_F32LE;
             break;
+		case STR:
+			return StrType(PredType::C_S1,MAX_STR_SIZE);
+			break;
     }
     return PredType::STD_I32LE;
 }
@@ -474,6 +482,7 @@ int HDF5RecordingData::writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase
         offset[0]=xPos;
         offset[1]=0;
         offset[2]=0;
+		
         fSpace.selectHyperslab(H5S_SELECT_SET, dim, offset);
 
         nativeType = HDF5FileBase::getNativeType(type);
@@ -680,7 +689,7 @@ int KWIKFile::createFileStructure()
         if (!dSet) return -1;
         dSet = createDataSet(U8,0,EVENT_CHUNK_SIZE,path + "/nodeID");
         if (!dSet) return -1;
-        dSet = createDataSet(U8,0,EVENT_CHUNK_SIZE,path + "/event_channel");
+		dSet = createDataSet(eventTypes[i],0,EVENT_CHUNK_SIZE,path + "/" + eventDataNames[i]);
         if (!dSet) return -1;
     }
     if (setAttribute(U16,(void*)&ver,"/","kwik_version")) return -1;
@@ -721,10 +730,10 @@ void KWIKFile::startNewRecording(int recordingNumber, HDF5RecordingInfo* info)
         if (!dSet)
             std::cerr << "Error loading event node ID dataset for type " << i << std::endl;
         nodeID.add(dSet);
-        dSet = getDataSet(path + "/user_data/event_channel");
+		dSet = getDataSet(path + "/user_data/" + eventDataNames[i]);
         if (!dSet)
             std::cerr << "Error loading event channel dataset for type " << i << std::endl;
-        channelID.add(dSet);
+        eventData.add(dSet);
     }
 }
 
@@ -734,10 +743,10 @@ void KWIKFile::stopRecording()
     recordings.clear();
     eventID.clear();
 	nodeID.clear();
-	channelID.clear();
+	eventData.clear();
 }
 
-void KWIKFile::writeEvent(int type, uint8 id, uint8 processor, uint8 channel, uint64 timestamp)
+void KWIKFile::writeEvent(int type, uint8 id, uint8 processor, void* data, uint64 timestamp)
 {
     if (type > eventNames.size() || type < 0)
     {
@@ -748,7 +757,7 @@ void KWIKFile::writeEvent(int type, uint8 id, uint8 processor, uint8 channel, ui
     CHECK_ERROR(recordings[type]->writeDataBlock(1,I32,&recordingNumber));
     CHECK_ERROR(eventID[type]->writeDataBlock(1,U8,&id));
     CHECK_ERROR(nodeID[type]->writeDataBlock(1,U8,&processor));
-    CHECK_ERROR(channelID[type]->writeDataBlock(1,U8,&channel));
+	CHECK_ERROR(eventData[type]->writeDataBlock(1,eventTypes[type],data));
 }
 
 void KWIKFile::addKwdFile(String filename)
@@ -758,9 +767,11 @@ void KWIKFile::addKwdFile(String filename)
     kwdIndex++;
 }
 
-void KWIKFile::addEventType(String name)
+void KWIKFile::addEventType(String name, DataTypes type, String dataName)
 {
     eventNames.add(name);
+	eventTypes.add(type);
+	eventDataNames.add(dataName);
 }
 
 //KWX File

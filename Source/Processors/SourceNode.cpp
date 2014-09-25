@@ -59,7 +59,7 @@ SourceNode::SourceNode(const String& name_)
     {
         dataThread = new RHD2000Thread(this);
     }
-#if JUCE_WINDOWS
+#if ECUBE_COMPILE
     else if (getName().equalsIgnoreCase("eCube"))
     {
         dataThread = new EcubeThread(this);

@@ -410,7 +410,7 @@ float RecordNode::getFreeSpace()
 
 void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
 {
-    if (eventType == TTL)
+	if ((eventType == TTL) || (eventType == MESSAGE))
     {
         if (event.getNoteNumber() > 0) // processor ID > 0
         {

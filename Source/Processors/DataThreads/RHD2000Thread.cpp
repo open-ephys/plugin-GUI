@@ -98,7 +98,8 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     libraryFilePath += File::separatorString;
     libraryFilePath += okLIB_NAME;
     
-    dacChannels = nullptr;
+    dacStream = nullptr;
+	dacChannels = nullptr;
     dacThresholds = nullptr;
     dacChannelsToUpdate = nullptr;
     if (openBoard(libraryFilePath))
@@ -889,8 +890,10 @@ void RHD2000Thread::setFastTTLSettle(bool state, int channel)
 
 int RHD2000Thread::setNoiseSlicerLevel(int level)
 {
+
     desiredNoiseSlicerLevel = level;
-    evalBoard->setAudioNoiseSuppress(desiredNoiseSlicerLevel);
+	if (deviceFound)
+		evalBoard->setAudioNoiseSuppress(desiredNoiseSlicerLevel);
 
     // Level has been checked once before this and then is checked again in setAudioNoiseSuppress.
     // This may be overkill - maybe API should change so that the final function returns the value?
@@ -950,21 +953,23 @@ bool RHD2000Thread::isHeadstageEnabled(int hsNum)
 
 void RHD2000Thread::assignAudioOut(int dacChannel, int dataChannel)
 {
-
-    if (dacChannel == 0)
+    if (deviceFound)
     {
-        audioOutputR = dataChannel;
-        dacChannels[0] = dataChannel;
-    }
-    else if (dacChannel == 1)
-    {
-        audioOutputL = dataChannel;
-        dacChannels[1] = dataChannel;
-    }
+        if (dacChannel == 0)
+        {
+            audioOutputR = dataChannel;
+            dacChannels[0] = dataChannel;
+        }
+        else if (dacChannel == 1)
+        {
+            audioOutputL = dataChannel;
+            dacChannels[1] = dataChannel;
+        }
 
-    dacOutputShouldChange = true; // set a flag and take care of setting wires
-    // during the updateBuffer() method
-    // to avoid problems
+        dacOutputShouldChange = true; // set a flag and take care of setting wires
+        // during the updateBuffer() method
+        // to avoid problems
+    }
 
 }
 

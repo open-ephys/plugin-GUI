@@ -40,6 +40,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class SourceNode;
 
 #if JUCE_WINDOWS
+#ifdef ECUBE_SUPPORT
+#define ECUBE_COMPILE
+#endif
+#endif
+
+#ifdef ECUBE_COMPILE
 class EcubeDevInt;
 #endif
 
@@ -48,7 +54,7 @@ class EcubeThread : public DataThread
 {
 public:
 
-#if JUCE_WINDOWS
+#ifdef ECUBE_COMPILE
     EcubeThread(SourceNode* sn);
     ~EcubeThread();
 

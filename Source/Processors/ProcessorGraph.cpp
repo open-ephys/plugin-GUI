@@ -116,7 +116,15 @@ void* ProcessorGraph::createNewProcessor(String& description, int id)//,
 
 {
 
-    GenericProcessor* processor = createProcessorFromDescription(description);
+    GenericProcessor* processor = 0;
+    try // Try/catch block added by Michael Borisov
+    {
+        processor = createProcessorFromDescription(description);
+    }
+    catch (std::exception& e)
+    {
+        NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "OpenEphys", e.what());
+    }
 
     // int id = currentNodeId++;
 
