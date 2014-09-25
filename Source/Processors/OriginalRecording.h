@@ -59,6 +59,10 @@ private:
     void openSpikeFile(File rootFolder, SpikeRecordInfo* elec);
     String generateSpikeHeader(SpikeRecordInfo* elec);
 
+	void openMessageFile(File rootFolder);
+	void writeTTLEvent(MidiMessage& event, int samplePosition);
+	void writeMessage(MidiMessage& event, int samplePosition);
+
     bool separateFiles;
     int blockIndex;
     int recordingNumber;
@@ -81,6 +85,7 @@ private:
     int64 timestamp;
 
     FILE* eventFile;
+	FILE* messageFile;
     Array<FILE*> fileArray;
     Array<FILE*> spikeFileArray;
     CriticalSection diskWriteLock;

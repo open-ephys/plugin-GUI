@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../Audio/AudioComponent.h"
 
 OriginalRecording::OriginalRecording() : separateFiles(true), eventFile(nullptr),
-    recordingNumber(0), experimentNumber(0), zeroBuffer(1, 50000), blockIndex(0)
+	messageFile(nullptr), recordingNumber(0), experimentNumber(0), zeroBuffer(1, 50000), blockIndex(0)
 {
     continuousDataIntegerBuffer = new int16[10000];
     continuousDataFloatBuffer = new float[10000];
@@ -78,6 +78,7 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
     this->recordingNumber = recordingNumber;
     this->experimentNumber = experimentNumber;
     openFile(rootFolder,nullptr);
+	openMessageFile(rootFolder);
     for (int i = 0; i < fileArray.size(); i++)
     {
         if (getChannel(i)->getRecordState())
@@ -170,6 +171,29 @@ void OriginalRecording::openSpikeFile(File rootFolder, SpikeRecordInfo* elec)
     }
     diskWriteLock.exit();
     spikeFileArray.set(elec->recordIndex,spFile);
+
+}
+
+void OriginalRecording::openMessageFile(File rootFolder)
+{
+	FILE* mFile;
+	String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
+	fullPath += "messages.events";
+
+	std::cout << "OPENING FILE: " << fullPath << std::endl;
+
+    File f = File(fullPath);
+
+    bool fileExists = f.exists();
+
+    diskWriteLock.enter();
+
+    mFile = fopen(fullPath.toUTF8(),"ab");
+
+	//If this file needs a header, it goes here
+
+	diskWriteLock.exit();
+	messageFile = mFile;
 
 }
 
@@ -288,6 +312,36 @@ String OriginalRecording::generateSpikeHeader(SpikeRecordInfo* elec)
 
 void OriginalRecording::writeEvent(int eventType, MidiMessage& event, int samplePosition)
 {
+	if (eventType == GenericProcessor::TTL)
+		writeTTLEvent(event,samplePosition);
+	else if (eventType == GenericProcessor::MESSAGE)
+		writeMessage(event,samplePosition);
+}
+
+void OriginalRecording::writeMessage(MidiMessage& event, int samplePosition)
+{
+	if (messageFile == nullptr)
+		return;
+	uint64 samplePos = (uint64) samplePosition;
+
+    int64 eventTimestamp = timestamp + samplePos;
+	
+	int msgLength = event.getRawDataSize() - 4;
+	const char* dataptr = (const char*)event.getRawData() + 4;
+
+	String timestampText(eventTimestamp);
+
+	diskWriteLock.enter();
+	fwrite(timestampText.toUTF8(),1,timestampText.length(),messageFile);
+	fwrite(" ",1,1,messageFile);
+	fwrite(dataptr,1,msgLength,messageFile);
+	fwrite("\n",1,1,messageFile);
+	diskWriteLock.exit();
+
+}
+
+void OriginalRecording::writeTTLEvent(MidiMessage& event, int samplePosition)
+{
     // find file and write samples to disk
     // std::cout << "Received event!" << std::endl;
 
@@ -296,8 +350,7 @@ void OriginalRecording::writeEvent(int eventType, MidiMessage& event, int sample
 
     const uint8* dataptr = event.getRawData();
 
-
-    uint64 samplePos = (uint64) samplePosition;
+	uint64 samplePos = (uint64) samplePosition;
 
     int64 eventTimestamp = timestamp + samplePos; // add the sample position to the buffer timestamp
 
@@ -491,6 +544,13 @@ void OriginalRecording::closeFiles()
         eventFile = nullptr;
         diskWriteLock.exit();
     }
+	if (messageFile != nullptr)
+	{
+		diskWriteLock.enter();
+		fclose(messageFile);
+		messageFile = nullptr;
+		diskWriteLock.exit();
+	}
     blockIndex = 0;
 }
 

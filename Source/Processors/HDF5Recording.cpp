@@ -149,8 +149,8 @@ void HDF5Recording::writeData(AudioSampleBuffer& buffer, int nSamples)
 void HDF5Recording::writeEvent(int eventType, MidiMessage& event, int samplePosition)
 {
     const uint8* dataptr = event.getRawData();
-    //right now only written events are TTL, so type = 0
-    mainFile->writeEvent(0,*(dataptr+2),*(dataptr+1),*(dataptr+3),timestamp+samplePosition);
+	if (eventType == GenericProcessor::TTL)
+		mainFile->writeEvent(0,*(dataptr+2),*(dataptr+1),*(dataptr+3),timestamp+samplePosition);
 }
 
 void HDF5Recording::addSpikeElectrode(int index, SpikeRecordInfo* elec)
