@@ -23,6 +23,7 @@
 
 #include "RHD2000Editor.h"
 #include "../../UI/EditorViewport.h"
+#include <cmath>
 
 #include "ChannelSelector.h"
 #include "../SourceNode.h"
@@ -823,7 +824,7 @@ void BandwidthInterface::labelTextChanged(Label* label)
 
             std::cout << "Setting Upper Bandwidth to " << requestedValue << std::endl;
             std::cout << "Actual Upper Bandwidth:  " <<  actualUpperBandwidth  << std::endl;
-            label->setText(String((roundFloatToInt)(actualUpperBandwidth)), dontSendNotification);
+            label->setText(String(round(actualUpperBandwidth*10.f)/10.f), dontSendNotification);
 
         }
         else
@@ -843,9 +844,10 @@ void BandwidthInterface::labelTextChanged(Label* label)
 
             actualLowerBandwidth = board->setLowerBandwidth(requestedValue);
 
-            std::cout << "Setting Upper Bandwidth to " << requestedValue << std::endl;
-            std::cout << "Actual Upper Bandwidth:  " <<  actualLowerBandwidth  << std::endl;
-            label->setText(String(roundFloatToInt(actualLowerBandwidth)), dontSendNotification);
+            std::cout << "Setting Lower Bandwidth to " << requestedValue << std::endl;
+            std::cout << "Actual Lower Bandwidth:  " <<  actualLowerBandwidth  << std::endl;
+
+            label->setText(String(round(actualLowerBandwidth*10.f)/10.f), dontSendNotification);
         }
     }
     else if (editor->acquisitionIsActive)
@@ -863,13 +865,13 @@ void BandwidthInterface::labelTextChanged(Label* label)
 void BandwidthInterface::setLowerBandwidth(double value)
 {
     actualLowerBandwidth = board->setLowerBandwidth(value);
-    lowerBandwidthSelection->setText(String(roundFloatToInt(actualLowerBandwidth)), dontSendNotification);
+    lowerBandwidthSelection->setText(String(round(actualLowerBandwidth*10.f)/10.f), dontSendNotification);
 }
 
 void BandwidthInterface::setUpperBandwidth(double value)
 {
     actualUpperBandwidth = board->setUpperBandwidth(value);
-    upperBandwidthSelection->setText(String(roundFloatToInt(actualUpperBandwidth)), dontSendNotification);
+    upperBandwidthSelection->setText(String(round(actualUpperBandwidth*10.f)/10.f), dontSendNotification);
 }
 
 double BandwidthInterface::getLowerBandwidth()

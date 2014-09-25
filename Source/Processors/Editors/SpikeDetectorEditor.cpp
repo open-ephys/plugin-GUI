@@ -608,8 +608,8 @@ ThresholdSlider::ThresholdSlider(Font f) : Slider("name"), font(f)
 {
 
     setSliderStyle(Slider::Rotary);
-    setRange(25.0f,400.0f,5.0f);
-    // setValue(75.0f);
+    setRange(-400,400.0f,10.0f);
+    setValue(-20.0f);
     setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
 
 }
