@@ -380,7 +380,9 @@ bool EcubeThread::updateBuffer()
                 unsigned long datasize = ab->GetDataSize() / 2; // Data size is returned in bytes, not in samples
                 if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog)
                 {
-                    if (!pDevInt->buf_timestamp_locked || bts != pDevInt->buf_timestamp || datasize != pDevInt->int_buf_size)
+                    if (!pDevInt->buf_timestamp_locked || (bts - pDevInt->buf_timestamp >= 3200 && pDevInt->buf_timestamp - bts >= 3200)
+                        /*bts != pDevInt->buf_timestamp*/
+                        || datasize != pDevInt->int_buf_size)
                     {
                         // The new buffer does not match interleaving buffer length, or has a different timestamp,
                         // or interleaving buffer is empty

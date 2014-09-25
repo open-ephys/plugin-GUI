@@ -265,19 +265,21 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
                     editorArray[i]->deselect();
             }
 
+            // Instructions below were enclosed into the if block by Michael Borisov
+            // To allow for errors during creation of editors, in which case activeEditor will be ==0
+
+            insertionPoint = -1; // make sure all editors are left-justified
+            indexOfMovingComponent = -1;
+            refreshEditors();
+
+            somethingIsBeingDraggedOver = false;
+
+            getGraphViewer()->addNode(activeEditor);
+
+            repaint();
+
+            currentId++;
         }
-
-        insertionPoint = -1; // make sure all editors are left-justified
-        indexOfMovingComponent = -1;
-        refreshEditors();
-
-        somethingIsBeingDraggedOver = false;
-
-        getGraphViewer()->addNode(activeEditor);
-
-        repaint();
-
-        currentId++;
 
     }
 }
