@@ -29,6 +29,11 @@
 #include "../SourceNode.h"
 #include "../DataThreads/RHD2000Thread.h"
 
+#ifdef WIN32
+#if (_MSC_VER < 1800) //round doesn't exist on MSVC prior to 2013 version
+inline double round(double x) { return floor(x+0.5);}
+#endif
+#endif
 
 FPGAchannelList::FPGAchannelList(GenericProcessor* proc_, Viewport *p, FPGAcanvas*c) : proc(proc_), viewport(p), canvas(c)
 {
