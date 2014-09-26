@@ -383,8 +383,8 @@ public:
 
     int electrodeNumber;
 
-	void getSelectedUnitAndbox(int &unitID, int &boxID);
-	void setSelectedUnitAndbox(int unitID, int boxID);
+	void getSelectedUnitAndBox(int &unitID, int &boxID);
+	void setSelectedUnitAndBox(int unitID, int boxID);
     int nChannels;
 
     void initAxes(std::vector<float> scales);

@@ -37,8 +37,6 @@ SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorter* n) :
 	inDrawingPolygonMode = false;
     scrollBarThickness = viewport->getScrollBarThickness();
 
-
-
     addUnitButton = new UtilityButton("New box unit", Font("Small Text", 13, Font::plain));
     addUnitButton->setRadius(3.0f);
     addUnitButton->addListener(this);
@@ -48,7 +46,6 @@ SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorter* n) :
     addPolygonUnitButton->setRadius(3.0f);
     addPolygonUnitButton->addListener(this);
     addAndMakeVisible(addPolygonUnitButton);
- 
  
     addBoxButton = new UtilityButton("Add box", Font("Small Text", 13, Font::plain));
     addBoxButton->setRadius(3.0f);
@@ -65,19 +62,15 @@ SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorter* n) :
     rePCAButton->addListener(this);
     addAndMakeVisible(rePCAButton);
  
-
-
     newIDbuttons = new UtilityButton("New IDs", Font("Small Text", 13, Font::plain));
     newIDbuttons->setRadius(3.0f);
     newIDbuttons->addListener(this);
     addAndMakeVisible(newIDbuttons);
 
-    deleteAllUnits = new UtilityButton("Del All", Font("Small Text", 13, Font::plain));
+    deleteAllUnits = new UtilityButton("Delete All", Font("Small Text", 13, Font::plain));
     deleteAllUnits->setRadius(3.0f);
     deleteAllUnits->addListener(this);
     addAndMakeVisible(deleteAllUnits);
-
-
 
     nextElectrode = new UtilityButton("Next Electrode", Font("Small Text", 13, Font::plain));
     nextElectrode->setRadius(3.0f);
@@ -89,8 +82,6 @@ SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorter* n) :
     prevElectrode->addListener(this);
     addAndMakeVisible(prevElectrode);
  
-	
-
     addAndMakeVisible(viewport);
 
     setWantsKeyboardFocus(true);
@@ -130,12 +121,12 @@ void SpikeSorterCanvas::update()
 	if (nPlots > 0)  {
 		// Plot only active electrode
 		int currentElectrode = processor->getCurrentElectrodeIndex();
-			electrode = processor->getActiveElectrode();
-			SpikeHistogramPlot* sp = spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(currentElectrode), electrode->electrodeID,
-				processor->getNameForElectrode(currentElectrode));
-			processor->addSpikePlotForElectrode(sp, currentElectrode);
-			electrode->spikePlot->setFlipSignal(processor->getFlipSignalState());
-			electrode->spikePlot->updateUnitsFromProcessor();
+		electrode = processor->getActiveElectrode();
+		SpikeHistogramPlot* sp = spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(currentElectrode), electrode->electrodeID,
+			processor->getNameForElectrode(currentElectrode));
+		processor->addSpikePlotForElectrode(sp, currentElectrode);
+		electrode->spikePlot->setFlipSignal(processor->getFlipSignalState());
+		electrode->spikePlot->updateUnitsFromProcessor();
 		
 	}
     spikeDisplay->resized();
@@ -155,7 +146,6 @@ void SpikeSorterCanvas::resized()
 
     spikeDisplay->setBounds(0,0,getWidth()-140, spikeDisplay->getTotalHeight());
 
-
 	nextElectrode->setBounds(0, 20, 120,30);
 	prevElectrode->setBounds(0, 60, 120,30);
 
@@ -164,7 +154,6 @@ void SpikeSorterCanvas::resized()
 	addBoxButton->setBounds(0, 180, 120,20);
 	delUnitButton->setBounds(0, 210, 120,20);
 	
-
 	rePCAButton->setBounds(0, 240, 120,20);
 
 	newIDbuttons->setBounds(0, 270, 120,20);
@@ -205,96 +194,96 @@ void SpikeSorterCanvas::processSpikeEvents()
 
 void SpikeSorterCanvas::removeUnitOrBox()
 {
-		int electrodeID = processor->getActiveElectrode()->electrodeID;
-		int unitID, boxID;
-		processor->getActiveElectrode()->spikePlot->getSelectedUnitAndbox(unitID, boxID);
-		bool selectNewBoxUnit = false;
-		bool selectNewPCAUnit = false;
-		if (unitID > 0)
+	int electrodeID = processor->getActiveElectrode()->electrodeID;
+	int unitID, boxID;
+	processor->getActiveElectrode()->spikePlot->getSelectedUnitAndBox(unitID, boxID);
+	bool selectNewBoxUnit = false;
+	bool selectNewPCAUnit = false;
+	if (unitID > 0)
+	{
+		if (boxID >= 0)
 		{
-			if (boxID >= 0)
+			 // box unit
+			int numBoxes = processor->getActiveElectrode()->spikeSort->getNumBoxes(unitID);
+			if (numBoxes > 1)
 			{
-				 // box unit
-				int numBoxes = processor->getActiveElectrode()->spikeSort->getNumBoxes(unitID);
-				if (numBoxes > 1)
-				{
-					// delete box, but keep unit
-					processor->getActiveElectrode()->spikeSort->removeBoxFromUnit(unitID, boxID);
-					electrode->spikePlot->updateUnitsFromProcessor();
-					electrode->spikePlot->setSelectedUnitAndbox(unitID,0); 
-				} else 
-				{
-					// delete unit
-					processor->getActiveElectrode()->spikeSort->removeUnit(unitID);
-					electrode->spikePlot->updateUnitsFromProcessor();
-					processor->removeUnit(electrodeID, unitID);
-
-					std::vector<BoxUnit> boxunits = processor->getActiveElectrode()->spikeSort->getBoxUnits();
-					std::vector<PCAUnit> pcaunits = processor->getActiveElectrode()->spikeSort->getPCAUnits();
-					if (boxunits.size() > 0)
-					{
-						selectNewBoxUnit = true;
-					}
-					else if (pcaunits.size() > 0)
-					{
-							selectNewPCAUnit = true;
-					} else
-					{
-						electrode->spikePlot->setSelectedUnitAndbox(-1,-1);
-					}
-				}
-			} else
+				// delete box, but keep unit
+				processor->getActiveElectrode()->spikeSort->removeBoxFromUnit(unitID, boxID);
+				electrode->spikePlot->updateUnitsFromProcessor();
+				electrode->spikePlot->setSelectedUnitAndBox(unitID,0); 
+			} else 
 			{
-				// pca unit
+				// delete unit
 				processor->getActiveElectrode()->spikeSort->removeUnit(unitID);
 				electrode->spikePlot->updateUnitsFromProcessor();
 				processor->removeUnit(electrodeID, unitID);
 
 				std::vector<BoxUnit> boxunits = processor->getActiveElectrode()->spikeSort->getBoxUnits();
 				std::vector<PCAUnit> pcaunits = processor->getActiveElectrode()->spikeSort->getPCAUnits();
-				if (pcaunits.size() > 0)
-				{
-						selectNewPCAUnit = true;
-				} else
 				if (boxunits.size() > 0)
 				{
 					selectNewBoxUnit = true;
 				}
-				else 
+				else if (pcaunits.size() > 0)
 				{
-					electrode->spikePlot->setSelectedUnitAndbox(-1,-1);
+						selectNewPCAUnit = true;
+				} else
+				{
+					electrode->spikePlot->setSelectedUnitAndBox(-1,-1);
 				}
-
-
 			}
-			if (selectNewPCAUnit)
+		} else
+		{
+			// pca unit
+			processor->getActiveElectrode()->spikeSort->removeUnit(unitID);
+			electrode->spikePlot->updateUnitsFromProcessor();
+			processor->removeUnit(electrodeID, unitID);
+
+			std::vector<BoxUnit> boxunits = processor->getActiveElectrode()->spikeSort->getBoxUnits();
+			std::vector<PCAUnit> pcaunits = processor->getActiveElectrode()->spikeSort->getPCAUnits();
+			if (pcaunits.size() > 0)
 			{
-				// set new selected unit to be the last existing unit
-				std::vector<PCAUnit> u = processor->getActiveElectrode()->spikeSort->getPCAUnits();
-				if (u.size() > 0)
-				{
-					electrode->spikePlot->setSelectedUnitAndbox(u[u.size()-1].getUnitID(),-1);
-				} else 
-				{
-					electrode->spikePlot->setSelectedUnitAndbox(-1,-1);
-				}
-			}
-			if (selectNewBoxUnit)
+					selectNewPCAUnit = true;
+			} else
+			if (boxunits.size() > 0)
 			{
-				// set new selected unit to be the last existing unit
-				std::vector<BoxUnit> u = processor->getActiveElectrode()->spikeSort->getBoxUnits();
-				if (u.size() > 0)
-				{
-					electrode->spikePlot->setSelectedUnitAndbox(u[u.size()-1].getUnitID(),0);
-				} else 
-				{
-					electrode->spikePlot->setSelectedUnitAndbox(-1,-1);
-				}
+				selectNewBoxUnit = true;
 			}
-
+			else 
+			{
+				electrode->spikePlot->setSelectedUnitAndBox(-1,-1);
+			}
 
 
 		}
+		if (selectNewPCAUnit)
+		{
+			// set new selected unit to be the last existing unit
+			std::vector<PCAUnit> u = processor->getActiveElectrode()->spikeSort->getPCAUnits();
+			if (u.size() > 0)
+			{
+				electrode->spikePlot->setSelectedUnitAndBox(u[u.size()-1].getUnitID(),-1);
+			} else 
+			{
+				electrode->spikePlot->setSelectedUnitAndBox(-1,-1);
+			}
+		}
+		if (selectNewBoxUnit)
+		{
+			// set new selected unit to be the last existing unit
+			std::vector<BoxUnit> u = processor->getActiveElectrode()->spikeSort->getBoxUnits();
+			if (u.size() > 0)
+			{
+				electrode->spikePlot->setSelectedUnitAndBox(u[u.size()-1].getUnitID(),0);
+			} else 
+			{
+				electrode->spikePlot->setSelectedUnitAndBox(-1,-1);
+			}
+		}
+
+
+
+	}
 
 }
 
@@ -327,54 +316,67 @@ bool SpikeSorterCanvas::keyPressed(const KeyPress& key)
 
 void SpikeSorterCanvas::buttonClicked(Button* button)
 {
-		int channel = 0;
-		int unitID = -1;
-		int boxID = -1;
-		Time t;
+	int channel = 0;
+	int unitID = -1;
+	int boxID = -1;
+	Time t;
+
     if (button == addPolygonUnitButton)
     {
         inDrawingPolygonMode = true;
 		addPolygonUnitButton->setToggleState(true, dontSendNotification);
 		electrode->spikePlot->setPolygonDrawingMode(true);
-	} else if (button == addUnitButton)
+	} 
+	else if (button == addUnitButton)
 	{
 		Electrode *e = processor->getActiveElectrode();
-		if (e != nullptr) {
+
+		if (e != nullptr) 
+		{
 			int electrodeID = processor->getActiveElectrode()->electrodeID;
+
+			std::cout << "Adding box unit to electrode " << e->electrodeID << std::endl;
 			int newUnitID = processor->getActiveElectrode()->spikeSort->addBoxUnit(0);
-			uint8 r,g,b;
-			processor->getActiveElectrode()->spikeSort->getUnitColor(newUnitID, r,g,b);
+			
+			uint8 r, g, b;
+			processor->getActiveElectrode()->spikeSort->getUnitColor(newUnitID, r, g, b);
 			electrode->spikePlot->updateUnitsFromProcessor();
-			electrode->spikePlot->setSelectedUnitAndbox(newUnitID,0);
-			processor->addNewUnit(electrodeID,newUnitID,r,g,b);
+			electrode->spikePlot->setSelectedUnitAndBox(newUnitID, 0);
+			processor->addNewUnit(electrodeID, newUnitID, r, g, b);
 		}
 
-	}else if (button == delUnitButton)
+	} 
+	else if (button == delUnitButton)
 	{
-			removeUnitOrBox();
+		removeUnitOrBox();
 
-	} else if (button == addBoxButton)
+	} 
+	else if (button == addBoxButton)
 	{
-		processor->getActiveElectrode()->spikePlot->getSelectedUnitAndbox(unitID, boxID);
+		
+		processor->getActiveElectrode()->spikePlot->getSelectedUnitAndBox(unitID, boxID);
+
 		if (unitID > 0) 
 		{
-			processor->getActiveElectrode()->spikeSort->addBoxToUnit(channel,unitID);
+			std::cout << "Adding box to channel " << channel << " with unitID " << unitID << std::endl;
+			processor->getActiveElectrode()->spikeSort->addBoxToUnit(channel, unitID);
 			electrode->spikePlot->updateUnitsFromProcessor();
 		}
-	}
-	
-	 else if (button == rePCAButton)
+	}	
+	else if (button == rePCAButton)
 	{
 		processor->getActiveElectrode()->spikeSort->RePCA();
 	} else if (button == nextElectrode)
 	{
 		SpikeSorterEditor *ed = (SpikeSorterEditor *)processor->getEditor();
 		ed->setElectrodeComboBox(1);
-	} else  if (button == prevElectrode)
+	} else if (button == prevElectrode)
 	{
+		
 		SpikeSorterEditor *ed = (SpikeSorterEditor *)processor->getEditor();
 
 		ed->setElectrodeComboBox(-1);
+
 	} else if (button == newIDbuttons)
 	{
 		// generate new IDs
@@ -389,9 +391,7 @@ void SpikeSorterCanvas::buttonClicked(Button* button)
 		processor->removeAllUnits(electrode->electrodeID);
 	}
 
-
 	repaint();
-
 }
 
 
@@ -556,16 +556,16 @@ SpikeHistogramPlot::SpikeHistogramPlot(SpikeSorter *prc,SpikeSorterCanvas* sdc, 
 }
 
 
-void SpikeHistogramPlot::setSelectedUnitAndbox(int unitID, int boxID)
+void SpikeHistogramPlot::setSelectedUnitAndBox(int unitID, int boxID)
 {
     const ScopedLock myScopedLock (mut);
-	processor->getActiveElectrode()->spikeSort->setSelectedUnitAndbox(unitID, boxID);
+	processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(unitID, boxID);
 }
 
-void SpikeHistogramPlot::getSelectedUnitAndbox(int &unitID, int &boxID)
+void SpikeHistogramPlot::getSelectedUnitAndBox(int &unitID, int &boxID)
 {
     const ScopedLock myScopedLock (mut);
-	processor->getActiveElectrode()->spikeSort->getSelectedUnitAndbox(unitID, boxID);
+	processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(unitID, boxID);
 }
 
 
@@ -618,7 +618,7 @@ void SpikeHistogramPlot::updateUnitsFromProcessor()
 
 	
 	int selectedUnitID, selectedBoxID;
-	processor->getActiveElectrode()->spikeSort->getSelectedUnitAndbox(selectedUnitID, selectedBoxID);
+	processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(selectedUnitID, selectedBoxID);
 
 	
 	
@@ -741,7 +741,7 @@ void SpikeHistogramPlot::modifyRange(std::vector<float> values)
 
 	for (int index = 0; index < nChannels;index++)
 	{
-		for (int k=0;k<NUM_RANGE;k++)
+		for (int k = 0; k < NUM_RANGE; k++)
 		{
 			if ( abs(values[index] - range_array[k]) < 0.1)
 			{
@@ -763,7 +763,7 @@ void SpikeHistogramPlot::modifyRange(int index,bool up)
 	const int NUM_RANGE = 7;
 	float range_array[NUM_RANGE] = {100,250,500,750,1000,1250,1500};
 	String label;
-	for (int k=0;k<NUM_RANGE;k++)
+	for (int k = 0; k < NUM_RANGE; k++)
 	{
 		if ( abs(ranges[index] - range_array[k]) < 0.1)
 		{
@@ -1061,6 +1061,7 @@ void WaveformAxes::plotSpike(const SpikeObject& s, Graphics& g)
 
     float h = getHeight();
 	g.setColour(Colour(s.color[0],s.color[1],s.color[2]));
+	//g.setColour(Colours::pink);
     //compute the spatial width for each waveform sample
     float dx = getWidth()/float(spikeBuffer[0].nSamples);
 
@@ -1213,7 +1214,7 @@ void WaveformAxes::mouseMove(const MouseEvent& event)
     float h = getHeight()*(0.5f - displayThresholdLevel/range);
 	if (signalFlipped)
 	{
-		h = getHeight()-h;
+		h = getHeight() - h;
 	}
 
     // std::cout << y << " " << h << std::endl;
@@ -1232,7 +1233,7 @@ void WaveformAxes::mouseMove(const MouseEvent& event)
     } else 
 	{
 		// are we inside a box ?
-		isOverUnit =0;
+		isOverUnit = 0;
 		isOverBox = -1;
 		strOverWhere = "";
 		isOverUnitBox(event.x, event.y, isOverUnit, isOverBox, strOverWhere);
@@ -1258,7 +1259,6 @@ void WaveformAxes::mouseDown(const juce::MouseEvent& event)
 		clear();
 	}
 
-
 	float h = getHeight();
 	float w = getWidth();
 	float microsec_span = 40.0/30000.0 * 1e6;
@@ -1271,14 +1271,14 @@ void WaveformAxes::mouseDown(const juce::MouseEvent& event)
 
 	if (isOverUnit > 0) 
 	{
-		processor->getActiveElectrode()->spikeSort->setSelectedUnitAndbox(isOverUnit, isOverBox);
+		processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(isOverUnit, isOverBox);
 		int indx = findUnitIndexByID(isOverUnit);
 		jassert(indx >= 0);
 		mouseOffsetX = mouseDownX - units[indx].lstBoxes[isOverBox].x;
 		mouseOffsetY = mouseDownY - units[indx].lstBoxes[isOverBox].y;
 	} else 
 	{
-		processor->getActiveElectrode()->spikeSort->setSelectedUnitAndbox(-1, -1);
+		processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(-1, -1);
 
 	}
 //	MouseUnitOffset = ScreenToMS_uV(e.X, e.Y) - new PointD(boxOnDown.x, boxOnDown.y);
@@ -1308,6 +1308,7 @@ void WaveformAxes::mouseUp(const MouseEvent& event)
 void WaveformAxes::mouseDrag(const MouseEvent& event)
 {
 	bDragging = true;
+
     if (isOverUnit > 0) {
 		// dragging a box
 		// convert position to metric coordinates.
@@ -1461,7 +1462,7 @@ void WaveformAxes::isOverUnitBox(float x, float y, int &UnitID, int &BoxID, Stri
 	float microvolt_span = range/2; 
 
 	// Typical spike is 40 samples, at 30kHz ~ 1.3 ms or 1300 usecs.
-	for (int k=0;k<units.size();k++)
+	for (int k = 0; k < units.size(); k++)
 	{
 		for (int boxiter = 0;boxiter< units[k].lstBoxes.size(); boxiter++) 
 		{
@@ -1535,13 +1536,11 @@ void WaveformAxes::isOverUnitBox(float x, float y, int &UnitID, int &BoxID, Stri
 			}
 		}
 	}
-	
-
 }
 
 void WaveformAxes::drawBoxes(Graphics &g)
 {
-	// y,and h are given in micro volts.
+	// y and h are given in micro volts.
 	// x and w and given in micro seconds.
 	
     float h = getHeight();
@@ -1552,17 +1551,18 @@ void WaveformAxes::drawBoxes(Graphics &g)
 	float microvolt_span = range/2; 
 
 	int selectedUnitID, selectedBoxID;
-	processor->getActiveElectrode()->spikeSort->getSelectedUnitAndbox(selectedUnitID, selectedBoxID);
+	processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(selectedUnitID, selectedBoxID);
 
 	// Typical spike is 40 samples, at 30kHz ~ 1.3 ms or 1300 usecs.
-	for (int k=0;k<units.size();k++) 
+	for (int k = 0; k < units.size(); k++) 
 	{
 		g.setColour(Colour(units[k].ColorRGB[0],units[k].ColorRGB[1],units[k].ColorRGB[2]));
 		
-		for (int boxiter = 0;boxiter < units[k].lstBoxes.size(); boxiter++) 
+		for (int boxiter = 0; boxiter < units[k].lstBoxes.size(); boxiter++) 
 		{
 			Box B = units[k].lstBoxes[boxiter];
-			float thickness;
+
+			float thickness = 2;
 			if (units[k].getUnitID() == selectedUnitID && boxiter == selectedBoxID)
 				thickness = 3;
 			else if (units[k].getUnitID() == isOverUnit && boxiter == isOverBox)
@@ -1577,21 +1577,18 @@ void WaveformAxes::drawBoxes(Graphics &g)
 			float rectx2 = (B.x+B.w) / microsec_span * w;
 			float recty2 = (h/2 - ((B.y+B.h) / microvolt_span * h/2));
 
-			if (signalFlipped)
-			{
-				recty1 = h-recty1;
-				recty2 = h-recty2;
-			}
+			//std::cout << rectx1 << " " << rectx2 << " " << recty1 << " " << recty2 << std::endl;
 
-			g.drawRect(rectx1,recty1,rectx2-rectx1,recty2-recty1,thickness);
+			// if (signalFlipped)
+			// {
+			// 	recty1 = h-recty1;
+			// 	recty2 = h-recty2;
+			// }
+
+			g.drawRect(rectx1,recty1,rectx2-rectx1, recty1-recty2,thickness);
 			g.drawText(String(units[k].UnitID), rectx1,recty1-15,rectx2-rectx1,15,juce::Justification::centred,false);
 		}
 	}
-
-
-
-
-
 }
 
 
@@ -1607,7 +1604,6 @@ void WaveformAxes::paint(Graphics& g)
     g.fillRect(0,0,getWidth(), getHeight());
 
    // int chan = 0;
-	
 
     if (drawGrid)
         drawWaveformGrid(g);
@@ -1633,39 +1629,36 @@ void WaveformAxes::paint(Graphics& g)
     }
 
 
-     for (int spikeNum = 0; spikeNum < bufferSize; spikeNum++)
-     {
+	for (int spikeNum = 0; spikeNum < bufferSize; spikeNum++)
+	{
 
-         if (spikeNum != spikeIndex)
-         {
-             g.setColour(Colours::grey);
-             plotSpike(spikeBuffer[spikeNum], g);
-         }
+		if (spikeNum != spikeIndex)
+		{
+			g.setColour(Colours::grey);
+			plotSpike(spikeBuffer[spikeNum], g);
+		}
 
-     }
+	}
 
     g.setColour(Colours::white);
     plotSpike(spikeBuffer[spikeIndex], g);
 
 	bool isRecorded = processor->isSelectedElectrodeRecorded(channel);
+
 	if (!isRecorded)
 	{
 		String d = "NOT RECORDED";
 		g.setFont(Font("Small Text", 15, Font::plain));
 		g.setColour(Colours::red);
- 	g.drawText(d,getWidth()-140,10,120,25,Justification::right,false);
+ 		g.drawText(d,getWidth()-140,10,120,25,Justification::right,false);
 
 	}
-
 
     spikesReceivedSinceLastRedraw = 0;
 
 }
 
 // --------------------------------------------------
-
-
-
 
 
 PCAProjectionAxes::PCAProjectionAxes(SpikeSorter *p) : processor(p),GenericDrawAxes(0), imageDim(500),
@@ -1696,16 +1689,12 @@ PCAProjectionAxes::PCAProjectionAxes(SpikeSorter *p) : processor(p),GenericDrawA
 
 }
 
-
-
-
 void PCAProjectionAxes::resized()
 {
 
 	rangeDownButton->setBounds(10,10, 20, 15); 
 	rangeUpButton->setBounds(35,10, 20, 15); 
 }
-
 
 void PCAProjectionAxes::setPolygonDrawingMode(bool on)
 {
@@ -1731,7 +1720,7 @@ void PCAProjectionAxes::drawUnit(Graphics &g, PCAUnit unit)
 		float h = getHeight();
 
 		int selectedUnitID, selectedBoxID;
-		processor->getActiveElectrode()->spikeSort->getSelectedUnitAndbox(selectedUnitID, selectedBoxID);
+		processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(selectedUnitID, selectedBoxID);
 	g.setColour(Colour(unit.ColorRGB[0],unit.ColorRGB[1],unit.ColorRGB[2]));
 	if (unit.poly.pts.size() > 2) {	
 		float thickness;
@@ -1765,11 +1754,8 @@ void PCAProjectionAxes::drawUnit(Graphics &g, PCAUnit unit)
 
 		g.drawText(String(unit.UnitID), (cx/unit.poly.pts.size() )-10,(cy/unit.poly.pts.size())-10,20,15,juce::Justification::centred,false);
 	}
-
-	
-
-
 }
+
 void PCAProjectionAxes::paint(Graphics& g)
 {
 
@@ -1927,7 +1913,7 @@ void PCAProjectionAxes::mouseDrag(const juce::MouseEvent& event)
 
 		setMouseCursor(MouseCursor::DraggingHandCursor);
 		int selectedUnitID, selectedBoxID;
-		processor->getActiveElectrode()->spikeSort->getSelectedUnitAndbox(selectedUnitID, selectedBoxID);
+		processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(selectedUnitID, selectedBoxID);
 
 		if (isOverUnit > 0 && selectedUnitID == isOverUnit) {
 			// pan unit
@@ -2084,9 +2070,9 @@ void PCAProjectionAxes::mouseDown(const juce::MouseEvent& event)
 		drawnPolygon.push_back(PointD(event.x,event.y));
 	} else {
 		if (isOverUnit > 0)
-				processor->getActiveElectrode()->spikeSort->setSelectedUnitAndbox(isOverUnit, -1);
+				processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(isOverUnit, -1);
 		else
-			processor->getActiveElectrode()->spikeSort->setSelectedUnitAndbox(-1, -1);
+			processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(-1, -1);
 	}
 }
 

@@ -265,8 +265,8 @@ public:
 	int generateUnitID();
     int generateLocalID();
 	void generateNewIDs();
-    void setSelectedUnitAndbox(int unitID, int boxID);
-	void getSelectedUnitAndbox(int &unitID, int &boxid);
+    void setSelectedUnitAndBox(int unitID, int boxID);
+	void getSelectedUnitAndBox(int &unitID, int &boxid);
 	void saveCustomParametersToXml(XmlElement *electrodeNode);
 	void loadCustomParametersFromXml(XmlElement *electrodeNode);
 private:
