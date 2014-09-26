@@ -1259,7 +1259,7 @@ void WaveformAxes::mouseMove(const MouseEvent& event)
 
 int WaveformAxes::findUnitIndexByID(int ID)
 {
-    for (int k=0; k<units.size(); k++)
+    for (int k = 0; k < units.size(); k++)
         if (units[k].UnitID == ID)
             return k;
     return -1;
@@ -1504,7 +1504,6 @@ void WaveformAxes::setDetectorThreshold(float t)
 
 void WaveformAxes::isOverUnitBox(float x, float y, int& UnitID, int& BoxID, String& where)
 {
-    setMouseCursor(MouseCursor::NormalCursor);
 
     float h = getHeight();
     float w = getWidth();
@@ -1537,7 +1536,7 @@ void WaveformAxes::isOverUnitBox(float x, float y, int& UnitID, int& BoxID, Stri
 
             if (x >= rectx1 - 10 & y >= recty1 -10 & x <= rectx2 + 10 & y <= recty2+10)
             {
-                setMouseCursor(MouseCursor::DraggingHandCursor);
+                //setMouseCursor(MouseCursor::DraggingHandCursor);
                 UnitID = units[k].UnitID;
                 BoxID = boxiter;
                 if (x >= rectx1 - 10 & x <= rectx1 + 10 && y >= recty1-10 & y <= recty1+10)
@@ -1547,8 +1546,8 @@ void WaveformAxes::isOverUnitBox(float x, float y, int& UnitID, int& BoxID, Stri
                 }
                 else if (x >= rectx2 - 10 & x <= rectx2 + 10 && y >= recty1-10 & y <= recty1+10)
                 {
-                    where = "topright";
-                    setMouseCursor(MouseCursor::TopRightCornerResizeCursor);
+                   where = "topright";
+                   setMouseCursor(MouseCursor::TopRightCornerResizeCursor);
                 }
                 else if (x >= rectx1 - 10 & x <= rectx1 + 10 && y >= recty2-10 & y <= recty2+10)
                 {
@@ -1558,7 +1557,7 @@ void WaveformAxes::isOverUnitBox(float x, float y, int& UnitID, int& BoxID, Stri
                 else if (x >= rectx2 - 10 & x <= rectx2 + 10 && y >= recty2-10 & y <= recty2+10)
                 {
                     where = "bottomright";
-                    setMouseCursor(MouseCursor::BottomRightCornerResizeCursor);
+                   setMouseCursor(MouseCursor::BottomRightCornerResizeCursor);
                 }
                 else if (x >= rectx1 - 10 & x <= rectx1 + 10)
                 {
@@ -1589,6 +1588,8 @@ void WaveformAxes::isOverUnitBox(float x, float y, int& UnitID, int& BoxID, Stri
             }
         }
     }
+
+    setMouseCursor(MouseCursor::NormalCursor); // not inside any boxes
 }
 
 void WaveformAxes::drawBoxes(Graphics& g)
