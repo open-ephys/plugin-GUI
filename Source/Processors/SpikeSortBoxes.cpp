@@ -1994,11 +1994,11 @@ void PCAjob::computeCov()
 	delete mean;
 
 	// delete covariances
-	for (int k = 0; k < dim; k++)
-	 	delete cov[k];
+	//for (int k = 0; k < dim; k++)
+	 	//delete cov[k];
 
-	delete(cov);
-	cov = nullptr;
+	//delete(cov);
+	//cov = nullptr;
 
 }
 
@@ -2090,6 +2090,13 @@ void PCAjob::computeSVD()
 	}
 	delete eigvec;
 	delete sigvalues;
+
+	// delete covariances
+	for (int k = 0; k < dim; k++)
+	 	delete cov[k];
+
+	delete(cov);
+	cov = nullptr;
 	
 }
 
@@ -2117,9 +2124,8 @@ void PCAcomputingThread::run()
 		// 2. Apply SVD on covariance matrix
 		// 3. Extract the two principal components corresponding to the largest singular values
 		
-		// REMOVE THESE, CAUSING CRASHES:
-		//J.computeCov();
-		//J.computeSVD();
+		J.computeCov();
+		J.computeSVD();
 		
 		// 4. Report to the spike sorting electrode that PCA is finished 
 		*(J.reportDone) = true;
