@@ -64,28 +64,24 @@
       </MODULEPATHS>
     </LINUX_MAKE>
     <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" extraDefs="NOMINMAX"
-            externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;szip.lib&#10;zlib.lib&#10;hdf5.lib&#10;hdf5_cpp.lib">
+            externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;hdf5.lib&#10;hdf5_cpp.lib">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug\bin"
-                       headerPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\include&#10;../../Resources/Google Protocols/src&#10;"
-                       libraryPath="../../Resources/ZeroMQ/lib_x86&#10;../../Resources/Google Protocols/vsprojects/Debug&#10;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\lib"
-                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;"/>
+                       headerPath="../../Resources/windows-libs/HDF5/include" libraryPath="../../Resources/windows-libs/HDF5/lib/x86"
+                       postbuildCommand="copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release\bin"
-                       headerPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\include&#10;../../Resources/Google Protocols/src"
-                       libraryPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\lib&#10;../../Resources/ZeroMQ/lib_x86&#10;../../Resources/Google Protocols/vsprojects/Release"
-                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;"/>
+                       headerPath="../../Resources/windows-libs/HDF5/include" libraryPath="../../Resources/windows-libs/HDF5/lib/x86"
+                       postbuildCommand="copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;"/>
         <CONFIGURATION name="Debug64" winWarningLevel="2" generateManifest="1" winArchitecture="x64"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug64\bin"
-                       headerPath="$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\include&#10;../../Resources/Google Protocols/src"
-                       libraryPath="$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\lib&#10;../../Resources/ZeroMQ/lib_x64&#10;../../Resources/Google Protocols/vsprojects/x64/Debug"
-                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;"/>
+                       headerPath="../../Resources/windows-libs/HDF5/include" libraryPath="../../Resources/windows-libs/HDF5/lib/x64"
+                       postbuildCommand="copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;"/>
         <CONFIGURATION name="Release64" winWarningLevel="2" generateManifest="1" winArchitecture="x64"
                        isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release64\bin"
-                       headerPath="$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\include&#10;../../Resources/Google Protocols/src"
-                       libraryPath="$(MSBuildExtensionsPath64)\..\HDF_Group\HDF5\1.8.12\lib&#10;../../Resources/ZeroMQ/lib_x64&#10;../../Resources/Google Protocols/vsprojects/x64/Release"
-                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.12\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;"/>
+                       headerPath="../../Resources/windows-libs/HDF5/include" libraryPath="../../Resources/windows-libs/HDF5/lib/x64"
+                       postbuildCommand="copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>
