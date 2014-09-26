@@ -27,26 +27,26 @@
 SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorter* n) :
     processor(n), newSpike(false)
 {
-	electrode = nullptr;
+    electrode = nullptr;
     viewport = new Viewport();
     spikeDisplay = new SpikeThresholdDisplay(n,this, viewport);
 
     viewport->setViewedComponent(spikeDisplay, false);
     viewport->setScrollBarsShown(true, true);
 
-	inDrawingPolygonMode = false;
+    inDrawingPolygonMode = false;
     scrollBarThickness = viewport->getScrollBarThickness();
 
     addUnitButton = new UtilityButton("New box unit", Font("Small Text", 13, Font::plain));
     addUnitButton->setRadius(3.0f);
     addUnitButton->addListener(this);
     addAndMakeVisible(addUnitButton);
-  
+
     addPolygonUnitButton = new UtilityButton("New polygon", Font("Small Text", 13, Font::plain));
     addPolygonUnitButton->setRadius(3.0f);
     addPolygonUnitButton->addListener(this);
     addAndMakeVisible(addPolygonUnitButton);
- 
+
     addBoxButton = new UtilityButton("Add box", Font("Small Text", 13, Font::plain));
     addBoxButton->setRadius(3.0f);
     addBoxButton->addListener(this);
@@ -61,7 +61,7 @@ SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorter* n) :
     rePCAButton->setRadius(3.0f);
     rePCAButton->addListener(this);
     addAndMakeVisible(rePCAButton);
- 
+
     newIDbuttons = new UtilityButton("New IDs", Font("Small Text", 13, Font::plain));
     newIDbuttons->setRadius(3.0f);
     newIDbuttons->addListener(this);
@@ -76,18 +76,18 @@ SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorter* n) :
     nextElectrode->setRadius(3.0f);
     nextElectrode->addListener(this);
     addAndMakeVisible(nextElectrode);
- 
-	prevElectrode = new UtilityButton("Prev Electrode", Font("Small Text", 13, Font::plain));
+
+    prevElectrode = new UtilityButton("Prev Electrode", Font("Small Text", 13, Font::plain));
     prevElectrode->setRadius(3.0f);
     prevElectrode->addListener(this);
     addAndMakeVisible(prevElectrode);
- 
+
     addAndMakeVisible(viewport);
 
     setWantsKeyboardFocus(true);
 
     update();
-	 
+
 }
 
 SpikeSorterCanvas::~SpikeSorterCanvas()
@@ -118,17 +118,18 @@ void SpikeSorterCanvas::update()
     processor->removeSpikePlots();
     spikeDisplay->removePlots();
 
-	if (nPlots > 0)  {
-		// Plot only active electrode
-		int currentElectrode = processor->getCurrentElectrodeIndex();
-		electrode = processor->getActiveElectrode();
-		SpikeHistogramPlot* sp = spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(currentElectrode), electrode->electrodeID,
-			processor->getNameForElectrode(currentElectrode));
-		processor->addSpikePlotForElectrode(sp, currentElectrode);
-		electrode->spikePlot->setFlipSignal(processor->getFlipSignalState());
-		electrode->spikePlot->updateUnitsFromProcessor();
-		
-	}
+    if (nPlots > 0)
+    {
+        // Plot only active electrode
+        int currentElectrode = processor->getCurrentElectrodeIndex();
+        electrode = processor->getActiveElectrode();
+        SpikeHistogramPlot* sp = spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(currentElectrode), electrode->electrodeID,
+                                                            processor->getNameForElectrode(currentElectrode));
+        processor->addSpikePlotForElectrode(sp, currentElectrode);
+        electrode->spikePlot->setFlipSignal(processor->getFlipSignalState());
+        electrode->spikePlot->updateUnitsFromProcessor();
+
+    }
     spikeDisplay->resized();
     spikeDisplay->repaint();
 }
@@ -146,19 +147,19 @@ void SpikeSorterCanvas::resized()
 
     spikeDisplay->setBounds(0,0,getWidth()-140, spikeDisplay->getTotalHeight());
 
-	nextElectrode->setBounds(0, 20, 120,30);
-	prevElectrode->setBounds(0, 60, 120,30);
+    nextElectrode->setBounds(0, 20, 120,30);
+    prevElectrode->setBounds(0, 60, 120,30);
 
-	addUnitButton->setBounds(0, 120, 120,20);
-	addPolygonUnitButton->setBounds(0, 150, 120,20);
-	addBoxButton->setBounds(0, 180, 120,20);
-	delUnitButton->setBounds(0, 210, 120,20);
-	
-	rePCAButton->setBounds(0, 240, 120,20);
+    addUnitButton->setBounds(0, 120, 120,20);
+    addPolygonUnitButton->setBounds(0, 150, 120,20);
+    addBoxButton->setBounds(0, 180, 120,20);
+    delUnitButton->setBounds(0, 210, 120,20);
 
-	newIDbuttons->setBounds(0, 270, 120,20);
-	deleteAllUnits->setBounds(0, 300, 120,20);
-	
+    rePCAButton->setBounds(0, 240, 120,20);
+
+    newIDbuttons->setBounds(0, 270, 120,20);
+    deleteAllUnits->setBounds(0, 300, 120,20);
+
 }
 
 void SpikeSorterCanvas::paint(Graphics& g)
@@ -170,7 +171,7 @@ void SpikeSorterCanvas::paint(Graphics& g)
 
 void SpikeSorterCanvas::refresh()
 {
-	// called every 10 Hz
+    // called every 10 Hz
     processSpikeEvents();
 
     repaint();
@@ -181,10 +182,10 @@ void SpikeSorterCanvas::processSpikeEvents()
 {
 
 
-	Electrode *e = ((SpikeSorter*) processor)->getActiveElectrode();
+    Electrode* e = ((SpikeSorter*) processor)->getActiveElectrode();
 
-//	e->spikeSort->lstLastSpikes
-//    processor->setParameter(2, 0.0f); // request redraw
+    //	e->spikeSort->lstLastSpikes
+    //    processor->setParameter(2, 0.0f); // request redraw
 
 }
 
@@ -194,96 +195,101 @@ void SpikeSorterCanvas::processSpikeEvents()
 
 void SpikeSorterCanvas::removeUnitOrBox()
 {
-	int electrodeID = processor->getActiveElectrode()->electrodeID;
-	int unitID, boxID;
-	processor->getActiveElectrode()->spikePlot->getSelectedUnitAndBox(unitID, boxID);
-	bool selectNewBoxUnit = false;
-	bool selectNewPCAUnit = false;
-	if (unitID > 0)
-	{
-		if (boxID >= 0)
-		{
-			 // box unit
-			int numBoxes = processor->getActiveElectrode()->spikeSort->getNumBoxes(unitID);
-			if (numBoxes > 1)
-			{
-				// delete box, but keep unit
-				processor->getActiveElectrode()->spikeSort->removeBoxFromUnit(unitID, boxID);
-				electrode->spikePlot->updateUnitsFromProcessor();
-				electrode->spikePlot->setSelectedUnitAndBox(unitID,0); 
-			} else 
-			{
-				// delete unit
-				processor->getActiveElectrode()->spikeSort->removeUnit(unitID);
-				electrode->spikePlot->updateUnitsFromProcessor();
-				processor->removeUnit(electrodeID, unitID);
+    int electrodeID = processor->getActiveElectrode()->electrodeID;
+    int unitID, boxID;
+    processor->getActiveElectrode()->spikePlot->getSelectedUnitAndBox(unitID, boxID);
+    bool selectNewBoxUnit = false;
+    bool selectNewPCAUnit = false;
+    if (unitID > 0)
+    {
+        if (boxID >= 0)
+        {
+            // box unit
+            int numBoxes = processor->getActiveElectrode()->spikeSort->getNumBoxes(unitID);
+            if (numBoxes > 1)
+            {
+                // delete box, but keep unit
+                processor->getActiveElectrode()->spikeSort->removeBoxFromUnit(unitID, boxID);
+                electrode->spikePlot->updateUnitsFromProcessor();
+                electrode->spikePlot->setSelectedUnitAndBox(unitID,0);
+            }
+            else
+            {
+                // delete unit
+                processor->getActiveElectrode()->spikeSort->removeUnit(unitID);
+                electrode->spikePlot->updateUnitsFromProcessor();
+                processor->removeUnit(electrodeID, unitID);
 
-				std::vector<BoxUnit> boxunits = processor->getActiveElectrode()->spikeSort->getBoxUnits();
-				std::vector<PCAUnit> pcaunits = processor->getActiveElectrode()->spikeSort->getPCAUnits();
-				if (boxunits.size() > 0)
-				{
-					selectNewBoxUnit = true;
-				}
-				else if (pcaunits.size() > 0)
-				{
-						selectNewPCAUnit = true;
-				} else
-				{
-					electrode->spikePlot->setSelectedUnitAndBox(-1,-1);
-				}
-			}
-		} else
-		{
-			// pca unit
-			processor->getActiveElectrode()->spikeSort->removeUnit(unitID);
-			electrode->spikePlot->updateUnitsFromProcessor();
-			processor->removeUnit(electrodeID, unitID);
+                std::vector<BoxUnit> boxunits = processor->getActiveElectrode()->spikeSort->getBoxUnits();
+                std::vector<PCAUnit> pcaunits = processor->getActiveElectrode()->spikeSort->getPCAUnits();
+                if (boxunits.size() > 0)
+                {
+                    selectNewBoxUnit = true;
+                }
+                else if (pcaunits.size() > 0)
+                {
+                    selectNewPCAUnit = true;
+                }
+                else
+                {
+                    electrode->spikePlot->setSelectedUnitAndBox(-1,-1);
+                }
+            }
+        }
+        else
+        {
+            // pca unit
+            processor->getActiveElectrode()->spikeSort->removeUnit(unitID);
+            electrode->spikePlot->updateUnitsFromProcessor();
+            processor->removeUnit(electrodeID, unitID);
 
-			std::vector<BoxUnit> boxunits = processor->getActiveElectrode()->spikeSort->getBoxUnits();
-			std::vector<PCAUnit> pcaunits = processor->getActiveElectrode()->spikeSort->getPCAUnits();
-			if (pcaunits.size() > 0)
-			{
-					selectNewPCAUnit = true;
-			} else
-			if (boxunits.size() > 0)
-			{
-				selectNewBoxUnit = true;
-			}
-			else 
-			{
-				electrode->spikePlot->setSelectedUnitAndBox(-1,-1);
-			}
-
-
-		}
-		if (selectNewPCAUnit)
-		{
-			// set new selected unit to be the last existing unit
-			std::vector<PCAUnit> u = processor->getActiveElectrode()->spikeSort->getPCAUnits();
-			if (u.size() > 0)
-			{
-				electrode->spikePlot->setSelectedUnitAndBox(u[u.size()-1].getUnitID(),-1);
-			} else 
-			{
-				electrode->spikePlot->setSelectedUnitAndBox(-1,-1);
-			}
-		}
-		if (selectNewBoxUnit)
-		{
-			// set new selected unit to be the last existing unit
-			std::vector<BoxUnit> u = processor->getActiveElectrode()->spikeSort->getBoxUnits();
-			if (u.size() > 0)
-			{
-				electrode->spikePlot->setSelectedUnitAndBox(u[u.size()-1].getUnitID(),0);
-			} else 
-			{
-				electrode->spikePlot->setSelectedUnitAndBox(-1,-1);
-			}
-		}
+            std::vector<BoxUnit> boxunits = processor->getActiveElectrode()->spikeSort->getBoxUnits();
+            std::vector<PCAUnit> pcaunits = processor->getActiveElectrode()->spikeSort->getPCAUnits();
+            if (pcaunits.size() > 0)
+            {
+                selectNewPCAUnit = true;
+            }
+            else if (boxunits.size() > 0)
+            {
+                selectNewBoxUnit = true;
+            }
+            else
+            {
+                electrode->spikePlot->setSelectedUnitAndBox(-1,-1);
+            }
 
 
+        }
+        if (selectNewPCAUnit)
+        {
+            // set new selected unit to be the last existing unit
+            std::vector<PCAUnit> u = processor->getActiveElectrode()->spikeSort->getPCAUnits();
+            if (u.size() > 0)
+            {
+                electrode->spikePlot->setSelectedUnitAndBox(u[u.size()-1].getUnitID(),-1);
+            }
+            else
+            {
+                electrode->spikePlot->setSelectedUnitAndBox(-1,-1);
+            }
+        }
+        if (selectNewBoxUnit)
+        {
+            // set new selected unit to be the last existing unit
+            std::vector<BoxUnit> u = processor->getActiveElectrode()->spikeSort->getBoxUnits();
+            if (u.size() > 0)
+            {
+                electrode->spikePlot->setSelectedUnitAndBox(u[u.size()-1].getUnitID(),0);
+            }
+            else
+            {
+                electrode->spikePlot->setSelectedUnitAndBox(-1,-1);
+            }
+        }
 
-	}
+
+
+    }
 
 }
 
@@ -292,21 +298,23 @@ bool SpikeSorterCanvas::keyPressed(const KeyPress& key)
 
     KeyPress c = KeyPress::createFromDescription("c");
     KeyPress e = KeyPress::createFromDescription("escape");
-	KeyPress d = KeyPress::createFromDescription("delete");
-        
+    KeyPress d = KeyPress::createFromDescription("delete");
+
     if (key.isKeyCode(c.getKeyCode())) // C
     {
         spikeDisplay->clear();
 
         std::cout << "Clearing display" << std::endl;
         return true;
-    } else  if (key.isKeyCode(e.getKeyCode())) // ESC
+    }
+    else  if (key.isKeyCode(e.getKeyCode()))   // ESC
     {
         spikeDisplay->setPolygonMode(false);
         return true;
-    } else  if (key.isKeyCode(d.getKeyCode())) // Delete
+    }
+    else  if (key.isKeyCode(d.getKeyCode()))   // Delete
     {
-		removeUnitOrBox();
+        removeUnitOrBox();
         return true;
     }
 
@@ -316,82 +324,86 @@ bool SpikeSorterCanvas::keyPressed(const KeyPress& key)
 
 void SpikeSorterCanvas::buttonClicked(Button* button)
 {
-	int channel = 0;
-	int unitID = -1;
-	int boxID = -1;
-	Time t;
+    int channel = 0;
+    int unitID = -1;
+    int boxID = -1;
+    Time t;
 
     if (button == addPolygonUnitButton)
     {
         inDrawingPolygonMode = true;
-		addPolygonUnitButton->setToggleState(true, dontSendNotification);
-		electrode->spikePlot->setPolygonDrawingMode(true);
-	} 
-	else if (button == addUnitButton)
-	{
-		Electrode *e = processor->getActiveElectrode();
+        addPolygonUnitButton->setToggleState(true, dontSendNotification);
+        electrode->spikePlot->setPolygonDrawingMode(true);
+    }
+    else if (button == addUnitButton)
+    {
+        Electrode* e = processor->getActiveElectrode();
 
-		if (e != nullptr) 
-		{
-			int electrodeID = processor->getActiveElectrode()->electrodeID;
+        if (e != nullptr)
+        {
+            int electrodeID = processor->getActiveElectrode()->electrodeID;
 
-			std::cout << "Adding box unit to electrode " << e->electrodeID << std::endl;
-			int newUnitID = processor->getActiveElectrode()->spikeSort->addBoxUnit(0);
-			
-			uint8 r, g, b;
-			processor->getActiveElectrode()->spikeSort->getUnitColor(newUnitID, r, g, b);
-			electrode->spikePlot->updateUnitsFromProcessor();
-			electrode->spikePlot->setSelectedUnitAndBox(newUnitID, 0);
-			processor->addNewUnit(electrodeID, newUnitID, r, g, b);
-		}
+            std::cout << "Adding box unit to electrode " << e->electrodeID << std::endl;
+            int newUnitID = processor->getActiveElectrode()->spikeSort->addBoxUnit(0);
 
-	} 
-	else if (button == delUnitButton)
-	{
-		removeUnitOrBox();
+            uint8 r, g, b;
+            processor->getActiveElectrode()->spikeSort->getUnitColor(newUnitID, r, g, b);
+            electrode->spikePlot->updateUnitsFromProcessor();
+            electrode->spikePlot->setSelectedUnitAndBox(newUnitID, 0);
+            processor->addNewUnit(electrodeID, newUnitID, r, g, b);
+        }
 
-	} 
-	else if (button == addBoxButton)
-	{
-		
-		processor->getActiveElectrode()->spikePlot->getSelectedUnitAndBox(unitID, boxID);
+    }
+    else if (button == delUnitButton)
+    {
+        removeUnitOrBox();
 
-		if (unitID > 0) 
-		{
-			std::cout << "Adding box to channel " << channel << " with unitID " << unitID << std::endl;
-			processor->getActiveElectrode()->spikeSort->addBoxToUnit(channel, unitID);
-			electrode->spikePlot->updateUnitsFromProcessor();
-		}
-	}	
-	else if (button == rePCAButton)
-	{
-		processor->getActiveElectrode()->spikeSort->RePCA();
-	} else if (button == nextElectrode)
-	{
-		SpikeSorterEditor *ed = (SpikeSorterEditor *)processor->getEditor();
-		ed->setElectrodeComboBox(1);
-	} else if (button == prevElectrode)
-	{
-		
-		SpikeSorterEditor *ed = (SpikeSorterEditor *)processor->getEditor();
+    }
+    else if (button == addBoxButton)
+    {
 
-		ed->setElectrodeComboBox(-1);
+        processor->getActiveElectrode()->spikePlot->getSelectedUnitAndBox(unitID, boxID);
 
-	} else if (button == newIDbuttons)
-	{
-		// generate new IDs
-		processor->getActiveElectrode()->spikeSort->generateNewIDs();
-		electrode->spikePlot->updateUnitsFromProcessor();
-		//processor->updateSinks(electrode->electrodeID,false);
-	} else if (button == deleteAllUnits)
-	{
-		// delete unit
-		processor->getActiveElectrode()->spikeSort->removeAllUnits();
-		electrode->spikePlot->updateUnitsFromProcessor();
-		processor->removeAllUnits(electrode->electrodeID);
-	}
+        if (unitID > 0)
+        {
+            std::cout << "Adding box to channel " << channel << " with unitID " << unitID << std::endl;
+            processor->getActiveElectrode()->spikeSort->addBoxToUnit(channel, unitID);
+            electrode->spikePlot->updateUnitsFromProcessor();
+        }
+    }
+    else if (button == rePCAButton)
+    {
+        processor->getActiveElectrode()->spikeSort->RePCA();
+    }
+    else if (button == nextElectrode)
+    {
+        SpikeSorterEditor* ed = (SpikeSorterEditor*)processor->getEditor();
+        ed->setElectrodeComboBox(1);
+    }
+    else if (button == prevElectrode)
+    {
 
-	repaint();
+        SpikeSorterEditor* ed = (SpikeSorterEditor*)processor->getEditor();
+
+        ed->setElectrodeComboBox(-1);
+
+    }
+    else if (button == newIDbuttons)
+    {
+        // generate new IDs
+        processor->getActiveElectrode()->spikeSort->generateNewIDs();
+        electrode->spikePlot->updateUnitsFromProcessor();
+        //processor->updateSinks(electrode->electrodeID,false);
+    }
+    else if (button == deleteAllUnits)
+    {
+        // delete unit
+        processor->getActiveElectrode()->spikeSort->removeAllUnits();
+        electrode->spikePlot->updateUnitsFromProcessor();
+        processor->removeAllUnits(electrode->electrodeID);
+    }
+
+    repaint();
 }
 
 
@@ -400,7 +412,7 @@ void SpikeSorterCanvas::buttonClicked(Button* button)
 
 // ----------------------------------------------------------------
 
-SpikeThresholdDisplay::SpikeThresholdDisplay(SpikeSorter *p, SpikeSorterCanvas* sdc, Viewport* v) :
+SpikeThresholdDisplay::SpikeThresholdDisplay(SpikeSorter* p, SpikeSorterCanvas* sdc, Viewport* v) :
     processor(p),canvas(sdc), viewport(v)
 {
 
@@ -453,8 +465,8 @@ void SpikeThresholdDisplay::paint(Graphics& g)
 
 void SpikeThresholdDisplay::setPolygonMode(bool on)
 {
-  if (spikePlots.size() > 0)
-	  spikePlots[0]->setPolygonDrawingMode(on);
+    if (spikePlots.size() > 0)
+        spikePlots[0]->setPolygonDrawingMode(on);
 }
 
 void SpikeThresholdDisplay::resized()
@@ -463,13 +475,13 @@ void SpikeThresholdDisplay::resized()
 
     if (spikePlots.size() > 0)
     {
-			
-        int w = getWidth();
-		int h = 430;//getHeight();
-		
-			spikePlots[0]->setBounds(0, 0, w, h);
 
-    
+        int w = getWidth();
+        int h = 430;//getHeight();
+
+        spikePlots[0]->setBounds(0, 0, w, h);
+
+
         setBounds(0, 0, w, h);
     }
 
@@ -477,7 +489,7 @@ void SpikeThresholdDisplay::resized()
 
 void SpikeThresholdDisplay::mouseDown(const MouseEvent& event)
 {
-	
+
 }
 
 void SpikeThresholdDisplay::plotSpike(const SpikeObject& spike, int electrodeNum)
@@ -493,12 +505,12 @@ void SpikeThresholdDisplay::plotSpike(const SpikeObject& spike, int electrodeNum
 
 // ----------------------------------------------------------------
 
-SpikeHistogramPlot::SpikeHistogramPlot(SpikeSorter *prc,SpikeSorterCanvas* sdc, int electrodeID_, int p, String name_) :
+SpikeHistogramPlot::SpikeHistogramPlot(SpikeSorter* prc,SpikeSorterCanvas* sdc, int electrodeID_, int p, String name_) :
     processor(prc), canvas(sdc), isSelected(false), electrodeID(electrodeID_),  plotType(p),
     limitsChanged(true), name(name_)
 
 {
-	
+
     font = Font("Default", 15, Font::plain);
 
     switch (p)
@@ -527,11 +539,11 @@ SpikeHistogramPlot::SpikeHistogramPlot(SpikeSorter *prc,SpikeSorterCanvas* sdc, 
             minWidth = 400;
             aspectRatio = 0.5f;
             break;
-            //        case HIST_PLOT:
-            //            nWaveAx = 1;
-            //            nProjAx = 0;
-            //            nHistAx = 1;
-            //            break;
+        //        case HIST_PLOT:
+        //            nWaveAx = 1;
+        //            nProjAx = 0;
+        //            nHistAx = 1;
+        //            break;
         default: // unsupported number of axes provided
             std::cout << "SpikePlot as UNKNOWN, defaulting to SINGLE_PLOT" << std::endl;
             nWaveAx = 1;
@@ -540,7 +552,7 @@ SpikeHistogramPlot::SpikeHistogramPlot(SpikeSorter *prc,SpikeSorterCanvas* sdc, 
             nChannels = 1;
     }
 
-	std::vector<float> scales = processor->getElectrodeVoltageScales(electrodeID);
+    std::vector<float> scales = processor->getElectrodeVoltageScales(electrodeID);
     initAxes(scales);
 
     for (int i = 0; i < nChannels; i++)
@@ -558,27 +570,27 @@ SpikeHistogramPlot::SpikeHistogramPlot(SpikeSorter *prc,SpikeSorterCanvas* sdc, 
 
 void SpikeHistogramPlot::setSelectedUnitAndBox(int unitID, int boxID)
 {
-    const ScopedLock myScopedLock (mut);
-	processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(unitID, boxID);
+    const ScopedLock myScopedLock(mut);
+    processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(unitID, boxID);
 }
 
-void SpikeHistogramPlot::getSelectedUnitAndBox(int &unitID, int &boxID)
+void SpikeHistogramPlot::getSelectedUnitAndBox(int& unitID, int& boxID)
 {
-    const ScopedLock myScopedLock (mut);
-	processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(unitID, boxID);
+    const ScopedLock myScopedLock(mut);
+    processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(unitID, boxID);
 }
 
 
 SpikeHistogramPlot::~SpikeHistogramPlot()
 {
-	pAxes.clear();
+    pAxes.clear();
     wAxes.clear();
 
 }
 
 void SpikeHistogramPlot::paint(Graphics& g)
 {
-    
+
     //const MessageManagerLock mmLock;
 
     g.setColour(Colours::white);
@@ -587,64 +599,64 @@ void SpikeHistogramPlot::paint(Graphics& g)
     g.setFont(font);
 
     g.drawText(name,10,0,200,20,Justification::left,false);
-    
+
 }
 
 void SpikeHistogramPlot::setFlipSignal(bool state)
 {
-	for (int i = 0; i < wAxes.size(); i++)
-	{
-		wAxes[i]->setSignalFlip(state);
-	}
+    for (int i = 0; i < wAxes.size(); i++)
+    {
+        wAxes[i]->setSignalFlip(state);
+    }
 }
 
 void SpikeHistogramPlot::setPolygonDrawingMode(bool on)
 {
-    const ScopedLock myScopedLock (mut);
-	pAxes[0]->setPolygonDrawingMode(on);
+    const ScopedLock myScopedLock(mut);
+    pAxes[0]->setPolygonDrawingMode(on);
 }
 
 void SpikeHistogramPlot::updateUnitsFromProcessor()
 {
-    const ScopedLock myScopedLock (mut);
-	boxUnits = processor->getActiveElectrode()->spikeSort->getBoxUnits();
-	pcaUnits = processor->getActiveElectrode()->spikeSort->getPCAUnits();
+    const ScopedLock myScopedLock(mut);
+    boxUnits = processor->getActiveElectrode()->spikeSort->getBoxUnits();
+    pcaUnits = processor->getActiveElectrode()->spikeSort->getPCAUnits();
 
-	if (nWaveAx > 0) 
-	{
-		wAxes[0]->updateUnits(boxUnits);
-	}
-	pAxes[0]->updateUnits(pcaUnits);
+    if (nWaveAx > 0)
+    {
+        wAxes[0]->updateUnits(boxUnits);
+    }
+    pAxes[0]->updateUnits(pcaUnits);
 
-	
-	int selectedUnitID, selectedBoxID;
-	processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(selectedUnitID, selectedBoxID);
 
-	
-	
+    int selectedUnitID, selectedBoxID;
+    processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(selectedUnitID, selectedBoxID);
+
+
+
 
 }
 
 void SpikeHistogramPlot::setPCARange(float p1min, float p2min, float p1max, float p2max)
 {
-	const ScopedLock myScopedLock (mut);
-	pAxes[0]->setPCARange(p1min, p2min, p1max, p2max);
+    const ScopedLock myScopedLock(mut);
+    pAxes[0]->setPCARange(p1min, p2min, p1max, p2max);
 }
 
 void SpikeHistogramPlot::processSpikeObject(const SpikeObject& s)
 {
-	const ScopedLock myScopedLock (mut);
-	if (nWaveAx > 0) 
-	{
+    const ScopedLock myScopedLock(mut);
+    if (nWaveAx > 0)
+    {
         for (int i = 0; i < nWaveAx; i++)
-		{
+        {
             wAxes[i]->updateSpikeData(s);
-		}
+        }
 
-		pAxes[0]->updateSpikeData(s);
-	
-	
-	}
+        pAxes[0]->updateSpikeData(s);
+
+
+    }
 }
 
 void SpikeHistogramPlot::select()
@@ -659,22 +671,22 @@ void SpikeHistogramPlot::deselect()
 
 void SpikeHistogramPlot::initAxes(std::vector<float> scales)
 {
-	const ScopedLock myScopedLock (mut);
+    const ScopedLock myScopedLock(mut);
     initLimits();
 
     for (int i = 0; i < nWaveAx; i++)
     {
-		WaveformAxes* wAx = new WaveformAxes(this,processor, electrodeID, i);
-		wAx->setDetectorThreshold( processor->getActiveElectrode()->thresholds[i]);
+        WaveformAxes* wAx = new WaveformAxes(this,processor, electrodeID, i);
+        wAx->setDetectorThreshold(processor->getActiveElectrode()->thresholds[i]);
         wAxes.add(wAx);
         addAndMakeVisible(wAx);
-        ranges.add(scales[i]); 
+        ranges.add(scales[i]);
     }
 
-	PCAProjectionAxes* pAx = new PCAProjectionAxes(processor);
-	float p1min,p2min, p1max,  p2max;
-	processor->getActiveElectrode()->spikeSort->getPCArange(p1min,p2min, p1max,  p2max);
-	pAx->setPCARange(p1min,p2min, p1max,  p2max);
+    PCAProjectionAxes* pAx = new PCAProjectionAxes(processor);
+    float p1min,p2min, p1max,  p2max;
+    processor->getActiveElectrode()->spikeSort->getPCArange(p1min,p2min, p1max,  p2max);
+    pAx->setPCARange(p1min,p2min, p1max,  p2max);
 
     pAxes.add(pAx);
     addAndMakeVisible(pAx);
@@ -684,7 +696,7 @@ void SpikeHistogramPlot::initAxes(std::vector<float> scales)
 
 void SpikeHistogramPlot::resized()
 {
-	const ScopedLock myScopedLock (mut);
+    const ScopedLock myScopedLock(mut);
 
     float width = (float)getWidth()-10;
     float height = (float) getHeight()-25;
@@ -734,61 +746,61 @@ void SpikeHistogramPlot::resized()
 
 void SpikeHistogramPlot::modifyRange(std::vector<float> values)
 {
-	const int NUM_RANGE = 7;
-	float range_array[NUM_RANGE] = {100,250,500,750,1000,1250,1500};
-	String label;
-	int newIndex = 0;
+    const int NUM_RANGE = 7;
+    float range_array[NUM_RANGE] = {100,250,500,750,1000,1250,1500};
+    String label;
+    int newIndex = 0;
 
-	for (int index = 0; index < nChannels;index++)
-	{
-		for (int k = 0; k < NUM_RANGE; k++)
-		{
-			if ( abs(values[index] - range_array[k]) < 0.1)
-			{
-				newIndex = k;
-				break;
-			}
-		}
+    for (int index = 0; index < nChannels; index++)
+    {
+        for (int k = 0; k < NUM_RANGE; k++)
+        {
+            if (abs(values[index] - range_array[k]) < 0.1)
+            {
+                newIndex = k;
+                break;
+            }
+        }
 
-		ranges.set(index, range_array[newIndex]);
-		String label = String(range_array[newIndex],0);
-		rangeButtons[index]->setLabel(label);
-	}
+        ranges.set(index, range_array[newIndex]);
+        String label = String(range_array[newIndex],0);
+        rangeButtons[index]->setLabel(label);
+    }
     setLimitsOnAxes();
 }
 
 
 void SpikeHistogramPlot::modifyRange(int index,bool up)
 {
-	const int NUM_RANGE = 7;
-	float range_array[NUM_RANGE] = {100,250,500,750,1000,1250,1500};
-	String label;
-	for (int k = 0; k < NUM_RANGE; k++)
-	{
-		if ( abs(ranges[index] - range_array[k]) < 0.1)
-		{
-			int newIndex;
-			if (up)
-				newIndex  = (k + 1) % NUM_RANGE;
-			else
-			{
-				newIndex  = (k - 1);
-				if (newIndex < 0)
-					newIndex  = NUM_RANGE-1;
-			}
-			ranges.set(index, range_array[newIndex]);
-			String label = String(range_array[newIndex],0);
-			rangeButtons[index]->setLabel(label);
-		    setLimitsOnAxes();
+    const int NUM_RANGE = 7;
+    float range_array[NUM_RANGE] = {100,250,500,750,1000,1250,1500};
+    String label;
+    for (int k = 0; k < NUM_RANGE; k++)
+    {
+        if (abs(ranges[index] - range_array[k]) < 0.1)
+        {
+            int newIndex;
+            if (up)
+                newIndex  = (k + 1) % NUM_RANGE;
+            else
+            {
+                newIndex  = (k - 1);
+                if (newIndex < 0)
+                    newIndex  = NUM_RANGE-1;
+            }
+            ranges.set(index, range_array[newIndex]);
+            String label = String(range_array[newIndex],0);
+            rangeButtons[index]->setLabel(label);
+            setLimitsOnAxes();
 
-			processor->setElectrodeVoltageScale(electrodeID, index, range_array[newIndex]);
-			return;
-		}
+            processor->setElectrodeVoltageScale(electrodeID, index, range_array[newIndex]);
+            return;
+        }
 
-	}
-	// we shoudl never reach here.
-	jassert(false);
-	return ;
+    }
+    // we shoudl never reach here.
+    jassert(false);
+    return ;
 
 }
 
@@ -797,13 +809,13 @@ void SpikeHistogramPlot::buttonClicked(Button* button)
     UtilityButton* buttonThatWasClicked = (UtilityButton*) button;
 
     int index = rangeButtons.indexOf(buttonThatWasClicked);
-	modifyRange(index,true);
+    modifyRange(index,true);
 
 }
 
 void SpikeHistogramPlot::setLimitsOnAxes()
 {
-	const ScopedLock myScopedLock (mut);
+    const ScopedLock myScopedLock(mut);
     for (int i = 0; i < nWaveAx; i++)
         wAxes[i]->setRange(ranges[i]);
 }
@@ -843,34 +855,34 @@ void SpikeHistogramPlot::getBestDimensions(int* w, int* h)
 
 void SpikeHistogramPlot::clear()
 {
-	const ScopedLock myScopedLock (mut);
-	std::cout << "SpikePlot::clear()" << std::endl;
+    const ScopedLock myScopedLock(mut);
+    std::cout << "SpikePlot::clear()" << std::endl;
 
     for (int i = 0; i < nWaveAx; i++)
         wAxes[i]->clear();
     for (int i = 0; i < nProjAx; i++)
         pAxes[i]->clear();
 
-	
+
 }
 
 
 void SpikeHistogramPlot::setDisplayThresholdForChannel(int i, float f)
 {
-	const ScopedLock myScopedLock (mut);
-	if (i < wAxes.size())
-		wAxes[i]->setDetectorThreshold(f);
-	
-	return;
+    const ScopedLock myScopedLock(mut);
+    if (i < wAxes.size())
+        wAxes[i]->setDetectorThreshold(f);
+
+    return;
 }
 
 
 float SpikeHistogramPlot::getDisplayThresholdForChannel(int i)
 {
-	const ScopedLock myScopedLock (mut);
+    const ScopedLock myScopedLock(mut);
     float f= wAxes[i]->getDisplayThreshold();
-	
-	return f;
+
+    return f;
 }
 
 /********************************/
@@ -995,32 +1007,32 @@ double GenericDrawAxes::ad16ToUv(int x, int gain)
 // --------------------------------------------------
 
 
-WaveformAxes::WaveformAxes(SpikeHistogramPlot *plt, SpikeSorter *p,int electrodeID_, int _channel) : GenericDrawAxes(channel),spikeHistogramPlot(plt),electrodeID(electrodeID_),
+WaveformAxes::WaveformAxes(SpikeHistogramPlot* plt, SpikeSorter* p,int electrodeID_, int _channel) : GenericDrawAxes(channel),spikeHistogramPlot(plt),electrodeID(electrodeID_),
     processor(p),
-	channel(_channel),
-	drawGrid(true), 
-    displayThresholdLevel(0.0f),  
+    channel(_channel),
+    drawGrid(true),
+    displayThresholdLevel(0.0f),
     spikesReceivedSinceLastRedraw(0),
     spikeIndex(0),
     bufferSize(5),
     range(250.0f),
     isOverThresholdSlider(false),
     isDraggingThresholdSlider(false),
-	signalFlipped(false)
+    signalFlipped(false)
 {
-		bDragging  = false;
+    bDragging  = false;
 
-	isOverUnit = -1;
-	isOverBox = -1;
-//	 selectedUnit = -1;
-//	 selectedBox = -1;
+    isOverUnit = -1;
+    isOverBox = -1;
+    //	 selectedUnit = -1;
+    //	 selectedBox = -1;
     addMouseListener(this, true);
 
     thresholdColour = Colours::red;
 
 
     font = Font("Small Text",10,Font::plain);
-	int numSamples = 40;
+    int numSamples = 40;
     for (int n = 0; n < bufferSize; n++)
     {
         SpikeObject so;
@@ -1030,20 +1042,20 @@ WaveformAxes::WaveformAxes(SpikeHistogramPlot *plt, SpikeSorter *p,int electrode
     }
 }
 
-void WaveformAxes::mouseWheelMove(const MouseEvent &event, const MouseWheelDetails &wheel)
+void WaveformAxes::mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel)
 {
-	// weirdly enough, sometimes we get twice of this event even though a single wheel move was made...
-	if (wheel.deltaY < 0)
-		spikeHistogramPlot->modifyRange(channel, true);
-	else
-		spikeHistogramPlot->modifyRange(channel, false);
+    // weirdly enough, sometimes we get twice of this event even though a single wheel move was made...
+    if (wheel.deltaY < 0)
+        spikeHistogramPlot->modifyRange(channel, true);
+    else
+        spikeHistogramPlot->modifyRange(channel, false);
 
 }
 
 void WaveformAxes::setSignalFlip(bool state)
 {
-	signalFlipped = state;
-	repaint();
+    signalFlipped = state;
+    repaint();
 }
 
 void WaveformAxes::setRange(float r)
@@ -1060,23 +1072,23 @@ void WaveformAxes::plotSpike(const SpikeObject& s, Graphics& g)
 {
 
     float h = getHeight();
-	g.setColour(Colour(s.color[0],s.color[1],s.color[2]));
-	//g.setColour(Colours::pink);
+    g.setColour(Colour(s.color[0],s.color[1],s.color[2]));
+    //g.setColour(Colours::pink);
     //compute the spatial width for each waveform sample
     float dx = getWidth()/float(spikeBuffer[0].nSamples);
 
-	/*
-	float align = 8 * getWidth()/float(spikeBuffer[0].nSamples);
+    /*
+    float align = 8 * getWidth()/float(spikeBuffer[0].nSamples);
     g.drawLine(align,
                        0,
                        align,
                        h);
-	*/
+    */
 
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
     int offset = channel*s.nSamples; //spikeBuffer[0].nSamples * type; //
-	
+
     int dSamples = 1;
 
     float x = 0.0f;
@@ -1089,17 +1101,17 @@ void WaveformAxes::plotSpike(const SpikeObject& s, Graphics& g)
         {
             float s1 =h- (h/2 + float(s.data[offset+i]-32768)/float(*s.gain)*1000.0f / (range) * h);
             float s2 =h- (h/2 + float(s.data[offset+i+1]-32768)/float(*s.gain)*1000.0f / (range) * h);
-			if (signalFlipped)
-			{
-				s1=h-s1;
-				s2=h-s2;
-			}
+            if (signalFlipped)
+            {
+                s1=h-s1;
+                s2=h-s2;
+            }
             g.drawLine(x,
                        s1,
                        x+dx,
                        s2);
         }
-          x += dx;
+        x += dx;
     }
 
 }
@@ -1109,18 +1121,19 @@ void WaveformAxes::drawThresholdSlider(Graphics& g)
 
     // draw display threshold (editable)
     g.setColour(thresholdColour);
-	if (signalFlipped)
-	{
-	    float h = getHeight()-(getHeight()*(0.5f - displayThresholdLevel/range));
-		g.drawLine(0, h, getWidth(), h);
-		g.drawText(String(roundFloatToInt(displayThresholdLevel)),2,h,35,10,Justification::left, false);
-	} else
-	{
-	    float h = getHeight()*(0.5f - displayThresholdLevel/range);
-		g.drawLine(0, h, getWidth(), h);
-		g.drawText(String(roundFloatToInt(displayThresholdLevel)),2,h,35,10,Justification::left, false);
-	}
-	
+    if (signalFlipped)
+    {
+        float h = getHeight()-(getHeight()*(0.5f - displayThresholdLevel/range));
+        g.drawLine(0, h, getWidth(), h);
+        g.drawText(String(roundFloatToInt(displayThresholdLevel)),2,h,35,10,Justification::left, false);
+    }
+    else
+    {
+        float h = getHeight()*(0.5f - displayThresholdLevel/range);
+        g.drawLine(0, h, getWidth(), h);
+        g.drawText(String(roundFloatToInt(displayThresholdLevel)),2,h,35,10,Justification::left, false);
+    }
+
 }
 
 
@@ -1161,7 +1174,7 @@ bool WaveformAxes::updateSpikeData(const SpikeObject& s)
         spikeBuffer.set(spikeIndex, newSpike);
 
         spikesReceivedSinceLastRedraw++;
-        
+
     }
 
     return true;
@@ -1192,7 +1205,7 @@ void WaveformAxes::clear()
 
     spikeBuffer.clear();
     spikeIndex = 0;
-	int numSamples=40;
+    int numSamples=40;
     for (int n = 0; n < bufferSize; n++)
     {
         SpikeObject so;
@@ -1212,10 +1225,10 @@ void WaveformAxes::mouseMove(const MouseEvent& event)
     float y = event.y;
 
     float h = getHeight()*(0.5f - displayThresholdLevel/range);
-	if (signalFlipped)
-	{
-		h = getHeight() - h;
-	}
+    if (signalFlipped)
+    {
+        h = getHeight() - h;
+    }
 
     // std::cout << y << " " << h << std::endl;
 
@@ -1230,58 +1243,60 @@ void WaveformAxes::mouseMove(const MouseEvent& event)
     {
         thresholdColour = Colours::red;
         isOverThresholdSlider = false;
-    } else 
-	{
-		// are we inside a box ?
-		isOverUnit = 0;
-		isOverBox = -1;
-		strOverWhere = "";
-		isOverUnitBox(event.x, event.y, isOverUnit, isOverBox, strOverWhere);
+    }
+    else
+    {
+        // are we inside a box ?
+        isOverUnit = 0;
+        isOverBox = -1;
+        strOverWhere = "";
+        isOverUnitBox(event.x, event.y, isOverUnit, isOverBox, strOverWhere);
 
-	}
-	repaint();
+    }
+    repaint();
 
 }
 
 int WaveformAxes::findUnitIndexByID(int ID)
 {
-	for (int k=0;k<units.size();k++) 
-		if (units[k].UnitID == ID)
-			return k;
-	return -1;
+    for (int k=0; k<units.size(); k++)
+        if (units[k].UnitID == ID)
+            return k;
+    return -1;
 }
 
 void WaveformAxes::mouseDown(const juce::MouseEvent& event)
 {
-	
-	if (event.mods.isRightButtonDown())
-	{
-		clear();
-	}
 
-	float h = getHeight();
-	float w = getWidth();
-	float microsec_span = 40.0/30000.0 * 1e6;
-	float microvolt_span = range/2; 
-	mouseDownX = event.x/w * microsec_span ;
-	if (signalFlipped)
-		mouseDownY=(h/2- (h-event.y))/(h/2)*microvolt_span;
-	else
-	mouseDownY=(h/2- event.y)/(h/2)*microvolt_span;
+    if (event.mods.isRightButtonDown())
+    {
+        clear();
+    }
 
-	if (isOverUnit > 0) 
-	{
-		processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(isOverUnit, isOverBox);
-		int indx = findUnitIndexByID(isOverUnit);
-		jassert(indx >= 0);
-		mouseOffsetX = mouseDownX - units[indx].lstBoxes[isOverBox].x;
-		mouseOffsetY = mouseDownY - units[indx].lstBoxes[isOverBox].y;
-	} else 
-	{
-		processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(-1, -1);
+    float h = getHeight();
+    float w = getWidth();
+    float microsec_span = 40.0/30000.0 * 1e6;
+    float microvolt_span = range/2;
+    mouseDownX = event.x/w * microsec_span ;
+    if (signalFlipped)
+        mouseDownY=(h/2- (h-event.y))/(h/2)*microvolt_span;
+    else
+        mouseDownY=(h/2- event.y)/(h/2)*microvolt_span;
 
-	}
-//	MouseUnitOffset = ScreenToMS_uV(e.X, e.Y) - new PointD(boxOnDown.x, boxOnDown.y);
+    if (isOverUnit > 0)
+    {
+        processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(isOverUnit, isOverBox);
+        int indx = findUnitIndexByID(isOverUnit);
+        jassert(indx >= 0);
+        mouseOffsetX = mouseDownX - units[indx].lstBoxes[isOverBox].x;
+        mouseOffsetY = mouseDownY - units[indx].lstBoxes[isOverBox].y;
+    }
+    else
+    {
+        processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(-1, -1);
+
+    }
+    //	MouseUnitOffset = ScreenToMS_uV(e.X, e.Y) - new PointD(boxOnDown.x, boxOnDown.y);
 
     // if (isOverThresholdSlider)
     // {
@@ -1292,13 +1307,13 @@ void WaveformAxes::mouseDown(const juce::MouseEvent& event)
 
 void WaveformAxes::mouseUp(const MouseEvent& event)
 {
-	if (bDragging)
-	{
-		bDragging = false;
-		// send a message to processor to update its internal structure?
-		Electrode *e = processor->getActiveElectrode();
-		e->spikeSort->updateBoxUnits( units);
-	}
+    if (bDragging)
+    {
+        bDragging = false;
+        // send a message to processor to update its internal structure?
+        Electrode* e = processor->getActiveElectrode();
+        e->spikeSort->updateBoxUnits(units);
+    }
     // if (isOverThresholdSlider)
     // {
     //     cursorType = MouseCursor::DraggingHandCursor;
@@ -1307,118 +1322,155 @@ void WaveformAxes::mouseUp(const MouseEvent& event)
 
 void WaveformAxes::mouseDrag(const MouseEvent& event)
 {
-	bDragging = true;
+    bDragging = true;
 
-    if (isOverUnit > 0) {
-		// dragging a box
-		// convert position to metric coordinates.
-		float h = getHeight();
-		float w = getWidth();
-		float microsec_span = 40.0/30000.0 * 1e6;
-		float microvolt_span = range/2; 
-		float x = event.x/w * microsec_span ;
-	
-		float y;
-		if (signalFlipped)
-			y=(h/2- (h-event.y))/(h/2)*microvolt_span;
-		else
-		y=(h/2- event.y)/(h/2)*microvolt_span;
-	
-		// update units position....
+    if (isOverUnit > 0)
+    {
+        // dragging a box
+        // convert position to metric coordinates.
+        float h = getHeight();
+        float w = getWidth();
+        float microsec_span = 40.0/30000.0 * 1e6;
+        float microvolt_span = range/2;
+        float x = event.x/w * microsec_span ;
 
-		for (int k=0;k<units.size();k++) 
-		{
-			if (units[k].getUnitID() == isOverUnit) {
-				float oldx = units[k].lstBoxes[isOverBox].x;
-				float oldy = units[k].lstBoxes[isOverBox].y;
-	
-				float dx = x - oldx;
-				float dy = y - oldy;
+        float y;
+        if (signalFlipped)
+            y=(h/2- (h-event.y))/(h/2)*microvolt_span;
+        else
+            y=(h/2- event.y)/(h/2)*microvolt_span;
 
-				if (strOverWhere == "right")
+        // update units position....
+
+        for (int k=0; k<units.size(); k++)
+        {
+            if (units[k].getUnitID() == isOverUnit)
+            {
+                float oldx = units[k].lstBoxes[isOverBox].x;
+                float oldy = units[k].lstBoxes[isOverBox].y;
+
+                float dx = x - oldx;
+                float dy = y - oldy;
+
+                if (strOverWhere == "right")
+                {
+                    units[k].lstBoxes[isOverBox].w = x - oldx;
+                }
+                else if (strOverWhere == "left")
+                {
+                    units[k].lstBoxes[isOverBox].w += -dx;
+                    units[k].lstBoxes[isOverBox].x = x;
+                }
+                else if ((!signalFlipped && strOverWhere == "top") || (signalFlipped && strOverWhere == "bottom"))
+                {
+                    units[k].lstBoxes[isOverBox].y += dy;
+                    units[k].lstBoxes[isOverBox].h += dy;
+                }
+                else if ((!signalFlipped && strOverWhere == "bottom") || (signalFlipped && strOverWhere == "top"))
+                {
+                    units[k].lstBoxes[isOverBox].h = -dy;
+                }
+                else if ((!signalFlipped && strOverWhere == "bottomright") || (signalFlipped && strOverWhere == "topright"))
+                {
+                    units[k].lstBoxes[isOverBox].w = x - oldx;
+                    units[k].lstBoxes[isOverBox].h = -dy;
+
+                }
+                else if ((!signalFlipped && strOverWhere == "bottomleft") || (signalFlipped && strOverWhere == "topleft"))
+                {
+                    units[k].lstBoxes[isOverBox].w += -dx;
+                    units[k].lstBoxes[isOverBox].x = x;
+                    units[k].lstBoxes[isOverBox].h = -dy;
+                }
+                else if ((!signalFlipped && strOverWhere == "topright") || (signalFlipped && strOverWhere == "bottomright"))
+                {
+                    units[k].lstBoxes[isOverBox].y += dy;
+                    units[k].lstBoxes[isOverBox].h += dy;
+                    units[k].lstBoxes[isOverBox].w = x - oldx;
+
+                }
+                else if ((!signalFlipped && strOverWhere == "topleft") || (signalFlipped && strOverWhere == "bottomleft"))
+                {
+                    units[k].lstBoxes[isOverBox].w += -dx;
+                    units[k].lstBoxes[isOverBox].x = x;
+                    units[k].lstBoxes[isOverBox].y += dy;
+                    units[k].lstBoxes[isOverBox].h += dy;
+
+                }
+                else if (strOverWhere == "inside")
+                {
+                    units[k].lstBoxes[isOverBox].x = x-mouseOffsetX;
+                    units[k].lstBoxes[isOverBox].y = y-mouseOffsetY;
+                }
+
+				if (units[k].lstBoxes[isOverBox].h < 0)
 				{
-					units[k].lstBoxes[isOverBox].w = x - oldx;
-				} else 
+					units[k].lstBoxes[isOverBox].y -= units[k].lstBoxes[isOverBox].h;
+					units[k].lstBoxes[isOverBox].h *= -1;
+					if (strOverWhere == "top")
+						strOverWhere = "bottom";
+					else if (strOverWhere == "bottom")
+						strOverWhere = "top";
+					else if (strOverWhere == "topleft")
+						strOverWhere = "bottomleft";
+					else if (strOverWhere == "topright")
+						strOverWhere = "bottomright";
+					else if (strOverWhere == "bottomleft")
+						strOverWhere = "topleft";
+					else if (strOverWhere == "bottomright")
+						strOverWhere = "topright";
+				}
+				if (units[k].lstBoxes[isOverBox].w < 0)
+				{
+					units[k].lstBoxes[isOverBox].x += units[k].lstBoxes[isOverBox].w;
+					units[k].lstBoxes[isOverBox].w *= -1;
 				if (strOverWhere == "left")
-				{
-					units[k].lstBoxes[isOverBox].w += -dx;
-					units[k].lstBoxes[isOverBox].x = x;
-				}  else 
-				if ((!signalFlipped && strOverWhere == "bottom") || (signalFlipped && strOverWhere == "top"))
-				{
-					units[k].lstBoxes[isOverBox].y += dy;
-					units[k].lstBoxes[isOverBox].h -= dy;
-				} else 
-				if ( (!signalFlipped && strOverWhere == "top") ||  (signalFlipped && strOverWhere == "bottom"))
-				{
-					units[k].lstBoxes[isOverBox].h = dy;
-				}   else
-				if ((!signalFlipped && strOverWhere == "topright") || (signalFlipped && strOverWhere == "bottomright"))
-				{
-					units[k].lstBoxes[isOverBox].w = x - oldx;
-					units[k].lstBoxes[isOverBox].h = dy;
-
-				} else 
-				if ((!signalFlipped && strOverWhere == "topleft") || (signalFlipped && strOverWhere == "bottomleft"))
-				{
-					units[k].lstBoxes[isOverBox].w += -dx;
-					units[k].lstBoxes[isOverBox].x = x;
-					units[k].lstBoxes[isOverBox].h = dy;
-				}  else 
-				if ((!signalFlipped && strOverWhere == "bottomright") || (signalFlipped && strOverWhere == "topright"))
-				{
-					units[k].lstBoxes[isOverBox].y += dy;
-					units[k].lstBoxes[isOverBox].h -= dy;
-					units[k].lstBoxes[isOverBox].w = x - oldx;
-			
-				} else 
-				if ( (!signalFlipped && strOverWhere == "bottomleft") || (signalFlipped && strOverWhere == "topleft"))
-				{
-					units[k].lstBoxes[isOverBox].w += -dx;
-					units[k].lstBoxes[isOverBox].x = x;
-					units[k].lstBoxes[isOverBox].y += dy;
-					units[k].lstBoxes[isOverBox].h -= dy;
-
-				}   else 
-					if (strOverWhere == "inside")
-				{
-					units[k].lstBoxes[isOverBox].x = x-mouseOffsetX;
-					units[k].lstBoxes[isOverBox].y = y-mouseOffsetY;
+						strOverWhere = "right";
+					else if (strOverWhere == "right")
+						strOverWhere = "left";
+					else if (strOverWhere == "topleft")
+						strOverWhere = "topright";
+					else if (strOverWhere == "topright")
+						strOverWhere = "topleft";
+					else if (strOverWhere == "bottomleft")
+						strOverWhere = "bottomright";
+					else if (strOverWhere == "bottomright")
+						strOverWhere = "bottomleft";	
 				}
 
+            }
 
-			}
+        }
 
-		}
-
-		//void WaveformAxes::isOverUnitBox(float x, float y, int &UnitID, int &BoxID, String &where) 
-	} else  if (isOverThresholdSlider)
+        //void WaveformAxes::isOverUnitBox(float x, float y, int &UnitID, int &BoxID, String &where)
+    }
+    else  if (isOverThresholdSlider)
     {
 
-		float thresholdSliderPosition ;
-		if (signalFlipped)
-			thresholdSliderPosition =  (getHeight()-float(event.y)) / float(getHeight());
-		else
-			thresholdSliderPosition =  float(event.y) / float(getHeight());
-		
+        float thresholdSliderPosition ;
+        if (signalFlipped)
+            thresholdSliderPosition = (getHeight()-float(event.y)) / float(getHeight());
+        else
+            thresholdSliderPosition =  float(event.y) / float(getHeight());
+
         if (thresholdSliderPosition > 1)
             thresholdSliderPosition = 1;
         else if (thresholdSliderPosition < -1) // Modified to allow negative thresholds.
             thresholdSliderPosition =-1;
 
-	
+
         displayThresholdLevel = (0.5f - thresholdSliderPosition) * range;
-		// update processor
-		processor->getActiveElectrode()->thresholds[channel] = displayThresholdLevel;
-		SpikeSorterEditor* edt = (SpikeSorterEditor*) processor->getEditor();
-		for (int k=0;k<processor->getActiveElectrode()->numChannels;k++)
-			edt->electrodeButtons[k]->setToggleState(false, dontSendNotification);
+        // update processor
+        processor->getActiveElectrode()->thresholds[channel] = displayThresholdLevel;
+        SpikeSorterEditor* edt = (SpikeSorterEditor*) processor->getEditor();
+        for (int k=0; k<processor->getActiveElectrode()->numChannels; k++)
+            edt->electrodeButtons[k]->setToggleState(false, dontSendNotification);
 
-			edt->electrodeButtons[channel]->setToggleState(true, dontSendNotification);
+        edt->electrodeButtons[channel]->setToggleState(true, dontSendNotification);
 
-		edt->setThresholdValue(channel,displayThresholdLevel);
-    } 
-	 repaint();
+        edt->setThresholdValue(channel,displayThresholdLevel);
+    }
+    repaint();
 }
 
 // MouseCursor WaveAxes::getMouseCursor()
@@ -1450,152 +1502,159 @@ void WaveformAxes::setDetectorThreshold(float t)
 
 
 
-void WaveformAxes::isOverUnitBox(float x, float y, int &UnitID, int &BoxID, String &where) 
+void WaveformAxes::isOverUnitBox(float x, float y, int& UnitID, int& BoxID, String& where)
 {
-	setMouseCursor(MouseCursor::NormalCursor);
-	
+    setMouseCursor(MouseCursor::NormalCursor);
+
     float h = getHeight();
     float w = getWidth();
-	// Map box coordinates to screen coordinates.
-	// Assume time span is 40 samples at 30 Khz?
-	float microsec_span = 40.0/30000.0 * 1e6;
-	float microvolt_span = range/2; 
+    // Map box coordinates to screen coordinates.
+    // Assume time span is 40 samples at 30 Khz?
+    float microsec_span = 40.0/30000.0 * 1e6;
+    float microvolt_span = range/2;
 
-	// Typical spike is 40 samples, at 30kHz ~ 1.3 ms or 1300 usecs.
-	for (int k = 0; k < units.size(); k++)
-	{
-		for (int boxiter = 0;boxiter< units[k].lstBoxes.size(); boxiter++) 
-		{
-			Box B = units[k].lstBoxes[boxiter];
-			float rectx1 = B.x / microsec_span * w;
-			float recty1 = h/2 - (B.y / microvolt_span * h/2);
-			float rectx2 = (B.x+B.w) / microsec_span * w;
-			float recty2 = h/2 - ((B.y+B.h) / microvolt_span * h/2);
-			if (signalFlipped)
-			{
-				recty1 = h-recty1;
-				recty2 = h-recty2;
-			}
+    // Typical spike is 40 samples, at 30kHz ~ 1.3 ms or 1300 usecs.
+    for (int k = 0; k < units.size(); k++)
+    {
+        for (int boxiter = 0; boxiter< units[k].lstBoxes.size(); boxiter++)
+        {
+            Box B = units[k].lstBoxes[boxiter];
+            float rectx1 = B.x / microsec_span * w;
+            float recty1 = h/2 - (B.y / microvolt_span * h/2);
+            float rectx2 = (B.x+B.w) / microsec_span * w;
+            float recty2 = h/2 - ((B.y-B.h) / microvolt_span * h/2);
 
-			if (rectx1 > rectx2)
-				swapVariables(rectx1,rectx2);
-			if (recty1 > recty2)
-				swapVariables(recty1,recty2);
+            if (signalFlipped)
+            {
+                recty1 = h-recty1;
+                recty2 = h-recty2;
+            }
 
-			if (x >= rectx1 - 10 & y >= recty1 -10 & x <= rectx2 + 10 & y <= recty2+10)
-			{
-				setMouseCursor(MouseCursor::DraggingHandCursor);
-				UnitID = units[k].UnitID;
-				BoxID = boxiter;
-				if (x >= rectx1 - 10 & x <= rectx1 + 10 && y >= recty1-10 & y <= recty1+10)
-				{
-					where = "topleft";
-					setMouseCursor(MouseCursor::TopLeftCornerResizeCursor);
-				} else
-					if (x >= rectx2 - 10 & x <= rectx2 + 10 && y >= recty1-10 & y <= recty1+10)
-				{
-					where = "topright";
-					setMouseCursor(MouseCursor::TopRightCornerResizeCursor);
-				} else 
-					if (x >= rectx1 - 10 & x <= rectx1 + 10 && y >= recty2-10 & y <= recty2+10)
-				{
-					where = "bottomleft";
-					setMouseCursor(MouseCursor::BottomLeftCornerResizeCursor);
-				} else 
-					if (x >= rectx2 - 10 & x <= rectx2 + 10 && y >= recty2-10 & y <= recty2+10)
-				{
-					where = "bottomright";
-					setMouseCursor(MouseCursor::BottomRightCornerResizeCursor);
-				} else
-				if (x >= rectx1 - 10 & x <= rectx1 + 10)
-				{
-					where = "left";
-					setMouseCursor(MouseCursor::LeftEdgeResizeCursor);
-				}
-				else if (x >= rectx2 - 10 & x <= rectx2 + 10)
-				{
-					where = "right";
-					setMouseCursor(MouseCursor::RightEdgeResizeCursor);
-				}
-				else if (y >= recty1 - 10 & y <= recty1 + 10)
-				{
-					setMouseCursor(MouseCursor::TopEdgeResizeCursor);
-					where = "top";
-				}
-				else if (y >= recty2 - 10 & y <= recty2 + 10)
-				{
-					where = "bottom";
-					setMouseCursor(MouseCursor::BottomEdgeResizeCursor);
-				}
-				else {
-					setMouseCursor(MouseCursor::DraggingHandCursor);
-					where = "inside";
-				}
+            if (rectx1 > rectx2)
+                swapVariables(rectx1,rectx2);
+            if (recty1 > recty2)
+                swapVariables(recty1,recty2);
 
-				return;
-			}
-		}
-	}
+            if (x >= rectx1 - 10 & y >= recty1 -10 & x <= rectx2 + 10 & y <= recty2+10)
+            {
+                setMouseCursor(MouseCursor::DraggingHandCursor);
+                UnitID = units[k].UnitID;
+                BoxID = boxiter;
+                if (x >= rectx1 - 10 & x <= rectx1 + 10 && y >= recty1-10 & y <= recty1+10)
+                {
+                    where = "topleft";
+                    setMouseCursor(MouseCursor::TopLeftCornerResizeCursor);
+                }
+                else if (x >= rectx2 - 10 & x <= rectx2 + 10 && y >= recty1-10 & y <= recty1+10)
+                {
+                    where = "topright";
+                    setMouseCursor(MouseCursor::TopRightCornerResizeCursor);
+                }
+                else if (x >= rectx1 - 10 & x <= rectx1 + 10 && y >= recty2-10 & y <= recty2+10)
+                {
+                    where = "bottomleft";
+                    setMouseCursor(MouseCursor::BottomLeftCornerResizeCursor);
+                }
+                else if (x >= rectx2 - 10 & x <= rectx2 + 10 && y >= recty2-10 & y <= recty2+10)
+                {
+                    where = "bottomright";
+                    setMouseCursor(MouseCursor::BottomRightCornerResizeCursor);
+                }
+                else if (x >= rectx1 - 10 & x <= rectx1 + 10)
+                {
+                    where = "left";
+                    setMouseCursor(MouseCursor::LeftEdgeResizeCursor);
+                }
+                else if (x >= rectx2 - 10 & x <= rectx2 + 10)
+                {
+                    where = "right";
+                    setMouseCursor(MouseCursor::RightEdgeResizeCursor);
+                }
+                else if (y >= recty1 - 10 & y <= recty1 + 10)
+                {
+                    setMouseCursor(MouseCursor::TopEdgeResizeCursor);
+                    where = "top";
+                }
+                else if (y >= recty2 - 10 & y <= recty2 + 10)
+                {
+                    where = "bottom";
+                    setMouseCursor(MouseCursor::BottomEdgeResizeCursor);
+                }
+                else
+                {
+                    setMouseCursor(MouseCursor::DraggingHandCursor);
+                    where = "inside";
+                }
+                return;
+            }
+        }
+    }
 }
 
-void WaveformAxes::drawBoxes(Graphics &g)
+void WaveformAxes::drawBoxes(Graphics& g)
 {
-	// y and h are given in micro volts.
-	// x and w and given in micro seconds.
-	
+    // y and h are given in micro volts.
+    // x and w and given in micro seconds.
+
     float h = getHeight();
     float w = getWidth();
-	// Map box coordinates to screen coordinates.
-	// Assume time span is 40 samples at 30 Khz?
-	float microsec_span = 40.0/30000.0 * 1e6;
-	float microvolt_span = range/2; 
+    // Map box coordinates to screen coordinates.
+    // Assume time span is 40 samples at 30 Khz?
+    float microsec_span = 40.0/30000.0 * 1e6;
+    float microvolt_span = range/2;
 
-	int selectedUnitID, selectedBoxID;
-	processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(selectedUnitID, selectedBoxID);
+    int selectedUnitID, selectedBoxID;
+    processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(selectedUnitID, selectedBoxID);
 
-	// Typical spike is 40 samples, at 30kHz ~ 1.3 ms or 1300 usecs.
-	for (int k = 0; k < units.size(); k++) 
-	{
-		g.setColour(Colour(units[k].ColorRGB[0],units[k].ColorRGB[1],units[k].ColorRGB[2]));
-		
-		for (int boxiter = 0; boxiter < units[k].lstBoxes.size(); boxiter++) 
-		{
-			Box B = units[k].lstBoxes[boxiter];
+    // Typical spike is 40 samples, at 30kHz ~ 1.3 ms or 1300 usecs.
+    for (int k = 0; k < units.size(); k++)
+    {
+        g.setColour(Colour(units[k].ColorRGB[0],units[k].ColorRGB[1],units[k].ColorRGB[2]));
 
-			float thickness = 2;
-			if (units[k].getUnitID() == selectedUnitID && boxiter == selectedBoxID)
-				thickness = 3;
-			else if (units[k].getUnitID() == isOverUnit && boxiter == isOverBox)
-				thickness = 2;
-			else 
-				thickness = 1;
+        for (int boxiter = 0; boxiter < units[k].lstBoxes.size(); boxiter++)
+        {
+            Box B = units[k].lstBoxes[boxiter];
+
+            float thickness = 2;
+            if (units[k].getUnitID() == selectedUnitID && boxiter == selectedBoxID)
+                thickness = 3;
+            else if (units[k].getUnitID() == isOverUnit && boxiter == isOverBox)
+                thickness = 2;
+            else
+                thickness = 1;
 
 
-			float rectx1 = B.x / microsec_span * w;
-			float recty1 = (h/2 - (B.y / microvolt_span * h/2));
+            float rectx1 = B.x / microsec_span * w;
+            float recty1 = (h/2 - (B.y / microvolt_span * h/2));
 
-			float rectx2 = (B.x+B.w) / microsec_span * w;
-			float recty2 = (h/2 - ((B.y+B.h) / microvolt_span * h/2));
+            float rectx2 = (B.x+B.w) / microsec_span * w;
+            float recty2 = (h/2 - ((B.y-B.h) / microvolt_span * h/2));
 
-			//std::cout << rectx1 << " " << rectx2 << " " << recty1 << " " << recty2 << std::endl;
+            //std::cout << rectx1 << " " << rectx2 << " " << recty1 << " " << recty2 << std::endl;
 
-			// if (signalFlipped)
-			// {
-			// 	recty1 = h-recty1;
-			// 	recty2 = h-recty2;
-			// }
+			float drawRecty1, drawRecty2;
+            if (signalFlipped)
+            {
+                drawRecty2 = h-recty1;
+                drawRecty1 = h-recty2;
+            }
+			else
+			{
+				drawRecty1 = recty1;
+				drawRecty2 = recty2;
+			}
+            g.drawRect(rectx1,drawRecty1,rectx2-rectx1, drawRecty2-drawRecty1,thickness);
+            g.drawText(String(units[k].UnitID), rectx1,drawRecty1-15,rectx2-rectx1,15,juce::Justification::centred,false);
 
-			g.drawRect(rectx1,recty1,rectx2-rectx1, recty1-recty2,thickness);
-			g.drawText(String(units[k].UnitID), rectx1,recty1-15,rectx2-rectx1,15,juce::Justification::centred,false);
-		}
-	}
+        }
+    }
 }
 
 
 
 void WaveformAxes::updateUnits(std::vector<BoxUnit> _units)
 {
-	units = _units;
+    units = _units;
 }
 
 void WaveformAxes::paint(Graphics& g)
@@ -1603,25 +1662,25 @@ void WaveformAxes::paint(Graphics& g)
     g.setColour(Colours::black);
     g.fillRect(0,0,getWidth(), getHeight());
 
-   // int chan = 0;
+    // int chan = 0;
 
     if (drawGrid)
         drawWaveformGrid(g);
 
-	if (channel == 0)
-	{
-		//double depth = processor->getSelectedElectrodeDepth();
-		//String d = "Depth: "+String(depth,4) +" mm";
-		//g.setFont(Font("Small Text", 13, Font::plain));
-	  // g.setColour(Colours::white);
- 
-		//g.drawText(d,10,10,150,20,Justification::left,false);
-	}
+    if (channel == 0)
+    {
+        //double depth = processor->getSelectedElectrodeDepth();
+        //String d = "Depth: "+String(depth,4) +" mm";
+        //g.setFont(Font("Small Text", 13, Font::plain));
+        // g.setColour(Colours::white);
+
+        //g.drawText(d,10,10,150,20,Justification::left,false);
+    }
     // draw the grid lines for the waveforms
 
     // draw the threshold line and labels
     drawThresholdSlider(g);
-	drawBoxes(g);
+    drawBoxes(g);
     // if no spikes have been received then don't plot anything
     if (!gotFirstSpike)
     {
@@ -1629,30 +1688,30 @@ void WaveformAxes::paint(Graphics& g)
     }
 
 
-	for (int spikeNum = 0; spikeNum < bufferSize; spikeNum++)
-	{
+    for (int spikeNum = 0; spikeNum < bufferSize; spikeNum++)
+    {
 
-		if (spikeNum != spikeIndex)
-		{
-			g.setColour(Colours::grey);
-			plotSpike(spikeBuffer[spikeNum], g);
-		}
+        if (spikeNum != spikeIndex)
+        {
+            g.setColour(Colours::grey);
+            plotSpike(spikeBuffer[spikeNum], g);
+        }
 
-	}
+    }
 
     g.setColour(Colours::white);
     plotSpike(spikeBuffer[spikeIndex], g);
 
-	bool isRecorded = processor->isSelectedElectrodeRecorded(channel);
+    bool isRecorded = processor->isSelectedElectrodeRecorded(channel);
 
-	if (!isRecorded)
-	{
-		String d = "NOT RECORDED";
-		g.setFont(Font("Small Text", 15, Font::plain));
-		g.setColour(Colours::red);
- 		g.drawText(d,getWidth()-140,10,120,25,Justification::right,false);
+    if (!isRecorded)
+    {
+        String d = "NOT RECORDED";
+        g.setFont(Font("Small Text", 15, Font::plain));
+        g.setColour(Colours::red);
+        g.drawText(d,getWidth()-140,10,120,25,Justification::right,false);
 
-	}
+    }
 
     spikesReceivedSinceLastRedraw = 0;
 
@@ -1661,29 +1720,29 @@ void WaveformAxes::paint(Graphics& g)
 // --------------------------------------------------
 
 
-PCAProjectionAxes::PCAProjectionAxes(SpikeSorter *p) : processor(p),GenericDrawAxes(0), imageDim(500),
+PCAProjectionAxes::PCAProjectionAxes(SpikeSorter* p) : processor(p),GenericDrawAxes(0), imageDim(500),
     rangeX(250), rangeY(250), spikesReceivedSinceLastRedraw(0)
 {
     projectionImage = Image(Image::RGB, imageDim, imageDim, true);
-	bufferSize = 600;
-	pcaMin[0] = pcaMin[1] = 0;
-	pcaMax[0] = pcaMax[1] = 0;
+    bufferSize = 600;
+    pcaMin[0] = pcaMin[1] = 0;
+    pcaMax[0] = pcaMax[1] = 0;
 
-	rangeSet = false;
-	inPolygonDrawingMode = false;
+    rangeSet = false;
+    inPolygonDrawingMode = false;
     clear();
-	updateProcessor = false;
-	isOverUnit = -1;
+    updateProcessor = false;
+    isOverUnit = -1;
 
-	rangeUpButton = new UtilityButton("+", Font("Small Text", 10, Font::plain));
-	rangeUpButton->setRadius(3.0f);
-	rangeUpButton->addListener(this);
-	addAndMakeVisible(rangeUpButton);
+    rangeUpButton = new UtilityButton("+", Font("Small Text", 10, Font::plain));
+    rangeUpButton->setRadius(3.0f);
+    rangeUpButton->addListener(this);
+    addAndMakeVisible(rangeUpButton);
 
-  	rangeDownButton = new UtilityButton("-", Font("Small Text", 10, Font::plain));
-	rangeDownButton->setRadius(3.0f);
-	rangeDownButton->addListener(this);
-	addAndMakeVisible(rangeDownButton);
+    rangeDownButton = new UtilityButton("-", Font("Small Text", 10, Font::plain));
+    rangeDownButton->setRadius(3.0f);
+    rangeDownButton->addListener(this);
+    addAndMakeVisible(rangeDownButton);
 
     redrawSpikes = true;
 
@@ -1692,186 +1751,191 @@ PCAProjectionAxes::PCAProjectionAxes(SpikeSorter *p) : processor(p),GenericDrawA
 void PCAProjectionAxes::resized()
 {
 
-	rangeDownButton->setBounds(10,10, 20, 15); 
-	rangeUpButton->setBounds(35,10, 20, 15); 
+    rangeDownButton->setBounds(10,10, 20, 15);
+    rangeUpButton->setBounds(35,10, 20, 15);
 }
 
 void PCAProjectionAxes::setPolygonDrawingMode(bool on)
 {
-	if (on) {
-		inPolygonDrawingMode = true;
-		setMouseCursor(MouseCursor::CrosshairCursor);
+    if (on)
+    {
+        inPolygonDrawingMode = true;
+        setMouseCursor(MouseCursor::CrosshairCursor);
 
-	}
-	else {
-		inPolygonDrawingMode = false;
-		setMouseCursor(MouseCursor::NormalCursor);
-	}
+    }
+    else
+    {
+        inPolygonDrawingMode = false;
+        setMouseCursor(MouseCursor::NormalCursor);
+    }
 }
 
 void PCAProjectionAxes::updateUnits(std::vector<PCAUnit> _units)
 {
-	units = _units;
+    units = _units;
 }
 
-void PCAProjectionAxes::drawUnit(Graphics &g, PCAUnit unit)
+void PCAProjectionAxes::drawUnit(Graphics& g, PCAUnit unit)
 {
-		float w = getWidth();
-		float h = getHeight();
+    float w = getWidth();
+    float h = getHeight();
 
-		int selectedUnitID, selectedBoxID;
-		processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(selectedUnitID, selectedBoxID);
-	g.setColour(Colour(unit.ColorRGB[0],unit.ColorRGB[1],unit.ColorRGB[2]));
-	if (unit.poly.pts.size() > 2) {	
-		float thickness;
-		if (unit.getUnitID() == selectedUnitID)
-			thickness = 3;
-		else if (unit.getUnitID() == isOverUnit)
-			thickness = 2;
-		else 
-			thickness = 1;
+    int selectedUnitID, selectedBoxID;
+    processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(selectedUnitID, selectedBoxID);
+    g.setColour(Colour(unit.ColorRGB[0],unit.ColorRGB[1],unit.ColorRGB[2]));
+    if (unit.poly.pts.size() > 2)
+    {
+        float thickness;
+        if (unit.getUnitID() == selectedUnitID)
+            thickness = 3;
+        else if (unit.getUnitID() == isOverUnit)
+            thickness = 2;
+        else
+            thickness = 1;
 
-		double cx=0,cy=0;
-		for (int k=0;k<unit.poly.pts.size()-1;k++)
-		{
-			// convert projection coordinates to screen coordinates.
-			float x1 = (unit.poly.offset.X + unit.poly.pts[k].X - pcaMin[0]) / (pcaMax[0]-pcaMin[0]) * w;
-			float y1 = (unit.poly.offset.Y + unit.poly.pts[k].Y - pcaMin[1]) / (pcaMax[1]-pcaMin[1]) * h;
-			float x2 = (unit.poly.offset.X + unit.poly.pts[k+1].X - pcaMin[0]) / (pcaMax[0]-pcaMin[0]) * w;
-			float y2 = (unit.poly.offset.Y + unit.poly.pts[k+1].Y - pcaMin[1]) / (pcaMax[1]-pcaMin[1]) * h;
-			cx+=x1;
-			cy+=y1;
-			g.drawLine(x1,y1,x2,y2,thickness);
-		}
-		float x1 = (unit.poly.offset.X + unit.poly.pts[0].X - pcaMin[0]) / (pcaMax[0]-pcaMin[0]) * w;
-		float y1 = (unit.poly.offset.Y + unit.poly.pts[0].Y - pcaMin[1]) / (pcaMax[1]-pcaMin[1]) * h;
-		float x2 = (unit.poly.offset.X + unit.poly.pts[unit.poly.pts.size()-1].X - pcaMin[0]) / (pcaMax[0]-pcaMin[0]) * w;
-		float y2 = (unit.poly.offset.Y + unit.poly.pts[unit.poly.pts.size()-1].Y - pcaMin[1]) / (pcaMax[1]-pcaMin[1]) * h;
-		g.drawLine(x1,y1,x2,y2,thickness);
+        double cx=0,cy=0;
+        for (int k=0; k<unit.poly.pts.size()-1; k++)
+        {
+            // convert projection coordinates to screen coordinates.
+            float x1 = (unit.poly.offset.X + unit.poly.pts[k].X - pcaMin[0]) / (pcaMax[0]-pcaMin[0]) * w;
+            float y1 = (unit.poly.offset.Y + unit.poly.pts[k].Y - pcaMin[1]) / (pcaMax[1]-pcaMin[1]) * h;
+            float x2 = (unit.poly.offset.X + unit.poly.pts[k+1].X - pcaMin[0]) / (pcaMax[0]-pcaMin[0]) * w;
+            float y2 = (unit.poly.offset.Y + unit.poly.pts[k+1].Y - pcaMin[1]) / (pcaMax[1]-pcaMin[1]) * h;
+            cx+=x1;
+            cy+=y1;
+            g.drawLine(x1,y1,x2,y2,thickness);
+        }
+        float x1 = (unit.poly.offset.X + unit.poly.pts[0].X - pcaMin[0]) / (pcaMax[0]-pcaMin[0]) * w;
+        float y1 = (unit.poly.offset.Y + unit.poly.pts[0].Y - pcaMin[1]) / (pcaMax[1]-pcaMin[1]) * h;
+        float x2 = (unit.poly.offset.X + unit.poly.pts[unit.poly.pts.size()-1].X - pcaMin[0]) / (pcaMax[0]-pcaMin[0]) * w;
+        float y2 = (unit.poly.offset.Y + unit.poly.pts[unit.poly.pts.size()-1].Y - pcaMin[1]) / (pcaMax[1]-pcaMin[1]) * h;
+        g.drawLine(x1,y1,x2,y2,thickness);
 
-		cx+=x2;
-		cy+=y2;
+        cx+=x2;
+        cy+=y2;
 
-		g.drawText(String(unit.UnitID), (cx/unit.poly.pts.size() )-10,(cy/unit.poly.pts.size())-10,20,15,juce::Justification::centred,false);
-	}
+        g.drawText(String(unit.UnitID), (cx/unit.poly.pts.size())-10,(cy/unit.poly.pts.size())-10,20,15,juce::Justification::centred,false);
+    }
 }
 
 void PCAProjectionAxes::paint(Graphics& g)
 {
 
-	spikesReceivedSinceLastRedraw = 0;
-	
+    spikesReceivedSinceLastRedraw = 0;
+
     g.drawImage(projectionImage,
                 0, 0, getWidth(), getHeight(),
                 0, 0, rangeX, rangeY);
 
 
-	// draw pca units polygons
-	for (int k=0;k<units.size();k++)
-	{
-		drawUnit(g, units[k]);
-	}
+    // draw pca units polygons
+    for (int k=0; k<units.size(); k++)
+    {
+        drawUnit(g, units[k]);
+    }
 
 
-	if (inPolygonDrawingMode)
-	{
-		setMouseCursor(MouseCursor::CrosshairCursor);
-		// draw polygon
-		bool first = true;
-		PointD prev;
-			
-		if (drawnPolygon.size() > 0)
-		{
-			g.setColour(Colour(drawnUnit.ColorRGB[0],drawnUnit.ColorRGB[1],drawnUnit.ColorRGB[2]));
-		
-		for (std::list<PointD>::iterator it = drawnPolygon.begin(); it != drawnPolygon.end(); it++)
-		{
-			if (first) {
-				first = false;
-			} else 
-			{
-				g.drawLine( (*it).X, (*it).Y, prev.X,prev.Y);
-			}
-			prev = *it;
-		}
-		
-		g.drawLine(drawnPolygon.front().X,drawnPolygon.front().Y,drawnPolygon.back().X,drawnPolygon.back().Y);
-		}
-	}
-    
+    if (inPolygonDrawingMode)
+    {
+        setMouseCursor(MouseCursor::CrosshairCursor);
+        // draw polygon
+        bool first = true;
+        PointD prev;
+
+        if (drawnPolygon.size() > 0)
+        {
+            g.setColour(Colour(drawnUnit.ColorRGB[0],drawnUnit.ColorRGB[1],drawnUnit.ColorRGB[2]));
+
+            for (std::list<PointD>::iterator it = drawnPolygon.begin(); it != drawnPolygon.end(); it++)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    g.drawLine((*it).X, (*it).Y, prev.X,prev.Y);
+                }
+                prev = *it;
+            }
+
+            g.drawLine(drawnPolygon.front().X,drawnPolygon.front().Y,drawnPolygon.back().X,drawnPolygon.back().Y);
+        }
+    }
+
     //Graphics im(projectionImage);
 
-	if (redrawSpikes)
-	{
-		// recompute image
-		int w = getWidth();
-		int h = getHeight();
-		projectionImage.clear(juce::Rectangle<int>(0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
-			Colours::black);
+    if (redrawSpikes)
+    {
+        // recompute image
+        int w = getWidth();
+        int h = getHeight();
+        projectionImage.clear(juce::Rectangle<int>(0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
+                              Colours::black);
 
-		bool subsample = false;
-		int dk = (subsample) ? 5 : 1;
+        bool subsample = false;
+        int dk = (subsample) ? 5 : 1;
 
-		for (int k=0;k<bufferSize;k+=dk)
-		{
-			drawProjectedSpike(spikeBuffer[k]);
-		}
-		redrawSpikes = false;
-	}
+        for (int k=0; k<bufferSize; k+=dk)
+        {
+            drawProjectedSpike(spikeBuffer[k]);
+        }
+        redrawSpikes = false;
+    }
 
 }
 
 
 void PCAProjectionAxes::drawProjectedSpike(SpikeObject s)
 {
-	if (rangeSet) 
-	{
-		Graphics g(projectionImage);
-        
-		g.setColour(Colour(s.color[0],s.color[1],s.color[2]));
-		
-		float x = (s.pcProj[0] - pcaMin[0]) / (pcaMax[0]-pcaMin[0]) * rangeX;
-		float y = (s.pcProj[1] - pcaMin[1]) / (pcaMax[1]-pcaMin[1]) * rangeY;
-		if (x >= 0 & y >= 0 & x <= rangeX & y <= rangeY)
-			g.fillEllipse(x,y,2,2);
-	}
+    if (rangeSet)
+    {
+        Graphics g(projectionImage);
+
+        g.setColour(Colour(s.color[0],s.color[1],s.color[2]));
+
+        float x = (s.pcProj[0] - pcaMin[0]) / (pcaMax[0]-pcaMin[0]) * rangeX;
+        float y = (s.pcProj[1] - pcaMin[1]) / (pcaMax[1]-pcaMin[1]) * rangeY;
+        if (x >= 0 & y >= 0 & x <= rangeX & y <= rangeY)
+            g.fillEllipse(x,y,2,2);
+    }
 }
 
 void PCAProjectionAxes::redraw(bool subsample)
 {
-	Graphics g(projectionImage);
+    Graphics g(projectionImage);
 
-	// recompute image
-	int w = getWidth();
-	int h = getHeight();
-	projectionImage.clear(juce::Rectangle<int>(0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
-                         Colours::black);
+    // recompute image
+    int w = getWidth();
+    int h = getHeight();
+    projectionImage.clear(juce::Rectangle<int>(0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
+                          Colours::black);
 
-	int dk = (subsample) ? 5 : 1;
+    int dk = (subsample) ? 5 : 1;
 
-	for (int k=0;k<bufferSize;k+=dk)
-	{
-		drawProjectedSpike(spikeBuffer[k]);
-	}
-	
+    for (int k=0; k<bufferSize; k+=dk)
+    {
+        drawProjectedSpike(spikeBuffer[k]);
+    }
+
 }
 
 void PCAProjectionAxes::setPCARange(float p1min, float p2min, float p1max, float p2max)
 {
-	
-	pcaMin[0] = p1min;
-	pcaMin[1] = p2min;
-	pcaMax[0] = p1max;
-	pcaMax[1] = p2max;
-	rangeSet = true;
+
+    pcaMin[0] = p1min;
+    pcaMin[1] = p2min;
+    pcaMax[0] = p1max;
+    pcaMax[1] = p2max;
+    rangeSet = true;
     redrawSpikes = true;
-	processor->getActiveElectrode()->spikeSort->setPCArange(p1min,p2min, p1max,  p2max);
+    processor->getActiveElectrode()->spikeSort->setPCArange(p1min,p2min, p1max,  p2max);
 
 }
 
 bool PCAProjectionAxes::updateSpikeData(const SpikeObject& s)
 {
-   
+
     if (spikesReceivedSinceLastRedraw < bufferSize)
     {
 
@@ -1885,7 +1949,7 @@ bool PCAProjectionAxes::updateSpikeData(const SpikeObject& s)
         spikesReceivedSinceLastRedraw++;
         //drawProjectedSpike(newSpike);
         redrawSpikes = true;
-		
+
     }
     return true;
 }
@@ -1908,149 +1972,156 @@ void PCAProjectionAxes::clear()
 void PCAProjectionAxes::mouseDrag(const juce::MouseEvent& event)
 {
 
-	if (!inPolygonDrawingMode)
-	{
+    if (!inPolygonDrawingMode)
+    {
 
-		setMouseCursor(MouseCursor::DraggingHandCursor);
-		int selectedUnitID, selectedBoxID;
-		processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(selectedUnitID, selectedBoxID);
+        setMouseCursor(MouseCursor::DraggingHandCursor);
+        int selectedUnitID, selectedBoxID;
+        processor->getActiveElectrode()->spikeSort->getSelectedUnitAndBox(selectedUnitID, selectedBoxID);
 
-		if (isOverUnit > 0 && selectedUnitID == isOverUnit) {
-			// pan unit
-			int unitindex=-1;
+        if (isOverUnit > 0 && selectedUnitID == isOverUnit)
+        {
+            // pan unit
+            int unitindex=-1;
 
-			for (int k=0;k<units.size();k++) {
-				if (units[k].getUnitID() == selectedUnitID)
-				{
-					unitindex = k;
-					break;
-				}
-			}
-		jassert(unitindex >= 0);
+            for (int k=0; k<units.size(); k++)
+            {
+                if (units[k].getUnitID() == selectedUnitID)
+                {
+                    unitindex = k;
+                    break;
+                }
+            }
+            jassert(unitindex >= 0);
 
-			int w = getWidth();
-			int h = getHeight();
-			float range0 = pcaMax[0]-pcaMin[0];
-			float range1 = pcaMax[1]-pcaMin[1];
+            int w = getWidth();
+            int h = getHeight();
+            float range0 = pcaMax[0]-pcaMin[0];
+            float range1 = pcaMax[1]-pcaMin[1];
 
-			float dx = float(event.x-prevx) / w*range0;
-			float dy = float(event.y-prevy) / h*range1;
+            float dx = float(event.x-prevx) / w*range0;
+            float dy = float(event.y-prevy) / h*range1;
 
-			
-			units[unitindex].poly.offset.X += dx;
-			units[unitindex].poly.offset.Y += dy;
-			updateProcessor = true;
-			// draw polygon
-			prevx = event.x;
-			prevy = event.y;
-			
-		} else 
-		{
-			// Pan PCA space
-			int w = getWidth();
-			int h = getHeight();
-			float range0 = pcaMax[0]-pcaMin[0];
-			float range1 = pcaMax[1]-pcaMin[1];
 
-			float dx = -float(event.x-prevx) / w*range0;
-			float dy = -float(event.y-prevy) / h*range1;
+            units[unitindex].poly.offset.X += dx;
+            units[unitindex].poly.offset.Y += dy;
+            updateProcessor = true;
+            // draw polygon
+            prevx = event.x;
+            prevy = event.y;
 
-			pcaMin[0]+=dx;
-			pcaMin[1]+=dy;
-			pcaMax[0]+=dx;
-			pcaMax[1]+=dy;
-			processor->getActiveElectrode()->spikeSort->setPCArange(pcaMin[0],pcaMin[1], pcaMax[0],  pcaMax[1]);
+        }
+        else
+        {
+            // Pan PCA space
+            int w = getWidth();
+            int h = getHeight();
+            float range0 = pcaMax[0]-pcaMin[0];
+            float range1 = pcaMax[1]-pcaMin[1];
 
-			// draw polygon
-			prevx = event.x;
-			prevy = event.y;
-            
+            float dx = -float(event.x-prevx) / w*range0;
+            float dy = -float(event.y-prevy) / h*range1;
+
+            pcaMin[0]+=dx;
+            pcaMin[1]+=dy;
+            pcaMax[0]+=dx;
+            pcaMax[1]+=dy;
+            processor->getActiveElectrode()->spikeSort->setPCArange(pcaMin[0],pcaMin[1], pcaMax[0],  pcaMax[1]);
+
+            // draw polygon
+            prevx = event.x;
+            prevy = event.y;
+
             redrawSpikes = true;
-		}
-	
-	} else 
-	{
-		int pixel_quantizer = 6;
-		float distance = float(event.x-prevx)*float(event.x-prevx)+
-						 float(event.y-prevy)*float(event.y-prevy);
-		if (distance > pixel_quantizer*pixel_quantizer) {// add a point every n pixels.
-			drawnPolygon.push_back(PointD(event.x,event.y));
-		// draw polygon
-	prevx = event.x;
-	prevy = event.y;
+        }
 
-		repaint();	
-		}
-	}
+    }
+    else
+    {
+        int pixel_quantizer = 6;
+        float distance = float(event.x-prevx)*float(event.x-prevx)+
+                         float(event.y-prevy)*float(event.y-prevy);
+        if (distance > pixel_quantizer*pixel_quantizer)  // add a point every n pixels.
+        {
+            drawnPolygon.push_back(PointD(event.x,event.y));
+            // draw polygon
+            prevx = event.x;
+            prevy = event.y;
+
+            repaint();
+        }
+    }
 
 }
 
 void PCAProjectionAxes::mouseUp(const juce::MouseEvent& event)
 {
     repaint();
-	//redraw(false);
-	setMouseCursor(MouseCursor::NormalCursor);
-	if 	(updateProcessor)
-	{
-		processor->getActiveElectrode()->spikeSort->updatePCAUnits(units);
-			updateProcessor = false;
-			
-	}
-		
-	if (inPolygonDrawingMode)
-	{
-		inPolygonDrawingMode = false;
-		SpikeSorterEditor* edt = (SpikeSorterEditor*)processor->getEditor();
-		edt->spikeSorterCanvas->addPolygonUnitButton->setToggleState(false, dontSendNotification);
+    //redraw(false);
+    setMouseCursor(MouseCursor::NormalCursor);
+    if	(updateProcessor)
+    {
+        processor->getActiveElectrode()->spikeSort->updatePCAUnits(units);
+        updateProcessor = false;
 
-		// convert pixel coordinates to pca space coordinates and update unit
-		cPolygon poly;
-		poly.pts.resize(drawnPolygon.size());
-		int k=0;
+    }
 
-		float w = getWidth();
-		float h = getHeight();
- 		float range0 = pcaMax[0]-pcaMin[0];
-		float range1 = pcaMax[1]-pcaMin[1];
-	
-		for (std::list<PointD>::iterator it = drawnPolygon.begin();it != drawnPolygon.end();it++,k++)
-		{
-			poly.pts[k].X = (*it).X / w * range0 + pcaMin[0];
-			poly.pts[k].Y = (*it).Y / h * range1 + pcaMin[1];
-		}
-		drawnUnit.poly = poly;
-		units.push_back(drawnUnit);
-		// add a new PCA unit
-		Electrode *e = processor->getActiveElectrode();
-		e->spikeSort->addPCAunit(drawnUnit);
+    if (inPolygonDrawingMode)
+    {
+        inPolygonDrawingMode = false;
+        SpikeSorterEditor* edt = (SpikeSorterEditor*)processor->getEditor();
+        edt->spikeSorterCanvas->addPolygonUnitButton->setToggleState(false, dontSendNotification);
+
+        // convert pixel coordinates to pca space coordinates and update unit
+        cPolygon poly;
+        poly.pts.resize(drawnPolygon.size());
+        int k=0;
+
+        float w = getWidth();
+        float h = getHeight();
+        float range0 = pcaMax[0]-pcaMin[0];
+        float range1 = pcaMax[1]-pcaMin[1];
+
+        for (std::list<PointD>::iterator it = drawnPolygon.begin(); it != drawnPolygon.end(); it++,k++)
+        {
+            poly.pts[k].X = (*it).X / w * range0 + pcaMin[0];
+            poly.pts[k].Y = (*it).Y / h * range1 + pcaMin[1];
+        }
+        drawnUnit.poly = poly;
+        units.push_back(drawnUnit);
+        // add a new PCA unit
+        Electrode* e = processor->getActiveElectrode();
+        e->spikeSort->addPCAunit(drawnUnit);
 
 
-		uint8 r,g,b;
-		e->spikeSort->getUnitColor(drawnUnit.getUnitID(), r,g,b);
-		
-		processor->addNewUnit(e->electrodeID, drawnUnit.getUnitID(),r,g,b);
+        uint8 r,g,b;
+        e->spikeSort->getUnitColor(drawnUnit.getUnitID(), r,g,b);
 
-		drawnPolygon.clear();
-	}
+        processor->addNewUnit(e->electrodeID, drawnUnit.getUnitID(),r,g,b);
+
+        drawnPolygon.clear();
+    }
 }
 
 
 void PCAProjectionAxes::mouseMove(const juce::MouseEvent& event)
 {
-	isOverUnit = -1;
-	float w = getWidth();
-	float h = getHeight();
+    isOverUnit = -1;
+    float w = getWidth();
+    float h = getHeight();
 
-	for (int k=0;k<units.size();k++){
-				// convert projection coordinates to screen coordinates.
-			float x1 = ((float)event.x/w) * (pcaMax[0]-pcaMin[0]) +  pcaMin[0];
-			float y1 = ((float)event.y/h) * (pcaMax[1]-pcaMin[1]) +  pcaMin[1];
-		if (units[k].isPointInsidePolygon(PointD(x1,y1))) {
-			isOverUnit = units[k].getUnitID();
-			break;
-		}
+    for (int k=0; k<units.size(); k++)
+    {
+        // convert projection coordinates to screen coordinates.
+        float x1 = ((float)event.x/w) * (pcaMax[0]-pcaMin[0]) +  pcaMin[0];
+        float y1 = ((float)event.y/h) * (pcaMax[1]-pcaMin[1]) +  pcaMin[1];
+        if (units[k].isPointInsidePolygon(PointD(x1,y1)))
+        {
+            isOverUnit = units[k].getUnitID();
+            break;
+        }
 
-	}
+    }
 
 
 }
@@ -2058,80 +2129,82 @@ void PCAProjectionAxes::mouseMove(const juce::MouseEvent& event)
 
 void PCAProjectionAxes::mouseDown(const juce::MouseEvent& event)
 {
-	prevx = event.x;
-	prevy = event.y;
-	if (event.mods.isRightButtonDown())
-	{
-		clear();
-	}
-	if (inPolygonDrawingMode)
-	{
-		drawnUnit = PCAUnit(processor->getActiveElectrode()->spikeSort->generateUnitID(),processor->getActiveElectrode()->spikeSort->generateLocalID());
-		drawnPolygon.push_back(PointD(event.x,event.y));
-	} else {
-		if (isOverUnit > 0)
-				processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(isOverUnit, -1);
-		else
-			processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(-1, -1);
-	}
+    prevx = event.x;
+    prevy = event.y;
+    if (event.mods.isRightButtonDown())
+    {
+        clear();
+    }
+    if (inPolygonDrawingMode)
+    {
+        drawnUnit = PCAUnit(processor->getActiveElectrode()->spikeSort->generateUnitID(),processor->getActiveElectrode()->spikeSort->generateLocalID());
+        drawnPolygon.push_back(PointD(event.x,event.y));
+    }
+    else
+    {
+        if (isOverUnit > 0)
+            processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(isOverUnit, -1);
+        else
+            processor->getActiveElectrode()->spikeSort->setSelectedUnitAndBox(-1, -1);
+    }
 }
 
 
 bool PCAProjectionAxes::keyPressed(const KeyPress& key)
 {
-	KeyPress e = KeyPress::createFromDescription("escape");
-	
+    KeyPress e = KeyPress::createFromDescription("escape");
+
     if (key.isKeyCode(e.getKeyCode()) && inPolygonDrawingMode) // C
     {
-		inPolygonDrawingMode = false;
-		setMouseCursor(MouseCursor::NormalCursor);
+        inPolygonDrawingMode = false;
+        setMouseCursor(MouseCursor::NormalCursor);
         return true;
     }
-	return false;
+    return false;
 }
 
 void PCAProjectionAxes::rangeDown()
 {
-			float range0 = pcaMax[0]-pcaMin[0];
-			float range1 = pcaMax[1]-pcaMin[1];
-			pcaMin[0] = pcaMin[0] - 0.1 * range0;
-			pcaMax[0] = pcaMax[0] + 0.1 * range0;
-			pcaMin[1] = pcaMin[1] - 0.1 * range1;
-			pcaMax[1] = pcaMax[1] + 0.1 * range1;
-			setPCARange(pcaMin[0], pcaMin[1], pcaMax[0], pcaMax[1]);
+    float range0 = pcaMax[0]-pcaMin[0];
+    float range1 = pcaMax[1]-pcaMin[1];
+    pcaMin[0] = pcaMin[0] - 0.1 * range0;
+    pcaMax[0] = pcaMax[0] + 0.1 * range0;
+    pcaMin[1] = pcaMin[1] - 0.1 * range1;
+    pcaMax[1] = pcaMax[1] + 0.1 * range1;
+    setPCARange(pcaMin[0], pcaMin[1], pcaMax[0], pcaMax[1]);
 }
 
 void PCAProjectionAxes::rangeUp()
 {
-			float range0 = pcaMax[0]-pcaMin[0];
-			float range1 = pcaMax[1]-pcaMin[1];
-			pcaMin[0] = pcaMin[0] + 0.1 * range0;
-			pcaMax[0] = pcaMax[0] - 0.1 * range0;
-			pcaMin[1] = pcaMin[1] + 0.1 * range1;
-			pcaMax[1] = pcaMax[1] - 0.1 * range1;
+    float range0 = pcaMax[0]-pcaMin[0];
+    float range1 = pcaMax[1]-pcaMin[1];
+    pcaMin[0] = pcaMin[0] + 0.1 * range0;
+    pcaMax[0] = pcaMax[0] - 0.1 * range0;
+    pcaMin[1] = pcaMin[1] + 0.1 * range1;
+    pcaMax[1] = pcaMax[1] - 0.1 * range1;
 
-			setPCARange(pcaMin[0], pcaMin[1], pcaMax[0], pcaMax[1]);
+    setPCARange(pcaMin[0], pcaMin[1], pcaMax[0], pcaMax[1]);
 
 }
 
 void PCAProjectionAxes::buttonClicked(Button* button)
 {
-	    if (button == rangeDownButton)
-		{
-			rangeDown();
-		} 
+    if (button == rangeDownButton)
+    {
+        rangeDown();
+    }
 
-		else if  (button == rangeUpButton)
-		{
-			rangeUp();
-		}
+    else if (button == rangeUpButton)
+    {
+        rangeUp();
+    }
 
 }
 
-void PCAProjectionAxes::mouseWheelMove(const MouseEvent &event, const MouseWheelDetails &wheel)
+void PCAProjectionAxes::mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel)
 {
-	if (wheel.deltaY > 0)
-		rangeDown();
-	else
-		rangeUp();
+    if (wheel.deltaY > 0)
+        rangeDown();
+    else
+        rangeUp();
 }
