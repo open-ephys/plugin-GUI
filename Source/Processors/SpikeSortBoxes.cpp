@@ -142,9 +142,6 @@ bool Box::LineSegmentIntersection(PointD p11, PointD p12, PointD p21, PointD p22
 #define MIN(x,y)((x)<(y))?(x):(y)
 #endif 
 
-
-
-
 bool Box::isWaveFormInside(SpikeObject *so)
 {
 	PointD BoxTopLeft(x, y);
@@ -211,6 +208,7 @@ void BoxUnit::setDefaultColors(uint8_t col[3], int ID)
 
 BoxUnit::BoxUnit(int ID, int localID_): UnitID(ID), localID(localID_)
 {
+	std::cout << "Adding new box unit." << std::endl;
 	Active = false;
 	Activated_TS_S = -1;
 	setDefaultColors(ColorRGB, localID);
@@ -279,7 +277,7 @@ void BoxUnit::addBox(Box b)
 
 void BoxUnit::addBox()
 {
-	Box B(50+350 * lstBoxes.size(), -20 - UnitID*20, 300, 40);
+	Box B(50 + 350 * lstBoxes.size(), -20 - UnitID * 20, 300, 40);
 	lstBoxes.push_back(B);
 }
 
@@ -363,13 +361,14 @@ Histogram::~Histogram()
 
 Histogram::Histogram()
 {
+
 }
 
 void Histogram::setParameters(int N, double T0, double T1)
 {
 
-	t0=T0;
-	t1=T1;
+	t0 = T0;
+	t1 = T1;
 	numBins = N;
 	Time.resize(N);
 	Counter.resize(N);
@@ -382,8 +381,8 @@ void Histogram::setParameters(int N, double T0, double T1)
 
 Histogram::Histogram(int N, double T0, double T1)
 {
-	t0=T0;
-	t1=T1;
+	t0 = T0;
+	t1 = T1;
 	numBins = N;
 	Time.resize(N);
 	Counter.resize(N);
@@ -829,43 +828,40 @@ void BoxUnit::updateWaveform(SpikeObject *so)
 
   }
   
-  SpikeSortBoxes::~SpikeSortBoxes()
-  {
-	  // wait until PCA job is done (if one was submitted).
-	 delete pc1;
-	 delete pc2;
+SpikeSortBoxes::~SpikeSortBoxes()
+{
+	// wait until PCA job is done (if one was submitted).
+	delete pc1;
+	delete pc2;
 	pc1 = nullptr;
 	pc2 = nullptr;
+}
 
+void SpikeSortBoxes::setSelectedUnitAndBox(int unitID, int boxID)
+{
+	selectedUnit = unitID;
+	selectedBox = boxID;
+}
 
-  }
-
-    void SpikeSortBoxes::setSelectedUnitAndbox(int unitID, int boxID)
-	
+void SpikeSortBoxes::getSelectedUnitAndBox(int &unitID, int &boxid)
+{
+  unitID = selectedUnit;
+  boxid = selectedBox;
+}
+  
+void SpikeSortBoxes::projectOnPrincipalComponents(SpikeObject *so)
+{
+	SpikeObject copySpike = *so;
+	spikeBufferIndex++;
+	spikeBufferIndex %= bufferSize;
+	spikeBuffer.set(spikeBufferIndex, copySpike);
+	if (bPCAjobFinished)
 	{
-		selectedUnit = unitID;
-		selectedBox = boxID;
+		bPCAcomputed = true;
 	}
 
-	  void SpikeSortBoxes::getSelectedUnitAndbox(int &unitID, int &boxid)
-	  {
-		  unitID = selectedUnit;
-		  boxid = selectedBox;
-	  }
-  
-  void SpikeSortBoxes::projectOnPrincipalComponents(SpikeObject *so)
-  {
-	  SpikeObject copySpike = *so;
-	  spikeBufferIndex++;
-	  spikeBufferIndex %= bufferSize;
-	  spikeBuffer.set(spikeBufferIndex, copySpike);
-	  if (bPCAjobFinished)
-	  {
-		  bPCAcomputed = true;
-	  }
-
-	  if (bPCAcomputed)
-	  {
+	if (bPCAcomputed)
+	{
 		  so->pcProj[0] = so->pcProj[1] = 0;
 		  for (int k=0;k<so->nChannels*so->nSamples;k++)
 		  {
@@ -877,8 +873,8 @@ void BoxUnit::updateWaveform(SpikeObject *so)
 		  {
 			 int dbg = 1;
 		  }
-	  } else
-	  {
+		} else
+		{
 		  // add a spike object to the buffer.
 		  // if we have enough spikes, start the PCA computation thread.
 		if (spikeBufferIndex == bufferSize -1 && !bPCAcomputed && !bPCAJobSubmitted || bRePCA)
@@ -889,8 +885,8 @@ void BoxUnit::updateWaveform(SpikeObject *so)
 			PCAjob job(spikeBuffer,pc1,pc2, &pc1min, &pc2min, &pc1max, &pc2max, &bPCAjobFinished);
 			computingThread->addPCAjob(job);
 		}
-	  }
-  }
+	}
+}
 
   void SpikeSortBoxes::getPCArange(float &p1min,float &p2min, float &p1max,  float &p2max)
   {
@@ -940,9 +936,9 @@ void BoxUnit::updateWaveform(SpikeObject *so)
 	  const ScopedLock myScopedLock (mut);
   	  //StartCriticalSection();
 	  int unusedID = uniqueIDgenerator->generateUniqueID(); //generateUnitID();
-	  BoxUnit unit(unusedID,generateLocalID());
+	  BoxUnit unit(unusedID, generateLocalID());
 	  boxUnits.push_back(unit);
-	  setSelectedUnitAndbox(unusedID, 0);
+	  setSelectedUnitAndBox(unusedID, 0);
 	  //EndCriticalSection();
 	  return unusedID;
   }
@@ -964,14 +960,14 @@ void  SpikeSortBoxes::EndCriticalSection()
 	  int unusedID = uniqueIDgenerator->generateUniqueID(); //generateUnitID();
 	  BoxUnit unit(B, unusedID,generateLocalID());
 	  boxUnits.push_back(unit);
-	  setSelectedUnitAndbox(unusedID, 0);
+	  setSelectedUnitAndBox(unusedID, 0);
 	  //EndCriticalSection();
 	  return unusedID;
   }
 
   void SpikeSortBoxes::getUnitColor(int UnitID, uint8 &R, uint8 &G, uint8 &B)
   {
-		for (int k=0;k<boxUnits.size();k++)
+		for (int k = 0; k < boxUnits.size(); k++)
 		{
 			if (boxUnits[k].getUnitID() == UnitID)
 			{
@@ -981,7 +977,7 @@ void  SpikeSortBoxes::EndCriticalSection()
 				break;
 			}
 		}
-		for (int k=0;k<pcaUnits.size();k++)
+		for (int k = 0; k < pcaUnits.size(); k++)
 		{
 			if (pcaUnits[k].getUnitID() == UnitID)
 			{
@@ -1002,7 +998,7 @@ void  SpikeSortBoxes::EndCriticalSection()
 	  while (true)
 	  {
 		  bool used=false;
-		for (int k=0;k<boxUnits.size();k++)
+		for (int k = 0; k < boxUnits.size(); k++)
 		{
 			if (boxUnits[k].getLocalID() == ID)
 			{
@@ -1010,7 +1006,7 @@ void  SpikeSortBoxes::EndCriticalSection()
 				break;
 			}
 		}
-		for (int k=0;k<pcaUnits.size();k++)
+		for (int k = 0; k < pcaUnits.size(); k++)
 		{
 			if (pcaUnits[k].getLocalID() == ID)
 			{
@@ -1087,23 +1083,25 @@ bool SpikeSortBoxes::removeUnit(int unitID)
 bool SpikeSortBoxes::addBoxToUnit(int channel, int unitID)
 {
 	const ScopedLock myScopedLock (mut);
+
 	 //StartCriticalSection();
-	 		for (int k=0;k<boxUnits.size();k++)
+	
+	for (int k = 0; k < boxUnits.size(); k++)
+	{
+	  if (boxUnits[k].getUnitID() == unitID)
 	  {
-		  if ( boxUnits[k].getUnitID() == unitID)
-		  {
-				Box B = boxUnits[k].lstBoxes[boxUnits[k].lstBoxes.size()-1];
-			  B.x += 100;
-			  B.y -= 30;
-			  B.channel = channel;
-			  boxUnits[k].addBox(B);
-			  setSelectedUnitAndbox(unitID, boxUnits[k].lstBoxes.size()-1);
-			  // EndCriticalSection();
-			  return true;
-		  }
+		  Box B = boxUnits[k].lstBoxes[boxUnits[k].lstBoxes.size() - 1];
+		  B.x += 100;
+		  B.y -= 30;
+		  B.channel = channel;
+		  boxUnits[k].addBox(B);
+		  setSelectedUnitAndBox(unitID, boxUnits[k].lstBoxes.size() - 1);
+		  // EndCriticalSection();
+		  return true;
 	  }
+	}
 // EndCriticalSection();
-	  return false;
+	return false;
 }
 
 		
@@ -1233,7 +1231,7 @@ bool  SpikeSortBoxes::removeBoxFromUnit(int unitID, int boxIndex)
 		  if ( boxUnits[k].getUnitID() == unitID)
 		  {
 			  bool s= boxUnits[k].deleteBox(boxIndex);
-			  setSelectedUnitAndbox(-1,-1);
+			  setSelectedUnitAndBox(-1,-1);
 			  //EndCriticalSection();  
 			  return s;
 		  }
@@ -2119,7 +2117,7 @@ void PCAcomputingThread::run()
 		// 2. Apply SVD on covariance matrix
 		// 3. Extract the two principal components corresponding to the largest singular values
 		
-		// Take these out for now:
+		// REMOVE THESE, CAUSING CRASHES:
 		//J.computeCov();
 		//J.computeSVD();
 		

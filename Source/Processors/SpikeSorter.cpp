@@ -219,7 +219,7 @@ Electrode::~Electrode()
 Electrode::Electrode(int ID, UniqueIDgenerator *uniqueIDgenerator_, PCAcomputingThread *pth, String _name, int _numChannels, int *_channels, float default_threshold, int pre, int post, float samplingRate )
 {
 	electrodeID = ID;
-		computingThread = pth;
+	computingThread = pth;
 	uniqueIDgenerator = uniqueIDgenerator_;
 	name = _name;
 
@@ -243,8 +243,9 @@ Electrode::Electrode(int ID, UniqueIDgenerator *uniqueIDgenerator_, PCAcomputing
 		voltageScale[i] = 500;
     }
 	spikePlot = nullptr;
+
 	if (computingThread != nullptr)
-		spikeSort = new SpikeSortBoxes(uniqueIDgenerator,computingThread,numChannels, samplingRate, pre+post);
+		spikeSort = new SpikeSortBoxes(uniqueIDgenerator, computingThread, numChannels, samplingRate, pre+post);
 	else
 		spikeSort = nullptr;
 	
@@ -426,7 +427,7 @@ bool SpikeSorter::addElectrode(int nChans, String name, double Depth)
     else
     {
         Electrode* e = electrodes.getLast();
-        firstChan = *(e->channels+(e->numChannels-1))+1;
+        firstChan = *(e->channels + (e->numChannels - 1)) + 1;
     }
 
     if (firstChan + nChans > getNumInputs())
@@ -436,17 +437,17 @@ bool SpikeSorter::addElectrode(int nChans, String name, double Depth)
     }
 	
 	int *channels = new int[nChans];
-	for (int k=0;k<nChans;k++)
-		channels[k] = firstChan+k;
+	for (int k = 0; k < nChans; k++)
+		channels[k] = firstChan + k;
 
-	Electrode* newElectrode = new Electrode(++uniqueID,&uniqueIDgenerator,&computingThread,name, nChans,channels, getDefaultThreshold(), 
-		numPreSamples,numPostSamples, getSampleRate());
+	Electrode* newElectrode = new Electrode(++uniqueID, &uniqueIDgenerator, &computingThread, name, nChans, channels, getDefaultThreshold(), 
+		numPreSamples, numPostSamples, getSampleRate());
 
 	newElectrode->depthOffsetMM = Depth;
-	String log = "Added electrode (ID "+String(uniqueID)+") with " + String(nChans) + " channels." ;
-    std::cout <<log << std::endl;
-	String eventlog = "NewElectrode "+String(uniqueID) + " "+String(nChans)+" ";
-	for (int k=0;k<nChans;k++)
+	String log = "Added electrode (ID "+ String(uniqueID)+") with " + String(nChans) + " channels." ;
+    std::cout << log << std::endl;
+	String eventlog = "NewElectrode "+ String(uniqueID) + " " + String(nChans) + " ";
+	for (int k = 0; k < nChans; k++)
 		eventlog += String(channels[k])+ " " + name;
 
 	//addNetworkEventToQueue(StringTS(eventlog));
