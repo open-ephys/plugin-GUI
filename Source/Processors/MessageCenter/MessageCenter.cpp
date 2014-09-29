@@ -22,7 +22,7 @@
 */
 
 #include "MessageCenter.h"
-#include "Editors/MessageCenterEditor.h"
+#include "MessageCenterEditor.h"
 
 //---------------------------------------------------------------------
 

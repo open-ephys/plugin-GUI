@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include "SpikeDetector.h"
 
-#include "Channel.h"
+#include "../Channel/Channel.h"
 
 SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"),

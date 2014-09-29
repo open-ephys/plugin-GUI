@@ -24,16 +24,14 @@
 #ifndef __SPIKESORTER_H_3F920F95__
 #define __SPIKESORTER_H_3F920F95__
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include "GenericProcessor.h"
-#include "Editors/SpikeSorterEditor.h"
+#include "../GenericProcessor/GenericProcessor.h"
+#include "SpikeSorterEditor.h"
 #include "SpikeSortBoxes.h"
-//#include "NetworkEvents.h"
-#include "Visualization/SpikeObject.h"
-//#include "AdvancerNode.h"
-#include "SourceNode.h"
-#include "DataThreads/RHD2000Thread.h"
+#include "../Visualization/SpikeObject.h"
+#include "../SourceNode/SourceNode.h"
+#include "../DataThreads/RHD2000Thread.h"
 #include <algorithm>    // std::sort
 #include <queue>
 #include <stdlib.h>

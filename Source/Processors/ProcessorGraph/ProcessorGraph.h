@@ -24,9 +24,9 @@
 #ifndef __PROCESSORGRAPH_H_124F8B50__
 #define __PROCESSORGRAPH_H_124F8B50__
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include "../AccessClass.h"
+#include "../../AccessClass.h"
 
 class GenericProcessor;
 class RecordNode;

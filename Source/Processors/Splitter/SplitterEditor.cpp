@@ -22,7 +22,7 @@
 */
 
 #include "SplitterEditor.h"
-#include "../Utilities/Splitter.h"
+#include "Splitter.h"
 #include "../../UI/EditorViewport.h"
 
 // PipelineSelectorButton::PipelineSelectorButton()

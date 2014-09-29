@@ -26,12 +26,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
-#include "GenericProcessor.h"
-#include "Editors/SpikeSorterEditor.h"
-#include "Visualization/SpikeObject.h"
+#include "../GenericProcessor/GenericProcessor.h"
+#include "SpikeSorterEditor.h"
+#include "../Visualization/SpikeObject.h"
 #include <algorithm>    // std::sort
 #include <list>
 #include <queue>
+
 class PCAcomputingThread;
 class UniqueIDgenerator;
 class PointD

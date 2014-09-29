@@ -25,13 +25,13 @@
 #define __LfpTriggeredAverageEDITOR_H_3438800D__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
+#include "../Editors/GenericEditor.h"
 #include "../../UI/UIComponent.h"
 #include "../../UI/DataViewport.h"
 #include "../Visualization/DataWindow.h"
-#include "../LfpTriggeredAverageNode.h"
-#include "../Visualization/LfpTriggeredAverageCanvas.h"
-#include "VisualizerEditor.h"
+#include "LfpTriggeredAverageNode.h"
+#include "LfpTriggeredAverageCanvas.h"
+#include "../Editors/VisualizerEditor.h"
 
 class Visualizer;
 

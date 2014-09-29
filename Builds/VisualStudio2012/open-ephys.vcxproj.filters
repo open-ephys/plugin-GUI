@@ -32,6 +32,9 @@
     <Filter Include="open-ephys\Source\Processors">
       <UniqueIdentifier>{3DDEC88C-BAA5-2DDA-A59F-0FB74070AB82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Source\Processors\RecordNode">
+      <UniqueIdentifier>{185877A6-9FE6-DD2E-BC41-93EE3C608CFC}</UniqueIdentifier>
+    </Filter>
     <Filter Include="open-ephys\Source\Processors\ArduinoOutput">
       <UniqueIdentifier>{26D17857-B604-0035-CFB5-C3FFD320BD99}</UniqueIdentifier>
     </Filter>
@@ -160,6 +163,21 @@
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\HDF5FileFormat.cpp">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\HDF5Recording.cpp">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\OriginalRecording.cpp">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\RecordEngine.cpp">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\RecordNode.cpp">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutput.cpp">
       <Filter>open-ephys\Source\Processors\ArduinoOutput</Filter>
     </ClCompile>
@@ -283,9 +301,6 @@
     <ClCompile Include="..\..\Source\Processors\Editors\ImageIcon.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Editors\ParameterEditor.cpp">
-      <Filter>open-ephys\Source\Processors\Editors</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
@@ -348,6 +363,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\MessageCenter\MessageCenterEditor.cpp">
       <Filter>open-ephys\Source\Processors\MessageCenter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Parameter\ParameterEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Parameter</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Parameter\Parameter.cpp">
       <Filter>open-ephys\Source\Processors\Parameter</Filter>
@@ -531,6 +549,21 @@
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\HDF5FileFormat.h">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\HDF5Recording.h">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\OriginalRecording.h">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\RecordEngine.h">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\RecordNode.h">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutput.h">
       <Filter>open-ephys\Source\Processors\ArduinoOutput</Filter>
     </ClInclude>
@@ -672,9 +705,6 @@
     <ClInclude Include="..\..\Source\Processors\Editors\ImageIcon.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Editors\ParameterEditor.h">
-      <Filter>open-ephys\Source\Processors\Editors</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
@@ -737,6 +767,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\MessageCenter\MessageCenterEditor.h">
       <Filter>open-ephys\Source\Processors\MessageCenter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Parameter\ParameterEditor.h">
+      <Filter>open-ephys\Source\Processors\Parameter</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Parameter\Parameter.h">
       <Filter>open-ephys\Source\Processors\Parameter</Filter>

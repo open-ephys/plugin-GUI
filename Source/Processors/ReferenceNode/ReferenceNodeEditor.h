@@ -25,7 +25,7 @@
 #define __REFERENCENODEEDITOR_H_370C056D__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
+#include "../Editors/GenericEditor.h"
 
 /**
 

@@ -11,6 +11,11 @@
 		14BDAEA656AAFA60334CC55C = { isa = PBXBuildFile; fileRef = 420B0E95F1300ABFDC125DBF; };
 		C853FCE2F6C91B3643322CF0 = { isa = PBXBuildFile; fileRef = 9F577889CB6C54A2F7B1CA80; };
 		0AE243437B40602D35435C32 = { isa = PBXBuildFile; fileRef = B04D87ED6AA4897B6CD3CCF6; };
+		0E036CEA1285F9B162A07356 = { isa = PBXBuildFile; fileRef = F552E7A463C6207BC3E74C06; };
+		A4A2DF3FA65BAB4322FE5E74 = { isa = PBXBuildFile; fileRef = 36332333DBF8363163F454E6; };
+		0A8D8C2D02858F0F08356EA9 = { isa = PBXBuildFile; fileRef = E39CC410838072043E3C30DC; };
+		AEDA8F23648EABF79215B566 = { isa = PBXBuildFile; fileRef = F716728550EBD8FA7B9CA7EF; };
+		B806F023DF817BB2D59FEEFD = { isa = PBXBuildFile; fileRef = 949422DF0532222450E95926; };
 		55227B30828797A8DCB0B91D = { isa = PBXBuildFile; fileRef = 95A64508FF3D0140D3001A19; };
 		527EB48A4A9C2F4FF1BC4FB2 = { isa = PBXBuildFile; fileRef = E850C14F13F9855CE1E14C1A; };
 		8352817FEDC7542D3E65B49A = { isa = PBXBuildFile; fileRef = DA4EAC64A750D0C3DEE83C5D; };
@@ -52,7 +57,6 @@
 		029C3B11BE586DA100895A60 = { isa = PBXBuildFile; fileRef = 28CCF04CCC028BAE0AEE5840; };
 		6702EEA4E99D503C0EE933C4 = { isa = PBXBuildFile; fileRef = D3AE8303545E28D793312F46; };
 		7F188166D38DA7FB23311413 = { isa = PBXBuildFile; fileRef = 04C6B933E1603B4D0916570D; };
-		3933895CA488855A23943F61 = { isa = PBXBuildFile; fileRef = 46E3A634686BFEF787229582; };
 		AA16BE5A6BBD024C8FCFCDA8 = { isa = PBXBuildFile; fileRef = CAA3B9396EA62166234DAEF1; };
 		44D7379F739C19C7B78B95F5 = { isa = PBXBuildFile; fileRef = C5C843AC83A36BE87E3F97F8; };
 		F4808CE43E77C8EC285A39DC = { isa = PBXBuildFile; fileRef = 2592795DB135E0F2C04406F3; };
@@ -74,6 +78,7 @@
 		AD371C6F383F03EF392B6581 = { isa = PBXBuildFile; fileRef = BAA5B3AD1A27F8C4D37A6869; };
 		4EF2825142BBAA76FD55FE26 = { isa = PBXBuildFile; fileRef = BC1543B1F822FEEDCB9AC26D; };
 		3B05807D08271664EEC4977C = { isa = PBXBuildFile; fileRef = AEFC8A0A9A35F50E59FDE678; };
+		F2586A2DCEF44961AEA247E8 = { isa = PBXBuildFile; fileRef = 934B37E2BECD69E6E27051F6; };
 		3E7939ABAA984EE8BFC8CEDD = { isa = PBXBuildFile; fileRef = 4F5D51C5F8174E3824EF8B42; };
 		C9F9AE4CB2009DFFD7D7A67F = { isa = PBXBuildFile; fileRef = 4F10D1D2F5ED2E7F9A997D4C; };
 		C59D4B35ABCF3BE6D0A0665E = { isa = PBXBuildFile; fileRef = 3FE8C41480F07050CC21635F; };
@@ -175,6 +180,7 @@
 		242B80832B3C8FF4F3CC18F1 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SourceNode.cpp; path = ../../Source/Processors/SourceNode/SourceNode.cpp; sourceTree = "SOURCE_ROOT"; };
 		24D86195580EFB86AC084DCC = { isa = PBXFileReference; lastKnownFileType = file.otf; name = "cpmono_extra_light.otf"; path = "../../Resources/Fonts/cpmono_extra_light.otf"; sourceTree = "SOURCE_ROOT"; };
 		2592795DB135E0F2C04406F3 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EventNode.cpp; path = ../../Source/Processors/EventNode/EventNode.cpp; sourceTree = "SOURCE_ROOT"; };
+		25B79E00075CCF59F0A4A7D7 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RecordEngine.h; path = ../../Source/Processors/RecordNode/RecordEngine.h; sourceTree = "SOURCE_ROOT"; };
 		25CEC111DFEC71FA6828257F = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ChannelMappingNode.cpp; path = ../../Source/Processors/ChannelMappingNode/ChannelMappingNode.cpp; sourceTree = "SOURCE_ROOT"; };
 		261B5AA82F2A86CC5500D8D2 = { isa = PBXFileReference; lastKnownFileType = image.png; name = ArduinoIcon.png; path = ../../Resources/Images/Icons/ArduinoIcon.png; sourceTree = "SOURCE_ROOT"; };
 		27FB12D08303BEC9CD15E317 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SerialInputEditor.h; path = ../../Source/Processors/SerialInput/SerialInputEditor.h; sourceTree = "SOURCE_ROOT"; };
@@ -191,6 +197,8 @@
 		34CF4D00D785338941AB9590 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SpikeDisplayEditor.h; path = ../../Source/Processors/SpikeDisplayNode/SpikeDisplayEditor.h; sourceTree = "SOURCE_ROOT"; };
 		35AEAE0CC0B546625E163B9B = { isa = PBXFileReference; lastKnownFileType = image.png; name = "sine_wave.png"; path = "../../Resources/Images/Icons/sine_wave.png"; sourceTree = "SOURCE_ROOT"; };
 		35BB20110BAC6346AA605BF9 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PhaseDetector.h; path = ../../Source/Processors/PhaseDetector/PhaseDetector.h; sourceTree = "SOURCE_ROOT"; };
+		362898B655ABFFA23A69BBFA = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ParameterEditor.h; path = ../../Source/Processors/Parameter/ParameterEditor.h; sourceTree = "SOURCE_ROOT"; };
+		36332333DBF8363163F454E6 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HDF5Recording.cpp; path = ../../Source/Processors/RecordNode/HDF5Recording.cpp; sourceTree = "SOURCE_ROOT"; };
 		3734FF118787377E4C8741D1 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WiFiOutputEditor.cpp; path = ../../Source/Processors/WiFiOutput/WiFiOutputEditor.cpp; sourceTree = "SOURCE_ROOT"; };
 		3753B3B311AE0A9F4CC5AD40 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ofArduino.cpp; path = ../../Source/Processors/Serial/ofArduino.cpp; sourceTree = "SOURCE_ROOT"; };
 		3774BBCA6CB133D9A854CF71 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CustomLookAndFeel.cpp; path = ../../Source/UI/CustomLookAndFeel.cpp; sourceTree = "SOURCE_ROOT"; };
@@ -213,7 +221,7 @@
 		420B0E95F1300ABFDC125DBF = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AccessClass.cpp; path = ../../Source/AccessClass.cpp; sourceTree = "SOURCE_ROOT"; };
 		442F01DC974E1EAC57450906 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PoleFilter.h; path = ../../Source/Processors/Dsp/PoleFilter.h; sourceTree = "SOURCE_ROOT"; };
 		4448875C40EAB061B2F8A289 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FPGAOutput.cpp; path = ../../Source/Processors/FPGAOutput/FPGAOutput.cpp; sourceTree = "SOURCE_ROOT"; };
-		46E3A634686BFEF787229582 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ParameterEditor.cpp; path = ../../Source/Processors/Editors/ParameterEditor.cpp; sourceTree = "SOURCE_ROOT"; };
+		449B26D1265BB91B331EFF84 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HDF5FileFormat.h; path = ../../Source/Processors/RecordNode/HDF5FileFormat.h; sourceTree = "SOURCE_ROOT"; };
 		46EF49B14DF7357A8287D9D8 = { isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = Info.plist; sourceTree = "SOURCE_ROOT"; };
 		47976F6BE2942EED64AEA4D2 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "RadioButtons_selected_over-04.png"; path = "../../Resources/Images/Icons/RadioButtons_selected_over-04.png"; sourceTree = "SOURCE_ROOT"; };
 		47A3942AC30A3212C01F1CAF = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DataViewport.cpp; path = ../../Source/UI/DataViewport.cpp; sourceTree = "SOURCE_ROOT"; };
@@ -298,18 +306,20 @@
 		883E23B392AFB86C3EE1A2AC = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ReferenceNodeEditor.h; path = ../../Source/Processors/ReferenceNode/ReferenceNodeEditor.h; sourceTree = "SOURCE_ROOT"; };
 		88C69F0563A99BD2F7BF5FBB = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LfpDisplayEditor.cpp; path = ../../Source/Processors/LfpDisplayNode/LfpDisplayEditor.cpp; sourceTree = "SOURCE_ROOT"; };
 		89CDE7ED25D0EB7452486E85 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SpikeDetector.cpp; path = ../../Source/Processors/SpikeDetector/SpikeDetector.cpp; sourceTree = "SOURCE_ROOT"; };
+		8A07B5B6D56277A222AC0E90 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HDF5Recording.h; path = ../../Source/Processors/RecordNode/HDF5Recording.h; sourceTree = "SOURCE_ROOT"; };
 		8A989F74B1957BCB3B9BA398 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = rhd2000registers.h; path = "../../Source/Processors/DataThreads/rhythm-api/rhd2000registers.h"; sourceTree = "SOURCE_ROOT"; };
 		8AE2DDA47B2DFDEEEF69B12F = { isa = PBXFileReference; lastKnownFileType = image.png; name = FileReaderIcon.png; path = ../../Resources/Images/Icons/FileReaderIcon.png; sourceTree = "SOURCE_ROOT"; };
 		8B0B1D01BA8A37EC6058E518 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RootFinder.h; path = ../../Source/Processors/Dsp/RootFinder.h; sourceTree = "SOURCE_ROOT"; };
-		8B745839B225E44C9EB5C6FA = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ParameterEditor.h; path = ../../Source/Processors/Editors/ParameterEditor.h; sourceTree = "SOURCE_ROOT"; };
 		8C639E4F97B7D6070028623A = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MergerEditor.h; path = ../../Source/Processors/Merger/MergerEditor.h; sourceTree = "SOURCE_ROOT"; };
 		8F058EA775325F9C5650944E = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MessageCenter.h; path = ../../Source/Processors/MessageCenter/MessageCenter.h; sourceTree = "SOURCE_ROOT"; };
 		92602D7166325C7232B85EDD = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DataThread.cpp; path = ../../Source/Processors/DataThreads/DataThread.cpp; sourceTree = "SOURCE_ROOT"; };
 		92CB21BEE17D1DD03106AD87 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ofSerial.h; path = ../../Source/Processors/Serial/ofSerial.h; sourceTree = "SOURCE_ROOT"; };
 		92E3405CB31ACFE3F80BBAD4 = { isa = PBXFileReference; lastKnownFileType = image.png; name = OpenEphysBoardLogoBlack.png; path = ../../Resources/Images/Icons/OpenEphysBoardLogoBlack.png; sourceTree = "SOURCE_ROOT"; };
 		92F51CF12E0C21F38D5E61E8 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SpikeSortBoxes.cpp; path = ../../Source/Processors/SpikeSorter/SpikeSortBoxes.cpp; sourceTree = "SOURCE_ROOT"; };
+		934B37E2BECD69E6E27051F6 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ParameterEditor.cpp; path = ../../Source/Processors/Parameter/ParameterEditor.cpp; sourceTree = "SOURCE_ROOT"; };
 		93EFC1AA800FC5DA2F04A213 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "RadioButtons_neutral-04.png"; path = "../../Resources/Images/Icons/RadioButtons_neutral-04.png"; sourceTree = "SOURCE_ROOT"; };
 		9410421AB1CD18F754FD4A9E = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EventDetector.h; path = ../../Source/Processors/EventDetector/EventDetector.h; sourceTree = "SOURCE_ROOT"; };
+		949422DF0532222450E95926 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RecordNode.cpp; path = ../../Source/Processors/RecordNode/RecordNode.cpp; sourceTree = "SOURCE_ROOT"; };
 		95A64508FF3D0140D3001A19 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ArduinoOutput.cpp; path = ../../Source/Processors/ArduinoOutput/ArduinoOutput.cpp; sourceTree = "SOURCE_ROOT"; };
 		95B57108E929DD11F898B7B1 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FileReaderThread.h; path = ../../Source/Processors/DataThreads/FileReaderThread.h; sourceTree = "SOURCE_ROOT"; };
 		97C4F046D88561EEE245BE99 = { isa = PBXFileReference; lastKnownFileType = image.png; name = "RadioButtons_selected_over-05.png"; path = "../../Resources/Images/Icons/RadioButtons_selected_over-05.png"; sourceTree = "SOURCE_ROOT"; };
@@ -317,6 +327,7 @@
 		98EFA5304D160AD9225E38B4 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MathSupplement.h; path = ../../Source/Processors/Dsp/MathSupplement.h; sourceTree = "SOURCE_ROOT"; };
 		99E1BC08B886CFDD2CCFD462 = { isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "open-ephys.app"; sourceTree = "BUILT_PRODUCTS_DIR"; };
 		9AA19ECEFE2B49832ECEED2F = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FilterNode.cpp; path = ../../Source/Processors/FilterNode/FilterNode.cpp; sourceTree = "SOURCE_ROOT"; };
+		9B1962D340B217B19B077F2A = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OriginalRecording.h; path = ../../Source/Processors/RecordNode/OriginalRecording.h; sourceTree = "SOURCE_ROOT"; };
 		9C736D7B85CCD9EC40C5D0AF = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PoleFilter.cpp; path = ../../Source/Processors/Dsp/PoleFilter.cpp; sourceTree = "SOURCE_ROOT"; };
 		9D050A509BEB9E3879DA35C6 = { isa = PBXFileReference; lastKnownFileType = file.ttf; name = ostrich.ttf; path = ../../Resources/Fonts/ostrich.ttf; sourceTree = "SOURCE_ROOT"; };
 		9EB2B238943CCC32B587881C = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MessageCenterEditor.h; path = ../../Source/Processors/MessageCenter/MessageCenterEditor.h; sourceTree = "SOURCE_ROOT"; };
@@ -354,6 +365,7 @@
 		B410FE6CF1A561A1648343D6 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ArduinoOutput.h; path = ../../Source/Processors/ArduinoOutput/ArduinoOutput.h; sourceTree = "SOURCE_ROOT"; };
 		B574136FEE7957F7439CB346 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ResamplingNode.h; path = ../../Source/Processors/ResamplingNode/ResamplingNode.h; sourceTree = "SOURCE_ROOT"; };
 		B5D805B691B1C38D959F6B54 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SourceNodeEditor.h; path = ../../Source/Processors/SourceNode/SourceNodeEditor.h; sourceTree = "SOURCE_ROOT"; };
+		B657AEAFB3404A5CB270C413 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RecordNode.h; path = ../../Source/Processors/RecordNode/RecordNode.h; sourceTree = "SOURCE_ROOT"; };
 		B66B8CFF619CBF2D66F031E3 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SpikeSorterCanvas.h; path = ../../Source/Processors/SpikeSorter/SpikeSorterCanvas.h; sourceTree = "SOURCE_ROOT"; };
 		B695B24906116ADEFC9D9B5C = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ProcessorGraph.h; path = ../../Source/Processors/ProcessorGraph/ProcessorGraph.h; sourceTree = "SOURCE_ROOT"; };
 		B9068FF0373FA8321C33C42C = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Splitter.cpp; path = ../../Source/Processors/Splitter/Splitter.cpp; sourceTree = "SOURCE_ROOT"; };
@@ -419,6 +431,7 @@
 		E1A51630F1C6E392EBEDD469 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PulsePalOutput.h; path = ../../Source/Processors/PulsePalOutput/PulsePalOutput.h; sourceTree = "SOURCE_ROOT"; };
 		E1E9FAB63BD90C10F2BEF74C = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Splitter.h; path = ../../Source/Processors/Splitter/Splitter.h; sourceTree = "SOURCE_ROOT"; };
 		E216D095C98F850A5FB6FB0F = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ChannelSelector.cpp; path = ../../Source/Processors/Editors/ChannelSelector.cpp; sourceTree = "SOURCE_ROOT"; };
+		E39CC410838072043E3C30DC = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = OriginalRecording.cpp; path = ../../Source/Processors/RecordNode/OriginalRecording.cpp; sourceTree = "SOURCE_ROOT"; };
 		E3F5E0DDF9859755B10B074D = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ChannelMappingEditor.h; path = ../../Source/Processors/ChannelMappingNode/ChannelMappingEditor.h; sourceTree = "SOURCE_ROOT"; };
 		E5C1D021C0FD6FAD082C5D75 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GraphViewer.cpp; path = ../../Source/UI/GraphViewer.cpp; sourceTree = "SOURCE_ROOT"; };
 		E5FA033C407367AE0793258B = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Cascade.cpp; path = ../../Source/Processors/Dsp/Cascade.cpp; sourceTree = "SOURCE_ROOT"; };
@@ -437,8 +450,10 @@
 		F345254DE7F499036FB17995 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Layout.h; path = ../../Source/Processors/Dsp/Layout.h; sourceTree = "SOURCE_ROOT"; };
 		F379BA0589FB65817B721314 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RecordControlEditor.h; path = ../../Source/Processors/RecordControl/RecordControlEditor.h; sourceTree = "SOURCE_ROOT"; };
 		F46365D8E42099148B843C95 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SpikeSorterEditor.cpp; path = ../../Source/Processors/SpikeSorter/SpikeSorterEditor.cpp; sourceTree = "SOURCE_ROOT"; };
+		F552E7A463C6207BC3E74C06 = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HDF5FileFormat.cpp; path = ../../Source/Processors/RecordNode/HDF5FileFormat.cpp; sourceTree = "SOURCE_ROOT"; };
 		F603678D95461916B9D971AA = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Custom.cpp; path = ../../Source/Processors/Dsp/Custom.cpp; sourceTree = "SOURCE_ROOT"; };
 		F6BE430A8D1C6240286ED75B = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EventNodeEditor.cpp; path = ../../Source/Processors/EventNode/EventNodeEditor.cpp; sourceTree = "SOURCE_ROOT"; };
+		F716728550EBD8FA7B9CA7EF = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RecordEngine.cpp; path = ../../Source/Processors/RecordNode/RecordEngine.cpp; sourceTree = "SOURCE_ROOT"; };
 		F753A8E9CE0C51998066EA07 = { isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SpikeSorterEditor.h; path = ../../Source/Processors/SpikeSorter/SpikeSorterEditor.h; sourceTree = "SOURCE_ROOT"; };
 		F960CC94B136201BDA148EEA = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CustomArrowButton.cpp; path = ../../Source/UI/CustomArrowButton.cpp; sourceTree = "SOURCE_ROOT"; };
 		FA12F07F4F9C872C18A2817B = { isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LfpTriggeredAverageNode.cpp; path = ../../Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageNode.cpp; sourceTree = "SOURCE_ROOT"; };
@@ -529,6 +544,17 @@
 		C451728043944D40C69166C1 = { isa = PBXGroup; children = (
 				B04D87ED6AA4897B6CD3CCF6,
 				E79259F2164D16553A69B458 ); name = Audio; sourceTree = "<group>"; };
+		0E7092A11A3C96E5ECA71CDA = { isa = PBXGroup; children = (
+				F552E7A463C6207BC3E74C06,
+				449B26D1265BB91B331EFF84,
+				36332333DBF8363163F454E6,
+				8A07B5B6D56277A222AC0E90,
+				E39CC410838072043E3C30DC,
+				9B1962D340B217B19B077F2A,
+				F716728550EBD8FA7B9CA7EF,
+				25B79E00075CCF59F0A4A7D7,
+				949422DF0532222450E95926,
+				B657AEAFB3404A5CB270C413 ); name = RecordNode; sourceTree = "<group>"; };
 		9C8E3549A602E74DCFC44244 = { isa = PBXGroup; children = (
 				95A64508FF3D0140D3001A19,
 				B410FE6CF1A561A1648343D6,
@@ -627,8 +653,6 @@
 				984BC60C0AFF3EDED692FA01,
 				04C6B933E1603B4D0916570D,
 				C51CD15B311D0AAC08D0B908,
-				46E3A634686BFEF787229582,
-				8B745839B225E44C9EB5C6FA,
 				CAA3B9396EA62166234DAEF1,
 				B23E6EBB5F99CF7FC72FAC4E ); name = Editors; sourceTree = "<group>"; };
 		F8338C653582335A30EADE40 = { isa = PBXGroup; children = (
@@ -682,6 +706,8 @@
 				AEFC8A0A9A35F50E59FDE678,
 				9EB2B238943CCC32B587881C ); name = MessageCenter; sourceTree = "<group>"; };
 		2AC55A2E70C6CF50A8C46F6B = { isa = PBXGroup; children = (
+				934B37E2BECD69E6E27051F6,
+				362898B655ABFFA23A69BBFA,
 				4F5D51C5F8174E3824EF8B42,
 				811BCA5BE226C5188BC5E9B9 ); name = Parameter; sourceTree = "<group>"; };
 		B59685FA20FE7A2DC1FF65C0 = { isa = PBXGroup; children = (
@@ -788,6 +814,7 @@
 				3734FF118787377E4C8741D1,
 				513D20023796491A24EC58A7 ); name = WiFiOutput; sourceTree = "<group>"; };
 		83A3E005DDFCC55F277EEDA5 = { isa = PBXGroup; children = (
+				0E7092A11A3C96E5ECA71CDA,
 				9C8E3549A602E74DCFC44244,
 				9C7703C01E449614C1CD884D,
 				7BE07AA81C59DD7252F709E6,
@@ -961,6 +988,11 @@
 				14BDAEA656AAFA60334CC55C,
 				C853FCE2F6C91B3643322CF0,
 				0AE243437B40602D35435C32,
+				0E036CEA1285F9B162A07356,
+				A4A2DF3FA65BAB4322FE5E74,
+				0A8D8C2D02858F0F08356EA9,
+				AEDA8F23648EABF79215B566,
+				B806F023DF817BB2D59FEEFD,
 				55227B30828797A8DCB0B91D,
 				527EB48A4A9C2F4FF1BC4FB2,
 				8352817FEDC7542D3E65B49A,
@@ -1002,7 +1034,6 @@
 				029C3B11BE586DA100895A60,
 				6702EEA4E99D503C0EE933C4,
 				7F188166D38DA7FB23311413,
-				3933895CA488855A23943F61,
 				AA16BE5A6BBD024C8FCFCDA8,
 				44D7379F739C19C7B78B95F5,
 				F4808CE43E77C8EC285A39DC,
@@ -1024,6 +1055,7 @@
 				AD371C6F383F03EF392B6581,
 				4EF2825142BBAA76FD55FE26,
 				3B05807D08271664EEC4977C,
+				F2586A2DCEF44961AEA247E8,
 				3E7939ABAA984EE8BFC8CEDD,
 				C9F9AE4CB2009DFFD7D7A67F,
 				C59D4B35ABCF3BE6D0A0665E,

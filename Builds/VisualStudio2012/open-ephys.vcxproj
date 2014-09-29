@@ -270,6 +270,11 @@
     <ClCompile Include="..\..\Source\AccessClass.cpp"/>
     <ClCompile Include="..\..\Source\Network\PracticalSocket.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\HDF5FileFormat.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\HDF5Recording.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\OriginalRecording.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\RecordEngine.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\RecordNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutput.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutputEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioEditor.cpp"/>
@@ -311,7 +316,6 @@
     <ClCompile Include="..\..\Source\Processors\Editors\ElectrodeButtons.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\GenericEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ImageIcon.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\ParameterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventDetector\EventDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode\EventNode.cpp"/>
@@ -333,6 +337,7 @@
     <ClCompile Include="..\..\Source\Processors\Merger\MergerEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\MessageCenter\MessageCenter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\MessageCenter\MessageCenterEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Parameter\ParameterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Parameter\Parameter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PhaseDetector\PhaseDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PhaseDetector\PhaseDetectorEditor.cpp"/>
@@ -395,6 +400,11 @@
     <ClInclude Include="..\..\Source\AccessClass.h"/>
     <ClInclude Include="..\..\Source\Network\PracticalSocket.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\HDF5FileFormat.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\HDF5Recording.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\OriginalRecording.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\RecordEngine.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\RecordNode.h"/>
     <ClInclude Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutput.h"/>
     <ClInclude Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutputEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioEditor.h"/>
@@ -442,7 +452,6 @@
     <ClInclude Include="..\..\Source\Processors\Editors\ElectrodeButtons.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\GenericEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ImageIcon.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\ParameterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\EventDetector\EventDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode\EventNode.h"/>
@@ -464,6 +473,7 @@
     <ClInclude Include="..\..\Source\Processors\Merger\MergerEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\MessageCenter\MessageCenter.h"/>
     <ClInclude Include="..\..\Source\Processors\MessageCenter\MessageCenterEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\Parameter\ParameterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Parameter\Parameter.h"/>
     <ClInclude Include="..\..\Source\Processors\PhaseDetector\PhaseDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\PhaseDetector\PhaseDetectorEditor.h"/>

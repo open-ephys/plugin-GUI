@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include "PulsePalOutputEditor.h"
 
-#include "../PulsePalOutput.h"
+#include "PulsePalOutput.h"
 #include "../Serial/PulsePal.h"
 
 PulsePalOutputEditor::PulsePalOutputEditor(GenericProcessor* parentNode, PulsePal* pp, bool useDefaultParameterEditors=true)

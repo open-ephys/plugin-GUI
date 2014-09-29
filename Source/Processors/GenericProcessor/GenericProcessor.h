@@ -27,11 +27,11 @@
 enum channelType {DATA_CHANNEL = 0, AUX_CHANNEL = 1, ADC_CHANNEL = 2, EVENT_CHANNEL = 3};
 
 
-#include "../../JuceLibraryCode/JuceHeader.h"
-#include "Editors/GenericEditor.h"
-#include "Parameter.h"
-#include "../AccessClass.h"
-#include "Channel.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../Editors/GenericEditor.h"
+#include "../Parameter/Parameter.h"
+#include "../../AccessClass.h"
+#include "../Channel/Channel.h"
 
 #include <time.h>
 #include <stdio.h>

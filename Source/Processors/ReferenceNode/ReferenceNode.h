@@ -25,9 +25,9 @@
 #define __REFERENCENODE_H_786EA929__
 
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include "GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 
 /**

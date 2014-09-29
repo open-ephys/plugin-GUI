@@ -29,7 +29,7 @@
 #endif
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
+#include "../GenericEditor/GenericEditor.h"
 
 class SerialInput;
 

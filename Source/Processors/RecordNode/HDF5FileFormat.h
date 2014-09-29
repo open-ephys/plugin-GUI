@@ -24,7 +24,7 @@
 #ifndef HDF5FILEFORMAT_H_INCLUDED
 #define HDF5FILEFORMAT_H_INCLUDED
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 
 class HDF5RecordingData;
 namespace H5

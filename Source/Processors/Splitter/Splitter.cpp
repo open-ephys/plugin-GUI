@@ -22,7 +22,7 @@
 */
 
 #include "Splitter.h"
-#include "../Editors/SplitterEditor.h"
+#include "SplitterEditor.h"
 
 #include "../../UI/EditorViewport.h"
 

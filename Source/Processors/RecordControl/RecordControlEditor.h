@@ -25,7 +25,7 @@
 #define __RECORDCONTROLEDITOR_H_F9C69E2B__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
+#include "../Editors/GenericEditor.h"
 
 /**
 

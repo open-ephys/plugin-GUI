@@ -22,7 +22,7 @@
 */
 
 #include "EventNodeEditor.h"
-#include "ChannelSelector.h"
+#include "../Editors/ChannelSelector.h"
 #include <stdio.h>
 
 

@@ -268,6 +268,24 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <GROUP id="{72D807AC-44A0-1F7A-8699-22225876FE9A}" name="RecordNode">
+          <FILE id="gZdszH" name="HDF5FileFormat.cpp" compile="1" resource="0"
+                file="Source/Processors/RecordNode/HDF5FileFormat.cpp"/>
+          <FILE id="EF7IbH" name="HDF5FileFormat.h" compile="0" resource="0"
+                file="Source/Processors/RecordNode/HDF5FileFormat.h"/>
+          <FILE id="dpOVsD" name="HDF5Recording.cpp" compile="1" resource="0"
+                file="Source/Processors/RecordNode/HDF5Recording.cpp"/>
+          <FILE id="DJgCzN" name="HDF5Recording.h" compile="0" resource="0" file="Source/Processors/RecordNode/HDF5Recording.h"/>
+          <FILE id="dpsAhU" name="OriginalRecording.cpp" compile="1" resource="0"
+                file="Source/Processors/RecordNode/OriginalRecording.cpp"/>
+          <FILE id="okexpc" name="OriginalRecording.h" compile="0" resource="0"
+                file="Source/Processors/RecordNode/OriginalRecording.h"/>
+          <FILE id="UU77gU" name="RecordEngine.cpp" compile="1" resource="0"
+                file="Source/Processors/RecordNode/RecordEngine.cpp"/>
+          <FILE id="NSKXGp" name="RecordEngine.h" compile="0" resource="0" file="Source/Processors/RecordNode/RecordEngine.h"/>
+          <FILE id="ccpPpJ" name="RecordNode.cpp" compile="1" resource="0" file="Source/Processors/RecordNode/RecordNode.cpp"/>
+          <FILE id="R9n30e" name="RecordNode.h" compile="0" resource="0" file="Source/Processors/RecordNode/RecordNode.h"/>
+        </GROUP>
         <GROUP id="{447899E6-3974-53D0-5588-79643E8F5CA3}" name="ArduinoOutput">
           <FILE id="Ucs5gf" name="ArduinoOutput.cpp" compile="1" resource="0"
                 file="Source/Processors/ArduinoOutput/ArduinoOutput.cpp"/>
@@ -403,10 +421,6 @@
           <FILE id="NZjjLm" name="GenericEditor.h" compile="0" resource="0" file="Source/Processors/Editors/GenericEditor.h"/>
           <FILE id="mqcmr8" name="ImageIcon.cpp" compile="1" resource="0" file="Source/Processors/Editors/ImageIcon.cpp"/>
           <FILE id="GLT84s" name="ImageIcon.h" compile="0" resource="0" file="Source/Processors/Editors/ImageIcon.h"/>
-          <FILE id="mOQQgo" name="ParameterEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/ParameterEditor.cpp"/>
-          <FILE id="N7W331" name="ParameterEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/ParameterEditor.h"/>
           <FILE id="c8F02O" name="VisualizerEditor.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/VisualizerEditor.cpp"/>
           <FILE id="qGudPl" name="VisualizerEditor.h" compile="0" resource="0"
@@ -499,6 +513,10 @@
                 file="Source/Processors/MessageCenter/MessageCenterEditor.h"/>
         </GROUP>
         <GROUP id="{86B5AC2A-0A78-6D0E-C5FE-6758DDD096DB}" name="Parameter">
+          <FILE id="yyyDtp" name="ParameterEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Parameter/ParameterEditor.cpp"/>
+          <FILE id="t3vpkl" name="ParameterEditor.h" compile="0" resource="0"
+                file="Source/Processors/Parameter/ParameterEditor.h"/>
           <FILE id="P4fc98" name="Parameter.cpp" compile="1" resource="0" file="Source/Processors/Parameter/Parameter.cpp"/>
           <FILE id="QdTalD" name="Parameter.h" compile="0" resource="0" file="Source/Processors/Parameter/Parameter.h"/>
         </GROUP>

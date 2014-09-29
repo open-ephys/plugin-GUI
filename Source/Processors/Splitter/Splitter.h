@@ -25,7 +25,7 @@
 #define __SPLITTER_H_A75239F7__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 #include <stdio.h>
 

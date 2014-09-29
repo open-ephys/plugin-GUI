@@ -26,12 +26,12 @@
 
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
+#include "../Editors/GenericEditor.h"
 #include "../../UI/UIComponent.h"
 #include "../../UI/DataViewport.h"
 #include "../Visualization/DataWindow.h"
-#include "VisualizerEditor.h"
-#include "ElectrodeButtons.h"
+#include "../Editors/VisualizerEditor.h"
+#include "../Editors/ElectrodeButtons.h"
 #include "SpikeDetectorEditor.h"
 
 class SpikeSorterCanvas;

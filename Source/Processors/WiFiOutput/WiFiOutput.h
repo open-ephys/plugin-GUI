@@ -25,9 +25,9 @@
 #define __WIFIOUTPUT_H_94D625CE__
 
 
-#include "../../JuceLibraryCode/JuceHeader.h"
-#include "GenericProcessor.h"
-#include "Editors/WiFiOutputEditor.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../GenericProcessor/GenericProcessor.h"
+#include "WiFiOutputEditor.h"
 
 #include "../Network/PracticalSocket.h"  // For UDPSocket and SocketException
 

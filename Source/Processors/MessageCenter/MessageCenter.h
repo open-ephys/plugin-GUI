@@ -25,10 +25,10 @@
 #define __MESSAGECENTER_H_2695FC38__
 
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 
-#include "GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 class MessageCenterEditor;
 

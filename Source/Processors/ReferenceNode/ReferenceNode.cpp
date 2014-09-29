@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 #include "ReferenceNode.h"
-#include "Editors/ReferenceNodeEditor.h"
+#include "ReferenceNodeEditor.h"
 
 
 

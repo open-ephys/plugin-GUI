@@ -22,7 +22,7 @@
 */
 
 #include "GenericProcessor.h"
-#include "../UI/UIComponent.h"
+#include "../../UI/UIComponent.h"
 
 GenericProcessor::GenericProcessor(const String& name_) : AccessClass(),
     sourceNode(0), destNode(0), isEnabled(true), wasConnected(false),

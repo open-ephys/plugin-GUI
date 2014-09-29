@@ -24,7 +24,7 @@
 #ifndef __PARAMETER_H_62922AE5__
 #define __PARAMETER_H_62922AE5__
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 // #include "Editors/GenericEditor.h"
 // #include "GenericProcessor.h"
 // #include "../AccessClass.h"

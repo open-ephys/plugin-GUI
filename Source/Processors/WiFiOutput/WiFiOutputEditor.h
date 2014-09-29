@@ -25,8 +25,8 @@
 #define __WIFIOUTPUTEDITOR_H_7161DB44__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
-#include "ImageIcon.h"
+#include "../Editors/GenericEditor.h"
+#include "../Editors/ImageIcon.h"
 
 class ImageIcon;
 

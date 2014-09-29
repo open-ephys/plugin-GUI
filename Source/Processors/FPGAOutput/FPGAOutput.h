@@ -24,10 +24,10 @@
 #ifndef __FPGAOUTPUT_H_33275017__
 #define __FPGAOUTPUT_H_33275017__
 
-#include "../../JuceLibraryCode/JuceHeader.h"
-#include "GenericProcessor.h"
-#include "Editors/FPGAOutputEditor.h"
-#include "DataThreads/FPGAThread.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../GenericProcessor/GenericProcessor.h"
+#include "FPGAOutputEditor.h"
+#include "../DataThreads/FPGAThread.h"
 
 
 /**

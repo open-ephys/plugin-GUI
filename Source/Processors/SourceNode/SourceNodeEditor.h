@@ -25,8 +25,8 @@
 #define __SOURCENODEEDITOR_H_A1B19E1E__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
-#include "ImageIcon.h"
+#include "../Editors/GenericEditor.h"
+#include "../Editors/ImageIcon.h"
 
 class ImageIcon;
 

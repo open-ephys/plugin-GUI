@@ -25,9 +25,9 @@
 #define __RECORDCONTROL_H_120DD434__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../GenericProcessor.h"
-#include "../Editors/RecordControlEditor.h"
-#include "../RecordNode.h"
+#include "../GenericProcessor/GenericProcessor.h"
+#include "RecordControlEditor.h"
+#include "../RecordNode/RecordNode.h"
 
 /**
 

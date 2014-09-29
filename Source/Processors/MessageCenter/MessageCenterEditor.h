@@ -25,7 +25,7 @@
 #define MESSAGECENTEREDITOR_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../MessageCenter.h"
+#include "MessageCenter.h"
 #include <stdio.h>
 
 /**

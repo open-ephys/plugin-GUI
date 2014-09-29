@@ -24,8 +24,8 @@
 #define __LFPDISPLAYCANVAS_H_B711873A__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../LfpDisplayNode.h"
-#include "Visualizer.h"
+#include "LfpDisplayNode.h"
+#include "../Visualization/Visualizer.h"
 
 class LfpDisplayNode;
 

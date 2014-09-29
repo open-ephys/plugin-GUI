@@ -23,7 +23,7 @@
 
 
 #include "PhaseDetectorEditor.h"
-#include "../PhaseDetector.h"
+#include "PhaseDetector.h"
 
 #include <stdio.h>
 #include <cmath>

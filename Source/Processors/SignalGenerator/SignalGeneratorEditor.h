@@ -25,7 +25,7 @@
 #define __SIGNALGENERATOREDITOR_H_841A7078__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
+#include "../Editors/GenericEditor.h"
 
 class FilterViewport;
 class WaveformSelector;

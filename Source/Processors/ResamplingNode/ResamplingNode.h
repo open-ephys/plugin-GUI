@@ -25,9 +25,9 @@
 #define __RESAMPLINGNODE_H_79663B0__
 
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Dsp/Dsp.h"
-#include "GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 #define TEMP_BUFFER_WIDTH 5000
 

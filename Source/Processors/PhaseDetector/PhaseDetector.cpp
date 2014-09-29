@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 #include "PhaseDetector.h"
-#include "Editors/PhaseDetectorEditor.h"
+#include "PhaseDetectorEditor.h"
 
 PhaseDetector::PhaseDetector()
     : GenericProcessor("Phase Detector"), activeModule(-1),

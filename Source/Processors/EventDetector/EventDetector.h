@@ -24,8 +24,8 @@
 #ifndef __EVENTDETECTOR_H_91811542__
 #define __EVENTDETECTOR_H_91811542__
 
-#include "../../JuceLibraryCode/JuceHeader.h"
-#include "GenericProcessor.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 /**
 

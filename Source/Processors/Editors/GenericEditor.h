@@ -28,7 +28,7 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../../AccessClass.h"
 
-#include "../Channel.h"
+#include "../Channel/Channel.h"
 
 #include <stdio.h>
 

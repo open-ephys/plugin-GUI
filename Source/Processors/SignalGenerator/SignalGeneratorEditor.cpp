@@ -23,7 +23,7 @@
 
 
 #include "SignalGeneratorEditor.h"
-#include "../SignalGenerator.h"
+#include "SignalGenerator.h"
 #include "../../UI/EditorViewport.h"
 #include <stdio.h>
 

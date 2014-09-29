@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 #include "FilterNode.h"
-#include "Editors/FilterEditor.h"
+#include "FilterEditor.h"
 
 FilterNode::FilterNode()
     : GenericProcessor("Bandpass Filter"), defaultLowCut(300.0f), defaultHighCut(6000.0f)

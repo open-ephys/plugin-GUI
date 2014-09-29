@@ -22,8 +22,8 @@
 */
 
 #include "RecordControlEditor.h"
-#include "../Utilities/RecordControl.h"
-#include "ChannelSelector.h"
+#include "RecordControl.h"
+#include "../Editors/ChannelSelector.h"
 #include <stdio.h>
 
 RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)

@@ -25,9 +25,9 @@
 #define __SIGNALGENERATOR_H_EAA44B0B__
 
 
-#include "../../JuceLibraryCode/JuceHeader.h"
-#include "GenericProcessor.h"
-#include "Editors/SignalGeneratorEditor.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../GenericProcessor/GenericProcessor.h"
+#include "SignalGeneratorEditor.h"
 
 /**
 

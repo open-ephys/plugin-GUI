@@ -22,7 +22,7 @@
  */
 
 #include "SerialInputEditor.h"
-#include "../SerialInput.h"
+#include "SerialInput.h"
 
 #include <string>
 #include <iostream>

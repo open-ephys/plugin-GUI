@@ -25,7 +25,7 @@
 #define __MERGER_H_ED548E77__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 #include <stdio.h>
 

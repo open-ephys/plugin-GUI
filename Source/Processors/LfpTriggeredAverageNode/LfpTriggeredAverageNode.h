@@ -24,10 +24,10 @@
 #ifndef __LFPTRIGAVGNODE_H_D969A379__
 #define __LFPTRIGAVGNODE_H_D969A379__
 
-#include "../../JuceLibraryCode/JuceHeader.h"
-#include "Editors/LfpTriggeredAverageEditor.h"
-#include "Editors/VisualizerEditor.h"
-#include "GenericProcessor.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "LfpTriggeredAverageEditor.h"
+#include "../Editors/VisualizerEditor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 class DataViewport;
 

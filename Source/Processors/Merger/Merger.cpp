@@ -22,11 +22,11 @@
 */
 
 #include "Merger.h"
-#include "../Editors/MergerEditor.h"
+#include "MergerEditor.h"
 
 #include "../../UI/EditorViewport.h"
 
-#include "../Channel.h"
+#include "../Channel/Channel.h"
 
 Merger::Merger()
     : GenericProcessor("Merger"),

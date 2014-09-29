@@ -26,10 +26,10 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include "../SpikeDisplayNode.h"
-#include "SpikeObject.h"
+#include "SpikeDisplayNode.h"
+#include "../Visualization/SpikeObject.h"
 
-#include "Visualizer.h"
+#include "../Visualization/Visualizer.h"
 #include <vector>
 
 #define WAVE1 0

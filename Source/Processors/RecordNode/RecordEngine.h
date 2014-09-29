@@ -24,10 +24,10 @@
 #ifndef RECORDENGINE_H_INCLUDED
 #define RECORDENGINE_H_INCLUDED
 
-#include "../../JuceLibraryCode/JuceHeader.h"
-#include "Channel.h"
-#include "GenericProcessor.h"
-#include "Visualization/SpikeObject.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../Channel/Channel.h"
+#include "../GenericProcessor/GenericProcessor.h"
+#include "../Visualization/SpikeObject.h"
 
 struct SpikeRecordInfo
 {

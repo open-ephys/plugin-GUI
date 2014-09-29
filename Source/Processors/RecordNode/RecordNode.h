@@ -23,13 +23,13 @@
 
 #ifndef __RECORDNODE_H_FB9B1CA7__
 #define __RECORDNODE_H_FB9B1CA7__
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 #include <map>
 
 
-#include "GenericProcessor.h"
-#include "Channel.h"
+#include "../GenericProcessor/GenericProcessor.h"
+#include "../Channel/Channel.h"
 #include "RecordEngine.h"
 
 

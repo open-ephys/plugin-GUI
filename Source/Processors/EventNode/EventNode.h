@@ -24,9 +24,9 @@
 #ifndef __EVENTNODE_H_9B67A789__
 #define __EVENTNODE_H_9B67A789__
 
-#include "../../JuceLibraryCode/JuceHeader.h"
-#include "GenericProcessor.h"
-#include "Editors/EventNodeEditor.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../GenericProcessor/GenericProcessor.h"
+#include "EventNodeEditor.h"
 
 /**
 

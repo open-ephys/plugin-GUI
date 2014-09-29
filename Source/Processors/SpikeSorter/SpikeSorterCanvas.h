@@ -27,9 +27,9 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../SpikeSorter.h"
-#include "SpikeObject.h"
+#include "../Visualization/SpikeObject.h"
 
-#include "Visualizer.h"
+#include "../Visualization/Visualizer.h"
 #include <vector>
 
 #define WAVE1 0

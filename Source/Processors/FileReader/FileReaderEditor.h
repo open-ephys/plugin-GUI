@@ -26,7 +26,7 @@
 #define __FILEREADEREDITOR_H_D6EC8B48__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
+#include "../Editors/GenericEditor.h"
 
 class FileReader;
 

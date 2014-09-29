@@ -46,6 +46,11 @@ OBJECTS := \
   $(OBJDIR)/AccessClass_de9602d5.o \
   $(OBJDIR)/PracticalSocket_2574ecc8.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/HDF5FileFormat_be712135.o \
+  $(OBJDIR)/HDF5Recording_d14f7b19.o \
+  $(OBJDIR)/OriginalRecording_d6dc3293.o \
+  $(OBJDIR)/RecordEngine_97ef83aa.o \
+  $(OBJDIR)/RecordNode_cc21a82a.o \
   $(OBJDIR)/ArduinoOutput_d5a968de.o \
   $(OBJDIR)/ArduinoOutputEditor_e1b7e52b.o \
   $(OBJDIR)/AudioEditor_3931be27.o \
@@ -87,7 +92,6 @@ OBJECTS := \
   $(OBJDIR)/ElectrodeButtons_a6064cc.o \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
   $(OBJDIR)/ImageIcon_c89b23a6.o \
-  $(OBJDIR)/ParameterEditor_91f62ae8.o \
   $(OBJDIR)/VisualizerEditor_3672b003.o \
   $(OBJDIR)/EventDetector_d0f4d00c.o \
   $(OBJDIR)/EventNode_857d5604.o \
@@ -109,6 +113,7 @@ OBJECTS := \
   $(OBJDIR)/MergerEditor_e36b0997.o \
   $(OBJDIR)/MessageCenter_bd1ba084.o \
   $(OBJDIR)/MessageCenterEditor_afaf4851.o \
+  $(OBJDIR)/ParameterEditor_112258eb.o \
   $(OBJDIR)/Parameter_b3e5ac9e.o \
   $(OBJDIR)/PhaseDetector_8a25ed0e.o \
   $(OBJDIR)/PhaseDetectorEditor_eaec855b.o \
@@ -199,6 +204,31 @@ $(OBJDIR)/PracticalSocket_2574ecc8.o: ../../Source/Network/PracticalSocket.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/HDF5FileFormat_be712135.o: ../../Source/Processors/RecordNode/HDF5FileFormat.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling HDF5FileFormat.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/HDF5Recording_d14f7b19.o: ../../Source/Processors/RecordNode/HDF5Recording.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling HDF5Recording.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/OriginalRecording_d6dc3293.o: ../../Source/Processors/RecordNode/OriginalRecording.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling OriginalRecording.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RecordEngine_97ef83aa.o: ../../Source/Processors/RecordNode/RecordEngine.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RecordEngine.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RecordNode_cc21a82a.o: ../../Source/Processors/RecordNode/RecordNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RecordNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ArduinoOutput_d5a968de.o: ../../Source/Processors/ArduinoOutput/ArduinoOutput.cpp
@@ -406,11 +436,6 @@ $(OBJDIR)/ImageIcon_c89b23a6.o: ../../Source/Processors/Editors/ImageIcon.cpp
 	@echo "Compiling ImageIcon.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ParameterEditor_91f62ae8.o: ../../Source/Processors/Editors/ParameterEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ParameterEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/VisualizerEditor_3672b003.o: ../../Source/Processors/Editors/VisualizerEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling VisualizerEditor.cpp"
@@ -514,6 +539,11 @@ $(OBJDIR)/MessageCenter_bd1ba084.o: ../../Source/Processors/MessageCenter/Messag
 $(OBJDIR)/MessageCenterEditor_afaf4851.o: ../../Source/Processors/MessageCenter/MessageCenterEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling MessageCenterEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ParameterEditor_112258eb.o: ../../Source/Processors/Parameter/ParameterEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ParameterEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Parameter_b3e5ac9e.o: ../../Source/Processors/Parameter/Parameter.cpp

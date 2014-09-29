@@ -26,9 +26,9 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Audio/AudioComponent.h"
-#include "../Processors/Editors/AudioEditor.h"
-#include "../Processors/ProcessorGraph.h"
-#include "../Processors/RecordNode.h"
+#include "../Processors/AudioNode/AudioEditor.h"
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
+#include "../Processors/RecordNode/RecordNode.h"
 #include "CustomLookAndFeel.h"
 #include "../AccessClass.h"
 #include "../Processors/Editors/GenericEditor.h" // for UtilityButton

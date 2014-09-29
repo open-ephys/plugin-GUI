@@ -26,9 +26,9 @@
 #define __FILEREADER_H_B327D3D2__
 
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include "GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 #define BUFFER_SIZE 102400
 

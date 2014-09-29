@@ -22,8 +22,8 @@
 */
 
 #include "MergerEditor.h"
-#include "../Utilities/Merger.h"
-#include "../ProcessorGraph.h"
+#include "Merger.h"
+#include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../UI/EditorViewport.h"
 
 // PipelineSelectorButton::PipelineSelectorButton()

@@ -24,11 +24,10 @@
 #include <stdio.h>
 #include "SpikeSorter.h"
 #include "SpikeSortBoxes.h"
-#include "Visualization/SpikeSorterCanvas.h"
-#include "Channel.h"
-#include "SpikeDisplayNode.h"
-//#include "PeriStimulusTimeHistogramNode.h"
-//#include "Editors/PeriStimulusTimeHistogramEditor.h"
+#include "../Visualization/SpikeSorterCanvas.h"
+#include "../Channel/Channel.h"
+#include "../SpikeDisplayNode/SpikeDisplayNode.h"
+
 class spikeSorter;
 
 SpikeSorter::SpikeSorter()
