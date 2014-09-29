@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="ynSYIrr" name="open-ephys" projectType="guiapp" version="0.3.1"
+<JUCERPROJECT id="ynSYIrr" name="open-ephys" projectType="guiapp" version="0.3.2"
               juceLinkage="amalg_multi" buildVST="1" buildRTAS="0" buildAU="1"
               pluginName="Juce Project" pluginDesc="Juce Project" pluginManufacturer="yourcompany"
               pluginManufacturerCode="Manu" pluginCode="Plug" pluginChannelConfigs="{1, 1}, {2, 2}"
@@ -12,7 +12,7 @@
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
-               extraLinkerFlags="-lhdf5" objCExtraSuffix="fea2mT">
+               extraLinkerFlags="-lhdf5 -lhdf5_cpp" objCExtraSuffix="fea2mT">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
