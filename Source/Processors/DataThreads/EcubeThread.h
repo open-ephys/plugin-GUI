@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 
 #include "DataThread.h"
-#include "../GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 #define MAX_NUM_DATA_STREAMS 8
 

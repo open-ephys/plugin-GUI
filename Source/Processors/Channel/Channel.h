@@ -25,9 +25,9 @@
 #define __CHANNEL_H_DABDFE3F__
 
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include "GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 #include <stdio.h>
 

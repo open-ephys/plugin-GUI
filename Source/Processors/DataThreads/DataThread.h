@@ -27,7 +27,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 #include "DataBuffer.h"
-#include "../GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 class SourceNode;
 

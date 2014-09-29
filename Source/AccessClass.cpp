@@ -31,7 +31,7 @@
 // #include "UI/MessageCenter.h"
 // #include "UI/GraphViewer.h"
 // #include "Audio/AudioComponent.h"
-// #include "Processors/ProcessorGraph.h"
+// #include "Processors/ProcessorGraph/ProcessorGraph.h"
 
 void AccessClass::setUIComponent(UIComponent* ui_)
 {

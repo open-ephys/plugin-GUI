@@ -25,10 +25,10 @@
 #define __RHD2000EDITOR_H_2AD3C591__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
-#include "VisualizerEditor.h"
+#include "../Editors/GenericEditor.h"
+#include "../Editors/VisualizerEditor.h"
 
-#include "ElectrodeButtons.h" // for ElectrodeButton
+#include "../Editors/ElectrodeButtons.h" // for ElectrodeButton
 
 class HeadstageOptionsInterface;
 class SampleRateInterface;

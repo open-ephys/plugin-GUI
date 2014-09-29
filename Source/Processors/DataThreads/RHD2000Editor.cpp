@@ -25,9 +25,9 @@
 #include "../../UI/EditorViewport.h"
 #include <cmath>
 
-#include "ChannelSelector.h"
-#include "../SourceNode.h"
-#include "../DataThreads/RHD2000Thread.h"
+#include "../Editors/ChannelSelector.h"
+#include "../SourceNode/SourceNode.h"
+#include "RHD2000Thread.h"
 
 #ifdef WIN32
 #if (_MSC_VER < 1800) //round doesn't exist on MSVC prior to 2013 version

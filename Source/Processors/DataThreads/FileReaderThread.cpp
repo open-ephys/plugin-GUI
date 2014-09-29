@@ -21,7 +21,7 @@
 
 */
 
-#include "../SourceNode.h"
+#include "../SourceNode/SourceNode.h"
 #include "FileReaderThread.h"
 
 FileReaderThread::FileReaderThread(SourceNode* sn) :

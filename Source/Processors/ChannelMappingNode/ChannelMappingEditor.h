@@ -26,7 +26,7 @@
 
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
+#include "../Editors/GenericEditor.h"
 
 #include "ElectrodeButtons.h" // for ElectrodeButton and ElectrodeEditorButton
 

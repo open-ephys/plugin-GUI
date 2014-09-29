@@ -22,7 +22,7 @@
 */
 
 #include "FPGAThread.h"
-#include "../SourceNode.h"
+#include "../SourceNode/SourceNode.h"
 
 #include <string.h>
 #include <math.h>

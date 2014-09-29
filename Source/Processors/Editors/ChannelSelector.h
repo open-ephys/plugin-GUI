@@ -25,7 +25,7 @@
 #define __CHANNELSELECTOR_H_68124E35__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
+#include "../Editors/GenericEditor.h"
 #include "../../AccessClass.h"
 
 #include "../Channel.h"

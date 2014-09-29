@@ -22,7 +22,7 @@
 */
 
 #include "DataThread.h"
-#include "../SourceNode.h"
+#include "../SourceNode/SourceNode.h"
 
 
 DataThread::DataThread(SourceNode* s) : Thread("Data Thread"), dataBuffer(0)

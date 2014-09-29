@@ -25,13 +25,13 @@
 #define __AUDIONODE_H_AF61F3C5__
 
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 
-#include "GenericProcessor.h"
-#include "Editors/AudioEditor.h"
+#include "../GenericProcessor/GenericProcessor.h"
+#include "AudioEditor.h"
 
-#include "Channel.h"
+#include "../Channel/Channel.h"
 
 class AudioEditor;
 

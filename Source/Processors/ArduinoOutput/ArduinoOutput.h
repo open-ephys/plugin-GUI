@@ -24,11 +24,11 @@
 #ifndef __ARDUINOOUTPUT_H_F7BDA585__
 #define __ARDUINOOUTPUT_H_F7BDA585__
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include "Editors/ArduinoOutputEditor.h"
-#include "Serial/ofArduino.h"
-#include "GenericProcessor.h"
+#include "ArduinoOutputEditor.h"
+#include "../Serial/ofArduino.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 
 /**

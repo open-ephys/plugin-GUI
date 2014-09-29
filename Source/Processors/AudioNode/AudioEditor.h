@@ -25,7 +25,7 @@
 
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../AudioNode.h"
+#include "AudioNode.h"
 #include <stdio.h>
 
 class AudioNode;

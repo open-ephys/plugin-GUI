@@ -37,7 +37,7 @@
 #include "rhythm-api/okFrontPanelDLL.h"
 
 #include "DataThread.h"
-#include "../GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 #define MAX_NUM_DATA_STREAMS 8
 

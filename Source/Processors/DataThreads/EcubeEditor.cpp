@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "EcubeEditor.h"
 
-#include "../DataThreads/EcubeThread.h"
+#include "EcubeThread.h"
 
 #include <stdio.h>
 

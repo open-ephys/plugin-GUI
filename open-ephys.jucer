@@ -7,7 +7,7 @@
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="JuceProjectAU" pluginAUViewClass="JuceProjectAU_V1"
-              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="3.1.0"
+              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="3.0.0"
               companyName="Open Ephys" userNotes="The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring, processing, and visualizing data from extracellular electrodes. See open-ephys.org for more information."
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
@@ -261,52 +261,6 @@
         <FILE id="5XGl6EX" name="PracticalSocket.h" compile="0" resource="0"
               file="Source/Network/PracticalSocket.h"/>
       </GROUP>
-      <GROUP id="ZFZoGrT" name="Dsp">
-        <FILE id="mUwiufK" name="Bessel.cpp" compile="1" resource="0" file="Source/Dsp/Bessel.cpp"/>
-        <FILE id="vZ6Kudo" name="Bessel.h" compile="0" resource="0" file="Source/Dsp/Bessel.h"/>
-        <FILE id="vwycpbo" name="Biquad.cpp" compile="1" resource="0" file="Source/Dsp/Biquad.cpp"/>
-        <FILE id="a732gXS" name="Biquad.h" compile="0" resource="0" file="Source/Dsp/Biquad.h"/>
-        <FILE id="0W6qAwa" name="Butterworth.cpp" compile="1" resource="0"
-              file="Source/Dsp/Butterworth.cpp"/>
-        <FILE id="UV5QzX8" name="Butterworth.h" compile="0" resource="0" file="Source/Dsp/Butterworth.h"/>
-        <FILE id="KClKE8" name="Cascade.cpp" compile="1" resource="0" file="Source/Dsp/Cascade.cpp"/>
-        <FILE id="ylsuRNY" name="Cascade.h" compile="0" resource="0" file="Source/Dsp/Cascade.h"/>
-        <FILE id="o3iAh3a" name="ChebyshevI.cpp" compile="1" resource="0" file="Source/Dsp/ChebyshevI.cpp"/>
-        <FILE id="WyXprJ9" name="ChebyshevI.h" compile="0" resource="0" file="Source/Dsp/ChebyshevI.h"/>
-        <FILE id="b4qha7" name="ChebyshevII.cpp" compile="1" resource="0" file="Source/Dsp/ChebyshevII.cpp"/>
-        <FILE id="LcWDNOk" name="ChebyshevII.h" compile="0" resource="0" file="Source/Dsp/ChebyshevII.h"/>
-        <FILE id="XDyWZQQ" name="Common.h" compile="0" resource="0" file="Source/Dsp/Common.h"/>
-        <FILE id="49hU2ny" name="Custom.cpp" compile="1" resource="0" file="Source/Dsp/Custom.cpp"/>
-        <FILE id="xPXCA6M" name="Custom.h" compile="0" resource="0" file="Source/Dsp/Custom.h"/>
-        <FILE id="2EpjlI" name="Design.cpp" compile="1" resource="0" file="Source/Dsp/Design.cpp"/>
-        <FILE id="ptQmM0r" name="Design.h" compile="0" resource="0" file="Source/Dsp/Design.h"/>
-        <FILE id="fAPODFz" name="Documentation.cpp" compile="1" resource="0"
-              file="Source/Dsp/Documentation.cpp"/>
-        <FILE id="JAPeScN" name="Dsp.h" compile="0" resource="0" file="Source/Dsp/Dsp.h"/>
-        <FILE id="tr30OGq" name="Elliptic.cpp" compile="1" resource="0" file="Source/Dsp/Elliptic.cpp"/>
-        <FILE id="qkR4YNx" name="Elliptic.h" compile="0" resource="0" file="Source/Dsp/Elliptic.h"/>
-        <FILE id="XXTYoH9" name="Filter.cpp" compile="1" resource="0" file="Source/Dsp/Filter.cpp"/>
-        <FILE id="ZYh8Cn" name="Filter.h" compile="0" resource="0" file="Source/Dsp/Filter.h"/>
-        <FILE id="fzaQLV" name="Layout.h" compile="0" resource="0" file="Source/Dsp/Layout.h"/>
-        <FILE id="1rzxhtw" name="Legendre.cpp" compile="1" resource="0" file="Source/Dsp/Legendre.cpp"/>
-        <FILE id="vMzVy3f" name="Legendre.h" compile="0" resource="0" file="Source/Dsp/Legendre.h"/>
-        <FILE id="Xgckbu9" name="MathSupplement.h" compile="0" resource="0"
-              file="Source/Dsp/MathSupplement.h"/>
-        <FILE id="1skPBI3" name="Param.cpp" compile="1" resource="0" file="Source/Dsp/Param.cpp"/>
-        <FILE id="AJKO8Gc" name="Params.h" compile="0" resource="0" file="Source/Dsp/Params.h"/>
-        <FILE id="m5Ywyi7" name="PoleFilter.cpp" compile="1" resource="0" file="Source/Dsp/PoleFilter.cpp"/>
-        <FILE id="yghcXOB" name="PoleFilter.h" compile="0" resource="0" file="Source/Dsp/PoleFilter.h"/>
-        <FILE id="HxU4He0" name="RBJ.cpp" compile="1" resource="0" file="Source/Dsp/RBJ.cpp"/>
-        <FILE id="LzKYXte" name="RBJ.h" compile="0" resource="0" file="Source/Dsp/RBJ.h"/>
-        <FILE id="KNsCh3Q" name="RootFinder.cpp" compile="1" resource="0" file="Source/Dsp/RootFinder.cpp"/>
-        <FILE id="5FY4DiP" name="RootFinder.h" compile="0" resource="0" file="Source/Dsp/RootFinder.h"/>
-        <FILE id="CZlsp9w" name="SmoothedFilter.h" compile="0" resource="0"
-              file="Source/Dsp/SmoothedFilter.h"/>
-        <FILE id="rj1CVK" name="State.cpp" compile="1" resource="0" file="Source/Dsp/State.cpp"/>
-        <FILE id="floABAJ" name="State.h" compile="0" resource="0" file="Source/Dsp/State.h"/>
-        <FILE id="Tnibh38" name="Types.h" compile="0" resource="0" file="Source/Dsp/Types.h"/>
-        <FILE id="74WHAi" name="Utilities.h" compile="0" resource="0" file="Source/Dsp/Utilities.h"/>
-      </GROUP>
       <GROUP id="gRFzu0" name="Audio">
         <FILE id="2vKx2R" name="AudioComponent.cpp" compile="1" resource="0"
               file="Source/Audio/AudioComponent.cpp"/>
@@ -314,246 +268,47 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
-        <FILE id="QRje2Z" name="MessageCenter.cpp" compile="1" resource="0"
-              file="Source/Processors/MessageCenter.cpp"/>
-        <FILE id="Pd2Uhs" name="MessageCenter.h" compile="0" resource="0" file="Source/Processors/MessageCenter.h"/>
-        <FILE id="jee5nL" name="SpikeSortBoxes.cpp" compile="1" resource="0"
-              file="Source/Processors/SpikeSortBoxes.cpp"/>
-        <FILE id="PEC3sP" name="SpikeSortBoxes.h" compile="0" resource="0"
-              file="Source/Processors/SpikeSortBoxes.h"/>
-        <FILE id="LfiaEP" name="SpikeSorter.cpp" compile="1" resource="0" file="Source/Processors/SpikeSorter.cpp"/>
-        <FILE id="OeZ3tb" name="SpikeSorter.h" compile="0" resource="0" file="Source/Processors/SpikeSorter.h"/>
-        <FILE id="GP1WNZ" name="HDF5FileFormat.cpp" compile="1" resource="0"
-              file="Source/Processors/HDF5FileFormat.cpp"/>
-        <FILE id="ggxZWd" name="HDF5FileFormat.h" compile="0" resource="0"
-              file="Source/Processors/HDF5FileFormat.h"/>
-        <FILE id="TJ0Hmt" name="OriginalRecording.cpp" compile="1" resource="0"
-              file="Source/Processors/OriginalRecording.cpp"/>
-        <FILE id="z11idO" name="OriginalRecording.h" compile="0" resource="0"
-              file="Source/Processors/OriginalRecording.h"/>
-        <FILE id="ikbpX1" name="RecordEngine.cpp" compile="1" resource="0"
-              file="Source/Processors/RecordEngine.cpp"/>
-        <FILE id="uqGmrZ" name="RecordEngine.h" compile="0" resource="0" file="Source/Processors/RecordEngine.h"/>
-        <FILE id="eUtNHW" name="HDF5Recording.cpp" compile="1" resource="0"
-              file="Source/Processors/HDF5Recording.cpp"/>
-        <FILE id="dXX5ds" name="HDF5Recording.h" compile="0" resource="0" file="Source/Processors/HDF5Recording.h"/>
-        <FILE id="Yj1umv" name="SerialInput.cpp" compile="1" resource="0" file="Source/Processors/SerialInput.cpp"/>
-        <FILE id="TSsuVv" name="SerialInput.h" compile="0" resource="0" file="Source/Processors/SerialInput.h"/>
-        <FILE id="M6nCIs" name="FileReader.cpp" compile="1" resource="0" file="Source/Processors/FileReader.cpp"/>
-        <FILE id="VU1bQ0" name="FileReader.h" compile="0" resource="0" file="Source/Processors/FileReader.h"/>
-        <FILE id="e7QoyI" name="ChannelMappingNode.cpp" compile="1" resource="0"
-              file="Source/Processors/ChannelMappingNode.cpp"/>
-        <FILE id="RzEj1s" name="ChannelMappingNode.h" compile="0" resource="0"
-              file="Source/Processors/ChannelMappingNode.h"/>
-        <FILE id="iCR52Z" name="PulsePalOutput.cpp" compile="1" resource="0"
-              file="Source/Processors/PulsePalOutput.cpp"/>
-        <FILE id="P6I3cq" name="PulsePalOutput.h" compile="0" resource="0"
-              file="Source/Processors/PulsePalOutput.h"/>
-        <FILE id="I3M3irE" name="ReferenceNode.cpp" compile="1" resource="0"
-              file="Source/Processors/ReferenceNode.cpp"/>
-        <FILE id="mkZIyij" name="ReferenceNode.h" compile="0" resource="0"
-              file="Source/Processors/ReferenceNode.h"/>
-        <FILE id="TBFDWIC" name="PhaseDetector.cpp" compile="1" resource="0"
-              file="Source/Processors/PhaseDetector.cpp"/>
-        <FILE id="M8cJMPk" name="PhaseDetector.h" compile="0" resource="0"
-              file="Source/Processors/PhaseDetector.h"/>
-        <FILE id="absuYrU" name="AudioResamplingNode.cpp" compile="1" resource="0"
-              file="Source/Processors/AudioResamplingNode.cpp"/>
-        <FILE id="V8uFwVV" name="AudioResamplingNode.h" compile="0" resource="0"
-              file="Source/Processors/AudioResamplingNode.h"/>
-        <FILE id="oYWM1J" name="Channel.cpp" compile="1" resource="0" file="Source/Processors/Channel.cpp"/>
-        <FILE id="oBVEMRc" name="Channel.h" compile="0" resource="0" file="Source/Processors/Channel.h"/>
-        <GROUP id="gFSbZKw" name="Serial">
-          <FILE id="PHwlqi" name="PulsePal.cpp" compile="1" resource="0" file="Source/Processors/Serial/PulsePal.cpp"/>
-          <FILE id="R4XRyB" name="PulsePal.h" compile="0" resource="0" file="Source/Processors/Serial/PulsePal.h"/>
-          <FILE id="3t2ez3c" name="ofArduino.cpp" compile="1" resource="0" file="Source/Processors/Serial/ofArduino.cpp"/>
-          <FILE id="bXASAoT" name="ofArduino.h" compile="0" resource="0" file="Source/Processors/Serial/ofArduino.h"/>
-          <FILE id="hNTT1i1" name="ofConstants.h" compile="0" resource="0" file="Source/Processors/Serial/ofConstants.h"/>
-          <FILE id="F97Ylmz" name="ofSerial.cpp" compile="1" resource="0" file="Source/Processors/Serial/ofSerial.cpp"/>
-          <FILE id="wV1xn3Z" name="ofSerial.h" compile="0" resource="0" file="Source/Processors/Serial/ofSerial.h"/>
+        <GROUP id="{447899E6-3974-53D0-5588-79643E8F5CA3}" name="ArduinoOutput">
+          <FILE id="Ucs5gf" name="ArduinoOutput.cpp" compile="1" resource="0"
+                file="Source/Processors/ArduinoOutput/ArduinoOutput.cpp"/>
+          <FILE id="NnPKUY" name="ArduinoOutput.h" compile="0" resource="0" file="Source/Processors/ArduinoOutput/ArduinoOutput.h"/>
+          <FILE id="V4rkxc" name="ArduinoOutputEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/ArduinoOutput/ArduinoOutputEditor.cpp"/>
+          <FILE id="WWnk0U" name="ArduinoOutputEditor.h" compile="0" resource="0"
+                file="Source/Processors/ArduinoOutput/ArduinoOutputEditor.h"/>
         </GROUP>
-        <FILE id="rlxg06" name="EventDetector.cpp" compile="1" resource="0"
-              file="Source/Processors/EventDetector.cpp"/>
-        <FILE id="LWuAoXl" name="EventDetector.h" compile="0" resource="0"
-              file="Source/Processors/EventDetector.h"/>
-        <FILE id="caGBzB" name="FPGAOutput.cpp" compile="1" resource="0" file="Source/Processors/FPGAOutput.cpp"/>
-        <FILE id="IUvIxV7" name="FPGAOutput.h" compile="0" resource="0" file="Source/Processors/FPGAOutput.h"/>
-        <FILE id="wBm4y2" name="ArduinoOutput.cpp" compile="1" resource="0"
-              file="Source/Processors/ArduinoOutput.cpp"/>
-        <FILE id="1sbSwS7" name="ArduinoOutput.h" compile="0" resource="0"
-              file="Source/Processors/ArduinoOutput.h"/>
-        <FILE id="pQaYQiE" name="Parameter.cpp" compile="1" resource="0" file="Source/Processors/Parameter.cpp"/>
-        <FILE id="0jxvc4H" name="Parameter.h" compile="0" resource="0" file="Source/Processors/Parameter.h"/>
-        <FILE id="arRy5R" name="SpikeDisplayNode.cpp" compile="1" resource="0"
-              file="Source/Processors/SpikeDisplayNode.cpp"/>
-        <FILE id="VwDxj" name="SpikeDisplayNode.h" compile="0" resource="0"
-              file="Source/Processors/SpikeDisplayNode.h"/>
-        <FILE id="Poqus0b" name="WiFiOutput.cpp" compile="1" resource="0" file="Source/Processors/WiFiOutput.cpp"/>
-        <FILE id="IklsJpw" name="WiFiOutput.h" compile="0" resource="0" file="Source/Processors/WiFiOutput.h"/>
-        <FILE id="ZuMpSio" name="LfpDisplayNode.cpp" compile="1" resource="0"
-              file="Source/Processors/LfpDisplayNode.cpp"/>
-        <FILE id="VynGpEg" name="LfpDisplayNode.h" compile="0" resource="0"
-              file="Source/Processors/LfpDisplayNode.h"/>
-        <GROUP id="Enz7QFy" name="Utilities">
-          <FILE id="llkb8mQ" name="RecordControl.cpp" compile="1" resource="0"
-                file="Source/Processors/Utilities/RecordControl.cpp"/>
-          <FILE id="jRqpt5T" name="RecordControl.h" compile="0" resource="0"
-                file="Source/Processors/Utilities/RecordControl.h"/>
-          <FILE id="qt6uLka" name="Merger.cpp" compile="1" resource="0" file="Source/Processors/Utilities/Merger.cpp"/>
-          <FILE id="XNRlWg8" name="Merger.h" compile="0" resource="0" file="Source/Processors/Utilities/Merger.h"/>
-          <FILE id="YMFH4P2" name="Splitter.cpp" compile="1" resource="0" file="Source/Processors/Utilities/Splitter.cpp"/>
-          <FILE id="DXYynnz" name="Splitter.h" compile="0" resource="0" file="Source/Processors/Utilities/Splitter.h"/>
+        <GROUP id="{1932782D-9D00-9B76-92DC-94E7D42BF0D2}" name="AudioNode">
+          <FILE id="TV4cOO" name="AudioEditor.cpp" compile="1" resource="0" file="Source/Processors/AudioNode/AudioEditor.cpp"/>
+          <FILE id="erBMrA" name="AudioEditor.h" compile="0" resource="0" file="Source/Processors/AudioNode/AudioEditor.h"/>
+          <FILE id="jClaJf" name="AudioNode.cpp" compile="1" resource="0" file="Source/Processors/AudioNode/AudioNode.cpp"/>
+          <FILE id="LHkdoG" name="AudioNode.h" compile="0" resource="0" file="Source/Processors/AudioNode/AudioNode.h"/>
         </GROUP>
-        <GROUP id="W4eqkOy" name="Visualization">
-          <FILE id="VEG9QN" name="SpikeSorterCanvas.cpp" compile="1" resource="0"
-                file="Source/Processors/Visualization/SpikeSorterCanvas.cpp"/>
-          <FILE id="jKKmg2" name="SpikeSorterCanvas.h" compile="0" resource="0"
-                file="Source/Processors/Visualization/SpikeSorterCanvas.h"/>
-          <FILE id="ajAJi" name="SpikeObject.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikeObject.cpp"/>
-          <FILE id="xqF5zL" name="SpikeObject.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikeObject.h"/>
-          <FILE id="jGEqDp" name="SpikeDisplayCanvas.cpp" compile="1" resource="0"
-                file="Source/Processors/Visualization/SpikeDisplayCanvas.cpp"/>
-          <FILE id="LVHMu2" name="SpikeDisplayCanvas.h" compile="0" resource="0"
-                file="Source/Processors/Visualization/SpikeDisplayCanvas.h"/>
-          <FILE id="yDPZGpt" name="Visualizer.h" compile="0" resource="0" file="Source/Processors/Visualization/Visualizer.h"/>
-          <FILE id="BX1Vj3V" name="DataWindow.cpp" compile="1" resource="0" file="Source/Processors/Visualization/DataWindow.cpp"/>
-          <FILE id="l2VKLuP" name="DataWindow.h" compile="0" resource="0" file="Source/Processors/Visualization/DataWindow.h"/>
-          <FILE id="2rXPco7" name="LfpDisplayCanvas.cpp" compile="1" resource="0"
-                file="Source/Processors/Visualization/LfpDisplayCanvas.cpp"/>
-          <FILE id="18BC8qM" name="LfpDisplayCanvas.h" compile="0" resource="0"
-                file="Source/Processors/Visualization/LfpDisplayCanvas.h"/>
+        <GROUP id="{ED1C2AFE-2ED9-D835-532A-4D6C558C73E7}" name="AudioResamplingNode">
+          <FILE id="YStaN1" name="AudioResamplingNode.cpp" compile="1" resource="0"
+                file="Source/Processors/AudioResamplingNode/AudioResamplingNode.cpp"/>
+          <FILE id="pnFZDY" name="AudioResamplingNode.h" compile="0" resource="0"
+                file="Source/Processors/AudioResamplingNode/AudioResamplingNode.h"/>
         </GROUP>
-        <FILE id="533rUXO" name="SpikeDetector.cpp" compile="1" resource="0"
-              file="Source/Processors/SpikeDetector.cpp"/>
-        <FILE id="jIX00WN" name="SpikeDetector.h" compile="0" resource="0"
-              file="Source/Processors/SpikeDetector.h"/>
-        <FILE id="gZRZq2O" name="AudioNode.cpp" compile="1" resource="0" file="Source/Processors/AudioNode.cpp"/>
-        <FILE id="ZPSmLKn" name="AudioNode.h" compile="0" resource="0" file="Source/Processors/AudioNode.h"/>
-        <FILE id="hGnGAjh" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode.cpp"/>
-        <FILE id="dUtRN6" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode.h"/>
-        <GROUP id="AqvwO6w" name="Editors">
-          <FILE id="NqkfyH" name="MessageCenterEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/MessageCenterEditor.cpp"/>
-          <FILE id="S6vGnN" name="MessageCenterEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/MessageCenterEditor.h"/>
-          <FILE id="K24HnQ" name="EcubeEditor.cpp" compile="1" resource="0" file="Source/Processors/Editors/EcubeEditor.cpp"/>
-          <FILE id="lLjRJj" name="EcubeEditor.h" compile="0" resource="0" file="Source/Processors/Editors/EcubeEditor.h"/>
-          <FILE id="Fs9xVR" name="SpikeSorterEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/SpikeSorterEditor.cpp"/>
-          <FILE id="YnUVDV" name="SpikeSorterEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/SpikeSorterEditor.h"/>
-          <FILE id="jQo6Ff" name="LfpTriggeredAverageEditor.cpp" compile="1"
-                resource="0" file="Source/Processors/Editors/LfpTriggeredAverageEditor.cpp"/>
-          <FILE id="RaQC38" name="LfpTriggeredAverageEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/LfpTriggeredAverageEditor.h"/>
-          <FILE id="D3eN0G" name="SerialInputEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/SerialInputEditor.cpp"/>
-          <FILE id="iG39Gh" name="SerialInputEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/SerialInputEditor.h"/>
-          <FILE id="E2PXvz" name="ElectrodeButtons.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/ElectrodeButtons.cpp"/>
-          <FILE id="yriJOG" name="ElectrodeButtons.h" compile="0" resource="0"
-                file="Source/Processors/Editors/ElectrodeButtons.h"/>
-          <FILE id="g1ki17" name="ChannelMappingEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/ChannelMappingEditor.cpp"/>
-          <FILE id="KLhI0Q" name="ChannelMappingEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/ChannelMappingEditor.h"/>
-          <FILE id="PobvRC" name="FileReaderEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/FileReaderEditor.cpp"/>
-          <FILE id="hIDHaX" name="FileReaderEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/FileReaderEditor.h"/>
-          <FILE id="Vy98eh" name="PhaseDetectorEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/PhaseDetectorEditor.cpp"/>
-          <FILE id="vuvcfO" name="PhaseDetectorEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/PhaseDetectorEditor.h"/>
-          <FILE id="NHDoDu" name="PulsePalOutputEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/PulsePalOutputEditor.cpp"/>
-          <FILE id="dVyt6h" name="PulsePalOutputEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/PulsePalOutputEditor.h"/>
-          <FILE id="Xy7AJu" name="RHD2000Editor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/RHD2000Editor.cpp"/>
-          <FILE id="TKVa9h" name="RHD2000Editor.h" compile="0" resource="0" file="Source/Processors/Editors/RHD2000Editor.h"/>
-          <FILE id="3P8oDf3" name="RecordControlEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/RecordControlEditor.cpp"/>
-          <FILE id="hFb27ev" name="RecordControlEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/RecordControlEditor.h"/>
-          <FILE id="tz64eOn" name="ReferenceNodeEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/ReferenceNodeEditor.cpp"/>
-          <FILE id="sxR3wcq" name="ReferenceNodeEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/ReferenceNodeEditor.h"/>
-          <FILE id="vcZeT2R" name="ResamplingNodeEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/ResamplingNodeEditor.cpp"/>
-          <FILE id="pMjiz6m" name="ResamplingNodeEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/ResamplingNodeEditor.h"/>
-          <FILE id="mvixd58" name="FPGAOutputEditor.cpp" compile="1" resource="1"
-                file="Source/Processors/Editors/FPGAOutputEditor.cpp"/>
-          <FILE id="phTDDOR" name="FPGAOutputEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/FPGAOutputEditor.h"/>
-          <FILE id="oYeB8Hh" name="ArduinoOutputEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/ArduinoOutputEditor.cpp"/>
-          <FILE id="xfwOAJs" name="ArduinoOutputEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/ArduinoOutputEditor.h"/>
-          <FILE id="rZGNxjv" name="ChannelSelector.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/ChannelSelector.cpp"/>
-          <FILE id="Yga4B3Z" name="ChannelSelector.h" compile="0" resource="0"
-                file="Source/Processors/Editors/ChannelSelector.h"/>
-          <FILE id="qWhyk9h" name="ParameterEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/ParameterEditor.cpp"/>
-          <FILE id="3PkZxza" name="ParameterEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/ParameterEditor.h"/>
-          <FILE id="s5YUmi" name="SpikeDisplayEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/SpikeDisplayEditor.cpp"/>
-          <FILE id="EE43GV" name="SpikeDisplayEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/SpikeDisplayEditor.h"/>
-          <FILE id="2XqqPOS" name="VisualizerEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/VisualizerEditor.cpp"/>
-          <FILE id="CUHGPJF" name="VisualizerEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/VisualizerEditor.h"/>
-          <FILE id="bsIZbuu" name="MergerEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/MergerEditor.cpp"/>
-          <FILE id="vfmEY5L" name="MergerEditor.h" compile="0" resource="0" file="Source/Processors/Editors/MergerEditor.h"/>
-          <FILE id="i2MR4pC" name="ImageIcon.cpp" compile="1" resource="0" file="Source/Processors/Editors/ImageIcon.cpp"/>
-          <FILE id="N8r8D18" name="ImageIcon.h" compile="0" resource="0" file="Source/Processors/Editors/ImageIcon.h"/>
-          <FILE id="mLd64ww" name="WiFiOutputEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/WiFiOutputEditor.cpp"/>
-          <FILE id="qunHBGe" name="WiFiOutputEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/WiFiOutputEditor.h"/>
-          <FILE id="5DPzIoS" name="EventNodeEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/EventNodeEditor.cpp"/>
-          <FILE id="gva5me" name="EventNodeEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/EventNodeEditor.h"/>
-          <FILE id="OJKuulJ" name="SignalGeneratorEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/SignalGeneratorEditor.cpp"/>
-          <FILE id="JhVBo3n" name="SignalGeneratorEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/SignalGeneratorEditor.h"/>
-          <FILE id="cTebrMp" name="LfpDisplayEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/LfpDisplayEditor.cpp"/>
-          <FILE id="ru5zWWN" name="LfpDisplayEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/LfpDisplayEditor.h"/>
-          <FILE id="ErsHzHU" name="SourceNodeEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/SourceNodeEditor.cpp"/>
-          <FILE id="wMP6rcZ" name="SourceNodeEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/SourceNodeEditor.h"/>
-          <FILE id="HZXZN8Z" name="SplitterEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/SplitterEditor.cpp"/>
-          <FILE id="LWp4vf" name="SplitterEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/SplitterEditor.h"/>
-          <FILE id="UCf00eh" name="SpikeDetectorEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/SpikeDetectorEditor.cpp"/>
-          <FILE id="Q8ftPSA" name="SpikeDetectorEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/SpikeDetectorEditor.h"/>
-          <FILE id="Nw6Lpmq" name="AudioEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/AudioEditor.cpp"/>
-          <FILE id="atkKPmM" name="AudioEditor.h" compile="0" resource="0" file="Source/Processors/Editors/AudioEditor.h"/>
-          <FILE id="4sHjKNc" name="FilterEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/FilterEditor.cpp"/>
-          <FILE id="A2OQdsN" name="FilterEditor.h" compile="0" resource="0" file="Source/Processors/Editors/FilterEditor.h"/>
-          <FILE id="9sKH5cL" name="GenericEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/Editors/GenericEditor.cpp"/>
-          <FILE id="gETPJeW" name="GenericEditor.h" compile="0" resource="0"
-                file="Source/Processors/Editors/GenericEditor.h"/>
+        <GROUP id="{46016F19-8F25-F540-AA1C-D6E87E8D7D31}" name="Channel">
+          <FILE id="X3I3e9" name="Channel.cpp" compile="1" resource="0" file="Source/Processors/Channel/Channel.cpp"/>
+          <FILE id="IEZGF3" name="Channel.h" compile="0" resource="0" file="Source/Processors/Channel/Channel.h"/>
+        </GROUP>
+        <GROUP id="{CC57D5E1-9093-9454-4B03-5908715DFBD8}" name="ChannelMappingNode">
+          <FILE id="UhpW2V" name="ChannelMappingEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/ChannelMappingNode/ChannelMappingEditor.cpp"/>
+          <FILE id="kq8tJl" name="ChannelMappingEditor.h" compile="0" resource="0"
+                file="Source/Processors/ChannelMappingNode/ChannelMappingEditor.h"/>
+          <FILE id="gRCztM" name="ChannelMappingNode.cpp" compile="1" resource="0"
+                file="Source/Processors/ChannelMappingNode/ChannelMappingNode.cpp"/>
+          <FILE id="blwGma" name="ChannelMappingNode.h" compile="0" resource="0"
+                file="Source/Processors/ChannelMappingNode/ChannelMappingNode.h"/>
         </GROUP>
         <GROUP id="ZgsuWxi" name="DataThreads">
+          <FILE id="gHzlwP" name="EcubeEditor.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/EcubeEditor.cpp"/>
+          <FILE id="Bi0une" name="EcubeEditor.h" compile="0" resource="0" file="Source/Processors/DataThreads/EcubeEditor.h"/>
+          <FILE id="ZBPSXE" name="RHD2000Editor.cpp" compile="1" resource="0"
+                file="Source/Processors/DataThreads/RHD2000Editor.cpp"/>
+          <FILE id="TnZlGU" name="RHD2000Editor.h" compile="0" resource="0" file="Source/Processors/DataThreads/RHD2000Editor.h"/>
           <FILE id="mbMbly" name="EcubeThread.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/EcubeThread.cpp"/>
           <FILE id="lKsc0T" name="EcubeThread.h" compile="0" resource="0" file="Source/Processors/DataThreads/EcubeThread.h"/>
           <GROUP id="LcWQtrg" name="rhythm-api">
@@ -589,28 +344,333 @@
           <FILE id="9JbVKlA" name="DataThread.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/DataThread.cpp"/>
           <FILE id="McgNvuR" name="DataThread.h" compile="0" resource="0" file="Source/Processors/DataThreads/DataThread.h"/>
         </GROUP>
-        <FILE id="f34QY5Q" name="RecordNode.cpp" compile="1" resource="0" file="Source/Processors/RecordNode.cpp"/>
-        <FILE id="ne3WPH4" name="RecordNode.h" compile="0" resource="0" file="Source/Processors/RecordNode.h"/>
-        <FILE id="JXxx5p" name="SignalGenerator.cpp" compile="1" resource="0"
-              file="Source/Processors/SignalGenerator.cpp"/>
-        <FILE id="6xlnGdF" name="SignalGenerator.h" compile="0" resource="0"
-              file="Source/Processors/SignalGenerator.h"/>
-        <FILE id="5xMSqrr" name="ResamplingNode.cpp" compile="1" resource="0"
-              file="Source/Processors/ResamplingNode.cpp"/>
-        <FILE id="G3kmYa" name="ResamplingNode.h" compile="0" resource="0"
-              file="Source/Processors/ResamplingNode.h"/>
-        <FILE id="8KOCQ0m" name="FilterNode.cpp" compile="1" resource="0" file="Source/Processors/FilterNode.cpp"/>
-        <FILE id="BLwO4vF" name="FilterNode.h" compile="0" resource="0" file="Source/Processors/FilterNode.h"/>
-        <FILE id="OakAxjJ" name="SourceNode.cpp" compile="1" resource="0" file="Source/Processors/SourceNode.cpp"/>
-        <FILE id="T6xYPnw" name="SourceNode.h" compile="0" resource="0" file="Source/Processors/SourceNode.h"/>
-        <FILE id="s8On6e" name="GenericProcessor.cpp" compile="1" resource="0"
-              file="Source/Processors/GenericProcessor.cpp"/>
-        <FILE id="tjR32I" name="GenericProcessor.h" compile="0" resource="0"
-              file="Source/Processors/GenericProcessor.h"/>
-        <FILE id="z3gsHSY" name="ProcessorGraph.cpp" compile="1" resource="0"
-              file="Source/Processors/ProcessorGraph.cpp"/>
-        <FILE id="WbqC0CB" name="ProcessorGraph.h" compile="0" resource="0"
-              file="Source/Processors/ProcessorGraph.h"/>
+        <GROUP id="{BCF99568-D3A2-7CA2-E809-815D22183EA4}" name="Dsp">
+          <FILE id="PHlcin" name="Bessel.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Bessel.cpp"/>
+          <FILE id="YXAcyZ" name="Bessel.h" compile="0" resource="0" file="Source/Processors/Dsp/Bessel.h"/>
+          <FILE id="nOEja0" name="Biquad.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Biquad.cpp"/>
+          <FILE id="DxX7XS" name="Biquad.h" compile="0" resource="0" file="Source/Processors/Dsp/Biquad.h"/>
+          <FILE id="VQ44sd" name="Butterworth.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Butterworth.cpp"/>
+          <FILE id="NVAymk" name="Butterworth.h" compile="0" resource="0" file="Source/Processors/Dsp/Butterworth.h"/>
+          <FILE id="FkrTqV" name="Cascade.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Cascade.cpp"/>
+          <FILE id="pj0T3e" name="Cascade.h" compile="0" resource="0" file="Source/Processors/Dsp/Cascade.h"/>
+          <FILE id="ggju8m" name="ChebyshevI.cpp" compile="1" resource="0" file="Source/Processors/Dsp/ChebyshevI.cpp"/>
+          <FILE id="EGxTwj" name="ChebyshevI.h" compile="0" resource="0" file="Source/Processors/Dsp/ChebyshevI.h"/>
+          <FILE id="nWSeZF" name="ChebyshevII.cpp" compile="1" resource="0" file="Source/Processors/Dsp/ChebyshevII.cpp"/>
+          <FILE id="HS65B6" name="ChebyshevII.h" compile="0" resource="0" file="Source/Processors/Dsp/ChebyshevII.h"/>
+          <FILE id="jumO5X" name="Common.h" compile="0" resource="0" file="Source/Processors/Dsp/Common.h"/>
+          <FILE id="E1ZdBg" name="Custom.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Custom.cpp"/>
+          <FILE id="JAxvZH" name="Custom.h" compile="0" resource="0" file="Source/Processors/Dsp/Custom.h"/>
+          <FILE id="BynrL2" name="Design.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Design.cpp"/>
+          <FILE id="tINM97" name="Design.h" compile="0" resource="0" file="Source/Processors/Dsp/Design.h"/>
+          <FILE id="gikZHr" name="Documentation.cpp" compile="1" resource="0"
+                file="Source/Processors/Dsp/Documentation.cpp"/>
+          <FILE id="nwwW9u" name="Dsp.h" compile="0" resource="0" file="Source/Processors/Dsp/Dsp.h"/>
+          <FILE id="VMtjos" name="Elliptic.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Elliptic.cpp"/>
+          <FILE id="xlw76X" name="Elliptic.h" compile="0" resource="0" file="Source/Processors/Dsp/Elliptic.h"/>
+          <FILE id="SSUdH3" name="Filter.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Filter.cpp"/>
+          <FILE id="jMEqrr" name="Filter.h" compile="0" resource="0" file="Source/Processors/Dsp/Filter.h"/>
+          <FILE id="gORopa" name="Layout.h" compile="0" resource="0" file="Source/Processors/Dsp/Layout.h"/>
+          <FILE id="KFWbTw" name="Legendre.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Legendre.cpp"/>
+          <FILE id="QukTBD" name="Legendre.h" compile="0" resource="0" file="Source/Processors/Dsp/Legendre.h"/>
+          <FILE id="yjHeg0" name="MathSupplement.h" compile="0" resource="0"
+                file="Source/Processors/Dsp/MathSupplement.h"/>
+          <FILE id="lSjPpg" name="Param.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Param.cpp"/>
+          <FILE id="GbSbST" name="Params.h" compile="0" resource="0" file="Source/Processors/Dsp/Params.h"/>
+          <FILE id="iTSDrw" name="PoleFilter.cpp" compile="1" resource="0" file="Source/Processors/Dsp/PoleFilter.cpp"/>
+          <FILE id="c45usH" name="PoleFilter.h" compile="0" resource="0" file="Source/Processors/Dsp/PoleFilter.h"/>
+          <FILE id="UEmTDD" name="RBJ.cpp" compile="1" resource="0" file="Source/Processors/Dsp/RBJ.cpp"/>
+          <FILE id="PjXcyh" name="RBJ.h" compile="0" resource="0" file="Source/Processors/Dsp/RBJ.h"/>
+          <FILE id="n1FzuK" name="RootFinder.cpp" compile="1" resource="0" file="Source/Processors/Dsp/RootFinder.cpp"/>
+          <FILE id="aDg7vK" name="RootFinder.h" compile="0" resource="0" file="Source/Processors/Dsp/RootFinder.h"/>
+          <FILE id="DE0lE3" name="SmoothedFilter.h" compile="0" resource="0"
+                file="Source/Processors/Dsp/SmoothedFilter.h"/>
+          <FILE id="SPcR5B" name="State.cpp" compile="1" resource="0" file="Source/Processors/Dsp/State.cpp"/>
+          <FILE id="D1k4f9" name="State.h" compile="0" resource="0" file="Source/Processors/Dsp/State.h"/>
+          <FILE id="BBxUBy" name="Types.h" compile="0" resource="0" file="Source/Processors/Dsp/Types.h"/>
+          <FILE id="qXPdAz" name="Utilities.h" compile="0" resource="0" file="Source/Processors/Dsp/Utilities.h"/>
+        </GROUP>
+        <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="F68NQ3" name="ChannelSelector.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/ChannelSelector.cpp"/>
+          <FILE id="cOToxV" name="ChannelSelector.h" compile="0" resource="0"
+                file="Source/Processors/Editors/ChannelSelector.h"/>
+          <FILE id="EXjl1X" name="ElectrodeButtons.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/ElectrodeButtons.cpp"/>
+          <FILE id="aOEJ7T" name="ElectrodeButtons.h" compile="0" resource="0"
+                file="Source/Processors/Editors/ElectrodeButtons.h"/>
+          <FILE id="dlQddi" name="GenericEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/GenericEditor.cpp"/>
+          <FILE id="NZjjLm" name="GenericEditor.h" compile="0" resource="0" file="Source/Processors/Editors/GenericEditor.h"/>
+          <FILE id="mqcmr8" name="ImageIcon.cpp" compile="1" resource="0" file="Source/Processors/Editors/ImageIcon.cpp"/>
+          <FILE id="GLT84s" name="ImageIcon.h" compile="0" resource="0" file="Source/Processors/Editors/ImageIcon.h"/>
+          <FILE id="mOQQgo" name="ParameterEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/ParameterEditor.cpp"/>
+          <FILE id="N7W331" name="ParameterEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/ParameterEditor.h"/>
+          <FILE id="c8F02O" name="VisualizerEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/VisualizerEditor.cpp"/>
+          <FILE id="qGudPl" name="VisualizerEditor.h" compile="0" resource="0"
+                file="Source/Processors/Editors/VisualizerEditor.h"/>
+        </GROUP>
+        <GROUP id="{5884418B-6740-1CC4-EC34-721D3F3038AE}" name="EventDetector">
+          <FILE id="GzQXNv" name="EventDetector.cpp" compile="1" resource="0"
+                file="Source/Processors/EventDetector/EventDetector.cpp"/>
+          <FILE id="cB7MXO" name="EventDetector.h" compile="0" resource="0" file="Source/Processors/EventDetector/EventDetector.h"/>
+        </GROUP>
+        <GROUP id="{0F7938FB-ACA3-29CA-58CE-2F0C8B5B0033}" name="EventNode">
+          <FILE id="FWXJPq" name="EventNode.cpp" compile="1" resource="0" file="Source/Processors/EventNode/EventNode.cpp"/>
+          <FILE id="muOEC8" name="EventNode.h" compile="0" resource="0" file="Source/Processors/EventNode/EventNode.h"/>
+          <FILE id="Kwuq6Z" name="EventNodeEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/EventNode/EventNodeEditor.cpp"/>
+          <FILE id="LUVId3" name="EventNodeEditor.h" compile="0" resource="0"
+                file="Source/Processors/EventNode/EventNodeEditor.h"/>
+        </GROUP>
+        <GROUP id="{27CF9A8D-7C31-9AA9-6DCA-6C719E127923}" name="FileReader">
+          <FILE id="Pg9JfX" name="FileReader.cpp" compile="1" resource="0" file="Source/Processors/FileReader/FileReader.cpp"/>
+          <FILE id="SuAWvs" name="FileReader.h" compile="0" resource="0" file="Source/Processors/FileReader/FileReader.h"/>
+          <FILE id="Z58rr6" name="FileReaderEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/FileReader/FileReaderEditor.cpp"/>
+          <FILE id="Ocpu1k" name="FileReaderEditor.h" compile="0" resource="0"
+                file="Source/Processors/FileReader/FileReaderEditor.h"/>
+        </GROUP>
+        <GROUP id="{986528D4-813B-6CCB-4564-5A15140EB912}" name="FilterNode">
+          <FILE id="yBlgAF" name="FilterEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/FilterNode/FilterEditor.cpp"/>
+          <FILE id="sBtXDo" name="FilterEditor.h" compile="0" resource="0" file="Source/Processors/FilterNode/FilterEditor.h"/>
+          <FILE id="usXu7Q" name="FilterNode.cpp" compile="1" resource="0" file="Source/Processors/FilterNode/FilterNode.cpp"/>
+          <FILE id="qnkW8d" name="FilterNode.h" compile="0" resource="0" file="Source/Processors/FilterNode/FilterNode.h"/>
+        </GROUP>
+        <GROUP id="{C47ABFBD-BC30-F6F2-B445-67B11DC5594F}" name="FPGAOutput">
+          <FILE id="DY6GL1" name="FPGAOutput.cpp" compile="1" resource="0" file="Source/Processors/FPGAOutput/FPGAOutput.cpp"/>
+          <FILE id="CdbTqf" name="FPGAOutput.h" compile="0" resource="0" file="Source/Processors/FPGAOutput/FPGAOutput.h"/>
+          <FILE id="tH5H69" name="FPGAOutputEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/FPGAOutput/FPGAOutputEditor.cpp"/>
+          <FILE id="e1ivPs" name="FPGAOutputEditor.h" compile="0" resource="0"
+                file="Source/Processors/FPGAOutput/FPGAOutputEditor.h"/>
+        </GROUP>
+        <GROUP id="{95FA3CAF-7BFA-AFF7-4480-EADCCA5FBA66}" name="GenericProcessor">
+          <FILE id="l24v5k" name="GenericProcessor.cpp" compile="1" resource="0"
+                file="Source/Processors/GenericProcessor/GenericProcessor.cpp"/>
+          <FILE id="jSfKFd" name="GenericProcessor.h" compile="0" resource="0"
+                file="Source/Processors/GenericProcessor/GenericProcessor.h"/>
+        </GROUP>
+        <GROUP id="{B8EDEED3-180D-9198-31A8-D1E42439462C}" name="LfpDisplayNode">
+          <FILE id="jKpYbZ" name="LfpDisplayCanvas.cpp" compile="1" resource="0"
+                file="Source/Processors/LfpDisplayNode/LfpDisplayCanvas.cpp"/>
+          <FILE id="wDsfeN" name="LfpDisplayCanvas.h" compile="0" resource="0"
+                file="Source/Processors/LfpDisplayNode/LfpDisplayCanvas.h"/>
+          <FILE id="tWxSDp" name="LfpDisplayEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/LfpDisplayNode/LfpDisplayEditor.cpp"/>
+          <FILE id="Nkg6ww" name="LfpDisplayEditor.h" compile="0" resource="0"
+                file="Source/Processors/LfpDisplayNode/LfpDisplayEditor.h"/>
+          <FILE id="x9mO0H" name="LfpDisplayNode.cpp" compile="1" resource="0"
+                file="Source/Processors/LfpDisplayNode/LfpDisplayNode.cpp"/>
+          <FILE id="rKu45v" name="LfpDisplayNode.h" compile="0" resource="0"
+                file="Source/Processors/LfpDisplayNode/LfpDisplayNode.h"/>
+        </GROUP>
+        <GROUP id="{D20DFFFD-08E8-5CC6-479A-07CECDE9BC86}" name="LfpTriggeredAverageNode">
+          <FILE id="dxKyFx" name="LfpTriggeredAverageCanvas.cpp" compile="1"
+                resource="0" file="Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageCanvas.cpp"/>
+          <FILE id="CMxAvm" name="LfpTriggeredAverageCanvas.h" compile="0" resource="0"
+                file="Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageCanvas.h"/>
+          <FILE id="VhsonN" name="LfpTriggeredAverageEditor.cpp" compile="1"
+                resource="0" file="Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageEditor.cpp"/>
+          <FILE id="jVc0dD" name="LfpTriggeredAverageEditor.h" compile="0" resource="0"
+                file="Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageEditor.h"/>
+          <FILE id="ADrDsi" name="LfpTriggeredAverageNode.cpp" compile="1" resource="0"
+                file="Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageNode.cpp"/>
+          <FILE id="wEt96B" name="LfpTriggeredAverageNode.h" compile="0" resource="0"
+                file="Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageNode.h"/>
+        </GROUP>
+        <GROUP id="{4B40CAAE-49C7-509A-B7E7-0C7EF011FBA1}" name="Merger">
+          <FILE id="gZxAmt" name="Merger.cpp" compile="1" resource="0" file="Source/Processors/Merger/Merger.cpp"/>
+          <FILE id="w8qwHK" name="Merger.h" compile="0" resource="0" file="Source/Processors/Merger/Merger.h"/>
+          <FILE id="YIzAwj" name="MergerEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Merger/MergerEditor.cpp"/>
+          <FILE id="yquxy4" name="MergerEditor.h" compile="0" resource="0" file="Source/Processors/Merger/MergerEditor.h"/>
+        </GROUP>
+        <GROUP id="{6E21A406-000C-7894-28D6-2B45D07A304B}" name="MessageCenter">
+          <FILE id="gnNHUQ" name="MessageCenter.cpp" compile="1" resource="0"
+                file="Source/Processors/MessageCenter/MessageCenter.cpp"/>
+          <FILE id="vn2uwZ" name="MessageCenter.h" compile="0" resource="0" file="Source/Processors/MessageCenter/MessageCenter.h"/>
+          <FILE id="xGnJo5" name="MessageCenterEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/MessageCenter/MessageCenterEditor.cpp"/>
+          <FILE id="r1V0KZ" name="MessageCenterEditor.h" compile="0" resource="0"
+                file="Source/Processors/MessageCenter/MessageCenterEditor.h"/>
+        </GROUP>
+        <GROUP id="{86B5AC2A-0A78-6D0E-C5FE-6758DDD096DB}" name="Parameter">
+          <FILE id="P4fc98" name="Parameter.cpp" compile="1" resource="0" file="Source/Processors/Parameter/Parameter.cpp"/>
+          <FILE id="QdTalD" name="Parameter.h" compile="0" resource="0" file="Source/Processors/Parameter/Parameter.h"/>
+        </GROUP>
+        <GROUP id="{0FB1D636-E24B-00AB-3123-3C8B78796B4A}" name="PhaseDetector">
+          <FILE id="l7SGiM" name="PhaseDetector.cpp" compile="1" resource="0"
+                file="Source/Processors/PhaseDetector/PhaseDetector.cpp"/>
+          <FILE id="eKMXut" name="PhaseDetector.h" compile="0" resource="0" file="Source/Processors/PhaseDetector/PhaseDetector.h"/>
+          <FILE id="T9hV0k" name="PhaseDetectorEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/PhaseDetector/PhaseDetectorEditor.cpp"/>
+          <FILE id="d4b1Wv" name="PhaseDetectorEditor.h" compile="0" resource="0"
+                file="Source/Processors/PhaseDetector/PhaseDetectorEditor.h"/>
+        </GROUP>
+        <GROUP id="{FDEB8810-D49F-8E7C-17A7-685370EF966F}" name="ProcessorGraph">
+          <FILE id="qil3t5" name="ProcessorGraph.cpp" compile="1" resource="0"
+                file="Source/Processors/ProcessorGraph/ProcessorGraph.cpp"/>
+          <FILE id="cwGSmb" name="ProcessorGraph.h" compile="0" resource="0"
+                file="Source/Processors/ProcessorGraph/ProcessorGraph.h"/>
+        </GROUP>
+        <GROUP id="{B89E3035-1523-BBAA-12A9-AA81313B7E8F}" name="PulsePalOutput">
+          <FILE id="LEaT0R" name="PulsePalOutput.cpp" compile="1" resource="0"
+                file="Source/Processors/PulsePalOutput/PulsePalOutput.cpp"/>
+          <FILE id="BwbX8M" name="PulsePalOutput.h" compile="0" resource="0"
+                file="Source/Processors/PulsePalOutput/PulsePalOutput.h"/>
+          <FILE id="U4ISc3" name="PulsePalOutputEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/PulsePalOutput/PulsePalOutputEditor.cpp"/>
+          <FILE id="ugyMou" name="PulsePalOutputEditor.h" compile="0" resource="0"
+                file="Source/Processors/PulsePalOutput/PulsePalOutputEditor.h"/>
+        </GROUP>
+        <GROUP id="{75D455A6-2354-C8A4-0F0F-EE14C166944C}" name="RecordControl">
+          <FILE id="NfBdVb" name="RecordControl.cpp" compile="1" resource="0"
+                file="Source/Processors/RecordControl/RecordControl.cpp"/>
+          <FILE id="URvuJK" name="RecordControl.h" compile="0" resource="0" file="Source/Processors/RecordControl/RecordControl.h"/>
+          <FILE id="sovXVI" name="RecordControlEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/RecordControl/RecordControlEditor.cpp"/>
+          <FILE id="CKRdQf" name="RecordControlEditor.h" compile="0" resource="0"
+                file="Source/Processors/RecordControl/RecordControlEditor.h"/>
+        </GROUP>
+        <GROUP id="{B0C14DBE-8CC1-F242-3534-1DFBEAC5E43B}" name="ReferenceNode">
+          <FILE id="F7WTBV" name="ReferenceNode.cpp" compile="1" resource="0"
+                file="Source/Processors/ReferenceNode/ReferenceNode.cpp"/>
+          <FILE id="XyYPUn" name="ReferenceNode.h" compile="0" resource="0" file="Source/Processors/ReferenceNode/ReferenceNode.h"/>
+          <FILE id="tsfK4e" name="ReferenceNodeEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/ReferenceNode/ReferenceNodeEditor.cpp"/>
+          <FILE id="virGvM" name="ReferenceNodeEditor.h" compile="0" resource="0"
+                file="Source/Processors/ReferenceNode/ReferenceNodeEditor.h"/>
+        </GROUP>
+        <GROUP id="{C6F1F354-C97E-128E-9C4E-2376E039F233}" name="ResamplingNode">
+          <FILE id="yIwQ4b" name="ResamplingNode.cpp" compile="1" resource="0"
+                file="Source/Processors/ResamplingNode/ResamplingNode.cpp"/>
+          <FILE id="h1zDlH" name="ResamplingNode.h" compile="0" resource="0"
+                file="Source/Processors/ResamplingNode/ResamplingNode.h"/>
+          <FILE id="LByZh0" name="ResamplingNodeEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/ResamplingNode/ResamplingNodeEditor.cpp"/>
+          <FILE id="UFlCtp" name="ResamplingNodeEditor.h" compile="0" resource="0"
+                file="Source/Processors/ResamplingNode/ResamplingNodeEditor.h"/>
+        </GROUP>
+        <GROUP id="gFSbZKw" name="Serial">
+          <FILE id="PHwlqi" name="PulsePal.cpp" compile="1" resource="0" file="Source/Processors/Serial/PulsePal.cpp"/>
+          <FILE id="R4XRyB" name="PulsePal.h" compile="0" resource="0" file="Source/Processors/Serial/PulsePal.h"/>
+          <FILE id="3t2ez3c" name="ofArduino.cpp" compile="1" resource="0" file="Source/Processors/Serial/ofArduino.cpp"/>
+          <FILE id="bXASAoT" name="ofArduino.h" compile="0" resource="0" file="Source/Processors/Serial/ofArduino.h"/>
+          <FILE id="hNTT1i1" name="ofConstants.h" compile="0" resource="0" file="Source/Processors/Serial/ofConstants.h"/>
+          <FILE id="F97Ylmz" name="ofSerial.cpp" compile="1" resource="0" file="Source/Processors/Serial/ofSerial.cpp"/>
+          <FILE id="wV1xn3Z" name="ofSerial.h" compile="0" resource="0" file="Source/Processors/Serial/ofSerial.h"/>
+        </GROUP>
+        <GROUP id="{C5E76874-E767-D4E0-D8B6-F61DBB446F13}" name="SerialInput">
+          <FILE id="dWXqU4" name="SerialInput.cpp" compile="1" resource="0" file="Source/Processors/SerialInput/SerialInput.cpp"/>
+          <FILE id="EReMRm" name="SerialInput.h" compile="0" resource="0" file="Source/Processors/SerialInput/SerialInput.h"/>
+          <FILE id="Q0XOjv" name="SerialInputEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/SerialInput/SerialInputEditor.cpp"/>
+          <FILE id="s0Nf1X" name="SerialInputEditor.h" compile="0" resource="0"
+                file="Source/Processors/SerialInput/SerialInputEditor.h"/>
+        </GROUP>
+        <GROUP id="{8E9594A3-D2B2-EAA3-9596-89923D59830A}" name="SignalGenerator">
+          <FILE id="mywzvE" name="SignalGenerator.cpp" compile="1" resource="0"
+                file="Source/Processors/SignalGenerator/SignalGenerator.cpp"/>
+          <FILE id="iaP3u1" name="SignalGenerator.h" compile="0" resource="0"
+                file="Source/Processors/SignalGenerator/SignalGenerator.h"/>
+          <FILE id="xZoFAy" name="SignalGeneratorEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/SignalGenerator/SignalGeneratorEditor.cpp"/>
+          <FILE id="svgwwG" name="SignalGeneratorEditor.h" compile="0" resource="0"
+                file="Source/Processors/SignalGenerator/SignalGeneratorEditor.h"/>
+        </GROUP>
+        <GROUP id="{58E5BDC1-3523-0E4D-2402-72726098BA07}" name="SourceNode">
+          <FILE id="bcB5hN" name="SourceNode.cpp" compile="1" resource="0" file="Source/Processors/SourceNode/SourceNode.cpp"/>
+          <FILE id="Dyas33" name="SourceNode.h" compile="0" resource="0" file="Source/Processors/SourceNode/SourceNode.h"/>
+          <FILE id="KQM0Ls" name="SourceNodeEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/SourceNode/SourceNodeEditor.cpp"/>
+          <FILE id="EWFh9x" name="SourceNodeEditor.h" compile="0" resource="0"
+                file="Source/Processors/SourceNode/SourceNodeEditor.h"/>
+        </GROUP>
+        <GROUP id="{B1C68941-4E97-FD8E-00E8-70B1225B3EBD}" name="SpikeDetector">
+          <FILE id="LZxTYj" name="SpikeDetector.cpp" compile="1" resource="0"
+                file="Source/Processors/SpikeDetector/SpikeDetector.cpp"/>
+          <FILE id="A4LRql" name="SpikeDetector.h" compile="0" resource="0" file="Source/Processors/SpikeDetector/SpikeDetector.h"/>
+          <FILE id="dJHC68" name="SpikeDetectorEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/SpikeDetector/SpikeDetectorEditor.cpp"/>
+          <FILE id="ek762r" name="SpikeDetectorEditor.h" compile="0" resource="0"
+                file="Source/Processors/SpikeDetector/SpikeDetectorEditor.h"/>
+        </GROUP>
+        <GROUP id="{3C98FCA3-673A-3E34-ABC6-D506EF05DDD4}" name="SpikeDisplayNode">
+          <FILE id="Ak6yJU" name="SpikeDisplayCanvas.cpp" compile="1" resource="0"
+                file="Source/Processors/SpikeDisplayNode/SpikeDisplayCanvas.cpp"/>
+          <FILE id="Ivm1WE" name="SpikeDisplayCanvas.h" compile="0" resource="0"
+                file="Source/Processors/SpikeDisplayNode/SpikeDisplayCanvas.h"/>
+          <FILE id="tzcDUJ" name="SpikeDisplayEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/SpikeDisplayNode/SpikeDisplayEditor.cpp"/>
+          <FILE id="qpnGQ2" name="SpikeDisplayEditor.h" compile="0" resource="0"
+                file="Source/Processors/SpikeDisplayNode/SpikeDisplayEditor.h"/>
+          <FILE id="Osx5Vs" name="SpikeDisplayNode.cpp" compile="1" resource="0"
+                file="Source/Processors/SpikeDisplayNode/SpikeDisplayNode.cpp"/>
+          <FILE id="EYFdq6" name="SpikeDisplayNode.h" compile="0" resource="0"
+                file="Source/Processors/SpikeDisplayNode/SpikeDisplayNode.h"/>
+        </GROUP>
+        <GROUP id="{B65E315B-E451-52BB-C46B-DFC8CFE52512}" name="SpikeSorter">
+          <FILE id="IDfGJU" name="SpikeSortBoxes.cpp" compile="1" resource="0"
+                file="Source/Processors/SpikeSorter/SpikeSortBoxes.cpp"/>
+          <FILE id="oKqHU5" name="SpikeSortBoxes.h" compile="0" resource="0"
+                file="Source/Processors/SpikeSorter/SpikeSortBoxes.h"/>
+          <FILE id="ZvsSnb" name="SpikeSorter.cpp" compile="1" resource="0" file="Source/Processors/SpikeSorter/SpikeSorter.cpp"/>
+          <FILE id="iWFZ8N" name="SpikeSorter.h" compile="0" resource="0" file="Source/Processors/SpikeSorter/SpikeSorter.h"/>
+          <FILE id="AAjUyt" name="SpikeSorterCanvas.cpp" compile="1" resource="0"
+                file="Source/Processors/SpikeSorter/SpikeSorterCanvas.cpp"/>
+          <FILE id="vSwtHQ" name="SpikeSorterCanvas.h" compile="0" resource="0"
+                file="Source/Processors/SpikeSorter/SpikeSorterCanvas.h"/>
+          <FILE id="eRXHEt" name="SpikeSorterEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/SpikeSorter/SpikeSorterEditor.cpp"/>
+          <FILE id="seDqmg" name="SpikeSorterEditor.h" compile="0" resource="0"
+                file="Source/Processors/SpikeSorter/SpikeSorterEditor.h"/>
+        </GROUP>
+        <GROUP id="{393F8FA9-FA27-4F2D-8252-9AB2CAA871DA}" name="Splitter">
+          <FILE id="xbkXa2" name="Splitter.cpp" compile="1" resource="0" file="Source/Processors/Splitter/Splitter.cpp"/>
+          <FILE id="kFiAO3" name="Splitter.h" compile="0" resource="0" file="Source/Processors/Splitter/Splitter.h"/>
+          <FILE id="mY47Gn" name="SplitterEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/Splitter/SplitterEditor.cpp"/>
+          <FILE id="KyMfuL" name="SplitterEditor.h" compile="0" resource="0"
+                file="Source/Processors/Splitter/SplitterEditor.h"/>
+        </GROUP>
+        <GROUP id="W4eqkOy" name="Visualization">
+          <GROUP id="{B98A3BD8-CC80-6EB9-9178-19D4C360CE6E}" name="SpikePlotting">
+            <FILE id="lbws6c" name="BaseUIElement.cpp" compile="1" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp"/>
+            <FILE id="BCo9zm" name="BaseUIElement.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.h"/>
+            <FILE id="UPz1Oq" name="GenericAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/GenericAxes.cpp"/>
+            <FILE id="Gy9r2r" name="GenericAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/GenericAxes.h"/>
+            <FILE id="kfsMln" name="PlotUtils.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/PlotUtils.cpp"/>
+            <FILE id="qpCGXM" name="PlotUtils.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/PlotUtils.h"/>
+            <FILE id="HHYdx7" name="ProjectionAxes.cpp" compile="1" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.cpp"/>
+            <FILE id="q0JIXs" name="ProjectionAxes.h" compile="0" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.h"/>
+            <FILE id="ZDuoIS" name="SimpleKeyEvent.h" compile="0" resource="0"
+                  file="Source/Processors/Visualization/SpikePlotting/SimpleKeyEvent.h"/>
+            <FILE id="TdO50q" name="SpikePlot.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/SpikePlot.cpp"/>
+            <FILE id="WG7Nrc" name="SpikePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/SpikePlot.h"/>
+            <FILE id="pasHMu" name="WaveAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp"/>
+            <FILE id="cbcoUI" name="WaveAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.h"/>
+          </GROUP>
+          <FILE id="ETLsfY" name="DataWindow.cpp" compile="1" resource="0" file="Source/Processors/Visualization/DataWindow.cpp"/>
+          <FILE id="qDfeYR" name="DataWindow.h" compile="0" resource="0" file="Source/Processors/Visualization/DataWindow.h"/>
+          <FILE id="tuQVXY" name="SpikeObject.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikeObject.cpp"/>
+          <FILE id="KyhGmE" name="SpikeObject.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikeObject.h"/>
+          <FILE id="MsSuwS" name="Visualizer.h" compile="0" resource="0" file="Source/Processors/Visualization/Visualizer.h"/>
+        </GROUP>
+        <GROUP id="{3FCFBFDA-848D-6B59-5F37-E3D1F43D54DF}" name="WiFiOutput">
+          <FILE id="OmOeLf" name="WiFiOutput.cpp" compile="1" resource="0" file="Source/Processors/WiFiOutput/WiFiOutput.cpp"/>
+          <FILE id="o3arNv" name="WiFiOutput.h" compile="0" resource="0" file="Source/Processors/WiFiOutput/WiFiOutput.h"/>
+          <FILE id="XSiAk6" name="WiFiOutputEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/WiFiOutput/WiFiOutputEditor.cpp"/>
+          <FILE id="QdKqgJ" name="WiFiOutputEditor.h" compile="0" resource="0"
+                file="Source/Processors/WiFiOutput/WiFiOutputEditor.h"/>
+        </GROUP>
       </GROUP>
       <GROUP id="RNGb1yR" name="UI">
         <FILE id="PBkkUW" name="EcubeDialogComponent.cpp" compile="1" resource="0"

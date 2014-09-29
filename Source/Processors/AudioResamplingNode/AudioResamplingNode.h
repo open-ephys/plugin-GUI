@@ -24,11 +24,9 @@
 #ifndef __AUDIORESAMPLINGNODE_H_CFAB182E__
 #define __AUDIORESAMPLINGNODE_H_CFAB182E__
 
-
-
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Dsp/Dsp.h"
-#include "GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 /**
 

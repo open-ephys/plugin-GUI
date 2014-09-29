@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "EcubeThread.h"
-#include "../SourceNode.h"
+#include "../SourceNode/SourceNode.h"
 #include "../../UI/EcubeDialogComponent.h"
 #include <stdint.h>
 
