@@ -24,8 +24,8 @@
 #include "Channel.h"
 
 
-Channel::Channel(GenericProcessor* p, int n) : num(n), eventType(0), processor(p), sampleRate(44100.0), bitVolts(1.0f),
-	isADCchannel(false),isEventChannel(false), isMonitored(false), isEnabled(true), isRecording(false), recordIndex(-1)
+Channel::Channel(GenericProcessor* p, int n) : num(n), eventType(0), processor(p), sampleRate(44100.0),
+	 isEventChannel(false), isADCchannel(false), isMonitored(false),  isEnabled(true), recordIndex(-1), bitVolts(1.0f), isRecording(false)
 {
     nodeId = p->getNodeId();
 

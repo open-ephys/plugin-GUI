@@ -30,9 +30,9 @@
 #include "ProcessorList.h"
 #include "EditorViewport.h"
 #include "DataViewport.h"
-#include "../Processors/Editors/MessageCenterEditor.h"
+#include "../Processors/MessageCenter/MessageCenterEditor.h"
 #include "GraphViewer.h"
-#include "../Processors/ProcessorGraph.h"
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
 

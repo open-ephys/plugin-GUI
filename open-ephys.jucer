@@ -7,7 +7,7 @@
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="JuceProjectAU" pluginAUViewClass="JuceProjectAU_V1"
-              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="3.0.0"
+              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="3.1.0"
               companyName="Open Ephys" userNotes="The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring, processing, and visualizing data from extracellular electrodes. See open-ephys.org for more information."
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
@@ -268,24 +268,6 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
-        <GROUP id="{72D807AC-44A0-1F7A-8699-22225876FE9A}" name="RecordNode">
-          <FILE id="gZdszH" name="HDF5FileFormat.cpp" compile="1" resource="0"
-                file="Source/Processors/RecordNode/HDF5FileFormat.cpp"/>
-          <FILE id="EF7IbH" name="HDF5FileFormat.h" compile="0" resource="0"
-                file="Source/Processors/RecordNode/HDF5FileFormat.h"/>
-          <FILE id="dpOVsD" name="HDF5Recording.cpp" compile="1" resource="0"
-                file="Source/Processors/RecordNode/HDF5Recording.cpp"/>
-          <FILE id="DJgCzN" name="HDF5Recording.h" compile="0" resource="0" file="Source/Processors/RecordNode/HDF5Recording.h"/>
-          <FILE id="dpsAhU" name="OriginalRecording.cpp" compile="1" resource="0"
-                file="Source/Processors/RecordNode/OriginalRecording.cpp"/>
-          <FILE id="okexpc" name="OriginalRecording.h" compile="0" resource="0"
-                file="Source/Processors/RecordNode/OriginalRecording.h"/>
-          <FILE id="UU77gU" name="RecordEngine.cpp" compile="1" resource="0"
-                file="Source/Processors/RecordNode/RecordEngine.cpp"/>
-          <FILE id="NSKXGp" name="RecordEngine.h" compile="0" resource="0" file="Source/Processors/RecordNode/RecordEngine.h"/>
-          <FILE id="ccpPpJ" name="RecordNode.cpp" compile="1" resource="0" file="Source/Processors/RecordNode/RecordNode.cpp"/>
-          <FILE id="R9n30e" name="RecordNode.h" compile="0" resource="0" file="Source/Processors/RecordNode/RecordNode.h"/>
-        </GROUP>
         <GROUP id="{447899E6-3974-53D0-5588-79643E8F5CA3}" name="ArduinoOutput">
           <FILE id="Ucs5gf" name="ArduinoOutput.cpp" compile="1" resource="0"
                 file="Source/Processors/ArduinoOutput/ArduinoOutput.cpp"/>
@@ -554,6 +536,24 @@
           <FILE id="CKRdQf" name="RecordControlEditor.h" compile="0" resource="0"
                 file="Source/Processors/RecordControl/RecordControlEditor.h"/>
         </GROUP>
+        <GROUP id="{72D807AC-44A0-1F7A-8699-22225876FE9A}" name="RecordNode">
+          <FILE id="gZdszH" name="HDF5FileFormat.cpp" compile="1" resource="0"
+                file="Source/Processors/RecordNode/HDF5FileFormat.cpp"/>
+          <FILE id="EF7IbH" name="HDF5FileFormat.h" compile="0" resource="0"
+                file="Source/Processors/RecordNode/HDF5FileFormat.h"/>
+          <FILE id="dpOVsD" name="HDF5Recording.cpp" compile="1" resource="0"
+                file="Source/Processors/RecordNode/HDF5Recording.cpp"/>
+          <FILE id="DJgCzN" name="HDF5Recording.h" compile="0" resource="0" file="Source/Processors/RecordNode/HDF5Recording.h"/>
+          <FILE id="dpsAhU" name="OriginalRecording.cpp" compile="1" resource="0"
+                file="Source/Processors/RecordNode/OriginalRecording.cpp"/>
+          <FILE id="okexpc" name="OriginalRecording.h" compile="0" resource="0"
+                file="Source/Processors/RecordNode/OriginalRecording.h"/>
+          <FILE id="UU77gU" name="RecordEngine.cpp" compile="1" resource="0"
+                file="Source/Processors/RecordNode/RecordEngine.cpp"/>
+          <FILE id="NSKXGp" name="RecordEngine.h" compile="0" resource="0" file="Source/Processors/RecordNode/RecordEngine.h"/>
+          <FILE id="ccpPpJ" name="RecordNode.cpp" compile="1" resource="0" file="Source/Processors/RecordNode/RecordNode.cpp"/>
+          <FILE id="R9n30e" name="RecordNode.h" compile="0" resource="0" file="Source/Processors/RecordNode/RecordNode.h"/>
+        </GROUP>
         <GROUP id="{B0C14DBE-8CC1-F242-3534-1DFBEAC5E43B}" name="ReferenceNode">
           <FILE id="F7WTBV" name="ReferenceNode.cpp" compile="1" resource="0"
                 file="Source/Processors/ReferenceNode/ReferenceNode.cpp"/>
@@ -750,7 +750,7 @@
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
-    <MODULE id="juce_gui_audio" showAllCode="1"/>
+    <MODULE id="juce_gui_audio" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="1"/>

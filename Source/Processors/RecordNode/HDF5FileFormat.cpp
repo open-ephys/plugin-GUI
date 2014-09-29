@@ -51,7 +51,7 @@ using namespace H5;
 
 //HDF5FileBase
 
-HDF5FileBase::HDF5FileBase() : opened(false), readyToOpen(false)
+HDF5FileBase::HDF5FileBase() : readyToOpen(false), opened(false)
 {
     Exception::dontPrint();
 };

@@ -28,7 +28,7 @@
 #include "../Editors/GenericEditor.h"
 #include "../../AccessClass.h"
 
-#include "../Channel.h"
+#include "../Channel/Channel.h"
 
 #include <stdio.h>
 

@@ -22,7 +22,7 @@
 */
 
 #include "FilterEditor.h"
-#include "../FilterNode.h"
+#include "FilterNode.h"
 #include <stdio.h>
 
 

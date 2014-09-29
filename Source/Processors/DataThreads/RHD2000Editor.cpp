@@ -273,7 +273,7 @@ void FPGAchannelList::updateImpedance(Array<int> streams, Array<int> channels, A
 
 
 /****************************************************/
-FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int stream_, int ch, channelType t, int gainIndex_, String N, Array<float> gains_) : channelList(cl),name(N), channel(ch),gainIndex(gainIndex_), stream(stream_), type(t), gains(gains_)
+FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int stream_, int ch, channelType t, int gainIndex_, String N, Array<float> gains_) :   gains(gains_), channelList(cl), channel(ch), name(N), stream(stream_), type(t), gainIndex(gainIndex_)
 {
     Font f = Font("Small Text", 13, Font::plain);
 

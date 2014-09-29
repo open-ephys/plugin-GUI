@@ -22,17 +22,17 @@
 */
 
 #include "SourceNode.h"
-#include "DataThreads/DataBuffer.h"
+#include "../DataThreads/DataBuffer.h"
 //#include "DataThreads/IntanThread.h"
-#include "DataThreads/FPGAThread.h"
-#include "DataThreads/FileReaderThread.h"
-#include "DataThreads/RHD2000Thread.h"
-#include "DataThreads/EcubeThread.h" // Added by Michael Borisov
-#include "Editors/SourceNodeEditor.h"
-#include "Editors/FileReaderEditor.h"
-#include "Editors/RHD2000Editor.h"
-#include "Editors/EcubeEditor.h" // Added by Michael Borisov
-#include "Channel.h"
+#include "../DataThreads/FPGAThread.h"
+#include "../DataThreads/FileReaderThread.h"
+#include "../DataThreads/RHD2000Thread.h"
+#include "../DataThreads/EcubeThread.h" // Added by Michael Borisov
+#include "../SourceNode/SourceNodeEditor.h"
+#include "../FileReader/FileReaderEditor.h"
+#include "../DataThreads/RHD2000Editor.h"
+#include "../DataThreads/EcubeEditor.h" // Added by Michael Borisov
+#include "../Channel/Channel.h"
 #include <stdio.h>
 
 SourceNode::SourceNode(const String& name_)

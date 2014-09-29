@@ -1007,7 +1007,7 @@ double GenericDrawAxes::ad16ToUv(int x, int gain)
 // --------------------------------------------------
 
 
-WaveformAxes::WaveformAxes(SpikeHistogramPlot* plt, SpikeSorter* p,int electrodeID_, int _channel) : GenericDrawAxes(channel),spikeHistogramPlot(plt),electrodeID(electrodeID_),
+WaveformAxes::WaveformAxes(SpikeHistogramPlot* plt, SpikeSorter* p,int electrodeID_, int _channel) : GenericDrawAxes(channel), spikeHistogramPlot(plt), electrodeID(electrodeID_),
     processor(p),
     channel(_channel),
     drawGrid(true),
@@ -1721,7 +1721,7 @@ void WaveformAxes::paint(Graphics& g)
 // --------------------------------------------------
 
 
-PCAProjectionAxes::PCAProjectionAxes(SpikeSorter* p) : processor(p),GenericDrawAxes(0), imageDim(500),
+PCAProjectionAxes::PCAProjectionAxes(SpikeSorter* p) : GenericDrawAxes(0), processor(p), imageDim(500),
     rangeX(250), rangeY(250), spikesReceivedSinceLastRedraw(0)
 {
     projectionImage = Image(Image::RGB, imageDim, imageDim, true);

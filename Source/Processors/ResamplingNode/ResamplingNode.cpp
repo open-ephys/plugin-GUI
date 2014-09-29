@@ -22,7 +22,7 @@
 */
 
 #include "ResamplingNode.h"
-#include "Editors/ResamplingNodeEditor.h"
+#include "ResamplingNodeEditor.h"
 
 #include <stdio.h>
 

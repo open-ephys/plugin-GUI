@@ -29,6 +29,8 @@ public:
     BaseUIElement();
     BaseUIElement(int x, int y, double w, double h);
     BaseUIElement(int x, int y, double w, double h, int p);
+    
+    virtual ~BaseUIElement() { }
 
     virtual void redraw();
     void drawElementEdges();

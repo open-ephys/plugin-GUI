@@ -22,7 +22,7 @@
 */
 
 #include "LfpTriggeredAverageNode.h"
-#include "Visualization/LfpTriggeredAverageCanvas.h"
+#include "LfpTriggeredAverageCanvas.h"
 #include <stdio.h>
 
 LfpTriggeredAverageNode::LfpTriggeredAverageNode()

@@ -877,7 +877,7 @@ void SpikeSortBoxes::projectOnPrincipalComponents(SpikeObject *so)
 		{
 		  // add a spike object to the buffer.
 		  // if we have enough spikes, start the PCA computation thread.
-		if (spikeBufferIndex == bufferSize -1 && !bPCAcomputed && !bPCAJobSubmitted || bRePCA)
+		if ((spikeBufferIndex == bufferSize -1 && !bPCAcomputed && !bPCAJobSubmitted) || bRePCA)
 		{
 			bPCAJobSubmitted = true;
 			bRePCA = false;

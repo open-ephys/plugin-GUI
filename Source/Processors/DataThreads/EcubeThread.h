@@ -104,13 +104,14 @@ private:
 
 #else
 /** Empty methods for non-Windows platforms **/
-bool updateBuffer() {}
-bool foundInputSource() {}
-bool startAcquisition() {}
-bool stopAcquisition() {}
-int getNumChannels() {}
-float getSampleRate() {}
-float getBitVolts() {}
+    bool updateBuffer() {return false;}
+    bool foundInputSource() {return false;}
+    bool startAcquisition() {return false;}
+    bool stopAcquisition() {return false;}
+    int getNumChannels() {return 0;}
+    float getSampleRate() {return 0.0f;}
+    float getBitVolts() {return 0.0f;}
+
 
 #endif
 

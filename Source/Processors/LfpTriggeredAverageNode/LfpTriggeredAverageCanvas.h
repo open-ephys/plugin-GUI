@@ -24,7 +24,7 @@
 #define __LfpTriggeredAverageCAVCAS_H_B711873A__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../LfpTriggeredAverageNode.h"
+#include "LfpTriggeredAverageNode.h"
 #include "Visualizer.h"
 
 class LfpTriggeredAverageNode;

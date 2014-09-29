@@ -26,7 +26,7 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include "../SpikeSorter.h"
+#include "SpikeSorter.h"
 #include "../Visualization/SpikeObject.h"
 
 #include "../Visualization/Visualizer.h"

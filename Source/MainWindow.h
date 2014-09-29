@@ -27,7 +27,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "UI/UIComponent.h"
 #include "Audio/AudioComponent.h"
-#include "Processors/ProcessorGraph.h"
+#include "Processors/ProcessorGraph/ProcessorGraph.h"
 
 /**
   The main window for the GUI application.

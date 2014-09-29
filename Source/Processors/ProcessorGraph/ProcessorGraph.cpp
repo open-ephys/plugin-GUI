@@ -27,7 +27,7 @@
 #include "../GenericProcessor/GenericProcessor.h"
 
 #include "../AudioNode/AudioNode.h"
-#include "../LfpDisplay/LfpDisplayNode.h"
+#include "../LfpDisplayNode/LfpDisplayNode.h"
 #include "../SpikeDisplayNode/SpikeDisplayNode.h"
 #include "../EventNode/EventNode.h"
 #include "../FilterNode/FilterNode.h"

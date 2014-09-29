@@ -25,8 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "UIComponent.h"
 #include <stdio.h>
 #include <math.h>
-#include "../Processors/OriginalRecording.h"
-#include "../Processors/HDF5Recording.h"
+#include "../Processors/RecordNode/OriginalRecording.h"
+#include "../Processors/RecordNode/HDF5Recording.h"
 
 PlayButton::PlayButton()
 	: DrawableButton("PlayButton", DrawableButton::ImageFitted)

@@ -804,7 +804,7 @@ void LfpTimescale::setTimebase(float t)
 // ---------------------------------------------------------------
 
 LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
-	canvas(c), viewport(v), range(1000.0f), singleChan(-1)
+	  singleChan(-1), canvas(c), viewport(v), range(1000.0f)
 {
 
 	totalHeight = 0;

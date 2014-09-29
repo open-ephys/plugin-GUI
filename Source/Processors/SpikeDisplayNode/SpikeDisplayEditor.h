@@ -31,7 +31,7 @@
 #include "../Visualization/DataWindow.h"
 #include "SpikeDisplayNode.h"
 #include "SpikeDisplayCanvas.h"
-#include "../Visualization/VisualizerEditor.h"
+#include "../Editors/VisualizerEditor.h"
 
 #define MAX_N_SUB_CHAN 8
 class Visualizer;

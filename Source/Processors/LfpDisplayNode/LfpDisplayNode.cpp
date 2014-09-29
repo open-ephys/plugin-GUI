@@ -22,7 +22,7 @@
 */
 
 #include "LfpDisplayNode.h"
-#include "Visualization/LfpDisplayCanvas.h"
+#include "LfpDisplayCanvas.h"
 #include <stdio.h>
 
 LfpDisplayNode::LfpDisplayNode()

@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include "SpikeSorter.h"
 #include "SpikeSortBoxes.h"
-#include "../Visualization/SpikeSorterCanvas.h"
+#include "SpikeSorterCanvas.h"
 #include "../Channel/Channel.h"
 #include "../SpikeDisplayNode/SpikeDisplayNode.h"
 
@@ -1535,95 +1535,95 @@ Histogram::~Histogram()
 
 
 /***********************************/
-/*
-circularBuffer::circularBuffer(int NumCh, int NumSamplesToHoldPerChannel, double SamplingRate)
-{
-            numCh = NumCh;
-            samplingRate = SamplingRate;
-            Buf.resize(numCh);
-			for (int ch=0;ch<numCh;ch++) {
-				Buf[ch].resize(NumSamplesToHoldPerChannel);
-			}
-            BufTS_H.resize(NumSamplesToHoldPerChannel);
-            BufTS_S.resize(NumSamplesToHoldPerChannel);
-            bufLen = NumSamplesToHoldPerChannel;
-            numSamplesInBuf = 0;
-            ptr = 0; // points to a valid position in the buffer.
-}
+//
+//circularBuffer::circularBuffer(int NumCh, int NumSamplesToHoldPerChannel, double SamplingRate)
+//{
+//            numCh = NumCh;
+//            samplingRate = SamplingRate;
+//            Buf.resize(numCh);
+//			for (int ch=0;ch<numCh;ch++) {
+//				Buf[ch].resize(NumSamplesToHoldPerChannel);
+//			}
+//            BufTS_H.resize(NumSamplesToHoldPerChannel);
+//            BufTS_S.resize(NumSamplesToHoldPerChannel);
+//            bufLen = NumSamplesToHoldPerChannel;
+//            numSamplesInBuf = 0;
+//            ptr = 0; // points to a valid position in the buffer.
+//}
+//
+//circularBuffer::~circularBuffer()
+//{
+//
+//}
+//
+//
+//std::vector<double> circularBuffer::getDataArray(int channel, int N)
+//{
+//	std::vector<double> LongArray;
+//	LongArray.resize(N);
+//	mut.enter();
+//           
+//            int p = ptr - 1;
+//            for (int k = 0; k < N; k++)
+//            {
+//                if (p < 0)
+//                    p = bufLen - 1;
+//                LongArray[k] = Buf[channel][p];
+//                p--;
+//            }
+//            mut.exit();
+//            return LongArray;
+//}
+//
+//void circularBuffer::addDataToBuffer(std::vector<std::vector<double>> Data, double SoftwareTS, double HardwareTS)
+//{
+//	mut.enter();
+//	int iNumPoints = Data[0].size();
+//	for (int k = 0; k < iNumPoints; k++)
+//	{
+//		BufTS_H[ptr] = HardwareTS + k;
+//		BufTS_S[ptr] = SoftwareTS + k / samplingRate;
+//		for (int ch = 0; ch < numCh; ch++)
+//		{
+//			Buf[ch, ptr] = Data[ch, k];
+//		}
+//		ptr++;
+//
+//		if (ptr == bufLen)
+//		{
+//			ptr = 0;
+//		}
+//		numSamplesInBuf++;
+//		if (numSamplesInBuf >= bufLen)
+//		{
+//			numSamplesInBuf = bufLen;
+//		}
+//	}
+//	mut.exit();
+//}
+//
+//
+//double circularBuffer::findThresholdForChannel(int channel)
+//{
+//	// Run median on analog input
+//	double numSamplesPerSecond = 30000;
+//	std::vector<double> LongArray = getDataArray(channel, numSamplesPerSecond*5);
+//	
+//	for (int k = 0; k < LongArray.size(); k++)
+//		LongArray[k] = fabs(LongArray[k]);
+//
+//	std::sort (LongArray.begin(), LongArray.begin()+LongArray.size());           //(12 32 45 71)26 80 53 33
+//
+//
+//	int Middle = LongArray.size() / 2;
+//	double Median = LongArray[Middle];
+//	double NewThres = -4.0F * Median / 0.675F;
+//
+//	return NewThres;
+//}
 
-circularBuffer::~circularBuffer()
-{
 
-}
-
-
-std::vector<double> circularBuffer::getDataArray(int channel, int N)
-{
-	std::vector<double> LongArray;
-	LongArray.resize(N);
-	mut.enter();
-           
-            int p = ptr - 1;
-            for (int k = 0; k < N; k++)
-            {
-                if (p < 0)
-                    p = bufLen - 1;
-                LongArray[k] = Buf[channel][p];
-                p--;
-            }
-            mut.exit();
-            return LongArray;
-}
-
-void circularBuffer::addDataToBuffer(std::vector<std::vector<double>> Data, double SoftwareTS, double HardwareTS)
-{
-	mut.enter();
-	int iNumPoints = Data[0].size();
-	for (int k = 0; k < iNumPoints; k++)
-	{
-		BufTS_H[ptr] = HardwareTS + k;
-		BufTS_S[ptr] = SoftwareTS + k / samplingRate;
-		for (int ch = 0; ch < numCh; ch++)
-		{
-			Buf[ch, ptr] = Data[ch, k];
-		}
-		ptr++;
-
-		if (ptr == bufLen)
-		{
-			ptr = 0;
-		}
-		numSamplesInBuf++;
-		if (numSamplesInBuf >= bufLen)
-		{
-			numSamplesInBuf = bufLen;
-		}
-	}
-	mut.exit();
-}
-
-
-double circularBuffer::findThresholdForChannel(int channel)
-{
-	// Run median on analog input
-	double numSamplesPerSecond = 30000;
-	std::vector<double> LongArray = getDataArray(channel, numSamplesPerSecond*5);
-	
-	for (int k = 0; k < LongArray.size(); k++)
-		LongArray[k] = fabs(LongArray[k]);
-
-	std::sort (LongArray.begin(), LongArray.begin()+LongArray.size());           //(12 32 45 71)26 80 53 33
-
-
-	int Middle = LongArray.size() / 2;
-	double Median = LongArray[Middle];
-	double NewThres = -4.0F * Median / 0.675F;
-
-	return NewThres;
-}
-
-
-/**************************************/
+// =================================================== 
 
 void ContinuousCircularBuffer::reallocate(int NumCh)
 {

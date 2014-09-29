@@ -22,7 +22,7 @@
 */
 
 #include "FileReader.h"
-#include "Editors/FileReaderEditor.h"
+#include "FileReaderEditor.h"
 #include <stdio.h>
 
 FileReader::FileReader()

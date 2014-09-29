@@ -25,8 +25,8 @@
 
 #include "ParameterEditor.h"
 #include "ChannelSelector.h"
-#include "../ProcessorGraph.h"
-#include "../RecordNode.h"
+#include "../ProcessorGraph/ProcessorGraph.h"
+#include "../RecordNode/RecordNode.h"
 #include "../../UI/ProcessorList.h"
 
 #include "../../UI/EditorViewport.h"
@@ -39,8 +39,8 @@
 GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors=true)
     : AudioProcessorEditor(owner),
       desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
-      drawerButton(0), channelSelector(0),drawerWidth(170),
-      isSelected(false),  isEnabled(true), isCollapsed(false), tNum(-1), drawerOpen(false)
+      drawerButton(0), drawerWidth(170),
+    drawerOpen(false), channelSelector(0), isSelected(false), isEnabled(true), isCollapsed(false), tNum(-1)
 {
     constructorInitialize(owner, useDefaultParameterEditors);
 }

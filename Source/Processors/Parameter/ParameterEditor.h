@@ -25,9 +25,9 @@
 #define __PARAMETEREDITOR_H_44537DA9__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../GenericProcessor.h"
-#include "ChannelSelector.h"
-#include "../Parameter.h"
+#include "../GenericProcessor/GenericProcessor.h"
+#include "../Editors/ChannelSelector.h"
+#include "Parameter.h"
 #include <stdio.h>
 
 class ParameterButton;

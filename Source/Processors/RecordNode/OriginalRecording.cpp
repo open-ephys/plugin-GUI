@@ -22,10 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "OriginalRecording.h"
-#include "../Audio/AudioComponent.h"
+#include "../../Audio/AudioComponent.h"
 
-OriginalRecording::OriginalRecording() : separateFiles(true), eventFile(nullptr),
-	messageFile(nullptr), recordingNumber(0), experimentNumber(0), zeroBuffer(1, 50000), blockIndex(0)
+OriginalRecording::OriginalRecording() : separateFiles(true),
+	  blockIndex(0), recordingNumber(0), experimentNumber(0),  zeroBuffer(1, 50000), eventFile(nullptr), messageFile(nullptr)
 {
     continuousDataIntegerBuffer = new int16[10000];
     continuousDataFloatBuffer = new float[10000];

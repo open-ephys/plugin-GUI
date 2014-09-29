@@ -267,7 +267,7 @@ void SpikeDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 // ----------------------------------------------------------------
 
 SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
-    canvas(sdc), viewport(v), thresholdCoordinator(nullptr), shouldInvert(false)
+    canvas(sdc), viewport(v), shouldInvert(false), thresholdCoordinator(nullptr)
 {
 
     totalHeight = 1000;

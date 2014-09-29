@@ -30,7 +30,7 @@
 #include "../../UI/DataViewport.h"
 #include "../Visualization/DataWindow.h"
 #include "LfpDisplayNode.h"
-#include "../Visualization/LfpDisplayCanvas.h"
+#include "LfpDisplayCanvas.h"
 #include "../Editors/VisualizerEditor.h"
 
 class Visualizer;

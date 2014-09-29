@@ -47,7 +47,7 @@ class HDF5FileBase
 {
 public:
     HDF5FileBase();
-    ~HDF5FileBase();
+    virtual ~HDF5FileBase();
 
     int open();
     void close();
@@ -115,7 +115,7 @@ class KWDFile : public HDF5FileBase
 public:
     KWDFile(int processorNumber, String basename);
     KWDFile();
-    ~KWDFile();
+    virtual ~KWDFile();
     void initFile(int processorNumber, String basename);
     void startNewRecording(int recordingNumber, int nChannels, HDF5RecordingInfo* info);
     void stopRecording();
@@ -141,7 +141,7 @@ class KWIKFile : public HDF5FileBase
 public:
     KWIKFile(String basename);
     KWIKFile();
-    ~KWIKFile();
+    virtual ~KWIKFile();
     void initFile(String basename);
     void startNewRecording(int recordingNumber, HDF5RecordingInfo* info);
     void stopRecording();
@@ -174,7 +174,7 @@ class KWXFile : public HDF5FileBase
 public:
     KWXFile(String basename);
     KWXFile();
-    ~KWXFile();
+    virtual ~KWXFile();
     void initFile(String basename);
     void startNewRecording(int recordingNumber);
     void stopRecording();

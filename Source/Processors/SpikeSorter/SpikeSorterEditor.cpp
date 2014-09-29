@@ -23,17 +23,17 @@
 
 #include "SpikeSorterEditor.h"
 #include "SpikeDisplayEditor.h"
-#include "../Visualization/SpikeSorterCanvas.h"
-#include "../SpikeSorter.h"
-#include "ChannelSelector.h"
+#include "SpikeSorterCanvas.h"
+#include "SpikeSorter.h"
+#include "../Editors/ChannelSelector.h"
 #include "../../UI/EditorViewport.h"
-//#include "../AdvancerNode.h"
+
 #include <stdio.h>
 
 
 
 SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : VisualizerEditor(parentNode, 300, useDefaultParameterEditors), isPlural(true), spikeSorterCanvas(nullptr)
+    : VisualizerEditor(parentNode, 300, useDefaultParameterEditors), spikeSorterCanvas(nullptr), isPlural(true)
 
 {
 	tabText = "Spike Detector";

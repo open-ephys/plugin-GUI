@@ -23,7 +23,7 @@
 
 #include "FileReaderEditor.h"
 
-#include "../FileReader.h"
+#include "FileReader.h"
 
 #include <stdio.h>
 

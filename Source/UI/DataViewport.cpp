@@ -27,7 +27,7 @@
 
 DataViewport::DataViewport() :
     TabbedComponent(TabbedButtonBar::TabsAtRight),
-    tabDepth(32), shutdown(false), tabIndex(0)
+    tabDepth(32), tabIndex(0), shutdown(false)
 {
 
     tabArray.clear();

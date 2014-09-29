@@ -29,7 +29,7 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "WiFiOutputEditor.h"
 
-#include "../Network/PracticalSocket.h"  // For UDPSocket and SocketException
+#include "../../Network/PracticalSocket.h"  // For UDPSocket and SocketException
 
 /**
 

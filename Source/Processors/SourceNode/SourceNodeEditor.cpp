@@ -23,7 +23,7 @@
 
 
 #include "SourceNodeEditor.h"
-#include "../SourceNode.h"
+#include "../SourceNode/SourceNode.h"
 #include <stdio.h>
 
 

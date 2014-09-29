@@ -86,20 +86,20 @@ LfpTriggeredAverageCanvas::LfpTriggeredAverageCanvas(LfpTriggeredAverageNode* pr
 
     rangeSelection = new ComboBox("Voltage range");
     rangeSelection->addItemList(voltageRanges, 1);
-    rangeSelection->setSelectedId(4,false);
+    rangeSelection->setSelectedId(4, dontSendNotification);
     rangeSelection->addListener(this);
     addAndMakeVisible(rangeSelection);
 
     timebaseSelection = new ComboBox("Timebase");
     timebaseSelection->addItemList(timebases, 1);
-    timebaseSelection->setSelectedId(3,false);
+    timebaseSelection->setSelectedId(3, dontSendNotification);
     timebaseSelection->addListener(this);
     addAndMakeVisible(timebaseSelection);
 
 
     spreadSelection = new ComboBox("Spread");
     spreadSelection->addItemList(spreads, 1);
-    spreadSelection->setSelectedId(5,false);
+    spreadSelection->setSelectedId(5, dontSendNotification);
     spreadSelection->addListener(this);
     addAndMakeVisible(spreadSelection);
 
@@ -332,13 +332,13 @@ void LfpTriggeredAverageCanvas::updateScreenBuffer()
 
                 screenBuffer->addFrom(channel, // destChannel
                                       screenBufferIndex, // destStartSample
-                                      displayBuffer->getSampleData(channel, displayBufferIndex), // source
+                                      displayBuffer->getWritePointer(channel, displayBufferIndex), // source
                                       1, // numSamples
                                       invAlpha*gain); // gain
 
                 screenBuffer->addFrom(channel, // destChannel
                                       screenBufferIndex, // destStartSample
-                                      displayBuffer->getSampleData(channel, nextPos), // source
+                                      displayBuffer->getWritePointer(channel, nextPos), // source
                                       1, // numSamples
                                       alpha*gain); // gain
 
@@ -380,7 +380,7 @@ int LfpTriggeredAverageCanvas::getNumChannels()
 
 float LfpTriggeredAverageCanvas::getYCoord(int chan, int samp)
 {
-    return *screenBuffer->getSampleData(chan, samp);
+    return *screenBuffer->getReadPointer(chan, samp);
 }
 
 void LfpTriggeredAverageCanvas::paint(Graphics& g)

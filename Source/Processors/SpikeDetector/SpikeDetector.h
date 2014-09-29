@@ -27,7 +27,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 #include "../GenericProcessor/GenericProcessor.h"
-#include "Editors/SpikeDetectorEditor.h"
+#include "SpikeDetectorEditor.h"
 
 #include "../Visualization/SpikeObject.h"
 

@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "ChannelMappingEditor.h"
-#include "../ChannelMappingNode.h"
+#include "ChannelMappingNode.h"
 #include "../../UI/EditorViewport.h"
 #include "ChannelSelector.h"
 #include <stdio.h>
