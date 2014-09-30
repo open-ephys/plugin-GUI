@@ -24,7 +24,7 @@
 #include <cmath>
 
 #include "AudioNode.h"
-#include "Channel.h"
+#include "../Channel/Channel.h"
 
 AudioNode::AudioNode()
     : GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f), noiseGateLevel(0.0f),
