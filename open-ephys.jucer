@@ -656,25 +656,6 @@
                 file="Source/Processors/Splitter/SplitterEditor.h"/>
         </GROUP>
         <GROUP id="W4eqkOy" name="Visualization">
-          <GROUP id="{B98A3BD8-CC80-6EB9-9178-19D4C360CE6E}" name="SpikePlotting">
-            <FILE id="lbws6c" name="BaseUIElement.cpp" compile="1" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.cpp"/>
-            <FILE id="BCo9zm" name="BaseUIElement.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/BaseUIElement.h"/>
-            <FILE id="UPz1Oq" name="GenericAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/GenericAxes.cpp"/>
-            <FILE id="Gy9r2r" name="GenericAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/GenericAxes.h"/>
-            <FILE id="kfsMln" name="PlotUtils.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/PlotUtils.cpp"/>
-            <FILE id="qpCGXM" name="PlotUtils.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/PlotUtils.h"/>
-            <FILE id="HHYdx7" name="ProjectionAxes.cpp" compile="1" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.cpp"/>
-            <FILE id="q0JIXs" name="ProjectionAxes.h" compile="0" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/ProjectionAxes.h"/>
-            <FILE id="ZDuoIS" name="SimpleKeyEvent.h" compile="0" resource="0"
-                  file="Source/Processors/Visualization/SpikePlotting/SimpleKeyEvent.h"/>
-            <FILE id="TdO50q" name="SpikePlot.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/SpikePlot.cpp"/>
-            <FILE id="WG7Nrc" name="SpikePlot.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/SpikePlot.h"/>
-            <FILE id="pasHMu" name="WaveAxes.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.cpp"/>
-            <FILE id="cbcoUI" name="WaveAxes.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikePlotting/WaveAxes.h"/>
-          </GROUP>
           <FILE id="ETLsfY" name="DataWindow.cpp" compile="1" resource="0" file="Source/Processors/Visualization/DataWindow.cpp"/>
           <FILE id="qDfeYR" name="DataWindow.h" compile="0" resource="0" file="Source/Processors/Visualization/DataWindow.h"/>
           <FILE id="tuQVXY" name="SpikeObject.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikeObject.cpp"/>

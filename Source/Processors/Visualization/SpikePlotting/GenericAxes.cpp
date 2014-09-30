@@ -17,7 +17,7 @@ GenericAxes::GenericAxes(int x, int y, double w, double h, int t):
 }
 GenericAxes::~GenericAxes()
 {
-    //delete font;
+    delete font;
 }
 void GenericAxes::updateSpikeData(SpikeObject newSpike)
 {

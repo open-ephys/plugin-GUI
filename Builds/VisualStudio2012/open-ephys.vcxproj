@@ -366,12 +366,6 @@
     <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Splitter\Splitter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Splitter\SplitterEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\GenericAxes.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\PlotUtils.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\ProjectionAxes.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikePlotting\WaveAxes.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp"/>
     <ClCompile Include="..\..\Source\Processors\WiFiOutput\WiFiOutput.cpp"/>
@@ -1624,13 +1618,6 @@
     <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSorterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Splitter\Splitter.h"/>
     <ClInclude Include="..\..\Source\Processors\Splitter\SplitterEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\BaseUIElement.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\GenericAxes.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\PlotUtils.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\ProjectionAxes.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SimpleKeyEvent.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\SpikePlot.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikePlotting\WaveAxes.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\DataWindow.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h"/>
