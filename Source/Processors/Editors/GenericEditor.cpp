@@ -23,7 +23,7 @@
 
 #include "GenericEditor.h"
 
-#include "ParameterEditor.h"
+#include "../Parameter/ParameterEditor.h"
 #include "ChannelSelector.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../RecordNode/RecordNode.h"

@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-#include "Channel.h"
+#include "../Channel/Channel.h"
 
 RecordNode::RecordNode()
     : GenericProcessor("Record Node"),

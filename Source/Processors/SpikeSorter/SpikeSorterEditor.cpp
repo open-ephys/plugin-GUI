@@ -22,7 +22,7 @@
 */
 
 #include "SpikeSorterEditor.h"
-#include "SpikeDisplayEditor.h"
+#include "../SpikeDisplayNode/SpikeDisplayEditor.h"
 #include "SpikeSorterCanvas.h"
 #include "SpikeSorter.h"
 #include "../Editors/ChannelSelector.h"

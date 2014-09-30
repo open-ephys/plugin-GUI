@@ -22,7 +22,7 @@
 */
 
 #include "SpikeSorterCanvas.h"
-#include "SpikeDisplayCanvas.h"
+#include "../SpikeDisplayNode/SpikeDisplayCanvas.h"
 
 SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorter* n) :
     processor(n), newSpike(false)

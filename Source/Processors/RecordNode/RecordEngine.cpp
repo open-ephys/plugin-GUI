@@ -23,7 +23,7 @@
 
 #include "RecordEngine.h"
 #include "RecordNode.h"
-#include "ProcessorGraph.h"
+#include "../ProcessorGraph/ProcessorGraph.h"
 
 RecordEngine::RecordEngine() {}
 
