@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include "EventNode.h"
 
-#include "Channel.h"
+#include "../Channel/Channel.h"
 
 EventNode::EventNode()
     : GenericProcessor("Event Generator"), accumulator(0), Hz(1)

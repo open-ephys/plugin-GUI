@@ -25,7 +25,7 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "LfpTriggeredAverageNode.h"
-#include "Visualizer.h"
+#include "../Visualization/Visualizer.h"
 
 class LfpTriggeredAverageNode;
 

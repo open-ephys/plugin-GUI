@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 #include "FPGAOutput.h"
-#include "SourceNode.h"
+#include "../SourceNode/SourceNode.h"
 
 FPGAOutput::FPGAOutput()
     : GenericProcessor("FPGA Output"), TTLchannel(3),

@@ -32,7 +32,7 @@
 #include "../Visualization/DataWindow.h"
 #include "../Editors/VisualizerEditor.h"
 #include "../Editors/ElectrodeButtons.h"
-#include "SpikeDetectorEditor.h"
+#include "../SpikeDetector/SpikeDetectorEditor.h"
 
 class SpikeSorterCanvas;
 

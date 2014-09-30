@@ -22,7 +22,7 @@
 */
 
 #include "SpikeDisplayNode.h"
-#include "RecordNode.h"
+#include "../RecordNode/RecordNode.h"
 #include "SpikeDisplayCanvas.h"
 #include "../Channel/Channel.h"
 

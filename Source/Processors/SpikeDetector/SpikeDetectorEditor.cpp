@@ -23,7 +23,7 @@
 
 #include "SpikeDetectorEditor.h"
 #include "SpikeDetector.h"
-#include "ChannelSelector.h"
+#include "../Editors/ChannelSelector.h"
 #include "../../UI/EditorViewport.h"
 #include <stdio.h>
 
