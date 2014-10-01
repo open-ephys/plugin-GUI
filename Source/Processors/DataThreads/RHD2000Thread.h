@@ -72,6 +72,10 @@ public:
 
     double setUpperBandwidth(double upper); // set desired BW, returns actual BW
     double setLowerBandwidth(double lower);
+    double setDspCutoffFreq(double freq);
+    double getDspCutoffFreq();
+    
+    void setDSPOffset(bool state);
 
     int setNoiseSlicerLevel(int level);
 

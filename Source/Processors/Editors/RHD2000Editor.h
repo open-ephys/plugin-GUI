@@ -32,6 +32,7 @@
 class HeadstageOptionsInterface;
 class SampleRateInterface;
 class BandwidthInterface;
+class DSPInterface;
 class AudioInterface;
 class RHD2000Thread;
 
@@ -72,11 +73,14 @@ private:
 
     ScopedPointer<SampleRateInterface> sampleRateInterface;
     ScopedPointer<BandwidthInterface> bandwidthInterface;
+    ScopedPointer<DSPInterface> dspInterface;
 
     ScopedPointer<AudioInterface> audioInterface;
 
     ScopedPointer<UtilityButton> rescanButton;
     ScopedPointer<UtilityButton> adcButton;
+    
+    ScopedPointer<UtilityButton> dspoffsetButton;
 
     ScopedPointer<Label> audioLabel;
 
@@ -148,6 +152,33 @@ private:
     double actualLowerBandwidth;
 
 };
+
+class DSPInterface : public Component,
+public Label::Listener
+{
+public:
+    DSPInterface(RHD2000Thread*, RHD2000Editor*);
+    ~DSPInterface();
+    
+    void paint(Graphics& g);
+    void labelTextChanged(Label* te);
+    
+    void setDspCutoffFreq(double value);
+    double getDspCutoffFreq();
+    
+private:
+    
+    String name;
+    
+    RHD2000Thread* board;
+    RHD2000Editor* editor;
+    
+    ScopedPointer<Label> dspOffsetSelection;
+    
+    double actualDspCutoffFreq;
+    
+};
+
 
 
 class SampleRateInterface : public Component,

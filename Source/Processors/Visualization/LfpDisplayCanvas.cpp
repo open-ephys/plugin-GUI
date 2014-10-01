@@ -70,18 +70,34 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	addAndMakeVisible(timescale);
 
 	voltageRanges.add("-"); // placeholder for custom ranges (set by scroll wheel etc.)
-	voltageRanges.add("50");
+    voltageRanges.add("25");
+    voltageRanges.add("50");
 	voltageRanges.add("100");
 	voltageRanges.add("250");
+    voltageRanges.add("400");
 	voltageRanges.add("500");
+    voltageRanges.add("750");
 	voltageRanges.add("1000");
 	voltageRanges.add("2000");
 	voltageRanges.add("5000");
+    voltageRanges.add("10000");
+    voltageRanges.add("50000");
+    voltageRanges.add("100000");
+    voltageRanges.add("500000");
+    voltageRanges.add("1000000");
+    voltageRanges.add("2000000");
+    voltageRanges.add("5000000");
 
-	timebases.add("1.0");
+
+    timebases.add("0.25");
+    timebases.add("0.5");
+    timebases.add("1.0");
 	timebases.add("2.0");
-	timebases.add("5.0");
+	timebases.add("3.0");
+    timebases.add("4.0");
+    timebases.add("5.0");
 	timebases.add("10.0");
+    timebases.add("20.0");
 
 	spreads.add("-"); // placeholder for custom ranges (set by scroll wheel etc.)
 	spreads.add("10");
@@ -90,6 +106,10 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	spreads.add("40");
 	spreads.add("50");
 	spreads.add("60");
+    spreads.add("70");
+    spreads.add("80");
+    spreads.add("90");
+    spreads.add("100");
 
 	colorGroupings.add("1");
 	colorGroupings.add("2");
