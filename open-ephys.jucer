@@ -537,6 +537,10 @@
                 file="Source/Processors/RecordControl/RecordControlEditor.h"/>
         </GROUP>
         <GROUP id="{72D807AC-44A0-1F7A-8699-22225876FE9A}" name="RecordNode">
+          <FILE id="deQ9TU" name="EngineConfigWindow.cpp" compile="1" resource="0"
+                file="Source/Processors/RecordNode/EngineConfigWindow.cpp"/>
+          <FILE id="iSAT0P" name="EngineConfigWindow.h" compile="0" resource="0"
+                file="Source/Processors/RecordNode/EngineConfigWindow.h"/>
           <FILE id="gZdszH" name="HDF5FileFormat.cpp" compile="1" resource="0"
                 file="Source/Processors/RecordNode/HDF5FileFormat.cpp"/>
           <FILE id="EF7IbH" name="HDF5FileFormat.h" compile="0" resource="0"

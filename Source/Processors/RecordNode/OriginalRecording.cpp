@@ -24,8 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "OriginalRecording.h"
 #include "../../Audio/AudioComponent.h"
 
-OriginalRecording::OriginalRecording() : separateFiles(true),
-	  blockIndex(0), recordingNumber(0), experimentNumber(0),  zeroBuffer(1, 50000), eventFile(nullptr), messageFile(nullptr)
+OriginalRecording::OriginalRecording() : separateFiles(false),
+    blockIndex(0), recordingNumber(0), experimentNumber(0),  zeroBuffer(1, 50000), eventFile(nullptr), messageFile(nullptr)
 {
     continuousDataIntegerBuffer = new int16[10000];
     continuousDataFloatBuffer = new float[10000];
@@ -56,6 +56,11 @@ OriginalRecording::~OriginalRecording()
     delete recordMarker;
 }
 
+String OriginalRecording::getEngineID()
+{
+    return "OPENEPHYS";
+}
+
 void OriginalRecording::addChannel(int index, Channel* chan)
 {
     //Just populate the file array with null so we can address it by index afterwards
@@ -78,7 +83,7 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
     this->recordingNumber = recordingNumber;
     this->experimentNumber = experimentNumber;
     openFile(rootFolder,nullptr);
-	openMessageFile(rootFolder);
+    openMessageFile(rootFolder);
     for (int i = 0; i < fileArray.size(); i++)
     {
         if (getChannel(i)->getRecordState())
@@ -176,11 +181,11 @@ void OriginalRecording::openSpikeFile(File rootFolder, SpikeRecordInfo* elec)
 
 void OriginalRecording::openMessageFile(File rootFolder)
 {
-	FILE* mFile;
-	String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
-	fullPath += "messages.events";
+    FILE* mFile;
+    String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
+    fullPath += "messages.events";
 
-	std::cout << "OPENING FILE: " << fullPath << std::endl;
+    std::cout << "OPENING FILE: " << fullPath << std::endl;
 
     File f = File(fullPath);
 
@@ -190,10 +195,10 @@ void OriginalRecording::openMessageFile(File rootFolder)
 
     mFile = fopen(fullPath.toUTF8(),"ab");
 
-	//If this file needs a header, it goes here
+    //If this file needs a header, it goes here
 
-	diskWriteLock.exit();
-	messageFile = mFile;
+    diskWriteLock.exit();
+    messageFile = mFile;
 
 }
 
@@ -312,31 +317,31 @@ String OriginalRecording::generateSpikeHeader(SpikeRecordInfo* elec)
 
 void OriginalRecording::writeEvent(int eventType, MidiMessage& event, int samplePosition)
 {
-	if (eventType == GenericProcessor::TTL)
-		writeTTLEvent(event,samplePosition);
-	else if (eventType == GenericProcessor::MESSAGE)
-		writeMessage(event,samplePosition);
+    if (eventType == GenericProcessor::TTL)
+        writeTTLEvent(event,samplePosition);
+    else if (eventType == GenericProcessor::MESSAGE)
+        writeMessage(event,samplePosition);
 }
 
 void OriginalRecording::writeMessage(MidiMessage& event, int samplePosition)
 {
-	if (messageFile == nullptr)
-		return;
-	uint64 samplePos = (uint64) samplePosition;
+    if (messageFile == nullptr)
+        return;
+    uint64 samplePos = (uint64) samplePosition;
 
     int64 eventTimestamp = timestamp + samplePos;
-	
-	int msgLength = event.getRawDataSize() - 5;
-	const char* dataptr = (const char*)event.getRawData() + 4;
 
-	String timestampText(eventTimestamp);
+    int msgLength = event.getRawDataSize() - 5;
+    const char* dataptr = (const char*)event.getRawData() + 4;
 
-	diskWriteLock.enter();
-	fwrite(timestampText.toUTF8(),1,timestampText.length(),messageFile);
-	fwrite(" ",1,1,messageFile);
-	fwrite(dataptr,1,msgLength,messageFile);
-	fwrite("\n",1,1,messageFile);
-	diskWriteLock.exit();
+    String timestampText(eventTimestamp);
+
+    diskWriteLock.enter();
+    fwrite(timestampText.toUTF8(),1,timestampText.length(),messageFile);
+    fwrite(" ",1,1,messageFile);
+    fwrite(dataptr,1,msgLength,messageFile);
+    fwrite("\n",1,1,messageFile);
+    diskWriteLock.exit();
 
 }
 
@@ -350,7 +355,7 @@ void OriginalRecording::writeTTLEvent(MidiMessage& event, int samplePosition)
 
     const uint8* dataptr = event.getRawData();
 
-	uint64 samplePos = (uint64) samplePosition;
+    uint64 samplePos = (uint64) samplePosition;
 
     int64 eventTimestamp = timestamp + samplePos; // add the sample position to the buffer timestamp
 
@@ -544,13 +549,13 @@ void OriginalRecording::closeFiles()
         eventFile = nullptr;
         diskWriteLock.exit();
     }
-	if (messageFile != nullptr)
-	{
-		diskWriteLock.enter();
-		fclose(messageFile);
-		messageFile = nullptr;
-		diskWriteLock.exit();
-	}
+    if (messageFile != nullptr)
+    {
+        diskWriteLock.enter();
+        fclose(messageFile);
+        messageFile = nullptr;
+        diskWriteLock.exit();
+    }
     blockIndex = 0;
 }
 
@@ -595,4 +600,18 @@ void OriginalRecording::writeSpike(const SpikeObject& spike, int electrodeIndex)
            spikeFileArray[electrodeIndex]); // ptr to FILE object
 
     diskWriteLock.exit();
+}
+
+void OriginalRecording::setParameter(EngineParameter& parameter)
+{
+    boolParameter(0, separateFiles);
+}
+
+RecordEngineManager* OriginalRecording::getEngineManager()
+{
+    RecordEngineManager* man = new RecordEngineManager("OPENEPHYS","Open Ephys",nullptr);
+    EngineParameter* param;
+    param = new EngineParameter(EngineParameter::BOOL,0,"Separate Files",false);
+    man->addParameter(param);
+    return man;
 }

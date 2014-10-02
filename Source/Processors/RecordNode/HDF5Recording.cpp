@@ -37,6 +37,11 @@ HDF5Recording::~HDF5Recording()
     delete intBuffer;
 }
 
+String HDF5Recording::getEngineID()
+{
+	return "KWIK";
+}
+
 void HDF5Recording::updateTimeStamp(int64 timestamp)
 {
     this->timestamp = timestamp;
@@ -172,3 +177,8 @@ void HDF5Recording::startAcquisition()
     spikesFile = new KWXFile();
 }
 
+RecordEngineManager* HDF5Recording::getEngineManager()
+{
+	RecordEngineManager* man = new RecordEngineManager("KWIK","Kwik",nullptr);
+	return man;
+}

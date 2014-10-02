@@ -32,6 +32,7 @@ class HDF5Recording : public RecordEngine
 public:
     HDF5Recording();
     ~HDF5Recording();
+	String getEngineID();
     void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
     void closeFiles();
     void writeData(AudioSampleBuffer& buffer, int nSamples);
@@ -44,6 +45,7 @@ public:
     void updateTimeStamp(int64 timestamp);
     void startAcquisition();
 
+	static RecordEngineManager* getEngineManager();
 private:
 
     int processorIndex;

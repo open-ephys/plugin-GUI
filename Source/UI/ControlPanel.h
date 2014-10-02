@@ -278,7 +278,7 @@ class ControlPanel : public Component,
     public Timer,
     public AccessClass,
     public Label::Listener,
-	public ComboBox::Listener
+    public ComboBox::Listener
 
 {
 public:
@@ -353,7 +353,7 @@ private:
     ScopedPointer<UtilityButton> newDirectoryButton;
     ScopedPointer<ControlPanelButton> cpb;
 
-	ScopedPointer<ComboBox> recordSelector;
+    ScopedPointer<ComboBox> recordSelector;
 
     ScopedPointer<Label> prependText;
     ScopedPointer<Label> dateText;
@@ -369,7 +369,7 @@ private:
 
     void buttonClicked(Button* button);
 
-	void comboBoxChanged(ComboBox* combo);
+    void comboBoxChanged(ComboBox* combo);
 
     bool initialize;
 
@@ -395,6 +395,10 @@ private:
     void createPaths();
 
     Colour backgroundColour;
+
+    OwnedArray<RecordEngineManager> recordEngines;
+    ScopedPointer<UtilityButton> recordOptionsButton;
+    int lastEngineIndex;
 
 };
 

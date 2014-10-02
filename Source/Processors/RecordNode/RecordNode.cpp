@@ -118,11 +118,11 @@ void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 
 void RecordNode::updateChannelName(int channelIndex, String newname)
 {
-/*  if (channelPointers[channelIndex] != nullptr && channelIndex < channelPointers.size())
-    {
-        channelPointers[channelIndex]->name = newname;
-        updateFileName(channelPointers[channelIndex]);
-    } else*/
+    /*  if (channelPointers[channelIndex] != nullptr && channelIndex < channelPointers.size())
+        {
+            channelPointers[channelIndex]->name = newname;
+            updateFileName(channelPointers[channelIndex]);
+        } else*/
     {
         // keep name and do the change when the pointer actually points to something... ?
         modifiedChannelNames.add(newname);
@@ -130,7 +130,7 @@ void RecordNode::updateChannelName(int channelIndex, String newname)
     }
 }
 
-void RecordNode::getChannelNamesAndRecordingStatus(StringArray &names, Array<bool> &recording)
+void RecordNode::getChannelNamesAndRecordingStatus(StringArray& names, Array<bool>& recording)
 {
     names.clear();
     recording.clear();
@@ -145,7 +145,7 @@ void RecordNode::getChannelNamesAndRecordingStatus(StringArray &names, Array<boo
         }
         else
         {
-            Channel *ch = channelPointers[k];
+            Channel* ch = channelPointers[k];
             String n = ch->name;
             names.add(n);
             recording.add(channelPointers[k]->getRecordState());
@@ -383,6 +383,7 @@ bool RecordNode::enable()
 
     //When starting a recording, if a new directory is needed it gets rewritten. Else is incremented by one.
     recordingNumber = -1;
+    EVERY_ENGINE->configureEngine();
     EVERY_ENGINE->startAcquisition();
     isProcessing = true;
     return true;
@@ -410,7 +411,7 @@ float RecordNode::getFreeSpace()
 
 void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
 {
-	if ((eventType == TTL) || (eventType == MESSAGE))
+    if ((eventType == TTL) || (eventType == MESSAGE))
     {
         if (event.getNoteNumber() > 0) // processor ID > 0
         {
@@ -433,7 +434,8 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
 
         memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
         EVERY_ENGINE->updateTimeStamp(timestamp);
-    } else if (eventType == MESSAGE)
+    }
+    else if (eventType == MESSAGE)
     {
         std::cout << "Received event!" << std::endl;
     }
@@ -513,5 +515,5 @@ SpikeRecordInfo* RecordNode::getSpikeElectrode(int index)
 
 void RecordNode::clearRecordEngines()
 {
-	engineArray.clear();
+    engineArray.clear();
 }

@@ -125,6 +125,7 @@ OBJECTS := \
   $(OBJDIR)/PulsePalOutputEditor_3d333977.o \
   $(OBJDIR)/RecordControl_ecb8ada4.o \
   $(OBJDIR)/RecordControlEditor_4355fd71.o \
+  $(OBJDIR)/EngineConfigWindow_4fd44ceb.o \
   $(OBJDIR)/HDF5FileFormat_be712135.o \
   $(OBJDIR)/HDF5Recording_d14f7b19.o \
   $(OBJDIR)/OriginalRecording_d6dc3293.o \
@@ -573,6 +574,11 @@ $(OBJDIR)/RecordControl_ecb8ada4.o: ../../Source/Processors/RecordControl/Record
 $(OBJDIR)/RecordControlEditor_4355fd71.o: ../../Source/Processors/RecordControl/RecordControlEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling RecordControlEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/EngineConfigWindow_4fd44ceb.o: ../../Source/Processors/RecordNode/EngineConfigWindow.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling EngineConfigWindow.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/HDF5FileFormat_be712135.o: ../../Source/Processors/RecordNode/HDF5FileFormat.cpp

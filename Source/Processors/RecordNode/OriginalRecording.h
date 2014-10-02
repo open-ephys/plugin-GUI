@@ -38,6 +38,8 @@ public:
     OriginalRecording();
     ~OriginalRecording();
 
+    void setParameter(EngineParameter& parameter);
+    String getEngineID();
     void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
     void closeFiles();
     void writeData(AudioSampleBuffer& buffer, int nSamples);
@@ -47,6 +49,8 @@ public:
     void updateTimeStamp(int64 timestamp);
     void addSpikeElectrode(int index, SpikeRecordInfo* elec);
     void writeSpike(const SpikeObject& spike, int electrodeIndex);
+
+    static RecordEngineManager* getEngineManager();
 
 private:
     String getFileName(Channel* ch);
@@ -59,9 +63,9 @@ private:
     void openSpikeFile(File rootFolder, SpikeRecordInfo* elec);
     String generateSpikeHeader(SpikeRecordInfo* elec);
 
-	void openMessageFile(File rootFolder);
-	void writeTTLEvent(MidiMessage& event, int samplePosition);
-	void writeMessage(MidiMessage& event, int samplePosition);
+    void openMessageFile(File rootFolder);
+    void writeTTLEvent(MidiMessage& event, int samplePosition);
+    void writeMessage(MidiMessage& event, int samplePosition);
 
     bool separateFiles;
     int blockIndex;
@@ -85,7 +89,7 @@ private:
     int64 timestamp;
 
     FILE* eventFile;
-	FILE* messageFile;
+    FILE* messageFile;
     Array<FILE*> fileArray;
     Array<FILE*> spikeFileArray;
     CriticalSection diskWriteLock;
