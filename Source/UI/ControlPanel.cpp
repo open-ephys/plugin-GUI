@@ -504,8 +504,8 @@ void ControlPanel::createPaths()
     w = 150;*/
 
     int w = getWidth() - 435;
-    if (w > 40)
-        w = 40;
+    if (w > 22)
+        w = 22;
 
     int h1 = getHeight()-32;
     int h2 = getHeight();
