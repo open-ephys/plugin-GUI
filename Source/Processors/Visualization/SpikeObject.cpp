@@ -65,11 +65,8 @@ int packSpike(const SpikeObject* s, uint8_t* buffer, int bufferSize)
     memcpy(buffer+idx, &(s->electrodeID), 2);
     idx +=2;
 
-
-
     memcpy(buffer+idx, &(s->channel), 2);
     idx +=2;
-
 
     memcpy(buffer+idx, &(s->color[0]), 1);
     idx +=1;
