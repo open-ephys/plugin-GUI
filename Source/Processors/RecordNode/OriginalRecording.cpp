@@ -285,7 +285,7 @@ String OriginalRecording::generateHeader(Channel* ch)
 String OriginalRecording::generateSpikeHeader(SpikeRecordInfo* elec)
 {
     String header = "header.format = 'Open Ephys Data Format'; \n";
-    header += "header.version = 0.2;";
+    header += "header.version = 0.3;";
     header += "header.header_bytes = ";
     header += String(HEADER_SIZE);
     header += ";\n";
