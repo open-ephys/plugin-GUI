@@ -195,6 +195,8 @@ private:
                                   int& currentChannel);
 
     void resetElectrode(SimpleElectrode*);
+    
+    uint16_t sampleRateForElectrode;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDetector);
 

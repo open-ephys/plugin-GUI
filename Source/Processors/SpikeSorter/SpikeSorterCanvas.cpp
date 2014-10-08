@@ -506,7 +506,7 @@ void SpikeThresholdDisplay::plotSpike(const SpikeObject& spike, int electrodeNum
 // ----------------------------------------------------------------
 
 SpikeHistogramPlot::SpikeHistogramPlot(SpikeSorter* prc,SpikeSorterCanvas* sdc, int electrodeID_, int p, String name_) :
-    processor(prc), canvas(sdc), isSelected(false), electrodeID(electrodeID_),  plotType(p),
+    canvas(sdc), isSelected(false), processor(prc), plotType(p), electrodeID(electrodeID_),
     limitsChanged(true), name(name_)
 
 {
@@ -1014,11 +1014,11 @@ WaveformAxes::WaveformAxes(SpikeHistogramPlot* plt, SpikeSorter* p,int electrode
     displayThresholdLevel(0.0f),
     spikesReceivedSinceLastRedraw(0),
     spikeIndex(0),
+    signalFlipped(false),
     bufferSize(5),
     range(250.0f),
     isOverThresholdSlider(false),
-    isDraggingThresholdSlider(false),
-    signalFlipped(false)
+    isDraggingThresholdSlider(false)
 {
     bDragging  = false;
 

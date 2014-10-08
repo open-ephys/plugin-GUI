@@ -304,6 +304,7 @@ void SpikeDetector::setParameter(int parameterIndex, float newValue)
 bool SpikeDetector::enable()
 {
 
+    sampleRateForElectrode = (uint16_t) getSampleRate();
     useOverflowBuffer = false;
     return true;
 }
@@ -344,7 +345,24 @@ void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,
     int spikeLength = electrodes[electrodeNumber]->prePeakSamples +
                       + electrodes[electrodeNumber]->postPeakSamples;
 
+//    uint8_t     eventType;
+//    int64_t    timestamp;
+//    int64_t    timestamp_software;
+//    uint16_t    source; // used internally, the index of the electrode in the electrode array
+//    uint16_t    nChannels;
+//    uint16_t    nSamples;
+//    uint16_t    sortedId;   // sorted unit ID (or 0 if unsorted)
+//    uint16_t    electrodeID; // unique electrode ID (regardless electrode position in the array)
+//    uint16_t    channel; // the channel in which threshold crossing was detected (index in channel array, not absolute channel number).
+//    uint8_t     color[3];
+//    float       pcProj[2];
+//    uint16_t    samplingFrequencyHz;
+//    uint16_t    data[MAX_NUMBER_OF_SPIKE_CHANNELS* MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES];
+//    float       gain[MAX_NUMBER_OF_SPIKE_CHANNELS];
+//    uint16_t    threshold[MAX_NUMBER_OF_SPIKE_CHANNELS];
+    
     s->timestamp = timestamp + peakIndex;
+    
 
     s->nSamples = spikeLength;
 
@@ -432,24 +450,17 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
         // cycle through samples
         while (samplesAvailable(nSamples))
         {
-
             sampleIndex++;
-
-
             // cycle through channels
             for (int chan = 0; chan < electrode->numChannels; chan++)
             {
-
                 // std::cout << "  channel " << chan << std::endl;
-
                 if (*(electrode->isActive+chan))
                 {
-
                     int currentChannel = *(electrode->channels+chan);
 
                     if (-getNextSample(currentChannel) > *(electrode->thresholds+chan)) // trigger spike
                     {
-
                         //std::cout << "Spike detected on electrode " << i << std::endl;
                         // find the peak
                         int peakIndex = sampleIndex;
@@ -463,11 +474,32 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
                         peakIndex = sampleIndex;
                         sampleIndex -= (electrode->prePeakSamples+1);
+                        
+//                        uint8_t     eventType;
+//                        int64_t    timestamp;
+//                        int64_t    timestamp_software;
+//                        uint16_t    source; // used internally, the index of the electrode in the electrode array
+//                        uint16_t    nChannels;
+//                        uint16_t    nSamples;
+//                        uint16_t    sortedId;   // sorted unit ID (or 0 if unsorted)
+//                        uint16_t    electrodeID; // unique electrode ID (regardless electrode position in the array)
+//                        uint16_t    channel; // the channel in which threshold crossing was detected (index in channel array, not absolute channel number).
+//                        uint8_t     color[3];
+//                        float       pcProj[2];
+//                        uint16_t    samplingFrequencyHz;
+//                        uint16_t    data[MAX_NUMBER_OF_SPIKE_CHANNELS* MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES];
+//                        float       gain[MAX_NUMBER_OF_SPIKE_CHANNELS];
+//                        uint16_t    threshold[MAX_NUMBER_OF_SPIKE_CHANNELS];
 
                         SpikeObject newSpike;
                         newSpike.timestamp = peakIndex;
+                        newSpike.timestamp_software = -1;
                         newSpike.source = i;
                         newSpike.nChannels = electrode->numChannels;
+                        newSpike.sortedId = 0;
+                        newSpike.electrodeID = 0;
+                        newSpike.channel = 0;
+                        newSpike.samplingFrequencyHz = sampleRateForElectrode;
 
                         currentIndex = 0;
 

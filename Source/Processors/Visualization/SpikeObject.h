@@ -64,15 +64,15 @@ struct SpikeObject
     int64_t    timestamp;
     int64_t    timestamp_software;
     uint16_t    source; // used internally, the index of the electrode in the electrode array
-    uint16_t    channel; // the channel in which threshold crossing was detected (index in channel array, not absolute channel number).
-    uint16_t    nChannels;  
+    uint16_t    nChannels;
     uint16_t    nSamples;
     uint16_t    sortedId;   // sorted unit ID (or 0 if unsorted)
     uint16_t    electrodeID; // unique electrode ID (regardless electrode position in the array)
+    uint16_t    channel; // the channel in which threshold crossing was detected (index in channel array, not absolute channel number).
     uint8_t     color[3];
     float       pcProj[2];
     uint16_t    samplingFrequencyHz;
-    uint16_t    data[MAX_NUMBER_OF_SPIKE_CHANNELS* MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES];
+    uint16_t    data[MAX_NUMBER_OF_SPIKE_CHANNELS * MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES];
     float       gain[MAX_NUMBER_OF_SPIKE_CHANNELS];
     uint16_t    threshold[MAX_NUMBER_OF_SPIKE_CHANNELS];
 };

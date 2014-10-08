@@ -574,8 +574,9 @@ void OriginalRecording::writeSpike(const SpikeObject& spike, int electrodeIndex)
     packSpike(&spike, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
 
     int totalBytes = spike.nSamples * spike.nChannels * 2 + // account for samples
-                     spike.nChannels * 4 +            // acount for threshold and gain
-                     15;                        // 15 bytes in every SpikeObject
+                     spike.nChannels * 4 +            // acount for gain
+                     spike.nChannels * 2 +            // account for thresholds
+                     42;                              // 42 is the answer
 
 
     // format:
