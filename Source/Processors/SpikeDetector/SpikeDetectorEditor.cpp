@@ -509,14 +509,16 @@ void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
     {
         int ID = comboBox->getSelectedId();
 
+        std::cout << "ID: " << ID << std::endl;
+
         if (ID == 0)
         {
-            SpikeDetector* processor = (SpikeDetector*) getProcessor();
+            //SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
-            processor->setElectrodeName(lastId, comboBox->getText());
-            comboBox->changeItemText(lastId, comboBox->getText());
+            //processor->setElectrodeName(lastId, comboBox->getText());
+            //comboBox->changeItemText(lastId, comboBox->getText());
             //electrodeList->setText(comboBox->getText());
-            //refreshElectrodeList();
+            refreshElectrodeList();
 
         }
         else
