@@ -163,8 +163,6 @@ private:
   The Clock uses built-in JUCE functions for getting the system time. It does not
   currently interact with timestamps from ProcessorGraph sources.
 
-  The Clock draws the time using OpenGL (and the FTGL font library).
-
   @see ControlPanel
 
 */

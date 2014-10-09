@@ -34,7 +34,6 @@ DataWindow::DataWindow(Button* cButton, String name)
     centreWithSize(800,500);
     setUsingNativeTitleBar(true);
     setResizable(true,false);
-    //setTitleBarHeight(40);
 }
 
 DataWindow::~DataWindow()

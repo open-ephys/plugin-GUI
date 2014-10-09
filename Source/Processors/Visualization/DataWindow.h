@@ -28,9 +28,9 @@
 
 /**
 
-  Allows OpenGL visualizers to be placed in their own window.
+  Allows visualizers to be placed in their own window.
 
-  @see DataViewport, OpenGLCanvas
+  @see DataViewport
 
 */
 

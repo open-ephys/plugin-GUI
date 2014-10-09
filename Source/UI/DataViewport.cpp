@@ -116,12 +116,6 @@ void DataViewport::disableConnectionToEditorViewport()
 
 void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
 {
-    // OpenGLCanvas* canvas = (OpenGLCanvas*) getTabContentComponent(newIndex);
-
-    // if (canvas != 0) {
-    //     canvas->refreshState();
-    // }
-
     // std::cout << "CURRENT TAB CHANGED" << std::endl;
     //std::cout << "number of editors remaining: " << editorArray.size() << std::endl;
 
