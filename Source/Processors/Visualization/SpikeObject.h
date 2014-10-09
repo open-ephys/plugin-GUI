@@ -29,6 +29,7 @@
 #include <stdint.h>
 #include <math.h>
 
+#define SPIKE_METADATA_SIZE 42
 #define MAX_NUMBER_OF_SPIKE_CHANNELS 4
 #define MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES 80
 #define CHECK_BUFFER_VALIDITY true

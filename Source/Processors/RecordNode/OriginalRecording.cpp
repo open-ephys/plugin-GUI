@@ -108,9 +108,16 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
 
     isEvent = (ch == nullptr) ? true : false;
     if (isEvent)
-        fullPath += "experiment" + String(experimentNumber) + "_all_channels.events";
+    {
+        if (experimentNumber > 1)
+            fullPath += "all_channels_" + String(experimentNumber) + ".events";
+        else
+            fullPath += "all_channels.events";
+    }
     else
+    {
         fullPath += getFileName(ch);
+    }
 
     File f = File(fullPath);
 
@@ -206,10 +213,14 @@ String OriginalRecording::getFileName(Channel* ch)
 {
     String filename;
 
-    filename += "experiment" + String(experimentNumber) + "_";
     filename += ch->nodeId;
     filename += "_";
     filename += ch->name;
+
+    if (experimentNumber > 1)
+    {
+        filename += "_" + String(experimentNumber);
+    }
 
     if (separateFiles)
     {
@@ -576,7 +587,7 @@ void OriginalRecording::writeSpike(const SpikeObject& spike, int electrodeIndex)
     int totalBytes = spike.nSamples * spike.nChannels * 2 + // account for samples
                      spike.nChannels * 4 +            // acount for gain
                      spike.nChannels * 2 +            // account for thresholds
-                     42;                              // 42 is the answer
+                     SPIKE_METADATA_SIZE;             // 42, from SpikeObject.h
 
 
     // format:
