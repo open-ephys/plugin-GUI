@@ -82,7 +82,7 @@ void RecordEngine::configureEngine()
 //Manager
 
 EngineParameter::EngineParameter(EngineParameter::EngineParameterType paramType, int paramId, String paramName, var defaultValue, var min, var max)
-    : name(paramName), type(paramType), id(paramId), def(defaultValue)
+    : type(paramType), name(paramName), id(paramId), def(defaultValue)
 {
     if (paramType == BOOL && defaultValue.isBool())
         boolParam.value = defaultValue;
@@ -122,7 +122,7 @@ void EngineParameter::restoreDefault()
 }
 
 RecordEngineManager::RecordEngineManager(String engineID, String engineName, EngineCreator creatorFunc) :
-    creator(creatorFunc), name(engineName), id(engineID), window(nullptr)
+    creator(creatorFunc), id(engineID), name(engineName), window(nullptr)
 {
 }
 

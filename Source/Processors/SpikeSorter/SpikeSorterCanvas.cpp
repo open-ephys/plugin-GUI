@@ -506,8 +506,8 @@ void SpikeThresholdDisplay::plotSpike(const SpikeObject& spike, int electrodeNum
 // ----------------------------------------------------------------
 
 SpikeHistogramPlot::SpikeHistogramPlot(SpikeSorter* prc,SpikeSorterCanvas* sdc, int electrodeID_, int p, String name_) :
-    canvas(sdc), isSelected(false), processor(prc), plotType(p), electrodeID(electrodeID_),
-    limitsChanged(true), name(name_)
+    canvas(sdc), isSelected(false), plotType(p), electrodeID(electrodeID_),
+    limitsChanged(true), processor(prc), name(name_)
 
 {
 
@@ -1007,18 +1007,19 @@ double GenericDrawAxes::ad16ToUv(int x, int gain)
 // --------------------------------------------------
 
 
-WaveformAxes::WaveformAxes(SpikeHistogramPlot* plt, SpikeSorter* p,int electrodeID_, int _channel) : GenericDrawAxes(channel), spikeHistogramPlot(plt), electrodeID(electrodeID_),
-    processor(p),
+WaveformAxes::WaveformAxes(SpikeHistogramPlot* plt, SpikeSorter* p,int electrodeID_, int _channel) : GenericDrawAxes(channel),  electrodeID(electrodeID_),
+    signalFlipped(false),
     channel(_channel),
     drawGrid(true),
     displayThresholdLevel(0.0f),
     spikesReceivedSinceLastRedraw(0),
     spikeIndex(0),
-    signalFlipped(false),
     bufferSize(5),
     range(250.0f),
     isOverThresholdSlider(false),
-    isDraggingThresholdSlider(false)
+    isDraggingThresholdSlider(false),
+    processor(p),
+    spikeHistogramPlot(plt)
 {
     bDragging  = false;
 
