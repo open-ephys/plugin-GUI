@@ -162,8 +162,13 @@ void OriginalRecording::openSpikeFile(File rootFolder, SpikeRecordInfo* elec)
 
     FILE* spFile;
     String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
-    fullPath += "experiment" + String(experimentNumber) + "_";
     fullPath += elec->name.removeCharacters(" ");
+
+    if (experimentNumber > 1)
+    {
+        fullPath += "_" + String(experimentNumber);
+    }
+
     fullPath += ".spikes";
 
     std::cout << "OPENING FILE: " << fullPath << std::endl;
