@@ -2,7 +2,7 @@
    ------------------------------------------------------------------
 
    This file is part of the Open Ephys GUI
-   Copyright (C) 2013 Open Ephys
+   Copyright (C) 2014 Open Ephys
 
    ------------------------------------------------------------------
 
@@ -24,14 +24,6 @@
 #include "AccessClass.h"
 
 #include "UI/UIComponent.h"
-// #include "UI/EditorViewport.h"
-// #include "UI/ProcessorList.h"
-// #include "UI/DataViewport.h"
-// #include "UI/ControlPanel.h"
-// #include "UI/MessageCenter.h"
-// #include "UI/GraphViewer.h"
-// #include "Audio/AudioComponent.h"
-// #include "Processors/ProcessorGraph/ProcessorGraph.h"
 
 void AccessClass::setUIComponent(UIComponent* ui_)
 {

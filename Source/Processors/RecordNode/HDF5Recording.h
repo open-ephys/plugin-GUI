@@ -2,7 +2,7 @@
  ------------------------------------------------------------------
 
  This file is part of the Open Ephys GUI
- Copyright (C) 2013 Florian Franzen
+ Copyright (C) 2014 Florian Franzen
 
  ------------------------------------------------------------------
 

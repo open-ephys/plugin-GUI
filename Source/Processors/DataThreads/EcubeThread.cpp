@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2013 Michael Borisov
+Copyright (C) 2014 Michael Borisov
 
 ------------------------------------------------------------------
 
