@@ -1186,15 +1186,15 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 	MouseEvent canvasevent = event.getEventRelativeTo(viewport);
 	int y = canvasevent.getMouseDownY() + viewport->getViewPositionY(); // need to account for scrolling
 
-	int dist=0;
-	int mindist=10000;
-	int closest=5;
+	int dist = 0;
+	int mindist = 10000;
+	int closest = 5;
 	for (int n = 0; n < numChans; n++) // select closest instead of relying ot eventComponent
 	{
 		channels[n]->deselect();
 
-		int cpos=(channels[n]->getY() + (channels[n]->getHeight()/2));
-		dist=int(abs(y - cpos));
+		int cpos = (channels[n]->getY() + (channels[n]->getHeight()/2));
+		dist = int(abs(y - cpos));
 
 		//std::cout << "Mouse down at " << y << " pos is "<< cpos << "n:" << n << "  dist " << dist << std::endl;
 

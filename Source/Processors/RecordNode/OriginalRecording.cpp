@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2014 Florian Franzen
+Copyright (C) 2013 Florian Franzen
 
 ------------------------------------------------------------------
 
@@ -242,7 +242,7 @@ String OriginalRecording::generateHeader(Channel* ch)
 
     String header = "header.format = 'Open Ephys Data Format'; \n";
 
-    header += "header.version = 0.4;";
+    header += "header.version = 0.4; \n";
     header += "header.header_bytes = ";
     header += String(HEADER_SIZE);
     header += ";\n";
@@ -301,7 +301,7 @@ String OriginalRecording::generateHeader(Channel* ch)
 String OriginalRecording::generateSpikeHeader(SpikeRecordInfo* elec)
 {
     String header = "header.format = 'Open Ephys Data Format'; \n";
-    header += "header.version = 0.4;";
+    header += "header.version = 0.4; \n";
     header += "header.header_bytes = ";
     header += String(HEADER_SIZE);
     header += ";\n";
