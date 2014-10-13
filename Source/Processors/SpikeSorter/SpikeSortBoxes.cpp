@@ -145,10 +145,10 @@ bool Box::LineSegmentIntersection(PointD p11, PointD p12, PointD p21, PointD p22
 bool Box::isWaveFormInside(SpikeObject *so)
 {
 	PointD BoxTopLeft(x, y);
-	PointD BoxBottomLeft(x, (y + h));
+	PointD BoxBottomLeft(x, (y - h));
 
 	PointD BoxTopRight(x + w, y);
-	PointD BoxBottomRight(x + w, (y + h));
+	PointD BoxBottomRight(x + w, (y - h));
 
 	// y,and h are given in micro volts.
 	// x and w and given in micro seconds.
