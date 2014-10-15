@@ -723,7 +723,6 @@ void RHD2000Editor::buttonEvent(Button* button)
     {
         std::cout << "DSP offset " << button->getToggleState() << std::endl;
         board->setDSPOffset(button->getToggleState());
-        getEditorViewport()->makeEditorVisible(this, false, true);
     }
 
 }
