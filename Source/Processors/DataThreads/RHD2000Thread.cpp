@@ -542,11 +542,11 @@ void RHD2000Thread::scanPorts()
             {
                 //We just add it like a second headstage, allowing only one RHD2164 per channel
                 //This would need to change
-				evalBoard->setDataSource(stream+1,initStreamDdrPorts[stream]);
-				enableHeadstage(stream,true);
-				enableHeadstage(stream+1,true);
-				chipId.set(stream+1,CHIP_ID_RHD2164_B);
-				stream++;
+                evalBoard->setDataSource(stream+1,initStreamDdrPorts[stream]);
+                enableHeadstage(stream,true);
+                enableHeadstage(stream+1,true);
+                chipId.set(stream+1,CHIP_ID_RHD2164_B);
+                stream++;
             }
             else
                 enableHeadstage(stream, true);
@@ -925,17 +925,17 @@ double RHD2000Thread::setLowerBandwidth(double lower)
 
 double RHD2000Thread::setDspCutoffFreq(double freq)
 {
-    
+
     desiredDspCutoffFreq = freq;
-    
+
     updateRegisters();
-    
+
     return actualDspCutoffFreq;
 }
 
 double RHD2000Thread::getDspCutoffFreq()
 {
-    
+
     return actualDspCutoffFreq;
 }
 
@@ -943,6 +943,7 @@ void RHD2000Thread::setDSPOffset(bool state)
 {
     dspEnabled = state;
     updateRegisters();
+}
 
 void RHD2000Thread::setTTLoutputMode(bool state)
 {
