@@ -10,8 +10,8 @@ This repository contains all of the files you'll need to compile and run the GUI
 
 We recommend reading through the wiki_ before attempting to make any changes.
 
-If you want to add files, you'll have to do that through the "Introjucer," using the "open-ephys.jucer" file. The Introjucer makefiles are located in the JuceLibraryCode/Introjucer/Builds folder, or as part of the Juce library package on SourceForge_.
+If you want to add files, you'll have to do that through the "Introjucer," using the "open-ephys.jucer" file. The Introjucer makefiles are located in the JuceLibraryCode/Introjucer/Builds folder, or as part of the Juce source_.
 
-.. _SourceForge: http://sourceforge.net/projects/juce/files/juce/
+.. _source: https://github.com/julianstorer/juce
 .. _JUCE: http://www.rawmaterialsoftware.com/juce.php
 .. _wiki: http://open-ephys.atlassian.net

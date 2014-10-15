@@ -45,6 +45,20 @@ Builds/VisualStudio2012/open-ephys.vcxproj.user
 Builds/VisualStudio2012/windowState.xml
 Builds/VisualStudio2012/pipetest.bit
 
+Builds/VisualStudio2013/Debug
+Builds/VisualStudio2013/Release
+Builds/VisualStudio2013/Debug64
+Builds/VisualStudio2013/Release64
+Builds/VisualStudio2013/x64
+Builds/VisualStudio2013/ipch
+Builds/VisualStudio2013/open-ephys.sdf
+Builds/VisualStudio2013/open-ephys.opensdf
+Builds/VisualStudio2013/open-ephys.suo
+Builds/VisualStudio2013/open-ephys.v11.suo
+Builds/VisualStudio2013/open-ephys.vcxproj.user
+Builds/VisualStudio2013/windowState.xml
+Builds/VisualStudio2013/pipetest.bit
+
 Builds/VisualStudio2010/Debug
 Builds/VisualStudio2010/Release
 Builds/VisualStudio2010/ipch

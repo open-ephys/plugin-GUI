@@ -25,10 +25,10 @@
 #define __GENERICEDITOR_H_DD406E71__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 #include "../../AccessClass.h"
 
-#include "../Channel.h"
+#include "../Channel/Channel.h"
 
 #include <stdio.h>
 
@@ -107,6 +107,12 @@ public:
 
     /** Used to enable or disable an editor's processor.*/
     void setEnabledState(bool);
+
+	/** Called at the start of a recording **/
+	void startRecording();
+
+	/** Called at the end of a recording **/
+	void stopRecording();
 
     /** Called just prior to the start of acquisition, to allow the editor to prepare.*/
     virtual void startAcquisition();

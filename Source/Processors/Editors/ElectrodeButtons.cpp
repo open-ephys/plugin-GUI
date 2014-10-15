@@ -48,6 +48,11 @@ void ElectrodeButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDo
         g.setColour(Colours::grey);
     }
 
+    if (chan < 100)
+        g.setFont(10.f);
+    else
+        g.setFont(8.f);
+
     if (chan >= 0)
         g.drawText(getButtonText(),0,0,getWidth(),getHeight(),Justification::centred,true);
 }
@@ -79,3 +84,4 @@ void ElectrodeEditorButton::paintButton(Graphics& g, bool isMouseOver, bool isBu
 
     g.drawText(name,0,0,getWidth(),getHeight(),Justification::left,true);
 }
+

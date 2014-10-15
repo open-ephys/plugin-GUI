@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2014 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -28,9 +28,9 @@
 
 /**
 
-  Allows OpenGL visualizers to be placed in their own window.
+  Allows visualizers to be placed in their own window.
 
-  @see DataViewport, OpenGLCanvas
+  @see DataViewport
 
 */
 

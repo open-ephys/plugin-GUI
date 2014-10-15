@@ -39,6 +39,7 @@ using namespace std;
 Rhd2000EvalBoard::Rhd2000EvalBoard()
 {
     int i;
+    fast_settle_enabled = false;
     sampleRate = SampleRate30000Hz; // Rhythm FPGA boots up with 30.0 kS/s/channel sampling rate
     numDataStreams = 0;
     dev = 0; //nullptr;
@@ -46,6 +47,13 @@ Rhd2000EvalBoard::Rhd2000EvalBoard()
     for (i = 0; i < MAX_NUM_DATA_STREAMS; ++i)
     {
         dataStreamEnabled[i] = 0;
+    }
+    dacChannelAssignment = new int[8];
+    dacChannelThreshold = new float[8];
+    for (int k=0;k<8;k++)
+    {
+        dacChannelAssignment[k] = -1;
+        dacChannelThreshold[k] =0;
     }
 }
 
@@ -132,28 +140,28 @@ bool Rhd2000EvalBoard::uploadFpgaBitfile(string filename)
             break;
         case okCFrontPanel::DeviceNotOpen:
             cerr << "FPGA configuration failed: Device not open." << endl;
-            return (false);
+            return(false);
         case okCFrontPanel::FileError:
             cerr << "FPGA configuration failed: Cannot find configuration file." << endl;
-            return (false);
+            return(false);
         case okCFrontPanel::InvalidBitstream:
             cerr << "FPGA configuration failed: Bitstream is not properly formatted." << endl;
-            return (false);
+            return(false);
         case okCFrontPanel::DoneNotHigh:
             cerr << "FPGA configuration failed: FPGA DONE signal did not assert after configuration." << endl;
-            return (false);
+            return(false);
         case okCFrontPanel::TransferError:
             cerr << "FPGA configuration failed: USB error occurred during download." << endl;
-            return (false);
+            return(false);
         case okCFrontPanel::CommunicationError:
             cerr << "FPGA configuration failed: Communication error with firmware." << endl;
-            return (false);
+            return(false);
         case okCFrontPanel::UnsupportedFeature:
             cerr << "FPGA configuration failed: Unsupported feature." << endl;
-            return (false);
+            return(false);
         default:
             cerr << "FPGA configuration failed: Unknown error." << endl;
-            return (false);
+            return(false);
     }
 
     // Check for Opal Kelly FrontPanel support in the FPGA configuration.
@@ -162,7 +170,7 @@ bool Rhd2000EvalBoard::uploadFpgaBitfile(string filename)
         cerr << "Opal Kelly FrontPanel support is not enabled in this FPGA configuration." << endl;
         delete dev;
         dev = 0; //nullptr;
-        return (false);
+        return(false);
     }
 
     int boardId, boardVersion;
@@ -173,7 +181,7 @@ bool Rhd2000EvalBoard::uploadFpgaBitfile(string filename)
     if (boardId != RHYTHM_BOARD_ID)
     {
         cerr << "FPGA configuration does not support Rhythm.  Incorrect board ID: " << boardId << endl;
-        return (false);
+        return(false);
     }
     else
     {
@@ -181,9 +189,14 @@ bool Rhd2000EvalBoard::uploadFpgaBitfile(string filename)
              boardVersion << endl << endl;
     }
 
-    return (true);
+    return(true);
 }
 
+// Uses the Opal Kelly library to reset the FPGA
+void Rhd2000EvalBoard::resetFpga() 
+{
+    dev->ResetFPGA();
+}
 
 // Reads system clock frequency from Opal Kelly board (in MHz).  Should be 100 MHz for normal
 // Rhythm operation.
@@ -275,6 +288,18 @@ void Rhd2000EvalBoard::initialize()
 
     setDacGain(0);
     setAudioNoiseSuppress(0);
+
+    setTtlMode(0);          // If 1 then Digital outputs 0-7 are DAC comparators; 8-15 under manual control
+                            // by default, set to 0 (all are under manual control).
+
+    setDacThreshold(0, 32768, true);
+    setDacThreshold(1, 32768, true);
+    setDacThreshold(2, 32768, true);
+    setDacThreshold(3, 32768, true);
+    setDacThreshold(4, 32768, true);
+    setDacThreshold(5, 32768, true);
+    setDacThreshold(6, 32768, true);
+    setDacThreshold(7, 32768, true);
 }
 
 // Set the per-channel sampling rate of the RHD2000 chips connected to the FPGA.
@@ -406,7 +431,7 @@ bool Rhd2000EvalBoard::setSampleRate(AmplifierSampleRate newSampleRate)
             D = 25;
             break;
         default:
-            return (false);
+            return(false);
     }
 
     sampleRate = newSampleRate;
@@ -422,7 +447,7 @@ bool Rhd2000EvalBoard::setSampleRate(AmplifierSampleRate newSampleRate)
     // Wait for DataClkLocked = 1 before allowing data acquisition to continue
     while (isDataClockLocked() == false) {}
 
-    return (true);
+    return(true);
 }
 
 // Returns the current per-channel sampling rate (in Hz) as a floating-point number.
@@ -492,7 +517,7 @@ Rhd2000EvalBoard::AmplifierSampleRate Rhd2000EvalBoard::getSampleRateEnum() cons
 }
 
 // Print a command list to the console in readable form.
-void Rhd2000EvalBoard::printCommandList(const vector<int>& commandList) const
+void Rhd2000EvalBoard::printCommandList(const vector<int> &commandList) const
 {
     unsigned int i;
     int cmd, channel, reg, data;
@@ -543,7 +568,7 @@ void Rhd2000EvalBoard::printCommandList(const vector<int>& commandList) const
 
 // Upload an auxiliary command list to a particular command slot (AuxCmd1, AuxCmd2, or AuxCmd3) and RAM bank (0-15)
 // on the FPGA.
-void Rhd2000EvalBoard::uploadCommandList(const vector<int>& commandList, AuxCmdSlot auxCommandSlot, int bank)
+void Rhd2000EvalBoard::uploadCommandList(const vector<int> &commandList, AuxCmdSlot auxCommandSlot, int bank)
 {
     unsigned int i;
 
@@ -676,12 +701,6 @@ void Rhd2000EvalBoard::resetBoard()
     dev->UpdateWireIns();
     dev->SetWireInValue(WireInResetRun, 0x00, 0x01);
     dev->UpdateWireIns();
-}
-
-// Use the Opal Kelly library to reset the FPGA
-void Rhd2000EvalBoard::resetFpga()
-{
-    dev->ResetFPGA();
 }
 
 // Set the FPGA to run continuously once started (if continuousMode == true) or to run until
@@ -906,6 +925,14 @@ void Rhd2000EvalBoard::setDataSource(int stream, BoardDataSource dataSource)
     dev->UpdateWireIns();
 }
 
+bool Rhd2000EvalBoard::isStreamEnabled(int streamIndex)
+{
+  if (streamIndex < 0 || streamIndex > (MAX_NUM_DATA_STREAMS - 1))
+    return false;
+
+  return dataStreamEnabled[streamIndex];
+}
+
 // Enable or disable one of the eight available USB data streams (0-7).
 void Rhd2000EvalBoard::enableDataStream(int stream, bool enabled)
 {
@@ -1127,6 +1154,69 @@ void Rhd2000EvalBoard::selectDacDataStream(int dacChannel, int stream)
     dev->UpdateWireIns();
 }
 
+void Rhd2000EvalBoard::setFastSettleByTTL(bool state)
+
+{
+    dev->SetWireInValue(WireInResetRun, (state ? 0x10 : 0x00), 0x10);
+    dev->UpdateWireIns();
+}
+
+void Rhd2000EvalBoard::setFastSettleByTTLchannel(int channel)
+{
+  if (channel < 0 || channel > 7)
+    {
+        cerr << "Error in Rhd2000EvalBoard::setFastSettleByTTLchannel: channel out of range." << endl;
+        return;
+    }
+// the WireInTTLSettleChannel is also used by DAC, so keep the values of 10 used bits
+ // and shift the channel value 10 bits to the left
+    dev->SetWireInValue(WireInTTLSettleChannel, channel << 10, 0x3c00);
+    dev->UpdateWireIns();
+}
+
+
+
+// Enable external triggering of amplifier hardware 'fast settle' function (blanking).
+// If external triggering is enabled, this fast settling of amplifiers on all connected
+// chips will be controlled in real time via one of the 16 TTL inputs.
+void Rhd2000EvalBoard::enableExternalFastSettle(bool enable)
+{
+    fast_settle_enabled = enable;
+    dev->SetWireInValue(WireInMultiUse, enable ? 1 : 0);
+    dev->UpdateWireIns();
+    dev->ActivateTriggerIn(TrigInExtFastSettle, 0);
+}
+
+bool Rhd2000EvalBoard::getExternalFastSettle()
+{
+    return fast_settle_enabled;
+}
+// Select which of the TTL inputs 0-15 is used to perform a hardware 'fast settle' (blanking)
+// of the amplifiers if external triggering of fast settling
+// is enabled.
+void Rhd2000EvalBoard::setExternalFastSettleChannel(int channel)
+{
+    if (channel < 0 || channel > 15) {
+        cerr << "Error in Rhd2000EvalBoard::setExternalFastSettleChannel: channel out of range." << endl;
+        return;
+    }
+    dev->SetWireInValue(WireInMultiUse, channel);
+    dev->UpdateWireIns();
+    dev->ActivateTriggerIn(TrigInExtFastSettle, 1);
+}
+
+int Rhd2000EvalBoard::gecDacDataChannel(int dacChannel)
+{
+    if (dacChannel < 0 || dacChannel > 7)
+        return -1;
+    return dacChannelAssignment[dacChannel];
+}
+
+void Rhd2000EvalBoard::updateDacAssignment(int dacChannel, int channel)
+{
+    dacChannelAssignment[dacChannel] = channel;
+}
+
 // Assign a particular amplifier channel (0-31) to a DAC channel (0-7).
 void Rhd2000EvalBoard::selectDacDataChannel(int dacChannel, int dataChannel)
 {
@@ -1141,6 +1231,7 @@ void Rhd2000EvalBoard::selectDacDataChannel(int dacChannel, int dataChannel)
         cerr << "Error in Rhd2000EvalBoard::selectDacDataChannel: dataChannel out of range." << endl;
         return;
     }
+    dacChannelAssignment[dacChannel] = dataChannel;
 
     switch (dacChannel)
     {
@@ -1169,6 +1260,112 @@ void Rhd2000EvalBoard::selectDacDataChannel(int dacChannel, int dataChannel)
             dev->SetWireInValue(WireInDacSource8, dataChannel << 0, 0x001f);
             break;
     }
+    dev->UpdateWireIns();
+}
+
+// Enable optional FPGA-implemented digital high-pass filters associated with DAC outputs
+// on USB interface board.. These one-pole filters can be used to record wideband neural data
+// while viewing only spikes without LFPs on the DAC outputs, for example.  This is useful when
+// using the low-latency FPGA thresholds to detect spikes and produce digital pulses on the TTL
+// outputs, for example.
+void Rhd2000EvalBoard::enableDacHighpassFilter(bool enable)
+{
+    dev->SetWireInValue(WireInMultiUse, enable ? 1 : 0);
+    dev->UpdateWireIns();
+    dev->ActivateTriggerIn(TrigInDacHpf, 0);
+}
+
+// Set cutoff frequency (in Hz) for optional FPGA-implemented digital high-pass filters
+// associated with DAC outputs on USB interface board.  These one-pole filters can be used
+// to record wideband neural data while viewing only spikes without LFPs on the DAC outputs,
+// for example.  This is useful when using the low-latency FPGA thresholds to detect spikes
+// and produce digital pulses on the TTL outputs, for example.
+void Rhd2000EvalBoard::setDacHighpassFilter(double cutoff)
+{
+    double b;
+    int filterCoefficient;
+    const double pi = 3.1415926535897;
+
+    // Note that the filter coefficient is a function of the amplifier sample rate, so this
+    // function should be called after the sample rate is changed.
+    b = 1.0 - exp(-2.0 * pi * cutoff / getSampleRate());
+
+    // In hardware, the filter coefficient is represented as a 16-bit number.
+    filterCoefficient = (int) floor(65536.0 * b + 0.5);
+
+    if (filterCoefficient < 1) {
+        filterCoefficient = 1;
+    } else if (filterCoefficient > 65535) {
+        filterCoefficient = 65535;
+    }
+
+    dev->SetWireInValue(WireInMultiUse, filterCoefficient);
+    dev->UpdateWireIns();
+    dev->ActivateTriggerIn(TrigInDacHpf, 1);
+}
+
+// Set thresholds for DAC channels; threshold output signals appear on TTL outputs 0-7.
+// The parameter 'threshold' corresponds to the RHD2000 chip ADC output value, and must fall
+// in the range of 0 to 65535, where the 'zero' level is 32768.
+// If trigPolarity is true, voltages equaling or rising above the threshold produce a high TTL output.
+// If trigPolarity is false, voltages equaling or falling below the threshold produce a high TTL output.
+//
+// To convert threshold in voltage to this range, use the following:
+//     int threshLevel = ((double) threshold / 0.195) + 32768;
+//    evalBoard->setDacThreshold(0, threshLevel, threshold >= 0);
+
+void Rhd2000EvalBoard::setDacThresholdVoltage(int dacChannel, float voltage_threshold)
+{
+     int threshLevel = (voltage_threshold / 0.195) + 32768;
+    setDacThreshold(dacChannel, abs(threshLevel), voltage_threshold >= 0);
+
+}
+
+void Rhd2000EvalBoard::getDacInformation(int *ch, float *th)
+{
+    for (int k=0;k<8;k++)
+    {
+        ch[k] = dacChannelAssignment[k];
+        th[k] = dacChannelThreshold[k];
+    }
+}
+
+void Rhd2000EvalBoard::setDacThreshold(int dacChannel, int threshold, bool trigPolarityPositive)
+{
+    if (dacChannel < 0 || dacChannel > 7) {
+        cerr << "Error in Rhd2000EvalBoard::setDacThreshold: dacChannel out of range." << endl;
+        return;
+    }
+
+    if (threshold < 0 || threshold > 65535) {
+        cerr << "Error in Rhd2000EvalBoard::setDacThreshold: threshold out of range." << endl;
+        return;
+    }
+    dacChannelThreshold[dacChannel] = trigPolarityPositive? -(float)(threshold-32768)*0.195 : (float)(threshold-32768)*0.195;
+
+    // Set threshold level.
+    dev->SetWireInValue(WireInMultiUse, threshold);
+    dev->UpdateWireIns();
+    dev->ActivateTriggerIn(TrigInDacThresh, dacChannel);
+
+    // Set threshold polarity.
+    dev->SetWireInValue(WireInMultiUse, (trigPolarityPositive ? 1 : 0));
+    dev->UpdateWireIns();
+    dev->ActivateTriggerIn(TrigInDacThresh, dacChannel + 8);
+}
+
+// Set the TTL output mode of the board.
+// mode = 0: All 16 TTL outputs are under manual control
+// mode = 1: Top 8 TTL outputs are under manual control;
+//           Bottom 8 TTL outputs are outputs of DAC comparators
+void Rhd2000EvalBoard::setTtlMode(int mode)
+{
+    if (mode < 0 || mode > 1) {
+        cerr << "Error in Rhd2000EvalBoard::setTtlMode: mode out of range." << endl;
+        return;
+    }
+
+    dev->SetWireInValue(WireInResetRun, mode << 3, 0x0008);
     dev->UpdateWireIns();
 }
 
@@ -1232,7 +1429,7 @@ bool Rhd2000EvalBoard::readDataBlock(Rhd2000DataBlock* dataBlock)
 
 // Reads a certain number of USB data blocks, if the specified number is available, and appends them
 // to queue.  Returns true if data blocks were available.
-bool Rhd2000EvalBoard::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock>& dataQueue)
+bool Rhd2000EvalBoard::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue)
 {
     unsigned int numWordsToRead, numBytesToRead;
     int i;
@@ -1269,7 +1466,7 @@ bool Rhd2000EvalBoard::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock>& da
 
 // Writes the contents of a data block queue (dataQueue) to a binary output stream (saveOut).
 // Returns the number of data blocks written.
-int Rhd2000EvalBoard::queueToFile(queue<Rhd2000DataBlock>& dataQueue, ofstream& saveOut)
+int Rhd2000EvalBoard::queueToFile(queue<Rhd2000DataBlock> &dataQueue, ofstream& saveOut)
 {
     int count = 0;
 
@@ -1289,61 +1486,74 @@ string Rhd2000EvalBoard::opalKellyModelName(int model) const
     switch (model)
     {
         case OK_PRODUCT_XEM3001V1:
-            return ("XEM3001V1");
+            return("XEM3001V1");
         case OK_PRODUCT_XEM3001V2:
-            return ("XEM3001V2");
+            return("XEM3001V2");
         case OK_PRODUCT_XEM3010:
-            return ("XEM3010");
+            return("XEM3010");
         case OK_PRODUCT_XEM3005:
-            return ("XEM3005");
+            return("XEM3005");
         case OK_PRODUCT_XEM3001CL:
-            return ("XEM3001CL");
+            return("XEM3001CL");
         case OK_PRODUCT_XEM3020:
-            return ("XEM3020");
+            return("XEM3020");
         case OK_PRODUCT_XEM3050:
-            return ("XEM3050");
+            return("XEM3050");
         case OK_PRODUCT_XEM9002:
-            return ("XEM9002");
+            return("XEM9002");
         case OK_PRODUCT_XEM3001RB:
-            return ("XEM3001RB");
+            return("XEM3001RB");
         case OK_PRODUCT_XEM5010:
-            return ("XEM5010");
+            return("XEM5010");
         case OK_PRODUCT_XEM6110LX45:
-            return ("XEM6110LX45");
+            return("XEM6110LX45");
         case OK_PRODUCT_XEM6001:
-            return ("XEM6001");
+            return("XEM6001");
         case OK_PRODUCT_XEM6010LX45:
-            return ("XEM6010LX45");
+            return("XEM6010LX45");
         case OK_PRODUCT_XEM6010LX150:
-            return ("XEM6010LX150");
+            return("XEM6010LX150");
         case OK_PRODUCT_XEM6110LX150:
-            return ("XEM6110LX150");
+            return("XEM6110LX150");
         case OK_PRODUCT_XEM6006LX9:
-            return ("XEM6006LX9");
+            return("XEM6006LX9");
         case OK_PRODUCT_XEM6006LX16:
-            return ("XEM6006LX16");
+            return("XEM6006LX16");
         case OK_PRODUCT_XEM6006LX25:
-            return ("XEM6006LX25");
+            return("XEM6006LX25");
         case OK_PRODUCT_XEM5010LX110:
-            return ("XEM5010LX110");
+            return("XEM5010LX110");
         case OK_PRODUCT_ZEM4310:
-            return ("ZEM4310");
+            return("ZEM4310");
         case OK_PRODUCT_XEM6310LX45:
-            return ("XEM6310LX45");
+            return("XEM6310LX45");
         case OK_PRODUCT_XEM6310LX150:
-            return ("XEM6310LX150");
+            return("XEM6310LX150");
         case OK_PRODUCT_XEM6110V2LX45:
-            return ("XEM6110V2LX45");
+            return("XEM6110V2LX45");
         case OK_PRODUCT_XEM6110V2LX150:
-            return ("XEM6110V2LX150");
+            return("XEM6110V2LX150");
         case OK_PRODUCT_XEM6002LX9:
-            return ("XEM6002LX9");
+            return("XEM6002LX9");
         case OK_PRODUCT_XEM6310MTLX45:
-            return ("XEM6310MTLX45");
+            return("XEM6310MTLX45");
         case OK_PRODUCT_XEM6320LX130T:
-            return ("XEM6320LX130T");
+            return("XEM6320LX130T");
         default:
-            return ("UNKNOWN");
+            return("UNKNOWN");
     }
+}
+
+// Return 4-bit "board mode" input.
+int Rhd2000EvalBoard::getBoardMode()
+{
+    int mode;
+
+    dev->UpdateWireOuts();
+    mode = dev->GetWireOutValue(WireOutBoardMode);
+
+    cout << "Board mode: " << mode << endl << endl;
+
+    return mode;
 }
 

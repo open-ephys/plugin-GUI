@@ -27,27 +27,23 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v110</PlatformToolset>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release64|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v110</PlatformToolset>
     <PlatformToolset>v110</PlatformToolset>
@@ -66,19 +62,19 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath);../../Resources/ZeroMQ/lib_x86;../../Resources/Google Protocols/vsprojects/Debug</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x86</LibraryPath>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath);../../Resources/ZeroMQ/lib_x86;../../Resources/Google Protocols/vsprojects/Release</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x86</LibraryPath>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">.\Debug64\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">true</GenerateManifest>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">$(LibraryPath);../../Resources/ZeroMQ/lib_x64;../../Resources/Google Protocols/vsprojects/x64/Debug</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x64</LibraryPath>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">.\Release64\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">true</GenerateManifest>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">$(LibraryPath);../../Resources/ZeroMQ/lib_x64;../../Resources/Google Protocols/vsprojects/x64/Release</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x64</LibraryPath>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -92,8 +88,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.3.2;JUCE_APP_VERSION_HEX=0x302;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -116,16 +112,16 @@
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>../../Resources/ZeroMQ/lib_x86;../../Resources/Google Protocols/vsprojects/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../Resources/windows-libs/HDF5/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;hdf5.lib;hdf5_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\Resources\DLLs\okFrontPanel.dll .\Debug\bin</Command>
+      <Command>copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -138,8 +134,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.3.2;JUCE_APP_VERSION_HEX=0x302;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -163,16 +159,16 @@
       <TargetMachine>MachineX86</TargetMachine>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalLibraryDirectories>../../Resources/ZeroMQ/lib_x86;../../Resources/Google Protocols/vsprojects/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../Resources/windows-libs/HDF5/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;hdf5.lib;hdf5_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\Resources\DLLs\okFrontPanel.dll .\Release\bin</Command>
+      <Command>copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">
@@ -186,8 +182,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.3.2;JUCE_APP_VERSION_HEX=0x302;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -208,16 +204,16 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(IntDir)\open-ephys.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>../../Resources/ZeroMQ/lib_x64;../../Resources/Google Protocols/vsprojects/x64/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../Resources/windows-libs/HDF5/lib/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;hdf5.lib;hdf5_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Debug64\bin</Command>
+      <Command>copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">
@@ -230,8 +226,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.3.2;JUCE_APP_VERSION_HEX=0x302;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -254,96 +250,33 @@
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalLibraryDirectories>../../Resources/ZeroMQ/lib_x64;../../Resources/Google Protocols/vsprojects/x64/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../Resources/windows-libs/HDF5/lib/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;hdf5.lib;hdf5_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\Resources\DLLs\Win64\okFrontPanel.dll .\Release64\bin</Command>
+      <Command>copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\AccessClass.cpp"/>
     <ClCompile Include="..\..\Source\Network\PracticalSocket.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\Bessel.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\Biquad.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\Butterworth.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\Cascade.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\ChebyshevI.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\ChebyshevII.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\Custom.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\Design.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\Documentation.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\Elliptic.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\Filter.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\Legendre.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\Param.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\PoleFilter.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\RBJ.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\RootFinder.cpp"/>
-    <ClCompile Include="..\..\Source\Dsp\State.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SerialInput.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\FileReader.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\ChannelMappingNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\PulsePalOutput.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\ReferenceNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\PhaseDetector.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\AudioResamplingNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Channel.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Serial\PulsePal.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Serial\ofArduino.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Serial\ofSerial.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\EventDetector.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\FPGAOutput.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\ArduinoOutput.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Parameter.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\WiFiOutput.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\LfpDisplayNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Utilities\RecordControl.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Utilities\Merger.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Utilities\Splitter.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikeDisplayCanvas.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\LfpDisplayCanvas.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SpikeDetector.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\AudioNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\EventNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\LfpTriggeredAverageEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\SerialInputEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\ElectrodeButtons.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\ChannelMappingEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\FileReaderEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\PhaseDetectorEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\PulsePalOutputEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\RHD2000Editor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\RecordControlEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\FPGAOutputEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\ChannelSelector.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\ParameterEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\SpikeDisplayEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\MergerEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\ImageIcon.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\WiFiOutputEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\EventNodeEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\SignalGeneratorEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\LfpDisplayEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\SourceNodeEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\SplitterEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\SpikeDetectorEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\AudioEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\FilterEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\GenericEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutput.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutputEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\AudioNode\AudioEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\AudioNode\AudioNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\AudioResamplingNode\AudioResamplingNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Channel\Channel.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ChannelMappingNode\ChannelMappingEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ChannelMappingNode\ChannelMappingNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\DataThreads\EcubeEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\DataThreads\RHD2000Editor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\DataThreads\EcubeThread.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\rhythm-api\okFrontPanelDLL.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\rhythm-api\rhd2000datablock.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\rhythm-api\rhd2000evalboard.cpp"/>
@@ -353,13 +286,92 @@
     <ClCompile Include="..\..\Source\Processors\DataThreads\FPGAThread.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataBuffer.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataThread.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\RecordNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SignalGenerator.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\ResamplingNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\FilterNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SourceNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\GenericProcessor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\ProcessorGraph.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\Bessel.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\Biquad.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\Butterworth.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\Cascade.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\ChebyshevI.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\ChebyshevII.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\Custom.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\Design.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\Documentation.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\Elliptic.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\Filter.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\Legendre.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\Param.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\PoleFilter.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\RBJ.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\RootFinder.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\State.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\ChannelSelector.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\ElectrodeButtons.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\GenericEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\ImageIcon.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\EventDetector\EventDetector.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\EventNode\EventNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\EventNode\EventNodeEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\FileReader\FileReader.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\FileReader\FileReaderEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\FilterNode\FilterEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\FilterNode\FilterNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\FPGAOutput\FPGAOutput.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\FPGAOutput\FPGAOutputEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\GenericProcessor\GenericProcessor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayCanvas.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageCanvas.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Merger\Merger.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Merger\MergerEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\MessageCenter\MessageCenter.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\MessageCenter\MessageCenterEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Parameter\ParameterEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Parameter\Parameter.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\PhaseDetector\PhaseDetector.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\PhaseDetector\PhaseDetectorEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ProcessorGraph\ProcessorGraph.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\PulsePalOutput\PulsePalOutput.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\PulsePalOutput\PulsePalOutputEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordControl\RecordControl.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordControl\RecordControlEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\EngineConfigWindow.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\HDF5FileFormat.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\HDF5Recording.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\OriginalRecording.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\RecordEngine.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\RecordNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ReferenceNode\ReferenceNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ReferenceNode\ReferenceNodeEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ResamplingNode\ResamplingNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ResamplingNode\ResamplingNodeEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Serial\PulsePal.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Serial\ofArduino.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Serial\ofSerial.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SerialInput\SerialInput.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SerialInput\SerialInputEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SignalGenerator\SignalGenerator.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SignalGenerator\SignalGeneratorEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SourceNode\SourceNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SourceNode\SourceNodeEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeDetector\SpikeDetector.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeDetector\SpikeDetectorEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayCanvas.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSortBoxes.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorter.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorterCanvas.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorterEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Splitter\Splitter.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Splitter\SplitterEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\WiFiOutput\WiFiOutput.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\WiFiOutput\WiFiOutputEditor.cpp"/>
+    <ClCompile Include="..\..\Source\UI\EcubeDialogComponent.cpp"/>
     <ClCompile Include="..\..\Source\UI\CustomArrowButton.cpp"/>
     <ClCompile Include="..\..\Source\UI\GraphViewer.cpp"/>
     <ClCompile Include="..\..\Source\UI\EditorViewportButtons.cpp"/>
@@ -369,7 +381,6 @@
     <ClCompile Include="..\..\Source\UI\CustomLookAndFeel.cpp"/>
     <ClCompile Include="..\..\Source\UI\InfoLabel.cpp"/>
     <ClCompile Include="..\..\Source\UI\DataViewport.cpp"/>
-    <ClCompile Include="..\..\Source\UI\MessageCenter.cpp"/>
     <ClCompile Include="..\..\Source\UI\ControlPanel.cpp"/>
     <ClCompile Include="..\..\Source\UI\UIComponent.cpp"/>
     <ClCompile Include="..\..\Source\MainWindow.cpp"/>
@@ -1500,89 +1511,18 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\AccessClass.h"/>
     <ClInclude Include="..\..\Source\Network\PracticalSocket.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Bessel.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Biquad.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Butterworth.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Cascade.h"/>
-    <ClInclude Include="..\..\Source\Dsp\ChebyshevI.h"/>
-    <ClInclude Include="..\..\Source\Dsp\ChebyshevII.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Common.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Custom.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Design.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Dsp.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Elliptic.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Filter.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Layout.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Legendre.h"/>
-    <ClInclude Include="..\..\Source\Dsp\MathSupplement.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Params.h"/>
-    <ClInclude Include="..\..\Source\Dsp\PoleFilter.h"/>
-    <ClInclude Include="..\..\Source\Dsp\RBJ.h"/>
-    <ClInclude Include="..\..\Source\Dsp\RootFinder.h"/>
-    <ClInclude Include="..\..\Source\Dsp\SmoothedFilter.h"/>
-    <ClInclude Include="..\..\Source\Dsp\State.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Types.h"/>
-    <ClInclude Include="..\..\Source\Dsp\Utilities.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
-    <ClInclude Include="..\..\Source\Processors\SerialInput.h"/>
-    <ClInclude Include="..\..\Source\Processors\FileReader.h"/>
-    <ClInclude Include="..\..\Source\Processors\ChannelMappingNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\PulsePalOutput.h"/>
-    <ClInclude Include="..\..\Source\Processors\ReferenceNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\PhaseDetector.h"/>
-    <ClInclude Include="..\..\Source\Processors\AudioResamplingNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\Channel.h"/>
-    <ClInclude Include="..\..\Source\Processors\Serial\PulsePal.h"/>
-    <ClInclude Include="..\..\Source\Processors\Serial\ofArduino.h"/>
-    <ClInclude Include="..\..\Source\Processors\Serial\ofConstants.h"/>
-    <ClInclude Include="..\..\Source\Processors\Serial\ofSerial.h"/>
-    <ClInclude Include="..\..\Source\Processors\EventDetector.h"/>
-    <ClInclude Include="..\..\Source\Processors\FPGAOutput.h"/>
-    <ClInclude Include="..\..\Source\Processors\ArduinoOutput.h"/>
-    <ClInclude Include="..\..\Source\Processors\Parameter.h"/>
-    <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\WiFiOutput.h"/>
-    <ClInclude Include="..\..\Source\Processors\LfpDisplayNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\Utilities\RecordControl.h"/>
-    <ClInclude Include="..\..\Source\Processors\Utilities\Merger.h"/>
-    <ClInclude Include="..\..\Source\Processors\Utilities\Splitter.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikeDisplayCanvas.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\DataWindow.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\LfpDisplayCanvas.h"/>
-    <ClInclude Include="..\..\Source\Processors\SpikeDetector.h"/>
-    <ClInclude Include="..\..\Source\Processors\AudioNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\EventNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\LfpTriggeredAverageEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\SerialInputEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\ElectrodeButtons.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\ChannelMappingEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\FileReaderEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\PhaseDetectorEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\PulsePalOutputEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\RHD2000Editor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\RecordControlEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\ReferenceNodeEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\ResamplingNodeEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\FPGAOutputEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\ArduinoOutputEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\ChannelSelector.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\ParameterEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\SpikeDisplayEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\MergerEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\ImageIcon.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\WiFiOutputEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\EventNodeEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\SignalGeneratorEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\LfpDisplayEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\SourceNodeEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\SplitterEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\SpikeDetectorEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\AudioEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\FilterEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\GenericEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutput.h"/>
+    <ClInclude Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutputEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\AudioNode\AudioEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\AudioNode\AudioNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\AudioResamplingNode\AudioResamplingNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\Channel\Channel.h"/>
+    <ClInclude Include="..\..\Source\Processors\ChannelMappingNode\ChannelMappingEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\ChannelMappingNode\ChannelMappingNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\DataThreads\EcubeEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\DataThreads\RHD2000Editor.h"/>
+    <ClInclude Include="..\..\Source\Processors\DataThreads\EcubeThread.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\rhythm-api\okFrontPanelDLL.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\rhythm-api\rhd2000datablock.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\rhythm-api\rhd2000evalboard.h"/>
@@ -1592,13 +1532,100 @@
     <ClInclude Include="..\..\Source\Processors\DataThreads\FPGAThread.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataBuffer.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataThread.h"/>
-    <ClInclude Include="..\..\Source\Processors\RecordNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\SignalGenerator.h"/>
-    <ClInclude Include="..\..\Source\Processors\ResamplingNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\FilterNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\SourceNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\GenericProcessor.h"/>
-    <ClInclude Include="..\..\Source\Processors\ProcessorGraph.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Bessel.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Biquad.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Butterworth.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Cascade.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\ChebyshevI.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\ChebyshevII.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Common.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Custom.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Design.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Dsp.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Elliptic.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Filter.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Layout.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Legendre.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\MathSupplement.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Params.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\PoleFilter.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\RBJ.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\RootFinder.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\SmoothedFilter.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\State.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Types.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\Utilities.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\ChannelSelector.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\ElectrodeButtons.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\GenericEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\ImageIcon.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\EventDetector\EventDetector.h"/>
+    <ClInclude Include="..\..\Source\Processors\EventNode\EventNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\EventNode\EventNodeEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\FileReader\FileReader.h"/>
+    <ClInclude Include="..\..\Source\Processors\FileReader\FileReaderEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\FilterNode\FilterEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\FilterNode\FilterNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\FPGAOutput\FPGAOutput.h"/>
+    <ClInclude Include="..\..\Source\Processors\FPGAOutput\FPGAOutputEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\GenericProcessor\GenericProcessor.h"/>
+    <ClInclude Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayCanvas.h"/>
+    <ClInclude Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageCanvas.h"/>
+    <ClInclude Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\Merger\Merger.h"/>
+    <ClInclude Include="..\..\Source\Processors\Merger\MergerEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\MessageCenter\MessageCenter.h"/>
+    <ClInclude Include="..\..\Source\Processors\MessageCenter\MessageCenterEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\Parameter\ParameterEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\Parameter\Parameter.h"/>
+    <ClInclude Include="..\..\Source\Processors\PhaseDetector\PhaseDetector.h"/>
+    <ClInclude Include="..\..\Source\Processors\PhaseDetector\PhaseDetectorEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\ProcessorGraph\ProcessorGraph.h"/>
+    <ClInclude Include="..\..\Source\Processors\PulsePalOutput\PulsePalOutput.h"/>
+    <ClInclude Include="..\..\Source\Processors\PulsePalOutput\PulsePalOutputEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordControl\RecordControl.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordControl\RecordControlEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\EngineConfigWindow.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\HDF5FileFormat.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\HDF5Recording.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\OriginalRecording.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\RecordEngine.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\RecordNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\ReferenceNode\ReferenceNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\ReferenceNode\ReferenceNodeEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\ResamplingNode\ResamplingNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\ResamplingNode\ResamplingNodeEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\Serial\PulsePal.h"/>
+    <ClInclude Include="..\..\Source\Processors\Serial\ofArduino.h"/>
+    <ClInclude Include="..\..\Source\Processors\Serial\ofConstants.h"/>
+    <ClInclude Include="..\..\Source\Processors\Serial\ofSerial.h"/>
+    <ClInclude Include="..\..\Source\Processors\SerialInput\SerialInput.h"/>
+    <ClInclude Include="..\..\Source\Processors\SerialInput\SerialInputEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\SignalGenerator\SignalGenerator.h"/>
+    <ClInclude Include="..\..\Source\Processors\SignalGenerator\SignalGeneratorEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\SourceNode\SourceNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\SourceNode\SourceNodeEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\SpikeDetector\SpikeDetector.h"/>
+    <ClInclude Include="..\..\Source\Processors\SpikeDetector\SpikeDetectorEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayCanvas.h"/>
+    <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSortBoxes.h"/>
+    <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSorter.h"/>
+    <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSorterCanvas.h"/>
+    <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSorterEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\Splitter\Splitter.h"/>
+    <ClInclude Include="..\..\Source\Processors\Splitter\SplitterEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\Visualization\DataWindow.h"/>
+    <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h"/>
+    <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h"/>
+    <ClInclude Include="..\..\Source\Processors\WiFiOutput\WiFiOutput.h"/>
+    <ClInclude Include="..\..\Source\Processors\WiFiOutput\WiFiOutputEditor.h"/>
+    <ClInclude Include="..\..\Source\UI\EcubeDialogComponent.h"/>
     <ClInclude Include="..\..\Source\UI\CustomArrowButton.h"/>
     <ClInclude Include="..\..\Source\UI\GraphViewer.h"/>
     <ClInclude Include="..\..\Source\UI\EditorViewportButtons.h"/>
@@ -1608,7 +1635,6 @@
     <ClInclude Include="..\..\Source\UI\CustomLookAndFeel.h"/>
     <ClInclude Include="..\..\Source\UI\InfoLabel.h"/>
     <ClInclude Include="..\..\Source\UI\DataViewport.h"/>
-    <ClInclude Include="..\..\Source\UI\MessageCenter.h"/>
     <ClInclude Include="..\..\Source\UI\ControlPanel.h"/>
     <ClInclude Include="..\..\Source\UI\UIComponent.h"/>
     <ClInclude Include="..\..\Source\MainWindow.h"/>

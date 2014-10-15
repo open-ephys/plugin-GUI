@@ -7,6 +7,6 @@
 
   \section install More info
 
-  \subsection step1 More info will appear here soon!
+  \subsection step1 More info will appear here eventually!
 
 */

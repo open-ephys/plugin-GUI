@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2013
+Project("{5A05F353-1D63-394C-DFB0-981BB2309002}") = "open-ephys", "open-ephys.vcxproj", "{9C924D66-7DEC-1AEF-B375-DB8666BFB909}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C924D66-7DEC-1AEF-B375-DB8666BFB909}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9C924D66-7DEC-1AEF-B375-DB8666BFB909}.Debug|Win32.Build.0 = Debug|Win32
+		{9C924D66-7DEC-1AEF-B375-DB8666BFB909}.Release|Win32.ActiveCfg = Release|Win32
+		{9C924D66-7DEC-1AEF-B375-DB8666BFB909}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

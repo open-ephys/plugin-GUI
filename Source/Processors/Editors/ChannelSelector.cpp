@@ -24,16 +24,15 @@
 #include "ChannelSelector.h"
 #include <math.h>
 
-#include "../RecordNode.h"
-#include "../AudioNode.h"
-#include "../ProcessorGraph.h"
+#include "../RecordNode/RecordNode.h"
+#include "../AudioNode/AudioNode.h"
+#include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../UI/GraphViewer.h"
 
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     eventsOnly(false), paramsToggled(true), paramsActive(true),
-    radioStatus(false), isNotSink(createButtons), moveRight(false),
-    moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0),
-    titleFont(titleFont_), acquisitionIsActive(false)
+    recActive(true), radioStatus(false), isNotSink(createButtons),
+    moveRight(false), moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0), titleFont(titleFont_), acquisitionIsActive(false)
 {
 
     // initialize buttons
@@ -337,6 +336,31 @@ void ChannelSelector::activateButtons()
     {
         parameterButtons[i]->setActive(true);
         parameterButtons[i]->repaint();
+    }
+
+}
+
+void ChannelSelector::inactivateRecButtons()
+{
+
+	recActive = false;
+
+	for (int i = 0; i < recordButtons.size(); i++)
+    {
+        recordButtons[i]->setActive(false);
+        recordButtons[i]->repaint();
+    }
+}
+
+void ChannelSelector::activateRecButtons()
+{
+
+	recActive = true;
+
+    for (int i = 0; i < recordButtons.size(); i++)
+    {
+        recordButtons[i]->setActive(true);
+        recordButtons[i]->repaint();
     }
 
 }

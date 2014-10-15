@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2014 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,7 +27,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "UI/UIComponent.h"
 #include "Audio/AudioComponent.h"
-#include "Processors/ProcessorGraph.h"
+#include "Processors/ProcessorGraph/ProcessorGraph.h"
 
 /**
   The main window for the GUI application.

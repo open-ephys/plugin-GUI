@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2014 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,10 +25,10 @@
 #define __EDITORVIEWPORT_H_80260F3F__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "../Processors/ProcessorGraph.h"
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Processors/Editors/GenericEditor.h"
-#include "../Processors/Editors/SplitterEditor.h"
-#include "../Processors/Editors/MergerEditor.h"
+#include "../Processors/Splitter/SplitterEditor.h"
+#include "../Processors/Merger/MergerEditor.h"
 
 #include "../AccessClass.h"
 #include "ControlPanel.h"

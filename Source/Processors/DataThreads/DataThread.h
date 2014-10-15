@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2014 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,6 +27,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 #include "DataBuffer.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 class SourceNode;
 
@@ -89,6 +90,30 @@ public:
 
     /** Returns the number of event channels of the data source.*/
     virtual int getNumEventChannels()
+    {
+        return 0;
+    }
+    virtual int modifyChannelName(channelType t, int stream, int ch, String newName)
+    {
+        return -1;
+    }
+    virtual int modifyChannelGain(channelType t, int stream, int ch, float gain)
+    {
+        return -1;
+    }
+    virtual void setDefaultNamingScheme(int scheme)
+    {
+    }
+
+    virtual void getChannelsInfo(StringArray &Names, Array<channelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
+    {
+    };
+    virtual void getEventChannelNames(StringArray &names)
+    {
+    }
+
+    /** Returns the number of ADC channels of the data source.*/
+    virtual int getNumADCchannels()
     {
         return 0;
     }

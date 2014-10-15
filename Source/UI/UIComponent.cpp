@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2014 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -29,7 +29,11 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
 
 {
 
-    processorGraph->setUIComponent(this);
+    processorGraph->createDefaultNodes();
+
+    messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
+    addActionListener(messageCenterEditor);
+    addAndMakeVisible(messageCenterEditor);
 
     infoLabel = new InfoLabel();
     std::cout << "Created info label." << std::endl;
@@ -66,16 +70,12 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
     processorList->setBounds(0,0,195,processorList->getTotalHeight());
     std::cout << "Created filter list." << std::endl;
 
-    messageCenter = new MessageCenter();
-    addActionListener(messageCenter);
-    addAndMakeVisible(messageCenter);
-
     std::cout << "Created message center." << std::endl;
 
     setBounds(0,0,500,400);
 
-    processorGraph->setUIComponent(this);
 
+    processorGraph->setUIComponent(this); // update pointers
     processorList->setUIComponent(this);
     editorViewport->setUIComponent(this);
     dataViewport->setUIComponent(this);
@@ -227,11 +227,11 @@ void UIComponent::resized()
 
 
 
-    if (messageCenter != 0)
+    if (messageCenterEditor != 0)
     {
-        messageCenter->setBounds(6,h-35,w-241,30);
+        messageCenterEditor->setBounds(6,h-35,w-241,30);
         if (h < 200)
-            messageCenter->setBounds(6,h-35+200-h,w-241,30);
+            messageCenterEditor->setBounds(6,h-35+200-h,w-241,30);
         //  else
         //      messageCenter->setVisible(true);
     }
@@ -242,7 +242,7 @@ void UIComponent::resized()
         dataViewport->setVisible(false);
         editorViewport->setVisible(false);
         processorList->setVisible(false);
-        messageCenter->setVisible(false);
+        messageCenterEditor->setVisible(false);
         controlPanel->setVisible(false);
         editorViewportButton->setVisible(false);
     }

@@ -23,10 +23,10 @@
 
 #include "GenericEditor.h"
 
-#include "ParameterEditor.h"
+#include "../Parameter/ParameterEditor.h"
 #include "ChannelSelector.h"
-#include "../ProcessorGraph.h"
-#include "../RecordNode.h"
+#include "../ProcessorGraph/ProcessorGraph.h"
+#include "../RecordNode/RecordNode.h"
 #include "../../UI/ProcessorList.h"
 
 #include "../../UI/EditorViewport.h"
@@ -39,8 +39,8 @@
 GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors=true)
     : AudioProcessorEditor(owner),
       desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
-      drawerButton(0), channelSelector(0),drawerWidth(170),
-      isSelected(false),  isEnabled(true), isCollapsed(false), tNum(-1), drawerOpen(false)
+      drawerButton(0), drawerWidth(170),
+    drawerOpen(false), channelSelector(0), isSelected(false), isEnabled(true), isCollapsed(false), tNum(-1)
 {
     constructorInitialize(owner, useDefaultParameterEditors);
 }
@@ -278,6 +278,18 @@ void GenericEditor::setEnabledState(bool t)
     GenericProcessor* p = (GenericProcessor*) getProcessor();
     p->enabledState(t);
     isEnabled = p->enabledState();
+}
+
+void GenericEditor::startRecording()
+{
+	if (channelSelector != 0)
+		channelSelector->inactivateRecButtons();
+}
+
+void GenericEditor::stopRecording()
+{
+	if (channelSelector != 0)
+		channelSelector->activateRecButtons();
 }
 
 void GenericEditor::startAcquisition()
@@ -961,13 +973,13 @@ void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDow
     x2 = getWidth()/2;
     x3 = getWidth()-inset;
 
-    if (direction == 1)
+    if (direction == 1) // up
     {
         y1 = getHeight()-inset;
         y2 = inset;
 
     }
-    else
+    else if (direction == 2) // down
     {
         y1 = inset;
         y2 = getHeight()-inset;

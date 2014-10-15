@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2014 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -40,8 +40,6 @@ class UIComponent;
 
   The ProcessorList be manually updated every time a new processor is created,
   and the names must match those recognized by the ProcessorGraph.
-
-  The ProcessorList is rendered using OpenGL and the FTGL font library.
 
   @see EditorViewport, ProcessorGraph
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2014 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -22,7 +22,7 @@
 */
 
 #include "FPGAThread.h"
-#include "../SourceNode.h"
+#include "../SourceNode/SourceNode.h"
 
 #include <string.h>
 #include <math.h>

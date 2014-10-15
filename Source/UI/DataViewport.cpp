@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2014 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,7 +27,7 @@
 
 DataViewport::DataViewport() :
     TabbedComponent(TabbedButtonBar::TabsAtRight),
-    tabDepth(32), shutdown(false), tabIndex(0)
+    tabDepth(32), tabIndex(0), shutdown(false)
 {
 
     tabArray.clear();
@@ -74,7 +74,7 @@ int DataViewport::addTabToDataViewport(String name, Component* component, Generi
 
     editorArray.add(editor);
 
-    //  std::cout << "Adding tab with index " << tabIndex << std::endl;
+    std::cout << "Adding tab with index " << tabIndex << std::endl;
 
     setCurrentTabIndex(tabArray.size()-1);
 
@@ -97,8 +97,8 @@ void DataViewport::destroyTab(int index)
     int newIndex = tabArray.indexOf(index);
 
     tabArray.remove(newIndex);
-    editorArray.remove(newIndex);
-
+    editorArray.remove(newIndex); // do this after the editor has been refreshed
+    
     removeTab(newIndex);
 
     if (tabArray.size() == 0)
@@ -116,18 +116,12 @@ void DataViewport::disableConnectionToEditorViewport()
 
 void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
 {
-    // OpenGLCanvas* canvas = (OpenGLCanvas*) getTabContentComponent(newIndex);
-
-    // if (canvas != 0) {
-    //     canvas->refreshState();
-    // }
-
     // std::cout << "CURRENT TAB CHANGED" << std::endl;
     //std::cout << "number of editors remaining: " << editorArray.size() << std::endl;
 
     if (!shutdown)
     {
-        getEditorViewport()->makeEditorVisible(editorArray[newIndex]);
+        //getEditorViewport()->makeEditorVisible(editorArray[newIndex]);
         getTopLevelComponent()->repaint();
     }
 }

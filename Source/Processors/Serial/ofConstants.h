@@ -47,9 +47,6 @@
 
 #include <windows.h>
 #define GLEW_STATIC
-//#include "GL\glew.h"
-//#include "GL\wglew.h"
-//#include "glu.h"
 #define __WINDOWS_DS__
 #define __WINDOWS_MM__
 #if (_MSC_VER)       // microsoft visual studio
@@ -91,9 +88,6 @@
 #define __MACOSX_CORE__
 #endif
 #include <unistd.h>
-//#include "GL/glew.h"
-//#include <OpenGL/gl.h>
-//#include <ApplicationServices/ApplicationServices.h>
 
 #if defined(__LITTLE_ENDIAN__)
 #define TARGET_LITTLE_ENDIAN		// intel cpu
@@ -103,9 +97,6 @@
 #ifdef TARGET_LINUX
 #define GL_GLEXT_PROTOTYPES
 #include <unistd.h>
-//#include <GL/glew.h>
-//#include <GL/gl.h>
-//#include <GL/glx.h>
 
 // for some reason, this isn't defined at compile time,
 // so this hack let's us work
@@ -124,27 +115,13 @@
 
 
 #ifdef TARGET_OF_IPHONE
-//#import <OpenGLES/ES1/gl.h>
-//#import <OpenGLES/ES1/glext.h>
-
 #define TARGET_LITTLE_ENDIAN		// arm cpu	
 #endif
 
 #ifdef TARGET_ANDROID
 #include <typeinfo>
 #include <unistd.h>
-//#include <GLES/gl.h>
-//#define GL_GLEXT_PROTOTYPES
-//#include <GLES/glext.h>
-
 #define TARGET_LITTLE_ENDIAN
-#endif
-
-#ifdef TARGET_OPENGLES
-#include "glu.h"
-//typedef GLushort ofIndexType ;
-#else
-//typedef GLuint ofIndexType;
 #endif
 
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2014 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,7 +21,7 @@
 
 */
 
-#include "../SourceNode.h"
+#include "../SourceNode/SourceNode.h"
 #include "FileReaderThread.h"
 
 FileReaderThread::FileReaderThread(SourceNode* sn) :
@@ -133,6 +133,11 @@ bool FileReaderThread::updateBuffer()
 
         size_t numRead = fread(readBuffer, 2, bufferSize, input);
 
+        if (numRead != bufferSize)
+        {
+            std::cout << "Fewer samples read than were requested." << std::endl;
+        }
+        
         int chan = 0;
 
         for (int n = 0; n < bufferSize; n++)
