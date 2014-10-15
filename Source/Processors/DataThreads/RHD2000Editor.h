@@ -150,7 +150,7 @@ public:
 
     void resized();
     void buttonClicked(Button* button);
-    Viewport* channelsViewport;
+    ScopedPointer<Viewport> channelsViewport;
     GenericProcessor* processor;
     ScopedPointer<FPGAchannelList> channelList;
 };
