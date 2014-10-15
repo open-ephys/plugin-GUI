@@ -488,6 +488,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     canvas = nullptr;
     desiredWidth = 330;
     tabText = "FPGA";
+
     // add headstage-specific controls (currently just an enable/disable button)
     for (int i = 0; i < 4; i++)
     {
@@ -496,17 +497,22 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
         addAndMakeVisible(hsOptions);
         hsOptions->setBounds(3, 28+i*20, 70, 18);
     }
-
+    
     // add sample rate selection
     sampleRateInterface = new SampleRateInterface(board, this);
     addAndMakeVisible(sampleRateInterface);
     sampleRateInterface->setBounds(80, 25, 100, 50);
-
+    
     // add Bandwidth selection
     bandwidthInterface = new BandwidthInterface(board, this);
     addAndMakeVisible(bandwidthInterface);
-    bandwidthInterface->setBounds(80, 65, 80, 50);
-
+    bandwidthInterface->setBounds(80, 58, 80, 50);
+    
+    // add DSP selection
+    dspInterface = new DSPInterface(board, this);
+    addAndMakeVisible(dspInterface);
+    dspInterface->setBounds(80, 58, 80, 50);
+    
     // add rescan button
     rescanButton = new UtilityButton("RESCAN", Font("Small Text", 13, Font::plain));
     rescanButton->setRadius(3.0f);
@@ -514,17 +520,17 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     rescanButton->addListener(this);
     rescanButton->setTooltip("Check for connected headstages");
     addAndMakeVisible(rescanButton);
-
+    
     for (int i = 0; i < 2; i++)
     {
         ElectrodeButton* button = new ElectrodeButton(-1);
         electrodeButtons.add(button);
-
+        
         button->setBounds(190+i*25, 40, 25, 15);
         button->setChannelNum(-1);
         button->setToggleState(false, dontSendNotification);
         button->setRadioGroupId(999);
-
+        
         addAndMakeVisible(button);
         button->addListener(this);
         
@@ -536,13 +542,12 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
         }
     }
     
-
     audioLabel = new Label("audio label", "Audio out");
     audioLabel->setBounds(180,25,75,15);
     audioLabel->setFont(Font("Small Text", 10, Font::plain));
     audioLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(audioLabel);
-
+    
     // add HW audio parameter selection
     audioInterface = new AudioInterface(board, this);
     addAndMakeVisible(audioInterface);
@@ -556,6 +561,21 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     adcButton->setClickingTogglesState(true);
     adcButton->setTooltip("Enable/disable ADC channels");
     addAndMakeVisible(adcButton);
+    
+    // add DSP Offset Button
+    dspoffsetButton = new UtilityButton("DSP", Font("Very Small Text", 13, Font::plain));
+    dspoffsetButton->setRadius(3.0f); // sets the radius of the button's corners
+    dspoffsetButton->setBounds(80, 108,30,18); // sets the x position, y position, width, and height of the button
+    dspoffsetButton->addListener(this);
+    dspoffsetButton->setClickingTogglesState(true); // makes the button toggle its state when clicked
+    dspoffsetButton->setTooltip("Enable/disable DSP offset removal");
+    addAndMakeVisible(dspoffsetButton); // makes the button a child component of the editor and makes it visible
+    dspoffsetButton->setToggleState(true, dontSendNotification);
+    
+    // add DSP Frequency Selection field
+    dspInterface = new DSPInterface(board, this);
+    addAndMakeVisible(dspInterface);
+    dspInterface->setBounds(110, 108, 80, 50);
 
     ttlSettleLabel = new Label("TTL Settle","TTL Settle");
     ttlSettleLabel->setFont( Font("Small Text", 11, Font::plain));
@@ -601,12 +621,11 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     dacHPFcombo->setSelectedId(1, sendNotification);
     addAndMakeVisible(dacHPFcombo);
 
-
 }
 
 RHD2000Editor::~RHD2000Editor()
 {
-
+    
 }
 
 void RHD2000Editor::scanPorts()
@@ -657,7 +676,7 @@ void RHD2000Editor::buttonEvent(Button* button)
     if (button == rescanButton && !acquisitionIsActive)
     {
         board->scanPorts();
-
+        
         for (int i = 0; i < 4; i++)
         {
             headstageOptionsInterfaces[i]->checkEnabledState();
@@ -681,7 +700,13 @@ void RHD2000Editor::buttonEvent(Button* button)
     {
         board->setTTLoutputMode(dacTTLButton->getToggleState());
     }
-
+    else if (button == dspoffsetButton && !acquisitionIsActive)
+    {
+        std::cout << "DSP offset " << button->getToggleState() << std::endl;
+        board->setDSPOffset(button->getToggleState());
+        getEditorViewport()->makeEditorVisible(this, false, true);
+    }
+    
 }
 
 void RHD2000Editor::channelChanged(int chan)
@@ -692,18 +717,20 @@ void RHD2000Editor::channelChanged(int chan)
         {
             electrodeButtons[i]->setChannelNum(chan);
             electrodeButtons[i]->repaint();
-
             board->assignAudioOut(i, chan);
+
         }
     }
 }
 
 void RHD2000Editor::startAcquisition()
 {
-
+    
     channelSelector->startAcquisition();
+    
     rescanButton->setEnabledState(false);
     adcButton->setEnabledState(false);
+    dspoffsetButton-> setEnabledState(false);
     acquisitionIsActive = true;
     if (canvas !=nullptr)
         canvas->channelList->setEnabled(false);
@@ -711,12 +738,13 @@ void RHD2000Editor::startAcquisition()
 
 void RHD2000Editor::stopAcquisition()
 {
-
+    
     channelSelector->stopAcquisition();
-
+    
     rescanButton->setEnabledState(true);
     adcButton->setEnabledState(true);
-
+    dspoffsetButton-> setEnabledState(true);
+    
     acquisitionIsActive = false;
     if (canvas != nullptr)
         canvas->channelList->setEnabled(true);
@@ -729,12 +757,18 @@ void RHD2000Editor::saveCustomParameters(XmlElement* xml)
      xml->setAttribute("LowCut", bandwidthInterface->getLowerBandwidth());
      xml->setAttribute("HighCut", bandwidthInterface->getUpperBandwidth());
      xml->setAttribute("ADCsOn", adcButton->getToggleState());
+     xml->setAttribute("SampleRate", sampleRateInterface->getSelectedId());
+     xml->setAttribute("LowCut", bandwidthInterface->getLowerBandwidth());
+     xml->setAttribute("HighCut", bandwidthInterface->getUpperBandwidth());
+     xml->setAttribute("ADCsOn", adcButton->getToggleState());
      xml->setAttribute("AudioOutputL", electrodeButtons[0]->getChannelNum());
      xml->setAttribute("AudioOutputR", electrodeButtons[1]->getChannelNum());
      xml->setAttribute("NoiseSlicer", audioInterface->getNoiseSlicerLevel());
      xml->setAttribute("TTLFastSettle", ttlSettleCombo->getSelectedId());
      xml->setAttribute("DAC_TTL", dacTTLButton->getToggleState());
-     xml->setAttribute("DAC_HPF", dacHPFcombo->getSelectedId());     
+     xml->setAttribute("DAC_HPF", dacHPFcombo->getSelectedId());
+     xml->setAttribute("DSPOffset", dspoffsetButton->getToggleState());
+     xml->setAttribute("DSPCutoffFreq", dspInterface->getDspCutoffFreq());
 }
 
 void RHD2000Editor::loadCustomParameters(XmlElement* xml)
@@ -752,6 +786,8 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     ttlSettleCombo->setSelectedId(xml->getIntAttribute("TTLFastSettle"));
     dacTTLButton->setToggleState(xml->getBoolAttribute("DAC_TTL"), sendNotification);
     dacHPFcombo->setSelectedId(xml->getIntAttribute("DAC_HPF"));
+    dspoffsetButton->setToggleState(xml->getBoolAttribute("DSPOffset"), sendNotification);
+    dspInterface->setDspCutoffFreq(xml->getDoubleAttribute("DSPCutoffFreq"));
 }
 
 
@@ -768,90 +804,90 @@ Visualizer* RHD2000Editor::createNewCanvas()
 
 BandwidthInterface::BandwidthInterface(RHD2000Thread* board_,
                                        RHD2000Editor* editor_) :
-    board(board_), editor(editor_)
+board(board_), editor(editor_)
 {
-
+    
     name = "Bandwidth";
-
+    
     lastHighCutString = "7500";
     lastLowCutString = "1";
-
+    
     actualUpperBandwidth = 7500.0f;
     actualLowerBandwidth = 1.0f;
-
+    
     upperBandwidthSelection = new Label("UpperBandwidth",lastHighCutString); // this is currently set in RHD2000Thread, the cleaner would be to set it here again
     upperBandwidthSelection->setEditable(true,false,false);
     upperBandwidthSelection->addListener(this);
     upperBandwidthSelection->setBounds(30,30,60,20);
     upperBandwidthSelection->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(upperBandwidthSelection);
-
-
+    
+    
     lowerBandwidthSelection = new Label("LowerBandwidth",lastLowCutString);
     lowerBandwidthSelection->setEditable(true,false,false);
     lowerBandwidthSelection->addListener(this);
     lowerBandwidthSelection->setBounds(25,10,60,20);
     lowerBandwidthSelection->setColour(Label::textColourId, Colours::darkgrey);
-
+    
     addAndMakeVisible(lowerBandwidthSelection);
-
-
-
+    
+    
+    
 }
 
 BandwidthInterface::~BandwidthInterface()
 {
-
+    
 }
 
 
 void BandwidthInterface::labelTextChanged(Label* label)
 {
-
+    
     if (!(editor->acquisitionIsActive) && board->foundInputSource())
     {
         if (label == upperBandwidthSelection)
         {
-
+            
             Value val = label->getTextValue();
             double requestedValue = double(val.getValue());
-
+            
             if (requestedValue < 100.0 || requestedValue > 20000.0 || requestedValue < lastLowCutString.getFloatValue())
             {
                 editor->sendActionMessage("Value out of range.");
-
+                
                 label->setText(lastHighCutString, dontSendNotification);
-
+                
                 return;
             }
-
+            
             actualUpperBandwidth = board->setUpperBandwidth(requestedValue);
-
+            
             std::cout << "Setting Upper Bandwidth to " << requestedValue << std::endl;
             std::cout << "Actual Upper Bandwidth:  " <<  actualUpperBandwidth  << std::endl;
             label->setText(String(round(actualUpperBandwidth*10.f)/10.f), dontSendNotification);
-
+            
         }
         else
         {
-
+            
             Value val = label->getTextValue();
             double requestedValue = double(val.getValue());
-
+            
             if (requestedValue < 0.1 || requestedValue > 500.0 || requestedValue > lastHighCutString.getFloatValue())
             {
                 editor->sendActionMessage("Value out of range.");
-
+                
                 label->setText(lastLowCutString, dontSendNotification);
-
+                
                 return;
             }
-
+            
             actualLowerBandwidth = board->setLowerBandwidth(requestedValue);
-
+            
             std::cout << "Setting Lower Bandwidth to " << requestedValue << std::endl;
             std::cout << "Actual Lower Bandwidth:  " <<  actualLowerBandwidth  << std::endl;
-
+            
             label->setText(String(round(actualLowerBandwidth*10.f)/10.f), dontSendNotification);
         }
     }
@@ -864,7 +900,7 @@ void BandwidthInterface::labelTextChanged(Label* label)
             label->setText(lastLowCutString, dontSendNotification);
         return;
     }
-
+    
 }
 
 void BandwidthInterface::setLowerBandwidth(double value)
@@ -892,28 +928,28 @@ double BandwidthInterface::getUpperBandwidth()
 
 void BandwidthInterface::paint(Graphics& g)
 {
-
+    
     g.setColour(Colours::darkgrey);
-
+    
     g.setFont(Font("Small Text",10,Font::plain));
-
+    
     g.drawText(name, 0, 0, 200, 15, Justification::left, false);
-
+    
     g.drawText("Low: ", 0, 10, 200, 20, Justification::left, false);
-
+    
     g.drawText("High: ", 0, 30, 200, 20, Justification::left, false);
-
+    
 }
 
 // Sample rate Options --------------------------------------------------------------------
 
 SampleRateInterface::SampleRateInterface(RHD2000Thread* board_,
                                          RHD2000Editor* editor_) :
-    board(board_), editor(editor_)
+board(board_), editor(editor_)
 {
-
+    
     name = "Sample Rate";
-
+    
     sampleRateOptions.add("1.00 kS/s");
     sampleRateOptions.add("1.25 kS/s");
     sampleRateOptions.add("1.50 kS/s");
@@ -931,22 +967,22 @@ SampleRateInterface::SampleRateInterface(RHD2000Thread* board_,
     sampleRateOptions.add("20.0 kS/s");
     sampleRateOptions.add("25.0 kS/s");
     sampleRateOptions.add("30.0 kS/s");
-
-
+    
+    
     rateSelection = new ComboBox("Sample Rate");
     rateSelection->addItemList(sampleRateOptions, 1);
     rateSelection->setSelectedId(17, dontSendNotification);
     rateSelection->addListener(this);
-
+    
     rateSelection->setBounds(0,15,300,20);
     addAndMakeVisible(rateSelection);
-
-
+    
+    
 }
 
 SampleRateInterface::~SampleRateInterface()
 {
-
+    
 }
 
 void SampleRateInterface::comboBoxChanged(ComboBox* cb)
@@ -956,9 +992,9 @@ void SampleRateInterface::comboBoxChanged(ComboBox* cb)
         if (cb == rateSelection)
         {
             board->setSampleRate(cb->getSelectedId()-1);
-
+            
             std::cout << "Setting sample rate to index " << cb->getSelectedId()-1 << std::endl;
-
+            
             editor->getEditorViewport()->makeEditorVisible(editor, false, true);
         }
     }
@@ -977,13 +1013,13 @@ void SampleRateInterface::setSelectedId(int id)
 
 void SampleRateInterface::paint(Graphics& g)
 {
-
+    
     g.setColour(Colours::darkgrey);
-
+    
     g.setFont(Font("Small Text",10,Font::plain));
-
+    
     g.drawText(name, 0, 0, 200, 15, Justification::left, false);
-
+    
 }
 
 
@@ -992,9 +1028,9 @@ void SampleRateInterface::paint(Graphics& g)
 HeadstageOptionsInterface::HeadstageOptionsInterface(RHD2000Thread* board_,
                                                      RHD2000Editor* editor_,
                                                      int hsNum) :
-    isEnabled(false), board(board_), editor(editor_)
+isEnabled(false), board(board_), editor(editor_)
 {
-
+    
     switch (hsNum)
     {
         case 0 :
@@ -1012,15 +1048,15 @@ HeadstageOptionsInterface::HeadstageOptionsInterface(RHD2000Thread* board_,
         default:
             name = "X";
     }
-
+    
     hsNumber1 = hsNum*2; // data stream 1
     hsNumber2 = hsNumber1+1; // data stream 2
-
+    
     channelsOnHs1 = 0;
     channelsOnHs2 = 0;
-
-
-
+    
+    
+    
     hsButton1 = new UtilityButton(" ", Font("Small Text", 13, Font::plain));
     hsButton1->setRadius(3.0f);
     hsButton1->setBounds(23,1,20,17);
@@ -1028,7 +1064,7 @@ HeadstageOptionsInterface::HeadstageOptionsInterface(RHD2000Thread* board_,
     hsButton1->setCorners(true, false, true, false);
     hsButton1->addListener(this);
     addAndMakeVisible(hsButton1);
-
+    
     hsButton2 = new UtilityButton(" ", Font("Small Text", 13, Font::plain));
     hsButton2->setRadius(3.0f);
     hsButton2->setBounds(43,1,20,17);
@@ -1036,20 +1072,20 @@ HeadstageOptionsInterface::HeadstageOptionsInterface(RHD2000Thread* board_,
     hsButton2->setCorners(false, true, false, true);
     hsButton2->addListener(this);
     addAndMakeVisible(hsButton2);
-
+    
     checkEnabledState();
 }
 
 HeadstageOptionsInterface::~HeadstageOptionsInterface()
 {
-
+    
 }
 
 void HeadstageOptionsInterface::checkEnabledState()
 {
     isEnabled = (board->isHeadstageEnabled(hsNumber1) ||
                  board->isHeadstageEnabled(hsNumber2));
-
+    
     if (board->isHeadstageEnabled(hsNumber1))
     {
         channelsOnHs1 = 32;
@@ -1062,7 +1098,7 @@ void HeadstageOptionsInterface::checkEnabledState()
         hsButton1->setLabel(" ");
         hsButton1->setEnabledState(false);
     }
-
+    
     if (board->isHeadstageEnabled(hsNumber2))
     {
         channelsOnHs2 = 32;
@@ -1075,17 +1111,17 @@ void HeadstageOptionsInterface::checkEnabledState()
         hsButton2->setLabel(" ");
         hsButton2->setEnabledState(false);
     }
-
+    
     repaint();
-
+    
 }
 
 void HeadstageOptionsInterface::buttonClicked(Button* button)
 {
-
+    
     if (!(editor->acquisitionIsActive) && board->foundInputSource())
     {
-
+        
         //std::cout << "Acquisition is not active" << std::endl;
         if (button == hsButton1)
         {
@@ -1093,11 +1129,12 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
                 channelsOnHs1 = 16;
             else
                 channelsOnHs1 = 32;
-
+            
             //std::cout << "HS1 has " << channelsOnHs1 << " channels." << std::endl;
-
+            
             hsButton1->setLabel(String(channelsOnHs1));
             board->setNumChannels(hsNumber1, channelsOnHs1);
+
             board->updateChannelNames();
             editor->updateSettings();
 
@@ -1108,35 +1145,35 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
                 channelsOnHs2 = 16;
             else
                 channelsOnHs2 = 32;
-
+            
             hsButton2->setLabel(String(channelsOnHs2));
             board->setNumChannels(hsNumber2, channelsOnHs2);
             board->updateChannelNames();
             editor->updateSettings();
         }
-
-
+        
+        
         editor->getEditorViewport()->makeEditorVisible(editor, false, true);
     }
-
+    
 }
 
 
 void HeadstageOptionsInterface::paint(Graphics& g)
 {
     g.setColour(Colours::lightgrey);
-
+    
     g.fillRoundedRectangle(5,0,getWidth()-10,getHeight(),4.0f);
-
+    
     if (isEnabled)
         g.setColour(Colours::black);
     else
         g.setColour(Colours::grey);
-
+    
     g.setFont(Font("Small Text",15,Font::plain));
-
+    
     g.drawText(name, 8, 2, 200, 15, Justification::left, false);
-
+    
 }
 
 
@@ -1192,7 +1229,7 @@ void AudioInterface::labelTextChanged(Label* label)
             
             std::cout << "Setting Noise Slicer Level to " << requestedValue << std::endl;
             label->setText(String((roundFloatToInt)(actualNoiseSlicerLevel)), dontSendNotification);
-
+            
         }
     }
     else {
@@ -1233,3 +1270,74 @@ void AudioInterface::paint(Graphics& g)
 }
 
 
+
+// DSP Options --------------------------------------------------------------------
+
+DSPInterface::DSPInterface(RHD2000Thread* board_,
+                                       RHD2000Editor* editor_) :
+board(board_), editor(editor_)
+{
+    name = "DSP";
+    
+    dspOffsetSelection = new Label("DspOffsetSelection",String(round(board->getDspCutoffFreq()*10.f)/10.f));
+    dspOffsetSelection->setEditable(true,false,false);
+    dspOffsetSelection->addListener(this);
+    dspOffsetSelection->setBounds(0,0,30,20);
+    dspOffsetSelection->setColour(Label::textColourId, Colours::darkgrey);
+    
+    addAndMakeVisible(dspOffsetSelection);
+    
+}
+
+DSPInterface::~DSPInterface()
+{
+
+}
+
+
+void DSPInterface::labelTextChanged(Label* label)
+{
+    
+    if (!(editor->acquisitionIsActive) && board->foundInputSource())
+    {
+        if (label == dspOffsetSelection)
+        {
+            
+            Value val = label->getTextValue();
+            double requestedValue = double(val.getValue());
+            
+            actualDspCutoffFreq = board->setDspCutoffFreq(requestedValue);
+            
+            std::cout << "Setting DSP Cutoff Freq to " << requestedValue << std::endl;
+            std::cout << "Actual DSP Cutoff Freq:  " <<  actualDspCutoffFreq  << std::endl;
+            label->setText(String(round(actualDspCutoffFreq*10.f)/10.f), dontSendNotification);
+            
+        }
+    }
+    else if (editor->acquisitionIsActive)
+    {
+        editor->sendActionMessage("Can't change DSP cutoff while acquisition is active!");
+    }
+    
+}
+
+void DSPInterface::setDspCutoffFreq(double value)
+{
+    actualDspCutoffFreq = board->setDspCutoffFreq(value);
+    dspOffsetSelection->setText(String(round(actualDspCutoffFreq*10.f)/10.f), dontSendNotification);
+}
+
+
+double DSPInterface::getDspCutoffFreq()
+{
+    return actualDspCutoffFreq;
+}
+
+void DSPInterface::paint(Graphics& g)
+{
+    
+    g.setColour(Colours::darkgrey);
+    
+    g.setFont(Font("Small Text",10,Font::plain));
+
+}

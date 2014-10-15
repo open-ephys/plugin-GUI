@@ -913,6 +913,7 @@ double RHD2000Thread::setUpperBandwidth(double upper)
     return actualUpperBandwidth;
 }
 
+
 double RHD2000Thread::setLowerBandwidth(double lower)
 {
     desiredLowerBandwidth = lower;
@@ -921,6 +922,27 @@ double RHD2000Thread::setLowerBandwidth(double lower)
 
     return actualLowerBandwidth;
 }
+
+double RHD2000Thread::setDspCutoffFreq(double freq)
+{
+    
+    desiredDspCutoffFreq = freq;
+    
+    updateRegisters();
+    
+    return actualDspCutoffFreq;
+}
+
+double RHD2000Thread::getDspCutoffFreq()
+{
+    
+    return actualDspCutoffFreq;
+}
+
+void RHD2000Thread::setDSPOffset(bool state)
+{
+    dspEnabled = state;
+    updateRegisters();
 
 void RHD2000Thread::setTTLoutputMode(bool state)
 {
@@ -1197,9 +1219,11 @@ void RHD2000Thread::updateRegisters()
     // Before generating register configuration command sequences, set amplifier
     // bandwidth paramters.
     actualDspCutoffFreq = chipRegisters.setDspCutoffFreq(desiredDspCutoffFreq);
+    //std::cout << "DSP Cutoff Frequency " << actualDspCutoffFreq << std::endl;
     actualLowerBandwidth = chipRegisters.setLowerBandwidth(desiredLowerBandwidth);
     actualUpperBandwidth = chipRegisters.setUpperBandwidth(desiredUpperBandwidth);
     chipRegisters.enableDsp(dspEnabled);
+    //std::cout << "DSP Offset Status " << dspEnabled << std::endl;
 
     // turn on aux inputs
     chipRegisters.enableAux1(true);

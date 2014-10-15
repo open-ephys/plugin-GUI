@@ -73,7 +73,12 @@ public:
 
     double setUpperBandwidth(double upper); // set desired BW, returns actual BW
     double setLowerBandwidth(double lower);
+
+    double setDspCutoffFreq(double freq);
+    double getDspCutoffFreq();
     
+    void setDSPOffset(bool state);
+
     int setNoiseSlicerLevel(int level);
     void runImpedanceTest(Array<int> &stream, Array<int> &channel, Array<float> &magnitude, Array<float> &phase);
     void setFastTTLSettle(bool state, int channel);

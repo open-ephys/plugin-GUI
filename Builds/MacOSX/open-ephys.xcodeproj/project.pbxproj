@@ -2995,7 +2995,6 @@
 				9D050A509BEB9E3879DA35C6 /* ostrich.ttf */,
 				66F524552E8DE88CDC2E40FD /* silkscreen-serialized */,
 				D01254FA41688494C3CB0889 /* silkscreen.ttf */,
-				61317B5191E05925F232E18C /* unibody-8.otf */,
 			);
 			name = Fonts;
 			sourceTree = "<group>";
@@ -3829,7 +3828,7 @@
 		41375E3272D6505F75FDEEEB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0440;
+				LastUpgradeCheck = 0600;
 			};
 			buildConfigurationList = 3B096175C0B17BFA58475A08 /* Build configuration list for PBXProject "open-ephys" */;
 			compatibilityVersion = "Xcode 3.2";
