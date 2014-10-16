@@ -129,6 +129,19 @@ void ChannelSelector::setNumChannels(int numChans)
         }
     }
 
+    //Reassign numbers according to the actual channels (useful for channel mapper)
+    std::cout << parameterButtons.size() << " - " << recordButtons.size() << " - " <<audioButtons.size() << std::endl;
+    for (int n = 0; n < parameterButtons.size(); n++)
+    {
+        int num = ((GenericEditor*)getParentComponent())->getChannel(n)->num + 1;
+        parameterButtons[n]->setChannel(num);
+        if (isNotSink)
+        {
+            recordButtons[n]->setChannel(num);
+            audioButtons[n]->setChannel(num);
+        }
+    }
+
     refreshButtonBoundaries();
 
 }
@@ -343,9 +356,9 @@ void ChannelSelector::activateButtons()
 void ChannelSelector::inactivateRecButtons()
 {
 
-	recActive = false;
+    recActive = false;
 
-	for (int i = 0; i < recordButtons.size(); i++)
+    for (int i = 0; i < recordButtons.size(); i++)
     {
         recordButtons[i]->setActive(false);
         recordButtons[i]->repaint();
@@ -355,7 +368,7 @@ void ChannelSelector::inactivateRecButtons()
 void ChannelSelector::activateRecButtons()
 {
 
-	recActive = true;
+    recActive = true;
 
     for (int i = 0; i < recordButtons.size(); i++)
     {

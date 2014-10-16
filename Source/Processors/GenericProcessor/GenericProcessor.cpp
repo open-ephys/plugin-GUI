@@ -321,6 +321,7 @@ void GenericProcessor::update()
             Channel* ch = new Channel(*sourceChan);
             ch->setProcessor(this);
             ch->bitVolts = ch->bitVolts*getDefaultBitVolts();
+			ch->num = i;
 
             if (i < recordStatus.size())
             {
