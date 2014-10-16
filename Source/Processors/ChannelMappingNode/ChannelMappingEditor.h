@@ -69,6 +69,8 @@ public:
 
     void collapsedStateChanged();
 
+	void startAcquisition();
+
 private:
 
     void setChannelReference(ElectrodeButton* button);
