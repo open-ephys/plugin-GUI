@@ -699,7 +699,8 @@ void RHD2000Editor::buttonEvent(Button* button)
         {
             headstageOptionsInterfaces[i]->checkEnabledState();
         }
-        board->updateChannelNames();
+       // board->updateChannelNames();
+		getEditorViewport()->makeEditorVisible(this, false, true);
     }
     else if (button == electrodeButtons[0])
     {
@@ -712,7 +713,7 @@ void RHD2000Editor::buttonEvent(Button* button)
     else if (button == adcButton && !acquisitionIsActive)
     {
         board->enableAdcs(button->getToggleState());
-        board->updateChannelNames();
+//        board->updateChannelNames();
         getEditorViewport()->makeEditorVisible(this, false, true);
     }
     else if (button == dacTTLButton)
@@ -1153,7 +1154,7 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
             hsButton1->setLabel(String(channelsOnHs1));
             board->setNumChannels(hsNumber1, channelsOnHs1);
 
-            board->updateChannelNames();
+           // board->updateChannelNames();
             editor->updateSettings();
 
         }
@@ -1166,7 +1167,7 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
 
             hsButton2->setLabel(String(channelsOnHs2));
             board->setNumChannels(hsNumber2, channelsOnHs2);
-            board->updateChannelNames();
+         //   board->updateChannelNames();
             editor->updateSettings();
         }
 

@@ -674,6 +674,12 @@ void RHD2000Thread::getChannelsInfo(StringArray& Names_, Array<channelType>& typ
 void RHD2000Thread::updateChannelNames()
 {
     setDefaultChannelNamesAndType();
+	for (int i=0; i < sn->channels.size(); i++)
+	{
+		sn->channels[i]->setName(Names[i]);
+		sn->channels[i]->setGain(gains[i]);
+		sn->channels[i]->setType(type[i]);
+	}
 }
 
 /* go over the old names and tests whether this particular channel name was changed.

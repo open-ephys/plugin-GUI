@@ -201,9 +201,9 @@ void SourceNode::updateSettings()
     {
 
         inputBuffer = dataThread->getBufferAddress();
-        dataThread->updateChannelNames();
         std::cout << "Input buffer address is " << inputBuffer << std::endl;
     }
+	dataThread->updateChannelNames();
 
     for (int i = 0; i < dataThread->getNumEventChannels(); i++)
     {
