@@ -703,7 +703,7 @@ bool RHD2000Thread::channelModified(channelType t, int str, int ch, String& oldN
 int RHD2000Thread::modifyChannelName(channelType t, int str, int ch, String newName)
 {
     String dummy;
-    float dummyFloat;
+    float dummyFloat=0;
     int index;
     if (channelModified(t, str, ch, dummy, dummyFloat, index))
     {
@@ -715,7 +715,10 @@ int RHD2000Thread::modifyChannelName(channelType t, int str, int ch, String newN
         oldType.add(t);
         oldStream.add(str);
         oldChannelNumber.add(ch);
-        oldGains.add(dummyFloat);
+		if (t == ADC_CHANNEL)
+			oldGains.add(gains[getNumChannels()-getNumADCchannels()+ch]);
+		else
+			oldGains.add(gains[ch]);
     }
 
     for (int k=0; k<Names.size(); k++)
@@ -732,7 +735,7 @@ int RHD2000Thread::modifyChannelName(channelType t, int str, int ch, String newN
 int RHD2000Thread::modifyChannelGain(channelType t, int str, int ch, float gain)
 {
     String dummy;
-    float dummyFloat;
+    float dummyFloat=0;
     int index;
     if (channelModified(t, str, ch, dummy, dummyFloat, index))
     {
@@ -740,7 +743,10 @@ int RHD2000Thread::modifyChannelGain(channelType t, int str, int ch, float gain)
     }
     else
     {
-        oldNames.add(dummy);
+		if (t == ADC_CHANNEL)
+			oldNames.add(Names[getNumChannels()-getNumADCchannels()+ch]);
+		else
+			oldNames.add(Names[ch]);
         oldType.add(t);
         oldStream.add(str);
         oldChannelNumber.add(ch);
@@ -850,7 +856,7 @@ void RHD2000Thread::setDefaultChannelNamesAndType()
     {
         for (int k=0; k<8; k++)
         {
-            if (channelModified(ADC_CHANNEL,MAX_NUM_DATA_STREAMS,k, oldName,oldGain,dummy))
+			if (channelModified(ADC_CHANNEL,MAX_NUM_DATA_STREAMS,k, oldName,oldGain,dummy))
             {
                 Names.add(oldName);
                 gains.add(oldGain);
