@@ -259,6 +259,11 @@ void ChannelMappingEditor::buttonEvent(Button* button)
     }
     else if (button == resetButton)
     {
+		if (acquisitionIsActive)
+		{
+			sendActionMessage("Cannot change channel order while acquiring");
+			return;
+		}
         createElectrodeButtons(getProcessor()->getNumInputs());
         previousChannelCount = getProcessor()->getNumInputs();
         setConfigured(false);
@@ -266,6 +271,12 @@ void ChannelMappingEditor::buttonEvent(Button* button)
     }
     else if (button == modifyButton)
     {
+		if (acquisitionIsActive)
+		{
+			sendActionMessage("Cannot change channel order while acquiring");
+			button->setToggleState(false,dontSendNotification);
+			return;
+		}
         if (reorderActive)
         {
             channelSelector->activateButtons();
@@ -864,3 +875,9 @@ void ChannelMappingEditor::setConfigured(bool state)
     getProcessor()->setParameter(4,state?1:0);
 }
 
+void ChannelMappingEditor::startAcquisition()
+{
+	if (reorderActive)
+		modifyButton->setToggleState(false,sendNotificationSync);
+	GenericEditor::startAcquisition();
+}

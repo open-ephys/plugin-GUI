@@ -25,7 +25,8 @@
 
 
 Channel::Channel(GenericProcessor* p, int n) : num(n), eventType(0), processor(p), sampleRate(44100.0),
-	 isEventChannel(false), isADCchannel(false), isMonitored(false),  isEnabled(true), recordIndex(-1), bitVolts(1.0f), isRecording(false)
+	 isEventChannel(false), isADCchannel(false), isMonitored(false),  isEnabled(true), recordIndex(-1), 
+	 type(DATA_CHANNEL),bitVolts(1.0f), isRecording(false)
 {
     nodeId = p->getNodeId();
 
@@ -45,6 +46,7 @@ Channel::Channel(const Channel& ch)
     eventType = ch.eventType;
     nodeId = ch.nodeId;
     num = ch.num;
+	type = ch.type;
 
     originalStream = ch.originalStream;
     originalChannel = ch.originalChannel;

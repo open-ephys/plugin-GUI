@@ -321,6 +321,7 @@ void GenericProcessor::update()
             Channel* ch = new Channel(*sourceChan);
             ch->setProcessor(this);
             ch->bitVolts = ch->bitVolts*getDefaultBitVolts();
+			ch->num = i;
 
             if (i < recordStatus.size())
             {
@@ -360,7 +361,7 @@ void GenericProcessor::update()
                 ch->setName("ADC"+String(1+i-(numChan-numADC_Chan)));
 
             if (i >= numChan-numADC_Chan)
-                ch->getType() == ADC_CHANNEL;
+				ch->setType(ADC_CHANNEL);
 
 
             ch->sampleRate = getDefaultSampleRate();

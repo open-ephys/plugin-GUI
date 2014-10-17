@@ -104,8 +104,6 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
     bool isEvent;
     String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
 
-    std::cout << "OPENING FILE: " << fullPath << std::endl;
-
     isEvent = (ch == nullptr) ? true : false;
     if (isEvent)
     {
@@ -118,6 +116,7 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
     {
         fullPath += getFileName(ch);
     }
+	std::cout << "OPENING FILE: " << fullPath << std::endl;
 
     File f = File(fullPath);
 
