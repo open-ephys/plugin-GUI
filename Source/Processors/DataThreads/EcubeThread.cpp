@@ -356,7 +356,7 @@ bool EcubeThread::foundInputSource()
 bool EcubeThread::updateBuffer()
 {
     unsigned long ba;
-    int16 eventcode = 0;
+    eventCode = 0;
     int nchan = pDevInt->n_channel_objects;
 
     if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog || pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
