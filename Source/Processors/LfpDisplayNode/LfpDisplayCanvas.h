@@ -96,6 +96,9 @@ public:
     bool keyPressed(const KeyPress& key);
     bool keyPressed(const KeyPress& key, Component* orig);
 
+	channelType getChannelType(int n);
+
+	void setSelectedType(channelType type);
 
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
@@ -143,10 +146,13 @@ private:
     ScopedPointer<UtilityButton> drawMethodButton;
     ScopedPointer<UtilityButton> pauseButton;
 
-    StringArray voltageRanges;
+    StringArray voltageRanges[3];
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
     StringArray colorGroupings; // option for coloring every N channels the same
+
+	channelType selectedVoltageType;
+	int selectedVoltageRange[3];
 
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
 
@@ -205,7 +211,8 @@ public:
     void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel) ;
 
 
-    void setRange(float range);
+    void setRange(float range, channelType type);
+	//TODO: update for multiple ranges 
     int getRange();
 
     void setChannelHeight(int r, bool resetSingle = true);
@@ -288,6 +295,8 @@ public:
         return isEnabled;
     }
 
+	channelType getType();
+
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
 protected:
@@ -315,6 +324,8 @@ protected:
     bool inputInverted;
     bool canBeInverted;
     bool drawMethod;
+
+	channelType type;
 
 };
 
