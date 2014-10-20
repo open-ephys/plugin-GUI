@@ -87,6 +87,8 @@ private:
     ScopedPointer<ElectrodeEditorButton> resetButton;
     ScopedPointer<TriangleButton> upButton;
     ScopedPointer<TriangleButton> downButton;
+    ScopedPointer<LoadButton> loadButton;
+    ScopedPointer<SaveButton> saveButton;
 
     Array<int> channelArray;
     Array<int> referenceArray;

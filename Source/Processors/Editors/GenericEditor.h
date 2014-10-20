@@ -406,6 +406,37 @@ private:
 
 /**
 
+  A button that displays a "load" icon.
+
+  @see GenericEditor
+
+*/
+
+class LoadButton : public ImageButton
+{
+public:
+    LoadButton();
+    ~LoadButton() {}
+};
+
+/**
+
+  A button that displays a "save" icon.
+
+  @see GenericEditor
+
+*/
+
+class SaveButton : public ImageButton
+{
+public:
+    SaveButton();
+    ~SaveButton() {}
+private:
+};
+
+/**
+
   A button that displays text.
 
   @see GenericEditor

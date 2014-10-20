@@ -992,6 +992,49 @@ void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDow
 
 }
 
+LoadButton::LoadButton() : ImageButton("Load")
+{
+
+    Image icon = ImageCache::getFromMemory(BinaryData::upload2_png,
+                                           BinaryData::upload2_pngSize);
+
+    setImages(false, // resizeButtonNowToFitThisImage 
+              true,  // rescaleImagesWhenButtonSizeChanges
+              true,  // preserveImageProprotions
+              icon,  // normalImage
+              1.0,   // imageOpacityWhenNormal
+              Colours::white, // overlayColourWhenNormal
+              icon,  // overImage
+              1.0,   // imageOpacityWhenOver
+              Colours::yellow, // overlayColourWhenOver
+              icon,  // downImage
+              1.0,   // imageOpacityWhenDown
+              Colours::yellow // overlayColourWhenDown
+              );
+
+}
+
+SaveButton::SaveButton() : ImageButton("Save")
+{
+    Image icon = ImageCache::getFromMemory(BinaryData::floppy5_png,
+                                           BinaryData::floppy5_pngSize);
+
+   setImages(false, // resizeButtonNowToFitThisImage 
+          true,  // rescaleImagesWhenButtonSizeChanges
+          true,  // preserveImageProprotions
+          icon,  // normalImage
+          1.0,   // imageOpacityWhenNormal
+          Colours::white, // overlayColourWhenNormal
+          icon,  // overImage
+          1.0,   // imageOpacityWhenOver
+          Colours::yellow, // overlayColourWhenOver
+          icon,  // downImage
+          1.0,   // imageOpacityWhenDown
+          Colours::yellow // overlayColourWhenDown
+          );
+}
+
+
 void GenericEditor::updateParameterButtons(int parameterIndex)
 {
 

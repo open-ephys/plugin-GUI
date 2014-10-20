@@ -1992,6 +1992,8 @@
     <None Include="..\..\Resources\Fonts\silkscreen-serialized"/>
     <None Include="..\..\Resources\Fonts\silkscreen.ttf"/>
     <None Include="..\..\Resources\Fonts\unibody-8.otf"/>
+    <None Include="..\..\Resources\Images\Icons\floppy5.png"/>
+    <None Include="..\..\Resources\Images\Icons\upload2.png"/>
     <None Include="..\..\Resources\Images\Icons\ArduinoIcon.png"/>
     <None Include="..\..\Resources\Images\Icons\OpenEphysBoardLogoBlack.png"/>
     <None Include="..\..\Resources\Images\Icons\OpenEphysBoardLogoGray.png"/>

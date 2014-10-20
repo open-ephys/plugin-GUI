@@ -70,6 +70,17 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
     addAndMakeVisible(downButton);
     downButton->setVisible(false);
 
+    loadButton = new LoadButton();
+    loadButton->addListener(this);
+    loadButton->setBounds(325,5,15,15);
+    addAndMakeVisible(loadButton);
+
+    saveButton = new SaveButton();
+    saveButton->addListener(this);
+    saveButton->setBounds(305,5,15,15);
+    addAndMakeVisible(saveButton);
+
+
 
     //    channelSelector->setRadioStatus(true);
 
@@ -526,6 +537,13 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 
         refreshButtonLocations();
     
+    } else if (button == saveButton)
+    {
+        std::cout << "Save button clicked." << std::endl;
+
+    } else if (button == loadButton)
+    {
+        std::cout << "Load button clicked." << std::endl;
     }
 }
 
