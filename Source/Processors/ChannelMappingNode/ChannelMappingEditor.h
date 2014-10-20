@@ -111,6 +111,8 @@ private:
     int lastHoverButton;
     bool isConfigured;
 
+    ScopedPointer<DynamicObject> info;
+
     float scrollDistance;
 
 

@@ -939,12 +939,72 @@ void ChannelMappingEditor::startAcquisition()
 String ChannelMappingEditor::writePrbFile(File filename)
 {
 
+    FileOutputStream outputStream(filename);
+    //outputStream.writeString("channel_groups = ");
+
+    info = new DynamicObject();
+
+    DynamicObject* nestedObj = new DynamicObject();
+    Array<var> arr;
+    for (int i = 0; i < channelArray.size(); i++)
+    {
+        arr.add(var(channelArray[i]));
+    }
+    nestedObj->setProperty("mapping", var(arr));
+    info->setProperty("0", nestedObj);
+
+    info->writeAsJSON(outputStream, 2, false);
+
+   // delete nestedObj;
+   // delete info;
+
     return "Saved " + filename.getFileName();
 
 }
 
 String ChannelMappingEditor::loadPrbFile(File filename)
 {
+    FileInputStream inputStream(filename);
+
+    var json = JSON::parse(inputStream);
+    var channelGroup = json[Identifier("0")];
+    var mapping = channelGroup[Identifier("mapping")];
+
+    Array<var>* map = mapping.getArray();
+   // info = json.getDynamicObject();
+
+   // NamedValueSet nvs = info->getProperties();
+
+    std::cout << "We found this many: " << map->size() << std::endl;
+
+    for (int i = 0; i < map->size(); i++)
+    {
+        int chan = map->getUnchecked(i); 
+        channelArray.set(i, chan);
+
+        electrodeButtons[i]->setChannelNum(chan);
+       // electrodeButtons[i]->setEnabled(enabled);
+        electrodeButtons[i]->repaint();
+       //std::cout << nvs.getName(i).toString() << std::endl;
+    }
+
+
+    // var v = info->getProperty(Identifier("0"));
+    // DynamicObject* group = v.getDynamicObject();
+
+    // v = group->getProperty("mapping");
+    // Array<var>* map = v.getArray();
+
+    // for (int i = 0; i < map->size(); i++)
+    // {
+    //     std::cout << int(map->getUnchecked(i)) << std::endl;
+    // }
+
+   // delete group;
+  //  delete info;
+
+   // std::cout << "Read: " << info["hi"] << std::endl;
 
     return "Loaded " + filename.getFileName();
+
 }
