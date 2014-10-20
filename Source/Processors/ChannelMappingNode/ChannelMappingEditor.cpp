@@ -951,12 +951,24 @@ String ChannelMappingEditor::writePrbFile(File filename)
         arr.add(var(channelArray[i]));
     }
     nestedObj->setProperty("mapping", var(arr));
+    
+    Array<var> arr2;
+    for (int i = 0; i < referenceArray.size(); i++)
+    {
+        arr2.add(var(referenceArray[i]));
+    }
+    nestedObj->setProperty("reference", var(arr2));
+
+    Array<var> arr3;
+    for (int i = 0; i < enabledChannelArray.size(); i++)
+    {
+        arr3.add(var(enabledChannelArray[i]));
+    }
+    nestedObj->setProperty("enabled", var(arr3));
+
     info->setProperty("0", nestedObj);
 
     info->writeAsJSON(outputStream, 2, false);
-
-   // delete nestedObj;
-   // delete info;
 
     return "Saved " + filename.getFileName();
 
@@ -968,42 +980,33 @@ String ChannelMappingEditor::loadPrbFile(File filename)
 
     var json = JSON::parse(inputStream);
     var channelGroup = json[Identifier("0")];
+
     var mapping = channelGroup[Identifier("mapping")];
-
     Array<var>* map = mapping.getArray();
-   // info = json.getDynamicObject();
 
-   // NamedValueSet nvs = info->getProperties();
+    var reference = channelGroup[Identifier("reference")];
+    Array<var>* ref = reference.getArray();
+
+    var enabled = channelGroup[Identifier("enabled")];
+    Array<var>* enbl = enabled.getArray();
 
     std::cout << "We found this many: " << map->size() << std::endl;
 
     for (int i = 0; i < map->size(); i++)
     {
-        int chan = map->getUnchecked(i); 
-        channelArray.set(i, chan);
+        int ch = map->getUnchecked(i); 
+        channelArray.set(i, ch);
 
-        electrodeButtons[i]->setChannelNum(chan);
-       // electrodeButtons[i]->setEnabled(enabled);
+        int rf = ref->getUnchecked(i);
+        referenceArray.set(ch-1, rf);
+
+        bool en = enbl->getUnchecked(i);
+        enabledChannelArray.set(ch-1, en);
+
+        electrodeButtons[i]->setChannelNum(ch);
+        electrodeButtons[i]->setEnabled(en);
         electrodeButtons[i]->repaint();
-       //std::cout << nvs.getName(i).toString() << std::endl;
     }
-
-
-    // var v = info->getProperty(Identifier("0"));
-    // DynamicObject* group = v.getDynamicObject();
-
-    // v = group->getProperty("mapping");
-    // Array<var>* map = v.getArray();
-
-    // for (int i = 0; i < map->size(); i++)
-    // {
-    //     std::cout << int(map->getUnchecked(i)) << std::endl;
-    // }
-
-   // delete group;
-  //  delete info;
-
-   // std::cout << "Read: " << info["hi"] << std::endl;
 
     return "Loaded " + filename.getFileName();
 
