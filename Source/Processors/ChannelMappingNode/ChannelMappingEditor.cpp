@@ -539,11 +539,47 @@ void ChannelMappingEditor::buttonEvent(Button* button)
     
     } else if (button == saveButton)
     {
-        std::cout << "Save button clicked." << std::endl;
+        //std::cout << "Save button clicked." << std::endl;
+
+        if (!acquisitionIsActive)
+        {
+            FileChooser fc("Choose the file name...",
+                               File::getCurrentWorkingDirectory(),
+                               "*",
+                               true);
+
+            if (fc.browseForFileToSave(true))
+            {
+                File fileToSave = fc.getResult();
+                std::cout << fileToSave.getFileName() << std::endl;
+                sendActionMessage(writePrbFile(fileToSave));
+            }
+        } else {
+            sendActionMessage("Stop acquisition before saving the channel map.");
+        }
+
+        
 
     } else if (button == loadButton)
     {
-        std::cout << "Load button clicked." << std::endl;
+        //std::cout << "Load button clicked." << std::endl;
+
+        if (!acquisitionIsActive)
+        {
+            FileChooser fc("Choose a file to load...",
+                               File::getCurrentWorkingDirectory(),
+                               "*",
+                               true);
+
+            if (fc.browseForFileToOpen())
+            {
+                File fileToOpen = fc.getResult();
+                std::cout << fileToOpen.getFileName() << std::endl;
+                sendActionMessage(loadPrbFile(fileToOpen));
+            }
+        } else {
+            sendActionMessage("Stop acquisition before saving the channel map.");
+        }
     }
 }
 
@@ -898,4 +934,17 @@ void ChannelMappingEditor::startAcquisition()
 	if (reorderActive)
 		modifyButton->setToggleState(false,sendNotificationSync);
 	GenericEditor::startAcquisition();
+}
+
+String ChannelMappingEditor::writePrbFile(File filename)
+{
+
+    return "Saved " + filename.getFileName();
+
+}
+
+String ChannelMappingEditor::loadPrbFile(File filename)
+{
+
+    return "Loaded " + filename.getFileName();
 }

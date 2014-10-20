@@ -71,6 +71,9 @@ public:
 
 	void startAcquisition();
 
+    String writePrbFile(File filename);
+    String loadPrbFile(File filename);
+
 private:
 
     void setChannelReference(ElectrodeButton* button);
