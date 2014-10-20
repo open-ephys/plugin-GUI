@@ -84,6 +84,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	selectedVoltageRange[DATA_CHANNEL] = 9;
 	rangeGain[DATA_CHANNEL] = 1; //uV
 	rangeUnits.add("uV");
+	typeNames.add("DATA");
 
     //Ranges for AUX/accelerometer data
     voltageRanges[AUX_CHANNEL].add("-"); // placeholder for custom ranges (set by scroll wheel etc.)
@@ -100,6 +101,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	selectedVoltageRange[AUX_CHANNEL] = 7;
 	rangeGain[AUX_CHANNEL] = 1; //uV
 	rangeUnits.add("uV");
+	typeNames.add("AUX");
 
     //Ranges for ADC data
     voltageRanges[ADC_CHANNEL].add("-");
@@ -113,6 +115,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	selectedVoltageRange[ADC_CHANNEL] = 5;
 	rangeGain[ADC_CHANNEL] = 1000000; //V
 	rangeUnits.add("V");
+	typeNames.add("ADC");
 
 	timebases.add("0.25");
     timebases.add("0.5");
@@ -651,6 +654,7 @@ void LfpDisplayCanvas::paint(Graphics& g)
     g.drawText("Spread (px)",345,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Color grouping",620,getHeight()-55,300,20,Justification::left, false);
 
+	g.drawText(typeNames[selectedVoltageType],110,getHeight()-30,50,20,Justification::centredLeft,false);
 
     g.drawText("Event disp.",500,getHeight()-55,300,20,Justification::left, false);
 
@@ -808,7 +812,12 @@ void LfpDisplayCanvas::setSelectedType(channelType type)
 	rangeSelection->addItemList(voltageRanges[type],1);
 	rangeSelection->setItemEnabled(1,false);
 	rangeSelection->setSelectedId(selectedVoltageRange[type],sendNotification);
-	repaint(5,getHeight()-55,300,20);
+	repaint(5,getHeight()-55,300,100);
+}
+
+String LfpDisplayCanvas::getTypeName(channelType type)
+{
+	return typeNames[type];
 }
 
 // -------------------------------------------------------------
@@ -1349,6 +1358,7 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, int cha
     lineColour = Colour(255,255,255);
 
 	type = c->getChannelType(channelNumber);
+	typeStr = c->getTypeName(type);
 
 }
 
@@ -1693,7 +1703,8 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
     //else
     g.fillRoundedRectangle(5,center-8,41,22,8.0f);
 
-    //  g.setFont(channelFont);
+      g.setFont(Font("Small Text", 13, Font::plain));
+	  g.drawText(typeStr,5,getHeight()-10,41,10,Justification::centred,false);
     // g.setFont(channelHeightFloat*0.3);
 
     //  g.drawText(name, 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
