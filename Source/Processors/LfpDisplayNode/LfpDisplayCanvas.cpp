@@ -82,6 +82,8 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     voltageRanges[DATA_CHANNEL].add("2000");
     voltageRanges[DATA_CHANNEL].add("5000");
 	selectedVoltageRange[DATA_CHANNEL] = 9;
+	rangeGain[DATA_CHANNEL] = 1; //uV
+	rangeUnits.add("uV");
 
     //Ranges for AUX/accelerometer data
     voltageRanges[AUX_CHANNEL].add("-"); // placeholder for custom ranges (set by scroll wheel etc.)
@@ -96,17 +98,21 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     voltageRanges[AUX_CHANNEL].add("2000");
     voltageRanges[AUX_CHANNEL].add("5000");
 	selectedVoltageRange[AUX_CHANNEL] = 7;
+	rangeGain[AUX_CHANNEL] = 1; //uV
+	rangeUnits.add("uV");
 
     //Ranges for ADC data
     voltageRanges[ADC_CHANNEL].add("-");
-    voltageRanges[ADC_CHANNEL].add("10000");
-    voltageRanges[ADC_CHANNEL].add("50000");
-    voltageRanges[ADC_CHANNEL].add("100000");
-    voltageRanges[ADC_CHANNEL].add("500000");
-    voltageRanges[ADC_CHANNEL].add("1000000");
-    voltageRanges[ADC_CHANNEL].add("2000000");
-    voltageRanges[ADC_CHANNEL].add("5000000");
+    voltageRanges[ADC_CHANNEL].add("0.01");
+    voltageRanges[ADC_CHANNEL].add("0.05");
+    voltageRanges[ADC_CHANNEL].add("0.1");
+    voltageRanges[ADC_CHANNEL].add("0.5");
+    voltageRanges[ADC_CHANNEL].add("1");
+    voltageRanges[ADC_CHANNEL].add("2");
+    voltageRanges[ADC_CHANNEL].add("5");
 	selectedVoltageRange[ADC_CHANNEL] = 5;
+	rangeGain[ADC_CHANNEL] = 1000000; //V
+	rangeUnits.add("V");
 
 	timebases.add("0.25");
     timebases.add("0.5");
@@ -197,7 +203,8 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
 
     lfpDisplay->setNumChannels(nChans);
-	lfpDisplay->setRange(voltageRanges[DATA_CHANNEL][selectedVoltageRange[DATA_CHANNEL]-1].getFloatValue(),DATA_CHANNEL);
+	lfpDisplay->setRange(voltageRanges[DATA_CHANNEL][selectedVoltageRange[DATA_CHANNEL]-1].getFloatValue()*rangeGain[DATA_CHANNEL]
+		,DATA_CHANNEL);
 
     // add event display-specific controls (currently just an enable/disable button)
     for (int i = 0; i < 8; i++)
@@ -339,7 +346,8 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
     }
     else if (cb == rangeSelection)
     {
-		lfpDisplay->setRange(voltageRanges[selectedVoltageType][cb->getSelectedId()-1].getFloatValue(),selectedVoltageType);
+		lfpDisplay->setRange(voltageRanges[selectedVoltageType][cb->getSelectedId()-1].getFloatValue()*rangeGain[selectedVoltageType]
+			,selectedVoltageType);
 		selectedVoltageRange[selectedVoltageType] = cb->getSelectedId();
         //std::cout << "Setting range to " << voltageRanges[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
@@ -638,7 +646,7 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
     g.setColour(Colour(100,100,100));
 
-    g.drawText("Voltage range (uV)",5,getHeight()-55,300,20,Justification::left, false);
+	g.drawText("Voltage range ("+ rangeUnits[selectedVoltageType] +")",5,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Timebase (s)",175,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Spread (px)",345,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Color grouping",620,getHeight()-55,300,20,Justification::left, false);
@@ -800,6 +808,7 @@ void LfpDisplayCanvas::setSelectedType(channelType type)
 	rangeSelection->addItemList(voltageRanges[type],1);
 	rangeSelection->setItemEnabled(1,false);
 	rangeSelection->setSelectedId(selectedVoltageRange[type],sendNotification);
+	repaint(5,getHeight()-55,300,20);
 }
 
 // -------------------------------------------------------------

@@ -153,6 +153,8 @@ private:
 
 	channelType selectedVoltageType;
 	int selectedVoltageRange[3];
+	float rangeGain[3];
+	StringArray rangeUnits;
 
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
 
