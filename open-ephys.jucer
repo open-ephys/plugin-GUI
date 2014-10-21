@@ -15,9 +15,11 @@
                extraLinkerFlags="-lhdf5 -lhdf5_cpp" objCExtraSuffix="fea2mT">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
-                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
+                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"
+                       headerPath="/opt/local/include" libraryPath="/opt/local/lib"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
-                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
+                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"
+                       headerPath="/opt/local/include" libraryPath="/opt/local/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>
