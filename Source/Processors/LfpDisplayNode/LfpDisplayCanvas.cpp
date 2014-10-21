@@ -1291,18 +1291,21 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
     {
         int h = getChannelHeight();
         int hdiff=0;
-        if (wheel.deltaY>0)
+        
+        std::cout << wheel.deltaY << std::endl;
+        
+        if (wheel.deltaY > 0)
         {
-            hdiff=2;
+            hdiff = 2;
         }
         else
         {
-            if (h>5)
-                hdiff=-2;
+            if (h > 5)
+                hdiff = -2;
         }
 
-        if (abs(h)>100) // accelerate scrolling for large ranges
-            hdiff=hdiff*3;
+        if (abs(h) > 100) // accelerate scrolling for large ranges
+            hdiff *= 3;
 
         setChannelHeight(h+hdiff);
         int oldX=viewport->getViewPositionX();
@@ -1321,15 +1324,18 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
     {
         if (e.mods.isShiftDown())  // SHIFT + scroll wheel -> change channel range
         {
-            int h= getRange();
+            int h = getRange();
 			int step = canvas->getRangeStep(canvas->getSelectedType());
-            if (wheel.deltaY>0)
+            
+            std::cout << wheel.deltaY << std::endl;
+            
+            if (wheel.deltaY > 0)
             {
 				setRange(h+step,canvas->getSelectedType());
             }
             else
             {
-                if (h>step+1)
+                if (h > step+1)
 					setRange(h-step,canvas->getSelectedType());
             }
 
