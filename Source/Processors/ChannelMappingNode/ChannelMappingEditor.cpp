@@ -940,6 +940,8 @@ String ChannelMappingEditor::writePrbFile(File filename)
 {
 
     FileOutputStream outputStream(filename);
+	outputStream.setPosition(0);
+	outputStream.truncate();
     //outputStream.writeString("channel_groups = ");
 
     info = new DynamicObject();
