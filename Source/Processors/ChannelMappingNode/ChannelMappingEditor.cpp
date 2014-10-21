@@ -573,6 +573,8 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 
             if (fc.browseForFileToOpen())
             {
+                if (reorderActive)
+                    modifyButton->setToggleState(false,sendNotificationSync);
                 File fileToOpen = fc.getResult();
                 std::cout << fileToOpen.getFileName() << std::endl;
                 sendActionMessage(loadPrbFile(fileToOpen));
