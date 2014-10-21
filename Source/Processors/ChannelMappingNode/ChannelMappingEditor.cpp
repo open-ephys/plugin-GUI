@@ -1019,6 +1019,12 @@ String ChannelMappingEditor::loadPrbFile(File filename)
 
         electrodeButtons[i]->setChannelNum(ch);
         electrodeButtons[i]->setEnabled(en);
+		
+		getProcessor()->setCurrentChannel(i);
+		getProcessor()->setParameter(0,ch-1);
+		getProcessor()->setCurrentChannel(ch-1);
+		getProcessor()->setParameter(1, rf);
+		getProcessor()->setParameter(3, en ? 1 : 0);
     }
 
     var refChans = json[Identifier("refs")];
@@ -1047,7 +1053,8 @@ String ChannelMappingEditor::loadPrbFile(File filename)
         }
     }
 
-    resetButton->setToggleState(false, dontSendNotification);
+	setConfigured(true);
+	getEditorViewport()->makeEditorVisible(this, false, true);
 
     return "Loaded " + filename.getFileName();
 
