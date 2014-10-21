@@ -97,6 +97,7 @@ public:
     bool keyPressed(const KeyPress& key, Component* orig);
 
 	channelType getChannelType(int n);
+	String getTypeName(channelType type);
 
 	void setSelectedType(channelType type);
 
@@ -155,6 +156,7 @@ private:
 	int selectedVoltageRange[3];
 	float rangeGain[3];
 	StringArray rangeUnits;
+	StringArray typeNames;
 
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
 
@@ -328,6 +330,7 @@ protected:
     bool drawMethod;
 
 	channelType type;
+	String typeStr;
 
 };
 
