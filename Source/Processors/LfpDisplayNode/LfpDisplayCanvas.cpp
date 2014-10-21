@@ -49,7 +49,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     screenBufferMax = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
     screenBufferMax->clear();
 
-    viewport = new Viewport();
+    viewport = new LfpViewport(this);
     lfpDisplay = new LfpDisplay(this, viewport);
     timescale = new LfpTimescale(this);
 
@@ -1951,4 +1951,18 @@ void EventDisplayInterface::paint(Graphics& g)
 
     //g.drawText(String(channelNumber), 8, 2, 200, 15, Justification::left, false);
 
+}
+
+// Lfp Viewport -------------------------------------------
+
+LfpViewport::LfpViewport(LfpDisplayCanvas *canvas)
+	: Viewport()
+{
+	this->canvas = canvas;
+}
+
+void LfpViewport::visibleAreaChanged(const Rectangle<int>& newVisibleArea)
+{
+	canvas->fullredraw = true;
+	canvas->refresh();
 }
