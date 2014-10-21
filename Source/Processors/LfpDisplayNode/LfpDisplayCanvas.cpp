@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     screenBufferIndex(0), timebase(1.0f), displayGain(1.0f),   timeOffset(0.0f),
-    processor(processor_), selectedVoltageType(DATA_CHANNEL),
+    processor(processor_), selectedChannelType(DATA_CHANNEL),
     displayBufferIndex(0)
 {
 
@@ -70,8 +70,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     addAndMakeVisible(timescale);
 
     //Ranges for neural data
-    voltageRanges[DATA_CHANNEL].add("-"); // placeholder for custom ranges (set by scroll wheel etc.)
-    voltageRanges[DATA_CHANNEL].add("25");
+     voltageRanges[DATA_CHANNEL].add("25");
     voltageRanges[DATA_CHANNEL].add("50");
     voltageRanges[DATA_CHANNEL].add("100");
     voltageRanges[DATA_CHANNEL].add("250");
@@ -81,13 +80,14 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     voltageRanges[DATA_CHANNEL].add("1000");
     voltageRanges[DATA_CHANNEL].add("2000");
     voltageRanges[DATA_CHANNEL].add("5000");
-	selectedVoltageRange[DATA_CHANNEL] = 9;
+	selectedVoltageRange[DATA_CHANNEL] = 8;
 	rangeGain[DATA_CHANNEL] = 1; //uV
+	rangeSteps[DATA_CHANNEL] = 10;
 	rangeUnits.add("uV");
 	typeNames.add("DATA");
+	
 
     //Ranges for AUX/accelerometer data
-    voltageRanges[AUX_CHANNEL].add("-"); // placeholder for custom ranges (set by scroll wheel etc.)
     voltageRanges[AUX_CHANNEL].add("25");
     voltageRanges[AUX_CHANNEL].add("50");
     voltageRanges[AUX_CHANNEL].add("100");
@@ -98,24 +98,29 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     voltageRanges[AUX_CHANNEL].add("1000");
     voltageRanges[AUX_CHANNEL].add("2000");
     voltageRanges[AUX_CHANNEL].add("5000");
-	selectedVoltageRange[AUX_CHANNEL] = 7;
+	selectedVoltageRange[AUX_CHANNEL] = 6;
 	rangeGain[AUX_CHANNEL] = 1; //uV
+	rangeSteps[AUX_CHANNEL] = 10;
 	rangeUnits.add("uV");
 	typeNames.add("AUX");
 
     //Ranges for ADC data
-    voltageRanges[ADC_CHANNEL].add("-");
-    voltageRanges[ADC_CHANNEL].add("0.01");
+     voltageRanges[ADC_CHANNEL].add("0.01");
     voltageRanges[ADC_CHANNEL].add("0.05");
     voltageRanges[ADC_CHANNEL].add("0.1");
     voltageRanges[ADC_CHANNEL].add("0.5");
-    voltageRanges[ADC_CHANNEL].add("1");
-    voltageRanges[ADC_CHANNEL].add("2");
-    voltageRanges[ADC_CHANNEL].add("5");
-	selectedVoltageRange[ADC_CHANNEL] = 5;
+    voltageRanges[ADC_CHANNEL].add("1.0");
+    voltageRanges[ADC_CHANNEL].add("2.0");
+    voltageRanges[ADC_CHANNEL].add("5.0");
+	selectedVoltageRange[ADC_CHANNEL] = 4;
 	rangeGain[ADC_CHANNEL] = 1000000; //V
+	rangeSteps[ADC_CHANNEL] = 100000; //in uV
 	rangeUnits.add("V");
 	typeNames.add("ADC");
+
+	selectedVoltageRangeValues[DATA_CHANNEL] = voltageRanges[DATA_CHANNEL][selectedVoltageRange[DATA_CHANNEL]-1];
+	selectedVoltageRangeValues[AUX_CHANNEL] = voltageRanges[AUX_CHANNEL][selectedVoltageRange[AUX_CHANNEL]-1];
+	selectedVoltageRangeValues[ADC_CHANNEL] = voltageRanges[ADC_CHANNEL][selectedVoltageRange[ADC_CHANNEL]-1];
 
 	timebases.add("0.25");
     timebases.add("0.5");
@@ -126,8 +131,9 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     timebases.add("5.0");
     timebases.add("10.0");
     timebases.add("20.0");
+	selectedTimebase=2;
+	selectedTimebaseValue=timebases[selectedTimebase-1];
 
-    spreads.add("-"); // placeholder for custom ranges (set by scroll wheel etc.)
     spreads.add("10");
     spreads.add("20");
     spreads.add("30");
@@ -138,7 +144,8 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     spreads.add("80");
     spreads.add("90");
     spreads.add("100");
-    spreads.add("100");
+	selectedSpread = 5;
+	selectedSpreadValue=spreads[selectedSpread-1];
 
     colorGroupings.add("1");
     colorGroupings.add("2");
@@ -150,23 +157,24 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     rangeSelection = new ComboBox("Voltage range");
     rangeSelection->addItemList(voltageRanges[DATA_CHANNEL], 1);
 	rangeSelection->setSelectedId(selectedVoltageRange[DATA_CHANNEL], sendNotification);
+	rangeSelection->setEditableText(true);
     rangeSelection->addListener(this);
-    rangeSelection->setItemEnabled(1,false); //  '-' option not enabled- use this for manually selected ranges later
     addAndMakeVisible(rangeSelection);
 
 
     timebaseSelection = new ComboBox("Timebase");
     timebaseSelection->addItemList(timebases, 1);
-    timebaseSelection->setSelectedId(2, sendNotification);
+	timebaseSelection->setSelectedId(selectedTimebase, sendNotification);
+	timebaseSelection->setEditableText(true);
     timebaseSelection->addListener(this);
     addAndMakeVisible(timebaseSelection);
 
 
     spreadSelection = new ComboBox("Spread");
     spreadSelection->addItemList(spreads, 1);
-    spreadSelection->setSelectedId(6,sendNotification);
+	spreadSelection->setSelectedId(selectedSpread,sendNotification);
     spreadSelection->addListener(this);
-    spreadSelection->setItemEnabled(1,false); //  '-' option not enabled- use this for manually selected ranges later
+	spreadSelection->setEditableText(true);
     addAndMakeVisible(spreadSelection);
 
     colorGroupingSelection = new ComboBox("Color Grouping");
@@ -345,21 +353,89 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 
     if (cb == timebaseSelection)
     {
-        timebase = timebases[cb->getSelectedId()-1].getFloatValue();
+		if (cb->getSelectedId())
+		{
+			timebase = timebases[cb->getSelectedId()-1].getFloatValue();
+		}
+		else
+		{
+			timebase = cb->getText().getFloatValue();
+			if (timebase)
+			{
+				cb->setText(String(timebase,1),dontSendNotification);
+			}
+			else
+			{
+				if (selectedSpread == 0)
+				{
+					cb->setText(selectedTimebaseValue,dontSendNotification);
+					timebase = selectedTimebaseValue.getFloatValue();
+				}
+				else
+				{
+					cb->setSelectedId(selectedTimebase,dontSendNotification);
+					timebase = timebases[selectedTimebase-1].getFloatValue();
+				}
+
+			}
+		}
     }
     else if (cb == rangeSelection)
     {
-		lfpDisplay->setRange(voltageRanges[selectedVoltageType][cb->getSelectedId()-1].getFloatValue()*rangeGain[selectedVoltageType]
-			,selectedVoltageType);
-		selectedVoltageRange[selectedVoltageType] = cb->getSelectedId();
+		if (cb->getSelectedId())
+		{
+		lfpDisplay->setRange(voltageRanges[selectedChannelType][cb->getSelectedId()-1].getFloatValue()*rangeGain[selectedChannelType]
+			,selectedChannelType);
+		}
+		else
+		{
+			float vRange = cb->getText().getFloatValue();
+			if (vRange)
+			{
+				if (rangeGain[selectedChannelType] > 1)
+					cb->setText(String(vRange,1),dontSendNotification);
+				else
+					cb->setText(String(vRange),dontSendNotification);
+				lfpDisplay->setRange(vRange*rangeGain[selectedChannelType],selectedChannelType);
+			}
+			else
+			{
+				if (selectedVoltageRange[selectedChannelType])
+					cb->setText(selectedVoltageRangeValues[selectedChannelType],dontSendNotification);
+				else
+					cb->setSelectedId(selectedVoltageRange[selectedChannelType],dontSendNotification);
+			}
+		}
+		selectedVoltageRange[selectedChannelType] = cb->getSelectedId();
+		selectedVoltageRangeValues[selectedChannelType] = cb->getText();
         //std::cout << "Setting range to " << voltageRanges[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
     else if (cb == spreadSelection)
     {
-        //spread = spreads[cb->getSelectedId()-1].getFloatValue();
-        lfpDisplay->setChannelHeight(spreads[cb->getSelectedId()-1].getIntValue());
-        resized();
-
+		if (cb->getSelectedId())
+		{
+			lfpDisplay->setChannelHeight(spreads[cb->getSelectedId()-1].getIntValue());
+			resized();
+		}
+		else
+		{
+			int spread = cb->getText().getIntValue();
+			if (spread)
+			{
+				cb->setText(String(spread),dontSendNotification);
+				lfpDisplay->setChannelHeight(spread);
+				resized();
+			}
+			else
+			{
+				if (selectedSpread == 0)
+					cb->setText(selectedSpreadValue,dontSendNotification);
+				else
+					cb->setSelectedId(selectedSpread,dontSendNotification);
+			}
+		}
+		selectedSpread = cb->getSelectedId();
+		selectedSpreadValue = cb->getText();
         //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
     else if (cb == colorGroupingSelection)
@@ -395,25 +471,39 @@ void LfpDisplayCanvas::setParameter(int param, float val)
     // repaint();
 }
 
-void LfpDisplayCanvas:: setRangeSelection(float range)
+void LfpDisplayCanvas:: setRangeSelection(float range, bool canvasMustUpdate)
 {
-    //rangeSelection->setItemEnabled(0,true); //keep custom range unavailable for direct selection
-    rangeSelection->setSelectedItemIndex(0, sendNotificationAsync);  // but show it for display
-    rangeSelection->changeItemText(1, String(int(range))); // and set to correct number
+	if (canvasMustUpdate)
+	{
+		rangeSelection->setText(String(range/rangeGain[selectedChannelType]), sendNotification); 
+	}
+	else
+	{
+		rangeSelection->setText(String(range/rangeGain[selectedChannelType]),dontSendNotification);
+		selectedVoltageRange[selectedChannelType]=rangeSelection->getSelectedId();
+		selectedVoltageRangeValues[selectedChannelType]=rangeSelection->getText();
 
-    repaint();
-    refresh();
+		repaint();
+		refresh();
+	}
 
 }
 
-void LfpDisplayCanvas:: setSpreadSelection(int spread)
+void LfpDisplayCanvas:: setSpreadSelection(int spread, bool canvasMustUpdate)
 {
-    spreadSelection->setSelectedItemIndex(0, sendNotificationAsync);
-    spreadSelection->changeItemText(1, String(int(spread))); // and set to correct number
+    if (canvasMustUpdate)
+    {
+        spreadSelection->setText(String(spread),sendNotification);
+    }
+    else
+    {
+        spreadSelection->setText(String(spread),dontSendNotification);
+        selectedSpread=spreadSelection->getSelectedId();
+        selectedSpreadValue=spreadSelection->getText();
 
-    repaint();
-    refresh();
-
+        repaint();
+        refresh();
+    }
 }
 
 void LfpDisplayCanvas::refreshState()
@@ -649,12 +739,12 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
     g.setColour(Colour(100,100,100));
 
-	g.drawText("Voltage range ("+ rangeUnits[selectedVoltageType] +")",5,getHeight()-55,300,20,Justification::left, false);
+	g.drawText("Voltage range ("+ rangeUnits[selectedChannelType] +")",5,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Timebase (s)",175,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Spread (px)",345,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Color grouping",620,getHeight()-55,300,20,Justification::left, false);
 
-	g.drawText(typeNames[selectedVoltageType],110,getHeight()-30,50,20,Justification::centredLeft,false);
+	g.drawText(typeNames[selectedChannelType],110,getHeight()-30,50,20,Justification::centredLeft,false);
 
     g.drawText("Event disp.",500,getHeight()-55,300,20,Justification::left, false);
 
@@ -699,9 +789,10 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
     XmlElement* xmlNode = xml->createNewChildElement("LFPDISPLAY");
 
 
-    xmlNode->setAttribute("Range",rangeSelection->getSelectedId());
-    xmlNode->setAttribute("Timebase",timebaseSelection->getSelectedId());
-    xmlNode->setAttribute("Spread",spreadSelection->getSelectedId());
+	xmlNode->setAttribute("Range",selectedVoltageRangeValues[0]+","+selectedVoltageRangeValues[1]+
+		","+selectedVoltageRangeValues[2]);
+    xmlNode->setAttribute("Timebase",timebaseSelection->getText());
+    xmlNode->setAttribute("Spread",spreadSelection->getText());
     xmlNode->setAttribute("colorGrouping",colorGroupingSelection->getSelectedId());
     xmlNode->setAttribute("isInverted",invertInputButton->getToggleState());
     xmlNode->setAttribute("drawMethod",drawMethodButton->getToggleState());
@@ -745,9 +836,18 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
     {
         if (xmlNode->hasTagName("LFPDISPLAY"))
         {
-            rangeSelection->setSelectedId(xmlNode->getIntAttribute("Range"));
-            timebaseSelection->setSelectedId(xmlNode->getIntAttribute("Timebase"));
-            spreadSelection->setSelectedId(xmlNode->getIntAttribute("Spread"));
+			StringArray ranges;
+			ranges.addTokens(xmlNode->getStringAttribute("Range"),",",String::empty);
+			selectedVoltageRangeValues[0] = ranges[0];
+			selectedVoltageRangeValues[1] = ranges[1];
+			selectedVoltageRangeValues[2] = ranges[2];
+			selectedVoltageRange[0] = voltageRanges[0].indexOf(ranges[0])+1;
+			selectedVoltageRange[1] = voltageRanges[1].indexOf(ranges[1])+1;
+			selectedVoltageRange[2] = voltageRanges[2].indexOf(ranges[2])+1;
+			rangeSelection->setText(ranges[0]);
+
+            timebaseSelection->setText(xmlNode->getStringAttribute("Timebase"));
+            spreadSelection->setText(xmlNode->getStringAttribute("Spread"));
             if (xmlNode->hasAttribute("colorGrouping"))
             {
                 colorGroupingSelection->setSelectedId(xmlNode->getIntAttribute("colorGrouping"));
@@ -803,21 +903,34 @@ channelType LfpDisplayCanvas::getChannelType(int n)
 	return processor->channels[n]->getType();
 }
 
+channelType LfpDisplayCanvas::getSelectedType()
+{
+	return selectedChannelType;
+}
+
 void LfpDisplayCanvas::setSelectedType(channelType type)
 {
-	if (selectedVoltageType == type)
+	if (selectedChannelType == type)
 		return; //Nothing to do here
-	selectedVoltageType = type;
+	selectedChannelType = type;
 	rangeSelection->clear(dontSendNotification);
 	rangeSelection->addItemList(voltageRanges[type],1);
-	rangeSelection->setItemEnabled(1,false);
-	rangeSelection->setSelectedId(selectedVoltageRange[type],sendNotification);
+	int id = selectedVoltageRange[type];
+	if (id)
+		rangeSelection->setSelectedId(id,sendNotification);
+	else
+		rangeSelection->setText(selectedVoltageRangeValues[selectedChannelType],dontSendNotification);
 	repaint(5,getHeight()-55,300,100);
 }
 
 String LfpDisplayCanvas::getTypeName(channelType type)
 {
 	return typeNames[type];
+}
+
+int LfpDisplayCanvas::getRangeStep(channelType type)
+{
+	return rangeSteps[type];
 }
 
 // -------------------------------------------------------------
@@ -877,11 +990,14 @@ void LfpTimescale::setTimebase(float t)
 // ---------------------------------------------------------------
 
 LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
-    singleChan(-1), canvas(c), viewport(v), range(1000.0f)
+    singleChan(-1), canvas(c), viewport(v)
 {
-
     totalHeight = 0;
     colorGrouping=1;
+
+	range[0] = 1000;
+	range[1] = 500;
+	range[2] = 500000;
 
     addMouseListener(this, true);
 
@@ -959,7 +1075,7 @@ void LfpDisplay::setNumChannels(int numChannels)
         LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvas, this, i);
 
         //lfpChan->setColour(channelColours[i % channelColours.size()]);
-        lfpChan->setRange(range);
+		lfpChan->setRange(range[canvas->getChannelType(i)]);
         lfpChan->setChannelHeight(canvas->getChannelHeight());
 
         addAndMakeVisible(lfpChan);
@@ -969,7 +1085,7 @@ void LfpDisplay::setNumChannels(int numChannels)
         LfpChannelDisplayInfo* lfpInfo = new LfpChannelDisplayInfo(canvas, this, i);
 
         //lfpInfo->setColour(channelColours[i % channelColours.size()]);
-        lfpInfo->setRange(range);
+        lfpInfo->setRange(range[canvas->getChannelType(i)]);
         lfpInfo->setChannelHeight(canvas->getChannelHeight());
 
         addAndMakeVisible(lfpInfo);
@@ -1086,19 +1202,28 @@ void LfpDisplay::refresh()
 
 void LfpDisplay::setRange(float r, channelType type)
 {
-    range = r;
+    range[type] = r;
 
     for (int i = 0; i < numChans; i++)
     {
 		if (channels[i]->getType() == type)
-			channels[i]->setRange(range);
+			channels[i]->setRange(range[type]);
     }
     canvas->fullredraw = true; //issue full redraw
 }
 
 int LfpDisplay::getRange()
 {
-    return channels[0]->getRange();
+	return getRange(canvas->getSelectedType());
+}
+
+int LfpDisplay::getRange(channelType type)
+{
+	for (int i=0; i < numChans; i++)
+	{
+		if (channels[i]->getType() == type)
+			return channels[i]->getRange();
+	}
 }
 
 
@@ -1197,14 +1322,15 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
         if (e.mods.isShiftDown())  // SHIFT + scroll wheel -> change channel range
         {
             int h= getRange();
+			int step = canvas->getRangeStep(canvas->getSelectedType());
             if (wheel.deltaY>0)
             {
-				setRange(h+10,DATA_CHANNEL);
+				setRange(h+step,canvas->getSelectedType());
             }
             else
             {
-                if (h>11)
-					setRange(h-10,DATA_CHANNEL);
+                if (h>step+1)
+					setRange(h-step,canvas->getSelectedType());
             }
 
             canvas->setRangeSelection(h); // update combobox
@@ -1704,7 +1830,7 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
     g.fillRoundedRectangle(5,center-8,41,22,8.0f);
 
       g.setFont(Font("Small Text", 13, Font::plain));
-	  g.drawText(typeStr,5,getHeight()-10,41,10,Justification::centred,false);
+	  g.drawText(typeStr,5,center+16,41,10,Justification::centred,false);
     // g.setFont(channelHeightFloat*0.3);
 
     //  g.drawText(name, 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
