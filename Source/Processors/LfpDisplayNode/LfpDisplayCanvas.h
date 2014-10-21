@@ -35,6 +35,7 @@ class LfpDisplay;
 class LfpChannelDisplay;
 class LfpChannelDisplayInfo;
 class EventDisplayInterface;
+class LfpViewport;
 
 /**
 
@@ -140,7 +141,7 @@ private:
 
     ScopedPointer<LfpTimescale> timescale;
     ScopedPointer<LfpDisplay> lfpDisplay;
-    ScopedPointer<Viewport> viewport;
+    ScopedPointer<LfpViewport> viewport;
 
     ScopedPointer<ComboBox> timebaseSelection;
     ScopedPointer<ComboBox> rangeSelection;
@@ -391,6 +392,16 @@ private:
 
     ScopedPointer<UtilityButton> chButton;
 
+};
+
+class LfpViewport : public Viewport
+{
+public:
+	LfpViewport(LfpDisplayCanvas* canvas);
+	void visibleAreaChanged(const Rectangle<int>& newVisibleArea);
+
+private:
+	LfpDisplayCanvas* canvas;
 };
 
 

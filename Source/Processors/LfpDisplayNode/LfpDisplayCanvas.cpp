@@ -49,7 +49,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     screenBufferMax = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
     screenBufferMax->clear();
 
-    viewport = new Viewport();
+    viewport = new LfpViewport(this);
     lfpDisplay = new LfpDisplay(this, viewport);
     timescale = new LfpTimescale(this);
 
@@ -362,7 +362,18 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 			timebase = cb->getText().getFloatValue();
 			if (timebase)
 			{
-				cb->setText(String(timebase,1),dontSendNotification);
+				if (timebase < timebases[0].getFloatValue())
+				{
+					cb->setSelectedId(1,dontSendNotification);
+					timebase = timebases[0].getFloatValue();
+				}
+				else if (timebase > timebases[timebases.size()-1].getFloatValue())
+				{
+					cb->setSelectedId(timebases.size(),dontSendNotification);
+					timebase = timebases[timebases.size()-1].getFloatValue();
+				}
+				else
+					cb->setText(String(timebase,1),dontSendNotification);
 			}
 			else
 			{
@@ -389,16 +400,29 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 		}
 		else
 		{
-			float vRange = cb->getText().getFloatValue();
-			if (vRange)
-			{
-				if (rangeGain[selectedChannelType] > 1)
-					cb->setText(String(vRange,1),dontSendNotification);
-				else
-					cb->setText(String(vRange),dontSendNotification);
+		    float vRange = cb->getText().getFloatValue();
+		    if (vRange)
+		    {
+		        if (vRange < voltageRanges[selectedChannelType][0].getFloatValue())
+		        {
+					cb->setSelectedId(1,dontSendNotification);
+					vRange = voltageRanges[selectedChannelType][0].getFloatValue();
+		        }
+		        else if (vRange > voltageRanges[selectedChannelType][voltageRanges[selectedChannelType].size()-1].getFloatValue())
+		        {
+					cb->setSelectedId(voltageRanges[selectedChannelType].size(),dontSendNotification);
+					vRange = voltageRanges[selectedChannelType][voltageRanges[selectedChannelType].size()-1].getFloatValue();
+		        }
+		        else
+		        {
+		            if (rangeGain[selectedChannelType] > 1)
+		                cb->setText(String(vRange,1),dontSendNotification);
+		            else
+		                cb->setText(String(vRange),dontSendNotification);
+		        }
 				lfpDisplay->setRange(vRange*rangeGain[selectedChannelType],selectedChannelType);
-			}
-			else
+		    }
+		    else
 			{
 				if (selectedVoltageRange[selectedChannelType])
 					cb->setText(selectedVoltageRangeValues[selectedChannelType],dontSendNotification);
@@ -422,7 +446,20 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 			int spread = cb->getText().getIntValue();
 			if (spread)
 			{
-				cb->setText(String(spread),dontSendNotification);
+				if (spread < spreads[0].getFloatValue())
+				{
+					cb->setSelectedId(1,dontSendNotification);
+					spread = spreads[0].getFloatValue();
+				}
+				else if (spread > spreads[spreads.size()-1].getFloatValue())
+				{
+					cb->setSelectedId(spreads.size(),dontSendNotification);
+					spread = spreads[spreads.size()-1].getFloatValue();
+				}
+				else
+				{
+					cb->setText(String(spread),dontSendNotification);
+				}
 				lfpDisplay->setChannelHeight(spread);
 				resized();
 			}
@@ -1920,4 +1957,18 @@ void EventDisplayInterface::paint(Graphics& g)
 
     //g.drawText(String(channelNumber), 8, 2, 200, 15, Justification::left, false);
 
+}
+
+// Lfp Viewport -------------------------------------------
+
+LfpViewport::LfpViewport(LfpDisplayCanvas *canvas)
+	: Viewport()
+{
+	this->canvas = canvas;
+}
+
+void LfpViewport::visibleAreaChanged(const Rectangle<int>& newVisibleArea)
+{
+	canvas->fullredraw = true;
+	canvas->refresh();
 }
