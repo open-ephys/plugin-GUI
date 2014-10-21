@@ -955,18 +955,28 @@ String ChannelMappingEditor::writePrbFile(File filename)
     Array<var> arr2;
     for (int i = 0; i < referenceArray.size(); i++)
     {
-        arr2.add(var(referenceArray[i]));
+        arr2.add(var(referenceArray[channelArray[i]-1]));
     }
     nestedObj->setProperty("reference", var(arr2));
 
     Array<var> arr3;
     for (int i = 0; i < enabledChannelArray.size(); i++)
     {
-        arr3.add(var(enabledChannelArray[i]));
+        arr3.add(var(enabledChannelArray[channelArray[i]-1]));
     }
     nestedObj->setProperty("enabled", var(arr3));
 
     info->setProperty("0", nestedObj);
+
+    DynamicObject* nestedObj2 = new DynamicObject();
+    Array<var> arr4;
+    for (int i = 0; i < referenceChannels.size(); i++)
+    {
+        arr4.add(var(referenceChannels[i]));
+    }
+    nestedObj2->setProperty("channels", var(arr4));
+
+    info->setProperty("refs", nestedObj2);
 
     info->writeAsJSON(outputStream, 2, false);
 
@@ -1005,8 +1015,35 @@ String ChannelMappingEditor::loadPrbFile(File filename)
 
         electrodeButtons[i]->setChannelNum(ch);
         electrodeButtons[i]->setEnabled(en);
-        electrodeButtons[i]->repaint();
     }
+
+    var refChans = json[Identifier("refs")];
+    var channels = refChans[Identifier("channels")];
+    Array<var>* chans = channels.getArray();
+
+    for (int i = 0; i < chans->size(); i++)
+    {
+        int ch = chans->getUnchecked(i);
+        referenceChannels.set(i,ch);
+        getProcessor()->setCurrentChannel(ch);
+        getProcessor()->setParameter(2,i);
+    }
+
+    referenceButtons[0]->setToggleState(true, sendNotificationSync);
+
+    for (int i = 0; i < electrodeButtons.size(); i++)
+    {
+        if (referenceArray[electrodeButtons[i]->getChannelNum()-1] == 0)
+        {
+            electrodeButtons[i]->setToggleState(true, dontSendNotification);
+        }
+        else
+        {
+            electrodeButtons[i]->setToggleState(false, dontSendNotification);
+        }
+    }
+
+    resetButton->setToggleState(false, dontSendNotification);
 
     return "Loaded " + filename.getFileName();
 
