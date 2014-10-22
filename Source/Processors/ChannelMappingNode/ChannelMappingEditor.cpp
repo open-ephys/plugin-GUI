@@ -993,7 +993,15 @@ String ChannelMappingEditor::loadPrbFile(File filename)
     FileInputStream inputStream(filename);
 
     var json = JSON::parse(inputStream);
-    var channelGroup = json[Identifier("0")];
+
+    var returnVal = -255;
+
+    var channelGroup = json.getProperty(Identifier("0"), returnVal);
+
+    if (channelGroup.equalsWithSameType(returnVal))
+    {
+        return "Not a valid .prb file.";
+    }
 
     var mapping = channelGroup[Identifier("mapping")];
     Array<var>* map = mapping.getArray();
