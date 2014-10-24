@@ -58,7 +58,7 @@ public:
     float getSampleRate();
     float getDefaultSampleRate();
     int getDefaultNumOutputs();
-    float getDefaultBitVolts();
+    float getBitVolts(int chan);
 
     int modifyChannelGain(int stream, int channel,channelType type, float gain, bool updateSignalChain);
     int modifyChannelName(channelType t, int str, int ch, String newName, bool updateSignalChain);

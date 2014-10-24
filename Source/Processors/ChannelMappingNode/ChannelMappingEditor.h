@@ -69,6 +69,11 @@ public:
 
     void collapsedStateChanged();
 
+	void startAcquisition();
+
+    String writePrbFile(File filename);
+    String loadPrbFile(File filename);
+
 private:
 
     void setChannelReference(ElectrodeButton* button);
@@ -85,6 +90,8 @@ private:
     ScopedPointer<ElectrodeEditorButton> resetButton;
     ScopedPointer<TriangleButton> upButton;
     ScopedPointer<TriangleButton> downButton;
+    ScopedPointer<LoadButton> loadButton;
+    ScopedPointer<SaveButton> saveButton;
 
     Array<int> channelArray;
     Array<int> referenceArray;
@@ -103,6 +110,8 @@ private:
     int draggingChannel;
     int lastHoverButton;
     bool isConfigured;
+
+    ScopedPointer<DynamicObject> info;
 
     float scrollDistance;
 

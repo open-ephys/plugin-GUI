@@ -3763,6 +3763,12 @@
     <None Include="..\..\Resources\Fonts\unibody-8.otf">
       <Filter>open-ephys\Resources\Fonts</Filter>
     </None>
+    <None Include="..\..\Resources\Images\Icons\floppy5.png">
+      <Filter>open-ephys\Resources\Images\Icons</Filter>
+    </None>
+    <None Include="..\..\Resources\Images\Icons\upload2.png">
+      <Filter>open-ephys\Resources\Images\Icons</Filter>
+    </None>
     <None Include="..\..\Resources\Images\Icons\ArduinoIcon.png">
       <Filter>open-ephys\Resources\Images\Icons</Filter>
     </None>

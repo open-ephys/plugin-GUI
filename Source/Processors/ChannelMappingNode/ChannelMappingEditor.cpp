@@ -70,6 +70,17 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
     addAndMakeVisible(downButton);
     downButton->setVisible(false);
 
+    loadButton = new LoadButton();
+    loadButton->addListener(this);
+    loadButton->setBounds(325,5,15,15);
+    addAndMakeVisible(loadButton);
+
+    saveButton = new SaveButton();
+    saveButton->addListener(this);
+    saveButton->setBounds(305,5,15,15);
+    addAndMakeVisible(saveButton);
+
+
 
     //    channelSelector->setRadioStatus(true);
 
@@ -259,6 +270,11 @@ void ChannelMappingEditor::buttonEvent(Button* button)
     }
     else if (button == resetButton)
     {
+		if (acquisitionIsActive)
+		{
+			sendActionMessage("Cannot change channel order while acquiring");
+			return;
+		}
         createElectrodeButtons(getProcessor()->getNumInputs());
         previousChannelCount = getProcessor()->getNumInputs();
         setConfigured(false);
@@ -266,6 +282,12 @@ void ChannelMappingEditor::buttonEvent(Button* button)
     }
     else if (button == modifyButton)
     {
+		if (acquisitionIsActive)
+		{
+			sendActionMessage("Cannot change channel order while acquiring");
+			button->setToggleState(false,dontSendNotification);
+			return;
+		}
         if (reorderActive)
         {
             channelSelector->activateButtons();
@@ -515,6 +537,51 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 
         refreshButtonLocations();
     
+    } else if (button == saveButton)
+    {
+        //std::cout << "Save button clicked." << std::endl;
+
+        if (!acquisitionIsActive)
+        {
+            FileChooser fc("Choose the file name...",
+                               File::getCurrentWorkingDirectory(),
+                               "*",
+                               true);
+
+            if (fc.browseForFileToSave(true))
+            {
+                File fileToSave = fc.getResult();
+                std::cout << fileToSave.getFileName() << std::endl;
+                sendActionMessage(writePrbFile(fileToSave));
+            }
+        } else {
+            sendActionMessage("Stop acquisition before saving the channel map.");
+        }
+
+        
+
+    } else if (button == loadButton)
+    {
+        //std::cout << "Load button clicked." << std::endl;
+
+        if (!acquisitionIsActive)
+        {
+            FileChooser fc("Choose a file to load...",
+                               File::getCurrentWorkingDirectory(),
+                               "*",
+                               true);
+
+            if (fc.browseForFileToOpen())
+            {
+                if (reorderActive)
+                    modifyButton->setToggleState(false,sendNotificationSync);
+                File fileToOpen = fc.getResult();
+                std::cout << fileToOpen.getFileName() << std::endl;
+                sendActionMessage(loadPrbFile(fileToOpen));
+            }
+        } else {
+            sendActionMessage("Stop acquisition before saving the channel map.");
+        }
     }
 }
 
@@ -864,3 +931,139 @@ void ChannelMappingEditor::setConfigured(bool state)
     getProcessor()->setParameter(4,state?1:0);
 }
 
+void ChannelMappingEditor::startAcquisition()
+{
+	if (reorderActive)
+		modifyButton->setToggleState(false,sendNotificationSync);
+	GenericEditor::startAcquisition();
+}
+
+String ChannelMappingEditor::writePrbFile(File filename)
+{
+
+    FileOutputStream outputStream(filename);
+	outputStream.setPosition(0);
+	outputStream.truncate();
+    //outputStream.writeString("channel_groups = ");
+
+    info = new DynamicObject();
+
+    DynamicObject* nestedObj = new DynamicObject();
+    Array<var> arr;
+    for (int i = 0; i < channelArray.size(); i++)
+    {
+        arr.add(var(channelArray[i]));
+    }
+    nestedObj->setProperty("mapping", var(arr));
+    
+    Array<var> arr2;
+    for (int i = 0; i < referenceArray.size(); i++)
+    {
+        arr2.add(var(referenceArray[channelArray[i]-1]));
+    }
+    nestedObj->setProperty("reference", var(arr2));
+
+    Array<var> arr3;
+    for (int i = 0; i < enabledChannelArray.size(); i++)
+    {
+        arr3.add(var(enabledChannelArray[channelArray[i]-1]));
+    }
+    nestedObj->setProperty("enabled", var(arr3));
+
+    info->setProperty("0", nestedObj);
+
+    DynamicObject* nestedObj2 = new DynamicObject();
+    Array<var> arr4;
+    for (int i = 0; i < referenceChannels.size(); i++)
+    {
+        arr4.add(var(referenceChannels[i]));
+    }
+    nestedObj2->setProperty("channels", var(arr4));
+
+    info->setProperty("refs", nestedObj2);
+
+    info->writeAsJSON(outputStream, 2, false);
+
+    return "Saved " + filename.getFileName();
+
+}
+
+String ChannelMappingEditor::loadPrbFile(File filename)
+{
+    FileInputStream inputStream(filename);
+
+    var json = JSON::parse(inputStream);
+
+    var returnVal = -255;
+
+    var channelGroup = json.getProperty(Identifier("0"), returnVal);
+
+    if (channelGroup.equalsWithSameType(returnVal))
+    {
+        return "Not a valid .prb file.";
+    }
+
+    var mapping = channelGroup[Identifier("mapping")];
+    Array<var>* map = mapping.getArray();
+
+    var reference = channelGroup[Identifier("reference")];
+    Array<var>* ref = reference.getArray();
+
+    var enabled = channelGroup[Identifier("enabled")];
+    Array<var>* enbl = enabled.getArray();
+
+    std::cout << "We found this many: " << map->size() << std::endl;
+
+    for (int i = 0; i < map->size(); i++)
+    {
+        int ch = map->getUnchecked(i); 
+        channelArray.set(i, ch);
+
+        int rf = ref->getUnchecked(i);
+        referenceArray.set(ch-1, rf);
+
+        bool en = enbl->getUnchecked(i);
+        enabledChannelArray.set(ch-1, en);
+
+        electrodeButtons[i]->setChannelNum(ch);
+        electrodeButtons[i]->setEnabled(en);
+		
+		getProcessor()->setCurrentChannel(i);
+		getProcessor()->setParameter(0,ch-1);
+		getProcessor()->setCurrentChannel(ch-1);
+		getProcessor()->setParameter(1, rf);
+		getProcessor()->setParameter(3, en ? 1 : 0);
+    }
+
+    var refChans = json[Identifier("refs")];
+    var channels = refChans[Identifier("channels")];
+    Array<var>* chans = channels.getArray();
+
+    for (int i = 0; i < chans->size(); i++)
+    {
+        int ch = chans->getUnchecked(i);
+        referenceChannels.set(i,ch);
+        getProcessor()->setCurrentChannel(ch);
+        getProcessor()->setParameter(2,i);
+    }
+
+    referenceButtons[0]->setToggleState(true, sendNotificationSync);
+
+    for (int i = 0; i < electrodeButtons.size(); i++)
+    {
+        if (referenceArray[electrodeButtons[i]->getChannelNum()-1] == 0)
+        {
+            electrodeButtons[i]->setToggleState(true, dontSendNotification);
+        }
+        else
+        {
+            electrodeButtons[i]->setToggleState(false, dontSendNotification);
+        }
+    }
+
+	setConfigured(true);
+	getEditorViewport()->makeEditorVisible(this, false, true);
+
+    return "Loaded " + filename.getFileName();
+
+}

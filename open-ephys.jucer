@@ -15,9 +15,11 @@
                extraLinkerFlags="-lhdf5 -lhdf5_cpp" objCExtraSuffix="fea2mT">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
-                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
+                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"
+                       headerPath="/opt/local/include" libraryPath="/opt/local/lib"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
-                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
+                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"
+                       headerPath="/opt/local/include" libraryPath="/opt/local/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>
@@ -106,15 +108,13 @@
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\Debug\bin"
-                       headerPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\include&#10;../../Resources/Google Protocols/src&#10;"
-                       libraryPath="../../Resources/ZeroMQ/lib_x86&#10;../../Resources/Google Protocols/vsprojects/Debug&#10;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\lib"
-                       wholeProgramOptimisation="1" postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;"
+                       headerPath="../../Resources/windows-libs/HDF5/include" libraryPath="../../Resources/windows-libs/HDF5/lib/x86"
+                       wholeProgramOptimisation="1" postbuildCommand="copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;"
                        fastMath="1"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\Release\bin"
-                       headerPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\include&#10;../../Resources/Google Protocols/src"
-                       libraryPath="$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\lib&#10;../../Resources/ZeroMQ/lib_x86&#10;../../Resources/Google Protocols/vsprojects/Release"
-                       postbuildCommand="call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;"
+                       headerPath="../../Resources/windows-libs/HDF5/include" libraryPath="../../Resources/windows-libs/HDF5/lib/x86"
+                       postbuildCommand="copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;"
                        fastMath="1"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
@@ -173,6 +173,8 @@
       </GROUP>
       <GROUP id="W2L6BdA" name="Images">
         <GROUP id="Gu1BsKu" name="Icons">
+          <FILE id="ylHUNo" name="floppy5.png" compile="0" resource="1" file="Resources/Images/Icons/floppy5.png"/>
+          <FILE id="YXL6G8" name="upload2.png" compile="0" resource="1" file="Resources/Images/Icons/upload2.png"/>
           <FILE id="Ke1Tihu" name="ArduinoIcon.png" compile="0" resource="1"
                 file="Resources/Images/Icons/ArduinoIcon.png"/>
           <FILE id="zPy0mgT" name="OpenEphysBoardLogoBlack.png" compile="0" resource="1"

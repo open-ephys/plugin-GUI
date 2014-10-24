@@ -34,19 +34,21 @@
 #define okLIB_NAME "./libokFrontPanel.so"
 #define okLIB_EXTENSION "*.so"
 #endif
-
+#define CHIP_ID_RHD2164_B  1000
 
 // Allocates memory for a 3-D array of doubles.
-void allocateDoubleArray3D(std::vector<std::vector<std::vector<double> > > &array3D,
-                                            int xSize, int ySize, int zSize)
+void allocateDoubleArray3D(std::vector<std::vector<std::vector<double> > >& array3D,
+                           int xSize, int ySize, int zSize)
 {
     int i, j;
 
     if (xSize == 0) return;
     array3D.resize(xSize);
-    for (i = 0; i < xSize; ++i) {
+    for (i = 0; i < xSize; ++i)
+    {
         array3D[i].resize(ySize);
-        for (j = 0; j < ySize; ++j) {
+        for (j = 0; j < ySize; ++j)
+        {
             array3D[i][j].resize(zSize);
         }
     }
@@ -81,25 +83,25 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     // Returns 1 if successful, -1 if FrontPanel cannot be loaded, and -2 if XEM6010 can't be found.
     File executable = File::getSpecialLocation(File::currentExecutableFile);
 
-    #if defined(__APPLE__)
-        const String executableDirectory =
-            executable.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
-    #else
-       const String executableDirectory = executable.getParentDirectory().getFullPathName();
-    
+#if defined(__APPLE__)
+    const String executableDirectory =
+        executable.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
+#else
+    const String executableDirectory = executable.getParentDirectory().getFullPathName();
 
-    #endif
-    
+
+#endif
+
     std::cout << executableDirectory << std::endl;
-    
+
 
     String dirName = executableDirectory;
     libraryFilePath = dirName;
     libraryFilePath += File::separatorString;
     libraryFilePath += okLIB_NAME;
-    
+
     dacStream = nullptr;
-	dacChannels = nullptr;
+    dacChannels = nullptr;
     dacThresholds = nullptr;
     dacChannelsToUpdate = nullptr;
     if (openBoard(libraryFilePath))
@@ -111,23 +113,23 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
         // automatically find connected headstages
         scanPorts(); // things would appear to run more smoothly if this were done after the editor has been created
 
-            // to perform electrode impedance measurements at very low frequencies.
+        // to perform electrode impedance measurements at very low frequencies.
         const int maxNumBlocks = 120;
         int numStreams = 8;
         allocateDoubleArray3D(amplifierPreFilter, numStreams, 32, SAMPLES_PER_DATA_BLOCK * maxNumBlocks);
 
         // probably better to do this with a thread, but a timer works for now:
-       // startTimer(10); // initialize the board in the background
-       dacStream = new int[8];
-       dacChannels = new int[8];
-       dacThresholds = new float[8];
-       dacChannelsToUpdate = new bool[8];
-       for (int k = 0; k < 8; k++)
-       {
+        // startTimer(10); // initialize the board in the background
+        dacStream = new int[8];
+        dacChannels = new int[8];
+        dacThresholds = new float[8];
+        dacChannelsToUpdate = new bool[8];
+        for (int k = 0; k < 8; k++)
+        {
             dacChannelsToUpdate[k] = true;
             dacStream[k] = 0;
             setDACthreshold(k, 65534);
-       }
+        }
 
         evalBoard->getDacInformation(dacChannels,dacThresholds);
         setDefaultChannelNamesAndType();
@@ -170,7 +172,7 @@ void RHD2000Thread::setDACthreshold(int dacOutput, float threshold)
     dacChannelsToUpdate[dacOutput] = true;
     dacOutputShouldChange = true;
 
-//  evalBoard->setDacThresholdVoltage(dacOutput,threshold);
+    //  evalBoard->setDacThresholdVoltage(dacOutput,threshold);
 }
 
 void RHD2000Thread::setDACchannel(int dacOutput, int stream, int channel)
@@ -202,17 +204,17 @@ bool RHD2000Thread::openBoard(String pathToLibrary)
     }
     else if (return_code == -1) // dynamic library not found
     {
-        bool response = AlertWindow::showOkCancelBox (AlertWindow::NoIcon,
-                                   "Opal Kelly library not found.",
-                                    "The Opal Kelly library file was not found in the directory of the executable. Would you like to browse for it?",
-                                     "Yes", "No", 0, 0);
+        bool response = AlertWindow::showOkCancelBox(AlertWindow::NoIcon,
+                                                     "Opal Kelly library not found.",
+                                                     "The Opal Kelly library file was not found in the directory of the executable. Would you like to browse for it?",
+                                                     "Yes", "No", 0, 0);
         if (response)
         {
             // browse for file
             FileChooser fc("Select the library file...",
-                               File::getCurrentWorkingDirectory(),
-                               okLIB_EXTENSION,
-                               true);
+                           File::getCurrentWorkingDirectory(),
+                           okLIB_EXTENSION,
+                           true);
 
             if (fc.browseForFileToOpen())
             {
@@ -226,20 +228,25 @@ bool RHD2000Thread::openBoard(String pathToLibrary)
                 deviceFound = false;
             }
 
-        } else {
+        }
+        else
+        {
             deviceFound = false;
         }
-    } else if (return_code == -2) // board could not be opened
+    }
+    else if (return_code == -2)   // board could not be opened
     {
-        bool response = AlertWindow::showOkCancelBox (AlertWindow::NoIcon,
-                                   "Acquisition board not found.",
-                                    "An acquisition board could not be found. Please connect one now.",
-                                     "OK", "Cancel", 0, 0);
-    
+        bool response = AlertWindow::showOkCancelBox(AlertWindow::NoIcon,
+                                                     "Acquisition board not found.",
+                                                     "An acquisition board could not be found. Please connect one now.",
+                                                     "OK", "Cancel", 0, 0);
+
         if (response)
         {
             openBoard(libraryFilePath.getCharPointer()); // call recursively
-        } else {
+        }
+        else
+        {
             deviceFound = false;
         }
 
@@ -251,24 +258,24 @@ bool RHD2000Thread::openBoard(String pathToLibrary)
 
 bool RHD2000Thread::uploadBitfile(String bitfilename)
 {
-    
+
     deviceFound = true;
-    
+
     if (!evalBoard->uploadFpgaBitfile(bitfilename.toStdString()))
     {
         std::cout << "Couldn't upload bitfile from " << bitfilename << std::endl;
-        
-        bool response = AlertWindow::showOkCancelBox (AlertWindow::NoIcon,
-                                   "FPGA bitfile not found.",
-                                    "The rhd2000.bit file was not found in the directory of the executable. Would you like to browse for it?",
-                                     "Yes", "No", 0, 0);
+
+        bool response = AlertWindow::showOkCancelBox(AlertWindow::NoIcon,
+                                                     "FPGA bitfile not found.",
+                                                     "The rhd2000.bit file was not found in the directory of the executable. Would you like to browse for it?",
+                                                     "Yes", "No", 0, 0);
         if (response)
         {
             // browse for file
             FileChooser fc("Select the FPGA bitfile...",
-                               File::getCurrentWorkingDirectory(),
-                               "*.bit",
-                               true);
+                           File::getCurrentWorkingDirectory(),
+                           "*.bit",
+                           true);
 
             if (fc.browseForFileToOpen())
             {
@@ -282,12 +289,14 @@ bool RHD2000Thread::uploadBitfile(String bitfilename)
                 deviceFound = false;
             }
 
-        } else {
+        }
+        else
+        {
             deviceFound = false;
         }
 
     }
-    
+
     return deviceFound;
 
 }
@@ -298,12 +307,12 @@ void RHD2000Thread::initializeBoard()
 
     File executable = File::getSpecialLocation(File::currentExecutableFile);
 
-    #if defined(__APPLE__)
-    const String executableDirectory = 
-            executable.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
-    #else
-       const String executableDirectory = executable.getParentDirectory().getFullPathName();
-    #endif
+#if defined(__APPLE__)
+    const String executableDirectory =
+        executable.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
+#else
+    const String executableDirectory = executable.getParentDirectory().getFullPathName();
+#endif
 
     bitfilename = executableDirectory;
     bitfilename += File::separatorString;
@@ -354,7 +363,7 @@ void RHD2000Thread::initializeBoard()
     Rhd2000DataBlock* dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
 
 
-   // evalBoard->readDataBlock(dataBlock);
+    // evalBoard->readDataBlock(dataBlock);
 
     // Now that ADC calibration has been performed, we switch to the command sequence
     // that does not execute ADC calibration.
@@ -386,21 +395,44 @@ void RHD2000Thread::scanPorts()
 
     int delay, stream, id;
     //int numChannelsOnPort[4] = {0, 0, 0, 0};
-   
+    Rhd2000EvalBoard::BoardDataSource initStreamPorts[8] =
+    {
+        Rhd2000EvalBoard::PortA1,
+        Rhd2000EvalBoard::PortA2,
+        Rhd2000EvalBoard::PortB1,
+        Rhd2000EvalBoard::PortB2,
+        Rhd2000EvalBoard::PortC1,
+        Rhd2000EvalBoard::PortC2,
+        Rhd2000EvalBoard::PortD1,
+        Rhd2000EvalBoard::PortD2
+    };
+
+    Rhd2000EvalBoard::BoardDataSource initStreamDdrPorts[8] =
+    {
+        Rhd2000EvalBoard::PortA1Ddr,
+        Rhd2000EvalBoard::PortA2Ddr,
+        Rhd2000EvalBoard::PortB1Ddr,
+        Rhd2000EvalBoard::PortB2Ddr,
+        Rhd2000EvalBoard::PortC1Ddr,
+        Rhd2000EvalBoard::PortC2Ddr,
+        Rhd2000EvalBoard::PortD1Ddr,
+        Rhd2000EvalBoard::PortD2Ddr
+    };
+
     chipId.insertMultiple(0,-1,8);
 
     setSampleRate(16, true); // set to 30 kHz temporarily
 
     // Enable all data streams, and set sources to cover one or two chips
     // on Ports A-D.
-    evalBoard->setDataSource(0, Rhd2000EvalBoard::PortA1);
-    evalBoard->setDataSource(1, Rhd2000EvalBoard::PortA2);
-    evalBoard->setDataSource(2, Rhd2000EvalBoard::PortB1);
-    evalBoard->setDataSource(3, Rhd2000EvalBoard::PortB2);
-    evalBoard->setDataSource(4, Rhd2000EvalBoard::PortC1);
-    evalBoard->setDataSource(5, Rhd2000EvalBoard::PortC2);
-    evalBoard->setDataSource(6, Rhd2000EvalBoard::PortD1);
-    evalBoard->setDataSource(7, Rhd2000EvalBoard::PortD2);
+    evalBoard->setDataSource(0, initStreamPorts[0]);
+    evalBoard->setDataSource(1, initStreamPorts[1]);
+    evalBoard->setDataSource(2, initStreamPorts[2]);
+    evalBoard->setDataSource(3, initStreamPorts[3]);
+    evalBoard->setDataSource(4, initStreamPorts[4]);
+    evalBoard->setDataSource(5, initStreamPorts[5]);
+    evalBoard->setDataSource(6, initStreamPorts[6]);
+    evalBoard->setDataSource(7, initStreamPorts[7]);
 
     evalBoard->enableDataStream(0, true);
     evalBoard->enableDataStream(1, true);
@@ -506,7 +538,18 @@ void RHD2000Thread::scanPorts()
         if (chipId[stream] > 0)
         {
             //std::cout << "Enabling headstage on stream " << stream << std::endl;
-            enableHeadstage(stream, true);
+            if (chipId[stream] == 4) //RHD2164
+            {
+                //We just add it like a second headstage, allowing only one RHD2164 per channel
+                //This would need to change
+                evalBoard->setDataSource(stream+1,initStreamDdrPorts[stream]);
+                enableHeadstage(stream,true);
+                enableHeadstage(stream+1,true);
+                chipId.set(stream+1,CHIP_ID_RHD2164_B);
+                stream++;
+            }
+            else
+                enableHeadstage(stream, true);
         }
         else
         {
@@ -606,20 +649,20 @@ int RHD2000Thread::getNumADCchannels()
 {
     if (acquireAdcChannels)
         return 8;
-    else 
+    else
         return 0;
 }
 
-void RHD2000Thread::getEventChannelNames(StringArray &Names)
+void RHD2000Thread::getEventChannelNames(StringArray& Names)
 {
     Names.clear();
-    for (int k=0;k<8;k++)
+    for (int k=0; k<8; k++)
     {
         Names.add("TTL"+String(k+1));
     }
 }
 
-void RHD2000Thread::getChannelsInfo(StringArray &Names_, Array<channelType> &type_, Array<int> &stream_, Array<int> &originalChannelNumber_,Array<float> &gains_)
+void RHD2000Thread::getChannelsInfo(StringArray& Names_, Array<channelType>& type_, Array<int>& stream_, Array<int>& originalChannelNumber_,Array<float>& gains_)
 {
     Names_ = Names;
     type_ = type;
@@ -631,15 +674,21 @@ void RHD2000Thread::getChannelsInfo(StringArray &Names_, Array<channelType> &typ
 void RHD2000Thread::updateChannelNames()
 {
     setDefaultChannelNamesAndType();
+	for (int i=0; i < sn->channels.size(); i++)
+	{
+		sn->channels[i]->setName(Names[i]);
+		sn->channels[i]->setGain(gains[i]);
+		sn->channels[i]->setType(type[i]);
+	}
 }
 
 /* go over the old names and tests whether this particular channel name was changed.
 if so, return the old name */
-bool RHD2000Thread::channelModified(channelType t, int str, int ch, String &oldName, float &oldGain, int &index)
+bool RHD2000Thread::channelModified(channelType t, int str, int ch, String& oldName, float& oldGain, int& index)
 {
-    for (int k=0;k<oldNames.size();k++)
+    for (int k=0; k<oldNames.size(); k++)
     {
-        if (oldType[k] == t && oldStream[k] == str && oldChannelNumber[k] == ch) 
+        if (oldType[k] == t && oldStream[k] == str && oldChannelNumber[k] == ch)
         {
             oldName = oldNames[k];
             oldGain = oldGains[k];
@@ -654,23 +703,27 @@ bool RHD2000Thread::channelModified(channelType t, int str, int ch, String &oldN
 int RHD2000Thread::modifyChannelName(channelType t, int str, int ch, String newName)
 {
     String dummy;
-    float dummyFloat;
+    float dummyFloat=0;
     int index;
     if (channelModified(t, str, ch, dummy, dummyFloat, index))
     {
         oldNames.set(index, newName);
-    } else 
+    }
+    else
     {
         oldNames.add(newName);
         oldType.add(t);
         oldStream.add(str);
         oldChannelNumber.add(ch);
-        oldGains.add(dummyFloat);
+		if (t == ADC_CHANNEL)
+			oldGains.add(gains[getNumChannels()-getNumADCchannels()+ch]);
+		else
+			oldGains.add(gains[ch]);
     }
 
-    for (int k=0;k<Names.size();k++)
+    for (int k=0; k<Names.size(); k++)
     {
-        if (type[k] == t && stream[k] == str && originalChannelNumber[k] == ch) 
+        if (type[k] == t && stream[k] == str && originalChannelNumber[k] == ch)
         {
             Names.set(k,newName);
             return k;
@@ -682,23 +735,27 @@ int RHD2000Thread::modifyChannelName(channelType t, int str, int ch, String newN
 int RHD2000Thread::modifyChannelGain(channelType t, int str, int ch, float gain)
 {
     String dummy;
-    float dummyFloat;
+    float dummyFloat=0;
     int index;
     if (channelModified(t, str, ch, dummy, dummyFloat, index))
     {
         oldGains.set(index, gain);
-    } else 
+    }
+    else
     {
-        oldNames.add(dummy);
+		if (t == ADC_CHANNEL)
+			oldNames.add(Names[getNumChannels()-getNumADCchannels()+ch]);
+		else
+			oldNames.add(Names[ch]);
         oldType.add(t);
         oldStream.add(str);
         oldChannelNumber.add(ch);
         oldGains.add(gain);
     }
 
-    for (int k=0;k<Names.size();k++)
+    for (int k=0; k<Names.size(); k++)
     {
-        if (type[k] == t && stream[k] == str && originalChannelNumber[k] == ch) 
+        if (type[k] == t && stream[k] == str && originalChannelNumber[k] == ch)
         {
             gains.set(k,gain);
             return k;
@@ -727,82 +784,92 @@ void RHD2000Thread::setDefaultChannelNamesAndType()
     stream.clear();
     gains.clear();
     originalChannelNumber.clear();
-   int aux_counter=1;
-   int data_counter = 1;
-   String oldName;
-   int dummy;
-   float oldGain;
-   StringArray stream_prefix;
-   stream_prefix.add("A1");stream_prefix.add("A2");
-   stream_prefix.add("B1");stream_prefix.add("B2");
-   stream_prefix.add("C1");stream_prefix.add("C2");
-   stream_prefix.add("D1");stream_prefix.add("D2");
+    int aux_counter=1;
+    int data_counter = 1;
+    String oldName;
+    int dummy;
+    float oldGain;
+    StringArray stream_prefix;
+    stream_prefix.add("A1");
+    stream_prefix.add("A2");
+    stream_prefix.add("B1");
+    stream_prefix.add("B2");
+    stream_prefix.add("C1");
+    stream_prefix.add("C2");
+    stream_prefix.add("D1");
+    stream_prefix.add("D2");
     for (int i = 0; i < MAX_NUM_DATA_STREAMS; i++)
     {
         if (numChannelsPerDataStream[i] > 0)
         {
-            for  (int k=0;k<numChannelsPerDataStream[i];k++)
+            for (int k=0; k<numChannelsPerDataStream[i]; k++)
             {
-                if (channelModified(DATA_CHANNEL,i,k, oldName,oldGain,dummy)) {
+                if (channelModified(DATA_CHANNEL,i,k, oldName,oldGain,dummy))
+                {
                     Names.add(oldName);
                     gains.add(oldGain);
                     data_counter++;
-                } else
+                }
+                else
                 {
                     if (numberingScheme == 1)
                         Names.add("CH"+String(data_counter++));
-                    else 
+                    else
                         Names.add("CH_"+stream_prefix[i]+"_"+String(1+k));
 
-                    gains.add(getBitVolts());
+                    gains.add(getBitVolts(0)); // assume channel zero is a continuous channel
                 }
-                
+
                 type.add(DATA_CHANNEL);
                 stream.add(i);
                 originalChannelNumber.add(k);
-                
+
             }
-            for  (int k=0;k<3;k++)
+            for (int k=0; k<3; k++)
             {
-                if (channelModified(AUX_CHANNEL,i,numChannelsPerDataStream[i]+k, oldName,oldGain, dummy)) {
+                if (channelModified(AUX_CHANNEL,i,numChannelsPerDataStream[i]+k, oldName,oldGain, dummy))
+                {
                     Names.add(oldName);
                     gains.add(oldGain);
 
                     aux_counter++;
-                } else 
+                }
+                else
                 {
                     if (numberingScheme == 1)
                         Names.add("AUX"+String(aux_counter++));
                     else
                         Names.add("AUX_"+stream_prefix[i]+"_"+String(1+k));
 
-                    gains.add(getBitVolts());
+                    gains.add(getBitVolts(0));
 
                 }
                 type.add(AUX_CHANNEL);
                 stream.add(i);
                 originalChannelNumber.add(numChannelsPerDataStream[i]+k);
-                
+
             }
         }
     }
 
     if (acquireAdcChannels)
     {
-        for (int k=0;k<8;k++)
+        for (int k=0; k<8; k++)
         {
-            if (channelModified(ADC_CHANNEL,MAX_NUM_DATA_STREAMS,k, oldName,oldGain,dummy)) {
+			if (channelModified(ADC_CHANNEL,MAX_NUM_DATA_STREAMS,k, oldName,oldGain,dummy))
+            {
                 Names.add(oldName);
                 gains.add(oldGain);
-            } else
+            }
+            else
             {
                 Names.add("ADC"+String(k+1));
-                gains.add(getBitVolts());
+                gains.add(getBitVolts(gains.size()-1));
             }
-                type.add(ADC_CHANNEL);
-                stream.add(MAX_NUM_DATA_STREAMS);
-                originalChannelNumber.add(k);
-                
+            type.add(ADC_CHANNEL);
+            stream.add(MAX_NUM_DATA_STREAMS);
+            originalChannelNumber.add(k);
+
         }
     }
 
@@ -843,9 +910,12 @@ float RHD2000Thread::getSampleRate()
     return evalBoard->getSampleRate();
 }
 
-float RHD2000Thread::getBitVolts()
+float RHD2000Thread::getBitVolts(int chan)
 {
-    return 0.195f;
+	if (type[chan] == ADC_CHANNEL)
+		return 0.00015258789f;
+	else
+		return 0.195f;
 }
 
 double RHD2000Thread::setUpperBandwidth(double upper)
@@ -858,6 +928,7 @@ double RHD2000Thread::setUpperBandwidth(double upper)
     return actualUpperBandwidth;
 }
 
+
 double RHD2000Thread::setLowerBandwidth(double lower)
 {
     desiredLowerBandwidth = lower;
@@ -867,11 +938,33 @@ double RHD2000Thread::setLowerBandwidth(double lower)
     return actualLowerBandwidth;
 }
 
+double RHD2000Thread::setDspCutoffFreq(double freq)
+{
+
+    desiredDspCutoffFreq = freq;
+
+    updateRegisters();
+
+    return actualDspCutoffFreq;
+}
+
+double RHD2000Thread::getDspCutoffFreq()
+{
+
+    return actualDspCutoffFreq;
+}
+
+void RHD2000Thread::setDSPOffset(bool state)
+{
+    dspEnabled = state;
+    updateRegisters();
+}
+
 void RHD2000Thread::setTTLoutputMode(bool state)
 {
     ttlMode = state;
     dacOutputShouldChange = true;
-    
+
 }
 
 void RHD2000Thread::setDAChpf(float cutoff, bool enabled)
@@ -892,13 +985,13 @@ int RHD2000Thread::setNoiseSlicerLevel(int level)
 {
 
     desiredNoiseSlicerLevel = level;
-	if (deviceFound)
-		evalBoard->setAudioNoiseSuppress(desiredNoiseSlicerLevel);
+    if (deviceFound)
+        evalBoard->setAudioNoiseSuppress(desiredNoiseSlicerLevel);
 
     // Level has been checked once before this and then is checked again in setAudioNoiseSuppress.
     // This may be overkill - maybe API should change so that the final function returns the value?
     actualNoiseSlicerLevel = level;
-    
+
     return actualNoiseSlicerLevel;
 }
 
@@ -1142,9 +1235,11 @@ void RHD2000Thread::updateRegisters()
     // Before generating register configuration command sequences, set amplifier
     // bandwidth paramters.
     actualDspCutoffFreq = chipRegisters.setDspCutoffFreq(desiredDspCutoffFreq);
+    //std::cout << "DSP Cutoff Frequency " << actualDspCutoffFreq << std::endl;
     actualLowerBandwidth = chipRegisters.setLowerBandwidth(desiredLowerBandwidth);
     actualUpperBandwidth = chipRegisters.setUpperBandwidth(desiredUpperBandwidth);
     chipRegisters.enableDsp(dspEnabled);
+    //std::cout << "DSP Offset Status " << dspEnabled << std::endl;
 
     // turn on aux inputs
     chipRegisters.enableAux1(true);
@@ -1163,9 +1258,9 @@ void RHD2000Thread::updateRegisters()
     evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0,
                                       commandSequenceLength - 1);
 
-    
+
     chipRegisters.setFastSettle(true);
-    
+
     commandSequenceLength = chipRegisters.createCommandListRegisterConfig(commandList, false);
     // Upload version with fast settle enabled to AuxCmd3 RAM Bank 2.
     evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 2);
@@ -1225,13 +1320,13 @@ bool RHD2000Thread::startAcquisition()
 
     //std::cout << "Setting max timestep." << std::endl;
     //evalBoard->setMaxTimeStep(100);
-    
+
 
     std::cout << "Starting acquisition." << std::endl;
     if (1)
     {
-       // evalBoard->setContinuousRunMode(false);
-      //  evalBoard->setMaxTimeStep(0);
+        // evalBoard->setContinuousRunMode(false);
+        //  evalBoard->setMaxTimeStep(0);
         std::cout << "Flushing FIFO." << std::endl;
         evalBoard->flush();
         evalBoard->setContinuousRunMode(true);
@@ -1275,14 +1370,14 @@ bool RHD2000Thread::stopAcquisition()
         evalBoard->setMaxTimeStep(0);
         std::cout << "Flushing FIFO." << std::endl;
         evalBoard->flush();
-     //   evalBoard->setContinuousRunMode(true);
-     //   evalBoard->run();
+        //   evalBoard->setContinuousRunMode(true);
+        //   evalBoard->run();
 
     }
 
     dataBuffer->clear();
 
-    if(deviceFound)
+    if (deviceFound)
     {
         cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
 
@@ -1324,9 +1419,9 @@ bool RHD2000Thread::updateBuffer()
 
                     for (int chan = 0; chan < numChannelsPerDataStream[dataStream]; chan++)
                     {
-                        
-                      //  std::cout << "reading sample stream " << streamNumber << " chan " << chan << " sample "<< samp << std::endl;
-                        
+
+                        //  std::cout << "reading sample stream " << streamNumber << " chan " << chan << " sample "<< samp << std::endl;
+
                         channel++;
 
                         int value = dataBlock->amplifierData[streamNumber][chan][samp];
@@ -1350,19 +1445,19 @@ bool RHD2000Thread::updateBuffer()
                     if (samp % 4 == 1)   // every 4th sample should have auxiliary input data
                     {
 
-                       // std::cout << "reading sample stream " << streamNumber << " aux ADCs " << std::endl;
+                        // std::cout << "reading sample stream " << streamNumber << " aux ADCs " << std::endl;
 
                         channel++;
                         thisSample[channel] = 0.0374 *
                                               float(dataBlock->auxiliaryData[streamNumber][1][samp+0] - 45000.0f) ;
-                                              // constant offset keeps the values visible in the LFP Viewer
+                        // constant offset keeps the values visible in the LFP Viewer
 
                         auxBuffer[channel] = thisSample[channel];
 
                         channel++;
                         thisSample[channel] = 0.0374 *
                                               float(dataBlock->auxiliaryData[streamNumber][1][samp+1] - 45000.0f) ;
-                                              // constant offset keeps the values visible in the LFP Viewer
+                        // constant offset keeps the values visible in the LFP Viewer
 
                         auxBuffer[channel] = thisSample[channel];
 
@@ -1370,7 +1465,7 @@ bool RHD2000Thread::updateBuffer()
                         channel++;
                         thisSample[channel] = 0.0374 *
                                               float(dataBlock->auxiliaryData[streamNumber][1][samp+2] - 45000.0f) ;
-                                              // constant offset keeps the values visible in the LFP Viewer
+                        // constant offset keeps the values visible in the LFP Viewer
 
                         auxBuffer[channel] = thisSample[channel];
 
@@ -1401,7 +1496,7 @@ bool RHD2000Thread::updateBuffer()
                     // ADC waveform units = volts
                     thisSample[channel] =
                         //0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
-                        0.050354 * float(dataBlock->boardAdcData[adcChan][samp]);
+                        0.00015258789 * float(dataBlock->boardAdcData[adcChan][samp]) - 5 - 0.42; // account for +/-5V input range and 0.42 V offset
                 }
             }
             // std::cout << channel << std::endl;
@@ -1419,7 +1514,7 @@ bool RHD2000Thread::updateBuffer()
 
     if (dacOutputShouldChange)
     {
-        for (int k=0;k<8;k++)
+        for (int k=0; k<8; k++)
         {
             if (dacChannelsToUpdate[k])
             {
@@ -1440,9 +1535,9 @@ bool RHD2000Thread::updateBuffer()
 
         evalBoard->setTtlMode(ttlMode);
         evalBoard->setFastSettleByTTL(fastTTLSettleEnabled);
-    evalBoard->setFastSettleByTTLchannel(fastSettleTTLChannel);
+        evalBoard->setFastSettleByTTLchannel(fastSettleTTLChannel);
         evalBoard->setDacHighpassFilter(desiredDAChpf);
-    evalBoard->enableDacHighpassFilter(desiredDAChpfState);
+        evalBoard->enableDacHighpassFilter(desiredDAChpfState);
 
         dacOutputShouldChange = false;
     }
@@ -1455,7 +1550,7 @@ bool RHD2000Thread::updateBuffer()
 
 /***********************************/
 /* Below is code for impedance measurements */
-#define CHIP_ID_RHD2164_B  1000
+
 
 
 
@@ -1463,7 +1558,7 @@ bool RHD2000Thread::updateBuffer()
 // requested test frequency lies within acceptable ranges based on the
 // amplifier bandwidth and the sampling rate.  See impedancefreqdialog.cpp
 // for more information.
-float RHD2000Thread::updateImpedanceFrequency(float desiredImpedanceFreq, bool &impedanceFreqValid)
+float RHD2000Thread::updateImpedanceFrequency(float desiredImpedanceFreq, bool& impedanceFreqValid)
 {
     int impedancePeriod;
     double lowerBandwidthLimit, upperBandwidthLimit;
@@ -1471,24 +1566,32 @@ float RHD2000Thread::updateImpedanceFrequency(float desiredImpedanceFreq, bool &
 
     upperBandwidthLimit = actualUpperBandwidth / 1.5;
     lowerBandwidthLimit = actualLowerBandwidth * 1.5;
-    if (dspEnabled) {
-        if (actualDspCutoffFreq > actualLowerBandwidth) {
+    if (dspEnabled)
+    {
+        if (actualDspCutoffFreq > actualLowerBandwidth)
+        {
             lowerBandwidthLimit = actualDspCutoffFreq * 1.5;
         }
     }
 
-    if (desiredImpedanceFreq > 0.0) {
+    if (desiredImpedanceFreq > 0.0)
+    {
         impedancePeriod = (boardSampleRate / desiredImpedanceFreq);
         if (impedancePeriod >= 4 && impedancePeriod <= 1024 &&
-                desiredImpedanceFreq >= lowerBandwidthLimit &&
-                desiredImpedanceFreq <= upperBandwidthLimit) {
+            desiredImpedanceFreq >= lowerBandwidthLimit &&
+            desiredImpedanceFreq <= upperBandwidthLimit)
+        {
             actualImpedanceFreq = boardSampleRate / impedancePeriod;
             impedanceFreqValid = true;
-        } else {
+        }
+        else
+        {
             actualImpedanceFreq = 0.0;
             impedanceFreqValid = false;
         }
-    } else {
+    }
+    else
+    {
         actualImpedanceFreq = 0.0;
         impedanceFreqValid = false;
     }
@@ -1500,10 +1603,10 @@ float RHD2000Thread::updateImpedanceFrequency(float desiredImpedanceFreq, bool &
 // Reads numBlocks blocks of raw USB data stored in a queue of Rhd2000DataBlock
 // objects, loads this data into this SignalProcessor object, scaling the raw
 // data to generate waveforms with units of volts or microvolts.
-int RHD2000Thread::loadAmplifierData(queue<Rhd2000DataBlock> &dataQueue,
-                                       int numBlocks, int numDataStreams)
+int RHD2000Thread::loadAmplifierData(queue<Rhd2000DataBlock>& dataQueue,
+                                     int numBlocks, int numDataStreams)
 {
-    
+
     int block, t, channel, stream, i, j;
     int indexAmp = 0;
     int indexAux = 0;
@@ -1520,17 +1623,21 @@ int RHD2000Thread::loadAmplifierData(queue<Rhd2000DataBlock> &dataQueue,
     bool triggerFound = false;
     const double AnalogTriggerThreshold = 1.65;
 
-   
-    for (block = 0; block < numBlocks; ++block) {
+
+    for (block = 0; block < numBlocks; ++block)
+    {
 
         // Load and scale RHD2000 amplifier waveforms
         // (sampled at amplifier sampling rate)
-        for (t = 0; t < SAMPLES_PER_DATA_BLOCK; ++t) {
-            for (channel = 0; channel < 32; ++channel) {
-                for (stream = 0; stream < numDataStreams; ++stream) {
+        for (t = 0; t < SAMPLES_PER_DATA_BLOCK; ++t)
+        {
+            for (channel = 0; channel < 32; ++channel)
+            {
+                for (stream = 0; stream < numDataStreams; ++stream)
+                {
                     // Amplifier waveform units = microvolts
                     amplifierPreFilter[stream][channel][indexAmp] = 0.195 *
-                            (dataQueue.front().amplifierData[stream][channel][t] - 32768);
+                                                                    (dataQueue.front().amplifierData[stream][channel][t] - 32768);
                 }
             }
             ++indexAmp;
@@ -1539,7 +1646,7 @@ int RHD2000Thread::loadAmplifierData(queue<Rhd2000DataBlock> &dataQueue,
         dataQueue.pop();
     }
 
-        return 0;
+    return 0;
 }
 
 #define PI  3.14159265359
@@ -1549,17 +1656,18 @@ int RHD2000Thread::loadAmplifierData(queue<Rhd2000DataBlock> &dataQueue,
 
 // Return the magnitude and phase (in degrees) of a selected frequency component (in Hz)
 // for a selected amplifier channel on the selected USB data stream.
-void RHD2000Thread::measureComplexAmplitude(std::vector<std::vector<std::vector<double>>> &measuredMagnitude,
-                                            std::vector<std::vector<std::vector<double>>> &measuredPhase,
-                                              int capIndex, int stream, int chipChannel, int numBlocks,
-                                              double sampleRate, double frequency, int numPeriods)
+void RHD2000Thread::measureComplexAmplitude(std::vector<std::vector<std::vector<double>>>& measuredMagnitude,
+                                            std::vector<std::vector<std::vector<double>>>& measuredPhase,
+                                            int capIndex, int stream, int chipChannel, int numBlocks,
+                                            double sampleRate, double frequency, int numPeriods)
 {
     int period = (sampleRate / frequency);
     int startIndex = 0;
     int endIndex = startIndex + numPeriods * period - 1;
 
     // Move the measurement window to the end of the waveform to ignore start-up transient.
-    while (endIndex < SAMPLES_PER_DATA_BLOCK * numBlocks - period) {
+    while (endIndex < SAMPLES_PER_DATA_BLOCK * numBlocks - period)
+    {
         startIndex += period;
         endIndex += period;
     }
@@ -1571,16 +1679,16 @@ void RHD2000Thread::measureComplexAmplitude(std::vector<std::vector<std::vector<
                              startIndex, endIndex, sampleRate, frequency);
     // Calculate magnitude and phase from real (I) and imaginary (Q) components.
     measuredMagnitude[stream][chipChannel][capIndex] =
-            sqrt(iComponent * iComponent + qComponent * qComponent);
+        sqrt(iComponent * iComponent + qComponent * qComponent);
     measuredPhase[stream][chipChannel][capIndex] =
-            RADIANS_TO_DEGREES *atan2(qComponent, iComponent);
+        RADIANS_TO_DEGREES *atan2(qComponent, iComponent);
 }
 
 // Returns the real and imaginary amplitudes of a selected frequency component in the vector
 // data, between a start index and end index.
-void RHD2000Thread::amplitudeOfFreqComponent(double &realComponent, double &imagComponent,
-                                               const std::vector<double> &data, int startIndex,
-                                               int endIndex, double sampleRate, double frequency)
+void RHD2000Thread::amplitudeOfFreqComponent(double& realComponent, double& imagComponent,
+                                             const std::vector<double>& data, int startIndex,
+                                             int endIndex, double sampleRate, double frequency)
 {
     int length = endIndex - startIndex + 1;
     const double k = TWO_PI * frequency / sampleRate;  // precalculate for speed
@@ -1588,7 +1696,8 @@ void RHD2000Thread::amplitudeOfFreqComponent(double &realComponent, double &imag
     // Perform correlation with sine and cosine waveforms.
     double meanI = 0.0;
     double meanQ = 0.0;
-    for (int t = startIndex; t <= endIndex; ++t) {
+    for (int t = startIndex; t <= endIndex; ++t)
+    {
         meanI += data.at(t) * cos(k * t);
         meanQ += data.at(t) * -1.0 * sin(k * t);
     }
@@ -1605,8 +1714,8 @@ void RHD2000Thread::amplitudeOfFreqComponent(double &realComponent, double &imag
 // with a parasitic capacitance (i.e., due to the amplifier input capacitance and other
 // capacitances associated with the chip bondpads), this function factors out the effect of the
 // parasitic capacitance to return the acutal electrode impedance.
-void RHD2000Thread::factorOutParallelCapacitance(double &impedanceMagnitude, double &impedancePhase,
-                                              double frequency, double parasiticCapacitance)
+void RHD2000Thread::factorOutParallelCapacitance(double& impedanceMagnitude, double& impedancePhase,
+                                                 double frequency, double parasiticCapacitance)
 {
     // First, convert from polar coordinates to rectangular coordinates.
     double measuredR = impedanceMagnitude * cos(DEGREES_TO_RADIANS * impedancePhase);
@@ -1629,8 +1738,8 @@ void RHD2000Thread::factorOutParallelCapacitance(double &impedanceMagnitude, dou
 // 2-pole lowpass filter.  This function attempts to somewhat correct for this, but a better
 // solution is to always run impedance measurements at 20 kS/s, where they seem to be most
 // accurate.
-void RHD2000Thread::empiricalResistanceCorrection(double &impedanceMagnitude, double &impedancePhase,
-                                               double boardSampleRate)
+void RHD2000Thread::empiricalResistanceCorrection(double& impedanceMagnitude, double& impedancePhase,
+                                                  double boardSampleRate)
 {
     // First, convert from polar coordinates to rectangular coordinates.
     double impedanceR = impedanceMagnitude * cos(DEGREES_TO_RADIANS * impedancePhase);
@@ -1644,7 +1753,7 @@ void RHD2000Thread::empiricalResistanceCorrection(double &impedanceMagnitude, do
     impedancePhase = RADIANS_TO_DEGREES * atan2(impedanceX, impedanceR);
 }
 
-void RHD2000Thread::runImpedanceTest(Array<int> &streams, Array<int> &channels, Array<float> &magnitudes, Array<float> &phases)
+void RHD2000Thread::runImpedanceTest(Array<int>& streams, Array<int>& channels, Array<float>& magnitudes, Array<float>& phases)
 {
     int commandSequenceLength, stream, channel, capRange;
     double cSeries;
@@ -1652,17 +1761,19 @@ void RHD2000Thread::runImpedanceTest(Array<int> &streams, Array<int> &channels, 
     int triggerIndex;                       // dummy reference variable; not used
     queue<Rhd2000DataBlock> bufferQueue;    // dummy reference variable; not used
     int numdataStreams = evalBoard->getNumEnabledDataStreams();
-    
+
     bool rhd2164ChipPresent = false;
     Array<int> enabledStreams;
-    for (stream = 0; stream < MAX_NUM_DATA_STREAMS; ++stream) {
-        
+    for (stream = 0; stream < MAX_NUM_DATA_STREAMS; ++stream)
+    {
+
         if (evalBoard->isStreamEnabled(stream))
         {
             enabledStreams.add(stream);
         }
 
-        if (chipId[stream] == CHIP_ID_RHD2164_B) {
+        if (chipId[stream] == CHIP_ID_RHD2164_B)
+        {
             rhd2164ChipPresent = true;
         }
     }
@@ -1724,10 +1835,12 @@ void RHD2000Thread::runImpedanceTest(Array<int> &streams, Array<int> &channels, 
 
     measuredMagnitude.resize(evalBoard->getNumEnabledDataStreams());
     measuredPhase.resize(evalBoard->getNumEnabledDataStreams());
-    for (int i = 0; i < evalBoard->getNumEnabledDataStreams(); ++i) {
+    for (int i = 0; i < evalBoard->getNumEnabledDataStreams(); ++i)
+    {
         measuredMagnitude[i].resize(32);
         measuredPhase[i].resize(32);
-        for (int j = 0; j < 32; ++j) {
+        for (int j = 0; j < 32; ++j)
+        {
             measuredMagnitude[i][j].resize(3);
             measuredPhase[i][j].resize(3);
         }
@@ -1739,10 +1852,10 @@ void RHD2000Thread::runImpedanceTest(Array<int> &streams, Array<int> &channels, 
     double impedanceMagnitude, impedancePhase;
 
     const double bestAmplitude = 250.0;  // we favor voltage readings that are closest to 250 uV: not too large,
-                                         // and not too small.
+    // and not too small.
     const double dacVoltageAmplitude = 128 * (1.225 / 256);  // this assumes the DAC amplitude was set to 128
     const double parasiticCapacitance = 14.0e-12;  // 14 pF: an estimate of on-chip parasitic capacitance,
-                                                   // including 10 pF of amplifier input capacitance.
+    // including 10 pF of amplifier input capacitance.
     double relativeFreq = actualImpedanceFreq / boardSampleRate;
 
     int bestAmplitudeIndex;
@@ -1750,75 +1863,83 @@ void RHD2000Thread::runImpedanceTest(Array<int> &streams, Array<int> &channels, 
     // We execute three complete electrode impedance measurements: one each with
     // Cseries set to 0.1 pF, 1 pF, and 10 pF.  Then we select the best measurement
     // for each channel so that we achieve a wide impedance measurement range.
-    for (capRange = 0; capRange < 3; ++ capRange) 
+    for (capRange = 0; capRange < 3; ++ capRange)
     {
-        
 
-        switch (capRange) {
-        case 0:
-            chipRegisters.setZcheckScale(Rhd2000Registers::ZcheckCs100fF);
-            cSeries = 0.1e-12;
-            cout << "setting capacitance to 0.1pF"  << endl;
-            break;
-        case 1:
-            chipRegisters.setZcheckScale(Rhd2000Registers::ZcheckCs1pF);
-            cSeries = 1.0e-12;
-            cout << "setting capacitance to 1pF"  << endl;
-            break;
-        case 2:
-            chipRegisters.setZcheckScale(Rhd2000Registers::ZcheckCs10pF);
-            cSeries = 10.0e-12;
-            cout << "setting capacitance to 10pF"  << endl;
-            break;
+
+        switch (capRange)
+        {
+            case 0:
+                chipRegisters.setZcheckScale(Rhd2000Registers::ZcheckCs100fF);
+                cSeries = 0.1e-12;
+                cout << "setting capacitance to 0.1pF"  << endl;
+                break;
+            case 1:
+                chipRegisters.setZcheckScale(Rhd2000Registers::ZcheckCs1pF);
+                cSeries = 1.0e-12;
+                cout << "setting capacitance to 1pF"  << endl;
+                break;
+            case 2:
+                chipRegisters.setZcheckScale(Rhd2000Registers::ZcheckCs10pF);
+                cSeries = 10.0e-12;
+                cout << "setting capacitance to 10pF"  << endl;
+                break;
         }
 
         // Check all 32 channels across all active data streams.
-        for (channel = 0; channel < 32; ++channel) 
+        for (channel = 0; channel < 32; ++channel)
         {
             cout << "running impedance on channel " << channel << endl;
 
             chipRegisters.setZcheckChannel(channel);
             commandSequenceLength =
-                    chipRegisters.createCommandListRegisterConfig(commandList, false);
+                chipRegisters.createCommandListRegisterConfig(commandList, false);
             // Upload version with no ADC calibration to AuxCmd3 RAM Bank 1.
             evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 3);
 
             evalBoard->run();
-            while (evalBoard->isRunning() ) {
-                
+            while (evalBoard->isRunning())
+            {
+
             }
             queue<Rhd2000DataBlock> dataQueue;
             evalBoard->readDataBlocks(numBlocks, dataQueue);
             loadAmplifierData(dataQueue, numBlocks, numdataStreams);
-            for (stream = 0; stream < numdataStreams; ++stream) {
-                if (chipId[stream] != CHIP_ID_RHD2164_B) {
+            for (stream = 0; stream < numdataStreams; ++stream)
+            {
+                if (chipId[stream] != CHIP_ID_RHD2164_B)
+                {
                     measureComplexAmplitude(measuredMagnitude, measuredPhase,
-                                                        capRange, stream, channel,  numBlocks, boardSampleRate,
-                                                        actualImpedanceFreq, numPeriods);
-               }
+                                            capRange, stream, channel,  numBlocks, boardSampleRate,
+                                            actualImpedanceFreq, numPeriods);
+                }
             }
 
             // If an RHD2164 chip is plugged in, we have to set the Zcheck select register to channels 32-63
             // and repeat the previous steps.
-            if (rhd2164ChipPresent) {
+            if (rhd2164ChipPresent)
+            {
                 chipRegisters.setZcheckChannel(channel + 32); // address channels 32-63
                 commandSequenceLength =
-                        chipRegisters.createCommandListRegisterConfig(commandList, false);
+                    chipRegisters.createCommandListRegisterConfig(commandList, false);
                 // Upload version with no ADC calibration to AuxCmd3 RAM Bank 1.
                 evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 3);
 
                 evalBoard->run();
-                while (evalBoard->isRunning() ) {
-                   
+                while (evalBoard->isRunning())
+                {
+
                 }
                 evalBoard->readDataBlocks(numBlocks, dataQueue);
                 loadAmplifierData(dataQueue, numBlocks, numdataStreams);
 
-                for (stream = 0; stream < evalBoard->getNumEnabledDataStreams(); ++stream) {
-                    if (chipId[stream] == CHIP_ID_RHD2164_B) {
+                for (stream = 0; stream < evalBoard->getNumEnabledDataStreams(); ++stream)
+                {
+                    if (chipId[stream] == CHIP_ID_RHD2164_B)
+                    {
                         measureComplexAmplitude(measuredMagnitude, measuredPhase,
-                                                            capRange, stream, channel,  numBlocks, boardSampleRate,
-                                                            actualImpedanceFreq, numPeriods);
+                                                capRange, stream, channel,  numBlocks, boardSampleRate,
+                                                actualImpedanceFreq, numPeriods);
                     }
                 }
             }
@@ -1830,28 +1951,34 @@ void RHD2000Thread::runImpedanceTest(Array<int> &streams, Array<int> &channels, 
     magnitudes.clear();
     phases.clear();
 
-    for (stream = 0; stream < evalBoard->getNumEnabledDataStreams(); ++stream) {
-        for (channel = 0; channel < 32; ++channel) {
-            if (1) {
+    for (stream = 0; stream < evalBoard->getNumEnabledDataStreams(); ++stream)
+    {
+        for (channel = 0; channel < 32; ++channel)
+        {
+            if (1)
+            {
                 minDistance = 9.9e99;  // ridiculously large number
-                for (capRange = 0; capRange < 3; ++capRange) {
+                for (capRange = 0; capRange < 3; ++capRange)
+                {
                     // Find the measured amplitude that is closest to bestAmplitude on a logarithmic scale
                     distance = abs(log(measuredMagnitude[stream][channel][capRange] / bestAmplitude));
-                    if (distance < minDistance) {
+                    if (distance < minDistance)
+                    {
                         bestAmplitudeIndex = capRange;
                         minDistance = distance;
                     }
                 }
-                switch (bestAmplitudeIndex) {
-                case 0:
-                    Cseries = 0.1e-12;
-                    break;
-                case 1:
-                    Cseries = 1.0e-12;
-                    break;
-                case 2:
-                    Cseries = 10.0e-12;
-                    break;
+                switch (bestAmplitudeIndex)
+                {
+                    case 0:
+                        Cseries = 0.1e-12;
+                        break;
+                    case 1:
+                        Cseries = 1.0e-12;
+                        break;
+                    case 2:
+                        Cseries = 10.0e-12;
+                        break;
                 }
 
                 // Calculate current amplitude produced by on-chip voltage DAC
@@ -1859,7 +1986,7 @@ void RHD2000Thread::runImpedanceTest(Array<int> &streams, Array<int> &channels, 
 
                 // Calculate impedance magnitude from calculated current and measured voltage.
                 impedanceMagnitude = 1.0e-6 * (measuredMagnitude[stream][channel][bestAmplitudeIndex] / current) *
-                        (18.0 * relativeFreq * relativeFreq + 1.0);
+                                     (18.0 * relativeFreq * relativeFreq + 1.0);
 
                 // Calculate impedance phase, with small correction factor accounting for the
                 // 3-command SPI pipeline delay.
@@ -1881,9 +2008,9 @@ void RHD2000Thread::runImpedanceTest(Array<int> &streams, Array<int> &channels, 
 
                 if (impedanceMagnitude > 1000000)
                     cout << "stream " << stream << " channel " << 1+channel << " magnitude: " <<  String(impedanceMagnitude/1e6,2) << " mOhm , phase : " <<impedancePhase << endl;
-                else  
+                else
                     cout << "stream " << stream << " channel " << 1+channel << " magnitude: " <<  String(impedanceMagnitude/1e3,2) << " kOhm , phase : " <<impedancePhase << endl;
-                
+
             }
         }
     }

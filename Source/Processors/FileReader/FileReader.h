@@ -71,7 +71,7 @@ public:
 
     float getDefaultSampleRate();
     int getDefaultNumOutputs();
-    float getDefaultBitVolts();
+    float getBitVolts(int chan);
 
     void setFile(String fullpath);
     String getFile();

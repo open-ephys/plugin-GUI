@@ -76,7 +76,7 @@ int FileReader::getDefaultNumOutputs()
     return 16;
 }
 
-float FileReader::getDefaultBitVolts()
+float FileReader::getBitVolts(int chan)
 {
     return 0.05f;
 }

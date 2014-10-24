@@ -113,7 +113,7 @@ float FPGAThread::getSampleRate()
     return 28344.67;//12520.0;
 }
 
-float FPGAThread::getBitVolts()
+float FPGAThread::getBitVolts(int chan)
 {
     return 0.1907;
 }

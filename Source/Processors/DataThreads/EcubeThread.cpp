@@ -302,7 +302,7 @@ void EcubeThread::setDefaultChannelNamesAndType()
     for (int i = 0; i < numch; i++)
     {
         Names.add(prefix + String(i));
-        gains.add(getBitVolts());
+        gains.add(getBitVolts(i));
         type.add(common_type);
         originalChannelNumber.add(i);
     }
@@ -343,7 +343,7 @@ float EcubeThread::getSampleRate()
     return m_samplerate;
 }
 
-float EcubeThread::getBitVolts()
+float EcubeThread::getBitVolts(int chan)
 {
     return 10e3/32768; // For some reason the data is supposed to be in millivolts
 }
@@ -356,7 +356,7 @@ bool EcubeThread::foundInputSource()
 bool EcubeThread::updateBuffer()
 {
     unsigned long ba;
-    int16 eventcode = 0;
+    eventCode = 0;
     int nchan = pDevInt->n_channel_objects;
 
     if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog || pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)

@@ -86,7 +86,7 @@ public:
     virtual float getSampleRate() = 0;
 
     /** Returns the volts per bit of the data source.*/
-    virtual float getBitVolts() = 0;
+    virtual float getBitVolts(int chan) = 0;
 
     /** Returns the number of event channels of the data source.*/
     virtual int getNumEventChannels()

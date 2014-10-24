@@ -52,7 +52,7 @@ public:
     bool foundInputSource();
     int getNumChannels();
     float getSampleRate();
-    float getBitVolts();
+    float getBitVolts(int chan);
 
     int getNumEventChannels();
 

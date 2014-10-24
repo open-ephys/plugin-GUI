@@ -424,6 +424,7 @@
 		3C18EC09535EA506FC0CBC62 /* juce_OpenGL_ios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_OpenGL_ios.h; path = ../../JuceLibraryCode/modules/juce_opengl/native/juce_OpenGL_ios.h; sourceTree = SOURCE_ROOT; };
 		3C1E0B87DA3E9AC60D2894F7 /* juce_TableListBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_TableListBox.h; path = ../../JuceLibraryCode/modules/juce_gui_basics/widgets/juce_TableListBox.h; sourceTree = SOURCE_ROOT; };
 		3C92F249799E7CBF41FABEA0 /* juce_mac_WebBrowserComponent.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = juce_mac_WebBrowserComponent.mm; path = ../../JuceLibraryCode/modules/juce_gui_extra/native/juce_mac_WebBrowserComponent.mm; sourceTree = SOURCE_ROOT; };
+		3CF8A69FE57BCBFD8572E73E /* upload2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = upload2.png; path = ../../Resources/Images/Icons/upload2.png; sourceTree = SOURCE_ROOT; };
 		3D100F6FDB04756402F3BCC9 /* juce_mac_CoreGraphicsContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_mac_CoreGraphicsContext.h; path = ../../JuceLibraryCode/modules/juce_graphics/native/juce_mac_CoreGraphicsContext.h; sourceTree = SOURCE_ROOT; };
 		3D782D1796455167CE41CCAB /* Design.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Design.h; path = ../../Source/Processors/Dsp/Design.h; sourceTree = SOURCE_ROOT; };
 		3DA70F9AAA904543B519874B /* juce_AudioPluginInstance.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_AudioPluginInstance.h; path = ../../JuceLibraryCode/modules/juce_audio_processors/processors/juce_AudioPluginInstance.h; sourceTree = SOURCE_ROOT; };
@@ -772,6 +773,7 @@
 		837D266B3F62C3B05C2BC28C /* BinaryData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BinaryData.h; path = ../../JuceLibraryCode/BinaryData.h; sourceTree = SOURCE_ROOT; };
 		83803D96768258DA20710764 /* juce_XmlElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_XmlElement.h; path = ../../JuceLibraryCode/modules/juce_core/xml/juce_XmlElement.h; sourceTree = SOURCE_ROOT; };
 		83950E9D0D7C100B7DCA0E55 /* juce_TextButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_TextButton.h; path = ../../JuceLibraryCode/modules/juce_gui_basics/buttons/juce_TextButton.h; sourceTree = SOURCE_ROOT; };
+		847B96A6A46FDDACFCFBF7A4 /* floppy5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = floppy5.png; path = ../../Resources/Images/Icons/floppy5.png; sourceTree = SOURCE_ROOT; };
 		847F6986DFA468BA8D80A531 /* miso-light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file.ttf; name = "miso-light.ttf"; path = "../../Resources/Fonts/miso-light.ttf"; sourceTree = SOURCE_ROOT; };
 		84A71C69B4B5779620343BCD /* juce_linux_CommonFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_linux_CommonFile.cpp; path = ../../JuceLibraryCode/modules/juce_core/native/juce_linux_CommonFile.cpp; sourceTree = SOURCE_ROOT; };
 		8515A61F1E3BD62B9B95B495 /* juce_audio_utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_audio_utils.h; path = ../../JuceLibraryCode/modules/juce_audio_utils/juce_audio_utils.h; sourceTree = SOURCE_ROOT; };
@@ -1414,6 +1416,8 @@
 		048B10371EA2D5C7D883CC70 /* Icons */ = {
 			isa = PBXGroup;
 			children = (
+				847B96A6A46FDDACFCFBF7A4 /* floppy5.png */,
+				3CF8A69FE57BCBFD8572E73E /* upload2.png */,
 				261B5AA82F2A86CC5500D8D2 /* ArduinoIcon.png */,
 				92E3405CB31ACFE3F80BBAD4 /* OpenEphysBoardLogoBlack.png */,
 				FA1F1E9C7DEA48CAE6C247F4 /* OpenEphysBoardLogoGray.png */,
@@ -2995,7 +2999,6 @@
 				9D050A509BEB9E3879DA35C6 /* ostrich.ttf */,
 				66F524552E8DE88CDC2E40FD /* silkscreen-serialized */,
 				D01254FA41688494C3CB0889 /* silkscreen.ttf */,
-				61317B5191E05925F232E18C /* unibody-8.otf */,
 			);
 			name = Fonts;
 			sourceTree = "<group>";
@@ -4021,6 +4024,7 @@
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "open-ephys";
 				WARNING_CFLAGS = "-Wreorder";
 				ZERO_LINK = NO;
@@ -4048,19 +4052,21 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					../../JuceLibraryCode,
-					/opt/local/include,
 					../../JuceLibraryCode/modules,
+					/opt/local/include,
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"/opt/local/lib\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				OTHER_LDFLAGS = (
 					"-lhdf5",
 					"-lhdf5_cpp",
 				);
-				SDKROOT = macosx10.8;
 				SDKROOT_ppc = macosx10.5;
 			};
 			name = Release;
@@ -4085,19 +4091,21 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					../../JuceLibraryCode,
-					/opt/local/include,
 					../../JuceLibraryCode/modules,
+					/opt/local/include,
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"/opt/local/lib\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				OTHER_LDFLAGS = (
 					"-lhdf5",
 					"-lhdf5_cpp",
 				);
-				SDKROOT = macosx10.8;
 				SDKROOT_ppc = macosx10.5;
 			};
 			name = Debug;

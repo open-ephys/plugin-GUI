@@ -310,6 +310,13 @@ public:
         return 1.0;
     }
 
+	/** Returns the bit volts for a given channel **/
+	virtual float getBitVolts(int chan)
+	{
+		return 1.0; 
+	}
+
+
     /** Returns the next available channel (and increments the channel if the input is set to 'true'. */
     virtual int getNextChannel(bool t);
 

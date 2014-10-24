@@ -303,6 +303,10 @@ public:
     }
     //Channel* getChannel() {return ch;}
     void setActive(bool t);
+	void setChannel(int n)
+	{
+		num = n;
+	}
 
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);

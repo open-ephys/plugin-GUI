@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2014 Florian Franzen
+Copyright (C) 2013 Florian Franzen
 
 ------------------------------------------------------------------
 
@@ -104,8 +104,6 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
     bool isEvent;
     String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
 
-    std::cout << "OPENING FILE: " << fullPath << std::endl;
-
     isEvent = (ch == nullptr) ? true : false;
     if (isEvent)
     {
@@ -118,6 +116,7 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
     {
         fullPath += getFileName(ch);
     }
+	std::cout << "OPENING FILE: " << fullPath << std::endl;
 
     File f = File(fullPath);
 
@@ -242,7 +241,7 @@ String OriginalRecording::generateHeader(Channel* ch)
 
     String header = "header.format = 'Open Ephys Data Format'; \n";
 
-    header += "header.version = 0.4;";
+    header += "header.version = 0.4; \n";
     header += "header.header_bytes = ";
     header += String(HEADER_SIZE);
     header += ";\n";
@@ -301,7 +300,7 @@ String OriginalRecording::generateHeader(Channel* ch)
 String OriginalRecording::generateSpikeHeader(SpikeRecordInfo* elec)
 {
     String header = "header.format = 'Open Ephys Data Format'; \n";
-    header += "header.version = 0.4;";
+    header += "header.version = 0.4; \n";
     header += "header.header_bytes = ";
     header += String(HEADER_SIZE);
     header += ";\n";

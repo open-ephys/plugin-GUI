@@ -41,11 +41,11 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath);../../Resources/ZeroMQ/lib_x86;../../Resources/Google Protocols/vsprojects/Debug;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\lib</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x86</LibraryPath>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath);$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\lib;../../Resources/ZeroMQ/lib_x86;../../Resources/Google Protocols/vsprojects/Release</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x86</LibraryPath>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -59,7 +59,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\include;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.2;JUCE_APP_VERSION_HEX=0x302;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -84,7 +84,7 @@
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>../../Resources/ZeroMQ/lib_x86;../../Resources/Google Protocols/vsprojects/Debug;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../Resources/windows-libs/HDF5/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;hdf5.lib;hdf5_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -93,7 +93,7 @@
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;</Command>
+      <Command>copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -106,7 +106,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\include;../../Resources/Google Protocols/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.2;JUCE_APP_VERSION_HEX=0x302;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -132,7 +132,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalLibraryDirectories>$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\lib;../../Resources/ZeroMQ/lib_x86;../../Resources/Google Protocols/vsprojects/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../Resources/windows-libs/HDF5/lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;hdf5.lib;hdf5_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -141,7 +141,7 @@
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>call &quot;$(SolutionDir)\copydlls.cmd&quot; &quot;$(MSBuildExtensionsPath32)\..\HDF_Group\HDF5\1.8.13\bin&quot; &quot;$(SolutionDir)\..\..\Resources\DLLs&quot; &quot;$(OutDir)&quot;</Command>
+      <Command>copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -1992,6 +1992,8 @@
     <None Include="..\..\Resources\Fonts\silkscreen-serialized"/>
     <None Include="..\..\Resources\Fonts\silkscreen.ttf"/>
     <None Include="..\..\Resources\Fonts\unibody-8.otf"/>
+    <None Include="..\..\Resources\Images\Icons\floppy5.png"/>
+    <None Include="..\..\Resources\Images\Icons\upload2.png"/>
     <None Include="..\..\Resources\Images\Icons\ArduinoIcon.png"/>
     <None Include="..\..\Resources\Images\Icons\OpenEphysBoardLogoBlack.png"/>
     <None Include="..\..\Resources\Images\Icons\OpenEphysBoardLogoGray.png"/>
