@@ -164,7 +164,7 @@ void FPGAchannelList::update()
     for (int k=0; k<numChannels; k++)
     {
         int channelGainIndex = 1;
-        float ch_gain = oldgains[k]/proc->getDefaultBitVolts();
+		float ch_gain = oldgains[k]/static_cast<SourceNode*>(proc)->getBitVolts(k);
         for (int j=0; j<gains.size(); j++)
         {
             if (fabs(gains[j]-ch_gain) < 1e-3)
@@ -225,8 +225,20 @@ void FPGAchannelList::enableAll()
 
 void FPGAchannelList::setNewGain(int stream, int channel, channelType type, float gain)
 {
-    SourceNode* p = (SourceNode*) proc;
-    p->modifyChannelGain(stream, channel, type, gain, true);
+    float newGain;
+	int realChan;
+	SourceNode* p = (SourceNode*) proc;
+
+	if (type==ADC_CHANNEL)
+	{
+		realChan = p->getNumOutputs()-p->getThread()->getNumADCchannels()+channel;
+	}
+	else
+	{
+		realChan = channel;
+	}
+	newGain = p->getBitVolts(realChan)*gain;
+    p->modifyChannelGain(stream, channel, type, newGain, true);
 }
 
 void FPGAchannelList::setNewName(int stream, int channelIndex, channelType t, String newName)
