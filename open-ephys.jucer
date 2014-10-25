@@ -66,7 +66,8 @@
       </MODULEPATHS>
     </LINUX_MAKE>
     <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" extraDefs="NOMINMAX"
-            externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;hdf5.lib&#10;hdf5_cpp.lib">
+            externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;hdf5.lib&#10;hdf5_cpp.lib"
+            toolset="v110">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug\bin"
