@@ -714,7 +714,9 @@ void RHD2000Editor::buttonEvent(Button* button)
     {
         board->enableAdcs(button->getToggleState());
 //        board->updateChannelNames();
+        std::cout << "ADC Button toggled" << std::endl;
         getEditorViewport()->makeEditorVisible(this, false, true);
+        std::cout << "Editor visible." << std::endl;
     }
     else if (button == dacTTLButton)
     {

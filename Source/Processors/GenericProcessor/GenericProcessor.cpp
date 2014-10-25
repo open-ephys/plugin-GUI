@@ -296,7 +296,7 @@ void GenericProcessor::clearSettings()
 void GenericProcessor::update()
 {
 
-    //std::cout << getName() << " updating settings." << std::endl;
+    std::cout << getName() << " updating settings." << std::endl;
     // SO patched here to keep original channel names
 
     int oldNumChannels = channels.size();

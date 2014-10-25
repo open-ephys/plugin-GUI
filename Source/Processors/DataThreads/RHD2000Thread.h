@@ -62,6 +62,7 @@ public:
     int getNumChannels();
     float getSampleRate();
     float getBitVolts(int chan);
+    float getADCBitVolts(int chan);
 
     bool isHeadstageEnabled(int hsNum);
 

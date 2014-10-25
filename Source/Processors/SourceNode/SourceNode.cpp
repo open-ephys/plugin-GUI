@@ -180,7 +180,7 @@ void SourceNode::setDefaultNamingScheme(int scheme)
         Array<int> originalChannelNumber;
         Array<float> gains;
         getChannelsInfo(names, types, stream, originalChannelNumber, gains);
-        for (int k=0;k<names.size();k++)
+        for (int k = 0; k < names.size(); k++)
         {
             modifyChannelName(types[k],stream[k],originalChannelNumber[k], names[k],false);
         }
@@ -203,6 +203,7 @@ void SourceNode::updateSettings()
         inputBuffer = dataThread->getBufferAddress();
         std::cout << "Input buffer address is " << inputBuffer << std::endl;
     }
+
 	dataThread->updateChannelNames();
 
     for (int i = 0; i < dataThread->getNumEventChannels(); i++)
@@ -212,6 +213,11 @@ void SourceNode::updateSettings()
         ch->getType() == EVENT_CHANNEL;
         eventChannels.add(ch);
     }
+
+   //for (int i = 0; i < channels.size(); i++)
+   // {
+        std::cout << "Channel: " << channels[channels.size()-1]->bitVolts << std::endl;
+    //}
 
 
 }
