@@ -58,10 +58,10 @@ AudioResamplingNode::AudioResamplingNode()
 
 AudioResamplingNode::~AudioResamplingNode()
 {
-    filter = 0;
-    deleteAndZero(destBuffer);
+    delete[] continuousDataBuffer;
     deleteAndZero(tempBuffer);
-
+    deleteAndZero(destBuffer);
+    delete filter;
 }
 
 

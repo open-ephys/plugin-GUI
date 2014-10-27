@@ -110,12 +110,12 @@
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\Debug\bin"
                        headerPath="../../Resources/windows-libs/HDF5/include" libraryPath="../../Resources/windows-libs/HDF5/lib/x86"
-                       wholeProgramOptimisation="1" postbuildCommand="copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;"
+                       wholeProgramOptimisation="1" postbuildCommand="copy &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;"
                        fastMath="1"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\Release\bin"
                        headerPath="../../Resources/windows-libs/HDF5/include" libraryPath="../../Resources/windows-libs/HDF5/lib/x86"
-                       postbuildCommand="copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;"
+                       postbuildCommand="copy &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;"
                        fastMath="1"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
