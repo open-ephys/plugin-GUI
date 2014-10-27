@@ -92,7 +92,7 @@ SourceNode::SourceNode(const String& name_)
     startTimer(sourceCheckInterval);
 
     timestamp = 0;
-    eventCodeBuffer = new int16[10000]; //10000 samples per buffer max?
+    eventCodeBuffer = new uint64[10000]; //10000 samples per buffer max?
 
 
 }

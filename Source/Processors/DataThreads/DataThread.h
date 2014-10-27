@@ -123,7 +123,7 @@ public:
 
     SourceNode* sn;
 
-    int16 eventCode;
+    uint64 eventCode;
     int64 timestamp;
 
     Time timer;
