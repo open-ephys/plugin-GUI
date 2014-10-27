@@ -114,7 +114,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     voltageRanges[ADC_CHANNEL].add("2.0");
 	voltageRanges[ADC_CHANNEL].add("5.0");
 	voltageRanges[ADC_CHANNEL].add("10.0");
-	selectedVoltageRange[ADC_CHANNEL] = 4;
+	selectedVoltageRange[ADC_CHANNEL] = 8;
 	rangeGain[ADC_CHANNEL] = 1; //V
 	rangeSteps[ADC_CHANNEL] = 0.1; //in V
 	rangeUnits.add("V");
@@ -133,8 +133,8 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     timebases.add("5.0");
     timebases.add("10.0");
     timebases.add("20.0");
-	selectedTimebase=2;
-	selectedTimebaseValue=timebases[selectedTimebase-1];
+	selectedTimebase = 4;
+	selectedTimebaseValue = timebases[selectedTimebase-1];
 
     spreads.add("10");
     spreads.add("20");
@@ -147,7 +147,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     spreads.add("90");
     spreads.add("100");
 	selectedSpread = 5;
-	selectedSpreadValue=spreads[selectedSpread-1];
+	selectedSpreadValue = spreads[selectedSpread-1];
 
     colorGroupings.add("1");
     colorGroupings.add("2");
@@ -1406,7 +1406,7 @@ void LfpDisplay::toggleSingleChannel(int chan)
         setChannelHeight(newHeight, false);
         setSize(getWidth(), numChans*getChannelHeight());
         viewport->setScrollBarsShown(false,false);
-        //viewport->setViewPosition(Point<int>(0,chan*newHeight));
+        viewport->setViewPosition(Point<int>(0,chan*newHeight));
         for (int n = 0; n < numChans; n++)
         {
             if (n != chan) channelInfo[n]->setEnabledState(false);

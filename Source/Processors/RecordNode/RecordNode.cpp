@@ -422,7 +422,7 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
     {
         const uint8* dataptr = event.getRawData();
 
-        // // double-check buffer contents:s
+        // // double-check buffer contents:
         // std::cout << (int) *(dataptr + 11) << " " <<
         //             (int) *(dataptr + 10) << " " <<
         //             (int) *(dataptr + 9) << " " <<
