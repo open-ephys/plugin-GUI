@@ -27,7 +27,7 @@ DataBuffer::DataBuffer(int chans, int size)
     : abstractFifo(size), buffer(chans, size), numChans(chans)
 {
     timestampBuffer = new int64[size];
-    eventCodeBuffer = new int16[size];
+    eventCodeBuffer = new uint64[size];
 
 }
 
@@ -44,12 +44,12 @@ void DataBuffer::resize(int chans, int size)
 {
     buffer.setSize(chans, size);
     timestampBuffer = new int64[size];
-    eventCodeBuffer = new int16[size];
+    eventCodeBuffer = new uint64[size];
 
     numChans = chans;
 }
 
-void DataBuffer::addToBuffer(float* data, int64* timestamps, int16* eventCodes, int numItems)
+void DataBuffer::addToBuffer(float* data, int64* timestamps, uint64* eventCodes, int numItems)
 {
     // writes one sample for all channels
     int startIndex1, blockSize1, startIndex2, blockSize2;
@@ -76,7 +76,7 @@ int DataBuffer::getNumSamples()
 }
 
 
-int DataBuffer::readAllFromBuffer(AudioSampleBuffer& data, uint64* timestamp, int16* eventCodes, int maxSize)
+int DataBuffer::readAllFromBuffer(AudioSampleBuffer& data, uint64* timestamp, uint64* eventCodes, int maxSize)
 {
     // check to see if the maximum size is smaller than the total number of available ints
 
@@ -105,7 +105,7 @@ int DataBuffer::readAllFromBuffer(AudioSampleBuffer& data, uint64* timestamp, in
         }
 
         memcpy(timestamp, timestampBuffer+startIndex1, 8);
-        memcpy(eventCodes, eventCodeBuffer+startIndex1, blockSize1*2);
+        memcpy(eventCodes, eventCodeBuffer+startIndex1, blockSize1*8);
     }
     else
     {
@@ -124,7 +124,7 @@ int DataBuffer::readAllFromBuffer(AudioSampleBuffer& data, uint64* timestamp, in
                           startIndex2,     // sourceStartSample
                           blockSize2); // numSamples
         }
-        memcpy(eventCodes + blockSize1, eventCodeBuffer+startIndex2, blockSize2*2);
+        memcpy(eventCodes + blockSize1, eventCodeBuffer+startIndex2, blockSize2*8);
     }
 
     abstractFifo.finishedRead(numItems);

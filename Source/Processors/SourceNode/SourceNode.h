@@ -110,7 +110,7 @@ private:
     DataBuffer* inputBuffer;
 
     uint64 timestamp;
-    int16* eventCodeBuffer;
+    uint64* eventCodeBuffer;
     int* eventChannelState;
 
 
