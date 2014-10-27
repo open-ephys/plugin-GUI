@@ -1513,7 +1513,7 @@ bool RHD2000Thread::updateBuffer()
                     // ADC waveform units = volts
                     thisSample[channel] =
                         //0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
-                        0.00015258789 * float(dataBlock->boardAdcData[adcChan][samp]) - 5 - 0.42; // account for +/-5V input range and 0.42 V offset
+                        0.00015258789 * float(dataBlock->boardAdcData[adcChan][samp]) - 5; // account for +/-5V input range
                 }
             }
             // std::cout << channel << std::endl;
