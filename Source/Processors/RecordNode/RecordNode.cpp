@@ -65,7 +65,7 @@ RecordNode::RecordNode()
 
 RecordNode::~RecordNode()
 {
-
+    delete eventChannel; // Memory leak fixed by Michael Borisov
 }
 
 void RecordNode::setChannel(Channel* ch)

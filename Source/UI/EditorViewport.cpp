@@ -80,6 +80,7 @@ EditorViewport::EditorViewport()
 EditorViewport::~EditorViewport()
 {
     deleteAllChildren();
+    delete signalChainManager;
 }
 
 void EditorViewport::signalChainCanBeEdited(bool t)
