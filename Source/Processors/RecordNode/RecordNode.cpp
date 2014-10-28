@@ -411,14 +411,7 @@ float RecordNode::getFreeSpace()
 
 void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
 {
-    if ((eventType == TTL) || (eventType == MESSAGE))
-    {
-        if (event.getNoteNumber() > 0) // processor ID > 0
-        {
-            EVERY_ENGINE->writeEvent(eventType, event, samplePosition);
-        }
-    }
-    else if (eventType == TIMESTAMP)
+    if (eventType == TIMESTAMP)
     {
         const uint8* dataptr = event.getRawData();
 
@@ -435,9 +428,19 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
         memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
         EVERY_ENGINE->updateTimeStamp(timestamp);
     }
-    else if (eventType == MESSAGE)
+    if (isRecording && allFilesOpened)
     {
-        std::cout << "Received event!" << std::endl;
+        if ((eventType == TTL) || (eventType == MESSAGE))
+        {
+            if (event.getNoteNumber() > 0) // processor ID > 0
+            {
+                EVERY_ENGINE->writeEvent(eventType, event, samplePosition);
+            }
+        }
+        else if (eventType == MESSAGE)
+        {
+            std::cout << "Received event!" << std::endl;
+        }
     }
 
 }
@@ -446,12 +449,10 @@ void RecordNode::process(AudioSampleBuffer& buffer,
                          MidiBuffer& events,
                          int& nSamples)
 {
-
+	// FIRST: cycle through events -- extract the TTLs and the timestamps
+    checkForEvents(events);
     if (isRecording && allFilesOpened)
     {
-
-        // FIRST: cycle through events -- extract the TTLs and the timestamps
-        checkForEvents(events);
 
         // SECOND: write channel data
         if (channelPointers.size() > 0)
