@@ -32,6 +32,12 @@
 #define HEADER_SIZE 1024
 #define BLOCK_LENGTH 1024
 
+#define VERSION 0.4
+
+#define VSTR(s) #s
+#define VSTR2(s) VSTR(s)
+#define VERSION_STRING VSTR2(VERSION)
+
 class OriginalRecording : public RecordEngine
 {
 public:
@@ -67,6 +73,8 @@ private:
     void writeTTLEvent(MidiMessage& event, int samplePosition);
     void writeMessage(MidiMessage& event, int samplePosition);
 
+	void writeXml();
+
     bool separateFiles;
     int blockIndex;
     int recordingNumber;
@@ -92,7 +100,24 @@ private:
     FILE* messageFile;
     Array<FILE*> fileArray;
     Array<FILE*> spikeFileArray;
+	
     CriticalSection diskWriteLock;
+
+	struct ChannelInfo {
+		String name;
+		String filename;
+		long int startPos;
+	};
+	struct ProcInfo {
+		int id;
+		float sampleRate;
+		OwnedArray<ChannelInfo> channels;
+	};
+
+	OwnedArray<ProcInfo> processorArray;
+	int lastProcId;
+	String recordPath;
+	int64 startTimestamp;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OriginalRecording);
 };
