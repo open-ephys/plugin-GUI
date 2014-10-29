@@ -311,6 +311,7 @@
     <ClCompile Include="..\..\Source\Processors\EventDetector\EventDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode\EventNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode\EventNodeEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\FileReader\FileSource.cpp"/>
     <ClCompile Include="..\..\Source\Processors\FileReader\FileReader.cpp"/>
     <ClCompile Include="..\..\Source\Processors\FileReader\FileReaderEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\FilterNode\FilterEditor.cpp"/>
@@ -1563,6 +1564,7 @@
     <ClInclude Include="..\..\Source\Processors\EventDetector\EventDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode\EventNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode\EventNodeEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\FileReader\FileSource.h"/>
     <ClInclude Include="..\..\Source\Processors\FileReader\FileReader.h"/>
     <ClInclude Include="..\..\Source\Processors\FileReader\FileReaderEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\FilterNode\FilterEditor.h"/>
