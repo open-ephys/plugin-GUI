@@ -68,6 +68,25 @@ void ChannelMappingNode::updateSettings()
     if (getNumInputs() > 0)
         channelBuffer.setSize(getNumInputs(), 10000);
 
+	previousChannelCount = getNumInputs();
+	if (editorIsConfigured)
+	{
+		OwnedArray<Channel> tempArray;
+		channels.swapWith(tempArray);
+		j=0;
+		for (int i=0; i < getNumInputs(); i++)
+		{
+			int realChan = channelArray[i];
+			if (enabledChannelArray[realChan])
+			{
+				channels.add(tempArray[realChan]);
+				j++;
+			}
+		}
+		tempArray.clear(false);
+		settings.numOutputs=j;
+	}
+	/*
     if (getNumInputs() != previousChannelCount)
     {
         previousChannelCount = getNumInputs();
@@ -103,7 +122,7 @@ void ChannelMappingNode::updateSettings()
             }
         }
         settings.numOutputs=j;
-    }
+    }*/
 
 }
 
