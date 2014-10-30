@@ -21,59 +21,43 @@
 
 */
 
-#ifndef FILESOURCE_H_INCLUDED
-#define FILESOURCE_H_INCLUDED
+#ifndef KWIKFILESOURCE_H_INCLUDED
+#define KWIKFILESOURCE_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "FileSource.h"
 
-class FileSource
+#define MIN_KWIK_VERSION 2
+#define MAX_KWIK_VERSION 2
+
+class HDF5RecordingData;
+namespace H5
+{
+class DataSet;
+class H5File;
+class DataType;
+}
+
+class KWIKFileSource : public FileSource
 {
 public:
-	FileSource();
-	~FileSource();
-
-	int getNumRecords();
-	String getRecordName(int index);
-
-	int getActiveRecord();
-	void setActiveRecord(int index);
-
-	float getRecordSampleRate(int index);
-	int getRecordNumChannels(int index);
-	int64 getRecordNumSamples(int index);
-
-	float getActiveSampleRate();
-	int getActiveNumChannels();
-	int64 getActiveNumSamples();
-
-
-	bool OpenFile(File file);
-	bool fileIsOpened();
+	KWIKFileSource();
+	~KWIKFileSource();
 	
-	virtual int readData(int16* buffer, int nSamples) =0;
+	int readData(int16* buffer, int nSamples);
 
-	virtual void seekTo(int64 sample) =0;
-
-protected:
-	struct RecordInfo
-	{
-		String name;
-		int numChannels;
-		int64 numSamples;
-		float sampleRate;
-	};
-	Array<RecordInfo> infoArray;
-
-	bool fileOpened;
-	int numRecords;
-	int activeRecord;
+	void seekTo(int64 sample);
 
 private:
-	virtual bool Open(File file)=0;
-	virtual void fillRecordInfo()=0;
-	virtual void updateActiveRecord()=0;
+	ScopedPointer<H5::H5File> sourceFile;
+	ScopedPointer<H5::DataSet> dataSet;
+	bool Open(File file);
+	void fillRecordInfo();
+	void updateActiveRecord();
+	int64 samplePos;
+	Array<int> availableDataSets;
 };
 
 
 
-#endif  // FILESOURCE_H_INCLUDED
+#endif  // KWIKFILESOURCE_H_INCLUDED

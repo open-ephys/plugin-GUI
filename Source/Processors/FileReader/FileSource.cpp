@@ -23,7 +23,7 @@
 
 #include "FileSource.h"
 
-FileSource::FileSource() : fileOpened(false)
+FileSource::FileSource() : fileOpened(false), numRecords(0), activeRecord(-1)
 {
 }
 
@@ -33,7 +33,7 @@ FileSource::~FileSource()
 
 int FileSource::getNumRecords()
 {
-	return numRecords:
+	return numRecords;
 }
 
 String FileSource::getRecordName(int index)
@@ -59,6 +59,16 @@ float FileSource::getRecordSampleRate(int index)
 float FileSource::getActiveSampleRate()
 {
 	return getRecordSampleRate(activeRecord);
+}
+
+int64 FileSource::getRecordNumSamples(int index)
+{
+	return infoArray[index].numSamples;
+}
+
+int64 FileSource::getActiveNumSamples()
+{
+	return getRecordNumSamples(activeRecord);
 }
 
 int FileSource::getActiveRecord()

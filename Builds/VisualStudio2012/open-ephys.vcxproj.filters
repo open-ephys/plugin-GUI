@@ -589,6 +589,9 @@
     <ClCompile Include="..\..\Source\Processors\EventNode\EventNodeEditor.cpp">
       <Filter>open-ephys\Source\Processors\EventNode</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\FileReader\KwikFileSource.cpp">
+      <Filter>open-ephys\Source\Processors\FileReader</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\FileReader\FileSource.cpp">
       <Filter>open-ephys\Source\Processors\FileReader</Filter>
     </ClCompile>
@@ -2204,6 +2207,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\EventNode\EventNodeEditor.h">
       <Filter>open-ephys\Source\Processors\EventNode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\FileReader\KwikFileSource.h">
+      <Filter>open-ephys\Source\Processors\FileReader</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\FileReader\FileSource.h">
       <Filter>open-ephys\Source\Processors\FileReader</Filter>

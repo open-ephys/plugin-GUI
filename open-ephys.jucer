@@ -425,6 +425,10 @@
                 file="Source/Processors/EventNode/EventNodeEditor.h"/>
         </GROUP>
         <GROUP id="{27CF9A8D-7C31-9AA9-6DCA-6C719E127923}" name="FileReader">
+          <FILE id="i8d55i" name="KwikFileSource.cpp" compile="1" resource="0"
+                file="Source/Processors/FileReader/KwikFileSource.cpp"/>
+          <FILE id="MXFbiF" name="KwikFileSource.h" compile="0" resource="0"
+                file="Source/Processors/FileReader/KwikFileSource.h"/>
           <FILE id="O6lxmJ" name="FileSource.cpp" compile="1" resource="0" file="Source/Processors/FileReader/FileSource.cpp"/>
           <FILE id="CHKZ6y" name="FileSource.h" compile="0" resource="0" file="Source/Processors/FileReader/FileSource.h"/>
           <FILE id="Pg9JfX" name="FileReader.cpp" compile="1" resource="0" file="Source/Processors/FileReader/FileReader.cpp"/>
