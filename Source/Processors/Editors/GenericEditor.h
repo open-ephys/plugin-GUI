@@ -231,6 +231,16 @@ public:
     /** Called when an editor's processor updates its settings (mainly to update channel count).*/
     virtual void update();
 
+    /** Allows other UI elements to use background color of editor. */
+    Colour getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    /** Allows other elements to use background gradient of editor. */
+    ColourGradient getBackgroundGradient() {
+        return backgroundGradient;
+    }
+
     /** Called by the update() method to allow the editor to update its custom settings.*/
     virtual void updateSettings() {}
 
@@ -344,7 +354,7 @@ private:
     bool isEnabled;
     bool isCollapsed;
 
-    /**Used to determine if an editor is a splitter or Merger to avoid calling on CHannelSelector*/
+    /**Used to determine if an editor is a splitter or Merger to avoid calling on ChannelSelector*/
     bool isSplitOrMerge;
 
     int tNum;
