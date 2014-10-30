@@ -42,7 +42,7 @@ public:
     void writeSpike(const SpikeObject& spike, int electrodeIndex);
     void registerProcessor(GenericProcessor* processor);
     void resetChannels();
-    void updateTimeStamp(int64 timestamp);
+    //oid updateTimeStamp(int64 timestamp);
     void startAcquisition();
 
 	static RecordEngineManager* getEngineManager();

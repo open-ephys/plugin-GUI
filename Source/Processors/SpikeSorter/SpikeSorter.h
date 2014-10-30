@@ -84,7 +84,7 @@ private:
 class Electrode
 {
 	public:
-		Electrode(int electrodeID, UniqueIDgenerator *uniqueIDgenerator_, PCAcomputingThread *pth,String _name, int _numChannels, int *_channels, float default_threshold, int pre, int post, float samplingRate );
+		Electrode(int electrodeID, UniqueIDgenerator *uniqueIDgenerator_, PCAcomputingThread *pth,String _name, int _numChannels, int *_channels, float default_threshold, int pre, int post, float samplingRate , int sourceNodeId);
         ~Electrode();
 
 		void resizeWaveform(int numPre, int numPost);
@@ -99,6 +99,7 @@ class Electrode
 		float depthOffsetMM;
 
 		int electrodeID;
+		int sourceNodeId;
         int* channels;
 	    double* thresholds;
         bool* isActive;
@@ -161,7 +162,7 @@ public:
 
     /** Processes an incoming continuous buffer and places new
         spikes into the event buffer. */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& events);
 
     /** Used to alter parameters of data acquisition. */
     void setParameter(int parameterIndex, float newValue);
@@ -323,7 +324,7 @@ private:
     std::vector<int> electrodeCounter;
     float getNextSample(int& chan);
     float getCurrentSample(int& chan);
-    bool samplesAvailable(int& nSamples);
+    bool samplesAvailable(int nSamples);
 
     bool useOverflowBuffer;
 

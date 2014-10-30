@@ -121,8 +121,7 @@ void PulsePalOutput::setParameter(int parameterIndex, float newValue)
 }
 
 void PulsePalOutput::process(AudioSampleBuffer& buffer,
-                             MidiBuffer& events,
-                             int& nSamples)
+                             MidiBuffer& events)
 {
 
     checkForEvents(events);

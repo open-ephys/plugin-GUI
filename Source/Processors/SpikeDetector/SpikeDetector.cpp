@@ -88,10 +88,20 @@ void SpikeDetector::updateSettings()
     for (int i = 0; i < electrodes.size(); i++)
     {
 
-        Channel* ch = new Channel(this, i);
-        //ch->isEventChannel = true;
-        ch->eventType = SPIKE_BASE_CODE + electrodes[i]->numChannels;
-        ch->name = electrodes[i]->name;
+        Channel* ch;
+
+        switch (electrodes[i]->numChannels)
+        {
+            case 1:
+                ch = new Channel(this, i, SINGLE_ELECTRODE);
+                break;
+            case 2:
+                ch = new Channel(this, i, STEREOTRODE);
+                break;
+            case 4:
+                ch = new Channel(this, i, TETRODE);
+                break;
+        }
 
         eventChannels.add(ch);
     }
@@ -155,6 +165,8 @@ bool SpikeDetector::addElectrode(int nChans)
         *(newElectrode->thresholds+i) = getDefaultThreshold();
         *(newElectrode->isActive+i) = true;
     }
+
+    newElectrode->sourceNodeId = channels[*newElectrode->channels]->sourceNodeId;
 
     resetElectrode(newElectrode);
 
@@ -424,13 +436,14 @@ void SpikeDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
 }
 
 void SpikeDetector::process(AudioSampleBuffer& buffer,
-                            MidiBuffer& events,
-                            int& nSamples)
+                            MidiBuffer& events)
 {
 
     // cycle through electrodes
     SimpleElectrode* electrode;
     dataBuffer = &buffer;
+
+    int nSamples = 100; // SOME NUMBER
 
     checkForEvents(events); // need to find any timestamp events before extracting spikes
 
@@ -448,7 +461,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
         // increment at start of getNextSample()
 
         // cycle through samples
-        while (samplesAvailable(nSamples))
+        while (samplesAvailable(getNumSamples(electrode->sourceNodeId)))
         {
             sampleIndex++;
             // cycle through channels
@@ -539,7 +552,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
         } // end cycle through samples
 
-        electrode->lastBufferIndex = sampleIndex - nSamples; // should be negative
+        electrode->lastBufferIndex = sampleIndex - getNumSamples(electrode->sourceNodeId); // should be negative
 
         //jassert(electrode->lastBufferIndex < 0);
 
@@ -641,7 +654,7 @@ float SpikeDetector::getCurrentSample(int& chan)
 }
 
 
-bool SpikeDetector::samplesAvailable(int& nSamples)
+bool SpikeDetector::samplesAvailable(int nSamples)
 {
 
     if (sampleIndex > nSamples - overflowBufferSize/2)

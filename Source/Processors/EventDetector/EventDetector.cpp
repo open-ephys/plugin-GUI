@@ -57,14 +57,13 @@ void EventDetector::setParameter(int parameterIndex, float newValue)
 }
 
 void EventDetector::process(AudioSampleBuffer& buffer,
-                            MidiBuffer& events,
-                            int& nSamples)
+                            MidiBuffer& events)
 {
 
     //std::cout << *buffer.getReadPointer(0, 0) << std::endl;
 
 
-    for (int i = 0; i < nSamples; i++)
+    for (int i = 0; i < getNumSamples(channels[0]->sourceNodeId); i++)
     {
 
         if ((*buffer.getReadPointer(0, i) < -threshold) && !state)

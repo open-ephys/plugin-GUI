@@ -50,7 +50,7 @@ public:
     ~MessageCenter();
 
     /** Handle incoming data and decide which files and events to write to disk. */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer);
 
     /** Called when new events arrive. */
     void setParameter(int parameterIndex, float newValue);

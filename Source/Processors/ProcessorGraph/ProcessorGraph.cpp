@@ -33,7 +33,6 @@
 #include "../FilterNode/FilterNode.h"
 #include "../RecordNode/RecordNode.h"
 #include "../ResamplingNode/ResamplingNode.h"
-#include "../ReferenceNode/ReferenceNode.h"
 #include "../ChannelMappingNode/ChannelMappingNode.h"
 #include "../AudioResamplingNode/AudioResamplingNode.h"
 #include "../SignalGenerator/SignalGenerator.h"
@@ -42,10 +41,8 @@
 #include "../SpikeDetector/SpikeDetector.h"
 #include "../SpikeSorter/SpikeSorter.h"
 #include "../PhaseDetector/PhaseDetector.h"
-#include "../WiFiOutput/WiFiOutput.h"
 #include "../FileReader/FileReader.h"
 #include "../ArduinoOutput/ArduinoOutput.h"
-#include "../FPGAOutput/FPGAOutput.h"
 #include "../PulsePalOutput/PulsePalOutput.h"
 #include "../SerialInput/SerialInput.h"
 #include "../MessageCenter/MessageCenter.h"
@@ -639,20 +636,10 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             processor = new SpikeDisplayNode();
         }
 
-        else if (subProcessorType.equalsIgnoreCase("WiFi Output"))
-        {
-            std::cout << "Creating a WiFi node." << std::endl;
-            processor = new WiFiOutput();
-        }
         else if (subProcessorType.equalsIgnoreCase("Arduino Output"))
         {
             std::cout << "Creating an Arduino node." << std::endl;
             processor = new ArduinoOutput();
-        }
-        else if (subProcessorType.equalsIgnoreCase("FPGA Output"))
-        {
-            std::cout << "Creating an FPGA output node." << std::endl;
-            processor = new FPGAOutput();
         }
         else if (subProcessorType.equalsIgnoreCase("Pulse Pal"))
         {

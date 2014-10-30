@@ -43,6 +43,11 @@ class GenericProcessor;
   AudioNode and RecordNode, which need to access/update Channel
   information for multiple processors at once.
 
+  Every processor has a Channel object for each channel it must deal with.
+  Usually, settings for each channel will be copied from a source
+  node to its destination, but sometimes particular parameters will
+  be updated.
+
   @see GenericProcessor, RecordNode, AudioNode
 
 */
@@ -53,11 +58,15 @@ class Channel
 {
 public:
 
+    //--------- CONSTRUCTOR / DESTRUCTOR --------//
+
     /** Default constructor for creating Channels from scratch. */
-    Channel(GenericProcessor* p, int n);
+    Channel(GenericProcessor*, int, ChannelType);
 
     /** Copy constructor. */
     Channel(const Channel& ch);
+
+    //--------- GET / SET METHODS --------//
 
     /** Returns the name of a given channel. */
     String getName();
@@ -66,13 +75,10 @@ public:
     void setName(String);
 
    /** Sets the type of a given channel. */
-    void setType(channelType t);
+    void setType(ChannelType t);
 
    /** Sets the type of a given channel. */
-    channelType getType();
-
-    /** Restores the default settings for a given channel. */
-    void reset();
+    ChannelType getType();
 
     /** Sets the processor to which a channel belongs. */
     void setProcessor(GenericProcessor*);
@@ -83,50 +89,68 @@ public:
     /** Sets whether or not the channel will record. */
     bool getRecordState() {return isRecording;}
 
-    /** Sets a new channel gain by modifying bitVolts */
-    void setGain(float gain);
+    /** Sets the bitVolts value for this channel. */
+    void setBitVolts(float bitVolts);
 
-    /** returns channel's name */
-    String getChannelName();
+    /** Returns the bitVolts value for this channel. */
+    float getBitVolts();
+    
+    // -------- OTHER METHODS ---------//
 
-    /** returns current gain */
-    float getChannelGain();
+    /** Restores the default settings for a given channel. */
+    void reset();
 
-    /** The channel number.*/
-    int num;
+    //--------------PUBLIC MEMBERS ---------------- //
+
+    /** Channel index within the source processor */
+    int index;
 
     /** The ID of the channel's processor.*/
     int nodeId;
 
-    /** Used for EventChannels only.*/
-    int eventType;
-
     /** Pointer to the channel's parent processor. */
     GenericProcessor* processor;
 
-    int originalStream;
-    int originalChannel;
-
-
-    // crucial information:
+    /** Sample rate expected for this channel. */
     float sampleRate;
-    channelType type;
+
+    /** Bit volts for this channel (i.e., by what must we multiply the ADC integer value to 
+        convert to the original voltage measurement?). */
+    float bitVolts;
+
+    /** Channel "type": neural data, aux, adc, event **/
+    ChannelType type;
+
+    /** ID of source node. This is crucial for properly updating timestamps and sample counts. */
+    int sourceNodeId;
     
-     // boolean values:
-    bool isEventChannel;
-    bool isADCchannel;
+    /** Toggled when audio monitoring of this channel is enabled or disabled. */
     bool isMonitored;
+
+    /** Toggled when a channel is disabled from further processing. */
     bool isEnabled;
 
-    // file info (for disk writing). Meaning depends on RecordEngine
+    /** File info (for disk writing). Meaning depends on the RecordEngine being used. */
 	int recordIndex;
 
+    /** Holds the name of this channel */
     String name;
 
-    float bitVolts;
+    /** The ID of the probe that this channel belongs to (if any) */
+    int probeId;
+
+    /** x,y,z location of this channel in space */
+    float x,y,z;
+
+    /** Impedance of this channel. */
+    float impedance;
+    
 
 private:
 
+    //-------------- PRIVATE MEMBERS ---------------- //
+
+    /** Stores whether or not the channel is being recorded. */
     bool isRecording; 
 
     /** Generates a default name, based on the channel number. */

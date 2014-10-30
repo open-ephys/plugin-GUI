@@ -59,7 +59,7 @@ public:
 
     void prepareToPlay(double sampleRate, int estimatedSamplesPerBlock);
     void releaseResources();
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
     void setParameter(int parameterIndex, float newValue);
 
     AudioSampleBuffer* getContinuousBuffer()

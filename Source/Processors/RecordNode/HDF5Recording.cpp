@@ -26,7 +26,7 @@
 
 HDF5Recording::HDF5Recording() : processorIndex(-1)
 {
-    timestamp = 0;
+    //timestamp = 0;
     scaledBuffer = new float[MAX_BUFFER_SIZE];
     intBuffer = new int16[MAX_BUFFER_SIZE];
 }
@@ -42,10 +42,10 @@ String HDF5Recording::getEngineID()
 	return "KWIK";
 }
 
-void HDF5Recording::updateTimeStamp(int64 timestamp)
-{
-    this->timestamp = timestamp;
-}
+// void HDF5Recording::updateTimeStamp(int64 timestamp)
+// {
+//     this->timestamp = timestamp;
+// }
 
 void HDF5Recording::registerProcessor(GenericProcessor* proc)
 {

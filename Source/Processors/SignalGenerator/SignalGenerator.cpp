@@ -184,11 +184,10 @@ bool SignalGenerator::disable()
 
 
 void SignalGenerator::process(AudioSampleBuffer& buffer,
-                              MidiBuffer& midiMessages,
-                              int& nSamps)
+                              MidiBuffer& midiMessages)
 {
 
-    nSamps = int((float) buffer.getNumSamples() * sampleRateRatio);
+    int nSamps = int((float) buffer.getNumSamples() * sampleRateRatio);
 
     for (int i = 0; i < nSamps; ++i)
     {

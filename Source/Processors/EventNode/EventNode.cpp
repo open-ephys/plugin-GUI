@@ -55,8 +55,8 @@ void EventNode::updateSettings()
 {
     // add event channels
 
-    Channel* ch = new Channel(this, 1);
-    ch->name = "Trigger";
+    Channel* ch = new Channel(this, 1, EVENT_CHANNEL);
+    ch->setName("Trigger");
 
     eventChannels.add(ch);
 
@@ -71,8 +71,7 @@ void EventNode::updateSettings()
 
 
 void EventNode::process(AudioSampleBuffer& buffer,
-                        MidiBuffer& events,
-                        int& nSamples)
+                        MidiBuffer& events)
 {
     events.clear();
 

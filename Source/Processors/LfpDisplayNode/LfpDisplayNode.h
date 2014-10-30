@@ -55,7 +55,7 @@ public:
         return true;
     }
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
 
     void setParameter(int, float);
 
@@ -70,20 +70,22 @@ public:
     {
         return displayBuffer;
     }
-    int getDisplayBufferIndex()
+    int getDisplayBufferIndex(int chan)
     {
-        return displayBufferIndex;
+        return displayBufferIndex[chan];
     }
 
 private:
 
-    void initializeEventChannel();
+    void initializeEventChannels();
 
     ScopedPointer<AudioSampleBuffer> displayBuffer;
-    ScopedPointer<MidiBuffer> eventBuffer;
 
-    int displayBufferIndex;
-    int displayBufferIndexEvents;
+    Array<int> displayBufferIndex;
+    Array<int> eventSourceNodes;
+    std::map<int, int> channelForEventSource;
+
+    int numEventChannels;
 
     float displayGain; //
     float bufferLength; // s
@@ -91,11 +93,9 @@ private:
     AbstractFifo abstractFifo;
 
     int64 bufferTimestamp;
-    int ttlState;
+    std::map<int, int> ttlState;
     float* arrayOfOnes;
     int totalSamples;
-
-    //Time timer;
 
     bool resizeBuffer();
 

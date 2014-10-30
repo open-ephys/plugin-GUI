@@ -179,8 +179,7 @@ void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 }
 
 void AudioNode::process(AudioSampleBuffer& buffer,
-                        MidiBuffer& midiMessages,
-                        int& nSamples)
+                        MidiBuffer& events)
 {
     float gain;
 
@@ -303,9 +302,11 @@ void AudioNode::process(AudioSampleBuffer& buffer,
 
                     //  std::cout << "Copying " << remainingSamples << " samples from incoming buffer of " << nSamples << " samples." << std::endl;
 
-                    int samplesToCopy2 = ((remainingSamples <= nSamples) ?
+                    int samplesAvailable = numSamples.at(channelPointers[i-2]->sourceNodeId);
+
+                    int samplesToCopy2 = ((remainingSamples <= samplesAvailable) ?
                                           remainingSamples :
-                                          nSamples);
+                                          samplesAvailable);
 
                     if (samplesToCopy2 > 0)
                     {
@@ -330,7 +331,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
 
                     }
 
-                    orphanedSamples = nSamples - samplesToCopy2;
+                    orphanedSamples = samplesAvailable - samplesToCopy2;
 
                     // std::cout << "Samples remaining in incoming buffer: " << orphanedSamples << std::endl;
 
@@ -372,7 +373,8 @@ void AudioNode::process(AudioSampleBuffer& buffer,
         }
 
         samplesInBackupBuffer += orphanedSamples;
-        nSamples = numSamplesExpected;
+        
+        setNumSamples(events, numSamplesExpected);
 
     }
 }

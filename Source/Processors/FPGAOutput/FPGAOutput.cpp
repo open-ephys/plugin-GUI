@@ -157,14 +157,10 @@ void FPGAOutput::setParameter(int parameterIndex, float newValue)
 }
 
 void FPGAOutput::process(AudioSampleBuffer& buffer,
-                         MidiBuffer& events,
-                         int& nSamples)
+                         MidiBuffer& events)
 {
 
-
     checkForEvents(events);
-
-
 }
 
 void FPGAOutput::timerCallback()

@@ -119,7 +119,7 @@ void LfpTriggeredAverageNode::setParameter(int parameterIndex, float newValue)
         ed->canvas->setParameter(parameterIndex, newValue);
 }
 
-void LfpTriggeredAverageNode::handleEvent(int eventType, MidiMessage& event, int sampleNum)
+void LfpTriggeredAverageNode::handleEvent(int eventType, MidiMessage& event)
 {
     if (eventType == TTL)
     {
@@ -264,12 +264,14 @@ void LfpTriggeredAverageNode::initializeEventChannel()
     }
 }
 
-void LfpTriggeredAverageNode::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples)
+void LfpTriggeredAverageNode::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 {
     // 1. place any new samples into the displayBuffer
     //std::cout << "Display node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
 
-    totalSamples = nSamples;
+    int nSamples = 100;
+
+    totalSamples = nSamples; //nSamples;
     displayBufferIndexEvents = displayBufferIndex;
 
     initializeEventChannel();

@@ -132,12 +132,12 @@ void ChannelSelector::setNumChannels(int numChans)
     //Reassign numbers according to the actual channels (useful for channel mapper)
     for (int n = 0; n < parameterButtons.size(); n++)
     {
-        int num = ((GenericEditor*)getParentComponent())->getChannel(n)->num + 1;
-        parameterButtons[n]->setChannel(num);
+        //nt num = ((GenericEditor*)getParentComponent())->getChannel(n)->index;
+        parameterButtons[n]->setChannel(n+1);
         if (isNotSink)
         {
-            recordButtons[n]->setChannel(num);
-            audioButtons[n]->setChannel(num);
+            recordButtons[n]->setChannel(n+1);
+            audioButtons[n]->setChannel(n+1);
         }
     }
 
@@ -596,7 +596,7 @@ void ChannelSelector::buttonClicked(Button* button)
             //int channelNum = editor->getStartChannel() + b->getChannel() - 1;
             bool status = b->getToggleState();
 
-            std::cout << "Requesting audio monitor for channel " << ch->num << std::endl;
+            std::cout << "Requesting audio monitor for channel " << ch->index << std::endl;
 
             if (acquisitionIsActive) // use setParameter to change parameter safely
             {

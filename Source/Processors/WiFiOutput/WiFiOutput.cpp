@@ -56,8 +56,7 @@ void WiFiOutput::setParameter(int parameterIndex, float newValue)
 }
 
 void WiFiOutput::process(AudioSampleBuffer& buffer,
-                         MidiBuffer& events,
-                         int& nSamples)
+                         MidiBuffer& events)
 {
 
 

@@ -65,7 +65,7 @@ void MessageCenter::setParameter(int parameterIndex, float newValue)
 
 }
 
-void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer, int& nSamples)
+void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
 {
 
     if (newEventAvailable)

@@ -51,7 +51,7 @@ public:
     WiFiOutput();
     ~WiFiOutput();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& events);
     void setParameter(int parameterIndex, float newValue);
 
     void handleEvent(int eventType, MidiMessage& event, int sampleNum);

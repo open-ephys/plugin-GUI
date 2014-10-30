@@ -29,6 +29,8 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../Visualization/SpikeObject.h"
 
+#include <map>
+
 //Handy macros for setParameter
 #define boolParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::BOOL)) \
         v = parameter.boolParam.value
@@ -125,7 +127,10 @@ public:
 
     /** Called every time a new timestamp event is received
     */
-    virtual void updateTimeStamp(int64 timestamp);
+    virtual void updateTimestamps(std::map<uint8, int64>* timestamps);
+
+    /** Called every time a new numSamples event is received */
+    virtual void updateNumSamples(std::map<uint8, int>* numSamples);
 
     /** Called after all channels and spike groups have been registered,
     	just before acquisition starts
@@ -139,6 +144,9 @@ public:
 
     void registerManager(RecordEngineManager* engineManager);
     void configureEngine();
+
+    std::map<uint8, int>* numSamples;
+    std::map<uint8, int64>* timestamps;
 
 protected:
     /** Functions to access RecordNode arrays and utilities

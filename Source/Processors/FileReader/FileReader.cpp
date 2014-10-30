@@ -71,12 +71,12 @@ float FileReader::getDefaultSampleRate()
     return 40000.0f;
 }
 
-int FileReader::getDefaultNumOutputs()
+int FileReader::getNumHeadstageOutputs()
 {
     return 16;
 }
 
-float FileReader::getBitVolts(int chan)
+float FileReader::getBitVolts(Channel* ch)
 {
     return 0.05f;
 }
@@ -129,41 +129,10 @@ void FileReader::updateSettings()
 
 
 
-void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples)
+void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 {
 
-    uint8 data[8];
-    memcpy(data, &timestamp, 8);
-
-    // generate timestamp
-    addEvent(events,    // MidiBuffer
-             TIMESTAMP, // eventType
-             0,         // sampleNum
-             nodeId,    // eventID
-             0,		 // eventChannel
-             8,         // numBytes
-             data   // data
-            );
-
-    // FIXME: needs to account for the fact that the ratio might not be an exact
-    //        integer value
-
-    // code for testing events:
-    // if (counter > 100)
-    // {
-    //     addEvent(events,    // MidiBuffer
-    //          TTL, // eventType
-    //          0,         // sampleNum
-    //          1,    // eventID
-    //          0      // eventChannel
-    //         );
-    //     counter = 0;
-    // } else {
-    //     counter++;
-
-    // }
-
-
+    setTimestamp(events, timestamp);
 
     int samplesNeeded = (int) float(buffer.getNumSamples()) * (getDefaultSampleRate()/44100.0f);
 
@@ -199,18 +168,11 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSa
 
         int16 sample = readBuffer[n];
 
-#ifdef JUCE_WINDOWS //-- big-endian format
-        // reverse the byte order
-        //	float sample_f;
-        //	AudioDataConverters::convertInt16BEToFloat(&readBuffer[n], &sample_f, 1);
-
-#endif
-
         *buffer.getWritePointer(chan++, samp) = -sample * getDefaultBitVolts();
 
     }
 
-    nSamples = samplesNeeded;
+    setNumSamples(events, samplesNeeded);
 
 }
 

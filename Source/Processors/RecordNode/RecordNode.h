@@ -58,7 +58,7 @@ public:
 
     /** Handle incoming data and decide which files and events to write to disk.
     */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer);
 
 
     /** Overrides implementation in GenericProcessor; used to change recording parameters

@@ -24,6 +24,8 @@
 #include "GenericProcessor.h"
 #include "../../UI/UIComponent.h"
 
+#include <exception>
+
 GenericProcessor::GenericProcessor(const String& name_) : AccessClass(),
     sourceNode(0), destNode(0), isEnabled(true), wasConnected(false),
     nextAvailableChannel(0), saveOrder(-1), loadOrder(-1), currentChannel(-1),
@@ -299,16 +301,21 @@ void GenericProcessor::update()
     std::cout << getName() << " updating settings." << std::endl;
     // SO patched here to keep original channel names
 
+    // save original channel names
     int oldNumChannels = channels.size();
+    
     StringArray oldNames;
+
     for (int k = 0; k < oldNumChannels; k++)
     {
         oldNames.add(channels[k]->getName());
     }
 
+    // ---- RESET EVERYTHING ---- ///
     clearSettings();
 
-    if (sourceNode != 0)
+
+    if (sourceNode != 0) // copy settings from source node
     {
         // everything is inherited except numOutputs
         settings = sourceNode->settings;
@@ -320,8 +327,6 @@ void GenericProcessor::update()
             Channel* sourceChan = sourceNode->channels[i];
             Channel* ch = new Channel(*sourceChan);
             ch->setProcessor(this);
-            ch->bitVolts = ch->bitVolts*getBitVolts(i);
-			ch->num = i;
 
             if (i < recordStatus.size())
             {
@@ -335,48 +340,79 @@ void GenericProcessor::update()
         {
             Channel* sourceChan = sourceNode->eventChannels[i];
             Channel* ch = new Channel(*sourceChan);
-            ch->sampleRate = getDefaultSampleRate();
-            ch->bitVolts = getDefaultBitVolts();
+            ch->setProcessor(this);
             eventChannels.add(ch);
         }
 
     }
-    else
+    else // generate new settings
     {
-        settings.numOutputs = getDefaultNumOutputs();
         settings.sampleRate = getDefaultSampleRate();
+        settings.numOutputs = getNumHeadstageOutputs() + getNumAdcOutputs() + getNumAuxOutputs();
 
-        int numChan = getNumOutputs();
-        int numADC_Chan = getDefaultADCoutputs();
-        for (int i = 0; i < numChan; i++)
+        std::cout << getName() << " setting num outputs to " << settings.numOutputs << std::endl;
+
+        for (int i = 0; i < getNumHeadstageOutputs(); i++)
         {
-            Channel* ch = new Channel(this, i);
-
-            // if (i < oldNumChannels)
-            // 	ch->setName(oldNames[i]);
-            //else if (i >= numChan-numADC_Chan)
-            //	ch->setName("ADC"+String(1+i-(numChan-numADC_Chan)));
-
-            if (i >= numChan-numADC_Chan)
-                ch->setName("ADC"+String(1+i-(numChan-numADC_Chan)));
-
-            if (i >= numChan-numADC_Chan)
-				ch->setType(ADC_CHANNEL);
-
-
+            Channel* ch = new Channel(this, i+1, HEADSTAGE_CHANNEL);
+            ch->setProcessor(this);
             ch->sampleRate = getDefaultSampleRate();
-
-            //  if (ch->isADCchannel)
-            ch->bitVolts = getDefaultBitVolts();
-            //  else
-            //      ch->bitVolts = getDefaultAdcBitVolts(); // should implement this
+            ch->bitVolts = getBitVolts(ch);
+            ch->sourceNodeId = nodeId;
 
             if (i < recordStatus.size())
             {
                 ch->setRecordState(recordStatus[i]);
+            } else {
+                if (isSource())
+                    ch->setRecordState(true);
             }
 
             channels.add(ch);
+        }
+
+        for (int j = 0; j < getNumAuxOutputs(); j++)
+        {
+            Channel* ch = new Channel(this, j+1, AUX_CHANNEL);
+            ch->setProcessor(this);
+            ch->sampleRate = getDefaultSampleRate();
+            ch->bitVolts = getBitVolts(ch);
+            ch->sourceNodeId = nodeId;
+
+            if (j < recordStatus.size())
+            {
+                ch->setRecordState(recordStatus[j]);
+            } else {
+                if (isSource())
+                    ch->setRecordState(true);
+            }
+
+            channels.add(ch);
+        }
+
+        for (int k = 0; k < getNumAdcOutputs(); k++)
+        {
+            Channel* ch = new Channel(this, k+1, ADC_CHANNEL);
+            ch->setProcessor(this);
+            ch->sampleRate = getDefaultSampleRate();
+            ch->bitVolts = getBitVolts(ch);
+            ch->sourceNodeId = nodeId;
+
+            if (k < recordStatus.size())
+            {
+                ch->setRecordState(recordStatus[k]);
+            } else {
+                if (isSource())
+                    ch->setRecordState(true);
+            }
+
+            channels.add(ch);
+        }
+
+        for (int m = 0; m < getNumEventChannels(); m++)
+        {
+            Channel* ch = new Channel(this, m+1, EVENT_CHANNEL);
+            eventChannels.add(ch);
         }
 
     }
@@ -386,7 +422,7 @@ void GenericProcessor::update()
         settings.numOutputs = 0;
     }
 
-    updateSettings(); // custom settings code
+    updateSettings(); // allow processors to change custom settings
 
     // required for the ProcessorGraph to know the
     // details of this processor:
@@ -395,16 +431,16 @@ void GenericProcessor::update()
                          44100.0,         // sampleRate
                          128);            // blockSize
 
-    editor->update(); // update editor settings
+    editor->update(); // allow the editor to update its settings
 
 }
 
 void GenericProcessor::setAllChannelsToRecord()
 {
 
-    recordStatus.resize(getDefaultNumOutputs());
+    recordStatus.resize(channels.size());
 
-    for (int i = 0; i < getDefaultNumOutputs(); i++)
+    for (int i = 0; i < channels.size(); i++)
     {
         recordStatus.set(i,true);
     }
@@ -449,7 +485,105 @@ void GenericProcessor::disableEditor()
         ed->stopAcquisition();
 }
 
-int GenericProcessor::getNumSamples(MidiBuffer& events)
+/** Used to get the number of samples in a given buffer, for a given channel. */
+int GenericProcessor::getNumSamples(int channelNum)
+{
+    int sourceNodeId, nSamples;
+
+    if (channelNum >= 0 && channelNum < channels.size())
+        sourceNodeId = channels[channelNum]->sourceNodeId;
+    else
+        return 0;
+
+   // std::cout << "Requesting samples for channel " << channelNum << " with source node " << sourceNodeId << std::endl;
+
+    try
+    {
+        nSamples = numSamples.at(sourceNodeId);
+    }
+    catch (std::exception& e)
+    {
+        return 0;
+    }
+
+    //std::cout << nSamples << " were found." << std::endl;
+
+    return nSamples;    
+}       
+
+
+/** Used to get the number of samples in a given buffer, for a given source node. */
+void GenericProcessor::setNumSamples(MidiBuffer& events, int sampleIndex)
+{
+
+    // This amounts to adding a "buffer size" flag at a particular sample number,
+    // and a new flag is added each time "setNumSamples" is called.
+    // Thus, if the number of samples changes somewhere in the processing pipeline,
+    // the old sample number will remain. This is a problem if the number of
+    // samples gets smaller.
+    // If we allow the sample rate to change (e.g., with a resampling node),
+    // this code will have to be updated. The easiest approach will be for each
+    // processor to ignore any buffer size events that don't come from its
+    // immediate source.
+    //
+
+    uint8 data[4];
+
+    int16 si = (int16) sampleIndex;
+
+    data[0] = BUFFER_SIZE;  // most-significant byte
+    data[1] = nodeId;       // least-significant byte
+    memcpy(data+2, &si, 2);
+
+    events.addEvent(data,       // spike data
+                    4,          // total bytes
+                    0); // sample index
+}
+
+/** Used to get the timestamp for a given buffer, for a given source node. */
+int64 GenericProcessor::getTimestamp(int channelNum)
+{
+    int sourceNodeId;
+    int64 ts;
+
+    if (channelNum >= 0 && channelNum < channels.size())
+        sourceNodeId = channels[channelNum]->sourceNodeId;
+    else
+        return 0;
+
+    try 
+    {
+        ts = timestamps.at(sourceNodeId);
+    }
+    catch (std::exception& e)
+    {
+        return 0;
+    }
+
+    return ts;  
+}
+
+/** Used to set the timestamp for a given buffer, for a given channel. */
+void GenericProcessor::setTimestamp(MidiBuffer& events, int64 timestamp)
+{
+
+    //std::cout << "Setting timestamp to " << timestamp << std:;endl;
+
+    uint8 data[8];
+    memcpy(data, &timestamp, 8);
+
+    // generate timestamp
+    addEvent(events,    // MidiBuffer
+             TIMESTAMP, // eventType
+             0,         // sampleNum
+             nodeId,    // eventID
+             0,      // eventChannel
+             8,         // numBytes
+             data   // data
+            );
+}
+
+int GenericProcessor::processEventBuffer(MidiBuffer& events)
 {
     //
     // This loops through all events in the buffer, and uses the BUFFER_SIZE
@@ -488,8 +622,30 @@ int GenericProcessor::getNumSamples(MidiBuffer& events)
 
                 numRead = nr;
 
+                uint8 sourceNodeId;
+                memcpy(&sourceNodeId, dataptr + 1, 1);
+
+                numSamples[sourceNodeId] = numRead;
+
+               //if (nodeId < 900)
+                //    std::cout << nodeId << " got " << numRead << " samples for " << (int) sourceNodeId << std::endl;
+
+
             }
-            else
+            else if (*dataptr == TIMESTAMP)
+            {
+                int64 ts;
+                memcpy(&ts, dataptr+4, 8);
+
+                uint8 sourceNodeId;
+                memcpy(&sourceNodeId, dataptr + 1, 1);
+
+                timestamps[sourceNodeId] = ts;
+
+                //if (nodeId < 900)
+                //    std::cout << nodeId << " got " << ts << " timestamp for " << (int) sourceNodeId << std::endl;
+
+            } else {
 
                 if (*dataptr == TTL &&    // a TTL event
                     getNodeId() < 900 && // not handled by a specialized processor (e.g. AudioNode))
@@ -500,40 +656,11 @@ int GenericProcessor::getNumSamples(MidiBuffer& events)
                     *(ptr + 1) = 0; // set second byte of raw data to 0, so the event
                     // won't be saved twice
                 }
+            }
         }
     }
 
     return numRead;
-}
-
-void GenericProcessor::setNumSamples(MidiBuffer& events, int sampleIndex)
-{
-    //
-    // This amounts to adding a "buffer size" flag at a particular sample number,
-    // and a new flag is added each time "setNumSamples" is called.
-    // Thus, if the number of samples changes somewhere in the processing pipeline,
-    // the old sample number will remain. This is a problem if the number of
-    // samples gets smaller.
-    // If we allow the sample rate to change (e.g., with a resampling node),
-    // this code will have to be updated. The easiest approach will be for each
-    // processor to ignore any buffer size events that don't come from its
-    // immediate source.
-    //
-
-    uint8 data[4];
-
-    int16 si = (int16) sampleIndex;
-
-    data[0] = BUFFER_SIZE;  // most-significant byte
-    data[1] = nodeId;       // least-significant byte
-    memcpy(data+2, &si, 2);
-
-    events.addEvent(data,       // spike data
-                    4,          // total bytes
-                    0); // sample index
-
-    // std::cout << "Processor " << getNodeId() << " adding a new sample count of " << sampleIndex << std::endl;
-
 }
 
 
@@ -602,14 +729,10 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
 void GenericProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
 {
 
-    int nSamples = getNumSamples(eventBuffer); // finds buffer size and sets save
-    // flag on all TTL events to zero
+    processEventBuffer(eventBuffer); // extract buffer sizes and timestamps,
+                                     // set flag on all TTL events to zero
 
-    process(buffer, eventBuffer, nSamples);
-
-    if (sendSampleCount)
-        setNumSamples(eventBuffer, nSamples); // adds it back,
-    // even if it's unchanged
+    process(buffer, eventBuffer);
 
 }
 

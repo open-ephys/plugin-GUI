@@ -44,7 +44,7 @@ public:
     EventNode();
     ~EventNode();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
     //void setParameter (int parameterIndex, float newValue);
 
     bool isSource()
@@ -52,7 +52,7 @@ public:
         return true;
     }
 
-    int getDefaultNumOutputs()
+    int getNumHeadstageOutputs()
     {
         return 0;
     }

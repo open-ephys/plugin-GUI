@@ -1,4 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="open-ephys">
@@ -70,17 +71,11 @@
     <Filter Include="open-ephys\Source\Processors\FilterNode">
       <UniqueIdentifier>{189BB62E-5852-A4F3-AC79-704FAAE02870}</UniqueIdentifier>
     </Filter>
-    <Filter Include="open-ephys\Source\Processors\FPGAOutput">
-      <UniqueIdentifier>{995BE2D8-55CB-BBA8-8155-2EFE5F03F143}</UniqueIdentifier>
-    </Filter>
     <Filter Include="open-ephys\Source\Processors\GenericProcessor">
       <UniqueIdentifier>{223ADE1C-7B16-1075-5D22-4771767BF960}</UniqueIdentifier>
     </Filter>
     <Filter Include="open-ephys\Source\Processors\LfpDisplayNode">
       <UniqueIdentifier>{6F781BCA-7DB6-E933-BDDB-D2EAA51713B0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="open-ephys\Source\Processors\LfpTriggeredAverageNode">
-      <UniqueIdentifier>{1150A21B-5E97-AC73-C141-CEF966829E71}</UniqueIdentifier>
     </Filter>
     <Filter Include="open-ephys\Source\Processors\Merger">
       <UniqueIdentifier>{144C1CD2-E387-1D24-EFF3-C5238BD84182}</UniqueIdentifier>
@@ -105,9 +100,6 @@
     </Filter>
     <Filter Include="open-ephys\Source\Processors\RecordNode">
       <UniqueIdentifier>{185877A6-9FE6-DD2E-BC41-93EE3C608CFC}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="open-ephys\Source\Processors\ReferenceNode">
-      <UniqueIdentifier>{763A6B4C-B0C6-BA22-7FAB-0DEEF8D66097}</UniqueIdentifier>
     </Filter>
     <Filter Include="open-ephys\Source\Processors\ResamplingNode">
       <UniqueIdentifier>{3135385A-1E61-FB08-3E00-D5C52DFB1BC9}</UniqueIdentifier>
@@ -138,9 +130,6 @@
     </Filter>
     <Filter Include="open-ephys\Source\Processors\Visualization">
       <UniqueIdentifier>{851942D5-FED6-A7B2-6FAB-C278A247FE7A}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="open-ephys\Source\Processors\WiFiOutput">
-      <UniqueIdentifier>{F733C561-3FBD-E17D-CC23-601836ADF7E6}</UniqueIdentifier>
     </Filter>
     <Filter Include="open-ephys\Source\UI">
       <UniqueIdentifier>{717A0FE3-E079-E4BD-8F50-15A1953825C5}</UniqueIdentifier>
@@ -501,12 +490,6 @@
     <ClCompile Include="..\..\Source\Processors\DataThreads\RHD2000Thread.cpp">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\FileReaderThread.cpp">
-      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\FPGAThread.cpp">
-      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataBuffer.cpp">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClCompile>
@@ -600,12 +583,6 @@
     <ClCompile Include="..\..\Source\Processors\FilterNode\FilterNode.cpp">
       <Filter>open-ephys\Source\Processors\FilterNode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\FPGAOutput\FPGAOutput.cpp">
-      <Filter>open-ephys\Source\Processors\FPGAOutput</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\FPGAOutput\FPGAOutputEditor.cpp">
-      <Filter>open-ephys\Source\Processors\FPGAOutput</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\GenericProcessor\GenericProcessor.cpp">
       <Filter>open-ephys\Source\Processors\GenericProcessor</Filter>
     </ClCompile>
@@ -617,15 +594,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayNode.cpp">
       <Filter>open-ephys\Source\Processors\LfpDisplayNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageCanvas.cpp">
-      <Filter>open-ephys\Source\Processors\LfpTriggeredAverageNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageEditor.cpp">
-      <Filter>open-ephys\Source\Processors\LfpTriggeredAverageNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageNode.cpp">
-      <Filter>open-ephys\Source\Processors\LfpTriggeredAverageNode</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Merger\Merger.cpp">
       <Filter>open-ephys\Source\Processors\Merger</Filter>
@@ -683,12 +651,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\RecordNode\RecordNode.cpp">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\ReferenceNode\ReferenceNode.cpp">
-      <Filter>open-ephys\Source\Processors\ReferenceNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\ReferenceNode\ReferenceNodeEditor.cpp">
-      <Filter>open-ephys\Source\Processors\ReferenceNode</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\ResamplingNode\ResamplingNode.cpp">
       <Filter>open-ephys\Source\Processors\ResamplingNode</Filter>
@@ -761,12 +723,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\WiFiOutput\WiFiOutput.cpp">
-      <Filter>open-ephys\Source\Processors\WiFiOutput</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\WiFiOutput\WiFiOutputEditor.cpp">
-      <Filter>open-ephys\Source\Processors\WiFiOutput</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UI\EcubeDialogComponent.cpp">
       <Filter>open-ephys\Source\UI</Filter>
@@ -912,6 +868,12 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_devices\native\juce_linux_Midi.cpp">
       <Filter>Juce Modules\juce_audio_devices\native</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_devices\native\juce_mac_AudioCDBurner.mm">
+      <Filter>Juce Modules\juce_audio_devices\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_devices\native\juce_mac_AudioCDReader.mm">
+      <Filter>Juce Modules\juce_audio_devices\native</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_devices\native\juce_mac_CoreAudio.cpp">
       <Filter>Juce Modules\juce_audio_devices\native</Filter>
     </ClCompile>
@@ -1007,6 +969,9 @@
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_processors\format\juce_AudioPluginFormatManager.cpp">
       <Filter>Juce Modules\juce_audio_processors\format</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_processors\format_types\juce_AudioUnitPluginFormat.mm">
+      <Filter>Juce Modules\juce_audio_processors\format_types</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_processors\format_types\juce_LADSPAPluginFormat.cpp">
       <Filter>Juce Modules\juce_audio_processors\format_types</Filter>
@@ -1248,6 +1213,21 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\native\juce_linux_Threads.cpp">
       <Filter>Juce Modules\juce_core\native</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\native\juce_mac_Files.mm">
+      <Filter>Juce Modules\juce_core\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\native\juce_mac_Network.mm">
+      <Filter>Juce Modules\juce_core\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\native\juce_mac_Strings.mm">
+      <Filter>Juce Modules\juce_core\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\native\juce_mac_SystemStats.mm">
+      <Filter>Juce Modules\juce_core\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\native\juce_mac_Threads.mm">
+      <Filter>Juce Modules\juce_core\native</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\native\juce_posix_NamedPipe.cpp">
       <Filter>Juce Modules\juce_core\native</Filter>
     </ClCompile>
@@ -1335,7 +1315,13 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_events\native\juce_android_Messaging.cpp">
       <Filter>Juce Modules\juce_events\native</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_events\native\juce_ios_MessageManager.mm">
+      <Filter>Juce Modules\juce_events\native</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_events\native\juce_linux_Messaging.cpp">
+      <Filter>Juce Modules\juce_events\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_events\native\juce_mac_MessageManager.mm">
       <Filter>Juce Modules\juce_events\native</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_events\native\juce_win32_Messaging.cpp">
@@ -1441,6 +1427,12 @@
       <Filter>Juce Modules\juce_graphics\native</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_linux_Fonts.cpp">
+      <Filter>Juce Modules\juce_graphics\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_mac_CoreGraphicsContext.mm">
+      <Filter>Juce Modules\juce_graphics\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_mac_Fonts.mm">
       <Filter>Juce Modules\juce_graphics\native</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_win32_Direct2DGraphicsContext.cpp">
@@ -1797,6 +1789,12 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_android_Windowing.cpp">
       <Filter>Juce Modules\juce_gui_basics\native</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_ios_UIViewComponentPeer.mm">
+      <Filter>Juce Modules\juce_gui_basics\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_ios_Windowing.mm">
+      <Filter>Juce Modules\juce_gui_basics\native</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_linux_Clipboard.cpp">
       <Filter>Juce Modules\juce_gui_basics\native</Filter>
     </ClCompile>
@@ -1804,6 +1802,21 @@
       <Filter>Juce Modules\juce_gui_basics\native</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_linux_Windowing.cpp">
+      <Filter>Juce Modules\juce_gui_basics\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_mac_FileChooser.mm">
+      <Filter>Juce Modules\juce_gui_basics\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_mac_MainMenu.mm">
+      <Filter>Juce Modules\juce_gui_basics\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_mac_MouseCursor.mm">
+      <Filter>Juce Modules\juce_gui_basics\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_mac_NSViewComponentPeer.mm">
+      <Filter>Juce Modules\juce_gui_basics\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_mac_Windowing.mm">
       <Filter>Juce Modules\juce_gui_basics\native</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_win32_DragAndDrop.cpp">
@@ -1863,13 +1876,25 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_extra\native\juce_android_WebBrowserComponent.cpp">
       <Filter>Juce Modules\juce_gui_extra\native</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_extra\native\juce_ios_UIViewComponent.mm">
+      <Filter>Juce Modules\juce_gui_extra\native</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_extra\native\juce_linux_SystemTrayIcon.cpp">
       <Filter>Juce Modules\juce_gui_extra\native</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_extra\native\juce_linux_WebBrowserComponent.cpp">
       <Filter>Juce Modules\juce_gui_extra\native</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_extra\native\juce_mac_AppleRemote.mm">
+      <Filter>Juce Modules\juce_gui_extra\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_extra\native\juce_mac_NSViewComponent.mm">
+      <Filter>Juce Modules\juce_gui_extra\native</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_extra\native\juce_mac_SystemTrayIcon.cpp">
+      <Filter>Juce Modules\juce_gui_extra\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_extra\native\juce_mac_WebBrowserComponent.mm">
       <Filter>Juce Modules\juce_gui_extra\native</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_extra\native\juce_win32_ActiveXComponent.cpp">
@@ -1906,6 +1931,12 @@
       <Filter>Juce Modules\juce_opengl\opengl</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_video\native\juce_android_CameraDevice.cpp">
+      <Filter>Juce Modules\juce_video\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_video\native\juce_mac_CameraDevice.mm">
+      <Filter>Juce Modules\juce_video\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_video\native\juce_mac_QuickTimeMovieComponent.mm">
       <Filter>Juce Modules\juce_video\native</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_video\native\juce_win32_CameraDevice.cpp">
@@ -2021,12 +2052,6 @@
     <ClInclude Include="..\..\Source\Processors\DataThreads\RHD2000Thread.h">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\FileReaderThread.h">
-      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\FPGAThread.h">
-      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataBuffer.h">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClInclude>
@@ -2138,12 +2163,6 @@
     <ClInclude Include="..\..\Source\Processors\FilterNode\FilterNode.h">
       <Filter>open-ephys\Source\Processors\FilterNode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\FPGAOutput\FPGAOutput.h">
-      <Filter>open-ephys\Source\Processors\FPGAOutput</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\FPGAOutput\FPGAOutputEditor.h">
-      <Filter>open-ephys\Source\Processors\FPGAOutput</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\GenericProcessor\GenericProcessor.h">
       <Filter>open-ephys\Source\Processors\GenericProcessor</Filter>
     </ClInclude>
@@ -2155,15 +2174,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayNode.h">
       <Filter>open-ephys\Source\Processors\LfpDisplayNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageCanvas.h">
-      <Filter>open-ephys\Source\Processors\LfpTriggeredAverageNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageEditor.h">
-      <Filter>open-ephys\Source\Processors\LfpTriggeredAverageNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageNode.h">
-      <Filter>open-ephys\Source\Processors\LfpTriggeredAverageNode</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Merger\Merger.h">
       <Filter>open-ephys\Source\Processors\Merger</Filter>
@@ -2221,12 +2231,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\RecordNode\RecordNode.h">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\ReferenceNode\ReferenceNode.h">
-      <Filter>open-ephys\Source\Processors\ReferenceNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\ReferenceNode\ReferenceNodeEditor.h">
-      <Filter>open-ephys\Source\Processors\ReferenceNode</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\ResamplingNode\ResamplingNode.h">
       <Filter>open-ephys\Source\Processors\ResamplingNode</Filter>
@@ -2305,12 +2309,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\WiFiOutput\WiFiOutput.h">
-      <Filter>open-ephys\Source\Processors\WiFiOutput</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\WiFiOutput\WiFiOutputEditor.h">
-      <Filter>open-ephys\Source\Processors\WiFiOutput</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\EcubeDialogComponent.h">
       <Filter>open-ephys\Source\UI</Filter>

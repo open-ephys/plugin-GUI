@@ -51,7 +51,7 @@ public:
     ~ArduinoOutput();
 
     /** Searches for events and triggers the Arduino output when appropriate. */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& events);
 
     /** Currently unused. Future uses may include changing the TTL trigger channel
     or the output channel of the Arduino. */

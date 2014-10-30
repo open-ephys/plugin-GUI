@@ -28,6 +28,7 @@
 
 #include "RecordEngine.h"
 #include <stdio.h>
+#include <map>
 
 #define HEADER_SIZE 1024
 #define BLOCK_LENGTH 1024
@@ -46,7 +47,7 @@ public:
     void writeEvent(int eventType, MidiMessage& event, int samplePosition);
     void addChannel(int index, Channel* chan);
     void resetChannels();
-    void updateTimeStamp(int64 timestamp);
+    //void updateTimeStamp(int64 timestamp);
     void addSpikeElectrode(int index, SpikeRecordInfo* elec);
     void writeSpike(const SpikeObject& spike, int electrodeIndex);
 
@@ -56,8 +57,8 @@ private:
     String getFileName(Channel* ch);
     void openFile(File rootFolder, Channel* ch);
     String generateHeader(Channel* ch);
-    void writeContinuousBuffer(const float* data, int nSamples, int channel);
-    void writeTimestampAndSampleCount(FILE* file);
+    void writeContinuousBuffer(const float* data, int sourceNodeId, int channel);
+    void writeTimestampAndSampleCount(FILE* file, int sourceNodeId);
     void writeRecordMarker(FILE* file);
 
     void openSpikeFile(File rootFolder, SpikeRecordInfo* elec);
@@ -68,7 +69,7 @@ private:
     void writeMessage(MidiMessage& event, int samplePosition);
 
     bool separateFiles;
-    int blockIndex;
+    Array<int> blockIndex;
     int recordingNumber;
     int experimentNumber;
 
@@ -86,7 +87,6 @@ private:
     char* recordMarker;
 
     AudioSampleBuffer zeroBuffer;
-    int64 timestamp;
 
     FILE* eventFile;
     FILE* messageFile;

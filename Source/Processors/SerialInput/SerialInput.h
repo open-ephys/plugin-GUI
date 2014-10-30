@@ -103,7 +103,7 @@ public:
 
      Adds all the new serial data that is available to the event data buffer.
      */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& events);
 
     /**
      Returns the Juce GUI component that should be used with this processor.
