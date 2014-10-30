@@ -468,7 +468,7 @@ void GraphNode::paint(Graphics& g)
     }
     else
     {
-        g.setColour(Colours::lightgrey);
+        g.setColour(editor->getBackgroundColor());
         g.fillEllipse(2,2,16,16);
 
     }
