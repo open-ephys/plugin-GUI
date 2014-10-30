@@ -43,7 +43,7 @@ public:
     String getEngineID();
     void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
     void closeFiles();
-    void writeData(AudioSampleBuffer& buffer, int nSamples);
+    void writeData(AudioSampleBuffer& buffer);
     void writeEvent(int eventType, MidiMessage& event, int samplePosition);
     void addChannel(int index, Channel* chan);
     void resetChannels();
@@ -57,7 +57,7 @@ private:
     String getFileName(Channel* ch);
     void openFile(File rootFolder, Channel* ch);
     String generateHeader(Channel* ch);
-    void writeContinuousBuffer(const float* data, int sourceNodeId, int channel);
+    void writeContinuousBuffer(const float* data, int nSamples, int channel);
     void writeTimestampAndSampleCount(FILE* file, int sourceNodeId);
     void writeRecordMarker(FILE* file);
 

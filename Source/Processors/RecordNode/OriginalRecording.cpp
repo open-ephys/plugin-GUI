@@ -406,106 +406,76 @@ void OriginalRecording::writeTTLEvent(MidiMessage& event, int samplePosition)
     diskWriteLock.exit();
 }
 
-void OriginalRecording::writeData(AudioSampleBuffer& buffer, int nSamples)
+void OriginalRecording::writeData(AudioSampleBuffer& buffer)
 {
-
-    int samplesWritten = 100; // SOME NUMBER
 
     for (int i = 0; i < buffer.getNumChannels(); i++)
     {
         if (getChannel(i)->getRecordState())
         {
+            int samplesWritten = 0;
 
             int sourceNodeId = getChannel(i)->sourceNodeId;
 
             int nSamples = (*numSamples)[sourceNodeId];
             int64 timestamp = (*timestamps)[sourceNodeId];
 
-            int samplesToWrite = jmin(BLOCK_LENGTH, nSamples - blockIndex[i]);
+            while (samplesWritten < nSamples) // there are still unwritten samples in this buffer
+            {
+                int numSamplesToWrite = nSamples - samplesWritten;
 
-            // write buffer to disk!
-            writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
-                                  samplesToWrite,
-                                  i);
+                if (blockIndex[i] + numSamplesToWrite < BLOCK_LENGTH) // we still have space in this block
+                {
 
-            blockIndex.set(i, blockIndex[i] + samplesToWrite);
+                    // write buffer to disk!
+                    writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
+                                          numSamplesToWrite,
+                                          i);
+
+                    timestamp += numSamplesToWrite;
+                    blockIndex.set(i, blockIndex[i] + numSamplesToWrite);
+                    samplesWritten += numSamplesToWrite;
+
+                } else // there's not enough space left in this block for all remaining samples 
+                {
+
+                     numSamplesToWrite = BLOCK_LENGTH - blockIndex[i];
+
+                     // write buffer to disk!
+                     writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
+                                           numSamplesToWrite,
+                                           i);
+
+                    // update our variables
+                    samplesWritten += numSamplesToWrite;
+                    timestamp += numSamplesToWrite;
+                    blockIndex.set(i,0); // back to the beginning of the block
+                }
+            }
+            
         }
     }
 
-    // while (samplesWritten < nSamples) // there are still unwritten samples in the buffer
-    // {
-
-    //     int numSamplesToWrite = nSamples - samplesWritten; // samples remaining in the buffer
-
-    //     if (blockIndex + numSamplesToWrite < BLOCK_LENGTH) // we still have space in this block
-    //     {
-    //         for (int i = 0; i < buffer.getNumChannels(); i++)
-    //         {
-
-    //             if (getChannel(i)->getRecordState())
-    //             {
-    //                 // write buffer to disk!
-    //                 writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
-    //                                       getChannel(i)->sourceNodeId,
-    //                                       i);
-
-
-    //             }
-    //         }
-
-    //         // update our variables
-    //         samplesWritten += numSamplesToWrite;
-    //         timestamp += numSamplesToWrite;
-    //         blockIndex += numSamplesToWrite;
-
-    //     }
-    //     else // there's not enough space left in this block for all remaining samples
-    //     {
-
-    //         numSamplesToWrite = BLOCK_LENGTH - blockIndex;
-
-    //         for (int i = 0; i < buffer.getNumChannels(); i++)
-    //         {
-
-    //             if (getChannel(i)->getRecordState())
-    //             {
-    //                 // write buffer to disk!
-    //                 writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
-    //                                       getChannel(i)->sourceNodeId,
-    //                                       i);
-
-    //                 //std::cout << "Record channel " << i << std::endl;
-    //             }
-    //         }
-
-    //         // update our variables
-    //         samplesWritten += numSamplesToWrite;
-    //         timestamp += numSamplesToWrite;
-    //         blockIndex = 0; // back to the beginning of the block
-
-    //     }
-    // }
 }
 
-void OriginalRecording::writeContinuousBuffer(const float* data, int sourceNodeId, int channel)
+void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, int channel)
 {
     // check to see if the file exists
     if (fileArray[channel] == nullptr)
         return;
 
-    int nSamples = (*numSamples)[sourceNodeId];
-
     // scale the data back into the range of int16
     float scaleFactor =  float(0x7fff) * getChannel(channel)->bitVolts;
+
     for (int n = 0; n < nSamples; n++)
     {
         *(continuousDataFloatBuffer+n) = *(data+n) / scaleFactor;
     }
-    AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, (*numSamples)[sourceNodeId]);
+    AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
 
     if (blockIndex[channel] == 0)
     {
-        writeTimestampAndSampleCount(fileArray[channel], sourceNodeId);
+        writeTimestampAndSampleCount(fileArray[channel], getChannel(channel)->sourceNodeId);
     }
 
     diskWriteLock.enter();
@@ -514,6 +484,8 @@ void OriginalRecording::writeContinuousBuffer(const float* data, int sourceNodeI
                           2,                               // size of each element
                           nSamples,                        // count
                           fileArray[channel]); // ptr to FILE object
+
+    //std::cout << channel << " : " << nSamples << " : " << count << std::endl;
 
     jassert(count == nSamples); // make sure all the data was written
 

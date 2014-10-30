@@ -91,9 +91,10 @@ public:
 
     /** Write continuous data.
     	This method gets the full data buffer, it must query getRecordState for
-    	each registered channel to determine which channels to actually write to disk
+    	each registered channel to determine which channels to actually write to disk.
+        The number of samples to write will be found in the numSamples object.
     */
-    virtual void writeData(AudioSampleBuffer& buffer, int nSamples) = 0;
+    virtual void writeData(AudioSampleBuffer& buffer) = 0;
 
     /** Write a single event to disk.
     */

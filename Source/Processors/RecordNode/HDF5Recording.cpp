@@ -135,13 +135,17 @@ void HDF5Recording::closeFiles()
     }
 }
 
-void HDF5Recording::writeData(AudioSampleBuffer& buffer, int nSamples)
+void HDF5Recording::writeData(AudioSampleBuffer& buffer)
 {
     int index;
     for (int i = 0; i < buffer.getNumChannels(); i++)
     {
         if (getChannel(i)->getRecordState())
         {
+
+            int sourceNodeId = getChannel(i)->sourceNodeId;
+            int nSamples = (*numSamples)[sourceNodeId];
+
             double multFactor = 1/(float(0x7fff) * getChannel(i)->bitVolts);
             int index = processorMap[getChannel(i)->recordIndex];
             FloatVectorOperations::copyWithMultiply(scaledBuffer,buffer.getReadPointer(i,0),multFactor,nSamples);

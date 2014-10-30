@@ -429,14 +429,13 @@ void RecordNode::process(AudioSampleBuffer& buffer,
         EVERY_ENGINE->updateTimestamps(&timestamps);
         EVERY_ENGINE->updateNumSamples(&numSamples);
 
-        // FIRST: cycle through events -- extract the TTLs and the timestamps
+        // FIRST: cycle through events -- extract the TTLs
         checkForEvents(events);
 
         // SECOND: write channel data
         if (channelPointers.size() > 0)
         {
-            //EVERY_ENGINE->updateTimeStamp(getTimestamp(channelPointers))
-            EVERY_ENGINE->writeData(buffer, 10);
+            EVERY_ENGINE->writeData(buffer);
         }
 
         //  std::cout << nSamples << " " << samplesWritten << " " << blockIndex << std::endl;

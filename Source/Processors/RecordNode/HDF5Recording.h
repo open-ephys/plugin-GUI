@@ -35,7 +35,7 @@ public:
 	String getEngineID();
     void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
     void closeFiles();
-    void writeData(AudioSampleBuffer& buffer, int nSamples);
+    void writeData(AudioSampleBuffer& buffer);
     void writeEvent(int eventType, MidiMessage& event, int samplePosition);
     void addChannel(int index, Channel* chan);
     void addSpikeElectrode(int index, SpikeRecordInfo* elec);
