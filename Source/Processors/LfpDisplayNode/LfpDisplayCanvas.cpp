@@ -329,6 +329,15 @@ void LfpDisplayCanvas::update()
 
         resized();
     }
+	else
+	{
+		for (int i = 0; i < processor->getNumInputs(); i++)
+        {
+			lfpDisplay->channels[i]->updateType();
+			lfpDisplay->channelInfo[i]->updateType();
+		}
+		
+	}
 
 }
 
@@ -1538,6 +1547,12 @@ LfpChannelDisplay::~LfpChannelDisplay()
 
 }
 
+void LfpChannelDisplay::updateType()
+{
+	type = canvas->getChannelType(chan);
+	typeStr = canvas->getTypeName(type);
+}
+
 void LfpChannelDisplay::setEnabledState(bool state)
 {
 
@@ -1846,6 +1861,13 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
 
     addAndMakeVisible(enableButton);
 
+}
+
+void LfpChannelDisplayInfo::updateType()
+{
+	type = canvas->getChannelType(chan);
+	typeStr = canvas->getTypeName(type);
+	repaint();
 }
 
 void LfpChannelDisplayInfo::buttonClicked(Button* button)
