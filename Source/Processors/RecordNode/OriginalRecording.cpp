@@ -176,6 +176,7 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
 		c->filename = fileName;
 		c->name = ch->name;
 		c->startPos = ftell(chFile);
+		c->bitVolts = ch->bitVolts;
 		processorArray.getLast()->channels.add(c);
 	}
 	diskWriteLock.exit();
@@ -678,6 +679,7 @@ void OriginalRecording::writeXml()
 			ChannelInfo* c = processorArray[i]->channels[j];
 			XmlElement* chan = new XmlElement("CHANNEL");
 			chan->setAttribute("name",c->name);
+			chan->setAttribute("bitVolts",c->bitVolts);
 			chan->setAttribute("filename",c->filename);
 			chan->setAttribute("position",(double)(c->startPos)); //As long as the file doesnt exceed 2^53 bytes, this will have integer precission. Better than limiting to 32bits.
 			proc->addChildElement(chan);
