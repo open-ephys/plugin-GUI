@@ -317,7 +317,13 @@ bool SpikeDetector::enable()
 {
 
     sampleRateForElectrode = (uint16_t) getSampleRate();
-    useOverflowBuffer = false;
+
+
+    useOverflowBuffer.clear();
+
+    for (int i = 0; i < electrodes.size(); i++)
+        useOverflowBuffer.add(false);
+
     return true;
 }
 
@@ -443,8 +449,6 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
     SimpleElectrode* electrode;
     dataBuffer = &buffer;
 
-    int nSamples = 100; // SOME NUMBER
-
     checkForEvents(events); // need to find any timestamp events before extracting spikes
 
     //std::cout << dataBuffer.getMagnitude(0,nSamples) << std::endl;
@@ -557,6 +561,27 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
         //jassert(electrode->lastBufferIndex < 0);
 
+        if (getNumSamples(*electrode->channels) > overflowBufferSize)
+        {
+
+            for (int j = 0; j < electrode->numChannels; j++)
+            {
+
+                overflowBuffer.copyFrom(*electrode->channels+i, 0,
+                                        buffer, *electrode->channels+i,
+                                        nSamples-overflowBufferSize,
+                                        overflowBufferSize);
+                
+            }
+
+            useOverflowBuffer.set(i, true);
+
+        }
+        else
+        {
+            useOverflowBuffer.set(i, false);
+        }
+
     } // end cycle through electrodes
 
     // copy end of this buffer into the overflow buffer
@@ -569,26 +594,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
     // std::cout << "numSamples = " << overflowBufferSize << std::endl;
     // std::cout << "buffer size = " << buffer.getNumSamples() << std::endl;
 
-    if (nSamples > overflowBufferSize)
-    {
-
-        for (int i = 0; i < overflowBuffer.getNumChannels(); i++)
-        {
-
-            overflowBuffer.copyFrom(i, 0,
-                                    buffer, i,
-                                    nSamples-overflowBufferSize,
-                                    overflowBufferSize);
-
-            useOverflowBuffer = true;
-        }
-
-    }
-    else
-    {
-
-        useOverflowBuffer = false;
-    }
+    
 
 
 

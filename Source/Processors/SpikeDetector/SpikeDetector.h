@@ -171,7 +171,7 @@ private:
     float getCurrentSample(int& chan);
     bool samplesAvailable(int nSamples);
 
-    bool useOverflowBuffer;
+    Array<bool> useOverflowBuffer;
 
     int currentElectrode;
     int currentChannelIndex;

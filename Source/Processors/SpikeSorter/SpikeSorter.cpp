@@ -641,7 +641,12 @@ void SpikeSorter::setParameter(int parameterIndex, float newValue)
 bool SpikeSorter::enable()
 {
 
-    useOverflowBuffer = false;
+    useOverflowBuffer.clear();
+
+    for (int i = 0; i < electrodes.size(); i++)
+        useOverflowBuffer.add(false);
+
+
 	SpikeSorterEditor* editor = (SpikeSorterEditor*) getEditor();
 	 editor->enable();
 	
@@ -863,9 +868,6 @@ void SpikeSorter::process(AudioSampleBuffer& buffer,
 	
     checkForEvents(events); // find latest's packet timestamps
 	
-	//postEventsInQueue(events);
-	int nSamples = 100; // SOME NUMBER
-
 	channelBuffers->update(buffer,  hardware_timestamp,software_timestamp,nSamples);
 
     for (int i = 0; i < electrodes.size(); i++)
@@ -880,7 +882,7 @@ void SpikeSorter::process(AudioSampleBuffer& buffer,
         // increment at start of getNextSample()
 
         // cycle through samples
-        while (samplesAvailable(getNumSamples(electrode->sourceNodeId)))
+        while (samplesAvailable(getNumSamples(*electrode->channels)))
         {
 
             sampleIndex++;
@@ -1005,43 +1007,32 @@ void SpikeSorter::process(AudioSampleBuffer& buffer,
         } // end cycle through samples
 
 		//float vv = getNextSample(currentChannel);
-        electrode->lastBufferIndex = sampleIndex - nSamples; // should be negative
+        electrode->lastBufferIndex = sampleIndex - getNumSamples(*electrode->channels); // should be negative
 
         //jassert(electrode->lastBufferIndex < 0);
 
-    } // end cycle through electrodes
-
-    // copy end of this buffer into the overflow buffer
-
-    //std::cout << "Copying buffer" << std::endl;
-    // std::cout << "nSamples: " << nSamples;
-    //std::cout << "overflowBufferSize:" << overflowBufferSize;
-
-    //std::cout << "sourceStartSample = " << nSamples-overflowBufferSize << std::endl;
-    // std::cout << "numSamples = " << overflowBufferSize << std::endl;
-    // std::cout << "buffer size = " << buffer.getNumSamples() << std::endl;
-
-    if (nSamples > overflowBufferSize)
-    {
-
-        for (int i = 0; i < overflowBuffer.getNumChannels(); i++)
+        if (getNumSamples(*electrode->channels) > overflowBufferSize)
         {
 
-            overflowBuffer.copyFrom(i, 0,
-                                    buffer, i,
-                                    nSamples-overflowBufferSize,
-                                    overflowBufferSize);
+            for (int j = 0; j < electrode.numChannels; j++)
+            {
 
+                overflowBuffer.copyFrom(*electrode->channels+i, 0,
+                                        buffer, *electrode->channels+i,
+                                        nSamples-overflowBufferSize,
+                                        overflowBufferSize);
+                
+            }
 
-            useOverflowBuffer = true;
+            useOverflowBuffer.set(i, true);
+
+        }
+        else
+        {
+            useOverflowBuffer.set(i, false);
         }
 
-    }
-    else
-    {
-
-        useOverflowBuffer = false;
-    }
+    } // end cycle through electrodes
 
 
 	mut.exit();
