@@ -157,6 +157,7 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
     else
     {
         std::cout << "File already exists, just opening." << std::endl;
+		fseek(chFile, 0, SEEK_END );
     }
 
     if (isEvent)
