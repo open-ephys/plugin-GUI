@@ -168,7 +168,7 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 
         int16 sample = readBuffer[n];
 
-        *buffer.getWritePointer(chan++, samp) = -sample * getDefaultBitVolts();
+        *buffer.getWritePointer(chan++, samp) = -sample * 0.05f;
 
     }
 

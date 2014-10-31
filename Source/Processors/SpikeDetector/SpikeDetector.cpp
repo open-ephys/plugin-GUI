@@ -461,8 +461,9 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
         // increment at start of getNextSample()
 
         // cycle through samples
-        while (samplesAvailable(getNumSamples(electrode->sourceNodeId)))
+        while (samplesAvailable(getNumSamples(*electrode->channels)))
         {
+
             sampleIndex++;
             // cycle through channels
             for (int chan = 0; chan < electrode->numChannels; chan++)
@@ -552,7 +553,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
         } // end cycle through samples
 
-        electrode->lastBufferIndex = sampleIndex - getNumSamples(electrode->sourceNodeId); // should be negative
+        electrode->lastBufferIndex = sampleIndex - getNumSamples(*electrode->channels); // should be negative
 
         //jassert(electrode->lastBufferIndex < 0);
 
