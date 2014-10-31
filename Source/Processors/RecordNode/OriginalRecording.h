@@ -106,6 +106,7 @@ private:
 	struct ChannelInfo {
 		String name;
 		String filename;
+		float bitVolts;
 		long int startPos;
 	};
 	struct ProcInfo {
