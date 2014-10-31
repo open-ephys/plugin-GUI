@@ -868,7 +868,7 @@ void SpikeSorter::process(AudioSampleBuffer& buffer,
 	
     checkForEvents(events); // find latest's packet timestamps
 	
-	channelBuffers->update(buffer,  hardware_timestamp,software_timestamp,nSamples);
+	//channelBuffers->update(buffer, hardware_timestamp,software_timestamp, nSamples);
 
     for (int i = 0; i < electrodes.size(); i++)
     {
@@ -881,8 +881,10 @@ void SpikeSorter::process(AudioSampleBuffer& buffer,
         sampleIndex = electrode->lastBufferIndex - 1; // subtract 1 to account for
         // increment at start of getNextSample()
 
+        int nSamples = getNumSamples(*electrode->channels); // get the number of samples for this buffer
+
         // cycle through samples
-        while (samplesAvailable(getNumSamples(*electrode->channels)))
+        while (samplesAvailable(nSamples))
         {
 
             sampleIndex++;
@@ -1007,14 +1009,14 @@ void SpikeSorter::process(AudioSampleBuffer& buffer,
         } // end cycle through samples
 
 		//float vv = getNextSample(currentChannel);
-        electrode->lastBufferIndex = sampleIndex - getNumSamples(*electrode->channels); // should be negative
+        electrode->lastBufferIndex = sampleIndex - nSamples; // should be negative
 
         //jassert(electrode->lastBufferIndex < 0);
 
-        if (getNumSamples(*electrode->channels) > overflowBufferSize)
+        if (nSamples > overflowBufferSize)
         {
 
-            for (int j = 0; j < electrode.numChannels; j++)
+            for (int j = 0; j < electrode->numChannels; j++)
             {
 
                 overflowBuffer.copyFrom(*electrode->channels+i, 0,
