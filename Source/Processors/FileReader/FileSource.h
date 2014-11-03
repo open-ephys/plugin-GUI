@@ -26,52 +26,60 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
+struct RecordedChannelInfo
+{
+	String name;
+	float bitVolts;
+};
+
 class FileSource
 {
 public:
-	FileSource();
-	~FileSource();
+    FileSource();
+    ~FileSource();
 
-	int getNumRecords();
-	String getRecordName(int index);
+    int getNumRecords();
+    String getRecordName(int index);
 
-	int getActiveRecord();
-	void setActiveRecord(int index);
+    int getActiveRecord();
+    void setActiveRecord(int index);
 
-	float getRecordSampleRate(int index);
-	int getRecordNumChannels(int index);
-	int64 getRecordNumSamples(int index);
+    float getRecordSampleRate(int index);
+    int getRecordNumChannels(int index);
+    int64 getRecordNumSamples(int index);
 
-	float getActiveSampleRate();
-	int getActiveNumChannels();
-	int64 getActiveNumSamples();
+    float getActiveSampleRate();
+    int getActiveNumChannels();
+    int64 getActiveNumSamples();
 
+	RecordedChannelInfo getChannelInfo(int recordIndex, int channel);
+	RecordedChannelInfo getChannelInfo(int channel);
 
-	bool OpenFile(File file);
-	bool fileIsOpened();
-	
-	virtual int readData(int16* buffer, int nSamples) =0;
+    bool OpenFile(File file);
+    bool fileIsOpened();
 
-	virtual void seekTo(int64 sample) =0;
+    virtual int readData(int16* buffer, int nSamples) =0;
+
+    virtual void seekTo(int64 sample) =0;
 
 protected:
-	struct RecordInfo
-	{
-		String name;
-		int numChannels;
-		int64 numSamples;
-		float sampleRate;
-	};
-	Array<RecordInfo> infoArray;
+    struct RecordInfo
+    {
+        String name;
+		Array<RecordedChannelInfo> channels;
+        int64 numSamples;
+        float sampleRate;
+    };
+    Array<RecordInfo> infoArray;
 
-	bool fileOpened;
-	int numRecords;
-	int activeRecord;
+    bool fileOpened;
+    int numRecords;
+    int activeRecord;
 
 private:
-	virtual bool Open(File file)=0;
-	virtual void fillRecordInfo()=0;
-	virtual void updateActiveRecord()=0;
+    virtual bool Open(File file)=0;
+    virtual void fillRecordInfo()=0;
+    virtual void updateActiveRecord()=0;
 };
 
 

@@ -43,7 +43,7 @@ String FileSource::getRecordName(int index)
 
 int FileSource::getRecordNumChannels(int index)
 {
-	return infoArray[index].numChannels;
+	return infoArray[index].channels.size();
 }
 
 int FileSource::getActiveNumChannels()
@@ -75,6 +75,17 @@ int FileSource::getActiveRecord()
 {
 	return activeRecord;
 }
+
+RecordedChannelInfo FileSource::getChannelInfo(int recordIndex, int channel)
+{
+	return infoArray[recordIndex].channels[channel];
+}
+
+RecordedChannelInfo FileSource::getChannelInfo(int channel)
+{
+	return getChannelInfo(activeRecord, channel);
+}
+
 
 void FileSource::setActiveRecord(int index)
 {

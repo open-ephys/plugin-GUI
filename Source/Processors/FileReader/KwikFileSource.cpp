@@ -20,10 +20,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+#include <h5cpp.h>
 #include "KwikFileSource.h"
 
-#include <h5cpp.h>
+
 
 using namespace H5;
 
@@ -90,7 +90,7 @@ void KWIKFileSource::fillRecordInfo()
 			try {
 				Group recordN;
 				DataSet data;
-				Attribute samp;
+				Attribute attr;
 				DataSpace dSpace;
 				float sampleRate;
 				hsize_t dims[3];
@@ -98,15 +98,27 @@ void KWIKFileSource::fillRecordInfo()
 
 				recordN = recordings.openGroup(String(i).toUTF8());
 				data = recordN.openDataSet("data");
-				samp = recordN.openAttribute("sample_rate");
-				samp.read(PredType::NATIVE_FLOAT,&sampleRate);
+				attr = recordN.openAttribute("sample_rate");
+				attr.read(PredType::NATIVE_FLOAT,&sampleRate);
 				dSpace = data.getSpace();
 				dSpace.getSimpleExtentDims(dims);
 								
 				info.name="Record "+String(i);
-				info.numChannels = dims[1];
 				info.numSamples = dims[0];
 				info.sampleRate = sampleRate;
+
+				recordN = recordings.openGroup((String(i) + "/application_data").toUTF8());
+				attr=recordN.openAttribute("channel_bit_volts");
+				HeapBlock<float> bitVoltArray(dims[1]);
+				attr.read(ArrayType(PredType::NATIVE_FLOAT,1,&dims[1]),bitVoltArray);
+
+				for (int i=0; i < dims[1]; i++)
+				{
+					RecordedChannelInfo c;
+					c.name = "CH" + i;
+					c.bitVolts = bitVoltArray[i];
+					info.channels.add(c);
+				}
 				infoArray.add(info);
 				availableDataSets.add(i);
 				numRecords++;
