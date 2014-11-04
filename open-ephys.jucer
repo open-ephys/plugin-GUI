@@ -285,12 +285,6 @@
           <FILE id="jClaJf" name="AudioNode.cpp" compile="1" resource="0" file="Source/Processors/AudioNode/AudioNode.cpp"/>
           <FILE id="LHkdoG" name="AudioNode.h" compile="0" resource="0" file="Source/Processors/AudioNode/AudioNode.h"/>
         </GROUP>
-        <GROUP id="{ED1C2AFE-2ED9-D835-532A-4D6C558C73E7}" name="AudioResamplingNode">
-          <FILE id="YStaN1" name="AudioResamplingNode.cpp" compile="1" resource="0"
-                file="Source/Processors/AudioResamplingNode/AudioResamplingNode.cpp"/>
-          <FILE id="pnFZDY" name="AudioResamplingNode.h" compile="0" resource="0"
-                file="Source/Processors/AudioResamplingNode/AudioResamplingNode.h"/>
-        </GROUP>
         <GROUP id="{46016F19-8F25-F540-AA1C-D6E87E8D7D31}" name="Channel">
           <FILE id="X3I3e9" name="Channel.cpp" compile="1" resource="0" file="Source/Processors/Channel/Channel.cpp"/>
           <FILE id="IEZGF3" name="Channel.h" compile="0" resource="0" file="Source/Processors/Channel/Channel.h"/>

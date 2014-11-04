@@ -58,7 +58,6 @@ OBJECTS := \
   $(OBJDIR)/ArduinoOutputEditor_e1b7e52b.o \
   $(OBJDIR)/AudioEditor_3931be27.o \
   $(OBJDIR)/AudioNode_3db3557c.o \
-  $(OBJDIR)/AudioResamplingNode_bdba71b0.o \
   $(OBJDIR)/Channel_5cb2d4d2.o \
   $(OBJDIR)/ChannelMappingEditor_9b145f15.o \
   $(OBJDIR)/ChannelMappingNode_ec0559ea.o \
@@ -228,11 +227,6 @@ $(OBJDIR)/AudioEditor_3931be27.o: ../../Source/Processors/AudioNode/AudioEditor.
 $(OBJDIR)/AudioNode_3db3557c.o: ../../Source/Processors/AudioNode/AudioNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/AudioResamplingNode_bdba71b0.o: ../../Source/Processors/AudioResamplingNode/AudioResamplingNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling AudioResamplingNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Channel_5cb2d4d2.o: ../../Source/Processors/Channel/Channel.cpp

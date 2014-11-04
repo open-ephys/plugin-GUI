@@ -30,6 +30,7 @@
 
 #include "../GenericProcessor/GenericProcessor.h"
 #include "AudioEditor.h"
+#include "../Dsp/Dsp.h"
 
 #include "../Channel/Channel.h"
 
@@ -119,6 +120,18 @@ public:
 
     void prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock);
 
+    AudioSampleBuffer* getBufferAddress()
+    {
+        return destBuffer;
+    }
+
+    AudioSampleBuffer* getContinuousBuffer()
+    {
+        return destBuffer;
+    }
+
+    void updateFilters();
+
 private:
 
     Array<int> leftChan;
@@ -140,6 +153,27 @@ private:
     bool bufferSwap;
 
     Expander expander;
+
+    // sample rate, timebase, and ratio info:
+    double sourceBufferSampleRate, destBufferSampleRate;
+    double ratio, lastRatio;
+    double destBufferTimebaseSecs;
+    int destBufferWidth;
+
+    // major objects:
+    Dsp::Filter* filter;
+    AudioSampleBuffer* destBuffer;
+    AudioSampleBuffer* tempBuffer;
+
+    // is the destBuffer a temp buffer or not?
+    bool destBufferIsTempBuffer;
+    bool isTransmitting;
+
+    // indexing objects that persist between rounds:
+    int destBufferPos;
+
+    int16* continuousDataBuffer;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioNode);
 

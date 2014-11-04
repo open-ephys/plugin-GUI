@@ -34,7 +34,6 @@
 #include "../RecordNode/RecordNode.h"
 #include "../ResamplingNode/ResamplingNode.h"
 #include "../ChannelMappingNode/ChannelMappingNode.h"
-#include "../AudioResamplingNode/AudioResamplingNode.h"
 #include "../SignalGenerator/SignalGenerator.h"
 #include "../SourceNode/SourceNode.h"
 #include "../EventDetector/EventDetector.h"
@@ -85,10 +84,6 @@ void ProcessorGraph::createDefaultNodes()
     AudioNode* an = new AudioNode();
     an->setNodeId(AUDIO_NODE_ID);
 
-    // add audio resampling node -- resamples continuous signals to 44.1kHz
-    AudioResamplingNode* arn = new AudioResamplingNode();
-    arn->setNodeId(RESAMPLING_NODE_ID);
-
     // add message center
     MessageCenter* msgCenter = new MessageCenter();
     msgCenter->setNodeId(MESSAGE_CENTER_ID);
@@ -96,7 +91,6 @@ void ProcessorGraph::createDefaultNodes()
     addNode(on, OUTPUT_NODE_ID);
     addNode(recn, RECORD_NODE_ID);
     addNode(an, AUDIO_NODE_ID);
-    addNode(arn, RESAMPLING_NODE_ID);
     addNode(msgCenter, MESSAGE_CENTER_ID);
 
 }
@@ -185,7 +179,6 @@ void ProcessorGraph::refreshColors()
         if (nodeId != OUTPUT_NODE_ID &&
             nodeId != AUDIO_NODE_ID &&
             nodeId != RECORD_NODE_ID &&
-            nodeId != RESAMPLING_NODE_ID &&
             nodeId != MESSAGE_CENTER_ID)
         {
             GenericProcessor* p =(GenericProcessor*) node->getProcessor();
@@ -209,7 +202,6 @@ void ProcessorGraph::restoreParameters()
         if (nodeId != OUTPUT_NODE_ID &&
             nodeId != AUDIO_NODE_ID &&
             nodeId != RECORD_NODE_ID &&
-            nodeId != RESAMPLING_NODE_ID &&
             nodeId != MESSAGE_CENTER_ID)
         {
             GenericProcessor* p =(GenericProcessor*) node->getProcessor();
@@ -233,7 +225,6 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
         if (nodeId != OUTPUT_NODE_ID &&
             nodeId != AUDIO_NODE_ID &&
             nodeId != RECORD_NODE_ID &&
-            nodeId != RESAMPLING_NODE_ID &&
             nodeId != MESSAGE_CENTER_ID)
         {
             GenericProcessor* p =(GenericProcessor*) node->getProcessor();
@@ -253,8 +244,7 @@ void ProcessorGraph::clearConnections()
         Node* node = getNode(i);
         int nodeId = node->nodeId;
 
-        if (nodeId != OUTPUT_NODE_ID &&
-            nodeId != RESAMPLING_NODE_ID)
+        if (nodeId != OUTPUT_NODE_ID)
         {
 
             if (nodeId != RECORD_NODE_ID && nodeId != AUDIO_NODE_ID)
@@ -273,15 +263,9 @@ void ProcessorGraph::clearConnections()
     {
 
         addConnection(AUDIO_NODE_ID, n,
-                      RESAMPLING_NODE_ID, n);
-
-        addConnection(RESAMPLING_NODE_ID, n,
                       OUTPUT_NODE_ID, n);
 
     }
-
-    addConnection(AUDIO_NODE_ID, midiChannelIndex,
-                  RESAMPLING_NODE_ID, midiChannelIndex);
 
     addConnection(MESSAGE_CENTER_ID, midiChannelIndex,
                   RECORD_NODE_ID, midiChannelIndex);

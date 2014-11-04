@@ -38,9 +38,6 @@
     <Filter Include="open-ephys\Source\Processors\AudioNode">
       <UniqueIdentifier>{117683A8-B332-1FBB-1FA0-8C6C7D231B69}</UniqueIdentifier>
     </Filter>
-    <Filter Include="open-ephys\Source\Processors\AudioResamplingNode">
-      <UniqueIdentifier>{BB0D2303-17CA-2E39-9765-7A701B2AE2F6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="open-ephys\Source\Processors\Channel">
       <UniqueIdentifier>{7374BFF8-0BFC-382A-1DC3-F4B934CF25BC}</UniqueIdentifier>
     </Filter>
@@ -453,9 +450,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioNode.cpp">
       <Filter>open-ephys\Source\Processors\AudioNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\AudioResamplingNode\AudioResamplingNode.cpp">
-      <Filter>open-ephys\Source\Processors\AudioResamplingNode</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Channel\Channel.cpp">
       <Filter>open-ephys\Source\Processors\Channel</Filter>
@@ -2015,9 +2009,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioNode.h">
       <Filter>open-ephys\Source\Processors\AudioNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\AudioResamplingNode\AudioResamplingNode.h">
-      <Filter>open-ephys\Source\Processors\AudioResamplingNode</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Channel\Channel.h">
       <Filter>open-ephys\Source\Processors\Channel</Filter>
