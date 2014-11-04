@@ -68,7 +68,7 @@ public:
   void setRelease(float);
   void reset();
 
-  void process(float* leftChan, float* rightChan, int numSamples);
+  void process(float* sampleData, int numSamples);
 
 private:
     float   threshold;
@@ -120,17 +120,7 @@ public:
 
     void prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock);
 
-    AudioSampleBuffer* getBufferAddress()
-    {
-        return destBuffer;
-    }
-
-    AudioSampleBuffer* getContinuousBuffer()
-    {
-        return destBuffer;
-    }
-
-    void updateFilters();
+    void updateFilter(int i);
 
 private:
 
@@ -142,38 +132,28 @@ private:
     /** An array of pointers to the channels that feed into the AudioNode. */
     Array<Channel*> channelPointers;
 
-    AudioSampleBuffer bufferA;
-    AudioSampleBuffer bufferB;
+    OwnedArray<AudioSampleBuffer> bufferA;
+    OwnedArray<AudioSampleBuffer> bufferB;
 
-    int numSamplesExpected;
+    Array<int> numSamplesExpected;
 
-    int samplesInBackupBuffer;
-    int samplesInOverflowBuffer;
+    Array<int> samplesInBackupBuffer;
+    Array<int> samplesInOverflowBuffer;
+    Array<double> sourceBufferSampleRate;
+    double destBufferSampleRate;
 
     bool bufferSwap;
 
     Expander expander;
 
     // sample rate, timebase, and ratio info:
-    double sourceBufferSampleRate, destBufferSampleRate;
-    double ratio, lastRatio;
-    double destBufferTimebaseSecs;
-    int destBufferWidth;
+    Array<double> ratio;
 
     // major objects:
-    Dsp::Filter* filter;
-    AudioSampleBuffer* destBuffer;
-    AudioSampleBuffer* tempBuffer;
+    OwnedArray<Dsp::Filter> filters;
 
-    // is the destBuffer a temp buffer or not?
-    bool destBufferIsTempBuffer;
-    bool isTransmitting;
-
-    // indexing objects that persist between rounds:
-    int destBufferPos;
-
-    int16* continuousDataBuffer;
-
+    // Temporary buffer for data
+    ScopedPointer<AudioSampleBuffer> tempBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioNode);
 
