@@ -77,9 +77,6 @@ public:
     bool setFile(String fullpath);
     String getFile();
 
-    void saveCustomParametersToXml(XmlElement* parentElement);
-    void loadCustomParametersFromXml();
-
 private:
 
     int64 timestamp;

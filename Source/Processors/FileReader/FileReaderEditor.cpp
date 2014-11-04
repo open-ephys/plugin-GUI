@@ -48,6 +48,7 @@ FileReaderEditor::FileReaderEditor(GenericProcessor* parentNode, bool useDefault
 
 	recordSelector = new ComboBox("Recordings");
 	recordSelector->setBounds(30,50,120,20);
+	recordSelector->addListener(this);
 	addAndMakeVisible(recordSelector);
 
 	currentTime = new DualTimeComponent(this, false);
@@ -127,7 +128,7 @@ bool FileReaderEditor::setPlaybackStartTime(unsigned int ms)
 
 bool FileReaderEditor::setPlaybackStopTime(unsigned int ms)
 {
-	if (ms > recTotalTime)
+	if ((ms > recTotalTime) || (ms < timeLimits->getTimeMilliseconds(0)))
 		return false;
 	fileReader->setParameter(2,ms);
 	return true;
@@ -190,27 +191,40 @@ void FileReaderEditor::stopAcquisition()
 	GenericEditor::stopAcquisition();
 }
 
-void FileReaderEditor::saveEditorParameters(XmlElement* xml)
+void FileReaderEditor::saveCustomParameters(XmlElement* xml)
 {
-
-    // XmlElement* fileName = xml->createNewChildElement("FILENAME");
-    // fileName->addTextElement(lastFilePath.getFullPathName());
+	 xml->setAttribute("Type","FileReader");
+     XmlElement* childNode = xml->createNewChildElement("FILENAME");
+	 childNode->setAttribute("path", fileReader->getFile());
+	 childNode->setAttribute("recording", recordSelector->getSelectedId());
+	 childNode = xml->createNewChildElement("TIME_LIMITS");
+	 childNode->setAttribute("start_time",(double)timeLimits->getTimeMilliseconds(0));
+	 childNode->setAttribute("stop_time",(double)timeLimits->getTimeMilliseconds(1));
 
 }
 
-void FileReaderEditor::loadEditorParameters(XmlElement* xml)
+void FileReaderEditor::loadCustomParameters(XmlElement* xml)
 {
-
-    // forEachXmlChildElement(*xml, xmlNode)
-    //    {
-    //       if (xmlNode->hasTagName("FILENAME"))
-    //       {
-
-    //           lastFilePath = File(xmlNode->getText());
-    //           thread->setFile(lastFilePath.getFullPathName());
-    //           fileNameLabel->setText(lastFilePath.getFullPathName(),false);
-    //       }
-    //   }
+	forEachXmlChildElement(*xml, element)
+	{
+		if (element->hasTagName("FILENAME"))
+		{
+			String filepath = element->getStringAttribute("path");
+			setFile(filepath);
+			int recording = element->getIntAttribute("recording");
+			recordSelector->setSelectedId(recording,sendNotificationSync);
+		}
+		else if (element->hasTagName("TIME_LIMITS"))
+		{
+			unsigned int time;
+			time = (unsigned int)element->getDoubleAttribute("start_time");
+			setPlaybackStartTime(time);
+			timeLimits->setTimeMilliseconds(0,time);
+			time = (unsigned int)element->getDoubleAttribute("stop_time");
+			setPlaybackStopTime(time);
+			timeLimits->setTimeMilliseconds(1,time);
+		}
+	}
 
 }
 

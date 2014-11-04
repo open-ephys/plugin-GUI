@@ -266,32 +266,3 @@ int64 FileReader::millisecondsToSamples(unsigned int ms)
 {
 	return (int64)(currentSampleRate*float(ms)/1000.f);
 }
-
-void FileReader::saveCustomParametersToXml(XmlElement* parentElement)
-{
-
-    XmlElement* childNode = parentElement->createNewChildElement("FILENAME");
-    childNode->setAttribute("path", getFile());
-
-}
-
-void FileReader::loadCustomParametersFromXml()
-{
-
-    if (parametersAsXml != nullptr)
-    {
-        // use parametersAsXml to restore state
-
-        forEachXmlChildElement(*parametersAsXml, xmlNode)
-        {
-            if (xmlNode->hasTagName("FILENAME"))
-            {
-                String filepath = xmlNode->getStringAttribute("path");
-                FileReaderEditor* fre = (FileReaderEditor*) getEditor();
-                fre->setFile(filepath);
-
-            }
-        }
-    }
-
-}

@@ -52,9 +52,9 @@ public:
 
     void setFile(String file);
 
-    void saveEditorParameters(XmlElement*);
+    void saveCustomParameters(XmlElement*);
 
-    void loadEditorParameters(XmlElement*);
+    void loadCustomParameters(XmlElement*);
 
 	bool setPlaybackStartTime(unsigned int ms);
 	bool setPlaybackStopTime(unsigned int ms);
