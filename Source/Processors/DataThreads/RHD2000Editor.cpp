@@ -270,7 +270,7 @@ void FPGAchannelList::comboBoxChanged(ComboBox* b)
             p->setDefaultNamingScheme(scheme);
         }
         update();
-
+		canvas->processor->getEditorViewport()->makeEditorVisible(canvas->processor->getEditor(),false,true);
     }
 }
 
