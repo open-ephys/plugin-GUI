@@ -422,7 +422,8 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
 void RecordNode::process(AudioSampleBuffer& buffer,
                          MidiBuffer& events)
 {
-
+	// FIRST: cycle through events -- extract the TTLs and the timestamps
+    checkForEvents(events);
     if (isRecording && allFilesOpened)
     {
 

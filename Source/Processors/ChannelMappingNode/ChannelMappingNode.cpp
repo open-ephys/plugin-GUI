@@ -81,7 +81,7 @@ void ChannelMappingNode::updateSettings()
             channels.add(oldChannels[channelArray[i]]);
             settings.numOutputs++;
         }
-        
+   
     }
 
 }

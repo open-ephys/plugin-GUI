@@ -848,6 +848,7 @@ void ChannelMappingEditor::mouseUp(const MouseEvent& e)
             setChannelPosition(i,electrodeButtons[i]->getChannelNum());
         }
         setConfigured(true);
+		getEditorViewport()->makeEditorVisible(this, false, true);
     }
 }
 

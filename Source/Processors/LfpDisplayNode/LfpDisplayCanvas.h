@@ -314,6 +314,7 @@ public:
     }
 
 	ChannelType getType();
+	void updateType();
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
@@ -361,6 +362,7 @@ public:
     void resized();
 
     void setEnabledState(bool);
+	void updateType();
 
 private:
 
