@@ -87,7 +87,7 @@ private:
 };
 
 class DualTimeComponent : public Component,
-    public Label::Listener
+	public Label::Listener, public AsyncUpdater
 {
 public:
     DualTimeComponent(FileReaderEditor* e, bool isEditable);
@@ -97,12 +97,14 @@ public:
     void paint(Graphics& g);
     void labelTextChanged(Label* label);
     void setEnable(bool enable);
+	void handleAsyncUpdate();
 
 private:
     ScopedPointer<Label> timeLabel[2];
     unsigned int msTime[2];
     FileReaderEditor* editor;
     bool editable;
+	String labelText[2];
 
 };
 

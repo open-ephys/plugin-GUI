@@ -145,7 +145,6 @@ void FileReaderEditor::setTotalTime(unsigned int ms)
 
 void FileReaderEditor::setCurrentTime(unsigned int ms)
 {
-    MessageManagerLock mml;
     currentTime->setTimeMilliseconds(0,ms);
 }
 
@@ -296,10 +295,21 @@ void DualTimeComponent::setTimeMilliseconds(unsigned int index, unsigned int tim
     time /= 60;
     hourFrac = time;
 
-    String text = String(hourFrac).paddedLeft('0',2) + ":" + String(minFrac).paddedLeft('0',2) + ":" +
+    labelText[index] = String(hourFrac).paddedLeft('0',2) + ":" + String(minFrac).paddedLeft('0',2) + ":" +
                   String(secFrac).paddedLeft('0',2) + "." + String(msFrac).paddedLeft('0',3);
+	if (editor->acquisitionIsActive)
+	{
+		triggerAsyncUpdate();
+	}
+	else
+	{
+		timeLabel[index]->setText(labelText[index],dontSendNotification);
+	}		
+}
 
-    timeLabel[index]->setText(text,dontSendNotification);
+void DualTimeComponent::handleAsyncUpdate()
+{
+	timeLabel[0]->setText(labelText[0],dontSendNotification);
 }
 
 unsigned int DualTimeComponent::getTimeMilliseconds(unsigned int index)
