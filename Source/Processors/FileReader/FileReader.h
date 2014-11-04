@@ -81,22 +81,22 @@ private:
 
     int64 timestamp;
 
-	float currentSampleRate;
-	int currentNumChannels;
-	int64 currentNumSamples;
-	int64 startSample;
-	int64 stopSample;
-	Array<RecordedChannelInfo> channelInfo;
+    float currentSampleRate;
+    int currentNumChannels;
+    int64 currentNumSamples;
+    int64 startSample;
+    int64 stopSample;
+    Array<RecordedChannelInfo> channelInfo;
 
-	int64 currentSample;
+    int64 currentSample;
 
-	ScopedPointer<FileSource> input;
+    ScopedPointer<FileSource> input;
 
-	HeapBlock<int16> readBuffer;
+    HeapBlock<int16> readBuffer;
 
-	void setActiveRecording(int index);
-	unsigned int samplesToMilliseconds(int64 samples);
-	int64 millisecondsToSamples(unsigned int ms);
+    void setActiveRecording(int index);
+    unsigned int samplesToMilliseconds(int64 samples);
+    int64 millisecondsToSamples(unsigned int ms);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReader);
 

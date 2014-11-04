@@ -41,7 +41,7 @@ class FileSource;
 */
 
 class FileReaderEditor : public GenericEditor,
-	public ComboBox::Listener
+    public ComboBox::Listener
 
 {
 public:
@@ -56,53 +56,53 @@ public:
 
     void loadCustomParameters(XmlElement*);
 
-	bool setPlaybackStartTime(unsigned int ms);
-	bool setPlaybackStopTime(unsigned int ms);
-	void setTotalTime(unsigned int ms);
-	void setCurrentTime(unsigned int ms);
+    bool setPlaybackStartTime(unsigned int ms);
+    bool setPlaybackStopTime(unsigned int ms);
+    void setTotalTime(unsigned int ms);
+    void setCurrentTime(unsigned int ms);
 
-	void comboBoxChanged(ComboBox *combo);
-	void populateRecordings(FileSource* source);
+    void comboBoxChanged(ComboBox* combo);
+    void populateRecordings(FileSource* source);
 
-	void startAcquisition();
-	void stopAcquisition();
+    void startAcquisition();
+    void stopAcquisition();
 
 private:
 
     ScopedPointer<UtilityButton> fileButton;
     ScopedPointer<Label> fileNameLabel;
-	ScopedPointer<ComboBox> recordSelector;
-	ScopedPointer<DualTimeComponent> currentTime;
-	ScopedPointer<DualTimeComponent> timeLimits;
+    ScopedPointer<ComboBox> recordSelector;
+    ScopedPointer<DualTimeComponent> currentTime;
+    ScopedPointer<DualTimeComponent> timeLimits;
 
     FileReader* fileReader;
-	unsigned int recTotalTime;
+    unsigned int recTotalTime;
 
     File lastFilePath;
 
-	void clearEditor();
+    void clearEditor();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReaderEditor);
 
 };
 
 class DualTimeComponent : public Component,
-	public Label::Listener
+    public Label::Listener
 {
 public:
-	DualTimeComponent(FileReaderEditor* e, bool isEditable);
-	~DualTimeComponent();
-	void setTimeMilliseconds(unsigned int index, unsigned int time);
-	unsigned int getTimeMilliseconds(unsigned int index);
-	void paint(Graphics& g);
-	void labelTextChanged(Label* label);
-	void setEnable(bool enable);
+    DualTimeComponent(FileReaderEditor* e, bool isEditable);
+    ~DualTimeComponent();
+    void setTimeMilliseconds(unsigned int index, unsigned int time);
+    unsigned int getTimeMilliseconds(unsigned int index);
+    void paint(Graphics& g);
+    void labelTextChanged(Label* label);
+    void setEnable(bool enable);
 
 private:
-	ScopedPointer<Label> timeLabel[2];
-	unsigned int msTime[2];
-	FileReaderEditor* editor;
-	bool editable;
+    ScopedPointer<Label> timeLabel[2];
+    unsigned int msTime[2];
+    FileReaderEditor* editor;
+    bool editable;
 
 };
 

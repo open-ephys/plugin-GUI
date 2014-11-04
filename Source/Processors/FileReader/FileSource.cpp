@@ -33,88 +33,88 @@ FileSource::~FileSource()
 
 int FileSource::getNumRecords()
 {
-	return numRecords;
+    return numRecords;
 }
 
 String FileSource::getRecordName(int index)
 {
-	return infoArray[index].name;
+    return infoArray[index].name;
 }
 
 int FileSource::getRecordNumChannels(int index)
 {
-	return infoArray[index].channels.size();
+    return infoArray[index].channels.size();
 }
 
 int FileSource::getActiveNumChannels()
 {
-	return getRecordNumChannels(activeRecord);
+    return getRecordNumChannels(activeRecord);
 }
 
 float FileSource::getRecordSampleRate(int index)
 {
-	return infoArray[index].sampleRate;
+    return infoArray[index].sampleRate;
 }
 
 float FileSource::getActiveSampleRate()
 {
-	return getRecordSampleRate(activeRecord);
+    return getRecordSampleRate(activeRecord);
 }
 
 int64 FileSource::getRecordNumSamples(int index)
 {
-	return infoArray[index].numSamples;
+    return infoArray[index].numSamples;
 }
 
 int64 FileSource::getActiveNumSamples()
 {
-	return getRecordNumSamples(activeRecord);
+    return getRecordNumSamples(activeRecord);
 }
 
 int FileSource::getActiveRecord()
 {
-	return activeRecord;
+    return activeRecord;
 }
 
 RecordedChannelInfo FileSource::getChannelInfo(int recordIndex, int channel)
 {
-	return infoArray[recordIndex].channels[channel];
+    return infoArray[recordIndex].channels[channel];
 }
 
 RecordedChannelInfo FileSource::getChannelInfo(int channel)
 {
-	return getChannelInfo(activeRecord, channel);
+    return getChannelInfo(activeRecord, channel);
 }
 
 
 void FileSource::setActiveRecord(int index)
 {
-	activeRecord = index;
-	updateActiveRecord();
+    activeRecord = index;
+    updateActiveRecord();
 }
 
 bool FileSource::fileIsOpened()
 {
-	return fileOpened;
+    return fileOpened;
 }
 
 String FileSource::getFileName()
 {
-	return filename;
+    return filename;
 }
 
 bool FileSource::OpenFile(File file)
 {
-	if (Open(file))
-	{
-		fileOpened = true;
-		fillRecordInfo();
-		filename = file.getFullPathName();
-	}
-	else
-	{
-		fileOpened = false;
-		filename = String::empty;
-	}
-	return fileOpened;
+    if (Open(file))
+    {
+        fileOpened = true;
+        fillRecordInfo();
+        filename = file.getFullPathName();
+    }
+    else
+    {
+        fileOpened = false;
+        filename = String::empty;
+    }
+    return fileOpened;
 }

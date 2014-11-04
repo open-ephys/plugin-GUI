@@ -46,18 +46,18 @@ FileReaderEditor::FileReaderEditor(GenericProcessor* parentNode, bool useDefault
     fileNameLabel->setBounds(30,25,140,20);
     addAndMakeVisible(fileNameLabel);
 
-	recordSelector = new ComboBox("Recordings");
-	recordSelector->setBounds(30,50,120,20);
-	recordSelector->addListener(this);
-	addAndMakeVisible(recordSelector);
+    recordSelector = new ComboBox("Recordings");
+    recordSelector->setBounds(30,50,120,20);
+    recordSelector->addListener(this);
+    addAndMakeVisible(recordSelector);
 
-	currentTime = new DualTimeComponent(this, false);
-	currentTime->setBounds(5,80,175,20);
-	addAndMakeVisible(currentTime);
+    currentTime = new DualTimeComponent(this, false);
+    currentTime->setBounds(5,80,175,20);
+    addAndMakeVisible(currentTime);
 
-	timeLimits = new DualTimeComponent(this,true);
-	timeLimits->setBounds(5,105,175,20);
-	addAndMakeVisible(timeLimits);
+    timeLimits = new DualTimeComponent(this,true);
+    timeLimits->setBounds(5,105,175,20);
+    addAndMakeVisible(timeLimits);
 
     desiredWidth = 180;
 
@@ -75,17 +75,17 @@ void FileReaderEditor::setFile(String file)
 
     File fileToRead(file);
     lastFilePath = fileToRead.getParentDirectory();
-    if(fileReader->setFile(fileToRead.getFullPathName()))
-	{
-		fileNameLabel->setText(fileToRead.getFileName(), dontSendNotification);
+    if (fileReader->setFile(fileToRead.getFullPathName()))
+    {
+        fileNameLabel->setText(fileToRead.getFileName(), dontSendNotification);
 
-		setEnabledState(true);
-	}
-	else
-	{
-		clearEditor();
-	}
-	getEditorViewport()->makeEditorVisible(this, false, true);
+        setEnabledState(true);
+    }
+    else
+    {
+        clearEditor();
+    }
+    getEditorViewport()->makeEditorVisible(this, false, true);
     repaint();
 }
 
@@ -120,199 +120,198 @@ void FileReaderEditor::buttonEvent(Button* button)
 
 bool FileReaderEditor::setPlaybackStartTime(unsigned int ms)
 {
-	if (ms > timeLimits->getTimeMilliseconds(1))
-		return false;
-	fileReader->setParameter(1,ms);
-	return true;
+    if (ms > timeLimits->getTimeMilliseconds(1))
+        return false;
+    fileReader->setParameter(1,ms);
+    return true;
 }
 
 bool FileReaderEditor::setPlaybackStopTime(unsigned int ms)
 {
-	if ((ms > recTotalTime) || (ms < timeLimits->getTimeMilliseconds(0)))
-		return false;
-	fileReader->setParameter(2,ms);
-	return true;
+    if ((ms > recTotalTime) || (ms < timeLimits->getTimeMilliseconds(0)))
+        return false;
+    fileReader->setParameter(2,ms);
+    return true;
 }
 
 void FileReaderEditor::setTotalTime(unsigned int ms)
 {
-	timeLimits->setTimeMilliseconds(0,0);
-	timeLimits->setTimeMilliseconds(1,ms);
-	currentTime->setTimeMilliseconds(0,0);
-	currentTime->setTimeMilliseconds(1,ms);
-	recTotalTime = ms;
+    timeLimits->setTimeMilliseconds(0,0);
+    timeLimits->setTimeMilliseconds(1,ms);
+    currentTime->setTimeMilliseconds(0,0);
+    currentTime->setTimeMilliseconds(1,ms);
+    recTotalTime = ms;
 }
 
 void FileReaderEditor::setCurrentTime(unsigned int ms)
 {
-	MessageManagerLock mml;
-	currentTime->setTimeMilliseconds(0,ms);
+    MessageManagerLock mml;
+    currentTime->setTimeMilliseconds(0,ms);
 }
 
-void FileReaderEditor::comboBoxChanged(ComboBox *combo)
+void FileReaderEditor::comboBoxChanged(ComboBox* combo)
 {
-	fileReader->setParameter(0,combo->getSelectedId()-1);
-	getEditorViewport()->makeEditorVisible(this, false, true);
+    fileReader->setParameter(0,combo->getSelectedId()-1);
+    getEditorViewport()->makeEditorVisible(this, false, true);
 }
 
 void FileReaderEditor::populateRecordings(FileSource* source)
 {
-	recordSelector->clear(dontSendNotification);
-	for (int i=0; i < source->getNumRecords(); i++)
-	{
-		std::cout << "adding " << source->getRecordName(1) << std::endl;
-		recordSelector->addItem(source->getRecordName(i),i+1);
-	}
-	recordSelector->setSelectedId(1,dontSendNotification);
+    recordSelector->clear(dontSendNotification);
+    for (int i=0; i < source->getNumRecords(); i++)
+    {
+        recordSelector->addItem(source->getRecordName(i),i+1);
+    }
+    recordSelector->setSelectedId(1,dontSendNotification);
 }
 
 void FileReaderEditor::clearEditor()
 {
-	fileNameLabel->setText("No file selected.",dontSendNotification);
-	recordSelector->clear(dontSendNotification);
-	timeLimits->setTimeMilliseconds(0,0);
-	timeLimits->setTimeMilliseconds(1,0);
-	currentTime->setTimeMilliseconds(0,0);
-	currentTime->setTimeMilliseconds(1,0);
-	setEnabledState(false);
+    fileNameLabel->setText("No file selected.",dontSendNotification);
+    recordSelector->clear(dontSendNotification);
+    timeLimits->setTimeMilliseconds(0,0);
+    timeLimits->setTimeMilliseconds(1,0);
+    currentTime->setTimeMilliseconds(0,0);
+    currentTime->setTimeMilliseconds(1,0);
+    setEnabledState(false);
 }
 
 void FileReaderEditor::startAcquisition()
 {
-	recordSelector->setEnabled(false);
-	timeLimits->setEnable(false);
-	GenericEditor::startAcquisition();
+    recordSelector->setEnabled(false);
+    timeLimits->setEnable(false);
+    GenericEditor::startAcquisition();
 }
 
 void FileReaderEditor::stopAcquisition()
 {
-	recordSelector->setEnabled(true);
-	timeLimits->setEnable(true);
-	GenericEditor::stopAcquisition();
+    recordSelector->setEnabled(true);
+    timeLimits->setEnable(true);
+    GenericEditor::stopAcquisition();
 }
 
 void FileReaderEditor::saveCustomParameters(XmlElement* xml)
 {
-	 xml->setAttribute("Type","FileReader");
-     XmlElement* childNode = xml->createNewChildElement("FILENAME");
-	 childNode->setAttribute("path", fileReader->getFile());
-	 childNode->setAttribute("recording", recordSelector->getSelectedId());
-	 childNode = xml->createNewChildElement("TIME_LIMITS");
-	 childNode->setAttribute("start_time",(double)timeLimits->getTimeMilliseconds(0));
-	 childNode->setAttribute("stop_time",(double)timeLimits->getTimeMilliseconds(1));
+    xml->setAttribute("Type","FileReader");
+    XmlElement* childNode = xml->createNewChildElement("FILENAME");
+    childNode->setAttribute("path", fileReader->getFile());
+    childNode->setAttribute("recording", recordSelector->getSelectedId());
+    childNode = xml->createNewChildElement("TIME_LIMITS");
+    childNode->setAttribute("start_time",(double)timeLimits->getTimeMilliseconds(0));
+    childNode->setAttribute("stop_time",(double)timeLimits->getTimeMilliseconds(1));
 
 }
 
 void FileReaderEditor::loadCustomParameters(XmlElement* xml)
 {
-	forEachXmlChildElement(*xml, element)
-	{
-		if (element->hasTagName("FILENAME"))
-		{
-			String filepath = element->getStringAttribute("path");
-			setFile(filepath);
-			int recording = element->getIntAttribute("recording");
-			recordSelector->setSelectedId(recording,sendNotificationSync);
-		}
-		else if (element->hasTagName("TIME_LIMITS"))
-		{
-			unsigned int time;
-			time = (unsigned int)element->getDoubleAttribute("start_time");
-			setPlaybackStartTime(time);
-			timeLimits->setTimeMilliseconds(0,time);
-			time = (unsigned int)element->getDoubleAttribute("stop_time");
-			setPlaybackStopTime(time);
-			timeLimits->setTimeMilliseconds(1,time);
-		}
-	}
+    forEachXmlChildElement(*xml, element)
+    {
+        if (element->hasTagName("FILENAME"))
+        {
+            String filepath = element->getStringAttribute("path");
+            setFile(filepath);
+            int recording = element->getIntAttribute("recording");
+            recordSelector->setSelectedId(recording,sendNotificationSync);
+        }
+        else if (element->hasTagName("TIME_LIMITS"))
+        {
+            unsigned int time;
+            time = (unsigned int)element->getDoubleAttribute("start_time");
+            setPlaybackStartTime(time);
+            timeLimits->setTimeMilliseconds(0,time);
+            time = (unsigned int)element->getDoubleAttribute("stop_time");
+            setPlaybackStopTime(time);
+            timeLimits->setTimeMilliseconds(1,time);
+        }
+    }
 
 }
 
-DualTimeComponent::DualTimeComponent(FileReaderEditor*e, bool isEditable)
-	: editor(e), editable(isEditable)
+DualTimeComponent::DualTimeComponent(FileReaderEditor* e, bool isEditable)
+    : editor(e), editable(isEditable)
 {
-	Label* l;
-	l = new Label("Time1");
-	l->setBounds(0,0,75,20);
-	l->setEditable(editable);
-	l->setFont(Font("Small Text",10,Font::plain));
-	if (editable)
-	{
-		l->addListener(this);
-		l->setColour(Label::ColourIds::backgroundColourId,Colours::lightgrey);
-		l->setColour(Label::ColourIds::outlineColourId,Colours::black);
-	}
-	addAndMakeVisible(l);
-	timeLabel[0] = l;
+    Label* l;
+    l = new Label("Time1");
+    l->setBounds(0,0,75,20);
+    l->setEditable(editable);
+    l->setFont(Font("Small Text",10,Font::plain));
+    if (editable)
+    {
+        l->addListener(this);
+        l->setColour(Label::ColourIds::backgroundColourId,Colours::lightgrey);
+        l->setColour(Label::ColourIds::outlineColourId,Colours::black);
+    }
+    addAndMakeVisible(l);
+    timeLabel[0] = l;
 
-	l = new Label("Time2");
-	l->setBounds(85,0,75,20);
-	l->setEditable(editable);
-	l->setFont(Font("Small Text",10,Font::plain));
-	if (editable)
-	{
-		l->addListener(this);
-		l->setColour(Label::ColourIds::backgroundColourId,Colours::lightgrey);
-		l->setColour(Label::ColourIds::outlineColourId,Colours::black);
-	}
-	addAndMakeVisible(l);
-	timeLabel[1] = l;
+    l = new Label("Time2");
+    l->setBounds(85,0,75,20);
+    l->setEditable(editable);
+    l->setFont(Font("Small Text",10,Font::plain));
+    if (editable)
+    {
+        l->addListener(this);
+        l->setColour(Label::ColourIds::backgroundColourId,Colours::lightgrey);
+        l->setColour(Label::ColourIds::outlineColourId,Colours::black);
+    }
+    addAndMakeVisible(l);
+    timeLabel[1] = l;
 
-	setTimeMilliseconds(0,0);
-	setTimeMilliseconds(1,0);
+    setTimeMilliseconds(0,0);
+    setTimeMilliseconds(1,0);
 }
 
 DualTimeComponent::~DualTimeComponent()
 {
 }
 
-void DualTimeComponent::paint(Graphics &g)
+void DualTimeComponent::paint(Graphics& g)
 {
-	String sep;
-	g.setFont(Font("Small Text",10,Font::plain));
-	g.setColour(Colours::darkgrey);
-	if (editable)
-	{
-		sep = "-";
-	}
-	else
-	{
-		sep = "/";
-	}
-	g.drawText(sep,78,0,5,20,Justification::centred,false);
+    String sep;
+    g.setFont(Font("Small Text",10,Font::plain));
+    g.setColour(Colours::darkgrey);
+    if (editable)
+    {
+        sep = "-";
+    }
+    else
+    {
+        sep = "/";
+    }
+    g.drawText(sep,78,0,5,20,Justification::centred,false);
 }
 
 void DualTimeComponent::setTimeMilliseconds(unsigned int index, unsigned int time)
 {
-	int msFrac,secFrac,minFrac,hourFrac;
-	if (index > 1) return;
+    int msFrac,secFrac,minFrac,hourFrac;
+    if (index > 1) return;
 
-	msTime[index]=time;
+    msTime[index]=time;
 
-	msFrac = time%1000;
-	time /= 1000;
-	secFrac = time%60;
-	time /= 60;
-	minFrac = time%60;
-	time /= 60;
-	hourFrac = time;
+    msFrac = time%1000;
+    time /= 1000;
+    secFrac = time%60;
+    time /= 60;
+    minFrac = time%60;
+    time /= 60;
+    hourFrac = time;
 
-	String text = String(hourFrac).paddedLeft('0',2) + ":" + String(minFrac).paddedLeft('0',2) + ":" +
-		String(secFrac).paddedLeft('0',2) + "." + String(msFrac).paddedLeft('0',3);
+    String text = String(hourFrac).paddedLeft('0',2) + ":" + String(minFrac).paddedLeft('0',2) + ":" +
+                  String(secFrac).paddedLeft('0',2) + "." + String(msFrac).paddedLeft('0',3);
 
-	timeLabel[index]->setText(text,dontSendNotification);
+    timeLabel[index]->setText(text,dontSendNotification);
 }
 
 unsigned int DualTimeComponent::getTimeMilliseconds(unsigned int index)
 {
-	if (index > 1) return 0;
-	return msTime[index];
+    if (index > 1) return 0;
+    return msTime[index];
 }
 
 void DualTimeComponent::setEnable(bool enable)
 {
-	timeLabel[0]->setEnabled(enable);
-	timeLabel[1]->setEnabled(enable);
+    timeLabel[0]->setEnabled(enable);
+    timeLabel[1]->setEnabled(enable);
 }
 
 void DualTimeComponent::labelTextChanged(Label* label)

@@ -28,8 +28,8 @@
 
 struct RecordedChannelInfo
 {
-	String name;
-	float bitVolts;
+    String name;
+    float bitVolts;
 };
 
 class FileSource
@@ -52,22 +52,22 @@ public:
     int getActiveNumChannels();
     int64 getActiveNumSamples();
 
-	RecordedChannelInfo getChannelInfo(int recordIndex, int channel);
-	RecordedChannelInfo getChannelInfo(int channel);
+    RecordedChannelInfo getChannelInfo(int recordIndex, int channel);
+    RecordedChannelInfo getChannelInfo(int channel);
 
     bool OpenFile(File file);
     bool fileIsOpened();
-	String getFileName();
+    String getFileName();
 
     virtual int readData(int16* buffer, int nSamples) =0;
-	virtual void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples)=0;
+    virtual void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples)=0;
     virtual void seekTo(int64 sample) =0;
 
 protected:
     struct RecordInfo
     {
         String name;
-		Array<RecordedChannelInfo> channels;
+        Array<RecordedChannelInfo> channels;
         int64 numSamples;
         float sampleRate;
     };
@@ -76,7 +76,7 @@ protected:
     bool fileOpened;
     int numRecords;
     int activeRecord;
-	String filename;
+    String filename;
 
 private:
     virtual bool Open(File file)=0;

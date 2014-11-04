@@ -41,23 +41,23 @@ class DataType;
 class KWIKFileSource : public FileSource
 {
 public:
-	KWIKFileSource();
-	~KWIKFileSource();
-	
-	int readData(int16* buffer, int nSamples);
+    KWIKFileSource();
+    ~KWIKFileSource();
 
-	void seekTo(int64 sample);
+    int readData(int16* buffer, int nSamples);
 
-	void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples);
+    void seekTo(int64 sample);
+
+    void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples);
 
 private:
-	ScopedPointer<H5::H5File> sourceFile;
-	ScopedPointer<H5::DataSet> dataSet;
-	bool Open(File file);
-	void fillRecordInfo();
-	void updateActiveRecord();
-	int64 samplePos;
-	Array<int> availableDataSets;
+    ScopedPointer<H5::H5File> sourceFile;
+    ScopedPointer<H5::DataSet> dataSet;
+    bool Open(File file);
+    void fillRecordInfo();
+    void updateActiveRecord();
+    int64 samplePos;
+    Array<int> availableDataSets;
 };
 
 
