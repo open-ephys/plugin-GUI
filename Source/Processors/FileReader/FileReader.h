@@ -29,8 +29,9 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../GenericProcessor/GenericProcessor.h"
+#include "FileSource.h"
 
-#define BUFFER_SIZE 102400
+#define BUFFER_SIZE 1024
 
 /**
 
@@ -73,7 +74,7 @@ public:
     int getDefaultNumOutputs();
     float getBitVolts(int chan);
 
-    void setFile(String fullpath);
+    bool setFile(String fullpath);
     String getFile();
 
     void saveCustomParametersToXml(XmlElement* parentElement);
@@ -83,16 +84,22 @@ private:
 
     int64 timestamp;
 
-    int lengthOfInputFile;
-    FILE* input;
+	float currentSampleRate;
+	int currentNumChannels;
+	int64 currentNumSamples;
+	int64 startSample;
+	int64 stopSample;
+	Array<RecordedChannelInfo> channelInfo;
 
-    int16 readBuffer[BUFFER_SIZE];
+	int64 currentSample;
 
-    int bufferSize;
+	ScopedPointer<FileSource> input;
 
-    String filePath;
+	HeapBlock<int16> readBuffer;
 
-    int counter;
+	void setActiveRecording(int index);
+	unsigned int samplesToMilliseconds(int64 samples);
+	int64 millisecondsToSamples(unsigned int ms);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReader);
 

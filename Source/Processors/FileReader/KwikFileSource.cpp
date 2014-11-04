@@ -216,3 +216,15 @@ int KWIKFileSource::readData(int16* buffer, int nSamples)
 	}
 	return 0;
 }
+
+void KWIKFileSource::processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples)
+{
+	int n = getActiveNumChannels();
+	float bitVolts = getChannelInfo(channel).bitVolts;
+
+	for(int i=0; i < numSamples; i++)
+	{
+		*(outBuffer+i) = *(inBuffer+(n*i)+channel) * bitVolts;
+	}
+
+}

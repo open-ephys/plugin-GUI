@@ -48,6 +48,8 @@ public:
 
 	void seekTo(int64 sample);
 
+	void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples);
+
 private:
 	ScopedPointer<H5::H5File> sourceFile;
 	ScopedPointer<H5::DataSet> dataSet;

@@ -57,9 +57,10 @@ public:
 
     bool OpenFile(File file);
     bool fileIsOpened();
+	String getFileName();
 
     virtual int readData(int16* buffer, int nSamples) =0;
-
+	virtual void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples)=0;
     virtual void seekTo(int64 sample) =0;
 
 protected:
@@ -75,6 +76,7 @@ protected:
     bool fileOpened;
     int numRecords;
     int activeRecord;
+	String filename;
 
 private:
     virtual bool Open(File file)=0;

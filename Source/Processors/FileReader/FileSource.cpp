@@ -38,7 +38,7 @@ int FileSource::getNumRecords()
 
 String FileSource::getRecordName(int index)
 {
-	return infoArray[activeRecord].name;
+	return infoArray[index].name;
 }
 
 int FileSource::getRecordNumChannels(int index)
@@ -98,16 +98,23 @@ bool FileSource::fileIsOpened()
 	return fileOpened;
 }
 
+String FileSource::getFileName()
+{
+	return filename;
+}
+
 bool FileSource::OpenFile(File file)
 {
 	if (Open(file))
 	{
 		fileOpened = true;
 		fillRecordInfo();
+		filename = file.getFullPathName();
 	}
 	else
 	{
 		fileOpened = false;
+		filename = String::empty;
 	}
 	return fileOpened;
 }
