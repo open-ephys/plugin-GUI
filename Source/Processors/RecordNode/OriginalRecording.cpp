@@ -78,11 +78,8 @@ void OriginalRecording::resetChannels()
 {
     fileArray.clear();
     spikeFileArray.clear();
-<<<<<<< HEAD
     blockIndex.clear();
-=======
 	processorArray.clear();
->>>>>>> ecfada85e87fb942f39bb2314aa122fc735335e0
 }
 
 void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int recordingNumber)
@@ -109,12 +106,6 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
     {
         openSpikeFile(rootFolder,getSpikeElectrode(i));
     }
-<<<<<<< HEAD
-    
-=======
-    blockIndex = 0;
-	startTimestamp = timestamp;
->>>>>>> ecfada85e87fb942f39bb2314aa122fc735335e0
 }
 
 void OriginalRecording::openFile(File rootFolder, Channel* ch)
@@ -685,7 +676,7 @@ void OriginalRecording::writeXml()
 	}
 	XmlElement* rec = new XmlElement("RECORDING");
 	rec->setAttribute("number",recordingNumber);
-	rec->setAttribute("length",(double)(timestamp-startTimestamp));
+	//rec->setAttribute("length",(double)(timestamp-startTimestamp));
 	for (int i = 0; i < processorArray.size(); i++)
 	{
 		XmlElement* proc = new XmlElement("PROCESSOR");
