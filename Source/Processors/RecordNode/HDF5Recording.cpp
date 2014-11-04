@@ -116,6 +116,7 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
             infoArray[i]->name = String("Open-Ephys Recording #") + String(recordingNumber);
             infoArray[i]->start_time = timestamp;
             infoArray[i]->start_sample = 0;
+			infoArray[i]->bitVolts.clear();
 			infoArray[i]->bitVolts.addArray(*bitVoltsArray[i]);
 			fileArray[i]->startNewRecording(recordingNumber,bitVoltsArray[i]->size(),infoArray[i]);
         }
