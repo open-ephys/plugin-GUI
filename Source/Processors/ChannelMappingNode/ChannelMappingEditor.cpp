@@ -983,6 +983,17 @@ String ChannelMappingEditor::writePrbFile(File filename)
 
     info->setProperty("refs", nestedObj2);
 
+	DynamicObject* nestedObj3 = new DynamicObject();
+
+	Array<var> arr5;
+	for (int i=0; i < channelSelector->getNumChannels(); i++)
+	{
+		arr5.add(var(channelSelector->getRecordStatus(i)));
+	}
+	nestedObj3->setProperty("channels",var(arr5));
+
+	info->setProperty("recording",nestedObj3);
+
     info->writeAsJSON(outputStream, 2, false);
 
     return "Saved " + filename.getFileName();
@@ -1064,6 +1075,16 @@ String ChannelMappingEditor::loadPrbFile(File filename)
 
 	setConfigured(true);
 	getEditorViewport()->makeEditorVisible(this, false, true);
+
+	var recChans = json[Identifier("recording")];
+	var recording = recChans[Identifier("channels")];
+	Array<var>* rec = recording.getArray();
+
+	for (int i = 0; i < rec->size(); i++)
+	{
+		bool recEnabled = rec->getUnchecked(i);
+		channelSelector->setRecordStatus(i,recEnabled);
+	}
 
     return "Loaded " + filename.getFileName();
 
