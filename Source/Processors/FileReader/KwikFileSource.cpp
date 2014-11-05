@@ -116,7 +116,7 @@ void KWIKFileSource::fillRecordInfo()
                 for (int i=0; i < dims[1]; i++)
                 {
                     RecordedChannelInfo c;
-                    c.name = "CH" + i;
+                    c.name = "CH" + String(i);
                     c.bitVolts = bitVoltArray[i];
                     info.channels.add(c);
                 }
