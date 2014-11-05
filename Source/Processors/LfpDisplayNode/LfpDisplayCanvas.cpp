@@ -948,7 +948,10 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
 channelType LfpDisplayCanvas::getChannelType(int n)
 {
-	return processor->channels[n]->getType();
+	if (n < processor->channels.size())
+		return processor->channels[n]->getType();
+	else
+		return DATA_CHANNEL;
 }
 
 channelType LfpDisplayCanvas::getSelectedType()
