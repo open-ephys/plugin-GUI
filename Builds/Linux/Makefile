@@ -99,6 +99,8 @@ OBJECTS := \
   $(OBJDIR)/EventDetector_d0f4d00c.o \
   $(OBJDIR)/EventNode_857d5604.o \
   $(OBJDIR)/EventNodeEditor_2652ddd1.o \
+  $(OBJDIR)/KwikFileSource_58456030.o \
+  $(OBJDIR)/FileSource_a1ad7002.o \
   $(OBJDIR)/FileReader_e4a9ccaa.o \
   $(OBJDIR)/FileReaderEditor_e1193ff7.o \
   $(OBJDIR)/FilterEditor_93e366f5.o \
@@ -444,6 +446,16 @@ $(OBJDIR)/EventNode_857d5604.o: ../../Source/Processors/EventNode/EventNode.cpp
 $(OBJDIR)/EventNodeEditor_2652ddd1.o: ../../Source/Processors/EventNode/EventNodeEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventNodeEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/KwikFileSource_58456030.o: ../../Source/Processors/FileReader/KwikFileSource.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling KwikFileSource.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/FileSource_a1ad7002.o: ../../Source/Processors/FileReader/FileSource.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling FileSource.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/FileReader_e4a9ccaa.o: ../../Source/Processors/FileReader/FileReader.cpp
