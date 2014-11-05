@@ -27,6 +27,7 @@
 
 #include "../Editors/ChannelSelector.h"
 #include "../SourceNode/SourceNode.h"
+#include "../RecordNode/RecordNode.h"
 #include "RHD2000Thread.h"
 
 #ifdef WIN32
@@ -62,6 +63,18 @@ FPGAchannelList::FPGAchannelList(GenericProcessor* proc_, Viewport* p, FPGAcanva
     impedanceButton->addListener(this);
     addAndMakeVisible(impedanceButton);
 
+	RHD2000Editor *e = static_cast<RHD2000Editor*>(proc->getEditor());
+	saveImpedanceButton = new ToggleButton("Save impedance measurements");
+	saveImpedanceButton->setBounds(430,10,110,25);
+	saveImpedanceButton->setToggleState(e->getSaveImpedance(),dontSendNotification);
+	saveImpedanceButton->addListener(this);
+	addAndMakeVisible(saveImpedanceButton);
+	
+	autoMeasureButton = new ToggleButton("Measure impedance at acquisition start");
+	autoMeasureButton->setBounds(550,10,150,25);
+	autoMeasureButton->setToggleState(e->getAutoMeasureImpedance(),dontSendNotification);
+	autoMeasureButton->addListener(this);
+	addAndMakeVisible(autoMeasureButton);
 
     gains.clear();
     gains.add(0.01);
@@ -91,11 +104,19 @@ void FPGAchannelList::paint(Graphics& g)
 
 void FPGAchannelList::buttonClicked(Button* btn)
 {
+	RHD2000Editor* p = (RHD2000Editor*)proc->getEditor();
     if (btn == impedanceButton)
     {
-        RHD2000Editor* p = (RHD2000Editor*)proc->getEditor();
         p->measureImpedance();
     }
+	else if (btn == saveImpedanceButton)
+	{
+		p->setSaveImpedance(btn->getToggleState());
+	}
+	else if (btn == autoMeasureButton)
+	{
+		p->setAutoMeasureImpedance(btn->getToggleState());
+	}
 }
 
 void FPGAchannelList::update()
@@ -513,6 +534,8 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     canvas = nullptr;
     desiredWidth = 330;
     tabText = "FPGA";
+	measureWhenRecording = false;
+	saveImpedances = false;
 
     // add headstage-specific controls (currently just an enable/disable button)
     for (int i = 0; i < 4; i++)
@@ -666,8 +689,57 @@ void RHD2000Editor::measureImpedance()
     Array<float> magnitude, phase;
     board->runImpedanceTest(stream,channel,magnitude,phase);
 
+	if (canvas == nullptr)
+		VisualizerEditor::canvas = createNewCanvas();
     // update components...
     canvas->updateImpedance(stream,channel,magnitude,phase);
+	if (saveImpedances)
+	{
+		getProcessorGraph()->getRecordNode()->createNewDirectory();
+
+		String path(getProcessorGraph()->getRecordNode()->getDataDirectory().getFullPathName() 
+			+ File::separatorString + "impedance_measurement.xml");
+		std::cout << "Saving impedance measurements in " << path << std::endl;
+		File file(path);
+
+		if (!file.getParentDirectory().exists())
+			file.getParentDirectory().createDirectory();
+
+		XmlDocument doc(file);
+		ScopedPointer<XmlElement> xml = new XmlElement("CHANNEL_IMPEDANCES");
+		for (int i = 0; i < channel.size(); i++)
+		{
+			XmlElement* chan = new XmlElement("CHANNEL");
+			chan->setAttribute("name",board->getChannelName(DATA_CHANNEL,stream[i],channel[i]));
+			chan->setAttribute("stream",stream[i]);
+			chan->setAttribute("channel_number",channel[i]);
+			chan->setAttribute("magnitude",magnitude[i]);
+			chan->setAttribute("phase",phase[i]);
+			xml->addChildElement(chan);
+		}
+		xml->writeToFile(file,String::empty);
+	}
+
+}
+
+void RHD2000Editor::setSaveImpedance(bool en)
+{
+	saveImpedances = en;
+}
+
+void RHD2000Editor::setAutoMeasureImpedance(bool en)
+{
+	measureWhenRecording = en;
+}
+
+bool RHD2000Editor::getSaveImpedance()
+{
+	return saveImpedances;
+}
+
+bool RHD2000Editor::getAutoMeasureImpedance()
+{
+	return measureWhenRecording;
 }
 
 void RHD2000Editor::comboBoxChanged(ComboBox* comboBox)
@@ -758,6 +830,8 @@ void RHD2000Editor::channelChanged(int chan)
 
 void RHD2000Editor::startAcquisition()
 {
+	if (measureWhenRecording)
+		measureImpedance();
 
     channelSelector->startAcquisition();
 
@@ -802,6 +876,8 @@ void RHD2000Editor::saveCustomParameters(XmlElement* xml)
     xml->setAttribute("DAC_HPF", dacHPFcombo->getSelectedId());
     xml->setAttribute("DSPOffset", dspoffsetButton->getToggleState());
     xml->setAttribute("DSPCutoffFreq", dspInterface->getDspCutoffFreq());
+	xml->setAttribute("save_impedance_measurements",saveImpedances);
+	xml->setAttribute("auto_measure_impedances",measureWhenRecording);
 }
 
 void RHD2000Editor::loadCustomParameters(XmlElement* xml)
@@ -821,6 +897,8 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     dacHPFcombo->setSelectedId(xml->getIntAttribute("DAC_HPF"));
     dspoffsetButton->setToggleState(xml->getBoolAttribute("DSPOffset"), sendNotification);
     dspInterface->setDspCutoffFreq(xml->getDoubleAttribute("DSPCutoffFreq"));
+	saveImpedances = xml->getBoolAttribute("save_impedance_measurements");
+	measureWhenRecording = xml->getBoolAttribute("auto_measure_impedances");
 }
 
 
