@@ -610,6 +610,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
     }
 
     float subSampleOffset = 0.0;
+    
+    //std::cout << screenBufferIndex << " : " << index << " : " << displayBufferIndex << " : " << valuesNeeded << " : " << ratio << std::endl;
 
     displayBufferIndex = displayBufferIndex % displayBufferSize; // make sure we're not overshooting
     int nextPos = (displayBufferIndex +1) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
