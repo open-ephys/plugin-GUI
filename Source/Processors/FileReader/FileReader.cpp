@@ -127,6 +127,8 @@ bool FileReader::setFile(String fullpath)
     }
     static_cast<FileReaderEditor*>(getEditor())->populateRecordings(input);
     setActiveRecording(0);
+    
+    return true;
 }
 
 void FileReader::setActiveRecording(int index)

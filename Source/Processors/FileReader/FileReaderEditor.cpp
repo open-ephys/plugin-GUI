@@ -156,9 +156,11 @@ void FileReaderEditor::comboBoxChanged(ComboBox* combo)
 
 void FileReaderEditor::populateRecordings(FileSource* source)
 {
+    
     recordSelector->clear(dontSendNotification);
     for (int i=0; i < source->getNumRecords(); i++)
     {
+        //sendActionMessage("Got file " + source->getRecordName(i));
         recordSelector->addItem(source->getRecordName(i),i+1);
     }
     recordSelector->setSelectedId(1,dontSendNotification);
