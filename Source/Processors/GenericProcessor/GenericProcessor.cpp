@@ -376,7 +376,7 @@ void GenericProcessor::update()
                 ch->setRecordState(recordStatus[i]);
             } else {
                 if (this->isSource())
-                    ch->setRecordState(True);
+                    ch->setRecordState(true);
             }
 
             channels.add(ch);
