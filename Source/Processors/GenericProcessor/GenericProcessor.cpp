@@ -380,6 +380,9 @@ void GenericProcessor::update()
             {
                 ch->setRecordState(recordStatus[i]);
 				ch->isMonitored = monitorStatus[i];
+            } else {
+                if (this->isSource())
+                    ch->setRecordState(true);
             }
 
             channels.add(ch);
