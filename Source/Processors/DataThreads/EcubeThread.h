@@ -76,6 +76,12 @@ public:
     /** Returns the number of continuous channels the data source can provide.*/
     virtual int getNumChannels();
 
+	virtual int getNumHeadstageOutputs();
+
+	virtual int getNumAnalogOutputs();
+
+	virtual int getNumAuxOutputs();
+
     /** Returns the number of event channels of the data source.*/
     virtual int getNumEventChannels();
 
@@ -85,7 +91,9 @@ public:
     /** Returns the volts per bit of a given data channel.*/
     virtual float getBitVolts(int chan);
 
-    virtual void getChannelsInfo(StringArray &Names, Array<channelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
+	virtual float getBitVolts(Channel* chan);
+
+    virtual void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
     void setDefaultNamingScheme(int scheme);
 
 
@@ -95,7 +103,7 @@ private:
     // used for data stream names...
     int numberingScheme;
     StringArray Names;
-    Array<channelType> type;
+    Array<ChannelType> type;
     Array<float> gains;
     Array<int> stream;
     Array<int> originalChannelNumber;
