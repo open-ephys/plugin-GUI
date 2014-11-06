@@ -941,6 +941,8 @@ float RHD2000Thread::getBitVolts(Channel* ch)
 {
     if (ch->type == ADC_CHANNEL)
 	   return getAdcBitVolts(ch->index);
+    else if (ch->type == AUX_CHANNEL)
+        return 0.0000374;
     else
         return 0.195f;
 }
