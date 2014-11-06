@@ -859,7 +859,7 @@ void RHD2000Thread::setDefaultChannelNamesAndType()
                     else
                         Names.add("AUX_"+stream_prefix[i]+"_"+String(1+k));
 
-                    gains.add(getBitVolts(0));
+                    gains.add(0.0000374);
 
                 }
 
