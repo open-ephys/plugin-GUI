@@ -48,6 +48,8 @@ public:
     IEcubeAnalogAcquisitionPtr pStrmA;
     IEcubeDigitalInputStreamingPtr pStrmD;
     HeapBlock<float, true> interleaving_buffer;
+    HeapBlock<uint64_t, true> event_buffer;
+    HeapBlock<uint32_t, true> bit_conversion_tables;
     bool buf_timestamp_locked;
     unsigned long buf_timestamp;
     uint64 buf_timestamp64;
@@ -59,7 +61,37 @@ static const char bits_port0[16] = { 23, 22, -1, 14, 11, -1, -1, 28, 12, 10, 27,
 static const char bits_port1[16] = { 20, 21, 19, 18, 13, 6, 4, 5, 3, 2, -1, -1, 29, -1, 24, 25 };
 static const char bits_port2[16] = { 16, 17, 15, 8, 9, 7, 0, 1, 31, 30, -1, -1, -1, -1, -1, -1 };
 
+// Builds bit conversion table for 8 bits of raw data
+void build_bit_conversion_table(uint32_t* table, const char* bits)
+{
+    for (uint16_t i = 0; i < 256; i++)
+    {
+        uint8_t is = i;
+        uint32_t outval = 0;
+        for (uint16_t j = 0; j < 8; j++)
+        {
+            if ((is & 1) && bits[j]>=0)
+            {
+                outval |= (uint32_t)1<<bits[j];
+            }
+            is >>= 1;
+        }
+        table[i] = outval;
+    }
+}
 
+void build_bit_conversion_tables(uint32_t* tables)
+{
+    // Bit conversion tables have 256 uint64s for each 8 bits of ecube ports
+    // Each sparse 16-bit port has two such tables
+    // The structure in memory is {tbl_port0l, tbl_port0h, tbl_port1l, tbl_port1h, tbl_port2l, tbl_port2h)
+    build_bit_conversion_table(tables        , bits_port0);
+    build_bit_conversion_table(tables + 0x100, bits_port0 + 8);
+    build_bit_conversion_table(tables + 0x200, bits_port1);
+    build_bit_conversion_table(tables + 0x300, bits_port1 + 8);
+    build_bit_conversion_table(tables + 0x400, bits_port2);
+    build_bit_conversion_table(tables + 0x500, bits_port2 + 8);
+}
 
 static std::vector<std::wstring> SafeArrayToVecStr(SAFEARRAY* sa)
 {
@@ -241,6 +273,10 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
                 dataBuffer = new DataBuffer(64, 10000);
                 // Create the interleaving buffer based on the number of digital ports
                 pDevInt->interleaving_buffer.malloc(sizeof(float)* 1500 * 64);
+                // Create the analog of interleaving buffer in packed format (int64)
+                pDevInt->event_buffer.malloc(sizeof(uint64_t)* 1500);
+                pDevInt->bit_conversion_tables.malloc(sizeof(uint32_t)* 0x600);
+                build_bit_conversion_tables(pDevInt->bit_conversion_tables);
             }
             else
                 throw std::runtime_error("Invlid module selection");
@@ -336,6 +372,14 @@ int EcubeThread::getNumChannels()
         return 64;
     else
         return pDevInt->n_channel_objects;
+}
+
+int EcubeThread::getNumEventChannels()
+{
+    if (pDevInt->data_format == EcubeDevInt::dfDigital)
+        return 64;
+    else
+        return 0;
 }
 
 float EcubeThread::getSampleRate()
@@ -461,7 +505,7 @@ bool EcubeThread::updateBuffer()
                             int64 cts = pDevInt->buf_timestamp64 / 3200; // Convert eCube 80MHz timestamp into a 25kHz timestamp
                             for (unsigned long j = 0; j < pDevInt->int_buf_size; j++)
                             {
-                                dataBuffer->addToBuffer(pDevInt->interleaving_buffer + j*64, &cts, &eventCode, 1);
+                                dataBuffer->addToBuffer(pDevInt->interleaving_buffer + j*64, &cts, pDevInt->event_buffer+j, 1);
                                 cts++;
                             }
                             // Update the 64-bit timestamp, take account of its wrap-around
@@ -477,32 +521,44 @@ bool EcubeThread::updateBuffer()
                         pDevInt->buf_timestamp_locked = true;
                         // Clear the interleaving buffer within the new packet's size
                         memset(pDevInt->interleaving_buffer, 0, sizeof(float)*datasize*64);
+                        // Clear the event buffer as well
+                        memset(pDevInt->event_buffer, 0, sizeof(uint64_t)*datasize);
                     }
                     // Convert data from ecube buffer into the interleaving buffer format
                     chid = chit->second; // Adjust the channel id to become the channel index
                     unsigned char* dp = ab->GetDataPointer();
                     const uint16_t* pData = (const uint16_t*)dp;
                     const char* pbits;
+                    const uint32_t* pconvtbl;
                     switch (chid)
                     {
                     case 0:
                     case 3:
                         pbits = bits_port0;
+                        pconvtbl = pDevInt->bit_conversion_tables;
                         break;
                     case 1:
                     case 4:
                         pbits = bits_port1;
+                        pconvtbl = pDevInt->bit_conversion_tables+0x200;
                         break;
                     case 2:
                     case 5:
                     default:
                         pbits = bits_port2;
+                        pconvtbl = pDevInt->bit_conversion_tables + 0x400;
                         break;
                     }
                     int bitchn_offset = chid >= 3 ? 32 : 0;
+                    uint8_t dword_shift = chid>=3 ? 32 : 0;
                     for (unsigned long j = 0; j < datasize; j++)
                     {
                         uint16_t wrd = pData[j];
+
+                        // Convert the word into packed 32-bit representation for this port
+                        uint32_t packedwrd = pconvtbl[wrd & 0xFF] | pconvtbl[0x100 + (wrd >> 8)];
+                        pDevInt->event_buffer[j] |= (uint64_t)packedwrd << dword_shift;
+
                         uint16_t msk = 1;
                         for (unsigned long k = 0; k < 16; k++)
                         {

@@ -25,6 +25,7 @@
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../UI/EditorViewport.h"
 #include "../../UI/ControlPanel.h"
+#include "RecordEngine.h"
 
 #define EVERY_ENGINE for(int eng = 0; eng < engineArray.size(); eng++) engineArray[eng]
 

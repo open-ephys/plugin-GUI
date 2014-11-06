@@ -505,12 +505,22 @@ void SourceNode::process(AudioSampleBuffer& buffer,
 void SourceNode::saveCustomParametersToXml(XmlElement* parentElement)
 {
 
-  //  if (getName().equalsIgnoreCase("File Reader"))
-  //  {
-  //      XmlElement* childNode = parentElement->createNewChildElement("FILENAME");
-  //      FileReaderThread* thread = (FileReaderThread*) dataThread.get();
-  //      childNode->setAttribute("path", thread->getFile());
-  //  }
+    StringArray names;
+    Array<channelType> types;
+    Array<int> stream;
+    Array<int> originalChannelNumber;
+    Array<float> gains;
+    getChannelsInfo(names, types, stream, originalChannelNumber, gains);
+	XmlElement *channelInfo = parentElement->createNewChildElement("CHANNEL_INFO");
+	for (int i = 0; i < names.size(); i++)
+	{
+		XmlElement* chan = channelInfo->createNewChildElement("CHANNEL");
+		chan->setAttribute("name",names[i]);
+		chan->setAttribute("stream",stream[i]);
+		chan->setAttribute("number",originalChannelNumber[i]);
+		chan->setAttribute("type",(int)types[i]);
+		chan->setAttribute("gain",gains[i]);
+	}
 
 }
 
@@ -523,12 +533,19 @@ void SourceNode::loadCustomParametersFromXml()
 
         forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
-//            if (xmlNode->hasTagName("FILENAME"))
-//            {
-//                String filepath = xmlNode->getStringAttribute("path");
-//                FileReaderEditor* fre = (FileReaderEditor*) getEditor();
-//                fre->setFile(filepath);
-//            }
+           if (xmlNode->hasTagName("CHANNEL_INFO"))
+            {
+				forEachXmlChildElementWithTagName(*xmlNode,chan,"CHANNEL")
+				{
+					String name = chan->getStringAttribute("name");
+					int stream = chan->getIntAttribute("stream");
+					int number = chan->getIntAttribute("number");
+					channelType type = static_cast<channelType>(chan->getIntAttribute("type"));
+					float gain = chan->getDoubleAttribute("gain");
+					modifyChannelName(type,stream,number,name,false);
+					modifyChannelGain(stream,number,type,gain,false);					
+				}
+            }
         }
     }
 

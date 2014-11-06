@@ -30,12 +30,14 @@
 
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../Channel/Channel.h"
-#include "RecordEngine.h"
-
 
 
 #define HEADER_SIZE 1024
 #define BLOCK_LENGTH 1024
+
+struct SpikeRecordInfo;
+struct SpikeObject;
+class RecordEngine;
 
 /**
 

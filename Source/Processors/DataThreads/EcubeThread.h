@@ -76,6 +76,9 @@ public:
     /** Returns the number of continuous channels the data source can provide.*/
     virtual int getNumChannels();
 
+    /** Returns the number of event channels of the data source.*/
+    virtual int getNumEventChannels();
+
     /** Returns the sample rate of the data source.*/
     virtual float getSampleRate();
 

@@ -54,7 +54,7 @@ void HDF5Recording::registerProcessor(GenericProcessor* proc)
     info->bit_depth = 16;
     infoArray.add(info);
     fileArray.add(new KWDFile());
-    activeChannelCount.add(0);
+	bitVoltsArray.add(new Array<float>);
     processorIndex++;
 }
 
@@ -62,7 +62,7 @@ void HDF5Recording::resetChannels()
 {
     processorIndex = -1;
     fileArray.clear();
-    activeChannelCount.clear();
+	bitVoltsArray.clear();
     processorMap.clear();
     infoArray.clear();
     if (spikesFile)
@@ -103,7 +103,7 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
                 fileArray[index]->initFile(getChannel(i)->nodeId,basepath);
                 fileArray[index]->open();
             }
-            activeChannelCount.set(index,activeChannelCount[index]+1);
+			bitVoltsArray[index]->add(getChannel(i)->bitVolts);
         }
     }
     for (int i = 0; i < fileArray.size(); i++)
@@ -116,7 +116,9 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
             infoArray[i]->name = String("Open-Ephys Recording #") + String(recordingNumber);
             infoArray[i]->start_time = timestamp;
             infoArray[i]->start_sample = 0;
-            fileArray[i]->startNewRecording(recordingNumber,activeChannelCount[i],infoArray[i]);
+			infoArray[i]->bitVolts.clear();
+			infoArray[i]->bitVolts.addArray(*bitVoltsArray[i]);
+			fileArray[i]->startNewRecording(recordingNumber,bitVoltsArray[i]->size(),infoArray[i]);
         }
     }
 }
@@ -131,7 +133,7 @@ void HDF5Recording::closeFiles()
     {
         fileArray[i]->stopRecording();
         fileArray[i]->close();
-        activeChannelCount.set(i,0);
+		bitVoltsArray[i]->clear();
     }
 }
 

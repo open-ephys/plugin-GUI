@@ -263,6 +263,7 @@ public:
 private:
 	void toggleSingleChannel(int chan);
 	int singleChan;
+	Array<bool> savedChannelState;
 
     int numChans;
 
@@ -314,6 +315,7 @@ public:
     }
 
 	channelType getType();
+	void updateType();
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
@@ -361,6 +363,7 @@ public:
     void resized();
 
     void setEnabledState(bool);
+	void updateType();
 
 private:
 

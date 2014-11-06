@@ -81,6 +81,8 @@ private:
     Viewport *viewport;
     FPGAcanvas *canvas;
     ScopedPointer<UtilityButton> impedanceButton;
+	ScopedPointer<ToggleButton> saveImpedanceButton;
+	ScopedPointer<ToggleButton> autoMeasureButton;
     ScopedPointer<ComboBox> numberingScheme;
     ScopedPointer<Label> numberingSchemeLabel;
     OwnedArray<Label> staticLabels;
@@ -176,6 +178,12 @@ public:
     void loadCustomParameters(XmlElement* xml);
     Visualizer* createNewCanvas(void);
     void measureImpedance();
+
+	void setSaveImpedance(bool en);
+	void setAutoMeasureImpedance(bool en);
+	bool getSaveImpedance();
+	bool getAutoMeasureImpedance();
+
 private:
 
     OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
@@ -195,6 +203,8 @@ private:
 
 
     ScopedPointer<Label> audioLabel,ttlSettleLabel,dacHPFlabel ;
+
+	bool saveImpedances, measureWhenRecording;
 
     RHD2000Thread* board;
     FPGAcanvas *canvas;
