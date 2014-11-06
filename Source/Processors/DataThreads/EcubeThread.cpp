@@ -293,7 +293,7 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
         throw std::runtime_error(std::string(e.Description()));
     }
 }
-void EcubeThread::getChannelsInfo(StringArray &Names_, Array<channelType> &type_, Array<int> &stream_, Array<int> &originalChannelNumber_, Array<float> &gains_)
+void EcubeThread::getChannelsInfo(StringArray &Names_, Array<ChannelType> &type_, Array<int> &stream_, Array<int> &originalChannelNumber_, Array<float> &gains_)
 {
     Names_ = Names;
     type_ = type;
@@ -312,14 +312,14 @@ void EcubeThread::setDefaultChannelNamesAndType()
     gains.clear();
     originalChannelNumber.clear();
     String prefix;
-    channelType common_type;
+    ChannelType common_type;
 
     int numch = getNumChannels();
 
     if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog)
     {
         prefix = "HS10_CH";
-        common_type = DATA_CHANNEL;
+        common_type = HEADSTAGE_CHANNEL;
     }
     else if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
     {
@@ -364,6 +364,28 @@ EcubeThread::~EcubeThread()
     waitForThreadToExit(-1);
 }
 
+int EcubeThread::getNumHeadstageOutputs()
+{
+	
+	if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
+		return 32;
+	else if (pDevInt->data_format == EcubeDevInt::dfDigital)
+		return 64;
+	else
+		return pDevInt->n_channel_objects;
+
+}
+
+int EcubeThread::getNumAnalogOutputs()
+{
+	return 0;
+}
+
+int EcubeThread::getNumAuxOutputs()
+{
+	return 0;
+}
+
 int EcubeThread::getNumChannels()
 {
     if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
@@ -389,7 +411,18 @@ float EcubeThread::getSampleRate()
 
 float EcubeThread::getBitVolts(int chan)
 {
-    return 10e3/32768; // For some reason the data is supposed to be in millivolts
+	if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
+		return 0.00001;
+	else
+		return 10e3 / 32768; // For some reason the data is supposed to be in millivolts
+}
+
+float EcubeThread::getBitVolts(Channel* chan)
+{
+	if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
+		return 0.00001;
+	else
+		return 10e3 / 32768; // For some reason the data is supposed to be in millivolts
 }
 
 bool EcubeThread::foundInputSource()
