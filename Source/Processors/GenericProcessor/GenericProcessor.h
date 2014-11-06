@@ -636,6 +636,7 @@ private:
 
     /** Saves the record status of individual channels, even when other parameters are updated. */
     Array<bool> recordStatus;
+	Array<bool> monitorStatus;
 
     /** Returns the number of samples for the current continuous buffer (assumed to be
     the same for all channels).*/
