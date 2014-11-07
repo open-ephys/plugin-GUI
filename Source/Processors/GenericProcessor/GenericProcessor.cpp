@@ -282,10 +282,14 @@ void GenericProcessor::clearSettings()
     if (recordStatus.size() < channels.size())
         recordStatus.resize(channels.size());
 
+	if(monitorStatus.size() < channels.size())
+		monitorStatus.resize(channels.size());
+
     for (int i = 0; i < channels.size(); i++)
     {
         // std::cout << channels[i]->getRecordState() << std::endl;
         recordStatus.set(i,channels[i]->getRecordState());
+		monitorStatus.set(i,channels[i]->isMonitored);
     }
 
     channels.clear();
@@ -326,6 +330,7 @@ void GenericProcessor::update()
             if (i < recordStatus.size())
             {
                 ch->setRecordState(recordStatus[i]);
+				ch->isMonitored = monitorStatus[i];
             }
 
             channels.add(ch);
@@ -374,6 +379,10 @@ void GenericProcessor::update()
             if (i < recordStatus.size())
             {
                 ch->setRecordState(recordStatus[i]);
+				ch->isMonitored = monitorStatus[i];
+            } else {
+                if (this->isSource())
+                    ch->setRecordState(true);
             }
 
             channels.add(ch);

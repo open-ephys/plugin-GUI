@@ -733,6 +733,17 @@ int RHD2000Thread::modifyChannelName(channelType t, int str, int ch, String newN
     return -1;
 }
 
+String RHD2000Thread::getChannelName(channelType t, int str, int ch)
+{
+	for (int k=0; k<Names.size(); k++)
+    {
+        if (type[k] == t && stream[k] == str && originalChannelNumber[k] == ch)
+        {
+            return Names[k];
+        }
+    }
+}
+
 int RHD2000Thread::modifyChannelGain(channelType t, int str, int ch, float gain)
 {
     String dummy;
@@ -848,7 +859,7 @@ void RHD2000Thread::setDefaultChannelNamesAndType()
                     else
                         Names.add("AUX_"+stream_prefix[i]+"_"+String(1+k));
 
-                    gains.add(getBitVolts(0));
+                    gains.add(0.0000374);
 
                 }
 

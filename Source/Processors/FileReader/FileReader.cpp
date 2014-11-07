@@ -25,23 +25,21 @@
 #include "FileReaderEditor.h"
 #include <stdio.h>
 
+#include "KwikFileSource.h"
+
 FileReader::FileReader()
     : GenericProcessor("File Reader")
 {
 
-    input = 0;
     timestamp = 0;
 
     enabledState(false);
 
-    counter = 0;
 
 }
 
 FileReader::~FileReader()
 {
-    if (input)
-        fclose(input);
 }
 
 AudioProcessorEditor* FileReader::createEditor()
@@ -54,7 +52,7 @@ AudioProcessorEditor* FileReader::createEditor()
 
 bool FileReader::isReady()
 {
-    if (input == 0)
+    if (input == nullptr)
     {
         sendActionMessage("No file selected in File Reader.");
         return false;
@@ -68,17 +66,26 @@ bool FileReader::isReady()
 
 float FileReader::getDefaultSampleRate()
 {
-    return 40000.0f;
+    if (input)
+        return currentSampleRate;
+    else
+        return 44100.0;
 }
 
 int FileReader::getDefaultNumOutputs()
 {
-    return 16;
+    if (input)
+        return currentNumChannels;
+    else
+        return 16;
 }
 
 float FileReader::getBitVolts(int chan)
 {
-    return 0.05f;
+    if (input)
+        return channelInfo[chan].bitVolts;
+    else
+        return 0.05f;
 }
 
 void FileReader::enabledState(bool t)
@@ -89,42 +96,75 @@ void FileReader::enabledState(bool t)
 }
 
 
-void FileReader::setFile(String fullpath)
+bool FileReader::setFile(String fullpath)
 {
+    File file(fullpath);
 
-    filePath = fullpath;
+    String ext = file.getFileExtension();
 
-    const char* path = filePath.getCharPointer();
-
-    if (input)
-        fclose(input);
-
-    input = fopen(path, "rb");
-
-    // Avoid a segfault if file isn't found
-    if (!input)
+    if (!ext.compareIgnoreCase(".kwd"))
     {
-        std::cout << "Can't find data file "
-                  << '"' << path << "\""
-                  << std::endl;
-        return;
+        input = new KWIKFileSource();
+    }
+    else
+    {
+        sendActionMessage("File type not supported");
+        return false;
     }
 
-    fseek(input, 0, SEEK_END);
-    lengthOfInputFile = ftell(input);
-    rewind(input);
+    if (!input->OpenFile(file))
+    {
+        input = nullptr;
+        sendActionMessage("Invalid file");
+        return false;
+    }
 
+    if (input->getNumRecords() <= 0)
+    {
+        input = nullptr;
+        sendActionMessage("Empty file. Inoring open operation");
+        return false;
+    }
+    static_cast<FileReaderEditor*>(getEditor())->populateRecordings(input);
+    setActiveRecording(0);
+    
+    return true;
 }
 
+void FileReader::setActiveRecording(int index)
+{
+    input->setActiveRecord(index);
+    currentNumChannels = input->getActiveNumChannels();
+    currentNumSamples = input->getActiveNumSamples();
+    currentSampleRate = input->getActiveSampleRate();
+    startSample = 0;
+    stopSample = currentNumSamples;
+    currentSample = 0;
+    for (int i=0; i < currentNumChannels; i++)
+    {
+        channelInfo.add(input->getChannelInfo(i));
+    }
+    static_cast<FileReaderEditor*>(getEditor())->setTotalTime(samplesToMilliseconds(currentNumSamples));
+    readBuffer.malloc(currentNumChannels*BUFFER_SIZE);
+}
 
 String FileReader::getFile()
 {
-    return filePath;
+    if (input)
+        return input->getFileName();
+    else
+        return String::empty;
 }
 
 void FileReader::updateSettings()
 {
+    if (!input) return;
 
+    for (int i=0; i < currentNumChannels; i++)
+    {
+        channels[i]->bitVolts = channelInfo[i].bitVolts;
+        channels[i]->name = channelInfo[i].name;
+    }
 }
 
 
@@ -167,49 +207,33 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSa
 
     int samplesNeeded = (int) float(buffer.getNumSamples()) * (getDefaultSampleRate()/44100.0f);
 
+    int samplesReaded = 0;
 
-    // if (counter == 0)
-    // {
-    //     samplesNeeded = samplesNeeded - 2;
-    //     counter = 1;
-    // } else {
-    //     samplesNeeded = samplesNeeded + 2;
-    //     counter = 0;
-    // }
-
-    if (ftell(input) >= lengthOfInputFile - samplesNeeded)
+    while (samplesReaded < samplesNeeded)
     {
-        rewind(input);
-    }
-
-    size_t numRead = fread(readBuffer, 2, samplesNeeded*buffer.getNumChannels(), input);
-
-    int chan = 0;
-    int samp = 0;
-
-    for (size_t n = 0; n < numRead; n++)
-    {
-
-        if (chan == buffer.getNumChannels())
+        int samplesToRead = samplesNeeded - samplesReaded;
+        if ((currentSample + samplesToRead) > stopSample)
         {
-            samp++;
-            timestamp++;
-            chan = 0;
+            samplesToRead = stopSample - currentSample;
+            if (samplesToRead > 0)
+                input->readData(readBuffer+samplesReaded,samplesToRead);
+            input->seekTo(startSample);
+            currentSample = startSample;
         }
-
-        int16 sample = readBuffer[n];
-
-#ifdef JUCE_WINDOWS //-- big-endian format
-        // reverse the byte order
-        //	float sample_f;
-        //	AudioDataConverters::convertInt16BEToFloat(&readBuffer[n], &sample_f, 1);
-
-#endif
-
-        *buffer.getWritePointer(chan++, samp) = -sample * getDefaultBitVolts();
-
+        else
+        {
+            input->readData(readBuffer+samplesReaded,samplesToRead);
+            currentSample += samplesToRead;
+        }
+        samplesReaded += samplesToRead;
+    }
+    for (int i=0; i < currentNumChannels; i++)
+    {
+        input->processChannelData(readBuffer,buffer.getWritePointer(i,0),i,samplesNeeded);
     }
 
+    timestamp += samplesNeeded;
+    static_cast<FileReaderEditor*>(getEditor())->setCurrentTime(samplesToMilliseconds(currentSample));
     nSamples = samplesNeeded;
 
 }
@@ -217,36 +241,30 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSa
 
 void FileReader::setParameter(int parameterIndex, float newValue)
 {
-
-}
-
-
-
-void FileReader::saveCustomParametersToXml(XmlElement* parentElement)
-{
-
-    XmlElement* childNode = parentElement->createNewChildElement("FILENAME");
-    childNode->setAttribute("path", getFile());
-
-}
-
-void FileReader::loadCustomParametersFromXml()
-{
-
-    if (parametersAsXml != nullptr)
+    switch (parameterIndex)
     {
-        // use parametersAsXml to restore state
-
-        forEachXmlChildElement(*parametersAsXml, xmlNode)
-        {
-            if (xmlNode->hasTagName("FILENAME"))
-            {
-                String filepath = xmlNode->getStringAttribute("path");
-                FileReaderEditor* fre = (FileReaderEditor*) getEditor();
-                fre->setFile(filepath);
-
-            }
-        }
+        case 0: //Change selected recording
+            setActiveRecording(newValue);
+            break;
+        case 1: //set startTime
+            startSample = millisecondsToSamples(newValue);
+            currentSample = startSample;
+            static_cast<FileReaderEditor*>(getEditor())->setCurrentTime(samplesToMilliseconds(currentSample));
+            break;
+        case 2: //set stop time
+            stopSample = millisecondsToSamples(newValue);
+            currentSample = startSample;
+            static_cast<FileReaderEditor*>(getEditor())->setCurrentTime(samplesToMilliseconds(currentSample));
+            break;
     }
+}
 
+unsigned int FileReader::samplesToMilliseconds(int64 samples)
+{
+    return (unsigned int)(1000.f*float(samples)/currentSampleRate);
+}
+
+int64 FileReader::millisecondsToSamples(unsigned int ms)
+{
+    return (int64)(currentSampleRate*float(ms)/1000.f);
 }

@@ -118,6 +118,12 @@ void HDF5FileBase::close()
 
 int HDF5FileBase::setAttribute(DataTypes type, void* data, String path, String name)
 {
+    return setAttributeArray(type, data, 1, path, name);
+}
+
+
+int HDF5FileBase::setAttributeArray(DataTypes type, void* data, int size, String path, String name)
+{
     Group loc;
     Attribute attr;
     DataType H5type;
@@ -130,6 +136,13 @@ int HDF5FileBase::setAttribute(DataTypes type, void* data, String path, String n
 
         H5type = getH5Type(type);
         origType = getNativeType(type);
+
+		if (size > 1)
+		{
+			hsize_t dims = size;
+			H5type = ArrayType(H5type,1,&dims);
+			origType = ArrayType(origType,1,&dims);
+		}
 
         if (loc.attrExists(name.toUTF8()))
         {
@@ -605,6 +618,8 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
     //	CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
     CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
     CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
+	CHECK_ERROR(createGroup(recordPath+"/application_data"));
+	CHECK_ERROR(setAttributeArray(F32,info->bitVolts.getRawDataPointer(),info->bitVolts.size(),recordPath+"/application_data",String("channel_bit_volts")));
     recdata = createDataSet(I16,0,nChannels,CHUNK_XSIZE,recordPath+"/data");
     if (!recdata.get())
         std::cerr << "Error creating data set" << std::endl;

@@ -51,7 +51,7 @@ private:
     int processorIndex;
 
     Array<int> processorMap;
-    Array<int> activeChannelCount;
+    OwnedArray<Array<float>> bitVoltsArray;
     OwnedArray<KWDFile> fileArray;
     OwnedArray<HDF5RecordingInfo> infoArray;
     ScopedPointer<KWIKFile> mainFile;

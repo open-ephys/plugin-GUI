@@ -263,6 +263,7 @@ public:
 private:
 	void toggleSingleChannel(int chan);
 	int singleChan;
+	Array<bool> savedChannelState;
 
     int numChans;
 
