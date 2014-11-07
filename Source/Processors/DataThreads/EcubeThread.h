@@ -78,7 +78,7 @@ public:
 
 	virtual int getNumHeadstageOutputs();
 
-	virtual int getNumAnalogOutputs();
+	virtual int getNumAdcOutputs();
 
 	virtual int getNumAuxOutputs();
 

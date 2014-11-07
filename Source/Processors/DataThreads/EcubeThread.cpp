@@ -318,18 +318,18 @@ void EcubeThread::setDefaultChannelNamesAndType()
 
     if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog)
     {
-        prefix = "HS10_CH";
+        prefix = "HS_CH";
         common_type = HEADSTAGE_CHANNEL;
     }
     else if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
     {
         prefix = "PAI";
-        common_type = AUX_CHANNEL;
+        common_type = ADC_CHANNEL;
     }
     else //if (pDevInt->data_format == EcubeDevInt::dfDigital)
     {
         prefix = "PDI";
-        common_type = AUX_CHANNEL;
+        common_type = ADC_CHANNEL;
     }
 
     if (numberingScheme != 1)
@@ -366,19 +366,20 @@ EcubeThread::~EcubeThread()
 
 int EcubeThread::getNumHeadstageOutputs()
 {
-	
-	if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
-		return 32;
-	else if (pDevInt->data_format == EcubeDevInt::dfDigital)
-		return 64;
-	else
-		return pDevInt->n_channel_objects;
-
+    if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog)
+        return pDevInt->n_channel_objects;
+    else
+        return 0;
 }
 
-int EcubeThread::getNumAnalogOutputs()
+int EcubeThread::getNumAdcOutputs()
 {
-	return 0;
+    if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
+        return 32;
+    else if (pDevInt->data_format == EcubeDevInt::dfDigital)
+        return 64;
+    else
+        return 0;
 }
 
 int EcubeThread::getNumAuxOutputs()
@@ -411,18 +412,18 @@ float EcubeThread::getSampleRate()
 
 float EcubeThread::getBitVolts(int chan)
 {
-	if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
-		return 0.00001;
+	if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog || pDevInt->data_format == EcubeDevInt::dfDigital)
+		return 10.0/32768; // Volts per bit for front panel analog input and fictive v/bit for the digital input
 	else
-		return 10e3 / 32768; // For some reason the data is supposed to be in millivolts
+		return 6.25e3 / 32768; // Microvolts per bit for the headstage channels
 }
 
 float EcubeThread::getBitVolts(Channel* chan)
 {
-	if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
-		return 0.00001;
-	else
-		return 10e3 / 32768; // For some reason the data is supposed to be in millivolts
+    if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog || pDevInt->data_format == EcubeDevInt::dfDigital)
+        return 10.0 / 32768; // Volts per bit for front panel analog input and fictive v/bit for the digital input
+    else
+        return 6.25e3 / 32768; // Microvolts per bit for the headstage channels
 }
 
 bool EcubeThread::foundInputSource()
@@ -493,7 +494,7 @@ bool EcubeThread::updateBuffer()
                     const short* pData = (const short*)dp;
                     for (unsigned long j = 0; j < datasize; j++)
                     {
-                        pDevInt->interleaving_buffer[chid + nchan*j] = pData[j] * 10.0e3 / 32768; // OpenEphys uses 10e3 instead of just 10
+                        pDevInt->interleaving_buffer[chid + nchan*j] = pData[j] * 6.25e3 / 32768; // Convert into microvolts
                     }
                 }
                 else if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
@@ -514,7 +515,7 @@ bool EcubeThread::updateBuffer()
                     const short* pData = (const short*)dp;
                     for (unsigned j = 0; j < datasize; j++)
                     {
-                        pDevInt->interleaving_buffer[j] = pData[j] * 10.0e3 / 32768;
+                        pDevInt->interleaving_buffer[j] = pData[j] * 10.0/32768; // Convert into volts
                     }
                     unsigned long datasam = datasize / 32;
                     int64 cts = pDevInt->buf_timestamp64 / 3200; // Convert eCube's 80MHz timestamps into number of samples on the Panel Analog input (orig sample rate 1144)
@@ -598,7 +599,7 @@ bool EcubeThread::updateBuffer()
                             int bitchn = pbits[k];
                             if (bitchn>=0)
                             {
-                                float val = wrd&msk ? 1.0e3f : 0.0f;
+                                float val = wrd&msk ? 5.0f : 0.0f; // Convert to 5V/0V values
                                 pDevInt->interleaving_buffer[bitchn + bitchn_offset + 64*j] = val;
                             }
                             msk <<= 1;
