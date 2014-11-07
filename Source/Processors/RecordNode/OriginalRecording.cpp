@@ -67,6 +67,7 @@ void OriginalRecording::addChannel(int index, Channel* chan)
     //Just populate the file array with null so we can address it by index afterwards
     fileArray.add(nullptr);
     blockIndex.add(0);
+    samplesSinceLastTimestamp.add(0);
 }
 
 void OriginalRecording::addSpikeElectrode(int index, SpikeRecordInfo* elec)
@@ -80,6 +81,7 @@ void OriginalRecording::resetChannels()
     spikeFileArray.clear();
     blockIndex.clear();
 	processorArray.clear();
+    samplesSinceLastTimestamp.clear();
 }
 
 void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int recordingNumber)
@@ -99,6 +101,7 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
         {
             openFile(rootFolder,getChannel(i));
             blockIndex.set(i,0);
+            samplesSinceLastTimestamp.set(i,0);
         }
 
     }
@@ -336,7 +339,7 @@ String OriginalRecording::generateSpikeHeader(SpikeRecordInfo* elec)
     header += String(HEADER_SIZE);
     header += ";\n";
 
-    header += "header.description = 'Each record contains 1 uint8 eventType, 1 uint64 timestamp, 1 uint16 electrodeID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), n*m uint16 samples, n uint16 channelGains, n uint16 thresholds, and 1 uint16 recordingNumber'; \n";
+    header += "header.description = 'Each record contains 1 uint8 eventType, 1 int64 timestamp, 1 uint16 electrodeID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), n*m uint16 samples, n uint16 channelGains, n uint16 thresholds, and 1 uint16 recordingNumber'; \n";
 
     header += "header.date_created = '";
     header += generateDateString();
@@ -443,8 +446,9 @@ void OriginalRecording::writeData(AudioSampleBuffer& buffer)
 
             int sourceNodeId = getChannel(i)->sourceNodeId;
 
+            samplesSinceLastTimestamp.set(i,0);
+
             int nSamples = (*numSamples)[sourceNodeId];
-            int64 timestamp = (*timestamps)[sourceNodeId];
 
             while (samplesWritten < nSamples) // there are still unwritten samples in this buffer
             {
@@ -458,7 +462,8 @@ void OriginalRecording::writeData(AudioSampleBuffer& buffer)
                                           numSamplesToWrite,
                                           i);
 
-                    timestamp += numSamplesToWrite;
+                    //timestamp += numSamplesToWrite;
+                    samplesSinceLastTimestamp.set(i, samplesSinceLastTimestamp[i] + numSamplesToWrite);
                     blockIndex.set(i, blockIndex[i] + numSamplesToWrite);
                     samplesWritten += numSamplesToWrite;
 
@@ -474,7 +479,8 @@ void OriginalRecording::writeData(AudioSampleBuffer& buffer)
 
                     // update our variables
                     samplesWritten += numSamplesToWrite;
-                    timestamp += numSamplesToWrite;
+                    //timestamp += numSamplesToWrite;
+                    samplesSinceLastTimestamp.set(i, samplesSinceLastTimestamp[i] + numSamplesToWrite);
                     blockIndex.set(i,0); // back to the beginning of the block
                 }
             }
@@ -501,7 +507,7 @@ void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, i
 
     if (blockIndex[channel] == 0)
     {
-        writeTimestampAndSampleCount(fileArray[channel], getChannel(channel)->sourceNodeId);
+        writeTimestampAndSampleCount(fileArray[channel], channel);
     }
 
     diskWriteLock.enter();
@@ -523,13 +529,15 @@ void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, i
     }
 }
 
-void OriginalRecording::writeTimestampAndSampleCount(FILE* file, int sourceNodeId)
+void OriginalRecording::writeTimestampAndSampleCount(FILE* file, int channel)
 {
     diskWriteLock.enter();
 
     uint16 samps = BLOCK_LENGTH;
 
-    int64 ts = (*timestamps)[sourceNodeId];
+    int sourceNodeId = getChannel(channel)->sourceNodeId;
+
+    int64 ts = (*timestamps)[sourceNodeId] + samplesSinceLastTimestamp[channel];
 
     fwrite(&ts,                       // ptr
            8,                               // size of each element

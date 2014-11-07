@@ -64,7 +64,7 @@ private:
     void openFile(File rootFolder, Channel* ch);
     String generateHeader(Channel* ch);
     void writeContinuousBuffer(const float* data, int nSamples, int channel);
-    void writeTimestampAndSampleCount(FILE* file, int sourceNodeId);
+    void writeTimestampAndSampleCount(FILE* file, int channel);
     void writeRecordMarker(FILE* file);
 
     void openSpikeFile(File rootFolder, SpikeRecordInfo* elec);
@@ -78,6 +78,7 @@ private:
 
     bool separateFiles;
     Array<int> blockIndex;
+    Array<int> samplesSinceLastTimestamp;
     int recordingNumber;
     int experimentNumber;
 
