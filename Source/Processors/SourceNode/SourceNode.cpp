@@ -369,7 +369,7 @@ bool SourceNode::enable()
         return false;
     }
 
-    stopTimer();
+    stopTimer(); // WARN Compiler warning: unreachable code here (spotted by Michael Borisov). Probably needs to be fixed
 
 }
 
