@@ -79,6 +79,9 @@ public:
     /** Returns the number of event channels of the data source.*/
     virtual int getNumEventChannels();
 
+    /** Returns the number of ADC channels of the data source.*/
+    virtual int getNumADCchannels();
+
     /** Returns the sample rate of the data source.*/
     virtual float getSampleRate();
 
@@ -87,6 +90,8 @@ public:
 
     virtual void getChannelsInfo(StringArray &Names, Array<channelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
     void setDefaultNamingScheme(int scheme);
+    /** Changes the names of channels, if the thread needs custom names. */
+    virtual void updateChannelNames();
 
 
 private:
