@@ -52,6 +52,7 @@ private:
 
     Array<int> processorMap;
     OwnedArray<Array<float>> bitVoltsArray;
+	OwnedArray<Array<float>> sampleRatesArray;
     OwnedArray<KWDFile> fileArray;
     OwnedArray<HDF5RecordingInfo> infoArray;
     ScopedPointer<KWIKFile> mainFile;

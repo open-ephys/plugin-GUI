@@ -52,9 +52,11 @@ void HDF5Recording::registerProcessor(GenericProcessor* proc)
     HDF5RecordingInfo* info = new HDF5RecordingInfo();
     info->sample_rate = proc->getSampleRate();
     info->bit_depth = 16;
+	info->multiSample = false;
     infoArray.add(info);
     fileArray.add(new KWDFile());
 	bitVoltsArray.add(new Array<float>);
+	sampleRatesArray.add(new Array<float>);
     processorIndex++;
 }
 
@@ -63,6 +65,7 @@ void HDF5Recording::resetChannels()
     processorIndex = -1;
     fileArray.clear();
 	bitVoltsArray.clear();
+	sampleRatesArray.clear();
     processorMap.clear();
     infoArray.clear();
     if (spikesFile)
@@ -104,6 +107,11 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
                 fileArray[index]->open();
             }
 			bitVoltsArray[index]->add(getChannel(i)->bitVolts);
+			sampleRatesArray[index]->add(getChannel(i)->sampleRate);
+			if (getChannel(i)->sampleRate != infoArray[index]->sample_rate)
+			{
+				infoArray[index]->multiSample = true;
+			}
         }
     }
     for (int i = 0; i < fileArray.size(); i++)
@@ -118,6 +126,8 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
             infoArray[i]->start_sample = 0;
 			infoArray[i]->bitVolts.clear();
 			infoArray[i]->bitVolts.addArray(*bitVoltsArray[i]);
+			infoArray[i]->channelSampleRates.clear();
+			infoArray[i]->channelSampleRates.addArray(*sampleRatesArray[i]);
 			fileArray[i]->startNewRecording(recordingNumber,bitVoltsArray[i]->size(),infoArray[i]);
         }
     }

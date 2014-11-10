@@ -42,6 +42,8 @@ struct HDF5RecordingInfo
     float sample_rate;
     uint32 bit_depth;
 	Array<float> bitVolts;
+	Array<float> channelSampleRates;
+	bool multiSample;
 };
 
 class HDF5FileBase
@@ -97,16 +99,16 @@ public:
     int writeDataBlock(int xDataSize, HDF5FileBase::DataTypes type, void* data);
     int writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase::DataTypes type, void* data);
 
-    int prepareDataBlock(int xDataSize);
     int writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataTypes type, void* data);
+
+	void getRowXPositions(Array<uint32>& rows);
 
 private:
     int xPos;
     int xChunkSize;
     int size[3];
     int dimension;
-    int rowXPos;
-    int rowDataSize;
+	Array<uint32> rowXPos;
     ScopedPointer<H5::DataSet> dSet;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HDF5RecordingData);
@@ -133,6 +135,7 @@ private:
     int nChannels;
     int curChan;
     String filename;
+	bool multiSample;
     ScopedPointer<HDF5RecordingData> recdata;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWDFile);
