@@ -409,14 +409,16 @@ float RecordNode::getFreeSpace()
 
 void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
 {
-    if ((eventType == TTL) || (eventType == MESSAGE))
+    if (isRecording && allFilesOpened)
     {
-        if (event.getNoteNumber() > 0) // processor ID > 0 (i.e., event has not already been processed)
+        if ((eventType == TTL) || (eventType == MESSAGE))
         {
-            EVERY_ENGINE->writeEvent(eventType, event, samplePosition);
+            if (event.getNoteNumber() > 0) // processor ID > 0 (i.e., event has not already been processed)
+            {
+                EVERY_ENGINE->writeEvent(eventType, event, samplePosition);
+            }
         }
     }
-
 }
 
 void RecordNode::process(AudioSampleBuffer& buffer,
@@ -424,15 +426,13 @@ void RecordNode::process(AudioSampleBuffer& buffer,
 {
 	// FIRST: cycle through events -- extract the TTLs and the timestamps
     checkForEvents(events);
+
+	//update timstamp data even if we're not recording yet
+	EVERY_ENGINE->updateTimestamps(&timestamps);
+    EVERY_ENGINE->updateNumSamples(&numSamples);
+
     if (isRecording && allFilesOpened)
     {
-
-        EVERY_ENGINE->updateTimestamps(&timestamps);
-        EVERY_ENGINE->updateNumSamples(&numSamples);
-
-        // FIRST: cycle through events -- extract the TTLs
-        checkForEvents(events);
-
         // SECOND: write channel data
         if (channelPointers.size() > 0)
         {

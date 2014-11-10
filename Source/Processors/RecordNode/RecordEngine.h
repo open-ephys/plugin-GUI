@@ -130,10 +130,10 @@ public:
 
     /** Called every time a new timestamp event is received
     */
-    virtual void updateTimestamps(std::map<uint8, int64>* timestamps);
+    void updateTimestamps(std::map<uint8, int64>* timestamps);
 
     /** Called every time a new numSamples event is received */
-    virtual void updateNumSamples(std::map<uint8, int>* numSamples);
+    void updateNumSamples(std::map<uint8, int>* numSamples);
 
     /** Called after all channels and spike groups have been registered,
     	just before acquisition starts
@@ -147,9 +147,6 @@ public:
 
     void registerManager(RecordEngineManager* engineManager);
     void configureEngine();
-
-    std::map<uint8, int>* numSamples;
-    std::map<uint8, int64>* timestamps;
 
 protected:
     /** Functions to access RecordNode arrays and utilities
@@ -166,6 +163,9 @@ protected:
     /** Generate a Matlab-compatible datestring
     */
     String generateDateString();
+
+	std::map<uint8, int>* numSamples;
+    std::map<uint8, int64>* timestamps;
 
 private:
     RecordEngineManager* manager;

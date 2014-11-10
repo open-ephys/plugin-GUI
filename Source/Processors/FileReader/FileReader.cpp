@@ -136,7 +136,6 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 
     int samplesNeeded = (int) float(buffer.getNumSamples()) * (getDefaultSampleRate()/44100.0f);
 
-
     // if (counter == 0)
     // {
     //     samplesNeeded = samplesNeeded - 2;
@@ -152,7 +151,6 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events)
     }
 
     size_t numRead = fread(readBuffer, 2, samplesNeeded*buffer.getNumChannels(), input);
-
     int chan = 0;
     int samp = 0;
 
@@ -165,14 +163,13 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events)
             timestamp++;
             chan = 0;
         }
-
         int16 sample = readBuffer[n];
 
         *buffer.getWritePointer(chan++, samp) = -sample * 0.05f;
 
     }
-
-    setNumSamples(events, samplesNeeded);
+	timestamp++;
+    setNumSamples(events, samp+1);//samplesNeeded);
 
 }
 
