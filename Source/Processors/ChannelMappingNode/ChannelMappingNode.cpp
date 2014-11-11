@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 ChannelMappingNode::ChannelMappingNode()
-    : GenericProcessor("Channel Map"), previousChannelCount(0), channelBuffer(1,10000)
+    : GenericProcessor("Channel Map"), channelBuffer(1,10000)
 {
     referenceArray.resize(1024); // make room for 1024 channels
     channelArray.resize(1024);
@@ -68,21 +68,25 @@ void ChannelMappingNode::updateSettings()
     if (getNumInputs() > 0)
         channelBuffer.setSize(getNumInputs(), 10000);
 
-    OwnedArray<Channel> oldChannels;
-    oldChannels.addArray(channels);
-    channels.clear();
+	if (editorIsConfigured)
+	{
+	    OwnedArray<Channel> oldChannels;
+		oldChannels.swapWith(channels);
+	    channels.clear();
 
-    settings.numOutputs = 0;
+	    settings.numOutputs = 0;
 
-    for (int i = 0; i < channelArray.size(); i++)
-    {
-        if (enabledChannelArray[i])
-        {
-            channels.add(oldChannels[channelArray[i]]);
-            settings.numOutputs++;
-        }
-   
-    }
+	    for (int i = 0; i < getNumInputs(); i++)
+	    {
+	        if (enabledChannelArray[channelArray[i]])
+	        {
+	            channels.add(oldChannels[channelArray[i]]);
+				oldChannels.set(channelArray[i],nullptr,false);
+	            settings.numOutputs++;
+	        }
+
+	    }
+	}
 
 }
 
@@ -136,7 +140,7 @@ void ChannelMappingNode::process(AudioSampleBuffer& buffer,
                            channelBuffer, // source
                            realChan, // sourceChannel
                            0, // sourceStartSample
-                           getNumSamples(channels[j]->sourceNodeId), // numSamples
+                           getNumSamples(j), // numSamples
                            1.0f // gain to apply to source (positive for original signal)
                           );
 
