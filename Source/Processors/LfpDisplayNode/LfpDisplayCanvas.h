@@ -87,7 +87,7 @@ public:
     const float getYCoordMax(int chan, int samp);
 
     Array<int> screenBufferIndex;
-    int lastScreenBufferIndex;
+    Array<int> lastScreenBufferIndex;
 
     void comboBoxChanged(ComboBox* cb);
     void buttonClicked(Button* button);

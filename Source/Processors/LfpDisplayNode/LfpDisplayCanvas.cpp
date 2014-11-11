@@ -304,6 +304,7 @@ void LfpDisplayCanvas::update()
 
     sampleRate.clear();
     screenBufferIndex.clear();
+	lastScreenBufferIndex.clear();
     displayBufferIndex.clear();
 
     for (int i = 0; i < nChans; i++)
@@ -311,6 +312,7 @@ void LfpDisplayCanvas::update()
         sampleRate.add(processor->channels[i]->sampleRate);
         displayBufferIndex.add(0);
         screenBufferIndex.add(0);
+		lastScreenBufferIndex.add(0);
     }
 
     if (nChans != lfpDisplay->getNumChannels())
@@ -620,7 +622,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
         int sbi = screenBufferIndex[channel];
         int dbi = displayBufferIndex[channel];
 
-        lastScreenBufferIndex = sbi;
+        lastScreenBufferIndex.set(channel,sbi);
 
         int index = processor->getDisplayBufferIndex(channel);
 
@@ -639,7 +641,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
         {
             valuesNeeded = maxSamples - sbi;
         }
-
         float subSampleOffset = 0.0;
 
         dbi %= displayBufferSize; // make sure we're not overshooting
@@ -1268,7 +1269,7 @@ void LfpDisplay::refresh()
             }
             else
             {
-                channels[i]->repaint(canvas->lastScreenBufferIndex-2, 0, (canvas->screenBufferIndex[i]-canvas->lastScreenBufferIndex)+3, getChildComponent(i)->getHeight());  //repaint only the updated portion
+                channels[i]->repaint(canvas->lastScreenBufferIndex[i]-2, 0, (canvas->screenBufferIndex[i]-canvas->lastScreenBufferIndex[i])+3, getChildComponent(i)->getHeight());  //repaint only the updated portion
                 // we redraw from -2 to +1 relative to the real redraw window, the -2 makes sure that the lines join nicely, and the +1 draws the vertical update line
             }
             //std::cout << i << std::endl;
@@ -1672,7 +1673,7 @@ void LfpChannelDisplay::paint(Graphics& g)
         int to = 0;
 
         //for (int i = 0; i < getWidth()-stepSize; i += stepSize) // redraw entire display
-        int ifrom = canvas->lastScreenBufferIndex - 3; // need to start drawing a bit before the actual redraw windowfor the interpolated line to join correctly
+        int ifrom = canvas->lastScreenBufferIndex[chan] - 3; // need to start drawing a bit before the actual redraw windowfor the interpolated line to join correctly
 
         if (ifrom < 0)
             ifrom = 0;
