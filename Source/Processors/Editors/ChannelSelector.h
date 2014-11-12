@@ -306,6 +306,12 @@ public:
 	void setChannel(int n)
 	{
 		num = n;
+		displayNum = n;
+	}
+	void setChannel(int n, int d)
+	{
+		num = n;
+		displayNum = d;
 	}
 
 private:
@@ -315,6 +321,7 @@ private:
 
     int type;
     int num;
+	int displayNum;
     Font buttonFont;
     bool isActive;
 };
