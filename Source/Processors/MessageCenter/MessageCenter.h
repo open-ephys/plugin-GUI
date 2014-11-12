@@ -64,11 +64,16 @@ public:
     void startRecording() {isRecording = true;}
     void stopRecording() {isRecording = false;}
 
+	void setSourceNodeId(int id);
+	int getSourceNodeId();
+
 private:
 
     bool newEventAvailable;
 
     bool isRecording;
+
+	int sourceNodeId;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MessageCenter);
 
