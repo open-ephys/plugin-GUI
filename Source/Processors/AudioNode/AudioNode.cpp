@@ -327,7 +327,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                           );
 
             //if (destBufferPos == 0)
-              std::cout << "Temp buffer 0 value: " << *tempBuffer->getReadPointer(i,0) << std::endl;
+            //  std::cout << "Temp buffer 0 value: " << *tempBuffer->getReadPointer(i,0) << std::endl;
 
           }
 
@@ -400,8 +400,8 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                             1,        // number of samples
                             alpha*gain);       // gain to apply to source
 
-            if (destBufferPos == 0)
-              std::cout << "Output buffer 0 value: " << *buffer.getReadPointer(i+2,destBufferPos) << std::endl;
+           // if (destBufferPos == 0)
+              //std::cout << "Output buffer 0 value: " << *buffer.getReadPointer(i+2,destBufferPos) << std::endl;
 
             subSampleOffset += ratio[i];
 
