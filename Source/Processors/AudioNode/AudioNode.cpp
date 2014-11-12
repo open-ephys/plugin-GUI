@@ -372,8 +372,6 @@ void AudioNode::process(AudioSampleBuffer& buffer,
 
           int destBufferPos;
 
-          buffer.clear(i+2,0,valuesNeeded);
-
           // code modified from "juce_ResamplingAudioSource.cpp":
 
           for (destBufferPos = 0; destBufferPos < valuesNeeded; destBufferPos++)
@@ -384,7 +382,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
 
            // std::cout << "Copying sample " << sourceBufferPos << std::endl;
 
-            buffer.addFrom(i+2,    // destChannel
+            buffer.addFrom(0,    // destChannel
                            destBufferPos,  // destSampleOffset
                            *tempBuffer,     // source
                             i,    // sourceChannel
@@ -392,7 +390,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                             1,        // number of samples
                             invAlpha*gain);      // gain to apply to source
 
-            buffer.addFrom(i+2,    // destChannel
+            buffer.addFrom(0,    // destChannel
                             destBufferPos,   // destSampleOffset
                             *tempBuffer,     // source
                             i,      // sourceChannel
@@ -418,19 +416,19 @@ void AudioNode::process(AudioSampleBuffer& buffer,
           if (ratio[i] < 0.99999)
           {
               // apply the filter after upsampling
-              float* ptr = buffer.getWritePointer(i+2);
+              float* ptr = buffer.getWritePointer(0);
               filters[i]->process(destBufferPos, &ptr);
           }
 
           // now copy the channel into the output zone
 
-          buffer.addFrom(0,    // destChannel
-                         0,  // destSampleOffset
-                         buffer,     // source
-                          i+2,    // sourceChannel
-                          0,// sourceSampleOffset
-                          valuesNeeded,        // number of samples
-                          1.0);      // gain to apply to source
+          // buffer.addFrom(0,    // destChannel
+          //                0,  // destSampleOffset
+          //                buffer,     // source
+          //                 i+2,    // sourceChannel
+          //                 0,// sourceSampleOffset
+          //                 valuesNeeded,        // number of samples
+          //                 1.0);      // gain to apply to source
 
         } // if channelPointers[i]->isMonitored
       } // end cycling through channels
