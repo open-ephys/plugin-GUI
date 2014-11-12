@@ -142,7 +142,7 @@ private:
     Array<double> sourceBufferSampleRate;
     double destBufferSampleRate;
 
-    bool bufferSwap;
+    Array<bool> bufferSwap;
 
     Expander expander;
 

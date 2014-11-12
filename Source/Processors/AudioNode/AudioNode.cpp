@@ -162,6 +162,7 @@ void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
     filters.clear();
     bufferA.clear();
     bufferB.clear();
+    bufferSwap.clear();
 
     destBufferSampleRate = sampleRate_;
 
@@ -180,12 +181,11 @@ void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 
         bufferA.add(new AudioSampleBuffer(1,10000));
         bufferB.add(new AudioSampleBuffer(1,10000));
+        bufferSwap.add(false);
       
     }
     
     tempBuffer->setSize(getNumInputs(), 4096);
-
-    bufferSwap = false;
 }
 
 void AudioNode::updateFilter(int i)
@@ -212,6 +212,8 @@ void AudioNode::process(AudioSampleBuffer& buffer,
   float gain;
   int valuesNeeded = buffer.getNumSamples(); // samples needed to fill out the buffer
 
+  //std::cout << "Buffer size: " << buffer.getNumChannels() << std::endl;
+
   // clear the left and right channels
   buffer.clear(0,0,buffer.getNumSamples());
   buffer.clear(1,0,buffer.getNumSamples());
@@ -225,27 +227,27 @@ void AudioNode::process(AudioSampleBuffer& buffer,
     if (channelPointers.size() > 0) // we have some channels
     {
 
-      for (int i = 0; i < buffer.getNumChannels()-2; i++)
+      for (int i = 0; i < buffer.getNumChannels()-2; i++) // cycle through them all
       {
 
         if (channelPointers[i]->isMonitored)
         {
 
-          if (!bufferSwap)
+          //std::cout << "Processing channel " << i << std::endl;
+
+          if (!bufferSwap[i])
           {
             overflowBuffer = bufferA[i];
             backupBuffer = bufferB[i];
 
-            if (i == buffer.getNumChannels()-3)
-              bufferSwap = true;
+            bufferSwap.set(i,true);
           }
           else
           {
             overflowBuffer = bufferB[i];
             backupBuffer = bufferA[i];
 
-            if (i == buffer.getNumChannels()-3)
-              bufferSwap = false;
+            bufferSwap.set(i,false);
           }
 
           backupBuffer->clear();
@@ -258,14 +260,14 @@ void AudioNode::process(AudioSampleBuffer& buffer,
 
           // 1. copy overflow buffer
 
-          int samplesToCopy = ((samplesInOverflowBuffer[i] <= numSamplesExpected[i]) ?
+          int samplesToCopyFromOverflowBuffer = 
+                           ((samplesInOverflowBuffer[i] <= numSamplesExpected[i]) ?
                            samplesInOverflowBuffer[i] :
                            numSamplesExpected[i]);
 
-          //  std::cout << " " << std::endl;
-          //  std::cout << "Copying " << samplesToCopy << " samples from overflow buffer of " << samplesInOverflowBuffer << " samples." << std::endl;
+            //std::cout << "Copying " << samplesToCopyFromOverflowBuffer << " samples from overflow buffer of " << samplesInOverflowBuffer[i] << " samples." << std::endl;
 
-          if (samplesToCopy > 0)
+          if (samplesToCopyFromOverflowBuffer > 0) // need to re-add samples from backup buffer
           {
 
             tempBuffer->addFrom(i,    // destination channel
@@ -273,157 +275,163 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                            *overflowBuffer,  // source
                            i,                // source channel
                            0,                // source start sample
-                           samplesToCopy,    // number of samples
+                           samplesToCopyFromOverflowBuffer,    // number of samples
                            1.0f              // gain to apply
                           );
 
-            int leftoverSamples = samplesInOverflowBuffer[i] - samplesToCopy;
+            int leftoverSamples = samplesInOverflowBuffer[i] - samplesToCopyFromOverflowBuffer;
 
-            //     std::cout << "Samples remaining in overflow buffer: " << leftoverSamples << std::endl;
+           // std::cout << "Samples remaining in overflow buffer: " << leftoverSamples << std::endl;
 
-            if (leftoverSamples > 0)
+            if (leftoverSamples > 0) // move remaining samples to the backup buffer
             {
-
-              // move remaining samples to the backup buffer
 
               backupBuffer->addFrom(i, // destination channel
                                     0,                     // destination start sample
                                     *overflowBuffer,       // source
                                     i,                     // source channel
-                                    samplesToCopy,         // source start sample
+                                    samplesToCopyFromOverflowBuffer,         // source start sample
                                     leftoverSamples,       // number of samples
                                     1.0f                   // gain to apply
                                    );
-
             }
 
             samplesInBackupBuffer.set(i,leftoverSamples);
+          }
 
-            gain = volume/(float(0x7fff) * channelPointers[i]->bitVolts);
-            // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
-            // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
+          gain = volume/(float(0x7fff) * channelPointers[i]->bitVolts);
+          // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
+          // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
 
-            int remainingSamples = numSamplesExpected[i] - samplesToCopy;
+          int remainingSamples = numSamplesExpected[i] - samplesToCopyFromOverflowBuffer;
 
-            //  std::cout << "Copying " << remainingSamples << " samples from incoming buffer of " << nSamples << " samples." << std::endl;
+          int samplesAvailable = numSamples.at(channelPointers[i]->sourceNodeId);
 
-            int samplesAvailable = numSamples.at(channelPointers[i-2]->sourceNodeId);
+          int samplesToCopyFromIncomingBuffer = ((remainingSamples <= samplesAvailable) ?
+                                remainingSamples :
+                                samplesAvailable);
 
-            int samplesToCopy2 = ((remainingSamples <= samplesAvailable) ?
-                                  remainingSamples :
-                                  samplesAvailable);
+          //std::cout << "Copying " << samplesToCopyFromIncomingBuffer << " samples from incoming buffer of " << samplesAvailable << " samples." << std::endl;
 
-            if (samplesToCopy2 > 0)
+
+          if (samplesToCopyFromIncomingBuffer > 0)
+          {
+
+            tempBuffer->addFrom(i,       // destination channel
+                           samplesToCopyFromOverflowBuffer,           // destination start sample
+                           buffer,      // source
+                           i+2,           // source channel (add 2 to account for output channels)
+                           0,           // source start sample
+                           samplesToCopyFromIncomingBuffer, //  number of samples
+                           gain       // gain to apply
+                          );
+
+            //if (destBufferPos == 0)
+              std::cout << "Temp buffer 0 value: " << *tempBuffer->getReadPointer(i,0) << std::endl;
+
+          }
+
+          orphanedSamples = samplesAvailable - samplesToCopyFromIncomingBuffer;
+
+         // std::cout << "Samples remaining in incoming buffer: " << orphanedSamples << std::endl;
+
+          if (orphanedSamples > 0 && (samplesInBackupBuffer[i] + orphanedSamples < backupBuffer->getNumSamples()))
+          {
+
+              backupBuffer->addFrom(i,                            // destination channel
+                                    samplesInBackupBuffer[i],     // destination start sample
+                                    buffer,                       // source
+                                    i+2,                          // source channel (add 2 to account for output channels)
+                                    remainingSamples,             // source start sample
+                                    orphanedSamples,              //  number of samples
+                                    gain                          // gain to apply
+                                   );
+
+              samplesInBackupBuffer.set(i, samplesInBackupBuffer[i] + orphanedSamples);
+
+				  }
+
+          // now that our tempBuffer is ready, we can filter it and copy it into the 
+          // original buffer
+
+          //std::cout << "Ratio = " << ratio[i] << ", gain = " << gain << std::endl;
+          //std::cout << "Values needed = " << valuesNeeded << ", channel = " << i << std::endl;
+
+          if (ratio[i] > 1.00001)
+          {
+              // pre-apply filter before downsampling
+              float* ptr = tempBuffer->getWritePointer(i);
+              filters[i]->process(numSamplesExpected[i], &ptr);
+          }
+
+          // initialize variables
+          int sourceBufferPos = 0;
+          int sourceBufferSize = numSamplesExpected[i];
+          float subSampleOffset = 0.0;
+          int nextPos = (sourceBufferPos + 1) % sourceBufferSize;
+
+          int destBufferPos;
+
+          buffer.clear(i+2,0,valuesNeeded);
+
+          // code modified from "juce_ResamplingAudioSource.cpp":
+
+          for (destBufferPos = 0; destBufferPos < valuesNeeded; destBufferPos++)
+          {
+            float gain = 1.0;
+            float alpha = (float) subSampleOffset;
+            float invAlpha = 1.0f - alpha;
+
+           // std::cout << "Copying sample " << sourceBufferPos << std::endl;
+
+            buffer.addFrom(i+2,    // destChannel
+                           destBufferPos,  // destSampleOffset
+                           *tempBuffer,     // source
+                            i,    // sourceChannel
+                            sourceBufferPos,// sourceSampleOffset
+                            1,        // number of samples
+                            invAlpha*gain);      // gain to apply to source
+
+            buffer.addFrom(i+2,    // destChannel
+                            destBufferPos,   // destSampleOffset
+                            *tempBuffer,     // source
+                            i,      // sourceChannel
+                            nextPos,      // sourceSampleOffset
+                            1,        // number of samples
+                            alpha*gain);       // gain to apply to source
+
+            if (destBufferPos == 0)
+              std::cout << "Output buffer 0 value: " << *buffer.getReadPointer(i+2,destBufferPos) << std::endl;
+
+            subSampleOffset += ratio[i];
+
+            while (subSampleOffset >= 1.0)
             {
+                if (++sourceBufferPos >= sourceBufferSize)
+                    sourceBufferPos = 0;
 
-              tempBuffer->addFrom(i,       // destination channel
-                             samplesToCopy,           // destination start sample
-                             buffer,      // source
-                             i+2,           // source channel (add 2 to account for output channels)
-                             0,           // source start sample
-                             remainingSamples, //  number of samples
-                             gain       // gain to apply
-                            );
-
+                nextPos = (sourceBufferPos + 1) % sourceBufferSize;
+                subSampleOffset -= 1.0;
             }
+          }
 
-            orphanedSamples = samplesAvailable - samplesToCopy2;
+          if (ratio[i] < 0.99999)
+          {
+              // apply the filter after upsampling
+              float* ptr = buffer.getWritePointer(i+2);
+              filters[i]->process(destBufferPos, &ptr);
+          }
 
-            // std::cout << "Samples remaining in incoming buffer: " << orphanedSamples << std::endl;
+          // now copy the channel into the output zone
 
-            if (orphanedSamples > 0 && (samplesInBackupBuffer[i] + orphanedSamples < backupBuffer->getNumSamples()))
-            {
+          buffer.addFrom(0,    // destChannel
+                         0,  // destSampleOffset
+                         buffer,     // source
+                          i+2,    // sourceChannel
+                          0,// sourceSampleOffset
+                          valuesNeeded,        // number of samples
+                          1.0);      // gain to apply to source
 
-                backupBuffer->addFrom(i,                            // destination channel
-                                      samplesInBackupBuffer[i],     // destination start sample
-                                      buffer,                       // source
-                                      i+2,                          // source channel (add 2 to account for output channels)
-                                      remainingSamples,             // source start sample
-                                      orphanedSamples,              //  number of samples
-                                      gain                          // gain to apply
-                                     );
-
-					  }
-    				else 
-            {
-    						samplesInBackupBuffer.set(i,0); // just throw out the buffer in the case of an overrun
-    											                 // not ideal, but the output still sounds fine
-    				}
-
-            // now that our tempBuffer is ready, we can filter it and copy it into the 
-            // original buffer
-
-
-            if (ratio[i] > 1.0001)
-            {
-                // pre-apply filter before downsampling
-                float* ptr = tempBuffer->getWritePointer(i+2);
-                filters[i]->process(numSamplesExpected[i], &ptr);
-            }
-
-            // initialize variables
-            int sourceBufferPos = 0;
-            int sourceBufferSize = numSamplesExpected[i];
-            float subSampleOffset = 0.0;
-            int nextPos = (sourceBufferPos + 1) % sourceBufferSize;
-
-            int destBufferPos;
-            buffer.clear(i+2,0,valuesNeeded);
-
-            // code modified from "juce_ResamplingAudioSource.cpp":
-
-            for (destBufferPos = 0; destBufferPos < valuesNeeded; destBufferPos++)
-            {
-              float gain = 1.0;
-              float alpha = (float) subSampleOffset;
-              float invAlpha = 1.0f - alpha;
-
-              buffer.addFrom(i+2,    // destChannel
-                             destBufferPos,  // destSampleOffset
-                             *tempBuffer,     // source
-                              i,    // sourceChannel
-                              sourceBufferPos,// sourceSampleOffset
-                              1,        // number of samples
-                              invAlpha*gain);      // gain to apply to source
-
-              buffer.addFrom(i+2,    // destChannel
-                              destBufferPos,   // destSampleOffset
-                              buffer,     // source
-                              i,      // sourceChannel
-                              nextPos,      // sourceSampleOffset
-                              1,        // number of samples
-                              alpha*gain);       // gain to apply to source
-
-              subSampleOffset += ratio[i];
-
-              while (subSampleOffset >= 1.0)
-              {
-                  if (++sourceBufferPos >= sourceBufferSize)
-                      sourceBufferPos = 0;
-
-                  nextPos = (sourceBufferPos + 1) % sourceBufferSize;
-                  subSampleOffset -= 1.0;
-              }
-            }
-
-            if (ratio[i] < 0.9999)
-            {
-                float* ptr = buffer.getWritePointer(i+2);
-                filters[i]->process(destBufferPos, &ptr);
-                // apply the filter after upsampling
-            }
-
-            // now copy the channel into the output zone
-
-            buffer.addFrom(0,    // destChannel
-                           0,  // destSampleOffset
-                           buffer,     // source
-                            i+2,    // sourceChannel
-                            0,// sourceSampleOffset
-                            valuesNeeded,        // number of samples
-                            1.0);      // gain to apply to source
-
-          } // if samplesToCopy > 0
         } // if channelPointers[i]->isMonitored
       } // end cycling through channels
 
