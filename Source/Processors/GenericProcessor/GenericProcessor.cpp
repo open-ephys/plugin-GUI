@@ -327,6 +327,7 @@ void GenericProcessor::update()
             Channel* sourceChan = sourceNode->channels[i];
             Channel* ch = new Channel(*sourceChan);
             ch->setProcessor(this);
+			ch->nodeIndex = i;
 
             if (i < recordStatus.size())
             {
@@ -351,6 +352,7 @@ void GenericProcessor::update()
         settings.numOutputs = getNumHeadstageOutputs() + getNumAdcOutputs() + getNumAuxOutputs();
 
         std::cout << getName() << " setting num outputs to " << settings.numOutputs << std::endl;
+		int nidx = 0;
 
         for (int i = 0; i < getNumHeadstageOutputs(); i++)
         {
@@ -359,6 +361,7 @@ void GenericProcessor::update()
             ch->sampleRate = getDefaultSampleRate();
             ch->bitVolts = getBitVolts(ch);
             ch->sourceNodeId = nodeId;
+			ch->nodeIndex = nidx;
 
             if (i < recordStatus.size())
             {
@@ -369,6 +372,7 @@ void GenericProcessor::update()
             }
 
             channels.add(ch);
+			nidx++;
         }
 
         for (int j = 0; j < getNumAuxOutputs(); j++)
@@ -378,6 +382,7 @@ void GenericProcessor::update()
             ch->sampleRate = getDefaultSampleRate();
             ch->bitVolts = getBitVolts(ch);
             ch->sourceNodeId = nodeId;
+			ch->nodeIndex = nidx;
 
             if (j < recordStatus.size())
             {
@@ -388,6 +393,7 @@ void GenericProcessor::update()
             }
 
             channels.add(ch);
+			nidx++;
         }
 
         for (int k = 0; k < getNumAdcOutputs(); k++)
@@ -397,6 +403,7 @@ void GenericProcessor::update()
             ch->sampleRate = getDefaultSampleRate();
             ch->bitVolts = getBitVolts(ch);
             ch->sourceNodeId = nodeId;
+			ch->nodeIndex = nidx;
 
             if (k < recordStatus.size())
             {
@@ -407,6 +414,7 @@ void GenericProcessor::update()
             }
 
             channels.add(ch);
+			nidx++;
         }
 
         for (int m = 0; m < getNumEventChannels(); m++)
