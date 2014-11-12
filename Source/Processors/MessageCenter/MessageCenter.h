@@ -67,6 +67,9 @@ public:
 	void setSourceNodeId(int id);
 	int getSourceNodeId();
 
+	void addSourceProcessor(GenericProcessor* p);
+	void removeSourceProcessor(GenericProcessor* p);
+
 private:
 
     bool newEventAvailable;

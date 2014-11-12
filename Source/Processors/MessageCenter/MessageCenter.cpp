@@ -106,3 +106,13 @@ void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
 
   
 }
+
+void MessageCenter::addSourceProcessor(GenericProcessor* p)
+{
+	messageCenterEditor->addSourceProcessor(p);
+}
+
+void MessageCenter::removeSourceProcessor(GenericProcessor* p)
+{
+	messageCenterEditor->removeSourceProcessor(p);
+}

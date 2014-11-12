@@ -135,6 +135,8 @@ void* ProcessorGraph::createNewProcessor(String& description, int id)//,
         {
             // by default, all source nodes record automatically
             processor->setAllChannelsToRecord();
+
+			getMessageCenter()->addSourceProcessor(processor);
 			if (getMessageCenter()->getSourceNodeId() == 0)
 			{
 				getMessageCenter()->setSourceNodeId(processor->getNodeId());
@@ -664,6 +666,11 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
     std::cout << "Removing processor with ID " << processor->getNodeId() << std::endl;
 
 	int nodeId = processor->getNodeId();
+
+	if (processor->isSource())
+	{
+		getMessageCenter()->removeSourceProcessor(processor);
+	}
 
     disconnectNode(nodeId);
     removeNode(nodeId);
