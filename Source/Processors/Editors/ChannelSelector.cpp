@@ -132,12 +132,12 @@ void ChannelSelector::setNumChannels(int numChans)
     //Reassign numbers according to the actual channels (useful for channel mapper)
     for (int n = 0; n < parameterButtons.size(); n++)
     {
-        //nt num = ((GenericEditor*)getParentComponent())->getChannel(n)->index;
-        parameterButtons[n]->setChannel(n+1);
+        int num = ((GenericEditor*)getParentComponent())->getChannel(n)->nodeIndex;
+        parameterButtons[n]->setChannel(n+1, num+1);
         if (isNotSink)
         {
-            recordButtons[n]->setChannel(n+1);
-            audioButtons[n]->setChannel(n+1);
+            recordButtons[n]->setChannel(n+1, num+1);
+            audioButtons[n]->setChannel(n+1, num+1);
         }
     }
 
@@ -596,7 +596,7 @@ void ChannelSelector::buttonClicked(Button* button)
             //int channelNum = editor->getStartChannel() + b->getChannel() - 1;
             bool status = b->getToggleState();
 
-            std::cout << "Requesting audio monitor for channel " << ch->index << std::endl;
+            std::cout << "Requesting audio monitor for channel " << ch->nodeIndex+1 << std::endl;
 
             if (acquisitionIsActive) // use setParameter to change parameter safely
             {
@@ -820,6 +820,7 @@ ChannelSelectorButton::ChannelSelectorButton(int num_, int type_, Font& f) : But
 {
     isActive = true;
     num = num_;
+	displayNum = num_;
     type = type_;
 
     setClickingTogglesState(true);
@@ -855,7 +856,7 @@ void ChannelSelectorButton::paintButton(Graphics& g, bool isMouseOver, bool isBu
 
     // g.drawRect(0,0,getWidth(),getHeight(),1.0);
 
-    g.drawText(String(num),0,0,getWidth(),getHeight(),Justification::centred,true);
+	g.drawText(String(displayNum),0,0,getWidth(),getHeight(),Justification::centred,true);
 }
 
 void ChannelSelectorButton::setActive(bool t)

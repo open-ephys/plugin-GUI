@@ -102,7 +102,10 @@ public:
 
     //--------------PUBLIC MEMBERS ---------------- //
 
-    /** Channel index within the source processor */
+	/** Channel index within the source processor */
+    int nodeIndex;
+
+    /** Channel index within the source processor relative to channel type */
     int index;
 
     /** The ID of the channel's processor.*/
