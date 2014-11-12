@@ -79,7 +79,6 @@ void ProcessorGraph::createDefaultNodes()
     RecordNode* recn = new RecordNode();
     recn->setNodeId(RECORD_NODE_ID);
 
-
     // add audio node -- takes all inputs and selects those to be used for audio monitoring
     AudioNode* an = new AudioNode();
     an->setNodeId(AUDIO_NODE_ID);
@@ -442,6 +441,7 @@ void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* sou
         return;
 
 	getRecordNode()->registerProcessor(source);
+
     for (int chan = 0; chan < source->getNumOutputs(); chan++)
     {
 

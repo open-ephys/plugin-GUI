@@ -502,7 +502,7 @@ bool EcubeThread::updateBuffer()
                     if (pDevInt->buf_timestamp_locked)
                     {
                         // Update the 64-bit timestamp, take care of its wrap-around
-                        unsigned tsdif = pDevInt->buf_timestamp - bts;
+                        unsigned tsdif = bts - pDevInt->buf_timestamp;
                         pDevInt->buf_timestamp64 += tsdif;
                     }
                     else
