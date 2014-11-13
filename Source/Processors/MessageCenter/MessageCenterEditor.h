@@ -28,6 +28,8 @@
 #include "MessageCenter.h"
 #include <stdio.h>
 
+class MessageLabel;
+
 /**
 	Holds the interface for adding events to the message queue
 
@@ -40,7 +42,8 @@ class MessageCenterEditor : public AudioProcessorEditor,
     public Label::Listener,
     public AccessClass,
     public Timer,
-    public ActionListener
+    public ActionListener,
+    public MouseListener
 
 {
 public:
@@ -61,7 +64,12 @@ public:
     void saveStateToXml(XmlElement* xml);
     void loadStateFromXml(XmlElement* xml);
 
+    void addSourceProcessor(GenericProcessor* p);
+    void removeSourceProcessor(GenericProcessor* p);
+
     String getLabelString();
+
+    void mouseDown(const MouseEvent& event);
 
 private:
 
@@ -75,13 +83,16 @@ private:
     void actionListenerCallback(const String& message);
 
     /** A JUCE label used to display message text. */
-    ScopedPointer<Label> incomingMessageDisplayArea;
+    ScopedPointer<MessageLabel> incomingMessageDisplayArea;
 
     /** A JUCE label used to display message text. */
-    ScopedPointer<Label> outgoingMessageDisplayArea;
+    ScopedPointer<MessageLabel> outgoingMessageDisplayArea;
 
     /** A JUCE button used to send messages. */
     ScopedPointer<Button> sendMessageButton;
+
+    ScopedPointer<PopupMenu> sourceMenu;
+    Array<GenericProcessor*> sourcesList;
 
     MessageCenter* messageCenter;
 
@@ -92,6 +103,11 @@ private:
 
 };
 
-
+class MessageLabel : public Label
+{
+public:
+    MessageLabel(const String& componentName=String::empty, const String& labelText=String::empty);
+    void mouseDown(const MouseEvent& event);
+};
 
 #endif  // MESSAGECENTEREDITOR_H_INCLUDED

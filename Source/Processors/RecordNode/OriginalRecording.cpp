@@ -25,8 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../Audio/AudioComponent.h"
 
 OriginalRecording::OriginalRecording() : separateFiles(false),
-    recordingNumber(0), experimentNumber(0),  zeroBuffer(1, 50000), 
-	eventFile(nullptr), messageFile(nullptr), lastProcId(0)
+    recordingNumber(0), experimentNumber(0),  zeroBuffer(1, 50000),
+    eventFile(nullptr), messageFile(nullptr), lastProcId(0)
 {
     continuousDataIntegerBuffer = new int16[10000];
     continuousDataFloatBuffer = new float[10000];
@@ -80,7 +80,7 @@ void OriginalRecording::resetChannels()
     fileArray.clear();
     spikeFileArray.clear();
     blockIndex.clear();
-	processorArray.clear();
+    processorArray.clear();
     samplesSinceLastTimestamp.clear();
 }
 
@@ -89,8 +89,8 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
     this->recordingNumber = recordingNumber;
     this->experimentNumber = experimentNumber;
 
-	processorArray.clear();
-	lastProcId = 0;
+    processorArray.clear();
+    lastProcId = 0;
 
     openFile(rootFolder,nullptr);
     openMessageFile(rootFolder);
@@ -116,9 +116,9 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
     FILE* chFile;
     bool isEvent;
     String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
-	String fileName;
+    String fileName;
 
-	recordPath = fullPath;
+    recordPath = fullPath;
 
     isEvent = (ch == nullptr) ? true : false;
     if (isEvent)
@@ -133,8 +133,8 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
         fileName += getFileName(ch);
     }
 
-	fullPath += fileName;
-	std::cout << "OPENING FILE: " << fullPath << std::endl;
+    fullPath += fileName;
+    std::cout << "OPENING FILE: " << fullPath << std::endl;
 
     File f = File(fullPath);
 
@@ -157,36 +157,36 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
 
         std::cout << "Wrote header." << std::endl;
 
-       // std::cout << "Block index: " << blockIndex << std::endl;
+        // std::cout << "Block index: " << blockIndex << std::endl;
 
     }
     else
     {
         std::cout << "File already exists, just opening." << std::endl;
-		fseek(chFile, 0, SEEK_END );
+        fseek(chFile, 0, SEEK_END);
     }
 
     if (isEvent)
         eventFile = chFile;
     else
-	{
+    {
         fileArray.set(ch->recordIndex,chFile);
-		if (ch->nodeId != lastProcId)
-		{
-			lastProcId = ch->nodeId;
-			ProcInfo* p = new ProcInfo();
-			p->id = ch->nodeId;
-			p->sampleRate = ch->sampleRate;
-			processorArray.add(p);
-		}
-		ChannelInfo* c = new ChannelInfo();
-		c->filename = fileName;
-		c->name = ch->name;
-		c->startPos = ftell(chFile);
-		c->bitVolts = ch->bitVolts;
-		processorArray.getLast()->channels.add(c);
-	}
-	diskWriteLock.exit();
+        if (ch->nodeId != lastProcId)
+        {
+            lastProcId = ch->nodeId;
+            ProcInfo* p = new ProcInfo();
+            p->id = ch->nodeId;
+            p->sampleRate = ch->sampleRate;
+            processorArray.add(p);
+        }
+        ChannelInfo* c = new ChannelInfo();
+        c->filename = fileName;
+        c->name = ch->name;
+        c->startPos = ftell(chFile);
+        c->bitVolts = ch->bitVolts;
+        processorArray.getLast()->channels.add(c);
+    }
+    diskWriteLock.exit();
 
 }
 
@@ -275,7 +275,7 @@ String OriginalRecording::generateHeader(Channel* ch)
 
     String header = "header.format = 'Open Ephys Data Format'; \n";
 
-	header += "header.version = "+ String(VERSION_STRING) +"; \n";
+    header += "header.version = "+ String(VERSION_STRING) +"; \n";
     header += "header.header_bytes = ";
     header += String(HEADER_SIZE);
     header += ";\n";
@@ -467,15 +467,16 @@ void OriginalRecording::writeData(AudioSampleBuffer& buffer)
                     blockIndex.set(i, blockIndex[i] + numSamplesToWrite);
                     samplesWritten += numSamplesToWrite;
 
-                } else // there's not enough space left in this block for all remaining samples 
+                }
+                else   // there's not enough space left in this block for all remaining samples
                 {
 
-                     numSamplesToWrite = BLOCK_LENGTH - blockIndex[i];
+                    numSamplesToWrite = BLOCK_LENGTH - blockIndex[i];
 
-                     // write buffer to disk!
-                     writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
-                                           numSamplesToWrite,
-                                           i);
+                    // write buffer to disk!
+                    writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
+                                          numSamplesToWrite,
+                                          i);
 
                     // update our variables
                     samplesWritten += numSamplesToWrite;
@@ -484,7 +485,7 @@ void OriginalRecording::writeData(AudioSampleBuffer& buffer)
                     blockIndex.set(i,0); // back to the beginning of the block
                 }
             }
-            
+
         }
     }
 
@@ -614,7 +615,7 @@ void OriginalRecording::closeFiles()
         diskWriteLock.exit();
     }
 
-	writeXml();
+    writeXml();
 
 }
 
@@ -664,46 +665,46 @@ void OriginalRecording::writeSpike(const SpikeObject& spike, int electrodeIndex)
 
 void OriginalRecording::writeXml()
 {
-	String name = recordPath + "Continuous_Data";
-	if (experimentNumber > 1)
-	{
-		name += "_";
-		name += String(experimentNumber);
-	}
-	name += ".openephys";
+    String name = recordPath + "Continuous_Data";
+    if (experimentNumber > 1)
+    {
+        name += "_";
+        name += String(experimentNumber);
+    }
+    name += ".openephys";
 
-	File file(name);
-	XmlDocument doc(file);
-	ScopedPointer<XmlElement> xml = doc.getDocumentElement();
-	if ( !xml || ! xml->hasTagName("EXPERIMENT"))
-	{
-		xml = new XmlElement("EXPERIMENT");
-		xml->setAttribute("version",VERSION);
-		xml->setAttribute("number",experimentNumber);
-		xml->setAttribute("separatefiles",separateFiles);
-	}
-	XmlElement* rec = new XmlElement("RECORDING");
-	rec->setAttribute("number",recordingNumber);
-	//rec->setAttribute("length",(double)(timestamp-startTimestamp));
-	for (int i = 0; i < processorArray.size(); i++)
-	{
-		XmlElement* proc = new XmlElement("PROCESSOR");
-		proc->setAttribute("id",processorArray[i]->id);
-		rec->setAttribute("samplerate",processorArray[i]->sampleRate);
-		for (int j = 0; j < processorArray[i]->channels.size(); j++)
-		{
-			ChannelInfo* c = processorArray[i]->channels[j];
-			XmlElement* chan = new XmlElement("CHANNEL");
-			chan->setAttribute("name",c->name);
-			chan->setAttribute("bitVolts",c->bitVolts);
-			chan->setAttribute("filename",c->filename);
-			chan->setAttribute("position",(double)(c->startPos)); //As long as the file doesnt exceed 2^53 bytes, this will have integer precission. Better than limiting to 32bits.
-			proc->addChildElement(chan);
-		}
-		rec->addChildElement(proc);
-	}
-	xml->addChildElement(rec);
-	xml->writeToFile(file,String::empty);
+    File file(name);
+    XmlDocument doc(file);
+    ScopedPointer<XmlElement> xml = doc.getDocumentElement();
+    if (!xml || ! xml->hasTagName("EXPERIMENT"))
+    {
+        xml = new XmlElement("EXPERIMENT");
+        xml->setAttribute("version",VERSION);
+        xml->setAttribute("number",experimentNumber);
+        xml->setAttribute("separatefiles",separateFiles);
+    }
+    XmlElement* rec = new XmlElement("RECORDING");
+    rec->setAttribute("number",recordingNumber);
+    //rec->setAttribute("length",(double)(timestamp-startTimestamp));
+    for (int i = 0; i < processorArray.size(); i++)
+    {
+        XmlElement* proc = new XmlElement("PROCESSOR");
+        proc->setAttribute("id",processorArray[i]->id);
+        rec->setAttribute("samplerate",processorArray[i]->sampleRate);
+        for (int j = 0; j < processorArray[i]->channels.size(); j++)
+        {
+            ChannelInfo* c = processorArray[i]->channels[j];
+            XmlElement* chan = new XmlElement("CHANNEL");
+            chan->setAttribute("name",c->name);
+            chan->setAttribute("bitVolts",c->bitVolts);
+            chan->setAttribute("filename",c->filename);
+            chan->setAttribute("position",(double)(c->startPos)); //As long as the file doesnt exceed 2^53 bytes, this will have integer precission. Better than limiting to 32bits.
+            proc->addChildElement(chan);
+        }
+        rec->addChildElement(proc);
+    }
+    xml->addChildElement(rec);
+    xml->writeToFile(file,String::empty);
 }
 
 void OriginalRecording::setParameter(EngineParameter& parameter)

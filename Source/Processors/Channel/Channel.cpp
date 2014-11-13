@@ -53,7 +53,7 @@ void Channel::reset()
 Channel::Channel(const Channel& ch)
 {
     index = ch.index;
-	nodeIndex = ch.nodeIndex;
+    nodeIndex = ch.nodeIndex;
     nodeId = ch.nodeId;
     processor = ch.processor;
     sampleRate = ch.sampleRate;
@@ -99,9 +99,9 @@ String Channel::getName()
 void Channel::setRecordState(bool t)
 {
 
-   isRecording = t;
-   //std::cout << "Setting record status for channel " <<
-     //            nodeId << " - " << num << " to " << t << std::endl;
+    isRecording = t;
+    //std::cout << "Setting record status for channel " <<
+    //            nodeId << " - " << num << " to " << t << std::endl;
 
 }
 

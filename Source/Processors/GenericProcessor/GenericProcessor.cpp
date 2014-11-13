@@ -29,7 +29,7 @@
 GenericProcessor::GenericProcessor(const String& name_) : AccessClass(),
     sourceNode(0), destNode(0), isEnabled(true), wasConnected(false),
     nextAvailableChannel(0), saveOrder(-1), loadOrder(-1), currentChannel(-1),
-     editor(0), parametersAsXml(nullptr), sendSampleCount(true), name(name_), paramsWereLoaded(false)
+    editor(0), parametersAsXml(nullptr), sendSampleCount(true), name(name_), paramsWereLoaded(false)
 {
     settings.numInputs = settings.numOutputs = settings.sampleRate = 0;
 
@@ -303,7 +303,7 @@ void GenericProcessor::update()
 
     // save original channel names
     int oldNumChannels = channels.size();
-    
+
     StringArray oldNames;
 
     for (int k = 0; k < oldNumChannels; k++)
@@ -327,7 +327,7 @@ void GenericProcessor::update()
             Channel* sourceChan = sourceNode->channels[i];
             Channel* ch = new Channel(*sourceChan);
             ch->setProcessor(this);
-			ch->nodeIndex = i;
+            ch->nodeIndex = i;
 
             if (i < recordStatus.size())
             {
@@ -352,7 +352,7 @@ void GenericProcessor::update()
         settings.numOutputs = getNumHeadstageOutputs() + getNumAdcOutputs() + getNumAuxOutputs();
 
         std::cout << getName() << " setting num outputs to " << settings.numOutputs << std::endl;
-		int nidx = 0;
+        int nidx = 0;
 
         for (int i = 0; i < getNumHeadstageOutputs(); i++)
         {
@@ -361,18 +361,20 @@ void GenericProcessor::update()
             ch->sampleRate = getDefaultSampleRate();
             ch->bitVolts = getBitVolts(ch);
             ch->sourceNodeId = nodeId;
-			ch->nodeIndex = nidx;
+            ch->nodeIndex = nidx;
 
             if (i < recordStatus.size())
             {
                 ch->setRecordState(recordStatus[i]);
-            } else {
+            }
+            else
+            {
                 if (isSource())
                     ch->setRecordState(true);
             }
 
             channels.add(ch);
-			nidx++;
+            nidx++;
         }
 
         for (int j = 0; j < getNumAuxOutputs(); j++)
@@ -382,18 +384,20 @@ void GenericProcessor::update()
             ch->sampleRate = getDefaultSampleRate();
             ch->bitVolts = getBitVolts(ch);
             ch->sourceNodeId = nodeId;
-			ch->nodeIndex = nidx;
+            ch->nodeIndex = nidx;
 
             if (j < recordStatus.size())
             {
                 ch->setRecordState(recordStatus[j]);
-            } else {
+            }
+            else
+            {
                 if (isSource())
                     ch->setRecordState(true);
             }
 
             channels.add(ch);
-			nidx++;
+            nidx++;
         }
 
         for (int k = 0; k < getNumAdcOutputs(); k++)
@@ -403,18 +407,20 @@ void GenericProcessor::update()
             ch->sampleRate = getDefaultSampleRate();
             ch->bitVolts = getBitVolts(ch);
             ch->sourceNodeId = nodeId;
-			ch->nodeIndex = nidx;
+            ch->nodeIndex = nidx;
 
             if (k < recordStatus.size())
             {
                 ch->setRecordState(recordStatus[k]);
-            } else {
+            }
+            else
+            {
                 if (isSource())
                     ch->setRecordState(true);
             }
 
             channels.add(ch);
-			nidx++;
+            nidx++;
         }
 
         for (int m = 0; m < getNumEventChannels(); m++)
@@ -459,19 +465,19 @@ void GenericProcessor::setAllChannelsToRecord()
 
 void GenericProcessor::setRecording(bool state)
 {
-	GenericEditor* ed = getEditor();
-	if (state)
-	{
-		if (ed != 0)
-			ed->startRecording();
-		startRecording();
-	}
-	else
-	{
-		if (ed != 0)
-			ed->stopRecording();
-		stopRecording();
-	}
+    GenericEditor* ed = getEditor();
+    if (state)
+    {
+        if (ed != 0)
+            ed->startRecording();
+        startRecording();
+    }
+    else
+    {
+        if (ed != 0)
+            ed->stopRecording();
+        stopRecording();
+    }
 }
 
 void GenericProcessor::enableEditor()
@@ -503,7 +509,7 @@ int GenericProcessor::getNumSamples(int channelNum)
     else
         return 0;
 
-   // std::cout << "Requesting samples for channel " << channelNum << " with source node " << sourceNodeId << std::endl;
+    // std::cout << "Requesting samples for channel " << channelNum << " with source node " << sourceNodeId << std::endl;
 
     try
     {
@@ -516,8 +522,8 @@ int GenericProcessor::getNumSamples(int channelNum)
 
     //std::cout << nSamples << " were found." << std::endl;
 
-    return nSamples;    
-}       
+    return nSamples;
+}
 
 
 /** Used to get the number of samples in a given buffer, for a given source node. */
@@ -559,7 +565,7 @@ int64 GenericProcessor::getTimestamp(int channelNum)
     else
         return 0;
 
-    try 
+    try
     {
         ts = timestamps.at(sourceNodeId);
     }
@@ -568,7 +574,7 @@ int64 GenericProcessor::getTimestamp(int channelNum)
         return 0;
     }
 
-    return ts;  
+    return ts;
 }
 
 /** Used to set the timestamp for a given buffer, for a given channel. */
@@ -635,7 +641,7 @@ int GenericProcessor::processEventBuffer(MidiBuffer& events)
 
                 numSamples[sourceNodeId] = numRead;
 
-               //if (nodeId < 900)
+                //if (nodeId < 900)
                 //    std::cout << nodeId << " got " << numRead << " samples for " << (int) sourceNodeId << std::endl;
 
 
@@ -653,7 +659,9 @@ int GenericProcessor::processEventBuffer(MidiBuffer& events)
                 //if (nodeId < 900)
                 //    std::cout << nodeId << " got " << ts << " timestamp for " << (int) sourceNodeId << std::endl;
 
-            } else {
+            }
+            else
+            {
 
                 if (*dataptr == TTL &&    // a TTL event
                     getNodeId() < 900 && // not handled by a specialized processor (e.g. AudioNode))
@@ -738,7 +746,7 @@ void GenericProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& event
 {
 
     processEventBuffer(eventBuffer); // extract buffer sizes and timestamps,
-                                     // set flag on all TTL events to zero
+    // set flag on all TTL events to zero
 
     process(buffer, eventBuffer);
 

@@ -74,10 +74,10 @@ public:
     /** Sets the name of a given channel. */
     void setName(String);
 
-   /** Sets the type of a given channel. */
+    /** Sets the type of a given channel. */
     void setType(ChannelType t);
 
-   /** Sets the type of a given channel. */
+    /** Sets the type of a given channel. */
     ChannelType getType();
 
     /** Sets the processor to which a channel belongs. */
@@ -87,14 +87,17 @@ public:
     void setRecordState(bool t); // {isRecording = t;}
 
     /** Sets whether or not the channel will record. */
-    bool getRecordState() {return isRecording;}
+    bool getRecordState()
+    {
+        return isRecording;
+    }
 
     /** Sets the bitVolts value for this channel. */
     void setBitVolts(float bitVolts);
 
     /** Returns the bitVolts value for this channel. */
     float getBitVolts();
-    
+
     // -------- OTHER METHODS ---------//
 
     /** Restores the default settings for a given channel. */
@@ -102,7 +105,7 @@ public:
 
     //--------------PUBLIC MEMBERS ---------------- //
 
-	/** Channel index within the source processor */
+    /** Channel index within the source processor */
     int nodeIndex;
 
     /** Channel index within the source processor relative to channel type */
@@ -117,7 +120,7 @@ public:
     /** Sample rate expected for this channel. */
     float sampleRate;
 
-    /** Bit volts for this channel (i.e., by what must we multiply the ADC integer value to 
+    /** Bit volts for this channel (i.e., by what must we multiply the ADC integer value to
         convert to the original voltage measurement?). */
     float bitVolts;
 
@@ -126,7 +129,7 @@ public:
 
     /** ID of source node. This is crucial for properly updating timestamps and sample counts. */
     int sourceNodeId;
-    
+
     /** Toggled when audio monitoring of this channel is enabled or disabled. */
     bool isMonitored;
 
@@ -134,7 +137,7 @@ public:
     bool isEnabled;
 
     /** File info (for disk writing). Meaning depends on the RecordEngine being used. */
-	int recordIndex;
+    int recordIndex;
 
     /** Holds the name of this channel */
     String name;
@@ -147,14 +150,14 @@ public:
 
     /** Impedance of this channel. */
     float impedance;
-    
+
 
 private:
 
     //-------------- PRIVATE MEMBERS ---------------- //
 
     /** Stores whether or not the channel is being recorded. */
-    bool isRecording; 
+    bool isRecording;
 
     /** Generates a default name, based on the channel number. */
     void createDefaultName();

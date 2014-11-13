@@ -61,14 +61,28 @@ public:
     /** A pointer to the Message Center editor. */
     ScopedPointer<MessageCenterEditor> messageCenterEditor;
 
-    void startRecording() {isRecording = true;}
-    void stopRecording() {isRecording = false;}
+    void startRecording()
+    {
+        isRecording = true;
+    }
+    void stopRecording()
+    {
+        isRecording = false;
+    }
+
+    void setSourceNodeId(int id);
+    int getSourceNodeId();
+
+    void addSourceProcessor(GenericProcessor* p);
+    void removeSourceProcessor(GenericProcessor* p);
 
 private:
 
     bool newEventAvailable;
 
     bool isRecording;
+
+    int sourceNodeId;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MessageCenter);
 

@@ -134,6 +134,12 @@ void* ProcessorGraph::createNewProcessor(String& description, int id)//,
         {
             // by default, all source nodes record automatically
             processor->setAllChannelsToRecord();
+
+            getMessageCenter()->addSourceProcessor(processor);
+            if (getMessageCenter()->getSourceNodeId() == 0)
+            {
+                getMessageCenter()->setSourceNodeId(processor->getNodeId());
+            }
         }
 
         return processor->createEditor();
@@ -434,7 +440,7 @@ void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* sou
     if (source == nullptr)
         return;
 
-	getRecordNode()->registerProcessor(source);
+    getRecordNode()->registerProcessor(source);
 
     for (int chan = 0; chan < source->getNumOutputs(); chan++)
     {
@@ -659,8 +665,31 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 
     std::cout << "Removing processor with ID " << processor->getNodeId() << std::endl;
 
-    disconnectNode(processor->getNodeId());
-    removeNode(processor->getNodeId());
+    int nodeId = processor->getNodeId();
+
+    if (processor->isSource())
+    {
+        getMessageCenter()->removeSourceProcessor(processor);
+    }
+
+    disconnectNode(nodeId);
+    removeNode(nodeId);
+
+    if (getMessageCenter()->getSourceNodeId() == nodeId)
+    {
+        int newId = 0;
+
+        //Look for the next source node. If none is found, set the sourceid to 0
+        for (int i = 0; i < getNumNodes() && newId == 0; i++)
+        {
+            GenericProcessor* p = static_cast<GenericProcessor*>(getNode(i)->getProcessor());
+            if (p->isSource())
+            {
+                newId = p->nodeId;
+            }
+        }
+        getMessageCenter()->setSourceNodeId(newId);
+    }
 
 }
 
@@ -772,7 +801,7 @@ void ProcessorGraph::setRecordState(bool isRecording)
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
 
-			p->setRecording(isRecording);
+            p->setRecording(isRecording);
         }
     }
 

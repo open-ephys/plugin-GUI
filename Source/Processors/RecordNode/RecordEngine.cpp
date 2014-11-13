@@ -59,12 +59,12 @@ SpikeRecordInfo* RecordEngine::getSpikeElectrode(int index)
 
 void RecordEngine::updateTimestamps(std::map<uint8, int64>* ts)
 {
-	timestamps = ts;
+    timestamps = ts;
 }
 
 void RecordEngine::updateNumSamples(std::map<uint8, int>* ns)
 {
-	numSamples = ns;
+    numSamples = ns;
 }
 
 
