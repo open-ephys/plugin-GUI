@@ -172,19 +172,19 @@ void MessageCenterEditor::actionListenerCallback(const String& message)
 
 void MessageCenterEditor::saveStateToXml(XmlElement* xml)
 {
-	XmlElement* messageEditorState = xml->createNewChildElement("MESSAGECENTER");
-	messageEditorState->setAttribute("sourceNodeId",messageCenter->getSourceNodeId());
+    XmlElement* messageEditorState = xml->createNewChildElement("MESSAGECENTER");
+    messageEditorState->setAttribute("sourceNodeId",messageCenter->getSourceNodeId());
 }
 
 void MessageCenterEditor::loadStateFromXml(XmlElement* xml)
 {
-	forEachXmlChildElement(*xml, xmlNode)
+    forEachXmlChildElement(*xml, xmlNode)
     {
         if (xmlNode->hasTagName("MESSAGECENTER"))
         {
-			messageCenter->setSourceNodeId(xmlNode->getIntAttribute("sourceNodeId"));
-		}
-	}
+            messageCenter->setSourceNodeId(xmlNode->getIntAttribute("sourceNodeId"));
+        }
+    }
 }
 
 void MessageCenterEditor::addSourceProcessor(GenericProcessor* p)
@@ -199,43 +199,43 @@ void MessageCenterEditor::removeSourceProcessor(GenericProcessor* p)
 
 void MessageCenterEditor::mouseDown(const MouseEvent& event)
 {
-	int res;
+    int res;
     if (event.mods.isPopupMenu())
     {
-		PopupMenu::dismissAllActiveMenus();
+        PopupMenu::dismissAllActiveMenus();
         sourceMenu->clear();
-		if (sourcesList.size() > 0)
-		{
-			for (int i=0; i < sourcesList.size(); i++)
-			{
-				GenericProcessor* p = sourcesList[i];
-				sourceMenu->addItem(i+1,p->getName(),true,(p->nodeId == messageCenter->getSourceNodeId()));
-			}
-		}
-		else
-		{
-			sourceMenu->addItem(-1,"No sources",false,false);
-		}
-		res = sourceMenu->show(0,50,0,0);
-		
-		if (res > 0)
-		{
-			GenericProcessor* p = sourcesList[res-1];
-			std::cout << "Selecting " << p->getName() << " with id " << p->nodeId << " as message source" << std::endl;
-			messageCenter->setSourceNodeId(p->nodeId);
-		}
+        if (sourcesList.size() > 0)
+        {
+            for (int i=0; i < sourcesList.size(); i++)
+            {
+                GenericProcessor* p = sourcesList[i];
+                sourceMenu->addItem(i+1,p->getName(),true,(p->nodeId == messageCenter->getSourceNodeId()));
+            }
+        }
+        else
+        {
+            sourceMenu->addItem(-1,"No sources",false,false);
+        }
+        res = sourceMenu->show(0,50,0,0);
+
+        if (res > 0)
+        {
+            GenericProcessor* p = sourcesList[res-1];
+            std::cout << "Selecting " << p->getName() << " with id " << p->nodeId << " as message source" << std::endl;
+            messageCenter->setSourceNodeId(p->nodeId);
+        }
     }
 }
 
-MessageLabel::MessageLabel(const String &componentName, const String &labelText)
-	: Label(componentName,labelText)
+MessageLabel::MessageLabel(const String& componentName, const String& labelText)
+    : Label(componentName,labelText)
 {
 }
 
 void MessageLabel::mouseDown(const MouseEvent& event)
 {
-	if (event.mods.isPopupMenu())
-	{
-		getParentComponent()->mouseDown(event.getEventRelativeTo(getParentComponent()));
-	}
+    if (event.mods.isPopupMenu())
+    {
+        getParentComponent()->mouseDown(event.getEventRelativeTo(getParentComponent()));
+    }
 }

@@ -43,7 +43,7 @@ class MessageCenterEditor : public AudioProcessorEditor,
     public AccessClass,
     public Timer,
     public ActionListener,
-	public MouseListener
+    public MouseListener
 
 {
 public:
@@ -64,12 +64,12 @@ public:
     void saveStateToXml(XmlElement* xml);
     void loadStateFromXml(XmlElement* xml);
 
-	void addSourceProcessor(GenericProcessor* p);
-	void removeSourceProcessor(GenericProcessor* p);
+    void addSourceProcessor(GenericProcessor* p);
+    void removeSourceProcessor(GenericProcessor* p);
 
     String getLabelString();
 
-	void mouseDown(const MouseEvent& event);
+    void mouseDown(const MouseEvent& event);
 
 private:
 
@@ -91,8 +91,8 @@ private:
     /** A JUCE button used to send messages. */
     ScopedPointer<Button> sendMessageButton;
 
-	ScopedPointer<PopupMenu> sourceMenu;
-	Array<GenericProcessor*> sourcesList;
+    ScopedPointer<PopupMenu> sourceMenu;
+    Array<GenericProcessor*> sourcesList;
 
     MessageCenter* messageCenter;
 
@@ -106,8 +106,8 @@ private:
 class MessageLabel : public Label
 {
 public:
-	MessageLabel(const String &componentName=String::empty, const String &labelText=String::empty);
-	void mouseDown(const MouseEvent& event);
+    MessageLabel(const String& componentName=String::empty, const String& labelText=String::empty);
+    void mouseDown(const MouseEvent& event);
 };
 
 #endif  // MESSAGECENTEREDITOR_H_INCLUDED

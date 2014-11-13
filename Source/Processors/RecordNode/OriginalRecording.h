@@ -74,7 +74,7 @@ private:
     void writeTTLEvent(MidiMessage& event, int samplePosition);
     void writeMessage(MidiMessage& event, int samplePosition);
 
-	void writeXml();
+    void writeXml();
 
     bool separateFiles;
     Array<int> blockIndex;
@@ -101,25 +101,27 @@ private:
     FILE* messageFile;
     Array<FILE*> fileArray;
     Array<FILE*> spikeFileArray;
-	
+
     CriticalSection diskWriteLock;
 
-	struct ChannelInfo {
-		String name;
-		String filename;
-		float bitVolts;
-		long int startPos;
-	};
-	struct ProcInfo {
-		int id;
-		float sampleRate;
-		OwnedArray<ChannelInfo> channels;
-	};
+    struct ChannelInfo
+    {
+        String name;
+        String filename;
+        float bitVolts;
+        long int startPos;
+    };
+    struct ProcInfo
+    {
+        int id;
+        float sampleRate;
+        OwnedArray<ChannelInfo> channels;
+    };
 
-	OwnedArray<ProcInfo> processorArray;
-	int lastProcId;
-	String recordPath;
-	int64 startTimestamp;
+    OwnedArray<ProcInfo> processorArray;
+    int lastProcId;
+    String recordPath;
+    int64 startTimestamp;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OriginalRecording);
 };

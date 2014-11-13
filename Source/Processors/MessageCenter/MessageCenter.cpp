@@ -27,7 +27,7 @@
 //---------------------------------------------------------------------
 
 MessageCenter::MessageCenter() :
-	GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false), sourceNodeId(0)
+    GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false), sourceNodeId(0)
 {
 
     setPlayConfigDetails(0, // number of inputs
@@ -67,12 +67,12 @@ void MessageCenter::setParameter(int parameterIndex, float newValue)
 
 void MessageCenter::setSourceNodeId(int id)
 {
-	sourceNodeId = id;
+    sourceNodeId = id;
 }
 
 int MessageCenter::getSourceNodeId()
 {
-	return sourceNodeId;
+    return sourceNodeId;
 }
 
 void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
@@ -81,38 +81,38 @@ void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
     if (newEventAvailable)
     {
         int numBytes = 0;
-        
+
         String eventString = messageCenterEditor->getLabelString();
 
         CharPointer_UTF8 data = eventString.toUTF8();
-		int realId = getNodeId();
+        int realId = getNodeId();
 
-		//Fake node ID to the specified source for the event timestamps
-		if (sourceNodeId > 0)
-			setNodeId(sourceNodeId);
+        //Fake node ID to the specified source for the event timestamps
+        if (sourceNodeId > 0)
+            setNodeId(sourceNodeId);
 
         addEvent(eventBuffer,
-                MESSAGE,
-                0,
-                0,
-                0,
-                data.length()+1, //It doesn't hurt to send the end-string null and can help avoid issues
-                (uint8*) data.getAddress());
-		
-		setNodeId(realId);
+                 MESSAGE,
+                 0,
+                 0,
+                 0,
+                 data.length()+1, //It doesn't hurt to send the end-string null and can help avoid issues
+                 (uint8*) data.getAddress());
+
+        setNodeId(realId);
 
         newEventAvailable = false;
     }
 
-  
+
 }
 
 void MessageCenter::addSourceProcessor(GenericProcessor* p)
 {
-	messageCenterEditor->addSourceProcessor(p);
+    messageCenterEditor->addSourceProcessor(p);
 }
 
 void MessageCenter::removeSourceProcessor(GenericProcessor* p)
 {
-	messageCenterEditor->removeSourceProcessor(p);
+    messageCenterEditor->removeSourceProcessor(p);
 }

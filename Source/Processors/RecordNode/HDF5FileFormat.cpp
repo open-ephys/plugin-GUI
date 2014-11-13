@@ -124,9 +124,9 @@ int HDF5FileBase::setAttribute(DataTypes type, void* data, String path, String n
 
 int HDF5FileBase::setAttributeArray(DataTypes type, void* data, int size, String path, String name)
 {
-	H5Location* loc;
-	Group gloc;
-	DataSet dloc;
+    H5Location* loc;
+    Group gloc;
+    DataSet dloc;
     Attribute attr;
     DataType H5type;
     DataType origType;
@@ -134,25 +134,26 @@ int HDF5FileBase::setAttributeArray(DataTypes type, void* data, int size, String
     if (!opened) return -1;
     try
     {
-        try {
-			gloc = file->openGroup(path.toUTF8());
-			loc = &gloc;
-		}
-		catch (FileIException error) //If there is no group with that path, try a dataset
-		{
-			dloc = file->openDataSet(path.toUTF8());
-			loc = &dloc;
-		}
+        try
+        {
+            gloc = file->openGroup(path.toUTF8());
+            loc = &gloc;
+        }
+        catch (FileIException error) //If there is no group with that path, try a dataset
+        {
+            dloc = file->openDataSet(path.toUTF8());
+            loc = &dloc;
+        }
 
         H5type = getH5Type(type);
         origType = getNativeType(type);
 
-		if (size > 1)
-		{
-			hsize_t dims = size;
-			H5type = ArrayType(H5type,1,&dims);
-			origType = ArrayType(origType,1,&dims);
-		}
+        if (size > 1)
+        {
+            hsize_t dims = size;
+            H5type = ArrayType(H5type,1,&dims);
+            origType = ArrayType(origType,1,&dims);
+        }
 
         if (loc->attrExists(name.toUTF8()))
         {
@@ -175,23 +176,23 @@ int HDF5FileBase::setAttributeArray(DataTypes type, void* data, int size, String
     {
         PROCESS_ERROR;
     }
-	catch (DataSetIException error)
-	{
-		PROCESS_ERROR;
-	}
-	catch (FileIException error)
-	{
-		PROCESS_ERROR;
-	}
+    catch (DataSetIException error)
+    {
+        PROCESS_ERROR;
+    }
+    catch (FileIException error)
+    {
+        PROCESS_ERROR;
+    }
 
     return 0;
 }
 
 int HDF5FileBase::setAttributeStr(String value, String path, String name)
 {
-	H5Location* loc;
-	Group gloc;
-	DataSet dloc;
+    H5Location* loc;
+    Group gloc;
+    DataSet dloc;
     Attribute attr;
 
     if (!opened) return -1;
@@ -199,15 +200,16 @@ int HDF5FileBase::setAttributeStr(String value, String path, String name)
     StrType type(PredType::C_S1, value.length());
     try
     {
-		try {
-			gloc = file->openGroup(path.toUTF8());
-			loc = &gloc;
-		}
-		catch (FileIException error) //If there is no group with that path, try a dataset
-		{
-			dloc = file->openDataSet(path.toUTF8());
-			loc = &dloc;
-		}
+        try
+        {
+            gloc = file->openGroup(path.toUTF8());
+            loc = &gloc;
+        }
+        catch (FileIException error) //If there is no group with that path, try a dataset
+        {
+            dloc = file->openDataSet(path.toUTF8());
+            loc = &dloc;
+        }
 
         if (loc->attrExists(name.toUTF8()))
         {
@@ -234,10 +236,10 @@ int HDF5FileBase::setAttributeStr(String value, String path, String name)
     {
         PROCESS_ERROR;
     }
-	catch (DataSetIException error)
-	{
-		PROCESS_ERROR;
-	}
+    catch (DataSetIException error)
+    {
+        PROCESS_ERROR;
+    }
 
 
     return 0;
@@ -411,9 +413,9 @@ H5::DataType HDF5FileBase::getNativeType(DataTypes type)
         case F32:
             return PredType::NATIVE_FLOAT;
             break;
-		case STR:
-			return StrType(PredType::C_S1,MAX_STR_SIZE);
-			break;
+        case STR:
+            return StrType(PredType::C_S1,MAX_STR_SIZE);
+            break;
     }
     return PredType::NATIVE_INT32;
 }
@@ -449,9 +451,9 @@ H5::DataType HDF5FileBase::getH5Type(DataTypes type)
         case F32:
             return PredType::IEEE_F32LE;
             break;
-		case STR:
-			return StrType(PredType::C_S1,MAX_STR_SIZE);
-			break;
+        case STR:
+            return StrType(PredType::C_S1,MAX_STR_SIZE);
+            break;
     }
     return PredType::STD_I32LE;
 }
@@ -482,8 +484,8 @@ HDF5RecordingData::HDF5RecordingData(DataSet* data)
     this->xChunkSize = chunk[0];
     this->xPos = dims[0];
     this->dSet = dataSet;
-	this->rowXPos.clear();
-	this->rowXPos.insertMultiple(0,0,this->size[1]);
+    this->rowXPos.clear();
+    this->rowXPos.insertMultiple(0,0,this->size[1]);
 }
 
 HDF5RecordingData::~HDF5RecordingData()
@@ -528,7 +530,7 @@ int HDF5RecordingData::writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase
         offset[0]=xPos;
         offset[1]=0;
         offset[2]=0;
-		
+
         fSpace.selectHyperslab(H5S_SELECT_SET, dim, offset);
 
         nativeType = HDF5FileBase::getNativeType(type);
@@ -554,25 +556,25 @@ int HDF5RecordingData::writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataT
     DataSpace fSpace;
     DataType nativeType;
     if (dimension > 2) return -4; //We're not going to write rows in datasets bigger than 2d.
-//    if (xDataSize != rowDataSize) return -2;
+    //    if (xDataSize != rowDataSize) return -2;
     if ((yPos < 0) || (yPos >= size[1])) return -2;
 
     try
     {
-		if (rowXPos[yPos]+xDataSize > size[0])
-		{
-			dim[1] = size[1];
-			dim[0] = rowXPos[yPos] + xDataSize;
-			dSet->extend(dim);
+        if (rowXPos[yPos]+xDataSize > size[0])
+        {
+            dim[1] = size[1];
+            dim[0] = rowXPos[yPos] + xDataSize;
+            dSet->extend(dim);
 
-			fSpace = dSet->getSpace();
-			fSpace.getSimpleExtentDims(dim);
-			size[0]=dim[0];
-		}
-		if (rowXPos[yPos]+xDataSize > xPos)
-		{
-			xPos = rowXPos[yPos]+xDataSize;
-		}
+            fSpace = dSet->getSpace();
+            fSpace.getSimpleExtentDims(dim);
+            size[0]=dim[0];
+        }
+        if (rowXPos[yPos]+xDataSize > xPos)
+        {
+            xPos = rowXPos[yPos]+xDataSize;
+        }
 
         dim[0] = xDataSize;
         dim[1] = 1;
@@ -588,7 +590,7 @@ int HDF5RecordingData::writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataT
 
         dSet->write(data,nativeType,mSpace,fSpace);
 
-		rowXPos.set(yPos,rowXPos[yPos] + xDataSize);
+        rowXPos.set(yPos,rowXPos[yPos] + xDataSize);
     }
     catch (DataSetIException error)
     {
@@ -607,8 +609,8 @@ int HDF5RecordingData::writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataT
 
 void HDF5RecordingData::getRowXPositions(Array<uint32>& rows)
 {
-	rows.clear();
-	rows.addArray(rowXPos);
+    rows.clear();
+    rows.addArray(rowXPos);
 }
 
 //KWD File
@@ -640,8 +642,8 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
 {
     this->recordingNumber = recordingNumber;
     this->nChannels = nChannels;
-	this->multiSample = info->multiSample;
-	uint8 mSample = info->multiSample ? 1 : 0;
+    this->multiSample = info->multiSample;
+    uint8 mSample = info->multiSample ? 1 : 0;
 
     String recordPath = String("/recordings/")+String(recordingNumber);
     CHECK_ERROR(createGroup(recordPath));
@@ -650,13 +652,13 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
     //	CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
     CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
     CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
-	CHECK_ERROR(createGroup(recordPath+"/application_data"));
-	CHECK_ERROR(setAttributeArray(F32,info->bitVolts.getRawDataPointer(),info->bitVolts.size(),recordPath+"/application_data",String("channel_bit_volts")));
-	CHECK_ERROR(setAttribute(U8,&mSample,recordPath+"/application_data",String("is_multiSampleRate_data")));
-	if (info->multiSample)
-	{
-		CHECK_ERROR(setAttributeArray(F32,info->channelSampleRates.getRawDataPointer(),info->channelSampleRates.size(),recordPath+"/application_data",String("channel_sample_rates")));
-	}
+    CHECK_ERROR(createGroup(recordPath+"/application_data"));
+    CHECK_ERROR(setAttributeArray(F32,info->bitVolts.getRawDataPointer(),info->bitVolts.size(),recordPath+"/application_data",String("channel_bit_volts")));
+    CHECK_ERROR(setAttribute(U8,&mSample,recordPath+"/application_data",String("is_multiSampleRate_data")));
+    if (info->multiSample)
+    {
+        CHECK_ERROR(setAttributeArray(F32,info->channelSampleRates.getRawDataPointer(),info->channelSampleRates.size(),recordPath+"/application_data",String("channel_sample_rates")));
+    }
     recdata = createDataSet(I16,0,nChannels,CHUNK_XSIZE,recordPath+"/data");
     if (!recdata.get())
         std::cerr << "Error creating data set" << std::endl;
@@ -665,14 +667,14 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
 
 void KWDFile::stopRecording()
 {
-	if (multiSample)
-	{
-		Array<uint32> samples;
-		String path = String("/recordings/")+String(recordingNumber)+String("/data");
-		recdata->getRowXPositions(samples);
-		
-		CHECK_ERROR(setAttributeArray(U32,samples.getRawDataPointer(),samples.size(),path,"valid_samples"));
-	}
+    if (multiSample)
+    {
+        Array<uint32> samples;
+        String path = String("/recordings/")+String(recordingNumber)+String("/data");
+        recdata->getRowXPositions(samples);
+
+        CHECK_ERROR(setAttributeArray(U32,samples.getRawDataPointer(),samples.size(),path,"valid_samples"));
+    }
     //ScopedPointer does the deletion and destructors the closings
     recdata = nullptr;
 }
@@ -748,7 +750,7 @@ int KWIKFile::createFileStructure()
         if (!dSet) return -1;
         dSet = createDataSet(U8,0,EVENT_CHUNK_SIZE,path + "/nodeID");
         if (!dSet) return -1;
-		dSet = createDataSet(eventTypes[i],0,EVENT_CHUNK_SIZE,path + "/" + eventDataNames[i]);
+        dSet = createDataSet(eventTypes[i],0,EVENT_CHUNK_SIZE,path + "/" + eventDataNames[i]);
         if (!dSet) return -1;
     }
     if (setAttribute(U16,(void*)&ver,"/","kwik_version")) return -1;
@@ -789,7 +791,7 @@ void KWIKFile::startNewRecording(int recordingNumber, HDF5RecordingInfo* info)
         if (!dSet)
             std::cerr << "Error loading event node ID dataset for type " << i << std::endl;
         nodeID.add(dSet);
-		dSet = getDataSet(path + "/user_data/" + eventDataNames[i]);
+        dSet = getDataSet(path + "/user_data/" + eventDataNames[i]);
         if (!dSet)
             std::cerr << "Error loading event channel dataset for type " << i << std::endl;
         eventData.add(dSet);
@@ -801,8 +803,8 @@ void KWIKFile::stopRecording()
     timeStamps.clear();
     recordings.clear();
     eventID.clear();
-	nodeID.clear();
-	eventData.clear();
+    nodeID.clear();
+    eventData.clear();
 }
 
 void KWIKFile::writeEvent(int type, uint8 id, uint8 processor, void* data, uint64 timestamp)
@@ -816,7 +818,7 @@ void KWIKFile::writeEvent(int type, uint8 id, uint8 processor, void* data, uint6
     CHECK_ERROR(recordings[type]->writeDataBlock(1,I32,&recordingNumber));
     CHECK_ERROR(eventID[type]->writeDataBlock(1,U8,&id));
     CHECK_ERROR(nodeID[type]->writeDataBlock(1,U8,&processor));
-	CHECK_ERROR(eventData[type]->writeDataBlock(1,eventTypes[type],data));
+    CHECK_ERROR(eventData[type]->writeDataBlock(1,eventTypes[type],data));
 }
 
 void KWIKFile::addKwdFile(String filename)
@@ -829,8 +831,8 @@ void KWIKFile::addKwdFile(String filename)
 void KWIKFile::addEventType(String name, DataTypes type, String dataName)
 {
     eventNames.add(name);
-	eventTypes.add(type);
-	eventDataNames.add(dataName);
+    eventTypes.add(type);
+    eventDataNames.add(dataName);
 }
 
 //KWX File

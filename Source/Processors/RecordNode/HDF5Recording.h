@@ -32,7 +32,7 @@ class HDF5Recording : public RecordEngine
 public:
     HDF5Recording();
     ~HDF5Recording();
-	String getEngineID();
+    String getEngineID();
     void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
     void closeFiles();
     void writeData(AudioSampleBuffer& buffer);
@@ -45,14 +45,14 @@ public:
     //oid updateTimeStamp(int64 timestamp);
     void startAcquisition();
 
-	static RecordEngineManager* getEngineManager();
+    static RecordEngineManager* getEngineManager();
 private:
 
     int processorIndex;
 
     Array<int> processorMap;
     OwnedArray<Array<float>> bitVoltsArray;
-	OwnedArray<Array<float>> sampleRatesArray;
+    OwnedArray<Array<float>> sampleRatesArray;
     OwnedArray<KWDFile> fileArray;
     OwnedArray<HDF5RecordingInfo> infoArray;
     ScopedPointer<KWIKFile> mainFile;
@@ -61,7 +61,7 @@ private:
     int16* intBuffer;
     int64 timestamp;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HDF5Recording);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HDF5Recording);
 };
 
 

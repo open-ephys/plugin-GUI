@@ -41,9 +41,9 @@ struct HDF5RecordingInfo
     uint32 start_sample;
     float sample_rate;
     uint32 bit_depth;
-	Array<float> bitVolts;
-	Array<float> channelSampleRates;
-	bool multiSample;
+    Array<float> bitVolts;
+    Array<float> channelSampleRates;
+    bool multiSample;
 };
 
 class HDF5FileBase
@@ -67,7 +67,7 @@ protected:
 
     int setAttribute(DataTypes type, void* data, String path, String name);
     int setAttributeStr(String value, String path, String name);
-	int setAttributeArray(DataTypes type, void* data, int size, String path, String name);
+    int setAttributeArray(DataTypes type, void* data, int size, String path, String name);
     int createGroup(String path);
 
     HDF5RecordingData* getDataSet(String path);
@@ -101,17 +101,17 @@ public:
 
     int writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataTypes type, void* data);
 
-	void getRowXPositions(Array<uint32>& rows);
+    void getRowXPositions(Array<uint32>& rows);
 
 private:
     int xPos;
     int xChunkSize;
     int size[3];
     int dimension;
-	Array<uint32> rowXPos;
+    Array<uint32> rowXPos;
     ScopedPointer<H5::DataSet> dSet;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HDF5RecordingData);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HDF5RecordingData);
 };
 
 class KWDFile : public HDF5FileBase
@@ -135,10 +135,10 @@ private:
     int nChannels;
     int curChan;
     String filename;
-	bool multiSample;
+    bool multiSample;
     ScopedPointer<HDF5RecordingData> recdata;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWDFile);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWDFile);
 };
 
 class KWIKFile : public HDF5FileBase
@@ -167,11 +167,11 @@ private:
     OwnedArray<HDF5RecordingData> nodeID;
     OwnedArray<HDF5RecordingData> eventData;
     Array<String> eventNames;
-	Array<DataTypes> eventTypes;
-	Array<String> eventDataNames;
+    Array<DataTypes> eventTypes;
+    Array<String> eventDataNames;
     int kwdIndex;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWIKFile);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWIKFile);
 };
 
 class KWXFile : public HDF5FileBase
@@ -202,7 +202,7 @@ private:
     int numElectrodes;
     int16* transformVector;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWXFile);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWXFile);
 };
 
 #endif  // HDF5FILEFORMAT_H_INCLUDED

@@ -67,8 +67,8 @@ public:
     	2-registerProcessor, addChannel, registerSpikeSource, addspikeelectrode
     	3-configureEngine (which calls setParameter)
     	3-startAcquisition
-	During acquisition:
-		updateTimeStamps
+    During acquisition:
+    	updateTimeStamps
     When recording starts (in the specified order):
     	1-directoryChanged (if needed)
     	2-openFiles
@@ -164,7 +164,7 @@ protected:
     */
     String generateDateString();
 
-	std::map<uint8, int>* numSamples;
+    std::map<uint8, int>* numSamples;
     std::map<uint8, int64>* timestamps;
 
 private:

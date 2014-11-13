@@ -25,7 +25,8 @@
 #define __GENERICPROCESSOR_H_1F469DAF__
 
 enum ChannelType {HEADSTAGE_CHANNEL = 0, AUX_CHANNEL = 1, ADC_CHANNEL = 2, EVENT_CHANNEL = 3,
-                  SINGLE_ELECTRODE = 4, STEREOTRODE = 5, TETRODE = 6};
+                  SINGLE_ELECTRODE = 4, STEREOTRODE = 5, TETRODE = 6
+                 };
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
@@ -137,9 +138,9 @@ public:
     {
         return GenericProcessor::unusedNameString;
     }
-    
+
     /** returns the names and types of all data, aux and adc channels */
-    virtual void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
+    virtual void getChannelsInfo(StringArray& Names, Array<ChannelType>& type, Array<int>& stream, Array<int>& originalChannelNumber, Array<float>& gains)
     {
 
     }
@@ -153,7 +154,7 @@ public:
     {
         return -1;
     }
-    virtual void getEventChannelNames(StringArray &Names)
+    virtual void getEventChannelNames(StringArray& Names)
     {
     }
 
@@ -322,11 +323,11 @@ public:
         return 1.0;
     }
 
-	/** Returns the bit volts for a given channel **/
-	virtual float getBitVolts(Channel* chan)
-	{
-		return 1.0;
-	}
+    /** Returns the bit volts for a given channel **/
+    virtual float getBitVolts(Channel* chan)
+    {
+        return 1.0;
+    }
 
 
     /** Returns the next available channel (and increments the channel if the input is set to 'true'. */
@@ -406,7 +407,7 @@ public:
     {
         return false;
     }
-    
+
     /** Returns true if a processor is a utility (non-merger or splitter), false otherwise.*/
     virtual bool isUtility()
     {
@@ -440,9 +441,9 @@ public:
         return true;
     }
 
-	/** Called when recording starts/stops **/
-	void setRecording(bool state);
-    
+    /** Called when recording starts/stops **/
+    void setRecording(bool state);
+
     /** Called from setRecording whenever recording has started. */
     virtual void startRecording() { }
 
@@ -621,7 +622,10 @@ public:
     virtual void loadCustomChannelParametersFromXml(XmlElement* channelElement, bool isEventChannel=false);
 
     /** handle messages from other processors */
-    virtual String interProcessorCommunication(String command) { return String("OK"); };
+    virtual String interProcessorCommunication(String command)
+    {
+        return String("OK");
+    };
 
     /** Holds loaded parameters */
     XmlElement* parametersAsXml;
