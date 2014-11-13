@@ -856,7 +856,12 @@ void RHD2000Thread::setDefaultChannelNamesAndType()
                 originalChannelNumber.add(k);
 
             }
-            for (int k = 0; k < 3; k++)
+        }
+    }
+	//Aux channels
+	for (int i = 0; i < MAX_NUM_DATA_STREAMS; i++)
+    {
+		for (int k = 0; k < 3; k++)
             {
 
                 type.add(AUX_CHANNEL);
@@ -881,11 +886,9 @@ void RHD2000Thread::setDefaultChannelNamesAndType()
 
                 stream.add(i);
                 originalChannelNumber.add(numChannelsPerDataStream[i]+k);
-
             }
-        }
-    }
-
+	}
+	//ADC channels
     if (acquireAdcChannels)
     {
         for (int k = 0; k < 8; k++)
