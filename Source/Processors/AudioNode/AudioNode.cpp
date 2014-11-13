@@ -226,6 +226,8 @@ void AudioNode::process(AudioSampleBuffer& buffer,
 
     if (channelPointers.size() > 0) // we have some channels
     {
+	
+		tempBuffer->clear();
 
       for (int i = 0; i < buffer.getNumChannels()-2; i++) // cycle through them all
       {
@@ -251,8 +253,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
           }
 
           backupBuffer->clear();
-          tempBuffer->clear();
-
+		  
           samplesInOverflowBuffer.set(i,samplesInBackupBuffer[i]); // size of buffer after last round
           samplesInBackupBuffer.set(i,0);
 
@@ -273,7 +274,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
             tempBuffer->addFrom(i,    // destination channel
                            0,                // destination start sample
                            *overflowBuffer,  // source
-                           i,                // source channel
+                           0,                // source channel
                            0,                // source start sample
                            samplesToCopyFromOverflowBuffer,    // number of samples
                            1.0f              // gain to apply
@@ -286,10 +287,10 @@ void AudioNode::process(AudioSampleBuffer& buffer,
             if (leftoverSamples > 0) // move remaining samples to the backup buffer
             {
 
-              backupBuffer->addFrom(i, // destination channel
+              backupBuffer->addFrom(0, // destination channel
                                     0,                     // destination start sample
                                     *overflowBuffer,       // source
-                                    i,                     // source channel
+                                    0,                     // source channel
                                     samplesToCopyFromOverflowBuffer,         // source start sample
                                     leftoverSamples,       // number of samples
                                     1.0f                   // gain to apply
@@ -338,7 +339,7 @@ void AudioNode::process(AudioSampleBuffer& buffer,
           if (orphanedSamples > 0 && (samplesInBackupBuffer[i] + orphanedSamples < backupBuffer->getNumSamples()))
           {
 
-              backupBuffer->addFrom(i,                            // destination channel
+              backupBuffer->addFrom(0,                            // destination channel
                                     samplesInBackupBuffer[i],     // destination start sample
                                     buffer,                       // source
                                     i+2,                          // source channel (add 2 to account for output channels)
