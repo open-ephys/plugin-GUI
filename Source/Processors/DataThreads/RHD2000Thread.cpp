@@ -532,7 +532,21 @@ void RHD2000Thread::scanPorts()
     // }
     //std::cout << std::endl;
 
-    // Now, disable data streams where we did not find chips present.
+#if DEBUG_EMULATE_HEADSTAGES > 0
+	for (int nd = 0; nd < MAX_NUM_DATA_STREAMS; ++nd)
+	{
+		if ((nd < DEBUG_EMULATE_HEADSTAGES) &&(chipId[0] > 0))
+		{
+			evalBoard->setDataSource(nd,initStreamPorts[0]);
+			enableHeadstage(nd,true);
+		}
+		else
+		{
+			enableHeadstage(stream,false);
+		}
+	}
+#else
+	// Now, disable data streams where we did not find chips present.
     for (stream = 0; stream < MAX_NUM_DATA_STREAMS; ++stream)
     {
         if (chipId[stream] > 0)
@@ -556,6 +570,8 @@ void RHD2000Thread::scanPorts()
             enableHeadstage(stream, false);
         }
     }
+#endif
+
 
     std::cout << "Number of enabled data streams: " << evalBoard->getNumEnabledDataStreams() << std::endl;
 
