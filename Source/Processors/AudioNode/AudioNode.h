@@ -122,7 +122,10 @@ public:
 
     void updateFilter(int i);
 
+	bool enable();
+
 private:
+	void recreateBuffers();
 
     Array<int> leftChan;
     Array<int> rightChan;
@@ -141,6 +144,7 @@ private:
     Array<int> samplesInOverflowBuffer;
     Array<double> sourceBufferSampleRate;
     double destBufferSampleRate;
+	int estimatedSamples;
 
     Array<bool> bufferSwap;
 

@@ -154,8 +154,18 @@ void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
     // std::cout << "Processor sample rate: " << getSampleRate() << std::endl;
     // std::cout << "Audio card sample rate: " << sampleRate_ << std::endl;
     // std::cout << "Samples per block: " << estimatedSamplesPerBlock << std::endl;
+	if (sampleRate_ != destBufferSampleRate || estimatedSamplesPerBlock != estimatedSamples)
+	{
+		destBufferSampleRate = sampleRate_;
+		estimatedSamples = estimatedSamplesPerBlock;
+		recreateBuffers();
+	}
 
-    numSamplesExpected.clear();
+}
+
+void AudioNode::recreateBuffers()
+{
+	numSamplesExpected.clear();
     samplesInBackupBuffer.clear();
     samplesInOverflowBuffer.clear();
     ratio.clear();
@@ -164,19 +174,17 @@ void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
     bufferB.clear();
     bufferSwap.clear();
 
-    destBufferSampleRate = sampleRate_;
-
     for (int i = 0; i < channelPointers.size(); i++)
     {
         // processor sample rate divided by sound card sample rate
-        numSamplesExpected.add((int)(channelPointers[i]->sampleRate/sampleRate_*float(estimatedSamplesPerBlock)) + 1);
+        numSamplesExpected.add((int)(channelPointers[i]->sampleRate/destBufferSampleRate*float(estimatedSamples)) + 1);
         samplesInBackupBuffer.add(0);
         samplesInOverflowBuffer.add(0);
         sourceBufferSampleRate.add(channelPointers[i]->sampleRate);
 
         filters.add(new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (1024));
 
-        ratio.add(float(numSamplesExpected[i])/float(estimatedSamplesPerBlock));
+        ratio.add(float(numSamplesExpected[i])/float(estimatedSamples));
         updateFilter(i);
 
         bufferA.add(new AudioSampleBuffer(1,10000));
@@ -186,6 +194,12 @@ void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
     }
 
     tempBuffer->setSize(getNumInputs(), 4096);
+}
+
+bool AudioNode::enable()
+{
+	recreateBuffers();
+	return true;
 }
 
 void AudioNode::updateFilter(int i)
