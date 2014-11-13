@@ -270,13 +270,12 @@ void AudioNode::process(AudioSampleBuffer& buffer,
           if (samplesToCopyFromOverflowBuffer > 0) // need to re-add samples from backup buffer
           {
 
-            tempBuffer->addFrom(i,    // destination channel
+            tempBuffer->copyFrom(i,    // destination channel
                            0,                // destination start sample
                            *overflowBuffer,  // source
                            i,                // source channel
                            0,                // source start sample
-                           samplesToCopyFromOverflowBuffer,    // number of samples
-                           1.0f              // gain to apply
+                           samplesToCopyFromOverflowBuffer    // number of samples
                           );
 
             int leftoverSamples = samplesInOverflowBuffer[i] - samplesToCopyFromOverflowBuffer;
@@ -286,13 +285,12 @@ void AudioNode::process(AudioSampleBuffer& buffer,
             if (leftoverSamples > 0) // move remaining samples to the backup buffer
             {
 
-              backupBuffer->addFrom(i, // destination channel
+              backupBuffer->copyFrom(i, // destination channel
                                     0,                     // destination start sample
                                     *overflowBuffer,       // source
                                     i,                     // source channel
                                     samplesToCopyFromOverflowBuffer,         // source start sample
-                                    leftoverSamples,       // number of samples
-                                    1.0f                   // gain to apply
+                                    leftoverSamples       // number of samples
                                    );
             }
 
@@ -314,16 +312,15 @@ void AudioNode::process(AudioSampleBuffer& buffer,
           //std::cout << "Copying " << samplesToCopyFromIncomingBuffer << " samples from incoming buffer of " << samplesAvailable << " samples." << std::endl;
 
 
-          if (samplesToCopyFromIncomingBuffer > 0)
+          if (0) // (samplesToCopyFromIncomingBuffer > 0)
           {
 
-            tempBuffer->addFrom(i,       // destination channel
+            tempBuffer->copyFrom(i,       // destination channel
                            samplesToCopyFromOverflowBuffer,           // destination start sample
                            buffer,      // source
                            i+2,           // source channel (add 2 to account for output channels)
                            0,           // source start sample
-                           samplesToCopyFromIncomingBuffer, //  number of samples
-                           gain       // gain to apply
+                           samplesToCopyFromIncomingBuffer //  number of samples
                           );
 
             //if (destBufferPos == 0)
@@ -338,13 +335,12 @@ void AudioNode::process(AudioSampleBuffer& buffer,
           if (orphanedSamples > 0 && (samplesInBackupBuffer[i] + orphanedSamples < backupBuffer->getNumSamples()))
           {
 
-              backupBuffer->addFrom(i,                            // destination channel
+              backupBuffer->copyFrom(i,                            // destination channel
                                     samplesInBackupBuffer[i],     // destination start sample
                                     buffer,                       // source
                                     i+2,                          // source channel (add 2 to account for output channels)
                                     remainingSamples,             // source start sample
-                                    orphanedSamples,              //  number of samples
-                                    gain                          // gain to apply
+                                    orphanedSamples              //  number of samples
                                    );
 
               samplesInBackupBuffer.set(i, samplesInBackupBuffer[i] + orphanedSamples);
@@ -373,43 +369,45 @@ void AudioNode::process(AudioSampleBuffer& buffer,
           int destBufferPos;
 
           // code modified from "juce_ResamplingAudioSource.cpp":
-
-          for (destBufferPos = 0; destBufferPos < valuesNeeded; destBufferPos++)
+          if (1)//
           {
-            float gain = 1.0;
-            float alpha = (float) subSampleOffset;
-            float invAlpha = 1.0f - alpha;
-
-           // std::cout << "Copying sample " << sourceBufferPos << std::endl;
-
-            buffer.addFrom(0,    // destChannel
-                           destBufferPos,  // destSampleOffset
-                           *tempBuffer,     // source
-                            i,    // sourceChannel
-                            sourceBufferPos,// sourceSampleOffset
-                            1,        // number of samples
-                            invAlpha*gain);      // gain to apply to source
-
-            buffer.addFrom(0,    // destChannel
-                            destBufferPos,   // destSampleOffset
-                            *tempBuffer,     // source
-                            i,      // sourceChannel
-                            nextPos,      // sourceSampleOffset
-                            1,        // number of samples
-                            alpha*gain);       // gain to apply to source
-
-           // if (destBufferPos == 0)
-              //std::cout << "Output buffer 0 value: " << *buffer.getReadPointer(i+2,destBufferPos) << std::endl;
-
-            subSampleOffset += ratio[i];
-
-            while (subSampleOffset >= 1.0)
+            for (destBufferPos = 0; destBufferPos < valuesNeeded; destBufferPos++)
             {
-                if (++sourceBufferPos >= sourceBufferSize)
-                    sourceBufferPos = 0;
+              float sampleGain = 1.0;
+              float alpha = (float) subSampleOffset;
+              float invAlpha = 1.0f - alpha;
 
-                nextPos = (sourceBufferPos + 1) % sourceBufferSize;
-                subSampleOffset -= 1.0;
+             // std::cout << "Copying sample " << sourceBufferPos << std::endl;
+
+              buffer.addFrom(0,    // destChannel
+                             destBufferPos,  // destSampleOffset
+                             *tempBuffer,     // source
+                              i,    // sourceChannel
+                              sourceBufferPos,// sourceSampleOffset
+                              1,        // number of samples
+                              invAlpha * sampleGain * gain);      // gain to apply to source
+
+              buffer.addFrom(0,    // destChannel
+                              destBufferPos,   // destSampleOffset
+                              *tempBuffer,     // source
+                              i,      // sourceChannel
+                              nextPos,      // sourceSampleOffset
+                              1,        // number of samples
+                              alpha * sampleGain * gain);       // gain to apply to source
+
+             // if (destBufferPos == 0)
+                //std::cout << "Output buffer 0 value: " << *buffer.getReadPointer(i+2,destBufferPos) << std::endl;
+
+              subSampleOffset += ratio[i];
+
+              while (subSampleOffset >= 1.0)
+              {
+                  if (++sourceBufferPos >= sourceBufferSize)
+                      sourceBufferPos = 0;
+
+                  nextPos = (sourceBufferPos + 1) % sourceBufferSize;
+                  subSampleOffset -= 1.0;
+              }
             }
           }
 
@@ -420,22 +418,14 @@ void AudioNode::process(AudioSampleBuffer& buffer,
               filters[i]->process(destBufferPos, &ptr);
           }
 
-          // now copy the channel into the output zone
-
-          // buffer.addFrom(0,    // destChannel
-          //                0,  // destSampleOffset
-          //                buffer,     // source
-          //                 i+2,    // sourceChannel
-          //                 0,// sourceSampleOffset
-          //                 valuesNeeded,        // number of samples
-          //                 1.0);      // gain to apply to source
-
         } // if channelPointers[i]->isMonitored
       } // end cycling through channels
 
       // Simple implementation of a "noise gate" on audio output
-      expander.process(buffer.getWritePointer(0), // expand the left channel
+      if (1)
+        expander.process(buffer.getWritePointer(0), // expand the left channel
                          buffer.getNumSamples());
+
 
       // copy the signal into the right channel (no stereo audio yet!)
       buffer.addFrom(1,    // destChannel
