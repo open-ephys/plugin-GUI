@@ -537,7 +537,7 @@ void OriginalRecording::writeTimestampAndSampleCount(FILE* file, int channel)
 
     int sourceNodeId = getChannel(channel)->sourceNodeId;
 
-    int64 ts = (*timestamps)[sourceNodeId] + samplesSinceLastTimestamp[channel];
+	int64 ts = (*timestamps)[sourceNodeId] + samplesSinceLastTimestamp[channel];
 
     fwrite(&ts,                       // ptr
            8,                               // size of each element
