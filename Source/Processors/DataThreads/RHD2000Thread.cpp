@@ -132,7 +132,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
         }
 
         evalBoard->getDacInformation(dacChannels,dacThresholds);
-        setDefaultChannelNamesAndType();
+		sn->setDefaultNamingScheme(numberingScheme);
     }
 }
 
@@ -774,7 +774,7 @@ int RHD2000Thread::modifyChannelGain(channelType t, int str, int ch, float gain)
 		if (t == ADC_CHANNEL)
 			oldNames.add(Names[getNumChannels()-getNumADCchannels()+ch]);
 		else
-			oldNames.add(Names[ch]);
+			oldNames.add(getChannelName(t,str,ch));
         oldType.add(t);
         oldStream.add(str);
         oldChannelNumber.add(ch);
@@ -850,7 +850,6 @@ void RHD2000Thread::setDefaultChannelNamesAndType()
 
                     gains.add(getBitVolts(channelNumber));
                 }
-
                 
                 stream.add(i);
                 originalChannelNumber.add(k);
