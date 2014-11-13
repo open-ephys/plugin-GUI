@@ -655,10 +655,7 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
     CHECK_ERROR(createGroup(recordPath+"/application_data"));
     CHECK_ERROR(setAttributeArray(F32,info->bitVolts.getRawDataPointer(),info->bitVolts.size(),recordPath+"/application_data",String("channel_bit_volts")));
     CHECK_ERROR(setAttribute(U8,&mSample,recordPath+"/application_data",String("is_multiSampleRate_data")));
-    if (info->multiSample)
-    {
-        CHECK_ERROR(setAttributeArray(F32,info->channelSampleRates.getRawDataPointer(),info->channelSampleRates.size(),recordPath+"/application_data",String("channel_sample_rates")));
-    }
+    CHECK_ERROR(setAttributeArray(F32,info->channelSampleRates.getRawDataPointer(),info->channelSampleRates.size(),recordPath+"/application_data",String("channel_sample_rates")));
     recdata = createDataSet(I16,0,nChannels,CHUNK_XSIZE,recordPath+"/data");
     if (!recdata.get())
         std::cerr << "Error creating data set" << std::endl;
@@ -667,14 +664,11 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
 
 void KWDFile::stopRecording()
 {
-    if (multiSample)
-    {
-        Array<uint32> samples;
-        String path = String("/recordings/")+String(recordingNumber)+String("/data");
-        recdata->getRowXPositions(samples);
+    Array<uint32> samples;
+    String path = String("/recordings/")+String(recordingNumber)+String("/data");
+    recdata->getRowXPositions(samples);
 
-        CHECK_ERROR(setAttributeArray(U32,samples.getRawDataPointer(),samples.size(),path,"valid_samples"));
-    }
+    CHECK_ERROR(setAttributeArray(U32,samples.getRawDataPointer(),samples.size(),path,"valid_samples"));
     //ScopedPointer does the deletion and destructors the closings
     recdata = nullptr;
 }
