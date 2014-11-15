@@ -153,7 +153,7 @@ void ChannelMappingNode::process(AudioSampleBuffer& buffer,
                                channelBuffer, // source
                                referenceChannels[referenceArray[realChan]], // sourceChannel
                                0, // sourceStartSample
-                               getNumSamples(channels[j]->sourceNodeId), // numSamples
+                               getNumSamples(j), // numSamples
                                -1.0f // gain to apply to source (negative for reference)
                               );
             }
