@@ -42,8 +42,7 @@ class MessageCenterEditor : public AudioProcessorEditor,
     public Label::Listener,
     public AccessClass,
     public Timer,
-    public ActionListener,
-    public MouseListener
+    public ActionListener
 
 {
 public:
