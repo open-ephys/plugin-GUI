@@ -34,7 +34,13 @@
 #define okLIB_NAME "./libokFrontPanel.so"
 #define okLIB_EXTENSION "*.so"
 #endif
+
+#define CHIP_ID_RHD2132  1
+#define CHIP_ID_RHD2216  2
+#define CHIP_ID_RHD2164  4
 #define CHIP_ID_RHD2164_B  1000
+#define REGISTER_59_MISO_A  53
+#define REGISTER_59_MISO_B  58
 
 // Allocates memory for a 3-D array of doubles.
 void allocateDoubleArray3D(std::vector<std::vector<std::vector<double> > >& array3D,
@@ -394,6 +400,7 @@ void RHD2000Thread::scanPorts()
     // Scan SPI ports
 
     int delay, stream, id;
+	int register59Value;
     //int numChannelsOnPort[4] = {0, 0, 0, 0};
     Rhd2000EvalBoard::BoardDataSource initStreamPorts[8] =
     {
@@ -503,9 +510,10 @@ void RHD2000Thread::scanPorts()
         {
             // std::cout << "Stream number " << stream << ", delay = " << delay << std::endl;
 
-            id = deviceId(dataBlock, stream);
+			id = deviceId(dataBlock, stream, register59Value);
 
-            if (id > 0) // 1 = RHD2132, 2 = RHD2216
+            if (id == CHIP_ID_RHD2132 || id == CHIP_ID_RHD2216 ||
+                (id == CHIP_ID_RHD2164 && register59Value == REGISTER_59_MISO_A))
             {
                 //  std::cout << "Device ID found: " << id << std::endl;
 
@@ -552,7 +560,7 @@ void RHD2000Thread::scanPorts()
         if (chipId[stream] > 0)
         {
             //std::cout << "Enabling headstage on stream " << stream << std::endl;
-            if (chipId[stream] == 4) //RHD2164
+            if (chipId[stream] == CHIP_ID_RHD2164) //RHD2164
             {
                 //We just add it like a second headstage, allowing only one RHD2164 per channel
                 //This would need to change
@@ -616,7 +624,7 @@ void RHD2000Thread::scanPorts()
     updateRegisters();
 }
 
-int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream)
+int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream, int &register59Value)
 {
     bool intanChipPresent;
 
@@ -639,10 +647,12 @@ int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream)
     // chip ID number stored in ROM regstier 63.
     if (!intanChipPresent)
     {
+		register59Value = -1;
         return -1;
     }
     else
     {
+		register59Value = dataBlock->auxiliaryData[stream][2][23]; // Register 59
         return dataBlock->auxiliaryData[stream][2][19]; // chip ID (Register 63)
     }
 }

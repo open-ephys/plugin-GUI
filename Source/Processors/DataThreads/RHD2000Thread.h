@@ -173,7 +173,7 @@ private:
 
     void updateRegisters();
 
-    int deviceId(Rhd2000DataBlock* dataBlock, int stream);
+    int deviceId(Rhd2000DataBlock* dataBlock, int stream, int &register59Value);
 
     bool updateBuffer();
 
