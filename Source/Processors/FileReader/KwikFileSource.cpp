@@ -94,6 +94,7 @@ void KWIKFileSource::fillRecordInfo()
                 Attribute attr;
                 DataSpace dSpace;
                 float sampleRate;
+                float bitVolts;
                 hsize_t dims[3];
                 RecordInfo info;
 
@@ -101,6 +102,8 @@ void KWIKFileSource::fillRecordInfo()
                 data = recordN.openDataSet("data");
                 attr = recordN.openAttribute("sample_rate");
                 attr.read(PredType::NATIVE_FLOAT,&sampleRate);
+                attr = recordN.openAttribute("bit_depth");
+                attr.read(PredType::NATIVE_FLOAT,&bitVolts);
                 dSpace = data.getSpace();
                 dSpace.getSimpleExtentDims(dims);
 
@@ -108,16 +111,31 @@ void KWIKFileSource::fillRecordInfo()
                 info.numSamples = dims[0];
                 info.sampleRate = sampleRate;
 
-                recordN = recordings.openGroup((String(i) + "/application_data").toUTF8());
-                attr=recordN.openAttribute("channel_bit_volts");
+                bool foundBitVoltArray = false;
                 HeapBlock<float> bitVoltArray(dims[1]);
-                attr.read(ArrayType(PredType::NATIVE_FLOAT,1,&dims[1]),bitVoltArray);
 
-                for (int i=0; i < dims[1]; i++)
+                try
+                {
+                    recordN = recordings.openGroup((String(i) + "/application_data").toUTF8());
+                    attr=recordN.openAttribute("channel_bit_volts");
+                    attr.read(ArrayType(PredType::NATIVE_FLOAT,1,&dims[1]),bitVoltArray);
+                    foundBitVoltArray = true;
+                } catch (GroupIException)
+                {
+                } catch (AttributeIException)
+                {
+                }
+
+                for (int i = 0; i < dims[1]; i++)
                 {
                     RecordedChannelInfo c;
                     c.name = "CH" + String(i);
-                    c.bitVolts = bitVoltArray[i];
+                    
+                    if (foundBitVoltArray)
+                        c.bitVolts = bitVoltArray[i];
+                    else
+                        c.bitVolts = bitVolts;
+
                     info.channels.add(c);
                 }
                 infoArray.add(info);

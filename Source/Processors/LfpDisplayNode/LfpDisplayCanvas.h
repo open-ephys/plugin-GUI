@@ -123,7 +123,7 @@ private:
     //int spread ; // vertical spacing between channels
 
 
-    static const int MAX_N_CHAN = 256;  // maximum number of channels
+    static const int MAX_N_CHAN = 1028;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 

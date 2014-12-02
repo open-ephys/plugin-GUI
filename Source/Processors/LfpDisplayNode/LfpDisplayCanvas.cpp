@@ -308,9 +308,9 @@ void LfpDisplayCanvas::update()
     {
         std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
-        refreshScreenBuffer();
-
         lfpDisplay->setNumChannels(nChans);
+
+        refreshScreenBuffer();
 
         // update channel names
         for (int i = 0; i < processor->getNumInputs(); i++)
@@ -566,6 +566,7 @@ void LfpDisplayCanvas::refreshScreenBuffer()
 {
 
     screenBufferIndex = 0;
+    displayBufferIndex = 0;
 
     screenBuffer->clear();
     screenBufferMin->clear();
@@ -647,48 +648,51 @@ void LfpDisplayCanvas::updateScreenBuffer()
                 for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
                 {
 
-                    // interpolate between two samples with invAlpha and alpha
-                    screenBuffer->addFrom(channel, // destChannel
-                                          screenBufferIndex, // destStartSample
-                                          displayBuffer->getReadPointer(channel, displayBufferIndex), // source
-                                          1, // numSamples
-                                          invAlpha*gain); // gain
-
-
-                    screenBuffer->addFrom(channel, // destChannel
-                                          screenBufferIndex, // destStartSample
-                                          displayBuffer->getReadPointer(channel, nextPos), // source
-                                          1, // numSamples
-                                          alpha*gain); // gain
-
-                    // same thing again, but this time add the min,mean, and max of all samples in current pixel
-                    float sample_min   =  1000000;
-                    float sample_max   = -1000000;
-                    float sample_mean  =  0;
-                    int c=0;
-                    int nextpix = (displayBufferIndex +(int)ratio) % displayBufferSize; //  position to next pixels index
-                    for (int j = displayBufferIndex; j < nextpix; j++)
+                    if (channel < displayBuffer->getNumChannels())
                     {
-                        float sample_current = displayBuffer->getSample(channel, j);
-                        sample_mean = sample_mean + sample_current;
+                        // interpolate between two samples with invAlpha and alpha
+                        screenBuffer->addFrom(channel, // destChannel
+                                              screenBufferIndex, // destStartSample
+                                              displayBuffer->getReadPointer(channel, displayBufferIndex), // source
+                                              1, // numSamples
+                                              invAlpha*gain); // gain
 
-                        if (sample_min>sample_current)
+
+                        screenBuffer->addFrom(channel, // destChannel
+                                              screenBufferIndex, // destStartSample
+                                              displayBuffer->getReadPointer(channel, nextPos), // source
+                                              1, // numSamples
+                                              alpha*gain); // gain
+
+                        // same thing again, but this time add the min,mean, and max of all samples in current pixel
+                        float sample_min   =  1000000;
+                        float sample_max   = -1000000;
+                        float sample_mean  =  0;
+                        int c=0;
+                        int nextpix = (displayBufferIndex +(int)ratio) % displayBufferSize; //  position to next pixels index
+                        for (int j = displayBufferIndex; j < nextpix; j++)
                         {
-                            sample_min=sample_current;
+                            float sample_current = displayBuffer->getSample(channel, j);
+                            sample_mean = sample_mean + sample_current;
+
+                            if (sample_min>sample_current)
+                            {
+                                sample_min=sample_current;
+                            }
+
+                            if (sample_max<sample_current)
+                            {
+                                sample_max=sample_current;
+                            }
+                            c++;
+
+
                         }
-
-                        if (sample_max<sample_current)
-                        {
-                            sample_max=sample_current;
-                        }
-                        c++;
-
-
+                        sample_mean=sample_mean/c;
+                        screenBufferMean->addSample(channel, screenBufferIndex, sample_mean*gain);
+                        screenBufferMin->addSample(channel, screenBufferIndex, sample_min*gain);
+                        screenBufferMax->addSample(channel, screenBufferIndex, sample_max*gain);
                     }
-                    sample_mean=sample_mean/c;
-                    screenBufferMean->addSample(channel, screenBufferIndex, sample_mean*gain);
-                    screenBufferMin->addSample(channel, screenBufferIndex, sample_min*gain);
-                    screenBufferMax->addSample(channel, screenBufferIndex, sample_max*gain);
 
                 }
                 screenBufferIndex++;
