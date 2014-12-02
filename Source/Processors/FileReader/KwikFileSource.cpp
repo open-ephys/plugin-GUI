@@ -20,7 +20,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include <h5cpp.h>
+#include <H5Cpp.h>
 #include "KwikFileSource.h"
 
 
