@@ -103,7 +103,7 @@ public:
 	String getTypeName(channelType type);
 	int getRangeStep(channelType type);
 
-	void setSelectedType(channelType type);
+	void setSelectedType(channelType type, bool toggleButton = true);
 
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
@@ -150,6 +150,7 @@ private:
     ScopedPointer<UtilityButton> invertInputButton;
     ScopedPointer<UtilityButton> drawMethodButton;
     ScopedPointer<UtilityButton> pauseButton;
+	OwnedArray<UtilityButton> typeButtons;
 
     StringArray voltageRanges[CHANNEL_TYPES];
     StringArray timebases;
@@ -289,6 +290,7 @@ public:
 
     void select();
     void deselect();
+	bool getSelected();
 
     void setName(String);
 

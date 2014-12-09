@@ -69,6 +69,8 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     addAndMakeVisible(viewport);
     addAndMakeVisible(timescale);
 
+	UtilityButton* tbut;
+
     //Ranges for neural data
      voltageRanges[DATA_CHANNEL].add("25");
     voltageRanges[DATA_CHANNEL].add("50");
@@ -86,6 +88,15 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	rangeSteps[DATA_CHANNEL] = 10;
 	rangeUnits.add("uV");
 	typeNames.add("DATA");
+	tbut  = new UtilityButton("DATA",Font("Small Text", 9, Font::plain));
+	tbut->setEnabledState(true);
+	tbut->setCorners(false,false,false,false);
+	tbut->addListener(this);
+	tbut->setClickingTogglesState(true);
+	tbut->setRadioGroupId(100,dontSendNotification);
+	tbut->setToggleState(true,dontSendNotification);
+	addAndMakeVisible(tbut);
+	typeButtons.add(tbut);
 	
 
     //Ranges for AUX/accelerometer data
@@ -104,6 +115,15 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	rangeSteps[AUX_CHANNEL] = 10;
 	rangeUnits.add("uV");
 	typeNames.add("AUX");
+	tbut  = new UtilityButton("AUX",Font("Small Text", 9, Font::plain));
+	tbut->setEnabledState(true);
+	tbut->setCorners(false,false,false,false);
+	tbut->addListener(this);
+	tbut->setClickingTogglesState(true);
+	tbut->setRadioGroupId(100,dontSendNotification);
+	tbut->setToggleState(false,dontSendNotification);
+	addAndMakeVisible(tbut);
+	typeButtons.add(tbut);
 
     //Ranges for ADC data
      voltageRanges[ADC_CHANNEL].add("0.01");
@@ -119,6 +139,15 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 	rangeSteps[ADC_CHANNEL] = 0.1; //in V
 	rangeUnits.add("V");
 	typeNames.add("ADC");
+	tbut  = new UtilityButton("ADC",Font("Small Text", 9, Font::plain));
+	tbut->setEnabledState(true);
+	tbut->setCorners(false,false,false,false);
+	tbut->addListener(this);
+	tbut->setClickingTogglesState(true);
+	tbut->setRadioGroupId(100,dontSendNotification);
+	tbut->setToggleState(false,dontSendNotification);
+	addAndMakeVisible(tbut);
+	typeButtons.add(tbut);
 
 	selectedVoltageRangeValues[DATA_CHANNEL] = voltageRanges[DATA_CHANNEL][selectedVoltageRange[DATA_CHANNEL]-1];
 	selectedVoltageRangeValues[AUX_CHANNEL] = voltageRanges[AUX_CHANNEL][selectedVoltageRange[AUX_CHANNEL]-1];
@@ -273,6 +302,11 @@ void LfpDisplayCanvas::resized()
         eventDisplayInterfaces[i]->repaint();
     }
 
+	int bh = 25/typeButtons.size();
+	for (int i = 0; i < typeButtons.size(); i++)
+	{
+		typeButtons[i]->setBounds(110,getHeight()-30+i*bh,50,bh);
+	}
 
     // std::cout << "Canvas thinks LfpDisplay should be this high: "
     //  << lfpDisplay->getTotalHeight() << std::endl;
@@ -346,15 +380,31 @@ void LfpDisplayCanvas::buttonClicked(Button* b)
     if (b == invertInputButton)
     {
         lfpDisplay->setInputInverted(b->getToggleState());
+		return;
     }
     if (b == drawMethodButton)
     {
         lfpDisplay->setDrawMethod(b->getToggleState());
+		return;
     }
     if (b == pauseButton)
     {
         lfpDisplay->isPaused = b->getToggleState();
+		return;
     }
+	int idx = typeButtons.indexOf((UtilityButton*)b);
+	if ((idx >= 0) && (b->getToggleState()))
+	{
+		for (int i = 0; i < processor->getNumInputs(); i++)
+		{
+			if (lfpDisplay->channels[i]->getSelected())
+			{
+				lfpDisplay->channels[i]->deselect();
+				lfpDisplay->channels[i]->repaint();
+			}
+		}
+		setSelectedType((channelType)idx,false);
+	}
 
 }
 
@@ -798,7 +848,7 @@ void LfpDisplayCanvas::paint(Graphics& g)
     g.drawText("Spread (px)",345,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Color grouping",620,getHeight()-55,300,20,Justification::left, false);
 
-	g.drawText(typeNames[selectedChannelType],110,getHeight()-30,50,20,Justification::centredLeft,false);
+//	g.drawText(typeNames[selectedChannelType],110,getHeight()-30,50,20,Justification::centredLeft,false);
 
     g.drawText("Event disp.",500,getHeight()-55,300,20,Justification::left, false);
 
@@ -965,7 +1015,7 @@ channelType LfpDisplayCanvas::getSelectedType()
 	return selectedChannelType;
 }
 
-void LfpDisplayCanvas::setSelectedType(channelType type)
+void LfpDisplayCanvas::setSelectedType(channelType type, bool toggleButton)
 {
 	if (selectedChannelType == type)
 		return; //Nothing to do here
@@ -977,7 +1027,8 @@ void LfpDisplayCanvas::setSelectedType(channelType type)
 		rangeSelection->setSelectedId(id,sendNotification);
 	else
 		rangeSelection->setText(selectedVoltageRangeValues[selectedChannelType],dontSendNotification);
-	repaint(5,getHeight()-55,300,100);
+	if (toggleButton)
+		typeButtons[type]->setToggleState(true,dontSendNotification);
 }
 
 String LfpDisplayCanvas::getTypeName(channelType type)
@@ -1786,6 +1837,11 @@ void LfpChannelDisplay::select()
 void LfpChannelDisplay::deselect()
 {
     isSelected = false;
+}
+
+bool LfpChannelDisplay::getSelected()
+{
+	return isSelected;
 }
 
 void LfpChannelDisplay::setColour(Colour c)
