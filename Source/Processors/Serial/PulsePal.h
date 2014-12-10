@@ -1,27 +1,25 @@
 /*
-    ------------------------------------------------------------------
+----------------------------------------------------------------------------
 
-    This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+This file is part of the PulsePal Project
+Copyright (C) 2014 Joshua I. Sanders, Cold Spring Harbor Laboratory, NY, USA
 
-    ------------------------------------------------------------------
+----------------------------------------------------------------------------
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed  WITHOUT ANY WARRANTY and without even the
+implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
-// Modified by JS 1/30/2014: Updated op codes for firmware 0_4, added new functions (indicated in comments below)
+// Originally programmed by Josh Seigle as part of the Open Ephys GUI, <http://open-ephys.org>
+// Modified by Joshua Sanders where indicated in comments below)
 
 #ifndef __PULSEPAL_H_F2B7B63E__
 #define __PULSEPAL_H_F2B7B63E__
@@ -31,7 +29,7 @@
 #include "ofSerial.h"
 
 /**
-  Interface to PulsePal
+  Interface to PulsePal 
   @see PulsePalOutput
 
 */
@@ -53,6 +51,7 @@ public:
     void setBiphasic(uint8_t channel, bool isBiphasic);
     void setPhase1Voltage(uint8_t channel, float voltage);
     void setPhase2Voltage(uint8_t channel, float voltage);
+    void setRestingVoltage(uint8_t channel, float voltage);
     void setPhase1Duration(uint8_t channel, float timeInSeconds);
     void setInterPhaseInterval(uint8_t channel, float timeInSeconds);
     void setPhase2Duration(uint8_t channel, float timeInSeconds);
@@ -67,11 +66,11 @@ public:
     void setCustomTrainTarget(uint8_t channel, uint8_t target); // target = 0: Custom times define pulses Target = 1: They define bursts
     void setCustomTrainLoop(uint8_t channel, uint8_t loop_state); // loop_state = 0: No loop 1: loop
 
-    // Program all parameters
-    void programAllParams();
+    // Program all parameters from object fields
+    void syncAllParams();
 
-    // Program custom pulse train
-    void programCustomTrain(uint8_t ID, uint8_t nPulses, float customPulseTimes[], float customVoltages[]);
+    // Upload a custom pulse train
+    void sendCustomPulseTrain(uint8_t ID, uint8_t nPulses, float customPulseTimes[], float customVoltages[]);
 
     // Operations and settings
     void triggerChannel(uint8_t channel);
@@ -81,10 +80,10 @@ public:
     void abortPulseTrains();
     void setContinuousLoop(uint8_t channel, uint8_t state);
     void setTriggerMode(uint8_t channel, uint8_t mode);
-
+    void setClientIDString(string idString);
+    
     // Fields
-    struct OutputParams
-    {
+    struct OutputParams {
         int isBiphasic;
         float phase1Voltage;
         float phase2Voltage;
@@ -101,9 +100,9 @@ public:
         int customTrainID;
         int customTrainTarget;
         int customTrainLoop;
+        float restingVoltage;
     } currentOutputParams[5]; // Use 1-indexing for the channels (output channels 1-4 = currentOutputParams[1]-currentOutputParams[4])
-    struct InputParams
-    {
+    struct InputParams {
         int triggerMode;
     } currentInputParams[3]; // Use 1-indexing for the trigger channels
 
