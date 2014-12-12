@@ -135,9 +135,11 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
             dacChannelsToUpdate[k] = true;
             dacStream[k] = 0;
             setDACthreshold(k, 65534);
+			dacChannels[k] = -1;
+			dacThresholds[k] = 0;
         }
 
-        evalBoard->getDacInformation(dacChannels,dacThresholds);
+       // evalBoard->getDacInformation(dacChannels,dacThresholds);
 		sn->setDefaultNamingScheme(numberingScheme);
     }
 }
@@ -187,17 +189,18 @@ void RHD2000Thread::setDACchannel(int dacOutput, int stream, int channel)
     dacStream[dacOutput] = stream;
     dacChannelsToUpdate[dacOutput] = true;
     dacOutputShouldChange = true;
-    evalBoard->updateDacAssignment(dacOutput, channel); // doesn't really change anything, but keep things in sync...
+   // evalBoard->updateDacAssignment(dacOutput, channel); // doesn't really change anything, but keep things in sync...
 }
 
 Array<int> RHD2000Thread::getDACchannels()
 {
-    Array<int> dacChannels;
+    Array<int> dacChannelsArray;
+	//dacChannelsArray.addArray(dacChannels,8);
     for (int k=0; k<8; k++)
-    {
-        dacChannels.add(evalBoard->gecDacDataChannel(k));
+	{
+        dacChannelsArray.add(dacChannels[k]);
     }
-    return dacChannels;
+    return dacChannelsArray;
 
 }
 bool RHD2000Thread::openBoard(String pathToLibrary)
@@ -344,6 +347,12 @@ void RHD2000Thread::initializeBoard()
     //  - clears the ttlOut
     //  - disables all DACs and sets gain to 0
 
+	evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortA, cableLengthPortA);
+    evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortB, cableLengthPortB);
+    evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortC, cableLengthPortC);
+    evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortD, cableLengthPortD);
+	updateRegisters();
+
     // Select RAM Bank 0 for AuxCmd3 initially, so the ADC is calibrated.
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3, 0);
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3, 0);
@@ -369,7 +378,7 @@ void RHD2000Thread::initializeBoard()
     Rhd2000DataBlock* dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
 
 
-    // evalBoard->readDataBlock(dataBlock);
+     evalBoard->readDataBlock(dataBlock);
 
     // Now that ADC calibration has been performed, we switch to the command sequence
     // that does not execute ADC calibration.
@@ -385,7 +394,7 @@ void RHD2000Thread::initializeBoard()
 
     updateRegisters();
 
-    // Let's turn one LED on to indicate that the board is now connected
+   // Let's turn one LED on to indicate that the board is now connected
     int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
     evalBoard->setLedDisplay(ledArray);
 
@@ -512,7 +521,7 @@ void RHD2000Thread::scanPorts()
 
 			id = deviceId(dataBlock, stream, register59Value);
 
-            if (id == CHIP_ID_RHD2132 || id == CHIP_ID_RHD2216 ||
+			if (id == CHIP_ID_RHD2132 || id == CHIP_ID_RHD2216 ||
                 (id == CHIP_ID_RHD2164 && register59Value == REGISTER_59_MISO_A))
             {
                 //  std::cout << "Device ID found: " << id << std::endl;
@@ -628,31 +637,26 @@ int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream, int &regist
 {
     bool intanChipPresent;
 
-    // First, check ROM registers 32-36 to verify that they hold 'INTAN'.
+    // First, check ROM registers 32-36 to verify that they hold 'INTAN', and
+    // the initial chip name ROM registers 24-26 that hold 'RHD'.
     // This is just used to verify that we are getting good data over the SPI
     // communication channel.
-    // std::cout << dataBlock->auxiliaryData[stream][2][32] << " ";
-    // std::cout << dataBlock->auxiliaryData[stream][2][33] << " ";
-    // std::cout << dataBlock->auxiliaryData[stream][2][34] << " ";
-    // std::cout << dataBlock->auxiliaryData[stream][2][35] << " ";
-    // std::cout << dataBlock->auxiliaryData[stream][2][36] << std::endl;
+    intanChipPresent = ((char) dataBlock->auxiliaryData[stream][2][32] == 'I' &&
+                        (char) dataBlock->auxiliaryData[stream][2][33] == 'N' &&
+                        (char) dataBlock->auxiliaryData[stream][2][34] == 'T' &&
+                        (char) dataBlock->auxiliaryData[stream][2][35] == 'A' &&
+                        (char) dataBlock->auxiliaryData[stream][2][36] == 'N' &&
+                        (char) dataBlock->auxiliaryData[stream][2][24] == 'R' &&
+                        (char) dataBlock->auxiliaryData[stream][2][25] == 'H' &&
+                        (char) dataBlock->auxiliaryData[stream][2][26] == 'D');
 
-    intanChipPresent = (dataBlock->auxiliaryData[stream][2][32] == 73 && // I = 73
-                        dataBlock->auxiliaryData[stream][2][33] == 78 && // N = 78
-                        dataBlock->auxiliaryData[stream][2][34] == 84 && // T = 84
-                        dataBlock->auxiliaryData[stream][2][35] == 65 && // A = 65
-                        dataBlock->auxiliaryData[stream][2][36] == 78);  // N = 78
-
-    // If the SPI communication is bad, return -1.  Otherwise, return the Intan
+	// If the SPI communication is bad, return -1.  Otherwise, return the Intan
     // chip ID number stored in ROM regstier 63.
-    if (!intanChipPresent)
-    {
-		register59Value = -1;
+    if (!intanChipPresent) {
+        register59Value = -1;
         return -1;
-    }
-    else
-    {
-		register59Value = dataBlock->auxiliaryData[stream][2][23]; // Register 59
+    } else {
+        register59Value = dataBlock->auxiliaryData[stream][2][23]; // Register 59
         return dataBlock->auxiliaryData[stream][2][19]; // chip ID (Register 63)
     }
 }
@@ -1267,10 +1271,12 @@ void RHD2000Thread::updateRegisters()
     int commandSequenceLength;
     vector<int> commandList;
 
-    // Create a command list for the AuxCmd1 slot.  This command sequence will create a 250 Hz,
-    // zero-amplitude sine wave (i.e., a flatline).  We will change this when we want to perform
-    // impedance testing.
-    commandSequenceLength = chipRegisters.createCommandListZcheckDac(commandList, 250.0, 0.0);
+    // Create a command list for the AuxCmd1 slot.  This command sequence will continuously
+    // update Register 3, which controls the auxiliary digital output pin on each RHD2000 chip.
+    // In concert with the v1.4 Rhythm FPGA code, this permits real-time control of the digital
+    // output pin on chips on each SPI port.
+    chipRegisters.setDigOutLow();   // Take auxiliary output out of HiZ mode.
+    commandSequenceLength = chipRegisters.createCommandListUpdateDigOut(commandList);
     evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd1, 0);
     evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd1, 0, commandSequenceLength - 1);
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd1, 0);
@@ -1580,7 +1586,8 @@ bool RHD2000Thread::updateBuffer()
                     evalBoard->enableDac(k, true);
                     evalBoard->selectDacDataStream(k, dacStream[k]);
                     evalBoard->selectDacDataChannel(k, dacChannels[k]);
-                    evalBoard->setDacThresholdVoltage(k, (int) dacThresholds[k]);
+					evalBoard->setDacThreshold(k, (int)abs((dacThresholds[k]/0.195) + 32768),dacThresholds[k] >= 0);
+                   // evalBoard->setDacThresholdVoltage(k, (int) dacThresholds[k]);
                 }
                 else
                 {
@@ -1590,8 +1597,8 @@ bool RHD2000Thread::updateBuffer()
         }
 
         evalBoard->setTtlMode(ttlMode);
-        evalBoard->setFastSettleByTTL(fastTTLSettleEnabled);
-        evalBoard->setFastSettleByTTLchannel(fastSettleTTLChannel);
+		evalBoard->enableExternalFastSettle(fastTTLSettleEnabled);
+		evalBoard->setExternalFastSettleChannel(fastSettleTTLChannel);
         evalBoard->setDacHighpassFilter(desiredDAChpf);
         evalBoard->enableDacHighpassFilter(desiredDAChpfState);
 
@@ -1845,8 +1852,7 @@ void RHD2000Thread::runImpedanceTest(Array<int>& streams, Array<int>& channels, 
     evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd1, 1);
     evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd1,
                                       0, commandSequenceLength - 1);
-    bool fastSettleMode = evalBoard->getExternalFastSettle();
-    if (fastSettleMode)
+    if (fastTTLSettleEnabled)
     {
         evalBoard->enableExternalFastSettle(false);
     }
@@ -2091,7 +2097,7 @@ void RHD2000Thread::runImpedanceTest(Array<int>& streams, Array<int>& channels, 
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3,
                                     fastSettleEnabled ? 2 : 1);
 
-    if (fastSettleMode)
+    if (fastTTLSettleEnabled)
     {
         evalBoard->enableExternalFastSettle(true);
     }
