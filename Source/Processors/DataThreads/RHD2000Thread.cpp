@@ -392,7 +392,7 @@ void RHD2000Thread::initializeBoard()
                                     fastSettleEnabled ? 2 : 1);
 
 
-    updateRegisters();
+    //updateRegisters();
 
    // Let's turn one LED on to indicate that the board is now connected
     int ledArray[8] = {1, 0, 0, 0, 0, 0, 0, 0};
@@ -629,8 +629,7 @@ void RHD2000Thread::scanPorts()
         evalBoard->estimateCableLengthMeters(max(optimumDelay[6],optimumDelay[7]));
 
     setSampleRate(savedSampleRateIndex); // restore saved sample rate
-
-    updateRegisters();
+    //updateRegisters();
 }
 
 int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream, int &register59Value)
@@ -1253,6 +1252,8 @@ void RHD2000Thread::setSampleRate(int sampleRateIndex, bool isTemporary)
     evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortB, cableLengthPortB);
     evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortC, cableLengthPortC);
     evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortD, cableLengthPortD);
+
+	updateRegisters();
 
 }
 
