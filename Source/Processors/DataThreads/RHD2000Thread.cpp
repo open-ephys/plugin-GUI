@@ -347,11 +347,11 @@ void RHD2000Thread::initializeBoard()
     //  - clears the ttlOut
     //  - disables all DACs and sets gain to 0
 
+	setSampleRate(Rhd2000EvalBoard::SampleRate30000Hz);
 	evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortA, cableLengthPortA);
     evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortB, cableLengthPortB);
     evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortC, cableLengthPortC);
     evalBoard->setCableLengthMeters(Rhd2000EvalBoard::PortD, cableLengthPortD);
-	updateRegisters();
 
     // Select RAM Bank 0 for AuxCmd3 initially, so the ADC is calibrated.
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3, 0);
@@ -375,7 +375,7 @@ void RHD2000Thread::initializeBoard()
 
     // Read the resulting single data block from the USB interface. We don't
     // need to do anything with this, since it was only used for ADC calibration
-    Rhd2000DataBlock* dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
+    ScopedPointer<Rhd2000DataBlock> dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
 
 
      evalBoard->readDataBlock(dataBlock);
@@ -437,7 +437,7 @@ void RHD2000Thread::scanPorts()
 
     chipId.insertMultiple(0,-1,8);
 
-    setSampleRate(16, true); // set to 30 kHz temporarily
+	setSampleRate(Rhd2000EvalBoard::SampleRate30000Hz, true); // set to 30 kHz temporarily
 
     // Enable all data streams, and set sources to cover one or two chips
     // on Ports A-D.

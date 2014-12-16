@@ -21,7 +21,7 @@
 #ifndef RHD2000DATABLOCK_H
 #define RHD2000DATABLOCK_H
 
-#define SAMPLES_PER_DATA_BLOCK 60
+#define SAMPLES_PER_DATA_BLOCK 300 //modified by Open-ephys
 #define RHD2000_HEADER_MAGIC_NUMBER 0xc691199927021942
 
 using namespace std;
