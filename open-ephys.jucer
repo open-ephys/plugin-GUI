@@ -117,6 +117,16 @@
                        headerPath="../../Resources/windows-libs/HDF5/include" libraryPath="../../Resources/windows-libs/HDF5/lib/x86"
                        postbuildCommand="copy &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;"
                        fastMath="1"/>
+        <CONFIGURATION name="Debug64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\Debug\bin"
+                       headerPath="../../Resources/windows-libs/HDF5/include" libraryPath="../../Resources/windows-libs/HDF5/lib/x64"
+                       wholeProgramOptimisation="1" postbuildCommand="copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;"
+                       fastMath="1"/>
+        <CONFIGURATION name="Release64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\Release\bin"
+                       headerPath="../../Resources/windows-libs/HDF5/include" libraryPath="../../Resources/windows-libs/HDF5/lib/x64"
+                       postbuildCommand="copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;"
+                       fastMath="1"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>
