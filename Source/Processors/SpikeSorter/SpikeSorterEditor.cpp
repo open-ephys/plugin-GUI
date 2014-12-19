@@ -657,7 +657,7 @@ void SpikeSorterEditor::setElectrodeComboBox(int direction)
         C = N;
     if (C > N)
         C = 1;
-    electrodeList->setSelectedId(C, dontSendNotification);
+	electrodeList->setSelectedId(C, sendNotification);
 }
 
 void SpikeSorterEditor::comboBoxChanged(ComboBox* comboBox)
