@@ -216,7 +216,7 @@
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;</Command>
+      <Command>copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">
@@ -263,7 +263,7 @@
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;</Command>
+      <Command>copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -49,9 +49,11 @@ Rhd2000EvalBoard::Rhd2000EvalBoard()
         dataStreamEnabled[i] = 0;
     }
     dacChannelAssignment = new int[8];
+	dacStreamAssignment = new int[8];
     dacChannelThreshold = new float[8];
     for (int k=0;k<8;k++)
     {
+		dacStreamAssignment[k] = -1;
         dacChannelAssignment[k] = -1;
         dacChannelThreshold[k] =0;
     }
@@ -61,6 +63,9 @@ Rhd2000EvalBoard::Rhd2000EvalBoard()
 Rhd2000EvalBoard::~Rhd2000EvalBoard()
 {
     if (dev != 0) delete dev;
+	delete dacChannelAssignment;
+	delete dacChannelThreshold;
+	delete dacStreamAssignment;
 }
 
 // Find an Opal Kelly XEM6010-LX45 board attached to a USB port and open it.
@@ -1123,7 +1128,7 @@ void Rhd2000EvalBoard::selectDacDataStream(int dacChannel, int stream)
         cerr << "Error in Rhd2000EvalBoard::selectDacDataStream: stream out of range." << endl;
         return;
     }
-
+	dacStreamAssignment[dacChannel] = stream;
     switch (dacChannel)
     {
         case 0:
@@ -1212,9 +1217,11 @@ int Rhd2000EvalBoard::gecDacDataChannel(int dacChannel)
     return dacChannelAssignment[dacChannel];
 }
 
-void Rhd2000EvalBoard::updateDacAssignment(int dacChannel, int channel)
+void Rhd2000EvalBoard::updateDacAssignment(int dacChannel, int stream, int channel)
 {
+	dacStreamAssignment[dacChannel] = stream;
     dacChannelAssignment[dacChannel] = channel;
+	//selectDacDataStream
 }
 
 // Assign a particular amplifier channel (0-31) to a DAC channel (0-7).
