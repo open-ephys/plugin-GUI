@@ -353,6 +353,13 @@ void GenericProcessor::update()
 
         int numChan = getNumOutputs();
         int numADC_Chan = getDefaultADCoutputs();
+
+		Array<channelType> types;
+		Array<int> stream, orig;
+		Array<float> gains;
+		StringArray names;
+		getChannelsInfo(names, types, stream, orig, gains);
+
         for (int i = 0; i < numChan; i++)
         {
             Channel* ch = new Channel(this, i);
@@ -368,7 +375,11 @@ void GenericProcessor::update()
             if (i >= numChan-numADC_Chan)
 				ch->setType(ADC_CHANNEL);
 
-
+			if (i < stream.size())
+			{
+			  ch->originalStream = stream[i];
+			  ch->originalChannel = orig[i];
+			}
             ch->sampleRate = getDefaultSampleRate();
 
             //  if (ch->isADCchannel)

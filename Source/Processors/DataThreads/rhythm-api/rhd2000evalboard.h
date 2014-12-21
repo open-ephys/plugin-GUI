@@ -160,7 +160,7 @@ public:
     void selectDacDataChannel(int dacChannel, int dataChannel);
 
     int gecDacDataChannel(int dacChannel);
-    void updateDacAssignment(int dacChannel, int channel);
+	void updateDacAssignment(int dacChannel, int stream, int channel);
     void enableExternalFastSettle(bool enable);
     void setExternalFastSettleChannel(int channel);
     void setFastSettleByTTL(bool state);
@@ -179,6 +179,7 @@ private:
     int numDataStreams; // total number of data streams currently enabled
     int dataStreamEnabled[MAX_NUM_DATA_STREAMS]; // 0 (disabled) or 1 (enabled)
     int *dacChannelAssignment;
+	int *dacStreamAssignment;
     float *dacChannelThreshold;
     bool fast_settle_enabled;
 
