@@ -51,7 +51,7 @@
 /* #undef H5_CXX_HAVE_OFFSETOF */
 
 /* Define the default plugins path to compile */
-#define H5_DEFAULT_PLUGINDIR "%ALLUSERSPROFILE%/hdf5/lib/plugin"
+#define H5_DEFAULT_PLUGINDIR "%ALLUSERSPROFILE%\\hdf5\\lib\\plugin"
 
 /* Define the default virtual file driver to compile */
 #define H5_DEFAULT_VFD H5FD_SEC2
@@ -90,6 +90,9 @@
 
 /* Define to 1 if you have the `alarm' function. */
 /* #undef H5_HAVE_ALARM */
+
+/* Define to 1 if you have the `asprintf' function. */
+/* #undef H5_HAVE_ASPRINTF */
 
 /* Define if the __attribute__(()) extension is present */
 /* #undef H5_HAVE_ATTRIBUTE */
@@ -289,9 +292,6 @@
 /* Define to 1 if you have the <mpe.h> header file. */
 /* #undef H5_HAVE_MPE_H */
 
-/* Define if MPI_File_get_size works correctly */
-/* #undef H5_HAVE_MPI_GET_SIZE */
-
 /* Define if `MPI_Comm_c2f' and `MPI_Comm_f2c' exists */
 /* #undef H5_HAVE_MPI_MULTI_LANG_Comm */
 
@@ -313,7 +313,7 @@
 /* Define to 1 if you have the `rand_r' function. */
 /* #undef H5_HAVE_RAND_R */
 
-/* Define to 1 if you have the `sigsetjmp' function. */
+/* Define to 1 if you have the `setjmp' function. */
 #define H5_HAVE_SETJMP 1
 
 /* Define to 1 if you have the <setjmp.h> header file. */
@@ -453,6 +453,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 /* #undef H5_HAVE_UNISTD_H */
 
+/* Define to 1 if you have the `asprintf' function. */
+/* #undef H5_HAVE_ASPRINTF */
+
 /* Define to 1 if you have the `vasprintf' function. */
 /* #undef H5_HAVE_VASPRINTF */
 
@@ -495,7 +498,7 @@
 #define H5_LDOUBLE_TO_INTEGER_ACCURATE 1
 
 /* Define if your system can convert from long double to integer values. */
-/* #undef H5_LDOUBLE_TO_INTEGER_WORKS */
+#define H5_LDOUBLE_TO_INTEGER_WORKS 1
 
 /* Define if your system can convert long double to (unsigned) long long
    values correctly. */
@@ -527,10 +530,6 @@
 /* Define if the metadata trace file code is to be compiled in */
 /* #undef H5_METADATA_TRACE_FILE */
 
-/* Define if your system's `MPI_File_set_size' function works for files over
-   2GB. */
-/* #undef H5_MPI_FILE_SET_SIZE_BIG */
-
 /* Define if we can violate pointer alignment restrictions */
 #define H5_NO_ALIGNMENT_RESTRICTIONS 1
 
@@ -550,7 +549,7 @@
 #define H5_PACKAGE_NAME "HDF5"
 
 /* Define to the full name and version of this package. */
-#define H5_PACKAGE_STRING "HDF5 1.8.13"
+#define H5_PACKAGE_STRING "HDF5 1.8.14"
 
 /* Define to the one symbol short name of this package. */
 #define H5_PACKAGE_TARNAME "hdf5"
@@ -559,7 +558,7 @@
 #define H5_PACKAGE_URL "http://www.hdfgroup.org"
 
 /* Define to the version of this package. */
-#define H5_PACKAGE_VERSION "1.8.13"
+#define H5_PACKAGE_VERSION "1.8.14"
 
 /* Width for printf() for type `long long' or `__int64', use `ll' */
 #define H5_PRINTF_LL_WIDTH "ll"
@@ -741,7 +740,7 @@
 /* #undef H5_USING_MEMCHECKER */
 
 /* Version number of package */
-#define H5_VERSION "1.8.13"
+#define H5_VERSION "1.8.14"
 
 /* Define if vsnprintf() returns the correct value for formatted strings that
    don't fit into size allowed */
