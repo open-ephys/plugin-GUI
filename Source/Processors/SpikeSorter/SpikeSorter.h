@@ -299,6 +299,21 @@ public:
 
     std::vector<String> electrodeTypes;
 
+	/** sync PSTH : inform of a new electrode added  */
+	void updateSinks(Electrode* newElectrode);
+	/** sync PSTH : inform of an electrode removal */
+	void updateSinks(int electrodeID);
+	/** sync PSTH : inform of a channel swap */
+	void updateSinks(int electrodeID, int channelindex, int newchannel);
+	/** sync PSTH: inform of a new unit added / removed */
+	void updateSinks(int electrodeID, int unitID, uint8 r, uint8 g, uint8 b, bool addRemove);
+	/** sync PSTH: inform of a name change*/
+	void updateSinks(int electrodeID, String NewName);
+	/** sync PSTH: remove all units*/
+	void updateSinks(int electrodeID, bool b);
+
+
+
 private:
 	UniqueIDgenerator uniqueIDgenerator;
 	long uniqueSpikeID;

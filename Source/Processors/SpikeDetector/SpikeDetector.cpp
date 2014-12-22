@@ -732,3 +732,4 @@ void SpikeDetector::loadCustomParametersFromXml()
     }
 
 }
+

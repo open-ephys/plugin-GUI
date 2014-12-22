@@ -61,7 +61,7 @@ ProcessorList::ProcessorList()
 #endif
 #endif
     sources->addSubItem(new ProcessorListItem("File Reader"));
-    //sources->addSubItem(new ProcessorListItem("Network Events"));
+    sources->addSubItem(new ProcessorListItem("Network Events"));
     sources->addSubItem(new ProcessorListItem("Serial Port"));
     //sources->addSubItem(new ProcessorListItem("Event Generator"));
 
@@ -80,7 +80,7 @@ ProcessorList::ProcessorList()
     sinks->addSubItem(new ProcessorListItem("LFP Viewer"));
     //sinks->addSubItem(new ProcessorListItem("LFP Trig. Avg."));
     sinks->addSubItem(new ProcessorListItem("Spike Viewer"));
-    //sinks->addSubItem(new ProcessorListItem("PSTH"));
+    sinks->addSubItem(new ProcessorListItem("PSTH"));
     //sinks->addSubItem(new ProcessorListItem("Network Sink"));
     //sinks->addSubItem(new ProcessorListItem("WiFi Output"));
     //sinks->addSubItem(new ProcessorListItem("Arduino Output"));

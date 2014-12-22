@@ -1059,3 +1059,128 @@ void GenericEditor::updateParameterButtons(int parameterIndex)
         //std::cout << "updateParameterButtons" << std::endl;
     }
 }
+
+
+
+
+
+/***************************/
+ColorButton::ColorButton(String label_, Font font_) :
+Button(label_), label(label_), font(font_)
+{
+	userDefinedData = -1;
+	fontColor = juce::Colours::white;
+	backgroundColor = juce::Colours::darkgrey;
+	vert = false;
+	setEnabledState(true);
+	showEnabledStatus = false;
+}
+
+void ColorButton::setShowEnabled(bool state)
+{
+	showEnabledStatus = state;
+	repaint();
+}
+
+void ColorButton::setEnabledState(bool state)
+{
+
+	isEnabled = state;
+
+	repaint();
+}
+
+void ColorButton::setUserDefinedData(int d)
+{
+	userDefinedData = d;
+}
+int ColorButton::getUserDefinedData()
+{
+	return userDefinedData;
+}
+
+void ColorButton::setVerticalOrientation(bool state)
+{
+	vert = state;
+	repaint();
+}
+
+void ColorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+
+	if (isEnabled)
+	{
+		g.fillAll(backgroundColor);
+	}
+	else
+	{
+		int fac = 3;
+		g.fillAll(Colour::fromRGB(backgroundColor.getRed() / fac, backgroundColor.getGreen() / fac, backgroundColor.getBlue() / fac));
+	}
+
+
+	/*
+	if (getToggleState())
+	{
+	if (isMouseOver)
+	g.setGradientFill(selectedOverGrad);
+	else
+	g.setGradientFill(selectedGrad);
+	}
+	else
+	{
+	if (isMouseOver)
+	g.setGradientFill(neutralOverGrad);
+	else
+	g.setGradientFill(neutralGrad);
+	}
+	*/
+
+	if (isMouseOver)
+	{
+		g.setColour(Colours::white);
+		g.drawRect(0, 0, getWidth(), getHeight());
+	}
+
+	g.setFont(font);
+	g.setColour(fontColor);
+
+	if (vert)
+	{
+		g.addTransform(AffineTransform::rotation(-M_PI / 2.0));
+		g.drawText(label, 0, -getHeight(), getHeight(), getWidth(), Justification::left, false);
+		g.addTransform(AffineTransform::rotation(M_PI / 2.0));
+	}
+	else
+	{
+		if (showEnabledStatus)
+		{
+			if (isEnabled)
+				g.drawText("[+] " + label, 0, 0, getWidth(), getHeight(), Justification::left, true);
+			else
+				g.drawText("[-] " + label, 0, 0, getWidth(), getHeight(), Justification::left, true);
+		}
+		else
+			g.drawText(label, 0, 0, getWidth(), getHeight(), Justification::centred, true);
+
+	}
+
+}
+
+
+String ColorButton::getLabel()
+{
+	return label;
+}
+
+void ColorButton::setColors(Colour foreground, Colour background)
+{
+	fontColor = foreground;
+	backgroundColor = background;
+}
+
+void ColorButton::setLabel(String label_)
+{
+	label = label_;
+	repaint();
+}

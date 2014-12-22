@@ -96,6 +96,8 @@ OBJECTS := \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
   $(OBJDIR)/ImageIcon_c89b23a6.o \
   $(OBJDIR)/VisualizerEditor_3672b003.o \
+  $(OBJDIR)/NetworkEventsEditor_fd22826.o \
+  $(OBJDIR)/PeriStimulusTimeHistogramEditor_f7323eb0.o \
   $(OBJDIR)/EventDetector_d0f4d00c.o \
   $(OBJDIR)/EventNode_857d5604.o \
   $(OBJDIR)/EventNodeEditor_2652ddd1.o \
@@ -133,6 +135,10 @@ OBJECTS := \
   $(OBJDIR)/OriginalRecording_d6dc3293.o \
   $(OBJDIR)/RecordEngine_97ef83aa.o \
   $(OBJDIR)/RecordNode_cc21a82a.o \
+  $(OBJDIR)/NetworkEvents_5344c99a.o \
+  $(OBJDIR)/PeriStimulusTimeHistogramNode_9631ca2a.o \
+  $(OBJDIR)/tictoc_cdca1ed.o \
+  $(OBJDIR)/TrialCircularBuffer_4a4cef0c.o \
   $(OBJDIR)/ReferenceNode_97454f26.o \
   $(OBJDIR)/ReferenceNodeEditor_7d0ff573.o \
   $(OBJDIR)/ResamplingNode_9825590a.o \
@@ -159,6 +165,7 @@ OBJECTS := \
   $(OBJDIR)/SplitterEditor_93a6dbf7.o \
   $(OBJDIR)/DataWindow_83ce6754.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
+  $(OBJDIR)/MatlabLikePlot_fb09c37f.o \
   $(OBJDIR)/WiFiOutput_416d244a.o \
   $(OBJDIR)/WiFiOutputEditor_ada45f97.o \
   $(OBJDIR)/EcubeDialogComponent_2ec3bd57.o \
@@ -433,6 +440,16 @@ $(OBJDIR)/VisualizerEditor_3672b003.o: ../../Source/Processors/Editors/Visualize
 	@echo "Compiling VisualizerEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/NetworkEventsEditor_fd22826.o: ../../Source/Processors/Editors/NetworkEventsEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling NetworkEventsEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PeriStimulusTimeHistogramEditor_f7323eb0.o: ../../Source/Processors/Editors/PeriStimulusTimeHistogramEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PeriStimulusTimeHistogramEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/EventDetector_d0f4d00c.o: ../../Source/Processors/EventDetector/EventDetector.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventDetector.cpp"
@@ -618,6 +635,26 @@ $(OBJDIR)/RecordNode_cc21a82a.o: ../../Source/Processors/RecordNode/RecordNode.c
 	@echo "Compiling RecordNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/NetworkEvents_5344c99a.o: ../../Source/Processors/NetworkEvents/NetworkEvents.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling NetworkEvents.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PeriStimulusTimeHistogramNode_9631ca2a.o: ../../Source/Processors/PSTH/PeriStimulusTimeHistogramNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PeriStimulusTimeHistogramNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/tictoc_cdca1ed.o: ../../Source/Processors/PSTH/tictoc.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling tictoc.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/TrialCircularBuffer_4a4cef0c.o: ../../Source/Processors/PSTH/TrialCircularBuffer.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling TrialCircularBuffer.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/ReferenceNode_97454f26.o: ../../Source/Processors/ReferenceNode/ReferenceNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ReferenceNode.cpp"
@@ -746,6 +783,11 @@ $(OBJDIR)/DataWindow_83ce6754.o: ../../Source/Processors/Visualization/DataWindo
 $(OBJDIR)/SpikeObject_24e8c655.o: ../../Source/Processors/Visualization/SpikeObject.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SpikeObject.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MatlabLikePlot_fb09c37f.o: ../../Source/Processors/Visualization/MatlabLikePlot.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MatlabLikePlot.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/WiFiOutput_416d244a.o: ../../Source/Processors/WiFiOutput/WiFiOutput.cpp

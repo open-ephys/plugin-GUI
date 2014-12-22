@@ -107,6 +107,12 @@
     <Filter Include="open-ephys\Source\Processors\RecordNode">
       <UniqueIdentifier>{185877A6-9FE6-DD2E-BC41-93EE3C608CFC}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Source\Processors\NetworkEvents">
+      <UniqueIdentifier>{C41A0CBC-4C1C-5AC2-CAED-3EC41B4BAB37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Processors\PSTH">
+      <UniqueIdentifier>{2714D3F1-1A51-5CEC-5EE2-26686D9EEAF8}</UniqueIdentifier>
+    </Filter>
     <Filter Include="open-ephys\Source\Processors\ReferenceNode">
       <UniqueIdentifier>{763A6B4C-B0C6-BA22-7FAB-0DEEF8D66097}</UniqueIdentifier>
     </Filter>
@@ -580,6 +586,12 @@
     <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\NetworkEventsEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\PeriStimulusTimeHistogramEditor.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\EventDetector\EventDetector.cpp">
       <Filter>open-ephys\Source\Processors\EventDetector</Filter>
     </ClCompile>
@@ -691,6 +703,18 @@
     <ClCompile Include="..\..\Source\Processors\RecordNode\RecordNode.cpp">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.cpp">
+      <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.cpp">
+      <Filter>open-ephys\Source\Processors\PSTH</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\PSTH\tictoc.cpp">
+      <Filter>open-ephys\Source\Processors\PSTH</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.cpp">
+      <Filter>open-ephys\Source\Processors\PSTH</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\ReferenceNode\ReferenceNode.cpp">
       <Filter>open-ephys\Source\Processors\ReferenceNode</Filter>
     </ClCompile>
@@ -767,6 +791,9 @@
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\WiFiOutput\WiFiOutput.cpp">
@@ -2199,6 +2226,12 @@
     <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\NetworkEventsEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\PeriStimulusTimeHistogramEditor.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\EventDetector\EventDetector.h">
       <Filter>open-ephys\Source\Processors\EventDetector</Filter>
     </ClInclude>
@@ -2310,6 +2343,18 @@
     <ClInclude Include="..\..\Source\Processors\RecordNode\RecordNode.h">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.h">
+      <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.h">
+      <Filter>open-ephys\Source\Processors\PSTH</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\PSTH\tictoc.h">
+      <Filter>open-ephys\Source\Processors\PSTH</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.h">
+      <Filter>open-ephys\Source\Processors\PSTH</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\ReferenceNode\ReferenceNode.h">
       <Filter>open-ephys\Source\Processors\ReferenceNode</Filter>
     </ClInclude>
@@ -2392,6 +2437,9 @@
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Visualization\MatlabLikePlot.h">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\WiFiOutput\WiFiOutput.h">

@@ -54,10 +54,13 @@
 #include "../Merger/Merger.h"
 #include "../../UI/UIComponent.h"
 #include "../../UI/EditorViewport.h"
+#include "../NetworkEvents/NetworkEvents.h"
+#include "../PSTH/PeriStimulusTimeHistogramNode.h"
 
 ProcessorGraph::ProcessorGraph() : currentNodeId(100)
 {
 
+	createZmqContext();
     // The ProcessorGraph will always have 0 inputs (all content is generated within graph)
     // but it will have N outputs, where N is the number of channels for the audio monitor
     setPlayConfigDetails(0, // number of inputs
@@ -72,6 +75,14 @@ ProcessorGraph::~ProcessorGraph()
 
 }
 
+void* ProcessorGraph::createZmqContext()
+{
+#ifdef ZEROMQ 
+	zmqcontext =  zmq_ctx_new ();
+	return zmqcontext;
+#endif
+	return nullptr;
+}
 void ProcessorGraph::createDefaultNodes()
 {
 
@@ -545,7 +556,12 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             processor = new SerialInput();
             std::cout << "Creating a new serial port input." << std::endl;
-        }
+		}
+		else if (subProcessorType.equalsIgnoreCase("Network Events"))
+		{
+			processor = new NetworkEvents(zmqcontext);
+			std::cout << "Creating a new signal generator." << std::endl;
+		}
 
 
 
@@ -658,7 +674,12 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
             std::cout << "Creating a Pulse Pal output node." << std::endl;
             processor = new PulsePalOutput();
-        }
+		}
+		else if (subProcessorType.equalsIgnoreCase("PSTH"))
+		{
+			std::cout << "Creating a PSTH output node." << std::endl;
+			processor = new PeriStimulusTimeHistogramNode();
+		}
 
         sendActionMessage("New sink created.");
     }
