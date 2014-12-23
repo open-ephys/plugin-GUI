@@ -72,7 +72,7 @@ float FileReader::getDefaultSampleRate()
         return 44100.0;
 }
 
-int FileReader::getDefaultNumOutputs()
+int FileReader::getNumHeadstageOutputs()
 {
     if (input)
         return currentNumChannels;
@@ -80,10 +80,10 @@ int FileReader::getDefaultNumOutputs()
         return 16;
 }
 
-float FileReader::getBitVolts(int chan)
+float FileReader::getBitVolts(Channel* chan)
 {
     if (input)
-        return channelInfo[chan].bitVolts;
+        return chan->bitVolts;
     else
         return 0.05f;
 }
@@ -158,13 +158,13 @@ String FileReader::getFile()
 
 void FileReader::updateSettings()
 {
-    if (!input) return;
+    // if (!input) return;
 
-    for (int i=0; i < currentNumChannels; i++)
-    {
-        channels[i]->bitVolts = channelInfo[i].bitVolts;
-        channels[i]->name = channelInfo[i].name;
-    }
+    // for (int i=0; i < currentNumChannels; i++)
+    // {
+    //     channels[i]->bitVolts = channelInfo[i].bitVolts;
+    //     channels[i]->name = channelInfo[i].name;
+    // }
 }
 
 
