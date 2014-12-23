@@ -30,10 +30,11 @@
 #include "tictoc.h"
 #ifdef WIN32
 #include <windows.h>
+#else
+#include <unistd.h>
 #endif
-//#include <unistd.h>
-TicToc tictoc;
 
+TicToc tictoc;
 
 TrialCircularBufferParams::TrialCircularBufferParams()
 {

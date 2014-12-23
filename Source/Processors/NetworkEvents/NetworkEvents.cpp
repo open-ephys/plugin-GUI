@@ -30,6 +30,8 @@ const int MAX_MESSAGE_LENGTH = 64000;
 
 #ifdef WIN32
 #include <windows.h>
+#else
+#include <unistd.h>
 #endif
 
 StringTS::StringTS()
@@ -159,7 +161,13 @@ void NetworkEvents::setNewListeningPort(int port)
 	// first, close existing thread.
 	disable();
 	// allow some time for thread to quit
+#ifdef WIN32
 	Sleep(300);
+#else
+	usleep(300 * 1000);
+#endif
+
+	
 	urlport = port;
 	opensocket();
 }
