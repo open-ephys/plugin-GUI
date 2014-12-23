@@ -822,7 +822,7 @@ void RHD2000Thread::setDefaultChannelNamesAndType()
     stream.clear();
     gains.clear();
     originalChannelNumber.clear();
-    int aux_counter=1;
+    int aux_counter = 1;
     int channelNumber = 1;
     String oldName;
     int dummy;

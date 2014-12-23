@@ -370,7 +370,7 @@ void GenericProcessor::update()
             //	ch->setName("ADC"+String(1+i-(numChan-numADC_Chan)));
 
             if (i >= numChan-numADC_Chan)
-                ch->setName("ADC"+String(1+i-(numChan-numADC_Chan)));
+                ch->setName("ADC" + String(1+i-(numChan-numADC_Chan)));
 
             if (i >= numChan-numADC_Chan)
 				ch->setType(ADC_CHANNEL);

@@ -142,7 +142,7 @@ void FPGAchannelList::update()
         streamActive[k] = false;
         streamColumn[k] = 0;
     }
-    int columnWidth =330;
+    int columnWidth = 330;
 
     for (int k=0; k<numChannels; k++)
     {
