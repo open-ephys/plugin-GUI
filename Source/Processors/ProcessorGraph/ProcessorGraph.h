@@ -98,7 +98,6 @@ void* zmqcontext;
         RECORD_NODE_ID = 900,
         AUDIO_NODE_ID = 901,
         OUTPUT_NODE_ID = 902,
-        RESAMPLING_NODE_ID = 903,
         MESSAGE_CENTER_ID = 904
     };
 

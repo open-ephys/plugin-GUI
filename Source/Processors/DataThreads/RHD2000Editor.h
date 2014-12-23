@@ -59,8 +59,8 @@ public:
     
     FPGAchannelList(GenericProcessor* proc, Viewport *p, FPGAcanvas*c);
     ~FPGAchannelList();
-    void setNewName(int stream, int channelIndex, channelType t, String newName);
-    void setNewGain(int stream, int channel,channelType t, float gain);
+    void setNewName(int stream, int channelIndex, ChannelType t, String newName);
+    void setNewGain(int stream, int channel, ChannelType t, float gain);
     void disableAll();
     void enableAll();
     void paint(Graphics& g);
@@ -74,7 +74,7 @@ public:
     
 private:
     Array<float> gains;
-    Array<channelType> types;
+    Array<ChannelType> types;
     Array<int> stream;
     Array<int> orig_number;
 
@@ -94,7 +94,7 @@ private:
 class FPGAchannelComponent : public Component, public AccessClass, Button::Listener, public ComboBox::Listener, public Label::Listener
 {
 public:
-    FPGAchannelComponent(FPGAchannelList* cl,int stream, int ch, channelType t,  int gainIndex_, String name_, Array<float> gains_);
+    FPGAchannelComponent(FPGAchannelList* cl,int stream, int ch, ChannelType t,  int gainIndex_, String name_, Array<float> gains_);
     ~FPGAchannelComponent();
     Colour getDefaultColor(int ID);
     void setImpedanceValues(float mag, float phase);
@@ -122,7 +122,7 @@ private:
     int channel;
     String name;
     int stream;
-    channelType type;
+    ChannelType type;
     int gainIndex;
     int userDefinedData;
     Font font;
@@ -146,8 +146,10 @@ public:
 
     void refreshState();
     void update();
-    void setParameter(int, float) ;
-    void setParameter(int, int, int, float) ;
+
+    void setParameter(int, float);
+    void setParameter(int, int, int, float);
+
     void updateImpedance(Array<int> streams, Array<int> channels, Array<float> magnitude, Array<float> phase);
 
     void resized();

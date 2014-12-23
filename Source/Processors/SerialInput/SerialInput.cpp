@@ -90,7 +90,7 @@ bool SerialInput::disable()
 }
 
 
-void SerialInput::process(AudioSampleBuffer&, MidiBuffer& events, int&)
+void SerialInput::process(AudioSampleBuffer&, MidiBuffer& events)
 {
     int bytesAvailable = serial.available();
 

@@ -79,25 +79,31 @@ public:
     /** Stops data transfer.*/
     virtual bool stopAcquisition() = 0;
 
-    /** Returns the number of continuous channels the data source can provide.*/
-    virtual int getNumChannels() = 0;
+    /** Returns the number of continuous headstage channels the data source can provide.*/
+    virtual int getNumHeadstageOutputs() = 0;
+
+    /** Returns the number of continuous aux channels the data source can provide.*/
+    virtual int getNumAuxOutputs() {return 0;}
+
+    /** Returns the number of continuous ADC channels the data source can provide.*/
+    virtual int getNumAdcOutputs() {return 0;}
 
     /** Returns the sample rate of the data source.*/
     virtual float getSampleRate() = 0;
 
     /** Returns the volts per bit of the data source.*/
-    virtual float getBitVolts(int chan) = 0;
+    virtual float getBitVolts(Channel* chan) = 0;
 
     /** Returns the number of event channels of the data source.*/
     virtual int getNumEventChannels()
     {
         return 0;
     }
-    virtual int modifyChannelName(channelType t, int stream, int ch, String newName)
+    virtual int modifyChannelName(ChannelType t, int stream, int ch, String newName)
     {
         return -1;
     }
-    virtual int modifyChannelGain(channelType t, int stream, int ch, float gain)
+    virtual int modifyChannelGain(ChannelType t, int stream, int ch, float gain)
     {
         return -1;
     }
@@ -105,7 +111,7 @@ public:
     {
     }
 
-    virtual void getChannelsInfo(StringArray &Names, Array<channelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
+    virtual void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
     {
     };
     virtual void getEventChannelNames(StringArray &names)

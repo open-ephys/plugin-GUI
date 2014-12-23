@@ -29,6 +29,8 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../Visualization/SpikeObject.h"
 
+#include <map>
+
 //Handy macros for setParameter
 #define boolParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::BOOL)) \
         v = parameter.boolParam.value
@@ -65,8 +67,8 @@ public:
     	2-registerProcessor, addChannel, registerSpikeSource, addspikeelectrode
     	3-configureEngine (which calls setParameter)
     	3-startAcquisition
-	During acquisition:
-		updateTimeStamps
+    During acquisition:
+    	updateTimeStamps
     When recording starts (in the specified order):
     	1-directoryChanged (if needed)
     	2-openFiles
@@ -91,9 +93,10 @@ public:
 
     /** Write continuous data.
     	This method gets the full data buffer, it must query getRecordState for
-    	each registered channel to determine which channels to actually write to disk
+    	each registered channel to determine which channels to actually write to disk.
+        The number of samples to write will be found in the numSamples object.
     */
-    virtual void writeData(AudioSampleBuffer& buffer, int nSamples) = 0;
+    virtual void writeData(AudioSampleBuffer& buffer) = 0;
 
     /** Write a single event to disk.
     */
@@ -127,7 +130,10 @@ public:
 
     /** Called every time a new timestamp event is received
     */
-    virtual void updateTimeStamp(int64 timestamp);
+    void updateTimestamps(std::map<uint8, int64>* timestamps);
+
+    /** Called every time a new numSamples event is received */
+    void updateNumSamples(std::map<uint8, int>* numSamples);
 
     /** Called after all channels and spike groups have been registered,
     	just before acquisition starts
@@ -157,6 +163,9 @@ protected:
     /** Generate a Matlab-compatible datestring
     */
     String generateDateString();
+
+    std::map<uint8, int>* numSamples;
+    std::map<uint8, int64>* timestamps;
 
 private:
     RecordEngineManager* manager;

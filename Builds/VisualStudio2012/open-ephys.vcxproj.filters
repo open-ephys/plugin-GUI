@@ -38,9 +38,6 @@
     <Filter Include="open-ephys\Source\Processors\AudioNode">
       <UniqueIdentifier>{117683A8-B332-1FBB-1FA0-8C6C7D231B69}</UniqueIdentifier>
     </Filter>
-    <Filter Include="open-ephys\Source\Processors\AudioResamplingNode">
-      <UniqueIdentifier>{BB0D2303-17CA-2E39-9765-7A701B2AE2F6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="open-ephys\Source\Processors\Channel">
       <UniqueIdentifier>{7374BFF8-0BFC-382A-1DC3-F4B934CF25BC}</UniqueIdentifier>
     </Filter>
@@ -71,17 +68,11 @@
     <Filter Include="open-ephys\Source\Processors\FilterNode">
       <UniqueIdentifier>{189BB62E-5852-A4F3-AC79-704FAAE02870}</UniqueIdentifier>
     </Filter>
-    <Filter Include="open-ephys\Source\Processors\FPGAOutput">
-      <UniqueIdentifier>{995BE2D8-55CB-BBA8-8155-2EFE5F03F143}</UniqueIdentifier>
-    </Filter>
     <Filter Include="open-ephys\Source\Processors\GenericProcessor">
       <UniqueIdentifier>{223ADE1C-7B16-1075-5D22-4771767BF960}</UniqueIdentifier>
     </Filter>
     <Filter Include="open-ephys\Source\Processors\LfpDisplayNode">
       <UniqueIdentifier>{6F781BCA-7DB6-E933-BDDB-D2EAA51713B0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="open-ephys\Source\Processors\LfpTriggeredAverageNode">
-      <UniqueIdentifier>{1150A21B-5E97-AC73-C141-CEF966829E71}</UniqueIdentifier>
     </Filter>
     <Filter Include="open-ephys\Source\Processors\Merger">
       <UniqueIdentifier>{144C1CD2-E387-1D24-EFF3-C5238BD84182}</UniqueIdentifier>
@@ -145,9 +136,6 @@
     </Filter>
     <Filter Include="open-ephys\Source\Processors\Visualization">
       <UniqueIdentifier>{851942D5-FED6-A7B2-6FAB-C278A247FE7A}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="open-ephys\Source\Processors\WiFiOutput">
-      <UniqueIdentifier>{F733C561-3FBD-E17D-CC23-601836ADF7E6}</UniqueIdentifier>
     </Filter>
     <Filter Include="open-ephys\Source\UI">
       <UniqueIdentifier>{717A0FE3-E079-E4BD-8F50-15A1953825C5}</UniqueIdentifier>
@@ -472,9 +460,6 @@
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioNode.cpp">
       <Filter>open-ephys\Source\Processors\AudioNode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\AudioResamplingNode\AudioResamplingNode.cpp">
-      <Filter>open-ephys\Source\Processors\AudioResamplingNode</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Channel\Channel.cpp">
       <Filter>open-ephys\Source\Processors\Channel</Filter>
     </ClCompile>
@@ -506,12 +491,6 @@
       <Filter>open-ephys\Source\Processors\DataThreads\rhythm-api</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\DataThreads\RHD2000Thread.cpp">
-      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\FileReaderThread.cpp">
-      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\FPGAThread.cpp">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataBuffer.cpp">
@@ -619,12 +598,6 @@
     <ClCompile Include="..\..\Source\Processors\FilterNode\FilterNode.cpp">
       <Filter>open-ephys\Source\Processors\FilterNode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\FPGAOutput\FPGAOutput.cpp">
-      <Filter>open-ephys\Source\Processors\FPGAOutput</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\FPGAOutput\FPGAOutputEditor.cpp">
-      <Filter>open-ephys\Source\Processors\FPGAOutput</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\GenericProcessor\GenericProcessor.cpp">
       <Filter>open-ephys\Source\Processors\GenericProcessor</Filter>
     </ClCompile>
@@ -636,15 +609,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayNode.cpp">
       <Filter>open-ephys\Source\Processors\LfpDisplayNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageCanvas.cpp">
-      <Filter>open-ephys\Source\Processors\LfpTriggeredAverageNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageEditor.cpp">
-      <Filter>open-ephys\Source\Processors\LfpTriggeredAverageNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageNode.cpp">
-      <Filter>open-ephys\Source\Processors\LfpTriggeredAverageNode</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Merger\Merger.cpp">
       <Filter>open-ephys\Source\Processors\Merger</Filter>
@@ -795,12 +759,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\WiFiOutput\WiFiOutput.cpp">
-      <Filter>open-ephys\Source\Processors\WiFiOutput</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\WiFiOutput\WiFiOutputEditor.cpp">
-      <Filter>open-ephys\Source\Processors\WiFiOutput</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UI\EcubeDialogComponent.cpp">
       <Filter>open-ephys\Source\UI</Filter>
@@ -2094,9 +2052,6 @@
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioNode.h">
       <Filter>open-ephys\Source\Processors\AudioNode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\AudioResamplingNode\AudioResamplingNode.h">
-      <Filter>open-ephys\Source\Processors\AudioResamplingNode</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Channel\Channel.h">
       <Filter>open-ephys\Source\Processors\Channel</Filter>
     </ClInclude>
@@ -2128,12 +2083,6 @@
       <Filter>open-ephys\Source\Processors\DataThreads\rhythm-api</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\DataThreads\RHD2000Thread.h">
-      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\FileReaderThread.h">
-      <Filter>open-ephys\Source\Processors\DataThreads</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\FPGAThread.h">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataBuffer.h">
@@ -2259,12 +2208,6 @@
     <ClInclude Include="..\..\Source\Processors\FilterNode\FilterNode.h">
       <Filter>open-ephys\Source\Processors\FilterNode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\FPGAOutput\FPGAOutput.h">
-      <Filter>open-ephys\Source\Processors\FPGAOutput</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\FPGAOutput\FPGAOutputEditor.h">
-      <Filter>open-ephys\Source\Processors\FPGAOutput</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\GenericProcessor\GenericProcessor.h">
       <Filter>open-ephys\Source\Processors\GenericProcessor</Filter>
     </ClInclude>
@@ -2276,15 +2219,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayNode.h">
       <Filter>open-ephys\Source\Processors\LfpDisplayNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageCanvas.h">
-      <Filter>open-ephys\Source\Processors\LfpTriggeredAverageNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageEditor.h">
-      <Filter>open-ephys\Source\Processors\LfpTriggeredAverageNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\LfpTriggeredAverageNode\LfpTriggeredAverageNode.h">
-      <Filter>open-ephys\Source\Processors\LfpTriggeredAverageNode</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Merger\Merger.h">
       <Filter>open-ephys\Source\Processors\Merger</Filter>
@@ -2441,12 +2375,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\MatlabLikePlot.h">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\WiFiOutput\WiFiOutput.h">
-      <Filter>open-ephys\Source\Processors\WiFiOutput</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\WiFiOutput\WiFiOutputEditor.h">
-      <Filter>open-ephys\Source\Processors\WiFiOutput</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\EcubeDialogComponent.h">
       <Filter>open-ephys\Source\UI</Filter>

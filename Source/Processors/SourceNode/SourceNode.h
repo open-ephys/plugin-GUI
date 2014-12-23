@@ -51,19 +51,21 @@ public:
 
     void enabledState(bool t);
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
 
     void setParameter(int parameterIndex, float newValue);
 
     float getSampleRate();
     float getDefaultSampleRate();
-    int getDefaultNumOutputs();
-    float getBitVolts(int chan);
+    int getNumHeadstageOutputs();
+    int getNumAuxOutputs();
+    int getNumAdcOutputs();
+    float getBitVolts(Channel* chan);
 
-    int modifyChannelGain(int stream, int channel,channelType type, float gain, bool updateSignalChain);
-    int modifyChannelName(channelType t, int str, int ch, String newName, bool updateSignalChain);
+    int modifyChannelGain(int stream, int channel,ChannelType type, float gain, bool updateSignalChain);
+    int modifyChannelName(ChannelType t, int str, int ch, String newName, bool updateSignalChain);
 
-    void getChannelsInfo(StringArray &Names, Array<channelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
+    void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
     void setDefaultNamingScheme(int scheme);
     void getEventChannelNames(StringArray &names);
 
@@ -113,11 +115,9 @@ private:
     uint64* eventCodeBuffer;
     int* eventChannelState;
 
-
     int ttlState;
 
     void updateSettings();
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SourceNode);
 

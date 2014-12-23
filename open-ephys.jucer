@@ -296,12 +296,6 @@
           <FILE id="jClaJf" name="AudioNode.cpp" compile="1" resource="0" file="Source/Processors/AudioNode/AudioNode.cpp"/>
           <FILE id="LHkdoG" name="AudioNode.h" compile="0" resource="0" file="Source/Processors/AudioNode/AudioNode.h"/>
         </GROUP>
-        <GROUP id="{ED1C2AFE-2ED9-D835-532A-4D6C558C73E7}" name="AudioResamplingNode">
-          <FILE id="YStaN1" name="AudioResamplingNode.cpp" compile="1" resource="0"
-                file="Source/Processors/AudioResamplingNode/AudioResamplingNode.cpp"/>
-          <FILE id="pnFZDY" name="AudioResamplingNode.h" compile="0" resource="0"
-                file="Source/Processors/AudioResamplingNode/AudioResamplingNode.h"/>
-        </GROUP>
         <GROUP id="{46016F19-8F25-F540-AA1C-D6E87E8D7D31}" name="Channel">
           <FILE id="X3I3e9" name="Channel.cpp" compile="1" resource="0" file="Source/Processors/Channel/Channel.cpp"/>
           <FILE id="IEZGF3" name="Channel.h" compile="0" resource="0" file="Source/Processors/Channel/Channel.h"/>
@@ -346,12 +340,6 @@
                 file="Source/Processors/DataThreads/RHD2000Thread.cpp"/>
           <FILE id="BbYdtBN" name="RHD2000Thread.h" compile="0" resource="0"
                 file="Source/Processors/DataThreads/RHD2000Thread.h"/>
-          <FILE id="xWMgZ8D" name="FileReaderThread.cpp" compile="1" resource="0"
-                file="Source/Processors/DataThreads/FileReaderThread.cpp"/>
-          <FILE id="muolub6" name="FileReaderThread.h" compile="0" resource="0"
-                file="Source/Processors/DataThreads/FileReaderThread.h"/>
-          <FILE id="KEzbFux" name="FPGAThread.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/FPGAThread.cpp"/>
-          <FILE id="6iEndcT" name="FPGAThread.h" compile="0" resource="0" file="Source/Processors/DataThreads/FPGAThread.h"/>
           <FILE id="Qfe0ygk" name="DataBuffer.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/DataBuffer.cpp"/>
           <FILE id="VCRMcQP" name="DataBuffer.h" compile="0" resource="0" file="Source/Processors/DataThreads/DataBuffer.h"/>
           <FILE id="9JbVKlA" name="DataThread.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/DataThread.cpp"/>
@@ -463,14 +451,6 @@
           <FILE id="usXu7Q" name="FilterNode.cpp" compile="1" resource="0" file="Source/Processors/FilterNode/FilterNode.cpp"/>
           <FILE id="qnkW8d" name="FilterNode.h" compile="0" resource="0" file="Source/Processors/FilterNode/FilterNode.h"/>
         </GROUP>
-        <GROUP id="{C47ABFBD-BC30-F6F2-B445-67B11DC5594F}" name="FPGAOutput">
-          <FILE id="DY6GL1" name="FPGAOutput.cpp" compile="1" resource="0" file="Source/Processors/FPGAOutput/FPGAOutput.cpp"/>
-          <FILE id="CdbTqf" name="FPGAOutput.h" compile="0" resource="0" file="Source/Processors/FPGAOutput/FPGAOutput.h"/>
-          <FILE id="tH5H69" name="FPGAOutputEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/FPGAOutput/FPGAOutputEditor.cpp"/>
-          <FILE id="e1ivPs" name="FPGAOutputEditor.h" compile="0" resource="0"
-                file="Source/Processors/FPGAOutput/FPGAOutputEditor.h"/>
-        </GROUP>
         <GROUP id="{95FA3CAF-7BFA-AFF7-4480-EADCCA5FBA66}" name="GenericProcessor">
           <FILE id="l24v5k" name="GenericProcessor.cpp" compile="1" resource="0"
                 file="Source/Processors/GenericProcessor/GenericProcessor.cpp"/>
@@ -490,20 +470,6 @@
                 file="Source/Processors/LfpDisplayNode/LfpDisplayNode.cpp"/>
           <FILE id="rKu45v" name="LfpDisplayNode.h" compile="0" resource="0"
                 file="Source/Processors/LfpDisplayNode/LfpDisplayNode.h"/>
-        </GROUP>
-        <GROUP id="{D20DFFFD-08E8-5CC6-479A-07CECDE9BC86}" name="LfpTriggeredAverageNode">
-          <FILE id="dxKyFx" name="LfpTriggeredAverageCanvas.cpp" compile="1"
-                resource="0" file="Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageCanvas.cpp"/>
-          <FILE id="CMxAvm" name="LfpTriggeredAverageCanvas.h" compile="0" resource="0"
-                file="Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageCanvas.h"/>
-          <FILE id="VhsonN" name="LfpTriggeredAverageEditor.cpp" compile="1"
-                resource="0" file="Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageEditor.cpp"/>
-          <FILE id="jVc0dD" name="LfpTriggeredAverageEditor.h" compile="0" resource="0"
-                file="Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageEditor.h"/>
-          <FILE id="ADrDsi" name="LfpTriggeredAverageNode.cpp" compile="1" resource="0"
-                file="Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageNode.cpp"/>
-          <FILE id="wEt96B" name="LfpTriggeredAverageNode.h" compile="0" resource="0"
-                file="Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageNode.h"/>
         </GROUP>
         <GROUP id="{4B40CAAE-49C7-509A-B7E7-0C7EF011FBA1}" name="Merger">
           <FILE id="gZxAmt" name="Merger.cpp" compile="1" resource="0" file="Source/Processors/Merger/Merger.cpp"/>
@@ -713,14 +679,6 @@
                 file="Source/Processors/Visualization/MatlabLikePlot.cpp"/>
           <FILE id="EH2pAq" name="MatlabLikePlot.h" compile="0" resource="0"
                 file="Source/Processors/Visualization/MatlabLikePlot.h"/>
-        </GROUP>
-        <GROUP id="{3FCFBFDA-848D-6B59-5F37-E3D1F43D54DF}" name="WiFiOutput">
-          <FILE id="OmOeLf" name="WiFiOutput.cpp" compile="1" resource="0" file="Source/Processors/WiFiOutput/WiFiOutput.cpp"/>
-          <FILE id="o3arNv" name="WiFiOutput.h" compile="0" resource="0" file="Source/Processors/WiFiOutput/WiFiOutput.h"/>
-          <FILE id="XSiAk6" name="WiFiOutputEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/WiFiOutput/WiFiOutputEditor.cpp"/>
-          <FILE id="QdKqgJ" name="WiFiOutputEditor.h" compile="0" resource="0"
-                file="Source/Processors/WiFiOutput/WiFiOutputEditor.h"/>
         </GROUP>
       </GROUP>
       <GROUP id="RNGb1yR" name="UI">

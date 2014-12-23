@@ -23,13 +23,9 @@
 
 #include "SourceNode.h"
 #include "../DataThreads/DataBuffer.h"
-//#include "DataThreads/IntanThread.h"
-#include "../DataThreads/FPGAThread.h"
-//#include "../DataThreads/FileReaderThread.h"
 #include "../DataThreads/RHD2000Thread.h"
 #include "../DataThreads/EcubeThread.h" // Added by Michael Borisov
 #include "../SourceNode/SourceNodeEditor.h"
-//#include "../FileReader/FileReaderEditor.h"
 #include "../DataThreads/RHD2000Editor.h"
 #include "../DataThreads/EcubeEditor.h" // Added by Michael Borisov
 #include "../Channel/Channel.h"
@@ -45,15 +41,11 @@ SourceNode::SourceNode(const String& name_)
 
     if (getName().equalsIgnoreCase("RHA2000-EVAL"))
     {
-        // dataThread = new IntanThread(this);o
+        // dataThread = new IntanThread(this); // this thread has not been updated recently
     }
-    else if (getName().equalsIgnoreCase("Custom FPGA"))
-    {
-        dataThread = new FPGAThread(this);
-    }
-    //else if (getName().equalsIgnoreCase("File Reader"))
+   // else if (getName().equalsIgnoreCase("Custom FPGA"))
    // {
-    //    dataThread = new FileReaderThread(this);
+   //     dataThread = new FPGAThread(this);
    // }
     else if (getName().equalsIgnoreCase("Rhythm FPGA"))
     {
@@ -116,13 +108,13 @@ DataThread* SourceNode::getThread()
     return dataThread;
 }
 
-int SourceNode::modifyChannelName(channelType t, int str, int ch, String newName, bool updateSignalChain)
+int SourceNode::modifyChannelName(ChannelType t, int str, int ch, String newName, bool updateSignalChain)
 {
     if (dataThread != 0) {
         int channel_index = dataThread->modifyChannelName(t, str, ch, newName);
         if (channel_index >= 0 && channel_index < channels.size())
         {
-            if (channels[channel_index]->getChannelName() != newName)
+            if (channels[channel_index]->getName() != newName)
             {
                 channels[channel_index]->setName(newName);
                 // propagate this information...
@@ -137,7 +129,7 @@ int SourceNode::modifyChannelName(channelType t, int str, int ch, String newName
     return -1;
 }
 
-int SourceNode::modifyChannelGain(int stream, int channel,channelType type, float gain, bool updateSignalChain)
+int SourceNode::modifyChannelGain(int stream, int channel, ChannelType type, float gain, bool updateSignalChain)
 {
     if (dataThread != 0) 
     {
@@ -147,9 +139,9 @@ int SourceNode::modifyChannelGain(int stream, int channel,channelType type, floa
         if (channel_index >= 0 && channel_index < channels.size())
         {
             // we now need to update the signal chain to propagate this change.....
-            if (channels[channel_index]->getChannelGain() != gain) 
+            if (channels[channel_index]->bitVolts != gain) 
             {
-                channels[channel_index]->setGain(gain);
+                channels[channel_index]->bitVolts = gain;
                 
                 if (updateSignalChain)
                     getEditorViewport()->makeEditorVisible(getEditor(), false, true);
@@ -162,7 +154,7 @@ int SourceNode::modifyChannelGain(int stream, int channel,channelType type, floa
     return -1;
 }
 
-void SourceNode::getChannelsInfo(StringArray &names, Array<channelType> &types, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
+void SourceNode::getChannelsInfo(StringArray &names, Array<ChannelType> &types, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
 {
     if (dataThread != 0)
         dataThread->getChannelsInfo(names, types,stream,originalChannelNumber,gains);
@@ -175,7 +167,7 @@ void SourceNode::setDefaultNamingScheme(int scheme)
         dataThread->setDefaultNamingScheme(scheme);
 
         StringArray names;
-        Array<channelType> types;
+        Array<ChannelType> types;
         Array<int> stream;
         Array<int> originalChannelNumber;
         Array<float> gains;
@@ -204,21 +196,7 @@ void SourceNode::updateSettings()
         std::cout << "Input buffer address is " << inputBuffer << std::endl;
     }
 
-	dataThread->updateChannelNames();
-
-    for (int i = 0; i < dataThread->getNumEventChannels(); i++)
-    {
-        Channel* ch = new Channel(this, i);
-        ch->eventType = TTL;
-        ch->getType() == EVENT_CHANNEL;
-        eventChannels.add(ch);
-    }
-
-   //for (int i = 0; i < channels.size(); i++)
-   // {
-        std::cout << "Channel: " << channels[channels.size()-1]->bitVolts << std::endl;
-    //}
-
+	//dataThread->updateChannelNames();
 
 }
 
@@ -263,15 +241,31 @@ float SourceNode::getDefaultSampleRate()
         return 44100.0;
 }
 
-int SourceNode::getDefaultNumOutputs()
+int SourceNode::getNumHeadstageOutputs()
 {
     if (dataThread != 0)
-        return dataThread->getNumChannels();
+        return dataThread->getNumHeadstageOutputs();
+    else
+        return 2;
+}
+
+int SourceNode::getNumAuxOutputs()
+{
+    if (dataThread != 0)
+        return dataThread->getNumAuxOutputs();
     else
         return 0;
 }
 
-float SourceNode::getBitVolts(int chan)
+int SourceNode::getNumAdcOutputs()
+{
+    if (dataThread != 0)
+        return dataThread->getNumAdcOutputs();
+    else
+        return 0;
+}
+
+float SourceNode::getBitVolts(Channel* chan)
 {
 	if (dataThread != 0)
 		return dataThread->getBitVolts(chan);
@@ -365,6 +359,8 @@ bool SourceNode::enable()
 
     wasDisabled = false;
 
+    stopTimer();
+
     if (dataThread != 0)
     {
         dataThread->startAcquisition();
@@ -374,8 +370,6 @@ bool SourceNode::enable()
     {
         return false;
     }
-
-    stopTimer(); // WARN compiler warning: unreachable code (spotted by Michael Borisov). Probably needs to be removed
 
 }
 
@@ -387,7 +381,7 @@ bool SourceNode::disable()
     if (dataThread != 0)
         dataThread->stopAcquisition();
 
-    startTimer(2000);
+    startTimer(2000); // timer to check for connected source
 
     wasDisabled = true;
 
@@ -413,8 +407,7 @@ void SourceNode::acquisitionStopped()
 
 
 void SourceNode::process(AudioSampleBuffer& buffer,
-                         MidiBuffer& events,
-                         int& nSamples)
+                         MidiBuffer& events)
 {
 
     //std::cout << "SOURCE NODE" << std::endl;
@@ -423,7 +416,10 @@ void SourceNode::process(AudioSampleBuffer& buffer,
     events.clear();
     buffer.clear();
 
-    nSamples = inputBuffer->readAllFromBuffer(buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
+    int nSamples = inputBuffer->readAllFromBuffer(buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
+
+    setNumSamples(events, nSamples);
+    setTimestamp(events, timestamp);
 
     //std::cout << *buffer.getReadPointer(0) << std::endl;
 
@@ -431,18 +427,8 @@ void SourceNode::process(AudioSampleBuffer& buffer,
 
     //std::cout << "Samples per buffer: " << nSamples << std::endl;
 
-    uint8 data[8];
-    memcpy(data, &timestamp, 8);
 
-    // generate timestamp
-    addEvent(events,    // MidiBuffer
-             TIMESTAMP, // eventType
-             0,         // sampleNum
-             nodeId,    // eventID
-             0,		 // eventChannel
-             8,         // numBytes
-             data   // data
-            );
+    
 
     // std::cout << (int) *(data + 7) << " " <<
     //                 (int) *(data + 6) << " " <<

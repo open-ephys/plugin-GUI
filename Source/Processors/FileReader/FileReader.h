@@ -49,7 +49,7 @@ public:
     FileReader();
     ~FileReader();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
     void setParameter(int parameterIndex, float newValue);
 
     AudioProcessorEditor* createEditor();
@@ -71,8 +71,8 @@ public:
     void enabledState(bool t);
 
     float getDefaultSampleRate();
-    int getDefaultNumOutputs();
-    float getBitVolts(int chan);
+    int getNumHeadstageOutputs();
+    float getBitVolts(Channel* ch);
 
     bool setFile(String fullpath);
     String getFile();

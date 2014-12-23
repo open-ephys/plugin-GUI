@@ -68,8 +68,7 @@ bool RecordControl::enable()
 }
 
 void RecordControl::process(AudioSampleBuffer& buffer,
-                            MidiBuffer& events,
-                            int& nSamples)
+                            MidiBuffer& events)
 {
     checkForEvents(events);
 }

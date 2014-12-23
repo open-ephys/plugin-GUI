@@ -72,7 +72,7 @@ float FileReader::getDefaultSampleRate()
         return 44100.0;
 }
 
-int FileReader::getDefaultNumOutputs()
+int FileReader::getNumHeadstageOutputs()
 {
     if (input)
         return currentNumChannels;
@@ -80,7 +80,7 @@ int FileReader::getDefaultNumOutputs()
         return 16;
 }
 
-float FileReader::getBitVolts(int chan)
+float FileReader::getBitVolts(Channel* ch)
 {
     if (input)
         return channelInfo[chan].bitVolts;
@@ -169,41 +169,10 @@ void FileReader::updateSettings()
 
 
 
-void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples)
+void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 {
 
-    uint8 data[8];
-    memcpy(data, &timestamp, 8);
-
-    // generate timestamp
-    addEvent(events,    // MidiBuffer
-             TIMESTAMP, // eventType
-             0,         // sampleNum
-             nodeId,    // eventID
-             0,		 // eventChannel
-             8,         // numBytes
-             data   // data
-            );
-
-    // FIXME: needs to account for the fact that the ratio might not be an exact
-    //        integer value
-
-    // code for testing events:
-    // if (counter > 100)
-    // {
-    //     addEvent(events,    // MidiBuffer
-    //          TTL, // eventType
-    //          0,         // sampleNum
-    //          1,    // eventID
-    //          0      // eventChannel
-    //         );
-    //     counter = 0;
-    // } else {
-    //     counter++;
-
-    // }
-
-
+    setTimestamp(events, timestamp);
 
     int samplesNeeded = (int) float(buffer.getNumSamples()) * (getDefaultSampleRate()/44100.0f);
 
@@ -234,7 +203,9 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSa
 
     timestamp += samplesNeeded;
     static_cast<FileReaderEditor*>(getEditor())->setCurrentTime(samplesToMilliseconds(currentSample));
-    nSamples = samplesNeeded;
+
+    setNumSamples(events, samplesNeeded);//samplesNeeded);
+    setTimestamp(events, timestamp);
 
 }
 

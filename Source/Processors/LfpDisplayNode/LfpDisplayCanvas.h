@@ -86,8 +86,8 @@ public:
     const float getYCoordMean(int chan, int samp);
     const float getYCoordMax(int chan, int samp);
 
-    int screenBufferIndex;
-    int lastScreenBufferIndex;
+    Array<int> screenBufferIndex;
+    Array<int> lastScreenBufferIndex;
 
     void comboBoxChanged(ComboBox* cb);
     void buttonClicked(Button* button);
@@ -98,10 +98,10 @@ public:
     bool keyPressed(const KeyPress& key);
     bool keyPressed(const KeyPress& key, Component* orig);
 
-	channelType getChannelType(int n);
-	channelType getSelectedType();
-	String getTypeName(channelType type);
-	int getRangeStep(channelType type);
+	ChannelType getChannelType(int n);
+	ChannelType getSelectedType();
+	String getTypeName(ChannelType type);
+	int getRangeStep(ChannelType type);
 
 	void setSelectedType(channelType type, bool toggleButton = true);
 
@@ -116,7 +116,7 @@ public:
 
 private:
 
-    float sampleRate;
+    Array<float> sampleRate;
     float timebase;
     float displayGain;
     float timeOffset;
@@ -157,7 +157,7 @@ private:
     StringArray spreads; // option for vertical spacing between channels
     StringArray colorGroupings; // option for coloring every N channels the same
 
-	channelType selectedChannelType;
+	ChannelType selectedChannelType;
 	int selectedVoltageRange[CHANNEL_TYPES];
 	String selectedVoltageRangeValues[CHANNEL_TYPES];
 	float rangeGain[CHANNEL_TYPES];
@@ -176,7 +176,7 @@ private:
     void refreshScreenBuffer();
     void updateScreenBuffer();
 
-    int displayBufferIndex;
+    Array<int> displayBufferIndex;
     int displayBufferSize;
 
 	int scrollBarThickness;
@@ -228,11 +228,11 @@ public:
     void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel) ;
 
 
-    void setRange(float range, channelType type);
+    void setRange(float range, ChannelType type);
 	
 	//Withouth parameters returns selected type
     int getRange();
-	int getRange(channelType type);
+	int getRange(ChannelType type);
 
     void setChannelHeight(int r, bool resetSingle = true);
     int getChannelHeight();
@@ -316,7 +316,7 @@ public:
         return isEnabled;
     }
 
-	channelType getType();
+	ChannelType getType();
 	void updateType();
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
@@ -347,7 +347,7 @@ protected:
     bool canBeInverted;
     bool drawMethod;
 
-	channelType type;
+	ChannelType type;
 	String typeStr;
 
 };

@@ -178,11 +178,11 @@ void Merger::updateSettings()
     {
 
         settings.sampleRate = getDefaultSampleRate();
-        settings.numOutputs = getDefaultNumOutputs();
+        settings.numOutputs = getNumHeadstageOutputs();
 
         for (int i = 0; i < getNumOutputs(); i++)
         {
-            Channel* ch = new Channel(this, i);
+            Channel* ch = new Channel(this, i, HEADSTAGE_CHANNEL);
             ch->sampleRate = getDefaultSampleRate();
             ch->bitVolts = getDefaultBitVolts();
 

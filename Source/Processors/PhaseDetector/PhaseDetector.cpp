@@ -167,8 +167,7 @@ void PhaseDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
 }
 
 void PhaseDetector::process(AudioSampleBuffer& buffer,
-                            MidiBuffer& events,
-                            int& nSamples)
+                            MidiBuffer& events)
 {
 
     checkForEvents(events);
@@ -184,7 +183,7 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
             module.inputChan < buffer.getNumChannels())
         {
 
-            for (int i = 0; i < nSamples; i++)
+            for (int i = 0; i < getNumSamples(channels[module.inputChan]->sourceNodeId); i++)
             {
                 const float sample = *buffer.getReadPointer(module.inputChan, i);
 

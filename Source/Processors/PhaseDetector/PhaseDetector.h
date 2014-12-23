@@ -46,7 +46,7 @@ public:
     PhaseDetector();
     ~PhaseDetector();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
     void setParameter(int parameterIndex, float newValue);
 
     AudioProcessorEditor* createEditor();

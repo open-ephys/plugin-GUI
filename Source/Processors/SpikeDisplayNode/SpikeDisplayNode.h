@@ -56,7 +56,7 @@ public:
         return true;
     }
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
 
     void setParameter(int, float);
 

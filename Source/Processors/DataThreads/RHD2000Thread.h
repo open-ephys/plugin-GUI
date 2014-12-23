@@ -58,12 +58,17 @@ public:
     RHD2000Thread(SourceNode* sn);
     ~RHD2000Thread();
 
+    // for communication with SourceNode processors:
     bool foundInputSource();
     int getNumChannels();
+    int getNumHeadstageOutputs();
+    int getNumAuxOutputs();
+    int getNumAdcOutputs();
     float getSampleRate();
-    float getBitVolts(int chan);
-    float getADCBitVolts(int chan);
+    float getBitVolts(Channel* chan);
+    float getAdcBitVolts(int channelNum);
 
+    // for internal use:
     bool isHeadstageEnabled(int hsNum);
 
     bool enableHeadstage(int hsNum, bool enabled);
@@ -98,16 +103,15 @@ public:
                                                const std::vector<double> &data, int startIndex,
                                                int endIndex, double sampleRate, double frequency);
     int getNumEventChannels();
-    int getNumADCchannels();
 
     void assignAudioOut(int dacChannel, int dataChannel);
     void enableAdcs(bool);
 
     bool isAcquisitionActive();
     
-    virtual int modifyChannelGain(channelType t, int str, int ch, float gain);
-    virtual int modifyChannelName(channelType t, int str, int k, String newName);
-    virtual void getChannelsInfo(StringArray &Names, Array<channelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
+    virtual int modifyChannelGain(ChannelType t, int str, int ch, float gain);
+    virtual int modifyChannelName(ChannelType t, int str, int k, String newName);
+    virtual void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
     virtual void getEventChannelNames(StringArray &Names);
     void updateChannelNames();
     Array<int> getDACchannels();
@@ -119,7 +123,7 @@ public:
 
 private:
     void setDefaultChannelNamesAndType();
-    bool channelModified(channelType t, int str, int k, String &oldName, float &oldGain, int &index);
+    bool channelModified(ChannelType t, int str, int k, String &oldName, float &oldGain, int &index);
 
     ScopedPointer<Rhd2000EvalBoard> evalBoard;
     Rhd2000Registers chipRegisters;
@@ -188,8 +192,9 @@ private:
     // used for data stream names...
     int numberingScheme ;
     StringArray Names, oldNames;
-    Array<channelType> type, oldType;
+    Array<ChannelType> type, oldType;
     Array<float> gains, oldGains;
+    Array<float> adcBitVolts;
     Array<int> stream, oldStream;
     Array<bool> modifiedName, oldModifiedName;
     Array<int> originalChannelNumber, oldChannelNumber;

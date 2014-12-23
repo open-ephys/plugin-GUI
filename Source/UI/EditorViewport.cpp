@@ -1379,6 +1379,7 @@ const String EditorViewport::saveState(File fileToUse)
 
     getControlPanel()->saveStateToXml(xml); // save the control panel settings
     getProcessorList()->saveStateToXml(xml);
+	getMessageCenter()->saveStateToXml(xml);
     getUIComponent()->saveStateToXml(xml);  // save the UI settings
 
     if (! xml->writeToFile(currentFile, String::empty))
@@ -1586,6 +1587,7 @@ const String EditorViewport::loadState(File fileToLoad)
 
     getControlPanel()->loadStateFromXml(xml); // save the control panel settings
     getProcessorList()->loadStateFromXml(xml);
+	getMessageCenter()->loadStateFromXml(xml);
     getUIComponent()->loadStateFromXml(xml);  // save the UI settings
 
     if (editorArray.size() > 0)

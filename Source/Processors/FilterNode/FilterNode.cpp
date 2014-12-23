@@ -207,7 +207,7 @@ void FilterNode::setFilterParameters(double lowCut, double highCut, int chan)
 {
 
     Dsp::Params params;
-    params[0] = getSampleRate(); // sample rate
+    params[0] = channels[chan]->sampleRate; // sample rate
     params[1] = 2; // order
     params[2] = (highCut + lowCut)/2; // center frequency
     params[3] = highCut - lowCut; // bandwidth
@@ -261,8 +261,7 @@ void FilterNode::setParameter(int parameterIndex, float newValue)
 }
 
 void FilterNode::process(AudioSampleBuffer& buffer,
-                         MidiBuffer& midiMessages,
-                         int& nSamples)
+                         MidiBuffer& midiMessages)
 {
 
     for (int n = 0; n < getNumOutputs(); n++)
@@ -270,7 +269,7 @@ void FilterNode::process(AudioSampleBuffer& buffer,
         if (shouldFilterChannel[n])
         {
             float* ptr = buffer.getWritePointer(n);
-            filters[n]->process(nSamples, &ptr);
+            filters[n]->process(getNumSamples(n), &ptr);
         }
     }
 

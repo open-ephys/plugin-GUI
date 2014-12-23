@@ -28,6 +28,7 @@
 
 #include "RecordEngine.h"
 #include <stdio.h>
+#include <map>
 
 #define HEADER_SIZE 1024
 #define BLOCK_LENGTH 1024
@@ -48,11 +49,11 @@ public:
     String getEngineID();
     void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
     void closeFiles();
-    void writeData(AudioSampleBuffer& buffer, int nSamples);
+    void writeData(AudioSampleBuffer& buffer);
     void writeEvent(int eventType, MidiMessage& event, int samplePosition);
     void addChannel(int index, Channel* chan);
     void resetChannels();
-    void updateTimeStamp(int64 timestamp);
+    //void updateTimeStamp(int64 timestamp);
     void addSpikeElectrode(int index, SpikeRecordInfo* elec);
     void writeSpike(const SpikeObject& spike, int electrodeIndex);
 
@@ -63,7 +64,7 @@ private:
     void openFile(File rootFolder, Channel* ch);
     String generateHeader(Channel* ch);
     void writeContinuousBuffer(const float* data, int nSamples, int channel);
-    void writeTimestampAndSampleCount(FILE* file);
+    void writeTimestampAndSampleCount(FILE* file, int channel);
     void writeRecordMarker(FILE* file);
 
     void openSpikeFile(File rootFolder, SpikeRecordInfo* elec);
@@ -73,10 +74,11 @@ private:
     void writeTTLEvent(MidiMessage& event, int samplePosition);
     void writeMessage(MidiMessage& event, int samplePosition);
 
-	void writeXml();
+    void writeXml();
 
     bool separateFiles;
-    int blockIndex;
+    Array<int> blockIndex;
+    Array<int> samplesSinceLastTimestamp;
     int recordingNumber;
     int experimentNumber;
 
@@ -94,31 +96,32 @@ private:
     char* recordMarker;
 
     AudioSampleBuffer zeroBuffer;
-    int64 timestamp;
 
     FILE* eventFile;
     FILE* messageFile;
     Array<FILE*> fileArray;
     Array<FILE*> spikeFileArray;
-	
+
     CriticalSection diskWriteLock;
 
-	struct ChannelInfo {
-		String name;
-		String filename;
-		float bitVolts;
-		long int startPos;
-	};
-	struct ProcInfo {
-		int id;
-		float sampleRate;
-		OwnedArray<ChannelInfo> channels;
-	};
+    struct ChannelInfo
+    {
+        String name;
+        String filename;
+        float bitVolts;
+        long int startPos;
+    };
+    struct ProcInfo
+    {
+        int id;
+        float sampleRate;
+        OwnedArray<ChannelInfo> channels;
+    };
 
-	OwnedArray<ProcInfo> processorArray;
-	int lastProcId;
-	String recordPath;
-	int64 startTimestamp;
+    OwnedArray<ProcInfo> processorArray;
+    int lastProcId;
+    String recordPath;
+    int64 startTimestamp;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OriginalRecording);
 };

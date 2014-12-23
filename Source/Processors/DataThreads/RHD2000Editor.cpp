@@ -165,7 +165,7 @@ void FPGAchannelList::update()
     streamNames.add("Port D2");
     streamNames.add("ADC");
 
-    for (int k=0; k<MAX_NUM_DATA_STREAMS+1; k++)
+    for (int k = 0; k < MAX_NUM_DATA_STREAMS + 1; k++)
     {
         if (streamActive[k])
         {
@@ -181,12 +181,12 @@ void FPGAchannelList::update()
 
     }
 
-    // add buttons for all DATA,AUX,channels
-    for (int k=0; k<numChannels; k++)
+    // add buttons for all DATA, AUX, channels
+    for (int k = 0; k < numChannels; k++)
     {
         int channelGainIndex = 1;
-		float ch_gain = oldgains[k]/static_cast<SourceNode*>(proc)->getBitVolts(k);
-        for (int j=0; j<gains.size(); j++)
+		float ch_gain = 1.0f; ///%oldgains[k]/static_cast<SourceNode*>(proc)->getBitVolts(k);
+        for (int j = 0; j < gains.size(); j++)
         {
             if (fabs(gains[j]-ch_gain) < 1e-3)
             {
@@ -244,7 +244,7 @@ void FPGAchannelList::enableAll()
 
 }
 
-void FPGAchannelList::setNewGain(int stream, int channel, channelType type, float gain)
+void FPGAchannelList::setNewGain(int stream, int channel, ChannelType type, float gain)
 {
     float newGain;
 	int realChan;
@@ -258,11 +258,11 @@ void FPGAchannelList::setNewGain(int stream, int channel, channelType type, floa
 	{
 		realChan = channel;
 	}
-	newGain = p->getBitVolts(realChan)*gain;
+	//newGain = p->getBitVolts(realChan)*gain;
     p->modifyChannelGain(stream, channel, type, newGain, true);
 }
 
-void FPGAchannelList::setNewName(int stream, int channelIndex, channelType t, String newName)
+void FPGAchannelList::setNewName(int stream, int channelIndex, ChannelType t, String newName)
 {
     proc->modifyChannelName(t, stream, channelIndex, newName, true);
 }
@@ -301,7 +301,7 @@ void FPGAchannelList::updateImpedance(Array<int> streams, Array<int> channels, A
     {
         for (int j=k; j<stream.size(); j++)
         {
-            if (stream[j] == streams[k] && types[j] == DATA_CHANNEL && orig_number[j] == channels[k])
+            if (stream[j] == streams[k] && types[j] == HEADSTAGE_CHANNEL && orig_number[j] == channels[k])
             {
                 channelComponents[j]->setImpedanceValues(magnitude[k],phase[k]);
                 break;
@@ -314,7 +314,7 @@ void FPGAchannelList::updateImpedance(Array<int> streams, Array<int> channels, A
 
 
 /****************************************************/
-FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int stream_, int ch, channelType t, int gainIndex_, String N, Array<float> gains_) :   gains(gains_), channelList(cl), channel(ch), name(N), stream(stream_), type(t), gainIndex(gainIndex_)
+FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int stream_, int ch, ChannelType t, int gainIndex_, String N, Array<float> gains_) :   gains(gains_), channelList(cl), channel(ch), name(N), stream(stream_), type(t), gainIndex(gainIndex_)
 {
     Font f = Font("Small Text", 13, Font::plain);
 
@@ -353,7 +353,7 @@ FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int stream_, int
         gainComboBox = nullptr;
     }
 
-    if (type == DATA_CHANNEL)
+    if (type == HEADSTAGE_CHANNEL)
     {
         impedance = new Label("Impedance","? Ohm");
         impedance->setFont(Font("Default", 13, Font::plain));

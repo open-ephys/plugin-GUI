@@ -30,6 +30,7 @@
 
 #include "../GenericProcessor/GenericProcessor.h"
 #include "AudioEditor.h"
+#include "../Dsp/Dsp.h"
 
 #include "../Channel/Channel.h"
 
@@ -67,7 +68,7 @@ public:
   void setRelease(float);
   void reset();
 
-  void process(float* leftChan, float* rightChan, int numSamples);
+  void process(float* sampleData, int numSamples);
 
 private:
     float   threshold;
@@ -88,7 +89,7 @@ public:
 
     /** Handle incoming data and decide which channels to monitor
     */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
 
     /** Used to change audio monitoring parameters (such as channels to monitor and volume) while acquisition is active.
     */
@@ -119,7 +120,12 @@ public:
 
     void prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock);
 
+    void updateFilter(int i);
+
+	bool enable();
+
 private:
+	void recreateBuffers();
 
     Array<int> leftChan;
     Array<int> rightChan;
@@ -129,17 +135,29 @@ private:
     /** An array of pointers to the channels that feed into the AudioNode. */
     Array<Channel*> channelPointers;
 
-    AudioSampleBuffer bufferA;
-    AudioSampleBuffer bufferB;
+    OwnedArray<AudioSampleBuffer> bufferA;
+    OwnedArray<AudioSampleBuffer> bufferB;
 
-    int numSamplesExpected;
+    Array<int> numSamplesExpected;
 
-    int samplesInBackupBuffer;
-    int samplesInOverflowBuffer;
+    Array<int> samplesInBackupBuffer;
+    Array<int> samplesInOverflowBuffer;
+    Array<double> sourceBufferSampleRate;
+    double destBufferSampleRate;
+	int estimatedSamples;
 
-    bool bufferSwap;
+    Array<bool> bufferSwap;
 
     Expander expander;
+
+    // sample rate, timebase, and ratio info:
+    Array<double> ratio;
+
+    // major objects:
+    OwnedArray<Dsp::Filter> filters;
+
+    // Temporary buffer for data
+    ScopedPointer<AudioSampleBuffer> tempBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioNode);
 
