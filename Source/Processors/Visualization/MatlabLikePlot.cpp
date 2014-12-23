@@ -76,11 +76,11 @@ MatlabLikePlot::MatlabLikePlot()
 
 	activateButton->setVisible(false);
 
-	autoRescaleButton->setToggleState(true,true);
-	panButton->setToggleState(false,false);
-	dcRemoveButton->setToggleState(false,true);
-	zoomButton->setToggleState(true,false);
-	boundsButton->setToggleState(false,true);
+	autoRescaleButton->setToggleState(true, sendNotification);
+	panButton->setToggleState(false, dontSendNotification);
+	dcRemoveButton->setToggleState(false, sendNotification);
+	zoomButton->setToggleState(true, dontSendNotification);
+	boundsButton->setToggleState(false, sendNotification);
 	//ScopedPointer<UtilityButton> zoomButton, panButton, verticalShiftButton, , frequencyButton;
 
 	setRange(xmin,xmax,ymin,ymax,false);
@@ -111,10 +111,10 @@ void MatlabLikePlot::setMode(DrawComponentMode mode)
 {
 	if (mode == DrawComponentMode::ZOOM)
 	{
-		zoomButton->setToggleState(true,true);
+		zoomButton->setToggleState(true, sendNotification);
 	} else if (mode == DrawComponentMode::PAN)
 	{
-		panButton->setToggleState(true,true);
+		panButton->setToggleState(true, sendNotification);
 	}
 }
 
@@ -128,7 +128,7 @@ MatlabLikePlot::~MatlabLikePlot()
 void MatlabLikePlot::setActivateButtonVisiblilty(bool vis, int id)
 {
 	activateButton->setVisible(vis);
-	activateButton->setToggleState(id > 0,false);
+	activateButton->setToggleState(id > 0, dontSendNotification);
 	if (id > 0)
 		activateButton->setLabel(String(id));
 	else
@@ -194,28 +194,28 @@ void MatlabLikePlot::buttonClicked(Button *btn)
 	bool prevState = btn->getToggleState();
 	if (btn == zoomButton)
 	{
-		zoomButton->setToggleState(!prevState,false);
-		panButton->setToggleState(false,false);
+		zoomButton->setToggleState(!prevState, dontSendNotification);
+		panButton->setToggleState(false, dontSendNotification);
 		drawComponent->setMode(ZOOM);
 	} else if  (btn == autoRescaleButton)
 	{
-		btn->setToggleState(!prevState,false);
+		btn->setToggleState(!prevState, dontSendNotification);
 		drawComponent->setAutoRescale(!prevState);
 	} else if (btn == panButton)
 	{
-		btn->setToggleState(!prevState,false);
+		btn->setToggleState(!prevState, dontSendNotification);
 		drawComponent->setMode(PAN);
-		zoomButton->setToggleState(false,false);
+		zoomButton->setToggleState(false, dontSendNotification);
 	}  else if (btn == dcRemoveButton)
 	{
-		btn->setToggleState(!prevState,false);
+		btn->setToggleState(!prevState, dontSendNotification);
 	}  else if (btn == boundsButton)
 	{
-		btn->setToggleState(!prevState,false);
+		btn->setToggleState(!prevState, dontSendNotification);
 		drawComponent->setShowBounds(!prevState);
 	} else if (btn == activateButton)
 	{
-		btn->setToggleState(!prevState,false);
+		btn->setToggleState(!prevState, dontSendNotification);
 		if (!prevState)
 			addEvent("StartInterval");
 		else

@@ -94,9 +94,9 @@ PeriStimulusTimeHistogramEditor::PeriStimulusTimeHistogramEditor(GenericProcesso
 		hardwareTrialAlignment->addItem("TTL "+String(k+1),k+2);
 	}
 	if (TTLchannelTrialAlignment == -1)
-		hardwareTrialAlignment->setSelectedId(1, true);
+		hardwareTrialAlignment->setSelectedId(1, sendNotification);
 	else 
-		hardwareTrialAlignment->setSelectedId(TTLchannelTrialAlignment+2, true);
+		hardwareTrialAlignment->setSelectedId(TTLchannelTrialAlignment+2, sendNotification);
 
 	addAndMakeVisible(hardwareTrialAlignment);
 
@@ -440,7 +440,7 @@ PeriStimulusTimeHistogramCanvas::PeriStimulusTimeHistogramCanvas(PeriStimulusTim
 	panButton = new UtilityButton("Pan",Font("Default", 15, Font::plain));
 	panButton->addListener(this);
 	panButton->setColour(Label::textColourId, Colours::white);
-	panButton->setToggleState(true,false);
+	panButton->setToggleState(true, dontSendNotification);
 
 	addAndMakeVisible(panButton);
 	resetAxesButton = new UtilityButton("Reset Axes",Font("Default", 15, Font::plain));
@@ -477,16 +477,16 @@ void PeriStimulusTimeHistogramCanvas::buttonClicked(Button* button)
 		processor->trialCircularBuffer->clearAll();
 	} else if (button == zoomButton)
 	{
-		zoomButton->setToggleState(true,false);
-		panButton->setToggleState(false,false);
+		zoomButton->setToggleState(true, dontSendNotification);
+		panButton->setToggleState(false, dontSendNotification);
 		for (int k=0;k<psthDisplay->psthPlots.size();k++)
 		{
 			psthDisplay->psthPlots[k]->setMode(ZOOM);
 		}
 	} else if (button == panButton)
 	{
-		zoomButton->setToggleState(false,false);
-		panButton->setToggleState(true,false);
+		zoomButton->setToggleState(false, dontSendNotification);
+		panButton->setToggleState(true, dontSendNotification);
 		for (int k=0;k<psthDisplay->psthPlots.size();k++)
 		{
 			psthDisplay->psthPlots[k]->setMode(PAN);
