@@ -104,9 +104,6 @@
     <Filter Include="open-ephys\Source\Processors\PSTH">
       <UniqueIdentifier>{2714D3F1-1A51-5CEC-5EE2-26686D9EEAF8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="open-ephys\Source\Processors\ReferenceNode">
-      <UniqueIdentifier>{763A6B4C-B0C6-BA22-7FAB-0DEEF8D66097}</UniqueIdentifier>
-    </Filter>
     <Filter Include="open-ephys\Source\Processors\ResamplingNode">
       <UniqueIdentifier>{3135385A-1E61-FB08-3E00-D5C52DFB1BC9}</UniqueIdentifier>
     </Filter>
@@ -678,12 +675,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.cpp">
       <Filter>open-ephys\Source\Processors\PSTH</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\ReferenceNode\ReferenceNode.cpp">
-      <Filter>open-ephys\Source\Processors\ReferenceNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\ReferenceNode\ReferenceNodeEditor.cpp">
-      <Filter>open-ephys\Source\Processors\ReferenceNode</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\ResamplingNode\ResamplingNode.cpp">
       <Filter>open-ephys\Source\Processors\ResamplingNode</Filter>
@@ -2288,12 +2279,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.h">
       <Filter>open-ephys\Source\Processors\PSTH</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\ReferenceNode\ReferenceNode.h">
-      <Filter>open-ephys\Source\Processors\ReferenceNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\ReferenceNode\ReferenceNodeEditor.h">
-      <Filter>open-ephys\Source\Processors\ReferenceNode</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\ResamplingNode\ResamplingNode.h">
       <Filter>open-ephys\Source\Processors\ResamplingNode</Filter>

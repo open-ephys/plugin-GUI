@@ -157,7 +157,7 @@ void PeriStimulusTimeHistogramNode::toggleConditionVisibility(int cond)
 	}
 }
 
-void PeriStimulusTimeHistogramNode::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples)
+void PeriStimulusTimeHistogramNode::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 {
 	//printf("Entering PeriStimulusTimeHistogramNode::process\n");
 	// Update internal statistics 
@@ -169,7 +169,7 @@ void PeriStimulusTimeHistogramNode::process(AudioSampleBuffer& buffer, MidiBuffe
 		syncInternalDataStructuresWithSpikeSorter();	
 	} else if (trialCircularBuffer != nullptr)
 	{
-		trialCircularBuffer->process(buffer,nSamples,hardware_timestamp,software_timestamp);
+		trialCircularBuffer->process(buffer,getNumSamples(0),hardware_timestamp,software_timestamp);
 	}
 
 
@@ -534,7 +534,7 @@ String PeriStimulusTimeHistogramNode::generateHeader()
     header += "header.bitVolts = ";
 	if (recordNode->channels.size() > 0)
 	{
-		header += String(recordNode->channels[0]->getChannelGain());
+		header += String(recordNode->channels[0]->bitVolts);
 	}
 	else
 	{

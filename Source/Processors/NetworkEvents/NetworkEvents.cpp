@@ -269,7 +269,7 @@ void NetworkEvents::postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& e
 			 (uint8) NETWORK,
 			 0,
 			 0,
-			 (uint8) GENERIC_EVENT,
+			 0,
 			 (uint8) s.len+8,
 			 msg_with_ts);
 
@@ -380,8 +380,7 @@ String NetworkEvents::handleSpecialMessages(StringTS msg)
 }
 
 void NetworkEvents::process(AudioSampleBuffer& buffer,
-							MidiBuffer& events,
-							int& nSamples)
+							MidiBuffer& events)
 {
 
 	//std::cout << "NETWORK NODE" << std::endl;
@@ -399,8 +398,7 @@ void NetworkEvents::process(AudioSampleBuffer& buffer,
 		     networkMessagesQueue.pop();
 	 }
 	 lock.exit();
-	 nSamples = -10; // make sure this is not processed;
-	//printf("Exitting NetworkEvents::process\n");	
+
 }
 
 

@@ -753,7 +753,7 @@ int RHD2000Thread::modifyChannelName(ChannelType t, int str, int ch, String newN
     return -1;
 }
 
-String RHD2000Thread::getChannelName(channelType t, int str, int ch)
+String RHD2000Thread::getChannelName(ChannelType t, int str, int ch)
 {
 	for (int k=0; k<Names.size(); k++)
     {
@@ -764,7 +764,7 @@ String RHD2000Thread::getChannelName(channelType t, int str, int ch)
     }
 }
 
-int RHD2000Thread::modifyChannelGain(channelType t, int str, int ch, float gain)
+int RHD2000Thread::modifyChannelGain(ChannelType t, int str, int ch, float gain)
 {
     String dummy;
     float dummyFloat = 0;

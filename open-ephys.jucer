@@ -568,15 +568,6 @@
           <FILE id="fDpocU" name="TrialCircularBuffer.h" compile="0" resource="0"
                 file="Source/Processors/PSTH/TrialCircularBuffer.h"/>
         </GROUP>
-        <GROUP id="{B0C14DBE-8CC1-F242-3534-1DFBEAC5E43B}" name="ReferenceNode">
-          <FILE id="F7WTBV" name="ReferenceNode.cpp" compile="1" resource="0"
-                file="Source/Processors/ReferenceNode/ReferenceNode.cpp"/>
-          <FILE id="XyYPUn" name="ReferenceNode.h" compile="0" resource="0" file="Source/Processors/ReferenceNode/ReferenceNode.h"/>
-          <FILE id="tsfK4e" name="ReferenceNodeEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/ReferenceNode/ReferenceNodeEditor.cpp"/>
-          <FILE id="virGvM" name="ReferenceNodeEditor.h" compile="0" resource="0"
-                file="Source/Processors/ReferenceNode/ReferenceNodeEditor.h"/>
-        </GROUP>
         <GROUP id="{C6F1F354-C97E-128E-9C4E-2376E039F233}" name="ResamplingNode">
           <FILE id="yIwQ4b" name="ResamplingNode.cpp" compile="1" resource="0"
                 file="Source/Processors/ResamplingNode/ResamplingNode.cpp"/>

@@ -347,8 +347,6 @@
     <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PSTH\tictoc.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\ReferenceNode\ReferenceNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\ReferenceNode\ReferenceNodeEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ResamplingNode\ResamplingNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ResamplingNode\ResamplingNodeEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Serial\PulsePal.cpp"/>
@@ -1598,8 +1596,6 @@
     <ClInclude Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.h"/>
     <ClInclude Include="..\..\Source\Processors\PSTH\tictoc.h"/>
     <ClInclude Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.h"/>
-    <ClInclude Include="..\..\Source\Processors\ReferenceNode\ReferenceNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\ReferenceNode\ReferenceNodeEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\ResamplingNode\ResamplingNode.h"/>
     <ClInclude Include="..\..\Source\Processors\ResamplingNode\ResamplingNodeEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Serial\PulsePal.h"/>

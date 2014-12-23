@@ -64,8 +64,8 @@ public:
     void setParameter(int, float);
     void setParameter(int, int, int, float) {}
 
-	void setRangeSelection(float range, bool canvasMustUpdate = false); // set range selection combo box to correct value if it has been changed by scolling etc.
-	void setSpreadSelection(int spread, bool canvasMustUpdate = false); // set spread selection combo box to correct value if it has been changed by scolling etc.
+    void setRangeSelection(float range, bool canvasMustUpdate = false); // set range selection combo box to correct value if it has been changed by scolling etc.
+    void setSpreadSelection(int spread, bool canvasMustUpdate = false); // set spread selection combo box to correct value if it has been changed by scolling etc.
 
     void paint(Graphics& g);
 
@@ -98,12 +98,12 @@ public:
     bool keyPressed(const KeyPress& key);
     bool keyPressed(const KeyPress& key, Component* orig);
 
-	ChannelType getChannelType(int n);
-	ChannelType getSelectedType();
-	String getTypeName(ChannelType type);
-	int getRangeStep(ChannelType type);
+    ChannelType getChannelType(int n);
+    ChannelType getSelectedType();
+    String getTypeName(ChannelType type);
+    int getRangeStep(ChannelType type);
 
-	void setSelectedType(channelType type, bool toggleButton = true);
+    void setSelectedType(ChannelType type, bool toggleButton = true);
 
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
@@ -112,7 +112,7 @@ public:
 
     Array<bool> isChannelEnabled;
 
-	int nChans;
+    int nChans;
 
 private:
 
@@ -123,7 +123,7 @@ private:
     //int spread ; // vertical spacing between channels
 
 
-    static const int MAX_N_CHAN = 1028;  // maximum number of channels
+    static const int MAX_N_CHAN = 2048;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
@@ -150,26 +150,26 @@ private:
     ScopedPointer<UtilityButton> invertInputButton;
     ScopedPointer<UtilityButton> drawMethodButton;
     ScopedPointer<UtilityButton> pauseButton;
-	OwnedArray<UtilityButton> typeButtons;
+    OwnedArray<UtilityButton> typeButtons;
 
     StringArray voltageRanges[CHANNEL_TYPES];
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
     StringArray colorGroupings; // option for coloring every N channels the same
 
-	ChannelType selectedChannelType;
-	int selectedVoltageRange[CHANNEL_TYPES];
-	String selectedVoltageRangeValues[CHANNEL_TYPES];
-	float rangeGain[CHANNEL_TYPES];
-	StringArray rangeUnits;
-	StringArray typeNames;
-	int rangeSteps[CHANNEL_TYPES];
+    ChannelType selectedChannelType;
+    int selectedVoltageRange[CHANNEL_TYPES];
+    String selectedVoltageRangeValues[CHANNEL_TYPES];
+    float rangeGain[CHANNEL_TYPES];
+    StringArray rangeUnits;
+    StringArray typeNames;
+    int rangeSteps[CHANNEL_TYPES];
 
-	int selectedSpread;
-	String selectedSpreadValue;
+    int selectedSpread;
+    String selectedSpreadValue;
 
-	int selectedTimebase;
-	String selectedTimebaseValue;
+    int selectedTimebase;
+    String selectedTimebaseValue;
 
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
 
@@ -179,7 +179,7 @@ private:
     Array<int> displayBufferIndex;
     int displayBufferSize;
 
-	int scrollBarThickness;
+    int scrollBarThickness;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
 
@@ -229,10 +229,10 @@ public:
 
 
     void setRange(float range, ChannelType type);
-	
-	//Withouth parameters returns selected type
+    
+    //Withouth parameters returns selected type
     int getRange();
-	int getRange(ChannelType type);
+    int getRange(ChannelType type);
 
     void setChannelHeight(int r, bool resetSingle = true);
     int getChannelHeight();
@@ -251,7 +251,7 @@ public:
     bool getEnabledState(int);
     void enableChannel(bool, int);
 
-	bool getSingleChannelState();
+    bool getSingleChannelState();
 
     Array<Colour> channelColours;
 
@@ -262,9 +262,8 @@ public:
     bool isPaused; // simple pause function, skips screen bufer updates
 
 private:
-	void toggleSingleChannel(int chan);
-	int singleChan;
-	Array<bool> savedChannelState;
+    void toggleSingleChannel(int chan);
+    int singleChan;
 
     int numChans;
 
@@ -290,7 +289,8 @@ public:
 
     void select();
     void deselect();
-	bool getSelected();
+
+    bool getSelected();
 
     void setName(String);
 
@@ -316,8 +316,8 @@ public:
         return isEnabled;
     }
 
-	ChannelType getType();
-	void updateType();
+    ChannelType getType();
+    void updateType();
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
@@ -347,8 +347,8 @@ protected:
     bool canBeInverted;
     bool drawMethod;
 
-	ChannelType type;
-	String typeStr;
+    ChannelType type;
+    String typeStr;
 
 };
 
@@ -365,7 +365,7 @@ public:
     void resized();
 
     void setEnabledState(bool);
-	void updateType();
+    void updateType();
 
 private:
 
@@ -402,11 +402,11 @@ private:
 class LfpViewport : public Viewport
 {
 public:
-	LfpViewport(LfpDisplayCanvas* canvas);
-	void visibleAreaChanged(const Rectangle<int>& newVisibleArea);
+    LfpViewport(LfpDisplayCanvas* canvas);
+    void visibleAreaChanged(const Rectangle<int>& newVisibleArea);
 
 private:
-	LfpDisplayCanvas* canvas;
+    LfpDisplayCanvas* canvas;
 };
 
 

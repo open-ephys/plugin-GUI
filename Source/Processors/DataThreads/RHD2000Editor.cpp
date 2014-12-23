@@ -710,7 +710,7 @@ void RHD2000Editor::measureImpedance()
 		for (int i = 0; i < channel.size(); i++)
 		{
 			XmlElement* chan = new XmlElement("CHANNEL");
-			chan->setAttribute("name",board->getChannelName(DATA_CHANNEL,stream[i],channel[i]));
+			chan->setAttribute("name",board->getChannelName(HEADSTAGE_CHANNEL,stream[i],channel[i]));
 			chan->setAttribute("stream",stream[i]);
 			chan->setAttribute("channel_number",channel[i]);
 			chan->setAttribute("magnitude",magnitude[i]);

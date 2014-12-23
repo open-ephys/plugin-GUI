@@ -71,8 +71,8 @@ public:
     void enabledState(bool t);
 
     float getDefaultSampleRate();
-    int getNumHeadstageOutputs();
-    float getBitVolts(Channel* ch);
+    int getDefaultNumOutputs();
+    float getBitVolts(int chan);
 
     bool setFile(String fullpath);
     String getFile();

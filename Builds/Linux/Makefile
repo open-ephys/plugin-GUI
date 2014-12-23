@@ -131,8 +131,6 @@ OBJECTS := \
   $(OBJDIR)/PeriStimulusTimeHistogramNode_9631ca2a.o \
   $(OBJDIR)/tictoc_cdca1ed.o \
   $(OBJDIR)/TrialCircularBuffer_4a4cef0c.o \
-  $(OBJDIR)/ReferenceNode_97454f26.o \
-  $(OBJDIR)/ReferenceNodeEditor_7d0ff573.o \
   $(OBJDIR)/ResamplingNode_9825590a.o \
   $(OBJDIR)/ResamplingNodeEditor_8b120457.o \
   $(OBJDIR)/PulsePal_14932a18.o \
@@ -603,16 +601,6 @@ $(OBJDIR)/tictoc_cdca1ed.o: ../../Source/Processors/PSTH/tictoc.cpp
 $(OBJDIR)/TrialCircularBuffer_4a4cef0c.o: ../../Source/Processors/PSTH/TrialCircularBuffer.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling TrialCircularBuffer.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ReferenceNode_97454f26.o: ../../Source/Processors/ReferenceNode/ReferenceNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ReferenceNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ReferenceNodeEditor_7d0ff573.o: ../../Source/Processors/ReferenceNode/ReferenceNodeEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ReferenceNodeEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ResamplingNode_9825590a.o: ../../Source/Processors/ResamplingNode/ResamplingNode.cpp

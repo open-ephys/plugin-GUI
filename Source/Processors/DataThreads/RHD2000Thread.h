@@ -119,7 +119,7 @@ public:
     void setDACthreshold(int dacOutput, float threshold);
     void setDefaultNamingScheme(int scheme);
 
-	String getChannelName(channelType t, int str, int ch);
+	String getChannelName(ChannelType t, int str, int ch);
 
 private:
     void setDefaultChannelNamesAndType();

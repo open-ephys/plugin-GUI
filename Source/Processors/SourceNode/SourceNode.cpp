@@ -492,7 +492,7 @@ void SourceNode::saveCustomParametersToXml(XmlElement* parentElement)
 {
 
     StringArray names;
-    Array<channelType> types;
+    Array<ChannelType> types;
     Array<int> stream;
     Array<int> originalChannelNumber;
     Array<float> gains;
@@ -526,7 +526,7 @@ void SourceNode::loadCustomParametersFromXml()
 					String name = chan->getStringAttribute("name");
 					int stream = chan->getIntAttribute("stream");
 					int number = chan->getIntAttribute("number");
-					channelType type = static_cast<channelType>(chan->getIntAttribute("type"));
+					ChannelType type = static_cast<ChannelType>(chan->getIntAttribute("type"));
 					float gain = chan->getDoubleAttribute("gain");
 					modifyChannelName(type,stream,number,name,false);
 					modifyChannelGain(stream,number,type,gain,false);					
