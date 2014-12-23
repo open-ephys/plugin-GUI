@@ -934,7 +934,7 @@ void WaveAxes::paint(Graphics& g)
 
     }
 
-    g.setColour(Colours::white);
+    
     plotSpike(spikeBuffer[spikeIndex], g);
 
 
@@ -949,6 +949,11 @@ void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
 
     //compute the spatial width for each waveform sample
     float dx = getWidth()/float(spikeBuffer[0].nSamples);
+
+    if (s.sortedId > 0)
+       g.setColour(Colour(s.color[0],s.color[1],s.color[2]));
+    else
+       g.setColour(Colours::white);
 
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
@@ -1273,13 +1278,19 @@ bool ProjectionAxes::updateSpikeData(const SpikeObject& s)
     calcWaveformPeakIdx(s, ampDim1, ampDim2, &idx1, &idx2);
 
     // add peaks to image
+    Colour col;
 
-    updateProjectionImage(s.data[idx1], s.data[idx2], *s.gain);
+    if (s.sortedId > 0)
+        col = Colour(s.color[0], s.color[1], s.color[2]);
+    else
+        col = Colours::white;
+
+    updateProjectionImage(s.data[idx1], s.data[idx2], *s.gain, col);
 
     return true;
 }
 
-void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y, uint16_t gain)
+void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y, uint16_t gain, Colour col)
 {
     Graphics g(projectionImage);
 
@@ -1290,7 +1301,7 @@ void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y, uint16_t gain
         float xf = float(x-32768)/float(gain)*1000.0f; // in microvolts
         float yf = float(imageDim) - float(y-32768)/float(gain)*1000.0f; // in microvolts
 
-        g.setColour(Colours::white);
+        g.setColour(col);
         g.fillEllipse(xf,yf,2.0f,2.0f);
     }
 

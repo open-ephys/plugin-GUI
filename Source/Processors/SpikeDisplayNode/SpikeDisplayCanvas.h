@@ -425,7 +425,7 @@ public:
 
 private:
 
-    void updateProjectionImage(uint16_t, uint16_t, uint16_t);
+    void updateProjectionImage(uint16_t, uint16_t, uint16_t, Colour);
 
     void calcWaveformPeakIdx(const SpikeObject&, int, int, int*, int*);
 
