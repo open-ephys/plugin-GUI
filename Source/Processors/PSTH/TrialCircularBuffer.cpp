@@ -1751,7 +1751,7 @@ void TrialCircularBuffer::syncInternalDataStructuresWithSpikeSorter(Array<Electr
 			  int unitID = pcaUnits[pcaIter].UnitID;
 			  UnitPSTHs unitPSTHs(unitID, params,pcaUnits[pcaIter].ColorRGB[0],
 				  pcaUnits[pcaIter].ColorRGB[1],pcaUnits[pcaIter].ColorRGB[2]);
-			  for (int k=0;k<conditions.size();k++)
+			  for (int k = 0; k < conditions.size(); k++)
 			  {
 				  unitPSTHs.conditionPSTHs.push_back(PSTH(conditions[k].conditionID, params,conditions[k].visible));
 			  }
@@ -1771,7 +1771,7 @@ void TrialCircularBuffer::addNewElectrode(Electrode *electrode)
 	ElectrodePSTH e(electrode->electrodeID,electrode->name);
 	int numChannels = electrode->numChannels;
 
-	for (int k=0;k<numChannels;k++) 
+	for (int k = 0; k < numChannels; k++) 
 	{
 		int channelID = electrode->channels[k];
 		e.channels.push_back(channelID);
@@ -1789,12 +1789,12 @@ void TrialCircularBuffer::addNewElectrode(Electrode *electrode)
 		if (electrode->spikeSort != nullptr)
 		{
 			std::vector<BoxUnit> boxUnits = electrode->spikeSort->getBoxUnits();
-			for (int boxIter=0;boxIter < boxUnits.size();boxIter++)
+			for (int boxIter = 0; boxIter < boxUnits.size(); boxIter++)
 			{
 				addNewUnit(electrode->electrodeID, boxUnits[boxIter].UnitID, boxUnits[boxIter].ColorRGB[0],boxUnits[boxIter].ColorRGB[1],boxUnits[boxIter].ColorRGB[2]);
 			}
 			std::vector<PCAUnit> PcaUnits = electrode->spikeSort->getPCAUnits();
-			for (int pcaIter=0;pcaIter < PcaUnits.size();pcaIter++)
+			for (int pcaIter = 0; pcaIter < PcaUnits.size(); pcaIter++)
 			{
 				addNewUnit(electrode->electrodeID, PcaUnits[pcaIter].UnitID, PcaUnits[pcaIter].ColorRGB[0],PcaUnits[pcaIter].ColorRGB[1],PcaUnits[pcaIter].ColorRGB[2]);
 			}
@@ -1900,6 +1900,9 @@ bool TrialCircularBuffer::parseMessage(StringTS msg)
 
  if (command == "trialstart")
 	  {
+
+	  	std::cout << "Got start of trial!" << std::endl;
+
 		  currentTrial.trialID = ++trialCounter;
 		  currentTrial.startTS = msg.timestamp;
 		  currentTrial.alignTS = 0;
@@ -1913,7 +1916,7 @@ bool TrialCircularBuffer::parseMessage(StringTS msg)
 		  const ScopedLock myScopedLock (psthMutex);
 
 		  //lockPSTH();
-		  for (int i=0;i<electrodesPSTH.size();i++) 
+		  for (int i = 0; i < electrodesPSTH.size(); i++) 
 			{
 				for (int u=0;u<electrodesPSTH[i].unitsPSTHs.size();u++)
 				{
@@ -1927,7 +1930,7 @@ bool TrialCircularBuffer::parseMessage(StringTS msg)
 	  } else if (command == "dropoutcomes")
 	  {
 		  dropOutcomes.clear();
-		  for (int k=1;k<input.size();k++)
+		  for (int k = 1; k < input.size(); k++)
 		  {
 			  dropOutcomes.push_back(input[k].getIntValue());
 		  }
@@ -2002,14 +2005,14 @@ bool TrialCircularBuffer::parseMessage(StringTS msg)
 		  //unlockConditions();
 		  // now add a new psth for this condition for all sorted units on all electrodes
 		  //lockPSTH();
-		  for (int i=0;i<electrodesPSTH.size();i++) 
+		  for (int i = 0; i < electrodesPSTH.size(); i++) 
 		  {
-			  for (int ch=0;ch<electrodesPSTH[i].channelsPSTHs.size();ch++)
+			  for (int ch = 0; ch < electrodesPSTH[i].channelsPSTHs.size(); ch++)
 			  {
 				  electrodesPSTH[i].channelsPSTHs[ch].conditionPSTHs.push_back(PSTH(newcondition.conditionID, params, newcondition.visible));
 			  }
 
-			  for (int u=0;u<electrodesPSTH[i].unitsPSTHs.size();u++)
+			  for (int u = 0; u < electrodesPSTH[i].unitsPSTHs.size(); u++)
 			  {
 				  electrodesPSTH[i].unitsPSTHs[u].conditionPSTHs.push_back(PSTH(newcondition.conditionID, params, newcondition.visible));
 			  }
@@ -2026,11 +2029,12 @@ void TrialCircularBuffer::addSpikeToSpikeBuffer(SpikeObject newSpike)
 {
 	//lockPSTH();
 	const ScopedLock myScopedLock (psthMutex);
-	for (int e=0;e<electrodesPSTH.size();e++)
+
+	for (int e = 0; e < electrodesPSTH.size(); e++)
 	{
 		if (electrodesPSTH[e].electrodeID == newSpike.electrodeID)
 		{
-			for (int u=0;u<electrodesPSTH[e].unitsPSTHs.size();u++)
+			for (int u = 0; u < electrodesPSTH[e].unitsPSTHs.size(); u++)
 			{
 				if (electrodesPSTH[e].unitsPSTHs[u].unitID == newSpike.sortedId)
 				{
@@ -2228,10 +2232,13 @@ void TrialCircularBuffer::addTTLevent(int channel,int64 ttl_timestamp_software, 
 
 			if (channel == hardwareTriggerAlignmentChannel)
 			{
+
 				std::cout << "TTL channel matches alignment channel!" << std::endl;
-				currentTrial.alignTS = ttl_timestamp_software; 
-				currentTrial.alignTS_hardware = ttl_timestamp_hardware;
-				currentTrial.hardwareAlignment = true;
+				StringTS msg = StringTS("trialstart");
+				parseMessage(msg);
+				//urrentTrial.alignTS = ttl_timestamp_software; 
+				//currentTrial.alignTS_hardware = ttl_timestamp_hardware;
+				//currentTrial.hardwareAlignment = true;
 			}
 		}
 	}
