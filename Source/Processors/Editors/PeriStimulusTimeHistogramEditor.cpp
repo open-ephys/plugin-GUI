@@ -366,8 +366,8 @@ Visualizer* PeriStimulusTimeHistogramEditor::createNewCanvas()
 {
 	PeriStimulusTimeHistogramNode* processor = (PeriStimulusTimeHistogramNode*) getProcessor();
 	periStimulusTimeHistogramCanvas = new PeriStimulusTimeHistogramCanvas(processor);
-//	ActionListener* listener = (ActionListener*) periStimulusTimeHistogramCanvas;
-//    getUIComponent()->registerAnimatedComponent(listener);
+	//ActionListener* listener = (ActionListener*) periStimulusTimeHistogramCanvas;
+    //getUIComponent()->registerAnimatedComponent(listener);
 	return periStimulusTimeHistogramCanvas;
 }
 
@@ -465,7 +465,9 @@ PeriStimulusTimeHistogramCanvas::~PeriStimulusTimeHistogramCanvas()
 
 void PeriStimulusTimeHistogramCanvas::beginAnimation()
 {
-	//startCallbacks();
+
+	std::cout << "PeriStimulusTimeHistogramCanvas starting animation." << std::endl;
+	startCallbacks();
 	
 }
 
@@ -505,9 +507,9 @@ void PeriStimulusTimeHistogramCanvas::buttonClicked(Button* button)
 
 void PeriStimulusTimeHistogramCanvas::endAnimation()
 {
-	std::cout << "SpikeDisplayCanvas ending animation." << std::endl;
+	std::cout << "PeriStimulusTimeHistogramCanvas ending animation." << std::endl;
 
-	//stopCallbacks();
+	stopCallbacks();
 }
 
 void PeriStimulusTimeHistogramCanvas::setRasterMode(bool rasterModeActive)
