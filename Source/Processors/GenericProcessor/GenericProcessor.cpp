@@ -731,7 +731,7 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
 
     data[0] = type;    // event type
     data[1] = nodeId;  // processor ID automatically added
-    data[2] = eventId; // event ID
+    data[2] = eventId; // event ID (1 = on, 0 = off, usually)
     data[3] = eventChannel; // event channel
     data[4] = 1; // saving flag
     memcpy(data + 5, eventData, numBytes);

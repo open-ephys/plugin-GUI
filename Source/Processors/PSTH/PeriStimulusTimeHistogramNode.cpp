@@ -126,7 +126,10 @@ void PeriStimulusTimeHistogramNode::updateSettings()
 //    diskWriteLock = recordNode->getLock();
 }
 
-
+void PeriStimulusTimeHistogramNode::setHardwareTriggerAlignmentChannel(int chan)
+{
+	trialCircularBuffer->setHardwareTriggerAlignmentChannel(chan);
+}
 
 bool PeriStimulusTimeHistogramNode::enable()
 {
@@ -465,11 +468,14 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
 	if (eventType == TTL)
 	{
 	   const uint8* dataptr = event.getRawData();
+	   int ttl_source = dataptr[1];
 	   bool ttl_raise = dataptr[2] > 0;
 	   int channel = dataptr[3];
-	   int64  ttl_timestamp_software,ttl_timestamp_hardware;
-	   memcpy(&ttl_timestamp_software, dataptr+4, 8);
-	   memcpy(&ttl_timestamp_hardware, dataptr+12, 8);
+	   int64 ttl_timestamp_hardware = timestamps[ttl_source] + samplePosition; // hardware time
+	   int64 ttl_timestamp_software = Time::getCurrentTime().toMilliseconds(); // get software time
+	   //int64  ttl_timestamp_software,ttl_timestamp_hardware;
+	   //memcpy(&ttl_timestamp_software, dataptr+4, 8);
+	   //memcpy(&ttl_timestamp_hardware, dataptr+12, 8);
 	   if (ttl_raise)
 			trialCircularBuffer->addTTLevent(channel,ttl_timestamp_software,ttl_timestamp_hardware, ttl_raise, true);
 	   if (isRecording && saveTTLs)

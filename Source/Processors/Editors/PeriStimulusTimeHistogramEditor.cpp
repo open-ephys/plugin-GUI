@@ -154,9 +154,12 @@ void PeriStimulusTimeHistogramEditor::loadVisualizerParameters(XmlElement* xml)
 
 void PeriStimulusTimeHistogramEditor::comboBoxChanged(ComboBox* comboBox)
 {
+
 	if (comboBox == hardwareTrialAlignment)
 	{
-		// TODO
+		std::cout << "Setting hardware trigger alignment channel to " << comboBox->getSelectedId()-2 << std::endl;
+		PeriStimulusTimeHistogramNode* processor = (PeriStimulusTimeHistogramNode*) getProcessor();
+		processor->setHardwareTriggerAlignmentChannel(comboBox->getSelectedId()-2);
 	}
 }
 
