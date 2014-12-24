@@ -237,7 +237,7 @@ void LfpDisplayNode::initializeEventChannels()
         int chan = channelForEventSource[eventSourceNodes[i]];
         int index = displayBufferIndex[chan];
 
-        totalSamples = getNumSamples(getNumInputs()+i);
+        totalSamples = numSamples.at(eventSourceNodes[i]);
 
         if (index + totalSamples < displayBuffer->getNumSamples())
         {
@@ -253,7 +253,7 @@ void LfpDisplayNode::initializeEventChannels()
         else
         {
 
-            int block2Size = (displayBufferIndex[eventSourceNodes[i]] + totalSamples) % displayBuffer->getNumSamples();
+            int block2Size = (index + totalSamples) % displayBuffer->getNumSamples();
             int block1Size = totalSamples - block2Size;
 
             // std::cout << "OVERFLOW." << std::endl;
@@ -272,7 +272,6 @@ void LfpDisplayNode::initializeEventChannels()
                                     block2Size, 		// numSamples
                                     float(ttlState[eventSourceNodes[i]]));   // gain
 
-
         }
     }   
 }
@@ -288,9 +287,16 @@ void LfpDisplayNode::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 
     for (int i = 0; i < eventSourceNodes.size(); i++)
     {
-        int originalBufferIndex = displayBufferIndex[eventSourceNodes[i]];
+        int originalBufferIndex = displayBufferIndex[channelForEventSource[eventSourceNodes[i]]];
+        int numSamps = numSamples.at(eventSourceNodes[i]);
+
+        //std::cout << eventSourceNodes[i] << " " << originalBufferIndex << " " << numSamps << std::endl;
+        
+        int newPos = (originalBufferIndex + numSamps) % displayBuffer->getNumSamples();
+
         displayBufferIndex.set(channelForEventSource[eventSourceNodes[i]], 
-                                originalBufferIndex + getNumSamples(getNumInputs()+i)); 
+                                newPos);
+
     }
 
     for (int chan = 0; chan < buffer.getNumChannels(); chan++)
