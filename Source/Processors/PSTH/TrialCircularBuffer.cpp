@@ -2234,11 +2234,9 @@ void TrialCircularBuffer::addTTLevent(int channel,int64 ttl_timestamp_software, 
 			{
 
 				std::cout << "TTL channel matches alignment channel!" << std::endl;
-				StringTS msg = StringTS("trialstart");
-				parseMessage(msg);
-				//urrentTrial.alignTS = ttl_timestamp_software; 
-				//currentTrial.alignTS_hardware = ttl_timestamp_hardware;
-				//currentTrial.hardwareAlignment = true;
+				currentTrial.alignTS = ttl_timestamp_software; 
+				currentTrial.alignTS_hardware = ttl_timestamp_hardware;
+				currentTrial.hardwareAlignment = true;
 			}
 		}
 	}
