@@ -435,6 +435,7 @@ void GenericProcessor::update()
             ch->sourceNodeId = nodeId;
             ch->nodeIndex = nidx;
             eventChannels.add(ch);
+            ch->sampleRate = getDefaultSampleRate();
         }
 
     }

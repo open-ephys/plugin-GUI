@@ -343,7 +343,12 @@ void LfpDisplayCanvas::update()
 
     for (int i = 0; i <= nChans; i++) // extra channel for events
     {
-        sampleRate.add(processor->channels[i]->sampleRate);
+        if (i < nChans)
+            sampleRate.add(processor->channels[i]->sampleRate);
+        else
+            sampleRate.add(processor->channels[i-1]->sampleRate); // for event channel (IT'S A HACK -- BE CAREFUL!)
+        
+       // std::cout << "Sample rate for ch " << i << " = " << sampleRate[i] << std::endl; 
         displayBufferIndex.add(0);
         screenBufferIndex.add(0);
         lastScreenBufferIndex.add(0);
@@ -351,7 +356,7 @@ void LfpDisplayCanvas::update()
 
     if (nChans != lfpDisplay->getNumChannels())
     {
-        std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+        //std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
         refreshScreenBuffer();
 
@@ -677,15 +682,16 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
         int index = processor->getDisplayBufferIndex(channel);
 
-        //if (channel == 15 || channel == 16)
-        //     std::cout << channel << " " << sbi << " " << dbi << " " << index << std::endl;
-
         int nSamples =  index - dbi; // N new samples (not pixels) to be added to displayBufferIndex
 
         if (nSamples < 0) // buffer has reset to 0
         {
             nSamples = (displayBufferSize - dbi) + index;
         }
+
+        //if (channel == 15 || channel == 16)
+        //     std::cout << channel << " " << sbi << " " << dbi << " " << nSamples << std::endl;
+
 
         float ratio = sampleRate[channel] * timebase / float(getWidth() - leftmargin - scrollBarThickness); // samples / pixel
         // this number is crucial: converting from samples to values (in px) for the screen buffer
