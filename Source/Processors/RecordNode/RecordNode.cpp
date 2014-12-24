@@ -414,7 +414,7 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
     {
         if ((eventType == TTL) || (eventType == MESSAGE))
         {
-            if (event.getNoteNumber() > 0) // processor ID > 0 (i.e., event has not already been processed)
+            if (event.getRawData()+4 > 0) // saving flag > 0 (i.e., event has not already been processed)
             {
                 EVERY_ENGINE->writeEvent(eventType, event, samplePosition);
             }

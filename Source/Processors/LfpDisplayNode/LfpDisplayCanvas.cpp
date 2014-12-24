@@ -341,7 +341,7 @@ void LfpDisplayCanvas::update()
     lastScreenBufferIndex.clear();
     displayBufferIndex.clear();
 
-    for (int i = 0; i < nChans; i++)
+    for (int i = 0; i <= nChans; i++) // extra channel for events
     {
         sampleRate.add(processor->channels[i]->sampleRate);
         displayBufferIndex.add(0);
@@ -355,7 +355,7 @@ void LfpDisplayCanvas::update()
 
         refreshScreenBuffer();
 
-        lfpDisplay->setNumChannels(nChans);
+        lfpDisplay->setNumChannels(nChans); // add an extra channel for events
 
         // update channel names
         for (int i = 0; i < processor->getNumInputs(); i++)
@@ -620,7 +620,7 @@ void LfpDisplayCanvas::refreshState()
 {
     // called when the component's tab becomes visible again
 
-    for (int i = 0; i < displayBufferIndex.size(); i++)
+    for (int i = 0; i <= displayBufferIndex.size(); i++) // include event channel
     {
 
         displayBufferIndex.set(i, processor->getDisplayBufferIndex(i));
@@ -632,7 +632,7 @@ void LfpDisplayCanvas::refreshState()
 void LfpDisplayCanvas::refreshScreenBuffer()
 {
 
-    for (int i = 0; i < screenBufferIndex.size(); i++)
+    for (int i = 0; i <= screenBufferIndex.size(); i++)
         screenBufferIndex.set(i,0);
 
     screenBuffer->clear();
@@ -672,6 +672,9 @@ void LfpDisplayCanvas::updateScreenBuffer()
          // hold these values locally for each channel
         int sbi = screenBufferIndex[channel];
         int dbi = displayBufferIndex[channel];
+
+        //if (channel == 16)
+         //   std::cout << sbi << " " << dbi << std::endl;
 
         lastScreenBufferIndex.set(channel,sbi);
 
@@ -769,11 +772,9 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     screenBufferMin->addSample(channel, sbi, sample_min*gain);
                     screenBufferMax->addSample(channel, sbi, sample_max*gain);
                 
-
                 sbi++;
                 }
             
-
             subSampleOffset += ratio;
 
             while (subSampleOffset >= 1.0)
@@ -1746,12 +1747,17 @@ void LfpChannelDisplay::paint(Graphics& g)
 
             // draw event markers
             int rawEventState = canvas->getYCoord(canvas->getNumChannels(), i);// get last channel+1 in buffer (represents events)
+            
+            //if (i == ifrom)
+            //    std::cout << rawEventState << std::endl;
+
             for (int ev_ch = 0; ev_ch < 8 ; ev_ch++) // for all event channels
             {
                 if (display->getEventDisplayState(ev_ch))  // check if plotting for this channel is enabled
                 {
                     if (rawEventState & (1 << ev_ch))    // events are  representet by a bit code, so we have to extract the individual bits with a mask
                     {
+                        std::cout << "Drawing event." << std::endl;
                         g.setColour(display->channelColours[ev_ch*2]); // get color from lfp color scheme
                         g.setOpacity(0.35f);
                         g.drawLine(i, center-channelHeight/2 , i, center+channelHeight/2);

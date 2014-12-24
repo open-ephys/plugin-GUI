@@ -57,7 +57,7 @@ AudioProcessorEditor* LfpDisplayNode::createEditor()
 
 void LfpDisplayNode::updateSettings()
 {
-    // std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
+    std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
 
     channelForEventSource.clear();
     eventSourceNodes.clear();
@@ -74,8 +74,11 @@ void LfpDisplayNode::updateSettings()
 
     numEventChannels = eventSourceNodes.size();
 
+    std::cout << "Found " << numEventChannels << " event channels." << std::endl;
+
     for (int i = 0; i < eventSourceNodes.size(); i++)
     {
+        std::cout << "Adding channel " << getNumInputs() + i << " for event source node " << eventSourceNodes[i] << std::endl;
         channelForEventSource[eventSourceNodes[i]] = getNumInputs() + i;
         ttlState[eventSourceNodes[i]] = 0;
         Channel* eventChan = new Channel(this, getNumInputs() + i, EVENT_CHANNEL);
@@ -159,8 +162,9 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
 
         int samplesLeft = totalSamples - eventTime;
 
-        //	std::cout << "Received event from " << eventNodeId << ", channel "
-        //	          << eventChannel << ", with ID " << eventId << std::endl;
+        	std::cout << "Received event from " << eventSourceNode << ", channel "
+        	          << eventChannel << ", with ID " << eventId << ", copying to "
+                      << channelForEventSource[eventSourceNode] << std::endl;
         //
         int bufferIndex = (displayBufferIndex[channelForEventSource[eventSourceNode]] + eventTime);// % displayBuffer->getNumSamples();
 
@@ -176,7 +180,7 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
         if (samplesLeft + bufferIndex < displayBuffer->getNumSamples())
         {
 
-            //	std::cout << bufferIndex << " " << samplesLeft << " " << ttlState << std::endl;
+            std::cout << bufferIndex << " " << samplesLeft << " " << ttlState[eventSourceNode] << std::endl;
 
             displayBuffer->copyFrom(channelForEventSource[eventSourceNode],  // destChannel
                                     bufferIndex,		// destStartSample

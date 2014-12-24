@@ -432,6 +432,8 @@ void GenericProcessor::update()
         for (int m = 0; m < getNumEventChannels(); m++)
         {
             Channel* ch = new Channel(this, m+1, EVENT_CHANNEL);
+            ch->sourceNodeId = nodeId;
+            ch->nodeIndex = nidx;
             eventChannels.add(ch);
         }
 
@@ -671,12 +673,12 @@ int GenericProcessor::processEventBuffer(MidiBuffer& events)
 
                 if (*dataptr == TTL &&    // a TTL event
                     getNodeId() < 900 && // not handled by a specialized processor (e.g. AudioNode))
-                    *(dataptr+1) > 0)    // that's flagged for saving
+                    *(dataptr+4) > 0)    // that's flagged for saving
                 {
                     // changing the const cast is dangerous, but probably necessary:
                     uint8* ptr = const_cast<uint8*>(dataptr);
-                    *(ptr + 1) = 0; // set second byte of raw data to 0, so the event
-                    // won't be saved twice
+                    *(ptr + 4) = 0; // set fifth byte of raw data to 0, so the event
+                                    // won't be saved twice
                 }
             }
         }
@@ -724,16 +726,19 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
                                 uint8 numBytes,
                                 uint8* eventData)
 {
-    uint8* data = new uint8[4+numBytes];
+    uint8* data = new uint8[5+numBytes];
 
     data[0] = type;    // event type
     data[1] = nodeId;  // processor ID automatically added
     data[2] = eventId; // event ID
     data[3] = eventChannel; // event channel
-    memcpy(data + 4, eventData, numBytes);
+    data[4] = 1; // saving flag
+    memcpy(data + 5, eventData, numBytes);
+
+    //std::cout << "Node id: " << data[1] << std::endl;
 
     eventBuffer.addEvent(data, 		// raw data
-                         4 + numBytes, // total bytes
+                         5 + numBytes, // total bytes
                          sampleNum);     // sample index
 
     //if (type == TTL)

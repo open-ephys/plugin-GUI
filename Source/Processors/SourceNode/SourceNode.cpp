@@ -265,6 +265,14 @@ int SourceNode::getNumAdcOutputs()
         return 0;
 }
 
+int SourceNode::getNumEventChannels()
+{
+    if (dataThread != 0)
+        return dataThread->getNumEventChannels();
+    else
+        return 0;
+}
+
 float SourceNode::getBitVolts(Channel* chan)
 {
 	if (dataThread != 0)

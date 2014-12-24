@@ -72,6 +72,7 @@ public:
 
     float getDefaultSampleRate();
     int getNumHeadstageOutputs();
+    int getNumEventChannels();
     float getBitVolts(Channel* chan);
 
     bool setFile(String fullpath);
@@ -89,6 +90,8 @@ private:
     Array<RecordedChannelInfo> channelInfo;
 
     int64 currentSample;
+
+    int counter; // for testing purposes only
 
     ScopedPointer<FileSource> input;
 

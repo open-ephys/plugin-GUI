@@ -35,6 +35,7 @@ FileReader::FileReader()
 
     enabledState(false);
 
+    counter = 0;
 
 }
 
@@ -78,6 +79,11 @@ int FileReader::getNumHeadstageOutputs()
         return currentNumChannels;
     else
         return 16;
+}
+
+int FileReader::getNumEventChannels()
+{
+    return 8;
 }
 
 float FileReader::getBitVolts(Channel* chan)
@@ -174,25 +180,9 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 
     setTimestamp(events, timestamp);
 
+    int samplesNeeded = (int) float(buffer.getNumSamples()) * (getDefaultSampleRate()/44100.0f);
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
-
-    // code for testing events:
-    // if (counter > 100)
-    // {
-    //     addEvent(events,    // MidiBuffer
-    //          TTL, // eventType
-    //          0,         // sampleNum
-    //          1,    // eventID
-    //          0      // eventChannel
-    //         );
-    //     counter = 0;
-    // } else {
-    //     counter++;
-
-    // }
-
-    int samplesNeeded = (int) float(buffer.getNumSamples()) * (getDefaultSampleRate()/44100.0f);
 
     int samplesRead = 0;
 
@@ -221,6 +211,33 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 
     timestamp += samplesNeeded;
     setNumSamples(events, samplesNeeded);
+
+    // code for testing events:
+    if (counter == 100)
+    {
+        std::cout << "Adding on event for node id: " << nodeId << std::endl;
+        addEvent(events,    // MidiBuffer
+             TTL, // eventType
+             0,         // sampleNum
+             1,    // eventID
+             1      // eventChannel
+            );
+
+        counter++;
+    } else if (counter > 120) 
+    {
+        std::cout << "Adding off event!" << std::endl;
+        addEvent(events,    // MidiBuffer
+             TTL, // eventType
+             0,         // sampleNum
+             0,    // eventID
+             1      // eventChannel
+            );
+
+        counter = 0;
+    } else {
+        counter++;
+    }
 
 }
 

@@ -58,8 +58,11 @@ public:
     float getSampleRate();
     float getDefaultSampleRate();
     int getNumHeadstageOutputs();
+
     int getNumAuxOutputs();
     int getNumAdcOutputs();
+
+    int getNumEventChannels();
     float getBitVolts(Channel* chan);
 
     int modifyChannelGain(int stream, int channel,ChannelType type, float gain, bool updateSignalChain);
