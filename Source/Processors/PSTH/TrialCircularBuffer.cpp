@@ -57,7 +57,6 @@ void setDefaultColors(uint8 &R, uint8 &G, uint8 &B, int ID)
 	{52, 73, 94},
 	{230, 126, 34},
 	{231, 76, 60},
-	//{22, 160, 133},
 	{255, 0, 0},
 	{39, 174, 96},
 	{41, 128, 185},
@@ -66,24 +65,22 @@ void setDefaultColors(uint8 &R, uint8 &G, uint8 &B, int ID)
 	{243, 156, 18},
 	{211, 84, 0},
 	{192, 57, 43},
-
-		{224,185,36},
-  {214,210,182},
-  {243,119,33},
-  {186,157,168},
-  {237,37,36},
-  {179,122,79},
-  {217,46,171},
-  {217, 139,196},
-  {101,31,255},
-  {141,111,181},
-  {48,117,255},
-  {184,198,224},
-  {116,227,156},
-  {150,158,155},
-  {82,173,0},
-		{125,99,32}};
-
+	{224,185,36},
+	{214,210,182},
+	{243,119,33},
+	{186,157,168},
+	{237,37,36},
+	{179,122,79},
+	{217,46,171},
+	{217, 139,196},
+	{101,31,255},
+	{141,111,181},
+	{48,117,255},
+	{184,198,224},
+	{116,227,156},
+	{150,158,155},
+	{82,173,0},
+	{125,99,32}};
 
 	/*
    {      0,         0,    255},
@@ -101,7 +98,7 @@ void setDefaultColors(uint8 &R, uint8 &G, uint8 &B, int ID)
 
 
 /******************************/
-PSTH::PSTH(int ID, TrialCircularBufferParams params_,bool vis) : conditionID(ID),params(params_),numTrials(0),visible(vis)
+PSTH::PSTH(int ID, TrialCircularBufferParams params_, bool vis) : conditionID(ID),params(params_),numTrials(0),visible(vis)
 {
 	// if approximate is on, we won't sample exactly xmin and xmax
 	if (params.approximate)
@@ -1355,14 +1352,15 @@ std::vector<int64> SmartSpikeCircularBuffer::getAlignedSpikes(Trial *trial, floa
 
 TrialCircularBuffer::~TrialCircularBuffer()
 {
-	delete lfpBuffer;
-	lfpBuffer = nullptr;
-	delete ttlBuffer;
-	ttlBuffer = nullptr;
+	//delete lfpBuffer;
+	//lfpBuffer = nullptr;
+	//delete ttlBuffer;
+	//ttlBuffer = nullptr;
 	electrodesPSTH.clear();
-	delete threadpool;
-	threadpool = nullptr;
+	//delete threadpool;
+	//threadpool = nullptr;
 }
+
 TrialCircularBuffer::TrialCircularBuffer()
 {
 	lfpBuffer = ttlBuffer = nullptr;
@@ -1372,6 +1370,38 @@ TrialCircularBuffer::TrialCircularBuffer()
 	lastTrialID = 0;
 	uniqueIntervalID = 0;
 	useThreads = true;
+}
+
+TrialCircularBuffer::TrialCircularBuffer(TrialCircularBufferParams params_) : params(params_)
+{
+	Time t;
+	numTicksPerSecond = t.getHighResolutionTicksPerSecond();
+	useThreads = false;
+	conditionCounter = 0;
+	firstTime = true;
+	trialCounter = 0;
+	lastSimulatedTrialTS = 0;
+	lastTrialID = 0;
+	hardwareTriggerAlignmentChannel = -1;
+	uniqueIntervalID = 0;
+	// sampling them should be at least 600 Hz (Nyquist!)
+	// We typically sample everything at 30000, so a sub-sampling by a factor of 50 should be good
+	int subSample = params.sampleRate/ params.desiredSamplingRateHz;
+	float numSeconds = 2*(params.maxTrialTimeSeconds+params.preSec+params.postSec);
+	lfpBuffer = new SmartContinuousCircularBuffer(params.numChannels, params.sampleRate, subSample, numSeconds);
+	ttlBuffer = new SmartContinuousCircularBuffer(params.numTTLchannels, params.sampleRate, subSample, numSeconds);
+	lastTTLts.resize(params.numTTLchannels);
+	ttlChannelStatus.resize(params.numTTLchannels);
+	for (int k=0;k<params.numTTLchannels;k++) {
+		ttlChannelStatus[k] = false;
+		lastTTLts[k] = 0;
+	}
+	int numCpus = SystemStats::getNumCpus();
+	// create a thead pool to analyze incoming trials
+	if (useThreads)
+		threadpool = new ThreadPool(numCpus);
+
+	clearDesign();
 }
 
 void TrialCircularBuffer::getLastTrial(int electrodeIndex, int channelIndex, int conditionIndex, float &x0, float &dx, std::vector<float> &y)
@@ -1451,37 +1481,6 @@ void TrialCircularBuffer::setHardwareTriggerAlignmentChannel(int k)
 {
 	hardwareTriggerAlignmentChannel = k;
 }
-
-TrialCircularBuffer::TrialCircularBuffer(TrialCircularBufferParams params_) : params(params_)
-{
-	Time t;
-	numTicksPerSecond = t.getHighResolutionTicksPerSecond();
-	useThreads = true;
-	conditionCounter = 0;
-	firstTime = true;
-	trialCounter = 0;
-	lastSimulatedTrialTS = 0;
-	lastTrialID = 0;
-	hardwareTriggerAlignmentChannel = -1;
-	uniqueIntervalID = 0;
-	// sampling them should be at least 600 Hz (Nyquist!)
-	// We typically sample everything at 30000, so a sub-sampling by a factor of 50 should be good
-	int subSample = params.sampleRate/ params.desiredSamplingRateHz;
-	float numSeconds = 2*(params.maxTrialTimeSeconds+params.preSec+params.postSec);
-	lfpBuffer = new SmartContinuousCircularBuffer(params.numChannels, params.sampleRate, subSample, numSeconds);
-	ttlBuffer = new SmartContinuousCircularBuffer(params.numTTLchannels, params.sampleRate, subSample, numSeconds);
-	lastTTLts.resize(params.numTTLchannels);
-	ttlChannelStatus.resize(params.numTTLchannels);
-	for (int k=0;k<params.numTTLchannels;k++) {
-		ttlChannelStatus[k] = false;
-		lastTTLts[k] = 0;
-	}
-	int numCpus = SystemStats::getNumCpus();
-	// create a thead pool to analyze incoming trials
-	threadpool = new ThreadPool(numCpus);
-	clearDesign();
-}
-
 
 
 
@@ -1632,6 +1631,7 @@ void TrialCircularBuffer::modifyConditionVisibility(int cond, bool newstate)
 
 //	lockPSTH();
 	conditions[cond].visible = newstate;
+
 	for (int i=0;i<electrodesPSTH.size();i++) 
 	{
 		for (int ch=0;ch<electrodesPSTH[i].channelsPSTHs.size();ch++)
@@ -1656,6 +1656,7 @@ void TrialCircularBuffer::toggleConditionVisibility(int cond)
 
 	//lockPSTH();
 	conditions[cond].visible = !conditions[cond].visible;
+
 	for (int i=0;i<electrodesPSTH.size();i++) 
 	{
 		for (int ch=0;ch<electrodesPSTH[i].channelsPSTHs.size();ch++)
@@ -1708,6 +1709,7 @@ void TrialCircularBuffer::syncInternalDataStructuresWithSpikeSorter(Array<Electr
 	//lockConditions();
 	// note. This will erase all existing internal structures. Only call this in the constructor.
 	electrodesPSTH.clear();
+
 	for (int electrodeIter=0;electrodeIter<electrodes.size();electrodeIter++)
 	{
 
@@ -1872,8 +1874,6 @@ void TrialCircularBuffer::removeElectrode(int electrodeID)
 	}
 //	unlockPSTH();
 }
-
-
 
 bool TrialCircularBuffer::parseMessage(StringTS msg)
   {
@@ -2049,7 +2049,7 @@ void TrialCircularBuffer::addSpikeToSpikeBuffer(SpikeObject newSpike)
 
 bool TrialCircularBuffer::contains(std::vector<int> v, int x)
 {
-	for (int k=0;k<v.size();k++)
+	for (int k = 0; k < v.size(); k++)
 		if (v[k] == x)
 			return true;
 	return false;
@@ -2123,7 +2123,7 @@ void TrialCircularBuffer::updatePSTHwithTrial(Trial *trial)
 		int numElectrodes = electrodesPSTH.size();
 		//printf("Calling updatePSTHwithTrial::update with threads\n");
 
-		for (int i=0;i<numElectrodes;i++) 
+		for (int i = 0; i < numElectrodes; i++) 
 		{
 			TrialCircularBufferThread *job = new TrialCircularBufferThread(this,&conditionsNeedUpdating,trial,cnt++,0,i,-1);
 			threadpool->addJob(job, true);
@@ -2202,6 +2202,7 @@ void TrialCircularBuffer::addTTLevent(int channel,int64 ttl_timestamp_software, 
 	if (channel >= 0 && channel < lastTTLts.size())
 	{
 		ttlBuffer->update(channel, ttl_timestamp_software, ttl_timestamp_hardware,rise);
+
 		if (params.reconstructTTL)
 		{
 			ttlStatus tmp;

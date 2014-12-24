@@ -617,7 +617,7 @@ void PeriStimulusTimeHistogramCanvas::update()
 	widthPerUnit = 300;
 	int maxUnitsPerRow = (screenWidth-conditionWidth)/ widthPerUnit;
 	updateNeeded = false;
-	for (int k=0; k < psthDisplay->psthPlots.size();k++)
+	for (int k = 0; k < psthDisplay->psthPlots.size(); k++)
 	{
 		delete psthDisplay->psthPlots[k];
 	}
@@ -635,7 +635,7 @@ void PeriStimulusTimeHistogramCanvas::update()
 	numCols = 0;
 	numRows = 0;
 	int plotID = 0;
-	for (int e=0;e<numElectrodes;e++) 
+	for (int e = 0; e < numElectrodes; e++) 
 	{
 		int offset = 0;
 		bool plottedSomething = false;
@@ -782,11 +782,9 @@ void PeriStimulusTimeHistogramCanvas::resized()
 	visualizationButton->setBounds(20,5,150,20);
 	clearAllButton->setBounds(200,5,150,20);
 
-
 	zoomButton->setBounds(360,5,60,20);
 	panButton->setBounds(440,5,60,20);
 	resetAxesButton->setBounds(510,5,150,20);
-
 
 }
 
@@ -831,7 +829,6 @@ void PeriStimulusTimeHistogramDisplay::refresh()
 
 }
 
-
 void PeriStimulusTimeHistogramDisplay::paint(Graphics &g)
 {
 	g.setColour(Colours::white);
@@ -844,7 +841,6 @@ void PeriStimulusTimeHistogramDisplay::paint(Graphics &g)
 	g.drawText("Test",10,0,200,20,Justification::left,false);
 	*/
 }  
-
 
 void PeriStimulusTimeHistogramDisplay::setAutoRescale(bool state)
 {
@@ -880,7 +876,6 @@ void PeriStimulusTimeHistogramDisplay::resized()
 
 	}
 }
-
 
 void PeriStimulusTimeHistogramDisplay::focusOnPlot(int plotID)
 {
