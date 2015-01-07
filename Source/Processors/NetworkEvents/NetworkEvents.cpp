@@ -394,6 +394,7 @@ void NetworkEvents::process(AudioSampleBuffer& buffer,
 	 while (!networkMessagesQueue.empty()) {
 			 StringTS msg = networkMessagesQueue.front();
 			 postTimestamppedStringToMidiBuffer(msg, events);
+			 sendActionMessage("Network event received: " + msg);
 //			 getUIComponent()->getLogWindow()->addLineToLog(msg);
 		     networkMessagesQueue.pop();
 	 }
