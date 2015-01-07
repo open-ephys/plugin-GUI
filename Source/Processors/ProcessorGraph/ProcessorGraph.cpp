@@ -53,6 +53,18 @@
 #include "../NetworkEvents/NetworkEvents.h"
 #include "../PSTH/PeriStimulusTimeHistogramNode.h"
 
+#ifdef ZEROMQ 
+    
+#ifdef WIN32
+    #pragma comment( lib, "../../Resources/windows-libs/ZeroMQ/lib_x64/libzmq-v120-mt-4_0_4.lib" )
+    #include "../../Resources/windows-libs/ZeroMQ/include/zmq.h"
+    #include "../../Resources/windows-libs/ZeroMQ/include/zmq_utils.h"
+#else
+    #include <zmq.h>
+#endif
+
+#endif
+
 ProcessorGraph::ProcessorGraph() : currentNodeId(100)
 {
 
@@ -74,7 +86,7 @@ ProcessorGraph::~ProcessorGraph()
 void* ProcessorGraph::createZmqContext()
 {
 #ifdef ZEROMQ 
-	zmqcontext =  zmq_ctx_new ();
+	zmqcontext =  zmq_ctx_new (); //<-- this is only available in version 3+
 	return zmqcontext;
 #endif
 	return nullptr;

@@ -394,7 +394,7 @@ void NetworkEvents::process(AudioSampleBuffer& buffer,
 	 while (!networkMessagesQueue.empty()) {
 			 StringTS msg = networkMessagesQueue.front();
 			 postTimestamppedStringToMidiBuffer(msg, events);
-			 sendActionMessage("Network event received: " + msg);
+			 sendActionMessage("Network event received: " + msg.getString());
 //			 getUIComponent()->getLogWindow()->addLineToLog(msg);
 		     networkMessagesQueue.pop();
 	 }
@@ -417,6 +417,7 @@ void NetworkEvents::run() {
   
   if (rc != 0) {
 	  // failed to open socket?
+  	  std::cout << "Failed to open socket." << std::endl;
 	  return;
   }
 
@@ -438,6 +439,8 @@ void NetworkEvents::run() {
 			lock.enter();
 			networkMessagesQueue.push(Msg);
 		    lock.exit();
+
+		    std::cout << "Received message!" << std::endl;
 			// handle special messages
 			String response = handleSpecialMessages(Msg);
 	
@@ -445,6 +448,8 @@ void NetworkEvents::run() {
 		} else 
 		{
 			String zeroMessageError = "Recieved Zero Message?!?!?";
+			std::cout << "Received Zero Message!" << std::endl;
+
 			zmq_send (responder, zeroMessageError.getCharPointer(), zeroMessageError.length(), 0);
 		}
     }
