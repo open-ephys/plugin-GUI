@@ -56,11 +56,10 @@ void ExampleProcessor::setParameter(int parameterIndex, float newValue)
 }
 
 void ExampleProcessor::process(AudioSampleBuffer& buffer,
-                               MidiBuffer& events,
-                               int& nSamples)
+                               MidiBuffer& events)
 {
 
-    // for (int i = 0; i < nSamples; i++)
+    // for (int i = 0; i < getNumSamples(channels[0]->sourceNodeId); i++)
     // {
     //
     //     if ((*buffer.getReadPointer(0, i) < -threshold) && !state)

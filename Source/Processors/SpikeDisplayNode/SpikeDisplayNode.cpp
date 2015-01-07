@@ -58,12 +58,27 @@ void SpikeDisplayNode::updateSettings()
     electrodes.clear();
     for (int i = 0; i < eventChannels.size(); i++)
     {
-        if ((eventChannels[i]->eventType < 999) && (eventChannels[i]->eventType > SPIKE_BASE_CODE))
+        ChannelType type = eventChannels[i]->getType();
+
+        if (type == SINGLE_ELECTRODE || type == STEREOTRODE || type == TETRODE)
         {
 
             Electrode elec;
-            elec.numChannels = eventChannels[i]->eventType - 100;
-            elec.name = eventChannels[i]->name;
+
+            switch (type)
+            {
+                case SINGLE_ELECTRODE:
+                    elec.numChannels = 1;
+                    break;
+                case STEREOTRODE:
+                    elec.numChannels = 2;
+                    break;
+                case TETRODE:
+                    elec.numChannels = 4;
+                    break;
+            }
+            
+            elec.name = eventChannels[i]->getName();
             elec.currentSpikeIndex = 0;
             elec.mostRecentSpikes.ensureStorageAllocated(displayBufferSize);
 
@@ -197,7 +212,7 @@ void SpikeDisplayNode::setParameter(int param, float val)
 
 
 
-void SpikeDisplayNode::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples)
+void SpikeDisplayNode::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 {
 
     checkForEvents(events); // automatically calls 'handleEvent

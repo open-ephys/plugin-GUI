@@ -48,10 +48,8 @@ RecordNode::RecordNode()
     settings.numInputs = 2048;
     settings.numOutputs = 0;
 
-    eventChannel = new Channel(this, 0);
-    eventChannel->setType(EVENT_CHANNEL);
+    eventChannel = new Channel(this, 0, EVENT_CHANNEL);
     recordingNumber = 0;
-
 
     spikeElectrodeIndex = 0;
 
@@ -412,53 +410,34 @@ float RecordNode::getFreeSpace()
 
 void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
 {
-    if (eventType == TIMESTAMP)
-    {
-        const uint8* dataptr = event.getRawData();
-
-        // // double-check buffer contents:
-        // std::cout << (int) *(dataptr + 11) << " " <<
-        //             (int) *(dataptr + 10) << " " <<
-        //             (int) *(dataptr + 9) << " " <<
-        //             (int) *(dataptr + 8) << " " <<
-        //             (int) *(dataptr + 7) << " " <<
-        //             (int) *(dataptr + 6) << " " <<
-        //             (int) *(dataptr + 5) << " " <<
-        //             (int) *(dataptr + 4) << std::endl;
-
-        memcpy(&timestamp, dataptr + 4, 8); // remember to skip first four bytes
-        EVERY_ENGINE->updateTimeStamp(timestamp);
-    }
     if (isRecording && allFilesOpened)
     {
         if ((eventType == TTL) || (eventType == MESSAGE))
         {
-            if (event.getNoteNumber() > 0) // processor ID > 0
+            if (event.getRawData()+4 > 0) // saving flag > 0 (i.e., event has not already been processed)
             {
                 EVERY_ENGINE->writeEvent(eventType, event, samplePosition);
             }
         }
-        else if (eventType == MESSAGE)
-        {
-            std::cout << "Received event!" << std::endl;
-        }
     }
-
 }
 
 void RecordNode::process(AudioSampleBuffer& buffer,
-                         MidiBuffer& events,
-                         int& nSamples)
+                         MidiBuffer& events)
 {
-	// FIRST: cycle through events -- extract the TTLs and the timestamps
+    // FIRST: cycle through events -- extract the TTLs and the timestamps
     checkForEvents(events);
+
+    //update timstamp data even if we're not recording yet
+    EVERY_ENGINE->updateTimestamps(&timestamps);
+    EVERY_ENGINE->updateNumSamples(&numSamples);
+
     if (isRecording && allFilesOpened)
     {
-
         // SECOND: write channel data
         if (channelPointers.size() > 0)
         {
-            EVERY_ENGINE->writeData(buffer,nSamples);
+            EVERY_ENGINE->writeData(buffer);
         }
 
         //  std::cout << nSamples << " " << samplesWritten << " " << blockIndex << std::endl;

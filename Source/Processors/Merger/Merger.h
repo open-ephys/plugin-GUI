@@ -52,7 +52,7 @@ public:
     AudioProcessorEditor* createEditor();
 
     /** Nothing happens here, because Mergers are not part of the ProcessorGraph. */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples) {}
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages) {}
 
     bool isMerger()
     {

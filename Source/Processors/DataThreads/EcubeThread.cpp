@@ -293,7 +293,7 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
         throw std::runtime_error(std::string(e.Description()));
     }
 }
-void EcubeThread::getChannelsInfo(StringArray &Names_, Array<channelType> &type_, Array<int> &stream_, Array<int> &originalChannelNumber_, Array<float> &gains_)
+void EcubeThread::getChannelsInfo(StringArray &Names_, Array<ChannelType> &type_, Array<int> &stream_, Array<int> &originalChannelNumber_, Array<float> &gains_)
 {
     Names_ = Names;
     type_ = type;
@@ -312,14 +312,18 @@ void EcubeThread::setDefaultChannelNamesAndType()
     gains.clear();
     originalChannelNumber.clear();
     String prefix;
-    channelType common_type;
+    ChannelType common_type;
 
     int numch = getNumChannels();
 
     if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog)
     {
         prefix = "HS_CH";
+<<<<<<< HEAD
         common_type = DATA_CHANNEL;
+=======
+        common_type = HEADSTAGE_CHANNEL;
+>>>>>>> multisamplerate
     }
     else if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
     {
@@ -376,6 +380,29 @@ EcubeThread::~EcubeThread()
     waitForThreadToExit(-1);
 }
 
+int EcubeThread::getNumHeadstageOutputs()
+{
+    if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog)
+        return pDevInt->n_channel_objects;
+    else
+        return 0;
+}
+
+int EcubeThread::getNumAdcOutputs()
+{
+    if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
+        return 32;
+    else if (pDevInt->data_format == EcubeDevInt::dfDigital)
+        return 64;
+    else
+        return 0;
+}
+
+int EcubeThread::getNumAuxOutputs()
+{
+	return 0;
+}
+
 int EcubeThread::getNumChannels()
 {
     if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
@@ -410,6 +437,14 @@ float EcubeThread::getSampleRate()
 }
 
 float EcubeThread::getBitVolts(int chan)
+{
+	if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog || pDevInt->data_format == EcubeDevInt::dfDigital)
+		return 10.0/32768; // Volts per bit for front panel analog input and fictive v/bit for the digital input
+	else
+		return 6.25e3 / 32768; // Microvolts per bit for the headstage channels
+}
+
+float EcubeThread::getBitVolts(Channel* chan)
 {
     if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog || pDevInt->data_format == EcubeDevInt::dfDigital)
         return 10.0 / 32768; // Volts per bit for front panel analog input and fictive v/bit for the digital input
@@ -506,7 +541,11 @@ bool EcubeThread::updateBuffer()
                     const short* pData = (const short*)dp;
                     for (unsigned j = 0; j < datasize; j++)
                     {
+<<<<<<< HEAD
                         pDevInt->interleaving_buffer[j] = pData[j] * 10.0 / 32768; // Convert into volts
+=======
+                        pDevInt->interleaving_buffer[j] = pData[j] * 10.0/32768; // Convert into volts
+>>>>>>> multisamplerate
                     }
                     unsigned long datasam = datasize / 32;
                     int64 cts = pDevInt->buf_timestamp64 / 3200; // Convert eCube's 80MHz timestamps into number of samples on the Panel Analog input (orig sample rate 1144)

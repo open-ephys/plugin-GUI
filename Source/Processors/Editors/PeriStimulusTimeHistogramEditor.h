@@ -65,7 +65,6 @@ class PeriStimulusTimeHistogramDisplay : public Component
 public:
 	PeriStimulusTimeHistogramDisplay(PeriStimulusTimeHistogramNode* n, Viewport *p, PeriStimulusTimeHistogramCanvas*c);
 	~PeriStimulusTimeHistogramDisplay();
-	
 
 	void setAutoRescale(bool state);
 	void resized();
@@ -81,20 +80,13 @@ public:
 
 	juce::Font font;
 
-	
-	  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PeriStimulusTimeHistogramDisplay);
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PeriStimulusTimeHistogramDisplay);
 
 };
 
 
-
-
-
-
-
 class ProcessorListItem;
 class UIComponent;
-
 
 class ConditionList : public Component,
 	public AccessClass, Button::Listener
@@ -127,9 +119,6 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ConditionList);
 
 };
-
-
-
 
 
 class PeriStimulusTimeHistogramCanvas: public Visualizer, public Button::Listener
@@ -173,7 +162,7 @@ public:
 	int heightPerElectrodePix;
 	int widthPerUnit;
 	bool updateNeeded;
-		int screenHeight, screenWidth;
+	int screenHeight, screenWidth;
 
    private:
 	int conditionWidth;
@@ -187,11 +176,9 @@ public:
 	float gaussianStandardDeviationMS;
 	int numRows,numCols;
 
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PeriStimulusTimeHistogramCanvas);
 
 };
-
 
 
 class PeriStimulusTimeHistogramEditor : public VisualizerEditor,
@@ -250,7 +237,6 @@ private:
 	void paintSpikes(Graphics &g);
 	void paintLFPraster(Graphics &g);
 	void paintLFP(Graphics &g);
-
 
 	ScopedPointer<MatlabLikePlot> mlp;
 	PeriStimulusTimeHistogramDisplay* display;

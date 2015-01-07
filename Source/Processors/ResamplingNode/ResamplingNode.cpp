@@ -140,8 +140,7 @@ void ResamplingNode::updateFilter()
 // }
 
 void ResamplingNode::process(AudioSampleBuffer& buffer,
-                             MidiBuffer& midiMessages,
-                             int& nSamples)
+                             MidiBuffer& midiMessages)
 {
 
     //std::cout << "Resampling node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
@@ -149,6 +148,7 @@ void ResamplingNode::process(AudioSampleBuffer& buffer,
     // save data at the beginning of each round of processing
     //writeContinuousBuffer(buffer.getSampleData(0), nSamples, 0);
 
+    int nSamples = 100; // SOME NUMBER
 
     int nSamps = float(nSamples);
     int valuesNeeded = int(nSamps / ratio);

@@ -126,7 +126,10 @@ void PeriStimulusTimeHistogramNode::updateSettings()
 //    diskWriteLock = recordNode->getLock();
 }
 
-
+void PeriStimulusTimeHistogramNode::setHardwareTriggerAlignmentChannel(int chan)
+{
+	trialCircularBuffer->setHardwareTriggerAlignmentChannel(chan);
+}
 
 bool PeriStimulusTimeHistogramNode::enable()
 {
@@ -157,7 +160,7 @@ void PeriStimulusTimeHistogramNode::toggleConditionVisibility(int cond)
 	}
 }
 
-void PeriStimulusTimeHistogramNode::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples)
+void PeriStimulusTimeHistogramNode::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 {
 	//printf("Entering PeriStimulusTimeHistogramNode::process\n");
 	// Update internal statistics 
@@ -169,7 +172,7 @@ void PeriStimulusTimeHistogramNode::process(AudioSampleBuffer& buffer, MidiBuffe
 		syncInternalDataStructuresWithSpikeSorter();	
 	} else if (trialCircularBuffer != nullptr)
 	{
-		trialCircularBuffer->process(buffer,nSamples,hardware_timestamp,software_timestamp);
+		trialCircularBuffer->process(buffer,getNumSamples(0),hardware_timestamp,software_timestamp);
 	}
 
 
@@ -464,16 +467,20 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
     } 
 	if (eventType == TTL)
 	{
-		   const uint8* dataptr = event.getRawData();
-		   bool ttl_raise = dataptr[2] > 0;
-		   int channel = dataptr[3];
-		   int64  ttl_timestamp_software,ttl_timestamp_hardware;
-		   memcpy(&ttl_timestamp_software, dataptr+4, 8);
-		   memcpy(&ttl_timestamp_hardware, dataptr+12, 8);
-		   if (ttl_raise)
-				trialCircularBuffer->addTTLevent(channel,ttl_timestamp_software,ttl_timestamp_hardware, ttl_raise, true);
-		   if (isRecording && saveTTLs)
-			   dumpTTLeventToDisk(channel,ttl_raise,ttl_timestamp_software,ttl_timestamp_hardware,samplePosition );
+	Time t;
+	   const uint8* dataptr = event.getRawData();
+	   int ttl_source = dataptr[1];
+	   bool ttl_raise = dataptr[2] > 0;
+	   int channel = dataptr[3];
+	   int64 ttl_timestamp_hardware = timestamps[ttl_source] + samplePosition; // hardware time
+	   int64 ttl_timestamp_software = t.getHighResolutionTicks(); // get software time
+	   //int64  ttl_timestamp_software,ttl_timestamp_hardware;
+	   //memcpy(&ttl_timestamp_software, dataptr+4, 8);
+	   //memcpy(&ttl_timestamp_hardware, dataptr+12, 8);
+	   if (ttl_raise)
+			trialCircularBuffer->addTTLevent(channel,ttl_timestamp_software,ttl_timestamp_hardware, ttl_raise, true);
+	   if (isRecording && saveTTLs)
+		   dumpTTLeventToDisk(channel,ttl_raise,ttl_timestamp_software,ttl_timestamp_hardware,samplePosition );
 	}
 
     if (eventType == SPIKE)
@@ -534,7 +541,7 @@ String PeriStimulusTimeHistogramNode::generateHeader()
     header += "header.bitVolts = ";
 	if (recordNode->channels.size() > 0)
 	{
-		header += String(recordNode->channels[0]->getChannelGain());
+		header += String(recordNode->channels[0]->bitVolts);
 	}
 	else
 	{

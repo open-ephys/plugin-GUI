@@ -40,6 +40,7 @@ struct SimpleElectrode
     int prePeakSamples, postPeakSamples;
     int lastBufferIndex;
     bool isMonitored;
+    int sourceNodeId;
 
     int* channels;
     double* thresholds;
@@ -75,7 +76,7 @@ public:
 
     /** Processes an incoming continuous buffer and places new
         spikes into the event buffer. */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& events);
 
     /** Used to alter parameters of data acquisition. */
     void setParameter(int parameterIndex, float newValue);
@@ -168,9 +169,9 @@ private:
 
     float getNextSample(int& chan);
     float getCurrentSample(int& chan);
-    bool samplesAvailable(int& nSamples);
+    bool samplesAvailable(int nSamples);
 
-    bool useOverflowBuffer;
+    Array<bool> useOverflowBuffer;
 
     int currentElectrode;
     int currentChannelIndex;

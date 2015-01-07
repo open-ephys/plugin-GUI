@@ -39,8 +39,6 @@ class DataViewport;
 class SpikePlot;
 class TrialCircularBuffer;
 
-
-
 class PeriStimulusTimeHistogramNode :  public GenericProcessor
 {
 public:
@@ -57,11 +55,10 @@ public:
         return true;
     }
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
 
     void syncInternalDataStructuresWithSpikeSorter();
 
-	
 	void allocateTrialCircularBuffer();
     void handleEvent(int, MidiMessage&, int);
 
@@ -87,6 +84,8 @@ public:
 	bool saveTTLs, saveNetworkEvents,saveEyeTracking ;
 	int spikeSavingMode;
 	bool saveNetworkEventsWhenNotRecording;
+
+    void setHardwareTriggerAlignmentChannel(int chan);
 	
 	void handleNetworkMessage(StringTS s);
 private:
@@ -106,7 +105,7 @@ private:
     int displayBufferSize;
     bool redrawRequested;
 	int syncCounter;
-	int64 hardware_timestamp,software_timestamp;
+	int64 hardware_timestamp, software_timestamp;
 
 	std::queue<StringTS> networkEventsHistory;
     RecordNode* recordNode;

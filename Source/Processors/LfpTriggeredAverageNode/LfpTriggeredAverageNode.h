@@ -54,7 +54,7 @@ public:
         return true;
     }
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
 
     void setParameter(int, float);
 
@@ -63,7 +63,7 @@ public:
     bool enable();
     bool disable();
 
-    void handleEvent(int, MidiMessage&, int);
+    void handleEvent(int, MidiMessage&);
 
     AudioSampleBuffer* getDisplayBufferAddress()
     {

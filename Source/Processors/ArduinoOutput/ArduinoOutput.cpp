@@ -138,8 +138,7 @@ bool ArduinoOutput::disable()
 }
 
 void ArduinoOutput::process(AudioSampleBuffer& buffer,
-                            MidiBuffer& events,
-                            int& nSamples)
+                            MidiBuffer& events)
 {
 
 

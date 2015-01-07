@@ -57,7 +57,16 @@ SpikeRecordInfo* RecordEngine::getSpikeElectrode(int index)
     return getProcessorGraph()->getRecordNode()->getSpikeElectrode(index);
 }
 
-void RecordEngine::updateTimeStamp(int64 timestamp) {}
+void RecordEngine::updateTimestamps(std::map<uint8, int64>* ts)
+{
+    timestamps = ts;
+}
+
+void RecordEngine::updateNumSamples(std::map<uint8, int>* ns)
+{
+    numSamples = ns;
+}
+
 
 void RecordEngine::registerSpikeSource(GenericProcessor* processor) {}
 

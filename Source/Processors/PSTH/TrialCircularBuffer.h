@@ -398,11 +398,11 @@ private:
 	std::queue<Trial> aliveTrials;
 	std::vector<Condition> conditions;
 	std::vector<ElectrodePSTH> electrodesPSTH;
-	SmartContinuousCircularBuffer *lfpBuffer;
-	SmartContinuousCircularBuffer *ttlBuffer;
+	ScopedPointer<SmartContinuousCircularBuffer> lfpBuffer;
+	ScopedPointer<SmartContinuousCircularBuffer> ttlBuffer;
 	std::queue<ttlStatus> ttlQueue;
 	TrialCircularBufferParams params;
-	ThreadPool *threadpool;
+	ScopedPointer<ThreadPool> threadpool;
 };
 
 class TrialCircularBufferThread : public ThreadPoolJob

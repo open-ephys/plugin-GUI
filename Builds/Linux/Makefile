@@ -18,12 +18,12 @@ ifeq ($(CONFIG),Debug)
     TARGET_ARCH := -march=native
   endif
 
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.3" -D "JUCE_APP_VERSION_HEX=0x303" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.4" -D "JUCE_APP_VERSION_HEX=0x304" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3 -export-dynamic -g -pg -std=c++0x
   CXXFLAGS += $(CFLAGS)
   LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5 -lhdf5_cpp
   LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.3" -D "JUCE_APP_VERSION_HEX=0x303" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
+  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.4" -D "JUCE_APP_VERSION_HEX=0x304" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   TARGET := open-ephys
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
   CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
@@ -39,12 +39,12 @@ ifeq ($(CONFIG),Release)
     TARGET_ARCH := -march=native
   endif
 
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.3" -D "JUCE_APP_VERSION_HEX=0x303" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.4" -D "JUCE_APP_VERSION_HEX=0x304" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -export-dynamic -g -pg -std=c++0x
   CXXFLAGS += $(CFLAGS)
   LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5 -lhdf5_cpp
   LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.3" -D "JUCE_APP_VERSION_HEX=0x303" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
+  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.4" -D "JUCE_APP_VERSION_HEX=0x304" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   TARGET := open-ephys-release
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
   CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
@@ -58,7 +58,6 @@ OBJECTS := \
   $(OBJDIR)/ArduinoOutputEditor_e1b7e52b.o \
   $(OBJDIR)/AudioEditor_3931be27.o \
   $(OBJDIR)/AudioNode_3db3557c.o \
-  $(OBJDIR)/AudioResamplingNode_bdba71b0.o \
   $(OBJDIR)/Channel_5cb2d4d2.o \
   $(OBJDIR)/ChannelMappingEditor_9b145f15.o \
   $(OBJDIR)/ChannelMappingNode_ec0559ea.o \
@@ -70,8 +69,6 @@ OBJECTS := \
   $(OBJDIR)/rhd2000evalboard_e0b412d5.o \
   $(OBJDIR)/rhd2000registers_cf6cd63b.o \
   $(OBJDIR)/RHD2000Thread_23e0b041.o \
-  $(OBJDIR)/FileReaderThread_933ea08.o \
-  $(OBJDIR)/FPGAThread_a8dc34ed.o \
   $(OBJDIR)/DataBuffer_6ae4f549.o \
   $(OBJDIR)/DataThread_b2a47a13.o \
   $(OBJDIR)/Bessel_7e54cb27.o \
@@ -107,15 +104,10 @@ OBJECTS := \
   $(OBJDIR)/FileReaderEditor_e1193ff7.o \
   $(OBJDIR)/FilterEditor_93e366f5.o \
   $(OBJDIR)/FilterNode_d2b4d9ca.o \
-  $(OBJDIR)/FPGAOutput_9ccd34ea.o \
-  $(OBJDIR)/FPGAOutputEditor_749d7837.o \
   $(OBJDIR)/GenericProcessor_3e79932a.o \
   $(OBJDIR)/LfpDisplayCanvas_9bbf9660.o \
   $(OBJDIR)/LfpDisplayEditor_e7c32ff5.o \
   $(OBJDIR)/LfpDisplayNode_fdf2e2ca.o \
-  $(OBJDIR)/LfpTriggeredAverageCanvas_5ba95b5e.o \
-  $(OBJDIR)/LfpTriggeredAverageEditor_a7acf4f3.o \
-  $(OBJDIR)/LfpTriggeredAverageNode_2ee5cf48.o \
   $(OBJDIR)/Merger_53fb4e4a.o \
   $(OBJDIR)/MergerEditor_e36b0997.o \
   $(OBJDIR)/MessageCenter_bd1ba084.o \
@@ -139,8 +131,6 @@ OBJECTS := \
   $(OBJDIR)/PeriStimulusTimeHistogramNode_9631ca2a.o \
   $(OBJDIR)/tictoc_cdca1ed.o \
   $(OBJDIR)/TrialCircularBuffer_4a4cef0c.o \
-  $(OBJDIR)/ReferenceNode_97454f26.o \
-  $(OBJDIR)/ReferenceNodeEditor_7d0ff573.o \
   $(OBJDIR)/ResamplingNode_9825590a.o \
   $(OBJDIR)/ResamplingNodeEditor_8b120457.o \
   $(OBJDIR)/PulsePal_14932a18.o \
@@ -166,8 +156,6 @@ OBJECTS := \
   $(OBJDIR)/DataWindow_83ce6754.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/MatlabLikePlot_fb09c37f.o \
-  $(OBJDIR)/WiFiOutput_416d244a.o \
-  $(OBJDIR)/WiFiOutputEditor_ada45f97.o \
   $(OBJDIR)/EcubeDialogComponent_2ec3bd57.o \
   $(OBJDIR)/CustomArrowButton_206e4278.o \
   $(OBJDIR)/GraphViewer_e43fd2ce.o \
@@ -250,11 +238,6 @@ $(OBJDIR)/AudioNode_3db3557c.o: ../../Source/Processors/AudioNode/AudioNode.cpp
 	@echo "Compiling AudioNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/AudioResamplingNode_bdba71b0.o: ../../Source/Processors/AudioResamplingNode/AudioResamplingNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling AudioResamplingNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/Channel_5cb2d4d2.o: ../../Source/Processors/Channel/Channel.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Channel.cpp"
@@ -308,16 +291,6 @@ $(OBJDIR)/rhd2000registers_cf6cd63b.o: ../../Source/Processors/DataThreads/rhyth
 $(OBJDIR)/RHD2000Thread_23e0b041.o: ../../Source/Processors/DataThreads/RHD2000Thread.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling RHD2000Thread.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/FileReaderThread_933ea08.o: ../../Source/Processors/DataThreads/FileReaderThread.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FileReaderThread.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/FPGAThread_a8dc34ed.o: ../../Source/Processors/DataThreads/FPGAThread.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FPGAThread.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/DataBuffer_6ae4f549.o: ../../Source/Processors/DataThreads/DataBuffer.cpp
@@ -495,16 +468,6 @@ $(OBJDIR)/FilterNode_d2b4d9ca.o: ../../Source/Processors/FilterNode/FilterNode.c
 	@echo "Compiling FilterNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/FPGAOutput_9ccd34ea.o: ../../Source/Processors/FPGAOutput/FPGAOutput.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FPGAOutput.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/FPGAOutputEditor_749d7837.o: ../../Source/Processors/FPGAOutput/FPGAOutputEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FPGAOutputEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/GenericProcessor_3e79932a.o: ../../Source/Processors/GenericProcessor/GenericProcessor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GenericProcessor.cpp"
@@ -523,21 +486,6 @@ $(OBJDIR)/LfpDisplayEditor_e7c32ff5.o: ../../Source/Processors/LfpDisplayNode/Lf
 $(OBJDIR)/LfpDisplayNode_fdf2e2ca.o: ../../Source/Processors/LfpDisplayNode/LfpDisplayNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling LfpDisplayNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/LfpTriggeredAverageCanvas_5ba95b5e.o: ../../Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageCanvas.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LfpTriggeredAverageCanvas.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/LfpTriggeredAverageEditor_a7acf4f3.o: ../../Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LfpTriggeredAverageEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/LfpTriggeredAverageNode_2ee5cf48.o: ../../Source/Processors/LfpTriggeredAverageNode/LfpTriggeredAverageNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LfpTriggeredAverageNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Merger_53fb4e4a.o: ../../Source/Processors/Merger/Merger.cpp
@@ -653,16 +601,6 @@ $(OBJDIR)/tictoc_cdca1ed.o: ../../Source/Processors/PSTH/tictoc.cpp
 $(OBJDIR)/TrialCircularBuffer_4a4cef0c.o: ../../Source/Processors/PSTH/TrialCircularBuffer.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling TrialCircularBuffer.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ReferenceNode_97454f26.o: ../../Source/Processors/ReferenceNode/ReferenceNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ReferenceNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ReferenceNodeEditor_7d0ff573.o: ../../Source/Processors/ReferenceNode/ReferenceNodeEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ReferenceNodeEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ResamplingNode_9825590a.o: ../../Source/Processors/ResamplingNode/ResamplingNode.cpp
@@ -788,16 +726,6 @@ $(OBJDIR)/SpikeObject_24e8c655.o: ../../Source/Processors/Visualization/SpikeObj
 $(OBJDIR)/MatlabLikePlot_fb09c37f.o: ../../Source/Processors/Visualization/MatlabLikePlot.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling MatlabLikePlot.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/WiFiOutput_416d244a.o: ../../Source/Processors/WiFiOutput/WiFiOutput.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling WiFiOutput.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/WiFiOutputEditor_ada45f97.o: ../../Source/Processors/WiFiOutput/WiFiOutputEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling WiFiOutputEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/EcubeDialogComponent_2ec3bd57.o: ../../Source/UI/EcubeDialogComponent.cpp

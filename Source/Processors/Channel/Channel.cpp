@@ -24,49 +24,63 @@
 #include "Channel.h"
 
 
-Channel::Channel(GenericProcessor* p, int n) : num(n), eventType(0), processor(p), sampleRate(44100.0),
-	 isEventChannel(false), isADCchannel(false), isMonitored(false),  isEnabled(true), recordIndex(-1), 
-	 type(DATA_CHANNEL),bitVolts(1.0f), isRecording(false)
+Channel::Channel(GenericProcessor* p, int n, ChannelType t) : index(n), processor(p), type(t), nodeIndex(0)
 {
-    nodeId = p->getNodeId();
+    reset();
+}
 
+void Channel::reset()
+{
     createDefaultName();
+
+    nodeId = processor->getNodeId();
+
+    sampleRate = 44100.0f;
+    bitVolts = 1.0f;
+    sourceNodeId = -1;
+    isMonitored = false;
+    isEnabled = true;
+    recordIndex = -1;
+    probeId = -1;
+    x = 0.0f;
+    y = 0.0f;
+    z = 0.0f;
+    impedance = 0.0f;
+    isRecording = false;
+
 }
 
 Channel::Channel(const Channel& ch)
 {
+    index = ch.index;
+    nodeIndex = ch.nodeIndex;
+    nodeId = ch.nodeId;
     processor = ch.processor;
-    isEventChannel = ch.isEventChannel;
-    isEnabled = ch.isEnabled;
-    isMonitored = false;
-    isADCchannel = ch.isADCchannel;
     sampleRate = ch.sampleRate;
     bitVolts = ch.bitVolts;
+    type = ch.type;
+    sourceNodeId = ch.sourceNodeId;
+    isMonitored = ch.isMonitored;
+    isEnabled = ch.isEnabled;
+    recordIndex = ch.recordIndex;
     name = ch.name;
-    eventType = ch.eventType;
-    nodeId = ch.nodeId;
-    num = ch.num;
-	type = ch.type;
-
-    originalStream = ch.originalStream;
-    originalChannel = ch.originalChannel;
+    probeId = ch.probeId;
+    x = ch.x;
+    y = ch.y;
+    z = ch.z;
+    impedance = ch.impedance;
 
     setRecordState(false);
 }
 
-float Channel::getChannelGain()
+float Channel::getBitVolts()
 {
     return bitVolts;
 }
 
-String Channel::getChannelName()
+void Channel::setBitVolts(float bv)
 {
-    return name;
-}
-
-void Channel::setGain(float gain)
-{
-    bitVolts = gain;
+    bitVolts = bv;
 }
 
 
@@ -85,19 +99,19 @@ String Channel::getName()
 void Channel::setRecordState(bool t)
 {
 
-   isRecording = t;
-   //std::cout << "Setting record status for channel " <<
-     //            nodeId << " - " << num << " to " << t << std::endl;
+    isRecording = t;
+    //std::cout << "Setting record status for channel " <<
+    //            nodeId << " - " << num << " to " << t << std::endl;
 
 }
 
-void Channel::setType(channelType t)
+void Channel::setType(ChannelType t)
 {
     type = t;
 }
 
 
-channelType Channel::getType()
+ChannelType Channel::getType()
 {
     return type;
 }
@@ -107,17 +121,34 @@ void Channel::setName(String name_)
     name = name_;
 }
 
-void Channel::reset()
-{
-    createDefaultName();
 
-    sampleRate = 44100.0f;
-    bitVolts = 1.0f;
-
-}
 
 void Channel::createDefaultName()
 {
-    name = String("CH");
-    name += (num + 1);
+    switch (type)
+    {
+        case HEADSTAGE_CHANNEL:
+            name = String("CH");
+            break;
+        case AUX_CHANNEL:
+            name = String("AUX");
+            break;
+        case ADC_CHANNEL:
+            name = String("ADC");
+            break;
+        case EVENT_CHANNEL:
+            name = String("EVENT");
+            break;
+        case SINGLE_ELECTRODE:
+            name = String("SE");
+            break;
+        case STEREOTRODE:
+            name = String("ST");
+            break;
+        case TETRODE:
+            name = String("TT");
+            break;
+    }
+
+    name += index;
 }

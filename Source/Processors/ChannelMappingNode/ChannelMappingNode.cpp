@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 ChannelMappingNode::ChannelMappingNode()
-    : GenericProcessor("Channel Map"), previousChannelCount(0), channelBuffer(1,10000)
+    : GenericProcessor("Channel Map"), channelBuffer(1,10000)
 {
     referenceArray.resize(1024); // make room for 1024 channels
     channelArray.resize(1024);
@@ -68,61 +68,25 @@ void ChannelMappingNode::updateSettings()
     if (getNumInputs() > 0)
         channelBuffer.setSize(getNumInputs(), 10000);
 
-	previousChannelCount = getNumInputs();
 	if (editorIsConfigured)
 	{
-		OwnedArray<Channel> tempArray;
-		channels.swapWith(tempArray);
-		j=0;
-		for (int i=0; i < getNumInputs(); i++)
-		{
-			int realChan = channelArray[i];
-			if (enabledChannelArray[realChan])
-			{
-				channels.add(tempArray[realChan]);
-				j++;
-			}
-		}
-		tempArray.clear(false);
-		settings.numOutputs=j;
+	    OwnedArray<Channel> oldChannels;
+		oldChannels.swapWith(channels);
+	    channels.clear();
+
+	    settings.numOutputs = 0;
+
+	    for (int i = 0; i < getNumInputs(); i++)
+	    {
+	        if (enabledChannelArray[channelArray[i]])
+	        {
+	            channels.add(oldChannels[channelArray[i]]);
+				oldChannels.set(channelArray[i],nullptr,false);
+	            settings.numOutputs++;
+	        }
+
+	    }
 	}
-	/*
-    if (getNumInputs() != previousChannelCount)
-    {
-        previousChannelCount = getNumInputs();
-        if (editorIsConfigured)
-        {
-            j = 0;
-            for (int i = 0; i < getNumInputs(); i++)
-            {
-                if (enabledChannelArray[i])
-                {
-                    j++;
-                }
-                else
-                {
-                    channels.remove(j);
-                }
-            }
-            settings.numOutputs = j;
-        }
-    }
-    else
-    {
-        j = 0;
-        for (int i = 0; i < getNumInputs(); i++)
-        {
-            if (enabledChannelArray[i])
-            {
-                j++;
-            }
-            else
-            {
-                channels.remove(j);
-            }
-        }
-        settings.numOutputs=j;
-    }*/
 
 }
 
@@ -154,8 +118,7 @@ void ChannelMappingNode::setParameter(int parameterIndex, float newValue)
 }
 
 void ChannelMappingNode::process(AudioSampleBuffer& buffer,
-                                 MidiBuffer& midiMessages,
-                                 int& nSamples)
+                                 MidiBuffer& midiMessages)
 {
     int j=0;
     int i=0;
@@ -177,7 +140,7 @@ void ChannelMappingNode::process(AudioSampleBuffer& buffer,
                            channelBuffer, // source
                            realChan, // sourceChannel
                            0, // sourceStartSample
-                           nSamples, // numSamples
+                           getNumSamples(j), // numSamples
                            1.0f // gain to apply to source (positive for original signal)
                           );
 
@@ -190,7 +153,7 @@ void ChannelMappingNode::process(AudioSampleBuffer& buffer,
                                channelBuffer, // source
                                referenceChannels[referenceArray[realChan]], // sourceChannel
                                0, // sourceStartSample
-                               nSamples, // numSamples
+                               getNumSamples(j), // numSamples
                                -1.0f // gain to apply to source (negative for reference)
                               );
             }

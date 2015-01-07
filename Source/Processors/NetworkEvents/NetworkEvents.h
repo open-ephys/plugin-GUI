@@ -74,7 +74,7 @@ public:
 	int64 getExtrapolatedHardwareTimestamp(int64 softwareTS);
 	void initSimulation();
 	void simulateDesignAndTrials(juce::MidiBuffer& events);
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
     void setParameter(int parameterIndex, float newValue);
 	String handleSpecialMessages(StringTS msg);
 	std::vector<String> splitString(String S, char sep);

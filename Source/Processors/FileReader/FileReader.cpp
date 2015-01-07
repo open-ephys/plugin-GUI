@@ -35,6 +35,7 @@ FileReader::FileReader()
 
     enabledState(false);
 
+    counter = 0;
 
 }
 
@@ -72,7 +73,7 @@ float FileReader::getDefaultSampleRate()
         return 44100.0;
 }
 
-int FileReader::getDefaultNumOutputs()
+int FileReader::getNumHeadstageOutputs()
 {
     if (input)
         return currentNumChannels;
@@ -80,10 +81,15 @@ int FileReader::getDefaultNumOutputs()
         return 16;
 }
 
-float FileReader::getBitVolts(int chan)
+int FileReader::getNumEventChannels()
+{
+    return 8;
+}
+
+float FileReader::getBitVolts(Channel* chan)
 {
     if (input)
-        return channelInfo[chan].bitVolts;
+        return chan->bitVolts;
     else
         return 0.05f;
 }
@@ -158,74 +164,45 @@ String FileReader::getFile()
 
 void FileReader::updateSettings()
 {
-    if (!input) return;
+    // if (!input) return;
 
-    for (int i=0; i < currentNumChannels; i++)
-    {
-        channels[i]->bitVolts = channelInfo[i].bitVolts;
-        channels[i]->name = channelInfo[i].name;
-    }
+    // for (int i=0; i < currentNumChannels; i++)
+    // {
+    //     channels[i]->bitVolts = channelInfo[i].bitVolts;
+    //     channels[i]->name = channelInfo[i].name;
+    // }
 }
 
 
 
-void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples)
+void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 {
 
-    uint8 data[8];
-    memcpy(data, &timestamp, 8);
+    setTimestamp(events, timestamp);
 
-    // generate timestamp
-    addEvent(events,    // MidiBuffer
-             TIMESTAMP, // eventType
-             0,         // sampleNum
-             nodeId,    // eventID
-             0,		 // eventChannel
-             8,         // numBytes
-             data   // data
-            );
-
+    int samplesNeeded = (int) float(buffer.getNumSamples()) * (getDefaultSampleRate()/44100.0f);
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
 
-    // code for testing events:
-    // if (counter > 100)
-    // {
-    //     addEvent(events,    // MidiBuffer
-    //          TTL, // eventType
-    //          0,         // sampleNum
-    //          1,    // eventID
-    //          0      // eventChannel
-    //         );
-    //     counter = 0;
-    // } else {
-    //     counter++;
+    int samplesRead = 0;
 
-    // }
-
-
-
-    int samplesNeeded = (int) float(buffer.getNumSamples()) * (getDefaultSampleRate()/44100.0f);
-
-    int samplesReaded = 0;
-
-    while (samplesReaded < samplesNeeded)
+    while (samplesRead < samplesNeeded)
     {
-        int samplesToRead = samplesNeeded - samplesReaded;
+        int samplesToRead = samplesNeeded - samplesRead;
         if ((currentSample + samplesToRead) > stopSample)
         {
             samplesToRead = stopSample - currentSample;
             if (samplesToRead > 0)
-                input->readData(readBuffer+samplesReaded,samplesToRead);
+                input->readData(readBuffer+samplesRead,samplesToRead);
             input->seekTo(startSample);
             currentSample = startSample;
         }
         else
         {
-            input->readData(readBuffer+samplesReaded,samplesToRead);
+            input->readData(readBuffer+samplesRead,samplesToRead);
             currentSample += samplesToRead;
         }
-        samplesReaded += samplesToRead;
+        samplesRead += samplesToRead;
     }
     for (int i=0; i < currentNumChannels; i++)
     {
@@ -233,8 +210,34 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSa
     }
 
     timestamp += samplesNeeded;
-    static_cast<FileReaderEditor*>(getEditor())->setCurrentTime(samplesToMilliseconds(currentSample));
-    nSamples = samplesNeeded;
+    setNumSamples(events, samplesNeeded);
+
+    // code for testing events:
+    if (counter == 100)
+    {
+        std::cout << "Adding on event for node id: " << nodeId << std::endl;
+        addEvent(events,    // MidiBuffer
+             TTL, // eventType
+             0,         // sampleNum
+             1,    // eventID
+             1      // eventChannel
+            );
+
+        counter++;
+    } else if (counter > 120) 
+    {
+        std::cout << "Adding off event!" << std::endl;
+        addEvent(events,    // MidiBuffer
+             TTL, // eventType
+             0,         // sampleNum
+             0,    // eventID
+             1      // eventChannel
+            );
+
+        counter = 0;
+    } else {
+        counter++;
+    }
 
 }
 

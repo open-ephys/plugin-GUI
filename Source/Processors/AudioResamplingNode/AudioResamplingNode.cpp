@@ -140,11 +140,10 @@ void AudioResamplingNode::releaseResources()
 }
 
 void AudioResamplingNode::process(AudioSampleBuffer& buffer,
-                                  MidiBuffer& midiMessages,
-                                  int& nSamples)
+                                  MidiBuffer& midiMessages)
 {
 
-    int nSamps = nSamples;
+    int nSamps = buffer.getNumSamples(); // WRONG!!!!
     int valuesNeeded;
 
     if (destBufferIsTempBuffer)
