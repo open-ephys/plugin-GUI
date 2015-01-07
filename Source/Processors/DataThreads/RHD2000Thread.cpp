@@ -869,33 +869,36 @@ void RHD2000Thread::setDefaultChannelNamesAndType()
     }
 	//Aux channels
 	for (int i = 0; i < MAX_NUM_DATA_STREAMS; i++)
-    {
-		for (int k = 0; k < 3; k++)
-            {
+    {	
+    	if (numChannelsPerDataStream[i] > 0)
+        {
+			for (int k = 0; k < 3; k++)
+		        {
 
-                type.add(AUX_CHANNEL);
+		            type.add(AUX_CHANNEL);
 
-                if (channelModified(AUX_CHANNEL,i,numChannelsPerDataStream[i]+k, oldName,oldGain, dummy))
-                {
-                    Names.add(oldName);
-                    gains.add(oldGain);
+		            if (channelModified(AUX_CHANNEL,i,numChannelsPerDataStream[i]+k, oldName,oldGain, dummy))
+		            {
+		                Names.add(oldName);
+		                gains.add(oldGain);
 
-                    aux_counter++;
-                }
-                else
-                {
-                    if (numberingScheme == 1)
-                        Names.add("AUX"+String(aux_counter++));
-                    else
-                        Names.add("AUX_"+stream_prefix[i]+"_"+String(1+k));
+		                aux_counter++;
+		            }
+		            else
+		            {
+		                if (numberingScheme == 1)
+		                    Names.add("AUX"+String(aux_counter++));
+		                else
+		                    Names.add("AUX_"+stream_prefix[i]+"_"+String(1+k));
 
-                    gains.add(0.0000374);
+		                gains.add(0.0000374);
 
-                }
+		            }
 
-                stream.add(i);
-                originalChannelNumber.add(numChannelsPerDataStream[i]+k);
-            }
+		            stream.add(i);
+		            originalChannelNumber.add(numChannelsPerDataStream[i]+k);
+		        }
+		 }
 	}
 	//ADC channels
     if (acquireAdcChannels)
