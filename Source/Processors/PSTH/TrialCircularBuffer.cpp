@@ -2204,7 +2204,7 @@ void TrialCircularBuffer::addTTLevent(int channel,int64 ttl_timestamp_software, 
 	// this is useful when sending train of pulses and you are interested in aligning things just
 	// to the first pulse.
 
-	std::cout << "Got that TTL event" << std::endl;
+	//std::cout << "Got that TTL event" << std::endl;
 
 	if (channel >= 0 && channel < lastTTLts.size())
 	{
@@ -2233,7 +2233,7 @@ void TrialCircularBuffer::addTTLevent(int channel,int64 ttl_timestamp_software, 
 			if (channel == hardwareTriggerAlignmentChannel)
 			{
 
-				std::cout << "TTL channel matches alignment channel!" << std::endl;
+				//std::cout << "TTL channel matches alignment channel!" << std::endl;
 				currentTrial.alignTS = ttl_timestamp_software; 
 				currentTrial.alignTS_hardware = ttl_timestamp_hardware;
 				currentTrial.hardwareAlignment = true;
