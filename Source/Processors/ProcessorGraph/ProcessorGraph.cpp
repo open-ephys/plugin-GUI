@@ -56,6 +56,8 @@
 #include "../../UI/EditorViewport.h"
 #include "../NetworkEvents/NetworkEvents.h"
 #include "../PSTH/PeriStimulusTimeHistogramNode.h"
+#include "../CAR/CAR.h"
+
 
 ProcessorGraph::ProcessorGraph() : currentNodeId(100)
 {
@@ -604,7 +606,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             std::cout << "Creating a new channel mapping node." << std::endl;
             processor = new ChannelMappingNode();
         }
-
+        else if (subProcessorType.equalsIgnoreCase("CAR"))
+        {
+            std::cout << "Creating a new common average reference node." << std::endl;
+            processor = new CAR();
+        }
         sendActionMessage("New filter node created.");
 
     }

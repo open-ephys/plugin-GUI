@@ -32,6 +32,9 @@
     <Filter Include="open-ephys\Source\Processors">
       <UniqueIdentifier>{3DDEC88C-BAA5-2DDA-A59F-0FB74070AB82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Source\Processors\CAR">
+      <UniqueIdentifier>{1B2171CA-EE41-20E7-6532-5D930593633A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="open-ephys\Source\Processors\ArduinoOutput">
       <UniqueIdentifier>{26D17857-B604-0035-CFB5-C3FFD320BD99}</UniqueIdentifier>
     </Filter>
@@ -459,6 +462,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\CAR\CAR.cpp">
+      <Filter>open-ephys\Source\Processors\CAR</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutput.cpp">
       <Filter>open-ephys\Source\Processors\ArduinoOutput</Filter>
@@ -2082,6 +2088,9 @@
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\CAR\CAR.h">
+      <Filter>open-ephys\Source\Processors\CAR</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutput.h">
       <Filter>open-ephys\Source\Processors\ArduinoOutput</Filter>
     </ClInclude>
@@ -2742,13 +2751,13 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_ASCII.h">
       <Filter>Juce Modules\juce_core\text</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_UTF8.h">
+      <Filter>Juce Modules\juce_core\text</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_UTF16.h">
       <Filter>Juce Modules\juce_core\text</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_UTF32.h">
-      <Filter>Juce Modules\juce_core\text</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_UTF8.h">
       <Filter>Juce Modules\juce_core\text</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_Identifier.h">

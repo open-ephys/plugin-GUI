@@ -29,7 +29,7 @@
 #endif
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "GenericProcessor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 /**
 
