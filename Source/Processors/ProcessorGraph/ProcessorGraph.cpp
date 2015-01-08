@@ -52,6 +52,8 @@
 #include "../../UI/EditorViewport.h"
 #include "../NetworkEvents/NetworkEvents.h"
 #include "../PSTH/PeriStimulusTimeHistogramNode.h"
+#include "../CAR/CAR.h"
+
 
 #ifdef ZEROMQ 
     
@@ -603,7 +605,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             std::cout << "Creating a new channel mapping node." << std::endl;
             processor = new ChannelMappingNode();
         }
-
+        else if (subProcessorType.equalsIgnoreCase("Common Avg Ref"))
+        {
+            std::cout << "Creating a new common average reference node." << std::endl;
+            processor = new CAR();
+        }
         sendActionMessage("New filter node created.");
 
     }
