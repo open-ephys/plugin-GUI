@@ -637,7 +637,7 @@ void LfpDisplayCanvas::refreshState()
 void LfpDisplayCanvas::refreshScreenBuffer()
 {
 
-    for (int i = 0; i <= screenBufferIndex.size(); i++)
+    for (int i = 0; i < screenBufferIndex.size(); i++)
         screenBufferIndex.set(i,0);
 
     screenBuffer->clear();
