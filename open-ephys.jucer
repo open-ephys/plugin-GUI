@@ -7,7 +7,7 @@
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="JuceProjectAU" pluginAUViewClass="JuceProjectAU_V1"
-              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="3.1.1"
+              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="3.1.0"
               companyName="Open Ephys" userNotes="The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring, processing, and visualizing data from extracellular electrodes. See open-ephys.org for more information."
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
@@ -281,10 +281,6 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
-        <GROUP id="{524D893D-A1F5-2C0F-5BB3-5E5C4D8C697D}" name="CAR">
-          <FILE id="Tt1aBa" name="CAR.cpp" compile="1" resource="0" file="Source/Processors/CAR/CAR.cpp"/>
-          <FILE id="JRBOqc" name="CAR.h" compile="0" resource="0" file="Source/Processors/CAR/CAR.h"/>
-        </GROUP>
         <GROUP id="{447899E6-3974-53D0-5588-79643E8F5CA3}" name="ArduinoOutput">
           <FILE id="Ucs5gf" name="ArduinoOutput.cpp" compile="1" resource="0"
                 file="Source/Processors/ArduinoOutput/ArduinoOutput.cpp"/>
@@ -299,6 +295,10 @@
           <FILE id="erBMrA" name="AudioEditor.h" compile="0" resource="0" file="Source/Processors/AudioNode/AudioEditor.h"/>
           <FILE id="jClaJf" name="AudioNode.cpp" compile="1" resource="0" file="Source/Processors/AudioNode/AudioNode.cpp"/>
           <FILE id="LHkdoG" name="AudioNode.h" compile="0" resource="0" file="Source/Processors/AudioNode/AudioNode.h"/>
+        </GROUP>
+        <GROUP id="{524D893D-A1F5-2C0F-5BB3-5E5C4D8C697D}" name="CAR">
+          <FILE id="Tt1aBa" name="CAR.cpp" compile="1" resource="0" file="Source/Processors/CAR/CAR.cpp"/>
+          <FILE id="JRBOqc" name="CAR.h" compile="0" resource="0" file="Source/Processors/CAR/CAR.h"/>
         </GROUP>
         <GROUP id="{46016F19-8F25-F540-AA1C-D6E87E8D7D31}" name="Channel">
           <FILE id="X3I3e9" name="Channel.cpp" compile="1" resource="0" file="Source/Processors/Channel/Channel.cpp"/>

@@ -35,6 +35,8 @@ CAR::CAR()
 
     parameters.add(Parameter("Gain (%)", 0.0, 100.0, 100.0, 0));
 
+    avgBuffer = AudioSampleBuffer(1,10000); // 1-dimensional buffer to hold the avg
+
 }
 
 CAR::~CAR()
@@ -57,25 +59,36 @@ void CAR::setParameter(int parameterIndex, float newValue)
 }
 
 void CAR::process(AudioSampleBuffer& buffer,
-                               MidiBuffer& events,
-                               int& nSamples)
+                  MidiBuffer& events)
 {
-	int nChannels=buffer.getNumChannels();
-    for (int i = 0; i < nSamples; i++)
-    {
-    	float average=0;
-    	for (int j = 0; j < (nChannels); j++)
-    	{
-    		average=average+buffer.getSample(j, i);
-    	}
-    	average=average/nChannels;
+	int nChannels = buffer.getNumChannels();
 
-    	for (int j = 0; j < nChannels; j++)
-    	{
-    		float gain=getParameterVar(0, j);
-    		// Subtract from sample
-    		float subtracted=(buffer.getSample(j,i)*(1+(1/nChannels*gain/100))-average*gain/100);
-			buffer.setSample(j,i, subtracted);
-    	}    	
+    float gain = -1.0f * float(getParameterVar(0, 0)) / 100.0f; // just use channel 0, since we can't have individual channel settings at the moment
+
+    avgBuffer.clear();
+
+    for (int j = 0; j < nChannels; j++)
+	{
+		avgBuffer.addFrom(0,           // destChannel 
+                          0,           // destStartSample
+                          buffer,      // source
+                          j,           // sourceChannel
+                          0,           // sourceStartSample
+                          buffer.getNumSamples(), // numSamples
+                          1.0f); // gain to apply       
+	}
+
+    avgBuffer.applyGain(1.0f/float(nChannels));
+
+    for (int j = 0; j < nChannels; j++)
+    {
+        buffer.addFrom(j,           // destChannel 
+                       0,           // destStartSample
+                       avgBuffer,   // source
+                       0,           // sourceChannel
+                       0,           // sourceStartSample
+                       buffer.getNumSamples(), // numSamples
+                       gain); // gain to apply            
     }
+
 }

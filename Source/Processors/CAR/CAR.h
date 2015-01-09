@@ -79,12 +79,14 @@ public:
         number of continous samples in the current buffer (which may differ from the
         size of the buffer).
          */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& events, int& nSamples);
+    void process(AudioSampleBuffer& buffer, MidiBuffer& events);
 
     /** Any variables used by the "process" function _must_ be modified only through
         this method while data acquisition is active. If they are modified in any
         other way, the application will crash.  */
     void setParameter(int parameterIndex, float newValue);
+
+    AudioSampleBuffer avgBuffer;
 
 private:
 
