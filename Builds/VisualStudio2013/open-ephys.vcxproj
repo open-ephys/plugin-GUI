@@ -274,6 +274,7 @@
     <ClCompile Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutputEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\CAR\CAR.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Channel\Channel.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ChannelMappingNode\ChannelMappingEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ChannelMappingNode\ChannelMappingNode.cpp"/>
@@ -1517,6 +1518,7 @@
     <ClInclude Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutputEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioNode.h"/>
+    <ClInclude Include="..\..\Source\Processors\CAR\CAR.h"/>
     <ClInclude Include="..\..\Source\Processors\Channel\Channel.h"/>
     <ClInclude Include="..\..\Source\Processors\ChannelMappingNode\ChannelMappingEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\ChannelMappingNode\ChannelMappingNode.h"/>

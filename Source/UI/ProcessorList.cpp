@@ -61,7 +61,9 @@ ProcessorList::ProcessorList()
 #endif
 #endif
     sources->addSubItem(new ProcessorListItem("File Reader"));
+#ifdef ZEROMQ
     sources->addSubItem(new ProcessorListItem("Network Events"));
+#endif
     sources->addSubItem(new ProcessorListItem("Serial Port"));
     //sources->addSubItem(new ProcessorListItem("Event Generator"));
 
@@ -73,6 +75,7 @@ ProcessorList::ProcessorList()
     filters->addSubItem(new ProcessorListItem("Phase Detector"));
     //filters->addSubItem(new ProcessorListItem("Digital Ref"));
     filters->addSubItem(new ProcessorListItem("Channel Map"));
+    filters->addSubItem(new ProcessorListItem("Common Avg Ref"));
     //filters->addSubItem(new ProcessorListItem("Eye Tracking"));
 
 
