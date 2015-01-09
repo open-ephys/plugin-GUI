@@ -569,8 +569,8 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
             for (int j = 0; j < electrode->numChannels; j++)
             {
 
-                overflowBuffer.copyFrom(*electrode->channels+i, 0,
-                                        buffer, *electrode->channels+i,
+                overflowBuffer.copyFrom(*electrode->channels+j, 0,
+                                        buffer, *electrode->channels+j,
                                         nSamples-overflowBufferSize,
                                         overflowBufferSize);
                 
