@@ -196,7 +196,7 @@ void VisualizerEditor::buttonEvent(Button* button)
                 dataWindow = new DataWindow(windowSelector, tabText);
                 dataWindow->setContentNonOwned(canvas, false);
                 dataWindow->setVisible(true);
-                canvas->refreshState();
+                //canvas->refreshState();
 
             }
             else
@@ -208,7 +208,7 @@ void VisualizerEditor::buttonEvent(Button* button)
                 {
                     dataWindow->setContentNonOwned(canvas, false);
                     canvas->setBounds(0,0,canvas->getParentWidth(), canvas->getParentHeight());
-                    canvas->refreshState();
+                  //  canvas->refreshState();
                 }
                 else
                 {
