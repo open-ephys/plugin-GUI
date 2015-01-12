@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2013 Open Ephys
+Copyright (C) 2015 Open Ephys
 
 ------------------------------------------------------------------
 
@@ -417,6 +417,7 @@ void NetworkEvents::run() {
   
   if (rc != 0) {
 	  // failed to open socket?
+  	  std::cout << "Failed to open socket." << std::endl;
 	  return;
   }
 
@@ -438,6 +439,8 @@ void NetworkEvents::run() {
 			lock.enter();
 			networkMessagesQueue.push(Msg);
 		    lock.exit();
+
+		    std::cout << "Received message!" << std::endl;
 			// handle special messages
 			String response = handleSpecialMessages(Msg);
 	
@@ -445,6 +448,8 @@ void NetworkEvents::run() {
 		} else 
 		{
 			String zeroMessageError = "Recieved Zero Message?!?!?";
+			std::cout << "Received Zero Message!" << std::endl;
+
 			zmq_send (responder, zeroMessageError.getCharPointer(), zeroMessageError.length(), 0);
 		}
     }

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2015 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -727,19 +727,20 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
                                 uint8 numBytes,
                                 uint8* eventData)
 {
-    uint8* data = new uint8[5+numBytes];
+    uint8* data = new uint8[6+numBytes];
 
     data[0] = type;    // event type
     data[1] = nodeId;  // processor ID automatically added
     data[2] = eventId; // event ID (1 = on, 0 = off, usually)
     data[3] = eventChannel; // event channel
     data[4] = 1; // saving flag
-    memcpy(data + 5, eventData, numBytes);
+    data[5] = (uint8) channels[0]->sourceNodeId;  // source node ID (for nSamples)
+    memcpy(data + 6, eventData, numBytes);
 
     //std::cout << "Node id: " << data[1] << std::endl;
 
     eventBuffer.addEvent(data, 		// raw data
-                         5 + numBytes, // total bytes
+                         6 + numBytes, // total bytes
                          sampleNum);     // sample index
 
     //if (type == TTL)

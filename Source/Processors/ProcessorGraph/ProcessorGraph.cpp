@@ -52,6 +52,20 @@
 #include "../../UI/EditorViewport.h"
 #include "../NetworkEvents/NetworkEvents.h"
 #include "../PSTH/PeriStimulusTimeHistogramNode.h"
+#include "../CAR/CAR.h"
+
+
+#ifdef ZEROMQ 
+    
+#ifdef WIN32
+    #pragma comment( lib, "../../Resources/windows-libs/ZeroMQ/lib_x64/libzmq-v120-mt-4_0_4.lib" )
+    #include "../../Resources/windows-libs/ZeroMQ/include/zmq.h"
+    #include "../../Resources/windows-libs/ZeroMQ/include/zmq_utils.h"
+#else
+    #include <zmq.h>
+#endif
+
+#endif
 
 ProcessorGraph::ProcessorGraph() : currentNodeId(100)
 {
@@ -74,7 +88,7 @@ ProcessorGraph::~ProcessorGraph()
 void* ProcessorGraph::createZmqContext()
 {
 #ifdef ZEROMQ 
-	zmqcontext =  zmq_ctx_new ();
+	zmqcontext =  zmq_ctx_new (); //<-- this is only available in version 3+
 	return zmqcontext;
 #endif
 	return nullptr;
@@ -591,7 +605,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             std::cout << "Creating a new channel mapping node." << std::endl;
             processor = new ChannelMappingNode();
         }
-
+        else if (subProcessorType.equalsIgnoreCase("Common Avg Ref"))
+        {
+            std::cout << "Creating a new common average reference node." << std::endl;
+            processor = new CAR();
+        }
         sendActionMessage("New filter node created.");
 
     }

@@ -38,6 +38,9 @@
     <Filter Include="open-ephys\Source\Processors\AudioNode">
       <UniqueIdentifier>{117683A8-B332-1FBB-1FA0-8C6C7D231B69}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Source\Processors\CAR">
+      <UniqueIdentifier>{1B2171CA-EE41-20E7-6532-5D930593633A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="open-ephys\Source\Processors\Channel">
       <UniqueIdentifier>{7374BFF8-0BFC-382A-1DC3-F4B934CF25BC}</UniqueIdentifier>
     </Filter>
@@ -456,6 +459,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioNode.cpp">
       <Filter>open-ephys\Source\Processors\AudioNode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\CAR\CAR.cpp">
+      <Filter>open-ephys\Source\Processors\CAR</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Channel\Channel.cpp">
       <Filter>open-ephys\Source\Processors\Channel</Filter>
@@ -2042,6 +2048,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioNode.h">
       <Filter>open-ephys\Source\Processors\AudioNode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\CAR\CAR.h">
+      <Filter>open-ephys\Source\Processors\CAR</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Channel\Channel.h">
       <Filter>open-ephys\Source\Processors\Channel</Filter>

@@ -155,28 +155,30 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
     {
         const uint8* dataptr = event.getRawData();
 
-        int eventSourceNode = *(dataptr+1);
+        int eventNodeId = *(dataptr+1);
         int eventId = *(dataptr+2);
         int eventChannel = *(dataptr+3);
         int eventTime = event.getTimeStamp();
 
-        int nSamples = numSamples.at(eventSourceNode);
+        int eventSourceNodeId = *(dataptr+5);
+
+        int nSamples = numSamples.at(eventSourceNodeId);
 
         int samplesToFill = nSamples - eventTime;
 
         //	std::cout << "Received event from " << eventSourceNode << ", channel "
         //	          << eventChannel << ", with ID " << eventId << ", copying to "
-         //             << channelForEventSource[eventSourceNode] << std::endl;
+         //            << channelForEventSource[eventSourceNode] << std::endl;
         ////
-        int bufferIndex = (displayBufferIndex[channelForEventSource[eventSourceNode]] + eventTime) % displayBuffer->getNumSamples();
+        int bufferIndex = (displayBufferIndex[channelForEventSource[eventSourceNodeId]] + eventTime) % displayBuffer->getNumSamples();
 
         if (eventId == 1)
         {
-            ttlState[eventSourceNode] |= (1L << eventChannel);
+            ttlState[eventSourceNodeId] |= (1L << eventChannel);
         }
         else
         {
-            ttlState[eventSourceNode] &= ~(1L << eventChannel);
+            ttlState[eventSourceNodeId] &= ~(1L << eventChannel);
         }
 
         if (samplesToFill + bufferIndex < displayBuffer->getNumSamples())
@@ -184,11 +186,11 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
 
             //std::cout << bufferIndex << " " << samplesToFill << " " << ttlState[eventSourceNode] << std::endl;
 
-            displayBuffer->copyFrom(channelForEventSource[eventSourceNode],  // destChannel
+            displayBuffer->copyFrom(channelForEventSource[eventSourceNodeId],  // destChannel
                                     bufferIndex,		// destStartSample
                                     arrayOfOnes, 		// source
                                     samplesToFill, 		// numSamples
-                                    float(ttlState[eventSourceNode]));   // gain
+                                    float(ttlState[eventSourceNodeId]));   // gain
         }
         else
         {
@@ -200,19 +202,19 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
 
             //std::cout << bufferIndex << " " << block1Size << " " << ttlState << std::endl;
 
-            displayBuffer->copyFrom(channelForEventSource[eventSourceNode],  // destChannel
+            displayBuffer->copyFrom(channelForEventSource[eventSourceNodeId],  // destChannel
                                     bufferIndex,		// destStartSample
                                     arrayOfOnes, 		// source
                                     block1Size, 		// numSamples
-                                    float(ttlState[eventSourceNode]));   // gain
+                                    float(ttlState[eventSourceNodeId]));   // gain
 
             //std::cout << 0 << " " << block2Size << " " << ttlState << std::endl;
 
-            displayBuffer->copyFrom(channelForEventSource[eventSourceNode],  // destChannel
+            displayBuffer->copyFrom(channelForEventSource[eventSourceNodeId],  // destChannel
                                     0,		                        // destStartSample
                                     arrayOfOnes, 		// source
                                     block2Size, 		// numSamples
-                                    float(ttlState[eventSourceNode]));   // gain
+                                    float(ttlState[eventSourceNodeId]));   // gain
 
 
         }

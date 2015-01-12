@@ -46,7 +46,7 @@ SpikeSorter::SpikeSorter()
     spikeBuffer = new uint8_t[MAX_SPIKE_BUFFER_LEN]; // MAX_SPIKE_BUFFER_LEN defined in SpikeObject.h
 	channelBuffers=nullptr;
 	PCAbeforeBoxes = true;
-	autoDACassignment = true;
+	autoDACassignment = false;
 	syncThresholds = false;
 	flipSignal = false;
 }
@@ -275,7 +275,7 @@ void SpikeSorter::setElectrodeVoltageScale(int electrodeID, int index, float new
 {
 	std::vector<float> values;
 	mut.enter();
-	for (int k=0;k<electrodes.size();k++)
+	for (int k = 0; k < electrodes.size(); k++)
 	{
 		if (electrodes[k]->electrodeID == electrodeID)
 		{
@@ -453,6 +453,10 @@ bool SpikeSorter::addElectrode(int nChans, String name, double Depth)
 	newElectrode->depthOffsetMM = Depth;
 	String log = "Added electrode (ID "+ String(uniqueID)+") with " + String(nChans) + " channels." ;
     std::cout << log << std::endl;
+    for (int i = 0; i < nChans; i++)
+    {
+    	std::cout << "  Channel " << i << " = " << newElectrode->channels[i] << std::endl;
+    }
 	String eventlog = "NewElectrode "+ String(uniqueID) + " " + String(nChans) + " ";
 	for (int k = 0; k < nChans; k++)
 		eventlog += String(chans[k])+ " " + name;
@@ -1019,9 +1023,10 @@ void SpikeSorter::process(AudioSampleBuffer& buffer,
 
             for (int j = 0; j < electrode->numChannels; j++)
             {
+            	//std::cout << "Processing " << *electrode->channels+i << std::endl;
 
-                overflowBuffer.copyFrom(*electrode->channels+i, 0,
-                                        buffer, *electrode->channels+i,
+                overflowBuffer.copyFrom(*(electrode->channels+j), 0,
+                                        buffer, *(electrode->channels+j),
                                         nSamples-overflowBufferSize,
                                         overflowBufferSize);
                 
@@ -1122,7 +1127,7 @@ void SpikeSorter::addProbes(String probeType,int numProbes, int nElectrodesPerPr
 	for (int probeIter=0;probeIter<numProbes;probeIter++)
 	{
 		int probeCounter = getUniqueProbeID(probeType);
-		for (int electrodeIter=0;electrodeIter<nElectrodesPerProbe;electrodeIter++)
+		for (int electrodeIter = 0; electrodeIter < nElectrodesPerProbe; electrodeIter++)
 		{
 			double depth = firstContactOffset - electrodeIter*interelectrodeDistance;
 			String name;
