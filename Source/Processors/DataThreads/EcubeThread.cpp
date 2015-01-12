@@ -319,11 +319,7 @@ void EcubeThread::setDefaultChannelNamesAndType()
     if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog)
     {
         prefix = "HS_CH";
-<<<<<<< HEAD
-        common_type = DATA_CHANNEL;
-=======
         common_type = HEADSTAGE_CHANNEL;
->>>>>>> multisamplerate
     }
     else if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
     {
@@ -357,7 +353,7 @@ void EcubeThread::updateChannelNames()
     for (int i = 0; i < sn->channels.size(); i++)
     {
         sn->channels[i]->setName(Names[i]);
-        sn->channels[i]->setGain(gains[i]);
+        sn->channels[i]->bitVolts = gains[i];
         sn->channels[i]->setType(type[i]);
     }
 }
@@ -541,11 +537,7 @@ bool EcubeThread::updateBuffer()
                     const short* pData = (const short*)dp;
                     for (unsigned j = 0; j < datasize; j++)
                     {
-<<<<<<< HEAD
-                        pDevInt->interleaving_buffer[j] = pData[j] * 10.0 / 32768; // Convert into volts
-=======
                         pDevInt->interleaving_buffer[j] = pData[j] * 10.0/32768; // Convert into volts
->>>>>>> multisamplerate
                     }
                     unsigned long datasam = datasize / 32;
                     int64 cts = pDevInt->buf_timestamp64 / 3200; // Convert eCube's 80MHz timestamps into number of samples on the Panel Analog input (orig sample rate 1144)
