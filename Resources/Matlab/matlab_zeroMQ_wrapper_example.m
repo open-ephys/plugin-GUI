@@ -1,4 +1,4 @@
-url = 'tcp://localhost:5556'; % or tcp://192.168.50.96:5556' , if GUI runs
+url = 'tcp://10.71.212.64:5556'; % or tcp://192.168.50.96:5556' , if GUI runs
 % on another machine...
 
 handle = zeroMQwrapper('StartConnectThread',url);
