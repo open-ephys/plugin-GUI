@@ -182,8 +182,7 @@ void PhaseDetector::process(AudioSampleBuffer& buffer,
             module.inputChan >= 0 &&
             module.inputChan < buffer.getNumChannels())
         {
-
-            for (int i = 0; i < getNumSamples(channels[module.inputChan]->sourceNodeId); i++)
+            for (int i = 0; i < getNumSamples(module.inputChan); i++)
             {
                 const float sample = *buffer.getReadPointer(module.inputChan, i);
 
