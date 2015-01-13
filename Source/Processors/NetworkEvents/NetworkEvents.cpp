@@ -77,11 +77,11 @@ StringTS::StringTS(MidiMessage &event)
 {
 	const uint8* dataptr = event.getRawData();
 	int bufferSize = event.getRawDataSize();
-	len = bufferSize-4-8; // -4 for initial event prefix, -8 for timestamp at the end
+	len = bufferSize-6-8; // -6 for initial event prefix, -8 for timestamp at the end
 
-	memcpy(&timestamp, dataptr + 4+len, 8); // remember to skip first four bytes
+	memcpy(&timestamp, dataptr + 6+ len, 8); // remember to skip first six bytes
 	str = new uint8[len];
-	memcpy(str,dataptr+4,len);
+	memcpy(str,dataptr + 6, len);
 }
 
 StringTS& StringTS::operator=(const StringTS &rhs)
