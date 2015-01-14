@@ -75,6 +75,13 @@ public:
         return true;
     }
 
+    void setOutputChannel(int);
+    void setInputChannel(int);
+    void setDevice(String deviceString);
+
+    int outputChannel;
+    int inputChannel;
+
 private:
 
     /** An open-frameworks Arduino object. */
