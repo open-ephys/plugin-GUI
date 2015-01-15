@@ -39,7 +39,7 @@ PeriStimulusTimeHistogramNode::PeriStimulusTimeHistogramNode()
 	trialCircularBuffer  = nullptr;
 	eventFile = nullptr;
 	isRecording = false;
-	saveEyeTracking = saveTTLs = saveNetworkEvents = true;
+	saveEyeTracking = saveTTLs = saveNetworkEvents = false;
 	saveNetworkEventsWhenNotRecording = false;
 	spikeSavingMode = 2;
 	syncCounter = 0;

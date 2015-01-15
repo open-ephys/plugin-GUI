@@ -90,10 +90,11 @@ public:
 
 	void simulateStartRecord();
 	void simulateStopRecord();
-	bool disable();
+	bool closesocket();
 	void run();
 	void opensocket();
 
+	void updateSettings();
 
 	bool isReady();
 	float getDefaultSampleRate();
@@ -101,7 +102,7 @@ public:
 	float getDefaultBitVolts();
 	void enabledState(bool t);
 
-
+	int getNumEventChannels();
 
 	void postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events);
 	void setNewListeningPort(int port);

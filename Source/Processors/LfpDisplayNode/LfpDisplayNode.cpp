@@ -65,12 +65,12 @@ void LfpDisplayNode::updateSettings()
 
     for (int i = 0; i < eventChannels.size(); i++)
     {
-        if (!eventSourceNodes.contains(eventChannels[i]->sourceNodeId))
+        if (!eventSourceNodes.contains(eventChannels[i]->sourceNodeId) && eventChannels[i]->type == EVENT_CHANNEL)
         {
             eventSourceNodes.add(eventChannels[i]->sourceNodeId);
 
         }
-    }
+    }\
 
     numEventChannels = eventSourceNodes.size();
 
@@ -241,8 +241,13 @@ void LfpDisplayNode::initializeEventChannels()
         int chan = channelForEventSource[eventSourceNodes[i]];
         int index = displayBufferIndex[15]; //displayBufferIndex[chan];
 
+        //std::cout << "Event source node " << i << ", channel " << chan << std::endl;
+
         int samplesLeft = displayBuffer->getNumSamples() - index;
+
         int nSamples = numSamples.at(eventSourceNodes[i]);
+
+
 
         if (nSamples < samplesLeft)
         {

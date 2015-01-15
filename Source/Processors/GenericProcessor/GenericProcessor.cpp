@@ -734,7 +734,7 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
     data[2] = eventId; // event ID (1 = on, 0 = off, usually)
     data[3] = eventChannel; // event channel
     data[4] = 1; // saving flag
-    data[5] = (uint8) channels[0]->sourceNodeId;  // source node ID (for nSamples)
+    data[5] = (uint8) eventChannels[eventChannel]->sourceNodeId;  // source node ID (for nSamples)
     memcpy(data + 6, eventData, numBytes);
 
     //std::cout << "Node id: " << data[1] << std::endl;

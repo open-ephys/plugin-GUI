@@ -368,7 +368,7 @@ void OriginalRecording::writeEvent(int eventType, MidiMessage& event, int sample
 {
     if (eventType == GenericProcessor::TTL)
         writeTTLEvent(event,samplePosition);
-    else if (eventType == GenericProcessor::MESSAGE)
+    else if (eventType == GenericProcessor::MESSAGE || eventType == GenericProcessor::NETWORK)
         writeMessage(event,samplePosition);
 }
 
@@ -381,8 +381,8 @@ void OriginalRecording::writeMessage(MidiMessage& event, int samplePosition)
 
     int64 eventTimestamp = (*timestamps)[sourceNodeId] + samplePos;
 
-    int msgLength = event.getRawDataSize() - 5;
-    const char* dataptr = (const char*)event.getRawData() + 4;
+    int msgLength = event.getRawDataSize() - 6;
+    const char* dataptr = (const char*)event.getRawData() + 6;
 
     String timestampText(eventTimestamp);
 
