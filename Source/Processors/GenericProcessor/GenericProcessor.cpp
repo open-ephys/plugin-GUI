@@ -658,7 +658,7 @@ int GenericProcessor::processEventBuffer(MidiBuffer& events)
             else if (*dataptr == TIMESTAMP)
             {
                 int64 ts;
-                memcpy(&ts, dataptr+4, 8);
+                memcpy(&ts, dataptr+6, 8);
 
                 uint8 sourceNodeId;
                 memcpy(&sourceNodeId, dataptr + 1, 1);
