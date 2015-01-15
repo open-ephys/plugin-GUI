@@ -86,7 +86,7 @@ ProcessorList::ProcessorList()
     sinks->addSubItem(new ProcessorListItem("PSTH"));
     //sinks->addSubItem(new ProcessorListItem("Network Sink"));
     //sinks->addSubItem(new ProcessorListItem("WiFi Output"));
-    //sinks->addSubItem(new ProcessorListItem("Arduino Output"));
+    sinks->addSubItem(new ProcessorListItem("Arduino Output"));
     // sinks->addSubItem(new ProcessorListItem("FPGA Output"));
     sinks->addSubItem(new ProcessorListItem("Pulse Pal"));
 

@@ -35,6 +35,10 @@ MessageCenter::MessageCenter() :
                          44100.0, // sampleRate
                          128);    // blockSize
 
+    Channel* ch = new Channel(this, 0, EVENT_CHANNEL);
+    ch->sourceNodeId = nodeId;
+    eventChannels.add(ch);
+
 }
 
 MessageCenter::~MessageCenter()
@@ -68,6 +72,7 @@ void MessageCenter::setParameter(int parameterIndex, float newValue)
 void MessageCenter::setSourceNodeId(int id)
 {
     sourceNodeId = id;
+    eventChannels[0]->sourceNodeId = id;
 }
 
 int MessageCenter::getSourceNodeId()

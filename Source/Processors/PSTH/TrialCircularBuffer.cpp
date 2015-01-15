@@ -1880,6 +1880,9 @@ bool TrialCircularBuffer::parseMessage(StringTS msg)
 	  bool redrawNeeded = false;
 	  std::vector<String> input = msg.splitString(' ');
 	  String command = input[0].toLowerCase();
+
+	  std::cout << "PSTH node received: " << command << std::endl;
+
 	if (command == "tictoc_print")
 	{
 		if (useThreads)
@@ -1988,6 +1991,7 @@ bool TrialCircularBuffer::parseMessage(StringTS msg)
 	  }
 	  else if (command == "cleardesign")
 	  {
+	  		std::cout << "Clearing design" << std::endl;
 			clearDesign();
 			// inform editor repaint is needed
 			redrawNeeded = true;

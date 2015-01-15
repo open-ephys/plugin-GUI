@@ -172,8 +172,8 @@ void HDF5Recording::writeEvent(int eventType, MidiMessage& event, int samplePosi
     const uint8* dataptr = event.getRawData();
     if (eventType == GenericProcessor::TTL)
         mainFile->writeEvent(0,*(dataptr+2),*(dataptr+1),(void*)(dataptr+3),timestamp+samplePosition);
-    else if (eventType == GenericProcessor::MESSAGE)
-        mainFile->writeEvent(1,*(dataptr+2),*(dataptr+1),(void*)(dataptr+4),timestamp+samplePosition);
+    else if (eventType == GenericProcessor::MESSAGE || eventType == GenericProcessor::NETWORK)
+        mainFile->writeEvent(1,*(dataptr+2),*(dataptr+1),(void*)(dataptr+6),timestamp+samplePosition);
 }
 
 void HDF5Recording::addSpikeElectrode(int index, SpikeRecordInfo* elec)

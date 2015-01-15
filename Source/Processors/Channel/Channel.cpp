@@ -121,8 +121,6 @@ void Channel::setName(String name_)
     name = name_;
 }
 
-
-
 void Channel::createDefaultName()
 {
     switch (type)
@@ -148,6 +146,8 @@ void Channel::createDefaultName()
         case TETRODE:
             name = String("TT");
             break;
+        case MESSAGE_CHANNEL:
+            name = String("MSG");
     }
 
     name += index;
