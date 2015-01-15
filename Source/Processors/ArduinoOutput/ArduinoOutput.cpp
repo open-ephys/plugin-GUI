@@ -178,14 +178,15 @@ void ArduinoOutput::setGateChannel(int chan)
 
 bool ArduinoOutput::enable()
 {
-    return deviceSelected;
     acquisitionIsActive = true;
+	return deviceSelected;
 }
 
 bool ArduinoOutput::disable()
 {
     arduino.sendDigital(outputChannel, ARD_LOW);
     acquisitionIsActive = false;
+	return true;
 }
 
 void ArduinoOutput::process(AudioSampleBuffer& buffer,

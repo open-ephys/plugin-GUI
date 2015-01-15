@@ -59,8 +59,7 @@ private:
     ScopedPointer<KWXFile> spikesFile;
     float* scaledBuffer;
     int16* intBuffer;
-    int64 timestamp;
-
+  
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HDF5Recording);
 };
 
