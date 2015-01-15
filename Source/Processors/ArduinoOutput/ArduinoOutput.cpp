@@ -22,27 +22,13 @@
 */
 
 #include "ArduinoOutput.h"
+#include "ArduinoOutputEditor.h"
 
 #include <stdio.h>
 
 ArduinoOutput::ArduinoOutput()
-    : GenericProcessor("Arduino Output"), state(false), outputChannel(13), inputChannel(-1)
+    : GenericProcessor("Arduino Output"), state(true), deviceSelected(false), outputChannel(13), inputChannel(-1)
 {
-
-
-    // FIXME: Remove hard-coded serial port paths. These aren't always
-    // right, and in some cases (JUCE_MAC) are almost certainly wrong.
-    std::cout << "Warning: using hard-coded path to Arduino." << std::endl;
-
-    #if JUCE_LINUX
-        setDevice("/dev/ttyACM0");
-    #endif
-    #if JUCE_WIN32
-        setDevice("COM1");
-    #endif
-    #if JUCE_MAC
-        setDevice("tty.usbmodemfd121");
-    #endif
 
 }
 
@@ -63,39 +49,51 @@ AudioProcessorEditor* ArduinoOutput::createEditor()
 void ArduinoOutput::setDevice(String devName)
 {
 
-    Time timer;
-
-    arduino.connect(devName.toStdString());
-
-    if (arduino.isArduinoReady())
+    if (!acquisitionIsActive)
     {
 
-        uint32 currentTime = timer.getMillisecondCounter();
+        Time timer;
 
-        arduino.sendProtocolVersionRequest();
-        timer.waitForMillisecondCounter(currentTime + 2000);
-        arduino.update();
-        arduino.sendFirmwareVersionRequest();
+        arduino.connect(devName.toStdString());
 
-        timer.waitForMillisecondCounter(currentTime + 4000);
-        arduino.update();
+        if (arduino.isArduinoReady())
+        {
 
-        std::cout << "firmata v" << arduino.getMajorFirmwareVersion()
-                  << "." << arduino.getMinorFirmwareVersion() << std::endl;
+            uint32 currentTime = timer.getMillisecondCounter();
 
+            arduino.sendProtocolVersionRequest();
+            timer.waitForMillisecondCounter(currentTime + 2000);
+            arduino.update();
+            arduino.sendFirmwareVersionRequest();
+
+            timer.waitForMillisecondCounter(currentTime + 4000);
+            arduino.update();
+
+            std::cout << "firmata v" << arduino.getMajorFirmwareVersion()
+                      << "." << arduino.getMinorFirmwareVersion() << std::endl;
+
+        }
+
+        if (arduino.isInitialized())
+        {
+
+            std::cout << "Arduino is initialized." << std::endl;
+            arduino.sendDigitalPinMode(outputChannel, ARD_OUTPUT);
+            sendActionMessage("Arduino initialized at" + devName);
+            deviceSelected = true;
+        }
+        else
+        {
+            std::cout << "Arduino is NOT initialized." << std::endl;
+            sendActionMessage("Arduino could not be initialized at" + devName);
+        }
+    } else {
+        sendActionMessage("Cannot change device while acquisition is active.");
     }
 
-    if (arduino.isInitialized())
-    {
 
-        std::cout << "Arduino is initialized." << std::endl;
-        arduino.sendDigitalPinMode(outputChannel, ARD_OUTPUT);
-    }
-    else
-    {
-        std::cout << "Arduino is NOT initialized." << std::endl;
-    }
 }
+
 
 void ArduinoOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 {
@@ -111,21 +109,30 @@ void ArduinoOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum
         //          " on channel " << eventChannel <<
         //          " with value " << eventId << std::endl;
 
-        if (inputChannel == -1 || eventChannel == inputChannel)
+        if (eventChannel == gateChannel)
         {
-            if (eventId == 0)
+            if (eventId == 1)
             {
-                arduino.sendDigital(outputChannel, ARD_LOW);
-                state = false;
-            }
-            else
-            {
-                arduino.sendDigital(outputChannel, ARD_HIGH);
                 state = true;
+            } else {
+                state = false;
             }
         }
 
-
+        if (state)
+        {
+            if (inputChannel == -1 || eventChannel == inputChannel)
+            {
+                if (eventId == 0)
+                {
+                    arduino.sendDigital(outputChannel, ARD_LOW);
+                }
+                else
+                {
+                    arduino.sendDigital(outputChannel, ARD_HIGH);
+                }
+            }
+        }
 
         //ArduinoOutputEditor* ed = (ArduinoOutputEditor*) getEditor();
         //ed->receivedEvent();
@@ -135,28 +142,50 @@ void ArduinoOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum
 
 void ArduinoOutput::setParameter(int parameterIndex, float newValue)
 {
-    editor->updateParameterButtons(parameterIndex);
+    // make sure current output channel is off:
+    arduino.sendDigital(outputChannel, ARD_LOW);
 
+    if (parameterIndex == 0)
+    {
+        outputChannel = (int) newValue;
+    } else if (parameterIndex == 1)
+    {
+        inputChannel = (int) newValue;
+    } else if (parameterIndex == 2)
+    {
+        gateChannel = (int) newValue;
+        if (gateChannel == -1)
+            state = true;
+        else
+            state = false;
+    }
 }
 
 void ArduinoOutput::setOutputChannel(int chan)
 {
-    outputChannel = chan;
+    setParameter(0, chan);
 }
 
 void ArduinoOutput::setInputChannel(int chan)
 {
-    inputChannel = chan;
+    setParameter(1, chan-1);
+}
+
+void ArduinoOutput::setGateChannel(int chan)
+{
+    setParameter(2, chan-1);
 }
 
 bool ArduinoOutput::enable()
 {
-
+    return deviceSelected;
+    acquisitionIsActive = true;
 }
 
 bool ArduinoOutput::disable()
 {
     arduino.sendDigital(outputChannel, ARD_LOW);
+    acquisitionIsActive = false;
 }
 
 void ArduinoOutput::process(AudioSampleBuffer& buffer,

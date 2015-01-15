@@ -26,7 +26,6 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include "ArduinoOutputEditor.h"
 #include "../Serial/ofArduino.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
@@ -77,10 +76,12 @@ public:
 
     void setOutputChannel(int);
     void setInputChannel(int);
+    void setGateChannel(int);
     void setDevice(String deviceString);
 
     int outputChannel;
     int inputChannel;
+    int gateChannel;
 
 private:
 
@@ -88,6 +89,8 @@ private:
     ofArduino arduino;
 
     bool state;
+    bool acquisitionIsActive;
+    bool deviceSelected;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ArduinoOutput);
 

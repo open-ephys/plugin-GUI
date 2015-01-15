@@ -28,6 +28,8 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
 #include "../Editors/ImageIcon.h"
+#include "ArduinoOutput.h"
+#include "../Serial/ofSerial.h"
 
 class ImageIcon;
 
@@ -39,7 +41,8 @@ class ImageIcon;
 
 */
 
-class ArduinoOutputEditor : public GenericEditor
+class ArduinoOutputEditor : public GenericEditor,
+                            public ComboBox::Listener
 
 {
 public:
@@ -50,7 +53,19 @@ public:
 
     ImageIcon* icon;
 
+    void comboBoxChanged(ComboBox* comboBoxThatHasChanged);
+
+    ArduinoOutput* arduino;
+
+    ofSerial serial;
+
 private:
+
+   // ScopedPointer<UtilityButton> triggerButton;
+    ScopedPointer<ComboBox> inputChannelSelector;
+    ScopedPointer<ComboBox> outputChannelSelector;
+    ScopedPointer<ComboBox> gateChannelSelector;
+    ScopedPointer<ComboBox> deviceSelector;
 
     void timerCallback();
 
