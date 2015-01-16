@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "NetworkEvents.h"
 #include "../Editors/NetworkEventsEditor.h"
 #include "../../AccessClass.h"
+#include "../MessageCenter/MessageCenterEditor.h"
+
 const int MAX_MESSAGE_LENGTH = 64000;
 
 
@@ -399,7 +401,7 @@ void NetworkEvents::process(AudioSampleBuffer& buffer,
 
 	//std::cout << "NETWORK NODE" << std::endl;
 	//printf("Entering NetworkEvents::process\n");
-
+	setTimestamp(events,getMessageCenter()->getTimestamp());
 	checkForEvents(events);
 	//simulateDesignAndTrials(events);
 

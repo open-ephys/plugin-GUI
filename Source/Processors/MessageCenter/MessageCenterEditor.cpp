@@ -170,6 +170,11 @@ void MessageCenterEditor::resized()
         sendMessageButton->setBounds(getWidth()-50, 5, 45, getHeight()-10);
 }
 
+int64 MessageCenterEditor::getTimestamp()
+{
+	return messageCenter->getTimestamp();
+}
+
 void MessageCenterEditor::actionListenerCallback(const String& message)
 {
 
