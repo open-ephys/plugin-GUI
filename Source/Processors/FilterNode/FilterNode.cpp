@@ -280,7 +280,7 @@ void FilterNode::setApplyOnADC(bool state)
 
     for (int n = 0; n < channels.size(); n++)
     {
-        if (channels[n]->getType() == ADC_CHANNEL)
+        if (channels[n]->getType() == ADC_CHANNEL || channels[n]->getType() == AUX_CHANNEL)
         {
             setCurrentChannel(n);
 

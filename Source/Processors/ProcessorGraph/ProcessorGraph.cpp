@@ -155,17 +155,19 @@ void* ProcessorGraph::createNewProcessor(String& description, int id)//,
 
         addNode(processor,id); // have to add it so it can be deleted by the graph
 
-        if (processor->isSource())
-        {
-            // by default, all source nodes record automatically
-            processor->setAllChannelsToRecord();
-
-            getMessageCenter()->addSourceProcessor(processor);
-            if (getMessageCenter()->getSourceNodeId() == 0)
-            {
-                getMessageCenter()->setSourceNodeId(processor->getNodeId());
-            }
-        }
+		if (processor->isSource())
+		{
+			// by default, all source nodes record automatically
+			processor->setAllChannelsToRecord();
+			if (processor->generatesTimestamps())
+			{
+				getMessageCenter()->addSourceProcessor(processor);
+				if (getMessageCenter()->getSourceNodeId() == 0)
+				{
+					getMessageCenter()->setSourceNodeId(processor->getNodeId());
+				}
+			}
+		}
 
         return processor->createEditor();
 
@@ -722,7 +724,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
         for (int i = 0; i < getNumNodes() && newId == 0; i++)
         {
             GenericProcessor* p = static_cast<GenericProcessor*>(getNode(i)->getProcessor());
-            if (p->isSource())
+			if (p->isSource() && p->generatesTimestamps())
             {
                 newId = p->nodeId;
             }
@@ -798,11 +800,12 @@ bool ProcessorGraph::disableProcessors()
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
-        if (node->nodeId != OUTPUT_NODE_ID && node->nodeId != MESSAGE_CENTER_ID)
+        if (node->nodeId != OUTPUT_NODE_ID )
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             std::cout << "Disabling " << p->getName() << std::endl;
-            p->disableEditor();
+			if (node->nodeId != MESSAGE_CENTER_ID)
+				p->disableEditor();
             allClear = p->disable();
 
             if (!allClear)

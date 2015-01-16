@@ -91,7 +91,7 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
 
     //Let's just put the first processor (usually the source node) on the KWIK for now
     infoArray[0]->name = String("Open-Ephys Recording #") + String(recordingNumber);
-    infoArray[0]->start_time = timestamp;
+	infoArray[0]->start_time = (*timestamps).begin()->second;
     infoArray[0]->start_sample = 0;
     mainFile->startNewRecording(recordingNumber,infoArray[0]);
 
@@ -105,6 +105,7 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
             {
                 fileArray[index]->initFile(getChannel(i)->nodeId,basepath);
                 fileArray[index]->open();
+				infoArray[index]->start_time = (*timestamps)[getChannel(i)->sourceNodeId]; //the timestamps of the first channel
             }
             bitVoltsArray[index]->add(getChannel(i)->bitVolts);
             sampleRatesArray[index]->add(getChannel(i)->sampleRate);
@@ -122,7 +123,7 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
             mainFile->addKwdFile(f.getFileName());
 
             infoArray[i]->name = String("Open-Ephys Recording #") + String(recordingNumber);
-            infoArray[i]->start_time = timestamp;
+ //           infoArray[i]->start_time = timestamp;
             infoArray[i]->start_sample = 0;
             infoArray[i]->bitVolts.clear();
             infoArray[i]->bitVolts.addArray(*bitVoltsArray[i]);
@@ -171,9 +172,9 @@ void HDF5Recording::writeEvent(int eventType, MidiMessage& event, int samplePosi
 {
     const uint8* dataptr = event.getRawData();
     if (eventType == GenericProcessor::TTL)
-        mainFile->writeEvent(0,*(dataptr+2),*(dataptr+1),(void*)(dataptr+3),timestamp+samplePosition);
+        mainFile->writeEvent(0,*(dataptr+2),*(dataptr+1),(void*)(dataptr+3),(*timestamps)[*(dataptr+1)]+samplePosition);
     else if (eventType == GenericProcessor::MESSAGE || eventType == GenericProcessor::NETWORK)
-        mainFile->writeEvent(1,*(dataptr+2),*(dataptr+1),(void*)(dataptr+6),timestamp+samplePosition);
+        mainFile->writeEvent(1,*(dataptr+2),*(dataptr+1),(void*)(dataptr+6),(*timestamps)[*(dataptr+1)]+samplePosition);
 }
 
 void HDF5Recording::addSpikeElectrode(int index, SpikeRecordInfo* elec)

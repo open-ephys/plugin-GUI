@@ -88,6 +88,11 @@ public:
         return true;
     }
 
+	bool generatesTimestamps()
+	{
+		return true;
+	}
+
     void acquisitionStopped();
 
     DataThread* getThread();
