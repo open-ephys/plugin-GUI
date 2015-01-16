@@ -58,6 +58,9 @@ public:
     void enable();
     void disable();
 
+	void startAcquisition();
+	void stopAcquisition();
+
     void messageReceived(bool state);
 
     void saveStateToXml(XmlElement* xml);
@@ -75,6 +78,7 @@ private:
     void buttonClicked(Button* button);
     void labelTextChanged(Label* slider);
     void timerCallback();
+	bool acquisitionIsActive;
 
     bool isEnabled;
 

@@ -27,7 +27,8 @@ MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
     AudioProcessorEditor(owner),
     messageCenter(owner),
     incomingBackground(100, 100, 100),
-    outgoingBackground(100, 100, 100)
+    outgoingBackground(100, 100, 100),
+	acquisitionIsActive(false)
 {
 
     incomingMessageDisplayArea = new MessageLabel("Message Display Area","No new messages.");
@@ -99,6 +100,15 @@ String MessageCenterEditor::getLabelString()
     return outgoingMessageDisplayArea->getText();
 }
 
+void MessageCenterEditor::startAcquisition()
+{
+	acquisitionIsActive = true;
+}
+
+void MessageCenterEditor::stopAcquisition()
+{
+	acquisitionIsActive = false;
+}
 
 void MessageCenterEditor::enable()
 {
@@ -199,32 +209,35 @@ void MessageCenterEditor::removeSourceProcessor(GenericProcessor* p)
 
 void MessageCenterEditor::mouseDown(const MouseEvent& event)
 {
-    int res;
-    if (event.mods.isPopupMenu())
-    {
-        PopupMenu::dismissAllActiveMenus();
-        sourceMenu->clear();
-        if (sourcesList.size() > 0)
-        {
-            for (int i=0; i < sourcesList.size(); i++)
-            {
-                GenericProcessor* p = sourcesList[i];
-                sourceMenu->addItem(i+1,p->getName(),true,(p->nodeId == messageCenter->getSourceNodeId()));
-            }
-        }
-        else
-        {
-            sourceMenu->addItem(-1,"No sources",false,false);
-        }
-        res = sourceMenu->show(0,50,0,0);
+	int res;
+	if (event.mods.isPopupMenu())
+	{
+		if (acquisitionIsActive)
+		{
+			sendActionMessage("Cannot change timestamp source while acquisition is active");
+			return;
+		}
+		PopupMenu::dismissAllActiveMenus();
+		sourceMenu->clear();
+		sourceMenu->addItem(1,"Milliseconds",true,messageCenter->getSourceNodeId() == 0);
+		for (int i=0; i < sourcesList.size(); i++)
+		{
+			GenericProcessor* p = sourcesList[i];
+			sourceMenu->addItem(i+2,p->getName(),true,(p->nodeId == messageCenter->getSourceNodeId()));
+		}
+		res = sourceMenu->show(0,50,0,0);
 
-        if (res > 0)
-        {
-            GenericProcessor* p = sourcesList[res-1];
-            std::cout << "Selecting " << p->getName() << " with id " << p->nodeId << " as message source" << std::endl;
-            messageCenter->setSourceNodeId(p->nodeId);
-        }
-    }
+		if (res > 1)
+		{
+			GenericProcessor* p = sourcesList[res-2];
+			std::cout << "Selecting " << p->getName() << " with id " << p->nodeId << " as message source" << std::endl;
+			messageCenter->setSourceNodeId(p->nodeId);
+		}
+		else if (res == 1)
+		{
+			messageCenter->setSourceNodeId(0);
+		}
+	}
 }
 
 MessageLabel::MessageLabel(const String& componentName, const String& labelText)
