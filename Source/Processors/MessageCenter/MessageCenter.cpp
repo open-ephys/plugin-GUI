@@ -75,8 +75,17 @@ bool MessageCenter::enable()
 	msTime = Time::currentTimeMillis();
 	if (sourceNodeId)
 	{
-		timestampSource = static_cast<GenericProcessor*>(getProcessorGraph()->getNodeForId(sourceNodeId)->getProcessor());
-		std::cout << "ts: " << timestampSource->getName() << std::endl;
+		AudioProcessorGraph::Node* node = getProcessorGraph()->getNodeForId(sourceNodeId);
+		if (node)
+		{
+			timestampSource = static_cast<GenericProcessor*>(node->getProcessor());
+		}
+		else
+		{
+			std::cout << "Message Center: BAD node id " << sourceNodeId << std::endl;
+			timestampSource = nullptr;
+			sourceNodeId = 0;
+		}
 	}
 	else
 		timestampSource = nullptr;
