@@ -604,6 +604,9 @@ void GenericProcessor::setTimestamp(MidiBuffer& events, int64 timestamp)
              8,         // numBytes
              data   // data
             );
+
+	//since the processor generating the timestamp won't get the event, add it to the map
+	timestamps[nodeId] = timestamp;
 }
 
 int GenericProcessor::processEventBuffer(MidiBuffer& events)

@@ -68,6 +68,11 @@ public:
         return true;
     }
 
+	bool generatesTimestamps()
+	{
+		return true;
+	}
+
     void enabledState(bool t);
 
     float getDefaultSampleRate();

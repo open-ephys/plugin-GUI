@@ -384,6 +384,12 @@ public:
     /** Sets one of two possible source nodes for a splitter.*/
     virtual void setSplitterDestNode(GenericProcessor* dn) { }
 
+	/** Returns trus if a processor generates its own timestamps, false otherwise.*/
+	virtual bool generatesTimestamps()
+	{
+		return false;
+	}
+
     /** Returns true if a processor is a source, false otherwise.*/
     virtual bool isSource()
     {
