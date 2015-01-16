@@ -1,10 +1,9 @@
-url = 'tcp://10.71.212.64:5556'; % or tcp://192.168.50.96:5556' , if GUI runs
-% on another machine...
+url = 'localhost:5556'; % or, e.g., //'tcp://10.71.212.19:5556 if GUI runs on another machine...
 
 handle = zeroMQwrapper('StartConnectThread',url);
 
 zeroMQwrapper('Send',handle ,'ClearDesign');
-zeroMQwrapper('Send',handle ,'NewDesign Go_Left_Right');
+zeroMQwrapper('Send',handle ,'NewDesign nGo_Left_Right');
 zeroMQwrapper('Send',handle ,'AddCondition Name GoRight TrialTypes 1 2 3');
 zeroMQwrapper('Send',handle ,'AddCondition Name GoLeft TrialTypes 4 5 6');
 
