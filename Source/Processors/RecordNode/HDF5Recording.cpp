@@ -24,7 +24,7 @@
 #include "HDF5Recording.h"
 #define MAX_BUFFER_SIZE 10000
 
-HDF5Recording::HDF5Recording() : processorIndex(-1)
+HDF5Recording::HDF5Recording() : processorIndex(-1), hasAcquired(false)
 {
     //timestamp = 0;
     scaledBuffer = new float[MAX_BUFFER_SIZE];
@@ -77,7 +77,7 @@ void HDF5Recording::addChannel(int index, Channel* chan)
     processorMap.add(processorIndex);
 }
 
-void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int recordingNumber)
+void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordingNumber)
 {
     String basepath = rootFolder.getFullPathName() + rootFolder.separatorString + "experiment" + String(experimentNumber);
     //KWIK file
@@ -90,8 +90,13 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
     spikesFile->startNewRecording(recordingNumber);
 
     //Let's just put the first processor (usually the source node) on the KWIK for now
-    infoArray[0]->name = String("Open-Ephys Recording #") + String(recordingNumber);
-	infoArray[0]->start_time = (*timestamps).begin()->second;
+    infoArray[0]->name = String("Open Ephys Recording #") + String(recordingNumber);
+    
+    if (hasAcquired)
+	   infoArray[0]->start_time = (*timestamps)[getChannel(0)->sourceNodeId]; //(*timestamps).begin()->first;
+    else
+        infoArray[0]->start_time = 0;
+
     infoArray[0]->start_sample = 0;
     mainFile->startNewRecording(recordingNumber,infoArray[0]);
 
@@ -105,7 +110,10 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
             {
                 fileArray[index]->initFile(getChannel(i)->nodeId,basepath);
                 fileArray[index]->open();
-				infoArray[index]->start_time = (*timestamps)[getChannel(i)->sourceNodeId]; //the timestamps of the first channel
+                if (hasAcquired)
+				    infoArray[index]->start_time = (*timestamps)[getChannel(i)->sourceNodeId]; //the timestamps of the first channel
+                else
+                    infoArray[index]->start_time = 0;
             }
             bitVoltsArray[index]->add(getChannel(i)->bitVolts);
             sampleRatesArray[index]->add(getChannel(i)->sampleRate);
@@ -122,7 +130,7 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
             File f(fileArray[i]->getFileName());
             mainFile->addKwdFile(f.getFileName());
 
-            infoArray[i]->name = String("Open-Ephys Recording #") + String(recordingNumber);
+            infoArray[i]->name = String("Open Ephys Recording #") + String(recordingNumber);
  //           infoArray[i]->start_time = timestamp;
             infoArray[i]->start_sample = 0;
             infoArray[i]->bitVolts.clear();
@@ -132,6 +140,8 @@ void HDF5Recording::openFiles(File rootFolder,  int experimentNumber, int record
             fileArray[i]->startNewRecording(recordingNumber,bitVoltsArray[i]->size(),infoArray[i]);
         }
     }
+
+    hasAcquired = true;
 }
 
 void HDF5Recording::closeFiles()

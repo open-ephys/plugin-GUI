@@ -649,7 +649,7 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
     CHECK_ERROR(createGroup(recordPath));
     CHECK_ERROR(setAttributeStr(info->name,recordPath,String("name")));
     CHECK_ERROR(setAttribute(U64,&(info->start_time),recordPath,String("start_time")));
-    //	CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
+    CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
     CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
     CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
     CHECK_ERROR(createGroup(recordPath+"/application_data"));
