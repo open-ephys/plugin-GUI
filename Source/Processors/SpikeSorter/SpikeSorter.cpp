@@ -712,7 +712,7 @@ void SpikeSorter::addWaveformToSpikeObject(SpikeObject* s,
     int spikeLength = electrodes[electrodeNumber]->prePeakSamples +
                       + electrodes[electrodeNumber]->postPeakSamples;
 	
-    s->timestamp = hardware_timestamp + peakIndex;
+    s->timestamp = getTimestamp(currentChannel) + peakIndex;
 
 	// convert sample offset to software ticks
 	float samplesPerSec = getSampleRate();
@@ -944,7 +944,7 @@ void SpikeSorter::process(AudioSampleBuffer& buffer,
 
                         SpikeObject newSpike;
 						newSpike.sortedId = 0; // unsorted.
-                        newSpike.timestamp = peakIndex;
+                        newSpike.timestamp = getTimestamp(currentChannel) + peakIndex;
 						newSpike.electrodeID = electrode->electrodeID;
 						newSpike.channel = chan;
                         newSpike.source = i;

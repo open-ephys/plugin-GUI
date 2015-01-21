@@ -639,18 +639,6 @@ void OriginalRecording::writeSpike(const SpikeObject& spike, int electrodeIndex)
                      SPIKE_METADATA_SIZE;             // 42, from SpikeObject.h
 
 
-    // format:
-    // 1 byte of event type (always = 4 for spikes)
-    // 8 bytes for 64-bit timestamp
-    // 2 bytes for 16-bit electrode ID
-    // 2 bytes for 16-bit number of channels (n)
-    // 2 bytes for 16-bit number of samples (m)
-    // 2*n*m bytes for 16-bit samples
-    // 2*n bytes for 16-bit gains
-    // 2*n bytes for 16-bit thresholds
-
-    // const MessageManagerLock mmLock;
-
     diskWriteLock.enter();
 
     fwrite(spikeBuffer, 1, totalBytes, spikeFileArray[electrodeIndex]);

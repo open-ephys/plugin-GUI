@@ -379,8 +379,7 @@ void SpikeDetector::addWaveformToSpikeObject(SpikeObject* s,
 //    float       gain[MAX_NUMBER_OF_SPIKE_CHANNELS];
 //    uint16_t    threshold[MAX_NUMBER_OF_SPIKE_CHANNELS];
     
-    s->timestamp = timestamp + peakIndex;
-    
+    s->timestamp = getTimestamp(currentChannel) + peakIndex;
 
     s->nSamples = spikeLength;
 
@@ -512,7 +511,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 //                        uint16_t    threshold[MAX_NUMBER_OF_SPIKE_CHANNELS];
 
                         SpikeObject newSpike;
-                        newSpike.timestamp = peakIndex;
+                        newSpike.timestamp = 0; //getTimestamp(currentChannel) + peakIndex;
                         newSpike.timestamp_software = -1;
                         newSpike.source = i;
                         newSpike.nChannels = electrode->numChannels;
