@@ -3,9 +3,9 @@
 //
 // Intan Technoloies RHD2000 Rhythm Interface API
 // Rhd2000EvalBoard Class Header File
-// Version 1.0 (14 January 2013)
+// Version 1.4 (26 February 2014)
 //
-// Copyright (c) 2013 Intan Technologies LLC
+// Copyright (c) 2013-2014 Intan Technologies LLC
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the
@@ -38,14 +38,13 @@ class Rhd2000EvalBoard
 
 public:
     Rhd2000EvalBoard();
-    ~Rhd2000EvalBoard();
+	~Rhd2000EvalBoard();
 
-    int open(const char* libname);
+    int open(const char* libname); //patched to allow selecting path to dll
     bool uploadFpgaBitfile(string filename);
     void initialize();
 
-    enum AmplifierSampleRate
-    {
+    enum AmplifierSampleRate {
         SampleRate1000Hz,
         SampleRate1250Hz,
         SampleRate1500Hz,
@@ -69,15 +68,13 @@ public:
     double getSampleRate() const;
     AmplifierSampleRate getSampleRateEnum() const;
 
-    enum AuxCmdSlot
-    {
+    enum AuxCmdSlot {
         AuxCmd1,
         AuxCmd2,
         AuxCmd3
     };
 
-    enum BoardPort
-    {
+    enum BoardPort {
         PortA,
         PortB,
         PortC,
@@ -89,10 +86,6 @@ public:
     void selectAuxCommandBank(BoardPort port, AuxCmdSlot auxCommandSlot, int bank);
     void selectAuxCommandLength(AuxCmdSlot auxCommandSlot, int loopIndex, int endIndex);
 
-    void runImpedance();
-    bool getExternalFastSettle();
-
-
     void resetBoard();
     void setContinuousRunMode(bool continuousMode);
     void setMaxTimeStep(unsigned int maxTimeStep);
@@ -100,22 +93,16 @@ public:
     bool isRunning() const;
     unsigned int numWordsInFifo() const;
     static unsigned int fifoCapacityInWords();
-    void setDacThresholdVoltage(int dacChannel, float voltage_threshold);
-    void setDacThreshold(int dacChannel, int threshold, bool trigPolarity);
-    void enableDacHighpassFilter(bool enable);
-    void setDacHighpassFilter(double cutoff);
+
     void setCableDelay(BoardPort port, int delay);
     void setCableLengthMeters(BoardPort port, double lengthInMeters);
     void setCableLengthFeet(BoardPort port, double lengthInFeet);
     double estimateCableLengthMeters(int delay) const;
     double estimateCableLengthFeet(int delay) const;
-    void setTtlMode(int mode);
-    void setDspSettle(bool enabled);
-    int getBoardMode();
-    void getDacInformation(int *ch, float *th);
 
-    enum BoardDataSource
-    {
+    void setDspSettle(bool enabled);
+
+    enum BoardDataSource {
         PortA1 = 0,
         PortA2 = 1,
         PortB1 = 2,
@@ -136,20 +123,13 @@ public:
 
     void setDataSource(int stream, BoardDataSource dataSource);
     void enableDataStream(int stream, bool enabled);
-    bool isStreamEnabled(int streamIndex);
     int getNumEnabledDataStreams() const;
 
     void clearTtlOut();
     void setTtlOut(int ttlOutArray[]);
     void getTtlIn(int ttlInArray[]);
 
-    enum DacManual
-    {
-        DacManual1,
-        DacManual2
-    };
-
-    void setDacManual(DacManual dac, int value);
+    void setDacManual(int value);
 
     void setLedDisplay(int ledArray[]);
 
@@ -158,37 +138,39 @@ public:
     void setAudioNoiseSuppress(int noiseSuppress);
     void selectDacDataStream(int dacChannel, int stream);
     void selectDacDataChannel(int dacChannel, int dataChannel);
-
-    int gecDacDataChannel(int dacChannel);
-	void updateDacAssignment(int dacChannel, int stream, int channel);
     void enableExternalFastSettle(bool enable);
     void setExternalFastSettleChannel(int channel);
-    void setFastSettleByTTL(bool state);
-    void setFastSettleByTTLchannel(int channel);
+    void enableExternalDigOut(BoardPort port, bool enable);
+    void setExternalDigOutChannel(BoardPort port, int channel);
+    void enableDacHighpassFilter(bool enable);
+    void setDacHighpassFilter(double cutoff);
+    void setDacThreshold(int dacChannel, int threshold, bool trigPolarity);
+    void setTtlMode(int mode);
 
     void flush();
-    bool readDataBlock(Rhd2000DataBlock* dataBlock);
+    bool readDataBlock(Rhd2000DataBlock *dataBlock);
     bool readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue);
-    int queueToFile(queue<Rhd2000DataBlock> &dataQueue, std::ofstream& saveOut);
+    int queueToFile(queue<Rhd2000DataBlock> &dataQueue, std::ofstream &saveOut);
+    int getBoardMode() const;
+    int getCableDelay(BoardPort port) const;
+    void getCableDelay(vector<int> &delays) const;
 
-    void resetFpga();
+	//Additions by open-ephys
+	void resetFpga();
+	bool isStreamEnabled(int streamIndex);
 
 private:
-    okCFrontPanel* dev;
+    okCFrontPanel *dev;
     AmplifierSampleRate sampleRate;
     int numDataStreams; // total number of data streams currently enabled
     int dataStreamEnabled[MAX_NUM_DATA_STREAMS]; // 0 (disabled) or 1 (enabled)
-    int *dacChannelAssignment;
-	int *dacStreamAssignment;
-    float *dacChannelThreshold;
-    bool fast_settle_enabled;
+    vector<int> cableDelay;
 
     // Buffer for reading bytes from USB interface
     unsigned char usbBuffer[USB_BUFFER_SIZE];
 
     // Opal Kelly module USB interface endpoint addresses
-    enum OkEndPoint
-    {
+    enum OkEndPoint {
         WireInResetRun = 0x00,
         WireInMaxTimeStepLsb = 0x01,
         WireInMaxTimeStepMsb = 0x02,
@@ -219,18 +201,16 @@ private:
         WireInDacSource6 = 0x1b,
         WireInDacSource7 = 0x1c,
         WireInDacSource8 = 0x1d,
-        WireInDacManual1 = 0x1e,
-        WireInDacManual2 = 0x1f,
-        WireInMultiUse = 0x1f, 
+        WireInDacManual = 0x1e,
+        WireInMultiUse = 0x1f,
 
-        WireInTTLSettleChannel   = 0x16,
         TrigInDcmProg = 0x40,
         TrigInSpiStart = 0x41,
         TrigInRamWrite = 0x42,
         TrigInDacThresh = 0x43,
         TrigInDacHpf = 0x44,
         TrigInExtFastSettle = 0x45,
-
+        TrigInExtDigOut = 0x46,
 
         WireOutNumWordsLsb = 0x20,
         WireOutNumWordsMsb = 0x21,
@@ -249,6 +229,7 @@ private:
 
     bool isDcmProgDone() const;
     bool isDataClockLocked() const;
+
 };
 
 #endif // RHD2000EVALBOARD_H
