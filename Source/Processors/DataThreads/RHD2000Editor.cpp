@@ -1199,7 +1199,7 @@ void HeadstageOptionsInterface::checkEnabledState()
 
     if (board->isHeadstageEnabled(hsNumber1))
     {
-        channelsOnHs1 = 32;
+		channelsOnHs1 = board->getChannelsInHeadstage(hsNumber1);
         hsButton1->setLabel(String(channelsOnHs1));
         hsButton1->setEnabledState(true);
     }
@@ -1212,7 +1212,7 @@ void HeadstageOptionsInterface::checkEnabledState()
 
     if (board->isHeadstageEnabled(hsNumber2))
     {
-        channelsOnHs2 = 32;
+        channelsOnHs2 = board->getChannelsInHeadstage(hsNumber2);
         hsButton2->setLabel(String(channelsOnHs2));
         hsButton2->setEnabledState(true);
     }
@@ -1230,7 +1230,7 @@ void HeadstageOptionsInterface::checkEnabledState()
 void HeadstageOptionsInterface::buttonClicked(Button* button)
 {
 
-    if (!(editor->acquisitionIsActive) && board->foundInputSource())
+  /*  if (!(editor->acquisitionIsActive) && board->foundInputSource())
     {
 
         //std::cout << "Acquisition is not active" << std::endl;
@@ -1265,7 +1265,7 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
 
 
         editor->getEditorViewport()->makeEditorVisible(editor, false, true);
-    }
+    }*/
 
 }
 
