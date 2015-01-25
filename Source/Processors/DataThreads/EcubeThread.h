@@ -101,6 +101,9 @@ public:
     /** Changes the names of channels, if the thread needs custom names. */
     virtual void updateChannelNames();
 
+    // Custom thread control functions
+    void setSpeakerVolume(double volume);
+    void setSpeakerChannel(unsigned short channel);
 
 private:
     void setDefaultChannelNamesAndType();

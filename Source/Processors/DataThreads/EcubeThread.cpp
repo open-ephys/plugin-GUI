@@ -43,6 +43,9 @@ public:
     IEcubePtr pEcube;
     IEcubeDevicePtr pDevice;
     IEcubeModulePtr pModule;
+    IEcubeSpeakerPtr pSpeaker;
+    std::vector<IEcubeChannelPtr> vpChannels;
+    IEcubeChannelPtr pSpeakerChannel;
     unsigned n_channel_objects;
     std::map<int, int> chid_map;
     IEcubeAnalogAcquisitionPtr pStrmA;
@@ -187,6 +190,8 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
         }
 
         pDevInt->pDevice = pDevInt->pEcube->OpenNetworkDevice(_bstr_t(component.GetAddressValue().toUTF16()));
+        pDevInt->pSpeaker = pDevInt->pDevice->OpenModule(_bstr_t(L"AudioMonitorSpeaker"));
+        pDevInt->pSpeakerChannel = pDevInt->pSpeaker->OpenChannel(_bstr_t(L"ao1"));
         pDevInt->n_channel_objects = 0;
         {
             String selmod = component.GetModuleName();
@@ -217,6 +222,7 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
                                 pDevInt->pStrmA->AddChannel(pch);
                             pDevInt->chid_map[pch->GetID()] = pDevInt->n_channel_objects;
                             pDevInt->n_channel_objects++;
+                            pDevInt->vpChannels.push_back(pch);
                         }
                     }
                 }
@@ -293,6 +299,7 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
         throw std::runtime_error(std::string(e.Description()));
     }
 }
+
 void EcubeThread::getChannelsInfo(StringArray &Names_, Array<ChannelType> &type_, Array<int> &stream_, Array<int> &originalChannelNumber_, Array<float> &gains_)
 {
     Names_ = Names;
@@ -673,6 +680,17 @@ void EcubeThread::run()
 {
     // Call the base class's run
     DataThread::run();
+}
+
+void EcubeThread::setSpeakerVolume(double volume)
+{
+    pDevInt->pSpeaker->PutVolume(volume);
+}
+
+void EcubeThread::setSpeakerChannel(unsigned short channel)
+{
+    if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog)
+        pDevInt->pStrmA->ConnectAudioMonitor(pDevInt->vpChannels.at(channel), pDevInt->pSpeakerChannel);
 }
 
 

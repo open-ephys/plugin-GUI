@@ -39,27 +39,34 @@ User interface for the "eCube" source node.
 
 */
 
+#ifdef ECUBE_COMPILE
+
 class EcubeEditor : public GenericEditor,
-    public Label::Listener
+    public Slider::Listener, public ComboBox::Listener
 {
 public:
-    EcubeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    EcubeEditor(GenericProcessor* parentNode, EcubeThread* npThread, bool useDefaultParameterEditors);
     virtual ~EcubeEditor();
 
-    void buttonEvent(Button* button);
-    void labelTextChanged(Label* label);
+    //void buttonEvent(Button* button);
+    virtual void sliderValueChanged(Slider* slider);
+    virtual void comboBoxChanged(ComboBox* comboBoxThatHasChanged);
 
     void saveEditorParameters(XmlElement*);
     void loadEditorParameters(XmlElement*);
 
 private:
-    ScopedPointer<Label> ipLabel;
-    ScopedPointer<Label> ipValue;
+    ScopedPointer<Label> volLabel;
+    ScopedPointer<Slider> volSlider;
+    ScopedPointer<Label> chanLabel;
+    ScopedPointer<ComboBox> chanComboBox;
+
+    EcubeThread* pThread;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EcubeEditor);
 
 };
 
-
+#endif // ECUBE_COMPILE
 
 #endif  // __ECUBEEDITOR_H_D3EC8BA8__

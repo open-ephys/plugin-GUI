@@ -311,6 +311,12 @@ AudioProcessorEditor* SourceNode::createEditor()
         //  RHD2000Editor* r2e = (RHD2000Editor*) editor.get();
         //  r2e->scanPorts();
     }
+#ifdef ECUBE_COMPILE
+    else if (getName().equalsIgnoreCase("ECube"))
+    {
+        editor = new EcubeEditor(this, dynamic_cast<EcubeThread*>(dataThread.get()), true);
+    }
+#endif
     //  else if (getName().equalsIgnoreCase("File Reader"))
     //  {
     //     editor = new FileReaderEditor(this, (FileReaderThread*) dataThread.get(), true);
