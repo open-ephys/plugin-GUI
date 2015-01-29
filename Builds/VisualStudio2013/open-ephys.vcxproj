@@ -67,11 +67,11 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x86;../../Resources/windows-libs/ZeroMQ/lib_x86</LibraryPath>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">.\x64\Debug\bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">.\x64\Debug64\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">true</GenerateManifest>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x64;../../Resources/windows-libs/ZeroMQ/lib_x64</LibraryPath>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">.\x64\Release\bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">.\x64\Release64\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">true</GenerateManifest>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x64;../../Resources/windows-libs/ZeroMQ/lib_x64</LibraryPath>
@@ -122,7 +122,7 @@
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;</Command>
+      <Command>copy /Y &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -170,7 +170,7 @@
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;</Command>
+      <Command>copy /Y &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">
@@ -216,7 +216,7 @@
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy &quot;..\..\Resources\DLLs\VS2013-x64\*.dll&quot; &quot;$(OutDir)&quot;</Command>
+      <Command>copy /Y &quot;..\..\Resources\DLLs\VS2013-x64\*.dll&quot; &quot;$(OutDir)&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">
@@ -263,7 +263,7 @@
       <OutputFile>$(IntDir)\open-ephys.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy &quot;..\..\Resources\DLLs\VS2013-x64\*.dll&quot; &quot;$(OutDir)&quot;</Command>
+      <Command>copy /Y &quot;..\..\Resources\DLLs\VS2013-x64\*.dll&quot; &quot;$(OutDir)&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
