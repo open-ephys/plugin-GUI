@@ -67,10 +67,12 @@ public:
     void startRecording()
     {
         isRecording = true;
+		needsToSendTimestampMessage = true;
     }
     void stopRecording()
     {
         isRecording = false;
+		needsToSendTimestampMessage = false;
     }
 
     void setSourceNodeId(int id);
@@ -79,7 +81,7 @@ public:
     void addSourceProcessor(GenericProcessor* p);
     void removeSourceProcessor(GenericProcessor* p);
 
-	int64 getTimestamp();
+	int64 getTimestamp(bool softwareTime = false);
 private:
 
     bool newEventAvailable;
@@ -87,6 +89,7 @@ private:
     int sourceNodeId;
 	GenericProcessor* timestampSource;
 	int64 msTime;
+	bool needsToSendTimestampMessage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MessageCenter);
 

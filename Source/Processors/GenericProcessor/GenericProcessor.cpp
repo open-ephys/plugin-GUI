@@ -29,7 +29,8 @@
 GenericProcessor::GenericProcessor(const String& name_) : AccessClass(),
     sourceNode(0), destNode(0), isEnabled(true), wasConnected(false),
     nextAvailableChannel(0), saveOrder(-1), loadOrder(-1), currentChannel(-1),
-    editor(0), parametersAsXml(nullptr), sendSampleCount(true), name(name_), paramsWereLoaded(false)
+    editor(0), parametersAsXml(nullptr), sendSampleCount(true), name(name_), 
+	paramsWereLoaded(false), needsToSendTimestampMessage(false)
 {
     settings.numInputs = settings.numOutputs = settings.sampleRate = 0;
 
@@ -480,12 +481,17 @@ void GenericProcessor::setRecording(bool state)
         if (ed != 0)
             ed->startRecording();
         startRecording();
+		if (generatesTimestamps())
+		{
+			needsToSendTimestampMessage = true;
+		}
     }
     else
     {
         if (ed != 0)
             ed->stopRecording();
         stopRecording();
+		needsToSendTimestampMessage = false;
     }
 }
 
@@ -608,6 +614,23 @@ void GenericProcessor::setTimestamp(MidiBuffer& events, int64 timestamp)
 
 	//since the processor generating the timestamp won't get the event, add it to the map
 	timestamps[nodeId] = timestamp;
+
+	if (needsToSendTimestampMessage)
+	{
+		String eventString = "Processor: " + String(getNodeId()) + " start time: " + String(timestamp);
+
+		CharPointer_UTF8 data = eventString.toUTF8();
+
+		addEvent(events,
+			MESSAGE,
+			0,
+			0,
+			0,
+			data.length() + 1, //It doesn't hurt to send the end-string null and can help avoid issues
+			(uint8*)data.getAddress());
+
+		needsToSendTimestampMessage = false;
+	}
 }
 
 int GenericProcessor::processEventBuffer(MidiBuffer& events)

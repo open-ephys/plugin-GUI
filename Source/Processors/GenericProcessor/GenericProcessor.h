@@ -675,7 +675,7 @@ private:
     static const String unusedNameString;
 
     bool paramsWereLoaded;
-
+	bool needsToSendTimestampMessage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GenericProcessor);
 

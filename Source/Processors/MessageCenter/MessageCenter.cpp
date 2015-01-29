@@ -109,9 +109,9 @@ int MessageCenter::getSourceNodeId()
     return sourceNodeId;
 }
 
-int64 MessageCenter::getTimestamp()
+int64 MessageCenter::getTimestamp(bool softwareTime)
 {
-	if (sourceNodeId > 0)
+	if (!softwareTime && sourceNodeId > 0)
 		return timestampSource->getTimestamp(0);
 	else
 		return (Time::currentTimeMillis() - msTime);
@@ -120,6 +120,22 @@ int64 MessageCenter::getTimestamp()
 void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
 {
 	setTimestamp(eventBuffer,getTimestamp());
+	if (needsToSendTimestampMessage)
+	{
+		String eventString = "Software time: " + String(getTimestamp(true));
+		CharPointer_UTF8 data = eventString.toUTF8();
+
+		addEvent(eventBuffer,
+			MESSAGE,
+			0,
+			0,
+			0,
+			data.length() + 1, //It doesn't hurt to send the end-string null and can help avoid issues
+			(uint8*)data.getAddress());
+
+		needsToSendTimestampMessage = false;
+	}
+
     if (newEventAvailable)
     {
         int numBytes = 0;
@@ -127,7 +143,6 @@ void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
         String eventString = messageCenterEditor->getLabelString();
 
         CharPointer_UTF8 data = eventString.toUTF8();
-        int realId = getNodeId();
 
         addEvent(eventBuffer,
                  MESSAGE,
