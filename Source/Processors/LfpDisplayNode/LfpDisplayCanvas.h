@@ -310,6 +310,9 @@ public:
 
     void setDrawMethod(bool);
 
+    PopupMenu getOptions();
+    void changeParameter(const int id);
+
     void setEnabledState(bool);
     bool getEnabledState()
     {

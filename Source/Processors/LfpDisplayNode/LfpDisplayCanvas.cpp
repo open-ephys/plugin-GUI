@@ -95,7 +95,6 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     addAndMakeVisible(tbut);
     typeButtons.add(tbut);
     
-
     //Ranges for AUX/accelerometer data
     voltageRanges[AUX_CHANNEL].add("25");
     voltageRanges[AUX_CHANNEL].add("50");
@@ -250,7 +249,6 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     // add event display-specific controls (currently just an enable/disable button)
     for (int i = 0; i < 8; i++)
     {
-
 
         EventDisplayInterface* eventOptions = new EventDisplayInterface(lfpDisplay, this, i);
         eventDisplayInterfaces.add(eventOptions);
@@ -573,17 +571,7 @@ int LfpDisplayCanvas::getChannelHeight()
 
 void LfpDisplayCanvas::setParameter(int param, float val)
 {
-    // if (param == 0)
-    // {
-    //     timebase = val;
-    //     refreshScreenBuffer();
-    // }
-    // else
-    // {
-    //     displayGain = val; //* 0.0001f;
-    // }
-
-    // repaint();
+    // not used for anything, since LfpDisplayCanvas is not a processor
 }
 
 void LfpDisplayCanvas:: setRangeSelection(float range, bool canvasMustUpdate)
@@ -1537,7 +1525,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
     int dist = 0;
     int mindist = 10000;
     int closest = 5;
-    for (int n = 0; n < numChans; n++) // select closest instead of relying ot eventComponent
+    for (int n = 0; n < numChans; n++) // select closest instead of relying on eventComponent
     {
         channels[n]->deselect();
 
@@ -1546,21 +1534,25 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 
         //std::cout << "Mouse down at " << y << " pos is "<< cpos << "n:" << n << "  dist " << dist << std::endl;
 
-        if (dist<mindist)
+        if (dist < mindist)
         {
             mindist = dist-1;
             closest = n;
         }
     }
 
-    //LfpChannelDisplay* lcd = (LfpChannelDisplay*) event.eventComponent;
-    //lcd->select();
-
     channels[closest]->select();
     canvas->setSelectedType(channels[closest]->getType());
 
     if (event.getNumberOfClicks() == 2)
         toggleSingleChannel(closest);
+
+    if (event.mods.isRightButtonDown())
+    {
+        PopupMenu channelMenu = channels[closest]->getOptions();
+        const int result = channelMenu.show();
+        channels[closest]->changeParameter(result);
+    }
 
     canvas->fullredraw = true;//issue full redraw
 
@@ -1845,9 +1837,25 @@ void LfpChannelDisplay::paint(Graphics& g)
 }
 
 
+PopupMenu LfpChannelDisplay::getOptions()
+{
 
+    PopupMenu menu;
+    menu.addItem(1, "Invert signal", true, inputInverted);
 
+    return menu;
+}
 
+void LfpChannelDisplay::changeParameter(int id)
+{
+    switch (id)
+    {
+        case 1:
+            setInputInverted(!inputInverted);
+        default:
+            break;
+    }
+}
 
 void LfpChannelDisplay::setRange(float r)
 {
