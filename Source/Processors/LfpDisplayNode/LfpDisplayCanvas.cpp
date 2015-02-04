@@ -352,6 +352,8 @@ void LfpDisplayCanvas::update()
         lastScreenBufferIndex.add(0);
     }
 
+
+
     if (nChans != lfpDisplay->getNumChannels())
     {
         //std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;

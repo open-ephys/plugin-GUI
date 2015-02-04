@@ -493,6 +493,7 @@ bool EcubeThread::updateBuffer()
             {
                 unsigned long bts = ab->GetTimestamp();
                 unsigned long datasize = ab->GetDataSize() / 2; // Data size is returned in bytes, not in samples
+
                 if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog)
                 {
                     if (!pDevInt->buf_timestamp_locked || (bts - pDevInt->buf_timestamp >= pDevInt->sampletime_80mhz && pDevInt->buf_timestamp - bts >= pDevInt->sampletime_80mhz)

@@ -627,7 +627,8 @@ void GenericProcessor::setTimestamp(MidiBuffer& events, int64 timestamp)
 			0,
 			0,
 			data.length() + 1, //It doesn't hurt to send the end-string null and can help avoid issues
-			(uint8*)data.getAddress());
+			(uint8*)data.getAddress(),
+			true);
 
 		needsToSendTimestampMessage = false;
 	}
