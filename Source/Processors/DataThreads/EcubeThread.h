@@ -118,7 +118,7 @@ private:
 
     ScopedPointer<EcubeDevInt> pDevInt;
 
-    float m_samplerate;
+    double m_samplerate;
     bool acquisition_running;
 
 #else

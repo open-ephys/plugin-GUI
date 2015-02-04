@@ -58,6 +58,7 @@ public:
     uint64 buf_timestamp64;
     unsigned long int_buf_size;
     DataFormat data_format;
+    unsigned long sampletime_80mhz;
 };
 
 static const char bits_port0[16] = { 23, 22, -1, 14, 11, -1, -1, 28, 12, 10, 27, 26, -1, -1, -1, -1 };
@@ -197,7 +198,8 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
             String selmod = component.GetModuleName();
             if (selmod == "Headstage(s)")
             {
-                m_samplerate = 25000.0f;
+                m_samplerate = 25000.0;
+                pDevInt->sampletime_80mhz = 3200;
                 pDevInt->data_format = EcubeDevInt::dfSeparateChannelsAnalog;
                 // Get status of headstage selection
                 bool selhs[10];
@@ -233,7 +235,6 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
             else if (selmod == "Panel Analog Input")
             {
                 pDevInt->pModule = pDevInt->pDevice->OpenModule(_bstr_t(L"PanelAnalogInput"));
-                m_samplerate = 25000.0f;// 40.0e6 / 572 original samplerate;
                 pDevInt->data_format = EcubeDevInt::dfInterleavedChannelsAnalog;
                 bool acq_created = false;
                 std::vector<std::wstring> chnames = GetEcubeModuleChannels(pDevInt->pModule);
@@ -250,6 +251,12 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
                     pDevInt->chid_map[pch->GetID()] = pDevInt->n_channel_objects;
                     pDevInt->n_channel_objects++;
                 }
+                m_samplerate = component.GetSampleRate(); // Initial user-specified sample rate
+                pDevInt->pStrmA->PutSampleRate(m_samplerate);
+                m_samplerate = pDevInt->pStrmA->GetSampleRate(); // Retrieve the coerced value from the API
+                pDevInt->sampletime_80mhz = pDevInt->pStrmA->GetSampleRateDen();
+                pDevInt->sampletime_80mhz *= 80000000 / pDevInt->pStrmA->GetSampleRateNum();
+
                 dataBuffer = new DataBuffer(32, 10000);
                 // The interleaving buffer is there just for short->float conversion
                 pDevInt->interleaving_buffer.malloc(sizeof(float)* 1500);
@@ -257,7 +264,8 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
             else if (selmod == "Panel Digital Input")
             {
                 pDevInt->pModule = pDevInt->pDevice->OpenModule(_bstr_t(L"PanelDigitalIO"));
-                m_samplerate = 25000.0f;
+                m_samplerate = 25000.0;
+                pDevInt->sampletime_80mhz = 3200;
                 pDevInt->data_format = EcubeDevInt::dfDigital;
 
                 bool acq_created = false;
@@ -487,7 +495,7 @@ bool EcubeThread::updateBuffer()
                 unsigned long datasize = ab->GetDataSize() / 2; // Data size is returned in bytes, not in samples
                 if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog)
                 {
-                    if (!pDevInt->buf_timestamp_locked || (bts - pDevInt->buf_timestamp >= 3200 && pDevInt->buf_timestamp - bts >= 3200)
+                    if (!pDevInt->buf_timestamp_locked || (bts - pDevInt->buf_timestamp >= pDevInt->sampletime_80mhz && pDevInt->buf_timestamp - bts >= pDevInt->sampletime_80mhz)
                         /*bts != pDevInt->buf_timestamp*/
                         || datasize != pDevInt->int_buf_size)
                     {
@@ -497,7 +505,7 @@ bool EcubeThread::updateBuffer()
                         {
                             // Interleaving buffer is not empty.
                             // Send its contents out to the application
-                            int64 cts = pDevInt->buf_timestamp64 / 3200; // Convert eCube 80MHz timestamp into a 25kHz timestamp
+                            int64 cts = pDevInt->buf_timestamp64 / pDevInt->sampletime_80mhz; // Convert eCube 80MHz timestamp into a 25kHz timestamp
                             for (unsigned long j = 0; j < pDevInt->int_buf_size; j++)
                             {
                                 dataBuffer->addToBuffer(pDevInt->interleaving_buffer + j*nchan, &cts, &eventCode, 1);
@@ -547,7 +555,7 @@ bool EcubeThread::updateBuffer()
                         pDevInt->interleaving_buffer[j] = pData[j] * 10.0/32768; // Convert into volts
                     }
                     unsigned long datasam = datasize / 32;
-                    int64 cts = pDevInt->buf_timestamp64 / 3200; // Convert eCube's 80MHz timestamps into number of samples on the Panel Analog input (orig sample rate 1144)
+                    int64 cts = pDevInt->buf_timestamp64 / pDevInt->sampletime_80mhz; // Convert eCube's 80MHz timestamps into number of samples on the Panel Analog input (orig sample rate 1144)
                     for (unsigned long j = 0; j < datasam; j++)
                     {
                         dataBuffer->addToBuffer(pDevInt->interleaving_buffer+j*32, &cts, &eventCode, 1);
@@ -565,7 +573,7 @@ bool EcubeThread::updateBuffer()
                         {
                             // Interleaving buffer is not empty.
                             // Send its contents out to the application
-                            int64 cts = pDevInt->buf_timestamp64 / 3200; // Convert eCube 80MHz timestamp into a 25kHz timestamp
+                            int64 cts = pDevInt->buf_timestamp64 / pDevInt->sampletime_80mhz; // Convert eCube 80MHz timestamp into a 25kHz timestamp
                             for (unsigned long j = 0; j < pDevInt->int_buf_size; j++)
                             {
                                 dataBuffer->addToBuffer(pDevInt->interleaving_buffer + j*64, &cts, pDevInt->event_buffer+j, 1);

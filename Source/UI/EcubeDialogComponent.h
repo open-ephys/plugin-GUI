@@ -49,6 +49,7 @@ public:
     String GetModuleName();
     void SetDeviceNames(const StringArray& names);
     void GetHeadstageSelection(bool hs[10]);
+    double GetSampleRate(void);
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -80,6 +81,8 @@ private:
     ScopedPointer<ToggleButton> toggleHeadstage8;
     ScopedPointer<ToggleButton> toggleHeadstage9;
     ScopedPointer<ToggleButton> toggleHeadstage10;
+    ScopedPointer<Label> labelSamplerate;
+    ScopedPointer<ComboBox> comboSamplerate;
 
 
     //==============================================================================

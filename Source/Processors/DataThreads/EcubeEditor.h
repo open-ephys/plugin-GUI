@@ -60,6 +60,8 @@ private:
     ScopedPointer<Slider> volSlider;
     ScopedPointer<Label> chanLabel;
     ScopedPointer<ComboBox> chanComboBox;
+    ScopedPointer<Label> samplerateLabel;
+    ScopedPointer<Label> samplerateValueLabel;
 
     EcubeThread* pThread;
 
