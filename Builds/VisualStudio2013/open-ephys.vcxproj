@@ -229,7 +229,7 @@
     <ClCompile>
       <Optimization>Full</Optimization>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;../../Resources/windows-libs/ZeroMQ/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;ZEROMQ;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.4;JUCE_APP_VERSION_HEX=0x304;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;ZEROMQ;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.4;JUCE_APP_VERSION_HEX=0x304;ECUBE_COMPILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader />
