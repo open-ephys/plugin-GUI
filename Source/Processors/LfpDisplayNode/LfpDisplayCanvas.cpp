@@ -1223,6 +1223,8 @@ void LfpDisplay::setNumChannels(int numChannels)
 
         channelInfo.add(lfpInfo);
 
+		savedChannelState.add(true);
+
         totalHeight += lfpChan->getChannelHeight();
 
     }
@@ -1374,7 +1376,7 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
         singleChan = -1;
         for (int n = 0; n < numChans; n++)
         {
-            channelInfo[n]->setEnabledState(true);
+			channelInfo[n]->setEnabledState(savedChannelState[n]);
         }
     }
 
@@ -1495,12 +1497,14 @@ void LfpDisplay::toggleSingleChannel(int chan)
     {
         singleChan = chan;
         int newHeight = viewport->getHeight();
+		channelInfo[chan]->setEnabledState(true);
         setChannelHeight(newHeight, false);
         setSize(getWidth(), numChans*getChannelHeight());
         viewport->setScrollBarsShown(false,false);
         viewport->setViewPosition(Point<int>(0,chan*newHeight));
         for (int n = 0; n < numChans; n++)
         {
+			savedChannelState.set(n, channels[n]->getEnabledState());
             if (n != chan) channelInfo[n]->setEnabledState(false);
         }
 
