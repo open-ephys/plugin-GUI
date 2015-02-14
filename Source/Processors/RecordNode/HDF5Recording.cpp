@@ -152,9 +152,12 @@ void HDF5Recording::closeFiles()
     spikesFile->close();
     for (int i = 0; i < fileArray.size(); i++)
     {
-        fileArray[i]->stopRecording();
-        fileArray[i]->close();
-        bitVoltsArray[i]->clear();
+		if (fileArray[i]->isOpen())
+		{
+			fileArray[i]->stopRecording();
+			fileArray[i]->close();
+			bitVoltsArray[i]->clear();
+		}
     }
 }
 
