@@ -221,6 +221,8 @@ Electrode::~Electrode()
 	delete voltageScale;
     delete channels;
 	delete spikeSort;
+	delete runningStats;
+
 }
 
 Electrode::Electrode(int ID, UniqueIDgenerator *uniqueIDgenerator_, PCAcomputingThread *pth, String _name, int _numChannels, int *_channels, float default_threshold, int pre, int post, float samplingRate , int sourceNodeId)
@@ -238,6 +240,7 @@ Electrode::Electrode(int ID, UniqueIDgenerator *uniqueIDgenerator_, PCAcomputing
     isActive = new bool[numChannels];
     channels = new int[numChannels];
 	voltageScale = new double[numChannels];
+	runningStats = new RunningStat[numChannels];
 	depthOffsetMM = 0.0;
 
 	advancerID = -1;
@@ -860,6 +863,25 @@ void SpikeSorter::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 // 	}
 // }
 
+
+float SpikeSorter::getSelectedElectrodeNoise()
+{
+	if (electrodes.size() == 0)
+		return 0.0;
+
+	// TODO, change "0" to active channel to support tetrodes.
+	return electrodes[currentElectrode]->runningStats[0].StandardDeviation();
+}
+
+
+void SpikeSorter::clearRunningStatForSelectedElectrode()
+{
+	if (electrodes.size() == 0)
+		return;
+	// TODO, change "0" to active channel to support tetrodes.
+	electrodes[currentElectrode]->runningStats[0].Clear();
+}
+
 void SpikeSorter::process(AudioSampleBuffer& buffer,
                             MidiBuffer& events)
 {
@@ -893,23 +915,25 @@ void SpikeSorter::process(AudioSampleBuffer& buffer,
         {
 
             sampleIndex++;
-
+			
             // cycle through channels
             for (int chan = 0; chan < electrode->numChannels; chan++)
             {
 
                 // std::cout << "  channel " << chan << std::endl;
-
+				
                 if (*(electrode->isActive+chan))
                 {
 					//float v = getNextSample(currentChannel);
 
                     int currentChannel = electrode->channels[chan];
+					float currentValue = getNextSample(currentChannel);
+					electrode->runningStats[chan].Push(currentValue);
 
 					bool bSpikeDetectedPositive  = electrode->thresholds[chan] > 0 &&
-						(getNextSample(currentChannel) > electrode->thresholds[chan]); // rising edge
+						(currentValue > electrode->thresholds[chan]); // rising edge
 					bool bSpikeDetectedNegative = electrode->thresholds[chan] < 0 &&
-						(getNextSample(currentChannel) < electrode->thresholds[chan]); // falling edge
+						(currentValue < electrode->thresholds[chan]); // falling edge
 
                     if  (bSpikeDetectedPositive || bSpikeDetectedNegative)
                     { 
