@@ -59,6 +59,7 @@ EngineParameterComponent::EngineParameterComponent(EngineParameter &param)
 		addAndMakeVisible(lab);
 		control = lab;
 	}
+	this->setTooltip(param.name);
 }
 
 EngineParameterComponent::~EngineParameterComponent()
@@ -69,7 +70,7 @@ void EngineParameterComponent::paint(Graphics& g)
 {
 	g.setColour(Colours::black);
 	g.setFont(13);
-	g.drawText(parameter.name+":",0,0,100,30,Justification::left,false);
+	g.drawText(parameter.name+":",0,0,100,30,Justification::left,true);
 }
 
 void EngineParameterComponent::labelTextChanged(Label *l)

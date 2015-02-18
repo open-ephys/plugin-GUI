@@ -28,7 +28,7 @@
 #include "RecordEngine.h"
 
 class EngineParameterComponent : public Component,
-	public Label::Listener
+	public Label::Listener, public SettableTooltipClient
 {
 public:
 	EngineParameterComponent(EngineParameter& param);
