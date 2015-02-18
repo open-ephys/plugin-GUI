@@ -80,6 +80,7 @@ void ChannelMappingNode::updateSettings()
 	    {
 	        if (enabledChannelArray[channelArray[i]])
 	        {
+				oldChannels[channelArray[i]]->mappedIndex = settings.numOutputs;
 	            channels.add(oldChannels[channelArray[i]]);
 				oldChannels.set(channelArray[i],nullptr,false);
 	            settings.numOutputs++;

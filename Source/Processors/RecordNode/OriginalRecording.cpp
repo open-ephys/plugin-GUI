@@ -253,7 +253,10 @@ String OriginalRecording::getFileName(Channel* ch)
 
     filename += ch->nodeId;
     filename += "_";
-    filename += ch->name;
+	if (renameFiles)
+		filename += renamedPrefix + String(ch->mappedIndex + 1);
+	else
+		filename += ch->name;
 
     if (experimentNumber > 1)
     {
@@ -698,6 +701,8 @@ void OriginalRecording::writeXml()
 void OriginalRecording::setParameter(EngineParameter& parameter)
 {
     boolParameter(0, separateFiles);
+	boolParameter(1, renameFiles);
+	strParameter(2, renamedPrefix);
 }
 
 RecordEngineManager* OriginalRecording::getEngineManager()
@@ -706,5 +711,9 @@ RecordEngineManager* OriginalRecording::getEngineManager()
     EngineParameter* param;
     param = new EngineParameter(EngineParameter::BOOL,0,"Separate Files",false);
     man->addParameter(param);
+	param = new EngineParameter(EngineParameter::BOOL, 1, "Rename files based on channel order", false);
+	man->addParameter(param);
+	param = new EngineParameter(EngineParameter::STR, 2, "Renamed files prefix", "CH");
+	man->addParameter(param);
     return man;
 }

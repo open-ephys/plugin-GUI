@@ -333,6 +333,7 @@ void GenericProcessor::update()
             Channel* ch = new Channel(*sourceChan);
             ch->setProcessor(this);
             ch->nodeIndex = i;
+			ch->mappedIndex = i;
 
             if (i < recordStatus.size())
             {

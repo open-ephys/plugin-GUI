@@ -82,6 +82,9 @@ private:
     int recordingNumber;
     int experimentNumber;
 
+	bool renameFiles;
+	String renamedPrefix;
+
     /** Holds data that has been converted from float to int16 before
         saving.
     */

@@ -111,6 +111,9 @@ public:
     /** Channel index within the source processor relative to channel type */
     int index;
 
+	/** Channel index which can be altered by the processor, useful with remappers*/
+	int mappedIndex;
+
     /** The ID of the channel's processor.*/
     int nodeId;
 
