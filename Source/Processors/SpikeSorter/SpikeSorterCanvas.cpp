@@ -1203,7 +1203,7 @@ bool WaveformAxes::checkThreshold(const SpikeObject& s)
 
 void WaveformAxes::clear()
 {
-
+	processor->clearRunningStatForSelectedElectrode();
     spikeBuffer.clear();
     spikeIndex = 0;
     int numSamples=40;
@@ -1668,16 +1668,13 @@ void WaveformAxes::paint(Graphics& g)
 
     if (drawGrid)
         drawWaveformGrid(g);
+	 
+	double noise = processor->getSelectedElectrodeNoise();
+	String d = "STD: " + String(noise, 2) + "uV";
+	g.setFont(Font("Small Text", 13, Font::plain));
+	g.setColour(Colours::white);
 
-    if (channel == 0)
-    {
-        //double depth = processor->getSelectedElectrodeDepth();
-        //String d = "Depth: "+String(depth,4) +" mm";
-        //g.setFont(Font("Small Text", 13, Font::plain));
-        // g.setColour(Colours::white);
-
-        //g.drawText(d,10,10,150,20,Justification::left,false);
-    }
+	g.drawText(d, 10, 10, 150, 20, Justification::left, false);
     // draw the grid lines for the waveforms
 
     // draw the threshold line and labels
