@@ -24,7 +24,7 @@
 #include "Channel.h"
 
 
-Channel::Channel(GenericProcessor* p, int n, ChannelType t) : index(n), processor(p), type(t), nodeIndex(0), mappedIndex(n)
+Channel::Channel(GenericProcessor* p, int n, ChannelType t) : index(n), processor(p), type(t), nodeIndex(0), mappedIndex(0)
 {
     reset();
 }

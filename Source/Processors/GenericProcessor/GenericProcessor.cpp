@@ -369,6 +369,7 @@ void GenericProcessor::update()
             ch->bitVolts = getBitVolts(ch);
             ch->sourceNodeId = nodeId;
             ch->nodeIndex = nidx;
+			ch->mappedIndex = nidx;
 
             if (i < recordStatus.size())
             {
@@ -392,6 +393,7 @@ void GenericProcessor::update()
             ch->bitVolts = getBitVolts(ch);
             ch->sourceNodeId = nodeId;
             ch->nodeIndex = nidx;
+			ch->mappedIndex = nidx;
 
             if (j < recordStatus.size())
             {
@@ -415,6 +417,7 @@ void GenericProcessor::update()
             ch->bitVolts = getBitVolts(ch);
             ch->sourceNodeId = nodeId;
             ch->nodeIndex = nidx;
+			ch->mappedIndex = nidx;
 
             if (k < recordStatus.size())
             {
