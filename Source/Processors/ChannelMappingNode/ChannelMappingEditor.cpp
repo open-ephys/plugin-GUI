@@ -118,7 +118,7 @@ void ChannelMappingEditor::updateSettings()
             createElectrodeButtons(getProcessor()->getNumInputs(),false);
             previousChannelCount = getProcessor()->getNumInputs();
         }
-        else if (!reorderActive)
+        if (!reorderActive)
         {
             checkUnusedChannels();
         }
@@ -155,7 +155,7 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded, bool clearPrevi
     }
     else
     {
-        startButton = previousChannelCount;
+        startButton = electrodeButtons.size();
         if (startButton > numNeeded) return;
         //row = startButton/16;
         //column = startButton % 16;
