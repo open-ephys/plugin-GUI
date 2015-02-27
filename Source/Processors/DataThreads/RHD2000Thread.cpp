@@ -685,11 +685,22 @@ bool RHD2000Thread::isAcquisitionActive()
     return isTransmitting;
 }
 
-/*void RHD2000Thread::setNumChannels(int hsNum, int numChannels)
+void RHD2000Thread::setNumChannels(int hsNum, int numChannels)
 {
-    if (numChannelsPerDataStream[hsNum] > 0)
-        numChannelsPerDataStream.set(hsNum, numChannels);
-}*/
+	if (headstagesArray[hsNum]->getNumChannels() == 32)
+	{
+		if (numChannels < headstagesArray[hsNum]->getNumChannels())
+			headstagesArray[hsNum]->setHalfChannels(true);
+		else
+			headstagesArray[hsNum]->setHalfChannels(false);
+		numChannelsPerDataStream.set(hsNum, numChannels);
+	}
+}
+
+int RHD2000Thread::getHeadstageChannels(int hsNum)
+{
+	return headstagesArray[hsNum]->getNumChannels();
+}
 
 
 void RHD2000Thread::getEventChannelNames(StringArray& Names)
@@ -956,7 +967,7 @@ int RHD2000Thread::getNumHeadstageOutputs()
 
 		if (headstagesArray[i]->isPlugged())
         {
-			numChannels += headstagesArray[i]->getNumChannels();
+			numChannels += headstagesArray[i]->getNumActiveChannels();
         }
     }
 
@@ -2177,7 +2188,7 @@ void RHD2000Thread::runImpedanceTest(Array<int>& streams, Array<int>& channels, 
 
 
 RHDHeadstage::RHDHeadstage(Rhd2000EvalBoard::BoardDataSource stream) : 
-	numStreams(0), channelsPerStream(32), dataStream(stream)
+numStreams(0), channelsPerStream(32), dataStream(stream), halfChannels(false)
 {
 }
 
@@ -2203,6 +2214,16 @@ int RHDHeadstage::getNumChannels()
 int RHDHeadstage::getNumStreams()
 {
 	return numStreams;
+}
+
+void RHDHeadstage::setHalfChannels(bool half)
+{
+	halfChannels = half;
+}
+
+int RHDHeadstage::getNumActiveChannels()
+{
+	return (int)(getNumChannels() / (halfChannels ? 2 : 1));
 }
 
 Rhd2000EvalBoard::BoardDataSource RHDHeadstage::getDataStream(int index)

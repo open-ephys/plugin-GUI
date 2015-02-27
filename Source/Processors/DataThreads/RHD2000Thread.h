@@ -117,13 +117,14 @@ public:
     void setDefaultNamingScheme(int scheme);
 
 	String getChannelName(ChannelType t, int str, int ch);
+	void setNumChannels(int hsNum, int nChannels);
+	int getHeadstageChannels(int hsNum);
 
 private:
 
     bool enableHeadstage(int hsNum, bool enabled, int nStr = 1, int strChans = 32);
 	void updateBoardStreams();
     void setCableLength(int hsNum, float length);
- //   void setNumChannels(int hsNum, int nChannels);
 
     void setDefaultChannelNamesAndType();
     bool channelModified(ChannelType t, int str, int k, String &oldName, float &oldGain, int &index);
@@ -217,12 +218,15 @@ public:
 	void setChannelsPerStream(int nchan);
 	int getNumChannels();
 	int getNumStreams();
+	void setHalfChannels(bool half); //mainly used for de 16ch rhd2132 board
+	int getNumActiveChannels();
 	Rhd2000EvalBoard::BoardDataSource getDataStream(int index);
 	bool isPlugged();
 private:
 	Rhd2000EvalBoard::BoardDataSource dataStream;
 	int numStreams;
 	int channelsPerStream;
+	bool halfChannels;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHDHeadstage);
 };
 
