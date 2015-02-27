@@ -580,7 +580,7 @@ void RHD2000Thread::scanPorts()
     {
 		if ((tmpChipId[hs] > 0) && (enabledStreams.size() < MAX_NUM_DATA_STREAMS))
         {
-			chipId.set(chipIdx++,chipId[hs]);
+			chipId.set(chipIdx++,tmpChipId[hs]);
             //std::cout << "Enabling headstage on stream " << stream << std::endl;
             if (tmpChipId[hs] == CHIP_ID_RHD2164) //RHD2164
             {
@@ -1586,48 +1586,49 @@ bool RHD2000Thread::updateBuffer()
             // then do the Intan AUX channels
 			for (int dataStream = 0; dataStream < enabledStreams.size(); dataStream++)
             {
-
-				if (samp % 4 == 1)   // every 4th sample should have auxiliary input data
+				if (chipId[dataStream] != CHIP_ID_RHD2164_B) //Channel B of 2164 shouldn't be copied
 				{
+					if (samp % 4 == 1)   // every 4th sample should have auxiliary input data
+					{
 
-					// std::cout << "reading sample stream " << streamNumber << " aux ADCs " << std::endl;
+						// std::cout << "reading sample stream " << streamNumber << " aux ADCs " << std::endl;
 
-					channel++;
-					thisSample[channel] = 0.0374 *
-						float(dataBlock->auxiliaryData[dataStream][1][samp+0] - 45000.0f) ;
-					// constant offset keeps the values visible in the LFP Viewer
+						channel++;
+						thisSample[channel] = 0.0374 *
+							float(dataBlock->auxiliaryData[dataStream][1][samp + 0] - 45000.0f);
+						// constant offset keeps the values visible in the LFP Viewer
 
-					auxBuffer[channel] = thisSample[channel];
+						auxBuffer[channel] = thisSample[channel];
 
-					channel++;
-					thisSample[channel] = 0.0374 *
-						float(dataBlock->auxiliaryData[dataStream][1][samp+1] - 45000.0f) ;
-					// constant offset keeps the values visible in the LFP Viewer
+						channel++;
+						thisSample[channel] = 0.0374 *
+							float(dataBlock->auxiliaryData[dataStream][1][samp + 1] - 45000.0f);
+						// constant offset keeps the values visible in the LFP Viewer
 
-					auxBuffer[channel] = thisSample[channel];
+						auxBuffer[channel] = thisSample[channel];
 
 
-					channel++;
-					thisSample[channel] = 0.0374 *
-						float(dataBlock->auxiliaryData[dataStream][1][samp+2] - 45000.0f) ;
-					// constant offset keeps the values visible in the LFP Viewer
+						channel++;
+						thisSample[channel] = 0.0374 *
+							float(dataBlock->auxiliaryData[dataStream][1][samp + 2] - 45000.0f);
+						// constant offset keeps the values visible in the LFP Viewer
 
-					auxBuffer[channel] = thisSample[channel];
+						auxBuffer[channel] = thisSample[channel];
 
+					}
+					else    // repeat last values from buffer
+					{
+
+						//std::cout << "reading sample stream " << streamNumber << " aux ADCs " << std::endl;
+
+						channel++;
+						thisSample[channel] = auxBuffer[channel];
+						channel++;
+						thisSample[channel] = auxBuffer[channel];
+						channel++;
+						thisSample[channel] = auxBuffer[channel];
+					}
 				}
-				else    // repeat last values from buffer
-				{
-
-					//std::cout << "reading sample stream " << streamNumber << " aux ADCs " << std::endl;
-
-					channel++;
-					thisSample[channel] = auxBuffer[channel];
-					channel++;
-					thisSample[channel] = auxBuffer[channel];
-					channel++;
-					thisSample[channel] = auxBuffer[channel];
-				}
-
 
             }
 
