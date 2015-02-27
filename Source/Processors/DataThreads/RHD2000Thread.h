@@ -40,9 +40,10 @@
 #include "../GenericProcessor/GenericProcessor.h"
 
 #define MAX_NUM_DATA_STREAMS 8
+#define MAX_NUM_HEADSTAGES 8
 
 class SourceNode;
-
+class RHDHeadstage;
 /**
 
   Communicates with the RHD2000 Evaluation Board from Intan Technologies
@@ -68,12 +69,8 @@ public:
     float getBitVolts(Channel* chan);
     float getAdcBitVolts(int channelNum);
 
-    // for internal use:
-    bool isHeadstageEnabled(int hsNum);
-
-    bool enableHeadstage(int hsNum, bool enabled);
-    void setCableLength(int hsNum, float length);
-    void setNumChannels(int hsNum, int nChannels);
+	bool isHeadstageEnabled(int hsNum);
+	int getChannelsInHeadstage(int hsNum);
 
     void setSampleRate(int index, bool temporary = false);
 
@@ -120,8 +117,15 @@ public:
     void setDefaultNamingScheme(int scheme);
 
 	String getChannelName(ChannelType t, int str, int ch);
+	void setNumChannels(int hsNum, int nChannels);
+	int getHeadstageChannels(int hsNum);
 
 private:
+
+    bool enableHeadstage(int hsNum, bool enabled, int nStr = 1, int strChans = 32);
+	void updateBoardStreams();
+    void setCableLength(int hsNum, float length);
+
     void setDefaultChannelNamesAndType();
     bool channelModified(ChannelType t, int str, int k, String &oldName, float &oldGain, int &index);
 
@@ -130,7 +134,6 @@ private:
     Rhd2000DataBlock* dataBlock;
 
     std::vector<std::vector<std::vector<double>>> amplifierPreFilter;
-    Array<int> numChannelsPerDataStream;
     void factorOutParallelCapacitance(double &impedanceMagnitude, double &impedancePhase,
                                               double frequency, double parasiticCapacitance);
     void empiricalResistanceCorrection(double &impedanceMagnitude, double &impedancePhase,
@@ -188,6 +191,9 @@ private:
     float *dacThresholds;
     bool *dacChannelsToUpdate;
     Array<int> chipId;
+	OwnedArray<RHDHeadstage> headstagesArray;
+	Array<Rhd2000EvalBoard::BoardDataSource> enabledStreams;
+	Array<int> numChannelsPerDataStream;
 
     // used for data stream names...
     int numberingScheme ;
@@ -201,6 +207,27 @@ private:
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);
+};
+
+class RHDHeadstage
+{
+public:
+	RHDHeadstage(Rhd2000EvalBoard::BoardDataSource stream);
+	~RHDHeadstage();
+	void setNumStreams(int num);
+	void setChannelsPerStream(int nchan);
+	int getNumChannels();
+	int getNumStreams();
+	void setHalfChannels(bool half); //mainly used for de 16ch rhd2132 board
+	int getNumActiveChannels();
+	Rhd2000EvalBoard::BoardDataSource getDataStream(int index);
+	bool isPlugged();
+private:
+	Rhd2000EvalBoard::BoardDataSource dataStream;
+	int numStreams;
+	int channelsPerStream;
+	bool halfChannels;
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHDHeadstage);
 };
 
 #endif  // __RHD2000THREAD_H_2C4CBD67__

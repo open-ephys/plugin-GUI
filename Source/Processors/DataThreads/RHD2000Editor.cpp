@@ -1199,7 +1199,7 @@ void HeadstageOptionsInterface::checkEnabledState()
 
     if (board->isHeadstageEnabled(hsNumber1))
     {
-        channelsOnHs1 = 32;
+		channelsOnHs1 = board->getChannelsInHeadstage(hsNumber1);
         hsButton1->setLabel(String(channelsOnHs1));
         hsButton1->setEnabledState(true);
     }
@@ -1212,7 +1212,7 @@ void HeadstageOptionsInterface::checkEnabledState()
 
     if (board->isHeadstageEnabled(hsNumber2))
     {
-        channelsOnHs2 = 32;
+        channelsOnHs2 = board->getChannelsInHeadstage(hsNumber2);
         hsButton2->setLabel(String(channelsOnHs2));
         hsButton2->setEnabledState(true);
     }
@@ -1230,11 +1230,11 @@ void HeadstageOptionsInterface::checkEnabledState()
 void HeadstageOptionsInterface::buttonClicked(Button* button)
 {
 
-    if (!(editor->acquisitionIsActive) && board->foundInputSource())
+   if (!(editor->acquisitionIsActive) && board->foundInputSource())
     {
 
         //std::cout << "Acquisition is not active" << std::endl;
-        if (button == hsButton1)
+		if ((button == hsButton1) && (board->getChannelsInHeadstage(hsNumber1)))
         {
             if (channelsOnHs1 == 32)
                 channelsOnHs1 = 16;
@@ -1246,11 +1246,11 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
             hsButton1->setLabel(String(channelsOnHs1));
             board->setNumChannels(hsNumber1, channelsOnHs1);
 
-           // board->updateChannelNames();
+            board->updateChannelNames();
             editor->updateSettings();
 
         }
-        else if (button == hsButton2)
+		else if ((button == hsButton2) && (board->getChannelsInHeadstage(hsNumber2)))
         {
             if (channelsOnHs2 == 32)
                 channelsOnHs2 = 16;
@@ -1259,7 +1259,7 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
 
             hsButton2->setLabel(String(channelsOnHs2));
             board->setNumChannels(hsNumber2, channelsOnHs2);
-         //   board->updateChannelNames();
+            board->updateChannelNames();
             editor->updateSettings();
         }
 
