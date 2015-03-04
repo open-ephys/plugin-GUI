@@ -44,6 +44,16 @@
 
 class SourceNode;
 class RHDHeadstage;
+class RHDImpedanceMeasure;
+
+struct ImpedanceData
+{
+	Array<int> streams;
+	Array<int> channels;
+	Array<float> magnitudes;
+	Array<float> phases;
+};
+
 /**
 
   Communicates with the RHD2000 Evaluation Board from Intan Technologies
@@ -53,8 +63,8 @@ class RHDHeadstage;
 */
 
 class RHD2000Thread : public DataThread, public Timer
-
 {
+	friend class RHDImpedanceMeasure;
 public:
     RHD2000Thread(SourceNode* sn);
     ~RHD2000Thread();
@@ -83,22 +93,11 @@ public:
     void setDSPOffset(bool state);
 
     int setNoiseSlicerLevel(int level);
-    void runImpedanceTest(Array<int>& stream, Array<int>& channel, Array<float>& magnitude, Array<float>& phase);
     void setFastTTLSettle(bool state, int channel);
     void setTTLoutputMode(bool state);
     void setDAChpf(float cutoff, bool enabled);
 
     void scanPorts();
-    float updateImpedanceFrequency(float desiredImpedanceFreq, bool& impedanceFreqValid);
-    int loadAmplifierData(queue<Rhd2000DataBlock>& dataQueue,
-                          int numBlocks, int numDataStreams);
-    void measureComplexAmplitude(std::vector<std::vector<std::vector<double>>>& measuredMagnitude,
-                                 std::vector<std::vector<std::vector<double>>>& measuredPhase,
-                                 int capIndex, int stream, int chipChannel, int numBlocks,
-                                 double sampleRate, double frequency, int numPeriods);
-    void amplitudeOfFreqComponent(double& realComponent, double& imagComponent,
-                                  const std::vector<double>& data, int startIndex,
-                                  int endIndex, double sampleRate, double frequency);
     int getNumEventChannels();
 
     void enableAdcs(bool);
@@ -136,12 +135,7 @@ private:
     Rhd2000Registers chipRegisters;
     Rhd2000DataBlock* dataBlock;
 
-    std::vector<std::vector<std::vector<double>>> amplifierPreFilter;
-    void factorOutParallelCapacitance(double& impedanceMagnitude, double& impedancePhase,
-                                      double frequency, double parasiticCapacitance);
-    void empiricalResistanceCorrection(double& impedanceMagnitude, double& impedancePhase,
-                                       double boardSampleRate);
-    int numChannels;
+	int numChannels;
     bool deviceFound;
 
     float thisSample[256];
@@ -225,6 +219,33 @@ private:
     int channelsPerStream;
     bool halfChannels;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHDHeadstage);
+};
+
+class RHDImpedanceMeasure : public Thread
+{
+public:
+	RHDImpedanceMeasure(RHD2000Thread* b, ImpedanceData* d);
+	void run();
+private:
+	void measureComplexAmplitude(std::vector<std::vector<std::vector<double>>>& measuredMagnitude,
+		std::vector<std::vector<std::vector<double>>>& measuredPhase,
+		int capIndex, int stream, int chipChannel, int numBlocks,
+		double sampleRate, double frequency, int numPeriods);
+	void amplitudeOfFreqComponent(double& realComponent, double& imagComponent,
+		const std::vector<double>& data, int startIndex,
+		int endIndex, double sampleRate, double frequency);
+	float updateImpedanceFrequency(float desiredImpedanceFreq, bool& impedanceFreqValid);
+	void factorOutParallelCapacitance(double& impedanceMagnitude, double& impedancePhase,
+		double frequency, double parasiticCapacitance);
+	void empiricalResistanceCorrection(double& impedanceMagnitude, double& impedancePhase,
+		double boardSampleRate);
+	int loadAmplifierData(queue<Rhd2000DataBlock>& dataQueue,
+		int numBlocks, int numDataStreams);
+
+	std::vector<std::vector<std::vector<double>>> amplifierPreFilter;
+
+	ImpedanceData* data;
+	RHD2000Thread* board;
 };
 
 #endif  // __RHD2000THREAD_H_2C4CBD67__
