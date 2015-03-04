@@ -43,10 +43,10 @@ SourceNode::SourceNode(const String& name_)
     {
         // dataThread = new IntanThread(this); // this thread has not been updated recently
     }
-   // else if (getName().equalsIgnoreCase("Custom FPGA"))
-   // {
-   //     dataThread = new FPGAThread(this);
-   // }
+    // else if (getName().equalsIgnoreCase("Custom FPGA"))
+    // {
+    //     dataThread = new FPGAThread(this);
+    // }
     else if (getName().equalsIgnoreCase("Rhythm FPGA"))
     {
         dataThread = new RHD2000Thread(this);
@@ -110,10 +110,10 @@ DataThread* SourceNode::getThread()
 
 void SourceNode::requestChainUpdate()
 {
-	getEditorViewport()->makeEditorVisible(getEditor(), false, true);
+    getEditorViewport()->makeEditorVisible(getEditor(), false, true);
 }
 
-void SourceNode::getEventChannelNames(StringArray &names)
+void SourceNode::getEventChannelNames(StringArray& names)
 {
     if (dataThread != 0)
         dataThread->getEventChannelNames(names);
@@ -129,7 +129,7 @@ void SourceNode::updateSettings()
         std::cout << "Input buffer address is " << inputBuffer << std::endl;
     }
 
-	dataThread->updateChannels();
+    dataThread->updateChannels();
 
 }
 
@@ -208,10 +208,10 @@ int SourceNode::getNumEventChannels()
 
 float SourceNode::getBitVolts(Channel* chan)
 {
-	if (dataThread != 0)
-		return dataThread->getBitVolts(chan);
-	else
-		return 1.0f;
+    if (dataThread != 0)
+        return dataThread->getBitVolts(chan);
+    else
+        return 1.0f;
 }
 
 
@@ -375,7 +375,7 @@ void SourceNode::process(AudioSampleBuffer& buffer,
     //std::cout << "Samples per buffer: " << nSamples << std::endl;
 
 
-    
+
 
     // std::cout << (int) *(data + 7) << " " <<
     //                 (int) *(data + 6) << " " <<
@@ -438,19 +438,19 @@ void SourceNode::process(AudioSampleBuffer& buffer,
 void SourceNode::saveCustomParametersToXml(XmlElement* parentElement)
 {
 
-	XmlElement *channelXml = parentElement->createNewChildElement("CHANNEL_INFO");
-	if (dataThread->usesCustomNames())
-	{
-		Array<ChannelCustomInfo> channelInfo;
-		dataThread->getChannelInfo(channelInfo);
-		for (int i = 0; i < channelInfo.size(); i++)
-		{
-			XmlElement* chan = channelXml->createNewChildElement("CHANNEL");
-			chan->setAttribute("name", channelInfo[i].name);
-			chan->setAttribute("number", i);
-			chan->setAttribute("gain", channelInfo[i].gain);
-		}
-	}
+    XmlElement* channelXml = parentElement->createNewChildElement("CHANNEL_INFO");
+    if (dataThread->usesCustomNames())
+    {
+        Array<ChannelCustomInfo> channelInfo;
+        dataThread->getChannelInfo(channelInfo);
+        for (int i = 0; i < channelInfo.size(); i++)
+        {
+            XmlElement* chan = channelXml->createNewChildElement("CHANNEL");
+            chan->setAttribute("name", channelInfo[i].name);
+            chan->setAttribute("number", i);
+            chan->setAttribute("gain", channelInfo[i].gain);
+        }
+    }
 
 }
 
@@ -463,16 +463,16 @@ void SourceNode::loadCustomParametersFromXml()
 
         forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
-           if (xmlNode->hasTagName("CHANNEL_INFO"))
+            if (xmlNode->hasTagName("CHANNEL_INFO"))
             {
-				forEachXmlChildElementWithTagName(*xmlNode,chan,"CHANNEL")
-				{
-					String name = chan->getStringAttribute("name");
-					int number = chan->getIntAttribute("number");
-					float gain = chan->getDoubleAttribute("gain");
-					dataThread->modifyChannelGain(number, gain);
-					dataThread->modifyChannelName(number, name);
-				}
+                forEachXmlChildElementWithTagName(*xmlNode,chan,"CHANNEL")
+                {
+                    String name = chan->getStringAttribute("name");
+                    int number = chan->getIntAttribute("number");
+                    float gain = chan->getDoubleAttribute("gain");
+                    dataThread->modifyChannelGain(number, gain);
+                    dataThread->modifyChannelName(number, name);
+                }
             }
         }
     }

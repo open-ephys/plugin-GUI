@@ -369,11 +369,11 @@ public:
     /** Sets one of two possible source nodes for a splitter.*/
     virtual void setSplitterDestNode(GenericProcessor* dn) { }
 
-	/** Returns trus if a processor generates its own timestamps, false otherwise.*/
-	virtual bool generatesTimestamps()
-	{
-		return false;
-	}
+    /** Returns trus if a processor generates its own timestamps, false otherwise.*/
+    virtual bool generatesTimestamps()
+    {
+        return false;
+    }
 
     /** Returns true if a processor is a source, false otherwise.*/
     virtual bool isSource()
@@ -496,7 +496,7 @@ public:
                           uint8 eventChannel = 0,
                           uint8 numBytes = 0,
                           uint8* data = 0,
-						  bool isTimestamp = false);
+                          bool isTimestamp = false);
 
     /** Makes it easier for processors to respond to incoming events, such as TTLs and spikes.
 
@@ -651,7 +651,7 @@ private:
 
     /** Saves the record status of individual channels, even when other parameters are updated. */
     Array<bool> recordStatus;
-	Array<bool> monitorStatus;
+    Array<bool> monitorStatus;
 
     /** Extracts sample counts and timestamps from the MidiBuffer. */
     int processEventBuffer(MidiBuffer&);
@@ -660,7 +660,7 @@ private:
     static const String unusedNameString;
 
     bool paramsWereLoaded;
-	bool needsToSendTimestampMessage;
+    bool needsToSendTimestampMessage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GenericProcessor);
 

@@ -65,9 +65,9 @@ public:
     int getNumEventChannels();
     float getBitVolts(Channel* chan);
 
-	void requestChainUpdate();
+    void requestChainUpdate();
 
-   void getEventChannelNames(StringArray &names);
+    void getEventChannelNames(StringArray& names);
 
     AudioProcessorEditor* createEditor();
     bool hasEditor() const
@@ -85,10 +85,10 @@ public:
         return true;
     }
 
-	bool generatesTimestamps()
-	{
-		return true;
-	}
+    bool generatesTimestamps()
+    {
+        return true;
+    }
 
     void acquisitionStopped();
 

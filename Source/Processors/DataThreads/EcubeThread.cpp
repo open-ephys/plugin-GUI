@@ -104,7 +104,7 @@ static std::vector<std::wstring> SafeArrayToVecStr(SAFEARRAY* sa)
 
     if (SafeArrayGetElemsize(sa) != sizeof(BSTR*))
         _com_raise_error(E_FAIL);
-    if(SafeArrayGetDim(sa)!=1)
+    if (SafeArrayGetDim(sa)!=1)
         _com_raise_error(E_FAIL);
     if (FAILED(hr = SafeArrayGetLBound(sa, 1, &lbound)))
         _com_raise_error(hr);
@@ -159,7 +159,7 @@ std::vector<std::wstring> GetEcubeModuleChannels(IEcubeModulePtr& mp)
 {
     std::vector<std::wstring> chnames;
     {
-        SAFEARRAY *sa = mp->GetChannels();
+        SAFEARRAY* sa = mp->GetChannels();
         chnames = SafeArrayToVecStr(sa);
         SafeArrayDestroy(sa); // ARTEM - Leaks a safearray if an exception is thrown here
     }
@@ -179,7 +179,7 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
         pDevInt = new EcubeDevInt;
         pDevInt->pEcube.CreateInstance(__uuidof(Ecube));
         {
-            SAFEARRAY *sa = pDevInt->pEcube->DetectNetworkDevices();
+            SAFEARRAY* sa = pDevInt->pEcube->DetectNetworkDevices();
             StringArray a(SafeArrayToStringArray(sa)); // ARTEM - Leaks a safearray if an exception is thrown here
             SafeArrayDestroy(sa);
             component.SetDeviceNames(a);
@@ -312,7 +312,7 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
 In that case, the query channelModified, will return the values that need to be put */
 void EcubeThread::setDefaultChannelNames()
 {
-   
+
     String prefix;
     ChannelType common_type;
 
@@ -339,17 +339,17 @@ void EcubeThread::setDefaultChannelNames()
 
     for (int i = 0; i < numch; i++)
     {
-		ChannelCustomInfo ci;
-		ci.name = prefix + String(i);
-		ci.gain = getBitVolts(i);
-		channelInfo.set(i, ci);
+        ChannelCustomInfo ci;
+        ci.name = prefix + String(i);
+        ci.gain = getBitVolts(i);
+        channelInfo.set(i, ci);
     }
 
 }
 
 bool EcubeThread::usesCustomNames()
 {
-	return true;
+    return true;
 }
 
 void EcubeThread::setDefaultNamingScheme(int scheme)
@@ -390,7 +390,7 @@ int EcubeThread::getNumAdcOutputs()
 
 int EcubeThread::getNumAuxOutputs()
 {
-	return 0;
+    return 0;
 }
 
 int EcubeThread::getNumChannels()
@@ -418,10 +418,10 @@ float EcubeThread::getSampleRate()
 
 float EcubeThread::getBitVolts(int chan)
 {
-	if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog || pDevInt->data_format == EcubeDevInt::dfDigital)
-		return 10.0/32768; // Volts per bit for front panel analog input and fictive v/bit for the digital input
-	else
-		return 6.25e3 / 32768; // Microvolts per bit for the headstage channels
+    if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog || pDevInt->data_format == EcubeDevInt::dfDigital)
+        return 10.0/32768; // Volts per bit for front panel analog input and fictive v/bit for the digital input
+    else
+        return 6.25e3 / 32768; // Microvolts per bit for the headstage channels
 }
 
 float EcubeThread::getBitVolts(Channel* chan)
@@ -455,7 +455,7 @@ bool EcubeThread::updateBuffer()
             if (pDevInt->data_format == EcubeDevInt::dfSeparateChannelsAnalog || pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
                 ab = pDevInt->pStrmA->FetchNextBuffer();
             else
-                ab = pDevInt->pStrmD->FetchNextBuffer(); 
+                ab = pDevInt->pStrmD->FetchNextBuffer();
             unsigned long chid = ab->GetStreamID();
             std::map<int, int>::const_iterator chit = pDevInt->chid_map.find(chid);
             if (chit != pDevInt->chid_map.end())
@@ -573,22 +573,22 @@ bool EcubeThread::updateBuffer()
                     const uint32_t* pconvtbl;
                     switch (chid)
                     {
-                    case 0:
-                    case 3:
-                        pbits = bits_port0;
-                        pconvtbl = pDevInt->bit_conversion_tables;
-                        break;
-                    case 1:
-                    case 4:
-                        pbits = bits_port1;
-                        pconvtbl = pDevInt->bit_conversion_tables+0x200;
-                        break;
-                    case 2:
-                    case 5:
-                    default:
-                        pbits = bits_port2;
-                        pconvtbl = pDevInt->bit_conversion_tables + 0x400;
-                        break;
+                        case 0:
+                        case 3:
+                            pbits = bits_port0;
+                            pconvtbl = pDevInt->bit_conversion_tables;
+                            break;
+                        case 1:
+                        case 4:
+                            pbits = bits_port1;
+                            pconvtbl = pDevInt->bit_conversion_tables+0x200;
+                            break;
+                        case 2:
+                        case 5:
+                        default:
+                            pbits = bits_port2;
+                            pconvtbl = pDevInt->bit_conversion_tables + 0x400;
+                            break;
                     }
                     int bitchn_offset = chid >= 3 ? 32 : 0;
                     uint8_t dword_shift = chid>=3 ? 32 : 0;
