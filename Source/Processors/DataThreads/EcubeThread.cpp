@@ -298,7 +298,7 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
 
         pDevInt->buf_timestamp_locked = false;
 
-        setDefaultChannelNamesAndType();
+        setDefaultChannelNames();
 
     }
     catch (_com_error& e)
@@ -308,24 +308,11 @@ EcubeThread::EcubeThread(SourceNode* sn) : DataThread(sn), numberingScheme(1), a
     }
 }
 
-void EcubeThread::getChannelsInfo(StringArray &Names_, Array<ChannelType> &type_, Array<int> &stream_, Array<int> &originalChannelNumber_, Array<float> &gains_)
-{
-    Names_ = Names;
-    type_ = type;
-    stream_ = stream;
-    originalChannelNumber_ = originalChannelNumber;
-    gains_ = gains;
-}
-
 /* This will give default names & gains to channels, unless they were manually modified by the user
 In that case, the query channelModified, will return the values that need to be put */
-void EcubeThread::setDefaultChannelNamesAndType()
+void EcubeThread::setDefaultChannelNames()
 {
-    Names.clear();
-    type.clear();
-    stream.clear();
-    gains.clear();
-    originalChannelNumber.clear();
+   
     String prefix;
     ChannelType common_type;
 
@@ -352,31 +339,23 @@ void EcubeThread::setDefaultChannelNamesAndType()
 
     for (int i = 0; i < numch; i++)
     {
-        Names.add(prefix + String(i));
-        gains.add(getBitVolts(i));
-        type.add(common_type);
-        originalChannelNumber.add(i);
+		ChannelCustomInfo ci;
+		ci.name = prefix + String(i);
+		ci.gain = getBitVolts(i);
+		channelInfo.set(i, ci);
     }
 
-    stream.add(0);
 }
 
-void EcubeThread::updateChannelNames()
+bool EcubeThread::usesCustomNames()
 {
-    setDefaultChannelNamesAndType();
-
-    for (int i = 0; i < sn->channels.size(); i++)
-    {
-        sn->channels[i]->setName(Names[i]);
-        sn->channels[i]->bitVolts = gains[i];
-        sn->channels[i]->setType(type[i]);
-    }
+	return true;
 }
 
 void EcubeThread::setDefaultNamingScheme(int scheme)
 {
     numberingScheme = scheme;
-    setDefaultChannelNamesAndType();
+    setDefaultChannelNames();
 }
 
 
@@ -427,16 +406,6 @@ int EcubeThread::getNumChannels()
 int EcubeThread::getNumEventChannels()
 {
     if (pDevInt->data_format == EcubeDevInt::dfDigital)
-        return 64;
-    else
-        return 0;
-}
-
-int EcubeThread::getNumADCchannels()
-{
-    if (pDevInt->data_format == EcubeDevInt::dfInterleavedChannelsAnalog)
-        return 32;
-    else if(pDevInt->data_format == EcubeDevInt::dfDigital)
         return 64;
     else
         return 0;

@@ -87,7 +87,7 @@
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;../../Resources/windows-libs/ZeroMQ/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;ZEROMQ;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.4;JUCE_APP_VERSION_HEX=0x304;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ECUBE_COMPILE;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;ZEROMQ;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.4;JUCE_APP_VERSION_HEX=0x304;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader />

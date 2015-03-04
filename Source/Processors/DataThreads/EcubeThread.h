@@ -85,9 +85,6 @@ public:
     /** Returns the number of event channels of the data source.*/
     virtual int getNumEventChannels();
 
-    /** Returns the number of ADC channels of the data source.*/
-    virtual int getNumADCchannels();
-
     /** Returns the sample rate of the data source.*/
     virtual float getSampleRate();
 
@@ -96,25 +93,17 @@ public:
 
 	virtual float getBitVolts(Channel* chan);
 
-    virtual void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
     void setDefaultNamingScheme(int scheme);
-    /** Changes the names of channels, if the thread needs custom names. */
-    virtual void updateChannelNames();
+	
+	bool usesCustomNames();
 
     // Custom thread control functions
     void setSpeakerVolume(double volume);
     void setSpeakerChannel(unsigned short channel);
 
 private:
-    void setDefaultChannelNamesAndType();
-
-    // used for data stream names...
-    int numberingScheme;
-    StringArray Names;
-    Array<ChannelType> type;
-    Array<float> gains;
-    Array<int> stream;
-    Array<int> originalChannelNumber;
+	int numberingScheme;
+    void setDefaultChannelNames();
 
     ScopedPointer<EcubeDevInt> pDevInt;
 
