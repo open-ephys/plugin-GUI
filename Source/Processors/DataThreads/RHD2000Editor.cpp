@@ -541,6 +541,9 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     measureWhenRecording = false;
     saveImpedances = false;
 
+	impedanceData = new ImpedanceData();
+	impedanceData->valid = false;
+
     // add headstage-specific controls (currently just an enable/disable button)
     for (int i = 0; i < 4; i++)
     {
@@ -689,14 +692,18 @@ void RHD2000Editor::scanPorts()
 
 void RHD2000Editor::measureImpedance()
 {
-    Array<int> stream, channel;
-    Array<float> magnitude, phase;
-    board->runImpedanceTest(stream,channel,magnitude,phase);
+	impedanceData->valid = false;
+	board->runImpedanceTest(impedanceData);
+}
 
+void RHD2000Editor::handleAsyncUpdate()
+{
+	if (!impedanceData->valid)
+		return;
     if (canvas == nullptr)
         VisualizerEditor::canvas = createNewCanvas();
     // update components...
-    canvas->updateImpedance(stream,channel,magnitude,phase);
+	canvas->updateImpedance(impedanceData->streams, impedanceData->channels, impedanceData->magnitudes, impedanceData->phases);
     if (saveImpedances)
     {
         getProcessorGraph()->getRecordNode()->createNewDirectory();
@@ -711,14 +718,14 @@ void RHD2000Editor::measureImpedance()
 
         XmlDocument doc(file);
         ScopedPointer<XmlElement> xml = new XmlElement("CHANNEL_IMPEDANCES");
-        for (int i = 0; i < channel.size(); i++)
+		for (int i = 0; i < impedanceData->channels.size(); i++)
         {
             XmlElement* chan = new XmlElement("CHANNEL");
             chan->setAttribute("name",board->getChannelName(i));
-            chan->setAttribute("stream",stream[i]);
-            chan->setAttribute("channel_number",channel[i]);
-            chan->setAttribute("magnitude",magnitude[i]);
-            chan->setAttribute("phase",phase[i]);
+			chan->setAttribute("stream", impedanceData->streams[i]);
+			chan->setAttribute("channel_number", impedanceData->channels[i]);
+			chan->setAttribute("magnitude", impedanceData->magnitudes[i]);
+			chan->setAttribute("phase", impedanceData->phases[i]);
             xml->addChildElement(chan);
         }
         xml->writeToFile(file,String::empty);

@@ -22,6 +22,7 @@
 */
 
 #include "RHD2000Thread.h"
+#include "RHD2000Editor.h"
 #include "../SourceNode/SourceNode.h"
 
 #if defined(_WIN32)
@@ -82,6 +83,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     audioOutputL(-1), audioOutputR(-1) ,numberingScheme(1),
     newScan(true)
 {
+	impedanceThread = new RHDImpedanceMeasure(this);
 
     for (int i=0; i < MAX_NUM_HEADSTAGES; i++)
         headstagesArray.add(new RHDHeadstage(static_cast<Rhd2000EvalBoard::BoardDataSource>(i)));
@@ -427,6 +429,7 @@ void RHD2000Thread::scanPorts()
         return;
     }
 
+	impedanceThread->stopThreadSafely();
     //Clear previous known streams
     enabledStreams.clear();
 
@@ -930,7 +933,7 @@ float RHD2000Thread::getAdcBitVolts(int chan)
 
 double RHD2000Thread::setUpperBandwidth(double upper)
 {
-
+	impedanceThread->stopThreadSafely();
     desiredUpperBandwidth = upper;
 
     updateRegisters();
@@ -941,6 +944,7 @@ double RHD2000Thread::setUpperBandwidth(double upper)
 
 double RHD2000Thread::setLowerBandwidth(double lower)
 {
+	impedanceThread->stopThreadSafely();
     desiredLowerBandwidth = lower;
 
     updateRegisters();
@@ -950,7 +954,7 @@ double RHD2000Thread::setLowerBandwidth(double lower)
 
 double RHD2000Thread::setDspCutoffFreq(double freq)
 {
-
+	impedanceThread->stopThreadSafely();
     desiredDspCutoffFreq = freq;
 
     updateRegisters();
@@ -966,6 +970,7 @@ double RHD2000Thread::getDspCutoffFreq()
 
 void RHD2000Thread::setDSPOffset(bool state)
 {
+	impedanceThread->stopThreadSafely();
     dspEnabled = state;
     updateRegisters();
 }
@@ -1130,7 +1135,7 @@ void RHD2000Thread::enableAdcs(bool t)
 
 void RHD2000Thread::setSampleRate(int sampleRateIndex, bool isTemporary)
 {
-
+	impedanceThread->stopThreadSafely();
     if (!isTemporary)
     {
         savedSampleRateIndex = sampleRateIndex;
@@ -1360,7 +1365,7 @@ void RHD2000Thread::setCableLength(int hsNum, float length)
 
 bool RHD2000Thread::startAcquisition()
 {
-
+	impedanceThread->waitSafely();
     dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
 
     std::cout << "Expecting " << getNumChannels() << " channels." << std::endl;
@@ -1690,6 +1695,13 @@ int RHD2000Thread::getHeadstageChannel(int& hs, int ch)
     return -1;
 }
 
+void RHD2000Thread::runImpedanceTest(ImpedanceData* data)
+{
+	impedanceThread->stopThreadSafely();
+	impedanceThread->prepareData(data);
+	impedanceThread->startThread();
+}
+
 
 RHDHeadstage::RHDHeadstage(Rhd2000EvalBoard::BoardDataSource stream) :
     numStreams(0), channelsPerStream(32), dataStream(stream), halfChannels(false)
@@ -1744,7 +1756,7 @@ bool RHDHeadstage::isPlugged()
 /***********************************/
 /* Below is code for impedance measurements */
 
-RHDImpedanceMeasure::RHDImpedanceMeasure(RHD2000Thread* b, ImpedanceData* d) : Thread(""), data(d), board(b)
+RHDImpedanceMeasure::RHDImpedanceMeasure(RHD2000Thread* b) : Thread(""), data(nullptr), board(b)
 {
 	// to perform electrode impedance measurements at very low frequencies.
 	const int maxNumBlocks = 120;
@@ -1752,7 +1764,40 @@ RHDImpedanceMeasure::RHDImpedanceMeasure(RHD2000Thread* b, ImpedanceData* d) : T
 	allocateDoubleArray3D(amplifierPreFilter, numStreams, 32, SAMPLES_PER_DATA_BLOCK * maxNumBlocks);
 }
 
+RHDImpedanceMeasure::~RHDImpedanceMeasure()
+{
+	stopThreadSafely();
+}
 
+void RHDImpedanceMeasure::stopThreadSafely()
+{
+	if (isThreadRunning())
+	{
+		sendActionMessage("Impedance measure in progress. Stopping it.");
+		if (!stopThread(3000)) //wait three seconds max for it to exit gracefully
+		{
+			std::cerr << "ERROR: Impedance measurement thread did not exit. Force killed it. This might led to crashes." << std::endl;
+		}
+	}
+}
+
+void RHDImpedanceMeasure::waitSafely()
+{
+	if (!waitForThreadToExit(120000)) //two minutes should be enough for completing a scan
+	{
+		sendActionMessage("Impedance measurement took too much. Aborting.");
+		if (!stopThread(3000)) //wait three seconds max for it to exit gracefully
+		{
+			std::cerr << "ERROR: Impedance measurement thread did not exit. Force killed it. This might led to crashes." << std::endl;
+		}
+	}
+}
+
+void RHDImpedanceMeasure::prepareData(ImpedanceData* d)
+{
+	addActionListener(board->sn->getMessageCenter());
+	data = d;
+}
 
 
 // Update electrode impedance measurement frequency, after checking that
@@ -1956,6 +2001,20 @@ void RHDImpedanceMeasure::empiricalResistanceCorrection(double& impedanceMagnitu
 
 void RHDImpedanceMeasure::run()
 {
+	RHD2000Editor* ed;
+	ed = (RHD2000Editor*)board->sn->editor.get();
+	if (data == nullptr)
+		return;
+	runImpedanceMeasurement();
+	restoreFPGA();
+	ed->triggerAsyncUpdate();
+	data = nullptr;
+}
+
+#define CHECK_EXIT if (threadShouldExit()) return
+
+void RHDImpedanceMeasure::runImpedanceMeasurement()
+{
 	int commandSequenceLength, stream, channel, capRange;
 	double cSeries;
 	vector<int> commandList;
@@ -1967,7 +2026,7 @@ void RHDImpedanceMeasure::run()
 	Array<int> enabledStreams;
 	for (stream = 0; stream < MAX_NUM_DATA_STREAMS; ++stream)
 	{
-
+		CHECK_EXIT;
 		if (board->evalBoard->isStreamEnabled(stream))
 		{
 			enabledStreams.add(stream);
@@ -1987,6 +2046,7 @@ void RHDImpedanceMeasure::run()
 	}
 	// Create a command list for the AuxCmd1 slot.
 	commandSequenceLength = board->chipRegisters.createCommandListZcheckDac(commandList, actualImpedanceFreq, 128.0);
+	CHECK_EXIT;
 	board->evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd1, 1);
 	board->evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd1,
 		0, commandSequenceLength - 1);
@@ -1994,7 +2054,7 @@ void RHDImpedanceMeasure::run()
 	{
 		board->evalBoard->enableExternalFastSettle(false);
 	}
-
+	CHECK_EXIT;
 	board->evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA,
 		Rhd2000EvalBoard::AuxCmd1, 1);
 	board->evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB,
@@ -2011,12 +2071,14 @@ void RHDImpedanceMeasure::run()
 	int numBlocks = ceil((numPeriods + 2.0) * period / 60.0);  // + 2 periods to give time to settle initially
 	if (numBlocks < 2) numBlocks = 2;   // need first block for command to switch channels to take effect.
 
+	CHECK_EXIT;
 	board->actualDspCutoffFreq = board->chipRegisters.setDspCutoffFreq(board->desiredDspCutoffFreq);
 	board->actualLowerBandwidth = board->chipRegisters.setLowerBandwidth(board->desiredLowerBandwidth);
 	board->actualUpperBandwidth = board->chipRegisters.setUpperBandwidth(board->desiredUpperBandwidth);
 	board->chipRegisters.enableDsp(board->dspEnabled);
 	board->chipRegisters.enableZcheck(true);
 	commandSequenceLength = board->chipRegisters.createCommandListRegisterConfig(commandList, false);
+	CHECK_EXIT;
 	// Upload version with no ADC calibration to AuxCmd3 RAM Bank 1.
 	board->evalBoard->uploadCommandList(commandList, Rhd2000EvalBoard::AuxCmd3, 3);
 	board->evalBoard->selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0, commandSequenceLength - 1);
@@ -2025,6 +2087,7 @@ void RHDImpedanceMeasure::run()
 	board->evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3, 3);
 	board->evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3, 3);
 
+	CHECK_EXIT;
 	board->evalBoard->setContinuousRunMode(false);
 	board->evalBoard->setMaxTimeStep(SAMPLES_PER_DATA_BLOCK * numBlocks);
 
@@ -2066,7 +2129,6 @@ void RHDImpedanceMeasure::run()
 	for (capRange = 0; capRange < 3; ++capRange)
 	{
 
-
 		switch (capRange)
 		{
 		case 0:
@@ -2089,6 +2151,7 @@ void RHDImpedanceMeasure::run()
 		// Check all 32 channels across all active data streams.
 		for (channel = 0; channel < 32; ++channel)
 		{
+			CHECK_EXIT;
 			cout << "running impedance on channel " << channel << endl;
 
 			board->chipRegisters.setZcheckChannel(channel);
@@ -2119,6 +2182,7 @@ void RHDImpedanceMeasure::run()
 			// and repeat the previous steps.
 			if (rhd2164ChipPresent)
 			{
+				CHECK_EXIT;
 				board->chipRegisters.setZcheckChannel(channel + 32); // address channels 32-63
 				commandSequenceLength =
 					board->chipRegisters.createCommandListRegisterConfig(commandList, false);
@@ -2214,7 +2278,12 @@ void RHDImpedanceMeasure::run()
 			}
 		}
 	}
+	data->valid = true;
+	
+}
 
+void RHDImpedanceMeasure::restoreFPGA()
+{
 	board->evalBoard->setContinuousRunMode(false);
 	board->evalBoard->setMaxTimeStep(0);
 	board->evalBoard->flush();

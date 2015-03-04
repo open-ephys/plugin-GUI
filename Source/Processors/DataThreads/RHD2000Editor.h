@@ -38,6 +38,7 @@ class AudioInterface;
 class RHD2000Thread;
 
 class UtilityButton;
+struct ImpedanceData;
 
 /**
 
@@ -157,7 +158,7 @@ public:
     ScopedPointer<FPGAchannelList> channelList;
 };
 
-class RHD2000Editor : public VisualizerEditor, public ComboBox::Listener
+class RHD2000Editor : public VisualizerEditor, public ComboBox::Listener, public AsyncUpdater
 
 {
 public:
@@ -184,6 +185,8 @@ public:
     bool getSaveImpedance();
     bool getAutoMeasureImpedance();
 
+	void handleAsyncUpdate();
+
 private:
 
     OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
@@ -208,6 +211,9 @@ private:
 
     RHD2000Thread* board;
     FPGAcanvas* canvas;
+
+	ScopedPointer<ImpedanceData> impedanceData;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Editor);
 
 };

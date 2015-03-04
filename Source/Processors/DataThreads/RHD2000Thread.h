@@ -52,6 +52,7 @@ struct ImpedanceData
 	Array<int> channels;
 	Array<float> magnitudes;
 	Array<float> phases;
+	bool valid;
 };
 
 /**
@@ -122,6 +123,8 @@ public:
     int getChannelFromHeadstage(int hs, int ch);
     /*Gets the headstage relative channel index from the absolute channel index*/
     int getHeadstageChannel(int& hs, int ch);
+
+	void runImpedanceTest(ImpedanceData* data);
 
 private:
 
@@ -196,6 +199,7 @@ private:
     int numberingScheme ;
     Array<float> adcBitVolts;
     bool newScan;
+	ScopedPointer<RHDImpedanceMeasure> impedanceThread;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);
 };
@@ -221,12 +225,18 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHDHeadstage);
 };
 
-class RHDImpedanceMeasure : public Thread
+class RHDImpedanceMeasure : public Thread, public ActionBroadcaster
 {
 public:
-	RHDImpedanceMeasure(RHD2000Thread* b, ImpedanceData* d);
+	RHDImpedanceMeasure(RHD2000Thread* b);
+	~RHDImpedanceMeasure();
+	void prepareData(ImpedanceData* d);
+	void stopThreadSafely();
+	void waitSafely();
 	void run();
 private:
+	void runImpedanceMeasurement();
+	void restoreFPGA();
 	void measureComplexAmplitude(std::vector<std::vector<std::vector<double>>>& measuredMagnitude,
 		std::vector<std::vector<std::vector<double>>>& measuredPhase,
 		int capIndex, int stream, int chipChannel, int numBlocks,
@@ -246,6 +256,8 @@ private:
 
 	ImpedanceData* data;
 	RHD2000Thread* board;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHDImpedanceMeasure);
 };
 
 #endif  // __RHD2000THREAD_H_2C4CBD67__
