@@ -75,8 +75,6 @@ public:
 private:
     Array<float> gains;
     Array<ChannelType> types;
-    Array<int> stream;
-    Array<int> orig_number;
 
 	bool chainUpdate;
 

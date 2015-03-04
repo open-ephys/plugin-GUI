@@ -308,18 +308,10 @@ void FPGAchannelList::comboBoxChanged(ComboBox* b)
 
 void FPGAchannelList::updateImpedance(Array<int> streams, Array<int> channels, Array<float> magnitude, Array<float> phase)
 {
-    for (int k=0; k<streams.size(); k++)
-    {
-        for (int j=k; j<stream.size(); j++)
-        {
-            if (stream[j] == streams[k] && types[j] == HEADSTAGE_CHANNEL && orig_number[j] == channels[k])
-            {
-                channelComponents[j]->setImpedanceValues(magnitude[k],phase[k]);
-                break;
-            }
-
-        }
-    }
+	for (int k = 0; k < streams.size(); k++)
+	{
+		channelComponents[k]->setImpedanceValues(magnitude[k], phase[k]);
+	}
 
 }
 
