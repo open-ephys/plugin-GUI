@@ -101,7 +101,6 @@ public:
                                                int endIndex, double sampleRate, double frequency);
     int getNumEventChannels();
 
-    void assignAudioOut(int dacChannel, int dataChannel);
     void enableAdcs(bool);
 
     bool isAcquisitionActive();
@@ -110,7 +109,7 @@ public:
     int modifyChannelName(int channel, String newName);
     void getEventChannelNames(StringArray &Names);
     Array<int> getDACchannels();
-    void setDACchannel(int dacOutput, int stream, int channel);
+    void setDACchannel(int dacOutput, int channel);
     void setDACthreshold(int dacOutput, float threshold);
     void setDefaultNamingScheme(int scheme);
 

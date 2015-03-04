@@ -195,13 +195,26 @@ void RHD2000Thread::setDACthreshold(int dacOutput, float threshold)
     //  evalBoard->setDacThresholdVoltage(dacOutput,threshold);
 }
 
-void RHD2000Thread::setDACchannel(int dacOutput, int stream, int channel)
+void RHD2000Thread::setDACchannel(int dacOutput, int channel)
 {
-    dacChannels[dacOutput] = channel;
-    dacStream[dacOutput] = stream;
-    dacChannelsToUpdate[dacOutput] = true;
-    dacOutputShouldChange = true;
-   // evalBoard->updateDacAssignment(dacOutput, channel); // doesn't really change anything, but keep things in sync...
+	if (channel < getNumHeadstageOutputs())
+	{
+		int channelCount = 0;
+		for (int i = 0; i < enabledStreams.size(); i++)
+		{
+			if (channel < channelCount + numChannelsPerDataStream[i])
+			{
+				dacChannels[dacOutput] = channel - channelCount;
+				dacStream[dacOutput] = i;
+			}
+			else
+			{
+				channelCount += numChannelsPerDataStream[i];
+			}
+		}
+		dacChannelsToUpdate[dacOutput] = true;
+		dacOutputShouldChange = true;
+	}
 }
 
 Array<int> RHD2000Thread::getDACchannels()
@@ -1083,7 +1096,7 @@ int RHD2000Thread::getChannelsInHeadstage(int hsNum)
 	return headstagesArray[hsNum]->getNumChannels();
 }
 
-void RHD2000Thread::assignAudioOut(int dacChannel, int dataChannel)
+/*void RHD2000Thread::assignAudioOut(int dacChannel, int dataChannel)
 {
     if (deviceFound)
     {
@@ -1103,7 +1116,7 @@ void RHD2000Thread::assignAudioOut(int dacChannel, int dataChannel)
         // to avoid problems
     }
 
-}
+}*/
 
 void RHD2000Thread::enableAdcs(bool t)
 {

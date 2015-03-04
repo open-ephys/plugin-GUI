@@ -410,7 +410,7 @@ void SpikeSorter::assignDACtoChannel(int dacOutput, int channel)
 	RHD2000Thread* th = getRhythmAccess();
 	if (th != nullptr)
 	{
-		th->setDACchannel(dacOutput, channels[channel]->sourceNodeId, channels[channel]->index); // this is probably wrong (JHS)
+		th->setDACchannel(dacOutput, channel); // this is probably wrong (JHS)
 	}
 }
 

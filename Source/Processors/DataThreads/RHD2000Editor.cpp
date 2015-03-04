@@ -826,7 +826,7 @@ void RHD2000Editor::channelChanged(int chan)
         {
             electrodeButtons[i]->setChannelNum(chan);
             electrodeButtons[i]->repaint();
-            board->assignAudioOut(i, chan);
+            board->setDACchannel(i, chan);
 
         }
     }
@@ -891,10 +891,10 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     bandwidthInterface->setLowerBandwidth(xml->getDoubleAttribute("LowCut"));
     bandwidthInterface->setUpperBandwidth(xml->getDoubleAttribute("HighCut"));
     adcButton->setToggleState(xml->getBoolAttribute("ADCsOn"), sendNotification);
-    electrodeButtons[0]->setChannelNum(xml->getIntAttribute("AudioOutputL"));
-    board->assignAudioOut(0, xml->getIntAttribute("AudioOutputL"));
-    electrodeButtons[1]->setChannelNum(xml->getIntAttribute("AudioOutputR"));
-    board->assignAudioOut(1, xml->getIntAttribute("AudioOutputR"));
+    //electrodeButtons[0]->setChannelNum(xml->getIntAttribute("AudioOutputL"));
+    //board->assignAudioOut(0, xml->getIntAttribute("AudioOutputL"));
+    //electrodeButtons[1]->setChannelNum(xml->getIntAttribute("AudioOutputR"));
+    //board->assignAudioOut(1, xml->getIntAttribute("AudioOutputR"));
     audioInterface->setNoiseSlicerLevel(xml->getIntAttribute("NoiseSlicer"));
     ttlSettleCombo->setSelectedId(xml->getIntAttribute("TTLFastSettle"));
     dacTTLButton->setToggleState(xml->getBoolAttribute("DAC_TTL"), sendNotification);
