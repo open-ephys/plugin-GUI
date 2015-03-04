@@ -438,21 +438,18 @@ void SourceNode::process(AudioSampleBuffer& buffer,
 void SourceNode::saveCustomParametersToXml(XmlElement* parentElement)
 {
 
-    StringArray names;
-    Array<ChannelType> types;
-    Array<int> stream;
-    Array<int> originalChannelNumber;
-    Array<float> gains;
- //   getChannelsInfo(names, types, stream, originalChannelNumber, gains);
-	XmlElement *channelInfo = parentElement->createNewChildElement("CHANNEL_INFO");
-	for (int i = 0; i < names.size(); i++)
+	XmlElement *channelXml = parentElement->createNewChildElement("CHANNEL_INFO");
+	if (dataThread->usesCustomNames())
 	{
-		XmlElement* chan = channelInfo->createNewChildElement("CHANNEL");
-		chan->setAttribute("name",names[i]);
-		chan->setAttribute("stream",stream[i]);
-		chan->setAttribute("number",originalChannelNumber[i]);
-		chan->setAttribute("type",(int)types[i]);
-		chan->setAttribute("gain",gains[i]);
+		Array<ChannelCustomInfo> channelInfo;
+		dataThread->getChannelInfo(channelInfo);
+		for (int i = 0; i < channelInfo.size(); i++)
+		{
+			XmlElement* chan = channelXml->createNewChildElement("CHANNEL");
+			chan->setAttribute("name", channelInfo[i].name);
+			chan->setAttribute("number", i);
+			chan->setAttribute("gain", channelInfo[i].gain);
+		}
 	}
 
 }
@@ -471,12 +468,10 @@ void SourceNode::loadCustomParametersFromXml()
 				forEachXmlChildElementWithTagName(*xmlNode,chan,"CHANNEL")
 				{
 					String name = chan->getStringAttribute("name");
-					int stream = chan->getIntAttribute("stream");
 					int number = chan->getIntAttribute("number");
-					ChannelType type = static_cast<ChannelType>(chan->getIntAttribute("type"));
 					float gain = chan->getDoubleAttribute("gain");
-//					modifyChannelName(type,stream,number,name,false);
-//					modifyChannelGain(stream,number,type,gain,false);					
+					dataThread->modifyChannelGain(number, gain);
+					dataThread->modifyChannelName(number, name);
 				}
             }
         }

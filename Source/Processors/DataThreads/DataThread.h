@@ -138,6 +138,7 @@ public:
         return 0;
     }
 
+	void getChannelInfo(Array<ChannelCustomInfo>& infoArray);
 
 protected:
 	virtual void setDefaultChannelNames()

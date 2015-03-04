@@ -69,6 +69,12 @@ DataBuffer* DataThread::getBufferAddress()
     return dataBuffer;
 }
 
+void DataThread::getChannelInfo(Array<ChannelCustomInfo>& infoArray)
+{
+	infoArray.clear();
+	infoArray.addArray(channelInfo);
+}
+
 
 void DataThread::updateChannels()
 {
