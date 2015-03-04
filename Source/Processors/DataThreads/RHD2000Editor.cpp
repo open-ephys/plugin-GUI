@@ -39,8 +39,9 @@ inline double round(double x)
 #endif
 #endif
 
-FPGAchannelList::FPGAchannelList(GenericProcessor* proc_, Viewport* p, FPGAcanvas* c) : proc(proc_), viewport(p), canvas(c)
+FPGAchannelList::FPGAchannelList(GenericProcessor* proc_, Viewport* p, FPGAcanvas* c) : viewport(p), canvas(c), chainUpdate(false)
 {
+	proc = (SourceNode*)proc_;
     channelComponents.clear();
 
     numberingSchemeLabel = new Label("Numbering scheme:","Numbering scheme:");
@@ -121,39 +122,53 @@ void FPGAchannelList::buttonClicked(Button* btn)
 
 void FPGAchannelList::update()
 {
+	const int columnWidth = 330;
     // Query processor for number of channels, types, gains, etc... and update the UI
     channelComponents.clear();
     staticLabels.clear();
-    StringArray names;
-    Array<float> oldgains;
-    proc->getChannelsInfo(names,types,stream,orig_number,oldgains);
-    int numChannels = names.size();
+
+	RHD2000Thread* thread = (RHD2000Thread*)proc->getThread();
+	ChannelType type;
 
     // find out which streams are active.
-    bool streamActive[MAX_NUM_DATA_STREAMS+1];
+    bool hsActive[MAX_NUM_HEADSTAGES+1];
     bool adcActive = false;
-    int numActiveStreams = 0;
-    int streamColumn[MAX_NUM_DATA_STREAMS+1];
-    int numChannelsPerStream[MAX_NUM_DATA_STREAMS+1];
+    int numActiveHeadstages = 0;
+	int hsColumn[MAX_NUM_HEADSTAGES + 1];
+	int numChannelsPerHeadstage[MAX_NUM_HEADSTAGES + 1];
+	chainUpdate = false;
 
-    for (int k=0; k<MAX_NUM_DATA_STREAMS+1; k++)
+	for (int k = 0; k<MAX_NUM_HEADSTAGES; k++)
     {
-        numChannelsPerStream[k] = 0;
-        streamActive[k] = false;
-        streamColumn[k] = 0;
+		if (thread->isHeadstageEnabled(k))
+		{
+			numChannelsPerHeadstage[k] = thread->getActiveChannelsInHeadstage(k);
+			hsActive[k] = true;
+			hsColumn[k] = numActiveHeadstages*columnWidth;
+			numActiveHeadstages++;
+		}
+		else
+		{
+			numChannelsPerHeadstage[k] = 0;
+			hsActive[k] = false;
+			hsColumn[k] = 0;
+		}
     }
-    int columnWidth = 330;
-
-    for (int k=0; k<numChannels; k++)
-    {
-        if (streamActive[stream[k]] == false)
-        {
-            streamColumn[stream[k]] = numActiveStreams*columnWidth;
-            numActiveStreams++;
-            streamActive[stream[k]] = true;
-        }
-    }
-
+    
+	if (thread->getNumAdcOutputs() > 0)
+	{
+		numChannelsPerHeadstage[MAX_NUM_HEADSTAGES] = thread->getNumAdcOutputs();
+		hsActive[MAX_NUM_HEADSTAGES] = true;
+		hsColumn[MAX_NUM_HEADSTAGES] = numActiveHeadstages*columnWidth;
+		numActiveHeadstages++;
+	}
+	else
+	{
+		numChannelsPerHeadstage[MAX_NUM_HEADSTAGES] = 0;
+		hsActive[MAX_NUM_HEADSTAGES] = false;
+		hsColumn[MAX_NUM_HEADSTAGES] = 0;
+	}
+   
     StringArray streamNames;
     streamNames.add("Port A1");
     streamNames.add("Port A2");
@@ -167,11 +182,11 @@ void FPGAchannelList::update()
 
     for (int k = 0; k < MAX_NUM_DATA_STREAMS + 1; k++)
     {
-        if (streamActive[k])
+        if (hsActive[k])
         {
             Label* lbl = new Label(streamNames[k],streamNames[k]);
             lbl->setEditable(false);
-            lbl->setBounds(10+streamColumn[k],40,columnWidth, 25);
+            lbl->setBounds(10+hsColumn[k],40,columnWidth, 25);
             lbl->setJustificationType(juce::Justification::centred);
             lbl->setColour(Label::textColourId,juce::Colours::white);
             staticLabels.add(lbl);
@@ -181,36 +196,45 @@ void FPGAchannelList::update()
 
     }
 
-    // add buttons for all DATA, AUX, channels
-    for (int k = 0; k < numChannels; k++)
-    {
-        int channelGainIndex = 1;
-		float ch_gain = 1.0f; ///%oldgains[k]/static_cast<SourceNode*>(proc)->getBitVolts(k);
-        for (int j = 0; j < gains.size(); j++)
-        {
-            if (fabs(gains[j]-ch_gain) < 1e-3)
-            {
-                channelGainIndex = j;
-                break;
-            }
-        }
+	for (int k = 0; k < MAX_NUM_HEADSTAGES + 1; k++)
+	{
+		if (hsActive[k])
+		{
+			for (int ch = 0; ch < numChannelsPerHeadstage[k]+ (k < MAX_NUM_HEADSTAGES ? 3 : 0); ch++)
+			{
+				int channelGainIndex = 1;
+				int realChan = thread->getChannelFromHeadstage(k, ch);
+				float ch_gain = proc->channels[realChan]->getBitVolts() / proc->getBitVolts(proc->channels[realChan]);
+				for (int j = 0; j < gains.size(); j++)
+				{
+					if (fabs(gains[j] - ch_gain) < 1e-3)
+					{
+						channelGainIndex = j;
+						break;
+					}
+				}
+				if (k < MAX_NUM_HEADSTAGES)
+					type = ch < numChannelsPerHeadstage[k] ? HEADSTAGE_CHANNEL : AUX_CHANNEL;
+				else
+					type = ADC_CHANNEL;
 
-        FPGAchannelComponent* comp = new FPGAchannelComponent(this, stream[k],orig_number[k],types[k],channelGainIndex+1, names[k],gains);
-        comp->setBounds(10+streamColumn[stream[k]],70+numChannelsPerStream[stream[k]]*22,columnWidth,22);
-        numChannelsPerStream[stream[k]]++;
+				FPGAchannelComponent* comp = new FPGAchannelComponent(this, realChan, channelGainIndex + 1, thread->getChannelName(realChan), gains,type);
+				comp->setBounds(10 + hsColumn[k], 70 + ch * 22, columnWidth, 22);
+				comp->setUserDefinedData(k);
+				addAndMakeVisible(comp);
+				channelComponents.add(comp);
+			}
+		}
+	}
 
-        comp->setUserDefinedData(k);
-        addAndMakeVisible(comp);
-        channelComponents.add(comp);
-    }
-
+    
     StringArray ttlNames;
     proc->getEventChannelNames(ttlNames);
     // add buttons for TTL channels
     for (int k=0; k<ttlNames.size(); k++)
     {
-        FPGAchannelComponent* comp = new FPGAchannelComponent(this,-1,k, EVENT_CHANNEL,-1, ttlNames[k],gains);
-        comp->setBounds(10+numActiveStreams*columnWidth,70+k*22,columnWidth,22);
+        FPGAchannelComponent* comp = new FPGAchannelComponent(this,k, -1, ttlNames[k],gains,EVENT_CHANNEL);
+        comp->setBounds(10+numActiveHeadstages*columnWidth,70+k*22,columnWidth,22);
         comp->setUserDefinedData(k);
         addAndMakeVisible(comp);
         channelComponents.add(comp);
@@ -218,13 +242,13 @@ void FPGAchannelList::update()
 
     Label* lbl = new Label("TTL Events","TTL Events");
     lbl->setEditable(false);
-    lbl->setBounds(numActiveStreams*columnWidth,40,columnWidth, 25);
+    lbl->setBounds(numActiveHeadstages*columnWidth,40,columnWidth, 25);
     lbl->setJustificationType(juce::Justification::centred);
     lbl->setColour(Label::textColourId,juce::Colours::white);
     staticLabels.add(lbl);
     addAndMakeVisible(lbl);
 
-
+	chainUpdate = true;
 }
 
 void FPGAchannelList::disableAll()
@@ -244,27 +268,20 @@ void FPGAchannelList::enableAll()
 
 }
 
-void FPGAchannelList::setNewGain(int stream, int channel, ChannelType type, float gain)
+void FPGAchannelList::setNewGain(int channel, float gain)
 {
-    float newGain;
-	int realChan;
-	SourceNode* p = (SourceNode*) proc;
-
-	if (type==ADC_CHANNEL)
-	{
-		realChan = p->getNumOutputs()-p->getThread()->getNumADCchannels()+channel;
-	}
-	else
-	{
-		realChan = channel;
-	}
-	//newGain = p->getBitVolts(realChan)*gain;
-    p->modifyChannelGain(stream, channel, type, newGain, true);
+	RHD2000Thread* thread = (RHD2000Thread*)proc->getThread();
+	thread->modifyChannelGain(channel, gain);
+	if (chainUpdate)
+		proc->requestChainUpdate();
 }
 
-void FPGAchannelList::setNewName(int stream, int channelIndex, ChannelType t, String newName)
+void FPGAchannelList::setNewName(int channel, String newName)
 {
-    proc->modifyChannelName(t, stream, channelIndex, newName, true);
+	RHD2000Thread* thread = (RHD2000Thread*)proc->getThread();
+	thread->modifyChannelName(channel, newName);
+	if (chainUpdate)
+		proc->requestChainUpdate();    
 }
 
 void FPGAchannelList::updateButtons()
@@ -281,17 +298,11 @@ void FPGAchannelList::comboBoxChanged(ComboBox* b)
     if (b == numberingScheme)
     {
         SourceNode* p = (SourceNode*)proc;
+		RHD2000Thread* thread = (RHD2000Thread*)p->getThread();
         int scheme = numberingScheme->getSelectedId();
-        if (scheme == 1)
-        {
-            p->setDefaultNamingScheme(scheme);
-        }
-        else if (scheme == 2)
-        {
-            p->setDefaultNamingScheme(scheme);
-        }
+		thread->setDefaultNamingScheme(scheme);
         update();
-		canvas->processor->getEditorViewport()->makeEditorVisible(canvas->processor->getEditor(),false,true);
+		p->requestChainUpdate();
     }
 }
 
@@ -314,7 +325,8 @@ void FPGAchannelList::updateImpedance(Array<int> streams, Array<int> channels, A
 
 
 /****************************************************/
-FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int stream_, int ch, ChannelType t, int gainIndex_, String N, Array<float> gains_) :   gains(gains_), channelList(cl), channel(ch), name(N), stream(stream_), type(t), gainIndex(gainIndex_)
+FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int ch, int gainIndex_, String N, Array<float> gains_, ChannelType type) :  
+	gains(gains_), channelList(cl), channel(ch), name(N), gainIndex(gainIndex_)
 {
     Font f = Font("Small Text", 13, Font::plain);
 
@@ -344,7 +356,7 @@ FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int stream_, int
                 gainComboBox->addItem("x"+String((int)gains[k]),k+1);
             }
         }
-        gainComboBox->setSelectedId(gainIndex, sendNotification);
+        gainComboBox->setSelectedId(gainIndex, sendNotificationSync);
         gainComboBox->addListener(this);
         addAndMakeVisible(gainComboBox);
     }
@@ -393,15 +405,15 @@ void FPGAchannelComponent::comboBoxChanged(ComboBox* comboBox)
     {
         int newGainIndex = gainComboBox->getSelectedId();
         float mult = gains[newGainIndex-1];
-        float bitvolts = channelList->proc->getDefaultBitVolts();
-        channelList->setNewGain(stream,channel,type, mult*bitvolts);
+		float bitvolts = channelList->proc->getBitVolts(channelList->proc->channels[channel]);
+        channelList->setNewGain(channel, mult*bitvolts);
     }
 }
 void FPGAchannelComponent::labelTextChanged(Label* lbl)
 {
     // channel name change
     String newName = lbl->getText();
-    channelList->setNewName(stream,channel, type, newName);
+    channelList->setNewName(channel, newName);
 }
 
 void FPGAchannelComponent::disableEdit()
@@ -445,9 +457,9 @@ void FPGAchannelComponent::resized()
 
 /**********************************************/
 
-FPGAcanvas::FPGAcanvas(GenericProcessor* n) : processor(n)
+FPGAcanvas::FPGAcanvas(GenericProcessor* n) 
 {
-
+	processor = (SourceNode*)n;
     channelsViewport = new Viewport();
     channelList = new FPGAchannelList(processor, channelsViewport, this);
     channelsViewport->setViewedComponent(channelList, false);
@@ -710,7 +722,7 @@ void RHD2000Editor::measureImpedance()
 		for (int i = 0; i < channel.size(); i++)
 		{
 			XmlElement* chan = new XmlElement("CHANNEL");
-			chan->setAttribute("name",board->getChannelName(HEADSTAGE_CHANNEL,stream[i],channel[i]));
+			chan->setAttribute("name",board->getChannelName(i));
 			chan->setAttribute("stream",stream[i]);
 			chan->setAttribute("channel_number",channel[i]);
 			chan->setAttribute("magnitude",magnitude[i]);
@@ -1199,7 +1211,7 @@ void HeadstageOptionsInterface::checkEnabledState()
 
     if (board->isHeadstageEnabled(hsNumber1))
     {
-		channelsOnHs1 = board->getChannelsInHeadstage(hsNumber1);
+		channelsOnHs1 = board->getActiveChannelsInHeadstage(hsNumber1);
         hsButton1->setLabel(String(channelsOnHs1));
         hsButton1->setEnabledState(true);
     }
@@ -1212,7 +1224,7 @@ void HeadstageOptionsInterface::checkEnabledState()
 
     if (board->isHeadstageEnabled(hsNumber2))
     {
-        channelsOnHs2 = board->getChannelsInHeadstage(hsNumber2);
+        channelsOnHs2 = board->getActiveChannelsInHeadstage(hsNumber2);
         hsButton2->setLabel(String(channelsOnHs2));
         hsButton2->setEnabledState(true);
     }
@@ -1234,7 +1246,7 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
     {
 
         //std::cout << "Acquisition is not active" << std::endl;
-		if ((button == hsButton1) && (board->getChannelsInHeadstage(hsNumber1)))
+		if ((button == hsButton1) && (board->getChannelsInHeadstage(hsNumber1) == 32))
         {
             if (channelsOnHs1 == 32)
                 channelsOnHs1 = 16;
@@ -1246,11 +1258,11 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
             hsButton1->setLabel(String(channelsOnHs1));
             board->setNumChannels(hsNumber1, channelsOnHs1);
 
-            board->updateChannelNames();
+            //board->updateChannels();
             editor->updateSettings();
 
         }
-		else if ((button == hsButton2) && (board->getChannelsInHeadstage(hsNumber2)))
+		else if ((button == hsButton2) && (board->getChannelsInHeadstage(hsNumber2) == 32))
         {
             if (channelsOnHs2 == 32)
                 channelsOnHs2 = 16;
@@ -1259,7 +1271,7 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
 
             hsButton2->setLabel(String(channelsOnHs2));
             board->setNumChannels(hsNumber2, channelsOnHs2);
-            board->updateChannelNames();
+            //board->updateChannels();
             editor->updateSettings();
         }
 

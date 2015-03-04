@@ -79,7 +79,8 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     boardSampleRate(30000.0f),
     savedSampleRateIndex(16),
     cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f), // default is 3 feet (0.914 m),
-    audioOutputL(-1), audioOutputR(-1) ,numberingScheme(1)
+    audioOutputL(-1), audioOutputR(-1) ,numberingScheme(1),
+	newScan(true)
 {
 
 	for (int i=0; i < MAX_NUM_HEADSTAGES; i++)
@@ -145,7 +146,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
 
        // evalBoard->getDacInformation(dacChannels,dacThresholds);
 
-		//sn->setDefaultNamingScheme(numberingScheme);
+	//	setDefaultNamingScheme(numberingScheme);
         //setDefaultChannelNamesAndType();
     }
 }
@@ -178,6 +179,11 @@ RHD2000Thread::~RHD2000Thread()
     delete dacThresholds;
     delete dacChannelsToUpdate;
 
+}
+
+bool RHD2000Thread::usesCustomNames()
+{
+	return true;
 }
 
 void RHD2000Thread::setDACthreshold(int dacOutput, float threshold)
@@ -648,6 +654,7 @@ void RHD2000Thread::scanPorts()
 
     setSampleRate(savedSampleRateIndex); // restore saved sample rate
     //updateRegisters();
+	newScan = true;
 }
 
 int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream, int &register59Value)
@@ -712,142 +719,45 @@ void RHD2000Thread::getEventChannelNames(StringArray& Names)
     }
 }
 
-void RHD2000Thread::getChannelsInfo(StringArray& Names_, Array<ChannelType>& type_, Array<int>& stream_, Array<int>& originalChannelNumber_,Array<float>& gains_)
-{
-    Names_ = Names;
-    type_ = type;
-    stream_ = stream;
-    originalChannelNumber_ = originalChannelNumber;
-    gains_ = gains;
-}
-
-void RHD2000Thread::updateChannelNames()
-{
-    setDefaultChannelNamesAndType();
-
-	for (int i = 0; i < sn->channels.size(); i++)
-	{
-		sn->channels[i]->setName(Names[i]);
-		sn->channels[i]->bitVolts = gains[i];
-		sn->channels[i]->setType(type[i]);
-	}
-}
 
 /* go over the old names and tests whether this particular channel name was changed.
 if so, return the old name */
-bool RHD2000Thread::channelModified(ChannelType t, int str, int ch, String& oldName, float& oldGain, int& index)
+
+
+int RHD2000Thread::modifyChannelName(int channel, String newName)
 {
-    for (int k = 0; k < oldNames.size(); k++)
-    {
-        if (oldType[k] == t && oldStream[k] == str && oldChannelNumber[k] == ch)
-        {
-            oldName = oldNames[k];
-            oldGain = oldGains[k];
-            index = k;
-            return true;
-        }
-    }
-    return false;
+	ChannelCustomInfo i = channelInfo[channel];
+	i.name = newName;
+	i.modified = true;
+	channelInfo.set(channel, i);
+    return 0;
 }
 
-
-int RHD2000Thread::modifyChannelName(ChannelType t, int str, int ch, String newName)
+String RHD2000Thread::getChannelName(int ch)
 {
-    String dummy;
-    float dummyFloat = 0;
-    int index;
-    if (channelModified(t, str, ch, dummy, dummyFloat, index))
-    {
-        oldNames.set(index, newName);
-    }
-    else
-    {
-  //       oldNames.add(newName);
-  //       oldType.add(t);
-  //       oldStream.add(str);
-  //       oldChannelNumber.add(ch);
-		// if (t == ADC_CHANNEL)
-		// 	oldGains.add(gains[getNumChannels()-getNumADCchannels()+ch]);
-		// else
-		// 	oldGains.add(gains[ch]);
-    }
-
-    for (int k = 0; k < Names.size(); k++)
-    {
-        if (type[k] == t && stream[k] == str && originalChannelNumber[k] == ch)
-        {
-            Names.set(k,newName);
-            return k;
-        }
-    }
-    return -1;
+	return channelInfo[ch].name;
 }
 
-String RHD2000Thread::getChannelName(ChannelType t, int str, int ch)
+int RHD2000Thread::modifyChannelGain(int channel, float gain)
 {
-	for (int k=0; k<Names.size(); k++)
-    {
-        if (type[k] == t && stream[k] == str && originalChannelNumber[k] == ch)
-        {
-            return Names[k];
-        }
-    }
-}
-
-int RHD2000Thread::modifyChannelGain(ChannelType t, int str, int ch, float gain)
-{
-    String dummy;
-    float dummyFloat = 0;
-    int index;
-    if (channelModified(t, str, ch, dummy, dummyFloat, index))
-    {
-        oldGains.set(index, gain);
-    }
-    else
-    {
-
-		if (t == ADC_CHANNEL)
-			oldNames.add(Names[getNumChannels()-getNumADCchannels()+ch]);
-		else
-			oldNames.add(getChannelName(t,str,ch));
-        oldType.add(t);
-        oldStream.add(str);
-        oldChannelNumber.add(ch);
-        oldGains.add(gain);
-
-    }
-
-    for (int k=0; k<Names.size(); k++)
-    {
-        if (type[k] == t && stream[k] == str && originalChannelNumber[k] == ch)
-        {
-            gains.set(k,gain);
-            return k;
-        }
-    }
-    return -1;
+	ChannelCustomInfo i = channelInfo[channel];
+	i.gain = gain;
+	i.modified = true;
+	channelInfo.set(channel, i);
+	return 0;
 }
 
 void RHD2000Thread::setDefaultNamingScheme(int scheme)
 {
-    oldNames.clear();
-    oldType.clear();
-    oldStream.clear();
-    oldGains.clear();
-    oldChannelNumber.clear();
     numberingScheme = scheme;
-    setDefaultChannelNamesAndType();
+	newScan = true; //if the scheme is changed, reset all names
+    setDefaultChannelNames();
 }
 
 /* This will give default names & gains to channels, unless they were manually modified by the user
  In that case, the query channelModified, will return the values that need to be put */
-void RHD2000Thread::setDefaultChannelNamesAndType()
+void RHD2000Thread::setDefaultChannelNames()
 {
-    Names.clear();
-    type.clear();
-    stream.clear();
-    gains.clear();
-    originalChannelNumber.clear();
     int aux_counter = 1;
     int channelNumber = 1;
     String oldName;
@@ -867,29 +777,20 @@ void RHD2000Thread::setDefaultChannelNamesAndType()
     {
 		if (headstagesArray[i]->isPlugged())
         {
-			for (int k = 0; k < headstagesArray[i]->getNumChannels(); k++)
+			for (int k = 0; k < headstagesArray[i]->getNumActiveChannels(); k++)
             {
-                type.add(HEADSTAGE_CHANNEL);
+				if (newScan || !channelInfo[k].modified)
+				{
+					ChannelCustomInfo in;
+					if (numberingScheme == 1)
+						in.name = "CH" + String(channelNumber);
+					else
+						in.name = "CH_" + stream_prefix[i] + "_" + String(1 + k);
+					in.gain = getBitVolts(sn->channels[k]);
+					channelInfo.set(k, in);
 
-                if (channelModified(HEADSTAGE_CHANNEL,i,k, oldName,oldGain,dummy))
-                {
-                    Names.add(oldName);
-                    gains.add(oldGain);
-                    channelNumber++;
-                }
-                else
-                {
-                    if (numberingScheme == 1)
-                        Names.add("CH"+String(channelNumber++));
-                    else
-                        Names.add("CH_"+stream_prefix[i]+"_"+String(1+k));
-
-                   // gains.add(getBitVolts(channelNumber));
-                }
-                
-                stream.add(i);
-                originalChannelNumber.add(k);
-
+				}
+				channelNumber++;
             }
         }
     }
@@ -900,29 +801,21 @@ void RHD2000Thread::setDefaultChannelNamesAndType()
         {
 			for (int k = 0; k < 3; k++)
 		        {
+					int chn = channelNumber - 1;
 
-		            type.add(AUX_CHANNEL);
+					if (newScan || !channelInfo[chn].modified)
+					{
+						ChannelCustomInfo in;
+						if (numberingScheme == 1)
+							in.name = "AUX" + String(aux_counter);
+						else
+							in.name = "AUX_" + stream_prefix[i] + "_" + String(1 + k);
+						in.gain = getBitVolts(sn->channels[chn]);
+						channelInfo.set(chn, in);
 
-		            if (channelModified(AUX_CHANNEL,i,headstagesArray[i]->getNumChannels()+k, oldName,oldGain, dummy))
-		            {
-		                Names.add(oldName);
-		                gains.add(oldGain);
-
-		                aux_counter++;
-		            }
-		            else
-		            {
-		                if (numberingScheme == 1)
-		                    Names.add("AUX"+String(aux_counter++));
-		                else
-		                    Names.add("AUX_"+stream_prefix[i]+"_"+String(1+k));
-
-		                gains.add(0.0000374);
-
-		            }
-
-		            stream.add(i);
-		            originalChannelNumber.add(headstagesArray[i]->getNumChannels()+k);
+					}
+					channelNumber++;
+					aux_counter++;
 		        }
 		 }
 	}
@@ -931,27 +824,18 @@ void RHD2000Thread::setDefaultChannelNamesAndType()
     {
         for (int k = 0; k < 8; k++)
         {
-
-            channelNumber++;
-            type.add(ADC_CHANNEL);
-
-			if (channelModified(ADC_CHANNEL,MAX_NUM_HEADSTAGES,k, oldName,oldGain,dummy))
-            {
-                Names.add(oldName);
-                gains.add(oldGain);
-            }
-            else
-            {
-                Names.add("ADC" + String(k+1));
-                gains.add(getAdcBitVolts(k));
-            }
-            
-            stream.add(MAX_NUM_HEADSTAGES);
-            originalChannelNumber.add(k);
-
+			int chn = channelNumber - 1;
+			if (newScan || !channelInfo[chn].modified)
+			{
+				ChannelCustomInfo in;
+				in.name = "ADC" + String(k + 1);
+				in.gain = getAdcBitVolts(k);
+				channelInfo.set(chn, in);
+			}
+			channelNumber++;
         }
     }
-
+	newScan = false;
 }
 
 int RHD2000Thread::getNumChannels()
@@ -1187,6 +1071,11 @@ bool RHD2000Thread::isHeadstageEnabled(int hsNum)
 
 	return headstagesArray[hsNum]->isPlugged();
 
+}
+
+int RHD2000Thread::getActiveChannelsInHeadstage(int hsNum)
+{
+	return headstagesArray[hsNum]->getNumActiveChannels();
 }
 
 int RHD2000Thread::getChannelsInHeadstage(int hsNum)
@@ -2185,6 +2074,100 @@ void RHD2000Thread::runImpedanceTest(Array<int>& streams, Array<int>& channels, 
     {
         evalBoard->enableExternalFastSettle(true);
     }
+}
+
+int RHD2000Thread::getChannelFromHeadstage(int hs, int ch)
+{
+	int channelCount = 0;
+	int hsCount = 0;
+	if (hs < 0 || hs >= MAX_NUM_HEADSTAGES+1)
+		return -1;
+	if (hs == MAX_NUM_HEADSTAGES) //let's consider this the ADC channels
+	{
+		if (getNumAdcOutputs() > 0)
+		{
+			return getNumHeadstageOutputs() + getNumAuxOutputs() + ch;
+		}
+		else
+			return -1;
+	}
+	if (headstagesArray[hs]->isPlugged())
+	{
+		if (ch < 0)
+			return -1;
+		 if (ch < headstagesArray[hs]->getNumActiveChannels())
+		{
+			for (int i = 0; i < hs; i++)
+			{
+				channelCount += headstagesArray[i]->getNumActiveChannels();
+			}
+			return channelCount + ch;
+		}
+		 else if (ch < headstagesArray[hs]->getNumActiveChannels() + 3)
+		 {
+			 for (int i = 0; i < MAX_NUM_HEADSTAGES; i++)
+			 {
+				 if (headstagesArray[i]->isPlugged())
+				 {
+					 channelCount += headstagesArray[i]->getNumActiveChannels();
+					 if (i < hs)
+						 hsCount++;
+				 }
+				 return channelCount + hsCount * 3 + ch;
+			 }
+		 }
+		 else
+		 {
+			 return -1;
+		 }
+
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+int RHD2000Thread::getHeadstageChannel(int& hs, int ch)
+{
+	int channelCount = 0;
+	int hsCount = 0;
+
+	if (ch < 0)
+		return -1;
+	
+	for (int i = 0; i < MAX_NUM_HEADSTAGES; i++)
+	{
+		if (headstagesArray[i]->isPlugged())
+		{
+			int chans = headstagesArray[hs]->getNumActiveChannels();
+			if (ch >= channelCount && ch < channelCount + chans)
+			{
+				hs = i;
+				return ch - channelCount;
+			}
+			channelCount += chans;
+			hsCount++;
+		}
+	}
+	if (ch < (channelCount + hsCount * 3)) //AUX
+	{
+		hsCount = (ch - channelCount) / 3;
+		for (int i = 0; i < MAX_NUM_HEADSTAGES; i++)
+		{
+			if (headstagesArray[i]->isPlugged())
+			{
+				if (hsCount == 0)
+				{
+					hs = i;
+					return ch - channelCount;
+				}
+				hsCount--;
+				channelCount++;
+			}
+		}
+	}
+	return -1;
 }
 
 

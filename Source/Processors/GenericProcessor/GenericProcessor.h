@@ -139,21 +139,6 @@ public:
         return GenericProcessor::unusedNameString;
     }
 
-    /** returns the names and types of all data, aux and adc channels */
-    virtual void getChannelsInfo(StringArray& Names, Array<ChannelType>& type, Array<int>& stream, Array<int>& originalChannelNumber, Array<float>& gains)
-    {
-
-    }
-
-    virtual int modifyChannelName(ChannelType t, int stream, int ch, String newName, bool updateSignalChain)
-    {
-        return -1;
-    }
-
-    virtual int modifyChannelGain(ChannelType t, int stream, int ch, float newGain, bool updateSignalChain)
-    {
-        return -1;
-    }
     virtual void getEventChannelNames(StringArray& Names)
     {
     }

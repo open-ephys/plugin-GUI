@@ -70,3 +70,16 @@ DataBuffer* DataThread::getBufferAddress()
 }
 
 
+void DataThread::updateChannels()
+{
+	if (usesCustomNames())
+	{
+		channelInfo.resize(sn->channels.size());
+		setDefaultChannelNames();
+		for (int i = 0; i < channelInfo.size(); i++)
+		{
+			sn->channels[i]->setName(channelInfo[i].name);
+			sn->channels[i]->bitVolts = channelInfo[i].gain;
+		}
+	}
+}

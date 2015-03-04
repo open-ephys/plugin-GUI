@@ -108,76 +108,9 @@ DataThread* SourceNode::getThread()
     return dataThread;
 }
 
-int SourceNode::modifyChannelName(ChannelType t, int str, int ch, String newName, bool updateSignalChain)
+void SourceNode::requestChainUpdate()
 {
-    if (dataThread != 0) {
-        int channel_index = dataThread->modifyChannelName(t, str, ch, newName);
-        if (channel_index >= 0 && channel_index < channels.size())
-        {
-            if (channels[channel_index]->getName() != newName)
-            {
-                channels[channel_index]->setName(newName);
-                // propagate this information...
-                
-                if (updateSignalChain)
-                    getEditorViewport()->makeEditorVisible(getEditor(), false, true);
-                    
-            }
-        }
-        return channel_index;
-    }
-    return -1;
-}
-
-int SourceNode::modifyChannelGain(int stream, int channel, ChannelType type, float gain, bool updateSignalChain)
-{
-    if (dataThread != 0) 
-    {
-        
-        int channel_index = dataThread->modifyChannelGain(type, stream, channel, gain);
-        
-        if (channel_index >= 0 && channel_index < channels.size())
-        {
-            // we now need to update the signal chain to propagate this change.....
-            if (channels[channel_index]->bitVolts != gain) 
-            {
-                channels[channel_index]->bitVolts = gain;
-                
-                if (updateSignalChain)
-                    getEditorViewport()->makeEditorVisible(getEditor(), false, true);
-                
-                return channel_index;
-            }
-        }
-    }
-
-    return -1;
-}
-
-void SourceNode::getChannelsInfo(StringArray &names, Array<ChannelType> &types, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
-{
-    if (dataThread != 0)
-        dataThread->getChannelsInfo(names, types,stream,originalChannelNumber,gains);
-}
-
-void SourceNode::setDefaultNamingScheme(int scheme)
-{
-    if (dataThread != 0) 
-    {
-        dataThread->setDefaultNamingScheme(scheme);
-
-        StringArray names;
-        Array<ChannelType> types;
-        Array<int> stream;
-        Array<int> originalChannelNumber;
-        Array<float> gains;
-        getChannelsInfo(names, types, stream, originalChannelNumber, gains);
-        for (int k = 0; k < names.size(); k++)
-        {
-            modifyChannelName(types[k],stream[k],originalChannelNumber[k], names[k],false);
-        }
-    }
-
+	getEditorViewport()->makeEditorVisible(getEditor(), false, true);
 }
 
 void SourceNode::getEventChannelNames(StringArray &names)
@@ -196,7 +129,7 @@ void SourceNode::updateSettings()
         std::cout << "Input buffer address is " << inputBuffer << std::endl;
     }
 
-	//dataThread->updateChannelNames();
+	dataThread->updateChannels();
 
 }
 
@@ -510,7 +443,7 @@ void SourceNode::saveCustomParametersToXml(XmlElement* parentElement)
     Array<int> stream;
     Array<int> originalChannelNumber;
     Array<float> gains;
-    getChannelsInfo(names, types, stream, originalChannelNumber, gains);
+ //   getChannelsInfo(names, types, stream, originalChannelNumber, gains);
 	XmlElement *channelInfo = parentElement->createNewChildElement("CHANNEL_INFO");
 	for (int i = 0; i < names.size(); i++)
 	{
@@ -542,8 +475,8 @@ void SourceNode::loadCustomParametersFromXml()
 					int number = chan->getIntAttribute("number");
 					ChannelType type = static_cast<ChannelType>(chan->getIntAttribute("type"));
 					float gain = chan->getDoubleAttribute("gain");
-					modifyChannelName(type,stream,number,name,false);
-					modifyChannelGain(stream,number,type,gain,false);					
+//					modifyChannelName(type,stream,number,name,false);
+//					modifyChannelGain(stream,number,type,gain,false);					
 				}
             }
         }

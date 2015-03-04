@@ -106,19 +106,24 @@ public:
 
     bool isAcquisitionActive();
     
-    virtual int modifyChannelGain(ChannelType t, int str, int ch, float gain);
-    virtual int modifyChannelName(ChannelType t, int str, int k, String newName);
-    virtual void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
-    virtual void getEventChannelNames(StringArray &Names);
-    void updateChannelNames();
+    int modifyChannelGain(int channel, float gain);
+    int modifyChannelName(int channel, String newName);
+    void getEventChannelNames(StringArray &Names);
     Array<int> getDACchannels();
     void setDACchannel(int dacOutput, int stream, int channel);
     void setDACthreshold(int dacOutput, float threshold);
     void setDefaultNamingScheme(int scheme);
 
-	String getChannelName(ChannelType t, int str, int ch);
+	String getChannelName(int ch);
 	void setNumChannels(int hsNum, int nChannels);
 	int getHeadstageChannels(int hsNum);
+	int getActiveChannelsInHeadstage(int hsNum);
+	bool usesCustomNames();
+	
+	/* Gets the absolute channel index from the headstage channel index*/
+	int getChannelFromHeadstage(int hs, int ch);
+	/*Gets the headstage relative channel index from the absolute channel index*/
+	int getHeadstageChannel(int& hs, int ch);
 
 private:
 
@@ -126,8 +131,7 @@ private:
 	void updateBoardStreams();
     void setCableLength(int hsNum, float length);
 
-    void setDefaultChannelNamesAndType();
-    bool channelModified(ChannelType t, int str, int k, String &oldName, float &oldGain, int &index);
+    void setDefaultChannelNames();
 
     ScopedPointer<Rhd2000EvalBoard> evalBoard;
     Rhd2000Registers chipRegisters;
@@ -197,14 +201,8 @@ private:
 
     // used for data stream names...
     int numberingScheme ;
-    StringArray Names, oldNames;
-    Array<ChannelType> type, oldType;
-    Array<float> gains, oldGains;
     Array<float> adcBitVolts;
-    Array<int> stream, oldStream;
-    Array<bool> modifiedName, oldModifiedName;
-    Array<int> originalChannelNumber, oldChannelNumber;
-
+	bool newScan;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);
 };

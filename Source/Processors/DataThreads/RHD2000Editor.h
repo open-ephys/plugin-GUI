@@ -59,8 +59,8 @@ public:
     
     FPGAchannelList(GenericProcessor* proc, Viewport *p, FPGAcanvas*c);
     ~FPGAchannelList();
-    void setNewName(int stream, int channelIndex, ChannelType t, String newName);
-    void setNewGain(int stream, int channel, ChannelType t, float gain);
+    void setNewName(int channelIndex, String newName);
+	void setNewGain(int channel, float gain);
     void disableAll();
     void enableAll();
     void paint(Graphics& g);
@@ -70,13 +70,15 @@ public:
     int getNumChannels();
     void comboBoxChanged(ComboBox *b);
     void updateImpedance(Array<int> streams, Array<int> channels, Array<float> magnitude, Array<float> phase);
-    GenericProcessor* proc;
+    SourceNode* proc;
     
 private:
     Array<float> gains;
     Array<ChannelType> types;
     Array<int> stream;
     Array<int> orig_number;
+
+	bool chainUpdate;
 
     Viewport *viewport;
     FPGAcanvas *canvas;
@@ -94,7 +96,7 @@ private:
 class FPGAchannelComponent : public Component, public AccessClass, Button::Listener, public ComboBox::Listener, public Label::Listener
 {
 public:
-    FPGAchannelComponent(FPGAchannelList* cl,int stream, int ch, ChannelType t,  int gainIndex_, String name_, Array<float> gains_);
+    FPGAchannelComponent(FPGAchannelList* cl, int ch, int gainIndex_, String name_, Array<float> gains_, ChannelType type);
     ~FPGAchannelComponent();
     Colour getDefaultColor(int ID);
     void setImpedanceValues(float mag, float phase);
@@ -121,8 +123,6 @@ private:
     ScopedPointer<ComboBox> gainComboBox;
     int channel;
     String name;
-    int stream;
-    ChannelType type;
     int gainIndex;
     int userDefinedData;
     Font font;
@@ -155,7 +155,7 @@ public:
     void resized();
     void buttonClicked(Button* button);
     ScopedPointer<Viewport> channelsViewport;
-    GenericProcessor* processor;
+    SourceNode* processor;
     ScopedPointer<FPGAchannelList> channelList;
 };
 
