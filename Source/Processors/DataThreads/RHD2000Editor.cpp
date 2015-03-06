@@ -122,7 +122,8 @@ void FPGAchannelList::buttonClicked(Button* btn)
 
 void FPGAchannelList::update()
 {
-    const int columnWidth = 330;
+   // const int columnWidth = 330;
+	const int columnWidth = 250;
     // Query processor for number of channels, types, gains, etc... and update the UI
     channelComponents.clear();
     staticLabels.clear();
@@ -333,7 +334,7 @@ FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int ch, int gain
     editName->setColour(Label::backgroundColourId,juce::Colours::lightgrey);
     editName->addListener(this);
     addAndMakeVisible(editName);
-    if (gainIndex > 0)
+/*    if (gainIndex > 0)
     {
 
         gainComboBox = new ComboBox("Gains");
@@ -353,9 +354,9 @@ FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int ch, int gain
         addAndMakeVisible(gainComboBox);
     }
     else
-    {
+    {*/
         gainComboBox = nullptr;
-    }
+    //}
 
     if (type == HEADSTAGE_CHANNEL)
     {
@@ -440,7 +441,8 @@ void FPGAchannelComponent::resized()
     }
     if (impedance != nullptr)
     {
-        impedance->setBounds(180,0,130,20);
+       // impedance->setBounds(180,0,130,20);
+		impedance->setBounds(100, 0, 130, 20);
     }
 
 }
