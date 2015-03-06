@@ -210,7 +210,8 @@ public:
     RHDHeadstage(Rhd2000EvalBoard::BoardDataSource stream);
     ~RHDHeadstage();
     void setNumStreams(int num);
-    void setChannelsPerStream(int nchan);
+    void setChannelsPerStream(int nchan, int index);
+	int getStreamIndex(int index);
     int getNumChannels();
     int getNumStreams();
     void setHalfChannels(bool half); //mainly used for de 16ch rhd2132 board
@@ -219,6 +220,7 @@ public:
     bool isPlugged();
 private:
     Rhd2000EvalBoard::BoardDataSource dataStream;
+	int streamIndex;
     int numStreams;
     int channelsPerStream;
     bool halfChannels;

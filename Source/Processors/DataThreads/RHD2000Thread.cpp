@@ -715,7 +715,7 @@ void RHD2000Thread::setNumChannels(int hsNum, int numChannels)
             headstagesArray[hsNum]->setHalfChannels(true);
         else
             headstagesArray[hsNum]->setHalfChannels(false);
-        numChannelsPerDataStream.set(hsNum, numChannels);
+        numChannelsPerDataStream.set(headstagesArray[hsNum]->getStreamIndex(0), numChannels);
     }
 }
 
@@ -1027,7 +1027,7 @@ bool RHD2000Thread::enableHeadstage(int hsNum, bool enabled, int nStr, int strCh
     if (enabled)
     {
         headstagesArray[hsNum]->setNumStreams(nStr);
-        headstagesArray[hsNum]->setChannelsPerStream(strChans);
+        headstagesArray[hsNum]->setChannelsPerStream(strChans,enabledStreams.size());
         enabledStreams.add(headstagesArray[hsNum]->getDataStream(0));
         numChannelsPerDataStream.add(strChans);
         if (nStr > 1)
@@ -1710,6 +1710,7 @@ void RHD2000Thread::runImpedanceTest(ImpedanceData* data)
 RHDHeadstage::RHDHeadstage(Rhd2000EvalBoard::BoardDataSource stream) :
     numStreams(0), channelsPerStream(32), dataStream(stream), halfChannels(false)
 {
+	streamIndex = -1;
 }
 
 RHDHeadstage::~RHDHeadstage()
@@ -1721,9 +1722,15 @@ void RHDHeadstage::setNumStreams(int num)
     numStreams = num;
 }
 
-void RHDHeadstage::setChannelsPerStream(int nchan)
+void RHDHeadstage::setChannelsPerStream(int nchan, int index)
 {
     channelsPerStream = nchan;
+	streamIndex = index;
+}
+
+int RHDHeadstage::getStreamIndex(int index)
+{
+	return streamIndex + index;
 }
 
 int RHDHeadstage::getNumChannels()
@@ -2027,6 +2034,8 @@ void RHDImpedanceMeasure::runImpedanceMeasurement()
 	int numdataStreams = board->evalBoard->getNumEnabledDataStreams();
 
 	bool rhd2164ChipPresent = false;
+	int chOffset;
+
 	Array<int> enabledStreams;
 	for (stream = 0; stream < MAX_NUM_DATA_STREAMS; ++stream)
 	{
@@ -2221,7 +2230,12 @@ void RHDImpedanceMeasure::runImpedanceMeasurement()
 
 	for (stream = 0; stream < board->evalBoard->getNumEnabledDataStreams(); ++stream)
 	{
-		for (channel = 0; channel < 32; ++channel)
+		if ((board->chipId[stream] == CHIP_ID_RHD2132) && (board->numChannelsPerDataStream[stream] == 16))
+			chOffset = RHD2132_16CH_OFFSET;
+		else
+			chOffset = 0;
+
+		for (channel = 0; channel < board->numChannelsPerDataStream[stream]; ++channel)
 		{
 			if (1)
 			{
@@ -2229,7 +2243,7 @@ void RHDImpedanceMeasure::runImpedanceMeasurement()
 				for (capRange = 0; capRange < 3; ++capRange)
 				{
 					// Find the measured amplitude that is closest to bestAmplitude on a logarithmic scale
-					distance = abs(log(measuredMagnitude[stream][channel][capRange] / bestAmplitude));
+					distance = abs(log(measuredMagnitude[stream][channel+chOffset][capRange] / bestAmplitude));
 					if (distance < minDistance)
 					{
 						bestAmplitudeIndex = capRange;
@@ -2253,12 +2267,12 @@ void RHDImpedanceMeasure::runImpedanceMeasurement()
 				current = TWO_PI * actualImpedanceFreq * dacVoltageAmplitude * Cseries;
 
 				// Calculate impedance magnitude from calculated current and measured voltage.
-				impedanceMagnitude = 1.0e-6 * (measuredMagnitude[stream][channel][bestAmplitudeIndex] / current) *
+				impedanceMagnitude = 1.0e-6 * (measuredMagnitude[stream][channel + chOffset][bestAmplitudeIndex] / current) *
 					(18.0 * relativeFreq * relativeFreq + 1.0);
 
 				// Calculate impedance phase, with small correction factor accounting for the
 				// 3-command SPI pipeline delay.
-				impedancePhase = measuredPhase[stream][channel][bestAmplitudeIndex] + (360.0 * (3.0 / period));
+				impedancePhase = measuredPhase[stream][channel + chOffset][bestAmplitudeIndex] + (360.0 * (3.0 / period));
 
 				// Factor out on-chip parasitic capacitance from impedance measurement.
 				factorOutParallelCapacitance(impedanceMagnitude, impedancePhase, actualImpedanceFreq,
@@ -2270,12 +2284,12 @@ void RHDImpedanceMeasure::runImpedanceMeasurement()
 					board->boardSampleRate);
 
 				data->streams.add(enabledStreams[stream]);
-				data->channels.add(channel);
+				data->channels.add(channel + chOffset);
 				data->magnitudes.add(impedanceMagnitude);
 				data->phases.add(impedancePhase);
 
 				if (impedanceMagnitude > 1000000)
-					cout << "stream " << stream << " channel " << 1 + channel << " magnitude: " << String(impedanceMagnitude / 1e6, 2) << " mOhm , phase : " << impedancePhase << endl;
+					cout << "stream " << stream << " channel " << 1 + channel << " magnitude: " << String(impedanceMagnitude / 1e6, 2) << " MOhm , phase : " << impedancePhase << endl;
 				else
 					cout << "stream " << stream << " channel " << 1 + channel << " magnitude: " << String(impedanceMagnitude / 1e3, 2) << " kOhm , phase : " << impedancePhase << endl;
 
