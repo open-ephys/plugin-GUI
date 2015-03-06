@@ -42,6 +42,7 @@
 #define CHIP_ID_RHD2164_B  1000
 #define REGISTER_59_MISO_A  53
 #define REGISTER_59_MISO_B  58
+#define RHD2132_16CH_OFFSET 8
 
 // Allocates memory for a 3-D array of doubles.
 void allocateDoubleArray3D(std::vector<std::vector<std::vector<double> > >& array3D,
@@ -1456,7 +1457,7 @@ bool RHD2000Thread::stopAcquisition()
 
 bool RHD2000Thread::updateBuffer()
 {
-
+	int chOffset;
     //cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
     //cout << "Block size: " << blockSize << endl;
 
@@ -1473,7 +1474,10 @@ bool RHD2000Thread::updateBuffer()
             // do the neural data channels first
             for (int dataStream = 0; dataStream < enabledStreams.size(); dataStream++)
             {
-
+				if ((chipId[dataStream] == CHIP_ID_RHD2132) && (numChannelsPerDataStream[dataStream] == 16)) //RHD2132 16ch. headstage
+					chOffset = RHD2132_16CH_OFFSET;
+				else
+					chOffset = 0;
                 for (int chan = 0; chan < numChannelsPerDataStream[dataStream]; chan++)
                 {
 
@@ -1481,7 +1485,7 @@ bool RHD2000Thread::updateBuffer()
 
                     channel++;
 
-                    int value = dataBlock->amplifierData[dataStream][chan][samp];
+                    int value = dataBlock->amplifierData[dataStream][chan+chOffset][samp];
 
                     thisSample[channel] = float(value-32768)*0.195f;
                 }
