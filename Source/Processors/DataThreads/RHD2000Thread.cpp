@@ -802,7 +802,7 @@ void RHD2000Thread::setDefaultChannelNames()
                     else
                         in.name = "CH_" + stream_prefix[i] + "_" + String(1 + k);
                     in.gain = getBitVolts(sn->channels[k]);
-                    channelInfo.set(k, in);
+                    channelInfo.set(channelNumber-1, in);
 
                 }
                 channelNumber++;
