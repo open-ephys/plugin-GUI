@@ -297,6 +297,8 @@ void LfpDisplayNode::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 
     checkForEvents(events); // see if we got any TTL events
 
+	ScopedLock displayLock(displayMutex);
+
     for (int chan = 0; chan < buffer.getNumChannels(); chan++)
     {
          int samplesLeft = displayBuffer->getNumSamples() - displayBufferIndex[chan];

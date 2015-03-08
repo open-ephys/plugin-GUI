@@ -658,6 +658,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
     // copy new samples from the displayBuffer into the screenBuffer
     int maxSamples = lfpDisplay->getWidth() - leftmargin;
 
+	ScopedLock displayLock(*processor->getMutex());
+
     for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
     {
 
