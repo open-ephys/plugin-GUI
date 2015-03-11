@@ -807,7 +807,6 @@ void RHD2000Editor::comboBoxChanged(ComboBox* comboBox)
 
 void RHD2000Editor::buttonEvent(Button* button)
 {
-    VisualizerEditor::buttonEvent(button);
     if (button == rescanButton && !acquisitionIsActive)
     {
         board->scanPorts();
@@ -847,6 +846,10 @@ void RHD2000Editor::buttonEvent(Button* button)
 	else if (button == ledButton)
 	{
 		board->enableBoardLeds(button->getToggleState());
+	}
+	else
+	{
+		VisualizerEditor::buttonEvent(button);
 	}
 
 }

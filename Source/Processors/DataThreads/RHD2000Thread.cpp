@@ -1644,8 +1644,8 @@ int RHD2000Thread::getChannelFromHeadstage(int hs, int ch)
                     if (i < hs)
                         hsCount++;
                 }
-                return channelCount + hsCount * 3 + ch;
             }
+			return channelCount + hsCount * 3 + ch-headstagesArray[hs]->getNumActiveChannels();
         }
         else
         {
