@@ -538,7 +538,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     : VisualizerEditor(parentNode, useDefaultParameterEditors), board(board_)
 {
     canvas = nullptr;
-    desiredWidth = 330;
+    desiredWidth = 340;
     tabText = "FPGA";
     measureWhenRecording = false;
     saveImpedances = false;
@@ -558,7 +558,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     // add sample rate selection
     sampleRateInterface = new SampleRateInterface(board, this);
     addAndMakeVisible(sampleRateInterface);
-    sampleRateInterface->setBounds(80, 25, 100, 50);
+    sampleRateInterface->setBounds(80, 25, 110, 50);
 
     // add Bandwidth selection
     bandwidthInterface = new BandwidthInterface(board, this);
@@ -566,9 +566,9 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     bandwidthInterface->setBounds(80, 58, 80, 50);
 
     // add DSP selection
-    dspInterface = new DSPInterface(board, this);
-    addAndMakeVisible(dspInterface);
-    dspInterface->setBounds(80, 58, 80, 50);
+  //  dspInterface = new DSPInterface(board, this);
+  //  addAndMakeVisible(dspInterface);
+  //  dspInterface->setBounds(80, 58, 80, 50);
 
     // add rescan button
     rescanButton = new UtilityButton("RESCAN", Font("Small Text", 13, Font::plain));
@@ -583,7 +583,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
         ElectrodeButton* button = new ElectrodeButton(-1);
         electrodeButtons.add(button);
 
-        button->setBounds(190+i*25, 40, 25, 15);
+        button->setBounds(200+i*25, 40, 25, 15);
         button->setChannelNum(-1);
         button->setToggleState(false, dontSendNotification);
         button->setRadioGroupId(999);
@@ -602,7 +602,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     }
 
     audioLabel = new Label("audio label", "Audio out");
-    audioLabel->setBounds(180,25,75,15);
+    audioLabel->setBounds(190,25,75,15);
     audioLabel->setFont(Font("Small Text", 10, Font::plain));
     audioLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(audioLabel);
@@ -610,16 +610,25 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     // add HW audio parameter selection
     audioInterface = new AudioInterface(board, this);
     addAndMakeVisible(audioInterface);
-    audioInterface->setBounds(165, 65, 65, 50);
+    audioInterface->setBounds(175, 65, 65, 50);
 
 
     adcButton = new UtilityButton("ADC 1-8", Font("Small Text", 13, Font::plain));
     adcButton->setRadius(3.0f);
-    adcButton->setBounds(165,100,65,18);
+    adcButton->setBounds(175,100,65,18);
     adcButton->addListener(this);
     adcButton->setClickingTogglesState(true);
     adcButton->setTooltip("Enable/disable ADC channels");
     addAndMakeVisible(adcButton);
+
+	ledButton = new UtilityButton("LED", Font("Very Small Text", 13, Font::plain));
+	ledButton->setRadius(3.0f);
+	ledButton->setBounds(140, 108, 30, 18);
+	ledButton->addListener(this);
+	ledButton->setClickingTogglesState(true);
+	ledButton->setTooltip("Enable/disable board LEDs");
+	addAndMakeVisible(ledButton);
+	ledButton->setToggleState(true, dontSendNotification);
 
     // add DSP Offset Button
     dspoffsetButton = new UtilityButton("DSP", Font("Very Small Text", 13, Font::plain));
@@ -634,17 +643,17 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     // add DSP Frequency Selection field
     dspInterface = new DSPInterface(board, this);
     addAndMakeVisible(dspInterface);
-    dspInterface->setBounds(110, 108, 80, 50);
+    dspInterface->setBounds(110, 108, 30, 50);
 
     ttlSettleLabel = new Label("TTL Settle","TTL Settle");
     ttlSettleLabel->setFont(Font("Small Text", 11, Font::plain));
-    ttlSettleLabel->setBounds(245,80,100,20);
+    ttlSettleLabel->setBounds(255,80,100,20);
     ttlSettleLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(ttlSettleLabel);
 
 
     ttlSettleCombo = new ComboBox("FastSettleComboBox");
-    ttlSettleCombo->setBounds(250,100,60,18);
+    ttlSettleCombo->setBounds(260,100,60,18);
     ttlSettleCombo->addListener(this);
     ttlSettleCombo->addItem("-",1);
     for (int k=0; k<8; k++)
@@ -656,7 +665,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 
     dacTTLButton = new UtilityButton("DAC TTL", Font("Small Text", 13, Font::plain));
     dacTTLButton->setRadius(3.0f);
-    dacTTLButton->setBounds(250,25,65,18);
+    dacTTLButton->setBounds(260,25,65,18);
     dacTTLButton->addListener(this);
     dacTTLButton->setClickingTogglesState(true);
     dacTTLButton->setTooltip("Enable/disable DAC Threshold TTL Output");
@@ -664,12 +673,12 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 
     dacHPFlabel = new Label("DAC HPF","DAC HPF");
     dacHPFlabel->setFont(Font("Small Text", 11, Font::plain));
-    dacHPFlabel->setBounds(250,42,100,20);
+    dacHPFlabel->setBounds(260,42,100,20);
     dacHPFlabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(dacHPFlabel);
 
     dacHPFcombo = new ComboBox("dacHPFCombo");
-    dacHPFcombo->setBounds(250,60,60,18);
+    dacHPFcombo->setBounds(260,60,60,18);
     dacHPFcombo->addListener(this);
     dacHPFcombo->addItem("OFF",1);
     int HPFvalues[10] = {50,100,200,300,400,500,600,700,800,900};
@@ -824,6 +833,10 @@ void RHD2000Editor::buttonEvent(Button* button)
         std::cout << "DSP offset " << button->getToggleState() << std::endl;
         board->setDSPOffset(button->getToggleState());
     }
+	else if (button == ledButton)
+	{
+		board->enableBoardLeds(button->getToggleState());
+	}
 
 }
 

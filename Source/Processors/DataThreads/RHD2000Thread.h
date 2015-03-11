@@ -125,6 +125,7 @@ public:
     int getHeadstageChannel(int& hs, int ch);
 
 	void runImpedanceTest(ImpedanceData* data);
+	void enableBoardLeds(bool enable);
 
 private:
 

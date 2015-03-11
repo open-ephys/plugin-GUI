@@ -1699,6 +1699,11 @@ int RHD2000Thread::getHeadstageChannel(int& hs, int ch)
     return -1;
 }
 
+void RHD2000Thread::enableBoardLeds(bool enable)
+{
+	evalBoard->enableBoardLeds(enable);
+}
+
 void RHD2000Thread::runImpedanceTest(ImpedanceData* data)
 {
 	impedanceThread->stopThreadSafely();

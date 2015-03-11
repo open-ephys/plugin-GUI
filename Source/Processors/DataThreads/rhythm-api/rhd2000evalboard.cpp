@@ -284,6 +284,8 @@ void Rhd2000EvalBoard::initialize()
     setExternalDigOutChannel(PortB, 0);
     setExternalDigOutChannel(PortC, 0);
     setExternalDigOutChannel(PortD, 0);
+
+	enableBoardLeds(true);
 }
 
 // Set the per-channel sampling rate of the RHD2000 chips connected to the FPGA.
@@ -1504,4 +1506,11 @@ bool Rhd2000EvalBoard::isStreamEnabled(int streamIndex)
     return false;
 
   return dataStreamEnabled[streamIndex];
+}
+
+void Rhd2000EvalBoard::enableBoardLeds(bool enable)
+{
+	dev->SetWireInValue(WireInMultiUse, enable ? 1 : 0);
+	dev->UpdateWireIns();
+	dev->ActivateTriggerIn(TrigInOpenEphys, 0);
 }
