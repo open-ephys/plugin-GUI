@@ -13,6 +13,8 @@
 #include <queue>
 #include <list>
 #include <pthread.h>
+#include <unistd.h>
+
 
 typedef struct {
     const char *connect_url;
