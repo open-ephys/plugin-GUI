@@ -82,7 +82,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     savedSampleRateIndex(16),
     cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f), // default is 3 feet (0.914 m),
     audioOutputL(-1), audioOutputR(-1) ,numberingScheme(1),
-    newScan(true)
+	newScan(true), ledsEnabled(true)
 {
 	impedanceThread = new RHDImpedanceMeasure(this);
 
@@ -1451,6 +1451,7 @@ bool RHD2000Thread::stopAcquisition()
     }
 
     isTransmitting = false;
+	dacOutputShouldChange = false;
 
     return true;
 }
@@ -1596,6 +1597,7 @@ bool RHD2000Thread::updateBuffer()
         evalBoard->setExternalFastSettleChannel(fastSettleTTLChannel);
         evalBoard->setDacHighpassFilter(desiredDAChpf);
         evalBoard->enableDacHighpassFilter(desiredDAChpfState);
+		evalBoard->enableBoardLeds(ledsEnabled);
 
         dacOutputShouldChange = false;
     }
@@ -1701,7 +1703,11 @@ int RHD2000Thread::getHeadstageChannel(int& hs, int ch)
 
 void RHD2000Thread::enableBoardLeds(bool enable)
 {
-	evalBoard->enableBoardLeds(enable);
+	ledsEnabled = enable;
+	if (isAcquisitionActive())
+		dacOutputShouldChange = true;
+	else
+		evalBoard->enableBoardLeds(enable);
 }
 
 void RHD2000Thread::runImpedanceTest(ImpedanceData* data)
