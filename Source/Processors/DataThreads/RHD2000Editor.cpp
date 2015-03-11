@@ -258,6 +258,10 @@ void FPGAchannelList::disableAll()
     {
         channelComponents[k]->disableEdit();
     }
+	impedanceButton->setEnabled(false);
+	saveImpedanceButton->setEnabled(false);
+	autoMeasureButton->setEnabled(false);
+	numberingScheme->setEnabled(false);
 }
 
 void FPGAchannelList::enableAll()
@@ -266,7 +270,10 @@ void FPGAchannelList::enableAll()
     {
         channelComponents[k]->enableEdit();
     }
-
+	impedanceButton->setEnabled(true);
+	saveImpedanceButton->setEnabled(true);
+	autoMeasureButton->setEnabled(true);
+	numberingScheme->setEnabled(true);
 }
 
 void FPGAchannelList::setNewGain(int channel, float gain)
@@ -506,6 +513,10 @@ void FPGAcanvas::update()
 {
     // create channel buttons (name, gain, recording, impedance, ... ?)
     channelList->update();
+	if (static_cast<RHD2000Thread*>(processor->getThread())->isAcquisitionActive())
+	{
+		channelList->disableAll();
+	}
 }
 
 void FPGAcanvas::resized()
@@ -865,8 +876,9 @@ void RHD2000Editor::startAcquisition()
     adcButton->setEnabledState(false);
     dspoffsetButton-> setEnabledState(false);
     acquisitionIsActive = true;
-    if (canvas !=nullptr)
-        canvas->channelList->setEnabled(false);
+	if (canvas != nullptr)
+		canvas->channelList->disableAll();
+        //canvas->channelList->setEnabled(false);
 }
 
 void RHD2000Editor::stopAcquisition()
@@ -879,8 +891,8 @@ void RHD2000Editor::stopAcquisition()
     dspoffsetButton-> setEnabledState(true);
 
     acquisitionIsActive = false;
-    if (canvas != nullptr)
-        canvas->channelList->setEnabled(true);
+	if (canvas != nullptr)
+		canvas->channelList->enableAll();
     //  canvas->channelList->setEnabled(true);
 }
 
