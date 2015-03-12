@@ -181,7 +181,7 @@ void FPGAchannelList::update()
     streamNames.add("Port D2");
     streamNames.add("ADC");
 
-    for (int k = 0; k < MAX_NUM_DATA_STREAMS + 1; k++)
+    for (int k = 0; k < MAX_NUM_HEADSTAGES + 1; k++)
     {
         if (hsActive[k])
         {
@@ -316,17 +316,29 @@ void FPGAchannelList::comboBoxChanged(ComboBox* b)
 
 void FPGAchannelList::updateImpedance(Array<int> streams, Array<int> channels, Array<float> magnitude, Array<float> phase)
 {
+	int i = 0;
     for (int k = 0; k < streams.size(); k++)
     {
-        channelComponents[k]->setImpedanceValues(magnitude[k], phase[k]);
+		if (i >= channelComponents.size())
+			break; //little safety
+
+		if (channelComponents[i]->type != HEADSTAGE_CHANNEL)
+		{
+			k--;
+		}
+		else
+		{
+			channelComponents[i]->setImpedanceValues(magnitude[k], phase[k]);
+		}
+		i++;
     }
 
 }
 
 
 /****************************************************/
-FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int ch, int gainIndex_, String N, Array<float> gains_, ChannelType type) :
-    gains(gains_), channelList(cl), channel(ch), name(N), gainIndex(gainIndex_)
+FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int ch, int gainIndex_, String N, Array<float> gains_, ChannelType type_) :
+gains(gains_), channelList(cl), channel(ch), name(N), gainIndex(gainIndex_), type(type_)
 {
     Font f = Font("Small Text", 13, Font::plain);
 

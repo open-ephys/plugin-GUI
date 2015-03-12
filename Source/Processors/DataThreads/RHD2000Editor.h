@@ -95,7 +95,7 @@ private:
 class FPGAchannelComponent : public Component, public AccessClass, Button::Listener, public ComboBox::Listener, public Label::Listener
 {
 public:
-    FPGAchannelComponent(FPGAchannelList* cl, int ch, int gainIndex_, String name_, Array<float> gains_, ChannelType type);
+    FPGAchannelComponent(FPGAchannelList* cl, int ch, int gainIndex_, String name_, Array<float> gains_, ChannelType type_);
     ~FPGAchannelComponent();
     Colour getDefaultColor(int ID);
     void setImpedanceValues(float mag, float phase);
@@ -115,6 +115,8 @@ public:
     void labelTextChanged(Label* lbl);
 
     void resized();
+
+	const ChannelType type;
 private:
     Array<float> gains;
     FPGAchannelList* channelList;
