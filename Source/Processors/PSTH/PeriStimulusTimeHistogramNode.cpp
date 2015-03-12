@@ -114,7 +114,6 @@ void PeriStimulusTimeHistogramNode::allocateTrialCircularBuffer()
 
 void PeriStimulusTimeHistogramNode::updateSettings()
 {
-	delete trialCircularBuffer;
 	trialCircularBuffer = nullptr;
 	if (trialCircularBuffer  == nullptr && getSampleRate() > 0 && getNumInputs() > 0)
 	{
@@ -388,7 +387,6 @@ void PeriStimulusTimeHistogramNode::modifyTimeRange(double preSec_, double postS
 			TrialCircularBufferParams params = trialCircularBuffer->getParams();
 			params.preSec = preSec_;
 			params.postSec = postSec_;
-			delete trialCircularBuffer;
 			trialCircularBuffer = new TrialCircularBuffer(params);
 			trialCircularBuffer->syncInternalDataStructuresWithSpikeSorter(electrodes);
 

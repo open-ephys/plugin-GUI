@@ -80,7 +80,7 @@ public:
 	void loadCustomParametersFromXml();
 	void modifyTimeRange(double preSec_, double postSec_);
 
-	TrialCircularBuffer *trialCircularBuffer;
+	ScopedPointer<TrialCircularBuffer> trialCircularBuffer;
 	bool saveTTLs, saveNetworkEvents,saveEyeTracking ;
 	int spikeSavingMode;
 	bool saveNetworkEventsWhenNotRecording;
