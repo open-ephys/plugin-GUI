@@ -158,6 +158,7 @@ public:
 	//Additions by open-ephys
 	void resetFpga();
 	bool isStreamEnabled(int streamIndex);
+	void enableBoardLeds(bool enable);
 
 private:
     okCFrontPanel *dev;
@@ -211,6 +212,7 @@ private:
         TrigInDacHpf = 0x44,
         TrigInExtFastSettle = 0x45,
         TrigInExtDigOut = 0x46,
+		TrigInOpenEphys = 0x5a,
 
         WireOutNumWordsLsb = 0x20,
         WireOutNumWordsMsb = 0x21,

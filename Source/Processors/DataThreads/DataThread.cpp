@@ -69,4 +69,23 @@ DataBuffer* DataThread::getBufferAddress()
     return dataBuffer;
 }
 
+void DataThread::getChannelInfo(Array<ChannelCustomInfo>& infoArray)
+{
+    infoArray.clear();
+    infoArray.addArray(channelInfo);
+}
 
+
+void DataThread::updateChannels()
+{
+    if (usesCustomNames())
+    {
+        channelInfo.resize(sn->channels.size());
+        setDefaultChannelNames();
+        for (int i = 0; i < channelInfo.size(); i++)
+        {
+            sn->channels[i]->setName(channelInfo[i].name);
+            sn->channels[i]->bitVolts = channelInfo[i].gain;
+        }
+    }
+}

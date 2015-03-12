@@ -31,6 +31,14 @@
 
 class SourceNode;
 
+struct ChannelCustomInfo
+{
+    ChannelCustomInfo() : gain(0), modified(false) {}
+    String name;
+    float gain;
+    bool modified;
+};
+
 /**
 
   Abstract base class for a data input thread owned by the SourceNode.
@@ -83,10 +91,16 @@ public:
     virtual int getNumHeadstageOutputs() = 0;
 
     /** Returns the number of continuous aux channels the data source can provide.*/
-    virtual int getNumAuxOutputs() {return 0;}
+    virtual int getNumAuxOutputs()
+    {
+        return 0;
+    }
 
     /** Returns the number of continuous ADC channels the data source can provide.*/
-    virtual int getNumAdcOutputs() {return 0;}
+    virtual int getNumAdcOutputs()
+    {
+        return 0;
+    }
 
     /** Returns the sample rate of the data source.*/
     virtual float getSampleRate() = 0;
@@ -99,40 +113,30 @@ public:
     {
         return 0;
     }
-    virtual int modifyChannelName(ChannelType t, int stream, int ch, String newName)
+    virtual int modifyChannelName(int channel, String newName)
     {
         return -1;
     }
-    virtual int modifyChannelGain(ChannelType t, int stream, int ch, float gain)
+    virtual int modifyChannelGain(int channel, float gain)
     {
         return -1;
     }
-    virtual void setDefaultNamingScheme(int scheme)
+
+    /*  virtual void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
+      {
+      }*/
+
+    virtual void getEventChannelNames(StringArray& names)
     {
     }
 
-    virtual void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
+    virtual bool usesCustomNames()
     {
-    };
-    virtual void getEventChannelNames(StringArray &names)
-    {
-    }
-
-    /** Returns the number of ADC channels of the data source.*/
-    virtual int getNumADCchannels()
-    {
-        return 0;
+        return false;
     }
 
     /** Changes the names of channels, if the thread needs custom names. */
-    virtual void updateChannelNames() { }
-
-    SourceNode* sn;
-
-    uint64 eventCode;
-    int64 timestamp;
-
-    Time timer;
+    void updateChannels();
 
     /** Returns a pointer to the data input device, in case other processors
     need to communicate with it.*/
@@ -141,8 +145,22 @@ public:
         return 0;
     }
 
-private:
+    void getChannelInfo(Array<ChannelCustomInfo>& infoArray);
 
+protected:
+    virtual void setDefaultChannelNames()
+    {
+    }
+
+    SourceNode* sn;
+
+    uint64 eventCode;
+    int64 timestamp;
+
+    Array<ChannelCustomInfo> channelInfo;
+
+private:
+    Time timer;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataThread);

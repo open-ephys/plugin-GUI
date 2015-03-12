@@ -65,12 +65,9 @@ public:
     int getNumEventChannels();
     float getBitVolts(Channel* chan);
 
-    int modifyChannelGain(int stream, int channel,ChannelType type, float gain, bool updateSignalChain);
-    int modifyChannelName(ChannelType t, int str, int ch, String newName, bool updateSignalChain);
+    void requestChainUpdate();
 
-    void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
-    void setDefaultNamingScheme(int scheme);
-    void getEventChannelNames(StringArray &names);
+    void getEventChannelNames(StringArray& names);
 
     AudioProcessorEditor* createEditor();
     bool hasEditor() const
@@ -88,10 +85,10 @@ public:
         return true;
     }
 
-	bool generatesTimestamps()
-	{
-		return true;
-	}
+    bool generatesTimestamps()
+    {
+        return true;
+    }
 
     void acquisitionStopped();
 

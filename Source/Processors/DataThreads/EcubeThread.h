@@ -76,17 +76,14 @@ public:
     /** Returns the number of continuous channels the data source can provide.*/
     virtual int getNumChannels();
 
-	virtual int getNumHeadstageOutputs();
+    virtual int getNumHeadstageOutputs();
 
-	virtual int getNumAdcOutputs();
+    virtual int getNumAdcOutputs();
 
-	virtual int getNumAuxOutputs();
+    virtual int getNumAuxOutputs();
 
     /** Returns the number of event channels of the data source.*/
     virtual int getNumEventChannels();
-
-    /** Returns the number of ADC channels of the data source.*/
-    virtual int getNumADCchannels();
 
     /** Returns the sample rate of the data source.*/
     virtual float getSampleRate();
@@ -94,27 +91,19 @@ public:
     /** Returns the volts per bit of a given data channel.*/
     virtual float getBitVolts(int chan);
 
-	virtual float getBitVolts(Channel* chan);
+    virtual float getBitVolts(Channel* chan);
 
-    virtual void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains);
     void setDefaultNamingScheme(int scheme);
-    /** Changes the names of channels, if the thread needs custom names. */
-    virtual void updateChannelNames();
+
+    bool usesCustomNames();
 
     // Custom thread control functions
     void setSpeakerVolume(double volume);
     void setSpeakerChannel(unsigned short channel);
 
 private:
-    void setDefaultChannelNamesAndType();
-
-    // used for data stream names...
     int numberingScheme;
-    StringArray Names;
-    Array<ChannelType> type;
-    Array<float> gains;
-    Array<int> stream;
-    Array<int> originalChannelNumber;
+    void setDefaultChannelNames();
 
     ScopedPointer<EcubeDevInt> pDevInt;
 
@@ -122,14 +111,35 @@ private:
     bool acquisition_running;
 
 #else
-/** Empty methods for non-Windows platforms **/
-    bool updateBuffer() {return false;}
-    bool foundInputSource() {return false;}
-    bool startAcquisition() {return false;}
-    bool stopAcquisition() {return false;}
-    int getNumChannels() {return 0;}
-    float getSampleRate() {return 0.0f;}
-    float getBitVolts() {return 0.0f;}
+    /** Empty methods for non-Windows platforms **/
+    bool updateBuffer()
+    {
+        return false;
+    }
+    bool foundInputSource()
+    {
+        return false;
+    }
+    bool startAcquisition()
+    {
+        return false;
+    }
+    bool stopAcquisition()
+    {
+        return false;
+    }
+    int getNumChannels()
+    {
+        return 0;
+    }
+    float getSampleRate()
+    {
+        return 0.0f;
+    }
+    float getBitVolts()
+    {
+        return 0.0f;
+    }
 
 
 #endif

@@ -29,8 +29,8 @@
 GenericProcessor::GenericProcessor(const String& name_) : AccessClass(),
     sourceNode(0), destNode(0), isEnabled(true), wasConnected(false),
     nextAvailableChannel(0), saveOrder(-1), loadOrder(-1), currentChannel(-1),
-    editor(0), parametersAsXml(nullptr), sendSampleCount(true), name(name_), 
-	paramsWereLoaded(false), needsToSendTimestampMessage(false)
+    editor(0), parametersAsXml(nullptr), sendSampleCount(true), name(name_),
+    paramsWereLoaded(false), needsToSendTimestampMessage(false)
 {
     settings.numInputs = settings.numOutputs = settings.sampleRate = 0;
 
@@ -285,14 +285,14 @@ void GenericProcessor::clearSettings()
     if (recordStatus.size() < channels.size())
         recordStatus.resize(channels.size());
 
-	if(monitorStatus.size() < channels.size())
-		monitorStatus.resize(channels.size());
+    if (monitorStatus.size() < channels.size())
+        monitorStatus.resize(channels.size());
 
     for (int i = 0; i < channels.size(); i++)
     {
         // std::cout << channels[i]->getRecordState() << std::endl;
         recordStatus.set(i,channels[i]->getRecordState());
-		monitorStatus.set(i,channels[i]->isMonitored);
+        monitorStatus.set(i,channels[i]->isMonitored);
     }
 
     channels.clear();
@@ -333,12 +333,12 @@ void GenericProcessor::update()
             Channel* ch = new Channel(*sourceChan);
             ch->setProcessor(this);
             ch->nodeIndex = i;
-			ch->mappedIndex = i;
+            ch->mappedIndex = i;
 
             if (i < recordStatus.size())
             {
                 ch->setRecordState(recordStatus[i]);
-				ch->isMonitored = monitorStatus[i];
+                ch->isMonitored = monitorStatus[i];
             }
 
             channels.add(ch);
@@ -369,7 +369,7 @@ void GenericProcessor::update()
             ch->bitVolts = getBitVolts(ch);
             ch->sourceNodeId = nodeId;
             ch->nodeIndex = nidx;
-			ch->mappedIndex = nidx;
+            ch->mappedIndex = nidx;
 
             if (i < recordStatus.size())
             {
@@ -393,7 +393,7 @@ void GenericProcessor::update()
             ch->bitVolts = getBitVolts(ch);
             ch->sourceNodeId = nodeId;
             ch->nodeIndex = nidx;
-			ch->mappedIndex = nidx;
+            ch->mappedIndex = nidx;
 
             if (j < recordStatus.size())
             {
@@ -417,7 +417,7 @@ void GenericProcessor::update()
             ch->bitVolts = getBitVolts(ch);
             ch->sourceNodeId = nodeId;
             ch->nodeIndex = nidx;
-			ch->mappedIndex = nidx;
+            ch->mappedIndex = nidx;
 
             if (k < recordStatus.size())
             {
@@ -485,17 +485,17 @@ void GenericProcessor::setRecording(bool state)
         if (ed != 0)
             ed->startRecording();
         startRecording();
-		if (generatesTimestamps())
-		{
-			needsToSendTimestampMessage = true;
-		}
+        if (generatesTimestamps())
+        {
+            needsToSendTimestampMessage = true;
+        }
     }
     else
     {
         if (ed != 0)
             ed->stopRecording();
         stopRecording();
-		needsToSendTimestampMessage = false;
+        needsToSendTimestampMessage = false;
     }
 }
 
@@ -613,29 +613,29 @@ void GenericProcessor::setTimestamp(MidiBuffer& events, int64 timestamp)
              0,      // eventChannel
              8,         // numBytes
              data,   // data
-			 true    // isTimestampEvent
+             true    // isTimestampEvent
             );
 
-	//since the processor generating the timestamp won't get the event, add it to the map
-	timestamps[nodeId] = timestamp;
+    //since the processor generating the timestamp won't get the event, add it to the map
+    timestamps[nodeId] = timestamp;
 
-	if (needsToSendTimestampMessage)
-	{
-		String eventString = "Processor: " + String(getNodeId()) + " start time: " + String(timestamp);
+    if (needsToSendTimestampMessage)
+    {
+        String eventString = "Processor: " + String(getNodeId()) + " start time: " + String(timestamp);
 
-		CharPointer_UTF8 data = eventString.toUTF8();
+        CharPointer_UTF8 data = eventString.toUTF8();
 
-		addEvent(events,
-			MESSAGE,
-			0,
-			0,
-			0,
-			data.length() + 1, //It doesn't hurt to send the end-string null and can help avoid issues
-			(uint8*)data.getAddress(),
-			true);
+        addEvent(events,
+                 MESSAGE,
+                 0,
+                 0,
+                 0,
+                 data.length() + 1, //It doesn't hurt to send the end-string null and can help avoid issues
+                 (uint8*)data.getAddress(),
+                 true);
 
-		needsToSendTimestampMessage = false;
-	}
+        needsToSendTimestampMessage = false;
+    }
 }
 
 int GenericProcessor::processEventBuffer(MidiBuffer& events)
@@ -711,7 +711,7 @@ int GenericProcessor::processEventBuffer(MidiBuffer& events)
                     // changing the const cast is dangerous, but probably necessary:
                     uint8* ptr = const_cast<uint8*>(dataptr);
                     *(ptr + 4) = 0; // set fifth byte of raw data to 0, so the event
-                                    // won't be saved twice
+                    // won't be saved twice
                 }
             }
         }
@@ -758,7 +758,7 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
                                 uint8 eventChannel,
                                 uint8 numBytes,
                                 uint8* eventData,
-								bool isTimestamp)
+                                bool isTimestamp)
 {
     uint8* data = new uint8[6+numBytes];
 
@@ -767,10 +767,10 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
     data[2] = eventId; // event ID (1 = on, 0 = off, usually)
     data[3] = eventChannel; // event channel
     data[4] = 1; // saving flag
-	if (!isTimestamp)
-		data[5] = (uint8)eventChannels[eventChannel]->sourceNodeId;  // source node ID (for nSamples)
-	else
-		data[5] = nodeId;
+    if (!isTimestamp)
+        data[5] = (uint8)eventChannels[eventChannel]->sourceNodeId;  // source node ID (for nSamples)
+    else
+        data[5] = nodeId;
     memcpy(data + 6, eventData, numBytes);
 
     //std::cout << "Node id: " << data[1] << std::endl;
