@@ -270,6 +270,7 @@
     <ClCompile Include="..\..\Source\AccessClass.cpp"/>
     <ClCompile Include="..\..\Source\Network\PracticalSocket.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Rectifier\Rectifier.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutput.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutputEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioEditor.cpp"/>
@@ -1514,6 +1515,7 @@
     <ClInclude Include="..\..\Source\AccessClass.h"/>
     <ClInclude Include="..\..\Source\Network\PracticalSocket.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
+    <ClInclude Include="..\..\Source\Processors\Rectifier\Rectifier.h"/>
     <ClInclude Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutput.h"/>
     <ClInclude Include="..\..\Source\Processors\ArduinoOutput\ArduinoOutputEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioEditor.h"/>
