@@ -350,21 +350,20 @@ void PeriStimulusTimeHistogramNode::dumpTimestampEventToDisk(int64 softwareTS,in
 
 void PeriStimulusTimeHistogramNode::syncInternalDataStructuresWithSpikeSorter()
 {
-	ProcessorGraph *g = getProcessorGraph();
-	Array<GenericProcessor*> p = g->getListOfProcessors();
-	for (int k=0;k<p.size();k++)
+	Array<Electrode*> electrodes;
+	
+	for (int k=0;k<eventChannels.size();k++)
 	{
-		if (p[k]->getName() == "Spike Sorter")
+		if ((eventChannels[k]->type == ELECTRODE_CHANNEL) && 
+			( static_cast<SpikeChannel*>(eventChannels[k]->extraData.get())->dataType == SpikeChannel::Sorted ))
 		{
-			SpikeSorter *node = (SpikeSorter*)p[k];
-			Array<Electrode*> electrodes = node->getElectrodes();
-
-			// for each electrode, verify that 
-			// 1. We have it in our internal structure 
-			// 2. All channels match
-			// 3. We have all sorted unit information
-			trialCircularBuffer->syncInternalDataStructuresWithSpikeSorter(electrodes);
+			electrodes.add(static_cast<Electrode*>(eventChannels[k]->extraData->dataPtr));
 		}
+		// for each electrode, verify that 
+		// 1. We have it in our internal structure 
+		// 2. All channels match
+		// 3. We have all sorted unit information
+		trialCircularBuffer->syncInternalDataStructuresWithSpikeSorter(electrodes);
 	}
 }
 
