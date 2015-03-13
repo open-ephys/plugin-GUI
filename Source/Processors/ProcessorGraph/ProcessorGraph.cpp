@@ -53,7 +53,7 @@
 #include "../NetworkEvents/NetworkEvents.h"
 #include "../PSTH/PeriStimulusTimeHistogramNode.h"
 #include "../CAR/CAR.h"
-
+#include "../Rectifier/Rectifier.h"
 
 #ifdef ZEROMQ 
     
@@ -581,6 +581,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
             std::cout << "Creating a new filter." << std::endl;
             processor = new FilterNode();
 
+        }
+        else if (subProcessorType.equalsIgnoreCase("Rectifier"))
+        {
+            std::cout << "Creating a new rectifier node." << std::endl;
+            processor = new Rectifier();
         }
         else if (subProcessorType.equalsIgnoreCase("Spike Detector"))
         {

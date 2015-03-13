@@ -76,6 +76,7 @@ ProcessorList::ProcessorList()
     //filters->addSubItem(new ProcessorListItem("Digital Ref"));
     filters->addSubItem(new ProcessorListItem("Channel Map"));
     filters->addSubItem(new ProcessorListItem("Common Avg Ref"));
+    filters->addSubItem(new ProcessorListItem("Rectifier"));
     //filters->addSubItem(new ProcessorListItem("Eye Tracking"));
 
 
