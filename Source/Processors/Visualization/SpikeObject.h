@@ -29,6 +29,8 @@
 #include <stdint.h>
 #include <math.h>
 
+#include "../Channel/Channel.h"
+
 #define SPIKE_METADATA_SIZE 42
 #define MAX_NUMBER_OF_SPIKE_CHANNELS 4
 #define MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES 80
@@ -36,6 +38,21 @@
 #define SPIKE_EVENT_CODE 4;
 #define MAX_SPIKE_BUFFER_LEN 512 // max length of spike buffer in bytes
                                  // the true max calculated from the spike values below is actually 507
+
+/** Class to store spike data in event channels */
+class SpikeChannel : public ChannelExtraData
+{
+public:
+	enum SpikeDataType { Plain = 0, Sorted = 1};
+
+	SpikeChannel(SpikeDataType type, int nChans, void* ptr, int size);
+
+	const SpikeDataType dataType;
+	const int numChannels;
+};
+
+/** Simple generic function to name spike electrode channels */
+String generateSpikeElectrodeName(int numChannels, int index);
 
 #define SPIKE_BASE_CODE 100
 

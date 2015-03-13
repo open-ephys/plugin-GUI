@@ -60,24 +60,12 @@ void SpikeDisplayNode::updateSettings()
     {
         ChannelType type = eventChannels[i]->getType();
 
-        if (type == SINGLE_ELECTRODE || type == STEREOTRODE || type == TETRODE)
+        if (type == ELECTRODE_CHANNEL)
         {
 
             Electrode elec;
+			elec.numChannels = static_cast<SpikeChannel*>(eventChannels[i]->extraData.get())->numChannels;
 
-            switch (type)
-            {
-                case SINGLE_ELECTRODE:
-                    elec.numChannels = 1;
-                    break;
-                case STEREOTRODE:
-                    elec.numChannels = 2;
-                    break;
-                case TETRODE:
-                    elec.numChannels = 4;
-                    break;
-            }
-            
             elec.name = eventChannels[i]->getName();
             elec.currentSpikeIndex = 0;
             elec.mostRecentSpikes.ensureStorageAllocated(displayBufferSize);

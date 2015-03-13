@@ -32,6 +32,7 @@
 #include <stdio.h>
 
 class GenericProcessor;
+class ChannelExtraData;
 
 /**
 
@@ -87,10 +88,7 @@ public:
     void setRecordState(bool t); // {isRecording = t;}
 
     /** Sets whether or not the channel will record. */
-    bool getRecordState()
-    {
-        return isRecording;
-    }
+	bool getRecordState();
 
     /** Sets the bitVolts value for this channel. */
     void setBitVolts(float bitVolts);
@@ -154,6 +152,8 @@ public:
     /** Impedance of this channel. */
     float impedance;
 
+	/** For use with special event channels. */
+	ReferenceCountedObjectPtr<ChannelExtraData> extraData;
 
 private:
 
@@ -165,6 +165,15 @@ private:
     /** Generates a default name, based on the channel number. */
     void createDefaultName();
 
+};
+
+class ChannelExtraData : public ReferenceCountedObject
+{
+public:
+	ChannelExtraData(void* data, int size);
+	virtual ~ChannelExtraData();
+	void* const dataPtr;
+	const int dataSize;
 };
 
 #endif  // __CHANNEL_H_DABDFE3F__

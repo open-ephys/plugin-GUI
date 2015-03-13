@@ -70,6 +70,7 @@ Channel::Channel(const Channel& ch)
     y = ch.y;
     z = ch.z;
     impedance = ch.impedance;
+	extraData = ch.extraData;
 
     setRecordState(false);
 }
@@ -138,18 +139,26 @@ void Channel::createDefaultName()
         case EVENT_CHANNEL:
             name = String("EVENT");
             break;
-        case SINGLE_ELECTRODE:
-            name = String("SE");
-            break;
-        case STEREOTRODE:
-            name = String("ST");
-            break;
-        case TETRODE:
-            name = String("TT");
+        case ELECTRODE_CHANNEL:
+            name = String("ELEC");
             break;
         case MESSAGE_CHANNEL:
             name = String("MSG");
     }
 
     name += index;
+}
+
+bool Channel::getRecordState()
+{
+	return isRecording;
+}
+
+ChannelExtraData::ChannelExtraData(void* ptr, int size)
+	: dataPtr(ptr), dataSize(size)
+{
+}
+
+ChannelExtraData::~ChannelExtraData()
+{
 }
