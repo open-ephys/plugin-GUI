@@ -278,12 +278,12 @@ void PeriStimulusTimeHistogramEditor::buttonEvent(Button* button)
 			PopupMenu m;
 			
 			
-			m.addItem(1,"TTL",true, processor->saveTTLs);
+		/*	m.addItem(1,"TTL",true, processor->saveTTLs);
 			m.addItem(2,"Network Events",true, processor->saveNetworkEvents);
 			m.addItem(7,"Network Events [when recording is off]",true, processor->saveNetworkEventsWhenNotRecording);
-			m.addItem(3,"Eye Tracking",true, processor->saveEyeTracking);
+			m.addItem(3,"Eye Tracking",true, processor->saveEyeTracking);*/
 			
-			m.addItem(4,"Sorted Spikes: TS only ",true, processor->spikeSavingMode == 1);
+			//m.addItem(4,"Sorted Spikes: TS only ",true, processor->spikeSavingMode == 1);
 			m.addItem(5,"Sorted Spikes: TS+waveform",true, processor->spikeSavingMode == 2);
 			m.addItem(6,"All Spikes: TS+waveform",true, processor->spikeSavingMode == 3);
 			

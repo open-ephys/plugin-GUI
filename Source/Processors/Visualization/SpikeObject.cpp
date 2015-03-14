@@ -400,3 +400,28 @@ int microSecondsToSpikeTimeBin(SpikeObject *s, float t, int ch)
 }
 
 
+SpikeChannel::SpikeChannel(SpikeDataType type, int nChans, void* ptr, int size)
+	: dataType(type), numChannels(nChans), ChannelExtraData(ptr, size)
+{
+}
+
+String generateSpikeElectrodeName(int numChannels, int index)
+{
+	String name;
+	switch (numChannels)
+	{
+	case 1:
+		name = String("SE");
+		break;
+	case 2:
+		name = String("ST");
+		break;
+	case 4:
+		name = String("TT");
+		break;
+	default:
+		name = String("ELEC");
+		break;
+	}
+	return name + String(index);
+}

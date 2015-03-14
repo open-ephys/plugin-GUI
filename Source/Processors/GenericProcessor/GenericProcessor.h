@@ -25,7 +25,7 @@
 #define __GENERICPROCESSOR_H_1F469DAF__
 
 enum ChannelType {HEADSTAGE_CHANNEL = 0, AUX_CHANNEL = 1, ADC_CHANNEL = 2, EVENT_CHANNEL = 3,
-                  SINGLE_ELECTRODE = 4, STEREOTRODE = 5, TETRODE = 6, MESSAGE_CHANNEL = 7
+                  ELECTRODE_CHANNEL = 4,  MESSAGE_CHANNEL = 5 
                  };
 
 #include "../../../JuceLibraryCode/JuceHeader.h"

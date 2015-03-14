@@ -192,20 +192,10 @@ void SpikeSorter::updateSettings()
     for (int i = 0; i < electrodes.size(); i++)
     {
 
-        Channel* ch;
-
-        switch (electrodes[i]->numChannels)
-        {
-            case 1:
-                ch = new Channel(this, i, SINGLE_ELECTRODE);
-                break;
-            case 2:
-                ch = new Channel(this, i, STEREOTRODE);
-                break;
-            case 4:
-                ch = new Channel(this, i, TETRODE);
-                break;
-        }
+        Channel* ch = new Channel(this,i,ELECTRODE_CHANNEL);
+		ch->name = generateSpikeElectrodeName(electrodes[i]->numChannels, ch->index);
+		SpikeChannel* spk = new SpikeChannel(SpikeChannel::Sorted, electrodes[i]->numChannels, electrodes[i], sizeof(Electrode));
+		ch->extraData = spk;
 
         eventChannels.add(ch);
     }
