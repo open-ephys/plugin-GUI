@@ -37,7 +37,6 @@ PeriStimulusTimeHistogramNode::PeriStimulusTimeHistogramNode()
     : GenericProcessor("PSTH"), displayBufferSize(5),  redrawRequested(false)
 {
 	trialCircularBuffer  = nullptr;
-	eventFile = nullptr;
 	isRecording = false;
 	saveEyeTracking = saveTTLs = saveNetworkEvents = false;
 	saveNetworkEventsWhenNotRecording = false;
@@ -120,6 +119,13 @@ void PeriStimulusTimeHistogramNode::updateSettings()
 		allocateTrialCircularBuffer();
 		syncInternalDataStructuresWithSpikeSorter();
 	}
+	electrodeChannels.clear();
+	for (int k = 0; k < eventChannels.size(); k++)
+	{
+		if ((eventChannels[k]->type == ELECTRODE_CHANNEL) &&
+			(static_cast<SpikeChannel*>(eventChannels[k]->extraData.get())->dataType == SpikeChannel::Sorted))
+			electrodeChannels.add(eventChannels[k]);
+	}
 
 	recordNode = getProcessorGraph()->getRecordNode();
 //    diskWriteLock = recordNode->getLock();
@@ -136,6 +142,16 @@ bool PeriStimulusTimeHistogramNode::enable()
     std::cout << "PeriStimulusTimeHistogramNode::enable()" << std::endl;
 	PeriStimulusTimeHistogramEditor* editor = (PeriStimulusTimeHistogramEditor*) getEditor();
     editor->enable();
+
+	recordNode->registerSpikeSource(this);
+	for (int i = 0; i < electrodeChannels.size(); i++)
+	{
+		SpikeRecordInfo *recElec = new SpikeRecordInfo();
+		recElec->name = electrodeChannels[i]->name;
+		recElec->numChannels = static_cast<SpikeChannel*>(electrodeChannels[i]->extraData.get())->numChannels;
+		recElec->sampleRate = settings.sampleRate;
+		electrodeChannels[i]->recordIndex = recordNode->addSpikeElectrode(recElec);
+	}
 		
     return true;
 
@@ -184,169 +200,6 @@ void PeriStimulusTimeHistogramNode::process(AudioSampleBuffer& buffer, MidiBuffe
 }
 
 
-
-void PeriStimulusTimeHistogramNode::dumpStartStopRecordEventToDisk(int64 ts, bool startRecord)
-{
-	const ScopedLock myScopedLock(diskWriteLock);
-	#define SESSION 10
-	uint8 eventType = SESSION;
-
-	// write event type
-	fwrite(&eventType, 1,1, eventFile); 
-	// write event size
-	int16 eventSize = 1 +2+ 8; // start/stop(1) + recordnumber (2) + timestamp (8)
-    fwrite(&eventSize, 2,1, eventFile);
-	// write event data
-	// 1. Start/stop
-	fwrite(&startRecord, 1,1, eventFile);
-	// 2. record number
-	fwrite(&recordingNumber, 2,1, eventFile);
-	// 3. the software timestamp
-	fwrite(&ts, 8,1, eventFile);
-
-
-}
-
-void PeriStimulusTimeHistogramNode::dumpNetworkEventToDisk(String S, int64 ts)
-{
-	const ScopedLock myScopedLock(diskWriteLock);
-	
-	uint8 eventType = NETWORK;
-
-	// write event type
-	fwrite(&eventType, 1,1, eventFile); 
-	// write event size
-	int16 eventSize = S.getNumBytesAsUTF8() + 8; // string length + timestamp
-    fwrite(&eventSize, 2,1, eventFile);
-	// write event data
-	// 1. the network event string
-	fwrite(S.toUTF8(), S.getNumBytesAsUTF8(), 1, eventFile);
-	// 2. the software timestamp
-	fwrite(&ts, 8,1, eventFile);
-
-	
-}
-
-void PeriStimulusTimeHistogramNode::dumpSpikeEventToDisk(SpikeObject *s, bool dumpWave)
-{
-	const ScopedLock myScopedLock(diskWriteLock);
-
-
-
-	uint8 eventType = SPIKE;
-
-	// write event type
-	fwrite(&eventType, 1,1, eventFile); 
-	int16 eventSize = 8+8+2+2+2+2+2  + s->nChannels*4; // ts, ts, sorted id, electrode ID, num channels, num data per channel + 4x gains 
-
-	if (dumpWave)
-		eventSize += 2*(s->nSamples*s->nChannels); // uint16 per samples 
-
-	// write event size
-    fwrite(&eventSize, 2,1, eventFile);
-
-	// write event data
-	// 1. software ts
-	fwrite(&s->timestamp_software, 8,1, eventFile);
-	// 2. hardware ts
-	fwrite(&s->timestamp, 8,1, eventFile);
-	// 3. sorted ID
-	fwrite(&s->sortedId, 2,1, eventFile);
-	// 4. electrod ID
-	fwrite(&s->electrodeID, 2,1, eventFile);
-
-	// 5. Channel in which threshold was detected
-	fwrite(&s->channel, 2,1, eventFile);
-
-	// 6. num channels
-	fwrite(&s->nChannels, 2,1, eventFile);
-
-	// 7. gains
-	fwrite(&s->gain, 4,s->nChannels, eventFile);
-
-	// 8. num data points per channel
-	fwrite(&s->nSamples, 2,1, eventFile);
-	if (dumpWave)
-		fwrite(&s->data, 2,s->nSamples*s->nChannels, eventFile);
-
-	
-}
-void PeriStimulusTimeHistogramNode::dumpTTLeventToDisk(int channel, bool risingEdge, int64 ttl_timestamp_software, int64 ttl_timestamp_hardware, int samplePosition )
-{
-	const ScopedLock myScopedLock(diskWriteLock);
-	uint8 eventType = TTL;
-
-	// write event type
-	fwrite(&eventType, 1,1, eventFile); 
-	// write event size
-	int16 eventSize = 1 + 2 + 8 + 8; // rising/falling(1) + software ts (8) + hardware ts (8)
-    fwrite(&eventSize, 2,1, eventFile);
-	// write event data
-	// 1. rising/falling edge
-	fwrite(&risingEdge, 1, 1, eventFile);
-	// 2. channel
-	fwrite(&channel, 2,1,eventFile);
-	// 2. software ts
-	fwrite(&ttl_timestamp_software, 8,1, eventFile);
-	// 3. hardware ts
-	fwrite(&ttl_timestamp_hardware, 8,1, eventFile);
-
-	
-}
-/*
-void PeriStimulusTimeHistogramNode::dumpEyeTrackingEventToDisk(EyePosition pos)
-{
-	diskWriteLock->enter();
-
-	uint8 eventType = EYE_POSITION;
-
-	// write event type
-	fwrite(&eventType, 1,1, eventFile); 
-	// write event size
-	int16 eventSize = 8 + 8 + 8 + 8 + 8 +8 +8; //  x,y,xc,yc,pupil,timestamp
-    fwrite(&eventSize, 2,1, eventFile);
-	// write event data
-	// 1. eye x position
-	fwrite(&pos.x, 8,1, eventFile);
-	// 2. eye y position
-	fwrite(&pos.y, 8,1, eventFile);
-
-
-	// 3. calibrated eye x position
-	fwrite(&pos.xc, 8,1, eventFile);
-	// 4. calibrated eye y position
-	fwrite(&pos.yc, 8,1, eventFile);
-
-	// 5. eye pupil
-	fwrite(&pos.pupil, 8,1, eventFile);
-	// 6. software timestamp
-	fwrite(&pos.software_timestamp, 8,1, eventFile);
-	// 7. hardware timestamp
-	fwrite(&pos.hardware_timestamp, 8,1, eventFile);
-
-	diskWriteLock->exit();
-}
-*/
-void PeriStimulusTimeHistogramNode::dumpTimestampEventToDisk(int64 softwareTS,int64 hardwareTS)
-{
-	const ScopedLock myScopedLock(diskWriteLock);
-
-	uint8 eventType = TIMESTAMP;
-
-	// write event type
-	fwrite(&eventType, 1,1, eventFile); 
-	// write event size
-	int16 eventSize = 8 + 8; //  software ts (8) + hardware ts (8)
-    fwrite(&eventSize, 2,1, eventFile);
-	// write event data
-	// 1. software ts
-	fwrite(&softwareTS, 8,1, eventFile);
-	// 2. hardware ts
-	fwrite(&hardwareTS, 8,1, eventFile);
-
-	
-
-}
 
 void PeriStimulusTimeHistogramNode::syncInternalDataStructuresWithSpikeSorter()
 {
@@ -401,13 +254,13 @@ void PeriStimulusTimeHistogramNode::handleNetworkMessage(StringTS s)
 			ed->updateCanvas();
 		}
 			
-		if (isRecording && saveNetworkEvents)
+	/*	if (isRecording && saveNetworkEvents)
 		{
 			dumpNetworkEventToDisk(s.getString(),s.timestamp);
 		} else if (!isRecording && saveNetworkEvents && saveNetworkEventsWhenNotRecording)
 		{
 			networkEventsHistory.push(s);
-		}
+		}*/
 
 }
 void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
@@ -446,7 +299,7 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
 	      memcpy(&hardware_timestamp, dataptr + 4, 8); // remember to skip first four bytes
 		  memcpy(&software_timestamp, dataptr + 12, 8); // remember to skip first four bytes
 		  
-		  if (isRecording)
+		 /* if (isRecording)
 		  {
 			  if (syncCounter == 0)
 			  {
@@ -459,7 +312,7 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
 			  syncCounter++;
 			  if (syncCounter > 10)
 				  syncCounter = 0;
-		  }
+		  }*/
 
     } 
 	if (eventType == TTL)
@@ -476,8 +329,7 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
 	   //memcpy(&ttl_timestamp_hardware, dataptr+12, 8);
 	   if (ttl_raise)
 			trialCircularBuffer->addTTLevent(channel,ttl_timestamp_software,ttl_timestamp_hardware, ttl_raise, true);
-	   if (isRecording && saveTTLs)
-		   dumpTTLeventToDisk(channel,ttl_raise,ttl_timestamp_software,ttl_timestamp_hardware,samplePosition );
+	  
 	}
 
     if (eventType == SPIKE)
@@ -494,12 +346,15 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
 			}
 			if (isRecording)
 			{
-				if  (spikeSavingMode == 1 && newSpike.sortedId > 0)
-					dumpSpikeEventToDisk(&newSpike, false);
+				if (spikeSavingMode == 1 && newSpike.sortedId > 0)
+					recordNode->writeSpike(newSpike, electrodeChannels[newSpike.source]->recordIndex);
+					//dumpSpikeEventToDisk(&newSpike, false);
 				else if (spikeSavingMode == 2 && newSpike.sortedId > 0)
-					dumpSpikeEventToDisk(&newSpike, true);
+					recordNode->writeSpike(newSpike, electrodeChannels[newSpike.source]->recordIndex);
+					//dumpSpikeEventToDisk(&newSpike, true);
 				else if (spikeSavingMode == 3)
-					dumpSpikeEventToDisk(&newSpike, true);
+					recordNode->writeSpike(newSpike, electrodeChannels[newSpike.source]->recordIndex);
+					//dumpSpikeEventToDisk(&newSpike, true);
 			}
         }
     }
@@ -507,136 +362,12 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
 
 }
 
-
-
-String PeriStimulusTimeHistogramNode::generateHeader()
-{
-
-    String header = "header.format = 'Open Ephys Data Format'; \n";
-    header += "header.version = 0.32;";
-    header += "header.header_bytes = ";
-    header += String(HEADER_SIZE);
-    header += ";\n";
-    header += "header.description = 'each record is size-varying. First is the record size (16-bit), followed by record type (uint8), followed by the actual data (which vary, depending on the type) '; \n";
-    header += "header.date_created = '";
-    header += recordNode->generateDateString();
-    header += "';\n";
-    header += "header.channel = '";
-    header += "events";
-    header += "';\n";
-    header += "header.channelType = 'Event';\n";
-    header += "header.sampleRate = ";
-    // all channels need to have the same sample rate under the current scheme
-    header += String(getSampleRate()); 
-    header += ";\n";
-    header += "header.blockLength = ";
-    header += BLOCK_LENGTH;
-    header += ";\n";
-    header += "header.bufferSize = ";
-    header += getAudioComponent()->getBufferSize();
-    header += ";\n";
-    header += "header.bitVolts = ";
-	if (recordNode->channels.size() > 0)
-	{
-		header += String(recordNode->channels[0]->bitVolts);
-	}
-	else
-	{
-		header += String(getDefaultBitVolts());
-	}
-
-    header += ";\n";
-
-	Time t;
-    header += "header.ticksPerSec = ";
-	header += String(t.getHighResolutionTicksPerSecond());
-    header += ";\n";
-
-    header = header.paddedRight(' ', HEADER_SIZE);
-    return header;
-
-}
-
-
-
-void PeriStimulusTimeHistogramNode::openFile(String filename)
-{
-    std::cout << "OPENING FILE: " << filename << std::endl;
-
-    File f = File(filename);
-     
-    bool fileExists = f.exists();
-    
-	const ScopedLock myScopedLock(diskWriteLock);
-
-    eventFile = fopen(filename.toUTF8(), "ab");
-
-    if (!fileExists)
-    {
-        // create and write header
-        std::cout << "Writing header." << std::endl;
-        String header = generateHeader();
-		int headerSize = header.getNumBytesAsUTF8();
-        std::cout << "File ID: " << eventFile << ", number of bytes: " << headerSize << std::endl;
-        fwrite(header.toUTF8(), header.getNumBytesAsUTF8(), 1, eventFile);
-        std::cout << "Wrote header." << std::endl;
-    }
-    else
-    {
-        std::cout << "File already exists, just opening." << std::endl;
-    }
- 
-}
-
-
 void PeriStimulusTimeHistogramNode::startRecording()
 {
-	if (!isRecording)
-	{
-        File dataDirectory = recordNode->getDataDirectory();
-
-        if (dataDirectory.getFullPathName().length() == 0)
-        {
-            // temporary fix in case nothing is returned by the record node.
-            dataDirectory = File::getSpecialLocation(File::userHomeDirectory); 
-        }
-
-        String baseDirectory = dataDirectory.getFullPathName();
-		String eventChannelFilename = baseDirectory + dataDirectory.separatorString + "all_channels.events";
-        openFile(eventChannelFilename);
-
-		// dump network events that arrived when we weren't recording
-		if (saveNetworkEventsWhenNotRecording)
-		{
-			while (networkEventsHistory.size() > 0)
-			{
-				StringTS s = networkEventsHistory.front();
-				dumpNetworkEventToDisk(s.getString(),s.timestamp);
-				networkEventsHistory.pop();
-			}
-		}
-
-//		recordingNumber = recordNode->getRecordingNumber();
-		Time t;
-		dumpStartStopRecordEventToDisk(t.getHighResolutionTicks(), true);
-		isRecording = true;
-
-	}
-
-
+	isRecording = true;
 }
 
 void PeriStimulusTimeHistogramNode::stopRecording()
 {
-	if (isRecording)
-	{
-		// close files, etc.
-		const ScopedLock myScopedLock(diskWriteLock);
-		std::cout << "CLOSING EVENT FILE: " << std::endl;
-		if (eventFile != nullptr)
-			fclose(eventFile);
-
-	
-		isRecording = false;
-	}
+	isRecording = false;
 }

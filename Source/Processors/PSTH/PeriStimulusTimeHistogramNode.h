@@ -90,17 +90,6 @@ public:
 	void handleNetworkMessage(StringTS s);
 private:
 
-	FILE* eventFile;
-	String generateHeader();
-	void openFile(String filename);
-
-	void dumpNetworkEventToDisk(String S, int64 ts);
-	void dumpSpikeEventToDisk(SpikeObject *s,  bool dumpWave);
-	void dumpTimestampEventToDisk(int64 softwareTS,int64 hardwareTS);
-	void dumpTTLeventToDisk(int channel,bool risingEdge, int64 ttl_timestamp_software, int64 ttl_timestamp_hardware, int samplePosition );
-	void dumpStartStopRecordEventToDisk(int64 ts, bool startRecord);
-//	void dumpEyeTrackingEventToDisk(EyePosition pos);
-
 	bool isRecording;
     int displayBufferSize;
     bool redrawRequested;
@@ -109,8 +98,9 @@ private:
 
 	std::queue<StringTS> networkEventsHistory;
     RecordNode* recordNode;
-    uint16 recordingNumber;
+//    uint16 recordingNumber;
     CriticalSection diskWriteLock;
+	Array<Channel*> electrodeChannels;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PeriStimulusTimeHistogramNode);
 
