@@ -101,7 +101,7 @@ void ChannelMappingNode::setParameter(int parameterIndex, float newValue)
     }
     else if (parameterIndex == 2)
     {
-        referenceChannels.set((int) newValue, currentChannel);
+        referenceChannels.set((int) newValue, channelArray[currentChannel]);
     }
     else if (parameterIndex == 3)
     {
