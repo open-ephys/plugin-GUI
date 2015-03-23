@@ -282,9 +282,9 @@ void NetworkEvents::postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& e
 	memcpy(msg_with_ts+s.len, &s.timestamp, 8);
 	
 	addEvent(events, 
-			 (uint8) NETWORK,
+			 (uint8) MESSAGE,
 			 0,
-			 0,
+			 1,
 			 0,
 			 (uint8) s.len+8,
 			 msg_with_ts);

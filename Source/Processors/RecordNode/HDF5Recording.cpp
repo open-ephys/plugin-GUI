@@ -186,7 +186,7 @@ void HDF5Recording::writeEvent(int eventType, MidiMessage& event, int samplePosi
     const uint8* dataptr = event.getRawData();
     if (eventType == GenericProcessor::TTL)
         mainFile->writeEvent(0,*(dataptr+2),*(dataptr+1),(void*)(dataptr+3),(*timestamps)[*(dataptr+1)]+samplePosition);
-    else if (eventType == GenericProcessor::MESSAGE || eventType == GenericProcessor::NETWORK)
+    else if (eventType == GenericProcessor::MESSAGE)
         mainFile->writeEvent(1,*(dataptr+2),*(dataptr+1),(void*)(dataptr+6),(*timestamps)[*(dataptr+1)]+samplePosition);
 }
 

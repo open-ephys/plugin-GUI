@@ -268,7 +268,9 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
     //tictoc.Tic(9);
 	static std::list<long> previousSpikesIDs;
 
-	if (eventType == NETWORK)
+	uint8 eventId = *((uint8*)event.getRawData() + 2);
+
+	if ((eventType == MESSAGE) && (eventId > 0)) //to differentiate network events from simple messages
 	{
 	    //tictoc.Tic(10);
 

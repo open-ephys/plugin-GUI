@@ -419,7 +419,7 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
 {
     if (isRecording && allFilesOpened)
     {
-        if ((eventType == TTL) || (eventType == MESSAGE) || (eventType == NETWORK))
+        if (isWritableEvent(eventType))
         {
             if (event.getRawData()+4 > 0) // saving flag > 0 (i.e., event has not already been processed)
             {

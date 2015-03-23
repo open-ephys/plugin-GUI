@@ -41,6 +41,8 @@
 #define strParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::STR)) \
         v = parameter.strParam.value
 
+#define isWritableEvent(ev) (ev == GenericProcessor::TTL) || (ev == GenericProcessor::MESSAGE) || (ev == GenericProcessor::BINARY_MSG)
+
 struct SpikeRecordInfo
 {
     String name;

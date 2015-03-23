@@ -110,7 +110,7 @@ void SerialInput::process(AudioSampleBuffer&, MidiBuffer& events)
         if (bytesRead > 0)
         {
             addEvent(events,    // MidiBuffer
-                     SERIAL,    // eventType
+                     BINARY_MSG,    // eventType
                      0,         // sampleNum
                      nodeId,    // eventID
                      0,         // eventChannel

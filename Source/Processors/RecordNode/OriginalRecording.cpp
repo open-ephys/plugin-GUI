@@ -371,9 +371,9 @@ String OriginalRecording::generateSpikeHeader(SpikeRecordInfo* elec)
 
 void OriginalRecording::writeEvent(int eventType, MidiMessage& event, int samplePosition)
 {
-    if (eventType == GenericProcessor::TTL)
+    if (isWritableEvent(eventType))
         writeTTLEvent(event,samplePosition);
-    else if (eventType == GenericProcessor::MESSAGE || eventType == GenericProcessor::NETWORK)
+    if (eventType == GenericProcessor::MESSAGE)
         writeMessage(event,samplePosition);
 }
 
