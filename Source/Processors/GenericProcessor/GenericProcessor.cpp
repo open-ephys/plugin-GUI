@@ -30,7 +30,7 @@ GenericProcessor::GenericProcessor(const String& name_) : AccessClass(),
     sourceNode(0), destNode(0), isEnabled(true), wasConnected(false),
     nextAvailableChannel(0), saveOrder(-1), loadOrder(-1), currentChannel(-1),
     editor(0), parametersAsXml(nullptr), sendSampleCount(true), name(name_),
-    paramsWereLoaded(false), needsToSendTimestampMessage(false)
+	paramsWereLoaded(false), needsToSendTimestampMessage(false), timestampSet(false)
 {
     settings.numInputs = settings.numOutputs = settings.sampleRate = 0;
 
@@ -601,6 +601,7 @@ void GenericProcessor::setTimestamp(MidiBuffer& events, int64 timestamp)
 {
 
     //std::cout << "Setting timestamp to " << timestamp << std:;endl;
+	timestampSet = true;
 
     uint8 data[8];
     memcpy(data, &timestamp, 8);
@@ -760,6 +761,13 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
                                 uint8* eventData,
                                 bool isTimestamp)
 {
+
+	/*If the processor doesn't generates timestamps, but needs to add events to the buffer anyway
+	add the timestamp of the first input channel so the event is properly timestamped. We avoid this step for
+	source modules that must always provide a timestamp, even if they don't generate it*/
+	if (!isTimestamp && !timestampSet && !isSource() && !generatesTimestamps())
+		setTimestamp(eventBuffer, getTimestamp(0));
+
     uint8* data = new uint8[6+numBytes];
 
     data[0] = type;    // event type
@@ -796,6 +804,8 @@ void GenericProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& event
 
     processEventBuffer(eventBuffer); // extract buffer sizes and timestamps,
     // set flag on all TTL events to zero
+
+	timestampSet = false;
 
     process(buffer, eventBuffer);
 

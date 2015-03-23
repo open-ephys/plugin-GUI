@@ -658,6 +658,8 @@ private:
     bool paramsWereLoaded;
     bool needsToSendTimestampMessage;
 
+	bool timestampSet;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GenericProcessor);
 
 };
