@@ -341,10 +341,15 @@ void LfpDisplayCanvas::update()
 
     for (int i = 0; i <= nChans; i++) // extra channel for events
     {
-        if (i < nChans)
-            sampleRate.add(processor->channels[i]->sampleRate);
-        else
-            sampleRate.add(processor->channels[i-1]->sampleRate); // for event channel (IT'S A HACK -- BE CAREFUL!)
+		if (processor->getNumInputs() > 0)
+		{
+			if (i < nChans)
+				sampleRate.add(processor->channels[i]->sampleRate);
+			else
+				sampleRate.add(processor->channels[i - 1]->sampleRate); // for event channel (IT'S A HACK -- BE CAREFUL!)
+		}
+		else
+			sampleRate.add(30000);
         
        // std::cout << "Sample rate for ch " << i << " = " << sampleRate[i] << std::endl; 
         displayBufferIndex.add(0);
@@ -1030,7 +1035,10 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
 ChannelType LfpDisplayCanvas::getChannelType(int n)
 {
-    return processor->channels[n]->getType();
+	if (processor->getNumInputs() < n)
+		return processor->channels[n]->getType();
+	else
+		return HEADSTAGE_CHANNEL;
 }
 
 ChannelType LfpDisplayCanvas::getSelectedType()
