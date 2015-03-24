@@ -728,8 +728,12 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
         //Look for the next source node. If none is found, set the sourceid to 0
         for (int i = 0; i < getNumNodes() && newId == 0; i++)
         {
-            GenericProcessor* p = static_cast<GenericProcessor*>(getNode(i)->getProcessor());
-			if (p->isSource() && p->generatesTimestamps())
+            // Michael Borisov: here, for some reason (bug?) not all processors are of type GenericProcessor
+            // so we need to do a dynamic cast and check its results
+            // Otherwise the Release build crashes, and the Debug build fails runtime checks
+            GenericProcessor* p = dynamic_cast<GenericProcessor*>(getNode(i)->getProcessor());
+            //GenericProcessor* p = static_cast<GenericProcessor*>(getNode(i)->getProcessor());
+			if (p && p->isSource() && p->generatesTimestamps())
             {
                 newId = p->nodeId;
             }

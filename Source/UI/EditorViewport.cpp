@@ -459,6 +459,7 @@ void EditorViewport::refreshEditors()
         }
     }
 
+    // BUG: variable is used without being initialized
     if (tooLong && editorArray.size() > 0)
         rightButton->setActive(true);
     else
