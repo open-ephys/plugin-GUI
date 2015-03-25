@@ -1035,7 +1035,7 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
 ChannelType LfpDisplayCanvas::getChannelType(int n)
 {
-	if (processor->getNumInputs() < n)
+	if (n < processor->getNumInputs())
 		return processor->channels[n]->getType();
 	else
 		return HEADSTAGE_CHANNEL;
