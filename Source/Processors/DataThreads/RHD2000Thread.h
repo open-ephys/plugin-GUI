@@ -104,6 +104,7 @@ public:
     void enableAdcs(bool);
 
     bool isAcquisitionActive();
+	bool isReady();
 
     int modifyChannelGain(int channel, float gain);
     int modifyChannelName(int channel, String newName);

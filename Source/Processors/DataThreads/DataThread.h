@@ -113,6 +113,13 @@ public:
     {
         return 0;
     }
+
+	/** Notifies if the device is ready for acquisition */
+	virtual bool isReady()
+	{
+		return true;
+	}
+
     virtual int modifyChannelName(int channel, String newName)
     {
         return -1;

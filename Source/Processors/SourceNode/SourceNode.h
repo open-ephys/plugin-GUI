@@ -79,6 +79,7 @@ public:
     bool disable();
 
     bool isReady();
+	bool sourcePresent();
 
     bool isSource()
     {

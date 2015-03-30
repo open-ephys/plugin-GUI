@@ -239,7 +239,7 @@ void LfpDisplayNode::initializeEventChannels()
     {
 
         int chan = channelForEventSource[eventSourceNodes[i]];
-        int index = displayBufferIndex[15]; //displayBufferIndex[chan];
+        int index = displayBufferIndex[chan];
 
         //std::cout << "Event source node " << i << ", channel " << chan << std::endl;
 

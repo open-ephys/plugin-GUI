@@ -870,10 +870,10 @@ int RHD2000Thread::getNumHeadstageOutputs()
         }
     }
 
-    if (numChannels > 0)
+   // if (numChannels > 0)
         return numChannels;
-    else
-        return 1; // to prevent crashing with 0 channels
+    //else
+      //  return 1; // to prevent crashing with 0 channels
 }
 
 int RHD2000Thread::getNumAuxOutputs()
@@ -1090,6 +1090,11 @@ bool RHD2000Thread::isHeadstageEnabled(int hsNum)
 
     return headstagesArray[hsNum]->isPlugged();
 
+}
+
+bool RHD2000Thread::isReady()
+{
+	return deviceFound && (getNumChannels() > 0);
 }
 
 int RHD2000Thread::getActiveChannelsInHeadstage(int hsNum)

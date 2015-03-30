@@ -263,7 +263,7 @@ AudioProcessorEditor* SourceNode::createEditor()
 
 bool SourceNode::tryEnablingEditor()
 {
-    if (!isReady())
+    if (!sourcePresent())
     {
         //std::cout << "No input source found." << std::endl;
         return false;
@@ -296,7 +296,12 @@ void SourceNode::timerCallback()
 
 bool SourceNode::isReady()
 {
-    return dataThread && dataThread->foundInputSource();
+    return sourcePresent() && dataThread->isReady();
+}
+
+bool SourceNode::sourcePresent()
+{
+	return dataThread && dataThread->foundInputSource();
 }
 
 bool SourceNode::enable()
