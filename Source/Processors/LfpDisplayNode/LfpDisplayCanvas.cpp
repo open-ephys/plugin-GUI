@@ -105,11 +105,11 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     voltageRanges[AUX_CHANNEL].add("750");
     voltageRanges[AUX_CHANNEL].add("1000");
     voltageRanges[AUX_CHANNEL].add("2000");
-    voltageRanges[AUX_CHANNEL].add("5000");
-    selectedVoltageRange[AUX_CHANNEL] = 6;
-    rangeGain[AUX_CHANNEL] = 1; //uV
+    //voltageRanges[AUX_CHANNEL].add("5000");
+    selectedVoltageRange[AUX_CHANNEL] = 9;
+    rangeGain[AUX_CHANNEL] = 0.001; //mV
     rangeSteps[AUX_CHANNEL] = 10;
-    rangeUnits.add("uV");
+    rangeUnits.add("mV");
     typeNames.add("AUX");
 
     tbut = new UtilityButton("AUX",Font("Small Text", 9, Font::plain));
@@ -245,6 +245,10 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     lfpDisplay->setNumChannels(nChans);
     lfpDisplay->setRange(voltageRanges[HEADSTAGE_CHANNEL][selectedVoltageRange[HEADSTAGE_CHANNEL]-1].getFloatValue()*rangeGain[HEADSTAGE_CHANNEL]
         ,HEADSTAGE_CHANNEL);
+	lfpDisplay->setRange(voltageRanges[ADC_CHANNEL][selectedVoltageRange[ADC_CHANNEL] - 1].getFloatValue()*rangeGain[ADC_CHANNEL]
+		, ADC_CHANNEL);
+	lfpDisplay->setRange(voltageRanges[AUX_CHANNEL][selectedVoltageRange[AUX_CHANNEL] - 1].getFloatValue()*rangeGain[AUX_CHANNEL]
+		, AUX_CHANNEL);
 
     // add event display-specific controls (currently just an enable/disable button)
     for (int i = 0; i < 8; i++)

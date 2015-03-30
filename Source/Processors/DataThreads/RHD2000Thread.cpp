@@ -1511,23 +1511,23 @@ bool RHD2000Thread::updateBuffer()
                         // std::cout << "reading sample stream " << streamNumber << " aux ADCs " << std::endl;
 
                         channel++;
-                        thisSample[channel] = 0.0374 *
-                                              float(dataBlock->auxiliaryData[dataStream][1][samp + 0] - 45000.0f);
+						thisSample[channel] = 0.0000374 *
+							float(dataBlock->auxiliaryData[dataStream][1][samp + 0] - 32768);
                         // constant offset keeps the values visible in the LFP Viewer
 
                         auxBuffer[channel] = thisSample[channel];
 
                         channel++;
-                        thisSample[channel] = 0.0374 *
-                                              float(dataBlock->auxiliaryData[dataStream][1][samp + 1] - 45000.0f);
+						thisSample[channel] = 0.0000374 *
+							float(dataBlock->auxiliaryData[dataStream][1][samp + 1] - 32768);
                         // constant offset keeps the values visible in the LFP Viewer
 
                         auxBuffer[channel] = thisSample[channel];
 
 
                         channel++;
-                        thisSample[channel] = 0.0374 *
-                                              float(dataBlock->auxiliaryData[dataStream][1][samp + 2] - 45000.0f);
+						thisSample[channel] = 0.0000374 *
+							float(dataBlock->auxiliaryData[dataStream][1][samp + 2] - 32768);
                         // constant offset keeps the values visible in the LFP Viewer
 
                         auxBuffer[channel] = thisSample[channel];
