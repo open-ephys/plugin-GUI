@@ -230,6 +230,8 @@ void PSTH::updatePSTH(SmartSpikeCircularBuffer *spikeBuffer, Trial *trial)
 		instantaneousSpikesRate[k] = 0;
 	}
 
+	std::cout << "Received " << alignedSpikes.size() << " spikes." << std::endl;
+
 	for (int k=0;k<alignedSpikes.size();k++)
 	{
 		// spike times are aligned relative to trial alignment (i.e.) , onset is at "0"
@@ -652,6 +654,7 @@ void UnitPSTHs::updateConditionsWithSpikes(std::vector<int> conditionsNeedUpdati
 	tictoc.Tic(14);
 
 	for (int k=0;k<conditionPSTHs.size();k++) {
+		//std::cout << k << std::endl;
 		for (int j=0;j<conditionsNeedUpdating.size();j++) 
 		{
 			if (conditionPSTHs[k].conditionID == conditionsNeedUpdating[j]) 
@@ -1288,7 +1291,6 @@ std::vector<int64> SmartSpikeCircularBuffer::getAlignedSpikes(Trial *trial, floa
 	int64 numTicksPostTrial =postSecs * ticksPerSec;
 
 	int64 samplesToTicks = 1.0/float(sampleRateHz) * ticksPerSec;
-
 
 	int saved_ptr = queryTrialStart(trial->trialID);
 	if (saved_ptr < 0)
@@ -2100,12 +2102,16 @@ void TrialCircularBuffer::updatePSTHwithTrial(Trial *trial)
 		// none of the conditions match. nothing to update.
 		//unlockPSTH();
 		//unlockConditions();
+		std::cout << "No updates needed." << std::endl;
 
 		return;
 	}
 
+
+
 	if (!useThreads)
 	{
+		std::cout << "Updating without threads..." << std::endl;
 		// these two parts can be fully distributed along several threads because they are completely independent.
 		//printf("Calling updatePSTHwithTrial::update without threads\n");
 
@@ -2126,6 +2132,8 @@ void TrialCircularBuffer::updatePSTHwithTrial(Trial *trial)
 		//printf("Finished updatePSTHwithTrial::update without threads\n");
 
 	} else {
+
+		std::cout << "Updating with threads..." << std::endl;
 		tictoc.Tic(24);
 		int cnt = 0;
 		int numElectrodes = electrodesPSTH.size();
@@ -2174,6 +2182,7 @@ void TrialCircularBuffer::simulateHardwareTrial(int64 ttl_timestamp_software,int
 	float secElapsed = float(tickdiff) / numTicksPerSecond;
 	if (secElapsed > params.ttlSupressionTimeSec)
 	{
+		std::cout << "Adding a new trial." << std::endl;
 		const ScopedLock myScopedLock (psthMutex);
 		//lockPSTH();
 		Trial ttlTrial;
@@ -2208,10 +2217,11 @@ void TrialCircularBuffer::addTTLevent(int channel,int64 ttl_timestamp_software, 
 	// this is useful when sending train of pulses and you are interested in aligning things just
 	// to the first pulse.
 
-	//std::cout << "Got that TTL event" << std::endl;
-
 	if (channel >= 0 && channel < lastTTLts.size())
 	{
+
+		std::cout << "Got that TTL event" << std::endl;
+
 		ttlBuffer->update(channel, ttl_timestamp_software, ttl_timestamp_hardware, rise);
 
 		if (params.reconstructTTL)
@@ -3177,13 +3187,17 @@ void TrialCircularBuffer::process(AudioSampleBuffer& buffer,int nSamples,int64 h
 	double MaxPSTHprocessingTime = 50/1000; // 50 ms
 	if (electrodesPSTH.size() > 0 && aliveTrials.size() > 0)
 	{
-		//printf("Entering alive loop\n");
+		printf("Entering alive loop\n");
+
+		std::cout << "Hardware timestamp: " << hardware_timestamp << std::endl;
+		std::cout << "Software timestamp: " << software_timestamp << std::endl;
 		for (int k=0;k<aliveTrials.size();k++)
 		{
 			Trial topTrial = aliveTrials.front();
 			int64 ticksElapsed = software_timestamp - topTrial.endTS;
+			std::cout << "Ticks elapsed: " << ticksElapsed << std::endl;
 			float timeElapsedSec = float(ticksElapsed)/ numTicksPerSecond;
-
+			std::cout << "Time elapsed: " << timeElapsedSec << std::endl;
 			bool trialEndedAndEnoughDataInBuffer;
 
 			if (!topTrial.hardwareAlignment)
@@ -3203,18 +3217,21 @@ void TrialCircularBuffer::process(AudioSampleBuffer& buffer,int nSamples,int64 h
 				//printf("Entering updatePSTHwithTrial\n");
 				tictoc.Tic(4);
 				updatePSTHwithTrial(&topTrial);
+				//std::cout << "Updating PSTH" << std::endl;
 				tictoc.Toc(4);
 				//printf("Exitting updatePSTHwithTrial\n");
 			}
 
 			long endTime = t.getHighResolutionTicks();
+
+			std::cout << "End time: " << endTime << std::endl;
 			
 		//	if  ((endTime-startTime) > MaxPSTHprocessingTime*t.getHighResolutionTicksPerSecond())
 				//break;
 			
 
 		}
-		//printf("Exitting alive loop\n");
+		printf("Exiting alive loop\n");
 	}
 	tictoc.Toc(3);
 

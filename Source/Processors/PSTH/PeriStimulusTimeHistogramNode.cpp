@@ -299,7 +299,7 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
     {
           const uint8* dataptr = event.getRawData();
 	      memcpy(&hardware_timestamp, dataptr + 4, 8); // remember to skip first four bytes
-		  memcpy(&software_timestamp, dataptr + 12, 8); // remember to skip first four bytes
+		  software_timestamp = timer.getHighResolutionTicks(); //memcpy(&software_timestamp, dataptr + 12, 8); // remember to skip first four bytes
 		  
 		 /* if (isRecording)
 		  {
@@ -319,13 +319,13 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
     } 
 	if (eventType == TTL)
 	{
-	Time t;
+
 	   const uint8* dataptr = event.getRawData();
 	   int ttl_source = dataptr[1];
 	   bool ttl_raise = dataptr[2] > 0;
-	   int channel = dataptr[3];
+	   int channel = dataptr[3] + 1; // channel number incremented by 1
 	   int64 ttl_timestamp_hardware = timestamps[ttl_source] + samplePosition; // hardware time
-	   int64 ttl_timestamp_software = t.getHighResolutionTicks(); // get software time
+	   int64 ttl_timestamp_software = timer.getHighResolutionTicks(); // get software time
 	   //int64  ttl_timestamp_software,ttl_timestamp_hardware;
 	   //memcpy(&ttl_timestamp_software, dataptr+4, 8);
 	   //memcpy(&ttl_timestamp_hardware, dataptr+12, 8);

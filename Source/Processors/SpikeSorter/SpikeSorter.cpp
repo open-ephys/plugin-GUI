@@ -832,7 +832,8 @@ void SpikeSorter::handleEvent(int eventType, MidiMessage& event, int sampleNum)
     {
         const uint8* dataptr = event.getRawData();
         memcpy(&hardware_timestamp, dataptr + 4, 8); // remember to skip first four bytes
-        memcpy(&software_timestamp, dataptr + 12, 8); // remember to skip first four bytes
+        timer.getHighResolutionTicks();
+        //memcpy(&software_timestamp, dataptr + 12, 8); // remember to skip first four bytes
     }
 }
 

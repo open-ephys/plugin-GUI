@@ -427,6 +427,7 @@ private:
 	RHD2000Thread* getRhythmAccess();
 	bool flipSignal;
 
+	Time timer;
 
    void addWaveformToSpikeObject(SpikeObject* s,
                                   int& peakIndex,
