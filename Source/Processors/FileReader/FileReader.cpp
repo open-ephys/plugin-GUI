@@ -221,7 +221,7 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events)
              TTL, // eventType
              0,         // sampleNum
              1,    // eventID
-             1      // eventChannel
+             0      // eventChannel
             );
         counter++;
     } else if (counter > 120) 
@@ -231,7 +231,7 @@ void FileReader::process(AudioSampleBuffer& buffer, MidiBuffer& events)
              TTL, // eventType
              0,         // sampleNum
              0,    // eventID
-             1      // eventChannel
+             0      // eventChannel
             );
         counter = 0;
     } else {

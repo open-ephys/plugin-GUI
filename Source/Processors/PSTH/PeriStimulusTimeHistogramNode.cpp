@@ -102,7 +102,7 @@ void PeriStimulusTimeHistogramNode::allocateTrialCircularBuffer()
 	params.binResolutionMS = 1;
 	params.desiredSamplingRateHz = 600;
 	params.ttlSupressionTimeSec = 1.0;
-	params.ttlTrialLengthSec = 0;
+	params.ttlTrialLengthSec = 1.0;
 	params.autoAddTTLconditions = true;
 	params.buildTrialsPSTH = true;
 	params.reconstructTTL = false;
@@ -323,14 +323,14 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
 	   const uint8* dataptr = event.getRawData();
 	   int ttl_source = dataptr[1];
 	   bool ttl_raise = dataptr[2] > 0;
-	   int channel = dataptr[3] + 1; // channel number incremented by 1
+	   int channel = dataptr[3]; // channel number
 	   int64 ttl_timestamp_hardware = timestamps[ttl_source] + samplePosition; // hardware time
 	   int64 ttl_timestamp_software = timer.getHighResolutionTicks(); // get software time
 	   //int64  ttl_timestamp_software,ttl_timestamp_hardware;
 	   //memcpy(&ttl_timestamp_software, dataptr+4, 8);
 	   //memcpy(&ttl_timestamp_hardware, dataptr+12, 8);
-	   if (ttl_raise)
-			trialCircularBuffer->addTTLevent(channel,ttl_timestamp_software,ttl_timestamp_hardware, ttl_raise, true);
+	   
+		trialCircularBuffer->addTTLevent(channel, ttl_timestamp_software, ttl_timestamp_hardware, ttl_raise, true);
 	  
 	}
 

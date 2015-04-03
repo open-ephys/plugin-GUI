@@ -2225,7 +2225,7 @@ void TrialCircularBuffer::simulateHardwareTrial(int64 ttl_timestamp_software,int
 		ttlTrial.outcome = 0;
 		ttlTrial.trialInProgress = false;
 		ttlTrial.type = trialType;
-		ttlTrial.hardwareAlignment = true;
+		ttlTrial.hardwareAlignment = false;
 
 		std::cout << "Adding a new trial for ID " << ttlTrial.trialID << std::endl;
 
@@ -2483,7 +2483,7 @@ std::vector<XYline> TrialCircularBuffer::getUnitConditionCurves(int electrodeID,
 				{
 					// great. we found our unit.
 					// now iterate over conditions and build lines.
-					for (int cond=0;cond<electrodesPSTH[electrodeIndex].unitsPSTHs[entryindex].conditionPSTHs.size();cond++)
+					for (int cond = 0; cond < electrodesPSTH[electrodeIndex].unitsPSTHs[entryindex].conditionPSTHs.size();cond++)
 					{
 						if (!electrodesPSTH[electrodeIndex].unitsPSTHs[entryindex].conditionPSTHs[cond].visible)
 							continue;
