@@ -182,7 +182,7 @@ void PeriStimulusTimeHistogramNode::process(AudioSampleBuffer& buffer, MidiBuffe
     checkForEvents(events); 
 	
 
-	if (trialCircularBuffer  == nullptr && getSampleRate() > 0 && getNumInputs() > 0)  {
+	if (trialCircularBuffer == nullptr && getSampleRate() > 0 && getNumInputs() > 0)  {
 		allocateTrialCircularBuffer();
 		syncInternalDataStructuresWithSpikeSorter();	
 	} else if (trialCircularBuffer != nullptr)
@@ -337,7 +337,9 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
     if (eventType == SPIKE)
     {
         const uint8_t* dataptr = event.getRawData();
+        
         int bufferSize = event.getRawDataSize();
+
         if (bufferSize > 0)
         {
             SpikeObject newSpike;
@@ -346,6 +348,7 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
 			if (newSpike.sortedId > 0) { // drop unsorted spikes
 				trialCircularBuffer->addSpikeToSpikeBuffer(newSpike);
 			}
+
 			if (isRecording)
 			{
 				if (spikeSavingMode == 1 && newSpike.sortedId > 0)

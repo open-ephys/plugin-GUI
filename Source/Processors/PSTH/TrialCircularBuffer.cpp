@@ -232,13 +232,19 @@ void PSTH::updatePSTH(SmartSpikeCircularBuffer *spikeBuffer, Trial *trial)
 
 	std::cout << "Received " << alignedSpikes.size() << " spikes." << std::endl;
 
-	for (int k=0;k<alignedSpikes.size();k++)
+	for (int k = 0; k < alignedSpikes.size(); k++)
 	{
 		// spike times are aligned relative to trial alignment (i.e.) , onset is at "0"
 		// convert ticks back to seconds, then to bins.
 		float spikeTimeSec = float(alignedSpikes[k]) / ticksPerSec;
 
-		int binIndex = (spikeTimeSec +mod_pre_sec) / timeSpanSecs * numBins;
+		if (k == 0 || k == alignedSpikes.size() - 1)
+		{
+			std::cout << "Spike time = " << spikeTimeSec << std::endl;
+		}
+
+		int binIndex = (spikeTimeSec + mod_pre_sec) / timeSpanSecs * numBins;
+
 		if (binIndex >= 0 && binIndex < numBins)
 		{
 			instantaneousSpikesRate[binIndex] += 1.0;
@@ -248,16 +254,14 @@ void PSTH::updatePSTH(SmartSpikeCircularBuffer *spikeBuffer, Trial *trial)
 	float lastUpdateTS = float(trial->endTS-trial->alignTS) / ticksPerSec + mod_post_sec;
 	int lastBinIndex = (int)( (lastUpdateTS + mod_pre_sec) / timeSpanSecs * numBins);
 
-
 	xmax = MAX(xmax,lastUpdateTS);
-
 
 	numTrials++;
 	// Update average firing rate, up to when the trial ended. 
 	ymax = -1e10;
 	ymin = 1e10;
 
-	 float scale = 1000.0;
+	float scale = 1000.0;
 	for (int k = 0; k < lastBinIndex; k++)
 	{
 		numDataPoints[k]++;
@@ -1207,11 +1211,16 @@ bool SmartContinuousCircularBuffer::getAlignedDataInterp(std::vector<int> channe
 SmartSpikeCircularBuffer::SmartSpikeCircularBuffer(float maxTrialTimeSeconds, int _maxTrialsInMemory, int _sampleRateHz)
 {
 	jassert(maxTrialTimeSeconds > 0);
+
 	sampleRateHz = _sampleRateHz;
-	int MaxFiringRateHz = 300;
+	
+	int maxFiringRateHz = 300;
+	
 	maxTrialsInMemory = _maxTrialsInMemory;
-	bufferSize = MaxFiringRateHz * maxTrialTimeSeconds * maxTrialsInMemory;
+	bufferSize = maxFiringRateHz * maxTrialTimeSeconds * maxTrialsInMemory;
+	
 	jassert(bufferSize > 0);
+
 	if (bufferSize == 0)
 	{
 		int dbg = 1;
@@ -1223,7 +1232,9 @@ SmartSpikeCircularBuffer::SmartSpikeCircularBuffer(float maxTrialTimeSeconds, in
 	numTrialsStored = 0;
 	spikeTimesSoftware.resize(bufferSize);
 	spikeTimesHardware.resize(bufferSize);
-	for (int k=0;k<bufferSize;k++) 
+
+	// set all spike times to zero
+	for (int k = 0; k < bufferSize; k++) 
 	{
 		spikeTimesSoftware[k] = 0;
 		spikeTimesHardware[k] = 0;
@@ -1231,10 +1242,12 @@ SmartSpikeCircularBuffer::SmartSpikeCircularBuffer(float maxTrialTimeSeconds, in
 
 	trialID.resize(maxTrialsInMemory);
 	pointers.resize(maxTrialsInMemory);
-	for (int k=0;k<maxTrialsInMemory;k++)
+
+	for (int k = 0; k < maxTrialsInMemory; k++)
 	{
 		trialID[k] = pointers[k] = 0;
 	}
+
 	jassert(trialID.size() > 0);
 	
 }
@@ -1242,37 +1255,47 @@ SmartSpikeCircularBuffer::SmartSpikeCircularBuffer(float maxTrialTimeSeconds, in
 void SmartSpikeCircularBuffer::addSpikeToBuffer(int64 spikeTimeSoftware,int64 spikeTimeHardware)
 {
 	jassert(bufferSize > 0);
+
 	spikeTimesHardware[bufferIndex] = spikeTimeHardware;
 	spikeTimesSoftware[bufferIndex] = spikeTimeSoftware;
-	bufferIndex = (bufferIndex+1) % bufferSize;
+
+	bufferIndex = (bufferIndex + 1) % bufferSize;
+
 	numSpikesStored++;
-	if (numSpikesStored>bufferSize)
-		numSpikesStored=numSpikesStored;
+
+	if (numSpikesStored > bufferSize)
+		numSpikesStored = numSpikesStored;
 }
 
 
 void SmartSpikeCircularBuffer::addTrialStartToBuffer(Trial *t)
 {
 	jassert(trialIndex >= 0);
+
 	trialID[trialIndex] = t->trialID;
-	pointers[trialIndex] = bufferIndex;
-	trialIndex = (trialIndex+1) % maxTrialsInMemory;
+	pointers[trialIndex] = bufferIndex; // current index in the spike buffer
+
+	trialIndex = (trialIndex + 1) % maxTrialsInMemory;
+
 	numTrialsStored++;
+
 	if (numTrialsStored > maxTrialsInMemory)
 		numTrialsStored = maxTrialsInMemory;
 }
 
 int SmartSpikeCircularBuffer::queryTrialStart(int ID)
 {
-	for (int k=0;k<numTrialsStored;k++) 
+	for (int k = 0; k < numTrialsStored; k++) 
 	{
-		int whereToLook = trialIndex-1-k;
+		int whereToLook = trialIndex - 1 - k;
+
 		if (whereToLook < 0)
 			whereToLook += maxTrialsInMemory;
 
 		if (trialID[whereToLook] == ID)
 			return pointers[whereToLook];
 	}
+
 	// trial not found?!!?!?
 	return -1;
 }
@@ -1287,8 +1310,8 @@ std::vector<int64> SmartSpikeCircularBuffer::getAlignedSpikes(Trial *trial, floa
 	std::vector<int64> alignedSpikes;
 	Time t;
 	int64 ticksPerSec = t.getHighResolutionTicksPerSecond();
-	int64 numTicksPreTrial =preSecs * ticksPerSec;
-	int64 numTicksPostTrial =postSecs * ticksPerSec;
+	int64 numTicksPreTrial = preSecs * ticksPerSec;
+	int64 numTicksPostTrial = postSecs * ticksPerSec;
 
 	int64 samplesToTicks = 1.0/float(sampleRateHz) * ticksPerSec;
 
@@ -1300,50 +1323,57 @@ std::vector<int64> SmartSpikeCircularBuffer::getAlignedSpikes(Trial *trial, floa
 	// return all spikes within a given interval aligned to AlignTS
 	// Use ptr as a search reference in the buffer
 	// The interval is defined as Start_TS-BeforeSec .. End_TS+AfterSec
+
+	std::cout << "Stored spikes: " << numSpikesStored << std::endl;
 	
-		// Search Backward
-		int CurrPtr = saved_ptr;
-		int  N = 0;
-		while (N < numSpikesStored)
+	// Search Backward
+	int currPtr = saved_ptr;
+	int  N = 0;
+	while (N < numSpikesStored)
+	{
+		if (spikeTimesSoftware[currPtr] < trial->startTS-numTicksPreTrial || spikeTimesSoftware[currPtr] > trial->endTS+numTicksPostTrial) 
 		{
-			if (spikeTimesSoftware[CurrPtr] < trial->startTS-numTicksPreTrial || spikeTimesSoftware[CurrPtr] > trial->endTS+numTicksPostTrial) 
-				break;
-			// Add spike..
+			//std::cout << "Current spikeTimeSoftware = " << spikeTimesSoftware[currPtr] << ", trial start time = " << trial->startTS-numTicksPreTrial
+			//          << ", and trial end time = " << trial->endTS+numTicksPostTrial << std::endl;
+			break;
+		}	
+
+		// Add spike..
+		if (trial->hardwareAlignment)
+			// convert from samples to ticks...
+			alignedSpikes.push_back( (spikeTimesHardware[currPtr]-trial->alignTS_hardware)*samplesToTicks);
+		else
+			alignedSpikes.push_back(spikeTimesSoftware[currPtr]-trial->alignTS);
+
+		currPtr--;
+		N++;
+		if (currPtr < 0)
+			currPtr = bufferSize-1;
+	}
+	// Now Search Forward
+	currPtr = saved_ptr + 1;
+
+	while (N < numSpikesStored)
+	{
+		if (currPtr >= bufferSize)
+			currPtr = 0;
+
+		if (spikeTimesSoftware[currPtr] > trial->endTS + numTicksPostTrial || currPtr == bufferIndex)
+			break;
+		// Add spike..
+		if (spikeTimesSoftware[currPtr] - trial->startTS >= -numTicksPreTrial)
+		{
+
 			if (trial->hardwareAlignment)
-				// convert from samples to ticks...
-				alignedSpikes.push_back( (spikeTimesHardware[CurrPtr]-trial->alignTS_hardware)*samplesToTicks);
+				alignedSpikes.push_back( (spikeTimesHardware[currPtr] - trial->alignTS_hardware) * samplesToTicks);
 			else
-				alignedSpikes.push_back(spikeTimesSoftware[CurrPtr]-trial->alignTS);
+				alignedSpikes.push_back(spikeTimesSoftware[currPtr] - trial->alignTS);
 
-			CurrPtr--;
 			N++;
-			if (CurrPtr < 0)
-				CurrPtr = bufferSize-1;
 		}
-		// Now Search Forward
-		CurrPtr = saved_ptr + 1;
+		currPtr++;
 
-		while (N < numSpikesStored)
-		{
-			if (CurrPtr >= bufferSize)
-				CurrPtr = 0;
-
-			if (spikeTimesSoftware[CurrPtr] > trial->endTS + numTicksPostTrial || CurrPtr==bufferIndex)
-				break;
-			// Add spike..
-			if (spikeTimesSoftware[CurrPtr] - trial->startTS >= -numTicksPreTrial)
-			{
-
-				if (trial->hardwareAlignment)
-					alignedSpikes.push_back( (spikeTimesHardware[CurrPtr] - trial->alignTS_hardware) * samplesToTicks);
-				else
-					alignedSpikes.push_back(spikeTimesSoftware[CurrPtr] - trial->alignTS);
-
-				N++;
-			}
-			CurrPtr++;
-
-		}
+	}
 	
 
 	std::sort(alignedSpikes.begin(),alignedSpikes.begin()+alignedSpikes.size());
@@ -2044,7 +2074,7 @@ void TrialCircularBuffer::addSpikeToSpikeBuffer(SpikeObject newSpike)
 			{
 				if (electrodesPSTH[e].unitsPSTHs[u].unitID == newSpike.sortedId)
 				{
-					electrodesPSTH[e].unitsPSTHs[u].addSpikeToBuffer(newSpike.timestamp_software,newSpike.timestamp);
+					electrodesPSTH[e].unitsPSTHs[u].addSpikeToBuffer(newSpike.timestamp_software, newSpike.timestamp);
 					//unlockPSTH();
 					return;
 				}
@@ -2116,14 +2146,14 @@ void TrialCircularBuffer::updatePSTHwithTrial(Trial *trial)
 		//printf("Calling updatePSTHwithTrial::update without threads\n");
 
 		tictoc.Tic(23);
-		for (int i=0;i<electrodesPSTH.size();i++) 
+		for (int i = 0; i < electrodesPSTH.size(); i++) 
 		{
 			electrodesPSTH[i].updateChannelsConditionsWithLFP(conditionsNeedUpdating,trial, lfpBuffer); // timer 6 -> 7,18
 		}
 		// update both spikes and LFP PSTHs 
-		for (int i=0;i<electrodesPSTH.size();i++) 
+		for (int i = 0; i < electrodesPSTH.size(); i++) 
 		{
-			for (int u=0;u<electrodesPSTH[i].unitsPSTHs.size();u++)
+			for (int u = 0; u < electrodesPSTH[i].unitsPSTHs.size(); u++)
 			{
 				electrodesPSTH[i].unitsPSTHs[u].updateConditionsWithSpikes(conditionsNeedUpdating,trial); // timer 14,15
 			}
@@ -2180,9 +2210,10 @@ void TrialCircularBuffer::simulateHardwareTrial(int64 ttl_timestamp_software,int
 {
 	int64 tickdiff = ttl_timestamp_software- lastSimulatedTrialTS;
 	float secElapsed = float(tickdiff) / numTicksPerSecond;
+
 	if (secElapsed > params.ttlSupressionTimeSec)
 	{
-		std::cout << "Adding a new trial." << std::endl;
+		
 		const ScopedLock myScopedLock (psthMutex);
 		//lockPSTH();
 		Trial ttlTrial;
@@ -2195,15 +2226,20 @@ void TrialCircularBuffer::simulateHardwareTrial(int64 ttl_timestamp_software,int
 		ttlTrial.trialInProgress = false;
 		ttlTrial.type = trialType;
 		ttlTrial.hardwareAlignment = true;
+
+		std::cout << "Adding a new trial for ID " << ttlTrial.trialID << std::endl;
+
 		lfpBuffer->addTrialStartToSmartBuffer(ttlTrial.trialID);
 		ttlBuffer->addTrialStartToSmartBuffer(ttlTrial.trialID);
-		for (int i=0;i<electrodesPSTH.size();i++) 
+
+		for (int i = 0; i < electrodesPSTH.size(); i++) 
 		{
-			for (int u=0;u<electrodesPSTH[i].unitsPSTHs.size();u++)
+			for (int u = 0; u < electrodesPSTH[i].unitsPSTHs.size(); u++)
 			{
 				electrodesPSTH[i].unitsPSTHs[u].addTrialStartToSmartBuffer(&ttlTrial);
 			}
 		}
+
 		aliveTrials.push(ttlTrial);
 		lastSimulatedTrialTS = ttl_timestamp_software;
 		//unlockPSTH();
@@ -2235,18 +2271,19 @@ void TrialCircularBuffer::addTTLevent(int channel,int64 ttl_timestamp_software, 
 
 		if (simulateTrial)
 		{
-			int64 tickdiff = ttl_timestamp_software-lastTTLts[channel];
+			int64 tickdiff = ttl_timestamp_software - lastTTLts[channel];
 			float secElapsed = float(tickdiff) / numTicksPerSecond;
+			
 			if (secElapsed > params.ttlSupressionTimeSec)
 			{
 				// simulate a ttl trial 
 				simulateHardwareTrial(ttl_timestamp_software,ttl_timestamp_hardware, TTL_TRIAL_OFFSET + channel, params.ttlTrialLengthSec);
 			}
+			
 			lastTTLts[channel] = tickdiff;
 
 			if (channel == hardwareTriggerAlignmentChannel)
 			{
-
 				//std::cout << "TTL channel matches alignment channel!" << std::endl;
 				currentTrial.alignTS = ttl_timestamp_software; 
 				currentTrial.alignTS_hardware = ttl_timestamp_hardware;
@@ -3154,7 +3191,7 @@ juce::Image TrialCircularBuffer::getTrialsAverageUnitResponseAsJuceImage(int ele
 
 
 
-void TrialCircularBuffer::process(AudioSampleBuffer& buffer,int nSamples,int64 hardware_timestamp,int64 software_timestamp)
+void TrialCircularBuffer::process(AudioSampleBuffer& buffer, int nSamples, int64 hardware_timestamp,int64 software_timestamp)
 {
 	//printf("Entering TrialCircularBuffer::process\n");
 	
@@ -3182,16 +3219,21 @@ void TrialCircularBuffer::process(AudioSampleBuffer& buffer,int nSamples,int64 h
 	// now, check if a trial finished, and enough time has elapsed so we also
 	// have post trial information
 	tictoc.Tic(3);
+	
 	Time t;
+	
 	long startTime = t.getHighResolutionTicks();
+	
 	double MaxPSTHprocessingTime = 50/1000; // 50 ms
+
 	if (electrodesPSTH.size() > 0 && aliveTrials.size() > 0)
 	{
 		printf("Entering alive loop\n");
 
 		std::cout << "Hardware timestamp: " << hardware_timestamp << std::endl;
 		std::cout << "Software timestamp: " << software_timestamp << std::endl;
-		for (int k=0;k<aliveTrials.size();k++)
+
+		for (int k = 0; k < aliveTrials.size(); k++)
 		{
 			Trial topTrial = aliveTrials.front();
 			int64 ticksElapsed = software_timestamp - topTrial.endTS;
@@ -3216,10 +3258,12 @@ void TrialCircularBuffer::process(AudioSampleBuffer& buffer,int nSamples,int64 h
 				lastTrialID = topTrial.trialID;
 				//printf("Entering updatePSTHwithTrial\n");
 				tictoc.Tic(4);
+
+				std::cout << "Updating PSTH" << std::endl;
 				updatePSTHwithTrial(&topTrial);
-				//std::cout << "Updating PSTH" << std::endl;
+				
 				tictoc.Toc(4);
-				//printf("Exitting updatePSTHwithTrial\n");
+				//printf("Exiting updatePSTHwithTrial\n");
 			}
 
 			long endTime = t.getHighResolutionTicks();
