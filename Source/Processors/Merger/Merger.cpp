@@ -30,7 +30,9 @@
 
 Merger::Merger()
     : GenericProcessor("Merger"),
-      sourceNodeA(0), sourceNodeB(0), activePath(0), mergeEvents(true), mergeContinuous(true)
+      sourceNodeA(0), sourceNodeB(0), activePath(0), 
+      mergeEventsA(true), mergeContinuousA(true),
+      mergeEventsB(true), mergeContinuousB(true)
 {
     sendSampleCount = false;
 }
@@ -93,6 +95,32 @@ void Merger::switchIO(int sourceNum)
 
 }
 
+bool Merger::sendContinuousForSource(GenericProcessor* sourceNode)
+{
+    if (sourceNode == sourceNodeA)
+    {
+        return mergeContinuousA;
+    } else if (sourceNode == sourceNodeB)
+    {
+        return mergeContinuousB;
+    }
+
+    return false;
+}
+
+bool Merger::sendEventsForSource(GenericProcessor* sourceNode)
+{
+    if (sourceNode == sourceNodeA)
+    {
+        return mergeEventsA;
+    } else if (sourceNode == sourceNodeB)
+    {
+        return mergeEventsB;
+    }
+
+    return false;
+}
+
 bool Merger::stillHasSource()
 {
     if (sourceNodeA == 0 || sourceNodeB == 0)
@@ -127,31 +155,33 @@ void Merger::switchIO()
 void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
 {
 
-    settings.numInputs += sn->getNumOutputs();
-    //settings.inputChannelNames.addArray(sn->settings.inputChannelNames);
-    //settings.eventChannelIds.addArray(sn->settings.eventChannelIds);
-    //settings.eventChannelNames.addArray(sn->settings.eventChannelNames);
-    //settings.bitVolts.addArray(sn->settings.bitVolts);
-
-    for (int i = 0; i < sn->channels.size(); i++)
+    if (sendContinuousForSource(sn))
     {
-        Channel* sourceChan = sn->channels[i];
-        Channel* ch = new Channel(*sourceChan);
-        channels.add(ch);
+        settings.numInputs += sn->getNumOutputs();
+
+        for (int i = 0; i < sn->channels.size(); i++)
+        {
+            Channel* sourceChan = sn->channels[i];
+            Channel* ch = new Channel(*sourceChan);
+            channels.add(ch);
+        
+        }
     }
 
-    for (int i = 0; i < sn->eventChannels.size(); i++)
+    if (sendEventsForSource(sn))
     {
-        Channel* sourceChan = sn->eventChannels[i];
-        Channel* ch = new Channel(*sourceChan);
-        eventChannels.add(ch);
+        for (int i = 0; i < sn->eventChannels.size(); i++)
+        {
+            Channel* sourceChan = sn->eventChannels[i];
+            Channel* ch = new Channel(*sourceChan);
+            eventChannels.add(ch);
+        }
     }
 
     settings.originalSource = sn->settings.originalSource;
     settings.sampleRate = sn->settings.sampleRate;
 
     settings.numOutputs = settings.numInputs;
-    //settings.outputChannelNames = settings.inputChannelNames;
 
 }
 

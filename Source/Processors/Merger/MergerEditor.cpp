@@ -154,9 +154,21 @@ void MergerEditor::mouseDown(const MouseEvent& e)
 
         int eventMerge = ++i;
         int continuousMerge = ++i;
+
+        bool* eventPtr;
+        bool* continuousPtr;
+
+        if (pipelineSelectorA->getToggleState())
+        {
+            eventPtr = &merger->mergeEventsA;
+            continuousPtr = &merger->mergeContinuousA;   
+        } else {
+            eventPtr = &merger->mergeEventsB;
+            continuousPtr = &merger->mergeContinuousB;  
+        }
         
-        //m.addItem(eventMerge, "Events", !acquisitionIsActive, merger->mergeEvents);
-        //m.addItem(continuousMerge, "Continuous", !acquisitionIsActive, merger->mergeContinuous);
+        m.addItem(eventMerge, "Events", !acquisitionIsActive, *eventPtr);
+        m.addItem(continuousMerge, "Continuous", !acquisitionIsActive, *continuousPtr);
 
         const int result = m.show();
 
@@ -175,10 +187,10 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             getEditorViewport()->makeEditorVisible(this, false, true);
         } else if (result == eventMerge)
         {
-            merger->mergeEvents = !merger->mergeEvents;
+            *eventPtr = !(*eventPtr);
         } else if (result == continuousMerge)
         {
-            merger->mergeContinuous = !merger->mergeContinuous;
+            *continuousPtr = !(*continuousPtr);
         }
     }
 

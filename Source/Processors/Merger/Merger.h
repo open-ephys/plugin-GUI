@@ -71,7 +71,10 @@ public:
     void saveCustomParametersToXml(XmlElement* parentElement);
     void loadCustomParametersFromXml();
 
-    bool mergeEvents, mergeContinuous;
+    bool sendContinuousForSource(GenericProcessor* sn);
+    bool sendEventsForSource(GenericProcessor* sn);
+
+    bool mergeEventsA, mergeContinuousA, mergeEventsB, mergeContinuousB;
 
 private:
 
