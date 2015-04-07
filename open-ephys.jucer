@@ -428,10 +428,6 @@
                 file="Source/Processors/Editors/NetworkEventsEditor.cpp"/>
           <FILE id="i3MpZ5" name="NetworkEventsEditor.h" compile="0" resource="0"
                 file="Source/Processors/Editors/NetworkEventsEditor.h"/>
-          <FILE id="iHIy00" name="PeriStimulusTimeHistogramEditor.cpp" compile="1"
-                resource="0" file="Source/Processors/Editors/PeriStimulusTimeHistogramEditor.cpp"/>
-          <FILE id="XBICPx" name="PeriStimulusTimeHistogramEditor.h" compile="0"
-                resource="0" file="Source/Processors/Editors/PeriStimulusTimeHistogramEditor.h"/>
         </GROUP>
         <GROUP id="{5884418B-6740-1CC4-EC34-721D3F3038AE}" name="EventDetector">
           <FILE id="GzQXNv" name="EventDetector.cpp" compile="1" resource="0"
@@ -573,6 +569,10 @@
           <FILE id="LxIosv" name="NetworkEvents.h" compile="0" resource="0" file="Source/Processors/NetworkEvents/NetworkEvents.h"/>
         </GROUP>
         <GROUP id="{273A4CD9-60CE-A6A3-13E9-8BCAF573E024}" name="PSTH">
+          <FILE id="Y6TRvD" name="PeriStimulusTimeHistogramEditor.cpp" compile="1"
+                resource="0" file="Source/Processors/PSTH/PeriStimulusTimeHistogramEditor.cpp"/>
+          <FILE id="Z4mUYg" name="PeriStimulusTimeHistogramEditor.h" compile="0"
+                resource="0" file="Source/Processors/PSTH/PeriStimulusTimeHistogramEditor.h"/>
           <FILE id="QpvGnH" name="PeriStimulusTimeHistogramNode.cpp" compile="1"
                 resource="0" file="Source/Processors/PSTH/PeriStimulusTimeHistogramNode.cpp"/>
           <FILE id="zptezx" name="PeriStimulusTimeHistogramNode.h" compile="0"

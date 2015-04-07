@@ -28,11 +28,11 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Visualization/MatlabLikePlot.h"
 #include "../PSTH/PeriStimulusTimeHistogramNode.h"
-#include "GenericEditor.h"
+#include "../Editors/GenericEditor.h"
 #include "../../UI/UIComponent.h"
 #include "../../UI/DataViewport.h"
 #include "../Visualization/DataWindow.h"
-#include "VisualizerEditor.h"
+#include "../Editors/VisualizerEditor.h"
 
 class Condition;
 

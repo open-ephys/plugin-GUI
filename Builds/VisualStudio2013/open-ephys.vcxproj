@@ -312,7 +312,6 @@
     <ClCompile Include="..\..\Source\Processors\Editors\ImageIcon.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\NetworkEventsEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\PeriStimulusTimeHistogramEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventDetector\EventDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode\EventNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode\EventNodeEditor.cpp"/>
@@ -346,6 +345,7 @@
     <ClCompile Include="..\..\Source\Processors\RecordNode\RecordEngine.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordNode\RecordNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PSTH\tictoc.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.cpp"/>
@@ -1563,7 +1563,6 @@
     <ClInclude Include="..\..\Source\Processors\Editors\ImageIcon.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\NetworkEventsEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\PeriStimulusTimeHistogramEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\EventDetector\EventDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode\EventNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode\EventNodeEditor.h"/>
@@ -1597,6 +1596,7 @@
     <ClInclude Include="..\..\Source\Processors\RecordNode\RecordEngine.h"/>
     <ClInclude Include="..\..\Source\Processors\RecordNode\RecordNode.h"/>
     <ClInclude Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.h"/>
+    <ClInclude Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.h"/>
     <ClInclude Include="..\..\Source\Processors\PSTH\tictoc.h"/>
     <ClInclude Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.h"/>
