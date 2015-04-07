@@ -71,6 +71,8 @@ public:
     void saveCustomParametersToXml(XmlElement* parentElement);
     void loadCustomParametersFromXml();
 
+    bool mergeEvents, mergeContinuous;
+
 private:
 
     GenericProcessor* sourceNodeA;

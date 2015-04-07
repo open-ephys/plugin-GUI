@@ -121,7 +121,7 @@ void MergerEditor::buttonEvent(Button* button)
 void MergerEditor::mouseDown(const MouseEvent& e)
 {
 
-
+    Merger* merger = (Merger*) getProcessor();
 
     if (e.mods.isRightButtonDown())
     {
@@ -131,7 +131,9 @@ void MergerEditor::mouseDown(const MouseEvent& e)
 
         Array<GenericProcessor*> availableProcessors = getProcessorGraph()->getListOfProcessors();
 
-        for (int i = 0; i < availableProcessors.size(); i++)
+        int i;
+
+        for (i = 0; i < availableProcessors.size(); i++)
         {
             if (!availableProcessors[i]->isSink() &&
                 !availableProcessors[i]->isMerger() &&
@@ -148,9 +150,17 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             }
         }
 
+        //m.addItem(++i, "Merging:", false);
+
+        int eventMerge = ++i;
+        int continuousMerge = ++i;
+        
+        //m.addItem(eventMerge, "Events", !acquisitionIsActive, merger->mergeEvents);
+        //m.addItem(continuousMerge, "Continuous", !acquisitionIsActive, merger->mergeContinuous);
+
         const int result = m.show();
 
-        if (result > 1)
+        if (result > 1 && result < eventMerge)
         {
             std::cout << "Selected " << availableProcessors[result-2]->getName() << std::endl;
 
@@ -163,6 +173,12 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             getGraphViewer()->updateNodeLocations();
 
             getEditorViewport()->makeEditorVisible(this, false, true);
+        } else if (result == eventMerge)
+        {
+            merger->mergeEvents = !merger->mergeEvents;
+        } else if (result == continuousMerge)
+        {
+            merger->mergeContinuous = !merger->mergeContinuous;
         }
     }
 
