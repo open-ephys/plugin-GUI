@@ -135,9 +135,7 @@ EcubeDialogComponent::EcubeDialogComponent ()
     comboSamplerate->addItem (TRANS("50000"), 5);
     comboSamplerate->addItem (TRANS("62500"), 6);
     comboSamplerate->addItem (TRANS("64000"), 7);
-    comboSamplerate->setSelectedId(2, false);
-    comboSamplerate->setEnabled(false); // Disable it until the user selects PAI input source
-    comboSamplerate->addListener(this);
+    comboSamplerate->addListener (this);
 
 
     //[UserPreSize]

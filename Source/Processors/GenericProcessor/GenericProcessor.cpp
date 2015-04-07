@@ -1007,3 +1007,286 @@ void GenericProcessor::loadCustomChannelParametersFromXml(XmlElement* channelInf
 }
 
 const String GenericProcessor::unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");
+
+const String GenericProcessor::getName() const
+{
+	return name;
+}
+
+bool GenericProcessor::hasEditor() const
+{
+	return false;
+}
+
+void GenericProcessor::reset() {}
+
+void GenericProcessor::setCurrentProgramStateInformation(const void* data, int sizeInBytes) {}
+
+void GenericProcessor::setStateInformation(const void* data, int sizeInBytes) {}
+
+void GenericProcessor::getCurrentProgramStateInformation(MemoryBlock& destData) {}
+
+void GenericProcessor::getStateInformation(MemoryBlock& destData) {}
+
+void GenericProcessor::changeProgramName(int index, const String& newName) {}
+
+void GenericProcessor::setCurrentProgram(int index) {}
+
+const String GenericProcessor::getInputChannelName(int channelIndex) const
+{
+	return GenericProcessor::unusedNameString;
+}
+
+const String GenericProcessor::getOutputChannelName(int channelIndex) const
+{
+	return GenericProcessor::unusedNameString;
+}
+
+void GenericProcessor::getEventChannelNames(StringArray& Names)
+{
+}
+
+float GenericProcessor::getParameter(int parameterIndex)
+{
+	return 1.0;
+}
+
+const String GenericProcessor::getProgramName(int index)
+{
+	return "";
+}
+
+bool GenericProcessor::isInputChannelStereoPair(int index) const
+{
+	return true;
+}
+
+bool GenericProcessor::isOutputChannelStereoPair(int index) const
+{
+	return true;
+}
+
+bool GenericProcessor::acceptsMidi() const
+{
+	return true;
+}
+
+bool GenericProcessor::producesMidi() const
+{
+	return true;
+}
+
+bool GenericProcessor::isParameterAutomatable(int parameterIndex)
+{
+	return false;
+}
+
+bool GenericProcessor::isMetaParameter(int parameterIndex)
+{
+	return false;
+}
+
+int GenericProcessor::getNumParameters()
+{
+	return parameters.size();
+}
+
+int GenericProcessor::getNumPrograms()
+{
+	return 0;
+}
+
+int GenericProcessor::getCurrentProgram()
+{
+	return 0;
+}
+
+bool GenericProcessor::silenceInProducesSilenceOut() const
+{
+	return false;
+}
+
+double GenericProcessor::getTailLengthSeconds() const
+{
+	return 1.0f;
+}
+
+float GenericProcessor::getSampleRate()
+{
+	return settings.sampleRate;
+}
+
+float GenericProcessor::getDefaultSampleRate()
+{
+	return 44100.0;
+}
+
+int GenericProcessor::getNumInputs()
+{
+	return settings.numInputs;
+}
+
+int GenericProcessor::getNumOutputs()
+{
+	return settings.numOutputs;
+}
+
+int GenericProcessor::getNumHeadstageOutputs()
+{
+	return 2;
+}
+
+int GenericProcessor::getNumAdcOutputs()
+{
+	return 0;
+}
+
+int GenericProcessor::getNumAuxOutputs()
+{
+	return 0;
+}
+
+int GenericProcessor::getNumEventChannels()
+{
+	return 0;
+}
+
+float GenericProcessor::getDefaultBitVolts()
+{
+	return 1.0;
+}
+
+float GenericProcessor::getBitVolts(Channel* chan)
+{
+	return 1.0;
+}
+
+void GenericProcessor::setCurrentChannel(int chan)
+{
+	currentChannel = chan;
+}
+
+int GenericProcessor::getNodeId()
+{
+	return nodeId;
+}
+
+GenericProcessor* GenericProcessor::getSourceNode()
+{
+	return sourceNode;
+}
+
+GenericProcessor* GenericProcessor::getDestNode()
+{
+	return destNode;
+}
+
+void GenericProcessor::switchIO(int) { }
+
+void GenericProcessor::switchIO() { }
+
+void GenericProcessor::setPathToProcessor(GenericProcessor* p) { }
+
+void GenericProcessor::setMergerSourceNode(GenericProcessor* sn) { }
+
+void GenericProcessor::setSplitterDestNode(GenericProcessor* dn) { }
+
+bool GenericProcessor::generatesTimestamps()
+{
+	return false;
+}
+
+bool GenericProcessor::isSource()
+{
+	return false;
+}
+
+bool GenericProcessor::isSink()
+{
+	return false;
+}
+
+bool GenericProcessor::isSplitter()
+{
+	return false;
+}
+
+bool GenericProcessor::isMerger()
+{
+	return false;
+}
+
+bool GenericProcessor::isUtility()
+{
+	return false;
+}
+
+bool GenericProcessor::canSendSignalTo(GenericProcessor*)
+{
+	return true;
+}
+
+bool GenericProcessor::isReady()
+{
+	return isEnabled;
+}
+
+bool GenericProcessor::enable()
+{
+	return isEnabled;
+}
+
+bool GenericProcessor::disable()
+{
+	return true;
+}
+
+void GenericProcessor::startRecording() { }
+
+void GenericProcessor::stopRecording() { }
+
+bool GenericProcessor::enabledState()
+{
+	return isEnabled;
+}
+
+void GenericProcessor::enabledState(bool t)
+{
+	isEnabled = t;
+}
+
+void GenericProcessor::enableCurrentChannel(bool) {}
+
+bool GenericProcessor::stillHasSource()
+{
+	return true;
+}
+
+AudioSampleBuffer* GenericProcessor::getContinuousBuffer()
+{
+	return 0;
+}
+
+MidiBuffer* GenericProcessor::getEventBuffer()
+{
+	return 0;
+}
+
+void GenericProcessor::handleEvent(int eventType, MidiMessage& event, int samplePosition) {}
+
+GenericEditor* GenericProcessor::getEditor()
+{
+	return editor;
+}
+
+int GenericProcessor::totalNumberOfChannels()
+{
+	return channels.size() + eventChannels.size();
+}
+
+void GenericProcessor::updateSettings() {}
+
+String GenericProcessor::interProcessorCommunication(String command)
+{
+	return String("OK");
+};

@@ -577,9 +577,6 @@
     <ClCompile Include="..\..\Source\Processors\Editors\NetworkEventsEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Editors\PeriStimulusTimeHistogramEditor.cpp">
-      <Filter>open-ephys\Source\Processors\Editors</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\EventDetector\EventDetector.cpp">
       <Filter>open-ephys\Source\Processors\EventDetector</Filter>
     </ClCompile>
@@ -678,6 +675,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.cpp">
       <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramEditor.cpp">
+      <Filter>open-ephys\Source\Processors\PSTH</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.cpp">
       <Filter>open-ephys\Source\Processors\PSTH</Filter>
@@ -2187,9 +2187,6 @@
     <ClInclude Include="..\..\Source\Processors\Editors\NetworkEventsEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Editors\PeriStimulusTimeHistogramEditor.h">
-      <Filter>open-ephys\Source\Processors\Editors</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\EventDetector\EventDetector.h">
       <Filter>open-ephys\Source\Processors\EventDetector</Filter>
     </ClInclude>
@@ -2288,6 +2285,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.h">
       <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramEditor.h">
+      <Filter>open-ephys\Source\Processors\PSTH</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.h">
       <Filter>open-ephys\Source\Processors\PSTH</Filter>

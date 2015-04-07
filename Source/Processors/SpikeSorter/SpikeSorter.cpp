@@ -27,7 +27,7 @@
 #include "SpikeSorterCanvas.h"
 #include "../Channel/Channel.h"
 #include "../SpikeDisplayNode/SpikeDisplayNode.h"
-#include "../Editors/PeriStimulusTimeHistogramEditor.h"
+#include "../PSTH/PeriStimulusTimeHistogramEditor.h"
 #include "../PSTH/PeriStimulusTimeHistogramNode.h"
 class spikeSorter;
 

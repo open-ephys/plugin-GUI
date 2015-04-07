@@ -96,7 +96,6 @@ OBJECTS := \
   $(OBJDIR)/ImageIcon_c89b23a6.o \
   $(OBJDIR)/VisualizerEditor_3672b003.o \
   $(OBJDIR)/NetworkEventsEditor_fd22826.o \
-  $(OBJDIR)/PeriStimulusTimeHistogramEditor_f7323eb0.o \
   $(OBJDIR)/EventDetector_d0f4d00c.o \
   $(OBJDIR)/EventNode_857d5604.o \
   $(OBJDIR)/EventNodeEditor_2652ddd1.o \
@@ -130,6 +129,7 @@ OBJECTS := \
   $(OBJDIR)/RecordEngine_97ef83aa.o \
   $(OBJDIR)/RecordNode_cc21a82a.o \
   $(OBJDIR)/NetworkEvents_5344c99a.o \
+  $(OBJDIR)/PeriStimulusTimeHistogramEditor_6be5bf55.o \
   $(OBJDIR)/PeriStimulusTimeHistogramNode_9631ca2a.o \
   $(OBJDIR)/tictoc_cdca1ed.o \
   $(OBJDIR)/TrialCircularBuffer_4a4cef0c.o \
@@ -430,11 +430,6 @@ $(OBJDIR)/NetworkEventsEditor_fd22826.o: ../../Source/Processors/Editors/Network
 	@echo "Compiling NetworkEventsEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/PeriStimulusTimeHistogramEditor_f7323eb0.o: ../../Source/Processors/Editors/PeriStimulusTimeHistogramEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PeriStimulusTimeHistogramEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/EventDetector_d0f4d00c.o: ../../Source/Processors/EventDetector/EventDetector.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventDetector.cpp"
@@ -598,6 +593,11 @@ $(OBJDIR)/RecordNode_cc21a82a.o: ../../Source/Processors/RecordNode/RecordNode.c
 $(OBJDIR)/NetworkEvents_5344c99a.o: ../../Source/Processors/NetworkEvents/NetworkEvents.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling NetworkEvents.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PeriStimulusTimeHistogramEditor_6be5bf55.o: ../../Source/Processors/PSTH/PeriStimulusTimeHistogramEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PeriStimulusTimeHistogramEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/PeriStimulusTimeHistogramNode_9631ca2a.o: ../../Source/Processors/PSTH/PeriStimulusTimeHistogramNode.cpp

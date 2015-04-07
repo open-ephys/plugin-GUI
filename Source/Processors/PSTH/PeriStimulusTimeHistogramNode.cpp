@@ -24,7 +24,7 @@
 #include "PeriStimulusTimeHistogramNode.h"
 #include "../RecordNode/RecordNode.h"
 #include "../SpikeSorter/SpikeSorter.h"
-#include "../Editors/PeriStimulusTimeHistogramEditor.h"
+#include "PeriStimulusTimeHistogramEditor.h"
 #include "../Channel/Channel.h"
 //#include "ISCAN.h"
 #include <stdio.h>
