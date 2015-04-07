@@ -1060,8 +1060,69 @@ void GenericEditor::updateParameterButtons(int parameterIndex)
     }
 }
 
+String GenericEditor::getName()
+{
+	return name;
+}
+
+void GenericEditor::tabNumber(int t)
+{
+	tNum = t;
+}
+
+int GenericEditor::tabNumber()
+{
+	return tNum;
+}
+
+void GenericEditor::switchSource(int) { }
+
+void GenericEditor::switchSource() { }
+
+GenericProcessor* GenericEditor::getProcessor() const
+{
+	return (GenericProcessor*)getAudioProcessor();
+}
+
+void GenericEditor::switchDest() { }
 
 
+void GenericEditor::switchIO(int) { }
+
+int GenericEditor::getPathForEditor(GenericEditor* editor)
+{
+	return -1;
+}
+
+void GenericEditor::sliderEvent(Slider* slider) {}
+
+void GenericEditor::editorWasClicked() {}
+
+Colour GenericEditor::getBackgroundColor() {
+	return backgroundColor;
+}
+
+ColourGradient GenericEditor::getBackgroundGradient() {
+	return backgroundGradient;
+}
+
+void GenericEditor::updateSettings() {}
+
+void GenericEditor::updateVisualizer() {}
+
+void GenericEditor::channelChanged(int chan) {}
+
+void GenericEditor::saveCustomParameters(XmlElement* xml) { }
+
+void GenericEditor::loadCustomParameters(XmlElement* xml) { }
+
+void GenericEditor::collapsedStateChanged() {}
+
+Array<GenericEditor*> GenericEditor::getConnectedEditors()
+{
+	Array<GenericEditor*> a;
+	return a;
+}
 
 
 /***************************/
