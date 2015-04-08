@@ -238,6 +238,11 @@ void Merger::saveCustomParametersToXml(XmlElement* parentElement)
         mainNode->setAttribute("NodeB",	sourceNodeB->getNodeId());
     else
         mainNode->setAttribute("NodeB",	-1);
+
+    mainNode->setAttribute("MergeEventsA", mergeEventsA);
+    mainNode->setAttribute("MergeContinuousA", mergeContinuousA);
+    mainNode->setAttribute("MergeEventsB", mergeEventsB);
+    mainNode->setAttribute("MergeContinuousB", mergeContinuousB);
 }
 
 
@@ -272,6 +277,11 @@ void Merger::loadCustomParametersFromXml()
                             setMergerSourceNode(p[k]);
                         }
                     }
+
+                    mergeEventsA = mainNode->getBoolAttribute("MergeEventsA");
+                    mergeEventsB = mainNode->getBoolAttribute("MergeEventsB");
+                    mergeContinuousA = mainNode->getBoolAttribute("MergeContinuousA");
+                    mergeContinuousB = mainNode->getBoolAttribute("MergeContinuousB");
 
                     updateSettings();
                 }

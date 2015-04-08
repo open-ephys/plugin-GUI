@@ -230,7 +230,7 @@ void PSTH::updatePSTH(SmartSpikeCircularBuffer *spikeBuffer, Trial *trial)
 		instantaneousSpikesRate[k] = 0;
 	}
 
-	std::cout << "Received " << alignedSpikes.size() << " spikes." << std::endl;
+	//std::cout << "Received " << alignedSpikes.size() << " spikes." << std::endl;
 
 	for (int k = 0; k < alignedSpikes.size(); k++)
 	{
@@ -240,7 +240,7 @@ void PSTH::updatePSTH(SmartSpikeCircularBuffer *spikeBuffer, Trial *trial)
 
 		if (k == 0 || k == alignedSpikes.size() - 1)
 		{
-			std::cout << "Spike time = " << spikeTimeSec << std::endl;
+			//std::cout << "Spike time = " << spikeTimeSec << std::endl;
 		}
 
 		int binIndex = (spikeTimeSec + mod_pre_sec) / timeSpanSecs * numBins;
@@ -1324,7 +1324,7 @@ std::vector<int64> SmartSpikeCircularBuffer::getAlignedSpikes(Trial *trial, floa
 	// Use ptr as a search reference in the buffer
 	// The interval is defined as Start_TS-BeforeSec .. End_TS+AfterSec
 
-	std::cout << "Stored spikes: " << numSpikesStored << std::endl;
+	//std::cout << "Stored spikes: " << numSpikesStored << std::endl;
 	
 	// Search Backward
 	int currPtr = saved_ptr;
@@ -2132,7 +2132,7 @@ void TrialCircularBuffer::updatePSTHwithTrial(Trial *trial)
 		// none of the conditions match. nothing to update.
 		//unlockPSTH();
 		//unlockConditions();
-		std::cout << "No updates needed." << std::endl;
+		//std::cout << "No updates needed." << std::endl;
 
 		return;
 	}
@@ -2141,7 +2141,7 @@ void TrialCircularBuffer::updatePSTHwithTrial(Trial *trial)
 
 	if (!useThreads)
 	{
-		std::cout << "Updating without threads..." << std::endl;
+		//std::cout << "Updating without threads..." << std::endl;
 		// these two parts can be fully distributed along several threads because they are completely independent.
 		//printf("Calling updatePSTHwithTrial::update without threads\n");
 
@@ -2163,7 +2163,7 @@ void TrialCircularBuffer::updatePSTHwithTrial(Trial *trial)
 
 	} else {
 
-		std::cout << "Updating with threads..." << std::endl;
+		//std::cout << "Updating with threads..." << std::endl;
 		tictoc.Tic(24);
 		int cnt = 0;
 		int numElectrodes = electrodesPSTH.size();
@@ -2227,7 +2227,7 @@ void TrialCircularBuffer::simulateHardwareTrial(int64 ttl_timestamp_software,int
 		ttlTrial.type = trialType;
 		ttlTrial.hardwareAlignment = false;
 
-		std::cout << "Adding a new trial for ID " << ttlTrial.trialID << std::endl;
+		//std::cout << "Adding a new trial for ID " << ttlTrial.trialID << std::endl;
 
 		lfpBuffer->addTrialStartToSmartBuffer(ttlTrial.trialID);
 		ttlBuffer->addTrialStartToSmartBuffer(ttlTrial.trialID);
@@ -2256,7 +2256,7 @@ void TrialCircularBuffer::addTTLevent(int channel,int64 ttl_timestamp_software, 
 	if (channel >= 0 && channel < lastTTLts.size())
 	{
 
-		std::cout << "Got that TTL event" << std::endl;
+		//std::cout << "Got that TTL event" << std::endl;
 
 		ttlBuffer->update(channel, ttl_timestamp_software, ttl_timestamp_hardware, rise);
 
@@ -3228,18 +3228,18 @@ void TrialCircularBuffer::process(AudioSampleBuffer& buffer, int nSamples, int64
 
 	if (electrodesPSTH.size() > 0 && aliveTrials.size() > 0)
 	{
-		printf("Entering alive loop\n");
+		//printf("Entering alive loop\n");
 
-		std::cout << "Hardware timestamp: " << hardware_timestamp << std::endl;
-		std::cout << "Software timestamp: " << software_timestamp << std::endl;
+		//std::cout << "Hardware timestamp: " << hardware_timestamp << std::endl;
+		//std::cout << "Software timestamp: " << software_timestamp << std::endl;
 
 		for (int k = 0; k < aliveTrials.size(); k++)
 		{
 			Trial topTrial = aliveTrials.front();
 			int64 ticksElapsed = software_timestamp - topTrial.endTS;
-			std::cout << "Ticks elapsed: " << ticksElapsed << std::endl;
+			//std::cout << "Ticks elapsed: " << ticksElapsed << std::endl;
 			float timeElapsedSec = float(ticksElapsed)/ numTicksPerSecond;
-			std::cout << "Time elapsed: " << timeElapsedSec << std::endl;
+			//std::cout << "Time elapsed: " << timeElapsedSec << std::endl;
 			bool trialEndedAndEnoughDataInBuffer;
 
 			if (!topTrial.hardwareAlignment)
@@ -3259,7 +3259,7 @@ void TrialCircularBuffer::process(AudioSampleBuffer& buffer, int nSamples, int64
 				//printf("Entering updatePSTHwithTrial\n");
 				tictoc.Tic(4);
 
-				std::cout << "Updating PSTH" << std::endl;
+				//std::cout << "Updating PSTH" << std::endl;
 				updatePSTHwithTrial(&topTrial);
 				
 				tictoc.Toc(4);
@@ -3268,14 +3268,14 @@ void TrialCircularBuffer::process(AudioSampleBuffer& buffer, int nSamples, int64
 
 			long endTime = t.getHighResolutionTicks();
 
-			std::cout << "End time: " << endTime << std::endl;
+			//std::cout << "End time: " << endTime << std::endl;
 			
 		//	if  ((endTime-startTime) > MaxPSTHprocessingTime*t.getHighResolutionTicksPerSecond())
 				//break;
 			
 
 		}
-		printf("Exiting alive loop\n");
+		//printf("Exiting alive loop\n");
 	}
 	tictoc.Toc(3);
 
