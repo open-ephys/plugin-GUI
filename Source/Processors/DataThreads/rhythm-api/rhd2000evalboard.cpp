@@ -65,7 +65,7 @@ int Rhd2000EvalBoard::open(const char* libname)
     int i, nDevices;
 
     cout << "---- Intan Technologies ---- Rhythm RHD2000 Controller v1.41 ----" << endl << endl;
-    if (okFrontPanelDLL_LoadLib(NULL) == false) {
+    if (okFrontPanelDLL_LoadLib(libname) == false) {
         cerr << "FrontPanel DLL could not be loaded.  " <<
                 "Make sure this DLL is in the application start directory." << endl;
         return -1;
