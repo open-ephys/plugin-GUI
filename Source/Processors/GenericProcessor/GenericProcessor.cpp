@@ -705,7 +705,7 @@ int GenericProcessor::processEventBuffer(MidiBuffer& events)
             else
             {
 
-                if (*dataptr == TTL &&    // a TTL event
+                if (isWritableEvent(*dataptr) &&    // a TTL event
                     getNodeId() < 900 && // not handled by a specialized processor (e.g. AudioNode))
                     *(dataptr+4) > 0)    // that's flagged for saving
                 {

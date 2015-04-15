@@ -28,6 +28,9 @@ enum ChannelType {HEADSTAGE_CHANNEL = 0, AUX_CHANNEL = 1, ADC_CHANNEL = 2, EVENT
                   ELECTRODE_CHANNEL = 4,  MESSAGE_CHANNEL = 5 
                  };
 
+//defines which events are writable to files
+#define isWritableEvent(ev) (((int)(ev) == GenericProcessor::TTL) || ((int)(ev) == GenericProcessor::MESSAGE) || ((int)(ev) == GenericProcessor::BINARY_MSG))
+
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
 #include "../Parameter/Parameter.h"
