@@ -47,8 +47,8 @@ public:
     void saveCustomParameters(XmlElement*);
 
 private:
-    ScopedPointer<ComboBox> availableChans;
-    ScopedPointer<Label> chanSel;
+    ScopedPointer<ComboBox> availableChans, triggerMode, triggerPol;
+    ScopedPointer<Label> chanSel, triggerLabel, polLabel;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordControlEditor);
 

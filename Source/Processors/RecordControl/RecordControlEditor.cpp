@@ -33,12 +33,37 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useD
 
     //channelSelector->eventsOnly = true;
 
+
+	triggerLabel = new Label("Trigger Text", "Trigger Type:");
+	triggerLabel->setEditable(false);
+	triggerLabel->setJustificationType(Justification::centredLeft);
+	triggerLabel->setBounds(15, 20, 120, 20);
+
+	addAndMakeVisible(triggerLabel);
+
     chanSel = new Label("Channel Text","Trigger Channel:");
     chanSel->setEditable(false);
     chanSel->setJustificationType(Justification::centredLeft);
-    chanSel->setBounds(15,35,120,20);
+    chanSel->setBounds(15,60,120,20);
 
     addAndMakeVisible(chanSel);
+
+	polLabel = new Label("Polarity Text", "Edge:");
+	polLabel->setEditable(false);
+	polLabel->setJustificationType(Justification::centredLeft);
+	polLabel->setBounds(15, 105, 120, 20);
+
+	addAndMakeVisible(polLabel);
+
+	triggerMode = new ComboBox("Mode");
+
+	triggerMode->setEditableText(false);
+	triggerMode->setJustificationType(Justification::centredLeft);
+	triggerMode->addListener(this);
+	triggerMode->setBounds(20, 40, 120, 20);
+	triggerMode->setSelectedId(0);
+
+	addAndMakeVisible(triggerMode);
 
 
     availableChans = new ComboBox("Event Channels");
@@ -46,10 +71,20 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useD
     availableChans->setEditableText(false);
     availableChans->setJustificationType(Justification::centredLeft);
     availableChans->addListener(this);
-    availableChans->setBounds(20,60,120,20);
+    availableChans->setBounds(20,80,120,20);
     availableChans->setSelectedId(0);
 
     addAndMakeVisible(availableChans);
+
+	triggerPol = new ComboBox("Polarity");
+
+	triggerPol->setEditableText(false);
+	triggerPol->setJustificationType(Justification::centredLeft);
+	triggerPol->addListener(this);
+	triggerPol->setBounds(60, 105, 80, 20);
+	triggerPol->setSelectedId(0);
+
+	addAndMakeVisible(triggerPol);
 
     availableChans->addItem("None",1);
     for (int i = 0; i < 10 ; i++)
@@ -58,6 +93,15 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useD
         channelName += i + 1;
         availableChans->addItem(channelName,i+2);
     }
+	availableChans->setSelectedId(1, sendNotification);
+	
+	triggerMode->addItem("Edge set", 1);
+	triggerMode->addItem("Edge toggle", 2);
+	triggerMode->setSelectedId(1, sendNotification);
+
+	triggerPol->addItem("Rising", 1);
+	triggerPol->addItem("Falling", 2);
+	triggerPol->setSelectedId(1, sendNotification);
 }
 
 RecordControlEditor::~RecordControlEditor()
@@ -68,10 +112,21 @@ RecordControlEditor::~RecordControlEditor()
 void RecordControlEditor::comboBoxChanged(ComboBox* comboBox)
 {
 
-    if (comboBox->getSelectedId() > 1)
-        getProcessor()->setParameter(0, (float) comboBox->getSelectedId()-2);
-    else
-        getProcessor()->setParameter(0, -1);
+	if (comboBox == availableChans)
+	{
+		if (comboBox->getSelectedId() > 1)
+			getProcessor()->setParameter(0, (float)comboBox->getSelectedId() - 2);
+		else
+			getProcessor()->setParameter(0, -1);
+	}
+	else if (comboBox == triggerMode)
+	{
+		getProcessor()->setParameter(1, comboBox->getSelectedId());
+	}
+	else if (comboBox == triggerPol)
+	{
+		getProcessor()->setParameter(2, comboBox->getSelectedId());
+	}
 }
 
 
@@ -90,6 +145,8 @@ void RecordControlEditor::saveCustomParameters(XmlElement* xml)
 
     info->setAttribute("Type", "RecordControlEditor");
     info->setAttribute("Channel",availableChans->getSelectedId());
+	info->setAttribute("Mode", triggerMode->getSelectedId());
+	info->setAttribute("Edge", triggerPol->getSelectedId());
 
 }
 
@@ -102,6 +159,8 @@ void RecordControlEditor::loadCustomParameters(XmlElement* xml)
         if (xmlNode->hasTagName("PARAMETERS"))
         {
             availableChans->setSelectedId(xmlNode->getIntAttribute("Channel"), sendNotification);
+			triggerMode->setSelectedId(xmlNode->getIntAttribute("Mode", 1), sendNotification);
+			triggerPol->setSelectedId(xmlNode->getIntAttribute("Edge", 1), sendNotification);
         }
 
     }

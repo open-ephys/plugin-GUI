@@ -58,7 +58,10 @@ public:
 
 private:
     int triggerChannel;
-
+	enum Edges{ RISING = 0, FALLING = 1 };
+	enum Types {SET = 0, TOGGLE = 1};
+	Edges triggerEdge;
+	Types triggerType;
 
     RecordNode* recordNode;
 
