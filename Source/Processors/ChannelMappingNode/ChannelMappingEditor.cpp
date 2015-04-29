@@ -302,7 +302,15 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 
             if (referenceChannels[selectedReference] >= 0)
             {
-                a.add(referenceChannels[selectedReference]);
+				if (referenceChannels[selectedReference] < channelSelector->getNumChannels())
+					a.add(referenceChannels[selectedReference]);
+				else
+				{
+					a.add(channelSelector->getNumChannels() - 1);
+					getProcessor()->setCurrentChannel(channelSelector->getNumChannels() - 1);
+					getProcessor()->setParameter(2, selectedReference);
+					referenceChannels.set(selectedReference, channelSelector->getNumChannels() - 1);
+				}
             }
             channelSelector->setActiveChannels(a);
 
@@ -865,7 +873,6 @@ void ChannelMappingEditor::mouseDoubleClick(const MouseEvent& e)
     {
         setConfigured(true);
         ElectrodeButton* button = (ElectrodeButton*)e.originalComponent;
-
         if (button->getToggleState())
         {
             button->setToggleState(false, dontSendNotification);
