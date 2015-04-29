@@ -277,16 +277,17 @@ void NetworkEvents::handleEvent(int eventType, juce::MidiMessage& event, int sam
 
 void NetworkEvents::postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events)
 {
-	uint8* msg_with_ts = new uint8[s.len+8]; // for the two timestamps
-	memcpy(msg_with_ts, s.str, s.len);	
-	memcpy(msg_with_ts+s.len, &s.timestamp, 8);
+	uint8* msg_with_ts = new uint8[s.len+1];//+8]; // for the two timestamps
+	memcpy(msg_with_ts, s.str, s.len);
+	*(msg_with_ts + s.len) = '\0';
+	//memcpy(msg_with_ts+s.len, &s.timestamp, 8);
 	
 	addEvent(events, 
 			 (uint8) MESSAGE,
 			 0,
 			 1,
 			 0,
-			 (uint8) s.len+8,
+			 (uint8) s.len+1,//+8,
 			 msg_with_ts);
 
 	delete msg_with_ts;
