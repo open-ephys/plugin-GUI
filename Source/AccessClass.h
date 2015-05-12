@@ -36,106 +36,45 @@ class ControlPanel;
 class AudioComponent;
 class GraphViewer;
 
-/**
 
-  Allows subclasses to access important pointers within the application.
 
-  When an object inherits from AccessClass, it makes it much more convenient to get and
-  set pointers to other objects, such as the EditorViewport, ProcessorList, and
-  ProcessorGraph that are used throughout the application. In addition, every subclass
-  of AccessClass automatically adds the MessageCenter as an ActionListener, which means
-  messages sent by that object [using sendActionMessage("Message.")] will appear
-  in the MessageCenter by default.
-
-  @see UIComponent, MessageCenter
-
-*/
-
-class AccessClass : public ActionBroadcaster
+namespace AccessClass 
 {
-public:
-
-    AccessClass() { }
-    ~AccessClass() { }
 
     /** Sets the object's UIComponent and copies all the necessary pointers
         from the UIComponent.
-
-        Automatically adds the MessageCenter as an ActionListener, which causes
-        messages sent using sendActionMessage("Message") to appear in the
-        MessageCenter. */
+	 */
     void setUIComponent(UIComponent*);
 
-    /** Called within setUIComponent() to enable subclasses to update their
-        members' pointers. */
-    virtual void updateChildComponents() {}
-
-
+    
     /** Returns a pointer to the application's EditorViewport. */
-    EditorViewport* getEditorViewport()
-    {
-        return ev;
-    }
+	EditorViewport* getEditorViewport();
 
     /** Returns a pointer to the application's DataViewport. */
-    DataViewport* getDataViewport()
-    {
-        return dv;
-    }
+	DataViewport* getDataViewport();
 
     /** Returns a pointer to the application's ProcessorList. */
-    ProcessorList* getProcessorList()
-    {
-        return pl;
-    }
+	ProcessorList* getProcessorList();
 
     /** Returns a pointer to the application's ProcessorGraph. */
-    ProcessorGraph* getProcessorGraph()
-    {
-        return pg;
-    }
+	ProcessorGraph* getProcessorGraph();
 
     /** Returns a pointer to the application's DataViewport. */
-    ControlPanel* getControlPanel()
-    {
-        return cp;
-    }
+	ControlPanel* getControlPanel();
 
     /** Returns a pointer to the application's MessageCenter. */
-    MessageCenterEditor* getMessageCenter()
-    {
-        return mc;
-    }
+	MessageCenterEditor* getMessageCenter();
 
     /** Returns a pointer to the application's UIComponent. */
-    UIComponent* getUIComponent()
-    {
-        return ui;
-    }
+	UIComponent* getUIComponent();
 
     /** Returns a pointer to the application's AudioComponent. */
-    AudioComponent* getAudioComponent()
-    {
-        return ac;
-    }
+	AudioComponent* getAudioComponent();
 
     /** Returns a pointer to the application's GraphViewer. */
-    GraphViewer* getGraphViewer()
-    {
-        return gv;
-    }
+	GraphViewer* getGraphViewer();
 
-private:
-
-    UIComponent* ui;
-    EditorViewport* ev;
-    ProcessorList* pl;
-    DataViewport* dv;
-    ProcessorGraph* pg;
-    ControlPanel* cp;
-    MessageCenterEditor* mc;
-    AudioComponent* ac;
-    GraphViewer* gv;
+	ActionBroadcaster* getBroadcaster();
 
 };
 

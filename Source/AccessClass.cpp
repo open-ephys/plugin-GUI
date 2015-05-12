@@ -25,21 +25,95 @@
 
 #include "UI/UIComponent.h"
 
-void AccessClass::setUIComponent(UIComponent* ui_)
+namespace AccessClass
 {
+	namespace {
+		UIComponent* ui = nullptr;
+		EditorViewport* ev = nullptr;
+		ProcessorList* pl = nullptr;
+		DataViewport* dv = nullptr;
+		ProcessorGraph* pg = nullptr;
+		ControlPanel* cp = nullptr;
+		MessageCenterEditor* mc = nullptr;
+		AudioComponent* ac = nullptr;
+		GraphViewer* gv = nullptr;
+		ScopedPointer<ActionBroadcaster> bc;
 
-    ui = ui_;
+		void setUIComponent(UIComponent* ui_)
+		{
+			if (ui != nullptr) return;
+			ui = ui_;
 
-    ev = ui->getEditorViewport();
-    dv = ui->getDataViewport();
-    pl = ui->getProcessorList();
-    pg = ui->getProcessorGraph();
-    cp = ui->getControlPanel();
-    mc = ui->getMessageCenter();
-    ac = ui->getAudioComponent();
-    gv = ui->getGraphViewer();
+			ev = ui->getEditorViewport();
+			dv = ui->getDataViewport();
+			pl = ui->getProcessorList();
+			pg = ui->getProcessorGraph();
+			cp = ui->getControlPanel();
+			mc = ui->getMessageCenter();
+			ac = ui->getAudioComponent();
+			gv = ui->getGraphViewer();
+			bc = new ActionBroadcaster();
+			bc->addActionListener(mc);
+		}
 
-    addActionListener(mc);
+		/** Returns a pointer to the application's EditorViewport. */
+		EditorViewport* getEditorViewport()
+		{
+			return ev;
+		}
 
-    updateChildComponents();
+		/** Returns a pointer to the application's DataViewport. */
+		DataViewport* getDataViewport()
+		{
+			return dv;
+		}
+
+		/** Returns a pointer to the application's ProcessorList. */
+		ProcessorList* getProcessorList()
+		{
+			return pl;
+		}
+
+		/** Returns a pointer to the application's ProcessorGraph. */
+		ProcessorGraph* getProcessorGraph()
+		{
+			return pg;
+		}
+
+		/** Returns a pointer to the application's DataViewport. */
+		ControlPanel* getControlPanel()
+		{
+			return cp;
+		}
+
+		/** Returns a pointer to the application's MessageCenter. */
+		MessageCenterEditor* getMessageCenter()
+		{
+			return mc;
+		}
+
+		/** Returns a pointer to the application's UIComponent. */
+		UIComponent* getUIComponent()
+		{
+			return ui;
+		}
+
+		/** Returns a pointer to the application's AudioComponent. */
+		AudioComponent* getAudioComponent()
+		{
+			return ac;
+		}
+
+		/** Returns a pointer to the application's GraphViewer. */
+		GraphViewer* getGraphViewer()
+		{
+			return gv;
+		}
+
+		ActionBroadcaster* getBroadcaster()
+		{
+			return bc.get();
+		}
+
+	}
 }

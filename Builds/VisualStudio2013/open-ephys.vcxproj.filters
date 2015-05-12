@@ -442,6 +442,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\CoreServices.cpp">
+      <Filter>open-ephys\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\AccessClass.cpp">
       <Filter>open-ephys\Source</Filter>
     </ClCompile>
@@ -2034,6 +2037,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\CoreServices.h">
+      <Filter>open-ephys\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\AccessClass.h">
       <Filter>open-ephys\Source</Filter>
     </ClInclude>

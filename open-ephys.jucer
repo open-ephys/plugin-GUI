@@ -273,6 +273,9 @@
       </GROUP>
     </GROUP>
     <GROUP id="ZMfWAFj" name="Source">
+      <FILE id="QyaTEa" name="CoreServices.cpp" compile="1" resource="0"
+            file="Source/CoreServices.cpp"/>
+      <FILE id="BH11mU" name="CoreServices.h" compile="0" resource="0" file="Source/CoreServices.h"/>
       <FILE id="AXFRUPT" name="AccessClass.cpp" compile="1" resource="0"
             file="Source/AccessClass.cpp"/>
       <FILE id="2ViPrE" name="AccessClass.h" compile="0" resource="0" file="Source/AccessClass.h"/>

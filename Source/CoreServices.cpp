@@ -1,0 +1,78 @@
+/*
+    ------------------------------------------------------------------
+
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2014 Open Ephys
+
+    ------------------------------------------------------------------
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+
+#include "CoreServices.h"
+#include "AccessClass.h"
+
+#include "Processors/ProcessorGraph/ProcessorGraph.h"
+#include "Processors/RecordNode/RecordNode.h"
+#include "UI/EditorViewport.h"
+#include "UI/ControlPanel.h"
+
+
+
+using namespace AccessClass;
+
+
+namespace CoreServices
+{
+	void updateSignalChain(GenericEditor* source)
+	{
+		getEditorViewport()->makeEditorVisible(source, false, true);
+	}
+
+	bool getRecordingStatus()
+	{
+		return getControlPanel()->recordButton->getToggleState();
+	}
+
+	void setRecordingStatus(bool enable)
+	{
+		getControlPanel()->setRecordState(enable);
+	}
+
+	void sendStatusMessage(String& text)
+	{
+		getBroadcaster()->sendActionMessage(text);
+	}
+
+	void sendStatusMessage(const char* text)
+	{
+		getBroadcaster()->sendActionMessage(text);
+	}
+	
+	namespace RecordNode
+	{
+		void createNewrecordingDir()
+		{
+			getProcessorGraph()->getRecordNode()->createNewDirectory();
+		}
+
+		File getRecordingPath()
+		{
+			return getProcessorGraph()->getRecordNode()->getDataDirectory();
+		}
+	};
+
+};
