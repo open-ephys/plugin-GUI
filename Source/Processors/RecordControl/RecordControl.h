@@ -63,8 +63,6 @@ private:
 	Edges triggerEdge;
 	Types triggerType;
 
-    RecordNode* recordNode;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordControl);
 
 };

@@ -24,6 +24,7 @@
 #include "MessageCenter.h"
 #include "MessageCenterEditor.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
+#include "../../AccessClass.h"
 
 //---------------------------------------------------------------------
 
@@ -75,7 +76,7 @@ bool MessageCenter::enable()
 	msTime = Time::currentTimeMillis();
 	if (sourceNodeId)
 	{
-		AudioProcessorGraph::Node* node = getProcessorGraph()->getNodeForId(sourceNodeId);
+		AudioProcessorGraph::Node* node = AccessClass::getProcessorGraph()->getNodeForId(sourceNodeId);
 		if (node)
 		{
 			timestampSource = static_cast<GenericProcessor*>(node->getProcessor());

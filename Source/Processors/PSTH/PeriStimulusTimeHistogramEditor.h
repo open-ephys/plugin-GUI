@@ -89,7 +89,7 @@ class ProcessorListItem;
 class UIComponent;
 
 class ConditionList : public Component,
-	public AccessClass, Button::Listener
+	public Button::Listener
 
 {
 public:

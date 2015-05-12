@@ -74,13 +74,8 @@ UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioC
 
     setBounds(0,0,500,400);
 
-
-    processorGraph->setUIComponent(this); // update pointers
-    processorList->setUIComponent(this);
-    editorViewport->setUIComponent(this);
-    dataViewport->setUIComponent(this);
-    controlPanel->getAudioEditor()->setUIComponent(this);
-    controlPanel->setUIComponent(this);
+	AccessClass::setUIComponent(this);
+	controlPanel->updateChildComponents();
 
     processorGraph->updatePointers(); // needs to happen after processorGraph gets the right pointers
 

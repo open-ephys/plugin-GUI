@@ -42,7 +42,7 @@ class EditorViewport;
 
 */
 
-class SignalChainManager : AccessClass
+class SignalChainManager
 {
 public:
     SignalChainManager(EditorViewport*, Array<GenericEditor*, CriticalSection>&,

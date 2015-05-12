@@ -71,8 +71,7 @@ private:
 
 */
 
-class AudioConfigurationWindow : public DocumentWindow,
-    public AccessClass
+class AudioConfigurationWindow : public DocumentWindow
 {
 public:
     AudioConfigurationWindow(AudioDeviceManager& adm, AudioWindowButton* b);
@@ -98,9 +97,7 @@ private:
 
 class AudioEditor : public AudioProcessorEditor,
     public Button::Listener,
-    public Slider::Listener,
-    public AccessClass
-
+    public Slider::Listener
 {
 public:
     AudioEditor(AudioNode* owner);

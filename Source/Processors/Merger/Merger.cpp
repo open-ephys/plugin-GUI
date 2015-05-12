@@ -25,7 +25,7 @@
 #include "MergerEditor.h"
 
 #include "../../UI/EditorViewport.h"
-
+#include "../../AccessClass.h"
 #include "../Channel/Channel.h"
 
 Merger::Merger()
@@ -259,7 +259,7 @@ void Merger::loadCustomParametersFromXml()
                     int NodeAid = mainNode->getIntAttribute("NodeA");
                     int NodeBid = mainNode->getIntAttribute("NodeB");
 
-                    ProcessorGraph* gr = getProcessorGraph();
+					ProcessorGraph* gr = AccessClass::getProcessorGraph();
                     Array<GenericProcessor*> p = gr->getListOfProcessors();
 
                     for (int k = 0; k < p.size(); k++)

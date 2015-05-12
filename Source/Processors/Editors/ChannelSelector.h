@@ -26,7 +26,6 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
-#include "../../AccessClass.h"
 
 #include "../Channel/Channel.h"
 
@@ -50,7 +49,6 @@ class EditorButton;
 
 class ChannelSelector : public Component,
     public Button::Listener,
-    public AccessClass,
     public Timer
 {
 public:

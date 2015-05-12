@@ -97,7 +97,6 @@ private:
 	int64 hardware_timestamp, software_timestamp;
 
 	std::queue<StringTS> networkEventsHistory;
-    RecordNode* recordNode;
 //    uint16 recordingNumber;
     CriticalSection diskWriteLock;
 	Array<Channel*> electrodeChannels;

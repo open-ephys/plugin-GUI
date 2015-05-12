@@ -47,7 +47,6 @@ class UIComponent;
 
 class ProcessorList : public Component,
     public DragAndDropContainer,
-    public AccessClass,
     public ChangeListener
 
 {

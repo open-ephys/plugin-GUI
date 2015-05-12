@@ -45,9 +45,7 @@ class GenericEditor;
 
 */
 
-class DataViewport : public TabbedComponent,
-    public AccessClass
-
+class DataViewport : public TabbedComponent
 {
 public:
     DataViewport();

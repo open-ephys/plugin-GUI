@@ -23,6 +23,7 @@
 
 #include "SplitterEditor.h"
 #include "Splitter.h"
+#include "../../AccessClass.h"
 #include "../../UI/EditorViewport.h"
 
 // PipelineSelectorButton::PipelineSelectorButton()
@@ -104,7 +105,7 @@ void SplitterEditor::buttonEvent(Button* button)
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(0);
 
-        getEditorViewport()->makeEditorVisible(this, false);
+		AccessClass::getEditorViewport()->makeEditorVisible(this, false);
 
     }
     else if (button == pipelineSelectorB)
@@ -114,7 +115,7 @@ void SplitterEditor::buttonEvent(Button* button)
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(1);
 
-        getEditorViewport()->makeEditorVisible(this, false);
+		AccessClass::getEditorViewport()->makeEditorVisible(this, false);
 
     }
 }
@@ -138,7 +139,7 @@ void SplitterEditor::switchDest(int dest)
 
     }
 
-    getEditorViewport()->makeEditorVisible(this, false);
+	AccessClass::getEditorViewport()->makeEditorVisible(this, false);
 }
 
 void SplitterEditor::switchIO(int dest)

@@ -54,7 +54,7 @@ class EngineParameter;
 class RecordNode;
 class RecordEngineManager;
 
-class RecordEngine : public AccessClass
+class RecordEngine 
 {
 public:
     RecordEngine();

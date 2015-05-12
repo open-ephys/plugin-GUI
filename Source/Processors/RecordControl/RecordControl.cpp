@@ -28,7 +28,7 @@
 
 RecordControl::RecordControl()
     : GenericProcessor("Record Control"),
-     triggerChannel(0), recordNode(0)
+     triggerChannel(0)
 {
 
 }
@@ -67,10 +67,6 @@ void RecordControl::updateTriggerChannel(int newChannel)
 
 bool RecordControl::enable()
 {
-    if (recordNode == 0)
-        recordNode = getProcessorGraph()->getRecordNode();
-
-    //recordNode->appendTrialNumber(createNewFilesOnTrigger);
 
     return true;
 }
@@ -103,16 +99,16 @@ void RecordControl::handleEvent(int eventType, MidiMessage& event, int)
 		{
 			if (eventId == edge)
 			{
-				getControlPanel()->setRecordState(true);
+				CoreServices::setRecordingStatus(true);
 			}
 			else
 			{
-				getControlPanel()->setRecordState(false);
+				CoreServices::setRecordingStatus(false);
 			}
 		}
 		else if (triggerType == TOGGLE && eventId == edge)
 		{
-			getControlPanel()->setRecordState(!getControlPanel()->recordButton->getToggleState());
+			CoreServices::setRecordingStatus(!CoreServices::getRecordingStatus());
 		}
 
 

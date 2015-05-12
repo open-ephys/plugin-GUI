@@ -24,7 +24,6 @@
 #include "FileReaderEditor.h"
 
 #include "FileReader.h"
-#include "../../UI/EditorViewport.h"
 
 #include <stdio.h>
 
@@ -85,7 +84,7 @@ void FileReaderEditor::setFile(String file)
     {
         clearEditor();
     }
-    getEditorViewport()->makeEditorVisible(this, false, true);
+	CoreServices::updateSignalChain(this);
     repaint();
 }
 
@@ -151,7 +150,7 @@ void FileReaderEditor::setCurrentTime(unsigned int ms)
 void FileReaderEditor::comboBoxChanged(ComboBox* combo)
 {
     fileReader->setParameter(0,combo->getSelectedId()-1);
-    getEditorViewport()->makeEditorVisible(this, false, true);
+	CoreServices::updateSignalChain(this);
 }
 
 void FileReaderEditor::populateRecordings(FileSource* source)

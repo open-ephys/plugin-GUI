@@ -40,7 +40,6 @@ class MessageLabel;
 class MessageCenterEditor : public AudioProcessorEditor,
     public Button::Listener,
     public Label::Listener,
-    public AccessClass,
     public Timer,
     public ActionListener
 
@@ -73,7 +72,7 @@ public:
 
     void mouseDown(const MouseEvent& event);
 
-	int64 getTimestamp();
+	int64 getTimestamp(bool softwareTimestamp = false);
 
 private:
 

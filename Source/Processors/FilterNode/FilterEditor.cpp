@@ -108,7 +108,7 @@ void FilterEditor::labelTextChanged(Label* label)
 
     if (requestedValue < 0.01 || requestedValue > 10000)
     {
-        sendActionMessage("Value out of range.");
+        CoreServices::sendStatusMessage("Value out of range.");
 
         if (label == highCutValue)
         {

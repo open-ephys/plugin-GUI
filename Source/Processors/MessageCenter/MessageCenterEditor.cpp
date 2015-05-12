@@ -170,9 +170,9 @@ void MessageCenterEditor::resized()
         sendMessageButton->setBounds(getWidth()-50, 5, 45, getHeight()-10);
 }
 
-int64 MessageCenterEditor::getTimestamp()
+int64 MessageCenterEditor::getTimestamp(bool softwareTimestamp)
 {
-	return messageCenter->getTimestamp();
+	return messageCenter->getTimestamp(softwareTimestamp);
 }
 
 void MessageCenterEditor::actionListenerCallback(const String& message)
@@ -219,7 +219,7 @@ void MessageCenterEditor::mouseDown(const MouseEvent& event)
 	{
 		if (acquisitionIsActive)
 		{
-			sendActionMessage("Cannot change timestamp source while acquisition is active");
+			CoreServices::sendStatusMessage("Cannot change timestamp source while acquisition is active");
 			return;
 		}
 		PopupMenu::dismissAllActiveMenus();

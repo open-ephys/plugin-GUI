@@ -61,6 +61,16 @@ namespace CoreServices
 	{
 		getBroadcaster()->sendActionMessage(text);
 	}
+
+	void highlightEditor(GenericEditor* ed)
+	{
+		getEditorViewport()->makeEditorVisible(ed);
+	}
+
+	int64 getGlobalTimestamp()
+	{
+		return getMessageCenter()->getTimestamp();
+	}
 	
 	namespace RecordNode
 	{
@@ -72,6 +82,21 @@ namespace CoreServices
 		File getRecordingPath()
 		{
 			return getProcessorGraph()->getRecordNode()->getDataDirectory();
+		}
+
+		void writeSpike(SpikeObject& spike, int electrodeIndex)
+		{
+			getProcessorGraph()->getRecordNode()->writeSpike(spike, electrodeIndex);
+		}
+
+		void registerSpikeSource(GenericProcessor* processor)
+		{
+			getProcessorGraph()->getRecordNode()->registerSpikeSource(processor);
+		}
+
+		int addSpikeElectrode(SpikeRecordInfo* elec)
+		{
+			return getProcessorGraph()->getRecordNode()->addSpikeElectrode(elec);
 		}
 	};
 

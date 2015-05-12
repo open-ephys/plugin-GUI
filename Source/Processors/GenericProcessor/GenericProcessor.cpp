@@ -23,10 +23,11 @@
 
 #include "GenericProcessor.h"
 #include "../../UI/UIComponent.h"
+#include "../../AccessClass.h"
 
 #include <exception>
 
-GenericProcessor::GenericProcessor(const String& name_) : AccessClass(),
+GenericProcessor::GenericProcessor(const String& name_) :
     sourceNode(0), destNode(0), isEnabled(true), wasConnected(false),
     nextAvailableChannel(0), saveOrder(-1), loadOrder(-1), currentChannel(-1),
     editor(0), parametersAsXml(nullptr), sendSampleCount(true), name(name_),

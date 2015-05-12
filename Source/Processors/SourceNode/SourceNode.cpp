@@ -30,6 +30,7 @@
 #include "../DataThreads/EcubeEditor.h" // Added by Michael Borisov
 #include "../Channel/Channel.h"
 #include <stdio.h>
+#include "../../AccessClass.h"
 
 SourceNode::SourceNode(const String& name_)
     : GenericProcessor(name_),
@@ -110,7 +111,7 @@ DataThread* SourceNode::getThread()
 
 void SourceNode::requestChainUpdate()
 {
-    getEditorViewport()->makeEditorVisible(getEditor(), false, true);
+	CoreServices::updateSignalChain(getEditor());
 }
 
 void SourceNode::getEventChannelNames(StringArray& names)
@@ -279,7 +280,7 @@ bool SourceNode::tryEnablingEditor()
     std::cout << "Input source found." << std::endl;
     enabledState(true);
     GenericEditor* ed = getEditor();
-    getEditorViewport()->makeEditorVisible(ed);
+	CoreServices::highlightEditor(ed);
     return true;
 }
 
@@ -290,7 +291,7 @@ void SourceNode::timerCallback()
         std::cout << "Input source lost." << std::endl;
         enabledState(false);
         GenericEditor* ed = getEditor();
-        getEditorViewport()->makeEditorVisible(ed);
+		CoreServices::highlightEditor(ed);
     }
 }
 
@@ -349,10 +350,10 @@ void SourceNode::acquisitionStopped()
     if (!wasDisabled)
     {
         std::cout << "Source node sending signal to UI." << std::endl;
-        getUIComponent()->disableCallbacks();
+        AccessClass::getUIComponent()->disableCallbacks();
         enabledState(false);
         GenericEditor* ed = (GenericEditor*) getEditor();
-        getEditorViewport()->makeEditorVisible(ed);
+		CoreServices::highlightEditor(ed);
     }
     //}
 }

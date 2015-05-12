@@ -51,7 +51,6 @@ class SignalChainTabButton;
 */
 
 class ProcessorGraph : public AudioProcessorGraph,
-    public AccessClass,
     public ChangeListener
 {
 public:
@@ -88,9 +87,7 @@ public:
     void refreshColors();
 
     void createDefaultNodes();
-	void* createZmqContext();
 private:
-void* zmqcontext;
     int currentNodeId;
 
     enum nodeIds

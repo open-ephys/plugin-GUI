@@ -24,6 +24,7 @@
 #include "ChannelSelector.h"
 #include <math.h>
 
+#include "../../AccessClass.h"
 #include "../RecordNode/RecordNode.h"
 #include "../AudioNode/AudioNode.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
@@ -600,7 +601,7 @@ void ChannelSelector::buttonClicked(Button* button)
 
             if (acquisitionIsActive) // use setParameter to change parameter safely
             {
-                editor->getProcessorGraph()->
+                AccessClass::getProcessorGraph()->
                 getAudioNode()->setChannelStatus(ch, status);
             }
             else     // change parameter directly
@@ -621,7 +622,7 @@ void ChannelSelector::buttonClicked(Button* button)
 
             if (acquisitionIsActive) // use setParameter to change parameter safely
             {
-                editor->getProcessorGraph()->
+                AccessClass::getProcessorGraph()->
                 getRecordNode()->
                 setChannelStatus(ch, status);
             }
@@ -631,7 +632,7 @@ void ChannelSelector::buttonClicked(Button* button)
                 ch->setRecordState(status);
             }
 
-            editor->getGraphViewer()->repaint();
+            AccessClass::getGraphViewer()->repaint();
 
         }
         else // parameter type

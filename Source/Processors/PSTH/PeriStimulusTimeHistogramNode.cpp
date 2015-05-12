@@ -22,10 +22,10 @@
 */
 
 #include "PeriStimulusTimeHistogramNode.h"
-#include "../RecordNode/RecordNode.h"
 #include "../SpikeSorter/SpikeSorter.h"
 #include "PeriStimulusTimeHistogramEditor.h"
 #include "../Channel/Channel.h"
+#include "../../AccessClass.h" //TO BE REMOVED
 //#include "ISCAN.h"
 #include <stdio.h>
 
@@ -127,7 +127,7 @@ void PeriStimulusTimeHistogramNode::updateSettings()
 			electrodeChannels.add(eventChannels[k]);
 	}
 
-	recordNode = getProcessorGraph()->getRecordNode();
+
 //    diskWriteLock = recordNode->getLock();
 }
 
@@ -143,14 +143,14 @@ bool PeriStimulusTimeHistogramNode::enable()
 	PeriStimulusTimeHistogramEditor* editor = (PeriStimulusTimeHistogramEditor*) getEditor();
     editor->enable();
 
-	recordNode->registerSpikeSource(this);
+	CoreServices::RecordNode::registerSpikeSource(this);
 	for (int i = 0; i < electrodeChannels.size(); i++)
 	{
 		SpikeRecordInfo *recElec = new SpikeRecordInfo();
 		recElec->name = electrodeChannels[i]->name;
 		recElec->numChannels = static_cast<SpikeChannel*>(electrodeChannels[i]->extraData.get())->numChannels;
 		recElec->sampleRate = settings.sampleRate;
-		electrodeChannels[i]->recordIndex = recordNode->addSpikeElectrode(recElec);
+		electrodeChannels[i]->recordIndex = CoreServices::RecordNode::addSpikeElectrode(recElec);
 	}
 		
     return true;
@@ -223,7 +223,7 @@ void PeriStimulusTimeHistogramNode::syncInternalDataStructuresWithSpikeSorter()
 
 void PeriStimulusTimeHistogramNode::modifyTimeRange(double preSec_, double postSec_)
 {
-	ProcessorGraph *g = getProcessorGraph();
+	ProcessorGraph *g = AccessClass::getProcessorGraph();
 	Array<GenericProcessor*> p = g->getListOfProcessors();
 	for (int k=0;k<p.size();k++)
 	{
@@ -352,13 +352,13 @@ void PeriStimulusTimeHistogramNode::handleEvent(int eventType, MidiMessage& even
 			if (isRecording)
 			{
 				if (spikeSavingMode == 1 && newSpike.sortedId > 0)
-					recordNode->writeSpike(newSpike, electrodeChannels[newSpike.source]->recordIndex);
+					CoreServices::RecordNode::writeSpike(newSpike, electrodeChannels[newSpike.source]->recordIndex);
 					//dumpSpikeEventToDisk(&newSpike, false);
 				else if (spikeSavingMode == 2 && newSpike.sortedId > 0)
-					recordNode->writeSpike(newSpike, electrodeChannels[newSpike.source]->recordIndex);
+					CoreServices::RecordNode::writeSpike(newSpike, electrodeChannels[newSpike.source]->recordIndex);
 					//dumpSpikeEventToDisk(&newSpike, true);
 				else if (spikeSavingMode == 3)
-					recordNode->writeSpike(newSpike, electrodeChannels[newSpike.source]->recordIndex);
+					CoreServices::RecordNode::writeSpike(newSpike, electrodeChannels[newSpike.source]->recordIndex);
 					//dumpSpikeEventToDisk(&newSpike, true);
 			}
         }

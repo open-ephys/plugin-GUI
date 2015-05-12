@@ -22,6 +22,9 @@
 */
 
 #include "VisualizerEditor.h"
+#include "../../AccessClass.h"
+#include "../../UI/UIComponent.h"
+#include "../../UI/DataViewport.h"
 
 SelectorButton::SelectorButton(const String& name_)
     : Button(name_)
@@ -111,7 +114,7 @@ VisualizerEditor::~VisualizerEditor()
 
     if (tabIndex > -1)
     {
-        getDataViewport()->destroyTab(tabIndex);
+		AccessClass::getDataViewport()->destroyTab(tabIndex);
     }
 
     deleteAllChildren();
@@ -149,7 +152,7 @@ void VisualizerEditor::editorWasClicked()
     if (tabIndex > -1)
     {
         std::cout << "Setting tab index to " << tabIndex << std::endl;
-        getDataViewport()->selectTab(tabIndex);
+		AccessClass::getDataViewport()->selectTab(tabIndex);
     }
 
 }
@@ -186,7 +189,7 @@ void VisualizerEditor::buttonEvent(Button* button)
             if (tabSelector->getToggleState() && windowSelector->getToggleState())
             {
                 tabSelector->setToggleState(false, dontSendNotification);
-                getDataViewport()->destroyTab(tabIndex);
+				AccessClass::getDataViewport()->destroyTab(tabIndex);
                 tabIndex = -1;
             }
 
@@ -230,13 +233,13 @@ void VisualizerEditor::buttonEvent(Button* button)
                     dataWindow->setVisible(false);
                 }
 
-                tabIndex = getDataViewport()->addTabToDataViewport(tabText, canvas, this);
+				tabIndex = AccessClass::getDataViewport()->addTabToDataViewport(tabText, canvas, this);
 
 
             }
             else if (!tabSelector->getToggleState() && tabIndex > -1)
             {
-                getDataViewport()->destroyTab(tabIndex);
+				AccessClass::getDataViewport()->destroyTab(tabIndex);
                 tabIndex = -1;
 
             }

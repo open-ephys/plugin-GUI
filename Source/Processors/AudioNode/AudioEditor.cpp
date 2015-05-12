@@ -23,7 +23,7 @@
 
 #include "AudioEditor.h"
 #include "../../Audio/AudioComponent.h"
-
+#include "../../AccessClass.h"
 
 MuteButton::MuteButton()
     : ImageButton("MuteButton")
@@ -144,7 +144,7 @@ bool AudioEditor::keyPressed(const KeyPress& key)
 void AudioEditor::updateBufferSizeText()
 {
 
-    String t = String(getAudioComponent()->getBufferSizeMs());
+    String t = String(AccessClass::getAudioComponent()->getBufferSizeMs());
     t += " ms";
 
     audioWindowButton->setText(t);
@@ -197,12 +197,11 @@ void AudioEditor::buttonClicked(Button* button)
                 // audioComponent->restartDevice();
 
                 // if (audioComponent != 0) {
-                acw = new AudioConfigurationWindow(getAudioComponent()->deviceManager, audioWindowButton);
-                acw->setUIComponent(getUIComponent());
+                acw = new AudioConfigurationWindow(AccessClass::getAudioComponent()->deviceManager, audioWindowButton);
                 //}
             }
 
-            getAudioComponent()->restartDevice();
+			AccessClass::getAudioComponent()->restartDevice();
             acw->setVisible(true);
 
         }
@@ -212,7 +211,7 @@ void AudioEditor::buttonClicked(Button* button)
             //audioWindowButton->setText(String(getAudioComponent()->getBufferSize()));
             acw->setVisible(false);
             //deleteAndZero(acw);
-            getAudioComponent()->stopDevice();
+			AccessClass::getAudioComponent()->stopDevice();
         }
     }
 
@@ -314,10 +313,10 @@ void AudioConfigurationWindow::closeButtonPressed()
     controlButton->setToggleState(false, dontSendNotification);
 
     //updateBufferSizeText();
-    String t = String(getAudioComponent()->getBufferSizeMs());
+	String t = String(AccessClass::getAudioComponent()->getBufferSizeMs());
     t += " ms";
     controlButton->setText(t);
-    getAudioComponent()->stopDevice();
+	AccessClass::getAudioComponent()->stopDevice();
     setVisible(false);
 }
 

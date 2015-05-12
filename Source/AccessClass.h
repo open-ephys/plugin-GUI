@@ -40,41 +40,43 @@ class GraphViewer;
 
 namespace AccessClass 
 {
+	
 
-    /** Sets the object's UIComponent and copies all the necessary pointers
-        from the UIComponent.
-	 */
-    void setUIComponent(UIComponent*);
+		/** Sets the object's UIComponent and copies all the necessary pointers
+			from the UIComponent.
+			*/
+		void setUIComponent(UIComponent*);
 
-    
-    /** Returns a pointer to the application's EditorViewport. */
-	EditorViewport* getEditorViewport();
 
-    /** Returns a pointer to the application's DataViewport. */
-	DataViewport* getDataViewport();
+		/** Returns a pointer to the application's EditorViewport. */
+		EditorViewport* getEditorViewport();
 
-    /** Returns a pointer to the application's ProcessorList. */
-	ProcessorList* getProcessorList();
+		/** Returns a pointer to the application's DataViewport. */
+		DataViewport* getDataViewport();
 
-    /** Returns a pointer to the application's ProcessorGraph. */
-	ProcessorGraph* getProcessorGraph();
+		/** Returns a pointer to the application's ProcessorList. */
+		ProcessorList* getProcessorList();
 
-    /** Returns a pointer to the application's DataViewport. */
-	ControlPanel* getControlPanel();
+		/** Returns a pointer to the application's ProcessorGraph. */
+		ProcessorGraph* getProcessorGraph();
 
-    /** Returns a pointer to the application's MessageCenter. */
-	MessageCenterEditor* getMessageCenter();
+		/** Returns a pointer to the application's DataViewport. */
+		ControlPanel* getControlPanel();
 
-    /** Returns a pointer to the application's UIComponent. */
-	UIComponent* getUIComponent();
+		/** Returns a pointer to the application's MessageCenter. */
+		MessageCenterEditor* getMessageCenter();
 
-    /** Returns a pointer to the application's AudioComponent. */
-	AudioComponent* getAudioComponent();
+		/** Returns a pointer to the application's UIComponent. */
+		UIComponent* getUIComponent();
 
-    /** Returns a pointer to the application's GraphViewer. */
-	GraphViewer* getGraphViewer();
+		/** Returns a pointer to the application's AudioComponent. */
+		AudioComponent* getAudioComponent();
 
-	ActionBroadcaster* getBroadcaster();
+		/** Returns a pointer to the application's GraphViewer. */
+		GraphViewer* getGraphViewer();
+
+		ActionBroadcaster* getBroadcaster();
+	
 
 };
 

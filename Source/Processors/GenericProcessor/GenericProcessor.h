@@ -34,8 +34,8 @@ enum ChannelType {HEADSTAGE_CHANNEL = 0, AUX_CHANNEL = 1, ADC_CHANNEL = 2, EVENT
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
 #include "../Parameter/Parameter.h"
-#include "../../AccessClass.h"
 #include "../Channel/Channel.h"
+#include "../../CoreServices.h"
 
 #include <time.h>
 #include <stdio.h>
@@ -65,9 +65,7 @@ class Channel;
 
 */
 
-class GenericProcessor : public AudioProcessor,
-    public AccessClass
-
+class GenericProcessor : public AudioProcessor
 {
 public:
 

@@ -38,6 +38,7 @@ namespace AccessClass
 		AudioComponent* ac = nullptr;
 		GraphViewer* gv = nullptr;
 		ScopedPointer<ActionBroadcaster> bc;
+	}
 
 		void setUIComponent(UIComponent* ui_)
 		{
@@ -115,5 +116,4 @@ namespace AccessClass
 			return bc.get();
 		}
 
-	}
 }

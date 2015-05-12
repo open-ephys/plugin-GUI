@@ -93,7 +93,7 @@ bool SpikeDisplayNode::enable()
     std::cout << "SpikeDisplayNode::enable()" << std::endl;
     SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
 
-	getProcessorGraph()->getRecordNode()->registerSpikeSource(this);
+	CoreServices::RecordNode::registerSpikeSource(this);
 	for (int i = 0; i < electrodes.size(); i ++)
 	{
 		Electrode& elec = electrodes.getReference(i);
@@ -101,7 +101,7 @@ bool SpikeDisplayNode::enable()
 		recElec->name = elec.name;
 		recElec->numChannels = elec.numChannels;
 		recElec->sampleRate = settings.sampleRate;
-		elec.recordIndex = getProcessorGraph()->getRecordNode()->addSpikeElectrode(recElec);
+		elec.recordIndex = CoreServices::RecordNode::addSpikeElectrode(recElec);
 	}
 
     editor->enable();
@@ -286,7 +286,7 @@ void SpikeDisplayNode::handleEvent(int eventType, MidiMessage& event, int sample
                     // save spike
                     if (isRecording)
                     {
-						getProcessorGraph()->getRecordNode()->writeSpike(newSpike,e.recordIndex);
+						CoreServices::RecordNode::writeSpike(newSpike,e.recordIndex);
                     }
                 }
 

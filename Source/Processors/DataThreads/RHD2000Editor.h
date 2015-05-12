@@ -54,7 +54,7 @@ class RHD2000Editor;
 class FPGAcanvas;
 
 class FPGAchannelList : public Component,
-    public AccessClass, Button::Listener, ComboBox::Listener
+    Button::Listener, ComboBox::Listener
 {
 public:
 
@@ -92,7 +92,7 @@ private:
 };
 
 
-class FPGAchannelComponent : public Component, public AccessClass, Button::Listener, public ComboBox::Listener, public Label::Listener
+class FPGAchannelComponent : public Component, Button::Listener, public ComboBox::Listener, public Label::Listener
 {
 public:
     FPGAchannelComponent(FPGAchannelList* cl, int ch, int gainIndex_, String name_, Array<float> gains_, ChannelType type_);

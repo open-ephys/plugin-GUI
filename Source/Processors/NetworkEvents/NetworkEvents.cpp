@@ -142,11 +142,13 @@ StringTS::~StringTS() {
 }
 
 /*********************************************/
-NetworkEvents::NetworkEvents(void *zmq_context)
+void* NetworkEvents::zmqcontext = nullptr;
+
+NetworkEvents::NetworkEvents()
 	: GenericProcessor("Network Events"), Thread("NetworkThread"), threshold(200.0), bufferZone(5.0f), state(false)
 
 {
-	zmqcontext = zmq_context;
+	createZmqContext();
 	firstTime = true;
 	responder = nullptr;
 	urlport = 5556;
@@ -190,9 +192,10 @@ std::cout << "Disabling network node" << std::endl;
 	{
 		zmq_close(responder);
 		zmq_ctx_destroy(zmqcontext); // this will cause the thread to exit
+		zmqcontext = nullptr;
 
 		if (!shutdown)
-			zmqcontext = getProcessorGraph()->createZmqContext();// and this will take care that processor graph doesn't attempt to delete the context again
+			createZmqContext();// and this will take care that processor graph doesn't attempt to delete the context again
 	}
 #endif
 	return true;
@@ -402,7 +405,7 @@ void NetworkEvents::process(AudioSampleBuffer& buffer,
 
 	//std::cout << "NETWORK NODE" << std::endl;
 	//printf("Entering NetworkEvents::process\n");
-	setTimestamp(events,getMessageCenter()->getTimestamp());
+	setTimestamp(events,CoreServices::getGlobalTimestamp());
 	checkForEvents(events);
 	//simulateDesignAndTrials(events);
 
@@ -411,7 +414,7 @@ void NetworkEvents::process(AudioSampleBuffer& buffer,
 	 while (!networkMessagesQueue.empty()) {
 			 StringTS msg = networkMessagesQueue.front();
 			 postTimestamppedStringToMidiBuffer(msg, events);
-			 sendActionMessage("Network event received: " + msg.getString());
+			 CoreServices::sendStatusMessage("Network event received: " + msg.getString());
 //			 getUIComponent()->getLogWindow()->addLineToLog(msg);
 		     networkMessagesQueue.pop();
 	 }
@@ -541,3 +544,10 @@ void NetworkEvents::loadCustomParametersFromXml()
 	}
 }
 
+void NetworkEvents::createZmqContext()
+{
+#ifdef ZEROMQ 
+	if (zmqcontext != nullptr)
+		zmqcontext = zmq_ctx_new(); //<-- this is only available in version 3+
+#endif
+}

@@ -30,7 +30,6 @@
 #include "../Processors/Splitter/SplitterEditor.h"
 #include "../Processors/Merger/MergerEditor.h"
 
-#include "../AccessClass.h"
 #include "ControlPanel.h"
 #include "UIComponent.h"
 #include "DataViewport.h"
@@ -63,10 +62,8 @@ class UIComponent;
 
 class EditorViewport  : public Component,
     public DragAndDropTarget,
-    public AccessClass,
     public Button::Listener,
     public Label::Listener
-
 {
 public:
 

@@ -25,6 +25,7 @@
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../UI/EditorViewport.h"
 #include "../../UI/ControlPanel.h"
+#include "../../AccessClass.h"
 #include "RecordEngine.h"
 
 #define EVERY_ENGINE for(int eng = 0; eng < engineArray.size(); eng++) engineArray[eng]
@@ -156,7 +157,7 @@ void RecordNode::getChannelNamesAndRecordingStatus(StringArray& names, Array<boo
 void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
 
-    if (chan != getProcessorGraph()->midiChannelIndex)
+	if (chan != AccessClass::getProcessorGraph()->midiChannelIndex)
     {
 
         int channelIndex = getNextChannel(false);
@@ -217,7 +218,7 @@ String RecordNode::generateDirectoryName()
     t.add(calendar.getMinutes());
     t.add(calendar.getSeconds());
 
-    String filename = getControlPanel()->getTextToPrepend();
+	String filename = AccessClass::getControlPanel()->getTextToPrepend();
 
     String datestring = "";
 
@@ -234,10 +235,10 @@ String RecordNode::generateDirectoryName()
             datestring += "-";
     }
 
-    getControlPanel()->setDateText(datestring);
+	AccessClass::getControlPanel()->setDateText(datestring);
 
     filename += datestring;
-    filename += getControlPanel()->getTextToAppend();
+	filename += AccessClass::getControlPanel()->getTextToAppend();
 
     return filename;
 
@@ -313,7 +314,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 		if (settingsNeeded)
 		{
 			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
-			getEditorViewport()->saveState(File(settingsFileName));
+			AccessClass::getEditorViewport()->saveState(File(settingsFileName));
 			settingsNeeded = false;
 		}
 
@@ -352,7 +353,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
             {
                 //Toggling channels while recording isn't allowed. Code shouldn't reach here.
                 //In case it does, display an error and exit.
-                sendActionMessage("Toggling record channels while recording is not allowed");
+                CoreServices::sendStatusMessage("Toggling record channels while recording is not allowed");
                 std::cout << "ERROR: Wrong code section reached\n Toggling record channels while recording is not allowed." << std::endl;
                 return;
             }

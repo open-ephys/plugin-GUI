@@ -25,6 +25,7 @@
 #include "Merger.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../UI/EditorViewport.h"
+#include "../../AccessClass.h"
 
 // PipelineSelectorButton::PipelineSelectorButton()
 // 	: DrawableButton ("Selector", DrawableButton::ImageFitted)
@@ -115,7 +116,7 @@ void MergerEditor::buttonEvent(Button* button)
 
     }
 
-    getEditorViewport()->makeEditorVisible(this, false);
+    AccessClass::getEditorViewport()->makeEditorVisible(this, false);
 }
 
 void MergerEditor::mouseDown(const MouseEvent& e)
@@ -129,7 +130,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
         PopupMenu m;
         m.addItem(1, "Choose input 2:",false);
 
-        Array<GenericProcessor*> availableProcessors = getProcessorGraph()->getListOfProcessors();
+		Array<GenericProcessor*> availableProcessors = AccessClass::getProcessorGraph()->getListOfProcessors();
 
         int i;
 
@@ -182,9 +183,9 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             processor->setMergerSourceNode(availableProcessors[result-2]);
             availableProcessors[result-2]->setDestNode(getProcessor());
 
-            getGraphViewer()->updateNodeLocations();
+			AccessClass::getGraphViewer()->updateNodeLocations();
 
-            getEditorViewport()->makeEditorVisible(this, false, true);
+			AccessClass::getEditorViewport()->makeEditorVisible(this, false, true);
         } else if (result == eventMerge)
         {
             *eventPtr = !(*eventPtr);

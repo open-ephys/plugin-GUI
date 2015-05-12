@@ -26,8 +26,7 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
-#include "../../AccessClass.h"
-
+#include "../../CoreServices.h"
 #include "../Channel/Channel.h"
 
 #include <stdio.h>
@@ -56,7 +55,6 @@ class Channel;
 
 class GenericEditor : public AudioProcessorEditor,
     public Timer,
-    public AccessClass,
     public Button::Listener,
     public Slider::Listener
 

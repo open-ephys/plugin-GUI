@@ -1800,7 +1800,7 @@ void RHDImpedanceMeasure::stopThreadSafely()
 {
 	if (isThreadRunning())
 	{
-		sendActionMessage("Impedance measure in progress. Stopping it.");
+		CoreServices::sendStatusMessage("Impedance measure in progress. Stopping it.");
 		if (!stopThread(3000)) //wait three seconds max for it to exit gracefully
 		{
 			std::cerr << "ERROR: Impedance measurement thread did not exit. Force killed it. This might led to crashes." << std::endl;
@@ -1812,7 +1812,7 @@ void RHDImpedanceMeasure::waitSafely()
 {
 	if (!waitForThreadToExit(120000)) //two minutes should be enough for completing a scan
 	{
-		sendActionMessage("Impedance measurement took too much. Aborting.");
+		CoreServices::sendStatusMessage("Impedance measurement took too much. Aborting.");
 		if (!stopThread(3000)) //wait three seconds max for it to exit gracefully
 		{
 			std::cerr << "ERROR: Impedance measurement thread did not exit. Force killed it. This might led to crashes." << std::endl;
@@ -1822,7 +1822,6 @@ void RHDImpedanceMeasure::waitSafely()
 
 void RHDImpedanceMeasure::prepareData(ImpedanceData* d)
 {
-	addActionListener(board->sn->getMessageCenter());
 	data = d;
 }
 

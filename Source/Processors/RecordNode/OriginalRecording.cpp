@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "OriginalRecording.h"
+#include "../../AccessClass.h"
 #include "../../Audio/AudioComponent.h"
 
 OriginalRecording::OriginalRecording() : separateFiles(false),
@@ -320,7 +321,7 @@ String OriginalRecording::generateHeader(Channel* ch)
     header += BLOCK_LENGTH;
     header += ";\n";
     header += "header.bufferSize = ";
-    header += getAudioComponent()->getBufferSize();
+    header += AccessClass::getAudioComponent()->getBufferSize();
     header += ";\n";
     header += "header.bitVolts = ";
     header += (ch != nullptr) ? String(ch->bitVolts) : "1";

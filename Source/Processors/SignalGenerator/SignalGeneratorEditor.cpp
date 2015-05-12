@@ -198,7 +198,7 @@ void SignalGeneratorEditor::labelTextChanged(Label* label)
 
     SignalGenerator* sg = (SignalGenerator*) getProcessor();
     sg->nOut = numChannelsLabel->getText().getIntValue();
-    getEditorViewport()->makeEditorVisible(this);
+	CoreServices::highlightEditor(this);
 }
 
 WaveformSelector::WaveformSelector(int type) : Button("Waveform")

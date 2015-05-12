@@ -26,8 +26,6 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "GenericEditor.h"
-#include "../../UI/UIComponent.h"
-#include "../../UI/DataViewport.h"
 #include "../Visualization/DataWindow.h"
 #include "../Visualization/Visualizer.h"
 

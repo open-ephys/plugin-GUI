@@ -230,7 +230,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHDHeadstage);
 };
 
-class RHDImpedanceMeasure : public Thread, public ActionBroadcaster
+class RHDImpedanceMeasure : public Thread
 {
 public:
 	RHDImpedanceMeasure(RHD2000Thread* b);

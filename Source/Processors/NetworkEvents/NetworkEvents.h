@@ -74,7 +74,7 @@ public:
 class NetworkEvents : public GenericProcessor,  public Thread
 {
 public:
-    NetworkEvents(void *zmq_context);
+    NetworkEvents();
     ~NetworkEvents();
 	AudioProcessorEditor* createEditor();
 	int64 getExtrapolatedHardwareTimestamp(int64 softwareTS);
@@ -115,10 +115,11 @@ public:
 	 bool threadRunning ;
 private:
 	   void handleEvent(int eventType, MidiMessage& event, int samplePos);
+	   void createZmqContext();
 
 	   StringTS createStringTS(String S, int64 t);
 	  
-	void *zmqcontext;
+	static void *zmqcontext;
 	void *responder;
     float threshold;
     float bufferZone;

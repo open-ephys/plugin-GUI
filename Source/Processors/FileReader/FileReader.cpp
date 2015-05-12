@@ -55,7 +55,7 @@ bool FileReader::isReady()
 {
     if (input == nullptr)
     {
-        sendActionMessage("No file selected in File Reader.");
+		CoreServices::sendStatusMessage("No file selected in File Reader.");
         return false;
     }
     else
@@ -114,21 +114,21 @@ bool FileReader::setFile(String fullpath)
     }
     else
     {
-        sendActionMessage("File type not supported");
+		CoreServices::sendStatusMessage("File type not supported");
         return false;
     }
 
     if (!input->OpenFile(file))
     {
         input = nullptr;
-        sendActionMessage("Invalid file");
+		CoreServices::sendStatusMessage("Invalid file");
         return false;
     }
 
     if (input->getNumRecords() <= 0)
     {
         input = nullptr;
-        sendActionMessage("Empty file. Inoring open operation");
+		CoreServices::sendStatusMessage("Empty file. Inoring open operation");
         return false;
     }
     static_cast<FileReaderEditor*>(getEditor())->populateRecordings(input);

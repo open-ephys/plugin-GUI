@@ -24,6 +24,7 @@
 #include "RecordEngine.h"
 #include "RecordNode.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
+#include "../../AccessClass.h"
 
 #include "EngineConfigWindow.h"
 #include "HDF5Recording.h"
@@ -44,17 +45,17 @@ void RecordEngine::registerProcessor(GenericProcessor* processor) {}
 
 Channel* RecordEngine::getChannel(int index)
 {
-    return getProcessorGraph()->getRecordNode()->getDataChannel(index);
+    return AccessClass::getProcessorGraph()->getRecordNode()->getDataChannel(index);
 }
 
 String RecordEngine::generateDateString()
 {
-    return getProcessorGraph()->getRecordNode()->generateDateString();
+	return AccessClass::getProcessorGraph()->getRecordNode()->generateDateString();
 }
 
 SpikeRecordInfo* RecordEngine::getSpikeElectrode(int index)
 {
-    return getProcessorGraph()->getRecordNode()->getSpikeElectrode(index);
+	return AccessClass::getProcessorGraph()->getRecordNode()->getSpikeElectrode(index);
 }
 
 void RecordEngine::updateTimestamps(std::map<uint8, int64>* ts)
