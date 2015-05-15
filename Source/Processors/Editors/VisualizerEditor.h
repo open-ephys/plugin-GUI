@@ -67,7 +67,7 @@ public:
     ~VisualizerEditor();
 
     void buttonEvent(Button* button);
-    virtual void buttonCallback(Button* button) {}
+	virtual void buttonCallback(Button* button);
 
     virtual Visualizer* createNewCanvas() = 0;
 

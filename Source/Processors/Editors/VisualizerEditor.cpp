@@ -121,6 +121,8 @@ VisualizerEditor::~VisualizerEditor()
 
 }
 
+void VisualizerEditor::buttonCallback(Button* button) {}
+
 void VisualizerEditor::enable()
 {
     std::cout << "   Enabling VisualizerEditor" << std::endl;
