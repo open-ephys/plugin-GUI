@@ -224,7 +224,7 @@ void MessageCenterEditor::mouseDown(const MouseEvent& event)
         }
         PopupMenu::dismissAllActiveMenus();
         sourceMenu->clear();
-        sourceMenu->addItem(1,"Milliseconds",true,messageCenter->getSourceNodeId() == 0);
+        sourceMenu->addItem(1,"Software timer",true,messageCenter->getSourceNodeId() == 0);
         for (int i=0; i < sourcesList.size(); i++)
         {
             GenericProcessor* p = sourcesList[i];
