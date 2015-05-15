@@ -56,6 +56,9 @@ Defaults to the first hardware timestamp source or the software one if
 no hardware timestamping is present*/
 int64 getGlobalTimestamp();
 
+/** Gets the software timestamp based on a high resolution timer aligned to the start of each processing block */
+int64 getSoftwareTimestamp();
+
 namespace RecordNode
 {
 /** Forces creation of new directory on recording */

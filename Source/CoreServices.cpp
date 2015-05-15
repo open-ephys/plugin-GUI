@@ -72,6 +72,11 @@ int64 getGlobalTimestamp()
     return getMessageCenter()->getTimestamp();
 }
 
+int64 getSoftwareTimestamp()
+{
+	return getMessageCenter()->getTimestamp(true);
+}
+
 namespace RecordNode
 {
 void createNewrecordingDir()
