@@ -229,7 +229,15 @@ void OriginalRecording::openMessageFile(File rootFolder)
 {
     FILE* mFile;
     String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
-    fullPath += "messages.events";
+
+	fullPath += "messages";
+
+	if (experimentNumber > 1)
+	{
+		fullPath += "_" + String(experimentNumber);
+	}
+
+    fullPath += ".events";
 
     std::cout << "OPENING FILE: " << fullPath << std::endl;
 
