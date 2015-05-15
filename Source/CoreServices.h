@@ -33,18 +33,39 @@ struct SpikeRecordInfo;
 
 namespace CoreServices
 {
+/** Issues a signal chain update, useful for propagating new channel settings */
 void updateSignalChain(GenericEditor* source);
+
+/** Returns true is the GUI is recording */
 bool getRecordingStatus();
+
+/** Activated or deactivates recording */
 void setRecordingStatus(bool enable);
+
+/** Sends a string to the message bar */
 void sendStatusMessage(String& text);
+
+/** Sends a string to the message bar */
 void sendStatusMessage(const char* text);
+
+/** Highlights an editor */
 void highlightEditor(GenericEditor* ed);
+
+/** Gets the timestamp selected on the MessageCenter interface
+Defaults to the first hardware timestamp source or the software one if
+no hardware timestamping is present*/
 int64 getGlobalTimestamp();
 
 namespace RecordNode
 {
+/** Forces creation of new directory on recording */
 void createNewrecordingDir();
+
+/** Gets the current recording directory */
 File getRecordingPath();
+
+/* Spike related methods. See record engine documentation */
+
 void writeSpike(SpikeObject& spike, int electrodeIndex);
 void registerSpikeSource(GenericProcessor* processor);
 int addSpikeElectrode(SpikeRecordInfo* elec);
