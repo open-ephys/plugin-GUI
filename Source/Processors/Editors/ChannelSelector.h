@@ -72,10 +72,7 @@ public:
     void setNumChannels(int);
 
     /** get the total number of channels. */
-    int getNumChannels()
-    {
-        return parameterButtons.size();
-    }
+	int getNumChannels();
 
     /** Return whether a particular channel should be recording. */
     bool getRecordStatus(int chan);
@@ -120,21 +117,14 @@ public:
     void activateRecButtons();
 
     /** Refreshes Parameter Colors on change*/
-    void refreshParameterColors()
-    {
-        GenericEditor* p=dynamic_cast<GenericEditor*>(getParentComponent());
-        p->updateParameterButtons(-1);
-    }
+	void refreshParameterColors();
 
     /** Controls the behavior of ChannelSelectorButtons; they can either behave
     like radio buttons (only one selected at a time) or like toggle buttons (an
     arbitrary number can be selected at once).*/
     void setRadioStatus(bool);
 
-    void paramButtonsToggledByDefault(bool t)
-    {
-        paramsToggled = t;
-    }
+	void paramButtonsToggledByDefault(bool t);
     //void paramButtonsActiveByDefault(bool t) {paramsActive = t;}
 
     /** Used to scroll channels */
@@ -215,28 +205,11 @@ class EditorButton : public Button
 {
 public:
     EditorButton(const String& name, Font& f);
-    ~EditorButton() {}
+	~EditorButton();
 
-    bool getState()
-    {
-        return isEnabled;
-    }
+	bool getState();
 
-    void setState(bool state)
-    {
-        isEnabled = state;
-
-        if (!state)
-        {
-            removeListener((Button::Listener*) getParentComponent());
-        }
-        else
-        {
-            addListener((Button::Listener*) getParentComponent());
-        }
-
-        repaint();
-    }
+	void setState(bool state);
 
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
@@ -289,28 +262,14 @@ class ChannelSelectorButton : public Button
 {
 public:
     ChannelSelectorButton(int num, int type, Font& f);
-    ~ChannelSelectorButton() {}
+	~ChannelSelectorButton();
 
-    int getType()
-    {
-        return type;
-    }
-    int getChannel()
-    {
-        return num;
-    }
+	int getType();
+	int getChannel();
     //Channel* getChannel() {return ch;}
     void setActive(bool t);
-    void setChannel(int n)
-    {
-        num = n;
-        displayNum = n;
-    }
-    void setChannel(int n, int d)
-    {
-        num = n;
-        displayNum = d;
-    }
+	void setChannel(int n);
+	void setChannel(int n, int d);
 
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);

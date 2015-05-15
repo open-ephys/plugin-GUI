@@ -146,6 +146,11 @@ void ChannelSelector::setNumChannels(int numChans)
 
 }
 
+int ChannelSelector::getNumChannels()
+{
+	return parameterButtons.size();
+}
+
 void ChannelSelector::shiftChannelsVertical(float amount)
 {
 
@@ -376,6 +381,17 @@ void ChannelSelector::activateRecButtons()
         recordButtons[i]->repaint();
     }
 
+}
+
+void ChannelSelector::refreshParameterColors()
+{
+	GenericEditor* p = dynamic_cast<GenericEditor*>(getParentComponent());
+	p->updateParameterButtons(-1);
+}
+
+void ChannelSelector::paramButtonsToggledByDefault(bool t)
+{
+	paramsToggled = t;
 }
 
 void ChannelSelector::startAcquisition()
@@ -688,6 +704,29 @@ EditorButton::EditorButton(const String& name, Font& f) : Button(name)
 
 }
 
+EditorButton::~EditorButton() {}
+
+bool EditorButton::getState()
+{
+	return isEnabled;
+}
+
+void EditorButton::setState(bool state)
+{
+	isEnabled = state;
+
+	if (!state)
+	{
+		removeListener((Button::Listener*) getParentComponent());
+	}
+	else
+	{
+		addListener((Button::Listener*) getParentComponent());
+	}
+
+	repaint();
+}
+
 void EditorButton::resized()
 {
     // float radius = 5.0f;
@@ -830,6 +869,28 @@ ChannelSelectorButton::ChannelSelectorButton(int num_, int type_, Font& f) : But
     buttonFont.setHeight(10);
 }
 
+ChannelSelectorButton::~ChannelSelectorButton() {}
+
+int ChannelSelectorButton::getType()
+{
+	return type;
+}
+
+int ChannelSelectorButton::getChannel()
+{
+	return num;
+}
+
+void ChannelSelectorButton::setChannel(int n)
+{
+	num = n;
+	displayNum = n;
+}
+void ChannelSelectorButton::setChannel(int n, int d)
+{
+	num = n;
+	displayNum = d;
+}
 
 void ChannelSelectorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
