@@ -47,6 +47,8 @@ namespace AccessClass
 			*/
 		void setUIComponent(UIComponent*);
 
+		void shutdownBroadcaster();
+
 
 		/** Returns a pointer to the application's EditorViewport. */
 		EditorViewport* getEditorViewport();

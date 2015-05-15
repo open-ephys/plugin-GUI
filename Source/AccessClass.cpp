@@ -57,6 +57,11 @@ namespace AccessClass
 			bc->addActionListener(mc);
 		}
 
+		void shutdownBroadcaster()
+		{
+			bc = nullptr;
+		}
+
 		/** Returns a pointer to the application's EditorViewport. */
 		EditorViewport* getEditorViewport()
 		{
