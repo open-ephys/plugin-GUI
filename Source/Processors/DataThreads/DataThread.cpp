@@ -89,3 +89,55 @@ void DataThread::updateChannels()
         }
     }
 }
+
+void DataThread::setOutputHigh() {}
+
+void DataThread::setOutputLow() {}
+
+int DataThread::getNumAuxOutputs()
+{
+	return 0;
+}
+
+int DataThread::getNumAdcOutputs()
+{
+	return 0;
+}
+
+int DataThread::getNumEventChannels()
+{
+	return 0;
+}
+
+bool DataThread::isReady()
+{
+	return true;
+}
+
+int DataThread::modifyChannelName(int channel, String newName)
+{
+	return -1;
+}
+
+int DataThread::modifyChannelGain(int channel, float gain)
+{
+	return -1;
+}
+
+void DataThread::getEventChannelNames(StringArray& names)
+{
+}
+
+bool DataThread::usesCustomNames()
+{
+	return false;
+}
+
+void* DataThread::getDevice()
+{
+	return 0;
+}
+
+void DataThread::setDefaultChannelNames()
+{
+}

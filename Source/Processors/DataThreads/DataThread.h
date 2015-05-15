@@ -71,10 +71,10 @@ public:
     virtual bool updateBuffer() = 0;
 
     /** Experimental method used for testing data sources that can deliver outputs.*/
-    virtual void setOutputHigh() {}
+	virtual void setOutputHigh();
 
     /** Experimental method used for testing data sources that can deliver outputs.*/
-    virtual void setOutputLow() {}
+	virtual void setOutputLow();
 
     ScopedPointer<DataBuffer> dataBuffer;
 
@@ -91,16 +91,10 @@ public:
     virtual int getNumHeadstageOutputs() = 0;
 
     /** Returns the number of continuous aux channels the data source can provide.*/
-    virtual int getNumAuxOutputs()
-    {
-        return 0;
-    }
+	virtual int getNumAuxOutputs();
 
     /** Returns the number of continuous ADC channels the data source can provide.*/
-    virtual int getNumAdcOutputs()
-    {
-        return 0;
-    }
+	virtual int getNumAdcOutputs();
 
     /** Returns the sample rate of the data source.*/
     virtual float getSampleRate() = 0;
@@ -109,55 +103,34 @@ public:
     virtual float getBitVolts(Channel* chan) = 0;
 
     /** Returns the number of event channels of the data source.*/
-    virtual int getNumEventChannels()
-    {
-        return 0;
-    }
+	virtual int getNumEventChannels();
 
 	/** Notifies if the device is ready for acquisition */
-	virtual bool isReady()
-	{
-		return true;
-	}
+	virtual bool isReady();
 
-    virtual int modifyChannelName(int channel, String newName)
-    {
-        return -1;
-    }
-    virtual int modifyChannelGain(int channel, float gain)
-    {
-        return -1;
-    }
+	virtual int modifyChannelName(int channel, String newName);
+    
+	virtual int modifyChannelGain(int channel, float gain);
 
     /*  virtual void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
       {
       }*/
 
-    virtual void getEventChannelNames(StringArray& names)
-    {
-    }
+	virtual void getEventChannelNames(StringArray& names);
 
-    virtual bool usesCustomNames()
-    {
-        return false;
-    }
+	virtual bool usesCustomNames();
 
     /** Changes the names of channels, if the thread needs custom names. */
     void updateChannels();
 
     /** Returns a pointer to the data input device, in case other processors
     need to communicate with it.*/
-    virtual void* getDevice()
-    {
-        return 0;
-    }
+	virtual void* getDevice();
 
     void getChannelInfo(Array<ChannelCustomInfo>& infoArray);
 
 protected:
-    virtual void setDefaultChannelNames()
-    {
-    }
+	virtual void setDefaultChannelNames();
 
     SourceNode* sn;
 
