@@ -757,6 +757,9 @@
     <ClCompile Include="..\..\Source\Processors\Splitter\SplitterEditor.cpp">
       <Filter>open-ephys\Source\Processors\Splitter</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Visualization\Visualizer.cpp">
+      <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClCompile>

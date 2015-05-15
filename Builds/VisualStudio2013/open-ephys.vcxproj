@@ -372,6 +372,7 @@
     <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Splitter\Splitter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Splitter\SplitterEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Visualization\Visualizer.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp"/>

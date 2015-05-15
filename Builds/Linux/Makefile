@@ -156,6 +156,7 @@ OBJECTS := \
   $(OBJDIR)/SpikeSorterEditor_3cee6cfb.o \
   $(OBJDIR)/Splitter_889c68aa.o \
   $(OBJDIR)/SplitterEditor_93a6dbf7.o \
+  $(OBJDIR)/Visualizer_2e631df8.o \
   $(OBJDIR)/DataWindow_83ce6754.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/MatlabLikePlot_fb09c37f.o \
@@ -729,6 +730,11 @@ $(OBJDIR)/Splitter_889c68aa.o: ../../Source/Processors/Splitter/Splitter.cpp
 $(OBJDIR)/SplitterEditor_93a6dbf7.o: ../../Source/Processors/Splitter/SplitterEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SplitterEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Visualizer_2e631df8.o: ../../Source/Processors/Visualization/Visualizer.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Visualizer.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/DataWindow_83ce6754.o: ../../Source/Processors/Visualization/DataWindow.cpp

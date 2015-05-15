@@ -39,11 +39,8 @@ class Visualizer : public Component,
 
 {
 public:
-    Visualizer()
-    {
-        refreshRate = 10;    // 10 Hz default refresh rate
-    }
-    ~Visualizer() {}
+	Visualizer();
+	~Visualizer();
 
     /** Called when the component's tab becomes visible again.*/
     virtual void refreshState() = 0;
@@ -67,32 +64,23 @@ public:
     virtual void setParameter(int, int, int, float) = 0;
 
     /** Starts the timer callbacks. */
-    void startCallbacks()
-    {
-        startTimer(20);
-    }
+	void startCallbacks();
 
     /** Stops the timer callbacks. */
-    void stopCallbacks()
-    {
-        stopTimer();
-    }
+	void stopCallbacks();
 
     /** Called whenever the timer is triggered. */
-    void timerCallback()
-    {
-        refresh();
-    }
+	void timerCallback();
 
     /** Refresh rate in Hz. */
     float refreshRate;
 
 
     /** Saves parameters as XML */
-    virtual void saveVisualizerParameters(XmlElement* xml) { }
+	virtual void saveVisualizerParameters(XmlElement* xml);
 
     /** Loads parameters from XML */
-    virtual void loadVisualizerParameters(XmlElement* xml) { }
+	virtual void loadVisualizerParameters(XmlElement* xml);
 
 };
 
