@@ -58,79 +58,46 @@ public:
     Parameter(const String& name_, Array<var> a, int defaultVal, int ID, bool t = false);
 
     /** Destructor.*/
-    ~Parameter() {}
+	~Parameter();
 
     /** Returns the name of the parameter.*/
-    const String& getName()
-    {
-        return name;
-    }
+	const String& getName();
 
     /** Returns a description of the parameter.*/
-    const String& getDescription()
-    {
-        return description;
-    }
+	const String& getDescription();
 
     /** Sets the description of the parameter.*/
-    void addDescription(const String& desc)
-    {
-        description = desc;
-    }
+	void addDescription(const String& desc);
 
     /** Returns the default value of a parameter (can be boolean, int, or float).*/
-    var getDefaultValue()
-    {
-        return defaultValue;
-    }
+	var getDefaultValue();
 
     /** Returns the unique integer ID of a parameter.*/
-    int getID()
-    {
-        return parameterId;
-    }
+	int getID();
 
     /** Returns all the possible values that a parameter can take.*/
-    Array<var> getPossibleValues()
-    {
-        return possibleValues;
-    }
+	Array<var> getPossibleValues();
 
     /** Sets the value of a parameter for a given channel.*/
     void setValue(float val, int chan);
 
     /** Returns the value of a parameter for a given channel.*/
-    var operator[](int chan)
-    {
-        return values[chan];
-    }
+	var operator[](int chan);
 
     /** Returns the value of a parameter for a given channel.*/
-    var getValue(int chan)
-    {
-        return values[chan];
-    }
+	var getValue(int chan);
 
     /** Copies a parameter.*/
     Parameter& operator=(const Parameter& other);
 
     /** Returns true if a parameter is boolean, false otherwise.*/
-    bool isBoolean()
-    {
-        return isBool;
-    }
+	bool isBoolean();
 
     /** Returns true if a parameter is continuous, false otherwise.*/
-    bool isContinuous()
-    {
-        return isCont;
-    }
+	bool isContinuous();
 
     /** Returns true if a parameter is discrete, false otherwise.*/
-    bool isDiscrete()
-    {
-        return isDisc;
-    }
+	bool isDiscrete();
 
     /** Certain parameters should not be changed while data acquisition is active.
 

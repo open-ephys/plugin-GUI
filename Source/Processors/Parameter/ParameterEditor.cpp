@@ -161,6 +161,11 @@ void ParameterEditor::parentHierarchyChanged()
 
 }
 
+void ParameterEditor::setChannelSelector(ChannelSelector* ch)
+{
+	channelSelector = ch;
+}
+
 void ParameterEditor::setEnabled(bool state)
 {
 
@@ -285,6 +290,8 @@ ParameterButton::ParameterButton(var value, int buttonType, Font labelFont) :
 
 }
 
+ParameterButton::~ParameterButton() {}
+
 void ParameterButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     g.setColour(Colours::grey);
@@ -400,6 +407,8 @@ ParameterCheckbox::ParameterCheckbox(bool defaultState) : Button("name"), isEnab
                                      false);
 }
 
+ParameterCheckbox::~ParameterCheckbox() {}
+
 void ParameterCheckbox::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
 
@@ -445,6 +454,8 @@ ParameterSlider::ParameterSlider(float min, float max, float def, Font labelFont
     setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
 
 }
+
+ParameterSlider::~ParameterSlider() {}
 
 void ParameterSlider::paint(Graphics& g)
 {

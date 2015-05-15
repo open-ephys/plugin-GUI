@@ -70,6 +70,37 @@ Parameter::Parameter(const String& name_, Array<var> a, int defaultVal,
 
 }
 
+Parameter::~Parameter() {}
+
+const String& Parameter::getName()
+{
+	return name;
+}
+
+const String& Parameter::getDescription()
+{
+	return description;
+}
+
+void Parameter::addDescription(const String& desc)
+{
+	description = desc;
+}
+
+var Parameter::getDefaultValue()
+{
+	return defaultValue;
+}
+
+int Parameter::getID()
+{
+	return parameterId;
+}
+
+Array<var> Parameter::getPossibleValues()
+{
+	return possibleValues;
+}
 
 void Parameter::setValue(float val, int chan)
 {
@@ -109,6 +140,32 @@ void Parameter::setValue(float val, int chan)
 
     }
 
+}
+
+var Parameter::operator[](int chan)
+{
+	return values[chan];
+}
+
+var Parameter::getValue(int chan)
+{
+	return values[chan];
+}
+
+
+bool Parameter::isBoolean()
+{
+	return isBool;
+}
+
+bool Parameter::isContinuous()
+{
+	return isCont;
+}
+
+bool Parameter::isDiscrete()
+{
+	return isDisc;
 }
 
 // void BooleanParameter::setValue(float val, int chan)

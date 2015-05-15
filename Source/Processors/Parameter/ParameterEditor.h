@@ -61,10 +61,7 @@ public:
     void buttonClicked(Button* button);
     void sliderValueChanged(Slider* slider);
 
-    void setChannelSelector(ChannelSelector* ch)
-    {
-        channelSelector = ch;
-    }
+	void setChannelSelector(ChannelSelector* ch);
 
     // for inactivation during acquisition:
     void setEnabled(bool t);
@@ -104,7 +101,7 @@ class ParameterButton : public Button
 {
 public:
     ParameterButton(var value, int buttonType, Font labelFont);
-    ~ParameterButton() {}
+	~ParameterButton();
 
     bool isEnabled;
     //Used to mark if unused, usedByActive, or usedby inactive
@@ -150,7 +147,7 @@ class ParameterCheckbox : public Button
 {
 public:
     ParameterCheckbox(bool defaultState);
-    ~ParameterCheckbox() {}
+	~ParameterCheckbox();
 
     bool isEnabled;
 
@@ -175,7 +172,7 @@ class ParameterSlider : public Slider
 {
 public:
     ParameterSlider(float min, float max, float defaultValue, Font f);
-    ~ParameterSlider() {}
+	~ParameterSlider();
 
     bool isEnabled;
 
