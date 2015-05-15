@@ -821,7 +821,7 @@ ChannelSelectorButton::ChannelSelectorButton(int num_, int type_, Font& f) : But
 {
     isActive = true;
     num = num_;
-	displayNum = num_;
+    displayNum = num_;
     type = type_;
 
     setClickingTogglesState(true);
@@ -857,7 +857,7 @@ void ChannelSelectorButton::paintButton(Graphics& g, bool isMouseOver, bool isBu
 
     // g.drawRect(0,0,getWidth(),getHeight(),1.0);
 
-	g.drawText(String(displayNum),0,0,getWidth(),getHeight(),Justification::centred,true);
+    g.drawText(String(displayNum),0,0,getWidth(),getHeight(),Justification::centred,true);
 }
 
 void ChannelSelectorButton::setActive(bool t)

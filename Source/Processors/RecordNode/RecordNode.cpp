@@ -56,7 +56,7 @@ RecordNode::RecordNode()
 
     experimentNumber = 0;
     hasRecorded = false;
-	settingsNeeded = false;
+    settingsNeeded = false;
 
     // 128 inputs, 0 outputs
     setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
@@ -157,7 +157,7 @@ void RecordNode::getChannelNamesAndRecordingStatus(StringArray& names, Array<boo
 void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
 
-	if (chan != AccessClass::getProcessorGraph()->midiChannelIndex)
+    if (chan != AccessClass::getProcessorGraph()->midiChannelIndex)
     {
 
         int channelIndex = getNextChannel(false);
@@ -218,7 +218,7 @@ String RecordNode::generateDirectoryName()
     t.add(calendar.getMinutes());
     t.add(calendar.getSeconds());
 
-	String filename = AccessClass::getControlPanel()->getTextToPrepend();
+    String filename = AccessClass::getControlPanel()->getTextToPrepend();
 
     String datestring = "";
 
@@ -235,10 +235,10 @@ String RecordNode::generateDirectoryName()
             datestring += "-";
     }
 
-	AccessClass::getControlPanel()->setDateText(datestring);
+    AccessClass::getControlPanel()->setDateText(datestring);
 
     filename += datestring;
-	filename += AccessClass::getControlPanel()->getTextToAppend();
+    filename += AccessClass::getControlPanel()->getTextToAppend();
 
     return filename;
 
@@ -299,7 +299,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
             createNewDirectory();
             recordingNumber = 0;
             experimentNumber = 1;
-			settingsNeeded = true;
+            settingsNeeded = true;
             EVERY_ENGINE->directoryChanged();
         }
         else
@@ -311,12 +311,12 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
         {
             rootFolder.createDirectory();
         }
-		if (settingsNeeded)
-		{
-			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
-			AccessClass::getEditorViewport()->saveState(File(settingsFileName));
-			settingsNeeded = false;
-		}
+        if (settingsNeeded)
+        {
+            String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
+            AccessClass::getEditorViewport()->saveState(File(settingsFileName));
+            settingsNeeded = false;
+        }
 
         EVERY_ENGINE->openFiles(rootFolder, experimentNumber, recordingNumber);
 
@@ -385,7 +385,7 @@ bool RecordNode::enable()
     {
         hasRecorded = false;
         experimentNumber++;
-		settingsNeeded = true;
+        settingsNeeded = true;
     }
 
     //When starting a recording, if a new directory is needed it gets rewritten. Else is incremented by one.

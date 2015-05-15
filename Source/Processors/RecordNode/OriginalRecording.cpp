@@ -254,10 +254,10 @@ String OriginalRecording::getFileName(Channel* ch)
 
     filename += ch->nodeId;
     filename += "_";
-	if (renameFiles)
-		filename += renamedPrefix + String(ch->mappedIndex + 1);
-	else
-		filename += ch->name;
+    if (renameFiles)
+        filename += renamedPrefix + String(ch->mappedIndex + 1);
+    else
+        filename += ch->name;
 
     if (experimentNumber > 1)
     {
@@ -344,8 +344,8 @@ String OriginalRecording::generateSpikeHeader(SpikeRecordInfo* elec)
     header += ";\n";
 
     header += "header.description = 'Each record contains 1 uint8 eventType, 1 int64 timestamp, 1 int64 software timestamp, "
-		"1 uint16 sourceID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), 1 uint16 sortedID, 1 uint16 electrodeID, "
-		"1 uint16 channel, 3 uint8 color codes, 2 float32 component projections, n*m uint16 samples, n float32 channelGains, n uint16 thresholds, and 1 uint16 recordingNumber'; \n";
+              "1 uint16 sourceID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), 1 uint16 sortedID, 1 uint16 electrodeID, "
+              "1 uint16 channel, 3 uint8 color codes, 2 float32 component projections, n*m uint16 samples, n float32 channelGains, n uint16 thresholds, and 1 uint16 recordingNumber'; \n";
 
     header += "header.date_created = '";
     header += generateDateString();
@@ -704,8 +704,8 @@ void OriginalRecording::writeXml()
 void OriginalRecording::setParameter(EngineParameter& parameter)
 {
     boolParameter(0, separateFiles);
-	boolParameter(1, renameFiles);
-	strParameter(2, renamedPrefix);
+    boolParameter(1, renameFiles);
+    strParameter(2, renamedPrefix);
 }
 
 RecordEngineManager* OriginalRecording::getEngineManager()
@@ -714,9 +714,9 @@ RecordEngineManager* OriginalRecording::getEngineManager()
     EngineParameter* param;
     param = new EngineParameter(EngineParameter::BOOL,0,"Separate Files",false);
     man->addParameter(param);
-	param = new EngineParameter(EngineParameter::BOOL, 1, "Rename files based on channel order", false);
-	man->addParameter(param);
-	param = new EngineParameter(EngineParameter::STR, 2, "Renamed files prefix", "CH");
-	man->addParameter(param);
+    param = new EngineParameter(EngineParameter::BOOL, 1, "Rename files based on channel order", false);
+    man->addParameter(param);
+    param = new EngineParameter(EngineParameter::STR, 2, "Renamed files prefix", "CH");
+    man->addParameter(param);
     return man;
 }

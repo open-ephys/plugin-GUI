@@ -28,51 +28,51 @@
 #include "RecordEngine.h"
 
 class EngineParameterComponent : public Component,
-	public Label::Listener, public SettableTooltipClient
+    public Label::Listener, public SettableTooltipClient
 {
 public:
-	EngineParameterComponent(EngineParameter& param);
-	~EngineParameterComponent();
+    EngineParameterComponent(EngineParameter& param);
+    ~EngineParameterComponent();
 
-	void paint(Graphics& g);
-	void labelTextChanged(Label* lab);
+    void paint(Graphics& g);
+    void labelTextChanged(Label* lab);
 
-	void saveValue();
+    void saveValue();
 
 private:
-	ScopedPointer<Component> control;
-	EngineParameter::EngineParameterType type;
-	EngineParameter& parameter;
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EngineParameterComponent);
+    ScopedPointer<Component> control;
+    EngineParameter::EngineParameterType type;
+    EngineParameter& parameter;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EngineParameterComponent);
 };
 
 class EngineConfigComponent : public Component
 {
 public:
-	EngineConfigComponent(RecordEngineManager *man, int height);
-	~EngineConfigComponent();
-	void paint(Graphics& g);
-	void saveParameters();
+    EngineConfigComponent(RecordEngineManager* man, int height);
+    ~EngineConfigComponent();
+    void paint(Graphics& g);
+    void saveParameters();
 
 private:
-	OwnedArray<EngineParameterComponent> parameters;
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EngineConfigComponent);
+    OwnedArray<EngineParameterComponent> parameters;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EngineConfigComponent);
 };
 
 class EngineConfigWindow : public DocumentWindow
 {
 public:
-	EngineConfigWindow(RecordEngineManager* man);
+    EngineConfigWindow(RecordEngineManager* man);
     ~EngineConfigWindow();
-	void saveParameters();
+    void saveParameters();
 
 private:
-	RecordEngineManager* manager;
+    RecordEngineManager* manager;
     void closeButtonPressed();
-	ScopedPointer<EngineConfigComponent> ui;
-	
+    ScopedPointer<EngineConfigComponent> ui;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EngineConfigWindow);
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EngineConfigWindow);
 
 };
 

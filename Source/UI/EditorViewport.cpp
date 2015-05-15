@@ -245,7 +245,7 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
         /// needed to remove const cast --> should be a better way to do this
         //String description = sourceDescription.substring(0);
 
-		GenericEditor* activeEditor = (GenericEditor*)AccessClass::getProcessorGraph()->createNewProcessor(description, currentId);//, source, dest);
+        GenericEditor* activeEditor = (GenericEditor*)AccessClass::getProcessorGraph()->createNewProcessor(description, currentId);//, source, dest);
 
         //std::cout << "Active editor: " << activeEditor << std::endl;
 
@@ -276,7 +276,7 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
 
             somethingIsBeingDraggedOver = false;
 
-			AccessClass::getGraphViewer()->addNode(activeEditor);
+            AccessClass::getGraphViewer()->addNode(activeEditor);
 
             repaint();
 
@@ -295,8 +295,8 @@ void EditorViewport::clearSignalChain()
         //const MessageManagerLock mmLock; // prevent redraw while deleting
         std::cout << "Clearing signal chain." << std::endl;
         signalChainManager->clearSignalChain();
-		AccessClass::getProcessorGraph()->clearSignalChain();
-		AccessClass::getGraphViewer()->removeAllNodes();
+        AccessClass::getProcessorGraph()->clearSignalChain();
+        AccessClass::getGraphViewer()->removeAllNodes();
 
     }
     else
@@ -353,12 +353,12 @@ void EditorViewport::deleteNode(GenericEditor* editor)
         editor->setVisible(false);
 
         signalChainManager->updateVisibleEditors(editor, indexOfMovingComponent, insertionPoint, REMOVE);
-        
-		AccessClass::getGraphViewer()->removeNode(editor);
+
+        AccessClass::getGraphViewer()->removeNode(editor);
 
         refreshEditors();
 
-		AccessClass::getProcessorGraph()->removeProcessor((GenericProcessor*)editor->getProcessor());
+        AccessClass::getProcessorGraph()->removeProcessor((GenericProcessor*)editor->getProcessor());
 
         insertionPoint = -1; // make sure all editors are left-justified
         indexOfMovingComponent = -1;
@@ -1368,7 +1368,7 @@ const String EditorViewport::saveState(File fileToUse)
 
     XmlElement* audioSettings = new XmlElement("AUDIO");
 
-	audioSettings->setAttribute("bufferSize", AccessClass::getAudioComponent()->getBufferSize());
+    audioSettings->setAttribute("bufferSize", AccessClass::getAudioComponent()->getBufferSize());
     xml->addChildElement(audioSettings);
 
 
@@ -1379,10 +1379,10 @@ const String EditorViewport::saveState(File fileToUse)
         allProcessors.operator[](i)->saveOrder = -1;
     }
 
-	AccessClass::getControlPanel()->saveStateToXml(xml); // save the control panel settings
-	AccessClass::getProcessorList()->saveStateToXml(xml);
-	AccessClass::getMessageCenter()->saveStateToXml(xml);
-	AccessClass::getUIComponent()->saveStateToXml(xml);  // save the UI settings
+    AccessClass::getControlPanel()->saveStateToXml(xml); // save the control panel settings
+    AccessClass::getProcessorList()->saveStateToXml(xml);
+    AccessClass::getMessageCenter()->saveStateToXml(xml);
+    AccessClass::getUIComponent()->saveStateToXml(xml);  // save the UI settings
 
     if (! xml->writeToFile(currentFile, String::empty))
         error = "Couldn't write to file ";
@@ -1574,7 +1574,7 @@ const String EditorViewport::loadState(File fileToLoad)
         else if (element->hasTagName("AUDIO"))
         {
             int bufferSize = element->getIntAttribute("bufferSize");
-			AccessClass::getAudioComponent()->setBufferSize(bufferSize);
+            AccessClass::getAudioComponent()->setBufferSize(bufferSize);
         }
 
     }
@@ -1585,19 +1585,19 @@ const String EditorViewport::loadState(File fileToLoad)
         editorArray[i]->deselect();
     }
 
-	AccessClass::getProcessorGraph()->restoreParameters();
+    AccessClass::getProcessorGraph()->restoreParameters();
 
-	AccessClass::getControlPanel()->loadStateFromXml(xml); // save the control panel settings
-	AccessClass::getProcessorList()->loadStateFromXml(xml);
-	AccessClass::getMessageCenter()->loadStateFromXml(xml);
-	AccessClass::getUIComponent()->loadStateFromXml(xml);  // save the UI settings
+    AccessClass::getControlPanel()->loadStateFromXml(xml); // save the control panel settings
+    AccessClass::getProcessorList()->loadStateFromXml(xml);
+    AccessClass::getMessageCenter()->loadStateFromXml(xml);
+    AccessClass::getUIComponent()->loadStateFromXml(xml);  // save the UI settings
 
     if (editorArray.size() > 0)
         signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
 
     refreshEditors();
 
-	AccessClass::getProcessorGraph()->restoreParameters();
+    AccessClass::getProcessorGraph()->restoreParameters();
 
 
     String error = "Opened ";

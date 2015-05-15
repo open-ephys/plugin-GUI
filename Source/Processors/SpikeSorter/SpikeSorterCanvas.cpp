@@ -1203,7 +1203,7 @@ bool WaveformAxes::checkThreshold(const SpikeObject& s)
 
 void WaveformAxes::clear()
 {
-	processor->clearRunningStatForSelectedElectrode();
+    processor->clearRunningStatForSelectedElectrode();
     spikeBuffer.clear();
     spikeIndex = 0;
     int numSamples=40;
@@ -1404,40 +1404,40 @@ void WaveformAxes::mouseDrag(const MouseEvent& event)
                     units[k].lstBoxes[isOverBox].y = y-mouseOffsetY;
                 }
 
-				if (units[k].lstBoxes[isOverBox].h < 0)
-				{
-					units[k].lstBoxes[isOverBox].y -= units[k].lstBoxes[isOverBox].h;
-					units[k].lstBoxes[isOverBox].h *= -1;
-					if (strOverWhere == "top")
-						strOverWhere = "bottom";
-					else if (strOverWhere == "bottom")
-						strOverWhere = "top";
-					else if (strOverWhere == "topleft")
-						strOverWhere = "bottomleft";
-					else if (strOverWhere == "topright")
-						strOverWhere = "bottomright";
-					else if (strOverWhere == "bottomleft")
-						strOverWhere = "topleft";
-					else if (strOverWhere == "bottomright")
-						strOverWhere = "topright";
-				}
-				if (units[k].lstBoxes[isOverBox].w < 0)
-				{
-					units[k].lstBoxes[isOverBox].x += units[k].lstBoxes[isOverBox].w;
-					units[k].lstBoxes[isOverBox].w *= -1;
-				if (strOverWhere == "left")
-						strOverWhere = "right";
-					else if (strOverWhere == "right")
-						strOverWhere = "left";
-					else if (strOverWhere == "topleft")
-						strOverWhere = "topright";
-					else if (strOverWhere == "topright")
-						strOverWhere = "topleft";
-					else if (strOverWhere == "bottomleft")
-						strOverWhere = "bottomright";
-					else if (strOverWhere == "bottomright")
-						strOverWhere = "bottomleft";	
-				}
+                if (units[k].lstBoxes[isOverBox].h < 0)
+                {
+                    units[k].lstBoxes[isOverBox].y -= units[k].lstBoxes[isOverBox].h;
+                    units[k].lstBoxes[isOverBox].h *= -1;
+                    if (strOverWhere == "top")
+                        strOverWhere = "bottom";
+                    else if (strOverWhere == "bottom")
+                        strOverWhere = "top";
+                    else if (strOverWhere == "topleft")
+                        strOverWhere = "bottomleft";
+                    else if (strOverWhere == "topright")
+                        strOverWhere = "bottomright";
+                    else if (strOverWhere == "bottomleft")
+                        strOverWhere = "topleft";
+                    else if (strOverWhere == "bottomright")
+                        strOverWhere = "topright";
+                }
+                if (units[k].lstBoxes[isOverBox].w < 0)
+                {
+                    units[k].lstBoxes[isOverBox].x += units[k].lstBoxes[isOverBox].w;
+                    units[k].lstBoxes[isOverBox].w *= -1;
+                    if (strOverWhere == "left")
+                        strOverWhere = "right";
+                    else if (strOverWhere == "right")
+                        strOverWhere = "left";
+                    else if (strOverWhere == "topleft")
+                        strOverWhere = "topright";
+                    else if (strOverWhere == "topright")
+                        strOverWhere = "topleft";
+                    else if (strOverWhere == "bottomleft")
+                        strOverWhere = "bottomright";
+                    else if (strOverWhere == "bottomright")
+                        strOverWhere = "bottomleft";
+                }
 
             }
 
@@ -1547,8 +1547,8 @@ void WaveformAxes::isOverUnitBox(float x, float y, int& UnitID, int& BoxID, Stri
                 }
                 else if (x >= rectx2 - 10 & x <= rectx2 + 10 && y >= recty1-10 & y <= recty1+10)
                 {
-                   where = "topright";
-                   setMouseCursor(MouseCursor::TopRightCornerResizeCursor);
+                    where = "topright";
+                    setMouseCursor(MouseCursor::TopRightCornerResizeCursor);
                 }
                 else if (x >= rectx1 - 10 & x <= rectx1 + 10 && y >= recty2-10 & y <= recty2+10)
                 {
@@ -1558,7 +1558,7 @@ void WaveformAxes::isOverUnitBox(float x, float y, int& UnitID, int& BoxID, Stri
                 else if (x >= rectx2 - 10 & x <= rectx2 + 10 && y >= recty2-10 & y <= recty2+10)
                 {
                     where = "bottomright";
-                   setMouseCursor(MouseCursor::BottomRightCornerResizeCursor);
+                    setMouseCursor(MouseCursor::BottomRightCornerResizeCursor);
                 }
                 else if (x >= rectx1 - 10 & x <= rectx1 + 10)
                 {
@@ -1634,17 +1634,17 @@ void WaveformAxes::drawBoxes(Graphics& g)
 
             //std::cout << rectx1 << " " << rectx2 << " " << recty1 << " " << recty2 << std::endl;
 
-			float drawRecty1, drawRecty2;
+            float drawRecty1, drawRecty2;
             if (signalFlipped)
             {
                 drawRecty2 = h-recty1;
                 drawRecty1 = h-recty2;
             }
-			else
-			{
-				drawRecty1 = recty1;
-				drawRecty2 = recty2;
-			}
+            else
+            {
+                drawRecty1 = recty1;
+                drawRecty2 = recty2;
+            }
             g.drawRect(rectx1,drawRecty1,rectx2-rectx1, drawRecty2-drawRecty1,thickness);
             g.drawText(String(units[k].UnitID), rectx1,drawRecty1-15,rectx2-rectx1,15,juce::Justification::centred,false);
 
@@ -1668,13 +1668,13 @@ void WaveformAxes::paint(Graphics& g)
 
     if (drawGrid)
         drawWaveformGrid(g);
-	 
-	double noise = processor->getSelectedElectrodeNoise();
-	String d = "STD: " + String(noise, 2) + "uV";
-	g.setFont(Font("Small Text", 13, Font::plain));
-	g.setColour(Colours::white);
 
-	g.drawText(d, 10, 10, 150, 20, Justification::left, false);
+    double noise = processor->getSelectedElectrodeNoise();
+    String d = "STD: " + String(noise, 2) + "uV";
+    g.setFont(Font("Small Text", 13, Font::plain));
+    g.setColour(Colours::white);
+
+    g.drawText(d, 10, 10, 150, 20, Justification::left, false);
     // draw the grid lines for the waveforms
 
     // draw the threshold line and labels

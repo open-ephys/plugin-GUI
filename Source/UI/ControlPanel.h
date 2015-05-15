@@ -288,10 +288,10 @@ public:
     void disableCallbacks();
 
     /** Returns a pointer to the AudioEditor.*/
-  /*  AccessClass* getAudioEditor()
-    {
-        return (AccessClass*) audioEditor;
-    }*/
+    /*  AccessClass* getAudioEditor()
+      {
+          return (AccessClass*) audioEditor;
+      }*/
 
     /** Sets whether or not the FilenameComponent is visible.*/
     void openState(bool isOpen);
@@ -340,9 +340,9 @@ public:
     /** Sets the list of recently used directories for saving data. */
     void setRecentlyUsedFilenames(const StringArray& filenames);
 
-	/** Adds the RecordNode as a listener of the FilenameComponent
-	(so it knows when the data directory has changed).*/
-	void updateChildComponents();
+    /** Adds the RecordNode as a listener of the FilenameComponent
+    (so it knows when the data directory has changed).*/
+    void updateChildComponents();
 
     ScopedPointer<RecordButton> recordButton;
 private:

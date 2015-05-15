@@ -91,9 +91,9 @@ void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordi
 
     //Let's just put the first processor (usually the source node) on the KWIK for now
     infoArray[0]->name = String("Open Ephys Recording #") + String(recordingNumber);
-    
+
     if (hasAcquired)
-	   infoArray[0]->start_time = (*timestamps)[getChannel(0)->sourceNodeId]; //(*timestamps).begin()->first;
+        infoArray[0]->start_time = (*timestamps)[getChannel(0)->sourceNodeId]; //(*timestamps).begin()->first;
     else
         infoArray[0]->start_time = 0;
 
@@ -111,7 +111,7 @@ void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordi
                 fileArray[index]->initFile(getChannel(i)->nodeId,basepath);
                 fileArray[index]->open();
                 if (hasAcquired)
-				    infoArray[index]->start_time = (*timestamps)[getChannel(i)->sourceNodeId]; //the timestamps of the first channel
+                    infoArray[index]->start_time = (*timestamps)[getChannel(i)->sourceNodeId]; //the timestamps of the first channel
                 else
                     infoArray[index]->start_time = 0;
             }
@@ -131,7 +131,7 @@ void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordi
             mainFile->addKwdFile(f.getFileName());
 
             infoArray[i]->name = String("Open Ephys Recording #") + String(recordingNumber);
- //           infoArray[i]->start_time = timestamp;
+            //           infoArray[i]->start_time = timestamp;
             infoArray[i]->start_sample = 0;
             infoArray[i]->bitVolts.clear();
             infoArray[i]->bitVolts.addArray(*bitVoltsArray[i]);
@@ -152,12 +152,12 @@ void HDF5Recording::closeFiles()
     spikesFile->close();
     for (int i = 0; i < fileArray.size(); i++)
     {
-		if (fileArray[i]->isOpen())
-		{
-			fileArray[i]->stopRecording();
-			fileArray[i]->close();
-			bitVoltsArray[i]->clear();
-		}
+        if (fileArray[i]->isOpen())
+        {
+            fileArray[i]->stopRecording();
+            fileArray[i]->close();
+            bitVoltsArray[i]->clear();
+        }
     }
 }
 

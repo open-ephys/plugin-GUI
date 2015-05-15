@@ -40,7 +40,7 @@ GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEd
     : AudioProcessorEditor(owner),
       desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
       drawerButton(0), drawerWidth(170),
-    drawerOpen(false), channelSelector(0), isSelected(false), isEnabled(true), isCollapsed(false), tNum(-1)
+      drawerOpen(false), channelSelector(0), isSelected(false), isEnabled(true), isCollapsed(false), tNum(-1)
 {
     constructorInitialize(owner, useDefaultParameterEditors);
 }
@@ -122,7 +122,7 @@ void GenericEditor::updateName()
 void GenericEditor::setDisplayName(const String& string)
 {
     displayName = string;
-	AccessClass::getGraphViewer()->updateNodeLocations();
+    AccessClass::getGraphViewer()->updateNodeLocations();
     repaint();
 }
 
@@ -179,13 +179,13 @@ void GenericEditor::refreshColors()
     };
 
     if (getProcessor()->isSource())
-		backgroundColor = AccessClass::getProcessorList()->findColour(SOURCE_COLOR);// Colour(255, 0, 0);//Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour(SOURCE_COLOR);// Colour(255, 0, 0);//Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
     else if (getProcessor()->isSink())
-		backgroundColor = AccessClass::getProcessorList()->findColour(SINK_COLOR);//Colour(255, 149, 0);//Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour(SINK_COLOR);//Colour(255, 149, 0);//Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
     else if (getProcessor()->isSplitter() || getProcessor()->isMerger() || getProcessor()->isUtility())
-		backgroundColor = AccessClass::getProcessorList()->findColour(UTILITY_COLOR);//Colour(40, 40, 40);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour(UTILITY_COLOR);//Colour(40, 40, 40);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
     else
-		backgroundColor = AccessClass::getProcessorList()->findColour(FILTER_COLOR);//Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour(FILTER_COLOR);//Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
 
     repaint();
 
@@ -237,7 +237,7 @@ void GenericEditor::makeVisible()
 {
     isSelected = true;
     repaint();
-	AccessClass::getEditorViewport()->makeEditorVisible(this);
+    AccessClass::getEditorViewport()->makeEditorVisible(this);
 }
 
 bool GenericEditor::getSelectionState()
@@ -282,14 +282,14 @@ void GenericEditor::setEnabledState(bool t)
 
 void GenericEditor::startRecording()
 {
-	if (channelSelector != 0)
-		channelSelector->inactivateRecButtons();
+    if (channelSelector != 0)
+        channelSelector->inactivateRecButtons();
 }
 
 void GenericEditor::stopRecording()
 {
-	if (channelSelector != 0)
-		channelSelector->activateRecButtons();
+    if (channelSelector != 0)
+        channelSelector->activateRecButtons();
 }
 
 void GenericEditor::startAcquisition()
@@ -458,7 +458,7 @@ bool GenericEditor::checkDrawerButton(Button* button)
             drawerOpen = false;
         }
 
-		AccessClass::getEditorViewport()->makeEditorVisible(this);
+        AccessClass::getEditorViewport()->makeEditorVisible(this);
 
         deselect();
 
@@ -654,7 +654,7 @@ void GenericEditor::switchCollapsedState()
 
         collapsedStateChanged();
 
-		AccessClass::getEditorViewport()->refreshEditors();
+        AccessClass::getEditorViewport()->refreshEditors();
     }
 }
 
@@ -998,7 +998,7 @@ LoadButton::LoadButton() : ImageButton("Load")
     Image icon = ImageCache::getFromMemory(BinaryData::upload2_png,
                                            BinaryData::upload2_pngSize);
 
-    setImages(false, // resizeButtonNowToFitThisImage 
+    setImages(false, // resizeButtonNowToFitThisImage
               true,  // rescaleImagesWhenButtonSizeChanges
               true,  // preserveImageProprotions
               icon,  // normalImage
@@ -1010,7 +1010,7 @@ LoadButton::LoadButton() : ImageButton("Load")
               icon,  // downImage
               1.0,   // imageOpacityWhenDown
               Colours::yellow // overlayColourWhenDown
-              );
+             );
 
 }
 
@@ -1019,19 +1019,19 @@ SaveButton::SaveButton() : ImageButton("Save")
     Image icon = ImageCache::getFromMemory(BinaryData::floppy5_png,
                                            BinaryData::floppy5_pngSize);
 
-   setImages(false, // resizeButtonNowToFitThisImage 
-          true,  // rescaleImagesWhenButtonSizeChanges
-          true,  // preserveImageProprotions
-          icon,  // normalImage
-          1.0,   // imageOpacityWhenNormal
-          Colours::white, // overlayColourWhenNormal
-          icon,  // overImage
-          1.0,   // imageOpacityWhenOver
-          Colours::yellow, // overlayColourWhenOver
-          icon,  // downImage
-          1.0,   // imageOpacityWhenDown
-          Colours::yellow // overlayColourWhenDown
-          );
+    setImages(false, // resizeButtonNowToFitThisImage
+              true,  // rescaleImagesWhenButtonSizeChanges
+              true,  // preserveImageProprotions
+              icon,  // normalImage
+              1.0,   // imageOpacityWhenNormal
+              Colours::white, // overlayColourWhenNormal
+              icon,  // overImage
+              1.0,   // imageOpacityWhenOver
+              Colours::yellow, // overlayColourWhenOver
+              icon,  // downImage
+              1.0,   // imageOpacityWhenDown
+              Colours::yellow // overlayColourWhenDown
+             );
 }
 
 
@@ -1062,17 +1062,17 @@ void GenericEditor::updateParameterButtons(int parameterIndex)
 
 String GenericEditor::getName()
 {
-	return name;
+    return name;
 }
 
 void GenericEditor::tabNumber(int t)
 {
-	tNum = t;
+    tNum = t;
 }
 
 int GenericEditor::tabNumber()
 {
-	return tNum;
+    return tNum;
 }
 
 void GenericEditor::switchSource(int) { }
@@ -1081,7 +1081,7 @@ void GenericEditor::switchSource() { }
 
 GenericProcessor* GenericEditor::getProcessor() const
 {
-	return (GenericProcessor*)getAudioProcessor();
+    return (GenericProcessor*)getAudioProcessor();
 }
 
 void GenericEditor::switchDest() { }
@@ -1091,19 +1091,21 @@ void GenericEditor::switchIO(int) { }
 
 int GenericEditor::getPathForEditor(GenericEditor* editor)
 {
-	return -1;
+    return -1;
 }
 
 void GenericEditor::sliderEvent(Slider* slider) {}
 
 void GenericEditor::editorWasClicked() {}
 
-Colour GenericEditor::getBackgroundColor() {
-	return backgroundColor;
+Colour GenericEditor::getBackgroundColor()
+{
+    return backgroundColor;
 }
 
-ColourGradient GenericEditor::getBackgroundGradient() {
-	return backgroundGradient;
+ColourGradient GenericEditor::getBackgroundGradient()
+{
+    return backgroundGradient;
 }
 
 void GenericEditor::updateSettings() {}
@@ -1120,128 +1122,128 @@ void GenericEditor::collapsedStateChanged() {}
 
 Array<GenericEditor*> GenericEditor::getConnectedEditors()
 {
-	Array<GenericEditor*> a;
-	return a;
+    Array<GenericEditor*> a;
+    return a;
 }
 
 
 /***************************/
 ColorButton::ColorButton(String label_, Font font_) :
-Button(label_), label(label_), font(font_)
+    Button(label_), label(label_), font(font_)
 {
-	userDefinedData = -1;
-	fontColor = juce::Colours::white;
-	backgroundColor = juce::Colours::darkgrey;
-	vert = false;
-	setEnabledState(true);
-	showEnabledStatus = false;
+    userDefinedData = -1;
+    fontColor = juce::Colours::white;
+    backgroundColor = juce::Colours::darkgrey;
+    vert = false;
+    setEnabledState(true);
+    showEnabledStatus = false;
 }
 
 void ColorButton::setShowEnabled(bool state)
 {
-	showEnabledStatus = state;
-	repaint();
+    showEnabledStatus = state;
+    repaint();
 }
 
 void ColorButton::setEnabledState(bool state)
 {
 
-	isEnabled = state;
+    isEnabled = state;
 
-	repaint();
+    repaint();
 }
 
 void ColorButton::setUserDefinedData(int d)
 {
-	userDefinedData = d;
+    userDefinedData = d;
 }
 int ColorButton::getUserDefinedData()
 {
-	return userDefinedData;
+    return userDefinedData;
 }
 
 void ColorButton::setVerticalOrientation(bool state)
 {
-	vert = state;
-	repaint();
+    vert = state;
+    repaint();
 }
 
 void ColorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
 
-	if (isEnabled)
-	{
-		g.fillAll(backgroundColor);
-	}
-	else
-	{
-		int fac = 3;
-		g.fillAll(Colour::fromRGB(backgroundColor.getRed() / fac, backgroundColor.getGreen() / fac, backgroundColor.getBlue() / fac));
-	}
+    if (isEnabled)
+    {
+        g.fillAll(backgroundColor);
+    }
+    else
+    {
+        int fac = 3;
+        g.fillAll(Colour::fromRGB(backgroundColor.getRed() / fac, backgroundColor.getGreen() / fac, backgroundColor.getBlue() / fac));
+    }
 
 
-	/*
-	if (getToggleState())
-	{
-	if (isMouseOver)
-	g.setGradientFill(selectedOverGrad);
-	else
-	g.setGradientFill(selectedGrad);
-	}
-	else
-	{
-	if (isMouseOver)
-	g.setGradientFill(neutralOverGrad);
-	else
-	g.setGradientFill(neutralGrad);
-	}
-	*/
+    /*
+    if (getToggleState())
+    {
+    if (isMouseOver)
+    g.setGradientFill(selectedOverGrad);
+    else
+    g.setGradientFill(selectedGrad);
+    }
+    else
+    {
+    if (isMouseOver)
+    g.setGradientFill(neutralOverGrad);
+    else
+    g.setGradientFill(neutralGrad);
+    }
+    */
 
-	if (isMouseOver)
-	{
-		g.setColour(Colours::white);
-		g.drawRect(0, 0, getWidth(), getHeight());
-	}
+    if (isMouseOver)
+    {
+        g.setColour(Colours::white);
+        g.drawRect(0, 0, getWidth(), getHeight());
+    }
 
-	g.setFont(font);
-	g.setColour(fontColor);
+    g.setFont(font);
+    g.setColour(fontColor);
 
-	if (vert)
-	{
-		g.addTransform(AffineTransform::rotation(-M_PI / 2.0));
-		g.drawText(label, 0, -getHeight(), getHeight(), getWidth(), Justification::left, false);
-		g.addTransform(AffineTransform::rotation(M_PI / 2.0));
-	}
-	else
-	{
-		if (showEnabledStatus)
-		{
-			if (isEnabled)
-				g.drawText("[+] " + label, 0, 0, getWidth(), getHeight(), Justification::left, true);
-			else
-				g.drawText("[-] " + label, 0, 0, getWidth(), getHeight(), Justification::left, true);
-		}
-		else
-			g.drawText(label, 0, 0, getWidth(), getHeight(), Justification::centred, true);
+    if (vert)
+    {
+        g.addTransform(AffineTransform::rotation(-M_PI / 2.0));
+        g.drawText(label, 0, -getHeight(), getHeight(), getWidth(), Justification::left, false);
+        g.addTransform(AffineTransform::rotation(M_PI / 2.0));
+    }
+    else
+    {
+        if (showEnabledStatus)
+        {
+            if (isEnabled)
+                g.drawText("[+] " + label, 0, 0, getWidth(), getHeight(), Justification::left, true);
+            else
+                g.drawText("[-] " + label, 0, 0, getWidth(), getHeight(), Justification::left, true);
+        }
+        else
+            g.drawText(label, 0, 0, getWidth(), getHeight(), Justification::centred, true);
 
-	}
+    }
 
 }
 
 
 String ColorButton::getLabel()
 {
-	return label;
+    return label;
 }
 
 void ColorButton::setColors(Colour foreground, Colour background)
 {
-	fontColor = foreground;
-	backgroundColor = background;
+    fontColor = foreground;
+    backgroundColor = background;
 }
 
 void ColorButton::setLabel(String label_)
 {
-	label = label_;
-	repaint();
+    label = label_;
+    repaint();
 }

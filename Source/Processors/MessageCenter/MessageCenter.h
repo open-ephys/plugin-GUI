@@ -61,18 +61,18 @@ public:
     /** A pointer to the Message Center editor. */
     ScopedPointer<MessageCenterEditor> messageCenterEditor;
 
-	bool enable();
-	bool disable();
+    bool enable();
+    bool disable();
 
     void startRecording()
     {
         isRecording = true;
-		needsToSendTimestampMessage = true;
+        needsToSendTimestampMessage = true;
     }
     void stopRecording()
     {
         isRecording = false;
-		needsToSendTimestampMessage = false;
+        needsToSendTimestampMessage = false;
     }
 
     void setSourceNodeId(int id);
@@ -81,15 +81,15 @@ public:
     void addSourceProcessor(GenericProcessor* p);
     void removeSourceProcessor(GenericProcessor* p);
 
-	int64 getTimestamp(bool softwareTime = false);
+    int64 getTimestamp(bool softwareTime = false);
 private:
 
     bool newEventAvailable;
     bool isRecording;
     int sourceNodeId;
-	GenericProcessor* timestampSource;
-	int64 msTime;
-	bool needsToSendTimestampMessage;
+    GenericProcessor* timestampSource;
+    int64 msTime;
+    bool needsToSendTimestampMessage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MessageCenter);
 

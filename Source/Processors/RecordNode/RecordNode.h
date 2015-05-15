@@ -207,7 +207,7 @@ private:
 
     int experimentNumber;
     bool hasRecorded;
-	bool settingsNeeded;
+    bool settingsNeeded;
 
     /** Generates a default directory name, based on the current date and time */
     String generateDirectoryName();

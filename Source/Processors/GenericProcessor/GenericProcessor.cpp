@@ -31,7 +31,7 @@ GenericProcessor::GenericProcessor(const String& name_) :
     sourceNode(0), destNode(0), isEnabled(true), wasConnected(false),
     nextAvailableChannel(0), saveOrder(-1), loadOrder(-1), currentChannel(-1),
     editor(0), parametersAsXml(nullptr), sendSampleCount(true), name(name_),
-	paramsWereLoaded(false), needsToSendTimestampMessage(false), timestampSet(false)
+    paramsWereLoaded(false), needsToSendTimestampMessage(false), timestampSet(false)
 {
     settings.numInputs = settings.numOutputs = settings.sampleRate = 0;
 
@@ -602,7 +602,7 @@ void GenericProcessor::setTimestamp(MidiBuffer& events, int64 timestamp)
 {
 
     //std::cout << "Setting timestamp to " << timestamp << std:;endl;
-	timestampSet = true;
+    timestampSet = true;
 
     uint8 data[8];
     memcpy(data, &timestamp, 8);
@@ -763,11 +763,11 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
                                 bool isTimestamp)
 {
 
-	/*If the processor doesn't generates timestamps, but needs to add events to the buffer anyway
-	add the timestamp of the first input channel so the event is properly timestamped. We avoid this step for
-	source modules that must always provide a timestamp, even if they don't generate it*/
-	if (!isTimestamp && !timestampSet && !isSource() && !generatesTimestamps())
-		setTimestamp(eventBuffer, getTimestamp(0));
+    /*If the processor doesn't generates timestamps, but needs to add events to the buffer anyway
+    add the timestamp of the first input channel so the event is properly timestamped. We avoid this step for
+    source modules that must always provide a timestamp, even if they don't generate it*/
+    if (!isTimestamp && !timestampSet && !isSource() && !generatesTimestamps())
+        setTimestamp(eventBuffer, getTimestamp(0));
 
     uint8* data = new uint8[6+numBytes];
 
@@ -806,7 +806,7 @@ void GenericProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& event
     processEventBuffer(eventBuffer); // extract buffer sizes and timestamps,
     // set flag on all TTL events to zero
 
-	timestampSet = false;
+    timestampSet = false;
 
     process(buffer, eventBuffer);
 
@@ -1011,12 +1011,12 @@ const String GenericProcessor::unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");
 
 const String GenericProcessor::getName() const
 {
-	return name;
+    return name;
 }
 
 bool GenericProcessor::hasEditor() const
 {
-	return false;
+    return false;
 }
 
 void GenericProcessor::reset() {}
@@ -1035,12 +1035,12 @@ void GenericProcessor::setCurrentProgram(int index) {}
 
 const String GenericProcessor::getInputChannelName(int channelIndex) const
 {
-	return GenericProcessor::unusedNameString;
+    return GenericProcessor::unusedNameString;
 }
 
 const String GenericProcessor::getOutputChannelName(int channelIndex) const
 {
-	return GenericProcessor::unusedNameString;
+    return GenericProcessor::unusedNameString;
 }
 
 void GenericProcessor::getEventChannelNames(StringArray& Names)
@@ -1049,137 +1049,137 @@ void GenericProcessor::getEventChannelNames(StringArray& Names)
 
 float GenericProcessor::getParameter(int parameterIndex)
 {
-	return 1.0;
+    return 1.0;
 }
 
 const String GenericProcessor::getProgramName(int index)
 {
-	return "";
+    return "";
 }
 
 bool GenericProcessor::isInputChannelStereoPair(int index) const
 {
-	return true;
+    return true;
 }
 
 bool GenericProcessor::isOutputChannelStereoPair(int index) const
 {
-	return true;
+    return true;
 }
 
 bool GenericProcessor::acceptsMidi() const
 {
-	return true;
+    return true;
 }
 
 bool GenericProcessor::producesMidi() const
 {
-	return true;
+    return true;
 }
 
 bool GenericProcessor::isParameterAutomatable(int parameterIndex)
 {
-	return false;
+    return false;
 }
 
 bool GenericProcessor::isMetaParameter(int parameterIndex)
 {
-	return false;
+    return false;
 }
 
 int GenericProcessor::getNumParameters()
 {
-	return parameters.size();
+    return parameters.size();
 }
 
 int GenericProcessor::getNumPrograms()
 {
-	return 0;
+    return 0;
 }
 
 int GenericProcessor::getCurrentProgram()
 {
-	return 0;
+    return 0;
 }
 
 bool GenericProcessor::silenceInProducesSilenceOut() const
 {
-	return false;
+    return false;
 }
 
 double GenericProcessor::getTailLengthSeconds() const
 {
-	return 1.0f;
+    return 1.0f;
 }
 
 float GenericProcessor::getSampleRate()
 {
-	return settings.sampleRate;
+    return settings.sampleRate;
 }
 
 float GenericProcessor::getDefaultSampleRate()
 {
-	return 44100.0;
+    return 44100.0;
 }
 
 int GenericProcessor::getNumInputs()
 {
-	return settings.numInputs;
+    return settings.numInputs;
 }
 
 int GenericProcessor::getNumOutputs()
 {
-	return settings.numOutputs;
+    return settings.numOutputs;
 }
 
 int GenericProcessor::getNumHeadstageOutputs()
 {
-	return 2;
+    return 2;
 }
 
 int GenericProcessor::getNumAdcOutputs()
 {
-	return 0;
+    return 0;
 }
 
 int GenericProcessor::getNumAuxOutputs()
 {
-	return 0;
+    return 0;
 }
 
 int GenericProcessor::getNumEventChannels()
 {
-	return 0;
+    return 0;
 }
 
 float GenericProcessor::getDefaultBitVolts()
 {
-	return 1.0;
+    return 1.0;
 }
 
 float GenericProcessor::getBitVolts(Channel* chan)
 {
-	return 1.0;
+    return 1.0;
 }
 
 void GenericProcessor::setCurrentChannel(int chan)
 {
-	currentChannel = chan;
+    currentChannel = chan;
 }
 
 int GenericProcessor::getNodeId()
 {
-	return nodeId;
+    return nodeId;
 }
 
 GenericProcessor* GenericProcessor::getSourceNode()
 {
-	return sourceNode;
+    return sourceNode;
 }
 
 GenericProcessor* GenericProcessor::getDestNode()
 {
-	return destNode;
+    return destNode;
 }
 
 void GenericProcessor::switchIO(int) { }
@@ -1194,52 +1194,52 @@ void GenericProcessor::setSplitterDestNode(GenericProcessor* dn) { }
 
 bool GenericProcessor::generatesTimestamps()
 {
-	return false;
+    return false;
 }
 
 bool GenericProcessor::isSource()
 {
-	return false;
+    return false;
 }
 
 bool GenericProcessor::isSink()
 {
-	return false;
+    return false;
 }
 
 bool GenericProcessor::isSplitter()
 {
-	return false;
+    return false;
 }
 
 bool GenericProcessor::isMerger()
 {
-	return false;
+    return false;
 }
 
 bool GenericProcessor::isUtility()
 {
-	return false;
+    return false;
 }
 
 bool GenericProcessor::canSendSignalTo(GenericProcessor*)
 {
-	return true;
+    return true;
 }
 
 bool GenericProcessor::isReady()
 {
-	return isEnabled;
+    return isEnabled;
 }
 
 bool GenericProcessor::enable()
 {
-	return isEnabled;
+    return isEnabled;
 }
 
 bool GenericProcessor::disable()
 {
-	return true;
+    return true;
 }
 
 void GenericProcessor::startRecording() { }
@@ -1248,46 +1248,46 @@ void GenericProcessor::stopRecording() { }
 
 bool GenericProcessor::enabledState()
 {
-	return isEnabled;
+    return isEnabled;
 }
 
 void GenericProcessor::enabledState(bool t)
 {
-	isEnabled = t;
+    isEnabled = t;
 }
 
 void GenericProcessor::enableCurrentChannel(bool) {}
 
 bool GenericProcessor::stillHasSource()
 {
-	return true;
+    return true;
 }
 
 AudioSampleBuffer* GenericProcessor::getContinuousBuffer()
 {
-	return 0;
+    return 0;
 }
 
 MidiBuffer* GenericProcessor::getEventBuffer()
 {
-	return 0;
+    return 0;
 }
 
 void GenericProcessor::handleEvent(int eventType, MidiMessage& event, int samplePosition) {}
 
 GenericEditor* GenericProcessor::getEditor()
 {
-	return editor;
+    return editor;
 }
 
 int GenericProcessor::totalNumberOfChannels()
 {
-	return channels.size() + eventChannels.size();
+    return channels.size() + eventChannels.size();
 }
 
 void GenericProcessor::updateSettings() {}
 
 String GenericProcessor::interProcessorCommunication(String command)
 {
-	return String("OK");
+    return String("OK");
 };

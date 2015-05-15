@@ -29,18 +29,18 @@
 class TicToc
 {
 public:
-	TicToc();
-	void Tic(int x);
-	void Toc(int x);
-	void clear();
-	void print();
-	int N;
-	std::vector<double> tics;
-	std::vector<double> averageTime;
-	std::vector<double> totalTime;
-	std::vector<int> numSamples;
-	std::vector<double> tocs;
-	std::vector<int> sort_indexes( std::vector<double> v) ;
+    TicToc();
+    void Tic(int x);
+    void Toc(int x);
+    void clear();
+    void print();
+    int N;
+    std::vector<double> tics;
+    std::vector<double> averageTime;
+    std::vector<double> totalTime;
+    std::vector<int> numSamples;
+    std::vector<double> tocs;
+    std::vector<int> sort_indexes(std::vector<double> v) ;
 };
 
 

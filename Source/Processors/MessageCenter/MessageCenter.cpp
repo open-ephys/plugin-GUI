@@ -29,7 +29,7 @@
 //---------------------------------------------------------------------
 
 MessageCenter::MessageCenter() :
-	GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false), sourceNodeId(0), msTime(0), timestampSource(nullptr)
+    GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false), sourceNodeId(0), msTime(0), timestampSource(nullptr)
 {
 
     setPlayConfigDetails(0, // number of inputs
@@ -72,32 +72,32 @@ void MessageCenter::setParameter(int parameterIndex, float newValue)
 
 bool MessageCenter::enable()
 {
-	messageCenterEditor->startAcquisition();
-	msTime = Time::currentTimeMillis();
-	if (sourceNodeId)
-	{
-		AudioProcessorGraph::Node* node = AccessClass::getProcessorGraph()->getNodeForId(sourceNodeId);
-		if (node)
-		{
-			timestampSource = static_cast<GenericProcessor*>(node->getProcessor());
-		}
-		else
-		{
-			std::cout << "Message Center: BAD node id " << sourceNodeId << std::endl;
-			timestampSource = nullptr;
-			sourceNodeId = 0;
-		}
-	}
-	else
-		timestampSource = nullptr;
+    messageCenterEditor->startAcquisition();
+    msTime = Time::currentTimeMillis();
+    if (sourceNodeId)
+    {
+        AudioProcessorGraph::Node* node = AccessClass::getProcessorGraph()->getNodeForId(sourceNodeId);
+        if (node)
+        {
+            timestampSource = static_cast<GenericProcessor*>(node->getProcessor());
+        }
+        else
+        {
+            std::cout << "Message Center: BAD node id " << sourceNodeId << std::endl;
+            timestampSource = nullptr;
+            sourceNodeId = 0;
+        }
+    }
+    else
+        timestampSource = nullptr;
 
-	return true;
+    return true;
 }
 
 bool MessageCenter::disable()
 {
-	messageCenterEditor->stopAcquisition();
-	return true;
+    messageCenterEditor->stopAcquisition();
+    return true;
 }
 
 void MessageCenter::setSourceNodeId(int id)
@@ -112,30 +112,30 @@ int MessageCenter::getSourceNodeId()
 
 int64 MessageCenter::getTimestamp(bool softwareTime)
 {
-	if (!softwareTime && sourceNodeId > 0)
-		return timestampSource->getTimestamp(0);
-	else
-		return (Time::currentTimeMillis() - msTime);
+    if (!softwareTime && sourceNodeId > 0)
+        return timestampSource->getTimestamp(0);
+    else
+        return (Time::currentTimeMillis() - msTime);
 }
 
 void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
 {
-	setTimestamp(eventBuffer,getTimestamp());
-	if (needsToSendTimestampMessage)
-	{
-		String eventString = "Software time: " + String(getTimestamp(true));
-		CharPointer_UTF8 data = eventString.toUTF8();
+    setTimestamp(eventBuffer,getTimestamp());
+    if (needsToSendTimestampMessage)
+    {
+        String eventString = "Software time: " + String(getTimestamp(true));
+        CharPointer_UTF8 data = eventString.toUTF8();
 
-		addEvent(eventBuffer,
-			MESSAGE,
-			0,
-			0,
-			0,
-			data.length() + 1, //It doesn't hurt to send the end-string null and can help avoid issues
-			(uint8*)data.getAddress());
+        addEvent(eventBuffer,
+                 MESSAGE,
+                 0,
+                 0,
+                 0,
+                 data.length() + 1, //It doesn't hurt to send the end-string null and can help avoid issues
+                 (uint8*)data.getAddress());
 
-		needsToSendTimestampMessage = false;
-	}
+        needsToSendTimestampMessage = false;
+    }
 
     if (newEventAvailable)
     {
@@ -153,7 +153,7 @@ void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
                  data.length()+1, //It doesn't hurt to send the end-string null and can help avoid issues
                  (uint8*) data.getAddress());
 
-		newEventAvailable = false;
+        newEventAvailable = false;
     }
 
 

@@ -50,12 +50,12 @@ Channel* RecordEngine::getChannel(int index)
 
 String RecordEngine::generateDateString()
 {
-	return AccessClass::getProcessorGraph()->getRecordNode()->generateDateString();
+    return AccessClass::getProcessorGraph()->getRecordNode()->generateDateString();
 }
 
 SpikeRecordInfo* RecordEngine::getSpikeElectrode(int index)
 {
-	return AccessClass::getProcessorGraph()->getRecordNode()->getSpikeElectrode(index);
+    return AccessClass::getProcessorGraph()->getRecordNode()->getSpikeElectrode(index);
 }
 
 void RecordEngine::updateTimestamps(std::map<uint8, int64>* ts)

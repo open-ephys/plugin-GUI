@@ -63,39 +63,39 @@ public:
     void sliderEvent(Slider* slider);
 
     void channelChanged(int chan);
-	
-	Visualizer* createNewCanvas();
+
+    Visualizer* createNewCanvas();
     void checkSettings();
-	void setThresholdValue(int chan, double threshold);
+    void setThresholdValue(int chan, double threshold);
     OwnedArray<ElectrodeButton> electrodeButtons;
-	SpikeSorterCanvas* spikeSorterCanvas;
-	//void updateAdvancerList();
-	void refreshElectrodeList(int selected = 0);
-	void setSelectedElectrode(int i);
-	int getSelectedElectrode();
-	void setElectrodeComboBox(int direction);
+    SpikeSorterCanvas* spikeSorterCanvas;
+    //void updateAdvancerList();
+    void refreshElectrodeList(int selected = 0);
+    void setSelectedElectrode(int i);
+    int getSelectedElectrode();
+    void setElectrodeComboBox(int direction);
 
 private:
     void drawElectrodeButtons(int);
 
-    
 
-  //  ComboBox* electrodeTypes;
+
+    //  ComboBox* electrodeTypes;
     ScopedPointer<ComboBox> electrodeList,dacCombo;
-	ScopedPointer<ComboBox> advancerList;
-	ScopedPointer<Label> advancerLabel, depthOffsetLabel, depthOffsetEdit;
+    ScopedPointer<ComboBox> advancerList;
+    ScopedPointer<Label> advancerLabel, depthOffsetLabel, depthOffsetEdit;
     ScopedPointer<Label> numElectrodes;
     ScopedPointer<Label> thresholdLabel,dacAssignmentLabel;
     ScopedPointer<TriangleButton> upButton;
     ScopedPointer<TriangleButton> downButton;
     ScopedPointer<UtilityButton> plusButton;
-	ScopedPointer<UtilityButton> configButton;
-	ScopedPointer<UtilityButton> removeElectrodeButton;
+    ScopedPointer<UtilityButton> configButton;
+    ScopedPointer<UtilityButton> removeElectrodeButton;
     ScopedPointer<UtilityButton> audioMonitorButton;
     ScopedPointer<ThresholdSlider> thresholdSlider;
 
-   Array<String> advancerNames ;
-   Array<int> advancerIDs;
+    Array<String> advancerNames ;
+    Array<int> advancerIDs;
     void removeElectrode(int index);
     void editElectrode(int index, int chan, int newChan);
 

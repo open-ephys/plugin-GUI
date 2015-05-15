@@ -33,22 +33,22 @@ struct SpikeRecordInfo;
 
 namespace CoreServices
 {
-	void updateSignalChain(GenericEditor* source);
-	bool getRecordingStatus();
-	void setRecordingStatus(bool enable);
-	void sendStatusMessage(String& text);
-	void sendStatusMessage(const char* text);
-	void highlightEditor(GenericEditor* ed);
-	int64 getGlobalTimestamp();
-	
-	namespace RecordNode
-	{
-		void createNewrecordingDir();
-		File getRecordingPath();
-		void writeSpike(SpikeObject& spike, int electrodeIndex);
-		void registerSpikeSource(GenericProcessor* processor);
-		int addSpikeElectrode(SpikeRecordInfo* elec);
-	};
+void updateSignalChain(GenericEditor* source);
+bool getRecordingStatus();
+void setRecordingStatus(bool enable);
+void sendStatusMessage(String& text);
+void sendStatusMessage(const char* text);
+void highlightEditor(GenericEditor* ed);
+int64 getGlobalTimestamp();
+
+namespace RecordNode
+{
+void createNewrecordingDir();
+File getRecordingPath();
+void writeSpike(SpikeObject& spike, int electrodeIndex);
+void registerSpikeSource(GenericProcessor* processor);
+int addSpikeElectrode(SpikeRecordInfo* elec);
+};
 
 };
 

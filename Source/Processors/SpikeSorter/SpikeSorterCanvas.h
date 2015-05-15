@@ -100,21 +100,21 @@ public:
 
     void startRecording() { } // unused
     void stopRecording() { } // unused
-    
+
     SpikeSorter* processor;
-	
+
     ScopedPointer<UtilityButton> addPolygonUnitButton,
-		addUnitButton, delUnitButton, addBoxButton, delBoxButton, rePCAButton,nextElectrode,prevElectrode,newIDbuttons,deleteAllUnits;
+                  addUnitButton, delUnitButton, addBoxButton, delBoxButton, rePCAButton,nextElectrode,prevElectrode,newIDbuttons,deleteAllUnits;
 
 private:
-	void removeUnitOrBox();
+    void removeUnitOrBox();
     ScopedPointer<SpikeThresholdDisplay> spikeDisplay;
     ScopedPointer<Viewport> viewport;
 
-	bool inDrawingPolygonMode;
+    bool inDrawingPolygonMode;
     bool newSpike;
     SpikeObject spike;
-	Electrode *electrode;
+    Electrode* electrode;
     int scrollBarThickness;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeSorterCanvas);
@@ -136,8 +136,8 @@ public:
     void paint(Graphics& g);
 
     void resized();
-	void setPolygonMode(bool on);
-	void mouseDown(const juce::MouseEvent& event);
+    void setPolygonMode(bool on);
+    void mouseDown(const juce::MouseEvent& event);
 
     void plotSpike(const SpikeObject& spike, int electrodeNum);
 
@@ -150,13 +150,13 @@ private:
     int numColumns;
     int totalHeight;
 
-	SpikeSorter* processor;
+    SpikeSorter* processor;
     SpikeSorterCanvas* canvas;
     Viewport* viewport;
 
     OwnedArray<SpikeHistogramPlot> spikePlots;
 
-  
+
 };
 
 
@@ -164,7 +164,7 @@ private:
 class UnitWaveformAxes : public Component
 {
 public:
-	UnitWaveformAxes();
+    UnitWaveformAxes();
 
 };
 
@@ -210,28 +210,28 @@ protected:
 class WaveformAxes : public GenericDrawAxes
 {
 public:
-    WaveformAxes(SpikeHistogramPlot *plt, SpikeSorter *p, int electrodeID_, int channel);
+    WaveformAxes(SpikeHistogramPlot* plt, SpikeSorter* p, int electrodeID_, int channel);
     ~WaveformAxes() {}
 
-	
+
     bool updateSpikeData(const SpikeObject& s);
     bool checkThreshold(const SpikeObject& spike);
 
-	void setSignalFlip(bool state);
+    void setSignalFlip(bool state);
     void paint(Graphics& g);
-	void isOverUnitBox(float x, float y, int &UnitID, int &BoxID, String &where) ;
+    void isOverUnitBox(float x, float y, int& UnitID, int& BoxID, String& where) ;
 
     void plotSpike(const SpikeObject& s, Graphics& g);
-	void drawBoxes(Graphics &g);
+    void drawBoxes(Graphics& g);
 
     void clear();
-	int findUnitIndexByID(int ID);
+    int findUnitIndexByID(int ID);
     void mouseMove(const MouseEvent& event);
     void mouseExit(const MouseEvent& event);
     void mouseDown(const MouseEvent& event);
     void mouseDrag(const MouseEvent& event);
-	void mouseWheelMove(const MouseEvent &event, const MouseWheelDetails &wheel);
-	void mouseUp(const MouseEvent& event);
+    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
+    void mouseUp(const MouseEvent& event);
 
     void setRange(float);
     float getRange()
@@ -243,18 +243,18 @@ public:
     void setDetectorThreshold(float);
 
     //MouseCursor getMouseCursor();
-	void updateUnits(std::vector<BoxUnit> _units);
+    void updateUnits(std::vector<BoxUnit> _units);
 
-//	int selectedUnit, selectedBox;
+    //	int selectedUnit, selectedBox;
 
 private:
-	int electrodeID;
-	bool signalFlipped;
-	bool bDragging ;
+    int electrodeID;
+    bool signalFlipped;
+    bool bDragging ;
     Colour waveColour;
     Colour thresholdColour;
     Colour gridColour;
-	int channel;
+    int channel;
     bool drawGrid;
 
     float displayThresholdLevel;
@@ -267,8 +267,8 @@ private:
     int spikesReceivedSinceLastRedraw;
 
     Font font;
-	float mouseDownX, mouseDownY;
-	float mouseOffsetX,mouseOffsetY;
+    float mouseDownX, mouseDownY;
+    float mouseOffsetX,mouseOffsetY;
     Array<SpikeObject> spikeBuffer;
 
     int spikeIndex;
@@ -278,12 +278,12 @@ private:
 
     bool isOverThresholdSlider;
     bool isDraggingThresholdSlider;
-	int isOverUnit,isOverBox;
-	String strOverWhere;
+    int isOverUnit,isOverBox;
+    String strOverWhere;
 
-	std::vector<BoxUnit> units;
-	SpikeSorter* processor;
-	SpikeHistogramPlot* spikeHistogramPlot;
+    std::vector<BoxUnit> units;
+    SpikeSorter* processor;
+    SpikeHistogramPlot* spikeHistogramPlot;
     MouseCursor::StandardCursorType cursorType;
 
 };
@@ -293,46 +293,46 @@ private:
 class PCAProjectionAxes : public GenericDrawAxes,  Button::Listener
 {
 public:
-    PCAProjectionAxes(SpikeSorter *p);
+    PCAProjectionAxes(SpikeSorter* p);
     ~PCAProjectionAxes() {}
 
-	void setPCARange(float p1min, float p2min, float p1max, float p2max);
+    void setPCARange(float p1min, float p2min, float p1max, float p2max);
     bool updateSpikeData(const SpikeObject& s);
-	void resized();
+    void resized();
     void paint(Graphics& g);
-	void setPolygonDrawingMode(bool on);
+    void setPolygonDrawingMode(bool on);
     void clear();
-	void mouseDown(const juce::MouseEvent& event);
-	void mouseUp(const juce::MouseEvent& event);
-	void mouseMove(const juce::MouseEvent& event);
-	void mouseDrag(const juce::MouseEvent& event);
-	bool keyPressed(const KeyPress& key);
-	void mouseWheelMove(const MouseEvent &event, const MouseWheelDetails &wheel);
-	void redraw(bool subsample);
-	
-	void updateUnits(std::vector<PCAUnit> _units);
+    void mouseDown(const juce::MouseEvent& event);
+    void mouseUp(const juce::MouseEvent& event);
+    void mouseMove(const juce::MouseEvent& event);
+    void mouseDrag(const juce::MouseEvent& event);
+    bool keyPressed(const KeyPress& key);
+    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
+    void redraw(bool subsample);
 
-	void buttonClicked(Button* button);
-	
-	void drawUnit(Graphics &g, PCAUnit unit);
-	void rangeDown();
-	void rangeUp();
+    void updateUnits(std::vector<PCAUnit> _units);
+
+    void buttonClicked(Button* button);
+
+    void drawUnit(Graphics& g, PCAUnit unit);
+    void rangeDown();
+    void rangeUp();
 
 private:
-	float prevx,prevy;
-	bool inPolygonDrawingMode;
-	void drawProjectedSpike(SpikeObject s);
+    float prevx,prevy;
+    bool inPolygonDrawingMode;
+    void drawProjectedSpike(SpikeObject s);
 
-	bool rangeSet;
-	SpikeSorter* processor;
-    void updateProjectionImage(uint16_t, uint16_t, uint16_t, const uint8_t *col);
-	void updateRange(const SpikeObject& s);
-	ScopedPointer<UtilityButton> rangeDownButton, rangeUpButton;
+    bool rangeSet;
+    SpikeSorter* processor;
+    void updateProjectionImage(uint16_t, uint16_t, uint16_t, const uint8_t* col);
+    void updateRange(const SpikeObject& s);
+    ScopedPointer<UtilityButton> rangeDownButton, rangeUpButton;
 
-	Array<SpikeObject> spikeBuffer;
-	int bufferSize;
+    Array<SpikeObject> spikeBuffer;
+    int bufferSize;
     int spikeIndex;
-	bool updateProcessor;
+    bool updateProcessor;
     void calcWaveformPeakIdx(const SpikeObject&, int, int, int*, int*);
 
     Image projectionImage;
@@ -347,13 +347,13 @@ private:
 
     int spikesReceivedSinceLastRedraw;
 
-	float pcaMin[2],pcaMax[2];
-	std::list<PointD> drawnPolygon;
-	
-	std::vector<PCAUnit> units;
-	int isOverUnit;
-	PCAUnit drawnUnit;
-    
+    float pcaMin[2],pcaMax[2];
+    std::list<PointD> drawnPolygon;
+
+    std::vector<PCAUnit> units;
+    int isOverUnit;
+    PCAUnit drawnUnit;
+
     bool redrawSpikes;
 };
 
@@ -361,30 +361,30 @@ private:
 class SpikeHistogramPlot : public Component, Button::Listener
 {
 public:
-    SpikeHistogramPlot(SpikeSorter *, SpikeSorterCanvas*, int electrodeID, int plotType, String name_);
+    SpikeHistogramPlot(SpikeSorter*, SpikeSorterCanvas*, int electrodeID, int plotType, String name_);
     virtual ~SpikeHistogramPlot();
 
     void paint(Graphics& g);
     void resized();
-	void setFlipSignal(bool state);
+    void setFlipSignal(bool state);
 
     void select();
     void deselect();
-	
-	void setPolygonDrawingMode(bool on);
-	void setPCARange(float p1min, float p2min, float p1max, float p2max);
-	void modifyRange(int index,bool up);
-	void updateUnitsFromProcessor();
+
+    void setPolygonDrawingMode(bool on);
+    void setPCARange(float p1min, float p2min, float p1max, float p2max);
+    void modifyRange(int index,bool up);
+    void updateUnitsFromProcessor();
     void processSpikeObject(const SpikeObject& s);
 
     SpikeSorterCanvas* canvas;
-	
+
     bool isSelected;
 
     int electrodeNumber;
 
-	void getSelectedUnitAndBox(int &unitID, int &boxID);
-	void setSelectedUnitAndBox(int unitID, int boxID);
+    void getSelectedUnitAndBox(int& unitID, int& boxID);
+    void setSelectedUnitAndBox(int unitID, int boxID);
     int nChannels;
 
     void initAxes(std::vector<float> scales);
@@ -398,23 +398,23 @@ public:
     void buttonClicked(Button* button);
 
     float getDisplayThresholdForChannel(int);
-	void setDisplayThresholdForChannel(int channelNum, float thres);
+    void setDisplayThresholdForChannel(int channelNum, float thres);
     //void setDetectorThresholdForChannel(int, float);
 
 private:
-	void modifyRange(std::vector<float> values);
+    void modifyRange(std::vector<float> values);
 
     int plotType;
     int nWaveAx;
     int nProjAx;
-	int electrodeID;
+    int electrodeID;
     bool limitsChanged;
 
     double limits[MAX_N_CHAN][2];
 
-	std::vector<BoxUnit> boxUnits;
-	std::vector<PCAUnit> pcaUnits;
-	SpikeSorter* processor;
+    std::vector<BoxUnit> boxUnits;
+    std::vector<PCAUnit> pcaUnits;
+    SpikeSorter* processor;
     OwnedArray<PCAProjectionAxes> pAxes;
     OwnedArray<WaveformAxes> wAxes;
     OwnedArray<UtilityButton> rangeButtons;
@@ -424,12 +424,12 @@ private:
     void setLimitsOnAxes();
     void updateAxesPositions();
 
-	
+
     String name;
-	CriticalSection mut;
+    CriticalSection mut;
     Font font;
 
-    
+
 
 };
 

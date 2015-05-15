@@ -58,8 +58,8 @@ class UIComponent : public Component,
     public MenuBarModel,
     public ApplicationCommandTarget,
     public DragAndDropContainer // required for
-    // drag-and-drop
-    // internal components
+// drag-and-drop
+// internal components
 
 
 {

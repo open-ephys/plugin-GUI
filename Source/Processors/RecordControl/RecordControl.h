@@ -58,10 +58,10 @@ public:
 
 private:
     int triggerChannel;
-	enum Edges{ RISING = 0, FALLING = 1 };
-	enum Types {SET = 0, TOGGLE = 1};
-	Edges triggerEdge;
-	Types triggerType;
+    enum Edges { RISING = 0, FALLING = 1 };
+    enum Types {SET = 0, TOGGLE = 1};
+    Edges triggerEdge;
+    Types triggerType;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordControl);
 

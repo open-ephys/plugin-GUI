@@ -439,8 +439,8 @@ void SpikeSorterEditor::buttonEvent(Button* button)
         processor->addProbes(ProbeType,numProbes, nElectrodes,nChansPerElectrode, firstElectrodeOffset,interelectrodeDistance);
         refreshElectrodeList();
 
-		CoreServices::updateSignalChain(this);
-		CoreServices::highlightEditor(this);
+        CoreServices::updateSignalChain(this);
+        CoreServices::highlightEditor(this);
 
         return;
 
@@ -658,7 +658,7 @@ void SpikeSorterEditor::setElectrodeComboBox(int direction)
         C = N;
     if (C > N)
         C = 1;
-	electrodeList->setSelectedId(C, sendNotification);
+    electrodeList->setSelectedId(C, sendNotification);
 }
 
 void SpikeSorterEditor::comboBoxChanged(ComboBox* comboBox)

@@ -39,180 +39,185 @@ const int MAX_MESSAGE_LENGTH = 64000;
 StringTS::StringTS()
 {
 
-	str = nullptr;
-	len= 0;
-	timestamp = 0;
+    str = nullptr;
+    len= 0;
+    timestamp = 0;
 }
 
 
 std::vector<String> StringTS::splitString(char sep)
 {
-	String S((const char*)str,len);
-	std::list<String> ls;
-	String  curr;
-	for (int k=0;k < S.length();k++) {
-		if (S[k] != sep) {
-			curr+=S[k];
-		}
-		else
-		{
-			ls.push_back(curr);
-			while (S[k] == sep && k < S.length())
-				k++;
+    String S((const char*)str,len);
+    std::list<String> ls;
+    String  curr;
+    for (int k=0; k < S.length(); k++)
+    {
+        if (S[k] != sep)
+        {
+            curr+=S[k];
+        }
+        else
+        {
+            ls.push_back(curr);
+            while (S[k] == sep && k < S.length())
+                k++;
 
-			curr = "";
-			if (S[k] != sep && k < S.length())
-				curr+=S[k];
-		}
-	}
-	if (S.length() > 0)
-	{
-		if (S[S.length()-1] != sep)
-			ls.push_back(curr);
-	}
-	std::vector<String> Svec(ls.begin(), ls.end()); 
-	return Svec;
+            curr = "";
+            if (S[k] != sep && k < S.length())
+                curr+=S[k];
+        }
+    }
+    if (S.length() > 0)
+    {
+        if (S[S.length()-1] != sep)
+            ls.push_back(curr);
+    }
+    std::vector<String> Svec(ls.begin(), ls.end());
+    return Svec;
 
 }
 
-StringTS::StringTS(MidiMessage &event) 
+StringTS::StringTS(MidiMessage& event)
 {
-	const uint8* dataptr = event.getRawData();
-	int bufferSize = event.getRawDataSize();
-	len = bufferSize-6-8; // -6 for initial event prefix, -8 for timestamp at the end
+    const uint8* dataptr = event.getRawData();
+    int bufferSize = event.getRawDataSize();
+    len = bufferSize-6-8; // -6 for initial event prefix, -8 for timestamp at the end
 
-	memcpy(&timestamp, dataptr + 6+ len, 8); // remember to skip first six bytes
-	str = new uint8[len];
-	memcpy(str,dataptr + 6, len);
+    memcpy(&timestamp, dataptr + 6+ len, 8); // remember to skip first six bytes
+    str = new uint8[len];
+    memcpy(str,dataptr + 6, len);
 }
 
-StringTS& StringTS::operator=(const StringTS &rhs)
+StringTS& StringTS::operator=(const StringTS& rhs)
 {
-	delete(str);
-	len = rhs.len;
-	str = new uint8[len];
-	memcpy(str,rhs.str,len);
-	timestamp = rhs.timestamp;
+    delete(str);
+    len = rhs.len;
+    str = new uint8[len];
+    memcpy(str,rhs.str,len);
+    timestamp = rhs.timestamp;
 
-	return *this;  
+    return *this;
 }
 
 String StringTS::getString()
 {
 
-	return String((const char*)str,len);
+    return String((const char*)str,len);
 }
 
 StringTS::StringTS(String S)
 {
-	Time t;
-	str = new uint8[S.length()];
-	memcpy(str,S.toRawUTF8(),S.length());
-	timestamp = t.getHighResolutionTicks();
+    Time t;
+    str = new uint8[S.length()];
+    memcpy(str,S.toRawUTF8(),S.length());
+    timestamp = t.getHighResolutionTicks();
 
-	len = S.length();
+    len = S.length();
 }
 
 StringTS::StringTS(String S, int64 ts_software)
 {
-	str = new uint8[S.length()];
-	memcpy(str,S.toRawUTF8(),S.length());
-	timestamp = ts_software;
+    str = new uint8[S.length()];
+    memcpy(str,S.toRawUTF8(),S.length());
+    timestamp = ts_software;
 
-	len = S.length();
+    len = S.length();
 }
 
-StringTS::StringTS(const StringTS &s)
+StringTS::StringTS(const StringTS& s)
 {
-	str = new uint8[s.len];
-	memcpy(str,s.str,s.len);
-	timestamp = s.timestamp;
-	len = s.len;
+    str = new uint8[s.len];
+    memcpy(str,s.str,s.len);
+    timestamp = s.timestamp;
+    len = s.len;
 }
 
 
-StringTS::StringTS(unsigned char *buf, int _len, int64 ts_software) : len(_len),timestamp(ts_software) {
-	str = new juce::uint8[len];
-	for (int k=0;k<len;k++)
-		str[k] = buf[k];
+StringTS::StringTS(unsigned char* buf, int _len, int64 ts_software) : len(_len),timestamp(ts_software)
+{
+    str = new juce::uint8[len];
+    for (int k=0; k<len; k++)
+        str[k] = buf[k];
 }
 
-StringTS::~StringTS() {
-	delete str;
+StringTS::~StringTS()
+{
+    delete str;
 }
 
 /*********************************************/
 void* NetworkEvents::zmqcontext = nullptr;
 
 NetworkEvents::NetworkEvents()
-	: GenericProcessor("Network Events"), Thread("NetworkThread"), threshold(200.0), bufferZone(5.0f), state(false)
+    : GenericProcessor("Network Events"), Thread("NetworkThread"), threshold(200.0), bufferZone(5.0f), state(false)
 
 {
-	createZmqContext();
-	firstTime = true;
-	responder = nullptr;
-	urlport = 5556;
-	threadRunning = false;
-	opensocket();
+    createZmqContext();
+    firstTime = true;
+    responder = nullptr;
+    urlport = 5556;
+    threadRunning = false;
+    opensocket();
 
-	sendSampleCount = false; // disable updating the continuous buffer sample counts,
-							 // since this processor only sends events
-	shutdown = false;
+    sendSampleCount = false; // disable updating the continuous buffer sample counts,
+    // since this processor only sends events
+    shutdown = false;
 }
 
 void NetworkEvents::setNewListeningPort(int port)
 {
-	// first, close existing thread.
-	closesocket();
-	// allow some time for thread to quit
+    // first, close existing thread.
+    closesocket();
+    // allow some time for thread to quit
 #ifdef WIN32
-	Sleep(300);
+    Sleep(300);
 #else
-	usleep(300 * 1000);
+    usleep(300 * 1000);
 #endif
 
-	
-	urlport = port;
-	opensocket();
+
+    urlport = port;
+    opensocket();
 }
 
 NetworkEvents::~NetworkEvents()
 {
-	shutdown = true;
-	closesocket();
+    shutdown = true;
+    closesocket();
 }
 
 bool NetworkEvents::closesocket()
 {
 
-std::cout << "Disabling network node" << std::endl;
+    std::cout << "Disabling network node" << std::endl;
 
-#ifdef ZEROMQ 
-	if (threadRunning)
-	{
-		zmq_close(responder);
-		zmq_ctx_destroy(zmqcontext); // this will cause the thread to exit
-		zmqcontext = nullptr;
+#ifdef ZEROMQ
+    if (threadRunning)
+    {
+        zmq_close(responder);
+        zmq_ctx_destroy(zmqcontext); // this will cause the thread to exit
+        zmqcontext = nullptr;
 
-		if (!shutdown)
-			createZmqContext();// and this will take care that processor graph doesn't attempt to delete the context again
-	}
+        if (!shutdown)
+            createZmqContext();// and this will take care that processor graph doesn't attempt to delete the context again
+    }
 #endif
-	return true;
+    return true;
 }
 
 int NetworkEvents::getNumEventChannels()
 {
-	return 1;
+    return 1;
 }
 
 void NetworkEvents::updateSettings()
 {
-	eventChannels[0]->type = MESSAGE_CHANNEL; // so it's ignored by LFP Viewer
+    eventChannels[0]->type = MESSAGE_CHANNEL; // so it's ignored by LFP Viewer
 }
 
 AudioProcessorEditor* NetworkEvents::createEditor(
-){
+)
+{
     editor = new NetworkEventsEditor(this, true);
 
     return editor;
@@ -223,52 +228,54 @@ AudioProcessorEditor* NetworkEvents::createEditor(
 
 void NetworkEvents::setParameter(int parameterIndex, float newValue)
 {
-/*
-	editor->updateParameterButtons(parameterIndex);
+    /*
+    	editor->updateParameterButtons(parameterIndex);
 
-	Parameter& p =  parameters.getReference(parameterIndex);
-	p.setValue(newValue, 0);
+    	Parameter& p =  parameters.getReference(parameterIndex);
+    	p.setValue(newValue, 0);
 
-	threshold = newValue;
-	*/
-	//std::cout << float(p[0]) << std::endl;
+    	threshold = newValue;
+    	*/
+    //std::cout << float(p[0]) << std::endl;
 
 }
 
 void NetworkEvents::initSimulation()
 {
-	Time t;
+    Time t;
 
-	int64 secondsToTicks = t.getHighResolutionTicksPerSecond();
-	simulationStartTime=3*secondsToTicks + t.getHighResolutionTicks(); // start 10 seconds after
-		
-	simulation.push(StringTS("ClearDesign",simulationStartTime));
-	simulation.push(StringTS("NewDesign Test",simulationStartTime+0.5*secondsToTicks));
-	simulation.push(StringTS("AddCondition Name GoRight TrialTypes 1 2 3",simulationStartTime+0.6*secondsToTicks));
-	simulation.push(StringTS("AddCondition Name GoLeft TrialTypes 4 5 6",simulationStartTime+0.6*secondsToTicks));
+    int64 secondsToTicks = t.getHighResolutionTicksPerSecond();
+    simulationStartTime=3*secondsToTicks + t.getHighResolutionTicks(); // start 10 seconds after
+
+    simulation.push(StringTS("ClearDesign",simulationStartTime));
+    simulation.push(StringTS("NewDesign Test",simulationStartTime+0.5*secondsToTicks));
+    simulation.push(StringTS("AddCondition Name GoRight TrialTypes 1 2 3",simulationStartTime+0.6*secondsToTicks));
+    simulation.push(StringTS("AddCondition Name GoLeft TrialTypes 4 5 6",simulationStartTime+0.6*secondsToTicks));
 
 
-	
+
 }
 
 void NetworkEvents::simulateDesignAndTrials(juce::MidiBuffer& events)
 {
-	Time t;
-	while (simulation.size() > 0) 
-	{
-		int64 currenttime = t.getHighResolutionTicks();
-		StringTS S = simulation.front();
-		if (currenttime > S.timestamp) {
-			
-			 // handle special messages
-			 handleSpecialMessages(S);
+    Time t;
+    while (simulation.size() > 0)
+    {
+        int64 currenttime = t.getHighResolutionTicks();
+        StringTS S = simulation.front();
+        if (currenttime > S.timestamp)
+        {
 
-			 postTimestamppedStringToMidiBuffer(S,events);
-			 //getUIComponent()->getLogWindow()->addLineToLog(S.getString());
-			simulation.pop();
-		} else
-			break;
-	}
+            // handle special messages
+            handleSpecialMessages(S);
+
+            postTimestamppedStringToMidiBuffer(S,events);
+            //getUIComponent()->getLogWindow()->addLineToLog(S.getString());
+            simulation.pop();
+        }
+        else
+            break;
+    }
 
 }
 
@@ -280,204 +287,212 @@ void NetworkEvents::handleEvent(int eventType, juce::MidiMessage& event, int sam
 
 void NetworkEvents::postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events)
 {
-	uint8* msg_with_ts = new uint8[s.len+1];//+8]; // for the two timestamps
-	memcpy(msg_with_ts, s.str, s.len);
-	*(msg_with_ts + s.len) = '\0';
-	//memcpy(msg_with_ts+s.len, &s.timestamp, 8);
-	
-	addEvent(events, 
-			 (uint8) MESSAGE,
-			 0,
-			 1,
-			 0,
-			 (uint8) s.len+1,//+8,
-			 msg_with_ts);
+    uint8* msg_with_ts = new uint8[s.len+1];//+8]; // for the two timestamps
+    memcpy(msg_with_ts, s.str, s.len);
+    *(msg_with_ts + s.len) = '\0';
+    //memcpy(msg_with_ts+s.len, &s.timestamp, 8);
 
-	delete msg_with_ts;
+    addEvent(events,
+             (uint8) MESSAGE,
+             0,
+             1,
+             0,
+             (uint8) s.len+1,//+8,
+             msg_with_ts);
+
+    delete msg_with_ts;
 }
 
 void NetworkEvents::simulateStopRecord()
 {
-Time t;
-	simulation.push(StringTS("StopRecord",t.getHighResolutionTicks()));
+    Time t;
+    simulation.push(StringTS("StopRecord",t.getHighResolutionTicks()));
 
 }
 
 void NetworkEvents::simulateStartRecord()
 {
-Time t;
-	simulation.push(StringTS("StartRecord",t.getHighResolutionTicks()));
+    Time t;
+    simulation.push(StringTS("StartRecord",t.getHighResolutionTicks()));
 
 }
 
 void NetworkEvents::simulateSingleTrial()
 {
-    
+
     std::cout << "Simulating trial." << std::endl;
-    
-	int numTrials = 1;
-	float ITI = 0.7;
-	float TrialLength = 0.4;
-	Time t;
 
-	if (firstTime) {
-		firstTime = false;
-		initSimulation();
-	}
+    int numTrials = 1;
+    float ITI = 0.7;
+    float TrialLength = 0.4;
+    Time t;
 
-	int64 secondsToTicks = t.getHighResolutionTicksPerSecond();
-	simulationStartTime=3*secondsToTicks + t.getHighResolutionTicks(); // start 10 seconds after
+    if (firstTime)
+    {
+        firstTime = false;
+        initSimulation();
+    }
 
-	// trial every 5 seconds
-	for (int k=0;k<numTrials;k++) {
-		simulation.push(StringTS("TrialStart",simulationStartTime+ITI*k*secondsToTicks));
-		if (k%2 == 0) 
-			simulation.push(StringTS("TrialType 2",simulationStartTime+(ITI*k+0.1)*secondsToTicks)); // 100 ms after trial start
-		else
-			simulation.push(StringTS("TrialType 4",simulationStartTime+(ITI*k+0.1)*secondsToTicks)); // 100 ms after trial start
+    int64 secondsToTicks = t.getHighResolutionTicksPerSecond();
+    simulationStartTime=3*secondsToTicks + t.getHighResolutionTicks(); // start 10 seconds after
 
-		simulation.push(StringTS("TrialAlign",simulationStartTime+(ITI*k+0.1)*secondsToTicks)); // 100 ms after trial start
-		simulation.push(StringTS("TrialOutcome 1",simulationStartTime+(ITI*k+0.3)*secondsToTicks)); // 300 ms after trial start
-		simulation.push(StringTS("TrialEnd",simulationStartTime+(ITI*k+TrialLength)*secondsToTicks)); // 400 ms after trial start
+    // trial every 5 seconds
+    for (int k=0; k<numTrials; k++)
+    {
+        simulation.push(StringTS("TrialStart",simulationStartTime+ITI*k*secondsToTicks));
+        if (k%2 == 0)
+            simulation.push(StringTS("TrialType 2",simulationStartTime+(ITI*k+0.1)*secondsToTicks)); // 100 ms after trial start
+        else
+            simulation.push(StringTS("TrialType 4",simulationStartTime+(ITI*k+0.1)*secondsToTicks)); // 100 ms after trial start
 
-	}
+        simulation.push(StringTS("TrialAlign",simulationStartTime+(ITI*k+0.1)*secondsToTicks)); // 100 ms after trial start
+        simulation.push(StringTS("TrialOutcome 1",simulationStartTime+(ITI*k+0.3)*secondsToTicks)); // 300 ms after trial start
+        simulation.push(StringTS("TrialEnd",simulationStartTime+(ITI*k+TrialLength)*secondsToTicks)); // 400 ms after trial start
+
+    }
 }
 
 
 String NetworkEvents::handleSpecialMessages(StringTS msg)
 {
-	/*
-	std::vector<String> input = msg.splitString(' ');
-	if (input[0] == "StartRecord")
-	{
-		 getUIComponent()->getLogWindow()->addLineToLog("Remote triggered start recording");
-		
-		if (input.size() > 1)
-		{
-			getUIComponent()->getLogWindow()->addLineToLog("Remote setting session name to "+input[1]);
-			// session name was also given.
-			getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
-		}
+    /*
+    std::vector<String> input = msg.splitString(' ');
+    if (input[0] == "StartRecord")
+    {
+    	 getUIComponent()->getLogWindow()->addLineToLog("Remote triggered start recording");
+
+    	if (input.size() > 1)
+    	{
+    		getUIComponent()->getLogWindow()->addLineToLog("Remote setting session name to "+input[1]);
+    		// session name was also given.
+    		getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
+    	}
         const MessageManagerLock mmLock;
-		getControlPanel()->recordButton->setToggleState(true,true);
-		return String("OK");      
-	//	getControlPanel()->placeMessageInQueue("StartRecord");
-	} if (input[0] == "SetSessionName")
-	{
-			getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
-	} else if (input[0] == "StopRecord")
-	{
-		const MessageManagerLock mmLock;
-		//getControlPanel()->placeMessageInQueue("StopRecord");
-		getControlPanel()->recordButton->setToggleState(false,true);
-  		return String("OK");      
-	} else if (input[0] == "ProcessorCommunication")
-	{
-		ProcessorGraph *g = getProcessorGraph();
-		Array<GenericProcessor*> p = g->getListOfProcessors();
-		for (int k=0;k<p.size();k++)
-		{
-			if (p[k]->getName().toLowerCase() == input[1].toLowerCase())
-			{
-				String Query="";
-				for (int i=2;i<input.size();i++)
-				{
-					if (i == input.size()-1)
-						Query+=input[i];
-					else
-						Query+=input[i]+" ";
-				}
-					
-				return p[k]->interProcessorCommunication(Query);
-			}
-		}
+    	getControlPanel()->recordButton->setToggleState(true,true);
+    	return String("OK");
+    //	getControlPanel()->placeMessageInQueue("StartRecord");
+    } if (input[0] == "SetSessionName")
+    {
+    		getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
+    } else if (input[0] == "StopRecord")
+    {
+    	const MessageManagerLock mmLock;
+    	//getControlPanel()->placeMessageInQueue("StopRecord");
+    	getControlPanel()->recordButton->setToggleState(false,true);
+    	return String("OK");
+    } else if (input[0] == "ProcessorCommunication")
+    {
+    	ProcessorGraph *g = getProcessorGraph();
+    	Array<GenericProcessor*> p = g->getListOfProcessors();
+    	for (int k=0;k<p.size();k++)
+    	{
+    		if (p[k]->getName().toLowerCase() == input[1].toLowerCase())
+    		{
+    			String Query="";
+    			for (int i=2;i<input.size();i++)
+    			{
+    				if (i == input.size()-1)
+    					Query+=input[i];
+    				else
+    					Query+=input[i]+" ";
+    			}
 
-  		return String("OK");      
-	} 
+    			return p[k]->interProcessorCommunication(Query);
+    		}
+    	}
 
-	*/
-	return String("NotHandled");
+    	return String("OK");
+    }
+
+    */
+    return String("NotHandled");
 }
 
 void NetworkEvents::process(AudioSampleBuffer& buffer,
-							MidiBuffer& events)
+                            MidiBuffer& events)
 {
 
-	//std::cout << "NETWORK NODE" << std::endl;
-	//printf("Entering NetworkEvents::process\n");
-	setTimestamp(events,CoreServices::getGlobalTimestamp());
-	checkForEvents(events);
-	//simulateDesignAndTrials(events);
+    //std::cout << "NETWORK NODE" << std::endl;
+    //printf("Entering NetworkEvents::process\n");
+    setTimestamp(events,CoreServices::getGlobalTimestamp());
+    checkForEvents(events);
+    //simulateDesignAndTrials(events);
 
-	//std::cout << *buffer.getSampleData(0, 0) << std::endl;
-	lock.enter();
-	 while (!networkMessagesQueue.empty()) {
-			 StringTS msg = networkMessagesQueue.front();
-			 postTimestamppedStringToMidiBuffer(msg, events);
-			 CoreServices::sendStatusMessage("Network event received: " + msg.getString());
-//			 getUIComponent()->getLogWindow()->addLineToLog(msg);
-		     networkMessagesQueue.pop();
-	 }
-	 lock.exit();
+    //std::cout << *buffer.getSampleData(0, 0) << std::endl;
+    lock.enter();
+    while (!networkMessagesQueue.empty())
+    {
+        StringTS msg = networkMessagesQueue.front();
+        postTimestamppedStringToMidiBuffer(msg, events);
+        CoreServices::sendStatusMessage("Network event received: " + msg.getString());
+        //			 getUIComponent()->getLogWindow()->addLineToLog(msg);
+        networkMessagesQueue.pop();
+    }
+    lock.exit();
 
 }
 
 
 void NetworkEvents::opensocket()
 {
-	startThread();
+    startThread();
 }
 
-void NetworkEvents::run() {
+void NetworkEvents::run()
+{
 
-#ifdef ZEROMQ 
- responder = zmq_socket (zmqcontext, ZMQ_REP);
-  String url= String("tcp://*:")+String(urlport);
-  int rc = zmq_bind (responder, url.toRawUTF8());
-  
-  if (rc != 0) {
-	  // failed to open socket?
-  	  std::cout << "Failed to open socket." << std::endl;
-	  return;
-  }
+#ifdef ZEROMQ
+    responder = zmq_socket(zmqcontext, ZMQ_REP);
+    String url= String("tcp://*:")+String(urlport);
+    int rc = zmq_bind(responder, url.toRawUTF8());
 
-  threadRunning = true;
-	 unsigned char *buffer = new unsigned char[MAX_MESSAGE_LENGTH];
-	 int result=-1;
- 
-	while (threadRunning) {
-		
-         result = zmq_recv (responder, buffer, MAX_MESSAGE_LENGTH-1, 0); // blocking
-		
-         juce::int64 timestamp_software = timer.getHighResolutionTicks();
-		
-		 if (result < 0) // will only happen when responder dies.
-			break;
-
-		StringTS Msg(buffer, result, timestamp_software);
-		if (result > 0) {
-			lock.enter();
-			networkMessagesQueue.push(Msg);
-		    lock.exit();
-
-		    //std::cout << "Received message!" << std::endl;
-			// handle special messages
-			String response = handleSpecialMessages(Msg);
-	
-			zmq_send (responder, response.getCharPointer(), response.length(), 0);
-		} else 
-		{
-			String zeroMessageError = "Recieved Zero Message?!?!?";
-			//std::cout << "Received Zero Message!" << std::endl;
-
-			zmq_send (responder, zeroMessageError.getCharPointer(), zeroMessageError.length(), 0);
-		}
+    if (rc != 0)
+    {
+        // failed to open socket?
+        std::cout << "Failed to open socket." << std::endl;
+        return;
     }
-	
 
-	zmq_close(responder);
-	delete buffer;
-	threadRunning = false;
+    threadRunning = true;
+    unsigned char* buffer = new unsigned char[MAX_MESSAGE_LENGTH];
+    int result=-1;
+
+    while (threadRunning)
+    {
+
+        result = zmq_recv(responder, buffer, MAX_MESSAGE_LENGTH-1, 0);  // blocking
+
+        juce::int64 timestamp_software = timer.getHighResolutionTicks();
+
+        if (result < 0) // will only happen when responder dies.
+            break;
+
+        StringTS Msg(buffer, result, timestamp_software);
+        if (result > 0)
+        {
+            lock.enter();
+            networkMessagesQueue.push(Msg);
+            lock.exit();
+
+            //std::cout << "Received message!" << std::endl;
+            // handle special messages
+            String response = handleSpecialMessages(Msg);
+
+            zmq_send(responder, response.getCharPointer(), response.length(), 0);
+        }
+        else
+        {
+            String zeroMessageError = "Recieved Zero Message?!?!?";
+            //std::cout << "Received Zero Message!" << std::endl;
+
+            zmq_send(responder, zeroMessageError.getCharPointer(), zeroMessageError.length(), 0);
+        }
+    }
+
+
+    zmq_close(responder);
+    delete buffer;
+    threadRunning = false;
     return;
 #endif
 }
@@ -489,9 +504,9 @@ void NetworkEvents::run() {
 
 bool NetworkEvents::isReady()
 {
-   
-        return true;
-    
+
+    return true;
+
 }
 
 
@@ -519,7 +534,7 @@ void NetworkEvents::enabledState(bool t)
 
 bool NetworkEvents::isSource()
 {
-	return true;
+    return true;
 }
 
 void NetworkEvents::saveCustomParametersToXml(XmlElement* parentElement)
@@ -532,22 +547,22 @@ void NetworkEvents::saveCustomParametersToXml(XmlElement* parentElement)
 void NetworkEvents::loadCustomParametersFromXml()
 {
 
-	if (parametersAsXml != nullptr)
-	{
-		forEachXmlChildElement(*parametersAsXml, mainNode)
-		{
-			if (mainNode->hasTagName("NETWORKEVENTS"))
-			{
-				setNewListeningPort(mainNode->getIntAttribute("port"));
-			}
-		}
-	}
+    if (parametersAsXml != nullptr)
+    {
+        forEachXmlChildElement(*parametersAsXml, mainNode)
+        {
+            if (mainNode->hasTagName("NETWORKEVENTS"))
+            {
+                setNewListeningPort(mainNode->getIntAttribute("port"));
+            }
+        }
+    }
 }
 
 void NetworkEvents::createZmqContext()
 {
-#ifdef ZEROMQ 
-	if (zmqcontext != nullptr)
-		zmqcontext = zmq_ctx_new(); //<-- this is only available in version 3+
+#ifdef ZEROMQ
+    if (zmqcontext != nullptr)
+        zmqcontext = zmq_ctx_new(); //<-- this is only available in version 3+
 #endif
 }

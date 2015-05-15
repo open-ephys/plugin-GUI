@@ -37,67 +37,67 @@ using namespace AccessClass;
 
 namespace CoreServices
 {
-	void updateSignalChain(GenericEditor* source)
-	{
-		getEditorViewport()->makeEditorVisible(source, false, true);
-	}
+void updateSignalChain(GenericEditor* source)
+{
+    getEditorViewport()->makeEditorVisible(source, false, true);
+}
 
-	bool getRecordingStatus()
-	{
-		return getControlPanel()->recordButton->getToggleState();
-	}
+bool getRecordingStatus()
+{
+    return getControlPanel()->recordButton->getToggleState();
+}
 
-	void setRecordingStatus(bool enable)
-	{
-		getControlPanel()->setRecordState(enable);
-	}
+void setRecordingStatus(bool enable)
+{
+    getControlPanel()->setRecordState(enable);
+}
 
-	void sendStatusMessage(String& text)
-	{
-		getBroadcaster()->sendActionMessage(text);
-	}
+void sendStatusMessage(String& text)
+{
+    getBroadcaster()->sendActionMessage(text);
+}
 
-	void sendStatusMessage(const char* text)
-	{
-		getBroadcaster()->sendActionMessage(text);
-	}
+void sendStatusMessage(const char* text)
+{
+    getBroadcaster()->sendActionMessage(text);
+}
 
-	void highlightEditor(GenericEditor* ed)
-	{
-		getEditorViewport()->makeEditorVisible(ed);
-	}
+void highlightEditor(GenericEditor* ed)
+{
+    getEditorViewport()->makeEditorVisible(ed);
+}
 
-	int64 getGlobalTimestamp()
-	{
-		return getMessageCenter()->getTimestamp();
-	}
-	
-	namespace RecordNode
-	{
-		void createNewrecordingDir()
-		{
-			getProcessorGraph()->getRecordNode()->createNewDirectory();
-		}
+int64 getGlobalTimestamp()
+{
+    return getMessageCenter()->getTimestamp();
+}
 
-		File getRecordingPath()
-		{
-			return getProcessorGraph()->getRecordNode()->getDataDirectory();
-		}
+namespace RecordNode
+{
+void createNewrecordingDir()
+{
+    getProcessorGraph()->getRecordNode()->createNewDirectory();
+}
 
-		void writeSpike(SpikeObject& spike, int electrodeIndex)
-		{
-			getProcessorGraph()->getRecordNode()->writeSpike(spike, electrodeIndex);
-		}
+File getRecordingPath()
+{
+    return getProcessorGraph()->getRecordNode()->getDataDirectory();
+}
 
-		void registerSpikeSource(GenericProcessor* processor)
-		{
-			getProcessorGraph()->getRecordNode()->registerSpikeSource(processor);
-		}
+void writeSpike(SpikeObject& spike, int electrodeIndex)
+{
+    getProcessorGraph()->getRecordNode()->writeSpike(spike, electrodeIndex);
+}
 
-		int addSpikeElectrode(SpikeRecordInfo* elec)
-		{
-			return getProcessorGraph()->getRecordNode()->addSpikeElectrode(elec);
-		}
-	};
+void registerSpikeSource(GenericProcessor* processor)
+{
+    getProcessorGraph()->getRecordNode()->registerSpikeSource(processor);
+}
+
+int addSpikeElectrode(SpikeRecordInfo* elec)
+{
+    return getProcessorGraph()->getRecordNode()->addSpikeElectrode(elec);
+}
+};
 
 };

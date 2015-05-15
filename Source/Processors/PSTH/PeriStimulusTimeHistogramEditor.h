@@ -43,16 +43,16 @@ class MatlabLikePlot;
 
 struct zoom
 {
-	float xmin,xmax,ymin,ymax;
+    float xmin,xmax,ymin,ymax;
 };
 
 
-    enum xyPlotTypes
-    {
-        SPIKE_PLOT = 0,
-        LFP_PLOT = 1,
-		EYE_PLOT = 2
-    };
+enum xyPlotTypes
+{
+    SPIKE_PLOT = 0,
+    LFP_PLOT = 1,
+    EYE_PLOT = 2
+};
 
 class PeriStimulusTimeHistogramCanvas;
 class GenericPlot;
@@ -63,24 +63,24 @@ class GenericPlot;
 class PeriStimulusTimeHistogramDisplay : public Component
 {
 public:
-	PeriStimulusTimeHistogramDisplay(PeriStimulusTimeHistogramNode* n, Viewport *p, PeriStimulusTimeHistogramCanvas*c);
-	~PeriStimulusTimeHistogramDisplay();
+    PeriStimulusTimeHistogramDisplay(PeriStimulusTimeHistogramNode* n, Viewport* p, PeriStimulusTimeHistogramCanvas* c);
+    ~PeriStimulusTimeHistogramDisplay();
 
-	void setAutoRescale(bool state);
-	void resized();
+    void setAutoRescale(bool state);
+    void resized();
 
-	std::vector<GenericPlot*> psthPlots;
-	void paint(Graphics &g);
-	void refresh();
-	void focusOnPlot(int plotIndex);
+    std::vector<GenericPlot*> psthPlots;
+    void paint(Graphics& g);
+    void refresh();
+    void focusOnPlot(int plotIndex);
 
-	PeriStimulusTimeHistogramNode* processor;
-	Viewport *viewport;
-	PeriStimulusTimeHistogramCanvas* canvas;
+    PeriStimulusTimeHistogramNode* processor;
+    Viewport* viewport;
+    PeriStimulusTimeHistogramCanvas* canvas;
 
-	juce::Font font;
+    juce::Font font;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PeriStimulusTimeHistogramDisplay);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PeriStimulusTimeHistogramDisplay);
 
 };
 
@@ -89,31 +89,31 @@ class ProcessorListItem;
 class UIComponent;
 
 class ConditionList : public Component,
-	public Button::Listener
+    public Button::Listener
 
 {
 public:
 
-    ConditionList(PeriStimulusTimeHistogramNode* n, Viewport *p, PeriStimulusTimeHistogramCanvas*c);
+    ConditionList(PeriStimulusTimeHistogramNode* n, Viewport* p, PeriStimulusTimeHistogramCanvas* c);
     ~ConditionList();
 
-	/** Draws the ConditionList. */
+    /** Draws the ConditionList. */
     void paint(Graphics& g);
-	void buttonClicked(Button *btn);
-	void updateConditionButtons();
+    void buttonClicked(Button* btn);
+    void updateConditionButtons();
 
 private:
-	PeriStimulusTimeHistogramNode* processor;
-	Viewport *viewport;
-	PeriStimulusTimeHistogramCanvas *canvas;
+    PeriStimulusTimeHistogramNode* processor;
+    Viewport* viewport;
+    PeriStimulusTimeHistogramCanvas* canvas;
 
-	ScopedPointer<ColorButton> titleButton;
-	ScopedPointer<ColorButton> allButton,noneButton;
-	OwnedArray<ColorButton> conditionButtons;
+    ScopedPointer<ColorButton> titleButton;
+    ScopedPointer<ColorButton> allButton,noneButton;
+    OwnedArray<ColorButton> conditionButtons;
     /** The main method for drawing the ProcessorList.*/
- //   void drawItems(Graphics& g);
+    //   void drawItems(Graphics& g);
 
-	/** Called when a mouse click begins within the boundaries of the ProcessorList.*/
+    /** Called when a mouse click begins within the boundaries of the ProcessorList.*/
     //void mouseDown(const MouseEvent& e);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ConditionList);
@@ -134,47 +134,47 @@ public:
     void beginAnimation();
     void endAnimation();
 
-	void refreshState();
+    void refreshState();
     void update();
 
     void resized();
-	void buttonClicked(Button* button);
+    void buttonClicked(Button* button);
 
-	void setRasterMode(bool rasterModeActive);
-	void setLFPvisibility(bool visible);
-	void setSpikesVisibility(bool visible);
-	void setSmoothPSTH(bool smooth);
-	void setSmoothing(float _gaussianStandardDeviationMS, bool state);
-	void setAutoRescale(bool state);
-	void setCompactView(bool compact);
-	void setMatchRange(bool on);
-	bool getMatchRange();
-	void setParameter(int, float) {}
-	void setParameter(int, int, int, float) {}
+    void setRasterMode(bool rasterModeActive);
+    void setLFPvisibility(bool visible);
+    void setSpikesVisibility(bool visible);
+    void setSmoothPSTH(bool smooth);
+    void setSmoothing(float _gaussianStandardDeviationMS, bool state);
+    void setAutoRescale(bool state);
+    void setCompactView(bool compact);
+    void setMatchRange(bool on);
+    bool getMatchRange();
+    void setParameter(int, float) {}
+    void setParameter(int, int, int, float) {}
 
-	void setRange(double xmin, double xmax, double ymin, double ymax, xyPlotTypes plotType);
+    void setRange(double xmin, double xmax, double ymin, double ymax, xyPlotTypes plotType);
 
     void startRecording() { } // unused
     void stopRecording() { } // unused
 
-	int numElectrodes;
-	int maxUnitsPerElectrode;
-	int heightPerElectrodePix;
-	int widthPerUnit;
-	bool updateNeeded;
-	int screenHeight, screenWidth;
+    int numElectrodes;
+    int maxUnitsPerElectrode;
+    int heightPerElectrodePix;
+    int widthPerUnit;
+    bool updateNeeded;
+    int screenHeight, screenWidth;
 
-   private:
-	int conditionWidth;
+private:
+    int conditionWidth;
 
     bool showLFP, showSpikes, smoothPlots, autoRescale,compactView, matchRange, inFocusedMode,rasterMode;
-	PeriStimulusTimeHistogramNode *processor;
+    PeriStimulusTimeHistogramNode* processor;
     ScopedPointer<Viewport> viewport, conditionsViewport;
-	ScopedPointer<PeriStimulusTimeHistogramDisplay> psthDisplay;
-	ScopedPointer<ConditionList> conditionsList;
-	ScopedPointer<UtilityButton> visualizationButton, clearAllButton,zoomButton,panButton,resetAxesButton;
-	float gaussianStandardDeviationMS;
-	int numRows,numCols;
+    ScopedPointer<PeriStimulusTimeHistogramDisplay> psthDisplay;
+    ScopedPointer<ConditionList> conditionsList;
+    ScopedPointer<UtilityButton> visualizationButton, clearAllButton,zoomButton,panButton,resetAxesButton;
+    float gaussianStandardDeviationMS;
+    int numRows,numCols;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PeriStimulusTimeHistogramCanvas);
 
@@ -182,28 +182,28 @@ public:
 
 
 class PeriStimulusTimeHistogramEditor : public VisualizerEditor,
-	 public ComboBox::Listener
+    public ComboBox::Listener
 {
 public:
     PeriStimulusTimeHistogramEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
     virtual ~PeriStimulusTimeHistogramEditor();
     Visualizer* createNewCanvas();
-	void comboBoxChanged(ComboBox* comboBox);
-	void updateCanvas();
-	void buttonEvent(Button* button);
-	bool showSortedUnits,showLFP,showCompactView,showSmooth,showAutoRescale,showMatchRange,showRasters;
-	int TTLchannelTrialAlignment;
-	int smoothingMS;
+    void comboBoxChanged(ComboBox* comboBox);
+    void updateCanvas();
+    void buttonEvent(Button* button);
+    bool showSortedUnits,showLFP,showCompactView,showSmooth,showAutoRescale,showMatchRange,showRasters;
+    int TTLchannelTrialAlignment;
+    int smoothingMS;
 
-	void saveVisualizerParameters(XmlElement* xml);
-	void loadVisualizerParameters(XmlElement* xml);
-	void visualizationMenu();
+    void saveVisualizerParameters(XmlElement* xml);
+    void loadVisualizerParameters(XmlElement* xml);
+    void visualizationMenu();
 private:
-	PeriStimulusTimeHistogramCanvas *periStimulusTimeHistogramCanvas;
+    PeriStimulusTimeHistogramCanvas* periStimulusTimeHistogramCanvas;
     Font font;
-	ScopedPointer<ComboBox> hardwareTrialAlignment;
-	ScopedPointer<UtilityButton> visibleConditions, saveOptions, clearDisplay,visualizationOptions ;
-	ScopedPointer<Label> hardwareTrigger;
+    ScopedPointer<ComboBox> hardwareTrialAlignment;
+    ScopedPointer<UtilityButton> visibleConditions, saveOptions, clearDisplay,visualizationOptions ;
+    ScopedPointer<Label> hardwareTrigger;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PeriStimulusTimeHistogramEditor);
 
 };
@@ -212,49 +212,64 @@ private:
 class GenericPlot : public Component
 {
 public:
-	GenericPlot(String name,	PeriStimulusTimeHistogramDisplay* dsp, int plotID_, xyPlotTypes plotType, 
-					TrialCircularBuffer *tcb_, int electrodeID_, int subID_, int row_, int col_, bool _rasterMode, bool inPanMode);
-	void resized();
-	void paint(Graphics &g);
-	int getRow() {return row;}
-	int getCol() {return col;}
-	int getPlotID() {return plotID;}
-	bool isFullScreen() {return fullScreenMode;}
-	void toggleFullScreen(bool state) {fullScreenMode = state;}
-	void setSmoothState(bool state);
-	void setAutoRescale(bool state);
-	void buildSmoothKernel(float gaussianStandardDeviationMS);
-	xyPlotTypes getPlotType();
-	void setMode( DrawComponentMode mode);
-	
-	void setXRange(double xmin, double xmax);
-	void setYRange(double ymin,double ymax);
+    GenericPlot(String name,	PeriStimulusTimeHistogramDisplay* dsp, int plotID_, xyPlotTypes plotType,
+                TrialCircularBuffer* tcb_, int electrodeID_, int subID_, int row_, int col_, bool _rasterMode, bool inPanMode);
+    void resized();
+    void paint(Graphics& g);
+    int getRow()
+    {
+        return row;
+    }
+    int getCol()
+    {
+        return col;
+    }
+    int getPlotID()
+    {
+        return plotID;
+    }
+    bool isFullScreen()
+    {
+        return fullScreenMode;
+    }
+    void toggleFullScreen(bool state)
+    {
+        fullScreenMode = state;
+    }
+    void setSmoothState(bool state);
+    void setAutoRescale(bool state);
+    void buildSmoothKernel(float gaussianStandardDeviationMS);
+    xyPlotTypes getPlotType();
+    void setMode(DrawComponentMode mode);
 
-	void handleEventFromMatlabLikePlot(String event);
-	void resetAxes();
+    void setXRange(double xmin, double xmax);
+    void setYRange(double ymin,double ymax);
+
+    void handleEventFromMatlabLikePlot(String event);
+    void resetAxes();
 private:
-	void paintSpikeRaster(Graphics &g);
-	void paintSpikes(Graphics &g);
-	void paintLFPraster(Graphics &g);
-	void paintLFP(Graphics &g);
+    void paintSpikeRaster(Graphics& g);
+    void paintSpikes(Graphics& g);
+    void paintLFPraster(Graphics& g);
+    void paintLFP(Graphics& g);
 
-	ScopedPointer<MatlabLikePlot> mlp;
-	PeriStimulusTimeHistogramDisplay* display;
-	TrialCircularBuffer *tcb;
+    ScopedPointer<MatlabLikePlot> mlp;
+    PeriStimulusTimeHistogramDisplay* display;
+    TrialCircularBuffer* tcb;
 
-	int plotID;
-	xyPlotTypes plotType; 
-	int electrodeID;
-	int subID;
-	int row, col;
-	bool rasterMode;
-	bool fullScreenMode;
-	bool smoothPlot;
-	bool autoRescale;
-	bool inPanMode;
-	float guassianStandardDeviationMS;
-	String plotName;
-	std::vector<float> smoothKernel; 
+    int plotID;
+    xyPlotTypes plotType;
+    int electrodeID;
+    int subID;
+    int row, col;
+    bool rasterMode;
+    bool fullScreenMode;
+    bool smoothPlot;
+    bool autoRescale;
+    bool inPanMode;
+    float guassianStandardDeviationMS;
+    String plotName;
+    std::vector<float> smoothKernel;
 };
 
 

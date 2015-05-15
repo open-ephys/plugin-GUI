@@ -73,129 +73,141 @@ class PCAcomputingThread;
 class UniqueIDgenerator
 {
 public:
-	UniqueIDgenerator() {globalUniqueID=0;}
-	int generateUniqueID() {return ++globalUniqueID;};
-	void setUniqueID(int ID) {globalUniqueID= ID;}
-	int getLastUniqueID() {return globalUniqueID;}
+    UniqueIDgenerator()
+    {
+        globalUniqueID=0;
+    }
+    int generateUniqueID()
+    {
+        return ++globalUniqueID;
+    };
+    void setUniqueID(int ID)
+    {
+        globalUniqueID= ID;
+    }
+    int getLastUniqueID()
+    {
+        return globalUniqueID;
+    }
 private:
-	int globalUniqueID;
+    int globalUniqueID;
 };
 
 /* snatched from http://www.johndcook.com/blog/standard_deviation/ */
 class RunningStat
 {
 public:
-	RunningStat() : m_n(0) {}
+    RunningStat() : m_n(0) {}
 
-	void Clear()
-	{
-		m_n = 0;
-	}
+    void Clear()
+    {
+        m_n = 0;
+    }
 
-	void Push(double x)
-	{
-		m_n++;
+    void Push(double x)
+    {
+        m_n++;
 
-		// See Knuth TAOCP vol 2, 3rd edition, page 232
-		if (m_n == 1)
-		{
-			m_oldM = m_newM = x;
-			m_oldS = 0.0;
-		}
-		else
-		{
-			m_newM = m_oldM + (x - m_oldM) / m_n;
-			m_newS = m_oldS + (x - m_oldM)*(x - m_newM);
+        // See Knuth TAOCP vol 2, 3rd edition, page 232
+        if (m_n == 1)
+        {
+            m_oldM = m_newM = x;
+            m_oldS = 0.0;
+        }
+        else
+        {
+            m_newM = m_oldM + (x - m_oldM) / m_n;
+            m_newS = m_oldS + (x - m_oldM)*(x - m_newM);
 
-			// set up for next iteration
-			m_oldM = m_newM;
-			m_oldS = m_newS;
-		}
-	}
+            // set up for next iteration
+            m_oldM = m_newM;
+            m_oldS = m_newS;
+        }
+    }
 
-	int NumDataValues() const
-	{
-		return m_n;
-	}
+    int NumDataValues() const
+    {
+        return m_n;
+    }
 
-	double Mean() const
-	{
-		return (m_n > 0) ? m_newM : 0.0;
-	}
+    double Mean() const
+    {
+        return (m_n > 0) ? m_newM : 0.0;
+    }
 
-	double Variance() const
-	{
-		return ((m_n > 1) ? m_newS / (m_n - 1) : 0.0);
-	}
+    double Variance() const
+    {
+        return ((m_n > 1) ? m_newS / (m_n - 1) : 0.0);
+    }
 
-	double StandardDeviation() const
-	{
-		return sqrt(Variance());
-	}
+    double StandardDeviation() const
+    {
+        return sqrt(Variance());
+    }
 
 private:
-	int m_n;
-	double m_oldM, m_newM, m_oldS, m_newS;
+    int m_n;
+    double m_oldM, m_newM, m_oldS, m_newS;
 };
 
 class Electrode
 {
-	public:
-		Electrode(int electrodeID, UniqueIDgenerator *uniqueIDgenerator_, PCAcomputingThread *pth,String _name, int _numChannels, int *_channels, float default_threshold, int pre, int post, float samplingRate , int sourceNodeId);
-        ~Electrode();
+public:
+    Electrode(int electrodeID, UniqueIDgenerator* uniqueIDgenerator_, PCAcomputingThread* pth,String _name, int _numChannels, int* _channels, float default_threshold, int pre, int post, float samplingRate , int sourceNodeId);
+    ~Electrode();
 
-		void resizeWaveform(int numPre, int numPost);
+    void resizeWaveform(int numPre, int numPost);
 
-		String name;
+    String name;
 
-        int numChannels;
-        int prePeakSamples, postPeakSamples;
-        int lastBufferIndex;
+    int numChannels;
+    int prePeakSamples, postPeakSamples;
+    int lastBufferIndex;
 
-		int advancerID;
-		float depthOffsetMM;
+    int advancerID;
+    float depthOffsetMM;
 
-		int electrodeID;
-		int sourceNodeId;
-        int* channels;
-	    double* thresholds;
-        bool* isActive;
-		double *voltageScale;
-		//float PCArange[4];
+    int electrodeID;
+    int sourceNodeId;
+    int* channels;
+    double* thresholds;
+    bool* isActive;
+    double* voltageScale;
+    //float PCArange[4];
 
-		RunningStat *runningStats;
-		SpikeHistogramPlot* spikePlot;
-		SpikeSortBoxes* spikeSort;
-		PCAcomputingThread *computingThread;
-		UniqueIDgenerator *uniqueIDgenerator;
-        bool isMonitored;
+    RunningStat* runningStats;
+    SpikeHistogramPlot* spikePlot;
+    SpikeSortBoxes* spikeSort;
+    PCAcomputingThread* computingThread;
+    UniqueIDgenerator* uniqueIDgenerator;
+    bool isMonitored;
 };
 
 
 class ContinuousCircularBuffer
 {
 public:
-	ContinuousCircularBuffer(int NumCh, float SamplingRate, int SubSampling, float NumSecInBuffer);
-	void reallocate(int N);
-	void update(std::vector<std::vector<bool>> contdata, int64 hardware_ts, int64 software_ts, int numpts);
-	void update(AudioSampleBuffer& buffer, int64 hardware_ts, int64 software_ts, int numpts);
-	void update(int channel, int64 hardware_ts, int64 software_ts, bool rise);
-	int GetPtr();
-	void addTrialStartToSmartBuffer(int trialID);
-	int numCh;
-	int subSampling;
-	float samplingRate;
-	CriticalSection mut;
-	int numSamplesInBuf;
-	double numTicksPerSecond;
-	int ptr;
-	int bufLen;
-	int leftover_k;
-	double buffer_dx;
-	
-	std::vector<std::vector<float> > Buf;
-	std::vector<bool> valid;
-	std::vector<int64> hardwareTS,softwareTS;
+    ContinuousCircularBuffer(int NumCh, float SamplingRate, int SubSampling, float NumSecInBuffer);
+    void reallocate(int N);
+    void update(std::vector<std::vector<bool>> contdata, int64 hardware_ts, int64 software_ts, int numpts);
+    void update(AudioSampleBuffer& buffer, int64 hardware_ts, int64 software_ts, int numpts);
+    void update(int channel, int64 hardware_ts, int64 software_ts, bool rise);
+    int GetPtr();
+    void addTrialStartToSmartBuffer(int trialID);
+    int numCh;
+    int subSampling;
+    float samplingRate;
+    CriticalSection mut;
+    int numSamplesInBuf;
+    double numTicksPerSecond;
+    int ptr;
+    int bufLen;
+    int leftover_k;
+    double buffer_dx;
+
+    std::vector<std::vector<float> > Buf;
+    std::vector<bool> valid;
+    std::vector<int64> hardwareTS,softwareTS;
 };
 
 
@@ -234,17 +246,17 @@ public:
     /** Called after acquisition is finished. */
     bool disable();
 
-	
-	bool isReady();
+
+    bool isReady();
     /** Creates the SpikeSorterEditor. */
     AudioProcessorEditor* createEditor();
 
-	float getSelectedElectrodeNoise();
-	void clearRunningStatForSelectedElectrode();
+    float getSelectedElectrodeNoise();
+    void clearRunningStatForSelectedElectrode();
 
-	//void addNetworkEventToQueue(StringTS S);
+    //void addNetworkEventToQueue(StringTS S);
 
-	void postEventsInQueue(MidiBuffer& events);
+    void postEventsInQueue(MidiBuffer& events);
 
     // INTERNAL BUFFERS //
 
@@ -258,7 +270,7 @@ public:
     /** Adds an electrode with n channels to be processed. */
     bool addElectrode(int nChans, String name, double depth);
 
-	void addProbes(String probeType,int numProbes, int nElectrodesPerProbe, int nChansPerElectrode,  double firstContactOffset, double interelectrodeDistance);
+    void addProbes(String probeType,int numProbes, int nElectrodesPerProbe, int nChansPerElectrode,  double firstContactOffset, double interelectrodeDistance);
 
     /** Removes an electrode with a given index. */
     bool removeElectrode(int index);
@@ -285,107 +297,107 @@ public:
     /** */
     bool isChannelActive(int electrodeIndex, int channelNum);
 
-	/** returns the current active electrode, i.e., the one displayed in the editor */
-	Electrode* getActiveElectrode();
-    
+    /** returns the current active electrode, i.e., the one displayed in the editor */
+    Electrode* getActiveElectrode();
+
     /** Returns a StringArray containing the names of all electrodes */
     StringArray getElectrodeNames();
 
-	/** modify a channel spike detection threshold */
+    /** modify a channel spike detection threshold */
     void setChannelThreshold(int electrodeNum, int channelNum, float threshold);
 
-	/** returns a channel's detection threshold */
+    /** returns a channel's detection threshold */
     double getChannelThreshold(int electrodeNum, int channelNum);
 
-	/** used to generate messages over the network and to inform PSTH sink */
-	void addNewUnit(int electrodeID, int newUnitID, uint8 r, uint8 g, uint8 b);
-	void removeUnit(int electrodeID, int newUnitID);
+    /** used to generate messages over the network and to inform PSTH sink */
+    void addNewUnit(int electrodeID, int newUnitID, uint8 r, uint8 g, uint8 b);
+    void removeUnit(int electrodeID, int newUnitID);
 
-	/** saves all electrodes, thresholds, units, etc to xml */
+    /** saves all electrodes, thresholds, units, etc to xml */
     void saveCustomParametersToXml(XmlElement* parentElement);
     void loadCustomParametersFromXml();
 
-	/** returns the depth of an electrode. The depth is calculated as the
-	known depth of the advancer that is used to control that electrode, plus
-	the defined depth offset. Depth offset is mainly useful for depth probes,
-	in which the contact position is not always the at the tip */
-	//double getElectrodeDepth(int electrodeID);
+    /** returns the depth of an electrode. The depth is calculated as the
+    known depth of the advancer that is used to control that electrode, plus
+    the defined depth offset. Depth offset is mainly useful for depth probes,
+    in which the contact position is not always the at the tip */
+    //double getElectrodeDepth(int electrodeID);
 
-	/** returns the number of electrodes */
-	int getNumElectrodes();
+    /** returns the number of electrodes */
+    int getNumElectrodes();
 
-	/** clears up the spike plots. Called during updates */
-	void removeSpikePlots();
+    /** clears up the spike plots. Called during updates */
+    void removeSpikePlots();
 
-	int getNumberOfChannelsForElectrode(int i);
-	String getNameForElectrode(int i);
-	void addSpikePlotForElectrode(SpikeHistogramPlot* sp, int i);
-	int getCurrentElectrodeIndex();
-	Electrode* setCurrentElectrodeIndex(int i);
-	Electrode* getElectrode(int i);
-	//StringTS createStringTS(String S);
-	//int64 getExtrapolatedHardwareTimestamp(int64 softwareTS);
-	//void postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events);
-	//void setElectrodeAdvancer(int i,int ID);
-	//void setElectrodeAdvancerOffset(int i, double v);
-	//double getAdvancerPosition(int advancerID);
-	//double getSelectedElectrodeDepth();
-	bool getAutoDacAssignmentStatus();
-	void seteAutoDacAssignment(bool status);
-	int getNumPreSamples();
-	int getNumPostSamples();
-	void setNumPreSamples(int numSamples);
-	void setNumPostSamples(int numSamples);
-	int getDACassignment(int channel);
-	void assignDACtoChannel(int dacOutput, int channel);
-	Array<int> getDACassignments();
-	void updateDACthreshold(int dacChannel, float threshold);
-	bool getThresholdSyncStatus();
-	void setThresholdSyncStatus(bool status);
-	bool getFlipSignalState();
-	void setFlipSignalState(bool state);
-	void startRecording();
-	std::vector<float> getElectrodeVoltageScales(int electrodeID);
-	//void getElectrodePCArange(int electrodeID, float &minX,float &maxX,float &minY,float &maxY);
-	//void setElectrodePCArange(int electrodeID, float minX,float maxX,float minY,float maxY);
-	
-	void removeAllUnits(int electrodeID);
+    int getNumberOfChannelsForElectrode(int i);
+    String getNameForElectrode(int i);
+    void addSpikePlotForElectrode(SpikeHistogramPlot* sp, int i);
+    int getCurrentElectrodeIndex();
+    Electrode* setCurrentElectrodeIndex(int i);
+    Electrode* getElectrode(int i);
+    //StringTS createStringTS(String S);
+    //int64 getExtrapolatedHardwareTimestamp(int64 softwareTS);
+    //void postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events);
+    //void setElectrodeAdvancer(int i,int ID);
+    //void setElectrodeAdvancerOffset(int i, double v);
+    //double getAdvancerPosition(int advancerID);
+    //double getSelectedElectrodeDepth();
+    bool getAutoDacAssignmentStatus();
+    void seteAutoDacAssignment(bool status);
+    int getNumPreSamples();
+    int getNumPostSamples();
+    void setNumPreSamples(int numSamples);
+    void setNumPostSamples(int numSamples);
+    int getDACassignment(int channel);
+    void assignDACtoChannel(int dacOutput, int channel);
+    Array<int> getDACassignments();
+    void updateDACthreshold(int dacChannel, float threshold);
+    bool getThresholdSyncStatus();
+    void setThresholdSyncStatus(bool status);
+    bool getFlipSignalState();
+    void setFlipSignalState(bool state);
+    void startRecording();
+    std::vector<float> getElectrodeVoltageScales(int electrodeID);
+    //void getElectrodePCArange(int electrodeID, float &minX,float &maxX,float &minY,float &maxY);
+    //void setElectrodePCArange(int electrodeID, float minX,float maxX,float minY,float maxY);
 
-	void setElectrodeVoltageScale(int electrodeID, int index, float newvalue);
-	bool isSelectedElectrodeRecorded(int channel);
-	std::vector<int> getElectrodeChannels(int ID);
+    void removeAllUnits(int electrodeID);
 
-	Array<Electrode*> getElectrodes();
+    void setElectrodeVoltageScale(int electrodeID, int index, float newvalue);
+    bool isSelectedElectrodeRecorded(int channel);
+    std::vector<int> getElectrodeChannels(int ID);
+
+    Array<Electrode*> getElectrodes();
 
     std::vector<String> electrodeTypes;
 
-	/** sync PSTH : inform of a new electrode added  */
-	void updateSinks(Electrode* newElectrode);
-	/** sync PSTH : inform of an electrode removal */
-	void updateSinks(int electrodeID);
-	/** sync PSTH : inform of a channel swap */
-	void updateSinks(int electrodeID, int channelindex, int newchannel);
-	/** sync PSTH: inform of a new unit added / removed */
-	void updateSinks(int electrodeID, int unitID, uint8 r, uint8 g, uint8 b, bool addRemove);
-	/** sync PSTH: inform of a name change*/
-	void updateSinks(int electrodeID, String NewName);
-	/** sync PSTH: remove all units*/
-	void updateSinks(int electrodeID, bool b);
+    /** sync PSTH : inform of a new electrode added  */
+    void updateSinks(Electrode* newElectrode);
+    /** sync PSTH : inform of an electrode removal */
+    void updateSinks(int electrodeID);
+    /** sync PSTH : inform of a channel swap */
+    void updateSinks(int electrodeID, int channelindex, int newchannel);
+    /** sync PSTH: inform of a new unit added / removed */
+    void updateSinks(int electrodeID, int unitID, uint8 r, uint8 g, uint8 b, bool addRemove);
+    /** sync PSTH: inform of a name change*/
+    void updateSinks(int electrodeID, String NewName);
+    /** sync PSTH: remove all units*/
+    void updateSinks(int electrodeID, bool b);
 
 
 
 private:
-	UniqueIDgenerator uniqueIDgenerator;
-	long uniqueSpikeID;
-	SpikeObject prevSpike;
+    UniqueIDgenerator uniqueIDgenerator;
+    long uniqueSpikeID;
+    SpikeObject prevSpike;
 
-	void addElectrode(Electrode* newElectrode);
-	void increaseUniqueProbeID(String type);
-	int getUniqueProbeID(String type);
+    void addElectrode(Electrode* newElectrode);
+    void increaseUniqueProbeID(String type);
+    int getUniqueProbeID(String type);
 
-	float ticksPerSec;
-	int uniqueID;
-	//std::queue<StringTS> eventQueue;
+    float ticksPerSec;
+    int uniqueID;
+    //std::queue<StringTS> eventQueue;
     /** pointer to a continuous buffer. */
     AudioSampleBuffer* dataBuffer;
 
@@ -407,36 +419,36 @@ private:
     int currentIndex;
 
 
-	int numPreSamples,numPostSamples;
+    int numPreSamples,numPostSamples;
     uint8_t* spikeBuffer;///[256];
     //int64 timestamp;
-		  int64 hardware_timestamp;
-		  int64 software_timestamp;
+    int64 hardware_timestamp;
+    int64 software_timestamp;
 
-	bool PCAbeforeBoxes;
- 	ContinuousCircularBuffer* channelBuffers; // used to compute auto threshold
+    bool PCAbeforeBoxes;
+    ContinuousCircularBuffer* channelBuffers; // used to compute auto threshold
 
-     void handleEvent(int eventType, MidiMessage& event, int sampleNum);
+    void handleEvent(int eventType, MidiMessage& event, int sampleNum);
 
     void addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int peakIndex);
- 
+
     void resetElectrode(Electrode*);
-	CriticalSection mut;
-	bool autoDACassignment;
-	bool syncThresholds;
-	RHD2000Thread* getRhythmAccess();
-	bool flipSignal;
+    CriticalSection mut;
+    bool autoDACassignment;
+    bool syncThresholds;
+    RHD2000Thread* getRhythmAccess();
+    bool flipSignal;
 
-	Time timer;
+    Time timer;
 
-   void addWaveformToSpikeObject(SpikeObject* s,
+    void addWaveformToSpikeObject(SpikeObject* s,
                                   int& peakIndex,
                                   int& electrodeNumber,
                                   int& currentChannel);
 
 
-		   Array<Electrode*> electrodes;
-		   PCAcomputingThread computingThread;
+    Array<Electrode*> electrodes;
+    PCAcomputingThread computingThread;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeSorter);
 
 };
@@ -450,14 +462,14 @@ class circularBuffer {
 public:
 	circularBuffer(int NumCh, int NumSamplesToHoldPerChannel, double SamplingRate);
 	~circularBuffer();
-	
+
 	std::vector<double> getDataArray(int channel, int N);
 	double findThresholdForChannel(int channel);
 	void update(AudioSampleBuffer& buffer);
 
 private:
      CriticalSection mut;
- 
+
 	int numCh;
 	int numSamplesInBuf;
 	int ptr;
