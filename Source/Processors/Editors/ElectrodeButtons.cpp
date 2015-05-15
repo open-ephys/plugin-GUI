@@ -23,6 +23,20 @@
 
 #include "ElectrodeButtons.h"
 
+ElectrodeButton::ElectrodeButton(int chan_) : Button("Electrode"), chan(chan_)
+{
+	setClickingTogglesState(true);
+	//setRadioGroupId(299);
+	setToggleState(true, dontSendNotification);
+	setButtonText(String(chan_));
+}
+ElectrodeButton::~ElectrodeButton() {}
+
+int ElectrodeButton::getChannelNum()
+{
+	return chan;
+}
+
 void ElectrodeButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (getToggleState() == true)
@@ -72,6 +86,13 @@ void ElectrodeButton::setChannelNum(int i, bool changeButtonText)
     }
 }
 
+ElectrodeEditorButton::ElectrodeEditorButton(const String& name_, Font font_) : Button("Electrode Editor"),
+name(name_), font(font_)
+{
+	if (name.equalsIgnoreCase("edit") || name.equalsIgnoreCase("monitor"))
+		setClickingTogglesState(true);
+}
+ElectrodeEditorButton::~ElectrodeEditorButton() {}
 
 void ElectrodeEditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {

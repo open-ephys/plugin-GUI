@@ -38,19 +38,10 @@
 class ElectrodeButton : public Button
 {
 public:
-    ElectrodeButton(int chan_) : Button("Electrode"), chan(chan_)
-    {
-        setClickingTogglesState(true);
-        //setRadioGroupId(299);
-        setToggleState(true, dontSendNotification);
-        setButtonText(String(chan_));
-    }
-    ~ElectrodeButton() {}
+	ElectrodeButton(int chan_);
+	~ElectrodeButton();
 
-    int getChannelNum()
-    {
-        return chan;
-    }
+	int getChannelNum();
     void setChannelNum(int i);
     void setChannelNum(int i, bool changeButtonText);
 
@@ -72,13 +63,8 @@ private:
 class ElectrodeEditorButton : public Button
 {
 public:
-    ElectrodeEditorButton(const String& name_, Font font_) : Button("Electrode Editor"),
-        name(name_), font(font_)
-    {
-        if (name.equalsIgnoreCase("edit") || name.equalsIgnoreCase("monitor"))
-            setClickingTogglesState(true);
-    }
-    ~ElectrodeEditorButton() {}
+	ElectrodeEditorButton(const String& name_, Font font_);
+	~ElectrodeEditorButton();
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
