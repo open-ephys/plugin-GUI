@@ -29,7 +29,8 @@
 //---------------------------------------------------------------------
 
 MessageCenter::MessageCenter() :
-    GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false), sourceNodeId(0), msTime(0), timestampSource(nullptr)
+    GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false), sourceNodeId(0), 
+	lastTime(0), softTimestamp(0), timestampSource(nullptr)
 {
 
     setPlayConfigDetails(0, // number of inputs
@@ -73,7 +74,8 @@ void MessageCenter::setParameter(int parameterIndex, float newValue)
 bool MessageCenter::enable()
 {
     messageCenterEditor->startAcquisition();
-    msTime = Time::currentTimeMillis();
+	lastTime = Time::getHighResolutionTicks();
+	softTimestamp = 0;
     if (sourceNodeId)
     {
         AudioProcessorGraph::Node* node = AccessClass::getProcessorGraph()->getNodeForId(sourceNodeId);
@@ -115,15 +117,16 @@ int64 MessageCenter::getTimestamp(bool softwareTime)
     if (!softwareTime && sourceNodeId > 0)
         return timestampSource->getTimestamp(0);
     else
-        return (Time::currentTimeMillis() - msTime);
+        return (softTimestamp);
 }
 
 void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
 {
+	softTimestamp = Time::getHighResolutionTicks() - lastTime;
     setTimestamp(eventBuffer,getTimestamp());
     if (needsToSendTimestampMessage)
     {
-        String eventString = "Software time: " + String(getTimestamp(true));
+        String eventString = "Software time: " + String(getTimestamp(true)) + "@" + String(Time::getHighResolutionTicksPerSecond()) + "Hz";
         CharPointer_UTF8 data = eventString.toUTF8();
 
         addEvent(eventBuffer,

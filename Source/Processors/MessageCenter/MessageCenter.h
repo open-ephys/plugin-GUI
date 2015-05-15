@@ -88,7 +88,7 @@ private:
     bool isRecording;
     int sourceNodeId;
     GenericProcessor* timestampSource;
-    int64 msTime;
+    int64 lastTime, softTimestamp;
     bool needsToSendTimestampMessage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MessageCenter);
