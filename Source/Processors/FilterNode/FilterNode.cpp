@@ -205,7 +205,8 @@ bool FilterNode::getBypassStatusForChannel(int chan)
 
 void FilterNode::setFilterParameters(double lowCut, double highCut, int chan)
 {
-
+	if (channels.size()-1 < chan)
+		return;
     Dsp::Params params;
     params[0] = channels[chan]->sampleRate; // sample rate
     params[1] = 2; // order
