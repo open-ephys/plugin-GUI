@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../AccessClass.h"
 #include "../MessageCenter/MessageCenterEditor.h"
 
-//const int MAX_MESSAGE_LENGTH = 64000;
+const int MAX_MESSAGE_LENGTH = 64000;
 
 
 #ifdef WIN32
