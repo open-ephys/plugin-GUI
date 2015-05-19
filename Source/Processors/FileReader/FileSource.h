@@ -36,7 +36,7 @@ class FileSource
 {
 public:
     FileSource();
-    ~FileSource();
+    virtual ~FileSource();
 
     int getNumRecords();
     String getRecordName(int index);

@@ -45,8 +45,11 @@ public:
     {
         switch (getRawResult())
         {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
             case NSAlertDefaultReturn:  return 1;
             case NSAlertOtherReturn:    return 2;
+#pragma GCC diagnostic pop
             default:                    return 0;
         }
     }
@@ -97,9 +100,12 @@ private:
 
         switch (iconType)
         {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
             case AlertWindow::InfoIcon:     return NSRunInformationalAlertPanel (ttl, msg, b1, b2, b3);
             case AlertWindow::WarningIcon:  return NSRunCriticalAlertPanel      (ttl, msg, b1, b2, b3);
             default:                        return NSRunAlertPanel              (ttl, msg, b1, b2, b3);
+#pragma GCC diagnostic pop
         }
     }
 };
@@ -185,6 +191,8 @@ bool DragAndDropContainer::performExternalDragDropOfFiles (const StringArray& fi
         dragPosition.x -= 16;
         dragPosition.y -= 16;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         [view dragImage: [[NSWorkspace sharedWorkspace] iconForFile: juceStringToNS (files[0])]
                      at: dragPosition
                  offset: NSMakeSize (0, 0)
@@ -192,6 +200,7 @@ bool DragAndDropContainer::performExternalDragDropOfFiles (const StringArray& fi
              pasteboard: pboard
                  source: view
               slideBack: YES];
+#pragma GCC diagnostic pop
     }
 
     return true;

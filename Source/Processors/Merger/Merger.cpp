@@ -30,9 +30,9 @@
 
 Merger::Merger()
     : GenericProcessor("Merger"),
-      sourceNodeA(0), sourceNodeB(0), activePath(0), 
       mergeEventsA(true), mergeContinuousA(true),
-      mergeEventsB(true), mergeContinuousB(true)
+      mergeEventsB(true), mergeContinuousB(true),
+      sourceNodeA(0), sourceNodeB(0), activePath(0)
 {
     sendSampleCount = false;
 }

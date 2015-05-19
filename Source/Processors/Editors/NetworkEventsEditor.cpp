@@ -83,7 +83,7 @@ NetworkEventsEditor::NetworkEventsEditor(GenericProcessor* parentNode, bool useD
 
 void NetworkEventsEditor::buttonEvent(Button* button)
 {
-			NetworkEvents *processor  = (NetworkEvents*) getProcessor();
+			//NetworkEvents *processor  = (NetworkEvents*) getProcessor();
 	if (button == restartConnection)
 	{
 		NetworkEvents *p= (NetworkEvents *)getProcessor();

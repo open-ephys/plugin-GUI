@@ -172,7 +172,10 @@ void FileChooser::showPlatformDialog (Array<File>& results,
         [panel setDirectoryURL: [NSURL fileURLWithPath: juceStringToNS (directory)]];
         [panel setNameFieldStringValue: juceStringToNS (filename)];
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         if ([panel runModal] == NSOKButton)
+#pragma GCC diagnostic pop
        #else
         if ([panel runModalForDirectory: juceStringToNS (directory)
                                    file: juceStringToNS (filename)] == NSOKButton)

@@ -163,7 +163,6 @@ void HDF5Recording::closeFiles()
 
 void HDF5Recording::writeData(AudioSampleBuffer& buffer)
 {
-    int index;
     for (int i = 0; i < buffer.getNumChannels(); i++)
     {
         if (getChannel(i)->getRecordState())

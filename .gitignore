@@ -28,7 +28,6 @@ Builds/Linux/build/windowState.xml
 Builds/Linux/build/Data
 Builds/Linux/build/*.xml
 Builds/Linux/build/*.out
-Builds/MacOSX/build
 
 # 4. Windows related
 Builds/VisualStudio2012/Debug
@@ -91,3 +90,9 @@ Builds/MacOSX/open-ephys.xcodeproj/*.mode1v3
 Builds/MacOSX/open-ephys.xcodeproj/*.pbxuser
 Builds/MacOSX/open-ephys.xcodeproj/xcuserdata
 Builds/MacOSX/open-ephys.xcodeproj/project.xcworkspace
+Builds/MacOSX/build
+Introjucer/Builds/MacOSX/The Introjucer.xcodeproj/*.mode1v3
+Introjucer/Builds/MacOSX/The Introjucer.xcodeproj/*.pbxuser
+Introjucer/Builds/MacOSX/The Introjucer.xcodeproj/xcuserdata
+Introjucer/Builds/MacOSX/The Introjucer.xcodeproj/project.xcworkspace
+Introjucer/Builds/MacOSX/build

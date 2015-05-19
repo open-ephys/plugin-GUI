@@ -40,6 +40,10 @@ EngineParameterComponent::EngineParameterComponent(EngineParameter& param)
         lab->setFont(Font("Small Text",10,Font::plain));
         switch (param.type)
         {
+            case EngineParameter::BOOL:
+                lab->setText(String(param.boolParam.value),dontSendNotification);
+                lab->setBounds(120,0,50,20);
+                break;
             case EngineParameter::INT:
                 lab->setText(String(param.intParam.value),dontSendNotification);
                 lab->setBounds(120,0,50,20);

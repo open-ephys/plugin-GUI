@@ -45,7 +45,7 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
 
     desiredWidth = 300;
 
-    SpikeSorter* processor = (SpikeSorter*) getProcessor();
+    //SpikeSorter* processor = (SpikeSorter*) getProcessor();
 
     advancerList = new ComboBox("Advancers");
     advancerList->addListener(this);
@@ -635,11 +635,11 @@ void SpikeSorterEditor::labelTextChanged(Label* label)
     if (label == depthOffsetEdit)
     {
         // update electrode depth offset.
-        Value v = depthOffsetEdit->getTextValue();
-        double offset = v.getValue();
+        //Value v = depthOffsetEdit->getTextValue();
+        //double offset = v.getValue();
 
-        int electrodeIndex = electrodeList->getSelectedId()-1;
-        SpikeSorter* processor = (SpikeSorter*) getProcessor();
+        //int electrodeIndex = electrodeList->getSelectedId()-1;
+        //SpikeSorter* processor = (SpikeSorter*) getProcessor();
         //if (electrodeIndex >= 0)
         //	processor->setElectrodeAdvancerOffset(electrodeIndex, offset);
 

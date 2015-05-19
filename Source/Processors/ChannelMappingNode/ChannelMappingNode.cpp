@@ -64,7 +64,6 @@ AudioProcessorEditor* ChannelMappingNode::createEditor()
 
 void ChannelMappingNode::updateSettings()
 {
-    int j;
     if (getNumInputs() > 0)
         channelBuffer.setSize(getNumInputs(), 10000);
 

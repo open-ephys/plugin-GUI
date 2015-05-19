@@ -65,7 +65,7 @@ void PeriStimulusTimeHistogramNode::loadCustomParametersFromXml()
         {
             if (mainNode->hasTagName("PSTH"))
             {
-                int numElectrodes = mainNode->getIntAttribute("numElectrodes");
+                //int numElectrodes = mainNode->getIntAttribute("numElectrodes");
 
                 saveEyeTracking = mainNode->getBoolAttribute("saveEyeTracking");
                 saveTTLs = mainNode->getBoolAttribute("saveTTLs");

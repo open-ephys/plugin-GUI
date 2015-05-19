@@ -126,7 +126,7 @@ AudioProcessorEditor* FilterNode::createEditor()
 
 void FilterNode::updateSettings()
 {
-    int id = nodeId;
+    //int id = nodeId;
     int numInputs = getNumInputs();
     int numfilt = filters.size();
     if (numInputs < 1024 && numInputs != numfilt)
