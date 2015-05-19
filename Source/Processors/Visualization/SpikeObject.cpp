@@ -401,7 +401,7 @@ int microSecondsToSpikeTimeBin(SpikeObject *s, float t, int ch)
 
 
 SpikeChannel::SpikeChannel(SpikeDataType type, int nChans, void* ptr, int size)
-	: dataType(type), numChannels(nChans), ChannelExtraData(ptr, size)
+	: ChannelExtraData(ptr, size), dataType(type), numChannels(nChans)
 {
 }
 

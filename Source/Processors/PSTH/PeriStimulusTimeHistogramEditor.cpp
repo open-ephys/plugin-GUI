@@ -794,7 +794,7 @@ void PeriStimulusTimeHistogramCanvas::resized()
     screenWidth = getWidth();
     screenHeight = getHeight();
 
-    int scrollBarThickness = viewport->getScrollBarThickness();
+    //int scrollBarThickness = viewport->getScrollBarThickness();
 
     viewport->setBounds(0,30,getWidth()-conditionWidth,getHeight()-30);
     int totalHeight = numRows * heightPerElectrodePix;
@@ -1031,7 +1031,7 @@ void ConditionList::buttonClicked(Button* btn)
     // also inform trial circular buffer about visibility change.
     if (btn == titleButton)
     {
-        int x = 5;
+        //int x = 5;
     }
     else if (btn == noneButton)
     {
@@ -1082,8 +1082,8 @@ void ConditionList::buttonClicked(Button* btn)
 //
 
 GenericPlot::GenericPlot(String name,PeriStimulusTimeHistogramDisplay* dsp, int plotID_, xyPlotTypes plotType_,
-                         TrialCircularBuffer* tcb_, int electrodeID_, int subID_, int row_, int col_, bool rasterMode_, bool panM) :  tcb(tcb_), electrodeID(electrodeID_), plotID(plotID_),
-    plotType(plotType_), subID(subID_), row(row_), col(col_), rasterMode(rasterMode_),display(dsp),plotName(name),inPanMode(panM)
+                         TrialCircularBuffer* tcb_, int electrodeID_, int subID_, int row_, int col_, bool rasterMode_, bool panM) :  display(dsp),tcb(tcb_), plotID(plotID_),
+    plotType(plotType_), electrodeID(electrodeID_), subID(subID_), row(row_), col(col_), rasterMode(rasterMode_),inPanMode(panM),plotName(name)
 {
     fullScreenMode = false;
     mlp = new MatlabLikePlot();

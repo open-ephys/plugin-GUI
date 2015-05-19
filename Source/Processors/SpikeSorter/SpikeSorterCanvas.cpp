@@ -182,7 +182,7 @@ void SpikeSorterCanvas::processSpikeEvents()
 {
 
 
-    Electrode* e = ((SpikeSorter*) processor)->getActiveElectrode();
+    //Electrode* e = ((SpikeSorter*) processor)->getActiveElectrode();
 
     //	e->spikeSort->lstLastSpikes
     //    processor->setParameter(2, 0.0f); // request redraw
@@ -1090,7 +1090,7 @@ void WaveformAxes::plotSpike(const SpikeObject& s, Graphics& g)
     // sample based upon which channel is getting plotted
     int offset = channel*s.nSamples; //spikeBuffer[0].nSamples * type; //
 
-    int dSamples = 1;
+    //int dSamples = 1;
 
     float x = 0.0f;
 
@@ -1867,8 +1867,8 @@ void PCAProjectionAxes::paint(Graphics& g)
     if (redrawSpikes)
     {
         // recompute image
-        int w = getWidth();
-        int h = getHeight();
+        //int w = getWidth();
+        //int h = getHeight();
         projectionImage.clear(juce::Rectangle<int>(0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
                               Colours::black);
 
@@ -1905,8 +1905,8 @@ void PCAProjectionAxes::redraw(bool subsample)
     Graphics g(projectionImage);
 
     // recompute image
-    int w = getWidth();
-    int h = getHeight();
+    //int w = getWidth();
+    //int h = getHeight();
     projectionImage.clear(juce::Rectangle<int>(0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
                           Colours::black);
 

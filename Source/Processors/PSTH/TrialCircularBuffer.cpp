@@ -100,7 +100,7 @@ void setDefaultColors(uint8& R, uint8& G, uint8& B, int ID)
 
 
 /******************************/
-PSTH::PSTH(int ID, TrialCircularBufferParams params_, bool vis) : conditionID(ID),params(params_),numTrials(0),visible(vis)
+PSTH::PSTH(int ID, TrialCircularBufferParams params_, bool vis) : conditionID(ID),visible(vis),numTrials(0),params(params_)
 {
     // if approximate is on, we won't sample exactly xmin and xmax
     if (params.approximate)
@@ -582,7 +582,7 @@ void ChannelPSTHs::clearStatistics()
 
 /***********************************************/
 UnitPSTHs::UnitPSTHs(int ID,TrialCircularBufferParams params_, uint8 R, uint8 G, uint8 B):
-    unitID(ID), params(params_), spikeBuffer(params_.maxTrialTimeSeconds, params_.maxTrialsInMemory, params_.sampleRate)
+    spikeBuffer(params_.maxTrialTimeSeconds, params_.maxTrialsInMemory, params_.sampleRate), unitID(ID), params(params_)
 {
     colorRGB[0] = R;
     colorRGB[1] = G;
@@ -952,7 +952,7 @@ bool SmartContinuousCircularBuffer::getAlignedData(std::vector<int> channels, Tr
     }
 
     // consider search_back_ptr the buffer index pointing at time t=0
-    float t0 = hardwareTS[search_back_ptr];
+    //float t0 = hardwareTS[search_back_ptr];
     int t0_indx = search_back_ptr;
 
     float trial_length_sec = float(trial->endTS-trial->alignTS)/numTicksPerSecond;
@@ -1243,7 +1243,7 @@ SmartSpikeCircularBuffer::SmartSpikeCircularBuffer(float maxTrialTimeSeconds, in
 
     if (bufferSize == 0)
     {
-        int dbg = 1;
+        //int dbg = 1;
     }
 
     bufferIndex = 0;
@@ -2772,7 +2772,7 @@ std::vector<std::vector<float>> TrialCircularBuffer::getTrialsAverageUnitRespons
     const ScopedLock myScopedLock(psthMutex);
     //const ScopedLock myScopedLock (conditionMutex);
 
-    bool fisrtTime = true;
+    //bool fisrtTime = true;
     for (int electrodeIndex=0; electrodeIndex<electrodesPSTH.size(); electrodeIndex++)
     {
         if (electrodesPSTH[electrodeIndex].electrodeID == electrodeID)
@@ -2874,7 +2874,7 @@ std::vector<std::vector<float>> TrialCircularBuffer::getTrialsAverageChannelResp
 
     //lockPSTH();
     //lockConditions();
-    bool fisrtTime = true;
+    //bool fisrtTime = true;
     for (int electrodeIndex=0; electrodeIndex<electrodesPSTH.size(); electrodeIndex++)
     {
         if (electrodesPSTH[electrodeIndex].electrodeID == electrodeID)
@@ -3027,7 +3027,7 @@ int TrialCircularBuffer::getNumTrialTypesInChannel(int electrodeID, int channelI
 
     //lockPSTH();
     //lockConditions();
-    bool fisrtTime = true;
+    //bool fisrtTime = true;
     for (int electrodeIndex=0; electrodeIndex<electrodesPSTH.size(); electrodeIndex++)
     {
         if (electrodesPSTH[electrodeIndex].electrodeID == electrodeID)
@@ -3061,7 +3061,7 @@ int TrialCircularBuffer::getNumTrialTypesInUnit(int electrodeID, int unitID)
 
     //lockPSTH();
     //lockConditions();
-    bool fisrtTime = true;
+    //bool fisrtTime = true;
     for (int electrodeIndex=0; electrodeIndex<electrodesPSTH.size(); electrodeIndex++)
     {
         if (electrodesPSTH[electrodeIndex].electrodeID == electrodeID)
@@ -3095,7 +3095,7 @@ int TrialCircularBuffer::getNumTrialsInChannel(int electrodeID, int channelID)
 
     //lockPSTH();
     //lockConditions();
-    bool fisrtTime = true;
+    //bool fisrtTime = true;
     for (int electrodeIndex=0; electrodeIndex<electrodesPSTH.size(); electrodeIndex++)
     {
         if (electrodesPSTH[electrodeIndex].electrodeID == electrodeID)
@@ -3128,7 +3128,7 @@ int TrialCircularBuffer::getNumTrialsInUnit(int electrodeID, int unitID)
 
     //lockPSTH();
     //lockConditions();
-    bool fisrtTime = true;
+    //bool fisrtTime = true;
     for (int electrodeIndex=0; electrodeIndex<electrodesPSTH.size(); electrodeIndex++)
     {
         if (electrodesPSTH[electrodeIndex].electrodeID == electrodeID)
@@ -3189,7 +3189,7 @@ juce::Image TrialCircularBuffer::getTrialsAverageResponseAsJuceImage(int  ymin, 
 
     for (int i=0; i<imageHeight; i++)
     {
-        int yoffset = 3 * imageWidth;
+        //int yoffset = 3 * imageWidth;
         if (numTrialRepeats[ymin+i] == 0)
         {
             // special case, make all pixels black...
@@ -3270,9 +3270,9 @@ void TrialCircularBuffer::process(AudioSampleBuffer& buffer, int nSamples, int64
 
     Time t;
 
-    long startTime = t.getHighResolutionTicks();
+    //long startTime = t.getHighResolutionTicks();
 
-    double MaxPSTHprocessingTime = 50/1000; // 50 ms
+    //double MaxPSTHprocessingTime = 50/1000; // 50 ms
 
     if (electrodesPSTH.size() > 0 && aliveTrials.size() > 0)
     {
@@ -3284,9 +3284,9 @@ void TrialCircularBuffer::process(AudioSampleBuffer& buffer, int nSamples, int64
         for (int k = 0; k < aliveTrials.size(); k++)
         {
             Trial topTrial = aliveTrials.front();
-            int64 ticksElapsed = software_timestamp - topTrial.endTS;
+            //int64 ticksElapsed = software_timestamp - topTrial.endTS;
             //std::cout << "Ticks elapsed: " << ticksElapsed << std::endl;
-            float timeElapsedSec = float(ticksElapsed)/ numTicksPerSecond;
+            //float timeElapsedSec = float(ticksElapsed)/ numTicksPerSecond;
             //std::cout << "Time elapsed: " << timeElapsedSec << std::endl;
             bool trialEndedAndEnoughDataInBuffer;
 
@@ -3315,7 +3315,7 @@ void TrialCircularBuffer::process(AudioSampleBuffer& buffer, int nSamples, int64
                 //printf("Exiting updatePSTHwithTrial\n");
             }
 
-            long endTime = t.getHighResolutionTicks();
+            //long endTime = t.getHighResolutionTicks();
 
             //std::cout << "End time: " << endTime << std::endl;
 
@@ -3334,7 +3334,7 @@ void TrialCircularBuffer::process(AudioSampleBuffer& buffer, int nSamples, int64
 
 
 TrialCircularBufferThread::TrialCircularBufferThread(TrialCircularBuffer* tcb_,  std::vector<int>* conditions, Trial* trial_, int jobID_, int jobType_, int electrodeID_, int subID_) : ThreadPoolJob("Job "+String(jobID)),
-    tcb(tcb_),jobID(jobID_), jobType(jobType_), electrodeID(electrodeID_), subID(subID_), trial(trial_), conditionsNeedUpdate(conditions)
+    tcb(tcb_), trial(trial_), conditionsNeedUpdate(conditions), jobID(jobID_), jobType(jobType_), electrodeID(electrodeID_), subID(subID_)
 {
 
 }

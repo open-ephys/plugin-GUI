@@ -659,8 +659,8 @@ void SpikeSortBoxes::loadCustomParametersFromXml(XmlElement* electrodeNode)
     {
         if (spikesortNode->hasTagName("SPIKESORTING"))
         {
-            int numBoxUnit  = spikesortNode->getIntAttribute("numBoxUnits");
-            int numPCAUnit  = spikesortNode->getIntAttribute("numPCAUnits");
+            //int numBoxUnit  = spikesortNode->getIntAttribute("numBoxUnits");
+            //int numPCAUnit  = spikesortNode->getIntAttribute("numPCAUnits");
             selectedUnit  = spikesortNode->getIntAttribute("selectedUnit");
             selectedBox =  spikesortNode->getIntAttribute("selectedBox");
 
@@ -875,7 +875,7 @@ void SpikeSortBoxes::projectOnPrincipalComponents(SpikeObject* so)
         }
         if (so->pcProj[0] > 1e5 || so->pcProj[0] < -1e5 || so->pcProj[1] > 1e5 || so->pcProj[1] < -1e5)
         {
-            int dbg = 1;
+            //int dbg = 1;
         }
     }
     else

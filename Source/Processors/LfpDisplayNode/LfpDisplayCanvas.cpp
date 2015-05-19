@@ -1371,6 +1371,7 @@ int LfpDisplay::getRange(ChannelType type)
         if (channels[i]->getType() == type)
             return channels[i]->getRange();
     }
+    return 0;
 }
 
 
@@ -1803,7 +1804,7 @@ void LfpChannelDisplay::paint(Graphics& g)
                 // // pixel wise line plot has no anti-aliasing, but runs much faster
                 double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat)+getHeight()/2;
                 double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat)+getHeight()/2;
-                double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
+                //double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
                 if (a<b)
                 {
                     from = (a);
@@ -2008,7 +2009,7 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
 
     display->setEnabledState(state, chan);
 
-    UtilityButton* b = (UtilityButton*) button;
+    //UtilityButton* b = (UtilityButton*) button;
 
     // if (state)
     // {

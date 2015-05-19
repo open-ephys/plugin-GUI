@@ -434,8 +434,6 @@ void GraphNode::switchIO(int path)
 void GraphNode::updateBoundaries()
 {
 
-    int level = getLevel();
-
     int horzShift = gv->getHorizontalShift(this);
 
     setBounds(20+horzShift*140, 20+getLevel()*40, 150, 50);
