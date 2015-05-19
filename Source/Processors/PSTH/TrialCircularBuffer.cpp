@@ -1284,7 +1284,7 @@ void SmartSpikeCircularBuffer::addSpikeToBuffer(int64 spikeTimeSoftware,int64 sp
     numSpikesStored++;
 
     if (numSpikesStored > bufferSize)
-        numSpikesStored = numSpikesStored;
+        numSpikesStored = bufferSize;
 }
 
 
