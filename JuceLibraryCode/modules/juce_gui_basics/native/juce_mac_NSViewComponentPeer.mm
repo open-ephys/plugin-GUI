@@ -555,7 +555,10 @@ public:
 
        #if defined (MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
         if ([NSWindow respondsToSelector: @selector (windowNumberAtPoint:belowWindowWithWindowNumber:)]
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
              && [NSWindow windowNumberAtPoint: [[ev window] convertBaseToScreen: [ev locationInWindow]]
+#pragma GCC diagnostic pop
                   belowWindowWithWindowNumber: 0] != [window windowNumber])
         {
             // moved into another window which overlaps this one, so trigger an exit
