@@ -43,7 +43,7 @@ bool getRecordingStatus();
 void setRecordingStatus(bool enable);
 
 /** Sends a string to the message bar */
-void sendStatusMessage(String& text);
+void sendStatusMessage(const String& text);
 
 /** Sends a string to the message bar */
 void sendStatusMessage(const char* text);
