@@ -740,7 +740,7 @@
       <FILE id="z41Hy7g" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
     </GROUP>
   </MAINGROUP>
-  <JUCEOPTIONS/>
+  <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>

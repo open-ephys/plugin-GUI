@@ -186,7 +186,7 @@
 #endif
 
 #ifndef    JUCE_QUICKTIME
- //#define JUCE_QUICKTIME
+ #define   JUCE_QUICKTIME 0
 #endif
 
 #ifndef    JUCE_USE_CAMERA
