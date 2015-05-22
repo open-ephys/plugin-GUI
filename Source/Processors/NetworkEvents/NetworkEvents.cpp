@@ -449,7 +449,7 @@ void NetworkEvents::run()
     if (rc != 0)
     {
         // failed to open socket?
-        std::cout << "Failed to open socket." << std::endl;
+        std::cout << "Failed to open socket: " << zmq_strerror(zmq_errno()) << std::endl;
         return;
     }
 
@@ -562,7 +562,7 @@ void NetworkEvents::loadCustomParametersFromXml()
 void NetworkEvents::createZmqContext()
 {
 #ifdef ZEROMQ
-    if (zmqcontext != nullptr)
+    if (zmqcontext == nullptr)
         zmqcontext = zmq_ctx_new(); //<-- this is only available in version 3+
 #endif
 }

@@ -12,7 +12,8 @@
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
-               extraLinkerFlags="-lhdf5 -lhdf5_cpp" objCExtraSuffix="fea2mT">
+               extraLinkerFlags="-lhdf5 -lhdf5_cpp -lzmq" objCExtraSuffix="fea2mT"
+               extraDefs="ZEROMQ">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="default" osxArchitecture="default"
