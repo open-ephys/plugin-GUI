@@ -62,6 +62,9 @@
     <Filter Include="open-ephys\Source\Processors\Editors">
       <UniqueIdentifier>{E65874A6-23B2-9D76-B12A-15730E2192BC}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Source\Processors\EventBroadcaster">
+      <UniqueIdentifier>{5D8BDC28-D042-498C-5264-B63133EAFE42}</UniqueIdentifier>
+    </Filter>
     <Filter Include="open-ephys\Source\Processors\EventDetector">
       <UniqueIdentifier>{FDD5B79A-1AA4-7745-BB6E-E09A6DFC328E}</UniqueIdentifier>
     </Filter>
@@ -579,6 +582,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\NetworkEventsEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\EventBroadcaster\EventBroadcaster.cpp">
+      <Filter>open-ephys\Source\Processors\EventBroadcaster</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\EventBroadcaster\EventBroadcasterEditor.cpp">
+      <Filter>open-ephys\Source\Processors\EventBroadcaster</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\EventDetector\EventDetector.cpp">
       <Filter>open-ephys\Source\Processors\EventDetector</Filter>
@@ -2195,6 +2204,12 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\NetworkEventsEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\EventBroadcaster\EventBroadcaster.h">
+      <Filter>open-ephys\Source\Processors\EventBroadcaster</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\EventBroadcaster\EventBroadcasterEditor.h">
+      <Filter>open-ephys\Source\Processors\EventBroadcaster</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\EventDetector\EventDetector.h">
       <Filter>open-ephys\Source\Processors\EventDetector</Filter>

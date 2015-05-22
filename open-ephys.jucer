@@ -435,6 +435,16 @@
           <FILE id="i3MpZ5" name="NetworkEventsEditor.h" compile="0" resource="0"
                 file="Source/Processors/Editors/NetworkEventsEditor.h"/>
         </GROUP>
+        <GROUP id="{3FCFBFDA-848D-6B59-5F37-E3D1F43D54DF}" name="EventBroadcaster">
+          <FILE id="g5tNTu" name="EventBroadcaster.cpp" compile="1" resource="0"
+                file="Source/Processors/EventBroadcaster/EventBroadcaster.cpp"/>
+          <FILE id="UImION" name="EventBroadcaster.h" compile="0" resource="0"
+                file="Source/Processors/EventBroadcaster/EventBroadcaster.h"/>
+          <FILE id="TVKXBR" name="EventBroadcasterEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/EventBroadcaster/EventBroadcasterEditor.cpp"/>
+          <FILE id="qR6qtw" name="EventBroadcasterEditor.h" compile="0" resource="0"
+                file="Source/Processors/EventBroadcaster/EventBroadcasterEditor.h"/>
+        </GROUP>
         <GROUP id="{5884418B-6740-1CC4-EC34-721D3F3038AE}" name="EventDetector">
           <FILE id="GzQXNv" name="EventDetector.cpp" compile="1" resource="0"
                 file="Source/Processors/EventDetector/EventDetector.cpp"/>

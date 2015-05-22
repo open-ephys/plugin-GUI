@@ -314,6 +314,8 @@
     <ClCompile Include="..\..\Source\Processors\Editors\ImageIcon.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\NetworkEventsEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\EventBroadcaster\EventBroadcaster.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\EventBroadcaster\EventBroadcasterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventDetector\EventDetector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode\EventNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\EventNode\EventNodeEditor.cpp"/>
@@ -1567,6 +1569,8 @@
     <ClInclude Include="..\..\Source\Processors\Editors\ImageIcon.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\NetworkEventsEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\EventBroadcaster\EventBroadcaster.h"/>
+    <ClInclude Include="..\..\Source\Processors\EventBroadcaster\EventBroadcasterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\EventDetector\EventDetector.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode\EventNode.h"/>
     <ClInclude Include="..\..\Source\Processors\EventNode\EventNodeEditor.h"/>
