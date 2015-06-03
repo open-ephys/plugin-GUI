@@ -44,6 +44,10 @@
 #define REGISTER_59_MISO_B  58
 #define RHD2132_16CH_OFFSET 8
 
+#ifndef DEBUG_EMULATE_HEADSTAGES
+#define DEBUG_EMULATE_HEADSTAGES 0
+#endif
+
 // Allocates memory for a 3-D array of doubles.
 void allocateDoubleArray3D(std::vector<std::vector<std::vector<double> > >& array3D,
                            int xSize, int ySize, int zSize)
@@ -583,14 +587,14 @@ void RHD2000Thread::scanPorts()
 #if DEBUG_EMULATE_HEADSTAGES > 0
     for (int nd = 0; nd < MAX_NUM_DATA_STREAMS; ++nd)
     {
-        if ((nd < DEBUG_EMULATE_HEADSTAGES) &&(tmpChipId[0] > 0))
+        if (nd < DEBUG_EMULATE_HEADSTAGES)
         {
             evalBoard->setDataSource(nd,initStreamPorts[0]);
             enableHeadstage(nd,true);
         }
         else
         {
-            enableHeadstage(stream,false);
+            enableHeadstage(nd,false);
         }
     }
 #else
