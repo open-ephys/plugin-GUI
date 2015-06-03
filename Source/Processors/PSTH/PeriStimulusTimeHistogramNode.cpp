@@ -133,7 +133,10 @@ void PeriStimulusTimeHistogramNode::updateSettings()
 
 void PeriStimulusTimeHistogramNode::setHardwareTriggerAlignmentChannel(int chan)
 {
-    trialCircularBuffer->setHardwareTriggerAlignmentChannel(chan);
+    if (trialCircularBuffer != nullptr)
+    {
+        trialCircularBuffer->setHardwareTriggerAlignmentChannel(chan);
+    }
 }
 
 bool PeriStimulusTimeHistogramNode::enable()
