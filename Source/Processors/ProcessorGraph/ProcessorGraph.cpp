@@ -532,7 +532,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         }
         else if (subProcessorType.equalsIgnoreCase("Signal Generator"))
         {
-            processor = new SignalGenerator();
+//             processor = new SignalGenerator();
             std::cout << "Creating a new signal generator." << std::endl;
         }
         else if (subProcessorType.equalsIgnoreCase("Event Generator"))
@@ -552,7 +552,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		}
 		else if (subProcessorType.equalsIgnoreCase("Network Events"))
 		{
-			processor = new NetworkEvents();
+// 			processor = new NetworkEvents();
 			std::cout << "Creating a new signal generator." << std::endl;
 		}
 
@@ -580,12 +580,12 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         else if (subProcessorType.equalsIgnoreCase("Spike Detector"))
         {
             std::cout << "Creating a new spike detector." << std::endl;
-            processor = new SpikeDetector();
+//             processor = new SpikeDetector();
         }
         else if (subProcessorType.equalsIgnoreCase("Spike Sorter"))
         {
             std::cout << "Creating a new spike sorter." << std::endl;
-            processor = new SpikeSorter();
+//             processor = new SpikeSorter();
         }
         else if (subProcessorType.equalsIgnoreCase("Event Detector"))
         {
@@ -595,12 +595,12 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         else if (subProcessorType.equalsIgnoreCase("Phase Detector"))
         {
             std::cout << "Creating a new phase detector." << std::endl;
-            processor = new PhaseDetector();
+//             processor = new PhaseDetector();
         }
         else if (subProcessorType.equalsIgnoreCase("Channel Map"))
         {
             std::cout << "Creating a new channel mapping node." << std::endl;
-            processor = new ChannelMappingNode();
+//             processor = new ChannelMappingNode();
         }
         else if (subProcessorType.equalsIgnoreCase("Common Avg Ref"))
         {
@@ -635,7 +635,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         {
 
             std::cout << "Creating a new record controller." << std::endl;
-            processor = new RecordControl();
+//             processor = new RecordControl();
 
 			CoreServices::sendStatusMessage("New record controller created.");
 
@@ -648,7 +648,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         if (subProcessorType.equalsIgnoreCase("LFP Viewer"))
         {
             std::cout << "Creating an LfpDisplayNode." << std::endl;
-            processor = new LfpDisplayNode();
+//             processor = new LfpDisplayNode();
         }
 
         else if (subProcessorType.equalsIgnoreCase("Spike Viewer"))
@@ -660,7 +660,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         else if (subProcessorType.equalsIgnoreCase("Arduino Output"))
         {
             std::cout << "Creating an Arduino node." << std::endl;
-            processor = new ArduinoOutput();
+//             processor = new ArduinoOutput();
         }
         else if (subProcessorType.equalsIgnoreCase("Pulse Pal"))
         {
@@ -670,7 +670,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 		else if (subProcessorType.equalsIgnoreCase("PSTH"))
 		{
 			std::cout << "Creating a PSTH output node." << std::endl;
-			processor = new PeriStimulusTimeHistogramNode();
+// 			processor = new PeriStimulusTimeHistogramNode();
 		}
 
 		CoreServices::sendStatusMessage("New sink created.");

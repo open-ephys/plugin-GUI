@@ -56,14 +56,10 @@ OBJECTS := \
   $(OBJDIR)/PracticalSocket_2574ecc8.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
   $(OBJDIR)/Rectifier_21cc94b6.o \
-  $(OBJDIR)/ArduinoOutput_d5a968de.o \
-  $(OBJDIR)/ArduinoOutputEditor_e1b7e52b.o \
   $(OBJDIR)/AudioEditor_3931be27.o \
   $(OBJDIR)/AudioNode_3db3557c.o \
   $(OBJDIR)/CAR_9a7e50f4.o \
   $(OBJDIR)/Channel_5cb2d4d2.o \
-  $(OBJDIR)/ChannelMappingEditor_9b145f15.o \
-  $(OBJDIR)/ChannelMappingNode_ec0559ea.o \
   $(OBJDIR)/EcubeEditor_ba242592.o \
   $(OBJDIR)/RHD2000Editor_dbd5a24.o \
   $(OBJDIR)/EcubeThread_d0477baf.o \
@@ -96,7 +92,6 @@ OBJECTS := \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
   $(OBJDIR)/ImageIcon_c89b23a6.o \
   $(OBJDIR)/VisualizerEditor_3672b003.o \
-  $(OBJDIR)/NetworkEventsEditor_fd22826.o \
   $(OBJDIR)/EventDetector_d0f4d00c.o \
   $(OBJDIR)/EventNode_857d5604.o \
   $(OBJDIR)/EventNodeEditor_2652ddd1.o \
@@ -107,33 +102,21 @@ OBJECTS := \
   $(OBJDIR)/FilterEditor_93e366f5.o \
   $(OBJDIR)/FilterNode_d2b4d9ca.o \
   $(OBJDIR)/GenericProcessor_3e79932a.o \
-  $(OBJDIR)/LfpDisplayCanvas_9bbf9660.o \
-  $(OBJDIR)/LfpDisplayEditor_e7c32ff5.o \
-  $(OBJDIR)/LfpDisplayNode_fdf2e2ca.o \
   $(OBJDIR)/Merger_53fb4e4a.o \
   $(OBJDIR)/MergerEditor_e36b0997.o \
   $(OBJDIR)/MessageCenter_bd1ba084.o \
   $(OBJDIR)/MessageCenterEditor_afaf4851.o \
   $(OBJDIR)/ParameterEditor_112258eb.o \
   $(OBJDIR)/Parameter_b3e5ac9e.o \
-  $(OBJDIR)/PhaseDetector_8a25ed0e.o \
-  $(OBJDIR)/PhaseDetectorEditor_eaec855b.o \
   $(OBJDIR)/ProcessorGraph_8c3a250a.o \
   $(OBJDIR)/PulsePalOutput_f41ce62a.o \
   $(OBJDIR)/PulsePalOutputEditor_3d333977.o \
-  $(OBJDIR)/RecordControl_ecb8ada4.o \
-  $(OBJDIR)/RecordControlEditor_4355fd71.o \
   $(OBJDIR)/EngineConfigWindow_4fd44ceb.o \
   $(OBJDIR)/HDF5FileFormat_be712135.o \
   $(OBJDIR)/HDF5Recording_d14f7b19.o \
   $(OBJDIR)/OriginalRecording_d6dc3293.o \
   $(OBJDIR)/RecordEngine_97ef83aa.o \
   $(OBJDIR)/RecordNode_cc21a82a.o \
-  $(OBJDIR)/NetworkEvents_5344c99a.o \
-  $(OBJDIR)/PeriStimulusTimeHistogramEditor_6be5bf55.o \
-  $(OBJDIR)/PeriStimulusTimeHistogramNode_9631ca2a.o \
-  $(OBJDIR)/tictoc_cdca1ed.o \
-  $(OBJDIR)/TrialCircularBuffer_4a4cef0c.o \
   $(OBJDIR)/ResamplingNode_9825590a.o \
   $(OBJDIR)/ResamplingNodeEditor_8b120457.o \
   $(OBJDIR)/PulsePal_14932a18.o \
@@ -141,19 +124,11 @@ OBJECTS := \
   $(OBJDIR)/ofSerial_c3b0a9e1.o \
   $(OBJDIR)/SerialInput_f5b197b8.o \
   $(OBJDIR)/SerialInputEditor_46740885.o \
-  $(OBJDIR)/SignalGenerator_993274e2.o \
-  $(OBJDIR)/SignalGeneratorEditor_b8e0de2f.o \
   $(OBJDIR)/SourceNode_de3985ea.o \
   $(OBJDIR)/SourceNodeEditor_cdc90937.o \
-  $(OBJDIR)/SpikeDetector_50b619e4.o \
-  $(OBJDIR)/SpikeDetectorEditor_502139b1.o \
   $(OBJDIR)/SpikeDisplayCanvas_2219bd20.o \
   $(OBJDIR)/SpikeDisplayEditor_6e1d56b5.o \
   $(OBJDIR)/SpikeDisplayNode_be27b98a.o \
-  $(OBJDIR)/SpikeSortBoxes_17f37282.o \
-  $(OBJDIR)/SpikeSorter_5f160cae.o \
-  $(OBJDIR)/SpikeSorterCanvas_f0ead366.o \
-  $(OBJDIR)/SpikeSorterEditor_3cee6cfb.o \
   $(OBJDIR)/Splitter_889c68aa.o \
   $(OBJDIR)/SplitterEditor_93a6dbf7.o \
   $(OBJDIR)/Visualizer_2e631df8.o \
@@ -232,16 +207,6 @@ $(OBJDIR)/Rectifier_21cc94b6.o: ../../Source/Processors/Rectifier/Rectifier.cpp
 	@echo "Compiling Rectifier.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ArduinoOutput_d5a968de.o: ../../Source/Processors/ArduinoOutput/ArduinoOutput.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ArduinoOutput.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ArduinoOutputEditor_e1b7e52b.o: ../../Source/Processors/ArduinoOutput/ArduinoOutputEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ArduinoOutputEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/AudioEditor_3931be27.o: ../../Source/Processors/AudioNode/AudioEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioEditor.cpp"
@@ -260,16 +225,6 @@ $(OBJDIR)/CAR_9a7e50f4.o: ../../Source/Processors/CAR/CAR.cpp
 $(OBJDIR)/Channel_5cb2d4d2.o: ../../Source/Processors/Channel/Channel.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Channel.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ChannelMappingEditor_9b145f15.o: ../../Source/Processors/ChannelMappingNode/ChannelMappingEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ChannelMappingEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ChannelMappingNode_ec0559ea.o: ../../Source/Processors/ChannelMappingNode/ChannelMappingNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ChannelMappingNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/EcubeEditor_ba242592.o: ../../Source/Processors/DataThreads/EcubeEditor.cpp
@@ -432,11 +387,6 @@ $(OBJDIR)/VisualizerEditor_3672b003.o: ../../Source/Processors/Editors/Visualize
 	@echo "Compiling VisualizerEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/NetworkEventsEditor_fd22826.o: ../../Source/Processors/Editors/NetworkEventsEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling NetworkEventsEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/EventDetector_d0f4d00c.o: ../../Source/Processors/EventDetector/EventDetector.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EventDetector.cpp"
@@ -487,21 +437,6 @@ $(OBJDIR)/GenericProcessor_3e79932a.o: ../../Source/Processors/GenericProcessor/
 	@echo "Compiling GenericProcessor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/LfpDisplayCanvas_9bbf9660.o: ../../Source/Processors/LfpDisplayNode/LfpDisplayCanvas.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LfpDisplayCanvas.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/LfpDisplayEditor_e7c32ff5.o: ../../Source/Processors/LfpDisplayNode/LfpDisplayEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LfpDisplayEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/LfpDisplayNode_fdf2e2ca.o: ../../Source/Processors/LfpDisplayNode/LfpDisplayNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LfpDisplayNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/Merger_53fb4e4a.o: ../../Source/Processors/Merger/Merger.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Merger.cpp"
@@ -532,16 +467,6 @@ $(OBJDIR)/Parameter_b3e5ac9e.o: ../../Source/Processors/Parameter/Parameter.cpp
 	@echo "Compiling Parameter.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/PhaseDetector_8a25ed0e.o: ../../Source/Processors/PhaseDetector/PhaseDetector.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PhaseDetector.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/PhaseDetectorEditor_eaec855b.o: ../../Source/Processors/PhaseDetector/PhaseDetectorEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PhaseDetectorEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/ProcessorGraph_8c3a250a.o: ../../Source/Processors/ProcessorGraph/ProcessorGraph.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ProcessorGraph.cpp"
@@ -555,16 +480,6 @@ $(OBJDIR)/PulsePalOutput_f41ce62a.o: ../../Source/Processors/PulsePalOutput/Puls
 $(OBJDIR)/PulsePalOutputEditor_3d333977.o: ../../Source/Processors/PulsePalOutput/PulsePalOutputEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling PulsePalOutputEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/RecordControl_ecb8ada4.o: ../../Source/Processors/RecordControl/RecordControl.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling RecordControl.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/RecordControlEditor_4355fd71.o: ../../Source/Processors/RecordControl/RecordControlEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling RecordControlEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/EngineConfigWindow_4fd44ceb.o: ../../Source/Processors/RecordNode/EngineConfigWindow.cpp
@@ -595,31 +510,6 @@ $(OBJDIR)/RecordEngine_97ef83aa.o: ../../Source/Processors/RecordNode/RecordEngi
 $(OBJDIR)/RecordNode_cc21a82a.o: ../../Source/Processors/RecordNode/RecordNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling RecordNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/NetworkEvents_5344c99a.o: ../../Source/Processors/NetworkEvents/NetworkEvents.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling NetworkEvents.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/PeriStimulusTimeHistogramEditor_6be5bf55.o: ../../Source/Processors/PSTH/PeriStimulusTimeHistogramEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PeriStimulusTimeHistogramEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/PeriStimulusTimeHistogramNode_9631ca2a.o: ../../Source/Processors/PSTH/PeriStimulusTimeHistogramNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PeriStimulusTimeHistogramNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/tictoc_cdca1ed.o: ../../Source/Processors/PSTH/tictoc.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling tictoc.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/TrialCircularBuffer_4a4cef0c.o: ../../Source/Processors/PSTH/TrialCircularBuffer.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling TrialCircularBuffer.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ResamplingNode_9825590a.o: ../../Source/Processors/ResamplingNode/ResamplingNode.cpp
@@ -657,16 +547,6 @@ $(OBJDIR)/SerialInputEditor_46740885.o: ../../Source/Processors/SerialInput/Seri
 	@echo "Compiling SerialInputEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/SignalGenerator_993274e2.o: ../../Source/Processors/SignalGenerator/SignalGenerator.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SignalGenerator.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SignalGeneratorEditor_b8e0de2f.o: ../../Source/Processors/SignalGenerator/SignalGeneratorEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SignalGeneratorEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/SourceNode_de3985ea.o: ../../Source/Processors/SourceNode/SourceNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SourceNode.cpp"
@@ -675,16 +555,6 @@ $(OBJDIR)/SourceNode_de3985ea.o: ../../Source/Processors/SourceNode/SourceNode.c
 $(OBJDIR)/SourceNodeEditor_cdc90937.o: ../../Source/Processors/SourceNode/SourceNodeEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SourceNodeEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeDetector_50b619e4.o: ../../Source/Processors/SpikeDetector/SpikeDetector.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeDetector.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeDetectorEditor_502139b1.o: ../../Source/Processors/SpikeDetector/SpikeDetectorEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeDetectorEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/SpikeDisplayCanvas_2219bd20.o: ../../Source/Processors/SpikeDisplayNode/SpikeDisplayCanvas.cpp
@@ -700,26 +570,6 @@ $(OBJDIR)/SpikeDisplayEditor_6e1d56b5.o: ../../Source/Processors/SpikeDisplayNod
 $(OBJDIR)/SpikeDisplayNode_be27b98a.o: ../../Source/Processors/SpikeDisplayNode/SpikeDisplayNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SpikeDisplayNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeSortBoxes_17f37282.o: ../../Source/Processors/SpikeSorter/SpikeSortBoxes.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeSortBoxes.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeSorter_5f160cae.o: ../../Source/Processors/SpikeSorter/SpikeSorter.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeSorter.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeSorterCanvas_f0ead366.o: ../../Source/Processors/SpikeSorter/SpikeSorterCanvas.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeSorterCanvas.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeSorterEditor_3cee6cfb.o: ../../Source/Processors/SpikeSorter/SpikeSorterEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeSorterEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Splitter_889c68aa.o: ../../Source/Processors/Splitter/Splitter.cpp

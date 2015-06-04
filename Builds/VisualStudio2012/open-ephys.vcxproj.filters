@@ -577,9 +577,6 @@
     <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Editors\NetworkEventsEditor.cpp">
-      <Filter>open-ephys\Source\Processors\Editors</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\EventDetector\EventDetector.cpp">
       <Filter>open-ephys\Source\Processors\EventDetector</Filter>
     </ClCompile>
@@ -675,6 +672,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\RecordNode\RecordNode.cpp">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\NetworkEventsEditor.cpp">
+      <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.cpp">
       <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
@@ -2193,9 +2193,6 @@
     <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Editors\NetworkEventsEditor.h">
-      <Filter>open-ephys\Source\Processors\Editors</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\EventDetector\EventDetector.h">
       <Filter>open-ephys\Source\Processors\EventDetector</Filter>
     </ClInclude>
@@ -2291,6 +2288,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\RecordNode\RecordNode.h">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\NetworkEventsEditor.h">
+      <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.h">
       <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>

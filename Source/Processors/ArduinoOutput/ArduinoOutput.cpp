@@ -79,13 +79,13 @@ void ArduinoOutput::setDevice(String devName)
 
             std::cout << "Arduino is initialized." << std::endl;
             arduino.sendDigitalPinMode(outputChannel, ARD_OUTPUT);
-            CoreServices::sendStatusMessage("Arduino initialized at" + devName);
+            CoreServices::sendStatusMessage(("Arduino initialized at" + devName).toUTF8());
             deviceSelected = true;
         }
         else
         {
             std::cout << "Arduino is NOT initialized." << std::endl;
-			CoreServices::sendStatusMessage("Arduino could not be initialized at" + devName);
+			CoreServices::sendStatusMessage(("Arduino could not be initialized at" + devName).toUTF8());
         }
     } else {
 		CoreServices::sendStatusMessage("Cannot change device while acquisition is active.");
