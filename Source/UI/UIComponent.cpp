@@ -289,6 +289,8 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
         menu.addCommandItem(commandManager, saveConfiguration);
         menu.addCommandItem(commandManager, saveConfigurationAs);
         menu.addSeparator();
+        menu.addCommandItem(commandManager, loadProcessor);
+        menu.addSeparator();
         menu.addCommandItem(commandManager, reloadOnStartup);
 
 #if !JUCE_MAC
@@ -347,6 +349,7 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
     const CommandID ids[] = {openConfiguration,
                              saveConfiguration,
                              saveConfigurationAs,
+                             loadProcessor,
                              reloadOnStartup,
                              undo,
                              redo,
@@ -386,6 +389,11 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
             result.setInfo("Save as...", "Save the current processor graph with a new name.", "General", 0);
             result.addDefaultKeypress('S', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
             break;
+
+				case loadProcessor:
+						result.setInfo("Load processor...", "Load a custom compiled processor.", "General", 0);
+						result.addDefaultKeypress('L', ModifierKeys::commandModifier);
+						break;
 
         case reloadOnStartup:
             result.setInfo("Reload on startup", "Load the last used configuration on startup.", "General", 0);
@@ -530,6 +538,34 @@ bool UIComponent::perform(const InvocationInfo& info)
 
                 break;
             }
+
+				case loadProcessor:
+						{
+
+							// Load UI for choosing plugin
+							File pluginFile;
+							FileChooser fc("Choose the file name...",
+									File::getCurrentWorkingDirectory(),
+									"*",
+									true);
+
+							// Store user input
+							if(fc.browseForFileToOpen())
+								pluginFile = fc.getResult();
+							else
+							{
+								return "No processor selected.";
+								break;
+							}
+
+							// UI Status string
+							String error = "Loaded ";
+							error += pluginFile.getFileName();
+
+							// Add to processor list
+							getProcessorList()->sortAndInsertProcessor(pluginFile.getFullPathName(), pluginFile.getFileName());
+							break;
+						}
 
         case reloadOnStartup:
             {

@@ -28,6 +28,11 @@
 #include "UIComponent.h"
 #include "../AccessClass.h"
 
+ProcessorListItem* sources = new ProcessorListItem("Sources");
+ProcessorListItem* filters = new ProcessorListItem("Filters");
+ProcessorListItem* sinks = new ProcessorListItem("Sinks");
+ProcessorListItem* utilities = new ProcessorListItem("Utilities");
+
 enum colorIds
 {
     PROCESSOR_COLOR = 801,
@@ -51,51 +56,47 @@ ProcessorList::ProcessorList()
     setColour(SOURCE_COLOR, Colour(241, 90, 41));
     setColour(UTILITY_COLOR, Colour(147, 149, 152));
 
-    ProcessorListItem* sources = new ProcessorListItem("Sources");
     //sources->addSubItem(new ProcessorListItem("RHA2000-EVAL"));
     //sources->addSubItem(new ProcessorListItem("Signal Generator"));
     //sources->addSubItem(new ProcessorListItem("Custom FPGA"));
-    sources->addSubItem(new ProcessorListItem("Rhythm FPGA"));
+//     sources->addSubItem(new ProcessorListItem("Rhythm FPGA"));
 #if JUCE_WINDOWS // eCube module currently only available for Windows
 #ifdef ECUBE_COMPILE
-    sources->addSubItem(new ProcessorListItem("eCube")); // Added by Michael Borisov
+//     sources->addSubItem(new ProcessorListItem("eCube")); // Added by Michael Borisov
 #endif
 #endif
-    sources->addSubItem(new ProcessorListItem("File Reader"));
+//     sources->addSubItem(new ProcessorListItem("File Reader"));
 #ifdef ZEROMQ
-    sources->addSubItem(new ProcessorListItem("Network Events"));
+//     sources->addSubItem(new ProcessorListItem("Network Events"));
 #endif
-    sources->addSubItem(new ProcessorListItem("Serial Port"));
+//     sources->addSubItem(new ProcessorListItem("Serial Port"));
     //sources->addSubItem(new ProcessorListItem("Event Generator"));
 
-    ProcessorListItem* filters = new ProcessorListItem("Filters");
-    filters->addSubItem(new ProcessorListItem("Bandpass Filter"));
-    filters->addSubItem(new ProcessorListItem("Spike Detector"));
-    filters->addSubItem(new ProcessorListItem("Spike Sorter"));
+//     filters->addSubItem(new ProcessorListItem("Bandpass Filter"));
+//     filters->addSubItem(new ProcessorListItem("Spike Detector"));
+//     filters->addSubItem(new ProcessorListItem("Spike Sorter"));
     //filters->addSubItem(new ProcessorListItem("Resampler"));
-    filters->addSubItem(new ProcessorListItem("Phase Detector"));
+//     filters->addSubItem(new ProcessorListItem("Phase Detector"));
     //filters->addSubItem(new ProcessorListItem("Digital Ref"));
-    filters->addSubItem(new ProcessorListItem("Channel Map"));
-    filters->addSubItem(new ProcessorListItem("Common Avg Ref"));
-    filters->addSubItem(new ProcessorListItem("Rectifier"));
+//     filters->addSubItem(new ProcessorListItem("Channel Map"));
+//     filters->addSubItem(new ProcessorListItem("Common Avg Ref"));
+//     filters->addSubItem(new ProcessorListItem("Rectifier"));
     //filters->addSubItem(new ProcessorListItem("Eye Tracking"));
 
 
-    ProcessorListItem* sinks = new ProcessorListItem("Sinks");
-    sinks->addSubItem(new ProcessorListItem("LFP Viewer"));
+//     sinks->addSubItem(new ProcessorListItem("LFP Viewer"));
     //sinks->addSubItem(new ProcessorListItem("LFP Trig. Avg."));
-    sinks->addSubItem(new ProcessorListItem("Spike Viewer"));
-    sinks->addSubItem(new ProcessorListItem("PSTH"));
+//     sinks->addSubItem(new ProcessorListItem("Spike Viewer"));
+//     sinks->addSubItem(new ProcessorListItem("PSTH"));
     //sinks->addSubItem(new ProcessorListItem("Network Sink"));
     //sinks->addSubItem(new ProcessorListItem("WiFi Output"));
-    sinks->addSubItem(new ProcessorListItem("Arduino Output"));
+//     sinks->addSubItem(new ProcessorListItem("Arduino Output"));
     // sinks->addSubItem(new ProcessorListItem("FPGA Output"));
-    sinks->addSubItem(new ProcessorListItem("Pulse Pal"));
+//     sinks->addSubItem(new ProcessorListItem("Pulse Pal"));
 
-    ProcessorListItem* utilities = new ProcessorListItem("Utilities");
-    utilities->addSubItem(new ProcessorListItem("Splitter"));
-    utilities->addSubItem(new ProcessorListItem("Merger"));
-    utilities->addSubItem(new ProcessorListItem("Record Control"));
+//     utilities->addSubItem(new ProcessorListItem("Splitter"));
+//     utilities->addSubItem(new ProcessorListItem("Merger"));
+//     utilities->addSubItem(new ProcessorListItem("Record Control"));
     //utilities->addSubItem(new ProcessorListItem("Advancers"));
 
     baseItem = new ProcessorListItem("Processors");
@@ -762,3 +763,21 @@ void ProcessorListItem::setParentName(const String& name)
 // } else {
 // 	color = Colour(20, 37, 92);
 // }
+
+/*
+	 Insert selected plugin into the processor list
+ */
+void ProcessorList::sortAndInsertProcessor(const String& processorPath, const String& processorName)
+{
+
+	int cnt = 3;
+
+	if(processorPath.containsIgnoreCase("sources"))
+		sources->addSubItem(new ProcessorListItem(processorName.dropLastCharacters(cnt)));
+	else if(processorPath.containsIgnoreCase("filters"))
+		sources->addSubItem(new ProcessorListItem(processorName.dropLastCharacters(cnt)));
+	else if(processorPath.containsIgnoreCase("sinks"))
+		sources->addSubItem(new ProcessorListItem(processorName.dropLastCharacters(cnt)));
+	else if(processorPath.containsIgnoreCase("utilities"))
+		sources->addSubItem(new ProcessorListItem(processorName.dropLastCharacters(cnt)));
+}

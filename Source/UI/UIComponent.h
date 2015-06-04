@@ -210,7 +210,8 @@ private:
         showHelp				= 0x2011,
         resizeWindow            = 0x2012,
         reloadOnStartup         = 0x2013,
-        saveConfigurationAs     = 0x2014
+        saveConfigurationAs     = 0x2014,
+        loadProcessor	 = 0x2015
     };
 
     File currentConfigFile;

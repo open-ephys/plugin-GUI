@@ -81,6 +81,9 @@ public:
 
     void resized();
 
+    /** Sort and add processor to list */
+    void sortAndInsertProcessor(const String& processorPath, const String& processorName);
+
     /** Returns the height requested by the ProcessorList. Determines whether or not
     to draw scroll bars.*/
     int getTotalHeight();
