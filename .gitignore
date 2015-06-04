@@ -91,3 +91,6 @@ Builds/MacOSX/open-ephys.xcodeproj/*.mode1v3
 Builds/MacOSX/open-ephys.xcodeproj/*.pbxuser
 Builds/MacOSX/open-ephys.xcodeproj/xcuserdata
 Builds/MacOSX/open-ephys.xcodeproj/project.xcworkspace
+
+# 9. Plugin build dirs
+build/

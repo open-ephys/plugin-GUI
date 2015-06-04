@@ -28,7 +28,7 @@
 #include <Windows.h>
 #endif
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
 /**
