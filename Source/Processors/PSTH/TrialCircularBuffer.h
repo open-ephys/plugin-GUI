@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __TRIALCIRCULARBUFFER_H__
 #define __TRIALCIRCULARBUFFER_H__
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../Visualization/SpikeObject.h"
 #include "../Visualization/MatlabLikePlot.h"

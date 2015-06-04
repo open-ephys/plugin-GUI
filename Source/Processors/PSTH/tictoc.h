@@ -25,7 +25,7 @@
 #ifndef __TICTOC_H
 #define __TICTOC_H
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 class TicToc
 {
 public:

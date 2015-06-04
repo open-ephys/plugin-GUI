@@ -37,7 +37,7 @@
 
 #endif
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 

@@ -24,7 +24,7 @@
 #ifndef PSTHNODE_H_
 #define PSTHNODE_H_
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 //#include "../Editors/SpikeDisplayEditor.h"
 #include "../Editors/VisualizerEditor.h"
 #include "../NetworkEvents/NetworkEvents.h"
