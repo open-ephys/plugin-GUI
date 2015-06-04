@@ -55,6 +55,7 @@ OBJECTS := \
   $(OBJDIR)/AccessClass_de9602d5.o \
   $(OBJDIR)/PracticalSocket_2574ecc8.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/PluginManager_f764c180.o \
   $(OBJDIR)/Rectifier_21cc94b6.o \
   $(OBJDIR)/AudioEditor_3931be27.o \
   $(OBJDIR)/AudioNode_3db3557c.o \
@@ -200,6 +201,11 @@ $(OBJDIR)/PracticalSocket_2574ecc8.o: ../../Source/Network/PracticalSocket.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PluginManager_f764c180.o: ../../Source/Processors/PluginManager/PluginManager.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PluginManager.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Rectifier_21cc94b6.o: ../../Source/Processors/Rectifier/Rectifier.cpp

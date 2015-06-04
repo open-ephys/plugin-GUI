@@ -26,6 +26,11 @@
 
 #include <stdio.h>
 
+extern "C" PluginManager::Plugin * OpenEphysProc()
+{
+	return new ArduinoOutput();
+}
+
 ArduinoOutput::ArduinoOutput()
     : GenericProcessor("Arduino Output"), state(true), deviceSelected(false), outputChannel(13), inputChannel(-1)
 {

@@ -36,6 +36,7 @@ enum ChannelType {HEADSTAGE_CHANNEL = 0, AUX_CHANNEL = 1, ADC_CHANNEL = 2, EVENT
 #include "../Parameter/Parameter.h"
 #include "../Channel/Channel.h"
 #include "../../CoreServices.h"
+#include "../PluginManager/PluginManager.h"
 
 #include <time.h>
 #include <stdio.h>
@@ -65,7 +66,7 @@ class Channel;
 
 */
 
-class GenericProcessor : public AudioProcessor
+class GenericProcessor : public AudioProcessor, public PluginManager::Plugin
 {
 public:
 

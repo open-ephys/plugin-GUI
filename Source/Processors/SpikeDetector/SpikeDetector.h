@@ -24,7 +24,7 @@
 #ifndef __SPIKEDETECTOR_H_3F920F95__
 #define __SPIKEDETECTOR_H_3F920F95__
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../GenericProcessor/GenericProcessor.h"
 #include "SpikeDetectorEditor.h"

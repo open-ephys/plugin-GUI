@@ -211,7 +211,7 @@ private:
         resizeWindow            = 0x2012,
         reloadOnStartup         = 0x2013,
         saveConfigurationAs     = 0x2014,
-        loadProcessor	 = 0x2015
+        loadPlugin	 = 0x2015
     };
 
     File currentConfigFile;

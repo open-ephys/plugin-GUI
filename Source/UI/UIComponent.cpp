@@ -289,7 +289,7 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		menu.addCommandItem(commandManager, saveConfiguration);
 		menu.addCommandItem(commandManager, saveConfigurationAs);
 		menu.addSeparator();
-		menu.addCommandItem(commandManager, loadProcessor);
+		menu.addCommandItem(commandManager, loadPlugin);
 		menu.addSeparator();
 		menu.addCommandItem(commandManager, reloadOnStartup);
 
@@ -349,7 +349,7 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 	const CommandID ids[] = {openConfiguration,
 		saveConfiguration,
 		saveConfigurationAs,
-		loadProcessor,
+		loadPlugin,
 		reloadOnStartup,
 		undo,
 		redo,
@@ -390,7 +390,7 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			result.addDefaultKeypress('S', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
 			break;
 
-		case loadProcessor:
+		case loadPlugin:
 			result.setInfo("Load processor...", "Load a custom compiled processor.", "General", 0);
 			result.addDefaultKeypress('L', ModifierKeys::commandModifier);
 			break;
@@ -539,12 +539,12 @@ bool UIComponent::perform(const InvocationInfo& info)
 				break;
 			}
 
-		case loadProcessor:
+		case loadPlugin:
 			{
 				// Load UI for choosing plugin
 				File pluginFile;
 				FileChooser fc("Choose the file name...",
-						File::getCurrentWorkingDirectory(), "*", true);
+						File("/usr/local/lib/GUI/"), "*.so", true);
 
 				// Store user input
 				if(fc.browseForFileToOpen())

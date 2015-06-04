@@ -559,7 +559,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
             {
                 File fileToSave = fc.getResult();
                 std::cout << fileToSave.getFileName() << std::endl;
-                CoreServices::sendStatusMessage(writePrbFile(fileToSave));
+                CoreServices::sendStatusMessage(writePrbFile(fileToSave).toUTF8());
             }
         } else {
 			CoreServices::sendStatusMessage("Stop acquisition before saving the channel map.");
@@ -584,7 +584,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
                     modifyButton->setToggleState(false,sendNotificationSync);
                 File fileToOpen = fc.getResult();
                 std::cout << fileToOpen.getFileName() << std::endl;
-				CoreServices::sendStatusMessage(loadPrbFile(fileToOpen));
+				CoreServices::sendStatusMessage(loadPrbFile(fileToOpen).toUTF8());
             }
         } else {
 			CoreServices::sendStatusMessage("Stop acquisition before saving the channel map.");
