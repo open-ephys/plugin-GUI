@@ -39,8 +39,11 @@
 #include "DataThread.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
-#define MAX_NUM_DATA_STREAMS 8
+#define MAX_NUM_DATA_STREAMS_USB2 8
+#define MAX_NUM_DATA_STREAMS_USB3 16
 #define MAX_NUM_HEADSTAGES 8
+
+#define MAX_NUM_DATA_STREAMS(u3) (u3 ? MAX_NUM_DATA_STREAMS_USB3 : MAX_NUM_DATA_STREAMS_USB2)
 
 class SourceNode;
 class RHDHeadstage;

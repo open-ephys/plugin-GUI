@@ -349,7 +349,7 @@ void RHD2000Thread::initializeBoard()
 
     bitfilename = executableDirectory;
     bitfilename += File::separatorString;
-    bitfilename += "rhd2000.bit";
+    bitfilename += evalBoard->isUSB3() ? "rhd2000_usb3.bit" : "rhd2000.bit";
 
     if (!uploadBitfile(bitfilename))
     {
@@ -597,13 +597,13 @@ void RHD2000Thread::scanPorts()
     int chipIdx = 0;
     for (hs = 0; hs < MAX_NUM_HEADSTAGES; ++hs)
     {
-        if ((tmpChipId[hs] > 0) && (enabledStreams.size() < MAX_NUM_DATA_STREAMS))
+        if ((tmpChipId[hs] > 0) && (enabledStreams.size() < MAX_NUM_DATA_STREAMS(evalBoard->isUSB3())))
         {
             chipId.set(chipIdx++,tmpChipId[hs]);
             //std::cout << "Enabling headstage on stream " << stream << std::endl;
             if (tmpChipId[hs] == CHIP_ID_RHD2164) //RHD2164
             {
-                if (enabledStreams.size() < MAX_NUM_DATA_STREAMS - 1)
+                if (enabledStreams.size() < MAX_NUM_DATA_STREAMS(evalBoard->isUSB3()) - 1)
                 {
                     enableHeadstage(hs,true,2,32);
                     chipId.set(chipIdx++,CHIP_ID_RHD2164_B);
@@ -1072,7 +1072,7 @@ bool RHD2000Thread::enableHeadstage(int hsNum, bool enabled, int nStr, int strCh
 
 void RHD2000Thread::updateBoardStreams()
 {
-    for (int i=0; i <  MAX_NUM_DATA_STREAMS; i++)
+    for (int i=0; i <  MAX_NUM_DATA_STREAMS(evalBoard->isUSB3()); i++)
     {
         if (i < enabledStreams.size())
         {
@@ -2055,7 +2055,7 @@ void RHDImpedanceMeasure::runImpedanceMeasurement()
 	int chOffset;
 
 	Array<int> enabledStreams;
-	for (stream = 0; stream < MAX_NUM_DATA_STREAMS; ++stream)
+	for (stream = 0; stream < MAX_NUM_DATA_STREAMS(board->evalBoard->isUSB3()); ++stream)
 	{
 		CHECK_EXIT;
 		if (board->evalBoard->isStreamEnabled(stream))

@@ -44,7 +44,7 @@ Rhd2000EvalBoard::Rhd2000EvalBoard()
 	dev = 0;
 	usb3 = false;
 
-    for (i = 0; i < MAX_NUM_DATA_STREAMS; ++i) {
+    for (i = 0; i < MAX_NUM_DATA_STREAMS_USB3; ++i) {
         dataStreamEnabled[i] = 0;
     }
 
@@ -1575,7 +1575,7 @@ void Rhd2000EvalBoard::resetFpga()
 
 bool Rhd2000EvalBoard::isStreamEnabled(int streamIndex)
 {
-  if (streamIndex < 0 || streamIndex > (MAX_NUM_DATA_STREAMS - 1))
+  if (streamIndex < 0 || streamIndex > (MAX_NUM_DATA_STREAMS_USB3 - 1))
     return false;
 
   return dataStreamEnabled[streamIndex];
