@@ -233,6 +233,18 @@ void Rhd2000EvalBoard::initialize()
     setDataSource(6, PortC2);
     setDataSource(7, PortD2);
 
+	if (usb3)
+	{
+		setDataSource(8, PortA1);
+		setDataSource(9, PortB1);
+		setDataSource(10, PortC1);
+		setDataSource(11, PortD1);
+		setDataSource(12, PortA2);
+		setDataSource(13, PortB2);
+		setDataSource(14, PortC2);
+		setDataSource(15, PortD2);
+	}
+
     enableDataStream(0, true);        // start with only one data stream enabled
     for (i = 1; i < MAX_NUM_DATA_STREAMS(usb3); i++) {
         enableDataStream(i, false);
