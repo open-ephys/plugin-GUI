@@ -42,6 +42,7 @@ Rhd2000EvalBoard::Rhd2000EvalBoard()
     sampleRate = SampleRate30000Hz; // Rhythm FPGA boots up with 30.0 kS/s/channel sampling rate
     numDataStreams = 0;
 	dev = 0;
+	usb3 = false;
 
     for (i = 0; i < MAX_NUM_DATA_STREAMS; ++i) {
         dataStreamEnabled[i] = 0;
@@ -88,16 +89,23 @@ int Rhd2000EvalBoard::open(const char* libname)
 
     // Find first device in list of type XEM6010LX45.
     for (i = 0; i < nDevices; ++i) {
-        if (dev->GetDeviceListModel(i) == OK_PRODUCT_XEM6010LX45) {
+		okCFrontPanel::BoardModel model = dev->GetDeviceListModel(i);
+        if (model == OK_PRODUCT_XEM6010LX45) {
             serialNumber = dev->GetDeviceListSerial(i);
             break;
         }
+		else if (model == OK_PRODUCT_XEM6310LX45) {
+			serialNumber = dev->GetDeviceListSerial(i);
+			usb3 = true;
+			break;
+		}
     }
 
     // Attempt to open device.
     if (dev->OpenBySerial(serialNumber) != okCFrontPanel::NoError) {
         delete dev;
 		dev = 0;
+		usb3 = false;
         cerr << "Device could not be opened.  Is one connected?" << endl;
         return -2;
     }
@@ -684,6 +692,8 @@ void Rhd2000EvalBoard::setMaxTimeStep(unsigned int maxTimeStep)
     dev->SetWireInValue(WireInMaxTimeStepLsb, maxTimeStepLsb);
     dev->SetWireInValue(WireInMaxTimeStepMsb, maxTimeStepMsb >> 16);
     dev->UpdateWireIns();
+	dev->UpdateWireOuts();
+	std::cout << "max step set to: " << dev->GetWireOutValue(0x26) << std::endl;
 }
 
 // Initiate SPI data acquisition.
@@ -1312,31 +1322,60 @@ bool Rhd2000EvalBoard::isDataClockLocked() const
 // data acquisition has been stopped.)
 void Rhd2000EvalBoard::flush()
 {
-    while (numWordsInFifo() >= USB_BUFFER_SIZE / 2) {
-        dev->ReadFromPipeOut(PipeOutData, USB_BUFFER_SIZE, usbBuffer);
-    }
-    while (numWordsInFifo() > 0) {
-        dev->ReadFromPipeOut(PipeOutData, 2 * numWordsInFifo(), usbBuffer);
-    }
+
+	if (usb3) 
+	{
+		dev->SetWireInValue(WireInResetRun, 1 << 16, 1 << 16); //Override pipeout block throttle
+		dev->UpdateWireIns();
+		while (numWordsInFifo() >= USB_BUFFER_SIZE / 2) {
+			dev->ReadFromBlockPipeOut(PipeOutData, USB3_BLOCK_SIZE, USB_BUFFER_SIZE, usbBuffer);
+		}
+		while (numWordsInFifo() > 0) {
+			dev->ReadFromBlockPipeOut(PipeOutData, USB3_BLOCK_SIZE, USB3_BLOCK_SIZE *max(2 * numWordsInFifo() / USB3_BLOCK_SIZE, (unsigned int)1), usbBuffer);
+		}
+		dev->SetWireInValue(WireInResetRun, 0, 1 << 16);
+		dev->UpdateWireIns();
+	}
+	else
+	{
+		while (numWordsInFifo() >= USB_BUFFER_SIZE / 2) {
+			dev->ReadFromPipeOut(PipeOutData, USB_BUFFER_SIZE, usbBuffer);
+		}
+		while (numWordsInFifo() > 0) {
+			dev->ReadFromPipeOut(PipeOutData, 2 * numWordsInFifo(), usbBuffer);
+		}
+	}
 }
 
 // Read data block from the USB interface, if one is available.  Returns true if data block
 // was available.
-bool Rhd2000EvalBoard::readDataBlock(Rhd2000DataBlock *dataBlock)
+bool Rhd2000EvalBoard::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 {
     unsigned int numBytesToRead;
+	long res;
 
-    numBytesToRead = 2 * dataBlock->calculateDataBlockSizeInWords(numDataStreams);
+    numBytesToRead = 2 * dataBlock->calculateDataBlockSizeInWords(numDataStreams, usb3, nSamples);
 
     if (numBytesToRead > USB_BUFFER_SIZE) {
         cerr << "Error in Rhd2000EvalBoard::readDataBlock: USB buffer size exceeded.  " <<
                 "Increase value of USB_BUFFER_SIZE." << endl;
         return false;
     }
+	
+	if (usb3)
+	{
+		res = dev->ReadFromBlockPipeOut(PipeOutData, USB3_BLOCK_SIZE, numBytesToRead, usbBuffer);
+	}
+	else
+	{
+		res = dev->ReadFromPipeOut(PipeOutData, numBytesToRead, usbBuffer);
+	}
+	if (res == ok_Timeout)
+	{
+		cerr << "CRITICAL: Timeout on pipe read. Check block and buffer sizes." << endl;
+	}
 
-    dev->ReadFromPipeOut(PipeOutData, numBytesToRead, usbBuffer);
-
-    dataBlock->fillFromUsbBuffer(usbBuffer, 0, numDataStreams);
+    dataBlock->fillFromUsbBuffer(usbBuffer, 0, numDataStreams, nSamples);
 
     return true;
 }
@@ -1349,7 +1388,7 @@ bool Rhd2000EvalBoard::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &da
     int i;
     Rhd2000DataBlock *dataBlock;
 
-    numWordsToRead = numBlocks * dataBlock->calculateDataBlockSizeInWords(numDataStreams);
+    numWordsToRead = numBlocks * dataBlock->calculateDataBlockSizeInWords(numDataStreams, usb3);
 
     if (numWordsInFifo() < numWordsToRead)
         return false;
@@ -1364,7 +1403,7 @@ bool Rhd2000EvalBoard::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &da
 
     dev->ReadFromPipeOut(PipeOutData, numBytesToRead, usbBuffer);
 
-    dataBlock = new Rhd2000DataBlock(numDataStreams);
+    dataBlock = new Rhd2000DataBlock(numDataStreams, usb3);
     for (i = 0; i < numBlocks; ++i) {
         dataBlock->fillFromUsbBuffer(usbBuffer, i, numDataStreams);
         dataQueue.push(*dataBlock);
@@ -1513,4 +1552,9 @@ void Rhd2000EvalBoard::enableBoardLeds(bool enable)
 	dev->SetWireInValue(WireInMultiUse, enable ? 1 : 0);
 	dev->UpdateWireIns();
 	dev->ActivateTriggerIn(TrigInOpenEphys, 0);
+}
+
+bool Rhd2000EvalBoard::isUSB3()
+{
+	return usb3;
 }

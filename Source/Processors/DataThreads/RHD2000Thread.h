@@ -138,7 +138,7 @@ private:
 
     ScopedPointer<Rhd2000EvalBoard> evalBoard;
     Rhd2000Registers chipRegisters;
-    Rhd2000DataBlock* dataBlock;
+    ScopedPointer<Rhd2000DataBlock> dataBlock;
 
 	int numChannels;
     bool deviceFound;

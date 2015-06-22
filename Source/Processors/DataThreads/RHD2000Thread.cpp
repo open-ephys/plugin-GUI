@@ -90,7 +90,6 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
         headstagesArray.add(new RHDHeadstage(static_cast<Rhd2000EvalBoard::BoardDataSource>(i)));
 
     evalBoard = new Rhd2000EvalBoard;
-    dataBlock = new Rhd2000DataBlock(1);
     dataBuffer = new DataBuffer(2, 10000); // start with 2 channels and automatically resize
 
     // Open Opal Kelly XEM6010 board.
@@ -120,9 +119,11 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     dacChannelsToUpdate = nullptr;
     if (openBoard(libraryFilePath))
     {
-
+		dataBlock = new Rhd2000DataBlock(1,evalBoard->isUSB3());
         // upload bitfile and restore default settings
         initializeBoard();
+		if (evalBoard->isUSB3())
+			std::cout << "USB3 board mode enabled" << std::endl;
 
         // automatically find connected headstages
         scanPorts(); // things would appear to run more smoothly if this were done after the editor has been created
@@ -170,7 +171,7 @@ RHD2000Thread::~RHD2000Thread()
     if (deviceFound)
         evalBoard->resetFpga();
 
-    deleteAndZero(dataBlock);
+    //deleteAndZero(dataBlock);
 
     delete dacStream;
     delete dacChannels;
@@ -383,8 +384,8 @@ void RHD2000Thread::initializeBoard()
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3, 0);
 
     // Since our longest command sequence is 60 commands, run the SPI interface for
-    // 60 samples
-    evalBoard->setMaxTimeStep(60);
+    // 60 samples (64 for usb3 power-of two needs)
+    evalBoard->setMaxTimeStep(64);
     evalBoard->setContinuousRunMode(false);
 
     // Start SPI interface
@@ -398,10 +399,9 @@ void RHD2000Thread::initializeBoard()
 
     // Read the resulting single data block from the USB interface. We don't
     // need to do anything with this, since it was only used for ADC calibration
-    ScopedPointer<Rhd2000DataBlock> dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
+    ScopedPointer<Rhd2000DataBlock> dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams(), evalBoard->isUSB3());
 
-
-    evalBoard->readDataBlock(dataBlock);
+    evalBoard->readDataBlock(dataBlock, 64);
 
     // Now that ADC calibration has been performed, we switch to the command sequence
     // that does not execute ADC calibration.
@@ -503,12 +503,12 @@ void RHD2000Thread::scanPorts()
                                     Rhd2000EvalBoard::AuxCmd3, 0);
 
     // Since our longest command sequence is 60 commands, we run the SPI
-    // interface for 60 samples.
-    evalBoard->setMaxTimeStep(60);
+    // interface for 60 samples. (64 for usb3 power-of two needs)
+    evalBoard->setMaxTimeStep(64);
     evalBoard->setContinuousRunMode(false);
 
     Rhd2000DataBlock* dataBlock =
-        new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
+        new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams(), evalBoard->isUSB3());
 
     Array<int> sumGoodDelays;
     sumGoodDelays.insertMultiple(0,0,8);
@@ -540,9 +540,8 @@ void RHD2000Thread::scanPorts()
         {
             ;
         }
-
         // Read the resulting single data block from the USB interface.
-        evalBoard->readDataBlock(dataBlock);
+        evalBoard->readDataBlock(dataBlock, 64);
 
         // Read the Intan chip ID number from each RHD2000 chip found.
         // Record delay settings that yield good communication with the chip.
@@ -1374,7 +1373,7 @@ void RHD2000Thread::setCableLength(int hsNum, float length)
 bool RHD2000Thread::startAcquisition()
 {
 	impedanceThread->waitSafely();
-    dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
+    dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams(), evalBoard->isUSB3());
 
     std::cout << "Expecting " << getNumChannels() << " channels." << std::endl;
 
@@ -1402,7 +1401,7 @@ bool RHD2000Thread::startAcquisition()
         evalBoard->run();
     }
 
-    blockSize = dataBlock->calculateDataBlockSizeInWords(evalBoard->getNumEnabledDataStreams());
+    blockSize = dataBlock->calculateDataBlockSizeInWords(evalBoard->getNumEnabledDataStreams(), evalBoard->isUSB3());
 
     startThread();
 
@@ -1475,7 +1474,7 @@ bool RHD2000Thread::updateBuffer()
     {
         return_code = evalBoard->readDataBlock(dataBlock);
 
-        for (int samp = 0; samp < dataBlock->getSamplesPerDataBlock(); samp++)
+        for (int samp = 0; samp < dataBlock->getSamplesPerDataBlock(evalBoard->isUSB3()); samp++)
         {
             int channel = -1;
 
@@ -1790,7 +1789,7 @@ RHDImpedanceMeasure::RHDImpedanceMeasure(RHD2000Thread* b) : Thread(""), data(nu
 	// to perform electrode impedance measurements at very low frequencies.
 	const int maxNumBlocks = 120;
 	int numStreams = 8;
-	allocateDoubleArray3D(amplifierPreFilter, numStreams, 32, SAMPLES_PER_DATA_BLOCK * maxNumBlocks);
+	allocateDoubleArray3D(amplifierPreFilter, numStreams, 32, MAX_SAMPLES_PER_DATA_BLOCK * maxNumBlocks);
 }
 
 RHDImpedanceMeasure::~RHDImpedanceMeasure()
@@ -1905,7 +1904,7 @@ int RHDImpedanceMeasure::loadAmplifierData(queue<Rhd2000DataBlock>& dataQueue,
 
 		// Load and scale RHD2000 amplifier waveforms
 		// (sampled at amplifier sampling rate)
-		for (t = 0; t < SAMPLES_PER_DATA_BLOCK; ++t)
+		for (t = 0; t < SAMPLES_PER_DATA_BLOCK(board->evalBoard->isUSB3()); ++t)
 		{
 			for (channel = 0; channel < 32; ++channel)
 			{
@@ -1942,7 +1941,7 @@ void RHDImpedanceMeasure::measureComplexAmplitude(std::vector<std::vector<std::v
 	int endIndex = startIndex + numPeriods * period - 1;
 
 	// Move the measurement window to the end of the waveform to ignore start-up transient.
-	while (endIndex < SAMPLES_PER_DATA_BLOCK * numBlocks - period)
+	while (endIndex < SAMPLES_PER_DATA_BLOCK(board->evalBoard->isUSB3()) * numBlocks - period)
 	{
 		startIndex += period;
 		endIndex += period;
@@ -2121,7 +2120,7 @@ void RHDImpedanceMeasure::runImpedanceMeasurement()
 
 	CHECK_EXIT;
 	board->evalBoard->setContinuousRunMode(false);
-	board->evalBoard->setMaxTimeStep(SAMPLES_PER_DATA_BLOCK * numBlocks);
+	board->evalBoard->setMaxTimeStep(SAMPLES_PER_DATA_BLOCK(board->evalBoard->isUSB3()) * numBlocks);
 
 	// Create matrices of doubles of size (numStreams x 32 x 3) to store complex amplitudes
 	// of all amplifier channels (32 on each data stream) at three different Cseries values.

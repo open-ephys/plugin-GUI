@@ -21,10 +21,12 @@
 #ifndef RHD2000EVALBOARD_H
 #define RHD2000EVALBOARD_H
 
-#define USB_BUFFER_SIZE 2400000
+#define USB_BUFFER_SIZE 2560000
 #define RHYTHM_BOARD_ID 500
 #define MAX_NUM_DATA_STREAMS 8
 #define FIFO_CAPACITY_WORDS 67108864
+
+#define USB3_BLOCK_SIZE	512
 
 #include <queue>
 
@@ -148,7 +150,7 @@ public:
     void setTtlMode(int mode);
 
     void flush();
-    bool readDataBlock(Rhd2000DataBlock *dataBlock);
+    bool readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples = -1);
     bool readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue);
     int queueToFile(queue<Rhd2000DataBlock> &dataQueue, std::ofstream &saveOut);
     int getBoardMode() const;
@@ -159,6 +161,7 @@ public:
 	void resetFpga();
 	bool isStreamEnabled(int streamIndex);
 	void enableBoardLeds(bool enable);
+	bool isUSB3();
 
 private:
     okCFrontPanel *dev;
@@ -232,6 +235,7 @@ private:
     bool isDcmProgDone() const;
     bool isDataClockLocked() const;
 
+	bool usb3; //Open-Ephys addition for USB3 support
 };
 
 #endif // RHD2000EVALBOARD_H
