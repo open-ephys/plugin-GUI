@@ -170,7 +170,7 @@ bool Rhd2000EvalBoard::uploadFpgaBitfile(string filename)
     boardId = dev->GetWireOutValue(WireOutBoardId);
     boardVersion = dev->GetWireOutValue(WireOutBoardVersion);
 
-    if (boardId != RHYTHM_BOARD_ID) {
+    if (boardId != (usb3 ? RHYTHM_BOARD_ID_USB3 : RHYTHM_BOARD_ID_USB2)) {
         cerr << "FPGA configuration does not support Rhythm.  Incorrect board ID: " << boardId << endl;
         return(false);
     } else {
@@ -234,7 +234,7 @@ void Rhd2000EvalBoard::initialize()
     setDataSource(7, PortD2);
 
     enableDataStream(0, true);        // start with only one data stream enabled
-    for (i = 1; i < MAX_NUM_DATA_STREAMS; i++) {
+    for (i = 1; i < MAX_NUM_DATA_STREAMS(usb3); i++) {
         enableDataStream(i, false);
     }
 
@@ -846,7 +846,7 @@ void Rhd2000EvalBoard::setDataSource(int stream, BoardDataSource dataSource)
     int bitShift;
     OkEndPoint endPoint;
 
-    if (stream < 0 || stream > 7) {
+	if (stream < 0 || stream > (MAX_NUM_DATA_STREAMS(usb3) - 1)) {
         cerr << "Error in Rhd2000EvalBoard::setDataSource: stream out of range." << endl;
         return;
     }
@@ -884,6 +884,38 @@ void Rhd2000EvalBoard::setDataSource(int stream, BoardDataSource dataSource)
         endPoint = WireInDataStreamSel5678;
         bitShift = 12;
         break;
+	case 8:
+		endPoint = WireInDataStreamSel1234;
+		bitShift = 16;
+		break;
+	case 9:
+		endPoint = WireInDataStreamSel1234;
+		bitShift = 20;
+		break;
+	case 10:
+		endPoint = WireInDataStreamSel1234;
+		bitShift = 24;
+		break;
+	case 11:
+		endPoint = WireInDataStreamSel1234;
+		bitShift = 28;
+		break;
+	case 12:
+		endPoint = WireInDataStreamSel5678;
+		bitShift = 16;
+		break;
+	case 13:
+		endPoint = WireInDataStreamSel5678;
+		bitShift = 20;
+		break;
+	case 14:
+		endPoint = WireInDataStreamSel5678;
+		bitShift = 24;
+		break;
+	case 15:
+		endPoint = WireInDataStreamSel5678;
+		bitShift = 28;
+		break;
     }
 
     dev->SetWireInValue(endPoint, dataSource << bitShift, 0x000f << bitShift);
@@ -893,7 +925,7 @@ void Rhd2000EvalBoard::setDataSource(int stream, BoardDataSource dataSource)
 // Enable or disable one of the eight available USB data streams (0-7).
 void Rhd2000EvalBoard::enableDataStream(int stream, bool enabled)
 {
-    if (stream < 0 || stream > (MAX_NUM_DATA_STREAMS - 1)) {
+    if (stream < 0 || stream > (MAX_NUM_DATA_STREAMS(usb3) - 1)) {
         cerr << "Error in Rhd2000EvalBoard::setDataSource: stream out of range." << endl;
         return;
     }
@@ -991,30 +1023,32 @@ void Rhd2000EvalBoard::enableDac(int dacChannel, bool enabled)
         return;
     }
 
+	UINT32 dacEnMask = usb3 ? 0x0400 : 0x0200;
+
     switch (dacChannel) {
     case 0:
-        dev->SetWireInValue(WireInDacSource1, (enabled ? 0x0200 : 0x0000), 0x0200);
+		dev->SetWireInValue(WireInDacSource1, (enabled ? dacEnMask : 0x0000), dacEnMask);
         break;
     case 1:
-        dev->SetWireInValue(WireInDacSource2, (enabled ? 0x0200 : 0x0000), 0x0200);
+		dev->SetWireInValue(WireInDacSource2, (enabled ? dacEnMask : 0x0000), dacEnMask);
         break;
     case 2:
-        dev->SetWireInValue(WireInDacSource3, (enabled ? 0x0200 : 0x0000), 0x0200);
+		dev->SetWireInValue(WireInDacSource3, (enabled ? dacEnMask : 0x0000), dacEnMask);
         break;
     case 3:
-        dev->SetWireInValue(WireInDacSource4, (enabled ? 0x0200 : 0x0000), 0x0200);
+		dev->SetWireInValue(WireInDacSource4, (enabled ? dacEnMask : 0x0000), dacEnMask);
         break;
     case 4:
-        dev->SetWireInValue(WireInDacSource5, (enabled ? 0x0200 : 0x0000), 0x0200);
+		dev->SetWireInValue(WireInDacSource5, (enabled ? dacEnMask : 0x0000), dacEnMask);
         break;
     case 5:
-        dev->SetWireInValue(WireInDacSource6, (enabled ? 0x0200 : 0x0000), 0x0200);
+		dev->SetWireInValue(WireInDacSource6, (enabled ? dacEnMask : 0x0000), dacEnMask);
         break;
     case 6:
-        dev->SetWireInValue(WireInDacSource7, (enabled ? 0x0200 : 0x0000), 0x0200);
+		dev->SetWireInValue(WireInDacSource7, (enabled ? dacEnMask : 0x0000), dacEnMask);
         break;
     case 7:
-        dev->SetWireInValue(WireInDacSource8, (enabled ? 0x0200 : 0x0000), 0x0200);
+		dev->SetWireInValue(WireInDacSource8, (enabled ? dacEnMask : 0x0000), dacEnMask);
         break;
     }
     dev->UpdateWireIns();
@@ -1054,35 +1088,37 @@ void Rhd2000EvalBoard::selectDacDataStream(int dacChannel, int stream)
         return;
     }
 
-    if (stream < 0 || stream > 9) {
+    if (stream < 0 || stream > MAX_NUM_DATA_STREAMS(usb3)) {
         cerr << "Error in Rhd2000EvalBoard::selectDacDataStream: stream out of range." << endl;
         return;
     }
 
+	UINT32 dacStreamMask = (usb3 ? 0x03e0 : 0x01e0);
+
     switch (dacChannel) {
     case 0:
-        dev->SetWireInValue(WireInDacSource1, stream << 5, 0x01e0);
+		dev->SetWireInValue(WireInDacSource1, stream << 5, dacStreamMask);
         break;
     case 1:
-        dev->SetWireInValue(WireInDacSource2, stream << 5, 0x01e0);
+		dev->SetWireInValue(WireInDacSource2, stream << 5, dacStreamMask);
         break;
     case 2:
-        dev->SetWireInValue(WireInDacSource3, stream << 5, 0x01e0);
+		dev->SetWireInValue(WireInDacSource3, stream << 5, dacStreamMask);
         break;
     case 3:
-        dev->SetWireInValue(WireInDacSource4, stream << 5, 0x01e0);
+		dev->SetWireInValue(WireInDacSource4, stream << 5, dacStreamMask);
         break;
     case 4:
-        dev->SetWireInValue(WireInDacSource5, stream << 5, 0x01e0);
+		dev->SetWireInValue(WireInDacSource5, stream << 5, dacStreamMask);
         break;
     case 5:
-        dev->SetWireInValue(WireInDacSource6, stream << 5, 0x01e0);
+		dev->SetWireInValue(WireInDacSource6, stream << 5, dacStreamMask);
         break;
     case 6:
-        dev->SetWireInValue(WireInDacSource7, stream << 5, 0x01e0);
+		dev->SetWireInValue(WireInDacSource7, stream << 5, dacStreamMask);
         break;
     case 7:
-        dev->SetWireInValue(WireInDacSource8, stream << 5, 0x01e0);
+		dev->SetWireInValue(WireInDacSource8, stream << 5, dacStreamMask);
         break;
     }
     dev->UpdateWireIns();

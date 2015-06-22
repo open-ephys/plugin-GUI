@@ -22,9 +22,13 @@
 #define RHD2000EVALBOARD_H
 
 #define USB_BUFFER_SIZE 2560000
-#define RHYTHM_BOARD_ID 500
-#define MAX_NUM_DATA_STREAMS 8
+#define RHYTHM_BOARD_ID_USB2 500
+#define RHYTHM_BOARD_ID_USB3 600
+#define MAX_NUM_DATA_STREAMS_USB2 8
+#define MAX_NUM_DATA_STREAMS_USB3 16
 #define FIFO_CAPACITY_WORDS 67108864
+
+#define MAX_NUM_DATA_STREAMS(u3) ( u3 ? MAX_NUM_DATA_STREAMS_USB3 : MAX_NUM_DATA_STREAMS_USB2 )
 
 #define USB3_BLOCK_SIZE	512
 
@@ -167,7 +171,7 @@ private:
     okCFrontPanel *dev;
     AmplifierSampleRate sampleRate;
     int numDataStreams; // total number of data streams currently enabled
-    int dataStreamEnabled[MAX_NUM_DATA_STREAMS]; // 0 (disabled) or 1 (enabled)
+    int dataStreamEnabled[MAX_NUM_DATA_STREAMS_USB3]; // 0 (disabled) or 1 (enabled), set for maximum stream number
     vector<int> cableDelay;
 
     // Buffer for reading bytes from USB interface
