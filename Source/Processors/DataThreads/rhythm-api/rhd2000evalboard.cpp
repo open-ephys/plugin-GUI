@@ -692,8 +692,6 @@ void Rhd2000EvalBoard::setMaxTimeStep(unsigned int maxTimeStep)
     dev->SetWireInValue(WireInMaxTimeStepLsb, maxTimeStepLsb);
     dev->SetWireInValue(WireInMaxTimeStepMsb, maxTimeStepMsb >> 16);
     dev->UpdateWireIns();
-	dev->UpdateWireOuts();
-	std::cout << "max step set to: " << dev->GetWireOutValue(0x26) << std::endl;
 }
 
 // Initiate SPI data acquisition.
