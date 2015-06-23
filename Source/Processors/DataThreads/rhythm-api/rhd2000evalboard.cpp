@@ -1100,7 +1100,7 @@ void Rhd2000EvalBoard::selectDacDataStream(int dacChannel, int stream)
         return;
     }
 
-    if (stream < 0 || stream > MAX_NUM_DATA_STREAMS(usb3)) {
+    if (stream < 0 || stream > MAX_NUM_DATA_STREAMS(usb3)+1) {
         cerr << "Error in Rhd2000EvalBoard::selectDacDataStream: stream out of range." << endl;
         return;
     }

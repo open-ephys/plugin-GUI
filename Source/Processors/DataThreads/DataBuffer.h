@@ -60,8 +60,8 @@ private:
     AbstractFifo abstractFifo;
     AudioSampleBuffer buffer;
 
-    int64* timestampBuffer;
-    uint64* eventCodeBuffer;
+    HeapBlock<int64> timestampBuffer;
+    HeapBlock<uint64> eventCodeBuffer;
 
     int numChans;
 

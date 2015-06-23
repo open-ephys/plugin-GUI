@@ -26,8 +26,8 @@
 DataBuffer::DataBuffer(int chans, int size)
     : abstractFifo(size), buffer(chans, size), numChans(chans)
 {
-    timestampBuffer = new int64[size];
-    eventCodeBuffer = new uint64[size];
+    timestampBuffer.malloc(size);
+    eventCodeBuffer.malloc(size);
 
 }
 
@@ -43,8 +43,8 @@ void DataBuffer::clear()
 void DataBuffer::resize(int chans, int size)
 {
     buffer.setSize(chans, size);
-    timestampBuffer = new int64[size];
-    eventCodeBuffer = new uint64[size];
+    timestampBuffer.malloc(size);
+    eventCodeBuffer.malloc(size);
 
     numChans = chans;
 }

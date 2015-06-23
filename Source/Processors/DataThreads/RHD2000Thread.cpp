@@ -139,7 +139,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
             dacChannelsToUpdate[k] = true;
             dacStream[k] = 0;
             setDACthreshold(k, 65534);
-            dacChannels[k] = -1;
+            dacChannels[k] = 0;
             dacThresholds[k] = 0;
         }
 
@@ -205,6 +205,7 @@ void RHD2000Thread::setDACchannel(int dacOutput, int channel)
             {
                 dacChannels[dacOutput] = channel - channelCount;
                 dacStream[dacOutput] = i;
+				break;
             }
             else
             {
@@ -507,7 +508,7 @@ void RHD2000Thread::scanPorts()
     evalBoard->setMaxTimeStep(64);
     evalBoard->setContinuousRunMode(false);
 
-    Rhd2000DataBlock* dataBlock =
+    ScopedPointer<Rhd2000DataBlock> dataBlock =
         new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams(), evalBoard->isUSB3());
 
     Array<int> sumGoodDelays;
@@ -1598,7 +1599,7 @@ bool RHD2000Thread::updateBuffer()
             }
         }
 
-        evalBoard->setTtlMode(ttlMode);
+        evalBoard->setTtlMode(ttlMode ? 1 : 0);
         evalBoard->enableExternalFastSettle(fastTTLSettleEnabled);
         evalBoard->setExternalFastSettleChannel(fastSettleTTLChannel);
         evalBoard->setDacHighpassFilter(desiredDAChpf);
