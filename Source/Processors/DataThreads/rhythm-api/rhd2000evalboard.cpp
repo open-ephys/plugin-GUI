@@ -1413,17 +1413,19 @@ bool Rhd2000EvalBoard::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 	
 	if (usb3)
 	{
+		std::cout << "usb3 read : " << numBytesToRead << " in " << USB3_BLOCK_SIZE << " blocks" << std::endl;
 		res = dev->ReadFromBlockPipeOut(PipeOutData, USB3_BLOCK_SIZE, numBytesToRead, usbBuffer);
 	}
 	else
 	{
+		std::cout << "usb2 read: " << numBytesToRead << std::endl;
 		res = dev->ReadFromPipeOut(PipeOutData, numBytesToRead, usbBuffer);
 	}
 	if (res == ok_Timeout)
 	{
 		cerr << "CRITICAL: Timeout on pipe read. Check block and buffer sizes." << endl;
 	}
-
+	std::cout << "read result: " << res << std::endl;
     dataBlock->fillFromUsbBuffer(usbBuffer, 0, numDataStreams, nSamples);
 
     return true;
