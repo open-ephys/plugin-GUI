@@ -1373,11 +1373,14 @@ void Rhd2000EvalBoard::flush()
 	{
 		dev->SetWireInValue(WireInResetRun, 1 << 16, 1 << 16); //Override pipeout block throttle
 		dev->UpdateWireIns();
+		cout << "Pre-Flush: " << numWordsInFifo() << endl;
 		while (numWordsInFifo() >= USB_BUFFER_SIZE / 2) {
 			dev->ReadFromBlockPipeOut(PipeOutData, USB3_BLOCK_SIZE, USB_BUFFER_SIZE, usbBuffer);
+			cout << "Flush phase A: " << numWordsInFifo() << endl;
 		}
 		while (numWordsInFifo() > 0) {
 			dev->ReadFromBlockPipeOut(PipeOutData, USB3_BLOCK_SIZE, USB3_BLOCK_SIZE *max(2 * numWordsInFifo() / USB3_BLOCK_SIZE, (unsigned int)1), usbBuffer);
+			cout << "Flush phase B: " << numWordsInFifo() << endl;
 		}
 		dev->SetWireInValue(WireInResetRun, 0, 1 << 16);
 		dev->UpdateWireIns();
