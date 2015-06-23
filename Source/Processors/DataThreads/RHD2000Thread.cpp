@@ -1471,7 +1471,7 @@ bool RHD2000Thread::updateBuffer()
     //cout << "Block size: " << blockSize << endl;
 
     bool return_code;
-	//std::cout << "Current number of words: " << evalBoard->numWordsInFifo() << " for " << blockSize << std::endl;
+	std::cout << "Current number of words: " << evalBoard->numWordsInFifo() << " for " << blockSize << std::endl;
     if (evalBoard->numWordsInFifo() >= blockSize)
     {
         return_code = evalBoard->readDataBlock(dataBlock);
