@@ -679,6 +679,12 @@ void Rhd2000EvalBoard::resetBoard()
     dev->UpdateWireIns();
     dev->SetWireInValue(WireInResetRun, 0x00, 0x01);
     dev->UpdateWireIns();
+	if (usb3)
+	{
+		dev->SetWireInValue(WireInMultiUse, USB3_BLOCK_SIZE / 4);
+		dev->ActivateTriggerIn(TrigInOpenEphys, 16);
+		cout << "Blocksize set to " << USB3_BLOCK_SIZE << endl;
+	}
 }
 
 // Set the FPGA to run continuously once started (if continuousMode == true) or to run until
