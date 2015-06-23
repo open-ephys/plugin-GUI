@@ -1403,6 +1403,7 @@ bool RHD2000Thread::startAcquisition()
     }
 
     blockSize = dataBlock->calculateDataBlockSizeInWords(evalBoard->getNumEnabledDataStreams(), evalBoard->isUSB3());
+	std::cout << "Expecting blocksize of " << blockSize << " for " << evalBoard->getNumEnabledDataStreams() << " streams" << std::endl;
 
     startThread();
 
@@ -1470,7 +1471,7 @@ bool RHD2000Thread::updateBuffer()
     //cout << "Block size: " << blockSize << endl;
 
     bool return_code;
-
+	//std::cout << "Current number of words: " << evalBoard->numWordsInFifo() << " for " << blockSize << std::endl;
     if (evalBoard->numWordsInFifo() >= blockSize)
     {
         return_code = evalBoard->readDataBlock(dataBlock);
