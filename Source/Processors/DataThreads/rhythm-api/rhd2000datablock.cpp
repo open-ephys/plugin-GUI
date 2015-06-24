@@ -189,7 +189,7 @@ void Rhd2000DataBlock::fillFromUsbBuffer(unsigned char usbBuffer[], int blockInd
         ttlOut[t] = convertUsbWord(usbBuffer, index);
         index += 2;
     }
-	cout << "Read " << num << " valid samples with " << numDataStreams << " streams. Usb mode status: " << usb3 << endl;
+	//cout << "Read " << num << " valid samples with " << numDataStreams << " streams. Usb mode status: " << usb3 << endl;
 }
 
 // Print the contents of RHD2000 registers from a selected USB data stream (0-7)
