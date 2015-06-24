@@ -682,6 +682,7 @@ void Rhd2000EvalBoard::resetBoard()
 	if (usb3)
 	{
 		dev->SetWireInValue(WireInMultiUse, USB3_BLOCK_SIZE / 4);
+		dev->UpdateWireIns();
 		dev->ActivateTriggerIn(TrigInOpenEphys, 16);
 		cout << "Blocksize set to " << USB3_BLOCK_SIZE << endl;
 	}
@@ -710,11 +711,15 @@ void Rhd2000EvalBoard::setMaxTimeStep(unsigned int maxTimeStep)
     dev->SetWireInValue(WireInMaxTimeStepLsb, maxTimeStepLsb);
     dev->SetWireInValue(WireInMaxTimeStepMsb, maxTimeStepMsb >> 16);
     dev->UpdateWireIns();
+
+
 }
 
 // Initiate SPI data acquisition.
 void Rhd2000EvalBoard::run()
 {
+	dev->UpdateWireOuts();
+	std::cout << "Block size: " << dev->GetWireOutValue(0x26) << std::endl;
     dev->ActivateTriggerIn(TrigInSpiStart, 0);
 }
 
