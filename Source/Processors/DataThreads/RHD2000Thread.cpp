@@ -44,6 +44,9 @@
 #define REGISTER_59_MISO_B  58
 #define RHD2132_16CH_OFFSET 8
 
+#define DEBUG_EMULATE_HEADSTAGES 8
+#define DEBUG_EMULATE_64CH
+
 // Allocates memory for a 3-D array of doubles.
 void allocateDoubleArray3D(std::vector<std::vector<std::vector<double> > >& array3D,
                            int xSize, int ySize, int zSize)
@@ -426,173 +429,184 @@ void RHD2000Thread::initializeBoard()
 
 void RHD2000Thread::scanPorts()
 {
-    if (!deviceFound) //Safety to avoid crashes if board not present
-    {
-        return;
-    }
+	if (!deviceFound) //Safety to avoid crashes if board not present
+	{
+		return;
+	}
 
 	impedanceThread->stopThreadSafely();
-    //Clear previous known streams
-    enabledStreams.clear();
+	//Clear previous known streams
+	enabledStreams.clear();
 
-    // Scan SPI ports
+	// Scan SPI ports
 
-    int delay, hs, id;
-    int register59Value;
-    //int numChannelsOnPort[4] = {0, 0, 0, 0};
-    Rhd2000EvalBoard::BoardDataSource initStreamPorts[8] =
-    {
-        Rhd2000EvalBoard::PortA1,
-        Rhd2000EvalBoard::PortA2,
-        Rhd2000EvalBoard::PortB1,
-        Rhd2000EvalBoard::PortB2,
-        Rhd2000EvalBoard::PortC1,
-        Rhd2000EvalBoard::PortC2,
-        Rhd2000EvalBoard::PortD1,
-        Rhd2000EvalBoard::PortD2
-    };
+	int delay, hs, id;
+	int register59Value;
+	//int numChannelsOnPort[4] = {0, 0, 0, 0};
+	Rhd2000EvalBoard::BoardDataSource initStreamPorts[8] =
+	{
+		Rhd2000EvalBoard::PortA1,
+		Rhd2000EvalBoard::PortA2,
+		Rhd2000EvalBoard::PortB1,
+		Rhd2000EvalBoard::PortB2,
+		Rhd2000EvalBoard::PortC1,
+		Rhd2000EvalBoard::PortC2,
+		Rhd2000EvalBoard::PortD1,
+		Rhd2000EvalBoard::PortD2
+	};
 
-    /*
-    Rhd2000EvalBoard::BoardDataSource initStreamDdrPorts[8] =
-    {
-        Rhd2000EvalBoard::PortA1Ddr,
-        Rhd2000EvalBoard::PortA2Ddr,
-        Rhd2000EvalBoard::PortB1Ddr,
-        Rhd2000EvalBoard::PortB2Ddr,
-        Rhd2000EvalBoard::PortC1Ddr,
-        Rhd2000EvalBoard::PortC2Ddr,
-        Rhd2000EvalBoard::PortD1Ddr,
-        Rhd2000EvalBoard::PortD2Ddr
-    };
-     */
+	/*
+	Rhd2000EvalBoard::BoardDataSource initStreamDdrPorts[8] =
+	{
+	Rhd2000EvalBoard::PortA1Ddr,
+	Rhd2000EvalBoard::PortA2Ddr,
+	Rhd2000EvalBoard::PortB1Ddr,
+	Rhd2000EvalBoard::PortB2Ddr,
+	Rhd2000EvalBoard::PortC1Ddr,
+	Rhd2000EvalBoard::PortC2Ddr,
+	Rhd2000EvalBoard::PortD1Ddr,
+	Rhd2000EvalBoard::PortD2Ddr
+	};
+	*/
 
-    chipId.insertMultiple(0,-1,8);
-    Array<int> tmpChipId(chipId);
+	chipId.insertMultiple(0, -1, 8);
+	Array<int> tmpChipId(chipId);
 
-    setSampleRate(Rhd2000EvalBoard::SampleRate30000Hz, true); // set to 30 kHz temporarily
+	setSampleRate(Rhd2000EvalBoard::SampleRate30000Hz, true); // set to 30 kHz temporarily
 
-    // Enable all data streams, and set sources to cover one or two chips
-    // on Ports A-D.
-    evalBoard->setDataSource(0, initStreamPorts[0]);
-    evalBoard->setDataSource(1, initStreamPorts[1]);
-    evalBoard->setDataSource(2, initStreamPorts[2]);
-    evalBoard->setDataSource(3, initStreamPorts[3]);
-    evalBoard->setDataSource(4, initStreamPorts[4]);
-    evalBoard->setDataSource(5, initStreamPorts[5]);
-    evalBoard->setDataSource(6, initStreamPorts[6]);
-    evalBoard->setDataSource(7, initStreamPorts[7]);
+	// Enable all data streams, and set sources to cover one or two chips
+	// on Ports A-D.
+	evalBoard->setDataSource(0, initStreamPorts[0]);
+	evalBoard->setDataSource(1, initStreamPorts[1]);
+	evalBoard->setDataSource(2, initStreamPorts[2]);
+	evalBoard->setDataSource(3, initStreamPorts[3]);
+	evalBoard->setDataSource(4, initStreamPorts[4]);
+	evalBoard->setDataSource(5, initStreamPorts[5]);
+	evalBoard->setDataSource(6, initStreamPorts[6]);
+	evalBoard->setDataSource(7, initStreamPorts[7]);
 
-    evalBoard->enableDataStream(0, true);
-    evalBoard->enableDataStream(1, true);
-    evalBoard->enableDataStream(2, true);
-    evalBoard->enableDataStream(3, true);
-    evalBoard->enableDataStream(4, true);
-    evalBoard->enableDataStream(5, true);
-    evalBoard->enableDataStream(6, true);
-    evalBoard->enableDataStream(7, true);
+	evalBoard->enableDataStream(0, true);
+	evalBoard->enableDataStream(1, true);
+	evalBoard->enableDataStream(2, true);
+	evalBoard->enableDataStream(3, true);
+	evalBoard->enableDataStream(4, true);
+	evalBoard->enableDataStream(5, true);
+	evalBoard->enableDataStream(6, true);
+	evalBoard->enableDataStream(7, true);
 
-    std::cout << "Number of enabled data streams: " << evalBoard->getNumEnabledDataStreams() << std::endl;
-
-
-    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA,
-                                    Rhd2000EvalBoard::AuxCmd3, 0);
-    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB,
-                                    Rhd2000EvalBoard::AuxCmd3, 0);
-    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC,
-                                    Rhd2000EvalBoard::AuxCmd3, 0);
-    evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD,
-                                    Rhd2000EvalBoard::AuxCmd3, 0);
-
-    // Since our longest command sequence is 60 commands, we run the SPI
-    // interface for 60 samples. (64 for usb3 power-of two needs)
-    evalBoard->setMaxTimeStep(64);
-    evalBoard->setContinuousRunMode(false);
-
-    ScopedPointer<Rhd2000DataBlock> dataBlock =
-        new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams(), evalBoard->isUSB3());
-
-    Array<int> sumGoodDelays;
-    sumGoodDelays.insertMultiple(0,0,8);
-
-    Array<int> indexFirstGoodDelay;
-    indexFirstGoodDelay.insertMultiple(0,-1,8);
-
-    Array<int> indexSecondGoodDelay;
-    indexSecondGoodDelay.insertMultiple(0,-1,8);
+	std::cout << "Number of enabled data streams: " << evalBoard->getNumEnabledDataStreams() << std::endl;
 
 
-    // Run SPI command sequence at all 16 possible FPGA MISO delay settings
-    // to find optimum delay for each SPI interface cable.
+	evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA,
+		Rhd2000EvalBoard::AuxCmd3, 0);
+	evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortB,
+		Rhd2000EvalBoard::AuxCmd3, 0);
+	evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortC,
+		Rhd2000EvalBoard::AuxCmd3, 0);
+	evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortD,
+		Rhd2000EvalBoard::AuxCmd3, 0);
 
-    std::cout << "Checking for connected amplifier chips..." << std::endl;
+	// Since our longest command sequence is 60 commands, we run the SPI
+	// interface for 60 samples. (64 for usb3 power-of two needs)
+	evalBoard->setMaxTimeStep(64);
+	evalBoard->setContinuousRunMode(false);
 
-    for (delay = 0; delay < 16; delay++)//(delay = 0; delay < 16; ++delay)
-    {
-        evalBoard->setCableDelay(Rhd2000EvalBoard::PortA, delay);
-        evalBoard->setCableDelay(Rhd2000EvalBoard::PortB, delay);
-        evalBoard->setCableDelay(Rhd2000EvalBoard::PortC, delay);
-        evalBoard->setCableDelay(Rhd2000EvalBoard::PortD, delay);
+	ScopedPointer<Rhd2000DataBlock> dataBlock =
+		new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams(), evalBoard->isUSB3());
 
-        // Start SPI interface.
-        evalBoard->run();
+	Array<int> sumGoodDelays;
+	sumGoodDelays.insertMultiple(0, 0, 8);
 
-        // Wait for the 60-sample run to complete.
-        while (evalBoard->isRunning())
-        {
-            ;
-        }
-        // Read the resulting single data block from the USB interface.
-        evalBoard->readDataBlock(dataBlock, 64);
+	Array<int> indexFirstGoodDelay;
+	indexFirstGoodDelay.insertMultiple(0, -1, 8);
 
-        // Read the Intan chip ID number from each RHD2000 chip found.
-        // Record delay settings that yield good communication with the chip.
-        for (hs = 0; hs < MAX_NUM_HEADSTAGES; ++hs)//MAX_NUM_DATA_STREAMS; ++stream)
-        {
-            // std::cout << "Stream number " << stream << ", delay = " << delay << std::endl;
+	Array<int> indexSecondGoodDelay;
+	indexSecondGoodDelay.insertMultiple(0, -1, 8);
 
-            id = deviceId(dataBlock, hs, register59Value);
 
-            if (id == CHIP_ID_RHD2132 || id == CHIP_ID_RHD2216 ||
-                (id == CHIP_ID_RHD2164 && register59Value == REGISTER_59_MISO_A))
-            {
-                //  std::cout << "Device ID found: " << id << std::endl;
+	// Run SPI command sequence at all 16 possible FPGA MISO delay settings
+	// to find optimum delay for each SPI interface cable.
 
-                sumGoodDelays.set(hs,sumGoodDelays[hs] + 1);
+	std::cout << "Checking for connected amplifier chips..." << std::endl;
 
-                if (indexFirstGoodDelay[hs] == -1)
-                {
-                    indexFirstGoodDelay.set(hs, delay);
-                    tmpChipId.set(hs,id);
-                }
-                else if (indexSecondGoodDelay[hs] == -1)
-                {
-                    indexSecondGoodDelay.set(hs,delay);
-                    tmpChipId.set(hs,id);
-                }
-            }
-        }
-    }
+	for (delay = 0; delay < 16; delay++)//(delay = 0; delay < 16; ++delay)
+	{
+		evalBoard->setCableDelay(Rhd2000EvalBoard::PortA, delay);
+		evalBoard->setCableDelay(Rhd2000EvalBoard::PortB, delay);
+		evalBoard->setCableDelay(Rhd2000EvalBoard::PortC, delay);
+		evalBoard->setCableDelay(Rhd2000EvalBoard::PortD, delay);
 
-    // std::cout << "Chip IDs found: ";
-    // for (int i = 0; i < MAX_NUM_DATA_STREAMS; ++i)
-    // {
-    //     std::cout << chipId[i] << " ";
-    // }
-    //std::cout << std::endl;
+		// Start SPI interface.
+		evalBoard->run();
+
+		// Wait for the 60-sample run to complete.
+		while (evalBoard->isRunning())
+		{
+			;
+		}
+		// Read the resulting single data block from the USB interface.
+		evalBoard->readDataBlock(dataBlock, 64);
+
+		// Read the Intan chip ID number from each RHD2000 chip found.
+		// Record delay settings that yield good communication with the chip.
+		for (hs = 0; hs < MAX_NUM_HEADSTAGES; ++hs)//MAX_NUM_DATA_STREAMS; ++stream)
+		{
+			// std::cout << "Stream number " << stream << ", delay = " << delay << std::endl;
+
+			id = deviceId(dataBlock, hs, register59Value);
+
+			if (id == CHIP_ID_RHD2132 || id == CHIP_ID_RHD2216 ||
+				(id == CHIP_ID_RHD2164 && register59Value == REGISTER_59_MISO_A))
+			{
+				//  std::cout << "Device ID found: " << id << std::endl;
+
+				sumGoodDelays.set(hs, sumGoodDelays[hs] + 1);
+
+				if (indexFirstGoodDelay[hs] == -1)
+				{
+					indexFirstGoodDelay.set(hs, delay);
+					tmpChipId.set(hs, id);
+				}
+				else if (indexSecondGoodDelay[hs] == -1)
+				{
+					indexSecondGoodDelay.set(hs, delay);
+					tmpChipId.set(hs, id);
+				}
+			}
+		}
+	}
+
+	// std::cout << "Chip IDs found: ";
+	// for (int i = 0; i < MAX_NUM_DATA_STREAMS; ++i)
+	// {
+	//     std::cout << chipId[i] << " ";
+	// }
+	//std::cout << std::endl;
 
 #if DEBUG_EMULATE_HEADSTAGES > 0
-    for (int nd = 0; nd < MAX_NUM_DATA_STREAMS; ++nd)
-    {
-        if ((nd < DEBUG_EMULATE_HEADSTAGES) &&(tmpChipId[0] > 0))
-        {
-            evalBoard->setDataSource(nd,initStreamPorts[0]);
-            enableHeadstage(nd,true);
-        }
-        else
-        {
-            enableHeadstage(stream,false);
-        }
-    }
+	if (tmpChipId[0] > 0)
+	{
+		int chipIdx = 0;
+		for (int hs = 0; hs < DEBUG_EMULATE_HEADSTAGES && hs < MAX_NUM_HEADSTAGES ; ++hs)
+		{
+			if (enabledStreams.size() < MAX_NUM_DATA_STREAMS(evalBoard->isUSB3()))
+			{
+#ifdef DEBUG_EMULATE_64CH
+				chipId.set(chipIdx++,CHIP_ID_RHD2164);
+				chipId.set(chipIdx++,CHIP_ID_RHD2164_B);
+				enableHeadstage(hs, true, 2, 32);
+#else
+				chipId.set(chipIdx++,CHIP_ID_RHD2132);
+				enableHeadstage(hs, true, 1, 32);
+#endif
+			}
+		}
+		for (int i = 0; i < enabledStreams.size(); i++)
+		{
+			enabledStreams.set(i,Rhd2000EvalBoard::PortA1);
+		}
+	}
+        
 #else
     // Now, disable data streams where we did not find chips present.
     int chipIdx = 0;
@@ -624,8 +638,8 @@ void RHD2000Thread::scanPorts()
             enableHeadstage(hs, false);
         }
     }
-    updateBoardStreams();
 #endif
+	updateBoardStreams();
 
 
     std::cout << "Number of enabled data streams: " << evalBoard->getNumEnabledDataStreams() << std::endl;
@@ -1580,6 +1594,7 @@ bool RHD2000Thread::updateBuffer()
 
     if (dacOutputShouldChange)
     {
+		std::cout << "DAC" << std::endl;
         for (int k=0; k<8; k++)
         {
             if (dacChannelsToUpdate[k])
@@ -1591,7 +1606,7 @@ bool RHD2000Thread::updateBuffer()
                     evalBoard->selectDacDataStream(k, dacStream[k]);
                     evalBoard->selectDacDataChannel(k, dacChannels[k]);
                     evalBoard->setDacThreshold(k, (int)abs((dacThresholds[k]/0.195) + 32768),dacThresholds[k] >= 0);
-                    // evalBoard->setDacThresholdVoltage(k, (int) dacThresholds[k]);
+                   // evalBoard->setDacThresholdVoltage(k, (int) dacThresholds[k]);
                 }
                 else
                 {
@@ -1600,12 +1615,12 @@ bool RHD2000Thread::updateBuffer()
             }
         }
 
-        //evalBoard->setTtlMode(ttlMode ? 1 : 0);
-        //evalBoard->enableExternalFastSettle(fastTTLSettleEnabled);
-        //evalBoard->setExternalFastSettleChannel(fastSettleTTLChannel);
-        //evalBoard->setDacHighpassFilter(desiredDAChpf);
-        //evalBoard->enableDacHighpassFilter(desiredDAChpfState);
-		//evalBoard->enableBoardLeds(ledsEnabled);
+        evalBoard->setTtlMode(ttlMode ? 1 : 0);
+        evalBoard->enableExternalFastSettle(fastTTLSettleEnabled);
+        evalBoard->setExternalFastSettleChannel(fastSettleTTLChannel);
+        evalBoard->setDacHighpassFilter(desiredDAChpf);
+        evalBoard->enableDacHighpassFilter(desiredDAChpfState);
+		evalBoard->enableBoardLeds(ledsEnabled);
 
         dacOutputShouldChange = false;
     }

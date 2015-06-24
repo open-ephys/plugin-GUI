@@ -1204,7 +1204,7 @@ void Rhd2000EvalBoard::enableExternalFastSettle(bool enable)
 void Rhd2000EvalBoard::setExternalFastSettleChannel(int channel)
 {
     if (channel < 0 || channel > 15) {
-        cerr << "Error in Rhd2000EvalBoard::setExternalFastSettleChannel: channel out of range." << endl;
+        cerr << "Error in Rhd2000EvalBoard::setExternalFastSettleChannel: channel "<< channel << " out of range." << endl;
         return;
     }
 
@@ -1424,19 +1424,19 @@ bool Rhd2000EvalBoard::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 	
 	if (usb3)
 	{
-		std::cout << "usb3 read : " << numBytesToRead << " in " << USB3_BLOCK_SIZE << " blocks" << std::endl;
+	//	std::cout << "usb3 read : " << numBytesToRead << " in " << USB3_BLOCK_SIZE << " blocks" << std::endl;
 		res = dev->ReadFromBlockPipeOut(PipeOutData, USB3_BLOCK_SIZE, numBytesToRead, usbBuffer);
 	}
 	else
 	{
-		std::cout << "usb2 read: " << numBytesToRead << std::endl;
+	//	std::cout << "usb2 read: " << numBytesToRead << std::endl;
 		res = dev->ReadFromPipeOut(PipeOutData, numBytesToRead, usbBuffer);
 	}
 	if (res == ok_Timeout)
 	{
 		cerr << "CRITICAL: Timeout on pipe read. Check block and buffer sizes." << endl;
 	}
-	std::cout << "read result: " << res << std::endl;
+	//std::cout << "read result: " << res << std::endl;
     dataBlock->fillFromUsbBuffer(usbBuffer, 0, numDataStreams, nSamples);
 
     return true;
