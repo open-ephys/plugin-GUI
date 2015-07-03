@@ -44,9 +44,11 @@
                 extraCompilerFlags="-export-dynamic -g -pg -std=c++0x" extraDefs="ZEROMQ">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
-                       libraryPath="/usr/X11R6/lib/&#10;/usr/local/include&#10;" headerPath=""/>
+                       libraryPath="/usr/X11R6/lib/&#10;/usr/local/include&#10;/usr/lib/x86_64-linux-gnu/hdf5/serial"
+                       headerPath="/usr/include/hdf5/serial"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys-release"
-                       libraryPath="/usr/X11R6/lib/"/>
+                       libraryPath="/usr/X11R6/lib/&#10;/usr/lib/x86_64-linux-gnu/hdf5/serial"
+                       headerPath="/usr/include/hdf5/serial"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>
