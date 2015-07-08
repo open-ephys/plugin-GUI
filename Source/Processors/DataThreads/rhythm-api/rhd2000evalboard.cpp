@@ -29,6 +29,7 @@
 #include "rhd2000datablock.h"
 
 #include "okFrontPanelDLL.h"
+#include <Windows.h>
 
 using namespace std;
 
@@ -685,6 +686,10 @@ void Rhd2000EvalBoard::resetBoard()
 		dev->UpdateWireIns();
 		dev->ActivateTriggerIn(TrigInOpenEphys, 16);
 		cout << "Blocksize set to " << USB3_BLOCK_SIZE << endl;
+		dev->SetWireInValue(WireInMultiUse, DDR_BLOCK_SIZE);
+		dev->UpdateWireIns();
+		dev->ActivateTriggerIn(TrigInOpenEphys, 17);
+		cout << "DDR burst set to " << DDR_BLOCK_SIZE << endl;
 	}
 }
 
@@ -720,6 +725,7 @@ void Rhd2000EvalBoard::run()
 {
 	dev->UpdateWireOuts();
 	std::cout << "Block size: " << dev->GetWireOutValue(0x26) << std::endl;
+	std::cout << "Burst len: " << dev->GetWireOutValue(0x27) << std::endl;
     dev->ActivateTriggerIn(TrigInSpiStart, 0);
 }
 
@@ -1392,6 +1398,7 @@ void Rhd2000EvalBoard::flush()
 		while (numWordsInFifo() > 0) {
 			dev->ReadFromBlockPipeOut(PipeOutData, USB3_BLOCK_SIZE, USB3_BLOCK_SIZE *max(2 * numWordsInFifo() / USB3_BLOCK_SIZE, (unsigned int)1), usbBuffer);
 			cout << "Flush phase B: " << numWordsInFifo() << endl;
+			printFIFOmetrics();
 		}
 		dev->SetWireInValue(WireInResetRun, 0, 1 << 16);
 		dev->UpdateWireIns();
@@ -1426,6 +1433,7 @@ bool Rhd2000EvalBoard::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 	{
 		//std::cout << "usb3 read : " << numBytesToRead << " in " << USB3_BLOCK_SIZE << " blocks" << std::endl;
 		res = dev->ReadFromBlockPipeOut(PipeOutData, USB3_BLOCK_SIZE, numBytesToRead, usbBuffer);
+		
 	}
 	else
 	{
@@ -1439,6 +1447,39 @@ bool Rhd2000EvalBoard::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
     dataBlock->fillFromUsbBuffer(usbBuffer, 0, numDataStreams, nSamples);
 
     return true;
+}
+
+bool Rhd2000EvalBoard::readRawDataBlock(unsigned char** bufferPtr, int nSamples)
+{
+	unsigned int numBytesToRead;
+	long res;
+
+	numBytesToRead = 2 * Rhd2000DataBlock::calculateDataBlockSizeInWords(numDataStreams, usb3, nSamples);
+
+	if (numBytesToRead > USB_BUFFER_SIZE) {
+		cerr << "Error in Rhd2000EvalBoard::readDataBlock: USB buffer size exceeded.  " <<
+			"Increase value of USB_BUFFER_SIZE." << endl;
+		*bufferPtr = nullptr;
+		return false;
+	}
+
+	if (usb3)
+	{
+		//std::cout << "usb3 read : " << numBytesToRead << " in " << USB3_BLOCK_SIZE << " blocks" << std::endl;
+		res = dev->ReadFromBlockPipeOut(PipeOutData, USB3_BLOCK_SIZE, numBytesToRead, usbBuffer);
+
+	}
+	else
+	{
+		//std::cout << "usb2 read: " << numBytesToRead << std::endl;
+		res = dev->ReadFromPipeOut(PipeOutData, numBytesToRead, usbBuffer);
+	}
+	if (res == ok_Timeout)
+	{
+		cerr << "CRITICAL: Timeout on pipe read. Check block and buffer sizes." << endl;
+	}
+	*bufferPtr = usbBuffer;
+	return true;
 }
 
 // Reads a certain number of USB data blocks, if the specified number is available, and appends them
@@ -1618,4 +1659,10 @@ void Rhd2000EvalBoard::enableBoardLeds(bool enable)
 bool Rhd2000EvalBoard::isUSB3()
 {
 	return usb3;
+}
+
+void Rhd2000EvalBoard::printFIFOmetrics()
+{
+	dev->UpdateWireOuts();
+	std::cout << "In FIFO: " << dev->GetWireOutValue(0x28) << " DDR: " << dev->GetWireOutValue(0x2a) << " Out FIFO: " << dev->GetWireOutValue(0x29) << std::endl;
 }

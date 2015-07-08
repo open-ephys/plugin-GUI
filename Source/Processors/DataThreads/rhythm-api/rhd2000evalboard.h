@@ -30,7 +30,8 @@
 
 #define MAX_NUM_DATA_STREAMS(u3) ( u3 ? MAX_NUM_DATA_STREAMS_USB3 : MAX_NUM_DATA_STREAMS_USB2 )
 
-#define USB3_BLOCK_SIZE	256
+#define USB3_BLOCK_SIZE	2048
+#define DDR_BLOCK_SIZE 32
 
 #include <queue>
 
@@ -166,6 +167,8 @@ public:
 	bool isStreamEnabled(int streamIndex);
 	void enableBoardLeds(bool enable);
 	bool isUSB3();
+	void printFIFOmetrics();
+	bool readRawDataBlock(unsigned char** bufferPtr, int nSamples = -1);
 
 private:
     okCFrontPanel *dev;

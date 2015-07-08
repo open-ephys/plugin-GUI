@@ -47,6 +47,8 @@
 #define DEBUG_EMULATE_HEADSTAGES 8
 #define DEBUG_EMULATE_64CH
 
+#define INIT_STEP ( evalBoard->isUSB3() ? 256 : 60)
+
 // Allocates memory for a 3-D array of doubles.
 void allocateDoubleArray3D(std::vector<std::vector<std::vector<double> > >& array3D,
                            int xSize, int ySize, int zSize)
@@ -88,6 +90,8 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
 	newScan(true), ledsEnabled(true)
 {
 	impedanceThread = new RHDImpedanceMeasure(this);
+	memset(auxBuffer, 0, sizeof(auxBuffer));
+	memset(auxSamples, 0, sizeof(auxSamples));
 
     for (int i=0; i < MAX_NUM_HEADSTAGES; i++)
         headstagesArray.add(new RHDHeadstage(static_cast<Rhd2000EvalBoard::BoardDataSource>(i)));
@@ -389,7 +393,7 @@ void RHD2000Thread::initializeBoard()
 
     // Since our longest command sequence is 60 commands, run the SPI interface for
     // 60 samples (64 for usb3 power-of two needs)
-    evalBoard->setMaxTimeStep(64);
+	evalBoard->setMaxTimeStep(INIT_STEP);
     evalBoard->setContinuousRunMode(false);
 
     // Start SPI interface
@@ -405,8 +409,7 @@ void RHD2000Thread::initializeBoard()
     // need to do anything with this, since it was only used for ADC calibration
     ScopedPointer<Rhd2000DataBlock> dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams(), evalBoard->isUSB3());
 
-    evalBoard->readDataBlock(dataBlock, 64);
-
+	evalBoard->readDataBlock(dataBlock, INIT_STEP);
     // Now that ADC calibration has been performed, we switch to the command sequence
     // that does not execute ADC calibration.
     evalBoard->selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3,
@@ -508,7 +511,7 @@ void RHD2000Thread::scanPorts()
 
 	// Since our longest command sequence is 60 commands, we run the SPI
 	// interface for 60 samples. (64 for usb3 power-of two needs)
-	evalBoard->setMaxTimeStep(64);
+	evalBoard->setMaxTimeStep(INIT_STEP);
 	evalBoard->setContinuousRunMode(false);
 
 	ScopedPointer<Rhd2000DataBlock> dataBlock =
@@ -545,7 +548,7 @@ void RHD2000Thread::scanPorts()
 			;
 		}
 		// Read the resulting single data block from the USB interface.
-		evalBoard->readDataBlock(dataBlock, 64);
+		evalBoard->readDataBlock(dataBlock, INIT_STEP);
 
 		// Read the Intan chip ID number from each RHD2000 chip found.
 		// Record delay settings that yield good communication with the chip.
@@ -1413,12 +1416,14 @@ bool RHD2000Thread::startAcquisition()
         std::cout << "Flushing FIFO." << std::endl;
         evalBoard->flush();
         evalBoard->setContinuousRunMode(true);
+		evalBoard->printFIFOmetrics();
         evalBoard->run();
+		evalBoard->printFIFOmetrics();
     }
 
     blockSize = dataBlock->calculateDataBlockSizeInWords(evalBoard->getNumEnabledDataStreams(), evalBoard->isUSB3());
 	std::cout << "Expecting blocksize of " << blockSize << " for " << evalBoard->getNumEnabledDataStreams() << " streams" << std::endl;
-
+	evalBoard->printFIFOmetrics();
     startThread();
 
 
@@ -1481,19 +1486,102 @@ bool RHD2000Thread::stopAcquisition()
 bool RHD2000Thread::updateBuffer()
 {
 	int chOffset;
+	unsigned char* bufferPtr;
     //cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
     //cout << "Block size: " << blockSize << endl;
-
-    bool return_code;
+   
 	//std::cout << "Current number of words: " <<  evalBoard->numWordsInFifo() << " for " << blockSize << std::endl;
-    if (evalBoard->numWordsInFifo() >= 189440)
+    if (evalBoard->isUSB3() || evalBoard->numWordsInFifo() >= blockSize)
     {
-        return_code = evalBoard->readDataBlock(dataBlock);
+		bool return_code;
 
-        for (int samp = 0; samp < dataBlock->getSamplesPerDataBlock(evalBoard->isUSB3()); samp++)
+		return_code = evalBoard->readRawDataBlock(&bufferPtr);
+
+		int index = 0;
+		int auxIndex, chanIndex;
+		int numStreams = enabledStreams.size();
+		int nSamps = Rhd2000DataBlock::getSamplesPerDataBlock(evalBoard->isUSB3());
+		
+		evalBoard->printFIFOmetrics();
+        for (int samp = 0; samp < nSamps; samp++)
         {
             int channel = -1;
 
+			if (!Rhd2000DataBlock::checkUsbHeader(bufferPtr, index))
+			{
+				cerr << "Error in Rhd2000EvalBoard::readDataBlock: Incorrect header." << endl;
+				break;
+			}
+
+			index += 8;
+			timestamp = Rhd2000DataBlock::convertUsbTimeStamp(bufferPtr,index);
+			index += 4;
+			auxIndex = index;
+			//skip the aux channels
+			index += numStreams * 6;
+			// do the neural data channels first
+			for (int dataStream = 0; dataStream < numStreams; dataStream++)
+			{
+				int nChans = numChannelsPerDataStream[dataStream];
+				chanIndex = index + 2*dataStream;
+				if ((chipId[dataStream] == CHIP_ID_RHD2132) && (nChans == 16)) //RHD2132 16ch. headstage
+				{
+					chanIndex += 2 * RHD2132_16CH_OFFSET*numStreams;
+				}
+				for (int chan = 0; chan < nChans; chan++)
+				{
+					channel++;
+					thisSample[channel] = float(Rhd2000DataBlock::convertUsbWord(bufferPtr, index) - 32768)*0.195f;
+					chanIndex += 2*numStreams;
+				}
+			}
+			index += 64 * numStreams;
+			//now we can do the aux channels
+			auxIndex += 2*numStreams;
+			for (int dataStream = 0; dataStream < numStreams; dataStream++)
+			{
+				if (chipId[dataStream] != CHIP_ID_RHD2164_B)
+				{
+					int auxNum = (samp+3) % 4;
+					if (auxNum < 3)
+					{
+						auxSamples[dataStream][auxNum] = float(Rhd2000DataBlock::convertUsbWord(bufferPtr, auxIndex) - 32768)*0.0000374;
+					}
+					for (int chan = 0; chan < 3; chan++)
+					{
+						channel++;
+						if (auxNum == 3)
+						{
+							auxBuffer[channel] = auxSamples[dataStream][chan];
+						}
+						thisSample[channel] = auxBuffer[channel];
+					}
+				}
+				auxIndex += 2;
+
+			}
+			index += 2 * numStreams;
+			if (acquireAdcChannels)
+			{
+				for (int adcChan = 0; adcChan < 8; ++adcChan)
+				{
+
+					channel++;
+					// ADC waveform units = volts
+					thisSample[channel] =
+						//0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
+						0.00015258789 * float(Rhd2000DataBlock::convertUsbWord(bufferPtr, index)) - 5 - 0.4096; // account for +/-5V input range and DC offset
+					index += 2;
+				}
+			}
+			else
+			{
+				index += 16;
+			}
+			eventCode = Rhd2000DataBlock::convertUsbWord(bufferPtr, index);
+			index += 4;
+			dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+#if 0
             // do the neural data channels first
             for (int dataStream = 0; dataStream < enabledStreams.size(); dataStream++)
             {
@@ -1584,14 +1672,13 @@ bool RHD2000Thread::updateBuffer()
             timestamp = dataBlock->timeStamp[samp];
             //timestamp = timestamp;
             eventCode = dataBlock->ttlIn[samp];
-
             dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
-
+#endif
         }
 
     }
 
-
+	
     if (dacOutputShouldChange)
     {
 		std::cout << "DAC" << std::endl;
@@ -1624,8 +1711,7 @@ bool RHD2000Thread::updateBuffer()
 
         dacOutputShouldChange = false;
     }
-
-
+	
     return true;
 
 }

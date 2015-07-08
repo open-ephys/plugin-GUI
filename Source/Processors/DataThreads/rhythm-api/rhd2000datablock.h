@@ -22,7 +22,7 @@
 #define RHD2000DATABLOCK_H
 
 #define SAMPLES_PER_DATA_BLOCK_USB2 300 //modified by Open-ephys
-#define SAMPLES_PER_DATA_BLOCK_USB3 320
+#define SAMPLES_PER_DATA_BLOCK_USB3 256
 #define SAMPLES_PER_DATA_BLOCK(usb3) (usb3 ? SAMPLES_PER_DATA_BLOCK_USB3 : SAMPLES_PER_DATA_BLOCK_USB2)
 #define MAX_SAMPLES_PER_DATA_BLOCK (SAMPLES_PER_DATA_BLOCK_USB3 > SAMPLES_PER_DATA_BLOCK_USB2 ? SAMPLES_PER_DATA_BLOCK_USB3 : SAMPLES_PER_DATA_BLOCK_USB2)
 #define RHD2000_HEADER_MAGIC_NUMBER 0xc691199927021942
@@ -49,6 +49,10 @@ public:
     void print(int stream) const;
     void write(ofstream &saveOut, int numDataStreams) const;
 
+	static inline bool checkUsbHeader(unsigned char usbBuffer[], int index);
+	static inline unsigned int convertUsbTimeStamp(unsigned char usbBuffer[], int index);
+	static inline int convertUsbWord(unsigned char usbBuffer[], int index);
+
 private:
     void allocateIntArray3D(vector<vector<vector<int> > > &array3D, int xSize, int ySize, int zSize);
     void allocateIntArray2D(vector<vector<int> > &array2D, int xSize, int ySize);
@@ -57,9 +61,7 @@ private:
 
     void writeWordLittleEndian(ofstream &outputStream, int dataWord) const;
 
-    bool checkUsbHeader(unsigned char usbBuffer[], int index);
-    unsigned int convertUsbTimeStamp(unsigned char usbBuffer[], int index);
-    int convertUsbWord(unsigned char usbBuffer[], int index);
+    
 	const unsigned int samplesPerBlock;
 	bool usb3;
 };

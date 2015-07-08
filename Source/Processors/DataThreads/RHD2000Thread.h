@@ -149,6 +149,7 @@ private:
 
 	float thisSample[MAX_NUM_CHANNELS];
 	float auxBuffer[MAX_NUM_CHANNELS]; // aux inputs are only sampled every 4th sample, so use this to buffer the samples so they can be handles just like the regular neural channels later
+	float auxSamples[MAX_NUM_DATA_STREAMS_USB3][3];
 
     unsigned int blockSize;
 
