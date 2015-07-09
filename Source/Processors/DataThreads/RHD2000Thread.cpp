@@ -1531,7 +1531,7 @@ bool RHD2000Thread::updateBuffer()
 				for (int chan = 0; chan < nChans; chan++)
 				{
 					channel++;
-					thisSample[channel] = float(Rhd2000DataBlock::convertUsbWord(bufferPtr, index) - 32768)*0.195f;
+					thisSample[channel] = float(Rhd2000DataBlock::convertUsbWord(bufferPtr, chanIndex) - 32768)*0.195f;
 					chanIndex += 2*numStreams;
 				}
 			}
