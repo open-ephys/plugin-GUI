@@ -120,7 +120,26 @@ PluginManager::Plugin *PluginManager::Manager::loadPlugin(const String& pluginLo
 	dlerror();
 
 	/*
-		 Call the casted function pointer
+		 Now that the processor is loaded up, let's look for the required
+		 functions. Apparently ISO C++ forbids against casting object
+		 pointer -> function pointer but it's safe here.
+	 */
+	int *(*infoPtr)();
+#ifdef WIN32
+	infoPtr =(Plugin *(*)()) GetProcAddress(handle,"OpenEphysPlugin");
+#else
+	infoPtr = (int *(*)()) dlsym(handle,"getPluginInfo");
+#endif
+	if (!infoPtr) {
+		ERROR_MSG("%s\n",dlerror());
+		dlclose(handle);
+		return 0;
+	}
+	dlerror();
+	std::cout << infoPtr() << std::endl;
+
+	/*
+		 *Call the casted function pointer
 		 to call the processor constructor.
 	 */
 	Plugin *processor = 0;

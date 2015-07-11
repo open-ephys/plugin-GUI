@@ -75,6 +75,9 @@ enum colorIds
 	// set parent names / colors
 	baseItem->setParentName("Processors");
 
+	sources->addSubItem(new ProcessorListItem("Signal generator"));
+	sinks->addSubItem(new ProcessorListItem("LFP Viewer"));
+
 	for (int n = 0; n < baseItem->getNumSubItems(); n++)
 	{
 		const String category = baseItem->getSubItem(n)->getName();

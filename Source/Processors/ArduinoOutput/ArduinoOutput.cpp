@@ -31,26 +31,23 @@ extern "C" PluginManager::Plugin * OpenEphysPlugin()
 	return new ArduinoOutput();
 }
 
-struct PluginInfo {
-	size_t version;
-	String name;
-	size_t type;
-} info;
+extern "C" int getPluginInfo()
+{
+	String version = "0.1";
+	String name = "Arduino Output";
+	int type = 0x3;
+	return type;
+}
 
 ArduinoOutput::ArduinoOutput()
     : GenericProcessor("Arduino Output"), state(true), deviceSelected(false), outputChannel(13), inputChannel(-1)
 {
-	info.version = 0.1;
-	info.name = "Arduino Output";
-	info.type = 0x3;
 }
 
 ArduinoOutput::~ArduinoOutput()
 {
-
-    if (arduino.isInitialized())
-        arduino.disconnect();
-
+	if (arduino.isInitialized())
+		arduino.disconnect();
 }
 
 AudioProcessorEditor* ArduinoOutput::createEditor()

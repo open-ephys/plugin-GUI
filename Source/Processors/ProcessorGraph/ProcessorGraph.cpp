@@ -105,30 +105,24 @@ void ProcessorGraph::updatePointers()
 }
 
 void* ProcessorGraph::createNewProcessor(String& description, int id)//,
-
 {
+	GenericProcessor* processor = 0;
+	try {// Try/catch block added by Michael Borisov
+		processor = createProcessorFromDescription(description);
+	}
+	catch (std::exception& e) {
+		NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "OpenEphys", e.what());
+	}
 
-    GenericProcessor* processor = 0;
-    try // Try/catch block added by Michael Borisov
-    {
-        processor = createProcessorFromDescription(description);
-    }
-    catch (std::exception& e)
-    {
-        NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "OpenEphys", e.what());
-    }
+	// int id = currentNodeId++;
 
-    // int id = currentNodeId++;
-
-    if (processor != 0)
-    {
-
-        processor->setNodeId(id); // identifier within processor graph
-        std::cout << "  Adding node to graph with ID number " << id << std::endl;
-        std::cout << std::endl;
-        std::cout << std::endl;
-
-        addNode(processor,id); // have to add it so it can be deleted by the graph
+	if (processor != 0)
+	{
+		processor->setNodeId(id); // identifier within processor graph
+		std::cout << "  Adding node to graph with ID number " << id << std::endl;
+		std::cout << std::endl;
+		std::cout << std::endl;
+		addNode(processor,id); // have to add it so it can be deleted by the graph
 
 		if (processor->isSource())
 		{
@@ -143,18 +137,13 @@ void* ProcessorGraph::createNewProcessor(String& description, int id)//,
 				}
 			}
 		}
-
-        return processor->createEditor();
-
-    }
-    else
-    {
-
-        CoreServices::sendStatusMessage("Not a valid processor type.");
-
-        return 0;
-    }
-
+		return processor->createEditor();
+	}
+	else
+	{
+		CoreServices::sendStatusMessage("Not a valid processor type.");
+		return 0;
+	}
 }
 
 void ProcessorGraph::clearSignalChain()
@@ -505,6 +494,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
     String processorType = description.substring(0,splitPoint);
     String subProcessorType = description.substring(splitPoint+1);
 
+		std::cout << "Creating from description..." << std::endl;
     std::cout << processorType << "::" << subProcessorType << std::endl;
 
     GenericProcessor* processor = 0;
@@ -532,7 +522,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         }
         else if (subProcessorType.equalsIgnoreCase("Signal Generator"))
         {
-//             processor = new SignalGenerator();
+					  processor = new SignalGenerator();
             std::cout << "Creating a new signal generator." << std::endl;
         }
         else if (subProcessorType.equalsIgnoreCase("Event Generator"))
@@ -644,13 +634,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
     }
     else if (processorType.equalsIgnoreCase("Sinks"))
     {
-
         if (subProcessorType.equalsIgnoreCase("LFP Viewer"))
         {
             std::cout << "Creating an LfpDisplayNode." << std::endl;
-//             processor = new LfpDisplayNode();
+            processor = new LfpDisplayNode();
         }
-
         else if (subProcessorType.equalsIgnoreCase("Spike Viewer"))
         {
             std::cout << "Creating a SpikeDisplayNode." << std::endl;
@@ -660,7 +648,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
         else if (subProcessorType.equalsIgnoreCase("Arduino Output"))
         {
             std::cout << "Creating an Arduino node." << std::endl;
-//             processor = new ArduinoOutput();
+            // processor = new ArduinoOutput();
         }
         else if (subProcessorType.equalsIgnoreCase("Pulse Pal"))
         {
