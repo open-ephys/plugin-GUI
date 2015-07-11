@@ -101,7 +101,6 @@ StringTS& StringTS::operator=(const StringTS& rhs)
 
 String StringTS::getString()
 {
-
     return String((const char*)str,len);
 }
 
@@ -424,7 +423,7 @@ void NetworkEvents::process(AudioSampleBuffer& buffer,
     {
         StringTS msg = networkMessagesQueue.front();
         postTimestamppedStringToMidiBuffer(msg, events);
-        CoreServices::sendStatusMessage("Network event received: " + msg.getString());
+        CoreServices::sendStatusMessage(("Network event received: " + msg.getString()).toRawUTF8());
         //			 getUIComponent()->getLogWindow()->addLineToLog(msg);
         networkMessagesQueue.pop();
     }
