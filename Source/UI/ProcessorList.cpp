@@ -77,19 +77,13 @@ enum colorIds
 
 	for (int n = 0; n < baseItem->getNumSubItems(); n++)
 	{
-
 		const String category = baseItem->getSubItem(n)->getName();
 		baseItem->getSubItem(n)->setParentName(category);
-
 		for (int m = 0; m < baseItem->getSubItem(n)->getNumSubItems(); m++)
 		{
-
 			baseItem->getSubItem(n)->getSubItem(m)->setParentName(category);// = category;
-
 		}
-
 	}
-
 }
 
 ProcessorList::~ProcessorList()
@@ -614,8 +608,23 @@ void ProcessorList::setColours(Array<Colour> c)
 				;// do nothing
 		}
 	}
+}
 
-
+void ProcessorList::addPluginItem(String name, size_t type) {
+	switch(type) {
+		case 0x1:
+			sources->addSubItem(new ProcessorListItem(name));
+			break;
+		case 0x2:
+			filters->addSubItem(new ProcessorListItem(name));
+			break;
+		case 0x3:
+			sinks->addSubItem(new ProcessorListItem(name));
+			break;
+		case 0x4:
+			utilities->addSubItem(new ProcessorListItem(name));
+			break;
+	}
 }
 
 // ===================================================================
@@ -710,15 +719,4 @@ void ProcessorListItem::setParentName(const String& name)
 	{
 		colorId = UTILITY_COLOR;
 	}
-}
-
-/*
-	 Insert selected plugin into the processor list
- */
-void ProcessorList::sortAndInsertProcessor(const String& processorPath, const String& processorName)
-{
-	std::cout << "In ProcessorList " << processorPath << " " << processorName << std::endl;;
-	PluginManager::Manager::getInstance()->loadPlugin(processorPath);
-	sources->addSubItem(new ProcessorListItem(processorName));
-	repaint();
 }

@@ -1,5 +1,3 @@
-TYPE = sinks
-
 ifeq ($(TARGET_ARCH),)
   TARGET_ARCH := -march=native
 endif
@@ -7,7 +5,6 @@ endif
 # (this disables dependency generation if multiple architectures are set)
 DEPFLAGS := $(if $(word 2, $(TARGET_ARCH)), , -MMD)
 
-PLUGINDIR := /usr/local/lib/GUI
 BINDIR := build
 LIBDIR := build
 OBJDIR := build/intermediate/Debug
@@ -37,14 +34,12 @@ $(OUTDIR)/$(TARGET): $(OBJECTS) $(LDDEPS) $(RESOURCES)
 
 install:
 	@echo ${TARGET} installed.
-	-@sudo mv $(BINDIR)/$(TARGET) $(PLUGINDIR)/$(TYPE)/$(TARGET)
 
 clean:
 	@echo Plugin cleaned.
 	-@rm -f $(OUTDIR)/$(TARGET)
 	-@rm -rf $(OBJDIR)/*
 	-@rm -rf $(OBJDIR)
-	-@sudo rm -rf $(PLUGINDIR)/$(TYPE)/$(TARGET)
 
 strip:
 	@echo Plugin stripped.

@@ -42,8 +42,7 @@ ArduinoOutput::ArduinoOutput()
 {
 	info.version = 0.1;
 	info.name = "Arduino Output";
-	info.type = 0x2;
-	printf("Created processor %s\n", info.name.toStdString().c_str());
+	info.type = 0x3;
 }
 
 ArduinoOutput::~ArduinoOutput()

@@ -67,7 +67,6 @@ do
 			echo "-----> Plugin compile failed."
 			exit
 		fi
-		make install
 		cd ..
 	fi
 done

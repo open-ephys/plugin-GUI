@@ -559,7 +559,11 @@ bool UIComponent::perform(const InvocationInfo& info)
 				error += pluginFile.getFileName();
 
 				// Add to processor list
-				getProcessorList()->sortAndInsertProcessor(pluginFile.getFullPathName(), pluginFile.getFileName());
+				if(!PluginManager::Manager::getInstance()->loadPlugin(pluginFile.getFullPathName()))
+				{
+					CoreServices::sendStatusMessage(("Failed to load: " + pluginFile.getFileName()).toUTF8());
+					break;
+				}
 				CoreServices::sendStatusMessage(("Loaded: " + pluginFile.getFileName()).toUTF8());
 				break;
 			}

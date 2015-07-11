@@ -159,6 +159,7 @@ void PluginManager::Manager::insertListPlugin(PluginManager::Plugin *processor) 
 		return;
 	}
 	pluginList.push_back(processor);
+	AccessClass::getProcessorList()->addPluginItem(String("test"), size_t(0x1));
 	std::cout << "Size of list after is: " << pluginList.size() << std::endl;
 }
 

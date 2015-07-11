@@ -79,10 +79,10 @@ public:
     /** Loads the ProcessorList state. */
     void loadStateFromXml(XmlElement*);
 
-    void resized();
+		/** Add item loaded as plugin **/
+		void addPluginItem(String, size_t);
 
-    /** Sort and add processor to list */
-    void sortAndInsertProcessor(const String& processorPath, const String& processorName);
+    void resized();
 
     /** Returns the height requested by the ProcessorList. Determines whether or not
     to draw scroll bars.*/
@@ -109,8 +109,6 @@ private:
     void setViewport(Graphics& g, bool);
 
     int currentColor;
-
-
 
     /** Deselects all items within the ProcessorList.*/
     void clearSelectionState();
