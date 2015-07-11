@@ -38,20 +38,6 @@ else
 	exit
 fi
 
-# Step 2: Create GUI shared library
-cd $BUILD_HOME/build/intermediate/Debug/
-g++ -fPIC -shared -o libephys.so *.o
-sudo rm /usr/lib/libephys.so
-sudo cp libephys.so /usr/lib/.
-ldconfig -n /usr/lib/
-
-if [ $? -eq 0 ]; then
-echo "-----> JUCE library installation sucessful."
-else
-echo "-----> JUCE library installation failed."
-exit
-fi
-
 # Step 2: Compile plugins
 PLUGIN_SRC_DIR="${PROC_DIR}/Source/Processors"
 PLUGINS=`ls -d ${PLUGIN_SRC_DIR}/*`
