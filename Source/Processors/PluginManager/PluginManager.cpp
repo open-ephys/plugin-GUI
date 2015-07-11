@@ -93,9 +93,9 @@ PluginManager::Plugin *PluginManager::Manager::loadPlugin(const String& pluginLo
 	HINSTANCE handle;
 	handle = LoadLibrary(processorLocCString);
 #endif
-	
+
 	if (!handle) {
-		printf("%s\n", dlerror());
+		ERROR_MSG("%s\n", dlerror());
 		dlclose(handle);
 		return 0;
 	}

@@ -543,8 +543,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 			{
 				// Load UI for choosing plugin
 				File pluginFile;
-				FileChooser fc("Choose the file name...",
-						File("/usr/local/lib/GUI/"), "*.so", true);
+				FileChooser fc("Choose the file name...", File("/home"), "*.so", true);
 
 				// Store user input
 				if(fc.browseForFileToOpen())

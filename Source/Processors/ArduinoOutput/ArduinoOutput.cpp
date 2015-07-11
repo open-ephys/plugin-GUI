@@ -26,15 +26,24 @@
 
 #include <stdio.h>
 
-extern "C" PluginManager::Plugin * OpenEphysProc()
+extern "C" PluginManager::Plugin * OpenEphysPlugin()
 {
 	return new ArduinoOutput();
 }
 
+struct PluginInfo {
+	size_t version;
+	String name;
+	size_t type;
+} info;
+
 ArduinoOutput::ArduinoOutput()
     : GenericProcessor("Arduino Output"), state(true), deviceSelected(false), outputChannel(13), inputChannel(-1)
 {
-
+	info.version = 0.1;
+	info.name = "Arduino Output";
+	info.type = 0x2;
+	printf("Created processor %s\n", info.name.toStdString().c_str());
 }
 
 ArduinoOutput::~ArduinoOutput()

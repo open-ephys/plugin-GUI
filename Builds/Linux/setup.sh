@@ -28,7 +28,7 @@ PLUGIN_DIR="/usr/local/lib"
 PROC_DIR=${BUILD_HOME%/*/*}
 
 # Step 1: Compile GUI source
-make -j2
+make -j4
 
 if [ $? -eq 0 ]; then
 	sudo ln -s -f $BUILD_HOME/build/open-ephys /usr/bin/.
@@ -39,40 +39,20 @@ else
 fi
 
 # Step 2: Create GUI shared library
-# cd $BUILD_HOME/build/intermediate/Debug/
-# g++ -fPIC -shared -o libephys.so *.o
-# sudo rm /usr/lib/libephys.so
-# sudo cp libephys.so /usr/lib/.
-# ldconfig -n /usr/lib/
+cd $BUILD_HOME/build/intermediate/Debug/
+g++ -fPIC -shared -o libephys.so *.o
+sudo rm /usr/lib/libephys.so
+sudo cp libephys.so /usr/lib/.
+ldconfig -n /usr/lib/
 
-# if [ $? -eq 0 ]; then
-# 	echo "-----> OpenEphys library installation sucessful."
-# else
-# 	echo "-----> OpenEphys library installation failed."
-# 	exit
-# fi
-
-# Step 2: Setup directories for plugins
-if [ ! -d "${PLUGIN_DIR}/GUI" ]; then
-	sudo mkdir ${PLUGIN_DIR}/GUI
-fi
-if [ ! -d "${PLUGIN_DIR}/GUI" ]; then
-	sudo mkdir ${PLUGIN_DIR}/GUI
-fi
-if [ ! -d "${PLUGIN_DIR}/GUI/sources" ]; then
-	sudo mkdir ${PLUGIN_DIR}/GUI/sources/
-fi
-if [ ! -d "${PLUGIN_DIR}/GUI/sinks" ]; then
-	sudo mkdir ${PLUGIN_DIR}/GUI/sinks/
-fi
-if [ ! -d "${PLUGIN_DIR}/GUI/filters" ]; then
-	sudo mkdir ${PLUGIN_DIR}/GUI/filters/
-fi
-if [ ! -d "${PLUGIN_DIR}/GUI/utilities" ]; then
-	sudo mkdir ${PLUGIN_DIR}/GUI/utilities/
+if [ $? -eq 0 ]; then
+echo "-----> JUCE library installation sucessful."
+else
+echo "-----> JUCE library installation failed."
+exit
 fi
 
-# Step 3: Compile plugins
+# Step 2: Compile plugins
 PLUGIN_SRC_DIR="${PROC_DIR}/Source/Processors"
 PLUGINS=`ls -d ${PLUGIN_SRC_DIR}/*`
 

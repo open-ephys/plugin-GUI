@@ -712,41 +712,13 @@ void ProcessorListItem::setParentName(const String& name)
 	}
 }
 
-
-// Blue slate:
-// if (parentName.equalsIgnoreCase("Processors"))
-// {
-// 	color = Colour(59, 59, 59);
-// } else if (parentName.equalsIgnoreCase("Filters"))
-// {
-// 	color = Colour(82, 101, 163);
-// } else if (parentName.equalsIgnoreCase("Sinks"))
-// {
-// 	color = Colour(48, 61, 102);
-// } else if (parentName.equalsIgnoreCase("Sources"))
-// {
-// 	color = Colour(151, 170, 230);
-
-// } else {
-// 	color = Colour(20, 37, 92);
-// }
-
 /*
 	 Insert selected plugin into the processor list
  */
 void ProcessorList::sortAndInsertProcessor(const String& processorPath, const String& processorName)
 {
-
-	int cnt = 3;
-
-	std::cout << processorPath << " " << processorName << std::endl;;
-	if(processorPath.containsIgnoreCase("sources"))
-		sources->addSubItem(new ProcessorListItem(processorName.dropLastCharacters(cnt)));
-	else if(processorPath.containsIgnoreCase("filters"))
-		sources->addSubItem(new ProcessorListItem(processorName.dropLastCharacters(cnt)));
-	else if(processorPath.containsIgnoreCase("sinks"))
-		sources->addSubItem(new ProcessorListItem(processorName.dropLastCharacters(cnt)));
-	else if(processorPath.containsIgnoreCase("utilities"))
-		sources->addSubItem(new ProcessorListItem(processorName.dropLastCharacters(cnt)));
+	std::cout << "In ProcessorList " << processorPath << " " << processorName << std::endl;;
+	PluginManager::Manager::getInstance()->loadPlugin(processorPath);
+	sources->addSubItem(new ProcessorListItem(processorName));
 	repaint();
 }
