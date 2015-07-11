@@ -88,7 +88,7 @@ PluginManager::Plugin *PluginManager::Manager::loadPlugin(const String& pluginLo
 		 to memory mishaps.
 	 */
 	void *handle = 0;
-	handle = dlopen(processorLocCString,RTLD_GLOBAL|RTLD_NOW);
+	handle = dlopen(processorLocCString,RTLD_GLOBAL|RTLD_LAZY);
 #else
 	HINSTANCE handle;
 	handle = LoadLibrary(processorLocCString);
