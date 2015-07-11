@@ -283,12 +283,8 @@
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\CAR\CAR.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Channel\Channel.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\ChannelMappingNode\ChannelMappingEditor.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\ChannelMappingNode\ChannelMappingNode.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\ChannelMappingNode\ChannelMappingEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ChannelMappingNode\ChannelMappingNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\EcubeEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\RHD2000Editor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\EcubeThread.cpp"/>
@@ -331,60 +327,34 @@
     <ClCompile Include="..\..\Source\Processors\FilterNode\FilterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\FilterNode\FilterNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\GenericProcessor\GenericProcessor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayCanvas.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayEditor.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayNode.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayCanvas.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\LfpDisplayNode\LfpDisplayNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Merger\Merger.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Merger\MergerEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\MessageCenter\MessageCenter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\MessageCenter\MessageCenterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Parameter\ParameterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Parameter\Parameter.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\PhaseDetector\PhaseDetector.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\PhaseDetector\PhaseDetectorEditor.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\PhaseDetector\PhaseDetector.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\PhaseDetector\PhaseDetectorEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ProcessorGraph\ProcessorGraph.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PulsePalOutput\PulsePalOutput.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PulsePalOutput\PulsePalOutputEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\RecordControl\RecordControl.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\RecordControl\RecordControlEditor.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\RecordControl\RecordControl.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordControl\RecordControlEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordNode\EngineConfigWindow.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordNode\HDF5FileFormat.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordNode\HDF5Recording.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordNode\OriginalRecording.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordNode\RecordEngine.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordNode\RecordNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\NetworkEventsEditor.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramEditor.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\PSTH\tictoc.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\NetworkEventsEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\PSTH\tictoc.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ResamplingNode\ResamplingNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ResamplingNode\ResamplingNodeEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Serial\PulsePal.cpp"/>
@@ -392,35 +362,19 @@
     <ClCompile Include="..\..\Source\Processors\Serial\ofSerial.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SerialInput\SerialInput.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SerialInput\SerialInputEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SignalGenerator\SignalGenerator.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\SignalGenerator\SignalGeneratorEditor.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\SignalGenerator\SignalGenerator.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SignalGenerator\SignalGeneratorEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SourceNode\SourceNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SourceNode\SourceNodeEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SpikeDetector\SpikeDetector.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\SpikeDetector\SpikeDetectorEditor.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\SpikeDetector\SpikeDetector.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeDetector\SpikeDetectorEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayCanvas.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSortBoxes.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorter.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorterCanvas.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorterEditor.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSortBoxes.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorter.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorterCanvas.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Splitter\Splitter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Splitter\SplitterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\Visualizer.cpp"/>
