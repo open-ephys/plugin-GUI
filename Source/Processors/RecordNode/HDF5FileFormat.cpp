@@ -817,6 +817,11 @@ void KWIKFile::writeEvent(int type, uint8 id, uint8 processor, void* data, uint6
 
 void KWIKFile::addKwdFile(String filename)
 {
+	if (kwdIndex == 0)
+	{
+		CHECK_ERROR(setAttributeStr(filename + "/recordings/" + String(recordingNumber), "/recordings/" + String(recordingNumber) +
+			"/raw", "hdf5_path"));
+	}
     CHECK_ERROR(setAttributeStr(filename + "/recordings/" + String(recordingNumber),"/recordings/" + String(recordingNumber) +
                                 "/raw/hdf5_paths",String(kwdIndex)));
     kwdIndex++;
