@@ -523,9 +523,11 @@ bool SpikeSorter::removeElectrode(int index)
 void SpikeSorter::setElectrodeName(int index, String newName)
 {
     mut.enter();
-    if ((electrodes.size() > 0) && (index > 0))
-        electrodes[index-1]->name = newName;
-    updateSinks(electrodes[index-1]->electrodeID, newName);
+	if ((electrodes.size() > 0) && (index > 0))
+	{
+		electrodes[index - 1]->name = newName;
+		updateSinks(electrodes[index - 1]->electrodeID, newName);
+	}
     mut.exit();
 }
 
