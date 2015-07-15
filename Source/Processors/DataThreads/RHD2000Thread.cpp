@@ -1502,7 +1502,7 @@ bool RHD2000Thread::updateBuffer()
 		int numStreams = enabledStreams.size();
 		int nSamps = Rhd2000DataBlock::getSamplesPerDataBlock(evalBoard->isUSB3());
 		
-		evalBoard->printFIFOmetrics();
+		//evalBoard->printFIFOmetrics();
         for (int samp = 0; samp < nSamps; samp++)
         {
             int channel = -1;

@@ -29,7 +29,6 @@
 #include "rhd2000datablock.h"
 
 #include "okFrontPanelDLL.h"
-#include <Windows.h>
 
 using namespace std;
 
