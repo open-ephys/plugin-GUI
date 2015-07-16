@@ -157,6 +157,7 @@ void HDF5Recording::closeFiles()
             fileArray[i]->stopRecording();
             fileArray[i]->close();
             bitVoltsArray[i]->clear();
+			sampleRatesArray[i]->clear();
         }
     }
 }
