@@ -1124,7 +1124,7 @@ void LfpTimescale::setTimebase(float t)
     {
         String labelString = String(timebase/10.0f*1000.0f*i);
 
-        labels.add(labelString.substring(0,4));
+        labels.add(labelString.substring(0,6));
     }
 
     repaint();
