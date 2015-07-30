@@ -929,6 +929,7 @@ void RHD2000Editor::saveCustomParameters(XmlElement* xml)
     xml->setAttribute("DSPCutoffFreq", dspInterface->getDspCutoffFreq());
     xml->setAttribute("save_impedance_measurements",saveImpedances);
     xml->setAttribute("auto_measure_impedances",measureWhenRecording);
+	xml->setAttribute("LEDs", ledButton->getToggleState());
 }
 
 void RHD2000Editor::loadCustomParameters(XmlElement* xml)
@@ -950,6 +951,7 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     dspInterface->setDspCutoffFreq(xml->getDoubleAttribute("DSPCutoffFreq"));
     saveImpedances = xml->getBoolAttribute("save_impedance_measurements");
     measureWhenRecording = xml->getBoolAttribute("auto_measure_impedances");
+	ledButton->setToggleState(xml->getBoolAttribute("LEDs", true),sendNotification);
 }
 
 
