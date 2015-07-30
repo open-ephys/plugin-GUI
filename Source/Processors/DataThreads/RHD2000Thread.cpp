@@ -44,7 +44,7 @@
 #define REGISTER_59_MISO_B  58
 #define RHD2132_16CH_OFFSET 8
 
-//#define DEBUG_EMULATE_HEADSTAGES 4
+//#define DEBUG_EMULATE_HEADSTAGES 8
 //#define DEBUG_EMULATE_64CH
 
 #define INIT_STEP ( evalBoard->isUSB3() ? 256 : 60)

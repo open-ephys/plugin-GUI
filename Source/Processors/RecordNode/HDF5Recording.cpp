@@ -163,6 +163,7 @@ void HDF5Recording::closeFiles()
 
 void HDF5Recording::writeData(AudioSampleBuffer& buffer)
 {
+//	int64 t1 = Time::getHighResolutionTicks();
     for (int i = 0; i < buffer.getNumChannels(); i++)
     {
         if (getChannel(i)->getRecordState())
@@ -178,6 +179,8 @@ void HDF5Recording::writeData(AudioSampleBuffer& buffer)
             fileArray[index]->writeRowData(intBuffer,nSamples);
         }
     }
+//	int64 t2 = Time::getHighResolutionTicks();
+//	std::cout << "record time: " << float(t2 - t1) / float(Time::getHighResolutionTicksPerSecond()) << std::endl;
 }
 
 void HDF5Recording::writeEvent(int eventType, MidiMessage& event, int samplePosition)

@@ -25,7 +25,7 @@
 #include "HDF5FileFormat.h"
 
 #ifndef CHUNK_XSIZE
-#define CHUNK_XSIZE 256
+#define CHUNK_XSIZE 640
 #endif
 
 #ifndef EVENT_CHUNK_SIZE
@@ -84,10 +84,12 @@ int HDF5FileBase::open(bool newfile)
 
     try
     {
+		FileAccPropList props = FileAccPropList::DEFAULT;
+		props.setCache(0, 401, 4 * 2 * 35 * 16 * 320, 1);
 
         if (newfile) accFlags = H5F_ACC_TRUNC;
         else accFlags = H5F_ACC_RDWR;
-        file = new H5File(getFileName().toUTF8(),accFlags);
+        file = new H5File(getFileName().toUTF8(),accFlags,FileCreatPropList::DEFAULT,props);
         opened = true;
         if (newfile)
         {
