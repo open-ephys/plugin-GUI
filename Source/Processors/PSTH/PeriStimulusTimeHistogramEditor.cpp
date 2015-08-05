@@ -1301,8 +1301,8 @@ void GenericPlot::resetAxes()
         tcb->getElectrodeConditionRange(electrodeID, subID, trial_xmin, trial_xmax);
 
         std::vector<XYline> lines = tcb->getElectrodeConditionCurves(electrodeID, subID);
-        float xmin,xmax;
-        double ymin,ymax;
+        float xmin=0,xmax=0;
+        double ymin=0,ymax=0;
         float highestY=-1e10,lowestY=1e10;
         for (int k=0; k<lines.size(); k++)
         {

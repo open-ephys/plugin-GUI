@@ -126,13 +126,13 @@ void KWIKFileSource::fillRecordInfo()
                 {
                 }
 
-                for (int i = 0; i < dims[1]; i++)
+                for (int j = 0; j < dims[1]; j++)
                 {
                     RecordedChannelInfo c;
-                    c.name = "CH" + String(i);
+                    c.name = "CH" + String(j);
                     
                     if (foundBitVoltArray)
-                        c.bitVolts = bitVoltArray[i];
+                        c.bitVolts = bitVoltArray[j];
                     else
                         c.bitVolts = bitVolts;
 

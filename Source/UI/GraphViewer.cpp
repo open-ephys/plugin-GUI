@@ -206,7 +206,7 @@ GraphNode* GraphViewer::getNodeForEditor(GenericEditor* editor)
 int GraphViewer::nodesAtLevel(int level)
 {
 
-    int numNodes;
+    int numNodes=0;
 
     for (int i = 0; i < availableNodes.size(); i++)
     {

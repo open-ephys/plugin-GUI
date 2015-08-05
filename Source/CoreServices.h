@@ -27,7 +27,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class GenericEditor;
-class SpikeObject;
+struct SpikeObject;
 class GenericProcessor;
 struct SpikeRecordInfo;
 
