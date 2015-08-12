@@ -49,9 +49,9 @@ public:
     void print(int stream) const;
     void write(ofstream &saveOut, int numDataStreams) const;
 
-	static inline bool checkUsbHeader(unsigned char usbBuffer[], int index);
-	static inline unsigned int convertUsbTimeStamp(unsigned char usbBuffer[], int index);
-	static inline int convertUsbWord(unsigned char usbBuffer[], int index);
+	static bool checkUsbHeader(unsigned char usbBuffer[], int index);
+	static unsigned int convertUsbTimeStamp(unsigned char usbBuffer[], int index);
+	static int convertUsbWord(unsigned char usbBuffer[], int index);
 
 private:
     void allocateIntArray3D(vector<vector<vector<int> > > &array3D, int xSize, int ySize, int zSize);

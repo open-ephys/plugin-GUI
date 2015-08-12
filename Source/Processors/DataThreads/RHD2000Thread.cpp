@@ -1531,7 +1531,7 @@ bool RHD2000Thread::updateBuffer()
 				for (int chan = 0; chan < nChans; chan++)
 				{
 					channel++;
-					thisSample[channel] = float(Rhd2000DataBlock::convertUsbWord(bufferPtr, chanIndex) - 32768)*0.195f;
+					thisSample[channel] = float(*(uint16*)(bufferPtr + chanIndex) - 32768)*0.195f;
 					chanIndex += 2*numStreams;
 				}
 			}
@@ -1545,7 +1545,7 @@ bool RHD2000Thread::updateBuffer()
 					int auxNum = (samp+3) % 4;
 					if (auxNum < 3)
 					{
-						auxSamples[dataStream][auxNum] = float(Rhd2000DataBlock::convertUsbWord(bufferPtr, auxIndex) - 32768)*0.0000374;
+						auxSamples[dataStream][auxNum] = float(*(uint16*)(bufferPtr + auxIndex) - 32768)*0.0000374;
 					}
 					for (int chan = 0; chan < 3; chan++)
 					{
@@ -1570,7 +1570,7 @@ bool RHD2000Thread::updateBuffer()
 					// ADC waveform units = volts
 					thisSample[channel] =
 						//0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
-						0.00015258789 * float(Rhd2000DataBlock::convertUsbWord(bufferPtr, index)) - 5 - 0.4096; // account for +/-5V input range and DC offset
+						0.00015258789 * float(*(uint16*)(bufferPtr + index)) - 5 - 0.4096; // account for +/-5V input range and DC offset
 					index += 2;
 				}
 			}
@@ -1578,7 +1578,7 @@ bool RHD2000Thread::updateBuffer()
 			{
 				index += 16;
 			}
-			eventCode = Rhd2000DataBlock::convertUsbWord(bufferPtr, index);
+			eventCode = *(uint16*)(bufferPtr + index);
 			index += 4;
 			dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
 #if 0
