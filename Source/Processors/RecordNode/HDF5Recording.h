@@ -51,6 +51,7 @@ private:
     int processorIndex;
 
     Array<int> processorMap;
+	Array<int> channelsPerProcessor;
     OwnedArray<Array<float>> bitVoltsArray;
     OwnedArray<Array<float>> sampleRatesArray;
     OwnedArray<KWDFile> fileArray;

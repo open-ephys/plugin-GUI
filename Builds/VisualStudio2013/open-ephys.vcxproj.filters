@@ -64,9 +64,6 @@
     <Filter Include="open-ephys\Source\Processors\EventDetector">
       <UniqueIdentifier>{FDD5B79A-1AA4-7745-BB6E-E09A6DFC328E}</UniqueIdentifier>
     </Filter>
-    <Filter Include="open-ephys\Source\Processors\EventNode">
-      <UniqueIdentifier>{3BDCC6CD-7B1F-ED1C-7442-F2B0CD1A86C8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="open-ephys\Source\Processors\FileReader">
       <UniqueIdentifier>{59F490B2-F5D9-601B-01AE-368632E3C9D7}</UniqueIdentifier>
     </Filter>
@@ -439,6 +436,9 @@
     <Filter Include="Juce Library Code">
       <UniqueIdentifier>{8B4D1BAA-6DB4-CAEC-A0FA-271F354D5C61}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Source\Processors\EventDetector\EventNode">
+      <UniqueIdentifier>{3BDCC6CD-7B1F-ED1C-7442-F2B0CD1A86C8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\CoreServices.cpp">
@@ -583,10 +583,10 @@
       <Filter>open-ephys\Source\Processors\EventDetector</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\EventNode\EventNode.cpp">
-      <Filter>open-ephys\Source\Processors\EventNode</Filter>
+      <Filter>open-ephys\Source\Processors\EventDetector\EventNode</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\EventNode\EventNodeEditor.cpp">
-      <Filter>open-ephys\Source\Processors\EventNode</Filter>
+      <Filter>open-ephys\Source\Processors\EventDetector\EventNode</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\FileReader\KwikFileSource.cpp">
       <Filter>open-ephys\Source\Processors\FileReader</Filter>
@@ -2124,10 +2124,10 @@
       <Filter>open-ephys\Source\Processors\EventDetector</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\EventNode\EventNode.h">
-      <Filter>open-ephys\Source\Processors\EventNode</Filter>
+      <Filter>open-ephys\Source\Processors\EventDetector\EventNode</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\EventNode\EventNodeEditor.h">
-      <Filter>open-ephys\Source\Processors\EventNode</Filter>
+      <Filter>open-ephys\Source\Processors\EventDetector\EventNode</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\FileReader\KwikFileSource.h">
       <Filter>open-ephys\Source\Processors\FileReader</Filter>
