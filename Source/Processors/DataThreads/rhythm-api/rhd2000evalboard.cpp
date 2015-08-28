@@ -723,8 +723,8 @@ void Rhd2000EvalBoard::setMaxTimeStep(unsigned int maxTimeStep)
 void Rhd2000EvalBoard::run()
 {
 	dev->UpdateWireOuts();
-	std::cout << "Block size: " << dev->GetWireOutValue(0x26) << std::endl;
-	std::cout << "Burst len: " << dev->GetWireOutValue(0x27) << std::endl;
+//	std::cout << "Block size: " << dev->GetWireOutValue(0x26) << std::endl;
+//	std::cout << "Burst len: " << dev->GetWireOutValue(0x27) << std::endl;
     dev->ActivateTriggerIn(TrigInSpiStart, 0);
 }
 

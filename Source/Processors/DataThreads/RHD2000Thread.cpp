@@ -1416,14 +1416,14 @@ bool RHD2000Thread::startAcquisition()
         std::cout << "Flushing FIFO." << std::endl;
         evalBoard->flush();
         evalBoard->setContinuousRunMode(true);
-		evalBoard->printFIFOmetrics();
+		//evalBoard->printFIFOmetrics();
         evalBoard->run();
-		evalBoard->printFIFOmetrics();
+		//evalBoard->printFIFOmetrics();
     }
 
     blockSize = dataBlock->calculateDataBlockSizeInWords(evalBoard->getNumEnabledDataStreams(), evalBoard->isUSB3());
 	std::cout << "Expecting blocksize of " << blockSize << " for " << evalBoard->getNumEnabledDataStreams() << " streams" << std::endl;
-	evalBoard->printFIFOmetrics();
+	//evalBoard->printFIFOmetrics();
     startThread();
 
 
