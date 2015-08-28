@@ -696,33 +696,33 @@ void KWDFile::writeRowData(int16* data, int nSamples)
     curChan++;
 }
 
-//KWIK File
+//KWE File
 
-KWIKFile::KWIKFile(String basename) : HDF5FileBase()
+KWEFile::KWEFile(String basename) : HDF5FileBase()
 {
     initFile(basename);
 }
 
-KWIKFile::KWIKFile() : HDF5FileBase()
+KWEFile::KWEFile() : HDF5FileBase()
 {
 
 }
 
-KWIKFile::~KWIKFile() {}
+KWEFile::~KWEFile() {}
 
-String KWIKFile::getFileName()
+String KWEFile::getFileName()
 {
     return filename;
 }
 
-void KWIKFile::initFile(String basename)
+void KWEFile::initFile(String basename)
 {
     if (isOpen()) return;
-    filename = basename + ".kwik";
+    filename = basename + ".kwe";
     readyToOpen=true;
 }
 
-int KWIKFile::createFileStructure()
+int KWEFile::createFileStructure()
 {
     const uint16 ver = 2;
     if (createGroup("/recordings")) return -1;
@@ -751,7 +751,7 @@ int KWIKFile::createFileStructure()
     return 0;
 }
 
-void KWIKFile::startNewRecording(int recordingNumber, HDF5RecordingInfo* info)
+void KWEFile::startNewRecording(int recordingNumber, HDF5RecordingInfo* info)
 {
     this->recordingNumber = recordingNumber;
     kwdIndex=0;
@@ -762,8 +762,8 @@ void KWIKFile::startNewRecording(int recordingNumber, HDF5RecordingInfo* info)
     //	CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
     CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
     CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
-    CHECK_ERROR(createGroup(recordPath + "/raw"));
-    CHECK_ERROR(createGroup(recordPath + "/raw/hdf5_paths"));
+   // CHECK_ERROR(createGroup(recordPath + "/raw"));
+  //  CHECK_ERROR(createGroup(recordPath + "/raw/hdf5_paths"));
 
     for (int i = 0; i < eventNames.size(); i++)
     {
@@ -792,7 +792,7 @@ void KWIKFile::startNewRecording(int recordingNumber, HDF5RecordingInfo* info)
     }
 }
 
-void KWIKFile::stopRecording()
+void KWEFile::stopRecording()
 {
     timeStamps.clear();
     recordings.clear();
@@ -801,7 +801,7 @@ void KWIKFile::stopRecording()
     eventData.clear();
 }
 
-void KWIKFile::writeEvent(int type, uint8 id, uint8 processor, void* data, uint64 timestamp)
+void KWEFile::writeEvent(int type, uint8 id, uint8 processor, void* data, uint64 timestamp)
 {
     if (type > eventNames.size() || type < 0)
     {
@@ -815,7 +815,7 @@ void KWIKFile::writeEvent(int type, uint8 id, uint8 processor, void* data, uint6
     CHECK_ERROR(eventData[type]->writeDataBlock(1,eventTypes[type],data));
 }
 
-void KWIKFile::addKwdFile(String filename)
+/*void KWEFile::addKwdFile(String filename)
 {
 	if (kwdIndex == 0)
 	{
@@ -825,9 +825,9 @@ void KWIKFile::addKwdFile(String filename)
     CHECK_ERROR(setAttributeStr(filename + "/recordings/" + String(recordingNumber),"/recordings/" + String(recordingNumber) +
                                 "/raw/hdf5_paths",String(kwdIndex)));
     kwdIndex++;
-}
+}*/
 
-void KWIKFile::addEventType(String name, DataTypes type, String dataName)
+void KWEFile::addEventType(String name, DataTypes type, String dataName)
 {
     eventNames.add(name);
     eventTypes.add(type);
