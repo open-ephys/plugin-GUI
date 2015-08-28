@@ -98,7 +98,7 @@ int HDF5FileBase::open(bool newfile, int nChans)
 		if (nChans > 0)
 		{
 			props.setCache(0, 809, 8 * 2 * 640 * nChans, 1);
-			std::cout << "opening HDF5 " << getFileName() << " with nchans: " << nChans << std::endl;
+			//std::cout << "opening HDF5 " << getFileName() << " with nchans: " << nChans << std::endl;
 		}
 
         if (newfile) accFlags = H5F_ACC_TRUNC;
