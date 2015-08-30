@@ -171,6 +171,10 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
          //            << channelForEventSource[eventSourceNode] << std::endl;
         ////
         int bufferIndex = (displayBufferIndex[channelForEventSource[eventSourceNodeId]] + eventTime - nSamples) % displayBuffer->getNumSamples();
+        
+        bufferIndex = bufferIndex >= 0 ? bufferIndex :
+        displayBuffer->getNumSamples() + bufferIndex;
+
 
         if (eventId == 1)
         {
