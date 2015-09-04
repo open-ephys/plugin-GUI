@@ -20,6 +20,12 @@ Introjucer/Builds/VisualStudio2012/*.user
 Introjucer/Builds/VisualStudio2012/*.sdf
 Introjucer/Builds/VisualStudio2012/*.opensdf
 Introjucer/Builds/VisualStudio2012/*.suo
+Introjucer/Builds/VisualStudio2013/Debug
+Introjucer/Builds/VisualStudio2013/Release
+Introjucer/Builds/VisualStudio2013/*.user
+Introjucer/Builds/VisualStudio2013/*.sdf
+Introjucer/Builds/VisualStudio2013/*.opensdf
+Introjucer/Builds/VisualStudio2013/*.suo
 
 # 3. extra files
 Builds/Linux/build/data
