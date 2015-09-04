@@ -19,13 +19,13 @@ ifeq ($(CONFIG),Debug)
   endif
 
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "ZEROMQ" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3 -rdynamic -g -pg -std=c++0x -fPIC
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3 -export-dynamic -g -pg -std=c++0x
   CXXFLAGS += $(CFLAGS)
-  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5 -lhdf5_cpp -lzmq
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5 -lhdf5_cpp -lzmq -fPIC
   LDDEPS :=
   RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "ZEROMQ" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   TARGET := open-ephys
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH) -rdynamic -fPIC -ldl
+  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
   CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
 endif
 
@@ -40,13 +40,13 @@ ifeq ($(CONFIG),Release)
   endif
 
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "ZEROMQ" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -W1 -rdynamic -g -pg -std=c++0x -fPIC
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -export-dynamic -g -pg -std=c++0x
   CXXFLAGS += $(CFLAGS)
-  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5 -lhdf5_cpp -lzmq 
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5 -lhdf5_cpp -lzmq -fPIC
   LDDEPS :=
   RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "ZEROMQ" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   TARGET := open-ephys-release
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH) -rdynamic -fPIC -ldl
+  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
   CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
 endif
 
@@ -56,13 +56,9 @@ OBJECTS := \
   $(OBJDIR)/PracticalSocket_2574ecc8.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
   $(OBJDIR)/PluginManager_f764c180.o \
-  $(OBJDIR)/Rectifier_21cc94b6.o \
   $(OBJDIR)/AudioEditor_3931be27.o \
   $(OBJDIR)/AudioNode_3db3557c.o \
-  $(OBJDIR)/CAR_9a7e50f4.o \
   $(OBJDIR)/Channel_5cb2d4d2.o \
-  $(OBJDIR)/ChannelMappingEditor_9b145f15.o \
-  $(OBJDIR)/ChannelMappingNode_ec0559ea.o \
   $(OBJDIR)/EcubeEditor_ba242592.o \
   $(OBJDIR)/RHD2000Editor_dbd5a24.o \
   $(OBJDIR)/EcubeThread_d0477baf.o \
@@ -95,57 +91,30 @@ OBJECTS := \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
   $(OBJDIR)/ImageIcon_c89b23a6.o \
   $(OBJDIR)/VisualizerEditor_3672b003.o \
-  $(OBJDIR)/EventDetector_d0f4d00c.o \
-  $(OBJDIR)/EventNode_857d5604.o \
-  $(OBJDIR)/EventNodeEditor_2652ddd1.o \
   $(OBJDIR)/KwikFileSource_58456030.o \
   $(OBJDIR)/FileSource_a1ad7002.o \
   $(OBJDIR)/FileReader_e4a9ccaa.o \
   $(OBJDIR)/FileReaderEditor_e1193ff7.o \
-  $(OBJDIR)/FilterEditor_93e366f5.o \
-  $(OBJDIR)/FilterNode_d2b4d9ca.o \
   $(OBJDIR)/GenericProcessor_3e79932a.o \
-  $(OBJDIR)/LfpDisplayCanvas_9bbf9660.o \
-  $(OBJDIR)/LfpDisplayEditor_e7c32ff5.o \
-  $(OBJDIR)/LfpDisplayNode_fdf2e2ca.o \
   $(OBJDIR)/Merger_53fb4e4a.o \
   $(OBJDIR)/MergerEditor_e36b0997.o \
   $(OBJDIR)/MessageCenter_bd1ba084.o \
   $(OBJDIR)/MessageCenterEditor_afaf4851.o \
   $(OBJDIR)/ParameterEditor_112258eb.o \
   $(OBJDIR)/Parameter_b3e5ac9e.o \
-  $(OBJDIR)/PhaseDetector_8a25ed0e.o \
-  $(OBJDIR)/PhaseDetectorEditor_eaec855b.o \
   $(OBJDIR)/ProcessorGraph_8c3a250a.o \
-  $(OBJDIR)/PulsePalOutput_f41ce62a.o \
-  $(OBJDIR)/PulsePalOutputEditor_3d333977.o \
-  $(OBJDIR)/RecordControl_ecb8ada4.o \
-  $(OBJDIR)/RecordControlEditor_4355fd71.o \
   $(OBJDIR)/EngineConfigWindow_4fd44ceb.o \
   $(OBJDIR)/HDF5FileFormat_be712135.o \
   $(OBJDIR)/HDF5Recording_d14f7b19.o \
   $(OBJDIR)/OriginalRecording_d6dc3293.o \
   $(OBJDIR)/RecordEngine_97ef83aa.o \
   $(OBJDIR)/RecordNode_cc21a82a.o \
-  $(OBJDIR)/NetworkEventsEditor_fd22826.o \
-  $(OBJDIR)/NetworkEvents_5344c99a.o \
   $(OBJDIR)/PeriStimulusTimeHistogramEditor_6be5bf55.o \
   $(OBJDIR)/PeriStimulusTimeHistogramNode_9631ca2a.o \
   $(OBJDIR)/tictoc_cdca1ed.o \
   $(OBJDIR)/TrialCircularBuffer_4a4cef0c.o \
-  $(OBJDIR)/ResamplingNode_9825590a.o \
-  $(OBJDIR)/ResamplingNodeEditor_8b120457.o \
-  $(OBJDIR)/PulsePal_14932a18.o \
-  $(OBJDIR)/ofArduino_12f202a5.o \
-  $(OBJDIR)/ofSerial_c3b0a9e1.o \
-  $(OBJDIR)/SerialInput_f5b197b8.o \
-  $(OBJDIR)/SerialInputEditor_46740885.o \
-  $(OBJDIR)/SignalGenerator_993274e2.o \
-  $(OBJDIR)/SignalGeneratorEditor_b8e0de2f.o \
   $(OBJDIR)/SourceNode_de3985ea.o \
   $(OBJDIR)/SourceNodeEditor_cdc90937.o \
-  $(OBJDIR)/SpikeDetector_50b619e4.o \
-  $(OBJDIR)/SpikeDetectorEditor_502139b1.o \
   $(OBJDIR)/SpikeDisplayCanvas_2219bd20.o \
   $(OBJDIR)/SpikeDisplayEditor_6e1d56b5.o \
   $(OBJDIR)/SpikeDisplayNode_be27b98a.o \
@@ -231,11 +200,6 @@ $(OBJDIR)/PluginManager_f764c180.o: ../../Source/Processors/PluginManager/Plugin
 	@echo "Compiling PluginManager.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/Rectifier_21cc94b6.o: ../../Source/Processors/Rectifier/Rectifier.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Rectifier.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/AudioEditor_3931be27.o: ../../Source/Processors/AudioNode/AudioEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioEditor.cpp"
@@ -246,24 +210,9 @@ $(OBJDIR)/AudioNode_3db3557c.o: ../../Source/Processors/AudioNode/AudioNode.cpp
 	@echo "Compiling AudioNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/CAR_9a7e50f4.o: ../../Source/Processors/CAR/CAR.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling CAR.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/Channel_5cb2d4d2.o: ../../Source/Processors/Channel/Channel.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Channel.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ChannelMappingEditor_9b145f15.o: ../../Source/Processors/ChannelMappingNode/ChannelMappingEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ChannelMappingEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ChannelMappingNode_ec0559ea.o: ../../Source/Processors/ChannelMappingNode/ChannelMappingNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ChannelMappingNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/EcubeEditor_ba242592.o: ../../Source/Processors/DataThreads/EcubeEditor.cpp
@@ -426,21 +375,6 @@ $(OBJDIR)/VisualizerEditor_3672b003.o: ../../Source/Processors/Editors/Visualize
 	@echo "Compiling VisualizerEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/EventDetector_d0f4d00c.o: ../../Source/Processors/EventDetector/EventDetector.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling EventDetector.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/EventNode_857d5604.o: ../../Source/Processors/EventNode/EventNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling EventNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/EventNodeEditor_2652ddd1.o: ../../Source/Processors/EventNode/EventNodeEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling EventNodeEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/KwikFileSource_58456030.o: ../../Source/Processors/FileReader/KwikFileSource.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling KwikFileSource.cpp"
@@ -461,34 +395,9 @@ $(OBJDIR)/FileReaderEditor_e1193ff7.o: ../../Source/Processors/FileReader/FileRe
 	@echo "Compiling FileReaderEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/FilterEditor_93e366f5.o: ../../Source/Processors/FilterNode/FilterEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FilterEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/FilterNode_d2b4d9ca.o: ../../Source/Processors/FilterNode/FilterNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FilterNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/GenericProcessor_3e79932a.o: ../../Source/Processors/GenericProcessor/GenericProcessor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GenericProcessor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/LfpDisplayCanvas_9bbf9660.o: ../../Source/Processors/LfpDisplayNode/LfpDisplayCanvas.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LfpDisplayCanvas.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/LfpDisplayEditor_e7c32ff5.o: ../../Source/Processors/LfpDisplayNode/LfpDisplayEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LfpDisplayEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/LfpDisplayNode_fdf2e2ca.o: ../../Source/Processors/LfpDisplayNode/LfpDisplayNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LfpDisplayNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Merger_53fb4e4a.o: ../../Source/Processors/Merger/Merger.cpp
@@ -521,39 +430,9 @@ $(OBJDIR)/Parameter_b3e5ac9e.o: ../../Source/Processors/Parameter/Parameter.cpp
 	@echo "Compiling Parameter.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/PhaseDetector_8a25ed0e.o: ../../Source/Processors/PhaseDetector/PhaseDetector.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PhaseDetector.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/PhaseDetectorEditor_eaec855b.o: ../../Source/Processors/PhaseDetector/PhaseDetectorEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PhaseDetectorEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/ProcessorGraph_8c3a250a.o: ../../Source/Processors/ProcessorGraph/ProcessorGraph.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ProcessorGraph.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/PulsePalOutput_f41ce62a.o: ../../Source/Processors/PulsePalOutput/PulsePalOutput.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PulsePalOutput.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/PulsePalOutputEditor_3d333977.o: ../../Source/Processors/PulsePalOutput/PulsePalOutputEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PulsePalOutputEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/RecordControl_ecb8ada4.o: ../../Source/Processors/RecordControl/RecordControl.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling RecordControl.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/RecordControlEditor_4355fd71.o: ../../Source/Processors/RecordControl/RecordControlEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling RecordControlEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/EngineConfigWindow_4fd44ceb.o: ../../Source/Processors/RecordNode/EngineConfigWindow.cpp
@@ -586,16 +465,6 @@ $(OBJDIR)/RecordNode_cc21a82a.o: ../../Source/Processors/RecordNode/RecordNode.c
 	@echo "Compiling RecordNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/NetworkEventsEditor_fd22826.o: ../../Source/Processors/Editors/NetworkEventsEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling NetworkEventsEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/NetworkEvents_5344c99a.o: ../../Source/Processors/NetworkEvents/NetworkEvents.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling NetworkEvents.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/PeriStimulusTimeHistogramEditor_6be5bf55.o: ../../Source/Processors/PSTH/PeriStimulusTimeHistogramEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling PeriStimulusTimeHistogramEditor.cpp"
@@ -616,51 +485,6 @@ $(OBJDIR)/TrialCircularBuffer_4a4cef0c.o: ../../Source/Processors/PSTH/TrialCirc
 	@echo "Compiling TrialCircularBuffer.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ResamplingNode_9825590a.o: ../../Source/Processors/ResamplingNode/ResamplingNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ResamplingNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ResamplingNodeEditor_8b120457.o: ../../Source/Processors/ResamplingNode/ResamplingNodeEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ResamplingNodeEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/PulsePal_14932a18.o: ../../Source/Processors/Serial/PulsePal.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PulsePal.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ofArduino_12f202a5.o: ../../Source/Processors/Serial/ofArduino.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ofArduino.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ofSerial_c3b0a9e1.o: ../../Source/Processors/Serial/ofSerial.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ofSerial.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SerialInput_f5b197b8.o: ../../Source/Processors/SerialInput/SerialInput.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SerialInput.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SerialInputEditor_46740885.o: ../../Source/Processors/SerialInput/SerialInputEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SerialInputEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SignalGenerator_993274e2.o: ../../Source/Processors/SignalGenerator/SignalGenerator.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SignalGenerator.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SignalGeneratorEditor_b8e0de2f.o: ../../Source/Processors/SignalGenerator/SignalGeneratorEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SignalGeneratorEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/SourceNode_de3985ea.o: ../../Source/Processors/SourceNode/SourceNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SourceNode.cpp"
@@ -669,16 +493,6 @@ $(OBJDIR)/SourceNode_de3985ea.o: ../../Source/Processors/SourceNode/SourceNode.c
 $(OBJDIR)/SourceNodeEditor_cdc90937.o: ../../Source/Processors/SourceNode/SourceNodeEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SourceNodeEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeDetector_50b619e4.o: ../../Source/Processors/SpikeDetector/SpikeDetector.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeDetector.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeDetectorEditor_502139b1.o: ../../Source/Processors/SpikeDetector/SpikeDetectorEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeDetectorEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/SpikeDisplayCanvas_2219bd20.o: ../../Source/Processors/SpikeDisplayNode/SpikeDisplayCanvas.cpp
