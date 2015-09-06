@@ -57,6 +57,7 @@ void HDF5Recording::registerProcessor(GenericProcessor* proc)
     fileArray.add(new KWDFile());
     bitVoltsArray.add(new Array<float>);
     sampleRatesArray.add(new Array<float>);
+	channelsPerProcessor.add(0);
     processorIndex++;
 }
 
@@ -64,6 +65,7 @@ void HDF5Recording::resetChannels()
 {
     processorIndex = -1;
     fileArray.clear();
+	channelsPerProcessor.clear();
     bitVoltsArray.clear();
     sampleRatesArray.clear();
     processorMap.clear();
@@ -106,15 +108,15 @@ void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordi
         int index = processorMap[i];
         if (getChannel(i)->getRecordState())
         {
-            if (!fileArray[index]->isOpen())
+			if (!fileArray[index]->isOpen())
             {
                 fileArray[index]->initFile(getChannel(i)->nodeId,basepath);
-                fileArray[index]->open();
                 if (hasAcquired)
                     infoArray[index]->start_time = (*timestamps)[getChannel(i)->sourceNodeId]; //the timestamps of the first channel
                 else
                     infoArray[index]->start_time = 0;
             }
+			channelsPerProcessor.set(index, channelsPerProcessor[index] + 1);
             bitVoltsArray[index]->add(getChannel(i)->bitVolts);
             sampleRatesArray[index]->add(getChannel(i)->sampleRate);
             if (getChannel(i)->sampleRate != infoArray[index]->sample_rate)
@@ -125,6 +127,10 @@ void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordi
     }
     for (int i = 0; i < fileArray.size(); i++)
     {
+		if ((!fileArray[i]->isOpen()) && (fileArray[i]->isReadyToOpen()))
+		{
+			fileArray[i]->open(channelsPerProcessor[i]);
+		}
         if (fileArray[i]->isOpen())
         {
            // File f(fileArray[i]->getFileName());
@@ -159,11 +165,13 @@ void HDF5Recording::closeFiles()
             bitVoltsArray[i]->clear();
 			sampleRatesArray[i]->clear();
         }
+		channelsPerProcessor.set(i, 0);
     }
 }
 
 void HDF5Recording::writeData(AudioSampleBuffer& buffer)
 {
+//	int64 t1 = Time::getHighResolutionTicks();
     for (int i = 0; i < buffer.getNumChannels(); i++)
     {
         if (getChannel(i)->getRecordState())
@@ -179,6 +187,8 @@ void HDF5Recording::writeData(AudioSampleBuffer& buffer)
             fileArray[index]->writeRowData(intBuffer,nSamples);
         }
     }
+//	int64 t2 = Time::getHighResolutionTicks();
+//	std::cout << "record time: " << float(t2 - t1) / float(Time::getHighResolutionTicksPerSecond()) << std::endl;
 }
 
 void HDF5Recording::writeEvent(int eventType, MidiMessage& event, int samplePosition)

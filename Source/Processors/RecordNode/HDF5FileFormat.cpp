@@ -25,7 +25,7 @@
 #include "HDF5FileFormat.h"
 
 #ifndef CHUNK_XSIZE
-#define CHUNK_XSIZE 256
+#define CHUNK_XSIZE 640
 #endif
 
 #ifndef EVENT_CHUNK_SIZE
@@ -66,17 +66,27 @@ bool HDF5FileBase::isOpen() const
     return opened;
 }
 
+bool HDF5FileBase::isReadyToOpen() const
+{
+	return readyToOpen;
+}
+
 int HDF5FileBase::open()
+{
+	return open(-1);
+}
+
+int HDF5FileBase::open(int nChans)
 {
     if (!readyToOpen) return -1;
     if (File(getFileName()).existsAsFile())
-        return open(false);
+        return open(false, nChans);
     else
-        return open(true);
+        return open(true, nChans);
 
 }
 
-int HDF5FileBase::open(bool newfile)
+int HDF5FileBase::open(bool newfile, int nChans)
 {
     int accFlags,ret=0;
 
@@ -84,10 +94,16 @@ int HDF5FileBase::open(bool newfile)
 
     try
     {
+		FileAccPropList props = FileAccPropList::DEFAULT;
+		if (nChans > 0)
+		{
+			props.setCache(0, 809, 8 * 2 * 640 * nChans, 1);
+			//std::cout << "opening HDF5 " << getFileName() << " with nchans: " << nChans << std::endl;
+		}
 
         if (newfile) accFlags = H5F_ACC_TRUNC;
         else accFlags = H5F_ACC_RDWR;
-        file = new H5File(getFileName().toUTF8(),accFlags);
+        file = new H5File(getFileName().toUTF8(),accFlags,FileCreatPropList::DEFAULT,props);
         opened = true;
         if (newfile)
         {

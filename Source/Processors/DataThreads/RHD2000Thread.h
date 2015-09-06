@@ -39,8 +39,12 @@
 #include "DataThread.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
-#define MAX_NUM_DATA_STREAMS 8
+#define MAX_NUM_DATA_STREAMS_USB2 8
+#define MAX_NUM_DATA_STREAMS_USB3 16
 #define MAX_NUM_HEADSTAGES 8
+
+#define MAX_NUM_DATA_STREAMS(u3) (u3 ? MAX_NUM_DATA_STREAMS_USB3 : MAX_NUM_DATA_STREAMS_USB2)
+#define MAX_NUM_CHANNELS MAX_NUM_DATA_STREAMS_USB3*35
 
 class SourceNode;
 class RHDHeadstage;
@@ -138,15 +142,16 @@ private:
 
     ScopedPointer<Rhd2000EvalBoard> evalBoard;
     Rhd2000Registers chipRegisters;
-    Rhd2000DataBlock* dataBlock;
+    ScopedPointer<Rhd2000DataBlock> dataBlock;
 
 	int numChannels;
     bool deviceFound;
 
-    float thisSample[256];
-    float auxBuffer[256]; // aux inputs are only sampled every 4th sample, so use this to buffer the samples so they can be handles just like the regular neural channels later
+	float thisSample[MAX_NUM_CHANNELS];
+	float auxBuffer[MAX_NUM_CHANNELS]; // aux inputs are only sampled every 4th sample, so use this to buffer the samples so they can be handles just like the regular neural channels later
+	float auxSamples[MAX_NUM_DATA_STREAMS_USB3][3];
 
-    int blockSize;
+    unsigned int blockSize;
 
     bool isTransmitting;
 
