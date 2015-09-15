@@ -27,34 +27,14 @@
 #include "../GenericProcessor/GenericProcessor.h"
 
 #include "../AudioNode/AudioNode.h"
-#include "../LfpDisplayNode/LfpDisplayNode.h"
-#include "../SpikeDisplayNode/SpikeDisplayNode.h"
-#include "../EventNode/EventNode.h"
-#include "../FilterNode/FilterNode.h"
 #include "../RecordNode/RecordNode.h"
-#include "../ResamplingNode/ResamplingNode.h"
-#include "../ChannelMappingNode/ChannelMappingNode.h"
-#include "../SignalGenerator/SignalGenerator.h"
-#include "../SourceNode/SourceNode.h"
-#include "../EventDetector/EventDetector.h"
-#include "../SpikeDetector/SpikeDetector.h"
-#include "../SpikeSorter/SpikeSorter.h"
-#include "../PhaseDetector/PhaseDetector.h"
-#include "../FileReader/FileReader.h"
-#include "../ArduinoOutput/ArduinoOutput.h"
-#include "../PulsePalOutput/PulsePalOutput.h"
-#include "../SerialInput/SerialInput.h"
 #include "../MessageCenter/MessageCenter.h"
-#include "../RecordControl/RecordControl.h"
-#include "../Splitter/Splitter.h"
 #include "../Merger/Merger.h"
+#include "../Splitter/Splitter.h"
 #include "../../UI/UIComponent.h"
 #include "../../UI/EditorViewport.h"
-#include "../NetworkEvents/NetworkEvents.h"
-#include "../PSTH/PeriStimulusTimeHistogramNode.h"
-#include "../CAR/CAR.h"
-#include "../Rectifier/Rectifier.h"
 
+#include "../ProcessorManager/ProcessorManager.h"
     
 ProcessorGraph::ProcessorGraph() : currentNodeId(100)
 {
@@ -104,7 +84,7 @@ void ProcessorGraph::updatePointers()
     getAudioNode()->updateBufferSize();
 }
 
-void* ProcessorGraph::createNewProcessor(String& description, int id)//,
+void* ProcessorGraph::createNewProcessor(Array<var>& description, int id)//,
 {
 	GenericProcessor* processor = 0;
 	try {// Try/catch block added by Michael Borisov
@@ -488,181 +468,21 @@ void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* sou
 
 }
 
-GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& description)
+GenericProcessor* ProcessorGraph::createProcessorFromDescription(Array<var>& description)
 {
-    int splitPoint = description.indexOf("/");
-    String processorType = description.substring(0,splitPoint);
-    String subProcessorType = description.substring(splitPoint+1);
+	String processorName = description[0];
+	int processorType = description[1];
+	int processorIndex = description[2];
+	String processorCategory = description[3];
 
-		std::cout << "Creating from description..." << std::endl;
-    std::cout << processorType << "::" << subProcessorType << std::endl;
+	std::cout << "Creating from description..." << std::endl;
+	std::cout << processorCategory << "::" << processorName << " (" << processorType << "-" << processorIndex << ")" << std::endl;
 
-    GenericProcessor* processor = 0;
-
-    if (processorType.equalsIgnoreCase("Sources"))
-    {
-
-        if (subProcessorType.equalsIgnoreCase("RHA2000-EVAL") ||
-            // subProcessorType.equalsIgnoreCase("File Reader") ||
-            subProcessorType.equalsIgnoreCase("Custom FPGA") ||
-            subProcessorType.equalsIgnoreCase("eCube") || // Added by Michael Borisov
-            subProcessorType.equalsIgnoreCase("Rhythm FPGA"))
-        {
-
-            // if (subProcessorType.equalsIgnoreCase("Intan Demo Board") &&
-            // 	!processorWithSameNameExists(subProcessorType)) {
-            // 	std::cout << "Only one Intan Demo Board is allowed at a time."
-            // 			  << std::endl;
-            // } else {
-            std::cout << "Creating a new data source." << std::endl;
-            processor = new SourceNode(subProcessorType);
-
-            //}
-
-        }
-        else if (subProcessorType.equalsIgnoreCase("Signal Generator"))
-        {
-					  processor = new SignalGenerator();
-            std::cout << "Creating a new signal generator." << std::endl;
-        }
-        else if (subProcessorType.equalsIgnoreCase("Event Generator"))
-        {
-            processor = new EventNode();
-            std::cout << "Creating a new event node." << std::endl;
-        }
-        else if (subProcessorType.equalsIgnoreCase("File Reader"))
-        {
-            processor = new FileReader();
-            std::cout << "Creating a new file reader." << std::endl;
-        }
-        else if (subProcessorType.equalsIgnoreCase("Serial Port"))
-        {
-            processor = new SerialInput();
-            std::cout << "Creating a new serial port input." << std::endl;
-		}
-		else if (subProcessorType.equalsIgnoreCase("Network Events"))
-		{
-// 			processor = new NetworkEvents();
-			std::cout << "Creating a new signal generator." << std::endl;
-		}
-
-
-
-		CoreServices::sendStatusMessage("New source node created.");
-
-
-    }
-    else if (processorType.equalsIgnoreCase("Filters"))
-    {
-
-        if (subProcessorType.equalsIgnoreCase("Bandpass Filter"))
-        {
-
-            std::cout << "Creating a new filter." << std::endl;
-            processor = new FilterNode();
-
-        }
-        else if (subProcessorType.equalsIgnoreCase("Rectifier"))
-        {
-            std::cout << "Creating a new rectifier node." << std::endl;
-            processor = new Rectifier();
-        }
-        else if (subProcessorType.equalsIgnoreCase("Spike Detector"))
-        {
-            std::cout << "Creating a new spike detector." << std::endl;
-//             processor = new SpikeDetector();
-        }
-        else if (subProcessorType.equalsIgnoreCase("Spike Sorter"))
-        {
-            std::cout << "Creating a new spike sorter." << std::endl;
-//             processor = new SpikeSorter();
-        }
-        else if (subProcessorType.equalsIgnoreCase("Event Detector"))
-        {
-            std::cout << "Creating a new event detector." << std::endl;
-            processor = new EventDetector();
-        }
-        else if (subProcessorType.equalsIgnoreCase("Phase Detector"))
-        {
-            std::cout << "Creating a new phase detector." << std::endl;
-//             processor = new PhaseDetector();
-        }
-        else if (subProcessorType.equalsIgnoreCase("Channel Map"))
-        {
-            std::cout << "Creating a new channel mapping node." << std::endl;
-//             processor = new ChannelMappingNode();
-        }
-        else if (subProcessorType.equalsIgnoreCase("Common Avg Ref"))
-        {
-            std::cout << "Creating a new common average reference node." << std::endl;
-            processor = new CAR();
-        }
-		CoreServices::sendStatusMessage("New filter node created.");
-
-    }
-    else if (processorType.equalsIgnoreCase("Utilities"))
-    {
-
-        if (subProcessorType.equalsIgnoreCase("Splitter"))
-        {
-
-            std::cout << "Creating a new splitter." << std::endl;
-            processor = new Splitter();
-
-			CoreServices::sendStatusMessage("New splitter created.");
-
-        }
-        else if (subProcessorType.equalsIgnoreCase("Merger"))
-        {
-
-            std::cout << "Creating a new merger." << std::endl;
-            processor = new Merger();
-
-			CoreServices::sendStatusMessage("New merger created.");
-
-        }
-        else if (subProcessorType.equalsIgnoreCase("Record Control"))
-        {
-
-            std::cout << "Creating a new record controller." << std::endl;
-//             processor = new RecordControl();
-
-			CoreServices::sendStatusMessage("New record controller created.");
-
-        }
-
-    }
-    else if (processorType.equalsIgnoreCase("Sinks"))
-    {
-        if (subProcessorType.equalsIgnoreCase("LFP Viewer"))
-        {
-            std::cout << "Creating an LfpDisplayNode." << std::endl;
-            processor = new LfpDisplayNode();
-        }
-        else if (subProcessorType.equalsIgnoreCase("Spike Viewer"))
-        {
-            std::cout << "Creating a SpikeDisplayNode." << std::endl;
-            processor = new SpikeDisplayNode();
-        }
-
-        else if (subProcessorType.equalsIgnoreCase("Arduino Output"))
-        {
-            std::cout << "Creating an Arduino node." << std::endl;
-            // processor = new ArduinoOutput();
-        }
-        else if (subProcessorType.equalsIgnoreCase("Pulse Pal"))
-        {
-            std::cout << "Creating a Pulse Pal output node." << std::endl;
-            processor = new PulsePalOutput();
-		}
-		else if (subProcessorType.equalsIgnoreCase("PSTH"))
-		{
-			std::cout << "Creating a PSTH output node." << std::endl;
-// 			processor = new PeriStimulusTimeHistogramNode();
-		}
-
-		CoreServices::sendStatusMessage("New sink created.");
-    }
+    GenericProcessor* processor = nullptr;
+	processor = ProcessorManager::createProcessor((ProcessorClasses)processorType, processorIndex);
+   
+	String msg = "New " + processorName + " created";
+	CoreServices::sendStatusMessage(msg);
 
     return processor;
 }

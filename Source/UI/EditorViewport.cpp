@@ -233,19 +233,20 @@ void EditorViewport::itemDragExit(const SourceDetails& dragSourceDetails)
 void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
 {
 
-    String description = dragSourceDetails.description.toString();
+	var descr = dragSourceDetails.description;
+	Array<var>* description = descr.getArray();
 
     if (canEdit)
     {
 
-        message = "last filter dropped: " + description;
+        message = "last filter dropped: " + (*description)[0].toString();
 
         std::cout << "Item dropped at insertion point " << insertionPoint << std::endl;
 
         /// needed to remove const cast --> should be a better way to do this
         //String description = sourceDescription.substring(0);
 
-        GenericEditor* activeEditor = (GenericEditor*)AccessClass::getProcessorGraph()->createNewProcessor(description, currentId);//, source, dest);
+        GenericEditor* activeEditor = (GenericEditor*)AccessClass::getProcessorGraph()->createNewProcessor(*description, currentId);//, source, dest);
 
         //std::cout << "Active editor: " << activeEditor << std::endl;
 

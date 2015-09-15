@@ -36,37 +36,6 @@ class UtilityButton;
 
 /**
 
-  Used to change the spike detection threshold.
-
-  @see SpikeDetectorEditor
-
-*/
-
-class ThresholdSlider : public Slider
-{
-public:
-    ThresholdSlider(Font f);
-    ~ThresholdSlider() {}
-
-    void setActive(bool);
-
-    void setValues(Array<double>);
-
-private:
-    void paint(Graphics& g);
-
-    Path makeRotaryPath(double, double, double);
-
-    Font font;
-
-    bool isActive;
-
-    Array<double> valueArray;
-
-};
-
-/**
-
   User interface for the SpikeDetector processor.
 
   Allows the user to add single electrodes, stereotrodes, or tetrodes.

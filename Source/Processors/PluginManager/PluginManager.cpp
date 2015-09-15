@@ -50,6 +50,14 @@ static const char* dlerror(void)
 #define ERROR_MSG(fmt,args...) do{fprintf(stderr,"%s:%d:",__FILE__,__LINE__); fprintf(stderr,fmt,## args);} while(0)
 #endif
 
+PluginManager::PluginManager()
+{
+}
+
+PluginManager::~PluginManager()
+{
+}
+
 /*
 	 Takes the user-specified plugin and begins
 	 dynamic loading process. We want to ensure that
@@ -58,23 +66,13 @@ static const char* dlerror(void)
 	 and works inside the same POSIX thread as the GUI.
  */
 
-PluginManager::Plugin::Plugin() {
-}
-
-PluginManager::Plugin::~Plugin() {
-}
-
-/*
-	 Allows user to select custom-compiled processor for
-	 loading into the GUI.
- */
-PluginManager::Plugin *PluginManager::Manager::loadPlugin(const String& pluginLoc) {
+int PluginManager::loadPlugin(const String& pluginLoc) {
 	/*
-		 Load in the selected processor. This takes the
-		 dynamic object (.so) and copies it into RAM
-		 Dynamic linker requires a C-style string, so we
-		 we have to convert first.
-	 */
+	Load in the selected processor. This takes the
+	dynamic object (.so) and copies it into RAM
+	Dynamic linker requires a C-style string, so we
+	we have to convert first.
+	*/
 	const char* processorLocCString = static_cast<const char*>(pluginLoc.toUTF8());
 
 #ifndef WIN32
@@ -82,11 +80,11 @@ PluginManager::Plugin *PluginManager::Manager::loadPlugin(const String& pluginLo
 	dlerror();
 
 	/*
-		 Changing this to resolve all variables immediately upon loading.
-		 This will provide for quicker testing of the custom
-		 processor stability and to ensure that it doesn't crash due
-		 to memory mishaps.
-	 */
+	Changing this to resolve all variables immediately upon loading.
+	This will provide for quicker testing of the custom
+	processor stability and to ensure that it doesn't crash due
+	to memory mishaps.
+	*/
 	void *handle = 0;
 	handle = dlopen(processorLocCString,RTLD_GLOBAL|RTLD_LAZY);
 #else
@@ -97,64 +95,108 @@ PluginManager::Plugin *PluginManager::Manager::loadPlugin(const String& pluginLo
 	if (!handle) {
 		ERROR_MSG("%s\n", dlerror());
 		dlclose(handle);
-		return 0;
+		return -1;
 	}
 	dlerror();
 
-	/*
-		 Now that the processor is loaded up, let's look for the required
-		 functions. Apparently ISO C++ forbids against casting object
-		 pointer -> function pointer but it's safe here.
-	 */
-	Plugin *(*createFunc)() = 0;
+	LibraryInfoFunction infoFunction = 0;
 #ifdef WIN32
-	createFunc =(Plugin *(*)()) GetProcAddress(handle,"OpenEphysPlugin");
+	infoFunction = (LibraryInfoFunction)GetProcAddress(handle, "getLibInfo");
 #else
-	createFunc = (Plugin *(*)())(dlsym(handle,"OpenEphysPlugin"));
+	infoFunction = (LibraryInfoFunction)(dlsym(handle, "getLibInfo"));
 #endif
-	if (!createFunc) {
-		ERROR_MSG("%s\n",dlerror());
+
+	if (!infoFunction)
+	{
+		ERROR_MSG("%s\n", dlerror());
 		dlclose(handle);
-		return 0;
+		return -1;
 	}
 	dlerror();
 
-	/*
-		 Now that the processor is loaded up, let's look for the required
-		 functions. Apparently ISO C++ forbids against casting object
-		 pointer -> function pointer but it's safe here.
-	 */
-	int *(*infoPtr)();
+	Plugin::LibraryInfo libInfo;
+	infoFunction(&libInfo);
+
+	if (libInfo.apiVersion != PLUGIN_API_VER)
+	{
+		std::cerr << pluginLoc << " invalid version" << std::endl;
+		dlclose(handle);
+		return -1;
+	}
+
+	PluginInfoFunction piFunction = 0;
 #ifdef WIN32
-	infoPtr =(Plugin *(*)()) GetProcAddress(handle,"OpenEphysPlugin");
+	piFunction = (PluginInfoFunction)GetProcAddress(handle, "getPluginInfo");
 #else
-	infoPtr = (int *(*)()) dlsym(handle,"getPluginInfo");
+	piFunction = (PluginInfoFunction)(dlsym(handle, "getPluginInfo"));
 #endif
-	if (!infoPtr) {
-		ERROR_MSG("%s\n",dlerror());
-		dlclose(handle);
-		return 0;
-	}
-	dlerror();
-	std::cout << infoPtr() << std::endl;
 
-	/*
-		 *Call the casted function pointer
-		 to call the processor constructor.
-	 */
-	Plugin *processor = 0;
-	processor = createFunc();
-	if (!processor) {
-		ERROR_MSG("Invalid processor architecture\n");
+	if (!piFunction)
+	{
+		ERROR_MSG("%s\n", dlerror());
 		dlclose(handle);
-		return 0;
+		return -1;
 	}
 	dlerror();
 
-	processor->processorHandle = handle;
-	insertListPlugin(processor);
-	return processor;
+	LoadedLibInfo lib;
+	lib.apiVersion = libInfo.apiVersion;
+	strcpy(lib.name,libInfo.name);
+	lib.numPlugins = libInfo.numPlugins;
+	lib.handle = handle;
+
+	libArray.add(lib);
+
+	Plugin::PluginInfo pInfo;
+	for (int i = 0; i < lib.numPlugins; i++)
+	{
+		if (piFunction(i, &pInfo)) //if somehow there are less plugins than stated, stop adding
+			break;
+		switch (pInfo.type)
+		{
+		case Plugin::ProcessorPlugin:
+			LoadedPluginInfo<Plugin::ProcessorInfo> info;
+			info.creator = pInfo.processor.creator;
+			strcpy(info.name, pInfo.processor.name);
+			info.type = pInfo.processor.type;
+			info.libIndex = libArray.size();
+			processorPlugins.add(info);
+			break;
+		case Plugin::RecordEnginePlugin:
+			break;
+		case Plugin::DatathreadPlugin:
+			break;
+		case Plugin::FileSourcePlugin:
+			break;
+		}
+	}
+	AccessClass::getProcessorList()->fillItemList();
+	return 0;
 }
+
+int PluginManager::getNumProcessors()
+{
+	return processorPlugins.size();
+}
+
+Plugin::ProcessorInfo PluginManager::getProcessorInfo(int index)
+{
+	return processorPlugins[index];
+}
+
+
+#if 0
+PluginManager::Plugin::Plugin() {
+}
+
+PluginManager::Plugin::~Plugin() {
+}
+
+/*
+	 Allows user to select custom-compiled processor for
+	 loading into the GUI.
+ */
+
 
 void PluginManager::Manager::unloadPlugin(PluginManager::Plugin *processor) {
 	if (!processor) {
@@ -220,3 +262,4 @@ PluginManager::Manager *PluginManager::Manager::getInstance() {
 	}
 	return instance;
 }
+#endif

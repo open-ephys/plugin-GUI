@@ -24,53 +24,66 @@
 #ifndef __PLUGINMGR__
 #define __PLUGINMGR__
 
+#define PLUGIN_API_VER 1
+
 #ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
+
 #include <list>
 #include <string>
 #include <sys/types.h>
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "OpenEphysPlugin.h"
 
-namespace PluginManager {
-
-	class Plugin;
-
-	class Manager {
-		friend class Plugin;
-
-		public:
-		static Manager *getInstance(void);
-		Plugin *loadPlugin(const String&);
-		void unloadPlugin(Plugin *);
-		void removeAllPlugins();
-
-		private:
-		Manager(void) {};
-		~Manager(void) {};
-		Manager(const Manager &) {};
-		Manager &operator=(const Manager &) {return *getInstance();};
-
-		void insertListPlugin(PluginManager::Plugin *);
-		void removeListPlugin(PluginManager::Plugin *);
-		std::list<PluginManager::Plugin *> pluginList;
-		static Manager *instance;
-	};
-
-	class Plugin {
-		friend class Manager;
-
-		public:
-		Plugin();
-		virtual ~Plugin();
-		void unload();
-
-		private:
+struct LoadedLibInfo : public Plugin::LibraryInfo
+{
 #ifdef WIN32
-			HINSTANCE processorHandle;
+	HINSTANCE handle;
 #else
-		void *processorHandle;
+	void* handle;
 #endif
-	};
 };
+
+template<class T>
+struct LoadedPluginInfo : public T
+{
+	int libIndex;
+};
+
+
+class GenericProcessor;
+
+class PluginManager {
+
+public:
+	PluginManager();
+	~PluginManager();
+	int loadPlugin(const String&);
+	//void unloadPlugin(Plugin *);
+	void removeAllPlugins();
+	int getNumProcessors();
+	Plugin::ProcessorInfo getProcessorInfo(int index);
+
+private:
+	Array<LoadedLibInfo> libArray;
+	Array<LoadedPluginInfo<Plugin::ProcessorInfo>> processorPlugins;
+	Array<LoadedPluginInfo<Plugin::PluginInfo>> pp;
+	
+	/*Manager(void) {};
+	~Manager(void) {};
+	Manager(const Manager &) {};
+
+	
+	Manager &operator=(const Manager &) { return *getInstance(); };
+
+	
+	void removeListPlugin(PluginManager::Plugin *);
+	std::list<PluginManager::Plugin *> pluginList;
+	static Manager *instance;*/
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginManager);
+};
+
 #endif

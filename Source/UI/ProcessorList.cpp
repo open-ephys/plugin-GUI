@@ -27,11 +27,9 @@
 
 #include "UIComponent.h"
 #include "../AccessClass.h"
+#include "../Processors/ProcessorManager/ProcessorManager.h"
 
-ProcessorListItem* sources = new ProcessorListItem("Sources");
-ProcessorListItem* filters = new ProcessorListItem("Filters");
-ProcessorListItem* sinks = new ProcessorListItem("Sinks");
-ProcessorListItem* utilities = new ProcessorListItem("Utilities");
+
 
 enum colorIds
 {
@@ -55,16 +53,11 @@ enum colorIds
 	setColour(SINK_COLOR, Colour(0, 166, 81));
 	setColour(SOURCE_COLOR, Colour(241, 90, 41));
 	setColour(UTILITY_COLOR, Colour(147, 149, 152));
+	ProcessorListItem* sources = new ProcessorListItem("Sources");
+	ProcessorListItem* filters = new ProcessorListItem("Filters");
+	ProcessorListItem* sinks = new ProcessorListItem("Sinks");
+	ProcessorListItem* utilities = new ProcessorListItem("Utilities");
 
-#if JUCE_WINDOWS // eCube module currently only available for Windows
-#ifdef ECUBE_COMPILE
-	//     sources->addSubItem(new ProcessorListItem("eCube")); // Added by Michael Borisov
-#endif
-#endif
-	//     sources->addSubItem(new ProcessorListItem("File Reader"));
-#ifdef ZEROMQ
-	//     sources->addSubItem(new ProcessorListItem("Network Events"));
-#endif
 
 	baseItem = new ProcessorListItem("Processors");
 	baseItem->addSubItem(sources);
@@ -75,8 +68,6 @@ enum colorIds
 	// set parent names / colors
 	baseItem->setParentName("Processors");
 
-	sources->addSubItem(new ProcessorListItem("Signal generator"));
-	sinks->addSubItem(new ProcessorListItem("LFP Viewer"));
 
 	for (int n = 0; n < baseItem->getNumSubItems(); n++)
 	{
@@ -471,9 +462,7 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 			{
 				isDragging = true;
 
-				String b = listItem->getParentName();
-				b += "/";
-				b += listItem->getName();
+				String b = listItem->getName();
 
 				const String dragDescription = b;
 
@@ -500,7 +489,14 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 						dragImage.multiplyAllAlphas(0.6f);
 
 						Point<int> imageOffset(20,10);
-						dragContainer->startDragging(dragDescription, this,
+
+						Array<var> dragData;
+						dragData.add(dragDescription);
+						dragData.add(listItem->processorType);
+						dragData.add(listItem->processorId);
+						dragData.add(listItem->getParentName());
+
+						dragContainer->startDragging(dragData, this,
 								dragImage, true, &imageOffset);
 					}
 				}
@@ -613,27 +609,46 @@ void ProcessorList::setColours(Array<Colour> c)
 	}
 }
 
-void ProcessorList::addPluginItem(String name, size_t type) {
-	switch(type) {
-		case 0x1:
-			sources->addSubItem(new ProcessorListItem(name));
-			break;
-		case 0x2:
-			filters->addSubItem(new ProcessorListItem(name));
-			break;
-		case 0x3:
-			sinks->addSubItem(new ProcessorListItem(name));
-			break;
-		case 0x4:
-			utilities->addSubItem(new ProcessorListItem(name));
-			break;
+void ProcessorList::fillItemList()
+{
+	int num;
+	baseItem->getSubItem(0)->clearSubItems(); //Sources
+	baseItem->getSubItem(1)->clearSubItems(); //Filters
+	baseItem->getSubItem(2)->clearSubItems(); //sinks
+	baseItem->getSubItem(3)->clearSubItems(); //Utilities
+
+	for (int pClass = 0; pClass < 3; pClass++)
+	{
+		num = ProcessorManager::getNumProcessors((ProcessorClasses)pClass);
+		for (int i = 0; i < num; i++)
+		{
+			String name;
+			int type = -1;
+			ProcessorManager::getProcessorNameAndType((ProcessorClasses)pClass, i, name, type);
+			if (type > -1 && type < 4)
+			{
+				baseItem->getSubItem(type)->addSubItem(new ProcessorListItem(name, i, pClass));
+			}
+		}
 	}
+
+
+	for (int n = 0; n < baseItem->getNumSubItems(); n++)
+	{
+		const String category = baseItem->getSubItem(n)->getName();
+		baseItem->getSubItem(n)->setParentName(category);
+		for (int m = 0; m < baseItem->getSubItem(n)->getNumSubItems(); m++)
+		{
+			baseItem->getSubItem(n)->getSubItem(m)->setParentName(category);// = category;
+		}
+	}
+
 }
 
 // ===================================================================
 
-	ProcessorListItem::ProcessorListItem(const String& name_)
-: selected(false), open(true), name(name_)
+	ProcessorListItem::ProcessorListItem(const String& name_, int pid, int ptype)
+		: selected(false), open(true), name(name_), processorId(pid), processorType(ptype)
 {
 }
 

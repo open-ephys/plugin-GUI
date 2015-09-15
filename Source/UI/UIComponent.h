@@ -36,10 +36,12 @@
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
 
+
 class MainWindow;
 class ProcessorList;
 
 class EditorViewportButton;
+class PluginManager;
 
 /**
 
@@ -68,59 +70,33 @@ public:
     ~UIComponent();
 
     /** Returns a pointer to the EditorViewport. */
-    EditorViewport* getEditorViewport()
-    {
-        return editorViewport;
-    }
+	EditorViewport* getEditorViewport();
 
     /** Returns a pointer to the ProcessorList. */
-    ProcessorList* getProcessorList()
-    {
-        return processorList;
-    }
+	ProcessorList* getProcessorList();
 
     /** Returns a pointer to the DataViewport. */
-    DataViewport* getDataViewport()
-    {
-        return dataViewport;
-    }
+	DataViewport* getDataViewport();
 
     /** Returns a pointer to the ProcessorGraph. */
-    ProcessorGraph* getProcessorGraph()
-    {
-        return processorGraph;
-    }
+	ProcessorGraph* getProcessorGraph();
 
     /** Returns a pointer to the GraphViewer. */
-    GraphViewer* getGraphViewer()
-    {
-        return graphViewer;
-    }
-
+	GraphViewer* getGraphViewer();
 
     /** Returns a pointer to the ControlPanel. */
-    ControlPanel* getControlPanel()
-    {
-        return controlPanel;
-    }
+	ControlPanel* getControlPanel();
 
     /** Returns a pointer to the MessageCenterEditor. */
-    MessageCenterEditor* getMessageCenter()
-    {
-        return messageCenterEditor;
-    }
+	MessageCenterEditor* getMessageCenter();
 
     /** Returns a pointer to the UIComponent. */
-    UIComponent* getUIComponent()
-    {
-        return this;
-    }
+	UIComponent* getUIComponent();
 
     /** Returns a pointer to the AudioComponent. */
-    AudioComponent* getAudioComponent()
-    {
-        return audio;
-    }
+	AudioComponent* getAudioComponent();
+
+	PluginManager* getPluginManager();
 
     /** Stops the callbacks to the ProcessorGraph which drive data acquisition. */
     void disableCallbacks();
@@ -174,6 +150,7 @@ private:
     MessageCenterEditor* messageCenterEditor; // owned by ProcessorGraph
     ScopedPointer<InfoLabel> infoLabel;
     ScopedPointer<GraphViewer> graphViewer;
+	ScopedPointer<PluginManager> pluginManager;
 
     Viewport processorListViewport;
 

@@ -267,6 +267,9 @@
     <ClCompile Include="..\..\Source\AccessClass.cpp"/>
     <ClCompile Include="..\..\Source\Network\PracticalSocket.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEventsEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\ProcessorManager\ProcessorManager.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PluginManager\PluginManager.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioNode.cpp"/>
@@ -1482,6 +1485,10 @@
     <ClInclude Include="..\..\Source\AccessClass.h"/>
     <ClInclude Include="..\..\Source\Network\PracticalSocket.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
+    <ClInclude Include="..\..\Source\Processors\NetworkEvents\NetworkEventsEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.h"/>
+    <ClInclude Include="..\..\Source\Processors\ProcessorManager\ProcessorManager.h"/>
+    <ClInclude Include="..\..\Source\Processors\PluginManager\OpenEphysPlugin.h"/>
     <ClInclude Include="..\..\Source\Processors\PluginManager\PluginManager.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioNode.h"/>

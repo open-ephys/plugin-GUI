@@ -38,6 +38,7 @@ ControlPanel* cp = nullptr;
 MessageCenterEditor* mc = nullptr;
 AudioComponent* ac = nullptr;
 GraphViewer* gv = nullptr;
+PluginManager* pm = nullptr;
 ScopedPointer<ActionBroadcaster> bc;
 }
 
@@ -54,6 +55,7 @@ void setUIComponent(UIComponent* ui_)
     mc = ui->getMessageCenter();
     ac = ui->getAudioComponent();
     gv = ui->getGraphViewer();
+	pm = ui->getPluginManager();
     bc = new ActionBroadcaster();
     bc->addActionListener(mc);
 }
@@ -115,6 +117,11 @@ AudioComponent* getAudioComponent()
 GraphViewer* getGraphViewer()
 {
     return gv;
+}
+
+PluginManager* getPluginManager()
+{
+	return pm;
 }
 
 ActionBroadcaster* getBroadcaster()

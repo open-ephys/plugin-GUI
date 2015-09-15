@@ -55,6 +55,9 @@ OBJECTS := \
   $(OBJDIR)/AccessClass_de9602d5.o \
   $(OBJDIR)/PracticalSocket_2574ecc8.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/NetworkEventsEditor_ae5ec8e7.o \
+  $(OBJDIR)/NetworkEvents_5344c99a.o \
+  $(OBJDIR)/ProcessorManager_2aa7db2a.o \
   $(OBJDIR)/PluginManager_f764c180.o \
   $(OBJDIR)/AudioEditor_3931be27.o \
   $(OBJDIR)/AudioNode_3db3557c.o \
@@ -193,6 +196,21 @@ $(OBJDIR)/PracticalSocket_2574ecc8.o: ../../Source/Network/PracticalSocket.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/NetworkEventsEditor_ae5ec8e7.o: ../../Source/Processors/NetworkEvents/NetworkEventsEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling NetworkEventsEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/NetworkEvents_5344c99a.o: ../../Source/Processors/NetworkEvents/NetworkEvents.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling NetworkEvents.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ProcessorManager_2aa7db2a.o: ../../Source/Processors/ProcessorManager/ProcessorManager.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ProcessorManager.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/PluginManager_f764c180.o: ../../Source/Processors/PluginManager/PluginManager.cpp

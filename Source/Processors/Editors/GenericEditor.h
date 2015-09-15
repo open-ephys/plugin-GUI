@@ -494,6 +494,36 @@ private:
     bool isEnabled;
 };
 
+/**
+
+Used to change the spike detection threshold.
+
+@see SpikeDetectorEditor
+
+*/
+
+class ThresholdSlider : public Slider
+{
+public:
+	ThresholdSlider(Font f);
+	~ThresholdSlider() {}
+
+	void setActive(bool);
+
+	void setValues(Array<double>);
+
+private:
+	void paint(Graphics& g);
+
+	Path makeRotaryPath(double, double, double);
+
+	Font font;
+
+	bool isActive;
+
+	Array<double> valueArray;
+
+};
 
 
 #endif  // __GENERICEDITOR_H_DD406E71__

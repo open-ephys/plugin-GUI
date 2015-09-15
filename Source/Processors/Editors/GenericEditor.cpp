@@ -1247,3 +1247,95 @@ void ColorButton::setLabel(String label_)
     label = label_;
     repaint();
 }
+
+
+ThresholdSlider::ThresholdSlider(Font f) : Slider("name"), font(f)
+{
+
+	setSliderStyle(Slider::Rotary);
+	setRange(-400, 400.0f, 10.0f);
+	setValue(-20.0f);
+	setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
+
+}
+
+void ThresholdSlider::paint(Graphics& g)
+{
+
+	ColourGradient grad = ColourGradient(Colour(40, 40, 40), 0.0f, 0.0f,
+		Colour(80, 80, 80), 0.0, 40.0f, false);
+
+	Path p;
+	p.addPieSegment(3, 3, getWidth() - 6, getHeight() - 6, 5 * double_Pi / 4 - 0.2, 5 * double_Pi / 4 + 3 * double_Pi / 2 + 0.2, 0.5);
+
+	g.setGradientFill(grad);
+	g.fillPath(p);
+
+	String valueString;
+
+	if (isActive)
+	{
+		p = makeRotaryPath(getMinimum(), getMaximum(), getValue());
+		g.setColour(Colour(240, 179, 12));
+		g.fillPath(p);
+
+		valueString = String((int)getValue());
+	}
+	else
+	{
+
+		valueString = "";
+
+		for (int i = 0; i < valueArray.size(); i++)
+		{
+			p = makeRotaryPath(getMinimum(), getMaximum(), valueArray[i]);
+			g.setColour(Colours::lightgrey.withAlpha(0.4f));
+			g.fillPath(p);
+			valueString = String((int)valueArray.getLast());
+		}
+
+	}
+
+	font.setHeight(9.0);
+	g.setFont(font);
+	int stringWidth = font.getStringWidth(valueString);
+
+	g.setFont(font);
+
+	g.setColour(Colours::darkgrey);
+	g.drawSingleLineText(valueString, getWidth() / 2 - stringWidth / 2, getHeight() / 2 + 3);
+
+}
+
+Path ThresholdSlider::makeRotaryPath(double min, double max, double val)
+{
+
+	Path p;
+
+	double start;
+	double range;
+	if (val > 0)
+	{
+		start = 0;
+		range = (val) / (1.3*max)*double_Pi;
+	}
+	if (val < 0) {
+		start = -(val) / (1.3*min)*double_Pi;
+		range = 0;
+	}
+	p.addPieSegment(6, 6, getWidth() - 12, getHeight() - 12, start, range, 0.65);
+
+	return p;
+
+}
+
+void ThresholdSlider::setActive(bool t)
+{
+	isActive = t;
+	repaint();
+}
+
+void ThresholdSlider::setValues(Array<double> v)
+{
+	valueArray = v;
+}

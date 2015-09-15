@@ -79,8 +79,8 @@ public:
     /** Loads the ProcessorList state. */
     void loadStateFromXml(XmlElement*);
 
-		/** Add item loaded as plugin **/
-		void addPluginItem(String, size_t);
+	/** Fill item list **/
+	void fillItemList();
 
     void resized();
 
@@ -151,7 +151,7 @@ private:
 class ProcessorListItem : public Component
 {
 public:
-    ProcessorListItem(const String& name);
+    ProcessorListItem(const String& name, int pid = -1, int ptype = -1);
     ~ProcessorListItem();
 
     /** Returns the number of sub-items for a given ProcessorListItem. */
@@ -208,12 +208,16 @@ public:
     /** Determines the color of the ProcessorListItem (based on enumerator defined in setParentName() method). */
     int colorId;
 
+	const int processorId;
+
+	const int processorType;
 private:
 
     bool selected;
     bool open;
     const String name;
     String parentName;
+	
 
     /** An array of all the sub-items (if any) that belong to this ProcessorListItem. */
     OwnedArray<ProcessorListItem> subItems;

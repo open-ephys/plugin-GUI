@@ -292,7 +292,24 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <GROUP id="{6FA57F74-56F2-BB55-177E-B0E8FA54217F}" name="NetworkEvents">
+          <FILE id="C2QHS4" name="NetworkEventsEditor.cpp" compile="1" resource="0"
+                file="Source/Processors/NetworkEvents/NetworkEventsEditor.cpp"/>
+          <FILE id="qM68wu" name="NetworkEventsEditor.h" compile="0" resource="0"
+                file="Source/Processors/NetworkEvents/NetworkEventsEditor.h"/>
+          <FILE id="cKkI7r" name="NetworkEvents.cpp" compile="1" resource="0"
+                file="Source/Processors/NetworkEvents/NetworkEvents.cpp"/>
+          <FILE id="xYFMhh" name="NetworkEvents.h" compile="0" resource="0" file="Source/Processors/NetworkEvents/NetworkEvents.h"/>
+        </GROUP>
+        <GROUP id="{AA47A836-2CD5-F803-C043-23BBBCFDA0CF}" name="ProcessorManager">
+          <FILE id="KVCpqW" name="ProcessorManager.cpp" compile="1" resource="0"
+                file="Source/Processors/ProcessorManager/ProcessorManager.cpp"/>
+          <FILE id="tjFli6" name="ProcessorManager.h" compile="0" resource="0"
+                file="Source/Processors/ProcessorManager/ProcessorManager.h"/>
+        </GROUP>
         <GROUP id="{419E358E-7049-BF7C-21D8-840285A12731}" name="PluginManager">
+          <FILE id="wgBCpb" name="OpenEphysPlugin.h" compile="0" resource="0"
+                file="Source/Processors/PluginManager/OpenEphysPlugin.h"/>
           <FILE id="a5xlEQ" name="PluginManager.cpp" compile="1" resource="0"
                 file="Source/Processors/PluginManager/PluginManager.cpp"/>
           <FILE id="I8EBWd" name="PluginManager.h" compile="1" resource="0" file="Source/Processors/PluginManager/PluginManager.h"/>

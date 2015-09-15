@@ -57,8 +57,8 @@ public:
     ProcessorGraph();
     ~ProcessorGraph();
 
-    void* createNewProcessor(String& description, int id);
-    GenericProcessor* createProcessorFromDescription(String& description);
+    void* createNewProcessor(Array<var>& description, int id);
+    GenericProcessor* createProcessorFromDescription(Array<var>& description);
 
     void removeProcessor(GenericProcessor* processor);
     Array<GenericProcessor*> getListOfProcessors();

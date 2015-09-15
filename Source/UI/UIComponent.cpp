@@ -22,6 +22,7 @@
  */
 
 #include "UIComponent.h"
+#include "../Processors/PluginManager/PluginManager.h"
 #include <stdio.h>
 
 	UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_)
@@ -34,6 +35,7 @@
 	messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
 	addActionListener(messageCenterEditor);
 	addAndMakeVisible(messageCenterEditor);
+	std::cout << "Created message center." << std::endl;
 
 	infoLabel = new InfoLabel();
 	std::cout << "Created info label." << std::endl;
@@ -70,11 +72,14 @@
 	processorList->setBounds(0,0,195,processorList->getTotalHeight());
 	std::cout << "Created filter list." << std::endl;
 
-	std::cout << "Created message center." << std::endl;
+	pluginManager = new PluginManager();
+	std::cout << "Created plugin manager" << std::endl;
 
 	setBounds(0,0,500,400);
 
 	AccessClass::setUIComponent(this);
+
+	getProcessorList()->fillItemList();
 	controlPanel->updateChildComponents();
 
 	processorGraph->updatePointers(); // needs to happen after processorGraph gets the right pointers
@@ -92,6 +97,66 @@ UIComponent::~UIComponent()
 {
 	dataViewport->destroyTab(0); // get rid of tab for InfoLabel
 	AccessClass::shutdownBroadcaster();
+}
+
+/** Returns a pointer to the EditorViewport. */
+EditorViewport* UIComponent::getEditorViewport()
+{
+	return editorViewport;
+}
+
+/** Returns a pointer to the ProcessorList. */
+ProcessorList* UIComponent::getProcessorList()
+{
+	return processorList;
+}
+
+/** Returns a pointer to the DataViewport. */
+DataViewport* UIComponent::getDataViewport()
+{
+	return dataViewport;
+}
+
+/** Returns a pointer to the ProcessorGraph. */
+ProcessorGraph* UIComponent::getProcessorGraph()
+{
+	return processorGraph;
+}
+
+/** Returns a pointer to the GraphViewer. */
+GraphViewer* UIComponent::getGraphViewer()
+{
+	return graphViewer;
+}
+
+
+/** Returns a pointer to the ControlPanel. */
+ControlPanel* UIComponent::getControlPanel()
+{
+	return controlPanel;
+}
+
+/** Returns a pointer to the MessageCenterEditor. */
+MessageCenterEditor* UIComponent::getMessageCenter()
+{
+	return messageCenterEditor;
+}
+
+/** Returns a pointer to the UIComponent. */
+UIComponent* UIComponent::getUIComponent()
+{
+	return this;
+}
+
+/** Returns a pointer to the AudioComponent. */
+AudioComponent* UIComponent::getAudioComponent()
+{
+	return audio;
+}
+
+PluginManager* UIComponent::getPluginManager()
+{
+	return pluginManager;
 }
 
 void UIComponent::resized()
@@ -559,7 +624,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 				error += pluginFile.getFileName();
 
 				// Add to processor list
-				if(!PluginManager::Manager::getInstance()->loadPlugin(pluginFile.getFullPathName()))
+				if(getPluginManager()->loadPlugin(pluginFile.getFullPathName()))
 				{
 					CoreServices::sendStatusMessage(("Failed to load: " + pluginFile.getFileName()).toUTF8());
 					break;

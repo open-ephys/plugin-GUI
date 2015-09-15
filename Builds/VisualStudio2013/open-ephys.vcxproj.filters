@@ -32,6 +32,12 @@
     <Filter Include="open-ephys\Source\Processors">
       <UniqueIdentifier>{3DDEC88C-BAA5-2DDA-A59F-0FB74070AB82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Source\Processors\NetworkEvents">
+      <UniqueIdentifier>{C41A0CBC-4C1C-5AC2-CAED-3EC41B4BAB37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Processors\ProcessorManager">
+      <UniqueIdentifier>{C84577BE-2445-2454-C134-006B7BCF320C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="open-ephys\Source\Processors\PluginManager">
       <UniqueIdentifier>{BBFD2E98-99C0-86CF-0425-1182E74F2192}</UniqueIdentifier>
     </Filter>
@@ -405,6 +411,15 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEventsEditor.cpp">
+      <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.cpp">
+      <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\ProcessorManager\ProcessorManager.cpp">
+      <Filter>open-ephys\Source\Processors\ProcessorManager</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\PluginManager\PluginManager.cpp">
       <Filter>open-ephys\Source\Processors\PluginManager</Filter>
@@ -1907,6 +1922,18 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\NetworkEvents\NetworkEventsEditor.h">
+      <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.h">
+      <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\ProcessorManager\ProcessorManager.h">
+      <Filter>open-ephys\Source\Processors\ProcessorManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\PluginManager\OpenEphysPlugin.h">
+      <Filter>open-ephys\Source\Processors\PluginManager</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\PluginManager\PluginManager.h">
       <Filter>open-ephys\Source\Processors\PluginManager</Filter>

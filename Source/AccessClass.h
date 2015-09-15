@@ -35,6 +35,7 @@ class MessageCenterEditor;
 class ControlPanel;
 class AudioComponent;
 class GraphViewer;
+class PluginManager;
 
 
 
@@ -76,6 +77,9 @@ AudioComponent* getAudioComponent();
 
 /** Returns a pointer to the application's GraphViewer. */
 GraphViewer* getGraphViewer();
+
+/** Returns a pointer to the application's PluginManager. */
+PluginManager* getPluginManager();
 
 ActionBroadcaster* getBroadcaster();
 
