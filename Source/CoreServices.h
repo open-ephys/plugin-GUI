@@ -25,6 +25,7 @@
 #define CORESERVICES_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "Processors\PluginManager\OpenEphysPlugin.h"
 
 class GenericEditor;
 class SpikeObject;
@@ -34,44 +35,44 @@ struct SpikeRecordInfo;
 namespace CoreServices
 {
 /** Issues a signal chain update, useful for propagating new channel settings */
-void updateSignalChain(GenericEditor* source);
+PLUGIN_API void updateSignalChain(GenericEditor* source);
 
 /** Returns true is the GUI is recording */
-bool getRecordingStatus();
+PLUGIN_API bool getRecordingStatus();
 
 /** Activated or deactivates recording */
-void setRecordingStatus(bool enable);
+PLUGIN_API void setRecordingStatus(bool enable);
 
 /** Sends a string to the message bar */
-void sendStatusMessage(String& text);
+PLUGIN_API void sendStatusMessage(String& text);
 
 /** Sends a string to the message bar */
-void sendStatusMessage(const char* text);
+PLUGIN_API void sendStatusMessage(const char* text);
 
 /** Highlights an editor */
-void highlightEditor(GenericEditor* ed);
+PLUGIN_API void highlightEditor(GenericEditor* ed);
 
 /** Gets the timestamp selected on the MessageCenter interface
 Defaults to the first hardware timestamp source or the software one if
 no hardware timestamping is present*/
-int64 getGlobalTimestamp();
+PLUGIN_API int64 getGlobalTimestamp();
 
 /** Gets the software timestamp based on a high resolution timer aligned to the start of each processing block */
-int64 getSoftwareTimestamp();
+PLUGIN_API int64 getSoftwareTimestamp();
 
 namespace RecordNode
 {
 /** Forces creation of new directory on recording */
-void createNewrecordingDir();
+PLUGIN_API void createNewrecordingDir();
 
 /** Gets the current recording directory */
-File getRecordingPath();
+PLUGIN_API File getRecordingPath();
 
 /* Spike related methods. See record engine documentation */
 
-void writeSpike(SpikeObject& spike, int electrodeIndex);
-void registerSpikeSource(GenericProcessor* processor);
-int addSpikeElectrode(SpikeRecordInfo* elec);
+PLUGIN_API void writeSpike(SpikeObject& spike, int electrodeIndex);
+PLUGIN_API void registerSpikeSource(GenericProcessor* processor);
+PLUGIN_API int addSpikeElectrode(SpikeRecordInfo* elec);
 };
 
 };

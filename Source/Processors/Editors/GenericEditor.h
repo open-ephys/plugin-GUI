@@ -28,6 +28,7 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../../CoreServices.h"
 #include "../Channel/Channel.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
 #include <stdio.h>
 
@@ -53,7 +54,7 @@ class Channel;
 
 */
 
-class GenericEditor : public AudioProcessorEditor,
+class PLUGIN_API GenericEditor : public AudioProcessorEditor,
     public Timer,
     public Button::Listener,
     public Slider::Listener
@@ -355,7 +356,7 @@ private:
 
 */
 
-class DrawerButton : public Button
+class PLUGIN_API DrawerButton : public Button
 {
 public:
     DrawerButton(const String& name);
@@ -375,7 +376,7 @@ private:
 
 */
 
-class TriangleButton : public Button
+class PLUGIN_API TriangleButton : public Button
 {
 public:
     TriangleButton(int direction_) : Button("Arrow")
@@ -397,7 +398,7 @@ private:
 
 */
 
-class LoadButton : public ImageButton
+class PLUGIN_API LoadButton : public ImageButton
 {
 public:
     LoadButton();
@@ -412,7 +413,7 @@ public:
 
 */
 
-class SaveButton : public ImageButton
+class PLUGIN_API SaveButton : public ImageButton
 {
 public:
     SaveButton();
@@ -428,7 +429,7 @@ private:
 
 */
 
-class UtilityButton : public Button
+class PLUGIN_API UtilityButton : public Button
 {
 public:
     UtilityButton(String label_, Font font_);
@@ -465,7 +466,7 @@ private:
 
 
 
-class ColorButton : public Button
+class PLUGIN_API ColorButton : public Button
 {
 public:
     ColorButton(String label_, Font font_);
@@ -502,7 +503,7 @@ Used to change the spike detection threshold.
 
 */
 
-class ThresholdSlider : public Slider
+class PLUGIN_API ThresholdSlider : public Slider
 {
 public:
 	ThresholdSlider(Font f);

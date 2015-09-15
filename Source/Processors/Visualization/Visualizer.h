@@ -25,6 +25,7 @@
 #define __VISUALIZER_H_C5943EC1__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
 /**
 
@@ -34,7 +35,7 @@
 
 */
 
-class Visualizer : public Component,
+class PLUGIN_API Visualizer : public Component,
     public Timer
 
 {

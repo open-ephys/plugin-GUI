@@ -25,6 +25,7 @@
 #define __ELECTRODEBUTTONS_H_BDCEE716__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
 /**
 
@@ -35,7 +36,7 @@
 */
 
 
-class ElectrodeButton : public Button
+class PLUGIN_API ElectrodeButton : public Button
 {
 public:
 	ElectrodeButton(int chan_);
@@ -60,7 +61,7 @@ private:
 
 */
 
-class ElectrodeEditorButton : public Button
+class PLUGIN_API ElectrodeEditorButton : public Button
 {
 public:
 	ElectrodeEditorButton(const String& name_, Font font_);

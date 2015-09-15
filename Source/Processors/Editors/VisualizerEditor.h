@@ -41,7 +41,7 @@ class Visualizer;
 
 */
 
-class SelectorButton : public Button
+class PLUGIN_API SelectorButton : public Button
 {
 public:
     SelectorButton(const String& name);
@@ -59,7 +59,7 @@ private:
 
 */
 
-class VisualizerEditor : public GenericEditor
+class PLUGIN_API VisualizerEditor : public GenericEditor
 {
 public:
     VisualizerEditor(GenericProcessor*, int, bool useDefaultParameterEditors);

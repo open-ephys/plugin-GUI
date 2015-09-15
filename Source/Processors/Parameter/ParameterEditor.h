@@ -27,6 +27,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../Editors/ChannelSelector.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 #include "Parameter.h"
 #include <stdio.h>
 
@@ -43,7 +44,7 @@ class ParameterCheckbox;
 
 */
 
-class ParameterEditor : public Component,
+class PLUGIN_API ParameterEditor : public Component,
     public Button::Listener,
     public Slider::Listener
 
@@ -96,7 +97,7 @@ private:
 
 */
 
-class ParameterButton : public Button
+class PLUGIN_API ParameterButton : public Button
 
 {
 public:
@@ -142,7 +143,7 @@ private:
 
 */
 
-class ParameterCheckbox : public Button
+class PLUGIN_API ParameterCheckbox : public Button
 
 {
 public:
@@ -167,7 +168,7 @@ private:
 
 */
 
-class ParameterSlider : public Slider
+class PLUGIN_API ParameterSlider : public Slider
 
 {
 public:

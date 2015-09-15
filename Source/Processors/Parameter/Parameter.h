@@ -25,6 +25,7 @@
 #define __PARAMETER_H_62922AE5__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 // #include "Editors/GenericEditor.h"
 // #include "GenericProcessor.h"
 // #include "../AccessClass.h"
@@ -44,7 +45,7 @@
 
 */
 
-class Parameter
+class PLUGIN_API Parameter
 {
 public:
 

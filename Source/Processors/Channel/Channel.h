@@ -28,6 +28,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../GenericProcessor/GenericProcessor.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
 #include <stdio.h>
 
@@ -54,7 +55,7 @@ class ChannelExtraData;
 */
 
 
-class Channel
+class PLUGIN_API Channel
 
 {
 public:
@@ -167,7 +168,7 @@ private:
 
 };
 
-class ChannelExtraData : public ReferenceCountedObject
+class PLUGIN_API ChannelExtraData : public ReferenceCountedObject
 {
 public:
 	ChannelExtraData(void* data, int size);

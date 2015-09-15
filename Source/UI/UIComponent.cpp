@@ -608,7 +608,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 			{
 				// Load UI for choosing plugin
 				File pluginFile;
-				FileChooser fc("Choose the file name...", File("/home"), "*.so", true);
+				FileChooser fc("Choose the file name...", File::getCurrentWorkingDirectory(), "*.dll", true);
 
 				// Store user input
 				if(fc.browseForFileToOpen())

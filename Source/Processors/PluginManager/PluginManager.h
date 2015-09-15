@@ -24,8 +24,6 @@
 #ifndef __PLUGINMGR__
 #define __PLUGINMGR__
 
-#define PLUGIN_API_VER 1
-
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>

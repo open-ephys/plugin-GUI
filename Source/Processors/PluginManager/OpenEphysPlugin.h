@@ -30,9 +30,9 @@
 
 #ifdef WIN32
 #ifdef OEPLUGIN
-#define BASECLASS __declspec(dllimport)
+#define PLUGIN_API __declspec(dllimport)
 #else
-#define BASECLASS __declspec(dllexport)
+#define PLUGIN_API __declspec(dllexport)
 #endif
 #endif
 
@@ -40,6 +40,8 @@ struct ProcessorInfo;
 struct LibraryInfo;
 struct PluginInfo;
 class GenericProcessor;
+
+#define PLUGIN_API_VER 1
 
 typedef GenericProcessor*(*ProcessorCreator)();
 
@@ -78,10 +80,17 @@ namespace Plugin
 		};
 	};
 
+	template<class T>
+	GenericProcessor* createProcessor()
+	{
+		return new T;
+	}
+
 };
 
 typedef void(*LibraryInfoFunction)(Plugin::LibraryInfo*);
 typedef int(*PluginInfoFunction)(int, Plugin::PluginInfo*);
+
 
 
 #endif  // OPENEPHYSPLUGIN_H_INCLUDED
