@@ -62,14 +62,6 @@ OBJECTS := \
   $(OBJDIR)/AudioEditor_3931be27.o \
   $(OBJDIR)/AudioNode_3db3557c.o \
   $(OBJDIR)/Channel_5cb2d4d2.o \
-  $(OBJDIR)/EcubeEditor_ba242592.o \
-  $(OBJDIR)/RHD2000Editor_dbd5a24.o \
-  $(OBJDIR)/EcubeThread_d0477baf.o \
-  $(OBJDIR)/okFrontPanelDLL_87687880.o \
-  $(OBJDIR)/rhd2000datablock_722d8dae.o \
-  $(OBJDIR)/rhd2000evalboard_e0b412d5.o \
-  $(OBJDIR)/rhd2000registers_cf6cd63b.o \
-  $(OBJDIR)/RHD2000Thread_23e0b041.o \
   $(OBJDIR)/DataBuffer_6ae4f549.o \
   $(OBJDIR)/DataThread_b2a47a13.o \
   $(OBJDIR)/Bessel_7e54cb27.o \
@@ -231,46 +223,6 @@ $(OBJDIR)/AudioNode_3db3557c.o: ../../Source/Processors/AudioNode/AudioNode.cpp
 $(OBJDIR)/Channel_5cb2d4d2.o: ../../Source/Processors/Channel/Channel.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Channel.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/EcubeEditor_ba242592.o: ../../Source/Processors/DataThreads/EcubeEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling EcubeEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/RHD2000Editor_dbd5a24.o: ../../Source/Processors/DataThreads/RHD2000Editor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling RHD2000Editor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/EcubeThread_d0477baf.o: ../../Source/Processors/DataThreads/EcubeThread.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling EcubeThread.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/okFrontPanelDLL_87687880.o: ../../Source/Processors/DataThreads/rhythm-api/okFrontPanelDLL.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling okFrontPanelDLL.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/rhd2000datablock_722d8dae.o: ../../Source/Processors/DataThreads/rhythm-api/rhd2000datablock.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling rhd2000datablock.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/rhd2000evalboard_e0b412d5.o: ../../Source/Processors/DataThreads/rhythm-api/rhd2000evalboard.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling rhd2000evalboard.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/rhd2000registers_cf6cd63b.o: ../../Source/Processors/DataThreads/rhythm-api/rhd2000registers.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling rhd2000registers.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/RHD2000Thread_23e0b041.o: ../../Source/Processors/DataThreads/RHD2000Thread.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling RHD2000Thread.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/DataBuffer_6ae4f549.o: ../../Source/Processors/DataThreads/DataBuffer.cpp
