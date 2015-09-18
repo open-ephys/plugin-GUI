@@ -144,7 +144,7 @@ namespace ProcessorManager
 		case DataThreadProcessor:
 		{
 			Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(index);
-			return new SourceNode(info.name, info.creator());
+			return new SourceNode(info.name, info.creator);
 			break;
 		}
 				

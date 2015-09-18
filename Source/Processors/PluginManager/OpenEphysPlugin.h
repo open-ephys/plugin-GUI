@@ -41,11 +41,12 @@ struct LibraryInfo;
 struct PluginInfo;
 class GenericProcessor;
 class DataThread;
+class SourceNode;
 
 #define PLUGIN_API_VER 1
 
 typedef GenericProcessor*(*ProcessorCreator)();
-typedef DataThread*(*DataThreadCreator)();
+typedef DataThread*(*DataThreadCreator)(SourceNode*);
 
 namespace Plugin
 {
@@ -96,9 +97,9 @@ namespace Plugin
 	}
 
 	template<class T>
-	DataThread* createDataThread()
+	DataThread* createDataThread(SourceNode* sn)
 	{
-		return new T;
+		return new T(sn);
 	}
 
 };

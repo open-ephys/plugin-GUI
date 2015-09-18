@@ -27,14 +27,14 @@
 #include "../Channel/Channel.h"
 #include <stdio.h>
 #include "../../AccessClass.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
-SourceNode::SourceNode(const String& name_, DataThread* dt)
+SourceNode::SourceNode(const String& name_, DataThreadCreator dt)
     : GenericProcessor(name_),
       sourceCheckInterval(2000), wasDisabled(true), dataThread(nullptr),
 	  inputBuffer(0), ttlState(0)
 {
-	if (dt != nullptr)
-		dataThread = dt;
+		dataThread = dt(this);
 
     if (dataThread != nullptr)
     {

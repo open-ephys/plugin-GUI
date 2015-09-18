@@ -78,6 +78,7 @@ Builds/VisualStudio2010/pipetest.bit
 Builds/VisualStudio2013/Plugins/*/*.user
 Builds/VisualStudio2013/Plugins/*/x64
 Builds/VisualStudio2013/Plugins/*/Debug
+Builds/VisualStudio2013/Plugins/*/Release
 
 # 5. Miscellanous generated files (Doxygen, etc.)
 Source/Docs/*

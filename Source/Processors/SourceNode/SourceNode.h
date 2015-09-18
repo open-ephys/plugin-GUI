@@ -38,7 +38,7 @@
 
 */
 
-class SourceNode : public GenericProcessor,
+class PLUGIN_API SourceNode : public GenericProcessor,
     public Timer,
     public ActionListener
 
@@ -46,7 +46,7 @@ class SourceNode : public GenericProcessor,
 public:
 
     // real member functions:
-    SourceNode(const String& name, DataThread* dt);
+    SourceNode(const String& name, DataThreadCreator dt);
     ~SourceNode();
 
     void enabledState(bool t);
