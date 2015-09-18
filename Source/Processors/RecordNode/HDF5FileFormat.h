@@ -53,9 +53,11 @@ public:
     virtual ~HDF5FileBase();
 
     int open();
+	int open(int nChans);
     void close();
     virtual String getFileName() = 0;
     bool isOpen() const;
+	bool isReadyToOpen() const;
     typedef enum DataTypes { U8, U16, U32, U64, I8, I16, I32, I64, F32, STR} DataTypes;
 
     static H5::DataType getNativeType(DataTypes type);
@@ -83,7 +85,7 @@ protected:
 private:
     //create an extendable dataset
     HDF5RecordingData* createDataSet(DataTypes type, int dimension, int* size, int* chunking, String path);
-    int open(bool newfile);
+    int open(bool newfile, int nChans);
     ScopedPointer<H5::H5File> file;
     bool opened;
 
@@ -141,17 +143,17 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWDFile);
 };
 
-class KWIKFile : public HDF5FileBase
+class KWEFile : public HDF5FileBase
 {
 public:
-    KWIKFile(String basename);
-    KWIKFile();
-    virtual ~KWIKFile();
+    KWEFile(String basename);
+    KWEFile();
+    virtual ~KWEFile();
     void initFile(String basename);
     void startNewRecording(int recordingNumber, HDF5RecordingInfo* info);
     void stopRecording();
     void writeEvent(int type, uint8 id, uint8 processor, void* data, uint64 timestamp);
-    void addKwdFile(String filename);
+  //  void addKwdFile(String filename);
     void addEventType(String name, DataTypes type, String dataName);
     String getFileName();
 
@@ -171,7 +173,7 @@ private:
     Array<String> eventDataNames;
     int kwdIndex;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWIKFile);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWEFile);
 };
 
 class KWXFile : public HDF5FileBase

@@ -21,10 +21,17 @@
 #ifndef RHD2000EVALBOARD_H
 #define RHD2000EVALBOARD_H
 
-#define USB_BUFFER_SIZE 2400000
-#define RHYTHM_BOARD_ID 500
-#define MAX_NUM_DATA_STREAMS 8
+#define USB_BUFFER_SIZE 2560000
+#define RHYTHM_BOARD_ID_USB2 500
+#define RHYTHM_BOARD_ID_USB3 600
+#define MAX_NUM_DATA_STREAMS_USB2 8
+#define MAX_NUM_DATA_STREAMS_USB3 16
 #define FIFO_CAPACITY_WORDS 67108864
+
+#define MAX_NUM_DATA_STREAMS(u3) ( u3 ? MAX_NUM_DATA_STREAMS_USB3 : MAX_NUM_DATA_STREAMS_USB2 )
+
+#define USB3_BLOCK_SIZE	2048
+#define DDR_BLOCK_SIZE 32
 
 #include <queue>
 
@@ -148,7 +155,7 @@ public:
     void setTtlMode(int mode);
 
     void flush();
-    bool readDataBlock(Rhd2000DataBlock *dataBlock);
+    bool readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples = -1);
     bool readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue);
     int queueToFile(queue<Rhd2000DataBlock> &dataQueue, std::ofstream &saveOut);
     int getBoardMode() const;
@@ -159,12 +166,15 @@ public:
 	void resetFpga();
 	bool isStreamEnabled(int streamIndex);
 	void enableBoardLeds(bool enable);
+	bool isUSB3();
+	void printFIFOmetrics();
+	bool readRawDataBlock(unsigned char** bufferPtr, int nSamples = -1);
 
 private:
     okCFrontPanel *dev;
     AmplifierSampleRate sampleRate;
     int numDataStreams; // total number of data streams currently enabled
-    int dataStreamEnabled[MAX_NUM_DATA_STREAMS]; // 0 (disabled) or 1 (enabled)
+    int dataStreamEnabled[MAX_NUM_DATA_STREAMS_USB3]; // 0 (disabled) or 1 (enabled), set for maximum stream number
     vector<int> cableDelay;
 
     // Buffer for reading bytes from USB interface
@@ -232,6 +242,7 @@ private:
     bool isDcmProgDone() const;
     bool isDataClockLocked() const;
 
+	bool usb3; //Open-Ephys addition for USB3 support
 };
 
 #endif // RHD2000EVALBOARD_H

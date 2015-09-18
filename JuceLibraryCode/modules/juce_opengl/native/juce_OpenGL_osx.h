@@ -40,7 +40,10 @@ public:
             NSOpenGLPFAOpenGLProfile, version >= openGL3_2 ? NSOpenGLProfileVersion3_2Core : NSOpenGLProfileVersionLegacy,
            #endif
             NSOpenGLPFADoubleBuffer,
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
             NSOpenGLPFAMPSafe,
+#pragma GCC diagnostic pop
             NSOpenGLPFAClosestPolicy,
             NSOpenGLPFANoRecovery,
             NSOpenGLPFAColorSize,   (NSOpenGLPixelFormatAttribute) (pixFormat.redBits + pixFormat.greenBits + pixFormat.blueBits),

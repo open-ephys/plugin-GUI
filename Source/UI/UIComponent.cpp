@@ -626,10 +626,10 @@ bool UIComponent::perform(const InvocationInfo& info)
 				// Add to processor list
 				if(getPluginManager()->loadPlugin(pluginFile.getFullPathName()))
 				{
-					CoreServices::sendStatusMessage(("Failed to load: " + pluginFile.getFileName()).toUTF8());
+					CoreServices::sendStatusMessage(String("Failed to load: " + pluginFile.getFileName()));
 					break;
 				}
-				CoreServices::sendStatusMessage(("Loaded: " + pluginFile.getFileName()).toUTF8());
+				CoreServices::sendStatusMessage(String("Loaded: " + pluginFile.getFileName()));
 				break;
 			}
 

@@ -401,7 +401,7 @@ void MatlabLikePlot::mouseDoubleClick(const juce::MouseEvent& event)
 }
 
 /*************************************************************************/
-AxesComponent::AxesComponent(bool horizontal, bool flip) : horiz(horizontal), flipDirection(flip)
+AxesComponent::AxesComponent(bool horizontal, bool flip) : flipDirection(flip), horiz(horizontal)
 {
 	minv = -1e4;
 	maxv = 1e4;
@@ -608,7 +608,7 @@ void AxesComponent::paint(Graphics &g)
 
 }
 /*************************************************************************/
-XYline::XYline(float x0_, float dx_, std::vector<float> y_, float gain_, juce::Colour color_) : x0(x0_), y(y_), dx(dx_),color(color_), gain(gain_)
+XYline::XYline(float x0_, float dx_, std::vector<float> y_, float gain_, juce::Colour color_) : gain(gain_), dx(dx_), x0(x0_), y(y_), color(color_)
 {
 	// adjust gain
 	numpts = y.size();
@@ -1124,7 +1124,7 @@ void DrawComponent::drawTicks(Graphics &g)
 	float tickThickness = 2;
 	double rangeX = (xmax-xmin);
 	double rangeY = (ymax-ymin);
-	if (abs(rangeX) < 1e-6 || abs(rangeY) < 1e-6)
+	if (std::abs(rangeX) < 1e-6 || std::abs(rangeY) < 1e-6)
 		return;
 
 	int plotWidth = getWidth();
@@ -1135,14 +1135,14 @@ void DrawComponent::drawTicks(Graphics &g)
 	{
 		// convert to screen coordinates.
 		float tickloc = (xtick[k]- xmin) / rangeX * plotWidth;
-		if (abs(tickloc) < 1e10)
+		if (std::abs(tickloc) < 1e10)
 			g.drawLine(tickloc,plotHeight,tickloc,plotHeight-(tickHeight),tickThickness);
 	}
 	for (int k=0;k < ytick.size();k++)
 	{
 		// convert to screen coordinates.
 		float tickloc = (ytick[k]- ymin) / rangeY * plotHeight;
-		if (abs(tickloc) < 1e10)
+		if (std::abs(tickloc) < 1e10)
 			g.drawLine(0,plotHeight-tickloc,tickHeight,plotHeight-tickloc, tickThickness);
 	}
 }
@@ -1151,7 +1151,7 @@ void DrawComponent::drawTicks(Graphics &g)
 void DrawComponent::plotxy(XYline l)
 {
 	l.getYRange(xmin,xmax,lowestValue, highestValue);
-	if (abs(lowestValue) < 1e10 && abs(highestValue) < 1e10)
+	if (std::abs(lowestValue) < 1e10 && std::abs(highestValue) < 1e10)
 		lines.push_back(l);
 }
 	
@@ -1188,7 +1188,7 @@ void DrawComponent::paint(Graphics &g)
 		// now draw curves.
 		for (int k=0;k<lines.size();k++) 
 		{
-			if (abs(ymin) < 1e10 & abs(ymax) < 1e10)
+			if (std::abs(ymin) < 1e10 & std::abs(ymax) < 1e10)
 				lines[k].draw(g,xmin,xmax,ymin,ymax,w,h,showBounds);
 		}
 		if (lines.size() > 0)
@@ -1425,7 +1425,7 @@ void DrawComponent::mouseMove(const juce::MouseEvent& event)
 	// convert threshold line to pixels.
 	float thresholdLineValuePix = h - ((thresholdLineValue-ymin) / (ymax-ymin) * h);
 	// check if we are close to the threshold line...
-	overThresholdLine = abs(event.y - thresholdLineValuePix) < 5;
+	overThresholdLine = std::abs(event.y - thresholdLineValuePix) < 5;
 
 }
 

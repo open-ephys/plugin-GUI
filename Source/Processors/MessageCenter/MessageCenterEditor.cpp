@@ -25,10 +25,10 @@
 
 MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
     AudioProcessorEditor(owner),
+    acquisitionIsActive(false),
     messageCenter(owner),
     incomingBackground(100, 100, 100),
-    outgoingBackground(100, 100, 100),
-    acquisitionIsActive(false)
+    outgoingBackground(100, 100, 100)
 {
 
     incomingMessageDisplayArea = new MessageLabel("Message Display Area","No new messages.");

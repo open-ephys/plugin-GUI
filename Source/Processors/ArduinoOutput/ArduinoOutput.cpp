@@ -40,7 +40,7 @@ extern "C" int getPluginInfo()
 }
 
 ArduinoOutput::ArduinoOutput()
-    : GenericProcessor("Arduino Output"), state(true), deviceSelected(false), outputChannel(13), inputChannel(-1)
+    : GenericProcessor("Arduino Output"), outputChannel(13), inputChannel(-1), state(true), deviceSelected(false)
 {
 }
 
@@ -111,7 +111,7 @@ void ArduinoOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum
     {
         const uint8* dataptr = event.getRawData();
 
-        int eventNodeId = *(dataptr+1);
+        //int eventNodeId = *(dataptr+1);
         int eventId = *(dataptr+2);
         int eventChannel = *(dataptr+3);
 

@@ -57,6 +57,7 @@ void HDF5Recording::registerProcessor(GenericProcessor* proc)
     fileArray.add(new KWDFile());
     bitVoltsArray.add(new Array<float>);
     sampleRatesArray.add(new Array<float>);
+	channelsPerProcessor.add(0);
     processorIndex++;
 }
 
@@ -64,6 +65,7 @@ void HDF5Recording::resetChannels()
 {
     processorIndex = -1;
     fileArray.clear();
+	channelsPerProcessor.clear();
     bitVoltsArray.clear();
     sampleRatesArray.clear();
     processorMap.clear();
@@ -80,9 +82,9 @@ void HDF5Recording::addChannel(int index, Channel* chan)
 void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordingNumber)
 {
     String basepath = rootFolder.getFullPathName() + rootFolder.separatorString + "experiment" + String(experimentNumber);
-    //KWIK file
-    mainFile->initFile(basepath);
-    mainFile->open();
+    //KWE file
+    eventFile->initFile(basepath);
+    eventFile->open();
 
     //KWX file
     spikesFile->initFile(basepath);
@@ -98,7 +100,7 @@ void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordi
         infoArray[0]->start_time = 0;
 
     infoArray[0]->start_sample = 0;
-    mainFile->startNewRecording(recordingNumber,infoArray[0]);
+    eventFile->startNewRecording(recordingNumber,infoArray[0]);
 
     //KWD files
     for (int i = 0; i < processorMap.size(); i++)
@@ -106,15 +108,15 @@ void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordi
         int index = processorMap[i];
         if (getChannel(i)->getRecordState())
         {
-            if (!fileArray[index]->isOpen())
+			if (!fileArray[index]->isOpen())
             {
                 fileArray[index]->initFile(getChannel(i)->nodeId,basepath);
-                fileArray[index]->open();
                 if (hasAcquired)
                     infoArray[index]->start_time = (*timestamps)[getChannel(i)->sourceNodeId]; //the timestamps of the first channel
                 else
                     infoArray[index]->start_time = 0;
             }
+			channelsPerProcessor.set(index, channelsPerProcessor[index] + 1);
             bitVoltsArray[index]->add(getChannel(i)->bitVolts);
             sampleRatesArray[index]->add(getChannel(i)->sampleRate);
             if (getChannel(i)->sampleRate != infoArray[index]->sample_rate)
@@ -125,10 +127,14 @@ void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordi
     }
     for (int i = 0; i < fileArray.size(); i++)
     {
+		if ((!fileArray[i]->isOpen()) && (fileArray[i]->isReadyToOpen()))
+		{
+			fileArray[i]->open(channelsPerProcessor[i]);
+		}
         if (fileArray[i]->isOpen())
         {
-            File f(fileArray[i]->getFileName());
-            mainFile->addKwdFile(f.getFileName());
+           // File f(fileArray[i]->getFileName());
+           // eventFile->addKwdFile(f.getFileName());
 
             infoArray[i]->name = String("Open Ephys Recording #") + String(recordingNumber);
             //           infoArray[i]->start_time = timestamp;
@@ -146,8 +152,8 @@ void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordi
 
 void HDF5Recording::closeFiles()
 {
-    mainFile->stopRecording();
-    mainFile->close();
+    eventFile->stopRecording();
+    eventFile->close();
     spikesFile->stopRecording();
     spikesFile->close();
     for (int i = 0; i < fileArray.size(); i++)
@@ -157,13 +163,15 @@ void HDF5Recording::closeFiles()
             fileArray[i]->stopRecording();
             fileArray[i]->close();
             bitVoltsArray[i]->clear();
+			sampleRatesArray[i]->clear();
         }
+		channelsPerProcessor.set(i, 0);
     }
 }
 
 void HDF5Recording::writeData(AudioSampleBuffer& buffer)
 {
-    int index;
+//	int64 t1 = Time::getHighResolutionTicks();
     for (int i = 0; i < buffer.getNumChannels(); i++)
     {
         if (getChannel(i)->getRecordState())
@@ -179,15 +187,17 @@ void HDF5Recording::writeData(AudioSampleBuffer& buffer)
             fileArray[index]->writeRowData(intBuffer,nSamples);
         }
     }
+//	int64 t2 = Time::getHighResolutionTicks();
+//	std::cout << "record time: " << float(t2 - t1) / float(Time::getHighResolutionTicksPerSecond()) << std::endl;
 }
 
 void HDF5Recording::writeEvent(int eventType, MidiMessage& event, int samplePosition)
 {
     const uint8* dataptr = event.getRawData();
     if (eventType == GenericProcessor::TTL)
-        mainFile->writeEvent(0,*(dataptr+2),*(dataptr+1),(void*)(dataptr+3),(*timestamps)[*(dataptr+1)]+samplePosition);
+        eventFile->writeEvent(0,*(dataptr+2),*(dataptr+1),(void*)(dataptr+3),(*timestamps)[*(dataptr+1)]+samplePosition);
     else if (eventType == GenericProcessor::MESSAGE)
-        mainFile->writeEvent(1,*(dataptr+2),*(dataptr+1),(void*)(dataptr+6),(*timestamps)[*(dataptr+1)]+samplePosition);
+        eventFile->writeEvent(1,*(dataptr+2),*(dataptr+1),(void*)(dataptr+6),(*timestamps)[*(dataptr+1)]+samplePosition);
 }
 
 void HDF5Recording::addSpikeElectrode(int index, SpikeRecordInfo* elec)
@@ -201,9 +211,9 @@ void HDF5Recording::writeSpike(const SpikeObject& spike, int electrodeIndex)
 
 void HDF5Recording::startAcquisition()
 {
-    mainFile = new KWIKFile();
-    mainFile->addEventType("TTL",HDF5FileBase::U8,"event_channels");
-    mainFile->addEventType("Messages",HDF5FileBase::STR,"Text");
+    eventFile = new KWEFile();
+    eventFile->addEventType("TTL",HDF5FileBase::U8,"event_channels");
+    eventFile->addEventType("Messages",HDF5FileBase::STR,"Text");
     spikesFile = new KWXFile();
 }
 

@@ -65,7 +65,7 @@ void PeriStimulusTimeHistogramNode::loadCustomParametersFromXml()
         {
             if (mainNode->hasTagName("PSTH"))
             {
-                int numElectrodes = mainNode->getIntAttribute("numElectrodes");
+                //int numElectrodes = mainNode->getIntAttribute("numElectrodes");
 
                 saveEyeTracking = mainNode->getBoolAttribute("saveEyeTracking");
                 saveTTLs = mainNode->getBoolAttribute("saveTTLs");
@@ -133,7 +133,10 @@ void PeriStimulusTimeHistogramNode::updateSettings()
 
 void PeriStimulusTimeHistogramNode::setHardwareTriggerAlignmentChannel(int chan)
 {
-    trialCircularBuffer->setHardwareTriggerAlignmentChannel(chan);
+    if (trialCircularBuffer != nullptr)
+    {
+        trialCircularBuffer->setHardwareTriggerAlignmentChannel(chan);
+    }
 }
 
 bool PeriStimulusTimeHistogramNode::enable()

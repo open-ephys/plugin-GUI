@@ -30,7 +30,7 @@
 
 MessageCenter::MessageCenter() :
     GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false), sourceNodeId(0), 
-	lastTime(0), softTimestamp(0), timestampSource(nullptr)
+	timestampSource(nullptr), lastTime(0), softTimestamp(0)
 {
 
     setPlayConfigDetails(0, // number of inputs
@@ -142,7 +142,7 @@ void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
 
     if (newEventAvailable)
     {
-        int numBytes = 0;
+        //int numBytes = 0;
 
         String eventString = messageCenterEditor->getLabelString();
 

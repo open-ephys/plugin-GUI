@@ -117,8 +117,8 @@ void AnalogLowShelf::design(int numPoles,
 
         gainDb = -gainDb;
 
-        if (stopBandDb >= abs(gainDb))
-            stopBandDb = abs(gainDb);
+        if (stopBandDb >= std::abs(gainDb))
+            stopBandDb = std::abs(gainDb);
         if (gainDb<0)
             stopBandDb = -stopBandDb;
 

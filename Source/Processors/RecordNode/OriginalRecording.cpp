@@ -243,7 +243,7 @@ void OriginalRecording::openMessageFile(File rootFolder)
 
     File f = File(fullPath);
 
-    bool fileExists = f.exists();
+    //bool fileExists = f.exists();
 
     diskWriteLock.enter();
 

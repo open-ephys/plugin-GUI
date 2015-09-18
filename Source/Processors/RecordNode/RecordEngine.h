@@ -50,7 +50,7 @@ struct SpikeRecordInfo
     int recordIndex;
 };
 
-class EngineParameter;
+struct EngineParameter;
 class RecordNode;
 class RecordEngineManager;
 

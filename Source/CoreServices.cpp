@@ -52,7 +52,7 @@ void setRecordingStatus(bool enable)
     getControlPanel()->setRecordState(enable);
 }
 
-void sendStatusMessage(String& text)
+void sendStatusMessage(const String& text)
 {
     getBroadcaster()->sendActionMessage(text);
 }

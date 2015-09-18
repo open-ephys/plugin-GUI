@@ -31,14 +31,14 @@ using namespace std;
 // from a Rhythm FPGA interface controlling up to eight RHD2000 chips.
 
 // Constructor.  Allocates memory for data block.
-Rhd2000DataBlock::Rhd2000DataBlock(int numDataStreams)
+Rhd2000DataBlock::Rhd2000DataBlock(int numDataStreams, bool usb3) : samplesPerBlock(SAMPLES_PER_DATA_BLOCK(usb3)), usb3(usb3)
 {
-    allocateUIntArray1D(timeStamp, SAMPLES_PER_DATA_BLOCK);
-    allocateIntArray3D(amplifierData, numDataStreams, 32, SAMPLES_PER_DATA_BLOCK);
-    allocateIntArray3D(auxiliaryData, numDataStreams, 3, SAMPLES_PER_DATA_BLOCK);
-    allocateIntArray2D(boardAdcData, 8, SAMPLES_PER_DATA_BLOCK);
-    allocateIntArray1D(ttlIn, SAMPLES_PER_DATA_BLOCK);
-    allocateIntArray1D(ttlOut, SAMPLES_PER_DATA_BLOCK);
+    allocateUIntArray1D(timeStamp, samplesPerBlock);
+	allocateIntArray3D(amplifierData, numDataStreams, 32, samplesPerBlock);
+	allocateIntArray3D(auxiliaryData, numDataStreams, 3, samplesPerBlock);
+	allocateIntArray2D(boardAdcData, 8, samplesPerBlock);
+	allocateIntArray1D(ttlIn, samplesPerBlock);
+	allocateIntArray1D(ttlOut, samplesPerBlock);
 }
 
 // Allocates memory for a 1-D array of integers.
@@ -79,15 +79,16 @@ void Rhd2000DataBlock::allocateIntArray3D(vector<vector<vector<int> > > &array3D
 }
 
 // Returns the number of samples in a USB data block.
-unsigned int Rhd2000DataBlock::getSamplesPerDataBlock()
+unsigned int Rhd2000DataBlock::getSamplesPerDataBlock(bool usb3)
 {
-    return SAMPLES_PER_DATA_BLOCK;
+	return SAMPLES_PER_DATA_BLOCK(usb3);
 }
 
 // Returns the number of 16-bit words in a USB data block with numDataStreams data streams enabled.
-unsigned int Rhd2000DataBlock::calculateDataBlockSizeInWords(int numDataStreams)
+unsigned int Rhd2000DataBlock::calculateDataBlockSizeInWords(int numDataStreams, bool usb3, int nSamples)
 {
-    return SAMPLES_PER_DATA_BLOCK * (4 + 2 + numDataStreams * 36 + 8 + 2);
+	unsigned int samps = nSamples <= 0 ? SAMPLES_PER_DATA_BLOCK(usb3) : nSamples;
+	return samps * (4 + 2 + numDataStreams * 36 + 8 + 2);
     // 4 = magic number; 2 = time stamp; 36 = (32 amp channels + 3 aux commands + 1 filler word); 8 = ADCs; 2 = TTL in/out
 }
 
@@ -137,15 +138,21 @@ int Rhd2000DataBlock::convertUsbWord(unsigned char usbBuffer[], int index)
 }
 
 // Fill data block with raw data from USB input buffer.
-void Rhd2000DataBlock::fillFromUsbBuffer(unsigned char usbBuffer[], int blockIndex, int numDataStreams)
+void Rhd2000DataBlock::fillFromUsbBuffer(unsigned char usbBuffer[], int blockIndex, int numDataStreams, int nSamples)
 {
     int index, t, channel, stream, i;
+	int samplesToRead = nSamples <= 0 ? samplesPerBlock : nSamples;
+	int num = 0;
 
-    index = blockIndex * 2 * calculateDataBlockSizeInWords(numDataStreams);
-    for (t = 0; t < SAMPLES_PER_DATA_BLOCK; ++t) {
-        if (!checkUsbHeader(usbBuffer, index)) {
-        //    cerr << "Error in Rhd2000EvalBoard::readDataBlock: Incorrect header." << endl;
-        }
+    index = blockIndex * 2 * calculateDataBlockSizeInWords(numDataStreams, usb3);
+	for (t = 0; t < samplesToRead; ++t) {
+		if (!checkUsbHeader(usbBuffer, index)) {
+			cerr << "Error in Rhd2000EvalBoard::readDataBlock: Incorrect header." << endl;
+			break;
+		}
+		else
+			num++;
+		//else cerr << "Block ok" << endl;
         index += 8;
         timeStamp[t] = convertUsbTimeStamp(usbBuffer, index);
         index += 4;
@@ -182,6 +189,7 @@ void Rhd2000DataBlock::fillFromUsbBuffer(unsigned char usbBuffer[], int blockInd
         ttlOut[t] = convertUsbWord(usbBuffer, index);
         index += 2;
     }
+	//cout << "Read " << num << " valid samples with " << numDataStreams << " streams. Usb mode status: " << usb3 << endl;
 }
 
 // Print the contents of RHD2000 registers from a selected USB data stream (0-7)
@@ -360,7 +368,7 @@ void Rhd2000DataBlock::write(ofstream &saveOut, int numDataStreams) const
 {
     int t, channel, stream, i;
 
-    for (t = 0; t < SAMPLES_PER_DATA_BLOCK; ++t) {
+	for (t = 0; t < samplesPerBlock; ++t) {
         writeWordLittleEndian(saveOut, timeStamp[t]);
         for (channel = 0; channel < 32; ++channel) {
             for (stream = 0; stream < numDataStreams; ++stream) {

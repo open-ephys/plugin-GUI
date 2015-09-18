@@ -506,7 +506,7 @@ bool SpikeSorter::removeElectrode(int index)
     String eventlog = "RemoveElectrode " + String(electrodes[index]->electrodeID);
     //addNetworkEventToQueue(StringTS(eventlog));
 
-    int idToRemove = electrodes[index]->electrodeID;
+    //int idToRemove = electrodes[index]->electrodeID;
     electrodes.remove(index);
 
     //(idToRemove);
@@ -523,9 +523,11 @@ bool SpikeSorter::removeElectrode(int index)
 void SpikeSorter::setElectrodeName(int index, String newName)
 {
     mut.enter();
-    if ((electrodes.size() > 0) && (index > 0))
-        electrodes[index-1]->name = newName;
-    updateSinks(electrodes[index-1]->electrodeID, newName);
+	if ((electrodes.size() > 0) && (index > 0))
+	{
+		electrodes[index - 1]->name = newName;
+		updateSinks(electrodes[index - 1]->electrodeID, newName);
+	}
     mut.exit();
 }
 
@@ -1296,7 +1298,7 @@ void SpikeSorter::loadCustomParametersFromXml()
 
             if (mainNode->hasTagName("SpikeSorter"))
             {
-                int numElectrodes = mainNode->getIntAttribute("numElectrodes");
+                //int numElectrodes = mainNode->getIntAttribute("numElectrodes");
                 currentElectrode = mainNode->getIntAttribute("activeElectrode");
                 numPreSamples = mainNode->getIntAttribute("numPreSamples");
                 numPostSamples = mainNode->getIntAttribute("numPostSamples");

@@ -329,7 +329,10 @@ void ChannelSelector::setActiveChannels(Array<int> a)
 
     for (int i = 0; i < a.size(); i++)
     {
-        parameterButtons[a[i]]->setToggleState(true, dontSendNotification);
+        if (a[i] < parameterButtons.size())
+        {
+            parameterButtons[a[i]]->setToggleState(true, dontSendNotification);
+        }
     }
 }
 

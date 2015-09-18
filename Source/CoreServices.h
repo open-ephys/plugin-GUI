@@ -28,7 +28,7 @@
 #include "Processors\PluginManager\OpenEphysPlugin.h"
 
 class GenericEditor;
-class SpikeObject;
+struct SpikeObject;
 class GenericProcessor;
 struct SpikeRecordInfo;
 
@@ -44,7 +44,7 @@ PLUGIN_API bool getRecordingStatus();
 PLUGIN_API void setRecordingStatus(bool enable);
 
 /** Sends a string to the message bar */
-PLUGIN_API void sendStatusMessage(String& text);
+PLUGIN_API void sendStatusMessage(const String& text);
 
 /** Sends a string to the message bar */
 PLUGIN_API void sendStatusMessage(const char* text);

@@ -433,12 +433,12 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
 void RecordNode::process(AudioSampleBuffer& buffer,
                          MidiBuffer& events)
 {
-    // FIRST: cycle through events -- extract the TTLs and the timestamps
+	//update timstamp data even if we're not recording yet
+	EVERY_ENGINE->updateTimestamps(&timestamps);
+	EVERY_ENGINE->updateNumSamples(&numSamples);
+	
+	// FIRST: cycle through events -- extract the TTLs and the timestamps
     checkForEvents(events);
-
-    //update timstamp data even if we're not recording yet
-    EVERY_ENGINE->updateTimestamps(&timestamps);
-    EVERY_ENGINE->updateNumSamples(&numSamples);
 
     if (isRecording && allFilesOpened)
     {

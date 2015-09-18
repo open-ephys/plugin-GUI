@@ -51,11 +51,12 @@ private:
     int processorIndex;
 
     Array<int> processorMap;
+	Array<int> channelsPerProcessor;
     OwnedArray<Array<float>> bitVoltsArray;
     OwnedArray<Array<float>> sampleRatesArray;
     OwnedArray<KWDFile> fileArray;
     OwnedArray<HDF5RecordingInfo> infoArray;
-    ScopedPointer<KWIKFile> mainFile;
+    ScopedPointer<KWEFile> eventFile;
     ScopedPointer<KWXFile> spikesFile;
     float* scaledBuffer;
     int16* intBuffer;
