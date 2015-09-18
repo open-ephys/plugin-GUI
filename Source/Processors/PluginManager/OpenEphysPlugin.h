@@ -40,10 +40,12 @@ struct ProcessorInfo;
 struct LibraryInfo;
 struct PluginInfo;
 class GenericProcessor;
+class DataThread;
 
 #define PLUGIN_API_VER 1
 
 typedef GenericProcessor*(*ProcessorCreator)();
+typedef DataThread*(*DataThreadCreator)();
 
 namespace Plugin
 {
@@ -64,6 +66,12 @@ namespace Plugin
 		ProcessorCreator creator;
 	};
 
+	struct DataThreadInfo
+	{
+		char name[100];
+		DataThreadCreator creator;
+	};
+
 	struct LibraryInfo
 	{
 		char name[300];
@@ -77,11 +85,18 @@ namespace Plugin
 		union
 		{
 			ProcessorInfo processor;
+			DataThreadInfo dataThread;
 		};
 	};
 
 	template<class T>
 	GenericProcessor* createProcessor()
+	{
+		return new T;
+	}
+
+	template<class T>
+	DataThread* createDataThread()
 	{
 		return new T;
 	}

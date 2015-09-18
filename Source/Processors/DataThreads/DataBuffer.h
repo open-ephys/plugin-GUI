@@ -25,6 +25,7 @@
 #define __DATABUFFER_H_11C6C591__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
 /**
 
@@ -34,7 +35,7 @@
 
 */
 
-class DataBuffer
+class PLUGIN_API DataBuffer
 {
 
 public:

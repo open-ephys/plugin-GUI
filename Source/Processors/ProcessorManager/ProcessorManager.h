@@ -30,7 +30,7 @@ class GenericProcessor;
 
 enum ProcessorClasses
 {
-	BuiltInProcessor, PluginProcessor, Datathread
+	BuiltInProcessor, PluginProcessor, DataThreadProcessor
 };
 
 namespace ProcessorManager

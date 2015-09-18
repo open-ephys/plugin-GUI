@@ -155,6 +155,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 		switch (pInfo.type)
 		{
 		case Plugin::ProcessorPlugin:
+		{
 			LoadedPluginInfo<Plugin::ProcessorInfo> info;
 			info.creator = pInfo.processor.creator;
 			strcpy(info.name, pInfo.processor.name);
@@ -162,10 +163,18 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			info.libIndex = libArray.size();
 			processorPlugins.add(info);
 			break;
+		}
 		case Plugin::RecordEnginePlugin:
 			break;
 		case Plugin::DatathreadPlugin:
+		{
+			LoadedPluginInfo<Plugin::DataThreadInfo> info;
+			info.creator = pInfo.dataThread.creator;
+			strcpy(info.name, pInfo.dataThread.name);
+			info.libIndex = libArray.size();
+			dataThreadPlugins.add(info);
 			break;
+		}
 		case Plugin::FileSourcePlugin:
 			break;
 		}
@@ -179,9 +188,19 @@ int PluginManager::getNumProcessors()
 	return processorPlugins.size();
 }
 
+int PluginManager::getNumDataThreads()
+{
+	return dataThreadPlugins.size();
+}
+
 Plugin::ProcessorInfo PluginManager::getProcessorInfo(int index)
 {
 	return processorPlugins[index];
+}
+
+Plugin::DataThreadInfo PluginManager::getDataThreadInfo(int index)
+{
+	return dataThreadPlugins[index];
 }
 
 

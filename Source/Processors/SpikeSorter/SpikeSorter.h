@@ -31,7 +31,6 @@
 #include "SpikeSortBoxes.h"
 #include "../Visualization/SpikeObject.h"
 #include "../SourceNode/SourceNode.h"
-#include "../DataThreads/RHD2000Thread.h"
 #include <algorithm>    // std::sort
 #include <queue>
 #include <stdlib.h>
@@ -436,7 +435,7 @@ private:
     CriticalSection mut;
     bool autoDACassignment;
     bool syncThresholds;
-    RHD2000Thread* getRhythmAccess();
+ //   RHD2000Thread* getRhythmAccess();
     bool flipSignal;
 
     Time timer;

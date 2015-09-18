@@ -141,3 +141,8 @@ void* DataThread::getDevice()
 void DataThread::setDefaultChannelNames()
 {
 }
+
+GenericEditor* DataThread::createEditor(SourceNode* )
+{
+	return nullptr;
+}

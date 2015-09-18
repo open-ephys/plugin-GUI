@@ -62,12 +62,14 @@ public:
 	//void unloadPlugin(Plugin *);
 	void removeAllPlugins();
 	int getNumProcessors();
+	int getNumDataThreads();
 	Plugin::ProcessorInfo getProcessorInfo(int index);
+	Plugin::DataThreadInfo getDataThreadInfo(int index);
 
 private:
 	Array<LoadedLibInfo> libArray;
 	Array<LoadedPluginInfo<Plugin::ProcessorInfo>> processorPlugins;
-	Array<LoadedPluginInfo<Plugin::PluginInfo>> pp;
+	Array<LoadedPluginInfo<Plugin::DataThreadInfo>> dataThreadPlugins;
 	
 	/*Manager(void) {};
 	~Manager(void) {};

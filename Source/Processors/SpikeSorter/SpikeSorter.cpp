@@ -346,10 +346,10 @@ void SpikeSorter::removeAllUnits(int electrodeID)
     updateSinks(electrodeID,true);
 }
 
-RHD2000Thread* SpikeSorter::getRhythmAccess()
+/*RHD2000Thread* SpikeSorter::getRhythmAccess()
 {
 
-    ProcessorGraph* gr = AccessClass::getProcessorGraph();
+  / ProcessorGraph* gr = AccessClass::getProcessorGraph();
     Array<GenericProcessor*> p = gr->getListOfProcessors();
     for (int k=0; k<p.size(); k++)
     {
@@ -360,37 +360,37 @@ RHD2000Thread* SpikeSorter::getRhythmAccess()
         }
     }
     return nullptr;
-}
+}*/
 
 void SpikeSorter::updateDACthreshold(int dacChannel, float threshold)
 {
-    RHD2000Thread* th = getRhythmAccess();
+  /*  RHD2000Thread* th = getRhythmAccess();
     if (th != nullptr)
     {
         th->setDACthreshold(dacChannel,threshold);
-    }
+    }*/
 }
 
 Array<int> SpikeSorter::getDACassignments()
 {
-    Array<int> dacChannels ;
-    RHD2000Thread* th = getRhythmAccess();
+   Array<int> dacChannels ;
+ /*   RHD2000Thread* th = getRhythmAccess();
     if (th != nullptr)
     {
         dacChannels = th->getDACchannels();
-    }
+    }*/
     return dacChannels;
 }
 
 int SpikeSorter::getDACassignment(int dacchannel)
 {
-    RHD2000Thread* th = getRhythmAccess();
+ /*   RHD2000Thread* th = getRhythmAccess();
     if (th != nullptr)
     {
         Array<int> dacChannels = th->getDACchannels();
         return dacChannels[dacchannel];
     }
-
+	*/
     return -1; // not assigned
 }
 
@@ -398,11 +398,11 @@ void SpikeSorter::assignDACtoChannel(int dacOutput, int channel)
 {
     // inform sinks about a new unit
     //getSourceNode()
-    RHD2000Thread* th = getRhythmAccess();
+/*    RHD2000Thread* th = getRhythmAccess();
     if (th != nullptr)
     {
         th->setDACchannel(dacOutput, channel); // this is probably wrong (JHS)
-    }
+    }*/
 }
 
 void SpikeSorter::addElectrode(Electrode* newElectrode)

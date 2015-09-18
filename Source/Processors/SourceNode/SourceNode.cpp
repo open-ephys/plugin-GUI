@@ -22,44 +22,21 @@
 */
 
 #include "SourceNode.h"
-#include "../DataThreads/DataBuffer.h"
-#include "../DataThreads/RHD2000Thread.h"
 #include "../DataThreads/EcubeThread.h" // Added by Michael Borisov
 #include "../SourceNode/SourceNodeEditor.h"
-#include "../DataThreads/RHD2000Editor.h"
-#include "../DataThreads/EcubeEditor.h" // Added by Michael Borisov
 #include "../Channel/Channel.h"
 #include <stdio.h>
 #include "../../AccessClass.h"
 
-SourceNode::SourceNode(const String& name_)
+SourceNode::SourceNode(const String& name_, DataThread* dt)
     : GenericProcessor(name_),
-      sourceCheckInterval(2000), wasDisabled(true), dataThread(0),
-      inputBuffer(0), ttlState(0)
+      sourceCheckInterval(2000), wasDisabled(true), dataThread(nullptr),
+	  inputBuffer(0), ttlState(0)
 {
+	if (dt != nullptr)
+		dataThread = dt;
 
-    std::cout << "creating source node." << std::endl;
-
-    if (getName().equalsIgnoreCase("RHA2000-EVAL"))
-    {
-        // dataThread = new IntanThread(this); // this thread has not been updated recently
-    }
-    // else if (getName().equalsIgnoreCase("Custom FPGA"))
-    // {
-    //     dataThread = new FPGAThread(this);
-    // }
-    else if (getName().equalsIgnoreCase("Rhythm FPGA"))
-    {
-        dataThread = new RHD2000Thread(this);
-    }
-#if ECUBE_COMPILE
-    else if (getName().equalsIgnoreCase("eCube"))
-    {
-        dataThread = new EcubeThread(this);
-    }
-#endif
-
-    if (dataThread != 0)
+    if (dataThread != nullptr)
     {
         if (!dataThread->foundInputSource())
         {
@@ -237,25 +214,16 @@ void SourceNode::setParameter(int parameterIndex, float newValue)
 
 AudioProcessorEditor* SourceNode::createEditor()
 {
-
-    if (getName().equalsIgnoreCase("Rhythm FPGA"))
-    {
-        editor = new RHD2000Editor(this, (RHD2000Thread*) dataThread.get(), true);
-
-        //  RHD2000Editor* r2e = (RHD2000Editor*) editor.get();
-        //  r2e->scanPorts();
-    }
-#ifdef ECUBE_COMPILE
-    else if (getName().equalsIgnoreCase("ECube"))
-    {
-        editor = new EcubeEditor(this, dynamic_cast<EcubeThread*>(dataThread.get()), true);
-    }
-#endif
-    //  else if (getName().equalsIgnoreCase("File Reader"))
-    //  {
-    //     editor = new FileReaderEditor(this, (FileReaderThread*) dataThread.get(), true);
-    // }
-    else
+	if (dataThread != nullptr)
+	{
+		editor = dataThread->createEditor(this);
+	}
+	else
+	{
+		editor = nullptr;
+	}
+   
+	if (editor == nullptr)
     {
         editor = new SourceNodeEditor(this, true);
     }

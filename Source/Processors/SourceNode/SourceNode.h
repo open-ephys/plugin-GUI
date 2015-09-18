@@ -46,7 +46,7 @@ class SourceNode : public GenericProcessor,
 public:
 
     // real member functions:
-    SourceNode(const String& name);
+    SourceNode(const String& name, DataThread* dt);
     ~SourceNode();
 
     void enabledState(bool t);

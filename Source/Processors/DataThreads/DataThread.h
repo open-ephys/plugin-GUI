@@ -31,7 +31,7 @@
 
 class SourceNode;
 
-struct ChannelCustomInfo
+struct PLUGIN_API ChannelCustomInfo
 {
     ChannelCustomInfo() : gain(0), modified(false) {}
     String name;
@@ -52,7 +52,7 @@ struct ChannelCustomInfo
 
 */
 
-class DataThread : public Thread
+class PLUGIN_API DataThread : public Thread
 {
 
 public:
@@ -128,6 +128,9 @@ public:
 	virtual void* getDevice();
 
     void getChannelInfo(Array<ChannelCustomInfo>& infoArray);
+
+	/** Create the DataThread custom editor, if any*/
+	virtual GenericEditor* createEditor(SourceNode* sn);
 
 protected:
 	virtual void setDefaultChannelNames();

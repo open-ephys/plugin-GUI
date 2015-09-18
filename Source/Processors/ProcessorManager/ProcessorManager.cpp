@@ -25,6 +25,7 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../../AccessClass.h"
 #include "../PluginManager/PluginManager.h"
+#include "../SourceNode/SourceNode.h"
 
 /** Includes for builtin processors **/
 #include "../FileReader/FileReader.h"
@@ -91,6 +92,8 @@ namespace ProcessorManager
 		case PluginProcessor:
 			return AccessClass::getPluginManager()->getNumProcessors();
 			break;
+		case DataThreadProcessor:
+			return AccessClass::getPluginManager()->getNumDataThreads();
 		default:
 			return 0;
 			break;
@@ -111,6 +114,13 @@ namespace ProcessorManager
 				type = info.type;
 			}
 			break;
+		case DataThreadProcessor:
+		{
+			Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(index);
+			name = info.name;
+			type = SourceProcessor;
+			break;
+		}
 		default:
 			name = String::empty;
 			type = -1;
@@ -131,6 +141,13 @@ namespace ProcessorManager
 				return info.creator();
 				break;
 			}
+		case DataThreadProcessor:
+		{
+			Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(index);
+			return new SourceNode(info.name, info.creator());
+			break;
+		}
+				
 		default:
 			return nullptr;
 		}
