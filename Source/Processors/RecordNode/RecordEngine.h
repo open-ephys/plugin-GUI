@@ -54,7 +54,7 @@ struct EngineParameter;
 class RecordNode;
 class RecordEngineManager;
 
-class RecordEngine
+class PLUGIN_API RecordEngine
 {
 public:
     RecordEngine();
@@ -148,6 +148,9 @@ public:
     void registerManager(RecordEngineManager* engineManager);
     void configureEngine();
 
+	//Method needed by the factory methods in the manager
+	//static RecordEngineManager* getEngineManager();
+
 protected:
     /** Functions to access RecordNode arrays and utilities
     */
@@ -175,7 +178,7 @@ private:
 
 typedef RecordEngine* (*EngineCreator)();
 
-struct EngineParameter
+struct PLUGIN_API EngineParameter
 {
 public:
     enum EngineParameterType {STR, INT, FLOAT, BOOL};
@@ -215,7 +218,7 @@ private:
 };
 
 class EngineConfigWindow;
-class RecordEngineManager
+class PLUGIN_API RecordEngineManager
 {
 public:
     RecordEngineManager(String engineID, String engineName, EngineCreator creatorFunc);
@@ -246,5 +249,11 @@ private:
     ScopedPointer<EngineConfigWindow> window;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordEngineManager);
 };
+
+template<class T>
+RecordEngine* engineFactory()
+{
+	return new T;
+}
 
 #endif  // RECORDENGINE_H_INCLUDED

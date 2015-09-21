@@ -344,6 +344,8 @@ public:
     (so it knows when the data directory has changed).*/
     void updateChildComponents();
 
+	void updateRecordEngineList();
+
     ScopedPointer<RecordButton> recordButton;
 private:
     ScopedPointer<PlayButton> playButton;

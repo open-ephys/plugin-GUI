@@ -63,13 +63,16 @@ public:
 	void removeAllPlugins();
 	int getNumProcessors();
 	int getNumDataThreads();
+	int getNumRecordEngines();
 	Plugin::ProcessorInfo getProcessorInfo(int index);
 	Plugin::DataThreadInfo getDataThreadInfo(int index);
+	Plugin::RecordEngineInfo getRecordEngineInfo(int index);
 
 private:
 	Array<LoadedLibInfo> libArray;
 	Array<LoadedPluginInfo<Plugin::ProcessorInfo>> processorPlugins;
 	Array<LoadedPluginInfo<Plugin::DataThreadInfo>> dataThreadPlugins;
+	Array<LoadedPluginInfo<Plugin::RecordEngineInfo>> recordEnginePlugins;
 	
 	/*Manager(void) {};
 	~Manager(void) {};

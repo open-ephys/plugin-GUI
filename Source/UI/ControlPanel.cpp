@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <math.h>
 #include "../AccessClass.h"
 #include "../Processors/RecordNode/RecordEngine.h"
+#include "../Processors/PluginManager/PluginManager.h"
 
 PlayButton::PlayButton()
     : DrawableButton("PlayButton", DrawableButton::ImageFitted)
@@ -404,12 +405,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
 
     recordSelector = new ComboBox();
     recordSelector->addListener(this);
-    for (int i =0; i < RecordEngineManager::getNumOfBuiltInEngines(); i++)
-    {
-        RecordEngineManager* rem = RecordEngineManager::createBuiltInEngineManager(i);
-        recordSelector->addItem(rem->getName(),i+1);
-        recordEngines.add(rem);
-    }
+    
     addChildComponent(recordSelector);
 
     recordOptionsButton = new UtilityButton("R",Font("Small Text", 15, Font::plain));
@@ -494,8 +490,34 @@ void ControlPanel::updateChildComponents()
 
     filenameComponent->addListener(AccessClass::getProcessorGraph()->getRecordNode());
     AccessClass::getProcessorGraph()->getRecordNode()->filenameComponentChanged(filenameComponent);
-    recordSelector->setSelectedId(1,sendNotificationSync);
+	updateRecordEngineList();
 
+}
+
+void ControlPanel::updateRecordEngineList()
+{
+	int selectedEngine = recordSelector->getSelectedId();
+	recordSelector->clear(dontSendNotification);
+	recordEngines.clear();
+	int id = 1;
+
+	for (int i = 0; i < RecordEngineManager::getNumOfBuiltInEngines(); i++)
+	{
+		RecordEngineManager* rem = RecordEngineManager::createBuiltInEngineManager(i);
+		recordSelector->addItem(rem->getName(), id++);
+		recordEngines.add(rem);
+	}
+	for (int i = 0; i < AccessClass::getPluginManager()->getNumRecordEngines(); i++)
+	{
+		Plugin::RecordEngineInfo info;
+		info = AccessClass::getPluginManager()->getRecordEngineInfo(i);
+		recordSelector->addItem(info.name, id++);
+		recordEngines.add(info.creator());
+	}
+	if (selectedEngine < 1)
+		recordSelector->setSelectedId(1, sendNotification);
+	else
+		recordSelector->setSelectedId(selectedEngine, sendNotification);
 }
 
 void ControlPanel::createPaths()

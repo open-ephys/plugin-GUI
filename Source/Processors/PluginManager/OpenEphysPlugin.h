@@ -34,6 +34,8 @@
 #else
 #define PLUGIN_API __declspec(dllexport)
 #endif
+#else
+#define PLUGIN_API
 #endif
 
 struct ProcessorInfo;
@@ -42,11 +44,13 @@ struct PluginInfo;
 class GenericProcessor;
 class DataThread;
 class SourceNode;
+class RecordEngineManager;
 
 #define PLUGIN_API_VER 1
 
 typedef GenericProcessor*(*ProcessorCreator)();
 typedef DataThread*(*DataThreadCreator)(SourceNode*);
+typedef RecordEngineManager*(*EngineManagerCreator)();
 
 namespace Plugin
 {
@@ -62,15 +66,21 @@ namespace Plugin
 
 	struct ProcessorInfo
 	{
-		ProcessorType type;
 		char name[100];
 		ProcessorCreator creator;
+		ProcessorType type;
 	};
 
 	struct DataThreadInfo
 	{
 		char name[100];
 		DataThreadCreator creator;
+	};
+
+	struct RecordEngineInfo
+	{
+		char name[100];
+		EngineManagerCreator creator;
 	};
 
 	struct LibraryInfo
@@ -87,6 +97,7 @@ namespace Plugin
 		{
 			ProcessorInfo processor;
 			DataThreadInfo dataThread;
+			RecordEngineInfo recordEngine;
 		};
 	};
 
@@ -100,6 +111,12 @@ namespace Plugin
 	DataThread* createDataThread(SourceNode* sn)
 	{
 		return new T(sn);
+	}
+
+	template<class T>
+	RecordEngineManager* createRecordEngine()
+	{
+		return T::getEngineManager();
 	}
 
 };

@@ -42,7 +42,7 @@
 /* A plotting class that you can derive from. Handles all basic pan-zoom, tick marks, tick labels
 You only need to implement the drawing of the actual curves in the given range*/
 /************************/
-class XYline 
+class PLUGIN_API XYline
 {
 public:
 	//XYline(std::vector<float> x_, std::vector<float> y_, float gain, juce::Colour color_);
@@ -79,7 +79,7 @@ struct range
 };
 class MatlabLikePlot;
 
-class DrawComponent : public Component
+class PLUGIN_API DrawComponent : public Component
 {
 public:
 	DrawComponent(MatlabLikePlot *mlp);
@@ -141,7 +141,7 @@ private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DrawComponent);
 };
 
-class AxesComponent : public Component
+class PLUGIN_API AxesComponent : public Component
 {
 public:
 	AxesComponent(bool horizontal, bool flip);
@@ -168,7 +168,7 @@ private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AxesComponent);
 };
 
-class MatlabLikePlot : public Component, Button::Listener
+class PLUGIN_API MatlabLikePlot : public Component, Button::Listener
 {
 public:
 	MatlabLikePlot(); // use approximate for faster drawing. exact x-axis values will not be accurate...

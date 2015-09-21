@@ -33,7 +33,7 @@
 
 #include "PluginManager.h"
 #include "../../UI/ProcessorList.h"
-
+#include "../../UI/ControlPanel.h"
 
 #ifdef WIN32
 //And this one because Windows doesn't provide an error-to-string anything
@@ -165,7 +165,14 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			break;
 		}
 		case Plugin::RecordEnginePlugin:
+		{
+			LoadedPluginInfo<Plugin::RecordEngineInfo> info;
+			info.creator = pInfo.recordEngine.creator;
+			strcpy(info.name, pInfo.recordEngine.name);
+			info.libIndex = libArray.size();
+			recordEnginePlugins.add(info);
 			break;
+		}
 		case Plugin::DatathreadPlugin:
 		{
 			LoadedPluginInfo<Plugin::DataThreadInfo> info;
@@ -180,6 +187,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 		}
 	}
 	AccessClass::getProcessorList()->fillItemList();
+	AccessClass::getControlPanel()->updateRecordEngineList();
 	return 0;
 }
 
@@ -193,6 +201,11 @@ int PluginManager::getNumDataThreads()
 	return dataThreadPlugins.size();
 }
 
+int PluginManager::getNumRecordEngines()
+{
+	return recordEnginePlugins.size();
+}
+
 Plugin::ProcessorInfo PluginManager::getProcessorInfo(int index)
 {
 	return processorPlugins[index];
@@ -201,6 +214,11 @@ Plugin::ProcessorInfo PluginManager::getProcessorInfo(int index)
 Plugin::DataThreadInfo PluginManager::getDataThreadInfo(int index)
 {
 	return dataThreadPlugins[index];
+}
+
+Plugin::RecordEngineInfo PluginManager::getRecordEngineInfo(int index)
+{
+	return recordEnginePlugins[index];
 }
 
 
