@@ -27,7 +27,6 @@
 #include "../../AccessClass.h"
 
 #include "EngineConfigWindow.h"
-#include "HDF5Recording.h"
 #include "OriginalRecording.h"
 
 RecordEngine::RecordEngine()

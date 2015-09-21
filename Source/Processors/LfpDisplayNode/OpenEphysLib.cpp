@@ -26,8 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #ifdef WIN32
 #include <Windows.h>
-#endif
 #define EXPORT __declspec(dllexport)
+#else
+#define EXPORT
+#endif
 
 using namespace Plugin;
 #define NUM_PLUGINS 1
@@ -35,7 +37,7 @@ using namespace Plugin;
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
-	strcpy_s(info->name, "LFP viewer");
+	strcpy(info->name, "LFP viewer");
 	info->numPlugins = NUM_PLUGINS;
 }
 
@@ -43,7 +45,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 {
 	if (index < 0 || index >= NUM_PLUGINS) return -1;
 	info->type = Plugin::ProcessorPlugin;
-	strcpy_s(info->processor.name, "LFP viewer");
+	strcpy(info->processor.name, "LFP viewer");
 	info->processor.type = Plugin::SinkProcessor;
 	info->processor.creator = &(Plugin::createProcessor<LfpDisplayNode>);
 	return 0;

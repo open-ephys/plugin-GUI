@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Rhythm_FPGA", "Rhythm_FPGA\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LFP_Viewer", "LFP_Viewer\LFP_Viewer.vcxproj", "{41BD734E-4939-47AD-9714-9629538F7206}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KWIKFormat", "KWIKFormat\KWIKFormat.vcxproj", "{554C8744-32CD-427C-A9E5-BF9A44440CED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -27,7 +29,8 @@ Global
 		{BD074727-DD1A-4475-9B3F-EF519446403C}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{BD074727-DD1A-4475-9B3F-EF519446403C}.Release|Win32.ActiveCfg = Release|Win32
 		{BD074727-DD1A-4475-9B3F-EF519446403C}.Release|Win32.Build.0 = Release|Win32
-		{BD074727-DD1A-4475-9B3F-EF519446403C}.Release|x64.ActiveCfg = Release|Win32
+		{BD074727-DD1A-4475-9B3F-EF519446403C}.Release|x64.ActiveCfg = Release|x64
+		{BD074727-DD1A-4475-9B3F-EF519446403C}.Release|x64.Build.0 = Release|x64
 		{41BD734E-4939-47AD-9714-9629538F7206}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{41BD734E-4939-47AD-9714-9629538F7206}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{41BD734E-4939-47AD-9714-9629538F7206}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -40,6 +43,18 @@ Global
 		{41BD734E-4939-47AD-9714-9629538F7206}.Release|Win32.Build.0 = Release|Win32
 		{41BD734E-4939-47AD-9714-9629538F7206}.Release|x64.ActiveCfg = Release|x64
 		{41BD734E-4939-47AD-9714-9629538F7206}.Release|x64.Build.0 = Release|x64
+		{554C8744-32CD-427C-A9E5-BF9A44440CED}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{554C8744-32CD-427C-A9E5-BF9A44440CED}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{554C8744-32CD-427C-A9E5-BF9A44440CED}.Debug|Win32.ActiveCfg = Debug|Win32
+		{554C8744-32CD-427C-A9E5-BF9A44440CED}.Debug|Win32.Build.0 = Debug|Win32
+		{554C8744-32CD-427C-A9E5-BF9A44440CED}.Debug|x64.ActiveCfg = Debug|x64
+		{554C8744-32CD-427C-A9E5-BF9A44440CED}.Debug|x64.Build.0 = Debug|x64
+		{554C8744-32CD-427C-A9E5-BF9A44440CED}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{554C8744-32CD-427C-A9E5-BF9A44440CED}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{554C8744-32CD-427C-A9E5-BF9A44440CED}.Release|Win32.ActiveCfg = Release|Win32
+		{554C8744-32CD-427C-A9E5-BF9A44440CED}.Release|Win32.Build.0 = Release|Win32
+		{554C8744-32CD-427C-A9E5-BF9A44440CED}.Release|x64.ActiveCfg = Release|x64
+		{554C8744-32CD-427C-A9E5-BF9A44440CED}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

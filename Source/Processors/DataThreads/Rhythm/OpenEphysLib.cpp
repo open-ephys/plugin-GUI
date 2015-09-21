@@ -26,8 +26,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #ifdef WIN32
 #include <Windows.h>
-#endif
 #define EXPORT __declspec(dllexport)
+#else
+#define EXPORT
+#endif
+
 
 using namespace Plugin;
 #define NUM_PLUGINS 1
@@ -35,7 +38,7 @@ using namespace Plugin;
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
-	strcpy_s(info->name, "Rhythm Node");
+	strcpy(info->name, "Rhythm Node");
 	info->numPlugins = NUM_PLUGINS;
 }
 
@@ -43,7 +46,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 {
 	if (index < 0 || index >= NUM_PLUGINS) return -1;
 	info->type = Plugin::DatathreadPlugin;
-	strcpy_s(info->dataThread.name, "Rhythm FPGA");
+	strcpy(info->dataThread.name, "Rhythm FPGA");
 	info->dataThread.creator = &(Plugin::createDataThread<RHD2000Thread>);
 	return 0;
 }
