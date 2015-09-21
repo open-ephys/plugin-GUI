@@ -184,13 +184,13 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 		}
 		case Plugin::FileSourcePlugin:
 		{
-			break;
 			LoadedPluginInfo<Plugin::FileSourceInfo> info;
 			info.creator = pInfo.fileSource.creator;
 			strcpy(info.name, pInfo.fileSource.name);
 			strcpy(info.extensions, pInfo.fileSource.extensions);
 			info.libIndex = libArray.size();
 			fileSourcePlugins.add(info);
+			break;
 		}
 		}
 	}

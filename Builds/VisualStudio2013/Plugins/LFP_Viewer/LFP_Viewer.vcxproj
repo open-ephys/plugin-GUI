@@ -18,6 +18,17 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\Source\Plugins\LfpDisplayNode\LfpDisplayCanvas.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\LfpDisplayNode\LfpDisplayEditor.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\LfpDisplayNode\LfpDisplayNode.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\LfpDisplayNode\OpenEphysLib.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Source\Plugins\LfpDisplayNode\LfpDisplayCanvas.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\LfpDisplayNode\LfpDisplayEditor.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\LfpDisplayNode\LfpDisplayNode.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{41BD734E-4939-47AD-9714-9629538F7206}</ProjectGuid>
     <RootNamespace>LFP_Viewer</RootNamespace>
@@ -118,17 +129,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\..\Source\Processors\LfpDisplayNode\LfpDisplayCanvas.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Processors\LfpDisplayNode\LfpDisplayEditor.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Processors\LfpDisplayNode\LfpDisplayNode.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Processors\LfpDisplayNode\OpenEphysLib.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\Processors\LfpDisplayNode\LfpDisplayCanvas.h" />
-    <ClInclude Include="..\..\..\..\Source\Processors\LfpDisplayNode\LfpDisplayEditor.h" />
-    <ClInclude Include="..\..\..\..\Source\Processors\LfpDisplayNode\LfpDisplayNode.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

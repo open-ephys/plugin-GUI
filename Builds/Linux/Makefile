@@ -55,8 +55,6 @@ OBJECTS := \
   $(OBJDIR)/AccessClass_de9602d5.o \
   $(OBJDIR)/PracticalSocket_2574ecc8.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
-  $(OBJDIR)/NetworkEventsEditor_ae5ec8e7.o \
-  $(OBJDIR)/NetworkEvents_5344c99a.o \
   $(OBJDIR)/ProcessorManager_2aa7db2a.o \
   $(OBJDIR)/PluginManager_f764c180.o \
   $(OBJDIR)/AudioEditor_3931be27.o \
@@ -86,7 +84,6 @@ OBJECTS := \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
   $(OBJDIR)/ImageIcon_c89b23a6.o \
   $(OBJDIR)/VisualizerEditor_3672b003.o \
-  $(OBJDIR)/KwikFileSource_58456030.o \
   $(OBJDIR)/FileSource_a1ad7002.o \
   $(OBJDIR)/FileReader_e4a9ccaa.o \
   $(OBJDIR)/FileReaderEditor_e1193ff7.o \
@@ -102,19 +99,8 @@ OBJECTS := \
   $(OBJDIR)/OriginalRecording_d6dc3293.o \
   $(OBJDIR)/RecordEngine_97ef83aa.o \
   $(OBJDIR)/RecordNode_cc21a82a.o \
-  $(OBJDIR)/PeriStimulusTimeHistogramEditor_6be5bf55.o \
-  $(OBJDIR)/PeriStimulusTimeHistogramNode_9631ca2a.o \
-  $(OBJDIR)/tictoc_cdca1ed.o \
-  $(OBJDIR)/TrialCircularBuffer_4a4cef0c.o \
   $(OBJDIR)/SourceNode_de3985ea.o \
   $(OBJDIR)/SourceNodeEditor_cdc90937.o \
-  $(OBJDIR)/SpikeDisplayCanvas_2219bd20.o \
-  $(OBJDIR)/SpikeDisplayEditor_6e1d56b5.o \
-  $(OBJDIR)/SpikeDisplayNode_be27b98a.o \
-  $(OBJDIR)/SpikeSortBoxes_17f37282.o \
-  $(OBJDIR)/SpikeSorter_5f160cae.o \
-  $(OBJDIR)/SpikeSorterCanvas_f0ead366.o \
-  $(OBJDIR)/SpikeSorterEditor_3cee6cfb.o \
   $(OBJDIR)/Splitter_889c68aa.o \
   $(OBJDIR)/SplitterEditor_93a6dbf7.o \
   $(OBJDIR)/Visualizer_2e631df8.o \
@@ -186,16 +172,6 @@ $(OBJDIR)/PracticalSocket_2574ecc8.o: ../../Source/Network/PracticalSocket.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/NetworkEventsEditor_ae5ec8e7.o: ../../Source/Processors/NetworkEvents/NetworkEventsEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling NetworkEventsEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/NetworkEvents_5344c99a.o: ../../Source/Processors/NetworkEvents/NetworkEvents.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling NetworkEvents.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ProcessorManager_2aa7db2a.o: ../../Source/Processors/ProcessorManager/ProcessorManager.cpp
@@ -343,11 +319,6 @@ $(OBJDIR)/VisualizerEditor_3672b003.o: ../../Source/Processors/Editors/Visualize
 	@echo "Compiling VisualizerEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/KwikFileSource_58456030.o: ../../Source/Processors/FileReader/KwikFileSource.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling KwikFileSource.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/FileSource_a1ad7002.o: ../../Source/Processors/FileReader/FileSource.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling FileSource.cpp"
@@ -423,26 +394,6 @@ $(OBJDIR)/RecordNode_cc21a82a.o: ../../Source/Processors/RecordNode/RecordNode.c
 	@echo "Compiling RecordNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/PeriStimulusTimeHistogramEditor_6be5bf55.o: ../../Source/Processors/PSTH/PeriStimulusTimeHistogramEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PeriStimulusTimeHistogramEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/PeriStimulusTimeHistogramNode_9631ca2a.o: ../../Source/Processors/PSTH/PeriStimulusTimeHistogramNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling PeriStimulusTimeHistogramNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/tictoc_cdca1ed.o: ../../Source/Processors/PSTH/tictoc.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling tictoc.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/TrialCircularBuffer_4a4cef0c.o: ../../Source/Processors/PSTH/TrialCircularBuffer.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling TrialCircularBuffer.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/SourceNode_de3985ea.o: ../../Source/Processors/SourceNode/SourceNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SourceNode.cpp"
@@ -451,41 +402,6 @@ $(OBJDIR)/SourceNode_de3985ea.o: ../../Source/Processors/SourceNode/SourceNode.c
 $(OBJDIR)/SourceNodeEditor_cdc90937.o: ../../Source/Processors/SourceNode/SourceNodeEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SourceNodeEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeDisplayCanvas_2219bd20.o: ../../Source/Processors/SpikeDisplayNode/SpikeDisplayCanvas.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeDisplayCanvas.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeDisplayEditor_6e1d56b5.o: ../../Source/Processors/SpikeDisplayNode/SpikeDisplayEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeDisplayEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeDisplayNode_be27b98a.o: ../../Source/Processors/SpikeDisplayNode/SpikeDisplayNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeDisplayNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeSortBoxes_17f37282.o: ../../Source/Processors/SpikeSorter/SpikeSortBoxes.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeSortBoxes.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeSorter_5f160cae.o: ../../Source/Processors/SpikeSorter/SpikeSorter.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeSorter.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeSorterCanvas_f0ead366.o: ../../Source/Processors/SpikeSorter/SpikeSorterCanvas.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeSorterCanvas.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/SpikeSorterEditor_3cee6cfb.o: ../../Source/Processors/SpikeSorter/SpikeSorterEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeSorterEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Splitter_889c68aa.o: ../../Source/Processors/Splitter/Splitter.cpp

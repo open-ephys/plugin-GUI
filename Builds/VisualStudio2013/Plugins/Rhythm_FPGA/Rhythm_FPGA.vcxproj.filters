@@ -18,45 +18,45 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\OpenEphysLib.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\OpenEphysLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\RHD2000Editor.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\RHD2000Editor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\RHD2000Thread.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\RHD2000Thread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\okFrontPanelDLL.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\okFrontPanelDLL.cpp">
       <Filter>Source Files\rhythm-api</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\rhd2000datablock.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\rhd2000datablock.cpp">
       <Filter>Source Files\rhythm-api</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\rhd2000evalboard.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\rhd2000evalboard.cpp">
       <Filter>Source Files\rhythm-api</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\rhd2000registers.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\rhd2000registers.cpp">
       <Filter>Source Files\rhythm-api</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\RHD2000Editor.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\RhythmNode\RHD2000Editor.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\RHD2000Thread.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\RhythmNode\RHD2000Thread.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\okFrontPanelDLL.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\okFrontPanelDLL.h">
       <Filter>Source Files\rhythm-api</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\rhd2000datablock.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\rhd2000datablock.h">
       <Filter>Source Files\rhythm-api</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\rhd2000evalboard.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\rhd2000evalboard.h">
       <Filter>Source Files\rhythm-api</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\rhd2000registers.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\rhd2000registers.h">
       <Filter>Source Files\rhythm-api</Filter>
     </ClInclude>
   </ItemGroup>

@@ -18,6 +18,17 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\FileSource\KwikFileSource.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\OpenEphysLib.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5FileFormat.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5Recording.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Source\Plugins\KWIKFormat\FileSource\KwikFileSource.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5FileFormat.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5Recording.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{554C8744-32CD-427C-A9E5-BF9A44440CED}</ProjectGuid>
     <RootNamespace>KWIKRecordEngine</RootNamespace>
@@ -131,15 +142,6 @@
       <AdditionalLibraryDirectories>../../../../Resources/windows-libs/HDF5/lib/x64;..\..\x64\Debug64\bin</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\..\Source\Processors\RecordNode\KWIKEngine\HDF5FileFormat.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Processors\RecordNode\KWIKEngine\HDF5Recording.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Processors\RecordNode\KWIKEngine\OpenEphysLib.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\Processors\RecordNode\KWIKEngine\HDF5FileFormat.h" />
-    <ClInclude Include="..\..\..\..\Source\Processors\RecordNode\KWIKEngine\HDF5Recording.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

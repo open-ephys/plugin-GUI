@@ -32,9 +32,6 @@
     <Filter Include="open-ephys\Source\Processors">
       <UniqueIdentifier>{3DDEC88C-BAA5-2DDA-A59F-0FB74070AB82}</UniqueIdentifier>
     </Filter>
-    <Filter Include="open-ephys\Source\Processors\NetworkEvents">
-      <UniqueIdentifier>{C41A0CBC-4C1C-5AC2-CAED-3EC41B4BAB37}</UniqueIdentifier>
-    </Filter>
     <Filter Include="open-ephys\Source\Processors\ProcessorManager">
       <UniqueIdentifier>{C84577BE-2445-2454-C134-006B7BCF320C}</UniqueIdentifier>
     </Filter>
@@ -77,17 +74,8 @@
     <Filter Include="open-ephys\Source\Processors\RecordNode">
       <UniqueIdentifier>{185877A6-9FE6-DD2E-BC41-93EE3C608CFC}</UniqueIdentifier>
     </Filter>
-    <Filter Include="open-ephys\Source\Processors\PSTH">
-      <UniqueIdentifier>{2714D3F1-1A51-5CEC-5EE2-26686D9EEAF8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="open-ephys\Source\Processors\SourceNode">
       <UniqueIdentifier>{83A3043C-94AE-ADED-C72B-394EB4BAE6B4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="open-ephys\Source\Processors\SpikeDisplayNode">
-      <UniqueIdentifier>{818E5C85-5930-DC8D-A3C2-0443F4C35B47}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="open-ephys\Source\Processors\SpikeSorter">
-      <UniqueIdentifier>{11B5BECA-5948-83BC-3C0F-DEB527800990}</UniqueIdentifier>
     </Filter>
     <Filter Include="open-ephys\Source\Processors\Splitter">
       <UniqueIdentifier>{2AAA8664-72AA-EC5C-92E2-3392067B058F}</UniqueIdentifier>
@@ -409,12 +397,6 @@
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEventsEditor.cpp">
-      <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.cpp">
-      <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\ProcessorManager\ProcessorManager.cpp">
       <Filter>open-ephys\Source\Processors\ProcessorManager</Filter>
     </ClCompile>
@@ -502,9 +484,6 @@
     <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\FileReader\KwikFileSource.cpp">
-      <Filter>open-ephys\Source\Processors\FileReader</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\FileReader\FileSource.cpp">
       <Filter>open-ephys\Source\Processors\FileReader</Filter>
     </ClCompile>
@@ -550,44 +529,11 @@
     <ClCompile Include="..\..\Source\Processors\RecordNode\RecordNode.cpp">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramEditor.cpp">
-      <Filter>open-ephys\Source\Processors\PSTH</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.cpp">
-      <Filter>open-ephys\Source\Processors\PSTH</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\PSTH\tictoc.cpp">
-      <Filter>open-ephys\Source\Processors\PSTH</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.cpp">
-      <Filter>open-ephys\Source\Processors\PSTH</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\SourceNode\SourceNode.cpp">
       <Filter>open-ephys\Source\Processors\SourceNode</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\SourceNode\SourceNodeEditor.cpp">
       <Filter>open-ephys\Source\Processors\SourceNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayCanvas.cpp">
-      <Filter>open-ephys\Source\Processors\SpikeDisplayNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayEditor.cpp">
-      <Filter>open-ephys\Source\Processors\SpikeDisplayNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayNode.cpp">
-      <Filter>open-ephys\Source\Processors\SpikeDisplayNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSortBoxes.cpp">
-      <Filter>open-ephys\Source\Processors\SpikeSorter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorter.cpp">
-      <Filter>open-ephys\Source\Processors\SpikeSorter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorterCanvas.cpp">
-      <Filter>open-ephys\Source\Processors\SpikeSorter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorterEditor.cpp">
-      <Filter>open-ephys\Source\Processors\SpikeSorter</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Splitter\Splitter.cpp">
       <Filter>open-ephys\Source\Processors\Splitter</Filter>
@@ -1890,12 +1836,6 @@
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\NetworkEvents\NetworkEventsEditor.h">
-      <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.h">
-      <Filter>open-ephys\Source\Processors\NetworkEvents</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\ProcessorManager\ProcessorManager.h">
       <Filter>open-ephys\Source\Processors\ProcessorManager</Filter>
     </ClInclude>
@@ -2004,9 +1944,6 @@
     <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\FileReader\KwikFileSource.h">
-      <Filter>open-ephys\Source\Processors\FileReader</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\FileReader\FileSource.h">
       <Filter>open-ephys\Source\Processors\FileReader</Filter>
     </ClInclude>
@@ -2052,44 +1989,11 @@
     <ClInclude Include="..\..\Source\Processors\RecordNode\RecordNode.h">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramEditor.h">
-      <Filter>open-ephys\Source\Processors\PSTH</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.h">
-      <Filter>open-ephys\Source\Processors\PSTH</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\PSTH\tictoc.h">
-      <Filter>open-ephys\Source\Processors\PSTH</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.h">
-      <Filter>open-ephys\Source\Processors\PSTH</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\SourceNode\SourceNode.h">
       <Filter>open-ephys\Source\Processors\SourceNode</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\SourceNode\SourceNodeEditor.h">
       <Filter>open-ephys\Source\Processors\SourceNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayCanvas.h">
-      <Filter>open-ephys\Source\Processors\SpikeDisplayNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayEditor.h">
-      <Filter>open-ephys\Source\Processors\SpikeDisplayNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayNode.h">
-      <Filter>open-ephys\Source\Processors\SpikeDisplayNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSortBoxes.h">
-      <Filter>open-ephys\Source\Processors\SpikeSorter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSorter.h">
-      <Filter>open-ephys\Source\Processors\SpikeSorter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSorterCanvas.h">
-      <Filter>open-ephys\Source\Processors\SpikeSorter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSorterEditor.h">
-      <Filter>open-ephys\Source\Processors\SpikeSorter</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Splitter\Splitter.h">
       <Filter>open-ephys\Source\Processors\Splitter</Filter>

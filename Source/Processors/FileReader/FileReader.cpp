@@ -45,7 +45,7 @@ FileReader::FileReader()
 		extensions.addTokens(info.extensions, ";", "\"");
 		for (int j = 0; j < extensions.size(); j++)
 		{
-			supportedExtensions.set(extensions[j], i + 1);
+			supportedExtensions.set(extensions[j].toLowerCase(), i + 1);
 		}
 	}
 }
@@ -117,7 +117,7 @@ bool FileReader::setFile(String fullpath)
 {
     File file(fullpath);
 
-    String ext = file.getFileExtension();
+	String ext = file.getFileExtension().toLowerCase().substring(1);
 
 	int index = supportedExtensions[ext] - 1;
 

@@ -18,6 +18,23 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\OpenEphysLib.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\RHD2000Editor.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\RHD2000Thread.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\okFrontPanelDLL.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\rhd2000datablock.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\rhd2000evalboard.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\rhd2000registers.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Source\Plugins\RhythmNode\RHD2000Editor.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\RhythmNode\RHD2000Thread.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\okFrontPanelDLL.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\rhd2000datablock.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\rhd2000evalboard.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\RhythmNode\rhythm-api\rhd2000registers.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BD074727-DD1A-4475-9B3F-EF519446403C}</ProjectGuid>
     <RootNamespace>Rhythm_FPGA</RootNamespace>
@@ -120,23 +137,6 @@
       <AdditionalLibraryDirectories>..\..\x64\Debug64\bin</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\OpenEphysLib.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\RHD2000Editor.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\RHD2000Thread.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\okFrontPanelDLL.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\rhd2000datablock.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\rhd2000evalboard.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\rhd2000registers.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\RHD2000Editor.h" />
-    <ClInclude Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\RHD2000Thread.h" />
-    <ClInclude Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\okFrontPanelDLL.h" />
-    <ClInclude Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\rhd2000datablock.h" />
-    <ClInclude Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\rhd2000evalboard.h" />
-    <ClInclude Include="..\..\..\..\Source\Processors\DataThreads\Rhythm\rhythm-api\rhd2000registers.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -62,19 +62,15 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x86;../../Resources/windows-libs/ZeroMQ/lib_x86</LibraryPath>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x86;../../Resources/windows-libs/ZeroMQ/lib_x86</LibraryPath>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">.\x64\Debug64\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">true</GenerateManifest>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x64;../../Resources/windows-libs/ZeroMQ/lib_x64</LibraryPath>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">.\x64\Release64\bin\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">open-ephys</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">true</GenerateManifest>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">$(LibraryPath);../../Resources/windows-libs/HDF5/lib/x64;../../Resources/windows-libs/ZeroMQ/lib_x64</LibraryPath>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -88,8 +84,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;../../Resources/windows-libs/ZeroMQ/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;ZEROMQ;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -113,9 +109,8 @@
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>../../Resources/windows-libs/HDF5/lib/x86;../../Resources/windows-libs/ZeroMQ/lib_x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;hdf5.lib;hdf5_cpp.lib;libzmq-v120-mt-4_0_4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -135,8 +130,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;../../Resources/windows-libs/ZeroMQ/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;ZEROMQ;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -161,9 +156,8 @@
       <TargetMachine>MachineX86</TargetMachine>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalLibraryDirectories>../../Resources/windows-libs/HDF5/lib/x86;../../Resources/windows-libs/ZeroMQ/lib_x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;hdf5.lib;hdf5_cpp.lib;libzmq-v120-mt-4_0_4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -184,8 +178,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;../../Resources/windows-libs/ZeroMQ/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;ZEROMQ;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -207,9 +201,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(IntDir)\open-ephys.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>../../Resources/windows-libs/HDF5/lib/x64;../../Resources/windows-libs/ZeroMQ/lib_x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;hdf5.lib;hdf5_cpp.lib;libzmq-v120-mt-4_0_4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -229,8 +222,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;../../Resources/windows-libs/ZeroMQ/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;ZEROMQ;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -254,9 +247,8 @@
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalLibraryDirectories>../../Resources/windows-libs/HDF5/lib/x64;../../Resources/windows-libs/ZeroMQ/lib_x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;hdf5.lib;hdf5_cpp.lib;libzmq-v120-mt-4_0_4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -271,8 +263,6 @@
     <ClCompile Include="..\..\Source\AccessClass.cpp"/>
     <ClCompile Include="..\..\Source\Network\PracticalSocket.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEventsEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ProcessorManager\ProcessorManager.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PluginManager\PluginManager.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioEditor.cpp"/>
@@ -302,7 +292,6 @@
     <ClCompile Include="..\..\Source\Processors\Editors\GenericEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ImageIcon.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\FileReader\KwikFileSource.cpp"/>
     <ClCompile Include="..\..\Source\Processors\FileReader\FileSource.cpp"/>
     <ClCompile Include="..\..\Source\Processors\FileReader\FileReader.cpp"/>
     <ClCompile Include="..\..\Source\Processors\FileReader\FileReaderEditor.cpp"/>
@@ -318,19 +307,8 @@
     <ClCompile Include="..\..\Source\Processors\RecordNode\OriginalRecording.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordNode\RecordEngine.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordNode\RecordNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\PSTH\tictoc.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SourceNode\SourceNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\SourceNode\SourceNodeEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayCanvas.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayEditor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSortBoxes.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorter.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorterCanvas.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\SpikeSorter\SpikeSorterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Splitter\Splitter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Splitter\SplitterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\Visualizer.cpp"/>
@@ -1479,8 +1457,6 @@
     <ClInclude Include="..\..\Source\AccessClass.h"/>
     <ClInclude Include="..\..\Source\Network\PracticalSocket.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
-    <ClInclude Include="..\..\Source\Processors\NetworkEvents\NetworkEventsEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\NetworkEvents\NetworkEvents.h"/>
     <ClInclude Include="..\..\Source\Processors\ProcessorManager\ProcessorManager.h"/>
     <ClInclude Include="..\..\Source\Processors\PluginManager\OpenEphysPlugin.h"/>
     <ClInclude Include="..\..\Source\Processors\PluginManager\PluginManager.h"/>
@@ -1517,7 +1493,6 @@
     <ClInclude Include="..\..\Source\Processors\Editors\GenericEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ImageIcon.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\FileReader\KwikFileSource.h"/>
     <ClInclude Include="..\..\Source\Processors\FileReader\FileSource.h"/>
     <ClInclude Include="..\..\Source\Processors\FileReader\FileReader.h"/>
     <ClInclude Include="..\..\Source\Processors\FileReader\FileReaderEditor.h"/>
@@ -1533,19 +1508,8 @@
     <ClInclude Include="..\..\Source\Processors\RecordNode\OriginalRecording.h"/>
     <ClInclude Include="..\..\Source\Processors\RecordNode\RecordEngine.h"/>
     <ClInclude Include="..\..\Source\Processors\RecordNode\RecordNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\PSTH\PeriStimulusTimeHistogramNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\PSTH\tictoc.h"/>
-    <ClInclude Include="..\..\Source\Processors\PSTH\TrialCircularBuffer.h"/>
     <ClInclude Include="..\..\Source\Processors\SourceNode\SourceNode.h"/>
     <ClInclude Include="..\..\Source\Processors\SourceNode\SourceNodeEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayCanvas.h"/>
-    <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayEditor.h"/>
-    <ClInclude Include="..\..\Source\Processors\SpikeDisplayNode\SpikeDisplayNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSortBoxes.h"/>
-    <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSorter.h"/>
-    <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSorterCanvas.h"/>
-    <ClInclude Include="..\..\Source\Processors\SpikeSorter\SpikeSorterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Splitter\Splitter.h"/>
     <ClInclude Include="..\..\Source\Processors\Splitter\SplitterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\DataWindow.h"/>

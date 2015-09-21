@@ -15,27 +15,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Source\Processors\LfpDisplayNode\LfpDisplayCanvas.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\LfpDisplayNode\LfpDisplayCanvas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Processors\LfpDisplayNode\LfpDisplayEditor.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\LfpDisplayNode\LfpDisplayEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Processors\LfpDisplayNode\LfpDisplayNode.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\LfpDisplayNode\LfpDisplayNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Processors\LfpDisplayNode\OpenEphysLib.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\LfpDisplayNode\OpenEphysLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\Processors\LfpDisplayNode\LfpDisplayCanvas.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\LfpDisplayNode\LfpDisplayCanvas.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Processors\LfpDisplayNode\LfpDisplayEditor.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\LfpDisplayNode\LfpDisplayEditor.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Processors\LfpDisplayNode\LfpDisplayNode.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\LfpDisplayNode\LfpDisplayNode.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

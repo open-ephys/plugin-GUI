@@ -68,30 +68,22 @@
         <MODULEPATH id="juce_audio_basics" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
-    <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" extraDefs="NOMINMAX&#10;ZEROMQ"
-            externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;hdf5.lib&#10;hdf5_cpp.lib&#10;libzmq-v120-mt-4_0_4.lib"
+    <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" extraDefs="NOMINMAX&#10;"
+            externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;"
             toolset="v110">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug\bin"
-                       headerPath="../../Resources/windows-libs/HDF5/include&#10;../../Resources/windows-libs/ZeroMQ/include"
-                       libraryPath="../../Resources/windows-libs/HDF5/lib/x86&#10;../../Resources/windows-libs/ZeroMQ/lib_x86"
-                       postbuildCommand="copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;"/>
+                       headerPath="" libraryPath="" postbuildCommand="copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release\bin"
-                       headerPath="../../Resources/windows-libs/HDF5/include&#10;../../Resources/windows-libs/ZeroMQ/include"
-                       libraryPath="../../Resources/windows-libs/HDF5/lib/x86&#10;../../Resources/windows-libs/ZeroMQ/lib_x86"
-                       postbuildCommand="copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;"/>
+                       headerPath="" libraryPath="" postbuildCommand="copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;"/>
         <CONFIGURATION name="Debug64" winWarningLevel="2" generateManifest="1" winArchitecture="x64"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug64\bin"
-                       headerPath="../../Resources/windows-libs/HDF5/include&#10;../../Resources/windows-libs/ZeroMQ/include"
-                       libraryPath="../../Resources/windows-libs/HDF5/lib/x64&#10;../../Resources/windows-libs/ZeroMQ/lib_x64"
-                       postbuildCommand="copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;"/>
+                       headerPath="" libraryPath="" postbuildCommand="copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;"/>
         <CONFIGURATION name="Release64" winWarningLevel="2" generateManifest="1" winArchitecture="x64"
                        isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release64\bin"
-                       headerPath="../../Resources/windows-libs/HDF5/include&#10;../../Resources/windows-libs/ZeroMQ/include"
-                       libraryPath="../../Resources/windows-libs/HDF5/lib/x64&#10;../../Resources/windows-libs/ZeroMQ/lib_x64"
-                       postbuildCommand="copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;"/>
+                       headerPath="" libraryPath="" postbuildCommand="copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>
@@ -111,32 +103,24 @@
         <MODULEPATH id="juce_audio_basics" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </VS2012>
-    <VS2013 targetFolder="Builds/VisualStudio2013" externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;hdf5.lib&#10;hdf5_cpp.lib&#10;libzmq-v120-mt-4_0_4.lib"
-            extraDefs="NOMINMAX&#10;ZEROMQ&#10;JUCE_API=__declspec(dllexport)">
+    <VS2013 targetFolder="Builds/VisualStudio2013" externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;"
+            extraDefs="NOMINMAX&#10;JUCE_API=__declspec(dllexport)">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\Debug\bin"
-                       headerPath="../../Resources/windows-libs/HDF5/include&#10;../../Resources/windows-libs/ZeroMQ/include"
-                       libraryPath="../../Resources/windows-libs/HDF5/lib/x86&#10;../../Resources/windows-libs/ZeroMQ/lib_x86"
-                       wholeProgramOptimisation="1" postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;"
+                       headerPath="" libraryPath="" wholeProgramOptimisation="1" postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;"
                        fastMath="1" useRuntimeLibDLL="1"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\Release\bin"
-                       headerPath="../../Resources/windows-libs/HDF5/include&#10;../../Resources/windows-libs/ZeroMQ/include"
-                       libraryPath="../../Resources/windows-libs/HDF5/lib/x86&#10;../../Resources/windows-libs/ZeroMQ/lib_x86"
-                       postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;"
+                       headerPath="" libraryPath="" postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;"
                        fastMath="1" useRuntimeLibDLL="1"/>
         <CONFIGURATION name="Debug64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\x64\Debug64\bin"
-                       headerPath="../../Resources/windows-libs/HDF5/include&#10;../../Resources/windows-libs/ZeroMQ/include"
-                       libraryPath="../../Resources/windows-libs/HDF5/lib/x64&#10;../../Resources/windows-libs/ZeroMQ/lib_x64"
-                       wholeProgramOptimisation="1" postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2013-x64\*.dll&quot; &quot;$(OutDir)&quot;"
+                       headerPath="" libraryPath="" wholeProgramOptimisation="1" postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2013-x64\*.dll&quot; &quot;$(OutDir)&quot;"
                        fastMath="1" useRuntimeLibDLL="1"/>
         <CONFIGURATION name="Release64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\x64\Release64\bin"
-                       headerPath="../../Resources/windows-libs/HDF5/include&#10;../../Resources/windows-libs/ZeroMQ/include"
-                       libraryPath="../../Resources/windows-libs/HDF5/lib/x64&#10;../../Resources/windows-libs/ZeroMQ/lib_x64"
-                       postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2013-x64\*.dll&quot; &quot;$(OutDir)&quot;"
+                       headerPath="" libraryPath="" postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2013-x64\*.dll&quot; &quot;$(OutDir)&quot;"
                        fastMath="1" useRuntimeLibDLL="1"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
@@ -295,15 +279,6 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
-        <GROUP id="{6FA57F74-56F2-BB55-177E-B0E8FA54217F}" name="NetworkEvents">
-          <FILE id="C2QHS4" name="NetworkEventsEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/NetworkEvents/NetworkEventsEditor.cpp"/>
-          <FILE id="qM68wu" name="NetworkEventsEditor.h" compile="0" resource="0"
-                file="Source/Processors/NetworkEvents/NetworkEventsEditor.h"/>
-          <FILE id="cKkI7r" name="NetworkEvents.cpp" compile="1" resource="0"
-                file="Source/Processors/NetworkEvents/NetworkEvents.cpp"/>
-          <FILE id="xYFMhh" name="NetworkEvents.h" compile="0" resource="0" file="Source/Processors/NetworkEvents/NetworkEvents.h"/>
-        </GROUP>
         <GROUP id="{AA47A836-2CD5-F803-C043-23BBBCFDA0CF}" name="ProcessorManager">
           <FILE id="KVCpqW" name="ProcessorManager.cpp" compile="1" resource="0"
                 file="Source/Processors/ProcessorManager/ProcessorManager.cpp"/>
@@ -398,10 +373,6 @@
                 file="Source/Processors/Editors/VisualizerEditor.h"/>
         </GROUP>
         <GROUP id="{27CF9A8D-7C31-9AA9-6DCA-6C719E127923}" name="FileReader">
-          <FILE id="i8d55i" name="KwikFileSource.cpp" compile="1" resource="0"
-                file="Source/Processors/FileReader/KwikFileSource.cpp"/>
-          <FILE id="MXFbiF" name="KwikFileSource.h" compile="1" resource="0"
-                file="Source/Processors/FileReader/KwikFileSource.h"/>
           <FILE id="O6lxmJ" name="FileSource.cpp" compile="1" resource="0" file="Source/Processors/FileReader/FileSource.cpp"/>
           <FILE id="CHKZ6y" name="FileSource.h" compile="1" resource="0" file="Source/Processors/FileReader/FileSource.h"/>
           <FILE id="Pg9JfX" name="FileReader.cpp" compile="1" resource="0" file="Source/Processors/FileReader/FileReader.cpp"/>
@@ -462,22 +433,6 @@
           <FILE id="ccpPpJ" name="RecordNode.cpp" compile="1" resource="0" file="Source/Processors/RecordNode/RecordNode.cpp"/>
           <FILE id="R9n30e" name="RecordNode.h" compile="1" resource="0" file="Source/Processors/RecordNode/RecordNode.h"/>
         </GROUP>
-        <GROUP id="{273A4CD9-60CE-A6A3-13E9-8BCAF573E024}" name="PSTH">
-          <FILE id="Y6TRvD" name="PeriStimulusTimeHistogramEditor.cpp" compile="1"
-                resource="0" file="Source/Processors/PSTH/PeriStimulusTimeHistogramEditor.cpp"/>
-          <FILE id="Z4mUYg" name="PeriStimulusTimeHistogramEditor.h" compile="1"
-                resource="0" file="Source/Processors/PSTH/PeriStimulusTimeHistogramEditor.h"/>
-          <FILE id="QpvGnH" name="PeriStimulusTimeHistogramNode.cpp" compile="1"
-                resource="0" file="Source/Processors/PSTH/PeriStimulusTimeHistogramNode.cpp"/>
-          <FILE id="zptezx" name="PeriStimulusTimeHistogramNode.h" compile="1"
-                resource="0" file="Source/Processors/PSTH/PeriStimulusTimeHistogramNode.h"/>
-          <FILE id="t5D2ke" name="tictoc.cpp" compile="1" resource="0" file="Source/Processors/PSTH/tictoc.cpp"/>
-          <FILE id="Jshr7Y" name="tictoc.h" compile="1" resource="0" file="Source/Processors/PSTH/tictoc.h"/>
-          <FILE id="hcemDS" name="TrialCircularBuffer.cpp" compile="1" resource="0"
-                file="Source/Processors/PSTH/TrialCircularBuffer.cpp"/>
-          <FILE id="fDpocU" name="TrialCircularBuffer.h" compile="1" resource="0"
-                file="Source/Processors/PSTH/TrialCircularBuffer.h"/>
-        </GROUP>
         <GROUP id="{58E5BDC1-3523-0E4D-2402-72726098BA07}" name="SourceNode">
           <FILE id="bcB5hN" name="SourceNode.cpp" compile="1" resource="0" file="Source/Processors/SourceNode/SourceNode.cpp"/>
           <FILE id="Dyas33" name="SourceNode.h" compile="1" resource="0" file="Source/Processors/SourceNode/SourceNode.h"/>
@@ -485,36 +440,6 @@
                 file="Source/Processors/SourceNode/SourceNodeEditor.cpp"/>
           <FILE id="EWFh9x" name="SourceNodeEditor.h" compile="1" resource="0"
                 file="Source/Processors/SourceNode/SourceNodeEditor.h"/>
-        </GROUP>
-        <GROUP id="{3C98FCA3-673A-3E34-ABC6-D506EF05DDD4}" name="SpikeDisplayNode">
-          <FILE id="Ak6yJU" name="SpikeDisplayCanvas.cpp" compile="1" resource="0"
-                file="Source/Processors/SpikeDisplayNode/SpikeDisplayCanvas.cpp"/>
-          <FILE id="Ivm1WE" name="SpikeDisplayCanvas.h" compile="1" resource="0"
-                file="Source/Processors/SpikeDisplayNode/SpikeDisplayCanvas.h"/>
-          <FILE id="tzcDUJ" name="SpikeDisplayEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/SpikeDisplayNode/SpikeDisplayEditor.cpp"/>
-          <FILE id="qpnGQ2" name="SpikeDisplayEditor.h" compile="1" resource="0"
-                file="Source/Processors/SpikeDisplayNode/SpikeDisplayEditor.h"/>
-          <FILE id="Osx5Vs" name="SpikeDisplayNode.cpp" compile="1" resource="0"
-                file="Source/Processors/SpikeDisplayNode/SpikeDisplayNode.cpp"/>
-          <FILE id="EYFdq6" name="SpikeDisplayNode.h" compile="1" resource="0"
-                file="Source/Processors/SpikeDisplayNode/SpikeDisplayNode.h"/>
-        </GROUP>
-        <GROUP id="{B65E315B-E451-52BB-C46B-DFC8CFE52512}" name="SpikeSorter">
-          <FILE id="IDfGJU" name="SpikeSortBoxes.cpp" compile="1" resource="0"
-                file="Source/Processors/SpikeSorter/SpikeSortBoxes.cpp"/>
-          <FILE id="oKqHU5" name="SpikeSortBoxes.h" compile="1" resource="0"
-                file="Source/Processors/SpikeSorter/SpikeSortBoxes.h"/>
-          <FILE id="ZvsSnb" name="SpikeSorter.cpp" compile="1" resource="0" file="Source/Processors/SpikeSorter/SpikeSorter.cpp"/>
-          <FILE id="iWFZ8N" name="SpikeSorter.h" compile="1" resource="0" file="Source/Processors/SpikeSorter/SpikeSorter.h"/>
-          <FILE id="AAjUyt" name="SpikeSorterCanvas.cpp" compile="1" resource="0"
-                file="Source/Processors/SpikeSorter/SpikeSorterCanvas.cpp"/>
-          <FILE id="vSwtHQ" name="SpikeSorterCanvas.h" compile="1" resource="0"
-                file="Source/Processors/SpikeSorter/SpikeSorterCanvas.h"/>
-          <FILE id="eRXHEt" name="SpikeSorterEditor.cpp" compile="1" resource="0"
-                file="Source/Processors/SpikeSorter/SpikeSorterEditor.cpp"/>
-          <FILE id="seDqmg" name="SpikeSorterEditor.h" compile="1" resource="0"
-                file="Source/Processors/SpikeSorter/SpikeSorterEditor.h"/>
         </GROUP>
         <GROUP id="{393F8FA9-FA27-4F2D-8252-9AB2CAA871DA}" name="Splitter">
           <FILE id="xbkXa2" name="Splitter.cpp" compile="1" resource="0" file="Source/Processors/Splitter/Splitter.cpp"/>
