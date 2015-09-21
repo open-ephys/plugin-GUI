@@ -25,6 +25,7 @@
 #define FILESOURCE_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
 struct RecordedChannelInfo
 {
@@ -32,7 +33,7 @@ struct RecordedChannelInfo
     float bitVolts;
 };
 
-class FileSource
+class PLUGIN_API FileSource
 {
 public:
     FileSource();

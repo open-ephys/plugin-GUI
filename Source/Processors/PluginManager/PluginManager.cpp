@@ -183,7 +183,15 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			break;
 		}
 		case Plugin::FileSourcePlugin:
+		{
 			break;
+			LoadedPluginInfo<Plugin::FileSourceInfo> info;
+			info.creator = pInfo.fileSource.creator;
+			strcpy(info.name, pInfo.fileSource.name);
+			strcpy(info.extensions, pInfo.fileSource.extensions);
+			info.libIndex = libArray.size();
+			fileSourcePlugins.add(info);
+		}
 		}
 	}
 	AccessClass::getProcessorList()->fillItemList();
@@ -206,6 +214,11 @@ int PluginManager::getNumRecordEngines()
 	return recordEnginePlugins.size();
 }
 
+int PluginManager::getNumFileSources()
+{
+	return fileSourcePlugins.size();
+}
+
 Plugin::ProcessorInfo PluginManager::getProcessorInfo(int index)
 {
 	return processorPlugins[index];
@@ -221,6 +234,10 @@ Plugin::RecordEngineInfo PluginManager::getRecordEngineInfo(int index)
 	return recordEnginePlugins[index];
 }
 
+Plugin::FileSourceInfo PluginManager::getFileSourceInfo(int index)
+{
+	return fileSourcePlugins[index];
+}
 
 #if 0
 PluginManager::Plugin::Plugin() {

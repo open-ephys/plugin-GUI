@@ -102,6 +102,8 @@ private:
 
     HeapBlock<int16> readBuffer;
 
+	HashMap<String, int> supportedExtensions;
+
     void setActiveRecording(int index);
     unsigned int samplesToMilliseconds(int64 samples);
     int64 millisecondsToSamples(unsigned int ms);

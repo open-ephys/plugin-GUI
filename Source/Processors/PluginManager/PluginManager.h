@@ -64,16 +64,18 @@ public:
 	int getNumProcessors();
 	int getNumDataThreads();
 	int getNumRecordEngines();
+	int getNumFileSources();
 	Plugin::ProcessorInfo getProcessorInfo(int index);
 	Plugin::DataThreadInfo getDataThreadInfo(int index);
 	Plugin::RecordEngineInfo getRecordEngineInfo(int index);
+	Plugin::FileSourceInfo getFileSourceInfo(int index);
 
 private:
 	Array<LoadedLibInfo> libArray;
 	Array<LoadedPluginInfo<Plugin::ProcessorInfo>> processorPlugins;
 	Array<LoadedPluginInfo<Plugin::DataThreadInfo>> dataThreadPlugins;
 	Array<LoadedPluginInfo<Plugin::RecordEngineInfo>> recordEnginePlugins;
-	
+	Array<LoadedPluginInfo<Plugin::FileSourceInfo>> fileSourcePlugins;
 	/*Manager(void) {};
 	~Manager(void) {};
 	Manager(const Manager &) {};

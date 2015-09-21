@@ -24,8 +24,9 @@
 #include "FileReader.h"
 #include "FileReaderEditor.h"
 #include <stdio.h>
+#include "../../AccessClass.h"
+#include "../PluginManager/PluginManager.h"
 
-#include "KwikFileSource.h"
 
 FileReader::FileReader()
     : GenericProcessor("File Reader")
@@ -36,7 +37,17 @@ FileReader::FileReader()
     enabledState(false);
 
     counter = 0;
-
+	
+	for (int i = 0; i < AccessClass::getPluginManager()->getNumFileSources(); i++)
+	{
+		Plugin::FileSourceInfo info = AccessClass::getPluginManager()->getFileSourceInfo(i);
+		StringArray extensions;
+		extensions.addTokens(info.extensions, ";", "\"");
+		for (int j = 0; j < extensions.size(); j++)
+		{
+			supportedExtensions.set(extensions[j], i + 1);
+		}
+	}
 }
 
 FileReader::~FileReader()
@@ -108,9 +119,12 @@ bool FileReader::setFile(String fullpath)
 
     String ext = file.getFileExtension();
 
-    if (!ext.compareIgnoreCase(".kwd"))
+	int index = supportedExtensions[ext] - 1;
+
+    if (index >= 0)
     {
-        input = new KWIKFileSource();
+		Plugin::FileSourceInfo sourceInfo = AccessClass::getPluginManager()->getFileSourceInfo(index);
+		input = sourceInfo.creator();
     }
     else
     {

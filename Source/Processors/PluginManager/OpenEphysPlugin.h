@@ -45,12 +45,14 @@ class GenericProcessor;
 class DataThread;
 class SourceNode;
 class RecordEngineManager;
+class FileSource;
 
 #define PLUGIN_API_VER 1
 
 typedef GenericProcessor*(*ProcessorCreator)();
 typedef DataThread*(*DataThreadCreator)(SourceNode*);
 typedef RecordEngineManager*(*EngineManagerCreator)();
+typedef FileSource*(*FileSourceCreator)();
 
 namespace Plugin
 {
@@ -83,6 +85,13 @@ namespace Plugin
 		EngineManagerCreator creator;
 	};
 
+	struct FileSourceInfo
+	{
+		char name[100];
+		FileSourceCreator creator;
+		char extensions[100]; //Semicolon separated list of extensions. Eg: "txt;dat;info;kwd"
+	};
+
 	struct LibraryInfo
 	{
 		char name[300];
@@ -98,6 +107,7 @@ namespace Plugin
 			ProcessorInfo processor;
 			DataThreadInfo dataThread;
 			RecordEngineInfo recordEngine;
+			FileSourceInfo fileSource;
 		};
 	};
 
@@ -117,6 +127,12 @@ namespace Plugin
 	RecordEngineManager* createRecordEngine()
 	{
 		return T::getEngineManager();
+	}
+
+	template<class T>
+	FileSource* createFileSource()
+	{
+		return new T;
 	}
 
 };
