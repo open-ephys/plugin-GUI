@@ -79,6 +79,8 @@
 
 	AccessClass::setUIComponent(this);
 
+	getPluginManager()->loadAllPlugins();
+
 	getProcessorList()->fillItemList();
 	controlPanel->updateChildComponents();
 
@@ -354,8 +356,6 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		menu.addCommandItem(commandManager, saveConfiguration);
 		menu.addCommandItem(commandManager, saveConfigurationAs);
 		menu.addSeparator();
-		menu.addCommandItem(commandManager, loadPlugin);
-		menu.addSeparator();
 		menu.addCommandItem(commandManager, reloadOnStartup);
 
 #if !JUCE_MAC
@@ -414,7 +414,6 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 	const CommandID ids[] = {openConfiguration,
 		saveConfiguration,
 		saveConfigurationAs,
-		loadPlugin,
 		reloadOnStartup,
 		undo,
 		redo,
@@ -453,11 +452,6 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 		case saveConfigurationAs:
 			result.setInfo("Save as...", "Save the current processor graph with a new name.", "General", 0);
 			result.addDefaultKeypress('S', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
-			break;
-
-		case loadPlugin:
-			result.setInfo("Load processor...", "Load a custom compiled processor.", "General", 0);
-			result.addDefaultKeypress('L', ModifierKeys::commandModifier);
 			break;
 
 		case reloadOnStartup:
@@ -601,35 +595,6 @@ bool UIComponent::perform(const InvocationInfo& info)
 					sendActionMessage("No file chosen.");
 				}
 
-				break;
-			}
-
-		case loadPlugin:
-			{
-				// Load UI for choosing plugin
-				File pluginFile;
-				FileChooser fc("Choose the file name...", File::getCurrentWorkingDirectory(), "*.dll", true);
-
-				// Store user input
-				if(fc.browseForFileToOpen())
-					pluginFile = fc.getResult();
-				else
-				{
-					CoreServices::sendStatusMessage("No processor selected.");
-					break;
-				}
-
-				// UI Status string
-				String error = "Loaded ";
-				error += pluginFile.getFileName();
-
-				// Add to processor list
-				if(getPluginManager()->loadPlugin(pluginFile.getFullPathName()))
-				{
-					CoreServices::sendStatusMessage(String("Failed to load: " + pluginFile.getFileName()));
-					break;
-				}
-				CoreServices::sendStatusMessage(String("Loaded: " + pluginFile.getFileName()));
 				break;
 			}
 

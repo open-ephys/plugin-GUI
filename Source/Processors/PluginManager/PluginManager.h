@@ -58,6 +58,7 @@ class PluginManager {
 public:
 	PluginManager();
 	~PluginManager();
+	void loadAllPlugins();
 	int loadPlugin(const String&);
 	//void unloadPlugin(Plugin *);
 	void removeAllPlugins();

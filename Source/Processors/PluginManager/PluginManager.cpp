@@ -58,6 +58,43 @@ PluginManager::~PluginManager()
 {
 }
 
+
+void PluginManager::loadAllPlugins()
+{
+	Array<File> foundDLLs;
+
+#ifdef WIN32
+	File pluginPath = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins");
+	String pluginExt("*.dll");
+#else
+	File pluginPath = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins");
+	String pluginExt("*.so");
+#endif
+
+
+	if (!pluginPath.isDirectory())
+	{
+		std::cout << "Plugin path not found" << std::endl;
+		return;
+	}
+	
+	pluginPath.findChildFiles(foundDLLs, File::findFiles, true, "*.dll");
+
+	for (int i = 0; i < foundDLLs.size(); i++)
+	{
+		std::cout << "Loading Plugin: " << foundDLLs[i].getFileNameWithoutExtension() << "... " << std::flush;
+		int res = loadPlugin(foundDLLs[i].getFullPathName());
+		if (res < 0)
+		{
+			std::cout << " DLL Load FAILED" << std::endl;
+		}
+		else
+		{
+			std::cout << "Loaded with " << res << " plugins" << std::endl;
+		}
+	}
+}
+
 /*
 	 Takes the user-specified plugin and begins
 	 dynamic loading process. We want to ensure that
@@ -194,9 +231,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 		}
 		}
 	}
-	AccessClass::getProcessorList()->fillItemList();
-	AccessClass::getControlPanel()->updateRecordEngineList();
-	return 0;
+	return lib.numPlugins;
 }
 
 int PluginManager::getNumProcessors()

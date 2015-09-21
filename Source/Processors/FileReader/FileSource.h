@@ -83,6 +83,8 @@ private:
     virtual bool Open(File file)=0;
     virtual void fillRecordInfo()=0;
     virtual void updateActiveRecord()=0;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileSource);
 };
 
 
