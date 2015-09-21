@@ -99,8 +99,6 @@ OBJECTS := \
   $(OBJDIR)/Parameter_b3e5ac9e.o \
   $(OBJDIR)/ProcessorGraph_8c3a250a.o \
   $(OBJDIR)/EngineConfigWindow_4fd44ceb.o \
-  $(OBJDIR)/HDF5FileFormat_be712135.o \
-  $(OBJDIR)/HDF5Recording_d14f7b19.o \
   $(OBJDIR)/OriginalRecording_d6dc3293.o \
   $(OBJDIR)/RecordEngine_97ef83aa.o \
   $(OBJDIR)/RecordNode_cc21a82a.o \
@@ -408,16 +406,6 @@ $(OBJDIR)/ProcessorGraph_8c3a250a.o: ../../Source/Processors/ProcessorGraph/Proc
 $(OBJDIR)/EngineConfigWindow_4fd44ceb.o: ../../Source/Processors/RecordNode/EngineConfigWindow.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EngineConfigWindow.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/HDF5FileFormat_be712135.o: ../../Source/Processors/RecordNode/HDF5FileFormat.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling HDF5FileFormat.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/HDF5Recording_d14f7b19.o: ../../Source/Processors/RecordNode/HDF5Recording.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling HDF5Recording.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/OriginalRecording_d6dc3293.o: ../../Source/Processors/RecordNode/OriginalRecording.cpp

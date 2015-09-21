@@ -145,14 +145,29 @@ void RecordEngineManager::addParameter(EngineParameter* param)
     parameters.add(param);
 }
 
+int RecordEngineManager::getNumOfBuiltInEngines()
+{
+	return 1;
+}
+
+RecordEngineManager* RecordEngineManager::createBuiltInEngineManager(int index)
+{
+	switch (index)
+	{
+	case 0:
+		return OriginalRecording::getEngineManager();
+		break;
+	default:
+		return nullptr;
+	}
+}
+
 RecordEngine* RecordEngineManager::instantiateEngine()
 {
     if (creator)
         return creator();
 
     //Built-in engines
-    if (id == "KWIK")
-        return new HDF5Recording();
 
     if (id == "OPENEPHYS")
         return new OriginalRecording();
@@ -249,22 +264,4 @@ void RecordEngineManager::loadParametersFromXml(XmlElement* xml)
     }
 }
 
-int RecordEngineManager::getNumOfBuiltInEngines()
-{
-    return 2;
-}
 
-RecordEngineManager* RecordEngineManager::createBuiltInEngineManager(int index)
-{
-    switch (index)
-    {
-        case 0:
-            return OriginalRecording::getEngineManager();
-            break;
-        case 1:
-            return HDF5Recording::getEngineManager();
-            break;
-        default:
-            return nullptr;
-    }
-}

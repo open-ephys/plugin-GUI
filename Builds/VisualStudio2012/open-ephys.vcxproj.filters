@@ -541,12 +541,6 @@
     <ClCompile Include="..\..\Source\Processors\RecordNode\EngineConfigWindow.cpp">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\RecordNode\HDF5FileFormat.cpp">
-      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\RecordNode\HDF5Recording.cpp">
-      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\RecordNode\OriginalRecording.cpp">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
     </ClCompile>
@@ -2047,12 +2041,6 @@
       <Filter>open-ephys\Source\Processors\ProcessorGraph</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\RecordNode\EngineConfigWindow.h">
-      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\RecordNode\HDF5FileFormat.h">
-      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\RecordNode\HDF5Recording.h">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\RecordNode\OriginalRecording.h">

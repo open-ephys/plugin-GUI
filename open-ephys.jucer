@@ -452,13 +452,6 @@
                 file="Source/Processors/RecordNode/EngineConfigWindow.cpp"/>
           <FILE id="iSAT0P" name="EngineConfigWindow.h" compile="1" resource="0"
                 file="Source/Processors/RecordNode/EngineConfigWindow.h"/>
-          <FILE id="gZdszH" name="HDF5FileFormat.cpp" compile="1" resource="0"
-                file="Source/Processors/RecordNode/HDF5FileFormat.cpp"/>
-          <FILE id="EF7IbH" name="HDF5FileFormat.h" compile="1" resource="0"
-                file="Source/Processors/RecordNode/HDF5FileFormat.h"/>
-          <FILE id="dpOVsD" name="HDF5Recording.cpp" compile="1" resource="0"
-                file="Source/Processors/RecordNode/HDF5Recording.cpp"/>
-          <FILE id="DJgCzN" name="HDF5Recording.h" compile="1" resource="0" file="Source/Processors/RecordNode/HDF5Recording.h"/>
           <FILE id="dpsAhU" name="OriginalRecording.cpp" compile="1" resource="0"
                 file="Source/Processors/RecordNode/OriginalRecording.cpp"/>
           <FILE id="okexpc" name="OriginalRecording.h" compile="1" resource="0"
