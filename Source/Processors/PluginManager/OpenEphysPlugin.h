@@ -68,33 +68,33 @@ namespace Plugin
 
 	struct ProcessorInfo
 	{
-		char name[100];
+		const char* name;
 		ProcessorCreator creator;
 		ProcessorType type;
 	};
 
 	struct DataThreadInfo
 	{
-		char name[100];
+		const char* name;
 		DataThreadCreator creator;
 	};
 
 	struct RecordEngineInfo
 	{
-		char name[100];
+		const char* name;
 		EngineManagerCreator creator;
 	};
 
 	struct FileSourceInfo
 	{
-		char name[100];
+		const char* name;
 		FileSourceCreator creator;
-		char extensions[100]; //Semicolon separated list of extensions. Eg: "txt;dat;info;kwd"
+		const char* extensions; //Semicolon separated list of extensions. Eg: "txt;dat;info;kwd"
 	};
 
 	struct LibraryInfo
 	{
-		char name[300];
+		const char* name;
 		int apiVersion;
 		int numPlugins;
 	};

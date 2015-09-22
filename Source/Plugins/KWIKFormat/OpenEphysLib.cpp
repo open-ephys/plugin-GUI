@@ -39,7 +39,7 @@ using namespace Plugin;
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
-	strcpy_s(info->name, "Kwik Format");
+	info->name = "Kwik Format";
 	info->numPlugins = NUM_PLUGINS;
 }
 
@@ -49,13 +49,13 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	{
 	case 0:
 		info->type = Plugin::RecordEnginePlugin;
-		strcpy(info->recordEngine.name, "Kwik");
+		info->recordEngine.name = "Kwik";
 		info->recordEngine.creator = &(Plugin::createRecordEngine<HDF5Recording>);
 		break;
 	case 1:
 		info->type = Plugin::FileSourcePlugin;
-		strcpy(info->fileSource.name, "Kwd file");
-		strcpy(info->fileSource.extensions, "kwd");
+		info->fileSource.name = "Kwd file";
+		info->fileSource.extensions = "kwd";
 		info->fileSource.creator = &(Plugin::createFileSource<KWIKFileSource>);
 		break;
 	default:

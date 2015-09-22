@@ -37,7 +37,7 @@ using namespace Plugin;
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
-	strcpy(info->name, "LFP viewer");
+	info->name = "LFP viewer";
 	info->numPlugins = NUM_PLUGINS;
 }
 
@@ -47,7 +47,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	{
 	case 0:
 		info->type = Plugin::ProcessorPlugin;
-		strcpy(info->processor.name, "LFP viewer");
+		info->processor.name = "LFP viewer";
 		info->processor.type = Plugin::SinkProcessor;
 		info->processor.creator = &(Plugin::createProcessor<LfpDisplayNode>);
 		break;

@@ -38,7 +38,7 @@ using namespace Plugin;
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
-	strcpy(info->name, "Rhythm Node");
+	info->name = "Rhythm Node";
 	info->numPlugins = NUM_PLUGINS;
 }
 
@@ -48,7 +48,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	{
 	case 0:
 		info->type = Plugin::DatathreadPlugin;
-		strcpy(info->dataThread.name, "Rhythm FPGA");
+		info->dataThread.name = "Rhythm FPGA";
 		info->dataThread.creator = &(Plugin::createDataThread<RHD2000Thread>);
 		break;
 	default:

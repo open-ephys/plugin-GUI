@@ -178,7 +178,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 
 	LoadedLibInfo lib;
 	lib.apiVersion = libInfo.apiVersion;
-	strcpy(lib.name,libInfo.name);
+	lib.name = libInfo.name;
 	lib.numPlugins = libInfo.numPlugins;
 	lib.handle = handle;
 
@@ -195,7 +195,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 		{
 			LoadedPluginInfo<Plugin::ProcessorInfo> info;
 			info.creator = pInfo.processor.creator;
-			strcpy(info.name, pInfo.processor.name);
+			info.name = pInfo.processor.name;
 			info.type = pInfo.processor.type;
 			info.libIndex = libArray.size();
 			processorPlugins.add(info);
@@ -205,7 +205,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 		{
 			LoadedPluginInfo<Plugin::RecordEngineInfo> info;
 			info.creator = pInfo.recordEngine.creator;
-			strcpy(info.name, pInfo.recordEngine.name);
+			info.name = pInfo.recordEngine.name;
 			info.libIndex = libArray.size();
 			recordEnginePlugins.add(info);
 			break;
@@ -214,7 +214,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 		{
 			LoadedPluginInfo<Plugin::DataThreadInfo> info;
 			info.creator = pInfo.dataThread.creator;
-			strcpy(info.name, pInfo.dataThread.name);
+			info.name = pInfo.dataThread.name;
 			info.libIndex = libArray.size();
 			dataThreadPlugins.add(info);
 			break;
@@ -223,8 +223,8 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 		{
 			LoadedPluginInfo<Plugin::FileSourceInfo> info;
 			info.creator = pInfo.fileSource.creator;
-			strcpy(info.name, pInfo.fileSource.name);
-			strcpy(info.extensions, pInfo.fileSource.extensions);
+			info.name = pInfo.fileSource.name;
+			info.extensions = pInfo.fileSource.extensions;
 			info.libIndex = libArray.size();
 			fileSourcePlugins.add(info);
 			break;
