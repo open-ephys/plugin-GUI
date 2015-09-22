@@ -25,7 +25,7 @@
 #define CORESERVICES_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "Processors\PluginManager\OpenEphysPlugin.h"
+#include "Processors/PluginManager/OpenEphysPlugin.h"
 
 class GenericEditor;
 struct SpikeObject;
