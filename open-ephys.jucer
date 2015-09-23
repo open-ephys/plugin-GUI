@@ -12,8 +12,8 @@
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
-               extraLinkerFlags="-lhdf5 -lhdf5_cpp -lzmq" objCExtraSuffix="fea2mT"
-               extraDefs="ZEROMQ">
+               extraLinkerFlags="-ldl -fPIC -rdynamic" objCExtraSuffix="fea2mT"
+               extraDefs="" extraCompilerFlags="-rdynamic ">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="default" osxArchitecture="default"
@@ -40,15 +40,13 @@
         <MODULEPATH id="juce_audio_basics" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" extraLinkerFlags="-pg -ldl -lXext -lGLU -lhdf5 -lhdf5_cpp -lzmq -fPIC"
-                extraCompilerFlags="-export-dynamic -g -pg -std=c++0x" extraDefs="ZEROMQ">
+    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" extraLinkerFlags="-pg -ldl -lXext -lGLU -rdynamic -fPIC"
+                extraCompilerFlags="-rdynamic -g -pg -std=c++0x" extraDefs="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
-                       libraryPath="/usr/X11R6/lib/&#10;/usr/local/include&#10;/usr/lib/x86_64-linux-gnu/hdf5/serial"
-                       headerPath="/usr/include/hdf5/serial"/>
+                       libraryPath="/usr/X11R6/lib/&#10;/usr/local/include&#10;" headerPath=""/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys-release"
-                       libraryPath="/usr/X11R6/lib/&#10;/usr/lib/x86_64-linux-gnu/hdf5/serial"
-                       headerPath="/usr/include/hdf5/serial"/>
+                       libraryPath="/usr/X11R6/lib/&#10;" headerPath=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>
@@ -279,6 +277,56 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <GROUP id="{9F37E2FD-6871-8370-4C11-5C97DF132390}" name="Dsp">
+          <FILE id="qWmKwI" name="Bessel.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Bessel.cpp"/>
+          <FILE id="bRbpDP" name="Bessel.h" compile="0" resource="0" file="Source/Processors/Dsp/Bessel.h"/>
+          <FILE id="olRf2q" name="Biquad.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Biquad.cpp"/>
+          <FILE id="zw28bj" name="Biquad.h" compile="0" resource="0" file="Source/Processors/Dsp/Biquad.h"/>
+          <FILE id="vm87ac" name="Butterworth.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Butterworth.cpp"/>
+          <FILE id="yXUL9s" name="Butterworth.h" compile="0" resource="0" file="Source/Processors/Dsp/Butterworth.h"/>
+          <FILE id="R6WCBJ" name="Cascade.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Cascade.cpp"/>
+          <FILE id="xrSF2m" name="Cascade.h" compile="0" resource="0" file="Source/Processors/Dsp/Cascade.h"/>
+          <FILE id="ONT4Zc" name="ChebyshevI.cpp" compile="1" resource="0" file="Source/Processors/Dsp/ChebyshevI.cpp"/>
+          <FILE id="TgVELE" name="ChebyshevI.h" compile="0" resource="0" file="Source/Processors/Dsp/ChebyshevI.h"/>
+          <FILE id="fFLdpc" name="ChebyshevII.cpp" compile="1" resource="0" file="Source/Processors/Dsp/ChebyshevII.cpp"/>
+          <FILE id="V3GVav" name="ChebyshevII.h" compile="0" resource="0" file="Source/Processors/Dsp/ChebyshevII.h"/>
+          <FILE id="rwjSKC" name="Common.h" compile="0" resource="0" file="Source/Processors/Dsp/Common.h"/>
+          <FILE id="Wga30r" name="Custom.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Custom.cpp"/>
+          <FILE id="ovYIm6" name="Custom.h" compile="0" resource="0" file="Source/Processors/Dsp/Custom.h"/>
+          <FILE id="aseZ4d" name="Design.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Design.cpp"/>
+          <FILE id="gbiaUO" name="Design.h" compile="0" resource="0" file="Source/Processors/Dsp/Design.h"/>
+          <FILE id="pAR4od" name="Documentation.cpp" compile="1" resource="0"
+                file="Source/Processors/Dsp/Documentation.cpp"/>
+          <FILE id="gtyUWa" name="Dsp.h" compile="0" resource="0" file="Source/Processors/Dsp/Dsp.h"/>
+          <FILE id="QhY16m" name="Elliptic.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Elliptic.cpp"/>
+          <FILE id="rkkvOz" name="Elliptic.h" compile="0" resource="0" file="Source/Processors/Dsp/Elliptic.h"/>
+          <FILE id="qn9PtE" name="Filter.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Filter.cpp"/>
+          <FILE id="VIJFwR" name="Filter.h" compile="0" resource="0" file="Source/Processors/Dsp/Filter.h"/>
+          <FILE id="LzOv5T" name="Layout.h" compile="0" resource="0" file="Source/Processors/Dsp/Layout.h"/>
+          <FILE id="OOUin4" name="Legendre.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Legendre.cpp"/>
+          <FILE id="uJBavs" name="Legendre.h" compile="0" resource="0" file="Source/Processors/Dsp/Legendre.h"/>
+          <FILE id="x9px2h" name="MathSupplement.h" compile="0" resource="0"
+                file="Source/Processors/Dsp/MathSupplement.h"/>
+          <FILE id="Gwteqd" name="Param.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Param.cpp"/>
+          <FILE id="NdukXo" name="Params.h" compile="0" resource="0" file="Source/Processors/Dsp/Params.h"/>
+          <FILE id="wzwQg4" name="PoleFilter.cpp" compile="1" resource="0" file="Source/Processors/Dsp/PoleFilter.cpp"/>
+          <FILE id="UYWPhF" name="PoleFilter.h" compile="0" resource="0" file="Source/Processors/Dsp/PoleFilter.h"/>
+          <FILE id="GYovUV" name="RBJ.cpp" compile="1" resource="0" file="Source/Processors/Dsp/RBJ.cpp"/>
+          <FILE id="h8FOjl" name="RBJ.h" compile="0" resource="0" file="Source/Processors/Dsp/RBJ.h"/>
+          <FILE id="um93X3" name="RootFinder.cpp" compile="1" resource="0" file="Source/Processors/Dsp/RootFinder.cpp"/>
+          <FILE id="zh7BY5" name="RootFinder.h" compile="0" resource="0" file="Source/Processors/Dsp/RootFinder.h"/>
+          <FILE id="vorRl0" name="SmoothedFilter.h" compile="0" resource="0"
+                file="Source/Processors/Dsp/SmoothedFilter.h"/>
+          <FILE id="FzRpQl" name="State.cpp" compile="1" resource="0" file="Source/Processors/Dsp/State.cpp"/>
+          <FILE id="hgyFop" name="State.h" compile="0" resource="0" file="Source/Processors/Dsp/State.h"/>
+          <FILE id="IGEOA4" name="Types.h" compile="0" resource="0" file="Source/Processors/Dsp/Types.h"/>
+          <FILE id="HnzION" name="Utilities.h" compile="0" resource="0" file="Source/Processors/Dsp/Utilities.h"/>
+        </GROUP>
+        <GROUP id="{C2F48EFE-D8E2-6377-AA33-7D93D1327B4A}" name="Serial">
+          <FILE id="TQCfMh" name="ofConstants.h" compile="0" resource="0" file="Source/Processors/Serial/ofConstants.h"/>
+          <FILE id="r7Wuar" name="ofSerial.cpp" compile="1" resource="0" file="Source/Processors/Serial/ofSerial.cpp"/>
+          <FILE id="ZYhkd0" name="ofSerial.h" compile="0" resource="0" file="Source/Processors/Serial/ofSerial.h"/>
+        </GROUP>
         <GROUP id="{AA47A836-2CD5-F803-C043-23BBBCFDA0CF}" name="ProcessorManager">
           <FILE id="KVCpqW" name="ProcessorManager.cpp" compile="1" resource="0"
                 file="Source/Processors/ProcessorManager/ProcessorManager.cpp"/>
@@ -307,51 +355,6 @@
           <FILE id="VCRMcQP" name="DataBuffer.h" compile="1" resource="0" file="Source/Processors/DataThreads/DataBuffer.h"/>
           <FILE id="9JbVKlA" name="DataThread.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/DataThread.cpp"/>
           <FILE id="McgNvuR" name="DataThread.h" compile="1" resource="0" file="Source/Processors/DataThreads/DataThread.h"/>
-        </GROUP>
-        <GROUP id="{BCF99568-D3A2-7CA2-E809-815D22183EA4}" name="Dsp">
-          <FILE id="PHlcin" name="Bessel.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Bessel.cpp"/>
-          <FILE id="YXAcyZ" name="Bessel.h" compile="1" resource="0" file="Source/Processors/Dsp/Bessel.h"/>
-          <FILE id="nOEja0" name="Biquad.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Biquad.cpp"/>
-          <FILE id="DxX7XS" name="Biquad.h" compile="1" resource="0" file="Source/Processors/Dsp/Biquad.h"/>
-          <FILE id="VQ44sd" name="Butterworth.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Butterworth.cpp"/>
-          <FILE id="NVAymk" name="Butterworth.h" compile="1" resource="0" file="Source/Processors/Dsp/Butterworth.h"/>
-          <FILE id="FkrTqV" name="Cascade.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Cascade.cpp"/>
-          <FILE id="pj0T3e" name="Cascade.h" compile="1" resource="0" file="Source/Processors/Dsp/Cascade.h"/>
-          <FILE id="ggju8m" name="ChebyshevI.cpp" compile="1" resource="0" file="Source/Processors/Dsp/ChebyshevI.cpp"/>
-          <FILE id="EGxTwj" name="ChebyshevI.h" compile="1" resource="0" file="Source/Processors/Dsp/ChebyshevI.h"/>
-          <FILE id="nWSeZF" name="ChebyshevII.cpp" compile="1" resource="0" file="Source/Processors/Dsp/ChebyshevII.cpp"/>
-          <FILE id="HS65B6" name="ChebyshevII.h" compile="1" resource="0" file="Source/Processors/Dsp/ChebyshevII.h"/>
-          <FILE id="jumO5X" name="Common.h" compile="1" resource="0" file="Source/Processors/Dsp/Common.h"/>
-          <FILE id="E1ZdBg" name="Custom.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Custom.cpp"/>
-          <FILE id="JAxvZH" name="Custom.h" compile="1" resource="0" file="Source/Processors/Dsp/Custom.h"/>
-          <FILE id="BynrL2" name="Design.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Design.cpp"/>
-          <FILE id="tINM97" name="Design.h" compile="1" resource="0" file="Source/Processors/Dsp/Design.h"/>
-          <FILE id="gikZHr" name="Documentation.cpp" compile="1" resource="0"
-                file="Source/Processors/Dsp/Documentation.cpp"/>
-          <FILE id="nwwW9u" name="Dsp.h" compile="1" resource="0" file="Source/Processors/Dsp/Dsp.h"/>
-          <FILE id="VMtjos" name="Elliptic.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Elliptic.cpp"/>
-          <FILE id="xlw76X" name="Elliptic.h" compile="1" resource="0" file="Source/Processors/Dsp/Elliptic.h"/>
-          <FILE id="SSUdH3" name="Filter.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Filter.cpp"/>
-          <FILE id="jMEqrr" name="Filter.h" compile="1" resource="0" file="Source/Processors/Dsp/Filter.h"/>
-          <FILE id="gORopa" name="Layout.h" compile="1" resource="0" file="Source/Processors/Dsp/Layout.h"/>
-          <FILE id="KFWbTw" name="Legendre.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Legendre.cpp"/>
-          <FILE id="QukTBD" name="Legendre.h" compile="1" resource="0" file="Source/Processors/Dsp/Legendre.h"/>
-          <FILE id="yjHeg0" name="MathSupplement.h" compile="1" resource="0"
-                file="Source/Processors/Dsp/MathSupplement.h"/>
-          <FILE id="lSjPpg" name="Param.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Param.cpp"/>
-          <FILE id="GbSbST" name="Params.h" compile="1" resource="0" file="Source/Processors/Dsp/Params.h"/>
-          <FILE id="iTSDrw" name="PoleFilter.cpp" compile="1" resource="0" file="Source/Processors/Dsp/PoleFilter.cpp"/>
-          <FILE id="c45usH" name="PoleFilter.h" compile="1" resource="0" file="Source/Processors/Dsp/PoleFilter.h"/>
-          <FILE id="UEmTDD" name="RBJ.cpp" compile="1" resource="0" file="Source/Processors/Dsp/RBJ.cpp"/>
-          <FILE id="PjXcyh" name="RBJ.h" compile="1" resource="0" file="Source/Processors/Dsp/RBJ.h"/>
-          <FILE id="n1FzuK" name="RootFinder.cpp" compile="1" resource="0" file="Source/Processors/Dsp/RootFinder.cpp"/>
-          <FILE id="aDg7vK" name="RootFinder.h" compile="1" resource="0" file="Source/Processors/Dsp/RootFinder.h"/>
-          <FILE id="DE0lE3" name="SmoothedFilter.h" compile="1" resource="0"
-                file="Source/Processors/Dsp/SmoothedFilter.h"/>
-          <FILE id="SPcR5B" name="State.cpp" compile="1" resource="0" file="Source/Processors/Dsp/State.cpp"/>
-          <FILE id="D1k4f9" name="State.h" compile="1" resource="0" file="Source/Processors/Dsp/State.h"/>
-          <FILE id="BBxUBy" name="Types.h" compile="1" resource="0" file="Source/Processors/Dsp/Types.h"/>
-          <FILE id="qXPdAz" name="Utilities.h" compile="1" resource="0" file="Source/Processors/Dsp/Utilities.h"/>
         </GROUP>
         <GROUP id="AqvwO6w" name="Editors">
           <FILE id="F68NQ3" name="ChannelSelector.cpp" compile="1" resource="0"

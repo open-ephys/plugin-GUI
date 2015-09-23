@@ -25,6 +25,7 @@
 #define __IMAGEICON_H_ED764AE7__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
 /**
 
@@ -34,7 +35,7 @@
 
 */
 
-class ImageIcon : public Component
+class PLUGIN_API ImageIcon : public Component
 {
 public:
     ImageIcon(Image& image_)

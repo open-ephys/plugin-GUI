@@ -24,11 +24,12 @@
 #endif
 #endif
 
+#include "../PluginManager/OpenEphysPlugin.h"
 #define OF_SERIAL_NO_DATA   -2
 #define OF_SERIAL_ERROR     -1
 // notes below
 
-class ofSerialDeviceInfo
+class PLUGIN_API ofSerialDeviceInfo
 {
     friend class ofSerial;
 
@@ -73,7 +74,7 @@ protected:
 
 
 //----------------------------------------------------------------------
-class ofSerial
+class PLUGIN_API ofSerial
 {
 
 public:

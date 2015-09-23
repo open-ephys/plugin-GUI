@@ -52,7 +52,7 @@ public:
 };
 
 /** Simple generic function to name spike electrode channels */
-String generateSpikeElectrodeName(int numChannels, int index);
+PLUGIN_API String generateSpikeElectrodeName(int numChannels, int index);
 
 #define SPIKE_BASE_CODE 100
 

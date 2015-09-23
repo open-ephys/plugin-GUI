@@ -105,4 +105,9 @@ int addSpikeElectrode(SpikeRecordInfo* elec)
 }
 };
 
+PLUGIN_API const char* getApplicationResource(const char* name, int& size)
+{
+	return BinaryData::getNamedResource(name, size);
+}
+
 };
