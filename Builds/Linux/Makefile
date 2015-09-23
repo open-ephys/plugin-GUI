@@ -18,14 +18,14 @@ ifeq ($(CONFIG),Debug)
     TARGET_ARCH := -march=native
   endif
 
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "ZEROMQ" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules -I /usr/include/hdf5/serial
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3 -export-dynamic -g -pg -std=c++0x
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1"  -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules 
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3 -rdynamic -g -pg -std=c++0x
   CXXFLAGS += $(CFLAGS)
-  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -L/usr/lib/x86_64-linux-gnu/hdf5/serial -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5 -lhdf5_cpp -lzmq -fPIC
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -fPIC
   LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "ZEROMQ" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules -I /usr/include/hdf5/serial
+  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules 
   TARGET := open-ephys
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
+  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH) -rdynamic -fPIC -ldl
   CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
 endif
 
@@ -39,14 +39,14 @@ ifeq ($(CONFIG),Release)
     TARGET_ARCH := -march=native
   endif
 
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "ZEROMQ" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules -I /usr/include/hdf5/serial
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -export-dynamic -g -pg -std=c++0x
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "ZEROMQ" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -rdynamic -g -pg -std=c++0x
   CXXFLAGS += $(CFLAGS)
-  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -L/usr/lib/x86_64-linux-gnu/hdf5/serial -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -lhdf5 -lhdf5_cpp -lzmq -fPIC
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -fPIC
   LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "ZEROMQ" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules -I /usr/include/hdf5/serial
+  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "ZEROMQ" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules 
   TARGET := open-ephys-release
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
+  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH) -rdynamic -fPIC -ldl
   CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
 endif
 

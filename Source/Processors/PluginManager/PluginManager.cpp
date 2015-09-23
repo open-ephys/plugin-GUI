@@ -78,7 +78,7 @@ void PluginManager::loadAllPlugins()
 		return;
 	}
 	
-	pluginPath.findChildFiles(foundDLLs, File::findFiles, true, "*.dll");
+	pluginPath.findChildFiles(foundDLLs, File::findFiles, true, pluginExt);
 
 	for (int i = 0; i < foundDLLs.size(); i++)
 	{
@@ -123,7 +123,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	to memory mishaps.
 	*/
 	void *handle = 0;
-	handle = dlopen(processorLocCString,RTLD_GLOBAL|RTLD_LAZY);
+	handle = dlopen(processorLocCString,RTLD_GLOBAL|RTLD_NOW);
 #else
 	HINSTANCE handle;
 	handle = LoadLibrary(processorLocCString);
