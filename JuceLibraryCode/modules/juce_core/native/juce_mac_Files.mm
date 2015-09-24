@@ -311,12 +311,15 @@ bool File::moveToTrash() const
     {
         NSString* p = juceStringToNS (getFullPathName());
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         return [[NSWorkspace sharedWorkspace]
                     performFileOperation: NSWorkspaceRecycleOperation
                                   source: [p stringByDeletingLastPathComponent]
                              destination: nsEmptyString()
                                    files: [NSArray arrayWithObject: [p lastPathComponent]]
                                      tag: nil ];
+#pragma GCC diagnostic pop
     }
    #endif
 }

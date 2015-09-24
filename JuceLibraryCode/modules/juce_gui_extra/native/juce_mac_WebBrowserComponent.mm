@@ -160,9 +160,9 @@ public:
         static DownloadClickDetectorClass cls;
         clickListener = [cls.createInstance() init];
         DownloadClickDetectorClass::setOwner (clickListener, owner);
-        [webView setPolicyDelegate: clickListener];
-        [webView setFrameLoadDelegate: clickListener];
-        [webView setUIDelegate: clickListener];
+        [webView setPolicyDelegate: (id <WebPolicyDelegate>)clickListener];
+        [webView setFrameLoadDelegate: (id <WebFrameLoadDelegate>)clickListener];
+        [webView setUIDelegate: (id <WebUIDelegate>)clickListener];
        #else
         webView = [[UIWebView alloc] initWithFrame: CGRectMake (0, 0, 1.0f, 1.0f)];
         setView (webView);
