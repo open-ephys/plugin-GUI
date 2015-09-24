@@ -35,8 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DataThread.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
-#define MAX_NUM_DATA_STREAMS 8
-
 class SourceNode;
 
 #if JUCE_WINDOWS
