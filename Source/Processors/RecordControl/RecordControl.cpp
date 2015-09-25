@@ -110,8 +110,124 @@ void RecordControl::handleEvent(int eventType, MidiMessage& event, int)
         {
             CoreServices::setRecordingStatus(!CoreServices::getRecordingStatus());
         }
-
-
     }
+	else if (eventType == MESSAGE)
+	{
+		handleNetworkEvent(event);
+	}
 
 }
+
+void RecordControl::handleNetworkEvent(MidiMessage& event)
+{
+	/** Extract network message from midi event */
+	const uint8* dataptr = event.getRawData();
+	int bufferSize = event.getRawDataSize();
+    int len = bufferSize - 6; // 6 for initial event prefix
+	String msg = String((const char*)(dataptr + 6), len);
+
+	/** Command is first substring */
+    StringArray inputs = StringArray::fromTokens(msg, " ");
+    String cmd = String(inputs[0]);
+
+    const MessageManagerLock mmLock;
+
+    if (String("StartRecord").compareIgnoreCase(cmd) == 0)
+    {
+		if (!CoreServices::getRecordingStatus())
+		{
+			/** First set optional parameters (name/value pairs)*/
+		    if (msg.contains("="))
+		    {
+				String s = msg.substring(cmd.length());
+				StringPairArray dict = parseNetworkMessage(s);
+
+				StringArray keys = dict.getAllKeys();
+		        for (int i=0; i<keys.size(); i++)
+		        {
+					String key = keys[i];
+					String value = dict[key];
+
+		            if (key.compareIgnoreCase("CreateNewDir") == 0)
+		            {
+		                if (value.compareIgnoreCase("1") == 0)
+		                {
+		                    CoreServices::createNewRecordingDir();
+		                }
+		            }
+		            else if (key.compareIgnoreCase("RecDir") == 0)
+		            {
+		                CoreServices::setRecordingDirectory(value);
+		            }
+		            else if (key.compareIgnoreCase("PrependText") == 0)
+		            {
+		                CoreServices::setPrependTextToRecordingDir(value);
+		            }
+		            else if (key.compareIgnoreCase("AppendText") == 0)
+		            {
+	                	CoreServices::setAppendTextToRecordingDir(value);
+		            }
+		        }
+		    }
+
+			/** Start recording */
+		    CoreServices::setRecordingStatus(true);
+		}
+    }
+    else if (String("StopRecord").compareIgnoreCase(cmd) == 0)
+    {
+        if (CoreServices::getRecordingStatus())
+        {
+            CoreServices::setRecordingStatus(false);
+        }
+    }
+}
+
+StringPairArray RecordControl::parseNetworkMessage(String msg)
+{
+    StringArray splitted;
+	splitted.addTokens(msg, "=", "");
+
+	StringPairArray dict = StringPairArray();
+	String key = "";
+	String value = "";
+	for (int i=0; i<splitted.size()-1; i++)
+	{
+		String s1 = splitted[i];
+		String s2 = splitted[i+1];
+
+		/** Get key */
+		if (!key.isEmpty())
+		{
+			if (s1.contains(" "))
+			{
+				int i1 = s1.lastIndexOf(" ");
+				key = s1.substring(i1+1);
+			}
+			else
+			{
+				key = s1;
+			}
+		}
+		else
+		{
+			key = s1.trim();
+		}
+
+		/** Get value */
+		if (i < splitted.size() - 2)
+		{
+			int i1 = s2.lastIndexOf(" ");
+			value = s2.substring(0, i1);
+		}
+		else
+		{
+			value = s2;
+		}
+
+		dict.set(key, value);
+	}
+
+	return dict;
+}
+

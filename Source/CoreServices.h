@@ -42,6 +42,12 @@ bool getRecordingStatus();
 /** Activated or deactivates recording */
 void setRecordingStatus(bool enable);
 
+/** Returns true if the GUI is acquiring data */
+bool getAcquisitionStatus();
+
+/** Activates or deactivates data acquisition */
+void setAcquisitionStatus(bool enable);
+
 /** Sends a string to the message bar */
 void sendStatusMessage(const String& text);
 
@@ -58,6 +64,18 @@ int64 getGlobalTimestamp();
 
 /** Gets the software timestamp based on a high resolution timer aligned to the start of each processing block */
 int64 getSoftwareTimestamp();
+
+/** Set new recording directory */
+void setRecordingDirectory(String dir);
+
+/** Create new recording directory */
+void createNewRecordingDir();
+
+/** Manually set the text to be prepended to the recording directory */
+void setPrependTextToRecordingDir(String text);
+
+/** Manually set the text to be appended to the recording directory */
+void setAppendTextToRecordingDir(String text);
 
 namespace RecordNode
 {

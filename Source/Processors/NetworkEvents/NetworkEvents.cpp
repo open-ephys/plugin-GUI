@@ -405,7 +405,31 @@ String NetworkEvents::handleSpecialMessages(StringTS msg)
     }
 
     */
-    return String("NotHandled");
+
+	/** Start/stop data acquisition */
+	String s = msg.getString();
+
+	const MessageManagerLock mmLock;
+	if (s.compareIgnoreCase("StartAcquisition") == 0)
+	{
+		if (!CoreServices::getAcquisitionStatus())
+	    {
+	        CoreServices::setAcquisitionStatus(true);
+	    }
+		return String("StartedAcquisition");
+	}
+	else if (s.compareIgnoreCase("StopAcquisition") == 0)
+	{
+		if (CoreServices::getAcquisitionStatus())
+	    {
+	        CoreServices::setAcquisitionStatus(false);
+	    }
+		return String("StoppedAcquisition");
+	}
+	else
+	{
+	    return String("NotHandled");
+	}
 }
 
 void NetworkEvents::process(AudioSampleBuffer& buffer,
