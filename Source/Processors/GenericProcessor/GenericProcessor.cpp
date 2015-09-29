@@ -769,7 +769,8 @@ void GenericProcessor::addEvent(MidiBuffer& eventBuffer,
     if (!isTimestamp && !timestampSet && !isSource() && !generatesTimestamps())
         setTimestamp(eventBuffer, getTimestamp(0));
 
-    uint8* data = new uint8[6+numBytes];
+	HeapBlock<uint8> data(static_cast<const size_t>(6 + numBytes));
+    //uint8* data = new uint8[6+numBytes];
 
     data[0] = type;    // event type
     data[1] = nodeId;  // processor ID automatically added
