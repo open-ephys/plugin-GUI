@@ -118,8 +118,10 @@ private:
     DataBuffer* inputBuffer;
 
     uint64 timestamp;
-    uint64* eventCodeBuffer;
-    int* eventChannelState;
+    //uint64* eventCodeBuffer;
+    //int* eventChannelState;
+	HeapBlock<uint64> eventCodeBuffer;
+	HeapBlock<int> eventChannelState;
 
     int ttlState;
 
