@@ -22,6 +22,10 @@ def unpacker(format, *fields):
 
     def unpack(data):
         values = s.unpack(data[:s.size])
+        if (len(values) == 1) and (not fields):
+            assert len(data) == s.size
+            return values[0], ''
+        assert len(values) <= len(fields)
         return (OrderedDict(izip(fields, chain(values, repeat(None)))),
                 data[s.size:])
 
@@ -34,6 +38,9 @@ unpack_standard = unpacker('3BxB',
                            'event_channel',
                            'source_node_id',
                            )
+
+
+unpack_ttl = unpacker('<Q')
 
 
 unpack_spike = unpacker('<2q2x5H3B2fH',
@@ -79,6 +86,7 @@ def run(hostname='localhost', port=5557):
                         header, body = unpack_standard(body)
     
                         if etype == TTL:
+                            word, body = unpack_ttl(body)
                             print('%g: TTL: Channel %d: %s' %
                                   (timestamp_seconds,
                                    header['event_channel'] + 1,
