@@ -114,7 +114,6 @@ OBJECTS := \
   $(OBJDIR)/DataWindow_83ce6754.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/MatlabLikePlot_fb09c37f.o \
-  $(OBJDIR)/EcubeDialogComponent_2ec3bd57.o \
   $(OBJDIR)/CustomArrowButton_206e4278.o \
   $(OBJDIR)/GraphViewer_e43fd2ce.o \
   $(OBJDIR)/EditorViewportButtons_29af2a5c.o \
@@ -474,11 +473,6 @@ $(OBJDIR)/SpikeObject_24e8c655.o: ../../Source/Processors/Visualization/SpikeObj
 $(OBJDIR)/MatlabLikePlot_fb09c37f.o: ../../Source/Processors/Visualization/MatlabLikePlot.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling MatlabLikePlot.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/EcubeDialogComponent_2ec3bd57.o: ../../Source/UI/EcubeDialogComponent.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling EcubeDialogComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/CustomArrowButton_206e4278.o: ../../Source/UI/CustomArrowButton.cpp

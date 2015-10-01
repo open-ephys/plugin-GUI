@@ -492,10 +492,6 @@
         </GROUP>
       </GROUP>
       <GROUP id="RNGb1yR" name="UI">
-        <FILE id="PBkkUW" name="EcubeDialogComponent.cpp" compile="1" resource="0"
-              file="Source/UI/EcubeDialogComponent.cpp"/>
-        <FILE id="MFmxar" name="EcubeDialogComponent.h" compile="1" resource="0"
-              file="Source/UI/EcubeDialogComponent.h"/>
         <FILE id="gXswXJ" name="CustomArrowButton.cpp" compile="1" resource="0"
               file="Source/UI/CustomArrowButton.cpp"/>
         <FILE id="ECOEoc" name="CustomArrowButton.h" compile="1" resource="0"

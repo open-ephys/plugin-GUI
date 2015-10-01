@@ -322,7 +322,6 @@
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp"/>
-    <ClCompile Include="..\..\Source\UI\EcubeDialogComponent.cpp"/>
     <ClCompile Include="..\..\Source\UI\CustomArrowButton.cpp"/>
     <ClCompile Include="..\..\Source\UI\GraphViewer.cpp"/>
     <ClCompile Include="..\..\Source\UI\EditorViewportButtons.cpp"/>
@@ -1531,7 +1530,6 @@
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\MatlabLikePlot.h"/>
-    <ClInclude Include="..\..\Source\UI\EcubeDialogComponent.h"/>
     <ClInclude Include="..\..\Source\UI\CustomArrowButton.h"/>
     <ClInclude Include="..\..\Source\UI\GraphViewer.h"/>
     <ClInclude Include="..\..\Source\UI\EditorViewportButtons.h"/>
