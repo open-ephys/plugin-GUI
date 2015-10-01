@@ -1485,7 +1485,7 @@ bool RHD2000Thread::stopAcquisition()
 
 bool RHD2000Thread::updateBuffer()
 {
-	int chOffset;
+	//int chOffset;
 	unsigned char* bufferPtr;
     //cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
     //cout << "Block size: " << blockSize << endl;

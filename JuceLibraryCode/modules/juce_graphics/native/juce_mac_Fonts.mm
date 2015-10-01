@@ -272,16 +272,22 @@ namespace CoreTextTypeLayout
         }
 
         // Paragraph Attributes
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         CTTextAlignment ctTextAlignment = kCTLeftTextAlignment;
+#pragma GCC diagnostic pop
         CTLineBreakMode ctLineBreakMode = kCTLineBreakByWordWrapping;
         const CGFloat ctLineSpacing = text.getLineSpacing();
 
         switch (text.getJustification().getOnlyHorizontalFlags())
         {
             case Justification::left:                   break;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
             case Justification::right:                  ctTextAlignment = kCTRightTextAlignment; break;
             case Justification::horizontallyCentred:    ctTextAlignment = kCTCenterTextAlignment; break;
             case Justification::horizontallyJustified:  ctTextAlignment = kCTJustifiedTextAlignment; break;
+#pragma GCC diagnostic pop
             default:                                    jassertfalse; break; // Illegal justification flags
         }
 

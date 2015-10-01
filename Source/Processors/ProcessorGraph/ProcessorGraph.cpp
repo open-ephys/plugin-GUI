@@ -30,6 +30,7 @@
 #include "../LfpDisplayNode/LfpDisplayNode.h"
 #include "../SpikeDisplayNode/SpikeDisplayNode.h"
 #include "../EventNode/EventNode.h"
+#include "../EventBroadcaster/EventBroadcaster.h"
 #include "../FilterNode/FilterNode.h"
 #include "../RecordNode/RecordNode.h"
 #include "../ResamplingNode/ResamplingNode.h"
@@ -672,6 +673,11 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(String& descrip
 			std::cout << "Creating a PSTH output node." << std::endl;
 			processor = new PeriStimulusTimeHistogramNode();
 		}
+        else if (subProcessorType.equalsIgnoreCase("Event Broadcaster"))
+        {
+            std::cout << "Creating an Event Broadcaster output node." << std::endl;
+            processor = new EventBroadcaster();
+        }
 
 		CoreServices::sendStatusMessage("New sink created.");
     }

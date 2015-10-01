@@ -97,6 +97,8 @@ OBJECTS := \
   $(OBJDIR)/ImageIcon_c89b23a6.o \
   $(OBJDIR)/VisualizerEditor_3672b003.o \
   $(OBJDIR)/NetworkEventsEditor_fd22826.o \
+  $(OBJDIR)/EventBroadcaster_babd0c4a.o \
+  $(OBJDIR)/EventBroadcasterEditor_55664797.o \
   $(OBJDIR)/EventDetector_d0f4d00c.o \
   $(OBJDIR)/EventNode_857d5604.o \
   $(OBJDIR)/EventNodeEditor_2652ddd1.o \
@@ -435,6 +437,16 @@ $(OBJDIR)/VisualizerEditor_3672b003.o: ../../Source/Processors/Editors/Visualize
 $(OBJDIR)/NetworkEventsEditor_fd22826.o: ../../Source/Processors/Editors/NetworkEventsEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling NetworkEventsEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/EventBroadcaster_babd0c4a.o: ../../Source/Processors/EventBroadcaster/EventBroadcaster.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling EventBroadcaster.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/EventBroadcasterEditor_55664797.o: ../../Source/Processors/EventBroadcaster/EventBroadcasterEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling EventBroadcasterEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/EventDetector_d0f4d00c.o: ../../Source/Processors/EventDetector/EventDetector.cpp

@@ -29,6 +29,9 @@
 #endif
 
 //==============================================================================
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic ignored "-Wnonnull"
 struct SystemVol
 {
     SystemVol (AudioObjectPropertySelector selector)
@@ -123,6 +126,7 @@ private:
                  && isSettable;
     }
 };
+#pragma GCC diagnostic pop
 
 #define JUCE_SYSTEMAUDIOVOL_IMPLEMENTED 1
 float JUCE_CALLTYPE SystemAudioVolume::getGain()              { return SystemVol (kAudioHardwareServiceDeviceProperty_VirtualMasterVolume).getGain(); }
