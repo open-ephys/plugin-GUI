@@ -26,7 +26,7 @@
 #define __RHD2000THREAD_H_2C4CBD67__
 
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../../../JuceLibraryCode/JuceHeader.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -36,8 +36,8 @@
 #include "rhythm-api/rhd2000datablock.h"
 #include "rhythm-api/okFrontPanelDLL.h"
 
-#include "../../Processors/DataThreads/DataThread.h"
-#include "../../Processors/GenericProcessor/GenericProcessor.h"
+#include "../../DataThreads/DataThread.h"
+#include "../../GenericProcessor/GenericProcessor.h"
 
 #define MAX_NUM_DATA_STREAMS_USB2 8
 #define MAX_NUM_DATA_STREAMS_USB3 16
@@ -132,6 +132,8 @@ public:
 	void runImpedanceTest(ImpedanceData* data);
 	void enableBoardLeds(bool enable);
 	GenericEditor* createEditor(SourceNode* sn);
+
+	static DataThread* createDataThread(SourceNode* sn);
 
 private:
 

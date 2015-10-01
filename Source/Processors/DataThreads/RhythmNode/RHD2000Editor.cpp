@@ -24,8 +24,8 @@
 #include "RHD2000Editor.h"
 #include <cmath>
 
-#include "../../Processors/Editors/ChannelSelector.h"
-#include "../../Processors/SourceNode/SourceNode.h"
+#include "../../Editors/ChannelSelector.h"
+#include "../../SourceNode/SourceNode.h"
 #include "RHD2000Thread.h"
 
 #ifdef WIN32

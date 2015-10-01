@@ -23,7 +23,7 @@
 
 #include "RHD2000Thread.h"
 #include "RHD2000Editor.h"
-#include "../../Processors/SourceNode/SourceNode.h"
+#include "../../SourceNode/SourceNode.h"
 
 #if defined(_WIN32)
 #define okLIB_NAME "okFrontPanel.dll"
@@ -65,6 +65,11 @@ void allocateDoubleArray3D(std::vector<std::vector<std::vector<double> > >& arra
             array3D[i][j].resize(zSize);
         }
     }
+}
+
+DataThread* RHD2000Thread::createDataThread(SourceNode *sn)
+{
+	return new RHD2000Thread(sn);
 }
 
 RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),

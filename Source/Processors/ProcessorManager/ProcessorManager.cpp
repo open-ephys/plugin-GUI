@@ -31,9 +31,10 @@
 #include "../FileReader/FileReader.h"
 #include "../Merger/Merger.h"
 #include "../Splitter/Splitter.h"
+#include "../DataThreads/RhythmNode/RHD2000Thread.h"
 
 /** Total number of builtin processors **/
-#define BUILTIN_PROCESSORS 3
+#define BUILTIN_PROCESSORS 4
 
 namespace ProcessorManager
 {
@@ -44,7 +45,7 @@ namespace ProcessorManager
 		switch (index)
 		{
 		case 0:
-			name = "File Reader";
+			name = "Rhythm FPGA";
 			type = SourceProcessor;
 			break;
 		case 1:
@@ -54,6 +55,10 @@ namespace ProcessorManager
 		case 2:
 			name = "Splitter";
 			type = UtilityProcessor;
+			break;
+		case 3:
+			name = "File Reader";
+			type = SourceProcessor;
 			break;
 		default:
 			name = String::empty;
@@ -68,13 +73,16 @@ namespace ProcessorManager
 		switch (index)
 		{
 		case 0:
-			return new FileReader();
+			return new SourceNode("Rhythm FPGA", &RHD2000Thread::createDataThread);
 			break;
 		case 1:
 			return new Merger();
 			break;
 		case 2:
 			return new Splitter();
+			break;
+		case 3:
+			return new FileReader();
 			break;
 		default:
 			return nullptr;

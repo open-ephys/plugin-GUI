@@ -22,7 +22,6 @@
 */
 
 #include "SourceNode.h"
-#include "../DataThreads/EcubeThread.h" // Added by Michael Borisov
 #include "../SourceNode/SourceNodeEditor.h"
 #include "../Channel/Channel.h"
 #include <stdio.h>
