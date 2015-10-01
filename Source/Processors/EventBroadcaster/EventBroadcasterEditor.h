@@ -11,7 +11,7 @@
 #ifndef EVENTBROADCASTEREDITOR_H_INCLUDED
 #define EVENTBROADCASTEREDITOR_H_INCLUDED
 
-#include "GenericEditor.h"
+#include "../Editors/GenericEditor.h"
 
 
 /**

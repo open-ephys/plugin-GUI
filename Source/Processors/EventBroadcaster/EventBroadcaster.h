@@ -23,7 +23,7 @@
 #endif
 
 #endif
-
+#include <memory>
 
 class EventBroadcaster : public GenericProcessor
 {
