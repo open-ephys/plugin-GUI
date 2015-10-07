@@ -74,6 +74,7 @@ OBJECTS := \
   $(OBJDIR)/State_5d41ca1e.o \
   $(OBJDIR)/ofSerial_c3b0a9e1.o \
   $(OBJDIR)/ProcessorManager_2aa7db2a.o \
+  $(OBJDIR)/PluginClass_23924d4b.o \
   $(OBJDIR)/PluginManager_f764c180.o \
   $(OBJDIR)/AudioEditor_3931be27.o \
   $(OBJDIR)/AudioNode_3db3557c.o \
@@ -273,6 +274,11 @@ $(OBJDIR)/ofSerial_c3b0a9e1.o: ../../Source/Processors/Serial/ofSerial.cpp
 $(OBJDIR)/ProcessorManager_2aa7db2a.o: ../../Source/Processors/ProcessorManager/ProcessorManager.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ProcessorManager.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PluginClass_23924d4b.o: ../../Source/Processors/PluginManager/PluginClass.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PluginClass.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/PluginManager_f764c180.o: ../../Source/Processors/PluginManager/PluginManager.cpp

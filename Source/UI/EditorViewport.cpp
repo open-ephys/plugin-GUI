@@ -27,7 +27,6 @@
 #include "GraphViewer.h"
 #include "EditorViewportButtons.h"
 #include "../AccessClass.h"
-#include "../Processors/PluginManager/PluginManager.h"
 
 EditorViewport::EditorViewport()
     : leftmostEditor(0),

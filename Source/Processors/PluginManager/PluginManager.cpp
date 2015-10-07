@@ -234,45 +234,146 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	return lib.numPlugins;
 }
 
-int PluginManager::getNumProcessors()
+int PluginManager::getNumProcessors() const
 {
 	return processorPlugins.size();
 }
 
-int PluginManager::getNumDataThreads()
+int PluginManager::getNumDataThreads() const
 {
 	return dataThreadPlugins.size();
 }
 
-int PluginManager::getNumRecordEngines()
+int PluginManager::getNumRecordEngines() const
 {
 	return recordEnginePlugins.size();
 }
 
-int PluginManager::getNumFileSources()
+int PluginManager::getNumFileSources() const
 {
 	return fileSourcePlugins.size();
 }
 
-Plugin::ProcessorInfo PluginManager::getProcessorInfo(int index)
+Plugin::ProcessorInfo PluginManager::getProcessorInfo(int index) const
 {
-	return processorPlugins[index];
+	if (index < processorPlugins.size())
+		return processorPlugins[index];
+	else
+		return getEmptyProcessorInfo();
 }
 
-Plugin::DataThreadInfo PluginManager::getDataThreadInfo(int index)
+Plugin::DataThreadInfo PluginManager::getDataThreadInfo(int index) const
 {
-	return dataThreadPlugins[index];
+	if (index < dataThreadPlugins.size())
+		return dataThreadPlugins[index];
+	else
+		return getEmptyDatathreadInfo();
 }
 
-Plugin::RecordEngineInfo PluginManager::getRecordEngineInfo(int index)
+Plugin::RecordEngineInfo PluginManager::getRecordEngineInfo(int index) const
 {
-	return recordEnginePlugins[index];
+	if (index < recordEnginePlugins.size())
+		return recordEnginePlugins[index];
+	else 
+		return getEmptyRecordengineInfo();
 }
 
-Plugin::FileSourceInfo PluginManager::getFileSourceInfo(int index)
+Plugin::FileSourceInfo PluginManager::getFileSourceInfo(int index) const
 {
-	return fileSourcePlugins[index];
+	if (index < fileSourcePlugins.size())
+		return fileSourcePlugins[index];
+	else
+		return getEmptyFileSourceInfo();
 }
+
+Plugin::ProcessorInfo PluginManager::getProcessorInfo(String name, String libName) const
+{
+	Plugin::ProcessorInfo i = getEmptyProcessorInfo();
+	findPlugin<Plugin::ProcessorInfo>(name, libName, processorPlugins, i);
+	return i;
+}
+
+Plugin::DataThreadInfo PluginManager::getDataThreadInfo(String name, String libName) const
+{
+	Plugin::DataThreadInfo i = getEmptyDatathreadInfo();
+	findPlugin<Plugin::DataThreadInfo>(name, libName, dataThreadPlugins, i);
+	return i;
+}
+
+Plugin::RecordEngineInfo PluginManager::getRecordEngineInfo(String name, String libName) const
+{
+	Plugin::RecordEngineInfo i = getEmptyRecordengineInfo();
+	findPlugin<Plugin::RecordEngineInfo>(name, libName, recordEnginePlugins, i);
+	return i;
+}
+
+Plugin::FileSourceInfo PluginManager::getFileSourceInfo(String name, String libName) const
+{
+	Plugin::FileSourceInfo i = getEmptyFileSourceInfo();
+	findPlugin<Plugin::FileSourceInfo>(name, libName, fileSourcePlugins, i);
+	return i;
+}
+
+String PluginManager::getPluginName(int index) const
+{
+	return libArray[index].name;
+}
+
+int PluginManager::getPluginVersion(int index) const
+{
+	return libArray[index].libVersion;
+}
+
+Plugin::ProcessorInfo PluginManager::getEmptyProcessorInfo()
+{
+	Plugin::ProcessorInfo i;
+	i.creator = nullptr;
+	i.name = nullptr;
+	i.type = Plugin::InvalidProcessor;
+	return i;
+}
+
+Plugin::DataThreadInfo PluginManager::getEmptyDatathreadInfo()
+{
+	Plugin::DataThreadInfo i;
+	i.creator = nullptr;
+	i.name = nullptr;
+	return i;
+}
+
+Plugin::RecordEngineInfo PluginManager::getEmptyRecordengineInfo()
+{
+	Plugin::RecordEngineInfo i;
+	i.creator = nullptr;
+	i.name = nullptr;
+	return i;
+}
+
+Plugin::FileSourceInfo PluginManager::getEmptyFileSourceInfo()
+{
+	Plugin::FileSourceInfo i;
+	i.creator = nullptr;
+	i.name = nullptr;
+	return i;
+}
+
+template<class T>
+bool PluginManager::findPlugin(String name, String libName, const Array<LoadedPluginInfo<T>>& pluginArray, T& pluginInfo) const
+{
+	for (int i = 0; i < pluginArray.size(); i++)
+	{
+		if (String(pluginArray[i].name) == name)
+		{
+			if ((libName.isEmpty()) || (libName == String(libArray[pluginArray[i].libIndex].name)))
+			{
+				pluginInfo = pluginArray[i];
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 
 #if 0
 PluginManager::Plugin::Plugin() {

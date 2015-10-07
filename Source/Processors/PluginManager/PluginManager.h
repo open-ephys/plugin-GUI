@@ -62,14 +62,20 @@ public:
 	int loadPlugin(const String&);
 	//void unloadPlugin(Plugin *);
 	void removeAllPlugins();
-	int getNumProcessors();
-	int getNumDataThreads();
-	int getNumRecordEngines();
-	int getNumFileSources();
-	Plugin::ProcessorInfo getProcessorInfo(int index);
-	Plugin::DataThreadInfo getDataThreadInfo(int index);
-	Plugin::RecordEngineInfo getRecordEngineInfo(int index);
-	Plugin::FileSourceInfo getFileSourceInfo(int index);
+	int getNumProcessors() const;
+	int getNumDataThreads() const;
+	int getNumRecordEngines() const;
+	int getNumFileSources() const;
+	Plugin::ProcessorInfo getProcessorInfo(int index) const;
+	Plugin::ProcessorInfo getProcessorInfo(String name, String libName = String::empty) const;
+	Plugin::DataThreadInfo getDataThreadInfo(int index) const;
+	Plugin::DataThreadInfo getDataThreadInfo(String name, String libName = String::empty) const;
+	Plugin::RecordEngineInfo getRecordEngineInfo(int index) const;
+	Plugin::RecordEngineInfo getRecordEngineInfo(String name, String libName = String::empty) const;
+	Plugin::FileSourceInfo getFileSourceInfo(int index) const;
+	Plugin::FileSourceInfo getFileSourceInfo(String name, String libName = String::empty) const;
+	String getPluginName(int index) const;
+	int getPluginVersion(int index) const;
 
 private:
 	Array<LoadedLibInfo> libArray;
@@ -77,6 +83,16 @@ private:
 	Array<LoadedPluginInfo<Plugin::DataThreadInfo>> dataThreadPlugins;
 	Array<LoadedPluginInfo<Plugin::RecordEngineInfo>> recordEnginePlugins;
 	Array<LoadedPluginInfo<Plugin::FileSourceInfo>> fileSourcePlugins;
+
+	template<class T>
+	bool findPlugin(String name, String libName, const Array<LoadedPluginInfo<T>>& pluginArray, T& pluginInfo) const;
+
+	/* Making the info structures have a constructor complicates the DLL interface. 
+	It's easier to just add some static methods to create empty structures for when the calls fail*/
+	static Plugin::ProcessorInfo getEmptyProcessorInfo();
+	static Plugin::DataThreadInfo getEmptyDatathreadInfo();
+	static Plugin::RecordEngineInfo getEmptyRecordengineInfo();
+	static Plugin::FileSourceInfo getEmptyFileSourceInfo();
 	/*Manager(void) {};
 	~Manager(void) {};
 	Manager(const Manager &) {};

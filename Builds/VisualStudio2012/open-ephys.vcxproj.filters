@@ -463,6 +463,9 @@
     <ClCompile Include="..\..\Source\Processors\ProcessorManager\ProcessorManager.cpp">
       <Filter>open-ephys\Source\Processors\ProcessorManager</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\PluginManager\PluginClass.cpp">
+      <Filter>open-ephys\Source\Processors\PluginManager</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\PluginManager\PluginManager.cpp">
       <Filter>open-ephys\Source\Processors\PluginManager</Filter>
     </ClCompile>
@@ -1940,6 +1943,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\ProcessorManager\ProcessorManager.h">
       <Filter>open-ephys\Source\Processors\ProcessorManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\PluginManager\PluginClass.h">
+      <Filter>open-ephys\Source\Processors\PluginManager</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\PluginManager\OpenEphysPlugin.h">
       <Filter>open-ephys\Source\Processors\PluginManager</Filter>

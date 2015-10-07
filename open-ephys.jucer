@@ -334,6 +334,8 @@
                 file="Source/Processors/ProcessorManager/ProcessorManager.h"/>
         </GROUP>
         <GROUP id="{419E358E-7049-BF7C-21D8-840285A12731}" name="PluginManager">
+          <FILE id="Yy2yax" name="PluginClass.cpp" compile="1" resource="0" file="Source/Processors/PluginManager/PluginClass.cpp"/>
+          <FILE id="LjjKQh" name="PluginClass.h" compile="0" resource="0" file="Source/Processors/PluginManager/PluginClass.h"/>
           <FILE id="wgBCpb" name="OpenEphysPlugin.h" compile="0" resource="0"
                 file="Source/Processors/PluginManager/OpenEphysPlugin.h"/>
           <FILE id="a5xlEQ" name="PluginManager.cpp" compile="1" resource="0"

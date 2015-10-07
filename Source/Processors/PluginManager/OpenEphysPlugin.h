@@ -58,12 +58,12 @@ namespace Plugin
 {
 	enum PluginType
 	{
-		ProcessorPlugin, RecordEnginePlugin, DatathreadPlugin, FileSourcePlugin
+		ProcessorPlugin = 0, RecordEnginePlugin = 1, DatathreadPlugin = 2, FileSourcePlugin = 3, NotAPlugin = -1
 	};
 
 	enum ProcessorType
 	{
-		SourceProcessor = 0, FilterProcessor = 1, SinkProcessor = 2, UtilityProcessor = 3
+		SourceProcessor = 0, FilterProcessor = 1, SinkProcessor = 2, UtilityProcessor = 3, InvalidProcessor = -1
 	};
 
 	struct ProcessorInfo
@@ -95,6 +95,7 @@ namespace Plugin
 	struct LibraryInfo
 	{
 		const char* name;
+		int libVersion;
 		int apiVersion;
 		int numPlugins;
 	};

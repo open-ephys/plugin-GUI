@@ -278,6 +278,7 @@
     <ClCompile Include="..\..\Source\Processors\Dsp\State.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Serial\ofSerial.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ProcessorManager\ProcessorManager.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\PluginManager\PluginClass.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PluginManager\PluginManager.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioNode.cpp"/>
@@ -1485,6 +1486,7 @@
     <ClInclude Include="..\..\Source\Processors\Serial\ofConstants.h"/>
     <ClInclude Include="..\..\Source\Processors\Serial\ofSerial.h"/>
     <ClInclude Include="..\..\Source\Processors\ProcessorManager\ProcessorManager.h"/>
+    <ClInclude Include="..\..\Source\Processors\PluginManager\PluginClass.h"/>
     <ClInclude Include="..\..\Source\Processors\PluginManager\OpenEphysPlugin.h"/>
     <ClInclude Include="..\..\Source\Processors\PluginManager\PluginManager.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioEditor.h"/>
