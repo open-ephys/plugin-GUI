@@ -2893,8 +2893,8 @@
 					"DEBUG=1",
 					"ZEROMQ",
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
-					"JUCE_APP_VERSION=0.3.5",
-					"JUCE_APP_VERSION_HEX=0x305", );
+					"JUCE_APP_VERSION=0.3.6",
+					"JUCE_APP_VERSION_HEX=0x306", );
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = ("../../JuceLibraryCode", "../../JuceLibraryCode/modules", "/opt/local/include", "/usr/local/include", "$(inherited)");
 				INFOPLIST_FILE = Info.plist;
@@ -2917,8 +2917,8 @@
 					"NDEBUG=1",
 					"ZEROMQ",
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
-					"JUCE_APP_VERSION=0.3.5",
-					"JUCE_APP_VERSION_HEX=0x305", );
+					"JUCE_APP_VERSION=0.3.6",
+					"JUCE_APP_VERSION_HEX=0x306", );
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = ("../../JuceLibraryCode", "../../JuceLibraryCode/modules", "/opt/local/include", "/usr/local/include", "$(inherited)");

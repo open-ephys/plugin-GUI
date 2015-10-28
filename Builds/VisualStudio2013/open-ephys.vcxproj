@@ -89,7 +89,7 @@
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;../../Resources/windows-libs/ZeroMQ/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;ZEROMQ;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;ZEROMQ;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.6;JUCE_APP_VERSION_HEX=0x306;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -136,7 +136,7 @@
     <ClCompile>
       <Optimization>Full</Optimization>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;../../Resources/windows-libs/ZeroMQ/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;ZEROMQ;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;ZEROMQ;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.6;JUCE_APP_VERSION_HEX=0x306;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -185,14 +185,14 @@
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;../../Resources/windows-libs/ZeroMQ/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;ZEROMQ;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;ZEROMQ;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.6;JUCE_APP_VERSION_HEX=0x306;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
       <AssemblerListingLocation>$(IntDir)\</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)\</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)\</ProgramDataBaseFileName>
-      <WarningLevel>Level2</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -210,7 +210,6 @@
       <AdditionalLibraryDirectories>../../Resources/windows-libs/HDF5/lib/x64;../../Resources/windows-libs/ZeroMQ/lib_x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalDependencies>setupapi.lib;opengl32.lib;glu32.lib;hdf5.lib;hdf5_cpp.lib;libzmq-v120-mt-4_0_4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <Profile>true</Profile>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -231,7 +230,7 @@
     <ClCompile>
       <Optimization>Full</Optimization>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;../../Resources/windows-libs/HDF5/include;../../Resources/windows-libs/ZeroMQ/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;ZEROMQ;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;ZEROMQ;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.6;JUCE_APP_VERSION_HEX=0x306;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
