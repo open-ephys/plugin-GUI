@@ -308,7 +308,9 @@ bool RHD2000Thread::uploadBitfile(String bitfilename)
 
         bool response = AlertWindow::showOkCancelBox(AlertWindow::NoIcon,
                                                      "FPGA bitfile not found.",
-                                                     "The rhd2000.bit file was not found in the directory of the executable. Would you like to browse for it?",
+                                                     (evalBoard->isUSB3() ? 
+													 "The rhd2000_usb3.bit file was not found in the directory of the executable. Would you like to browse for it?" :
+													 "The rhd2000.bit file was not found in the directory of the executable. Would you like to browse for it?"),
                                                      "Yes", "No", 0, 0);
         if (response)
         {
