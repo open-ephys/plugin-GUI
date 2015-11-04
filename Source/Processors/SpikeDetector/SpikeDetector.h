@@ -40,6 +40,7 @@ struct SimpleElectrode
     int prePeakSamples, postPeakSamples;
     int lastBufferIndex;
     bool isMonitored;
+    int electrodeID;
     int sourceNodeId;
 
     int* channels;
@@ -104,7 +105,7 @@ public:
     // CREATE AND DELETE ELECTRODES //
 
     /** Adds an electrode with n channels to be processed. */
-    bool addElectrode(int nChans);
+    bool addElectrode(int nChans, int electrodeID = 0);
 
     /** Removes an electrode with a given index. */
     bool removeElectrode(int index);
@@ -181,6 +182,7 @@ private:
     int64 timestamp;
 
     Array<SimpleElectrode*> electrodes;
+    int uniqueID;
 
     // void createSpikeEvent(int& peakIndex,
     // 					  int& electrodeNumber,
