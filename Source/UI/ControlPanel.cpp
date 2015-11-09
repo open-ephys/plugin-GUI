@@ -489,6 +489,33 @@ void ControlPanel::setRecordState(bool t)
 
 }
 
+bool ControlPanel::getRecordingState()
+{
+
+	return recordButton->getToggleState();
+
+}
+
+void ControlPanel::setRecordingDirectory(String path)
+{
+    File newFile(path);
+    filenameComponent->setCurrentFile(newFile, true, sendNotificationSync);
+
+    graph->getRecordNode()->newDirectoryNeeded = true;
+    masterClock->resetRecordTime();
+}
+
+bool ControlPanel::getAcquisitionState()
+{
+	return playButton->getToggleState();
+}
+
+void ControlPanel::setAcquisitionState(bool state)
+{
+	playButton->setToggleState(state, sendNotification);
+}
+
+
 void ControlPanel::updateChildComponents()
 {
 
@@ -970,6 +997,16 @@ String ControlPanel::getTextToPrepend()
     {
         return t;
     }
+}
+
+void ControlPanel::setPrependText(String t)
+{
+    prependText->setText(t, sendNotificationSync);
+}
+
+void ControlPanel::setAppendText(String t)
+{
+    appendText->setText(t, sendNotificationSync);
 }
 
 void ControlPanel::setDateText(String t)

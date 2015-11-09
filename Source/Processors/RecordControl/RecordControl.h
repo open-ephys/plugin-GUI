@@ -26,8 +26,8 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
+#include "../NetworkEvents/NetworkEvents.h"
 #include "RecordControlEditor.h"
-#include "../RecordNode/RecordNode.h"
 
 /**
 
@@ -47,6 +47,11 @@ public:
     void setParameter(int, float);
     void updateTriggerChannel(int newChannel);
     void handleEvent(int eventType, MidiMessage& event, int);
+	void handleNetworkEvent(MidiMessage& event);
+
+	//* Split network message into name/value pairs (name1=val1 name2=val2 etc) */
+	StringPairArray parseNetworkMessage(String msg);
+
     bool enable();
 
     bool isUtility()
