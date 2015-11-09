@@ -409,8 +409,12 @@ String NetworkEvents::handleSpecialMessages(StringTS msg)
 	/** Start/stop data acquisition */
 	String s = msg.getString();
 
+	/** Command is first substring */
+	StringArray inputs = StringArray::fromTokens(s, " ");
+	String cmd = String(inputs[0]);
+
 	const MessageManagerLock mmLock;
-	if (s.compareIgnoreCase("StartAcquisition") == 0)
+	if (cmd.compareIgnoreCase("StartAcquisition") == 0)
 	{
 		if (!CoreServices::getAcquisitionStatus())
 	    {
@@ -418,13 +422,64 @@ String NetworkEvents::handleSpecialMessages(StringTS msg)
 	    }
 		return String("StartedAcquisition");
 	}
-	else if (s.compareIgnoreCase("StopAcquisition") == 0)
+	else if (cmd.compareIgnoreCase("StopAcquisition") == 0)
 	{
 		if (CoreServices::getAcquisitionStatus())
 	    {
 	        CoreServices::setAcquisitionStatus(false);
 	    }
 		return String("StoppedAcquisition");
+	}
+	else if (String("StartRecord").compareIgnoreCase(cmd) == 0)
+	{
+		if (!CoreServices::getRecordingStatus() && CoreServices::getAcquisitionStatus())
+		{
+			/** First set optional parameters (name/value pairs)*/
+			if (s.contains("="))
+			{
+				String params = s.substring(cmd.length());
+				StringPairArray dict = parseNetworkMessage(params);
+
+				StringArray keys = dict.getAllKeys();
+				for (int i = 0; i<keys.size(); i++)
+				{
+					String key = keys[i];
+					String value = dict[key];
+
+					if (key.compareIgnoreCase("CreateNewDir") == 0)
+					{
+						if (value.compareIgnoreCase("1") == 0)
+						{
+							CoreServices::createNewRecordingDir();
+						}
+					}
+					else if (key.compareIgnoreCase("RecDir") == 0)
+					{
+						CoreServices::setRecordingDirectory(value);
+					}
+					else if (key.compareIgnoreCase("PrependText") == 0)
+					{
+						CoreServices::setPrependTextToRecordingDir(value);
+					}
+					else if (key.compareIgnoreCase("AppendText") == 0)
+					{
+						CoreServices::setAppendTextToRecordingDir(value);
+					}
+				}
+			}
+
+			/** Start recording */
+			CoreServices::setRecordingStatus(true);
+			return String("StartedRecording");
+		}
+	}
+	else if (String("StopRecord").compareIgnoreCase(cmd) == 0)
+	{
+		if (CoreServices::getRecordingStatus())
+		{
+			CoreServices::setRecordingStatus(false);
+			return String("StoppedRecording");
+		}
 	}
 	else
 	{
@@ -589,4 +644,52 @@ void NetworkEvents::createZmqContext()
     if (zmqcontext == nullptr)
         zmqcontext = zmq_ctx_new(); //<-- this is only available in version 3+
 #endif
+}
+
+StringPairArray NetworkEvents::parseNetworkMessage(String msg)
+{
+	StringArray splitted;
+	splitted.addTokens(msg, "=", "");
+
+	StringPairArray dict = StringPairArray();
+	String key = "";
+	String value = "";
+	for (int i = 0; i<splitted.size() - 1; i++)
+	{
+		String s1 = splitted[i];
+		String s2 = splitted[i + 1];
+
+		/** Get key */
+		if (!key.isEmpty())
+		{
+			if (s1.contains(" "))
+			{
+				int i1 = s1.lastIndexOf(" ");
+				key = s1.substring(i1 + 1);
+			}
+			else
+			{
+				key = s1;
+			}
+		}
+		else
+		{
+			key = s1.trim();
+		}
+
+		/** Get value */
+		if (i < splitted.size() - 2)
+		{
+			int i1 = s2.lastIndexOf(" ");
+			value = s2.substring(0, i1);
+		}
+		else
+		{
+			value = s2;
+		}
+
+		dict.set(key, value);
+	}
+
+	return dict;
 }
