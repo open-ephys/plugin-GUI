@@ -112,6 +112,10 @@
 #undef max
 #undef min
 
+//Open Ephys addition: For some reason this define doesn't work as an Xcode option
+#if JUCE_MAC
+ #define JUCE_API __attribute__((visibility("default")))
+#endif
 //==============================================================================
 // DLL building settings on Windows
 #if JUCE_MSVC

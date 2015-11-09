@@ -35,7 +35,7 @@
 #define PLUGIN_API __declspec(dllexport)
 #endif
 #else
-#define PLUGIN_API
+#define PLUGIN_API __attribute__((visibility("default")))
 #endif
 
 struct ProcessorInfo;
