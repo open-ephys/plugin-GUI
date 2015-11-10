@@ -18,11 +18,11 @@
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="default" osxArchitecture="default"
                        headerPath="/opt/local/include&#10;/usr/local/include" libraryPath="/opt/local/lib&#10;/usr/local/lib"
-                       defines="JUCE_API=__attribute__((visibility(&quot;default&quot;)))"/>
+                       defines=""/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="default" osxArchitecture="default"
                        headerPath="/opt/local/include&#10;/usr/local/include" libraryPath="/opt/local/lib&#10;/usr/local/lib"
-                       defines="JUCE_API=__attribute__((visibility(&quot;default&quot;)))"/>
+                       defines=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>

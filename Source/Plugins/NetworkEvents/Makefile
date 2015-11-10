@@ -4,7 +4,7 @@ OBJDIR := $(OBJDIR)/$(LIBNAME)
 TARGET := $(LIBNAME).so
 
 
-SRC_DIR := ${shell find -type d -print}
+SRC_DIR := ${shell find ./ -type d -print}
 VPATH := $(SOURCE_DIRS)
 
 SRC := $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cpp))
