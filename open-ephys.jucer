@@ -13,7 +13,7 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
                extraLinkerFlags="-ldl -fPIC -rdynamic" objCExtraSuffix="fea2mT"
-               extraDefs="" extraCompilerFlags="-rdynamic ">
+               extraDefs="" extraCompilerFlags="-fPIC ">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="default" osxArchitecture="default"
