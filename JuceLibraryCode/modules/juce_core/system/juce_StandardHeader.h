@@ -112,8 +112,8 @@
 #undef max
 #undef min
 
-//Open Ephys addition: For some reason this define doesn't work as an Xcode option
-#if JUCE_MAC
+//Open Ephys addition: For some reason this define doesn't work as an Xcode option. Add it to linux as well
+#if JUCE_MAC || JUCE_LINUX
  #define JUCE_API __attribute__((visibility("default")))
 #endif
 //==============================================================================
