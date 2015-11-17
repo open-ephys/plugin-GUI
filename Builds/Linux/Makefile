@@ -55,6 +55,8 @@ OBJECTS := \
   $(OBJDIR)/AccessClass_de9602d5.o \
   $(OBJDIR)/PracticalSocket_2574ecc8.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/PlaceholderProcessorEditor_7b4cbcf7.o \
+  $(OBJDIR)/PlaceholderProcessor_167f09aa.o \
   $(OBJDIR)/Bessel_7e54cb27.o \
   $(OBJDIR)/Biquad_622c856b.o \
   $(OBJDIR)/Butterworth_6aca939b.o \
@@ -179,6 +181,16 @@ $(OBJDIR)/PracticalSocket_2574ecc8.o: ../../Source/Network/PracticalSocket.cpp
 $(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PlaceholderProcessorEditor_7b4cbcf7.o: ../../Source/Processors/PlaceholderProcessor/PlaceholderProcessorEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PlaceholderProcessorEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PlaceholderProcessor_167f09aa.o: ../../Source/Processors/PlaceholderProcessor/PlaceholderProcessor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PlaceholderProcessor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Bessel_7e54cb27.o: ../../Source/Processors/Dsp/Bessel.cpp

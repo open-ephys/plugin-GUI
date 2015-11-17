@@ -32,6 +32,9 @@
     <Filter Include="open-ephys\Source\Processors">
       <UniqueIdentifier>{3DDEC88C-BAA5-2DDA-A59F-0FB74070AB82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Source\Processors\PlaceholderProcessor">
+      <UniqueIdentifier>{94BEEE4D-841E-5C1B-4699-8D4E27C77CD7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="open-ephys\Source\Processors\Dsp">
       <UniqueIdentifier>{9C1026A0-8DA9-8D8D-AC1D-22880764350D}</UniqueIdentifier>
     </Filter>
@@ -405,6 +408,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
       <Filter>open-ephys\Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.cpp">
+      <Filter>open-ephys\Source\Processors\PlaceholderProcessor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.cpp">
+      <Filter>open-ephys\Source\Processors\PlaceholderProcessor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Dsp\Bessel.cpp">
       <Filter>open-ephys\Source\Processors\Dsp</Filter>
@@ -1865,6 +1874,12 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
       <Filter>open-ephys\Source\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.h">
+      <Filter>open-ephys\Source\Processors\PlaceholderProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.h">
+      <Filter>open-ephys\Source\Processors\PlaceholderProcessor</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Dsp\Bessel.h">
       <Filter>open-ephys\Source\Processors\Dsp</Filter>

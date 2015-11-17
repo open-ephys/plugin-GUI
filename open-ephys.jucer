@@ -280,6 +280,16 @@
               file="Source/Audio/AudioComponent.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
+        <GROUP id="{D20DFFFD-08E8-5CC6-479A-07CECDE9BC86}" name="PlaceholderProcessor">
+          <FILE id="SjUh94" name="PlaceholderProcessorEditor.cpp" compile="1"
+                resource="0" file="Source/Processors/PlaceholderProcessor/PlaceholderProcessorEditor.cpp"/>
+          <FILE id="bVc3b4" name="PlaceholderProcessorEditor.h" compile="0" resource="0"
+                file="Source/Processors/PlaceholderProcessor/PlaceholderProcessorEditor.h"/>
+          <FILE id="rr6bYe" name="PlaceholderProcessor.cpp" compile="1" resource="0"
+                file="Source/Processors/PlaceholderProcessor/PlaceholderProcessor.cpp"/>
+          <FILE id="jfr6s9" name="PlaceholderProcessor.h" compile="0" resource="0"
+                file="Source/Processors/PlaceholderProcessor/PlaceholderProcessor.h"/>
+        </GROUP>
         <GROUP id="{9F37E2FD-6871-8370-4C11-5C97DF132390}" name="Dsp">
           <FILE id="qWmKwI" name="Bessel.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Bessel.cpp"/>
           <FILE id="bRbpDP" name="Bessel.h" compile="0" resource="0" file="Source/Processors/Dsp/Bessel.h"/>
