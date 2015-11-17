@@ -24,8 +24,25 @@
 #ifndef PLACEHOLDERPROCESSOREDITOR_H_INCLUDED
 #define PLACEHOLDERPROCESSOREDITOR_H_INCLUDED
 
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../Editors/GenericEditor.h"
 
+class PlaceholderProcessorEditor : public GenericEditor
+{
+public:
+	PlaceholderProcessorEditor(GenericProcessor* parentNode, String pName, String lName, int lVer);
+	~PlaceholderProcessorEditor();
 
+private:
+	const String processorName;
+	const String libName;
+	const int libVersion;
+	ScopedPointer<Label> nameLabel;
+	ScopedPointer<Label> libLabel;
+	ScopedPointer<Label> notfoundLabel;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlaceholderProcessorEditor);
+};
 
 
 #endif  // PLACEHOLDERPROCESSOREDITOR_H_INCLUDED

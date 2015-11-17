@@ -24,7 +24,31 @@
 #ifndef PLACEHOLDERPROCESSOR_H_INCLUDED
 #define PLACEHOLDERPROCESSOR_H_INCLUDED
 
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
+class PlaceholderProcessor : public GenericProcessor
+{
+public:
+	PlaceholderProcessor(String pName, String lName, int lVer, bool pSource, bool pSink);
+	~PlaceholderProcessor();
+	bool hasEditor() const override;
+	AudioProcessorEditor* createEditor() override;
+
+	void process(AudioSampleBuffer& continuousBuffer,
+		MidiBuffer& eventBuffer) override;
+	bool isSource() override;
+	bool isSink() override;
+	bool enable() override;
+private:
+	const String processorName;
+	const String libName;
+	const int libVersion;
+	const bool processorSource;
+	const bool processorSink;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlaceholderProcessor);
+};
 
 
 

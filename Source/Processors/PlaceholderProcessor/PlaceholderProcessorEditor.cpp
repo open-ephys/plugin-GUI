@@ -22,3 +22,27 @@
 */
 
 #include "PlaceholderProcessorEditor.h"
+
+PlaceholderProcessorEditor::PlaceholderProcessorEditor(GenericProcessor* parentNode, String pName, String lName, int lVer)
+	: GenericEditor(parentNode, true), processorName(pName), libName(lName), libVersion(lVer)
+{
+	notfoundLabel = new Label("Not found", "Plugin not found");
+	notfoundLabel->setBounds(30, 30, 100, 20);
+	addAndMakeVisible(notfoundLabel);
+
+	libLabel = new Label("Plugin", libName + " ver. " + String(libVersion));
+	libLabel->setBounds(30, 70, 100, 20);
+	addAndMakeVisible(libLabel);
+
+	nameLabel = new Label("Processor", "Missing processor: " + processorName);
+	libLabel->setBounds(30, 110, 100, 20);
+	addAndMakeVisible(nameLabel);
+
+	desiredWidth = 150;
+	setEnabledState(false);
+}
+
+PlaceholderProcessorEditor::~PlaceholderProcessorEditor()
+{
+
+}

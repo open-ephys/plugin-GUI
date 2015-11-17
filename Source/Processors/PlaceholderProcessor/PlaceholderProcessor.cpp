@@ -22,3 +22,45 @@
 */
 
 #include "PlaceholderProcessor.h"
+#include "PlaceholderProcessorEditor.h"
+
+PlaceholderProcessor::PlaceholderProcessor(String pName, String lName, int lVer, bool pSource, bool pSink) :
+					GenericProcessor(pName), processorName(pName), libName(lName), libVersion(lVer), 
+					processorSource(pSource), processorSink(pSink)
+{
+
+}
+
+PlaceholderProcessor::~PlaceholderProcessor()
+{
+
+}
+
+bool PlaceholderProcessor::hasEditor() const
+{
+	return true;
+}
+
+AudioProcessorEditor* PlaceholderProcessor::createEditor()
+{
+	return new PlaceholderProcessorEditor(this, processorName, libName, libVersion);
+}
+
+void PlaceholderProcessor::process(AudioSampleBuffer& continuousBuffer,	MidiBuffer& eventBuffer)
+{
+
+}
+
+bool PlaceholderProcessor::isSource()
+{
+	return processorSource;
+}
+bool PlaceholderProcessor::isSink()
+{
+	return processorSink;
+}
+
+bool PlaceholderProcessor::enable()
+{
+	return false; //This processor never allows processing
+}
