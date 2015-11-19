@@ -470,16 +470,34 @@ void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* sou
 
 GenericProcessor* ProcessorGraph::createProcessorFromDescription(Array<var>& description)
 {
-	String processorName = description[0];
-	int processorType = description[1];
-	int processorIndex = description[2];
-	String processorCategory = description[3];
+	GenericProcessor* processor = nullptr;
 
-	std::cout << "Creating from description..." << std::endl;
-	std::cout << processorCategory << "::" << processorName << " (" << processorType << "-" << processorIndex << ")" << std::endl;
+	bool fromProcessorList = description[0];
+	String processorName = description[1];
+	int processorType = description[2];
+	int processorIndex = description[3];
 
-    GenericProcessor* processor = nullptr;
-	processor = ProcessorManager::createProcessor((ProcessorClasses)processorType, processorIndex);
+	if (fromProcessorList)
+	{
+		String processorCategory = description[4];
+
+		std::cout << "Creating from description..." << std::endl;
+		std::cout << processorCategory << "::" << processorName << " (" << processorType << "-" << processorIndex << ")" << std::endl;
+
+		processor = ProcessorManager::createProcessor((ProcessorClasses)processorType, processorIndex);
+	}
+	else
+	{
+		String libName = description[4];
+		int libVersion = description[5];
+		bool isSource = description[6];
+		bool isSink = description[7];
+
+		std::cout << "Creating from plugin info..." << std::endl;
+		std::cout << libName << "(" << libVersion << ")::" << processorName << std::endl;
+
+		processor = ProcessorManager::createProcessorFromPluginInfo((Plugin::PluginType)processorType, processorIndex, processorName, libName, libVersion, isSource, isSink);
+	}
    
 	String msg = "New " + processorName + " created";
 	CoreServices::sendStatusMessage(msg);

@@ -179,6 +179,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	LoadedLibInfo lib;
 	lib.apiVersion = libInfo.apiVersion;
 	lib.name = libInfo.name;
+	lib.libVersion = libInfo.libVersion;
 	lib.numPlugins = libInfo.numPlugins;
 	lib.handle = handle;
 
@@ -197,7 +198,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			info.creator = pInfo.processor.creator;
 			info.name = pInfo.processor.name;
 			info.type = pInfo.processor.type;
-			info.libIndex = libArray.size();
+			info.libIndex = libArray.size()-1;
 			processorPlugins.add(info);
 			break;
 		}
@@ -314,14 +315,37 @@ Plugin::FileSourceInfo PluginManager::getFileSourceInfo(String name, String libN
 	return i;
 }
 
-String PluginManager::getPluginName(int index) const
+String PluginManager::getLibraryName(int index) const
 {
-	return libArray[index].name;
+	if (index < 0 || index >= libArray.size())
+		return String::empty;
+	else
+		return libArray[index].name;
 }
 
-int PluginManager::getPluginVersion(int index) const
+int PluginManager::getLibraryVersion(int index) const
 {
-	return libArray[index].libVersion;
+	if (index < 0 || index >= libArray.size())
+		return -1;
+	else
+		return libArray[index].libVersion;
+}
+
+int PluginManager::getLibraryIndexFromPlugin(Plugin::PluginType type, int index)
+{
+	switch (type)
+	{
+	case Plugin::ProcessorPlugin:
+		return processorPlugins[index].libIndex;
+	case Plugin::RecordEnginePlugin:
+		return recordEnginePlugins[index].libIndex;
+	case Plugin::DatathreadPlugin:
+		return dataThreadPlugins[index].libIndex;
+	case Plugin::FileSourcePlugin:
+		return fileSourcePlugins[index].libIndex;
+	default:
+		return -1;
+	}
 }
 
 Plugin::ProcessorInfo PluginManager::getEmptyProcessorInfo()

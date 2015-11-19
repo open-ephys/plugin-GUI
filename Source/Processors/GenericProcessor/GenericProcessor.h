@@ -36,7 +36,7 @@ enum ChannelType {HEADSTAGE_CHANNEL = 0, AUX_CHANNEL = 1, ADC_CHANNEL = 2, EVENT
 #include "../Parameter/Parameter.h"
 #include "../Channel/Channel.h"
 #include "../../CoreServices.h"
-#include "../PluginManager/OpenEphysPlugin.h"
+#include "../PluginManager/PluginClass.h"
 
 #include <time.h>
 #include <stdio.h>
@@ -66,7 +66,7 @@ class Channel;
 
 */
 
-class PLUGIN_API GenericProcessor : public AudioProcessor
+class PLUGIN_API GenericProcessor : public AudioProcessor, public PluginClass
 {
 public:
 
@@ -101,7 +101,7 @@ public:
     virtual AudioProcessorEditor* createEditor();
 
     /** The default is to have no editor.*/
-    bool hasEditor() const;
+    virtual bool hasEditor() const;
 
     /** JUCE method. Not used.*/
     void reset();

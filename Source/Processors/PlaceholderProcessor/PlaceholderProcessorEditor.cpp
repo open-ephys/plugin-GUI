@@ -27,18 +27,18 @@ PlaceholderProcessorEditor::PlaceholderProcessorEditor(GenericProcessor* parentN
 	: GenericEditor(parentNode, true), processorName(pName), libName(lName), libVersion(lVer)
 {
 	notfoundLabel = new Label("Not found", "Plugin not found");
-	notfoundLabel->setBounds(30, 30, 100, 20);
+	notfoundLabel->setBounds(10, 25, 100, 20);
 	addAndMakeVisible(notfoundLabel);
 
 	libLabel = new Label("Plugin", libName + " ver. " + String(libVersion));
-	libLabel->setBounds(30, 70, 100, 20);
+	libLabel->setBounds(10, 40, 160, 40);
 	addAndMakeVisible(libLabel);
 
 	nameLabel = new Label("Processor", "Missing processor: " + processorName);
-	libLabel->setBounds(30, 110, 100, 20);
+	nameLabel->setBounds(10, 75, 160, 40);
 	addAndMakeVisible(nameLabel);
 
-	desiredWidth = 150;
+	desiredWidth = 180;
 	setEnabledState(false);
 }
 

@@ -28,11 +28,20 @@
 class PluginClass
 {
 public:
+	PluginClass();
+	~PluginClass();
 	void setPluginData(Plugin::PluginType type, int index);
+	String getLibName() const;
+	String getPluginName() const;
+	int getLibVersion() const;
+	Plugin::PluginType getPluginType() const;
+	int getIndex() const;
 private:
 	String libName;
 	String pluginName;
+	Plugin::PluginType pluginType;
 	int libVersion;
+	int pluginIndex;
 };
 
 

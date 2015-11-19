@@ -39,7 +39,7 @@ public:
 		MidiBuffer& eventBuffer) override;
 	bool isSource() override;
 	bool isSink() override;
-	bool enable() override;
+	bool isReady() override;
 private:
 	const String processorName;
 	const String libName;

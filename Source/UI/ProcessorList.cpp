@@ -490,7 +490,9 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 
 						Point<int> imageOffset(20,10);
 
+						//See ProcessorGraph::createProcesorFromDescription for description info
 						Array<var> dragData;
+						dragData.add(true);
 						dragData.add(dragDescription);
 						dragData.add(listItem->processorType);
 						dragData.add(listItem->processorId);

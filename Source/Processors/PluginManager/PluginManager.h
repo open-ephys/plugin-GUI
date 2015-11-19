@@ -74,8 +74,9 @@ public:
 	Plugin::RecordEngineInfo getRecordEngineInfo(String name, String libName = String::empty) const;
 	Plugin::FileSourceInfo getFileSourceInfo(int index) const;
 	Plugin::FileSourceInfo getFileSourceInfo(String name, String libName = String::empty) const;
-	String getPluginName(int index) const;
-	int getPluginVersion(int index) const;
+	String getLibraryName(int index) const;
+	int getLibraryVersion(int index) const;
+	int getLibraryIndexFromPlugin(Plugin::PluginType type, int index);
 
 private:
 	Array<LoadedLibInfo> libArray;

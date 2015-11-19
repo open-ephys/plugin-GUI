@@ -33,6 +33,8 @@
 #include "../Splitter/Splitter.h"
 #include "../DataThreads/RhythmNode/RHD2000Thread.h"
 
+#include "../PlaceholderProcessor/PlaceholderProcessor.h"
+
 /** Total number of builtin processors **/
 #define BUILTIN_PROCESSORS 4
 
@@ -44,6 +46,10 @@ namespace ProcessorManager
 	{
 		switch (index)
 		{
+		case -1:
+			name = "Placeholder processor";
+			type = UtilityProcessor;
+			break;
 		case 0:
 			name = "Rhythm FPGA";
 			type = SourceProcessor;
@@ -70,24 +76,29 @@ namespace ProcessorManager
 	/** Built-in constructors **/
 	GenericProcessor* createBuiltInProcessor(int index)
 	{
+		GenericProcessor* proc;
 		switch (index)
 		{
+		case -1:
+			proc = new PlaceholderProcessor("Empty placeholder", "Undefined", 0, false, false);
+			break;
 		case 0:
-			return new SourceNode("Rhythm FPGA", &RHD2000Thread::createDataThread);
+			proc = new SourceNode("Rhythm FPGA", &RHD2000Thread::createDataThread);
 			break;
 		case 1:
-			return new Merger();
+			proc = new Merger();
 			break;
 		case 2:
-			return new Splitter();
+			proc = new Splitter();
 			break;
 		case 3:
-			return new FileReader();
+			proc = new FileReader();
 			break;
 		default:
 			return nullptr;
-			break;
 		}
+		proc->setPluginData(Plugin::NotAPlugin, index);
+		return proc;
 	}
 
 	int getNumProcessors(ProcessorClasses pClass)
@@ -146,18 +157,72 @@ namespace ProcessorManager
 		case PluginProcessor:
 			{
 				Plugin::ProcessorInfo info = AccessClass::getPluginManager()->getProcessorInfo(index);
-				return info.creator();
+				GenericProcessor* proc = info.creator();
+				proc->setPluginData(Plugin::ProcessorPlugin, index);
+				return proc;
 				break;
 			}
 		case DataThreadProcessor:
 		{
 			Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(index);
-			return new SourceNode(info.name, info.creator);
+			GenericProcessor* proc = new SourceNode(info.name, info.creator);
+			proc->setPluginData(Plugin::DatathreadPlugin, index);
+			return proc;
 			break;
 		}
 				
 		default:
 			return nullptr;
 		}
+	}
+
+	GenericProcessor* createProcessorFromPluginInfo(Plugin::PluginType type, int index, String procName, String libName, int libVersion, bool source, bool sink)
+	{
+		PluginManager* pm = AccessClass::getPluginManager();
+		GenericProcessor* proc = nullptr;
+		if (index > -1)
+		{
+			if (type == Plugin::NotAPlugin)
+			{
+				return createBuiltInProcessor(index);
+			}
+			else if (type == Plugin::ProcessorPlugin)
+			{
+				for (int i = 0; i < pm->getNumProcessors(); i++)
+				{
+					Plugin::ProcessorInfo info = pm->getProcessorInfo(i);
+					if (procName.equalsIgnoreCase(info.name))
+					{
+						int libIndex = pm->getLibraryIndexFromPlugin(Plugin::ProcessorPlugin, i);
+						if (libName.equalsIgnoreCase(pm->getLibraryName(libIndex)) && libVersion == pm->getLibraryVersion(libIndex))
+						{
+							proc = info.creator();
+							proc->setPluginData(Plugin::ProcessorPlugin, i);
+							return proc;
+						}
+					}
+				}
+			}
+			else if (type == Plugin::DatathreadPlugin)
+			{
+				for (int i = 0; i < pm->getNumDataThreads(); i++)
+				{
+					Plugin::DataThreadInfo info = pm->getDataThreadInfo(i);
+					if (procName.equalsIgnoreCase(info.name))
+					{
+						int libIndex = pm->getLibraryIndexFromPlugin(Plugin::DatathreadPlugin, i);
+						if (libName.equalsIgnoreCase(pm->getLibraryName(libIndex)) && libVersion == pm->getLibraryVersion(libIndex))
+						{
+							proc = new SourceNode(info.name, info.creator);
+							proc->setPluginData(Plugin::DatathreadPlugin, i);
+							return proc;
+						}
+					}
+				}
+			}
+		}		
+		proc = new PlaceholderProcessor(procName, libName, libVersion, source, sink);
+		proc->setPluginData(Plugin::NotAPlugin, -1);
+		return proc;
 	}
 };

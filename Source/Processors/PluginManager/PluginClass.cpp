@@ -22,3 +22,91 @@
  */
 
 #include "PluginClass.h"
+#include "PluginManager.h"
+#include "../../AccessClass.h"
+#include "../ProcessorManager/ProcessorManager.h"
+
+PluginClass::PluginClass()
+{
+	libName = String::empty;
+	pluginName = String::empty;
+	libVersion = -1;
+	pluginType = Plugin::NotAPlugin;
+}
+
+PluginClass::~PluginClass()
+{
+
+}
+
+void PluginClass::setPluginData(Plugin::PluginType type, int index)
+{
+	PluginManager* pm = AccessClass::getPluginManager();
+	String name;
+	pluginType = type;
+	pluginIndex = index;
+	switch (type)
+	{
+	case Plugin::ProcessorPlugin:
+	{
+		Plugin::ProcessorInfo i = pm->getProcessorInfo(index);
+		name = i.name;
+	}
+	break;
+	case Plugin::RecordEnginePlugin:
+	{
+		Plugin::RecordEngineInfo i = pm->getRecordEngineInfo(index);
+		name = i.name;
+	}
+	break;
+	case Plugin::DatathreadPlugin:
+	{
+		Plugin::DataThreadInfo i = pm->getDataThreadInfo(index);
+		name = i.name;
+	}
+	break;
+	case Plugin::FileSourcePlugin:
+	{
+		Plugin::FileSourceInfo i = pm->getFileSourceInfo(index);
+		name = i.name;
+	}
+	break;
+	case Plugin::NotAPlugin:
+	{
+		String pName;
+		int pType;
+		ProcessorManager::getProcessorNameAndType(BuiltInProcessor, index, pName, pType);
+		name = pName;
+	}
+	default:
+		return;
+	}
+	pluginName = name;
+	libName = pm->getLibraryName(pm->getLibraryIndexFromPlugin(type, index));
+	libVersion = pm->getLibraryVersion(pm->getLibraryIndexFromPlugin(type, index));
+}
+
+String PluginClass::getLibName() const
+{
+	return libName;
+}
+
+String PluginClass::getPluginName() const
+{
+	return pluginName;
+}
+
+int PluginClass::getLibVersion() const
+{
+	return libVersion;
+}
+
+Plugin::PluginType PluginClass::getPluginType() const
+{
+	return pluginType;
+}
+
+int PluginClass::getIndex() const
+{
+	return pluginIndex;
+}

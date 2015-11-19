@@ -239,7 +239,7 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
     if (canEdit)
     {
 
-        message = "last filter dropped: " + (*description)[0].toString();
+        message = "last filter dropped: " + (*description)[1].toString();
 
         std::cout << "Item dropped at insertion point " << insertionPoint << std::endl;
 
@@ -1195,6 +1195,13 @@ XmlElement* EditorViewport::createNodeXml(GenericEditor* editor,
 
     e->setAttribute("name", name);
     e->setAttribute("insertionPoint", insertionPt);
+	e->setAttribute("pluginName", source->getPluginName());
+	e->setAttribute("pluginType", (int)(source->getPluginType()));
+	e->setAttribute("pluginIndex", source->getIndex());
+	e->setAttribute("libraryName", source->getLibName());
+	e->setAttribute("libraryVersion", source->getLibVersion());
+	e->setAttribute("isSource", source->isSource());
+	e->setAttribute("isSink", source->isSink());
 
     /**Saves individual processor parameters to XML */
     std::cout << "Create subnodes with parameters" << std::endl;
@@ -1510,8 +1517,17 @@ const String EditorViewport::loadState(File fileToLoad)
                         insertionPoint = 0;
                     }
 
-                    //Point<int> pt =
-                    SourceDetails sd = SourceDetails(processor->getStringAttribute("name"),
+                    //See ProcessorGraph::createProcessorFromDescription for description info
+					Array<var> procDesc;
+					procDesc.add(false);
+					procDesc.add(processor->getStringAttribute("pluginName"));
+					procDesc.add(processor->getIntAttribute("pluginType"));
+					procDesc.add(processor->getIntAttribute("pluginIndex"));
+					procDesc.add(processor->getStringAttribute("libraryName"));
+					procDesc.add(processor->getIntAttribute("libraryVersion"));
+					procDesc.add(processor->getBoolAttribute("isSource"));
+					procDesc.add(processor->getBoolAttribute("isSink"));
+                    SourceDetails sd = SourceDetails(procDesc,
                                                      0,
                                                      Point<int>(0,0));
 
