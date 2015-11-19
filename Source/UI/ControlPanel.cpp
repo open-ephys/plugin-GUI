@@ -1008,7 +1008,7 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
 	controlPanelState->setAttribute("recordPath", filenameComponent->getCurrentFile().getFullPathName());
     controlPanelState->setAttribute("prependText",prependText->getText());
     controlPanelState->setAttribute("appendText",appendText->getText());
-    controlPanelState->setAttribute("recordEngine",recordSelector->getSelectedId());
+    controlPanelState->setAttribute("recordEngine",recordEngines[recordSelector->getSelectedId()-1]->getID());
 
     audioEditor->saveStateToXml(xml);
 
@@ -1037,7 +1037,14 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 			}
             appendText->setText(xmlNode->getStringAttribute("appendText", ""), dontSendNotification);
             prependText->setText(xmlNode->getStringAttribute("prependText", ""), dontSendNotification);
-            recordSelector->setSelectedId(xmlNode->getIntAttribute("recordEngine",1), sendNotificationSync);
+			String selectedEngine = xmlNode->getStringAttribute("recordEngine");
+			for (int i = 0; i < recordEngines.size(); i++)
+			{
+				if (recordEngines[i]->getID() == selectedEngine)
+				{
+					recordSelector->setSelectedId(i + 1, sendNotification);
+				}
+			}
 
             bool isOpen = xmlNode->getBoolAttribute("isOpen");
             openState(isOpen);
