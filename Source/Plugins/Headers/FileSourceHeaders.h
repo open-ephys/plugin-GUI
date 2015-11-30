@@ -1,2 +1,2 @@
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Processors/FileReader/FileSource.h"
