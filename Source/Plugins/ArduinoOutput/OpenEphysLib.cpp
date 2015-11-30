@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "../../Processors/PluginManager/OpenEphysPlugin.h"
+#include <PluginInfo.h>
 #include "ArduinoOutput.h"
 #include <string>
 #ifdef WIN32

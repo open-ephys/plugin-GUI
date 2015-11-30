@@ -24,12 +24,10 @@
 #ifndef __SPIKEDETECTOR_H_3F920F95__
 #define __SPIKEDETECTOR_H_3F920F95__
 
-#include "../../../../JuceLibraryCode/JuceHeader.h"
-
-#include "../../../Processors/GenericProcessor/GenericProcessor.h"
+#include <ProcessorHeaders.h>
 #include "SpikeDetectorEditor.h"
 
-#include "../../../Processors/Visualization/SpikeObject.h"
+#include <SpikeLib.h>
 
 struct SimpleElectrode
 {

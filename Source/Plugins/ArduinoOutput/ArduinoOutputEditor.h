@@ -25,11 +25,9 @@
 #define __ARDUINOOUTPUTEDITOR_H_28EB4CC9__
 
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/Editors/GenericEditor.h"
-#include "../../Processors/Editors/ImageIcon.h"
+#include <EditorHeaders.h>
 #include "ArduinoOutput.h"
-#include "../../Processors/Serial/ofSerial.h"
+#include <SerialLib.h>
 
 class ImageIcon;
 

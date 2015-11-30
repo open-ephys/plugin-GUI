@@ -24,8 +24,7 @@
 #ifndef __PULSEPALOUTPUTEDITOR_H_BB5F0ECC__
 #define __PULSEPALOUTPUTEDITOR_H_BB5F0ECC__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/Editors/GenericEditor.h"
+#include <EditorHeaders.h>
 
 /**
 

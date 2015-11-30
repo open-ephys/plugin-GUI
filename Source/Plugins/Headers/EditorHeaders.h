@@ -1,0 +1,5 @@
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../Processors/Editors/GenericEditor.h"
+#include "../../Processors/Editors/ImageIcon.h"
+#include "../../Processors/Editors/ElectrodeButtons.h"
+#include "../../Processors/Editors/ChannelSelector.h"

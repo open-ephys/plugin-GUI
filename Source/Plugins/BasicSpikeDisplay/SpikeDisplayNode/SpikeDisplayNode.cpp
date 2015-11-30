@@ -23,7 +23,6 @@
 
 #include "SpikeDisplayNode.h"
 #include "SpikeDisplayCanvas.h"
-#include "../../../Processors/Channel/Channel.h"
 
 #include <stdio.h>
 

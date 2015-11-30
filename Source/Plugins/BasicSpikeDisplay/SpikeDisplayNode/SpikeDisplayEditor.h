@@ -24,14 +24,11 @@
 #ifndef SPIKEDISPLAYEDITOR_H_
 #define SPIKEDISPLAYEDITOR_H_
 
-#include "../../../../JuceLibraryCode/JuceHeader.h"
-#include "../../../Processors/Editors/GenericEditor.h"
-#include "../../../UI/UIComponent.h"
-#include "../../../UI/DataViewport.h"
-#include "../../../Processors/Visualization/DataWindow.h"
+#include <VisualizerEditorHeaders.h>
+#include <RecordingLib.h>
 #include "SpikeDisplayNode.h"
 #include "SpikeDisplayCanvas.h"
-#include "../../../Processors/Editors/VisualizerEditor.h"
+
 
 #define MAX_N_SUB_CHAN 8
 class Visualizer;

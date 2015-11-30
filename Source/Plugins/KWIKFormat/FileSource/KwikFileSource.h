@@ -24,8 +24,7 @@
 #ifndef KWIKFILESOURCE_H_INCLUDED
 #define KWIKFILESOURCE_H_INCLUDED
 
-#include "../../../../JuceLibraryCode/JuceHeader.h"
-#include "../../../Processors/FileReader/FileSource.h"
+#include <FileSourceHeaders.h>
 
 #define MIN_KWIK_VERSION 2
 #define MAX_KWIK_VERSION 2

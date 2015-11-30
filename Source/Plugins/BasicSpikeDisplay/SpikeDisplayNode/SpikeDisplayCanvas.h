@@ -24,12 +24,11 @@
 #ifndef SPIKEDISPLAYCANVAS_H_
 #define SPIKEDISPLAYCANVAS_H_
 
-#include "../../../../JuceLibraryCode/JuceHeader.h"
+#include <VisualizerWindowHeaders.h>
 
 #include "SpikeDisplayNode.h"
-#include "../../../Processors/Visualization/SpikeObject.h"
+#include <SpikeLib.h>
 
-#include "../../../Processors/Visualization/Visualizer.h"
 #include <vector>
 
 #define WAVE1 0

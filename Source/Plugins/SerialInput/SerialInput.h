@@ -28,11 +28,10 @@
 #include <Windows.h>
 #endif
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/GenericProcessor/GenericProcessor.h"
+#include <ProcessorHeaders.h>
 
 #include "SerialInputEditor.h"
-#include "../../Processors/Serial/ofSerial.h"
+#include <SerialLib.h>
 
 /**
 

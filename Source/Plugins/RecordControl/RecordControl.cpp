@@ -24,7 +24,6 @@
 
 #include <stdio.h>
 #include "RecordControl.h"
-#include "../../UI/ControlPanel.h"
 
 RecordControl::RecordControl()
     : GenericProcessor("Record Control"),

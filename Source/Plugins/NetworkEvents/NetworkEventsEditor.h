@@ -25,8 +25,7 @@
 #ifndef __NETWORKEVENTSEDITOR_H_D6EC8B49__
 #define __NETWORKEVENTSEDITOR_H_D6EC8B49__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/Editors/GenericEditor.h"
+#include <EditorHeaders.h>
 
 class NetworkEvents;
 

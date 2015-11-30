@@ -38,7 +38,7 @@
 
 //#include "ofEvents.h"
 
-#include "../../../Processors/Serial/ofSerial.h"
+#include <SerialLib.h>
 
 /*
  * Version numbers for the protocol. The protocol is still changing, so these

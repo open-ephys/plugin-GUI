@@ -25,9 +25,7 @@
 #define __SPIKEDETECTOREDITOR_H_F0BD2DD9__
 
 
-#include "../../../../JuceLibraryCode/JuceHeader.h"
-#include "../../../Processors/Editors/GenericEditor.h"
-#include "../../../Processors/Editors/ElectrodeButtons.h"
+#include <EditorHeaders.h>
 
 class TriangleButton;
 class UtilityButton;

@@ -26,9 +26,7 @@
 
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/Editors/GenericEditor.h"
-
-#include "../../Processors/Editors/ElectrodeButtons.h" // for ElectrodeButton and ElectrodeEditorButton
+#include <EditorHeaders.h>
 
 #define NUM_REFERENCES 4
 

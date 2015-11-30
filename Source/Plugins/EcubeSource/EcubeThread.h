@@ -27,13 +27,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define __ECUBETHREAD_H_EC4CAD67__
 
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <DataThreadHeaders.h>
 
 #include <stdio.h>
 #include <string.h>
-
-#include "../../Processors/DataThreads/DataThread.h"
-#include "../../Processors/GenericProcessor/GenericProcessor.h"
 
 #define MAX_NUM_DATA_STREAMS 8
 

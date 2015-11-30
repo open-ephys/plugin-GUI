@@ -25,8 +25,7 @@
 #define __PHASEDETECTOR_H_F411F29D__
 
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/GenericProcessor/GenericProcessor.h"
+#include <ProcessorHeaders.h>
 
 #define NUM_INTERVALS 5
 

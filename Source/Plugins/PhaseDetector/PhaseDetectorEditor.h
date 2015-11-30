@@ -25,10 +25,7 @@
 #ifndef __PHASEDETECTOREDITOR_H_136829C6__
 #define __PHASEDETECTOREDITOR_H_136829C6__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-
-#include "../../Processors/Editors/GenericEditor.h"
-#include "../../Processors/Editors/ElectrodeButtons.h"
+#include <EditorHeaders.h>
 
 class DetectorInterface;
 class PhaseDetector;

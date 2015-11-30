@@ -24,10 +24,8 @@
 #ifndef __LFPDISPLAYNODE_H_D969A379__
 #define __LFPDISPLAYNODE_H_D969A379__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <ProcessorHeaders.h>
 #include "LfpDisplayEditor.h"
-#include "../../Processors/Editors/VisualizerEditor.h"
-#include "../../Processors/GenericProcessor/GenericProcessor.h"
 
 class DataViewport;
 

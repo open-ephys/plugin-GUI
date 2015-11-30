@@ -26,8 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __ECUBEEDITOR_H_D3EC8BA8__
 #define __ECUBEEDITOR_H_D3EC8BA8__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/Editors/GenericEditor.h"
+#include <EditorHeaders.h>
 
 
 

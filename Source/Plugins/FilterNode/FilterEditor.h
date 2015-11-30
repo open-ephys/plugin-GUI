@@ -25,8 +25,7 @@
 #define __FILTEREDITOR_H_969BDB5__
 
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/Editors/GenericEditor.h"
+#include <EditorHeaders.h>
 
 class FilterViewport;
 

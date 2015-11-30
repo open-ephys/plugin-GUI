@@ -24,8 +24,7 @@
 #ifndef __PULSEPALOUTPUT_H_A8BF66D6__
 #define __PULSEPALOUTPUT_H_A8BF66D6__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/GenericProcessor/GenericProcessor.h"
+#include <ProcessorHeaders.h>
 #include "PulsePalOutputEditor.h"
 #include "serial/PulsePal.h"
 

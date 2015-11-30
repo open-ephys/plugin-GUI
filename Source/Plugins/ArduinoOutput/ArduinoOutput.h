@@ -24,10 +24,10 @@
 #ifndef __ARDUINOOUTPUT_H_F7BDA585__
 #define __ARDUINOOUTPUT_H_F7BDA585__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-
+#include <SerialLib.h>
+#include <ProcessorHeaders.h>
 #include "serial/ofArduino.h"
-#include "../../Processors/GenericProcessor/GenericProcessor.h"
+
 
 
 /**

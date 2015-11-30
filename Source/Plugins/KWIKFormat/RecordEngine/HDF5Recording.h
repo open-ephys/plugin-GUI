@@ -24,7 +24,7 @@
 #ifndef HDF5RECORDING_H_INCLUDED
 #define HDF5RECORDING_H_INCLUDED
 
-#include "../../../Processors/RecordNode/RecordEngine.h"
+#include <RecordingLib.h>
 #include "HDF5FileFormat.h"
 
 class HDF5Recording : public RecordEngine

@@ -24,11 +24,9 @@
 #ifndef SPIKEDISPLAYNODE_H_
 #define SPIKEDISPLAYNODE_H_
 
-#include "../../../../JuceLibraryCode/JuceHeader.h"
+#include <ProcessorHeaders.h>
+#include <SpikeLib.h>
 #include "SpikeDisplayEditor.h"
-#include "../../../Processors/Editors/VisualizerEditor.h"
-#include "../../../Processors/GenericProcessor/GenericProcessor.h"
-#include "../../../Processors/Visualization/SpikeObject.h"
 
 class DataViewport;
 class SpikePlot;

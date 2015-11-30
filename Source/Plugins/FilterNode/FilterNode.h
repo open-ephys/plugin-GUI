@@ -24,9 +24,8 @@
 #ifndef __FILTERNODE_H_CED428E__
 #define __FILTERNODE_H_CED428E__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <ProcessorHeaders.h>
 #include "Dsp/Dsp.h"
-#include "../../Processors/GenericProcessor/GenericProcessor.h"
 
 /**
 

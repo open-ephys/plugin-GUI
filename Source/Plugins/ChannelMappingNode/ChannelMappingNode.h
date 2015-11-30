@@ -25,10 +25,7 @@
 #define __CHANNELMAPPINGNODE_H_330E50E0__
 
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-
-
-#include "../../Processors/GenericProcessor/GenericProcessor.h"
+#include <ProcessorHeaders.h>
 
 
 /**

@@ -37,8 +37,7 @@
 
 #endif
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/GenericProcessor/GenericProcessor.h"
+#include <ProcessorHeaders.h>
 
 #include <list>
 #include <queue>

@@ -24,7 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChannelMappingEditor.h"
 #include "ChannelMappingNode.h"
-#include "../../Processors/Editors/ChannelSelector.h"
 #include <stdio.h>
 
 

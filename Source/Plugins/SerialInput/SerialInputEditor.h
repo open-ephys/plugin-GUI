@@ -28,8 +28,7 @@
 #include <Windows.h>
 #endif
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/Editors/GenericEditor.h"
+#include <EditorHeaders.h>
 
 class SerialInput;
 
