@@ -301,6 +301,19 @@ public:
 
     /** Used to manually turn recording on and off.*/
     void setRecordState(bool isRecording);
+
+    /** Return current recording state.*/
+    bool getRecordingState();
+
+    /** Set recording directory and update FilenameComponent */
+    void setRecordingDirectory(String path);
+
+    /** Return current acquisition state.*/
+    bool getAcquisitionState();
+
+    /** Used to manually turn recording on and off.*/
+    void setAcquisitionState(bool state);
+
     /** Returns a boolean that indicates whether or not the FilenameComponet
         is visible. */
     bool isOpen()
@@ -316,6 +329,12 @@ public:
 
     /** Used by RecordNode to set the filename. */
     String getTextToAppend();
+
+    /** Manually set the text to be prepended to the recording directory */
+    void setPrependText(String text);
+
+    /** Manually set the text to be appended to the recording directory */
+    void setAppendText(String text);
 
     /** Set date text. */
     void setDateText(String);

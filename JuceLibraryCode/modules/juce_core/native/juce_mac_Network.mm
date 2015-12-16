@@ -243,8 +243,11 @@ public:
 
     void run() override
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         connection = [[NSURLConnection alloc] initWithRequest: request
                                                      delegate: delegate];
+#pragma GCC diagnostic pop
         while (! threadShouldExit())
         {
             JUCE_AUTORELEASEPOOL

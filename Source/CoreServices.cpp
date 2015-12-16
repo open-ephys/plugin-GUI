@@ -52,6 +52,16 @@ void setRecordingStatus(bool enable)
     getControlPanel()->setRecordState(enable);
 }
 
+bool getAcquisitionStatus()
+{
+	return getControlPanel()->getAcquisitionState();
+}
+
+void setAcquisitionStatus(bool enable)
+{
+    getControlPanel()->setAcquisitionState(enable);
+}
+
 void sendStatusMessage(const String& text)
 {
     getBroadcaster()->sendActionMessage(text);
@@ -75,6 +85,26 @@ int64 getGlobalTimestamp()
 int64 getSoftwareTimestamp()
 {
 	return getMessageCenter()->getTimestamp(true);
+}
+
+void setRecordingDirectory(String dir)
+{
+    getControlPanel()->setRecordingDirectory(dir);
+}
+
+void createNewRecordingDir()
+{
+   getControlPanel()->labelTextChanged(NULL);
+}
+
+void setPrependTextToRecordingDir(String text)
+{
+    getControlPanel()->setPrependText(text);
+}
+
+void setAppendTextToRecordingDir(String text)
+{
+    getControlPanel()->setAppendText(text);
 }
 
 namespace RecordNode

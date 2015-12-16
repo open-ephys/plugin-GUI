@@ -45,6 +45,7 @@ public:
     void setParameter(int, float);
     void updateTriggerChannel(int newChannel);
     void handleEvent(int eventType, MidiMessage& event, int);
+
     bool enable();
 
     bool isUtility()
