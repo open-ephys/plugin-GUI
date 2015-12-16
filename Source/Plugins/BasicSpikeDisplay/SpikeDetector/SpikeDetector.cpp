@@ -29,7 +29,8 @@
 SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"),
       overflowBuffer(2,100), dataBuffer(nullptr),
-      overflowBufferSize(100), currentElectrode(-1)
+      overflowBufferSize(100), currentElectrode(-1),
+      uniqueID(0)
 {
     //// the standard form:
     electrodeTypes.add("single electrode");
@@ -97,7 +98,7 @@ void SpikeDetector::updateSettings()
 
 }
 
-bool SpikeDetector::addElectrode(int nChans)
+bool SpikeDetector::addElectrode(int nChans, int electrodeID)
 {
 
     std::cout << "Adding electrode with " << nChans << " channels." << std::endl;
@@ -143,9 +144,9 @@ bool SpikeDetector::addElectrode(int nChans)
     newElectrode->numChannels = nChans;
     newElectrode->prePeakSamples = 8;
     newElectrode->postPeakSamples = 32;
-    newElectrode->thresholds = new double[nChans];
-    newElectrode->isActive = new bool[nChans];
-    newElectrode->channels = new int[nChans];
+    newElectrode->thresholds.malloc(nChans);
+    newElectrode->isActive.malloc(nChans);
+    newElectrode->channels.malloc(nChans);
     newElectrode->isMonitored = false;
 
     for (int i = 0; i < nChans; i++)
@@ -155,6 +156,13 @@ bool SpikeDetector::addElectrode(int nChans)
         *(newElectrode->isActive+i) = true;
     }
 
+    if (electrodeID > 0) {
+        newElectrode->electrodeID = electrodeID;
+        uniqueID = std::max(uniqueID, electrodeID);
+    } else {
+        newElectrode->electrodeID = ++uniqueID;
+    }
+    
     newElectrode->sourceNodeId = channels[*newElectrode->channels]->sourceNodeId;
 
     resetElectrode(newElectrode);
@@ -505,7 +513,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
                         newSpike.source = i;
                         newSpike.nChannels = electrode->numChannels;
                         newSpike.sortedId = 0;
-                        newSpike.electrodeID = 0;
+                        newSpike.electrodeID = electrode->electrodeID;
                         newSpike.channel = 0;
                         newSpike.samplingFrequencyHz = sampleRateForElectrode;
 
@@ -676,6 +684,7 @@ void SpikeDetector::saveCustomParametersToXml(XmlElement* parentElement)
         electrodeNode->setAttribute("numChannels", electrodes[i]->numChannels);
         electrodeNode->setAttribute("prePeakSamples", electrodes[i]->prePeakSamples);
         electrodeNode->setAttribute("postPeakSamples", electrodes[i]->postPeakSamples);
+        electrodeNode->setAttribute("electrodeID", electrodes[i]->electrodeID);
 
         for (int j = 0; j < electrodes[i]->numChannels; j++)
         {
@@ -712,8 +721,9 @@ void SpikeDetector::loadCustomParametersFromXml()
                 std::cout << "ELECTRODE>>>" << std::endl;
 
                 int channelsPerElectrode = xmlNode->getIntAttribute("numChannels");
+                int electrodeID = xmlNode->getIntAttribute("electrodeID");
 
-                sde->addElectrode(channelsPerElectrode);
+                sde->addElectrode(channelsPerElectrode, electrodeID);
 
                 setElectrodeName(electrodeIndex+1, xmlNode->getStringAttribute("name"));
                 sde->refreshElectrodeList();

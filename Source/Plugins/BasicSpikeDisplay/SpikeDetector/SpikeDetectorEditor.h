@@ -60,7 +60,7 @@ public:
 
     void channelChanged(int chan);
 
-    bool addElectrode(int nChans);
+    bool addElectrode(int nChans, int electrodeID = 0);
     void removeElectrode(int index);
 
     void checkSettings();

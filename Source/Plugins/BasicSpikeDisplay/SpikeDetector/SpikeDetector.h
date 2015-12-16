@@ -38,11 +38,12 @@ struct SimpleElectrode
     int prePeakSamples, postPeakSamples;
     int lastBufferIndex;
     bool isMonitored;
+    int electrodeID;
     int sourceNodeId;
 
-    int* channels;
-    double* thresholds;
-    bool* isActive;
+    HeapBlock<int> channels;
+    HeapBlock<double> thresholds;
+    HeapBlock<bool> isActive;
 
 };
 
@@ -102,7 +103,7 @@ public:
     // CREATE AND DELETE ELECTRODES //
 
     /** Adds an electrode with n channels to be processed. */
-    bool addElectrode(int nChans);
+    bool addElectrode(int nChans, int electrodeID = 0);
 
     /** Removes an electrode with a given index. */
     bool removeElectrode(int index);
@@ -179,6 +180,7 @@ private:
     int64 timestamp;
 
     Array<SimpleElectrode*> electrodes;
+    int uniqueID;
 
     // void createSpikeEvent(int& peakIndex,
     // 					  int& electrodeNumber,

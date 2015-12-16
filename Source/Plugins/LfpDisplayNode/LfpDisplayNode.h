@@ -97,7 +97,7 @@ private:
 
     int64 bufferTimestamp;
     std::map<int, int> ttlState;
-    float* arrayOfOnes;
+    HeapBlock<float> arrayOfOnes;
     int totalSamples;
 
     bool resizeBuffer();

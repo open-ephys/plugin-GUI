@@ -433,11 +433,11 @@ void SpikeDetectorEditor::refreshElectrodeList()
     }
 }
 
-bool SpikeDetectorEditor::addElectrode(int nChans)
+bool SpikeDetectorEditor::addElectrode(int nChans, int electrodeID)
 {
     SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
-    if (processor->addElectrode(nChans))
+    if (processor->addElectrode(nChans, electrodeID))
     {
         refreshElectrodeList();
         return true;
@@ -544,7 +544,7 @@ void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
 
 void SpikeDetectorEditor::checkSettings()
 {
-    electrodeList->setSelectedItemIndex(0);
+    electrodeList->setSelectedId(0);
     drawElectrodeButtons(0);
 
 	CoreServices::updateSignalChain(this);
