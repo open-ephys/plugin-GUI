@@ -24,8 +24,6 @@
 #include <stdio.h>
 #include "SpikeDetector.h"
 
-#include "../../../Processors/Channel/Channel.h"
-
 SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"),
       overflowBuffer(2,100), dataBuffer(nullptr),
