@@ -25,7 +25,7 @@
 #define PLUGINCLASS_H_INCLUDED
 #include "OpenEphysPlugin.h"
 
-class PluginClass
+class PLUGIN_API PluginClass
 {
 public:
 	PluginClass();
