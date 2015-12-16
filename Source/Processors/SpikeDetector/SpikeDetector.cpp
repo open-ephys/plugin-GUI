@@ -144,9 +144,9 @@ bool SpikeDetector::addElectrode(int nChans, int electrodeID)
     newElectrode->numChannels = nChans;
     newElectrode->prePeakSamples = 8;
     newElectrode->postPeakSamples = 32;
-    newElectrode->thresholds = new double[nChans];
-    newElectrode->isActive = new bool[nChans];
-    newElectrode->channels = new int[nChans];
+    newElectrode->thresholds.malloc(nChans);
+    newElectrode->isActive.malloc(nChans);
+    newElectrode->channels.malloc(nChans);
     newElectrode->isMonitored = false;
 
     for (int i = 0; i < nChans; i++)

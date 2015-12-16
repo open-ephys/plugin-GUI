@@ -43,9 +43,9 @@ struct SimpleElectrode
     int electrodeID;
     int sourceNodeId;
 
-    int* channels;
-    double* thresholds;
-    bool* isActive;
+    HeapBlock<int> channels;
+    HeapBlock<double> thresholds;
+    HeapBlock<bool> isActive;
 
 };
 
