@@ -33,7 +33,7 @@ LfpDisplayNode::LfpDisplayNode()
     //std::cout << " LFPDisplayNodeConstructor" << std::endl;
     displayBuffer = new AudioSampleBuffer(8, 100);
 
-    arrayOfOnes = new float[5000];
+	arrayOfOnes.malloc(5000);
 
     for (int n = 0; n < 5000; n++)
     {
