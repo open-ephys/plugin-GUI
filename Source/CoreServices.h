@@ -44,10 +44,10 @@ PLUGIN_API bool getRecordingStatus();
 PLUGIN_API void setRecordingStatus(bool enable);
 
 /** Returns true if the GUI is acquiring data */
-bool getAcquisitionStatus();
+PLUGIN_API bool getAcquisitionStatus();
 
 /** Activates or deactivates data acquisition */
-void setAcquisitionStatus(bool enable);
+PLUGIN_API void setAcquisitionStatus(bool enable);
 
 /** Sends a string to the message bar */
 PLUGIN_API void sendStatusMessage(const String& text);
@@ -67,16 +67,16 @@ PLUGIN_API int64 getGlobalTimestamp();
 PLUGIN_API int64 getSoftwareTimestamp();
 
 /** Set new recording directory */
-void setRecordingDirectory(String dir);
+PLUGIN_API void setRecordingDirectory(String dir);
 
 /** Create new recording directory */
-void createNewRecordingDir();
+PLUGIN_API void createNewRecordingDir();
 
 /** Manually set the text to be prepended to the recording directory */
-void setPrependTextToRecordingDir(String text);
+PLUGIN_API void setPrependTextToRecordingDir(String text);
 
 /** Manually set the text to be appended to the recording directory */
-void setAppendTextToRecordingDir(String text);
+PLUGIN_API void setAppendTextToRecordingDir(String text);
 
 namespace RecordNode
 {
