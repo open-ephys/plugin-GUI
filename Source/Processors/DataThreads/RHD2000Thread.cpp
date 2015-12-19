@@ -1821,6 +1821,32 @@ void RHD2000Thread::enableBoardLeds(bool enable)
 		evalBoard->enableBoardLeds(enable);
 }
 
+int RHD2000Thread::setClockDivider(int divide_ratio)
+{
+    // TODO: only allow if not running?
+	//if (isAcquisitionActive())
+    //
+    uint16_t N;
+    
+    // Divide ratio should be 1 or an even number
+    if (divide_ratio != 1 && divide_ratio % 2) 
+        divide_ratio--;
+
+    // Format the divide ratio from its true value to the 
+    // format required by the firmware
+    // Ratio    N
+    // 1        0
+    // >=2      Ratio/2
+    if (divide_ratio == 1)
+        N = 0;
+    else
+        N = static_cast<uint16_t>(divide_ratio/2);
+
+    evalBoard->setClockDivider(N);
+
+    return divide_ratio;
+}
+
 void RHD2000Thread::runImpedanceTest(ImpedanceData* data)
 {
 	impedanceThread->stopThreadSafely();

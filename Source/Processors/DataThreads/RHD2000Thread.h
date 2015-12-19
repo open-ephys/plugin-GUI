@@ -130,6 +130,7 @@ public:
 
 	void runImpedanceTest(ImpedanceData* data);
 	void enableBoardLeds(bool enable);
+	int setClockDivider(int divide_ratio);
 
 private:
 
