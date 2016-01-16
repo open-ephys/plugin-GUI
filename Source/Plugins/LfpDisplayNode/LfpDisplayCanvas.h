@@ -46,10 +46,10 @@ class LfpViewport;
 */
 
 class LfpDisplayCanvas : public Visualizer,
+    public Slider::Listener,
     public ComboBox::Listener,
     public Button::Listener,
     public KeyListener
-
 {
 public:
     LfpDisplayCanvas(LfpDisplayNode* n);
@@ -81,7 +81,10 @@ public:
 
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
-
+    
+    const float *getSamplesPerPixel(int chan, int px);
+    const int getSampleCountPerPixel(int px);
+    
     const float getYCoordMin(int chan, int samp);
     const float getYCoordMean(int chan, int samp);
     const float getYCoordMax(int chan, int samp);
@@ -91,7 +94,14 @@ public:
 
     void comboBoxChanged(ComboBox* cb);
     void buttonClicked(Button* button);
-
+    
+    /** Handles slider events for all editors. */
+    void sliderValueChanged(Slider* slider);
+    
+    /** Called by sliderValueChanged(). Deals with clicks on custom sliders. Subclasses
+     of GenericEditor should modify this method only.*/
+    void sliderEvent(Slider* slider);
+    
     void saveVisualizerParameters(XmlElement* xml);
     void loadVisualizerParameters(XmlElement* xml);
 
@@ -125,6 +135,7 @@ private:
 
     static const int MAX_N_CHAN = 2048;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
+    static const int MAX_N_SAMP_PER_PIXEL = 1000; // maximum samples considered for dreawing each pixel
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
     LfpDisplayNode* processor;
@@ -151,6 +162,10 @@ private:
     ScopedPointer<UtilityButton> drawMethodButton;
     ScopedPointer<UtilityButton> pauseButton;
     OwnedArray<UtilityButton> typeButtons;
+    
+    
+    ScopedPointer<Slider> histogramSlider;
+    ScopedPointer<Slider> supersampleSlider;
 
     StringArray voltageRanges[CHANNEL_TYPES];
     StringArray timebases;
@@ -180,6 +195,10 @@ private:
     int displayBufferSize;
 
     int scrollBarThickness;
+    
+    //float samplesPerPixel[MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL];
+    float*** samplesPerPixel;
+    int sampleCountPerPixel[MAX_N_SAMP];
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
 

@@ -230,6 +230,19 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     drawMethodButton->setClickingTogglesState(true);
     drawMethodButton->setToggleState(false, sendNotification);
     addAndMakeVisible(drawMethodButton);
+    
+    // two sliders for the two histogram components of the supersampled plotting mode
+    histogramSlider = new Slider;
+    histogramSlider->setRange (0, 1);
+    histogramSlider->addListener(this);
+    addAndMakeVisible (histogramSlider);
+    
+    supersampleSlider = new Slider;
+    supersampleSlider->setRange (0, 1);
+    supersampleSlider->addListener(this);
+    addAndMakeVisible (supersampleSlider);
+    
+    
 
     //button for pausing the display - works by skipping buffer updates. This way scrolling etc still works
     pauseButton = new UtilityButton("Pause", Font("Small Text", 13, Font::plain));
@@ -262,6 +275,17 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
         lfpDisplay->setEventDisplayState(i,true);
 
     }
+    
+    // allocate samplesPerPixel, behaves like float samplesPerPixel[nChans][MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL]
+    samplesPerPixel = (float***)malloc(nChans * sizeof(float **));
+    for(int i=0;i<nChans;i++)
+    {
+        samplesPerPixel[i] = (float**)malloc(MAX_N_SAMP * sizeof(float*));
+        for(int j=0;j<MAX_N_SAMP;j++)
+        {
+            samplesPerPixel[i][j] = (float*)malloc(MAX_N_SAMP_PER_PIXEL*sizeof(float));
+        }
+    }
 
     TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
 }
@@ -274,6 +298,19 @@ LfpDisplayCanvas::~LfpDisplayCanvas()
     deleteAndZero(screenBufferMean);
     deleteAndZero(screenBufferMax);
 
+    // de-allocate 3d-array samplesPerPixel [nChans][MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL];
+
+    for(int i=0;i<nChans;i++)
+    {
+        for(int j=0;j<MAX_N_SAMP;j++)
+        {
+            free(samplesPerPixel[i][j]);
+        }
+        free(samplesPerPixel[i]);
+    }
+    free(samplesPerPixel);
+    
+    
     TopLevelWindow::getTopLevelWindow(0)->removeKeyListener(this);
 }
 
@@ -302,7 +339,10 @@ void LfpDisplayCanvas::resized()
         eventDisplayInterfaces[i]->setBounds(500+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
         eventDisplayInterfaces[i]->repaint();
     }
-
+    
+    histogramSlider->setBounds(1000,getHeight()-50,200,22);
+    supersampleSlider->setBounds(1000,getHeight()-25,200,22);
+    
     int bh = 25/typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
     {
@@ -574,6 +614,15 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 }
 
 
+void sliderValueChanged (Slider* slider)
+{
+   // if (slider == &frequencySlider)
+    //    durationSlider.setValue (1.0 / frequencySlider.getValue(), dontSendNotification);
+   // else if (slider == &durationSlider)
+   //     frequencySlider.setValue (1.0 / durationSlider.getValue(), dontSendNotification);
+}
+
+
 int LfpDisplayCanvas::getChannelHeight()
 {
     return spreads[spreadSelection->getSelectedId()-1].getIntValue();
@@ -753,9 +802,10 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     float sample_min   =  1000000;
                     float sample_max   = -1000000;
                     float sample_mean  =  0;
-                    int c = 0;
+                    
                     int nextpix = (dbi +(int)ratio) % displayBufferSize; //  position to next pixels index
                     
+                    int c = 0;
                     for (int j = dbi; j < nextpix; j++)
                     {
                         float sample_current = displayBuffer->getSample(channel, j);
@@ -771,14 +821,30 @@ void LfpDisplayCanvas::updateScreenBuffer()
                             sample_max=sample_current;
                         }
                         c++;
-
                     }
-
-                    sample_mean = sample_mean/c;
-                    screenBufferMean->addSample(channel, sbi, sample_mean*gain);
-                    screenBufferMin->addSample(channel, sbi, sample_min*gain);
-                    screenBufferMax->addSample(channel, sbi, sample_max*gain);
-                
+                    
+                    // similarly, for each pixel on the screen, we want a list of all values so we can draw a histogram later
+                    // for simplicity, we'll just do this as 2d array, samplesPerPixel[px][samples]
+                    // with an additional array sampleCountPerPixel[px] that holds the N samples per pixel
+                    if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
+                        {
+                            c = 0;
+                            for (int j = dbi; j < nextpix & c < MAX_N_SAMP_PER_PIXEL; j++)
+                            {
+                                float sample_current = displayBuffer->getSample(channel, j);
+                                samplesPerPixel[channel][sbi][c]=sample_current;
+                                c++;
+                            }
+                            if (c>0){
+                                sampleCountPerPixel[sbi]=c-1; // save count of samples for this pixel
+                            }else{
+                                sampleCountPerPixel[sbi]=0;
+                            }
+                            sample_mean = sample_mean/c;
+                            screenBufferMean->addSample(channel, sbi, sample_mean*gain);
+                            screenBufferMin->addSample(channel, sbi, sample_min*gain);
+                            screenBufferMax->addSample(channel, sbi, sample_max*gain);
+                    }
                 sbi++;
                 }
             
@@ -831,6 +897,16 @@ const float LfpDisplayCanvas::getYCoordMax(int chan, int samp)
 {
     return *screenBufferMax->getReadPointer(chan, samp);
 }
+
+const float* LfpDisplayCanvas::getSamplesPerPixel(int chan, int px)
+{
+    return samplesPerPixel[chan][px];
+}
+const int LfpDisplayCanvas::getSampleCountPerPixel(int px)
+{
+    return sampleCountPerPixel[px];
+}
+
 
 
 bool LfpDisplayCanvas::getInputInvertedState()
@@ -1077,6 +1153,14 @@ int LfpDisplayCanvas::getRangeStep(ChannelType type)
 {
     return rangeSteps[type];
 }
+
+void LfpDisplayCanvas::sliderValueChanged(Slider* slider)
+{
+    
+    sliderEvent(slider);
+}
+
+void LfpDisplayCanvas::sliderEvent(Slider* slider) {}
 
 // -------------------------------------------------------------
 
@@ -1785,37 +1869,118 @@ void LfpChannelDisplay::paint(Graphics& g)
             }
 
             //std::cout << "e " << canvas->getYCoord(canvas->getNumChannels()-1, i) << std::endl;
-            g.setColour(lineColour);
-
-            if (drawMethod) // switched between to line drawing and pixel wise drawing
+            
+            
+            // set max-min range for plotting, used in all methods
+            double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat)+getHeight()/2;
+            double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat)+getHeight()/2;
+            //double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
+            if (a<b)
             {
-
-                // drawLine makes for ok anti-aliased plots, but is pretty slow
-                g.drawLine(i,
-                           (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2,
-                           i+stepSize,
-                           (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2);
-
-
+                from = (a);
+                to = (b);
             }
             else
             {
+                from = (b);
+                to = (a);
+            }
+            int samplerange=to-from;
 
-                // // pixel wise line plot has no anti-aliasing, but runs much faster
-                double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat)+getHeight()/2;
-                double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat)+getHeight()/2;
-                //double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
-                if (a<b)
-                {
-                    from = (a);
-                    to = (b);
-                }
-                else
-                {
-                    from = (b);
-                    to = (a);
-                }
+            if (drawMethod) // switched between 'supersampled' drawing and simple pixel wise drawing
+            { // histogram based supersampling method
 
+                const float *samplesThisPixel = canvas->getSamplesPerPixel(chan, i);
+                int sampleCountThisPixel = canvas->getSampleCountPerPixel(i);
+
+                if (samplerange>0 & sampleCountThisPixel>1)
+                {
+                    // drawLine makes for ok anti-aliased plots, but is pretty slow
+                    //g.drawLine(i,
+                    //           (canvas->getYCoord(chan, i)/range*channelHeightFloat)+getHeight()/2,
+                    //           i+stepSize,
+                    //           (canvas->getYCoord(chan, i+stepSize)/range*channelHeightFloat)+getHeight()/2);
+                    
+                    
+                    //double a = (samplesThisPixel[sampleCountThisPixel]/range*channelHeightFloat)+getHeight()/2;
+                    //g.setPixel(i,a);
+                    float localHist[samplerange]; // simple histogram
+                    float rangeHist[samplerange]; // paired range histogram, same as plotting at higher res. and subsampling
+                    
+                    for (int k=0; k<samplerange; k++)
+                    {
+                        localHist[k]=0;
+                        rangeHist[k]=0;
+                    }
+                    
+                    /*
+                    for (int k=0; k<=sampleCountThisPixel; k++) // add up simple histogram
+                    {
+                        int cs = (((samplesThisPixel[k]/range*channelHeightFloat)+getHeight()/2)-from);
+                        if (cs<0) {cs=0;};
+                        if (cs>samplerange) {cs=samplerange;};
+                        localHist[cs]++;
+                    }
+                    */
+                    
+                    for (int k=0; k<=sampleCountThisPixel; k++) // add up simple paired-range histogram - for each pair fill intermediate with uniform distr.
+                    {
+                        int cs_this      = (((samplesThisPixel[k]/range*channelHeightFloat)+getHeight()/2)-from);
+                        int cs_next = (((samplesThisPixel[k+1]/range*channelHeightFloat)+getHeight()/2)-from);
+                        
+                        if (cs_this<0) {cs_this=0;};
+                        if (cs_this>samplerange) {cs_this=samplerange;};
+                        if (cs_next<0) {cs_next=0;};
+                        if (cs_next>samplerange) {cs_next=samplerange;};
+
+                        int hfrom=0;
+                        int hto=0;
+                        
+                        if (cs_this<cs_next)
+                        {
+                             hfrom = (cs_this);  hto = (cs_next);
+                        }
+                        else
+                        {
+                             hfrom = (cs_next);  hto = (cs_this);
+                        }
+                        int hrange=hto-hfrom;
+                        float ha=1;
+                        for (int l=hfrom; l<=hto; l++)
+                        {
+                            rangeHist[l]+=ha;
+                        }
+                    }
+                    
+                    
+                    for (int s = 0; s < samplerange; s ++)
+                    {
+                        float a=(rangeHist[s])/(sampleCountThisPixel/2);
+                        if (a>1.0f) {a=1.0f;};
+                        if (a<0.0f) {a=0.0f;};
+                        
+                        
+                        //g.setColour( lineColour.interpolatedWith(Colour(255,255,255),0.5f).withAlpha(a) ); // mix in 50% white, alpha from histogram
+                        g.setColour( lineColour.withMultipliedBrightness(2.0f).interpolatedWith(lineColour.withSaturation(0.1f).withMultipliedBrightness(0.4f),1-a) );
+                        
+                        g.setPixel(i,from+s);
+                    }
+                    
+                } else {
+                    g.setColour(lineColour);
+                    g.setPixel(i,from);
+                    
+                
+                }
+                
+                
+                
+            }
+            else
+            { // simple per-pixel min-max drawing
+                // pixel wise line plot has no anti-aliasing, but runs much faster
+                
+                g.setColour(lineColour);
                 //g.setColour(lineColour.withMultipliedBrightness( 1+(((((float)(to-from)*range)/getHeight())-0.01)*2)  )); // make spikes etc slightly brighter
 
 
@@ -2057,6 +2222,7 @@ void LfpChannelDisplayInfo::resized()
     //else
     enableButton->setBounds(8,center-5,35,16);
 }
+
 
 
 // Event display Options --------------------------------------------------------------------
