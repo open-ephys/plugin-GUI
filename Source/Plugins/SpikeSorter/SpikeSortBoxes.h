@@ -24,11 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __SPIKESORTBOXES_H
 #define __SPIKESORTBOXES_H
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-
-#include "../GenericProcessor/GenericProcessor.h"
+#include <SpikeLib.h>
 #include "SpikeSorterEditor.h"
-#include "../Visualization/SpikeObject.h"
 #include <algorithm>    // std::sort
 #include <list>
 #include <queue>

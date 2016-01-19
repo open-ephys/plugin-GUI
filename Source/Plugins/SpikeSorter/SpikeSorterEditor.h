@@ -24,15 +24,7 @@
 #ifndef __SPIKESORTEREDITOR_H_F0BD2DD9__
 #define __SPIKESORTEREDITOR_H_F0BD2DD9__
 
-
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../Editors/GenericEditor.h"
-#include "../../UI/UIComponent.h"
-#include "../../UI/DataViewport.h"
-#include "../Visualization/DataWindow.h"
-#include "../Editors/VisualizerEditor.h"
-#include "../Editors/ElectrodeButtons.h"
-#include "../SpikeDetector/SpikeDetectorEditor.h"
+#include <VisualizerEditorHeaders.h>
 
 class SpikeSorterCanvas;
 

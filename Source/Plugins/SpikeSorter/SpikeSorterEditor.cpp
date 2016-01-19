@@ -22,11 +22,8 @@
 */
 
 #include "SpikeSorterEditor.h"
-#include "../SpikeDisplayNode/SpikeDisplayEditor.h"
 #include "SpikeSorterCanvas.h"
 #include "SpikeSorter.h"
-#include "../Editors/ChannelSelector.h"
-#include "../../UI/EditorViewport.h"
 
 #include <stdio.h>
 
@@ -38,8 +35,9 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
 {
     tabText = "Spike Detector";
 
-
-    MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
+	int silksize;
+	const char* silk = CoreServices::getApplicationResource("silkscreenserialized", silksize);
+    MemoryInputStream mis(silk, silksize, false);
     Typeface::Ptr typeface = new CustomTypeface(mis);
     font = Font(typeface);
 

@@ -25,11 +25,7 @@
 #include "SpikeSorter.h"
 #include "SpikeSortBoxes.h"
 #include "SpikeSorterCanvas.h"
-#include "../Channel/Channel.h"
-#include "../SpikeDisplayNode/SpikeDisplayNode.h"
-#include "../PSTH/PeriStimulusTimeHistogramEditor.h"
-#include "../PSTH/PeriStimulusTimeHistogramNode.h"
-#include "../../AccessClass.h" //TO BE REMOVED
+
 class spikeSorter;
 
 SpikeSorter::SpikeSorter()
@@ -327,14 +323,14 @@ void SpikeSorter::addNewUnit(int electrodeID, int newUnitID, uint8 r, uint8 g, u
 {
     String eventlog = "NewUnit "+String(electrodeID) + " "+String(newUnitID)+" "+String(r)+" "+String(g)+" "+String(b);
     //addNetworkEventToQueue(StringTS(eventlog));
-    updateSinks(electrodeID,  newUnitID, r,g,b,true);
+  //  updateSinks(electrodeID,  newUnitID, r,g,b,true);
 }
 
 void SpikeSorter::removeUnit(int electrodeID, int unitID)
 {
     String eventlog = "RemoveUnit "+String(electrodeID) + " "+String(unitID);
     //addNetworkEventToQueue(StringTS(eventlog));
-    updateSinks(electrodeID,  unitID, 0,0,0,false);
+ //   updateSinks(electrodeID,  unitID, 0,0,0,false);
 
 }
 
@@ -343,7 +339,7 @@ void SpikeSorter::removeAllUnits(int electrodeID)
 {
     String eventlog = "RemoveAllUnits "+String(electrodeID);
     //addNetworkEventToQueue(StringTS(eventlog));
-    updateSinks(electrodeID,true);
+ //   updateSinks(electrodeID,true);
 }
 
 /*RHD2000Thread* SpikeSorter::getRhythmAccess()
@@ -411,7 +407,7 @@ void SpikeSorter::addElectrode(Electrode* newElectrode)
     resetElectrode(newElectrode);
     electrodes.add(newElectrode);
     // inform PSTH sink, if it exists, about this new electrode.
-    updateSinks(newElectrode);
+//    updateSinks(newElectrode);
     mut.exit();
 }
 
@@ -459,7 +455,7 @@ bool SpikeSorter::addElectrode(int nChans, String name, double Depth)
 
     resetElectrode(newElectrode);
     electrodes.add(newElectrode);
-    updateSinks(newElectrode);
+ //   updateSinks(newElectrode);
     setCurrentElectrodeIndex(electrodes.size()-1);
     mut.exit();
     return true;
@@ -526,7 +522,7 @@ void SpikeSorter::setElectrodeName(int index, String newName)
 	if ((electrodes.size() > 0) && (index > 0))
 	{
 		electrodes[index - 1]->name = newName;
-		updateSinks(electrodes[index - 1]->electrodeID, newName);
+	//	updateSinks(electrodes[index - 1]->electrodeID, newName);
 	}
     mut.exit();
 }
@@ -543,7 +539,7 @@ void SpikeSorter::setChannel(int electrodeIndex, int channelNum, int newChannel)
     String eventlog = "ChanelElectrodeChannel " + String(electrodes[electrodeIndex]->electrodeID) + " " + String(channelNum) + " " + String(newChannel);
     //addNetworkEventToQueue(StringTS(eventlog));
 
-    updateSinks(electrodes[electrodeIndex]->electrodeID, channelNum,newChannel);
+   // updateSinks(electrodes[electrodeIndex]->electrodeID, channelNum,newChannel);
 
     *(electrodes[electrodeIndex]->channels+channelNum) = newChannel;
     mut.exit();
@@ -1212,24 +1208,6 @@ Array<Electrode*> SpikeSorter::getElectrodes()
 // 	double currentAdvancerPos = getAdvancerPosition(electrodes[currentElectrode]->advancerID);
 // 	return electrodes[currentElectrode]->depthOffsetMM + currentAdvancerPos;
 // }
-
-bool SpikeSorter::isSelectedElectrodeRecorded(int channel_index)
-{
-    if (electrodes.size() == 0)
-        return false;
-    int channel = electrodes[currentElectrode]->channels[channel_index];
-    RecordNode* recordNode = AccessClass::getProcessorGraph()->getRecordNode();
-
-    StringArray names;
-    Array<bool> recording;
-    recordNode->getChannelNamesAndRecordingStatus(names, recording);
-    if (channel >= 0 && channel < recording.size())
-        return recording[channel];
-
-    return false;
-    //return electrodes[currentElectrode]->depthOffsetMM + currentAdvancerPos;
-}
-
 void SpikeSorter::saveCustomParametersToXml(XmlElement* parentElement)
 {
     XmlElement* mainNode = parentElement->createNewChildElement("SpikeSorter");
@@ -1503,7 +1481,9 @@ Electrode* SpikeSorter::setCurrentElectrodeIndex(int i)
     return electrodes[i];
 }
 
-
+/* Methods that try to communicate directly with PSTH. That is not allowed under plugin architecture, so this
+must be rewritten using event channels to pass electrode data*/
+#if 0
 void SpikeSorter::updateSinks(int electrodeID, int unitID, uint8 r, uint8 g, uint8 b, bool addRemove)
 {
     // inform sinks about a new unit
@@ -1647,7 +1627,7 @@ void SpikeSorter::updateSinks(int electrodeID)
 
     }
 }
-
+#endif
 /*
 
 

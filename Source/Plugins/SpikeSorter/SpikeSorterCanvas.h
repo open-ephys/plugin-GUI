@@ -24,12 +24,11 @@
 #ifndef SPIKESORTERCANVAS_H_
 #define SPIKESORTERCANVAS_H_
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <VisualizerWindowHeaders.h>
+#include <SpikeLib.h>
 
 #include "SpikeSorter.h"
-#include "../Visualization/SpikeObject.h"
 
-#include "../Visualization/Visualizer.h"
 #include <vector>
 
 #define WAVE1 0

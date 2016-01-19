@@ -24,13 +24,10 @@
 #ifndef __SPIKESORTER_H_3F920F95__
 #define __SPIKESORTER_H_3F920F95__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-
-#include "../GenericProcessor/GenericProcessor.h"
+#include <ProcessorHeaders.h>
+#include <SpikeLib.h>
 #include "SpikeSorterEditor.h"
 #include "SpikeSortBoxes.h"
-#include "../Visualization/SpikeObject.h"
-#include "../SourceNode/SourceNode.h"
 #include <algorithm>    // std::sort
 #include <queue>
 #include <stdlib.h>
@@ -363,13 +360,13 @@ public:
     void removeAllUnits(int electrodeID);
 
     void setElectrodeVoltageScale(int electrodeID, int index, float newvalue);
-    bool isSelectedElectrodeRecorded(int channel);
     std::vector<int> getElectrodeChannels(int ID);
 
     Array<Electrode*> getElectrodes();
 
     std::vector<String> electrodeTypes;
 
+#if 0
     /** sync PSTH : inform of a new electrode added  */
     void updateSinks(Electrode* newElectrode);
     /** sync PSTH : inform of an electrode removal */
@@ -382,7 +379,7 @@ public:
     void updateSinks(int electrodeID, String NewName);
     /** sync PSTH: remove all units*/
     void updateSinks(int electrodeID, bool b);
-
+#endif
 
 
 private:

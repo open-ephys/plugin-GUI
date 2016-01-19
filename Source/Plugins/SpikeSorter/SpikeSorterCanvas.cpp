@@ -22,7 +22,7 @@
 */
 
 #include "SpikeSorterCanvas.h"
-#include "../SpikeDisplayNode/SpikeDisplayCanvas.h"
+
 
 SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorter* n) :
     processor(n), newSpike(false)
@@ -1700,17 +1700,6 @@ void WaveformAxes::paint(Graphics& g)
 
     g.setColour(Colours::white);
     plotSpike(spikeBuffer[spikeIndex], g);
-
-    bool isRecorded = processor->isSelectedElectrodeRecorded(channel);
-
-    if (!isRecorded)
-    {
-        String d = "NOT RECORDED";
-        g.setFont(Font("Small Text", 15, Font::plain));
-        g.setColour(Colours::red);
-        g.drawText(d,getWidth()-140,10,120,25,Justification::right,false);
-
-    }
 
     spikesReceivedSinceLastRedraw = 0;
 
