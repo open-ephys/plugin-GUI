@@ -1710,6 +1710,7 @@ bool RHD2000Thread::updateBuffer()
         evalBoard->setDacHighpassFilter(desiredDAChpf);
         evalBoard->enableDacHighpassFilter(desiredDAChpfState);
 		evalBoard->enableBoardLeds(ledsEnabled);
+        evalBoard->setClockDivider(clockDivideFactor);
 
         dacOutputShouldChange = false;
     }
@@ -1823,10 +1824,6 @@ void RHD2000Thread::enableBoardLeds(bool enable)
 
 int RHD2000Thread::setClockDivider(int divide_ratio)
 {
-    // TODO: only allow if not running?
-	//if (isAcquisitionActive())
-    //
-    uint16_t N;
     
     // Divide ratio should be 1 or an even number
     if (divide_ratio != 1 && divide_ratio % 2) 
@@ -1838,11 +1835,14 @@ int RHD2000Thread::setClockDivider(int divide_ratio)
     // 1        0
     // >=2      Ratio/2
     if (divide_ratio == 1)
-        N = 0;
+        clockDivideFactor = 0;
     else
-        N = static_cast<uint16_t>(divide_ratio/2);
+        clockDivideFactor = static_cast<uint16_t>(divide_ratio/2);
 
-    evalBoard->setClockDivider(N);
+	if (isAcquisitionActive())
+        dacOutputShouldChange = true;
+    else 
+        evalBoard->setClockDivider(clockDivideFactor);
 
     return divide_ratio;
 }

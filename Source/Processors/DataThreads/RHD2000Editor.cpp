@@ -933,6 +933,7 @@ void RHD2000Editor::saveCustomParameters(XmlElement* xml)
     xml->setAttribute("save_impedance_measurements",saveImpedances);
     xml->setAttribute("auto_measure_impedances",measureWhenRecording);
 	xml->setAttribute("LEDs", ledButton->getToggleState());
+	xml->setAttribute("ClockDivideRatio", clockInterface->getClockDivideRatio());
 }
 
 void RHD2000Editor::loadCustomParameters(XmlElement* xml)
@@ -955,6 +956,7 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     saveImpedances = xml->getBoolAttribute("save_impedance_measurements");
     measureWhenRecording = xml->getBoolAttribute("auto_measure_impedances");
 	ledButton->setToggleState(xml->getBoolAttribute("LEDs", true),sendNotification);
+    clockInterface->setClockDivideRatio(xml->getIntAttribute("ClockDivideRatio")); 
 }
 
 
@@ -1440,7 +1442,7 @@ ClockDivideInterface::ClockDivideInterface(RHD2000Thread* board_,
  , editor(editor_)
  
 {
-    divideRatioSelection = new Label("Clock Divider", lastDivideRatioString); 
+    divideRatioSelection = new Label("Clock Divide", lastDivideRatioString); 
     divideRatioSelection->setEditable(true,false,false);
     divideRatioSelection->addListener(this);
     divideRatioSelection->setBounds(30,10,30,20);
@@ -1485,7 +1487,7 @@ void ClockDivideInterface::paint(Graphics& g)
     g.setColour(Colours::darkgrey);
     g.setFont(Font("Small Text",9,Font::plain));
     g.drawText(name, 0, 0, 200, 15, Justification::left, false);
-    g.drawText("Level: ", 0, 10, 200, 20, Justification::left, false);
+    g.drawText("Ratio: ", 0, 10, 200, 20, Justification::left, false);
 }
 
 // DSP Options --------------------------------------------------------------------
