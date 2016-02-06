@@ -799,14 +799,14 @@ void LfpDisplayCanvas::updateScreenBuffer()
                                           alpha*gain); // gain
 
                     // same thing again, but this time add the min,mean, and max of all samples in current pixel
-                    float sample_min   =  1000000;
-                    float sample_max   = -1000000;
+                    float sample_min   =  10000000;
+                    float sample_max   = -10000000;
                     float sample_mean  =  0;
                     
                     int nextpix = (dbi +(int)ratio) % displayBufferSize; //  position to next pixels index
                     
                     int c = 0;
-                    for (int j = dbi; j < nextpix; j++)
+                    for (int j = dbi; j <= nextpix; j++)
                     {
                         float sample_current = displayBuffer->getSample(channel, j);
                         sample_mean = sample_mean + sample_current;
@@ -829,7 +829,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
                         {
                             c = 0;
-                            for (int j = dbi; j < nextpix & c < MAX_N_SAMP_PER_PIXEL; j++)
+                            for (int j = dbi; j <= nextpix & c < MAX_N_SAMP_PER_PIXEL; j++)
                             {
                                 float sample_current = displayBuffer->getSample(channel, j);
                                 samplesPerPixel[channel][sbi][c]=sample_current;
@@ -1976,9 +1976,8 @@ void LfpChannelDisplay::paint(Graphics& g)
                 
                 
             }
-            else
-            { // simple per-pixel min-max drawing
-                // pixel wise line plot has no anti-aliasing, but runs much faster
+            else //drawmethod
+            { // simple per-pixel min-max drawing, has no anti-aliasing, but runs faster
                 
                 g.setColour(lineColour);
                 //g.setColour(lineColour.withMultipliedBrightness( 1+(((((float)(to-from)*range)/getHeight())-0.01)*2)  )); // make spikes etc slightly brighter
