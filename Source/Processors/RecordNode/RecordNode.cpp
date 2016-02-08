@@ -113,7 +113,7 @@ void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 {
 
     dataDirectory = fnc->getCurrentFile();
-
+	newDirectoryNeeded = true;
 
 }
 
