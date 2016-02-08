@@ -278,6 +278,15 @@ String RecordNode::generateDateString()
 
 }
 
+int RecordNode::getExperimentNumber()
+{
+	return experimentNumber;
+}
+
+int RecordNode::getRecordingNumber()
+{
+	return recordingNumber;
+}
 
 void RecordNode::setParameter(int parameterIndex, float newValue)
 {

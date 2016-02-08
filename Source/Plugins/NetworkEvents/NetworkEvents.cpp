@@ -495,6 +495,18 @@ String NetworkEvents::handleSpecialMessages(StringTS msg)
 		String msg(file.getFullPathName());
 		return msg;
 	}
+	else if (cmd.compareIgnoreCase("getRecordingNumber") == 0)
+	{
+		String status;
+		status += CoreServices::RecordNode::getRecordingNumber();
+		return status;
+	}
+	else if (cmd.compareIgnoreCase("getExperimentNumber") == 0)
+	{
+		String status;
+		status += CoreServices::RecordNode::getExperimentNumber();
+		return status;
+	}
 	else
 	{
 	    return String("NotHandled");
