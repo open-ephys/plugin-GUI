@@ -479,6 +479,22 @@ String NetworkEvents::handleSpecialMessages(StringTS msg)
 			return String("StoppedRecording");
 		}
 	}
+	else if (cmd.compareIgnoreCase("IsAcquiring") == 0)
+	{
+		String status = CoreServices::getAcquisitionStatus() ? String("1") : String("0");
+		return status;
+	}
+	else if (cmd.compareIgnoreCase("IsRecording") == 0)
+	{
+		String status = CoreServices::getRecordingStatus() ? String("1") : String("0");
+		return status;
+	}
+	else if (cmd.compareIgnoreCase("GetRecordingPath") == 0)
+	{
+		File file = CoreServices::RecordNode::getRecordingPath();
+		String msg(file.getFullPathName());
+		return msg;
+	}
 	else
 	{
 	    return String("NotHandled");
