@@ -923,7 +923,12 @@ void LfpDisplayCanvas::paint(Graphics& g)
 {
 
     //std::cout << "Painting" << std::endl;
-    g.setColour(Colour(0,18,43)); //background color
+
+    g.setColour(Colour(0,0,0)); // for high-precision per-pixel density display, make background black for better visibility
+
+    //g.setColour(Colour(0,18,43)); //background color
+    
+    
     g.fillRect(0, 0, getWidth(), getHeight());
 
     g.setGradientFill(ColourGradient(Colour(50,50,50),0,0,
@@ -1877,14 +1882,17 @@ void LfpChannelDisplay::paint(Graphics& g)
             //double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
             if (a<b)
             {
-                from = (a);
-                to = (b);
+                from = (a); to = (b);
             }
             else
             {
-                from = (b);
-                to = (a);
+                from = (b); to = (a);
             }
+            
+            // start by clipping so that we're not populating pixels that we dont want to plot
+            if (from < -channelHeightFloat/2) {from = -channelHeightFloat/2;};
+            if (to   <  channelHeightFloat/2) {to   =  channelHeightFloat/2;};
+            
             int samplerange=to-from;
 
             if (drawMethod) // switched between 'supersampled' drawing and simple pixel wise drawing
@@ -1893,7 +1901,7 @@ void LfpChannelDisplay::paint(Graphics& g)
                 const float *samplesThisPixel = canvas->getSamplesPerPixel(chan, i);
                 int sampleCountThisPixel = canvas->getSampleCountPerPixel(i);
 
-                if (samplerange>0 & sampleCountThisPixel>1)
+                if (samplerange>0 & sampleCountThisPixel>0)
                 {
                     // drawLine makes for ok anti-aliased plots, but is pretty slow
                     //g.drawLine(i,
@@ -1907,7 +1915,7 @@ void LfpChannelDisplay::paint(Graphics& g)
                     float localHist[samplerange]; // simple histogram
                     float rangeHist[samplerange]; // paired range histogram, same as plotting at higher res. and subsampling
                     
-                    for (int k=0; k<samplerange; k++)
+                    for (int k=0; k<=samplerange; k++)
                     {
                         localHist[k]=0;
                         rangeHist[k]=0;
@@ -1923,12 +1931,13 @@ void LfpChannelDisplay::paint(Graphics& g)
                     }
                     */
                     
-                    for (int k=0; k<=sampleCountThisPixel; k++) // add up simple paired-range histogram - for each pair fill intermediate with uniform distr.
+                    for (int k=0; k<=sampleCountThisPixel; k++) // add up simple paired-range histogram per pixel - for each pair fill intermediate with uniform distr.
                     {
-                        int cs_this      = (((samplesThisPixel[k]/range*channelHeightFloat)+getHeight()/2)-from);
+                        int cs_this      = (((samplesThisPixel[k]/range*channelHeightFloat)+getHeight()/2)-from); // sample values -> pixel coordinates relative to from
                         int cs_next = (((samplesThisPixel[k+1]/range*channelHeightFloat)+getHeight()/2)-from);
                         
-                        if (cs_this<0) {cs_this=0;};
+                        
+                        if (cs_this<0) {cs_this=0;};                        //here we could clip the diaplay to the max/min, or ignore out of bound values, not sure which one is better
                         if (cs_this>samplerange) {cs_this=samplerange;};
                         if (cs_next<0) {cs_next=0;};
                         if (cs_next>samplerange) {cs_next=samplerange;};
@@ -1944,24 +1953,27 @@ void LfpChannelDisplay::paint(Graphics& g)
                         {
                              hfrom = (cs_next);  hto = (cs_this);
                         }
-                        int hrange=hto-hfrom;
+                        float hrange=hto-hfrom;
                         float ha=1;
-                        for (int l=hfrom; l<=hto; l++)
+                        for (int l=hfrom; l<hto; l++)
                         {
-                            rangeHist[l]+=ha;
+                            rangeHist[l]+=ha; //this overemphasizes fast Y components
+                            
+                            //rangeHist[l]+=ha/hrange; // thi is like an oscilloscope, same energy depositetd per dx, not dy
                         }
                     }
                     
                     
-                    for (int s = 0; s < samplerange; s ++)
+                    for (int s = 0; s < samplerange; s ++)  // plot histogram one pixel per bin
                     {
-                        float a=(rangeHist[s])/(sampleCountThisPixel/2);
+                        float a=(15*rangeHist[s])/(sampleCountThisPixel);
                         if (a>1.0f) {a=1.0f;};
                         if (a<0.0f) {a=0.0f;};
                         
                         
                         //g.setColour( lineColour.interpolatedWith(Colour(255,255,255),0.5f).withAlpha(a) ); // mix in 50% white, alpha from histogram
-                        g.setColour( lineColour.withMultipliedBrightness(2.0f).interpolatedWith(lineColour.withSaturation(0.1f).withMultipliedBrightness(0.4f),1-a) );
+                        //g.setColour( lineColour.withMultipliedBrightness(2.0f).interpolatedWith(lineColour.withMultipliedSaturation(1.0f).withMultipliedBrightness(0.4f),1-a) );
+                        g.setColour( Colour(0,0,0).interpolatedWith(Colour(255,255,255),a) );
                         
                         g.setPixel(i,from+s);
                     }
