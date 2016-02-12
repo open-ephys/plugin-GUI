@@ -30,6 +30,9 @@
 typedef struct {
     bool thread_running;
     int threadIdleTime;
+#ifdef _WIN32
+    DWORD dwThread;
+#endif
 } ThreadData;
 
 typedef struct {
@@ -403,12 +406,14 @@ void mexFunction( int nlhs, mxArray* plhs[],
                wairForEmptyQueue=false;
           }
           OutDialogues_mutex.unlock();     
-          do_sleep(ms1);
+          do_sleep(ms10);
        }
        
        //now we build a struct with all replies
        OutDialogues_mutex.lock();
-       lastDialogueFetched=OutDialogues.back().timeRequestAdded;
+       if(!OutDialogues.empty()){
+        lastDialogueFetched=OutDialogues.back().timeRequestAdded;
+       }
        
        mxArray * mxOutStruct = mxCreateStructMatrix(1,OutDialogues.size(),5,dialogueFieldnames);		
        
@@ -434,5 +439,5 @@ void mexFunction( int nlhs, mxArray* plhs[],
        OutDialogues_mutex.unlock();
        
        plhs[0] = mxOutStruct;
-	}
+   }
 }

@@ -3,14 +3,14 @@
 % 1. find the correct locations of zermoMQ librearies and heaers
 if strfind(computer,'PCWIN')
     Codefolder=mfilename('fullpath');
-    Codefolder=Codefolder(1:(end-length(mfilename()-1)));
-    libraryName = 'libzmq-v110-mt-3_2_2';
+    Codefolder=Codefolder(1:(end-length(mfilename()-1)-length('Matlab')-1-1));
+    libraryName = 'libzmq-v120-mt-4_0_4';
     if strcmp(computer,'PCWIN64')
-        libFolder = [Codefolder, '/Resources/windows-libs/ZeroMQ/lib_x64'];
+        libFolder = [Codefolder, '\windows-libs\ZeroMQ\lib_x64'];
     else
-        libFolder = [Codefolder, '/Resources/windows-libs/ZeroMQ/lib_x86'];
+        libFolder = [Codefolder, '\windows-libs\ZeroMQ\lib_x86'];
     end
-     headerFolder = [Codefolder, '/Resources/windows-libs/ZeroMQ/include'];
+     headerFolder = [Codefolder, '\windows-libs\ZeroMQ\include'];
 elseif strcmp(computer,'GLNX86') || strcmp(computer,'GLNXA64')
     libraryName = 'zmq';
     if ~isempty(dir(['/usr/local/lib/lib' libraryName '*']))
