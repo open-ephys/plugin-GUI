@@ -1336,10 +1336,6 @@ void LfpDisplay::setNumChannels(int numChannels)
 
     //std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
 
-    // // this doesn't seem to do anything:
-    //canvas->fullredraw = true;
-    //refresh();
-
 }
 
 void LfpDisplay::setColors()
@@ -2295,7 +2291,7 @@ void EventDisplayInterface::paint(Graphics& g)
     if (isEnabled)
     {
         g.setColour(display->channelColours[channelNumber*2]);
-        g.fillRoundedRectangle(2,2,18,18,5.0f);
+        g.fillRoundedRectangle(2,2,18,18,6.0f);
     }
 
 
