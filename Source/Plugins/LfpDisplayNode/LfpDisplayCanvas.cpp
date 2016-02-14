@@ -921,14 +921,13 @@ bool LfpDisplayCanvas::getDrawMethodState()
 
 void LfpDisplayCanvas::paint(Graphics& g)
 {
-
+    
+    
+    
     //std::cout << "Painting" << std::endl;
 
-    g.setColour(Colour(0,0,0)); // for high-precision per-pixel density display, make background black for better visibility
-
-    //g.setColour(Colour(0,18,43)); //background color
-    
-    
+    //g.setColour(Colour(0,0,0)); // for high-precision per-pixel density display, make background black for better visibility
+    g.setColour(Colour(0,18,43)); //background color
     g.fillRect(0, 0, getWidth(), getHeight());
 
     g.setGradientFill(ColourGradient(Colour(50,50,50),0,0,
@@ -1370,6 +1369,8 @@ void LfpDisplay::resized()
                         getWidth(),
                         disp->getChannelHeight()+disp->getChannelOverlap());
 
+        disp-> resized();
+        
         LfpChannelDisplayInfo* info = channelInfo[i];
 
         info->setBounds(0,
@@ -1385,8 +1386,12 @@ void LfpDisplay::resized()
     if (singleChan != -1)
         viewport->setViewPosition(Point<int>(0,singleChan*getChannelHeight()));
 
+    
+    
     refresh();
 
+    lfpChannelBitmap = Image(Image::ARGB, getWidth(), getHeight(), false);
+    
     // std::cout << "Total height: " << totalHeight << std::endl;
 
 }
@@ -1394,7 +1399,25 @@ void LfpDisplay::resized()
 void LfpDisplay::paint(Graphics& g)
 {
 
+    
+    
+    
+    Graphics gSharedLfpDisplay(lfpChannelBitmap);
+    
+    
+    //Graphics gBackGround(m_iBackGround);
+    /*
+    ColourGradient grad = ColourGradient(Colours::white,0.f,0.f,Colours::green,	(float)lfpChannelBitmap.getWidth(),	(float)lfpChannelBitmap.getHeight(), false);
+    gSharedLfpDisplay.setGradientFill(grad);
+    gSharedLfpDisplay.fillAll();
+    
+    gSharedLfpDisplay.setColour (Colours::black);
+    gSharedLfpDisplay.fillEllipse (20, 20, 200, 200);
+    */
+    g.drawImageAt(lfpChannelBitmap, 0,0);
+    
 }
+
 
 void LfpDisplay::refresh()
 {
@@ -1417,12 +1440,13 @@ void LfpDisplay::refresh()
                 channels[i]->fullredraw = true;
                 channels[i]->repaint();
                 channelInfo[i]->repaint();
+                
 
             }
             else
             {
                 channels[i]->repaint(canvas->lastScreenBufferIndex[i]-2, 0, (canvas->screenBufferIndex[i]-canvas->lastScreenBufferIndex[i])+3, getChildComponent(i)->getHeight());  //repaint only the updated portion
-                // we redraw from -2 to +1 relative to the real redraw window, the -2 makes sure that the lines join nicely, and the +1 draws the vertical update line
+                // we redraw from -2 to +1 (px) relative to the real redraw window, the -2 makes sure that the lines join nicely, and the +1 draws the vertical update line
             }
             //std::cout << i << std::endl;
         }
@@ -1430,6 +1454,9 @@ void LfpDisplay::refresh()
     }
 
     canvas->fullredraw = false;
+    
+
+    
 }
 
 void LfpDisplay::setRange(float r, ChannelType type)
@@ -1730,6 +1757,8 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, int cha
 
     type = c->getChannelType(channelNumber);
     typeStr = c->getTypeName(type);
+    
+    
 
 }
 
@@ -1737,6 +1766,14 @@ LfpChannelDisplay::~LfpChannelDisplay()
 {
 
 }
+
+void LfpChannelDisplay::resized()
+{
+    // all of this will likely need to be moved into the sharedLfpDisplay image in the lfpDisplay, not here
+    // now that the complete height is know, the sharedLfpDisplay image that we'll draw the pixel-wise lfp plot to needs to be resized
+    //lfpChannelBitmap = Image(Image::ARGB, getWidth(), getHeight(), false);
+}
+
 
 void LfpChannelDisplay::updateType()
 {
@@ -1764,6 +1801,9 @@ void LfpChannelDisplay::paint(Graphics& g)
     g.setColour(Colours::yellow);   // draw most recent drawn sample position
     g.drawLine(canvas->screenBufferIndex[chan]+1, 0, canvas->screenBufferIndex[chan]+1, getHeight());
 
+    
+    Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, 0,0, display->lfpChannelBitmap.getWidth(), display->lfpChannelBitmap.getHeight());
+    
 
     //g.setColour(Colours::red); // draw oldest drawn sample position
     //g.drawLine(canvas->lastScreenBufferIndex, 0, canvas->lastScreenBufferIndex, getHeight()-channelOverlap);
@@ -1832,7 +1872,7 @@ void LfpChannelDisplay::paint(Graphics& g)
         int to = 0;
 
         //for (int i = 0; i < getWidth()-stepSize; i += stepSize) // redraw entire display
-        int ifrom = canvas->lastScreenBufferIndex[chan] - 3; // need to start drawing a bit before the actual redraw windowfor the interpolated line to join correctly
+        int ifrom = canvas->lastScreenBufferIndex[chan] - 3; // need to start drawing a bit before the actual redraw window for the interpolated line to join correctly
 
         if (ifrom < 0)
             ifrom = 0;
@@ -1886,8 +1926,8 @@ void LfpChannelDisplay::paint(Graphics& g)
             }
             
             // start by clipping so that we're not populating pixels that we dont want to plot
-            if (from < -channelHeightFloat/2) {from = -channelHeightFloat/2;};
-            if (to   <  channelHeightFloat/2) {to   =  channelHeightFloat/2;};
+            if (from <= -channelHeightFloat/2) {from = -(channelHeightFloat/2);};
+            if (to   <=  channelHeightFloat/2) {to   =  (channelHeightFloat/2);};
             
             int samplerange=to-from;
 
@@ -1987,29 +2027,48 @@ void LfpChannelDisplay::paint(Graphics& g)
             else //drawmethod
             { // simple per-pixel min-max drawing, has no anti-aliasing, but runs faster
                 
+                int jfrom=from+getY();
+                int jto=to+getY();
+                
+                //if (yofs<0) {yofs=0;};
+                
+                if (i<0) {i=0;};
+                if (i >= display->lfpChannelBitmap.getWidth()) {i = display->lfpChannelBitmap.getWidth()-1;}; // this shouldnt happen, there must eb some bug above - to replicate, run at max refresh rate where draws overlap the right margin by a lot
+                
+                if (jfrom<0) {jfrom=0;};
+                if (jto > display->lfpChannelBitmap.getHeight()) {jto=display->lfpChannelBitmap.getHeight();};
+                
+                /*
+                for (int j = 0; j < getHeight(); j++)
+                {
+                    bdLfpChannelBitmap.setPixelColour(i,j,Colour(0,0,0).withAlpha(0.0f));
+                }
+                */
+                 
                 g.setColour(lineColour);
                 //g.setColour(lineColour.withMultipliedBrightness( 1+(((((float)(to-from)*range)/getHeight())-0.01)*2)  )); // make spikes etc slightly brighter
 
 
-                if ((to-from) < 200)  // if there is too much vertical range in one pixel, don't draw the full line for speed reasons
-                {
-                    for (int j = from; j <= to; j += 1)
+                //if ((to-from) < 200)  // if there is too much vertical range in one pixel, don't draw the full line for speed reasons
+                //{
+                    for (int j = jfrom; j < jto; j += 1)
                     {
-                        g.setPixel(i,j);
+                       // g.setPixel(i,j);
+                        
+                        //uint8* const pu8Pixel = bdSharedLfpDisplay.getPixelPointer(	(int)(i),(int)(j));
+                        //*(pu8Pixel)		= 200;
+                        //*(pu8Pixel+1)	= 200;
+                        //*(pu8Pixel+2)	= 200;
+                        
+                        bdLfpChannelBitmap.setPixelColour(i,j,lineColour);
+                        
                     }
-                }
-                else if ((to-from) < 400)
-                {
-                    for (int j = from; j <= to; j += 2)
-                    {
-                        g.setPixel(i,j);
-                    }
-                }
-                else
-                {
-                    g.setPixel(i,to);
-                    g.setPixel(i,from);
-                }
+                //}
+                //else
+                //{
+                   // g.setPixel(i,to);
+                   // g.setPixel(i,from);
+                //}
 
                 //draw mean
                 //g.setColour(Colours::black);
@@ -2018,6 +2077,7 @@ void LfpChannelDisplay::paint(Graphics& g)
             }
 
         }
+ 
     }
 
     // g.setColour(lineColour.withAlpha(0.7f)); // alpha on seems to decrease draw speed
@@ -2025,7 +2085,6 @@ void LfpChannelDisplay::paint(Graphics& g)
     //  g.setFont(channelHeightFloat*0.6);
 
     // g.drawText(String(chan+1), 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
-
 
 }
 

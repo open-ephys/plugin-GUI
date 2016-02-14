@@ -117,7 +117,7 @@ public:
 
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
-    bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw, there is a similar switch for ach ch display;
+    bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw, there is a similar switch for each display;
     static const int leftmargin=50; // left margin for lfp plots (so the ch number text doesnt overlap)
 
     Array<bool> isChannelEnabled;
@@ -125,7 +125,7 @@ public:
     int nChans;
 
 private:
-
+    
     Array<float> sampleRate;
     float timebase;
     float displayGain;
@@ -231,6 +231,9 @@ class LfpDisplay : public Component
 public:
     LfpDisplay(LfpDisplayCanvas*, Viewport*);
     ~LfpDisplay();
+    
+    Image lfpChannelBitmap; // plot as bitmap instead of separately setting pixels
+    // this is done purely for the preformance improvement
 
     void setNumChannels(int numChannels);
     int getNumChannels();
@@ -280,7 +283,10 @@ public:
     bool eventDisplayEnabled[8];
     bool isPaused; // simple pause function, skips screen bufer updates
 
+    
 private:
+    
+    
     void toggleSingleChannel(int chan);
     int singleChan;
 	Array<bool> savedChannelState;
@@ -305,6 +311,8 @@ public:
     LfpChannelDisplay(LfpDisplayCanvas*, LfpDisplay*, int channelNumber);
     ~LfpChannelDisplay();
 
+    void resized();
+    
     void paint(Graphics& g);
 
     void select();
@@ -346,6 +354,7 @@ public:
 
 protected:
 
+    
     LfpDisplayCanvas* canvas;
     LfpDisplay* display;
 
