@@ -1610,7 +1610,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
     }
     else
     {
-        if (e.mods.isShiftDown())  // SHIFT + scroll wheel -> change channel range
+        if (e.mods.isAltDown())  // ALT + scroll wheel -> change channel range
         {
             int h = getRange();
             int step = canvas->getRangeStep(canvas->getSelectedType());
