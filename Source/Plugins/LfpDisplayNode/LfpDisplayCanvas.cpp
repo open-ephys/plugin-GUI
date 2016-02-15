@@ -1332,6 +1332,7 @@ void LfpDisplay::setNumChannels(int numChannels)
     }
 
     setColors();
+    
 
     //std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
 
@@ -1386,12 +1387,19 @@ void LfpDisplay::resized()
     if (singleChan != -1)
         viewport->setViewPosition(Point<int>(0,singleChan*getChannelHeight()));
 
-    
-    
-    refresh();
+  
 
     lfpChannelBitmap = Image(Image::ARGB, getWidth(), getHeight(), false);
     
+    //inititalize black background
+    Graphics gLfpChannelBitmap(lfpChannelBitmap);
+    gLfpChannelBitmap.setColour(Colour(0,0,0)); //background color
+    gLfpChannelBitmap.fillRect(0,0, getWidth(), getHeight());
+
+    
+    canvas->fullredraw = true;
+    
+    refresh();
     // std::cout << "Total height: " << totalHeight << std::endl;
 
 }
@@ -1402,7 +1410,7 @@ void LfpDisplay::paint(Graphics& g)
     
     
     
-    Graphics gSharedLfpDisplay(lfpChannelBitmap);
+    //Graphics gSharedLfpDisplay(lfpChannelBitmap);
     
     
     //Graphics gBackGround(m_iBackGround);
@@ -1414,18 +1422,34 @@ void LfpDisplay::paint(Graphics& g)
     gSharedLfpDisplay.setColour (Colours::black);
     gSharedLfpDisplay.fillEllipse (20, 20, 200, 200);
     */
-    g.drawImageAt(lfpChannelBitmap, 0,0);
+    g.drawImageAt(lfpChannelBitmap, canvas->leftmargin,0);
     
 }
 
 
 void LfpDisplay::refresh()
 {
-
-
+    // X-bounds of this update
+    int fillfrom = canvas->lastScreenBufferIndex[0]-2;
+    int fillto = (canvas->screenBufferIndex[0])+3;
+    
+    if (fillfrom<0){fillfrom=0;};
+    if (fillto>lfpChannelBitmap.getWidth()){fillto=lfpChannelBitmap.getWidth();};
+    
     int topBorder = viewport->getViewPositionY();
     int bottomBorder = viewport->getViewHeight() + topBorder;
 
+    // clear appropriate section of the bitmap
+    
+    Graphics gLfpChannelBitmap(lfpChannelBitmap);
+    gLfpChannelBitmap.setColour(Colour(0,0,0)); //background color
+    gLfpChannelBitmap.fillRect(fillfrom+2,0, fillto-fillfrom, getHeight());
+    
+    //gLfpChannelBitmap.fillRect(0, 0, 1,1);
+    
+    
+    
+    // we dont need this any more really, just for the info
     // ensure that only visible channels are redrawn
     for (int i = 0; i < numChans; i++)
     {
@@ -1438,24 +1462,26 @@ void LfpDisplay::refresh()
             if (canvas->fullredraw)
             {
                 channels[i]->fullredraw = true;
-                channels[i]->repaint();
+                //channels[i]->repaint();
                 channelInfo[i]->repaint();
                 
-
             }
             else
             {
-                channels[i]->repaint(canvas->lastScreenBufferIndex[i]-2, 0, (canvas->screenBufferIndex[i]-canvas->lastScreenBufferIndex[i])+3, getChildComponent(i)->getHeight());  //repaint only the updated portion
+                //channels[i]->repaint(canvas->lastScreenBufferIndex[i]-2, 0, (canvas->screenBufferIndex[i]-canvas->lastScreenBufferIndex[i])+3, getChildComponent(i)->getHeight());  //repaint only the updated portion
                 // we redraw from -2 to +1 (px) relative to the real redraw window, the -2 makes sure that the lines join nicely, and the +1 draws the vertical update line
             }
             //std::cout << i << std::endl;
         }
 
     }
-
+    if (canvas->fullredraw)
+    {
+        repaint();
+    }else{
+        repaint(fillfrom, topBorder, (fillto-fillfrom)+1, bottomBorder-topBorder);
+    }
     canvas->fullredraw = false;
-    
-
     
 }
 
@@ -1547,6 +1573,8 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
     //std::cout << "Mouse wheel " <<  e.mods.isCommandDown() << "  " << wheel.deltaY << std::endl;
     //TODO Changing ranges with the wheel is currently broken. With multiple ranges, most
     //of the wheel range code needs updating
+    
+    
     if (e.mods.isCommandDown())  // CTRL + scroll wheel -> change channel spacing
     {
         int h = getChannelHeight();
@@ -1796,13 +1824,21 @@ void LfpChannelDisplay::setEnabledState(bool state)
 void LfpChannelDisplay::paint(Graphics& g)
 {
 
-    //g.fillAll(Colours::grey);
-
-    g.setColour(Colours::yellow);   // draw most recent drawn sample position
-    g.drawLine(canvas->screenBufferIndex[chan]+1, 0, canvas->screenBufferIndex[chan]+1, getHeight());
+   
+    //g.setColour(Colours::yellow);   // draw most recent drawn sample position
+    //g.drawLine(canvas->screenBufferIndex[chan]+1, 0, canvas->screenBufferIndex[chan]+1, getHeight());
 
     
     Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, 0,0, display->lfpChannelBitmap.getWidth(), display->lfpChannelBitmap.getHeight());
+    
+    for (int j = 0; j < display->lfpChannelBitmap.getHeight(); j += 1)
+    {
+        bdLfpChannelBitmap.setPixelColour(canvas->screenBufferIndex[0]+1,j,Colours::yellow);
+    };
+    
+    //Graphics gLfpChannelBitmap(display->lfpChannelBitmap);
+    //gLfpChannelBitmap.setColour(Colours::yellow); //background color
+    //gLfpChannelBitmap.drawLine(canvas->screenBufferIndex[chan]+1, 0, canvas->screenBufferIndex[chan]+1, getHeight());
     
 
     //g.setColour(Colours::red); // draw oldest drawn sample position
@@ -1885,7 +1921,14 @@ void LfpChannelDisplay::paint(Graphics& g)
             ito = getWidth()-stepSize;
             fullredraw = false;
         }
-
+        
+        // delete old data
+        /*
+        Graphics gLfpChannelBitmap(display->lfpChannelBitmap);
+        gLfpChannelBitmap.setColour(Colour(0,0,0)); //background color
+        gLfpChannelBitmap.fillRect(ifrom, getY(), ito-ifrom, getHeight());
+         */
+         
         for (int i = ifrom; i < ito ; i += stepSize) // redraw only changed portion
         {
 
