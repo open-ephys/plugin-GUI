@@ -86,7 +86,8 @@ std::mutex socketMap_mutex;
 std::queue<dialogue> InDialogues;
 std::mutex InDialogues_mutex;
 
-std::queue<dialogue> OutDialogues;
+typedef std::list<dialogue> dlist;
+dlist OutDialogues;
 std::mutex OutDialogues_mutex;
 
 typedef std::list<ThreadData*> lst;
@@ -111,7 +112,7 @@ void CloseContext(void)
             (*i)->thread_running=false;
         }
         threadList_mutex.unlock();
-        
+
         bool threadListEmpty=false;
         while(!threadListEmpty){
             threadList_mutex.lock();
@@ -124,7 +125,7 @@ void CloseContext(void)
                 do_sleep(ms10);
             }
         }
-            
+
 		for (mp::iterator i= socketMap.begin(); i != socketMap.end(); i++) {
             int toms=0;
             zmq_setsockopt(i->second.zmqSocket,ZMQ_LINGER,&toms, sizeof(toms));
@@ -134,6 +135,25 @@ void CloseContext(void)
 		initialized = false;
         socketMap.clear();
 	}
+}
+
+bool close_socket(std::string url){
+
+    bool success=false;
+    socketMap_mutex.lock();
+    mp::iterator it=socketMap.find(url);
+    socketData sock;
+	int toms=0;
+    if (it != socketMap.end()){
+        sock = it->second;
+        zmq_setsockopt(sock.zmqSocket,ZMQ_LINGER,&toms, sizeof(toms));
+		zmq_close (sock.zmqSocket);
+        socketMap.erase(it);
+        success = true;
+    }
+    socketMap_mutex.unlock();
+
+    return success;
 }
 
 void initialize_zmq()
@@ -172,9 +192,9 @@ void SendAndReceive( dialogue* d )
 	zmq_msg_t request_z;
 	zmq_msg_init_size (&request_z, d->request.length());
 	memcpy (zmq_msg_data (&request_z), d->request.c_str() , d->request.length());
-	  
+
     zmq_msg_send (&request_z, sock.zmqSocket, 0);
-    
+
     auto time = std::chrono::high_resolution_clock::now().time_since_epoch();
     d->timeRequestSent = (std::chrono::duration_cast<std::chrono::microseconds>(time)).count();
 	zmq_msg_close (&request_z);
@@ -235,7 +255,7 @@ void SendAndReceive( dialogue* d )
             SendAndReceive( &d );
 
             OutDialogues_mutex.lock(); 
-            OutDialogues.push(d);
+            OutDialogues.push_back(d);
             OutDialogues_mutex.unlock(); 
         }else{
             InDialogues_mutex.unlock(); 
@@ -283,7 +303,7 @@ void mexFunction( int nlhs, mxArray* plhs[],
     if (nrhs < 1) {
         return;
     }
-    
+
 	char* Command = mxArrayToString(prhs[0]);
 
 	if   (strcmp(Command, "StartConnectThread") == 0)  {
@@ -313,7 +333,6 @@ void mexFunction( int nlhs, mxArray* plhs[],
 
         if(blocking){
             SendAndReceive(&d);
-            
             if (d.timeResponseReceived==-1) {
                 // Thread was killed and now we try to send things again?
                 mexPrintf("ZMQ: Failed to get a response.\n");
@@ -341,6 +360,9 @@ void mexFunction( int nlhs, mxArray* plhs[],
                 plhs[1]=mxOutStruct;
             }
         }else{ //not blocking
+            if( lastDialogueAdded >= d.timeRequestAdded){ //make sure we get a new timestamp
+                d.timeRequestAdded = lastDialogueAdded+1;
+            }
             lastDialogueAdded = d.timeRequestAdded;
             InDialogues_mutex.lock(); 
             InDialogues.push(d);
@@ -359,7 +381,7 @@ void mexFunction( int nlhs, mxArray* plhs[],
             {
                 mxArray * mxOutStruct;
                 mxOutStruct = mxCreateDoubleMatrix(1,1, mxREAL);
-                memcpy(mxOutStruct ,&(d.timeRequestAdded),sizeof(double));
+                memcpy(mxGetData(mxOutStruct) ,&(d.timeRequestAdded),sizeof(double));
                 plhs[0]=mxOutStruct;
             }
         
@@ -372,26 +394,50 @@ void mexFunction( int nlhs, mxArray* plhs[],
     }
         
 	if (strcmp(Command, "CloseThread") == 0){
-        threadList_mutex.lock();
-        for (lst::iterator i= threadList.begin(); i != threadList.end(); i++) {
-            (*i)->thread_running=false;
+
+        if(nrhs<2){
+            return;
         }
-        threadList_mutex.unlock();
+        close_socket(std::string(mxArrayToString(prhs[1])));
+
+        //close thread only if socketMap empty
+        socketMap_mutex.lock();
+        if(!socketMap.empty()){
+            socketMap_mutex.unlock();
+            threadList_mutex.lock();
+            for (lst::iterator i= threadList.begin(); i != threadList.end(); i++) {
+                (*i)->thread_running=false;
+            }
+            threadList_mutex.unlock();
+        }else{
+            socketMap_mutex.unlock();
+        }
 	}
     
-   if (strcmp(Command, "GetResponses") == 0)
-   {
-       //do we want to waint untill the current Sending Queue is emptied and all replies are in?
+   if (strcmp(Command, "GetResponses") == 0){
+
        bool wairForEmptyQueue;
-       if(nrhs<3)
-       {
-           wairForEmptyQueue = false;
-       }else
-       {
-           double Tmp = mxGetScalar(prhs[2]);
+       std::string url;
+       //if no second input or second input is no string
+       if ( nrhs<2 || !mxIsChar(prhs[1]) ){
+           url = "*";
+       }else{
+            url = (mxArrayToString(prhs[1]));
+       }
+
+       //do we want to waint untill the current Sending Queue is emptied and all replies are in?
+       if(nrhs<2 || (nrhs<3 && mxIsChar(prhs[1])) ){//if only one input or 2 and that is an url
+           wairForEmptyQueue = true;
+       }else{
+           double Tmp;
+           if (mxIsChar(prhs[1])){ //if second is the url, take the third
+            Tmp = mxGetScalar(prhs[2]);
+           }else{
+            Tmp = mxGetScalar(prhs[1]);
+           }
            wairForEmptyQueue = Tmp>0;
        }
-         
+
        double lastAddedTime = lastDialogueAdded;
        double lastFetchedTime = lastDialogueFetched;
        if(lastFetchedTime ==lastAddedTime){ //nothing to fetch
@@ -400,44 +446,57 @@ void mexFunction( int nlhs, mxArray* plhs[],
        //if so, do it now
        while(wairForEmptyQueue)
        {
-          OutDialogues_mutex.lock(); //we might still be one respone behind...         
-          if(!OutDialogues.empty() && OutDialogues.back().timeRequestAdded>=lastAddedTime)
+           OutDialogues_mutex.lock();
+         if(!OutDialogues.empty() && OutDialogues.back().timeRequestAdded>=lastAddedTime)
           {
-               wairForEmptyQueue=false;
+             wairForEmptyQueue=false;
           }
           OutDialogues_mutex.unlock();     
           do_sleep(ms10);
        }
-       
-       //now we build a struct with all replies
+
+       //find the ones we want to return
+       std::queue<dialogue> returnDialogues;
        OutDialogues_mutex.lock();
        if(!OutDialogues.empty()){
         lastDialogueFetched=OutDialogues.back().timeRequestAdded;
+
+        dlist::iterator it=OutDialogues.begin();
+        while(it!=OutDialogues.end()){
+         if(!url.compare("*") || !it->url.compare(url)){
+          dialogue d= (*it);
+          returnDialogues.push(d);
+          it=OutDialogues.erase(it);
+         }else{
+             it++;
+         }
+        }
        }
-       
-       mxArray * mxOutStruct = mxCreateStructMatrix(1,OutDialogues.size(),5,dialogueFieldnames);		
-       
+       OutDialogues_mutex.unlock();
+
+       //now we build a struct with all replies
+       mxArray * mxOutStruct = mxCreateStructMatrix(1,returnDialogues.size(),5,dialogueFieldnames);
+
        int j=0;
-       while(!OutDialogues.empty())
+       while(!returnDialogues.empty())
        {
-           dialogue d = OutDialogues.front();
-           OutDialogues.pop();
-           
+           dialogue d = returnDialogues.front();
+           returnDialogues.pop();
+
            mxSetField(mxOutStruct, j, "request",  mxCreateString( d.request.c_str() ) );
            mxSetField(mxOutStruct, j, "response",  mxCreateString( d.response.c_str() ) );
-           
+
            mxSetField(mxOutStruct,j, "timeRequestAdded", mxCreateDoubleMatrix(1,1, mxREAL));
        	memcpy(mxGetData(mxGetField(mxOutStruct,j, "timeRequestAdded")) ,&(d.timeRequestAdded),sizeof(double));
-           
+
            mxSetField(mxOutStruct,j, "timeRequestSent", mxCreateDoubleMatrix(1,1, mxREAL));
        	memcpy(mxGetData(mxGetField(mxOutStruct,j, "timeRequestSent")) ,&(d.timeRequestSent),sizeof(double));
-           
+
            mxSetField(mxOutStruct,j, "timeResponseReceived", mxCreateDoubleMatrix(1,1, mxREAL));
        	memcpy(mxGetData(mxGetField(mxOutStruct,j, "timeResponseReceived")) ,&(d.timeResponseReceived),sizeof(double));
            j++;
        }
-       OutDialogues_mutex.unlock();
-       
+
        plhs[0] = mxOutStruct;
    }
 }

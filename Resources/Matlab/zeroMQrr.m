@@ -1,4 +1,3 @@
-% 
 % zeroMQrr provides a simple wrapper around the zeromq library with a
 % request->response scenario in mind
 %
@@ -12,9 +11,11 @@
 %             When blocking is 0 (default) zeroMQrr adds the request to a queue and returns the time the request was added to that queue. See 'GetResponses'
 %             [timeRequestAdded]=zeroMQrr('Send',url, request, 0);
 %             
-%      dialogue = zeroMQrr('GetResponses', [wairForEmptyQueue=1])   
-%             Retirieves responses collected for requests send in non blocking mode. If wairForEmptyQueue>0, the function waits for the last queued request to get a response.
-%             dialogue is a struct with the fields: request, response, timeRequestAdded, timeRequestSent, timeResponeRecieved
+%      dialogue = zeroMQrr('GetResponses' [, url] [,wairForEmptyQueue=1])
+%             Retirieves responses collected for requests send in non blocking mode. If an url is provided
+%             only responses for that url will be returend. If wairForEmptyQueue>0, the function waits for
+%             the last queued request to get a response.
+%             Dialogue is a struct with the fields: request, response, timeRequestAdded, timeRequestSent, timeResponeRecieved
 %             At the moment this cannot get filtered by the url of the request yet.
 %             
 %      zeroMQrr('CloseAll')   
@@ -36,4 +37,4 @@
 % it under the terms of the GNU General Public License as published by
 % the Free Software Foundation (see GPL.txt)
 %
-% Changes to allow receiving responses by Jonas Kn?ll, 2016
+% Changes to allow receiving responses by Jonas Knoell, 2016
