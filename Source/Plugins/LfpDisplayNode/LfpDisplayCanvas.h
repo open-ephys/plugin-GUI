@@ -135,7 +135,7 @@ private:
 
     static const int MAX_N_CHAN = 2048;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
-    static const int MAX_N_SAMP_PER_PIXEL = 2000; // maximum samples considered for drawing each pixel
+    static const int MAX_N_SAMP_PER_PIXEL = 500; // maximum samples considered for drawing each pixel
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
     LfpDisplayNode* processor;
