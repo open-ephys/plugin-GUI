@@ -386,6 +386,8 @@ protected:
 
     ChannelType type;
     String typeStr;
+    
+    
 
 };
 

@@ -1861,6 +1861,13 @@ void LfpChannelDisplay::pxPaint()
         for (int i = ifrom; i < ito ; i += stepSize) // redraw only changed portion
         {
             
+            int zeromarker = getY()+center;
+            if(zeromarker>0 & zeromarker<display->lfpChannelBitmap.getHeight()){
+                if ( bdLfpChannelBitmap.getPixelColour(i,zeromarker) == Colour(0,0,0) ) { // make sure we're not drawing over an existing plot from another channel
+                bdLfpChannelBitmap.setPixelColour(i,zeromarker,Colour(50,50,50));
+                }
+            }
+            
             // draw event markers
             int rawEventState = canvas->getYCoord(canvas->getNumChannels(), i);// get last channel+1 in buffer (represents events)
             
@@ -1903,6 +1910,8 @@ void LfpChannelDisplay::pxPaint()
             
             int samplerange=to-from;
             
+            
+            
             if (drawMethod) // switched between 'supersampled' drawing and simple pixel wise drawing
             { // histogram based supersampling method
                 
@@ -1913,14 +1922,13 @@ void LfpChannelDisplay::pxPaint()
                 {
                     
                     
-                    //double a = (samplesThisPixel[sampleCountThisPixel]/range*channelHeightFloat)+getHeight()/2;
-                    //g.setPixel(i,a);
-                    float localHist[samplerange]; // simple histogram
+              
+                    //float localHist[samplerange]; // simple histogram
                     float rangeHist[samplerange]; // paired range histogram, same as plotting at higher res. and subsampling
                     
                     for (int k=0; k<=samplerange; k++)
                     {
-                        localHist[k]=0;
+                        //localHist[k]=0;
                         rangeHist[k]=0;
                     }
                     
@@ -1970,13 +1978,14 @@ void LfpChannelDisplay::pxPaint()
                     
                     for (int s = 0; s < samplerange; s ++)  // plot histogram one pixel per bin
                     {
-                        float a=(15*rangeHist[s])/(sampleCountThisPixel);
+                        float a=(20*rangeHist[s])/(sampleCountThisPixel);
                         if (a>1.0f) {a=1.0f;};
                         if (a<0.0f) {a=0.0f;};
                         
                        
                         Colour gradedColor = lineColour.withMultipliedBrightness(2.0f).interpolatedWith(lineColour.withMultipliedSaturation(0.7f).withMultipliedBrightness(0.3f),1-a) ;
                         //Colour gradedColor =  Colour(0,0,0).interpolatedWith(Colour(255,255,255),a);
+                        //Colour gradedColor =  Colour(0,255,0);
                         
                         //g.setPixel(i,from+s);
                         int ploty = from+s+getY();
@@ -2013,19 +2022,7 @@ void LfpChannelDisplay::pxPaint()
                 if (jto >= display->lfpChannelBitmap.getHeight()) {jto=display->lfpChannelBitmap.getHeight()-1;};
                 
                 
-                //for (int j = 0; j < getHeight(); j++)
-                //{
-                //   bdLfpChannelBitmap.setPixelColour(i,j,Colour(0,0,0).withAlpha(0.0f));
-                //}
-                
-                
-                //g.setColour(lineColour);
-                //g.setColour(lineColour.withMultipliedBrightness( 1+(((((float)(to-from)*range)/getHeight())-0.01)*2)  )); // make spikes etc slightly brighter
-                
-                
-                //if ((to-from) < 200)  // if there is too much vertical range in one pixel, don't draw the full line for speed reasons
-                //{
-                for (int j = jfrom; j <= jto; j += 1)
+                              for (int j = jfrom; j <= jto; j += 1)
                 {
                     // g.setPixel(i,j);
                     
@@ -2037,16 +2034,6 @@ void LfpChannelDisplay::pxPaint()
                     bdLfpChannelBitmap.setPixelColour(i,j,lineColour);
                     
                 }
-                //}
-                //else
-                //{
-                // g.setPixel(i,to);
-                // g.setPixel(i,from);
-                //}
-                
-                //draw mean
-                //g.setColour(Colours::black);
-                //g.setPixel(i,m);
                 
             }
             
