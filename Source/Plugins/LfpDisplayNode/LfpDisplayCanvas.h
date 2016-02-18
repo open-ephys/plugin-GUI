@@ -135,7 +135,7 @@ private:
 
     static const int MAX_N_CHAN = 2048;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
-    static const int MAX_N_SAMP_PER_PIXEL = 1000; // maximum samples considered for dreawing each pixel
+    static const int MAX_N_SAMP_PER_PIXEL = 2000; // maximum samples considered for drawing each pixel
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
     LfpDisplayNode* processor;
@@ -314,6 +314,11 @@ public:
     void resized();
     
     void paint(Graphics& g);
+    
+    void pxPaint(); // like paint, but just populate lfpChannelBitmap
+                    // needs to avoid a paint(Graphics& g) mechanism here becauswe we need to clear the screen in the lfpDisplay repaint(),
+                    // because otherwise we cant deal with the channel overlap (need to clear a vertical section first, _then_ all channels are dawn, so cant do it per channel)
+                
 
     void select();
     void deselect();
