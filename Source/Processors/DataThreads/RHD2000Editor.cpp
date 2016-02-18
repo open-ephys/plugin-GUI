@@ -631,12 +631,15 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     // add HW audio parameter selection
     audioInterface = new AudioInterface(board, this);
     addAndMakeVisible(audioInterface);
-    audioInterface->setBounds(175, 65, 65, 50);
+    audioInterface->setBounds(179, 58, 70, 50);
 
+    clockInterface = new ClockDivideInterface(board, this);
+    addAndMakeVisible(clockInterface);
+    clockInterface->setBounds(179, 82, 70, 50);
 
     adcButton = new UtilityButton("ADC 1-8", Font("Small Text", 13, Font::plain));
     adcButton->setRadius(3.0f);
-    adcButton->setBounds(175,100,65,18);
+    adcButton->setBounds(179,108,70,18);
     adcButton->addListener(this);
     adcButton->setClickingTogglesState(true);
     adcButton->setTooltip("Enable/disable ADC channels");
@@ -742,7 +745,7 @@ void RHD2000Editor::handleAsyncUpdate()
 
 		String path(CoreServices::RecordNode::getRecordingPath().getFullPathName()
                     + File::separatorString + "impedance_measurement.xml");
-        std::cout << "Saving impedance measurements in " << path << std::endl;
+        std::cout << "Saving impedance measurements in " << path << "\n";
         File file(path);
 
         if (!file.getParentDirectory().exists())
@@ -840,9 +843,9 @@ void RHD2000Editor::buttonEvent(Button* button)
     {
         board->enableAdcs(button->getToggleState());
         //        board->updateChannelNames();
-        std::cout << "ADC Button toggled" << std::endl;
+        std::cout << "ADC Button toggled" << "\n";
 		CoreServices::updateSignalChain(this);
-        std::cout << "Editor visible." << std::endl;
+        std::cout << "Editor visible." << "\n";
     }
     else if (button == dacTTLButton)
     {
@@ -850,7 +853,7 @@ void RHD2000Editor::buttonEvent(Button* button)
     }
     else if (button == dspoffsetButton && !acquisitionIsActive)
     {
-        std::cout << "DSP offset " << button->getToggleState() << std::endl;
+        std::cout << "DSP offset " << button->getToggleState() << "\n";
         board->setDSPOffset(button->getToggleState());
     }
 	else if (button == ledButton)
@@ -930,6 +933,7 @@ void RHD2000Editor::saveCustomParameters(XmlElement* xml)
     xml->setAttribute("save_impedance_measurements",saveImpedances);
     xml->setAttribute("auto_measure_impedances",measureWhenRecording);
 	xml->setAttribute("LEDs", ledButton->getToggleState());
+	xml->setAttribute("ClockDivideRatio", clockInterface->getClockDivideRatio());
 }
 
 void RHD2000Editor::loadCustomParameters(XmlElement* xml)
@@ -952,6 +956,7 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     saveImpedances = xml->getBoolAttribute("save_impedance_measurements");
     measureWhenRecording = xml->getBoolAttribute("auto_measure_impedances");
 	ledButton->setToggleState(xml->getBoolAttribute("LEDs", true),sendNotification);
+    clockInterface->setClockDivideRatio(xml->getIntAttribute("ClockDivideRatio")); 
 }
 
 
@@ -1027,8 +1032,8 @@ void BandwidthInterface::labelTextChanged(Label* label)
 
             actualUpperBandwidth = board->setUpperBandwidth(requestedValue);
 
-            std::cout << "Setting Upper Bandwidth to " << requestedValue << std::endl;
-            std::cout << "Actual Upper Bandwidth:  " <<  actualUpperBandwidth  << std::endl;
+            std::cout << "Setting Upper Bandwidth to " << requestedValue << "\n";
+            std::cout << "Actual Upper Bandwidth:  " <<  actualUpperBandwidth  << "\n";
             label->setText(String(round(actualUpperBandwidth*10.f)/10.f), dontSendNotification);
 
         }
@@ -1049,8 +1054,8 @@ void BandwidthInterface::labelTextChanged(Label* label)
 
             actualLowerBandwidth = board->setLowerBandwidth(requestedValue);
 
-            std::cout << "Setting Lower Bandwidth to " << requestedValue << std::endl;
-            std::cout << "Actual Lower Bandwidth:  " <<  actualLowerBandwidth  << std::endl;
+            std::cout << "Setting Lower Bandwidth to " << requestedValue << "\n";
+            std::cout << "Actual Lower Bandwidth:  " <<  actualLowerBandwidth  << "\n";
 
             label->setText(String(round(actualLowerBandwidth*10.f)/10.f), dontSendNotification);
         }
@@ -1157,7 +1162,7 @@ void SampleRateInterface::comboBoxChanged(ComboBox* cb)
         {
             board->setSampleRate(cb->getSelectedId()-1);
 
-            std::cout << "Setting sample rate to index " << cb->getSelectedId()-1 << std::endl;
+            std::cout << "Setting sample rate to index " << cb->getSelectedId()-1 << "\n";
 
 			CoreServices::updateSignalChain(editor);
         }
@@ -1286,7 +1291,7 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
     if (!(editor->acquisitionIsActive) && board->foundInputSource())
     {
 
-        //std::cout << "Acquisition is not active" << std::endl;
+        //std::cout << "Acquisition is not active" << "\n";
         if ((button == hsButton1) && (board->getChannelsInHeadstage(hsNumber1) == 32))
         {
             if (channelsOnHs1 == 32)
@@ -1294,7 +1299,7 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
             else
                 channelsOnHs1 = 32;
 
-            //std::cout << "HS1 has " << channelsOnHs1 << " channels." << std::endl;
+            //std::cout << "HS1 has " << channelsOnHs1 << " channels." << "\n";
 
             hsButton1->setLabel(String(channelsOnHs1));
             board->setNumChannels(hsNumber1, channelsOnHs1);
@@ -1390,7 +1395,7 @@ void AudioInterface::labelTextChanged(Label* label)
 
             actualNoiseSlicerLevel = board->setNoiseSlicerLevel(requestedValue);
 
-            std::cout << "Setting Noise Slicer Level to " << requestedValue << std::endl;
+            std::cout << "Setting Noise Slicer Level to " << requestedValue << "\n";
             label->setText(String((roundFloatToInt)(actualNoiseSlicerLevel)), dontSendNotification);
 
         }
@@ -1424,16 +1429,66 @@ void AudioInterface::paint(Graphics& g)
 {
 
     g.setColour(Colours::darkgrey);
-
     g.setFont(Font("Small Text",9,Font::plain));
-
     g.drawText(name, 0, 0, 200, 15, Justification::left, false);
-
     g.drawText("Level: ", 0, 10, 200, 20, Justification::left, false);
-
 }
 
 
+// Clock Divider options
+ClockDivideInterface::ClockDivideInterface(RHD2000Thread* board_,
+                                           RHD2000Editor* editor_) :
+   board(board_)
+ , editor(editor_)
+ 
+{
+    divideRatioSelection = new Label("Clock Divide", lastDivideRatioString); 
+    divideRatioSelection->setEditable(true,false,false);
+    divideRatioSelection->addListener(this);
+    divideRatioSelection->setBounds(30,10,30,20);
+    divideRatioSelection->setColour(Label::textColourId, Colours::darkgrey);
+    addAndMakeVisible(divideRatioSelection);
+}
+
+void ClockDivideInterface::labelTextChanged(Label* label)
+{
+    if (board->foundInputSource())
+    {
+        if (label == divideRatioSelection)
+        {
+            Value val = label->getTextValue();
+            int requestedValue = int(val.getValue()); 
+
+            if (requestedValue < 1 || requestedValue > 65534)
+            {
+				CoreServices::sendStatusMessage("Value must be between 1 and 65534.");
+                label->setText(lastDivideRatioString, dontSendNotification);
+                return;
+            }
+
+            actualDivideRatio = board->setClockDivider(requestedValue);
+            lastDivideRatioString = String(actualDivideRatio);
+
+            std::cout << "Setting clock divide ratio to " << actualDivideRatio << "\n";
+            label->setText(lastDivideRatioString, dontSendNotification);
+        }
+    }
+}
+
+void ClockDivideInterface::setClockDivideRatio(int value)
+{
+    actualDivideRatio = board->setClockDivider(value);
+    divideRatioSelection->setText(String(actualDivideRatio), dontSendNotification);
+}
+
+void ClockDivideInterface::paint(Graphics& g)
+{
+
+    g.setColour(Colours::darkgrey);
+    g.setFont(Font("Small Text",9,Font::plain));
+    g.drawText(name, 0, 0, 200, 15, Justification::left, false);
+    g.drawText("Ratio: ", 0, 10, 200, 20, Justification::left, false);
+}
 
 // DSP Options --------------------------------------------------------------------
 
@@ -1472,8 +1527,8 @@ void DSPInterface::labelTextChanged(Label* label)
 
             actualDspCutoffFreq = board->setDspCutoffFreq(requestedValue);
 
-            std::cout << "Setting DSP Cutoff Freq to " << requestedValue << std::endl;
-            std::cout << "Actual DSP Cutoff Freq:  " <<  actualDspCutoffFreq  << std::endl;
+            std::cout << "Setting DSP Cutoff Freq to " << requestedValue << "\n";
+            std::cout << "Actual DSP Cutoff Freq:  " <<  actualDspCutoffFreq  << "\n";
             label->setText(String(round(actualDspCutoffFreq*10.f)/10.f), dontSendNotification);
 
         }
