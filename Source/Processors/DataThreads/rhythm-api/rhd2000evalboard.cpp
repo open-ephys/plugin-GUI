@@ -1670,7 +1670,7 @@ void Rhd2000EvalBoard::enableBoardLeds(bool enable)
 // Ratio    divide_factor
 // 1        0
 // >=2      Ratio/2
-void Rhd2000EvalBoard::setClockDivider(uint16_t divide_factor)
+void Rhd2000EvalBoard::setClockDivider(int divide_factor)
 {
 
 	dev->SetWireInValue(WireInMultiUse, divide_factor);

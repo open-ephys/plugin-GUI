@@ -209,7 +209,7 @@ private:
 	bool ledsEnabled;
 
     // Sync ouput divide factor
-    int16_t clockDivideFactor;
+    uint16 clockDivideFactor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);
 };

@@ -1837,7 +1837,7 @@ int RHD2000Thread::setClockDivider(int divide_ratio)
     if (divide_ratio == 1)
         clockDivideFactor = 0;
     else
-        clockDivideFactor = static_cast<uint16_t>(divide_ratio/2);
+        clockDivideFactor = static_cast<uint16>(divide_ratio/2);
 
 	if (isAcquisitionActive())
         dacOutputShouldChange = true;
