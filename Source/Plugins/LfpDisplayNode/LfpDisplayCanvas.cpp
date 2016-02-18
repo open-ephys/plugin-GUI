@@ -1613,7 +1613,8 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
         viewport->setViewPosition(oldX,oldY+scrollBy); // set back to previous position plus offset
 
         canvas->setSpreadSelection(h+hdiff); // update combobox
-
+        
+        canvas->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
     }
     else
     {
@@ -1644,10 +1645,10 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
                 viewport->mouseWheelMove(e.getEventRelativeTo(canvas), wheel);
 
         }
-    }
+        canvas->fullredraw = true; //issue full redraw - scrolling without modifier doesnt require a full redraw
 
-    canvas->fullredraw = true;//issue full redraw
-    refresh();
+    }
+       //refresh(); // doesn't seem to be needed now that channels daraw to bitmap
 
 }
 
@@ -1841,7 +1842,6 @@ void LfpChannelDisplay::pxPaint()
         int stepSize = 1;
         int from = 0; // for vertical line drawing in the LFP data
         int to = 0;
-        
         
         int ifrom = canvas->lastScreenBufferIndex[chan] - 3; // need to start drawing a bit before the actual redraw window for the interpolated line to join correctly
         
