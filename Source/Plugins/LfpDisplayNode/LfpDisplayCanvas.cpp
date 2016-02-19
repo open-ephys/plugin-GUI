@@ -560,6 +560,9 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
         selectedVoltageRange[selectedChannelType] = cb->getSelectedId();
         selectedVoltageRangeValues[selectedChannelType] = cb->getText();
         //std::cout << "Setting range to " << voltageRanges[cb->getSelectedId()-1].getFloatValue() << std::endl;
+        fullredraw = true; //issue full redraw
+        repaint();
+        refresh();
     }
     else if (cb == spreadSelection)
     {
@@ -600,6 +603,9 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
         }
         selectedSpread = cb->getSelectedId();
         selectedSpreadValue = cb->getText();
+        fullredraw = true; //issue full redraw
+        repaint();
+        refresh();
         //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
     else if (cb == colorGroupingSelection)
@@ -607,7 +613,9 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
         // set color grouping hre
 
         lfpDisplay->setColorGrouping(colorGroupings[cb->getSelectedId()-1].getIntValue());// so that channel colors get re-assigned
-
+        fullredraw = true; //issue full redraw
+        repaint();
+        refresh();
     }
 
     timescale->setTimebase(timebase);
@@ -922,8 +930,6 @@ bool LfpDisplayCanvas::getDrawMethodState()
 void LfpDisplayCanvas::paint(Graphics& g)
 {
     
-    
-    
     //std::cout << "Painting" << std::endl;
 
     //g.setColour(Colour(0,0,0)); // for high-precision per-pixel density display, make background black for better visibility
@@ -1181,8 +1187,6 @@ LfpTimescale::~LfpTimescale()
 
 void LfpTimescale::paint(Graphics& g)
 {
-
-
 
     g.setFont(font);
 
@@ -1621,8 +1625,10 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
         if (e.mods.isAltDown())  // ALT + scroll wheel -> change channel range (was SHIFT but that clamps wheel.deltaY to 0 on OSX for some reason..)
         {
             int h = getRange();
-            int step = canvas->getRangeStep(canvas->getSelectedType());
             
+            
+            int step = canvas->getRangeStep(canvas->getSelectedType());
+                       
             // std::cout << wheel.deltaY << std::endl;
             
             if (wheel.deltaY > 0)
@@ -1843,7 +1849,7 @@ void LfpChannelDisplay::pxPaint()
         int from = 0; // for vertical line drawing in the LFP data
         int to = 0;
         
-        int ifrom = canvas->lastScreenBufferIndex[chan] - 3; // need to start drawing a bit before the actual redraw window for the interpolated line to join correctly
+        int ifrom = canvas->lastScreenBufferIndex[chan] - 1; // need to start drawing a bit before the actual redraw window for the interpolated line to join correctly
         
         if (ifrom < 0)
             ifrom = 0;
@@ -1864,7 +1870,7 @@ void LfpChannelDisplay::pxPaint()
             int zeromarker = getY()+center;
             if(zeromarker>0 & zeromarker<display->lfpChannelBitmap.getHeight()){
                 if ( bdLfpChannelBitmap.getPixelColour(i,zeromarker) == Colour(0,0,0) ) { // make sure we're not drawing over an existing plot from another channel
-                bdLfpChannelBitmap.setPixelColour(i,zeromarker,Colour(50,50,50));
+                    bdLfpChannelBitmap.setPixelColour(i,zeromarker,Colour(50,50,50));
                 }
             }
             
@@ -1884,6 +1890,18 @@ void LfpChannelDisplay::pxPaint()
                         //g.setColour(display->channelColours[ev_ch*2]); // get color from lfp color scheme
                         //g.setOpacity(0.35f);
                         //g.drawLine(i, center-channelHeight/2 , i, center+channelHeight/2);
+                        
+                        Colour currentcolor=display->channelColours[ev_ch*2];
+                        int jfrom= (int) (getY()+center-channelHeight/2)+1;
+                        int jto= (int) getY()+center+channelHeight/2;
+                        
+                        if (jfrom<0) {jfrom=0;};
+                        if (jto >= display->lfpChannelBitmap.getHeight()) {jto=display->lfpChannelBitmap.getHeight()-1;};
+                        
+                        for (int k=jfrom; k<=jto; k++) // draw line
+                        {
+                            bdLfpChannelBitmap.setPixelColour(i,k,bdLfpChannelBitmap.getPixelColour(i,k).interpolatedWith(currentcolor,0.3f));
+                        }
                     }
                 }
             }
@@ -1921,8 +1939,6 @@ void LfpChannelDisplay::pxPaint()
                 if (samplerange>0 & sampleCountThisPixel>0)
                 {
                     
-                    
-              
                     //float localHist[samplerange]; // simple histogram
                     float rangeHist[samplerange]; // paired range histogram, same as plotting at higher res. and subsampling
                     
@@ -1968,9 +1984,9 @@ void LfpChannelDisplay::pxPaint()
                         float ha=1;
                         for (int l=hfrom; l<hto; l++)
                         {
-                            rangeHist[l]+=ha; //this overemphasizes fast Y components
+                            rangeHist[l]+=ha; //this emphasizes fast Y components
                             
-                            //rangeHist[l]+=ha/hrange; // this is like an oscilloscope, same energy depositetd per dx, not dy
+                            //rangeHist[l]+=1/hrange; // this is like an oscilloscope, same energy depositetd per dx, not dy
                         }
                     }
                     
@@ -1978,16 +1994,15 @@ void LfpChannelDisplay::pxPaint()
                     
                     for (int s = 0; s < samplerange; s ++)  // plot histogram one pixel per bin
                     {
-                        float a=(20*rangeHist[s])/(sampleCountThisPixel);
+                        float a=15*((rangeHist[s])/(sampleCountThisPixel));
                         if (a>1.0f) {a=1.0f;};
                         if (a<0.0f) {a=0.0f;};
                         
                        
-                        Colour gradedColor = lineColour.withMultipliedBrightness(2.0f).interpolatedWith(lineColour.withMultipliedSaturation(0.7f).withMultipliedBrightness(0.3f),1-a) ;
+                        Colour gradedColor = lineColour.withMultipliedBrightness(2.0f).interpolatedWith(lineColour.withMultipliedSaturation(0.6f).withMultipliedBrightness(0.3f),1-a) ;
                         //Colour gradedColor =  Colour(0,0,0).interpolatedWith(Colour(255,255,255),a);
                         //Colour gradedColor =  Colour(0,255,0);
                         
-                        //g.setPixel(i,from+s);
                         int ploty = from+s+getY();
                         if(ploty>0 & ploty < display->lfpChannelBitmap.getHeight()) {
                             bdLfpChannelBitmap.setPixelColour(i,from+s+getY(),gradedColor);
@@ -1995,8 +2010,6 @@ void LfpChannelDisplay::pxPaint()
                     }
                     
                 } else {
-                    //g.setColour(lineColour);
-                    //g.setPixel(i,from);
                     
                     int ploty = from+getY();
                     if(ploty>0 & ploty < display->lfpChannelBitmap.getHeight()) {
@@ -2016,7 +2029,7 @@ void LfpChannelDisplay::pxPaint()
                 //if (yofs<0) {yofs=0;};
                 
                 if (i<0) {i=0;};
-                if (i >= display->lfpChannelBitmap.getWidth()) {i = display->lfpChannelBitmap.getWidth()-1;}; // this shouldnt happen, there must eb some bug above - to replicate, run at max refresh rate where draws overlap the right margin by a lot
+                if (i >= display->lfpChannelBitmap.getWidth()) {i = display->lfpChannelBitmap.getWidth()-1;}; // this shouldnt happen, there must be some bug above - to replicate, run at max refresh rate where draws overlap the right margin by a lot
                 
                 if (jfrom<0) {jfrom=0;};
                 if (jto >= display->lfpChannelBitmap.getHeight()) {jto=display->lfpChannelBitmap.getHeight()-1;};
@@ -2024,7 +2037,6 @@ void LfpChannelDisplay::pxPaint()
                 
                               for (int j = jfrom; j <= jto; j += 1)
                 {
-                    // g.setPixel(i,j);
                     
                     //uint8* const pu8Pixel = bdSharedLfpDisplay.getPixelPointer(	(int)(i),(int)(j));
                     //*(pu8Pixel)		= 200;
