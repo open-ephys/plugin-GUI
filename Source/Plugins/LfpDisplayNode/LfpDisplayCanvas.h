@@ -74,6 +74,8 @@ public:
     void resized();
 
     int getChannelHeight();
+    
+    float channelOverlapFactor;
 
     int getNumChannels();
     bool getInputInvertedState();
@@ -157,6 +159,7 @@ private:
     ScopedPointer<ComboBox> timebaseSelection;
     ScopedPointer<ComboBox> rangeSelection;
     ScopedPointer<ComboBox> spreadSelection;
+    ScopedPointer<ComboBox> overlapSelection;
     ScopedPointer<ComboBox> colorGroupingSelection;
     ScopedPointer<UtilityButton> invertInputButton;
     ScopedPointer<UtilityButton> drawMethodButton;
@@ -171,7 +174,8 @@ private:
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
     StringArray colorGroupings; // option for coloring every N channels the same
-
+    StringArray overlaps; //
+    
     ChannelType selectedChannelType;
     int selectedVoltageRange[CHANNEL_TYPES];
     String selectedVoltageRangeValues[CHANNEL_TYPES];
@@ -186,6 +190,9 @@ private:
     int selectedTimebase;
     String selectedTimebaseValue;
 
+    int selectedOverlap;
+    String selectedOverlapValue;
+    
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
 
     void refreshScreenBuffer();

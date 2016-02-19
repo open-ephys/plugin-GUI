@@ -176,6 +176,18 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     selectedSpread = 5;
     selectedSpreadValue = spreads[selectedSpread-1];
 
+
+    overlaps.add("0.5");
+    overlaps.add("0.75");
+    overlaps.add("1");
+    overlaps.add("2");
+    overlaps.add("3");
+    overlaps.add("4");
+    overlaps.add("5");
+    selectedOverlap = 4;
+    selectedOverlapValue = overlaps[selectedOverlap-1];
+
+    
     colorGroupings.add("1");
     colorGroupings.add("2");
     colorGroupings.add("4");
@@ -206,6 +218,13 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     spreadSelection->setEditableText(true);
     addAndMakeVisible(spreadSelection);
 
+    overlapSelection = new ComboBox("Overlap");
+    overlapSelection->addItemList(overlaps, 1);
+    overlapSelection->setSelectedId(selectedOverlap,sendNotification);
+    overlapSelection->addListener(this);
+    overlapSelection->setEditableText(true);
+    addAndMakeVisible(overlapSelection);
+    
     colorGroupingSelection = new ComboBox("Color Grouping");
     colorGroupingSelection->addItemList(colorGroupings, 1);
     colorGroupingSelection->setSelectedId(1,sendNotification);
@@ -325,9 +344,11 @@ void LfpDisplayCanvas::resized()
 
     lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*nChans);
 
-    rangeSelection->setBounds(5,getHeight()-30,100,25);
-    timebaseSelection->setBounds(175,getHeight()-30,100,25);
-    spreadSelection->setBounds(345,getHeight()-30,100,25);
+    rangeSelection->setBounds(5,getHeight()-30,80,25);
+    timebaseSelection->setBounds(175,getHeight()-30,80,25);
+    spreadSelection->setBounds(300,getHeight()-30,80,25);
+    overlapSelection->setBounds(400,getHeight()-30,80,25);
+    
     colorGroupingSelection->setBounds(620,getHeight()-30,100,25);
 
     invertInputButton->setBounds(750,getHeight()-50,100,22);
@@ -603,6 +624,51 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
         }
         selectedSpread = cb->getSelectedId();
         selectedSpreadValue = cb->getText();
+        fullredraw = true; //issue full redraw
+        repaint();
+        refresh();
+        //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
+    }
+    else if (cb == overlapSelection)
+    {
+        if (cb->getSelectedId())
+        {
+            channelOverlapFactor=(overlaps[cb->getSelectedId()-1].getFloatValue());
+            resized();
+        }
+        else
+        {
+            float overlap = cb->getText().getFloatValue();
+            if (overlap)
+            {
+                if (overlap < overlaps[0].getFloatValue())
+                {
+                    cb->setSelectedId(1,dontSendNotification);
+                    overlap = overlaps[0].getFloatValue();
+                }
+                else if (overlap > overlaps[overlaps.size()-1].getFloatValue())
+                {
+                    cb->setSelectedId(overlaps.size(),dontSendNotification);
+                    overlap = overlaps[overlaps.size()-1].getFloatValue();
+                }
+                else
+                {
+                    cb->setText(String(overlap),dontSendNotification);
+                }
+                channelOverlapFactor= overlap;
+                resized();
+            }
+            else
+            {
+                if (selectedSpread == 0)
+                    cb->setText(selectedSpreadValue,dontSendNotification);
+                else
+                    cb->setSelectedId(selectedSpread,dontSendNotification);
+            }
+        }
+        selectedSpread = cb->getSelectedId();
+        selectedSpreadValue = cb->getText();
+        lfpDisplay->setChannelHeight( lfpDisplay->getChannelHeight());
         fullredraw = true; //issue full redraw
         repaint();
         refresh();
@@ -964,9 +1030,11 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
     g.setColour(Colour(100,100,100));
 
-    g.drawText("Voltage range ("+ rangeUnits[selectedChannelType] +")",5,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Range ("+ rangeUnits[selectedChannelType] +")",5,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Timebase (s)",175,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Spread (px)",345,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Size (px)",300,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Clipping",400,getHeight()-55,300,20,Justification::left, false);
+
     g.drawText("Color grouping",620,getHeight()-55,300,20,Justification::left, false);
 
     //g.drawText(typeNames[selectedChannelType],110,getHeight()-30,50,20,Justification::centredLeft,false);
@@ -1314,7 +1382,7 @@ void LfpDisplay::setNumChannels(int numChannels)
         //lfpChan->setColour(channelColours[i % channelColours.size()]);
         lfpChan->setRange(range[canvas->getChannelType(i)]);
         lfpChan->setChannelHeight(canvas->getChannelHeight());
-
+        
         addAndMakeVisible(lfpChan);
 
         channels.add(lfpChan);
@@ -1361,6 +1429,8 @@ int LfpDisplay::getTotalHeight()
 
 void LfpDisplay::resized()
 {
+    
+    //canvas->channelOverlapFactor
 
     int totalHeight = 0;
 
@@ -1370,9 +1440,9 @@ void LfpDisplay::resized()
         LfpChannelDisplay* disp = channels[i];
 
         disp->setBounds(canvas->leftmargin,
-                        totalHeight-disp->getChannelOverlap()/2,
+                        totalHeight-(disp->getChannelOverlap()*canvas->channelOverlapFactor)/2,
                         getWidth(),
-                        disp->getChannelHeight()+disp->getChannelOverlap());
+                        disp->getChannelHeight()+(disp->getChannelOverlap()*canvas->channelOverlapFactor));
 
         disp-> resized();
         
@@ -1411,17 +1481,6 @@ void LfpDisplay::resized()
 void LfpDisplay::paint(Graphics& g)
 {
 
-    //Graphics gSharedLfpDisplay(lfpChannelBitmap);
-    
-    //Graphics gBackGround(m_iBackGround);
-    /*
-    ColourGradient grad = ColourGradient(Colours::white,0.f,0.f,Colours::green,	(float)lfpChannelBitmap.getWidth(),	(float)lfpChannelBitmap.getHeight(), false);
-    gSharedLfpDisplay.setGradientFill(grad);
-    gSharedLfpDisplay.fillAll();
-    
-    gSharedLfpDisplay.setColour (Colours::black);
-    gSharedLfpDisplay.fillEllipse (20, 20, 200, 200);
-    */
     g.drawImageAt(lfpChannelBitmap, canvas->leftmargin,0);
     
 }
@@ -1919,8 +1978,8 @@ void LfpChannelDisplay::pxPaint()
             
             
             // set max-min range for plotting, used in all methods
-            double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat)+getHeight()/2;
-            double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat)+getHeight()/2;
+            double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat);
+            double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat);
             //double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
             if (a<b)
             {
@@ -1932,8 +1991,19 @@ void LfpChannelDisplay::pxPaint()
             }
             
             // start by clipping so that we're not populating pixels that we dont want to plot
-            if (from <= -channelHeightFloat/2) {from = -(channelHeightFloat/2);};
-            if (to   <=  channelHeightFloat/2) {to   =  (channelHeightFloat/2);};
+            int lm= channelHeightFloat*canvas->channelOverlapFactor;
+     if (lm>0)
+         lm=-lm;
+        
+            if (from > -lm) {from = -lm;};
+            if (to > -lm) {to = -lm;};
+            if (from < lm) {from = lm;};
+            if (to < lm) {to = lm;};
+            
+            
+            
+            from=from+getHeight()/2;       // so the plot is centered in the channeldisplay
+            to=to+getHeight()/2;
             
             int samplerange=to-from;
             
@@ -2432,7 +2502,7 @@ void LfpChannelDisplay::setChannelHeight(int c)
     if (!inputInverted)
         channelHeightFloat = -channelHeightFloat;
 
-    channelOverlap = channelHeight*5;
+    channelOverlap = channelHeight*2;
 }
 
 int LfpChannelDisplay::getChannelHeight()
