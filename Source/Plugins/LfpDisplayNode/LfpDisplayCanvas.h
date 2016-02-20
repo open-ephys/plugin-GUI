@@ -123,6 +123,9 @@ public:
     static const int leftmargin=50; // left margin for lfp plots (so the ch number text doesnt overlap)
 
     Array<bool> isChannelEnabled;
+    
+    bool  drawClipWarning; // optinally draw (subtle) warning if data is clipped in display
+    bool  drawSaturateWarning; // optionally raise hell if the actual data is saturating
 
     int nChans;
 
@@ -160,6 +163,10 @@ private:
     ScopedPointer<ComboBox> rangeSelection;
     ScopedPointer<ComboBox> spreadSelection;
     ScopedPointer<ComboBox> overlapSelection;
+    
+    ScopedPointer<UtilityButton> drawClipWarningButton; // optinally draw (subtle) warning if data is clipped in display
+    ScopedPointer<UtilityButton> drawSaturateWarningButton; // optionally raise hell if the actual data is saturating
+    
     ScopedPointer<ComboBox> colorGroupingSelection;
     ScopedPointer<UtilityButton> invertInputButton;
     ScopedPointer<UtilityButton> drawMethodButton;

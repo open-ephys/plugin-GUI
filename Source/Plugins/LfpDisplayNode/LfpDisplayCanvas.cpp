@@ -261,6 +261,26 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     supersampleSlider->addListener(this);
     addAndMakeVisible (supersampleSlider);
     
+    //ScopedPointer<UtilityButton> drawClipWarningButton; // optinally draw (subtle) warning if data is clipped in display
+    drawClipWarningButton = new UtilityButton("0", Font("Small Text", 13, Font::plain));
+    drawClipWarningButton->setRadius(5.0f);
+    drawClipWarningButton->setEnabledState(true);
+    drawClipWarningButton->setCorners(true, true, true, true);
+    drawClipWarningButton->addListener(this);
+    drawClipWarningButton->setClickingTogglesState(true);
+    drawClipWarningButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(drawClipWarningButton);
+    
+    
+    //ScopedPointer<UtilityButton> drawSaturateWarningButton; // optionally raise hell if the actual data is saturating
+    drawSaturateWarningButton = new UtilityButton("drawSaturateWarning", Font("Small Text", 13, Font::plain));
+    drawSaturateWarningButton->setRadius(5.0f);
+    drawSaturateWarningButton->setEnabledState(true);
+    drawSaturateWarningButton->setCorners(true, true, true, true);
+    drawSaturateWarningButton->addListener(this);
+    drawSaturateWarningButton->setClickingTogglesState(true);
+    drawSaturateWarningButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(drawSaturateWarningButton);
     
 
     //button for pausing the display - works by skipping buffer updates. This way scrolling etc still works
@@ -345,9 +365,10 @@ void LfpDisplayCanvas::resized()
     lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*nChans);
 
     rangeSelection->setBounds(5,getHeight()-30,80,25);
-    timebaseSelection->setBounds(175,getHeight()-30,80,25);
-    spreadSelection->setBounds(300,getHeight()-30,80,25);
-    overlapSelection->setBounds(400,getHeight()-30,80,25);
+    timebaseSelection->setBounds(175,getHeight()-30,60,25);
+    
+    spreadSelection->setBounds(260,getHeight()-30,60,25);
+    overlapSelection->setBounds(340,getHeight()-30,60,25);
     
     colorGroupingSelection->setBounds(620,getHeight()-30,100,25);
 
@@ -355,6 +376,8 @@ void LfpDisplayCanvas::resized()
     drawMethodButton->setBounds(750,getHeight()-25,100,22);
     pauseButton->setBounds(880,getHeight()-50,50,44);
 
+    drawClipWarningButton->setBounds(410,getHeight()-30,20,20);
+    
     for (int i = 0; i < 8; i++)
     {
         eventDisplayInterfaces[i]->setBounds(500+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
@@ -470,9 +493,19 @@ void LfpDisplayCanvas::buttonClicked(Button* b)
     }
     if (b == drawMethodButton)
     {
-        lfpDisplay->setDrawMethod(b->getToggleState());
+        lfpDisplay->setDrawMethod(b->getToggleState()); // this should be done the same way as drawClipWarning - or the other way around.
         return;
     }
+    if (b == drawClipWarningButton)
+    {
+        drawClipWarning = b->getToggleState();
+        
+        fullredraw=true;
+        repaint();
+        refresh();
+        return;
+    }
+    
     if (b == pauseButton)
     {
         lfpDisplay->isPaused = b->getToggleState();
@@ -1030,18 +1063,24 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
     g.setColour(Colour(100,100,100));
 
-    g.drawText("Range ("+ rangeUnits[selectedChannelType] +")",5,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Timebase (s)",175,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Size (px)",300,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Clipping",400,getHeight()-55,300,20,Justification::left, false);
-
+    g.drawText("Range("+ rangeUnits[selectedChannelType] +")",5,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Timebase(s)",155,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Size(px)",260,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Clip",350,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Warn",410,getHeight()-55,300,20,Justification::left, false);
+    
     g.drawText("Color grouping",620,getHeight()-55,300,20,Justification::left, false);
 
+    
     //g.drawText(typeNames[selectedChannelType],110,getHeight()-30,50,20,Justification::centredLeft,false);
 
     g.drawText("Event disp.",500,getHeight()-55,300,20,Justification::left, false);
 
-
+    if(drawClipWarning)
+    {
+        g.setColour(Colours::white);
+        g.fillRoundedRectangle(408,getHeight()-30-2,24,24,6.0f);
+    }
 
 }
 
@@ -1918,6 +1957,12 @@ void LfpChannelDisplay::pxPaint()
             bdLfpChannelBitmap.setPixelColour(canvas->screenBufferIndex[chan]+1,k, Colours::yellow);
         
         
+        bool clipWarningHi =false; // keep track if something clipped in the display, so we can draw warnings after the data pixels are done
+        bool clipWarningLo =false;
+
+        bool saturateWarningHi =false; // similar, but for saturating the amplifier, not just the display - make this warning very visible
+        bool saturateWarningLo =false;
+        
         // pre compute some colors for later so we dont do it once per pixel.
         Colour lineColourBright = lineColour.withMultipliedBrightness(2.0f);
         Colour lineColourDark = lineColour.withMultipliedSaturation(0.5f).withMultipliedBrightness(0.3f);
@@ -1992,13 +2037,15 @@ void LfpChannelDisplay::pxPaint()
             
             // start by clipping so that we're not populating pixels that we dont want to plot
             int lm= channelHeightFloat*canvas->channelOverlapFactor;
-     if (lm>0)
-         lm=-lm;
+            if (lm>0)
+                lm=-lm;
         
-            if (from > -lm) {from = -lm;};
-            if (to > -lm) {to = -lm;};
-            if (from < lm) {from = lm;};
-            if (to < lm) {to = lm;};
+            if (from > -lm) {from = -lm; clipWarningHi=true;};
+            if (to > -lm) {to = -lm; clipWarningHi=true;};
+            if (from < lm) {from = lm; clipWarningLo=true;};
+            if (to < lm) {to = lm; clipWarningLo=true;};
+            
+            
             
             
             
@@ -2119,9 +2166,38 @@ void LfpChannelDisplay::pxPaint()
                 
             }
             
-        }
+            // now draw warnings, if needed
+            if (canvas->drawClipWarning) // draw warnings if display cuts off data
+            {
+                
+                if(clipWarningHi) {
+                    for (int j=0; j<=1; j++)
+                    {
+                        int clipmarker = -3+j+ getY()-(getHeight()/channelHeightFloat)+getHeight() + channelHeightFloat/2 ;
+                    
+                        if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
+                                                  bdLfpChannelBitmap.setPixelColour(i,clipmarker,Colour(255,255,255));
+                        }
+                    }
+                }
+                 
+                if(clipWarningLo) {
+                        for (int j=0; j<=1; j++)
+                        {
+                           int clipmarker = 2+j+ getY()  +(getHeight()/channelHeightFloat) -channelHeightFloat/2 ;
+                            
+                            if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
+                                bdLfpChannelBitmap.setPixelColour(i,clipmarker,Colour(255,255,255));
+                            }
+                        }
+                }
+
+            clipWarningHi=false;
+            clipWarningLo=false;
+            }
+        } // for i (x pixels)
         
-    }
+    } // isenabled
     
 
 }
