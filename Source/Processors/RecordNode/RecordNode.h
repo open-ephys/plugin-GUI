@@ -190,7 +190,7 @@ private:
     int64 timestamp;
 
     /** Integer to keep track of number of recording sessions in the same file */
-    uint16 recordingNumber;
+    int recordingNumber;
 
     /** Used to generate timestamps if none are given.
     */

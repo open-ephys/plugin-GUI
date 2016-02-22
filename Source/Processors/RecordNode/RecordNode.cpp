@@ -50,7 +50,7 @@ RecordNode::RecordNode()
     settings.numOutputs = 0;
 
     eventChannel = new Channel(this, 0, EVENT_CHANNEL);
-    recordingNumber = 0;
+    recordingNumber = -1;
 
     spikeElectrodeIndex = 0;
 

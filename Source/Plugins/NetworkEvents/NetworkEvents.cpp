@@ -495,13 +495,13 @@ String NetworkEvents::handleSpecialMessages(StringTS msg)
 		String msg(file.getFullPathName());
 		return msg;
 	}
-	else if (cmd.compareIgnoreCase("getRecordingNumber") == 0)
+	else if (cmd.compareIgnoreCase("GetRecordingNumber") == 0)
 	{
 		String status;
-		status += CoreServices::RecordNode::getRecordingNumber();
+		status += (CoreServices::RecordNode::getRecordingNumber() +1);
 		return status;
 	}
-	else if (cmd.compareIgnoreCase("getExperimentNumber") == 0)
+	else if (cmd.compareIgnoreCase("GetExperimentNumber") == 0)
 	{
 		String status;
 		status += CoreServices::RecordNode::getExperimentNumber();
