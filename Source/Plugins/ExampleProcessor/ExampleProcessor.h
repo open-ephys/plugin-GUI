@@ -21,15 +21,14 @@
 
 */
 
-#ifndef __EXAMPLEPROCESSOR_H_91811542__
-#define __EXAMPLEPROCESSOR_H_91811542__
+#ifndef EXAMPLEPROCESSOR_H_INCLUDED
+#define EXAMPLEPROCESSOR_H_INCLUDED
 
 #ifdef _WIN32
 #include <Windows.h>
 #endif
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../GenericProcessor/GenericProcessor.h"
+#include <ProcessorHeaders.h>
 
 /**
 
@@ -65,6 +64,18 @@ public:
         return false;
     }
 
+	/** Indicates if the processor has a custom editor. Defaults to false */
+	//bool hasEditor() const
+	//{
+	//	return true;
+	//}
+
+	/** If the processor has a custom editor, this method must be defined to instantiate it. */
+	//AudioProcessorEditor* createEditor();
+
+	/** Optional method that informs the GUI if the processor is ready to function. If false acquisition cannot start. Defaults to true */
+	//bool isReady();
+
     /** Defines the functionality of the processor.
 
         The process method is called every time a new data buffer is available.
@@ -73,16 +84,23 @@ public:
         data, or send data to an external target (such as a display or other hardware).
 
         Continuous signals arrive in the "buffer" variable, event data (such as TTLs
-        and spikes) is contained in the "events" variable, and "nSamples" holds the
-        number of continous samples in the current buffer (which may differ from the
-        size of the buffer).
+        and spikes) is contained in the "events" variable.
          */
     void process(AudioSampleBuffer& buffer, MidiBuffer& events);
 
-    /** Any variables used by the "process" function _must_ be modified only through
-        this method while data acquisition is active. If they are modified in any
-        other way, the application will crash.  */
+    /** The method that standard controls on the editor will call.
+		It is recommended that any variables used by the "process" function 
+		are modified only through this method while data acquisition is active. */
     void setParameter(int parameterIndex, float newValue);
+
+	/** Optional method called every time the signal chain is refreshed or changed in any way.
+		
+		Allows the processor to handle variations in the channel configuration or any other parameter
+		passed down the signal chain. The processor can also modify here the settings structure, which contains
+		information regarding the input and output channels as well as other signal related parameters. Said
+		structure shouldn't be manipulated outside of this method.
+	*/
+	//void updateSettings();
 
 private:
 
@@ -97,4 +115,4 @@ private:
 
 };
 
-#endif  // __EXAMPLEPROCESSOR_H_91811542__
+#endif  // EXAMPLEPROCESSOR_H_INCLUDED

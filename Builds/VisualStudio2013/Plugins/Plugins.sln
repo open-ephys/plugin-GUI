@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LFP_Viewer", "LFP_Viewer\LFP_Viewer.vcxproj", "{41BD734E-4939-47AD-9714-9629538F7206}"
 EndProject
@@ -34,6 +34,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EventBroadcaster", "EventBroadcaster\EventBroadcaster.vcxproj", "{2A290337-FC79-4987-8488-A71F29252DB0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpikeSorter", "SpikeSorter\SpikeSorter.vcxproj", "{D0AEE4AA-68A7-4598-89E4-3BF5A5EBCA2A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExampleProcessor", "ExampleProcessor\ExampleProcessor.vcxproj", "{767D282E-0BE5-4B35-874A-3B1ED925F06B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -171,6 +173,10 @@ Global
 		{D0AEE4AA-68A7-4598-89E4-3BF5A5EBCA2A}.Release|Win32.Build.0 = Release|Win32
 		{D0AEE4AA-68A7-4598-89E4-3BF5A5EBCA2A}.Release|x64.ActiveCfg = Release|x64
 		{D0AEE4AA-68A7-4598-89E4-3BF5A5EBCA2A}.Release|x64.Build.0 = Release|x64
+		{767D282E-0BE5-4B35-874A-3B1ED925F06B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{767D282E-0BE5-4B35-874A-3B1ED925F06B}.Debug|x64.ActiveCfg = Debug|x64
+		{767D282E-0BE5-4B35-874A-3B1ED925F06B}.Release|Win32.ActiveCfg = Release|Win32
+		{767D282E-0BE5-4B35-874A-3B1ED925F06B}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
