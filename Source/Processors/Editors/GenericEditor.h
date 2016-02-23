@@ -185,7 +185,7 @@ public:
 
     /** Called by buttonClicked(). Deals with clicks on custom buttons. Subclasses of
         GenericEditor should modify this method only.*/
-    virtual void buttonEvent(Button* button) {}
+	virtual void buttonEvent(Button* button);
 
     /** Handles slider events for all editors. */
     virtual void sliderValueChanged(Slider* slider);
@@ -360,7 +360,7 @@ class PLUGIN_API DrawerButton : public Button
 {
 public:
     DrawerButton(const String& name);
-    ~DrawerButton() {}
+	~DrawerButton();
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
@@ -379,11 +379,8 @@ private:
 class PLUGIN_API TriangleButton : public Button
 {
 public:
-    TriangleButton(int direction_) : Button("Arrow")
-    {
-        direction = direction_;
-    }
-    ~TriangleButton() {}
+	TriangleButton(int direction_);
+	~TriangleButton();
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
@@ -402,7 +399,7 @@ class PLUGIN_API LoadButton : public ImageButton
 {
 public:
     LoadButton();
-    ~LoadButton() {}
+	~LoadButton();
 };
 
 /**
@@ -417,7 +414,7 @@ class PLUGIN_API SaveButton : public ImageButton
 {
 public:
     SaveButton();
-    ~SaveButton() {}
+	~SaveButton();
 private:
 };
 
@@ -433,16 +430,13 @@ class PLUGIN_API UtilityButton : public Button
 {
 public:
     UtilityButton(String label_, Font font_);
-    ~UtilityButton() {}
+	~UtilityButton();
 
     void setCorners(bool UL, bool UR, bool LL, bool LR);
     void setRadius(float r);
 
     void setEnabledState(bool);
-    bool getEnabledState()
-    {
-        return isEnabled;
-    }
+	bool getEnabledState();
 
     void setLabel(String label);
     String getLabel();
@@ -470,13 +464,10 @@ class PLUGIN_API ColorButton : public Button
 {
 public:
     ColorButton(String label_, Font font_);
-    ~ColorButton() {}
+	~ColorButton();
 
     void setEnabledState(bool);
-    bool getEnabledState()
-    {
-        return isEnabled;
-    }
+	bool getEnabledState();
     void setColors(Colour foreground, Colour background);
     void setLabel(String label);
     String getLabel();
@@ -507,7 +498,7 @@ class PLUGIN_API ThresholdSlider : public Slider
 {
 public:
 	ThresholdSlider(Font f);
-	~ThresholdSlider() {}
+	~ThresholdSlider();
 
 	void setActive(bool);
 

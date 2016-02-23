@@ -83,7 +83,7 @@ class PLUGIN_API DrawComponent : public Component
 {
 public:
 	DrawComponent(MatlabLikePlot *mlp);
-    ~DrawComponent() {}
+	~DrawComponent();
 	void setMode(DrawComponentMode m);
 	void setHorizonal0Visible(bool state);
 	void setVertical0Visible(bool state);
@@ -145,7 +145,7 @@ class PLUGIN_API AxesComponent : public Component
 {
 public:
 	AxesComponent(bool horizontal, bool flip);
-    ~AxesComponent() {}
+	~AxesComponent();
 	void setTicks(std::vector<float> ticks_, std::vector<String> labels);
 	void paint(Graphics &g);
 	void setFontHeight(int height);

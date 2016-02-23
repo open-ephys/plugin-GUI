@@ -715,12 +715,22 @@ bool GenericEditor::isMerger()
     return getProcessor()->isMerger();
 }
 
+void GenericEditor::buttonEvent(Button* button)
+{
+
+}
+
 
 /////////////////////// BUTTONS ///////////////////////////////
 
 DrawerButton::DrawerButton(const String& name) : Button(name)
 {
     setClickingTogglesState(true);
+}
+
+DrawerButton::~DrawerButton()
+{
+
 }
 
 void DrawerButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
@@ -751,6 +761,16 @@ UtilityButton::UtilityButton(String label_, Font font_) :
 
     setEnabledState(true);
 
+}
+
+UtilityButton::~UtilityButton()
+{
+
+}
+
+bool UtilityButton::getEnabledState()
+{
+	return isEnabled;
 }
 
 void UtilityButton::setCorners(bool UL, bool UR, bool LL, bool LR)
@@ -945,6 +965,16 @@ void UtilityButton::setLabel(String label_)
     repaint();
 }
 
+TriangleButton::TriangleButton(int direction_) : Button("Arrow")
+{
+	direction = direction_;
+}
+
+TriangleButton::~TriangleButton()
+{
+
+}
+
 void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
 
@@ -1014,6 +1044,11 @@ LoadButton::LoadButton() : ImageButton("Load")
 
 }
 
+LoadButton::~LoadButton()
+{
+
+}
+
 SaveButton::SaveButton() : ImageButton("Save")
 {
     Image icon = ImageCache::getFromMemory(BinaryData::floppy5_png,
@@ -1032,6 +1067,11 @@ SaveButton::SaveButton() : ImageButton("Save")
               1.0,   // imageOpacityWhenDown
               Colours::yellow // overlayColourWhenDown
              );
+}
+
+SaveButton::~SaveButton()
+{
+
 }
 
 
@@ -1137,6 +1177,16 @@ ColorButton::ColorButton(String label_, Font font_) :
     vert = false;
     setEnabledState(true);
     showEnabledStatus = false;
+}
+
+ColorButton::~ColorButton()
+{
+
+}
+
+bool ColorButton::getEnabledState()
+{
+	return isEnabled;
 }
 
 void ColorButton::setShowEnabled(bool state)
@@ -1256,6 +1306,11 @@ ThresholdSlider::ThresholdSlider(Font f) : Slider("name"), font(f)
 	setRange(-400, 400.0f, 10.0f);
 	setValue(-20.0f);
 	setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
+
+}
+
+ThresholdSlider::~ThresholdSlider()
+{
 
 }
 

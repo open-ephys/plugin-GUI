@@ -409,6 +409,11 @@ AxesComponent::AxesComponent(bool horizontal, bool flip) : flipDirection(flip), 
 	setRange(minv,maxv,5,false,false);
 }
 
+AxesComponent::~AxesComponent()
+{
+
+}
+
 void AxesComponent::setFlip(bool state)
 {
 	flipDirection = state;
@@ -1102,6 +1107,11 @@ DrawComponent::DrawComponent(MatlabLikePlot *mlp_) : mlp(mlp_)
 
 	font = Font("Default", 12, Font::plain);
 	setMode(ZOOM); // default mode
+}
+
+DrawComponent::~DrawComponent()
+{
+
 }
 
 void DrawComponent::setMode(DrawComponentMode m)
