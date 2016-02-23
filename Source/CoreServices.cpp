@@ -119,6 +119,16 @@ File getRecordingPath()
     return getProcessorGraph()->getRecordNode()->getDataDirectory();
 }
 
+int getRecordingNumber()
+{
+	return getProcessorGraph()->getRecordNode()->getRecordingNumber();
+}
+
+int getExperimentNumber()
+{
+	return getProcessorGraph()->getRecordNode()->getExperimentNumber();
+}
+
 void writeSpike(SpikeObject& spike, int electrodeIndex)
 {
     getProcessorGraph()->getRecordNode()->writeSpike(spike, electrodeIndex);
