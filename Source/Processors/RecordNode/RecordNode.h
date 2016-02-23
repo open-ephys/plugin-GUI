@@ -74,6 +74,11 @@ public:
     */
     void setParameter(int parameterIndex, float newValue);
 
+	/** returns current experiment number */
+	int getExperimentNumber();
+	/** returns current recording number */
+	int getRecordingNumber();
+
     /** Called by the processor graph for each processor that could record data
     */
     void registerProcessor(GenericProcessor* sourceNode);
@@ -185,7 +190,7 @@ private:
     int64 timestamp;
 
     /** Integer to keep track of number of recording sessions in the same file */
-    uint16 recordingNumber;
+    int recordingNumber;
 
     /** Used to generate timestamps if none are given.
     */
@@ -211,7 +216,6 @@ private:
 
     /** Generates a default directory name, based on the current date and time */
     String generateDirectoryName();
-
 
     /** Cycle through the event buffer, looking for data to save */
     void handleEvent(int eventType, MidiMessage& event, int samplePos);

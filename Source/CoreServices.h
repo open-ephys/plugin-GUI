@@ -83,8 +83,10 @@ namespace RecordNode
 /** Forces creation of new directory on recording */
 PLUGIN_API void createNewrecordingDir();
 
-/** Gets the current recording directory */
+/** Gets the current recording directories and status information */
 PLUGIN_API File getRecordingPath();
+PLUGIN_API int getRecordingNumber();
+PLUGIN_API int getExperimentNumber();
 
 /* Spike related methods. See record engine documentation */
 

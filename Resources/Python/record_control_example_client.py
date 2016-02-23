@@ -37,32 +37,43 @@ def run_client():
             socket.RCVTIMEO = int(timeout * 1000)  # timeout in milliseconds
             socket.connect(url)
 
-            # Finally, start data acquisition
+            # Start data acquisition
             socket.send('StartAcquisition')
-            answer = socket.recv()
-            print answer
+            print socket.recv()
             time.sleep(5)
+
+            socket.send('IsAcquiring')
+            print "IsAcquiring:", socket.recv()
+            print ""
 
             for start_cmd in commands:
 
                 for cmd in [start_cmd, stop_cmd]:
                     socket.send(cmd)
-                    answer = socket.recv()
-                    print answer
+                    print socket.recv()
 
                     if 'StartRecord' in cmd:
                         # Record data for 5 seconds
+                        socket.send('IsRecording')
+                        print "IsRecording:", socket.recv()
+
+                        socket.send('GetRecordingPath')
+                        print "Recording path:", socket.recv()
+
                         time.sleep(5)
                     else:
                         # Stop for 1 second
+                        socket.send('IsRecording')
+                        print "IsRecording:", socket.recv()
                         time.sleep(1)
 
-            # Finally, stop data acquisition; it might be a good idea to 
+                print ""
+
+            # Finally, stop data acquisition; it might be a good idea to
             # wait a little bit until all data have been written to hard drive
             time.sleep(0.5)
             socket.send('StopAcquisition')
-            answer = socket.recv()
-            print answer
+            print socket.recv()
 
 
 if __name__ == '__main__':

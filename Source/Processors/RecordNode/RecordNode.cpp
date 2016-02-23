@@ -50,7 +50,7 @@ RecordNode::RecordNode()
     settings.numOutputs = 0;
 
     eventChannel = new Channel(this, 0, EVENT_CHANNEL);
-    recordingNumber = 0;
+    recordingNumber = -1;
 
     spikeElectrodeIndex = 0;
 
@@ -278,6 +278,15 @@ String RecordNode::generateDateString()
 
 }
 
+int RecordNode::getExperimentNumber()
+{
+	return experimentNumber;
+}
+
+int RecordNode::getRecordingNumber()
+{
+	return recordingNumber;
+}
 
 void RecordNode::setParameter(int parameterIndex, float newValue)
 {
