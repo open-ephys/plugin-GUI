@@ -25,7 +25,6 @@
 #ifndef __RHD2000THREAD_H_2C4CBD67__
 #define __RHD2000THREAD_H_2C4CBD67__
 
-
 #include "../../../../JuceLibraryCode/JuceHeader.h"
 
 #include <stdio.h>
@@ -130,6 +129,7 @@ public:
 
 	void runImpedanceTest(ImpedanceData* data);
 	void enableBoardLeds(bool enable);
+	int setClockDivider(int divide_ratio);
 	GenericEditor* createEditor(SourceNode* sn);
 
 	static DataThread* createDataThread(SourceNode* sn);
@@ -210,6 +210,9 @@ private:
     bool newScan;
 	ScopedPointer<RHDImpedanceMeasure> impedanceThread;
 	bool ledsEnabled;
+
+    // Sync ouput divide factor
+    uint16 clockDivideFactor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);
 };

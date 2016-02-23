@@ -1720,6 +1720,7 @@ bool RHD2000Thread::updateBuffer()
         evalBoard->setDacHighpassFilter(desiredDAChpf);
         evalBoard->enableDacHighpassFilter(desiredDAChpfState);
 		evalBoard->enableBoardLeds(ledsEnabled);
+        evalBoard->setClockDivider(clockDivideFactor);
 
         dacOutputShouldChange = false;
     }
@@ -1829,6 +1830,31 @@ void RHD2000Thread::enableBoardLeds(bool enable)
 		dacOutputShouldChange = true;
 	else
 		evalBoard->enableBoardLeds(enable);
+}
+
+int RHD2000Thread::setClockDivider(int divide_ratio)
+{
+    
+    // Divide ratio should be 1 or an even number
+    if (divide_ratio != 1 && divide_ratio % 2) 
+        divide_ratio--;
+
+    // Format the divide ratio from its true value to the 
+    // format required by the firmware
+    // Ratio    N
+    // 1        0
+    // >=2      Ratio/2
+    if (divide_ratio == 1)
+        clockDivideFactor = 0;
+    else
+        clockDivideFactor = static_cast<uint16>(divide_ratio/2);
+
+	if (isAcquisitionActive())
+        dacOutputShouldChange = true;
+    else 
+        evalBoard->setClockDivider(clockDivideFactor);
+
+    return divide_ratio;
 }
 
 void RHD2000Thread::runImpedanceTest(ImpedanceData* data)

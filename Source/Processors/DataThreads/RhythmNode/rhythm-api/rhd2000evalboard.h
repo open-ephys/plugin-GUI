@@ -166,6 +166,7 @@ public:
 	void resetFpga();
 	bool isStreamEnabled(int streamIndex);
 	void enableBoardLeds(bool enable);
+	void setClockDivider(int divide_factor);
 	bool isUSB3();
 	void printFIFOmetrics();
 	bool readRawDataBlock(unsigned char** bufferPtr, int nSamples = -1);

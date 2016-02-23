@@ -35,6 +35,7 @@ class SampleRateInterface;
 class BandwidthInterface;
 class DSPInterface;
 class AudioInterface;
+class ClockDivideInterface;
 class RHD2000Thread;
 
 class UtilityButton;
@@ -199,6 +200,7 @@ private:
     ScopedPointer<DSPInterface> dspInterface;
 
     ScopedPointer<AudioInterface> audioInterface;
+    ScopedPointer<ClockDivideInterface> clockInterface;
 
     ScopedPointer<UtilityButton> rescanButton,dacTTLButton;
     ScopedPointer<UtilityButton> adcButton;
@@ -371,5 +373,28 @@ private:
 
 };
 
+class ClockDivideInterface : public Component,
+    public Label::Listener
+{
+public:
+    ClockDivideInterface(RHD2000Thread*, RHD2000Editor*);
 
+    void paint(Graphics& g);
+    void labelTextChanged(Label* te);
+
+    void setClockDivideRatio(int value);
+    int getClockDivideRatio() const { return actualDivideRatio; };
+
+private:
+
+    String name {"Clock Divider"};
+    String lastDivideRatioString {"1"};
+
+    RHD2000Thread * board;
+    RHD2000Editor * editor;
+
+    ScopedPointer<Label> divideRatioSelection;
+    int actualDivideRatio {1};
+
+};
 #endif  // __RHD2000EDITOR_H_2AD3C591__

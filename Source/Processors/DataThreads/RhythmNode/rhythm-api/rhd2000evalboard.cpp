@@ -1667,6 +1667,17 @@ void Rhd2000EvalBoard::enableBoardLeds(bool enable)
 	dev->ActivateTriggerIn(TrigInOpenEphys, 0);
 }
 
+// Ratio    divide_factor
+// 1        0
+// >=2      Ratio/2
+void Rhd2000EvalBoard::setClockDivider(int divide_factor)
+{
+
+	dev->SetWireInValue(WireInMultiUse, divide_factor);
+	dev->UpdateWireIns();
+	dev->ActivateTriggerIn(TrigInOpenEphys, 1);
+}
+
 bool Rhd2000EvalBoard::isUSB3()
 {
 	return usb3;
