@@ -1636,7 +1636,8 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
     }
     if (resetSingle && singleChan != -1)
     {
-        setSize(getWidth(),numChans*getChannelHeight());
+        std::cout << "width " <<  getWidth() << " numchans  " << numChans << " height " << getChannelHeight() << std::endl;
+        setSize(getWidth(),numChans*ch);
         viewport->setScrollBarsShown(true,false);
         viewport->setViewPosition(Point<int>(0,singleChan*r));
         singleChan = -1;
