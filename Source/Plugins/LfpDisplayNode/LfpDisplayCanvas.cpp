@@ -732,7 +732,9 @@ void sliderValueChanged (Slider* slider)
 
 int LfpDisplayCanvas::getChannelHeight()
 {
-    return spreads[spreadSelection->getSelectedId()-1].getIntValue();
+    //return spreads[spreadSelection->getSelectedId()-1].getIntValue();
+    return (int)spreadSelection->getText().getIntValue();
+    
 }
 
 
@@ -1637,7 +1639,7 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
     if (resetSingle && singleChan != -1)
     {
         std::cout << "width " <<  getWidth() << " numchans  " << numChans << " height " << getChannelHeight() << std::endl;
-        setSize(getWidth(),numChans*ch);
+        setSize(getWidth(),numChans*getChannelHeight());
         viewport->setScrollBarsShown(true,false);
         viewport->setViewPosition(Point<int>(0,singleChan*r));
         singleChan = -1;
