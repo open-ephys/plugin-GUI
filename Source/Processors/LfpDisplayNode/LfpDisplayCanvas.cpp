@@ -576,7 +576,8 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 
 int LfpDisplayCanvas::getChannelHeight()
 {
-    return spreads[spreadSelection->getSelectedId()-1].getIntValue();
+    //return spreads[spreadSelection->getSelectedId()-1].getIntValue(); // is not set correctly after the mouse wheel was used to change hieghts
+    return (int)spreadSelection->getText().getIntValue(); // instead, get value from textbox directly
 }
 
 
