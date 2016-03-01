@@ -1948,9 +1948,18 @@ void LfpChannelDisplay::pxPaint()
         Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, 0,0, display->lfpChannelBitmap.getWidth(), display->lfpChannelBitmap.getHeight());
 
         int center = getHeight()/2;
-        int jfrom_wholechannel= (int) (getY()+center-channelHeight/2)+1;
-        int jto_wholechannel= (int) getY()+center+channelHeight/2;
+        
+        // max and min of channel in absolute px coords for event displays etc - actual data might be drawn outside of this range
+        int jfrom_wholechannel= (int) (getY()+center-channelHeight/2)+1 +0 ;
+        int jto_wholechannel= (int) (getY()+center+channelHeight/2) -0;
     
+        
+        // max and min of channel, this is the range where actual data is drawn
+        int jfrom_wholechannel_clip= (int) (getY()+center-(channelHeight)*canvas->channelOverlapFactor)+1  ;
+        int jto_wholechannel_clip  = (int) (getY()+center+(channelHeight)*canvas->channelOverlapFactor) -0;
+    
+        
+
         if (jfrom_wholechannel<0) {jfrom_wholechannel=0;};
         if (jto_wholechannel >= display->lfpChannelBitmap.getHeight()) {jto_wholechannel=display->lfpChannelBitmap.getHeight()-1;};
     
@@ -2170,13 +2179,13 @@ void LfpChannelDisplay::pxPaint()
             }
             
             // now draw warnings, if needed
-            if (canvas->drawClipWarning) // draw warnings if display cuts off data
+            if (canvas->drawClipWarning) // draw simple warning if display cuts off data
             {
                 
                 if(clipWarningHi) {
                     for (int j=0; j<=1; j++)
                     {
-                        int clipmarker = -3+j+ getY()-(getHeight()/channelHeightFloat)+getHeight() + channelHeightFloat/2 ;
+                        int clipmarker = jto_wholechannel_clip;
                     
                         if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
                                                   bdLfpChannelBitmap.setPixelColour(i,clipmarker,Colour(255,255,255));
@@ -2187,7 +2196,7 @@ void LfpChannelDisplay::pxPaint()
                 if(clipWarningLo) {
                         for (int j=0; j<=1; j++)
                         {
-                           int clipmarker = 2+j+ getY()  +(getHeight()/channelHeightFloat) -channelHeightFloat/2 ;
+                           int clipmarker = jfrom_wholechannel_clip;
                             
                             if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
                                 bdLfpChannelBitmap.setPixelColour(i,clipmarker,Colour(255,255,255));
