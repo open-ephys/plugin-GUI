@@ -2183,23 +2183,23 @@ void LfpChannelDisplay::pxPaint()
             {
                 
                 if(clipWarningHi) {
-                    for (int j=0; j<=1; j++)
+                    for (int j=0; j<=3; j++)
                     {
                         int clipmarker = jto_wholechannel_clip;
                     
                         if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
-                                                  bdLfpChannelBitmap.setPixelColour(i,clipmarker,Colour(255,255,255));
+                                                  bdLfpChannelBitmap.setPixelColour(i,clipmarker-j,Colour(255,255,255));
                         }
                     }
                 }
                  
                 if(clipWarningLo) {
-                        for (int j=0; j<=1; j++)
+                        for (int j=0; j<=3; j++)
                         {
                            int clipmarker = jfrom_wholechannel_clip;
                             
                             if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
-                                bdLfpChannelBitmap.setPixelColour(i,clipmarker,Colour(255,255,255));
+                                bdLfpChannelBitmap.setPixelColour(i,clipmarker+j,Colour(255,255,255));
                             }
                         }
                 }
