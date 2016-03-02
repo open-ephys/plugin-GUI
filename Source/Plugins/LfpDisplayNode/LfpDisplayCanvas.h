@@ -77,6 +77,9 @@ public:
     
     float channelOverlapFactor;
 
+    float histogramParameterA;
+    float histogramParameterB;
+
     int getNumChannels();
     bool getInputInvertedState();
     bool getDrawMethodState();
@@ -98,11 +101,11 @@ public:
     void buttonClicked(Button* button);
     
     /** Handles slider events for all editors. */
-    void sliderValueChanged(Slider* slider);
+    void sliderValueChanged(Slider* sl);
     
     /** Called by sliderValueChanged(). Deals with clicks on custom sliders. Subclasses
      of GenericEditor should modify this method only.*/
-    void sliderEvent(Slider* slider);
+    void sliderEvent(Slider* sl);
     
     void saveVisualizerParameters(XmlElement* xml);
     void loadVisualizerParameters(XmlElement* xml);
