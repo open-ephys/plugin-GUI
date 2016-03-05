@@ -70,6 +70,9 @@ public:
     String getFile() const;
     bool setFile (String fullpath);
 
+    bool isFileSupported          (const String& filename) const;
+    bool isFileExtensionSupported (const String& ext) const;
+
 
 private:
     void setActiveRecording (int index);

@@ -124,17 +124,35 @@ void FileReader::enabledState (bool t)
 }
 
 
+bool FileReader::isFileSupported (const String& fileName) const
+{
+    const File file (fileName);
+    String ext = file.getFileExtension().toLowerCase().substring (1);
+
+    return isFileExtensionSupported (ext);
+}
+
+
+bool FileReader::isFileExtensionSupported (const String& ext) const
+{
+    const int index = supportedExtensions[ext] - 1;
+    const bool isExtensionSupported = index >= 0;
+
+    return isExtensionSupported;
+}
+
+
 bool FileReader::setFile (String fullpath)
 {
     File file (fullpath);
 
     String ext = file.getFileExtension().toLowerCase().substring (1);
-
     const int index = supportedExtensions[ext] - 1;
-    const bool isSupportedFileExtension = index >= 0;
+    const bool isExtensionSupported = index >= 0;
 
-    if (isSupportedFileExtension)
+    if (isExtensionSupported)
     {
+        const int index = supportedExtensions[ext] - 1;
         Plugin::FileSourceInfo sourceInfo = AccessClass::getPluginManager()->getFileSourceInfo (index);
         input = sourceInfo.creator();
     }

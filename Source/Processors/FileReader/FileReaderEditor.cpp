@@ -33,7 +33,8 @@ static const Font FONT_LABEL ("Small Text", 10, Font::plain);
 FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
     : GenericEditor (parentNode, useDefaultParameterEditors)
     , fileReader   (static_cast<FileReader*> (parentNode))
-    , recTotalTime (0)
+    , recTotalTime              (0)
+    , m_isFileDragAndDropActive (false)
 {
     lastFilePath = File::getCurrentWorkingDirectory();
 
@@ -88,6 +89,17 @@ void FileReaderEditor::setFile (String file)
 
     CoreServices::updateSignalChain (this);
     repaint();
+}
+
+
+void FileReaderEditor::paintOverChildren (Graphics& g)
+{
+    // Draw a frame around component if files are drag&dropping now
+    if (m_isFileDragAndDropActive)
+    {
+        g.setColour (Colours::aqua);
+        g.drawRect (getLocalBounds(), 2.f);
+    }
 }
 
 
@@ -251,6 +263,45 @@ void FileReaderEditor::loadCustomParameters (XmlElement* xml)
 }
 
 
+bool FileReaderEditor::isInterestedInFileDrag (const StringArray& files)
+{
+    if (! acquisitionIsActive)
+    {
+        const bool isExtensionSupported = fileReader->isFileSupported (files[0]);
+        m_isFileDragAndDropActive = true;
+
+        return isExtensionSupported;
+    }
+
+    return false;
+}
+
+
+void FileReaderEditor::fileDragExit (const StringArray& files)
+{
+    m_isFileDragAndDropActive = false;
+
+    repaint();
+}
+
+
+void FileReaderEditor::fileDragEnter (const StringArray& files, int x, int y)
+{
+    m_isFileDragAndDropActive = true;
+
+    repaint();
+}
+
+
+void FileReaderEditor::filesDropped (const StringArray& files, int x, int y)
+{
+    setFile (files[0]);
+
+    m_isFileDragAndDropActive = false;
+    repaint();
+}
+
+
 // DualTimeComponent
 // ================================================================================
 DualTimeComponent::DualTimeComponent (FileReaderEditor* e, bool editable)
@@ -298,15 +349,14 @@ DualTimeComponent::~DualTimeComponent()
 
 void DualTimeComponent::paint (Graphics& g)
 {
-    g.setFont (FONT_LABEL);
-    g.setColour (Colours::darkgrey);
-
     String sep;
     if (isEditable)
         sep = "-";
     else
         sep = "/";
 
+    g.setFont (FONT_LABEL);
+    g.setColour (Colours::darkgrey);
     g.drawText (sep, 78, 0, 5, 20, Justification::centred, false);
 }
 
