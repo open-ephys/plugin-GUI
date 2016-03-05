@@ -40,72 +40,78 @@ class FileSource;
 
 */
 
-class FileReaderEditor : public GenericEditor,
-    public ComboBox::Listener
-
+class FileReaderEditor  : public GenericEditor
+                        , public ComboBox::Listener
 {
 public:
-    FileReaderEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    FileReaderEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
     virtual ~FileReaderEditor();
 
-    void buttonEvent(Button* button);
+    void buttonEvent (Button* button) override;
 
-    void setFile(String file);
+    void saveCustomParameters (XmlElement*) override;
+    void loadCustomParameters (XmlElement*) override;
 
-    void saveCustomParameters(XmlElement*);
+    bool setPlaybackStartTime (unsigned int ms);
+    bool setPlaybackStopTime  (unsigned int ms);
+    void setTotalTime   (unsigned int ms);
+    void setCurrentTime (unsigned int ms);
 
-    void loadCustomParameters(XmlElement*);
+    void startAcquisition() override;
+    void stopAcquisition()  override;
 
-    bool setPlaybackStartTime(unsigned int ms);
-    bool setPlaybackStopTime(unsigned int ms);
-    void setTotalTime(unsigned int ms);
-    void setCurrentTime(unsigned int ms);
+    void setFile (String file);
 
-    void comboBoxChanged(ComboBox* combo);
-    void populateRecordings(FileSource* source);
+    void comboBoxChanged (ComboBox* combo);
+    void populateRecordings (FileSource* source);
 
-    void startAcquisition();
-    void stopAcquisition();
 
 private:
+    void clearEditor();
 
-    ScopedPointer<UtilityButton> fileButton;
-    ScopedPointer<Label> fileNameLabel;
-    ScopedPointer<ComboBox> recordSelector;
-    ScopedPointer<DualTimeComponent> currentTime;
-    ScopedPointer<DualTimeComponent> timeLimits;
+
+    ScopedPointer<UtilityButton>        fileButton;
+    ScopedPointer<Label>                fileNameLabel;
+    ScopedPointer<ComboBox>             recordSelector;
+    ScopedPointer<DualTimeComponent>    currentTime;
+    ScopedPointer<DualTimeComponent>    timeLimits;
 
     FileReader* fileReader;
     unsigned int recTotalTime;
 
     File lastFilePath;
 
-    void clearEditor();
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReaderEditor);
-
 };
 
-class DualTimeComponent : public Component,
-	public Label::Listener, public AsyncUpdater
+
+class DualTimeComponent : public Component
+                        , public Label::Listener
+                        , public AsyncUpdater
 {
 public:
-    DualTimeComponent(FileReaderEditor* e, bool isEditable);
+    DualTimeComponent (FileReaderEditor* e, bool isEditable);
     ~DualTimeComponent();
-    void setTimeMilliseconds(unsigned int index, unsigned int time);
-    unsigned int getTimeMilliseconds(unsigned int index);
-    void paint(Graphics& g);
-    void labelTextChanged(Label* label);
+
+    void paint (Graphics& g) override;
+
+    void labelTextChanged (Label* label) override;
+
+    void handleAsyncUpdate() override;
+
     void setEnable(bool enable);
-	void handleAsyncUpdate();
+
+    void setTimeMilliseconds (unsigned int index, unsigned int time);
+    unsigned int getTimeMilliseconds (unsigned int index) const;
+
 
 private:
     ScopedPointer<Label> timeLabel[2];
+    String labelText[2];
     unsigned int msTime[2];
-    FileReaderEditor* editor;
-    bool editable;
-	String labelText[2];
 
+    FileReaderEditor* editor;
+    bool isEditable;
 };
 
 
