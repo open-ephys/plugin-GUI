@@ -41,16 +41,26 @@ class FileSource;
 */
 
 class FileReaderEditor  : public GenericEditor
+                        , public FileDragAndDropTarget
                         , public ComboBox::Listener
 {
 public:
     FileReaderEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
     virtual ~FileReaderEditor();
 
+    void paintOverChildren (Graphics& g) override;
+
     void buttonEvent (Button* button) override;
 
     void saveCustomParameters (XmlElement*) override;
     void loadCustomParameters (XmlElement*) override;
+
+    // FileDragAndDropTarget methods
+    // ============================================
+    bool isInterestedInFileDrag (const StringArray& files)  override;
+    void fileDragExit           (const StringArray& files)  override;
+    void filesDropped           (const StringArray& files, int x, int y)  override;
+    void fileDragEnter          (const StringArray& files, int x, int y)  override;
 
     bool setPlaybackStartTime (unsigned int ms);
     bool setPlaybackStopTime  (unsigned int ms);
@@ -78,6 +88,8 @@ private:
 
     FileReader* fileReader;
     unsigned int recTotalTime;
+
+    bool m_isFileDragAndDropActive;
 
     File lastFilePath;
 
