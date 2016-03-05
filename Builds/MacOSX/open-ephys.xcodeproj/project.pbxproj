@@ -1130,7 +1130,6 @@
 		DCA17BBB4FC31AAE9DC34DE9 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "juce_FileFilter.cpp"; path = "../../JuceLibraryCode/modules/juce_core/files/juce_FileFilter.cpp"; sourceTree = "SOURCE_ROOT"; };
 		DCF6696CA1463CD8557E1FFE = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "juce_LookAndFeel_V1.cpp"; path = "../../JuceLibraryCode/modules/juce_gui_basics/lookandfeel/juce_LookAndFeel_V1.cpp"; sourceTree = "SOURCE_ROOT"; };
 		DD5695DE97CEF7BE76869232 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "juce_FileOutputStream.cpp"; path = "../../JuceLibraryCode/modules/juce_core/files/juce_FileOutputStream.cpp"; sourceTree = "SOURCE_ROOT"; };
-		DDD708C7DBA729D2550B40BF = {isa = PBXFileReference; lastKnownFileType = "file.h~"; name = "juce_StandardHeader.h~"; path = "../../JuceLibraryCode/modules/juce_core/system/juce_StandardHeader.h~"; sourceTree = "SOURCE_ROOT"; };
 		DDE157BB06373ECDBB23469C = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "juce_StretchableLayoutManager.h"; path = "../../JuceLibraryCode/modules/juce_gui_basics/layout/juce_StretchableLayoutManager.h"; sourceTree = "SOURCE_ROOT"; };
 		DDE89F0D5E01F079323CC89C = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "juce_AudioProcessorPlayer.h"; path = "../../JuceLibraryCode/modules/juce_audio_utils/players/juce_AudioProcessorPlayer.h"; sourceTree = "SOURCE_ROOT"; };
 		DE4861552DB1976665B25DFD = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "juce_HighResolutionTimer.cpp"; path = "../../JuceLibraryCode/modules/juce_core/threads/juce_HighResolutionTimer.cpp"; sourceTree = "SOURCE_ROOT"; };
@@ -1937,7 +1936,6 @@
 		9D740F320C13F9B82EB64461 = {isa = PBXGroup; children = (
 					7F17077973FFDD70C4B78E7E,
 					A5E8E0CF6DA1AEAEE9D872DE,
-					DDD708C7DBA729D2550B40BF,
 					9978BC2A359BC506F69E545F,
 					DB4F34DA0F04B40EB6A50FB1,
 					C446923C1950EB5BE5E67F15, ); name = system; sourceTree = "<group>"; };
@@ -2684,8 +2682,8 @@
 					"_DEBUG=1",
 					"DEBUG=1",
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
-					"JUCE_APP_VERSION=0.3.6",
-					"JUCE_APP_VERSION_HEX=0x306", );
+					"JUCE_APP_VERSION=0.4.0",
+					"JUCE_APP_VERSION_HEX=0x400", );
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = ("../../JuceLibraryCode", "../../JuceLibraryCode/modules", "/opt/local/include", "/usr/local/include", "$(inherited)");
 				INFOPLIST_FILE = Info.plist;
@@ -2707,8 +2705,8 @@
 					"_NDEBUG=1",
 					"NDEBUG=1",
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
-					"JUCE_APP_VERSION=0.3.6",
-					"JUCE_APP_VERSION_HEX=0x306", );
+					"JUCE_APP_VERSION=0.4.0",
+					"JUCE_APP_VERSION_HEX=0x400", );
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = ("../../JuceLibraryCode", "../../JuceLibraryCode/modules", "/opt/local/include", "/usr/local/include", "$(inherited)");
