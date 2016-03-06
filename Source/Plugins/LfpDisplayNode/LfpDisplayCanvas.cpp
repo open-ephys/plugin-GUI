@@ -253,11 +253,13 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     // two sliders for the two histogram components of the supersampled plotting mode
     histogramSlider = new Slider;
     histogramSlider->setRange (0, 1);
+    histogramSlider->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
     histogramSlider->addListener(this);
     addAndMakeVisible (histogramSlider);
     
     supersampleSlider = new Slider;
     supersampleSlider->setRange (0, 1);
+    supersampleSlider->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
     supersampleSlider->addListener(this);
     addAndMakeVisible (supersampleSlider);
     
@@ -384,8 +386,8 @@ void LfpDisplayCanvas::resized()
         eventDisplayInterfaces[i]->repaint();
     }
     
-    histogramSlider->setBounds(1000,getHeight()-50,200,22);
-    supersampleSlider->setBounds(1000,getHeight()-25,200,22);
+    histogramSlider->setBounds(1000,getHeight()-50,100,22);
+    supersampleSlider->setBounds(1000,getHeight()-25,100,22);
     
     int bh = 25/typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
@@ -728,6 +730,10 @@ void LfpDisplayCanvas::sliderValueChanged(Slider* sl)
 
     if (sl == supersampleSlider)
     histogramParameterB = sl->getValue();
+    
+    fullredraw=true;
+    repaint();
+    refresh();
 
 }
 
