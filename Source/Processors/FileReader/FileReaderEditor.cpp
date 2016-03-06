@@ -27,84 +27,96 @@
 
 #include <stdio.h>
 
-FileReaderEditor::FileReaderEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : GenericEditor(parentNode, useDefaultParameterEditors)
+static const Font FONT_LABEL ("Small Text", 10, Font::plain);
 
+
+FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
+    : GenericEditor (parentNode, useDefaultParameterEditors)
+    , fileReader   (static_cast<FileReader*> (parentNode))
+    , recTotalTime              (0)
+    , m_isFileDragAndDropActive (false)
 {
-
-    fileReader = (FileReader*) parentNode;
-
     lastFilePath = File::getCurrentWorkingDirectory();
 
-    fileButton = new UtilityButton("F:",Font("Small Text", 13, Font::plain));
-    fileButton->addListener(this);
-    fileButton->setBounds(5,27,20,20);
-    addAndMakeVisible(fileButton);
+    fileButton = new UtilityButton ("F:", Font ("Small Text", 13, Font::plain));
+    fileButton->addListener (this);
+    fileButton->setBounds (5, 27, 20, 20);
+    addAndMakeVisible (fileButton);
 
-    fileNameLabel = new Label("FileNameLabel", "No file selected.");
-    fileNameLabel->setBounds(30,25,140,20);
-    addAndMakeVisible(fileNameLabel);
+    fileNameLabel = new Label ("FileNameLabel", "No file selected.");
+    fileNameLabel->setBounds (30, 25, 140, 20);
+    addAndMakeVisible (fileNameLabel);
 
-    recordSelector = new ComboBox("Recordings");
-    recordSelector->setBounds(30,50,120,20);
-    recordSelector->addListener(this);
-    addAndMakeVisible(recordSelector);
+    recordSelector = new ComboBox ("Recordings");
+    recordSelector->setBounds (30, 50, 120, 20);
+    recordSelector->addListener (this);
+    addAndMakeVisible (recordSelector);
 
-    currentTime = new DualTimeComponent(this, false);
-    currentTime->setBounds(5,80,175,20);
-    addAndMakeVisible(currentTime);
+    currentTime = new DualTimeComponent (this, false);
+    currentTime->setBounds (5, 80, 175, 20);
+    addAndMakeVisible (currentTime);
 
-    timeLimits = new DualTimeComponent(this,true);
-    timeLimits->setBounds(5,105,175,20);
-    addAndMakeVisible(timeLimits);
+    timeLimits = new DualTimeComponent (this,true);
+    timeLimits->setBounds (5, 105, 175, 20);
+    addAndMakeVisible (timeLimits);
 
     desiredWidth = 180;
 
-    setEnabledState(false);
-
+    setEnabledState (false);
 }
+
 
 FileReaderEditor::~FileReaderEditor()
 {
-
 }
 
-void FileReaderEditor::setFile(String file)
+
+void FileReaderEditor::setFile (String file)
 {
-
-    File fileToRead(file);
+    File fileToRead (file);
     lastFilePath = fileToRead.getParentDirectory();
-    if (fileReader->setFile(fileToRead.getFullPathName()))
-    {
-        fileNameLabel->setText(fileToRead.getFileName(), dontSendNotification);
 
-        setEnabledState(true);
+    if (fileReader->setFile (fileToRead.getFullPathName()))
+    {
+        fileNameLabel->setText (fileToRead.getFileName(), dontSendNotification);
+
+        setEnabledState (true);
     }
     else
     {
         clearEditor();
     }
-	CoreServices::updateSignalChain(this);
+
+    CoreServices::updateSignalChain (this);
     repaint();
 }
 
-void FileReaderEditor::buttonEvent(Button* button)
+
+void FileReaderEditor::paintOverChildren (Graphics& g)
 {
-
-    if (!acquisitionIsActive)
+    // Draw a frame around component if files are drag&dropping now
+    if (m_isFileDragAndDropActive)
     {
+        g.setColour (Colours::aqua);
+        g.drawRect (getLocalBounds(), 2.f);
+    }
+}
 
+
+void FileReaderEditor::buttonEvent (Button* button)
+{
+    if (! acquisitionIsActive)
+    {
         if (button == fileButton)
         {
-            //std::cout << "Button clicked." << std::endl;
-            FileChooser chooseFileReaderFile("Please select the file you want to load...",
-                                             lastFilePath,
-                                             "*");
+            FileChooser chooseFileReaderFile ("Please select the file you want to load...",
+                                              lastFilePath,
+                                              "*");
 
             if (chooseFileReaderFile.browseForFileToOpen())
             {
                 // Use the selected file
-                setFile(chooseFileReaderFile.getResult().getFullPathName());
+                setFile (chooseFileReaderFile.getResult().getFullPathName());
 
                 // lastFilePath = fileToRead.getParentDirectory();
 
@@ -113,241 +125,320 @@ void FileReaderEditor::buttonEvent(Button* button)
                 // fileNameLabel->setText(fileToRead.getFileName(),false);
             }
         }
-
     }
 }
 
-bool FileReaderEditor::setPlaybackStartTime(unsigned int ms)
+
+bool FileReaderEditor::setPlaybackStartTime (unsigned int ms)
 {
-    if (ms > timeLimits->getTimeMilliseconds(1))
+    if (ms > timeLimits->getTimeMilliseconds (1))
         return false;
-    fileReader->setParameter(1,ms);
+
+    fileReader->setParameter (1, ms);
     return true;
 }
 
-bool FileReaderEditor::setPlaybackStopTime(unsigned int ms)
+
+bool FileReaderEditor::setPlaybackStopTime (unsigned int ms)
 {
-    if ((ms > recTotalTime) || (ms < timeLimits->getTimeMilliseconds(0)))
+    if ( (ms > recTotalTime) 
+         || (ms < timeLimits->getTimeMilliseconds (0)))
         return false;
-    fileReader->setParameter(2,ms);
+
+    fileReader->setParameter (2, ms);
     return true;
 }
 
-void FileReaderEditor::setTotalTime(unsigned int ms)
+
+void FileReaderEditor::setTotalTime (unsigned int ms)
 {
-    timeLimits->setTimeMilliseconds(0,0);
-    timeLimits->setTimeMilliseconds(1,ms);
-    currentTime->setTimeMilliseconds(0,0);
-    currentTime->setTimeMilliseconds(1,ms);
+    timeLimits->setTimeMilliseconds     (0, 0);
+    timeLimits->setTimeMilliseconds     (1, ms);
+    currentTime->setTimeMilliseconds    (0, 0);
+    currentTime->setTimeMilliseconds    (1, ms);
+
     recTotalTime = ms;
 }
 
-void FileReaderEditor::setCurrentTime(unsigned int ms)
+
+void FileReaderEditor::setCurrentTime (unsigned int ms)
 {
-    currentTime->setTimeMilliseconds(0,ms);
+    currentTime->setTimeMilliseconds (0, ms);
 }
 
-void FileReaderEditor::comboBoxChanged(ComboBox* combo)
+
+void FileReaderEditor::comboBoxChanged (ComboBox* combo)
 {
-    fileReader->setParameter(0,combo->getSelectedId()-1);
-	CoreServices::updateSignalChain(this);
+    fileReader->setParameter (0, combo->getSelectedId() - 1);
+    CoreServices::updateSignalChain (this);
 }
 
-void FileReaderEditor::populateRecordings(FileSource* source)
+
+void FileReaderEditor::populateRecordings (FileSource* source)
 {
-    
-    recordSelector->clear(dontSendNotification);
-    for (int i=0; i < source->getNumRecords(); i++)
+    recordSelector->clear (dontSendNotification);
+
+    const int numRecords = source->getNumRecords();
+    for (int i = 0; i < numRecords; ++i)
     {
         //sendActionMessage("Got file " + source->getRecordName(i));
-        recordSelector->addItem(source->getRecordName(i),i+1);
+        recordSelector->addItem (source->getRecordName (i), i + 1);
     }
-    recordSelector->setSelectedId(1,dontSendNotification);
+
+    recordSelector->setSelectedId (1, dontSendNotification);
 }
+
 
 void FileReaderEditor::clearEditor()
 {
-    fileNameLabel->setText("No file selected.",dontSendNotification);
-    recordSelector->clear(dontSendNotification);
-    timeLimits->setTimeMilliseconds(0,0);
-    timeLimits->setTimeMilliseconds(1,0);
-    currentTime->setTimeMilliseconds(0,0);
-    currentTime->setTimeMilliseconds(1,0);
-    setEnabledState(false);
+    fileNameLabel->setText ("No file selected.", dontSendNotification);
+    recordSelector->clear (dontSendNotification);
+
+    timeLimits->setTimeMilliseconds     (0, 0);
+    timeLimits->setTimeMilliseconds     (1, 0);
+    currentTime->setTimeMilliseconds    (0, 0);
+    currentTime->setTimeMilliseconds    (1, 0);
+
+    setEnabledState (false);
 }
+
 
 void FileReaderEditor::startAcquisition()
 {
-    recordSelector->setEnabled(false);
-    timeLimits->setEnable(false);
+    recordSelector->setEnabled (false);
+    timeLimits->setEnable (false);
+
     GenericEditor::startAcquisition();
 }
 
+
 void FileReaderEditor::stopAcquisition()
 {
-    recordSelector->setEnabled(true);
-    timeLimits->setEnable(true);
+    recordSelector->setEnabled (true);
+    timeLimits->setEnable (true);
+
     GenericEditor::stopAcquisition();
 }
 
-void FileReaderEditor::saveCustomParameters(XmlElement* xml)
-{
-    xml->setAttribute("Type","FileReader");
-    XmlElement* childNode = xml->createNewChildElement("FILENAME");
-    childNode->setAttribute("path", fileReader->getFile());
-    childNode->setAttribute("recording", recordSelector->getSelectedId());
-    childNode = xml->createNewChildElement("TIME_LIMITS");
-    childNode->setAttribute("start_time",(double)timeLimits->getTimeMilliseconds(0));
-    childNode->setAttribute("stop_time",(double)timeLimits->getTimeMilliseconds(1));
 
+void FileReaderEditor::saveCustomParameters (XmlElement* xml)
+{
+    xml->setAttribute ("Type", "FileReader");
+
+    XmlElement* childNode = xml->createNewChildElement ("FILENAME");
+    childNode->setAttribute ("path", fileReader->getFile());
+    childNode->setAttribute ("recording", recordSelector->getSelectedId());
+
+    childNode = xml->createNewChildElement ("TIME_LIMITS");
+    childNode->setAttribute ("start_time",  (double)timeLimits->getTimeMilliseconds (0));
+    childNode->setAttribute ("stop_time",   (double)timeLimits->getTimeMilliseconds (1));
 }
 
-void FileReaderEditor::loadCustomParameters(XmlElement* xml)
+
+void FileReaderEditor::loadCustomParameters (XmlElement* xml)
 {
-    forEachXmlChildElement(*xml, element)
+    forEachXmlChildElement (*xml, element)
     {
-        if (element->hasTagName("FILENAME"))
+        if (element->hasTagName ("FILENAME"))
         {
-            String filepath = element->getStringAttribute("path");
-            setFile(filepath);
-            int recording = element->getIntAttribute("recording");
-            recordSelector->setSelectedId(recording,sendNotificationSync);
+            String filepath = element->getStringAttribute ("path");
+            setFile (filepath);
+
+            int recording = element->getIntAttribute ("recording");
+            recordSelector->setSelectedId (recording,sendNotificationSync);
         }
-        else if (element->hasTagName("TIME_LIMITS"))
+        else if (element->hasTagName ("TIME_LIMITS"))
         {
-            unsigned int time;
-            time = (unsigned int)element->getDoubleAttribute("start_time");
-            setPlaybackStartTime(time);
-            timeLimits->setTimeMilliseconds(0,time);
-            time = (unsigned int)element->getDoubleAttribute("stop_time");
-            setPlaybackStopTime(time);
-            timeLimits->setTimeMilliseconds(1,time);
+            unsigned int time = 0;
+
+            time = (unsigned int)element->getDoubleAttribute ("start_time");
+            setPlaybackStartTime (time);
+            timeLimits->setTimeMilliseconds (0, time);
+
+            time = (unsigned int)element->getDoubleAttribute ("stop_time");
+            setPlaybackStopTime (time);
+            timeLimits->setTimeMilliseconds (1, time);
         }
     }
-
 }
 
-DualTimeComponent::DualTimeComponent(FileReaderEditor* e, bool isEditable)
-    : editor(e), editable(isEditable)
+
+bool FileReaderEditor::isInterestedInFileDrag (const StringArray& files)
+{
+    if (! acquisitionIsActive)
+    {
+        const bool isExtensionSupported = fileReader->isFileSupported (files[0]);
+        m_isFileDragAndDropActive = true;
+
+        return isExtensionSupported;
+    }
+
+    return false;
+}
+
+
+void FileReaderEditor::fileDragExit (const StringArray& files)
+{
+    m_isFileDragAndDropActive = false;
+
+    repaint();
+}
+
+
+void FileReaderEditor::fileDragEnter (const StringArray& files, int x, int y)
+{
+    m_isFileDragAndDropActive = true;
+
+    repaint();
+}
+
+
+void FileReaderEditor::filesDropped (const StringArray& files, int x, int y)
+{
+    setFile (files[0]);
+
+    m_isFileDragAndDropActive = false;
+    repaint();
+}
+
+
+// DualTimeComponent
+// ================================================================================
+DualTimeComponent::DualTimeComponent (FileReaderEditor* e, bool editable)
+    : editor      (e)
+    , isEditable  (editable)
 {
     Label* l;
-    l = new Label("Time1");
-    l->setBounds(0,0,75,20);
-    l->setEditable(editable);
-    l->setFont(Font("Small Text",10,Font::plain));
-    if (editable)
+    l = new Label ("Time1");
+    l->setBounds (0, 0, 75, 20);
+    l->setEditable (isEditable);
+    l->setFont (FONT_LABEL);
+    if (isEditable)
     {
-        l->addListener(this);
-        l->setColour(Label::ColourIds::backgroundColourId,Colours::lightgrey);
-        l->setColour(Label::ColourIds::outlineColourId,Colours::black);
+        l->addListener (this);
+        l->setColour (Label::backgroundColourId, Colours::lightgrey);
+        l->setColour (Label::outlineColourId,    Colours::black);
     }
-    addAndMakeVisible(l);
+
+    addAndMakeVisible (l);
     timeLabel[0] = l;
 
-    l = new Label("Time2");
-    l->setBounds(85,0,75,20);
-    l->setEditable(editable);
-    l->setFont(Font("Small Text",10,Font::plain));
-    if (editable)
+    l = new Label ("Time2");
+    l->setBounds (85, 0, 75, 20);
+    l->setEditable (isEditable);
+    l->setFont (FONT_LABEL);
+    if (isEditable)
     {
-        l->addListener(this);
-        l->setColour(Label::ColourIds::backgroundColourId,Colours::lightgrey);
-        l->setColour(Label::ColourIds::outlineColourId,Colours::black);
+        l->addListener (this);
+        l->setColour (Label::backgroundColourId,    Colours::lightgrey);
+        l->setColour (Label::outlineColourId,       Colours::black);
     }
+
     addAndMakeVisible(l);
     timeLabel[1] = l;
 
-    setTimeMilliseconds(0,0);
-    setTimeMilliseconds(1,0);
+    setTimeMilliseconds (0, 0);
+    setTimeMilliseconds (1, 0);
 }
+
 
 DualTimeComponent::~DualTimeComponent()
 {
 }
 
-void DualTimeComponent::paint(Graphics& g)
+
+void DualTimeComponent::paint (Graphics& g)
 {
     String sep;
-    g.setFont(Font("Small Text",10,Font::plain));
-    g.setColour(Colours::darkgrey);
-    if (editable)
-    {
+    if (isEditable)
         sep = "-";
-    }
     else
-    {
         sep = "/";
-    }
-    g.drawText(sep,78,0,5,20,Justification::centred,false);
+
+    g.setFont (FONT_LABEL);
+    g.setColour (Colours::darkgrey);
+    g.drawText (sep, 78, 0, 5, 20, Justification::centred, false);
 }
 
-void DualTimeComponent::setTimeMilliseconds(unsigned int index, unsigned int time)
+
+void DualTimeComponent::setTimeMilliseconds (unsigned int index, unsigned int time)
 {
-    int msFrac,secFrac,minFrac,hourFrac;
-    if (index > 1) return;
+    if (index > 1)
+        return;
 
-    msTime[index]=time;
+    msTime[index] = time;
 
-    msFrac = time%1000;
+    int msFrac      = 0;
+    int secFrac     = 0;
+    int minFrac     = 0;
+    int hourFrac    = 0;
+
+    msFrac = time % 1000;
     time /= 1000;
-    secFrac = time%60;
+    secFrac = time % 60;
     time /= 60;
-    minFrac = time%60;
+    minFrac = time % 60;
     time /= 60;
     hourFrac = time;
 
-    labelText[index] = String(hourFrac).paddedLeft('0',2) + ":" + String(minFrac).paddedLeft('0',2) + ":" +
-                  String(secFrac).paddedLeft('0',2) + "." + String(msFrac).paddedLeft('0',3);
-	if (editor->acquisitionIsActive)
-	{
-		triggerAsyncUpdate();
-	}
-	else
-	{
-		timeLabel[index]->setText(labelText[index],dontSendNotification);
-	}		
+    labelText[index] = String (hourFrac).paddedLeft ('0', 2)
+                        + ":" + String (minFrac).paddedLeft ('0', 2)
+                        + ":" + String (secFrac).paddedLeft ('0', 2)
+                        + "." + String (msFrac).paddedLeft  ('0', 3);
+
+    if (editor->acquisitionIsActive)
+    {
+        triggerAsyncUpdate();
+    }
+    else
+    {
+        timeLabel[index]->setText (labelText[index], dontSendNotification);
+    }
 }
+
 
 void DualTimeComponent::handleAsyncUpdate()
 {
-	timeLabel[0]->setText(labelText[0],dontSendNotification);
+    timeLabel[0]->setText (labelText[0], dontSendNotification);
 }
 
-unsigned int DualTimeComponent::getTimeMilliseconds(unsigned int index)
+
+unsigned int DualTimeComponent::getTimeMilliseconds (unsigned int index) const
 {
-    if (index > 1) return 0;
+    if (index > 1)
+        return 0;
+
     return msTime[index];
 }
 
-void DualTimeComponent::setEnable(bool enable)
+
+void DualTimeComponent::setEnable (bool enable)
 {
-    timeLabel[0]->setEnabled(enable);
-    timeLabel[1]->setEnabled(enable);
+    timeLabel[0]->setEnabled (enable);
+    timeLabel[1]->setEnabled (enable);
 }
 
-void DualTimeComponent::labelTextChanged(Label* label)
+
+void DualTimeComponent::labelTextChanged (Label* label)
 {
+    const int index = (label == timeLabel[0]) ? 0 : 1;
+
     StringArray elements;
-    unsigned int time;
-    bool res;
-    int index = (label == timeLabel[0]) ? 0 : 1;
+    elements.addTokens (label->getText(), ":.", String::empty);
 
-    elements.addTokens(label->getText(),":.",String::empty);
-    time = elements[0].getIntValue();
-    time = 60*time + elements[1].getIntValue();
-    time = 60*time + elements[2].getIntValue();
-    time = 1000*time + elements[3].getIntValue();
+    unsigned int time = elements[0].getIntValue();
+    time = 60   * time + elements[1].getIntValue();
+    time = 60   * time + elements[2].getIntValue();
+    time = 1000 * time + elements[3].getIntValue();
 
+    bool res = false;
     if (index == 0)
-        res = editor->setPlaybackStartTime(time);
+        res = editor->setPlaybackStartTime (time);
     else
-        res = editor->setPlaybackStopTime(time);
+        res = editor->setPlaybackStopTime (time);
+
     if (res)
-    {
-        setTimeMilliseconds(index,time);
-    }
+        setTimeMilliseconds (index,time);
     else
-    {
-        setTimeMilliseconds(index,getTimeMilliseconds(index));
-    }
+        setTimeMilliseconds (index, getTimeMilliseconds (index));
 }
