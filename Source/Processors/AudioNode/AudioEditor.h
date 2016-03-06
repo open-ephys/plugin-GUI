@@ -37,7 +37,6 @@ class AudioComponent;
 	@see AudioNode, AudioEditor
 
 */
-
 class MuteButton : public ImageButton
 {
 public:
@@ -45,24 +44,29 @@ public:
     ~MuteButton();
 };
 
+
 /**
 	Used to show and hide the AudioConfigurationWindow.
 
 	@see AudioNode, AudioEditor
 
 */
-
 class AudioWindowButton : public Button
 {
 public:
     AudioWindowButton();
     ~AudioWindowButton();
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-    void setText(String);
+
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+    void setText (const String& newText);
+
+
 private:
     Font font;
     String textString;
 };
+
 
 /**
 	Allows the user to access audio output settings.
@@ -70,22 +74,20 @@ private:
 	@see AudioNode, AudioEditor
 
 */
-
 class AudioConfigurationWindow : public DocumentWindow
 {
 public:
-    AudioConfigurationWindow(AudioDeviceManager& adm, AudioWindowButton* b);
+    AudioConfigurationWindow (AudioDeviceManager& adm, AudioWindowButton* b);
     ~AudioConfigurationWindow();
 
-    void paint(Graphics& g);
-    void resized();
+    void paint (Graphics& g)    override;
+    void resized()              override;
+
 
 private:
-
     void closeButtonPressed();
 
     AudioWindowButton* controlButton;
-
 };
 
 /**
@@ -94,49 +96,47 @@ private:
 	@see AudioNode
 
 */
-
-class AudioEditor : public AudioProcessorEditor,
-    public Button::Listener,
-    public Slider::Listener
+class AudioEditor : public AudioProcessorEditor
+                  , public Button::Listener
+                  , public Slider::Listener
 {
 public:
-    AudioEditor(AudioNode* owner);
+    AudioEditor (AudioNode* owner);
     ~AudioEditor();
 
-    void paint(Graphics& g);
-
-    bool keyPressed(const KeyPress& key);
-
-    void resized();
+    void paint (Graphics& g)                override;
+    void resized()                          override;
+    bool keyPressed (const KeyPress& key)   override;
 
     void updateBufferSizeText();
 
     void enable();
     void disable();
 
-    void saveStateToXml(XmlElement* xml);
-    void loadStateFromXml(XmlElement* xml);
+    void saveStateToXml     (XmlElement* xml);
+    void loadStateFromXml   (XmlElement* xml);
+
 
 private:
+    void buttonClicked (Button* buttonThatWasClicked) override;
 
-    void buttonClicked(Button* button);
-    void sliderValueChanged(Slider* slider);
+    void sliderValueChanged (Slider* slider) override;
+
 
     float lastValue;
 
     bool isEnabled;
 
-    MuteButton* muteButton;
-    AudioWindowButton* audioWindowButton;
-    AudioConfigurationWindow* acw;
+    ScopedPointer<MuteButton>           muteButton;
+    ScopedPointer<AudioWindowButton>    audioWindowButton;
 
-    Slider* volumeSlider;
-    Slider* noiseGateSlider;
+    ScopedPointer<AudioConfigurationWindow> audioConfigurationWindow;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioEditor);
+    ScopedPointer<Slider> volumeSlider;
+    ScopedPointer<Slider> noiseGateSlider;
 
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioEditor);
 };
-
 
 
 #endif  // __AUDIOEDITOR_H_9D6F1FC3__
