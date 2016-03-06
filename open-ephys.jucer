@@ -507,6 +507,16 @@
         </GROUP>
       </GROUP>
       <GROUP id="RNGb1yR" name="UI">
+        <GROUP id="{4DEE2319-EFDC-8525-9E6D-CC2453D07E6A}" name="LookAndFeel">
+          <FILE id="kKrq6c" name="MaterialSliderLookAndFeel.cpp" compile="1"
+                resource="0" file="Source/UI/LookAndFeel/MaterialSliderLookAndFeel.cpp"/>
+          <FILE id="IzNTEQ" name="MaterialSliderLookAndFeel.h" compile="0" resource="0"
+                file="Source/UI/LookAndFeel/MaterialSliderLookAndFeel.h"/>
+          <FILE id="mx7gmX" name="CustomLookAndFeel.cpp" compile="1" resource="0"
+                file="Source/UI/LookAndFeel/CustomLookAndFeel.cpp"/>
+          <FILE id="kGrvSy" name="CustomLookAndFeel.h" compile="0" resource="0"
+                file="Source/UI/LookAndFeel/CustomLookAndFeel.h"/>
+        </GROUP>
         <FILE id="gXswXJ" name="CustomArrowButton.cpp" compile="1" resource="0"
               file="Source/UI/CustomArrowButton.cpp"/>
         <FILE id="ECOEoc" name="CustomArrowButton.h" compile="1" resource="0"
@@ -529,10 +539,6 @@
               file="Source/UI/ProcessorList.cpp"/>
         <FILE id="lOTMfMY" name="ProcessorList.h" compile="1" resource="0"
               file="Source/UI/ProcessorList.h"/>
-        <FILE id="sxXKhY" name="CustomLookAndFeel.cpp" compile="1" resource="0"
-              file="Source/UI/CustomLookAndFeel.cpp"/>
-        <FILE id="VLEIXYc" name="CustomLookAndFeel.h" compile="1" resource="0"
-              file="Source/UI/CustomLookAndFeel.h"/>
         <FILE id="MuFSLOI" name="InfoLabel.cpp" compile="1" resource="0" file="Source/UI/InfoLabel.cpp"/>
         <FILE id="aCcIvXz" name="InfoLabel.h" compile="1" resource="0" file="Source/UI/InfoLabel.h"/>
         <FILE id="bWElQSS" name="DataViewport.cpp" compile="1" resource="0"
