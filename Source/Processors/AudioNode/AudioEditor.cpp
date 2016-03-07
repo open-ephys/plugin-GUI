@@ -249,8 +249,6 @@ void AudioEditor::sliderValueChanged (Slider* slider)
 
 void AudioEditor::paint (Graphics& g)
 {
-    g.fillAll (Colours::green);
-
     const int margin = getWidth() * 0.03;
     g.setColour (Colours::lightgrey);
     g.setFont (FONT_LABEL);

@@ -599,45 +599,75 @@ void ControlPanel::paint(Graphics& g)
 
 void ControlPanel::resized()
 {
-    int w = getWidth();
-    int h = 32; //getHeight();
+    const int w = getWidth();
+    const int h = 32; //getHeight();
 
-    if (w > 330)
-    {
-        playButton->setBounds   (w - h * 10,     5, h - 5,       h - 10);
-        recordButton->setBounds (w - h * 9,      5, h - 5,       h - 10);
-        masterClock->setBounds  (w - h * 7 - 15, 0, h * 7 - 15,  h);
-    }
-    else
-    {
-        playButton->setBounds   (5,              5, h - 5,      h - 10);
-        recordButton->setBounds (5 + h,          5, h - 5,      h - 10);
-        masterClock->setBounds  (5 + h * 2 + 15, 0, h * 7 - 15, h);
-    }
-
-    int offset1 = 750 - getWidth();
+    // We have 3 possible layout schemes:
+    // when there are 1, 2 or 3 rows within which our elements are placed.
+    const int twoRowsWidth   = 750;
+    const int threeRowsWidth = 570;
+    int offset1 = twoRowsWidth - getWidth();
     if (offset1 > h)
         offset1 = h;
 
-    int offset2 = 570 - getWidth();
+    int offset2 = threeRowsWidth - getWidth();
     if (offset2 > h)
         offset2 = h;
 
-    if (getWidth() < 750 && getWidth() >= 570)
+    const int currentNumRows = (w < twoRowsWidth && w >= threeRowsWidth - 23)
+                                ? 2
+                                : (w < threeRowsWidth - 23)
+                                    ? 3 : 1;
+
+    // Set positions for CPU and Disk meter components
+    // ====================================================================
+    int meterComponentsY            = h / 4;
+    int meterComponentsWidth        = h * 3;
+    const int meterComponentsHeight = h / 2;
+    const int meterComponentsMargin = 8;
+    switch (currentNumRows)
     {
-        cpuMeter->setBounds  (8,            h /4 + offset1, h * 3, h / 2);
-        diskMeter->setBounds (16 + h * 3,   h /4 + offset1, h * 3, h / 2);
+        case 2:
+            meterComponentsY += offset1;
+            //meterComponentsWidth = w / 2 - meterComponentsMargin * 2 - 12;
+            break;
+
+        case 3:
+            meterComponentsY += offset1 + offset2;
+            //meterComponentsWidth = w / 2 - meterComponentsMargin * 2 - 12;
+            break;
+
+        default:
+            break;
     }
-    else if (getWidth() < 570)
+
+    Rectangle<int> meterBounds (meterComponentsMargin, meterComponentsY, meterComponentsWidth, meterComponentsHeight);
+    cpuMeter->setBounds  (meterBounds);
+    diskMeter->setBounds (meterBounds.translated (meterComponentsWidth + meterComponentsMargin, 0));
+    // ====================================================================
+
+    // Set positions for controls and clock
+    // ====================================================================
+    const int controlButtonWidth    = h - 5;
+    const int controlButtonHeight   = h - 10;
+    const int masterClockWidth      = h * 6 - 10;
+    const int controlsMargin        = 10;
+    const int totalControlsWidth = controlButtonWidth * 2 + controlsMargin + masterClockWidth;
+    if (currentNumRows != 3)
     {
-        cpuMeter->setBounds  (8,          h / 4 + offset1 + offset2, h * 3, h / 2);
-        diskMeter->setBounds (16 + h * 3, h / 4 + offset1 + offset2, h * 3, h / 2);
+        playButton->setBounds   (w - h * 8, 5, controlButtonWidth, controlButtonHeight);
+        recordButton->setBounds (w - h * 7, 5, controlButtonWidth, controlButtonHeight);
+        masterClock->setBounds  (w - masterClockWidth, 0, masterClockWidth,  h);
     }
     else
     {
-        cpuMeter->setBounds  (8,          h / 4, h * 3, h / 2);
-        diskMeter->setBounds (16 + h * 3, h / 4, h * 3, h / 2);
+        const int startX = (w - totalControlsWidth) / 2;
+        playButton->setBounds   (startX,     5, controlButtonWidth, controlButtonHeight);
+        recordButton->setBounds (startX + h, 5, controlButtonWidth, controlButtonHeight);
+        masterClock->setBounds  (startX + h * 2 + controlsMargin * 2, 0, masterClockWidth, h);
     }
+    // ====================================================================
+
 
     if (audioEditor)
     {
@@ -654,8 +684,7 @@ void ControlPanel::resized()
 
         const bool isEnoughSpaceForFullSize = maxAvailableWidthForEditor >= SIZE_AUDIO_EDITOR_MAX_WIDTH;
 
-        const int rowIndex = (! isThereElementOnLeft && isSecondRowAvailable) ? 1 : 0;
-
+        const int rowIndex    = (isSecondRowAvailable) ? 1 : 0;
         const int editorWidth = isEnoughSpaceForFullSize
                                  ? SIZE_AUDIO_EDITOR_MAX_WIDTH
                                  : maxAvailableWidthForEditor * 0.95;
@@ -665,57 +694,56 @@ void ControlPanel::resized()
                                         ? leftElementWidth + (maxAvailableWidthForEditor - editorWidth) / 2
                                         : (maxAvailableWidthForEditor - editorWidth) / 2;
         const int editorY     = (rowIndex == 0 ) ? 0 : offset1;
+
         audioEditor->setBounds (editorX, editorY, editorWidth, h);
     }
 
 
     if (open)
-        cpb->setBounds(w-28,getHeight()-5-h*2+10,h-10,h-10);
+        cpb->setBounds (w - 28, getHeight() - 5 - h * 2 + 10, h - 10, h - 10);
     else
-        cpb->setBounds(w-28,getHeight()-5-h+10,h-10,h-10);
+        cpb->setBounds (w - 28, getHeight() - 5 - h + 10, h - 10, h - 10);
 
     createPaths();
 
     if (open)
     {
-        int topBound = getHeight()-h+10-5;
+        int topBound = getHeight() - h + 10 - 5;
 
-        recordSelector->setBounds((w - 435) > 40 ? 35 : w-450, topBound, 100, h-10);
-        recordSelector->setVisible(true);
+        recordSelector->setBounds ( (w - 435) > 40 ? 35 : w - 450, topBound, 100, h - 10);
+        recordSelector->setVisible (true);
 
-        recordOptionsButton->setBounds((w - 435) > 40 ? 140 : w-350,topBound, h-10, h-10);
-        recordOptionsButton->setVisible(true);
+        recordOptionsButton->setBounds ( (w - 435) > 40 ? 140 : w - 350, topBound, h - 10, h - 10);
+        recordOptionsButton->setVisible (true);
 
-        filenameComponent->setBounds(165, topBound, w-500, h-10);
-        filenameComponent->setVisible(true);
+        filenameComponent->setBounds (165, topBound, w - 500, h - 10);
+        filenameComponent->setVisible (true);
 
-        newDirectoryButton->setBounds(w-h+4, topBound, h-10, h-10);
-        newDirectoryButton->setVisible(true);
+        newDirectoryButton->setBounds (w - h + 4, topBound, h - 10, h - 10);
+        newDirectoryButton->setVisible (true);
 
-        prependText->setBounds(165+w-490, topBound, 50, h-10);
-        prependText->setVisible(true);
+        prependText->setBounds (165 + w - 490, topBound, 50, h - 10);
+        prependText->setVisible (true);
 
-        dateText->setBounds(165+w-435, topBound, 175, h-10);
-        dateText->setVisible(true);
+        dateText->setBounds (165 + w - 435, topBound, 175, h - 10);
+        dateText->setVisible (true);
 
-        appendText->setBounds(165+w-255, topBound, 50, h-10);
-        appendText->setVisible(true);
+        appendText->setBounds (165 + w - 255, topBound, 50, h - 10);
+        appendText->setVisible (true);
 
     }
     else
     {
-        filenameComponent->setVisible(false);
-        newDirectoryButton->setVisible(false);
-        prependText->setVisible(false);
-        dateText->setVisible(false);
-        appendText->setVisible(false);
-        recordSelector->setVisible(false);
-        recordOptionsButton->setVisible(false);
+        filenameComponent->setVisible   (false);
+        newDirectoryButton->setVisible  (false);
+        prependText->setVisible         (false);
+        dateText->setVisible            (false);
+        appendText->setVisible          (false);
+        recordSelector->setVisible      (false);
+        recordOptionsButton->setVisible (false);
     }
 
     repaint();
-
-
 }
 
 void ControlPanel::openState(bool os)
